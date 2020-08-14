@@ -13,13 +13,13 @@
 #include <pasta/Util/ArgumentVector.h>
 #include <pasta/Util/FileSystem.h>
 
-#include "Compiler.h"
-#include "Host.h"
-
 #include <cassert>
 #include <cstring>
 #include <sstream>
 #include <system_error>
+
+#include "Compiler.h"
+#include "Host.h"
 
 namespace pasta {
 namespace {
@@ -76,7 +76,7 @@ static void ParseClangResourceDir(CompilerImpl &info, llvm::StringRef line,
 // Try to parse the system root directory out of the compiler's output. This
 // only really works for Clang-based compilers.
 static void ParseClangSysroot(CompilerImpl &info, llvm::StringRef line,
-                                  std::filesystem::path working_dir) {
+                              std::filesystem::path working_dir) {
   const auto pos = line.find("-isysroot");
   if (std::string::npos == pos) {
     return;
@@ -114,7 +114,7 @@ static void ParseOutputInto(std::stringstream &ss, CompilerImpl &info,
     kInSystemIncludeList,
   } state = kUnknown;
 
-  for (std::string line_; std::getline(ss, line_); ) {
+  for (std::string line_; std::getline(ss, line_);) {
     llvm::StringRef line(line_);
 
     ParseClangResourceDir(info, line, working_dir);
@@ -147,13 +147,15 @@ static void ParseOutputInto(std::stringstream &ss, CompilerImpl &info,
         is_framework = true;
       }
 
-#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-# error "Add compiler info resolution support for Windows"
+#if defined(WIN32) || defined(_WIN32) || \
+    defined(__WIN32) && !defined(__CYGWIN__)
+#  error "Add compiler info resolution support for Windows"
 #endif
 
       auto path = AbsolutePath(line.substr(1).str(), working_dir);
 
       if (!std::filesystem::is_directory(path)) {
+
         // Silently ignore non-existant directories.
         continue;
       }
@@ -263,14 +265,15 @@ llvm::Expected<Compiler> Compiler::CreateHostCompiler(TargetLanguage lang) {
 //
 // NOTE(pag): The `working_dir` is the directory in which the compiler
 //            invocation was made.
-llvm::Expected<Compiler> Compiler::Create(
-    CompilerName name, TargetLanguage lang,
-    std::string_view compiler_path_, std::string_view version_info,
-    std::string_view compiler_working_dir) {
+llvm::Expected<Compiler>
+Compiler::Create(CompilerName name, TargetLanguage lang,
+                 std::string_view compiler_path_, std::string_view version_info,
+                 std::string_view compiler_working_dir) {
 
   // Fix it up, just in case.
   if (CompilerName::kClang == name &&
-      strstr(version_info.data(), "Apple clang version") == version_info.data()) {
+      strstr(version_info.data(), "Apple clang version") ==
+          version_info.data()) {
     name = CompilerName::kAppleClang;
   }
 
@@ -286,12 +289,11 @@ llvm::Expected<Compiler> Compiler::Create(
   if (!std::filesystem::exists(compiler_path)) {
     return llvm::createStringError(
         std::make_error_code(std::errc::executable_format_error),
-        "Invalid compiler path: %s",
-        compiler_path_.data());
+        "Invalid compiler path: %s", compiler_path_.data());
   }
 
-  std::unique_ptr<CompilerImpl> impl(new CompilerImpl(
-      name, lang, CanonicalPath(compiler_path).string()));
+  std::unique_ptr<CompilerImpl> impl(
+      new CompilerImpl(name, lang, CanonicalPath(compiler_path).string()));
 
   std::stringstream ss;
   ss << version_info;

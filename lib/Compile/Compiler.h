@@ -15,8 +15,7 @@ namespace pasta {
 
 class CompilerImpl {
  public:
-  inline CompilerImpl(CompilerName compiler_name_,
-                      TargetLanguage target_lang_,
+  inline CompilerImpl(CompilerName compiler_name_, TargetLanguage target_lang_,
                       std::string_view compiler_exe_)
       : compiler_name(compiler_name_),
         target_lang(target_lang_),

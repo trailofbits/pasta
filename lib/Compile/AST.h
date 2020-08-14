@@ -6,6 +6,4 @@
 
 #include <pasta/Compile/AST.h>
 
-namespace pasta {
-
-}  // namespace pasta
+namespace pasta {}  // namespace pasta

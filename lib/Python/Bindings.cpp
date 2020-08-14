@@ -3,8 +3,9 @@
  */
 
 #
-#include <string>
 #include <pasta/Python/Bindings.h>
+
+#include <string>
 
 namespace pasta {
 namespace py {
@@ -44,8 +45,8 @@ PyObject *FromU64(uint64_t v) {
 
 PyObject *FromStdStr(const std::string &s) {
   PyErr_Clear();
-  auto ret = ::PyUnicode_DecodeUTF8(
-      s.data(), static_cast<Py_ssize_t>(s.size()), nullptr);
+  auto ret = ::PyUnicode_DecodeUTF8(s.data(), static_cast<Py_ssize_t>(s.size()),
+                                    nullptr);
   if (ret && !PyErr_Occurred()) {
     return ret;
   }
@@ -61,8 +62,8 @@ PyObject *FromStdStr(const std::string &s) {
   }
 
   PyErr_Clear();
-  ret = PyUnicode_DecodeLatin1(
-      s.data(), static_cast<Py_ssize_t>(s.size()), nullptr);
+  ret = PyUnicode_DecodeLatin1(s.data(), static_cast<Py_ssize_t>(s.size()),
+                               nullptr);
 
   if (ret && !PyErr_Occurred()) {
     auto new_ret = PyUnicode_AsUTF8String(ret);

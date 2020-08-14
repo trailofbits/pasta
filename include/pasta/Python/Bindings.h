@@ -19,7 +19,7 @@
 #pragma clang diagnostic pop
 
 #if PY_MAJOR_VERSION < 3
-# error "Minimum Python version is 3.0"
+#  error "Minimum Python version is 3.0"
 #endif
 
 namespace pasta {
@@ -105,8 +105,7 @@ class NativeXPython<std::string> {
 
 class PythonErrorStreamer {
  public:
-  explicit PythonErrorStreamer(PyObject *exc_)
-      : exc(exc_) {}
+  explicit PythonErrorStreamer(PyObject *exc_) : exc(exc_) {}
 
   ~PythonErrorStreamer(void);
 
@@ -119,7 +118,7 @@ class PythonErrorStreamer {
  private:
   PythonErrorStreamer(void) = delete;
 
-  PyObject * const exc;
+  PyObject *const exc;
   std::stringstream ss;
 };
 
@@ -140,26 +139,21 @@ class SharedPythonPtr {
     Py_XDECREF(obj);
   }
 
-  SharedPythonPtr(void)
-      : obj(nullptr) {}
+  SharedPythonPtr(void) : obj(nullptr) {}
 
-  SharedPythonPtr(std::nullptr_t)
-      : obj(nullptr) {}
+  SharedPythonPtr(std::nullptr_t) : obj(nullptr) {}
 
-  SharedPythonPtr(T *that)
-      : obj(that) {
+  SharedPythonPtr(T *that) : obj(that) {
     Py_XINCREF(obj);
   }
 
   template <typename D>
-  SharedPythonPtr(D *that)
-      : obj(reinterpret_cast<T *>(that)) {
+  SharedPythonPtr(D *that) : obj(reinterpret_cast<T *>(that)) {
     Py_XINCREF(obj);
     static_assert(std::is_convertible_v<D *, T *>);
   }
 
-  SharedPythonPtr(const SharedPythonPtr<T> &that)
-      : obj(that.obj) {
+  SharedPythonPtr(const SharedPythonPtr<T> &that) : obj(that.obj) {
     Py_XINCREF(obj);
   }
 
@@ -170,8 +164,7 @@ class SharedPythonPtr {
     Py_XINCREF(obj);
   }
 
-  SharedPythonPtr(SharedPythonPtr<T> &&that) noexcept
-      : obj(that.obj) {
+  SharedPythonPtr(SharedPythonPtr<T> &&that) noexcept : obj(that.obj) {
     that.obj = nullptr;
   }
 
@@ -285,26 +278,20 @@ class BorrowedPythonPtr {
 
   ~BorrowedPythonPtr(void) {}
 
-  BorrowedPythonPtr(void)
-      : obj(nullptr) {}
+  BorrowedPythonPtr(void) : obj(nullptr) {}
 
-  BorrowedPythonPtr(std::nullptr_t)
-      : obj(nullptr) {}
+  BorrowedPythonPtr(std::nullptr_t) : obj(nullptr) {}
 
-  BorrowedPythonPtr(T *that)
-      : obj(that) {}
+  BorrowedPythonPtr(T *that) : obj(that) {}
 
   template <typename D>
-  BorrowedPythonPtr(D *that)
-      : obj(reinterpret_cast<T *>(that)) {
+  BorrowedPythonPtr(D *that) : obj(reinterpret_cast<T *>(that)) {
     static_assert(std::is_convertible_v<D *, T *>);
   }
 
-  BorrowedPythonPtr(BorrowedPythonPtr<T> &&that) noexcept
-      : obj(that.obj) {}
+  BorrowedPythonPtr(BorrowedPythonPtr<T> &&that) noexcept : obj(that.obj) {}
 
-  BorrowedPythonPtr(const BorrowedPythonPtr<T> &that)
-      : obj(that.obj) {}
+  BorrowedPythonPtr(const BorrowedPythonPtr<T> &that) : obj(that.obj) {}
 
   template <typename D>
   BorrowedPythonPtr(BorrowedPythonPtr<D> &&that) noexcept
@@ -381,7 +368,8 @@ template <typename T>
 static constexpr bool kIsBorrowedPythonPtr<BorrowedPythonPtr<T> &&> = true;
 
 template <typename T>
-static constexpr bool kIsBorrowedPythonPtr<T *> = std::is_convertible_v<T *, PyObject *>;
+static constexpr bool kIsBorrowedPythonPtr<T *> =
+    std::is_convertible_v<T *, PyObject *>;
 
 inline static PyObject *ReleaseBorrowedPythonPtr(PyObject *ptr) {
   return ptr;
@@ -415,14 +403,13 @@ class PythonObject : public PythonObjectBase {
 
   // Used to heap allocate a Python object.
   template <typename... Args>
-  static BorrowedPythonPtr<T> New(Args&&... args);
+  static BorrowedPythonPtr<T> New(Args &&... args);
 
   void operator delete(void *self);
 
   static PyTypeObject gType;
 
  protected:
-
   // Implements the `__init__` method. This calls `T`s constructor.
   static int PyInit(PyObject *self_, PyObject *args, PyObject *kargs);
   static PyObject *PyAlloc(PyTypeObject *type, Py_ssize_t num_items);
@@ -434,13 +421,13 @@ template <typename T>
 PyTypeObject PythonObject<T>::gType = {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wc99-extensions"
-  .tp_basicsize = sizeof(T),
-  .tp_init = PyInit,
-  .tp_alloc = PyAlloc,
-  .tp_new = PyNew,
-  .tp_dealloc = PyDealloc,
-  .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
-  .tp_base = &PyBaseObject_Type
+    .tp_basicsize = sizeof(T),
+    .tp_init = PyInit,
+    .tp_alloc = PyAlloc,
+    .tp_new = PyNew,
+    .tp_dealloc = PyDealloc,
+    .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
+    .tp_base = &PyBaseObject_Type
 #pragma clang diagnostic pop
 };
 
@@ -507,31 +494,26 @@ class PythonArg {
     Reset();
   }
 
-  PythonArg(const SelfType &that)
-      : owned_pimpl(nullptr),
-        pimpl(that.pimpl) {}
+  PythonArg(const SelfType &that) : owned_pimpl(nullptr), pimpl(that.pimpl) {}
 
   PythonArg(SelfType &&that) noexcept
-      : owned_pimpl(that.owned_pimpl ? new (impl) T(std::move(*(that.owned_pimpl)))
+      : owned_pimpl(that.owned_pimpl ? new (impl)
+                                           T(std::move(*(that.owned_pimpl)))
                                      : nullptr),
         pimpl(that.owned_pimpl ? owned_pimpl : that.pimpl) {
     that.Reset();
   }
 
-  PythonArg(T &val)
-      : owned_pimpl(nullptr),
-        pimpl(&val) {}
+  PythonArg(T &val) : owned_pimpl(nullptr), pimpl(&val) {}
 
-  PythonArg(const T &val)
-      : owned_pimpl(nullptr),
-        pimpl(&val) {}
+  PythonArg(const T &val) : owned_pimpl(nullptr), pimpl(&val) {}
 
   PythonArg(T &&val) noexcept
       : owned_pimpl(new (impl) T(std::forward<T>(val))),
         pimpl(owned_pimpl) {}
 
   template <typename... Args>
-  PythonArg(Args&&... args)
+  PythonArg(Args &&... args)
       : owned_pimpl(new (impl) T(std::forward<Args>(args)...)),
         pimpl(owned_pimpl) {}
 
@@ -613,13 +595,15 @@ const T PythonArg<T>::kDefaultVal = {};
 
 namespace detail {
 
-template<size_t N>
-struct num { static const constexpr auto value = N; };
+template <size_t N>
+struct num {
+  static const constexpr auto value = N;
+};
 
 template <class F, size_t... Is>
 inline void for_(F func, std::index_sequence<Is...>) {
   using expander = int[];
-  (void) expander{0, ((void)func(num<Is>{}), 0)...};
+  (void) expander{0, ((void) func(num<Is>{}), 0)...};
 }
 
 template <size_t N, typename F>
@@ -644,7 +628,7 @@ static bool TryParsePythonArguments(PyObject *args, PyObject *kargs,
   const auto max_num_positionals = static_cast<int>(sizeof...(Args));
 
   // Figure out the minimum number of positional arguments needed.
-  detail::for_<sizeof...(Args)>([&] (auto i) {
+  detail::for_<sizeof...(Args)>([&](auto i) {
     auto &arg_spec = std::get<i.value>(parsed_args);
     if (!arg_spec.Keyword()) {
       ++min_num_positionals;
@@ -662,24 +646,26 @@ static bool TryParsePythonArguments(PyObject *args, PyObject *kargs,
     num_kwargs = static_cast<int>(PyDict_Size(kargs));
     if (num_kwargs > max_num_kwargs) {
       PyErr_Format(
-          PyExc_TypeError, "Too many keyword arguments passed to %s.%s(); got %d, expected at most %d",
-          Details::kClassName, Details::kMethodName, num_kwargs, max_num_kwargs);
+          PyExc_TypeError,
+          "Too many keyword arguments passed to %s.%s(); got %d, expected at most %d",
+          Details::kClassName, Details::kMethodName, num_kwargs,
+          max_num_kwargs);
       return false;
     }
 
     while (PyDict_Next(kargs, &i, &karg_key, &karg_value)) {
       if (!PyUnicode_Check(karg_key)) {
-        PyErr_Format(
-            PyExc_TypeError, "%s.%s() passed non-string keyword argument key",
-            Details::kClassName, Details::kMethodName);
+        PyErr_Format(PyExc_TypeError,
+                     "%s.%s() passed non-string keyword argument key",
+                     Details::kClassName, Details::kMethodName);
         return false;
       }
 
       auto utf8 = PyUnicode_AsUTF8String(karg_key);
       if (!utf8) {
-        PyErr_Format(
-            PyExc_TypeError, "%s.%s() passed non-utf8 keyword argument key",
-            Details::kClassName, Details::kMethodName);
+        PyErr_Format(PyExc_TypeError,
+                     "%s.%s() passed non-utf8 keyword argument key",
+                     Details::kClassName, Details::kMethodName);
         return false;
       }
 
@@ -692,11 +678,12 @@ static bool TryParsePythonArguments(PyObject *args, PyObject *kargs,
 
       // Go see if we can find this keyword argument in our argument list.
       auto found = false;
-      detail::for_<sizeof...(Args)>([&] (auto i) {
+      detail::for_<sizeof...(Args)>([&](auto i) {
         if (!py_args[i.value]) {
           auto &arg_spec = std::get<i.value>(parsed_args);
           if (const char *kw = arg_spec.Keyword()) {
-            if (!strncmp(kw, karg_key_data, static_cast<size_t>(karg_key_size))) {
+            if (!strncmp(kw, karg_key_data,
+                         static_cast<size_t>(karg_key_size))) {
               py_args[i.value] = karg_value;
               found = true;
             }
@@ -705,9 +692,9 @@ static bool TryParsePythonArguments(PyObject *args, PyObject *kargs,
       });
 
       if (max_num_kwargs && !found) {
-        PyErr_Format(
-            PyExc_TypeError, "'%s' is an invalid keyword argument for %s.%s()",
-            karg_key_data, Details::kClassName, Details::kMethodName);
+        PyErr_Format(PyExc_TypeError,
+                     "'%s' is an invalid keyword argument for %s.%s()",
+                     karg_key_data, Details::kClassName, Details::kMethodName);
         Py_DECREF(utf8);
         return false;
       }
@@ -732,7 +719,7 @@ static bool TryParsePythonArguments(PyObject *args, PyObject *kargs,
         return false;
       }
 
-      detail::for_<sizeof...(Args)>([&] (auto i) {
+      detail::for_<sizeof...(Args)>([&](auto i) {
         if (!py_args[i.value]) {
           if (auto arg_val = PyTuple_GetItem(args, j++)) {
             py_args[i.value] = arg_val;
@@ -747,23 +734,23 @@ static bool TryParsePythonArguments(PyObject *args, PyObject *kargs,
 
   // Next, make sure that all positionals are covered.
   if (num_positionals < min_num_positionals) {
-    PyErr_Format(
-        PyExc_TypeError, "%s.%s() expected at least %d positional arguments; got %d",
-        Details::kClassName, Details::kMethodName, min_num_positionals,
-        num_positionals);
+    PyErr_Format(PyExc_TypeError,
+                 "%s.%s() expected at least %d positional arguments; got %d",
+                 Details::kClassName, Details::kMethodName, min_num_positionals,
+                 num_positionals);
     return false;
   }
 
   // Now try to parse each argument, and error out on the first issue.
   auto error = false;
-  detail::for_<sizeof...(Args)>([&] (auto i) {
+  detail::for_<sizeof...(Args)>([&](auto i) {
     auto &arg_parser = std::get<i.value>(parsed_args);
     if (!error && py_args[i.value] && !arg_parser.Parse(py_args[i.value])) {
       PyErr_Clear();
-      PyErr_Format(
-          PyExc_TypeError, "Invalid type '%s' passed to argument %s of method %s.%s()",
-          _PyType_Name(py_args[i.value]->ob_type), arg_parser.Name(),
-          Details::kClassName, Details::kMethodName);
+      PyErr_Format(PyExc_TypeError,
+                   "Invalid type '%s' passed to argument %s of method %s.%s()",
+                   _PyType_Name(py_args[i.value]->ob_type), arg_parser.Name(),
+                   Details::kClassName, Details::kMethodName);
       error = true;
     }
   });
@@ -779,16 +766,14 @@ class PythonMethodWrapper {
                                 PyObject *kwargs) {
     if (!PyObject_TypeCheck(self_, &T::gType)) {
       PyErr_Format(
-          PyExc_TypeError,
-          "Cannot call method %s.%s() with object of type %s",
-          Details::kClassName, Details::kMethodName,
-          self_->ob_type->tp_name);
+          PyExc_TypeError, "Cannot call method %s.%s() with object of type %s",
+          Details::kClassName, Details::kMethodName, self_->ob_type->tp_name);
     }
 
     auto self = reinterpret_cast<T *>(self_);
     auto ret = Py_None;
 
-    auto callable = [self] (Args... args) -> Ret {
+    auto callable = [self](Args... args) -> Ret {
       const auto method_ptr = Details::MethodPointer();
       return (self->*method_ptr)(std::forward<Args>(args)...);
     };
@@ -906,7 +891,7 @@ void PythonObject<T>::operator delete(void *self) {
 // Used to heap allocate a Python object.
 template <typename T>
 template <typename... Args>
-BorrowedPythonPtr<T> PythonObject<T>::New(Args&&... args) {
+BorrowedPythonPtr<T> PythonObject<T>::New(Args &&... args) {
   auto self = PyAlloc(&T::gType, 0);
   uint8_t stashed_head[sizeof(PythonObjectBase)];
   memcpy(&(stashed_head), self, sizeof(stashed_head));
@@ -924,49 +909,61 @@ BorrowedPythonPtr<T> PythonObject<T>::New(Args&&... args) {
 // the `self` pointer to the correct type then invoke the method. We create
 // tag type in place to make sure each method is given its own dispatcher.
 #define DEFINE_PYTHON_METHOD(class, method, py_method) \
-  struct py_method ## _details { \
-    static constexpr char kClassName[] = #class ; \
-    static constexpr char kMethodName[] = #py_method ; \
-    static auto MethodPointer(void) -> decltype(&class::method) { \
-      return &class::method ; \
+  struct py_method##_details { \
+    static constexpr char kClassName[] = #class; \
+    static constexpr char kMethodName[] = #py_method; \
+    static auto MethodPointer(void) -> decltype(&class ::method) { \
+      return &class ::method; \
     } \
   }; \
   static constexpr auto py_method = \
-      PythonMethod<py_method ## _details>(&class::method)
+      PythonMethod<py_method##_details>(&class ::method)
 
 #define PYTHON_METHOD(py_method, doc) \
-    { #py_method , reinterpret_cast<PyCFunction>(py_method), \
-      (METH_VARARGS | METH_KEYWORDS), doc }
+  { \
+#    py_method, reinterpret_cast < PyCFunction>(py_method), \
+        (METH_VARARGS | METH_KEYWORDS), doc \
+  }
 
-#define PYTHON_METHOD_SENTINEL {nullptr, nullptr, 0, nullptr}
+#define PYTHON_METHOD_SENTINEL \
+  { nullptr, nullptr, 0, nullptr }
 
 #define DEFINE_PYTHON_ARG(name, ...) \
-    struct name ## _arg : public PythonArg<__VA_ARGS__> { \
-      using PythonArg<__VA_ARGS__>::PythonArg; \
-      static const char *Name(void) { return #name ; } \
-      static const char *Keyword(void) { return nullptr ; } \
-    }
+  struct name##_arg : public PythonArg<__VA_ARGS__> { \
+    using PythonArg<__VA_ARGS__>::PythonArg; \
+    static const char *Name(void) { \
+      return #name; \
+    } \
+    static const char *Keyword(void) { \
+      return nullptr; \
+    } \
+  }
 
 #define DEFINE_PYTHON_KWARG(name, ...) \
-    struct name ## _kwarg : public PythonArg<__VA_ARGS__> { \
-      using PythonArg<__VA_ARGS__>::PythonArg; \
-      static const char *Name(void) { return #name ; } \
-      static const char *Keyword(void) { return #name ; } \
-    }
+  struct name##_kwarg : public PythonArg<__VA_ARGS__> { \
+    using PythonArg<__VA_ARGS__>::PythonArg; \
+    static const char *Name(void) { \
+      return #name; \
+    } \
+    static const char *Keyword(void) { \
+      return #name; \
+    } \
+  }
 
 template <typename Constructor, typename TypeToConstruct,
           typename... ConstructorArgs>
 class ConstructorInvoker {
  public:
   // Super sketchy ;-)
-  void Invoke(ConstructorArgs&&... args) {
+  void Invoke(ConstructorArgs &&... args) {
     new (this) TypeToConstruct(std::forward<ConstructorArgs>(args)...);
   }
 };
 
 template <typename Details, typename BaseType, typename... ConstructorArgs>
 class PythonConstructorWrapper
-    : public PythonMethodWrapper<Details, void, BaseType, ConstructorArgs...> {};
+    : public PythonMethodWrapper<Details, void, BaseType, ConstructorArgs...> {
+};
 
 // Return the pointer to the static dispatcher, and ensure that the dispatcher's
 // `gMethod` static field is initialized.
@@ -976,31 +973,36 @@ static constexpr PythonMethodType *PythonConstructor(void (*)(Args...)) {
   return &Wrapper::StaticMethod;
 }
 
-template <typename Constructor, typename TypeToConstruct, typename... ConstructorArgs>
-inline static ConstructorInvoker<Constructor, TypeToConstruct, ConstructorArgs...>
+template <typename Constructor, typename TypeToConstruct,
+          typename... ConstructorArgs>
+inline static ConstructorInvoker<Constructor, TypeToConstruct,
+                                 ConstructorArgs...>
 ConstructorInvokerType(void (*)(ConstructorArgs...));
 
 template <typename BaseType, typename T, typename... Args>
-auto RebasePythonConstructorMethodPointer(void (T::*method_ptr)(Args...)) -> void (BaseType::*)(Args...) {
+auto RebasePythonConstructorMethodPointer(void (T::*method_ptr)(Args...))
+    -> void (BaseType::*)(Args...) {
   return reinterpret_cast<void (BaseType::*)(Args...)>(method_ptr);
 }
 
 #define DEFINE_PYTHON_CONSTRUCTOR(type, ...) \
-    struct Constructor { \
-      static void Prototype(__VA_ARGS__) {} \
-    }; \
-    using CIT = decltype(ConstructorInvokerType<Constructor, type>( \
-        Constructor::Prototype)); \
-    struct ConstructorDetails { \
-      static constexpr char kClassName[] = #type ; \
-      static constexpr char kMethodName[] = "__init__" ; \
-      static constexpr auto kMethodPtr = &CIT::Invoke; \
-      static auto MethodPointer(void) -> decltype(RebasePythonConstructorMethodPointer<type>(&CIT::Invoke)) { \
-        return RebasePythonConstructorMethodPointer<type>(&CIT::Invoke) ; \
-      } \
-    }; \
-    static constexpr auto __init__ = PythonConstructor<ConstructorDetails, type>(&Constructor::Prototype); \
-    type(__VA_ARGS__)
+  struct Constructor { \
+    static void Prototype(__VA_ARGS__) {} \
+  }; \
+  using CIT = decltype( \
+      ConstructorInvokerType<Constructor, type>(Constructor::Prototype)); \
+  struct ConstructorDetails { \
+    static constexpr char kClassName[] = #type; \
+    static constexpr char kMethodName[] = "__init__"; \
+    static constexpr auto kMethodPtr = &CIT::Invoke; \
+    static auto MethodPointer(void) -> decltype( \
+        RebasePythonConstructorMethodPointer<type>(&CIT::Invoke)) { \
+      return RebasePythonConstructorMethodPointer<type>(&CIT::Invoke); \
+    } \
+  }; \
+  static constexpr auto __init__ = \
+      PythonConstructor<ConstructorDetails, type>(&Constructor::Prototype); \
+  type(__VA_ARGS__)
 
 }  // namespace py
 }  // namespace pasta

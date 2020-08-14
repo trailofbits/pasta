@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include <memory>
-#include <string_view>
-
 #include <pasta/Compile/AST.h>
 #include <pasta/Util/Error.h>
+
+#include <memory>
+#include <string_view>
 
 namespace clang {
 class FrontendInputFile;
@@ -26,10 +26,7 @@ enum class CompilerName : unsigned {
   kCL
 };
 
-enum class TargetLanguage : unsigned {
-  kC,
-  kCXX
-};
+enum class TargetLanguage : unsigned { kC, kCXX };
 
 class CompileCommand;
 class CompileJob;
@@ -50,10 +47,9 @@ class Compiler {
   //
   // NOTE(pag): The `working_dir` is the directory in which the compiler
   //            invocation was made.
-  static llvm::Expected<Compiler> Create(
-      CompilerName name, TargetLanguage lang,
-      std::string_view compiler_path, std::string_view version_info,
-      std::string_view working_dir);
+  static llvm::Expected<Compiler>
+  Create(CompilerName name, TargetLanguage lang, std::string_view compiler_path,
+         std::string_view version_info, std::string_view working_dir);
 
   // Run a backend compilation job and returns the AST or the first error.
   llvm::Expected<AST> Run(const CompileJob &job) const;

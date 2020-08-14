@@ -4,9 +4,9 @@
 
 #include "Command.h"
 
-#include <filesystem>
-
 #include <pasta/Util/JSON.h>
+
+#include <filesystem>
 
 #include "Compiler.h"
 #include "Job.h"
@@ -15,13 +15,12 @@ namespace pasta {
 
 CompileCommand::~CompileCommand(void) {}
 
-CompileCommand::CompileCommand(CompileCommandImpl *impl_)
-    : impl(impl_) {}
+CompileCommand::CompileCommand(CompileCommandImpl *impl_) : impl(impl_) {}
 
 // Create a compile command from a JSON object. This JSON should come from
 // a proper compile_commands.json compilation database.
-llvm::Expected<CompileCommand> CompileCommand::CreateOneFromJSON(
-    const llvm::json::Object &obj) {
+llvm::Expected<CompileCommand>
+CompileCommand::CreateOneFromJSON(const llvm::json::Object &obj) {
   auto maybe_command = obj.getString("command");
 
   if (!maybe_command) {
@@ -37,14 +36,14 @@ llvm::Expected<CompileCommand> CompileCommand::CreateOneFromJSON(
         "Missing or non-string 'directory' field in JSON object");
   }
 
-  return CompileCommand(new CompileCommandImpl(
-      maybe_command->str(), maybe_dir->str()));
+  return CompileCommand(
+      new CompileCommandImpl(maybe_command->str(), maybe_dir->str()));
 }
 
 // Create zero or more compile commands from an array of JSON objects. This
 // JSON should come from a proper compile_commands.json compilation database.
-std::vector<llvm::Expected<CompileCommand>> CompileCommand::CreateManyFromJSON(
-    const llvm::json::Array &array) {
+std::vector<llvm::Expected<CompileCommand>>
+CompileCommand::CreateManyFromJSON(const llvm::json::Array &array) {
   std::vector<llvm::Expected<CompileCommand>> commands;
   for (const auto &elem : array) {
     if (auto obj = elem.getAsObject(); obj) {
@@ -64,9 +63,10 @@ std::vector<llvm::Expected<CompileCommand>> CompileCommand::CreateManyFromJSON(
 // against this (pasta) library may not match up perfectly with the compiler
 // used to compile this library, and so we ideally want to produce compilation
 // commands that are going to find the "expected" incldue files/directories.
-llvm::Expected<CompileCommand> CompileCommand::CreateOneForFile(
-    const Compiler &compiler, std::string_view file_name,
-    std::string_view working_dir) {
+llvm::Expected<CompileCommand>
+CompileCommand::CreateOneForFile(const Compiler &compiler,
+                                 std::string_view file_name,
+                                 std::string_view working_dir) {
 
   if (file_name.empty()) {
     return llvm::createStringError(
@@ -84,33 +84,21 @@ llvm::Expected<CompileCommand> CompileCommand::CreateOneForFile(
       case CompilerName::kAppleClang:
       case CompilerName::kClang:
         switch (info.target_lang) {
-          case TargetLanguage::kC:
-            argv.emplace_back("clang");
-            break;
-          case TargetLanguage::kCXX:
-            argv.emplace_back("clang++");
-            break;
+          case TargetLanguage::kC: argv.emplace_back("clang"); break;
+          case TargetLanguage::kCXX: argv.emplace_back("clang++"); break;
         }
         break;
       case CompilerName::kGNU:
       case CompilerName::kMinGW:
         switch (info.target_lang) {
-          case TargetLanguage::kC:
-            argv.emplace_back("gcc");
-            break;
-          case TargetLanguage::kCXX:
-            argv.emplace_back("g++");
-            break;
+          case TargetLanguage::kC: argv.emplace_back("gcc"); break;
+          case TargetLanguage::kCXX: argv.emplace_back("g++"); break;
         }
         break;
       default:
         switch (info.target_lang) {
-          case TargetLanguage::kC:
-            argv.emplace_back("cc");
-            break;
-          case TargetLanguage::kCXX:
-            argv.emplace_back("c++");
-            break;
+          case TargetLanguage::kC: argv.emplace_back("cc"); break;
+          case TargetLanguage::kCXX: argv.emplace_back("c++"); break;
         }
     }
 
@@ -150,8 +138,7 @@ llvm::Expected<CompileCommand> CompileCommand::CreateOneForFile(
       case CompilerName::kClangCL:  // TODO(pag): Probably wrong.
         opt_name = "-resource-dir";
         break;
-      default:
-        break;
+      default: break;
     }
 
     argv.emplace_back(opt_name);
@@ -194,8 +181,9 @@ llvm::Expected<CompileCommand> CompileCommand::CreateOneForFile(
 }
 
 // Create a compile command for a single file in a working directory.
-llvm::Expected<CompileCommand> CompileCommand::CreateFromArguments(
-    const ArgumentVector &argv, std::string_view working_dir) {
+llvm::Expected<CompileCommand>
+CompileCommand::CreateFromArguments(const ArgumentVector &argv,
+                                    std::string_view working_dir) {
   return CompileCommand(new CompileCommandImpl(argv, working_dir));
 }
 
@@ -209,4 +197,4 @@ std::string_view CompileCommand::WorkingDirectory(void) const {
   return impl->working_dir;
 }
 
-}  // namspace pasta
+}  // namespace pasta

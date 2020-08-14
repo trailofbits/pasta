@@ -4,11 +4,11 @@
 
 #pragma once
 
+#include <pasta/Util/Error.h>
+
 #include <memory>
 #include <string_view>
 #include <vector>
-
-#include <pasta/Util/Error.h>
 
 #include "Job.h"
 
@@ -33,22 +33,22 @@ class CompileCommand {
 
   // Create a compile command from a JSON object. This JSON should come from
   // a proper compile_commands.json compilation database.
-  static llvm::Expected<CompileCommand> CreateOneFromJSON(
-      const llvm::json::Object &obj);
+  static llvm::Expected<CompileCommand>
+  CreateOneFromJSON(const llvm::json::Object &obj);
 
   // Create zero or more compile commands from an array of JSON objects. This
   // JSON should come from a proper compile_commands.json compilation database.
-  static std::vector<llvm::Expected<CompileCommand>> CreateManyFromJSON(
-      const llvm::json::Array &array);
+  static std::vector<llvm::Expected<CompileCommand>>
+  CreateManyFromJSON(const llvm::json::Array &array);
 
   // Create a compile command for a single file in a working directory.
-  static llvm::Expected<CompileCommand> CreateOneForFile(
-      const Compiler &compiler, std::string_view file_name,
-      std::string_view working_dir);
+  static llvm::Expected<CompileCommand>
+  CreateOneForFile(const Compiler &compiler, std::string_view file_name,
+                   std::string_view working_dir);
 
   // Create a compile command for a single file in a working directory.
-  static llvm::Expected<CompileCommand> CreateFromArguments(
-      const ArgumentVector &argv, std::string_view working_dir);
+  static llvm::Expected<CompileCommand>
+  CreateFromArguments(const ArgumentVector &argv, std::string_view working_dir);
 
   // Return an argument vector associated with this compilation command.
   const ArgumentVector &Arguments(void) const;

@@ -32,8 +32,8 @@ namespace pasta {
 llvm::Expected<AST> Compiler::Run(const CompileJob &job) const {
 
   auto real_vfs = llvm::vfs::createPhysicalFileSystem();
-  auto overlay_vfs = std::make_unique<llvm::vfs::OverlayFileSystem>(
-      real_vfs.get());
+  auto overlay_vfs =
+      std::make_unique<llvm::vfs::OverlayFileSystem>(real_vfs.get());
   auto mem_vfs = std::make_unique<llvm::vfs::InMemoryFileSystem>();
   overlay_vfs->pushOverlay(mem_vfs.get());
   overlay_vfs->setCurrentWorkingDirectory(job.WorkingDirectory().data());
@@ -42,10 +42,8 @@ llvm::Expected<AST> Compiler::Run(const CompileJob &job) const {
   auto ci = std::make_shared<clang::CompilerInstance>();
   llvm::IntrusiveRefCntPtr<clang::DiagnosticsEngine> diagnostics_engine(
       new clang::DiagnosticsEngine(
-          new clang::DiagnosticIDs,
-          new clang::DiagnosticOptions,
-          diag.get(),
-          false  /* DON'T take ownership of the consumer */));
+          new clang::DiagnosticIDs, new clang::DiagnosticOptions, diag.get(),
+          false /* DON'T take ownership of the consumer */));
 
   diagnostics_engine->Reset();
   diagnostics_engine->setIgnoreAllWarnings(true);
@@ -69,13 +67,12 @@ llvm::Expected<AST> Compiler::Run(const CompileJob &job) const {
   auto &target_opts = invocation.getTargetOpts();
   target_opts.HostTriple = llvm::sys::getDefaultTargetTriple();
   target_opts.Triple = job.TargetTriple();
-  ci->setTarget(clang::TargetInfo::CreateTargetInfo(
-      ci->getDiagnostics(), invocation.TargetOpts));
+  ci->setTarget(clang::TargetInfo::CreateTargetInfo(ci->getDiagnostics(),
+                                                    invocation.TargetOpts));
 
   const auto &argv = job.Arguments();
   const auto invocation_is_valid = clang::CompilerInvocation::CreateFromArgs(
-      invocation,
-      argv.Argv(), &(argv.Argv()[argv.Size()]),
+      invocation, argv.Argv(), &(argv.Argv()[argv.Size()]),
       *diagnostics_engine);
 
   if (!invocation_is_valid) {
@@ -156,16 +153,14 @@ llvm::Expected<AST> Compiler::Run(const CompileJob &job) const {
   if (input_files.empty()) {
     return llvm::createStringError(
         std::make_error_code(std::errc::no_such_file_or_directory),
-        "No input file in compilation command: %s",
-        argv.Join().c_str());
+        "No input file in compilation command: %s", argv.Join().c_str());
 
   // There should only be one input files, as we're dealing with `-cc1`
   // commands, not frontend commands.
   } else if (1u < input_files.size()) {
     return llvm::createStringError(
         std::make_error_code(std::errc::too_many_files_open),
-        "Too many input files in compilation command: %s",
-        argv.Join().c_str());
+        "Too many input files in compilation command: %s", argv.Join().c_str());
   }
 
   auto &invocation_target = ci->getTarget();
@@ -176,13 +171,13 @@ llvm::Expected<AST> Compiler::Run(const CompileJob &job) const {
     auto aux_target = std::make_shared<clang::TargetOptions>();
     aux_target->Triple = llvm::Triple::normalize(frontend_opts.AuxTriple);
     aux_target->HostTriple = invocation_target.getTriple().str();
-    ci->setAuxTarget(clang::TargetInfo::CreateTargetInfo(
-        *diagnostics_engine, aux_target));
+    ci->setAuxTarget(
+        clang::TargetInfo::CreateTargetInfo(*diagnostics_engine, aux_target));
   }
 
   invocation_target.adjust(*lang_opts);
-  invocation_target.adjustTargetOptions(
-      ci->getCodeGenOpts(), ci->getTargetOpts());
+  invocation_target.adjustTargetOptions(ci->getCodeGenOpts(),
+                                        ci->getTargetOpts());
 
   if (auto aux_target = ci->getAuxTarget(); aux_target) {
     invocation_target.setAuxTarget(aux_target);

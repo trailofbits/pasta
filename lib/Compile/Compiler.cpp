@@ -8,7 +8,6 @@ namespace pasta {
 
 Compiler::~Compiler(void) {}
 
-Compiler::Compiler(CompilerImpl *impl_)
-    : impl(impl_) {}
+Compiler::Compiler(CompilerImpl *impl_) : impl(impl_) {}
 
 }  // namespace pasta

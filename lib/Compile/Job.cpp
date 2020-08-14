@@ -10,37 +10,31 @@
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/Basic/FileManager.h>
 #include <clang/Basic/SourceLocation.h>
-
 #include <clang/Driver/Compilation.h>
 #include <clang/Driver/Driver.h>
 #include <clang/Driver/Options.h>
-
 #include <clang/Frontend/CompilerInvocation.h>
 #include <clang/Frontend/FrontendActions.h>
 #include <clang/Frontend/FrontendOptions.h>
 #include <clang/Frontend/PCHContainerOperations.h>
-
 #include <clang/Lex/PreprocessorOptions.h>
-
+#include <clang/Tooling/CommonOptionsParser.h>
+#include <clang/Tooling/Tooling.h>
+#include <llvm/ADT/SmallVector.h>
+#include <llvm/Option/ArgList.h>
+#include <llvm/Option/Option.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/Path.h>
 #include <llvm/Support/VirtualFileSystem.h>
 
-#include <clang/Tooling/CommonOptionsParser.h>
-#include <clang/Tooling/Tooling.h>
-
-#include <llvm/ADT/SmallVector.h>
-#include <llvm/Option/ArgList.h>
-#include <llvm/Option/Option.h>
-
 #pragma clang diagnostic pop
-
-#include <cstring>
-#include <sstream>
 
 #include <pasta/Compile/Command.h>
 #include <pasta/Util/FileSystem.h>
+
+#include <cstring>
+#include <sstream>
 
 #include "Command.h"
 #include "Compiler.h"
@@ -50,8 +44,7 @@ namespace pasta {
 
 CompileJob::~CompileJob(void) {}
 
-CompileJob::CompileJob(CompileJobImpl* impl_)
-    : impl(impl_) {}
+CompileJob::CompileJob(CompileJobImpl *impl_) : impl(impl_) {}
 
 // Return an argument vector associated with this compilation job.
 const ArgumentVector &CompileJob::Arguments(void) const {
@@ -136,16 +129,14 @@ static bool IsIncludeOption(unsigned id) {
     case clang::driver::options::OPT_resource_dir:
     case clang::driver::options::OPT_nobuiltininc:
     case clang::driver::options::OPT_gcc_toolchain:
-    case clang::driver::options::OPT_gcc_toolchain_legacy_spelling:
-      return true;
+    case clang::driver::options::OPT_gcc_toolchain_legacy_spelling: return true;
 
     // NOTE(pag): These two are here because they do not affect actual
     //            inclusion paths, and therefore must be part of the final
     //            rendered command.
     case clang::driver::options::OPT__include_EQ:
     case clang::driver::options::OPT_include:
-    default:
-      return false;
+    default: return false;
   }
 }
 
@@ -187,7 +178,8 @@ static ArgumentVector CreateAdjustedCompilerCommand(
         }
 
       } else if (id == clang::driver::options::OPT_gcc_toolchain ||
-                 id == clang::driver::options::OPT_gcc_toolchain_legacy_spelling) {
+                 id == clang::driver::options::
+                           OPT_gcc_toolchain_legacy_spelling) {
         arg->render(args, parsed_inc_args);
 
       } else {
@@ -208,12 +200,8 @@ static ArgumentVector CreateAdjustedCompilerCommand(
   // Force the language.
   new_args.emplace_back("-x");
   switch (compiler.target_lang) {
-    case TargetLanguage::kC:
-      new_args.emplace_back("c");
-      break;
-    case TargetLanguage::kCXX:
-      new_args.emplace_back("c++");
-      break;
+    case TargetLanguage::kC: new_args.emplace_back("c"); break;
+    case TargetLanguage::kCXX: new_args.emplace_back("c++"); break;
   }
 
   if (!sysroot_to_use.empty()) {
@@ -285,8 +273,8 @@ static ArgumentVector CreateAdjustedCompilerCommand(
 }  // namespace
 
 // The list of compiler jobs associated with this command.
-llvm::Expected<std::vector<CompileJob>> CompileCommand::Jobs(
-    const Compiler &compiler) const {
+llvm::Expected<std::vector<CompileJob>>
+CompileCommand::Jobs(const Compiler &compiler) const {
 
   // Parse the arguments. This isn't necessary for compilation, but it's
   // possible that our command string splitting isn't quite right, and so
@@ -298,8 +286,7 @@ llvm::Expected<std::vector<CompileJob>> CompileCommand::Jobs(
   auto missing_arg_index = 0u;
   auto missing_arg_count = 0u;
   auto parsed_args = option_info_table->ParseArgs(
-      Arguments().Arguments(),
-      missing_arg_index, missing_arg_count,
+      Arguments().Arguments(), missing_arg_index, missing_arg_count,
       clang::driver::options::DriverOption | clang::driver::options::CC1Option,
       clang::driver::options::CLOption);
 
@@ -309,35 +296,29 @@ llvm::Expected<std::vector<CompileJob>> CompileCommand::Jobs(
         std::make_error_code(std::errc::invalid_argument),
         "Unable to parse %u command-line options (first unparsed option is: "
         "'%s') in command: %s",
-        missing_arg_count,
-        Arguments().Arguments()[missing_arg_index],
+        missing_arg_count, Arguments().Arguments()[missing_arg_index],
         Arguments().Join().c_str());
   }
 
-  const auto new_args = CreateAdjustedCompilerCommand(
-      *(compiler.impl), *impl, parsed_args, Arguments());
+  const auto new_args = CreateAdjustedCompilerCommand(*(compiler.impl), *impl,
+                                                      parsed_args, Arguments());
 
   auto diag = std::make_unique<SaveFirstErrorDiagConsumer>();
   llvm::IntrusiveRefCntPtr<clang::DiagnosticsEngine> diagnostics_engine(
       new clang::DiagnosticsEngine(
-          new clang::DiagnosticIDs,
-          new clang::DiagnosticOptions,
-          diag.get(),
-          false  /* DON'T take ownership of the consumer */));
+          new clang::DiagnosticIDs, new clang::DiagnosticOptions, diag.get(),
+          false /* DON'T take ownership of the consumer */));
 
   auto real_vfs = llvm::vfs::createPhysicalFileSystem();
-  auto overlay_vfs = std::make_unique<llvm::vfs::OverlayFileSystem>(
-      real_vfs.get());
+  auto overlay_vfs =
+      std::make_unique<llvm::vfs::OverlayFileSystem>(real_vfs.get());
   auto mem_vfs = std::make_unique<llvm::vfs::InMemoryFileSystem>();
   overlay_vfs->pushOverlay(mem_vfs.get());
   overlay_vfs->setCurrentWorkingDirectory(WorkingDirectory().data());
 
   // Make the driver.
-  clang::driver::Driver driver(
-      new_args[0],
-      llvm::sys::getDefaultTargetTriple(),
-      *diagnostics_engine,
-      overlay_vfs.get());
+  clang::driver::Driver driver(new_args[0], llvm::sys::getDefaultTargetTriple(),
+                               *diagnostics_engine, overlay_vfs.get());
 
   driver.setTitle("pasta");
   driver.setCheckInputsExist(false);
@@ -390,7 +371,8 @@ llvm::Expected<std::vector<CompileJob>> CompileCommand::Jobs(
   std::vector<CompileJob> jobs;
 
   const std::filesystem::path working_dir(WorkingDirectory());
-  const auto target_triple = compilation->getDefaultToolChain().getTriple().str();
+  const auto target_triple =
+      compilation->getDefaultToolChain().getTriple().str();
 
   for (auto job_args : cc1_jobs) {
     diagnostics_engine->Reset();
@@ -398,7 +380,7 @@ llvm::Expected<std::vector<CompileJob>> CompileCommand::Jobs(
     diagnostics_engine->setIgnoreAllWarnings(true);
     diagnostics_engine->setWarningsAsErrors(false);
 
-    auto job_args_to_string = [&job_args] (void) {
+    auto job_args_to_string = [&job_args](void) {
       std::stringstream ss;
       auto sep = "";
       for (auto arg : job_args) {
@@ -411,8 +393,7 @@ llvm::Expected<std::vector<CompileJob>> CompileCommand::Jobs(
     clang::CompilerInvocation invocation;
     invocation.getFileSystemOpts().WorkingDir = driver.Dir;
     auto invocation_is_valid = clang::CompilerInvocation::CreateFromArgs(
-        invocation,
-        job_args.data(), job_args.data() + job_args.size(),
+        invocation, job_args.data(), job_args.data() + job_args.size(),
         *diagnostics_engine);
 
     if (!invocation_is_valid) {
@@ -476,11 +457,10 @@ llvm::Expected<std::vector<CompileJob>> CompileCommand::Jobs(
       new_argv.emplace_back(arg);
     }
 
-    CompileJob job(new CompileJobImpl(
-        new_argv, driver.Dir, driver.ResourceDir,
-        compilation->getSysRoot().str(),
-        frontend_opts.Inputs[0].getFile().str(),
-        target_triple, frontend_opts.AuxTriple));
+    CompileJob job(new CompileJobImpl(new_argv, driver.Dir, driver.ResourceDir,
+                                      compilation->getSysRoot().str(),
+                                      frontend_opts.Inputs[0].getFile().str(),
+                                      target_triple, frontend_opts.AuxTriple));
     jobs.emplace_back(std::move(job));
   }
 

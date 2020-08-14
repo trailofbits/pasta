@@ -7,8 +7,8 @@
 namespace pasta {
 
 // Make `path` absolute if it's not already.
-std::filesystem::path AbsolutePath(
-    std::filesystem::path path, std::filesystem::path working_dir) {
+std::filesystem::path AbsolutePath(std::filesystem::path path,
+                                   std::filesystem::path working_dir) {
   if (!path.is_absolute()) {
     path = working_dir / path;
   }

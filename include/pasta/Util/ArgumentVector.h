@@ -40,7 +40,7 @@ class ArgumentVector {
 
   const std::vector<const char *> &Arguments(void) const;
   size_t Size(void) const;
-  std::string Join(const char *sep=" ") const;
+  std::string Join(const char *sep = " ") const;
 
   const char *&operator[](size_t index);
   const char *operator[](size_t index) const;

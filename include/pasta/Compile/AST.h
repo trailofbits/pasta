@@ -4,10 +4,10 @@
 
 #pragma once
 
+#include <pasta/Util/Error.h>
+
 #include <memory>
 #include <string_view>
-
-#include <pasta/Util/Error.h>
 
 namespace pasta {
 

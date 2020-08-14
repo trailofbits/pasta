@@ -9,8 +9,7 @@ namespace pasta {
 SaveFirstErrorDiagConsumer::~SaveFirstErrorDiagConsumer(void) {}
 
 void SaveFirstErrorDiagConsumer::HandleDiagnostic(
-    clang::DiagnosticsEngine::Level level,
-    const clang::Diagnostic &info) {
+    clang::DiagnosticsEngine::Level level, const clang::Diagnostic &info) {
   if (clang::DiagnosticsEngine::Error == level ||
       clang::DiagnosticsEngine::Fatal == level) {
     llvm::SmallString<100> data;

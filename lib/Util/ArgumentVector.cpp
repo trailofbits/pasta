@@ -68,7 +68,7 @@ void ArgumentVector::Reset(const std::string &command) {
   auto next = &(data[0]);
   next[0] = '\0';
 
-  for (size_t i = 0; i < command.size(); ) {
+  for (size_t i = 0; i < command.size();) {
     const auto ch = command[i];
 
     // Ignore spaces.
@@ -93,7 +93,7 @@ void ArgumentVector::Reset(const std::string &command) {
 
       auto j = (i + 1);
 
-      for (; j < command.size(); ) {
+      for (; j < command.size();) {
         const auto inner_ch = command[j++];
         *next++ = inner_ch;
         *next = '\0';

@@ -9,8 +9,8 @@
 namespace pasta {
 
 // Make `path` absolute if it's not already.
-std::filesystem::path AbsolutePath(
-    std::filesystem::path path, std::filesystem::path working_dir);
+std::filesystem::path AbsolutePath(std::filesystem::path path,
+                                   std::filesystem::path working_dir);
 
 // Canonicalize `path`, and ignore any errors.
 std::filesystem::path CanonicalPath(std::filesystem::path path);

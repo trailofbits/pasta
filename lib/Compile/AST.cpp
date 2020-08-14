@@ -8,7 +8,6 @@ namespace pasta {
 
 AST::~AST(void) {}
 
-AST::AST(std::shared_ptr<ASTImpl> impl_)
-    : impl(std::move(impl_)) {}
+AST::AST(std::shared_ptr<ASTImpl> impl_) : impl(std::move(impl_)) {}
 
 }  // namespace pasta

@@ -20,6 +20,7 @@ class CompileJobImpl;
 class CompileJob {
  public:
   ~CompileJob(void);
+  CompileJob(CompileJob &&) noexcept = default;
 
   // Return an argument vector associated with this compilation job.
   const ArgumentVector &Arguments(void) const;
@@ -27,13 +28,29 @@ class CompileJob {
   // Return the working directory in which this command executes.
   std::string_view WorkingDirectory(void) const;
 
+  // Return the compiler resource directory that this command should use.
+  std::string_view ResourceDirectory(void) const;
+
+  // Return the compiler system root directory that this command should use.
+  std::string_view SystemRootDirectory(void) const;
+
+  // Return the target triple to use.
+  std::string_view TargetTriple(void) const;
+
+  // Return the auxiliary target triple to use.
+  std::string_view AuxiliaryTargetTriple(void) const;
+
   // Return the path to the source file that this job compiles.
   std::string_view SourceFile(void) const;
 
  private:
   friend class CompileCommand;
 
-  CompileJob(std::unique_ptr<CompileJobImpl> impl_);
+  CompileJob(const CompileJob &) = delete;
+  CompileJob &operator=(const CompileJob &) = delete;
+  CompileJob &operator=(CompileJob &&) noexcept = delete;
+
+  CompileJob(CompileJobImpl *impl_);
 
   std::unique_ptr<CompileJobImpl> impl;
 };

@@ -199,6 +199,7 @@ add_library(compiler STATIC
     
     "lib/Compile/Command.cpp"
     "lib/Compile/Create.cpp"
+    "lib/Compile/Diagnostic.cpp"
     "lib/Compile/Job.cpp"
     "lib/Compile/Run.cpp"
 )

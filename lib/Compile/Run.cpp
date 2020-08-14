@@ -3,6 +3,8 @@
  */
 
 #include "Compiler.h"
+#include "Diagnostic.h"
+#include "Job.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
@@ -19,42 +21,22 @@
 #include <clang/Lex/PreprocessorOptions.h>
 #include <clang/Parse/Parser.h>
 #include <clang/Sema/Sema.h>
+#include <llvm/Support/VirtualFileSystem.h>
 #pragma clang diagnostic pop
 
 #include <pasta/Util/ArgumentVector.h>
 
 namespace pasta {
-namespace {
-
-class SaveFirstErrorDiagConsumer : public clang::DiagnosticConsumer {
- public:
-  virtual ~SaveFirstErrorDiagConsumer(void) = default;
-  virtual void anchor(void) {}
-
-  void HandleDiagnostic(clang::DiagnosticsEngine::Level level,
-                        const clang::Diagnostic &info) override {
-    if (clang::DiagnosticsEngine::Error == level ||
-        clang::DiagnosticsEngine::Fatal == level) {
-      llvm::SmallString<100> data;
-      info.FormatDiagnostic(data);
-      data.str().str().swap(error);
-    }
-  }
-
-  std::string error;
-};
-
-}  // namespace
 
 // Run a command ans return the AST or the first error.
 llvm::Expected<AST> Compiler::Run(const CompileJob &job) const {
 
   auto real_vfs = llvm::vfs::createPhysicalFileSystem();
-  auto overlay_vfs = std::make_unique<llvm::vfs::OverlayFileSystem>();
+  auto overlay_vfs = std::make_unique<llvm::vfs::OverlayFileSystem>(
+      real_vfs.get());
   auto mem_vfs = std::make_unique<llvm::vfs::InMemoryFileSystem>();
-  overlay_vfs->pushOverlay(llvm::vfs::getRealFileSystem());
   overlay_vfs->pushOverlay(mem_vfs.get());
-  overlay_vfs->setCurrentWorkingDirectory(working_dir.data());
+  overlay_vfs->setCurrentWorkingDirectory(job.WorkingDirectory().data());
 
   auto diag = std::make_unique<SaveFirstErrorDiagConsumer>();
   auto ci = std::make_shared<clang::CompilerInstance>();
@@ -74,7 +56,7 @@ llvm::Expected<AST> Compiler::Run(const CompileJob &job) const {
 
   auto &invocation = ci->getInvocation();
   auto &fs_options = invocation.getFileSystemOpts();
-  fs_options.WorkingDir = working_dir;
+  fs_options.WorkingDir = job.WorkingDirectory();
 
   llvm::IntrusiveRefCntPtr<clang::FileManager> fm(
       new clang::FileManager(fs_options, overlay_vfs.get()));
@@ -86,20 +68,28 @@ llvm::Expected<AST> Compiler::Run(const CompileJob &job) const {
   // the right cross-compilation target info.
   auto &target_opts = invocation.getTargetOpts();
   target_opts.HostTriple = llvm::sys::getDefaultTargetTriple();
-  target_opts.Triple = target_opts.HostTriple;
+  target_opts.Triple = job.TargetTriple();
   ci->setTarget(clang::TargetInfo::CreateTargetInfo(
       ci->getDiagnostics(), invocation.TargetOpts));
 
+  const auto &argv = job.Arguments();
   const auto invocation_is_valid = clang::CompilerInvocation::CreateFromArgs(
       invocation,
       argv.Argv(), &(argv.Argv()[argv.Size()]),
       *diagnostics_engine);
 
   if (!invocation_is_valid) {
-    return llvm::createStringError(
-        std::make_error_code(std::errc::invalid_argument),
-        "Unable to create compiler invocation from command: %s",
-        argv.Join().c_str());
+    if (diag->error.empty()) {
+      return llvm::createStringError(
+          std::make_error_code(std::errc::invalid_argument),
+          "Unable to create compiler invocation from command: %s",
+          argv.Join().c_str());
+    } else {
+      return llvm::createStringError(
+          std::make_error_code(std::errc::invalid_argument),
+          "Unable to create compiler invocation from command: %s",
+          diag->error.c_str());
+    }
   }
 
   // Just in case parsing of the command-line args changed this.
@@ -176,19 +166,6 @@ llvm::Expected<AST> Compiler::Run(const CompileJob &job) const {
         std::make_error_code(std::errc::too_many_files_open),
         "Too many input files in compilation command: %s",
         argv.Join().c_str());
-  }
-
-  // Go force in the language type using the compiler's target language.
-  auto &file = input_files[0];
-  switch (impl->target_lang) {
-    case TargetLanguage::kC:
-      file = clang::FrontendInputFile(
-          file.getFile(), clang::InputKind::C, false);
-      break;
-    case TargetLanguage::kCXX:
-      file = clang::FrontendInputFile(
-          file.getFile(), clang::InputKind::CXX, false);
-      break;
   }
 
   auto &invocation_target = ci->getTarget();

@@ -4,16 +4,10 @@
 
 #include "Job.h"
 
-#include <pasta/Compile/Command.h>
-#include <pasta/Util/FileSystem.h>
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
-#include <clang/Basic/Diagnostic.h>
-#include <clang/Basic/DiagnosticIDs.h>
-#include <clang/Basic/DiagnosticOptions.h>
 #include <clang/Basic/FileManager.h>
 #include <clang/Basic/SourceLocation.h>
 
@@ -42,15 +36,22 @@
 
 #pragma clang diagnostic pop
 
+#include <cstring>
+#include <sstream>
+
+#include <pasta/Compile/Command.h>
+#include <pasta/Util/FileSystem.h>
+
 #include "Command.h"
 #include "Compiler.h"
+#include "Diagnostic.h"
 
 namespace pasta {
 
 CompileJob::~CompileJob(void) {}
 
-CompileJob::CompileJob(std::unique_ptr<CompileJobImpl> impl_)
-    : impl(std::move(impl_)) {}
+CompileJob::CompileJob(CompileJobImpl* impl_)
+    : impl(impl_) {}
 
 // Return an argument vector associated with this compilation job.
 const ArgumentVector &CompileJob::Arguments(void) const {
@@ -60,6 +61,26 @@ const ArgumentVector &CompileJob::Arguments(void) const {
 // Return the working directory in which this command executes.
 std::string_view CompileJob::WorkingDirectory(void) const {
   return impl->working_dir;
+}
+
+// Return the compiler resource directory that this command should use.
+std::string_view CompileJob::ResourceDirectory(void) const {
+  return impl->resource_dir;
+}
+
+// Return the compiler system root directory that this command should use.
+std::string_view CompileJob::SystemRootDirectory(void) const {
+  return impl->sysroot_dir;
+}
+
+// Return the target triple to use.
+std::string_view CompileJob::TargetTriple(void) const {
+  return impl->target_triple;
+}
+
+// Return the auxiliary target triple to use.
+std::string_view CompileJob::AuxiliaryTargetTriple(void) const {
+  return impl->aux_triple;
 }
 
 // Return the path to the source file that this job compiles.
@@ -286,13 +307,184 @@ llvm::Expected<std::vector<CompileJob>> CompileCommand::Jobs(
   if (0 < missing_arg_count) {
     return llvm::createStringError(
         std::make_error_code(std::errc::invalid_argument),
-        "Unable to parse %u command-line options in command '%s'. First unparsed option is: '%s'",
-        missing_arg_count, Arguments().Join().c_str(),
-        Arguments().Arguments()[missing_arg_index]);
+        "Unable to parse %u command-line options (first unparsed option is: "
+        "'%s') in command: %s",
+        missing_arg_count,
+        Arguments().Arguments()[missing_arg_index],
+        Arguments().Join().c_str());
   }
 
-  auto new_args = CreateAdjustedCompilerCommand(
+  const auto new_args = CreateAdjustedCompilerCommand(
       *(compiler.impl), *impl, parsed_args, Arguments());
+
+  auto diag = std::make_unique<SaveFirstErrorDiagConsumer>();
+  llvm::IntrusiveRefCntPtr<clang::DiagnosticsEngine> diagnostics_engine(
+      new clang::DiagnosticsEngine(
+          new clang::DiagnosticIDs,
+          new clang::DiagnosticOptions,
+          diag.get(),
+          false  /* DON'T take ownership of the consumer */));
+
+  auto real_vfs = llvm::vfs::createPhysicalFileSystem();
+  auto overlay_vfs = std::make_unique<llvm::vfs::OverlayFileSystem>(
+      real_vfs.get());
+  auto mem_vfs = std::make_unique<llvm::vfs::InMemoryFileSystem>();
+  overlay_vfs->pushOverlay(mem_vfs.get());
+  overlay_vfs->setCurrentWorkingDirectory(WorkingDirectory().data());
+
+  // Make the driver.
+  clang::driver::Driver driver(
+      new_args[0],
+      llvm::sys::getDefaultTargetTriple(),
+      *diagnostics_engine,
+      overlay_vfs.get());
+
+  driver.setTitle("pasta");
+  driver.setCheckInputsExist(false);
+  driver.Dir = WorkingDirectory();
+  driver.ResourceDir = compiler.impl->resource_dir;
+  driver.SysRoot = compiler.impl->sysroot_dir;
+  driver.InstalledDir = compiler.impl->install_dir;
+  driver.ClangExecutable = compiler.impl->compiler_exe;
+
+  const std::unique_ptr<clang::driver::Compilation> compilation(
+      driver.BuildCompilation(new_args.Arguments()));
+
+  if (!compilation) {
+    if (diag->error.empty()) {
+      return llvm::createStringError(
+          std::make_error_code(std::errc::no_child_process),
+          "Unable to build compilation jobs for command: %s",
+          new_args.Join().c_str());
+    } else {
+      return llvm::createStringError(
+          std::make_error_code(std::errc::no_child_process),
+          diag->error.c_str());
+    }
+  }
+
+  std::vector<llvm::opt::ArgStringList> cc1_jobs;
+
+  // Collect the argument lists for the sub-jobs of interest.
+  for (auto &job : compilation->getJobs()) {
+
+    auto &job_args = job.getArguments();
+    if (!job_args.size()) {
+      continue;
+
+    // We've got the arguments to pass down to a compiler invocation.
+    } else if (!strcmp(job_args[0], "-cc1")) {
+      cc1_jobs.push_back(job_args);
+
+    // Probably a linking job.
+    } else {
+      std::stringstream ss;
+      auto sep = "";
+      for (const auto &job_arg : job_args) {
+        ss << sep << job_arg;
+        sep = " ";
+      }
+    }
+  }
+
+  std::vector<CompileJob> jobs;
+
+  const std::filesystem::path working_dir(WorkingDirectory());
+  const auto target_triple = compilation->getDefaultToolChain().getTriple().str();
+
+  for (auto job_args : cc1_jobs) {
+    diagnostics_engine->Reset();
+    diagnostics_engine->setErrorLimit(1);
+    diagnostics_engine->setIgnoreAllWarnings(true);
+    diagnostics_engine->setWarningsAsErrors(false);
+
+    auto job_args_to_string = [&job_args] (void) {
+      std::stringstream ss;
+      auto sep = "";
+      for (auto arg : job_args) {
+        ss << sep << arg;
+        sep = " ";
+      }
+      return ss.str();
+    };
+
+    clang::CompilerInvocation invocation;
+    invocation.getFileSystemOpts().WorkingDir = driver.Dir;
+    auto invocation_is_valid = clang::CompilerInvocation::CreateFromArgs(
+        invocation,
+        job_args.data(), job_args.data() + job_args.size(),
+        *diagnostics_engine);
+
+    if (!invocation_is_valid) {
+      if (diag->error.empty()) {
+        return llvm::createStringError(
+            std::make_error_code(std::errc::no_child_process),
+            "Unable to build compilation jobs for cc1 command: %s",
+            job_args_to_string().c_str());
+
+      } else {
+        return llvm::createStringError(
+            std::make_error_code(std::errc::no_child_process),
+            "Unable to build compilation jobs for cc1 command: %s",
+            diag->error.c_str());
+      }
+    }
+
+    const auto &frontend_opts = invocation.getFrontendOpts();
+    if (frontend_opts.Inputs.empty()) {
+      return llvm::createStringError(
+          std::make_error_code(std::errc::no_such_file_or_directory),
+          "Empty input file list for cc1 command: %s",
+          job_args_to_string().c_str());
+    }
+
+    std::vector<std::string> new_argv;
+    auto last_was_output = false;
+    for (auto arg : job_args) {
+
+      // Try to fixup any remaining paths.
+      llvm::StringRef a(arg);
+      if (a == "-o") {
+        last_was_output = true;
+
+      // Output files will have random-ish names, which is confusing to
+      // downstream tools.
+      } else if (last_was_output) {
+        new_argv.emplace_back("<output>");
+        last_was_output = false;
+        continue;
+
+      } else {
+        last_was_output = false;
+      }
+
+      // Try to look for things that look file file names, then see if they are
+      // file names, and if so, make them absolute paths.
+      if (a.contains("../") || a.endswith(".o") || a.endswith(".cc") ||
+          a.endswith(".cpp") || a.endswith(".cxx") || a.endswith(".h") ||
+          a.endswith(".hxx") || a.endswith(".hh") || a.endswith(".c") ||
+          a.endswith(".gcno") || a.endswith(".pch") || a.endswith(".s") ||
+          a.endswith(".S") || a.endswith(".asm") || a.endswith(".mm") ||
+          a.endswith(".d") || a.endswith(".sdk")) {
+        auto maybe_path = AbsolutePath(arg, working_dir);
+        if (std::filesystem::exists(maybe_path)) {
+          new_argv.emplace_back(CanonicalPath(maybe_path).string());
+          continue;
+        }
+      }
+
+      new_argv.emplace_back(arg);
+    }
+
+    CompileJob job(new CompileJobImpl(
+        new_argv, driver.Dir, driver.ResourceDir,
+        compilation->getSysRoot().str(),
+        frontend_opts.Inputs[0].getFile().str(),
+        target_triple, frontend_opts.AuxTriple));
+    jobs.emplace_back(std::move(job));
+  }
+
+  return jobs;
 }
 
 }  // namespace pasta

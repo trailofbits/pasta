@@ -57,6 +57,9 @@ class Compiler {
   // toolchains.
   std::string_view SystemRootDirectory(void) const;
 
+  // Directory where the compiler is installed.
+  std::string_view InstallationDirectory(void) const;
+
   // Invoke a callback `cb` for each system include directory. Think `-isystem`.
   void
   ForEachSystemIncludeDirectory(std::function<void(std::string_view)> cb) const;

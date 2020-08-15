@@ -50,6 +50,11 @@ std::string_view Compiler::SystemRootDirectory(void) const {
   return impl->sysroot_dir;
 }
 
+// Directory where the compiler is installed.
+std::string_view Compiler::InstallationDirectory(void) const {
+  return impl->install_dir;
+}
+
 // Invoke a callback `cb` for each system include directory. Think `-isystem`.
 void Compiler::ForEachSystemIncludeDirectory(
     std::function<void(std::string_view)> cb) const {

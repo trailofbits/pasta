@@ -16,6 +16,12 @@ DEFINE_PYTHON_METHOD(PyCompiler, TargetLanguage, target_language);
 DEFINE_PYTHON_METHOD(PyCompiler, ExecutablePath, executable_path);
 DEFINE_PYTHON_METHOD(PyCompiler, ResourceDirectory, resource_directory);
 DEFINE_PYTHON_METHOD(PyCompiler, SystemRootDirectory, system_root_directory);
+DEFINE_PYTHON_METHOD(PyCompiler, InstallationDirectory, installation_directory);
+DEFINE_PYTHON_METHOD(PyCompiler, SystemIncludeDirectories,
+                     system_include_directories);
+DEFINE_PYTHON_METHOD(PyCompiler, UserIncludeDirectories,
+                     user_include_directories);
+DEFINE_PYTHON_METHOD(PyCompiler, FrameworkDirectories, framework_directories);
 
 static PyMethodDef gCompilerMethods[] = {
     PYTHON_METHOD(name, "Return the identifier of this compiler."),
@@ -26,9 +32,20 @@ static PyMethodDef gCompilerMethods[] = {
     PYTHON_METHOD(
         resource_directory,
         "Path to the directory containing the compiler's internal header files."),
+    PYTHON_METHOD(installation_directory,
+                  "Path to the directory where the compiler was installed."),
     PYTHON_METHOD(
         system_root_directory,
         "Default system root directory path for this compiler (useful for cross-compilation)."),
+    PYTHON_METHOD(
+        system_include_directories,
+        "List of system include directories scanned by the compiler when trying to resolve #include files."),
+    PYTHON_METHOD(
+        user_include_directories,
+        "List of user include directories scanned by the compiler when trying to resolve #include files."),
+    PYTHON_METHOD(
+        framework_directories,
+        "List of framework directories scanned by the compiler when trying to resolve #include files."),
     PYTHON_METHOD_SENTINEL};
 
 }  // namespace
@@ -58,25 +75,45 @@ unsigned PyCompiler::TargetLanguage(void) {
   return static_cast<unsigned>(compiler->TargetLanguage());
 }
 
-BorrowedPythonPtr<PyObject> PyCompiler::ExecutablePath(void) {
-  if (!exe_path) {
-    exe_path.Take(convert::FromStdStrView(compiler->ExecutablePath()));
-  }
-  return exe_path.Borrow();
+std::string_view PyCompiler::ExecutablePath(void) {
+  return compiler->ExecutablePath();
 }
 
-BorrowedPythonPtr<PyObject> PyCompiler::ResourceDirectory(void) {
-  if (!resource_dir) {
-    resource_dir.Take(convert::FromStdStrView(compiler->ResourceDirectory()));
-  }
-  return resource_dir.Borrow();
+std::string_view PyCompiler::ResourceDirectory(void) {
+  return compiler->ResourceDirectory();
 }
 
-BorrowedPythonPtr<PyObject> PyCompiler::SystemRootDirectory(void) {
-  if (!sysroot_dir) {
-    sysroot_dir.Take(convert::FromStdStrView(compiler->SystemRootDirectory()));
-  }
-  return sysroot_dir.Borrow();
+std::string_view PyCompiler::SystemRootDirectory(void) {
+  return compiler->SystemRootDirectory();
+}
+
+// Directory where the compiler is installed.
+std::string_view PyCompiler::InstallationDirectory(void) {
+  return compiler->InstallationDirectory();
+}
+
+// List of system include directories.
+std::vector<std::string_view> PyCompiler::SystemIncludeDirectories(void) {
+  std::vector<std::string_view> list;
+  compiler->ForEachSystemIncludeDirectory(
+      [&list](std::string_view path) { list.emplace_back(path); });
+  return list;
+}
+
+// List of user include directories.
+std::vector<std::string_view> PyCompiler::UserIncludeDirectories(void) {
+  std::vector<std::string_view> list;
+  compiler->ForEachUserIncludeDirectory(
+      [&list](std::string_view path) { list.emplace_back(path); });
+  return list;
+}
+
+// List of framework directories.
+std::vector<std::string_view> PyCompiler::FrameworkDirectories(void) {
+  std::vector<std::string_view> list;
+  compiler->ForEachFrameworkDirectory(
+      [&list](std::string_view path) { list.emplace_back(path); });
+  return list;
 }
 
 // Tries to add the `Compiler` type to the `pasta` module.

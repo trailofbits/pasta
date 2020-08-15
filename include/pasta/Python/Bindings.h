@@ -13,6 +13,7 @@
 #include <string_view>
 #include <tuple>
 #include <type_traits>
+#include <vector>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-register"
@@ -182,6 +183,21 @@ class NativeXPython<StringView> {
  public:
   static constexpr auto ToPython = convert::FromStringView;
   static constexpr auto ToCxx = convert::ToStdStrView;
+};
+
+template <typename T>
+class NativeXPython<std::vector<T>> {
+ public:
+  static PyObject *ToPython(const std::vector<T> &vec) {
+    PyObject *list = PyList_New(static_cast<Py_ssize_t>(vec.size()));
+    Py_ssize_t i = 0;
+    for (const auto &elem : vec) {
+      PyList_SetItem(list, i++, NativeXPython<T>::ToPython(elem));
+    }
+    return list;
+  }
+
+  static bool ToCxx(PyObject *v, void *storage);
 };
 
 template <typename T, typename ReprType>
@@ -569,6 +585,62 @@ inline static T *ConvertFromPythonObject(PyObject *obj, void *storage) {
 
   } else {
     return nullptr;
+  }
+}
+
+template <typename T>
+bool NativeXPython<std::vector<T>>::ToCxx(PyObject *v, void *storage) {
+  using StoreT = typename StorageType<T>::Type;
+
+  // Get the vector from a list.
+  if (PyList_Check(v)) {
+    std::vector<T> temp;
+    const auto size = PyList_Size(v);
+    for (Py_ssize_t i = 0; i < size; ++i) {
+      alignas(StoreT) uint8_t impl[sizeof(StoreT)];
+      StoreT *owned_pimpl{nullptr};
+      const auto py_elem = PyList_GetItem(v, i);
+      if (auto cxx_elem = ConvertFromPythonObject<T>(py_elem, impl); cxx_elem) {
+        temp.emplace_back(std::move(*cxx_elem));
+      } else {
+        return false;
+      }
+    }
+
+    new (storage) std::vector<T>(std::move(temp));
+    return true;
+
+  // Get the vector from a tuple.
+  } else if (PyTuple_Check(v)) {
+    std::vector<T> temp;
+    const auto size = PyTuple_Size(v);
+    for (Py_ssize_t i = 0; i < size; ++i) {
+      alignas(StoreT) uint8_t impl[sizeof(StoreT)];
+      StoreT *owned_pimpl{nullptr};
+      const auto py_elem = PyTuple_GetItem(v, i);
+      if (auto cxx_elem = ConvertFromPythonObject<T>(py_elem, impl); cxx_elem) {
+        temp.emplace_back(std::move(*cxx_elem));
+      } else {
+        return false;
+      }
+    }
+
+    new (storage) std::vector<T>(std::move(temp));
+    return true;
+
+  // Get the vector from a string-like thing.
+  } else if (PyBytes_Check(v) &&
+             (std::is_same_v<T, uint8_t> || std::is_same_v<T, int8_t> ||
+              std::is_same_v<T, char>) ) {
+    const auto size = PyBytes_Size(v);
+    const auto data = PyBytes_AsString(v);
+    (void) new (storage)
+        std::vector<T>(reinterpret_cast<const T *>(data),
+                       reinterpret_cast<const T *>(&(data[size])));
+    return true;
+
+  } else {
+    return false;
   }
 }
 

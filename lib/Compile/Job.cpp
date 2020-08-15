@@ -327,10 +327,10 @@ CompileCommand::Jobs(const Compiler &compiler) const {
   driver.setTitle("pasta");
   driver.setCheckInputsExist(false);
   driver.Dir = WorkingDirectory();
-  driver.ResourceDir = compiler.impl->resource_dir;
-  driver.SysRoot = compiler.impl->sysroot_dir;
-  driver.InstalledDir = compiler.impl->install_dir;
-  driver.ClangExecutable = compiler.impl->compiler_exe;
+  driver.ResourceDir = compiler.ResourceDirectory();
+  driver.SysRoot = compiler.SystemRootDirectory();
+  driver.InstalledDir = compiler.InstallationDirectory();
+  driver.ClangExecutable = compiler.ExecutablePath();
 
   const std::unique_ptr<clang::driver::Compilation> compilation(
       driver.BuildCompilation(new_args.Arguments()));

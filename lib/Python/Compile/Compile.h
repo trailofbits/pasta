@@ -49,21 +49,30 @@ class PyCompiler : public PythonObject<PyCompiler> {
   unsigned TargetLanguage(void);
 
   // Path to the executable.
-  BorrowedPythonPtr<PyObject> ExecutablePath(void);
+  std::string_view ExecutablePath(void);
 
   // Resource directory of the compiler, i.e. where you find compiler-specific
   // header files.
-  BorrowedPythonPtr<PyObject> ResourceDirectory(void);
+  std::string_view ResourceDirectory(void);
 
   // Directory to treat as the system root. Useful for cross-compilation
   // toolchains.
-  BorrowedPythonPtr<PyObject> SystemRootDirectory(void);
+  std::string_view SystemRootDirectory(void);
+
+  // Directory where the compiler is installed.
+  std::string_view InstallationDirectory(void);
+
+  // List of system include directories.
+  std::vector<std::string_view> SystemIncludeDirectories(void);
+
+  // List of user include directories.
+  std::vector<std::string_view> UserIncludeDirectories(void);
+
+  // List of framework directories.
+  std::vector<std::string_view> FrameworkDirectories(void);
 
  private:
   std::optional<Compiler> compiler;
-  SharedPythonPtr<PyObject> exe_path;
-  SharedPythonPtr<PyObject> resource_dir;
-  SharedPythonPtr<PyObject> sysroot_dir;
 };
 
 }  // namespace py

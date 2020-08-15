@@ -7,13 +7,23 @@
 #include <pasta/Util/JSON.h>
 
 #include <filesystem>
+#include <memory>
 
 #include "Compiler.h"
 #include "Job.h"
 
 namespace pasta {
 
-CompileCommand::~CompileCommand(void) {}
+CompileCommand::~CompileCommand(void) {
+  if (impl) {
+    delete impl;
+  }
+}
+
+CompileCommand::CompileCommand(CompileCommand &&that) noexcept
+    : impl(that.impl) {
+  that.impl = nullptr;
+}
 
 CompileCommand::CompileCommand(CompileCommandImpl *impl_) : impl(impl_) {}
 
@@ -64,9 +74,8 @@ CompileCommand::CreateManyFromJSON(const llvm::json::Array &array) {
 // used to compile this library, and so we ideally want to produce compilation
 // commands that are going to find the "expected" incldue files/directories.
 llvm::Expected<CompileCommand>
-CompileCommand::CreateOneForFile(const Compiler &compiler,
-                                 std::string_view file_name,
-                                 std::string_view working_dir) {
+Compiler::CreateCommandForFile(std::string_view file_name,
+                               std::string_view working_dir) const {
 
   if (file_name.empty()) {
     return llvm::createStringError(
@@ -74,7 +83,7 @@ CompileCommand::CreateOneForFile(const Compiler &compiler,
         "Empty file provided");
   }
 
-  const auto &info = *(compiler.impl);
+  const auto &info = *impl;
 
   std::vector<std::string> argv;
 
@@ -121,10 +130,12 @@ CompileCommand::CreateOneForFile(const Compiler &compiler,
     case TargetLanguage::kC:
       argv.emplace_back("-x");
       argv.emplace_back("c");
+      argv.emplace_back("-std=c11");
       break;
     case TargetLanguage::kCXX:
       argv.emplace_back("-x");
       argv.emplace_back("c++");
+      argv.emplace_back("-std=c++17");
       break;
   }
 

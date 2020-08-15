@@ -215,7 +215,8 @@ static bool DeriveResourceDirs(CompilerImpl &info) {
 
 // Create a "host" compiler instance, i.e. a compiler instance based on the
 // compiler used to compile this library.
-llvm::Expected<Compiler> Compiler::CreateHostCompiler(TargetLanguage lang) {
+llvm::Expected<Compiler>
+Compiler::CreateHostCompiler(enum TargetLanguage lang) {
   const char *path = nullptr;
   const char *version_info = nullptr;
   switch (lang) {
@@ -253,7 +254,12 @@ llvm::Expected<Compiler> Compiler::CreateHostCompiler(TargetLanguage lang) {
 #endif
 
 #ifdef FOUND_HOST_COMPILER
-  return Create(name, lang, path, version_info, kHostWorkingDir);
+  auto maybe_compiler = Create(name, lang, path, version_info, kHostWorkingDir);
+  if (IsError(maybe_compiler)) {
+    return maybe_compiler.takeError();
+  } else {
+    return std::move(*maybe_compiler);
+  }
 #else
   return llvm::createStringError(
       std::make_error_code(std::errc::function_not_supported),
@@ -266,7 +272,7 @@ llvm::Expected<Compiler> Compiler::CreateHostCompiler(TargetLanguage lang) {
 // NOTE(pag): The `working_dir` is the directory in which the compiler
 //            invocation was made.
 llvm::Expected<Compiler>
-Compiler::Create(CompilerName name, TargetLanguage lang,
+Compiler::Create(CompilerName name, enum TargetLanguage lang,
                  std::string_view compiler_path_, std::string_view version_info,
                  std::string_view compiler_working_dir) {
 

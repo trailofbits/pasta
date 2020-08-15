@@ -4,6 +4,7 @@
 
 #include "Job.h"
 
+#include <iostream>
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
@@ -34,6 +35,7 @@
 #include <pasta/Util/FileSystem.h>
 
 #include <cstring>
+#include <memory>
 #include <sstream>
 
 #include "Command.h"
@@ -42,7 +44,15 @@
 
 namespace pasta {
 
-CompileJob::~CompileJob(void) {}
+CompileJob::~CompileJob(void) {
+  if (impl) {
+    delete impl;
+  }
+}
+
+CompileJob::CompileJob(CompileJob &&that) noexcept : impl(that.impl) {
+  that.impl = nullptr;
+}
 
 CompileJob::CompileJob(CompileJobImpl *impl_) : impl(impl_) {}
 
@@ -143,18 +153,19 @@ static bool IsIncludeOption(unsigned id) {
 // Adjust the compiler command (found in `args`), creating a new one and
 // returning it. The new one should have all include paths fully realized.
 static ArgumentVector CreateAdjustedCompilerCommand(
-    CompilerImpl &compiler, const CompileCommandImpl &command,
+    const Compiler &compiler, const CompileCommandImpl &command,
     const llvm::opt::InputArgList &args, const ArgumentVector &old_args) {
 
   llvm::opt::ArgStringList parsed_args;
   llvm::opt::ArgStringList parsed_inc_args;
 
   std::filesystem::path working_dir(command.working_dir);
-  std::filesystem::path sysroot_to_use(compiler.sysroot_dir);
+  std::filesystem::path sysroot_to_use(compiler.SystemRootDirectory());
   std::filesystem::path resource_dir_to_use;
 
-  if (!compiler.resource_dir.empty()) {
-    std::filesystem::path(compiler.resource_dir).swap(resource_dir_to_use);
+  if (!compiler.ResourceDirectory().empty()) {
+    std::filesystem::path(compiler.ResourceDirectory())
+        .swap(resource_dir_to_use);
   }
 
   // Strip out all include path/file related arguments from non-include-related
@@ -195,14 +206,7 @@ static ArgumentVector CreateAdjustedCompilerCommand(
   // the trusted oracle.
   std::vector<std::string> new_args;
   new_args.reserve(parsed_inc_args.size() + 16u);
-  new_args.emplace_back(compiler.compiler_exe);
-
-  // Force the language.
-  new_args.emplace_back("-x");
-  switch (compiler.target_lang) {
-    case TargetLanguage::kC: new_args.emplace_back("c"); break;
-    case TargetLanguage::kCXX: new_args.emplace_back("c++"); break;
-  }
+  new_args.emplace_back(compiler.ExecutablePath());
 
   if (!sysroot_to_use.empty()) {
     new_args.emplace_back("-isysroot");
@@ -239,28 +243,24 @@ static ArgumentVector CreateAdjustedCompilerCommand(
 
   // Then, add in the builtin include paths of `compiler`.
 
-  for (auto include_path : compiler.system_includes) {
-    if (!include_path.empty()) {
-      new_args.emplace_back("-isystem");
-      new_args.emplace_back(include_path);
-    }
-  }
+  compiler.ForEachSystemIncludeDirectory([&](std::string_view include_path) {
+    new_args.emplace_back("-isystem");
+    new_args.emplace_back(include_path);
+  });
 
-  for (auto include_path : compiler.user_includes) {
-    if (!include_path.empty()) {
-      new_args.emplace_back("-iquote");
-      new_args.emplace_back(include_path);
-    }
-  }
+  compiler.ForEachUserIncludeDirectory([&](std::string_view include_path) {
+    new_args.emplace_back("-iquote");
+    new_args.emplace_back(include_path);
+  });
 
-  for (auto include_path : compiler.frameworks) {
+  compiler.ForEachFrameworkDirectory([&](std::string_view include_path) {
     if (!std::filesystem::exists(include_path)) {
       new_args.emplace_back("-iframeworkwithsysroot");
     } else {
       new_args.emplace_back("-iframework");
     }
     new_args.emplace_back(include_path);
-  }
+  });
 
   // Finally, add in all non-include related arguments from the compile command.
   for (auto parsed_arg : parsed_args) {
@@ -300,8 +300,10 @@ CompileCommand::Jobs(const Compiler &compiler) const {
         Arguments().Join().c_str());
   }
 
-  const auto new_args = CreateAdjustedCompilerCommand(*(compiler.impl), *impl,
-                                                      parsed_args, Arguments());
+  const auto new_args =
+      CreateAdjustedCompilerCommand(compiler, *impl, parsed_args, Arguments());
+
+  std::cerr << new_args.Join() << std::endl << std::endl;
 
   auto diag = std::make_unique<SaveFirstErrorDiagConsumer>();
   llvm::IntrusiveRefCntPtr<clang::DiagnosticsEngine> diagnostics_engine(
@@ -309,10 +311,12 @@ CompileCommand::Jobs(const Compiler &compiler) const {
           new clang::DiagnosticIDs, new clang::DiagnosticOptions, diag.get(),
           false /* DON'T take ownership of the consumer */));
 
-  auto real_vfs = llvm::vfs::createPhysicalFileSystem();
-  auto overlay_vfs =
-      std::make_unique<llvm::vfs::OverlayFileSystem>(real_vfs.get());
-  auto mem_vfs = std::make_unique<llvm::vfs::InMemoryFileSystem>();
+  llvm::IntrusiveRefCntPtr<llvm::vfs::FileSystem> real_vfs(
+      llvm::vfs::createPhysicalFileSystem().release());
+  llvm::IntrusiveRefCntPtr<llvm::vfs::OverlayFileSystem> overlay_vfs(
+      new llvm::vfs::OverlayFileSystem(real_vfs.get()));
+  llvm::IntrusiveRefCntPtr<llvm::vfs::InMemoryFileSystem> mem_vfs(
+      new llvm::vfs::InMemoryFileSystem);
   overlay_vfs->pushOverlay(mem_vfs.get());
   overlay_vfs->setCurrentWorkingDirectory(WorkingDirectory().data());
 
@@ -431,7 +435,7 @@ CompileCommand::Jobs(const Compiler &compiler) const {
       // Output files will have random-ish names, which is confusing to
       // downstream tools.
       } else if (last_was_output) {
-        new_argv.emplace_back("<output>");
+        new_argv.emplace_back("/dev/null");
         last_was_output = false;
         continue;
 

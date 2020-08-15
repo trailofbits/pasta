@@ -6,7 +6,6 @@
 
 #include <pasta/Util/Error.h>
 
-#include <memory>
 #include <string_view>
 #include <vector>
 
@@ -28,8 +27,9 @@ class Compiler;
 // include multiple files.
 class CompileCommand {
  public:
-  CompileCommand(CompileCommand &&) noexcept = default;
   ~CompileCommand(void);
+
+  CompileCommand(CompileCommand &&) noexcept;
 
   // Create a compile command from a JSON object. This JSON should come from
   // a proper compile_commands.json compilation database.
@@ -40,11 +40,6 @@ class CompileCommand {
   // JSON should come from a proper compile_commands.json compilation database.
   static std::vector<llvm::Expected<CompileCommand>>
   CreateManyFromJSON(const llvm::json::Array &array);
-
-  // Create a compile command for a single file in a working directory.
-  static llvm::Expected<CompileCommand>
-  CreateOneForFile(const Compiler &compiler, std::string_view file_name,
-                   std::string_view working_dir);
 
   // Create a compile command for a single file in a working directory.
   static llvm::Expected<CompileCommand>
@@ -61,14 +56,16 @@ class CompileCommand {
 
  private:
   friend class CompileJob;
+  friend class Compiler;
 
+  CompileCommand(void) = delete;
   CompileCommand(const CompileCommand &) = delete;
   CompileCommand &operator=(CompileCommand &&) noexcept = delete;
   CompileCommand &operator=(const CompileCommand &) noexcept = delete;
 
   CompileCommand(CompileCommandImpl *impl_);
 
-  std::unique_ptr<CompileCommandImpl> impl;
+  CompileCommandImpl *impl;
 };
 
 }  // namespace pasta

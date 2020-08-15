@@ -8,7 +8,6 @@
 
 #include <string>
 #include <string_view>
-#include <unordered_set>
 #include <vector>
 
 namespace pasta {
@@ -20,6 +19,8 @@ class CompilerImpl {
       : compiler_name(compiler_name_),
         target_lang(target_lang_),
         compiler_exe(compiler_exe_) {}
+
+  ~CompilerImpl(void) {}
 
   const CompilerName compiler_name;
   const TargetLanguage target_lang;

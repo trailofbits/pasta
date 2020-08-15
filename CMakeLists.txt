@@ -67,28 +67,7 @@ find_package(LLVM CONFIG REQUIRED)
 find_package(Clang CONFIG REQUIRED)
 add_library(thirdparty_llvm INTERFACE)
 target_link_libraries(thirdparty_llvm INTERFACE
-    LLVMCore
-    LLVMSupport
-    LLVMAnalysis
-    LLVMExecutionEngine
-    LLVMipo
-    LLVMIRReader
-    LLVMBitReader
-    LLVMBitWriter
-    LLVMTransformUtils
-    LLVMScalarOpts
-    LLVMLTO
-    LLVMTarget
-    
-    LLVMAsmParser
-    LLVMCodeGen
-    
-    LLVMX86AsmParser
-    LLVMX86CodeGen
-    LLVMX86Desc
-    LLVMX86Disassembler
-    LLVMX86Info
-    LLVMX86Utils
+    ${LLVM_AVAILABLE_LIBS}
     
     clangSema
     clang
@@ -175,14 +154,17 @@ add_library(util STATIC
   "include/pasta/Util/ArgumentVector.h"
   "include/pasta/Util/Error.h"
   "include/pasta/Util/FileSystem.h"
+  "include/pasta/Util/Init.h"
   "include/pasta/Util/JSON.h"
   
   "lib/Util/ArgumentVector.cpp"
   "lib/Util/FileSystem.cpp"
+  "lib/Util/Init.cpp"
 )
 
 target_link_libraries(util PRIVATE
     cxx_settings
+    thirdparty_llvm
 )
 
 add_library(compiler STATIC
@@ -197,7 +179,9 @@ add_library(compiler STATIC
     "lib/Compile/Compiler.h"
     "lib/Compile/Job.h"
     
+    "lib/Compile/AST.cpp"
     "lib/Compile/Command.cpp"
+    "lib/Compile/Compiler.cpp"
     "lib/Compile/Create.cpp"
     "lib/Compile/Diagnostic.cpp"
     "lib/Compile/Job.cpp"

@@ -4,11 +4,13 @@
 
 #pragma once
 
-#include <memory>
+#include <pasta/Util/Error.h>
+
 #include <string_view>
 
 namespace pasta {
 
+class AST;
 class ArgumentVector;
 class CompileCommand;
 class CompileJobImpl;
@@ -20,7 +22,7 @@ class CompileJobImpl;
 class CompileJob {
  public:
   ~CompileJob(void);
-  CompileJob(CompileJob &&) noexcept = default;
+  CompileJob(CompileJob &&) noexcept;
 
   // Return an argument vector associated with this compilation job.
   const ArgumentVector &Arguments(void) const;
@@ -43,16 +45,20 @@ class CompileJob {
   // Return the path to the source file that this job compiles.
   std::string_view SourceFile(void) const;
 
+  // Run a backend compilation job and returns the AST or the first error.
+  llvm::Expected<AST> Run(void) const;
+
  private:
   friend class CompileCommand;
 
+  CompileJob(void) = delete;
   CompileJob(const CompileJob &) = delete;
   CompileJob &operator=(const CompileJob &) = delete;
   CompileJob &operator=(CompileJob &&) noexcept = delete;
 
   CompileJob(CompileJobImpl *impl_);
 
-  std::unique_ptr<CompileJobImpl> impl;
+  CompileJobImpl *impl;
 };
 
 }  // namespace pasta

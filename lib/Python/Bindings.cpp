@@ -71,7 +71,12 @@ PyObject *FromStdStr(const std::string &s) {
     return new_ret;
   }
 
-  return PyBytes_FromStringAndSize(s.data(), s.size());
+  return PyBytes_FromStringAndSize(s.data(), static_cast<Py_ssize_t>(s.size()));
+}
+
+PyObject *FromStdStrView(std::string_view view) {
+  std::string str(view);
+  return FromStdStr(str);
 }
 
 PyObject *FromBool(bool b) {
@@ -174,6 +179,40 @@ bool ToStdStr(PyObject *v, void *storage) {
     return false;
   }
 }
+
+bool ToStdStrView(PyObject *v, void *storage_) {
+  auto storage = new (storage_) StringView;
+
+  if (PyBytes_Check(v)) {
+    const auto size = PyBytes_Size(v);
+    const auto data = PyBytes_AsString(v);
+    std::string(data, &(data[size])).swap(storage->data);
+    std::string_view(storage->data).swap(*storage);
+    return true;
+
+  } else if (PyUnicode_Check(v)) {
+    auto utf8 = PyUnicode_AsUTF8String(v);
+    if (!utf8) {
+      return false;
+    }
+
+    char *data = nullptr;
+    Py_ssize_t size = 0;
+    if (PyBytes_AsStringAndSize(utf8, &data, &size)) {
+      Py_DECREF(utf8);
+      return false;
+    }
+
+    std::string(data, &(data[size])).swap(storage->data);
+    std::string_view(storage->data).swap(*storage);
+    Py_DECREF(utf8);
+    return true;
+
+  } else {
+    return false;
+  }
+}
+
 
 }  // namespace convert
 

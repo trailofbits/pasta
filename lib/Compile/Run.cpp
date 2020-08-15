@@ -2,6 +2,7 @@
  * Copyright (c) 2020 Trail of Bits, Inc.
  */
 
+#include "AST.h"
 #include "Compiler.h"
 #include "Diagnostic.h"
 #include "Job.h"
@@ -26,24 +27,28 @@
 
 #include <pasta/Util/ArgumentVector.h>
 
+#include <iostream>
+
 namespace pasta {
 
 // Run a command ans return the AST or the first error.
-llvm::Expected<AST> Compiler::Run(const CompileJob &job) const {
-
-  auto real_vfs = llvm::vfs::createPhysicalFileSystem();
-  auto overlay_vfs =
-      std::make_unique<llvm::vfs::OverlayFileSystem>(real_vfs.get());
-  auto mem_vfs = std::make_unique<llvm::vfs::InMemoryFileSystem>();
+llvm::Expected<AST> CompileJob::Run(void) const {
+  auto ast = std::make_shared<ASTImpl>();
+  llvm::IntrusiveRefCntPtr<llvm::vfs::FileSystem> real_vfs(
+      llvm::vfs::createPhysicalFileSystem().release());
+  llvm::IntrusiveRefCntPtr<llvm::vfs::OverlayFileSystem> overlay_vfs(
+      new llvm::vfs::OverlayFileSystem(real_vfs.get()));
+  llvm::IntrusiveRefCntPtr<llvm::vfs::InMemoryFileSystem> mem_vfs(
+      new llvm::vfs::InMemoryFileSystem);
   overlay_vfs->pushOverlay(mem_vfs.get());
-  overlay_vfs->setCurrentWorkingDirectory(job.WorkingDirectory().data());
+  overlay_vfs->setCurrentWorkingDirectory(WorkingDirectory().data());
 
-  auto diag = std::make_unique<SaveFirstErrorDiagConsumer>();
+  auto diag = new SaveFirstErrorDiagConsumer;
   auto ci = std::make_shared<clang::CompilerInstance>();
   llvm::IntrusiveRefCntPtr<clang::DiagnosticsEngine> diagnostics_engine(
-      new clang::DiagnosticsEngine(
-          new clang::DiagnosticIDs, new clang::DiagnosticOptions, diag.get(),
-          false /* DON'T take ownership of the consumer */));
+      new clang::DiagnosticsEngine(new clang::DiagnosticIDs,
+                                   new clang::DiagnosticOptions, diag,
+                                   false /* Take ownership of the consumer */));
 
   diagnostics_engine->Reset();
   diagnostics_engine->setIgnoreAllWarnings(true);
@@ -54,7 +59,7 @@ llvm::Expected<AST> Compiler::Run(const CompileJob &job) const {
 
   auto &invocation = ci->getInvocation();
   auto &fs_options = invocation.getFileSystemOpts();
-  fs_options.WorkingDir = job.WorkingDirectory();
+  fs_options.WorkingDir = WorkingDirectory();
 
   llvm::IntrusiveRefCntPtr<clang::FileManager> fm(
       new clang::FileManager(fs_options, overlay_vfs.get()));
@@ -66,11 +71,11 @@ llvm::Expected<AST> Compiler::Run(const CompileJob &job) const {
   // the right cross-compilation target info.
   auto &target_opts = invocation.getTargetOpts();
   target_opts.HostTriple = llvm::sys::getDefaultTargetTriple();
-  target_opts.Triple = job.TargetTriple();
+  target_opts.Triple = TargetTriple();
   ci->setTarget(clang::TargetInfo::CreateTargetInfo(ci->getDiagnostics(),
                                                     invocation.TargetOpts));
 
-  const auto &argv = job.Arguments();
+  const auto &argv = Arguments();
   const auto invocation_is_valid = clang::CompilerInvocation::CreateFromArgs(
       invocation, argv.Argv(), &(argv.Argv()[argv.Size()]),
       *diagnostics_engine);
@@ -121,6 +126,7 @@ llvm::Expected<AST> Compiler::Run(const CompileJob &job) const {
   lang_opts->CXXExceptions = true;
   lang_opts->Blocks = true;
   lang_opts->POSIXThreads = true;
+  lang_opts->HeinousExtensions = true;
   lang_opts->DoubleSquareBracketAttributes = true;
   lang_opts->GNUMode = true;
   lang_opts->GNUKeywords = true;
@@ -146,6 +152,17 @@ llvm::Expected<AST> Compiler::Run(const CompileJob &job) const {
 
   auto &frontend_opts = invocation.getFrontendOpts();
   frontend_opts.StatsFile.clear();
+  frontend_opts.OverrideRecordLayoutsFile.clear();
+  frontend_opts.ASTDumpFilter.clear();
+
+  // TODO(pag): Eventually support? A better way would be to load them into
+  //            `Compiler` or into `CompileCommand`.
+  frontend_opts.Plugins.clear();
+  frontend_opts.ActionName.clear();
+  frontend_opts.PluginArgs.clear();
+  frontend_opts.AddPluginActions.clear();
+
+  std::cerr << argv.Join() << std::endl;
 
   // Go check that we've got an input file, them initialize the source manager
   // with the first input file.
@@ -194,8 +211,8 @@ llvm::Expected<AST> Compiler::Run(const CompileJob &job) const {
   ci->createPreprocessor(clang::TU_Complete);
   auto &pp = ci->getPreprocessor();
 
-  pp.SetCommentRetentionState(true /* KeepComments */,
-                              true /* KeepMacroComments */);
+  pp.SetCommentRetentionState(false /* KeepComments */,
+                              false /* KeepMacroComments */);
 
   pp.getBuiltinInfo().initializeBuiltins(pp.getIdentifierTable(), *lang_opts);
   pp.setPragmasEnabled(true);
@@ -203,10 +220,67 @@ llvm::Expected<AST> Compiler::Run(const CompileJob &job) const {
   // Picks up on the pre-processor and stuff.
   ci->InitializeSourceManager(input_files[0]);
   ci->createASTContext();
+  ci->createSema(clang::TU_Complete, nullptr);
 
-  auto &source_manager = ci->getSourceManager();
+  //auto &source_manager = ci->getSourceManager();
   auto &ast_context = ci->getASTContext();
   auto &ast_consumer = ci->getASTConsumer();
+  auto &sema = ci->getSema();
+
+  std::unique_ptr<clang::Parser> parser(
+      new clang::Parser(pp, sema, false /* SkipFunctionBodies */));
+
+  pp.EnterMainSourceFile();
+  parser->Initialize();
+
+  clang::Parser::DeclGroupPtrTy a_decl;
+  for (auto at_eof = parser->ParseFirstTopLevelDecl(a_decl); !at_eof;
+       at_eof = parser->ParseTopLevelDecl(a_decl)) {
+
+    // Parsing a dangling top-level semicolon will result in a null declaration.
+    if (a_decl && !ast_consumer.HandleTopLevelDecl(a_decl.get())) {
+      break;
+    }
+  }
+
+  // Process any TopLevelDecls generated by #pragma weak.
+  for (auto decl : sema.WeakTopLevelDecls()) {
+    if (decl && !ast_consumer.HandleTopLevelDecl(clang::DeclGroupRef(decl))) {
+      break;
+    }
+  }
+
+  // Finalize any leftover instantiations.
+  sema.PerformPendingInstantiations(false);
+
+  std::cerr << argv.Join() << std::endl << std::endl;
+
+  if (diagnostics_engine->hasUncompilableErrorOccurred() ||
+      diagnostics_engine->hasFatalErrorOccurred()) {
+    if (diag->error.empty()) {
+      return llvm::createStringError(
+          std::make_error_code(std::errc::invalid_argument),
+          "A clang diagnostic or uncompilable error was produced when trying "
+          "to get an AST from the command: %s",
+          argv.Join().c_str());
+
+    } else {
+      return llvm::createStringError(
+          std::make_error_code(std::errc::invalid_argument),
+          "A clang diagnostic or uncompilable error was produced when trying "
+          "to get an AST: %s",
+          diag->error.c_str());
+    }
+  }
+
+  ast->real_fs = std::move(real_vfs);
+  ast->overlay_fs = std::move(overlay_vfs);
+  ast->mem_fs = std::move(mem_vfs);
+  ast->ci = std::move(ci);
+  ast->fm = std::move(fm);
+  ast->tu = ast_context.getTranslationUnitDecl();
+
+  return AST(std::move(ast));
 }
 
 }  // namespace pasta

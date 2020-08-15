@@ -12,6 +12,7 @@
 namespace pasta {
 
 class ASTImpl;
+class CompileJob;
 class Compiler;
 
 // Abstraction around a Clang AST and the various data structures that need to
@@ -25,6 +26,7 @@ class AST {
 
  private:
   friend class Compiler;
+  friend class CompileJob;
 
   AST(std::shared_ptr<ASTImpl> impl_);
 

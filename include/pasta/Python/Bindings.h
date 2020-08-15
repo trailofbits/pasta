@@ -9,6 +9,8 @@
 #include <memory>
 #include <new>
 #include <sstream>
+#include <string>
+#include <string_view>
 #include <tuple>
 #include <type_traits>
 
@@ -37,6 +39,7 @@ PyObject *FromU32(uint32_t);
 PyObject *FromU64(uint64_t);
 
 PyObject *FromStdStr(const std::string &);
+PyObject *FromStdStrView(std::string_view);
 
 PyObject *FromBool(bool);
 
@@ -49,6 +52,7 @@ bool ToU32(PyObject *, void *);
 bool ToU64(PyObject *, void *);
 
 bool ToStdStr(PyObject *v, void *storage);
+bool ToStdStrView(PyObject *v, void *storage);
 
 }  // namespace convert
 
@@ -101,6 +105,13 @@ class NativeXPython<std::string> {
  public:
   static constexpr auto ToPython = convert::FromStdStr;
   static constexpr auto ToCxx = convert::ToStdStr;
+};
+
+template <>
+class NativeXPython<std::string_view> {
+ public:
+  static constexpr auto ToPython = convert::FromStdStrView;
+  static constexpr auto ToCxx = convert::ToStdStrView;
 };
 
 class PythonErrorStreamer {
@@ -482,11 +493,33 @@ inline static T *ConvertFromPythonObject(PyObject *obj, void *storage) {
   }
 }
 
+// The backing storage for a type `T` is usually `T` itself, but in the case of
+// a `std::string_view`, we might need a view into a temporarily-allocated
+// Python string, and so if that backing Python object disappears then the
+// string view will access undefined memory, so we need to provide a mechanism
+// to back the string view with proper storage for itself.
+template <typename T>
+struct StorageType {
+ public:
+  using Type = T;
+};
+
+struct StringView : std::string_view {
+  std::string data;
+};
+
+template <>
+struct StorageType<std::string_view> {
+ public:
+  using Type = StringView;
+};
+
 // A positional argument to a Python-exposed function.
 template <typename T>
 class PythonArg {
  public:
   using SelfType = PythonArg<T>;
+  using StoreT = typename StorageType<T>::Type;
 
   PythonArg(void) = default;
 
@@ -574,24 +607,24 @@ class PythonArg {
  private:
   void Reset(void) {
     if (owned_pimpl) {
-      if constexpr (std::is_destructible_v<T> &&
-                    !std::is_trivially_destructible_v<T>) {
-        owned_pimpl->~T();
+      if constexpr (std::is_destructible_v<StoreT> &&
+                    !std::is_trivially_destructible_v<StoreT>) {
+        owned_pimpl->~StoreT();
       }
       owned_pimpl = nullptr;
     }
     pimpl = &kDefaultVal;
   }
 
-  alignas(T) uint8_t impl[sizeof(T)];
-  T *owned_pimpl{nullptr};
-  const T *pimpl{&kDefaultVal};
+  alignas(StoreT) uint8_t impl[sizeof(StoreT)];
+  StoreT *owned_pimpl{nullptr};
+  const StoreT *pimpl{&kDefaultVal};
 
-  static const T kDefaultVal;
+  static const StoreT kDefaultVal;
 };
 
 template <typename T>
-const T PythonArg<T>::kDefaultVal = {};
+const typename StorageType<T>::Type PythonArg<T>::kDefaultVal = {};
 
 namespace detail {
 

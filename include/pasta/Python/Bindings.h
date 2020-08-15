@@ -26,6 +26,65 @@
 
 namespace pasta {
 namespace py {
+
+// The backing storage for a type `T` is usually `T` itself, but in the case of
+// a `std::string_view`, we might need a view into a temporarily-allocated
+// Python string, and so if that backing Python object disappears then the
+// string view will access undefined memory, so we need to provide a mechanism
+// to back the string view with proper storage for itself.
+template <typename T>
+struct StorageType {
+ public:
+  using Type = T;
+};
+
+struct StringView : public std::string_view {
+  StringView(void) = default;
+
+  template <typename T>
+  StringView(T data_) : data(data_) {}
+
+  std::string data;
+};
+
+template <>
+struct StorageType<std::string_view> {
+ public:
+  using Type = StringView;
+};
+
+// A wrapper around an enumeration type that lets us convert to/from its
+// underlying representation type.
+template <typename T, typename ReprType>
+class EnumWrapper {
+ public:
+  inline EnumWrapper(void) : val(static_cast<T>(ReprType{})) {}
+
+  inline EnumWrapper(T val_) : val(val_) {}
+
+  inline EnumWrapper(ReprType val_) : val(static_cast<T>(val_)) {}
+
+  inline operator ReprType(void) const {
+    return static_cast<ReprType>(val);
+  }
+
+  inline operator T(void) const {
+    return static_cast<T>(val);
+  }
+
+  inline EnumWrapper<T, ReprType> &operator=(T val_) {
+    val = val_;
+    return *this;
+  }
+
+  inline EnumWrapper<T, ReprType> &operator=(ReprType val_) {
+    val = static_cast<T>(val_);
+    return *this;
+  }
+
+  T val;
+};
+
 namespace convert {
 
 PyObject *FromI8(int8_t);
@@ -39,7 +98,8 @@ PyObject *FromU32(uint32_t);
 PyObject *FromU64(uint64_t);
 
 PyObject *FromStdStr(const std::string &);
-PyObject *FromStdStrView(std::string_view);
+PyObject *FromStdStrView(const std::string_view &);
+PyObject *FromStringView(const StringView &);
 
 PyObject *FromBool(bool);
 
@@ -61,6 +121,9 @@ class PythonObject;
 
 template <typename T>
 class NativeXPython;
+
+template <>
+class NativeXPython<void> {};
 
 template <typename T>
 class NativeXPython<const T &> : public NativeXPython<T> {};
@@ -113,6 +176,22 @@ class NativeXPython<std::string_view> {
   static constexpr auto ToPython = convert::FromStdStrView;
   static constexpr auto ToCxx = convert::ToStdStrView;
 };
+
+template <>
+class NativeXPython<StringView> {
+ public:
+  static constexpr auto ToPython = convert::FromStringView;
+  static constexpr auto ToCxx = convert::ToStdStrView;
+};
+
+template <typename T, typename ReprType>
+class NativeXPython<EnumWrapper<T, ReprType>> : public NativeXPython<ReprType> {
+};
+
+template <typename T>
+class NativeXPython : public NativeXPython<typename std::conditional<
+                          !std::is_same_v<typename StorageType<T>::Type, T>,
+                          typename StorageType<T>::Type, void>::type> {};
 
 class PythonErrorStreamer {
  public:
@@ -493,27 +572,6 @@ inline static T *ConvertFromPythonObject(PyObject *obj, void *storage) {
   }
 }
 
-// The backing storage for a type `T` is usually `T` itself, but in the case of
-// a `std::string_view`, we might need a view into a temporarily-allocated
-// Python string, and so if that backing Python object disappears then the
-// string view will access undefined memory, so we need to provide a mechanism
-// to back the string view with proper storage for itself.
-template <typename T>
-struct StorageType {
- public:
-  using Type = T;
-};
-
-struct StringView : std::string_view {
-  std::string data;
-};
-
-template <>
-struct StorageType<std::string_view> {
- public:
-  using Type = StringView;
-};
-
 // A positional argument to a Python-exposed function.
 template <typename T>
 class PythonArg {
@@ -530,9 +588,9 @@ class PythonArg {
   PythonArg(const SelfType &that) : owned_pimpl(nullptr), pimpl(that.pimpl) {}
 
   PythonArg(SelfType &&that) noexcept
-      : owned_pimpl(that.owned_pimpl ? new (impl)
-                                           T(std::move(*(that.owned_pimpl)))
-                                     : nullptr),
+      : owned_pimpl(that.owned_pimpl
+                        ? new (impl) StoreT(std::move(*(that.owned_pimpl)))
+                        : nullptr),
         pimpl(that.owned_pimpl ? owned_pimpl : that.pimpl) {
     that.Reset();
   }
@@ -542,12 +600,12 @@ class PythonArg {
   PythonArg(const T &val) : owned_pimpl(nullptr), pimpl(&val) {}
 
   PythonArg(T &&val) noexcept
-      : owned_pimpl(new (impl) T(std::forward<T>(val))),
+      : owned_pimpl(new (impl) StoreT(std::forward<T>(val))),
         pimpl(owned_pimpl) {}
 
   template <typename... Args>
   PythonArg(Args &&... args)
-      : owned_pimpl(new (impl) T(std::forward<Args>(args)...)),
+      : owned_pimpl(new (impl) StoreT(std::forward<Args>(args)...)),
         pimpl(owned_pimpl) {}
 
   PythonArg &operator=(const SelfType &that) {
@@ -562,7 +620,7 @@ class PythonArg {
     if (this != &that) {
       Reset();
       if (that.owned_pimpl) {
-        owned_pimpl = new (impl) T(std::move(*(that.owned_pimpl)));
+        owned_pimpl = new (impl) StoreT(std::move(*(that.owned_pimpl)));
         pimpl = owned_pimpl;
         that.Reset();
       } else {
@@ -576,7 +634,7 @@ class PythonArg {
     return pimpl != &kDefaultVal;
   }
 
-  inline const T &operator*(void) const {
+  inline const StoreT &operator*(void) const {
     return *pimpl;
   }
 
@@ -586,8 +644,9 @@ class PythonArg {
 
   inline bool Parse(PyObject *py_obj) {
     Reset();
-    owned_pimpl = ConvertFromPythonObject<T>(py_obj, impl);
-    if (owned_pimpl) {
+    if (auto new_owned_pimpl = ConvertFromPythonObject<T>(py_obj, impl);
+        new_owned_pimpl) {
+      owned_pimpl = reinterpret_cast<StoreT *>(new_owned_pimpl);
       pimpl = owned_pimpl;
       return true;
     } else {

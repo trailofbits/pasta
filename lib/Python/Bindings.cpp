@@ -74,9 +74,14 @@ PyObject *FromStdStr(const std::string &s) {
   return PyBytes_FromStringAndSize(s.data(), static_cast<Py_ssize_t>(s.size()));
 }
 
-PyObject *FromStdStrView(std::string_view view) {
+PyObject *FromStdStrView(const std::string_view &view) {
   std::string str(view);
   return FromStdStr(str);
+}
+
+
+PyObject *FromStringView(const StringView &view) {
+  return FromStdStr(view.data);
 }
 
 PyObject *FromBool(bool b) {

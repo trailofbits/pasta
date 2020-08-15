@@ -10,6 +10,11 @@ Compiler::Compiler(Compiler &&that) noexcept : impl(that.impl) {
   that.impl = nullptr;
 }
 
+Compiler &Compiler::operator=(Compiler &&that) noexcept {
+  std::swap(impl, that.impl);
+  return *this;
+}
+
 Compiler::~Compiler(void) {
   if (impl) {
     delete impl;

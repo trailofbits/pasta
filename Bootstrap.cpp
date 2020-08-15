@@ -15,11 +15,14 @@
 #include <iostream>
 #include <memory>
 
-// How to invoke:
-//    bootstrap <working_dir>
+static int GenerateBindings(pasta::AST ast, const char *out_dir) {
+
+  return EXIT_SUCCESS;
+}
+
 int main(int argc, char *argv[]) {
   if (3 != argc) {
-    std::cerr << "Usage: " << argv[0] << " INPUT_FILE OUTPUT_FILE" << std::endl;
+    std::cerr << "Usage: " << argv[0] << " INPUT_FILE OUTPUT_DIR" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -59,8 +62,9 @@ int main(int argc, char *argv[]) {
       return EXIT_FAILURE;
     }
 
-    const auto ast = std::move(*maybe_ast);
+    return GenerateBindings(std::move(*maybe_ast), argv[2]);
   }
 
-  return EXIT_SUCCESS;
+  std::cerr << "No ASTs were produced." << std::endl;
+  return EXIT_FAILURE;
 }

@@ -36,6 +36,7 @@ class CompilerImpl;
 class Compiler {
  public:
   Compiler(Compiler &&) noexcept;
+  Compiler &operator=(Compiler &&) noexcept;
 
   ~Compiler(void);
 
@@ -95,7 +96,6 @@ class Compiler {
   Compiler(void) = delete;
   Compiler(const Compiler &) = delete;
   Compiler &operator=(const Compiler &) = delete;
-  Compiler &operator=(Compiler &&) noexcept = delete;
 
   Compiler(CompilerImpl *impl_);
 

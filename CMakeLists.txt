@@ -140,16 +140,6 @@ configure_file("${HOST_H_IN_FILE}" "${HOST_H_FILE}" @ONLY)
 # Main build targets -------------------------
 # --------------------------------------------
 
-add_library(python_bindings STATIC
-    "lib/Python/Bindings.cpp"
-)
-
-target_link_libraries(python_bindings PRIVATE
-    cxx_settings
-    thirdparty_python
-    thirdparty_llvm
-)
-
 add_library(util STATIC
   "include/pasta/Util/ArgumentVector.h"
   "include/pasta/Util/Error.h"
@@ -195,6 +185,23 @@ target_include_directories(compiler PRIVATE
 target_link_libraries(compiler PRIVATE
     cxx_settings
     thirdparty_llvm
+    util
+)
+
+add_library(python_bindings STATIC
+    "include/pasta/Python/Bindings.h"
+    
+    "lib/Python/Bindings.cpp"
+    "lib/Python/Compile/Compile.h"
+    "lib/Python/Compile/Compiler.cpp"
+    "lib/Python/Pasta.cpp"
+)
+
+target_link_libraries(python_bindings PRIVATE
+    compiler
+    cxx_settings
+    thirdparty_llvm
+    thirdparty_python
     util
 )
 
@@ -261,10 +268,10 @@ add_custom_command(
     COMMAND "${PYTHON_EXECUTABLE}" "${SETUP_PY}" build --force
     COMMAND "${CMAKE_COMMAND}" -E touch "${OUTPUT}"
     COMMENT "Building Pasta Python API"
-    DEPENDS python_bindings bootstrap
+    DEPENDS python_bindings
     WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
 )
   
 add_custom_target(build_python_ext ALL DEPENDS "${OUTPUT}")
 
-install(CODE "execute_process(COMMAND \"${PYTHON_EXECUTABLE}\" \"${SETUP_PY}\" install --root=\"${CMAKE_CURRENT_BINARY_DIR}\")")
+install(CODE "execute_process(COMMAND \"${PYTHON_EXECUTABLE}\" \"${SETUP_PY}\" install)")

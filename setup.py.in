@@ -19,8 +19,8 @@ os.environ["CXX"] = "@CMAKE_CXX_COMPILER@"
 INCLUDE_DIRS = list(set("@INCLUDE_DIRS@".split(";")))
 LIBRARY_PATHS = list(set("@LIBRARY_PATHS@".split(";")))
 
-python_bindings = distutils.core.Extension(
-    "python_bindings",
+pasta_internal = distutils.core.Extension(
+    "pasta_internal",
     include_dirs=INCLUDE_DIRS,
     sources=[],
     extra_compile_args=["-std=c++17"],
@@ -30,10 +30,10 @@ python_bindings = distutils.core.Extension(
 distutils.core.setup(
     name="pasta",
     version="0.1",
-    description="Python AST Analyzer Toolkit",
+    description="Peter's Amazing Syntax Tree Analyzer",
     author="Trail of Bits",
-    author_email="tech@trailofbits.com",
+    author_email="peter@trailofbits.com",
     url="https://github.com/trailofbits/pasta",
     license="Proprietary and confidential",
     py_modules=["pasta.__init__"],
-    ext_modules=[python_bindings])
+    ext_modules=[pasta_internal])

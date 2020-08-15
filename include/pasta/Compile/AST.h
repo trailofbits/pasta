@@ -7,8 +7,14 @@
 #include <pasta/Util/Error.h>
 
 #include <memory>
+#include <optional>
 #include <string_view>
 
+namespace clang {
+class Decl;
+class Stmt;
+class Expr;
+}  // namespace clang
 namespace pasta {
 
 class ASTImpl;
@@ -32,5 +38,31 @@ class AST {
 
   std::shared_ptr<ASTImpl> impl;
 };
+
+//template <typename T>
+//class ASTNode {
+// public:
+//
+// private:
+//  std::shared_ptr<ASTImpl> impl;
+//  const T * const node;
+//};
+//
+//class DeclASTNode : public ASTNode<clang::Decl> {
+// public:
+//  std::string_view KindName(void) const;
+//
+//  // Name of this AST node.
+//  std::optional<std::string_view> Name(void) const;
+//
+//};
+//
+//class StmtASTNode : public ASTNode<clang::Stmt> {
+// public:
+//};
+//
+//class ExprASTNode : public ASTNode<clang::Stmt> {
+// public:
+//};
 
 }  // namespace pasta

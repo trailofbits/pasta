@@ -5,23 +5,27 @@
 #include <pasta/Compile/Compiler.h>
 #include <pasta/Util/Error.h>
 
+#include <filesystem>
+
 #include "Compile.h"
 
 namespace pasta {
 namespace py {
 namespace {
 
-DEFINE_PYTHON_METHOD(PyCompiler, Name, name);
-DEFINE_PYTHON_METHOD(PyCompiler, TargetLanguage, target_language);
-DEFINE_PYTHON_METHOD(PyCompiler, ExecutablePath, executable_path);
-DEFINE_PYTHON_METHOD(PyCompiler, ResourceDirectory, resource_directory);
-DEFINE_PYTHON_METHOD(PyCompiler, SystemRootDirectory, system_root_directory);
-DEFINE_PYTHON_METHOD(PyCompiler, InstallationDirectory, installation_directory);
-DEFINE_PYTHON_METHOD(PyCompiler, SystemIncludeDirectories,
+DEFINE_PYTHON_METHOD(Compiler, Name, name);
+DEFINE_PYTHON_METHOD(Compiler, TargetLanguage, target_language);
+DEFINE_PYTHON_METHOD(Compiler, ExecutablePath, executable_path);
+DEFINE_PYTHON_METHOD(Compiler, ResourceDirectory, resource_directory);
+DEFINE_PYTHON_METHOD(Compiler, SystemRootDirectory, system_root_directory);
+DEFINE_PYTHON_METHOD(Compiler, InstallationDirectory, installation_directory);
+DEFINE_PYTHON_METHOD(Compiler, SystemIncludeDirectories,
                      system_include_directories);
-DEFINE_PYTHON_METHOD(PyCompiler, UserIncludeDirectories,
+DEFINE_PYTHON_METHOD(Compiler, UserIncludeDirectories,
                      user_include_directories);
-DEFINE_PYTHON_METHOD(PyCompiler, FrameworkDirectories, framework_directories);
+DEFINE_PYTHON_METHOD(Compiler, FrameworkDirectories, framework_directories);
+DEFINE_PYTHON_METHOD(Compiler, CreateCommandForFile, create_file_command);
+DEFINE_PYTHON_METHOD(Compiler, CreateJobsForCommand, create_command_jobs);
 
 static PyMethodDef gCompilerMethods[] = {
     PYTHON_METHOD(name, "Return the identifier of this compiler."),
@@ -46,54 +50,69 @@ static PyMethodDef gCompilerMethods[] = {
     PYTHON_METHOD(
         framework_directories,
         "List of framework directories scanned by the compiler when trying to resolve #include files."),
+    PYTHON_METHOD(
+        create_file_command,
+        "Create a command that can be used to compile the input file."),
+    PYTHON_METHOD(
+        create_command_jobs,
+        "Create and return a list of CompileJob instances representing the jobs needed to compile the source files referenced by the input CompileCommand."),
     PYTHON_METHOD_SENTINEL};
 
 }  // namespace
 
+// Return the current working directory.
+std::string CurrentWorkingDir(const working_dir_kwarg &working_dir) {
+  if (working_dir && !working_dir->empty()) {
+    return *working_dir;
+  } else {
+    return std::filesystem::current_path().string();
+  }
+}
 
-PyCompiler::~PyCompiler(void) {}
+Compiler::~Compiler(void) {}
 
-PyCompiler::PyCompiler(compiler_name_arg name, target_language_arg lang,
-                       compiler_path_arg compiler_path,
-                       version_info_arg version_info,
-                       working_dir_arg working_dir) {
-  auto maybe_compiler = Compiler::Create(*name, *lang, *compiler_path,
-                                         *version_info, *working_dir);
+Compiler::Compiler(compiler_name_arg name, target_language_arg lang,
+                   compiler_path_arg compiler_path,
+                   version_info_arg version_info,
+                   working_dir_kwarg working_dir) {
+  auto maybe_compiler =
+      ::pasta::Compiler::Create(*name, *lang, *compiler_path, *version_info,
+                                CurrentWorkingDir(working_dir));
   if (IsError(maybe_compiler)) {
     PythonErrorStreamer(PyExc_Exception) << ErrorString(maybe_compiler);
   } else {
-    std::optional<Compiler> cc(std::move(*maybe_compiler));
+    std::optional<::pasta::Compiler> cc(std::move(*maybe_compiler));
     cc.swap(compiler);
   }
 }
 
-unsigned PyCompiler::Name(void) {
+unsigned Compiler::Name(void) {
   return static_cast<unsigned>(compiler->Name());
 }
 
-unsigned PyCompiler::TargetLanguage(void) {
+unsigned Compiler::TargetLanguage(void) {
   return static_cast<unsigned>(compiler->TargetLanguage());
 }
 
-std::string_view PyCompiler::ExecutablePath(void) {
+std::string_view Compiler::ExecutablePath(void) {
   return compiler->ExecutablePath();
 }
 
-std::string_view PyCompiler::ResourceDirectory(void) {
+std::string_view Compiler::ResourceDirectory(void) {
   return compiler->ResourceDirectory();
 }
 
-std::string_view PyCompiler::SystemRootDirectory(void) {
+std::string_view Compiler::SystemRootDirectory(void) {
   return compiler->SystemRootDirectory();
 }
 
 // Directory where the compiler is installed.
-std::string_view PyCompiler::InstallationDirectory(void) {
+std::string_view Compiler::InstallationDirectory(void) {
   return compiler->InstallationDirectory();
 }
 
 // List of system include directories.
-std::vector<std::string_view> PyCompiler::SystemIncludeDirectories(void) {
+const std::vector<std::string_view> Compiler::SystemIncludeDirectories(void) {
   std::vector<std::string_view> list;
   compiler->ForEachSystemIncludeDirectory(
       [&list](std::string_view path) { list.emplace_back(path); });
@@ -101,7 +120,7 @@ std::vector<std::string_view> PyCompiler::SystemIncludeDirectories(void) {
 }
 
 // List of user include directories.
-std::vector<std::string_view> PyCompiler::UserIncludeDirectories(void) {
+const std::vector<std::string_view> Compiler::UserIncludeDirectories(void) {
   std::vector<std::string_view> list;
   compiler->ForEachUserIncludeDirectory(
       [&list](std::string_view path) { list.emplace_back(path); });
@@ -109,15 +128,46 @@ std::vector<std::string_view> PyCompiler::UserIncludeDirectories(void) {
 }
 
 // List of framework directories.
-std::vector<std::string_view> PyCompiler::FrameworkDirectories(void) {
+const std::vector<std::string_view> Compiler::FrameworkDirectories(void) {
   std::vector<std::string_view> list;
   compiler->ForEachFrameworkDirectory(
       [&list](std::string_view path) { list.emplace_back(path); });
   return list;
 }
 
+// Create a compile command for a single file in a working directory.
+BorrowedPythonPtr<CompileCommand>
+Compiler::CreateCommandForFile(file_path_arg file_path,
+                               working_dir_kwarg working_dir) {
+  auto maybe_command = compiler->CreateCommandForFile(
+      *file_path, CurrentWorkingDir(working_dir));
+  if (IsError(maybe_command)) {
+    PythonErrorStreamer(PyExc_Exception) << ErrorString(maybe_command);
+    return nullptr;
+  } else {
+    return CompileCommand::New(std::move(*maybe_command));
+  }
+}
+
+// Create a compile command for a single file in a working directory.
+std::vector<BorrowedPythonPtr<CompileJob>>
+Compiler::CreateJobsForCommand(command_arg command) {
+  std::vector<BorrowedPythonPtr<CompileJob>> ret;
+  auto maybe_jobs = compiler->CreateJobsForCommand(*((*command)->command));
+  if (IsError(maybe_jobs)) {
+    PythonErrorStreamer(PyExc_Exception) << ErrorString(maybe_jobs);
+  } else {
+    auto jobs = std::move(*maybe_jobs);
+    for (auto &job : jobs) {
+      auto py_job = CompileJob::New(std::move(job));
+      ret.emplace_back(std::move(py_job));
+    }
+  }
+  return ret;
+}
+
 // Tries to add the `Compiler` type to the `pasta` module.
-bool PyCompiler::TryAddToModule(PyObject *module) {
+bool Compiler::TryAddToModule(PyObject *module) {
   gType.tp_name = "pasta.Compiler";
   gType.tp_doc = "Interface to running compile commands and compiling files";
   gType.tp_methods = gCompilerMethods;

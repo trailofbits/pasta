@@ -25,6 +25,11 @@ CompileCommand::CompileCommand(CompileCommand &&that) noexcept
   that.impl = nullptr;
 }
 
+CompileCommand &CompileCommand::operator=(CompileCommand &&that) noexcept {
+  std::swap(impl, that.impl);
+  return *this;
+}
+
 CompileCommand::CompileCommand(CompileCommandImpl *impl_) : impl(impl_) {}
 
 // Create a compile command from a JSON object. This JSON should come from

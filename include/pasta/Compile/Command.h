@@ -30,6 +30,7 @@ class CompileCommand {
   ~CompileCommand(void);
 
   CompileCommand(CompileCommand &&) noexcept;
+  CompileCommand &operator=(CompileCommand &&) noexcept;
 
   // Create a compile command from a JSON object. This JSON should come from
   // a proper compile_commands.json compilation database.
@@ -51,16 +52,12 @@ class CompileCommand {
   // Return the working directory in which this command executes.
   std::string_view WorkingDirectory(void) const;
 
-  // The list of compiler jobs associated with this command.
-  llvm::Expected<std::vector<CompileJob>> Jobs(const Compiler &compiler) const;
-
  private:
   friend class CompileJob;
   friend class Compiler;
 
   CompileCommand(void) = delete;
   CompileCommand(const CompileCommand &) = delete;
-  CompileCommand &operator=(CompileCommand &&) noexcept = delete;
   CompileCommand &operator=(const CompileCommand &) noexcept = delete;
 
   CompileCommand(CompileCommandImpl *impl_);

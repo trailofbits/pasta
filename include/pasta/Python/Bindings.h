@@ -13,6 +13,7 @@
 #include <string_view>
 #include <tuple>
 #include <type_traits>
+#include <unordered_map>
 #include <vector>
 
 #pragma clang diagnostic push
@@ -39,11 +40,27 @@ struct StorageType {
   using Type = T;
 };
 
+template <typename T>
+struct StorageType<const T &> {
+ public:
+  using Type = T;
+};
+
+template <typename T>
+struct StorageType<T &> {
+ public:
+  using Type = T;
+};
+
 struct StringView : public std::string_view {
   StringView(void) = default;
 
   template <typename T>
   StringView(T data_) : data(data_) {}
+
+  inline operator const std::string &(void) const {
+    return data;
+  }
 
   std::string data;
 };
@@ -185,19 +202,36 @@ class NativeXPython<StringView> {
   static constexpr auto ToCxx = convert::ToStdStrView;
 };
 
+template <typename K, typename V>
+class NativeXPython<std::unordered_map<K, V>> {
+ public:
+  static PyObject *ToPython(const std::unordered_map<K, V> &map);
+
+  static bool ToCxx(PyObject *v, void *storage);
+};
+
 template <typename T>
 class NativeXPython<std::vector<T>> {
  public:
+  static PyObject *ToPython(const std::vector<T> &vec);
+  static bool ToCxx(PyObject *v, void *storage);
+};
+
+template <typename T>
+class NativeXPython<const std::vector<T> &> {
+ public:
   static PyObject *ToPython(const std::vector<T> &vec) {
-    PyObject *list = PyList_New(static_cast<Py_ssize_t>(vec.size()));
+    PyObject *list = PyTuple_New(static_cast<Py_ssize_t>(vec.size()));
     Py_ssize_t i = 0;
     for (const auto &elem : vec) {
-      PyList_SetItem(list, i++, NativeXPython<T>::ToPython(elem));
+      PyTuple_SetItem(list, i++, NativeXPython<T>::ToPython(elem));
     }
     return list;
   }
 
-  static bool ToCxx(PyObject *v, void *storage);
+  static bool ToCxx(PyObject *v, void *storage) {
+    return NativeXPython<std::vector<T>>::ToCxx(v, storage);
+  }
 };
 
 template <typename T, typename ReprType>
@@ -588,62 +622,6 @@ inline static T *ConvertFromPythonObject(PyObject *obj, void *storage) {
   }
 }
 
-template <typename T>
-bool NativeXPython<std::vector<T>>::ToCxx(PyObject *v, void *storage) {
-  using StoreT = typename StorageType<T>::Type;
-
-  // Get the vector from a list.
-  if (PyList_Check(v)) {
-    std::vector<T> temp;
-    const auto size = PyList_Size(v);
-    for (Py_ssize_t i = 0; i < size; ++i) {
-      alignas(StoreT) uint8_t impl[sizeof(StoreT)];
-      StoreT *owned_pimpl{nullptr};
-      const auto py_elem = PyList_GetItem(v, i);
-      if (auto cxx_elem = ConvertFromPythonObject<T>(py_elem, impl); cxx_elem) {
-        temp.emplace_back(std::move(*cxx_elem));
-      } else {
-        return false;
-      }
-    }
-
-    new (storage) std::vector<T>(std::move(temp));
-    return true;
-
-  // Get the vector from a tuple.
-  } else if (PyTuple_Check(v)) {
-    std::vector<T> temp;
-    const auto size = PyTuple_Size(v);
-    for (Py_ssize_t i = 0; i < size; ++i) {
-      alignas(StoreT) uint8_t impl[sizeof(StoreT)];
-      StoreT *owned_pimpl{nullptr};
-      const auto py_elem = PyTuple_GetItem(v, i);
-      if (auto cxx_elem = ConvertFromPythonObject<T>(py_elem, impl); cxx_elem) {
-        temp.emplace_back(std::move(*cxx_elem));
-      } else {
-        return false;
-      }
-    }
-
-    new (storage) std::vector<T>(std::move(temp));
-    return true;
-
-  // Get the vector from a string-like thing.
-  } else if (PyBytes_Check(v) &&
-             (std::is_same_v<T, uint8_t> || std::is_same_v<T, int8_t> ||
-              std::is_same_v<T, char>) ) {
-    const auto size = PyBytes_Size(v);
-    const auto data = PyBytes_AsString(v);
-    (void) new (storage)
-        std::vector<T>(reinterpret_cast<const T *>(data),
-                       reinterpret_cast<const T *>(&(data[size])));
-    return true;
-
-  } else {
-    return false;
-  }
-}
-
 // A positional argument to a Python-exposed function.
 template <typename T>
 class PythonArg {
@@ -756,6 +734,125 @@ class PythonArg {
 
 template <typename T>
 const typename StorageType<T>::Type PythonArg<T>::kDefaultVal = {};
+
+template <typename T>
+PyObject *NativeXPython<std::vector<T>>::ToPython(const std::vector<T> &vec) {
+  PyObject *list = PyList_New(static_cast<Py_ssize_t>(vec.size()));
+  Py_ssize_t i = 0;
+  for (const auto &elem : vec) {
+    if (auto ret = ConvertToPythonObject(elem); ret) {
+      PyList_SetItem(list, i++, ret);
+    } else {
+      Py_DECREF(list);
+      return nullptr;
+    }
+  }
+  return list;
+}
+
+template <typename T>
+bool NativeXPython<std::vector<T>>::ToCxx(PyObject *v, void *storage) {
+  using StoreVec = typename StorageType<std::vector<T>>::Type;
+
+  // Get the vector from a list.
+  if (PyList_Check(v)) {
+    std::vector<T> temp;
+    const auto size = PyList_Size(v);
+    for (Py_ssize_t i = 0; i < size; ++i) {
+      PythonArg<T> elem;
+      if (elem.Parse(PyList_GetItem(v, i))) {
+        temp.emplace_back(*elem);
+      } else {
+        return false;
+      }
+    }
+
+    new (storage) StoreVec(std::move(temp));
+    return true;
+
+  // Get the vector from a tuple.
+  } else if (PyTuple_Check(v)) {
+    std::vector<T> temp;
+    const auto size = PyTuple_Size(v);
+    for (Py_ssize_t i = 0; i < size; ++i) {
+      PythonArg<T> elem;
+      if (elem.Parse(PyTuple_GetItem(v, i))) {
+        temp.emplace_back(*elem);
+      } else {
+        return false;
+      }
+    }
+
+    new (storage) std::vector<T>(std::move(temp));
+    return true;
+
+  // Get the vector from a string-like thing.
+  } else if (PyBytes_Check(v) &&
+             (std::is_same_v<T, uint8_t> || std::is_same_v<T, int8_t> ||
+              std::is_same_v<T, char>) ) {
+    const auto size = PyBytes_Size(v);
+    const auto data = PyBytes_AsString(v);
+    (void) new (storage) StoreVec(reinterpret_cast<const T *>(data),
+                                  reinterpret_cast<const T *>(&(data[size])));
+    return true;
+
+  } else {
+    return false;
+  }
+}
+
+template <typename K, typename V>
+PyObject *NativeXPython<std::unordered_map<K, V>>::ToPython(
+    const std::unordered_map<K, V> &map) {
+  PyObject *dict = PyDict_New();
+  for (const auto &[key, val] : map) {
+    if (auto key_py = ConvertToPythonObject(key); key_py) {
+      if (auto val_py = ConvertToPythonObject(val); val_py) {
+        PyDict_SetItem(dict, key_py, val_py);
+      } else {
+        Py_DECREF(key_py);
+        Py_DECREF(dict);
+        return nullptr;
+      }
+    } else {
+      Py_DECREF(dict);
+      return nullptr;
+    }
+  }
+  return dict;
+}
+
+template <typename K, typename V>
+bool NativeXPython<std::unordered_map<K, V>>::ToCxx(PyObject *v,
+                                                    void *storage) {
+  using StoreMap = typename StorageType<std::unordered_map<K, V>>::Type;
+
+  // Get the vector from a list.
+  if (!PyDict_Check(v)) {
+    return false;
+  }
+
+  std::unordered_map<K, V> temp;
+  const auto size = PyDict_Size(v);
+  temp.reserve(static_cast<size_t>(size));
+
+  PyObject *key_py = nullptr;
+  PyObject *val_py = nullptr;
+  Py_ssize_t pos = 0;
+
+  while (PyDict_Next(v, &pos, &key_py, &val_py)) {
+    PythonArg<K> key;
+    PythonArg<V> val;
+    if (key.Parse(key_py) && val.Parse(val_py)) {
+      temp.emplace(*key, *val);
+    } else {
+      return false;
+    }
+  }
+
+  new (storage) StoreMap(std::move(temp));
+  return true;
+}
 
 namespace detail {
 
@@ -1069,6 +1166,24 @@ BorrowedPythonPtr<T> PythonObject<T>::New(Args &&... args) {
   }
 }
 
+template <typename Ret, typename T, typename... Args>
+inline static constexpr int ZeroArgsFlag(Ret (T::*)(Args...)) {
+  if constexpr (sizeof...(Args) == 0) {
+    return METH_NOARGS;
+  } else {
+    return METH_VARARGS;
+  }
+}
+
+template <typename Ret, typename T, typename... Args>
+inline static constexpr int KeywordsFlag(Ret (T::*)(Args...)) {
+  if constexpr ((... || Args::kIsKeywordArg)) {
+    return METH_KEYWORDS;
+  } else {
+    return 0;
+  }
+}
+
 // Wrap an instance method in a static static dispatcher that can downcast
 // the `self` pointer to the correct type then invoke the method. We create
 // tag type in place to make sure each method is given its own dispatcher.
@@ -1076,7 +1191,7 @@ BorrowedPythonPtr<T> PythonObject<T>::New(Args &&... args) {
   struct py_method##_details { \
     static constexpr char kClassName[] = #class; \
     static constexpr char kMethodName[] = #py_method; \
-    static auto MethodPointer(void) -> decltype(&class ::method) { \
+    static constexpr auto MethodPointer(void) -> decltype(&class ::method) { \
       return &class ::method; \
     } \
   }; \
@@ -1086,7 +1201,9 @@ BorrowedPythonPtr<T> PythonObject<T>::New(Args &&... args) {
 #define PYTHON_METHOD(py_method, doc) \
   { \
 #    py_method, reinterpret_cast < PyCFunction>(py_method), \
-        (METH_VARARGS | METH_KEYWORDS), doc \
+        (::pasta::py::ZeroArgsFlag(py_method##_details::MethodPointer()) | \
+         ::pasta::py::KeywordsFlag(py_method##_details::MethodPointer())), \
+        doc \
   }
 
 #define PYTHON_METHOD_SENTINEL \
@@ -1094,6 +1211,7 @@ BorrowedPythonPtr<T> PythonObject<T>::New(Args &&... args) {
 
 #define DEFINE_PYTHON_ARG(name, ...) \
   struct name##_arg : public PythonArg<__VA_ARGS__> { \
+    static constexpr bool kIsKeywordArg = false; \
     using PythonArg<__VA_ARGS__>::PythonArg; \
     static const char *Name(void) { \
       return #name; \
@@ -1105,6 +1223,7 @@ BorrowedPythonPtr<T> PythonObject<T>::New(Args &&... args) {
 
 #define DEFINE_PYTHON_KWARG(name, ...) \
   struct name##_kwarg : public PythonArg<__VA_ARGS__> { \
+    static constexpr bool kIsKeywordArg = true; \
     using PythonArg<__VA_ARGS__>::PythonArg; \
     static const char *Name(void) { \
       return #name; \

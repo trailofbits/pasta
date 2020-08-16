@@ -23,6 +23,7 @@ class CompileJob {
  public:
   ~CompileJob(void);
   CompileJob(CompileJob &&) noexcept;
+  CompileJob &operator=(CompileJob &&) noexcept;
 
   // Return an argument vector associated with this compilation job.
   const ArgumentVector &Arguments(void) const;
@@ -49,12 +50,11 @@ class CompileJob {
   llvm::Expected<AST> Run(void) const;
 
  private:
-  friend class CompileCommand;
+  friend class Compiler;
 
   CompileJob(void) = delete;
   CompileJob(const CompileJob &) = delete;
   CompileJob &operator=(const CompileJob &) = delete;
-  CompileJob &operator=(CompileJob &&) noexcept = delete;
 
   CompileJob(CompileJobImpl *impl_);
 

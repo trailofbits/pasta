@@ -311,6 +311,22 @@ Compiler::Create(CompilerName name, enum TargetLanguage lang,
         "Unable to infer resource directory");
   }
 
+  // Give the installation directory a sensible default if missing.
+  if (impl->install_dir.empty() && !impl->compiler_exe.empty()) {
+    std::filesystem::path compiler_exe_path(impl->compiler_exe);
+    compiler_exe_path.parent_path().string().swap(impl->install_dir);
+  }
+
+  if (!impl->sysroot_dir.empty() && !impl->install_dir.empty()) {
+    std::filesystem::path install_path(impl->install_dir);
+    std::filesystem::path sysroot_path(impl->sysroot_dir);
+    if (sysroot_path.is_relative()) {
+      const auto new_sysroot_path =
+          CanonicalPath(AbsolutePath(install_path / sysroot_path, working_dir));
+      new_sysroot_path.string().swap(impl->sysroot_dir);
+    }
+  }
+
   return Compiler(impl.release());
 }
 

@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
   }
 
   const auto command = std::move(*maybe_command);
-  auto maybe_jobs = command.Jobs(compiler);
+  auto maybe_jobs = compiler.CreateJobsForCommand(command);
 
   if (pasta::IsError(maybe_jobs)) {
     std::cerr << pasta::ErrorString(maybe_jobs) << std::endl;

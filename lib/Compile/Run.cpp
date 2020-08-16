@@ -27,8 +27,6 @@
 
 #include <pasta/Util/ArgumentVector.h>
 
-#include <iostream>
-
 namespace pasta {
 
 // Run a command ans return the AST or the first error.
@@ -162,8 +160,6 @@ llvm::Expected<AST> CompileJob::Run(void) const {
   frontend_opts.PluginArgs.clear();
   frontend_opts.AddPluginActions.clear();
 
-  std::cerr << argv.Join() << std::endl;
-
   // Go check that we've got an input file, them initialize the source manager
   // with the first input file.
   auto &input_files = frontend_opts.Inputs;
@@ -252,8 +248,6 @@ llvm::Expected<AST> CompileJob::Run(void) const {
 
   // Finalize any leftover instantiations.
   sema.PerformPendingInstantiations(false);
-
-  std::cerr << argv.Join() << std::endl << std::endl;
 
   if (diagnostics_engine->hasUncompilableErrorOccurred() ||
       diagnostics_engine->hasFatalErrorOccurred()) {

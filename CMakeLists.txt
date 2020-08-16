@@ -192,8 +192,10 @@ add_library(python_bindings STATIC
     "include/pasta/Python/Bindings.h"
     
     "lib/Python/Bindings.cpp"
+    "lib/Python/Compile/Command.cpp"
     "lib/Python/Compile/Compile.h"
     "lib/Python/Compile/Compiler.cpp"
+    "lib/Python/Compile/Job.cpp"
     "lib/Python/Pasta.cpp"
 )
 

@@ -44,7 +44,8 @@ PyMODINIT_FUNC PyInit_pasta_internal(void) {
 
   gPastaInitializer.reset(new InitPasta);
 
-  if (!PyCompiler::TryAddToModule(m)) {
+  if (!Compiler::TryAddToModule(m) || !CompileCommand::TryAddToModule(m) ||
+      !CompileJob::TryAddToModule(m)) {
     return nullptr;
   }
 

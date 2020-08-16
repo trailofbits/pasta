@@ -9,6 +9,7 @@
 
 #include <functional>
 #include <string_view>
+#include <vector>
 
 namespace clang {
 class FrontendInputFile;
@@ -91,6 +92,10 @@ class Compiler {
   llvm::Expected<CompileCommand>
   CreateCommandForFile(std::string_view file_name,
                        std::string_view working_dir) const;
+
+  // The list of compiler jobs associated with this command.
+  llvm::Expected<std::vector<CompileJob>>
+  CreateJobsForCommand(const CompileCommand &command) const;
 
  private:
   friend class CompileCommand;

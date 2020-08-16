@@ -4,7 +4,6 @@
 
 #include "Job.h"
 
-#include <iostream>
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
@@ -52,6 +51,11 @@ CompileJob::~CompileJob(void) {
 
 CompileJob::CompileJob(CompileJob &&that) noexcept : impl(that.impl) {
   that.impl = nullptr;
+}
+
+CompileJob &CompileJob::operator=(CompileJob &&that) noexcept {
+  std::swap(impl, that.impl);
+  return *this;
 }
 
 CompileJob::CompileJob(CompileJobImpl *impl_) : impl(impl_) {}
@@ -152,14 +156,15 @@ static bool IsIncludeOption(unsigned id) {
 
 // Adjust the compiler command (found in `args`), creating a new one and
 // returning it. The new one should have all include paths fully realized.
-static ArgumentVector CreateAdjustedCompilerCommand(
-    const Compiler &compiler, const CompileCommandImpl &command,
-    const llvm::opt::InputArgList &args, const ArgumentVector &old_args) {
+static ArgumentVector
+CreateAdjustedCompilerCommand(const Compiler &compiler,
+                              const CompileCommand &command,
+                              const llvm::opt::InputArgList &args) {
 
   llvm::opt::ArgStringList parsed_args;
   llvm::opt::ArgStringList parsed_inc_args;
 
-  std::filesystem::path working_dir(command.working_dir);
+  std::filesystem::path working_dir(command.WorkingDirectory());
   std::filesystem::path sysroot_to_use(compiler.SystemRootDirectory());
   std::filesystem::path resource_dir_to_use;
 
@@ -274,7 +279,7 @@ static ArgumentVector CreateAdjustedCompilerCommand(
 
 // The list of compiler jobs associated with this command.
 llvm::Expected<std::vector<CompileJob>>
-CompileCommand::Jobs(const Compiler &compiler) const {
+Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
   // Parse the arguments. This isn't necessary for compilation, but it's
   // possible that our command string splitting isn't quite right, and so
@@ -286,7 +291,7 @@ CompileCommand::Jobs(const Compiler &compiler) const {
   auto missing_arg_index = 0u;
   auto missing_arg_count = 0u;
   auto parsed_args = option_info_table->ParseArgs(
-      Arguments().Arguments(), missing_arg_index, missing_arg_count,
+      command.Arguments().Arguments(), missing_arg_index, missing_arg_count,
       clang::driver::options::DriverOption | clang::driver::options::CC1Option,
       clang::driver::options::CLOption);
 
@@ -296,14 +301,12 @@ CompileCommand::Jobs(const Compiler &compiler) const {
         std::make_error_code(std::errc::invalid_argument),
         "Unable to parse %u command-line options (first unparsed option is: "
         "'%s') in command: %s",
-        missing_arg_count, Arguments().Arguments()[missing_arg_index],
-        Arguments().Join().c_str());
+        missing_arg_count, command.Arguments().Arguments()[missing_arg_index],
+        command.Arguments().Join().c_str());
   }
 
   const auto new_args =
-      CreateAdjustedCompilerCommand(compiler, *impl, parsed_args, Arguments());
-
-  std::cerr << new_args.Join() << std::endl << std::endl;
+      CreateAdjustedCompilerCommand(*this, command, parsed_args);
 
   auto diag = std::make_unique<SaveFirstErrorDiagConsumer>();
   llvm::IntrusiveRefCntPtr<clang::DiagnosticsEngine> diagnostics_engine(
@@ -318,7 +321,7 @@ CompileCommand::Jobs(const Compiler &compiler) const {
   llvm::IntrusiveRefCntPtr<llvm::vfs::InMemoryFileSystem> mem_vfs(
       new llvm::vfs::InMemoryFileSystem);
   overlay_vfs->pushOverlay(mem_vfs.get());
-  overlay_vfs->setCurrentWorkingDirectory(WorkingDirectory().data());
+  overlay_vfs->setCurrentWorkingDirectory(command.WorkingDirectory().data());
 
   // Make the driver.
   clang::driver::Driver driver(new_args[0], llvm::sys::getDefaultTargetTriple(),
@@ -326,11 +329,15 @@ CompileCommand::Jobs(const Compiler &compiler) const {
 
   driver.setTitle("pasta");
   driver.setCheckInputsExist(false);
-  driver.Dir = WorkingDirectory();
-  driver.ResourceDir = compiler.ResourceDirectory();
-  driver.SysRoot = compiler.SystemRootDirectory();
-  driver.InstalledDir = compiler.InstallationDirectory();
-  driver.ClangExecutable = compiler.ExecutablePath();
+
+  std::filesystem::path compiler_exe_path(ExecutablePath());
+
+  driver.Name = compiler_exe_path.filename().string();
+  driver.Dir = compiler_exe_path.parent_path().string();
+  driver.ResourceDir = ResourceDirectory();
+  driver.SysRoot = SystemRootDirectory();
+  driver.InstalledDir = InstallationDirectory();
+  driver.ClangExecutable = ExecutablePath();
 
   const std::unique_ptr<clang::driver::Compilation> compilation(
       driver.BuildCompilation(new_args.Arguments()));
@@ -374,7 +381,7 @@ CompileCommand::Jobs(const Compiler &compiler) const {
 
   std::vector<CompileJob> jobs;
 
-  const std::filesystem::path working_dir(WorkingDirectory());
+  const std::filesystem::path working_dir(command.WorkingDirectory());
   const auto target_triple =
       compilation->getDefaultToolChain().getTriple().str();
 

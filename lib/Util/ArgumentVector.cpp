@@ -15,6 +15,10 @@ ArgumentVector::ArgumentVector(const std::string &command) {
   Reset(command);
 }
 
+ArgumentVector::ArgumentVector(std::string_view command) {
+  Reset(command);
+}
+
 void ArgumentVector::Reset(void) {
   argv.clear();
   data.reset();
@@ -55,7 +59,7 @@ static char *StripSlashesAndQuotes(char *data) {
 
 // Initialize an argument vector from a string representing a command line. This
 // will try to split the string into its associated parts.
-void ArgumentVector::Reset(const std::string &command) {
+void ArgumentVector::Reset(std::string_view command) {
   size_t data_size = (command.size() * 2) + 1;
 
   std::unique_ptr<char[]> backup(new char[data_size]);
@@ -239,7 +243,7 @@ ArgumentVector::ArgumentVector(ArgumentVector &&vec) noexcept
 
 ArgumentVector &ArgumentVector::operator=(const ArgumentVector &that) {
   if (this != &that) {
-    Reset(that);
+    Reset(that.argv);
   }
   return *this;
 }
@@ -261,13 +265,6 @@ void ArgumentVector::Reset(int argc, char *argv[]) {
   }
 
   Reset(vec);
-}
-
-// Initialize one argument vector from another.
-void ArgumentVector::Reset(const ArgumentVector &vec) {
-  if (this != &vec) {
-    Reset(vec.argv);
-  }
 }
 
 const std::vector<const char *> &ArgumentVector::Arguments(void) const {

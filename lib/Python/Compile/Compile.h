@@ -89,7 +89,7 @@ class CompileCommand : public PythonObject<::pasta::py::CompileCommand> {
   inline CompileCommand(::pasta::CompileCommand command_)
       : command(std::move(command_)) {}
 
-  DEFINE_PYTHON_ARG(command, std::vector<std::string>);
+  DEFINE_PYTHON_ARG(command, std::string_view);
   DEFINE_PYTHON_CONSTRUCTOR(CompileCommand, command_arg command,
                             working_dir_kwarg working_dir);
 

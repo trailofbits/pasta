@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace pasta {
@@ -25,6 +26,7 @@ class ArgumentVector {
 
   // Implicit.
   ArgumentVector(const std::string &command);
+  ArgumentVector(std::string_view command);
   ArgumentVector(const std::vector<std::string> &vec);
   ArgumentVector(const std::vector<const char *> &vec);
 
@@ -32,11 +34,10 @@ class ArgumentVector {
   ArgumentVector &operator=(ArgumentVector &&that) noexcept;
 
   void Reset(void);
-  void Reset(const std::string &command);
+  void Reset(std::string_view command);
   void Reset(const std::vector<std::string> &vec);
   void Reset(const std::vector<const char *> &vec);
   void Reset(int argc, char *argv[]);
-  void Reset(const ArgumentVector &vec);
 
   const std::vector<const char *> &Arguments(void) const;
   size_t Size(void) const;

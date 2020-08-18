@@ -66,8 +66,15 @@ target_include_directories(thirdparty_python INTERFACE
 find_package(LLVM CONFIG REQUIRED)
 find_package(Clang CONFIG REQUIRED)
 add_library(thirdparty_llvm INTERFACE)
+
+# These are out-of-order in `LLVM_AVAILABLE_LIBS` and should always be last.
+set(LLVM_LIBRARIES ${LLVM_AVAILABLE_LIBS})
+list(REMOVE_ITEM LLVM_LIBRARIES LLVMCore LLVMSupport)
+list(REMOVE_DUPLICATES LLVM_LIBRARIES)
+list(APPEND LLVM_LIBRARIES LLVMCore LLVMSupport)
+
 target_link_libraries(thirdparty_llvm INTERFACE
-    ${LLVM_AVAILABLE_LIBS}
+    ${LLVM_LIBRARIES}
     
     clangSema
     clang
@@ -252,12 +259,16 @@ get_public_include_folders(INCLUDE_DIRS ${DEPENDENT_LIBRARIES})
 # Create a list of generator expressions that will find us the absolute paths
 # of all dependent libraries for setup.py to link against.
 foreach(lib_target ${DEPENDENT_LIBRARIES})
-  if (NOT TARGET ${lib_target})
-    continue()
-  endif()
-  get_target_property(target_type "${lib_target}" TYPE)
-  if("${target_type}" STREQUAL "STATIC_LIBRARY")
-    list(APPEND LIBRARY_PATHS "\$<TARGET_FILE:${lib_target}>")
+  if (TARGET ${lib_target})
+    get_target_property(target_type "${lib_target}" TYPE)
+    if("${target_type}" STREQUAL "STATIC_LIBRARY")
+      list(APPEND LIBRARY_PATHS "\$<TARGET_FILE:${lib_target}>")
+    elseif("${target_type}" STREQUAL "IMPORTED_LIBRARY")
+      get_target_property(target_imported_loc "${target}" IMPORTED_LOCATION)
+      if(NOT "${target_imported_loc}" STREQUAL "target_imported_loc-NOTFOUND")
+        list(APPEND LIBRARY_PATHS "${target_imported_loc}")
+      endif()
+    endif()
   endif()
 endforeach()
 

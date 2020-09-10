@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <pasta/Compile/AST.h>
 #include <pasta/Compile/Command.h>
 #include <pasta/Compile/Compiler.h>
 #include <pasta/Compile/Job.h>
@@ -30,11 +31,28 @@ DEFINE_PYTHON_ARG(target_language, TargetLanguage);
 DEFINE_PYTHON_ARG(compiler_name, CompilerName);
 DEFINE_PYTHON_ARG(compiler_path, std::string_view);
 DEFINE_PYTHON_ARG(version_info, std::string_view);
+DEFINE_PYTHON_ARG(version_info_fake_sysroot, std::string_view);
 DEFINE_PYTHON_KWARG(working_dir, std::string_view);
 DEFINE_PYTHON_ARG(file_path, std::string_view);
 
 // Return the current working directory.
 std::string CurrentWorkingDir(const working_dir_kwarg &working_dir);
+
+// Abstraction around a Clang AST and the various data structures that need to
+// be retained in order to use it.
+class AST : public PythonObject<::pasta::py::AST> {
+ public:
+  ~AST(void);
+
+  inline AST(::pasta::AST ast_) : ast(std::move(ast_)) {}
+
+  DEFINE_PYTHON_CONSTRUCTOR(AST, void);
+
+  // Tries to add the `CompileJob` type to the `pasta` module.
+  static bool TryAddToModule(PyObject *module);
+
+  std::optional<::pasta::AST> ast;
+};
 
 // A single backend compilation job. There is a one to many relationship
 // between `CompileCommand`s and `CompilerJob`s, as a single compile command
@@ -71,10 +89,14 @@ class CompileJob : public PythonObject<::pasta::py::CompileJob> {
   // Return the path to the source file that this job compiles.
   std::string_view SourceFile(void);
 
-  //  // Run a backend compilation job and returns the AST or the first error.
-  //  llvm::Expected<AST> Run(void);
+  DEFINE_PYTHON_KWARG(cache, bool);
+
+  // Run a backend compilation job and returns the AST or the first error.
+  BorrowedPythonPtr<AST> Run(cache_kwarg cache);
 
   std::optional<::pasta::CompileJob> job;
+
+  SharedPythonPtr<AST> cached_ast;
 };
 
 // A high-level compile command. This is a frontent compile command. It may
@@ -109,10 +131,12 @@ class Compiler : public PythonObject<::pasta::py::Compiler> {
 
   ~Compiler(void);
 
-  DEFINE_PYTHON_CONSTRUCTOR(Compiler, compiler_name_arg name,
+  DEFINE_PYTHON_CONSTRUCTOR(Compiler,
+                            compiler_name_arg name,
                             target_language_arg lang,
                             compiler_path_arg compiler_path,
                             version_info_arg version_info,
+                            version_info_fake_sysroot_arg version_info_fake_sysroot,
                             working_dir_kwarg working_dir);
 
   // Name/variant of this compiler.

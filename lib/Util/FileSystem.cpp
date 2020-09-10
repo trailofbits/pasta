@@ -17,8 +17,8 @@ std::filesystem::path AbsolutePath(std::filesystem::path path,
 
 std::filesystem::path CanonicalPath(std::filesystem::path path) {
   std::error_code ec;
-  std::filesystem::canonical(path, ec);
-  return path;
+  auto ret = std::filesystem::canonical(path, ec);
+  return ec ? path : ret;
 }
 
 // Returns `true` if the directory pointed to by `path` looks like a resource

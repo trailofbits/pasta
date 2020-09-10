@@ -167,28 +167,31 @@ Compiler::CreateCommandForFile(std::string_view file_name,
     argv.push_back(info.sysroot_dir);
   }
 
-  for (auto include_path : info.system_includes) {
-    if (!include_path.empty()) {
-      argv.emplace_back("-isystem");
-      argv.emplace_back(include_path);
-    }
-  }
+  ForEachSystemIncludeDirectory(
+      [&] (std::string_view include_path, IncludePathLocation loc) {
+        if (loc == IncludePathLocation::kAbsolute) {
+          argv.emplace_back("-isystem");
+        } else {
+          argv.emplace_back("-iwithsysroot");
+        }
+        argv.emplace_back(include_path);
+      });
 
-  for (auto include_path : info.user_includes) {
-    if (!include_path.empty()) {
-      argv.emplace_back("-iquote");
-      argv.emplace_back(include_path);
-    }
-  }
+  ForEachUserIncludeDirectory(
+      [&] (std::string_view include_path, IncludePathLocation) {
+        argv.emplace_back("-I");
+        argv.emplace_back(include_path);
+      });
 
-  for (auto include_path : info.frameworks) {
-    if (!std::filesystem::exists(include_path)) {
-      argv.emplace_back("-iframeworkwithsysroot");
-    } else {
-      argv.emplace_back("-iframework");
-    }
-    argv.emplace_back(include_path);
-  }
+  ForEachFrameworkDirectory(
+      [&] (std::string_view include_path, IncludePathLocation loc) {
+        if (loc == IncludePathLocation::kAbsolute) {
+          argv.emplace_back("-iframework");
+        } else {
+          argv.emplace_back("-iframeworkwithsysroot");
+        }
+        argv.emplace_back(include_path);
+      });
 
   argv.emplace_back("-c");
   argv.emplace_back(file_name);

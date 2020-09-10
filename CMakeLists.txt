@@ -3,7 +3,9 @@
 cmake_minimum_required(VERSION 3.14.5)
 project(pasta LANGUAGES C CXX)
 
-include(cmake/utils.cmake)
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/settings.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/utils.cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 
 # --------------------------------------------
 # build-time options -------------------------
@@ -63,6 +65,7 @@ target_include_directories(thirdparty_python INTERFACE
 # Clang/LLVM dependencies --------------------
 # --------------------------------------------
 
+find_and_select_clang_compiler()
 find_package(LLVM CONFIG REQUIRED)
 find_package(Clang CONFIG REQUIRED)
 add_library(thirdparty_llvm INTERFACE)
@@ -102,6 +105,25 @@ target_compile_definitions(thirdparty_llvm INTERFACE
     ${Clang_DEFINITIONS}
 )
 
+if (LLVM_Z3_INSTALL_DIR)
+  find_package(Z3 4.7.1)
+  set(need_z3 TRUE CACHE BOOL "Is Z3 needed?")
+elseif(DEFINED CXX_COMMON_REPOSITORY_ROOT)
+  set(LLVM_Z3_INSTALL_DIR "${CXX_COMMON_REPOSITORY_ROOT}/z3" CACHE PATH "Path to where Z3 can be found")
+  set(need_z3 TRUE CACHE BOOL "Is Z3 needed?")
+else()
+  set(need_z3 FALSE CACHE BOOL "Is Z3 needed?")
+endif()
+
+if(need_z3)
+  find_package(Z3 4.7.1)
+  if (NOT Z3_FOUND)
+    message(WARNING "Z3 >= 4.7.1 has not been found in LLVM_Z3_INSTALL_DIR: ${LLVM_Z3_INSTALL_DIR}.")
+  else()
+    target_link_libraries(thirdparty_llvm INTERFACE Z3)
+  endif()
+endif()
+
 # --------------------------------------------
 # Configure lib/Compiler/Host.h --------------
 # --------------------------------------------
@@ -113,32 +135,26 @@ set(PASTA_CXX_VERSION_OUT_FILE "${CMAKE_CURRENT_BINARY_DIR}/pasta.cxx.version")
 set(HOST_H_IN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/lib/Compile/Host.h.in")
 set(HOST_H_FILE "${CMAKE_CURRENT_BINARY_DIR}/lib/Compile/Host.h")
 
-execute_process(
-    COMMAND "${CMAKE_C_COMPILER}" -x c -std=c11 -E -v "${PASTA_DUMMY_SOURCE_FILE}"
-    OUTPUT_FILE "${PASTA_CC_VERSION_OUT_FILE}"
-    ERROR_FILE "${PASTA_CC_VERSION_OUT_FILE}"
-    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+get_compiler_paths(
+    COMPILER "${CMAKE_C_COMPILER}"
+    OUT_VAR CSTR_HOST_CC_VERSION_INFO
+    ARGS -x c -std=c18
+)
+get_compiler_paths(
+    COMPILER "${CMAKE_C_COMPILER}"
+    OUT_VAR CSTR_HOST_CC_VERSION_INFO_FAKE_SYSROOT
+    ARGS -x c -std=c18 -isysroot "${CMAKE_CURRENT_BINARY_DIR}/xyz" -Wno-missing-sysroot
 )
 
-execute_process(
-    COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/convert-to-embeddable-string" "${PASTA_CC_VERSION_OUT_FILE}"
-    OUTPUT_VARIABLE CSTR_HOST_CC_VERSION_INFO
-    ERROR_FILE CSTR_HOST_CC_VERSION_INFO
-    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+get_compiler_paths(
+    COMPILER "${CMAKE_CXX_COMPILER}"
+    OUT_VAR CSTR_HOST_CXX_VERSION_INFO
+    ARGS -x c++ -std=c++1z
 )
-
-execute_process(
-    COMMAND "${CMAKE_C_COMPILER}" -x c++ -std=c++17 -E -v "${PASTA_DUMMY_SOURCE_FILE}"
-    OUTPUT_FILE "${PASTA_CXX_VERSION_OUT_FILE}"
-    ERROR_FILE "${PASTA_CXX_VERSION_OUT_FILE}"
-    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-)
-
-execute_process(
-    COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/scripts/convert-to-embeddable-string" "${PASTA_CXX_VERSION_OUT_FILE}"
-    OUTPUT_VARIABLE CSTR_HOST_CXX_VERSION_INFO
-    ERROR_FILE CSTR_HOST_CXX_VERSION_INFO
-    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+get_compiler_paths(
+    COMPILER "${CMAKE_CXX_COMPILER}"
+    OUT_VAR CSTR_HOST_CXX_VERSION_INFO_FAKE_SYSROOT
+    ARGS -x c++ -std=c++1z -isysroot "${CMAKE_CURRENT_BINARY_DIR}/xyz" -Wno-missing-sysroot
 )
 
 configure_file("${HOST_H_IN_FILE}" "${HOST_H_FILE}" @ONLY)
@@ -186,7 +202,7 @@ add_library(compiler STATIC
 )
 
 target_include_directories(compiler PRIVATE
-    "${CMAKE_CURRENT_BINARY_DIR}/lib/Compiler"
+    "${CMAKE_CURRENT_BINARY_DIR}/lib/Compile"
 )
 
 target_link_libraries(compiler PRIVATE
@@ -199,6 +215,7 @@ add_library(python_bindings STATIC
     "include/pasta/Python/Bindings.h"
     
     "lib/Python/Bindings.cpp"
+    "lib/Python/Compile/AST.cpp"
     "lib/Python/Compile/Command.cpp"
     "lib/Python/Compile/Compile.h"
     "lib/Python/Compile/Compiler.cpp"
@@ -228,22 +245,6 @@ target_link_libraries(bootstrap PRIVATE
 # --------------------------------------------
 # Configure setup.py.in and __init__.py.in ---
 # --------------------------------------------
-
-execute_process(
-    COMMAND "${CMAKE_COMMAND}" -E touch "${PASTA_DUMMY_SOURCE_FILE}"
-    COMMAND "${CMAKE_C_COMPILER}" -x c -std=c11 -E -v "${PASTA_DUMMY_SOURCE_FILE}"
-    OUTPUT_VARIABLE HOST_CC_VERSION_INFO
-    ERROR_VARIABLE HOST_CC_VERSION_INFO
-    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-)
-
-execute_process(
-    COMMAND "${CMAKE_COMMAND}" -E touch "${PASTA_DUMMY_SOURCE_FILE}"
-    COMMAND "${CMAKE_CXX_COMPILER}" -x c++ -std=c++17 -E -v "${PASTA_DUMMY_SOURCE_FILE}"
-    OUTPUT_VARIABLE HOST_CXX_VERSION_INFO
-    ERROR_VARIABLE HOST_CXX_VERSION_INFO
-    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-)
 
 set(SETUP_PY_IN "${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in")
 set(SETUP_PY "${CMAKE_CURRENT_BINARY_DIR}/setup.py")

@@ -20,11 +20,16 @@ class ArgumentVector;
 
 enum class CompilerName : unsigned {
   kAppleClang,
-  kClangCL,
   kClang,
+  kClangCL,
   kGNU,
   kMinGW,
   kCL
+};
+
+enum class IncludePathLocation : unsigned {
+  kAbsolute,
+  kSysrootRelative
 };
 
 enum class TargetLanguage : unsigned { kC, kCXX };
@@ -62,18 +67,18 @@ class Compiler {
   std::string_view InstallationDirectory(void) const;
 
   // Invoke a callback `cb` for each system include directory. Think `-isystem`.
-  void
-  ForEachSystemIncludeDirectory(std::function<void(std::string_view)> cb) const;
+  void ForEachSystemIncludeDirectory(
+      std::function<void(std::string_view, IncludePathLocation)> cb) const;
 
   // Invoke a callback `cb` for each user include directory. Think `-I` or
   // `-iquote`.
-  void
-  ForEachUserIncludeDirectory(std::function<void(std::string_view)> cb) const;
+  void ForEachUserIncludeDirectory(
+      std::function<void(std::string_view, IncludePathLocation)> cb) const;
 
   // Invoke a callback `cb` for each user include directory. Think `-iframework`
   // or `iframeworkwithsysroot`.
-  void
-  ForEachFrameworkDirectory(std::function<void(std::string_view)> cb) const;
+  void ForEachFrameworkDirectory(
+      std::function<void(std::string_view, IncludePathLocation)> cb) const;
 
   // Create a "host" compiler instance, i.e. a compiler instance based on the
   // compiler used to compile this library.
@@ -86,6 +91,7 @@ class Compiler {
   static llvm::Expected<Compiler>
   Create(CompilerName name, enum TargetLanguage lang,
          std::string_view compiler_path, std::string_view version_info,
+         std::string_view version_info_fake_sysroot,
          std::string_view working_dir);
 
   // Create a compile command for a single file in a working directory.

@@ -6,6 +6,8 @@ namespace pasta {
 static constexpr auto kHostCCompilerPath = "@CMAKE_C_COMPILER@";
 static constexpr auto kHostCxxCompilerPath = "@CMAKE_CXX_COMPILER@";
 static constexpr auto kHostCVersionInfo = @CSTR_HOST_CC_VERSION_INFO@ "\0";
+static constexpr auto kHostCVersionInfoFakeSysroot = @CSTR_HOST_CC_VERSION_INFO_FAKE_SYSROOT@ "\0";
 static constexpr auto kHostCxxVersionInfo = @CSTR_HOST_CXX_VERSION_INFO@ "\0";
+static constexpr auto kHostCxxVersionInfoFakeSysroot = @CSTR_HOST_CXX_VERSION_INFO_FAKE_SYSROOT@ "\0";
 static constexpr auto kHostWorkingDir = "@CMAKE_CURRENT_BINARY_DIR@";
 }  // namespace pasta

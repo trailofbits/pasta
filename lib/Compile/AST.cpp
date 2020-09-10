@@ -19,6 +19,16 @@ ASTImpl::~ASTImpl(void) {}
 
 AST::~AST(void) {}
 
+AST::AST(AST &&that) noexcept : impl(that.impl) {
+  that.impl = nullptr;
+}
+
+AST &AST::operator=(AST &&that) noexcept {
+  std::swap(impl, that.impl);
+  return *this;
+}
+
 AST::AST(std::shared_ptr<ASTImpl> impl_) : impl(std::move(impl_)) {}
+
 
 }  // namespace pasta

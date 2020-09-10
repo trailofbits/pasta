@@ -4,6 +4,8 @@
 
 #include "Compiler.h"
 
+#include <filesystem>
+
 namespace pasta {
 
 Compiler::Compiler(Compiler &&that) noexcept : impl(that.impl) {
@@ -57,10 +59,10 @@ std::string_view Compiler::InstallationDirectory(void) const {
 
 // Invoke a callback `cb` for each system include directory. Think `-isystem`.
 void Compiler::ForEachSystemIncludeDirectory(
-    std::function<void(std::string_view)> cb) const {
-  for (const auto &dir : impl->system_includes) {
-    if (!dir.empty()) {
-      cb(dir);
+    std::function<void(std::string_view, IncludePathLocation)> cb) const {
+  for (const auto &entry : impl->system_includes) {
+    if (!entry.first.empty()) {
+      cb(entry.first, entry.second);
     }
   }
 }
@@ -68,10 +70,10 @@ void Compiler::ForEachSystemIncludeDirectory(
 // Invoke a callback `cb` for each user include directory. Think `-I` or
 // `-iquote`.
 void Compiler::ForEachUserIncludeDirectory(
-    std::function<void(std::string_view)> cb) const {
-  for (const auto &dir : impl->user_includes) {
-    if (!dir.empty()) {
-      cb(dir);
+    std::function<void(std::string_view, IncludePathLocation)> cb) const {
+  for (const auto &entry : impl->user_includes) {
+    if (!entry.first.empty()) {
+      cb(entry.first, entry.second);
     }
   }
 }
@@ -79,10 +81,10 @@ void Compiler::ForEachUserIncludeDirectory(
 // Invoke a callback `cb` for each user include directory. Think `-iframework`
 // or `iframeworkwithsysroot`.
 void Compiler::ForEachFrameworkDirectory(
-    std::function<void(std::string_view)> cb) const {
-  for (const auto &dir : impl->frameworks) {
-    if (!dir.empty()) {
-      cb(dir);
+    std::function<void(std::string_view, IncludePathLocation)> cb) const {
+  for (const auto &entry : impl->frameworks) {
+    if (!entry.first.empty()) {
+      cb(entry.first, entry.second);
     }
   }
 }

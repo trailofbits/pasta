@@ -2,7 +2,6 @@
  * Copyright (c) 2020 Trail of Bits, Inc.
  */
 
-#
 #include <pasta/Python/Bindings.h>
 
 #include <string>

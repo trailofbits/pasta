@@ -20,6 +20,7 @@ DEFINE_PYTHON_METHOD(CompileJob, AuxiliaryTargetTriple,
                      auxiliary_target_triple);
 DEFINE_PYTHON_METHOD(CompileJob, Arguments, arguments);
 DEFINE_PYTHON_METHOD(CompileJob, SourceFile, source_file);
+DEFINE_PYTHON_METHOD(CompileJob, Run, run);
 
 static PyMethodDef gCompileJobMethods[] = {
     PYTHON_METHOD(working_directory,
@@ -41,6 +42,8 @@ static PyMethodDef gCompileJobMethods[] = {
         "The arguments of this compile job. This does not include the compiler executable path or name as the first argument."),
     PYTHON_METHOD(source_file,
                   "The path to the source file to be compiled by this job."),
+    PYTHON_METHOD(run,
+                  "Run the compile job, returning an AST or throwing an exception upon failure."),
     PYTHON_METHOD_SENTINEL};
 
 
@@ -87,6 +90,27 @@ std::string_view CompileJob::AuxiliaryTargetTriple(void) {
 // Return the path to the source file that this job compiles.
 std::string_view CompileJob::SourceFile(void) {
   return job->SourceFile();
+}
+
+// Run a backend compilation job and returns the AST or the first error.
+BorrowedPythonPtr<AST> CompileJob::Run(cache_kwarg cache) {
+  const auto do_cache = cache && *cache;
+  if (do_cache && cached_ast) {
+    return cached_ast.Borrow();
+  }
+
+  auto maybe_ast = job->Run();
+  if (IsError(maybe_ast)) {
+    PythonErrorStreamer(PyExc_Exception)
+        << ErrorString(maybe_ast);
+    return nullptr;
+  } else {
+    auto ret = AST::New(std::move(*maybe_ast));
+    if (do_cache) {
+      cached_ast = ret.Acquire();
+    }
+    return ret;
+  }
 }
 
 CompileJob::CompileJob(void) {

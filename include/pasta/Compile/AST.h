@@ -26,9 +26,8 @@ class Compiler;
 class AST {
  public:
   ~AST(void);
-
-  // Load a serialized AST from a file.
-  static llvm::Expected<AST> LoadFromFile(std::string_view path);
+  AST(AST &&) noexcept;
+  AST &operator=(AST &&) noexcept;
 
  private:
   friend class Compiler;

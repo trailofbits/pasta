@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2020 Trail of Bits, Inc.
  */
-
+#include <unistd.h>
 #include "Job.h"
 
 #pragma clang diagnostic push
@@ -141,6 +141,8 @@ static bool IsIncludeOption(unsigned id) {
     case clang::driver::options::OPT_objc_isystem:
     case clang::driver::options::OPT_resource_dir_EQ:
     case clang::driver::options::OPT_resource_dir:
+    case clang::driver::options::OPT__sysroot:
+    case clang::driver::options::OPT__sysroot_EQ:
     case clang::driver::options::OPT_nobuiltininc:
     case clang::driver::options::OPT_gcc_toolchain:
     case clang::driver::options::OPT_gcc_toolchain_legacy_spelling: return true;
@@ -165,8 +167,13 @@ CreateAdjustedCompilerCommand(const Compiler &compiler,
   llvm::opt::ArgStringList parsed_inc_args;
 
   std::filesystem::path working_dir(command.WorkingDirectory());
-  std::filesystem::path sysroot_to_use(compiler.SystemRootDirectory());
+  std::filesystem::path sysroot_to_use;
   std::filesystem::path resource_dir_to_use;
+
+  if (!compiler.SystemRootDirectory().empty()) {
+    std::filesystem::path(compiler.SystemRootDirectory())
+        .swap(sysroot_to_use);
+  }
 
   if (!compiler.ResourceDirectory().empty()) {
     std::filesystem::path(compiler.ResourceDirectory())
@@ -211,7 +218,7 @@ CreateAdjustedCompilerCommand(const Compiler &compiler,
   // the trusted oracle.
   std::vector<std::string> new_args;
   new_args.reserve(parsed_inc_args.size() + 16u);
-  new_args.emplace_back(compiler.ExecutablePath());
+  new_args.emplace_back(args.getArgString(0));
 
   if (!sysroot_to_use.empty()) {
     new_args.emplace_back("-isysroot");
@@ -246,26 +253,33 @@ CreateAdjustedCompilerCommand(const Compiler &compiler,
     }
   }
 
-  // Then, add in the builtin include paths of `compiler`.
+  // Then, add in the built-in include paths of `compiler`.
 
-  compiler.ForEachSystemIncludeDirectory([&](std::string_view include_path) {
-    new_args.emplace_back("-isystem");
-    new_args.emplace_back(include_path);
-  });
+  compiler.ForEachSystemIncludeDirectory(
+      [&] (std::string_view include_path, IncludePathLocation loc) {
+        if (loc == IncludePathLocation::kAbsolute) {
+          new_args.emplace_back("-isystem");
+        } else {
+          new_args.emplace_back("-iwithsysroot");
+        }
+        new_args.emplace_back(include_path);
+      });
 
-  compiler.ForEachUserIncludeDirectory([&](std::string_view include_path) {
-    new_args.emplace_back("-iquote");
-    new_args.emplace_back(include_path);
-  });
+  compiler.ForEachUserIncludeDirectory(
+      [&] (std::string_view include_path, IncludePathLocation) {
+        new_args.emplace_back("-I");
+        new_args.emplace_back(include_path);
+      });
 
-  compiler.ForEachFrameworkDirectory([&](std::string_view include_path) {
-    if (!std::filesystem::exists(include_path)) {
-      new_args.emplace_back("-iframeworkwithsysroot");
-    } else {
-      new_args.emplace_back("-iframework");
-    }
-    new_args.emplace_back(include_path);
-  });
+  compiler.ForEachFrameworkDirectory(
+      [&] (std::string_view include_path, IncludePathLocation loc) {
+        if (loc == IncludePathLocation::kAbsolute) {
+          new_args.emplace_back("-iframework");
+        } else {
+          new_args.emplace_back("-iframeworkwithsysroot");
+        }
+        new_args.emplace_back(include_path);
+      });
 
   // Finally, add in all non-include related arguments from the compile command.
   for (auto parsed_arg : parsed_args) {
@@ -327,17 +341,41 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
   clang::driver::Driver driver(new_args[0], llvm::sys::getDefaultTargetTriple(),
                                *diagnostics_engine, overlay_vfs.get());
 
+  auto new_args_str = new_args.Join();
+  write(1, new_args_str.c_str(), new_args_str.size());
+  write(1, "\n\n", 2);
+
   driver.setTitle("pasta");
   driver.setCheckInputsExist(false);
 
-  std::filesystem::path compiler_exe_path(ExecutablePath());
+  // Set up a reasonable default system root directory.
+  if (driver.SysRoot.empty()) {
+    if (auto sysroot_arg = parsed_args.getLastArg(
+            clang::driver::options::OPT__sysroot_EQ); sysroot_arg) {
+      driver.SysRoot = sysroot_arg->getValue();
 
-  driver.Name = compiler_exe_path.filename().string();
-  driver.Dir = compiler_exe_path.parent_path().string();
-  driver.ResourceDir = ResourceDirectory();
-  driver.SysRoot = SystemRootDirectory();
-  driver.InstalledDir = InstallationDirectory();
-  driver.ClangExecutable = ExecutablePath();
+    } else if (auto isysroot_arg = parsed_args.getLastArg(
+        clang::driver::options::OPT_isysroot); isysroot_arg) {
+      driver.SysRoot = isysroot_arg->getValue();
+
+    } else {
+      driver.SysRoot = SystemRootDirectory();
+    }
+  }
+
+  if (driver.ResourceDir.empty() ||
+      !std::filesystem::exists(driver.ResourceDir)) {
+    driver.ResourceDir = ResourceDirectory();
+  }
+
+  if (driver.InstalledDir.empty() ||
+      !std::filesystem::exists(driver.InstalledDir)) {
+    std::filesystem::path compiler_exe_path(ExecutablePath());
+    driver.Name = compiler_exe_path.filename().string();
+    driver.Dir = compiler_exe_path.parent_path().string();
+    driver.InstalledDir = InstallationDirectory();
+    driver.ClangExecutable = ExecutablePath();
+  }
 
   const std::unique_ptr<clang::driver::Compilation> compilation(
       driver.BuildCompilation(new_args.Arguments()));

@@ -7,10 +7,13 @@ def main(argv):
   if len(argv) != 2:
     return 1
   
+  new_lines = []
   with open(argv[1], "r") as lines:
     for line in lines:
       wrapped_line = line.rstrip(" \t\r\n").replace("\"", "\\\"")
-      print("\"{}\\n\"".format(wrapped_line))
+      new_lines.append("\"{}\\n\"".format(wrapped_line))
+  
+  print(" \\\n".join(new_lines))
   return 0
 
 if __name__ == "__main__":

@@ -12,6 +12,8 @@
 
 namespace pasta {
 
+using IncludePath = std::pair<std::string, IncludePathLocation>;
+
 class CompilerImpl {
  public:
   inline CompilerImpl(CompilerName compiler_name_, TargetLanguage target_lang_,
@@ -27,9 +29,9 @@ class CompilerImpl {
   const std::string compiler_exe;
 
   // Include paths.
-  std::vector<std::string> user_includes;
-  std::vector<std::string> system_includes;
-  std::vector<std::string> frameworks;
+  std::vector<IncludePath> user_includes;
+  std::vector<IncludePath> system_includes;
+  std::vector<IncludePath> frameworks;
 
   std::string sysroot_dir;  // Optional.
   std::string resource_dir;

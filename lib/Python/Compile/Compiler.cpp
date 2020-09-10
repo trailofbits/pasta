@@ -74,9 +74,11 @@ Compiler::~Compiler(void) {}
 Compiler::Compiler(compiler_name_arg name, target_language_arg lang,
                    compiler_path_arg compiler_path,
                    version_info_arg version_info,
+                   version_info_fake_sysroot_arg version_info_fake_sysroot,
                    working_dir_kwarg working_dir) {
   auto maybe_compiler =
       ::pasta::Compiler::Create(*name, *lang, *compiler_path, *version_info,
+                                *version_info_fake_sysroot,
                                 CurrentWorkingDir(working_dir));
   if (IsError(maybe_compiler)) {
     PythonErrorStreamer(PyExc_Exception) << ErrorString(maybe_compiler);
@@ -115,7 +117,15 @@ std::string_view Compiler::InstallationDirectory(void) {
 const std::vector<std::string_view> Compiler::SystemIncludeDirectories(void) {
   std::vector<std::string_view> list;
   compiler->ForEachSystemIncludeDirectory(
-      [&list](std::string_view path) { list.emplace_back(path); });
+      [=, &list](std::string_view path_str, IncludePathLocation loc) {
+        if (loc == IncludePathLocation::kAbsolute) {
+          list.emplace_back(path_str);
+        } else {
+          std::filesystem::path path(compiler->SystemRootDirectory());
+          path /= path_str;
+          list.emplace_back(path.string());
+        }
+      });
   return list;
 }
 
@@ -123,7 +133,15 @@ const std::vector<std::string_view> Compiler::SystemIncludeDirectories(void) {
 const std::vector<std::string_view> Compiler::UserIncludeDirectories(void) {
   std::vector<std::string_view> list;
   compiler->ForEachUserIncludeDirectory(
-      [&list](std::string_view path) { list.emplace_back(path); });
+      [=, &list](std::string_view path_str, IncludePathLocation loc) {
+        if (loc == IncludePathLocation::kAbsolute) {
+          list.emplace_back(path_str);
+        } else {
+          std::filesystem::path path(compiler->SystemRootDirectory());
+          path /= path_str;
+          list.emplace_back(path.string());
+        }
+      });
   return list;
 }
 
@@ -131,7 +149,15 @@ const std::vector<std::string_view> Compiler::UserIncludeDirectories(void) {
 const std::vector<std::string_view> Compiler::FrameworkDirectories(void) {
   std::vector<std::string_view> list;
   compiler->ForEachFrameworkDirectory(
-      [&list](std::string_view path) { list.emplace_back(path); });
+      [=, &list](std::string_view path_str, IncludePathLocation loc) {
+        if (loc == IncludePathLocation::kAbsolute) {
+          list.emplace_back(path_str);
+        } else {
+          std::filesystem::path path(compiler->SystemRootDirectory());
+          path /= path_str;
+          list.emplace_back(path.string());
+        }
+      });
   return list;
 }
 

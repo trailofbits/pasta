@@ -160,13 +160,13 @@ class Compiler : public PythonObject<::pasta::py::Compiler> {
   std::string_view InstallationDirectory(void);
 
   // List of system include directories.
-  const std::vector<std::string_view> SystemIncludeDirectories(void);
+  const std::vector<std::string> SystemIncludeDirectories(void);
 
   // List of user include directories.
-  const std::vector<std::string_view> UserIncludeDirectories(void);
+  const std::vector<std::string> UserIncludeDirectories(void);
 
   // List of framework directories.
-  const std::vector<std::string_view> FrameworkDirectories(void);
+  const std::vector<std::string> FrameworkDirectories(void);
 
   // Create a compile command for a single file in a working directory.
   BorrowedPythonPtr<CompileCommand>

@@ -114,15 +114,15 @@ std::string_view Compiler::InstallationDirectory(void) {
 }
 
 // List of system include directories.
-const std::vector<std::string_view> Compiler::SystemIncludeDirectories(void) {
-  std::vector<std::string_view> list;
+const std::vector<std::string> Compiler::SystemIncludeDirectories(void) {
+  std::vector<std::string> list;
   compiler->ForEachSystemIncludeDirectory(
-      [=, &list](std::string_view path_str, IncludePathLocation loc) {
+      [&](std::string_view path_str, IncludePathLocation loc) {
         if (loc == IncludePathLocation::kAbsolute) {
           list.emplace_back(path_str);
         } else {
           std::filesystem::path path(compiler->SystemRootDirectory());
-          path /= path_str;
+          path += path_str;
           list.emplace_back(path.string());
         }
       });
@@ -130,15 +130,15 @@ const std::vector<std::string_view> Compiler::SystemIncludeDirectories(void) {
 }
 
 // List of user include directories.
-const std::vector<std::string_view> Compiler::UserIncludeDirectories(void) {
-  std::vector<std::string_view> list;
+const std::vector<std::string> Compiler::UserIncludeDirectories(void) {
+  std::vector<std::string> list;
   compiler->ForEachUserIncludeDirectory(
-      [=, &list](std::string_view path_str, IncludePathLocation loc) {
+      [&](std::string_view path_str, IncludePathLocation loc) {
         if (loc == IncludePathLocation::kAbsolute) {
           list.emplace_back(path_str);
         } else {
           std::filesystem::path path(compiler->SystemRootDirectory());
-          path /= path_str;
+          path += path_str;
           list.emplace_back(path.string());
         }
       });
@@ -146,15 +146,15 @@ const std::vector<std::string_view> Compiler::UserIncludeDirectories(void) {
 }
 
 // List of framework directories.
-const std::vector<std::string_view> Compiler::FrameworkDirectories(void) {
-  std::vector<std::string_view> list;
+const std::vector<std::string> Compiler::FrameworkDirectories(void) {
+  std::vector<std::string> list;
   compiler->ForEachFrameworkDirectory(
-      [=, &list](std::string_view path_str, IncludePathLocation loc) {
+      [&](std::string_view path_str, IncludePathLocation loc) {
         if (loc == IncludePathLocation::kAbsolute) {
           list.emplace_back(path_str);
         } else {
           std::filesystem::path path(compiler->SystemRootDirectory());
-          path /= path_str;
+          path += path_str;
           list.emplace_back(path.string());
         }
       });

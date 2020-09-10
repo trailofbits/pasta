@@ -230,14 +230,31 @@ static bool DeriveResourceDirs(CompilerImpl &info) {
 // Extract the relative component of a `include_path`, assuming it is an
 // absolute path that beings with `sysroot_dir`.
 std::filesystem::path ExtractRelativeComponent(std::filesystem::path sysroot_dir,
-                                              std::filesystem::path include_path) {
-  std::filesystem::path diff_path;
-  std::filesystem::path tmp_path = include_path;
-  while (!std::filesystem::equivalent(tmp_path, sysroot_dir)) {
-    diff_path = tmp_path.stem() / diff_path;
-    tmp_path = tmp_path.parent_path();
+                                               std::filesystem::path include_path) {
+  if (std::distance(include_path.begin(), include_path.end()) <
+      std::distance(sysroot_dir.begin(), sysroot_dir.end())) {
+    return include_path;
   }
-  return diff_path;
+
+  auto sysroot_it = sysroot_dir.begin();
+  auto sysroot_it_end = sysroot_dir.end();
+
+  auto include_path_it = include_path.begin();
+  auto include_path_it_end = include_path.end();
+
+  for (; sysroot_it != sysroot_it_end && include_path_it != include_path_it_end;
+       ++sysroot_it, ++include_path_it) {
+    if (*sysroot_it != *include_path_it) {
+      return include_path;
+    }
+  }
+
+  auto path = include_path.root_directory();
+  for (; include_path_it != include_path_it_end; ++include_path_it) {
+    path /= *include_path_it;
+  }
+
+  return path;
 }
 
 // Try to compute the "real" system root directory.
@@ -325,9 +342,22 @@ static std::filesystem::path FindRealSystemRoot(
 static void RelativizePaths(std::filesystem::path sysroot_dir,
                             std::vector<IncludePath> &orig,
                             const std::vector<IncludePath> &sysroot_rel) {
-
+  const auto sysroot_path = sysroot_dir.string();
 
   for (auto &orig_entry : orig) {
+
+    // Sometimes things are sysroot relative, even though they pretend not
+    // to be. At least this is the case with AppleClang.
+    std::filesystem::path path = orig_entry.first;
+    auto extracted_path = ExtractRelativeComponent(sysroot_dir, orig_entry.first).string();
+    if (path.string() != extracted_path && extracted_path != sysroot_path) {
+      extracted_path.swap(orig_entry.first);
+      orig_entry.second = IncludePathLocation::kSysrootRelative;
+      continue;
+    }
+
+    // Go look for this path in `sysroot_rel`. If we can't find it then it
+    // means it is likely to be relative to `-isysroot`.
     auto found = false;
     for (const auto &sysroot_entry : sysroot_rel) {
       if (orig_entry.first == sysroot_entry.first) {
@@ -336,23 +366,8 @@ static void RelativizePaths(std::filesystem::path sysroot_dir,
       }
     }
 
-    if (found) {
-      continue;
-    }
-
-    orig_entry.second = IncludePathLocation::kSysrootRelative;
-
-    // Found it, the path is indeed relative to the sysroot dir.
-    if (std::filesystem::is_directory(sysroot_dir / orig_entry.first)) {
-      continue;
-    }
-
-    std::filesystem::path path = orig_entry.first;
-    auto extracted_path = ExtractRelativeComponent(sysroot_dir, orig_entry.first);
-    if (!std::filesystem::equivalent(path, extracted_path) &&
-        !std::filesystem::equivalent(extracted_path, sysroot_dir)) {
-      orig_entry.first = extracted_path.string();
-      continue;
+    if (!found) {
+      orig_entry.second = IncludePathLocation::kSysrootRelative;
     }
   }
 }

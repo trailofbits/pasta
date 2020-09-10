@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2020 Trail of Bits, Inc.
  */
-#include <unistd.h>
+
 #include "Job.h"
 
 #pragma clang diagnostic push
@@ -340,10 +340,6 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
   // Make the driver.
   clang::driver::Driver driver(new_args[0], llvm::sys::getDefaultTargetTriple(),
                                *diagnostics_engine, overlay_vfs.get());
-
-  auto new_args_str = new_args.Join();
-  write(1, new_args_str.c_str(), new_args_str.size());
-  write(1, "\n\n", 2);
 
   driver.setTitle("pasta");
   driver.setCheckInputsExist(false);

@@ -6,11 +6,14 @@
 
 #include <pasta/Compile/AST.h>
 
+#include <string>
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/Basic/FileManager.h>
+#include <clang/Lex/Token.h>
 #pragma clang diagnostic pop
 
 namespace clang {
@@ -39,6 +42,9 @@ class ASTImpl {
   llvm::IntrusiveRefCntPtr<clang::FileManager> fm;
 
   clang::TranslationUnitDecl *tu{nullptr};
+
+  std::vector<clang::Token> tokens;
+  std::string preprocessed_code;
 };
 
 }  // namespace pasta

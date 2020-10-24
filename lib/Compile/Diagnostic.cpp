@@ -11,6 +11,7 @@
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wfloat-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/Basic/FileManager.h>
 #include <clang/Basic/SourceManager.h>
 #pragma clang diagnostic pop
 

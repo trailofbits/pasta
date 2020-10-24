@@ -17,6 +17,7 @@
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/AST/ASTConsumer.h>
+#include <clang/Basic/Builtins.h>
 #include <clang/Basic/Diagnostic.h>
 #include <clang/Basic/DiagnosticIDs.h>
 #include <clang/Basic/DiagnosticOptions.h>
@@ -27,6 +28,7 @@
 #include <clang/Lex/PreprocessorOptions.h>
 #include <clang/Parse/Parser.h>
 #include <clang/Sema/Sema.h>
+#include <llvm/Support/Host.h>
 #include <llvm/Support/VirtualFileSystem.h>
 #include <llvm/Support/raw_ostream.h>
 #pragma clang diagnostic pop
@@ -423,9 +425,9 @@ llvm::Expected<AST> CompileJob::Run(void) const {
                                                     invocation.TargetOpts));
 
   const auto &argv = Arguments();
+  llvm::ArrayRef<const char *> argv_arr(argv.Argv(), argv.Size());
   const auto invocation_is_valid = clang::CompilerInvocation::CreateFromArgs(
-      invocation, argv.Argv(), &(argv.Argv()[argv.Size()]),
-      *diagnostics_engine);
+      invocation, argv_arr, *diagnostics_engine);
 
   if (!invocation_is_valid) {
     if (diag->error.empty()) {
@@ -593,7 +595,7 @@ llvm::Expected<AST> CompileJob::Run(void) const {
   auto &sm = ci->getSourceManager();
   const auto prev_main_file_id = sm.getMainFileID();
   const auto main_file_id = sm.createFileID(
-      file_entry, clang::SourceLocation(), clang::SrcMgr::C_User);
+      *file_entry, clang::SourceLocation(), clang::SrcMgr::C_User);
 
   if (!main_file_id.isValid()) {
     return llvm::createStringError(

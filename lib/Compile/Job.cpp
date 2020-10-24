@@ -25,6 +25,7 @@
 #include <llvm/Option/Option.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/FileSystem.h>
+#include <llvm/Support/Host.h>
 #include <llvm/Support/Path.h>
 #include <llvm/Support/VirtualFileSystem.h>
 
@@ -295,33 +296,6 @@ CreateAdjustedCompilerCommand(const Compiler &compiler,
 llvm::Expected<std::vector<CompileJob>>
 Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
-  // Parse the arguments. This isn't necessary for compilation, but it's
-  // possible that our command string splitting isn't quite right, and so
-  // parsing for everything serves as a good lint for the command string
-  // splitter.
-  std::unique_ptr<llvm::opt::OptTable> option_info_table(
-      clang::driver::createDriverOptTable());
-
-  auto missing_arg_index = 0u;
-  auto missing_arg_count = 0u;
-  auto parsed_args = option_info_table->ParseArgs(
-      command.Arguments().Arguments(), missing_arg_index, missing_arg_count,
-      clang::driver::options::DriverOption | clang::driver::options::CC1Option,
-      clang::driver::options::CLOption);
-
-  // Something didn't parse.
-  if (0 < missing_arg_count) {
-    return llvm::createStringError(
-        std::make_error_code(std::errc::invalid_argument),
-        "Unable to parse %u command-line options (first unparsed option is: "
-        "'%s') in command: %s",
-        missing_arg_count, command.Arguments().Arguments()[missing_arg_index],
-        command.Arguments().Join().c_str());
-  }
-
-  const auto new_args =
-      CreateAdjustedCompilerCommand(*this, command, parsed_args);
-
   auto diag = std::make_unique<SaveFirstErrorDiagConsumer>();
   llvm::IntrusiveRefCntPtr<clang::DiagnosticsEngine> diagnostics_engine(
       new clang::DiagnosticsEngine(
@@ -338,8 +312,32 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
   overlay_vfs->setCurrentWorkingDirectory(command.WorkingDirectory().data());
 
   // Make the driver.
-  clang::driver::Driver driver(new_args[0], llvm::sys::getDefaultTargetTriple(),
-                               *diagnostics_engine, overlay_vfs.get());
+  clang::driver::Driver driver(
+      command.Arguments()[0], llvm::sys::getDefaultTargetTriple(),
+      *diagnostics_engine, overlay_vfs.get());
+
+  auto &opts = driver.getOpts();
+
+
+  auto missing_arg_index = 0u;
+  auto missing_arg_count = 0u;
+  auto parsed_args = opts.ParseArgs(
+      command.Arguments().Arguments(), missing_arg_index, missing_arg_count,
+      clang::driver::options::DriverOption | clang::driver::options::CC1Option,
+      clang::driver::options::CLOption);
+
+  // Something didn't parse.
+  if (0 < missing_arg_count) {
+    return llvm::createStringError(
+        std::make_error_code(std::errc::invalid_argument),
+        "Unable to parse %u command-line options (first unparsed option is: "
+        "'%s') in command: %s",
+        missing_arg_count, command.Arguments().Arguments()[missing_arg_index],
+        command.Arguments().Join().c_str());
+  }
+
+  const auto new_args =
+      CreateAdjustedCompilerCommand(*this, command, parsed_args);
 
   driver.setTitle("pasta");
   driver.setCheckInputsExist(false);
@@ -438,8 +436,8 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
     clang::CompilerInvocation invocation;
     invocation.getFileSystemOpts().WorkingDir = driver.Dir;
     auto invocation_is_valid = clang::CompilerInvocation::CreateFromArgs(
-        invocation, job_args.data(), job_args.data() + job_args.size(),
-        *diagnostics_engine);
+        invocation, job_args, *diagnostics_engine,
+        new_args[0]);
 
     if (!invocation_is_valid) {
       if (diag->error.empty()) {

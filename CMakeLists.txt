@@ -1,10 +1,13 @@
 # Copyright (c) 2020 Trail of Bits, Inc., all rights reserved.
 
+include(cmake/vcpkg_helper.cmake)
+
 cmake_minimum_required(VERSION 3.14.5)
 project(pasta LANGUAGES C CXX)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/settings.cmake")
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/utils.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/ccache.cmake")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 
 # --------------------------------------------
@@ -65,6 +68,7 @@ target_include_directories(thirdparty_python INTERFACE
 # Clang/LLVM dependencies --------------------
 # --------------------------------------------
 
+configure_ccache()
 find_and_select_clang_compiler()
 find_package(LLVM CONFIG REQUIRED)
 find_package(Clang CONFIG REQUIRED)

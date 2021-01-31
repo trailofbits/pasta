@@ -1,0 +1,7 @@
+build/*
+install/*
+.cproject
+.clion
+.project
+.settings
+

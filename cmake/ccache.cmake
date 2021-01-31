@@ -14,7 +14,7 @@
 
 cmake_minimum_required(VERSION 3.4)
 
-macro(configureCcache)
+macro(configure_ccache)
   if(NOT "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux" AND
      NOT "${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
 

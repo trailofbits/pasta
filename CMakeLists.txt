@@ -57,6 +57,18 @@ endif()
 # --------------------------------------------
 
 find_package(PythonInterp 3.7 REQUIRED)
+if("x${PYTHON_LIBRARIES}x" STREQUAL "xx")
+    execute_process(
+        COMMAND "${PYTHON_EXECUTABLE}" -c "import distutils.sysconfig as sysconfig; print(sysconfig.get_config_var('LIBDIR'), end='')"
+        OUTPUT_VARIABLE PYTHON_LIBRARY)
+    message(STATUS "Found PYTHON_LIBRARY: ${PYTHON_LIBRARY}")
+endif()
+if("x${PYTHON_INCLUDE_DIRS}x" STREQUAL "xx")
+    execute_process(
+        COMMAND "${PYTHON_EXECUTABLE}" -c "from distutils.sysconfig import get_python_inc; print(get_python_inc(), end='')"
+        OUTPUT_VARIABLE PYTHON_INCLUDE_DIR)
+    message(STATUS "Found PYTHON_INCLUDE_DIR: ${PYTHON_INCLUDE_DIR}")
+endif()
 find_package(PythonLibs 3.7 REQUIRED)
 
 add_library(thirdparty_python INTERFACE)

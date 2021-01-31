@@ -27,7 +27,7 @@ cd cxx-common
 The repository uses [vcpkg](https://github.com/microsoft/vcpkg) which makes entire process rather easy.
 
 ```shell
-./build_dependencies llvm-11   
+./build_dependencies.sh llvm-11   
 ```
 
 If you do not plan to tinker with or work on PASTA, then we recommend adding in

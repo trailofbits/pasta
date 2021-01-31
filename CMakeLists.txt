@@ -121,24 +121,9 @@ target_compile_definitions(thirdparty_llvm INTERFACE
     ${Clang_DEFINITIONS}
 )
 
-if (LLVM_Z3_INSTALL_DIR)
-  find_package(Z3 4.7.1)
-  set(need_z3 TRUE CACHE BOOL "Is Z3 needed?")
-elseif(DEFINED CXX_COMMON_REPOSITORY_ROOT)
-  set(LLVM_Z3_INSTALL_DIR "${CXX_COMMON_REPOSITORY_ROOT}/z3" CACHE PATH "Path to where Z3 can be found")
-  set(need_z3 TRUE CACHE BOOL "Is Z3 needed?")
-else()
-  set(need_z3 FALSE CACHE BOOL "Is Z3 needed?")
-endif()
 
-if(need_z3)
-  find_package(Z3 4.7.1)
-  if (NOT Z3_FOUND)
-    message(WARNING "Z3 >= 4.7.1 has not been found in LLVM_Z3_INSTALL_DIR: ${LLVM_Z3_INSTALL_DIR}.")
-  else()
-    target_link_libraries(thirdparty_llvm INTERFACE Z3)
-  endif()
-endif()
+find_package(Z3 CONFIG REQUIRED)
+target_link_libraries(thirdparty_llvm INTERFACE z3::libz3)
 
 # --------------------------------------------
 # Configure lib/Compiler/Host.h --------------

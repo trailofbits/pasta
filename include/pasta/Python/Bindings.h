@@ -899,7 +899,7 @@ static bool TryParsePythonArguments(PyObject *args, PyObject *kargs,
   });
 
   // Extract the keyword arguments.
-  if (kargs && PyDict_Check(kargs)) {
+  if (kargs && PyDict_CheckExact(kargs)) {
     Py_ssize_t i = 0;
     PyObject *karg_key = nullptr;
     PyObject *karg_value = nullptr;

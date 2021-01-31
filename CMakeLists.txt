@@ -121,9 +121,10 @@ target_compile_definitions(thirdparty_llvm INTERFACE
     ${Clang_DEFINITIONS}
 )
 
-
+# LLVM uses `-lZ3` somewhere, so this is a good way to sneak it in.
 find_package(Z3 CONFIG REQUIRED)
-target_link_libraries(thirdparty_llvm INTERFACE z3::libz3)
+add_library(Z3 INTERFACE)
+target_link_libraries(Z3 INTERFACE z3::libz3)
 
 # --------------------------------------------
 # Configure lib/Compiler/Host.h --------------

@@ -52,6 +52,9 @@ if(WARNINGS_AS_ERRORS)
     target_compile_options(cxx_settings INTERFACE ${CXX_WARNINGS_AS_ERRORS_OPTION})
 endif()
 
+find_package(Filesystem)
+target_link_libraries(cxx_settings INTERFACE std::filesystem)
+
 # --------------------------------------------
 # Python dependencies ------------------------
 # --------------------------------------------

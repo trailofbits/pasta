@@ -4,8 +4,7 @@
 
 #include <pasta/Compile/Compiler.h>
 #include <pasta/Util/Error.h>
-
-#include <filesystem>
+#include <pasta/Util/FileSystem.h>
 
 #include "Compile.h"
 

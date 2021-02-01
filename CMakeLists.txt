@@ -20,6 +20,7 @@ option(WARNINGS_AS_ERRORS "Build treating warnings as errors" OFF)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # --------------------------------------------
 # toolchain-specific warning options ---------
@@ -52,7 +53,10 @@ if(WARNINGS_AS_ERRORS)
     target_compile_options(cxx_settings INTERFACE ${CXX_WARNINGS_AS_ERRORS_OPTION})
 endif()
 
-find_package(Filesystem)
+find_package(Filesystem REQUIRED COMPONENTS Final Experimental)
+if(Filesystem_FOUND)
+    message(STATUS "Found filesystem: ${CXX_FILESYSTEM_HEADER}")
+endif()
 target_link_libraries(cxx_settings INTERFACE std::filesystem)
 
 # --------------------------------------------
@@ -97,7 +101,7 @@ list(APPEND LLVM_LIBRARIES LLVMCore LLVMSupport)
 
 target_link_libraries(thirdparty_llvm INTERFACE
     ${LLVM_LIBRARIES}
-    
+
     clangSema
     clang
     clangFrontend
@@ -174,7 +178,7 @@ add_library(util STATIC
   "include/pasta/Util/FileSystem.h"
   "include/pasta/Util/Init.h"
   "include/pasta/Util/JSON.h"
-  
+
   "lib/Util/ArgumentVector.cpp"
   "lib/Util/FileSystem.cpp"
   "lib/Util/Init.cpp"
@@ -190,13 +194,13 @@ add_library(compiler STATIC
     "include/pasta/Compile/Command.h"
     "include/pasta/Compile/Compiler.h"
     "include/pasta/Compile/Job.h"
-    
+
     "${HOST_H_FILE}"
     "lib/Compile/AST.h"
     "lib/Compile/Command.h"
     "lib/Compile/Compiler.h"
     "lib/Compile/Job.h"
-    
+
     "lib/Compile/AST.cpp"
     "lib/Compile/Command.cpp"
     "lib/Compile/Compiler.cpp"
@@ -218,7 +222,7 @@ target_link_libraries(compiler PRIVATE
 
 add_library(python_bindings STATIC
     "include/pasta/Python/Bindings.h"
-    
+
     "lib/Python/Bindings.cpp"
     "lib/Python/Compile/AST.cpp"
     "lib/Python/Compile/Command.cpp"
@@ -290,7 +294,7 @@ add_custom_command(
     DEPENDS python_bindings
     WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
 )
-  
+
 add_custom_target(build_python_ext ALL DEPENDS "${OUTPUT}")
 
 install(CODE "execute_process(COMMAND \"${PYTHON_EXECUTABLE}\" \"${SETUP_PY}\" install)")

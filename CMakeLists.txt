@@ -282,6 +282,11 @@ foreach(lib_target ${DEPENDENT_LIBRARIES})
   endif()
 endforeach()
 
+# Determine if we need to link anything to access the C++ filesystem API
+get_property(CXX_FILESYSTEM_LIBS
+             TARGET std::filesystem
+             PROPERTY INTERFACE_LINK_LIBRARIES)
+
 configure_file("${SETUP_PY_IN}" "${SETUP_PY}.gen" @ONLY)
 file(GENERATE OUTPUT "${SETUP_PY}" INPUT "${SETUP_PY}.gen")
 configure_file("${INIT_PY_IN}" "${INIT_PY}" @ONLY)

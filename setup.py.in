@@ -22,7 +22,8 @@ LIBRARY_PATHS = list(set("@LIBRARY_PATHS@".split(";")))
 if sys.platform.startswith("linux"):
     extra_link_args = ["-Wl,--whole-archive"] +     \
             LIBRARY_PATHS +                         \
-            ["-Wl,--no-whole-archive"]
+            ["-Wl,--no-whole-archive"] +            \
+            list(set("@CXX_FILESYSTEM_LIBS@".split(";")))
 elif sys.platform == "darwin":
     extra_link_args = ["-Wl,-force_load"] +         \
             ["$<TARGET_FILE:python_bindings>"] +    \

@@ -8,10 +8,10 @@
 #include <pasta/Compile/Job.h>
 #include <pasta/Util/ArgumentVector.h>
 #include <pasta/Util/Error.h>
+#include <pasta/Util/FileSystem.h>
 #include <pasta/Util/Init.h>
 
 #include <cstdlib>
-#include <filesystem>
 #include <iostream>
 #include <memory>
 

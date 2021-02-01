@@ -4,9 +4,9 @@
 
 #include "Command.h"
 
+#include <pasta/Util/FileSystem.h>
 #include <pasta/Util/JSON.h>
 
-#include <filesystem>
 #include <memory>
 
 #include "Compiler.h"

@@ -21,11 +21,12 @@ LIBRARY_PATHS = list(set("@LIBRARY_PATHS@".split(";")))
 
 if sys.platform.startswith("linux"):
     extra_link_args = ["-Wl,--whole-archive"] +     \
-            ["$<TARGET_FILE:python_bindings>"] +    \
+            LIBRARY_PATHS +                         \
             ["-Wl,--no-whole-archive"]
 elif sys.platform == "darwin":
     extra_link_args = ["-Wl,-force_load"] +         \
-            ["$<TARGET_FILE:python_bindings>"]
+            ["$<TARGET_FILE:python_bindings>"] +    \
+            LIBRARY_PATHS
 else:
     print("Pasta is only supported on macOS and Linux")
     sys.exit(1)
@@ -37,7 +38,7 @@ pasta_internal = distutils.core.Extension(
     language="c++",
     extra_compile_args=["-std=c++17"],
     libraries=["curses"],
-    extra_link_args=extra_link_args + LIBRARY_PATHS)
+    extra_link_args=extra_link_args)
 
 distutils.core.setup(
     name="pasta",

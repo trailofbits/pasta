@@ -8,11 +8,7 @@ namespace pasta {
 namespace py {
 namespace {
 
-DEFINE_PYTHON_METHOD(CompileJob, WorkingDirectory, working_directory);
-
 static PyMethodDef gASTMethods[] = {
-    PYTHON_METHOD(working_directory,
-                  "The directory in which the compile job should be invoked."),
     PYTHON_METHOD_SENTINEL
 };
 
@@ -25,7 +21,7 @@ AST::AST(void) {
       << "pasta.AST cannot be directly instantiated.";
 }
 
-// Tries to add the `CompileJob` type to the `pasta` module.
+// Tries to add the `AST` type to the `pasta` module.
 bool AST::TryAddToModule(PyObject *module) {
   gType.tp_name = "pasta.AST";
   gType.tp_doc = "Wrapper around Clang AST data structures.";

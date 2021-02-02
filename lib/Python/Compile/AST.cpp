@@ -8,7 +8,10 @@ namespace pasta {
 namespace py {
 namespace {
 
+DEFINE_PYTHON_METHOD(AST, PreprocessedCode, preprocessed_code);
+
 static PyMethodDef gASTMethods[] = {
+    PYTHON_METHOD(preprocessed_code, "The raw preprocessed code"),
     PYTHON_METHOD_SENTINEL
 };
 
@@ -19,6 +22,10 @@ AST::~AST(void) {}
 AST::AST(void) {
   PythonErrorStreamer(PyExc_NotImplementedError)
       << "pasta.AST cannot be directly instantiated.";
+}
+
+std::string_view AST::PreprocessedCode(void) {
+  return ast->PreprocessedCode();
 }
 
 // Tries to add the `AST` type to the `pasta` module.

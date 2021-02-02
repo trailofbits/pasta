@@ -51,6 +51,9 @@ class AST : public PythonObject<::pasta::py::AST> {
   // Tries to add the `CompileJob` type to the `pasta` module.
   static bool TryAddToModule(PyObject *module);
 
+  // Return the raw preprocessed code
+  std::string_view PreprocessedCode(void);
+
   std::optional<::pasta::AST> ast;
 };
 

@@ -29,6 +29,9 @@ class AST {
   AST(AST &&) noexcept;
   AST &operator=(AST &&) noexcept;
 
+  // Return the raw pre-processed code
+  std::string_view PreprocessedCode(void) const;
+
  private:
   friend class Compiler;
   friend class CompileJob;

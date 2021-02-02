@@ -30,5 +30,10 @@ AST &AST::operator=(AST &&that) noexcept {
 
 AST::AST(std::shared_ptr<ASTImpl> impl_) : impl(std::move(impl_)) {}
 
+// Return the raw preprocessed code
+std::string_view AST::PreprocessedCode(void) const {
+  return impl->preprocessed_code;
+}
+
 
 }  // namespace pasta

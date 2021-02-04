@@ -11,9 +11,7 @@
 #include <string_view>
 
 namespace clang {
-class Decl;
-class Stmt;
-class Expr;
+class Token;
 }  // namespace clang
 namespace pasta {
 
@@ -31,6 +29,8 @@ class AST {
 
   // Return the raw pre-processed code
   std::string_view PreprocessedCode(void) const;
+
+  const std::vector<clang::Token> &Tokens(void) const;
 
  private:
   friend class Compiler;

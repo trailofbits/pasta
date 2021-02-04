@@ -10,6 +10,8 @@
 #include <pasta/Compile/Job.h>
 #include <pasta/Python/Bindings.h>
 
+#include "Clang/Clang.h"
+
 #include <optional>
 
 namespace pasta {
@@ -48,11 +50,14 @@ class AST : public PythonObject<::pasta::py::AST> {
 
   DEFINE_PYTHON_CONSTRUCTOR(AST, void);
 
-  // Tries to add the `CompileJob` type to the `pasta` module.
+  // Tries to add the `AST` type to the `pasta` module.
   static bool TryAddToModule(PyObject *module);
 
-  // Return the raw preprocessed code
+  // Return the raw preprocessed code.
   std::string_view PreprocessedCode(void);
+
+  // Return the tokens.
+  std::vector<BorrowedPythonPtr<Token>> Tokens(void);
 
   std::optional<::pasta::AST> ast;
 };

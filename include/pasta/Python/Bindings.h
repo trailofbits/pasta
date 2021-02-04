@@ -1200,14 +1200,27 @@ inline static constexpr int KeywordsFlag(Ret (T::*)(Args...)) {
 
 #define PYTHON_METHOD(py_method, doc) \
   { \
-#    py_method, reinterpret_cast < PyCFunction>(py_method), \
-        (::pasta::py::ZeroArgsFlag(py_method##_details::MethodPointer()) | \
-         ::pasta::py::KeywordsFlag(py_method##_details::MethodPointer())), \
-        doc \
+    #py_method, \
+    reinterpret_cast < PyCFunction>(py_method), \
+    (::pasta::py::ZeroArgsFlag(py_method##_details::MethodPointer()) | \
+     ::pasta::py::KeywordsFlag(py_method##_details::MethodPointer())), \
+    doc \
   }
 
 #define PYTHON_METHOD_SENTINEL \
   { nullptr, nullptr, 0, nullptr }
+
+#define PYTHON_GETTER(py_method, doc) \
+  { \
+    #py_method, \
+    reinterpret_cast<getter>(py_method), \
+    nullptr, \
+    doc, \
+    nullptr \
+  }
+
+#define PYTHON_GETTER_SETTER_SENTINEL \
+  { nullptr, nullptr, nullptr, nullptr, nullptr }
 
 #define DEFINE_PYTHON_ARG(name, ...) \
   struct name##_arg : public PythonArg<__VA_ARGS__> { \

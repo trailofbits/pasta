@@ -229,6 +229,7 @@ add_library(python_bindings STATIC
     "lib/Python/Compile/Compile.h"
     "lib/Python/Compile/Compiler.cpp"
     "lib/Python/Compile/Job.cpp"
+    "lib/Python/Compile/Clang/SourceLocation.cpp"
     "lib/Python/Compile/Clang/Token.cpp"
     "lib/Python/Pasta.cpp"
 )

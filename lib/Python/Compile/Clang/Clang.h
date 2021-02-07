@@ -6,6 +6,8 @@
 
 #include <pasta/Python/Bindings.h>
 
+#include <clang/Basic/FileManager.h>
+#include <clang/Basic/SourceLocation.h>
 #include <clang/Lex/Token.h>
 
 #include <optional>
@@ -43,9 +45,37 @@ class Token : public PythonObject<::pasta::py::Token> {
   // Return the token kind
   BorrowedPythonPtr<TokenKind> Kind(void);
 
+  // Return the token length
   unsigned Length(void);
 
   std::optional<clang::Token> token;
+};
+
+// Python wrapper for a source location.
+class SourceLocation : public PythonObject<::pasta::py::SourceLocation> {
+ public:
+  ~SourceLocation(void);
+
+  inline SourceLocation(clang::FullSourceLoc loc_) : loc(std::move(loc_)) {}
+
+  DEFINE_PYTHON_CONSTRUCTOR(SourceLocation, void);
+
+  // Source file
+  std::string_view File(void);
+
+  // Line number
+  unsigned LineNumber(void);
+
+  // Column number
+  unsigned ColumnNumber(void);
+
+  // String representation of a source location
+  std::string_view Str(void);
+
+  // Tries to add the `SourceLocation` type to the `pasta` module
+  static bool TryAddToModule(PyObject *module);
+
+  std::optional<clang::FullSourceLoc> loc;
 };
 
 }  // namespace py

@@ -46,6 +46,7 @@ PyMODINIT_FUNC PyInit_pasta_internal(void) {
 
   if (!AST::TryAddToModule(m) || !CompileJob::TryAddToModule(m) ||
       !CompileCommand::TryAddToModule(m) || !Compiler::TryAddToModule(m) ||
+      !SourceLocation::TryAddToModule(m) ||
       !TokenKind::TryAddToModule(m) || !Token::TryAddToModule(m)) {
     return nullptr;
   }

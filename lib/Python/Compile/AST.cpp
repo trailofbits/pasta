@@ -10,6 +10,12 @@ namespace {
 
 DEFINE_PYTHON_METHOD(AST, PreprocessedCode, preprocessed_code);
 DEFINE_PYTHON_METHOD(AST, Tokens, tokens);
+DEFINE_PYTHON_METHOD(AST, GetLocation, get_location);
+
+static PyMethodDef gASTMethods[] = {
+  PYTHON_METHOD(get_location, "Get the location of the given token."),
+  PYTHON_METHOD_SENTINEL
+};
 
 static PyGetSetDef gASTGetterSetters[] = {
   PYTHON_GETTER(preprocessed_code, "The raw preprocessed code"),
@@ -40,11 +46,15 @@ std::vector<BorrowedPythonPtr<Token>> AST::Tokens(void) {
   return ret;
 }
 
+BorrowedPythonPtr<SourceLocation> AST::GetLocation(token_arg token) {
+  return SourceLocation::New(ast->getLocation(*(*token)->token));
+}
+
 // Tries to add the `AST` type to the `pasta` module.
 bool AST::TryAddToModule(PyObject *module) {
   gType.tp_name = "pasta.AST";
   gType.tp_doc = "Wrapper around Clang AST data structures.";
-  gType.tp_methods = nullptr;
+  gType.tp_methods = gASTMethods;
   gType.tp_getset = gASTGetterSetters;
   if (0 != PyType_Ready(&gType)) {
     return false;

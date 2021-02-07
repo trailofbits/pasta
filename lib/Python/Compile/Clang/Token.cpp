@@ -11,7 +11,7 @@ TokenKind::~TokenKind(void) {}
 
 TokenKind::TokenKind(void) {
   PythonErrorStreamer(PyExc_NotImplementedError)
-      << "past.TokenKind cannot be directly instantiated.";
+      << "pasta.TokenKind cannot be directly instantiated.";
 }
 
 std::string_view TokenKind::Str(void) {
@@ -23,7 +23,7 @@ bool TokenKind::TryAddToModule(PyObject *module) {
   gType.tp_name = "pasta.TokenKind";
   gType.tp_doc = "Clang token kind.";
   gType.tp_methods = nullptr;
-  gType.tp_str = [] (PyObject *self_) -> PyObject * {
+  gType.tp_str = [] (PyObject *self_) {
     auto self = reinterpret_cast<TokenKind*>(self_);
     return convert::FromStdStrView(self->Str());
   };
@@ -37,13 +37,8 @@ bool TokenKind::TryAddToModule(PyObject *module) {
 }
 
 namespace {
-
 DEFINE_PYTHON_METHOD(Token, Kind, kind);
 DEFINE_PYTHON_METHOD(Token, Length, length);
-
-static PyMethodDef gTokenMethods[] = {
-  PYTHON_METHOD_SENTINEL
-};
 
 static PyGetSetDef gTokenGettersSetters[] = {
   PYTHON_GETTER(kind, "The token kind"),
@@ -71,7 +66,7 @@ unsigned Token::Length(void) {
 bool Token::TryAddToModule(PyObject *module) {
   gType.tp_name = "pasta.Token";
   gType.tp_doc = "Clang token.";
-  gType.tp_methods = gTokenMethods;
+  gType.tp_methods = nullptr;
   gType.tp_getset = gTokenGettersSetters;
   if (0 != PyType_Ready(&gType)) {
     return false;

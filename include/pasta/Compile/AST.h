@@ -11,6 +11,7 @@
 #include <string_view>
 
 namespace clang {
+class FullSourceLoc;
 class Token;
 }  // namespace clang
 namespace pasta {
@@ -30,7 +31,10 @@ class AST {
   // Return the raw pre-processed code
   std::string_view PreprocessedCode(void) const;
 
+  // Return the lexed tokens
   const std::vector<clang::Token> &Tokens(void) const;
+
+  clang::FullSourceLoc getLocation(const clang::Token &token) const;
 
  private:
   friend class Compiler;

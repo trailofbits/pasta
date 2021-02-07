@@ -38,4 +38,9 @@ const std::vector<clang::Token> &AST::Tokens(void) const {
   return impl->tokens;
 }
 
+clang::FullSourceLoc AST::getLocation(const clang::Token &token) const {
+  const auto &sm = impl->ci->getSourceManager();
+  return clang::FullSourceLoc(token.getLocation(), sm);
+}
+
 }  // namespace pasta

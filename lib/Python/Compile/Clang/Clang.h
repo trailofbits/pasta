@@ -60,6 +60,15 @@ class SourceLocation : public PythonObject<::pasta::py::SourceLocation> {
 
   DEFINE_PYTHON_CONSTRUCTOR(SourceLocation, void);
 
+  // Location where the token was ultimately expanded
+  BorrowedPythonPtr<SourceLocation> ExpansionLoc(void);
+
+  // Location of the token's character data
+  BorrowedPythonPtr<SourceLocation> SpellingLoc(void);
+
+  // Expansion or spelling location for a macro
+  BorrowedPythonPtr<SourceLocation> FileLoc(void);
+
   // Source file
   std::string_view File(void);
 
@@ -70,7 +79,7 @@ class SourceLocation : public PythonObject<::pasta::py::SourceLocation> {
   unsigned ColumnNumber(void);
 
   // String representation of a source location
-  std::string_view Str(void);
+  std::string Str(void);
 
   // Tries to add the `SourceLocation` type to the `pasta` module
   static bool TryAddToModule(PyObject *module);

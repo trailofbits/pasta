@@ -11,9 +11,11 @@ namespace {
 DEFINE_PYTHON_METHOD(AST, PreprocessedCode, preprocessed_code);
 DEFINE_PYTHON_METHOD(AST, Tokens, tokens);
 DEFINE_PYTHON_METHOD(AST, GetLocation, get_location);
+DEFINE_PYTHON_METHOD(AST, GetRawToken, token_data);
 
 static PyMethodDef gASTMethods[] = {
   PYTHON_METHOD(get_location, "Get the location of the given token."),
+  PYTHON_METHOD(token_data, "Read the raw token data."),
   PYTHON_METHOD_SENTINEL
 };
 
@@ -46,12 +48,23 @@ std::vector<BorrowedPythonPtr<Token>> AST::Tokens(void) {
   return ret;
 }
 
-BorrowedPythonPtr<SourceLocation> AST::GetLocation(token_arg token) {
+BorrowedPythonPtr<SourceLocation> AST::GetLocation(token_arg tok) {
   clang::FullSourceLoc loc;
-  if (!ast->TryGetLocation(*(*token)->token, &loc)) {
+  if (!ast->TryGetLocation(*(*tok)->token, &loc)) {
     return nullptr;
   }
   return SourceLocation::New(loc);
+}
+
+std::string AST::GetRawToken(token_arg tok) {
+  std::string out;
+
+  if (!ast->TryReadToken(*(*tok)->token, &out)) {
+    // Adrian: Return something more meaningful than the empty string
+    return "";
+  }
+
+  return out;
 }
 
 // Tries to add the `AST` type to the `pasta` module.

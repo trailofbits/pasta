@@ -62,7 +62,10 @@ class AST : public PythonObject<::pasta::py::AST> {
   DEFINE_PYTHON_ARG(token, BorrowedPythonPtr<Token>);
 
   // Return source location information for a given token.
-  BorrowedPythonPtr<SourceLocation> GetLocation(token_arg token);
+  BorrowedPythonPtr<SourceLocation> GetLocation(token_arg tok);
+
+  // Read the token's data
+  std::string GetRawToken(token_arg tok);
 
   std::optional<::pasta::AST> ast;
 };

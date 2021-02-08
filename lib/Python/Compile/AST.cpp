@@ -11,11 +11,11 @@ namespace {
 DEFINE_PYTHON_METHOD(AST, PreprocessedCode, preprocessed_code);
 DEFINE_PYTHON_METHOD(AST, Tokens, tokens);
 DEFINE_PYTHON_METHOD(AST, GetLocation, get_location);
-DEFINE_PYTHON_METHOD(AST, GetRawToken, token_data);
+DEFINE_PYTHON_METHOD(AST, GetRawToken, get_token_data);
 
 static PyMethodDef gASTMethods[] = {
   PYTHON_METHOD(get_location, "Get the location of the given token."),
-  PYTHON_METHOD(token_data, "Read the raw token data."),
+  PYTHON_METHOD(get_token_data, "Read the raw token data."),
   PYTHON_METHOD_SENTINEL
 };
 

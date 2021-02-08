@@ -6,11 +6,13 @@
 
 #include <pasta/Python/Bindings.h>
 
-#include <clang/Basic/FileManager.h>
-#include <clang/Basic/SourceLocation.h>
 #include <clang/Lex/Token.h>
 
 #include <optional>
+
+namespace clang {
+class SourceLocation;
+} // namespace clang
 
 namespace pasta {
 namespace py {
@@ -25,7 +27,7 @@ class TokenKind : public PythonObject<::pasta::py::TokenKind> {
 
   static bool TryAddToModule(PyObject *module);
 
-  std::string_view Str(void);
+  std::string_view Str(void) const;
 
   std::optional<clang::tok::TokenKind> kind;
 };
@@ -47,6 +49,18 @@ class Token : public PythonObject<::pasta::py::Token> {
 
   // Return the token length
   unsigned Length(void);
+
+  // Return `true` if the token is a literal (e.g., numeric constant, string, etc.)
+  bool IsLiteral(void);
+
+  // Return `true` if the token is an identifier
+  bool IsAnyIdentifier(void);
+
+  // Get the literal value
+  std::string_view GetLiteral(void);
+
+  // Get the identifier string
+  std::string_view GetIdentifier(void);
 
   std::optional<clang::Token> token;
 };
@@ -79,7 +93,7 @@ class SourceLocation : public PythonObject<::pasta::py::SourceLocation> {
   unsigned ColumnNumber(void);
 
   // String representation of a source location
-  std::string Str(void);
+  std::string Str(void) const;
 
   // Tries to add the `SourceLocation` type to the `pasta` module
   static bool TryAddToModule(PyObject *module);

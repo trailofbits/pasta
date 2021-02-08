@@ -4,6 +4,9 @@
 
 #include "Clang.h"
 
+#include <clang/Basic/FileManager.h>
+#include <clang/Basic/SourceLocation.h>
+
 namespace pasta {
 namespace py {
 namespace {
@@ -60,7 +63,7 @@ unsigned SourceLocation::ColumnNumber(void) {
   return loc->getColumnNumber();
 }
 
-std::string SourceLocation::Str(void) {
+std::string SourceLocation::Str(void) const {
   return loc->printToString(loc->getManager());
 }
 

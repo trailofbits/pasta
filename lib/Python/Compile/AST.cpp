@@ -47,7 +47,11 @@ std::vector<BorrowedPythonPtr<Token>> AST::Tokens(void) {
 }
 
 BorrowedPythonPtr<SourceLocation> AST::GetLocation(token_arg token) {
-  return SourceLocation::New(ast->getLocation(*(*token)->token));
+  clang::FullSourceLoc loc;
+  if (!ast->TryGetLocation(*(*token)->token, loc)) {
+    return nullptr;
+  }
+  return SourceLocation::New(loc);
 }
 
 // Tries to add the `AST` type to the `pasta` module.

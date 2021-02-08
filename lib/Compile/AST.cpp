@@ -38,9 +38,14 @@ const std::vector<clang::Token> &AST::Tokens(void) const {
   return impl->tokens;
 }
 
-clang::FullSourceLoc AST::getLocation(const clang::Token &token) const {
+bool AST::TryGetLocation(const clang::Token &token, clang::FullSourceLoc &out_loc) const {
+  const auto loc = token.getLocation();
+  if (loc.isInvalid()) {
+    return false;
+  }
   const auto &sm = impl->ci->getSourceManager();
-  return clang::FullSourceLoc(token.getLocation(), sm);
+  out_loc = clang::FullSourceLoc(loc, sm);
+  return true;
 }
 
 }  // namespace pasta

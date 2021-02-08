@@ -34,7 +34,7 @@ class AST {
   // Return the lexed tokens
   const std::vector<clang::Token> &Tokens(void) const;
 
-  clang::FullSourceLoc getLocation(const clang::Token &token) const;
+  bool TryGetLocation(const clang::Token &token, clang::FullSourceLoc &loc_out) const;
 
  private:
   friend class Compiler;

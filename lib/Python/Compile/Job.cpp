@@ -23,29 +23,33 @@ DEFINE_PYTHON_METHOD(CompileJob, SourceFile, source_file);
 DEFINE_PYTHON_METHOD(CompileJob, Run, run);
 
 static PyMethodDef gCompileJobMethods[] = {
-    PYTHON_METHOD(working_directory,
-                  "The directory in which the compile job should be invoked."),
-    PYTHON_METHOD(
-        resource_directory,
-        "Path to the directory containing the compiler's internal header files."),
-    PYTHON_METHOD(
-        system_root_directory,
-        "Default system root directory path for this compiler (useful for cross-compilation)."),
-    PYTHON_METHOD(
-        target_triple,
-        "The LLVM triple describing the target architecture for this compilation job."),
-    PYTHON_METHOD(
-        auxiliary_target_triple,
-        "The LLVM triple describing the auxiliary target architecture for this compilation job. This is generally related to CUDA."),
-    PYTHON_METHOD(
-        arguments,
-        "The arguments of this compile job. This does not include the compiler executable path or name as the first argument."),
-    PYTHON_METHOD(source_file,
-                  "The path to the source file to be compiled by this job."),
-    PYTHON_METHOD(run,
-                  "Run the compile job, returning an AST or throwing an exception upon failure."),
-    PYTHON_METHOD_SENTINEL};
+  PYTHON_METHOD(run,
+                "Run the compile job, returning an AST or throwing an exception upon failure."),
+  PYTHON_METHOD_SENTINEL
+};
 
+static PyGetSetDef gCompileJobGettersSetters[] = {
+  PYTHON_GETTER(working_directory,
+                "The directory in which the compile job should be invoked."),
+  PYTHON_GETTER(
+      resource_directory,
+      "Path to the directory containing the compiler's internal header files."),
+  PYTHON_GETTER(
+      system_root_directory,
+      "Default system root directory path for this compiler (useful for cross-compilation)."),
+  PYTHON_GETTER(
+      target_triple,
+      "The LLVM triple describing the target architecture for this compilation job."),
+  PYTHON_GETTER(
+      auxiliary_target_triple,
+      "The LLVM triple describing the auxiliary target architecture for this compilation job. This is generally related to CUDA."),
+  PYTHON_GETTER(
+      arguments,
+      "The arguments of this compile job. This does not include the compiler executable path or name as the first argument."),
+  PYTHON_GETTER(source_file,
+                "The path to the source file to be compiled by this job."),
+  PYTHON_GETTER_SETTER_SENTINEL
+};
 
 }  // namespace
 
@@ -123,6 +127,7 @@ bool CompileJob::TryAddToModule(PyObject *module) {
   gType.tp_name = "pasta.CompileJob";
   gType.tp_doc = "Wrapper around a backend (-cc1) compile command.";
   gType.tp_methods = gCompileJobMethods;
+  gType.tp_getset = gCompileJobGettersSetters;
   if (0 != PyType_Ready(&gType)) {
     return false;
   }

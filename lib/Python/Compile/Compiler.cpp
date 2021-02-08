@@ -27,35 +27,40 @@ DEFINE_PYTHON_METHOD(Compiler, CreateCommandForFile, create_file_command);
 DEFINE_PYTHON_METHOD(Compiler, CreateJobsForCommand, create_command_jobs);
 
 static PyMethodDef gCompilerMethods[] = {
-    PYTHON_METHOD(name, "Return the identifier of this compiler."),
-    PYTHON_METHOD(
-        target_language,
-        "Return the identifier of the language targeted by this compiler."),
-    PYTHON_METHOD(executable_path, "Path to the executable of this compiler."),
-    PYTHON_METHOD(
-        resource_directory,
-        "Path to the directory containing the compiler's internal header files."),
-    PYTHON_METHOD(installation_directory,
-                  "Path to the directory where the compiler was installed."),
-    PYTHON_METHOD(
-        system_root_directory,
-        "Default system root directory path for this compiler (useful for cross-compilation)."),
-    PYTHON_METHOD(
-        system_include_directories,
-        "List of system include directories scanned by the compiler when trying to resolve #include files."),
-    PYTHON_METHOD(
-        user_include_directories,
-        "List of user include directories scanned by the compiler when trying to resolve #include files."),
-    PYTHON_METHOD(
-        framework_directories,
-        "List of framework directories scanned by the compiler when trying to resolve #include files."),
-    PYTHON_METHOD(
-        create_file_command,
-        "Create a command that can be used to compile the input file."),
-    PYTHON_METHOD(
-        create_command_jobs,
-        "Create and return a list of CompileJob instances representing the jobs needed to compile the source files referenced by the input CompileCommand."),
-    PYTHON_METHOD_SENTINEL};
+  PYTHON_METHOD(
+      create_file_command,
+      "Create a command that can be used to compile the input file."),
+  PYTHON_METHOD(
+      create_command_jobs,
+      "Create and return a list of CompileJob instances representing the jobs needed to compile the source files referenced by the input CompileCommand."),
+  PYTHON_METHOD_SENTINEL
+};
+
+static PyGetSetDef gCompilerGettersSetters[] = {
+  PYTHON_GETTER(name, "Return the identifier of this compiler."),
+  PYTHON_GETTER(
+      target_language,
+      "Return the identifier of the language targeted by this compiler."),
+  PYTHON_GETTER(executable_path, "Path to the executable of this compiler."),
+  PYTHON_GETTER(
+      resource_directory,
+      "Path to the directory containing the compiler's internal header files."),
+  PYTHON_GETTER(installation_directory,
+                "Path to the directory where the compiler was installed."),
+  PYTHON_GETTER(
+      system_root_directory,
+      "Default system root directory path for this compiler (useful for cross-compilation)."),
+  PYTHON_GETTER(
+      system_include_directories,
+      "List of system include directories scanned by the compiler when trying to resolve #include files."),
+  PYTHON_GETTER(
+      user_include_directories,
+      "List of user include directories scanned by the compiler when trying to resolve #include files."),
+  PYTHON_GETTER(
+      framework_directories,
+      "List of framework directories scanned by the compiler when trying to resolve #include files."),
+  PYTHON_GETTER_SETTER_SENTINEL
+};
 
 }  // namespace
 
@@ -196,6 +201,7 @@ bool Compiler::TryAddToModule(PyObject *module) {
   gType.tp_name = "pasta.Compiler";
   gType.tp_doc = "Interface to running compile commands and compiling files";
   gType.tp_methods = gCompilerMethods;
+  gType.tp_getset = gCompilerGettersSetters;
   if (0 != PyType_Ready(&gType)) {
     return false;
   }

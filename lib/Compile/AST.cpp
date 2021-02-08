@@ -39,13 +39,13 @@ const std::vector<clang::Token> &AST::Tokens(void) const {
   return impl->tokens;
 }
 
-bool AST::TryGetLocation(const clang::Token &tok, clang::FullSourceLoc &out_loc) const {
+bool AST::TryGetLocation(const clang::Token &tok, clang::FullSourceLoc *out_loc) const {
   const auto loc = tok.getLocation();
   if (loc.isInvalid()) {
     return false;
   }
   const auto &sm = impl->ci->getSourceManager();
-  out_loc = clang::FullSourceLoc(loc, sm);
+  *out_loc = clang::FullSourceLoc(loc, sm);
   return true;
 }
 

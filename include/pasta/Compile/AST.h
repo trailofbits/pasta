@@ -35,7 +35,7 @@ class AST {
   const std::vector<clang::Token> &Tokens(void) const;
 
   // Attempt to get the source location of the given token
-  bool TryGetLocation(const clang::Token &tok, clang::FullSourceLoc &loc_out) const;
+  bool TryGetLocation(const clang::Token &tok, clang::FullSourceLoc *loc_out) const;
 
   // Attempt to read the raw data for the given token
   bool TryReadToken(const clang::Token &tok, std::string *out) const;

@@ -48,7 +48,7 @@ std::vector<BorrowedPythonPtr<Token>> AST::Tokens(void) {
 
 BorrowedPythonPtr<SourceLocation> AST::GetLocation(token_arg token) {
   clang::FullSourceLoc loc;
-  if (!ast->TryGetLocation(*(*token)->token, loc)) {
+  if (!ast->TryGetLocation(*(*token)->token, &loc)) {
     return nullptr;
   }
   return SourceLocation::New(loc);

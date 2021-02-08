@@ -50,17 +50,8 @@ class Token : public PythonObject<::pasta::py::Token> {
   // Return the token length
   unsigned Length(void);
 
-  // Return `true` if the token is a literal (e.g., numeric constant, string, etc.)
-  bool IsLiteral(void);
-
-  // Return `true` if the token is an identifier
-  bool IsAnyIdentifier(void);
-
-  // Get the literal value
-  std::string_view GetLiteral(void);
-
-  // Get the identifier string
-  std::string_view GetIdentifier(void);
+  // Return the token data
+  std::string_view Data(void);
 
   std::optional<clang::Token> token;
 };

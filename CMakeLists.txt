@@ -208,6 +208,7 @@ add_library(compiler STATIC
     "lib/Compile/Diagnostic.cpp"
     "lib/Compile/Job.cpp"
     "lib/Compile/Run.cpp"
+    "lib/Compile/Token.cpp"
 )
 
 target_include_directories(compiler PRIVATE

@@ -200,6 +200,7 @@ add_library(compiler STATIC
     "lib/Compile/Command.h"
     "lib/Compile/Compiler.h"
     "lib/Compile/Job.h"
+    "lib/Compile/Token.h"
 
     "lib/Compile/AST.cpp"
     "lib/Compile/Command.cpp"
@@ -230,8 +231,8 @@ add_library(python_bindings STATIC
     "lib/Python/Compile/Compile.h"
     "lib/Python/Compile/Compiler.cpp"
     "lib/Python/Compile/Job.cpp"
+    "lib/Python/Compile/Token.cpp"
     "lib/Python/Compile/Clang/SourceLocation.cpp"
-    "lib/Python/Compile/Clang/Token.cpp"
     "lib/Python/Pasta.cpp"
 )
 

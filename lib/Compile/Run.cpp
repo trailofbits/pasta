@@ -53,8 +53,8 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
   auto &source_manager = ci.getSourceManager();
   auto &lang_opts = ci.getLangOpts();
 
-  impl.tokens.reserve(1024 * 64);
   llvm::raw_string_ostream os(impl.preprocessed_code);
+  llvm::raw_string_ostream backup_os(impl.backup_token_data);
 
   std::string tok_data;
   std::string fixed_tok_data;
@@ -63,15 +63,23 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
 
   for (clang::Token tok; ; ) {
     pp.Lex(tok);
-    impl.tokens.push_back(tok);
+
     if (tok.is(clang::tok::eof)) {
+      impl.AppendToken(tok, 0, 0);
       break;
     }
 
     if (tok.isOneOf(clang::tok::unknown, clang::tok::comment,
                     clang::tok::code_completion) ||
-        !ReadRawToken(source_manager, lang_opts, tok, &tok_data) ||
+        !TryReadRawToken(source_manager, lang_opts, tok, &tok_data) ||
         tok_data.empty()) {
+      if (tok_data.empty()) {
+        impl.AppendToken(tok, 0, 0);
+      } else {
+        backup_os.flush();
+        impl.AppendBackupToken(tok, impl.backup_token_data.size(), tok_data.size());
+        backup_os << tok_data;
+      }
       os << '\n';
       continue;
     }
@@ -85,9 +93,16 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
 
     // The token data read has no new lines, great!
     if (!has_new_line) {
+      os.flush();
+      impl.AppendToken(tok, impl.preprocessed_code.size(), tok_data.size());
       os << tok_data << '\n';
       continue;
     }
+
+    // The token needs to be modified somehow, so add it to our backups.
+    backup_os.flush();
+    impl.AppendBackupToken(tok, impl.backup_token_data.size(), tok_data.size());
+    backup_os << tok_data;
 
     // The token data read does have new lines; we need to fix it up.
     fixed_tok_data.clear();

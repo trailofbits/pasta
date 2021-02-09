@@ -10,12 +10,8 @@ namespace {
 
 DEFINE_PYTHON_METHOD(AST, PreprocessedCode, preprocessed_code);
 DEFINE_PYTHON_METHOD(AST, Tokens, tokens);
-DEFINE_PYTHON_METHOD(AST, GetLocation, get_location);
-DEFINE_PYTHON_METHOD(AST, GetRawToken, get_token_data);
 
 static PyMethodDef gASTMethods[] = {
-  PYTHON_METHOD(get_location, "Get the location of the given token."),
-  PYTHON_METHOD(get_token_data, "Read the raw token data."),
   PYTHON_METHOD_SENTINEL
 };
 
@@ -38,33 +34,18 @@ std::string_view AST::PreprocessedCode(void) {
   return ast->PreprocessedCode();
 }
 
-std::vector<BorrowedPythonPtr<Token>> AST::Tokens(void) {
-  std::vector<BorrowedPythonPtr<Token>> ret;
+std::vector<BorrowedPythonPtr<::pasta::py::Token>> AST::Tokens(void) {
+  std::vector<BorrowedPythonPtr<::pasta::py::Token>> ret;
 
-  std::for_each(ast->Tokens().begin(), ast->Tokens().end(), [&ret](auto &token){
-    ret.emplace_back(std::move(Token::New(token)));
-  });
+  // TODO(pag,adrianh): Eventually, expose a `TokenRange` python object instead,
+  //                    that implements things like `__getitem__` and `__iter__`
+  //                    so that we only create `Token` objects on an as-
+  //                    requested basis.
+  for (const auto &token : ast->Tokens()) {
+    ret.emplace_back(Token::New(token));
+  }
 
   return ret;
-}
-
-BorrowedPythonPtr<SourceLocation> AST::GetLocation(token_arg tok) {
-  clang::FullSourceLoc loc;
-  if (!ast->TryGetLocation(*(*tok)->token, &loc)) {
-    return nullptr;
-  }
-  return SourceLocation::New(loc);
-}
-
-std::string AST::GetRawToken(token_arg tok) {
-  std::string out;
-
-  if (!ast->TryReadToken(*(*tok)->token, &out)) {
-    // Adrian: Return something more meaningful than the empty string
-    return "";
-  }
-
-  return out;
 }
 
 // Tries to add the `AST` type to the `pasta` module.

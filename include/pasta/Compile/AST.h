@@ -10,6 +10,8 @@
 #include <optional>
 #include <string_view>
 
+#include "Token.h"
+
 namespace clang {
 class FullSourceLoc;
 class Token;
@@ -24,6 +26,11 @@ class Compiler;
 // be retained in order to use it.
 class AST {
  public:
+
+  inline static AST From(const Token &token) {
+    return AST(token.ast);
+  }
+
   ~AST(void);
   AST(AST &&) noexcept;
   AST &operator=(AST &&) noexcept;
@@ -31,14 +38,13 @@ class AST {
   // Return the raw pre-processed code
   std::string_view PreprocessedCode(void) const;
 
-  // Return the lexed tokens
-  const std::vector<clang::Token> &Tokens(void) const;
+  // Return all lexed tokens.
+  TokenRange Tokens(void) const;
 
-  // Attempt to get the source location of the given token
-  bool TryGetLocation(const clang::Token &tok, clang::FullSourceLoc *loc_out) const;
-
-  // Attempt to read the raw data for the given token
-  bool TryReadToken(const clang::Token &tok, std::string *out) const;
+  // Attempt to get the source location of the given token. If successful,
+  // return `true` and update `*loc_out`. Otherwise, return `false`.
+  bool TryGetLocation(clang::SourceLocation loc,
+                      clang::FullSourceLoc *loc_out) const;
 
  private:
   friend class Compiler;

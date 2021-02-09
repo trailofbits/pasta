@@ -2,9 +2,7 @@
  * Copyright (c) 2021 Trail of Bits, Inc.
  */
 
-#include "Clang.h"
-
-#include <clang/Basic/IdentifierTable.h>
+#include "Compile.h"
 
 namespace pasta {
 namespace py {
@@ -17,7 +15,7 @@ TokenKind::TokenKind(void) {
 }
 
 std::string_view TokenKind::Str(void) const {
-  return clang::tok::getTokenName(*kind);
+  return clang::tok::getTokenName(kind);
 }
 
 // Tried to add the `TokenKind` type to the `pasta` module.
@@ -42,11 +40,18 @@ namespace {
 DEFINE_PYTHON_METHOD(Token, Kind, kind);
 DEFINE_PYTHON_METHOD(Token, Length, length);
 DEFINE_PYTHON_METHOD(Token, Data, data);
+DEFINE_PYTHON_METHOD(Token, Location, location);
 
 static PyGetSetDef gTokenGettersSetters[] = {
-  PYTHON_GETTER(kind, "The token kind"),
-  PYTHON_GETTER(length, "Token length"),
-  PYTHON_GETTER(data, "The token data."),
+  PYTHON_GETTER(kind, "The token kind."),
+  PYTHON_GETTER(location, "The source location information associated with "
+                          "this token."),
+  PYTHON_GETTER(length, "Length of the token in bytes. This may differ than "
+                        "the length of `data`, which may have a different "
+                        "character encoding."),
+  PYTHON_GETTER(data, "Data of this token, as it appears in a source file, or "
+                      "as produced by token pasting / stringification in the "
+                      "Clang preprocessor."),
   PYTHON_GETTER_SETTER_SENTINEL
 };
 } // namespace
@@ -59,34 +64,37 @@ Token::Token(void) {
 }
 
 BorrowedPythonPtr<TokenKind> Token::Kind(void) {
-  return TokenKind::New(token->getKind());
+  return TokenKind::New(token.Kind());
 }
 
 unsigned Token::Length(void) {
-  return token->getLength();
+  return static_cast<unsigned>(token.Data().size());
 }
 
 std::string_view Token::Data(void) {
-  if (token->isLiteral()) {
-    return token->getLiteralData();
+  return token.Data();
+}
+
+BorrowedPythonPtr<SourceLocation> Token::Location(void) {
+  if (token) {
+    auto ast = ::pasta::AST::From(token);
+    clang::FullSourceLoc loc;
+    if (ast.TryGetLocation(token.Location(), &loc)) {
+      return SourceLocation::New(loc);
+    }
   }
-  if (token->is(clang::tok::raw_identifier)) {
-    return token->getRawIdentifier().data();
-  }
-  if (token->isAnnotation()) {
-    return "";
-  }
-  const auto *ii = token->getIdentifierInfo();
-  if (!ii) {
-    return "";
-  }
-  return ii->getName().data();
+
+  return nullptr;  // Turns into `Py_None`.
 }
 
 // Tries to add the `Token` type to the `pasta` module.
 bool Token::TryAddToModule(PyObject *module) {
+
+  // TODO(pag,adrianh): Eventually add a `__hash__`, `__id__`, and `__eq__`
+  //                    methods based on the underlying raw `TokenImpl` pointer.
+
   gType.tp_name = "pasta.Token";
-  gType.tp_doc = "Clang token.";
+  gType.tp_doc = "A parsed, lexed, or macro-expanded token.";
   gType.tp_methods = nullptr;
   gType.tp_getset = gTokenGettersSetters;
   if (0 != PyType_Ready(&gType)) {

@@ -8,6 +8,7 @@
 #include <pasta/Compile/Command.h>
 #include <pasta/Compile/Compiler.h>
 #include <pasta/Compile/Job.h>
+#include <pasta/Compile/Token.h>
 #include <pasta/Python/Bindings.h>
 
 #include "Clang/Clang.h"
@@ -40,6 +41,52 @@ DEFINE_PYTHON_ARG(file_path, std::string_view);
 // Return the current working directory.
 std::string CurrentWorkingDir(const working_dir_kwarg &working_dir);
 
+
+// Python wrapper over a token kind.
+class TokenKind : public PythonObject<::pasta::py::TokenKind> {
+ public:
+  ~TokenKind(void);
+
+  inline TokenKind(clang::tok::TokenKind kind_)
+      : kind(kind_) {}
+
+  DEFINE_PYTHON_CONSTRUCTOR(TokenKind, void);
+
+  static bool TryAddToModule(PyObject *module);
+
+  std::string_view Str(void) const;
+
+  clang::tok::TokenKind kind{clang::tok::unknown};
+};
+
+// Python wrapper over a token.
+class Token : public PythonObject<::pasta::py::Token> {
+ public:
+  ~Token(void);
+
+  inline explicit Token(const ::pasta::Token &token_)
+      : token(token_) {}
+
+  DEFINE_PYTHON_CONSTRUCTOR(Token, void);
+
+  // Tries to add the `Token` type to the `pasta` module
+  static bool TryAddToModule(PyObject *module);
+
+  // Return the token kind
+  BorrowedPythonPtr<TokenKind> Kind(void);
+
+  // Return the token length in bytes.
+  unsigned Length(void);
+
+  // Return the token data.
+  std::string_view Data(void);
+
+  // Return source location information for a given token.
+  BorrowedPythonPtr<SourceLocation> Location(void);
+
+  ::pasta::Token token;
+};
+
 // Abstraction around a Clang AST and the various data structures that need to
 // be retained in order to use it.
 class AST : public PythonObject<::pasta::py::AST> {
@@ -57,15 +104,7 @@ class AST : public PythonObject<::pasta::py::AST> {
   std::string_view PreprocessedCode(void);
 
   // Return the tokens.
-  std::vector<BorrowedPythonPtr<Token>> Tokens(void);
-
-  DEFINE_PYTHON_ARG(token, BorrowedPythonPtr<Token>);
-
-  // Return source location information for a given token.
-  BorrowedPythonPtr<SourceLocation> GetLocation(token_arg tok);
-
-  // Read the token's data
-  std::string GetRawToken(token_arg tok);
+  std::vector<BorrowedPythonPtr<::pasta::py::Token>> Tokens(void);
 
   std::optional<::pasta::AST> ast;
 };

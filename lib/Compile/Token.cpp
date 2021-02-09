@@ -5,11 +5,20 @@
 #include "Token.h"
 
 #include <cassert>
+#include <limits>
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/Basic/IdentifierTable.h>
 #include <clang/Basic/SourceManager.h>
+#include <clang/Basic/TokenKinds.h>
 #include <clang/Lex/Lexer.h>
 #include <clang/Lex/Token.h>
+#pragma clang diagnostic pop
+
+#include "AST.h"
 
 namespace pasta {
 namespace {
@@ -169,7 +178,117 @@ static bool ReadRawTokenData(clang::SourceManager &source_manager,
 
 } // namespace
 
-bool ReadRawToken(clang::SourceManager &source_manager,
+// Return the source location of this token.
+clang::SourceLocation Token::Location(void) const {
+  return clang::SourceLocation::getFromRawEncoding(impl->opaque_source_loc);
+}
+
+// Kind of this token.
+clang::tok::TokenKind Token::Kind(void) const {
+  if (impl) {
+    return impl->kind;
+  } else {
+    return clang::tok::unknown;
+  }
+}
+
+// Return the data associated with this token.
+std::string_view Token::Data(void) const {
+  std::string_view data;
+  if (!impl || !impl->data_len) {
+    return data;
+  }
+
+  size_t offset = 0;
+  if (0 <= impl->data_offset) {
+    data = ast->preprocessed_code;
+    offset = static_cast<unsigned>(impl->data_offset);
+  } else {
+    data = ast->backup_token_data;
+    offset = static_cast<unsigned>(-impl->data_offset);
+  }
+  return data.substr(offset, impl->data_len);
+}
+
+// Index of this token in the AST's token list.
+uint64_t Token::Index(void) const {
+  if (impl) {
+    return static_cast<uint64_t>(impl - ast->tokens.data());
+  } else {
+    return std::numeric_limits<uint64_t>::max();
+  }
+}
+
+// Prefix increment operator.
+TokenIterator &TokenIterator::operator++(void) noexcept {
+  ++token.impl;
+  return *this;
+}
+
+// Postfix increment operator.
+TokenIterator TokenIterator::operator++(int) noexcept {
+  auto ret = *this;
+  ++token.impl;
+  return ret;
+}
+
+// Prefix decrement operator.
+TokenIterator &TokenIterator::operator--(void) noexcept {
+  --token.impl;
+  return *this;
+}
+
+// Postfix decrement operator.
+TokenIterator TokenIterator::operator--(int) noexcept {
+  auto ret = *this;
+  --token.impl;
+  return ret;
+}
+
+TokenIterator TokenIterator::operator-(size_t offset) const noexcept {
+  return TokenIterator(token.ast, token.impl - offset);
+}
+
+TokenIterator& TokenIterator::operator+=(size_t offset) noexcept {
+  token.impl += offset;
+  return *this;
+}
+
+TokenIterator& TokenIterator::operator-=(size_t offset) noexcept {
+  token.impl -= offset;
+  return *this;
+}
+
+Token TokenIterator::operator[](size_t offset) const noexcept {
+  return Token(token.ast, &(token.impl[offset]));
+}
+
+ptrdiff_t TokenIterator::operator-(const TokenIterator &that) const noexcept {
+  return token.impl - token.impl;
+}
+
+// Number of tokens in this range.
+size_t TokenRange::Size(void) const noexcept {
+  return static_cast<size_t>(after_last - first);
+}
+
+// Return the `index`th token in this range. If `index` is too big, then
+// return nothing.
+std::optional<Token> TokenRange::At(size_t index) const noexcept {
+  auto size = static_cast<size_t>(after_last - first);
+  if (index < size) {
+    return Token(ast, &(first[index]));
+  } else {
+    return std::nullopt;
+  }
+}
+
+// Unsafe indexed access into the token range.
+Token TokenRange::operator[](size_t index) const {
+  return Token(ast, &(first[index]));
+}
+
+bool TryReadRawToken(clang::SourceManager &source_manager,
                   clang::LangOptions &lang_opts,
                   const clang::Token &tok, std::string *out) {
   out->clear();
@@ -232,4 +351,7 @@ bool ReadRawToken(clang::SourceManager &source_manager,
   // its kind.
   return ReadRawTokenByKind(source_manager, tok, out);
 }
+
+Token::~Token(void) {}
+
 } // namespace pasta

@@ -44,7 +44,6 @@ std::vector<BorrowedPythonPtr<::pasta::py::Token>> AST::Tokens(void) {
   for (const auto &token : ast->Tokens()) {
     ret.emplace_back(Token::New(token));
   }
-
   return ret;
 }
 
@@ -62,7 +61,6 @@ bool AST::TryAddToModule(PyObject *module) {
   return !PyModule_AddObject(module, "AST",
                              reinterpret_cast<PyObject *>(&gType));
 }
-
 
 }  // namespace py
 }  // namespace pasta

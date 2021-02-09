@@ -41,9 +41,9 @@ std::string_view AST::PreprocessedCode(void) {
 std::vector<BorrowedPythonPtr<Token>> AST::Tokens(void) {
   std::vector<BorrowedPythonPtr<Token>> ret;
 
-  std::for_each(ast->Tokens().begin(), ast->Tokens().end(), [&ret](auto &token){
-    ret.emplace_back(std::move(Token::New(token)));
-  });
+  for (const auto &tok : ast->Tokens()) {
+    ret.emplace_back(std::move(Token::New(tok)));
+  }
 
   return ret;
 }

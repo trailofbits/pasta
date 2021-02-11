@@ -16,6 +16,7 @@ namespace clang {
 class FullSourceLoc;
 class Token;
 }  // namespace clang
+
 namespace pasta {
 
 class ASTImpl;

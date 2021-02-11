@@ -8,6 +8,8 @@
 #include "Job.h"
 #include "Token.h"
 
+#include "Visitor/MacroGenerator.h"
+
 //#include <fcntl.h>
 //#include <unistd.h>
 
@@ -477,6 +479,16 @@ llvm::Expected<AST> CompileJob::Run(void) const {
   ast->ci = std::move(ci);
   ast->fm = std::move(fm);
   ast->tu = ast_context.getTranslationUnitDecl();
+
+  // Visit AST
+  // TODO(adrianh): This doesn't seem a very natural location for this function
+  // call. I wanted to add a `Walk` method to the AST class that accepts
+  // an `RecursiveASTVisitor`, i.e.,
+  // template <typename T> AST::Walk(const clang::RecursiveASTVisitor<T> visitor)
+  // This would allow the AST to be walked in Bootstrap's `GenerateBindings`, but
+  // I couldn't get it to work
+  MacroGenerator visitor;
+  visitor.TraverseAST(ast->ci->getASTContext());
 
   return AST(std::move(ast));
 }

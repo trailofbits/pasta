@@ -192,11 +192,11 @@ llvm::Expected<AST> CompileJob::Run(void) const {
   overlay_vfs->pushOverlay(mem_vfs.get());
   overlay_vfs->setCurrentWorkingDirectory(WorkingDirectory().data());
 
-  auto diag = new SaveFirstErrorDiagConsumer;
+  auto diag = std::make_unique<SaveFirstErrorDiagConsumer>(ast);
   auto ci = std::make_shared<clang::CompilerInstance>();
   llvm::IntrusiveRefCntPtr<clang::DiagnosticsEngine> diagnostics_engine(
       new clang::DiagnosticsEngine(new clang::DiagnosticIDs,
-                                   new clang::DiagnosticOptions, diag,
+                                   new clang::DiagnosticOptions, diag.get(),
                                    false /* Take ownership of the consumer */));
 
   diagnostics_engine->Reset();

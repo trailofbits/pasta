@@ -25,14 +25,14 @@ class MacroGenerator : public clang::RecursiveASTVisitor<MacroGenerator> {
     llvm::errs() << "PASTA_BEGIN_CLANG_WRAPPER(" << decl->getName()
                  << ", " << decl_id << ");\n";
 
-    for (const auto &method : decl->methods()) {
+    for (const auto method : decl->methods()) {
       llvm::errs() << "  PASTA" << MacroAccessSpecifier(method)
                    << "METHOD(" << decl->getName()
                    << ", " << decl_id
                    << ", " << method->getNameInfo().getAsString() << ");\n";
     }
 
-    for (const auto &field : decl->fields()) {
+    for (const auto field : decl->fields()) {
       llvm::errs() << "  PASTA" << MacroAccessSpecifier(field)
                    << "FIELD(" << decl->getName()
                    << ", " << decl_id

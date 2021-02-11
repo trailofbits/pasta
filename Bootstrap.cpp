@@ -21,8 +21,9 @@ static int GenerateBindings(pasta::AST ast, const char *out_dir) {
 }
 
 int main(int argc, char *argv[]) {
-  if (3 != argc) {
-    std::cerr << "Usage: " << argv[0] << " INPUT_FILE OUTPUT_DIR" << std::endl;
+  if (3 > argc) {
+    std::cerr << "Usage: " << argv[0] << " OUTPUT_DIR COMPILE_COMMAND..."
+              << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -39,7 +40,9 @@ int main(int argc, char *argv[]) {
   }
 
   const auto compiler = std::move(*maybe_compiler);
-  auto maybe_command = compiler.CreateCommandForFile(argv[1], cwd);
+  //auto maybe_command = compiler.CreateCommandForFile(argv[1], cwd);
+  const pasta::ArgumentVector args(argc - 2, &argv[2]);
+  auto maybe_command = pasta::CompileCommand::CreateFromArguments(args, cwd);
 
   if (pasta::IsError(maybe_command)) {
     std::cerr << pasta::ErrorString(maybe_command) << std::endl;
@@ -62,7 +65,7 @@ int main(int argc, char *argv[]) {
       return EXIT_FAILURE;
     }
 
-    return GenerateBindings(std::move(*maybe_ast), argv[2]);
+    return GenerateBindings(std::move(*maybe_ast), argv[1]);
   }
 
   std::cerr << "No ASTs were produced." << std::endl;

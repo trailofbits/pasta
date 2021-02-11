@@ -32,11 +32,22 @@ class MacroGenerator : public clang::RecursiveASTVisitor<MacroGenerator> {
   }
 
   bool VisitCXXRecordDecl(clang::CXXRecordDecl *decl) {
+    const auto ns_dc = decl->getEnclosingNamespaceContext();
+    if (!ns_dc) {
+      return true;
+    }
+
+    const auto ns = clang::NamespaceDecl::castFromDeclContext(ns_dc);
+    if (ns->getName() != "clang") {
+      return true;
+    }
+
     const unsigned decl_id = identifier++;
     const auto decl_name = decl->getName().str();
     if (!acceptable_names.count(decl_name)) {
       return true;
     }
+
 
     llvm::errs() << "PASTA_BEGIN_CLANG_WRAPPER(" << decl_name << ", "
                  << decl_id << ");\n";

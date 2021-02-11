@@ -210,6 +210,8 @@ add_library(compiler STATIC
     "lib/Compile/Job.cpp"
     "lib/Compile/Run.cpp"
     "lib/Compile/Token.cpp"
+    
+    "lib/Compile/Visitor/MacroGenerator.h"
 )
 
 target_include_directories(compiler PRIVATE

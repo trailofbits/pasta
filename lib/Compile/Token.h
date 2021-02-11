@@ -31,6 +31,11 @@ struct TokenImpl {
         data_len(data_len_),
         kind(kind_) {}
 
+  // Return the source location of this token.
+  inline clang::SourceLocation Location(void) const {
+    return clang::SourceLocation::getFromRawEncoding(opaque_source_loc);
+  }
+
   // The raw encoding of the source location of the token.
   uint32_t opaque_source_loc;
 

@@ -69,8 +69,7 @@ void SaveFirstErrorDiagConsumer::HandleDiagnostic(
     // tokens.
     line_number = presumed_loc.getLine();
     if (ast && 0u < line_number && line_number <= tokens.size()) {
-      source_location = clang::SourceLocation::getFromRawEncoding(
-          tokens[line_number - 1u].opaque_source_loc);
+      source_location = tokens[line_number - 1u].Location();
       if (!try_get_loc_info(source_location)) {
         goto bail;
       }

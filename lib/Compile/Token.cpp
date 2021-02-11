@@ -180,16 +180,12 @@ static bool ReadRawTokenData(clang::SourceManager &source_manager,
 
 // Return the source location of this token.
 clang::SourceLocation Token::Location(void) const {
-  return clang::SourceLocation::getFromRawEncoding(impl->opaque_source_loc);
+  return impl ? impl->Location() : clang::SourceLocation();
 }
 
 // Kind of this token.
 clang::tok::TokenKind Token::Kind(void) const {
-  if (impl) {
-    return impl->kind;
-  } else {
-    return clang::tok::unknown;
-  }
+  return impl ? impl->kind : clang::tok::unknown;
 }
 
 // Return the data associated with this token.

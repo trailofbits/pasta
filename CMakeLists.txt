@@ -306,4 +306,4 @@ add_custom_command(
 
 add_custom_target(build_python_ext ALL DEPENDS "${OUTPUT}")
 
-install(CODE "execute_process(COMMAND \"${PYTHON_EXECUTABLE}\" \"${SETUP_PY}\" install)")
+install(CODE "execute_process(COMMAND \"${PYTHON_EXECUTABLE}\" \"${SETUP_PY}\" install --force)")

@@ -11,7 +11,7 @@
 
 namespace pasta {
 namespace {
-std::string_view MacroAccessSpecifier(const clang::Decl *decl) {
+static std::string_view MacroAccessSpecifier(const clang::Decl *decl) {
   switch (decl->getAccess()) {
     case clang::AccessSpecifier::AS_private:
       return "_PRIVATE_";
@@ -48,21 +48,33 @@ class MacroGenerator : public clang::RecursiveASTVisitor<MacroGenerator> {
       return true;
     }
 
-
     llvm::errs() << "PASTA_BEGIN_CLANG_WRAPPER(" << decl_name << ", "
                  << decl_id << ");\n";
 
+    // Methods
     for (const auto method : decl->methods()) {
-      llvm::errs() << "  PASTA" << MacroAccessSpecifier(method)
-          << "METHOD(" << decl->getName() << ", " << decl_id << ", "
-          << method->getNameInfo().getAsString() << ");\n";
+      llvm::errs() << "  PASTA" << MacroAccessSpecifier(method);
+      if (method->isOverloadedOperator()) {
+        llvm::errs() << "OPERATOR";
+      } else {
+        llvm::errs() << "METHOD";
+      }
+      llvm::errs() << "(" << decl->getName() << ", " << decl_id << ", "
+                   << method->getNameInfo().getAsString() << ");\n";
     }
 
+    // Fields
     for (const auto field : decl->fields()) {
       llvm::errs() << "  PASTA" << MacroAccessSpecifier(field)
           << "FIELD(" << decl->getName() << ", " << decl_id << ", "
           << field->getName() << ");\n";
     }
+
+    // Destructor
+    const auto dtor = decl->getDestructor();
+    llvm::errs() << "  PASTA" << MacroAccessSpecifier(dtor)
+                 << "DTOR(" << decl->getName() << ", " << decl_id << ", "
+                 << dtor->getNameInfo().getAsString() << ");\n";
 
     llvm::errs() << "PASTA_END_CLANG_WRAPPER(" << decl->getName() << ", "
                  << decl_id << ");\n\n";

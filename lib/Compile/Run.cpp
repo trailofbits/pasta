@@ -23,6 +23,7 @@
 #include <clang/Basic/Builtins.h>
 #include <clang/Basic/Diagnostic.h>
 #include <clang/Basic/DiagnosticIDs.h>
+#include <clang/Basic/DiagnosticSema.h>
 #include <clang/Basic/DiagnosticOptions.h>
 #include <clang/Basic/TargetInfo.h>
 #include <clang/Basic/TargetOptions.h>
@@ -211,6 +212,18 @@ llvm::Expected<AST> CompileJob::Run(void) const {
   diagnostics_engine->setIgnoreAllWarnings(true);
   diagnostics_engine->setWarningsAsErrors(false);
 
+  // Some old GNU code exposes some C++ functions, e.g. `acosf`, as `constexpr`
+  // implemented in terms of builtins like `__builtin_acosf`, but really this is
+  // not valid. Nonetheless, we want to parse these cases.
+  diagnostics_engine->setSeverity(
+      clang::diag::note_invalid_subexpr_in_const_expr,
+      clang::diag::Severity::Ignored,
+      clang::SourceLocation());
+  diagnostics_engine->setSeverity(
+      clang::diag::ext_constexpr_function_never_constant_expr,
+      clang::diag::Severity::Ignored,
+      clang::SourceLocation());
+
   ci->setDiagnostics(diagnostics_engine.get());
   ci->setASTConsumer(std::make_unique<clang::ASTConsumer>());
 
@@ -233,6 +246,9 @@ llvm::Expected<AST> CompileJob::Run(void) const {
 
   auto target_info = clang::TargetInfo::CreateTargetInfo(ci->getDiagnostics(),
                                                          invocation.TargetOpts);
+
+  // Some systems/targets declare/include these types, though the current target
+  // may not. Nonetheless, we want to parse them.
   target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, TLSSupported) = true;
   target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, VLASupported) = true;
   target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasLegalHalfType) = true;

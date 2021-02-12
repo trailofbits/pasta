@@ -37,8 +37,16 @@
 #pragma clang diagnostic pop
 
 #include <pasta/Util/ArgumentVector.h>
+#include <pasta/Util/Compiler.h>
 
 namespace pasta {
+namespace detail {
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, TLSSupported, bool);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, VLASupported, bool);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasLegalHalfType, bool);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasFloat128, bool);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasFloat16, bool);
+}  // namespace detail
 namespace {
 
 // Pre-process the code. This does a few things:
@@ -221,8 +229,16 @@ llvm::Expected<AST> CompileJob::Run(void) const {
   auto &target_opts = invocation.getTargetOpts();
   target_opts.HostTriple = llvm::sys::getDefaultTargetTriple();
   target_opts.Triple = TargetTriple();
-  ci->setTarget(clang::TargetInfo::CreateTargetInfo(ci->getDiagnostics(),
-                                                    invocation.TargetOpts));
+  target_opts.ForceEnableInt128 = true;
+
+  auto target_info = clang::TargetInfo::CreateTargetInfo(ci->getDiagnostics(),
+                                                         invocation.TargetOpts);
+  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, TLSSupported) = true;
+  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, VLASupported) = true;
+  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasLegalHalfType) = true;
+  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasFloat128) = true;
+  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasFloat16) = true;
+  ci->setTarget(target_info);
 
   const auto &argv = Arguments();
   llvm::ArrayRef<const char *> argv_arr(argv.Argv(), argv.Size());

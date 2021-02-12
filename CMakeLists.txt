@@ -174,6 +174,7 @@ configure_file("${HOST_H_IN_FILE}" "${HOST_H_FILE}" @ONLY)
 
 add_library(util STATIC
   "include/pasta/Util/ArgumentVector.h"
+  "include/pasta/Util/Compiler.h"
   "include/pasta/Util/Error.h"
   "include/pasta/Util/FileSystem.h"
   "include/pasta/Util/Init.h"

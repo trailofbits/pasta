@@ -42,10 +42,8 @@ class AST {
   // Return all lexed tokens.
   TokenRange Tokens(void) const;
 
-  // Attempt to get the source location of the given token. If successful,
-  // return `true` and update `*loc_out`. Otherwise, return `false`.
-  bool TryGetLocation(clang::SourceLocation loc,
-                      clang::FullSourceLoc *loc_out) const;
+  // Try to return the token at the specified location.
+  std::optional<Token> TokenAt(clang::SourceLocation loc) const;
 
  private:
   friend class Compiler;

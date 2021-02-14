@@ -20,6 +20,7 @@
 
 namespace clang {
 class CompilerInstance;
+class Preprocessor;
 class TranslationUnitDecl;
 }  // namespace clang
 namespace llvm {
@@ -39,6 +40,13 @@ class ASTImpl {
   llvm::IntrusiveRefCntPtr<llvm::vfs::FileSystem> real_fs;
   llvm::IntrusiveRefCntPtr<llvm::vfs::OverlayFileSystem> overlay_fs;
   llvm::IntrusiveRefCntPtr<llvm::vfs::InMemoryFileSystem> mem_fs;
+
+  // Preprocessor over the original source code.
+  std::shared_ptr<clang::Preprocessor> orig_source_pp;
+
+  // Preprocessor over `preprocessed_code`, the huge file where there is a
+  // single toekn per line.
+  std::shared_ptr<clang::Preprocessor> token_per_line_pp;
 
   std::shared_ptr<clang::CompilerInstance> ci;
   llvm::IntrusiveRefCntPtr<clang::FileManager> fm;

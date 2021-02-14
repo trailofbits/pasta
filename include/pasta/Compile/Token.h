@@ -39,6 +39,9 @@ class Token {
   // Return the source location of this token.
   clang::SourceLocation Location(void) const;
 
+  // Try to get the full source location of this token.
+  std::optional<clang::FullSourceLoc> FullLocation(void) const;
+
   // Return the data associated with this token.
   std::string_view Data(void) const;
 

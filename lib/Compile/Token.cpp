@@ -14,6 +14,7 @@
 #include <clang/Basic/IdentifierTable.h>
 #include <clang/Basic/SourceManager.h>
 #include <clang/Basic/TokenKinds.h>
+#include <clang/Frontend/CompilerInstance.h>
 #include <clang/Lex/Lexer.h>
 #include <clang/Lex/Token.h>
 #pragma clang diagnostic pop
@@ -181,6 +182,22 @@ static bool ReadRawTokenData(clang::SourceManager &source_manager,
 // Return the source location of this token.
 clang::SourceLocation Token::Location(void) const {
   return impl ? impl->Location() : clang::SourceLocation();
+}
+
+// Try to get the full source location of this token.
+std::optional<clang::FullSourceLoc> Token::FullLocation(void) const {
+  const auto loc = Location();
+  if (loc.isInvalid()) {
+    return std::nullopt;
+  }
+
+  const auto &sm = ast->ci->getSourceManager();
+  auto full_loc = clang::FullSourceLoc(loc, sm);
+  if (full_loc.isInvalid()) {
+    return std::nullopt;
+  }
+
+  return std::move(full_loc);
 }
 
 // Kind of this token.

@@ -74,17 +74,27 @@ TokenRange AST::Tokens(void) const {
   return TokenRange(impl, first, &(first[impl->tokens.size()]));
 }
 
-// Attempt to get the source location of the given token. If successful,
-// return `true` and update `*loc_out`. Otherwise, return `false`.
-bool AST::TryGetLocation(clang::SourceLocation loc,
-                         clang::FullSourceLoc *out_loc) const {
+// Try to return the token at the specified location.
+std::optional<Token> AST::TokenAt(clang::SourceLocation loc) const {
   if (loc.isInvalid()) {
-    return false;
-  } else {
-    const auto &sm = impl->ci->getSourceManager();
-    *out_loc = clang::FullSourceLoc(loc, sm);
-    return true;
+    return std::nullopt;
   }
+
+  // We shouldn't be getting requests with source locations in macro expansions
+  // as that implies they are from the original parse of source, and not from
+  // the parse of the pre-processed source.
+  if (loc.isMacroID()) {
+    return std::nullopt;
+  }
+
+  bool invalid = false;
+  auto &sm = impl->ci->getSourceManager();
+  const auto line = sm.getSpellingLineNumber(loc, &invalid);
+  if (!line || invalid || static_cast<size_t>(line) > impl->tokens.size()) {
+    return std::nullopt;
+  }
+
+  return Token(impl, &(impl->tokens[line - 1u]));
 }
 
 }  // namespace pasta

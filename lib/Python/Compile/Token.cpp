@@ -76,15 +76,11 @@ std::string_view Token::Data(void) {
 }
 
 BorrowedPythonPtr<SourceLocation> Token::Location(void) {
-  if (token) {
-    auto ast = ::pasta::AST::From(token);
-    clang::FullSourceLoc loc;
-    if (ast.TryGetLocation(token.Location(), &loc)) {
-      return SourceLocation::New(loc);
-    }
+  if (auto maybe_loc = token.FullLocation(); maybe_loc) {
+    return SourceLocation::New(*maybe_loc);
+  } else {
+    return nullptr;  // Turns into `Py_None`.
   }
-
-  return nullptr;  // Turns into `Py_None`.
 }
 
 // Tries to add the `Token` type to the `pasta` module.

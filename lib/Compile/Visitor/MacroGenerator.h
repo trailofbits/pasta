@@ -36,6 +36,9 @@ class MacroGenerator : public clang::RecursiveASTVisitor<MacroGenerator> {
     if (!ns_dc) {
       return true;
     }
+    if (!ns_dc->isNamespace()) {
+      return true;
+    }
 
     const auto ns = clang::NamespaceDecl::castFromDeclContext(ns_dc);
     if (ns->getName() != "clang") {
@@ -70,11 +73,12 @@ class MacroGenerator : public clang::RecursiveASTVisitor<MacroGenerator> {
           << field->getName() << ");\n";
     }
 
-    // Destructor
-    const auto dtor = decl->getDestructor();
-    llvm::errs() << "  PASTA" << MacroAccessSpecifier(dtor)
-                 << "DTOR(" << decl->getName() << ", " << decl_id << ", "
-                 << dtor->getNameInfo().getAsString() << ");\n";
+    // Destructor.
+    if (const auto dtor = decl->getDestructor(); dtor) {
+      llvm::errs() << "  PASTA" << MacroAccessSpecifier(dtor)
+                   << "DTOR(" << decl->getName() << ", " << decl_id << ", "
+                   << dtor->getNameInfo().getAsString() << ");\n";
+    }
 
     llvm::errs() << "PASTA_END_CLANG_WRAPPER(" << decl->getName() << ", "
                  << decl_id << ");\n\n";

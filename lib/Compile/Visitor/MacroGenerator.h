@@ -101,18 +101,24 @@ class MacroGenerator : public clang::RecursiveASTVisitor<MacroGenerator> {
 
       // Get the methods sorted by name, then dump them out.
       decl_methods.clear();
-      for (const auto method : decl->methods()) {
+      for (const auto method_decl : decl->methods()) {
 
         // Skip over operator overloads, as we don't have any reasonable way to
         // bind them to Python. Also skip over non-public methods, which we
         // probably don't want to expose anyway.
-        if (method->isOverloadedOperator() ||
-            method->getAccess() != clang::AS_public) {
+        if (method_decl->isOverloadedOperator() ||
+            clang::dyn_cast<clang::CXXConstructorDecl>(method_decl) ||
+            clang::dyn_cast<clang::CXXDestructorDecl>(method_decl) ||
+            clang::dyn_cast<clang::CXXConversionDecl>(method_decl) ||
+            method_decl->getAccess() != clang::AS_public) {
           continue;
         }
 
-        auto method_name = decl->getName().str();
-        decl_methods[method_name].push_back(method);
+        if (auto method_decl_def = method_decl->getDefinition(); method_decl_def) {
+          auto method_name = method_decl->getName().str();
+          decl_methods[method_name].push_back(
+              clang::dyn_cast<clang::CXXMethodDecl>(method_decl_def));
+        }
       }
 
       for (const auto &[method_name, methods] : decl_methods) {

@@ -124,7 +124,9 @@ class MacroGenerator : public clang::RecursiveASTVisitor<MacroGenerator> {
       for (const auto &[method_name, methods] : decl_methods) {
 
         // The simplest cast of declaring a method is that it is not overridden.
-        if (methods.size() == 1u) {
+        if (methods.size() != 1u) {
+          os << "    // Skipped overloaded " << method_name << '\n';
+        } else {
           const auto method = methods[0];
           if (method->isCXXClassMember()) {
             os << "    PASTA_PUBLIC_CLASS_METHOD(";
@@ -132,13 +134,8 @@ class MacroGenerator : public clang::RecursiveASTVisitor<MacroGenerator> {
             os << "    PASTA_PUBLIC_INSTANCE_METHOD(";
           }
 
-          os << decl_name << ", " << decl_id << ", "
-             << method_name << ", "
-             << method->getNameInfo().getAsString() << ");\n";
-          continue;
+          os << decl_name << ", " << decl_id << ", " << method_name << ");\n";
         }
-
-        os << "?!?! uugh\n";
       }
 
       os << "  PASTA_END_METHODS(" << decl_name << ", " << decl_id

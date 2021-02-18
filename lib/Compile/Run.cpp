@@ -521,7 +521,7 @@ llvm::Expected<AST> CompileJob::Run(void) const {
   // template <typename T> AST::Walk(const clang::RecursiveASTVisitor<T> visitor)
   // This would allow the AST to be walked in Bootstrap's `GenerateBindings`, but
   // I couldn't get it to work
-  MacroGenerator visitor;
+  MacroGenerator visitor(&ast->ci->getASTContext());
   visitor.TraverseAST(ast->ci->getASTContext());
 
   return AST(std::move(ast));

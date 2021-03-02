@@ -15,14 +15,18 @@
 #include <iostream>
 #include <memory>
 
-static int GenerateBindings(pasta::AST ast, const char *out_dir) {
+#include "MacroGenerator.h"
 
+static int GenerateBindings(pasta::AST ast, const char *out_dir) {
+  auto &ast_context = ast.UnderlyingAST();
+  pasta::MacroGenerator visitor(&ast_context);
+  visitor.TraverseAST(ast_context);
   return EXIT_SUCCESS;
 }
 
 int main(int argc, char *argv[]) {
-  if (3 > argc) {
-    std::cerr << "Usage: " << argv[0] << " OUTPUT_DIR COMPILE_COMMAND..."
+  if (2 > argc) {
+    std::cerr << "Usage: " << argv[0] << " COMPILE_COMMAND..."
               << std::endl;
     return EXIT_FAILURE;
   }
@@ -41,7 +45,7 @@ int main(int argc, char *argv[]) {
 
   const auto compiler = std::move(*maybe_compiler);
   //auto maybe_command = compiler.CreateCommandForFile(argv[1], cwd);
-  const pasta::ArgumentVector args(argc - 2, &argv[2]);
+  const pasta::ArgumentVector args(argc - 1, &argv[1]);
   auto maybe_command = pasta::CompileCommand::CreateFromArguments(args, cwd);
 
   if (pasta::IsError(maybe_command)) {

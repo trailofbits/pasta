@@ -97,4 +97,10 @@ std::optional<Token> AST::TokenAt(clang::SourceLocation loc) const {
   return Token(impl, &(impl->tokens[line - 1u]));
 }
 
+// Return a pointer to the underlying Clang AST context. This is needed for
+// bootstrapping.
+clang::ASTContext &AST::UnderlyingAST(void) const {
+  return impl->ci->getASTContext();
+}
+
 }  // namespace pasta

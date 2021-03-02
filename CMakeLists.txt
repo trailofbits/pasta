@@ -211,8 +211,6 @@ add_library(compiler STATIC
     "lib/Compile/Job.cpp"
     "lib/Compile/Run.cpp"
     "lib/Compile/Token.cpp"
-    
-    "lib/Compile/Visitor/MacroGenerator.h"
 )
 
 target_include_directories(compiler PRIVATE
@@ -247,12 +245,13 @@ target_link_libraries(python_bindings PRIVATE
     util
 )
 
-add_executable(bootstrap
-    "lib/Bootstrap/Visitor.cpp"
-    "Bootstrap.cpp"
+add_executable(bootstrap-macros
+    "bin/BootstrapMacros/MacroGenerator.h"
+    "bin/BootstrapMacros/MacroGenerator.cpp"
+    "bin/BootstrapMacros/Main.cpp"
 )
 
-target_link_libraries(bootstrap PRIVATE
+target_link_libraries(bootstrap-macros PRIVATE
     cxx_settings
     thirdparty_llvm
     compiler

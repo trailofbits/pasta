@@ -174,6 +174,7 @@ configure_file("${HOST_H_IN_FILE}" "${HOST_H_FILE}" @ONLY)
 
 add_library(util STATIC
   "include/pasta/Util/ArgumentVector.h"
+  "include/pasta/Util/Compiler.h"
   "include/pasta/Util/Error.h"
   "include/pasta/Util/FileSystem.h"
   "include/pasta/Util/Init.h"
@@ -200,6 +201,7 @@ add_library(compiler STATIC
     "lib/Compile/Command.h"
     "lib/Compile/Compiler.h"
     "lib/Compile/Job.h"
+    "lib/Compile/Token.h"
 
     "lib/Compile/AST.cpp"
     "lib/Compile/Command.cpp"
@@ -208,6 +210,9 @@ add_library(compiler STATIC
     "lib/Compile/Diagnostic.cpp"
     "lib/Compile/Job.cpp"
     "lib/Compile/Run.cpp"
+    "lib/Compile/Token.cpp"
+    
+    "lib/Compile/Visitor/MacroGenerator.h"
 )
 
 target_include_directories(compiler PRIVATE
@@ -229,6 +234,8 @@ add_library(python_bindings STATIC
     "lib/Python/Compile/Compile.h"
     "lib/Python/Compile/Compiler.cpp"
     "lib/Python/Compile/Job.cpp"
+    "lib/Python/Compile/Token.cpp"
+    "lib/Python/Compile/Clang/SourceLocation.cpp"
     "lib/Python/Pasta.cpp"
 )
 
@@ -302,4 +309,4 @@ add_custom_command(
 
 add_custom_target(build_python_ext ALL DEPENDS "${OUTPUT}")
 
-install(CODE "execute_process(COMMAND \"${PYTHON_EXECUTABLE}\" \"${SETUP_PY}\" install)")
+install(CODE "execute_process(COMMAND \"${PYTHON_EXECUTABLE}\" \"${SETUP_PY}\" install --force)")

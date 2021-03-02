@@ -10,11 +10,13 @@
 #include <optional>
 #include <string_view>
 
+#include "Token.h"
+
 namespace clang {
-class Decl;
-class Stmt;
-class Expr;
+class FullSourceLoc;
+class Token;
 }  // namespace clang
+
 namespace pasta {
 
 class ASTImpl;
@@ -25,9 +27,23 @@ class Compiler;
 // be retained in order to use it.
 class AST {
  public:
+
+  inline static AST From(const Token &token) {
+    return AST(token.ast);
+  }
+
   ~AST(void);
   AST(AST &&) noexcept;
   AST &operator=(AST &&) noexcept;
+
+  // Return the raw pre-processed code
+  std::string_view PreprocessedCode(void) const;
+
+  // Return all lexed tokens.
+  TokenRange Tokens(void) const;
+
+  // Try to return the token at the specified location.
+  std::optional<Token> TokenAt(clang::SourceLocation loc) const;
 
  private:
   friend class Compiler;

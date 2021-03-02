@@ -6,6 +6,9 @@
 #include "Compiler.h"
 #include "Diagnostic.h"
 #include "Job.h"
+#include "Token.h"
+
+#include "Visitor/MacroGenerator.h"
 
 //#include <fcntl.h>
 //#include <unistd.h>
@@ -20,6 +23,7 @@
 #include <clang/Basic/Builtins.h>
 #include <clang/Basic/Diagnostic.h>
 #include <clang/Basic/DiagnosticIDs.h>
+#include <clang/Basic/DiagnosticSema.h>
 #include <clang/Basic/DiagnosticOptions.h>
 #include <clang/Basic/TargetInfo.h>
 #include <clang/Basic/TargetOptions.h>
@@ -34,227 +38,17 @@
 #pragma clang diagnostic pop
 
 #include <pasta/Util/ArgumentVector.h>
+#include <pasta/Util/Compiler.h>
 
 namespace pasta {
+namespace detail {
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, TLSSupported, bool);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, VLASupported, bool);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasLegalHalfType, bool);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasFloat128, bool);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasFloat16, bool);
+}  // namespace detail
 namespace {
-
-// Try to use the kind of the token to get its representation.
-static bool ReadRawTokenByKind(clang::SourceManager &source_manager,
-                               clang::Token tok, std::string *out) {
-  llvm::StringRef backup;
-  switch (const auto tok_kind = tok.getKind()) {
-    case clang::tok::eof:
-    case clang::tok::code_completion:
-      return false;
-
-    case clang::tok::identifier: {
-      if (const auto ident_info = tok.getIdentifierInfo()) {
-        backup = ident_info->getName();
-      }
-      break;
-    }
-
-    case clang::tok::raw_identifier:
-      backup = tok.getRawIdentifier();
-      break;
-
-    case clang::tok::numeric_constant:
-    case clang::tok::char_constant:
-    case clang::tok::wide_char_constant:
-    case clang::tok::utf8_char_constant:
-    case clang::tok::utf16_char_constant:
-    case clang::tok::utf32_char_constant:
-    case clang::tok::string_literal:
-    case clang::tok::wide_string_literal:
-    case clang::tok::header_name:
-    case clang::tok::utf8_string_literal:
-    case clang::tok::utf16_string_literal:
-    case clang::tok::utf32_string_literal:
-      assert(tok.isLiteral());
-      backup = llvm::StringRef(tok.getLiteralData(), tok.getLength());
-      break;
-
-#define PUNCTUATOR(case_label, rep) \
-    case clang::tok::case_label: \
-      backup = clang::tok::getPunctuatorSpelling(tok_kind); \
-      break;
-
-#define KEYWORD(case_label, feature) \
-    case clang::tok::kw_ ## case_label: \
-      backup = clang::tok::getKeywordSpelling(tok_kind); \
-      break;
-
-// TODO(pag): Deal with Objective-C @ keywords.
-
-#include <clang/Basic/TokenKinds.def>
-
-    case clang::tok::comment:
-    case clang::tok::unknown:
-    default:
-      break;
-  }
-
-  if (!backup.empty()) {
-    out->assign(backup.data(), backup.size());
-    return true;
-  }
-
-  return false;
-}
-
-// Read the data of the token into the passed in string pointer. This tries
-// to find the backing character data for the token, and fill it in that way.
-static bool ReadRawTokenData(clang::SourceManager &source_manager,
-                             clang::LangOptions &lang_opts,
-                             const clang::Token &tok,
-                             const clang::SourceLocation begin_loc,
-                             std::string *out) {
-
-  const auto begin = source_manager.getDecomposedLoc(begin_loc);
-  if (begin.first.isInvalid()) {
-    return false;
-  }
-
-  auto invalid = false;
-  const auto data = source_manager.getCharacterData(begin_loc, &invalid);
-  if (invalid) {
-    return false;
-  }
-
-  unsigned len = 0;
-  if (tok.is(clang::tok::unknown)) {
-    len = tok.getLength();
-    out->reserve(len);
-
-    for (auto i = 0U; i < len; ++i) {
-      switch (data[i]) {
-        case '\t':
-        case ' ':
-        case '\n':
-        case '\\':
-          out->push_back(data[i]);
-          break;
-        case '\r':
-          break;
-
-        // TODO(pag): This is kind of an error condition.
-        default:
-          len = i;
-          break;
-      }
-    }
-
-    return !out->empty();
-
-  } else {
-    len = clang::Lexer::MeasureTokenLength(begin_loc, source_manager,
-                                           lang_opts);
-  }
-
-  if (!len) {
-    return false;
-  }
-
-  // We'll try to get only valid UTF-8 characters, and printable ASCII
-  // characters.
-  //
-  // TODO(pag): This may be overkill, but the lifetimes of the backing buffers
-  //            for things like macro expansions is not clear to me, so this
-  //            is a reasonable way to go about detecting unusual token data
-  //            that may have been corrupted/reused.
-  auto can_be_ident = true;
-
-  // We can't allow `NUL` characters into our tokens as we'll be using them
-  // to split tokens.
-  for (auto i = 0U; i < len; ++i) {
-    if (!data[i]) {
-      len = i;
-      break;
-    }
-  }
-
-  if (!len) {
-    return false;
-  }
-
-  out->assign(data, len);
-
-  // Also try to catch errors when reading out identifiers or keywords.
-  //
-  // TODO(pag): We can't apply this to keywords as it very frequently triggers
-  //            in macro definitions, where keyword tokens can contain line
-  //            continuations and whitespace.
-  if (!can_be_ident && tok.isAnyIdentifier()) {
-    // ...
-  }
-
-  return true;
-}
-
-// Read the data of the token into the passed in string pointer.
-static bool ReadRawToken(clang::SourceManager &source_manager,
-                         clang::LangOptions &lang_opts,
-                         const clang::Token &tok, std::string *out) {
-  out->clear();
-
-  // This could be our sentinel EOF that we add at the end of all tokens, or
-  // it could be one of our special macro-expansion EOFs.
-  if (tok.is(clang::tok::eof)) {
-    return true;
-
-  // Annotations are things like `#pragma`s.
-  } else if (tok.isAnnotation()) {
-
-  // A token that has trigraphs or digraphs is one that needs to be cleaned up.
-  // The identifier info or literal data info of a token is the post-cleaning
-  // representation. If the token therefore never needed cleaning, then we can
-  // get its representation via some internal lookup.
-  } else if (!tok.needsCleaning()) {
-    clang::IdentifierInfo *ident_info = nullptr;
-
-    if (tok.is(clang::tok::raw_identifier)) {
-      const auto raw_ident = tok.getRawIdentifier();
-      out->assign(raw_ident.data(), raw_ident.size());
-      return true;
-
-    } else if (tok.is(clang::tok::identifier) &&
-               nullptr != (ident_info = tok.getIdentifierInfo())) {
-
-      out->assign(ident_info->getNameStart(), ident_info->getLength());
-      return true;
-
-    } else if (tok.isLiteral() && tok.getLiteralData()) {
-      out->assign(tok.getLiteralData(), tok.getLength());
-      return true;
-    }
-  }
-
-  const auto orig_tok_begin = tok.getLocation();
-  const auto tok_begin = source_manager.getSpellingLoc(orig_tok_begin);
-
-  // Try to find the token's representation using its location.
-  if (tok_begin.isValid()) {
-    if (ReadRawTokenData(source_manager, lang_opts, tok, tok_begin, out)) {
-      return true;
-    }
-
-    bool is_invalid = false;
-    const clang::SourceRange token_range(tok_begin);
-
-    auto spelling = clang::Lexer::getSourceText(
-        clang::CharSourceRange::getTokenRange(token_range),
-        source_manager, lang_opts, &is_invalid);
-
-    if (!is_invalid && !spelling.empty()) {
-      out->assign(spelling.data(), spelling.size());
-      return true;
-    }
-  }
-
-  // If all else fails, try to get the representation of the token using
-  // its kind.
-  return ReadRawTokenByKind(source_manager, tok, out);
-}
 
 // Pre-process the code. This does a few things:
 //
@@ -270,8 +64,8 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
   auto &source_manager = ci.getSourceManager();
   auto &lang_opts = ci.getLangOpts();
 
-  impl.tokens.reserve(1024 * 64);
   llvm::raw_string_ostream os(impl.preprocessed_code);
+  llvm::raw_string_ostream backup_os(impl.backup_token_data);
 
   std::string tok_data;
   std::string fixed_tok_data;
@@ -280,15 +74,23 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
 
   for (clang::Token tok; ; ) {
     pp.Lex(tok);
-    impl.tokens.push_back(tok);
+
     if (tok.is(clang::tok::eof)) {
+      impl.AppendToken(tok, 0, 0);
       break;
     }
 
     if (tok.isOneOf(clang::tok::unknown, clang::tok::comment,
                     clang::tok::code_completion) ||
-        !ReadRawToken(source_manager, lang_opts, tok, &tok_data) ||
+        !TryReadRawToken(source_manager, lang_opts, tok, &tok_data) ||
         tok_data.empty()) {
+      if (tok_data.empty()) {
+        impl.AppendToken(tok, 0, 0);
+      } else {
+        backup_os.flush();
+        impl.AppendBackupToken(tok, impl.backup_token_data.size(), tok_data.size());
+        backup_os << tok_data;
+      }
       os << '\n';
       continue;
     }
@@ -302,9 +104,16 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
 
     // The token data read has no new lines, great!
     if (!has_new_line) {
+      os.flush();
+      impl.AppendToken(tok, impl.preprocessed_code.size(), tok_data.size());
       os << tok_data << '\n';
       continue;
     }
+
+    // The token needs to be modified somehow, so add it to our backups.
+    backup_os.flush();
+    impl.AppendBackupToken(tok, impl.backup_token_data.size(), tok_data.size());
+    backup_os << tok_data;
 
     // The token data read does have new lines; we need to fix it up.
     fixed_tok_data.clear();
@@ -392,17 +201,17 @@ llvm::Expected<AST> CompileJob::Run(void) const {
   overlay_vfs->pushOverlay(mem_vfs.get());
   overlay_vfs->setCurrentWorkingDirectory(WorkingDirectory().data());
 
-  auto diag = new SaveFirstErrorDiagConsumer;
-  auto ci = std::make_shared<clang::CompilerInstance>();
+  auto diag = std::make_unique<SaveFirstErrorDiagConsumer>(ast);
   llvm::IntrusiveRefCntPtr<clang::DiagnosticsEngine> diagnostics_engine(
       new clang::DiagnosticsEngine(new clang::DiagnosticIDs,
-                                   new clang::DiagnosticOptions, diag,
+                                   new clang::DiagnosticOptions, diag.get(),
                                    false /* Take ownership of the consumer */));
 
   diagnostics_engine->Reset();
   diagnostics_engine->setIgnoreAllWarnings(true);
   diagnostics_engine->setWarningsAsErrors(false);
 
+  auto ci = std::make_shared<clang::CompilerInstance>();
   ci->setDiagnostics(diagnostics_engine.get());
   ci->setASTConsumer(std::make_unique<clang::ASTConsumer>());
 
@@ -421,8 +230,19 @@ llvm::Expected<AST> CompileJob::Run(void) const {
   auto &target_opts = invocation.getTargetOpts();
   target_opts.HostTriple = llvm::sys::getDefaultTargetTriple();
   target_opts.Triple = TargetTriple();
-  ci->setTarget(clang::TargetInfo::CreateTargetInfo(ci->getDiagnostics(),
-                                                    invocation.TargetOpts));
+  target_opts.ForceEnableInt128 = true;
+
+  auto target_info = clang::TargetInfo::CreateTargetInfo(ci->getDiagnostics(),
+                                                         invocation.TargetOpts);
+
+  // Some systems/targets declare/include these types, though the current target
+  // may not. Nonetheless, we want to parse them.
+  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, TLSSupported) = true;
+  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, VLASupported) = true;
+  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasLegalHalfType) = true;
+  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasFloat128) = true;
+  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasFloat16) = true;
+  ci->setTarget(target_info);
 
   const auto &argv = Arguments();
   llvm::ArrayRef<const char *> argv_arr(argv.Argv(), argv.Size());
@@ -449,6 +269,18 @@ llvm::Expected<AST> CompileJob::Run(void) const {
   diagnostics_engine->setErrorLimit(1);
   diagnostics_engine->setIgnoreAllWarnings(true);
   diagnostics_engine->setWarningsAsErrors(false);
+
+  // Some old GNU code exposes some C++ functions, e.g. `acosf`, as `constexpr`
+  // implemented in terms of builtins like `__builtin_acosf`, but really this is
+  // not valid. Nonetheless, we want to parse these cases.
+  diagnostics_engine->setSeverity(
+      clang::diag::note_invalid_subexpr_in_const_expr,
+      clang::diag::Severity::Ignored,
+      clang::SourceLocation());
+  diagnostics_engine->setSeverity(
+      clang::diag::ext_constexpr_function_never_constant_expr,
+      clang::diag::Severity::Ignored,
+      clang::SourceLocation());
 
   // TODO(pag): Consider setting `UsePredefines` to `false` and using an
   //            `-include` file generated by `mu-import` to deal with platform
@@ -557,6 +389,7 @@ llvm::Expected<AST> CompileJob::Run(void) const {
 
   ci->createPreprocessor(clang::TU_Complete);
   auto &pp = ci->getPreprocessor();
+  ast->orig_source_pp = ci->getPreprocessorPtr();
 
   pp.SetCommentRetentionState(true /* KeepComments */,
                               true /* KeepMacroComments */);
@@ -625,6 +458,7 @@ llvm::Expected<AST> CompileJob::Run(void) const {
   auto &ast_consumer = ci->getASTConsumer();
   auto &sema = ci->getSema();
   auto &pp2 = ci->getPreprocessor();
+  ast->token_per_line_pp = ci->getPreprocessorPtr();
 
   std::unique_ptr<clang::Parser> parser(
       new clang::Parser(pp2, sema, false /* SkipFunctionBodies */));
@@ -679,6 +513,16 @@ llvm::Expected<AST> CompileJob::Run(void) const {
   ast->ci = std::move(ci);
   ast->fm = std::move(fm);
   ast->tu = ast_context.getTranslationUnitDecl();
+
+  // Visit AST
+  // TODO(adrianh): This doesn't seem a very natural location for this function
+  // call. I wanted to add a `Walk` method to the AST class that accepts
+  // an `RecursiveASTVisitor`, i.e.,
+  // template <typename T> AST::Walk(const clang::RecursiveASTVisitor<T> visitor)
+  // This would allow the AST to be walked in Bootstrap's `GenerateBindings`, but
+  // I couldn't get it to work
+  MacroGenerator visitor(&ast->ci->getASTContext());
+  visitor.TraverseAST(ast->ci->getASTContext());
 
   return AST(std::move(ast));
 }

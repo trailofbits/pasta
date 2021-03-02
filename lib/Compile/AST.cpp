@@ -3,6 +3,11 @@
  */
 
 #include "AST.h"
+#include "Token.h"
+
+#include <cassert>
+#include <limits>
+#include <new>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
@@ -14,8 +19,37 @@
 
 namespace pasta {
 
-ASTImpl::ASTImpl(void) {}
+ASTImpl::ASTImpl(void) {
+  tokens.reserve(1024ull * 32u);
+}
+
 ASTImpl::~ASTImpl(void) {}
+
+// Append a token to the end of the AST. `offset` is positive if the data
+// of the token can be found at a specific offset in `preprocessed_code`,
+// and negative if `-offset` can be found in `backup_code`. `len` is the
+// length in bytes of the token itself.
+void ASTImpl::AppendToken(const clang::Token &tok, size_t offset_,
+                          size_t len_) {
+  const auto len = static_cast<uint16_t>(len_);
+  assert(offset_ == (offset_ & 0x7FFFFFFFull));
+  assert(len == len);
+  tokens.emplace_back(tok.getLocation().getRawEncoding(),
+                      static_cast<int32_t>(offset_), len,
+                      tok.getKind());
+}
+
+// Append a token to the end of the AST. `offset` is the offset in
+// `backup_token_data`, and `len` is the length in bytes of the token itself.
+void ASTImpl::AppendBackupToken(const clang::Token &tok, size_t offset_,
+                                size_t len_) {
+  const auto len = static_cast<uint16_t>(len_);
+  assert(offset_ == (offset_ & 0x7FFFFFFFull));
+  assert(len == len);
+  tokens.emplace_back(tok.getLocation().getRawEncoding(),
+                      -static_cast<int32_t>(offset_), len,
+                      tok.getKind());
+}
 
 AST::~AST(void) {}
 
@@ -30,5 +64,37 @@ AST &AST::operator=(AST &&that) noexcept {
 
 AST::AST(std::shared_ptr<ASTImpl> impl_) : impl(std::move(impl_)) {}
 
+std::string_view AST::PreprocessedCode(void) const {
+  return impl->preprocessed_code;
+}
+
+// Return all lexed tokens.
+TokenRange AST::Tokens(void) const {
+  const auto first = impl->tokens.data();
+  return TokenRange(impl, first, &(first[impl->tokens.size()]));
+}
+
+// Try to return the token at the specified location.
+std::optional<Token> AST::TokenAt(clang::SourceLocation loc) const {
+  if (loc.isInvalid()) {
+    return std::nullopt;
+  }
+
+  // We shouldn't be getting requests with source locations in macro expansions
+  // as that implies they are from the original parse of source, and not from
+  // the parse of the pre-processed source.
+  if (loc.isMacroID()) {
+    return std::nullopt;
+  }
+
+  bool invalid = false;
+  auto &sm = impl->ci->getSourceManager();
+  const auto line = sm.getSpellingLineNumber(loc, &invalid);
+  if (!line || invalid || static_cast<size_t>(line) > impl->tokens.size()) {
+    return std::nullopt;
+  }
+
+  return Token(impl, &(impl->tokens[line - 1u]));
+}
 
 }  // namespace pasta

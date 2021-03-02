@@ -17,13 +17,19 @@
 
 namespace pasta {
 
+class ASTImpl;
+
 class SaveFirstErrorDiagConsumer final : public clang::DiagnosticConsumer {
  public:
+  SaveFirstErrorDiagConsumer() = default;
+  explicit SaveFirstErrorDiagConsumer(const std::shared_ptr<ASTImpl> &ast_);
+
   virtual ~SaveFirstErrorDiagConsumer(void);
 
   void HandleDiagnostic(clang::DiagnosticsEngine::Level level,
                         const clang::Diagnostic &info) override;
 
+  const std::shared_ptr<ASTImpl> ast;
   std::string error;
 };
 

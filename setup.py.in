@@ -38,7 +38,7 @@ pasta_internal = distutils.core.Extension(
     sources=[],
     language="c++",
     extra_compile_args=["-std=c++17"],
-    libraries=["curses"],
+    libraries=[],
     extra_link_args=extra_link_args)
 
 distutils.core.setup(

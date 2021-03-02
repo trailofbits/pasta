@@ -15,12 +15,13 @@ namespace {
 DEFINE_PYTHON_METHOD(CompileCommand, WorkingDirectory, working_directory);
 DEFINE_PYTHON_METHOD(CompileCommand, Arguments, arguments);
 
-static PyMethodDef gCompileCommandMethods[] = {
-    PYTHON_METHOD(
-        working_directory,
-        "The directory in which the compile command should be invoked."),
-    PYTHON_METHOD(arguments, "The arguments of this compile command."),
-    PYTHON_METHOD_SENTINEL};
+static PyGetSetDef gCompileCommandGettersSetters[] = {
+  PYTHON_GETTER(
+      working_directory,
+      "The directory in which the compile command should be invoked."),
+  PYTHON_GETTER(arguments, "The arguments of this compile command."),
+  PYTHON_GETTER_SETTER_SENTINEL
+};
 
 }  // namespace
 
@@ -58,7 +59,8 @@ std::string_view CompileCommand::WorkingDirectory(void) {
 bool CompileCommand::TryAddToModule(PyObject *module) {
   gType.tp_name = "pasta.CompileCommand";
   gType.tp_doc = "Wrapper around a frontend compile command.";
-  gType.tp_methods = gCompileCommandMethods;
+  gType.tp_methods = nullptr;
+  gType.tp_getset = gCompileCommandGettersSetters;
   if (0 != PyType_Ready(&gType)) {
     return false;
   }

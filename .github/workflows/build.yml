@@ -1,0 +1,155 @@
+name: build
+
+on:
+  # Run this workflow once every 6 hours against the master branch
+  schedule:
+   - cron: "0 */6 * * *"
+
+  push:
+    branches:
+      - 'master'
+
+    tags:
+      - '*'
+
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  linux:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      # Notes
+      # - Ubuntu 18.04 is not compatible due to Python being too old
+      # - Pasta does not compile on LLVM 9 or 10, so they have been
+      #   removed from the strategy matrix
+      matrix:
+        build_type: [Release, RelWithDebInfo, Debug]
+        os: [ubuntu-20.04]
+        cxx_common_version: [v0.1.1]
+        llvm_version: [11]
+
+    steps:
+    - name: Get the 🍝
+      uses: actions/checkout@v2
+      with:
+        path: src
+
+    - name: Select the build job count
+      shell: bash
+      id: build_job_count
+      run: |
+        echo ::set-output name=VALUE::$(($(nproc) + 1))
+
+    - name: Install system dependencies
+      run: |
+        sudo apt update
+
+        sudo apt install -y build-essential \
+                            ninja-build \
+                            curl \
+                            ccache \
+                            cmake \
+                            python3-dev \
+                            libncurses-dev
+
+    - name: Setup the build paths
+      id: build_paths
+      run: |
+        rel_src_path="src"
+        rel_build_path="build"
+        rel_downloads_path="downloads"
+        rel_install_path="install"
+        rel_ccache_path="ccache"
+        
+
+        mkdir -p ${rel_build_path} \
+                 ${rel_downloads_path} \
+                 ${rel_install_path} \
+                 ${rel_ccache_path}
+
+        echo ::set-output name=SOURCE::$(realpath ${rel_src_path})
+        echo ::set-output name=BUILD::$(realpath ${rel_build_path})
+        echo ::set-output name=INSTALL::$(realpath ${rel_install_path})
+
+        echo ::set-output name=REL_DOWNLOADS::${rel_downloads_path}
+        echo ::set-output name=DOWNLOADS::$(realpath ${rel_downloads_path})
+
+        echo ::set-output name=REL_CCACHE::${rel_ccache_path}
+        echo ::set-output name=CCACHE::$(realpath ${rel_ccache_path})
+
+    - name: Update the cache (ccache)
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.build_paths.outputs.REL_CCACHE }}
+
+        key: |
+          gitmodules_${{ matrix.os }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}_${{ github.sha }}
+
+        restore-keys: |
+          gitmodules_${{ matrix.os }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}
+
+    - name: Update the cache (downloads)
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.build_paths.outputs.REL_DOWNLOADS }}
+
+        key: |
+          gitmodules_${{ matrix.os }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}_${{ github.sha }}
+
+        restore-keys: |
+          gitmodules_${{ matrix.os }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}
+
+    - name: Acquire the cxx-common ${{ matrix.cxx_common_version }} package for LLVM ${{ matrix.llvm_version }}
+      id: cxx_common_installer
+      working-directory: ${{ steps.build_paths.outputs.DOWNLOADS }}
+      run: |
+        folder_name="vcpkg_${{ matrix.os }}_llvm-${{ matrix.llvm_version }}_amd64"
+        file_name="${folder_name}.tar.xz"
+        url="https://github.com/trailofbits/cxx-common/releases/download/${{ matrix.cxx_common_version }}/${file_name}"
+
+        file_path="${{ steps.build_paths.outputs.DOWNLOADS }}/${file_name}"
+        if [[ ! -f "${file_path}" ]]; then
+          curl "${url}" -L -O
+
+          ls -t ${{ steps.build_paths.outputs.DOWNLOADS }}/*.tar.xz | tail -n +2 | while read archive_file ; do
+            rm "${archive_file}"
+          done
+        fi
+
+        tar xf "${file_path}" \
+            -C "${{ steps.build_paths.outputs.INSTALL }}"
+
+        echo ::set-output name=PATH::${{ steps.build_paths.outputs.INSTALL }}/${folder_name}
+
+        echo "${{ steps.build_paths.outputs.INSTALL }}/${folder_name}/installed/x64-linux-rel/bin" >> $GITHUB_PATH
+
+    - name: Configure the project
+      working-directory: ${{ steps.build_paths.outputs.BUILD }}
+
+      env:
+        CCACHE_DIR: ${{ steps.build_paths.outputs.CCACHE }}
+
+      run: |
+        cxx_common_bin_path="${{ steps.cxx_common_installer.outputs.PATH }}/installed/x64-linux-rel/bin"
+
+        cmake -G "Ninja" \
+          -DVCPKG_ROOT=${{ steps.cxx_common_installer.outputs.PATH }} \
+          -DCMAKE_C_COMPILER=${cxx_common_bin_path}/clang \
+          -DCMAKE_CXX_COMPILER=${cxx_common_bin_path}/clang++ \
+          "${{ steps.build_paths.outputs.SOURCE }}"
+
+    - name: Build the project
+      working-directory: ${{ steps.build_paths.outputs.BUILD }}
+
+      env:
+        CCACHE_DIR: ${{ steps.build_paths.outputs.CCACHE }}
+
+      run: |
+        cmake --build . -j ${{ steps.build_job_count.outputs.VALUE }}
+
+    - name: Reclaim disk space
+      run: |
+        rm -rf ${{ steps.build_paths.outputs.BUILD }}

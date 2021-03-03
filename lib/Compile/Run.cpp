@@ -2,11 +2,9 @@
  * Copyright (c) 2020 Trail of Bits, Inc.
  */
 
-#include "AST.h"
 #include "Compiler.h"
 #include "Diagnostic.h"
 #include "Job.h"
-#include "Token.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -37,6 +35,9 @@
 
 #include <pasta/Util/ArgumentVector.h>
 #include <pasta/Util/Compiler.h>
+
+#include "../AST/AST.h"
+#include "../AST/Token.h"
 
 namespace pasta {
 namespace detail {

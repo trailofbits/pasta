@@ -15,8 +15,8 @@
 #include <clang/Basic/SourceManager.h>
 #pragma clang diagnostic pop
 
-#include "AST.h"
-#include "Token.h"
+#include "../AST/AST.h"
+#include "../AST/Token.h"
 
 namespace pasta {
 

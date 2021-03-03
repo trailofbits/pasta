@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <pasta/Compile/Token.h>
+#include <pasta/AST/Token.h>
 
 #include <cstdint>
 #include <string>

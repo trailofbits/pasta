@@ -4,6 +4,17 @@
 
 #include "MacroGenerator.h"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/AST/Decl.h>
+#include <clang/AST/DeclCXX.h>
+#include <clang/AST/DeclObjC.h>
+#include <clang/AST/DeclOpenMP.h>
+#include <clang/AST/DeclTemplate.h>
+#pragma clang diagnostic pop
+
 namespace pasta {
 
 namespace {
@@ -72,7 +83,7 @@ MacroGenerator::~MacroGenerator(void) {
   std::map<std::string, clang::EnumDecl *> decl_named_enums;
   std::unordered_set<clang::EnumDecl *> decl_unnamed_enums;
 
-  os << "#include \"../DefaultMacros.h\"\n\n";
+  os << "#include \"../DefineDefaultMacros.h\"\n\n";
 
   for (const auto &[decl_name, decl] : decl_classes) {
     const auto decl_id = decl_ids[decl_name];
@@ -287,6 +298,8 @@ MacroGenerator::~MacroGenerator(void) {
     os << "PASTA_END_CLANG_WRAPPER(" << decl_name << ", " << decl_id
        << ")\n\n";
   }
+
+  os << "#include \"../UndefineDefaultMacros.h\"\n\n";
 }
 
 bool MacroGenerator::VisitCXXRecordDecl(clang::CXXRecordDecl *decl) {

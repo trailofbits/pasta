@@ -191,26 +191,27 @@ target_link_libraries(util PRIVATE
 )
 
 add_library(compiler STATIC
-    "include/pasta/Compile/AST.h"
+
+    "include/pasta/AST/Token.h"
+    "include/pasta/AST/AST.h"
     "include/pasta/Compile/Command.h"
     "include/pasta/Compile/Compiler.h"
     "include/pasta/Compile/Job.h"
 
+    "lib/AST/AST.cpp"
+    "lib/AST/Token.cpp"
+    
     "${HOST_H_FILE}"
-    "lib/Compile/AST.h"
     "lib/Compile/Command.h"
     "lib/Compile/Compiler.h"
     "lib/Compile/Job.h"
-    "lib/Compile/Token.h"
-
-    "lib/Compile/AST.cpp"
+    
     "lib/Compile/Command.cpp"
     "lib/Compile/Compiler.cpp"
     "lib/Compile/Create.cpp"
     "lib/Compile/Diagnostic.cpp"
     "lib/Compile/Job.cpp"
     "lib/Compile/Run.cpp"
-    "lib/Compile/Token.cpp"
 )
 
 target_include_directories(compiler PRIVATE
@@ -227,13 +228,15 @@ add_library(python_bindings STATIC
     "include/pasta/Python/Bindings.h"
 
     "lib/Python/Bindings.cpp"
-    "lib/Python/Compile/AST.cpp"
+    
+    "lib/Python/AST/AST.cpp"
+    "lib/Python/AST/SourceLocation.cpp"
+    "lib/Python/AST/Token.cpp"
+    
     "lib/Python/Compile/Command.cpp"
     "lib/Python/Compile/Compile.h"
     "lib/Python/Compile/Compiler.cpp"
     "lib/Python/Compile/Job.cpp"
-    "lib/Python/Compile/Token.cpp"
-    "lib/Python/Compile/Clang/SourceLocation.cpp"
     "lib/Python/Pasta.cpp"
 )
 
@@ -252,6 +255,19 @@ add_executable(bootstrap-macros
 )
 
 target_link_libraries(bootstrap-macros PRIVATE
+    cxx_settings
+    thirdparty_llvm
+    compiler
+)
+
+add_executable(bootstrap-types
+    "bin/BootstrapTypes/Generated/Decl.h"
+    "bin/BootstrapTypes/DefineDefaultMacros.h"
+    "bin/BootstrapTypes/UndefineDefaultMacros.h"
+    "bin/BootstrapTypes/Main.cpp"
+)
+
+target_link_libraries(bootstrap-types PRIVATE
     cxx_settings
     thirdparty_llvm
     compiler

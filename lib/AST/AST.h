@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <pasta/Compile/AST.h>
+#include <pasta/AST/AST.h>
 
 #include <string>
 

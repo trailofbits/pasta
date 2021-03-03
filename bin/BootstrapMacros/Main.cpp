@@ -2,7 +2,7 @@
  * Copyright (c) 2020 Trail of Bits, Inc.
  */
 
-#include <pasta/Compile/AST.h>
+#include <pasta/AST/AST.h>
 #include <pasta/Compile/Command.h>
 #include <pasta/Compile/Compiler.h>
 #include <pasta/Compile/Job.h>

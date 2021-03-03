@@ -2,10 +2,10 @@
  * Copyright (c) 2021 Trail of Bits, Inc.
  */
 
-#include "Clang.h"
-
 #include <clang/Basic/FileManager.h>
 #include <clang/Basic/SourceLocation.h>
+
+#include "AST.h"
 
 namespace pasta {
 namespace py {

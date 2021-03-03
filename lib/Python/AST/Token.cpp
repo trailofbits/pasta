@@ -2,7 +2,7 @@
  * Copyright (c) 2021 Trail of Bits, Inc.
  */
 
-#include "Compile.h"
+#include "AST.h"
 
 namespace pasta {
 namespace py {

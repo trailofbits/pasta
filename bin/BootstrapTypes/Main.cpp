@@ -2,6 +2,7 @@
  * Copyright (c) 2021 Trail of Bits, Inc.
  */
 
+#include <cctype>
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
@@ -10,6 +11,8 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+
+#include <llvm/ADT/StringRef.h>
 
 namespace {
 
@@ -24,10 +27,88 @@ static struct {const char *derived; const char *base; } kDeclExtends[] = {
 #include "Generated/Decl.h"
 };
 
+static std::string CxxName(llvm::StringRef name) {
+  if (name.startswith("get")) {
+    return CxxName(name.substr(3));
+
+  // Begin/end iterators.
+  } else if (name.endswith("_begin") || name.endswith("_end") ||
+             name.endswith("_size") || name.endswith("_empty") ||
+             name.endswith("_rbegin") || name.endswith("_rend")) {
+    return "";
+
+  } else if (name.endswith("Loc")) {
+    return name.substr(0, name.size() - 3).str() + "Token";
+
+  } else if (name == "SourceRange") {
+    return "TokenRange";
+
+  } else if (name.empty()) {
+    return "";
+
+  } else if (std::islower(name.front())) {
+    return name.substr(0, 1).upper() + name.substr(1).str();
+
+  } else {
+    return name.str();
+  }
+}
 
 std::unordered_map<std::string, std::vector<std::string>> gBaseClasses;
 std::unordered_map<std::string, std::vector<std::string>> gDerivedClasses;
 std::vector<std::string> gTopologicallyOrderedDecls;
+
+static void PrintCppMethods(const std::string &class_name) {
+#define PASTA_CLASS_METHOD_0(cls, id, meth, rt) \
+    if (class_name == #cls) { \
+      if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
+        std::cout << "  // " << meth_name << "\n"; \
+      } \
+    }
+
+#define PASTA_CLASS_METHOD_1(cls, id, meth, rt, p0) \
+    if (class_name == #cls) { \
+      if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
+        std::cout << "  // " << meth_name << "\n"; \
+      } \
+    }
+
+#define PASTA_CLASS_METHOD_2(cls, id, meth, rt, p0, p1) \
+    if (class_name == #cls) { \
+      if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
+        std::cout << "  // " << meth_name << "\n"; \
+      } \
+    }
+
+#define PASTA_CLASS_METHOD_3(cls, id, meth, rt, p0, p1, p2) \
+    if (class_name == #cls) { \
+      if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
+        std::cout << "  // " << meth_name << "\n"; \
+      } \
+    }
+
+#define PASTA_CLASS_METHOD_4(cls, id, meth, rt, p0, p1, p2, p3) \
+    if (class_name == #cls) { \
+      if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
+        std::cout << "  // " << meth_name << "\n"; \
+      } \
+    }
+
+#define PASTA_CLASS_METHOD_5(cls, id, meth, rt, p0, p1, p2, p3, p4) \
+    if (class_name == #cls) { \
+      if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
+        std::cout << "  // " << meth_name << "\n"; \
+      } \
+    }
+
+#define PASTA_CLASS_METHOD_6(cls, id, meth, rt, p0, p1, p2, p3, p4, p5) \
+    if (class_name == #cls) { \
+      if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
+        std::cout << "  // " << meth_name << "\n"; \
+      } \
+    }
+#include "Generated/Decl.h"
+}
 
 static void PrintCppDecl(void) {
   std::cout
@@ -106,7 +187,11 @@ static void PrintCppDecl(void) {
         << "  " << name << "(const " << name << " &) = default;\n"
         << "  " << name << "(" << name << " &&) noexcept = default;\n"
         << "  " << name << " &operator=(const " << name << " &) = default;\n"
-        << "  " << name << " &operator=(" << name << " &&) noexcept = default;\n\n"
+        << "  " << name << " &operator=(" << name << " &&) noexcept = default;\n\n";
+
+    PrintCppMethods(name);
+
+    std::cout
         << " private:\n"
         << "  " << name << "(void) = delete;\n\n"
         << "  " << name << "(const DeclBase &) = delete;\n"

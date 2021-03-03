@@ -323,6 +323,9 @@ class AccessSpecDecl : public Decl {
   AccessSpecDecl &operator=(const AccessSpecDecl &) = default;
   AccessSpecDecl &operator=(AccessSpecDecl &&) noexcept = default;
 
+  // AccessSpecifierToken
+  // ColonToken
+  // TokenRange
  private:
   AccessSpecDecl(void) = delete;
 
@@ -347,6 +350,7 @@ class BindingDecl : public ValueDecl {
   BindingDecl &operator=(const BindingDecl &) = default;
   BindingDecl &operator=(BindingDecl &&) noexcept = default;
 
+  // Binding
  private:
   BindingDecl(void) = delete;
 
@@ -371,6 +375,24 @@ class BlockDecl : public Decl, public DeclContext {
   BlockDecl &operator=(const BlockDecl &) = default;
   BlockDecl &operator=(BlockDecl &&) noexcept = default;
 
+  // BlockMissingReturnType
+  // CanAvoidCopyToHeap
+  // Captures
+  // CapturesCXXThis
+  // DoesNotEscape
+  // BlockManglingContextDecl
+  // BlockManglingNumber
+  // Body
+  // CaretLocation
+  // CompoundBody
+  // NumCaptures
+  // NumParams
+  // ParamDecl
+  // SignatureAsWritten
+  // HasCaptures
+  // IsConversionFromLambda
+  // IsVariadic
+  // Parameters
  private:
   BlockDecl(void) = delete;
 
@@ -395,6 +417,8 @@ class BuiltinTemplateDecl : public TemplateDecl {
   BuiltinTemplateDecl &operator=(const BuiltinTemplateDecl &) = default;
   BuiltinTemplateDecl &operator=(BuiltinTemplateDecl &&) noexcept = default;
 
+  // BuiltinTemplateKind
+  // TokenRange
  private:
   BuiltinTemplateDecl(void) = delete;
 
@@ -419,6 +443,17 @@ class CXXConstructorDecl : public CXXMethodDecl {
   CXXConstructorDecl &operator=(const CXXConstructorDecl &) = default;
   CXXConstructorDecl &operator=(CXXConstructorDecl &&) noexcept = default;
 
+  // CanonicalDecl
+  // ExplicitSpecifier
+  // InheritedConstructor
+  // NumCtorInitializers
+  // Inits
+  // IsCopyConstructor
+  // IsCopyOrMoveConstructor
+  // IsDelegatingConstructor
+  // IsExplicit
+  // IsInheritingConstructor
+  // IsMoveConstructor
  private:
   CXXConstructorDecl(void) = delete;
 
@@ -443,6 +478,10 @@ class CXXConversionDecl : public CXXMethodDecl {
   CXXConversionDecl &operator=(const CXXConversionDecl &) = default;
   CXXConversionDecl &operator=(CXXConversionDecl &&) noexcept = default;
 
+  // CanonicalDecl
+  // ConversionType
+  // ExplicitSpecifier
+  // IsExplicit
  private:
   CXXConversionDecl(void) = delete;
 
@@ -467,6 +506,10 @@ class CXXDeductionGuideDecl : public FunctionDecl {
   CXXDeductionGuideDecl &operator=(const CXXDeductionGuideDecl &) = default;
   CXXDeductionGuideDecl &operator=(CXXDeductionGuideDecl &&) noexcept = default;
 
+  // DeducedTemplate
+  // ExplicitSpecifier
+  // IsCopyDeductionCandidate
+  // IsExplicit
  private:
   CXXDeductionGuideDecl(void) = delete;
 
@@ -491,6 +534,9 @@ class CXXDestructorDecl : public CXXMethodDecl {
   CXXDestructorDecl &operator=(const CXXDestructorDecl &) = default;
   CXXDestructorDecl &operator=(CXXDestructorDecl &&) noexcept = default;
 
+  // CanonicalDecl
+  // OperatorDelete
+  // OperatorDeleteThisArg
  private:
   CXXDestructorDecl(void) = delete;
 
@@ -515,6 +561,18 @@ class CXXMethodDecl : public FunctionDecl {
   CXXMethodDecl &operator=(const CXXMethodDecl &) = default;
   CXXMethodDecl &operator=(CXXMethodDecl &&) noexcept = default;
 
+  // CanonicalDecl
+  // CorrespondingMethodDeclaredInClass
+  // CorrespondingMethodInClass
+  // DevirtualizedMethod
+  // MethodQualifiers
+  // MostRecentDecl
+  // Parent
+  // RefQualifier
+  // IsConst
+  // IsInstance
+  // IsVirtual
+  // IsVolatile
  private:
   CXXMethodDecl(void) = delete;
 
@@ -539,6 +597,109 @@ class CXXRecordDecl : public RecordDecl {
   CXXRecordDecl &operator=(const CXXRecordDecl &) = default;
   CXXRecordDecl &operator=(CXXRecordDecl &&) noexcept = default;
 
+  // AllowConstDefaultInit
+  // Bases
+  // Captures
+  // Ctors
+  // DefaultedCopyConstructorIsDeleted
+  // DefaultedDefaultConstructorIsConstexpr
+  // DefaultedDestructorIsConstexpr
+  // DefaultedDestructorIsDeleted
+  // DefaultedMoveConstructorIsDeleted
+  // Friends
+  // CanonicalDecl
+  // Definition
+  // LambdaCaptureDefault
+  // LambdaManglingNumber
+  // LambdaTypeInfo
+  // MostRecentDecl
+  // MostRecentNonInjectedDecl
+  // NumBases
+  // NumVBases
+  // PreviousDecl
+  // HasConstexprDefaultConstructor
+  // HasConstexprNonCopyMoveConstructor
+  // HasCopyAssignmentWithConstParam
+  // HasCopyConstructorWithConstParam
+  // HasDefaultConstructor
+  // HasDefinition
+  // HasDirectFields
+  // HasFriends
+  // HasInClassInitializer
+  // HasInheritedAssignment
+  // HasInheritedConstructor
+  // HasIrrelevantDestructor
+  // HasKnownLambdaInternalLinkage
+  // HasMoveAssignment
+  // HasMoveConstructor
+  // HasMutableFields
+  // HasNonLiteralTypeFieldsOrBases
+  // HasNonTrivialCopyAssignment
+  // HasNonTrivialCopyConstructor
+  // HasNonTrivialCopyConstructorForCall
+  // HasNonTrivialDefaultConstructor
+  // HasNonTrivialDestructor
+  // HasNonTrivialDestructorForCall
+  // HasNonTrivialMoveAssignment
+  // HasNonTrivialMoveConstructor
+  // HasNonTrivialMoveConstructorForCall
+  // HasPrivateFields
+  // HasProtectedFields
+  // HasSimpleCopyAssignment
+  // HasSimpleCopyConstructor
+  // HasSimpleDestructor
+  // HasSimpleMoveAssignment
+  // HasSimpleMoveConstructor
+  // HasTrivialCopyAssignment
+  // HasTrivialCopyConstructor
+  // HasTrivialCopyConstructorForCall
+  // HasTrivialDefaultConstructor
+  // HasTrivialDestructor
+  // HasTrivialDestructorForCall
+  // HasTrivialMoveAssignment
+  // HasTrivialMoveConstructor
+  // HasTrivialMoveConstructorForCall
+  // HasUninitializedReferenceMember
+  // HasUserDeclaredConstructor
+  // HasUserDeclaredCopyAssignment
+  // HasUserDeclaredCopyConstructor
+  // HasUserDeclaredDestructor
+  // HasUserDeclaredMoveAssignment
+  // HasUserDeclaredMoveConstructor
+  // HasUserDeclaredMoveOperation
+  // HasUserProvidedDefaultConstructor
+  // HasVariantMembers
+  // ImplicitCopyAssignmentHasConstParam
+  // ImplicitCopyConstructorHasConstParam
+  // IsAbstract
+  // IsAggregate
+  // IsCXX11StandardLayout
+  // IsDependentLambda
+  // IsDynamicClass
+  // IsEmpty
+  // IsLambda
+  // IsLiteral
+  // IsLocalClass
+  // IsPOD
+  // IsParsingBaseSpecifiers
+  // IsPolymorphic
+  // IsStandardLayout
+  // IsTrivial
+  // MayBeDynamicClass
+  // MayBeNonDynamicClass
+  // Methods
+  // NeedsImplicitCopyAssignment
+  // NeedsImplicitCopyConstructor
+  // NeedsImplicitDefaultConstructor
+  // NeedsImplicitDestructor
+  // NeedsImplicitMoveAssignment
+  // NeedsImplicitMoveConstructor
+  // NeedsOverloadResolutionForCopyAssignment
+  // NeedsOverloadResolutionForCopyConstructor
+  // NeedsOverloadResolutionForDestructor
+  // NeedsOverloadResolutionForMoveAssignment
+  // NeedsOverloadResolutionForMoveConstructor
+  // Vbases
  private:
   CXXRecordDecl(void) = delete;
 
@@ -563,6 +724,11 @@ class CapturedDecl : public Decl, public DeclContext {
   CapturedDecl &operator=(const CapturedDecl &) = default;
   CapturedDecl &operator=(CapturedDecl &&) noexcept = default;
 
+  // ContextParam
+  // ContextParamPosition
+  // NumParams
+  // Param
+  // Parameters
  private:
   CapturedDecl(void) = delete;
 
@@ -587,6 +753,9 @@ class ClassScopeFunctionSpecializationDecl : public Decl {
   ClassScopeFunctionSpecializationDecl &operator=(const ClassScopeFunctionSpecializationDecl &) = default;
   ClassScopeFunctionSpecializationDecl &operator=(ClassScopeFunctionSpecializationDecl &&) noexcept = default;
 
+  // Specialization
+  // TemplateArgsAsWritten
+  // HasExplicitTemplateArgs
  private:
   ClassScopeFunctionSpecializationDecl(void) = delete;
 
@@ -611,6 +780,13 @@ class ClassTemplateDecl : public RedeclarableTemplateDecl {
   ClassTemplateDecl &operator=(const ClassTemplateDecl &) = default;
   ClassTemplateDecl &operator=(ClassTemplateDecl &&) noexcept = default;
 
+  // CanonicalDecl
+  // InstantiatedFromMemberTemplate
+  // MostRecentDecl
+  // PreviousDecl
+  // TemplatedDecl
+  // IsThisDeclarationADefinition
+  // Specializations
  private:
   ClassTemplateDecl(void) = delete;
 
@@ -635,6 +811,14 @@ class ClassTemplatePartialSpecializationDecl : public ClassTemplateSpecializatio
   ClassTemplatePartialSpecializationDecl &operator=(const ClassTemplatePartialSpecializationDecl &) = default;
   ClassTemplatePartialSpecializationDecl &operator=(ClassTemplatePartialSpecializationDecl &&) noexcept = default;
 
+  // Profile
+  // AssociatedConstraints
+  // InjectedSpecializationType
+  // InstantiatedFromMember
+  // InstantiatedFromMemberTemplate
+  // TemplateArgsAsWritten
+  // TemplateParameters
+  // HasAssociatedConstraints
  private:
   ClassTemplatePartialSpecializationDecl(void) = delete;
 
@@ -659,6 +843,19 @@ class ClassTemplateSpecializationDecl : public CXXRecordDecl {
   ClassTemplateSpecializationDecl &operator=(const ClassTemplateSpecializationDecl &) = default;
   ClassTemplateSpecializationDecl &operator=(ClassTemplateSpecializationDecl &&) noexcept = default;
 
+  // Profile
+  // ExternToken
+  // InstantiatedFrom
+  // PointOfInstantiation
+  // SpecializationKind
+  // SpecializedTemplateOrPartial
+  // TemplateArgs
+  // TemplateInstantiationArgs
+  // TemplateKeywordToken
+  // TypeAsWritten
+  // IsClassScopeExplicitSpecialization
+  // IsExplicitInstantiationOrSpecialization
+  // IsExplicitSpecialization
  private:
   ClassTemplateSpecializationDecl(void) = delete;
 
@@ -683,6 +880,9 @@ class ConceptDecl : public TemplateDecl {
   ConceptDecl &operator=(const ConceptDecl &) = default;
   ConceptDecl &operator=(ConceptDecl &&) noexcept = default;
 
+  // ConstraintExpr
+  // TokenRange
+  // IsTypeConcept
  private:
   ConceptDecl(void) = delete;
 
@@ -707,6 +907,11 @@ class ConstructorUsingShadowDecl : public UsingShadowDecl {
   ConstructorUsingShadowDecl &operator=(const ConstructorUsingShadowDecl &) = default;
   ConstructorUsingShadowDecl &operator=(ConstructorUsingShadowDecl &&) noexcept = default;
 
+  // ConstructsVirtualBase
+  // ConstructedBaseClass
+  // ConstructedBaseClassShadowDecl
+  // NominatedBaseClassShadowDecl
+  // Parent
  private:
   ConstructorUsingShadowDecl(void) = delete;
 
@@ -731,6 +936,52 @@ class Decl : public DeclBase {
   Decl &operator=(const Decl &) = default;
   Decl &operator=(Decl &&) noexcept = default;
 
+  // Attrs
+  // Access
+  // AccessUnsafe
+  // AsFunction
+  // BeginToken
+  // Body
+  // CanonicalDecl
+  // DeclContext
+  // EndToken
+  // FriendObjectKind
+  // GlobalID
+  // IdentifierNamespace
+  // ImportedOwningModule
+  // Kind
+  // LexicalDeclContext
+  // LocalOwningModule
+  // Location
+  // ModuleOwnershipKind
+  // MostRecentDecl
+  // NextDeclInContext
+  // NonClosureContext
+  // OwningModule
+  // OwningModuleID
+  // PreviousDecl
+  // TokenRange
+  // TranslationUnitDecl
+  // HasAttrs
+  // HasBody
+  // HasOwningModule
+  // HasTagIdentifierNamespace
+  // IsCanonicalDecl
+  // IsDefinedOutsideFunctionOrMethod
+  // IsDeprecated
+  // IsFirstDecl
+  // IsFromASTFile
+  // IsFunctionOrFunctionTemplate
+  // IsImplicit
+  // IsInIdentifierNamespace
+  // IsInvalidDecl
+  // IsModulePrivate
+  // IsTemplateParameter
+  // IsThisDeclarationReferenced
+  // IsTopLevelDeclInObjCContainer
+  // IsUnavailable
+  // IsUnconditionallyVisible
+  // Redecls
  private:
   Decl(void) = delete;
 
@@ -755,6 +1006,32 @@ class DeclContext : public DeclBase {
   DeclContext &operator=(const DeclContext &) = default;
   DeclContext &operator=(DeclContext &&) noexcept = default;
 
+  // Equals
+  // Decls
+  // DeclKind
+  // EnclosingNamespaceContext
+  // LexicalParent
+  // LookupParent
+  // LookupPtr
+  // NonClosureAncestor
+  // OuterLexicalRecordContext
+  // Parent
+  // ParentASTContext
+  // PrimaryContext
+  // RedeclContext
+  // HasExternalLexicalStorage
+  // HasExternalVisibleStorage
+  // IsClosure
+  // IsDeclInLexicalTraversal
+  // IsFileContext
+  // IsFunctionOrMethod
+  // IsLookupContext
+  // IsNamespace
+  // IsObjCContainer
+  // IsRecord
+  // IsTranslationUnit
+  // Noload_decls
+  // ShouldUseQualifiedLookup
  private:
   DeclContext(void) = delete;
 
@@ -779,6 +1056,14 @@ class DeclaratorDecl : public ValueDecl {
   DeclaratorDecl &operator=(const DeclaratorDecl &) = default;
   DeclaratorDecl &operator=(DeclaratorDecl &&) noexcept = default;
 
+  // BeginToken
+  // InnerLocStart
+  // NumTemplateParameterLists
+  // Qualifier
+  // QualifierToken
+  // TemplateParameterList
+  // TrailingRequiresClause
+  // TypeSourceInfo
  private:
   DeclaratorDecl(void) = delete;
 
@@ -803,6 +1088,7 @@ class DecompositionDecl : public VarDecl {
   DecompositionDecl &operator=(const DecompositionDecl &) = default;
   DecompositionDecl &operator=(DecompositionDecl &&) noexcept = default;
 
+  // Bindings
  private:
   DecompositionDecl(void) = delete;
 
@@ -851,6 +1137,9 @@ class EnumConstantDecl : public ValueDecl {
   EnumConstantDecl &operator=(const EnumConstantDecl &) = default;
   EnumConstantDecl &operator=(EnumConstantDecl &&) noexcept = default;
 
+  // CanonicalDecl
+  // InitExpr
+  // InitVal
  private:
   EnumConstantDecl(void) = delete;
 
@@ -875,6 +1164,21 @@ class EnumDecl : public TagDecl {
   EnumDecl &operator=(const EnumDecl &) = default;
   EnumDecl &operator=(EnumDecl &&) noexcept = default;
 
+  // Enumerators
+  // CanonicalDecl
+  // Definition
+  // IntegerType
+  // IntegerTypeSourceInfo
+  // MemberSpecializationInfo
+  // MostRecentDecl
+  // NumNegativeBits
+  // NumPositiveBits
+  // PreviousDecl
+  // PromotionType
+  // IsComplete
+  // IsFixed
+  // IsScoped
+  // IsScopedUsingClassTag
  private:
   EnumDecl(void) = delete;
 
@@ -899,6 +1203,11 @@ class ExportDecl : public Decl, public DeclContext {
   ExportDecl &operator=(const ExportDecl &) = default;
   ExportDecl &operator=(ExportDecl &&) noexcept = default;
 
+  // EndToken
+  // ExportToken
+  // RBraceToken
+  // TokenRange
+  // HasBraces
  private:
   ExportDecl(void) = delete;
 
@@ -947,6 +1256,17 @@ class FieldDecl : public DeclaratorDecl {
   FieldDecl &operator=(const FieldDecl &) = default;
   FieldDecl &operator=(FieldDecl &&) noexcept = default;
 
+  // BitWidth
+  // CanonicalDecl
+  // CapturedVLAType
+  // InClassInitStyle
+  // InClassInitializer
+  // Parent
+  // HasCapturedVLAType
+  // HasInClassInitializer
+  // IsBitField
+  // IsMutable
+  // IsUnnamedBitfield
  private:
   FieldDecl(void) = delete;
 
@@ -971,6 +1291,10 @@ class FileScopeAsmDecl : public Decl {
   FileScopeAsmDecl &operator=(const FileScopeAsmDecl &) = default;
   FileScopeAsmDecl &operator=(FileScopeAsmDecl &&) noexcept = default;
 
+  // AsmToken
+  // AsmString
+  // RParenToken
+  // TokenRange
  private:
   FileScopeAsmDecl(void) = delete;
 
@@ -995,6 +1319,13 @@ class FriendDecl : public Decl {
   FriendDecl &operator=(const FriendDecl &) = default;
   FriendDecl &operator=(FriendDecl &&) noexcept = default;
 
+  // FriendDecl
+  // FriendToken
+  // FriendType
+  // FriendTypeNumTemplateParameterLists
+  // FriendTypeTemplateParameterList
+  // TokenRange
+  // IsUnsupportedFriend
  private:
   FriendDecl(void) = delete;
 
@@ -1019,6 +1350,11 @@ class FriendTemplateDecl : public Decl {
   FriendTemplateDecl &operator=(const FriendTemplateDecl &) = default;
   FriendTemplateDecl &operator=(FriendTemplateDecl &&) noexcept = default;
 
+  // FriendDecl
+  // FriendToken
+  // FriendType
+  // NumTemplateParameters
+  // TemplateParameterList
  private:
   FriendTemplateDecl(void) = delete;
 
@@ -1043,6 +1379,52 @@ class FunctionDecl : public DeclaratorDecl, public DeclContext {
   FunctionDecl &operator=(const FunctionDecl &) = default;
   FunctionDecl &operator=(FunctionDecl &&) noexcept = default;
 
+  // DoesThisDeclarationHaveABody
+  // AssociatedConstraints
+  // Body
+  // CallResultType
+  // CanonicalDecl
+  // ConstexprKind
+  // DeclaredReturnType
+  // Definition
+  // EllipsisToken
+  // ExceptionSpecType
+  // NameInfo
+  // ParamDecl
+  // ReturnType
+  // StorageClass
+  // HasBody
+  // HasImplicitReturnZero
+  // HasInheritedPrototype
+  // HasPrototype
+  // HasSkippedBody
+  // HasWrittenPrototype
+  // InstantiationIsPending
+  // IsConsteval
+  // IsConstexpr
+  // IsConstexprSpecified
+  // IsDefaulted
+  // IsDefined
+  // IsDeleted
+  // IsDeletedAsWritten
+  // IsExplicitlyDefaulted
+  // IsFunctionTemplateSpecialization
+  // IsInlineSpecified
+  // IsInlined
+  // IsLateTemplateParsed
+  // IsMultiVersion
+  // IsOverloadedOperator
+  // IsPure
+  // IsStatic
+  // IsThisDeclarationADefinition
+  // IsTrivial
+  // IsTrivialForCall
+  // IsUserProvided
+  // IsVirtualAsWritten
+  // Parameters
+  // UsesFPIntrin
+  // UsesSEHTry
+  // WillHaveBody
  private:
   FunctionDecl(void) = delete;
 
@@ -1067,6 +1449,14 @@ class FunctionTemplateDecl : public RedeclarableTemplateDecl {
   FunctionTemplateDecl &operator=(const FunctionTemplateDecl &) = default;
   FunctionTemplateDecl &operator=(FunctionTemplateDecl &&) noexcept = default;
 
+  // CanonicalDecl
+  // InstantiatedFromMemberTemplate
+  // MostRecentDecl
+  // PreviousDecl
+  // TemplatedDecl
+  // IsAbbreviated
+  // IsThisDeclarationADefinition
+  // Specializations
  private:
   FunctionTemplateDecl(void) = delete;
 
@@ -1091,6 +1481,7 @@ class ImplicitParamDecl : public VarDecl {
   ImplicitParamDecl &operator=(const ImplicitParamDecl &) = default;
   ImplicitParamDecl &operator=(ImplicitParamDecl &&) noexcept = default;
 
+  // ParameterKind
  private:
   ImplicitParamDecl(void) = delete;
 
@@ -1115,6 +1506,7 @@ class ImportDecl : public Decl {
   ImportDecl &operator=(const ImportDecl &) = default;
   ImportDecl &operator=(ImportDecl &&) noexcept = default;
 
+  // ImportedModule
  private:
   ImportDecl(void) = delete;
 
@@ -1139,6 +1531,11 @@ class IndirectFieldDecl : public ValueDecl {
   IndirectFieldDecl &operator=(const IndirectFieldDecl &) = default;
   IndirectFieldDecl &operator=(IndirectFieldDecl &&) noexcept = default;
 
+  // Chain
+  // AnonField
+  // CanonicalDecl
+  // ChainingSize
+  // VarDecl
  private:
   IndirectFieldDecl(void) = delete;
 
@@ -1163,6 +1560,12 @@ class LabelDecl : public NamedDecl {
   LabelDecl &operator=(const LabelDecl &) = default;
   LabelDecl &operator=(LabelDecl &&) noexcept = default;
 
+  // MSAsmLabel
+  // TokenRange
+  // Stmt
+  // IsGnuLocal
+  // IsMSAsmLabel
+  // IsResolvedMSAsmLabel
  private:
   LabelDecl(void) = delete;
 
@@ -1187,6 +1590,11 @@ class LifetimeExtendedTemporaryDecl : public Decl {
   LifetimeExtendedTemporaryDecl &operator=(const LifetimeExtendedTemporaryDecl &) = default;
   LifetimeExtendedTemporaryDecl &operator=(LifetimeExtendedTemporaryDecl &&) noexcept = default;
 
+  // ChildrenExpr
+  // ExtendingDecl
+  // ManglingNumber
+  // TemporaryExpr
+  // Value
  private:
   LifetimeExtendedTemporaryDecl(void) = delete;
 
@@ -1211,6 +1619,12 @@ class LinkageSpecDecl : public Decl, public DeclContext {
   LinkageSpecDecl &operator=(const LinkageSpecDecl &) = default;
   LinkageSpecDecl &operator=(LinkageSpecDecl &&) noexcept = default;
 
+  // EndToken
+  // ExternToken
+  // Language
+  // RBraceToken
+  // TokenRange
+  // HasBraces
  private:
   LinkageSpecDecl(void) = delete;
 
@@ -1235,6 +1649,7 @@ class MSGuidDecl : public ValueDecl {
   MSGuidDecl &operator=(const MSGuidDecl &) = default;
   MSGuidDecl &operator=(MSGuidDecl &&) noexcept = default;
 
+  // Parts
  private:
   MSGuidDecl(void) = delete;
 
@@ -1259,6 +1674,10 @@ class MSPropertyDecl : public DeclaratorDecl {
   MSPropertyDecl &operator=(const MSPropertyDecl &) = default;
   MSPropertyDecl &operator=(MSPropertyDecl &&) noexcept = default;
 
+  // GetterId
+  // SetterId
+  // HasGetter
+  // HasSetter
  private:
   MSPropertyDecl(void) = delete;
 
@@ -1283,6 +1702,19 @@ class NamedDecl : public Decl {
   NamedDecl &operator=(const NamedDecl &) = default;
   NamedDecl &operator=(NamedDecl &&) noexcept = default;
 
+  // DeclName
+  // FormalLinkage
+  // Identifier
+  // MostRecentDecl
+  // Name
+  // NameAsString
+  // UnderlyingDecl
+  // Visibility
+  // HasExternalFormalLinkage
+  // HasLinkageBeenComputed
+  // IsCXXClassMember
+  // IsExternallyDeclarable
+  // IsExternallyVisible
  private:
   NamedDecl(void) = delete;
 
@@ -1307,6 +1739,15 @@ class NamespaceAliasDecl : public NamedDecl {
   NamespaceAliasDecl &operator=(const NamespaceAliasDecl &) = default;
   NamespaceAliasDecl &operator=(NamespaceAliasDecl &&) noexcept = default;
 
+  // AliasToken
+  // AliasedNamespace
+  // CanonicalDecl
+  // Namespace
+  // NamespaceToken
+  // Qualifier
+  // QualifierToken
+  // TokenRange
+  // TargetNameToken
  private:
   NamespaceAliasDecl(void) = delete;
 
@@ -1331,6 +1772,13 @@ class NamespaceDecl : public NamedDecl, public DeclContext {
   NamespaceDecl &operator=(const NamespaceDecl &) = default;
   NamespaceDecl &operator=(NamespaceDecl &&) noexcept = default;
 
+  // AnonymousNamespace
+  // BeginToken
+  // CanonicalDecl
+  // RBraceToken
+  // TokenRange
+  // IsAnonymousNamespace
+  // IsInline
  private:
   NamespaceDecl(void) = delete;
 
@@ -1355,6 +1803,19 @@ class NonTypeTemplateParmDecl : public DeclaratorDecl {
   NonTypeTemplateParmDecl &operator=(const NonTypeTemplateParmDecl &) = default;
   NonTypeTemplateParmDecl &operator=(NonTypeTemplateParmDecl &&) noexcept = default;
 
+  // DefaultArgumentWasInherited
+  // AssociatedConstraints
+  // DefaultArgStorage
+  // DefaultArgument
+  // ExpansionType
+  // ExpansionTypeSourceInfo
+  // NumExpansionTypes
+  // PlaceholderTypeConstraint
+  // HasDefaultArgument
+  // HasPlaceholderTypeConstraint
+  // IsExpandedParameterPack
+  // IsPackExpansion
+  // IsParameterPack
  private:
   NonTypeTemplateParmDecl(void) = delete;
 
@@ -1379,6 +1840,8 @@ class OMPAllocateDecl : public Decl {
   OMPAllocateDecl &operator=(const OMPAllocateDecl &) = default;
   OMPAllocateDecl &operator=(OMPAllocateDecl &&) noexcept = default;
 
+  // Clauselists
+  // Varlists
  private:
   OMPAllocateDecl(void) = delete;
 
@@ -1427,6 +1890,8 @@ class OMPDeclareMapperDecl : public ValueDecl, public DeclContext {
   OMPDeclareMapperDecl &operator=(const OMPDeclareMapperDecl &) = default;
   OMPDeclareMapperDecl &operator=(OMPDeclareMapperDecl &&) noexcept = default;
 
+  // Clauselists
+  // MapperVarRef
  private:
   OMPDeclareMapperDecl(void) = delete;
 
@@ -1451,6 +1916,13 @@ class OMPDeclareReductionDecl : public ValueDecl, public DeclContext {
   OMPDeclareReductionDecl &operator=(const OMPDeclareReductionDecl &) = default;
   OMPDeclareReductionDecl &operator=(OMPDeclareReductionDecl &&) noexcept = default;
 
+  // Combiner
+  // CombinerIn
+  // CombinerOut
+  // InitOrig
+  // InitPriv
+  // Initializer
+  // InitializerKind
  private:
   OMPDeclareReductionDecl(void) = delete;
 
@@ -1475,6 +1947,7 @@ class OMPRequiresDecl : public Decl {
   OMPRequiresDecl &operator=(const OMPRequiresDecl &) = default;
   OMPRequiresDecl &operator=(OMPRequiresDecl &&) noexcept = default;
 
+  // Clauselists
  private:
   OMPRequiresDecl(void) = delete;
 
@@ -1499,6 +1972,7 @@ class OMPThreadPrivateDecl : public Decl {
   OMPThreadPrivateDecl &operator=(const OMPThreadPrivateDecl &) = default;
   OMPThreadPrivateDecl &operator=(OMPThreadPrivateDecl &&) noexcept = default;
 
+  // Varlists
  private:
   OMPThreadPrivateDecl(void) = delete;
 
@@ -1547,6 +2021,18 @@ class ObjCCategoryDecl : public ObjCContainerDecl {
   ObjCCategoryDecl &operator=(const ObjCCategoryDecl &) = default;
   ObjCCategoryDecl &operator=(ObjCCategoryDecl &&) noexcept = default;
 
+  // IsClassExtension
+  // CategoryNameToken
+  // ClassInterface
+  // IvarLBraceToken
+  // IvarRBraceToken
+  // NextClassCategory
+  // NextClassCategoryRaw
+  // ReferencedProtocols
+  // TypeParamList
+  // Ivars
+  // Protocol_locs
+  // Protocols
  private:
   ObjCCategoryDecl(void) = delete;
 
@@ -1571,6 +2057,7 @@ class ObjCCategoryImplDecl : public ObjCImplDecl {
   ObjCCategoryImplDecl &operator=(const ObjCCategoryImplDecl &) = default;
   ObjCCategoryImplDecl &operator=(ObjCCategoryImplDecl &&) noexcept = default;
 
+  // CategoryNameToken
  private:
   ObjCCategoryImplDecl(void) = delete;
 
@@ -1595,6 +2082,7 @@ class ObjCCompatibleAliasDecl : public NamedDecl {
   ObjCCompatibleAliasDecl &operator=(const ObjCCompatibleAliasDecl &) = default;
   ObjCCompatibleAliasDecl &operator=(ObjCCompatibleAliasDecl &&) noexcept = default;
 
+  // ClassInterface
  private:
   ObjCCompatibleAliasDecl(void) = delete;
 
@@ -1619,6 +2107,18 @@ class ObjCContainerDecl : public NamedDecl, public DeclContext {
   ObjCContainerDecl &operator=(const ObjCContainerDecl &) = default;
   ObjCContainerDecl &operator=(ObjCContainerDecl &&) noexcept = default;
 
+  // Class_methods
+  // Class_properties
+  // CollectPropertiesToImplement
+  // AtEndRange
+  // AtStartToken
+  // ClassMethod
+  // InstanceMethod
+  // TokenRange
+  // Instance_methods
+  // Instance_properties
+  // Methods
+  // Properties
  private:
   ObjCContainerDecl(void) = delete;
 
@@ -1643,6 +2143,8 @@ class ObjCImplDecl : public ObjCContainerDecl {
   ObjCImplDecl &operator=(const ObjCImplDecl &) = default;
   ObjCImplDecl &operator=(ObjCImplDecl &&) noexcept = default;
 
+  // ClassInterface
+  // Property_impls
  private:
   ObjCImplDecl(void) = delete;
 
@@ -1667,6 +2169,18 @@ class ObjCImplementationDecl : public ObjCImplDecl {
   ObjCImplementationDecl &operator=(const ObjCImplementationDecl &) = default;
   ObjCImplementationDecl &operator=(ObjCImplementationDecl &&) noexcept = default;
 
+  // Identifier
+  // IvarLBraceToken
+  // IvarRBraceToken
+  // Name
+  // NameAsString
+  // NumIvarInitializers
+  // SuperClass
+  // SuperClassToken
+  // HasDestructors
+  // HasNonZeroConstructors
+  // Inits
+  // Ivars
  private:
   ObjCImplementationDecl(void) = delete;
 
@@ -1691,6 +2205,33 @@ class ObjCInterfaceDecl : public ObjCContainerDecl {
   ObjCInterfaceDecl &operator=(const ObjCInterfaceDecl &) = default;
   ObjCInterfaceDecl &operator=(ObjCInterfaceDecl &&) noexcept = default;
 
+  // All_referenced_protocols
+  // DeclaresOrInheritsDesignatedInitializers
+  // CanonicalDecl
+  // CategoryListRaw
+  // CategoryMethod
+  // Definition
+  // EndOfDefinitionToken
+  // ReferencedProtocols
+  // TokenRange
+  // SuperClassTInfo
+  // SuperClassType
+  // TypeForDecl
+  // TypeParamListAsWritten
+  // HasDefinition
+  // IsImplicitInterfaceDecl
+  // IsSuperClassOf
+  // IsThisDeclarationADefinition
+  // Ivars
+  // Known_categories
+  // Known_extensions
+  // LookupClassMethod
+  // LookupInstanceMethod
+  // LookupPropertyAccessor
+  // Protocol_locs
+  // Protocols
+  // Visible_categories
+  // Visible_extensions
  private:
   ObjCInterfaceDecl(void) = delete;
 
@@ -1715,6 +2256,10 @@ class ObjCIvarDecl : public FieldDecl {
   ObjCIvarDecl &operator=(const ObjCIvarDecl &) = default;
   ObjCIvarDecl &operator=(ObjCIvarDecl &&) noexcept = default;
 
+  // AccessControl
+  // CanonicalAccessControl
+  // NextIvar
+  // Synthesize
  private:
   ObjCIvarDecl(void) = delete;
 
@@ -1739,6 +2284,37 @@ class ObjCMethodDecl : public NamedDecl, public DeclContext {
   ObjCMethodDecl &operator=(const ObjCMethodDecl &) = default;
   ObjCMethodDecl &operator=(ObjCMethodDecl &&) noexcept = default;
 
+  // BeginToken
+  // CanonicalDecl
+  // ClassInterface
+  // CmdDecl
+  // DeclaratorEndToken
+  // ImplementationControl
+  // NumSelectorLocs
+  // ObjCDeclQualifier
+  // ParamDecl
+  // ReturnType
+  // ReturnTypeSourceInfo
+  // Selector
+  // SelectorToken
+  // SelectorStartToken
+  // SelfDecl
+  // TokenRange
+  // HasBody
+  // HasRedeclaration
+  // HasRelatedResultType
+  // HasSkippedBody
+  // IsClassMethod
+  // IsDefined
+  // IsInstanceMethod
+  // IsOptional
+  // IsOverriding
+  // IsPropertyAccessor
+  // IsRedeclaration
+  // IsSynthesizedAccessorStub
+  // IsThisDeclarationADefinition
+  // IsVariadic
+  // Parameters
  private:
   ObjCMethodDecl(void) = delete;
 
@@ -1763,6 +2339,30 @@ class ObjCPropertyDecl : public NamedDecl {
   ObjCPropertyDecl &operator=(const ObjCPropertyDecl &) = default;
   ObjCPropertyDecl &operator=(ObjCPropertyDecl &&) noexcept = default;
 
+  // AtToken
+  // GetterMethodDecl
+  // GetterName
+  // GetterNameToken
+  // LParenToken
+  // PropertyAttributes
+  // PropertyAttributesAsWritten
+  // PropertyImplementation
+  // PropertyIvarDecl
+  // QueryKind
+  // SetterKind
+  // SetterMethodDecl
+  // SetterName
+  // SetterNameToken
+  // TokenRange
+  // Type
+  // TypeSourceInfo
+  // IsAtomic
+  // IsClassProperty
+  // IsDirectProperty
+  // IsInstanceProperty
+  // IsOptional
+  // IsReadOnly
+  // IsRetaining
  private:
   ObjCPropertyDecl(void) = delete;
 
@@ -1787,6 +2387,16 @@ class ObjCPropertyImplDecl : public Decl {
   ObjCPropertyImplDecl &operator=(const ObjCPropertyImplDecl &) = default;
   ObjCPropertyImplDecl &operator=(ObjCPropertyImplDecl &&) noexcept = default;
 
+  // BeginToken
+  // GetterCXXConstructor
+  // GetterMethodDecl
+  // PropertyDecl
+  // PropertyImplementation
+  // PropertyIvarDecl
+  // PropertyIvarDeclToken
+  // SetterCXXAssignment
+  // SetterMethodDecl
+  // IsIvarNameSpecified
  private:
   ObjCPropertyImplDecl(void) = delete;
 
@@ -1811,6 +2421,16 @@ class ObjCProtocolDecl : public ObjCContainerDecl {
   ObjCProtocolDecl &operator=(const ObjCProtocolDecl &) = default;
   ObjCProtocolDecl &operator=(ObjCProtocolDecl &&) noexcept = default;
 
+  // CanonicalDecl
+  // Definition
+  // ReferencedProtocols
+  // TokenRange
+  // HasDefinition
+  // IsThisDeclarationADefinition
+  // LookupClassMethod
+  // LookupInstanceMethod
+  // Protocol_locs
+  // Protocols
  private:
   ObjCProtocolDecl(void) = delete;
 
@@ -1835,6 +2455,11 @@ class ObjCTypeParamDecl : public TypedefNameDecl {
   ObjCTypeParamDecl &operator=(const ObjCTypeParamDecl &) = default;
   ObjCTypeParamDecl &operator=(ObjCTypeParamDecl &&) noexcept = default;
 
+  // ColonToken
+  // Index
+  // Variance
+  // VarianceToken
+  // HasExplicitBound
  private:
   ObjCTypeParamDecl(void) = delete;
 
@@ -1859,6 +2484,16 @@ class ParmVarDecl : public VarDecl {
   ParmVarDecl &operator=(const ParmVarDecl &) = default;
   ParmVarDecl &operator=(ParmVarDecl &&) noexcept = default;
 
+  // DefaultArg
+  // FunctionScopeDepth
+  // FunctionScopeIndex
+  // ObjCDeclQualifier
+  // UninstantiatedDefaultArg
+  // HasInheritedDefaultArg
+  // HasUninstantiatedDefaultArg
+  // HasUnparsedDefaultArg
+  // IsKNRPromoted
+  // IsObjCMethodParameter
  private:
   ParmVarDecl(void) = delete;
 
@@ -1883,6 +2518,8 @@ class PragmaCommentDecl : public Decl {
   PragmaCommentDecl &operator=(const PragmaCommentDecl &) = default;
   PragmaCommentDecl &operator=(PragmaCommentDecl &&) noexcept = default;
 
+  // Arg
+  // CommentKind
  private:
   PragmaCommentDecl(void) = delete;
 
@@ -1907,6 +2544,8 @@ class PragmaDetectMismatchDecl : public Decl {
   PragmaDetectMismatchDecl &operator=(const PragmaDetectMismatchDecl &) = default;
   PragmaDetectMismatchDecl &operator=(PragmaDetectMismatchDecl &&) noexcept = default;
 
+  // Name
+  // Value
  private:
   PragmaDetectMismatchDecl(void) = delete;
 
@@ -1931,6 +2570,24 @@ class RecordDecl : public TagDecl {
   RecordDecl &operator=(const RecordDecl &) = default;
   RecordDecl &operator=(RecordDecl &&) noexcept = default;
 
+  // CanPassInRegisters
+  // Fields
+  // ArgPassingRestrictions
+  // Definition
+  // MostRecentDecl
+  // PreviousDecl
+  // HasFlexibleArrayMember
+  // HasLoadedFieldsFromExternalStorage
+  // HasNonTrivialToPrimitiveCopyCUnion
+  // HasNonTrivialToPrimitiveDefaultInitializeCUnion
+  // HasNonTrivialToPrimitiveDestructCUnion
+  // HasObjectMember
+  // HasVolatileMember
+  // IsAnonymousStructOrUnion
+  // IsNonTrivialToPrimitiveCopy
+  // IsNonTrivialToPrimitiveDefaultInitialize
+  // IsNonTrivialToPrimitiveDestroy
+  // IsParamDestroyedInCallee
  private:
   RecordDecl(void) = delete;
 
@@ -1955,6 +2612,9 @@ class RedeclarableTemplateDecl : public TemplateDecl {
   RedeclarableTemplateDecl &operator=(const RedeclarableTemplateDecl &) = default;
   RedeclarableTemplateDecl &operator=(RedeclarableTemplateDecl &&) noexcept = default;
 
+  // CanonicalDecl
+  // InstantiatedFromMemberTemplate
+  // IsMemberSpecialization
  private:
   RedeclarableTemplateDecl(void) = delete;
 
@@ -2003,6 +2663,11 @@ class StaticAssertDecl : public Decl {
   StaticAssertDecl &operator=(const StaticAssertDecl &) = default;
   StaticAssertDecl &operator=(StaticAssertDecl &&) noexcept = default;
 
+  // AssertExpr
+  // Message
+  // RParenToken
+  // TokenRange
+  // IsFailed
  private:
   StaticAssertDecl(void) = delete;
 
@@ -2027,6 +2692,30 @@ class TagDecl : public TypeDecl, public DeclContext {
   TagDecl &operator=(const TagDecl &) = default;
   TagDecl &operator=(TagDecl &&) noexcept = default;
 
+  // BraceRange
+  // CanonicalDecl
+  // InnerLocStart
+  // KindName
+  // NumTemplateParameterLists
+  // Qualifier
+  // QualifierToken
+  // TagKind
+  // TemplateParameterList
+  // TypedefNameForAnonDecl
+  // HasNameForLinkage
+  // IsBeingDefined
+  // IsClass
+  // IsCompleteDefinition
+  // IsCompleteDefinitionRequired
+  // IsDependentType
+  // IsEmbeddedInDeclarator
+  // IsEnum
+  // IsFreeStanding
+  // IsInterface
+  // IsStruct
+  // IsThisDeclarationADefinition
+  // IsUnion
+  // MayHaveOutOfDateDef
  private:
   TagDecl(void) = delete;
 
@@ -2051,6 +2740,9 @@ class TemplateDecl : public NamedDecl {
   TemplateDecl &operator=(const TemplateDecl &) = default;
   TemplateDecl &operator=(TemplateDecl &&) noexcept = default;
 
+  // TokenRange
+  // TemplateParameters
+  // TemplatedDecl
  private:
   TemplateDecl(void) = delete;
 
@@ -2075,6 +2767,16 @@ class TemplateTemplateParmDecl : public TemplateDecl {
   TemplateTemplateParmDecl &operator=(const TemplateTemplateParmDecl &) = default;
   TemplateTemplateParmDecl &operator=(TemplateTemplateParmDecl &&) noexcept = default;
 
+  // DefaultArgumentWasInherited
+  // DefaultArgStorage
+  // DefaultArgument
+  // ExpansionTemplateParameters
+  // NumExpansionTemplateParameters
+  // TokenRange
+  // HasDefaultArgument
+  // IsExpandedParameterPack
+  // IsPackExpansion
+  // IsParameterPack
  private:
   TemplateTemplateParmDecl(void) = delete;
 
@@ -2099,6 +2801,18 @@ class TemplateTypeParmDecl : public TypeDecl {
   TemplateTypeParmDecl &operator=(const TemplateTypeParmDecl &) = default;
   TemplateTypeParmDecl &operator=(TemplateTypeParmDecl &&) noexcept = default;
 
+  // DefaultArgumentWasInherited
+  // AssociatedConstraints
+  // DefaultArgStorage
+  // DefaultArgument
+  // DefaultArgumentInfo
+  // NumExpansionParameters
+  // TypeConstraint
+  // HasDefaultArgument
+  // HasTypeConstraint
+  // IsExpandedParameterPack
+  // IsPackExpansion
+  // WasDeclaredWithTypename
  private:
   TemplateTypeParmDecl(void) = delete;
 
@@ -2123,6 +2837,8 @@ class TranslationUnitDecl : public Decl, public DeclContext {
   TranslationUnitDecl &operator=(const TranslationUnitDecl &) = default;
   TranslationUnitDecl &operator=(TranslationUnitDecl &&) noexcept = default;
 
+  // ASTContext
+  // AnonymousNamespace
  private:
   TranslationUnitDecl(void) = delete;
 
@@ -2147,6 +2863,7 @@ class TypeAliasDecl : public TypedefNameDecl {
   TypeAliasDecl &operator=(const TypeAliasDecl &) = default;
   TypeAliasDecl &operator=(TypeAliasDecl &&) noexcept = default;
 
+  // DescribedAliasTemplate
  private:
   TypeAliasDecl(void) = delete;
 
@@ -2171,6 +2888,10 @@ class TypeAliasTemplateDecl : public RedeclarableTemplateDecl {
   TypeAliasTemplateDecl &operator=(const TypeAliasTemplateDecl &) = default;
   TypeAliasTemplateDecl &operator=(TypeAliasTemplateDecl &&) noexcept = default;
 
+  // CanonicalDecl
+  // InstantiatedFromMemberTemplate
+  // PreviousDecl
+  // TemplatedDecl
  private:
   TypeAliasTemplateDecl(void) = delete;
 
@@ -2195,6 +2916,9 @@ class TypeDecl : public NamedDecl {
   TypeDecl &operator=(const TypeDecl &) = default;
   TypeDecl &operator=(TypeDecl &&) noexcept = default;
 
+  // BeginToken
+  // TokenRange
+  // TypeForDecl
  private:
   TypeDecl(void) = delete;
 
@@ -2243,6 +2967,11 @@ class TypedefNameDecl : public TypeDecl {
   TypedefNameDecl &operator=(const TypedefNameDecl &) = default;
   TypedefNameDecl &operator=(TypedefNameDecl &&) noexcept = default;
 
+  // CanonicalDecl
+  // TypeSourceInfo
+  // UnderlyingType
+  // IsModed
+  // IsTransparentTag
  private:
   TypedefNameDecl(void) = delete;
 
@@ -2267,6 +2996,14 @@ class UnresolvedUsingTypenameDecl : public TypeDecl {
   UnresolvedUsingTypenameDecl &operator=(const UnresolvedUsingTypenameDecl &) = default;
   UnresolvedUsingTypenameDecl &operator=(UnresolvedUsingTypenameDecl &&) noexcept = default;
 
+  // CanonicalDecl
+  // EllipsisToken
+  // NameInfo
+  // Qualifier
+  // QualifierToken
+  // TypenameToken
+  // UsingToken
+  // IsPackExpansion
  private:
   UnresolvedUsingTypenameDecl(void) = delete;
 
@@ -2291,6 +3028,14 @@ class UnresolvedUsingValueDecl : public ValueDecl {
   UnresolvedUsingValueDecl &operator=(const UnresolvedUsingValueDecl &) = default;
   UnresolvedUsingValueDecl &operator=(UnresolvedUsingValueDecl &&) noexcept = default;
 
+  // CanonicalDecl
+  // EllipsisToken
+  // NameInfo
+  // Qualifier
+  // QualifierToken
+  // UsingToken
+  // IsAccessDeclaration
+  // IsPackExpansion
  private:
   UnresolvedUsingValueDecl(void) = delete;
 
@@ -2315,6 +3060,14 @@ class UsingDecl : public NamedDecl {
   UsingDecl &operator=(const UsingDecl &) = default;
   UsingDecl &operator=(UsingDecl &&) noexcept = default;
 
+  // CanonicalDecl
+  // NameInfo
+  // Qualifier
+  // QualifierToken
+  // UsingToken
+  // HasTypename
+  // IsAccessDeclaration
+  // Shadows
  private:
   UsingDecl(void) = delete;
 
@@ -2339,6 +3092,15 @@ class UsingDirectiveDecl : public NamedDecl {
   UsingDirectiveDecl &operator=(const UsingDirectiveDecl &) = default;
   UsingDirectiveDecl &operator=(UsingDirectiveDecl &&) noexcept = default;
 
+  // CommonAncestor
+  // IdentLocation
+  // NamespaceKeyLocation
+  // NominatedNamespace
+  // NominatedNamespaceAsWritten
+  // Qualifier
+  // QualifierToken
+  // TokenRange
+  // UsingToken
  private:
   UsingDirectiveDecl(void) = delete;
 
@@ -2363,6 +3125,10 @@ class UsingPackDecl : public NamedDecl {
   UsingPackDecl &operator=(const UsingPackDecl &) = default;
   UsingPackDecl &operator=(UsingPackDecl &&) noexcept = default;
 
+  // Expansions
+  // CanonicalDecl
+  // InstantiatedFromUsingDecl
+  // TokenRange
  private:
   UsingPackDecl(void) = delete;
 
@@ -2387,6 +3153,9 @@ class UsingShadowDecl : public NamedDecl {
   UsingShadowDecl &operator=(const UsingShadowDecl &) = default;
   UsingShadowDecl &operator=(UsingShadowDecl &&) noexcept = default;
 
+  // CanonicalDecl
+  // NextUsingShadowDecl
+  // TargetDecl
  private:
   UsingShadowDecl(void) = delete;
 
@@ -2411,6 +3180,7 @@ class ValueDecl : public NamedDecl {
   ValueDecl &operator=(const ValueDecl &) = default;
   ValueDecl &operator=(ValueDecl &&) noexcept = default;
 
+  // Type
  private:
   ValueDecl(void) = delete;
 
@@ -2435,6 +3205,38 @@ class VarDecl : public DeclaratorDecl {
   VarDecl &operator=(const VarDecl &) = default;
   VarDecl &operator=(VarDecl &&) noexcept = default;
 
+  // ActingDefinition
+  // AnyInitializer
+  // CanonicalDecl
+  // Init
+  // InitStyle
+  // InitializingDeclaration
+  // StorageClass
+  // StorageDuration
+  // TSCSpec
+  // HasDefinition
+  // HasExternalStorage
+  // HasGlobalStorage
+  // HasLocalStorage
+  // IsARCPseudoStrong
+  // IsCXXForRangeDecl
+  // IsConstexpr
+  // IsDirectInit
+  // IsExceptionVariable
+  // IsFileVarDecl
+  // IsFunctionOrMethodVarDecl
+  // IsInitCapture
+  // IsInline
+  // IsInlineSpecified
+  // IsLocalVarDecl
+  // IsLocalVarDeclOrParm
+  // IsNRVOVariable
+  // IsObjCForDecl
+  // IsPreviousDeclInSameBlockScope
+  // IsStaticDataMember
+  // IsStaticLocal
+  // IsThisDeclarationADefinition
+  // IsThisDeclarationADemotedDefinition
  private:
   VarDecl(void) = delete;
 
@@ -2459,6 +3261,13 @@ class VarTemplateDecl : public RedeclarableTemplateDecl {
   VarTemplateDecl &operator=(const VarTemplateDecl &) = default;
   VarTemplateDecl &operator=(VarTemplateDecl &&) noexcept = default;
 
+  // CanonicalDecl
+  // InstantiatedFromMemberTemplate
+  // MostRecentDecl
+  // PreviousDecl
+  // TemplatedDecl
+  // IsThisDeclarationADefinition
+  // Specializations
  private:
   VarTemplateDecl(void) = delete;
 
@@ -2483,6 +3292,12 @@ class VarTemplatePartialSpecializationDecl : public VarTemplateSpecializationDec
   VarTemplatePartialSpecializationDecl &operator=(const VarTemplatePartialSpecializationDecl &) = default;
   VarTemplatePartialSpecializationDecl &operator=(VarTemplatePartialSpecializationDecl &&) noexcept = default;
 
+  // Profile
+  // AssociatedConstraints
+  // InstantiatedFromMember
+  // TemplateArgsAsWritten
+  // TemplateParameters
+  // HasAssociatedConstraints
  private:
   VarTemplatePartialSpecializationDecl(void) = delete;
 
@@ -2507,6 +3322,20 @@ class VarTemplateSpecializationDecl : public VarDecl {
   VarTemplateSpecializationDecl &operator=(const VarTemplateSpecializationDecl &) = default;
   VarTemplateSpecializationDecl &operator=(VarTemplateSpecializationDecl &&) noexcept = default;
 
+  // Profile
+  // ExternToken
+  // InstantiatedFrom
+  // PointOfInstantiation
+  // SpecializationKind
+  // SpecializedTemplateOrPartial
+  // TemplateArgs
+  // TemplateArgsInfo
+  // TemplateInstantiationArgs
+  // TemplateKeywordToken
+  // TypeAsWritten
+  // IsClassScopeExplicitSpecialization
+  // IsExplicitInstantiationOrSpecialization
+  // IsExplicitSpecialization
  private:
   VarTemplateSpecializationDecl(void) = delete;
 

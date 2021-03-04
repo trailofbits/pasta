@@ -4,6 +4,8 @@
 
 #include "MacroGenerator.h"
 
+#include <iostream>
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
@@ -13,7 +15,10 @@
 #include <clang/AST/DeclObjC.h>
 #include <clang/AST/DeclOpenMP.h>
 #include <clang/AST/DeclTemplate.h>
+#include <llvm/Support/raw_ostream.h>
 #pragma clang diagnostic pop
+
+#include "BootstrapConfig.h"
 
 namespace pasta {
 
@@ -51,8 +56,13 @@ MacroGenerator::MacroGenerator(const clang::ASTContext *ctx)
 }
 
 MacroGenerator::~MacroGenerator(void) {
+  std::error_code ec;
+  llvm::raw_fd_ostream os(kClangDeclMacroHeader, ec);
+  if (ec) {
+    std::cerr << "Error: " << ec.message();
+    return;
+  }
 
-  auto &os = llvm::outs();
   auto print_policy = clang::PrintingPolicy(context->getLangOpts());
   print_policy.PrintCanonicalTypes = true;
 

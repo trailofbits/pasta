@@ -1,0 +1,19 @@
+/*
+ * Copyright (c) 2021 Trail of Bits, Inc.
+ */
+
+#pragma once
+
+static const char *kCxxPath = "@CMAKE_CXX_COMPILER@";
+
+static const char *kMacroGeneratorPath = "@PASTA_BIN_BOOTSTRAP_MACROS_MACRO_GENERATOR_CPP_PATH@";
+
+static const char *kPastaIncludeSourcePath = "@PASTA_INCLUDE_SOURCE_PATH@";
+
+static const char *kPastaBinaryPath = "@PASTA_BINARY_PATH@";
+
+static const char *kVcpkgIncludePath = "@PASTA_VCPKG_INCLUDE_PATH@";
+
+static const char *kClangDeclMacroHeader = "@PASTA_BIN_BOOTSTRAP_TYPES_GENERATED_DECL_H_PATH@";
+
+static const char *kASTDeclHeader = "@PASTA_INCLUDE_AST_DECL_H_PATH@";

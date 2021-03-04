@@ -16,20 +16,27 @@
 #include <memory>
 
 #include "MacroGenerator.h"
+#include "BootstrapConfig.h"
 
-static int GenerateBindings(pasta::AST ast, const char *out_dir) {
+static int GenerateBindings(pasta::AST ast) {
   auto &ast_context = ast.UnderlyingAST();
   pasta::MacroGenerator visitor(&ast_context);
   visitor.TraverseAST(ast_context);
   return EXIT_SUCCESS;
 }
 
-int main(int argc, char *argv[]) {
-  if (2 > argc) {
-    std::cerr << "Usage: " << argv[0] << " COMPILE_COMMAND..."
-              << std::endl;
-    return EXIT_FAILURE;
-  }
+int main(void) {
+
+  const std::vector<std::string> clang_command{
+      kCxxPath,
+      "-x", "c++",
+      "-c", kMacroGeneratorPath,
+      "-o", "/dev/null",
+      "-std=c++17",
+      "-isystem", kPastaBinaryPath,
+      "-isystem", kPastaIncludeSourcePath,
+      "-isystem", kVcpkgIncludePath
+  };
 
   pasta::InitPasta initializer;
 
@@ -45,7 +52,7 @@ int main(int argc, char *argv[]) {
 
   const auto compiler = std::move(*maybe_compiler);
   //auto maybe_command = compiler.CreateCommandForFile(argv[1], cwd);
-  const pasta::ArgumentVector args(argc - 1, &argv[1]);
+  const pasta::ArgumentVector args(clang_command);
   auto maybe_command = pasta::CompileCommand::CreateFromArguments(args, cwd);
 
   if (pasta::IsError(maybe_command)) {
@@ -69,7 +76,7 @@ int main(int argc, char *argv[]) {
       return EXIT_FAILURE;
     }
 
-    return GenerateBindings(std::move(*maybe_ast), argv[1]);
+    return GenerateBindings(std::move(*maybe_ast));
   }
 
   std::cerr << "No ASTs were produced." << std::endl;

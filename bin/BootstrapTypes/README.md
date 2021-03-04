@@ -3,5 +3,9 @@
 Usage:
 
 ```shell
-./bootstrap-types --print-cpp-decl > ~/Code/pasta/include/pasta/AST/Decl.h
+./bootstrap-types
 ```
+
+Outcome:
+
+ - `include/pasta/AST/Decl.h` will be modified in-place

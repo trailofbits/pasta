@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <fstream>
 
 #include <string>
 #include <unordered_map>
@@ -13,6 +14,8 @@
 #include <vector>
 
 #include <llvm/ADT/StringRef.h>
+
+#include "BootstrapConfig.h"
 
 namespace {
 
@@ -25,6 +28,16 @@ static struct {const char *derived; const char *base; } kDeclExtends[] = {
 #define PASTA_PUBLIC_BASE_CLASS(name, id, base_name, base_id) \
     {#name, #base_name},
 #include "Generated/Decl.h"
+};
+
+static const std::unordered_map<std::string, std::string> kCxxMethodRenames{
+    {"SourceRange", "TokenRange"},
+    {"Vbases", "VBases"},
+    {"vbases", "VirtualBases"},
+    {"NumVbases", "NumVBases"},
+    {"Ctors", "Constructors"},
+    {"ctors", "Constructors"},
+    {"Location", "Token"},
 };
 
 static std::string CxxName(llvm::StringRef name) {
@@ -40,8 +53,9 @@ static std::string CxxName(llvm::StringRef name) {
   } else if (name.endswith("Loc")) {
     return name.substr(0, name.size() - 3).str() + "Token";
 
-  } else if (name == "SourceRange") {
-    return "TokenRange";
+  } else if (auto name_it = kCxxMethodRenames.find(name.str());
+             name_it != kCxxMethodRenames.end()) {
+    return name_it->second;
 
   } else if (name.empty()) {
     return "";
@@ -58,60 +72,62 @@ std::unordered_map<std::string, std::vector<std::string>> gBaseClasses;
 std::unordered_map<std::string, std::vector<std::string>> gDerivedClasses;
 std::vector<std::string> gTopologicallyOrderedDecls;
 
-static void PrintCppMethods(const std::string &class_name) {
+static void PrintCppMethods(std::ostream &os, const std::string &class_name) {
 #define PASTA_CLASS_METHOD_0(cls, id, meth, rt) \
     if (class_name == #cls) { \
       if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
-        std::cout << "  // " << meth_name << "\n"; \
+        os << "  // " << meth_name << "\n"; \
       } \
     }
 
 #define PASTA_CLASS_METHOD_1(cls, id, meth, rt, p0) \
     if (class_name == #cls) { \
       if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
-        std::cout << "  // " << meth_name << "\n"; \
+        os << "  // " << meth_name << "\n"; \
       } \
     }
 
 #define PASTA_CLASS_METHOD_2(cls, id, meth, rt, p0, p1) \
     if (class_name == #cls) { \
       if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
-        std::cout << "  // " << meth_name << "\n"; \
+        os << "  // " << meth_name << "\n"; \
       } \
     }
 
 #define PASTA_CLASS_METHOD_3(cls, id, meth, rt, p0, p1, p2) \
     if (class_name == #cls) { \
       if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
-        std::cout << "  // " << meth_name << "\n"; \
+        os << "  // " << meth_name << "\n"; \
       } \
     }
 
 #define PASTA_CLASS_METHOD_4(cls, id, meth, rt, p0, p1, p2, p3) \
     if (class_name == #cls) { \
       if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
-        std::cout << "  // " << meth_name << "\n"; \
+        os << "  // " << meth_name << "\n"; \
       } \
     }
 
 #define PASTA_CLASS_METHOD_5(cls, id, meth, rt, p0, p1, p2, p3, p4) \
     if (class_name == #cls) { \
       if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
-        std::cout << "  // " << meth_name << "\n"; \
+        os << "  // " << meth_name << "\n"; \
       } \
     }
 
 #define PASTA_CLASS_METHOD_6(cls, id, meth, rt, p0, p1, p2, p3, p4, p5) \
     if (class_name == #cls) { \
       if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
-        std::cout << "  // " << meth_name << "\n"; \
+        os << "  // " << meth_name << "\n"; \
       } \
     }
 #include "Generated/Decl.h"
 }
 
 static void PrintCppDecl(void) {
-  std::cout
+  std::ofstream os(kASTDeclHeader);
+
+  os
       << "/*\n"
       << " * Copyright (c) 2021 Trail of Bits, Inc.\n"
       << " */\n\n"
@@ -120,10 +136,10 @@ static void PrintCppDecl(void) {
       << "namespace clang {\n";
 
   for (auto name : kDeclNames) {
-    std::cout << "class " << name << ";\n";
+    os << "class " << name << ";\n";
   }
 
-  std::cout
+  os
       << "}  // namespace clang\n"
       << "namespace pasta {\n"
       << "class AST;\n"
@@ -151,10 +167,10 @@ static void PrintCppDecl(void) {
       << "  union {\n";
 
   for (auto name : kDeclNames) {
-    std::cout << "    ::clang::" << name << " *" << name << ";\n";
+    os << "    ::clang::" << name << " *" << name << ";\n";
   }
 
-  std::cout
+  os
       << "  } u;\n"
       << "};\n\n";
 
@@ -166,21 +182,21 @@ static void PrintCppDecl(void) {
 
   // Forward declare them all.
   for (auto name : kDeclNames) {
-    std::cout << "class " << name << ";\n";
+    os << "class " << name << ";\n";
   }
 
   // Define them all.
   for (const auto &name : gTopologicallyOrderedDecls) {
-    std::cout
+    os
         << "class " << name << " :";
 
     auto sep = " ";
     for (const auto &parent_class : gBaseClasses[name]) {
-      std::cout << sep << "public " << parent_class;
+      os << sep << "public " << parent_class;
       sep = ", ";
     }
 
-    std::cout
+    os
         << " {\n"
         << " public:\n"
         << "  ~" << name << "(void) = default;\n"
@@ -189,9 +205,9 @@ static void PrintCppDecl(void) {
         << "  " << name << " &operator=(const " << name << " &) = default;\n"
         << "  " << name << " &operator=(" << name << " &&) noexcept = default;\n\n";
 
-    PrintCppMethods(name);
+    PrintCppMethods(os, name);
 
-    std::cout
+    os
         << " private:\n"
         << "  " << name << "(void) = delete;\n\n"
         << "  " << name << "(const DeclBase &) = delete;\n"
@@ -207,36 +223,31 @@ static void PrintCppDecl(void) {
 
 //    sep = "\n      : ";
 //    for (const auto &parent_class : gBaseClasses[name]) {
-//      std::cout << sep << parent_class << "(ast_, ";
+//      os << sep << parent_class << "(ast_, ";
 //      if (name == "DeclContext") {
-//        std::cout << "decl_, 0";
+//        os << "decl_, 0";
 //
 //      } else if (name == "Decl") {
 //
 //      } else {
-//        std::cout << "reinterpret_cast<::clang::"
+//        os << "reinterpret_cast<::clang::"
 //                  << parent_class << " *>(decl_)";
 //      }
 //      sep = ",\n        ";
 //    }
 
-    std::cout
+    os
         //<< ") {}\n\n"
         << "};\n\n";
   }
 
-  std::cout
+  os
       << "}  // namespace pasta\n";
 }
 
 }  // namespace
 
-int main(int argc, char *argv[]) {
-
-  if (argc != 2) {
-    std::cerr << "Expected one and only one option.";
-    return EXIT_FAILURE;
-  }
+int main(void) {
 
   std::unordered_set<std::string> seen;
   seen.insert("DeclBase");
@@ -265,13 +276,7 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  if (!strcmp(argv[1], "--print-cpp-decl")) {
-    PrintCppDecl();
-
-  } else {
-    std::cerr << "Unrecognized option: " << argv[1];
-    return EXIT_FAILURE;
-  }
+  PrintCppDecl();
 
   return EXIT_SUCCESS;
 }

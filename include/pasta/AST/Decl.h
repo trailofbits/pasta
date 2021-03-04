@@ -600,7 +600,7 @@ class CXXRecordDecl : public RecordDecl {
   // AllowConstDefaultInit
   // Bases
   // Captures
-  // Ctors
+  // Constructors
   // DefaultedCopyConstructorIsDeleted
   // DefaultedDefaultConstructorIsConstexpr
   // DefaultedDestructorIsConstexpr
@@ -699,7 +699,7 @@ class CXXRecordDecl : public RecordDecl {
   // NeedsOverloadResolutionForDestructor
   // NeedsOverloadResolutionForMoveAssignment
   // NeedsOverloadResolutionForMoveConstructor
-  // Vbases
+  // VirtualBases
  private:
   CXXRecordDecl(void) = delete;
 

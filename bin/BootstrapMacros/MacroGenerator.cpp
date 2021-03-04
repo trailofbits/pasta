@@ -12,6 +12,7 @@
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/AST/Decl.h>
 #include <clang/AST/DeclCXX.h>
+#include <clang/AST/DeclFriend.h>
 #include <clang/AST/DeclObjC.h>
 #include <clang/AST/DeclOpenMP.h>
 #include <clang/AST/DeclTemplate.h>
@@ -136,7 +137,7 @@ MacroGenerator::~MacroGenerator(void) {
       switch (enclosed_decl->getKind()) {
 
       case clang::Decl::CXXMethod: {
-        const auto method = static_cast<clang::CXXMethodDecl*>(enclosed_decl);
+        const auto method = static_cast<clang::CXXMethodDecl *>(enclosed_decl);
 
         // Skip over operator overloads, as we don't have any reasonable way to
         // bind them to Python. Also skip over non-public methods, which we
@@ -163,14 +164,14 @@ MacroGenerator::~MacroGenerator(void) {
       } break;
 
       case clang::Decl::Field: {
-        const auto field = static_cast<clang::FieldDecl*>(enclosed_decl);
+        const auto field = static_cast<clang::FieldDecl *>(enclosed_decl);
 
         auto field_name = field->getName().str();
         decl_fields.emplace(std::move(field_name), field);
       } break;
 
       case clang::Decl::Enum: {
-        const auto enum_ = static_cast<clang::EnumDecl*>(enclosed_decl);
+        const auto enum_ = static_cast<clang::EnumDecl *>(enclosed_decl);
         if (enum_->getAccess() != clang::AS_public) {
           continue;
         }
@@ -200,7 +201,13 @@ MacroGenerator::~MacroGenerator(void) {
         os << "    // Skipped overloaded " << method_name << '\n';
       } else {
         const auto method = methods[0];
-        const auto num_args = method->parameters().size();
+
+        // NOTE(pag): Things like `clang::Decl::isDeprecated` and
+        //            `clang::Decl::isUnavailable` take in an optional
+        //            pointer to a string. We'll ignore/drop that for now,
+        //            along with any other default arguments.
+        const auto num_args = method->getMinRequiredArguments();
+
         if (method->isCXXClassMember()) {
           os << "    PASTA_CLASS_METHOD_" << num_args << '(';
         } else {
@@ -209,7 +216,9 @@ MacroGenerator::~MacroGenerator(void) {
 
         os << decl_name << ", " << decl_id << ", " << method_name << ", ("
            << method->getReturnType().getAsString(print_policy) << ')';
-        for (const auto *param : method->parameters()) {
+
+        for (auto i = 0u; i < num_args; ++i) {
+          const auto param = method->getParamDecl(i);
           os << ", (" << param->getType().getAsString(print_policy) << ')';
         }
         os << ")\n";

@@ -194,11 +194,13 @@ add_library(compiler STATIC
 
     "include/pasta/AST/Token.h"
     "include/pasta/AST/AST.h"
+    "include/pasta/AST/Decl.h"
     "include/pasta/Compile/Command.h"
     "include/pasta/Compile/Compiler.h"
     "include/pasta/Compile/Job.h"
 
     "lib/AST/AST.cpp"
+    "lib/AST/Decl.cpp"
     "lib/AST/Token.cpp"
     
     "${HOST_H_FILE}"
@@ -258,7 +260,8 @@ set(PASTA_BINARY_PATH "${CMAKE_CURRENT_BINARY_DIR}")
 set(PASTA_VCPKG_INCLUDE_PATH "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/include")
 set(PASTA_BIN_BOOTSTRAP_MACROS_MACRO_GENERATOR_CPP_PATH "${CMAKE_CURRENT_SOURCE_DIR}/bin/BootstrapMacros/MacroGenerator.cpp")
 set(PASTA_BIN_BOOTSTRAP_TYPES_GENERATED_DECL_H_PATH "${CMAKE_CURRENT_SOURCE_DIR}/bin/BootstrapTypes/Generated/Decl.h")
-set(PASTA_INCLUDE_AST_DECL_H_PATH "${CMAKE_CURRENT_SOURCE_DIR}/include/AST/Decl.h")
+set(PASTA_INCLUDE_AST_DECL_H_PATH "${CMAKE_CURRENT_SOURCE_DIR}/include/pasta/AST/Decl.h")
+set(PASTA_SRC_AST_DECL_CPP_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/AST/Decl.cpp")
 
 set(BOOTSTRAP_CONFIG_H_IN "${CMAKE_CURRENT_SOURCE_DIR}/BootstrapConfig.h.in")
 set(BOOTSTRAP_CONFIG_H "${CMAKE_CURRENT_BINARY_DIR}/BootstrapConfig.h")

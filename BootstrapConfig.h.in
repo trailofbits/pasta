@@ -17,3 +17,5 @@ static const char *kVcpkgIncludePath = "@PASTA_VCPKG_INCLUDE_PATH@";
 static const char *kClangDeclMacroHeader = "@PASTA_BIN_BOOTSTRAP_TYPES_GENERATED_DECL_H_PATH@";
 
 static const char *kASTDeclHeader = "@PASTA_INCLUDE_AST_DECL_H_PATH@";
+
+static const char *kASTDeclCpp = "@PASTA_SRC_AST_DECL_CPP_PATH@";

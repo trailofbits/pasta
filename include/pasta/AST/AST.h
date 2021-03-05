@@ -23,15 +23,20 @@ namespace pasta {
 class ASTImpl;
 class CompileJob;
 class Compiler;
+class Decl;
 
 // Abstraction around a Clang AST and the various data structures that need to
 // be retained in order to use it.
 class AST {
  public:
 
+  // Return the AST containing a token.
   inline static AST From(const Token &token) {
     return AST(token.ast);
   }
+
+  // Return the AST containing a declaration.
+  static AST From(const Decl &decl);
 
   ~AST(void);
   AST(AST &&) noexcept;
@@ -53,36 +58,12 @@ class AST {
  private:
   friend class Compiler;
   friend class CompileJob;
+  friend class DeclBase;
 
   AST(std::shared_ptr<ASTImpl> impl_);
 
   std::shared_ptr<ASTImpl> impl;
 };
 
-//template <typename T>
-//class ASTNode {
-// public:
-//
-// private:
-//  std::shared_ptr<ASTImpl> impl;
-//  const T * const node;
-//};
-//
-//class DeclASTNode : public ASTNode<clang::Decl> {
-// public:
-//  std::string_view KindName(void) const;
-//
-//  // Name of this AST node.
-//  std::optional<std::string_view> Name(void) const;
-//
-//};
-//
-//class StmtASTNode : public ASTNode<clang::Stmt> {
-// public:
-//};
-//
-//class ExprASTNode : public ASTNode<clang::Stmt> {
-// public:
-//};
 
 }  // namespace pasta

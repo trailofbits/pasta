@@ -57,11 +57,12 @@ class Token {
 
  private:
   friend class AST;
+  friend class ASTImpl;
   friend class TokenIterator;
   friend class TokenRange;
 
-  inline explicit Token(const std::shared_ptr<ASTImpl> &ast_, TokenImpl *impl_)
-      : ast(ast_),
+  inline explicit Token(std::shared_ptr<ASTImpl> ast_, TokenImpl *impl_)
+      : ast(std::move(ast_)),
         impl(impl_) {}
 
   std::shared_ptr<ASTImpl> ast;

@@ -32,10 +32,13 @@ class OverlayFileSystem;
 }  // namespace llvm
 namespace pasta {
 
-class ASTImpl {
+class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
  public:
   ASTImpl(void);
   ~ASTImpl(void);
+
+  // Try to return the token at the specified location.
+  std::optional<Token> TokenAt(clang::SourceLocation loc);
 
   llvm::IntrusiveRefCntPtr<llvm::vfs::FileSystem> real_fs;
   llvm::IntrusiveRefCntPtr<llvm::vfs::OverlayFileSystem> overlay_fs;

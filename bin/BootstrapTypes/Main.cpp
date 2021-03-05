@@ -8,6 +8,7 @@
 #include <iostream>
 #include <fstream>
 
+#include <set>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -19,12 +20,12 @@
 
 namespace {
 
-static const char *kDeclNames[] = {
+static const std::string kDeclNames[] = {
 #define PASTA_BEGIN_CLANG_WRAPPER(name, id) #name ,
 #include "Generated/Decl.h"
 };
 
-static struct {const char *derived; const char *base; } kDeclExtends[] = {
+static const struct {std::string derived; std::string base; } kDeclExtends[] = {
 #define PASTA_PUBLIC_BASE_CLASS(name, id, base_name, base_id) \
     {#name, #base_name},
 #include "Generated/Decl.h"
@@ -40,14 +41,29 @@ static const std::unordered_map<std::string, std::string> kCxxMethodRenames{
     {"Location", "Token"},
 };
 
+std::unordered_map<std::string, std::set<std::string>> gBaseClasses;
+std::unordered_map<std::string, std::set<std::string>> gDerivedClasses;
+std::vector<std::string> gTopologicallyOrderedDecls;
+
+
+std::unordered_map<std::string, std::set<std::string>> gTransitiveBaseClasses;
+std::unordered_map<std::string, std::set<std::string>> gTransitiveDerivedClasses;
+
 static std::string CxxName(llvm::StringRef name) {
-  if (name.startswith("get")) {
+  if (name == "getKind" || name == "getDeclKindName") {
+    return "";  // We have our own `DeclKind`.
+
+  } else if (name.startswith("get")) {
     return CxxName(name.substr(3));
 
   // Begin/end iterators.
   } else if (name.endswith("_begin") || name.endswith("_end") ||
              name.endswith("_size") || name.endswith("_empty") ||
              name.endswith("_rbegin") || name.endswith("_rend")) {
+    return "";
+
+  // Setters, ignore them.
+  } else if (name.startswith("set")) {
     return "";
 
   } else if (name.endswith("Loc")) {
@@ -68,16 +84,14 @@ static std::string CxxName(llvm::StringRef name) {
   }
 }
 
-std::unordered_map<std::string, std::vector<std::string>> gBaseClasses;
-std::unordered_map<std::string, std::vector<std::string>> gDerivedClasses;
-std::vector<std::string> gTopologicallyOrderedDecls;
-
 static void DeclareCppMethods(std::ostream &os, const std::string &class_name) {
 #define PASTA_CLASS_METHOD_0(cls, id, meth, rt) \
     if (class_name == #cls) { \
       if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
         if (!strcmp(#rt, "(bool)")) { \
           os << "  bool " << meth_name << "(void) const;\n"; \
+        } else if (!strcmp(#rt, "(clang::SourceLocation)")) { \
+          os << "  std::optional<::pasta::Token> " << meth_name << "(void) const;\n"; \
         } else { \
           os << "  // " << meth_name << "\n"; \
         } \
@@ -136,10 +150,12 @@ static void DeclareCppClasses(void) {
       << " * Copyright (c) 2021 Trail of Bits, Inc.\n"
       << " */\n\n"
       << "// This file is auto-generated.\n\n"
-      << "#include <memory>\n\n"
+      << "#include <memory>\n"
+      << "#include <optional>\n\n"
+      << "#include \"Token.h\"\n\n"
       << "namespace clang {\n";
 
-  for (auto name : kDeclNames) {
+  for (const auto &name : kDeclNames) {
     os << "class " << name << ";\n";
   }
 
@@ -147,52 +163,39 @@ static void DeclareCppClasses(void) {
       << "}  // namespace clang\n"
       << "namespace pasta {\n"
       << "class AST;\n"
-      << "class ASTImpl;\n"
-      << "class DeclBase {\n"
-      << " public:\n"
-      << "  ~DeclBase(void) = default;\n"
-      << "  DeclBase(const DeclBase &) = default;\n"
-      << "  DeclBase(DeclBase &&) noexcept = default;\n"
-      << "  DeclBase &operator=(const DeclBase &) = default;\n"
-      << "  DeclBase &operator=(DeclBase &&) noexcept = default;\n\n"
-      << " protected:\n"
-      << "  DeclBase(void) = delete;\n\n"
-      << "  friend class AST;\n"
-      << "  friend class ASTImpl;\n\n"
-      << "  inline DeclBase(const std::shared_ptr<ASTImpl> &ast_, const ::clang::Decl *decl_)\n"
-      << "      : ast(ast_) {\n"
-      << "    u.Decl = decl_;\n"
-      << "  }\n"
-      << "  inline DeclBase(const std::shared_ptr<ASTImpl> &ast_, const ::clang::DeclContext *dc_, int)\n"
-      << "      : ast(ast_) {\n"
-      << "    u.DeclContext = dc_;\n"
-      << "  }\n\n"
-      << "  std::shared_ptr<ASTImpl> ast;\n"
-      << "  union {\n";
+      << "class ASTImpl;\n\n"
+      << "enum class DeclKind : unsigned {\n";
 
-  for (auto name : kDeclNames) {
-    os << "    const ::clang::" << name << " *" << name << ";\n";
+  for (const auto &name : kDeclNames) {
+    if (name != "DeclContext" && name != "Decl") {
+      os << "  k" << name << ",\n";
+    }
   }
 
   os
-      << "  } u;\n"
       << "};\n\n";
 
 
   // Forward declare them all.
-  for (auto name : kDeclNames) {
+  for (const auto &name : kDeclNames) {
     os << "class " << name << ";\n";
   }
 
   // Define them all.
   for (const auto &name : gTopologicallyOrderedDecls) {
-    os
-        << "class " << name << " :";
+    if (name == "DeclContext") {
+      continue;
+    }
 
-    auto sep = " ";
+    os
+        << "class " << name;
+
+    auto sep = " : ";
     for (const auto &parent_class : gBaseClasses[name]) {
-      os << sep << "public " << parent_class;
-      sep = ", ";
+      if (parent_class != "DeclContext") {
+        os << sep << "public " << parent_class;
+        sep = ", ";
+      }
     }
 
     os
@@ -204,38 +207,65 @@ static void DeclareCppClasses(void) {
         << "  " << name << " &operator=(const " << name << " &) = default;\n"
         << "  " << name << " &operator=(" << name << " &&) noexcept = default;\n\n";
 
+//    // Permits down-casting.
+//    for (const auto &base_name : gTransitiveBaseClasses[name]) {
+//      if (base_name != "DeclContext") {
+//        os << "  static std::optional<" << name << "> From(const "
+//           << base_name << " &);\n";
+//      }
+//    }
+
     DeclareCppMethods(os, name);
+
+    // The top level `Decl` class has all the content.
+    if (name == "Decl") {
+      os
+          << "  inline DeclKind Kind(void) const {\n"
+          << "    return kind;\n"
+          << "  }\n\n"
+          << "  const char *KindName(void) const;\n\n"
+          << " protected:\n"
+          << "  std::shared_ptr<ASTImpl> ast;\n"
+          << "  union {\n";
+
+      for (const auto &name : kDeclNames) {
+        if (name != "DeclContext") {
+          os << "    const ::clang::" << name << " *" << name << ";\n";
+        }
+      }
+
+      os
+          << "  } u;\n"
+          << "  DeclKind kind;\n\n"
+          << "  inline explicit Decl(std::shared_ptr<ASTImpl> ast_,\n"
+          << "                       const ::clang::Decl *decl_,\n"
+          << "                       DeclKind kind_)\n"
+          << "      : ast(std::move(ast_)),\n"
+          << "        kind(kind_) {\n"
+          << "    u.Decl = decl_;\n"
+          << "  }\n\n";
+    }
 
     os
         << " private:\n"
         << "  " << name << "(void) = delete;\n\n"
-        << "  " << name << "(const DeclBase &) = delete;\n"
-        << "  " << name << "(DeclBase &&) noexcept = delete;\n"
-        << "  " << name << " &operator=(const DeclBase &) = delete;\n"
-        << "  " << name << " &operator=(DeclBase &&) noexcept = delete;\n\n"
         << "  friend class AST;\n"
-        << "  friend class ASTImpl;\n"
-        << "  friend class DeclBase;\n\n"
+        << "  friend class ASTImpl;\n\n"
         << " protected:\n"
-        << "  " << name << "(\n"
-        << "      const std::shared_ptr<ASTImpl> &ast_,\n"
-        << "      const ::clang::" << name << " *decl_);\n";
-
-
-    os
+        << "  explicit " << name << "(\n"
+        << "      std::shared_ptr<ASTImpl> ast_,\n"
+        << "      const ::clang::" << name << " *decl_);\n"
         << "};\n\n";
+
+    // Requiring that all derivations have the same size as the base class
+    // will let us do fun sketchy things.
+    if (name != "Decl") {
+      os << "static_assert(sizeof(Decl) == sizeof(" << name << "));\n\n";
+    }
   }
 
   os
       << "}  // namespace pasta\n";
-}
-
-static const char *BaseClassName(const std::string &class_name) {
-  if (class_name == "DeclContext") {
-    return "DeclBase";
-  } else {
-    return "Decl";
-  }
 }
 
 static void DefineCppMethods(std::ostream &os, const std::string &class_name) {
@@ -244,8 +274,12 @@ static void DefineCppMethods(std::ostream &os, const std::string &class_name) {
       if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
         if (!strcmp(#rt, "(bool)")) { \
           os << "bool " << class_name << "::" << meth_name << "(void) const {\n" \
-             << "  return this->" << BaseClassName(class_name) \
-             << "::u." << class_name << "->" << #meth << "();\n" \
+             << "  return u." << class_name << "->" << #meth << "();\n" \
+             << "}\n\n"; \
+        } else if (!strcmp(#rt, "(clang::SourceLocation)")) { \
+          os << "std::optional<::pasta::Token> " << class_name << "::" << meth_name \
+             << "(void) const {\n" \
+             << "  return ast->TokenAt(u." << class_name << "->" << #meth << "());\n" \
              << "}\n\n"; \
         } else { \
           os << "  // " << meth_name << "\n"; \
@@ -318,28 +352,61 @@ static void DefineCppClasses(void) {
       << "#include <clang/AST/DeclTemplate.h>\n"
       << "#pragma clang diagnostic pop\n\n"
       << "#include \"AST.h\"\n\n"
-      << "namespace pasta {\n";
+      << "namespace pasta {\n"
+      << "namespace {\n"
+      << "// Return the PASTA `DeclKind` for a Clang `Decl`.\n"
+      << "static DeclKind KindOfDecl(const clang::Decl *decl) {\n"
+      << "  switch (decl->getKind()) {\n"
+      << "#define ABSTRACT_DECL(DECL)\n"
+      << "#define DECL(DERIVED, BASE) \\\n"
+      << "    case clang::Decl::DERIVED: \\\n"
+      << "      return DeclKind::k ## DERIVED ## Decl;\n"
+      << "#include <clang/AST/DeclNodes.inc>\n"
+      << "  }\n"
+      << "  __builtin_unreachable();\n"
+      << "}\n\n"
+      << "}  // namespace\n\n"
+      << "const char *Decl::KindName(void) const {\n"
+      << "  switch (kind) {\n";
+
+  for (const auto &name : kDeclNames) {
+    if (name != "Decl" && name != "DeclContext") {
+      os << "    case DeclKind::k" << name << ": return \"" << name << "\";\n";
+    }
+  }
+
+  os
+      << "  }\n"
+      << "}\n\n";
 
 
   // Define them all.
   for (const auto &name : gTopologicallyOrderedDecls) {
+    if (name == "DeclContext") {
+      continue;
+    }
+
     os
         << name << "::" << name << "(\n"
-        << "    const std::shared_ptr<ASTImpl> &ast_,\n"
+        << "    std::shared_ptr<ASTImpl> ast_,\n"
         << "    const ::clang::" << name << " *decl_)";
 
+    // Dispatch to our hand-written constructor that takes the `DeclKind`.
     if (name == "Decl") {
-      os << "\n    : DeclBase(ast_, decl_) {}\n";
+      os << "\n    : Decl(std::move(ast_), decl_, KindOfDecl(decl_)) {}\n";
 
-    } else if (name == "DeclContext") {
-      os << "\n    : DeclBase(ast_, decl_, 0) {}\n";
-
+    // Dispatch to the base class constructor(s).
     } else {
       auto sep = "\n    : ";
-      for (const auto &parent_class : gBaseClasses[name]) {
-        os << sep << parent_class << "(ast_, decl_)";
-
-        sep = ",\n      ";
+      const auto &base_classes = gBaseClasses[name];
+      auto prefix = base_classes.size() == 1u ? "std::move(" : "";
+      auto suffix = base_classes.size() == 1u ? ")" : "";
+      for (const auto &parent_class : base_classes) {
+        if (parent_class != "DeclContext") {
+          os << sep << parent_class << "(" << prefix << "ast_" << suffix
+             << ", decl_)";
+          sep = ",\n      ";
+        }
       }
       os << " {}\n\n";
     }
@@ -356,21 +423,19 @@ static void DefineCppClasses(void) {
 int main(void) {
 
   std::unordered_set<std::string> seen;
-  seen.insert("DeclBase");
-  gBaseClasses["Decl"].push_back("DeclBase");
-  gBaseClasses["DeclContext"].push_back("DeclBase");
+  //gBaseClasses["Decl"].insert("DeclBase");
+  //gBaseClasses["DeclContext"].insert("DeclBase");
 
   // Build up an adjacency list of parent/child relations.
-  for (auto [name, base_name] : kDeclExtends) {
-    gBaseClasses[name].push_back(base_name);
-    gDerivedClasses[base_name].push_back(name);
+  for (const auto &[name, base_name] : kDeclExtends) {
+    gBaseClasses[name].insert(base_name);
+    gDerivedClasses[base_name].insert(name);
   }
 
   // Topologically order the classes by the parent/child relations.
   for (auto changed = true; changed; ) {
     changed = false;
-    for (auto name_ : kDeclNames) {
-      const std::string name(name_);
+    for (const auto &name : kDeclNames) {
       if (seen.count(name)) {
         goto skip;
       }
@@ -387,6 +452,33 @@ int main(void) {
 
     skip:
       continue;
+    }
+  }
+
+  // Go find the transitive base classes. Rely on the topological order
+  // so that we can do it in a single pass.
+  for (const auto &base_name : gTopologicallyOrderedDecls) {
+    const auto &base_classes = gTransitiveBaseClasses[base_name];
+
+    for (auto &derived_name : gDerivedClasses[base_name]) {
+      auto &derived_base_classes = gTransitiveBaseClasses[derived_name];
+      derived_base_classes.insert(base_name);
+      derived_base_classes.insert(base_classes.begin(), base_classes.end());
+    }
+  }
+
+  // Go find the transitive derived classes. Rely on the reverse topological
+  // order so that we can do it in a single pass.
+  for (auto it = gTopologicallyOrderedDecls.rbegin();
+       it != gTopologicallyOrderedDecls.rend(); ++it) {
+    const auto &derived_name = *it;
+    const auto &derived_classes = gTransitiveDerivedClasses[derived_name];
+
+    for (auto &base_name : gBaseClasses[derived_name]) {
+      auto &base_derived_classes = gTransitiveDerivedClasses[base_name];
+      base_derived_classes.insert(derived_name);
+      base_derived_classes.insert(derived_classes.begin(),
+                                  derived_classes.end());
     }
   }
 

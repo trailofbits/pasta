@@ -9,6 +9,8 @@
 #include <limits>
 #include <new>
 
+#include <pasta/AST/Decl.h>
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
@@ -51,6 +53,11 @@ void ASTImpl::AppendBackupToken(const clang::Token &tok, size_t offset_,
                       tok.getKind());
 }
 
+// Return the AST containing a declaration.
+AST AST::From(const Decl &decl) {
+  return AST(decl.ast);
+}
+
 AST::~AST(void) {}
 
 AST::AST(AST &&that) noexcept : impl(that.impl) {
@@ -74,8 +81,10 @@ TokenRange AST::Tokens(void) const {
   return TokenRange(impl, first, &(first[impl->tokens.size()]));
 }
 
+
+
 // Try to return the token at the specified location.
-std::optional<Token> AST::TokenAt(clang::SourceLocation loc) const {
+std::optional<Token> ASTImpl::TokenAt(clang::SourceLocation loc) {
   if (loc.isInvalid()) {
     return std::nullopt;
   }
@@ -88,13 +97,18 @@ std::optional<Token> AST::TokenAt(clang::SourceLocation loc) const {
   }
 
   bool invalid = false;
-  auto &sm = impl->ci->getSourceManager();
+  auto &sm = ci->getSourceManager();
   const auto line = sm.getSpellingLineNumber(loc, &invalid);
-  if (!line || invalid || static_cast<size_t>(line) > impl->tokens.size()) {
+  if (!line || invalid || static_cast<size_t>(line) > tokens.size()) {
     return std::nullopt;
   }
 
-  return Token(impl, &(impl->tokens[line - 1u]));
+  return Token(shared_from_this(), &(tokens[line - 1u]));
+}
+
+// Try to return the token at the specified location.
+std::optional<Token> AST::TokenAt(clang::SourceLocation loc) const {
+  return impl->TokenAt(loc);
 }
 
 // Return a pointer to the underlying Clang AST context. This is needed for

@@ -263,7 +263,7 @@ static void DeclareCppClasses(void) {
           << "  inline DeclKind Kind(void) const {\n"
           << "    return kind;\n"
           << "  }\n\n"
-          << "  const char *KindName(void) const;\n\n"
+          << "  std::string_view KindName(void) const;\n\n"
           << " protected:\n"
           << "  std::shared_ptr<ASTImpl> ast;\n"
           << "  union {\n";
@@ -403,18 +403,17 @@ static void DefineCppClasses(void) {
       << "  }\n"
       << "  __builtin_unreachable();\n"
       << "}\n\n"
-      << "}  // namespace\n\n"
-      << "const char *Decl::KindName(void) const {\n"
-      << "  switch (kind) {\n";
-
+      << "static const std::string_view kKindNames[] = {\n";
   for (const auto &name : kDeclNames) {
     if (name != "Decl" && name != "DeclContext") {
-      os << "    case DeclKind::k" << name << ": return \"" << name << "\";\n";
+      os << "  \"" << name << "\",\n";
     }
   }
-
   os
-      << "  }\n"
+      << "};\n"
+      << "}  // namespace\n\n"
+      << "std::string_view Decl::KindName(void) const {\n"
+      << "  return kKindNames[static_cast<unsigned>(kind)];\n"
       << "}\n\n";
 
 

@@ -34,101 +34,102 @@ static DeclKind KindOfDecl(const clang::Decl *decl) {
   __builtin_unreachable();
 }
 
+static const std::string_view kKindNames[] = {
+  "AccessSpecDecl",
+  "BindingDecl",
+  "BlockDecl",
+  "BuiltinTemplateDecl",
+  "CXXConstructorDecl",
+  "CXXConversionDecl",
+  "CXXDeductionGuideDecl",
+  "CXXDestructorDecl",
+  "CXXMethodDecl",
+  "CXXRecordDecl",
+  "CapturedDecl",
+  "ClassScopeFunctionSpecializationDecl",
+  "ClassTemplateDecl",
+  "ClassTemplatePartialSpecializationDecl",
+  "ClassTemplateSpecializationDecl",
+  "ConceptDecl",
+  "ConstructorUsingShadowDecl",
+  "DeclaratorDecl",
+  "DecompositionDecl",
+  "EmptyDecl",
+  "EnumConstantDecl",
+  "EnumDecl",
+  "ExportDecl",
+  "ExternCContextDecl",
+  "FieldDecl",
+  "FileScopeAsmDecl",
+  "FriendDecl",
+  "FriendTemplateDecl",
+  "FunctionDecl",
+  "FunctionTemplateDecl",
+  "ImplicitParamDecl",
+  "ImportDecl",
+  "IndirectFieldDecl",
+  "LabelDecl",
+  "LifetimeExtendedTemporaryDecl",
+  "LinkageSpecDecl",
+  "MSGuidDecl",
+  "MSPropertyDecl",
+  "NamedDecl",
+  "NamespaceAliasDecl",
+  "NamespaceDecl",
+  "NonTypeTemplateParmDecl",
+  "OMPAllocateDecl",
+  "OMPCapturedExprDecl",
+  "OMPDeclareMapperDecl",
+  "OMPDeclareReductionDecl",
+  "OMPRequiresDecl",
+  "OMPThreadPrivateDecl",
+  "ObjCAtDefsFieldDecl",
+  "ObjCCategoryDecl",
+  "ObjCCategoryImplDecl",
+  "ObjCCompatibleAliasDecl",
+  "ObjCContainerDecl",
+  "ObjCImplDecl",
+  "ObjCImplementationDecl",
+  "ObjCInterfaceDecl",
+  "ObjCIvarDecl",
+  "ObjCMethodDecl",
+  "ObjCPropertyDecl",
+  "ObjCPropertyImplDecl",
+  "ObjCProtocolDecl",
+  "ObjCTypeParamDecl",
+  "ParmVarDecl",
+  "PragmaCommentDecl",
+  "PragmaDetectMismatchDecl",
+  "RecordDecl",
+  "RedeclarableTemplateDecl",
+  "RequiresExprBodyDecl",
+  "StaticAssertDecl",
+  "TagDecl",
+  "TemplateDecl",
+  "TemplateTemplateParmDecl",
+  "TemplateTypeParmDecl",
+  "TranslationUnitDecl",
+  "TypeAliasDecl",
+  "TypeAliasTemplateDecl",
+  "TypeDecl",
+  "TypedefDecl",
+  "TypedefNameDecl",
+  "UnresolvedUsingTypenameDecl",
+  "UnresolvedUsingValueDecl",
+  "UsingDecl",
+  "UsingDirectiveDecl",
+  "UsingPackDecl",
+  "UsingShadowDecl",
+  "ValueDecl",
+  "VarDecl",
+  "VarTemplateDecl",
+  "VarTemplatePartialSpecializationDecl",
+  "VarTemplateSpecializationDecl",
+};
 }  // namespace
 
-const char *Decl::KindName(void) const {
-  switch (kind) {
-    case DeclKind::kAccessSpecDecl: return "AccessSpecDecl";
-    case DeclKind::kBindingDecl: return "BindingDecl";
-    case DeclKind::kBlockDecl: return "BlockDecl";
-    case DeclKind::kBuiltinTemplateDecl: return "BuiltinTemplateDecl";
-    case DeclKind::kCXXConstructorDecl: return "CXXConstructorDecl";
-    case DeclKind::kCXXConversionDecl: return "CXXConversionDecl";
-    case DeclKind::kCXXDeductionGuideDecl: return "CXXDeductionGuideDecl";
-    case DeclKind::kCXXDestructorDecl: return "CXXDestructorDecl";
-    case DeclKind::kCXXMethodDecl: return "CXXMethodDecl";
-    case DeclKind::kCXXRecordDecl: return "CXXRecordDecl";
-    case DeclKind::kCapturedDecl: return "CapturedDecl";
-    case DeclKind::kClassScopeFunctionSpecializationDecl: return "ClassScopeFunctionSpecializationDecl";
-    case DeclKind::kClassTemplateDecl: return "ClassTemplateDecl";
-    case DeclKind::kClassTemplatePartialSpecializationDecl: return "ClassTemplatePartialSpecializationDecl";
-    case DeclKind::kClassTemplateSpecializationDecl: return "ClassTemplateSpecializationDecl";
-    case DeclKind::kConceptDecl: return "ConceptDecl";
-    case DeclKind::kConstructorUsingShadowDecl: return "ConstructorUsingShadowDecl";
-    case DeclKind::kDeclaratorDecl: return "DeclaratorDecl";
-    case DeclKind::kDecompositionDecl: return "DecompositionDecl";
-    case DeclKind::kEmptyDecl: return "EmptyDecl";
-    case DeclKind::kEnumConstantDecl: return "EnumConstantDecl";
-    case DeclKind::kEnumDecl: return "EnumDecl";
-    case DeclKind::kExportDecl: return "ExportDecl";
-    case DeclKind::kExternCContextDecl: return "ExternCContextDecl";
-    case DeclKind::kFieldDecl: return "FieldDecl";
-    case DeclKind::kFileScopeAsmDecl: return "FileScopeAsmDecl";
-    case DeclKind::kFriendDecl: return "FriendDecl";
-    case DeclKind::kFriendTemplateDecl: return "FriendTemplateDecl";
-    case DeclKind::kFunctionDecl: return "FunctionDecl";
-    case DeclKind::kFunctionTemplateDecl: return "FunctionTemplateDecl";
-    case DeclKind::kImplicitParamDecl: return "ImplicitParamDecl";
-    case DeclKind::kImportDecl: return "ImportDecl";
-    case DeclKind::kIndirectFieldDecl: return "IndirectFieldDecl";
-    case DeclKind::kLabelDecl: return "LabelDecl";
-    case DeclKind::kLifetimeExtendedTemporaryDecl: return "LifetimeExtendedTemporaryDecl";
-    case DeclKind::kLinkageSpecDecl: return "LinkageSpecDecl";
-    case DeclKind::kMSGuidDecl: return "MSGuidDecl";
-    case DeclKind::kMSPropertyDecl: return "MSPropertyDecl";
-    case DeclKind::kNamedDecl: return "NamedDecl";
-    case DeclKind::kNamespaceAliasDecl: return "NamespaceAliasDecl";
-    case DeclKind::kNamespaceDecl: return "NamespaceDecl";
-    case DeclKind::kNonTypeTemplateParmDecl: return "NonTypeTemplateParmDecl";
-    case DeclKind::kOMPAllocateDecl: return "OMPAllocateDecl";
-    case DeclKind::kOMPCapturedExprDecl: return "OMPCapturedExprDecl";
-    case DeclKind::kOMPDeclareMapperDecl: return "OMPDeclareMapperDecl";
-    case DeclKind::kOMPDeclareReductionDecl: return "OMPDeclareReductionDecl";
-    case DeclKind::kOMPRequiresDecl: return "OMPRequiresDecl";
-    case DeclKind::kOMPThreadPrivateDecl: return "OMPThreadPrivateDecl";
-    case DeclKind::kObjCAtDefsFieldDecl: return "ObjCAtDefsFieldDecl";
-    case DeclKind::kObjCCategoryDecl: return "ObjCCategoryDecl";
-    case DeclKind::kObjCCategoryImplDecl: return "ObjCCategoryImplDecl";
-    case DeclKind::kObjCCompatibleAliasDecl: return "ObjCCompatibleAliasDecl";
-    case DeclKind::kObjCContainerDecl: return "ObjCContainerDecl";
-    case DeclKind::kObjCImplDecl: return "ObjCImplDecl";
-    case DeclKind::kObjCImplementationDecl: return "ObjCImplementationDecl";
-    case DeclKind::kObjCInterfaceDecl: return "ObjCInterfaceDecl";
-    case DeclKind::kObjCIvarDecl: return "ObjCIvarDecl";
-    case DeclKind::kObjCMethodDecl: return "ObjCMethodDecl";
-    case DeclKind::kObjCPropertyDecl: return "ObjCPropertyDecl";
-    case DeclKind::kObjCPropertyImplDecl: return "ObjCPropertyImplDecl";
-    case DeclKind::kObjCProtocolDecl: return "ObjCProtocolDecl";
-    case DeclKind::kObjCTypeParamDecl: return "ObjCTypeParamDecl";
-    case DeclKind::kParmVarDecl: return "ParmVarDecl";
-    case DeclKind::kPragmaCommentDecl: return "PragmaCommentDecl";
-    case DeclKind::kPragmaDetectMismatchDecl: return "PragmaDetectMismatchDecl";
-    case DeclKind::kRecordDecl: return "RecordDecl";
-    case DeclKind::kRedeclarableTemplateDecl: return "RedeclarableTemplateDecl";
-    case DeclKind::kRequiresExprBodyDecl: return "RequiresExprBodyDecl";
-    case DeclKind::kStaticAssertDecl: return "StaticAssertDecl";
-    case DeclKind::kTagDecl: return "TagDecl";
-    case DeclKind::kTemplateDecl: return "TemplateDecl";
-    case DeclKind::kTemplateTemplateParmDecl: return "TemplateTemplateParmDecl";
-    case DeclKind::kTemplateTypeParmDecl: return "TemplateTypeParmDecl";
-    case DeclKind::kTranslationUnitDecl: return "TranslationUnitDecl";
-    case DeclKind::kTypeAliasDecl: return "TypeAliasDecl";
-    case DeclKind::kTypeAliasTemplateDecl: return "TypeAliasTemplateDecl";
-    case DeclKind::kTypeDecl: return "TypeDecl";
-    case DeclKind::kTypedefDecl: return "TypedefDecl";
-    case DeclKind::kTypedefNameDecl: return "TypedefNameDecl";
-    case DeclKind::kUnresolvedUsingTypenameDecl: return "UnresolvedUsingTypenameDecl";
-    case DeclKind::kUnresolvedUsingValueDecl: return "UnresolvedUsingValueDecl";
-    case DeclKind::kUsingDecl: return "UsingDecl";
-    case DeclKind::kUsingDirectiveDecl: return "UsingDirectiveDecl";
-    case DeclKind::kUsingPackDecl: return "UsingPackDecl";
-    case DeclKind::kUsingShadowDecl: return "UsingShadowDecl";
-    case DeclKind::kValueDecl: return "ValueDecl";
-    case DeclKind::kVarDecl: return "VarDecl";
-    case DeclKind::kVarTemplateDecl: return "VarTemplateDecl";
-    case DeclKind::kVarTemplatePartialSpecializationDecl: return "VarTemplatePartialSpecializationDecl";
-    case DeclKind::kVarTemplateSpecializationDecl: return "VarTemplateSpecializationDecl";
-  }
+std::string_view Decl::KindName(void) const {
+  return kKindNames[static_cast<unsigned>(kind)];
 }
 
 Decl::Decl(

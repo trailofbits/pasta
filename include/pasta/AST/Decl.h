@@ -352,7 +352,7 @@ class Decl {
     return kind;
   }
 
-  const char *KindName(void) const;
+  std::string_view KindName(void) const;
 
  protected:
   std::shared_ptr<ASTImpl> ast;

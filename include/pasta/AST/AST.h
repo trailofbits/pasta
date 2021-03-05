@@ -10,6 +10,7 @@
 #include <optional>
 #include <string_view>
 
+#include "Decl.h"
 #include "Token.h"
 
 namespace clang {
@@ -51,9 +52,12 @@ class AST {
   // Try to return the token at the specified location.
   std::optional<Token> TokenAt(clang::SourceLocation loc) const;
 
-  // Return a pointer to the underlying Clang AST context. This is needed for
+  // Return a reference to the underlying Clang AST context. This is needed for
   // bootstrapping.
   clang::ASTContext &UnderlyingAST(void) const;
+
+  // Returns the top-level translation unit decl inside of this AST.
+  TranslationUnitDecl TranslationUnit(void) const;
 
  private:
   friend class Compiler;

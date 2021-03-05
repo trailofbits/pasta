@@ -111,10 +111,15 @@ std::optional<Token> AST::TokenAt(clang::SourceLocation loc) const {
   return impl->TokenAt(loc);
 }
 
-// Return a pointer to the underlying Clang AST context. This is needed for
+// Return a reference to the underlying Clang AST context. This is needed for
 // bootstrapping.
 clang::ASTContext &AST::UnderlyingAST(void) const {
   return impl->ci->getASTContext();
+}
+
+// Returns the top-level translation unit decl inside of this AST.
+TranslationUnitDecl AST::TranslationUnit(void) const {
+  return TranslationUnitDecl(impl, impl->tu);
 }
 
 }  // namespace pasta

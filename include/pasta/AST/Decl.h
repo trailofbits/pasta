@@ -4,6 +4,8 @@
 
 // This file is auto-generated.
 
+#pragma once
+
 #include <cstdint>
 #include <memory>
 #include <optional>

@@ -413,6 +413,7 @@ static void GenerateDeclH(void) {
       << " * Copyright (c) 2021 Trail of Bits, Inc.\n"
       << " */\n\n"
       << "// This file is auto-generated.\n\n"
+      << "#pragma once\n\n"
       << "#include <cstdint>\n"
       << "#include <memory>\n"
       << "#include <optional>\n"

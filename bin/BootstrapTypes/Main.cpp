@@ -38,7 +38,10 @@ static const std::unordered_map<std::string, std::string> kCxxMethodRenames{
     {"NumVbases", "NumVBases"},
     {"Ctors", "Constructors"},
     {"ctors", "Constructors"},
+    {"Dtors", "Destructors"},
+    {"dtors", "Destructors"},
     {"Location", "Token"},
+    {"clauselists", "Clauses"},  // `clang::OMPRequiresDecl::clauselists`
 };
 
 // Maps return types from the macros file to their replacements in the

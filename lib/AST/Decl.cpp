@@ -528,14 +528,14 @@ OMPAllocateDecl::OMPAllocateDecl(
     const ::clang::OMPAllocateDecl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
-  // Clauselists
+  // Clauses
   // Varlists
 OMPRequiresDecl::OMPRequiresDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::OMPRequiresDecl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
-  // Clauselists
+  // Clauses
 OMPThreadPrivateDecl::OMPThreadPrivateDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::OMPThreadPrivateDecl *decl_)
@@ -1683,7 +1683,7 @@ OMPDeclareMapperDecl::OMPDeclareMapperDecl(
     const ::clang::OMPDeclareMapperDecl *decl_)
     : ValueDecl(ast_, decl_) {}
 
-  // Clauselists
+  // Clauses
   // MapperVarRef
 OMPDeclareReductionDecl::OMPDeclareReductionDecl(
     std::shared_ptr<ASTImpl> ast_,

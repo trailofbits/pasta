@@ -805,7 +805,7 @@ class OMPAllocateDecl : public Decl {
   OMPAllocateDecl &operator=(const OMPAllocateDecl &) = default;
   OMPAllocateDecl &operator=(OMPAllocateDecl &&) noexcept = default;
 
-  // Clauselists
+  // Clauses
   // Varlists
  private:
   OMPAllocateDecl(void) = delete;
@@ -829,7 +829,7 @@ class OMPRequiresDecl : public Decl {
   OMPRequiresDecl &operator=(const OMPRequiresDecl &) = default;
   OMPRequiresDecl &operator=(OMPRequiresDecl &&) noexcept = default;
 
-  // Clauselists
+  // Clauses
  private:
   OMPRequiresDecl(void) = delete;
 
@@ -2108,7 +2108,7 @@ class OMPDeclareMapperDecl : public ValueDecl {
   OMPDeclareMapperDecl &operator=(const OMPDeclareMapperDecl &) = default;
   OMPDeclareMapperDecl &operator=(OMPDeclareMapperDecl &&) noexcept = default;
 
-  // Clauselists
+  // Clauses
   // MapperVarRef
  private:
   OMPDeclareMapperDecl(void) = delete;

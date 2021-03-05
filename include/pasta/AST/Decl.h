@@ -2454,6 +2454,7 @@ enum class IsModifiableLvalueResult : unsigned int {
   kArrayTemporary = 16,
 };
 
+class DeclBuilder;
 class AccessSpecDecl;
 class BindingDecl;
 class BlockDecl;
@@ -2546,6 +2547,11 @@ class VarDecl;
 class VarTemplateDecl;
 class VarTemplatePartialSpecializationDecl;
 class VarTemplateSpecializationDecl;
+class DeclContext {
+ public:
+  DeclContext(std::shared_ptr<ASTImpl> ast_, const clang::DeclContext *) {}
+};
+
 class Decl {
  public:
   ~Decl(void) = default;
@@ -2557,28 +2563,28 @@ class Decl {
   // Attrs
   AccessSpecifier Access(void) const;
   AccessSpecifier AccessUnsafe(void) const;
-  // AsFunction
+  ::pasta::FunctionDecl AsFunction(void) const;
   std::optional<::pasta::Token> BeginToken(void) const;
   // Body
-  // CanonicalDecl
-  // DeclContext
+  ::pasta::Decl CanonicalDecl(void) const;
+  ::pasta::DeclContext DeclContext(void) const;
   std::optional<::pasta::Token> EndToken(void) const;
   // FriendObjectKind
   uint32_t GlobalID(void) const;
   uint32_t IdentifierNamespace(void) const;
   // ImportedOwningModule
-  // LexicalDeclContext
+  ::pasta::DeclContext LexicalDeclContext(void) const;
   // LocalOwningModule
   std::optional<::pasta::Token> Token(void) const;
   // ModuleOwnershipKind
-  // MostRecentDecl
-  // NextDeclInContext
-  // NonClosureContext
+  ::pasta::Decl MostRecentDecl(void) const;
+  ::pasta::Decl NextDeclInContext(void) const;
+  ::pasta::Decl NonClosureContext(void) const;
   // OwningModule
   uint32_t OwningModuleID(void) const;
-  // PreviousDecl
+  ::pasta::Decl PreviousDecl(void) const;
   // TokenRange
-  // TranslationUnitDecl
+  ::pasta::TranslationUnitDecl TranslationUnitDecl(void) const;
   bool HasAttrs(void) const;
   bool HasBody(void) const;
   bool HasOwningModule(void) const;
@@ -2713,6 +2719,7 @@ class Decl {
  private:
   Decl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -2733,6 +2740,7 @@ class EmptyDecl : public Decl {
  private:
   EmptyDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -2760,6 +2768,7 @@ class ExportDecl : public Decl {
  private:
   ExportDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -2782,6 +2791,7 @@ class ExternCContextDecl : public Decl {
  private:
   ExternCContextDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -2808,6 +2818,7 @@ class FileScopeAsmDecl : public Decl {
  private:
   FileScopeAsmDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -2827,7 +2838,7 @@ class FriendDecl : public Decl {
   FriendDecl &operator=(const FriendDecl &) = default;
   FriendDecl &operator=(FriendDecl &&) noexcept = default;
 
-  // FriendDecl
+  ::pasta::NamedDecl FindFriendDecl(void) const;
   std::optional<::pasta::Token> FriendToken(void) const;
   // FriendType
   uint32_t FriendTypeNumTemplateParameterLists(void) const;
@@ -2837,6 +2848,7 @@ class FriendDecl : public Decl {
  private:
   FriendDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -2856,7 +2868,7 @@ class FriendTemplateDecl : public Decl {
   FriendTemplateDecl &operator=(const FriendTemplateDecl &) = default;
   FriendTemplateDecl &operator=(FriendTemplateDecl &&) noexcept = default;
 
-  // FriendDecl
+  ::pasta::NamedDecl FindFriendDecl(void) const;
   std::optional<::pasta::Token> FriendToken(void) const;
   // FriendType
   uint32_t NumTemplateParameters(void) const;
@@ -2864,6 +2876,7 @@ class FriendTemplateDecl : public Decl {
  private:
   FriendTemplateDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -2887,6 +2900,7 @@ class ImportDecl : public Decl {
  private:
   ImportDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -2907,13 +2921,14 @@ class LifetimeExtendedTemporaryDecl : public Decl {
   LifetimeExtendedTemporaryDecl &operator=(LifetimeExtendedTemporaryDecl &&) noexcept = default;
 
   // ChildrenExpr
-  // ExtendingDecl
+  ::pasta::ValueDecl ExtendingDecl(void) const;
   uint32_t ManglingNumber(void) const;
   // TemporaryExpr
   // Value
  private:
   LifetimeExtendedTemporaryDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -2942,6 +2957,7 @@ class LinkageSpecDecl : public Decl {
  private:
   LinkageSpecDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -2964,10 +2980,10 @@ class NamedDecl : public Decl {
   // DeclName
   Linkage FormalLinkage(void) const;
   // Identifier
-  // MostRecentDecl
+  ::pasta::NamedDecl MostRecentDecl(void) const;
   std::string_view Name(void) const;
   std::string NameAsString(void) const;
-  // UnderlyingDecl
+  ::pasta::NamedDecl UnderlyingDecl(void) const;
   Visibility Visibility(void) const;
   bool HasExternalFormalLinkage(void) const;
   bool HasLinkageBeenComputed(void) const;
@@ -2977,6 +2993,7 @@ class NamedDecl : public Decl {
  private:
   NamedDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -2997,9 +3014,9 @@ class NamespaceAliasDecl : public NamedDecl {
   NamespaceAliasDecl &operator=(NamespaceAliasDecl &&) noexcept = default;
 
   std::optional<::pasta::Token> AliasToken(void) const;
-  // AliasedNamespace
-  // CanonicalDecl
-  // Namespace
+  ::pasta::NamedDecl AliasedNamespace(void) const;
+  ::pasta::NamespaceAliasDecl CanonicalDecl(void) const;
+  ::pasta::NamespaceDecl Namespace(void) const;
   std::optional<::pasta::Token> NamespaceToken(void) const;
   // Qualifier
   // QualifierToken
@@ -3008,6 +3025,7 @@ class NamespaceAliasDecl : public NamedDecl {
  private:
   NamespaceAliasDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3027,9 +3045,9 @@ class NamespaceDecl : public NamedDecl {
   NamespaceDecl &operator=(const NamespaceDecl &) = default;
   NamespaceDecl &operator=(NamespaceDecl &&) noexcept = default;
 
-  // AnonymousNamespace
+  ::pasta::NamespaceDecl AnonymousNamespace(void) const;
   std::optional<::pasta::Token> BeginToken(void) const;
-  // CanonicalDecl
+  ::pasta::NamespaceDecl CanonicalDecl(void) const;
   std::optional<::pasta::Token> RBraceToken(void) const;
   // TokenRange
   bool IsAnonymousNamespace(void) const;
@@ -3037,6 +3055,7 @@ class NamespaceDecl : public NamedDecl {
  private:
   NamespaceDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3061,6 +3080,7 @@ class OMPAllocateDecl : public Decl {
  private:
   OMPAllocateDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3084,6 +3104,7 @@ class OMPRequiresDecl : public Decl {
  private:
   OMPRequiresDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3107,6 +3128,7 @@ class OMPThreadPrivateDecl : public Decl {
  private:
   OMPThreadPrivateDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3126,10 +3148,11 @@ class ObjCCompatibleAliasDecl : public NamedDecl {
   ObjCCompatibleAliasDecl &operator=(const ObjCCompatibleAliasDecl &) = default;
   ObjCCompatibleAliasDecl &operator=(ObjCCompatibleAliasDecl &&) noexcept = default;
 
-  // ClassInterface
+  ::pasta::ObjCInterfaceDecl ClassInterface(void) const;
  private:
   ObjCCompatibleAliasDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3164,6 +3187,7 @@ class ObjCContainerDecl : public NamedDecl {
  private:
   ObjCContainerDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3183,11 +3207,12 @@ class ObjCImplDecl : public ObjCContainerDecl {
   ObjCImplDecl &operator=(const ObjCImplDecl &) = default;
   ObjCImplDecl &operator=(ObjCImplDecl &&) noexcept = default;
 
-  // ClassInterface
+  ::pasta::ObjCInterfaceDecl ClassInterface(void) const;
   // Property_impls
  private:
   ObjCImplDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3213,7 +3238,7 @@ class ObjCImplementationDecl : public ObjCImplDecl {
   std::string_view Name(void) const;
   std::string NameAsString(void) const;
   uint32_t NumIvarInitializers(void) const;
-  // SuperClass
+  ::pasta::ObjCInterfaceDecl SuperClass(void) const;
   std::optional<::pasta::Token> SuperClassToken(void) const;
   bool HasDestructors(void) const;
   bool HasNonZeroConstructors(void) const;
@@ -3222,6 +3247,7 @@ class ObjCImplementationDecl : public ObjCImplDecl {
  private:
   ObjCImplementationDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3243,10 +3269,10 @@ class ObjCInterfaceDecl : public ObjCContainerDecl {
 
   // All_referenced_protocols
   bool DeclaresOrInheritsDesignatedInitializers(void) const;
-  // CanonicalDecl
-  // CategoryListRaw
+  ::pasta::ObjCInterfaceDecl CanonicalDecl(void) const;
+  ::pasta::ObjCCategoryDecl CategoryListRaw(void) const;
   // CategoryMethod
-  // Definition
+  ::pasta::ObjCInterfaceDecl Definition(void) const;
   std::optional<::pasta::Token> EndOfDefinitionToken(void) const;
   // ReferencedProtocols
   // TokenRange
@@ -3271,6 +3297,7 @@ class ObjCInterfaceDecl : public ObjCContainerDecl {
  private:
   ObjCInterfaceDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3291,9 +3318,9 @@ class ObjCMethodDecl : public NamedDecl {
   ObjCMethodDecl &operator=(ObjCMethodDecl &&) noexcept = default;
 
   std::optional<::pasta::Token> BeginToken(void) const;
-  // CanonicalDecl
-  // ClassInterface
-  // CmdDecl
+  ::pasta::ObjCMethodDecl CanonicalDecl(void) const;
+  ::pasta::ObjCInterfaceDecl ClassInterface(void) const;
+  ::pasta::ImplicitParamDecl CmdDecl(void) const;
   std::optional<::pasta::Token> DeclaratorEndToken(void) const;
   // ImplementationControl
   uint32_t NumSelectorLocs(void) const;
@@ -3304,7 +3331,7 @@ class ObjCMethodDecl : public NamedDecl {
   // Selector
   // SelectorToken
   std::optional<::pasta::Token> SelectorStartToken(void) const;
-  // SelfDecl
+  ::pasta::ImplicitParamDecl SelfDecl(void) const;
   // TokenRange
   bool HasBody(void) const;
   bool HasRedeclaration(void) const;
@@ -3324,6 +3351,7 @@ class ObjCMethodDecl : public NamedDecl {
  private:
   ObjCMethodDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3344,17 +3372,17 @@ class ObjCPropertyDecl : public NamedDecl {
   ObjCPropertyDecl &operator=(ObjCPropertyDecl &&) noexcept = default;
 
   std::optional<::pasta::Token> AtToken(void) const;
-  // GetterMethodDecl
+  ::pasta::ObjCMethodDecl GetterMethodDecl(void) const;
   // GetterName
   std::optional<::pasta::Token> GetterNameToken(void) const;
   std::optional<::pasta::Token> LParenToken(void) const;
   // PropertyAttributes
   // PropertyAttributesAsWritten
   // PropertyImplementation
-  // PropertyIvarDecl
+  ::pasta::ObjCIvarDecl PropertyIvarDecl(void) const;
   ObjCPropertyQueryKind QueryKind(void) const;
   // SetterKind
-  // SetterMethodDecl
+  ::pasta::ObjCMethodDecl SetterMethodDecl(void) const;
   // SetterName
   std::optional<::pasta::Token> SetterNameToken(void) const;
   // TokenRange
@@ -3370,6 +3398,7 @@ class ObjCPropertyDecl : public NamedDecl {
  private:
   ObjCPropertyDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3391,17 +3420,18 @@ class ObjCPropertyImplDecl : public Decl {
 
   std::optional<::pasta::Token> BeginToken(void) const;
   // GetterCXXConstructor
-  // GetterMethodDecl
-  // PropertyDecl
+  ::pasta::ObjCMethodDecl GetterMethodDecl(void) const;
+  ::pasta::ObjCPropertyDecl PropertyDecl(void) const;
   // PropertyImplementation
-  // PropertyIvarDecl
+  ::pasta::ObjCIvarDecl PropertyIvarDecl(void) const;
   std::optional<::pasta::Token> PropertyIvarDeclToken(void) const;
   // SetterCXXAssignment
-  // SetterMethodDecl
+  ::pasta::ObjCMethodDecl SetterMethodDecl(void) const;
   bool IsIvarNameSpecified(void) const;
  private:
   ObjCPropertyImplDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3421,8 +3451,8 @@ class ObjCProtocolDecl : public ObjCContainerDecl {
   ObjCProtocolDecl &operator=(const ObjCProtocolDecl &) = default;
   ObjCProtocolDecl &operator=(ObjCProtocolDecl &&) noexcept = default;
 
-  // CanonicalDecl
-  // Definition
+  ::pasta::ObjCProtocolDecl CanonicalDecl(void) const;
+  ::pasta::ObjCProtocolDecl Definition(void) const;
   // ReferencedProtocols
   // TokenRange
   bool HasDefinition(void) const;
@@ -3434,6 +3464,7 @@ class ObjCProtocolDecl : public ObjCContainerDecl {
  private:
   ObjCProtocolDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3458,6 +3489,7 @@ class PragmaCommentDecl : public Decl {
  private:
   PragmaCommentDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3482,6 +3514,7 @@ class PragmaDetectMismatchDecl : public Decl {
  private:
   PragmaDetectMismatchDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3504,6 +3537,7 @@ class RequiresExprBodyDecl : public Decl {
  private:
   RequiresExprBodyDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3531,6 +3565,7 @@ class StaticAssertDecl : public Decl {
  private:
   StaticAssertDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3552,10 +3587,11 @@ class TemplateDecl : public NamedDecl {
 
   // TokenRange
   // TemplateParameters
-  // TemplatedDecl
+  ::pasta::NamedDecl TemplatedDecl(void) const;
  private:
   TemplateDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3588,6 +3624,7 @@ class TemplateTemplateParmDecl : public TemplateDecl {
  private:
   TemplateTemplateParmDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3608,10 +3645,11 @@ class TranslationUnitDecl : public Decl {
   TranslationUnitDecl &operator=(TranslationUnitDecl &&) noexcept = default;
 
   // ASTContext
-  // AnonymousNamespace
+  ::pasta::NamespaceDecl AnonymousNamespace(void) const;
  private:
   TranslationUnitDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3637,6 +3675,7 @@ class TypeDecl : public NamedDecl {
  private:
   TypeDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3656,7 +3695,7 @@ class TypedefNameDecl : public TypeDecl {
   TypedefNameDecl &operator=(const TypedefNameDecl &) = default;
   TypedefNameDecl &operator=(TypedefNameDecl &&) noexcept = default;
 
-  // CanonicalDecl
+  ::pasta::TypedefNameDecl CanonicalDecl(void) const;
   // TypeSourceInfo
   // UnderlyingType
   bool IsModed(void) const;
@@ -3664,6 +3703,7 @@ class TypedefNameDecl : public TypeDecl {
  private:
   TypedefNameDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3683,7 +3723,7 @@ class UnresolvedUsingTypenameDecl : public TypeDecl {
   UnresolvedUsingTypenameDecl &operator=(const UnresolvedUsingTypenameDecl &) = default;
   UnresolvedUsingTypenameDecl &operator=(UnresolvedUsingTypenameDecl &&) noexcept = default;
 
-  // CanonicalDecl
+  ::pasta::UnresolvedUsingTypenameDecl CanonicalDecl(void) const;
   std::optional<::pasta::Token> EllipsisToken(void) const;
   // NameInfo
   // Qualifier
@@ -3694,6 +3734,7 @@ class UnresolvedUsingTypenameDecl : public TypeDecl {
  private:
   UnresolvedUsingTypenameDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3713,7 +3754,7 @@ class UsingDecl : public NamedDecl {
   UsingDecl &operator=(const UsingDecl &) = default;
   UsingDecl &operator=(UsingDecl &&) noexcept = default;
 
-  // CanonicalDecl
+  ::pasta::UsingDecl CanonicalDecl(void) const;
   // NameInfo
   // Qualifier
   // QualifierToken
@@ -3724,6 +3765,7 @@ class UsingDecl : public NamedDecl {
  private:
   UsingDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3743,11 +3785,11 @@ class UsingDirectiveDecl : public NamedDecl {
   UsingDirectiveDecl &operator=(const UsingDirectiveDecl &) = default;
   UsingDirectiveDecl &operator=(UsingDirectiveDecl &&) noexcept = default;
 
-  // CommonAncestor
+  ::pasta::DeclContext CommonAncestor(void) const;
   std::optional<::pasta::Token> IdentLocation(void) const;
   std::optional<::pasta::Token> NamespaceKeyLocation(void) const;
-  // NominatedNamespace
-  // NominatedNamespaceAsWritten
+  ::pasta::NamespaceDecl NominatedNamespace(void) const;
+  ::pasta::NamedDecl NominatedNamespaceAsWritten(void) const;
   // Qualifier
   // QualifierToken
   // TokenRange
@@ -3755,6 +3797,7 @@ class UsingDirectiveDecl : public NamedDecl {
  private:
   UsingDirectiveDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3775,12 +3818,13 @@ class UsingPackDecl : public NamedDecl {
   UsingPackDecl &operator=(UsingPackDecl &&) noexcept = default;
 
   // Expansions
-  // CanonicalDecl
-  // InstantiatedFromUsingDecl
+  ::pasta::UsingPackDecl CanonicalDecl(void) const;
+  ::pasta::NamedDecl InstantiatedFromUsingDecl(void) const;
   // TokenRange
  private:
   UsingPackDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3800,12 +3844,13 @@ class UsingShadowDecl : public NamedDecl {
   UsingShadowDecl &operator=(const UsingShadowDecl &) = default;
   UsingShadowDecl &operator=(UsingShadowDecl &&) noexcept = default;
 
-  // CanonicalDecl
-  // NextUsingShadowDecl
-  // TargetDecl
+  ::pasta::UsingShadowDecl CanonicalDecl(void) const;
+  ::pasta::UsingShadowDecl NextUsingShadowDecl(void) const;
+  ::pasta::NamedDecl TargetDecl(void) const;
  private:
   UsingShadowDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3829,6 +3874,7 @@ class ValueDecl : public NamedDecl {
  private:
   ValueDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3854,6 +3900,7 @@ class AccessSpecDecl : public Decl {
  private:
   AccessSpecDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3877,6 +3924,7 @@ class BindingDecl : public ValueDecl {
  private:
   BindingDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3901,7 +3949,7 @@ class BlockDecl : public Decl {
   // Captures
   bool CapturesCXXThis(void) const;
   bool DoesNotEscape(void) const;
-  // BlockManglingContextDecl
+  ::pasta::Decl BlockManglingContextDecl(void) const;
   uint32_t BlockManglingNumber(void) const;
   // Body
   std::optional<::pasta::Token> CaretLocation(void) const;
@@ -3917,6 +3965,7 @@ class BlockDecl : public Decl {
  private:
   BlockDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3941,6 +3990,7 @@ class BuiltinTemplateDecl : public TemplateDecl {
  private:
   BuiltinTemplateDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3960,7 +4010,7 @@ class CapturedDecl : public Decl {
   CapturedDecl &operator=(const CapturedDecl &) = default;
   CapturedDecl &operator=(CapturedDecl &&) noexcept = default;
 
-  // ContextParam
+  ::pasta::ImplicitParamDecl ContextParam(void) const;
   uint32_t ContextParamPosition(void) const;
   uint32_t NumParams(void) const;
   // Param
@@ -3968,6 +4018,7 @@ class CapturedDecl : public Decl {
  private:
   CapturedDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -3987,12 +4038,13 @@ class ClassScopeFunctionSpecializationDecl : public Decl {
   ClassScopeFunctionSpecializationDecl &operator=(const ClassScopeFunctionSpecializationDecl &) = default;
   ClassScopeFunctionSpecializationDecl &operator=(ClassScopeFunctionSpecializationDecl &&) noexcept = default;
 
-  // Specialization
+  ::pasta::CXXMethodDecl Specialization(void) const;
   // TemplateArgsAsWritten
   bool HasExplicitTemplateArgs(void) const;
  private:
   ClassScopeFunctionSpecializationDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4018,6 +4070,7 @@ class ConceptDecl : public TemplateDecl {
  private:
   ConceptDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4038,13 +4091,14 @@ class ConstructorUsingShadowDecl : public UsingShadowDecl {
   ConstructorUsingShadowDecl &operator=(ConstructorUsingShadowDecl &&) noexcept = default;
 
   bool ConstructsVirtualBase(void) const;
-  // ConstructedBaseClass
-  // ConstructedBaseClassShadowDecl
-  // NominatedBaseClassShadowDecl
-  // Parent
+  ::pasta::CXXRecordDecl ConstructedBaseClass(void) const;
+  ::pasta::ConstructorUsingShadowDecl ConstructedBaseClassShadowDecl(void) const;
+  ::pasta::ConstructorUsingShadowDecl NominatedBaseClassShadowDecl(void) const;
+  ::pasta::CXXRecordDecl Parent(void) const;
  private:
   ConstructorUsingShadowDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4075,6 +4129,7 @@ class DeclaratorDecl : public ValueDecl {
  private:
   DeclaratorDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4094,12 +4149,13 @@ class EnumConstantDecl : public ValueDecl {
   EnumConstantDecl &operator=(const EnumConstantDecl &) = default;
   EnumConstantDecl &operator=(EnumConstantDecl &&) noexcept = default;
 
-  // CanonicalDecl
+  ::pasta::EnumConstantDecl CanonicalDecl(void) const;
   // InitExpr
   // InitVal
  private:
   EnumConstantDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4120,11 +4176,11 @@ class FieldDecl : public DeclaratorDecl {
   FieldDecl &operator=(FieldDecl &&) noexcept = default;
 
   // BitWidth
-  // CanonicalDecl
+  ::pasta::FieldDecl CanonicalDecl(void) const;
   // CapturedVLAType
   InClassInitStyle InClassInitStyle(void) const;
   // InClassInitializer
-  // Parent
+  ::pasta::RecordDecl Parent(void) const;
   bool HasCapturedVLAType(void) const;
   bool HasInClassInitializer(void) const;
   bool IsBitField(void) const;
@@ -4133,6 +4189,7 @@ class FieldDecl : public DeclaratorDecl {
  private:
   FieldDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4156,10 +4213,10 @@ class FunctionDecl : public DeclaratorDecl {
   // AssociatedConstraints
   // Body
   // CallResultType
-  // CanonicalDecl
+  ::pasta::FunctionDecl CanonicalDecl(void) const;
   ConstexprSpecKind ConstexprKind(void) const;
   // DeclaredReturnType
-  // Definition
+  ::pasta::FunctionDecl Definition(void) const;
   std::optional<::pasta::Token> EllipsisToken(void) const;
   ExceptionSpecificationType ExceptionSpecType(void) const;
   // NameInfo
@@ -4201,6 +4258,7 @@ class FunctionDecl : public DeclaratorDecl {
  private:
   FunctionDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4221,13 +4279,14 @@ class IndirectFieldDecl : public ValueDecl {
   IndirectFieldDecl &operator=(IndirectFieldDecl &&) noexcept = default;
 
   // Chain
-  // AnonField
-  // CanonicalDecl
+  ::pasta::FieldDecl AnonField(void) const;
+  ::pasta::IndirectFieldDecl CanonicalDecl(void) const;
   uint32_t ChainingSize(void) const;
-  // VarDecl
+  ::pasta::VarDecl VarDecl(void) const;
  private:
   IndirectFieldDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4256,6 +4315,7 @@ class LabelDecl : public NamedDecl {
  private:
   LabelDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4279,6 +4339,7 @@ class MSGuidDecl : public ValueDecl {
  private:
   MSGuidDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4305,6 +4366,7 @@ class MSPropertyDecl : public DeclaratorDecl {
  private:
   MSPropertyDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4340,6 +4402,7 @@ class NonTypeTemplateParmDecl : public DeclaratorDecl {
  private:
   NonTypeTemplateParmDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4364,6 +4427,7 @@ class OMPDeclareMapperDecl : public ValueDecl {
  private:
   OMPDeclareMapperDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4393,6 +4457,7 @@ class OMPDeclareReductionDecl : public ValueDecl {
  private:
   OMPDeclareReductionDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4415,6 +4480,7 @@ class ObjCAtDefsFieldDecl : public FieldDecl {
  private:
   ObjCAtDefsFieldDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4436,11 +4502,11 @@ class ObjCCategoryDecl : public ObjCContainerDecl {
 
   bool IsClassExtension(void) const;
   std::optional<::pasta::Token> CategoryNameToken(void) const;
-  // ClassInterface
+  ::pasta::ObjCInterfaceDecl ClassInterface(void) const;
   std::optional<::pasta::Token> IvarLBraceToken(void) const;
   std::optional<::pasta::Token> IvarRBraceToken(void) const;
-  // NextClassCategory
-  // NextClassCategoryRaw
+  ::pasta::ObjCCategoryDecl NextClassCategory(void) const;
+  ::pasta::ObjCCategoryDecl NextClassCategoryRaw(void) const;
   // ReferencedProtocols
   // TypeParamList
   // Ivars
@@ -4449,6 +4515,7 @@ class ObjCCategoryDecl : public ObjCContainerDecl {
  private:
   ObjCCategoryDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4472,6 +4539,7 @@ class ObjCCategoryImplDecl : public ObjCImplDecl {
  private:
   ObjCCategoryImplDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4493,11 +4561,12 @@ class ObjCIvarDecl : public FieldDecl {
 
   // AccessControl
   // CanonicalAccessControl
-  // NextIvar
+  ::pasta::ObjCIvarDecl NextIvar(void) const;
   bool Synthesize(void) const;
  private:
   ObjCIvarDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4525,6 +4594,7 @@ class ObjCTypeParamDecl : public TypedefNameDecl {
  private:
   ObjCTypeParamDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4544,12 +4614,13 @@ class RedeclarableTemplateDecl : public TemplateDecl {
   RedeclarableTemplateDecl &operator=(const RedeclarableTemplateDecl &) = default;
   RedeclarableTemplateDecl &operator=(RedeclarableTemplateDecl &&) noexcept = default;
 
-  // CanonicalDecl
-  // InstantiatedFromMemberTemplate
+  ::pasta::RedeclarableTemplateDecl CanonicalDecl(void) const;
+  ::pasta::RedeclarableTemplateDecl InstantiatedFromMemberTemplate(void) const;
   bool IsMemberSpecialization(void) const;
  private:
   RedeclarableTemplateDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4570,7 +4641,7 @@ class TagDecl : public TypeDecl {
   TagDecl &operator=(TagDecl &&) noexcept = default;
 
   // BraceRange
-  // CanonicalDecl
+  ::pasta::TagDecl CanonicalDecl(void) const;
   std::optional<::pasta::Token> InnerLocStart(void) const;
   std::string_view KindName(void) const;
   uint32_t NumTemplateParameterLists(void) const;
@@ -4578,7 +4649,7 @@ class TagDecl : public TypeDecl {
   // QualifierToken
   TagTypeKind TagKind(void) const;
   // TemplateParameterList
-  // TypedefNameForAnonDecl
+  ::pasta::TypedefNameDecl TypedefNameForAnonDecl(void) const;
   bool HasNameForLinkage(void) const;
   bool IsBeingDefined(void) const;
   bool IsClass(void) const;
@@ -4596,6 +4667,7 @@ class TagDecl : public TypeDecl {
  private:
   TagDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4630,6 +4702,7 @@ class TemplateTypeParmDecl : public TypeDecl {
  private:
   TemplateTypeParmDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4649,10 +4722,11 @@ class TypeAliasDecl : public TypedefNameDecl {
   TypeAliasDecl &operator=(const TypeAliasDecl &) = default;
   TypeAliasDecl &operator=(TypeAliasDecl &&) noexcept = default;
 
-  // DescribedAliasTemplate
+  ::pasta::TypeAliasTemplateDecl DescribedAliasTemplate(void) const;
  private:
   TypeAliasDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4672,13 +4746,14 @@ class TypeAliasTemplateDecl : public RedeclarableTemplateDecl {
   TypeAliasTemplateDecl &operator=(const TypeAliasTemplateDecl &) = default;
   TypeAliasTemplateDecl &operator=(TypeAliasTemplateDecl &&) noexcept = default;
 
-  // CanonicalDecl
-  // InstantiatedFromMemberTemplate
-  // PreviousDecl
-  // TemplatedDecl
+  ::pasta::TypeAliasTemplateDecl CanonicalDecl(void) const;
+  ::pasta::TypeAliasTemplateDecl InstantiatedFromMemberTemplate(void) const;
+  ::pasta::TypeAliasTemplateDecl PreviousDecl(void) const;
+  ::pasta::TypeAliasDecl TemplatedDecl(void) const;
  private:
   TypeAliasTemplateDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4701,6 +4776,7 @@ class TypedefDecl : public TypedefNameDecl {
  private:
   TypedefDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4720,7 +4796,7 @@ class UnresolvedUsingValueDecl : public ValueDecl {
   UnresolvedUsingValueDecl &operator=(const UnresolvedUsingValueDecl &) = default;
   UnresolvedUsingValueDecl &operator=(UnresolvedUsingValueDecl &&) noexcept = default;
 
-  // CanonicalDecl
+  ::pasta::UnresolvedUsingValueDecl CanonicalDecl(void) const;
   std::optional<::pasta::Token> EllipsisToken(void) const;
   // NameInfo
   // Qualifier
@@ -4731,6 +4807,7 @@ class UnresolvedUsingValueDecl : public ValueDecl {
  private:
   UnresolvedUsingValueDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4750,12 +4827,12 @@ class VarDecl : public DeclaratorDecl {
   VarDecl &operator=(const VarDecl &) = default;
   VarDecl &operator=(VarDecl &&) noexcept = default;
 
-  // ActingDefinition
+  ::pasta::VarDecl ActingDefinition(void) const;
   // AnyInitializer
-  // CanonicalDecl
+  ::pasta::VarDecl CanonicalDecl(void) const;
   // Init
   // InitStyle
-  // InitializingDeclaration
+  ::pasta::VarDecl InitializingDeclaration(void) const;
   StorageClass StorageClass(void) const;
   StorageDuration StorageDuration(void) const;
   ThreadStorageClassSpecifier TSCSpec(void) const;
@@ -4785,6 +4862,7 @@ class VarDecl : public DeclaratorDecl {
  private:
   VarDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4804,16 +4882,17 @@ class VarTemplateDecl : public RedeclarableTemplateDecl {
   VarTemplateDecl &operator=(const VarTemplateDecl &) = default;
   VarTemplateDecl &operator=(VarTemplateDecl &&) noexcept = default;
 
-  // CanonicalDecl
-  // InstantiatedFromMemberTemplate
-  // MostRecentDecl
-  // PreviousDecl
-  // TemplatedDecl
+  ::pasta::VarTemplateDecl CanonicalDecl(void) const;
+  ::pasta::VarTemplateDecl InstantiatedFromMemberTemplate(void) const;
+  ::pasta::VarTemplateDecl MostRecentDecl(void) const;
+  ::pasta::VarTemplateDecl PreviousDecl(void) const;
+  ::pasta::VarDecl TemplatedDecl(void) const;
   bool IsThisDeclarationADefinition(void) const;
   // Specializations
  private:
   VarTemplateDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4850,6 +4929,7 @@ class VarTemplateSpecializationDecl : public VarDecl {
  private:
   VarTemplateSpecializationDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4869,13 +4949,14 @@ class CXXDeductionGuideDecl : public FunctionDecl {
   CXXDeductionGuideDecl &operator=(const CXXDeductionGuideDecl &) = default;
   CXXDeductionGuideDecl &operator=(CXXDeductionGuideDecl &&) noexcept = default;
 
-  // DeducedTemplate
+  ::pasta::TemplateDecl DeducedTemplate(void) const;
   // ExplicitSpecifier
   bool IsCopyDeductionCandidate(void) const;
   bool IsExplicit(void) const;
  private:
   CXXDeductionGuideDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4895,13 +4976,13 @@ class CXXMethodDecl : public FunctionDecl {
   CXXMethodDecl &operator=(const CXXMethodDecl &) = default;
   CXXMethodDecl &operator=(CXXMethodDecl &&) noexcept = default;
 
-  // CanonicalDecl
+  ::pasta::CXXMethodDecl CanonicalDecl(void) const;
   // CorrespondingMethodDeclaredInClass
   // CorrespondingMethodInClass
   // DevirtualizedMethod
   // MethodQualifiers
-  // MostRecentDecl
-  // Parent
+  ::pasta::CXXMethodDecl MostRecentDecl(void) const;
+  ::pasta::CXXRecordDecl Parent(void) const;
   RefQualifierKind RefQualifier(void) const;
   bool IsConst(void) const;
   bool IsInstance(void) const;
@@ -4910,6 +4991,7 @@ class CXXMethodDecl : public FunctionDecl {
  private:
   CXXMethodDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4929,16 +5011,17 @@ class ClassTemplateDecl : public RedeclarableTemplateDecl {
   ClassTemplateDecl &operator=(const ClassTemplateDecl &) = default;
   ClassTemplateDecl &operator=(ClassTemplateDecl &&) noexcept = default;
 
-  // CanonicalDecl
-  // InstantiatedFromMemberTemplate
-  // MostRecentDecl
-  // PreviousDecl
-  // TemplatedDecl
+  ::pasta::ClassTemplateDecl CanonicalDecl(void) const;
+  ::pasta::ClassTemplateDecl InstantiatedFromMemberTemplate(void) const;
+  ::pasta::ClassTemplateDecl MostRecentDecl(void) const;
+  ::pasta::ClassTemplateDecl PreviousDecl(void) const;
+  ::pasta::CXXRecordDecl TemplatedDecl(void) const;
   bool IsThisDeclarationADefinition(void) const;
   // Specializations
  private:
   ClassTemplateDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4962,6 +5045,7 @@ class DecompositionDecl : public VarDecl {
  private:
   DecompositionDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -4982,15 +5066,15 @@ class EnumDecl : public TagDecl {
   EnumDecl &operator=(EnumDecl &&) noexcept = default;
 
   // Enumerators
-  // CanonicalDecl
-  // Definition
+  ::pasta::EnumDecl CanonicalDecl(void) const;
+  ::pasta::EnumDecl Definition(void) const;
   // IntegerType
   // IntegerTypeSourceInfo
   // MemberSpecializationInfo
-  // MostRecentDecl
+  ::pasta::EnumDecl MostRecentDecl(void) const;
   uint32_t NumNegativeBits(void) const;
   uint32_t NumPositiveBits(void) const;
-  // PreviousDecl
+  ::pasta::EnumDecl PreviousDecl(void) const;
   // PromotionType
   bool IsComplete(void) const;
   bool IsFixed(void) const;
@@ -4999,6 +5083,7 @@ class EnumDecl : public TagDecl {
  private:
   EnumDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -5018,17 +5103,18 @@ class FunctionTemplateDecl : public RedeclarableTemplateDecl {
   FunctionTemplateDecl &operator=(const FunctionTemplateDecl &) = default;
   FunctionTemplateDecl &operator=(FunctionTemplateDecl &&) noexcept = default;
 
-  // CanonicalDecl
-  // InstantiatedFromMemberTemplate
-  // MostRecentDecl
-  // PreviousDecl
-  // TemplatedDecl
+  ::pasta::FunctionTemplateDecl CanonicalDecl(void) const;
+  ::pasta::FunctionTemplateDecl InstantiatedFromMemberTemplate(void) const;
+  ::pasta::FunctionTemplateDecl MostRecentDecl(void) const;
+  ::pasta::FunctionTemplateDecl PreviousDecl(void) const;
+  ::pasta::FunctionDecl TemplatedDecl(void) const;
   bool IsAbbreviated(void) const;
   bool IsThisDeclarationADefinition(void) const;
   // Specializations
  private:
   FunctionTemplateDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -5052,6 +5138,7 @@ class ImplicitParamDecl : public VarDecl {
  private:
   ImplicitParamDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -5074,6 +5161,7 @@ class OMPCapturedExprDecl : public VarDecl {
  private:
   OMPCapturedExprDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -5106,6 +5194,7 @@ class ParmVarDecl : public VarDecl {
  private:
   ParmVarDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -5128,9 +5217,9 @@ class RecordDecl : public TagDecl {
   bool CanPassInRegisters(void) const;
   // Fields
   // ArgPassingRestrictions
-  // Definition
-  // MostRecentDecl
-  // PreviousDecl
+  ::pasta::RecordDecl Definition(void) const;
+  ::pasta::RecordDecl MostRecentDecl(void) const;
+  ::pasta::RecordDecl PreviousDecl(void) const;
   bool HasFlexibleArrayMember(void) const;
   bool HasLoadedFieldsFromExternalStorage(void) const;
   bool HasNonTrivialToPrimitiveCopyCUnion(void) const;
@@ -5146,6 +5235,7 @@ class RecordDecl : public TagDecl {
  private:
   RecordDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -5167,13 +5257,14 @@ class VarTemplatePartialSpecializationDecl : public VarTemplateSpecializationDec
 
   // Profile
   // AssociatedConstraints
-  // InstantiatedFromMember
+  ::pasta::VarTemplatePartialSpecializationDecl InstantiatedFromMember(void) const;
   // TemplateArgsAsWritten
   // TemplateParameters
   bool HasAssociatedConstraints(void) const;
  private:
   VarTemplatePartialSpecializationDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -5193,7 +5284,7 @@ class CXXConstructorDecl : public CXXMethodDecl {
   CXXConstructorDecl &operator=(const CXXConstructorDecl &) = default;
   CXXConstructorDecl &operator=(CXXConstructorDecl &&) noexcept = default;
 
-  // CanonicalDecl
+  ::pasta::CXXConstructorDecl CanonicalDecl(void) const;
   // ExplicitSpecifier
   // InheritedConstructor
   uint32_t NumCtorInitializers(void) const;
@@ -5207,6 +5298,7 @@ class CXXConstructorDecl : public CXXMethodDecl {
  private:
   CXXConstructorDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -5226,13 +5318,14 @@ class CXXConversionDecl : public CXXMethodDecl {
   CXXConversionDecl &operator=(const CXXConversionDecl &) = default;
   CXXConversionDecl &operator=(CXXConversionDecl &&) noexcept = default;
 
-  // CanonicalDecl
+  ::pasta::CXXConversionDecl CanonicalDecl(void) const;
   // ConversionType
   // ExplicitSpecifier
   bool IsExplicit(void) const;
  private:
   CXXConversionDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -5252,12 +5345,13 @@ class CXXDestructorDecl : public CXXMethodDecl {
   CXXDestructorDecl &operator=(const CXXDestructorDecl &) = default;
   CXXDestructorDecl &operator=(CXXDestructorDecl &&) noexcept = default;
 
-  // CanonicalDecl
-  // OperatorDelete
+  ::pasta::CXXDestructorDecl CanonicalDecl(void) const;
+  ::pasta::FunctionDecl OperatorDelete(void) const;
   // OperatorDeleteThisArg
  private:
   CXXDestructorDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -5287,16 +5381,16 @@ class CXXRecordDecl : public RecordDecl {
   bool DefaultedDestructorIsDeleted(void) const;
   bool DefaultedMoveConstructorIsDeleted(void) const;
   // Friends
-  // CanonicalDecl
-  // Definition
+  ::pasta::CXXRecordDecl CanonicalDecl(void) const;
+  ::pasta::CXXRecordDecl Definition(void) const;
   LambdaCaptureDefault LambdaCaptureDefault(void) const;
   uint32_t LambdaManglingNumber(void) const;
   // LambdaTypeInfo
-  // MostRecentDecl
-  // MostRecentNonInjectedDecl
+  ::pasta::CXXRecordDecl MostRecentDecl(void) const;
+  ::pasta::CXXRecordDecl MostRecentNonInjectedDecl(void) const;
   uint32_t NumBases(void) const;
   uint32_t NumVBases(void) const;
-  // PreviousDecl
+  ::pasta::CXXRecordDecl PreviousDecl(void) const;
   bool HasConstexprDefaultConstructor(void) const;
   bool HasConstexprNonCopyMoveConstructor(void) const;
   bool HasCopyAssignmentWithConstParam(void) const;
@@ -5359,7 +5453,7 @@ class CXXRecordDecl : public RecordDecl {
   bool IsEmpty(void) const;
   bool IsLambda(void) const;
   bool IsLiteral(void) const;
-  // IsLocalClass
+  ::pasta::FunctionDecl IsLocalClass(void) const;
   bool IsPOD(void) const;
   bool IsParsingBaseSpecifiers(void) const;
   bool IsPolymorphic(void) const;
@@ -5383,6 +5477,7 @@ class CXXRecordDecl : public RecordDecl {
  private:
   CXXRecordDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -5418,6 +5513,7 @@ class ClassTemplateSpecializationDecl : public CXXRecordDecl {
  private:
   ClassTemplateSpecializationDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
@@ -5440,14 +5536,15 @@ class ClassTemplatePartialSpecializationDecl : public ClassTemplateSpecializatio
   // Profile
   // AssociatedConstraints
   // InjectedSpecializationType
-  // InstantiatedFromMember
-  // InstantiatedFromMemberTemplate
+  ::pasta::ClassTemplatePartialSpecializationDecl InstantiatedFromMember(void) const;
+  ::pasta::ClassTemplatePartialSpecializationDecl InstantiatedFromMemberTemplate(void) const;
   // TemplateArgsAsWritten
   // TemplateParameters
   bool HasAssociatedConstraints(void) const;
  private:
   ClassTemplatePartialSpecializationDecl(void) = delete;
 
+  friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 

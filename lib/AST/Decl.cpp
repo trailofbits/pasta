@@ -21,6 +21,15 @@
 #include "AST.h"
 
 namespace pasta {
+
+class DeclBuilder {
+ public:
+  template <typename T, typename D>
+  inline static T Create(std::shared_ptr<ASTImpl> ast_, const D *decl_) {
+    return T(std::move(ast_), decl_);
+  }
+};
+
 namespace {
 // Return the PASTA `DeclKind` for a Clang `Decl`.
 static DeclKind KindOfDecl(const clang::Decl *decl) {
@@ -147,15 +156,39 @@ AccessSpecifier Decl::AccessUnsafe(void) const {
   return static_cast<::pasta::AccessSpecifier>(static_cast<unsigned int>(val));
 }
 
-  // AsFunction
+::pasta::FunctionDecl Decl::AsFunction(void) const {
+  auto val = u.Decl->getAsFunction();
+  if (val) {
+    return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
+  }
+  assert(false && "Decl::AsFunction can return nullptr!");
+  __builtin_unreachable();
+}
+
 std::optional<::pasta::Token> Decl::BeginToken(void) const {
   auto val = u.Decl->getBeginLoc();
   return ast->TokenAt(val);
 }
 
   // Body
-  // CanonicalDecl
-  // DeclContext
+::pasta::Decl Decl::CanonicalDecl(void) const {
+  auto val = u.Decl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::Decl>(ast, val);
+  }
+  assert(false && "Decl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::DeclContext Decl::DeclContext(void) const {
+  auto val = u.Decl->getDeclContext();
+  if (val) {
+    return DeclBuilder::Create<::pasta::DeclContext>(ast, val);
+  }
+  assert(false && "Decl::DeclContext can return nullptr!");
+  __builtin_unreachable();
+}
+
 std::optional<::pasta::Token> Decl::EndToken(void) const {
   auto val = u.Decl->getEndLoc();
   return ast->TokenAt(val);
@@ -173,7 +206,15 @@ uint32_t Decl::IdentifierNamespace(void) const {
 }
 
   // ImportedOwningModule
-  // LexicalDeclContext
+::pasta::DeclContext Decl::LexicalDeclContext(void) const {
+  auto val = u.Decl->getLexicalDeclContext();
+  if (val) {
+    return DeclBuilder::Create<::pasta::DeclContext>(ast, val);
+  }
+  assert(false && "Decl::LexicalDeclContext can return nullptr!");
+  __builtin_unreachable();
+}
+
   // LocalOwningModule
 std::optional<::pasta::Token> Decl::Token(void) const {
   auto val = u.Decl->getLocation();
@@ -181,18 +222,58 @@ std::optional<::pasta::Token> Decl::Token(void) const {
 }
 
   // ModuleOwnershipKind
-  // MostRecentDecl
-  // NextDeclInContext
-  // NonClosureContext
+::pasta::Decl Decl::MostRecentDecl(void) const {
+  auto val = u.Decl->getMostRecentDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::Decl>(ast, val);
+  }
+  assert(false && "Decl::MostRecentDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::Decl Decl::NextDeclInContext(void) const {
+  auto val = u.Decl->getNextDeclInContext();
+  if (val) {
+    return DeclBuilder::Create<::pasta::Decl>(ast, val);
+  }
+  assert(false && "Decl::NextDeclInContext can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::Decl Decl::NonClosureContext(void) const {
+  auto val = u.Decl->getNonClosureContext();
+  if (val) {
+    return DeclBuilder::Create<::pasta::Decl>(ast, val);
+  }
+  assert(false && "Decl::NonClosureContext can return nullptr!");
+  __builtin_unreachable();
+}
+
   // OwningModule
 uint32_t Decl::OwningModuleID(void) const {
   auto val = u.Decl->getOwningModuleID();
   return val;
 }
 
-  // PreviousDecl
+::pasta::Decl Decl::PreviousDecl(void) const {
+  auto val = u.Decl->getPreviousDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::Decl>(ast, val);
+  }
+  assert(false && "Decl::PreviousDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
   // TokenRange
-  // TranslationUnitDecl
+::pasta::TranslationUnitDecl Decl::TranslationUnitDecl(void) const {
+  auto val = u.Decl->getTranslationUnitDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::TranslationUnitDecl>(ast, val);
+  }
+  assert(false && "Decl::TranslationUnitDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 bool Decl::HasAttrs(void) const {
   auto val = u.Decl->hasAttrs();
   return val;
@@ -343,7 +424,15 @@ FriendDecl::FriendDecl(
     const ::clang::FriendDecl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
-  // FriendDecl
+::pasta::NamedDecl FriendDecl::FindFriendDecl(void) const {
+  auto val = u.FriendDecl->getFriendDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
+  }
+  assert(false && "FriendDecl::FindFriendDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 std::optional<::pasta::Token> FriendDecl::FriendToken(void) const {
   auto val = u.FriendDecl->getFriendLoc();
   return ast->TokenAt(val);
@@ -367,7 +456,15 @@ FriendTemplateDecl::FriendTemplateDecl(
     const ::clang::FriendTemplateDecl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
-  // FriendDecl
+::pasta::NamedDecl FriendTemplateDecl::FindFriendDecl(void) const {
+  auto val = u.FriendTemplateDecl->getFriendDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
+  }
+  assert(false && "FriendTemplateDecl::FindFriendDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 std::optional<::pasta::Token> FriendTemplateDecl::FriendToken(void) const {
   auto val = u.FriendTemplateDecl->getFriendLoc();
   return ast->TokenAt(val);
@@ -392,7 +489,15 @@ LifetimeExtendedTemporaryDecl::LifetimeExtendedTemporaryDecl(
     : Decl(std::move(ast_), decl_) {}
 
   // ChildrenExpr
-  // ExtendingDecl
+::pasta::ValueDecl LifetimeExtendedTemporaryDecl::ExtendingDecl(void) const {
+  auto val = u.LifetimeExtendedTemporaryDecl->getExtendingDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ValueDecl>(ast, val);
+  }
+  assert(false && "LifetimeExtendedTemporaryDecl::ExtendingDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 uint32_t LifetimeExtendedTemporaryDecl::ManglingNumber(void) const {
   auto val = u.LifetimeExtendedTemporaryDecl->getManglingNumber();
   return val;
@@ -439,7 +544,15 @@ Linkage NamedDecl::FormalLinkage(void) const {
 }
 
   // Identifier
-  // MostRecentDecl
+::pasta::NamedDecl NamedDecl::MostRecentDecl(void) const {
+  auto val = u.NamedDecl->getMostRecentDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
+  }
+  assert(false && "NamedDecl::MostRecentDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 std::string_view NamedDecl::Name(void) const {
   auto val = u.NamedDecl->getName();
   if (auto size = val.size()) {
@@ -454,7 +567,15 @@ std::string NamedDecl::NameAsString(void) const {
   return val;
 }
 
-  // UnderlyingDecl
+::pasta::NamedDecl NamedDecl::UnderlyingDecl(void) const {
+  auto val = u.NamedDecl->getUnderlyingDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
+  }
+  assert(false && "NamedDecl::UnderlyingDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 Visibility NamedDecl::Visibility(void) const {
   auto val = u.NamedDecl->getVisibility();
   return static_cast<::pasta::Visibility>(static_cast<unsigned int>(val));
@@ -495,9 +616,33 @@ std::optional<::pasta::Token> NamespaceAliasDecl::AliasToken(void) const {
   return ast->TokenAt(val);
 }
 
-  // AliasedNamespace
-  // CanonicalDecl
-  // Namespace
+::pasta::NamedDecl NamespaceAliasDecl::AliasedNamespace(void) const {
+  auto val = u.NamespaceAliasDecl->getAliasedNamespace();
+  if (val) {
+    return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
+  }
+  assert(false && "NamespaceAliasDecl::AliasedNamespace can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::NamespaceAliasDecl NamespaceAliasDecl::CanonicalDecl(void) const {
+  auto val = u.NamespaceAliasDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::NamespaceAliasDecl>(ast, val);
+  }
+  assert(false && "NamespaceAliasDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::NamespaceDecl NamespaceAliasDecl::Namespace(void) const {
+  auto val = u.NamespaceAliasDecl->getNamespace();
+  if (val) {
+    return DeclBuilder::Create<::pasta::NamespaceDecl>(ast, val);
+  }
+  assert(false && "NamespaceAliasDecl::Namespace can return nullptr!");
+  __builtin_unreachable();
+}
+
 std::optional<::pasta::Token> NamespaceAliasDecl::NamespaceToken(void) const {
   auto val = u.NamespaceAliasDecl->getNamespaceLoc();
   return ast->TokenAt(val);
@@ -516,13 +661,29 @@ NamespaceDecl::NamespaceDecl(
     const ::clang::NamespaceDecl *decl_)
     : NamedDecl(ast_, decl_) {}
 
-  // AnonymousNamespace
+::pasta::NamespaceDecl NamespaceDecl::AnonymousNamespace(void) const {
+  auto val = u.NamespaceDecl->getAnonymousNamespace();
+  if (val) {
+    return DeclBuilder::Create<::pasta::NamespaceDecl>(ast, val);
+  }
+  assert(false && "NamespaceDecl::AnonymousNamespace can return nullptr!");
+  __builtin_unreachable();
+}
+
 std::optional<::pasta::Token> NamespaceDecl::BeginToken(void) const {
   auto val = u.NamespaceDecl->getBeginLoc();
   return ast->TokenAt(val);
 }
 
-  // CanonicalDecl
+::pasta::NamespaceDecl NamespaceDecl::CanonicalDecl(void) const {
+  auto val = u.NamespaceDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::NamespaceDecl>(ast, val);
+  }
+  assert(false && "NamespaceDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 std::optional<::pasta::Token> NamespaceDecl::RBraceToken(void) const {
   auto val = u.NamespaceDecl->getRBraceLoc();
   return ast->TokenAt(val);
@@ -563,7 +724,15 @@ ObjCCompatibleAliasDecl::ObjCCompatibleAliasDecl(
     const ::clang::ObjCCompatibleAliasDecl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
-  // ClassInterface
+::pasta::ObjCInterfaceDecl ObjCCompatibleAliasDecl::ClassInterface(void) const {
+  auto val = u.ObjCCompatibleAliasDecl->getClassInterface();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ObjCInterfaceDecl>(ast, val);
+  }
+  assert(false && "ObjCCompatibleAliasDecl::ClassInterface can return nullptr!");
+  __builtin_unreachable();
+}
+
 ObjCContainerDecl::ObjCContainerDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::ObjCContainerDecl *decl_)
@@ -590,7 +759,15 @@ ObjCImplDecl::ObjCImplDecl(
     const ::clang::ObjCImplDecl *decl_)
     : ObjCContainerDecl(std::move(ast_), decl_) {}
 
-  // ClassInterface
+::pasta::ObjCInterfaceDecl ObjCImplDecl::ClassInterface(void) const {
+  auto val = u.ObjCImplDecl->getClassInterface();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ObjCInterfaceDecl>(ast, val);
+  }
+  assert(false && "ObjCImplDecl::ClassInterface can return nullptr!");
+  __builtin_unreachable();
+}
+
   // Property_impls
 ObjCImplementationDecl::ObjCImplementationDecl(
     std::shared_ptr<ASTImpl> ast_,
@@ -627,7 +804,15 @@ uint32_t ObjCImplementationDecl::NumIvarInitializers(void) const {
   return val;
 }
 
-  // SuperClass
+::pasta::ObjCInterfaceDecl ObjCImplementationDecl::SuperClass(void) const {
+  auto val = u.ObjCImplementationDecl->getSuperClass();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ObjCInterfaceDecl>(ast, val);
+  }
+  assert(false && "ObjCImplementationDecl::SuperClass can return nullptr!");
+  __builtin_unreachable();
+}
+
 std::optional<::pasta::Token> ObjCImplementationDecl::SuperClassToken(void) const {
   auto val = u.ObjCImplementationDecl->getSuperClassLoc();
   return ast->TokenAt(val);
@@ -656,10 +841,34 @@ bool ObjCInterfaceDecl::DeclaresOrInheritsDesignatedInitializers(void) const {
   return val;
 }
 
-  // CanonicalDecl
-  // CategoryListRaw
+::pasta::ObjCInterfaceDecl ObjCInterfaceDecl::CanonicalDecl(void) const {
+  auto val = u.ObjCInterfaceDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ObjCInterfaceDecl>(ast, val);
+  }
+  assert(false && "ObjCInterfaceDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::ObjCCategoryDecl ObjCInterfaceDecl::CategoryListRaw(void) const {
+  auto val = u.ObjCInterfaceDecl->getCategoryListRaw();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ObjCCategoryDecl>(ast, val);
+  }
+  assert(false && "ObjCInterfaceDecl::CategoryListRaw can return nullptr!");
+  __builtin_unreachable();
+}
+
   // CategoryMethod
-  // Definition
+::pasta::ObjCInterfaceDecl ObjCInterfaceDecl::Definition(void) const {
+  auto val = u.ObjCInterfaceDecl->getDefinition();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ObjCInterfaceDecl>(ast, val);
+  }
+  assert(false && "ObjCInterfaceDecl::Definition can return nullptr!");
+  __builtin_unreachable();
+}
+
 std::optional<::pasta::Token> ObjCInterfaceDecl::EndOfDefinitionToken(void) const {
   auto val = u.ObjCInterfaceDecl->getEndOfDefinitionLoc();
   return ast->TokenAt(val);
@@ -707,9 +916,33 @@ std::optional<::pasta::Token> ObjCMethodDecl::BeginToken(void) const {
   return ast->TokenAt(val);
 }
 
-  // CanonicalDecl
-  // ClassInterface
-  // CmdDecl
+::pasta::ObjCMethodDecl ObjCMethodDecl::CanonicalDecl(void) const {
+  auto val = u.ObjCMethodDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, val);
+  }
+  assert(false && "ObjCMethodDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::ObjCInterfaceDecl ObjCMethodDecl::ClassInterface(void) const {
+  auto val = u.ObjCMethodDecl->getClassInterface();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ObjCInterfaceDecl>(ast, val);
+  }
+  assert(false && "ObjCMethodDecl::ClassInterface can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::ImplicitParamDecl ObjCMethodDecl::CmdDecl(void) const {
+  auto val = u.ObjCMethodDecl->getCmdDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ImplicitParamDecl>(ast, val);
+  }
+  assert(false && "ObjCMethodDecl::CmdDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 std::optional<::pasta::Token> ObjCMethodDecl::DeclaratorEndToken(void) const {
   auto val = u.ObjCMethodDecl->getDeclaratorEndLoc();
   return ast->TokenAt(val);
@@ -732,7 +965,15 @@ std::optional<::pasta::Token> ObjCMethodDecl::SelectorStartToken(void) const {
   return ast->TokenAt(val);
 }
 
-  // SelfDecl
+::pasta::ImplicitParamDecl ObjCMethodDecl::SelfDecl(void) const {
+  auto val = u.ObjCMethodDecl->getSelfDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ImplicitParamDecl>(ast, val);
+  }
+  assert(false && "ObjCMethodDecl::SelfDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
   // TokenRange
 bool ObjCMethodDecl::HasBody(void) const {
   auto val = u.ObjCMethodDecl->hasBody();
@@ -815,7 +1056,15 @@ std::optional<::pasta::Token> ObjCPropertyDecl::AtToken(void) const {
   return ast->TokenAt(val);
 }
 
-  // GetterMethodDecl
+::pasta::ObjCMethodDecl ObjCPropertyDecl::GetterMethodDecl(void) const {
+  auto val = u.ObjCPropertyDecl->getGetterMethodDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, val);
+  }
+  assert(false && "ObjCPropertyDecl::GetterMethodDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
   // GetterName
 std::optional<::pasta::Token> ObjCPropertyDecl::GetterNameToken(void) const {
   auto val = u.ObjCPropertyDecl->getGetterNameLoc();
@@ -830,14 +1079,30 @@ std::optional<::pasta::Token> ObjCPropertyDecl::LParenToken(void) const {
   // PropertyAttributes
   // PropertyAttributesAsWritten
   // PropertyImplementation
-  // PropertyIvarDecl
+::pasta::ObjCIvarDecl ObjCPropertyDecl::PropertyIvarDecl(void) const {
+  auto val = u.ObjCPropertyDecl->getPropertyIvarDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ObjCIvarDecl>(ast, val);
+  }
+  assert(false && "ObjCPropertyDecl::PropertyIvarDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 ObjCPropertyQueryKind ObjCPropertyDecl::QueryKind(void) const {
   auto val = u.ObjCPropertyDecl->getQueryKind();
   return static_cast<::pasta::ObjCPropertyQueryKind>(static_cast<unsigned char>(val));
 }
 
   // SetterKind
-  // SetterMethodDecl
+::pasta::ObjCMethodDecl ObjCPropertyDecl::SetterMethodDecl(void) const {
+  auto val = u.ObjCPropertyDecl->getSetterMethodDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, val);
+  }
+  assert(false && "ObjCPropertyDecl::SetterMethodDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
   // SetterName
 std::optional<::pasta::Token> ObjCPropertyDecl::SetterNameToken(void) const {
   auto val = u.ObjCPropertyDecl->getSetterNameLoc();
@@ -893,17 +1158,49 @@ std::optional<::pasta::Token> ObjCPropertyImplDecl::BeginToken(void) const {
 }
 
   // GetterCXXConstructor
-  // GetterMethodDecl
-  // PropertyDecl
+::pasta::ObjCMethodDecl ObjCPropertyImplDecl::GetterMethodDecl(void) const {
+  auto val = u.ObjCPropertyImplDecl->getGetterMethodDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, val);
+  }
+  assert(false && "ObjCPropertyImplDecl::GetterMethodDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::ObjCPropertyDecl ObjCPropertyImplDecl::PropertyDecl(void) const {
+  auto val = u.ObjCPropertyImplDecl->getPropertyDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ObjCPropertyDecl>(ast, val);
+  }
+  assert(false && "ObjCPropertyImplDecl::PropertyDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
   // PropertyImplementation
-  // PropertyIvarDecl
+::pasta::ObjCIvarDecl ObjCPropertyImplDecl::PropertyIvarDecl(void) const {
+  auto val = u.ObjCPropertyImplDecl->getPropertyIvarDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ObjCIvarDecl>(ast, val);
+  }
+  assert(false && "ObjCPropertyImplDecl::PropertyIvarDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 std::optional<::pasta::Token> ObjCPropertyImplDecl::PropertyIvarDeclToken(void) const {
   auto val = u.ObjCPropertyImplDecl->getPropertyIvarDeclLoc();
   return ast->TokenAt(val);
 }
 
   // SetterCXXAssignment
-  // SetterMethodDecl
+::pasta::ObjCMethodDecl ObjCPropertyImplDecl::SetterMethodDecl(void) const {
+  auto val = u.ObjCPropertyImplDecl->getSetterMethodDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, val);
+  }
+  assert(false && "ObjCPropertyImplDecl::SetterMethodDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 bool ObjCPropertyImplDecl::IsIvarNameSpecified(void) const {
   auto val = u.ObjCPropertyImplDecl->isIvarNameSpecified();
   return val;
@@ -914,8 +1211,24 @@ ObjCProtocolDecl::ObjCProtocolDecl(
     const ::clang::ObjCProtocolDecl *decl_)
     : ObjCContainerDecl(std::move(ast_), decl_) {}
 
-  // CanonicalDecl
-  // Definition
+::pasta::ObjCProtocolDecl ObjCProtocolDecl::CanonicalDecl(void) const {
+  auto val = u.ObjCProtocolDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ObjCProtocolDecl>(ast, val);
+  }
+  assert(false && "ObjCProtocolDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::ObjCProtocolDecl ObjCProtocolDecl::Definition(void) const {
+  auto val = u.ObjCProtocolDecl->getDefinition();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ObjCProtocolDecl>(ast, val);
+  }
+  assert(false && "ObjCProtocolDecl::Definition can return nullptr!");
+  __builtin_unreachable();
+}
+
   // ReferencedProtocols
   // TokenRange
 bool ObjCProtocolDecl::HasDefinition(void) const {
@@ -1004,7 +1317,15 @@ TemplateDecl::TemplateDecl(
 
   // TokenRange
   // TemplateParameters
-  // TemplatedDecl
+::pasta::NamedDecl TemplateDecl::TemplatedDecl(void) const {
+  auto val = u.TemplateDecl->getTemplatedDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
+  }
+  assert(false && "TemplateDecl::TemplatedDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 TemplateTemplateParmDecl::TemplateTemplateParmDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::TemplateTemplateParmDecl *decl_)
@@ -1050,7 +1371,15 @@ TranslationUnitDecl::TranslationUnitDecl(
     : Decl(ast_, decl_) {}
 
   // ASTContext
-  // AnonymousNamespace
+::pasta::NamespaceDecl TranslationUnitDecl::AnonymousNamespace(void) const {
+  auto val = u.TranslationUnitDecl->getAnonymousNamespace();
+  if (val) {
+    return DeclBuilder::Create<::pasta::NamespaceDecl>(ast, val);
+  }
+  assert(false && "TranslationUnitDecl::AnonymousNamespace can return nullptr!");
+  __builtin_unreachable();
+}
+
 TypeDecl::TypeDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::TypeDecl *decl_)
@@ -1068,7 +1397,15 @@ TypedefNameDecl::TypedefNameDecl(
     const ::clang::TypedefNameDecl *decl_)
     : TypeDecl(std::move(ast_), decl_) {}
 
-  // CanonicalDecl
+::pasta::TypedefNameDecl TypedefNameDecl::CanonicalDecl(void) const {
+  auto val = u.TypedefNameDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::TypedefNameDecl>(ast, val);
+  }
+  assert(false && "TypedefNameDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
   // TypeSourceInfo
   // UnderlyingType
 bool TypedefNameDecl::IsModed(void) const {
@@ -1086,7 +1423,15 @@ UnresolvedUsingTypenameDecl::UnresolvedUsingTypenameDecl(
     const ::clang::UnresolvedUsingTypenameDecl *decl_)
     : TypeDecl(std::move(ast_), decl_) {}
 
-  // CanonicalDecl
+::pasta::UnresolvedUsingTypenameDecl UnresolvedUsingTypenameDecl::CanonicalDecl(void) const {
+  auto val = u.UnresolvedUsingTypenameDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::UnresolvedUsingTypenameDecl>(ast, val);
+  }
+  assert(false && "UnresolvedUsingTypenameDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 std::optional<::pasta::Token> UnresolvedUsingTypenameDecl::EllipsisToken(void) const {
   auto val = u.UnresolvedUsingTypenameDecl->getEllipsisLoc();
   return ast->TokenAt(val);
@@ -1115,7 +1460,15 @@ UsingDecl::UsingDecl(
     const ::clang::UsingDecl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
-  // CanonicalDecl
+::pasta::UsingDecl UsingDecl::CanonicalDecl(void) const {
+  auto val = u.UsingDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::UsingDecl>(ast, val);
+  }
+  assert(false && "UsingDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
   // NameInfo
   // Qualifier
   // QualifierToken
@@ -1140,7 +1493,15 @@ UsingDirectiveDecl::UsingDirectiveDecl(
     const ::clang::UsingDirectiveDecl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
-  // CommonAncestor
+::pasta::DeclContext UsingDirectiveDecl::CommonAncestor(void) const {
+  auto val = u.UsingDirectiveDecl->getCommonAncestor();
+  if (val) {
+    return DeclBuilder::Create<::pasta::DeclContext>(ast, val);
+  }
+  assert(false && "UsingDirectiveDecl::CommonAncestor can return nullptr!");
+  __builtin_unreachable();
+}
+
 std::optional<::pasta::Token> UsingDirectiveDecl::IdentLocation(void) const {
   auto val = u.UsingDirectiveDecl->getIdentLocation();
   return ast->TokenAt(val);
@@ -1151,8 +1512,24 @@ std::optional<::pasta::Token> UsingDirectiveDecl::NamespaceKeyLocation(void) con
   return ast->TokenAt(val);
 }
 
-  // NominatedNamespace
-  // NominatedNamespaceAsWritten
+::pasta::NamespaceDecl UsingDirectiveDecl::NominatedNamespace(void) const {
+  auto val = u.UsingDirectiveDecl->getNominatedNamespace();
+  if (val) {
+    return DeclBuilder::Create<::pasta::NamespaceDecl>(ast, val);
+  }
+  assert(false && "UsingDirectiveDecl::NominatedNamespace can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::NamedDecl UsingDirectiveDecl::NominatedNamespaceAsWritten(void) const {
+  auto val = u.UsingDirectiveDecl->getNominatedNamespaceAsWritten();
+  if (val) {
+    return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
+  }
+  assert(false && "UsingDirectiveDecl::NominatedNamespaceAsWritten can return nullptr!");
+  __builtin_unreachable();
+}
+
   // Qualifier
   // QualifierToken
   // TokenRange
@@ -1167,17 +1544,57 @@ UsingPackDecl::UsingPackDecl(
     : NamedDecl(std::move(ast_), decl_) {}
 
   // Expansions
-  // CanonicalDecl
-  // InstantiatedFromUsingDecl
+::pasta::UsingPackDecl UsingPackDecl::CanonicalDecl(void) const {
+  auto val = u.UsingPackDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::UsingPackDecl>(ast, val);
+  }
+  assert(false && "UsingPackDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::NamedDecl UsingPackDecl::InstantiatedFromUsingDecl(void) const {
+  auto val = u.UsingPackDecl->getInstantiatedFromUsingDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
+  }
+  assert(false && "UsingPackDecl::InstantiatedFromUsingDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
   // TokenRange
 UsingShadowDecl::UsingShadowDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::UsingShadowDecl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
-  // CanonicalDecl
-  // NextUsingShadowDecl
-  // TargetDecl
+::pasta::UsingShadowDecl UsingShadowDecl::CanonicalDecl(void) const {
+  auto val = u.UsingShadowDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::UsingShadowDecl>(ast, val);
+  }
+  assert(false && "UsingShadowDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::UsingShadowDecl UsingShadowDecl::NextUsingShadowDecl(void) const {
+  auto val = u.UsingShadowDecl->getNextUsingShadowDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::UsingShadowDecl>(ast, val);
+  }
+  assert(false && "UsingShadowDecl::NextUsingShadowDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::NamedDecl UsingShadowDecl::TargetDecl(void) const {
+  auto val = u.UsingShadowDecl->getTargetDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
+  }
+  assert(false && "UsingShadowDecl::TargetDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 ValueDecl::ValueDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::ValueDecl *decl_)
@@ -1232,7 +1649,15 @@ bool BlockDecl::DoesNotEscape(void) const {
   return val;
 }
 
-  // BlockManglingContextDecl
+::pasta::Decl BlockDecl::BlockManglingContextDecl(void) const {
+  auto val = u.BlockDecl->getBlockManglingContextDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::Decl>(ast, val);
+  }
+  assert(false && "BlockDecl::BlockManglingContextDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 uint32_t BlockDecl::BlockManglingNumber(void) const {
   auto val = u.BlockDecl->getBlockManglingNumber();
   return val;
@@ -1285,7 +1710,15 @@ CapturedDecl::CapturedDecl(
     const ::clang::CapturedDecl *decl_)
     : Decl(ast_, decl_) {}
 
-  // ContextParam
+::pasta::ImplicitParamDecl CapturedDecl::ContextParam(void) const {
+  auto val = u.CapturedDecl->getContextParam();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ImplicitParamDecl>(ast, val);
+  }
+  assert(false && "CapturedDecl::ContextParam can return nullptr!");
+  __builtin_unreachable();
+}
+
 uint32_t CapturedDecl::ContextParamPosition(void) const {
   auto val = u.CapturedDecl->getContextParamPosition();
   return val;
@@ -1303,7 +1736,15 @@ ClassScopeFunctionSpecializationDecl::ClassScopeFunctionSpecializationDecl(
     const ::clang::ClassScopeFunctionSpecializationDecl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
-  // Specialization
+::pasta::CXXMethodDecl ClassScopeFunctionSpecializationDecl::Specialization(void) const {
+  auto val = u.ClassScopeFunctionSpecializationDecl->getSpecialization();
+  if (val) {
+    return DeclBuilder::Create<::pasta::CXXMethodDecl>(ast, val);
+  }
+  assert(false && "ClassScopeFunctionSpecializationDecl::Specialization can return nullptr!");
+  __builtin_unreachable();
+}
+
   // TemplateArgsAsWritten
 bool ClassScopeFunctionSpecializationDecl::HasExplicitTemplateArgs(void) const {
   auto val = u.ClassScopeFunctionSpecializationDecl->hasExplicitTemplateArgs();
@@ -1332,10 +1773,42 @@ bool ConstructorUsingShadowDecl::ConstructsVirtualBase(void) const {
   return val;
 }
 
-  // ConstructedBaseClass
-  // ConstructedBaseClassShadowDecl
-  // NominatedBaseClassShadowDecl
-  // Parent
+::pasta::CXXRecordDecl ConstructorUsingShadowDecl::ConstructedBaseClass(void) const {
+  auto val = u.ConstructorUsingShadowDecl->getConstructedBaseClass();
+  if (val) {
+    return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
+  }
+  assert(false && "ConstructorUsingShadowDecl::ConstructedBaseClass can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::ConstructorUsingShadowDecl ConstructorUsingShadowDecl::ConstructedBaseClassShadowDecl(void) const {
+  auto val = u.ConstructorUsingShadowDecl->getConstructedBaseClassShadowDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ConstructorUsingShadowDecl>(ast, val);
+  }
+  assert(false && "ConstructorUsingShadowDecl::ConstructedBaseClassShadowDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::ConstructorUsingShadowDecl ConstructorUsingShadowDecl::NominatedBaseClassShadowDecl(void) const {
+  auto val = u.ConstructorUsingShadowDecl->getNominatedBaseClassShadowDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ConstructorUsingShadowDecl>(ast, val);
+  }
+  assert(false && "ConstructorUsingShadowDecl::NominatedBaseClassShadowDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::CXXRecordDecl ConstructorUsingShadowDecl::Parent(void) const {
+  auto val = u.ConstructorUsingShadowDecl->getParent();
+  if (val) {
+    return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
+  }
+  assert(false && "ConstructorUsingShadowDecl::Parent can return nullptr!");
+  __builtin_unreachable();
+}
+
 DeclaratorDecl::DeclaratorDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::DeclaratorDecl *decl_)
@@ -1366,7 +1839,15 @@ EnumConstantDecl::EnumConstantDecl(
     const ::clang::EnumConstantDecl *decl_)
     : ValueDecl(std::move(ast_), decl_) {}
 
-  // CanonicalDecl
+::pasta::EnumConstantDecl EnumConstantDecl::CanonicalDecl(void) const {
+  auto val = u.EnumConstantDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::EnumConstantDecl>(ast, val);
+  }
+  assert(false && "EnumConstantDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
   // InitExpr
   // InitVal
 FieldDecl::FieldDecl(
@@ -1375,7 +1856,15 @@ FieldDecl::FieldDecl(
     : DeclaratorDecl(std::move(ast_), decl_) {}
 
   // BitWidth
-  // CanonicalDecl
+::pasta::FieldDecl FieldDecl::CanonicalDecl(void) const {
+  auto val = u.FieldDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::FieldDecl>(ast, val);
+  }
+  assert(false && "FieldDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
   // CapturedVLAType
 InClassInitStyle FieldDecl::InClassInitStyle(void) const {
   auto val = u.FieldDecl->getInClassInitStyle();
@@ -1383,7 +1872,15 @@ InClassInitStyle FieldDecl::InClassInitStyle(void) const {
 }
 
   // InClassInitializer
-  // Parent
+::pasta::RecordDecl FieldDecl::Parent(void) const {
+  auto val = u.FieldDecl->getParent();
+  if (val) {
+    return DeclBuilder::Create<::pasta::RecordDecl>(ast, val);
+  }
+  assert(false && "FieldDecl::Parent can return nullptr!");
+  __builtin_unreachable();
+}
+
 bool FieldDecl::HasCapturedVLAType(void) const {
   auto val = u.FieldDecl->hasCapturedVLAType();
   return val;
@@ -1422,14 +1919,30 @@ bool FunctionDecl::DoesThisDeclarationHaveABody(void) const {
   // AssociatedConstraints
   // Body
   // CallResultType
-  // CanonicalDecl
+::pasta::FunctionDecl FunctionDecl::CanonicalDecl(void) const {
+  auto val = u.FunctionDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
+  }
+  assert(false && "FunctionDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 ConstexprSpecKind FunctionDecl::ConstexprKind(void) const {
   auto val = u.FunctionDecl->getConstexprKind();
   return static_cast<::pasta::ConstexprSpecKind>(static_cast<unsigned int>(val));
 }
 
   // DeclaredReturnType
-  // Definition
+::pasta::FunctionDecl FunctionDecl::Definition(void) const {
+  auto val = u.FunctionDecl->getDefinition();
+  if (val) {
+    return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
+  }
+  assert(false && "FunctionDecl::Definition can return nullptr!");
+  __builtin_unreachable();
+}
+
 std::optional<::pasta::Token> FunctionDecl::EllipsisToken(void) const {
   auto val = u.FunctionDecl->getEllipsisLoc();
   return ast->TokenAt(val);
@@ -1610,14 +2123,38 @@ IndirectFieldDecl::IndirectFieldDecl(
     : ValueDecl(std::move(ast_), decl_) {}
 
   // Chain
-  // AnonField
-  // CanonicalDecl
+::pasta::FieldDecl IndirectFieldDecl::AnonField(void) const {
+  auto val = u.IndirectFieldDecl->getAnonField();
+  if (val) {
+    return DeclBuilder::Create<::pasta::FieldDecl>(ast, val);
+  }
+  assert(false && "IndirectFieldDecl::AnonField can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::IndirectFieldDecl IndirectFieldDecl::CanonicalDecl(void) const {
+  auto val = u.IndirectFieldDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::IndirectFieldDecl>(ast, val);
+  }
+  assert(false && "IndirectFieldDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 uint32_t IndirectFieldDecl::ChainingSize(void) const {
   auto val = u.IndirectFieldDecl->getChainingSize();
   return val;
 }
 
-  // VarDecl
+::pasta::VarDecl IndirectFieldDecl::VarDecl(void) const {
+  auto val = u.IndirectFieldDecl->getVarDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
+  }
+  assert(false && "IndirectFieldDecl::VarDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 LabelDecl::LabelDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::LabelDecl *decl_)
@@ -1757,7 +2294,15 @@ std::optional<::pasta::Token> ObjCCategoryDecl::CategoryNameToken(void) const {
   return ast->TokenAt(val);
 }
 
-  // ClassInterface
+::pasta::ObjCInterfaceDecl ObjCCategoryDecl::ClassInterface(void) const {
+  auto val = u.ObjCCategoryDecl->getClassInterface();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ObjCInterfaceDecl>(ast, val);
+  }
+  assert(false && "ObjCCategoryDecl::ClassInterface can return nullptr!");
+  __builtin_unreachable();
+}
+
 std::optional<::pasta::Token> ObjCCategoryDecl::IvarLBraceToken(void) const {
   auto val = u.ObjCCategoryDecl->getIvarLBraceLoc();
   return ast->TokenAt(val);
@@ -1768,8 +2313,24 @@ std::optional<::pasta::Token> ObjCCategoryDecl::IvarRBraceToken(void) const {
   return ast->TokenAt(val);
 }
 
-  // NextClassCategory
-  // NextClassCategoryRaw
+::pasta::ObjCCategoryDecl ObjCCategoryDecl::NextClassCategory(void) const {
+  auto val = u.ObjCCategoryDecl->getNextClassCategory();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ObjCCategoryDecl>(ast, val);
+  }
+  assert(false && "ObjCCategoryDecl::NextClassCategory can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::ObjCCategoryDecl ObjCCategoryDecl::NextClassCategoryRaw(void) const {
+  auto val = u.ObjCCategoryDecl->getNextClassCategoryRaw();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ObjCCategoryDecl>(ast, val);
+  }
+  assert(false && "ObjCCategoryDecl::NextClassCategoryRaw can return nullptr!");
+  __builtin_unreachable();
+}
+
   // ReferencedProtocols
   // TypeParamList
   // Ivars
@@ -1792,7 +2353,15 @@ ObjCIvarDecl::ObjCIvarDecl(
 
   // AccessControl
   // CanonicalAccessControl
-  // NextIvar
+::pasta::ObjCIvarDecl ObjCIvarDecl::NextIvar(void) const {
+  auto val = u.ObjCIvarDecl->getNextIvar();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ObjCIvarDecl>(ast, val);
+  }
+  assert(false && "ObjCIvarDecl::NextIvar can return nullptr!");
+  __builtin_unreachable();
+}
+
 bool ObjCIvarDecl::Synthesize(void) const {
   auto val = u.ObjCIvarDecl->getSynthesize();
   return val;
@@ -1833,8 +2402,24 @@ RedeclarableTemplateDecl::RedeclarableTemplateDecl(
     const ::clang::RedeclarableTemplateDecl *decl_)
     : TemplateDecl(std::move(ast_), decl_) {}
 
-  // CanonicalDecl
-  // InstantiatedFromMemberTemplate
+::pasta::RedeclarableTemplateDecl RedeclarableTemplateDecl::CanonicalDecl(void) const {
+  auto val = u.RedeclarableTemplateDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::RedeclarableTemplateDecl>(ast, val);
+  }
+  assert(false && "RedeclarableTemplateDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::RedeclarableTemplateDecl RedeclarableTemplateDecl::InstantiatedFromMemberTemplate(void) const {
+  auto val = u.RedeclarableTemplateDecl->getInstantiatedFromMemberTemplate();
+  if (val) {
+    return DeclBuilder::Create<::pasta::RedeclarableTemplateDecl>(ast, val);
+  }
+  assert(false && "RedeclarableTemplateDecl::InstantiatedFromMemberTemplate can return nullptr!");
+  __builtin_unreachable();
+}
+
 bool RedeclarableTemplateDecl::IsMemberSpecialization(void) const {
   auto val = u.RedeclarableTemplateDecl->isMemberSpecialization();
   return val;
@@ -1846,7 +2431,15 @@ TagDecl::TagDecl(
     : TypeDecl(ast_, decl_) {}
 
   // BraceRange
-  // CanonicalDecl
+::pasta::TagDecl TagDecl::CanonicalDecl(void) const {
+  auto val = u.TagDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::TagDecl>(ast, val);
+  }
+  assert(false && "TagDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 std::optional<::pasta::Token> TagDecl::InnerLocStart(void) const {
   auto val = u.TagDecl->getInnerLocStart();
   return ast->TokenAt(val);
@@ -1874,7 +2467,15 @@ TagTypeKind TagDecl::TagKind(void) const {
 }
 
   // TemplateParameterList
-  // TypedefNameForAnonDecl
+::pasta::TypedefNameDecl TagDecl::TypedefNameForAnonDecl(void) const {
+  auto val = u.TagDecl->getTypedefNameForAnonDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::TypedefNameDecl>(ast, val);
+  }
+  assert(false && "TagDecl::TypedefNameForAnonDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 bool TagDecl::HasNameForLinkage(void) const {
   auto val = u.TagDecl->hasNameForLinkage();
   return val;
@@ -1995,16 +2596,56 @@ TypeAliasDecl::TypeAliasDecl(
     const ::clang::TypeAliasDecl *decl_)
     : TypedefNameDecl(std::move(ast_), decl_) {}
 
-  // DescribedAliasTemplate
+::pasta::TypeAliasTemplateDecl TypeAliasDecl::DescribedAliasTemplate(void) const {
+  auto val = u.TypeAliasDecl->getDescribedAliasTemplate();
+  if (val) {
+    return DeclBuilder::Create<::pasta::TypeAliasTemplateDecl>(ast, val);
+  }
+  assert(false && "TypeAliasDecl::DescribedAliasTemplate can return nullptr!");
+  __builtin_unreachable();
+}
+
 TypeAliasTemplateDecl::TypeAliasTemplateDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::TypeAliasTemplateDecl *decl_)
     : RedeclarableTemplateDecl(std::move(ast_), decl_) {}
 
-  // CanonicalDecl
-  // InstantiatedFromMemberTemplate
-  // PreviousDecl
-  // TemplatedDecl
+::pasta::TypeAliasTemplateDecl TypeAliasTemplateDecl::CanonicalDecl(void) const {
+  auto val = u.TypeAliasTemplateDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::TypeAliasTemplateDecl>(ast, val);
+  }
+  assert(false && "TypeAliasTemplateDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::TypeAliasTemplateDecl TypeAliasTemplateDecl::InstantiatedFromMemberTemplate(void) const {
+  auto val = u.TypeAliasTemplateDecl->getInstantiatedFromMemberTemplate();
+  if (val) {
+    return DeclBuilder::Create<::pasta::TypeAliasTemplateDecl>(ast, val);
+  }
+  assert(false && "TypeAliasTemplateDecl::InstantiatedFromMemberTemplate can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::TypeAliasTemplateDecl TypeAliasTemplateDecl::PreviousDecl(void) const {
+  auto val = u.TypeAliasTemplateDecl->getPreviousDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::TypeAliasTemplateDecl>(ast, val);
+  }
+  assert(false && "TypeAliasTemplateDecl::PreviousDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::TypeAliasDecl TypeAliasTemplateDecl::TemplatedDecl(void) const {
+  auto val = u.TypeAliasTemplateDecl->getTemplatedDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::TypeAliasDecl>(ast, val);
+  }
+  assert(false && "TypeAliasTemplateDecl::TemplatedDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 TypedefDecl::TypedefDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::TypedefDecl *decl_)
@@ -2015,7 +2656,15 @@ UnresolvedUsingValueDecl::UnresolvedUsingValueDecl(
     const ::clang::UnresolvedUsingValueDecl *decl_)
     : ValueDecl(std::move(ast_), decl_) {}
 
-  // CanonicalDecl
+::pasta::UnresolvedUsingValueDecl UnresolvedUsingValueDecl::CanonicalDecl(void) const {
+  auto val = u.UnresolvedUsingValueDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::UnresolvedUsingValueDecl>(ast, val);
+  }
+  assert(false && "UnresolvedUsingValueDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 std::optional<::pasta::Token> UnresolvedUsingValueDecl::EllipsisToken(void) const {
   auto val = u.UnresolvedUsingValueDecl->getEllipsisLoc();
   return ast->TokenAt(val);
@@ -2044,12 +2693,36 @@ VarDecl::VarDecl(
     const ::clang::VarDecl *decl_)
     : DeclaratorDecl(std::move(ast_), decl_) {}
 
-  // ActingDefinition
+::pasta::VarDecl VarDecl::ActingDefinition(void) const {
+  auto val = u.VarDecl->getActingDefinition();
+  if (val) {
+    return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
+  }
+  assert(false && "VarDecl::ActingDefinition can return nullptr!");
+  __builtin_unreachable();
+}
+
   // AnyInitializer
-  // CanonicalDecl
+::pasta::VarDecl VarDecl::CanonicalDecl(void) const {
+  auto val = u.VarDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
+  }
+  assert(false && "VarDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
   // Init
   // InitStyle
-  // InitializingDeclaration
+::pasta::VarDecl VarDecl::InitializingDeclaration(void) const {
+  auto val = u.VarDecl->getInitializingDeclaration();
+  if (val) {
+    return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
+  }
+  assert(false && "VarDecl::InitializingDeclaration can return nullptr!");
+  __builtin_unreachable();
+}
+
 StorageClass VarDecl::StorageClass(void) const {
   auto val = u.VarDecl->getStorageClass();
   return static_cast<::pasta::StorageClass>(static_cast<unsigned int>(val));
@@ -2177,11 +2850,51 @@ VarTemplateDecl::VarTemplateDecl(
     const ::clang::VarTemplateDecl *decl_)
     : RedeclarableTemplateDecl(std::move(ast_), decl_) {}
 
-  // CanonicalDecl
-  // InstantiatedFromMemberTemplate
-  // MostRecentDecl
-  // PreviousDecl
-  // TemplatedDecl
+::pasta::VarTemplateDecl VarTemplateDecl::CanonicalDecl(void) const {
+  auto val = u.VarTemplateDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::VarTemplateDecl>(ast, val);
+  }
+  assert(false && "VarTemplateDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::VarTemplateDecl VarTemplateDecl::InstantiatedFromMemberTemplate(void) const {
+  auto val = u.VarTemplateDecl->getInstantiatedFromMemberTemplate();
+  if (val) {
+    return DeclBuilder::Create<::pasta::VarTemplateDecl>(ast, val);
+  }
+  assert(false && "VarTemplateDecl::InstantiatedFromMemberTemplate can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::VarTemplateDecl VarTemplateDecl::MostRecentDecl(void) const {
+  auto val = u.VarTemplateDecl->getMostRecentDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::VarTemplateDecl>(ast, val);
+  }
+  assert(false && "VarTemplateDecl::MostRecentDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::VarTemplateDecl VarTemplateDecl::PreviousDecl(void) const {
+  auto val = u.VarTemplateDecl->getPreviousDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::VarTemplateDecl>(ast, val);
+  }
+  assert(false && "VarTemplateDecl::PreviousDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::VarDecl VarTemplateDecl::TemplatedDecl(void) const {
+  auto val = u.VarTemplateDecl->getTemplatedDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
+  }
+  assert(false && "VarTemplateDecl::TemplatedDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 bool VarTemplateDecl::IsThisDeclarationADefinition(void) const {
   auto val = u.VarTemplateDecl->isThisDeclarationADefinition();
   return val;
@@ -2240,7 +2953,15 @@ CXXDeductionGuideDecl::CXXDeductionGuideDecl(
     const ::clang::CXXDeductionGuideDecl *decl_)
     : FunctionDecl(std::move(ast_), decl_) {}
 
-  // DeducedTemplate
+::pasta::TemplateDecl CXXDeductionGuideDecl::DeducedTemplate(void) const {
+  auto val = u.CXXDeductionGuideDecl->getDeducedTemplate();
+  if (val) {
+    return DeclBuilder::Create<::pasta::TemplateDecl>(ast, val);
+  }
+  assert(false && "CXXDeductionGuideDecl::DeducedTemplate can return nullptr!");
+  __builtin_unreachable();
+}
+
   // ExplicitSpecifier
 bool CXXDeductionGuideDecl::IsCopyDeductionCandidate(void) const {
   auto val = u.CXXDeductionGuideDecl->isCopyDeductionCandidate();
@@ -2257,13 +2978,37 @@ CXXMethodDecl::CXXMethodDecl(
     const ::clang::CXXMethodDecl *decl_)
     : FunctionDecl(std::move(ast_), decl_) {}
 
-  // CanonicalDecl
+::pasta::CXXMethodDecl CXXMethodDecl::CanonicalDecl(void) const {
+  auto val = u.CXXMethodDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::CXXMethodDecl>(ast, val);
+  }
+  assert(false && "CXXMethodDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
   // CorrespondingMethodDeclaredInClass
   // CorrespondingMethodInClass
   // DevirtualizedMethod
   // MethodQualifiers
-  // MostRecentDecl
-  // Parent
+::pasta::CXXMethodDecl CXXMethodDecl::MostRecentDecl(void) const {
+  auto val = u.CXXMethodDecl->getMostRecentDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::CXXMethodDecl>(ast, val);
+  }
+  assert(false && "CXXMethodDecl::MostRecentDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::CXXRecordDecl CXXMethodDecl::Parent(void) const {
+  auto val = u.CXXMethodDecl->getParent();
+  if (val) {
+    return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
+  }
+  assert(false && "CXXMethodDecl::Parent can return nullptr!");
+  __builtin_unreachable();
+}
+
 RefQualifierKind CXXMethodDecl::RefQualifier(void) const {
   auto val = u.CXXMethodDecl->getRefQualifier();
   return static_cast<::pasta::RefQualifierKind>(static_cast<unsigned int>(val));
@@ -2294,11 +3039,51 @@ ClassTemplateDecl::ClassTemplateDecl(
     const ::clang::ClassTemplateDecl *decl_)
     : RedeclarableTemplateDecl(std::move(ast_), decl_) {}
 
-  // CanonicalDecl
-  // InstantiatedFromMemberTemplate
-  // MostRecentDecl
-  // PreviousDecl
-  // TemplatedDecl
+::pasta::ClassTemplateDecl ClassTemplateDecl::CanonicalDecl(void) const {
+  auto val = u.ClassTemplateDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ClassTemplateDecl>(ast, val);
+  }
+  assert(false && "ClassTemplateDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::ClassTemplateDecl ClassTemplateDecl::InstantiatedFromMemberTemplate(void) const {
+  auto val = u.ClassTemplateDecl->getInstantiatedFromMemberTemplate();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ClassTemplateDecl>(ast, val);
+  }
+  assert(false && "ClassTemplateDecl::InstantiatedFromMemberTemplate can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::ClassTemplateDecl ClassTemplateDecl::MostRecentDecl(void) const {
+  auto val = u.ClassTemplateDecl->getMostRecentDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ClassTemplateDecl>(ast, val);
+  }
+  assert(false && "ClassTemplateDecl::MostRecentDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::ClassTemplateDecl ClassTemplateDecl::PreviousDecl(void) const {
+  auto val = u.ClassTemplateDecl->getPreviousDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ClassTemplateDecl>(ast, val);
+  }
+  assert(false && "ClassTemplateDecl::PreviousDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::CXXRecordDecl ClassTemplateDecl::TemplatedDecl(void) const {
+  auto val = u.ClassTemplateDecl->getTemplatedDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
+  }
+  assert(false && "ClassTemplateDecl::TemplatedDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 bool ClassTemplateDecl::IsThisDeclarationADefinition(void) const {
   auto val = u.ClassTemplateDecl->isThisDeclarationADefinition();
   return val;
@@ -2317,12 +3102,36 @@ EnumDecl::EnumDecl(
     : TagDecl(std::move(ast_), decl_) {}
 
   // Enumerators
-  // CanonicalDecl
-  // Definition
+::pasta::EnumDecl EnumDecl::CanonicalDecl(void) const {
+  auto val = u.EnumDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::EnumDecl>(ast, val);
+  }
+  assert(false && "EnumDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::EnumDecl EnumDecl::Definition(void) const {
+  auto val = u.EnumDecl->getDefinition();
+  if (val) {
+    return DeclBuilder::Create<::pasta::EnumDecl>(ast, val);
+  }
+  assert(false && "EnumDecl::Definition can return nullptr!");
+  __builtin_unreachable();
+}
+
   // IntegerType
   // IntegerTypeSourceInfo
   // MemberSpecializationInfo
-  // MostRecentDecl
+::pasta::EnumDecl EnumDecl::MostRecentDecl(void) const {
+  auto val = u.EnumDecl->getMostRecentDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::EnumDecl>(ast, val);
+  }
+  assert(false && "EnumDecl::MostRecentDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 uint32_t EnumDecl::NumNegativeBits(void) const {
   auto val = u.EnumDecl->getNumNegativeBits();
   return val;
@@ -2333,7 +3142,15 @@ uint32_t EnumDecl::NumPositiveBits(void) const {
   return val;
 }
 
-  // PreviousDecl
+::pasta::EnumDecl EnumDecl::PreviousDecl(void) const {
+  auto val = u.EnumDecl->getPreviousDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::EnumDecl>(ast, val);
+  }
+  assert(false && "EnumDecl::PreviousDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
   // PromotionType
 bool EnumDecl::IsComplete(void) const {
   auto val = u.EnumDecl->isComplete();
@@ -2360,11 +3177,51 @@ FunctionTemplateDecl::FunctionTemplateDecl(
     const ::clang::FunctionTemplateDecl *decl_)
     : RedeclarableTemplateDecl(std::move(ast_), decl_) {}
 
-  // CanonicalDecl
-  // InstantiatedFromMemberTemplate
-  // MostRecentDecl
-  // PreviousDecl
-  // TemplatedDecl
+::pasta::FunctionTemplateDecl FunctionTemplateDecl::CanonicalDecl(void) const {
+  auto val = u.FunctionTemplateDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::FunctionTemplateDecl>(ast, val);
+  }
+  assert(false && "FunctionTemplateDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::FunctionTemplateDecl FunctionTemplateDecl::InstantiatedFromMemberTemplate(void) const {
+  auto val = u.FunctionTemplateDecl->getInstantiatedFromMemberTemplate();
+  if (val) {
+    return DeclBuilder::Create<::pasta::FunctionTemplateDecl>(ast, val);
+  }
+  assert(false && "FunctionTemplateDecl::InstantiatedFromMemberTemplate can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::FunctionTemplateDecl FunctionTemplateDecl::MostRecentDecl(void) const {
+  auto val = u.FunctionTemplateDecl->getMostRecentDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::FunctionTemplateDecl>(ast, val);
+  }
+  assert(false && "FunctionTemplateDecl::MostRecentDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::FunctionTemplateDecl FunctionTemplateDecl::PreviousDecl(void) const {
+  auto val = u.FunctionTemplateDecl->getPreviousDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::FunctionTemplateDecl>(ast, val);
+  }
+  assert(false && "FunctionTemplateDecl::PreviousDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::FunctionDecl FunctionTemplateDecl::TemplatedDecl(void) const {
+  auto val = u.FunctionTemplateDecl->getTemplatedDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
+  }
+  assert(false && "FunctionTemplateDecl::TemplatedDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 bool FunctionTemplateDecl::IsAbbreviated(void) const {
   auto val = u.FunctionTemplateDecl->isAbbreviated();
   return val;
@@ -2442,9 +3299,33 @@ bool RecordDecl::CanPassInRegisters(void) const {
 
   // Fields
   // ArgPassingRestrictions
-  // Definition
-  // MostRecentDecl
-  // PreviousDecl
+::pasta::RecordDecl RecordDecl::Definition(void) const {
+  auto val = u.RecordDecl->getDefinition();
+  if (val) {
+    return DeclBuilder::Create<::pasta::RecordDecl>(ast, val);
+  }
+  assert(false && "RecordDecl::Definition can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::RecordDecl RecordDecl::MostRecentDecl(void) const {
+  auto val = u.RecordDecl->getMostRecentDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::RecordDecl>(ast, val);
+  }
+  assert(false && "RecordDecl::MostRecentDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::RecordDecl RecordDecl::PreviousDecl(void) const {
+  auto val = u.RecordDecl->getPreviousDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::RecordDecl>(ast, val);
+  }
+  assert(false && "RecordDecl::PreviousDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 bool RecordDecl::HasFlexibleArrayMember(void) const {
   auto val = u.RecordDecl->hasFlexibleArrayMember();
   return val;
@@ -2512,7 +3393,15 @@ VarTemplatePartialSpecializationDecl::VarTemplatePartialSpecializationDecl(
 
   // Profile
   // AssociatedConstraints
-  // InstantiatedFromMember
+::pasta::VarTemplatePartialSpecializationDecl VarTemplatePartialSpecializationDecl::InstantiatedFromMember(void) const {
+  auto val = u.VarTemplatePartialSpecializationDecl->getInstantiatedFromMember();
+  if (val) {
+    return DeclBuilder::Create<::pasta::VarTemplatePartialSpecializationDecl>(ast, val);
+  }
+  assert(false && "VarTemplatePartialSpecializationDecl::InstantiatedFromMember can return nullptr!");
+  __builtin_unreachable();
+}
+
   // TemplateArgsAsWritten
   // TemplateParameters
 bool VarTemplatePartialSpecializationDecl::HasAssociatedConstraints(void) const {
@@ -2525,7 +3414,15 @@ CXXConstructorDecl::CXXConstructorDecl(
     const ::clang::CXXConstructorDecl *decl_)
     : CXXMethodDecl(std::move(ast_), decl_) {}
 
-  // CanonicalDecl
+::pasta::CXXConstructorDecl CXXConstructorDecl::CanonicalDecl(void) const {
+  auto val = u.CXXConstructorDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::CXXConstructorDecl>(ast, val);
+  }
+  assert(false && "CXXConstructorDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
   // ExplicitSpecifier
   // InheritedConstructor
 uint32_t CXXConstructorDecl::NumCtorInitializers(void) const {
@@ -2569,7 +3466,15 @@ CXXConversionDecl::CXXConversionDecl(
     const ::clang::CXXConversionDecl *decl_)
     : CXXMethodDecl(std::move(ast_), decl_) {}
 
-  // CanonicalDecl
+::pasta::CXXConversionDecl CXXConversionDecl::CanonicalDecl(void) const {
+  auto val = u.CXXConversionDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::CXXConversionDecl>(ast, val);
+  }
+  assert(false && "CXXConversionDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
   // ConversionType
   // ExplicitSpecifier
 bool CXXConversionDecl::IsExplicit(void) const {
@@ -2582,8 +3487,24 @@ CXXDestructorDecl::CXXDestructorDecl(
     const ::clang::CXXDestructorDecl *decl_)
     : CXXMethodDecl(std::move(ast_), decl_) {}
 
-  // CanonicalDecl
-  // OperatorDelete
+::pasta::CXXDestructorDecl CXXDestructorDecl::CanonicalDecl(void) const {
+  auto val = u.CXXDestructorDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::CXXDestructorDecl>(ast, val);
+  }
+  assert(false && "CXXDestructorDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::FunctionDecl CXXDestructorDecl::OperatorDelete(void) const {
+  auto val = u.CXXDestructorDecl->getOperatorDelete();
+  if (val) {
+    return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
+  }
+  assert(false && "CXXDestructorDecl::OperatorDelete can return nullptr!");
+  __builtin_unreachable();
+}
+
   // OperatorDeleteThisArg
 CXXRecordDecl::CXXRecordDecl(
     std::shared_ptr<ASTImpl> ast_,
@@ -2624,8 +3545,24 @@ bool CXXRecordDecl::DefaultedMoveConstructorIsDeleted(void) const {
 }
 
   // Friends
-  // CanonicalDecl
-  // Definition
+::pasta::CXXRecordDecl CXXRecordDecl::CanonicalDecl(void) const {
+  auto val = u.CXXRecordDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
+  }
+  assert(false && "CXXRecordDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::CXXRecordDecl CXXRecordDecl::Definition(void) const {
+  auto val = u.CXXRecordDecl->getDefinition();
+  if (val) {
+    return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
+  }
+  assert(false && "CXXRecordDecl::Definition can return nullptr!");
+  __builtin_unreachable();
+}
+
 LambdaCaptureDefault CXXRecordDecl::LambdaCaptureDefault(void) const {
   auto val = u.CXXRecordDecl->getLambdaCaptureDefault();
   return static_cast<::pasta::LambdaCaptureDefault>(static_cast<unsigned int>(val));
@@ -2637,8 +3574,24 @@ uint32_t CXXRecordDecl::LambdaManglingNumber(void) const {
 }
 
   // LambdaTypeInfo
-  // MostRecentDecl
-  // MostRecentNonInjectedDecl
+::pasta::CXXRecordDecl CXXRecordDecl::MostRecentDecl(void) const {
+  auto val = u.CXXRecordDecl->getMostRecentDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
+  }
+  assert(false && "CXXRecordDecl::MostRecentDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::CXXRecordDecl CXXRecordDecl::MostRecentNonInjectedDecl(void) const {
+  auto val = u.CXXRecordDecl->getMostRecentNonInjectedDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
+  }
+  assert(false && "CXXRecordDecl::MostRecentNonInjectedDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 uint32_t CXXRecordDecl::NumBases(void) const {
   auto val = u.CXXRecordDecl->getNumBases();
   return val;
@@ -2649,7 +3602,15 @@ uint32_t CXXRecordDecl::NumVBases(void) const {
   return val;
 }
 
-  // PreviousDecl
+::pasta::CXXRecordDecl CXXRecordDecl::PreviousDecl(void) const {
+  auto val = u.CXXRecordDecl->getPreviousDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
+  }
+  assert(false && "CXXRecordDecl::PreviousDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 bool CXXRecordDecl::HasConstexprDefaultConstructor(void) const {
   auto val = u.CXXRecordDecl->hasConstexprDefaultConstructor();
   return val;
@@ -2960,7 +3921,15 @@ bool CXXRecordDecl::IsLiteral(void) const {
   return val;
 }
 
-  // IsLocalClass
+::pasta::FunctionDecl CXXRecordDecl::IsLocalClass(void) const {
+  auto val = u.CXXRecordDecl->isLocalClass();
+  if (val) {
+    return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
+  }
+  assert(false && "CXXRecordDecl::IsLocalClass can return nullptr!");
+  __builtin_unreachable();
+}
+
 bool CXXRecordDecl::IsPOD(void) const {
   auto val = u.CXXRecordDecl->isPOD();
   return val;
@@ -3107,8 +4076,24 @@ ClassTemplatePartialSpecializationDecl::ClassTemplatePartialSpecializationDecl(
   // Profile
   // AssociatedConstraints
   // InjectedSpecializationType
-  // InstantiatedFromMember
-  // InstantiatedFromMemberTemplate
+::pasta::ClassTemplatePartialSpecializationDecl ClassTemplatePartialSpecializationDecl::InstantiatedFromMember(void) const {
+  auto val = u.ClassTemplatePartialSpecializationDecl->getInstantiatedFromMember();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ClassTemplatePartialSpecializationDecl>(ast, val);
+  }
+  assert(false && "ClassTemplatePartialSpecializationDecl::InstantiatedFromMember can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::ClassTemplatePartialSpecializationDecl ClassTemplatePartialSpecializationDecl::InstantiatedFromMemberTemplate(void) const {
+  auto val = u.ClassTemplatePartialSpecializationDecl->getInstantiatedFromMemberTemplate();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ClassTemplatePartialSpecializationDecl>(ast, val);
+  }
+  assert(false && "ClassTemplatePartialSpecializationDecl::InstantiatedFromMemberTemplate can return nullptr!");
+  __builtin_unreachable();
+}
+
   // TemplateArgsAsWritten
   // TemplateParameters
 bool ClassTemplatePartialSpecializationDecl::HasAssociatedConstraints(void) const {

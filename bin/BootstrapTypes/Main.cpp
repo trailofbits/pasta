@@ -204,6 +204,10 @@ static llvm::StringRef kEnumPrefixesToStrip[] = {
     "ADOF_",
 };
 
+// Set of ClassName::MethodName pairs such that the class can return a nullptr,
+// and thus `std::optional` probably needs to be used.
+static std::set<std::pair<std::string, std::string>> kCanReturnNullptr{};
+
 std::unordered_map<std::string, std::set<std::string>> gBaseClasses;
 std::unordered_map<std::string, std::set<std::string>> gDerivedClasses;
 std::vector<std::string> gTopologicallyOrderedDecls;
@@ -218,6 +222,9 @@ static std::string Capitalize(llvm::StringRef name) {
 static std::string CxxName(llvm::StringRef name) {
   if (name == "getKind" || name == "getDeclKindName") {
     return "";  // We have our own `DeclKind`.
+
+  } else if (name == "getFriendDecl") {
+    return "FindFriendDecl";
 
   } else if (name.startswith("get")) {
     return CxxName(name.substr(3));
@@ -256,7 +263,11 @@ static void DeclareCppMethods(std::ostream &os, const std::string &class_name) {
       if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
         auto &new_rt = kRetTypeMap[PASTA_STR(rt)]; \
         if (!new_rt.empty()) { \
-          os << "  " << new_rt << ' ' << meth_name << "(void) const;\n"; \
+          if (kCanReturnNullptr.count(std::make_pair(class_name, meth_name))) { \
+            os << "  std::optional<" << new_rt << "> " << meth_name << "(void) const;\n"; \
+          } else { \
+            os << "  " << new_rt << ' ' << meth_name << "(void) const;\n"; \
+          } \
         } else { \
           os << "  // " << meth_name << "\n"; \
         } \
@@ -307,7 +318,8 @@ static void DeclareCppMethods(std::ostream &os, const std::string &class_name) {
 #include "Generated/Decl.h"
 }
 
-
+// Adds mappings that translate between clang enumeration types and PASTA
+// enumeration types.
 static void MapEnumRetTypes(void) {
 
 #define PASTA_BEGIN_NAMED_ENUM(enum_name, underlying_type) \
@@ -334,6 +346,36 @@ static void MapEnumRetTypes(void) {
 #include "Generated/Decl.h"
 }
 
+// Adds mappings that translate between pointers to clang Decl types and PASTA
+// Decl types.
+static void MapDeclRetTypes(void) {
+  for (const auto &name : kDeclNames) {
+    std::stringstream ss;
+    ss << "(clang::" << name << " *)";
+    kRetTypeMap.emplace(ss.str(), "::pasta::" + name);
+
+    std::stringstream rvs;
+    rvs
+        << "  if (val) {\n"
+        << "    return DeclBuilder::Create<::pasta::" << name << ">(ast, val);\n"
+        << "  }\n";
+    gRetTypeToValMap[ss.str()] = rvs.str();
+
+    std::stringstream ss2;
+    ss2 << "(const clang::" << name << " *)";
+
+    kRetTypeMap.emplace(ss2.str(), "::pasta::" + name);
+
+    std::stringstream crvs;
+    crvs
+        << "  if (val) {\n"
+        << "    return DeclBuilder::Create<::pasta::" << name << ">(ast, val);\n"
+        << "  }\n";
+    gRetTypeToValMap[ss2.str()] = crvs.str();
+  }
+}
+
+// Declare PASTA versions of every clang enumeration type from our macro file.
 static void DeclareEnums(std::ostream &os) {
   llvm::StringRef enumerator_name;
 
@@ -362,7 +404,8 @@ static void DeclareEnums(std::ostream &os) {
 #include "Generated/Decl.h"
 }
 
-static void DeclareCppClasses(void) {
+// Generate `include/pasta/AST/Decl.h`.
+static void GenerateDeclH(void) {
   std::ofstream os(kASTDeclHeader);
 
   os
@@ -402,12 +445,24 @@ static void DeclareCppClasses(void) {
   os
       << "};\n\n";
 
+  // Declare all of the enums.
   DeclareEnums(os);
+
+  // This is a class used to construct all the decls, so that we don't
+  // need to make the constructors all public.
+  os << "class DeclBuilder;\n";
 
   // Forward declare them all.
   for (const auto &name : kDeclNames) {
     os << "class " << name << ";\n";
   }
+
+  // Define the declcontext manually.
+  // TODO(pag): Fix this.
+  os << "class DeclContext {\n"
+     << " public:\n"
+     << "  DeclContext(std::shared_ptr<ASTImpl> ast_, const clang::DeclContext *) {}\n"
+     << "};\n\n";
 
   // Define them all.
   for (const auto &name : gTopologicallyOrderedDecls) {
@@ -477,6 +532,7 @@ static void DeclareCppClasses(void) {
     os
         << " private:\n"
         << "  " << name << "(void) = delete;\n\n"
+        << "  friend class DeclBuilder;\n"
         << "  friend class AST;\n"
         << "  friend class ASTImpl;\n\n"
         << " protected:\n"
@@ -502,11 +558,28 @@ static void DefineCppMethods(std::ostream &os, const std::string &class_name) {
       if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
         auto &rt_type = kRetTypeMap[PASTA_STR(rt)]; \
         auto &rt_val = gRetTypeToValMap[PASTA_STR(rt)]; \
+        llvm::StringRef rt_ref(PASTA_STR(rt)); \
         if (!rt_type.empty() && !rt_val.empty()) { \
-          os << rt_type << " " << class_name << "::" << meth_name << "(void) const {\n" \
+          const auto can_ret_null = kCanReturnNullptr.count(\
+              std::make_pair(class_name, meth_name)); \
+          if (can_ret_null) { \
+            os << "std::optional<" << rt_type << ">"; \
+          } else { \
+            os << rt_type; \
+          } \
+          os << " " << class_name << "::" << meth_name << "(void) const {\n" \
              << "  auto val = u." << class_name << "->" << PASTA_STR(meth) << "();\n" \
-             << rt_val \
-             << "}\n\n"; \
+             << rt_val; \
+          if (rt_ref.endswith(" *)")) { \
+            if (can_ret_null) { \
+              os << "  return std::nullopt;\n"; \
+            } else { \
+              os << "  assert(false && \"" << class_name << "::" \
+                 << meth_name << " can return nullptr!\");\n" \
+                 << "  __builtin_unreachable();\n"; \
+            } \
+          } \
+          os << "}\n\n"; \
         } else { \
           os << "  // " << meth_name << "\n"; \
         } \
@@ -557,7 +630,8 @@ static void DefineCppMethods(std::ostream &os, const std::string &class_name) {
 #include "Generated/Decl.h"
 }
 
-static void DefineCppClasses(void) {
+// Generate `lib/AST/Decl.cpp`.
+static void GenerateDeclCpp(void) {
   std::ofstream os(kASTDeclCpp);
 
   os
@@ -578,7 +652,14 @@ static void DefineCppClasses(void) {
       << "#include <clang/AST/DeclTemplate.h>\n"
       << "#pragma clang diagnostic pop\n\n"
       << "#include \"AST.h\"\n\n"
-      << "namespace pasta {\n"
+      << "namespace pasta {\n\n"
+      << "class DeclBuilder {\n"
+      << " public:\n"
+      << "  template <typename T, typename D>\n"
+      << "  inline static T Create(std::shared_ptr<ASTImpl> ast_, const D *decl_) {\n"
+      << "    return T(std::move(ast_), decl_);\n"
+      << "  }\n"
+      << "};\n\n"
       << "namespace {\n"
       << "// Return the PASTA `DeclKind` for a Clang `Decl`.\n"
       << "static DeclKind KindOfDecl(const clang::Decl *decl) {\n"
@@ -714,8 +795,9 @@ int main(void) {
   }
 
   MapEnumRetTypes();
-  DeclareCppClasses();
-  DefineCppClasses();
+  MapDeclRetTypes();
+  GenerateDeclH();
+  GenerateDeclCpp();
 
   return EXIT_SUCCESS;
 }

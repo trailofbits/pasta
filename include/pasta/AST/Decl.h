@@ -4,8 +4,11 @@
 
 // This file is auto-generated.
 
+#include <cstdint>
 #include <memory>
 #include <optional>
+#include <string>
+#include <string_view>
 
 #include "Token.h"
 
@@ -310,8 +313,8 @@ class Decl {
   // DeclContext
   std::optional<::pasta::Token> EndToken(void) const;
   // FriendObjectKind
-  // GlobalID
-  // IdentifierNamespace
+  uint32_t GlobalID(void) const;
+  uint32_t IdentifierNamespace(void) const;
   // ImportedOwningModule
   // LexicalDeclContext
   // LocalOwningModule
@@ -321,7 +324,7 @@ class Decl {
   // NextDeclInContext
   // NonClosureContext
   // OwningModule
-  // OwningModuleID
+  uint32_t OwningModuleID(void) const;
   // PreviousDecl
   // TokenRange
   // TranslationUnitDecl
@@ -576,7 +579,7 @@ class FriendDecl : public Decl {
   // FriendDecl
   std::optional<::pasta::Token> FriendToken(void) const;
   // FriendType
-  // FriendTypeNumTemplateParameterLists
+  uint32_t FriendTypeNumTemplateParameterLists(void) const;
   // FriendTypeTemplateParameterList
   // TokenRange
   bool IsUnsupportedFriend(void) const;
@@ -605,7 +608,7 @@ class FriendTemplateDecl : public Decl {
   // FriendDecl
   std::optional<::pasta::Token> FriendToken(void) const;
   // FriendType
-  // NumTemplateParameters
+  uint32_t NumTemplateParameters(void) const;
   // TemplateParameterList
  private:
   FriendTemplateDecl(void) = delete;
@@ -654,7 +657,7 @@ class LifetimeExtendedTemporaryDecl : public Decl {
 
   // ChildrenExpr
   // ExtendingDecl
-  // ManglingNumber
+  uint32_t ManglingNumber(void) const;
   // TemporaryExpr
   // Value
  private:
@@ -711,8 +714,8 @@ class NamedDecl : public Decl {
   // FormalLinkage
   // Identifier
   // MostRecentDecl
-  // Name
-  // NameAsString
+  std::string_view Name(void) const;
+  std::string NameAsString(void) const;
   // UnderlyingDecl
   // Visibility
   bool HasExternalFormalLinkage(void) const;
@@ -956,9 +959,9 @@ class ObjCImplementationDecl : public ObjCImplDecl {
   // Identifier
   std::optional<::pasta::Token> IvarLBraceToken(void) const;
   std::optional<::pasta::Token> IvarRBraceToken(void) const;
-  // Name
-  // NameAsString
-  // NumIvarInitializers
+  std::string_view Name(void) const;
+  std::string NameAsString(void) const;
+  uint32_t NumIvarInitializers(void) const;
   // SuperClass
   std::optional<::pasta::Token> SuperClassToken(void) const;
   bool HasDestructors(void) const;
@@ -1042,7 +1045,7 @@ class ObjCMethodDecl : public NamedDecl {
   // CmdDecl
   std::optional<::pasta::Token> DeclaratorEndToken(void) const;
   // ImplementationControl
-  // NumSelectorLocs
+  uint32_t NumSelectorLocs(void) const;
   // ObjCDeclQualifier
   // ParamDecl
   // ReturnType
@@ -1199,7 +1202,7 @@ class PragmaCommentDecl : public Decl {
   PragmaCommentDecl &operator=(const PragmaCommentDecl &) = default;
   PragmaCommentDecl &operator=(PragmaCommentDecl &&) noexcept = default;
 
-  // Arg
+  std::string_view Arg(void) const;
   // CommentKind
  private:
   PragmaCommentDecl(void) = delete;
@@ -1223,8 +1226,8 @@ class PragmaDetectMismatchDecl : public Decl {
   PragmaDetectMismatchDecl &operator=(const PragmaDetectMismatchDecl &) = default;
   PragmaDetectMismatchDecl &operator=(PragmaDetectMismatchDecl &&) noexcept = default;
 
-  // Name
-  // Value
+  std::string_view Name(void) const;
+  std::string_view Value(void) const;
  private:
   PragmaDetectMismatchDecl(void) = delete;
 
@@ -1325,7 +1328,7 @@ class TemplateTemplateParmDecl : public TemplateDecl {
   // DefaultArgStorage
   // DefaultArgument
   // ExpansionTemplateParameters
-  // NumExpansionTemplateParameters
+  uint32_t NumExpansionTemplateParameters(void) const;
   // TokenRange
   bool HasDefaultArgument(void) const;
   bool IsExpandedParameterPack(void) const;
@@ -1648,12 +1651,12 @@ class BlockDecl : public Decl {
   bool CapturesCXXThis(void) const;
   bool DoesNotEscape(void) const;
   // BlockManglingContextDecl
-  // BlockManglingNumber
+  uint32_t BlockManglingNumber(void) const;
   // Body
   std::optional<::pasta::Token> CaretLocation(void) const;
   // CompoundBody
-  // NumCaptures
-  // NumParams
+  uint32_t NumCaptures(void) const;
+  uint32_t NumParams(void) const;
   // ParamDecl
   // SignatureAsWritten
   bool HasCaptures(void) const;
@@ -1707,8 +1710,8 @@ class CapturedDecl : public Decl {
   CapturedDecl &operator=(CapturedDecl &&) noexcept = default;
 
   // ContextParam
-  // ContextParamPosition
-  // NumParams
+  uint32_t ContextParamPosition(void) const;
+  uint32_t NumParams(void) const;
   // Param
   // Parameters
  private:
@@ -1812,7 +1815,7 @@ class DeclaratorDecl : public ValueDecl {
 
   std::optional<::pasta::Token> BeginToken(void) const;
   std::optional<::pasta::Token> InnerLocStart(void) const;
-  // NumTemplateParameterLists
+  uint32_t NumTemplateParameterLists(void) const;
   // Qualifier
   // QualifierToken
   // TemplateParameterList
@@ -1969,7 +1972,7 @@ class IndirectFieldDecl : public ValueDecl {
   // Chain
   // AnonField
   // CanonicalDecl
-  // ChainingSize
+  uint32_t ChainingSize(void) const;
   // VarDecl
  private:
   IndirectFieldDecl(void) = delete;
@@ -1993,7 +1996,7 @@ class LabelDecl : public NamedDecl {
   LabelDecl &operator=(const LabelDecl &) = default;
   LabelDecl &operator=(LabelDecl &&) noexcept = default;
 
-  // MSAsmLabel
+  std::string_view MSAsmLabel(void) const;
   // TokenRange
   // Stmt
   bool IsGnuLocal(void) const;
@@ -2076,7 +2079,7 @@ class NonTypeTemplateParmDecl : public DeclaratorDecl {
   // DefaultArgument
   // ExpansionType
   // ExpansionTypeSourceInfo
-  // NumExpansionTypes
+  uint32_t NumExpansionTypes(void) const;
   // PlaceholderTypeConstraint
   bool HasDefaultArgument(void) const;
   bool HasPlaceholderTypeConstraint(void) const;
@@ -2264,7 +2267,7 @@ class ObjCTypeParamDecl : public TypedefNameDecl {
   ObjCTypeParamDecl &operator=(ObjCTypeParamDecl &&) noexcept = default;
 
   std::optional<::pasta::Token> ColonToken(void) const;
-  // Index
+  uint32_t Index(void) const;
   // Variance
   std::optional<::pasta::Token> VarianceToken(void) const;
   bool HasExplicitBound(void) const;
@@ -2318,8 +2321,8 @@ class TagDecl : public TypeDecl {
   // BraceRange
   // CanonicalDecl
   std::optional<::pasta::Token> InnerLocStart(void) const;
-  // KindName
-  // NumTemplateParameterLists
+  std::string_view KindName(void) const;
+  uint32_t NumTemplateParameterLists(void) const;
   // Qualifier
   // QualifierToken
   // TagKind
@@ -2366,7 +2369,7 @@ class TemplateTypeParmDecl : public TypeDecl {
   // DefaultArgStorage
   // DefaultArgument
   // DefaultArgumentInfo
-  // NumExpansionParameters
+  uint32_t NumExpansionParameters(void) const;
   // TypeConstraint
   bool HasDefaultArgument(void) const;
   bool HasTypeConstraint(void) const;
@@ -2734,8 +2737,8 @@ class EnumDecl : public TagDecl {
   // IntegerTypeSourceInfo
   // MemberSpecializationInfo
   // MostRecentDecl
-  // NumNegativeBits
-  // NumPositiveBits
+  uint32_t NumNegativeBits(void) const;
+  uint32_t NumPositiveBits(void) const;
   // PreviousDecl
   // PromotionType
   bool IsComplete(void) const;
@@ -2840,8 +2843,8 @@ class ParmVarDecl : public VarDecl {
   ParmVarDecl &operator=(ParmVarDecl &&) noexcept = default;
 
   // DefaultArg
-  // FunctionScopeDepth
-  // FunctionScopeIndex
+  uint32_t FunctionScopeDepth(void) const;
+  uint32_t FunctionScopeIndex(void) const;
   // ObjCDeclQualifier
   // UninstantiatedDefaultArg
   bool HasInheritedDefaultArg(void) const;
@@ -2942,7 +2945,7 @@ class CXXConstructorDecl : public CXXMethodDecl {
   // CanonicalDecl
   // ExplicitSpecifier
   // InheritedConstructor
-  // NumCtorInitializers
+  uint32_t NumCtorInitializers(void) const;
   // Inits
   bool IsCopyConstructor(void) const;
   bool IsCopyOrMoveConstructor(void) const;
@@ -3036,12 +3039,12 @@ class CXXRecordDecl : public RecordDecl {
   // CanonicalDecl
   // Definition
   // LambdaCaptureDefault
-  // LambdaManglingNumber
+  uint32_t LambdaManglingNumber(void) const;
   // LambdaTypeInfo
   // MostRecentDecl
   // MostRecentNonInjectedDecl
-  // NumBases
-  // NumVBases
+  uint32_t NumBases(void) const;
+  uint32_t NumVBases(void) const;
   // PreviousDecl
   bool HasConstexprDefaultConstructor(void) const;
   bool HasConstexprNonCopyMoveConstructor(void) const;

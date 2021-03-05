@@ -41,6 +41,44 @@ static const std::unordered_map<std::string, std::string> kCxxMethodRenames{
     {"Location", "Token"},
 };
 
+// Maps return types from the macros file to their replacements in the
+// output code.
+static std::unordered_map<std::string, std::string> kRetTypeMap{
+  {"(bool)", "bool"},
+  {"(clang::SourceLocation)", "std::optional<::pasta::Token>"},
+  {"(llvm::StringRef)", "std::string_view"},
+  {"(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>)", "std::string"},
+  {"(unsigned int)", "uint32_t"},
+  {"(unsigned long)", "uint64_t"},
+};
+
+// Maps return types from the macros file to how they should be returned
+// in the generated Decl.cpp file.
+static std::unordered_map<std::string, std::string> kRetTypeToValMap{
+  {"(bool)",
+   "  return val;\n"},
+
+  {"(clang::SourceLocation)",
+   "  return ast->TokenAt(val);\n"},
+
+  {"(llvm::StringRef)",
+   "  if (auto size = val.size()) {\n"
+   "    return std::string_view(val.data(), size);\n"
+   "  } else {\n"
+   "    return std::string_view();\n"
+   "  }\n"},
+
+  {"(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>)",
+   "  return val;\n"},
+
+  {"(unsigned int)",
+   "  return val;\n"},
+
+  {"(unsigned long)",
+   "  return val;\n"},
+};
+
+
 std::unordered_map<std::string, std::set<std::string>> gBaseClasses;
 std::unordered_map<std::string, std::set<std::string>> gDerivedClasses;
 std::vector<std::string> gTopologicallyOrderedDecls;
@@ -88,10 +126,9 @@ static void DeclareCppMethods(std::ostream &os, const std::string &class_name) {
 #define PASTA_CLASS_METHOD_0(cls, id, meth, rt) \
     if (class_name == #cls) { \
       if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
-        if (!strcmp(#rt, "(bool)")) { \
-          os << "  bool " << meth_name << "(void) const;\n"; \
-        } else if (!strcmp(#rt, "(clang::SourceLocation)")) { \
-          os << "  std::optional<::pasta::Token> " << meth_name << "(void) const;\n"; \
+        auto &new_rt = kRetTypeMap[#rt]; \
+        if (!new_rt.empty()) { \
+          os << "  " << new_rt << ' ' << meth_name << "(void) const;\n"; \
         } else { \
           os << "  // " << meth_name << "\n"; \
         } \
@@ -150,8 +187,11 @@ static void DeclareCppClasses(void) {
       << " * Copyright (c) 2021 Trail of Bits, Inc.\n"
       << " */\n\n"
       << "// This file is auto-generated.\n\n"
+      << "#include <cstdint>\n"
       << "#include <memory>\n"
-      << "#include <optional>\n\n"
+      << "#include <optional>\n"
+      << "#include <string>\n"
+      << "#include <string_view>\n\n"
       << "#include \"Token.h\"\n\n"
       << "namespace clang {\n";
 
@@ -272,14 +312,12 @@ static void DefineCppMethods(std::ostream &os, const std::string &class_name) {
 #define PASTA_CLASS_METHOD_0(cls, id, meth, rt) \
     if (class_name == #cls) { \
       if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
-        if (!strcmp(#rt, "(bool)")) { \
-          os << "bool " << class_name << "::" << meth_name << "(void) const {\n" \
-             << "  return u." << class_name << "->" << #meth << "();\n" \
-             << "}\n\n"; \
-        } else if (!strcmp(#rt, "(clang::SourceLocation)")) { \
-          os << "std::optional<::pasta::Token> " << class_name << "::" << meth_name \
-             << "(void) const {\n" \
-             << "  return ast->TokenAt(u." << class_name << "->" << #meth << "());\n" \
+        auto &rt_type = kRetTypeMap[#rt]; \
+        auto &rt_val = kRetTypeToValMap[#rt]; \
+        if (!rt_type.empty() && !rt_val.empty()) { \
+          os << rt_type << " " << class_name << "::" << meth_name << "(void) const {\n" \
+             << "  auto val = u." << class_name << "->" << #meth << "();\n" \
+             << rt_val \
              << "}\n\n"; \
         } else { \
           os << "  // " << meth_name << "\n"; \

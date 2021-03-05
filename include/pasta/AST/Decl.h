@@ -2613,6 +2613,9 @@ class Decl {
 
   std::string_view KindName(void) const;
 
+  inline bool operator==(const Decl &that) const noexcept {
+    return u.opaque == that.u.opaque;
+  }
  protected:
   std::shared_ptr<ASTImpl> ast;
   union {
@@ -2707,6 +2710,7 @@ class Decl {
     const ::clang::VarTemplateDecl *VarTemplateDecl;
     const ::clang::VarTemplatePartialSpecializationDecl *VarTemplatePartialSpecializationDecl;
     const ::clang::VarTemplateSpecializationDecl *VarTemplateSpecializationDecl;
+    const void *opaque;
   } u;
   DeclKind kind;
 

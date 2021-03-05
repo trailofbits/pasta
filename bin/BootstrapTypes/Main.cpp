@@ -508,6 +508,9 @@ static void GenerateDeclH(void) {
           << "    return kind;\n"
           << "  }\n\n"
           << "  std::string_view KindName(void) const;\n\n"
+          << "  inline bool operator==(const Decl &that) const noexcept {\n"
+          << "    return u.opaque == that.u.opaque;\n"
+          << "  }\n"
           << " protected:\n"
           << "  std::shared_ptr<ASTImpl> ast;\n"
           << "  union {\n";
@@ -519,6 +522,7 @@ static void GenerateDeclH(void) {
       }
 
       os
+          << "    const void *opaque;\n"
           << "  } u;\n"
           << "  DeclKind kind;\n\n"
           << "  inline explicit Decl(std::shared_ptr<ASTImpl> ast_,\n"

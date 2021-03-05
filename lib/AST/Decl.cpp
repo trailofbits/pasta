@@ -28,103 +28,103 @@ static DeclKind KindOfDecl(const clang::Decl *decl) {
 #define ABSTRACT_DECL(DECL)
 #define DECL(DERIVED, BASE) \
     case clang::Decl::DERIVED: \
-      return DeclKind::k ## DERIVED ## Decl;
+      return DeclKind::k ## DERIVED;
 #include <clang/AST/DeclNodes.inc>
   }
   __builtin_unreachable();
 }
 
 static const std::string_view kKindNames[] = {
-  "AccessSpecDecl",
-  "BindingDecl",
-  "BlockDecl",
-  "BuiltinTemplateDecl",
-  "CXXConstructorDecl",
-  "CXXConversionDecl",
-  "CXXDeductionGuideDecl",
-  "CXXDestructorDecl",
-  "CXXMethodDecl",
-  "CXXRecordDecl",
-  "CapturedDecl",
-  "ClassScopeFunctionSpecializationDecl",
-  "ClassTemplateDecl",
-  "ClassTemplatePartialSpecializationDecl",
-  "ClassTemplateSpecializationDecl",
-  "ConceptDecl",
-  "ConstructorUsingShadowDecl",
-  "DeclaratorDecl",
-  "DecompositionDecl",
-  "EmptyDecl",
-  "EnumConstantDecl",
-  "EnumDecl",
-  "ExportDecl",
-  "ExternCContextDecl",
-  "FieldDecl",
-  "FileScopeAsmDecl",
-  "FriendDecl",
-  "FriendTemplateDecl",
-  "FunctionDecl",
-  "FunctionTemplateDecl",
-  "ImplicitParamDecl",
-  "ImportDecl",
-  "IndirectFieldDecl",
-  "LabelDecl",
-  "LifetimeExtendedTemporaryDecl",
-  "LinkageSpecDecl",
-  "MSGuidDecl",
-  "MSPropertyDecl",
-  "NamedDecl",
-  "NamespaceAliasDecl",
-  "NamespaceDecl",
-  "NonTypeTemplateParmDecl",
-  "OMPAllocateDecl",
-  "OMPCapturedExprDecl",
-  "OMPDeclareMapperDecl",
-  "OMPDeclareReductionDecl",
-  "OMPRequiresDecl",
-  "OMPThreadPrivateDecl",
-  "ObjCAtDefsFieldDecl",
-  "ObjCCategoryDecl",
-  "ObjCCategoryImplDecl",
-  "ObjCCompatibleAliasDecl",
-  "ObjCContainerDecl",
-  "ObjCImplDecl",
-  "ObjCImplementationDecl",
-  "ObjCInterfaceDecl",
-  "ObjCIvarDecl",
-  "ObjCMethodDecl",
-  "ObjCPropertyDecl",
-  "ObjCPropertyImplDecl",
-  "ObjCProtocolDecl",
-  "ObjCTypeParamDecl",
-  "ParmVarDecl",
-  "PragmaCommentDecl",
-  "PragmaDetectMismatchDecl",
-  "RecordDecl",
-  "RedeclarableTemplateDecl",
-  "RequiresExprBodyDecl",
-  "StaticAssertDecl",
-  "TagDecl",
-  "TemplateDecl",
-  "TemplateTemplateParmDecl",
-  "TemplateTypeParmDecl",
-  "TranslationUnitDecl",
-  "TypeAliasDecl",
-  "TypeAliasTemplateDecl",
-  "TypeDecl",
-  "TypedefDecl",
-  "TypedefNameDecl",
-  "UnresolvedUsingTypenameDecl",
-  "UnresolvedUsingValueDecl",
-  "UsingDecl",
-  "UsingDirectiveDecl",
-  "UsingPackDecl",
-  "UsingShadowDecl",
-  "ValueDecl",
-  "VarDecl",
-  "VarTemplateDecl",
-  "VarTemplatePartialSpecializationDecl",
-  "VarTemplateSpecializationDecl",
+  "AccessSpec",
+  "Binding",
+  "Block",
+  "BuiltinTemplate",
+  "CXXConstructor",
+  "CXXConversion",
+  "CXXDeductionGuide",
+  "CXXDestructor",
+  "CXXMethod",
+  "CXXRecord",
+  "Captured",
+  "ClassScopeFunctionSpecialization",
+  "ClassTemplate",
+  "ClassTemplatePartialSpecialization",
+  "ClassTemplateSpecialization",
+  "Concept",
+  "ConstructorUsingShadow",
+  "Declarator",
+  "Decomposition",
+  "Empty",
+  "EnumConstant",
+  "Enum",
+  "Export",
+  "ExternCContext",
+  "Field",
+  "FileScopeAsm",
+  "Friend",
+  "FriendTemplate",
+  "Function",
+  "FunctionTemplate",
+  "ImplicitParam",
+  "Import",
+  "IndirectField",
+  "Label",
+  "LifetimeExtendedTemporary",
+  "LinkageSpec",
+  "MSGuid",
+  "MSProperty",
+  "Named",
+  "NamespaceAlias",
+  "Namespace",
+  "NonTypeTemplateParm",
+  "OMPAllocate",
+  "OMPCapturedExpr",
+  "OMPDeclareMapper",
+  "OMPDeclareReduction",
+  "OMPRequires",
+  "OMPThreadPrivate",
+  "ObjCAtDefsField",
+  "ObjCCategory",
+  "ObjCCategoryImpl",
+  "ObjCCompatibleAlias",
+  "ObjCContainer",
+  "ObjCImpl",
+  "ObjCImplementation",
+  "ObjCInterface",
+  "ObjCIvar",
+  "ObjCMethod",
+  "ObjCProperty",
+  "ObjCPropertyImpl",
+  "ObjCProtocol",
+  "ObjCTypeParam",
+  "ParmVar",
+  "PragmaComment",
+  "PragmaDetectMismatch",
+  "Record",
+  "RedeclarableTemplate",
+  "RequiresExprBody",
+  "StaticAssert",
+  "Tag",
+  "Template",
+  "TemplateTemplateParm",
+  "TemplateTypeParm",
+  "TranslationUnit",
+  "TypeAlias",
+  "TypeAliasTemplate",
+  "Type",
+  "Typedef",
+  "TypedefName",
+  "UnresolvedUsingTypename",
+  "UnresolvedUsingValue",
+  "Using",
+  "UsingDirective",
+  "UsingPack",
+  "UsingShadow",
+  "Value",
+  "Var",
+  "VarTemplate",
+  "VarTemplatePartialSpecialization",
+  "VarTemplateSpecialization",
 };
 }  // namespace
 
@@ -137,8 +137,16 @@ Decl::Decl(
     const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_, KindOfDecl(decl_)) {}
   // Attrs
-  // Access
-  // AccessUnsafe
+AccessSpecifier Decl::Access(void) const {
+  auto val = u.Decl->getAccess();
+  return static_cast<::pasta::AccessSpecifier>(static_cast<unsigned int>(val));
+}
+
+AccessSpecifier Decl::AccessUnsafe(void) const {
+  auto val = u.Decl->getAccessUnsafe();
+  return static_cast<::pasta::AccessSpecifier>(static_cast<unsigned int>(val));
+}
+
   // AsFunction
 std::optional<::pasta::Token> Decl::BeginToken(void) const {
   auto val = u.Decl->getBeginLoc();
@@ -425,7 +433,11 @@ NamedDecl::NamedDecl(
     : Decl(std::move(ast_), decl_) {}
 
   // DeclName
-  // FormalLinkage
+Linkage NamedDecl::FormalLinkage(void) const {
+  auto val = u.NamedDecl->getFormalLinkage();
+  return static_cast<::pasta::Linkage>(static_cast<unsigned char>(val));
+}
+
   // Identifier
   // MostRecentDecl
 std::string_view NamedDecl::Name(void) const {
@@ -443,7 +455,11 @@ std::string NamedDecl::NameAsString(void) const {
 }
 
   // UnderlyingDecl
-  // Visibility
+Visibility NamedDecl::Visibility(void) const {
+  auto val = u.NamedDecl->getVisibility();
+  return static_cast<::pasta::Visibility>(static_cast<unsigned int>(val));
+}
+
 bool NamedDecl::HasExternalFormalLinkage(void) const {
   auto val = u.NamedDecl->hasExternalFormalLinkage();
   return val;
@@ -815,7 +831,11 @@ std::optional<::pasta::Token> ObjCPropertyDecl::LParenToken(void) const {
   // PropertyAttributesAsWritten
   // PropertyImplementation
   // PropertyIvarDecl
-  // QueryKind
+ObjCPropertyQueryKind ObjCPropertyDecl::QueryKind(void) const {
+  auto val = u.ObjCPropertyDecl->getQueryKind();
+  return static_cast<::pasta::ObjCPropertyQueryKind>(static_cast<unsigned char>(val));
+}
+
   // SetterKind
   // SetterMethodDecl
   // SetterName
@@ -926,7 +946,11 @@ std::string_view PragmaCommentDecl::Arg(void) const {
   }
 }
 
-  // CommentKind
+PragmaMSCommentKind PragmaCommentDecl::CommentKind(void) const {
+  auto val = u.PragmaCommentDecl->getCommentKind();
+  return static_cast<::pasta::PragmaMSCommentKind>(static_cast<unsigned int>(val));
+}
+
 PragmaDetectMismatchDecl::PragmaDetectMismatchDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::PragmaDetectMismatchDecl *decl_)
@@ -1353,7 +1377,11 @@ FieldDecl::FieldDecl(
   // BitWidth
   // CanonicalDecl
   // CapturedVLAType
-  // InClassInitStyle
+InClassInitStyle FieldDecl::InClassInitStyle(void) const {
+  auto val = u.FieldDecl->getInClassInitStyle();
+  return static_cast<::pasta::InClassInitStyle>(static_cast<unsigned int>(val));
+}
+
   // InClassInitializer
   // Parent
 bool FieldDecl::HasCapturedVLAType(void) const {
@@ -1395,7 +1423,11 @@ bool FunctionDecl::DoesThisDeclarationHaveABody(void) const {
   // Body
   // CallResultType
   // CanonicalDecl
-  // ConstexprKind
+ConstexprSpecKind FunctionDecl::ConstexprKind(void) const {
+  auto val = u.FunctionDecl->getConstexprKind();
+  return static_cast<::pasta::ConstexprSpecKind>(static_cast<unsigned int>(val));
+}
+
   // DeclaredReturnType
   // Definition
 std::optional<::pasta::Token> FunctionDecl::EllipsisToken(void) const {
@@ -1403,11 +1435,19 @@ std::optional<::pasta::Token> FunctionDecl::EllipsisToken(void) const {
   return ast->TokenAt(val);
 }
 
-  // ExceptionSpecType
+ExceptionSpecificationType FunctionDecl::ExceptionSpecType(void) const {
+  auto val = u.FunctionDecl->getExceptionSpecType();
+  return static_cast<::pasta::ExceptionSpecificationType>(static_cast<unsigned int>(val));
+}
+
   // NameInfo
   // ParamDecl
   // ReturnType
-  // StorageClass
+StorageClass FunctionDecl::StorageClass(void) const {
+  auto val = u.FunctionDecl->getStorageClass();
+  return static_cast<::pasta::StorageClass>(static_cast<unsigned int>(val));
+}
+
 bool FunctionDecl::HasBody(void) const {
   auto val = u.FunctionDecl->hasBody();
   return val;
@@ -1773,7 +1813,11 @@ uint32_t ObjCTypeParamDecl::Index(void) const {
   return val;
 }
 
-  // Variance
+ObjCTypeParamVariance ObjCTypeParamDecl::Variance(void) const {
+  auto val = u.ObjCTypeParamDecl->getVariance();
+  return static_cast<::pasta::ObjCTypeParamVariance>(static_cast<unsigned char>(val));
+}
+
 std::optional<::pasta::Token> ObjCTypeParamDecl::VarianceToken(void) const {
   auto val = u.ObjCTypeParamDecl->getVarianceLoc();
   return ast->TokenAt(val);
@@ -1824,7 +1868,11 @@ uint32_t TagDecl::NumTemplateParameterLists(void) const {
 
   // Qualifier
   // QualifierToken
-  // TagKind
+TagTypeKind TagDecl::TagKind(void) const {
+  auto val = u.TagDecl->getTagKind();
+  return static_cast<::pasta::TagTypeKind>(static_cast<unsigned int>(val));
+}
+
   // TemplateParameterList
   // TypedefNameForAnonDecl
 bool TagDecl::HasNameForLinkage(void) const {
@@ -2002,9 +2050,21 @@ VarDecl::VarDecl(
   // Init
   // InitStyle
   // InitializingDeclaration
-  // StorageClass
-  // StorageDuration
-  // TSCSpec
+StorageClass VarDecl::StorageClass(void) const {
+  auto val = u.VarDecl->getStorageClass();
+  return static_cast<::pasta::StorageClass>(static_cast<unsigned int>(val));
+}
+
+StorageDuration VarDecl::StorageDuration(void) const {
+  auto val = u.VarDecl->getStorageDuration();
+  return static_cast<::pasta::StorageDuration>(static_cast<unsigned int>(val));
+}
+
+ThreadStorageClassSpecifier VarDecl::TSCSpec(void) const {
+  auto val = u.VarDecl->getTSCSpec();
+  return static_cast<::pasta::ThreadStorageClassSpecifier>(static_cast<unsigned int>(val));
+}
+
   // HasDefinition
 bool VarDecl::HasExternalStorage(void) const {
   auto val = u.VarDecl->hasExternalStorage();
@@ -2145,7 +2205,11 @@ std::optional<::pasta::Token> VarTemplateSpecializationDecl::PointOfInstantiatio
   return ast->TokenAt(val);
 }
 
-  // SpecializationKind
+TemplateSpecializationKind VarTemplateSpecializationDecl::SpecializationKind(void) const {
+  auto val = u.VarTemplateSpecializationDecl->getSpecializationKind();
+  return static_cast<::pasta::TemplateSpecializationKind>(static_cast<unsigned int>(val));
+}
+
   // SpecializedTemplateOrPartial
   // TemplateArgs
   // TemplateArgsInfo
@@ -2200,7 +2264,11 @@ CXXMethodDecl::CXXMethodDecl(
   // MethodQualifiers
   // MostRecentDecl
   // Parent
-  // RefQualifier
+RefQualifierKind CXXMethodDecl::RefQualifier(void) const {
+  auto val = u.CXXMethodDecl->getRefQualifier();
+  return static_cast<::pasta::RefQualifierKind>(static_cast<unsigned int>(val));
+}
+
 bool CXXMethodDecl::IsConst(void) const {
   auto val = u.CXXMethodDecl->isConst();
   return val;
@@ -2558,7 +2626,11 @@ bool CXXRecordDecl::DefaultedMoveConstructorIsDeleted(void) const {
   // Friends
   // CanonicalDecl
   // Definition
-  // LambdaCaptureDefault
+LambdaCaptureDefault CXXRecordDecl::LambdaCaptureDefault(void) const {
+  auto val = u.CXXRecordDecl->getLambdaCaptureDefault();
+  return static_cast<::pasta::LambdaCaptureDefault>(static_cast<unsigned int>(val));
+}
+
 uint32_t CXXRecordDecl::LambdaManglingNumber(void) const {
   auto val = u.CXXRecordDecl->getLambdaManglingNumber();
   return val;
@@ -2998,7 +3070,11 @@ std::optional<::pasta::Token> ClassTemplateSpecializationDecl::PointOfInstantiat
   return ast->TokenAt(val);
 }
 
-  // SpecializationKind
+TemplateSpecializationKind ClassTemplateSpecializationDecl::SpecializationKind(void) const {
+  auto val = u.ClassTemplateSpecializationDecl->getSpecializationKind();
+  return static_cast<::pasta::TemplateSpecializationKind>(static_cast<unsigned int>(val));
+}
+
   // SpecializedTemplateOrPartial
   // TemplateArgs
   // TemplateInstantiationArgs

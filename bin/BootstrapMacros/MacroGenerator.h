@@ -19,12 +19,15 @@ class MacroGenerator : public clang::RecursiveASTVisitor<MacroGenerator> {
 
   ~MacroGenerator(void);
 
+  bool VisitEnumDecl(clang::EnumDecl *decl);
   bool VisitCXXRecordDecl(clang::CXXRecordDecl *decl);
 
  private:
   const clang::ASTContext *context;
-  std::unordered_set<std::string> acceptable_names;
+  std::unordered_set<std::string> acceptable_class_names;
+  std::unordered_set<std::string> unacceptable_enum_names;
   std::map<std::string, clang::CXXRecordDecl *> decl_classes;
+  std::map<std::string, clang::EnumDecl *> decl_enums;
 };
 
 }  // namespace pasta

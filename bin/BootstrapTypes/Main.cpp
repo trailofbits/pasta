@@ -7,8 +7,8 @@
 #include <cstring>
 #include <iostream>
 #include <fstream>
-
 #include <set>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
@@ -16,32 +16,36 @@
 
 #include <llvm/ADT/StringRef.h>
 
+#include <pasta/Util/Compiler.h>
+
 #include "BootstrapConfig.h"
 
 namespace {
 
 static const std::string kDeclNames[] = {
-#define PASTA_BEGIN_CLANG_WRAPPER(name, id) #name ,
+#define PASTA_BEGIN_CLANG_WRAPPER(name, id) PASTA_STR(name) ,
 #include "Generated/Decl.h"
 };
 
 static const struct {std::string derived; std::string base; } kDeclExtends[] = {
 #define PASTA_PUBLIC_BASE_CLASS(name, id, base_name, base_id) \
-    {#name, #base_name},
+    {PASTA_STR(name), PASTA_STR(base_name)},
 #include "Generated/Decl.h"
 };
 
 static const std::unordered_map<std::string, std::string> kCxxMethodRenames{
-    {"SourceRange", "TokenRange"},
-    {"Vbases", "VBases"},
-    {"vbases", "VirtualBases"},
-    {"NumVbases", "NumVBases"},
-    {"Ctors", "Constructors"},
-    {"ctors", "Constructors"},
-    {"Dtors", "Destructors"},
-    {"dtors", "Destructors"},
-    {"Location", "Token"},
-    {"clauselists", "Clauses"},  // `clang::OMPRequiresDecl::clauselists`
+  {"SourceRange", "TokenRange"},
+  {"Vbases", "VBases"},
+  {"vbases", "VirtualBases"},
+  {"NumVbases", "NumVBases"},
+  {"Ctors", "Constructors"},
+  {"ctors", "Constructors"},
+  {"Dtors", "Destructors"},
+  {"dtors", "Destructors"},
+  {"Location", "Token"},
+  {"clauselists", "Clauses"},  // `clang::OMPRequiresDecl::clauselists`
+  {"Inits", "Initializers"},
+  {"Ivars", "InstanceVariables"},
 };
 
 // Maps return types from the macros file to their replacements in the
@@ -57,7 +61,7 @@ static std::unordered_map<std::string, std::string> kRetTypeMap{
 
 // Maps return types from the macros file to how they should be returned
 // in the generated Decl.cpp file.
-static std::unordered_map<std::string, std::string> kRetTypeToValMap{
+static std::unordered_map<std::string, std::string> gRetTypeToValMap{
   {"(bool)",
    "  return val;\n"},
 
@@ -81,14 +85,135 @@ static std::unordered_map<std::string, std::string> kRetTypeToValMap{
    "  return val;\n"},
 };
 
+// Prefixes on enumerators to strip.
+static llvm::StringRef kEnumPrefixesToStrip[] = {
+    "TK_",
+    "OBJC_TQ_",
+    "lang_",
+    "TLS_",
+    "IDNS_",
+    "FOK_",
+    "AS_",
+    "ASMM_",
+    "APK_",
+    "ak_",
+    "MLV_",
+    "VCK_",
+    "UO_",
+    "UETT_",
+    "TST_",
+    "TSS_",
+    "LLVM_BITMASK_LARGEST_ENUMERATOR",  // Hack to eliminate this
+    "TU_",
+    "TSCS_",
+    "UTT_Last",
+    "BTT_Last",
+    "TT_Last",
+    "UTT_",
+    "BTT_",
+    "TT_",
+    "SMF_",
+    "SOB_",
+    "SSP",  // Stack protector mode, no `_`.
+    "SC_",
+    "SD_",
+    "TTK_",
+    "TSK_",
+    "TSW_",
+    "TSP_",
+    "GVA_",
+    "GE_",
+    "IR_",
+    "ICIS_",
+    "IDI_",
+    "ISK_",
+    "CL_",
+    "LV_",
+    "LCD_",
+    "LCK_",
+    "LOK_",
+    "MT_",
+    "CM_",
+    "NOUR_",
+    "Nonce_",
+    "NPCK_",
+    "NPC_",
+    "OBC_",
+    "OIT_",
+    "OCL_",
+    "OMF_",
+    "OBJC_PR_",
+    "SFF_",
+    "OMPC_ATOMIC_DEFAULT_MEM_ORDER_",
+    "OMPC_DEFAULTMAP_MODIFIER_",
+    "OMPC_DEFAULTMAP_",
+    "OMPC_DEPEND_",
+    "OMPC_DEVICE_TYPE_",
+    "OMPC_DEVICE_",
+    "OMPC_DIST_SCHEDULE_",
+    "OMPC_FROM_MODIFIER_",
+    "OMPC_LASTPRIVATE_",
+    "OMPC_LINEAR_",
+    "OMPC_MAP_MODIFIER_",
+    "OMPC_MAP_",
+    "OMPC_ORDER_",
+    "OMPC_REDUCTION_",
+    "OMPC_SCHEDULE_MODIFIER_",
+    "OMPC_SCHEDULE_",
+    "OMPC_TO_MODIFIER_",
+    "OO_",
+    "Ovl_",
+    "AAPCS_",  // Hrmmm.
+    "PFC_",
+    "PCK_",
+    "PPTMK_",
+    "PMSST_",
+    "PSF_",
+    "PCK_",
+    "PDIK_",
+    "RQ_",
+    "RSK_",
+    "SFINAE_",
+    "SO_",
+    "STK_",
+    "SelLoc_",
+    "SE_",
+    "AO__",
+    "ATT_",
+    "BO_",
+    "BS_",
+    "CC_",
+    "CT_",
+    "CR_",
+    "CK_",
+    "RCK_",
+    "CMK_",
+    "CSK_",
+    "DAK_",
+    "DCC_",
+    "DK_",
+    "DT_",
+    "ETK_",
+    "EST_",
+    "OK_",
+    "VK_",
+    "ET_",
+    "EK_",
+    "FPE_",
+    "FPM_",
+    "ADOF_",
+};
 
 std::unordered_map<std::string, std::set<std::string>> gBaseClasses;
 std::unordered_map<std::string, std::set<std::string>> gDerivedClasses;
 std::vector<std::string> gTopologicallyOrderedDecls;
 
-
 std::unordered_map<std::string, std::set<std::string>> gTransitiveBaseClasses;
 std::unordered_map<std::string, std::set<std::string>> gTransitiveDerivedClasses;
+
+static std::string Capitalize(llvm::StringRef name) {
+  return name.substr(0, 1).upper() + name.substr(1).str();
+}
 
 static std::string CxxName(llvm::StringRef name) {
   if (name == "getKind" || name == "getDeclKindName") {
@@ -118,7 +243,7 @@ static std::string CxxName(llvm::StringRef name) {
     return "";
 
   } else if (std::islower(name.front())) {
-    return name.substr(0, 1).upper() + name.substr(1).str();
+    return Capitalize(name);
 
   } else {
     return name.str();
@@ -127,9 +252,9 @@ static std::string CxxName(llvm::StringRef name) {
 
 static void DeclareCppMethods(std::ostream &os, const std::string &class_name) {
 #define PASTA_CLASS_METHOD_0(cls, id, meth, rt) \
-    if (class_name == #cls) { \
-      if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
-        auto &new_rt = kRetTypeMap[#rt]; \
+    if (class_name == PASTA_STR(cls)) { \
+      if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
+        auto &new_rt = kRetTypeMap[PASTA_STR(rt)]; \
         if (!new_rt.empty()) { \
           os << "  " << new_rt << ' ' << meth_name << "(void) const;\n"; \
         } else { \
@@ -139,46 +264,101 @@ static void DeclareCppMethods(std::ostream &os, const std::string &class_name) {
     }
 
 #define PASTA_CLASS_METHOD_1(cls, id, meth, rt, p0) \
-    if (class_name == #cls) { \
-      if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
+    if (class_name == PASTA_STR(cls)) { \
+      if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
         os << "  // " << meth_name << "\n"; \
       } \
     }
 
 #define PASTA_CLASS_METHOD_2(cls, id, meth, rt, p0, p1) \
-    if (class_name == #cls) { \
-      if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
+    if (class_name == PASTA_STR(cls)) { \
+      if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
         os << "  // " << meth_name << "\n"; \
       } \
     }
 
 #define PASTA_CLASS_METHOD_3(cls, id, meth, rt, p0, p1, p2) \
-    if (class_name == #cls) { \
-      if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
+    if (class_name == PASTA_STR(cls)) { \
+      if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
         os << "  // " << meth_name << "\n"; \
       } \
     }
 
 #define PASTA_CLASS_METHOD_4(cls, id, meth, rt, p0, p1, p2, p3) \
-    if (class_name == #cls) { \
-      if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
+    if (class_name == PASTA_STR(cls)) { \
+      if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
         os << "  // " << meth_name << "\n"; \
       } \
     }
 
 #define PASTA_CLASS_METHOD_5(cls, id, meth, rt, p0, p1, p2, p3, p4) \
-    if (class_name == #cls) { \
-      if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
+    if (class_name == PASTA_STR(cls)) { \
+      if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
         os << "  // " << meth_name << "\n"; \
       } \
     }
 
 #define PASTA_CLASS_METHOD_6(cls, id, meth, rt, p0, p1, p2, p3, p4, p5) \
-    if (class_name == #cls) { \
-      if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
+    if (class_name == PASTA_STR(cls)) { \
+      if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
         os << "  // " << meth_name << "\n"; \
       } \
     }
+#include "Generated/Decl.h"
+}
+
+
+static void MapEnumRetTypes(void) {
+
+#define PASTA_BEGIN_NAMED_ENUM(enum_name, underlying_type) \
+    do { \
+      std::string rv("  return static_cast<::pasta::"); \
+      rv += Capitalize(PASTA_STR(enum_name)); \
+      rv += ">(static_cast<" PASTA_STR(PASTA_SPLAT underlying_type) ">(val));\n"; \
+      gRetTypeToValMap.emplace("(clang::" PASTA_STR(enum_name) ")", rv); \
+      kRetTypeMap.emplace("(clang::" PASTA_STR(enum_name) ")", \
+                          Capitalize(PASTA_STR(enum_name))); \
+    } while (0);
+
+#define PASTA_DECLARE_CLASS_NAMED_ENUM(class_name, class_id, enum_name, underlying_type) \
+    do { \
+      std::string rv("  return static_cast<::pasta::"); \
+      rv += Capitalize(PASTA_STR(enum_name)); \
+      rv += ">(static_cast<" PASTA_STR(PASTA_SPLAT underlying_type) ">(val));\n"; \
+      gRetTypeToValMap.emplace( \
+          "(clang::" PASTA_STR(class_name) "::" PASTA_STR(enum_name) ")", rv); \
+      kRetTypeMap.emplace("(clang::" PASTA_STR(enum_name) ")", \
+                          Capitalize(PASTA_STR(enum_name))); \
+    } while (0);
+
+#include "Generated/Decl.h"
+}
+
+static void DeclareEnums(std::ostream &os) {
+  llvm::StringRef enumerator_name;
+
+#define PASTA_BEGIN_NAMED_ENUM(enum_name, underlying_type) \
+    os << "enum class " << Capitalize(PASTA_STR(enum_name)) \
+       << " : " << PASTA_STR(PASTA_SPLAT underlying_type) << " {\n";
+
+#define PASTA_NAMED_ENUMERATOR(enumerator_name_, underlying_type, val) \
+    enumerator_name = #enumerator_name_; \
+    for (auto prefix : kEnumPrefixesToStrip) { \
+      if (enumerator_name.startswith(prefix)) { \
+        enumerator_name = enumerator_name.substr(prefix.size()); \
+        break; \
+      } \
+    } \
+    if (!enumerator_name.empty() && \
+        !enumerator_name.startswith("first") && \
+        !enumerator_name.startswith("last")) { \
+      os << "  k" << Capitalize(enumerator_name) << " = " \
+         << PASTA_STR(PASTA_SPLAT val) << ",\n"; \
+    }
+
+#define PASTA_END_NAMED_ENUM(enum_name) \
+    os << "};\n\n";
+
 #include "Generated/Decl.h"
 }
 
@@ -209,15 +389,20 @@ static void DeclareCppClasses(void) {
       << "class ASTImpl;\n\n"
       << "enum class DeclKind : unsigned {\n";
 
-  for (const auto &name : kDeclNames) {
+  for (const auto &name_ : kDeclNames) {
+    llvm::StringRef name(name_);
     if (name != "DeclContext" && name != "Decl") {
-      os << "  k" << name << ",\n";
+      if (name.endswith("Decl")) {
+        name = name.substr(0, name.size() - 4);
+      }
+      os << "  k" << name.str() << ",\n";
     }
   }
 
   os
       << "};\n\n";
 
+  DeclareEnums(os);
 
   // Forward declare them all.
   for (const auto &name : kDeclNames) {
@@ -313,13 +498,13 @@ static void DeclareCppClasses(void) {
 
 static void DefineCppMethods(std::ostream &os, const std::string &class_name) {
 #define PASTA_CLASS_METHOD_0(cls, id, meth, rt) \
-    if (class_name == #cls) { \
-      if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
-        auto &rt_type = kRetTypeMap[#rt]; \
-        auto &rt_val = kRetTypeToValMap[#rt]; \
+    if (class_name == PASTA_STR(cls)) { \
+      if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
+        auto &rt_type = kRetTypeMap[PASTA_STR(rt)]; \
+        auto &rt_val = gRetTypeToValMap[PASTA_STR(rt)]; \
         if (!rt_type.empty() && !rt_val.empty()) { \
           os << rt_type << " " << class_name << "::" << meth_name << "(void) const {\n" \
-             << "  auto val = u." << class_name << "->" << #meth << "();\n" \
+             << "  auto val = u." << class_name << "->" << PASTA_STR(meth) << "();\n" \
              << rt_val \
              << "}\n\n"; \
         } else { \
@@ -329,43 +514,43 @@ static void DefineCppMethods(std::ostream &os, const std::string &class_name) {
     }
 
 #define PASTA_CLASS_METHOD_1(cls, id, meth, rt, p0) \
-    if (class_name == #cls) { \
-      if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
+    if (class_name == PASTA_STR(cls)) { \
+      if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
         os << "  // " << meth_name << "\n"; \
       } \
     }
 
 #define PASTA_CLASS_METHOD_2(cls, id, meth, rt, p0, p1) \
-    if (class_name == #cls) { \
-      if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
+    if (class_name == PASTA_STR(cls)) { \
+      if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
         os << "  // " << meth_name << "\n"; \
       } \
     }
 
 #define PASTA_CLASS_METHOD_3(cls, id, meth, rt, p0, p1, p2) \
-    if (class_name == #cls) { \
-      if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
+    if (class_name == PASTA_STR(cls)) { \
+      if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
         os << "  // " << meth_name << "\n"; \
       } \
     }
 
 #define PASTA_CLASS_METHOD_4(cls, id, meth, rt, p0, p1, p2, p3) \
-    if (class_name == #cls) { \
-      if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
+    if (class_name == PASTA_STR(cls)) { \
+      if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
         os << "  // " << meth_name << "\n"; \
       } \
     }
 
 #define PASTA_CLASS_METHOD_5(cls, id, meth, rt, p0, p1, p2, p3, p4) \
-    if (class_name == #cls) { \
-      if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
+    if (class_name == PASTA_STR(cls)) { \
+      if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
         os << "  // " << meth_name << "\n"; \
       } \
     }
 
 #define PASTA_CLASS_METHOD_6(cls, id, meth, rt, p0, p1, p2, p3, p4, p5) \
-    if (class_name == #cls) { \
-      if (const auto meth_name = CxxName(#meth); !meth_name.empty()) { \
+    if (class_name == PASTA_STR(cls)) { \
+      if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
         os << "  // " << meth_name << "\n"; \
       } \
     }
@@ -401,17 +586,23 @@ static void DefineCppClasses(void) {
       << "#define ABSTRACT_DECL(DECL)\n"
       << "#define DECL(DERIVED, BASE) \\\n"
       << "    case clang::Decl::DERIVED: \\\n"
-      << "      return DeclKind::k ## DERIVED ## Decl;\n"
+      << "      return DeclKind::k ## DERIVED;\n"
       << "#include <clang/AST/DeclNodes.inc>\n"
       << "  }\n"
       << "  __builtin_unreachable();\n"
       << "}\n\n"
       << "static const std::string_view kKindNames[] = {\n";
-  for (const auto &name : kDeclNames) {
+
+  for (const auto &name_ : kDeclNames) {
+    llvm::StringRef name(name_);
     if (name != "Decl" && name != "DeclContext") {
-      os << "  \"" << name << "\",\n";
+      if (name.endswith("Decl")) {
+        name = name.substr(0, name.size() - 4);
+      }
+      os << "  \"" << name.str() << "\",\n";
     }
   }
+
   os
       << "};\n"
       << "}  // namespace\n\n"
@@ -522,6 +713,7 @@ int main(void) {
     }
   }
 
+  MapEnumRetTypes();
   DeclareCppClasses();
   DefineCppClasses();
 

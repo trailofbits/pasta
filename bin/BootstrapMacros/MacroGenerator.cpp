@@ -48,10 +48,18 @@ static bool IsSigned(clang::QualType qtype) {
 
 MacroGenerator::MacroGenerator(const clang::ASTContext *ctx)
     : context(ctx) {
-  acceptable_names.insert("Decl");
-  acceptable_names.insert("DeclContext");
+  acceptable_class_names.insert("Decl");
+  acceptable_class_names.insert("DeclContext");
 
-#define DECL(Type, Base) acceptable_names.insert(#Type "Decl");
+  unacceptable_enum_names.insert("Kind");  // Really, `clang::Decl::Kind`.
+  unacceptable_enum_names.insert("OnStack_t");  // There's also `OnStackType`.
+
+  // These are related to `Redeclarable<T>`, and thus have dependent types.
+  unacceptable_enum_names.insert("PreviousTag");
+  unacceptable_enum_names.insert("LatestTag");
+  unacceptable_enum_names.insert("NotUpdatedTag");
+
+#define DECL(Type, Base) acceptable_class_names.insert(#Type "Decl");
 #include "clang/AST/DeclNodes.inc"
 #undef DECL
 }
@@ -264,61 +272,99 @@ MacroGenerator::~MacroGenerator(void) {
     os << "  PASTA_BEGIN_CLASS_ENUMS(" << decl_name << ", " << decl_id << ")\n";
 
 
-    // Named enums.
+    // Named enums. These are also captured at the namespace level, so we
+    // keep these here so that we can do something like
+    // `using Blah = ::pasta::Blah` later.
     for (const auto &[enum_name, enum_] : decl_named_enums) {
-
       auto enum_def = enum_->getDefinition();
       auto itype = enum_->getIntegerType();
-      if (itype.isNull() || !enum_def) {
-        os << "    PASTA_DECLARE_CLASS_NAMED_ENUM(" << decl_name << ", " << decl_id << ", "
-           << enum_name << ", int)\n";
-        continue;
+      if (!itype.isNull() && enum_def) {
+        os << "    PASTA_DECLARE_CLASS_NAMED_ENUM(" << decl_name
+           << ", " << decl_id << ", " << enum_name << ", ("
+           << itype.getAsString(print_policy) << "))\n";
       }
-
-      os << "    PASTA_BEGIN_CLASS_NAMED_ENUM(" << decl_name << ", " << decl_id << ", "
-         << enum_name << ", (" << itype.getAsString(print_policy) << "))\n";
-
-      for (auto elem : enum_def->enumerators()) {
-        os << "      PASTA_ENUMERATOR(" << elem->getNameAsString() << ", ("
-           << itype.getAsString(print_policy) << "), (";
-        elem->getInitVal().print(os, IsSigned(itype));
-        os << "))\n";
-      }
-
-      os << "    PASTA_END_CLASS_NAMED_ENUM(" << decl_name << ", " << decl_id << ", "
-         << enum_name << ")\n";
     }
 
-    // Unnamed enums.
-    for (auto enum_ : decl_unnamed_enums) {
-      auto enum_def = enum_->getDefinition();
-      auto itype = enum_->getIntegerType();
-      if (itype.isNull() || !enum_def) {
-        continue;
-      }
+//    // Unnamed enums.
+//    for (auto enum_ : decl_unnamed_enums) {
+//      auto enum_def = enum_->getDefinition();
+//      auto itype = enum_->getIntegerType();
+//      if (itype.isNull() || !enum_def) {
+//        continue;
+//      }
+//
+//      os << "    PASTA_BEGIN_CLASS_UNNAMED_ENUM(" << decl_name << ", " << decl_id
+//         << ", (" << itype.getAsString(print_policy) << "))\n";
+//
+//      for (auto elem : enum_def->enumerators()) {
+//        os << "      PASTA_UNNAMED_ENUMERATOR(" << elem->getNameAsString() << ", ("
+//           << itype.getAsString(print_policy) << "), (";
+//        elem->getInitVal().print(os, IsSigned(itype));
+//        os << "))\n";
+//      }
+//
+//      os << "    PASTA_END_CLASS_UNNAMED_ENUM(" << decl_name
+//         << ", " << decl_id << ")\n";
+//    }
+//
 
-      os << "    PASTA_BEGIN_CLASS_UNNAMED_ENUM(" << decl_name << ", " << decl_id
-         << ", (" << itype.getAsString(print_policy) << "))\n";
-
-      for (auto elem : enum_def->enumerators()) {
-        os << "      PASTA_ENUMERATOR(" << elem->getNameAsString() << ", ("
-           << itype.getAsString(print_policy) << "), (";
-        elem->getInitVal().print(os, IsSigned(itype));
-        os << "))\n";
-      }
-
-      os << "    PASTA_END_CLASS_UNNAMED_ENUM(" << decl_name
-         << ", " << decl_id << ")\n";
-    }
-
-
-    os << "  PASTA_END_CLASS_ENUMS(" << decl_name << ", " << decl_id << ")\n";
-
-    os << "PASTA_END_CLANG_WRAPPER(" << decl_name << ", " << decl_id
+    os << "  PASTA_END_CLASS_ENUMS(" << decl_name << ", " << decl_id << ")\n"
+       << "PASTA_END_CLANG_WRAPPER(" << decl_name << ", " << decl_id
        << ")\n\n";
   }
 
+  // Dump out top-level enums.
+  for (const auto &[enum_name, enum_] : decl_enums) {
+    auto enum_def = enum_->getDefinition();
+    auto itype = enum_->getIntegerType();
+    if (itype.isNull() || !enum_def) {
+      os << "PASTA_DECLARE_NAMED_ENUM(" << enum_name << ", (int))\n\n";
+      continue;
+    }
+
+    os << "PASTA_BEGIN_NAMED_ENUM(" << enum_name
+       << ", (" << itype.getAsString(print_policy) << "))\n";
+
+    for (auto elem : enum_def->enumerators()) {
+      os << "  PASTA_NAMED_ENUMERATOR(" << elem->getNameAsString() << ", ("
+         << itype.getAsString(print_policy) << "), (";
+      elem->getInitVal().print(os, IsSigned(itype));
+      os << "))\n";
+    }
+
+    os << "PASTA_END_NAMED_ENUM(" << enum_name << ")\n";
+  }
+
   os << "#include \"../UndefineDefaultMacros.h\"\n\n";
+}
+
+bool MacroGenerator::VisitEnumDecl(clang::EnumDecl *decl) {
+  const auto ns_dc = decl->getEnclosingNamespaceContext();
+  if (!ns_dc) {
+    return true;
+  }
+  if (!ns_dc->isNamespace()) {
+    return true;
+  }
+
+  const auto ns = clang::NamespaceDecl::castFromDeclContext(ns_dc);
+  if (ns->getName() != "clang") {
+    return true;
+  }
+
+  // Avoid crazy things like diagnostic enums.
+  auto decl_name = decl->getName().str();
+  if (decl_name.empty() || unacceptable_enum_names.count(decl_name)) {
+    return true;
+  }
+
+  // Only record a decl if it's actually the definition. Then we can inspect
+  // its enumeration constants.
+  if (auto decl_def = decl->getDefinition(); decl_def) {
+    decl_enums.emplace(std::move(decl_name), decl_def);
+  }
+
+  return true;
 }
 
 bool MacroGenerator::VisitCXXRecordDecl(clang::CXXRecordDecl *decl) {
@@ -335,8 +381,9 @@ bool MacroGenerator::VisitCXXRecordDecl(clang::CXXRecordDecl *decl) {
     return true;
   }
 
+  // Only keep clang `*Decl` class names.
   auto decl_name = decl->getName().str();
-  if (!acceptable_names.count(decl_name)) {
+  if (!acceptable_class_names.count(decl_name)) {
     return true;
   }
 

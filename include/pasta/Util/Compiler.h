@@ -67,3 +67,9 @@ inline const int steal_member_pointer = [] {
 #define _PASTA_CAT(a, b) __PASTA_CAT(a, b)
 #define PASTA_CAT(a, b) _PASTA_CAT(a, b)
 
+#define ___PASTA_STR(a) #a
+#define __PASTA_STR(a) ___PASTA_STR(a)
+#define _PASTA_STR(a) __PASTA_STR(a)
+#define PASTA_STR(a) _PASTA_STR(a)
+
+#define PASTA_SPLAT(...) __VA_ARGS__

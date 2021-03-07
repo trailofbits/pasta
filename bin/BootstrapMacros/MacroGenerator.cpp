@@ -16,6 +16,16 @@
 #include <clang/AST/DeclObjC.h>
 #include <clang/AST/DeclOpenMP.h>
 #include <clang/AST/DeclTemplate.h>
+#include <clang/AST/Expr.h>
+#include <clang/AST/ExprCXX.h>
+#include <clang/AST/ExprConcepts.h>
+#include <clang/AST/ExprObjC.h>
+#include <clang/AST/ExprOpenMP.h>
+#include <clang/AST/Stmt.h>
+#include <clang/AST/StmtCXX.h>
+#include <clang/AST/StmtObjC.h>
+#include <clang/AST/StmtOpenMP.h>
+#include <clang/AST/Type.h>
 #include <llvm/Support/raw_ostream.h>
 #pragma clang diagnostic pop
 
@@ -51,10 +61,13 @@ MacroGenerator::MacroGenerator(const clang::ASTContext *ctx)
   acceptable_class_names.insert("FunctionTemplateSpecializationInfo");
   acceptable_class_names.insert("TemplateArgument");
   acceptable_class_names.insert("TypeSourceInfo");
-  acceptable_class_names.insert("Type");
 
+  // Base types.
+  acceptable_class_names.insert("Type");
   acceptable_class_names.insert("Decl");
   acceptable_class_names.insert("DeclContext");
+  acceptable_class_names.insert("Stmt");
+  acceptable_class_names.insert("Expr");
 
   unacceptable_enum_names.insert("Kind");  // Really, `clang::Decl::Kind`.
   unacceptable_enum_names.insert("OnStack_t");  // There's also `OnStackType`.
@@ -70,6 +83,14 @@ MacroGenerator::MacroGenerator(const clang::ASTContext *ctx)
 
 #define DECL(Type, Base) acceptable_class_names.insert(#Type "Decl");
 #include "clang/AST/DeclNodes.inc"
+#undef DECL
+
+#define STMT(Type, Base) \
+    acceptable_class_names.insert(#Base); \
+    acceptable_class_names.insert(#Type); \
+    acceptable_class_names.insert(#Type "Expr"); \
+    acceptable_class_names.insert(#Type "Stmt");
+#include "clang/AST/StmtNodes.inc"
 #undef DECL
 }
 

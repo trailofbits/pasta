@@ -25,3 +25,7 @@ static const char *kASTDeclCpp = "@PASTA_SRC_AST_DECL_CPP_PATH@";
 static const char *kASTTypeHeader = "@PASTA_INCLUDE_AST_TYPE_H_PATH@";
 
 static const char *kASTTypeCpp = "@PASTA_SRC_AST_TYPE_CPP_PATH@";
+
+static const char *kASTStmtHeader = "@PASTA_INCLUDE_AST_STMT_H_PATH@";
+
+static const char *kASTStmtCpp = "@PASTA_SRC_AST_STMT_CPP_PATH@";

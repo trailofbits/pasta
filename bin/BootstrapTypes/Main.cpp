@@ -206,6 +206,7 @@ static llvm::StringRef kEnumPrefixesToStrip[] = {
     "FPE_",
     "FPM_",
     "ADOF_",
+    "AR_",
 };
 
 // Set of ClassName::MethodName pairs such that the class can return a nullptr,

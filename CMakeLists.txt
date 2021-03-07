@@ -192,9 +192,10 @@ target_link_libraries(util PRIVATE
 
 add_library(compiler STATIC
 
-    "include/pasta/AST/Token.h"
     "include/pasta/AST/AST.h"
     "include/pasta/AST/Decl.h"
+    "include/pasta/AST/Forward.h"
+    "include/pasta/AST/Token.h"
     "include/pasta/Compile/Command.h"
     "include/pasta/Compile/Compiler.h"
     "include/pasta/Compile/Job.h"

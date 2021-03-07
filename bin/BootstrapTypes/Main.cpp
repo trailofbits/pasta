@@ -408,9 +408,9 @@ static void DeclareEnums(std::ostream &os) {
 #include "Generated.h"
 }
 
-// Generate `include/pasta/AST/Decl.h`.
-static void GenerateDeclH(void) {
-  std::ofstream os(kASTDeclHeader);
+// Generate `include/pasta/AST/Forward.h`.
+static void GenerateForwardH(void) {
+  std::ofstream os(kASTForwardHeader);
 
   os
       << "/*\n"
@@ -434,7 +434,9 @@ static void GenerateDeclH(void) {
       << "}  // namespace clang\n"
       << "namespace pasta {\n"
       << "class AST;\n"
-      << "class ASTImpl;\n\n"
+      << "class ASTImpl;\n"
+      << "class DeclBuilder;\n"
+      << "class TypeBuilder;\n\n"
       << "enum class DeclKind : unsigned {\n";
 
   for (const auto &name_ : gDeclNames) {
@@ -462,21 +464,31 @@ static void GenerateDeclH(void) {
   // Declare all of the enums.
   DeclareEnums(os);
 
-  // This is a class used to construct all the decls, so that we don't
-  // need to make the constructors all public.
-  os << "class DeclBuilder;\n";
-
   // Forward declare them all.
-  for (const auto &name : gDeclNames) {
-    os << "class " << name << ";\n";
+  for (const auto &name : kAllClassNames) {
+    os << "class " << name.str() << ";\n";
   }
 
-  // Define the declcontext manually.
-  // TODO(pag): Fix this.
-  os << "class DeclContext {\n"
-     << " public:\n"
-     << "  DeclContext(std::shared_ptr<ASTImpl> ast_, const clang::DeclContext *) {}\n"
-     << "};\n\n";
+  os
+      << "}  // namespace pasta\n";
+}
+
+// Generate `include/pasta/AST/Decl.h`.
+static void GenerateDeclH(void) {
+  std::ofstream os(kASTDeclHeader);
+
+  os
+      << "/*\n"
+      << " * Copyright (c) 2021 Trail of Bits, Inc.\n"
+      << " */\n\n"
+      << "// This file is auto-generated.\n\n"
+      << "#pragma once\n\n"
+      << "#include \"Forward.h\"\n\n"
+      << "namespace pasta {\n"
+      << "class DeclContext {\n"
+      << " public:\n"
+      << "  DeclContext(std::shared_ptr<ASTImpl> ast_, const clang::DeclContext *) {}\n"
+      << "};\n\n";
 
   // Define them all.
   for (const auto &name : gTopologicallyOrderedDecls) {
@@ -829,6 +841,7 @@ int main(void) {
 
   MapEnumRetTypes();
   MapDeclRetTypes();
+  GenerateForwardH();
   GenerateDeclH();
   GenerateDeclCpp();
 

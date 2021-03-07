@@ -259,9 +259,12 @@ set(PASTA_INCLUDE_SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/include")
 set(PASTA_BINARY_PATH "${CMAKE_CURRENT_BINARY_DIR}")
 set(PASTA_VCPKG_INCLUDE_PATH "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/include")
 set(PASTA_BIN_BOOTSTRAP_MACROS_MACRO_GENERATOR_CPP_PATH "${CMAKE_CURRENT_SOURCE_DIR}/bin/BootstrapMacros/MacroGenerator.cpp")
-set(PASTA_BIN_BOOTSTRAP_TYPES_GENERATED_DECL_H_PATH "${CMAKE_CURRENT_SOURCE_DIR}/bin/BootstrapTypes/Generated/Decl.h")
+set(PASTA_BIN_BOOTSTRAP_TYPES_GENERATED_H_PATH "${CMAKE_CURRENT_SOURCE_DIR}/bin/BootstrapTypes/Generated.h")
+set(PASTA_INCLUDE_AST_FORWARD_H_PATH "${CMAKE_CURRENT_SOURCE_DIR}/include/pasta/AST/Forward.h")
 set(PASTA_INCLUDE_AST_DECL_H_PATH "${CMAKE_CURRENT_SOURCE_DIR}/include/pasta/AST/Decl.h")
 set(PASTA_SRC_AST_DECL_CPP_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/AST/Decl.cpp")
+set(PASTA_INCLUDE_AST_TYPE_H_PATH "${CMAKE_CURRENT_SOURCE_DIR}/include/pasta/AST/Type.h")
+set(PASTA_SRC_AST_TYPE_CPP_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/AST/Type.cpp")
 
 set(BOOTSTRAP_CONFIG_H_IN "${CMAKE_CURRENT_SOURCE_DIR}/BootstrapConfig.h.in")
 set(BOOTSTRAP_CONFIG_H "${CMAKE_CURRENT_BINARY_DIR}/BootstrapConfig.h")
@@ -292,7 +295,7 @@ target_link_libraries(bootstrap-macros PRIVATE
 )
 
 add_executable(bootstrap-types
-    "bin/BootstrapTypes/Generated/Decl.h"
+    "bin/BootstrapTypes/Generated.h"
     "bin/BootstrapTypes/DefineDefaultMacros.h"
     "bin/BootstrapTypes/UndefineDefaultMacros.h"
     "bin/BootstrapTypes/Main.cpp"

@@ -58,6 +58,34 @@
 # define PASTA_CLASS_METHOD_6(class_name, class_id, method_name, rt, p0, p1, p2, p3, p4, p5)
 #endif
 
+#ifndef PASTA_INSTANCE_METHOD_0
+# define PASTA_INSTANCE_METHOD_0(class_name, class_id, method_name, rt)
+#endif
+
+#ifndef PASTA_INSTANCE_METHOD_1
+# define PASTA_INSTANCE_METHOD_1(class_name, class_id, method_name, rt, p0)
+#endif
+
+#ifndef PASTA_INSTANCE_METHOD_2
+# define PASTA_INSTANCE_METHOD_2(class_name, class_id, method_name, rt, p0, p1)
+#endif
+
+#ifndef PASTA_INSTANCE_METHOD_3
+# define PASTA_INSTANCE_METHOD_3(class_name, class_id, method_name, rt, p0, p1, p2)
+#endif
+
+#ifndef PASTA_INSTANCE_METHOD_4
+# define PASTA_INSTANCE_METHOD_4(class_name, class_id, method_name, rt, p0, p1, p2, p3)
+#endif
+
+#ifndef PASTA_INSTANCE_METHOD_5
+# define PASTA_INSTANCE_METHOD_5(class_name, class_id, method_name, rt, p0, p1, p2, p3, p4)
+#endif
+
+#ifndef PASTA_INSTANCE_METHOD_6
+# define PASTA_INSTANCE_METHOD_6(class_name, class_id, method_name, rt, p0, p1, p2, p3, p4, p5)
+#endif
+
 #ifndef PASTA_BEGIN_FIELDS
 # define PASTA_BEGIN_FIELDS(name, id)
 #endif
@@ -66,12 +94,16 @@
 # define PASTA_END_FIELDS(name, id)
 #endif
 
-#ifndef PASTA_PRIVATE_CLASS_FIELD
-# define PASTA_PRIVATE_CLASS_FIELD(class_name, class_id, field_name, field_type)
+#ifndef PASTA_INSTANCE_FIELD
+# define PASTA_INSTANCE_FIELD(class_name, class_id, field_name, field_type)
 #endif
 
-#ifndef PASTA_PROTECTED_CLASS_FIELD
-# define PASTA_PROTECTED_CLASS_FIELD(class_name, class_id, field_name, field_type)
+#ifndef PASTA_PRIVATE_INSTANCE_FIELD
+# define PASTA_PRIVATE_INSTANCE_FIELD(class_name, class_id, field_name, field_type)
+#endif
+
+#ifndef PASTA_PROTECTED_INSTANCE_FIELD
+# define PASTA_PROTECTED_INSTANCE_FIELD(class_name, class_id, field_name, field_type)
 #endif
 
 #ifndef PASTA_BEGIN_CLASS_ENUMS

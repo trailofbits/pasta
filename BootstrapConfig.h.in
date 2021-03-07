@@ -14,8 +14,14 @@ static const char *kPastaBinaryPath = "@PASTA_BINARY_PATH@";
 
 static const char *kVcpkgIncludePath = "@PASTA_VCPKG_INCLUDE_PATH@";
 
-static const char *kClangDeclMacroHeader = "@PASTA_BIN_BOOTSTRAP_TYPES_GENERATED_DECL_H_PATH@";
+static const char *kClangMacroHeader = "@PASTA_BIN_BOOTSTRAP_TYPES_GENERATED_H_PATH@";
+
+static const char *kASTForwardHeader = "@PASTA_INCLUDE_AST_FORWARD_H_PATH@";
 
 static const char *kASTDeclHeader = "@PASTA_INCLUDE_AST_DECL_H_PATH@";
 
 static const char *kASTDeclCpp = "@PASTA_SRC_AST_DECL_CPP_PATH@";
+
+static const char *kASTTypeHeader = "@PASTA_INCLUDE_AST_TYPE_H_PATH@";
+
+static const char *kASTTypeCpp = "@PASTA_SRC_AST_TYPE_CPP_PATH@";

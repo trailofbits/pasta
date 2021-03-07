@@ -180,15 +180,7 @@ std::optional<::pasta::Token> Decl::BeginToken(void) const {
   __builtin_unreachable();
 }
 
-::pasta::DeclContext Decl::DeclContext(void) const {
-  auto val = u.Decl->getDeclContext();
-  if (val) {
-    return DeclBuilder::Create<::pasta::DeclContext>(ast, val);
-  }
-  assert(false && "Decl::DeclContext can return nullptr!");
-  __builtin_unreachable();
-}
-
+  // DeclContext
 std::optional<::pasta::Token> Decl::EndToken(void) const {
   auto val = u.Decl->getEndLoc();
   return ast->TokenAt(val);
@@ -206,15 +198,7 @@ uint32_t Decl::IdentifierNamespace(void) const {
 }
 
   // ImportedOwningModule
-::pasta::DeclContext Decl::LexicalDeclContext(void) const {
-  auto val = u.Decl->getLexicalDeclContext();
-  if (val) {
-    return DeclBuilder::Create<::pasta::DeclContext>(ast, val);
-  }
-  assert(false && "Decl::LexicalDeclContext can return nullptr!");
-  __builtin_unreachable();
-}
-
+  // LexicalDeclContext
   // LocalOwningModule
 std::optional<::pasta::Token> Decl::Token(void) const {
   auto val = u.Decl->getLocation();
@@ -1493,15 +1477,7 @@ UsingDirectiveDecl::UsingDirectiveDecl(
     const ::clang::UsingDirectiveDecl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
-::pasta::DeclContext UsingDirectiveDecl::CommonAncestor(void) const {
-  auto val = u.UsingDirectiveDecl->getCommonAncestor();
-  if (val) {
-    return DeclBuilder::Create<::pasta::DeclContext>(ast, val);
-  }
-  assert(false && "UsingDirectiveDecl::CommonAncestor can return nullptr!");
-  __builtin_unreachable();
-}
-
+  // CommonAncestor
 std::optional<::pasta::Token> UsingDirectiveDecl::IdentLocation(void) const {
   auto val = u.UsingDirectiveDecl->getIdentLocation();
   return ast->TokenAt(val);

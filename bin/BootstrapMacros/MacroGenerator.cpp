@@ -48,6 +48,11 @@ static bool IsSigned(clang::QualType qtype) {
 
 MacroGenerator::MacroGenerator(const clang::ASTContext *ctx)
     : context(ctx) {
+  acceptable_class_names.insert("FunctionTemplateSpecializationInfo");
+  acceptable_class_names.insert("TemplateArgument");
+  acceptable_class_names.insert("TypeSourceInfo");
+  acceptable_class_names.insert("Type");
+
   acceptable_class_names.insert("Decl");
   acceptable_class_names.insert("DeclContext");
 
@@ -59,6 +64,10 @@ MacroGenerator::MacroGenerator(const clang::ASTContext *ctx)
   unacceptable_enum_names.insert("LatestTag");
   unacceptable_enum_names.insert("NotUpdatedTag");
 
+#define TYPE(Class, Base) acceptable_class_names.insert(#Class "Type");
+#include "clang/AST/TypeNodes.inc"
+#undef TYPE
+
 #define DECL(Type, Base) acceptable_class_names.insert(#Type "Decl");
 #include "clang/AST/DeclNodes.inc"
 #undef DECL
@@ -66,7 +75,7 @@ MacroGenerator::MacroGenerator(const clang::ASTContext *ctx)
 
 MacroGenerator::~MacroGenerator(void) {
   std::error_code ec;
-  llvm::raw_fd_ostream os(kClangDeclMacroHeader, ec);
+  llvm::raw_fd_ostream os(kClangMacroHeader, ec);
   if (ec) {
     std::cerr << "Error: " << ec.message();
     return;
@@ -102,16 +111,16 @@ MacroGenerator::~MacroGenerator(void) {
   std::map<std::string, clang::EnumDecl *> decl_named_enums;
   std::unordered_set<clang::EnumDecl *> decl_unnamed_enums;
 
-  os << "#include \"../DefineDefaultMacros.h\"\n\n";
+  os << "#include \"DefineDefaultMacros.h\"\n\n";
 
   for (const auto &[decl_name, decl] : decl_classes) {
     const auto decl_id = decl_ids[decl_name];
 
     os << "PASTA_BEGIN_CLANG_WRAPPER(" << decl_name << ", "
-       << decl_id << ")\n";
+       << decl_id << "ull)\n";
 
     os << "  PASTA_BEGIN_BASE_CLASSES(" << decl_name << ", " << decl_id
-       << ")\n";
+       << "ull)\n";
 
     // We want to be able to mirror the clang class hierarchy directly, so we
     // need to go find the (public) base classes and expose them.
@@ -125,15 +134,16 @@ MacroGenerator::~MacroGenerator(void) {
         const auto base_decl_name = base_decl->getName().str();
         if (decl_ids.count(base_decl_name)) {
           os << "    PASTA_PUBLIC_BASE_CLASS(" << decl_name << ", " << decl_id
-             << ", " << base_decl_name << ", " << decl_ids[base_decl_name]
-             << ")\n";
+             << "ull, " << base_decl_name << ", " << decl_ids[base_decl_name]
+             << "ull)\n";
         } else {
           os << "    // Skipped " << base_decl_name << "\n";
         }
       }
     }
 
-    os << "  PASTA_END_BASE_CLASSES(" << decl_name << ", " << decl_id << ")\n";
+    os << "  PASTA_END_BASE_CLASSES(" << decl_name << ", " << decl_id
+       << "ull)\n";
 
     // Get enclosed methods, fields, and enums. This will sort them by name.
     decl_methods.clear();
@@ -200,7 +210,7 @@ MacroGenerator::~MacroGenerator(void) {
     }
 
     // Methods.
-    os << "  PASTA_BEGIN_METHODS(" << decl_name << ", " << decl_id << ")\n";
+    os << "  PASTA_BEGIN_METHODS(" << decl_name << ", " << decl_id << "ull)\n";
 
     for (const auto &[method_name, methods] : decl_methods) {
 
@@ -216,13 +226,13 @@ MacroGenerator::~MacroGenerator(void) {
         //            along with any other default arguments.
         const auto num_args = method->getMinRequiredArguments();
 
-        if (method->isCXXClassMember()) {
+        if (!method->isInstance()) {
           os << "    PASTA_CLASS_METHOD_" << num_args << '(';
         } else {
           os << "    PASTA_INSTANCE_METHOD_" << num_args << '(';
         }
 
-        os << decl_name << ", " << decl_id << ", " << method_name << ", ("
+        os << decl_name << ", " << decl_id << "ull, " << method_name << ", ("
            << method->getReturnType().getAsString(print_policy) << ')';
 
         for (auto i = 0u; i < num_args; ++i) {
@@ -233,7 +243,7 @@ MacroGenerator::~MacroGenerator(void) {
       }
     }
 
-    os << "  PASTA_END_METHODS(" << decl_name << ", " << decl_id << ")\n";
+    os << "  PASTA_END_METHODS(" << decl_name << ", " << decl_id << "ull)\n";
 
     // NOTE(pag,adrianh): We ignore C++ constructors and destructors because
     //                    our bindings are intended to provide read-only
@@ -242,7 +252,7 @@ MacroGenerator::~MacroGenerator(void) {
     //                    deleted / deleteable by us.
 
     // Fields.
-    os << "  PASTA_BEGIN_FIELDS(" << decl_name << ", " << decl_id << ")\n";
+    os << "  PASTA_BEGIN_FIELDS(" << decl_name << ", " << decl_id << "ull)\n";
 
     for (const auto &[field_name, field] : decl_fields) {
       if (field_name.empty()) {
@@ -255,21 +265,17 @@ MacroGenerator::~MacroGenerator(void) {
         continue;
       }
 
-      os << "    PASTA" << MacroAccessSpecifier(field);
-      if (field->isCXXClassMember()) {
-        os << "CLASS_FIELD(";
-      } else {
-        os << "INSTANCE_FIELD(";
-      }
+      os << "    PASTA" << MacroAccessSpecifier(field) << "INSTANCE_FIELD(";
 
-      os << decl_name << ", " << decl_id << ", " << field_name << ", ("
+      os << decl_name << ", " << decl_id << "ull, " << field_name << ", ("
          << type_name << "))\n";
     }
 
-    os << "  PASTA_END_FIELDS(" << decl_name << ", " << decl_id << ")\n";
+    os << "  PASTA_END_FIELDS(" << decl_name << ", " << decl_id << "ull)\n";
 
     // Enums.
-    os << "  PASTA_BEGIN_CLASS_ENUMS(" << decl_name << ", " << decl_id << ")\n";
+    os << "  PASTA_BEGIN_CLASS_ENUMS(" << decl_name << ", " << decl_id
+       << "ull)\n";
 
 
     // Named enums. These are also captured at the namespace level, so we
@@ -280,7 +286,7 @@ MacroGenerator::~MacroGenerator(void) {
       auto itype = enum_->getIntegerType();
       if (!itype.isNull() && enum_def) {
         os << "    PASTA_DECLARE_CLASS_NAMED_ENUM(" << decl_name
-           << ", " << decl_id << ", " << enum_name << ", ("
+           << ", " << decl_id << "ull, " << enum_name << ", ("
            << itype.getAsString(print_policy) << "))\n";
       }
     }
@@ -308,7 +314,7 @@ MacroGenerator::~MacroGenerator(void) {
 //    }
 //
 
-    os << "  PASTA_END_CLASS_ENUMS(" << decl_name << ", " << decl_id << ")\n"
+    os << "  PASTA_END_CLASS_ENUMS(" << decl_name << ", " << decl_id << "ull)\n"
        << "PASTA_END_CLANG_WRAPPER(" << decl_name << ", " << decl_id
        << ")\n\n";
   }
@@ -335,7 +341,7 @@ MacroGenerator::~MacroGenerator(void) {
     os << "PASTA_END_NAMED_ENUM(" << enum_name << ")\n";
   }
 
-  os << "#include \"../UndefineDefaultMacros.h\"\n\n";
+  os << "#include \"UndefineDefaultMacros.h\"\n\n";
 }
 
 bool MacroGenerator::VisitEnumDecl(clang::EnumDecl *decl) {

@@ -2,6 +2,7 @@
  * Copyright (c) 2021 Trail of Bits, Inc.
  */
 
+#include <cassert>
 #include <cctype>
 #include <cstdlib>
 #include <cstring>
@@ -22,15 +23,18 @@
 
 namespace {
 
-static const std::string kDeclNames[] = {
+static const llvm::StringRef kAllClassNames[] = {
 #define PASTA_BEGIN_CLANG_WRAPPER(name, id) PASTA_STR(name) ,
-#include "Generated/Decl.h"
+#include "Generated.h"
 };
 
-static const struct {std::string derived; std::string base; } kDeclExtends[] = {
+static std::vector<std::string> gDeclNames;
+static std::vector<std::string> gTypeNames;
+
+static const struct {std::string derived; std::string base; } kExtends[] = {
 #define PASTA_PUBLIC_BASE_CLASS(name, id, base_name, base_id) \
     {PASTA_STR(name), PASTA_STR(base_name)},
-#include "Generated/Decl.h"
+#include "Generated.h"
 };
 
 static const std::unordered_map<std::string, std::string> kCxxMethodRenames{
@@ -258,7 +262,7 @@ static std::string CxxName(llvm::StringRef name) {
 }
 
 static void DeclareCppMethods(std::ostream &os, const std::string &class_name) {
-#define PASTA_CLASS_METHOD_0(cls, id, meth, rt) \
+#define PASTA_INSTANCE_METHOD_0(cls, id, meth, rt) \
     if (class_name == PASTA_STR(cls)) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
         auto &new_rt = kRetTypeMap[PASTA_STR(rt)]; \
@@ -274,48 +278,48 @@ static void DeclareCppMethods(std::ostream &os, const std::string &class_name) {
       } \
     }
 
-#define PASTA_CLASS_METHOD_1(cls, id, meth, rt, p0) \
+#define PASTA_INSTANCE_METHOD_1(cls, id, meth, rt, p0) \
     if (class_name == PASTA_STR(cls)) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
-        os << "  // " << meth_name << "\n"; \
+        os << "  // " << meth_name << ": " << PASTA_STR(PASTA_SPLAT rt) << "\n"; \
       } \
     }
 
-#define PASTA_CLASS_METHOD_2(cls, id, meth, rt, p0, p1) \
+#define PASTA_INSTANCE_METHOD_2(cls, id, meth, rt, p0, p1) \
     if (class_name == PASTA_STR(cls)) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
-        os << "  // " << meth_name << "\n"; \
+        os << "  // " << meth_name << ": " << PASTA_STR(PASTA_SPLAT rt) << "\n"; \
       } \
     }
 
-#define PASTA_CLASS_METHOD_3(cls, id, meth, rt, p0, p1, p2) \
+#define PASTA_INSTANCE_METHOD_3(cls, id, meth, rt, p0, p1, p2) \
     if (class_name == PASTA_STR(cls)) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
-        os << "  // " << meth_name << "\n"; \
+        os << "  // " << meth_name << ": " << PASTA_STR(PASTA_SPLAT rt) << "\n"; \
       } \
     }
 
-#define PASTA_CLASS_METHOD_4(cls, id, meth, rt, p0, p1, p2, p3) \
+#define PASTA_INSTANCE_METHOD_4(cls, id, meth, rt, p0, p1, p2, p3) \
     if (class_name == PASTA_STR(cls)) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
-        os << "  // " << meth_name << "\n"; \
+        os << "  // " << meth_name << ": " << PASTA_STR(PASTA_SPLAT rt) << "\n"; \
       } \
     }
 
-#define PASTA_CLASS_METHOD_5(cls, id, meth, rt, p0, p1, p2, p3, p4) \
+#define PASTA_INSTANCE_METHOD_5(cls, id, meth, rt, p0, p1, p2, p3, p4) \
     if (class_name == PASTA_STR(cls)) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
-        os << "  // " << meth_name << "\n"; \
+        os << "  // " << meth_name << ": " << PASTA_STR(PASTA_SPLAT rt) << "\n"; \
       } \
     }
 
-#define PASTA_CLASS_METHOD_6(cls, id, meth, rt, p0, p1, p2, p3, p4, p5) \
+#define PASTA_INSTANCE_METHOD_6(cls, id, meth, rt, p0, p1, p2, p3, p4, p5) \
     if (class_name == PASTA_STR(cls)) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
-        os << "  // " << meth_name << "\n"; \
+        os << "  // " << meth_name << ": " << PASTA_STR(PASTA_SPLAT rt) << "\n"; \
       } \
     }
-#include "Generated/Decl.h"
+#include "Generated.h"
 }
 
 // Adds mappings that translate between clang enumeration types and PASTA
@@ -343,13 +347,13 @@ static void MapEnumRetTypes(void) {
                           Capitalize(PASTA_STR(enum_name))); \
     } while (0);
 
-#include "Generated/Decl.h"
+#include "Generated.h"
 }
 
 // Adds mappings that translate between pointers to clang Decl types and PASTA
 // Decl types.
 static void MapDeclRetTypes(void) {
-  for (const auto &name : kDeclNames) {
+  for (const auto &name : gDeclNames) {
     std::stringstream ss;
     ss << "(clang::" << name << " *)";
     kRetTypeMap.emplace(ss.str(), "::pasta::" + name);
@@ -401,7 +405,7 @@ static void DeclareEnums(std::ostream &os) {
 #define PASTA_END_NAMED_ENUM(enum_name) \
     os << "};\n\n";
 
-#include "Generated/Decl.h"
+#include "Generated.h"
 }
 
 // Generate `include/pasta/AST/Decl.h`.
@@ -422,8 +426,8 @@ static void GenerateDeclH(void) {
       << "#include \"Token.h\"\n\n"
       << "namespace clang {\n";
 
-  for (const auto &name : kDeclNames) {
-    os << "class " << name << ";\n";
+  for (const auto &name : kAllClassNames) {
+    os << "class " << name.str() << ";\n";
   }
 
   os
@@ -433,13 +437,22 @@ static void GenerateDeclH(void) {
       << "class ASTImpl;\n\n"
       << "enum class DeclKind : unsigned {\n";
 
-  for (const auto &name_ : kDeclNames) {
+  for (const auto &name_ : gDeclNames) {
     llvm::StringRef name(name_);
-    if (name != "DeclContext" && name != "Decl") {
-      if (name.endswith("Decl")) {
-        name = name.substr(0, name.size() - 4);
-      }
-      os << "  k" << name.str() << ",\n";
+    if (name != "Decl") {
+      assert(name.endswith("Decl"));
+      os << "  k" << name.substr(0, name.size() - 4).str() << ",\n";
+    }
+  }
+
+  os
+      << "};\n\n"
+      << "enum class TypeKind : unsigned {\n";
+
+  for (const auto &name_ : gTypeNames) {
+    llvm::StringRef name(name_);
+    if (name != "Type") {
+      os << "  k" << name.substr(0, name.size() - 4).str() << ",\n";
     }
   }
 
@@ -454,7 +467,7 @@ static void GenerateDeclH(void) {
   os << "class DeclBuilder;\n";
 
   // Forward declare them all.
-  for (const auto &name : kDeclNames) {
+  for (const auto &name : gDeclNames) {
     os << "class " << name << ";\n";
   }
 
@@ -467,6 +480,7 @@ static void GenerateDeclH(void) {
 
   // Define them all.
   for (const auto &name : gTopologicallyOrderedDecls) {
+    llvm::StringRef name_ref(name);
     if (name == "DeclContext") {
       continue;
     }
@@ -515,10 +529,8 @@ static void GenerateDeclH(void) {
           << "  std::shared_ptr<ASTImpl> ast;\n"
           << "  union {\n";
 
-      for (const auto &name : kDeclNames) {
-        if (name != "DeclContext") {
-          os << "    const ::clang::" << name << " *" << name << ";\n";
-        }
+      for (const auto &name : gDeclNames) {
+        os << "    const ::clang::" << name << " *" << name << ";\n";
       }
 
       os
@@ -548,8 +560,12 @@ static void GenerateDeclH(void) {
 
     // Requiring that all derivations have the same size as the base class
     // will let us do fun sketchy things.
-    if (name != "Decl") {
+    if (name != "Decl" && name_ref.endswith("Decl")) {
       os << "static_assert(sizeof(Decl) == sizeof(" << name << "));\n\n";
+
+    // Require all `Type` derivations to have the same size as `Type`.
+    } else if (name != "Type" && name_ref.endswith("Type")) {
+      os << "static_assert(sizeof(Type) == sizeof(" << name << "));\n\n";
     }
   }
 
@@ -558,7 +574,7 @@ static void GenerateDeclH(void) {
 }
 
 static void DefineCppMethods(std::ostream &os, const std::string &class_name) {
-#define PASTA_CLASS_METHOD_0(cls, id, meth, rt) \
+#define PASTA_INSTANCE_METHOD_0(cls, id, meth, rt) \
     if (class_name == PASTA_STR(cls)) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
         auto &rt_type = kRetTypeMap[PASTA_STR(rt)]; \
@@ -591,48 +607,48 @@ static void DefineCppMethods(std::ostream &os, const std::string &class_name) {
       } \
     }
 
-#define PASTA_CLASS_METHOD_1(cls, id, meth, rt, p0) \
+#define PASTA_INSTANCE_METHOD_1(cls, id, meth, rt, p0) \
     if (class_name == PASTA_STR(cls)) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
         os << "  // " << meth_name << "\n"; \
       } \
     }
 
-#define PASTA_CLASS_METHOD_2(cls, id, meth, rt, p0, p1) \
+#define PASTA_INSTANCE_METHOD_2(cls, id, meth, rt, p0, p1) \
     if (class_name == PASTA_STR(cls)) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
         os << "  // " << meth_name << "\n"; \
       } \
     }
 
-#define PASTA_CLASS_METHOD_3(cls, id, meth, rt, p0, p1, p2) \
+#define PASTA_INSTANCE_METHOD_3(cls, id, meth, rt, p0, p1, p2) \
     if (class_name == PASTA_STR(cls)) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
         os << "  // " << meth_name << "\n"; \
       } \
     }
 
-#define PASTA_CLASS_METHOD_4(cls, id, meth, rt, p0, p1, p2, p3) \
+#define PASTA_INSTANCE_METHOD_4(cls, id, meth, rt, p0, p1, p2, p3) \
     if (class_name == PASTA_STR(cls)) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
         os << "  // " << meth_name << "\n"; \
       } \
     }
 
-#define PASTA_CLASS_METHOD_5(cls, id, meth, rt, p0, p1, p2, p3, p4) \
+#define PASTA_INSTANCE_METHOD_5(cls, id, meth, rt, p0, p1, p2, p3, p4) \
     if (class_name == PASTA_STR(cls)) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
         os << "  // " << meth_name << "\n"; \
       } \
     }
 
-#define PASTA_CLASS_METHOD_6(cls, id, meth, rt, p0, p1, p2, p3, p4, p5) \
+#define PASTA_INSTANCE_METHOD_6(cls, id, meth, rt, p0, p1, p2, p3, p4, p5) \
     if (class_name == PASTA_STR(cls)) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); !meth_name.empty()) { \
         os << "  // " << meth_name << "\n"; \
       } \
     }
-#include "Generated/Decl.h"
+#include "Generated.h"
 }
 
 // Generate `lib/AST/Decl.cpp`.
@@ -679,12 +695,11 @@ static void GenerateDeclCpp(void) {
       << "}\n\n"
       << "static const std::string_view kKindNames[] = {\n";
 
-  for (const auto &name_ : kDeclNames) {
+  for (const auto &name_ : gDeclNames) {
     llvm::StringRef name(name_);
-    if (name != "Decl" && name != "DeclContext") {
-      if (name.endswith("Decl")) {
-        name = name.substr(0, name.size() - 4);
-      }
+    if (name != "Decl") {
+      assert(name.endswith("Decl"));
+      name = name.substr(0, name.size() - 4);
       os << "  \"" << name.str() << "\",\n";
     }
   }
@@ -740,11 +755,22 @@ static void GenerateDeclCpp(void) {
 int main(void) {
 
   std::unordered_set<std::string> seen;
+  seen.insert("DeclContext");
+
   //gBaseClasses["Decl"].insert("DeclBase");
   //gBaseClasses["DeclContext"].insert("DeclBase");
 
+  for (auto class_name : kAllClassNames) {
+    if (class_name.endswith("Decl")) {
+      gDeclNames.push_back(class_name.str());
+
+    } else if (class_name.endswith("Type")) {
+      gTypeNames.push_back(class_name.str());
+    }
+  }
+
   // Build up an adjacency list of parent/child relations.
-  for (const auto &[name, base_name] : kDeclExtends) {
+  for (const auto &[name, base_name] : kExtends) {
     gBaseClasses[name].insert(base_name);
     gDerivedClasses[base_name].insert(name);
   }
@@ -752,7 +778,7 @@ int main(void) {
   // Topologically order the classes by the parent/child relations.
   for (auto changed = true; changed; ) {
     changed = false;
-    for (const auto &name : kDeclNames) {
+    for (const auto &name : gDeclNames) {
       if (seen.count(name)) {
         goto skip;
       }
@@ -798,6 +824,8 @@ int main(void) {
                                   derived_classes.end());
     }
   }
+
+
 
   MapEnumRetTypes();
   MapDeclRetTypes();

@@ -16,9 +16,16 @@
 
 namespace clang {
 class AccessSpecDecl;
+class AdjustedType;
+class ArrayType;
+class AtomicType;
+class AttributedType;
+class AutoType;
 class BindingDecl;
 class BlockDecl;
+class BlockPointerType;
 class BuiltinTemplateDecl;
+class BuiltinType;
 class CXXConstructorDecl;
 class CXXConversionDecl;
 class CXXDeductionGuideDecl;
@@ -30,31 +37,60 @@ class ClassScopeFunctionSpecializationDecl;
 class ClassTemplateDecl;
 class ClassTemplatePartialSpecializationDecl;
 class ClassTemplateSpecializationDecl;
+class ComplexType;
 class ConceptDecl;
+class ConstantArrayType;
+class ConstantMatrixType;
 class ConstructorUsingShadowDecl;
+class DecayedType;
 class Decl;
 class DeclContext;
 class DeclaratorDecl;
+class DecltypeType;
 class DecompositionDecl;
+class DeducedTemplateSpecializationType;
+class DeducedType;
+class DependentAddressSpaceType;
+class DependentExtIntType;
+class DependentNameType;
+class DependentSizedArrayType;
+class DependentSizedExtVectorType;
+class DependentSizedMatrixType;
+class DependentTemplateSpecializationType;
+class DependentVectorType;
+class ElaboratedType;
 class EmptyDecl;
 class EnumConstantDecl;
 class EnumDecl;
+class EnumType;
 class ExportDecl;
+class ExtIntType;
+class ExtVectorType;
 class ExternCContextDecl;
 class FieldDecl;
 class FileScopeAsmDecl;
 class FriendDecl;
 class FriendTemplateDecl;
 class FunctionDecl;
+class FunctionNoProtoType;
+class FunctionProtoType;
 class FunctionTemplateDecl;
+class FunctionTemplateSpecializationInfo;
+class FunctionType;
 class ImplicitParamDecl;
 class ImportDecl;
+class IncompleteArrayType;
 class IndirectFieldDecl;
+class InjectedClassNameType;
+class LValueReferenceType;
 class LabelDecl;
 class LifetimeExtendedTemporaryDecl;
 class LinkageSpecDecl;
 class MSGuidDecl;
 class MSPropertyDecl;
+class MacroQualifiedType;
+class MatrixType;
+class MemberPointerType;
 class NamedDecl;
 class NamespaceAliasDecl;
 class NamespaceDecl;
@@ -73,29 +109,53 @@ class ObjCContainerDecl;
 class ObjCImplDecl;
 class ObjCImplementationDecl;
 class ObjCInterfaceDecl;
+class ObjCInterfaceType;
 class ObjCIvarDecl;
 class ObjCMethodDecl;
+class ObjCObjectPointerType;
+class ObjCObjectType;
 class ObjCPropertyDecl;
 class ObjCPropertyImplDecl;
 class ObjCProtocolDecl;
 class ObjCTypeParamDecl;
+class ObjCTypeParamType;
+class PackExpansionType;
+class ParenType;
 class ParmVarDecl;
+class PipeType;
+class PointerType;
 class PragmaCommentDecl;
 class PragmaDetectMismatchDecl;
+class RValueReferenceType;
 class RecordDecl;
+class RecordType;
 class RedeclarableTemplateDecl;
+class ReferenceType;
 class RequiresExprBodyDecl;
 class StaticAssertDecl;
+class SubstTemplateTypeParmPackType;
+class SubstTemplateTypeParmType;
 class TagDecl;
+class TagType;
+class TemplateArgument;
 class TemplateDecl;
+class TemplateSpecializationType;
 class TemplateTemplateParmDecl;
 class TemplateTypeParmDecl;
+class TemplateTypeParmType;
 class TranslationUnitDecl;
+class Type;
 class TypeAliasDecl;
 class TypeAliasTemplateDecl;
 class TypeDecl;
+class TypeOfExprType;
+class TypeOfType;
+class TypeSourceInfo;
 class TypedefDecl;
 class TypedefNameDecl;
+class TypedefType;
+class UnaryTransformType;
+class UnresolvedUsingType;
 class UnresolvedUsingTypenameDecl;
 class UnresolvedUsingValueDecl;
 class UsingDecl;
@@ -107,6 +167,8 @@ class VarDecl;
 class VarTemplateDecl;
 class VarTemplatePartialSpecializationDecl;
 class VarTemplateSpecializationDecl;
+class VariableArrayType;
+class VectorType;
 }  // namespace clang
 namespace pasta {
 class AST;
@@ -203,6 +265,67 @@ enum class DeclKind : unsigned {
   kVarTemplate,
   kVarTemplatePartialSpecialization,
   kVarTemplateSpecialization,
+};
+
+enum class TypeKind : unsigned {
+  kAdjusted,
+  kArray,
+  kAtomic,
+  kAttributed,
+  kAuto,
+  kBlockPointer,
+  kBuiltin,
+  kComplex,
+  kConstantArray,
+  kConstantMatrix,
+  kDecayed,
+  kDecltype,
+  kDeducedTemplateSpecialization,
+  kDeduced,
+  kDependentAddressSpace,
+  kDependentExtInt,
+  kDependentName,
+  kDependentSizedArray,
+  kDependentSizedExtVector,
+  kDependentSizedMatrix,
+  kDependentTemplateSpecialization,
+  kDependentVector,
+  kElaborated,
+  kEnum,
+  kExtInt,
+  kExtVector,
+  kFunctionNoProto,
+  kFunctionProto,
+  kFunction,
+  kIncompleteArray,
+  kInjectedClassName,
+  kLValueReference,
+  kMacroQualified,
+  kMatrix,
+  kMemberPointer,
+  kObjCInterface,
+  kObjCObjectPointer,
+  kObjCObject,
+  kObjCTypeParam,
+  kPackExpansion,
+  kParen,
+  kPipe,
+  kPointer,
+  kRValueReference,
+  kRecord,
+  kReference,
+  kSubstTemplateTypeParmPack,
+  kSubstTemplateTypeParm,
+  kTag,
+  kTemplateSpecialization,
+  kTemplateTypeParm,
+  kTypeOfExpr,
+  kTypeOf,
+  kTypedef,
+  kUnaryTransform,
+  kUnresolvedUsing,
+  kVariableArray,
+  kVector,
 };
 
 enum class ADLCallKind : bool {
@@ -1233,10 +1356,6 @@ enum class ObjCTypeParamVariance : unsigned char {
 };
 
 enum class OnStackType : unsigned int {
-  kOnStack = 0,
-};
-
-enum class OnStack_t : unsigned int {
   kOnStack = 0,
 };
 
@@ -2475,7 +2594,6 @@ class ClassTemplateSpecializationDecl;
 class ConceptDecl;
 class ConstructorUsingShadowDecl;
 class Decl;
-class DeclContext;
 class DeclaratorDecl;
 class DecompositionDecl;
 class EmptyDecl;
@@ -2569,13 +2687,13 @@ class Decl {
   std::optional<::pasta::Token> BeginToken(void) const;
   // Body
   ::pasta::Decl CanonicalDecl(void) const;
-  ::pasta::DeclContext DeclContext(void) const;
+  // DeclContext
   std::optional<::pasta::Token> EndToken(void) const;
   // FriendObjectKind
   uint32_t GlobalID(void) const;
   uint32_t IdentifierNamespace(void) const;
   // ImportedOwningModule
-  ::pasta::DeclContext LexicalDeclContext(void) const;
+  // LexicalDeclContext
   // LocalOwningModule
   std::optional<::pasta::Token> Token(void) const;
   // ModuleOwnershipKind
@@ -2598,7 +2716,7 @@ class Decl {
   bool IsFromASTFile(void) const;
   bool IsFunctionOrFunctionTemplate(void) const;
   bool IsImplicit(void) const;
-  // IsInIdentifierNamespace
+  // IsInIdentifierNamespace: bool
   bool IsInvalidDecl(void) const;
   bool IsModulePrivate(void) const;
   bool IsTemplateParameter(void) const;
@@ -2848,7 +2966,7 @@ class FriendDecl : public Decl {
   std::optional<::pasta::Token> FriendToken(void) const;
   // FriendType
   uint32_t FriendTypeNumTemplateParameterLists(void) const;
-  // FriendTypeTemplateParameterList
+  // FriendTypeTemplateParameterList: clang::TemplateParameterList *
   // TokenRange
   bool IsUnsupportedFriend(void) const;
  private:
@@ -2878,7 +2996,7 @@ class FriendTemplateDecl : public Decl {
   std::optional<::pasta::Token> FriendToken(void) const;
   // FriendType
   uint32_t NumTemplateParameters(void) const;
-  // TemplateParameterList
+  // TemplateParameterList: clang::TemplateParameterList *
  private:
   FriendTemplateDecl(void) = delete;
 
@@ -3180,11 +3298,11 @@ class ObjCContainerDecl : public NamedDecl {
 
   // Class_methods
   // Class_properties
-  // CollectPropertiesToImplement
+  // CollectPropertiesToImplement: void
   // AtEndRange
   std::optional<::pasta::Token> AtStartToken(void) const;
-  // ClassMethod
-  // InstanceMethod
+  // ClassMethod: clang::ObjCMethodDecl *
+  // InstanceMethod: clang::ObjCMethodDecl *
   // TokenRange
   // Instance_methods
   // Instance_properties
@@ -3277,7 +3395,7 @@ class ObjCInterfaceDecl : public ObjCContainerDecl {
   bool DeclaresOrInheritsDesignatedInitializers(void) const;
   ::pasta::ObjCInterfaceDecl CanonicalDecl(void) const;
   ::pasta::ObjCCategoryDecl CategoryListRaw(void) const;
-  // CategoryMethod
+  // CategoryMethod: clang::ObjCMethodDecl *
   ::pasta::ObjCInterfaceDecl Definition(void) const;
   std::optional<::pasta::Token> EndOfDefinitionToken(void) const;
   // ReferencedProtocols
@@ -3288,14 +3406,14 @@ class ObjCInterfaceDecl : public ObjCContainerDecl {
   // TypeParamListAsWritten
   bool HasDefinition(void) const;
   bool IsImplicitInterfaceDecl(void) const;
-  // IsSuperClassOf
+  // IsSuperClassOf: bool
   bool IsThisDeclarationADefinition(void) const;
   // Ivars
   // Known_categories
   // Known_extensions
-  // LookupClassMethod
-  // LookupInstanceMethod
-  // LookupPropertyAccessor
+  // LookupClassMethod: clang::ObjCMethodDecl *
+  // LookupInstanceMethod: clang::ObjCMethodDecl *
+  // LookupPropertyAccessor: clang::ObjCMethodDecl *
   // Protocol_locs
   // Protocols
   // Visible_categories
@@ -3331,11 +3449,11 @@ class ObjCMethodDecl : public NamedDecl {
   // ImplementationControl
   uint32_t NumSelectorLocs(void) const;
   // ObjCDeclQualifier
-  // ParamDecl
+  // ParamDecl: const clang::ParmVarDecl *
   // ReturnType
   // ReturnTypeSourceInfo
   // Selector
-  // SelectorToken
+  // SelectorToken: clang::SourceLocation
   std::optional<::pasta::Token> SelectorStartToken(void) const;
   ::pasta::ImplicitParamDecl SelfDecl(void) const;
   // TokenRange
@@ -3463,8 +3581,8 @@ class ObjCProtocolDecl : public ObjCContainerDecl {
   // TokenRange
   bool HasDefinition(void) const;
   bool IsThisDeclarationADefinition(void) const;
-  // LookupClassMethod
-  // LookupInstanceMethod
+  // LookupClassMethod: clang::ObjCMethodDecl *
+  // LookupInstanceMethod: clang::ObjCMethodDecl *
   // Protocol_locs
   // Protocols
  private:
@@ -3620,7 +3738,7 @@ class TemplateTemplateParmDecl : public TemplateDecl {
   bool DefaultArgumentWasInherited(void) const;
   // DefaultArgStorage
   // DefaultArgument
-  // ExpansionTemplateParameters
+  // ExpansionTemplateParameters: clang::TemplateParameterList *
   uint32_t NumExpansionTemplateParameters(void) const;
   // TokenRange
   bool HasDefaultArgument(void) const;
@@ -3791,7 +3909,7 @@ class UsingDirectiveDecl : public NamedDecl {
   UsingDirectiveDecl &operator=(const UsingDirectiveDecl &) = default;
   UsingDirectiveDecl &operator=(UsingDirectiveDecl &&) noexcept = default;
 
-  ::pasta::DeclContext CommonAncestor(void) const;
+  // CommonAncestor
   std::optional<::pasta::Token> IdentLocation(void) const;
   std::optional<::pasta::Token> NamespaceKeyLocation(void) const;
   ::pasta::NamespaceDecl NominatedNamespace(void) const;
@@ -3962,7 +4080,7 @@ class BlockDecl : public Decl {
   // CompoundBody
   uint32_t NumCaptures(void) const;
   uint32_t NumParams(void) const;
-  // ParamDecl
+  // ParamDecl: const clang::ParmVarDecl *
   // SignatureAsWritten
   bool HasCaptures(void) const;
   bool IsConversionFromLambda(void) const;
@@ -4019,7 +4137,7 @@ class CapturedDecl : public Decl {
   ::pasta::ImplicitParamDecl ContextParam(void) const;
   uint32_t ContextParamPosition(void) const;
   uint32_t NumParams(void) const;
-  // Param
+  // Param: clang::ImplicitParamDecl *
   // Parameters
  private:
   CapturedDecl(void) = delete;
@@ -4129,7 +4247,7 @@ class DeclaratorDecl : public ValueDecl {
   uint32_t NumTemplateParameterLists(void) const;
   // Qualifier
   // QualifierToken
-  // TemplateParameterList
+  // TemplateParameterList: clang::TemplateParameterList *
   // TrailingRequiresClause
   // TypeSourceInfo
  private:
@@ -4216,7 +4334,7 @@ class FunctionDecl : public DeclaratorDecl {
   FunctionDecl &operator=(FunctionDecl &&) noexcept = default;
 
   bool DoesThisDeclarationHaveABody(void) const;
-  // AssociatedConstraints
+  // AssociatedConstraints: void
   // Body
   // CallResultType
   ::pasta::FunctionDecl CanonicalDecl(void) const;
@@ -4226,7 +4344,7 @@ class FunctionDecl : public DeclaratorDecl {
   std::optional<::pasta::Token> EllipsisToken(void) const;
   ExceptionSpecificationType ExceptionSpecType(void) const;
   // NameInfo
-  // ParamDecl
+  // ParamDecl: const clang::ParmVarDecl *
   // ReturnType
   StorageClass StorageClass(void) const;
   bool HasBody(void) const;
@@ -4393,11 +4511,11 @@ class NonTypeTemplateParmDecl : public DeclaratorDecl {
   NonTypeTemplateParmDecl &operator=(NonTypeTemplateParmDecl &&) noexcept = default;
 
   bool DefaultArgumentWasInherited(void) const;
-  // AssociatedConstraints
+  // AssociatedConstraints: void
   // DefaultArgStorage
   // DefaultArgument
-  // ExpansionType
-  // ExpansionTypeSourceInfo
+  // ExpansionType: clang::QualType
+  // ExpansionTypeSourceInfo: clang::TypeSourceInfo *
   uint32_t NumExpansionTypes(void) const;
   // PlaceholderTypeConstraint
   bool HasDefaultArgument(void) const;
@@ -4654,7 +4772,7 @@ class TagDecl : public TypeDecl {
   // Qualifier
   // QualifierToken
   TagTypeKind TagKind(void) const;
-  // TemplateParameterList
+  // TemplateParameterList: clang::TemplateParameterList *
   ::pasta::TypedefNameDecl TypedefNameForAnonDecl(void) const;
   bool HasNameForLinkage(void) const;
   bool IsBeingDefined(void) const;
@@ -4694,7 +4812,7 @@ class TemplateTypeParmDecl : public TypeDecl {
   TemplateTypeParmDecl &operator=(TemplateTypeParmDecl &&) noexcept = default;
 
   bool DefaultArgumentWasInherited(void) const;
-  // AssociatedConstraints
+  // AssociatedConstraints: void
   // DefaultArgStorage
   // DefaultArgument
   // DefaultArgumentInfo
@@ -4918,7 +5036,7 @@ class VarTemplateSpecializationDecl : public VarDecl {
   VarTemplateSpecializationDecl &operator=(const VarTemplateSpecializationDecl &) = default;
   VarTemplateSpecializationDecl &operator=(VarTemplateSpecializationDecl &&) noexcept = default;
 
-  // Profile
+  // Profile: void
   std::optional<::pasta::Token> ExternToken(void) const;
   // InstantiatedFrom
   std::optional<::pasta::Token> PointOfInstantiation(void) const;
@@ -4983,9 +5101,9 @@ class CXXMethodDecl : public FunctionDecl {
   CXXMethodDecl &operator=(CXXMethodDecl &&) noexcept = default;
 
   ::pasta::CXXMethodDecl CanonicalDecl(void) const;
-  // CorrespondingMethodDeclaredInClass
-  // CorrespondingMethodInClass
-  // DevirtualizedMethod
+  // CorrespondingMethodDeclaredInClass: const clang::CXXMethodDecl *
+  // CorrespondingMethodInClass: const clang::CXXMethodDecl *
+  // DevirtualizedMethod: const clang::CXXMethodDecl *
   // MethodQualifiers
   ::pasta::CXXMethodDecl MostRecentDecl(void) const;
   ::pasta::CXXRecordDecl Parent(void) const;
@@ -5261,8 +5379,8 @@ class VarTemplatePartialSpecializationDecl : public VarTemplateSpecializationDec
   VarTemplatePartialSpecializationDecl &operator=(const VarTemplatePartialSpecializationDecl &) = default;
   VarTemplatePartialSpecializationDecl &operator=(VarTemplatePartialSpecializationDecl &&) noexcept = default;
 
-  // Profile
-  // AssociatedConstraints
+  // Profile: void
+  // AssociatedConstraints: void
   ::pasta::VarTemplatePartialSpecializationDecl InstantiatedFromMember(void) const;
   // TemplateArgsAsWritten
   // TemplateParameters
@@ -5503,7 +5621,7 @@ class ClassTemplateSpecializationDecl : public CXXRecordDecl {
   ClassTemplateSpecializationDecl &operator=(const ClassTemplateSpecializationDecl &) = default;
   ClassTemplateSpecializationDecl &operator=(ClassTemplateSpecializationDecl &&) noexcept = default;
 
-  // Profile
+  // Profile: void
   std::optional<::pasta::Token> ExternToken(void) const;
   // InstantiatedFrom
   std::optional<::pasta::Token> PointOfInstantiation(void) const;
@@ -5539,8 +5657,8 @@ class ClassTemplatePartialSpecializationDecl : public ClassTemplateSpecializatio
   ClassTemplatePartialSpecializationDecl &operator=(const ClassTemplatePartialSpecializationDecl &) = default;
   ClassTemplatePartialSpecializationDecl &operator=(ClassTemplatePartialSpecializationDecl &&) noexcept = default;
 
-  // Profile
-  // AssociatedConstraints
+  // Profile: void
+  // AssociatedConstraints: void
   // InjectedSpecializationType
   ::pasta::ClassTemplatePartialSpecializationDecl InstantiatedFromMember(void) const;
   ::pasta::ClassTemplatePartialSpecializationDecl InstantiatedFromMemberTemplate(void) const;

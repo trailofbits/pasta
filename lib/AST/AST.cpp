@@ -3,13 +3,14 @@
  */
 
 #include "AST.h"
-#include "Token.h"
+
+#include <pasta/AST/Decl.h>
 
 #include <cassert>
 #include <limits>
 #include <new>
 
-#include <pasta/AST/Decl.h>
+#include "Token.h"
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
@@ -37,8 +38,7 @@ void ASTImpl::AppendToken(const clang::Token &tok, size_t offset_,
   assert(offset_ == (offset_ & 0x7FFFFFFFull));
   assert(len == len);
   tokens.emplace_back(tok.getLocation().getRawEncoding(),
-                      static_cast<int32_t>(offset_), len,
-                      tok.getKind());
+                      static_cast<int32_t>(offset_), len, tok.getKind());
 }
 
 // Append a token to the end of the AST. `offset` is the offset in
@@ -49,8 +49,7 @@ void ASTImpl::AppendBackupToken(const clang::Token &tok, size_t offset_,
   assert(offset_ == (offset_ & 0x7FFFFFFFull));
   assert(len == len);
   tokens.emplace_back(tok.getLocation().getRawEncoding(),
-                      -static_cast<int32_t>(offset_), len,
-                      tok.getKind());
+                      -static_cast<int32_t>(offset_), len, tok.getKind());
 }
 
 // Return the AST containing a declaration.
@@ -80,7 +79,6 @@ TokenRange AST::Tokens(void) const {
   const auto first = impl->tokens.data();
   return TokenRange(impl, first, &(first[impl->tokens.size()]));
 }
-
 
 
 // Try to return the token at the specified location.

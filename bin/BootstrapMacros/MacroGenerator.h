@@ -4,12 +4,12 @@
 
 #pragma once
 
+#include <clang/AST/RecursiveASTVisitor.h>
+
 #include <map>
-#include <unordered_set>
 #include <sstream>
 #include <string>
-
-#include <clang/AST/RecursiveASTVisitor.h>
+#include <unordered_set>
 
 namespace pasta {
 

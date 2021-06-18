@@ -151,6 +151,7 @@ class Decl {
     const ::clang::StaticAssertDecl *StaticAssertDecl;
     const ::clang::TagDecl *TagDecl;
     const ::clang::TemplateDecl *TemplateDecl;
+    const ::clang::TemplateParamObjectDecl *TemplateParamObjectDecl;
     const ::clang::TemplateTemplateParmDecl *TemplateTemplateParmDecl;
     const ::clang::TemplateTypeParmDecl *TemplateTypeParmDecl;
     const ::clang::TranslationUnitDecl *TranslationUnitDecl;
@@ -448,7 +449,7 @@ class NamedDecl : public Decl {
   // Identifier: (clang::IdentifierInfo *)
   ::pasta::NamedDecl MostRecentDecl(void) const;
   std::string_view Name(void) const;
-  std::string NameAsString(void) const;
+  // NameAsString: (std::basic_string<char, std::char_traits<char>, std::allocator<char>>)
   ::pasta::NamedDecl UnderlyingDecl(void) const;
   Visibility Visibility(void) const;
   bool HasExternalFormalLinkage(void) const;
@@ -533,7 +534,7 @@ class NamespaceDecl : public NamedDecl {
 
 static_assert(sizeof(Decl) == sizeof(NamespaceDecl));
 
-class OMPAllocateDecl : public Decl {
+class OMPAllocateDecl {
  public:
   ~OMPAllocateDecl(void) = default;
   OMPAllocateDecl(const OMPAllocateDecl &) = default;
@@ -558,7 +559,32 @@ class OMPAllocateDecl : public Decl {
 
 static_assert(sizeof(Decl) == sizeof(OMPAllocateDecl));
 
-class OMPRequiresDecl : public Decl {
+class OMPDeclareMapperDecl {
+ public:
+  ~OMPDeclareMapperDecl(void) = default;
+  OMPDeclareMapperDecl(const OMPDeclareMapperDecl &) = default;
+  OMPDeclareMapperDecl(OMPDeclareMapperDecl &&) noexcept = default;
+  OMPDeclareMapperDecl &operator=(const OMPDeclareMapperDecl &) = default;
+  OMPDeclareMapperDecl &operator=(OMPDeclareMapperDecl &&) noexcept = default;
+
+  // Clauses: (llvm::iterator_range<const clang::OMPClause *const *>)
+  // MapperVarRef: (const clang::Expr *)
+ private:
+  OMPDeclareMapperDecl(void) = delete;
+
+  friend class DeclBuilder;
+  friend class AST;
+  friend class ASTImpl;
+
+ protected:
+  explicit OMPDeclareMapperDecl(
+      std::shared_ptr<ASTImpl> ast_,
+      const ::clang::OMPDeclareMapperDecl *decl_);
+};
+
+static_assert(sizeof(Decl) == sizeof(OMPDeclareMapperDecl));
+
+class OMPRequiresDecl {
  public:
   ~OMPRequiresDecl(void) = default;
   OMPRequiresDecl(const OMPRequiresDecl &) = default;
@@ -582,7 +608,7 @@ class OMPRequiresDecl : public Decl {
 
 static_assert(sizeof(Decl) == sizeof(OMPRequiresDecl));
 
-class OMPThreadPrivateDecl : public Decl {
+class OMPThreadPrivateDecl {
  public:
   ~OMPThreadPrivateDecl(void) = default;
   OMPThreadPrivateDecl(const OMPThreadPrivateDecl &) = default;
@@ -702,7 +728,7 @@ class ObjCImplementationDecl : public ObjCImplDecl {
   std::optional<::pasta::Token> IvarLBraceToken(void) const;
   std::optional<::pasta::Token> IvarRBraceToken(void) const;
   std::string_view Name(void) const;
-  std::string NameAsString(void) const;
+  // NameAsString: (std::basic_string<char, std::char_traits<char>, std::allocator<char>>)
   uint32_t NumIvarInitializers(void) const;
   ::pasta::ObjCInterfaceDecl SuperClass(void) const;
   std::optional<::pasta::Token> SuperClassToken(void) const;
@@ -785,6 +811,7 @@ class ObjCMethodDecl : public NamedDecl {
 
   std::optional<::pasta::Token> BeginToken(void) const;
   ::pasta::ObjCMethodDecl CanonicalDecl(void) const;
+  ::pasta::ObjCCategoryDecl Category(void) const;
   ::pasta::ObjCInterfaceDecl ClassInterface(void) const;
   ::pasta::ImplicitParamDecl CmdDecl(void) const;
   std::optional<::pasta::Token> DeclaratorEndToken(void) const;
@@ -1530,6 +1557,7 @@ class ConceptDecl : public TemplateDecl {
   ConceptDecl &operator=(const ConceptDecl &) = default;
   ConceptDecl &operator=(ConceptDecl &&) noexcept = default;
 
+  ::pasta::ConceptDecl CanonicalDecl(void) const;
   // ConstraintExpr: (clang::Expr *)
   // TokenRange: (clang::SourceRange)
   bool IsTypeConcept(void) const;
@@ -1718,7 +1746,6 @@ class FunctionDecl : public DeclaratorDecl {
   bool IsUserProvided(void) const;
   bool IsVirtualAsWritten(void) const;
   // Parameters: (llvm::ArrayRef<clang::ParmVarDecl *>)
-  bool UsesFPIntrin(void) const;
   bool UsesSEHTry(void) const;
   bool WillHaveBody(void) const;
  private:
@@ -1879,31 +1906,6 @@ class NonTypeTemplateParmDecl : public DeclaratorDecl {
 };
 
 static_assert(sizeof(Decl) == sizeof(NonTypeTemplateParmDecl));
-
-class OMPDeclareMapperDecl : public ValueDecl {
- public:
-  ~OMPDeclareMapperDecl(void) = default;
-  OMPDeclareMapperDecl(const OMPDeclareMapperDecl &) = default;
-  OMPDeclareMapperDecl(OMPDeclareMapperDecl &&) noexcept = default;
-  OMPDeclareMapperDecl &operator=(const OMPDeclareMapperDecl &) = default;
-  OMPDeclareMapperDecl &operator=(OMPDeclareMapperDecl &&) noexcept = default;
-
-  // Clauses: (llvm::iterator_range<const clang::OMPClause *const *>)
-  // MapperVarRef: (const clang::Expr *)
- private:
-  OMPDeclareMapperDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
- protected:
-  explicit OMPDeclareMapperDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::OMPDeclareMapperDecl *decl_);
-};
-
-static_assert(sizeof(Decl) == sizeof(OMPDeclareMapperDecl));
 
 class OMPDeclareReductionDecl : public ValueDecl {
  public:
@@ -2144,6 +2146,31 @@ class TagDecl : public TypeDecl {
 };
 
 static_assert(sizeof(Decl) == sizeof(TagDecl));
+
+class TemplateParamObjectDecl : public ValueDecl {
+ public:
+  ~TemplateParamObjectDecl(void) = default;
+  TemplateParamObjectDecl(const TemplateParamObjectDecl &) = default;
+  TemplateParamObjectDecl(TemplateParamObjectDecl &&) noexcept = default;
+  TemplateParamObjectDecl &operator=(const TemplateParamObjectDecl &) = default;
+  TemplateParamObjectDecl &operator=(TemplateParamObjectDecl &&) noexcept = default;
+
+  ::pasta::TemplateParamObjectDecl CanonicalDecl(void) const;
+  // Value: (const clang::APValue &)
+ private:
+  TemplateParamObjectDecl(void) = delete;
+
+  friend class DeclBuilder;
+  friend class AST;
+  friend class ASTImpl;
+
+ protected:
+  explicit TemplateParamObjectDecl(
+      std::shared_ptr<ASTImpl> ast_,
+      const ::clang::TemplateParamObjectDecl *decl_);
+};
+
+static_assert(sizeof(Decl) == sizeof(TemplateParamObjectDecl));
 
 class TemplateTypeParmDecl : public TypeDecl {
  public:
@@ -2924,6 +2951,7 @@ class CXXRecordDecl : public RecordDecl {
   bool IsParsingBaseSpecifiers(void) const;
   bool IsPolymorphic(void) const;
   bool IsStandardLayout(void) const;
+  bool IsStructural(void) const;
   bool IsTrivial(void) const;
   bool MayBeDynamicClass(void) const;
   bool MayBeNonDynamicClass(void) const;

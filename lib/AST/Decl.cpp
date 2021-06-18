@@ -115,6 +115,7 @@ static const std::string_view kKindNames[] = {
   "StaticAssert",
   "Tag",
   "Template",
+  "TemplateParamObject",
   "TemplateTemplateParm",
   "TemplateTypeParm",
   "TranslationUnit",
@@ -546,11 +547,7 @@ std::string_view NamedDecl::Name(void) const {
   }
 }
 
-std::string NamedDecl::NameAsString(void) const {
-  auto val = u.NamedDecl->getNameAsString();
-  return val;
-}
-
+  // NameAsString
 ::pasta::NamedDecl NamedDecl::UnderlyingDecl(void) const {
   auto val = u.NamedDecl->getUnderlyingDecl();
   if (val) {
@@ -686,21 +683,24 @@ bool NamespaceDecl::IsInline(void) const {
 
 OMPAllocateDecl::OMPAllocateDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::OMPAllocateDecl *decl_)
-    : Decl(std::move(ast_), decl_) {}
+    const ::clang::OMPAllocateDecl *decl_) {}
 
   // Clauses
   // Varlists
+OMPDeclareMapperDecl::OMPDeclareMapperDecl(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::OMPDeclareMapperDecl *decl_) {}
+
+  // Clauses
+  // MapperVarRef
 OMPRequiresDecl::OMPRequiresDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::OMPRequiresDecl *decl_)
-    : Decl(std::move(ast_), decl_) {}
+    const ::clang::OMPRequiresDecl *decl_) {}
 
   // Clauses
 OMPThreadPrivateDecl::OMPThreadPrivateDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::OMPThreadPrivateDecl *decl_)
-    : Decl(std::move(ast_), decl_) {}
+    const ::clang::OMPThreadPrivateDecl *decl_) {}
 
   // Varlists
 ObjCCompatibleAliasDecl::ObjCCompatibleAliasDecl(
@@ -778,11 +778,7 @@ std::string_view ObjCImplementationDecl::Name(void) const {
   }
 }
 
-std::string ObjCImplementationDecl::NameAsString(void) const {
-  auto val = u.ObjCImplementationDecl->getNameAsString();
-  return val;
-}
-
+  // NameAsString
 uint32_t ObjCImplementationDecl::NumIvarInitializers(void) const {
   auto val = u.ObjCImplementationDecl->getNumIvarInitializers();
   return val;
@@ -906,6 +902,15 @@ std::optional<::pasta::Token> ObjCMethodDecl::BeginToken(void) const {
     return DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, val);
   }
   assert(false && "ObjCMethodDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::ObjCCategoryDecl ObjCMethodDecl::Category(void) const {
+  auto val = u.ObjCMethodDecl->getCategory();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ObjCCategoryDecl>(ast, val);
+  }
+  assert(false && "ObjCMethodDecl::Category can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -1732,6 +1737,15 @@ ConceptDecl::ConceptDecl(
     const ::clang::ConceptDecl *decl_)
     : TemplateDecl(std::move(ast_), decl_) {}
 
+::pasta::ConceptDecl ConceptDecl::CanonicalDecl(void) const {
+  auto val = u.ConceptDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ConceptDecl>(ast, val);
+  }
+  assert(false && "ConceptDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
   // ConstraintExpr
   // TokenRange
 bool ConceptDecl::IsTypeConcept(void) const {
@@ -1906,7 +1920,7 @@ bool FunctionDecl::DoesThisDeclarationHaveABody(void) const {
 
 ConstexprSpecKind FunctionDecl::ConstexprKind(void) const {
   auto val = u.FunctionDecl->getConstexprKind();
-  return static_cast<::pasta::ConstexprSpecKind>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::ConstexprSpecKind>(static_cast<int>(val));
 }
 
   // DeclaredReturnType
@@ -2078,11 +2092,6 @@ bool FunctionDecl::IsVirtualAsWritten(void) const {
 }
 
   // Parameters
-bool FunctionDecl::UsesFPIntrin(void) const {
-  auto val = u.FunctionDecl->usesFPIntrin();
-  return val;
-}
-
 bool FunctionDecl::UsesSEHTry(void) const {
   auto val = u.FunctionDecl->usesSEHTry();
   return val;
@@ -2231,13 +2240,6 @@ bool NonTypeTemplateParmDecl::IsParameterPack(void) const {
   return val;
 }
 
-OMPDeclareMapperDecl::OMPDeclareMapperDecl(
-    std::shared_ptr<ASTImpl> ast_,
-    const ::clang::OMPDeclareMapperDecl *decl_)
-    : ValueDecl(ast_, decl_) {}
-
-  // Clauses
-  // MapperVarRef
 OMPDeclareReductionDecl::OMPDeclareReductionDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::OMPDeclareReductionDecl *decl_)
@@ -2522,6 +2524,21 @@ bool TagDecl::MayHaveOutOfDateDef(void) const {
   return val;
 }
 
+TemplateParamObjectDecl::TemplateParamObjectDecl(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::TemplateParamObjectDecl *decl_)
+    : ValueDecl(std::move(ast_), decl_) {}
+
+::pasta::TemplateParamObjectDecl TemplateParamObjectDecl::CanonicalDecl(void) const {
+  auto val = u.TemplateParamObjectDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::TemplateParamObjectDecl>(ast, val);
+  }
+  assert(false && "TemplateParamObjectDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+  // Value
 TemplateTypeParmDecl::TemplateTypeParmDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::TemplateTypeParmDecl *decl_)
@@ -3923,6 +3940,11 @@ bool CXXRecordDecl::IsPolymorphic(void) const {
 
 bool CXXRecordDecl::IsStandardLayout(void) const {
   auto val = u.CXXRecordDecl->isStandardLayout();
+  return val;
+}
+
+bool CXXRecordDecl::IsStructural(void) const {
+  auto val = u.CXXRecordDecl->isStructural();
   return val;
 }
 

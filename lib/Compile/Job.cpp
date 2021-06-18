@@ -33,6 +33,7 @@
 
 #include <pasta/Compile/Command.h>
 #include <pasta/Util/FileSystem.h>
+#include <pasta/Util/Version.h>
 
 #include <cstring>
 #include <memory>
@@ -172,8 +173,7 @@ CreateAdjustedCompilerCommand(const Compiler &compiler,
   std::filesystem::path resource_dir_to_use;
 
   if (!compiler.SystemRootDirectory().empty()) {
-    std::filesystem::path(compiler.SystemRootDirectory())
-        .swap(sysroot_to_use);
+    std::filesystem::path(compiler.SystemRootDirectory()).swap(sysroot_to_use);
   }
 
   if (!compiler.ResourceDirectory().empty()) {
@@ -257,7 +257,7 @@ CreateAdjustedCompilerCommand(const Compiler &compiler,
   // Then, add in the built-in include paths of `compiler`.
 
   compiler.ForEachSystemIncludeDirectory(
-      [&] (std::string_view include_path, IncludePathLocation loc) {
+      [&](std::string_view include_path, IncludePathLocation loc) {
         if (loc == IncludePathLocation::kAbsolute) {
           new_args.emplace_back("-isystem");
         } else {
@@ -267,13 +267,13 @@ CreateAdjustedCompilerCommand(const Compiler &compiler,
       });
 
   compiler.ForEachUserIncludeDirectory(
-      [&] (std::string_view include_path, IncludePathLocation) {
+      [&](std::string_view include_path, IncludePathLocation) {
         new_args.emplace_back("-I");
         new_args.emplace_back(include_path);
       });
 
   compiler.ForEachFrameworkDirectory(
-      [&] (std::string_view include_path, IncludePathLocation loc) {
+      [&](std::string_view include_path, IncludePathLocation loc) {
         if (loc == IncludePathLocation::kAbsolute) {
           new_args.emplace_back("-iframework");
         } else {
@@ -312,19 +312,34 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
   overlay_vfs->setCurrentWorkingDirectory(command.WorkingDirectory().data());
 
   // Make the driver.
+#if LLVM_VERSION_NUMBER < LLVM_VERSION(12, 0)
+  clang::driver::Driver driver(command.Arguments()[0],
+                               llvm::sys::getDefaultTargetTriple(),
+                               *diagnostics_engine, overlay_vfs.get());
+#else
+  auto driver_title = "Pasta Driver";
   clang::driver::Driver driver(
       command.Arguments()[0], llvm::sys::getDefaultTargetTriple(),
-      *diagnostics_engine, overlay_vfs.get());
+      *diagnostics_engine, driver_title, overlay_vfs.get());
+#endif
 
   auto &opts = driver.getOpts();
 
 
   auto missing_arg_index = 0u;
   auto missing_arg_count = 0u;
+
+#if LLVM_VERSION_NUMBER < LLVM_VERSION(12, 0)
+  unsigned int driver_options =
+      clang::driver::options::CC1Option | clang::driver::options::DriverOption;
+#else
+  unsigned int driver_options =
+      clang::driver::options::CC1Option | clang::driver::options::NoXarchOption;
+#endif
+
   auto parsed_args = opts.ParseArgs(
       command.Arguments().Arguments(), missing_arg_index, missing_arg_count,
-      clang::driver::options::DriverOption | clang::driver::options::CC1Option,
-      clang::driver::options::CLOption);
+      driver_options, clang::driver::options::CLOption);
 
   // Something didn't parse.
   if (0 < missing_arg_count) {
@@ -344,12 +359,14 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
   // Set up a reasonable default system root directory.
   if (driver.SysRoot.empty()) {
-    if (auto sysroot_arg = parsed_args.getLastArg(
-            clang::driver::options::OPT__sysroot_EQ); sysroot_arg) {
+    if (auto sysroot_arg =
+            parsed_args.getLastArg(clang::driver::options::OPT__sysroot_EQ);
+        sysroot_arg) {
       driver.SysRoot = sysroot_arg->getValue();
 
-    } else if (auto isysroot_arg = parsed_args.getLastArg(
-        clang::driver::options::OPT_isysroot); isysroot_arg) {
+    } else if (auto isysroot_arg =
+                   parsed_args.getLastArg(clang::driver::options::OPT_isysroot);
+               isysroot_arg) {
       driver.SysRoot = isysroot_arg->getValue();
 
     } else {
@@ -436,8 +453,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
     clang::CompilerInvocation invocation;
     invocation.getFileSystemOpts().WorkingDir = driver.Dir;
     auto invocation_is_valid = clang::CompilerInvocation::CreateFromArgs(
-        invocation, job_args, *diagnostics_engine,
-        new_args[0]);
+        invocation, job_args, *diagnostics_engine, new_args[0]);
 
     if (!invocation_is_valid) {
       if (diag->error.empty()) {

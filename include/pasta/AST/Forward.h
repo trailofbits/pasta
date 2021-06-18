@@ -6,8 +6,6 @@
 
 #pragma once
 
-#include <pasta/Util/Version.h>
-
 #include <cstdint>
 #include <memory>
 #include <optional>
@@ -477,11 +475,6 @@ enum class DeclKind : unsigned {
   kStaticAssert,
   kTag,
   kTemplate,
-
-#if LLVM_VERSION_NUMBER > LLVM_VERSION(11, 0)
-  kTemplateParamObject,
-#endif
-
   kTemplateTemplateParm,
   kTemplateTypeParm,
   kTranslationUnit,

@@ -2077,6 +2077,12 @@ bool FunctionDecl::IsVirtualAsWritten(void) const {
   return val;
 }
 
+  // Parameters
+bool FunctionDecl::UsesFPIntrin(void) const {
+  auto val = u.FunctionDecl->usesFPIntrin();
+  return val;
+}
+
 bool FunctionDecl::UsesSEHTry(void) const {
   auto val = u.FunctionDecl->usesSEHTry();
   return val;

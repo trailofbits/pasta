@@ -672,23 +672,26 @@ bool NamespaceDecl::IsInline(void) const {
 }
 
 OMPAllocateDecl::OMPAllocateDecl(std::shared_ptr<ASTImpl> ast_,
-                                 const ::clang::OMPAllocateDecl *decl_) {}
+                                 const ::clang::OMPAllocateDecl *decl_)
+                                : Decl(std::move(ast_), decl_) {}
 
 // Clauses
 // Varlists
 OMPDeclareMapperDecl::OMPDeclareMapperDecl(
-    std::shared_ptr<ASTImpl> ast_, const ::clang::OMPDeclareMapperDecl *decl_) {
+    std::shared_ptr<ASTImpl> ast_, const ::clang::OMPDeclareMapperDecl *decl_)
+    : Decl(std::move(ast_), decl_){
 }
 
 // Clauses
 // MapperVarRef
 OMPRequiresDecl::OMPRequiresDecl(std::shared_ptr<ASTImpl> ast_,
-                                 const ::clang::OMPRequiresDecl *decl_) {}
+                                 const ::clang::OMPRequiresDecl *decl_)
+                                 : Decl(std::move(ast_), decl_) {}
 
 // Clauses
 OMPThreadPrivateDecl::OMPThreadPrivateDecl(
-    std::shared_ptr<ASTImpl> ast_, const ::clang::OMPThreadPrivateDecl *decl_) {
-}
+    std::shared_ptr<ASTImpl> ast_, const ::clang::OMPThreadPrivateDecl *decl_)
+    : Decl(std::move(ast_), decl_){}
 
 // Varlists
 ObjCCompatibleAliasDecl::ObjCCompatibleAliasDecl(

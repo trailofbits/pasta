@@ -356,6 +356,7 @@ class TagDecl;
 class TagType;
 class TemplateArgument;
 class TemplateDecl;
+class TemplateParamObjectDecl;
 class TemplateSpecializationType;
 class TemplateTemplateParmDecl;
 class TemplateTypeParmDecl;
@@ -475,6 +476,7 @@ enum class DeclKind : unsigned {
   kStaticAssert,
   kTag,
   kTemplate,
+  kTemplateParamObject,
   kTemplateTemplateParm,
   kTemplateTypeParm,
   kTranslationUnit,
@@ -841,39 +843,41 @@ enum class CastKind : unsigned int {
   kIntegralCast = 26,
   kIntegralToBoolean = 27,
   kIntegralToFloating = 28,
-  kFixedPointCast = 29,
-  kFixedPointToIntegral = 30,
-  kIntegralToFixedPoint = 31,
-  kFixedPointToBoolean = 32,
-  kFloatingToIntegral = 33,
-  kFloatingToBoolean = 34,
-  kBooleanToSignedIntegral = 35,
-  kFloatingCast = 36,
-  kCPointerToObjCPointerCast = 37,
-  kBlockPointerToObjCPointerCast = 38,
-  kAnyPointerToBlockPointerCast = 39,
-  kObjCObjectLValueCast = 40,
-  kFloatingRealToComplex = 41,
-  kFloatingComplexToReal = 42,
-  kFloatingComplexToBoolean = 43,
-  kFloatingComplexCast = 44,
-  kFloatingComplexToIntegralComplex = 45,
-  kIntegralRealToComplex = 46,
-  kIntegralComplexToReal = 47,
-  kIntegralComplexToBoolean = 48,
-  kIntegralComplexCast = 49,
-  kIntegralComplexToFloatingComplex = 50,
-  kARCProduceObject = 51,
-  kARCConsumeObject = 52,
-  kARCReclaimReturnedObject = 53,
-  kARCExtendBlockObject = 54,
-  kAtomicToNonAtomic = 55,
-  kNonAtomicToAtomic = 56,
-  kCopyAndAutoreleaseBlockObject = 57,
-  kBuiltinFnToFnPtr = 58,
-  kZeroToOCLOpaqueType = 59,
-  kAddressSpaceConversion = 60,
-  kIntToOCLSampler = 61,
+  kFloatingToFixedPoint = 29,
+  kFixedPointToFloating = 30,
+  kFixedPointCast = 31,
+  kFixedPointToIntegral = 32,
+  kIntegralToFixedPoint = 33,
+  kFixedPointToBoolean = 34,
+  kFloatingToIntegral = 35,
+  kFloatingToBoolean = 36,
+  kBooleanToSignedIntegral = 37,
+  kFloatingCast = 38,
+  kCPointerToObjCPointerCast = 39,
+  kBlockPointerToObjCPointerCast = 40,
+  kAnyPointerToBlockPointerCast = 41,
+  kObjCObjectLValueCast = 42,
+  kFloatingRealToComplex = 43,
+  kFloatingComplexToReal = 44,
+  kFloatingComplexToBoolean = 45,
+  kFloatingComplexCast = 46,
+  kFloatingComplexToIntegralComplex = 47,
+  kIntegralRealToComplex = 48,
+  kIntegralComplexToReal = 49,
+  kIntegralComplexToBoolean = 50,
+  kIntegralComplexCast = 51,
+  kIntegralComplexToFloatingComplex = 52,
+  kARCProduceObject = 53,
+  kARCConsumeObject = 54,
+  kARCReclaimReturnedObject = 55,
+  kARCExtendBlockObject = 56,
+  kAtomicToNonAtomic = 57,
+  kNonAtomicToAtomic = 58,
+  kCopyAndAutoreleaseBlockObject = 59,
+  kBuiltinFnToFnPtr = 60,
+  kZeroToOCLOpaqueType = 61,
+  kAddressSpaceConversion = 62,
+  kIntToOCLSampler = 63,
 };
 
 enum class CharacterKind : unsigned int {
@@ -890,7 +894,8 @@ enum class ClangABI : int {
   kVer6 = 2,
   kVer7 = 3,
   kVer9 = 4,
-  kLatest = 5,
+  kVer11 = 5,
+  kLatest = 6,
 };
 
 enum class CommentKind : unsigned int {
@@ -928,12 +933,14 @@ enum class CompilingModuleKind : unsigned int {
   kModuleInterface = 3,
 };
 
-enum class ConstExprUsage : unsigned int {
-  kEvaluateForCodeGen = 0,
-  kEvaluateForMangling = 1,
+enum class ConstantExprKind : int {
+  kNormal = 0,
+  kNonClassTemplateArgument = 1,
+  kClassTemplateArgument = 2,
+  kImmediateInvocation = 3,
 };
 
-enum class ConstexprSpecKind : unsigned int {
+enum class ConstexprSpecKind : int {
   kUnspecified = 0,
   kConstexpr = 1,
   kConsteval = 2,
@@ -951,6 +958,14 @@ enum class ConsumedState : unsigned int {
   kUnknown = 0,
   kConsumed = 1,
   kUnconsumed = 2,
+};
+
+enum class ConventionKind : unsigned int {
+  kNone = 0,
+  kNonNullError = 1,
+  kNullResult = 2,
+  kZeroResult = 3,
+  kNonZeroResult = 4,
 };
 
 enum class CoreFoundationABI : int {
@@ -1023,6 +1038,13 @@ enum class ElaboratedTypeKeyword : unsigned int {
   kNone = 6,
 };
 
+enum class EmbedBitcodeKind : unsigned int {
+  kEmbed_Off = 0,
+  kEmbed_All = 1,
+  kEmbed_Bitcode = 2,
+  kEmbed_Marker = 3,
+};
+
 enum class ExceptionSpecificationType : unsigned int {
   kNone = 0,
   kDynamicNone = 1,
@@ -1061,6 +1083,7 @@ enum class ExprDependence : unsigned char {
   kTypeInstantiation = 6,
   kValueInstantiation = 10,
   kTypeValueInstantiation = 14,
+  kErrorDependent = 26,
 };
 
 enum class ExprObjectKind : unsigned int {
@@ -1106,6 +1129,7 @@ enum class FPModeKind : unsigned int {
   kOff = 0,
   kOn = 1,
   kFast = 2,
+  kFastHonorPragmas = 3,
 };
 
 enum class FamilyKind : unsigned int {
@@ -1115,6 +1139,18 @@ enum class FamilyKind : unsigned int {
   kInit = 3,
   kMutableCopy = 4,
   kNew = 5,
+};
+
+enum class FiniteLoopsKind : unsigned int {
+  kLanguage = 0,
+  kAlways = 1,
+  kNever = 2,
+};
+
+enum class FramePointerKind : int {
+  kNone = 0,
+  kNonLeaf = 1,
+  kAll = 2,
 };
 
 enum class FriendObjectKind : unsigned int {
@@ -1172,8 +1208,6 @@ enum class IdentKind : unsigned int {
   kLFuncSig = 5,
   kPrettyFunction = 6,
   kPrettyFunctionNoVirtual = 7,
-  kUniqueStableNameType = 8,
-  kUniqueStableNameExpr = 9,
 };
 
 enum class IdentifierInfoFlag : unsigned int {
@@ -1269,6 +1303,12 @@ enum class InlineVariableDefinitionKind : int {
   kStrong = 3,
 };
 
+enum class InliningMethod : unsigned int {
+  kNormalInlining = 0,
+  kOnlyHintInlining = 1,
+  kOnlyAlwaysInlining = 2,
+};
+
 enum class InterruptType : unsigned int {
   kIRQ = 0,
   kFIQ = 1,
@@ -1327,13 +1367,48 @@ enum class LangAS : unsigned int {
   kOpencl_constant = 3,
   kOpencl_private = 4,
   kOpencl_generic = 5,
-  kCuda_device = 6,
-  kCuda_constant = 7,
-  kCuda_shared = 8,
-  kPtr32_sptr = 9,
-  kPtr32_uptr = 10,
-  kPtr64 = 11,
-  kFirstTargetAddressSpace = 12,
+  kOpencl_global_device = 6,
+  kOpencl_global_host = 7,
+  kCuda_device = 8,
+  kCuda_constant = 9,
+  kCuda_shared = 10,
+  kPtr32_sptr = 11,
+  kPtr32_uptr = 12,
+  kPtr64 = 13,
+  kFirstTargetAddressSpace = 14,
+};
+
+enum class LangFeatures : unsigned int {
+  kLineComment = 1,
+  kC99 = 2,
+  kC11 = 4,
+  kC17 = 8,
+  kC2x = 16,
+  kCPlusPlus = 32,
+  kCPlusPlus11 = 64,
+  kCPlusPlus14 = 128,
+  kCPlusPlus17 = 256,
+  kCPlusPlus20 = 512,
+  kCPlusPlus2b = 1024,
+  kDigraphs = 2048,
+  kGNUMode = 4096,
+  kHexFloat = 8192,
+  kImplicitInt = 16384,
+  kOpenCL = 32768,
+};
+
+enum class Language : unsigned char {
+  kUnknown = 0,
+  kAsm = 1,
+  kLLVM_IR = 2,
+  kC = 3,
+  kCXX = 4,
+  kObjC = 5,
+  kObjCXX = 6,
+  kOpenCL = 7,
+  kCUDA = 8,
+  kRenderScript = 9,
+  kHIP = 10,
 };
 
 enum class LanguageIDs : unsigned int {
@@ -1362,6 +1437,12 @@ enum class Level : unsigned int {
   kFatal = 5,
 };
 
+enum class Likelihood : int {
+  kLH_Unlikely = -1,
+  kLH_None = 0,
+  kLH_Likely = 1,
+};
+
 enum class Linkage : unsigned char {
   kNoLinkage = 0,
   kInternalLinkage = 1,
@@ -1385,8 +1466,10 @@ enum class LoopHintState : unsigned int {
   kEnable = 0,
   kDisable = 1,
   kNumeric = 2,
-  kAssumeSafety = 3,
-  kFull = 4,
+  kFixedWidth = 3,
+  kScalableWidth = 4,
+  kAssumeSafety = 5,
+  kFull = 6,
 };
 
 enum class MSInheritanceModel : int {
@@ -1404,6 +1487,7 @@ enum class MSVCMajorVersion : unsigned int {
   kMSVC2017 = 1910,
   kMSVC2017_5 = 1912,
   kMSVC2017_7 = 1914,
+  kMSVC2019 = 1920,
 };
 
 enum class MSVtorDispMode : int {
@@ -1475,6 +1559,11 @@ enum class NestedNameSpecifierDependence : unsigned char {
   kAll = 15,
 };
 
+enum class NewtypeKind : unsigned int {
+  kNK_Struct = 0,
+  kNK_Enum = 1,
+};
+
 enum class NonOdrUseReason : unsigned int {
   kNone = 0,
   kUnevaluated = 1,
@@ -1504,6 +1593,7 @@ enum class NullabilityKind : unsigned char {
   kNonNull = 0,
   kNullable = 1,
   kUnspecified = 2,
+  kNullableResult = 3,
 };
 
 enum class ObjCBridgeCastKind : unsigned int {
@@ -1521,6 +1611,12 @@ enum class ObjCDeclQualifier : unsigned int {
   kByref = 16,
   kOneway = 32,
   kCSNullability = 64,
+};
+
+enum class ObjCDispatchMethodKind : unsigned int {
+  kLegacy = 0,
+  kNonLegacy = 1,
+  kMixed = 2,
 };
 
 enum class ObjCInstanceTypeFamily : unsigned int {
@@ -1610,6 +1706,7 @@ enum class OpenMPDefaultmapClauseModifier : unsigned int {
   kTofrom = 7,
   kNone = 9,
   kDefault = 10,
+  kPresent = 11,
 };
 
 enum class OpenMPDependClauseKind : unsigned int {
@@ -1641,11 +1738,6 @@ enum class OpenMPDistScheduleClauseKind : unsigned int {
   kUnknown = 1,
 };
 
-enum class OpenMPFromModifierKind : unsigned int {
-  kMapper = 0,
-  kUnknown = 1,
-};
-
 enum class OpenMPLastprivateModifier : unsigned int {
   kConditional = 0,
   kUnknown = 1,
@@ -1673,6 +1765,13 @@ enum class OpenMPMapModifierKind : unsigned int {
   kAlways = 7,
   kClose = 8,
   kMapper = 9,
+  kPresent = 10,
+};
+
+enum class OpenMPMotionModifierKind : unsigned int {
+  kOMPC_MOTION_MODIFIER_mapper = 0,
+  kOMPC_MOTION_MODIFIER_present = 1,
+  kOMPC_MOTION_MODIFIER_unknown = 2,
 };
 
 enum class OpenMPOrderClauseKind : unsigned int {
@@ -1701,11 +1800,6 @@ enum class OpenMPScheduleClauseModifier : unsigned int {
   kMonotonic = 6,
   kNonmonotonic = 7,
   kSimd = 8,
-};
-
-enum class OpenMPToModifierKind : unsigned int {
-  kMapper = 0,
-  kUnknown = 1,
 };
 
 enum class OptionType : unsigned int {
@@ -1858,6 +1952,13 @@ enum class PrimitiveDefaultInitializeKind : unsigned int {
   kStruct = 3,
 };
 
+enum class ProfileInstrKind : unsigned int {
+  kProfileNone = 0,
+  kProfileClangInstr = 1,
+  kProfileIRInstr = 2,
+  kProfileCSIRInstr = 3,
+};
+
 enum class PropertyControl : unsigned int {
   kNone = 0,
   kRequired = 1,
@@ -1904,6 +2005,11 @@ enum class SFINAEResponse : unsigned int {
   kAccessControl = 3,
 };
 
+enum class SYCLMajorVersion : unsigned int {
+  kSYCL_None = 0,
+  kSYCL_2017 = 1,
+};
+
 enum class SanitizerOrdinal : unsigned long long {
   kAddress = 0,
   kPointerCompare = 1,
@@ -1945,32 +2051,33 @@ enum class SanitizerOrdinal : unsigned long long {
   kVLABound = 37,
   kVptr = 38,
   kUnsignedIntegerOverflow = 39,
-  kDataFlow = 40,
-  kCFICastStrict = 41,
-  kCFIDerivedCast = 42,
-  kCFIICall = 43,
-  kCFIMFCall = 44,
-  kCFIUnrelatedCast = 45,
-  kCFINVCall = 46,
-  kCFIVCall = 47,
-  kCFIGroup = 48,
-  kSafeStack = 49,
-  kShadowCallStack = 50,
-  kUndefinedGroup = 51,
-  kUndefinedTrapGroup = 52,
-  kImplicitUnsignedIntegerTruncation = 53,
-  kImplicitSignedIntegerTruncation = 54,
-  kImplicitIntegerTruncationGroup = 55,
-  kImplicitIntegerSignChange = 56,
-  kImplicitIntegerArithmeticValueChangeGroup = 57,
-  kObjCCast = 58,
-  kImplicitConversionGroup = 59,
-  kIntegerGroup = 60,
-  kLocalBounds = 61,
-  kBoundsGroup = 62,
-  kScudo = 63,
-  kAllGroup = 64,
-  kCount = 65,
+  kUnsignedShiftBase = 40,
+  kDataFlow = 41,
+  kCFICastStrict = 42,
+  kCFIDerivedCast = 43,
+  kCFIICall = 44,
+  kCFIMFCall = 45,
+  kCFIUnrelatedCast = 46,
+  kCFINVCall = 47,
+  kCFIVCall = 48,
+  kCFIGroup = 49,
+  kSafeStack = 50,
+  kShadowCallStack = 51,
+  kUndefinedGroup = 52,
+  kUndefinedTrapGroup = 53,
+  kImplicitUnsignedIntegerTruncation = 54,
+  kImplicitSignedIntegerTruncation = 55,
+  kImplicitIntegerTruncationGroup = 56,
+  kImplicitIntegerSignChange = 57,
+  kImplicitIntegerArithmeticValueChangeGroup = 58,
+  kObjCCast = 59,
+  kImplicitConversionGroup = 60,
+  kIntegerGroup = 61,
+  kLocalBounds = 62,
+  kBoundsGroup = 63,
+  kScudo = 64,
+  kAllGroup = 65,
+  kCount = 66,
 };
 
 enum class ScalarTypeKind : unsigned int {
@@ -2318,12 +2425,17 @@ enum class StringKind : unsigned int {
   kUTF32 = 4,
 };
 
+enum class StructReturnConventionKind : unsigned int {
+  kSRCK_Default = 0,
+  kSRCK_OnStack = 1,
+  kSRCK_InRegs = 2,
+};
+
 enum class SubExpr : unsigned int {
-  kCommon = 0,
-  kReady = 1,
-  kSuspend = 2,
-  kResume = 3,
-  kCount = 4,
+  kCallee = 0,
+  kLHS = 1,
+  kRHS = 2,
+  kCount = 3,
 };
 
 enum class SubStmt : unsigned int {
@@ -2365,6 +2477,13 @@ enum class TLSKind : unsigned int {
   kNone = 0,
   kStatic = 1,
   kDynamic = 2,
+};
+
+enum class TLSModel : unsigned int {
+  kGeneralDynamicTLSModel = 0,
+  kLocalDynamicTLSModel = 1,
+  kInitialExecTLSModel = 2,
+  kLocalExecTLSModel = 3,
 };
 
 enum class TQ : unsigned int {
@@ -2422,6 +2541,11 @@ enum class TextDiagnosticFormat : unsigned int {
   kClang = 0,
   kMSVC = 1,
   kVi = 2,
+};
+
+enum class ThreadModelKind : int {
+  kPOSIX = 0,
+  kSingle = 1,
 };
 
 enum class ThreadStorageClassSpecifier : unsigned int {
@@ -2571,7 +2695,7 @@ enum class TypeLocClass : unsigned int {
   kQualified = 52,
 };
 
-enum class TypeSpecifierSign : unsigned int {
+enum class TypeSpecifierSign : int {
   kUnspecified = 0,
   kSigned = 1,
   kUnsigned = 2,
@@ -2630,14 +2754,14 @@ enum class TypeSpecifierType : unsigned int {
   kError = 49,
 };
 
-enum class TypeSpecifierWidth : unsigned int {
+enum class TypeSpecifierWidth : int {
   kUnspecified = 0,
   kShort = 1,
   kLong = 2,
-  kLonglong = 3,
+  kLongLong = 3,
 };
 
-enum class TypeSpecifiersPipe : unsigned int {
+enum class TypeSpecifiersPipe : int {
   kUnspecified = 0,
   kPipe = 1,
 };
@@ -2770,6 +2894,16 @@ enum class VectorKind : unsigned int {
   kAltiVecBool = 3,
   kNeonVector = 4,
   kNeonPolyVector = 5,
+  kSveFixedLengthDataVector = 6,
+  kSveFixedLengthPredicateVector = 7,
+};
+
+enum class VectorLibrary : unsigned int {
+  kNoLibrary = 0,
+  kAccelerate = 1,
+  kLIBMVEC = 2,
+  kMASSV = 3,
+  kSVML = 4,
 };
 
 enum class Visibility : unsigned int {
@@ -3145,6 +3279,7 @@ class TagDecl;
 class TagType;
 class TemplateArgument;
 class TemplateDecl;
+class TemplateParamObjectDecl;
 class TemplateSpecializationType;
 class TemplateTemplateParmDecl;
 class TemplateTypeParmDecl;

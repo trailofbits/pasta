@@ -30,7 +30,6 @@ class Decl;
 // be retained in order to use it.
 class AST {
  public:
-
   // Return the AST containing a token.
   inline static AST From(const Token &token) {
     return AST(token.ast);

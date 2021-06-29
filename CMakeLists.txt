@@ -40,7 +40,7 @@ else()
 endif()
 
 # --------------------------------------------
-# `cxx_settings` for global build options --------
+# `cxx_settings` for global build options ----
 # --------------------------------------------
 add_library(cxx_settings INTERFACE)
 target_include_directories(cxx_settings INTERFACE
@@ -87,8 +87,6 @@ target_include_directories(thirdparty_python INTERFACE
 # Clang/LLVM dependencies --------------------
 # --------------------------------------------
 
-configure_ccache()
-find_and_select_clang_compiler()
 find_package(LLVM CONFIG REQUIRED)
 find_package(Clang CONFIG REQUIRED)
 add_library(thirdparty_llvm INTERFACE)
@@ -302,6 +300,19 @@ add_executable(bootstrap-types
     "bin/BootstrapTypes/DefineDefaultMacros.h"
     "bin/BootstrapTypes/UndefineDefaultMacros.h"
     "bin/BootstrapTypes/Main.cpp"
+
+    "bin/BootstrapTypes/DeclareCppMethods.cpp"
+    "bin/BootstrapTypes/DeclareEnums.cpp"
+    "bin/BootstrapTypes/DefineCppMethods.cpp"
+    "bin/BootstrapTypes/GenerateDeclCpp.cpp"
+    "bin/BootstrapTypes/GenerateDeclH.cpp"
+    "bin/BootstrapTypes/GenerateForwardH.cpp"
+    "bin/BootstrapTypes/Globals.cpp"
+    "bin/BootstrapTypes/Globals.h"
+    "bin/BootstrapTypes/MapDeclRetTypes.cpp"
+    "bin/BootstrapTypes/MapEnumRetTypes.cpp"
+    "bin/BootstrapTypes/Util.cpp"
+    "bin/BootstrapTypes/Util.h"
 )
 
 target_link_libraries(bootstrap-types PRIVATE

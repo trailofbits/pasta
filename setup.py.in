@@ -19,15 +19,22 @@ os.environ["CXX"] = "@CMAKE_CXX_COMPILER@"
 INCLUDE_DIRS = list(set("@INCLUDE_DIRS@".split(";")))
 LIBRARY_PATHS = list(set("@LIBRARY_PATHS@".split(";")))
 
+extra_link_args = []
+extra_compile_args = ["-std=c++17"]
+
 if sys.platform.startswith("linux"):
-    extra_link_args = ["-Wl,--whole-archive"] +     \
-            LIBRARY_PATHS +                         \
-            ["-Wl,--no-whole-archive"] +            \
-            list(set("@CXX_FILESYSTEM_LIBS@".split(";")))
+    extra_link_args = \
+        ["-Wl,--whole-archive"] + \
+        LIBRARY_PATHS + \
+        ["-Wl,--no-whole-archive"] + \
+        list(set("@CXX_FILESYSTEM_LIBS@".split(";")))
 elif sys.platform == "darwin":
-    extra_link_args = ["-Wl,-force_load"] +         \
-            ["$<TARGET_FILE:python_bindings>"] +    \
-            LIBRARY_PATHS
+    extra_link_args = \
+        ["-Wl,-force_load"] + \
+        ["$<TARGET_FILE:python_bindings>"] + \
+        LIBRARY_PATHS + \
+        ['-stdlib=libc++']
+    extra_compile_args += ['-stdlib=libc++']
 else:
     print("Pasta is only supported on macOS and Linux")
     sys.exit(1)
@@ -37,7 +44,7 @@ pasta_internal = distutils.core.Extension(
     include_dirs=INCLUDE_DIRS,
     sources=[],
     language="c++",
-    extra_compile_args=["-std=c++17"],
+    extra_compile_args=extra_compile_args,
     libraries=[],
     extra_link_args=extra_link_args)
 

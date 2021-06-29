@@ -106,23 +106,24 @@ MacroGenerator::~MacroGenerator(void) {
   print_policy.PrintCanonicalTypes = true;
 
   // Provide unique, semi-reproducible IDs to each clang declaration class.
-  std::hash<std::string> hasher;
-  std::unordered_set<size_t> taken_ids;
+  // std::hash<std::string> hasher;
+  // std::unordered_set<size_t> taken_ids;
   std::map<std::string, uint64_t> decl_ids;
   for (const auto &[decl_name, decl] : decl_classes) {
-    std::stringstream ss;
-    ss << decl_name;
-    uint64_t id = 0;
-    for (;;) {
-      id = hasher(ss.str());
-      if (taken_ids.count(id)) {
-        ss << id;
-      } else {
-        taken_ids.insert(id);
-        break;
-      }
-    }
-    decl_ids.emplace(decl_name, id);
+    // std::stringstream ss;
+    // ss << decl_name;
+    // uint64_t id = 0;
+    // for (;;) {
+    //   id = hasher(ss.str());
+    //   if (taken_ids.count(id)) {
+    //     ss << id;
+    //   } else {
+    //     taken_ids.insert(id);
+    //     break;
+    //   }
+    // }
+    //decl_ids.emplace(decl_name, id);
+    decl_ids.emplace(decl_name, 0);
   }
 
   // We try to keep as much as possible in sorted order so performing a diff

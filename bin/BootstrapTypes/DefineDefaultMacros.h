@@ -31,59 +31,59 @@
 #endif
 
 #ifndef PASTA_CLASS_METHOD_0
-# define PASTA_CLASS_METHOD_0(class_name, class_id, method_name, rt)
+# define PASTA_CLASS_METHOD_0(class_name, class_id, meth_id, method_name, rt)
 #endif
 
 #ifndef PASTA_CLASS_METHOD_1
-# define PASTA_CLASS_METHOD_1(class_name, class_id, method_name, rt, p0)
+# define PASTA_CLASS_METHOD_1(class_name, class_id, meth_id, method_name, rt, p0)
 #endif
 
 #ifndef PASTA_CLASS_METHOD_2
-# define PASTA_CLASS_METHOD_2(class_name, class_id, method_name, rt, p0, p1)
+# define PASTA_CLASS_METHOD_2(class_name, class_id, meth_id, method_name, rt, p0, p1)
 #endif
 
 #ifndef PASTA_CLASS_METHOD_3
-# define PASTA_CLASS_METHOD_3(class_name, class_id, method_name, rt, p0, p1, p2)
+# define PASTA_CLASS_METHOD_3(class_name, class_id, meth_id, method_name, rt, p0, p1, p2)
 #endif
 
 #ifndef PASTA_CLASS_METHOD_4
-# define PASTA_CLASS_METHOD_4(class_name, class_id, method_name, rt, p0, p1, p2, p3)
+# define PASTA_CLASS_METHOD_4(class_name, class_id, meth_id, method_name, rt, p0, p1, p2, p3)
 #endif
 
 #ifndef PASTA_CLASS_METHOD_5
-# define PASTA_CLASS_METHOD_5(class_name, class_id, method_name, rt, p0, p1, p2, p3, p4)
+# define PASTA_CLASS_METHOD_5(class_name, class_id, meth_id, method_name, rt, p0, p1, p2, p3, p4)
 #endif
 
 #ifndef PASTA_CLASS_METHOD_6
-# define PASTA_CLASS_METHOD_6(class_name, class_id, method_name, rt, p0, p1, p2, p3, p4, p5)
+# define PASTA_CLASS_METHOD_6(class_name, class_id, meth_id, method_name, rt, p0, p1, p2, p3, p4, p5)
 #endif
 
 #ifndef PASTA_INSTANCE_METHOD_0
-# define PASTA_INSTANCE_METHOD_0(class_name, class_id, method_name, rt)
+# define PASTA_INSTANCE_METHOD_0(class_name, class_id, meth_id, method_name, rt)
 #endif
 
 #ifndef PASTA_INSTANCE_METHOD_1
-# define PASTA_INSTANCE_METHOD_1(class_name, class_id, method_name, rt, p0)
+# define PASTA_INSTANCE_METHOD_1(class_name, class_id, meth_id, method_name, rt, p0)
 #endif
 
 #ifndef PASTA_INSTANCE_METHOD_2
-# define PASTA_INSTANCE_METHOD_2(class_name, class_id, method_name, rt, p0, p1)
+# define PASTA_INSTANCE_METHOD_2(class_name, class_id, meth_id, method_name, rt, p0, p1)
 #endif
 
 #ifndef PASTA_INSTANCE_METHOD_3
-# define PASTA_INSTANCE_METHOD_3(class_name, class_id, method_name, rt, p0, p1, p2)
+# define PASTA_INSTANCE_METHOD_3(class_name, class_id, meth_id, method_name, rt, p0, p1, p2)
 #endif
 
 #ifndef PASTA_INSTANCE_METHOD_4
-# define PASTA_INSTANCE_METHOD_4(class_name, class_id, method_name, rt, p0, p1, p2, p3)
+# define PASTA_INSTANCE_METHOD_4(class_name, class_id, meth_id, method_name, rt, p0, p1, p2, p3)
 #endif
 
 #ifndef PASTA_INSTANCE_METHOD_5
-# define PASTA_INSTANCE_METHOD_5(class_name, class_id, method_name, rt, p0, p1, p2, p3, p4)
+# define PASTA_INSTANCE_METHOD_5(class_name, class_id, meth_id, method_name, rt, p0, p1, p2, p3, p4)
 #endif
 
 #ifndef PASTA_INSTANCE_METHOD_6
-# define PASTA_INSTANCE_METHOD_6(class_name, class_id, method_name, rt, p0, p1, p2, p3, p4, p5)
+# define PASTA_INSTANCE_METHOD_6(class_name, class_id, meth_id, method_name, rt, p0, p1, p2, p3, p4, p5)
 #endif
 
 #ifndef PASTA_BEGIN_FIELDS

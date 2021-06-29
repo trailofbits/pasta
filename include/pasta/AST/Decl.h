@@ -6,6 +6,9 @@
 
 #pragma once
 
+#ifdef PASTA_IN_BOOTSTRAP
+#  include "DeclBootstrap.h"
+#else
 #include "Forward.h"
 
 namespace pasta {
@@ -3051,3 +3054,4 @@ class ClassTemplatePartialSpecializationDecl : public ClassTemplateSpecializatio
 static_assert(sizeof(Decl) == sizeof(ClassTemplatePartialSpecializationDecl));
 
 }  // namespace pasta
+#endif  // PASTA_IN_BOOTSTRAP

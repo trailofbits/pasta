@@ -10,7 +10,8 @@
 #include "Globals.h"
 #include "Util.h"
 
-extern void DeclareCppMethods(std::ostream &os, const std::string &class_name);
+extern void DeclareCppMethods(std::ostream &os, const std::string &class_name,
+                              uint32_t class_id);
 
 // Generate `include/pasta/AST/Decl.h`.
 void GenerateDeclH(void) {
@@ -22,6 +23,9 @@ void GenerateDeclH(void) {
       << " */\n\n"
       << "// This file is auto-generated.\n\n"
       << "#pragma once\n\n"
+      << "#ifdef PASTA_IN_BOOTSTRAP\n"
+      << "#  include \"DeclBootstrap.h\"\n"
+      << "#else\n"
       << "#include \"Forward.h\"\n\n"
       << "namespace pasta {\n"
       << "class DeclContext {\n"
@@ -64,7 +68,7 @@ void GenerateDeclH(void) {
 //      }
 //    }
 
-    DeclareCppMethods(os, name);
+    DeclareCppMethods(os, name, gClassIDs[name]);
 
     // The top level `Decl` class has all the content.
     if (name == "Decl") {
@@ -121,5 +125,6 @@ void GenerateDeclH(void) {
   }
 
   os
-      << "}  // namespace pasta\n";
+      << "}  // namespace pasta\n"
+      << "#endif  // PASTA_IN_BOOTSTRAP\n";
 }

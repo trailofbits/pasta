@@ -9,6 +9,7 @@
 #include "Util.h"
 
 // Declare PASTA versions of every clang enumeration type from our macro file.
+[[gnu::optnone]]
 void DeclareEnums(std::ostream &os) {
   llvm::StringRef enumerator_name;
 

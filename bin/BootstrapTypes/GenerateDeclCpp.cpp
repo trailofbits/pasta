@@ -10,7 +10,8 @@
 #include "Globals.h"
 #include "Util.h"
 
-extern void DefineCppMethods(std::ostream &os, const std::string &class_name);
+extern void DefineCppMethods(std::ostream &os, const std::string &class_name,
+                             uint32_t class_id);
 
 // Generate `lib/AST/Decl.cpp`.
 void GenerateDeclCpp(void) {
@@ -21,6 +22,7 @@ void GenerateDeclCpp(void) {
       << " * Copyright (c) 2021 Trail of Bits, Inc.\n"
       << " */\n\n"
       << "// This file is auto-generated.\n\n"
+      << "#ifndef PASTA_IN_BOOTSTRAP\n"
       << "#include <pasta/AST/Decl.h>\n\n"
       << "#pragma clang diagnostic push\n"
       << "#pragma clang diagnostic ignored \"-Wimplicit-int-conversion\"\n"
@@ -104,9 +106,10 @@ void GenerateDeclCpp(void) {
       os << " {}\n\n";
     }
 
-    DefineCppMethods(os, name);
+    DefineCppMethods(os, name, gClassIDs[name]);
   }
 
   os
-      << "}  // namespace pasta\n";
+      << "}  // namespace pasta\n"
+      << "#endif  // PASTA_IN_BOOTSTRAP\n";
 }

@@ -40,7 +40,15 @@ void GenerateDeclH(void);
 // Generate `lib/AST/Decl.cpp`.
 void GenerateDeclCpp(void);
 
+static void InitClassIDs(void) {
+#define PASTA_BEGIN_CLANG_WRAPPER(cls, id) \
+    gClassIDs[kClassName_ ## id] = id;
+
+#include "Generated.h"
+}
+
 int main(void) {
+  InitClassIDs();
 
   std::unordered_set<std::string> seen;
   seen.insert("DeclContext");

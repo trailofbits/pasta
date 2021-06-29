@@ -194,9 +194,16 @@ std::vector<llvm::StringRef> kEnumPrefixesToStrip{
 // and thus `std::optional` probably needs to be used.
 std::set<std::pair<std::string, std::string>> kCanReturnNullptr{};
 
+std::unordered_map<std::string, uint32_t> gClassIDs;
 std::unordered_map<std::string, std::set<std::string>> gBaseClasses;
 std::unordered_map<std::string, std::set<std::string>> gDerivedClasses;
 std::vector<std::string> gTopologicallyOrderedDecls;
 
 std::unordered_map<std::string, std::set<std::string>> gTransitiveBaseClasses;
 std::unordered_map<std::string, std::set<std::string>> gTransitiveDerivedClasses;
+
+
+#define PASTA_BEGIN_CLANG_WRAPPER(cls, id) \
+  const std::string kClassName_ ## id(PASTA_STR(cls));
+
+#include "Generated.h"

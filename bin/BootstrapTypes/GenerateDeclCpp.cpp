@@ -84,7 +84,7 @@ void GenerateDeclCpp(void) {
     os
         << name << "::" << name << "(\n"
         << "    std::shared_ptr<ASTImpl> ast_,\n"
-        << "    const ::clang::" << name << " *decl_)";
+        << "    const ::clang::Decl *decl_)";
 
     // Dispatch to our hand-written constructor that takes the `DeclKind`.
     if (name == "Decl") {

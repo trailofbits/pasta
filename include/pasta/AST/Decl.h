@@ -219,7 +219,7 @@ class EmptyDecl : public Decl {
  protected:
   explicit EmptyDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::EmptyDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(EmptyDecl));
@@ -247,7 +247,7 @@ class ExportDecl : public Decl {
  protected:
   explicit ExportDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ExportDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ExportDecl));
@@ -270,7 +270,7 @@ class ExternCContextDecl : public Decl {
  protected:
   explicit ExternCContextDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ExternCContextDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ExternCContextDecl));
@@ -297,7 +297,7 @@ class FileScopeAsmDecl : public Decl {
  protected:
   explicit FileScopeAsmDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::FileScopeAsmDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(FileScopeAsmDecl));
@@ -327,7 +327,7 @@ class FriendDecl : public Decl {
  protected:
   explicit FriendDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::FriendDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(FriendDecl));
@@ -355,7 +355,7 @@ class FriendTemplateDecl : public Decl {
  protected:
   explicit FriendTemplateDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::FriendTemplateDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(FriendTemplateDecl));
@@ -379,7 +379,7 @@ class ImportDecl : public Decl {
  protected:
   explicit ImportDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ImportDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ImportDecl));
@@ -407,7 +407,7 @@ class LifetimeExtendedTemporaryDecl : public Decl {
  protected:
   explicit LifetimeExtendedTemporaryDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::LifetimeExtendedTemporaryDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(LifetimeExtendedTemporaryDecl));
@@ -436,7 +436,7 @@ class LinkageSpecDecl : public Decl {
  protected:
   explicit LinkageSpecDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::LinkageSpecDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(LinkageSpecDecl));
@@ -472,7 +472,7 @@ class NamedDecl : public Decl {
  protected:
   explicit NamedDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::NamedDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(NamedDecl));
@@ -504,7 +504,7 @@ class NamespaceAliasDecl : public NamedDecl {
  protected:
   explicit NamespaceAliasDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::NamespaceAliasDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(NamespaceAliasDecl));
@@ -534,7 +534,7 @@ class NamespaceDecl : public NamedDecl {
  protected:
   explicit NamespaceDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::NamespaceDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(NamespaceDecl));
@@ -558,7 +558,7 @@ class ObjCCompatibleAliasDecl : public NamedDecl {
  protected:
   explicit ObjCCompatibleAliasDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ObjCCompatibleAliasDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCCompatibleAliasDecl));
@@ -593,7 +593,7 @@ class ObjCContainerDecl : public NamedDecl {
  protected:
   explicit ObjCContainerDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ObjCContainerDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCContainerDecl));
@@ -618,7 +618,7 @@ class ObjCImplDecl : public ObjCContainerDecl {
  protected:
   explicit ObjCImplDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ObjCImplDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCImplDecl));
@@ -653,7 +653,7 @@ class ObjCImplementationDecl : public ObjCImplDecl {
  protected:
   explicit ObjCImplementationDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ObjCImplementationDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCImplementationDecl));
@@ -703,7 +703,7 @@ class ObjCInterfaceDecl : public ObjCContainerDecl {
  protected:
   explicit ObjCInterfaceDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ObjCInterfaceDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCInterfaceDecl));
@@ -758,7 +758,7 @@ class ObjCMethodDecl : public NamedDecl {
  protected:
   explicit ObjCMethodDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ObjCMethodDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCMethodDecl));
@@ -805,7 +805,7 @@ class ObjCPropertyDecl : public NamedDecl {
  protected:
   explicit ObjCPropertyDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ObjCPropertyDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCPropertyDecl));
@@ -838,7 +838,7 @@ class ObjCPropertyImplDecl : public Decl {
  protected:
   explicit ObjCPropertyImplDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ObjCPropertyImplDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCPropertyImplDecl));
@@ -871,7 +871,7 @@ class ObjCProtocolDecl : public ObjCContainerDecl {
  protected:
   explicit ObjCProtocolDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ObjCProtocolDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCProtocolDecl));
@@ -896,7 +896,7 @@ class PragmaCommentDecl : public Decl {
  protected:
   explicit PragmaCommentDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::PragmaCommentDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(PragmaCommentDecl));
@@ -921,7 +921,7 @@ class PragmaDetectMismatchDecl : public Decl {
  protected:
   explicit PragmaDetectMismatchDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::PragmaDetectMismatchDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(PragmaDetectMismatchDecl));
@@ -944,7 +944,7 @@ class RequiresExprBodyDecl : public Decl {
  protected:
   explicit RequiresExprBodyDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::RequiresExprBodyDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(RequiresExprBodyDecl));
@@ -972,7 +972,7 @@ class StaticAssertDecl : public Decl {
  protected:
   explicit StaticAssertDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::StaticAssertDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(StaticAssertDecl));
@@ -998,7 +998,7 @@ class TemplateDecl : public NamedDecl {
  protected:
   explicit TemplateDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::TemplateDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(TemplateDecl));
@@ -1031,7 +1031,7 @@ class TemplateTemplateParmDecl : public TemplateDecl {
  protected:
   explicit TemplateTemplateParmDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::TemplateTemplateParmDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(TemplateTemplateParmDecl));
@@ -1056,7 +1056,7 @@ class TranslationUnitDecl : public Decl {
  protected:
   explicit TranslationUnitDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::TranslationUnitDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(TranslationUnitDecl));
@@ -1082,7 +1082,7 @@ class TypeDecl : public NamedDecl {
  protected:
   explicit TypeDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::TypeDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(TypeDecl));
@@ -1110,7 +1110,7 @@ class TypedefNameDecl : public TypeDecl {
  protected:
   explicit TypedefNameDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::TypedefNameDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(TypedefNameDecl));
@@ -1141,7 +1141,7 @@ class UnresolvedUsingTypenameDecl : public TypeDecl {
  protected:
   explicit UnresolvedUsingTypenameDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::UnresolvedUsingTypenameDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(UnresolvedUsingTypenameDecl));
@@ -1172,7 +1172,7 @@ class UsingDecl : public NamedDecl {
  protected:
   explicit UsingDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::UsingDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(UsingDecl));
@@ -1204,7 +1204,7 @@ class UsingDirectiveDecl : public NamedDecl {
  protected:
   explicit UsingDirectiveDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::UsingDirectiveDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(UsingDirectiveDecl));
@@ -1231,7 +1231,7 @@ class UsingPackDecl : public NamedDecl {
  protected:
   explicit UsingPackDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::UsingPackDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(UsingPackDecl));
@@ -1257,7 +1257,7 @@ class UsingShadowDecl : public NamedDecl {
  protected:
   explicit UsingShadowDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::UsingShadowDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(UsingShadowDecl));
@@ -1281,7 +1281,7 @@ class ValueDecl : public NamedDecl {
  protected:
   explicit ValueDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ValueDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ValueDecl));
@@ -1304,7 +1304,7 @@ class OMPDeclarativeDirectiveDecl : public Decl {
  protected:
   explicit OMPDeclarativeDirectiveDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::OMPDeclarativeDirectiveDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(OMPDeclarativeDirectiveDecl));
@@ -1327,7 +1327,7 @@ class OMPDeclarativeDirectiveValueDecl : public ValueDecl {
  protected:
   explicit OMPDeclarativeDirectiveValueDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::OMPDeclarativeDirectiveValueDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(OMPDeclarativeDirectiveValueDecl));
@@ -1353,7 +1353,7 @@ class AccessSpecDecl : public Decl {
  protected:
   explicit AccessSpecDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::AccessSpecDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(AccessSpecDecl));
@@ -1377,7 +1377,7 @@ class BindingDecl : public ValueDecl {
  protected:
   explicit BindingDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::BindingDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(BindingDecl));
@@ -1418,7 +1418,7 @@ class BlockDecl : public Decl {
  protected:
   explicit BlockDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::BlockDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(BlockDecl));
@@ -1443,7 +1443,7 @@ class BuiltinTemplateDecl : public TemplateDecl {
  protected:
   explicit BuiltinTemplateDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::BuiltinTemplateDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(BuiltinTemplateDecl));
@@ -1471,7 +1471,7 @@ class CapturedDecl : public Decl {
  protected:
   explicit CapturedDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::CapturedDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(CapturedDecl));
@@ -1497,7 +1497,7 @@ class ClassScopeFunctionSpecializationDecl : public Decl {
  protected:
   explicit ClassScopeFunctionSpecializationDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ClassScopeFunctionSpecializationDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ClassScopeFunctionSpecializationDecl));
@@ -1524,7 +1524,7 @@ class ConceptDecl : public TemplateDecl {
  protected:
   explicit ConceptDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ConceptDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ConceptDecl));
@@ -1552,7 +1552,7 @@ class ConstructorUsingShadowDecl : public UsingShadowDecl {
  protected:
   explicit ConstructorUsingShadowDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ConstructorUsingShadowDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ConstructorUsingShadowDecl));
@@ -1583,7 +1583,7 @@ class DeclaratorDecl : public ValueDecl {
  protected:
   explicit DeclaratorDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::DeclaratorDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(DeclaratorDecl));
@@ -1609,7 +1609,7 @@ class EnumConstantDecl : public ValueDecl {
  protected:
   explicit EnumConstantDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::EnumConstantDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(EnumConstantDecl));
@@ -1643,7 +1643,7 @@ class FieldDecl : public DeclaratorDecl {
  protected:
   explicit FieldDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::FieldDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(FieldDecl));
@@ -1711,7 +1711,7 @@ class FunctionDecl : public DeclaratorDecl {
  protected:
   explicit FunctionDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::FunctionDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(FunctionDecl));
@@ -1739,7 +1739,7 @@ class IndirectFieldDecl : public ValueDecl {
  protected:
   explicit IndirectFieldDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::IndirectFieldDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(IndirectFieldDecl));
@@ -1768,7 +1768,7 @@ class LabelDecl : public NamedDecl {
  protected:
   explicit LabelDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::LabelDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(LabelDecl));
@@ -1792,7 +1792,7 @@ class MSGuidDecl : public ValueDecl {
  protected:
   explicit MSGuidDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::MSGuidDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(MSGuidDecl));
@@ -1819,7 +1819,7 @@ class MSPropertyDecl : public DeclaratorDecl {
  protected:
   explicit MSPropertyDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::MSPropertyDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(MSPropertyDecl));
@@ -1855,7 +1855,7 @@ class NonTypeTemplateParmDecl : public DeclaratorDecl {
  protected:
   explicit NonTypeTemplateParmDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::NonTypeTemplateParmDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(NonTypeTemplateParmDecl));
@@ -1880,7 +1880,7 @@ class OMPAllocateDecl : public OMPDeclarativeDirectiveDecl {
  protected:
   explicit OMPAllocateDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::OMPAllocateDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(OMPAllocateDecl));
@@ -1905,7 +1905,7 @@ class OMPDeclareMapperDecl : public OMPDeclarativeDirectiveValueDecl {
  protected:
   explicit OMPDeclareMapperDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::OMPDeclareMapperDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(OMPDeclareMapperDecl));
@@ -1935,7 +1935,7 @@ class OMPDeclareReductionDecl : public ValueDecl {
  protected:
   explicit OMPDeclareReductionDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::OMPDeclareReductionDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(OMPDeclareReductionDecl));
@@ -1959,7 +1959,7 @@ class OMPRequiresDecl : public OMPDeclarativeDirectiveDecl {
  protected:
   explicit OMPRequiresDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::OMPRequiresDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(OMPRequiresDecl));
@@ -1983,7 +1983,7 @@ class OMPThreadPrivateDecl : public OMPDeclarativeDirectiveDecl {
  protected:
   explicit OMPThreadPrivateDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::OMPThreadPrivateDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(OMPThreadPrivateDecl));
@@ -2006,7 +2006,7 @@ class ObjCAtDefsFieldDecl : public FieldDecl {
  protected:
   explicit ObjCAtDefsFieldDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ObjCAtDefsFieldDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCAtDefsFieldDecl));
@@ -2041,7 +2041,7 @@ class ObjCCategoryDecl : public ObjCContainerDecl {
  protected:
   explicit ObjCCategoryDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ObjCCategoryDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCCategoryDecl));
@@ -2065,7 +2065,7 @@ class ObjCCategoryImplDecl : public ObjCImplDecl {
  protected:
   explicit ObjCCategoryImplDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ObjCCategoryImplDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCCategoryImplDecl));
@@ -2092,7 +2092,7 @@ class ObjCIvarDecl : public FieldDecl {
  protected:
   explicit ObjCIvarDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ObjCIvarDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCIvarDecl));
@@ -2120,7 +2120,7 @@ class ObjCTypeParamDecl : public TypedefNameDecl {
  protected:
   explicit ObjCTypeParamDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ObjCTypeParamDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCTypeParamDecl));
@@ -2146,7 +2146,7 @@ class RedeclarableTemplateDecl : public TemplateDecl {
  protected:
   explicit RedeclarableTemplateDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::RedeclarableTemplateDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(RedeclarableTemplateDecl));
@@ -2193,7 +2193,7 @@ class TagDecl : public TypeDecl {
  protected:
   explicit TagDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::TagDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(TagDecl));
@@ -2218,7 +2218,7 @@ class TemplateParamObjectDecl : public ValueDecl {
  protected:
   explicit TemplateParamObjectDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::TemplateParamObjectDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(TemplateParamObjectDecl));
@@ -2253,7 +2253,7 @@ class TemplateTypeParmDecl : public TypeDecl {
  protected:
   explicit TemplateTypeParmDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::TemplateTypeParmDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(TemplateTypeParmDecl));
@@ -2277,7 +2277,7 @@ class TypeAliasDecl : public TypedefNameDecl {
  protected:
   explicit TypeAliasDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::TypeAliasDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(TypeAliasDecl));
@@ -2304,7 +2304,7 @@ class TypeAliasTemplateDecl : public RedeclarableTemplateDecl {
  protected:
   explicit TypeAliasTemplateDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::TypeAliasTemplateDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(TypeAliasTemplateDecl));
@@ -2327,7 +2327,7 @@ class TypedefDecl : public TypedefNameDecl {
  protected:
   explicit TypedefDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::TypedefDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(TypedefDecl));
@@ -2358,7 +2358,7 @@ class UnresolvedUsingValueDecl : public ValueDecl {
  protected:
   explicit UnresolvedUsingValueDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::UnresolvedUsingValueDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(UnresolvedUsingValueDecl));
@@ -2413,7 +2413,7 @@ class VarDecl : public DeclaratorDecl {
  protected:
   explicit VarDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::VarDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(VarDecl));
@@ -2443,7 +2443,7 @@ class VarTemplateDecl : public RedeclarableTemplateDecl {
  protected:
   explicit VarTemplateDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::VarTemplateDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(VarTemplateDecl));
@@ -2480,7 +2480,7 @@ class VarTemplateSpecializationDecl : public VarDecl {
  protected:
   explicit VarTemplateSpecializationDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::VarTemplateSpecializationDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(VarTemplateSpecializationDecl));
@@ -2507,7 +2507,7 @@ class CXXDeductionGuideDecl : public FunctionDecl {
  protected:
   explicit CXXDeductionGuideDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::CXXDeductionGuideDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(CXXDeductionGuideDecl));
@@ -2542,7 +2542,7 @@ class CXXMethodDecl : public FunctionDecl {
  protected:
   explicit CXXMethodDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::CXXMethodDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(CXXMethodDecl));
@@ -2572,7 +2572,7 @@ class ClassTemplateDecl : public RedeclarableTemplateDecl {
  protected:
   explicit ClassTemplateDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ClassTemplateDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ClassTemplateDecl));
@@ -2596,7 +2596,7 @@ class DecompositionDecl : public VarDecl {
  protected:
   explicit DecompositionDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::DecompositionDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(DecompositionDecl));
@@ -2634,7 +2634,7 @@ class EnumDecl : public TagDecl {
  protected:
   explicit EnumDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::EnumDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(EnumDecl));
@@ -2665,7 +2665,7 @@ class FunctionTemplateDecl : public RedeclarableTemplateDecl {
  protected:
   explicit FunctionTemplateDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::FunctionTemplateDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(FunctionTemplateDecl));
@@ -2689,7 +2689,7 @@ class ImplicitParamDecl : public VarDecl {
  protected:
   explicit ImplicitParamDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ImplicitParamDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ImplicitParamDecl));
@@ -2712,7 +2712,7 @@ class OMPCapturedExprDecl : public VarDecl {
  protected:
   explicit OMPCapturedExprDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::OMPCapturedExprDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(OMPCapturedExprDecl));
@@ -2745,7 +2745,7 @@ class ParmVarDecl : public VarDecl {
  protected:
   explicit ParmVarDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ParmVarDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ParmVarDecl));
@@ -2786,7 +2786,7 @@ class RecordDecl : public TagDecl {
  protected:
   explicit RecordDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::RecordDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(RecordDecl));
@@ -2815,7 +2815,7 @@ class VarTemplatePartialSpecializationDecl : public VarTemplateSpecializationDec
  protected:
   explicit VarTemplatePartialSpecializationDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::VarTemplatePartialSpecializationDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(VarTemplatePartialSpecializationDecl));
@@ -2849,7 +2849,7 @@ class CXXConstructorDecl : public CXXMethodDecl {
  protected:
   explicit CXXConstructorDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::CXXConstructorDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(CXXConstructorDecl));
@@ -2876,7 +2876,7 @@ class CXXConversionDecl : public CXXMethodDecl {
  protected:
   explicit CXXConversionDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::CXXConversionDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(CXXConversionDecl));
@@ -2902,7 +2902,7 @@ class CXXDestructorDecl : public CXXMethodDecl {
  protected:
   explicit CXXDestructorDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::CXXDestructorDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(CXXDestructorDecl));
@@ -3029,7 +3029,7 @@ class CXXRecordDecl : public RecordDecl {
  protected:
   explicit CXXRecordDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::CXXRecordDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(CXXRecordDecl));
@@ -3065,7 +3065,7 @@ class ClassTemplateSpecializationDecl : public CXXRecordDecl {
  protected:
   explicit ClassTemplateSpecializationDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ClassTemplateSpecializationDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ClassTemplateSpecializationDecl));
@@ -3096,7 +3096,7 @@ class ClassTemplatePartialSpecializationDecl : public ClassTemplateSpecializatio
  protected:
   explicit ClassTemplatePartialSpecializationDecl(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::ClassTemplatePartialSpecializationDecl *decl_);
+      const ::clang::Decl *decl_);
 };
 
 static_assert(sizeof(Decl) == sizeof(ClassTemplatePartialSpecializationDecl));

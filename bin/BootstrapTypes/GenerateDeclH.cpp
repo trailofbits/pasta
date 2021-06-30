@@ -110,7 +110,7 @@ void GenerateDeclH(void) {
         << " protected:\n"
         << "  explicit " << name << "(\n"
         << "      std::shared_ptr<ASTImpl> ast_,\n"
-        << "      const ::clang::" << name << " *decl_);\n"
+        << "      const ::clang::Decl *decl_);\n"
         << "};\n\n";
 
     // Requiring that all derivations have the same size as the base class

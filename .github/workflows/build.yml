@@ -28,7 +28,7 @@ jobs:
       matrix:
         build_type: [Release, RelWithDebInfo, Debug]
         os: [ubuntu-20.04]
-        cxx_common_version: [v0.1.1]
+        cxx_common_version: [v0.1.4]
         llvm_version: [12]
 
     steps:

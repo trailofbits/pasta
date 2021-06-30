@@ -56,14 +56,13 @@ jobs:
 
     - name: Install system dependencies
       run: |
-        sudo apt update
-
-        sudo apt install -y build-essential \
-                            ninja-build \
-                            curl \
-                            ccache \
-                            python3-dev \
-                            libncurses-dev
+        apt update
+        apt install -y build-essential \
+                       ninja-build \
+                       curl \
+                       ccache \
+                       python3-dev \
+                       libncurses-dev
 
     - name: Setup the build paths
       id: build_paths

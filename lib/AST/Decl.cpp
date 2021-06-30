@@ -136,6 +136,8 @@ static const std::string_view kKindNames[] = {
   "VarTemplate",
   "VarTemplatePartialSpecialization",
   "VarTemplateSpecialization",
+  "OMPDeclarativeDirective",
+  "OMPDeclarativeDirectiveValue",
 };
 }  // namespace
 
@@ -682,28 +684,6 @@ bool NamespaceDecl::IsInline(void) const {
   return val;
 }
 
-OMPAllocateDecl::OMPAllocateDecl(
-    std::shared_ptr<ASTImpl> ast_,
-    const ::clang::OMPAllocateDecl *decl_) {}
-
-  // Clauses
-  // Varlists
-OMPDeclareMapperDecl::OMPDeclareMapperDecl(
-    std::shared_ptr<ASTImpl> ast_,
-    const ::clang::OMPDeclareMapperDecl *decl_) {}
-
-  // Clauses
-  // MapperVarRef
-OMPRequiresDecl::OMPRequiresDecl(
-    std::shared_ptr<ASTImpl> ast_,
-    const ::clang::OMPRequiresDecl *decl_) {}
-
-  // Clauses
-OMPThreadPrivateDecl::OMPThreadPrivateDecl(
-    std::shared_ptr<ASTImpl> ast_,
-    const ::clang::OMPThreadPrivateDecl *decl_) {}
-
-  // Varlists
 ObjCCompatibleAliasDecl::ObjCCompatibleAliasDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::ObjCCompatibleAliasDecl *decl_)
@@ -1583,6 +1563,16 @@ ValueDecl::ValueDecl(
     : NamedDecl(std::move(ast_), decl_) {}
 
   // Type
+OMPDeclarativeDirectiveDecl::OMPDeclarativeDirectiveDecl(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::OMPDeclarativeDirectiveDecl *decl_)
+    : Decl(std::move(ast_), decl_) {}
+
+OMPDeclarativeDirectiveValueDecl::OMPDeclarativeDirectiveValueDecl(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::OMPDeclarativeDirectiveValueDecl *decl_)
+    : ValueDecl(std::move(ast_), decl_) {}
+
 AccessSpecDecl::AccessSpecDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::AccessSpecDecl *decl_)
@@ -2241,6 +2231,20 @@ bool NonTypeTemplateParmDecl::IsParameterPack(void) const {
   return val;
 }
 
+OMPAllocateDecl::OMPAllocateDecl(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::OMPAllocateDecl *decl_)
+    : OMPDeclarativeDirectiveDecl(std::move(ast_), decl_) {}
+
+  // Clauses
+  // Varlists
+OMPDeclareMapperDecl::OMPDeclareMapperDecl(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::OMPDeclareMapperDecl *decl_)
+    : OMPDeclarativeDirectiveValueDecl(ast_, decl_) {}
+
+  // Clauses
+  // MapperVarRef
 OMPDeclareReductionDecl::OMPDeclareReductionDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::OMPDeclareReductionDecl *decl_)
@@ -2253,6 +2257,18 @@ OMPDeclareReductionDecl::OMPDeclareReductionDecl(
   // InitPriv
   // Initializer
   // InitializerKind
+OMPRequiresDecl::OMPRequiresDecl(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::OMPRequiresDecl *decl_)
+    : OMPDeclarativeDirectiveDecl(std::move(ast_), decl_) {}
+
+  // Clauses
+OMPThreadPrivateDecl::OMPThreadPrivateDecl(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::OMPThreadPrivateDecl *decl_)
+    : OMPDeclarativeDirectiveDecl(std::move(ast_), decl_) {}
+
+  // Varlists
 ObjCAtDefsFieldDecl::ObjCAtDefsFieldDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::ObjCAtDefsFieldDecl *decl_)

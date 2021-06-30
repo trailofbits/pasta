@@ -2,6 +2,10 @@
  * Copyright (c) 2021 Trail of Bits, Inc.
  */
 
+#ifndef PASTA_IN_BOOTSTRAP
+#  error "`PASTA_IN_BOOTSTRAP` must be defined."
+#endif
+
 #include <cassert>
 #include <cctype>
 #include <cstdlib>
@@ -70,6 +74,29 @@ int main(void) {
     gBaseClasses[name].insert(base_name);
     gDerivedClasses[base_name].insert(name);
   }
+
+  // Fixups. `OMPDeclarativeDirectiveDecl` and `OMPDeclarativeDirectiveValueDecl`
+  // are classes defined in `bin/BootstrapMapcros/MacroGenerator.cpp` that
+  // extend the intermediate templates, so that we can link everything together.
+  gDeclNames.push_back("OMPDeclarativeDirectiveDecl");
+  gBaseClasses["OMPDeclarativeDirectiveDecl"].insert("Decl");
+  gDerivedClasses["Decl"].insert("OMPDeclarativeDirectiveDecl");
+
+  gDeclNames.push_back("OMPDeclarativeDirectiveValueDecl");
+  gBaseClasses["OMPDeclarativeDirectiveValueDecl"].insert("ValueDecl");
+  gDerivedClasses["ValueDecl"].insert("OMPDeclarativeDirectiveValueDecl");
+
+  gBaseClasses["OMPThreadPrivateDecl"].insert("OMPDeclarativeDirectiveDecl");
+  gDerivedClasses["OMPDeclarativeDirectiveDecl"].insert("OMPThreadPrivateDecl");
+
+  gBaseClasses["OMPAllocateDecl"].insert("OMPDeclarativeDirectiveDecl");
+  gDerivedClasses["OMPDeclarativeDirectiveDecl"].insert("OMPAllocateDecl");
+
+  gBaseClasses["OMPDeclareMapperDecl"].insert("OMPDeclarativeDirectiveValueDecl");
+  gDerivedClasses["OMPDeclarativeDirectiveValueDecl"].insert("OMPDeclareMapperDecl");
+
+  gBaseClasses["OMPRequiresDecl"].insert("OMPDeclarativeDirectiveDecl");
+  gDerivedClasses["OMPDeclarativeDirectiveDecl"].insert("OMPRequiresDecl");
 
   // Topologically order the classes by the parent/child relations.
   for (auto changed = true; changed; ) {

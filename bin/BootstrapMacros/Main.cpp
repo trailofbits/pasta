@@ -2,6 +2,10 @@
  * Copyright (c) 2020 Trail of Bits, Inc.
  */
 
+#ifndef PASTA_IN_BOOTSTRAP
+#  error "`PASTA_IN_BOOTSTRAP` must be defined."
+#endif
+
 #include <pasta/AST/AST.h>
 #include <pasta/Compile/Command.h>
 #include <pasta/Compile/Compiler.h>

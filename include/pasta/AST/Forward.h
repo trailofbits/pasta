@@ -397,6 +397,8 @@ class VarTemplateSpecializationDecl;
 class VariableArrayType;
 class VectorType;
 class WhileStmt;
+using OMPDeclarativeDirectiveDecl = Decl;
+using OMPDeclarativeDirectiveValueDecl = ValueDecl;
 }  // namespace clang
 namespace pasta {
 class AST;
@@ -496,6 +498,8 @@ enum class DeclKind : unsigned {
   kVarTemplate,
   kVarTemplatePartialSpecialization,
   kVarTemplateSpecialization,
+  kOMPDeclarativeDirective,
+  kOMPDeclarativeDirectiveValue,
 };
 
 enum class TypeKind : unsigned {

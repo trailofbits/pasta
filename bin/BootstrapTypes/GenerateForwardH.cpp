@@ -32,10 +32,15 @@ void GenerateForwardH(void) {
       << "namespace clang {\n";
 
   for (const auto &name : kAllClassNames) {
-    os << "class " << name.str() << ";\n";
+    if (name != "OMPDeclarativeDirectiveDecl" &&
+        name != "OMPDeclarativeDirectiveValueDecl") {
+      os << "class " << name.str() << ";\n";
+    }
   }
 
   os
+      << "using OMPDeclarativeDirectiveDecl = Decl;\n"
+      << "using OMPDeclarativeDirectiveValueDecl = ValueDecl;\n"
       << "}  // namespace clang\n"
       << "namespace pasta {\n"
       << "class AST;\n"

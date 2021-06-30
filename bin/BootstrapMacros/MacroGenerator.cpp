@@ -31,6 +31,18 @@
 
 #include "BootstrapConfig.h"
 
+// Here we can fake some clases for convenience.
+namespace clang {
+
+class OMPDeclarativeDirectiveDecl : public OMPDeclarativeDirective<Decl> {
+
+};
+
+class OMPDeclarativeDirectiveValueDecl : public OMPDeclarativeDirective<ValueDecl> {
+
+};
+
+}  // namespace clang
 namespace pasta {
 
 namespace {

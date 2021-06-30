@@ -174,6 +174,8 @@ class Decl {
     const ::clang::VarTemplateDecl *VarTemplateDecl;
     const ::clang::VarTemplatePartialSpecializationDecl *VarTemplatePartialSpecializationDecl;
     const ::clang::VarTemplateSpecializationDecl *VarTemplateSpecializationDecl;
+    const ::clang::OMPDeclarativeDirectiveDecl *OMPDeclarativeDirectiveDecl;
+    const ::clang::OMPDeclarativeDirectiveValueDecl *OMPDeclarativeDirectiveValueDecl;
     const void *opaque;
   } u;
   DeclKind kind;
@@ -536,104 +538,6 @@ class NamespaceDecl : public NamedDecl {
 };
 
 static_assert(sizeof(Decl) == sizeof(NamespaceDecl));
-
-class OMPAllocateDecl {
- public:
-  ~OMPAllocateDecl(void) = default;
-  OMPAllocateDecl(const OMPAllocateDecl &) = default;
-  OMPAllocateDecl(OMPAllocateDecl &&) noexcept = default;
-  OMPAllocateDecl &operator=(const OMPAllocateDecl &) = default;
-  OMPAllocateDecl &operator=(OMPAllocateDecl &&) noexcept = default;
-
-  // Clauses: (llvm::iterator_range<const clang::OMPClause *const *>)
-  // Varlists: (llvm::iterator_range<const clang::Expr *const *>)
- private:
-  OMPAllocateDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
- protected:
-  explicit OMPAllocateDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::OMPAllocateDecl *decl_);
-};
-
-static_assert(sizeof(Decl) == sizeof(OMPAllocateDecl));
-
-class OMPDeclareMapperDecl {
- public:
-  ~OMPDeclareMapperDecl(void) = default;
-  OMPDeclareMapperDecl(const OMPDeclareMapperDecl &) = default;
-  OMPDeclareMapperDecl(OMPDeclareMapperDecl &&) noexcept = default;
-  OMPDeclareMapperDecl &operator=(const OMPDeclareMapperDecl &) = default;
-  OMPDeclareMapperDecl &operator=(OMPDeclareMapperDecl &&) noexcept = default;
-
-  // Clauses: (llvm::iterator_range<const clang::OMPClause *const *>)
-  // MapperVarRef: (const clang::Expr *)
- private:
-  OMPDeclareMapperDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
- protected:
-  explicit OMPDeclareMapperDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::OMPDeclareMapperDecl *decl_);
-};
-
-static_assert(sizeof(Decl) == sizeof(OMPDeclareMapperDecl));
-
-class OMPRequiresDecl {
- public:
-  ~OMPRequiresDecl(void) = default;
-  OMPRequiresDecl(const OMPRequiresDecl &) = default;
-  OMPRequiresDecl(OMPRequiresDecl &&) noexcept = default;
-  OMPRequiresDecl &operator=(const OMPRequiresDecl &) = default;
-  OMPRequiresDecl &operator=(OMPRequiresDecl &&) noexcept = default;
-
-  // Clauses: (llvm::iterator_range<const clang::OMPClause *const *>)
- private:
-  OMPRequiresDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
- protected:
-  explicit OMPRequiresDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::OMPRequiresDecl *decl_);
-};
-
-static_assert(sizeof(Decl) == sizeof(OMPRequiresDecl));
-
-class OMPThreadPrivateDecl {
- public:
-  ~OMPThreadPrivateDecl(void) = default;
-  OMPThreadPrivateDecl(const OMPThreadPrivateDecl &) = default;
-  OMPThreadPrivateDecl(OMPThreadPrivateDecl &&) noexcept = default;
-  OMPThreadPrivateDecl &operator=(const OMPThreadPrivateDecl &) = default;
-  OMPThreadPrivateDecl &operator=(OMPThreadPrivateDecl &&) noexcept = default;
-
-  // Varlists: (llvm::iterator_range<const clang::Expr *const *>)
- private:
-  OMPThreadPrivateDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
- protected:
-  explicit OMPThreadPrivateDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::OMPThreadPrivateDecl *decl_);
-};
-
-static_assert(sizeof(Decl) == sizeof(OMPThreadPrivateDecl));
 
 class ObjCCompatibleAliasDecl : public NamedDecl {
  public:
@@ -1382,6 +1286,52 @@ class ValueDecl : public NamedDecl {
 
 static_assert(sizeof(Decl) == sizeof(ValueDecl));
 
+class OMPDeclarativeDirectiveDecl : public Decl {
+ public:
+  ~OMPDeclarativeDirectiveDecl(void) = default;
+  OMPDeclarativeDirectiveDecl(const OMPDeclarativeDirectiveDecl &) = default;
+  OMPDeclarativeDirectiveDecl(OMPDeclarativeDirectiveDecl &&) noexcept = default;
+  OMPDeclarativeDirectiveDecl &operator=(const OMPDeclarativeDirectiveDecl &) = default;
+  OMPDeclarativeDirectiveDecl &operator=(OMPDeclarativeDirectiveDecl &&) noexcept = default;
+
+ private:
+  OMPDeclarativeDirectiveDecl(void) = delete;
+
+  friend class DeclBuilder;
+  friend class AST;
+  friend class ASTImpl;
+
+ protected:
+  explicit OMPDeclarativeDirectiveDecl(
+      std::shared_ptr<ASTImpl> ast_,
+      const ::clang::OMPDeclarativeDirectiveDecl *decl_);
+};
+
+static_assert(sizeof(Decl) == sizeof(OMPDeclarativeDirectiveDecl));
+
+class OMPDeclarativeDirectiveValueDecl : public ValueDecl {
+ public:
+  ~OMPDeclarativeDirectiveValueDecl(void) = default;
+  OMPDeclarativeDirectiveValueDecl(const OMPDeclarativeDirectiveValueDecl &) = default;
+  OMPDeclarativeDirectiveValueDecl(OMPDeclarativeDirectiveValueDecl &&) noexcept = default;
+  OMPDeclarativeDirectiveValueDecl &operator=(const OMPDeclarativeDirectiveValueDecl &) = default;
+  OMPDeclarativeDirectiveValueDecl &operator=(OMPDeclarativeDirectiveValueDecl &&) noexcept = default;
+
+ private:
+  OMPDeclarativeDirectiveValueDecl(void) = delete;
+
+  friend class DeclBuilder;
+  friend class AST;
+  friend class ASTImpl;
+
+ protected:
+  explicit OMPDeclarativeDirectiveValueDecl(
+      std::shared_ptr<ASTImpl> ast_,
+      const ::clang::OMPDeclarativeDirectiveValueDecl *decl_);
+};
+
+static_assert(sizeof(Decl) == sizeof(OMPDeclarativeDirectiveValueDecl));
+
 class AccessSpecDecl : public Decl {
  public:
   ~AccessSpecDecl(void) = default;
@@ -1910,6 +1860,56 @@ class NonTypeTemplateParmDecl : public DeclaratorDecl {
 
 static_assert(sizeof(Decl) == sizeof(NonTypeTemplateParmDecl));
 
+class OMPAllocateDecl : public OMPDeclarativeDirectiveDecl {
+ public:
+  ~OMPAllocateDecl(void) = default;
+  OMPAllocateDecl(const OMPAllocateDecl &) = default;
+  OMPAllocateDecl(OMPAllocateDecl &&) noexcept = default;
+  OMPAllocateDecl &operator=(const OMPAllocateDecl &) = default;
+  OMPAllocateDecl &operator=(OMPAllocateDecl &&) noexcept = default;
+
+  // Clauses: (llvm::iterator_range<const clang::OMPClause *const *>)
+  // Varlists: (llvm::iterator_range<const clang::Expr *const *>)
+ private:
+  OMPAllocateDecl(void) = delete;
+
+  friend class DeclBuilder;
+  friend class AST;
+  friend class ASTImpl;
+
+ protected:
+  explicit OMPAllocateDecl(
+      std::shared_ptr<ASTImpl> ast_,
+      const ::clang::OMPAllocateDecl *decl_);
+};
+
+static_assert(sizeof(Decl) == sizeof(OMPAllocateDecl));
+
+class OMPDeclareMapperDecl : public OMPDeclarativeDirectiveValueDecl {
+ public:
+  ~OMPDeclareMapperDecl(void) = default;
+  OMPDeclareMapperDecl(const OMPDeclareMapperDecl &) = default;
+  OMPDeclareMapperDecl(OMPDeclareMapperDecl &&) noexcept = default;
+  OMPDeclareMapperDecl &operator=(const OMPDeclareMapperDecl &) = default;
+  OMPDeclareMapperDecl &operator=(OMPDeclareMapperDecl &&) noexcept = default;
+
+  // Clauses: (llvm::iterator_range<const clang::OMPClause *const *>)
+  // MapperVarRef: (const clang::Expr *)
+ private:
+  OMPDeclareMapperDecl(void) = delete;
+
+  friend class DeclBuilder;
+  friend class AST;
+  friend class ASTImpl;
+
+ protected:
+  explicit OMPDeclareMapperDecl(
+      std::shared_ptr<ASTImpl> ast_,
+      const ::clang::OMPDeclareMapperDecl *decl_);
+};
+
+static_assert(sizeof(Decl) == sizeof(OMPDeclareMapperDecl));
+
 class OMPDeclareReductionDecl : public ValueDecl {
  public:
   ~OMPDeclareReductionDecl(void) = default;
@@ -1939,6 +1939,54 @@ class OMPDeclareReductionDecl : public ValueDecl {
 };
 
 static_assert(sizeof(Decl) == sizeof(OMPDeclareReductionDecl));
+
+class OMPRequiresDecl : public OMPDeclarativeDirectiveDecl {
+ public:
+  ~OMPRequiresDecl(void) = default;
+  OMPRequiresDecl(const OMPRequiresDecl &) = default;
+  OMPRequiresDecl(OMPRequiresDecl &&) noexcept = default;
+  OMPRequiresDecl &operator=(const OMPRequiresDecl &) = default;
+  OMPRequiresDecl &operator=(OMPRequiresDecl &&) noexcept = default;
+
+  // Clauses: (llvm::iterator_range<const clang::OMPClause *const *>)
+ private:
+  OMPRequiresDecl(void) = delete;
+
+  friend class DeclBuilder;
+  friend class AST;
+  friend class ASTImpl;
+
+ protected:
+  explicit OMPRequiresDecl(
+      std::shared_ptr<ASTImpl> ast_,
+      const ::clang::OMPRequiresDecl *decl_);
+};
+
+static_assert(sizeof(Decl) == sizeof(OMPRequiresDecl));
+
+class OMPThreadPrivateDecl : public OMPDeclarativeDirectiveDecl {
+ public:
+  ~OMPThreadPrivateDecl(void) = default;
+  OMPThreadPrivateDecl(const OMPThreadPrivateDecl &) = default;
+  OMPThreadPrivateDecl(OMPThreadPrivateDecl &&) noexcept = default;
+  OMPThreadPrivateDecl &operator=(const OMPThreadPrivateDecl &) = default;
+  OMPThreadPrivateDecl &operator=(OMPThreadPrivateDecl &&) noexcept = default;
+
+  // Varlists: (llvm::iterator_range<const clang::Expr *const *>)
+ private:
+  OMPThreadPrivateDecl(void) = delete;
+
+  friend class DeclBuilder;
+  friend class AST;
+  friend class ASTImpl;
+
+ protected:
+  explicit OMPThreadPrivateDecl(
+      std::shared_ptr<ASTImpl> ast_,
+      const ::clang::OMPThreadPrivateDecl *decl_);
+};
+
+static_assert(sizeof(Decl) == sizeof(OMPThreadPrivateDecl));
 
 class ObjCAtDefsFieldDecl : public FieldDecl {
  public:

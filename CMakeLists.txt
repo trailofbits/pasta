@@ -222,7 +222,7 @@ add_library(compiler STATIC
 )
 
 
-if(BOOTSTRAP_TYPES OR BOOTSTRAP_TYPES)
+if(BOOTSTRAP_MACROS OR BOOTSTRAP_TYPES)
     target_compile_definitions(compiler PUBLIC -DPASTA_IN_BOOTSTRAP)
 endif()
 
@@ -304,7 +304,9 @@ if(BOOTSTRAP_MACROS)
         thirdparty_llvm
         compiler
         bootstrap-config
-    )    
+    )
+
+    target_compile_definitions(bootstrap-macros PUBLIC -DPASTA_IN_BOOTSTRAP)
 endif()
 
 if(BOOTSTRAP_TYPES)
@@ -334,6 +336,8 @@ if(BOOTSTRAP_TYPES)
         compiler
         bootstrap-config
     )
+
+    target_compile_definitions(bootstrap-types PUBLIC -DPASTA_IN_BOOTSTRAP)
     
     if(CMAKE_CXX_COMPILER_ID IN_LIST GNULIKE_COMPILER_LIST)
         target_compile_options(bootstrap-types PUBLIC -O0 -g0)

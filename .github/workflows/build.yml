@@ -97,10 +97,10 @@ jobs:
         path: ${{ steps.build_paths.outputs.REL_CCACHE }}
 
         key: |
-          gitmodules_${{ matrix.os }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}_${{ github.sha }}
+          gitmodules_${{ matrix.image.name }}-${{ matrix.image.tag }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}_${{ github.sha }}
 
         restore-keys: |
-          gitmodules_${{ matrix.os }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}
+          gitmodules_${{ matrix.image.name }}-${{ matrix.image.tag }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}
 
     - name: Update the cache (downloads)
       uses: actions/cache@v2
@@ -108,17 +108,17 @@ jobs:
         path: ${{ steps.build_paths.outputs.REL_DOWNLOADS }}
 
         key: |
-          gitmodules_${{ matrix.os }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}_${{ github.sha }}
+          gitmodules_${{ matrix.image.name }}-${{ matrix.image.tag }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}_${{ github.sha }}
 
         restore-keys: |
-          gitmodules_${{ matrix.os }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}
+          gitmodules_${{ matrix.image.name }}-${{ matrix.image.tag }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}
 
     - name: Acquire the cxx-common ${{ matrix.cxx_common_version }} package for LLVM ${{ matrix.llvm_version }}
       shell: bash
       id: cxx_common_installer
       working-directory: ${{ steps.build_paths.outputs.DOWNLOADS }}
       run: |
-        folder_name="vcpkg_${{ matrix.os }}_llvm-${{ matrix.llvm_version }}_amd64"
+        folder_name="vcpkg_${{ matrix.image.name }}-${{ matrix.image.tag }}_llvm-${{ matrix.llvm_version }}_amd64"
         file_name="${folder_name}.tar.xz"
         url="https://github.com/lifting-bits/cxx-common/releases/download/${{ matrix.cxx_common_version }}/${file_name}"
 

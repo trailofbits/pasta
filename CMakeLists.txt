@@ -154,7 +154,7 @@ get_compiler_paths(
 get_compiler_paths(
     COMPILER "${CMAKE_C_COMPILER}"
     OUT_VAR CSTR_HOST_CC_VERSION_INFO_FAKE_SYSROOT
-    ARGS -x c -std=c18 -isysroot "${CMAKE_CURRENT_BINARY_DIR}/xyz" -Wno-missing-sysroot
+    ARGS -x c -std=c18 -isysroot "${CMAKE_CURRENT_BINARY_DIR}/xyz/" -Wno-missing-sysroot
 )
 
 get_compiler_paths(
@@ -389,7 +389,7 @@ add_custom_command(
     COMMAND "${PYTHON_EXECUTABLE}" "${SETUP_PY}" build --force
     COMMAND "${CMAKE_COMMAND}" -E touch "${OUTPUT}"
     COMMENT "Building Pasta Python API"
-    DEPENDS python_bindings
+    DEPENDS python_bindings compiler
     WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
 )
 

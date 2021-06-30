@@ -291,10 +291,20 @@ static std::filesystem::path FindRealSystemRoot(
 
   std::vector<std::pair<std::filesystem::path::iterator,
                         std::filesystem::path::iterator>> path_iterators;
+
+  // TODO(pag): Adding this makes it end up finding the common stem between
+  //            the existing sysroot dir and all the relative paths. But really,
+  //            this will probably be the existing sysroot dir, so it all ends
+  //            up being a bit useless, but I originally made this code to solve
+  //            a real problem, but I don't remember why or how the code
+  //            (absent the next line) actually solved that problem.
+  path_iterators.emplace_back(sysroot_dir.begin(), sysroot_dir.end());
+
   for (auto &path : sysroot_rel_paths) {
     if (path.empty()) {
       return sysroot_dir;
     }
+
     path_iterators.emplace_back(path.begin(), path.end());
   }
 
@@ -344,12 +354,14 @@ static void RelativizePaths(std::filesystem::path sysroot_dir,
                             const std::vector<IncludePath> &sysroot_rel) {
   const auto sysroot_path = sysroot_dir.string();
 
-  for (auto &orig_entry : orig) {
+  for (IncludePath &orig_entry : orig) {
 
     // Sometimes things are sysroot relative, even though they pretend not
     // to be. At least this is the case with AppleClang.
     std::filesystem::path path = orig_entry.first;
-    auto extracted_path = ExtractRelativeComponent(sysroot_dir, orig_entry.first).string();
+    std::string extracted_path =
+        ExtractRelativeComponent(sysroot_dir, orig_entry.first).string();
+
     if (path.string() != extracted_path && extracted_path != sysroot_path) {
       extracted_path.swap(orig_entry.first);
       orig_entry.second = IncludePathLocation::kSysrootRelative;
@@ -457,7 +469,8 @@ Compiler::Create(CompilerName name, enum TargetLanguage lang,
         compiler_working_dir.data());
   }
 
-  auto compiler_path = AbsolutePath(compiler_path_, working_dir);
+  std::filesystem::path compiler_path = AbsolutePath(
+      compiler_path_, working_dir);
   if (!std::filesystem::exists(compiler_path)) {
     return llvm::createStringError(
         std::make_error_code(std::errc::executable_format_error),
@@ -477,6 +490,8 @@ Compiler::Create(CompilerName name, enum TargetLanguage lang,
     compiler_exe_path.parent_path().string().swap(impl->install_dir);
   }
 
+  // If the sysroot looks relative, then assume it's relative to the
+  // installation directory, and compute an absolute path.
   if (!impl->sysroot_dir.empty() && !impl->install_dir.empty()) {
     std::filesystem::path install_path(impl->install_dir);
     std::filesystem::path sysroot_path(impl->sysroot_dir);
@@ -487,6 +502,11 @@ Compiler::Create(CompilerName name, enum TargetLanguage lang,
     }
   }
 
+  // Still empty? Take the root directory of the compiler path, and failing
+  // that, the root directory of the working directory.
+  if (impl->sysroot_dir.empty()) {
+    compiler_path.root_directory().string().swap(impl->sysroot_dir);
+  }
   if (impl->sysroot_dir.empty()) {
     working_dir.root_directory().string().swap(impl->sysroot_dir);
   }

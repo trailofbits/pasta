@@ -5,7 +5,6 @@
 #include <pasta/Python/Bindings.h>
 #include <pasta/Util/Init.h>
 
-#include <iostream>
 #include <memory>
 
 #include "Compile/Compile.h"

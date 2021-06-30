@@ -31,6 +31,18 @@
 
 #include "BootstrapConfig.h"
 
+// Here we can fake some clases for convenience.
+namespace clang {
+
+class OMPDeclarativeDirectiveDecl : public OMPDeclarativeDirective<Decl> {
+
+};
+
+class OMPDeclarativeDirectiveValueDecl : public OMPDeclarativeDirective<ValueDecl> {
+
+};
+
+}  // namespace clang
 namespace pasta {
 
 namespace {
@@ -108,13 +120,13 @@ MacroGenerator::~MacroGenerator(void) {
   // Provide unique, semi-reproducible IDs to each clang declaration class.
   std::hash<std::string> hasher;
   std::unordered_set<size_t> taken_ids;
-  std::map<std::string, uint64_t> decl_ids;
+  std::map<std::string, uint32_t> decl_ids;
   for (const auto &[decl_name, decl] : decl_classes) {
     std::stringstream ss;
     ss << decl_name;
-    uint64_t id = 0;
+    uint32_t id = 0;
     for (;;) {
-      id = hasher(ss.str());
+      id = static_cast<uint32_t>(hasher(ss.str()) & 0x7FFFFFFFu);
       if (taken_ids.count(id)) {
         ss << id;
       } else {
@@ -138,10 +150,10 @@ MacroGenerator::~MacroGenerator(void) {
     const auto decl_id = decl_ids[decl_name];
 
     os << "PASTA_BEGIN_CLANG_WRAPPER(" << decl_name << ", "
-       << decl_id << "ull)\n";
+       << decl_id << ")\n";
 
     os << "  PASTA_BEGIN_BASE_CLASSES(" << decl_name << ", " << decl_id
-       << "ull)\n";
+       << ")\n";
 
     // We want to be able to mirror the clang class hierarchy directly, so we
     // need to go find the (public) base classes and expose them.
@@ -155,8 +167,8 @@ MacroGenerator::~MacroGenerator(void) {
         const auto base_decl_name = base_decl->getName().str();
         if (decl_ids.count(base_decl_name)) {
           os << "    PASTA_PUBLIC_BASE_CLASS(" << decl_name << ", " << decl_id
-             << "ull, " << base_decl_name << ", " << decl_ids[base_decl_name]
-             << "ull)\n";
+             << ", " << base_decl_name << ", " << decl_ids[base_decl_name]
+             << ")\n";
         } else {
           os << "    // Skipped " << base_decl_name << "\n";
         }
@@ -164,7 +176,7 @@ MacroGenerator::~MacroGenerator(void) {
     }
 
     os << "  PASTA_END_BASE_CLASSES(" << decl_name << ", " << decl_id
-       << "ull)\n";
+       << ")\n";
 
     // Get enclosed methods, fields, and enums. This will sort them by name.
     decl_methods.clear();
@@ -231,8 +243,9 @@ MacroGenerator::~MacroGenerator(void) {
     }
 
     // Methods.
-    os << "  PASTA_BEGIN_METHODS(" << decl_name << ", " << decl_id << "ull)\n";
+    os << "  PASTA_BEGIN_METHODS(" << decl_name << ", " << decl_id << ")\n";
 
+    auto method_id = 0u;
     for (const auto &[method_name, methods] : decl_methods) {
 
       // The simplest cast of declaring a method is that it is not overridden.
@@ -253,7 +266,7 @@ MacroGenerator::~MacroGenerator(void) {
           os << "    PASTA_INSTANCE_METHOD_" << num_args << '(';
         }
 
-        os << decl_name << ", " << decl_id << "ull, " << method_name << ", ("
+        os << decl_name << ", " << decl_id << ", " << method_id << ", " << method_name << ", ("
            << method->getReturnType().getAsString(print_policy) << ')';
 
         for (auto i = 0u; i < num_args; ++i) {
@@ -261,10 +274,12 @@ MacroGenerator::~MacroGenerator(void) {
           os << ", (" << param->getType().getAsString(print_policy) << ')';
         }
         os << ")\n";
+
+        ++method_id;
       }
     }
 
-    os << "  PASTA_END_METHODS(" << decl_name << ", " << decl_id << "ull)\n";
+    os << "  PASTA_END_METHODS(" << decl_name << ", " << decl_id << ")\n";
 
     // NOTE(pag,adrianh): We ignore C++ constructors and destructors because
     //                    our bindings are intended to provide read-only
@@ -273,7 +288,7 @@ MacroGenerator::~MacroGenerator(void) {
     //                    deleted / deleteable by us.
 
     // Fields.
-    os << "  PASTA_BEGIN_FIELDS(" << decl_name << ", " << decl_id << "ull)\n";
+    os << "  PASTA_BEGIN_FIELDS(" << decl_name << ", " << decl_id << ")\n";
 
     for (const auto &[field_name, field] : decl_fields) {
       if (field_name.empty()) {
@@ -288,15 +303,15 @@ MacroGenerator::~MacroGenerator(void) {
 
       os << "    PASTA" << MacroAccessSpecifier(field) << "INSTANCE_FIELD(";
 
-      os << decl_name << ", " << decl_id << "ull, " << field_name << ", ("
+      os << decl_name << ", " << decl_id << ", " << field_name << ", ("
          << type_name << "))\n";
     }
 
-    os << "  PASTA_END_FIELDS(" << decl_name << ", " << decl_id << "ull)\n";
+    os << "  PASTA_END_FIELDS(" << decl_name << ", " << decl_id << ")\n";
 
     // Enums.
     os << "  PASTA_BEGIN_CLASS_ENUMS(" << decl_name << ", " << decl_id
-       << "ull)\n";
+       << ")\n";
 
 
     // Named enums. These are also captured at the namespace level, so we
@@ -307,7 +322,7 @@ MacroGenerator::~MacroGenerator(void) {
       auto itype = enum_->getIntegerType();
       if (!itype.isNull() && enum_def) {
         os << "    PASTA_DECLARE_CLASS_NAMED_ENUM(" << decl_name
-           << ", " << decl_id << "ull, " << enum_name << ", ("
+           << ", " << decl_id << ", " << enum_name << ", ("
            << itype.getAsString(print_policy) << "))\n";
       }
     }
@@ -335,7 +350,7 @@ MacroGenerator::~MacroGenerator(void) {
 //    }
 //
 
-    os << "  PASTA_END_CLASS_ENUMS(" << decl_name << ", " << decl_id << "ull)\n"
+    os << "  PASTA_END_CLASS_ENUMS(" << decl_name << ", " << decl_id << ")\n"
        << "PASTA_END_CLANG_WRAPPER(" << decl_name << ", " << decl_id
        << ")\n\n";
   }

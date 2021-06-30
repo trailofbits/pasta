@@ -515,11 +515,10 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
       new_argv.emplace_back(arg);
     }
-
-    CompileJob job(new CompileJobImpl(new_argv, driver.Dir, driver.ResourceDir,
-                                      compilation->getSysRoot().str(),
-                                      frontend_opts.Inputs[0].getFile().str(),
-                                      target_triple, frontend_opts.AuxTriple));
+    CompileJob job(new CompileJobImpl(
+        new_argv, working_dir, driver.ResourceDir,
+        driver.SysRoot, frontend_opts.Inputs[0].getFile().str(),
+        target_triple, frontend_opts.AuxTriple));
     jobs.emplace_back(std::move(job));
   }
 

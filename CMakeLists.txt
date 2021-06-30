@@ -16,6 +16,8 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 option(ENABLE_LIBFUZZER "Build libFuzzer fuzz targets" OFF)
 option(ENABLE_SANITIZERS "Build with ASAN and UBSAN" OFF)
 option(WARNINGS_AS_ERRORS "Build treating warnings as errors" OFF)
+option(BOOTSTRAP_MACROS "Boostrap the macro definitions" OFF)
+option(BOOTSTRAP_TYPES "Bootstrap the type definitions from the macros" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -40,7 +42,7 @@ else()
 endif()
 
 # --------------------------------------------
-# `cxx_settings` for global build options --------
+# `cxx_settings` for global build options ----
 # --------------------------------------------
 add_library(cxx_settings INTERFACE)
 target_include_directories(cxx_settings INTERFACE
@@ -87,8 +89,6 @@ target_include_directories(thirdparty_python INTERFACE
 # Clang/LLVM dependencies --------------------
 # --------------------------------------------
 
-configure_ccache()
-find_and_select_clang_compiler()
 find_package(LLVM CONFIG REQUIRED)
 find_package(Clang CONFIG REQUIRED)
 add_library(thirdparty_llvm INTERFACE)
@@ -129,9 +129,11 @@ target_compile_definitions(thirdparty_llvm INTERFACE
 )
 
 # LLVM uses `-lZ3` somewhere, so this is a good way to sneak it in.
-find_package(Z3 CONFIG REQUIRED)
-add_library(Z3 INTERFACE)
-target_link_libraries(Z3 INTERFACE z3::libz3)
+if (NOT Z3_FOUND)
+    find_package(Z3 CONFIG REQUIRED)
+    add_library(Z3 INTERFACE)
+    target_link_libraries(Z3 INTERFACE z3::libz3)
+endif()
 
 # --------------------------------------------
 # Configure lib/Compiler/Host.h --------------
@@ -152,7 +154,7 @@ get_compiler_paths(
 get_compiler_paths(
     COMPILER "${CMAKE_C_COMPILER}"
     OUT_VAR CSTR_HOST_CC_VERSION_INFO_FAKE_SYSROOT
-    ARGS -x c -std=c18 -isysroot "${CMAKE_CURRENT_BINARY_DIR}/xyz" -Wno-missing-sysroot
+    ARGS -x c -std=c18 -isysroot "${CMAKE_CURRENT_BINARY_DIR}/xyz/" -Wno-missing-sysroot
 )
 
 get_compiler_paths(
@@ -173,16 +175,16 @@ configure_file("${HOST_H_IN_FILE}" "${HOST_H_FILE}" @ONLY)
 # --------------------------------------------
 
 add_library(util STATIC
-  "include/pasta/Util/ArgumentVector.h"
-  "include/pasta/Util/Compiler.h"
-  "include/pasta/Util/Error.h"
-  "include/pasta/Util/FileSystem.h"
-  "include/pasta/Util/Init.h"
-  "include/pasta/Util/JSON.h"
-
-  "lib/Util/ArgumentVector.cpp"
-  "lib/Util/FileSystem.cpp"
-  "lib/Util/Init.cpp"
+    "include/pasta/Util/ArgumentVector.h"
+    "include/pasta/Util/Compiler.h"
+    "include/pasta/Util/Error.h"
+    "include/pasta/Util/FileSystem.h"
+    "include/pasta/Util/Init.h"
+    "include/pasta/Util/JSON.h"
+    
+    "lib/Util/ArgumentVector.cpp"
+    "lib/Util/FileSystem.cpp"
+    "lib/Util/Init.cpp"
 )
 
 target_link_libraries(util PRIVATE
@@ -194,6 +196,7 @@ add_library(compiler STATIC
 
     "include/pasta/AST/AST.h"
     "include/pasta/AST/Decl.h"
+    "include/pasta/AST/DeclBootstrap.h"
     "include/pasta/AST/Forward.h"
     "include/pasta/AST/Token.h"
     "include/pasta/Compile/Command.h"
@@ -202,6 +205,7 @@ add_library(compiler STATIC
 
     "lib/AST/AST.cpp"
     "lib/AST/Decl.cpp"
+    "lib/AST/DeclBootstrap.cpp"
     "lib/AST/Token.cpp"
     
     "${HOST_H_FILE}"
@@ -216,6 +220,11 @@ add_library(compiler STATIC
     "lib/Compile/Job.cpp"
     "lib/Compile/Run.cpp"
 )
+
+
+if(BOOTSTRAP_MACROS OR BOOTSTRAP_TYPES)
+    target_compile_definitions(compiler PUBLIC -DPASTA_IN_BOOTSTRAP)
+endif()
 
 target_include_directories(compiler PRIVATE
     "${CMAKE_CURRENT_BINARY_DIR}/lib/Compile"
@@ -283,33 +292,57 @@ target_include_directories(bootstrap-config INTERFACE
     "${CMAKE_CURRENT_BINARY_DIR}"
 )
 
+if(BOOTSTRAP_MACROS)
+    add_executable(bootstrap-macros
+        "bin/BootstrapMacros/MacroGenerator.h"
+        "bin/BootstrapMacros/MacroGenerator.cpp"
+        "bin/BootstrapMacros/Main.cpp"
+    )
+    
+    target_link_libraries(bootstrap-macros PRIVATE
+        cxx_settings
+        thirdparty_llvm
+        compiler
+        bootstrap-config
+    )
 
-add_executable(bootstrap-macros
-    "bin/BootstrapMacros/MacroGenerator.h"
-    "bin/BootstrapMacros/MacroGenerator.cpp"
-    "bin/BootstrapMacros/Main.cpp"
-)
+    target_compile_definitions(bootstrap-macros PUBLIC -DPASTA_IN_BOOTSTRAP)
+endif()
 
-target_link_libraries(bootstrap-macros PRIVATE
-    cxx_settings
-    thirdparty_llvm
-    compiler
-    bootstrap-config
-)
+if(BOOTSTRAP_TYPES)
+    add_executable(bootstrap-types
+        "bin/BootstrapTypes/Generated.h"
+        "bin/BootstrapTypes/DefineDefaultMacros.h"
+        "bin/BootstrapTypes/UndefineDefaultMacros.h"
+        "bin/BootstrapTypes/Main.cpp"
+    
+        "bin/BootstrapTypes/DeclareCppMethods.cpp"
+        "bin/BootstrapTypes/DeclareEnums.cpp"
+        "bin/BootstrapTypes/DefineCppMethods.cpp"
+        "bin/BootstrapTypes/GenerateDeclCpp.cpp"
+        "bin/BootstrapTypes/GenerateDeclH.cpp"
+        "bin/BootstrapTypes/GenerateForwardH.cpp"
+        "bin/BootstrapTypes/Globals.cpp"
+        "bin/BootstrapTypes/Globals.h"
+        "bin/BootstrapTypes/MapDeclRetTypes.cpp"
+        "bin/BootstrapTypes/MapEnumRetTypes.cpp"
+        "bin/BootstrapTypes/Util.cpp"
+        "bin/BootstrapTypes/Util.h"
+    )
+    
+    target_link_libraries(bootstrap-types PRIVATE
+        cxx_settings
+        thirdparty_llvm
+        compiler
+        bootstrap-config
+    )
 
-add_executable(bootstrap-types
-    "bin/BootstrapTypes/Generated.h"
-    "bin/BootstrapTypes/DefineDefaultMacros.h"
-    "bin/BootstrapTypes/UndefineDefaultMacros.h"
-    "bin/BootstrapTypes/Main.cpp"
-)
-
-target_link_libraries(bootstrap-types PRIVATE
-    cxx_settings
-    thirdparty_llvm
-    compiler
-    bootstrap-config
-)
+    target_compile_definitions(bootstrap-types PUBLIC -DPASTA_IN_BOOTSTRAP)
+    
+    if(CMAKE_CXX_COMPILER_ID IN_LIST GNULIKE_COMPILER_LIST)
+        target_compile_options(bootstrap-types PUBLIC -O0 -g0)
+    endif()
+endif()
 
 # --------------------------------------------
 # Configure setup.py.in and __init__.py.in ---
@@ -329,17 +362,17 @@ get_public_include_folders(INCLUDE_DIRS ${DEPENDENT_LIBRARIES})
 # Create a list of generator expressions that will find us the absolute paths
 # of all dependent libraries for setup.py to link against.
 foreach(lib_target ${DEPENDENT_LIBRARIES})
-  if (TARGET ${lib_target})
-    get_target_property(target_type "${lib_target}" TYPE)
-    if("${target_type}" STREQUAL "STATIC_LIBRARY")
-      list(APPEND LIBRARY_PATHS "\$<TARGET_FILE:${lib_target}>")
-    elseif("${target_type}" STREQUAL "IMPORTED_LIBRARY")
-      get_target_property(target_imported_loc "${target}" IMPORTED_LOCATION)
-      if(NOT "${target_imported_loc}" STREQUAL "target_imported_loc-NOTFOUND")
-        list(APPEND LIBRARY_PATHS "${target_imported_loc}")
-      endif()
+    if (TARGET ${lib_target})
+        get_target_property(target_type "${lib_target}" TYPE)
+        if("${target_type}" STREQUAL "STATIC_LIBRARY")
+            list(APPEND LIBRARY_PATHS "\$<TARGET_FILE:${lib_target}>")
+        elseif("${target_type}" STREQUAL "IMPORTED_LIBRARY")
+            get_target_property(target_imported_loc "${target}" IMPORTED_LOCATION)
+            if(NOT "${target_imported_loc}" STREQUAL "target_imported_loc-NOTFOUND")
+                list(APPEND LIBRARY_PATHS "${target_imported_loc}")
+            endif()
+        endif()
     endif()
-  endif()
 endforeach()
 
 # Determine if we need to link anything to access the C++ filesystem API
@@ -356,7 +389,7 @@ add_custom_command(
     COMMAND "${PYTHON_EXECUTABLE}" "${SETUP_PY}" build --force
     COMMAND "${CMAKE_COMMAND}" -E touch "${OUTPUT}"
     COMMENT "Building Pasta Python API"
-    DEPENDS python_bindings
+    DEPENDS python_bindings compiler
     WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
 )
 

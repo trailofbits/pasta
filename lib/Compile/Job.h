@@ -17,8 +17,8 @@ class CompileJobImpl {
                         std::string aux_triple_)
       : argv(std::move(argv_)),
         working_dir(std::move(working_dir_)),
-        resource_dir(std::move(working_dir_)),
-        sysroot_dir(std::move(working_dir_)),
+        resource_dir(std::move(resource_dir_)),
+        sysroot_dir(std::move(sysroot_dir_)),
         source_file(std::move(source_file_)),
         target_triple(std::move(target_triple_)),
         aux_triple(std::move(aux_triple_)) {}

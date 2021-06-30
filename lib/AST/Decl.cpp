@@ -4,6 +4,7 @@
 
 // This file is auto-generated.
 
+#ifndef PASTA_IN_BOOTSTRAP
 #include <pasta/AST/Decl.h>
 
 #pragma clang diagnostic push
@@ -115,6 +116,7 @@ static const std::string_view kKindNames[] = {
   "StaticAssert",
   "Tag",
   "Template",
+  "TemplateParamObject",
   "TemplateTemplateParm",
   "TemplateTypeParm",
   "TranslationUnit",
@@ -134,6 +136,8 @@ static const std::string_view kKindNames[] = {
   "VarTemplate",
   "VarTemplatePartialSpecialization",
   "VarTemplateSpecialization",
+  "OMPDeclarativeDirective",
+  "OMPDeclarativeDirectiveValue",
 };
 }  // namespace
 
@@ -352,12 +356,12 @@ bool Decl::IsUnconditionallyVisible(void) const {
   // Redecls
 EmptyDecl::EmptyDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::EmptyDecl *decl_)
+    const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
 ExportDecl::ExportDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ExportDecl *decl_)
+    const ::clang::Decl *decl_)
     : Decl(ast_, decl_) {}
 
 std::optional<::pasta::Token> ExportDecl::EndToken(void) const {
@@ -383,12 +387,12 @@ bool ExportDecl::HasBraces(void) const {
 
 ExternCContextDecl::ExternCContextDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ExternCContextDecl *decl_)
+    const ::clang::Decl *decl_)
     : Decl(ast_, decl_) {}
 
 FileScopeAsmDecl::FileScopeAsmDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::FileScopeAsmDecl *decl_)
+    const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
 std::optional<::pasta::Token> FileScopeAsmDecl::AsmToken(void) const {
@@ -405,7 +409,7 @@ std::optional<::pasta::Token> FileScopeAsmDecl::RParenToken(void) const {
   // TokenRange
 FriendDecl::FriendDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::FriendDecl *decl_)
+    const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
 ::pasta::NamedDecl FriendDecl::FindFriendDecl(void) const {
@@ -437,7 +441,7 @@ bool FriendDecl::IsUnsupportedFriend(void) const {
 
 FriendTemplateDecl::FriendTemplateDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::FriendTemplateDecl *decl_)
+    const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
 ::pasta::NamedDecl FriendTemplateDecl::FindFriendDecl(void) const {
@@ -463,13 +467,13 @@ uint32_t FriendTemplateDecl::NumTemplateParameters(void) const {
   // TemplateParameterList
 ImportDecl::ImportDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ImportDecl *decl_)
+    const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
   // ImportedModule
 LifetimeExtendedTemporaryDecl::LifetimeExtendedTemporaryDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::LifetimeExtendedTemporaryDecl *decl_)
+    const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
   // ChildrenExpr
@@ -491,7 +495,7 @@ uint32_t LifetimeExtendedTemporaryDecl::ManglingNumber(void) const {
   // Value
 LinkageSpecDecl::LinkageSpecDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::LinkageSpecDecl *decl_)
+    const ::clang::Decl *decl_)
     : Decl(ast_, decl_) {}
 
 std::optional<::pasta::Token> LinkageSpecDecl::EndToken(void) const {
@@ -518,7 +522,7 @@ bool LinkageSpecDecl::HasBraces(void) const {
 
 NamedDecl::NamedDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::NamedDecl *decl_)
+    const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
   // DeclName
@@ -546,11 +550,7 @@ std::string_view NamedDecl::Name(void) const {
   }
 }
 
-std::string NamedDecl::NameAsString(void) const {
-  auto val = u.NamedDecl->getNameAsString();
-  return val;
-}
-
+  // NameAsString
 ::pasta::NamedDecl NamedDecl::UnderlyingDecl(void) const {
   auto val = u.NamedDecl->getUnderlyingDecl();
   if (val) {
@@ -592,7 +592,7 @@ bool NamedDecl::IsExternallyVisible(void) const {
 
 NamespaceAliasDecl::NamespaceAliasDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::NamespaceAliasDecl *decl_)
+    const ::clang::Decl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
 std::optional<::pasta::Token> NamespaceAliasDecl::AliasToken(void) const {
@@ -642,7 +642,7 @@ std::optional<::pasta::Token> NamespaceAliasDecl::TargetNameToken(void) const {
 
 NamespaceDecl::NamespaceDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::NamespaceDecl *decl_)
+    const ::clang::Decl *decl_)
     : NamedDecl(ast_, decl_) {}
 
 ::pasta::NamespaceDecl NamespaceDecl::AnonymousNamespace(void) const {
@@ -684,28 +684,9 @@ bool NamespaceDecl::IsInline(void) const {
   return val;
 }
 
-OMPAllocateDecl::OMPAllocateDecl(
-    std::shared_ptr<ASTImpl> ast_,
-    const ::clang::OMPAllocateDecl *decl_)
-    : Decl(std::move(ast_), decl_) {}
-
-  // Clauses
-  // Varlists
-OMPRequiresDecl::OMPRequiresDecl(
-    std::shared_ptr<ASTImpl> ast_,
-    const ::clang::OMPRequiresDecl *decl_)
-    : Decl(std::move(ast_), decl_) {}
-
-  // Clauses
-OMPThreadPrivateDecl::OMPThreadPrivateDecl(
-    std::shared_ptr<ASTImpl> ast_,
-    const ::clang::OMPThreadPrivateDecl *decl_)
-    : Decl(std::move(ast_), decl_) {}
-
-  // Varlists
 ObjCCompatibleAliasDecl::ObjCCompatibleAliasDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ObjCCompatibleAliasDecl *decl_)
+    const ::clang::Decl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
 ::pasta::ObjCInterfaceDecl ObjCCompatibleAliasDecl::ClassInterface(void) const {
@@ -719,7 +700,7 @@ ObjCCompatibleAliasDecl::ObjCCompatibleAliasDecl(
 
 ObjCContainerDecl::ObjCContainerDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ObjCContainerDecl *decl_)
+    const ::clang::Decl *decl_)
     : NamedDecl(ast_, decl_) {}
 
   // Class_methods
@@ -740,7 +721,7 @@ std::optional<::pasta::Token> ObjCContainerDecl::AtStartToken(void) const {
   // Properties
 ObjCImplDecl::ObjCImplDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ObjCImplDecl *decl_)
+    const ::clang::Decl *decl_)
     : ObjCContainerDecl(std::move(ast_), decl_) {}
 
 ::pasta::ObjCInterfaceDecl ObjCImplDecl::ClassInterface(void) const {
@@ -755,7 +736,7 @@ ObjCImplDecl::ObjCImplDecl(
   // Property_impls
 ObjCImplementationDecl::ObjCImplementationDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ObjCImplementationDecl *decl_)
+    const ::clang::Decl *decl_)
     : ObjCImplDecl(std::move(ast_), decl_) {}
 
   // Identifier
@@ -778,11 +759,7 @@ std::string_view ObjCImplementationDecl::Name(void) const {
   }
 }
 
-std::string ObjCImplementationDecl::NameAsString(void) const {
-  auto val = u.ObjCImplementationDecl->getNameAsString();
-  return val;
-}
-
+  // NameAsString
 uint32_t ObjCImplementationDecl::NumIvarInitializers(void) const {
   auto val = u.ObjCImplementationDecl->getNumIvarInitializers();
   return val;
@@ -816,7 +793,7 @@ bool ObjCImplementationDecl::HasNonZeroConstructors(void) const {
   // Ivars
 ObjCInterfaceDecl::ObjCInterfaceDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ObjCInterfaceDecl *decl_)
+    const ::clang::Decl *decl_)
     : ObjCContainerDecl(std::move(ast_), decl_) {}
 
   // All_referenced_protocols
@@ -892,7 +869,7 @@ bool ObjCInterfaceDecl::IsThisDeclarationADefinition(void) const {
   // Visible_extensions
 ObjCMethodDecl::ObjCMethodDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ObjCMethodDecl *decl_)
+    const ::clang::Decl *decl_)
     : NamedDecl(ast_, decl_) {}
 
 std::optional<::pasta::Token> ObjCMethodDecl::BeginToken(void) const {
@@ -906,6 +883,15 @@ std::optional<::pasta::Token> ObjCMethodDecl::BeginToken(void) const {
     return DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, val);
   }
   assert(false && "ObjCMethodDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::ObjCCategoryDecl ObjCMethodDecl::Category(void) const {
+  auto val = u.ObjCMethodDecl->getCategory();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ObjCCategoryDecl>(ast, val);
+  }
+  assert(false && "ObjCMethodDecl::Category can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -1032,7 +1018,7 @@ bool ObjCMethodDecl::IsVariadic(void) const {
   // Parameters
 ObjCPropertyDecl::ObjCPropertyDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ObjCPropertyDecl *decl_)
+    const ::clang::Decl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
 std::optional<::pasta::Token> ObjCPropertyDecl::AtToken(void) const {
@@ -1133,7 +1119,7 @@ bool ObjCPropertyDecl::IsRetaining(void) const {
 
 ObjCPropertyImplDecl::ObjCPropertyImplDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ObjCPropertyImplDecl *decl_)
+    const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
 std::optional<::pasta::Token> ObjCPropertyImplDecl::BeginToken(void) const {
@@ -1192,7 +1178,7 @@ bool ObjCPropertyImplDecl::IsIvarNameSpecified(void) const {
 
 ObjCProtocolDecl::ObjCProtocolDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ObjCProtocolDecl *decl_)
+    const ::clang::Decl *decl_)
     : ObjCContainerDecl(std::move(ast_), decl_) {}
 
 ::pasta::ObjCProtocolDecl ObjCProtocolDecl::CanonicalDecl(void) const {
@@ -1231,7 +1217,7 @@ bool ObjCProtocolDecl::IsThisDeclarationADefinition(void) const {
   // Protocols
 PragmaCommentDecl::PragmaCommentDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::PragmaCommentDecl *decl_)
+    const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
 std::string_view PragmaCommentDecl::Arg(void) const {
@@ -1250,7 +1236,7 @@ PragmaMSCommentKind PragmaCommentDecl::CommentKind(void) const {
 
 PragmaDetectMismatchDecl::PragmaDetectMismatchDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::PragmaDetectMismatchDecl *decl_)
+    const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
 std::string_view PragmaDetectMismatchDecl::Name(void) const {
@@ -1273,12 +1259,12 @@ std::string_view PragmaDetectMismatchDecl::Value(void) const {
 
 RequiresExprBodyDecl::RequiresExprBodyDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::RequiresExprBodyDecl *decl_)
+    const ::clang::Decl *decl_)
     : Decl(ast_, decl_) {}
 
 StaticAssertDecl::StaticAssertDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::StaticAssertDecl *decl_)
+    const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
   // AssertExpr
@@ -1296,7 +1282,7 @@ bool StaticAssertDecl::IsFailed(void) const {
 
 TemplateDecl::TemplateDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::TemplateDecl *decl_)
+    const ::clang::Decl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
   // TokenRange
@@ -1312,7 +1298,7 @@ TemplateDecl::TemplateDecl(
 
 TemplateTemplateParmDecl::TemplateTemplateParmDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::TemplateTemplateParmDecl *decl_)
+    const ::clang::Decl *decl_)
     : TemplateDecl(std::move(ast_), decl_) {}
 
 bool TemplateTemplateParmDecl::DefaultArgumentWasInherited(void) const {
@@ -1351,7 +1337,7 @@ bool TemplateTemplateParmDecl::IsParameterPack(void) const {
 
 TranslationUnitDecl::TranslationUnitDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::TranslationUnitDecl *decl_)
+    const ::clang::Decl *decl_)
     : Decl(ast_, decl_) {}
 
   // ASTContext
@@ -1366,7 +1352,7 @@ TranslationUnitDecl::TranslationUnitDecl(
 
 TypeDecl::TypeDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::TypeDecl *decl_)
+    const ::clang::Decl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
 std::optional<::pasta::Token> TypeDecl::BeginToken(void) const {
@@ -1378,7 +1364,7 @@ std::optional<::pasta::Token> TypeDecl::BeginToken(void) const {
   // TypeForDecl
 TypedefNameDecl::TypedefNameDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::TypedefNameDecl *decl_)
+    const ::clang::Decl *decl_)
     : TypeDecl(std::move(ast_), decl_) {}
 
 ::pasta::TypedefNameDecl TypedefNameDecl::CanonicalDecl(void) const {
@@ -1404,7 +1390,7 @@ bool TypedefNameDecl::IsTransparentTag(void) const {
 
 UnresolvedUsingTypenameDecl::UnresolvedUsingTypenameDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::UnresolvedUsingTypenameDecl *decl_)
+    const ::clang::Decl *decl_)
     : TypeDecl(std::move(ast_), decl_) {}
 
 ::pasta::UnresolvedUsingTypenameDecl UnresolvedUsingTypenameDecl::CanonicalDecl(void) const {
@@ -1441,7 +1427,7 @@ bool UnresolvedUsingTypenameDecl::IsPackExpansion(void) const {
 
 UsingDecl::UsingDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::UsingDecl *decl_)
+    const ::clang::Decl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
 ::pasta::UsingDecl UsingDecl::CanonicalDecl(void) const {
@@ -1474,7 +1460,7 @@ bool UsingDecl::IsAccessDeclaration(void) const {
   // Shadows
 UsingDirectiveDecl::UsingDirectiveDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::UsingDirectiveDecl *decl_)
+    const ::clang::Decl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
   // CommonAncestor
@@ -1516,7 +1502,7 @@ std::optional<::pasta::Token> UsingDirectiveDecl::UsingToken(void) const {
 
 UsingPackDecl::UsingPackDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::UsingPackDecl *decl_)
+    const ::clang::Decl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
   // Expansions
@@ -1541,7 +1527,7 @@ UsingPackDecl::UsingPackDecl(
   // TokenRange
 UsingShadowDecl::UsingShadowDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::UsingShadowDecl *decl_)
+    const ::clang::Decl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
 ::pasta::UsingShadowDecl UsingShadowDecl::CanonicalDecl(void) const {
@@ -1573,13 +1559,23 @@ UsingShadowDecl::UsingShadowDecl(
 
 ValueDecl::ValueDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ValueDecl *decl_)
+    const ::clang::Decl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
   // Type
+OMPDeclarativeDirectiveDecl::OMPDeclarativeDirectiveDecl(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Decl *decl_)
+    : Decl(std::move(ast_), decl_) {}
+
+OMPDeclarativeDirectiveValueDecl::OMPDeclarativeDirectiveValueDecl(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Decl *decl_)
+    : ValueDecl(std::move(ast_), decl_) {}
+
 AccessSpecDecl::AccessSpecDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::AccessSpecDecl *decl_)
+    const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
 std::optional<::pasta::Token> AccessSpecDecl::AccessSpecifierToken(void) const {
@@ -1595,13 +1591,13 @@ std::optional<::pasta::Token> AccessSpecDecl::ColonToken(void) const {
   // TokenRange
 BindingDecl::BindingDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::BindingDecl *decl_)
+    const ::clang::Decl *decl_)
     : ValueDecl(std::move(ast_), decl_) {}
 
   // Binding
 BlockDecl::BlockDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::BlockDecl *decl_)
+    const ::clang::Decl *decl_)
     : Decl(ast_, decl_) {}
 
 bool BlockDecl::BlockMissingReturnType(void) const {
@@ -1676,14 +1672,14 @@ bool BlockDecl::IsVariadic(void) const {
   // Parameters
 BuiltinTemplateDecl::BuiltinTemplateDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::BuiltinTemplateDecl *decl_)
+    const ::clang::Decl *decl_)
     : TemplateDecl(std::move(ast_), decl_) {}
 
   // BuiltinTemplateKind
   // TokenRange
 CapturedDecl::CapturedDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::CapturedDecl *decl_)
+    const ::clang::Decl *decl_)
     : Decl(ast_, decl_) {}
 
 ::pasta::ImplicitParamDecl CapturedDecl::ContextParam(void) const {
@@ -1709,7 +1705,7 @@ uint32_t CapturedDecl::NumParams(void) const {
   // Parameters
 ClassScopeFunctionSpecializationDecl::ClassScopeFunctionSpecializationDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ClassScopeFunctionSpecializationDecl *decl_)
+    const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
 ::pasta::CXXMethodDecl ClassScopeFunctionSpecializationDecl::Specialization(void) const {
@@ -1729,8 +1725,17 @@ bool ClassScopeFunctionSpecializationDecl::HasExplicitTemplateArgs(void) const {
 
 ConceptDecl::ConceptDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ConceptDecl *decl_)
+    const ::clang::Decl *decl_)
     : TemplateDecl(std::move(ast_), decl_) {}
+
+::pasta::ConceptDecl ConceptDecl::CanonicalDecl(void) const {
+  auto val = u.ConceptDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ConceptDecl>(ast, val);
+  }
+  assert(false && "ConceptDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
 
   // ConstraintExpr
   // TokenRange
@@ -1741,7 +1746,7 @@ bool ConceptDecl::IsTypeConcept(void) const {
 
 ConstructorUsingShadowDecl::ConstructorUsingShadowDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ConstructorUsingShadowDecl *decl_)
+    const ::clang::Decl *decl_)
     : UsingShadowDecl(std::move(ast_), decl_) {}
 
 bool ConstructorUsingShadowDecl::ConstructsVirtualBase(void) const {
@@ -1787,7 +1792,7 @@ bool ConstructorUsingShadowDecl::ConstructsVirtualBase(void) const {
 
 DeclaratorDecl::DeclaratorDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::DeclaratorDecl *decl_)
+    const ::clang::Decl *decl_)
     : ValueDecl(std::move(ast_), decl_) {}
 
 std::optional<::pasta::Token> DeclaratorDecl::BeginToken(void) const {
@@ -1812,7 +1817,7 @@ uint32_t DeclaratorDecl::NumTemplateParameterLists(void) const {
   // TypeSourceInfo
 EnumConstantDecl::EnumConstantDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::EnumConstantDecl *decl_)
+    const ::clang::Decl *decl_)
     : ValueDecl(std::move(ast_), decl_) {}
 
 ::pasta::EnumConstantDecl EnumConstantDecl::CanonicalDecl(void) const {
@@ -1828,7 +1833,7 @@ EnumConstantDecl::EnumConstantDecl(
   // InitVal
 FieldDecl::FieldDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::FieldDecl *decl_)
+    const ::clang::Decl *decl_)
     : DeclaratorDecl(std::move(ast_), decl_) {}
 
   // BitWidth
@@ -1884,7 +1889,7 @@ bool FieldDecl::IsUnnamedBitfield(void) const {
 
 FunctionDecl::FunctionDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::FunctionDecl *decl_)
+    const ::clang::Decl *decl_)
     : DeclaratorDecl(ast_, decl_) {}
 
 bool FunctionDecl::DoesThisDeclarationHaveABody(void) const {
@@ -1906,7 +1911,7 @@ bool FunctionDecl::DoesThisDeclarationHaveABody(void) const {
 
 ConstexprSpecKind FunctionDecl::ConstexprKind(void) const {
   auto val = u.FunctionDecl->getConstexprKind();
-  return static_cast<::pasta::ConstexprSpecKind>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::ConstexprSpecKind>(static_cast<int>(val));
 }
 
   // DeclaredReturnType
@@ -2078,11 +2083,6 @@ bool FunctionDecl::IsVirtualAsWritten(void) const {
 }
 
   // Parameters
-bool FunctionDecl::UsesFPIntrin(void) const {
-  auto val = u.FunctionDecl->usesFPIntrin();
-  return val;
-}
-
 bool FunctionDecl::UsesSEHTry(void) const {
   auto val = u.FunctionDecl->usesSEHTry();
   return val;
@@ -2095,7 +2095,7 @@ bool FunctionDecl::WillHaveBody(void) const {
 
 IndirectFieldDecl::IndirectFieldDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::IndirectFieldDecl *decl_)
+    const ::clang::Decl *decl_)
     : ValueDecl(std::move(ast_), decl_) {}
 
   // Chain
@@ -2133,7 +2133,7 @@ uint32_t IndirectFieldDecl::ChainingSize(void) const {
 
 LabelDecl::LabelDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::LabelDecl *decl_)
+    const ::clang::Decl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
 std::string_view LabelDecl::MSAsmLabel(void) const {
@@ -2164,13 +2164,13 @@ bool LabelDecl::IsResolvedMSAsmLabel(void) const {
 
 MSGuidDecl::MSGuidDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::MSGuidDecl *decl_)
+    const ::clang::Decl *decl_)
     : ValueDecl(std::move(ast_), decl_) {}
 
   // Parts
 MSPropertyDecl::MSPropertyDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::MSPropertyDecl *decl_)
+    const ::clang::Decl *decl_)
     : DeclaratorDecl(std::move(ast_), decl_) {}
 
   // GetterId
@@ -2187,7 +2187,7 @@ bool MSPropertyDecl::HasSetter(void) const {
 
 NonTypeTemplateParmDecl::NonTypeTemplateParmDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::NonTypeTemplateParmDecl *decl_)
+    const ::clang::Decl *decl_)
     : DeclaratorDecl(std::move(ast_), decl_) {}
 
 bool NonTypeTemplateParmDecl::DefaultArgumentWasInherited(void) const {
@@ -2231,16 +2231,23 @@ bool NonTypeTemplateParmDecl::IsParameterPack(void) const {
   return val;
 }
 
+OMPAllocateDecl::OMPAllocateDecl(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Decl *decl_)
+    : OMPDeclarativeDirectiveDecl(std::move(ast_), decl_) {}
+
+  // Clauses
+  // Varlists
 OMPDeclareMapperDecl::OMPDeclareMapperDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::OMPDeclareMapperDecl *decl_)
-    : ValueDecl(ast_, decl_) {}
+    const ::clang::Decl *decl_)
+    : OMPDeclarativeDirectiveValueDecl(ast_, decl_) {}
 
   // Clauses
   // MapperVarRef
 OMPDeclareReductionDecl::OMPDeclareReductionDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::OMPDeclareReductionDecl *decl_)
+    const ::clang::Decl *decl_)
     : ValueDecl(ast_, decl_) {}
 
   // Combiner
@@ -2250,14 +2257,26 @@ OMPDeclareReductionDecl::OMPDeclareReductionDecl(
   // InitPriv
   // Initializer
   // InitializerKind
+OMPRequiresDecl::OMPRequiresDecl(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Decl *decl_)
+    : OMPDeclarativeDirectiveDecl(std::move(ast_), decl_) {}
+
+  // Clauses
+OMPThreadPrivateDecl::OMPThreadPrivateDecl(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Decl *decl_)
+    : OMPDeclarativeDirectiveDecl(std::move(ast_), decl_) {}
+
+  // Varlists
 ObjCAtDefsFieldDecl::ObjCAtDefsFieldDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ObjCAtDefsFieldDecl *decl_)
+    const ::clang::Decl *decl_)
     : FieldDecl(std::move(ast_), decl_) {}
 
 ObjCCategoryDecl::ObjCCategoryDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ObjCCategoryDecl *decl_)
+    const ::clang::Decl *decl_)
     : ObjCContainerDecl(std::move(ast_), decl_) {}
 
 bool ObjCCategoryDecl::IsClassExtension(void) const {
@@ -2314,7 +2333,7 @@ std::optional<::pasta::Token> ObjCCategoryDecl::IvarRBraceToken(void) const {
   // Protocols
 ObjCCategoryImplDecl::ObjCCategoryImplDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ObjCCategoryImplDecl *decl_)
+    const ::clang::Decl *decl_)
     : ObjCImplDecl(std::move(ast_), decl_) {}
 
 std::optional<::pasta::Token> ObjCCategoryImplDecl::CategoryNameToken(void) const {
@@ -2324,7 +2343,7 @@ std::optional<::pasta::Token> ObjCCategoryImplDecl::CategoryNameToken(void) cons
 
 ObjCIvarDecl::ObjCIvarDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ObjCIvarDecl *decl_)
+    const ::clang::Decl *decl_)
     : FieldDecl(std::move(ast_), decl_) {}
 
   // AccessControl
@@ -2345,7 +2364,7 @@ bool ObjCIvarDecl::Synthesize(void) const {
 
 ObjCTypeParamDecl::ObjCTypeParamDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ObjCTypeParamDecl *decl_)
+    const ::clang::Decl *decl_)
     : TypedefNameDecl(std::move(ast_), decl_) {}
 
 std::optional<::pasta::Token> ObjCTypeParamDecl::ColonToken(void) const {
@@ -2375,7 +2394,7 @@ bool ObjCTypeParamDecl::HasExplicitBound(void) const {
 
 RedeclarableTemplateDecl::RedeclarableTemplateDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::RedeclarableTemplateDecl *decl_)
+    const ::clang::Decl *decl_)
     : TemplateDecl(std::move(ast_), decl_) {}
 
 ::pasta::RedeclarableTemplateDecl RedeclarableTemplateDecl::CanonicalDecl(void) const {
@@ -2403,7 +2422,7 @@ bool RedeclarableTemplateDecl::IsMemberSpecialization(void) const {
 
 TagDecl::TagDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::TagDecl *decl_)
+    const ::clang::Decl *decl_)
     : TypeDecl(ast_, decl_) {}
 
   // BraceRange
@@ -2522,9 +2541,24 @@ bool TagDecl::MayHaveOutOfDateDef(void) const {
   return val;
 }
 
+TemplateParamObjectDecl::TemplateParamObjectDecl(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Decl *decl_)
+    : ValueDecl(std::move(ast_), decl_) {}
+
+::pasta::TemplateParamObjectDecl TemplateParamObjectDecl::CanonicalDecl(void) const {
+  auto val = u.TemplateParamObjectDecl->getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::TemplateParamObjectDecl>(ast, val);
+  }
+  assert(false && "TemplateParamObjectDecl::CanonicalDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
+  // Value
 TemplateTypeParmDecl::TemplateTypeParmDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::TemplateTypeParmDecl *decl_)
+    const ::clang::Decl *decl_)
     : TypeDecl(std::move(ast_), decl_) {}
 
 bool TemplateTypeParmDecl::DefaultArgumentWasInherited(void) const {
@@ -2569,7 +2603,7 @@ bool TemplateTypeParmDecl::WasDeclaredWithTypename(void) const {
 
 TypeAliasDecl::TypeAliasDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::TypeAliasDecl *decl_)
+    const ::clang::Decl *decl_)
     : TypedefNameDecl(std::move(ast_), decl_) {}
 
 ::pasta::TypeAliasTemplateDecl TypeAliasDecl::DescribedAliasTemplate(void) const {
@@ -2583,7 +2617,7 @@ TypeAliasDecl::TypeAliasDecl(
 
 TypeAliasTemplateDecl::TypeAliasTemplateDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::TypeAliasTemplateDecl *decl_)
+    const ::clang::Decl *decl_)
     : RedeclarableTemplateDecl(std::move(ast_), decl_) {}
 
 ::pasta::TypeAliasTemplateDecl TypeAliasTemplateDecl::CanonicalDecl(void) const {
@@ -2624,12 +2658,12 @@ TypeAliasTemplateDecl::TypeAliasTemplateDecl(
 
 TypedefDecl::TypedefDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::TypedefDecl *decl_)
+    const ::clang::Decl *decl_)
     : TypedefNameDecl(std::move(ast_), decl_) {}
 
 UnresolvedUsingValueDecl::UnresolvedUsingValueDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::UnresolvedUsingValueDecl *decl_)
+    const ::clang::Decl *decl_)
     : ValueDecl(std::move(ast_), decl_) {}
 
 ::pasta::UnresolvedUsingValueDecl UnresolvedUsingValueDecl::CanonicalDecl(void) const {
@@ -2666,7 +2700,7 @@ bool UnresolvedUsingValueDecl::IsPackExpansion(void) const {
 
 VarDecl::VarDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::VarDecl *decl_)
+    const ::clang::Decl *decl_)
     : DeclaratorDecl(std::move(ast_), decl_) {}
 
 ::pasta::VarDecl VarDecl::ActingDefinition(void) const {
@@ -2823,7 +2857,7 @@ bool VarDecl::IsThisDeclarationADemotedDefinition(void) const {
 
 VarTemplateDecl::VarTemplateDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::VarTemplateDecl *decl_)
+    const ::clang::Decl *decl_)
     : RedeclarableTemplateDecl(std::move(ast_), decl_) {}
 
 ::pasta::VarTemplateDecl VarTemplateDecl::CanonicalDecl(void) const {
@@ -2879,7 +2913,7 @@ bool VarTemplateDecl::IsThisDeclarationADefinition(void) const {
   // Specializations
 VarTemplateSpecializationDecl::VarTemplateSpecializationDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::VarTemplateSpecializationDecl *decl_)
+    const ::clang::Decl *decl_)
     : VarDecl(std::move(ast_), decl_) {}
 
   // Profile
@@ -2926,7 +2960,7 @@ bool VarTemplateSpecializationDecl::IsExplicitSpecialization(void) const {
 
 CXXDeductionGuideDecl::CXXDeductionGuideDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::CXXDeductionGuideDecl *decl_)
+    const ::clang::Decl *decl_)
     : FunctionDecl(std::move(ast_), decl_) {}
 
 ::pasta::TemplateDecl CXXDeductionGuideDecl::DeducedTemplate(void) const {
@@ -2951,7 +2985,7 @@ bool CXXDeductionGuideDecl::IsExplicit(void) const {
 
 CXXMethodDecl::CXXMethodDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::CXXMethodDecl *decl_)
+    const ::clang::Decl *decl_)
     : FunctionDecl(std::move(ast_), decl_) {}
 
 ::pasta::CXXMethodDecl CXXMethodDecl::CanonicalDecl(void) const {
@@ -3012,7 +3046,7 @@ bool CXXMethodDecl::IsVolatile(void) const {
 
 ClassTemplateDecl::ClassTemplateDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ClassTemplateDecl *decl_)
+    const ::clang::Decl *decl_)
     : RedeclarableTemplateDecl(std::move(ast_), decl_) {}
 
 ::pasta::ClassTemplateDecl ClassTemplateDecl::CanonicalDecl(void) const {
@@ -3068,13 +3102,13 @@ bool ClassTemplateDecl::IsThisDeclarationADefinition(void) const {
   // Specializations
 DecompositionDecl::DecompositionDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::DecompositionDecl *decl_)
+    const ::clang::Decl *decl_)
     : VarDecl(std::move(ast_), decl_) {}
 
   // Bindings
 EnumDecl::EnumDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::EnumDecl *decl_)
+    const ::clang::Decl *decl_)
     : TagDecl(std::move(ast_), decl_) {}
 
   // Enumerators
@@ -3150,7 +3184,7 @@ bool EnumDecl::IsScopedUsingClassTag(void) const {
 
 FunctionTemplateDecl::FunctionTemplateDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::FunctionTemplateDecl *decl_)
+    const ::clang::Decl *decl_)
     : RedeclarableTemplateDecl(std::move(ast_), decl_) {}
 
 ::pasta::FunctionTemplateDecl FunctionTemplateDecl::CanonicalDecl(void) const {
@@ -3211,18 +3245,18 @@ bool FunctionTemplateDecl::IsThisDeclarationADefinition(void) const {
   // Specializations
 ImplicitParamDecl::ImplicitParamDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ImplicitParamDecl *decl_)
+    const ::clang::Decl *decl_)
     : VarDecl(std::move(ast_), decl_) {}
 
   // ParameterKind
 OMPCapturedExprDecl::OMPCapturedExprDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::OMPCapturedExprDecl *decl_)
+    const ::clang::Decl *decl_)
     : VarDecl(std::move(ast_), decl_) {}
 
 ParmVarDecl::ParmVarDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ParmVarDecl *decl_)
+    const ::clang::Decl *decl_)
     : VarDecl(std::move(ast_), decl_) {}
 
   // DefaultArg
@@ -3265,7 +3299,7 @@ bool ParmVarDecl::IsObjCMethodParameter(void) const {
 
 RecordDecl::RecordDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::RecordDecl *decl_)
+    const ::clang::Decl *decl_)
     : TagDecl(std::move(ast_), decl_) {}
 
 bool RecordDecl::CanPassInRegisters(void) const {
@@ -3364,7 +3398,7 @@ bool RecordDecl::IsParamDestroyedInCallee(void) const {
 
 VarTemplatePartialSpecializationDecl::VarTemplatePartialSpecializationDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::VarTemplatePartialSpecializationDecl *decl_)
+    const ::clang::Decl *decl_)
     : VarTemplateSpecializationDecl(std::move(ast_), decl_) {}
 
   // Profile
@@ -3387,7 +3421,7 @@ bool VarTemplatePartialSpecializationDecl::HasAssociatedConstraints(void) const 
 
 CXXConstructorDecl::CXXConstructorDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::CXXConstructorDecl *decl_)
+    const ::clang::Decl *decl_)
     : CXXMethodDecl(std::move(ast_), decl_) {}
 
 ::pasta::CXXConstructorDecl CXXConstructorDecl::CanonicalDecl(void) const {
@@ -3439,7 +3473,7 @@ bool CXXConstructorDecl::IsMoveConstructor(void) const {
 
 CXXConversionDecl::CXXConversionDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::CXXConversionDecl *decl_)
+    const ::clang::Decl *decl_)
     : CXXMethodDecl(std::move(ast_), decl_) {}
 
 ::pasta::CXXConversionDecl CXXConversionDecl::CanonicalDecl(void) const {
@@ -3460,7 +3494,7 @@ bool CXXConversionDecl::IsExplicit(void) const {
 
 CXXDestructorDecl::CXXDestructorDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::CXXDestructorDecl *decl_)
+    const ::clang::Decl *decl_)
     : CXXMethodDecl(std::move(ast_), decl_) {}
 
 ::pasta::CXXDestructorDecl CXXDestructorDecl::CanonicalDecl(void) const {
@@ -3484,7 +3518,7 @@ CXXDestructorDecl::CXXDestructorDecl(
   // OperatorDeleteThisArg
 CXXRecordDecl::CXXRecordDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::CXXRecordDecl *decl_)
+    const ::clang::Decl *decl_)
     : RecordDecl(std::move(ast_), decl_) {}
 
 bool CXXRecordDecl::AllowConstDefaultInit(void) const {
@@ -3926,6 +3960,11 @@ bool CXXRecordDecl::IsStandardLayout(void) const {
   return val;
 }
 
+bool CXXRecordDecl::IsStructural(void) const {
+  auto val = u.CXXRecordDecl->isStructural();
+  return val;
+}
+
 bool CXXRecordDecl::IsTrivial(void) const {
   auto val = u.CXXRecordDecl->isTrivial();
   return val;
@@ -4000,7 +4039,7 @@ bool CXXRecordDecl::NeedsOverloadResolutionForMoveConstructor(void) const {
   // VirtualBases
 ClassTemplateSpecializationDecl::ClassTemplateSpecializationDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ClassTemplateSpecializationDecl *decl_)
+    const ::clang::Decl *decl_)
     : CXXRecordDecl(std::move(ast_), decl_) {}
 
   // Profile
@@ -4046,7 +4085,7 @@ bool ClassTemplateSpecializationDecl::IsExplicitSpecialization(void) const {
 
 ClassTemplatePartialSpecializationDecl::ClassTemplatePartialSpecializationDecl(
     std::shared_ptr<ASTImpl> ast_,
-    const ::clang::ClassTemplatePartialSpecializationDecl *decl_)
+    const ::clang::Decl *decl_)
     : ClassTemplateSpecializationDecl(std::move(ast_), decl_) {}
 
   // Profile
@@ -4078,3 +4117,4 @@ bool ClassTemplatePartialSpecializationDecl::HasAssociatedConstraints(void) cons
 }
 
 }  // namespace pasta
+#endif  // PASTA_IN_BOOTSTRAP

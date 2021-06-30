@@ -6,7 +6,6 @@
 
 #include <csignal>
 #include <cstdlib>
-#include <iostream>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"

@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+# Copyright 2021, Trail of Bits, Inc. All rights reserved.
+
+import json
+import pasta
+import sys
+import subprocess
+
+def import_compile_commands_json(compiler, path):
+  """Generats pasta.CompileJob instances for each compilation command found in a
+  compilation database located at `path`."""
+  with open(sys.argv[1], "r") as compile_commands_json:
+    json_commands = json.load(compile_commands_json)
+    for json_command in json_commands:
+      command = pasta.CompileCommand(json_command["command"], json_command["directory"])
+      #print(command.arguments)
+      for job in compiler.create_command_jobs(command):
+        yield job
+
+if __name__ == "__main__":
+  cxx = pasta.HostCompiler(pasta.LANG_CXX)
+  for job in import_compile_commands_json(cxx, sys.argv[1]):
+    
+    try:
+      print("Compiling", job.source_file)
+      ast = job.run()
+      #print(ast)
+    except Exception as e:
+      print(e)
+      print("\tCompiler:")
+      print("\t\tName:", cxx.name)
+      print("\t\tTarget language:", cxx.target_language)
+      print("\t\tExecutable path:", cxx.executable_path)
+      print("\t\tResource directory:", cxx.resource_directory)
+      print("\t\tSystem root directory:", cxx.system_root_directory)
+      print("\t\tInstallation directory:", cxx.installation_directory)
+      print("\t\tSystem include directories:")
+      for path in cxx.system_include_directories:
+        print("\t\t\t{}".format(path))
+      print("\t\tUser include directories:")
+      for path in cxx.user_include_directories:
+        print("\t\t\t{}".format(path))
+      print("\t\tFramework directories:")
+      for path in cxx.framework_directories:
+        print("\t\t\t{}".format(path))
+
+      print("\tJob:")
+      print("\t\tWorking directory:", job.working_directory)
+      print("\t\tResource directory:", job.resource_directory)
+      print("\t\tSystem root directory:", job.system_root_directory)
+      print("\t\tTarget triple:", job.target_triple)
+      print("\t\tAuxiliary target triple:", job.auxiliary_target_triple)
+      print("\t\tSource file:", job.source_file)
+      print("\t\tArguments:")
+      print("\t\t" + " ".join(job.arguments))
+      print()
+
+      #command = [cxx.executable_path] + job.arguments
+      #print(" ".join(command))
+      #subprocess.check_call(command)
+

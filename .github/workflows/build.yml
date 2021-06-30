@@ -120,7 +120,7 @@ jobs:
       run: |
         folder_name="vcpkg_${{ matrix.os }}_llvm-${{ matrix.llvm_version }}_amd64"
         file_name="${folder_name}.tar.xz"
-        url="https://github.com/trailofbits/cxx-common/releases/download/${{ matrix.cxx_common_version }}/${file_name}"
+        url="https://github.com/lifting-bits/cxx-common/releases/download/${{ matrix.cxx_common_version }}/${file_name}"
 
         file_path="${{ steps.build_paths.outputs.DOWNLOADS }}/${file_name}"
         if [[ ! -f "${file_path}" ]]; then

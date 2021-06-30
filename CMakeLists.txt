@@ -1,8 +1,9 @@
 # Copyright (c) 2020 Trail of Bits, Inc., all rights reserved.
+cmake_minimum_required(VERSION 3.14.5)
 
+# Takes care of some vcpkg automation so that we can use VCPKG_ROOT
 include(cmake/vcpkg_helper.cmake)
 
-cmake_minimum_required(VERSION 3.14.5)
 project(pasta LANGUAGES C CXX)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/settings.cmake")
@@ -129,9 +130,12 @@ target_compile_definitions(thirdparty_llvm INTERFACE
 )
 
 # LLVM uses `-lZ3` somewhere, so this is a good way to sneak it in.
+# NOTE: Recent versions of cxx-common vcpkg llvm dependencies fix this
 if (NOT Z3_FOUND)
     find_package(Z3 CONFIG REQUIRED)
-    add_library(Z3 INTERFACE)
+    if (NOT TARGET Z3)
+        add_library(Z3 INTERFACE)
+    endif()
     target_link_libraries(Z3 INTERFACE z3::libz3)
 endif()
 

@@ -18,18 +18,29 @@ on:
 
 jobs:
   linux:
-    runs-on: ${{ matrix.os }}
-
     strategy:
       # Notes
       # - Ubuntu 18.04 is not compatible due to Python being too old
       # - Pasta does not compile on LLVM 9 or 10, so they have been
       #   removed from the strategy matrix
       matrix:
-        build_type: [Release, RelWithDebInfo, Debug]
-        os: [ubuntu-20.04]
+        build_type: [
+          'Release',
+          'Debug'
+          ]
+        image:
+          - { name: 'ubuntu', tag: '20.04' }
         cxx_common_version: [v0.1.4]
         llvm_version: [12]
+
+    runs-on: ubuntu-20.04
+    container:
+      # Image is built with https://github.com/lifting-bits/cxx-common/blob/master/docker/Dockerfile.ubuntu.vcpkg
+      # Look at that file for the full set of dependencies that may be required for building
+      image: docker.pkg.github.com/lifting-bits/cxx-common/vcpkg-builder-${{ matrix.image.name }}:${{ matrix.image.tag }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
     - name: Get the 🍝
@@ -44,18 +55,18 @@ jobs:
         echo ::set-output name=VALUE::$(($(nproc) + 1))
 
     - name: Install system dependencies
+      shell: bash
       run: |
-        sudo apt update
-
-        sudo apt install -y build-essential \
-                            ninja-build \
-                            curl \
-                            ccache \
-                            cmake \
-                            python3-dev \
-                            libncurses-dev
+        apt update
+        apt install -y build-essential \
+                       ninja-build \
+                       curl \
+                       ccache \
+                       python3-dev \
+                       libncurses-dev
 
     - name: Setup the build paths
+      shell: bash
       id: build_paths
       run: |
         rel_src_path="src"
@@ -63,7 +74,7 @@ jobs:
         rel_downloads_path="downloads"
         rel_install_path="install"
         rel_ccache_path="ccache"
-        
+
 
         mkdir -p ${rel_build_path} \
                  ${rel_downloads_path} \
@@ -86,10 +97,10 @@ jobs:
         path: ${{ steps.build_paths.outputs.REL_CCACHE }}
 
         key: |
-          gitmodules_${{ matrix.os }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}_${{ github.sha }}
+          gitmodules_${{ matrix.image.name }}-${{ matrix.image.tag }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}_${{ github.sha }}
 
         restore-keys: |
-          gitmodules_${{ matrix.os }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}
+          gitmodules_${{ matrix.image.name }}-${{ matrix.image.tag }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}
 
     - name: Update the cache (downloads)
       uses: actions/cache@v2
@@ -97,18 +108,19 @@ jobs:
         path: ${{ steps.build_paths.outputs.REL_DOWNLOADS }}
 
         key: |
-          gitmodules_${{ matrix.os }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}_${{ github.sha }}
+          gitmodules_${{ matrix.image.name }}-${{ matrix.image.tag }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}_${{ github.sha }}
 
         restore-keys: |
-          gitmodules_${{ matrix.os }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}
+          gitmodules_${{ matrix.image.name }}-${{ matrix.image.tag }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}
 
     - name: Acquire the cxx-common ${{ matrix.cxx_common_version }} package for LLVM ${{ matrix.llvm_version }}
+      shell: bash
       id: cxx_common_installer
       working-directory: ${{ steps.build_paths.outputs.DOWNLOADS }}
       run: |
-        folder_name="vcpkg_${{ matrix.os }}_llvm-${{ matrix.llvm_version }}_amd64"
+        folder_name="vcpkg_${{ matrix.image.name }}-${{ matrix.image.tag }}_llvm-${{ matrix.llvm_version }}_amd64"
         file_name="${folder_name}.tar.xz"
-        url="https://github.com/trailofbits/cxx-common/releases/download/${{ matrix.cxx_common_version }}/${file_name}"
+        url="https://github.com/lifting-bits/cxx-common/releases/download/${{ matrix.cxx_common_version }}/${file_name}"
 
         file_path="${{ steps.build_paths.outputs.DOWNLOADS }}/${file_name}"
         if [[ ! -f "${file_path}" ]]; then
@@ -128,6 +140,7 @@ jobs:
 
     - name: Configure the project
       working-directory: ${{ steps.build_paths.outputs.BUILD }}
+      shell: bash
 
       env:
         CCACHE_DIR: ${{ steps.build_paths.outputs.CCACHE }}
@@ -137,12 +150,12 @@ jobs:
 
         cmake -G "Ninja" \
           -DVCPKG_ROOT=${{ steps.cxx_common_installer.outputs.PATH }} \
-          -DCMAKE_C_COMPILER=${cxx_common_bin_path}/clang \
-          -DCMAKE_CXX_COMPILER=${cxx_common_bin_path}/clang++ \
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
           "${{ steps.build_paths.outputs.SOURCE }}"
 
     - name: Build the project
       working-directory: ${{ steps.build_paths.outputs.BUILD }}
+      shell: bash
 
       env:
         CCACHE_DIR: ${{ steps.build_paths.outputs.CCACHE }}
@@ -151,5 +164,6 @@ jobs:
         cmake --build . -j ${{ steps.build_job_count.outputs.VALUE }}
 
     - name: Reclaim disk space
+      shell: bash
       run: |
         rm -rf ${{ steps.build_paths.outputs.BUILD }}

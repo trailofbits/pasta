@@ -1,8 +1,9 @@
 # Copyright (c) 2020 Trail of Bits, Inc., all rights reserved.
+cmake_minimum_required(VERSION 3.14.5)
 
+# Takes care of some vcpkg automation so that we can use VCPKG_ROOT
 include(cmake/vcpkg_helper.cmake)
 
-cmake_minimum_required(VERSION 3.14.5)
 project(pasta LANGUAGES C CXX)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/settings.cmake")

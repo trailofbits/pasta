@@ -18,8 +18,6 @@ on:
 
 jobs:
   linux:
-    runs-on: ${{ matrix.os }}
-
     strategy:
       # Notes
       # - Ubuntu 18.04 is not compatible due to Python being too old
@@ -27,9 +25,19 @@ jobs:
       #   removed from the strategy matrix
       matrix:
         build_type: [Release, RelWithDebInfo, Debug]
-        os: [ubuntu-20.04]
+        image:
+          - { name: 'ubuntu', tag: '20.04' }
         cxx_common_version: [v0.1.4]
         llvm_version: [12]
+
+    runs-on: ubuntu-20.04
+    container:
+      # Image is built with https://github.com/lifting-bits/cxx-common/blob/master/docker/Dockerfile.ubuntu.vcpkg
+      # Look at that file for the full set of dependencies that may be required for building
+      image: docker.pkg.github.com/lifting-bits/cxx-common/vcpkg-builder-${{ matrix.image.name }}:${{ matrix.image.tag }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
     - name: Get the 🍝
@@ -51,7 +59,6 @@ jobs:
                             ninja-build \
                             curl \
                             ccache \
-                            cmake \
                             python3-dev \
                             libncurses-dev
 
@@ -63,7 +70,7 @@ jobs:
         rel_downloads_path="downloads"
         rel_install_path="install"
         rel_ccache_path="ccache"
-        
+
 
         mkdir -p ${rel_build_path} \
                  ${rel_downloads_path} \
@@ -137,8 +144,6 @@ jobs:
 
         cmake -G "Ninja" \
           -DVCPKG_ROOT=${{ steps.cxx_common_installer.outputs.PATH }} \
-          -DCMAKE_C_COMPILER=${cxx_common_bin_path}/clang \
-          -DCMAKE_CXX_COMPILER=${cxx_common_bin_path}/clang++ \
           "${{ steps.build_paths.outputs.SOURCE }}"
 
     - name: Build the project

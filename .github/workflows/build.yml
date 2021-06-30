@@ -24,7 +24,10 @@ jobs:
       # - Pasta does not compile on LLVM 9 or 10, so they have been
       #   removed from the strategy matrix
       matrix:
-        build_type: [Release, RelWithDebInfo, Debug]
+        build_type: [
+          'Release',
+          'Debug'
+          ]
         image:
           - { name: 'ubuntu', tag: '20.04' }
         cxx_common_version: [v0.1.4]
@@ -144,6 +147,7 @@ jobs:
 
         cmake -G "Ninja" \
           -DVCPKG_ROOT=${{ steps.cxx_common_installer.outputs.PATH }} \
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
           "${{ steps.build_paths.outputs.SOURCE }}"
 
     - name: Build the project

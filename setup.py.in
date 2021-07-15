@@ -31,7 +31,7 @@ if sys.platform.startswith("linux"):
 elif sys.platform == "darwin":
     extra_link_args = \
         ["-Wl,-force_load"] + \
-        ["$<TARGET_FILE:python_bindings>"] + \
+        ["$<TARGET_FILE:pasta_python_bindings>"] + \
         LIBRARY_PATHS + \
         ['-stdlib=libc++']
     extra_compile_args += ['-stdlib=libc++']

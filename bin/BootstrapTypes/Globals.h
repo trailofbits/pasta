@@ -36,7 +36,7 @@ extern const std::unordered_map<std::string, std::string> kCxxMethodRenames;
 
 // Maps return types from the macros file to their replacements in the
 // output code.
-extern std::unordered_map<std::string, std::string> kRetTypeMap;
+extern std::unordered_map<std::string, std::string> gRetTypeMap;
 
 // Maps return types from the macros file to how they should be returned
 // in the generated Decl.cpp file.

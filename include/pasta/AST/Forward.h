@@ -498,8 +498,6 @@ enum class DeclKind : unsigned {
   kVarTemplate,
   kVarTemplatePartialSpecialization,
   kVarTemplateSpecialization,
-  kOMPDeclarativeDirective,
-  kOMPDeclarativeDirectiveValue,
 };
 
 enum class TypeKind : unsigned {
@@ -3324,4 +3322,6 @@ class VarTemplateSpecializationDecl;
 class VariableArrayType;
 class VectorType;
 class WhileStmt;
+class OMPDeclarativeDirectiveDecl;
+class OMPDeclarativeDirectiveValueDecl;
 }  // namespace pasta

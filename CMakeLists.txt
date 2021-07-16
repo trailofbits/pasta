@@ -15,11 +15,9 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 # --------------------------------------------
 # build-time options -------------------------
 # --------------------------------------------
-option(ENABLE_LIBFUZZER "Build libFuzzer fuzz targets" OFF)
-option(ENABLE_SANITIZERS "Build with ASAN and UBSAN" OFF)
-option(WARNINGS_AS_ERRORS "Build treating warnings as errors" OFF)
-option(BOOTSTRAP_MACROS "Boostrap the macro definitions" OFF)
-option(BOOTSTRAP_TYPES "Bootstrap the type definitions from the macros" OFF)
+option(PASTA_WARNINGS_AS_ERRORS "Build treating warnings as errors" OFF)
+option(PASTA_BOOTSTRAP_MACROS "Boostrap the macro definitions" OFF)
+option(PASTA_BOOTSTRAP_TYPES "Bootstrap the type definitions from the macros" OFF)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -53,12 +51,12 @@ target_include_directories(pasta_cxx_settings INTERFACE
 
 target_compile_options(pasta_cxx_settings INTERFACE ${CXX_WARNING_OPTIONS})
 
-if(WARNINGS_AS_ERRORS)
+if(PASTA_WARNINGS_AS_ERRORS)
     target_compile_options(pasta_cxx_settings INTERFACE ${CXX_WARNINGS_AS_ERRORS_OPTION})
 endif()
 
-if(BOOTSTRAP_MACROS OR BOOTSTRAP_TYPES)
-    target_compile_definitions(pasta_cxx_settings PUBLIC -DPASTA_IN_BOOTSTRAP)
+if(PASTA_BOOTSTRAP_MACROS OR PASTA_BOOTSTRAP_TYPES)
+    target_compile_definitions(pasta_cxx_settings INTERFACE -DPASTA_IN_BOOTSTRAP)
 endif()
 
 find_package(Filesystem REQUIRED COMPONENTS Final Experimental)
@@ -268,7 +266,7 @@ target_link_libraries(pasta_python_bindings PRIVATE
 # Configure bootstrap header files with source paths.
 # ---------------------------------------------------
 
-if(BOOTSTRAP_MACROS OR BOOTSTRAP_TYPES)
+if(PASTA_BOOTSTRAP_MACROS OR PASTA_BOOTSTRAP_TYPES)
     
     set(PASTA_INCLUDE_SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/include")
     set(PASTA_BINARY_PATH "${CMAKE_CURRENT_BINARY_DIR}")

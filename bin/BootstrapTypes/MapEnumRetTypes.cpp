@@ -18,7 +18,7 @@ void MapEnumRetTypes(void) {
       rv += Capitalize(PASTA_STR(enum_name)); \
       rv += ">(static_cast<" PASTA_STR(PASTA_SPLAT underlying_type) ">(val));\n"; \
       gRetTypeToValMap.emplace("(clang::" PASTA_STR(enum_name) ")", rv); \
-      kRetTypeMap.emplace("(clang::" PASTA_STR(enum_name) ")", \
+      gRetTypeMap.emplace("(clang::" PASTA_STR(enum_name) ")", \
                           Capitalize(PASTA_STR(enum_name))); \
     } while (0);
 
@@ -29,7 +29,7 @@ void MapEnumRetTypes(void) {
       rv += ">(static_cast<" PASTA_STR(PASTA_SPLAT underlying_type) ">(val));\n"; \
       gRetTypeToValMap.emplace( \
           "(clang::" PASTA_STR(class_name) "::" PASTA_STR(enum_name) ")", rv); \
-      kRetTypeMap.emplace("(clang::" PASTA_STR(enum_name) ")", \
+      gRetTypeMap.emplace("(clang::" PASTA_STR(enum_name) ")", \
                           Capitalize(PASTA_STR(enum_name))); \
     } while (0);
 

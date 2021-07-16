@@ -38,7 +38,10 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   ~ASTImpl(void);
 
   // Try to return the token at the specified location.
-  std::optional<Token> TokenAt(clang::SourceLocation loc);
+  Token TokenAt(clang::SourceLocation loc);
+
+  // Try to return teh token range from the specified source range.
+  TokenRange TokenRangeFrom(clang::SourceRange range);
 
   llvm::IntrusiveRefCntPtr<llvm::vfs::FileSystem> real_fs;
   llvm::IntrusiveRefCntPtr<llvm::vfs::OverlayFileSystem> overlay_fs;

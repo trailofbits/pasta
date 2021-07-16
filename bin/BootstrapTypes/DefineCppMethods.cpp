@@ -14,7 +14,7 @@
         std::ostream &os, const std::string &class_name) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); \
           !meth_name.empty()) { \
-        auto &rt_type = kRetTypeMap[PASTA_STR(rt)]; \
+        auto &rt_type = gRetTypeMap[PASTA_STR(rt)]; \
         auto &rt_val = gRetTypeToValMap[PASTA_STR(rt)]; \
         llvm::StringRef rt_ref(PASTA_STR(rt)); \
         if (!rt_type.empty() && !rt_val.empty()) { \

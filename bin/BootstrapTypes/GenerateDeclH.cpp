@@ -27,11 +27,35 @@ void GenerateDeclH(void) {
       << "#  include \"DeclBootstrap.h\"\n"
       << "#else\n"
       << "#include \"Forward.h\"\n\n"
+      << "#define PASTA_DECLARE_DERIVED_OPERATORS(base, derived) \\\n"
+      << "      friend class derived; \\\n"
+      << "      base(const derived &that_); \\\n"
+      << "      base(derived &&that_) noexcept;  \\\n"
+      << "      base &operator=(const derived &);  \\\n"
+      << "      base &operator=(derived &&) noexcept;\n\n"
+      << "#define PASTA_DECLARE_DEFAULT_CONSTRUCTORS(cls) \\\n"
+      << "  ~cls(void) = default; \\\n"
+      << "  cls(const cls &) = default; \\\n"
+      << "  cls(cls &&) noexcept = default; \\\n"
+      << "  cls &operator=(const cls &) = default; \\\n"
+      << "  cls &operator=(cls &&) noexcept = default;\n\n"
       << "namespace pasta {\n"
       << "class DeclContext {\n"
       << " public:\n"
-      << "  DeclContext(std::shared_ptr<ASTImpl> ast_, const clang::DeclContext *) {}\n"
-      << "};\n\n";
+      << "  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DeclContext)\n";
+
+  for (const auto &derived_class : gTransitiveDerivedClasses["DeclContext"]) {
+    os << "  PASTA_DECLARE_DERIVED_OPERATORS(DeclContext, "
+       << derived_class << ")\n";
+  }
+
+  os << " private:\n"
+     << "  std::shared_ptr<ASTImpl> ast;\n"
+     << "  const clang::DeclContext *context;\n\n"
+     << "  inline DeclContext(std::shared_ptr<ASTImpl> ast_, const clang::DeclContext *context_)\n"
+     << "      : ast(std::move(ast_)),\n"
+     << "        context(context_) {}\n"
+     << "};\n\n";
 
   // Define them all.
   for (const auto &name : gTopologicallyOrderedDecls) {
@@ -54,11 +78,15 @@ void GenerateDeclH(void) {
     os
         << " {\n"
         << " public:\n"
-        << "  ~" << name << "(void) = default;\n"
-        << "  " << name << "(const " << name << " &) = default;\n"
-        << "  " << name << "(" << name << " &&) noexcept = default;\n"
-        << "  " << name << " &operator=(const " << name << " &) = default;\n"
-        << "  " << name << " &operator=(" << name << " &&) noexcept = default;\n\n";
+        << "  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(" << name << ")\n";
+
+    // Constructors from derived class -> base class.
+    if (name_ref.endswith("Decl")) {
+      for (const auto &derived_class : gTransitiveDerivedClasses[name]) {
+        os << "  PASTA_DECLARE_DERIVED_OPERATORS(" << name << ", "
+           << derived_class << ")\n";
+      }
+    }
 
 //    // Permits down-casting.
 //    for (const auto &base_name : gTransitiveBaseClasses[name]) {
@@ -73,6 +101,7 @@ void GenerateDeclH(void) {
     // The top level `Decl` class has all the content.
     if (name == "Decl") {
       os
+          << "  PASTA_DECLARE_DERIVED_OPERATORS(Decl, DeclContext)\n\n"
           << "  inline DeclKind Kind(void) const {\n"
           << "    return kind;\n"
           << "  }\n\n"
@@ -126,5 +155,7 @@ void GenerateDeclH(void) {
 
   os
       << "}  // namespace pasta\n"
+      << "#undef PASTA_DECLARE_DERIVED_OPERATORS\n"
+      << "#undef PASTA_DECLARE_DEFAULT_CONSTRUCTORS\n"
       << "#endif  // PASTA_IN_BOOTSTRAP\n";
 }

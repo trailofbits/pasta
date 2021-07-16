@@ -35,13 +35,16 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
 
 // Maps return types from the macros file to their replacements in the
 // output code.
-std::unordered_map<std::string, std::string> kRetTypeMap{
+std::unordered_map<std::string, std::string> gRetTypeMap{
   {"(bool)", "bool"},
-  {"(clang::SourceLocation)", "std::optional<::pasta::Token>"},
+  {"(clang::SourceLocation)", "::pasta::Token"},
+  {"(clang::SourceRange)", "::pasta::TokenRange"},
   {"(llvm::StringRef)", "std::string_view"},
   {"(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>)", "std::string"},
+  {"(std::basic_string<char, std::char_traits<char>, std::allocator<char>>)", "std::string"},
   {"(unsigned int)", "uint32_t"},
   {"(unsigned long)", "uint64_t"},
+  {"(bool)", "bool"},
 };
 
 // Maps return types from the macros file to how they should be returned
@@ -53,6 +56,9 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
   {"(clang::SourceLocation)",
    "  return ast->TokenAt(val);\n"},
 
+  {"(clang::SourceRange)",
+   "  return ast->TokenRangeFrom(val);\n"},
+
   {"(llvm::StringRef)",
    "  if (auto size = val.size()) {\n"
    "    return std::string_view(val.data(), size);\n"
@@ -63,10 +69,16 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
   {"(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>)",
    "  return val;\n"},
 
+  {"(std::basic_string<char, std::char_traits<char>, std::allocator<char>>)",
+   "  return val;\n"},
+
   {"(unsigned int)",
    "  return val;\n"},
 
   {"(unsigned long)",
+   "  return val;\n"},
+
+  {"(bool)",
    "  return val;\n"},
 };
 

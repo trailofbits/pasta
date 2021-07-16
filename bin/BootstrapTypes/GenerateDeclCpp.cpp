@@ -35,6 +35,42 @@ void GenerateDeclCpp(void) {
       << "#include <clang/AST/DeclOpenMP.h>\n"
       << "#include <clang/AST/DeclTemplate.h>\n"
       << "#pragma clang diagnostic pop\n\n"
+      << "#define PASTA_DEFINE_DERIVED_OPERATORS(base, derived) \\\n"
+      << "    base::base(const class derived &that) \\\n"
+      << "        : base(that.ast, that.u.Decl) {} \\\n"
+      << "    base::base(class derived &&that) noexcept \\\n"
+      << "        : base(std::move(that.ast), that.u.Decl) {} \\\n"
+      << "    base &base::operator=(const class derived &that) { \\\n"
+      << "      if (ast != that.ast) { \\\n"
+      << "        ast = that.ast; \\\n"
+      << "      } \\\n"
+      << "      u.Decl = that.u.Decl; \\\n"
+      << "      return *this; \\\n"
+      << "    } \\\n"
+      << "    base &base::operator=(class derived &&that) noexcept { \\\n"
+      << "      if (this != &that) { \\\n"
+      << "        ast = std::move(that.ast); \\\n"
+      << "        u.Decl = that.u.Decl; \\\n"
+      << "      } \\\n"
+      << "      return *this; \\\n"
+      << "    }\n\n"
+      << "#define PASTA_DEFINE_DECLCONTEXT_OPERATORS(base, derived) \\\n"
+      << "    base::base(const class derived &that) \\\n"
+      << "        : base(that.ast, clang::dyn_cast<clang::derived>(that.u.Decl)) {} \\\n"
+      << "    base::base(class derived &&that) noexcept \\\n"
+      << "        : base(std::move(that.ast), clang::dyn_cast<clang::derived>(that.u.Decl)) {} \\\n"
+      << "    base &base::operator=(const class derived &that) { \\\n"
+      << "      if (ast != that.ast) { \\\n"
+      << "        ast = that.ast; \\\n"
+      << "      } \\\n"
+      << "      context = clang::dyn_cast<clang::derived>(that.u.Decl); \\\n"
+      << "      return *this; \\\n"
+      << "    } \\\n"
+      << "    base &base::operator=(class derived &&that) noexcept { \\\n"
+      << "      ast = std::move(that.ast); \\\n"
+      << "      context = clang::dyn_cast<clang::derived>(that.u.Decl); \\\n"
+      << "      return *this; \\\n"
+      << "    }\n\n"
       << "#include \"AST.h\"\n\n"
       << "namespace pasta {\n\n"
       << "class DeclBuilder {\n"
@@ -43,7 +79,38 @@ void GenerateDeclCpp(void) {
       << "  inline static T Create(std::shared_ptr<ASTImpl> ast_, const D *decl_) {\n"
       << "    return T(std::move(ast_), decl_);\n"
       << "  }\n"
-      << "};\n\n"
+      << "};\n\n";
+
+  os
+      << "Decl::Decl(const DeclContext &context)\n"
+      << "   : Decl(context.ast, clang::dyn_cast<clang::Decl>(context.context)) {}\n"
+      << "\n"
+      << "Decl::Decl(DeclContext &&context) noexcept\n"
+      << "   : Decl(std::move(context.ast), clang::dyn_cast<clang::Decl>(context.context)) {}\n"
+      << "\n"
+      << "Decl &Decl::operator=(const DeclContext &context) {\n"
+      << " if (ast != context.ast) {\n"
+      << "   ast = context.ast;\n"
+      << " }\n"
+      << " u.Decl = clang::dyn_cast<clang::Decl>(context.context);\n"
+      << " return *this;\n"
+      << "}\n"
+      << "\n"
+      << "Decl &Decl::operator=(DeclContext &&context) noexcept {\n"
+      << " if (ast != context.ast) {\n"
+      << "   ast = std::move(context.ast);\n"
+      << " }\n"
+      << " u.Decl = clang::dyn_cast<clang::Decl>(context.context);\n"
+      << " return *this;\n"
+      << "}\n\n";
+
+  for (const auto &derived_class : gTransitiveDerivedClasses["DeclContext"]) {
+    os << "PASTA_DEFINE_DECLCONTEXT_OPERATORS(DeclContext, "
+       << derived_class << ")\n";
+  }
+
+  os
+      << "\n"
       << "namespace {\n"
       << "// Return the PASTA `DeclKind` for a Clang `Decl`.\n"
       << "static DeclKind KindOfDecl(const clang::Decl *decl) {\n"
@@ -60,7 +127,8 @@ void GenerateDeclCpp(void) {
 
   for (const auto &name_ : gDeclNames) {
     llvm::StringRef name(name_);
-    if (name != "Decl") {
+    if (name != "Decl" && name != "OMPDeclarativeDirectiveDecl" &&
+        name != "OMPDeclarativeDirectiveValueDecl") {
       assert(name.endswith("Decl"));
       name = name.substr(0, name.size() - 4);
       os << "  \"" << name.str() << "\",\n";
@@ -77,6 +145,7 @@ void GenerateDeclCpp(void) {
 
   // Define them all.
   for (const auto &name : gTopologicallyOrderedDecls) {
+    llvm::StringRef name_ref(name);
     if (name == "DeclContext") {
       continue;
     }
@@ -106,6 +175,13 @@ void GenerateDeclCpp(void) {
       os << " {}\n\n";
     }
 
+    // Constructors from derived class -> base class.
+    if (name_ref.endswith("Decl")) {
+      for (const auto &derived_class : gTransitiveDerivedClasses[name]) {
+        os << "PASTA_DEFINE_DERIVED_OPERATORS("
+           << name << ", " << derived_class << ")\n";
+      }
+    }
     DefineCppMethods(os, name, gClassIDs[name]);
   }
 

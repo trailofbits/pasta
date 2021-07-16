@@ -96,7 +96,7 @@ class Token : public PythonObject<::pasta::py::Token> {
   // Return source location information for a given token.
   BorrowedPythonPtr<SourceLocation> Location(void);
 
-  ::pasta::Token token;
+  std::optional<::pasta::Token> token;
 };
 
 // Abstraction around a Clang AST and the various data structures that need to

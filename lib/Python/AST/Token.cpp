@@ -64,19 +64,19 @@ Token::Token(void) {
 }
 
 BorrowedPythonPtr<TokenKind> Token::Kind(void) {
-  return TokenKind::New(token.Kind());
+  return TokenKind::New(token->Kind());
 }
 
 unsigned Token::Length(void) {
-  return static_cast<unsigned>(token.Data().size());
+  return static_cast<unsigned>(token->Data().size());
 }
 
 std::string_view Token::Data(void) {
-  return token.Data();
+  return token->Data();
 }
 
 BorrowedPythonPtr<SourceLocation> Token::Location(void) {
-  if (auto maybe_loc = token.FullLocation(); maybe_loc) {
+  if (auto maybe_loc = token->FullLocation(); maybe_loc) {
     return SourceLocation::New(*maybe_loc);
   } else {
     return nullptr;  // Turns into `Py_None`.

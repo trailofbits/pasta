@@ -82,31 +82,58 @@ TokenRange AST::Tokens(void) const {
 
 
 // Try to return the token at the specified location.
-std::optional<Token> ASTImpl::TokenAt(clang::SourceLocation loc) {
+Token ASTImpl::TokenAt(clang::SourceLocation loc) {
+  auto self = shared_from_this();
   if (loc.isInvalid()) {
-    return std::nullopt;
+    return Token(std::move(self));
   }
 
   // We shouldn't be getting requests with source locations in macro expansions
   // as that implies they are from the original parse of source, and not from
   // the parse of the pre-processed source.
   if (loc.isMacroID()) {
-    return std::nullopt;
+    return Token(std::move(self));
   }
 
   bool invalid = false;
   auto &sm = ci->getSourceManager();
   const auto line = sm.getSpellingLineNumber(loc, &invalid);
   if (!line || invalid || static_cast<size_t>(line) > tokens.size()) {
-    return std::nullopt;
+    return Token(std::move(self));
   }
 
-  return Token(shared_from_this(), &(tokens[line - 1u]));
+  return Token(std::move(self), &(tokens[line - 1u]));
+}
+
+// Try to return teh token range from the specified source range.
+TokenRange ASTImpl::TokenRangeFrom(clang::SourceRange range) {
+  auto self = shared_from_this();
+  auto begin = TokenAt(range.getBegin());
+  auto end = TokenAt(range.getEnd());
+
+  if (begin && end) {
+    if (begin.impl <= end.impl) {
+      return TokenRange(std::move(self), begin.impl, &(end.impl[1]));
+    } else {
+      return TokenRange(std::move(self), end.impl, &(begin.impl[1]));
+    }
+  } else if (begin) {
+    return TokenRange(std::move(self), begin.impl, &(begin.impl[1]));
+  } else if (end) {
+    return TokenRange(std::move(self), end.impl, &(end.impl[1]));
+  } else {
+    return TokenRange(std::move(self));
+  }
 }
 
 // Try to return the token at the specified location.
-std::optional<Token> AST::TokenAt(clang::SourceLocation loc) const {
+Token AST::TokenAt(clang::SourceLocation loc) const {
   return impl->TokenAt(loc);
+}
+
+// Try to return teh token range from the specified source range.
+TokenRange AST::TokenRangeFrom(clang::SourceRange range) {
+  return impl->TokenRangeFrom(range);
 }
 
 // Return a reference to the underlying Clang AST context. This is needed for

@@ -51,7 +51,8 @@ void GenerateForwardH(void) {
 
   for (const auto &name_ : gDeclNames) {
     llvm::StringRef name(name_);
-    if (name != "Decl") {
+    if (name != "Decl" && name != "OMPDeclarativeDirectiveDecl" &&
+        name != "OMPDeclarativeDirectiveValueDecl") {
       assert(name.endswith("Decl"));
       os << "  k" << name.substr(0, name.size() - 4).str() << ",\n";
     }
@@ -80,5 +81,7 @@ void GenerateForwardH(void) {
   }
 
   os
+      << "class OMPDeclarativeDirectiveDecl;\n"
+      << "class OMPDeclarativeDirectiveValueDecl;\n"
       << "}  // namespace pasta\n";
 }

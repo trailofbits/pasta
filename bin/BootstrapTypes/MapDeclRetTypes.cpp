@@ -14,7 +14,7 @@ void MapDeclRetTypes(void) {
   for (const auto &name : gDeclNames) {
     std::stringstream ss;
     ss << "(clang::" << name << " *)";
-    kRetTypeMap.emplace(ss.str(), "::pasta::" + name);
+    gRetTypeMap.emplace(ss.str(), "::pasta::" + name);
 
     std::stringstream rvs;
     rvs
@@ -26,7 +26,7 @@ void MapDeclRetTypes(void) {
     std::stringstream ss2;
     ss2 << "(const clang::" << name << " *)";
 
-    kRetTypeMap.emplace(ss2.str(), "::pasta::" + name);
+    gRetTypeMap.emplace(ss2.str(), "::pasta::" + name);
 
     std::stringstream crvs;
     crvs

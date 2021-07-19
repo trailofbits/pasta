@@ -16,7 +16,7 @@ extern void DeclareCppMethods(std::ostream &os, const std::string &class_name,
 // Generate `include/pasta/AST/Decl.h`.
 void GenerateDeclH(void) {
   std::ofstream os(kASTDeclHeader);
-
+  const std::string decl_context{"DeclContext"};
   os
       << "/*\n"
       << " * Copyright (c) 2021 Trail of Bits, Inc.\n"
@@ -26,19 +26,29 @@ void GenerateDeclH(void) {
       << "#ifdef PASTA_IN_BOOTSTRAP\n"
       << "#  include \"DeclBootstrap.h\"\n"
       << "#else\n"
+      << "#include <variant>\n"
+      << "#include <vector>\n"
       << "#include \"Forward.h\"\n\n"
+      << "#define PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(base) \\\n"
+      << "    friend class AST; \\\n"
+      << "    friend class ASTImpl; \\\n"
+      << "    friend class DeclBuilder; \\\n"
+      << "    base(void) = delete; \\\n"
+      << "    explicit base( \\\n"
+      << "        std::shared_ptr<ASTImpl> ast_, \\\n"
+      << "        const ::clang::Decl *decl_);\n\n"
       << "#define PASTA_DECLARE_DERIVED_OPERATORS(base, derived) \\\n"
-      << "      friend class derived; \\\n"
-      << "      base(const derived &that_); \\\n"
-      << "      base(derived &&that_) noexcept;  \\\n"
-      << "      base &operator=(const derived &);  \\\n"
-      << "      base &operator=(derived &&) noexcept;\n\n"
+      << "    friend class derived; \\\n"
+      << "    base(const class derived &that_); \\\n"
+      << "    base(class derived &&that_) noexcept;  \\\n"
+      << "    base &operator=(const class derived &);  \\\n"
+      << "    base &operator=(class derived &&) noexcept;\n\n"
       << "#define PASTA_DECLARE_DEFAULT_CONSTRUCTORS(cls) \\\n"
-      << "  ~cls(void) = default; \\\n"
-      << "  cls(const cls &) = default; \\\n"
-      << "  cls(cls &&) noexcept = default; \\\n"
-      << "  cls &operator=(const cls &) = default; \\\n"
-      << "  cls &operator=(cls &&) noexcept = default;\n\n"
+      << "    ~cls(void) = default; \\\n"
+      << "    cls(const cls &) = default; \\\n"
+      << "    cls(cls &&) noexcept = default; \\\n"
+      << "    cls &operator=(const cls &) = default; \\\n"
+      << "    cls &operator=(cls &&) noexcept = default;\n\n"
       << "namespace pasta {\n"
       << "class DeclContext {\n"
       << " public:\n"
@@ -49,12 +59,20 @@ void GenerateDeclH(void) {
        << derived_class << ")\n";
   }
 
+  DeclareCppMethods(os, decl_context, gClassIDs[decl_context]);
+
   os << " private:\n"
+     << "  friend class Decl;\n"
+     << "  friend class UsingDirectiveDecl;\n"
      << "  std::shared_ptr<ASTImpl> ast;\n"
-     << "  const clang::DeclContext *context;\n\n"
+     << "  union {\n"
+     << "    void *opaque;\n"
+     << "    const ::clang::DeclContext *DeclContext;\n"
+     << "  } u;\n"
      << "  inline DeclContext(std::shared_ptr<ASTImpl> ast_, const clang::DeclContext *context_)\n"
-     << "      : ast(std::move(ast_)),\n"
-     << "        context(context_) {}\n"
+     << "      : ast(std::move(ast_)) {\n"
+     << "    u.DeclContext = context_;\n"
+     << "  }\n"
      << "};\n\n";
 
   // Define them all.
@@ -131,15 +149,8 @@ void GenerateDeclH(void) {
     }
 
     os
-        << " private:\n"
-        << "  " << name << "(void) = delete;\n\n"
-        << "  friend class DeclBuilder;\n"
-        << "  friend class AST;\n"
-        << "  friend class ASTImpl;\n\n"
         << " protected:\n"
-        << "  explicit " << name << "(\n"
-        << "      std::shared_ptr<ASTImpl> ast_,\n"
-        << "      const ::clang::Decl *decl_);\n"
+        << "  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(" << name << ")\n"
         << "};\n\n";
 
     // Requiring that all derivations have the same size as the base class
@@ -157,5 +168,6 @@ void GenerateDeclH(void) {
       << "}  // namespace pasta\n"
       << "#undef PASTA_DECLARE_DERIVED_OPERATORS\n"
       << "#undef PASTA_DECLARE_DEFAULT_CONSTRUCTORS\n"
+      << "#undef PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR\n"
       << "#endif  // PASTA_IN_BOOTSTRAP\n";
 }

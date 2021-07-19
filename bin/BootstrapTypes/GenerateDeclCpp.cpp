@@ -16,6 +16,7 @@ extern void DefineCppMethods(std::ostream &os, const std::string &class_name,
 // Generate `lib/AST/Decl.cpp`.
 void GenerateDeclCpp(void) {
   std::ofstream os(kASTDeclCpp);
+  const std::string decl_context{"DeclContext"};
 
   os
       << "/*\n"
@@ -63,12 +64,12 @@ void GenerateDeclCpp(void) {
       << "      if (ast != that.ast) { \\\n"
       << "        ast = that.ast; \\\n"
       << "      } \\\n"
-      << "      context = clang::dyn_cast<clang::derived>(that.u.Decl); \\\n"
+      << "      u.DeclContext = clang::dyn_cast<clang::derived>(that.u.Decl); \\\n"
       << "      return *this; \\\n"
       << "    } \\\n"
       << "    base &base::operator=(class derived &&that) noexcept { \\\n"
       << "      ast = std::move(that.ast); \\\n"
-      << "      context = clang::dyn_cast<clang::derived>(that.u.Decl); \\\n"
+      << "      u.DeclContext = clang::dyn_cast<clang::derived>(that.u.Decl); \\\n"
       << "      return *this; \\\n"
       << "    }\n\n"
       << "#include \"AST.h\"\n\n"
@@ -82,26 +83,26 @@ void GenerateDeclCpp(void) {
       << "};\n\n";
 
   os
-      << "Decl::Decl(const DeclContext &context)\n"
-      << "   : Decl(context.ast, clang::dyn_cast<clang::Decl>(context.context)) {}\n"
+      << "Decl::Decl(const class DeclContext &context)\n"
+      << "   : Decl(context.ast, clang::dyn_cast<clang::Decl>(context.u.DeclContext)) {}\n"
       << "\n"
-      << "Decl::Decl(DeclContext &&context) noexcept\n"
-      << "   : Decl(std::move(context.ast), clang::dyn_cast<clang::Decl>(context.context)) {}\n"
+      << "Decl::Decl(class DeclContext &&context) noexcept\n"
+      << "   : Decl(std::move(context.ast), clang::dyn_cast<clang::Decl>(context.u.DeclContext)) {}\n"
       << "\n"
-      << "Decl &Decl::operator=(const DeclContext &context) {\n"
-      << " if (ast != context.ast) {\n"
-      << "   ast = context.ast;\n"
-      << " }\n"
-      << " u.Decl = clang::dyn_cast<clang::Decl>(context.context);\n"
-      << " return *this;\n"
+      << "Decl &Decl::operator=(const class DeclContext &context) {\n"
+      << "  if (ast != context.ast) {\n"
+      << "    ast = context.ast;\n"
+      << "  }\n"
+      << "  u.Decl = clang::dyn_cast<clang::Decl>(context.u.DeclContext);\n"
+      << "  return *this;\n"
       << "}\n"
       << "\n"
-      << "Decl &Decl::operator=(DeclContext &&context) noexcept {\n"
-      << " if (ast != context.ast) {\n"
-      << "   ast = std::move(context.ast);\n"
-      << " }\n"
-      << " u.Decl = clang::dyn_cast<clang::Decl>(context.context);\n"
-      << " return *this;\n"
+      << "Decl &Decl::operator=(class DeclContext &&context) noexcept {\n"
+      << "  if (ast != context.ast) {\n"
+      << "    ast = std::move(context.ast);\n"
+      << "  }\n"
+      << "  u.Decl = clang::dyn_cast<clang::Decl>(context.u.DeclContext);\n"
+      << "  return *this;\n"
       << "}\n\n";
 
   for (const auto &derived_class : gTransitiveDerivedClasses["DeclContext"]) {
@@ -142,6 +143,8 @@ void GenerateDeclCpp(void) {
       << "  return kKindNames[static_cast<unsigned>(kind)];\n"
       << "}\n\n";
 
+
+  DefineCppMethods(os, decl_context, gClassIDs[decl_context]);
 
   // Define them all.
   for (const auto &name : gTopologicallyOrderedDecls) {

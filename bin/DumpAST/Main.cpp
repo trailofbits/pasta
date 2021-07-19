@@ -3,6 +3,7 @@
  */
 
 #include <pasta/AST/AST.h>
+#include <pasta/AST/Decl.h>
 #include <pasta/Compile/Command.h>
 #include <pasta/Compile/Compiler.h>
 #include <pasta/Compile/Job.h>
@@ -14,9 +15,31 @@
 #include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <string>
+
+static std::string gIndent = "";
+
+static void DumpDecl(pasta::Decl decl) {
+  std::cerr << gIndent << decl.KindName() << "\n";
+}
+
+static void DumpContext(pasta::DeclContext dc) {
+  pasta::Decl decl(dc);
+  std::cerr << gIndent << decl.KindName() << " {\n";
+  auto old_indent = gIndent;
+  gIndent += "  ";
+
+  for (auto sub_decl : dc.AlreadyLoadedDecls()) {
+    DumpDecl(sub_decl);
+  }
+
+  gIndent.swap(old_indent);
+  std::cerr << gIndent << "}\n";
+}
 
 static void DumpAST(pasta::AST ast) {
-
+  pasta::DeclContext top_dc(ast.TranslationUnit());
+  DumpContext(top_dc);
 }
 
 int main(int argc, char *argv[]) {

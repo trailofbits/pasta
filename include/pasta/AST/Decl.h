@@ -9,21 +9,32 @@
 #ifdef PASTA_IN_BOOTSTRAP
 #  include "DeclBootstrap.h"
 #else
+#include <variant>
+#include <vector>
 #include "Forward.h"
 
+#define PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(base) \
+    friend class AST; \
+    friend class ASTImpl; \
+    friend class DeclBuilder; \
+    base(void) = delete; \
+    explicit base( \
+        std::shared_ptr<ASTImpl> ast_, \
+        const ::clang::Decl *decl_);
+
 #define PASTA_DECLARE_DERIVED_OPERATORS(base, derived) \
-      friend class derived; \
-      base(const derived &that_); \
-      base(derived &&that_) noexcept;  \
-      base &operator=(const derived &);  \
-      base &operator=(derived &&) noexcept;
+    friend class derived; \
+    base(const class derived &that_); \
+    base(class derived &&that_) noexcept;  \
+    base &operator=(const class derived &);  \
+    base &operator=(class derived &&) noexcept;
 
 #define PASTA_DECLARE_DEFAULT_CONSTRUCTORS(cls) \
-  ~cls(void) = default; \
-  cls(const cls &) = default; \
-  cls(cls &&) noexcept = default; \
-  cls &operator=(const cls &) = default; \
-  cls &operator=(cls &&) noexcept = default;
+    ~cls(void) = default; \
+    cls(const cls &) = default; \
+    cls(cls &&) noexcept = default; \
+    cls &operator=(const cls &) = default; \
+    cls &operator=(cls &&) noexcept = default;
 
 namespace pasta {
 class DeclContext {
@@ -59,13 +70,44 @@ class DeclContext {
   PASTA_DECLARE_DERIVED_OPERATORS(DeclContext, RequiresExprBodyDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(DeclContext, TagDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(DeclContext, TranslationUnitDecl)
+  // Equals: (bool)
+  std::vector<::pasta::Decl> Declarations(void) const;
+  ::pasta::DeclKind DeclKind(void) const;
+  ::pasta::DeclContext EnclosingNamespaceContext(void) const;
+  ::pasta::DeclContext LexicalParent(void) const;
+  ::pasta::DeclContext LookupParent(void) const;
+  // LookupPtr: (clang::StoredDeclsMap *)
+  ::pasta::Decl NonClosureAncestor(void) const;
+  ::pasta::RecordDecl OuterLexicalRecordContext(void) const;
+  ::pasta::DeclContext Parent(void) const;
+  // ParentASTContext: (clang::ASTContext &)
+  ::pasta::DeclContext PrimaryContext(void) const;
+  ::pasta::DeclContext RedeclContext(void) const;
+  bool HasExternalLexicalStorage(void) const;
+  bool HasExternalVisibleStorage(void) const;
+  bool IsClosure(void) const;
+  // IsDeclInLexicalTraversal: (bool)
+  bool IsFileContext(void) const;
+  bool IsFunctionOrMethod(void) const;
+  bool IsLookupContext(void) const;
+  bool IsNamespace(void) const;
+  bool IsObjCContainer(void) const;
+  bool IsRecord(void) const;
+  bool IsTranslationUnit(void) const;
+  std::vector<::pasta::Decl> AlreadyLoadedDecls(void) const;
+  bool ShouldUseQualifiedLookup(void) const;
  private:
+  friend class Decl;
+  friend class UsingDirectiveDecl;
   std::shared_ptr<ASTImpl> ast;
-  const clang::DeclContext *context;
-
+  union {
+    void *opaque;
+    const ::clang::DeclContext *DeclContext;
+  } u;
   inline DeclContext(std::shared_ptr<ASTImpl> ast_, const clang::DeclContext *context_)
-      : ast(std::move(ast_)),
-        context(context_) {}
+      : ast(std::move(ast_)) {
+    u.DeclContext = context_;
+  }
 };
 
 class Decl {
@@ -164,23 +206,23 @@ class Decl {
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, VarTemplateDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, VarTemplatePartialSpecializationDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, VarTemplateSpecializationDecl)
-  // Attrs: (llvm::iterator_range<clang::Attr *const *>)
+  // Attributes: (llvm::iterator_range<clang::Attr *const *>)
   AccessSpecifier Access(void) const;
   AccessSpecifier AccessUnsafe(void) const;
   ::pasta::FunctionDecl AsFunction(void) const;
   ::pasta::Token BeginToken(void) const;
   // Body: (clang::Stmt *)
   ::pasta::Decl CanonicalDecl(void) const;
-  // DeclContext: (const clang::DeclContext *)
+  ::pasta::DeclContext DeclContext(void) const;
   ::pasta::Token EndToken(void) const;
-  // FriendObjectKind: (clang::Decl::FriendObjectKind)
+  ::pasta::FriendObjectKind FriendObjectKind(void) const;
   uint32_t GlobalID(void) const;
   uint32_t IdentifierNamespace(void) const;
   // ImportedOwningModule: (clang::Module *)
-  // LexicalDeclContext: (const clang::DeclContext *)
+  ::pasta::DeclContext LexicalDeclContext(void) const;
   // LocalOwningModule: (clang::Module *)
   ::pasta::Token Token(void) const;
-  // ModuleOwnershipKind: (clang::Decl::ModuleOwnershipKind)
+  ::pasta::ModuleOwnershipKind ModuleOwnershipKind(void) const;
   ::pasta::Decl MostRecentDecl(void) const;
   ::pasta::Decl NextDeclInContext(void) const;
   ::pasta::Decl NonClosureContext(void) const;
@@ -189,7 +231,7 @@ class Decl {
   ::pasta::Decl PreviousDecl(void) const;
   ::pasta::TokenRange TokenRange(void) const;
   ::pasta::TranslationUnitDecl TranslationUnitDecl(void) const;
-  bool HasAttrs(void) const;
+  bool HasAttributes(void) const;
   bool HasBody(void) const;
   bool HasOwningModule(void) const;
   bool HasTagIdentifierNamespace(void) const;
@@ -208,7 +250,7 @@ class Decl {
   bool IsTopLevelDeclInObjCContainer(void) const;
   bool IsUnavailable(void) const;
   bool IsUnconditionallyVisible(void) const;
-  // Redecls: (llvm::iterator_range<clang::Decl::redecl_iterator>)
+  std::vector<::pasta::Decl> Redeclarations(void) const;
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, DeclContext)
 
   inline DeclKind Kind(void) const {
@@ -329,33 +371,15 @@ class Decl {
     u.Decl = decl_;
   }
 
- private:
-  Decl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit Decl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(Decl)
 };
 
 class EmptyDecl : public Decl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(EmptyDecl)
- private:
-  EmptyDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit EmptyDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(EmptyDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(EmptyDecl));
@@ -368,17 +392,8 @@ class ExportDecl : public Decl {
   ::pasta::Token RBraceToken(void) const;
   ::pasta::TokenRange TokenRange(void) const;
   bool HasBraces(void) const;
- private:
-  ExportDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit ExportDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ExportDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ExportDecl));
@@ -386,17 +401,8 @@ static_assert(sizeof(Decl) == sizeof(ExportDecl));
 class ExternCContextDecl : public Decl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ExternCContextDecl)
- private:
-  ExternCContextDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit ExternCContextDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ExternCContextDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ExternCContextDecl));
@@ -408,17 +414,8 @@ class FileScopeAsmDecl : public Decl {
   // AsmString: (const clang::StringLiteral *)
   ::pasta::Token RParenToken(void) const;
   ::pasta::TokenRange TokenRange(void) const;
- private:
-  FileScopeAsmDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit FileScopeAsmDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(FileScopeAsmDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(FileScopeAsmDecl));
@@ -433,17 +430,8 @@ class FriendDecl : public Decl {
   // FriendTypeTemplateParameterList: (clang::TemplateParameterList *)
   ::pasta::TokenRange TokenRange(void) const;
   bool IsUnsupportedFriend(void) const;
- private:
-  FriendDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit FriendDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(FriendDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(FriendDecl));
@@ -456,17 +444,8 @@ class FriendTemplateDecl : public Decl {
   // FriendType: (clang::TypeSourceInfo *)
   uint32_t NumTemplateParameters(void) const;
   // TemplateParameterList: (clang::TemplateParameterList *)
- private:
-  FriendTemplateDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit FriendTemplateDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(FriendTemplateDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(FriendTemplateDecl));
@@ -475,17 +454,8 @@ class ImportDecl : public Decl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ImportDecl)
   // ImportedModule: (clang::Module *)
- private:
-  ImportDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit ImportDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ImportDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ImportDecl));
@@ -498,17 +468,8 @@ class LifetimeExtendedTemporaryDecl : public Decl {
   uint32_t ManglingNumber(void) const;
   // TemporaryExpr: (const clang::Expr *)
   // Value: (clang::APValue *)
- private:
-  LifetimeExtendedTemporaryDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit LifetimeExtendedTemporaryDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(LifetimeExtendedTemporaryDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(LifetimeExtendedTemporaryDecl));
@@ -518,21 +479,12 @@ class LinkageSpecDecl : public Decl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(LinkageSpecDecl)
   ::pasta::Token EndToken(void) const;
   ::pasta::Token ExternToken(void) const;
-  // Language: (clang::LinkageSpecDecl::LanguageIDs)
+  ::pasta::LanguageIDs Language(void) const;
   ::pasta::Token RBraceToken(void) const;
   ::pasta::TokenRange TokenRange(void) const;
   bool HasBraces(void) const;
- private:
-  LinkageSpecDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit LinkageSpecDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(LinkageSpecDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(LinkageSpecDecl));
@@ -622,17 +574,8 @@ class NamedDecl : public Decl {
   bool IsCXXClassMember(void) const;
   bool IsExternallyDeclarable(void) const;
   bool IsExternallyVisible(void) const;
- private:
-  NamedDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit NamedDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(NamedDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(NamedDecl));
@@ -649,17 +592,8 @@ class NamespaceAliasDecl : public NamedDecl {
   // QualifierToken: (clang::NestedNameSpecifierLoc)
   ::pasta::TokenRange TokenRange(void) const;
   ::pasta::Token TargetNameToken(void) const;
- private:
-  NamespaceAliasDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit NamespaceAliasDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(NamespaceAliasDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(NamespaceAliasDecl));
@@ -674,17 +608,8 @@ class NamespaceDecl : public NamedDecl {
   ::pasta::TokenRange TokenRange(void) const;
   bool IsAnonymousNamespace(void) const;
   bool IsInline(void) const;
- private:
-  NamespaceDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit NamespaceDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(NamespaceDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(NamespaceDecl));
@@ -693,17 +618,8 @@ class ObjCCompatibleAliasDecl : public NamedDecl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCCompatibleAliasDecl)
   ::pasta::ObjCInterfaceDecl ClassInterface(void) const;
- private:
-  ObjCCompatibleAliasDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit ObjCCompatibleAliasDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCCompatibleAliasDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCCompatibleAliasDecl));
@@ -717,29 +633,20 @@ class ObjCContainerDecl : public NamedDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(ObjCContainerDecl, ObjCImplementationDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(ObjCContainerDecl, ObjCInterfaceDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(ObjCContainerDecl, ObjCProtocolDecl)
-  // Class_methods: (llvm::iterator_range<clang::DeclContext::filtered_decl_iterator<clang::ObjCMethodDecl, &clang::ObjCMethodDecl::isClassMethod>>)
-  // Class_properties: (llvm::iterator_range<clang::DeclContext::filtered_decl_iterator<clang::ObjCPropertyDecl, &clang::ObjCPropertyDecl::isClassProperty>>)
+  std::vector<::pasta::ObjCMethodDecl> ClassMethods(void) const;
+  std::vector<::pasta::ObjCPropertyDecl> ClassProperties(void) const;
   // CollectPropertiesToImplement: (void)
   ::pasta::TokenRange AtEndRange(void) const;
   ::pasta::Token AtStartToken(void) const;
   // ClassMethod: (clang::ObjCMethodDecl *)
   // InstanceMethod: (clang::ObjCMethodDecl *)
   ::pasta::TokenRange TokenRange(void) const;
-  // Instance_methods: (llvm::iterator_range<clang::DeclContext::filtered_decl_iterator<clang::ObjCMethodDecl, &clang::ObjCMethodDecl::isInstanceMethod>>)
-  // Instance_properties: (llvm::iterator_range<clang::DeclContext::filtered_decl_iterator<clang::ObjCPropertyDecl, &clang::ObjCPropertyDecl::isInstanceProperty>>)
-  // Methods: (llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::ObjCMethodDecl>>)
-  // Properties: (llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::ObjCPropertyDecl>>)
- private:
-  ObjCContainerDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
+  std::vector<::pasta::ObjCMethodDecl> InstanceMethods(void) const;
+  std::vector<::pasta::ObjCPropertyDecl> InstanceProperties(void) const;
+  std::vector<::pasta::ObjCMethodDecl> Methods(void) const;
+  std::vector<::pasta::ObjCPropertyDecl> Properties(void) const;
  protected:
-  explicit ObjCContainerDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCContainerDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCContainerDecl));
@@ -750,18 +657,9 @@ class ObjCImplDecl : public ObjCContainerDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(ObjCImplDecl, ObjCCategoryImplDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(ObjCImplDecl, ObjCImplementationDecl)
   ::pasta::ObjCInterfaceDecl ClassInterface(void) const;
-  // Property_impls: (llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::ObjCPropertyImplDecl>>)
- private:
-  ObjCImplDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
+  std::vector<::pasta::ObjCPropertyImplDecl> PropertyImplementations(void) const;
  protected:
-  explicit ObjCImplDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCImplDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCImplDecl));
@@ -779,19 +677,10 @@ class ObjCImplementationDecl : public ObjCImplDecl {
   ::pasta::Token SuperClassToken(void) const;
   bool HasDestructors(void) const;
   bool HasNonZeroConstructors(void) const;
-  // Inits: (llvm::iterator_range<clang::CXXCtorInitializer *const *>)
-  // Ivars: (llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::ObjCIvarDecl>>)
- private:
-  ObjCImplementationDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
+  // Initializers: (llvm::iterator_range<clang::CXXCtorInitializer *const *>)
+  std::vector<::pasta::ObjCIvarDecl> InstanceVariables(void) const;
  protected:
-  explicit ObjCImplementationDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCImplementationDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCImplementationDecl));
@@ -799,7 +688,7 @@ static_assert(sizeof(Decl) == sizeof(ObjCImplementationDecl));
 class ObjCInterfaceDecl : public ObjCContainerDecl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCInterfaceDecl)
-  // All_referenced_protocols: (llvm::iterator_range<clang::ObjCProtocolDecl *const *>)
+  std::vector<::pasta::ObjCProtocolDecl> AllReferencedProtocols(void) const;
   bool DeclaresOrInheritsDesignatedInitializers(void) const;
   ::pasta::ObjCInterfaceDecl CanonicalDecl(void) const;
   ::pasta::ObjCCategoryDecl CategoryListRaw(void) const;
@@ -816,27 +705,18 @@ class ObjCInterfaceDecl : public ObjCContainerDecl {
   bool IsImplicitInterfaceDecl(void) const;
   // IsSuperClassOf: (bool)
   bool IsThisDeclarationADefinition(void) const;
-  // Ivars: (llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::ObjCIvarDecl>>)
-  // Known_categories: (llvm::iterator_range<clang::ObjCInterfaceDecl::filtered_category_iterator<&clang::ObjCInterfaceDecl::isKnownCategory>>)
-  // Known_extensions: (llvm::iterator_range<clang::ObjCInterfaceDecl::filtered_category_iterator<&clang::ObjCInterfaceDecl::isKnownExtension>>)
+  std::vector<::pasta::ObjCIvarDecl> InstanceVariables(void) const;
+  std::vector<::pasta::ObjCCategoryDecl> KnownCategories(void) const;
+  std::vector<::pasta::ObjCCategoryDecl> KnownExtensions(void) const;
   // LookupClassMethod: (clang::ObjCMethodDecl *)
   // LookupInstanceMethod: (clang::ObjCMethodDecl *)
   // LookupPropertyAccessor: (clang::ObjCMethodDecl *)
-  // Protocol_locs: (llvm::iterator_range<const clang::SourceLocation *>)
-  // Protocols: (llvm::iterator_range<clang::ObjCProtocolDecl *const *>)
-  // Visible_categories: (llvm::iterator_range<clang::ObjCInterfaceDecl::filtered_category_iterator<&clang::ObjCInterfaceDecl::isVisibleCategory>>)
-  // Visible_extensions: (llvm::iterator_range<clang::ObjCInterfaceDecl::filtered_category_iterator<&clang::ObjCInterfaceDecl::isVisibleExtension>>)
- private:
-  ObjCInterfaceDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
+  std::vector<::pasta::Token> ProtocolLocations(void) const;
+  std::vector<::pasta::ObjCProtocolDecl> Protocols(void) const;
+  std::vector<::pasta::ObjCCategoryDecl> VisibleCategories(void) const;
+  std::vector<::pasta::ObjCCategoryDecl> VisibleExtensions(void) const;
  protected:
-  explicit ObjCInterfaceDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCInterfaceDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCInterfaceDecl));
@@ -850,7 +730,7 @@ class ObjCMethodDecl : public NamedDecl {
   ::pasta::ObjCInterfaceDecl ClassInterface(void) const;
   ::pasta::ImplicitParamDecl CmdDecl(void) const;
   ::pasta::Token DeclaratorEndToken(void) const;
-  // ImplementationControl: (clang::ObjCMethodDecl::ImplementationControl)
+  ::pasta::ImplementationControl ImplementationControl(void) const;
   uint32_t NumSelectorLocs(void) const;
   // ObjCDeclQualifier: (clang::Decl::ObjCDeclQualifier)
   // ParamDecl: (const clang::ParmVarDecl *)
@@ -875,18 +755,9 @@ class ObjCMethodDecl : public NamedDecl {
   bool IsSynthesizedAccessorStub(void) const;
   bool IsThisDeclarationADefinition(void) const;
   bool IsVariadic(void) const;
-  // Parameters: (llvm::ArrayRef<clang::ParmVarDecl *>)
- private:
-  ObjCMethodDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
+  std::vector<::pasta::ParmVarDecl> Parameters(void) const;
  protected:
-  explicit ObjCMethodDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCMethodDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCMethodDecl));
@@ -901,10 +772,10 @@ class ObjCPropertyDecl : public NamedDecl {
   ::pasta::Token LParenToken(void) const;
   // PropertyAttributes: (clang::ObjCPropertyAttribute::Kind)
   // PropertyAttributesAsWritten: (clang::ObjCPropertyAttribute::Kind)
-  // PropertyImplementation: (clang::ObjCPropertyDecl::PropertyControl)
+  ::pasta::PropertyControl PropertyImplementation(void) const;
   ::pasta::ObjCIvarDecl PropertyIvarDecl(void) const;
   ObjCPropertyQueryKind QueryKind(void) const;
-  // SetterKind: (clang::ObjCPropertyDecl::SetterKind)
+  ::pasta::SetterKind SetterKind(void) const;
   ::pasta::ObjCMethodDecl SetterMethodDecl(void) const;
   // SetterName: (clang::Selector)
   ::pasta::Token SetterNameToken(void) const;
@@ -918,17 +789,8 @@ class ObjCPropertyDecl : public NamedDecl {
   bool IsOptional(void) const;
   bool IsReadOnly(void) const;
   bool IsRetaining(void) const;
- private:
-  ObjCPropertyDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit ObjCPropertyDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCPropertyDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCPropertyDecl));
@@ -946,17 +808,8 @@ class ObjCPropertyImplDecl : public Decl {
   // SetterCXXAssignment: (clang::Expr *)
   ::pasta::ObjCMethodDecl SetterMethodDecl(void) const;
   bool IsIvarNameSpecified(void) const;
- private:
-  ObjCPropertyImplDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit ObjCPropertyImplDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCPropertyImplDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCPropertyImplDecl));
@@ -972,19 +825,10 @@ class ObjCProtocolDecl : public ObjCContainerDecl {
   bool IsThisDeclarationADefinition(void) const;
   // LookupClassMethod: (clang::ObjCMethodDecl *)
   // LookupInstanceMethod: (clang::ObjCMethodDecl *)
-  // Protocol_locs: (llvm::iterator_range<const clang::SourceLocation *>)
-  // Protocols: (llvm::iterator_range<clang::ObjCProtocolDecl *const *>)
- private:
-  ObjCProtocolDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
+  std::vector<::pasta::Token> ProtocolLocations(void) const;
+  std::vector<::pasta::ObjCProtocolDecl> Protocols(void) const;
  protected:
-  explicit ObjCProtocolDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCProtocolDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCProtocolDecl));
@@ -994,17 +838,8 @@ class PragmaCommentDecl : public Decl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PragmaCommentDecl)
   std::string_view Arg(void) const;
   PragmaMSCommentKind CommentKind(void) const;
- private:
-  PragmaCommentDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit PragmaCommentDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(PragmaCommentDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(PragmaCommentDecl));
@@ -1014,17 +849,8 @@ class PragmaDetectMismatchDecl : public Decl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PragmaDetectMismatchDecl)
   std::string_view Name(void) const;
   std::string_view Value(void) const;
- private:
-  PragmaDetectMismatchDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit PragmaDetectMismatchDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(PragmaDetectMismatchDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(PragmaDetectMismatchDecl));
@@ -1032,17 +858,8 @@ static_assert(sizeof(Decl) == sizeof(PragmaDetectMismatchDecl));
 class RequiresExprBodyDecl : public Decl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(RequiresExprBodyDecl)
- private:
-  RequiresExprBodyDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit RequiresExprBodyDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(RequiresExprBodyDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(RequiresExprBodyDecl));
@@ -1055,17 +872,8 @@ class StaticAssertDecl : public Decl {
   ::pasta::Token RParenToken(void) const;
   ::pasta::TokenRange TokenRange(void) const;
   bool IsFailed(void) const;
- private:
-  StaticAssertDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit StaticAssertDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(StaticAssertDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(StaticAssertDecl));
@@ -1084,17 +892,8 @@ class TemplateDecl : public NamedDecl {
   ::pasta::TokenRange TokenRange(void) const;
   // TemplateParameters: (clang::TemplateParameterList *)
   ::pasta::NamedDecl TemplatedDecl(void) const;
- private:
-  TemplateDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit TemplateDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TemplateDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(TemplateDecl));
@@ -1112,17 +911,8 @@ class TemplateTemplateParmDecl : public TemplateDecl {
   bool IsExpandedParameterPack(void) const;
   bool IsPackExpansion(void) const;
   bool IsParameterPack(void) const;
- private:
-  TemplateTemplateParmDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit TemplateTemplateParmDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TemplateTemplateParmDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(TemplateTemplateParmDecl));
@@ -1132,17 +922,8 @@ class TranslationUnitDecl : public Decl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TranslationUnitDecl)
   // ASTContext: (clang::ASTContext &)
   ::pasta::NamespaceDecl AnonymousNamespace(void) const;
- private:
-  TranslationUnitDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit TranslationUnitDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TranslationUnitDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(TranslationUnitDecl));
@@ -1165,17 +946,8 @@ class TypeDecl : public NamedDecl {
   ::pasta::Token BeginToken(void) const;
   ::pasta::TokenRange TokenRange(void) const;
   // TypeForDecl: (const clang::Type *)
- private:
-  TypeDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit TypeDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TypeDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(TypeDecl));
@@ -1191,17 +963,8 @@ class TypedefNameDecl : public TypeDecl {
   // UnderlyingType: (clang::QualType)
   bool IsModed(void) const;
   bool IsTransparentTag(void) const;
- private:
-  TypedefNameDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit TypedefNameDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TypedefNameDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(TypedefNameDecl));
@@ -1217,17 +980,8 @@ class UnresolvedUsingTypenameDecl : public TypeDecl {
   ::pasta::Token TypenameToken(void) const;
   ::pasta::Token UsingToken(void) const;
   bool IsPackExpansion(void) const;
- private:
-  UnresolvedUsingTypenameDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit UnresolvedUsingTypenameDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(UnresolvedUsingTypenameDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(UnresolvedUsingTypenameDecl));
@@ -1242,18 +996,9 @@ class UsingDecl : public NamedDecl {
   ::pasta::Token UsingToken(void) const;
   bool HasTypename(void) const;
   bool IsAccessDeclaration(void) const;
-  // Shadows: (llvm::iterator_range<clang::UsingDecl::shadow_iterator>)
- private:
-  UsingDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
+  std::vector<::pasta::UsingShadowDecl> Shadows(void) const;
  protected:
-  explicit UsingDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(UsingDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(UsingDecl));
@@ -1261,7 +1006,7 @@ static_assert(sizeof(Decl) == sizeof(UsingDecl));
 class UsingDirectiveDecl : public NamedDecl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UsingDirectiveDecl)
-  // CommonAncestor: (const clang::DeclContext *)
+  ::pasta::DeclContext CommonAncestor(void) const;
   ::pasta::Token IdentLocation(void) const;
   ::pasta::Token NamespaceKeyLocation(void) const;
   ::pasta::NamespaceDecl NominatedNamespace(void) const;
@@ -1270,17 +1015,8 @@ class UsingDirectiveDecl : public NamedDecl {
   // QualifierToken: (clang::NestedNameSpecifierLoc)
   ::pasta::TokenRange TokenRange(void) const;
   ::pasta::Token UsingToken(void) const;
- private:
-  UsingDirectiveDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit UsingDirectiveDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(UsingDirectiveDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(UsingDirectiveDecl));
@@ -1288,21 +1024,12 @@ static_assert(sizeof(Decl) == sizeof(UsingDirectiveDecl));
 class UsingPackDecl : public NamedDecl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UsingPackDecl)
-  // Expansions: (llvm::ArrayRef<clang::NamedDecl *>)
+  std::vector<::pasta::NamedDecl> Expansions(void) const;
   ::pasta::UsingPackDecl CanonicalDecl(void) const;
   ::pasta::NamedDecl InstantiatedFromUsingDecl(void) const;
   ::pasta::TokenRange TokenRange(void) const;
- private:
-  UsingPackDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit UsingPackDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(UsingPackDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(UsingPackDecl));
@@ -1314,17 +1041,8 @@ class UsingShadowDecl : public NamedDecl {
   ::pasta::UsingShadowDecl CanonicalDecl(void) const;
   ::pasta::UsingShadowDecl NextUsingShadowDecl(void) const;
   ::pasta::NamedDecl TargetDecl(void) const;
- private:
-  UsingShadowDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit UsingShadowDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(UsingShadowDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(UsingShadowDecl));
@@ -1361,17 +1079,8 @@ class ValueDecl : public NamedDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(ValueDecl, VarTemplatePartialSpecializationDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueDecl, VarTemplateSpecializationDecl)
   // Type: (clang::QualType)
- private:
-  ValueDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit ValueDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ValueDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ValueDecl));
@@ -1382,17 +1091,8 @@ class OMPDeclarativeDirectiveDecl : public Decl {
   PASTA_DECLARE_DERIVED_OPERATORS(OMPDeclarativeDirectiveDecl, OMPAllocateDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPDeclarativeDirectiveDecl, OMPRequiresDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPDeclarativeDirectiveDecl, OMPThreadPrivateDecl)
- private:
-  OMPDeclarativeDirectiveDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit OMPDeclarativeDirectiveDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(OMPDeclarativeDirectiveDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(OMPDeclarativeDirectiveDecl));
@@ -1401,17 +1101,8 @@ class OMPDeclarativeDirectiveValueDecl : public ValueDecl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPDeclarativeDirectiveValueDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPDeclarativeDirectiveValueDecl, OMPDeclareMapperDecl)
- private:
-  OMPDeclarativeDirectiveValueDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit OMPDeclarativeDirectiveValueDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(OMPDeclarativeDirectiveValueDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(OMPDeclarativeDirectiveValueDecl));
@@ -1422,17 +1113,8 @@ class AccessSpecDecl : public Decl {
   ::pasta::Token AccessSpecifierToken(void) const;
   ::pasta::Token ColonToken(void) const;
   ::pasta::TokenRange TokenRange(void) const;
- private:
-  AccessSpecDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit AccessSpecDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(AccessSpecDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(AccessSpecDecl));
@@ -1441,17 +1123,8 @@ class BindingDecl : public ValueDecl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(BindingDecl)
   // Binding: (clang::Expr *)
- private:
-  BindingDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit BindingDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(BindingDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(BindingDecl));
@@ -1476,18 +1149,9 @@ class BlockDecl : public Decl {
   bool HasCaptures(void) const;
   bool IsConversionFromLambda(void) const;
   bool IsVariadic(void) const;
-  // Parameters: (llvm::ArrayRef<clang::ParmVarDecl *>)
- private:
-  BlockDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
+  std::vector<::pasta::ParmVarDecl> Parameters(void) const;
  protected:
-  explicit BlockDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(BlockDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(BlockDecl));
@@ -1497,17 +1161,8 @@ class BuiltinTemplateDecl : public TemplateDecl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(BuiltinTemplateDecl)
   // BuiltinTemplateKind: (clang::BuiltinTemplateKind)
   ::pasta::TokenRange TokenRange(void) const;
- private:
-  BuiltinTemplateDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit BuiltinTemplateDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(BuiltinTemplateDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(BuiltinTemplateDecl));
@@ -1519,18 +1174,9 @@ class CapturedDecl : public Decl {
   uint32_t ContextParamPosition(void) const;
   uint32_t NumParams(void) const;
   // Param: (clang::ImplicitParamDecl *)
-  // Parameters: (llvm::ArrayRef<clang::ImplicitParamDecl *>)
- private:
-  CapturedDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
+  std::vector<::pasta::ImplicitParamDecl> Parameters(void) const;
  protected:
-  explicit CapturedDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CapturedDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(CapturedDecl));
@@ -1541,17 +1187,8 @@ class ClassScopeFunctionSpecializationDecl : public Decl {
   ::pasta::CXXMethodDecl Specialization(void) const;
   // TemplateArgsAsWritten: (const clang::ASTTemplateArgumentListInfo *)
   bool HasExplicitTemplateArgs(void) const;
- private:
-  ClassScopeFunctionSpecializationDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit ClassScopeFunctionSpecializationDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ClassScopeFunctionSpecializationDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ClassScopeFunctionSpecializationDecl));
@@ -1563,17 +1200,8 @@ class ConceptDecl : public TemplateDecl {
   // ConstraintExpr: (clang::Expr *)
   ::pasta::TokenRange TokenRange(void) const;
   bool IsTypeConcept(void) const;
- private:
-  ConceptDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit ConceptDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ConceptDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ConceptDecl));
@@ -1586,17 +1214,8 @@ class ConstructorUsingShadowDecl : public UsingShadowDecl {
   ::pasta::ConstructorUsingShadowDecl ConstructedBaseClassShadowDecl(void) const;
   ::pasta::ConstructorUsingShadowDecl NominatedBaseClassShadowDecl(void) const;
   ::pasta::CXXRecordDecl Parent(void) const;
- private:
-  ConstructorUsingShadowDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit ConstructorUsingShadowDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ConstructorUsingShadowDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ConstructorUsingShadowDecl));
@@ -1630,17 +1249,8 @@ class DeclaratorDecl : public ValueDecl {
   // TemplateParameterList: (clang::TemplateParameterList *)
   // TrailingRequiresClause: (const clang::Expr *)
   // TypeSourceInfo: (clang::TypeSourceInfo *)
- private:
-  DeclaratorDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit DeclaratorDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(DeclaratorDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(DeclaratorDecl));
@@ -1651,17 +1261,8 @@ class EnumConstantDecl : public ValueDecl {
   ::pasta::EnumConstantDecl CanonicalDecl(void) const;
   // InitExpr: (const clang::Expr *)
   // InitVal: (const llvm::APSInt &)
- private:
-  EnumConstantDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit EnumConstantDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(EnumConstantDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(EnumConstantDecl));
@@ -1682,17 +1283,8 @@ class FieldDecl : public DeclaratorDecl {
   bool IsBitField(void) const;
   bool IsMutable(void) const;
   bool IsUnnamedBitfield(void) const;
- private:
-  FieldDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit FieldDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(FieldDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(FieldDecl));
@@ -1747,20 +1339,11 @@ class FunctionDecl : public DeclaratorDecl {
   bool IsTrivialForCall(void) const;
   bool IsUserProvided(void) const;
   bool IsVirtualAsWritten(void) const;
-  // Parameters: (llvm::ArrayRef<clang::ParmVarDecl *>)
+  std::vector<::pasta::ParmVarDecl> Parameters(void) const;
   bool UsesSEHTry(void) const;
   bool WillHaveBody(void) const;
- private:
-  FunctionDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit FunctionDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(FunctionDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(FunctionDecl));
@@ -1768,22 +1351,13 @@ static_assert(sizeof(Decl) == sizeof(FunctionDecl));
 class IndirectFieldDecl : public ValueDecl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(IndirectFieldDecl)
-  // Chain: (llvm::ArrayRef<clang::NamedDecl *>)
+  std::vector<::pasta::NamedDecl> Chain(void) const;
   ::pasta::FieldDecl AnonField(void) const;
   ::pasta::IndirectFieldDecl CanonicalDecl(void) const;
   uint32_t ChainingSize(void) const;
   ::pasta::VarDecl VarDecl(void) const;
- private:
-  IndirectFieldDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit IndirectFieldDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(IndirectFieldDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(IndirectFieldDecl));
@@ -1797,17 +1371,8 @@ class LabelDecl : public NamedDecl {
   bool IsGnuLocal(void) const;
   bool IsMSAsmLabel(void) const;
   bool IsResolvedMSAsmLabel(void) const;
- private:
-  LabelDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit LabelDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(LabelDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(LabelDecl));
@@ -1816,17 +1381,8 @@ class MSGuidDecl : public ValueDecl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MSGuidDecl)
   // Parts: (clang::MSGuidDeclParts)
- private:
-  MSGuidDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit MSGuidDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(MSGuidDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(MSGuidDecl));
@@ -1838,17 +1394,8 @@ class MSPropertyDecl : public DeclaratorDecl {
   // SetterId: (clang::IdentifierInfo *)
   bool HasGetter(void) const;
   bool HasSetter(void) const;
- private:
-  MSPropertyDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit MSPropertyDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(MSPropertyDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(MSPropertyDecl));
@@ -1869,17 +1416,8 @@ class NonTypeTemplateParmDecl : public DeclaratorDecl {
   bool IsExpandedParameterPack(void) const;
   bool IsPackExpansion(void) const;
   bool IsParameterPack(void) const;
- private:
-  NonTypeTemplateParmDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit NonTypeTemplateParmDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(NonTypeTemplateParmDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(NonTypeTemplateParmDecl));
@@ -1889,17 +1427,8 @@ class OMPAllocateDecl : public OMPDeclarativeDirectiveDecl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPAllocateDecl)
   // Clauses: (llvm::iterator_range<const clang::OMPClause *const *>)
   // Varlists: (llvm::iterator_range<const clang::Expr *const *>)
- private:
-  OMPAllocateDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit OMPAllocateDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(OMPAllocateDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(OMPAllocateDecl));
@@ -1909,17 +1438,8 @@ class OMPDeclareMapperDecl : public OMPDeclarativeDirectiveValueDecl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPDeclareMapperDecl)
   // Clauses: (llvm::iterator_range<const clang::OMPClause *const *>)
   // MapperVarRef: (const clang::Expr *)
- private:
-  OMPDeclareMapperDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit OMPDeclareMapperDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(OMPDeclareMapperDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(OMPDeclareMapperDecl));
@@ -1934,17 +1454,8 @@ class OMPDeclareReductionDecl : public ValueDecl {
   // InitPriv: (const clang::Expr *)
   // Initializer: (const clang::Expr *)
   // InitializerKind: (clang::OMPDeclareReductionDecl::InitKind)
- private:
-  OMPDeclareReductionDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit OMPDeclareReductionDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(OMPDeclareReductionDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(OMPDeclareReductionDecl));
@@ -1953,17 +1464,8 @@ class OMPRequiresDecl : public OMPDeclarativeDirectiveDecl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPRequiresDecl)
   // Clauses: (llvm::iterator_range<const clang::OMPClause *const *>)
- private:
-  OMPRequiresDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit OMPRequiresDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(OMPRequiresDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(OMPRequiresDecl));
@@ -1972,17 +1474,8 @@ class OMPThreadPrivateDecl : public OMPDeclarativeDirectiveDecl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPThreadPrivateDecl)
   // Varlists: (llvm::iterator_range<const clang::Expr *const *>)
- private:
-  OMPThreadPrivateDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit OMPThreadPrivateDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(OMPThreadPrivateDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(OMPThreadPrivateDecl));
@@ -1990,17 +1483,8 @@ static_assert(sizeof(Decl) == sizeof(OMPThreadPrivateDecl));
 class ObjCAtDefsFieldDecl : public FieldDecl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCAtDefsFieldDecl)
- private:
-  ObjCAtDefsFieldDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit ObjCAtDefsFieldDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCAtDefsFieldDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCAtDefsFieldDecl));
@@ -2017,20 +1501,11 @@ class ObjCCategoryDecl : public ObjCContainerDecl {
   ::pasta::ObjCCategoryDecl NextClassCategoryRaw(void) const;
   // ReferencedProtocols: (const clang::ObjCProtocolList &)
   // TypeParamList: (clang::ObjCTypeParamList *)
-  // Ivars: (llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::ObjCIvarDecl>>)
-  // Protocol_locs: (llvm::iterator_range<const clang::SourceLocation *>)
-  // Protocols: (llvm::iterator_range<clang::ObjCProtocolDecl *const *>)
- private:
-  ObjCCategoryDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
+  std::vector<::pasta::ObjCIvarDecl> InstanceVariables(void) const;
+  std::vector<::pasta::Token> ProtocolLocations(void) const;
+  std::vector<::pasta::ObjCProtocolDecl> Protocols(void) const;
  protected:
-  explicit ObjCCategoryDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCCategoryDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCCategoryDecl));
@@ -2039,17 +1514,8 @@ class ObjCCategoryImplDecl : public ObjCImplDecl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCCategoryImplDecl)
   ::pasta::Token CategoryNameToken(void) const;
- private:
-  ObjCCategoryImplDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit ObjCCategoryImplDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCCategoryImplDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCCategoryImplDecl));
@@ -2061,17 +1527,8 @@ class ObjCIvarDecl : public FieldDecl {
   // CanonicalAccessControl: (clang::ObjCIvarDecl::AccessControl)
   ::pasta::ObjCIvarDecl NextIvar(void) const;
   bool Synthesize(void) const;
- private:
-  ObjCIvarDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit ObjCIvarDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCIvarDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCIvarDecl));
@@ -2084,17 +1541,8 @@ class ObjCTypeParamDecl : public TypedefNameDecl {
   ObjCTypeParamVariance Variance(void) const;
   ::pasta::Token VarianceToken(void) const;
   bool HasExplicitBound(void) const;
- private:
-  ObjCTypeParamDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit ObjCTypeParamDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCTypeParamDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ObjCTypeParamDecl));
@@ -2109,17 +1557,8 @@ class RedeclarableTemplateDecl : public TemplateDecl {
   ::pasta::RedeclarableTemplateDecl CanonicalDecl(void) const;
   ::pasta::RedeclarableTemplateDecl InstantiatedFromMemberTemplate(void) const;
   bool IsMemberSpecialization(void) const;
- private:
-  RedeclarableTemplateDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit RedeclarableTemplateDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(RedeclarableTemplateDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(RedeclarableTemplateDecl));
@@ -2156,17 +1595,8 @@ class TagDecl : public TypeDecl {
   bool IsThisDeclarationADefinition(void) const;
   bool IsUnion(void) const;
   bool MayHaveOutOfDateDef(void) const;
- private:
-  TagDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit TagDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TagDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(TagDecl));
@@ -2176,17 +1606,8 @@ class TemplateParamObjectDecl : public ValueDecl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TemplateParamObjectDecl)
   ::pasta::TemplateParamObjectDecl CanonicalDecl(void) const;
   // Value: (const clang::APValue &)
- private:
-  TemplateParamObjectDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit TemplateParamObjectDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TemplateParamObjectDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(TemplateParamObjectDecl));
@@ -2206,17 +1627,8 @@ class TemplateTypeParmDecl : public TypeDecl {
   bool IsExpandedParameterPack(void) const;
   bool IsPackExpansion(void) const;
   bool WasDeclaredWithTypename(void) const;
- private:
-  TemplateTypeParmDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit TemplateTypeParmDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TemplateTypeParmDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(TemplateTypeParmDecl));
@@ -2225,17 +1637,8 @@ class TypeAliasDecl : public TypedefNameDecl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TypeAliasDecl)
   ::pasta::TypeAliasTemplateDecl DescribedAliasTemplate(void) const;
- private:
-  TypeAliasDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit TypeAliasDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TypeAliasDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(TypeAliasDecl));
@@ -2247,17 +1650,8 @@ class TypeAliasTemplateDecl : public RedeclarableTemplateDecl {
   ::pasta::TypeAliasTemplateDecl InstantiatedFromMemberTemplate(void) const;
   ::pasta::TypeAliasTemplateDecl PreviousDecl(void) const;
   ::pasta::TypeAliasDecl TemplatedDecl(void) const;
- private:
-  TypeAliasTemplateDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit TypeAliasTemplateDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TypeAliasTemplateDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(TypeAliasTemplateDecl));
@@ -2265,17 +1659,8 @@ static_assert(sizeof(Decl) == sizeof(TypeAliasTemplateDecl));
 class TypedefDecl : public TypedefNameDecl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TypedefDecl)
- private:
-  TypedefDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit TypedefDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TypedefDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(TypedefDecl));
@@ -2291,17 +1676,8 @@ class UnresolvedUsingValueDecl : public ValueDecl {
   ::pasta::Token UsingToken(void) const;
   bool IsAccessDeclaration(void) const;
   bool IsPackExpansion(void) const;
- private:
-  UnresolvedUsingValueDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit UnresolvedUsingValueDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(UnresolvedUsingValueDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(UnresolvedUsingValueDecl));
@@ -2347,17 +1723,8 @@ class VarDecl : public DeclaratorDecl {
   bool IsStaticLocal(void) const;
   // IsThisDeclarationADefinition: (clang::VarDecl::DefinitionKind)
   bool IsThisDeclarationADemotedDefinition(void) const;
- private:
-  VarDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit VarDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(VarDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(VarDecl));
@@ -2371,18 +1738,9 @@ class VarTemplateDecl : public RedeclarableTemplateDecl {
   ::pasta::VarTemplateDecl PreviousDecl(void) const;
   ::pasta::VarDecl TemplatedDecl(void) const;
   bool IsThisDeclarationADefinition(void) const;
-  // Specializations: (llvm::iterator_range<clang::RedeclarableTemplateDecl::SpecIterator<clang::VarTemplateSpecializationDecl, clang::RedeclarableTemplateDecl::SpecEntryTraits<clang::VarTemplateSpecializationDecl>, clang::VarTemplateSpecializationDecl>>)
- private:
-  VarTemplateDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
+  std::vector<::pasta::VarTemplateSpecializationDecl> Specializations(void) const;
  protected:
-  explicit VarTemplateDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(VarTemplateDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(VarTemplateDecl));
@@ -2393,10 +1751,10 @@ class VarTemplateSpecializationDecl : public VarDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(VarTemplateSpecializationDecl, VarTemplatePartialSpecializationDecl)
   // Profile: (void)
   ::pasta::Token ExternToken(void) const;
-  // InstantiatedFrom: (llvm::PointerUnion<clang::VarTemplateDecl *, clang::VarTemplatePartialSpecializationDecl *>)
+  std::variant<std::monostate, ::pasta::VarTemplateDecl, ::pasta::VarTemplatePartialSpecializationDecl> InstantiatedFrom(void) const;
   ::pasta::Token PointOfInstantiation(void) const;
   TemplateSpecializationKind SpecializationKind(void) const;
-  // SpecializedTemplateOrPartial: (llvm::PointerUnion<clang::VarTemplateDecl *, clang::VarTemplatePartialSpecializationDecl *>)
+  std::variant<std::monostate, ::pasta::VarTemplateDecl, ::pasta::VarTemplatePartialSpecializationDecl> SpecializedTemplateOrPartial(void) const;
   // TemplateArgs: (const clang::TemplateArgumentList &)
   // TemplateArgsInfo: (const clang::TemplateArgumentListInfo &)
   // TemplateInstantiationArgs: (const clang::TemplateArgumentList &)
@@ -2405,17 +1763,8 @@ class VarTemplateSpecializationDecl : public VarDecl {
   bool IsClassScopeExplicitSpecialization(void) const;
   bool IsExplicitInstantiationOrSpecialization(void) const;
   bool IsExplicitSpecialization(void) const;
- private:
-  VarTemplateSpecializationDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit VarTemplateSpecializationDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(VarTemplateSpecializationDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(VarTemplateSpecializationDecl));
@@ -2427,17 +1776,8 @@ class CXXDeductionGuideDecl : public FunctionDecl {
   // ExplicitSpecifier: (const clang::ExplicitSpecifier)
   bool IsCopyDeductionCandidate(void) const;
   bool IsExplicit(void) const;
- private:
-  CXXDeductionGuideDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit CXXDeductionGuideDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXDeductionGuideDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(CXXDeductionGuideDecl));
@@ -2460,17 +1800,8 @@ class CXXMethodDecl : public FunctionDecl {
   bool IsInstance(void) const;
   bool IsVirtual(void) const;
   bool IsVolatile(void) const;
- private:
-  CXXMethodDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit CXXMethodDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXMethodDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(CXXMethodDecl));
@@ -2484,18 +1815,9 @@ class ClassTemplateDecl : public RedeclarableTemplateDecl {
   ::pasta::ClassTemplateDecl PreviousDecl(void) const;
   ::pasta::CXXRecordDecl TemplatedDecl(void) const;
   bool IsThisDeclarationADefinition(void) const;
-  // Specializations: (llvm::iterator_range<clang::RedeclarableTemplateDecl::SpecIterator<clang::ClassTemplateSpecializationDecl, clang::RedeclarableTemplateDecl::SpecEntryTraits<clang::ClassTemplateSpecializationDecl>, clang::ClassTemplateSpecializationDecl>>)
- private:
-  ClassTemplateDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
+  std::vector<::pasta::ClassTemplateSpecializationDecl> Specializations(void) const;
  protected:
-  explicit ClassTemplateDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ClassTemplateDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ClassTemplateDecl));
@@ -2503,18 +1825,9 @@ static_assert(sizeof(Decl) == sizeof(ClassTemplateDecl));
 class DecompositionDecl : public VarDecl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DecompositionDecl)
-  // Bindings: (llvm::ArrayRef<clang::BindingDecl *>)
- private:
-  DecompositionDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
+  std::vector<::pasta::BindingDecl> Bindings(void) const;
  protected:
-  explicit DecompositionDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(DecompositionDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(DecompositionDecl));
@@ -2522,7 +1835,7 @@ static_assert(sizeof(Decl) == sizeof(DecompositionDecl));
 class EnumDecl : public TagDecl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(EnumDecl)
-  // Enumerators: (llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::EnumConstantDecl>>)
+  std::vector<::pasta::EnumConstantDecl> Enumerators(void) const;
   ::pasta::EnumDecl CanonicalDecl(void) const;
   ::pasta::EnumDecl Definition(void) const;
   // IntegerType: (clang::QualType)
@@ -2537,17 +1850,8 @@ class EnumDecl : public TagDecl {
   bool IsFixed(void) const;
   bool IsScoped(void) const;
   bool IsScopedUsingClassTag(void) const;
- private:
-  EnumDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit EnumDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(EnumDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(EnumDecl));
@@ -2563,17 +1867,8 @@ class FunctionTemplateDecl : public RedeclarableTemplateDecl {
   bool IsAbbreviated(void) const;
   bool IsThisDeclarationADefinition(void) const;
   // Specializations: (llvm::iterator_range<clang::RedeclarableTemplateDecl::SpecIterator<clang::FunctionTemplateSpecializationInfo, clang::RedeclarableTemplateDecl::SpecEntryTraits<clang::FunctionTemplateSpecializationInfo>, clang::FunctionDecl>>)
- private:
-  FunctionTemplateDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit FunctionTemplateDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(FunctionTemplateDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(FunctionTemplateDecl));
@@ -2581,18 +1876,9 @@ static_assert(sizeof(Decl) == sizeof(FunctionTemplateDecl));
 class ImplicitParamDecl : public VarDecl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ImplicitParamDecl)
-  // ParameterKind: (clang::ImplicitParamDecl::ImplicitParamKind)
- private:
-  ImplicitParamDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
+  ::pasta::ImplicitParamKind ParameterKind(void) const;
  protected:
-  explicit ImplicitParamDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ImplicitParamDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ImplicitParamDecl));
@@ -2600,17 +1886,8 @@ static_assert(sizeof(Decl) == sizeof(ImplicitParamDecl));
 class OMPCapturedExprDecl : public VarDecl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPCapturedExprDecl)
- private:
-  OMPCapturedExprDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit OMPCapturedExprDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(OMPCapturedExprDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(OMPCapturedExprDecl));
@@ -2628,17 +1905,8 @@ class ParmVarDecl : public VarDecl {
   bool HasUnparsedDefaultArg(void) const;
   bool IsKNRPromoted(void) const;
   bool IsObjCMethodParameter(void) const;
- private:
-  ParmVarDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit ParmVarDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ParmVarDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ParmVarDecl));
@@ -2650,8 +1918,8 @@ class RecordDecl : public TagDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(RecordDecl, ClassTemplatePartialSpecializationDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(RecordDecl, ClassTemplateSpecializationDecl)
   bool CanPassInRegisters(void) const;
-  // Fields: (llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::FieldDecl>>)
-  // ArgPassingRestrictions: (clang::RecordDecl::ArgPassingKind)
+  std::vector<::pasta::FieldDecl> Fields(void) const;
+  ::pasta::ArgPassingKind ArgPassingRestrictions(void) const;
   ::pasta::RecordDecl Definition(void) const;
   ::pasta::RecordDecl MostRecentDecl(void) const;
   ::pasta::RecordDecl PreviousDecl(void) const;
@@ -2667,17 +1935,8 @@ class RecordDecl : public TagDecl {
   bool IsNonTrivialToPrimitiveDefaultInitialize(void) const;
   bool IsNonTrivialToPrimitiveDestroy(void) const;
   bool IsParamDestroyedInCallee(void) const;
- private:
-  RecordDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit RecordDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(RecordDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(RecordDecl));
@@ -2691,17 +1950,8 @@ class VarTemplatePartialSpecializationDecl : public VarTemplateSpecializationDec
   // TemplateArgsAsWritten: (const clang::ASTTemplateArgumentListInfo *)
   // TemplateParameters: (clang::TemplateParameterList *)
   bool HasAssociatedConstraints(void) const;
- private:
-  VarTemplatePartialSpecializationDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit VarTemplatePartialSpecializationDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(VarTemplatePartialSpecializationDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(VarTemplatePartialSpecializationDecl));
@@ -2713,24 +1963,15 @@ class CXXConstructorDecl : public CXXMethodDecl {
   // ExplicitSpecifier: (const clang::ExplicitSpecifier)
   // InheritedConstructor: (clang::InheritedConstructor)
   uint32_t NumCtorInitializers(void) const;
-  // Inits: (llvm::iterator_range<clang::CXXCtorInitializer *const *>)
+  // Initializers: (llvm::iterator_range<clang::CXXCtorInitializer *const *>)
   bool IsCopyConstructor(void) const;
   bool IsCopyOrMoveConstructor(void) const;
   bool IsDelegatingConstructor(void) const;
   bool IsExplicit(void) const;
   bool IsInheritingConstructor(void) const;
   bool IsMoveConstructor(void) const;
- private:
-  CXXConstructorDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit CXXConstructorDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXConstructorDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(CXXConstructorDecl));
@@ -2742,17 +1983,8 @@ class CXXConversionDecl : public CXXMethodDecl {
   // ConversionType: (clang::QualType)
   // ExplicitSpecifier: (const clang::ExplicitSpecifier)
   bool IsExplicit(void) const;
- private:
-  CXXConversionDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit CXXConversionDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXConversionDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(CXXConversionDecl));
@@ -2763,17 +1995,8 @@ class CXXDestructorDecl : public CXXMethodDecl {
   ::pasta::CXXDestructorDecl CanonicalDecl(void) const;
   ::pasta::FunctionDecl OperatorDelete(void) const;
   // OperatorDeleteThisArg: (clang::Expr *)
- private:
-  CXXDestructorDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit CXXDestructorDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXDestructorDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(CXXDestructorDecl));
@@ -2786,13 +2009,13 @@ class CXXRecordDecl : public RecordDecl {
   bool AllowConstDefaultInit(void) const;
   // Bases: (llvm::iterator_range<const clang::CXXBaseSpecifier *>)
   // Captures: (llvm::iterator_range<const clang::LambdaCapture *>)
-  // Constructors: (llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::CXXConstructorDecl>>)
+  std::vector<::pasta::CXXConstructorDecl> Constructors(void) const;
   bool DefaultedCopyConstructorIsDeleted(void) const;
   bool DefaultedDefaultConstructorIsConstexpr(void) const;
   bool DefaultedDestructorIsConstexpr(void) const;
   bool DefaultedDestructorIsDeleted(void) const;
   bool DefaultedMoveConstructorIsDeleted(void) const;
-  // Friends: (llvm::iterator_range<clang::CXXRecordDecl::friend_iterator>)
+  std::vector<::pasta::FriendDecl> Friends(void) const;
   ::pasta::CXXRecordDecl CanonicalDecl(void) const;
   ::pasta::CXXRecordDecl Definition(void) const;
   LambdaCaptureDefault LambdaCaptureDefault(void) const;
@@ -2874,7 +2097,7 @@ class CXXRecordDecl : public RecordDecl {
   bool IsTrivial(void) const;
   bool MayBeDynamicClass(void) const;
   bool MayBeNonDynamicClass(void) const;
-  // Methods: (llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::CXXMethodDecl>>)
+  std::vector<::pasta::CXXMethodDecl> Methods(void) const;
   bool NeedsImplicitCopyAssignment(void) const;
   bool NeedsImplicitCopyConstructor(void) const;
   bool NeedsImplicitDefaultConstructor(void) const;
@@ -2887,17 +2110,8 @@ class CXXRecordDecl : public RecordDecl {
   bool NeedsOverloadResolutionForMoveAssignment(void) const;
   bool NeedsOverloadResolutionForMoveConstructor(void) const;
   // VirtualBases: (llvm::iterator_range<const clang::CXXBaseSpecifier *>)
- private:
-  CXXRecordDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit CXXRecordDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXRecordDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(CXXRecordDecl));
@@ -2908,10 +2122,10 @@ class ClassTemplateSpecializationDecl : public CXXRecordDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(ClassTemplateSpecializationDecl, ClassTemplatePartialSpecializationDecl)
   // Profile: (void)
   ::pasta::Token ExternToken(void) const;
-  // InstantiatedFrom: (llvm::PointerUnion<clang::ClassTemplateDecl *, clang::ClassTemplatePartialSpecializationDecl *>)
+  std::variant<std::monostate, ::pasta::ClassTemplateDecl, ::pasta::ClassTemplatePartialSpecializationDecl> InstantiatedFrom(void) const;
   ::pasta::Token PointOfInstantiation(void) const;
   TemplateSpecializationKind SpecializationKind(void) const;
-  // SpecializedTemplateOrPartial: (llvm::PointerUnion<clang::ClassTemplateDecl *, clang::ClassTemplatePartialSpecializationDecl *>)
+  std::variant<std::monostate, ::pasta::ClassTemplateDecl, ::pasta::ClassTemplatePartialSpecializationDecl> SpecializedTemplateOrPartial(void) const;
   // TemplateArgs: (const clang::TemplateArgumentList &)
   // TemplateInstantiationArgs: (const clang::TemplateArgumentList &)
   ::pasta::Token TemplateKeywordToken(void) const;
@@ -2919,17 +2133,8 @@ class ClassTemplateSpecializationDecl : public CXXRecordDecl {
   bool IsClassScopeExplicitSpecialization(void) const;
   bool IsExplicitInstantiationOrSpecialization(void) const;
   bool IsExplicitSpecialization(void) const;
- private:
-  ClassTemplateSpecializationDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit ClassTemplateSpecializationDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ClassTemplateSpecializationDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ClassTemplateSpecializationDecl));
@@ -2945,17 +2150,8 @@ class ClassTemplatePartialSpecializationDecl : public ClassTemplateSpecializatio
   // TemplateArgsAsWritten: (const clang::ASTTemplateArgumentListInfo *)
   // TemplateParameters: (clang::TemplateParameterList *)
   bool HasAssociatedConstraints(void) const;
- private:
-  ClassTemplatePartialSpecializationDecl(void) = delete;
-
-  friend class DeclBuilder;
-  friend class AST;
-  friend class ASTImpl;
-
  protected:
-  explicit ClassTemplatePartialSpecializationDecl(
-      std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ClassTemplatePartialSpecializationDecl)
 };
 
 static_assert(sizeof(Decl) == sizeof(ClassTemplatePartialSpecializationDecl));
@@ -2963,4 +2159,5 @@ static_assert(sizeof(Decl) == sizeof(ClassTemplatePartialSpecializationDecl));
 }  // namespace pasta
 #undef PASTA_DECLARE_DERIVED_OPERATORS
 #undef PASTA_DECLARE_DEFAULT_CONSTRUCTORS
+#undef PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR
 #endif  // PASTA_IN_BOOTSTRAP

@@ -72,7 +72,7 @@ class ASTDumper final : public pasta::DeclVisitor {
     VisitDeclContext(decl);
   }
 
-  void VisitRecordDecl(const pasta::RecordDecl &decl) final {
+  void VisitTagDecl(const pasta::TagDecl &decl) final {
     os << indent << decl.KindName();
     VisitDeclContext(decl);
   }

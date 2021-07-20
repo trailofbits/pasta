@@ -33,10 +33,13 @@ void GenerateDeclH(void) {
       << "    friend class AST; \\\n"
       << "    friend class ASTImpl; \\\n"
       << "    friend class DeclBuilder; \\\n"
+      << "    friend class DeclVisitor; \\\n"
       << "    base(void) = delete; \\\n"
       << "    explicit base( \\\n"
       << "        std::shared_ptr<ASTImpl> ast_, \\\n"
       << "        const ::clang::Decl *decl_);\n\n"
+      << "#define PASTA_DECLARE_BASE_OPERATORS(base, derived) \\\n"
+      << "    static std::optional<class derived> From(const class base &);\n\n"
       << "#define PASTA_DECLARE_DERIVED_OPERATORS(base, derived) \\\n"
       << "    friend class derived; \\\n"
       << "    base(const class derived &that_); \\\n"
@@ -50,11 +53,26 @@ void GenerateDeclH(void) {
       << "    cls &operator=(const cls &) = default; \\\n"
       << "    cls &operator=(cls &&) noexcept = default;\n\n"
       << "namespace pasta {\n"
+      << "class DeclVisitor {\n"
+      << " public:\n"
+      << "  virtual ~DeclVisitor(void);\n"
+      << "  void Accept(const Decl &);\n";
+
+  for (const auto &name : gTopologicallyOrderedDecls) {
+    if (name != "DeclContext") {
+      os << "  virtual void Visit" << name << "(const " << name << " &);\n";
+    }
+  }
+
+  os
+      << "};\n\n"
       << "class DeclContext {\n"
       << " public:\n"
       << "  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DeclContext)\n";
 
-  for (const auto &derived_class : gTransitiveDerivedClasses["DeclContext"]) {
+  const auto &derived_from_decl_context =
+      gTransitiveDerivedClasses["DeclContext"];
+  for (const auto &derived_class : derived_from_decl_context) {
     os << "  PASTA_DECLARE_DERIVED_OPERATORS(DeclContext, "
        << derived_class << ")\n";
   }
@@ -63,6 +81,7 @@ void GenerateDeclH(void) {
 
   os << " private:\n"
      << "  friend class Decl;\n"
+     << "  friend class DeclVisitor;\n"
      << "  friend class UsingDirectiveDecl;\n"
      << "  std::shared_ptr<ASTImpl> ast;\n"
      << "  union {\n"
@@ -94,12 +113,37 @@ void GenerateDeclH(void) {
     }
 
     os
-        << " {\n"
-        << " public:\n"
+        << " {\n";
+
+    // Make sure all of the `::From` methods inherited from the parent class
+    // are private, so that this class "overrides" them with more derived
+    // versions.
+    if (name_ref.endswith("Decl") && name_ref != "Decl") {
+      os
+          << " private:\n";
+      for (const auto &parent_class : gBaseClasses[name]) {
+        if (parent_class != "DeclContext" && parent_class != "Decl") {
+          os << "  using " << parent_class << "::From;\n";
+        }
+      }
+    }
+
+    os  << " public:\n"
         << "  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(" << name << ")\n";
 
     // Constructors from derived class -> base class.
     if (name_ref.endswith("Decl")) {
+
+      if (derived_from_decl_context.count(name)) {
+        os << "  PASTA_DECLARE_BASE_OPERATORS(DeclContext, "
+           << name << ")\n";
+      }
+
+      for (const auto &base_class : gTransitiveBaseClasses[name]) {
+        os << "  PASTA_DECLARE_BASE_OPERATORS(" << base_class << ", "
+           << name << ")\n";
+      }
+
       for (const auto &derived_class : gTransitiveDerivedClasses[name]) {
         os << "  PASTA_DECLARE_DERIVED_OPERATORS(" << name << ", "
            << derived_class << ")\n";
@@ -168,6 +212,7 @@ void GenerateDeclH(void) {
       << "}  // namespace pasta\n"
       << "#undef PASTA_DECLARE_DERIVED_OPERATORS\n"
       << "#undef PASTA_DECLARE_DEFAULT_CONSTRUCTORS\n"
+      << "#undef PASTA_DECLARE_BASE_OPERATORS\n"
       << "#undef PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR\n"
       << "#endif  // PASTA_IN_BOOTSTRAP\n";
 }

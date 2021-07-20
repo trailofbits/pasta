@@ -39,37 +39,53 @@ void GenerateForwardH(void) {
   }
 
   os
+      << "#ifndef PASTA_IN_DECL_CPP\n"
       << "using OMPDeclarativeDirectiveDecl = Decl;\n"
       << "using OMPDeclarativeDirectiveValueDecl = ValueDecl;\n"
+      << "#endif  // PASTA_IN_DECL_CPP\n"
       << "}  // namespace clang\n"
       << "namespace pasta {\n"
       << "class AST;\n"
       << "class ASTImpl;\n"
       << "class DeclBuilder;\n"
       << "class TypeBuilder;\n\n"
-      << "enum class DeclKind : unsigned {\n";
+      << "#define PASTA_FOR_EACH_DECL_IMPL(m) \\\n";
 
+  auto sep = "";
   for (const auto &name_ : gDeclNames) {
     llvm::StringRef name(name_);
     if (name != "Decl" && name != "OMPDeclarativeDirectiveDecl" &&
         name != "OMPDeclarativeDirectiveValueDecl") {
       assert(name.endswith("Decl"));
-      os << "  k" << name.substr(0, name.size() - 4).str() << ",\n";
+      os << sep << "    m(" << name.substr(0, name.size() - 4).str() << ")";
+      sep = " \\\n";
     }
   }
 
   os
-      << "};\n\n"
-      << "enum class TypeKind : unsigned {\n";
+      << "\n\n"
+      << "#define PASTA_FOR_EACH_TYPE_IMPL(m) \\\n";
 
+  sep = "";
   for (const auto &name_ : gTypeNames) {
     llvm::StringRef name(name_);
     if (name != "Type") {
-      os << "  k" << name.substr(0, name.size() - 4).str() << ",\n";
+      os << sep << "    m(" << name.substr(0, name.size() - 4).str() << ")";
+      sep = " \\\n";
     }
   }
 
   os
+      << "\n\n"
+      << "enum class DeclKind : unsigned {\n"
+      << "#define PASTA_DECLARE_DECL_KIND(name) k ## name ,\n"
+      << "  PASTA_FOR_EACH_DECL_IMPL(PASTA_DECLARE_DECL_KIND)\n"
+      << "#undef PASTA_DECLARE_DECL_KIND\n"
+      << "};\n\n"
+      << "enum class TypeKind : unsigned {\n"
+      << "#define PASTA_DECLARE_TYPE_KIND(name) k ## name ,\n"
+      << "  PASTA_FOR_EACH_TYPE_IMPL(PASTA_DECLARE_TYPE_KIND)\n"
+      << "#undef PASTA_DECLARE_TYPE_KIND\n"
       << "};\n\n";
 
   // Declare all of the enums.

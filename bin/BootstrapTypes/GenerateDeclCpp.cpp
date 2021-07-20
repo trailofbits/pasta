@@ -17,14 +17,16 @@ extern void DefineCppMethods(std::ostream &os, const std::string &class_name,
 void GenerateDeclCpp(void) {
   std::ofstream os(kASTDeclCpp);
   const std::string decl_context{"DeclContext"};
+  const auto &derived_from_decl_context =
+      gTransitiveDerivedClasses[decl_context];
 
   os
       << "/*\n"
       << " * Copyright (c) 2021 Trail of Bits, Inc.\n"
       << " */\n\n"
       << "// This file is auto-generated.\n\n"
+      << "#define PASTA_IN_DECL_CPP\n"
       << "#ifndef PASTA_IN_BOOTSTRAP\n"
-      << "#include <pasta/AST/Decl.h>\n\n"
       << "#pragma clang diagnostic push\n"
       << "#pragma clang diagnostic ignored \"-Wimplicit-int-conversion\"\n"
       << "#pragma clang diagnostic ignored \"-Wsign-conversion\"\n"
@@ -36,6 +38,20 @@ void GenerateDeclCpp(void) {
       << "#include <clang/AST/DeclOpenMP.h>\n"
       << "#include <clang/AST/DeclTemplate.h>\n"
       << "#pragma clang diagnostic pop\n\n"
+      << "namespace clang {\n"
+      << "using OMPDeclarativeDirectiveDecl = OMPDeclarativeDirective<Decl>;\n"
+      << "using OMPDeclarativeDirectiveValueDecl = OMPDeclarativeDirective<ValueDecl>;\n"
+      << "}  // namespace clang\n\n"
+      << "#include <pasta/AST/Decl.h>\n"
+      << "#include \"AST.h\"\n\n"
+      << "#define PASTA_DEFINE_BASE_OPERATORS(base, derived) \\\n"
+      << "    std::optional<class derived> derived::From(const class base &that) { \\\n"
+      << "      if (auto decl_ptr = clang::dyn_cast<clang::derived>(that.u.base)) { \\\n"
+      << "        return DeclBuilder::Create<class derived>(that.ast, decl_ptr); \\\n"
+      << "      } else { \\\n"
+      << "        return std::nullopt; \\\n"
+      << "      } \\\n"
+      << "    }\n\n"
       << "#define PASTA_DEFINE_DERIVED_OPERATORS(base, derived) \\\n"
       << "    base::base(const class derived &that) \\\n"
       << "        : base(that.ast, that.u.Decl) {} \\\n"
@@ -72,7 +88,6 @@ void GenerateDeclCpp(void) {
       << "      u.DeclContext = clang::dyn_cast<clang::derived>(that.u.Decl); \\\n"
       << "      return *this; \\\n"
       << "    }\n\n"
-      << "#include \"AST.h\"\n\n"
       << "namespace pasta {\n\n"
       << "class DeclBuilder {\n"
       << " public:\n"
@@ -81,6 +96,35 @@ void GenerateDeclCpp(void) {
       << "    return T(std::move(ast_), decl_);\n"
       << "  }\n"
       << "};\n\n";
+
+  os  << "DeclVisitor::~DeclVisitor(void) {}\n\n"
+      << "void DeclVisitor::Accept(const Decl &decl) {\n"
+      << "  switch (decl.Kind()) {\n"
+      << "#define PASTA_VISIT_DECL(name) \\\n"
+      << "    case DeclKind::k ## name: \\\n"
+      << "      Visit ## name ## Decl(reinterpret_cast<const name ## Decl &>(decl)); \\\n"
+      << "      break;\n\n"
+      << "    PASTA_FOR_EACH_DECL_IMPL(PASTA_VISIT_DECL)\n"
+      << "#undef PASTA_VISIT_DECL\n"
+      << "  }\n"
+      << "}\n\n";
+
+  for (const auto &name : gTopologicallyOrderedDecls) {
+    if (name != "DeclContext") {
+      os << "void DeclVisitor::Visit" << name << "(const " << name << " &decl) {\n";
+      auto seen = false;
+      for (const auto &parent_class : gBaseClasses[name]) {
+        if (parent_class != "DeclContext") {
+          os << "  Visit" << parent_class << "(decl);\n";
+          seen = true;
+        }
+      }
+      if (!seen) {
+        os << "  (void) decl;\n";
+      }
+      os << "}\n\n";
+    }
+  }
 
   os
       << "Decl::Decl(const class DeclContext &context)\n"
@@ -180,6 +224,43 @@ void GenerateDeclCpp(void) {
 
     // Constructors from derived class -> base class.
     if (name_ref.endswith("Decl")) {
+
+      if (derived_from_decl_context.count(name)) {
+        os << "PASTA_DEFINE_BASE_OPERATORS(DeclContext, "
+           << name << ")\n";
+      }
+
+      // These are annoying; these classes don't technically exist, so we need
+      // to "find" them by inferring them from their derived classes, which we
+      // shimmed in.
+      if (name == "OMPDeclarativeDirectiveDecl" ||
+          name == "OMPDeclarativeDirectiveValueDecl") {
+        for (const auto &base_class : gTransitiveBaseClasses[name]) {
+          os << "std::optional<" << name << "> " << name << "::From(const "
+             << base_class << " &that) {\n"
+             << "  if (false) {\n"
+             << "    return std::nullopt;\n";
+
+          for (const auto &derived_class : gDerivedClasses[name]) {
+            os << "  } else if (auto p_" << derived_class
+               << " = clang::dyn_cast<clang::" << derived_class << ">(that.u.Decl)) {\n"
+               << "    return DeclBuilder::Create<" << name << ">(that.ast, p_" << derived_class << ");\n";
+          }
+
+          os << "  } else {\n"
+             << "    return std::nullopt;\n"
+             << "  }\n"
+             << "}\n\n";
+        }
+
+      // Normal case.
+      } else {
+        for (const auto &base_class : gTransitiveBaseClasses[name]) {
+          os << "PASTA_DEFINE_BASE_OPERATORS(" << base_class << ", "
+             << name << ")\n";
+        }
+      }
+
       for (const auto &derived_class : gTransitiveDerivedClasses[name]) {
         os << "PASTA_DEFINE_DERIVED_OPERATORS("
            << name << ", " << derived_class << ")\n";

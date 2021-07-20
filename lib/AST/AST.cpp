@@ -59,8 +59,15 @@ AST AST::From(const Decl &decl) {
 
 AST::~AST(void) {}
 
+AST::AST(const AST &that) : impl(that.impl) {}
+
 AST::AST(AST &&that) noexcept : impl(that.impl) {
   that.impl = nullptr;
+}
+
+AST &AST::operator=(const AST &that) {
+  impl = that.impl;
+  return *this;
 }
 
 AST &AST::operator=(AST &&that) noexcept {
@@ -79,7 +86,6 @@ TokenRange AST::Tokens(void) const {
   const auto first = impl->tokens.data();
   return TokenRange(impl, first, &(first[impl->tokens.size()]));
 }
-
 
 // Try to return the token at the specified location.
 Token ASTImpl::TokenAt(clang::SourceLocation loc) {

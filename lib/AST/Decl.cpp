@@ -4,9 +4,8 @@
 
 // This file is auto-generated.
 
+#define PASTA_IN_DECL_CPP
 #ifndef PASTA_IN_BOOTSTRAP
-#include <pasta/AST/Decl.h>
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
@@ -18,6 +17,23 @@
 #include <clang/AST/DeclOpenMP.h>
 #include <clang/AST/DeclTemplate.h>
 #pragma clang diagnostic pop
+
+namespace clang {
+using OMPDeclarativeDirectiveDecl = OMPDeclarativeDirective<Decl>;
+using OMPDeclarativeDirectiveValueDecl = OMPDeclarativeDirective<ValueDecl>;
+}  // namespace clang
+
+#include <pasta/AST/Decl.h>
+#include "AST.h"
+
+#define PASTA_DEFINE_BASE_OPERATORS(base, derived) \
+    std::optional<class derived> derived::From(const class base &that) { \
+      if (auto decl_ptr = clang::dyn_cast<clang::derived>(that.u.base)) { \
+        return DeclBuilder::Create<class derived>(that.ast, decl_ptr); \
+      } else { \
+        return std::nullopt; \
+      } \
+    }
 
 #define PASTA_DEFINE_DERIVED_OPERATORS(base, derived) \
     base::base(const class derived &that) \
@@ -57,8 +73,6 @@
       return *this; \
     }
 
-#include "AST.h"
-
 namespace pasta {
 
 class DeclBuilder {
@@ -68,6 +82,396 @@ class DeclBuilder {
     return T(std::move(ast_), decl_);
   }
 };
+
+DeclVisitor::~DeclVisitor(void) {}
+
+void DeclVisitor::Accept(const Decl &decl) {
+  switch (decl.Kind()) {
+#define PASTA_VISIT_DECL(name) \
+    case DeclKind::k ## name: \
+      Visit ## name ## Decl(reinterpret_cast<const name ## Decl &>(decl)); \
+      break;
+
+    PASTA_FOR_EACH_DECL_IMPL(PASTA_VISIT_DECL)
+#undef PASTA_VISIT_DECL
+  }
+}
+
+void DeclVisitor::VisitDecl(const Decl &decl) {
+  (void) decl;
+}
+
+void DeclVisitor::VisitEmptyDecl(const EmptyDecl &decl) {
+  VisitDecl(decl);
+}
+
+void DeclVisitor::VisitExportDecl(const ExportDecl &decl) {
+  VisitDecl(decl);
+}
+
+void DeclVisitor::VisitExternCContextDecl(const ExternCContextDecl &decl) {
+  VisitDecl(decl);
+}
+
+void DeclVisitor::VisitFileScopeAsmDecl(const FileScopeAsmDecl &decl) {
+  VisitDecl(decl);
+}
+
+void DeclVisitor::VisitFriendDecl(const FriendDecl &decl) {
+  VisitDecl(decl);
+}
+
+void DeclVisitor::VisitFriendTemplateDecl(const FriendTemplateDecl &decl) {
+  VisitDecl(decl);
+}
+
+void DeclVisitor::VisitImportDecl(const ImportDecl &decl) {
+  VisitDecl(decl);
+}
+
+void DeclVisitor::VisitLifetimeExtendedTemporaryDecl(const LifetimeExtendedTemporaryDecl &decl) {
+  VisitDecl(decl);
+}
+
+void DeclVisitor::VisitLinkageSpecDecl(const LinkageSpecDecl &decl) {
+  VisitDecl(decl);
+}
+
+void DeclVisitor::VisitNamedDecl(const NamedDecl &decl) {
+  VisitDecl(decl);
+}
+
+void DeclVisitor::VisitNamespaceAliasDecl(const NamespaceAliasDecl &decl) {
+  VisitNamedDecl(decl);
+}
+
+void DeclVisitor::VisitNamespaceDecl(const NamespaceDecl &decl) {
+  VisitNamedDecl(decl);
+}
+
+void DeclVisitor::VisitObjCCompatibleAliasDecl(const ObjCCompatibleAliasDecl &decl) {
+  VisitNamedDecl(decl);
+}
+
+void DeclVisitor::VisitObjCContainerDecl(const ObjCContainerDecl &decl) {
+  VisitNamedDecl(decl);
+}
+
+void DeclVisitor::VisitObjCImplDecl(const ObjCImplDecl &decl) {
+  VisitObjCContainerDecl(decl);
+}
+
+void DeclVisitor::VisitObjCImplementationDecl(const ObjCImplementationDecl &decl) {
+  VisitObjCImplDecl(decl);
+}
+
+void DeclVisitor::VisitObjCInterfaceDecl(const ObjCInterfaceDecl &decl) {
+  VisitObjCContainerDecl(decl);
+}
+
+void DeclVisitor::VisitObjCMethodDecl(const ObjCMethodDecl &decl) {
+  VisitNamedDecl(decl);
+}
+
+void DeclVisitor::VisitObjCPropertyDecl(const ObjCPropertyDecl &decl) {
+  VisitNamedDecl(decl);
+}
+
+void DeclVisitor::VisitObjCPropertyImplDecl(const ObjCPropertyImplDecl &decl) {
+  VisitDecl(decl);
+}
+
+void DeclVisitor::VisitObjCProtocolDecl(const ObjCProtocolDecl &decl) {
+  VisitObjCContainerDecl(decl);
+}
+
+void DeclVisitor::VisitPragmaCommentDecl(const PragmaCommentDecl &decl) {
+  VisitDecl(decl);
+}
+
+void DeclVisitor::VisitPragmaDetectMismatchDecl(const PragmaDetectMismatchDecl &decl) {
+  VisitDecl(decl);
+}
+
+void DeclVisitor::VisitRequiresExprBodyDecl(const RequiresExprBodyDecl &decl) {
+  VisitDecl(decl);
+}
+
+void DeclVisitor::VisitStaticAssertDecl(const StaticAssertDecl &decl) {
+  VisitDecl(decl);
+}
+
+void DeclVisitor::VisitTemplateDecl(const TemplateDecl &decl) {
+  VisitNamedDecl(decl);
+}
+
+void DeclVisitor::VisitTemplateTemplateParmDecl(const TemplateTemplateParmDecl &decl) {
+  VisitTemplateDecl(decl);
+}
+
+void DeclVisitor::VisitTranslationUnitDecl(const TranslationUnitDecl &decl) {
+  VisitDecl(decl);
+}
+
+void DeclVisitor::VisitTypeDecl(const TypeDecl &decl) {
+  VisitNamedDecl(decl);
+}
+
+void DeclVisitor::VisitTypedefNameDecl(const TypedefNameDecl &decl) {
+  VisitTypeDecl(decl);
+}
+
+void DeclVisitor::VisitUnresolvedUsingTypenameDecl(const UnresolvedUsingTypenameDecl &decl) {
+  VisitTypeDecl(decl);
+}
+
+void DeclVisitor::VisitUsingDecl(const UsingDecl &decl) {
+  VisitNamedDecl(decl);
+}
+
+void DeclVisitor::VisitUsingDirectiveDecl(const UsingDirectiveDecl &decl) {
+  VisitNamedDecl(decl);
+}
+
+void DeclVisitor::VisitUsingPackDecl(const UsingPackDecl &decl) {
+  VisitNamedDecl(decl);
+}
+
+void DeclVisitor::VisitUsingShadowDecl(const UsingShadowDecl &decl) {
+  VisitNamedDecl(decl);
+}
+
+void DeclVisitor::VisitValueDecl(const ValueDecl &decl) {
+  VisitNamedDecl(decl);
+}
+
+void DeclVisitor::VisitOMPDeclarativeDirectiveDecl(const OMPDeclarativeDirectiveDecl &decl) {
+  VisitDecl(decl);
+}
+
+void DeclVisitor::VisitOMPDeclarativeDirectiveValueDecl(const OMPDeclarativeDirectiveValueDecl &decl) {
+  VisitValueDecl(decl);
+}
+
+void DeclVisitor::VisitAccessSpecDecl(const AccessSpecDecl &decl) {
+  VisitDecl(decl);
+}
+
+void DeclVisitor::VisitBindingDecl(const BindingDecl &decl) {
+  VisitValueDecl(decl);
+}
+
+void DeclVisitor::VisitBlockDecl(const BlockDecl &decl) {
+  VisitDecl(decl);
+}
+
+void DeclVisitor::VisitBuiltinTemplateDecl(const BuiltinTemplateDecl &decl) {
+  VisitTemplateDecl(decl);
+}
+
+void DeclVisitor::VisitCapturedDecl(const CapturedDecl &decl) {
+  VisitDecl(decl);
+}
+
+void DeclVisitor::VisitClassScopeFunctionSpecializationDecl(const ClassScopeFunctionSpecializationDecl &decl) {
+  VisitDecl(decl);
+}
+
+void DeclVisitor::VisitConceptDecl(const ConceptDecl &decl) {
+  VisitTemplateDecl(decl);
+}
+
+void DeclVisitor::VisitConstructorUsingShadowDecl(const ConstructorUsingShadowDecl &decl) {
+  VisitUsingShadowDecl(decl);
+}
+
+void DeclVisitor::VisitDeclaratorDecl(const DeclaratorDecl &decl) {
+  VisitValueDecl(decl);
+}
+
+void DeclVisitor::VisitEnumConstantDecl(const EnumConstantDecl &decl) {
+  VisitValueDecl(decl);
+}
+
+void DeclVisitor::VisitFieldDecl(const FieldDecl &decl) {
+  VisitDeclaratorDecl(decl);
+}
+
+void DeclVisitor::VisitFunctionDecl(const FunctionDecl &decl) {
+  VisitDeclaratorDecl(decl);
+}
+
+void DeclVisitor::VisitIndirectFieldDecl(const IndirectFieldDecl &decl) {
+  VisitValueDecl(decl);
+}
+
+void DeclVisitor::VisitLabelDecl(const LabelDecl &decl) {
+  VisitNamedDecl(decl);
+}
+
+void DeclVisitor::VisitMSGuidDecl(const MSGuidDecl &decl) {
+  VisitValueDecl(decl);
+}
+
+void DeclVisitor::VisitMSPropertyDecl(const MSPropertyDecl &decl) {
+  VisitDeclaratorDecl(decl);
+}
+
+void DeclVisitor::VisitNonTypeTemplateParmDecl(const NonTypeTemplateParmDecl &decl) {
+  VisitDeclaratorDecl(decl);
+}
+
+void DeclVisitor::VisitOMPAllocateDecl(const OMPAllocateDecl &decl) {
+  VisitOMPDeclarativeDirectiveDecl(decl);
+}
+
+void DeclVisitor::VisitOMPDeclareMapperDecl(const OMPDeclareMapperDecl &decl) {
+  VisitOMPDeclarativeDirectiveValueDecl(decl);
+}
+
+void DeclVisitor::VisitOMPDeclareReductionDecl(const OMPDeclareReductionDecl &decl) {
+  VisitValueDecl(decl);
+}
+
+void DeclVisitor::VisitOMPRequiresDecl(const OMPRequiresDecl &decl) {
+  VisitOMPDeclarativeDirectiveDecl(decl);
+}
+
+void DeclVisitor::VisitOMPThreadPrivateDecl(const OMPThreadPrivateDecl &decl) {
+  VisitOMPDeclarativeDirectiveDecl(decl);
+}
+
+void DeclVisitor::VisitObjCAtDefsFieldDecl(const ObjCAtDefsFieldDecl &decl) {
+  VisitFieldDecl(decl);
+}
+
+void DeclVisitor::VisitObjCCategoryDecl(const ObjCCategoryDecl &decl) {
+  VisitObjCContainerDecl(decl);
+}
+
+void DeclVisitor::VisitObjCCategoryImplDecl(const ObjCCategoryImplDecl &decl) {
+  VisitObjCImplDecl(decl);
+}
+
+void DeclVisitor::VisitObjCIvarDecl(const ObjCIvarDecl &decl) {
+  VisitFieldDecl(decl);
+}
+
+void DeclVisitor::VisitObjCTypeParamDecl(const ObjCTypeParamDecl &decl) {
+  VisitTypedefNameDecl(decl);
+}
+
+void DeclVisitor::VisitRedeclarableTemplateDecl(const RedeclarableTemplateDecl &decl) {
+  VisitTemplateDecl(decl);
+}
+
+void DeclVisitor::VisitTagDecl(const TagDecl &decl) {
+  VisitTypeDecl(decl);
+}
+
+void DeclVisitor::VisitTemplateParamObjectDecl(const TemplateParamObjectDecl &decl) {
+  VisitValueDecl(decl);
+}
+
+void DeclVisitor::VisitTemplateTypeParmDecl(const TemplateTypeParmDecl &decl) {
+  VisitTypeDecl(decl);
+}
+
+void DeclVisitor::VisitTypeAliasDecl(const TypeAliasDecl &decl) {
+  VisitTypedefNameDecl(decl);
+}
+
+void DeclVisitor::VisitTypeAliasTemplateDecl(const TypeAliasTemplateDecl &decl) {
+  VisitRedeclarableTemplateDecl(decl);
+}
+
+void DeclVisitor::VisitTypedefDecl(const TypedefDecl &decl) {
+  VisitTypedefNameDecl(decl);
+}
+
+void DeclVisitor::VisitUnresolvedUsingValueDecl(const UnresolvedUsingValueDecl &decl) {
+  VisitValueDecl(decl);
+}
+
+void DeclVisitor::VisitVarDecl(const VarDecl &decl) {
+  VisitDeclaratorDecl(decl);
+}
+
+void DeclVisitor::VisitVarTemplateDecl(const VarTemplateDecl &decl) {
+  VisitRedeclarableTemplateDecl(decl);
+}
+
+void DeclVisitor::VisitVarTemplateSpecializationDecl(const VarTemplateSpecializationDecl &decl) {
+  VisitVarDecl(decl);
+}
+
+void DeclVisitor::VisitCXXDeductionGuideDecl(const CXXDeductionGuideDecl &decl) {
+  VisitFunctionDecl(decl);
+}
+
+void DeclVisitor::VisitCXXMethodDecl(const CXXMethodDecl &decl) {
+  VisitFunctionDecl(decl);
+}
+
+void DeclVisitor::VisitClassTemplateDecl(const ClassTemplateDecl &decl) {
+  VisitRedeclarableTemplateDecl(decl);
+}
+
+void DeclVisitor::VisitDecompositionDecl(const DecompositionDecl &decl) {
+  VisitVarDecl(decl);
+}
+
+void DeclVisitor::VisitEnumDecl(const EnumDecl &decl) {
+  VisitTagDecl(decl);
+}
+
+void DeclVisitor::VisitFunctionTemplateDecl(const FunctionTemplateDecl &decl) {
+  VisitRedeclarableTemplateDecl(decl);
+}
+
+void DeclVisitor::VisitImplicitParamDecl(const ImplicitParamDecl &decl) {
+  VisitVarDecl(decl);
+}
+
+void DeclVisitor::VisitOMPCapturedExprDecl(const OMPCapturedExprDecl &decl) {
+  VisitVarDecl(decl);
+}
+
+void DeclVisitor::VisitParmVarDecl(const ParmVarDecl &decl) {
+  VisitVarDecl(decl);
+}
+
+void DeclVisitor::VisitRecordDecl(const RecordDecl &decl) {
+  VisitTagDecl(decl);
+}
+
+void DeclVisitor::VisitVarTemplatePartialSpecializationDecl(const VarTemplatePartialSpecializationDecl &decl) {
+  VisitVarTemplateSpecializationDecl(decl);
+}
+
+void DeclVisitor::VisitCXXConstructorDecl(const CXXConstructorDecl &decl) {
+  VisitCXXMethodDecl(decl);
+}
+
+void DeclVisitor::VisitCXXConversionDecl(const CXXConversionDecl &decl) {
+  VisitCXXMethodDecl(decl);
+}
+
+void DeclVisitor::VisitCXXDestructorDecl(const CXXDestructorDecl &decl) {
+  VisitCXXMethodDecl(decl);
+}
+
+void DeclVisitor::VisitCXXRecordDecl(const CXXRecordDecl &decl) {
+  VisitRecordDecl(decl);
+}
+
+void DeclVisitor::VisitClassTemplateSpecializationDecl(const ClassTemplateSpecializationDecl &decl) {
+  VisitCXXRecordDecl(decl);
+}
+
+void DeclVisitor::VisitClassTemplatePartialSpecializationDecl(const ClassTemplatePartialSpecializationDecl &decl) {
+  VisitClassTemplateSpecializationDecl(decl);
+}
 
 Decl::Decl(const class DeclContext &context)
    : Decl(context.ast, clang::dyn_cast<clang::Decl>(context.u.DeclContext)) {}
@@ -731,11 +1135,14 @@ EmptyDecl::EmptyDecl(
     const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, EmptyDecl)
 ExportDecl::ExportDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
     : Decl(ast_, decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, ExportDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, ExportDecl)
 ::pasta::Token ExportDecl::EndToken(void) const {
   auto val = u.ExportDecl->getEndLoc();
   return ast->TokenAt(val);
@@ -766,11 +1173,14 @@ ExternCContextDecl::ExternCContextDecl(
     const ::clang::Decl *decl_)
     : Decl(ast_, decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, ExternCContextDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, ExternCContextDecl)
 FileScopeAsmDecl::FileScopeAsmDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, FileScopeAsmDecl)
 ::pasta::Token FileScopeAsmDecl::AsmToken(void) const {
   auto val = u.FileScopeAsmDecl->getAsmLoc();
   return ast->TokenAt(val);
@@ -792,6 +1202,7 @@ FriendDecl::FriendDecl(
     const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, FriendDecl)
 ::pasta::NamedDecl FriendDecl::FindFriendDecl(void) const {
   auto val = u.FriendDecl->getFriendDecl();
   if (val) {
@@ -828,6 +1239,7 @@ FriendTemplateDecl::FriendTemplateDecl(
     const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, FriendTemplateDecl)
 ::pasta::NamedDecl FriendTemplateDecl::FindFriendDecl(void) const {
   auto val = u.FriendTemplateDecl->getFriendDecl();
   if (val) {
@@ -854,12 +1266,14 @@ ImportDecl::ImportDecl(
     const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, ImportDecl)
 // 0: ImportDecl::ImportedModule
 LifetimeExtendedTemporaryDecl::LifetimeExtendedTemporaryDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, LifetimeExtendedTemporaryDecl)
 // 0: LifetimeExtendedTemporaryDecl::ChildrenExpr
 ::pasta::ValueDecl LifetimeExtendedTemporaryDecl::ExtendingDecl(void) const {
   auto val = u.LifetimeExtendedTemporaryDecl->getExtendingDecl();
@@ -882,6 +1296,8 @@ LinkageSpecDecl::LinkageSpecDecl(
     const ::clang::Decl *decl_)
     : Decl(ast_, decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, LinkageSpecDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, LinkageSpecDecl)
 ::pasta::Token LinkageSpecDecl::EndToken(void) const {
   auto val = u.LinkageSpecDecl->getEndLoc();
   return ast->TokenAt(val);
@@ -917,6 +1333,7 @@ NamedDecl::NamedDecl(
     const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, NamedDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, BindingDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, BuiltinTemplateDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, CXXConstructorDecl)
@@ -1060,6 +1477,8 @@ NamespaceAliasDecl::NamespaceAliasDecl(
     const ::clang::Decl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, NamespaceAliasDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, NamespaceAliasDecl)
 ::pasta::Token NamespaceAliasDecl::AliasToken(void) const {
   auto val = u.NamespaceAliasDecl->getAliasLoc();
   return ast->TokenAt(val);
@@ -1114,6 +1533,9 @@ NamespaceDecl::NamespaceDecl(
     const ::clang::Decl *decl_)
     : NamedDecl(ast_, decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, NamespaceDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, NamespaceDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, NamespaceDecl)
 ::pasta::NamespaceDecl NamespaceDecl::AnonymousNamespace(void) const {
   auto val = u.NamespaceDecl->getAnonymousNamespace();
   if (val) {
@@ -1162,6 +1584,8 @@ ObjCCompatibleAliasDecl::ObjCCompatibleAliasDecl(
     const ::clang::Decl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCCompatibleAliasDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCCompatibleAliasDecl)
 ::pasta::ObjCInterfaceDecl ObjCCompatibleAliasDecl::ClassInterface(void) const {
   auto val = u.ObjCCompatibleAliasDecl->getClassInterface();
   if (val) {
@@ -1176,6 +1600,9 @@ ObjCContainerDecl::ObjCContainerDecl(
     const ::clang::Decl *decl_)
     : NamedDecl(ast_, decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, ObjCContainerDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCContainerDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCContainerDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ObjCContainerDecl, ObjCCategoryDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ObjCContainerDecl, ObjCCategoryImplDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ObjCContainerDecl, ObjCImplDecl)
@@ -1259,6 +1686,10 @@ ObjCImplDecl::ObjCImplDecl(
     const ::clang::Decl *decl_)
     : ObjCContainerDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, ObjCImplDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCImplDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCImplDecl)
+PASTA_DEFINE_BASE_OPERATORS(ObjCContainerDecl, ObjCImplDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ObjCImplDecl, ObjCCategoryImplDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ObjCImplDecl, ObjCImplementationDecl)
 ::pasta::ObjCInterfaceDecl ObjCImplDecl::ClassInterface(void) const {
@@ -1284,6 +1715,11 @@ ObjCImplementationDecl::ObjCImplementationDecl(
     const ::clang::Decl *decl_)
     : ObjCImplDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, ObjCImplementationDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCImplementationDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCImplementationDecl)
+PASTA_DEFINE_BASE_OPERATORS(ObjCContainerDecl, ObjCImplementationDecl)
+PASTA_DEFINE_BASE_OPERATORS(ObjCImplDecl, ObjCImplementationDecl)
 // 0: ObjCImplementationDecl::Identifier
 ::pasta::Token ObjCImplementationDecl::IvarLBraceToken(void) const {
   auto val = u.ObjCImplementationDecl->getIvarLBraceLoc();
@@ -1353,6 +1789,10 @@ ObjCInterfaceDecl::ObjCInterfaceDecl(
     const ::clang::Decl *decl_)
     : ObjCContainerDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, ObjCInterfaceDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCInterfaceDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCInterfaceDecl)
+PASTA_DEFINE_BASE_OPERATORS(ObjCContainerDecl, ObjCInterfaceDecl)
 std::vector<::pasta::ObjCProtocolDecl> ObjCInterfaceDecl::AllReferencedProtocols(void) const {
   auto val = u.ObjCInterfaceDecl->all_referenced_protocols();
   std::vector<::pasta::ObjCProtocolDecl> ret;
@@ -1499,6 +1939,9 @@ ObjCMethodDecl::ObjCMethodDecl(
     const ::clang::Decl *decl_)
     : NamedDecl(ast_, decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, ObjCMethodDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCMethodDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCMethodDecl)
 ::pasta::Token ObjCMethodDecl::BeginToken(void) const {
   auto val = u.ObjCMethodDecl->getBeginLoc();
   return ast->TokenAt(val);
@@ -1664,6 +2107,8 @@ ObjCPropertyDecl::ObjCPropertyDecl(
     const ::clang::Decl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCPropertyDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCPropertyDecl)
 ::pasta::Token ObjCPropertyDecl::AtToken(void) const {
   auto val = u.ObjCPropertyDecl->getAtLoc();
   return ast->TokenAt(val);
@@ -1777,6 +2222,7 @@ ObjCPropertyImplDecl::ObjCPropertyImplDecl(
     const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCPropertyImplDecl)
 ::pasta::Token ObjCPropertyImplDecl::BeginToken(void) const {
   auto val = u.ObjCPropertyImplDecl->getBeginLoc();
   return ast->TokenAt(val);
@@ -1836,6 +2282,10 @@ ObjCProtocolDecl::ObjCProtocolDecl(
     const ::clang::Decl *decl_)
     : ObjCContainerDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, ObjCProtocolDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCProtocolDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCProtocolDecl)
+PASTA_DEFINE_BASE_OPERATORS(ObjCContainerDecl, ObjCProtocolDecl)
 ::pasta::ObjCProtocolDecl ObjCProtocolDecl::CanonicalDecl(void) const {
   auto val = u.ObjCProtocolDecl->getCanonicalDecl();
   if (val) {
@@ -1897,6 +2347,7 @@ PragmaCommentDecl::PragmaCommentDecl(
     const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, PragmaCommentDecl)
 std::string_view PragmaCommentDecl::Arg(void) const {
   auto val = u.PragmaCommentDecl->getArg();
   if (auto size = val.size()) {
@@ -1916,6 +2367,7 @@ PragmaDetectMismatchDecl::PragmaDetectMismatchDecl(
     const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, PragmaDetectMismatchDecl)
 std::string_view PragmaDetectMismatchDecl::Name(void) const {
   auto val = u.PragmaDetectMismatchDecl->getName();
   if (auto size = val.size()) {
@@ -1939,11 +2391,14 @@ RequiresExprBodyDecl::RequiresExprBodyDecl(
     const ::clang::Decl *decl_)
     : Decl(ast_, decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, RequiresExprBodyDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, RequiresExprBodyDecl)
 StaticAssertDecl::StaticAssertDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, StaticAssertDecl)
 // 0: StaticAssertDecl::AssertExpr
 // 0: StaticAssertDecl::Message
 ::pasta::Token StaticAssertDecl::RParenToken(void) const {
@@ -1966,6 +2421,8 @@ TemplateDecl::TemplateDecl(
     const ::clang::Decl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, TemplateDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, TemplateDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TemplateDecl, BuiltinTemplateDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TemplateDecl, ClassTemplateDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TemplateDecl, ConceptDecl)
@@ -1994,6 +2451,9 @@ TemplateTemplateParmDecl::TemplateTemplateParmDecl(
     const ::clang::Decl *decl_)
     : TemplateDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, TemplateTemplateParmDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, TemplateTemplateParmDecl)
+PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, TemplateTemplateParmDecl)
 bool TemplateTemplateParmDecl::DefaultArgumentWasInherited(void) const {
   auto val = u.TemplateTemplateParmDecl->defaultArgumentWasInherited();
   return val;
@@ -2037,6 +2497,8 @@ TranslationUnitDecl::TranslationUnitDecl(
     const ::clang::Decl *decl_)
     : Decl(ast_, decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, TranslationUnitDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, TranslationUnitDecl)
 // 0: TranslationUnitDecl::ASTContext
 ::pasta::NamespaceDecl TranslationUnitDecl::AnonymousNamespace(void) const {
   auto val = u.TranslationUnitDecl->getAnonymousNamespace();
@@ -2052,6 +2514,8 @@ TypeDecl::TypeDecl(
     const ::clang::Decl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, TypeDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, TypeDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeDecl, CXXRecordDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeDecl, ClassTemplatePartialSpecializationDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeDecl, ClassTemplateSpecializationDecl)
@@ -2080,6 +2544,9 @@ TypedefNameDecl::TypedefNameDecl(
     const ::clang::Decl *decl_)
     : TypeDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, TypedefNameDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, TypedefNameDecl)
+PASTA_DEFINE_BASE_OPERATORS(TypeDecl, TypedefNameDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TypedefNameDecl, ObjCTypeParamDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TypedefNameDecl, TypeAliasDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TypedefNameDecl, TypedefDecl)
@@ -2109,6 +2576,9 @@ UnresolvedUsingTypenameDecl::UnresolvedUsingTypenameDecl(
     const ::clang::Decl *decl_)
     : TypeDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, UnresolvedUsingTypenameDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UnresolvedUsingTypenameDecl)
+PASTA_DEFINE_BASE_OPERATORS(TypeDecl, UnresolvedUsingTypenameDecl)
 ::pasta::UnresolvedUsingTypenameDecl UnresolvedUsingTypenameDecl::CanonicalDecl(void) const {
   auto val = u.UnresolvedUsingTypenameDecl->getCanonicalDecl();
   if (val) {
@@ -2146,6 +2616,8 @@ UsingDecl::UsingDecl(
     const ::clang::Decl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, UsingDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingDecl)
 ::pasta::UsingDecl UsingDecl::CanonicalDecl(void) const {
   auto val = u.UsingDecl->getCanonicalDecl();
   if (val) {
@@ -2187,6 +2659,8 @@ UsingDirectiveDecl::UsingDirectiveDecl(
     const ::clang::Decl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, UsingDirectiveDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingDirectiveDecl)
 ::pasta::DeclContext UsingDirectiveDecl::CommonAncestor(void) const {
   auto val = u.UsingDirectiveDecl->getCommonAncestor();
   if (val) {
@@ -2241,6 +2715,8 @@ UsingPackDecl::UsingPackDecl(
     const ::clang::Decl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, UsingPackDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingPackDecl)
 std::vector<::pasta::NamedDecl> UsingPackDecl::Expansions(void) const {
   auto val = u.UsingPackDecl->expansions();
   std::vector<::pasta::NamedDecl> ret;
@@ -2278,6 +2754,8 @@ UsingShadowDecl::UsingShadowDecl(
     const ::clang::Decl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, UsingShadowDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingShadowDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(UsingShadowDecl, ConstructorUsingShadowDecl)
 ::pasta::UsingShadowDecl UsingShadowDecl::CanonicalDecl(void) const {
   auto val = u.UsingShadowDecl->getCanonicalDecl();
@@ -2311,6 +2789,8 @@ ValueDecl::ValueDecl(
     const ::clang::Decl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, ValueDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ValueDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, BindingDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, CXXConstructorDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, CXXConversionDecl)
@@ -2345,6 +2825,20 @@ OMPDeclarativeDirectiveDecl::OMPDeclarativeDirectiveDecl(
     const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
+std::optional<OMPDeclarativeDirectiveDecl> OMPDeclarativeDirectiveDecl::From(const Decl &that) {
+  if (false) {
+    return std::nullopt;
+  } else if (auto p_OMPAllocateDecl = clang::dyn_cast<clang::OMPAllocateDecl>(that.u.Decl)) {
+    return DeclBuilder::Create<OMPDeclarativeDirectiveDecl>(that.ast, p_OMPAllocateDecl);
+  } else if (auto p_OMPRequiresDecl = clang::dyn_cast<clang::OMPRequiresDecl>(that.u.Decl)) {
+    return DeclBuilder::Create<OMPDeclarativeDirectiveDecl>(that.ast, p_OMPRequiresDecl);
+  } else if (auto p_OMPThreadPrivateDecl = clang::dyn_cast<clang::OMPThreadPrivateDecl>(that.u.Decl)) {
+    return DeclBuilder::Create<OMPDeclarativeDirectiveDecl>(that.ast, p_OMPThreadPrivateDecl);
+  } else {
+    return std::nullopt;
+  }
+}
+
 PASTA_DEFINE_DERIVED_OPERATORS(OMPDeclarativeDirectiveDecl, OMPAllocateDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPDeclarativeDirectiveDecl, OMPRequiresDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPDeclarativeDirectiveDecl, OMPThreadPrivateDecl)
@@ -2353,12 +2847,43 @@ OMPDeclarativeDirectiveValueDecl::OMPDeclarativeDirectiveValueDecl(
     const ::clang::Decl *decl_)
     : ValueDecl(std::move(ast_), decl_) {}
 
+std::optional<OMPDeclarativeDirectiveValueDecl> OMPDeclarativeDirectiveValueDecl::From(const Decl &that) {
+  if (false) {
+    return std::nullopt;
+  } else if (auto p_OMPDeclareMapperDecl = clang::dyn_cast<clang::OMPDeclareMapperDecl>(that.u.Decl)) {
+    return DeclBuilder::Create<OMPDeclarativeDirectiveValueDecl>(that.ast, p_OMPDeclareMapperDecl);
+  } else {
+    return std::nullopt;
+  }
+}
+
+std::optional<OMPDeclarativeDirectiveValueDecl> OMPDeclarativeDirectiveValueDecl::From(const NamedDecl &that) {
+  if (false) {
+    return std::nullopt;
+  } else if (auto p_OMPDeclareMapperDecl = clang::dyn_cast<clang::OMPDeclareMapperDecl>(that.u.Decl)) {
+    return DeclBuilder::Create<OMPDeclarativeDirectiveValueDecl>(that.ast, p_OMPDeclareMapperDecl);
+  } else {
+    return std::nullopt;
+  }
+}
+
+std::optional<OMPDeclarativeDirectiveValueDecl> OMPDeclarativeDirectiveValueDecl::From(const ValueDecl &that) {
+  if (false) {
+    return std::nullopt;
+  } else if (auto p_OMPDeclareMapperDecl = clang::dyn_cast<clang::OMPDeclareMapperDecl>(that.u.Decl)) {
+    return DeclBuilder::Create<OMPDeclarativeDirectiveValueDecl>(that.ast, p_OMPDeclareMapperDecl);
+  } else {
+    return std::nullopt;
+  }
+}
+
 PASTA_DEFINE_DERIVED_OPERATORS(OMPDeclarativeDirectiveValueDecl, OMPDeclareMapperDecl)
 AccessSpecDecl::AccessSpecDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, AccessSpecDecl)
 ::pasta::Token AccessSpecDecl::AccessSpecifierToken(void) const {
   auto val = u.AccessSpecDecl->getAccessSpecifierLoc();
   return ast->TokenAt(val);
@@ -2379,12 +2904,17 @@ BindingDecl::BindingDecl(
     const ::clang::Decl *decl_)
     : ValueDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, BindingDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, BindingDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, BindingDecl)
 // 0: BindingDecl::Binding
 BlockDecl::BlockDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
     : Decl(ast_, decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, BlockDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, BlockDecl)
 bool BlockDecl::BlockMissingReturnType(void) const {
   auto val = u.BlockDecl->blockMissingReturnType();
   return val;
@@ -2468,6 +2998,9 @@ BuiltinTemplateDecl::BuiltinTemplateDecl(
     const ::clang::Decl *decl_)
     : TemplateDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, BuiltinTemplateDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, BuiltinTemplateDecl)
+PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, BuiltinTemplateDecl)
 // 0: BuiltinTemplateDecl::BuiltinTemplateKind
 ::pasta::TokenRange BuiltinTemplateDecl::TokenRange(void) const {
   auto val = u.BuiltinTemplateDecl->getSourceRange();
@@ -2479,6 +3012,8 @@ CapturedDecl::CapturedDecl(
     const ::clang::Decl *decl_)
     : Decl(ast_, decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, CapturedDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, CapturedDecl)
 ::pasta::ImplicitParamDecl CapturedDecl::ContextParam(void) const {
   auto val = u.CapturedDecl->getContextParam();
   if (val) {
@@ -2513,6 +3048,7 @@ ClassScopeFunctionSpecializationDecl::ClassScopeFunctionSpecializationDecl(
     const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, ClassScopeFunctionSpecializationDecl)
 ::pasta::CXXMethodDecl ClassScopeFunctionSpecializationDecl::Specialization(void) const {
   auto val = u.ClassScopeFunctionSpecializationDecl->getSpecialization();
   if (val) {
@@ -2533,6 +3069,9 @@ ConceptDecl::ConceptDecl(
     const ::clang::Decl *decl_)
     : TemplateDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, ConceptDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ConceptDecl)
+PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, ConceptDecl)
 ::pasta::ConceptDecl ConceptDecl::CanonicalDecl(void) const {
   auto val = u.ConceptDecl->getCanonicalDecl();
   if (val) {
@@ -2558,6 +3097,9 @@ ConstructorUsingShadowDecl::ConstructorUsingShadowDecl(
     const ::clang::Decl *decl_)
     : UsingShadowDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, ConstructorUsingShadowDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ConstructorUsingShadowDecl)
+PASTA_DEFINE_BASE_OPERATORS(UsingShadowDecl, ConstructorUsingShadowDecl)
 bool ConstructorUsingShadowDecl::ConstructsVirtualBase(void) const {
   auto val = u.ConstructorUsingShadowDecl->constructsVirtualBase();
   return val;
@@ -2604,6 +3146,9 @@ DeclaratorDecl::DeclaratorDecl(
     const ::clang::Decl *decl_)
     : ValueDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, DeclaratorDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, DeclaratorDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, DeclaratorDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(DeclaratorDecl, CXXConstructorDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(DeclaratorDecl, CXXConversionDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(DeclaratorDecl, CXXDeductionGuideDecl)
@@ -2647,6 +3192,9 @@ EnumConstantDecl::EnumConstantDecl(
     const ::clang::Decl *decl_)
     : ValueDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, EnumConstantDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, EnumConstantDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, EnumConstantDecl)
 ::pasta::EnumConstantDecl EnumConstantDecl::CanonicalDecl(void) const {
   auto val = u.EnumConstantDecl->getCanonicalDecl();
   if (val) {
@@ -2663,6 +3211,10 @@ FieldDecl::FieldDecl(
     const ::clang::Decl *decl_)
     : DeclaratorDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, FieldDecl)
+PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, FieldDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, FieldDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, FieldDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FieldDecl, ObjCAtDefsFieldDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FieldDecl, ObjCIvarDecl)
 // 0: FieldDecl::BitWidth
@@ -2721,6 +3273,11 @@ FunctionDecl::FunctionDecl(
     const ::clang::Decl *decl_)
     : DeclaratorDecl(ast_, decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, FunctionDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, FunctionDecl)
+PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, FunctionDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, FunctionDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, FunctionDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXConstructorDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXConversionDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXDeductionGuideDecl)
@@ -2940,6 +3497,9 @@ IndirectFieldDecl::IndirectFieldDecl(
     const ::clang::Decl *decl_)
     : ValueDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, IndirectFieldDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, IndirectFieldDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, IndirectFieldDecl)
 std::vector<::pasta::NamedDecl> IndirectFieldDecl::Chain(void) const {
   auto val = u.IndirectFieldDecl->chain();
   std::vector<::pasta::NamedDecl> ret;
@@ -2986,6 +3546,8 @@ LabelDecl::LabelDecl(
     const ::clang::Decl *decl_)
     : NamedDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, LabelDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, LabelDecl)
 std::string_view LabelDecl::MSAsmLabel(void) const {
   auto val = u.LabelDecl->getMSAsmLabel();
   if (auto size = val.size()) {
@@ -3021,12 +3583,19 @@ MSGuidDecl::MSGuidDecl(
     const ::clang::Decl *decl_)
     : ValueDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, MSGuidDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, MSGuidDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, MSGuidDecl)
 // 0: MSGuidDecl::Parts
 MSPropertyDecl::MSPropertyDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
     : DeclaratorDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, MSPropertyDecl)
+PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, MSPropertyDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, MSPropertyDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, MSPropertyDecl)
 // 0: MSPropertyDecl::GetterId
 // 0: MSPropertyDecl::SetterId
 bool MSPropertyDecl::HasGetter(void) const {
@@ -3044,6 +3613,10 @@ NonTypeTemplateParmDecl::NonTypeTemplateParmDecl(
     const ::clang::Decl *decl_)
     : DeclaratorDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, NonTypeTemplateParmDecl)
+PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, NonTypeTemplateParmDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, NonTypeTemplateParmDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, NonTypeTemplateParmDecl)
 bool NonTypeTemplateParmDecl::DefaultArgumentWasInherited(void) const {
   auto val = u.NonTypeTemplateParmDecl->defaultArgumentWasInherited();
   return val;
@@ -3090,6 +3663,8 @@ OMPAllocateDecl::OMPAllocateDecl(
     const ::clang::Decl *decl_)
     : OMPDeclarativeDirectiveDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, OMPAllocateDecl)
+PASTA_DEFINE_BASE_OPERATORS(OMPDeclarativeDirectiveDecl, OMPAllocateDecl)
 // 0: OMPAllocateDecl::Clauses
 // 0: OMPAllocateDecl::Varlists
 OMPDeclareMapperDecl::OMPDeclareMapperDecl(
@@ -3097,6 +3672,11 @@ OMPDeclareMapperDecl::OMPDeclareMapperDecl(
     const ::clang::Decl *decl_)
     : OMPDeclarativeDirectiveValueDecl(ast_, decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, OMPDeclareMapperDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, OMPDeclareMapperDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, OMPDeclareMapperDecl)
+PASTA_DEFINE_BASE_OPERATORS(OMPDeclarativeDirectiveValueDecl, OMPDeclareMapperDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPDeclareMapperDecl)
 // 0: OMPDeclareMapperDecl::Clauses
 // 0: OMPDeclareMapperDecl::MapperVarRef
 OMPDeclareReductionDecl::OMPDeclareReductionDecl(
@@ -3104,6 +3684,10 @@ OMPDeclareReductionDecl::OMPDeclareReductionDecl(
     const ::clang::Decl *decl_)
     : ValueDecl(ast_, decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, OMPDeclareReductionDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, OMPDeclareReductionDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, OMPDeclareReductionDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPDeclareReductionDecl)
 // 0: OMPDeclareReductionDecl::Combiner
 // 0: OMPDeclareReductionDecl::CombinerIn
 // 0: OMPDeclareReductionDecl::CombinerOut
@@ -3116,23 +3700,36 @@ OMPRequiresDecl::OMPRequiresDecl(
     const ::clang::Decl *decl_)
     : OMPDeclarativeDirectiveDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, OMPRequiresDecl)
+PASTA_DEFINE_BASE_OPERATORS(OMPDeclarativeDirectiveDecl, OMPRequiresDecl)
 // 0: OMPRequiresDecl::Clauses
 OMPThreadPrivateDecl::OMPThreadPrivateDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
     : OMPDeclarativeDirectiveDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, OMPThreadPrivateDecl)
+PASTA_DEFINE_BASE_OPERATORS(OMPDeclarativeDirectiveDecl, OMPThreadPrivateDecl)
 // 0: OMPThreadPrivateDecl::Varlists
 ObjCAtDefsFieldDecl::ObjCAtDefsFieldDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
     : FieldDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCAtDefsFieldDecl)
+PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, ObjCAtDefsFieldDecl)
+PASTA_DEFINE_BASE_OPERATORS(FieldDecl, ObjCAtDefsFieldDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCAtDefsFieldDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, ObjCAtDefsFieldDecl)
 ObjCCategoryDecl::ObjCCategoryDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
     : ObjCContainerDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, ObjCCategoryDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCCategoryDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCCategoryDecl)
+PASTA_DEFINE_BASE_OPERATORS(ObjCContainerDecl, ObjCCategoryDecl)
 bool ObjCCategoryDecl::IsClassExtension(void) const {
   auto val = u.ObjCCategoryDecl->IsClassExtension();
   return val;
@@ -3216,6 +3813,11 @@ ObjCCategoryImplDecl::ObjCCategoryImplDecl(
     const ::clang::Decl *decl_)
     : ObjCImplDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, ObjCCategoryImplDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCCategoryImplDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCCategoryImplDecl)
+PASTA_DEFINE_BASE_OPERATORS(ObjCContainerDecl, ObjCCategoryImplDecl)
+PASTA_DEFINE_BASE_OPERATORS(ObjCImplDecl, ObjCCategoryImplDecl)
 ::pasta::Token ObjCCategoryImplDecl::CategoryNameToken(void) const {
   auto val = u.ObjCCategoryImplDecl->getCategoryNameLoc();
   return ast->TokenAt(val);
@@ -3226,6 +3828,11 @@ ObjCIvarDecl::ObjCIvarDecl(
     const ::clang::Decl *decl_)
     : FieldDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCIvarDecl)
+PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, ObjCIvarDecl)
+PASTA_DEFINE_BASE_OPERATORS(FieldDecl, ObjCIvarDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCIvarDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, ObjCIvarDecl)
 // 0: ObjCIvarDecl::AccessControl
 // 0: ObjCIvarDecl::CanonicalAccessControl
 ::pasta::ObjCIvarDecl ObjCIvarDecl::NextIvar(void) const {
@@ -3247,6 +3854,10 @@ ObjCTypeParamDecl::ObjCTypeParamDecl(
     const ::clang::Decl *decl_)
     : TypedefNameDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCTypeParamDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCTypeParamDecl)
+PASTA_DEFINE_BASE_OPERATORS(TypeDecl, ObjCTypeParamDecl)
+PASTA_DEFINE_BASE_OPERATORS(TypedefNameDecl, ObjCTypeParamDecl)
 ::pasta::Token ObjCTypeParamDecl::ColonToken(void) const {
   auto val = u.ObjCTypeParamDecl->getColonLoc();
   return ast->TokenAt(val);
@@ -3277,6 +3888,9 @@ RedeclarableTemplateDecl::RedeclarableTemplateDecl(
     const ::clang::Decl *decl_)
     : TemplateDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, RedeclarableTemplateDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, RedeclarableTemplateDecl)
+PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, RedeclarableTemplateDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(RedeclarableTemplateDecl, ClassTemplateDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(RedeclarableTemplateDecl, FunctionTemplateDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(RedeclarableTemplateDecl, TypeAliasTemplateDecl)
@@ -3309,6 +3923,10 @@ TagDecl::TagDecl(
     const ::clang::Decl *decl_)
     : TypeDecl(ast_, decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, TagDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, TagDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, TagDecl)
+PASTA_DEFINE_BASE_OPERATORS(TypeDecl, TagDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TagDecl, CXXRecordDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TagDecl, ClassTemplatePartialSpecializationDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TagDecl, ClassTemplateSpecializationDecl)
@@ -3439,6 +4057,9 @@ TemplateParamObjectDecl::TemplateParamObjectDecl(
     const ::clang::Decl *decl_)
     : ValueDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, TemplateParamObjectDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, TemplateParamObjectDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, TemplateParamObjectDecl)
 ::pasta::TemplateParamObjectDecl TemplateParamObjectDecl::CanonicalDecl(void) const {
   auto val = u.TemplateParamObjectDecl->getCanonicalDecl();
   if (val) {
@@ -3454,6 +4075,9 @@ TemplateTypeParmDecl::TemplateTypeParmDecl(
     const ::clang::Decl *decl_)
     : TypeDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, TemplateTypeParmDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, TemplateTypeParmDecl)
+PASTA_DEFINE_BASE_OPERATORS(TypeDecl, TemplateTypeParmDecl)
 bool TemplateTypeParmDecl::DefaultArgumentWasInherited(void) const {
   auto val = u.TemplateTypeParmDecl->defaultArgumentWasInherited();
   return val;
@@ -3499,6 +4123,10 @@ TypeAliasDecl::TypeAliasDecl(
     const ::clang::Decl *decl_)
     : TypedefNameDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, TypeAliasDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, TypeAliasDecl)
+PASTA_DEFINE_BASE_OPERATORS(TypeDecl, TypeAliasDecl)
+PASTA_DEFINE_BASE_OPERATORS(TypedefNameDecl, TypeAliasDecl)
 ::pasta::TypeAliasTemplateDecl TypeAliasDecl::DescribedAliasTemplate(void) const {
   auto val = u.TypeAliasDecl->getDescribedAliasTemplate();
   if (val) {
@@ -3513,6 +4141,10 @@ TypeAliasTemplateDecl::TypeAliasTemplateDecl(
     const ::clang::Decl *decl_)
     : RedeclarableTemplateDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, TypeAliasTemplateDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, TypeAliasTemplateDecl)
+PASTA_DEFINE_BASE_OPERATORS(RedeclarableTemplateDecl, TypeAliasTemplateDecl)
+PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, TypeAliasTemplateDecl)
 ::pasta::TypeAliasTemplateDecl TypeAliasTemplateDecl::CanonicalDecl(void) const {
   auto val = u.TypeAliasTemplateDecl->getCanonicalDecl();
   if (val) {
@@ -3554,11 +4186,18 @@ TypedefDecl::TypedefDecl(
     const ::clang::Decl *decl_)
     : TypedefNameDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, TypedefDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, TypedefDecl)
+PASTA_DEFINE_BASE_OPERATORS(TypeDecl, TypedefDecl)
+PASTA_DEFINE_BASE_OPERATORS(TypedefNameDecl, TypedefDecl)
 UnresolvedUsingValueDecl::UnresolvedUsingValueDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
     : ValueDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, UnresolvedUsingValueDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UnresolvedUsingValueDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, UnresolvedUsingValueDecl)
 ::pasta::UnresolvedUsingValueDecl UnresolvedUsingValueDecl::CanonicalDecl(void) const {
   auto val = u.UnresolvedUsingValueDecl->getCanonicalDecl();
   if (val) {
@@ -3596,6 +4235,10 @@ VarDecl::VarDecl(
     const ::clang::Decl *decl_)
     : DeclaratorDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, VarDecl)
+PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, VarDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, VarDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, VarDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(VarDecl, DecompositionDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(VarDecl, ImplicitParamDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(VarDecl, OMPCapturedExprDecl)
@@ -3759,6 +4402,10 @@ VarTemplateDecl::VarTemplateDecl(
     const ::clang::Decl *decl_)
     : RedeclarableTemplateDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, VarTemplateDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, VarTemplateDecl)
+PASTA_DEFINE_BASE_OPERATORS(RedeclarableTemplateDecl, VarTemplateDecl)
+PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, VarTemplateDecl)
 ::pasta::VarTemplateDecl VarTemplateDecl::CanonicalDecl(void) const {
   auto val = u.VarTemplateDecl->getCanonicalDecl();
   if (val) {
@@ -3823,6 +4470,11 @@ VarTemplateSpecializationDecl::VarTemplateSpecializationDecl(
     const ::clang::Decl *decl_)
     : VarDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, VarTemplateSpecializationDecl)
+PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, VarTemplateSpecializationDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, VarTemplateSpecializationDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, VarTemplateSpecializationDecl)
+PASTA_DEFINE_BASE_OPERATORS(VarDecl, VarTemplateSpecializationDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(VarTemplateSpecializationDecl, VarTemplatePartialSpecializationDecl)
 // 1: VarTemplateSpecializationDecl::Profile
 ::pasta::Token VarTemplateSpecializationDecl::ExternToken(void) const {
@@ -3895,6 +4547,12 @@ CXXDeductionGuideDecl::CXXDeductionGuideDecl(
     const ::clang::Decl *decl_)
     : FunctionDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, CXXDeductionGuideDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, CXXDeductionGuideDecl)
+PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, CXXDeductionGuideDecl)
+PASTA_DEFINE_BASE_OPERATORS(FunctionDecl, CXXDeductionGuideDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, CXXDeductionGuideDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXDeductionGuideDecl)
 ::pasta::TemplateDecl CXXDeductionGuideDecl::DeducedTemplate(void) const {
   auto val = u.CXXDeductionGuideDecl->getDeducedTemplate();
   if (val) {
@@ -3920,6 +4578,12 @@ CXXMethodDecl::CXXMethodDecl(
     const ::clang::Decl *decl_)
     : FunctionDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, CXXMethodDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, CXXMethodDecl)
+PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, CXXMethodDecl)
+PASTA_DEFINE_BASE_OPERATORS(FunctionDecl, CXXMethodDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, CXXMethodDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXMethodDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(CXXMethodDecl, CXXConstructorDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(CXXMethodDecl, CXXConversionDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(CXXMethodDecl, CXXDestructorDecl)
@@ -3984,6 +4648,10 @@ ClassTemplateDecl::ClassTemplateDecl(
     const ::clang::Decl *decl_)
     : RedeclarableTemplateDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, ClassTemplateDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ClassTemplateDecl)
+PASTA_DEFINE_BASE_OPERATORS(RedeclarableTemplateDecl, ClassTemplateDecl)
+PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, ClassTemplateDecl)
 ::pasta::ClassTemplateDecl ClassTemplateDecl::CanonicalDecl(void) const {
   auto val = u.ClassTemplateDecl->getCanonicalDecl();
   if (val) {
@@ -4048,6 +4716,11 @@ DecompositionDecl::DecompositionDecl(
     const ::clang::Decl *decl_)
     : VarDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, DecompositionDecl)
+PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, DecompositionDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, DecompositionDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, DecompositionDecl)
+PASTA_DEFINE_BASE_OPERATORS(VarDecl, DecompositionDecl)
 std::vector<::pasta::BindingDecl> DecompositionDecl::Bindings(void) const {
   auto val = u.DecompositionDecl->bindings();
   std::vector<::pasta::BindingDecl> ret;
@@ -4062,6 +4735,11 @@ EnumDecl::EnumDecl(
     const ::clang::Decl *decl_)
     : TagDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, EnumDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, EnumDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, EnumDecl)
+PASTA_DEFINE_BASE_OPERATORS(TagDecl, EnumDecl)
+PASTA_DEFINE_BASE_OPERATORS(TypeDecl, EnumDecl)
 std::vector<::pasta::EnumConstantDecl> EnumDecl::Enumerators(void) const {
   auto val = u.EnumDecl->enumerators();
   std::vector<::pasta::EnumConstantDecl> ret;
@@ -4146,6 +4824,10 @@ FunctionTemplateDecl::FunctionTemplateDecl(
     const ::clang::Decl *decl_)
     : RedeclarableTemplateDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, FunctionTemplateDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, FunctionTemplateDecl)
+PASTA_DEFINE_BASE_OPERATORS(RedeclarableTemplateDecl, FunctionTemplateDecl)
+PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, FunctionTemplateDecl)
 ::pasta::FunctionTemplateDecl FunctionTemplateDecl::CanonicalDecl(void) const {
   auto val = u.FunctionTemplateDecl->getCanonicalDecl();
   if (val) {
@@ -4207,6 +4889,11 @@ ImplicitParamDecl::ImplicitParamDecl(
     const ::clang::Decl *decl_)
     : VarDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, ImplicitParamDecl)
+PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, ImplicitParamDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ImplicitParamDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, ImplicitParamDecl)
+PASTA_DEFINE_BASE_OPERATORS(VarDecl, ImplicitParamDecl)
 ::pasta::ImplicitParamKind ImplicitParamDecl::ParameterKind(void) const {
   auto val = u.ImplicitParamDecl->getParameterKind();
   return static_cast<::pasta::ImplicitParamKind>(val);
@@ -4217,11 +4904,21 @@ OMPCapturedExprDecl::OMPCapturedExprDecl(
     const ::clang::Decl *decl_)
     : VarDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, OMPCapturedExprDecl)
+PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, OMPCapturedExprDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, OMPCapturedExprDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPCapturedExprDecl)
+PASTA_DEFINE_BASE_OPERATORS(VarDecl, OMPCapturedExprDecl)
 ParmVarDecl::ParmVarDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
     : VarDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, ParmVarDecl)
+PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, ParmVarDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ParmVarDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, ParmVarDecl)
+PASTA_DEFINE_BASE_OPERATORS(VarDecl, ParmVarDecl)
 // 0: ParmVarDecl::DefaultArg
 uint32_t ParmVarDecl::FunctionScopeDepth(void) const {
   auto val = u.ParmVarDecl->getFunctionScopeDepth();
@@ -4265,6 +4962,11 @@ RecordDecl::RecordDecl(
     const ::clang::Decl *decl_)
     : TagDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, RecordDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, RecordDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, RecordDecl)
+PASTA_DEFINE_BASE_OPERATORS(TagDecl, RecordDecl)
+PASTA_DEFINE_BASE_OPERATORS(TypeDecl, RecordDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(RecordDecl, CXXRecordDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(RecordDecl, ClassTemplatePartialSpecializationDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(RecordDecl, ClassTemplateSpecializationDecl)
@@ -4379,6 +5081,12 @@ VarTemplatePartialSpecializationDecl::VarTemplatePartialSpecializationDecl(
     const ::clang::Decl *decl_)
     : VarTemplateSpecializationDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Decl, VarTemplatePartialSpecializationDecl)
+PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, VarTemplatePartialSpecializationDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, VarTemplatePartialSpecializationDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, VarTemplatePartialSpecializationDecl)
+PASTA_DEFINE_BASE_OPERATORS(VarDecl, VarTemplatePartialSpecializationDecl)
+PASTA_DEFINE_BASE_OPERATORS(VarTemplateSpecializationDecl, VarTemplatePartialSpecializationDecl)
 // 1: VarTemplatePartialSpecializationDecl::Profile
 // 1: VarTemplatePartialSpecializationDecl::AssociatedConstraints
 ::pasta::VarTemplatePartialSpecializationDecl VarTemplatePartialSpecializationDecl::InstantiatedFromMember(void) const {
@@ -4402,6 +5110,13 @@ CXXConstructorDecl::CXXConstructorDecl(
     const ::clang::Decl *decl_)
     : CXXMethodDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, CXXConstructorDecl)
+PASTA_DEFINE_BASE_OPERATORS(CXXMethodDecl, CXXConstructorDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, CXXConstructorDecl)
+PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, CXXConstructorDecl)
+PASTA_DEFINE_BASE_OPERATORS(FunctionDecl, CXXConstructorDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, CXXConstructorDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXConstructorDecl)
 ::pasta::CXXConstructorDecl CXXConstructorDecl::CanonicalDecl(void) const {
   auto val = u.CXXConstructorDecl->getCanonicalDecl();
   if (val) {
@@ -4454,6 +5169,13 @@ CXXConversionDecl::CXXConversionDecl(
     const ::clang::Decl *decl_)
     : CXXMethodDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, CXXConversionDecl)
+PASTA_DEFINE_BASE_OPERATORS(CXXMethodDecl, CXXConversionDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, CXXConversionDecl)
+PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, CXXConversionDecl)
+PASTA_DEFINE_BASE_OPERATORS(FunctionDecl, CXXConversionDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, CXXConversionDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXConversionDecl)
 ::pasta::CXXConversionDecl CXXConversionDecl::CanonicalDecl(void) const {
   auto val = u.CXXConversionDecl->getCanonicalDecl();
   if (val) {
@@ -4475,6 +5197,13 @@ CXXDestructorDecl::CXXDestructorDecl(
     const ::clang::Decl *decl_)
     : CXXMethodDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, CXXDestructorDecl)
+PASTA_DEFINE_BASE_OPERATORS(CXXMethodDecl, CXXDestructorDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, CXXDestructorDecl)
+PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, CXXDestructorDecl)
+PASTA_DEFINE_BASE_OPERATORS(FunctionDecl, CXXDestructorDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, CXXDestructorDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXDestructorDecl)
 ::pasta::CXXDestructorDecl CXXDestructorDecl::CanonicalDecl(void) const {
   auto val = u.CXXDestructorDecl->getCanonicalDecl();
   if (val) {
@@ -4499,6 +5228,12 @@ CXXRecordDecl::CXXRecordDecl(
     const ::clang::Decl *decl_)
     : RecordDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, CXXRecordDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, CXXRecordDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, CXXRecordDecl)
+PASTA_DEFINE_BASE_OPERATORS(RecordDecl, CXXRecordDecl)
+PASTA_DEFINE_BASE_OPERATORS(TagDecl, CXXRecordDecl)
+PASTA_DEFINE_BASE_OPERATORS(TypeDecl, CXXRecordDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(CXXRecordDecl, ClassTemplatePartialSpecializationDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(CXXRecordDecl, ClassTemplateSpecializationDecl)
 bool CXXRecordDecl::AllowConstDefaultInit(void) const {
@@ -5046,6 +5781,13 @@ ClassTemplateSpecializationDecl::ClassTemplateSpecializationDecl(
     const ::clang::Decl *decl_)
     : CXXRecordDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, ClassTemplateSpecializationDecl)
+PASTA_DEFINE_BASE_OPERATORS(CXXRecordDecl, ClassTemplateSpecializationDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, ClassTemplateSpecializationDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ClassTemplateSpecializationDecl)
+PASTA_DEFINE_BASE_OPERATORS(RecordDecl, ClassTemplateSpecializationDecl)
+PASTA_DEFINE_BASE_OPERATORS(TagDecl, ClassTemplateSpecializationDecl)
+PASTA_DEFINE_BASE_OPERATORS(TypeDecl, ClassTemplateSpecializationDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ClassTemplateSpecializationDecl, ClassTemplatePartialSpecializationDecl)
 // 1: ClassTemplateSpecializationDecl::Profile
 ::pasta::Token ClassTemplateSpecializationDecl::ExternToken(void) const {
@@ -5117,6 +5859,14 @@ ClassTemplatePartialSpecializationDecl::ClassTemplatePartialSpecializationDecl(
     const ::clang::Decl *decl_)
     : ClassTemplateSpecializationDecl(std::move(ast_), decl_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, ClassTemplatePartialSpecializationDecl)
+PASTA_DEFINE_BASE_OPERATORS(CXXRecordDecl, ClassTemplatePartialSpecializationDecl)
+PASTA_DEFINE_BASE_OPERATORS(ClassTemplateSpecializationDecl, ClassTemplatePartialSpecializationDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, ClassTemplatePartialSpecializationDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ClassTemplatePartialSpecializationDecl)
+PASTA_DEFINE_BASE_OPERATORS(RecordDecl, ClassTemplatePartialSpecializationDecl)
+PASTA_DEFINE_BASE_OPERATORS(TagDecl, ClassTemplatePartialSpecializationDecl)
+PASTA_DEFINE_BASE_OPERATORS(TypeDecl, ClassTemplatePartialSpecializationDecl)
 // 1: ClassTemplatePartialSpecializationDecl::Profile
 // 1: ClassTemplatePartialSpecializationDecl::AssociatedConstraints
 // 0: ClassTemplatePartialSpecializationDecl::InjectedSpecializationType

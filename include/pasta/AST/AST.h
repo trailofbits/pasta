@@ -39,7 +39,9 @@ class AST {
   static AST From(const Decl &decl);
 
   ~AST(void);
+  AST(const AST &);
   AST(AST &&) noexcept;
+  AST &operator=(const AST &);
   AST &operator=(AST &&) noexcept;
 
   // Return the raw pre-processed code

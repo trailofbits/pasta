@@ -17,29 +17,63 @@
 #include <memory>
 #include <string>
 
-static std::string gIndent = "";
+class ASTDumper final : public pasta::DeclVisitor {
+ public:
+  virtual ~ASTDumper(void) = default;
 
-static void DumpDecl(pasta::Decl decl) {
-  std::cerr << gIndent << decl.KindName() << "\n";
-}
+  explicit ASTDumper(const pasta::AST &ast_, std::ostream &os_)
+      : ast(ast_),
+        os(os_) {}
 
-static void DumpContext(pasta::DeclContext dc) {
-  pasta::Decl decl(dc);
-  std::cerr << gIndent << decl.KindName() << " {\n";
-  auto old_indent = gIndent;
-  gIndent += "  ";
+  pasta::AST ast;
+  std::string indent;
+  std::ostream &os;
 
-  for (auto sub_decl : dc.AlreadyLoadedDecls()) {
-    DumpDecl(sub_decl);
+  void PushIndent(void) {
+    indent += "  ";
   }
 
-  gIndent.swap(old_indent);
-  std::cerr << gIndent << "}\n";
-}
+  void PopIndent(void) {
+    indent.resize(indent.size() - 2);
+  }
+
+  void VisitDeclContext(const pasta::DeclContext &dc) {
+    os << " {\n";
+    PushIndent();
+    for (const auto &decl : dc.AlreadyLoadedDecls()) {
+      Accept(decl);
+    }
+    PopIndent();
+    os << indent << "}\n";
+  }
+
+  void VisitTranslationUnitDecl(const pasta::TranslationUnitDecl &decl) final {
+    os << indent << decl.KindName();
+    VisitDeclContext(decl);
+  }
+
+  void VisitFunctionDecl(const pasta::FunctionDecl &decl) final {
+    os << indent << decl.KindName();
+    VisitDeclContext(decl);
+  }
+
+  void VisitRecordDecl(const pasta::RecordDecl &decl) final {
+    os << indent << decl.KindName();
+    VisitDeclContext(decl);
+  }
+
+  void VisitTypedefDecl(const pasta::TypedefDecl &decl) final {
+    os << indent << decl.KindName() << "\n";
+  }
+
+  void VisitDecl(const pasta::Decl &decl) final {
+    os << indent << decl.KindName() << "\n";
+  }
+};
 
 static void DumpAST(pasta::AST ast) {
-  pasta::DeclContext top_dc(ast.TranslationUnit());
-  DumpContext(top_dc);
+  ASTDumper dumper(ast, std::cerr);
+  dumper.Accept(ast.TranslationUnit());
 }
 
 int main(int argc, char *argv[]) {

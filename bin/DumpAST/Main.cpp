@@ -52,6 +52,21 @@ class ASTDumper final : public pasta::DeclVisitor {
     VisitDeclContext(decl);
   }
 
+  void VisitNamespaceDecl(const pasta::NamespaceDecl &decl) final {
+    os << indent << decl.KindName();
+    VisitDeclContext(decl);
+  }
+
+  void VisitExternCContextDecl(const pasta::ExternCContextDecl &decl) final {
+    os << indent << decl.KindName();
+    VisitDeclContext(decl);
+  }
+
+  void VisitLinkageSpecDecl(const pasta::LinkageSpecDecl &decl) final {
+    os << indent << decl.KindName();
+    VisitDeclContext(decl);
+  }
+
   void VisitFunctionDecl(const pasta::FunctionDecl &decl) final {
     os << indent << decl.KindName();
     VisitDeclContext(decl);

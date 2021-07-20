@@ -3,6 +3,7 @@
  */
 
 #include <pasta/AST/AST.h>
+#include <pasta/AST/Decl.h>
 #include <pasta/Compile/Command.h>
 #include <pasta/Compile/Compiler.h>
 #include <pasta/Compile/Job.h>
@@ -14,9 +15,80 @@
 #include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <string>
+
+class ASTDumper final : public pasta::DeclVisitor {
+ public:
+  virtual ~ASTDumper(void) = default;
+
+  explicit ASTDumper(const pasta::AST &ast_, std::ostream &os_)
+      : ast(ast_),
+        os(os_) {}
+
+  pasta::AST ast;
+  std::string indent;
+  std::ostream &os;
+
+  void PushIndent(void) {
+    indent += "  ";
+  }
+
+  void PopIndent(void) {
+    indent.resize(indent.size() - 2);
+  }
+
+  void VisitDeclContext(const pasta::DeclContext &dc) {
+    os << " {\n";
+    PushIndent();
+    for (const auto &decl : dc.AlreadyLoadedDecls()) {
+      Accept(decl);
+    }
+    PopIndent();
+    os << indent << "}\n";
+  }
+
+  void VisitTranslationUnitDecl(const pasta::TranslationUnitDecl &decl) final {
+    os << indent << decl.KindName();
+    VisitDeclContext(decl);
+  }
+
+  void VisitNamespaceDecl(const pasta::NamespaceDecl &decl) final {
+    os << indent << decl.KindName();
+    VisitDeclContext(decl);
+  }
+
+  void VisitExternCContextDecl(const pasta::ExternCContextDecl &decl) final {
+    os << indent << decl.KindName();
+    VisitDeclContext(decl);
+  }
+
+  void VisitLinkageSpecDecl(const pasta::LinkageSpecDecl &decl) final {
+    os << indent << decl.KindName();
+    VisitDeclContext(decl);
+  }
+
+  void VisitFunctionDecl(const pasta::FunctionDecl &decl) final {
+    os << indent << decl.KindName();
+    VisitDeclContext(decl);
+  }
+
+  void VisitTagDecl(const pasta::TagDecl &decl) final {
+    os << indent << decl.KindName();
+    VisitDeclContext(decl);
+  }
+
+  void VisitTypedefDecl(const pasta::TypedefDecl &decl) final {
+    os << indent << decl.KindName() << "\n";
+  }
+
+  void VisitDecl(const pasta::Decl &decl) final {
+    os << indent << decl.KindName() << "\n";
+  }
+};
 
 static void DumpAST(pasta::AST ast) {
-
+  ASTDumper dumper(ast, std::cerr);
+  dumper.Accept(ast.TranslationUnit());
 }
 
 int main(int argc, char *argv[]) {

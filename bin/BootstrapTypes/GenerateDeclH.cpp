@@ -16,7 +16,7 @@ extern void DeclareCppMethods(std::ostream &os, const std::string &class_name,
 // Generate `include/pasta/AST/Decl.h`.
 void GenerateDeclH(void) {
   std::ofstream os(kASTDeclHeader);
-
+  const std::string decl_context{"DeclContext"};
   os
       << "/*\n"
       << " * Copyright (c) 2021 Trail of Bits, Inc.\n"
@@ -26,12 +26,73 @@ void GenerateDeclH(void) {
       << "#ifdef PASTA_IN_BOOTSTRAP\n"
       << "#  include \"DeclBootstrap.h\"\n"
       << "#else\n"
+      << "#include <variant>\n"
+      << "#include <vector>\n"
       << "#include \"Forward.h\"\n\n"
+      << "#define PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(base) \\\n"
+      << "    friend class AST; \\\n"
+      << "    friend class ASTImpl; \\\n"
+      << "    friend class DeclBuilder; \\\n"
+      << "    friend class DeclVisitor; \\\n"
+      << "    base(void) = delete; \\\n"
+      << "    explicit base( \\\n"
+      << "        std::shared_ptr<ASTImpl> ast_, \\\n"
+      << "        const ::clang::Decl *decl_);\n\n"
+      << "#define PASTA_DECLARE_BASE_OPERATORS(base, derived) \\\n"
+      << "    static std::optional<class derived> From(const class base &);\n\n"
+      << "#define PASTA_DECLARE_DERIVED_OPERATORS(base, derived) \\\n"
+      << "    friend class derived; \\\n"
+      << "    base(const class derived &that_); \\\n"
+      << "    base(class derived &&that_) noexcept;  \\\n"
+      << "    base &operator=(const class derived &);  \\\n"
+      << "    base &operator=(class derived &&) noexcept;\n\n"
+      << "#define PASTA_DECLARE_DEFAULT_CONSTRUCTORS(cls) \\\n"
+      << "    ~cls(void) = default; \\\n"
+      << "    cls(const cls &) = default; \\\n"
+      << "    cls(cls &&) noexcept = default; \\\n"
+      << "    cls &operator=(const cls &) = default; \\\n"
+      << "    cls &operator=(cls &&) noexcept = default;\n\n"
       << "namespace pasta {\n"
+      << "class DeclVisitor {\n"
+      << " public:\n"
+      << "  virtual ~DeclVisitor(void);\n"
+      << "  void Accept(const Decl &);\n";
+
+  for (const auto &name : gTopologicallyOrderedDecls) {
+    if (name != "DeclContext") {
+      os << "  virtual void Visit" << name << "(const " << name << " &);\n";
+    }
+  }
+
+  os
+      << "};\n\n"
       << "class DeclContext {\n"
       << " public:\n"
-      << "  DeclContext(std::shared_ptr<ASTImpl> ast_, const clang::DeclContext *) {}\n"
-      << "};\n\n";
+      << "  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DeclContext)\n";
+
+  const auto &derived_from_decl_context =
+      gTransitiveDerivedClasses["DeclContext"];
+  for (const auto &derived_class : derived_from_decl_context) {
+    os << "  PASTA_DECLARE_DERIVED_OPERATORS(DeclContext, "
+       << derived_class << ")\n";
+  }
+
+  DeclareCppMethods(os, decl_context, gClassIDs[decl_context]);
+
+  os << " private:\n"
+     << "  friend class Decl;\n"
+     << "  friend class DeclVisitor;\n"
+     << "  friend class UsingDirectiveDecl;\n"
+     << "  std::shared_ptr<ASTImpl> ast;\n"
+     << "  union {\n"
+     << "    void *opaque;\n"
+     << "    const ::clang::DeclContext *DeclContext;\n"
+     << "  } u;\n"
+     << "  inline DeclContext(std::shared_ptr<ASTImpl> ast_, const clang::DeclContext *context_)\n"
+     << "      : ast(std::move(ast_)) {\n"
+     << "    u.DeclContext = context_;\n"
+     << "  }\n"
+     << "};\n\n";
 
   // Define them all.
   for (const auto &name : gTopologicallyOrderedDecls) {
@@ -52,13 +113,42 @@ void GenerateDeclH(void) {
     }
 
     os
-        << " {\n"
-        << " public:\n"
-        << "  ~" << name << "(void) = default;\n"
-        << "  " << name << "(const " << name << " &) = default;\n"
-        << "  " << name << "(" << name << " &&) noexcept = default;\n"
-        << "  " << name << " &operator=(const " << name << " &) = default;\n"
-        << "  " << name << " &operator=(" << name << " &&) noexcept = default;\n\n";
+        << " {\n";
+
+    // Make sure all of the `::From` methods inherited from the parent class
+    // are private, so that this class "overrides" them with more derived
+    // versions.
+    if (name_ref.endswith("Decl") && name_ref != "Decl") {
+      os
+          << " private:\n";
+      for (const auto &parent_class : gBaseClasses[name]) {
+        if (parent_class != "DeclContext" && parent_class != "Decl") {
+          os << "  using " << parent_class << "::From;\n";
+        }
+      }
+    }
+
+    os  << " public:\n"
+        << "  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(" << name << ")\n";
+
+    // Constructors from derived class -> base class.
+    if (name_ref.endswith("Decl")) {
+
+      if (derived_from_decl_context.count(name)) {
+        os << "  PASTA_DECLARE_BASE_OPERATORS(DeclContext, "
+           << name << ")\n";
+      }
+
+      for (const auto &base_class : gTransitiveBaseClasses[name]) {
+        os << "  PASTA_DECLARE_BASE_OPERATORS(" << base_class << ", "
+           << name << ")\n";
+      }
+
+      for (const auto &derived_class : gTransitiveDerivedClasses[name]) {
+        os << "  PASTA_DECLARE_DERIVED_OPERATORS(" << name << ", "
+           << derived_class << ")\n";
+      }
+    }
 
 //    // Permits down-casting.
 //    for (const auto &base_name : gTransitiveBaseClasses[name]) {
@@ -73,6 +163,7 @@ void GenerateDeclH(void) {
     // The top level `Decl` class has all the content.
     if (name == "Decl") {
       os
+          << "  PASTA_DECLARE_DERIVED_OPERATORS(Decl, DeclContext)\n\n"
           << "  inline DeclKind Kind(void) const {\n"
           << "    return kind;\n"
           << "  }\n\n"
@@ -102,15 +193,8 @@ void GenerateDeclH(void) {
     }
 
     os
-        << " private:\n"
-        << "  " << name << "(void) = delete;\n\n"
-        << "  friend class DeclBuilder;\n"
-        << "  friend class AST;\n"
-        << "  friend class ASTImpl;\n\n"
         << " protected:\n"
-        << "  explicit " << name << "(\n"
-        << "      std::shared_ptr<ASTImpl> ast_,\n"
-        << "      const ::clang::Decl *decl_);\n"
+        << "  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(" << name << ")\n"
         << "};\n\n";
 
     // Requiring that all derivations have the same size as the base class
@@ -126,5 +210,9 @@ void GenerateDeclH(void) {
 
   os
       << "}  // namespace pasta\n"
+      << "#undef PASTA_DECLARE_DERIVED_OPERATORS\n"
+      << "#undef PASTA_DECLARE_DEFAULT_CONSTRUCTORS\n"
+      << "#undef PASTA_DECLARE_BASE_OPERATORS\n"
+      << "#undef PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR\n"
       << "#endif  // PASTA_IN_BOOTSTRAP\n";
 }

@@ -26,9 +26,6 @@ class TokenRange;
 
 class Token {
  public:
-  inline Token(void)
-      : impl(nullptr) {}
-
   ~Token(void);
 
   Token(const Token &) = default;
@@ -61,6 +58,12 @@ class Token {
   friend class TokenIterator;
   friend class TokenRange;
 
+  Token(void) = delete;
+
+  inline explicit Token(std::shared_ptr<ASTImpl> ast_)
+      : ast(std::move(ast_)),
+        impl(nullptr) {}
+
   inline explicit Token(std::shared_ptr<ASTImpl> ast_, TokenImpl *impl_)
       : ast(std::move(ast_)),
         impl(impl_) {}
@@ -78,7 +81,6 @@ class TokenIterator {
   typedef const Token &reference;
   typedef std::random_access_iterator_tag iterator_category;
 
-  TokenIterator(void) = default;
   TokenIterator(const TokenIterator &) = default;
   TokenIterator(TokenIterator &&) noexcept = default;
   TokenIterator &operator=(const TokenIterator &) = default;
@@ -134,6 +136,8 @@ class TokenIterator {
  private:
   friend class TokenRange;
 
+  TokenIterator(void) = delete;
+
   inline explicit TokenIterator(const std::shared_ptr<ASTImpl> &ast_,
                                 TokenImpl *it_)
       : token(ast_, it_) {}
@@ -171,14 +175,25 @@ class TokenRange {
   // Unsafe indexed access into the token range.
   Token operator[](size_t index) const;
 
+  // Is this token range valid?
+  inline operator bool(void) const noexcept {
+    return first && after_last;
+  }
+
  private:
   friend class AST;
+  friend class ASTImpl;
 
   TokenRange(void) = delete;
 
-  inline explicit TokenRange(const std::shared_ptr<ASTImpl> &ast_,
+  inline explicit TokenRange(std::shared_ptr<ASTImpl> ast_)
+      : ast(std::move(ast_)),
+        first(nullptr),
+        after_last(nullptr) {}
+
+  inline explicit TokenRange(std::shared_ptr<ASTImpl> ast_,
                              TokenImpl *begin_, TokenImpl *end_)
-      : ast(ast_),
+      : ast(std::move(ast_)),
         first(begin_),
         after_last(end_) {}
 

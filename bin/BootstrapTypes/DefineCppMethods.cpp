@@ -14,7 +14,7 @@
         std::ostream &os, const std::string &class_name) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); \
           !meth_name.empty()) { \
-        auto &rt_type = kRetTypeMap[PASTA_STR(rt)]; \
+        auto &rt_type = gRetTypeMap[PASTA_STR(rt)]; \
         auto &rt_val = gRetTypeToValMap[PASTA_STR(rt)]; \
         llvm::StringRef rt_ref(PASTA_STR(rt)); \
         if (!rt_type.empty() && !rt_val.empty()) { \
@@ -39,7 +39,7 @@
           } \
           os << "}\n\n"; \
         } else { \
-          os << "  // " << meth_name << "\n"; \
+          os << "// 0: " << class_name << "::" << meth_name << "\n"; \
         } \
       } \
     }
@@ -50,7 +50,7 @@
         std::ostream &os, const std::string &class_name) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); \
           !meth_name.empty()) { \
-        os << "  // " << meth_name << "\n"; \
+        os << "// 1: " << class_name << "::" << meth_name << "\n"; \
       } \
     }
 
@@ -60,7 +60,7 @@
         std::ostream &os, const std::string &class_name) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); \
           !meth_name.empty()) { \
-        os << "  // " << meth_name << "\n"; \
+        os << "// 2: " << meth_name << "\n"; \
       } \
     }
 
@@ -70,7 +70,7 @@
         std::ostream &os, const std::string &class_name) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); \
           !meth_name.empty()) { \
-        os << "  // " << meth_name << "\n"; \
+        os << "// 3: " << class_name << "::" << meth_name << "\n"; \
       } \
     }
 
@@ -80,7 +80,7 @@
         std::ostream &os, const std::string &class_name) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); \
           !meth_name.empty()) { \
-        os << "  // " << meth_name << "\n"; \
+        os << "// 4: " << class_name << "::" << meth_name << "\n"; \
       } \
     }
 
@@ -90,7 +90,7 @@
         std::ostream &os, const std::string &class_name) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); \
           !meth_name.empty()) { \
-        os << "  // " << meth_name << "\n"; \
+        os << "// 5: " << class_name << "::" << meth_name << "\n"; \
       } \
     }
 
@@ -100,7 +100,7 @@
         std::ostream &os, const std::string &class_name) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); \
           !meth_name.empty()) { \
-        os << "  // " << meth_name << "\n"; \
+        os << "// 6: " << class_name << "::" << meth_name << "\n"; \
       } \
     }
 #include "Generated.h"

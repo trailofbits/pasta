@@ -39,7 +39,9 @@ class AST {
   static AST From(const Decl &decl);
 
   ~AST(void);
+  AST(const AST &);
   AST(AST &&) noexcept;
+  AST &operator=(const AST &);
   AST &operator=(AST &&) noexcept;
 
   // Return the raw pre-processed code
@@ -49,7 +51,10 @@ class AST {
   TokenRange Tokens(void) const;
 
   // Try to return the token at the specified location.
-  std::optional<Token> TokenAt(clang::SourceLocation loc) const;
+  Token TokenAt(clang::SourceLocation loc) const;
+
+  // Try to return teh token range from the specified source range.
+  TokenRange TokenRangeFrom(clang::SourceRange range);
 
   // Return a reference to the underlying Clang AST context. This is needed for
   // bootstrapping.

@@ -29,19 +29,132 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   {"dtors", "Destructors"},
   {"Location", "Token"},
   {"clauselists", "Clauses"},  // `clang::OMPRequiresDecl::clauselists`
+  {"inits", "Initializers"},
   {"Inits", "Initializers"},
+  {"ivars", "InstanceVariables"},
   {"Ivars", "InstanceVariables"},
+  {"HasAttrs", "HasAttributes"},
+  {"hasAttrs", "HasAttributes"},
+  {"Redecls", "Redeclarations"},
+  {"redecls", "Redeclarations"},
+  {"class_methods", "ClassMethods"},
+  {"Class_methods", "ClassMethods"},
+  {"class_properties", "ClassProperties"},
+  {"Class_properties", "ClassProperties"},
+  {"instance_methods", "InstanceMethods"},
+  {"Instance_methods", "InstanceMethods"},
+  {"instance_properties", "InstanceProperties"},
+  {"Instance_properties", "InstanceProperties"},
+  {"property_impls", "PropertyImplementations"},
+  {"Property_impls", "PropertyImplementations"},
+  {"decls", "Declarations"},
+  {"Decls", "Declarations"},
+  {"attrs", "Attributes"},
+  {"Attrs", "Attributes"},
+  {"noload_decls", "AlreadyLoadedDecls"},
+  {"Noload_decls", "AlreadyLoadedDecls"},
+  {"all_referenced_protocols", "AllReferencedProtocols"},
+  {"All_referenced_protocols", "AllReferencedProtocols"},
+  {"protocol_locs", "ProtocolLocations"},
+  {"Protocol_locs", "ProtocolLocations"},
+  {"known_categories", "KnownCategories"},
+  {"Known_categories", "KnownCategories"},
+  {"known_extensions", "KnownExtensions"},
+  {"Known_extensions", "KnownExtensions"},
+  {"visible_categories", "VisibleCategories"},
+  {"Visible_categories", "VisibleCategories"},
+  {"visible_extensions", "VisibleExtensions"},
+  {"Visible_extensions", "VisibleExtensions"},
 };
 
 // Maps return types from the macros file to their replacements in the
 // output code.
-std::unordered_map<std::string, std::string> kRetTypeMap{
+std::unordered_map<std::string, std::string> gRetTypeMap{
   {"(bool)", "bool"},
-  {"(clang::SourceLocation)", "std::optional<::pasta::Token>"},
+  {"(clang::SourceLocation)", "::pasta::Token"},
+  {"(clang::SourceRange)", "::pasta::TokenRange"},
   {"(llvm::StringRef)", "std::string_view"},
   {"(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>)", "std::string"},
+  {"(std::basic_string<char, std::char_traits<char>, std::allocator<char>>)", "std::string"},
   {"(unsigned int)", "uint32_t"},
   {"(unsigned long)", "uint64_t"},
+  {"(bool)", "bool"},
+  {"(const clang::DeclContext *)", "::pasta::DeclContext"},
+  {"(clang::Decl::FriendObjectKind)", "::pasta::FriendObjectKind"},
+  {"(clang::Decl::ModuleOwnershipKind)", "::pasta::ModuleOwnershipKind"},
+  {"(clang::LinkageSpecDecl::LanguageIDs)", "::pasta::LanguageIDs"},
+  {"(clang::ObjCMethodDecl::ImplementationControl)", "::pasta::ImplementationControl"},
+  {"(clang::ObjCPropertyDecl::PropertyControl)", "::pasta::PropertyControl"},
+  {"(clang::ObjCPropertyDecl::SetterKind)", "::pasta::SetterKind"},
+  {"(clang::Decl::Kind)", "::pasta::DeclKind"},
+  {"(clang::ImplicitParamDecl::ImplicitParamKind)", "::pasta::ImplicitParamKind"},
+  {"(clang::RecordDecl::ArgPassingKind)", "::pasta::ArgPassingKind"},
+
+  {"(llvm::iterator_range<clang::DeclContext::decl_iterator>)", "std::vector<::pasta::Decl>"},
+  {"(llvm::iterator_range<clang::Decl::redecl_iterator>)", "std::vector<::pasta::Decl>"},
+  {"(llvm::iterator_range<clang::DeclContext::filtered_decl_iterator<clang::ObjCMethodDecl, &clang::ObjCMethodDecl::isClassMethod>>)",
+   "std::vector<::pasta::ObjCMethodDecl>"},
+  {"(llvm::iterator_range<clang::DeclContext::filtered_decl_iterator<clang::ObjCPropertyDecl, &clang::ObjCPropertyDecl::isClassProperty>>)",
+   "std::vector<::pasta::ObjCPropertyDecl>"},
+  {"(llvm::iterator_range<clang::DeclContext::filtered_decl_iterator<clang::ObjCMethodDecl, &clang::ObjCMethodDecl::isInstanceMethod>>)",
+   "std::vector<::pasta::ObjCMethodDecl>"},
+  {"(llvm::iterator_range<clang::DeclContext::filtered_decl_iterator<clang::ObjCPropertyDecl, &clang::ObjCPropertyDecl::isInstanceProperty>>)",
+   "std::vector<::pasta::ObjCPropertyDecl>"},
+  {"(llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::ObjCMethodDecl>>)",
+   "std::vector<::pasta::ObjCMethodDecl>"},
+  {"(llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::ObjCPropertyDecl>>)",
+   "std::vector<::pasta::ObjCPropertyDecl>"},
+
+  {"(llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::ObjCPropertyImplDecl>>)",
+   "std::vector<::pasta::ObjCPropertyImplDecl>"},
+  {"(llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::ObjCIvarDecl>>)",
+   "std::vector<::pasta::ObjCIvarDecl>"},
+  {"(llvm::iterator_range<clang::ObjCProtocolDecl *const *>)",
+   "std::vector<::pasta::ObjCProtocolDecl>"},
+  {"(llvm::ArrayRef<clang::ParmVarDecl *>)",
+   "std::vector<::pasta::ParmVarDecl>"},
+
+  {"(llvm::ArrayRef<clang::NamedDecl *>)",
+   "std::vector<::pasta::NamedDecl>"},
+  {"(llvm::ArrayRef<clang::ImplicitParamDecl *>)",
+   "std::vector<::pasta::ImplicitParamDecl>"},
+  {"(llvm::ArrayRef<clang::BindingDecl *>)",
+   "std::vector<::pasta::BindingDecl>"},
+  {"(llvm::iterator_range<clang::RedeclarableTemplateDecl::SpecIterator<clang::VarTemplateSpecializationDecl, clang::RedeclarableTemplateDecl::SpecEntryTraits<clang::VarTemplateSpecializationDecl>, clang::VarTemplateSpecializationDecl>>)",
+   "std::vector<::pasta::VarTemplateSpecializationDecl>"},
+  {"(llvm::iterator_range<clang::RedeclarableTemplateDecl::SpecIterator<clang::ClassTemplateSpecializationDecl, clang::RedeclarableTemplateDecl::SpecEntryTraits<clang::ClassTemplateSpecializationDecl>, clang::ClassTemplateSpecializationDecl>>)",
+   "std::vector<::pasta::ClassTemplateSpecializationDecl>"},
+  {"(llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::EnumConstantDecl>>)",
+   "std::vector<::pasta::EnumConstantDecl>"},
+  {"(llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::FieldDecl>>)",
+   "std::vector<::pasta::FieldDecl>"},
+  {"(llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::CXXConstructorDecl>>)",
+   "std::vector<::pasta::CXXConstructorDecl>"},
+  {"(llvm::iterator_range<clang::CXXRecordDecl::friend_iterator>)",
+   "std::vector<::pasta::FriendDecl>"},
+  {"(llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::CXXMethodDecl>>)",
+   "std::vector<::pasta::CXXMethodDecl>"},
+  {"(llvm::iterator_range<clang::ObjCInterfaceDecl::filtered_category_iterator<&clang::ObjCInterfaceDecl::isKnownCategory>>)",
+   "std::vector<::pasta::ObjCCategoryDecl>"},
+  {"(llvm::iterator_range<clang::ObjCInterfaceDecl::filtered_category_iterator<&clang::ObjCInterfaceDecl::isKnownExtension>>)",
+   "std::vector<::pasta::ObjCCategoryDecl>"},
+  {"(llvm::iterator_range<clang::ObjCInterfaceDecl::filtered_category_iterator<&clang::ObjCInterfaceDecl::isVisibleCategory>>)",
+   "std::vector<::pasta::ObjCCategoryDecl>"},
+  {"(llvm::iterator_range<clang::ObjCInterfaceDecl::filtered_category_iterator<&clang::ObjCInterfaceDecl::isVisibleExtension>>)",
+   "std::vector<::pasta::ObjCCategoryDecl>"},
+
+  {"(llvm::iterator_range<clang::UsingDecl::shadow_iterator>)",
+   "std::vector<::pasta::UsingShadowDecl>"},
+
+  {"(llvm::iterator_range<const clang::SourceLocation *>)",
+   "std::vector<::pasta::Token>"},
+
+#define DECL_VARIANT(a, b) \
+    {"(llvm::PointerUnion<clang::" #a " *, clang::" #b " *>)", \
+     "std::variant<std::monostate, ::pasta::" #a ", ::pasta::" #b ">"}
+
+  DECL_VARIANT(ClassTemplateDecl, ClassTemplatePartialSpecializationDecl),
+  DECL_VARIANT(VarTemplateDecl, VarTemplatePartialSpecializationDecl),
 };
 
 // Maps return types from the macros file to how they should be returned
@@ -53,6 +166,9 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
   {"(clang::SourceLocation)",
    "  return ast->TokenAt(val);\n"},
 
+  {"(clang::SourceRange)",
+   "  return ast->TokenRangeFrom(val);\n"},
+
   {"(llvm::StringRef)",
    "  if (auto size = val.size()) {\n"
    "    return std::string_view(val.data(), size);\n"
@@ -63,11 +179,156 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
   {"(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>)",
    "  return val;\n"},
 
+  {"(std::basic_string<char, std::char_traits<char>, std::allocator<char>>)",
+   "  return val;\n"},
+
   {"(unsigned int)",
    "  return val;\n"},
 
   {"(unsigned long)",
    "  return val;\n"},
+
+  {"(bool)",
+   "  return val;\n"},
+
+  {"(const clang::DeclContext *)",
+   "  if (val) {\n"
+   "    return ::pasta::DeclContext(ast, val);\n"
+   "  }\n"},
+
+  {"(clang::Decl::FriendObjectKind)",
+   "  return static_cast<::pasta::FriendObjectKind>(val);\n"},
+
+  {"(clang::Decl::ModuleOwnershipKind)",
+   "  return static_cast<::pasta::ModuleOwnershipKind>(val);\n"},
+
+  {"(clang::LinkageSpecDecl::LanguageIDs)",
+   "  return static_cast<::pasta::LanguageIDs>(val);\n"},
+
+  {"(clang::ObjCMethodDecl::ImplementationControl)",
+   "  return static_cast<::pasta::ImplementationControl>(val);\n"},
+
+  {"(clang::ObjCPropertyDecl::PropertyControl)",
+   "  return static_cast<::pasta::PropertyControl>(val);\n"},
+
+  {"(clang::ObjCPropertyDecl::SetterKind)",
+   "  return static_cast<::pasta::SetterKind>(val);\n"},
+
+  {"(clang::Decl::Kind)",
+   "  return static_cast<::pasta::DeclKind>(val);\n"},
+
+  {"(clang::ImplicitParamDecl::ImplicitParamKind)",
+   "  return static_cast<::pasta::ImplicitParamKind>(val);\n"},
+
+  {"(clang::RecordDecl::ArgPassingKind)",
+   "  return static_cast<::pasta::ArgPassingKind>(val);\n"},
+
+#define DECL_ITERATOR_IMPL(cls) \
+    "  std::vector<::pasta::" #cls "> ret;\n" \
+    "  for (auto decl_ptr : val) {\n" \
+    "    ret.emplace_back(DeclBuilder::Create<::pasta::" #cls ">(ast, decl_ptr));\n" \
+    "  }\n" \
+    "  return ret;\n"
+
+  {"(llvm::iterator_range<clang::DeclContext::decl_iterator>)",
+   DECL_ITERATOR_IMPL(Decl)},
+
+  {"(llvm::iterator_range<clang::Decl::redecl_iterator>)",
+   DECL_ITERATOR_IMPL(Decl)},
+
+  {"(llvm::iterator_range<clang::DeclContext::filtered_decl_iterator<clang::ObjCMethodDecl, &clang::ObjCMethodDecl::isClassMethod>>)",
+   DECL_ITERATOR_IMPL(ObjCMethodDecl)},
+
+  {"(llvm::iterator_range<clang::DeclContext::filtered_decl_iterator<clang::ObjCPropertyDecl, &clang::ObjCPropertyDecl::isClassProperty>>)",
+   DECL_ITERATOR_IMPL(ObjCPropertyDecl)},
+
+  {"(llvm::iterator_range<clang::DeclContext::filtered_decl_iterator<clang::ObjCMethodDecl, &clang::ObjCMethodDecl::isInstanceMethod>>)",
+   DECL_ITERATOR_IMPL(ObjCMethodDecl)},
+
+  {"(llvm::iterator_range<clang::DeclContext::filtered_decl_iterator<clang::ObjCPropertyDecl, &clang::ObjCPropertyDecl::isInstanceProperty>>)",
+   DECL_ITERATOR_IMPL(ObjCPropertyDecl)},
+
+  {"(llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::ObjCMethodDecl>>)",
+   DECL_ITERATOR_IMPL(ObjCMethodDecl)},
+
+  {"(llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::ObjCPropertyDecl>>)",
+   DECL_ITERATOR_IMPL(ObjCPropertyDecl)},
+
+  {"(llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::ObjCPropertyImplDecl>>)",
+   DECL_ITERATOR_IMPL(ObjCPropertyImplDecl)},
+
+  {"(llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::ObjCIvarDecl>>)",
+   DECL_ITERATOR_IMPL(ObjCIvarDecl)},
+
+  {"(llvm::iterator_range<clang::ObjCProtocolDecl *const *>)",
+   DECL_ITERATOR_IMPL(ObjCProtocolDecl)},
+
+  {"(llvm::ArrayRef<clang::ParmVarDecl *>)",
+   DECL_ITERATOR_IMPL(ParmVarDecl)},
+
+  {"(llvm::ArrayRef<clang::NamedDecl *>)",
+   DECL_ITERATOR_IMPL(NamedDecl)},
+
+  {"(llvm::ArrayRef<clang::ImplicitParamDecl *>)",
+   DECL_ITERATOR_IMPL(ImplicitParamDecl)},
+
+  {"(llvm::ArrayRef<clang::BindingDecl *>)",
+   DECL_ITERATOR_IMPL(BindingDecl)},
+
+  {"(llvm::iterator_range<clang::RedeclarableTemplateDecl::SpecIterator<clang::VarTemplateSpecializationDecl, clang::RedeclarableTemplateDecl::SpecEntryTraits<clang::VarTemplateSpecializationDecl>, clang::VarTemplateSpecializationDecl>>)",
+   DECL_ITERATOR_IMPL(VarTemplateSpecializationDecl)},
+
+  {"(llvm::iterator_range<clang::RedeclarableTemplateDecl::SpecIterator<clang::ClassTemplateSpecializationDecl, clang::RedeclarableTemplateDecl::SpecEntryTraits<clang::ClassTemplateSpecializationDecl>, clang::ClassTemplateSpecializationDecl>>)",
+   DECL_ITERATOR_IMPL(ClassTemplateSpecializationDecl)},
+  {"(llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::EnumConstantDecl>>)",
+   DECL_ITERATOR_IMPL(EnumConstantDecl)},
+  {"(llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::FieldDecl>>)",
+   DECL_ITERATOR_IMPL(FieldDecl)},
+  {"(llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::CXXConstructorDecl>>)",
+   DECL_ITERATOR_IMPL(CXXConstructorDecl)},
+  {"(llvm::iterator_range<clang::CXXRecordDecl::friend_iterator>)",
+   DECL_ITERATOR_IMPL(FriendDecl)},
+  {"(llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::CXXMethodDecl>>)",
+   DECL_ITERATOR_IMPL(CXXMethodDecl)},
+
+  {"(llvm::iterator_range<clang::ObjCInterfaceDecl::filtered_category_iterator<&clang::ObjCInterfaceDecl::isKnownCategory>>)",
+   DECL_ITERATOR_IMPL(ObjCCategoryDecl)},
+
+  {"(llvm::iterator_range<clang::ObjCInterfaceDecl::filtered_category_iterator<&clang::ObjCInterfaceDecl::isKnownExtension>>)",
+   DECL_ITERATOR_IMPL(ObjCCategoryDecl)},
+
+  {"(llvm::iterator_range<clang::ObjCInterfaceDecl::filtered_category_iterator<&clang::ObjCInterfaceDecl::isVisibleCategory>>)",
+   DECL_ITERATOR_IMPL(ObjCCategoryDecl)},
+
+  {"(llvm::iterator_range<clang::ObjCInterfaceDecl::filtered_category_iterator<&clang::ObjCInterfaceDecl::isVisibleExtension>>)",
+   DECL_ITERATOR_IMPL(ObjCCategoryDecl)},
+
+  {"(llvm::iterator_range<clang::UsingDecl::shadow_iterator>)",
+   DECL_ITERATOR_IMPL(UsingShadowDecl)},
+
+  {"(llvm::iterator_range<const clang::SourceLocation *>)",
+   "  std::vector<::pasta::Token> ret;\n"
+   "  for (auto loc : val) {\n"
+   "    if (auto tok = ast->TokenAt(loc); tok) {\n"
+   "      ret.emplace_back(std::move(tok));\n"
+   "    }\n"
+   "  }\n"
+   "  return ret;\n"},
+
+#define DECL_VARIANT_IMPL(a, b) \
+    {"(llvm::PointerUnion<clang::" #a " *, clang::" #b " *>)", \
+     "  std::variant<std::monostate, ::pasta::" #a ", ::pasta::" #b "> ret;\n" \
+     "  if (val) {\n" \
+     "    if (auto a_ptr = val.dyn_cast<clang::" #a " *>()) {\n" \
+     "      return DeclBuilder::Create<::pasta::" #a ">(ast, a_ptr);\n" \
+     "    } else if (auto b_ptr = val.dyn_cast<clang::" #b " *>()) {\n" \
+     "      return DeclBuilder::Create<::pasta::" #b ">(ast, b_ptr);\n" \
+     "    }\n" \
+     "  }\n" \
+     "  return {};\n"}
+
+  DECL_VARIANT_IMPL(ClassTemplateDecl, ClassTemplatePartialSpecializationDecl),
+  DECL_VARIANT_IMPL(VarTemplateDecl, VarTemplatePartialSpecializationDecl),
 };
 
 // Prefixes on enumerators to strip.

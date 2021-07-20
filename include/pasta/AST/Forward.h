@@ -397,8 +397,10 @@ class VarTemplateSpecializationDecl;
 class VariableArrayType;
 class VectorType;
 class WhileStmt;
+#ifndef PASTA_IN_DECL_CPP
 using OMPDeclarativeDirectiveDecl = Decl;
 using OMPDeclarativeDirectiveValueDecl = ValueDecl;
+#endif  // PASTA_IN_DECL_CPP
 }  // namespace clang
 namespace pasta {
 class AST;
@@ -406,161 +408,169 @@ class ASTImpl;
 class DeclBuilder;
 class TypeBuilder;
 
+#define PASTA_FOR_EACH_DECL_IMPL(m) \
+    m(AccessSpec) \
+    m(Binding) \
+    m(Block) \
+    m(BuiltinTemplate) \
+    m(CXXConstructor) \
+    m(CXXConversion) \
+    m(CXXDeductionGuide) \
+    m(CXXDestructor) \
+    m(CXXMethod) \
+    m(CXXRecord) \
+    m(Captured) \
+    m(ClassScopeFunctionSpecialization) \
+    m(ClassTemplate) \
+    m(ClassTemplatePartialSpecialization) \
+    m(ClassTemplateSpecialization) \
+    m(Concept) \
+    m(ConstructorUsingShadow) \
+    m(Declarator) \
+    m(Decomposition) \
+    m(Empty) \
+    m(EnumConstant) \
+    m(Enum) \
+    m(Export) \
+    m(ExternCContext) \
+    m(Field) \
+    m(FileScopeAsm) \
+    m(Friend) \
+    m(FriendTemplate) \
+    m(Function) \
+    m(FunctionTemplate) \
+    m(ImplicitParam) \
+    m(Import) \
+    m(IndirectField) \
+    m(Label) \
+    m(LifetimeExtendedTemporary) \
+    m(LinkageSpec) \
+    m(MSGuid) \
+    m(MSProperty) \
+    m(Named) \
+    m(NamespaceAlias) \
+    m(Namespace) \
+    m(NonTypeTemplateParm) \
+    m(OMPAllocate) \
+    m(OMPCapturedExpr) \
+    m(OMPDeclareMapper) \
+    m(OMPDeclareReduction) \
+    m(OMPRequires) \
+    m(OMPThreadPrivate) \
+    m(ObjCAtDefsField) \
+    m(ObjCCategory) \
+    m(ObjCCategoryImpl) \
+    m(ObjCCompatibleAlias) \
+    m(ObjCContainer) \
+    m(ObjCImpl) \
+    m(ObjCImplementation) \
+    m(ObjCInterface) \
+    m(ObjCIvar) \
+    m(ObjCMethod) \
+    m(ObjCProperty) \
+    m(ObjCPropertyImpl) \
+    m(ObjCProtocol) \
+    m(ObjCTypeParam) \
+    m(ParmVar) \
+    m(PragmaComment) \
+    m(PragmaDetectMismatch) \
+    m(Record) \
+    m(RedeclarableTemplate) \
+    m(RequiresExprBody) \
+    m(StaticAssert) \
+    m(Tag) \
+    m(Template) \
+    m(TemplateParamObject) \
+    m(TemplateTemplateParm) \
+    m(TemplateTypeParm) \
+    m(TranslationUnit) \
+    m(TypeAlias) \
+    m(TypeAliasTemplate) \
+    m(Type) \
+    m(Typedef) \
+    m(TypedefName) \
+    m(UnresolvedUsingTypename) \
+    m(UnresolvedUsingValue) \
+    m(Using) \
+    m(UsingDirective) \
+    m(UsingPack) \
+    m(UsingShadow) \
+    m(Value) \
+    m(Var) \
+    m(VarTemplate) \
+    m(VarTemplatePartialSpecialization) \
+    m(VarTemplateSpecialization)
+
+#define PASTA_FOR_EACH_TYPE_IMPL(m) \
+    m(Adjusted) \
+    m(Array) \
+    m(Atomic) \
+    m(Attributed) \
+    m(Auto) \
+    m(BlockPointer) \
+    m(Builtin) \
+    m(Complex) \
+    m(ConstantArray) \
+    m(ConstantMatrix) \
+    m(Decayed) \
+    m(Decltype) \
+    m(DeducedTemplateSpecialization) \
+    m(Deduced) \
+    m(DependentAddressSpace) \
+    m(DependentExtInt) \
+    m(DependentName) \
+    m(DependentSizedArray) \
+    m(DependentSizedExtVector) \
+    m(DependentSizedMatrix) \
+    m(DependentTemplateSpecialization) \
+    m(DependentVector) \
+    m(Elaborated) \
+    m(Enum) \
+    m(ExtInt) \
+    m(ExtVector) \
+    m(FunctionNoProto) \
+    m(FunctionProto) \
+    m(Function) \
+    m(IncompleteArray) \
+    m(InjectedClassName) \
+    m(LValueReference) \
+    m(MacroQualified) \
+    m(Matrix) \
+    m(MemberPointer) \
+    m(ObjCInterface) \
+    m(ObjCObjectPointer) \
+    m(ObjCObject) \
+    m(ObjCTypeParam) \
+    m(PackExpansion) \
+    m(Paren) \
+    m(Pipe) \
+    m(Pointer) \
+    m(RValueReference) \
+    m(Record) \
+    m(Reference) \
+    m(SubstTemplateTypeParmPack) \
+    m(SubstTemplateTypeParm) \
+    m(Tag) \
+    m(TemplateSpecialization) \
+    m(TemplateTypeParm) \
+    m(TypeOfExpr) \
+    m(TypeOf) \
+    m(Typedef) \
+    m(UnaryTransform) \
+    m(UnresolvedUsing) \
+    m(VariableArray) \
+    m(Vector)
+
 enum class DeclKind : unsigned {
-  kAccessSpec,
-  kBinding,
-  kBlock,
-  kBuiltinTemplate,
-  kCXXConstructor,
-  kCXXConversion,
-  kCXXDeductionGuide,
-  kCXXDestructor,
-  kCXXMethod,
-  kCXXRecord,
-  kCaptured,
-  kClassScopeFunctionSpecialization,
-  kClassTemplate,
-  kClassTemplatePartialSpecialization,
-  kClassTemplateSpecialization,
-  kConcept,
-  kConstructorUsingShadow,
-  kDeclarator,
-  kDecomposition,
-  kEmpty,
-  kEnumConstant,
-  kEnum,
-  kExport,
-  kExternCContext,
-  kField,
-  kFileScopeAsm,
-  kFriend,
-  kFriendTemplate,
-  kFunction,
-  kFunctionTemplate,
-  kImplicitParam,
-  kImport,
-  kIndirectField,
-  kLabel,
-  kLifetimeExtendedTemporary,
-  kLinkageSpec,
-  kMSGuid,
-  kMSProperty,
-  kNamed,
-  kNamespaceAlias,
-  kNamespace,
-  kNonTypeTemplateParm,
-  kOMPAllocate,
-  kOMPCapturedExpr,
-  kOMPDeclareMapper,
-  kOMPDeclareReduction,
-  kOMPRequires,
-  kOMPThreadPrivate,
-  kObjCAtDefsField,
-  kObjCCategory,
-  kObjCCategoryImpl,
-  kObjCCompatibleAlias,
-  kObjCContainer,
-  kObjCImpl,
-  kObjCImplementation,
-  kObjCInterface,
-  kObjCIvar,
-  kObjCMethod,
-  kObjCProperty,
-  kObjCPropertyImpl,
-  kObjCProtocol,
-  kObjCTypeParam,
-  kParmVar,
-  kPragmaComment,
-  kPragmaDetectMismatch,
-  kRecord,
-  kRedeclarableTemplate,
-  kRequiresExprBody,
-  kStaticAssert,
-  kTag,
-  kTemplate,
-  kTemplateParamObject,
-  kTemplateTemplateParm,
-  kTemplateTypeParm,
-  kTranslationUnit,
-  kTypeAlias,
-  kTypeAliasTemplate,
-  kType,
-  kTypedef,
-  kTypedefName,
-  kUnresolvedUsingTypename,
-  kUnresolvedUsingValue,
-  kUsing,
-  kUsingDirective,
-  kUsingPack,
-  kUsingShadow,
-  kValue,
-  kVar,
-  kVarTemplate,
-  kVarTemplatePartialSpecialization,
-  kVarTemplateSpecialization,
-  kOMPDeclarativeDirective,
-  kOMPDeclarativeDirectiveValue,
+#define PASTA_DECLARE_DECL_KIND(name) k ## name ,
+  PASTA_FOR_EACH_DECL_IMPL(PASTA_DECLARE_DECL_KIND)
+#undef PASTA_DECLARE_DECL_KIND
 };
 
 enum class TypeKind : unsigned {
-  kAdjusted,
-  kArray,
-  kAtomic,
-  kAttributed,
-  kAuto,
-  kBlockPointer,
-  kBuiltin,
-  kComplex,
-  kConstantArray,
-  kConstantMatrix,
-  kDecayed,
-  kDecltype,
-  kDeducedTemplateSpecialization,
-  kDeduced,
-  kDependentAddressSpace,
-  kDependentExtInt,
-  kDependentName,
-  kDependentSizedArray,
-  kDependentSizedExtVector,
-  kDependentSizedMatrix,
-  kDependentTemplateSpecialization,
-  kDependentVector,
-  kElaborated,
-  kEnum,
-  kExtInt,
-  kExtVector,
-  kFunctionNoProto,
-  kFunctionProto,
-  kFunction,
-  kIncompleteArray,
-  kInjectedClassName,
-  kLValueReference,
-  kMacroQualified,
-  kMatrix,
-  kMemberPointer,
-  kObjCInterface,
-  kObjCObjectPointer,
-  kObjCObject,
-  kObjCTypeParam,
-  kPackExpansion,
-  kParen,
-  kPipe,
-  kPointer,
-  kRValueReference,
-  kRecord,
-  kReference,
-  kSubstTemplateTypeParmPack,
-  kSubstTemplateTypeParm,
-  kTag,
-  kTemplateSpecialization,
-  kTemplateTypeParm,
-  kTypeOfExpr,
-  kTypeOf,
-  kTypedef,
-  kUnaryTransform,
-  kUnresolvedUsing,
-  kVariableArray,
-  kVector,
+#define PASTA_DECLARE_TYPE_KIND(name) k ## name ,
+  PASTA_FOR_EACH_TYPE_IMPL(PASTA_DECLARE_TYPE_KIND)
+#undef PASTA_DECLARE_TYPE_KIND
 };
 
 enum class ADLCallKind : bool {
@@ -3324,4 +3334,6 @@ class VarTemplateSpecializationDecl;
 class VariableArrayType;
 class VectorType;
 class WhileStmt;
+class OMPDeclarativeDirectiveDecl;
+class OMPDeclarativeDirectiveValueDecl;
 }  // namespace pasta

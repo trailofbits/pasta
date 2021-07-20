@@ -14,7 +14,7 @@
         std::ostream &os, const std::string &class_name) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); \
           !meth_name.empty()) { \
-        auto &new_rt = kRetTypeMap[PASTA_STR(rt)]; \
+        auto &new_rt = gRetTypeMap[PASTA_STR(rt)]; \
         if (!new_rt.empty()) { \
           if (kCanReturnNullptr.count(std::make_pair(class_name, meth_name))) { \
             os << "  std::optional<" << new_rt << "> " << meth_name << "(void) const;\n"; \

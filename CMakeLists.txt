@@ -167,12 +167,12 @@ get_compiler_paths(
 get_compiler_paths(
     COMPILER "${CMAKE_CXX_COMPILER}"
     OUT_VAR CSTR_HOST_CXX_VERSION_INFO
-    ARGS -x c++ -std=c++1z
+    ARGS -x c++ -std=c++17
 )
 get_compiler_paths(
     COMPILER "${CMAKE_CXX_COMPILER}"
     OUT_VAR CSTR_HOST_CXX_VERSION_INFO_FAKE_SYSROOT
-    ARGS -x c++ -std=c++1z -isysroot "${CMAKE_CURRENT_BINARY_DIR}/xyz" -Wno-missing-sysroot
+    ARGS -x c++ -std=c++17 -isysroot "${CMAKE_CURRENT_BINARY_DIR}/xyz" -Wno-missing-sysroot
 )
 
 configure_file("${HOST_H_IN_FILE}" "${HOST_H_FILE}" @ONLY)
@@ -184,10 +184,10 @@ configure_file("${HOST_H_IN_FILE}" "${HOST_H_FILE}" @ONLY)
 add_library(pasta_util STATIC
     "include/pasta/Util/ArgumentVector.h"
     "include/pasta/Util/Compiler.h"
-    "include/pasta/Util/Error.h"
     "include/pasta/Util/FileSystem.h"
     "include/pasta/Util/Init.h"
     "include/pasta/Util/JSON.h"
+    "include/pasta/Util/Result.h"
     
     "lib/Util/ArgumentVector.cpp"
     "lib/Util/FileSystem.cpp"

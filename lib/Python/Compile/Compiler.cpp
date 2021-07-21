@@ -3,7 +3,6 @@
  */
 
 #include <pasta/Compile/Compiler.h>
-#include <pasta/Util/Error.h>
 #include <pasta/Util/FileSystem.h>
 
 #include "Compile.h"
@@ -84,10 +83,10 @@ Compiler::Compiler(compiler_name_arg name, target_language_arg lang,
       ::pasta::Compiler::Create(*name, *lang, *compiler_path, *version_info,
                                 *version_info_fake_sysroot,
                                 CurrentWorkingDir(working_dir));
-  if (IsError(maybe_compiler)) {
-    PythonErrorStreamer(PyExc_Exception) << ErrorString(maybe_compiler);
+  if (maybe_compiler.Failed()) {
+    PythonErrorStreamer(PyExc_Exception) << maybe_compiler.TakeError();
   } else {
-    std::optional<::pasta::Compiler> cc(std::move(*maybe_compiler));
+    std::optional<::pasta::Compiler> cc(maybe_compiler.TakeValue());
     cc.swap(compiler);
   }
 }
@@ -171,11 +170,11 @@ Compiler::CreateCommandForFile(file_path_arg file_path,
                                working_dir_kwarg working_dir) {
   auto maybe_command = compiler->CreateCommandForFile(
       *file_path, CurrentWorkingDir(working_dir));
-  if (IsError(maybe_command)) {
-    PythonErrorStreamer(PyExc_Exception) << ErrorString(maybe_command);
+  if (maybe_command.Failed()) {
+    PythonErrorStreamer(PyExc_Exception) << maybe_command.TakeError();
     return nullptr;
   } else {
-    return CompileCommand::New(std::move(*maybe_command));
+    return CompileCommand::New(maybe_command.TakeValue());
   }
 }
 
@@ -184,11 +183,10 @@ std::vector<BorrowedPythonPtr<CompileJob>>
 Compiler::CreateJobsForCommand(command_arg command) {
   std::vector<BorrowedPythonPtr<CompileJob>> ret;
   auto maybe_jobs = compiler->CreateJobsForCommand(*((*command)->command));
-  if (IsError(maybe_jobs)) {
-    PythonErrorStreamer(PyExc_Exception) << ErrorString(maybe_jobs);
+  if (maybe_jobs.Failed()) {
+    PythonErrorStreamer(PyExc_Exception) << maybe_jobs.TakeError();
   } else {
-    auto jobs = std::move(*maybe_jobs);
-    for (auto &job : jobs) {
+    for (auto &job : *maybe_jobs) {
       auto py_job = CompileJob::New(std::move(job));
       ret.emplace_back(std::move(py_job));
     }

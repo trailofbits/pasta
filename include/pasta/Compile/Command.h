@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <pasta/Util/Error.h>
+#include <pasta/Util/Result.h>
 
+#include <memory>
 #include <string_view>
 #include <vector>
 
@@ -29,21 +30,23 @@ class CompileCommand {
  public:
   ~CompileCommand(void);
 
-  CompileCommand(CompileCommand &&) noexcept;
-  CompileCommand &operator=(CompileCommand &&) noexcept;
+  CompileCommand(const CompileCommand &) = default;
+  CompileCommand &operator=(const CompileCommand &) = default;
+  CompileCommand(CompileCommand &&) noexcept = default;
+  CompileCommand &operator=(CompileCommand &&) noexcept = default;
 
   // Create a compile command from a JSON object. This JSON should come from
   // a proper compile_commands.json compilation database.
-  static llvm::Expected<CompileCommand>
+  static Result<CompileCommand, std::string_view>
   CreateOneFromJSON(const llvm::json::Object &obj);
 
   // Create zero or more compile commands from an array of JSON objects. This
   // JSON should come from a proper compile_commands.json compilation database.
-  static std::vector<llvm::Expected<CompileCommand>>
+  static std::vector<Result<CompileCommand, std::string_view>>
   CreateManyFromJSON(const llvm::json::Array &array);
 
   // Create a compile command for a single file in a working directory.
-  static llvm::Expected<CompileCommand>
+  static Result<CompileCommand, std::string_view>
   CreateFromArguments(const ArgumentVector &argv, std::string_view working_dir);
 
   // Return an argument vector associated with this compilation command.
@@ -57,12 +60,10 @@ class CompileCommand {
   friend class Compiler;
 
   CompileCommand(void) = delete;
-  CompileCommand(const CompileCommand &) = delete;
-  CompileCommand &operator=(const CompileCommand &) noexcept = delete;
 
-  CompileCommand(CompileCommandImpl *impl_);
+  CompileCommand(std::shared_ptr<CompileCommandImpl> impl_);
 
-  CompileCommandImpl *impl;
+  std::shared_ptr<CompileCommandImpl> impl;
 };
 
 }  // namespace pasta

@@ -384,11 +384,14 @@ static void RelativizePaths(std::filesystem::path sysroot_dir,
   }
 }
 
+static const std::string kErrUnrecognizedCompiler{
+    "Unrecognized host compiler"};
+
 }  // namespace
 
 // Create a "host" compiler instance, i.e. a compiler instance based on the
 // compiler used to compile this library.
-llvm::Expected<Compiler>
+Result<Compiler, std::string>
 Compiler::CreateHostCompiler(enum TargetLanguage lang) {
   const char *path = nullptr;
   const char *version_info = nullptr;
@@ -432,15 +435,13 @@ Compiler::CreateHostCompiler(enum TargetLanguage lang) {
 #ifdef FOUND_HOST_COMPILER
   auto maybe_compiler = Create(name, lang, path, version_info,
                                version_info_fake_sysroot, kHostWorkingDir);
-  if (IsError(maybe_compiler)) {
-    return maybe_compiler.takeError();
+  if (maybe_compiler.Failed()) {
+    return maybe_compiler.TakeError();
   } else {
     return std::move(*maybe_compiler);
   }
 #else
-  return llvm::createStringError(
-      std::make_error_code(std::errc::function_not_supported),
-      "Unrecognized host compiler");
+  return kErrUnrecognizedCompiler;
 #endif
 }
 
@@ -448,11 +449,12 @@ Compiler::CreateHostCompiler(enum TargetLanguage lang) {
 //
 // NOTE(pag): The `working_dir` is the directory in which the compiler
 //            invocation was made.
-llvm::Expected<Compiler>
+Result<Compiler, std::string>
 Compiler::Create(CompilerName name, enum TargetLanguage lang,
                  std::string_view compiler_path_, std::string_view version_info,
                  std::string_view version_info_fake_sysroot,
                  std::string_view compiler_working_dir) {
+  std::stringstream err;
 
   // Fix it up, just in case.
   if (CompilerName::kClang == name &&
@@ -463,22 +465,20 @@ Compiler::Create(CompilerName name, enum TargetLanguage lang,
 
   std::filesystem::path working_dir(compiler_working_dir);
   if (!std::filesystem::is_directory(working_dir)) {
-    return llvm::createStringError(
-        std::make_error_code(std::errc::not_a_directory),
-        "Invalid working directory for compiler invocation: %s",
-        compiler_working_dir.data());
+    err << "Invalid working directory for compiler invocation: "
+        << compiler_working_dir;
+    return err.str();
   }
 
   std::filesystem::path compiler_path = AbsolutePath(
       compiler_path_, working_dir);
   if (!std::filesystem::exists(compiler_path)) {
-    return llvm::createStringError(
-        std::make_error_code(std::errc::executable_format_error),
-        "Invalid compiler path: %s", compiler_path_.data());
+    err << "Invalid compiler path: " << compiler_path_;
+    return err.str();
   }
 
-  std::unique_ptr<CompilerImpl> impl(
-      new CompilerImpl(name, lang, CanonicalPath(compiler_path).string()));
+  std::shared_ptr<CompilerImpl> impl(std::make_shared<CompilerImpl>(
+      name, lang, CanonicalPath(compiler_path).string()));
 
   std::stringstream ss;
   ss << version_info;
@@ -547,12 +547,12 @@ Compiler::Create(CompilerName name, enum TargetLanguage lang,
   }
 
   if (impl->resource_dir.empty() && !DeriveResourceDirs(*impl)) {
-    return llvm::createStringError(
-        std::make_error_code(std::errc::not_a_directory),
-        "Unable to infer resource directory");
+    err << "Unable to infer resource directory for compiler '"
+        << compiler_path_ << "'";
+    return err.str();
   }
 
-  return Compiler(impl.release());
+  return Compiler(std::move(impl));
 }
 
 }  // namespace pasta

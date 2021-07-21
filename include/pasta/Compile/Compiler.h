@@ -5,9 +5,10 @@
 #pragma once
 
 #include <pasta/AST/AST.h>
-#include <pasta/Util/Error.h>
+#include <pasta/Util/Result.h>
 
 #include <functional>
+#include <memory>
 #include <string_view>
 #include <vector>
 
@@ -41,8 +42,10 @@ class CompilerImpl;
 // Abstract compiler interface.
 class Compiler {
  public:
-  Compiler(Compiler &&) noexcept;
-  Compiler &operator=(Compiler &&) noexcept;
+  Compiler(const Compiler &) = default;
+  Compiler &operator=(const Compiler &) = default;
+  Compiler(Compiler &&) noexcept = default;
+  Compiler &operator=(Compiler &&) noexcept = default;
 
   ~Compiler(void);
 
@@ -82,25 +85,26 @@ class Compiler {
 
   // Create a "host" compiler instance, i.e. a compiler instance based on the
   // compiler used to compile this library.
-  static llvm::Expected<Compiler> CreateHostCompiler(enum TargetLanguage lang);
+  static Result<Compiler, std::string>
+  CreateHostCompiler(enum TargetLanguage lang);
 
   // Create a compiler from a version string.
   //
   // NOTE(pag): The `working_dir` is the directory in which the compiler
   //            invocation was made.
-  static llvm::Expected<Compiler>
+  static Result<Compiler, std::string>
   Create(CompilerName name, enum TargetLanguage lang,
          std::string_view compiler_path, std::string_view version_info,
          std::string_view version_info_fake_sysroot,
          std::string_view working_dir);
 
   // Create a compile command for a single file in a working directory.
-  llvm::Expected<CompileCommand>
+  Result<CompileCommand, std::string_view>
   CreateCommandForFile(std::string_view file_name,
                        std::string_view working_dir) const;
 
   // The list of compiler jobs associated with this command.
-  llvm::Expected<std::vector<CompileJob>>
+  Result<std::vector<CompileJob>, std::string>
   CreateJobsForCommand(const CompileCommand &command) const;
 
  private:
@@ -108,12 +112,10 @@ class Compiler {
   friend class CompileJob;
 
   Compiler(void) = delete;
-  Compiler(const Compiler &) = delete;
-  Compiler &operator=(const Compiler &) = delete;
 
-  Compiler(CompilerImpl *impl_);
+  Compiler(std::shared_ptr<CompilerImpl> impl_);
 
-  CompilerImpl *impl;
+  std::shared_ptr<CompilerImpl> impl;
 };
 
 }  // namespace pasta

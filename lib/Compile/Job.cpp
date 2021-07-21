@@ -45,22 +45,10 @@
 
 namespace pasta {
 
-CompileJob::~CompileJob(void) {
-  if (impl) {
-    delete impl;
-  }
-}
+CompileJob::~CompileJob(void) {}
 
-CompileJob::CompileJob(CompileJob &&that) noexcept : impl(that.impl) {
-  that.impl = nullptr;
-}
-
-CompileJob &CompileJob::operator=(CompileJob &&that) noexcept {
-  std::swap(impl, that.impl);
-  return *this;
-}
-
-CompileJob::CompileJob(CompileJobImpl *impl_) : impl(impl_) {}
+CompileJob::CompileJob(std::shared_ptr<CompileJobImpl> impl_)
+    : impl(std::move(impl_)) {}
 
 // Return an argument vector associated with this compilation job.
 const ArgumentVector &CompileJob::Arguments(void) const {
@@ -293,8 +281,10 @@ CreateAdjustedCompilerCommand(const Compiler &compiler,
 }  // namespace
 
 // The list of compiler jobs associated with this command.
-llvm::Expected<std::vector<CompileJob>>
+Result<std::vector<CompileJob>, std::string>
 Compiler::CreateJobsForCommand(const CompileCommand &command) const {
+
+  std::stringstream err;
 
   auto diag = std::make_unique<SaveFirstErrorDiagConsumer>();
   llvm::IntrusiveRefCntPtr<clang::DiagnosticsEngine> diagnostics_engine(
@@ -317,14 +307,13 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
                                llvm::sys::getDefaultTargetTriple(),
                                *diagnostics_engine, overlay_vfs.get());
 #else
-  auto driver_title = "Pasta Driver";
+  auto driver_title = "PASTA Driver";
   clang::driver::Driver driver(
       command.Arguments()[0], llvm::sys::getDefaultTargetTriple(),
       *diagnostics_engine, driver_title, overlay_vfs.get());
 #endif
 
   auto &opts = driver.getOpts();
-
 
   auto missing_arg_index = 0u;
   auto missing_arg_count = 0u;
@@ -343,12 +332,12 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
   // Something didn't parse.
   if (0 < missing_arg_count) {
-    return llvm::createStringError(
-        std::make_error_code(std::errc::invalid_argument),
-        "Unable to parse %u command-line options (first unparsed option is: "
-        "'%s') in command: %s",
-        missing_arg_count, command.Arguments().Arguments()[missing_arg_index],
-        command.Arguments().Join().c_str());
+    err << "Unable to parse " << missing_arg_count
+        << " command-line options (first unparsed option is: '"
+        << command.Arguments().Arguments()[missing_arg_index]
+        << "') in command: "
+        << command.Arguments().Join();
+    return err.str();
   }
 
   const auto new_args =
@@ -393,14 +382,14 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
   if (!compilation) {
     if (diag->error.empty()) {
-      return llvm::createStringError(
-          std::make_error_code(std::errc::no_child_process),
-          "Unable to build compilation jobs for command: %s",
-          new_args.Join().c_str());
+      err << "Unable to build compilation jobs for command: "
+          << new_args.Join();
+      return err.str();
+
     } else {
-      return llvm::createStringError(
-          std::make_error_code(std::errc::no_child_process),
-          diag->error.c_str());
+      err << "Unable to build compilation due to error: "
+          << diag->error;
+      return err.str();
     }
   }
 
@@ -457,25 +446,22 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
     if (!invocation_is_valid) {
       if (diag->error.empty()) {
-        return llvm::createStringError(
-            std::make_error_code(std::errc::no_child_process),
-            "Unable to build compilation jobs for cc1 command: %s",
-            job_args_to_string().c_str());
+        err << "Unable to build compilation jobs for cc1 command: "
+            << job_args_to_string();
+        return err.str();
 
       } else {
-        return llvm::createStringError(
-            std::make_error_code(std::errc::no_child_process),
-            "Unable to build compilation jobs for cc1 command: %s",
-            diag->error.c_str());
+        err << "Unable to build compilation jobs for cc1 command due to error: "
+            << diag->error;
+        return err.str();
       }
     }
 
     const auto &frontend_opts = invocation.getFrontendOpts();
     if (frontend_opts.Inputs.empty()) {
-      return llvm::createStringError(
-          std::make_error_code(std::errc::no_such_file_or_directory),
-          "Empty input file list for cc1 command: %s",
-          job_args_to_string().c_str());
+      err << "Empty input file list for cc1 command: "
+          << job_args_to_string();
+      return err.str();
     }
 
     std::vector<std::string> new_argv;
@@ -515,7 +501,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
       new_argv.emplace_back(arg);
     }
-    CompileJob job(new CompileJobImpl(
+    CompileJob job(std::make_shared<CompileJobImpl>(
         new_argv, working_dir, driver.ResourceDir,
         driver.SysRoot, frontend_opts.Inputs[0].getFile().str(),
         target_triple, frontend_opts.AuxTriple));

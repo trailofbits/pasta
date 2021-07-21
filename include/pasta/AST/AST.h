@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <pasta/Util/Error.h>
-
 #include <memory>
 #include <optional>
 #include <string_view>

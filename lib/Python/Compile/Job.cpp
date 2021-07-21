@@ -4,7 +4,6 @@
 
 #include <pasta/Compile/Job.h>
 #include <pasta/Util/ArgumentVector.h>
-#include <pasta/Util/Error.h>
 
 #include "Compile.h"
 
@@ -104,12 +103,11 @@ BorrowedPythonPtr<AST> CompileJob::Run(cache_kwarg cache) {
   }
 
   auto maybe_ast = job->Run();
-  if (IsError(maybe_ast)) {
-    PythonErrorStreamer(PyExc_Exception)
-        << ErrorString(maybe_ast);
+  if (maybe_ast.Failed()) {
+    PythonErrorStreamer(PyExc_Exception) << maybe_ast.TakeError();
     return nullptr;
   } else {
-    auto ret = AST::New(std::move(*maybe_ast));
+    auto ret = AST::New(maybe_ast.TakeValue());
     if (do_cache) {
       cached_ast = ret.Acquire();
     }

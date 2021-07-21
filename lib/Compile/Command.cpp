@@ -206,7 +206,7 @@ Compiler::CreateCommandForFile(std::string_view file_name,
 Result<CompileCommand, std::string_view>
 CompileCommand::CreateFromArguments(const ArgumentVector &argv,
                                     std::string_view working_dir) {
-  if (1u >= argv.Size()) {
+  if (!argv.Size()) {
     return kErrCompileCommandTooShort;
   } else {
     return CompileCommand(

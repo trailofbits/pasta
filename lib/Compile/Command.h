@@ -9,7 +9,8 @@
 
 namespace pasta {
 
-class CompileCommandImpl {
+class CompileCommandImpl
+    : public std::enable_shared_from_this<CompileCommandImpl> {
  public:
   inline CompileCommandImpl(ArgumentVector argv_, std::string_view working_dir_)
       : argv(std::move(argv_)),

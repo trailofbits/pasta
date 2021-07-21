@@ -13,60 +13,64 @@
 #include "Job.h"
 
 namespace pasta {
+namespace {
 
-CompileCommand::~CompileCommand(void) {
-  if (impl) {
-    delete impl;
-  }
-}
+static const std::string_view kErrMissingCommandField{
+    "Missing or non-string 'command' field in JSON object"};
 
-CompileCommand::CompileCommand(CompileCommand &&that) noexcept
-    : impl(that.impl) {
-  that.impl = nullptr;
-}
+static const std::string_view kErrMissingDirectoryField{
+    "Missing or non-string 'directory' field in JSON object"};
 
-CompileCommand &CompileCommand::operator=(CompileCommand &&that) noexcept {
-  std::swap(impl, that.impl);
-  return *this;
-}
+static const std::string_view kErrNonObjectCommand{
+    "Non-object entry in JSON array of compile commands"};
 
-CompileCommand::CompileCommand(CompileCommandImpl *impl_) : impl(impl_) {}
+static const std::string_view kErrCompileCommandTooShort{
+    "Too few values in argument vector for compile command"};
+
+static const std::string_view kErrEmptyFilePath{
+    "Cannot create a compile command for a file given an empty file path"};
+
+}  // namespace
+
+CompileCommand::~CompileCommand(void) {}
+
+CompileCommand::CompileCommand(std::shared_ptr<CompileCommandImpl> impl_)
+    : impl(std::move(impl_)) {}
 
 // Create a compile command from a JSON object. This JSON should come from
 // a proper compile_commands.json compilation database.
-llvm::Expected<CompileCommand>
+Result<CompileCommand, std::string_view>
 CompileCommand::CreateOneFromJSON(const llvm::json::Object &obj) {
   auto maybe_command = obj.getString("command");
 
   if (!maybe_command) {
-    return llvm::createStringError(
-        std::make_error_code(std::errc::no_such_process),
-        "Missing or non-string 'command' field in JSON object");
+    return kErrMissingCommandField;
   }
 
   auto maybe_dir = obj.getString("directory");
   if (!maybe_dir) {
-    return llvm::createStringError(
-        std::make_error_code(std::errc::not_a_directory),
-        "Missing or non-string 'directory' field in JSON object");
+    return kErrMissingDirectoryField;
   }
 
-  return CompileCommand(
-      new CompileCommandImpl(maybe_command->str(), maybe_dir->str()));
+  return CompileCommand(std::make_shared<CompileCommandImpl>(
+      maybe_command->str(), maybe_dir->str()));
 }
 
 // Create zero or more compile commands from an array of JSON objects. This
 // JSON should come from a proper compile_commands.json compilation database.
-std::vector<llvm::Expected<CompileCommand>>
+std::vector<Result<CompileCommand, std::string_view>>
 CompileCommand::CreateManyFromJSON(const llvm::json::Array &array) {
-  std::vector<llvm::Expected<CompileCommand>> commands;
+  std::vector<Result<CompileCommand, std::string_view>> commands;
   for (const auto &elem : array) {
     if (auto obj = elem.getAsObject(); obj) {
-      commands.emplace_back(CreateOneFromJSON(*obj));
+      auto ret = CreateOneFromJSON(*obj);
+      if (ret.Succeeded()) {
+        commands.emplace_back(ret.TakeValue());
+      } else {
+        commands.emplace_back(ret.TakeError());
+      }
     } else {
-      commands.emplace_back(llvm::createStringError(
-          std::make_error_code(std::errc::no_message_available),
-          "Non-object entry in JSON array of compile commands"));
+      commands.emplace_back(kErrNonObjectCommand);
     }
   }
   return commands;
@@ -78,14 +82,12 @@ CompileCommand::CreateManyFromJSON(const llvm::json::Array &array) {
 // against this (pasta) library may not match up perfectly with the compiler
 // used to compile this library, and so we ideally want to produce compilation
 // commands that are going to find the "expected" incldue files/directories.
-llvm::Expected<CompileCommand>
+Result<CompileCommand, std::string_view>
 Compiler::CreateCommandForFile(std::string_view file_name,
                                std::string_view working_dir) const {
 
   if (file_name.empty()) {
-    return llvm::createStringError(
-        std::make_error_code(std::errc::no_such_file_or_directory),
-        "Empty file provided");
+    return kErrEmptyFilePath;
   }
 
   const auto &info = *impl;
@@ -196,14 +198,20 @@ Compiler::CreateCommandForFile(std::string_view file_name,
   argv.emplace_back("-c");
   argv.emplace_back(file_name);
 
-  return CompileCommand(new CompileCommandImpl(argv, working_dir));
+  return CompileCommand(
+      std::make_shared<CompileCommandImpl>(argv, working_dir));
 }
 
 // Create a compile command for a single file in a working directory.
-llvm::Expected<CompileCommand>
+Result<CompileCommand, std::string_view>
 CompileCommand::CreateFromArguments(const ArgumentVector &argv,
                                     std::string_view working_dir) {
-  return CompileCommand(new CompileCommandImpl(argv, working_dir));
+  if (!argv.Size()) {
+    return kErrCompileCommandTooShort;
+  } else {
+    return CompileCommand(
+        std::make_shared<CompileCommandImpl>(argv, working_dir));
+  }
 }
 
 // Return an argument vector associated with this compilation command.

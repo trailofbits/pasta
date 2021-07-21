@@ -4,7 +4,6 @@
 
 #include <pasta/Compile/Command.h>
 #include <pasta/Util/ArgumentVector.h>
-#include <pasta/Util/Error.h>
 
 #include "Compile.h"
 
@@ -31,10 +30,10 @@ CompileCommand::CompileCommand(command_arg command_,
                                working_dir_kwarg working_dir) {
   auto maybe_command = ::pasta::CompileCommand::CreateFromArguments(
       *command_, CurrentWorkingDir(working_dir));
-  if (IsError(maybe_command)) {
-    PythonErrorStreamer(PyExc_Exception) << ErrorString(maybe_command);
+  if (maybe_command.Failed()) {
+    PythonErrorStreamer(PyExc_Exception) << maybe_command.TakeError();
   } else {
-    std::optional<::pasta::CompileCommand> cc(std::move(*maybe_command));
+    std::optional<::pasta::CompileCommand> cc(maybe_command.TakeValue());
     cc.swap(command);
   }
 }

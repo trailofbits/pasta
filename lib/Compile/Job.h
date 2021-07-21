@@ -9,7 +9,7 @@
 
 namespace pasta {
 
-class CompileJobImpl {
+class CompileJobImpl : public std::enable_shared_from_this<CompileJobImpl> {
  public:
   inline CompileJobImpl(ArgumentVector argv_, std::string working_dir_,
                         std::string resource_dir_, std::string sysroot_dir_,

@@ -10,6 +10,7 @@
 #include <unistd.h>
 
 #include <cassert>
+#include <sstream>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
@@ -189,7 +190,9 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
 }  // namespace
 
 // Run a command ans return the AST or the first error.
-llvm::Expected<AST> CompileJob::Run(void) const {
+Result<AST, std::string> CompileJob::Run(void) const {
+  std::stringstream err;
+
   auto ast = std::make_shared<ASTImpl>();
   llvm::IntrusiveRefCntPtr<llvm::vfs::FileSystem> real_vfs(
       llvm::vfs::createPhysicalFileSystem().release());
@@ -250,15 +253,13 @@ llvm::Expected<AST> CompileJob::Run(void) const {
 
   if (!invocation_is_valid) {
     if (diag->error.empty()) {
-      return llvm::createStringError(
-          std::make_error_code(std::errc::invalid_argument),
-          "Unable to create compiler invocation from command: %s",
-          argv.Join().c_str());
+      err << "Unable to create compiler invocation from command: "
+          << argv.Join();
+      return err.str();
     } else {
-      return llvm::createStringError(
-          std::make_error_code(std::errc::invalid_argument),
-          "Unable to create compiler invocation from command: %s",
-          diag->error.c_str());
+      err << "Unable to create compiler invocation from command due to error: "
+          << diag->error;
+      return err.str();
     }
   }
 
@@ -346,16 +347,14 @@ llvm::Expected<AST> CompileJob::Run(void) const {
   // with the first input file.
   auto &input_files = frontend_opts.Inputs;
   if (input_files.empty()) {
-    return llvm::createStringError(
-        std::make_error_code(std::errc::no_such_file_or_directory),
-        "No input file in compilation command: %s", argv.Join().c_str());
+    err << "No input file in compilation command: " << argv.Join();
+    return err.str();
 
   // There should only be one input files, as we're dealing with `-cc1`
   // commands, not frontend commands.
   } else if (1u < input_files.size()) {
-    return llvm::createStringError(
-        std::make_error_code(std::errc::too_many_files_open),
-        "Too many input files in compilation command: %s", argv.Join().c_str());
+    err << "Too many input files in compilation command: " << argv.Join();
+    return err.str();
   }
 
   auto &invocation_target = ci->getTarget();
@@ -410,18 +409,15 @@ llvm::Expected<AST> CompileJob::Run(void) const {
       llvm::sys::fs::perms::all_read);
 
   if (!added_file) {
-    return llvm::createStringError(
-        std::make_error_code(std::errc::invalid_argument),
-        "Could not add overlay file for '%s'",
-        main_file_name.c_str());
+    err << "Could not add overlay file for '" << main_file_name << "'";
+    return err.str();
   }
 
   const auto file_entry = fm->getFile("<pasta-input>");
   if (!file_entry) {
-    return llvm::createStringError(
-        std::make_error_code(std::errc::invalid_argument),
-        "Could not add overlay file entry for file '%s'",
-        main_file_name.c_str());
+    err << "Could not add overlay file entry for file '"
+        << main_file_name << "'";
+    return err.str();
   }
 
   auto &sm = ci->getSourceManager();
@@ -430,17 +426,15 @@ llvm::Expected<AST> CompileJob::Run(void) const {
       *file_entry, clang::SourceLocation(), clang::SrcMgr::C_User);
 
   if (!main_file_id.isValid()) {
-    return llvm::createStringError(
-        std::make_error_code(std::errc::invalid_argument),
-        "Failed to create a valid ID for the overlay file entry for file '%s'",
-        main_file_name.c_str());
+    err << "Failed to create a valid ID for the overlay file entry for file '"
+        << main_file_name << "'";
+    return err.str();
   }
 
   if (prev_main_file_id == main_file_id) {
-    return llvm::createStringError(
-        std::make_error_code(std::errc::invalid_argument),
-        "Source manager ID for the overlay file '%s' is the same as the original",
-        main_file_name.c_str());
+    err << "Source manager ID for the overlay file '"
+        << main_file_name << "' is the same as the original";
+    return err.str();
   }
 
   // Disable `#include`s as we'll only be dealing with a single, already
@@ -491,18 +485,13 @@ llvm::Expected<AST> CompileJob::Run(void) const {
   if (diagnostics_engine->hasUncompilableErrorOccurred() ||
       diagnostics_engine->hasFatalErrorOccurred()) {
     if (diag->error.empty()) {
-      return llvm::createStringError(
-          std::make_error_code(std::errc::invalid_argument),
-          "A clang diagnostic or uncompilable error was produced when trying "
-          "to get an AST from the command: %s",
-          argv.Join().c_str());
+      err << "A clang diagnostic or uncompilable error was produced when trying"
+          << " to get an AST: " << argv.Join();
+      return err.str();
 
     } else {
-      return llvm::createStringError(
-          std::make_error_code(std::errc::invalid_argument),
-          "A clang diagnostic or uncompilable error was produced when trying "
-          "to get an AST: %s",
-          diag->error.c_str());
+      err << "A clang diagnostic or uncompilable error was produced when trying"
+          << " to get an AST due to error: " << diag->error;
     }
   }
 

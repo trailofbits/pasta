@@ -8,22 +8,10 @@
 
 namespace pasta {
 
-Compiler::Compiler(Compiler &&that) noexcept : impl(that.impl) {
-  that.impl = nullptr;
-}
+Compiler::~Compiler(void) {}
 
-Compiler &Compiler::operator=(Compiler &&that) noexcept {
-  std::swap(impl, that.impl);
-  return *this;
-}
-
-Compiler::~Compiler(void) {
-  if (impl) {
-    delete impl;
-  }
-}
-
-Compiler::Compiler(CompilerImpl *impl_) : impl(impl_) {}
+Compiler::Compiler(std::shared_ptr<CompilerImpl> impl_)
+    : impl(std::move(impl_)) {}
 
 // Name/variant of this compiler.
 CompilerName Compiler::Name(void) const {

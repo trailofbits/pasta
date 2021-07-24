@@ -12,30 +12,36 @@
 
 namespace pasta {
 
-using IncludePath = std::pair<std::string, IncludePathLocation>;
+using IncludePath = std::pair<std::filesystem::path, IncludePathLocation>;
 
 class CompilerImpl {
  public:
-  inline CompilerImpl(CompilerName compiler_name_, TargetLanguage target_lang_,
-                      std::string_view compiler_exe_)
+  inline CompilerImpl(std::shared_ptr<FileSystem> file_system_,
+                      std::filesystem::path compiler_exe_,
+                      CompilerName compiler_name_, TargetLanguage target_lang_)
       : compiler_name(compiler_name_),
         target_lang(target_lang_),
-        compiler_exe(compiler_exe_) {}
+        file_system(std::move(file_system_)),
+        compiler_exe(std::move(compiler_exe_)),
+        fs(file_system) {}
 
   ~CompilerImpl(void) {}
 
   const CompilerName compiler_name;
   const TargetLanguage target_lang;
-  const std::string compiler_exe;
+  const std::shared_ptr<FileSystem> file_system;
+  const std::filesystem::path compiler_exe;
+
+  FileSystemView fs;
 
   // Include paths.
   std::vector<IncludePath> user_includes;
   std::vector<IncludePath> system_includes;
   std::vector<IncludePath> frameworks;
 
-  std::string sysroot_dir;  // Optional.
-  std::string resource_dir;
-  std::string install_dir;
+  std::filesystem::path sysroot_dir;  // Optional.
+  std::filesystem::path resource_dir;
+  std::filesystem::path install_dir;
 };
 
 }  // namespace pasta

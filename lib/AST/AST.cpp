@@ -132,16 +132,6 @@ TokenRange ASTImpl::TokenRangeFrom(clang::SourceRange range) {
   }
 }
 
-// Try to return the token at the specified location.
-Token AST::TokenAt(clang::SourceLocation loc) const {
-  return impl->TokenAt(loc);
-}
-
-// Try to return teh token range from the specified source range.
-TokenRange AST::TokenRangeFrom(clang::SourceRange range) {
-  return impl->TokenRangeFrom(range);
-}
-
 // Return a reference to the underlying Clang AST context. This is needed for
 // bootstrapping.
 clang::ASTContext &AST::UnderlyingAST(void) const {

@@ -13,8 +13,6 @@
 
 namespace clang {
 class ASTContext;
-class FullSourceLoc;
-class Token;
 }  // namespace clang
 
 namespace pasta {
@@ -47,13 +45,6 @@ class AST {
 
   // Return all lexed tokens.
   TokenRange Tokens(void) const;
-
-  // Try to return the token at the specified location.
-  Token TokenAt(clang::SourceLocation loc) const;
-
-  // Try to return teh token range from the specified source range.
-  TokenRange TokenRangeFrom(clang::SourceRange range);
-
   // Return a reference to the underlying Clang AST context. This is needed for
   // bootstrapping.
   clang::ASTContext &UnderlyingAST(void) const;
@@ -65,6 +56,8 @@ class AST {
   friend class Compiler;
   friend class CompileJob;
   friend class DeclBase;
+
+  AST(void) = delete;
 
   AST(std::shared_ptr<ASTImpl> impl_);
 

@@ -19,6 +19,7 @@ class InitLLVM {
   InitLLVM(InitLLVM &&) noexcept = delete;
 };
 
+// RAII initializer for file descritors.
 class FileDescriptorInit {
  private:
   friend class InitPasta;

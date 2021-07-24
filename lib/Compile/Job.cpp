@@ -33,7 +33,6 @@
 
 #include <pasta/Compile/Command.h>
 #include <pasta/Util/FileSystem.h>
-#include <pasta/Util/Version.h>
 
 #include <cstring>
 #include <memory>
@@ -42,6 +41,7 @@
 #include "Command.h"
 #include "Compiler.h"
 #include "Diagnostic.h"
+#include "Version.h"
 
 namespace pasta {
 
@@ -149,7 +149,7 @@ static bool IsIncludeOption(unsigned id) {
 // Adjust the compiler command (found in `args`), creating a new one and
 // returning it. The new one should have all include paths fully realized.
 static ArgumentVector
-CreateAdjustedCompilerCommand(const Compiler &compiler,
+CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
                               const CompileCommand &command,
                               const llvm::opt::InputArgList &args) {
 
@@ -175,17 +175,18 @@ CreateAdjustedCompilerCommand(const Compiler &compiler,
     const auto id = arg->getOption().getID();
     if (IsIncludeOption(id)) {
       if (id == clang::driver::options::OPT_isysroot) {
-        auto path = AbsolutePath(arg->getValue(), working_dir);
-        if (std::filesystem::is_directory(path)) {
-          CanonicalPath(path).swap(sysroot_to_use);
+        auto path = fs.Stat(fs.ParsePath(arg->getValue()));
+        if (path.Succeeded() && path->IsDirectory()) {
+          sysroot_to_use = std::move(path->real_path);
           continue;
         }
 
       } else if (id == clang::driver::options::OPT_resource_dir_EQ ||
                  id == clang::driver::options::OPT_resource_dir) {
-        auto path = AbsolutePath(arg->getValue(), working_dir);
-        if (IsResourceDir(path)) {
-          CanonicalPath(path).swap(resource_dir_to_use);
+        auto path = fs.Stat(fs.ParsePath(arg->getValue()));
+        if (path.Succeeded() && path->IsDirectory() &&
+            fs.IsResourceDir(path->real_path)) {
+          resource_dir_to_use = std::move(path->real_path);
           continue;
         }
 
@@ -211,12 +212,12 @@ CreateAdjustedCompilerCommand(const Compiler &compiler,
 
   if (!sysroot_to_use.empty()) {
     new_args.emplace_back("-isysroot");
-    new_args.emplace_back(sysroot_to_use.string());
+    new_args.emplace_back(sysroot_to_use.generic_string());
   }
 
   if (!resource_dir_to_use.empty()) {
     new_args.emplace_back("-resource-dir");
-    new_args.emplace_back(resource_dir_to_use.string());
+    new_args.emplace_back(resource_dir_to_use.generic_string());
   }
 
   new_args.emplace_back("-nostdinc");
@@ -234,9 +235,9 @@ CreateAdjustedCompilerCommand(const Compiler &compiler,
       continue;
     }
 
-    auto path = AbsolutePath(parsed_arg, working_dir);
-    if (std::filesystem::exists(path)) {
-      new_args.emplace_back(CanonicalPath(path).string());
+    auto path = fs.Stat(fs.ParsePath(parsed_arg));
+    if (path.Succeeded()) {
+      new_args.emplace_back(std::move(path->real_path));
     } else {
       new_args.emplace_back(parsed_arg);
     }
@@ -245,29 +246,29 @@ CreateAdjustedCompilerCommand(const Compiler &compiler,
   // Then, add in the built-in include paths of `compiler`.
 
   compiler.ForEachSystemIncludeDirectory(
-      [&](std::string_view include_path, IncludePathLocation loc) {
+      [&](const std::filesystem::path &include_path, IncludePathLocation loc) {
         if (loc == IncludePathLocation::kAbsolute) {
           new_args.emplace_back("-isystem");
         } else {
           new_args.emplace_back("-iwithsysroot");
         }
-        new_args.emplace_back(include_path);
+        new_args.emplace_back(include_path.generic_string());
       });
 
   compiler.ForEachUserIncludeDirectory(
-      [&](std::string_view include_path, IncludePathLocation) {
+      [&](const std::filesystem::path &include_path, IncludePathLocation) {
         new_args.emplace_back("-I");
-        new_args.emplace_back(include_path);
+        new_args.emplace_back(include_path.generic_string());
       });
 
   compiler.ForEachFrameworkDirectory(
-      [&](std::string_view include_path, IncludePathLocation loc) {
+      [&](const std::filesystem::path &include_path, IncludePathLocation loc) {
         if (loc == IncludePathLocation::kAbsolute) {
           new_args.emplace_back("-iframework");
         } else {
           new_args.emplace_back("-iframeworkwithsysroot");
         }
-        new_args.emplace_back(include_path);
+        new_args.emplace_back(include_path.generic_string());
       });
 
   // Finally, add in all non-include related arguments from the compile command.
@@ -286,6 +287,15 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
   std::stringstream err;
 
+  FileSystemView fs(impl->file_system);
+  auto ec = fs.PushWorkingDirectory(command.WorkingDirectory());
+  if (ec) {
+    err << "Could not enter current working directory '"
+        << command.WorkingDirectory().generic_string()
+        << "' of compile command: " << ec.message();
+    return err.str();
+  }
+
   auto diag = std::make_unique<SaveFirstErrorDiagConsumer>();
   llvm::IntrusiveRefCntPtr<clang::DiagnosticsEngine> diagnostics_engine(
       new clang::DiagnosticsEngine(
@@ -299,7 +309,8 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
   llvm::IntrusiveRefCntPtr<llvm::vfs::InMemoryFileSystem> mem_vfs(
       new llvm::vfs::InMemoryFileSystem);
   overlay_vfs->pushOverlay(mem_vfs.get());
-  overlay_vfs->setCurrentWorkingDirectory(command.WorkingDirectory().data());
+  overlay_vfs->setCurrentWorkingDirectory(
+      command.WorkingDirectory().generic_string());
 
   // Make the driver.
 #if LLVM_VERSION_NUMBER < LLVM_VERSION(12, 0)
@@ -341,7 +352,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
   }
 
   const auto new_args =
-      CreateAdjustedCompilerCommand(*this, command, parsed_args);
+      CreateAdjustedCompilerCommand(fs, *this, command, parsed_args);
 
   driver.setTitle("pasta");
   driver.setCheckInputsExist(false);
@@ -351,30 +362,41 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
     if (auto sysroot_arg =
             parsed_args.getLastArg(clang::driver::options::OPT__sysroot_EQ);
         sysroot_arg) {
-      driver.SysRoot = sysroot_arg->getValue();
+      driver.SysRoot = fs.ParsePath(sysroot_arg->getValue()).generic_string();
 
     } else if (auto isysroot_arg =
                    parsed_args.getLastArg(clang::driver::options::OPT_isysroot);
                isysroot_arg) {
-      driver.SysRoot = isysroot_arg->getValue();
+      driver.SysRoot = fs.ParsePath(isysroot_arg->getValue()).generic_string();
 
     } else {
-      driver.SysRoot = SystemRootDirectory();
+      SystemRootDirectory().generic_string().swap(driver.SysRoot);
     }
   }
 
+  // Set up a reasonable default resource directory.
   if (driver.ResourceDir.empty() ||
-      !std::filesystem::exists(driver.ResourceDir)) {
-    driver.ResourceDir = ResourceDirectory();
+      !fs.IsResourceDir(driver.ResourceDir)) {
+    ResourceDirectory().generic_string().swap(driver.ResourceDir);
   }
 
-  if (driver.InstalledDir.empty() ||
-      !std::filesystem::exists(driver.InstalledDir)) {
-    std::filesystem::path compiler_exe_path(ExecutablePath());
-    driver.Name = compiler_exe_path.filename().string();
-    driver.Dir = compiler_exe_path.parent_path().string();
-    driver.InstalledDir = InstallationDirectory();
-    driver.ClangExecutable = ExecutablePath();
+  // Double check the installation directory.
+  if (!driver.InstalledDir.empty()) {
+    if (auto idir = fs.Stat(driver.InstalledDir);
+        idir.Failed() || !idir->IsDirectory()) {
+      driver.InstalledDir.clear();
+    }
+  }
+
+  // If we don't have an installation directory, then substitute our compiler's
+  // isntall directory in.
+  //
+  // TODO(pag): Should we do the other driver things independently?
+  if (driver.InstalledDir.empty() && !InstallationDirectory().empty()) {
+    InstallationDirectory().generic_string().swap(driver.InstalledDir);
+    ExecutablePath().filename().generic_string().swap(driver.Name);
+    ExecutablePath().parent_path().generic_string().swap(driver.Dir);
+    ExecutablePath().generic_string().swap(driver.ClangExecutable);
   }
 
   const std::unique_ptr<clang::driver::Compilation> compilation(
@@ -466,7 +488,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
     std::vector<std::string> new_argv;
     auto last_was_output = false;
-    for (auto arg : job_args) {
+    for (const char *arg : job_args) {
 
       // Try to fixup any remaining paths.
       llvm::StringRef a(arg);
@@ -492,9 +514,9 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
           a.endswith(".gcno") || a.endswith(".pch") || a.endswith(".s") ||
           a.endswith(".S") || a.endswith(".asm") || a.endswith(".mm") ||
           a.endswith(".d") || a.endswith(".sdk")) {
-        auto maybe_path = AbsolutePath(arg, working_dir);
-        if (std::filesystem::exists(maybe_path)) {
-          new_argv.emplace_back(CanonicalPath(maybe_path).string());
+
+        if (auto maybe_info = fs.Stat(arg); maybe_info.Succeeded()) {
+          new_argv.emplace_back(maybe_info->real_path.generic_string());
           continue;
         }
       }

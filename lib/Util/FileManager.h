@@ -14,6 +14,19 @@
 
 namespace pasta {
 
+struct FileTokenImpl {
+  inline FileTokenImpl(const char *data_, unsigned line_, unsigned column_,
+                       unsigned kind_)
+      : data(data_),
+        line(line_),
+        column(static_cast<uint16_t>(column_)),
+        kind(static_cast<uint16_t>(kind_)) {}
+  const char *data;
+  unsigned line;
+  uint16_t column;
+  uint16_t kind;
+};
+
 // Implementation of a backing file.
 class FileImpl final {
  public:
@@ -33,6 +46,17 @@ class FileImpl final {
 
   // Lock on mutating `data`.
   std::mutex data_lock;
+
+  // NOTE(pag): The rest of the stuff related to `tokens` is all filled in
+  //            by the `ParsedFileTracker` of `CompileJob::Run`.
+
+  // Lock on mutating `tokens`.
+  std::mutex tokens_lock;
+  bool has_tokens{false};
+
+  // This points into `data`. A token is bound by `token_data[i]` and
+  // `token_data[i + 1]`.
+  std::vector<FileTokenImpl> tokens;
 };
 
 // Backing implementation of a file manager.

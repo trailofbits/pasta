@@ -200,6 +200,7 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
 class ParsedFileTracker : public clang::PPCallbacks {
  private:
   clang::SourceManager &sm;
+  const clang::LangOptions &lang_opts;
   const pasta::FileManager fm;
   std::shared_ptr<pasta::FileSystem> fs;
   const std::filesystem::path cwd;
@@ -209,10 +210,12 @@ class ParsedFileTracker : public clang::PPCallbacks {
 
  public:
   explicit ParsedFileTracker(clang::SourceManager &sm_,
-                       const pasta::FileManager &fm_,
-                       std::filesystem::path cwd_,
-                       ASTImpl *ast_)
+                             const clang::LangOptions &lang_opts_,
+                             const pasta::FileManager &fm_,
+                             std::filesystem::path cwd_,
+                             ASTImpl *ast_)
       : sm(sm_),
+        lang_opts(lang_opts_),
         fm(fm_),
         fs(fm.FileSystem()),
         cwd(std::move(cwd_)),
@@ -261,7 +264,53 @@ class ParsedFileTracker : public clang::PPCallbacks {
     }
 
     seen.insert(file.impl.get());
+
+    auto maybe_data = file.Data();
+    if (maybe_data.Failed()) {
+      return;
+    }
+
     ast->parsed_files.emplace_back(std::move(file));
+
+    std::unique_lock<std::mutex> locker(file.impl->tokens_lock);
+    if (file.impl->has_tokens) {
+      return;
+    }
+
+    auto data = maybe_data.TakeValue();
+    file.impl->has_tokens = true;
+    if (data.empty()) {
+      return;
+    }
+
+    const char *last_tok_begin = data.data();
+    const char * const buff_begin = last_tok_begin;
+    const char * const buff_end = &(last_tok_begin[data.size()]);
+    clang::Lexer lexer(loc, lang_opts, buff_begin, last_tok_begin, buff_end);
+    lexer.SetKeepWhitespaceMode(true);
+
+    // Raw lex this file's tokens.
+    clang::Token tok;
+    while (!lexer.LexFromRawLexer(tok)) {
+      if (tok.is(clang::tok::eof)) {
+        break;
+      }
+
+      const auto tok_loc = tok.getLocation();
+      auto offset = sm.getFileOffset(tok_loc);
+      assert(offset < data.size());
+      auto ptr = &(buff_begin[offset]);
+      file.impl->tokens.emplace_back(
+          ptr, sm.getSpellingLineNumber(tok_loc),
+          sm.getSpellingColumnNumber(tok_loc),
+          tok.getKind());
+      last_tok_begin = ptr;
+    }
+
+    const auto tok_loc = tok.getLocation();
+    file.impl->tokens.emplace_back(
+        buff_end, sm.getSpellingLineNumber(tok_loc),
+        sm.getSpellingColumnNumber(tok_loc), clang::tok::eof);
   }
 };
 
@@ -467,8 +516,8 @@ Result<AST, std::string> CompileJob::Run(void) const {
   //            definitions as tokens.
   {
     std::unique_ptr<clang::PPCallbacks> file_tracker(new ParsedFileTracker(
-        ci->getSourceManager(), impl->file_manager, WorkingDirectory(),
-        ast.get()));
+        ci->getSourceManager(), ci->getLangOpts(),
+        impl->file_manager, WorkingDirectory(), ast.get()));
     pp.addPPCallbacks(std::move(file_tracker));
   }
   pp.SetCommentRetentionState(true /* KeepComments */,

@@ -91,7 +91,7 @@ static bool ReadRawTokenByKind(clang::SourceManager &source_manager,
 // Read the data of the token into the passed in string pointer. This tries
 // to find the backing character data for the token, and fill it in that way.
 static bool ReadRawTokenData(clang::SourceManager &source_manager,
-                             clang::LangOptions &lang_opts,
+                             const clang::LangOptions &lang_opts,
                              const clang::Token &tok,
                              const clang::SourceLocation begin_loc,
                              std::string *out) {
@@ -262,12 +262,12 @@ TokenIterator TokenIterator::operator-(size_t offset) const noexcept {
   return TokenIterator(token.ast, token.impl - offset);
 }
 
-TokenIterator& TokenIterator::operator+=(size_t offset) noexcept {
+TokenIterator &TokenIterator::operator+=(size_t offset) noexcept {
   token.impl += offset;
   return *this;
 }
 
-TokenIterator& TokenIterator::operator-=(size_t offset) noexcept {
+TokenIterator &TokenIterator::operator-=(size_t offset) noexcept {
   token.impl -= offset;
   return *this;
 }
@@ -302,8 +302,8 @@ Token TokenRange::operator[](size_t index) const {
 }
 
 bool TryReadRawToken(clang::SourceManager &source_manager,
-                  clang::LangOptions &lang_opts,
-                  const clang::Token &tok, std::string *out) {
+                     const clang::LangOptions &lang_opts,
+                     const clang::Token &tok, std::string *out) {
   out->clear();
 
   // This could be our sentinel EOF that we add at the end of all tokens, or

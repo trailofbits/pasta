@@ -7,6 +7,7 @@
 #include <memory>
 #include <optional>
 #include <string_view>
+#include <vector>
 
 #include "Decl.h"
 #include "Token.h"
@@ -56,7 +57,11 @@ class AST {
   TranslationUnitDecl TranslationUnit(void) const;
 
   // Return the main file which was parsed and thus resulted in this AST.
-  File MainFaile(void) const;
+  File MainFile(void) const;
+
+  // Return the list of all source files which were parsed as part of the
+  // construction of this AST.
+  const std::vector<::pasta::File> &ParsedFiles(void) const;
 
  private:
   friend class Compiler;

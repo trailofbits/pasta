@@ -145,8 +145,14 @@ TranslationUnitDecl AST::TranslationUnit(void) const {
 }
 
 // Return the main file which was parsed and thus resulted in this AST.
-File AST::MainFaile(void) const {
+File AST::MainFile(void) const {
   return impl->main_source_file;
+}
+
+// Return the list of all source files which were parsed as part of the
+// construction of this AST.
+const std::vector<::pasta::File> &AST::ParsedFiles(void) const {
+  return impl->parsed_files;
 }
 
 }  // namespace pasta

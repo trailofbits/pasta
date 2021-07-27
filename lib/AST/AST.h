@@ -70,6 +70,9 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // The main source file which we parsed.
   ::pasta::File main_source_file;
 
+  // All parsed files.
+  std::vector<::pasta::File> parsed_files;
+
   // List of tokens.
   std::vector<TokenImpl> tokens;
 

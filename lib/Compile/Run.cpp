@@ -11,6 +11,8 @@
 
 #include <cassert>
 #include <sstream>
+#include <iostream>
+#include <unordered_set>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
@@ -25,6 +27,7 @@
 #include <clang/Basic/TargetInfo.h>
 #include <clang/Basic/TargetOptions.h>
 #include <clang/Frontend/CompilerInstance.h>
+#include <clang/Lex/PPCallbacks.h>
 #include <clang/Lex/Preprocessor.h>
 #include <clang/Lex/PreprocessorOptions.h>
 #include <clang/Parse/Parser.h>
@@ -36,10 +39,11 @@
 #include <pasta/Util/ArgumentVector.h>
 #include <pasta/Util/Compiler.h>
 
+#include "FileSystem.h"
+
 #include "../AST/AST.h"
 #include "../AST/Token.h"
-
-#include "FileSystem.h"
+#include "../Util/FileManager.h"
 
 namespace pasta {
 namespace detail {
@@ -48,6 +52,7 @@ PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, VLASupported, bool);
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasLegalHalfType, bool);
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasFloat128, bool);
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasFloat16, bool);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, FileEntry, File, std::unique_ptr<llvm::vfs::File>);
 }  // namespace detail
 namespace {
 
@@ -189,6 +194,76 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
 }
 
 }  // namespace
+
+
+// Tracks open files.
+class ParsedFileTracker : public clang::PPCallbacks {
+ private:
+  clang::SourceManager &sm;
+  const pasta::FileManager fm;
+  std::shared_ptr<pasta::FileSystem> fs;
+  const std::filesystem::path cwd;
+  ASTImpl * const ast;
+
+  std::unordered_set<pasta::FileImpl *> seen;
+
+ public:
+  explicit ParsedFileTracker(clang::SourceManager &sm_,
+                       const pasta::FileManager &fm_,
+                       std::filesystem::path cwd_,
+                       ASTImpl *ast_)
+      : sm(sm_),
+        fm(fm_),
+        fs(fm.FileSystem()),
+        cwd(std::move(cwd_)),
+        ast(ast_) {}
+
+  virtual ~ParsedFileTracker(void) {}
+
+  // Each time we enter a source file, try to keep track of it.
+  void FileChanged(clang::SourceLocation loc,
+                   clang::PPCallbacks::FileChangeReason reason,
+                   clang::SrcMgr::CharacteristicKind file_type,
+                   clang::FileID PrevFID = clang::FileID()) final {
+    if (clang::PPCallbacks::EnterFile == reason) {
+      switch (file_type) {
+        case clang::SrcMgr::CharacteristicKind::C_User:
+        case clang::SrcMgr::CharacteristicKind::C_System:
+        case clang::SrcMgr::CharacteristicKind::C_ExternCSystem:
+          break;
+        case clang::SrcMgr::CharacteristicKind::C_User_ModuleMap:
+        case clang::SrcMgr::CharacteristicKind::C_System_ModuleMap:
+          return;
+      }
+    } else {
+      return;
+    }
+
+    const clang::FileEntry *fe = sm.getFileEntryForID(sm.getFileID(loc));
+    if (!fe) {
+      return;
+    }
+
+    auto fs_path = fs->ParsePath(fe->getName().str(), cwd, fs->PathKind());
+    auto fs_stat = fs->Stat(fs_path, cwd);
+    if (fs_stat.Failed()) {
+      return;
+    }
+
+    auto maybe_file = fm.OpenFile(fs_stat.TakeValue());
+    if (maybe_file.Failed()) {
+      return;
+    }
+
+    auto file = maybe_file.TakeValue();
+    if (seen.count(file.impl.get())) {
+      return;
+    }
+
+    seen.insert(file.impl.get());
+    ast->parsed_files.emplace_back(std::move(file));
+  }
+};
 
 // Run a command ans return the AST or the first error.
 Result<AST, std::string> CompileJob::Run(void) const {
@@ -384,13 +459,18 @@ Result<AST, std::string> CompileJob::Run(void) const {
   auto &dep_opts = ci->getDependencyOutputOpts();
   dep_opts = clang::DependencyOutputOptions();
 
-  // TODO(pag): Eventually add `PPCallbacks` so that we can capture macro
-  //            definitions as tokens.
-
   ci->createPreprocessor(clang::TU_Complete);
   auto &pp = ci->getPreprocessor();
   ast->orig_source_pp = ci->getPreprocessorPtr();
 
+  // TODO(pag): Eventually add `PPCallbacks` so that we can capture macro
+  //            definitions as tokens.
+  {
+    std::unique_ptr<clang::PPCallbacks> file_tracker(new ParsedFileTracker(
+        ci->getSourceManager(), impl->file_manager, WorkingDirectory(),
+        ast.get()));
+    pp.addPPCallbacks(std::move(file_tracker));
+  }
   pp.SetCommentRetentionState(true /* KeepComments */,
                               true /* KeepMacroComments */);
 

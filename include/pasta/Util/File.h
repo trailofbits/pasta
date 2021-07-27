@@ -20,6 +20,7 @@ class File;
 class FileImpl;
 class FileManager;
 class FileManagerImpl;
+class ParsedFileTracker;
 struct Stat;
 
 // A file token is a token, lexed from a file, but which is not directly
@@ -67,6 +68,7 @@ class File {
   friend class ASTImpl;
   friend class FileManager;
   friend class FileManagerImpl;
+  friend class ParsedFileTracker;
 
   File(void) = delete;
 

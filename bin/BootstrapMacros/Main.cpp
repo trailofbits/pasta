@@ -11,7 +11,7 @@
 #include <pasta/Compile/Compiler.h>
 #include <pasta/Compile/Job.h>
 #include <pasta/Util/ArgumentVector.h>
-#include <pasta/Util/FileSystem.h>
+#include <pasta/Util/FileManager.h>
 #include <pasta/Util/Init.h>
 
 #include <cstdlib>
@@ -42,9 +42,9 @@ int main(void) {
   };
 
   pasta::InitPasta initializer;
-
+  pasta::FileManager fm(pasta::FileSystem::CreateNative());
   auto maybe_compiler =
-      pasta::Compiler::CreateHostCompiler(pasta::TargetLanguage::kCXX);
+      pasta::Compiler::CreateHostCompiler(fm, pasta::TargetLanguage::kCXX);
 
   if (maybe_compiler.Failed()) {
     std::cerr << maybe_compiler.TakeError() << std::endl;

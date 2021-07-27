@@ -5,6 +5,8 @@
 #pragma once
 
 #include <pasta/Util/Result.h>
+#include <pasta/Util/StdFileSystem.h>
+#include <pasta/Util/File.h>
 
 #include <memory>
 #include <string_view>
@@ -33,22 +35,22 @@ class CompileJob {
   const ArgumentVector &Arguments(void) const;
 
   // Return the working directory in which this command executes.
-  std::string_view WorkingDirectory(void) const;
+  const std::filesystem::path &WorkingDirectory(void) const;
 
   // Return the compiler resource directory that this command should use.
-  std::string_view ResourceDirectory(void) const;
+  const std::filesystem::path &ResourceDirectory(void) const;
 
   // Return the compiler system root directory that this command should use.
-  std::string_view SystemRootDirectory(void) const;
+  const std::filesystem::path &SystemRootDirectory(void) const;
+
+  // Return the path to the source file that this job compiles.
+  File SourceFile(void) const;
 
   // Return the target triple to use.
   std::string_view TargetTriple(void) const;
 
   // Return the auxiliary target triple to use.
   std::string_view AuxiliaryTargetTriple(void) const;
-
-  // Return the path to the source file that this job compiles.
-  std::string_view SourceFile(void) const;
 
   // Run a backend compilation job and returns the AST or the first error.
   Result<AST, std::string> Run(void) const;

@@ -11,6 +11,8 @@
 #include "Decl.h"
 #include "Token.h"
 
+#include <pasta/Util/File.h>
+
 namespace clang {
 class ASTContext;
 }  // namespace clang
@@ -45,12 +47,16 @@ class AST {
 
   // Return all lexed tokens.
   TokenRange Tokens(void) const;
+
   // Return a reference to the underlying Clang AST context. This is needed for
   // bootstrapping.
   clang::ASTContext &UnderlyingAST(void) const;
 
   // Returns the top-level translation unit decl inside of this AST.
   TranslationUnitDecl TranslationUnit(void) const;
+
+  // Return the main file which was parsed and thus resulted in this AST.
+  File MainFaile(void) const;
 
  private:
   friend class Compiler;

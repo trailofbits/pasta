@@ -47,7 +47,13 @@ const std::filesystem::path &Compiler::InstallationDirectory(void) const {
 
 // Return the file system associated with this compiler's paths.
 std::shared_ptr<FileSystem> Compiler::FileSystem(void) const {
-  return impl->file_system;
+  return impl->file_manager.FileSystem();
+}
+
+// Return the file manager associated with files that will be opened and
+// read by this compiler.
+FileManager Compiler::FileManager(void) const {
+  return impl->file_manager;
 }
 
 // Invoke a callback `cb` for each system include directory. Think `-isystem`.

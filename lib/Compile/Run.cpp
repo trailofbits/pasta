@@ -30,7 +30,6 @@
 #include <clang/Parse/Parser.h>
 #include <clang/Sema/Sema.h>
 #include <llvm/Support/Host.h>
-#include <llvm/Support/VirtualFileSystem.h>
 #include <llvm/Support/raw_ostream.h>
 #pragma clang diagnostic pop
 
@@ -39,6 +38,8 @@
 
 #include "../AST/AST.h"
 #include "../AST/Token.h"
+
+#include "FileSystem.h"
 
 namespace pasta {
 namespace detail {
@@ -193,15 +194,16 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
 Result<AST, std::string> CompileJob::Run(void) const {
   std::stringstream err;
 
-  auto ast = std::make_shared<ASTImpl>();
+  auto ast = std::make_shared<ASTImpl>(SourceFile());
   llvm::IntrusiveRefCntPtr<llvm::vfs::FileSystem> real_vfs(
-      llvm::vfs::createPhysicalFileSystem().release());
+      new LLVMFileSystem(impl->file_manager));
   llvm::IntrusiveRefCntPtr<llvm::vfs::OverlayFileSystem> overlay_vfs(
       new llvm::vfs::OverlayFileSystem(real_vfs.get()));
   llvm::IntrusiveRefCntPtr<llvm::vfs::InMemoryFileSystem> mem_vfs(
       new llvm::vfs::InMemoryFileSystem);
   overlay_vfs->pushOverlay(mem_vfs.get());
-  overlay_vfs->setCurrentWorkingDirectory(WorkingDirectory().data());
+  overlay_vfs->setCurrentWorkingDirectory(
+      WorkingDirectory().generic_string());
 
   auto diag = std::make_unique<SaveFirstErrorDiagConsumer>(ast);
   llvm::IntrusiveRefCntPtr<clang::DiagnosticsEngine> diagnostics_engine(
@@ -219,7 +221,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
 
   auto &invocation = ci->getInvocation();
   auto &fs_options = invocation.getFileSystemOpts();
-  fs_options.WorkingDir = WorkingDirectory();
+  WorkingDirectory().generic_string().swap(fs_options.WorkingDir);
 
   llvm::IntrusiveRefCntPtr<clang::FileManager> fm(
       new clang::FileManager(fs_options, overlay_vfs.get()));

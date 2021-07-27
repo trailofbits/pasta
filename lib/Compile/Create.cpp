@@ -402,7 +402,8 @@ static const std::string kErrUnrecognizedCompiler{
 // Create a "host" compiler instance, i.e. a compiler instance based on the
 // compiler used to compile this library.
 Result<Compiler, std::string>
-Compiler::CreateHostCompiler(enum TargetLanguage lang) {
+Compiler::CreateHostCompiler(class FileManager file_manager,
+                             enum TargetLanguage lang) {
   std::filesystem::path path;
   const char *version_info = nullptr;
   const char *version_info_fake_sysroot = nullptr;
@@ -426,15 +427,14 @@ Compiler::CreateHostCompiler(enum TargetLanguage lang) {
     return kErrUnrecognizedCompiler;
   }
 
-  auto host_fs = FileSystem::CreateNative();
+  auto host_fs = file_manager.FileSystem();
   auto maybe_cwd = host_fs->CurrentWorkingDirectory();
   if (maybe_cwd.Failed()) {
     return maybe_cwd.TakeError().message();
   }
 
-  auto cwd = maybe_cwd.TakeValue();
   auto maybe_compiler = Create(
-      std::move(host_fs), path.lexically_normal(), std::move(cwd),
+      std::move(file_manager), path.lexically_normal(), maybe_cwd.TakeValue(),
       name, lang, version_info, version_info_fake_sysroot);
   if (maybe_compiler.Failed()) {
     return maybe_compiler.TakeError();
@@ -448,7 +448,7 @@ Compiler::CreateHostCompiler(enum TargetLanguage lang) {
 // NOTE(pag): The `working_dir` is the directory in which the compiler
 //            invocation was made.
 Result<Compiler, std::string>
-Compiler::Create(std::shared_ptr<class FileSystem> fs_,
+Compiler::Create(class FileManager file_manager,
                  std::filesystem::path compiler_path,
                  std::filesystem::path working_dir,
                  CompilerName name, enum TargetLanguage lang,
@@ -463,7 +463,7 @@ Compiler::Create(std::shared_ptr<class FileSystem> fs_,
     name = CompilerName::kAppleClang;
   }
 
-  FileSystemView fs(fs_);
+  FileSystemView fs(file_manager.FileSystem());
   auto ec = fs.PushWorkingDirectory(working_dir);
   if (ec) {
     err << "Error with working directory '" << working_dir.generic_string()
@@ -494,7 +494,7 @@ Compiler::Create(std::shared_ptr<class FileSystem> fs_,
   compiler_path = std::move(maybe_status->real_path);
 
   std::shared_ptr<CompilerImpl> impl(std::make_shared<CompilerImpl>(
-      fs_, compiler_path, name, lang));
+      file_manager, compiler_path, name, lang));
 
   std::stringstream ss;
   ss << version_info;
@@ -544,7 +544,7 @@ Compiler::Create(std::shared_ptr<class FileSystem> fs_,
   if (!version_info_fake_sysroot.empty()) {
 
     CompilerImpl fake_sysroot_impl(
-        fs_, impl->compiler_exe, impl->compiler_name, impl->target_lang);
+        file_manager, impl->compiler_exe, impl->compiler_name, impl->target_lang);
     std::stringstream ss2;
     ss2 << version_info_fake_sysroot;
     ParseOutputInto(fs, ss2, fake_sysroot_impl);

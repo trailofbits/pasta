@@ -6,16 +6,21 @@
 
 #include <pasta/Compile/Job.h>
 #include <pasta/Util/ArgumentVector.h>
+#include <pasta/Util/FileManager.h>
 
 namespace pasta {
 
 class CompileJobImpl : public std::enable_shared_from_this<CompileJobImpl> {
  public:
-  inline CompileJobImpl(ArgumentVector argv_, std::string working_dir_,
-                        std::string resource_dir_, std::string sysroot_dir_,
-                        std::string source_file_, std::string target_triple_,
+  inline CompileJobImpl(ArgumentVector argv_, FileManager file_manager_,
+                        std::filesystem::path working_dir_,
+                        std::filesystem::path resource_dir_,
+                        std::filesystem::path sysroot_dir_,
+                        File source_file_,
+                        std::string target_triple_,
                         std::string aux_triple_)
       : argv(std::move(argv_)),
+        file_manager(std::move(file_manager_)),
         working_dir(std::move(working_dir_)),
         resource_dir(std::move(resource_dir_)),
         sysroot_dir(std::move(sysroot_dir_)),
@@ -26,19 +31,22 @@ class CompileJobImpl : public std::enable_shared_from_this<CompileJobImpl> {
   // Arguments of the frontend compile command.
   const ArgumentVector argv;
 
+  // File manager associated with this job.
+  const FileManager file_manager;
+
   // Directory in which this command should execute.
-  const std::string working_dir;
+  const std::filesystem::path working_dir;
 
   // Resource directory. May be different than what's configured for the
   // compiler.
-  const std::string resource_dir;
+  const std::filesystem::path resource_dir;
 
   // System root directory. May be different than what's configured for the
   // compiler.
-  const std::string sysroot_dir;
+  const std::filesystem::path sysroot_dir;
 
   // Source file that this job will compile.
-  const std::string source_file;
+  const File source_file;
 
   // Target triple.
   const std::string target_triple;

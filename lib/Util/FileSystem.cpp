@@ -6,9 +6,13 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cerrno>
 #include <string_view>
 
-#include <iostream>
+#include <fstream>
+#include <streambuf>
+
+#include <pasta/Util/Error.h>
 
 namespace pasta {
 namespace {
@@ -37,6 +41,20 @@ static const std::error_code kErrNotRecoverable =
 static const std::error_code kErrNotADirectory =
     std::make_error_code(std::errc::not_a_directory);
 
+static const std::error_code kErrNotSupported =
+    std::make_error_code(std::errc::operation_not_supported);
+
+static const std::error_code kErrIOError =
+    std::make_error_code(std::errc::io_error);
+
+static const std::error_code kErrNotPermitted =
+    std::make_error_code(std::errc::operation_not_permitted);
+
+static constexpr auto kAnyRead =
+    std::filesystem::perms::group_read |
+    std::filesystem::perms::others_read |
+    std::filesystem::perms::owner_read;
+
 // Implementation of a native file system.
 class NativeFileSystem final : public FileSystem {
  public:
@@ -44,6 +62,9 @@ class NativeFileSystem final : public FileSystem {
 
   // Tells us what kind of file system path to use.
   ::pasta::PathKind PathKind(void) const final;
+
+  // Try to read the contents of a file.
+  Result<std::string, std::error_code> ReadFile(::pasta::Stat stat) final;
 
   // Return the root directory of `path`, possibly within the context of `cwd`.
   Result<std::filesystem::path, std::error_code>
@@ -59,8 +80,7 @@ class NativeFileSystem final : public FileSystem {
 
   // List out the files in a directory.
   Result<std::vector<std::filesystem::path>, std::error_code>
-  ListDirectory(std::filesystem::path path,
-                std::filesystem::path cwd) final;
+  ListDirectory(::pasta::Stat stat) final;
 };
 
 // Tells us what kind of file system path to use.
@@ -88,6 +108,51 @@ std::filesystem::path FullPath(std::filesystem::path path,
   }
 
   return (working_dir / path).lexically_normal();
+}
+
+// Try to read the contents of a file.
+Result<std::string, std::error_code> NativeFileSystem::ReadFile(
+    ::pasta::Stat stat) {
+
+  if ((kAnyRead & stat.permissions) == std::filesystem::perms::none) {
+    return kErrNotPermitted;
+  }
+
+  std::string ret;
+  if (stat.size.has_value()) {
+    ret.reserve(stat.size.value());
+  }
+
+  ClearLastError();
+
+  std::ifstream f(stat.real_path.generic_string(),
+                  std::ios_base::in | std::ios_base::binary);
+
+  if (f.fail()) {
+    auto ret = GetLastError();
+    if (!ret) {
+      ret = kErrNotSupported;
+    }
+    return ret;
+  }
+
+  ret.assign((std::istreambuf_iterator<char>(f)),
+              std::istreambuf_iterator<char>());
+
+  // Force the `ifstream` to synchronize its `eofbit`.
+  (void) f.get();
+
+  if (!f.eof()) {
+    auto ret = GetLastError();
+    if (!ret) {
+      ret = kErrNotSupported;
+    }
+    return ret;
+  }
+
+  f.close();
+
+  return ret;
 }
 
 // Return the root directory of `path`, possibly within the context of `cwd`.
@@ -181,7 +246,6 @@ NativeFileSystem::Stat(std::filesystem::path path,
       return ec;
     }
   }
-
   return ret;
 
 } catch (std::filesystem::filesystem_error &fse) {
@@ -193,16 +257,17 @@ NativeFileSystem::Stat(std::filesystem::path path,
 
 // List out the files in a directory.
 Result<std::vector<std::filesystem::path>, std::error_code>
-NativeFileSystem::ListDirectory(std::filesystem::path path,
-                                std::filesystem::path cwd) try {
+NativeFileSystem::ListDirectory(::pasta::Stat stat) try {
   std::error_code ec;
-  path = FullPath(std::move(path), std::move(cwd), kNativePathKind);
+  if (stat.type != std::filesystem::file_type::directory) {
+    return kErrNotADirectory;
+  }
 
   const std::filesystem::directory_options options =
       std::filesystem::directory_options::follow_directory_symlink |
       std::filesystem::directory_options::skip_permission_denied;
 
-  std::filesystem::directory_iterator it(path, options, ec);
+  std::filesystem::directory_iterator it(stat.full_path, options, ec);
   if (ec) {
     return ec;
   }
@@ -211,7 +276,7 @@ NativeFileSystem::ListDirectory(std::filesystem::path path,
 
   for (const std::filesystem::directory_iterator it_end; it != it_end; ++it) {
     const std::filesystem::directory_entry &curr = *it;
-    ret.emplace_back(FullPath(curr.path(), std::move(path), kNativePathKind));
+    ret.emplace_back(FullPath(curr.path(), stat.full_path, kNativePathKind));
   }
 
   return ret;
@@ -228,16 +293,22 @@ NativeFileSystem::ListDirectory(std::filesystem::path path,
 FileSystem::~FileSystem(void) {}
 
 // Create a native file system.
-std::shared_ptr<FileSystem> FileSystem::CreateNative(void) {
+std::shared_ptr<::pasta::FileSystem> FileSystem::CreateNative(void) {
   return std::make_shared<NativeFileSystem>();
 }
 
 // Returns `true` if `path` looks like a resource directory for a compiler.
 bool FileSystem::IsResourceDir(std::filesystem::path path,
-                               std::filesystem::path cwd) {
+                               std::filesystem::path cwd) try {
   auto maybe_status = Stat(path / "include" / "stdarg.h", cwd);
   return maybe_status.Succeeded() &&
          maybe_status->type == std::filesystem::file_type::regular;
+
+} catch (std::filesystem::filesystem_error &fse) {
+  return false;
+
+} catch (...) {
+  return false;
 }
 
 // Parse a string into a file system path.
@@ -326,7 +397,7 @@ std::filesystem::path FileSystem::ParsePath(std::string path,
 // Checks if a file exists. By default this is implemented with `Stat`.
 bool FileSystem::FileExists(std::filesystem::path path,
                             std::filesystem::path cwd) {
-  auto maybe_stat = this->Stat(path, cwd);
+  auto maybe_stat = this->Stat(std::move(path), std::move(cwd));
   if (maybe_stat.Failed()) {
     return false;
   } else {
@@ -334,7 +405,30 @@ bool FileSystem::FileExists(std::filesystem::path path,
   }
 }
 
-FileSystemView::FileSystemView(std::shared_ptr<FileSystem> impl_)
+// Try to read the contents of a file.
+Result<std::string, std::error_code> FileSystem::ReadFile(
+      std::filesystem::path path, std::filesystem::path cwd) {
+  auto stat = this->Stat(std::move(path), std::move(cwd));
+  if (stat.Failed()) {
+    return stat.TakeError();
+  } else {
+    return this->ReadFile(stat.TakeValue());
+  }
+}
+
+// List out the files in a directory.
+Result<std::vector<std::filesystem::path>, std::error_code>
+FileSystem::ListDirectory(std::filesystem::path path,
+                          std::filesystem::path cwd) {
+  auto stat = this->Stat(std::move(path), std::move(cwd));
+  if (stat.Failed()) {
+    return stat.TakeError();
+  } else {
+    return this->ListDirectory(stat.TakeValue());
+  }
+}
+
+FileSystemView::FileSystemView(std::shared_ptr<::pasta::FileSystem> impl_)
     : impl(std::move(impl_)) {
   auto maybe_cwd = impl->CurrentWorkingDirectory();
   if (maybe_cwd.Succeeded()) {
@@ -344,7 +438,7 @@ FileSystemView::FileSystemView(std::shared_ptr<FileSystem> impl_)
 
 std::error_code FileSystemView::PushWorkingDirectory(
     std::filesystem::path path) {
-  auto maybe_status = impl->Stat(path, CurrentWorkingDirectory());
+  auto maybe_status = impl->Stat(std::move(path), CurrentWorkingDirectory());
   if (maybe_status.Failed()) {
     return maybe_status.TakeError();
 

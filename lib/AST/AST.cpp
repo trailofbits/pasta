@@ -22,7 +22,8 @@
 
 namespace pasta {
 
-ASTImpl::ASTImpl(void) {
+ASTImpl::ASTImpl(File main_source_file_)
+    : main_source_file(std::move(main_source_file_)) {
   tokens.reserve(1024ull * 32u);
 }
 
@@ -141,6 +142,11 @@ clang::ASTContext &AST::UnderlyingAST(void) const {
 // Returns the top-level translation unit decl inside of this AST.
 TranslationUnitDecl AST::TranslationUnit(void) const {
   return TranslationUnitDecl(impl, impl->tu);
+}
+
+// Return the main file which was parsed and thus resulted in this AST.
+File AST::MainFaile(void) const {
+  return impl->main_source_file;
 }
 
 }  // namespace pasta

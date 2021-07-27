@@ -5,7 +5,7 @@
 #pragma once
 
 #include <pasta/AST/AST.h>
-#include <pasta/Util/FileSystem.h>
+#include <pasta/Util/FileManager.h>
 #include <pasta/Util/Result.h>
 
 #include <functional>
@@ -13,12 +13,7 @@
 #include <string_view>
 #include <vector>
 
-namespace clang {
-class FrontendInputFile;
-}  // namespace clang
 namespace pasta {
-
-class ArgumentVector;
 
 enum class CompilerName : unsigned {
   kUnknown = 0,
@@ -37,6 +32,7 @@ enum class IncludePathLocation : unsigned {
 // TODO(pag): Eventually support specific versions of the languages?
 enum class TargetLanguage : unsigned { kC, kCXX };
 
+class ArgumentVector;
 class CompileCommand;
 class CompileJob;
 class CompilerImpl;
@@ -74,6 +70,10 @@ class Compiler {
   // Return the file system associated with this compiler's paths.
   std::shared_ptr<FileSystem> FileSystem(void) const;
 
+  // Return the file manager associated with files that will be opened and
+  // read by this compiler.
+  FileManager FileManager(void) const;
+
   // Invoke a callback `cb` for each system include directory. Think `-isystem`.
   void ForEachSystemIncludeDirectory(
       std::function<void(const std::filesystem::path &,
@@ -94,14 +94,15 @@ class Compiler {
   // Create a "host" compiler instance, i.e. a compiler instance based on the
   // compiler used to compile this library.
   static Result<Compiler, std::string>
-  CreateHostCompiler(enum TargetLanguage lang);
+  CreateHostCompiler(class FileManager file_manager,
+                     enum TargetLanguage lang);
 
   // Create a compiler from a version string.
   //
   // NOTE(pag): The `working_dir` is the directory in which the compiler
   //            invocation was made.
   static Result<Compiler, std::string>
-  Create(std::shared_ptr<class FileSystem> fs,
+  Create(class FileManager file_manager,
          std::filesystem::path compiler_path,
          std::filesystem::path working_dir,
          CompilerName name, enum TargetLanguage lang,

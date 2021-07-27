@@ -219,11 +219,19 @@ configure_file("${HOST_H_IN_FILE}" "${HOST_H_FILE}" @ONLY)
 add_library(pasta_util STATIC
     "include/pasta/Util/ArgumentVector.h"
     "include/pasta/Util/Compiler.h"
+    "include/pasta/Util/Error.h"
+    "include/pasta/Util/File.h"
+    "include/pasta/Util/FileManager.h"
     "include/pasta/Util/FileSystem.h"
     "include/pasta/Util/Init.h"
     "include/pasta/Util/Result.h"
     
+    "lib/Util/FileManager.h"
+    
     "lib/Util/ArgumentVector.cpp"
+    "lib/Util/Error.cpp"
+    "lib/Util/File.cpp"
+    "lib/Util/FileManager.cpp"
     "lib/Util/FileSystem.cpp"
     "lib/Util/Init.cpp"
 )
@@ -252,6 +260,7 @@ add_library(pasta_compiler STATIC
     "${HOST_H_FILE}"
     "lib/Compile/Command.h"
     "lib/Compile/Compiler.h"
+    "lib/Compile/FileSystem.h"
     "lib/Compile/Job.h"
     
     "lib/Compile/Version.h"
@@ -260,6 +269,7 @@ add_library(pasta_compiler STATIC
     "lib/Compile/Compiler.cpp"
     "lib/Compile/Create.cpp"
     "lib/Compile/Diagnostic.cpp"
+    "lib/Compile/FileSystem.cpp"
     "lib/Compile/Job.cpp"
     "lib/Compile/Run.cpp"
 )

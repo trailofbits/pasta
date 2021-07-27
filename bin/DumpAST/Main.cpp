@@ -98,9 +98,9 @@ int main(int argc, char *argv[]) {
   }
 
   pasta::InitPasta initializer;
-
+  pasta::FileManager fm(pasta::FileSystem::CreateNative());
   auto maybe_compiler =
-      pasta::Compiler::CreateHostCompiler(pasta::TargetLanguage::kCXX);
+      pasta::Compiler::CreateHostCompiler(fm, pasta::TargetLanguage::kCXX);
   if (maybe_compiler.Failed()) {
     std::cerr << maybe_compiler.TakeError() << std::endl;
     return EXIT_FAILURE;

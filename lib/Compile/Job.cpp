@@ -24,11 +24,7 @@
 #include <llvm/Option/ArgList.h>
 #include <llvm/Option/Option.h>
 #include <llvm/Support/CommandLine.h>
-#include <llvm/Support/FileSystem.h>
 #include <llvm/Support/Host.h>
-#include <llvm/Support/Path.h>
-#include <llvm/Support/VirtualFileSystem.h>
-
 #pragma clang diagnostic pop
 
 #include <pasta/Compile/Command.h>
@@ -41,6 +37,7 @@
 #include "Command.h"
 #include "Compiler.h"
 #include "Diagnostic.h"
+#include "FileSystem.h"
 #include "Version.h"
 
 namespace pasta {
@@ -56,18 +53,23 @@ const ArgumentVector &CompileJob::Arguments(void) const {
 }
 
 // Return the working directory in which this command executes.
-std::string_view CompileJob::WorkingDirectory(void) const {
+const std::filesystem::path &CompileJob::WorkingDirectory(void) const {
   return impl->working_dir;
 }
 
 // Return the compiler resource directory that this command should use.
-std::string_view CompileJob::ResourceDirectory(void) const {
+const std::filesystem::path &CompileJob::ResourceDirectory(void) const {
   return impl->resource_dir;
 }
 
 // Return the compiler system root directory that this command should use.
-std::string_view CompileJob::SystemRootDirectory(void) const {
+const std::filesystem::path &CompileJob::SystemRootDirectory(void) const {
   return impl->sysroot_dir;
+}
+
+// Return the path to the source file that this job compiles.
+File CompileJob::SourceFile(void) const {
+  return impl->source_file;
 }
 
 // Return the target triple to use.
@@ -78,11 +80,6 @@ std::string_view CompileJob::TargetTriple(void) const {
 // Return the auxiliary target triple to use.
 std::string_view CompileJob::AuxiliaryTargetTriple(void) const {
   return impl->aux_triple;
-}
-
-// Return the path to the source file that this job compiles.
-std::string_view CompileJob::SourceFile(void) const {
-  return impl->source_file;
 }
 
 namespace {
@@ -287,7 +284,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
   std::stringstream err;
 
-  FileSystemView fs(impl->file_system);
+  FileSystemView fs(impl->file_manager.FileSystem());
   auto ec = fs.PushWorkingDirectory(command.WorkingDirectory());
   if (ec) {
     err << "Could not enter current working directory '"
@@ -303,7 +300,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
           false /* DON'T take ownership of the consumer */));
 
   llvm::IntrusiveRefCntPtr<llvm::vfs::FileSystem> real_vfs(
-      llvm::vfs::createPhysicalFileSystem().release());
+      new LLVMFileSystem(impl->file_manager));
   llvm::IntrusiveRefCntPtr<llvm::vfs::OverlayFileSystem> overlay_vfs(
       new llvm::vfs::OverlayFileSystem(real_vfs.get()));
   llvm::IntrusiveRefCntPtr<llvm::vfs::InMemoryFileSystem> mem_vfs(
@@ -441,7 +438,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
   std::vector<CompileJob> jobs;
 
-  const std::filesystem::path working_dir(command.WorkingDirectory());
+  auto working_dir = command.WorkingDirectory();
   const auto target_triple =
       compilation->getDefaultToolChain().getTriple().str();
 
@@ -486,6 +483,23 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
       return err.str();
     }
 
+    auto main_file_path = fs.ParsePath(frontend_opts.Inputs[0].getFile().str());
+    auto main_file_stat = fs.Stat(main_file_path);
+    if (main_file_stat.Failed()) {
+      err << "Main input file '" << main_file_path.generic_string()
+          << "' does not exist or cannot be opened: "
+          << main_file_stat.TakeError().message();
+      return err.str();
+    }
+
+    auto main_file = impl->file_manager.OpenFile(main_file_stat.TakeValue());
+    if (main_file.Failed()) {
+      err << "Main input file '" << main_file_path.generic_string()
+          << "' does not exist or cannot be opened: "
+          << main_file.TakeError().message();
+      return err.str();
+    }
+
     std::vector<std::string> new_argv;
     auto last_was_output = false;
     for (const char *arg : job_args) {
@@ -523,9 +537,12 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
       new_argv.emplace_back(arg);
     }
+
     CompileJob job(std::make_shared<CompileJobImpl>(
-        new_argv, working_dir, driver.ResourceDir,
-        driver.SysRoot, frontend_opts.Inputs[0].getFile().str(),
+        new_argv, impl->file_manager, std::move(working_dir),
+        fs.ParsePath(driver.ResourceDir),
+        fs.ParsePath(driver.SysRoot),
+        main_file.TakeValue(),
         target_triple, frontend_opts.AuxTriple));
     jobs.emplace_back(std::move(job));
   }

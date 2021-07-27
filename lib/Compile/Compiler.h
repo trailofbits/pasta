@@ -16,20 +16,20 @@ using IncludePath = std::pair<std::filesystem::path, IncludePathLocation>;
 
 class CompilerImpl {
  public:
-  inline CompilerImpl(std::shared_ptr<FileSystem> file_system_,
+  inline CompilerImpl(FileManager file_manager_,
                       std::filesystem::path compiler_exe_,
                       CompilerName compiler_name_, TargetLanguage target_lang_)
       : compiler_name(compiler_name_),
         target_lang(target_lang_),
-        file_system(std::move(file_system_)),
+        file_manager(std::move(file_manager_)),
         compiler_exe(std::move(compiler_exe_)),
-        fs(file_system) {}
+        fs(file_manager.FileSystem()) {}
 
   ~CompilerImpl(void) {}
 
   const CompilerName compiler_name;
   const TargetLanguage target_lang;
-  const std::shared_ptr<FileSystem> file_system;
+  const FileManager file_manager;
   const std::filesystem::path compiler_exe;
 
   FileSystemView fs;

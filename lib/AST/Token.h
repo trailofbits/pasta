@@ -51,7 +51,7 @@ struct TokenImpl {
 
 // Read the data of the token into the passed in string pointer
 bool TryReadRawToken(clang::SourceManager &source_manager,
-                     clang::LangOptions &lang_opts,
+                     const clang::LangOptions &lang_opts,
                      const clang::Token &tok, std::string *out);
 
 } // namespace pasta

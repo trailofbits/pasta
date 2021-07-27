@@ -1,51 +1,32 @@
 /*
- * Copyright (c) 2020 Trail of Bits, Inc.
+ * Copyright (c) 2021 Trail of Bits, Inc.
  */
 
-#ifndef PASTA_IN_BOOTSTRAP
-#  error "`PASTA_IN_BOOTSTRAP` must be defined."
-#endif
-
 #include <pasta/AST/AST.h>
+#include <pasta/AST/Decl.h>
 #include <pasta/Compile/Command.h>
 #include <pasta/Compile/Compiler.h>
 #include <pasta/Compile/Job.h>
 #include <pasta/Util/ArgumentVector.h>
-#include <pasta/Util/FileManager.h>
+#include <pasta/Util/FileSystem.h>
 #include <pasta/Util/Init.h>
 
 #include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <string>
 
-#include "MacroGenerator.h"
-#include "BootstrapConfig.h"
-
-static int GenerateBindings(pasta::AST ast) {
-  auto &ast_context = ast.UnderlyingAST();
-  pasta::MacroGenerator visitor(&ast_context);
-  visitor.TraverseAST(ast_context);
-  return EXIT_SUCCESS;
-}
-
-int main(void) {
-
-  const std::vector<std::string> clang_command{
-      kCxxPath,
-      "-x", "c++",
-      "-c", kMacroGeneratorPath,
-      "-o", "/dev/null",
-      "-std=c++17",
-      "-isystem", kPastaBinaryPath,
-      "-isystem", kPastaIncludeSourcePath,
-      "-isystem", kVcpkgIncludePath
-  };
+int main(int argc, char *argv[]) {
+  if (2 > argc) {
+    std::cerr << "Usage: " << argv[0] << " COMPILE_COMMAND..."
+              << std::endl;
+    return EXIT_FAILURE;
+  }
 
   pasta::InitPasta initializer;
   pasta::FileManager fm(pasta::FileSystem::CreateNative());
   auto maybe_compiler =
       pasta::Compiler::CreateHostCompiler(fm, pasta::TargetLanguage::kCXX);
-
   if (maybe_compiler.Failed()) {
     std::cerr << maybe_compiler.TakeError() << std::endl;
     return EXIT_FAILURE;
@@ -57,7 +38,7 @@ int main(void) {
     return EXIT_FAILURE;
   }
 
-  const pasta::ArgumentVector args(clang_command);
+  const pasta::ArgumentVector args(argc - 1, &argv[1]);
   auto maybe_command = pasta::CompileCommand::CreateFromArguments(
       args, maybe_cwd.TakeValue());
   if (maybe_command.Failed()) {
@@ -65,7 +46,8 @@ int main(void) {
     return EXIT_FAILURE;
   }
 
-  auto maybe_jobs = maybe_compiler->CreateJobsForCommand(*maybe_command);
+  const auto command = std::move(*maybe_command);
+  auto maybe_jobs = maybe_compiler->CreateJobsForCommand(command);
   if (maybe_jobs.Failed()) {
     std::cerr << maybe_jobs.TakeError() << std::endl;
     return EXIT_FAILURE;
@@ -76,11 +58,12 @@ int main(void) {
     if (maybe_ast.Failed()) {
       std::cerr << maybe_ast.TakeError() << std::endl;
       return EXIT_FAILURE;
+    } else {
+      for (auto tok : maybe_ast.TakeValue().MainFile().Tokens()) {
+        std::cerr << tok.Data();
+      }
     }
-
-    return GenerateBindings(*maybe_ast);
   }
 
-  std::cerr << "No ASTs were produced." << std::endl;
-  return EXIT_FAILURE;
+  return EXIT_SUCCESS;
 }

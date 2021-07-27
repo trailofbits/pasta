@@ -148,8 +148,6 @@ int main(void) {
     }
   }
 
-
-
   MapEnumRetTypes();
   MapDeclRetTypes();
   GenerateForwardH();

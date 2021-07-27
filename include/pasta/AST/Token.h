@@ -24,6 +24,7 @@ class TokenIterator;
 struct TokenImpl;
 class TokenRange;
 
+// Represents a token that has been pre-processed and parsed.
 class Token {
  public:
   ~Token(void);

@@ -22,7 +22,8 @@
 
 namespace pasta {
 
-ASTImpl::ASTImpl(void) {
+ASTImpl::ASTImpl(File main_source_file_)
+    : main_source_file(std::move(main_source_file_)) {
   tokens.reserve(1024ull * 32u);
 }
 
@@ -132,16 +133,6 @@ TokenRange ASTImpl::TokenRangeFrom(clang::SourceRange range) {
   }
 }
 
-// Try to return the token at the specified location.
-Token AST::TokenAt(clang::SourceLocation loc) const {
-  return impl->TokenAt(loc);
-}
-
-// Try to return teh token range from the specified source range.
-TokenRange AST::TokenRangeFrom(clang::SourceRange range) {
-  return impl->TokenRangeFrom(range);
-}
-
 // Return a reference to the underlying Clang AST context. This is needed for
 // bootstrapping.
 clang::ASTContext &AST::UnderlyingAST(void) const {
@@ -151,6 +142,17 @@ clang::ASTContext &AST::UnderlyingAST(void) const {
 // Returns the top-level translation unit decl inside of this AST.
 TranslationUnitDecl AST::TranslationUnit(void) const {
   return TranslationUnitDecl(impl, impl->tu);
+}
+
+// Return the main file which was parsed and thus resulted in this AST.
+File AST::MainFile(void) const {
+  return impl->main_source_file;
+}
+
+// Return the list of all source files which were parsed as part of the
+// construction of this AST.
+const std::vector<::pasta::File> &AST::ParsedFiles(void) const {
+  return impl->parsed_files;
 }
 
 }  // namespace pasta

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <pasta/Util/Result.h>
+#include <pasta/Util/StdFileSystem.h>
 
 #include <memory>
 #include <string_view>
@@ -12,12 +13,6 @@
 
 #include "Job.h"
 
-namespace llvm {
-namespace json {
-class Array;
-class Object;
-}  // namespace json
-}  // namespace llvm
 namespace pasta {
 
 class ArgumentVector;
@@ -35,25 +30,16 @@ class CompileCommand {
   CompileCommand(CompileCommand &&) noexcept = default;
   CompileCommand &operator=(CompileCommand &&) noexcept = default;
 
-  // Create a compile command from a JSON object. This JSON should come from
-  // a proper compile_commands.json compilation database.
-  static Result<CompileCommand, std::string_view>
-  CreateOneFromJSON(const llvm::json::Object &obj);
-
-  // Create zero or more compile commands from an array of JSON objects. This
-  // JSON should come from a proper compile_commands.json compilation database.
-  static std::vector<Result<CompileCommand, std::string_view>>
-  CreateManyFromJSON(const llvm::json::Array &array);
-
   // Create a compile command for a single file in a working directory.
   static Result<CompileCommand, std::string_view>
-  CreateFromArguments(const ArgumentVector &argv, std::string_view working_dir);
+  CreateFromArguments(const ArgumentVector &argv,
+                      std::filesystem::path working_dir);
 
   // Return an argument vector associated with this compilation command.
   const ArgumentVector &Arguments(void) const;
 
   // Return the working directory in which this command executes.
-  std::string_view WorkingDirectory(void) const;
+  const std::filesystem::path &WorkingDirectory(void) const;
 
  private:
   friend class CompileJob;

@@ -7,14 +7,15 @@
 #include <memory>
 #include <optional>
 #include <string_view>
+#include <vector>
 
 #include "Decl.h"
 #include "Token.h"
 
+#include <pasta/Util/File.h>
+
 namespace clang {
 class ASTContext;
-class FullSourceLoc;
-class Token;
 }  // namespace clang
 
 namespace pasta {
@@ -48,12 +49,6 @@ class AST {
   // Return all lexed tokens.
   TokenRange Tokens(void) const;
 
-  // Try to return the token at the specified location.
-  Token TokenAt(clang::SourceLocation loc) const;
-
-  // Try to return teh token range from the specified source range.
-  TokenRange TokenRangeFrom(clang::SourceRange range);
-
   // Return a reference to the underlying Clang AST context. This is needed for
   // bootstrapping.
   clang::ASTContext &UnderlyingAST(void) const;
@@ -61,10 +56,19 @@ class AST {
   // Returns the top-level translation unit decl inside of this AST.
   TranslationUnitDecl TranslationUnit(void) const;
 
+  // Return the main file which was parsed and thus resulted in this AST.
+  File MainFile(void) const;
+
+  // Return the list of all source files which were parsed as part of the
+  // construction of this AST.
+  const std::vector<::pasta::File> &ParsedFiles(void) const;
+
  private:
   friend class Compiler;
   friend class CompileJob;
   friend class DeclBase;
+
+  AST(void) = delete;
 
   AST(std::shared_ptr<ASTImpl> impl_);
 

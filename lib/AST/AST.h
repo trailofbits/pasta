@@ -16,6 +16,9 @@
 #include <clang/Lex/Token.h>
 #pragma clang diagnostic pop
 
+#include <pasta/Util/FileManager.h>
+#include <pasta/Util/File.h>
+
 #include "Token.h"
 
 namespace clang {
@@ -34,7 +37,7 @@ namespace pasta {
 
 class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
  public:
-  ASTImpl(void);
+  explicit ASTImpl(File main_source_file_);
   ~ASTImpl(void);
 
   // Try to return the token at the specified location.
@@ -43,8 +46,13 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // Try to return teh token range from the specified source range.
   TokenRange TokenRangeFrom(clang::SourceRange range);
 
+  // This is an `LLVMFileSystem`, from inside `lib/Compile/FileSystem.h`.
   llvm::IntrusiveRefCntPtr<llvm::vfs::FileSystem> real_fs;
+
+  // A plain old overlay file system.
   llvm::IntrusiveRefCntPtr<llvm::vfs::OverlayFileSystem> overlay_fs;
+
+  // An in-memory file system, which sits in front of the `real_fs`.
   llvm::IntrusiveRefCntPtr<llvm::vfs::InMemoryFileSystem> mem_fs;
 
   // Preprocessor over the original source code.
@@ -58,6 +66,12 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   llvm::IntrusiveRefCntPtr<clang::FileManager> fm;
 
   clang::TranslationUnitDecl *tu{nullptr};
+
+  // The main source file which we parsed.
+  ::pasta::File main_source_file;
+
+  // All parsed files.
+  std::vector<::pasta::File> parsed_files;
 
   // List of tokens.
   std::vector<TokenImpl> tokens;
@@ -79,6 +93,9 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // Append a token to the end of the AST. `offset` is the offset in
   // `backup_token_data`, and `len` is the length in bytes of the token itself.
   void AppendBackupToken(const clang::Token &tok, size_t offset, size_t len);
+
+ private:
+  ASTImpl(void) = delete;
 };
 
 }  // namespace pasta

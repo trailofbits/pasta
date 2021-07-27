@@ -98,18 +98,23 @@ int main(int argc, char *argv[]) {
   }
 
   pasta::InitPasta initializer;
-
-  const auto cwd = std::filesystem::current_path().string();
-
+  pasta::FileManager fm(pasta::FileSystem::CreateNative());
   auto maybe_compiler =
-      pasta::Compiler::CreateHostCompiler(pasta::TargetLanguage::kCXX);
+      pasta::Compiler::CreateHostCompiler(fm, pasta::TargetLanguage::kCXX);
   if (maybe_compiler.Failed()) {
     std::cerr << maybe_compiler.TakeError() << std::endl;
     return EXIT_FAILURE;
   }
 
+  auto maybe_cwd = maybe_compiler->FileSystem()->CurrentWorkingDirectory();
+  if (maybe_cwd.Failed()) {
+    std::cerr << maybe_compiler.TakeError() << std::endl;
+    return EXIT_FAILURE;
+  }
+
   const pasta::ArgumentVector args(argc - 1, &argv[1]);
-  auto maybe_command = pasta::CompileCommand::CreateFromArguments(args, cwd);
+  auto maybe_command = pasta::CompileCommand::CreateFromArguments(
+      args, maybe_cwd.TakeValue());
   if (maybe_command.Failed()) {
     std::cerr << maybe_command.TakeError() << std::endl;
     return EXIT_FAILURE;

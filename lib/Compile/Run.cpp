@@ -11,6 +11,8 @@
 
 #include <cassert>
 #include <sstream>
+#include <iostream>
+#include <unordered_set>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
@@ -25,20 +27,23 @@
 #include <clang/Basic/TargetInfo.h>
 #include <clang/Basic/TargetOptions.h>
 #include <clang/Frontend/CompilerInstance.h>
+#include <clang/Lex/PPCallbacks.h>
 #include <clang/Lex/Preprocessor.h>
 #include <clang/Lex/PreprocessorOptions.h>
 #include <clang/Parse/Parser.h>
 #include <clang/Sema/Sema.h>
 #include <llvm/Support/Host.h>
-#include <llvm/Support/VirtualFileSystem.h>
 #include <llvm/Support/raw_ostream.h>
 #pragma clang diagnostic pop
 
 #include <pasta/Util/ArgumentVector.h>
 #include <pasta/Util/Compiler.h>
 
+#include "FileSystem.h"
+
 #include "../AST/AST.h"
 #include "../AST/Token.h"
+#include "../Util/FileManager.h"
 
 namespace pasta {
 namespace detail {
@@ -47,6 +52,7 @@ PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, VLASupported, bool);
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasLegalHalfType, bool);
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasFloat128, bool);
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasFloat16, bool);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, FileEntry, File, std::unique_ptr<llvm::vfs::File>);
 }  // namespace detail
 namespace {
 
@@ -189,19 +195,139 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
 
 }  // namespace
 
+
+// Tracks open files.
+class ParsedFileTracker : public clang::PPCallbacks {
+ private:
+  clang::SourceManager &sm;
+  const clang::LangOptions &lang_opts;
+  const pasta::FileManager fm;
+  std::shared_ptr<pasta::FileSystem> fs;
+  const std::filesystem::path cwd;
+  ASTImpl * const ast;
+
+  std::unordered_set<pasta::FileImpl *> seen;
+
+ public:
+  explicit ParsedFileTracker(clang::SourceManager &sm_,
+                             const clang::LangOptions &lang_opts_,
+                             const pasta::FileManager &fm_,
+                             std::filesystem::path cwd_,
+                             ASTImpl *ast_)
+      : sm(sm_),
+        lang_opts(lang_opts_),
+        fm(fm_),
+        fs(fm.FileSystem()),
+        cwd(std::move(cwd_)),
+        ast(ast_) {}
+
+  virtual ~ParsedFileTracker(void) {}
+
+  // Each time we enter a source file, try to keep track of it.
+  void FileChanged(clang::SourceLocation loc,
+                   clang::PPCallbacks::FileChangeReason reason,
+                   clang::SrcMgr::CharacteristicKind file_type,
+                   clang::FileID PrevFID = clang::FileID()) final {
+    if (clang::PPCallbacks::EnterFile == reason) {
+      switch (file_type) {
+        case clang::SrcMgr::CharacteristicKind::C_User:
+        case clang::SrcMgr::CharacteristicKind::C_System:
+        case clang::SrcMgr::CharacteristicKind::C_ExternCSystem:
+          break;
+        case clang::SrcMgr::CharacteristicKind::C_User_ModuleMap:
+        case clang::SrcMgr::CharacteristicKind::C_System_ModuleMap:
+          return;
+      }
+    } else {
+      return;
+    }
+
+    const clang::FileEntry *fe = sm.getFileEntryForID(sm.getFileID(loc));
+    if (!fe) {
+      return;
+    }
+
+    auto fs_path = fs->ParsePath(fe->getName().str(), cwd, fs->PathKind());
+    auto fs_stat = fs->Stat(fs_path, cwd);
+    if (fs_stat.Failed()) {
+      return;
+    }
+
+    auto maybe_file = fm.OpenFile(fs_stat.TakeValue());
+    if (maybe_file.Failed()) {
+      return;
+    }
+
+    auto file = maybe_file.TakeValue();
+    if (seen.count(file.impl.get())) {
+      return;
+    }
+
+    seen.insert(file.impl.get());
+
+    auto maybe_data = file.Data();
+    if (maybe_data.Failed()) {
+      return;
+    }
+
+    ast->parsed_files.emplace_back(std::move(file));
+
+    std::unique_lock<std::mutex> locker(file.impl->tokens_lock);
+    if (file.impl->has_tokens) {
+      return;
+    }
+
+    auto data = maybe_data.TakeValue();
+    file.impl->has_tokens = true;
+    if (data.empty()) {
+      return;
+    }
+
+    const char *last_tok_begin = data.data();
+    const char * const buff_begin = last_tok_begin;
+    const char * const buff_end = &(last_tok_begin[data.size()]);
+    clang::Lexer lexer(loc, lang_opts, buff_begin, last_tok_begin, buff_end);
+    lexer.SetKeepWhitespaceMode(true);
+
+    // Raw lex this file's tokens.
+    clang::Token tok;
+    while (!lexer.LexFromRawLexer(tok)) {
+      if (tok.is(clang::tok::eof)) {
+        break;
+      }
+
+      const auto tok_loc = tok.getLocation();
+      auto offset = sm.getFileOffset(tok_loc);
+      assert(offset < data.size());
+      auto ptr = &(buff_begin[offset]);
+      file.impl->tokens.emplace_back(
+          ptr, sm.getSpellingLineNumber(tok_loc),
+          sm.getSpellingColumnNumber(tok_loc),
+          tok.getKind());
+      last_tok_begin = ptr;
+    }
+
+    const auto tok_loc = tok.getLocation();
+    file.impl->tokens.emplace_back(
+        buff_end, sm.getSpellingLineNumber(tok_loc),
+        sm.getSpellingColumnNumber(tok_loc), clang::tok::eof);
+  }
+};
+
 // Run a command ans return the AST or the first error.
 Result<AST, std::string> CompileJob::Run(void) const {
   std::stringstream err;
 
-  auto ast = std::make_shared<ASTImpl>();
+  auto ast = std::make_shared<ASTImpl>(SourceFile());
   llvm::IntrusiveRefCntPtr<llvm::vfs::FileSystem> real_vfs(
-      llvm::vfs::createPhysicalFileSystem().release());
+      new LLVMFileSystem(impl->file_manager));
   llvm::IntrusiveRefCntPtr<llvm::vfs::OverlayFileSystem> overlay_vfs(
       new llvm::vfs::OverlayFileSystem(real_vfs.get()));
   llvm::IntrusiveRefCntPtr<llvm::vfs::InMemoryFileSystem> mem_vfs(
       new llvm::vfs::InMemoryFileSystem);
   overlay_vfs->pushOverlay(mem_vfs.get());
-  overlay_vfs->setCurrentWorkingDirectory(WorkingDirectory().data());
+  overlay_vfs->setCurrentWorkingDirectory(
+      WorkingDirectory().generic_string());
 
   auto diag = std::make_unique<SaveFirstErrorDiagConsumer>(ast);
   llvm::IntrusiveRefCntPtr<clang::DiagnosticsEngine> diagnostics_engine(
@@ -219,7 +345,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
 
   auto &invocation = ci->getInvocation();
   auto &fs_options = invocation.getFileSystemOpts();
-  fs_options.WorkingDir = WorkingDirectory();
+  WorkingDirectory().generic_string().swap(fs_options.WorkingDir);
 
   llvm::IntrusiveRefCntPtr<clang::FileManager> fm(
       new clang::FileManager(fs_options, overlay_vfs.get()));
@@ -382,13 +508,18 @@ Result<AST, std::string> CompileJob::Run(void) const {
   auto &dep_opts = ci->getDependencyOutputOpts();
   dep_opts = clang::DependencyOutputOptions();
 
-  // TODO(pag): Eventually add `PPCallbacks` so that we can capture macro
-  //            definitions as tokens.
-
   ci->createPreprocessor(clang::TU_Complete);
   auto &pp = ci->getPreprocessor();
   ast->orig_source_pp = ci->getPreprocessorPtr();
 
+  // TODO(pag): Eventually add `PPCallbacks` so that we can capture macro
+  //            definitions as tokens.
+  {
+    std::unique_ptr<clang::PPCallbacks> file_tracker(new ParsedFileTracker(
+        ci->getSourceManager(), ci->getLangOpts(),
+        impl->file_manager, WorkingDirectory(), ast.get()));
+    pp.addPPCallbacks(std::move(file_tracker));
+  }
   pp.SetCommentRetentionState(true /* KeepComments */,
                               true /* KeepMacroComments */);
 

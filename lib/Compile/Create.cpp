@@ -24,9 +24,13 @@
 namespace pasta {
 namespace {
 
+static constexpr auto kAnyExecutable = std::filesystem::perms::owner_exec |
+                                       std::filesystem::perms::group_exec |
+                                       std::filesystem::perms::others_exec;
+
 // Try to parse out the installation directory of this version of GCC.
-static void ParseGCCInstalledDir(CompilerImpl &info, llvm::StringRef line,
-                                 std::filesystem::path working_dir) {
+static void ParseGCCInstalledDir(FileSystemView &fs, CompilerImpl &info,
+                                 llvm::StringRef line) {
   const auto pos = line.find("--prefix");
   if (std::string::npos == pos) {
     return;
@@ -42,21 +46,16 @@ static void ParseGCCInstalledDir(CompilerImpl &info, llvm::StringRef line,
     return;
   }
 
-  auto path = AbsolutePath(guess, working_dir);
-
-  std::error_code ec;
-  std::filesystem::canonical(path, ec);
-  if (ec || !std::filesystem::is_directory(path)) {
-    return;
+  auto status = fs.Stat(fs.ParsePath(guess));
+  if (status.Succeeded() && status->IsDirectory()) {
+    info.install_dir = std::move(status->real_path);
   }
-
-  CanonicalPath(path).string().swap(info.install_dir);
 }
 
 // Try to parse the resource directory out of the compiler's output. This
 // only really works for Clang-based compilers.
-static void ParseClangResourceDir(CompilerImpl &info, llvm::StringRef line,
-                                  std::filesystem::path working_dir) {
+static void ParseClangResourceDir(FileSystemView &fs, CompilerImpl &info,
+                                  llvm::StringRef line) {
   const auto pos = line.find("-resource-dir");
   if (std::string::npos == pos) {
     return;
@@ -67,16 +66,18 @@ static void ParseClangResourceDir(CompilerImpl &info, llvm::StringRef line,
     return;
   }
 
-  auto path = AbsolutePath(vec[1], working_dir);
-  if (IsResourceDir(path)) {
-    CanonicalPath(path).string().swap(info.resource_dir);
+  auto status = fs.Stat(fs.ParsePath(vec[1]));
+  if (status.Succeeded() && status->IsDirectory()) {
+    if (fs.IsResourceDir(status->real_path)) {
+      info.resource_dir = std::move(status->real_path);
+    }
   }
 }
 
 // Try to parse the system root directory out of the compiler's output. This
 // only really works for Clang-based compilers.
-static void ParseClangSysroot(CompilerImpl &info, llvm::StringRef line,
-                              std::filesystem::path working_dir) {
+static void ParseClangSysroot(FileSystemView &fs, CompilerImpl &info,
+                              llvm::StringRef line) {
   const auto pos = line.find("-isysroot");
   if (std::string::npos == pos) {
     return;
@@ -87,9 +88,9 @@ static void ParseClangSysroot(CompilerImpl &info, llvm::StringRef line,
     return;
   }
 
-  auto path = AbsolutePath(vec[1], working_dir);
-  if (std::filesystem::is_directory(path)) {
-    CanonicalPath(path).string().swap(info.sysroot_dir);
+  auto status = fs.Stat(fs.ParsePath(vec[1]));
+  if (status.Succeeded() && status->IsDirectory()) {
+    info.sysroot_dir = std::move(status->real_path);
   }
 }
 
@@ -110,8 +111,8 @@ static void ParseClangSysroot(CompilerImpl &info, llvm::StringRef line,
 //            are not. Unfortunately, we can't figure out easily which is which
 //            (e.g. sometimes Clang version info tells us in another way, but
 //            not GCC does not).
-static void ParseOutputInto(std::stringstream &ss, CompilerImpl &info,
-                            std::filesystem::path working_dir) {
+static void ParseOutputInto(FileSystemView &fs, std::stringstream &ss,
+                            CompilerImpl &info) {
 
   enum State {
     kUnknown,
@@ -122,17 +123,17 @@ static void ParseOutputInto(std::stringstream &ss, CompilerImpl &info,
   for (std::string line_; std::getline(ss, line_);) {
     llvm::StringRef line(line_);
 
-    ParseClangResourceDir(info, line, working_dir);
-    ParseClangSysroot(info, line, working_dir);
+    ParseClangResourceDir(fs, info, line);
+    ParseClangSysroot(fs, info, line);
 
     if (line.startswith("InstalledDir: ")) {
-      auto path = AbsolutePath(line.substr(14).str(), working_dir);
-      if (std::filesystem::is_directory(path)) {
-        CanonicalPath(path).string().swap(info.install_dir);
+      auto maybe_status = fs.Stat(fs.ParsePath(line.substr(14).str()));
+      if (maybe_status.Succeeded() && maybe_status->IsDirectory()) {
+        info.install_dir = std::move(maybe_status->real_path);
       }
 
     } else if (line.startswith("Configured with: ")) {
-      ParseGCCInstalledDir(info, line, working_dir);
+      ParseGCCInstalledDir(fs, info, line);
 
     } else if (line.startswith("#include \"...\"")) {
       state = kInUserIncludeList;
@@ -157,24 +158,21 @@ static void ParseOutputInto(std::stringstream &ss, CompilerImpl &info,
 #  error "Add compiler info resolution support for Windows"
 #endif
 
-      auto path = AbsolutePath(line.substr(1).str(), working_dir);
-
-      if (!std::filesystem::is_directory(path)) {
+      auto status = fs.Stat(fs.ParsePath(line.substr(1).str()));
+      if (status.Failed() || !status->IsDirectory()) {
 
         // Silently ignore non-existant directories.
         continue;
       }
 
-      auto path_str = CanonicalPath(path).string();
-
       if (is_framework && kUnknown != state) {
-        info.frameworks.emplace_back(std::move(path_str),
+        info.frameworks.emplace_back(std::move(status->real_path),
                                      IncludePathLocation::kAbsolute);
       } else if (kInUserIncludeList == state) {
-        info.user_includes.emplace_back(std::move(path_str),
+        info.user_includes.emplace_back(std::move(status->real_path),
                                         IncludePathLocation::kAbsolute);
       } else if (kInSystemIncludeList == state) {
-        info.system_includes.emplace_back(std::move(path_str),
+        info.system_includes.emplace_back(std::move(status->real_path),
                                           IncludePathLocation::kAbsolute);
       }
 
@@ -193,16 +191,16 @@ static void ParseOutputInto(std::stringstream &ss, CompilerImpl &info,
 // Often times, multiple resource directories are present, and so getting the
 // right version number can bit tricky absent other info. We assume that the
 // right version is whichever appears in the compiler command-line.
-static bool ScanForResourceDir(CompilerImpl &info, std::filesystem::path path) {
+static bool ScanForResourceDir(FileSystemView &fs, CompilerImpl &info,
+                               std::filesystem::path path) {
   for (;;) {
     auto parent_path = path.parent_path();
     if (parent_path == path) {
       break;
     }
-    path = parent_path;
-    auto base_name = path.filename();
-    if (IsResourceDir(path)) {
-      CanonicalPath(path).string().swap(info.resource_dir);
+    path = std::move(parent_path);
+    if (fs.IsResourceDir(path)) {
+      info.resource_dir = std::move(path);
       return true;
     }
   }
@@ -210,7 +208,7 @@ static bool ScanForResourceDir(CompilerImpl &info, std::filesystem::path path) {
 }
 
 // Try to derive the resource directory from the include paths of the compiler.
-static bool DeriveResourceDirs(CompilerImpl &info) {
+static bool DeriveResourceDirs(FileSystemView &fs, CompilerImpl &info) {
   for (const auto &entry : info.system_includes) {
     std::filesystem::path path;
     if (entry.second == IncludePathLocation::kAbsolute) {
@@ -220,7 +218,7 @@ static bool DeriveResourceDirs(CompilerImpl &info) {
       path /= entry.first;
     }
 
-    if (ScanForResourceDir(info, path)) {
+    if (ScanForResourceDir(fs, info, path)) {
       return true;
     }
   }
@@ -229,8 +227,10 @@ static bool DeriveResourceDirs(CompilerImpl &info) {
 
 // Extract the relative component of a `include_path`, assuming it is an
 // absolute path that beings with `sysroot_dir`.
-std::filesystem::path ExtractRelativeComponent(std::filesystem::path sysroot_dir,
-                                               std::filesystem::path include_path) {
+std::filesystem::path ExtractRelativeComponent(
+    FileSystemView &fs,
+    std::filesystem::path sysroot_dir,
+    std::filesystem::path include_path) {
   if (std::distance(include_path.begin(), include_path.end()) <
       std::distance(sysroot_dir.begin(), sysroot_dir.end())) {
     return include_path;
@@ -249,17 +249,21 @@ std::filesystem::path ExtractRelativeComponent(std::filesystem::path sysroot_dir
     }
   }
 
-  auto path = include_path.root_directory();
-  for (; include_path_it != include_path_it_end; ++include_path_it) {
-    path /= *include_path_it;
+  if (auto maybe_path = fs.RootDirectory(include_path);
+      maybe_path.Succeeded()) {
+    auto path = maybe_path.TakeValue();
+    for (; include_path_it != include_path_it_end; ++include_path_it) {
+      path /= *include_path_it;
+    }
+    return path;
   }
 
-  return path;
+  return {};
 }
 
 // Try to compute the "real" system root directory.
 static void FindSystemRootRelPaths(
-    std::vector<IncludePath> &orig,
+    FileSystemView &fs, std::vector<IncludePath> &orig,
     const std::vector<IncludePath> &sysroot_rel,
     std::vector<std::filesystem::path> &sysroot_rel_paths) {
 
@@ -272,9 +276,11 @@ static void FindSystemRootRelPaths(
       }
     }
 
-    std::filesystem::path include_dir(orig_entry.first);
-    if (!found && std::filesystem::is_directory(include_dir)) {
-      sysroot_rel_paths.emplace_back(CanonicalPath(include_dir));
+    if (!found) {
+      auto include_dir = fs.Stat(orig_entry.first);
+      if (include_dir.Succeeded() && include_dir->IsDirectory()) {
+        sysroot_rel_paths.emplace_back(std::move(include_dir->real_path));
+      }
     }
   }
 }
@@ -349,21 +355,25 @@ static std::filesystem::path FindRealSystemRoot(
 
 // Find all paths in `orig` that aren't in `sysroot_rel`. The missing paths
 // are marked as being relative to an `-isysroot`.
-static void RelativizePaths(std::filesystem::path sysroot_dir,
+static void RelativizePaths(FileSystemView &fs,
+                            std::filesystem::path sysroot_dir,
                             std::vector<IncludePath> &orig,
                             const std::vector<IncludePath> &sysroot_rel) {
-  const auto sysroot_path = sysroot_dir.string();
+  const auto sysroot_path_str = sysroot_dir.generic_string();
 
   for (IncludePath &orig_entry : orig) {
 
     // Sometimes things are sysroot relative, even though they pretend not
     // to be. At least this is the case with AppleClang.
     std::filesystem::path path = orig_entry.first;
-    std::string extracted_path =
-        ExtractRelativeComponent(sysroot_dir, orig_entry.first).string();
 
-    if (path.string() != extracted_path && extracted_path != sysroot_path) {
-      extracted_path.swap(orig_entry.first);
+    auto extracted_path = ExtractRelativeComponent(fs, sysroot_dir,
+                                                   orig_entry.first);
+    const auto extracted_path_str = extracted_path.generic_string();
+
+    if (path.generic_string() != extracted_path_str &&
+        extracted_path_str != sysroot_path_str) {
+      orig_entry.first = std::move(extracted_path);
       orig_entry.second = IncludePathLocation::kSysrootRelative;
       continue;
     }
@@ -392,57 +402,45 @@ static const std::string kErrUnrecognizedCompiler{
 // Create a "host" compiler instance, i.e. a compiler instance based on the
 // compiler used to compile this library.
 Result<Compiler, std::string>
-Compiler::CreateHostCompiler(enum TargetLanguage lang) {
-  const char *path = nullptr;
+Compiler::CreateHostCompiler(class FileManager file_manager,
+                             enum TargetLanguage lang) {
+  std::filesystem::path path;
   const char *version_info = nullptr;
   const char *version_info_fake_sysroot = nullptr;
+  auto name = CompilerName::kUnknown;
   switch (lang) {
     case TargetLanguage::kC:
+      name = kHostCCompiler;
       path = kHostCCompilerPath;
       version_info = kHostCVersionInfo;
       version_info_fake_sysroot = kHostCVersionInfoFakeSysroot;
       break;
     case TargetLanguage::kCXX:
+      name = kHostCxxCompiler;
       path = kHostCxxCompilerPath;
       version_info = kHostCxxVersionInfo;
       version_info_fake_sysroot = kHostCxxVersionInfoFakeSysroot;
       break;
   }
-  assert(path && version_info);
 
-#define FOUND_HOST_COMPILER
-#if defined(__clang__)
-  auto name = CompilerName::kClang;
-#  if defined(__APPLE__)
-  if (strstr(version_info, "Apple clang version") == version_info) {
-    name = CompilerName::kAppleClang;
+  if (path.empty() || !version_info || name == CompilerName::kUnknown) {
+    return kErrUnrecognizedCompiler;
   }
-#  elif defined(_WIN32) || defined(_MSC_VER)
-  name = CompilerName::kClangCL;
-#  endif
-#elif defined(__GNUC__) || defined(__GNUG__)
-#  if defined(_WIN32) || defined(_MSC_VER) || defined(__CYGWIN__)
-  const auto name = CompilerName::kMinGW;
-#  else
-  const auto name = CompilerName::kGNU;
-#  endif
-#elif defined(_WIN32) || defined(_MSC_VER)
-  const auto name = CompilerName::kCL;
-#else
-#  undef FOUND_HOST_COMPILER
-#endif
 
-#ifdef FOUND_HOST_COMPILER
-  auto maybe_compiler = Create(name, lang, path, version_info,
-                               version_info_fake_sysroot, kHostWorkingDir);
+  auto host_fs = file_manager.FileSystem();
+  auto maybe_cwd = host_fs->CurrentWorkingDirectory();
+  if (maybe_cwd.Failed()) {
+    return maybe_cwd.TakeError().message();
+  }
+
+  auto maybe_compiler = Create(
+      std::move(file_manager), path.lexically_normal(), maybe_cwd.TakeValue(),
+      name, lang, version_info, version_info_fake_sysroot);
   if (maybe_compiler.Failed()) {
     return maybe_compiler.TakeError();
   } else {
     return std::move(*maybe_compiler);
   }
-#else
-  return kErrUnrecognizedCompiler;
-#endif
 }
 
 // Create a compiler from a version string.
@@ -450,10 +448,12 @@ Compiler::CreateHostCompiler(enum TargetLanguage lang) {
 // NOTE(pag): The `working_dir` is the directory in which the compiler
 //            invocation was made.
 Result<Compiler, std::string>
-Compiler::Create(CompilerName name, enum TargetLanguage lang,
-                 std::string_view compiler_path_, std::string_view version_info,
-                 std::string_view version_info_fake_sysroot,
-                 std::string_view compiler_working_dir) {
+Compiler::Create(class FileManager file_manager,
+                 std::filesystem::path compiler_path,
+                 std::filesystem::path working_dir,
+                 CompilerName name, enum TargetLanguage lang,
+                 std::string_view version_info,
+                 std::string_view version_info_fake_sysroot) {
   std::stringstream err;
 
   // Fix it up, just in case.
@@ -463,52 +463,79 @@ Compiler::Create(CompilerName name, enum TargetLanguage lang,
     name = CompilerName::kAppleClang;
   }
 
-  std::filesystem::path working_dir(compiler_working_dir);
-  if (!std::filesystem::is_directory(working_dir)) {
-    err << "Invalid working directory for compiler invocation: "
-        << compiler_working_dir;
+  FileSystemView fs(file_manager.FileSystem());
+  auto ec = fs.PushWorkingDirectory(working_dir);
+  if (ec) {
+    err << "Error with working directory '" << working_dir.generic_string()
+        << "': " << ec.message();
     return err.str();
   }
 
-  std::filesystem::path compiler_path = AbsolutePath(
-      compiler_path_, working_dir);
-  if (!std::filesystem::exists(compiler_path)) {
-    err << "Invalid compiler path: " << compiler_path_;
+  // Get the status of the compiler executable.
+  auto maybe_status = fs.Stat(compiler_path);
+  if (maybe_status.Failed()) {
+    err << "Error with compiler path '" << compiler_path.generic_string()
+        << "': " << maybe_status.TakeError().message();
     return err.str();
   }
+
+  // Make sure the compiler path is executable.
+  if (maybe_status->type != std::filesystem::file_type::regular ||
+      (maybe_status->permissions & kAnyExecutable) ==
+          std::filesystem::perms::none) {
+    err << "Compiler path '" << maybe_status->real_path.generic_string()
+        << "' is not a file or is not executable (type "
+        << static_cast<int>(maybe_status->type) << "; perms "
+        << static_cast<unsigned>(maybe_status->permissions) << ")";
+      return err.str();
+  }
+
+  working_dir = fs.CurrentWorkingDirectory();
+  compiler_path = std::move(maybe_status->real_path);
 
   std::shared_ptr<CompilerImpl> impl(std::make_shared<CompilerImpl>(
-      name, lang, CanonicalPath(compiler_path).string()));
+      file_manager, compiler_path, name, lang));
 
   std::stringstream ss;
   ss << version_info;
-  ParseOutputInto(ss, *impl, working_dir);
+  ParseOutputInto(fs, ss, *impl);
 
   // Give the installation directory a sensible default if missing.
   if (impl->install_dir.empty() && !impl->compiler_exe.empty()) {
-    std::filesystem::path compiler_exe_path(impl->compiler_exe);
-    compiler_exe_path.parent_path().string().swap(impl->install_dir);
+    impl->compiler_exe.parent_path().swap(impl->install_dir);
   }
 
   // If the sysroot looks relative, then assume it's relative to the
   // installation directory, and compute an absolute path.
   if (!impl->sysroot_dir.empty() && !impl->install_dir.empty()) {
-    std::filesystem::path install_path(impl->install_dir);
-    std::filesystem::path sysroot_path(impl->sysroot_dir);
-    if (sysroot_path.is_relative()) {
-      const auto new_sysroot_path =
-          CanonicalPath(AbsolutePath(install_path / sysroot_path, working_dir));
-      new_sysroot_path.string().swap(impl->sysroot_dir);
+    auto maybe_sysroot_path = fs.Stat(impl->install_dir / impl->sysroot_dir);
+    if (maybe_sysroot_path.Succeeded() && maybe_sysroot_path->IsDirectory()) {
+      impl->sysroot_dir = std::move(maybe_sysroot_path->real_path);
     }
   }
 
   // Still empty? Take the root directory of the compiler path, and failing
   // that, the root directory of the working directory.
   if (impl->sysroot_dir.empty()) {
-    compiler_path.root_directory().string().swap(impl->sysroot_dir);
+    auto maybe_sysroot = fs.RootDirectory(compiler_path);
+    if (maybe_sysroot.Succeeded()) {
+      maybe_sysroot.TakeValue().swap(impl->sysroot_dir);
+    }
   }
+
+  // Still empty? Take the root directory of the current working directory.
   if (impl->sysroot_dir.empty()) {
-    working_dir.root_directory().string().swap(impl->sysroot_dir);
+    std::filesystem::path empty;
+    auto maybe_sysroot = fs.RootDirectory(empty);
+    if (maybe_sysroot.Succeeded()) {
+      maybe_sysroot.TakeValue().swap(impl->sysroot_dir);
+    }
+  }
+
+  if (impl->sysroot_dir.empty()) {
+    err << "Unable to infer system root directory for compiler '"
+        << compiler_path.generic_string() << "'";
+    return err.str();
   }
 
   // We might have version information with a fake or different system
@@ -517,10 +544,10 @@ Compiler::Create(CompilerName name, enum TargetLanguage lang,
   if (!version_info_fake_sysroot.empty()) {
 
     CompilerImpl fake_sysroot_impl(
-        impl->compiler_name, impl->target_lang, impl->compiler_exe);
+        file_manager, impl->compiler_exe, impl->compiler_name, impl->target_lang);
     std::stringstream ss2;
     ss2 << version_info_fake_sysroot;
-    ParseOutputInto(ss2, fake_sysroot_impl, working_dir);
+    ParseOutputInto(fs, ss2, fake_sysroot_impl);
 
     // If we've got "fake" system root-relative versions to compare against
     // then we might be able to do a better job of finding the 'true' system
@@ -528,27 +555,26 @@ Compiler::Create(CompilerName name, enum TargetLanguage lang,
     std::filesystem::path sysroot_dir(impl->sysroot_dir);
     std::vector<std::filesystem::path> sysroot_rel_paths;
     FindSystemRootRelPaths(
-        impl->system_includes, fake_sysroot_impl.system_includes,
+        fs, impl->system_includes, fake_sysroot_impl.system_includes,
         sysroot_rel_paths);
     FindSystemRootRelPaths(
-        impl->user_includes, fake_sysroot_impl.user_includes,
+        fs, impl->user_includes, fake_sysroot_impl.user_includes,
         sysroot_rel_paths);
 
-    sysroot_dir = FindRealSystemRoot(sysroot_dir, sysroot_rel_paths);
-    sysroot_dir.string().swap(impl->sysroot_dir);
+    FindRealSystemRoot(sysroot_dir, sysroot_rel_paths).swap(impl->sysroot_dir);
 
     // Relative the paths w.r.t. the true system root directory.
-    RelativizePaths(sysroot_dir, impl->system_includes,
+    RelativizePaths(fs, sysroot_dir, impl->system_includes,
                     fake_sysroot_impl.system_includes);
-    RelativizePaths(sysroot_dir, impl->user_includes,
+    RelativizePaths(fs, sysroot_dir, impl->user_includes,
                     fake_sysroot_impl.user_includes);
-    RelativizePaths(sysroot_dir, impl->frameworks,
+    RelativizePaths(fs, sysroot_dir, impl->frameworks,
                     fake_sysroot_impl.frameworks);
   }
 
-  if (impl->resource_dir.empty() && !DeriveResourceDirs(*impl)) {
+  if (impl->resource_dir.empty() && !DeriveResourceDirs(fs, *impl)) {
     err << "Unable to infer resource directory for compiler '"
-        << compiler_path_ << "'";
+        << compiler_path.generic_string() << "'";
     return err.str();
   }
 

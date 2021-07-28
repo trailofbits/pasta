@@ -192,12 +192,12 @@ std::optional<FileToken> Token::FileLocation(void) const {
 
   const clang::SourceManager &sm = ast->ci->getSourceManager();
   const auto [file_id, file_offset] = sm.getDecomposedLoc(loc);
-  auto offset_it = ast->file_offset.find(file_id.getHashValue());
-  if (offset_it == ast->file_offset.end()) {
+  auto file_it = ast->id_to_file.find(file_id.getHashValue());
+  if (file_it == ast->id_to_file.end()) {
     return std::nullopt;
   }
 
-  return ast->parsed_files[offset_it->second].TokenAtOffset(file_offset);
+  return file_it->second.TokenAtOffset(file_offset);
 }
 
 // Kind of this token.

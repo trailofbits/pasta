@@ -188,9 +188,12 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
 
   os.flush();
 
-  auto fd = open("/tmp/source.cpp", O_TRUNC | O_CREAT | O_WRONLY, 0666);
-  write(fd, impl.preprocessed_code.data(), impl.preprocessed_code.size());
-  close(fd);
+
+  // NOTE(pag): If there's a compiler error that "shouldn't happen," then
+  //            enabling the below code can help diagnose it.
+//  auto fd = open("/tmp/source.cpp", O_TRUNC | O_CREAT | O_WRONLY, 0666);
+//  write(fd, impl.preprocessed_code.data(), impl.preprocessed_code.size());
+//  close(fd);
 }
 
 }  // namespace
@@ -260,21 +263,25 @@ class ParsedFileTracker : public clang::PPCallbacks {
     }
 
     auto file = maybe_file.TakeValue();
-    if (seen.count(file.impl.get())) {
-      assert(ast->file_offset.count(file_id.getHashValue()));
-      return;
+
+    // Keep a mapping of Clang file IDs to parsed files.
+    auto old_file_it = ast->id_to_file.find(file_id.getHashValue());
+    if (old_file_it == ast->id_to_file.end()) {
+      ast->id_to_file.emplace(file_id.getHashValue(), file);
+    } else {
+      assert(old_file_it->second.impl.get() == file.impl.get());
     }
 
-    seen.insert(file.impl.get());
+    if (auto [seen_it, added] = seen.emplace(file.impl.get()); !added) {
+      return;
+    }
 
     auto maybe_data = file.Data();
     if (maybe_data.Failed()) {
       return;
     }
 
-    const auto offset = static_cast<unsigned>(ast->parsed_files.size());
     ast->parsed_files.emplace_back(std::move(file));
-    ast->file_offset.emplace(file_id.getHashValue(), offset);
 
     std::unique_lock<std::mutex> locker(file.impl->tokens_lock);
     if (file.impl->has_tokens) {

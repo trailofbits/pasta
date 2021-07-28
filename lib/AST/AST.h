@@ -75,7 +75,7 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   std::vector<::pasta::File> parsed_files;
 
   // Mapping of Clang source manager file IDs to offsets within `parsed_files`.
-  std::unordered_map<unsigned  /* clang::FileID */, unsigned> file_offset;
+  std::unordered_map<unsigned  /* clang::FileID */, ::pasta::File> id_to_file;
 
   // List of tokens.
   std::vector<TokenImpl> tokens;

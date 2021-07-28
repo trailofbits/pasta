@@ -158,7 +158,7 @@ llvm::vfs::directory_iterator
 LLVMFileSystem::dir_begin(const llvm::Twine &path, std::error_code &ec) {
   auto fs_path = file_system.ParsePath(path.str());
   auto paths = file_system.ListDirectory(std::move(fs_path));
-  if (paths.Failed()) {
+  if (paths.Error()) {
     ec = paths.TakeError();
     return llvm::vfs::directory_iterator();
   } else {

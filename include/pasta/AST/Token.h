@@ -7,19 +7,18 @@
 #include <iterator>
 #include <memory>
 #include <optional>
+#include <string_view>
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wshorten-64-to-32"
-#include <clang/Basic/SourceLocation.h>
-#include <clang/Basic/TokenKinds.h>
-#pragma clang diagnostic pop
-
+namespace clang {
+namespace tok {
+enum TokenKind : unsigned short;
+}  // namespace tok
+}  // namespace clang
 namespace pasta {
 
 class AST;
 class ASTImpl;
+class FileToken;
 class TokenIterator;
 struct TokenImpl;
 class TokenRange;
@@ -34,11 +33,8 @@ class Token {
   Token &operator=(const Token &) = default;
   Token &operator=(Token &&) noexcept = default;
 
-  // Return the source location of this token.
-  clang::SourceLocation Location(void) const;
-
-  // Try to get the full source location of this token.
-  std::optional<clang::FullSourceLoc> FullLocation(void) const;
+  // Location of the token in a file.
+  std::optional<FileToken> FileLocation(void) const;
 
   // Return the data associated with this token.
   std::string_view Data(void) const;

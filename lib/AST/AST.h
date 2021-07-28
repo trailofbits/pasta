@@ -7,6 +7,7 @@
 #include <pasta/AST/AST.h>
 
 #include <string>
+#include <unordered_map>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
@@ -72,6 +73,9 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
 
   // All parsed files.
   std::vector<::pasta::File> parsed_files;
+
+  // Mapping of Clang source manager file IDs to offsets within `parsed_files`.
+  std::unordered_map<unsigned  /* clang::FileID */, unsigned> file_offset;
 
   // List of tokens.
   std::vector<TokenImpl> tokens;

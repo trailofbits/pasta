@@ -242,7 +242,8 @@ class ParsedFileTracker : public clang::PPCallbacks {
       return;
     }
 
-    const clang::FileEntry *fe = sm.getFileEntryForID(sm.getFileID(loc));
+    const clang::FileID file_id = sm.getFileID(loc);
+    const clang::FileEntry *fe = sm.getFileEntryForID(file_id);
     if (!fe) {
       return;
     }
@@ -260,6 +261,7 @@ class ParsedFileTracker : public clang::PPCallbacks {
 
     auto file = maybe_file.TakeValue();
     if (seen.count(file.impl.get())) {
+      assert(ast->file_offset.count(file_id.getHashValue()));
       return;
     }
 
@@ -270,7 +272,9 @@ class ParsedFileTracker : public clang::PPCallbacks {
       return;
     }
 
+    const auto offset = static_cast<unsigned>(ast->parsed_files.size());
     ast->parsed_files.emplace_back(std::move(file));
+    ast->file_offset.emplace(file_id.getHashValue(), offset);
 
     std::unique_lock<std::mutex> locker(file.impl->tokens_lock);
     if (file.impl->has_tokens) {

@@ -76,12 +76,16 @@ class ASTDumper final : public pasta::DeclVisitor {
     VisitDeclContext(decl);
   }
 
-  void VisitTypedefDecl(const pasta::TypedefDecl &decl) final {
-    os << indent << decl.KindName() << "\n";
-  }
-
   void VisitDecl(const pasta::Decl &decl) final {
-    os << indent << decl.KindName() << "\n";
+    os << indent << decl.KindName();
+
+    auto loc = decl.Token();
+    if (auto file_loc = loc.FileLocation()) {
+      auto file = pasta::File::Containing(*file_loc);
+      os << ' ' << file.Path().generic_string() << ':'
+         << file_loc->Line() << ':' << file_loc->Column();
+    }
+    os << "\n";
   }
 };
 

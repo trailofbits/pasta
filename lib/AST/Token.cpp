@@ -179,25 +179,25 @@ static bool ReadRawTokenData(clang::SourceManager &source_manager,
 
 } // namespace
 
-// Return the source location of this token.
-clang::SourceLocation Token::Location(void) const {
-  return impl ? impl->Location() : clang::SourceLocation();
-}
-
-// Try to get the full source location of this token.
-std::optional<clang::FullSourceLoc> Token::FullLocation(void) const {
-  const auto loc = Location();
-  if (loc.isInvalid()) {
+// Location of the token in a file.
+std::optional<FileToken> Token::FileLocation(void) const {
+  if (!impl) {
     return std::nullopt;
   }
 
-  const auto &sm = ast->ci->getSourceManager();
-  auto full_loc = clang::FullSourceLoc(loc, sm);
-  if (full_loc.isInvalid()) {
+  clang::SourceLocation loc = impl->Location();
+  if (loc.isInvalid() || loc.isMacroID()) {
     return std::nullopt;
   }
 
-  return std::move(full_loc);
+  const clang::SourceManager &sm = ast->ci->getSourceManager();
+  const auto [file_id, file_offset] = sm.getDecomposedLoc(loc);
+  auto offset_it = ast->file_offset.find(file_id.getHashValue());
+  if (offset_it == ast->file_offset.end()) {
+    return std::nullopt;
+  }
+
+  return ast->parsed_files[offset_it->second].TokenAtOffset(file_offset);
 }
 
 // Kind of this token.

@@ -8,7 +8,14 @@
 
 #include <cstdint>
 #include <string>
-#include <string_view>
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/Basic/SourceLocation.h>
+#include <clang/Basic/TokenKinds.h>
+#pragma clang diagnostic pop
 
 namespace clang {
 class SourceManager;

@@ -4,6 +4,8 @@
 
 #include <pasta/Util/File.h>
 
+#include <algorithm>
+
 #include "FileManager.h"
 
 namespace pasta {
@@ -75,6 +77,39 @@ FileTokenRange File::Tokens(void) const noexcept {
   }
 }
 
+// Return a token at a specific file offset.
+std::optional<FileToken> File::TokenAtOffset(unsigned offset) const noexcept {
+
+  const char *data_ptr = nullptr;
+  {
+    std::unique_lock<std::mutex> locker(impl->data_lock);
+    if (offset >= impl->data.size()) {
+      return std::nullopt;
+    }
+
+    data_ptr = &(impl->data[offset]);
+  }
+
+  FileTokenImpl fake_tok(data_ptr, 0, 0, 0);
+
+  {
+    std::unique_lock<std::mutex> locker(impl->tokens_lock);
+    auto tokens = impl->tokens.data();
+    auto end_tokens = &(impl->tokens[impl->tokens.size()]);
+    auto ret = std::lower_bound(
+        tokens, end_tokens, fake_tok,
+        [] (const FileTokenImpl &a, const FileTokenImpl &b) {
+          return a.data < b.data;
+        });
+
+    if (tokens <= ret && ret < end_tokens) {
+      return FileToken(impl, ret);
+    }
+  }
+
+  return std::nullopt;
+}
+
 // Kind of this token.
 unsigned FileToken::Kind(void) const noexcept {
   return impl ? impl->kind : 0u;
@@ -113,7 +148,6 @@ uint64_t FileToken::Index(void) const noexcept {
     return std::numeric_limits<uint64_t>::max();
   }
 }
-
 
 // Prefix increment operator.
 FileTokenIterator &FileTokenIterator::operator++(void) noexcept {

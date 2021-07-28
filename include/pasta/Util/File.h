@@ -258,6 +258,9 @@ class File {
   // Return a range of file tokens.
   FileTokenRange Tokens(void) const noexcept;
 
+  // Return a token at a specific file offset.
+  std::optional<FileToken> TokenAtOffset(unsigned offset) const noexcept;
+
   inline bool operator==(const File &that) const noexcept {
     return impl == that.impl;
   }

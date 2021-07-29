@@ -33,7 +33,16 @@
       std::ostream &os, const std::string &class_name) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); \
           !meth_name.empty()) { \
-        os << "  // " << meth_name << ": " << PASTA_STR(rt) << "\n"; \
+        auto &new_rt = gRetTypeMap[PASTA_STR(rt)]; \
+        if (!new_rt.empty() && !strcmp(PASTA_STR(p0), "(const clang::ASTContext &)")) { \
+          if (kCanReturnNullptr.count(std::make_pair(class_name, meth_name))) { \
+            os << "  std::optional<" << new_rt << "> " << meth_name << "(void) const;\n"; \
+          } else { \
+            os << "  " << new_rt << ' ' << meth_name << "(void) const;\n"; \
+          } \
+        } else { \
+          os << "  // " << meth_name << ": " << PASTA_STR(rt) << "\n"; \
+        } \
       } \
     }
 

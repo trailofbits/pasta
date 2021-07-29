@@ -37,6 +37,7 @@ void GenerateDeclCpp(void) {
       << "#include <clang/AST/DeclObjC.h>\n"
       << "#include <clang/AST/DeclOpenMP.h>\n"
       << "#include <clang/AST/DeclTemplate.h>\n"
+      << "#include <clang/Frontend/CompilerInstance.h>\n"
       << "#pragma clang diagnostic pop\n\n"
       << "namespace clang {\n"
       << "using OMPDeclarativeDirectiveDecl = OMPDeclarativeDirective<Decl>;\n"

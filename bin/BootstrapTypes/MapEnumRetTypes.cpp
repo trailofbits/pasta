@@ -19,7 +19,7 @@ void MapEnumRetTypes(void) {
       rv += ">(static_cast<" PASTA_STR(PASTA_SPLAT underlying_type) ">(val));\n"; \
       gRetTypeToValMap.emplace("(clang::" PASTA_STR(enum_name) ")", rv); \
       gRetTypeMap.emplace("(clang::" PASTA_STR(enum_name) ")", \
-                          Capitalize(PASTA_STR(enum_name))); \
+                          "enum " + Capitalize(PASTA_STR(enum_name))); \
     } while (0);
 
 #define PASTA_DECLARE_CLASS_NAMED_ENUM(class_name, class_id, enum_name, underlying_type) \
@@ -30,7 +30,7 @@ void MapEnumRetTypes(void) {
       gRetTypeToValMap.emplace( \
           "(clang::" PASTA_STR(class_name) "::" PASTA_STR(enum_name) ")", rv); \
       gRetTypeMap.emplace("(clang::" PASTA_STR(enum_name) ")", \
-                          Capitalize(PASTA_STR(enum_name))); \
+                          "enum " + Capitalize(PASTA_STR(enum_name))); \
     } while (0);
 
 #include "Generated.h"

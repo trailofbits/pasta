@@ -19,6 +19,12 @@ std::string CxxName(llvm::StringRef name) {
   } else if (name.startswith("get")) {
     return CxxName(name.substr(3));
 
+  } else if (name.startswith("has")) {
+    return "Has" + CxxName(name.substr(3));
+
+  } else if (name.startswith("is")) {
+    return "Is" + CxxName(name.substr(2));
+
   // Begin/end iterators.
   } else if (name.endswith("_begin") || name.endswith("_end") ||
              name.endswith("_size") || name.endswith("_empty") ||

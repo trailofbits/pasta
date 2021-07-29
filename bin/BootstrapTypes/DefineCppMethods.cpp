@@ -12,45 +12,80 @@
     [[gnu::noinline, gnu::optnone]] \
     static void DefineCppMethod_ ## id ## _ ## meth_id( \
         std::ostream &os, const std::string &class_name) { \
-      if (const auto meth_name = CxxName(PASTA_STR(meth)); \
-          !meth_name.empty()) { \
-        auto &rt_type = gRetTypeMap[PASTA_STR(rt)]; \
-        auto &rt_val = gRetTypeToValMap[PASTA_STR(rt)]; \
-        llvm::StringRef rt_ref(PASTA_STR(rt)); \
-        if (!rt_type.empty() && !rt_val.empty()) { \
-          const auto can_ret_null = kCanReturnNullptr.count(\
-              std::make_pair(class_name, meth_name)); \
-          if (can_ret_null) { \
-            os << "std::optional<" << rt_type << ">"; \
-          } else { \
-            os << rt_type; \
-          } \
-          os << " " << class_name << "::" << meth_name << "(void) const {\n" \
-             << "  auto val = u." << class_name << "->" << PASTA_STR(meth) << "();\n" \
-             << rt_val; \
-          if (rt_ref.endswith(" *)")) { \
-            if (can_ret_null) { \
-              os << "  return std::nullopt;\n"; \
-            } else { \
-              os << "  assert(false && \"" << class_name << "::" \
-                 << meth_name << " can return nullptr!\");\n" \
-                 << "  __builtin_unreachable();\n"; \
-            } \
-          } \
-          os << "}\n\n"; \
+      const auto meth_name = CxxName(PASTA_STR(meth)); \
+      if (meth_name.empty()) { \
+        os << "// 0: " << class_name << "::" << meth_name << "\n"; \
+        return; \
+      } \
+      auto &rt_type = gRetTypeMap[PASTA_STR(rt)]; \
+      auto &rt_val = gRetTypeToValMap[PASTA_STR(rt)]; \
+      llvm::StringRef rt_ref(PASTA_STR(rt)); \
+      if (rt_type.empty() || rt_val.empty()) { \
+        os << "// 0: " << class_name << "::" << meth_name << "\n"; \
+        return; \
+      } \
+      const auto can_ret_null = kCanReturnNullptr.count(\
+          std::make_pair(class_name, meth_name)); \
+      if (can_ret_null) { \
+        os << "std::optional<" << rt_type << ">"; \
+      } else { \
+        os << rt_type; \
+      } \
+      os << " " << class_name << "::" << meth_name << "(void) const {\n" \
+         << "  auto val = u." << class_name << "->" << PASTA_STR(meth) << "();\n" \
+         << rt_val; \
+      if (rt_ref.endswith(" *)")) { \
+        if (can_ret_null) { \
+          os << "  return std::nullopt;\n"; \
         } else { \
-          os << "// 0: " << class_name << "::" << meth_name << "\n"; \
+          os << "  assert(false && \"" << class_name << "::" \
+             << meth_name << " can return nullptr!\");\n" \
+             << "  __builtin_unreachable();\n"; \
         } \
       } \
+      os << "}\n\n"; \
     }
 
 #define PASTA_INSTANCE_METHOD_1(cls, id, meth_id, meth, rt, p0) \
     [[gnu::noinline, gnu::optnone]] \
     static void DefineCppMethod_ ## id ## _ ## meth_id( \
         std::ostream &os, const std::string &class_name) { \
-      if (const auto meth_name = CxxName(PASTA_STR(meth)); \
-          !meth_name.empty()) { \
-        os << "// 1: " << class_name << "::" << meth_name << "\n"; \
+      const auto meth_name = CxxName(PASTA_STR(meth)); \
+      if (meth_name.empty()) { \
+        os << "// 0: " << class_name << "::" << meth_name << "\n"; \
+        return; \
+      } \
+      auto &rt_type = gRetTypeMap[PASTA_STR(rt)]; \
+      auto &rt_val = gRetTypeToValMap[PASTA_STR(rt)]; \
+      llvm::StringRef rt_ref(PASTA_STR(rt)); \
+      if (rt_type.empty() || rt_val.empty()) { \
+        os << "// 0: " << class_name << "::" << meth_name << "\n"; \
+        return; \
+      } \
+      if (strcmp(PASTA_STR(p0), "(const clang::ASTContext &)")) { \
+        os << "// 0: " << class_name << "::" << meth_name << "\n"; \
+        return; \
+      } else { \
+        const auto can_ret_null = kCanReturnNullptr.count(\
+            std::make_pair(class_name, meth_name)); \
+        if (can_ret_null) { \
+          os << "std::optional<" << rt_type << ">"; \
+        } else { \
+          os << rt_type; \
+        } \
+        os << " " << class_name << "::" << meth_name << "(void) const {\n" \
+           << "  auto val = u." << class_name << "->" << PASTA_STR(meth) << "(ast->ci->getASTContext());\n" \
+           << rt_val; \
+        if (rt_ref.endswith(" *)")) { \
+          if (can_ret_null) { \
+            os << "  return std::nullopt;\n"; \
+          } else { \
+            os << "  assert(false && \"" << class_name << "::" \
+               << meth_name << " can return nullptr!\");\n" \
+               << "  __builtin_unreachable();\n"; \
+          } \
+        } \
+        os << "}\n\n"; \
       } \
     }
 

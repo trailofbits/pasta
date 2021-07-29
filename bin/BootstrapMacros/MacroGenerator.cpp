@@ -185,10 +185,7 @@ MacroGenerator::~MacroGenerator(void) {
     decl_unnamed_enums.clear();
 
     for (const auto enclosed_decl : decl->decls()) {
-      switch (enclosed_decl->getKind()) {
-
-      case clang::Decl::CXXMethod: {
-        const auto method = static_cast<clang::CXXMethodDecl *>(enclosed_decl);
+      if (clang::CXXMethodDecl *method = clang::dyn_cast<clang::CXXMethodDecl>(enclosed_decl)) {
 
         // Skip over operator overloads, as we don't have any reasonable way to
         // bind them to Python. Also skip over non-public methods, which we
@@ -201,28 +198,28 @@ MacroGenerator::~MacroGenerator(void) {
           continue;
         }
 
-        if (auto method_decl_def = clang::dyn_cast_or_null<clang::CXXMethodDecl>(
-                method->getDefinition());
-            method_decl_def) {
-          auto method_name = method->getName();
-
-          // Ignore "setters", as well as factory functions.
-          if (!method_name.startswith("set") && method_name != "Create" &&
-              method_decl_def->isConst()) {
-            decl_methods[method_name.str()].push_back(method_decl_def);
-          }
+        // Ignore methods that don't return anything; they are propabably
+        // mutators.
+        auto split_type = method->getReturnType().getSplitDesugaredType();
+        if (split_type.Ty && split_type.Ty->isVoidType()) {
+          continue;
         }
-      } break;
 
-      case clang::Decl::Field: {
-        const auto field = static_cast<clang::FieldDecl *>(enclosed_decl);
+        // Ignore "setters", as well as factory functions.
+        auto method_name = method->getName();
+        if (!method_name.startswith("set") &&
+            !method_name.startswith("remove") &&
+            method_name != "Create" &&
+            method->isConst()) {
+          decl_methods[method_name.str()].push_back(method);
+        }
+
+      } else if (clang::FieldDecl *field = clang::dyn_cast<clang::FieldDecl>(enclosed_decl)) {
 
         auto field_name = field->getName().str();
         decl_fields.emplace(std::move(field_name), field);
-      } break;
 
-      case clang::Decl::Enum: {
-        const auto enum_ = static_cast<clang::EnumDecl *>(enclosed_decl);
+      } else if (clang::EnumDecl *enum_ = clang::dyn_cast<clang::EnumDecl>(enclosed_decl)) {
         if (enum_->getAccess() != clang::AS_public) {
           continue;
         }
@@ -235,10 +232,6 @@ MacroGenerator::~MacroGenerator(void) {
         } else {
           decl_unnamed_enums.insert(enum_->getCanonicalDecl());
         }
-      } break;
-
-      default:
-        break;
       }
     }
 

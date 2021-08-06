@@ -74,7 +74,14 @@ MacroGenerator::MacroGenerator(const clang::ASTContext *ctx)
   acceptable_class_names.insert("TemplateArgument");
   acceptable_class_names.insert("TypeSourceInfo");
 
+  // NOTE(pag): We ignore `ExtQualsTypeCommonBase` and `ExtQuals`, in favor
+  //            getting the accessors of `ExtQuals` via `QualType`.
+
+  // NOTE(pag): We ignore `SplitQualType` as nothing really returns it
+
   // Base types.
+  acceptable_class_names.insert("QualType");
+  acceptable_class_names.insert("TypeWithKeyword");
   acceptable_class_names.insert("Type");
   acceptable_class_names.insert("Decl");
   acceptable_class_names.insert("DeclContext");

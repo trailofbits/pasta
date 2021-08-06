@@ -18,6 +18,18 @@ const std::vector<ClassExtends> kExtends{
 std::vector<std::string> gDeclNames;
 std::vector<std::string> gTypeNames;
 
+// All methods (class name, method name).
+const std::set<std::pair<std::string, std::string>> gMethodNames{
+#define PASTA_INSTANCE_METHOD_0(cls, id, meth_id, meth, rt) {#cls, #meth},
+#define PASTA_INSTANCE_METHOD_1(cls, id, meth_id, meth, rt, p0) {#cls, #meth},
+#define PASTA_INSTANCE_METHOD_2(cls, id, meth_id, meth, rt, p0, p1) {#cls, #meth},
+#define PASTA_INSTANCE_METHOD_3(cls, id, meth_id, meth, rt, p0, p1, p2) {#cls, #meth},
+#define PASTA_INSTANCE_METHOD_4(cls, id, meth_id, meth, rt, p0, p1, p2, p3) {#cls, #meth},
+#define PASTA_INSTANCE_METHOD_5(cls, id, meth_id, meth, rt, p0, p1, p2, p3, p4) {#cls, #meth},
+#define PASTA_INSTANCE_METHOD_6(cls, id, meth_id, meth, rt, p0, p1, p2, p3, p4, p5) {#cls, #meth},
+#include "Generated.h"
+};
+
 const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   {"SourceRange", "TokenRange"},
   {"Vbases", "VBases"},
@@ -73,7 +85,10 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
   {"(bool)", "bool"},
   {"(clang::SourceLocation)", "::pasta::Token"},
   {"(clang::SourceRange)", "::pasta::TokenRange"},
+  {"(clang::QualType)", "::pasta::Type"},
+  {"(clang::Type::TypeClass)", "::pasta::TypeClass"},
   {"(llvm::StringRef)", "std::string_view"},
+  {"(const char *)", "std::string_view"},
   {"(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>)", "std::string"},
   {"(std::basic_string<char, std::char_traits<char>, std::allocator<char>>)", "std::string"},
   {"(unsigned int)", "uint32_t"},
@@ -89,6 +104,20 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
   {"(clang::Decl::Kind)", "::pasta::DeclKind"},
   {"(clang::ImplicitParamDecl::ImplicitParamKind)", "::pasta::ImplicitParamKind"},
   {"(clang::RecordDecl::ArgPassingKind)", "::pasta::ArgPassingKind"},
+  {"(clang::UnaryTransformType::UTTKind)", "::pasta::UTTKind"},
+  {"(clang::ArrayType::ArraySizeModifier)", "::pasta::ArraySizeModifier"},
+  {"(clang::VectorType::VectorKind)", "::pasta::VectorKind"},
+  {"(clang::TypeDependenceScope::TypeDependence)", "::pasta::TypeDependence"},
+  {"(clang::Qualifiers::ObjCLifetime)", "::pasta::ObjCLifetime"},
+  {"(clang::Type::ScalarTypeKind)", "::pasta::ScalarTypeKind"},
+  {"(clang::QualType::PrimitiveCopyKind)", "::pasta::PrimitiveCopyKind"},
+  {"(clang::QualType::PrimitiveDefaultInitializeKind)", "::pasta::PrimitiveDefaultInitializeKind"},
+
+  {"(llvm::Optional<unsigned int>)", "std::optional<unsigned>"},
+  {"(llvm::Optional<clang::NullabilityKind>)", "std::optional<::pasta::NullabilityKind>"},
+
+  {"(llvm::ArrayRef<clang::QualType>)", "std::vector<::pasta::Type>"},
+  {"(llvm::Optional<llvm::ArrayRef<clang::QualType>>)", "std::optional<std::vector<::pasta::Type>>"},
 
   {"(llvm::iterator_range<clang::DeclContext::decl_iterator>)", "std::vector<::pasta::Decl>"},
   {"(llvm::iterator_range<clang::Decl::redecl_iterator>)", "std::vector<::pasta::Decl>"},
@@ -169,9 +198,22 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
   {"(clang::SourceRange)",
    "  return ast->TokenRangeFrom(val);\n"},
 
+  {"(clang::QualType)",
+   "  return TypeBuilder::Build<::pasta::Type>(ast, val);\n"},
+
+  {"(clang::Type::TypeClass)",
+   "  return static_cast<::pasta::TypeClass>(val);\n"},
+
   {"(llvm::StringRef)",
    "  if (auto size = val.size()) {\n"
    "    return std::string_view(val.data(), size);\n"
+   "  } else {\n"
+   "    return std::string_view();\n"
+   "  }\n"},
+
+  {"(const char *)",
+   "  if (val) {\n"
+   "    return std::string_view(val);\n"
    "  } else {\n"
    "    return std::string_view();\n"
    "  }\n"},
@@ -222,6 +264,57 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
 
   {"(clang::RecordDecl::ArgPassingKind)",
    "  return static_cast<::pasta::ArgPassingKind>(val);\n"},
+
+  {"(clang::UnaryTransformType::UTTKind)",
+   "  return static_cast<::pasta::UTTKind>(val);\n"},
+
+  {"(clang::ArrayType::ArraySizeModifier)",
+   "  return static_cast<::pasta::ArraySizeModifier>(val);\n"},
+
+  {"(clang::VectorType::VectorKind)",
+   "  return static_cast<::pasta::VectorKind>(val);\n"},
+
+  {"(clang::TypeDependenceScope::TypeDependence)",
+   "  return static_cast<::pasta::TypeDependence>(val);\n"},
+
+  {"(clang::Qualifiers::ObjCLifetime)",
+   "  return static_cast<::pasta::ObjCLifetime>(val);\n"},
+  {"(clang::Type::ScalarTypeKind)",
+   "  return static_cast<::pasta::ScalarTypeKind>(val);\n"},
+  {"(clang::QualType::PrimitiveCopyKind)",
+   "  return static_cast<::pasta::PrimitiveCopyKind>(val);\n"},
+  {"(clang::QualType::PrimitiveDefaultInitializeKind)",
+   "  return static_cast<::pasta::PrimitiveDefaultInitializeKind>(val);\n"},
+
+  {"(llvm::Optional<unsigned int>)",
+   "  if (val.hasValue()) {\n"
+   "    return val.getValue();\n"
+   "  } else {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {"(llvm::Optional<clang::NullabilityKind>)",
+   "  if (val.hasValue()) {\n"
+   "    return static_cast<::pasta::NullabilityKind>(val.getValue());\n"
+   "  } else {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+
+  {"(llvm::ArrayRef<clang::QualType>)",
+    "  std::vector<::pasta::Type> ret;\n"
+    "  for (auto qual_type : val) {\n"
+    "    ret.emplace_back(TypeBuilder::Create<::pasta::Type>(ast, qual_type));\n"
+    "  }\n" \
+    "  return ret;\n"},
+
+  {"(llvm::Optional<llvm::ArrayRef<clang::QualType>>)",
+   "  if (!val.hasValue()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"
+   "  std::vector<::pasta::Type> ret;\n"
+   "  for (auto qual_type : val.getValue()) {\n"
+   "    ret.emplace_back(TypeBuilder::Create<::pasta::Type>(ast, qual_type));\n"
+   "  }\n" \
+   "  return ret;\n"},
 
 #define DECL_ITERATOR_IMPL(cls) \
     "  std::vector<::pasta::" #cls "> ret;\n" \
@@ -459,6 +552,7 @@ std::unordered_map<std::string, uint32_t> gClassIDs;
 std::unordered_map<std::string, std::set<std::string>> gBaseClasses;
 std::unordered_map<std::string, std::set<std::string>> gDerivedClasses;
 std::vector<std::string> gTopologicallyOrderedDecls;
+std::vector<std::string> gTopologicallyOrderedTypes;
 
 std::unordered_map<std::string, std::set<std::string>> gTransitiveBaseClasses;
 std::unordered_map<std::string, std::set<std::string>> gTransitiveDerivedClasses;

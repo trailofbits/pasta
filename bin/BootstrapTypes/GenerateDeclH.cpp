@@ -28,6 +28,7 @@ void GenerateDeclH(void) {
       << "#else\n"
       << "#include <variant>\n"
       << "#include <vector>\n"
+      << "#include <pasta/Util/Compiler.h>\n"
       << "#include \"Forward.h\"\n\n"
       << "#define PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(base) \\\n"
       << "    friend class AST; \\\n"
@@ -38,20 +39,6 @@ void GenerateDeclH(void) {
       << "    explicit base( \\\n"
       << "        std::shared_ptr<ASTImpl> ast_, \\\n"
       << "        const ::clang::Decl *decl_);\n\n"
-      << "#define PASTA_DECLARE_BASE_OPERATORS(base, derived) \\\n"
-      << "    static std::optional<class derived> From(const class base &);\n\n"
-      << "#define PASTA_DECLARE_DERIVED_OPERATORS(base, derived) \\\n"
-      << "    friend class derived; \\\n"
-      << "    base(const class derived &that_); \\\n"
-      << "    base(class derived &&that_) noexcept;  \\\n"
-      << "    base &operator=(const class derived &);  \\\n"
-      << "    base &operator=(class derived &&) noexcept;\n\n"
-      << "#define PASTA_DECLARE_DEFAULT_CONSTRUCTORS(cls) \\\n"
-      << "    ~cls(void) = default; \\\n"
-      << "    cls(const cls &) = default; \\\n"
-      << "    cls(cls &&) noexcept = default; \\\n"
-      << "    cls &operator=(const cls &) = default; \\\n"
-      << "    cls &operator=(cls &&) noexcept = default;\n\n"
       << "namespace pasta {\n"
       << "class DeclVisitor {\n"
       << " public:\n"
@@ -210,9 +197,6 @@ void GenerateDeclH(void) {
 
   os
       << "}  // namespace pasta\n"
-      << "#undef PASTA_DECLARE_DERIVED_OPERATORS\n"
-      << "#undef PASTA_DECLARE_DEFAULT_CONSTRUCTORS\n"
-      << "#undef PASTA_DECLARE_BASE_OPERATORS\n"
       << "#undef PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR\n"
       << "#endif  // PASTA_IN_BOOTSTRAP\n";
 }

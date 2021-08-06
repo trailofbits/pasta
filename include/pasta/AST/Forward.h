@@ -326,6 +326,7 @@ class PragmaCommentDecl;
 class PragmaDetectMismatchDecl;
 class PredefinedExpr;
 class PseudoObjectExpr;
+class QualType;
 class RValueReferenceType;
 class RecordDecl;
 class RecordType;
@@ -370,6 +371,7 @@ class TypeOfExprType;
 class TypeOfType;
 class TypeSourceInfo;
 class TypeTraitExpr;
+class TypeWithKeyword;
 class TypedefDecl;
 class TypedefNameDecl;
 class TypedefType;
@@ -559,7 +561,8 @@ class TypeBuilder;
     m(UnaryTransform) \
     m(UnresolvedUsing) \
     m(VariableArray) \
-    m(Vector)
+    m(Vector) \
+    m(TypeWithKey)
 
 enum class DeclKind : unsigned {
 #define PASTA_DECLARE_DECL_KIND(name) k ## name ,
@@ -3263,6 +3266,7 @@ class PragmaCommentDecl;
 class PragmaDetectMismatchDecl;
 class PredefinedExpr;
 class PseudoObjectExpr;
+class QualType;
 class RValueReferenceType;
 class RecordDecl;
 class RecordType;
@@ -3307,6 +3311,7 @@ class TypeOfExprType;
 class TypeOfType;
 class TypeSourceInfo;
 class TypeTraitExpr;
+class TypeWithKeyword;
 class TypedefDecl;
 class TypedefNameDecl;
 class TypedefType;

@@ -12,10 +12,12 @@ add_executable(bootstrap-types
     "GenerateDeclCpp.cpp"
     "GenerateDeclH.cpp"
     "GenerateForwardH.cpp"
+    "GenerateTypeH.cpp"
     "Globals.cpp"
     "Globals.h"
     "MapDeclRetTypes.cpp"
     "MapEnumRetTypes.cpp"
+    "MapTypeRetTypes.cpp"
     "Util.cpp"
     "Util.h"
 )

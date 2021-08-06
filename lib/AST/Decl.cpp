@@ -1039,7 +1039,15 @@ enum AvailabilityResult Decl::Availability(void) const {
   return static_cast<::pasta::FriendObjectKind>(val);
 }
 
-// 0: Decl::FunctionType
+::pasta::FunctionType Decl::FunctionType(void) const {
+  auto val = u.Decl->getFunctionType();
+  if (val) {
+    return TypeBuilder::Create<::pasta::FunctionType>(ast, val);
+  }
+  assert(false && "Decl::FunctionType can return nullptr!");
+  __builtin_unreachable();
+}
+
 uint32_t Decl::GlobalID(void) const {
   auto val = u.Decl->getGlobalID();
   return val;
@@ -2162,8 +2170,24 @@ std::string_view ObjCInterfaceDecl::ObjCRuntimeNameAsString(void) const {
 }
 
 // 0: ObjCInterfaceDecl::SuperClassTInfo
-// 0: ObjCInterfaceDecl::SuperClassType
-// 0: ObjCInterfaceDecl::TypeForDecl
+::pasta::ObjCObjectType ObjCInterfaceDecl::SuperClassType(void) const {
+  auto val = u.ObjCInterfaceDecl->getSuperClassType();
+  if (val) {
+    return TypeBuilder::Create<::pasta::ObjCObjectType>(ast, val);
+  }
+  assert(false && "ObjCInterfaceDecl::SuperClassType can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::Type ObjCInterfaceDecl::TypeForDecl(void) const {
+  auto val = u.ObjCInterfaceDecl->getTypeForDecl();
+  if (val) {
+    return TypeBuilder::Create<::pasta::Type>(ast, val);
+  }
+  assert(false && "ObjCInterfaceDecl::TypeForDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 // 0: ObjCInterfaceDecl::TypeParamList
 // 0: ObjCInterfaceDecl::TypeParamListAsWritten
 bool ObjCInterfaceDecl::HasDefinition(void) const {
@@ -2383,7 +2407,11 @@ uint32_t ObjCMethodDecl::NumSelectorLocs(void) const {
 
 // 0: ObjCMethodDecl::ObjCDeclQualifier
 // 0: ObjCMethodDecl::ParamDecl
-// 0: ObjCMethodDecl::ReturnType
+::pasta::Type ObjCMethodDecl::ReturnType(void) const {
+  auto val = u.ObjCMethodDecl->getReturnType();
+  return TypeBuilder::Build<::pasta::Type>(ast, val);
+}
+
 // 0: ObjCMethodDecl::ReturnTypeSourceInfo
 ::pasta::TokenRange ObjCMethodDecl::ReturnTypeSourceRange(void) const {
   auto val = u.ObjCMethodDecl->getReturnTypeSourceRange();
@@ -2591,7 +2619,11 @@ enum ObjCPropertyQueryKind ObjCPropertyDecl::QueryKind(void) const {
   return ast->TokenRangeFrom(val);
 }
 
-// 0: ObjCPropertyDecl::Type
+::pasta::Type ObjCPropertyDecl::Type(void) const {
+  auto val = u.ObjCPropertyDecl->getType();
+  return TypeBuilder::Build<::pasta::Type>(ast, val);
+}
+
 // 0: ObjCPropertyDecl::TypeSourceInfo
 // 0: ObjCPropertyDecl::UsageType
 bool ObjCPropertyDecl::IsAtomic(void) const {
@@ -2985,7 +3017,15 @@ PASTA_DEFINE_DERIVED_OPERATORS(TypeDecl, UnresolvedUsingTypenameDecl)
   return ast->TokenRangeFrom(val);
 }
 
-// 0: TypeDecl::TypeForDecl
+::pasta::Type TypeDecl::TypeForDecl(void) const {
+  auto val = u.TypeDecl->getTypeForDecl();
+  if (val) {
+    return TypeBuilder::Create<::pasta::Type>(ast, val);
+  }
+  assert(false && "TypeDecl::TypeForDecl can return nullptr!");
+  __builtin_unreachable();
+}
+
 TypedefNameDecl::TypedefNameDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
@@ -3016,7 +3056,11 @@ PASTA_DEFINE_DERIVED_OPERATORS(TypedefNameDecl, TypedefDecl)
 }
 
 // 0: TypedefNameDecl::TypeSourceInfo
-// 0: TypedefNameDecl::UnderlyingType
+::pasta::Type TypedefNameDecl::UnderlyingType(void) const {
+  auto val = u.TypedefNameDecl->getUnderlyingType();
+  return TypeBuilder::Build<::pasta::Type>(ast, val);
+}
+
 bool TypedefNameDecl::IsModed(void) const {
   auto val = u.TypedefNameDecl->isModed();
   return val;
@@ -3292,7 +3336,11 @@ PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, UnresolvedUsingValueDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, VarDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, VarTemplatePartialSpecializationDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, VarTemplateSpecializationDecl)
-// 0: ValueDecl::Type
+::pasta::Type ValueDecl::Type(void) const {
+  auto val = u.ValueDecl->getType();
+  return TypeBuilder::Build<::pasta::Type>(ast, val);
+}
+
 bool ValueDecl::IsWeak(void) const {
   auto val = u.ValueDecl->isWeak();
   return val;
@@ -3782,7 +3830,15 @@ uint32_t FieldDecl::BitWidthValue(void) const {
   __builtin_unreachable();
 }
 
-// 0: FieldDecl::CapturedVLAType
+::pasta::VariableArrayType FieldDecl::CapturedVLAType(void) const {
+  auto val = u.FieldDecl->getCapturedVLAType();
+  if (val) {
+    return TypeBuilder::Create<::pasta::VariableArrayType>(ast, val);
+  }
+  assert(false && "FieldDecl::CapturedVLAType can return nullptr!");
+  __builtin_unreachable();
+}
+
 uint32_t FieldDecl::FieldIndex(void) const {
   auto val = u.FieldDecl->getFieldIndex();
   return val;
@@ -3878,7 +3934,11 @@ uint32_t FunctionDecl::BuiltinID(void) const {
   return val;
 }
 
-// 0: FunctionDecl::CallResultType
+::pasta::Type FunctionDecl::CallResultType(void) const {
+  auto val = u.FunctionDecl->getCallResultType();
+  return TypeBuilder::Build<::pasta::Type>(ast, val);
+}
+
 ::pasta::FunctionDecl FunctionDecl::CanonicalDecl(void) const {
   auto val = u.FunctionDecl->getCanonicalDecl();
   if (val) {
@@ -3893,7 +3953,11 @@ enum ConstexprSpecKind FunctionDecl::ConstexprKind(void) const {
   return static_cast<::pasta::ConstexprSpecKind>(static_cast<int>(val));
 }
 
-// 0: FunctionDecl::DeclaredReturnType
+::pasta::Type FunctionDecl::DeclaredReturnType(void) const {
+  auto val = u.FunctionDecl->getDeclaredReturnType();
+  return TypeBuilder::Build<::pasta::Type>(ast, val);
+}
+
 // 0: FunctionDecl::DefaultedFunctionInfo
 ::pasta::FunctionDecl FunctionDecl::Definition(void) const {
   auto val = u.FunctionDecl->getDefinition();
@@ -3997,7 +4061,11 @@ enum OverloadedOperatorKind FunctionDecl::OverloadedOperator(void) const {
   __builtin_unreachable();
 }
 
-// 0: FunctionDecl::ReturnType
+::pasta::Type FunctionDecl::ReturnType(void) const {
+  auto val = u.FunctionDecl->getReturnType();
+  return TypeBuilder::Build<::pasta::Type>(ast, val);
+}
+
 ::pasta::TokenRange FunctionDecl::ReturnTypeSourceRange(void) const {
   auto val = u.FunctionDecl->getReturnTypeSourceRange();
   return ast->TokenRangeFrom(val);
@@ -5007,7 +5075,11 @@ bool TemplateTypeParmDecl::DefaultArgumentWasInherited(void) const {
 }
 
 // 0: TemplateTypeParmDecl::DefaultArgStorage
-// 0: TemplateTypeParmDecl::DefaultArgument
+::pasta::Type TemplateTypeParmDecl::DefaultArgument(void) const {
+  auto val = u.TemplateTypeParmDecl->getDefaultArgument();
+  return TypeBuilder::Build<::pasta::Type>(ast, val);
+}
+
 // 0: TemplateTypeParmDecl::DefaultArgumentInfo
 ::pasta::Token TemplateTypeParmDecl::DefaultArgumentToken(void) const {
   auto val = u.TemplateTypeParmDecl->getDefaultArgumentLoc();
@@ -5725,8 +5797,16 @@ enum RefQualifierKind CXXMethodDecl::RefQualifier(void) const {
   return static_cast<::pasta::RefQualifierKind>(static_cast<unsigned int>(val));
 }
 
-// 0: CXXMethodDecl::ThisObjectType
-// 0: CXXMethodDecl::ThisType
+::pasta::Type CXXMethodDecl::ThisObjectType(void) const {
+  auto val = u.CXXMethodDecl->getThisObjectType();
+  return TypeBuilder::Build<::pasta::Type>(ast, val);
+}
+
+::pasta::Type CXXMethodDecl::ThisType(void) const {
+  auto val = u.CXXMethodDecl->getThisType();
+  return TypeBuilder::Build<::pasta::Type>(ast, val);
+}
+
 bool CXXMethodDecl::HasInlineBody(void) const {
   auto val = u.CXXMethodDecl->hasInlineBody();
   return val;
@@ -5916,7 +5996,11 @@ std::vector<::pasta::EnumConstantDecl> EnumDecl::Enumerators(void) const {
   __builtin_unreachable();
 }
 
-// 0: EnumDecl::IntegerType
+::pasta::Type EnumDecl::IntegerType(void) const {
+  auto val = u.EnumDecl->getIntegerType();
+  return TypeBuilder::Build<::pasta::Type>(ast, val);
+}
+
 ::pasta::TokenRange EnumDecl::IntegerTypeRange(void) const {
   auto val = u.EnumDecl->getIntegerTypeRange();
   return ast->TokenRangeFrom(val);
@@ -5952,7 +6036,11 @@ uint32_t EnumDecl::NumPositiveBits(void) const {
   __builtin_unreachable();
 }
 
-// 0: EnumDecl::PromotionType
+::pasta::Type EnumDecl::PromotionType(void) const {
+  auto val = u.EnumDecl->getPromotionType();
+  return TypeBuilder::Build<::pasta::Type>(ast, val);
+}
+
 ::pasta::EnumDecl EnumDecl::TemplateInstantiationPattern(void) const {
   auto val = u.EnumDecl->getTemplateInstantiationPattern();
   if (val) {
@@ -6126,7 +6214,11 @@ uint32_t ParmVarDecl::FunctionScopeIndex(void) const {
 }
 
 // 0: ParmVarDecl::ObjCDeclQualifier
-// 0: ParmVarDecl::OriginalType
+::pasta::Type ParmVarDecl::OriginalType(void) const {
+  auto val = u.ParmVarDecl->getOriginalType();
+  return TypeBuilder::Build<::pasta::Type>(ast, val);
+}
+
 ::pasta::TokenRange ParmVarDecl::TokenRange(void) const {
   auto val = u.ParmVarDecl->getSourceRange();
   return ast->TokenRangeFrom(val);
@@ -6445,7 +6537,11 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXConversionDecl)
   __builtin_unreachable();
 }
 
-// 0: CXXConversionDecl::ConversionType
+::pasta::Type CXXConversionDecl::ConversionType(void) const {
+  auto val = u.CXXConversionDecl->getConversionType();
+  return TypeBuilder::Build<::pasta::Type>(ast, val);
+}
+
 // 0: CXXConversionDecl::ExplicitSpecifier
 bool CXXConversionDecl::IsExplicit(void) const {
   auto val = u.CXXConversionDecl->isExplicit();
@@ -7326,7 +7422,11 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ClassTemplatePartialSpecializationDecl)
 PASTA_DEFINE_BASE_OPERATORS(RecordDecl, ClassTemplatePartialSpecializationDecl)
 PASTA_DEFINE_BASE_OPERATORS(TagDecl, ClassTemplatePartialSpecializationDecl)
 PASTA_DEFINE_BASE_OPERATORS(TypeDecl, ClassTemplatePartialSpecializationDecl)
-// 0: ClassTemplatePartialSpecializationDecl::InjectedSpecializationType
+::pasta::Type ClassTemplatePartialSpecializationDecl::InjectedSpecializationType(void) const {
+  auto val = u.ClassTemplatePartialSpecializationDecl->getInjectedSpecializationType();
+  return TypeBuilder::Build<::pasta::Type>(ast, val);
+}
+
 ::pasta::ClassTemplatePartialSpecializationDecl ClassTemplatePartialSpecializationDecl::InstantiatedFromMember(void) const {
   auto val = u.ClassTemplatePartialSpecializationDecl->getInstantiatedFromMember();
   if (val) {

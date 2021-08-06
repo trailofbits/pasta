@@ -35,6 +35,10 @@ void MapEnumRetTypes(void);
 // Decl types.
 void MapDeclRetTypes(void);
 
+// Adds mappings that translate between pointers to clang Type types and PASTA
+// Type types.
+void MapTypeRetTypes(void);
+
 // Generate `include/pasta/AST/Forward.h`.
 void GenerateForwardH(void);
 
@@ -43,6 +47,9 @@ void GenerateDeclH(void);
 
 // Generate `lib/AST/Decl.cpp`.
 void GenerateDeclCpp(void);
+
+// Generate `include/pasta/AST/Type.h`.
+void GenerateTypeH(void);
 
 static void InitClassIDs(void) {
 #define PASTA_BEGIN_CLANG_WRAPPER(cls, id) \
@@ -64,10 +71,12 @@ int main(void) {
     if (class_name.endswith("Decl")) {
       gDeclNames.push_back(class_name.str());
 
-    } else if (class_name.endswith("Type")) {
+    } else if (class_name.endswith("Type") && class_name != "QualType") {
       gTypeNames.push_back(class_name.str());
     }
   }
+
+  gTypeNames.push_back("TypeWithKeyword");
 
   // Build up an adjacency list of parent/child relations.
   for (const auto &[name, base_name] : kExtends) {
@@ -98,62 +107,75 @@ int main(void) {
   gBaseClasses["OMPRequiresDecl"].insert("OMPDeclarativeDirectiveDecl");
   gDerivedClasses["OMPDeclarativeDirectiveDecl"].insert("OMPRequiresDecl");
 
-  // Topologically order the classes by the parent/child relations.
-  for (auto changed = true; changed; ) {
-    changed = false;
-    for (const auto &name : gDeclNames) {
-      if (seen.count(name)) {
-        goto skip;
-      }
-
-      for (const auto &parent_name : gBaseClasses[name]) {
-        if (!seen.count(parent_name)) {
+  auto topo_sort = [&seen](const std::vector<std::string> &names,
+                           std::vector<std::string> &ordered_names) {
+    for (auto changed = true; changed; ) {
+      changed = false;
+      for (const auto &name : names) {
+        if (seen.count(name)) {
           goto skip;
         }
+
+        for (const auto &parent_name : gBaseClasses[name]) {
+          if (!seen.count(parent_name)) {
+            goto skip;
+          }
+        }
+
+        ordered_names.push_back(name);
+        seen.insert(name);
+        changed = true;
+
+      skip:
+        continue;
       }
-
-      gTopologicallyOrderedDecls.push_back(name);
-      seen.insert(name);
-      changed = true;
-
-    skip:
-      continue;
     }
-  }
+  };
 
-  // Go find the transitive base classes. Rely on the topological order
-  // so that we can do it in a single pass.
-  for (const auto &base_name : gTopologicallyOrderedDecls) {
-    const auto &base_classes = gTransitiveBaseClasses[base_name];
+  // Topologically order the classes by the parent/child relations.
+  topo_sort(gDeclNames, gTopologicallyOrderedDecls);
+  topo_sort(gTypeNames, gTopologicallyOrderedTypes);
 
-    for (auto &derived_name : gDerivedClasses[base_name]) {
-      auto &derived_base_classes = gTransitiveBaseClasses[derived_name];
-      derived_base_classes.insert(base_name);
-      derived_base_classes.insert(base_classes.begin(), base_classes.end());
+  auto transitive_rels = [] (const std::vector<std::string> &names) {
+
+    // Go find the transitive base classes. Rely on the topological order
+    // so that we can do it in a single pass.
+    for (const auto &base_name : names) {
+      const auto &base_classes = gTransitiveBaseClasses[base_name];
+
+      for (auto &derived_name : gDerivedClasses[base_name]) {
+        auto &derived_base_classes = gTransitiveBaseClasses[derived_name];
+        derived_base_classes.insert(base_name);
+        derived_base_classes.insert(base_classes.begin(), base_classes.end());
+      }
     }
-  }
 
-  // Go find the transitive derived classes. Rely on the reverse topological
-  // order so that we can do it in a single pass.
-  for (auto it = gTopologicallyOrderedDecls.rbegin();
-       it != gTopologicallyOrderedDecls.rend(); ++it) {
-    const auto &derived_name = *it;
-    const auto &derived_classes = gTransitiveDerivedClasses[derived_name];
+    // Go find the transitive derived classes. Rely on the reverse topological
+    // order so that we can do it in a single pass.
+    for (auto it = names.rbegin(); it != names.rend(); ++it) {
+      const auto &derived_name = *it;
+      const auto &derived_classes = gTransitiveDerivedClasses[derived_name];
 
-    for (auto &base_name : gBaseClasses[derived_name]) {
-      auto &base_derived_classes = gTransitiveDerivedClasses[base_name];
-      base_derived_classes.insert(derived_name);
-      base_derived_classes.insert(derived_classes.begin(),
-                                  derived_classes.end());
+      for (auto &base_name : gBaseClasses[derived_name]) {
+        auto &base_derived_classes = gTransitiveDerivedClasses[base_name];
+        base_derived_classes.insert(derived_name);
+        base_derived_classes.insert(derived_classes.begin(),
+                                    derived_classes.end());
+      }
     }
-  }
+  };
+
+
+  transitive_rels(gTopologicallyOrderedDecls);
+  transitive_rels(gTopologicallyOrderedTypes);
 
   MapEnumRetTypes();
   MapDeclRetTypes();
+  MapTypeRetTypes();
   GenerateForwardH();
   GenerateDeclH();
   GenerateDeclCpp();
-
+  GenerateTypeH();
   return EXIT_SUCCESS;
 }
 

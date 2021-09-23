@@ -14,6 +14,8 @@
 #include <pasta/Util/Compiler.h>
 #include "Forward.h"
 
+#include "DeclManual.h"
+
 #define PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(base) \
     friend class AST; \
     friend class ASTImpl; \

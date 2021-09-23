@@ -25,7 +25,9 @@ using OMPDeclarativeDirectiveValueDecl = OMPDeclarativeDirective<ValueDecl>;
 }  // namespace clang
 
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/Type.h>
 #include "AST.h"
+#include "Builder.h"
 
 #define PASTA_DEFINE_BASE_OPERATORS(base, derived) \
     std::optional<class derived> derived::From(const class base &that) { \
@@ -75,14 +77,6 @@ using OMPDeclarativeDirectiveValueDecl = OMPDeclarativeDirective<ValueDecl>;
     }
 
 namespace pasta {
-
-class DeclBuilder {
- public:
-  template <typename T, typename D>
-  inline static T Create(std::shared_ptr<ASTImpl> ast_, const D *decl_) {
-    return T(std::move(ast_), decl_);
-  }
-};
 
 DeclVisitor::~DeclVisitor(void) {}
 

@@ -13,9 +13,9 @@
 extern void DefineCppMethods(std::ostream &os, const std::string &class_name,
                              uint32_t class_id);
 
-// Generate `lib/AST/Decl.cpp`.
-void GenerateDeclCpp(void) {
-  std::ofstream os(kASTDeclCpp);
+// Generate `lib/AST/Type.cpp`.
+void GenerateTypeCpp(void) {
+  std::ofstream os(kASTTypeCpp);
   const std::string decl_context{"DeclContext"};
   const auto &derived_from_decl_context =
       gTransitiveDerivedClasses[decl_context];
@@ -25,7 +25,7 @@ void GenerateDeclCpp(void) {
       << " * Copyright (c) 2021 Trail of Bits, Inc.\n"
       << " */\n\n"
       << "// This file is auto-generated.\n\n"
-      << "#define PASTA_IN_DECL_CPP\n"
+      << "#define PASTA_IN_TYPE_CPP\n"
       << "#ifndef PASTA_IN_BOOTSTRAP\n"
       << "#pragma clang diagnostic push\n"
       << "#pragma clang diagnostic ignored \"-Wimplicit-int-conversion\"\n"
@@ -37,7 +37,6 @@ void GenerateDeclCpp(void) {
       << "#include <clang/AST/DeclObjC.h>\n"
       << "#include <clang/AST/DeclOpenMP.h>\n"
       << "#include <clang/AST/DeclTemplate.h>\n"
-      << "#include <clang/Frontend/CompilerInstance.h>\n"
       << "#pragma clang diagnostic pop\n\n"
       << "namespace clang {\n"
       << "using OMPDeclarativeDirectiveDecl = OMPDeclarativeDirective<Decl>;\n"
@@ -50,7 +49,7 @@ void GenerateDeclCpp(void) {
       << "#define PASTA_DEFINE_BASE_OPERATORS(base, derived) \\\n"
       << "    std::optional<class derived> derived::From(const class base &that) { \\\n"
       << "      if (auto decl_ptr = clang::dyn_cast<clang::derived>(that.u.base)) { \\\n"
-      << "        return DeclBuilder::Create<class derived>(that.ast, decl_ptr); \\\n"
+      << "        return TypeBuilder::Create<class derived>(that.ast, decl_ptr); \\\n"
       << "      } else { \\\n"
       << "        return std::nullopt; \\\n"
       << "      } \\\n"
@@ -93,8 +92,8 @@ void GenerateDeclCpp(void) {
       << "    }\n\n"
       << "namespace pasta {\n\n";
 
-  os  << "DeclVisitor::~DeclVisitor(void) {}\n\n"
-      << "void DeclVisitor::Accept(const Decl &decl) {\n"
+  os  << "TypeVisitor::~TypeVisitor(void) {}\n\n"
+      << "void TypeVisitor::Accept(const Type &decl) {\n"
       << "  switch (decl.Kind()) {\n"
       << "#define PASTA_VISIT_DECL(name) \\\n"
       << "    case DeclKind::k ## name: \\\n"

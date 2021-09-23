@@ -51,6 +51,9 @@ void GenerateDeclCpp(void);
 // Generate `include/pasta/AST/Type.h`.
 void GenerateTypeH(void);
 
+// Generate `lib/pasta/AST/Type.cpp`.
+void GenerateTypeCpp(void);
+
 static void InitClassIDs(void) {
 #define PASTA_BEGIN_CLANG_WRAPPER(cls, id) \
     gClassIDs[kClassName_ ## id] = id;

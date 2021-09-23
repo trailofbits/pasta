@@ -382,28 +382,46 @@ MacroGenerator::~MacroGenerator(void) {
 
 bool MacroGenerator::VisitEnumDecl(clang::EnumDecl *decl) {
   const auto ns_dc = decl->getEnclosingNamespaceContext();
-  if (!ns_dc) {
-    return true;
-  }
-  if (!ns_dc->isNamespace()) {
-    return true;
-  }
-
-  const auto ns = clang::NamespaceDecl::castFromDeclContext(ns_dc);
-  if (ns->getName() != "clang") {
-    return true;
-  }
-
-  // Avoid crazy things like diagnostic enums.
-  auto decl_name = decl->getName().str();
-  if (decl_name.empty() || unacceptable_enum_names.count(decl_name)) {
+  if (!ns_dc || !ns_dc->isNamespace()) {
     return true;
   }
 
   // Only record a decl if it's actually the definition. Then we can inspect
   // its enumeration constants.
-  if (auto decl_def = decl->getDefinition(); decl_def) {
-    decl_enums.emplace(std::move(decl_name), decl_def);
+  auto decl_def = decl->getDefinition();
+  if (!decl_def) {
+    return true;
+  }
+
+  if (decl->getName().empty()) {
+    return true;
+  }
+
+  const auto ns = clang::NamespaceDecl::castFromDeclContext(ns_dc);
+
+  // Find top-level enums in the `clang` namespace.
+  if (ns->getName() == "clang") {
+
+    auto decl_name = decl->getName().str();
+
+    // Avoid crazy things like diagnostic enums.
+    if (!unacceptable_enum_names.count(decl_name)) {
+      decl_enums.emplace(std::move(decl_name), decl_def);
+    }
+
+  // Find top-level enums in the `clang::attr` namespace, and prefix them
+  // with `Attribute`.
+  } else if (ns->getName() == "attr") {
+    if (auto ns_ns_dc = ns->getParent(); ns_ns_dc && ns_ns_dc->isNamespace()) {
+      const auto ns_ns = clang::NamespaceDecl::castFromDeclContext(ns_ns_dc);
+      if (ns_ns->getName() == "clang") {
+
+        std::string decl_name = "Attribute" + decl->getName().str();
+        if (!unacceptable_enum_names.count(decl_name)) {
+          decl_enums.emplace(std::move(decl_name), decl_def);
+        }
+      }
+    }
   }
 
   return true;
@@ -411,10 +429,7 @@ bool MacroGenerator::VisitEnumDecl(clang::EnumDecl *decl) {
 
 bool MacroGenerator::VisitCXXRecordDecl(clang::CXXRecordDecl *decl) {
   const auto ns_dc = decl->getEnclosingNamespaceContext();
-  if (!ns_dc) {
-    return true;
-  }
-  if (!ns_dc->isNamespace()) {
+  if (!ns_dc || !ns_dc->isNamespace()) {
     return true;
   }
 

@@ -63,6 +63,10 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   {"Decls", "Declarations"},
   {"attrs", "Attributes"},
   {"Attrs", "Attributes"},
+  {"hasAttr", "HasAttribute"},
+  {"HasAttr", "HasAttribute"},
+  {"attrKind", "AttributeKind"},
+  {"AttrKind", "AttributeKind"},
   {"noload_decls", "AlreadyLoadedDecls"},
   {"Noload_decls", "AlreadyLoadedDecls"},
   {"all_referenced_protocols", "AllReferencedProtocols"},
@@ -112,6 +116,7 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
   {"(clang::Type::ScalarTypeKind)", "::pasta::ScalarTypeKind"},
   {"(clang::QualType::PrimitiveCopyKind)", "::pasta::PrimitiveCopyKind"},
   {"(clang::QualType::PrimitiveDefaultInitializeKind)", "::pasta::PrimitiveDefaultInitializeKind"},
+  {"(clang::attr::Kind)", "::pasta::AttributeKind"},
 
   {"(llvm::Optional<unsigned int>)", "std::optional<unsigned>"},
   {"(llvm::Optional<clang::NullabilityKind>)", "std::optional<::pasta::NullabilityKind>"},
@@ -203,6 +208,9 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
 
   {"(clang::Type::TypeClass)",
    "  return static_cast<::pasta::TypeClass>(val);\n"},
+
+  {"(clang::attr::Kind)",
+   "  return static_cast<::pasta::AttributeKind>(val);\n"},
 
   {"(llvm::StringRef)",
    "  if (auto size = val.size()) {\n"

@@ -36,7 +36,7 @@ std::string CxxName(llvm::StringRef name) {
     return "";
 
   } else if (name.endswith("Loc")) {
-    return name.substr(0, name.size() - 3).str() + "Token";
+    return CxxName(name.substr(0, name.size() - 3).str()) + "Token";
 
   } else if (auto name_it = kCxxMethodRenames.find(name.str());
              name_it != kCxxMethodRenames.end()) {

@@ -166,8 +166,8 @@ class Type {
 
   inline explicit Type(std::shared_ptr<ASTImpl> ast_,
                        const ::clang::Type *type_,
-                       uint32_t qualifiers_,
-                       ::pasta::TypeClass type_class_)
+                       ::pasta::TypeClass type_class_,
+                       uint32_t qualifiers_)
       : ast(std::move(ast_)),
         type_class(type_class_),
         qualifiers(qualifiers_) {
@@ -708,7 +708,7 @@ class AttributedType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AttributedType)
   PASTA_DECLARE_BASE_OPERATORS(Type, AttributedType)
   ::pasta::Type Desugar(void) const;
-  // AttrKind: (clang::attr::Kind)
+  ::pasta::AttributeKind AttributeKind(void) const;
   ::pasta::Type EquivalentType(void) const;
   std::optional<::pasta::NullabilityKind> ImmediateNullability(void) const;
   ::pasta::Type ModifiedType(void) const;

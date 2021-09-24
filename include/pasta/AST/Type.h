@@ -663,7 +663,7 @@ class AdjustedType : public Type {
   PASTA_DECLARE_BASE_OPERATORS(Type, AdjustedType)
   PASTA_DECLARE_DERIVED_OPERATORS(AdjustedType, DecayedType)
   ::pasta::Type Desugar(void) const;
-  ::pasta::Type AdjustedType(void) const;
+  ::pasta::Type ResolvedType(void) const;
   ::pasta::Type OriginalType(void) const;
   bool IsSugared(void) const;
  protected:
@@ -790,7 +790,7 @@ class DecayedType : public AdjustedType {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DecayedType)
   PASTA_DECLARE_BASE_OPERATORS(AdjustedType, DecayedType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DecayedType)
-  ::pasta::Type DecayedType(void) const;
+  ::pasta::Type ResolvedType(void) const;
   ::pasta::Type PointeeType(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DecayedType)
@@ -819,7 +819,7 @@ class DeducedType : public Type {
   PASTA_DECLARE_DERIVED_OPERATORS(DeducedType, AutoType)
   PASTA_DECLARE_DERIVED_OPERATORS(DeducedType, DeducedTemplateSpecializationType)
   ::pasta::Type Desugar(void) const;
-  ::pasta::Type DeducedType(void) const;
+  ::pasta::Type ResolvedType(void) const;
   bool IsDeduced(void) const;
   bool IsSugared(void) const;
  protected:

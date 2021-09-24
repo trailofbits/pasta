@@ -253,9 +253,13 @@ add_library(pasta_compiler STATIC
     "include/pasta/Compile/Job.h"
 
     "lib/AST/AST.cpp"
+    "lib/AST/Builder.cpp"
+    "lib/AST/Builder.h"
     "lib/AST/Decl.cpp"
     "lib/AST/DeclBootstrap.cpp"
     "lib/AST/Token.cpp"
+    "lib/AST/Token.h"
+    "lib/AST/Type.cpp"
     
     "${HOST_H_FILE}"
     "lib/Compile/Command.h"

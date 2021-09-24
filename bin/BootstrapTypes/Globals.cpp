@@ -204,7 +204,7 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
    "  return ast->TokenRangeFrom(val);\n"},
 
   {"(clang::QualType)",
-   "  return TypeBuilder::Build<::pasta::Type>(ast, val);\n"},
+   "  return TypeBuilder::Build(ast, val);\n"},
 
   {"(clang::Type::TypeClass)",
    "  return static_cast<::pasta::TypeClass>(val);\n"},

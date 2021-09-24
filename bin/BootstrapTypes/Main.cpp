@@ -179,6 +179,7 @@ int main(void) {
   GenerateDeclH();
   GenerateDeclCpp();
   GenerateTypeH();
+  GenerateTypeCpp();
   return EXIT_SUCCESS;
 }
 

@@ -16,7 +16,7 @@ extern void DeclareCppMethods(std::ostream &os, const std::string &class_name,
 // Generate `include/pasta/AST/Type.h`.
 void GenerateTypeH(void) {
   std::ofstream os(kASTTypeHeader);
-  const std::string decl_context{"DeclContext"};
+
   os
       << "/*\n"
       << " * Copyright (c) 2021 Trail of Bits, Inc.\n"

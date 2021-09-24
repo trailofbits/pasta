@@ -48,12 +48,14 @@ using OMPDeclarativeDirectiveValueDecl = OMPDeclarativeDirective<ValueDecl>;
         ast = that.ast; \
       } \
       u.Decl = that.u.Decl; \
+      kind = that.kind; \
       return *this; \
     } \
     base &base::operator=(class derived &&that) noexcept { \
       if (this != &that) { \
         ast = std::move(that.ast); \
         u.Decl = that.u.Decl; \
+        kind = that.kind; \
       } \
       return *this; \
     }

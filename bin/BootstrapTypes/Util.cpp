@@ -16,6 +16,11 @@ std::string CxxName(llvm::StringRef name) {
   } else if (name == "getFriendDecl") {
     return "FindFriendDecl";
 
+  } else if (name == "getAdjustedType" ||
+             name == "getDeducedType" ||
+             name == "getDecayedType") {
+    return "ResolvedType";
+
   } else if (name.startswith("get")) {
     return CxxName(name.substr(3));
 

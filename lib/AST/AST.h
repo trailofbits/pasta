@@ -13,6 +13,7 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/AST/Type.h>
 #include <clang/Basic/FileManager.h>
 #include <clang/Lex/Token.h>
 #pragma clang diagnostic pop

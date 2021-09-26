@@ -570,12 +570,6 @@ enum class DeclKind : unsigned {
 #undef PASTA_DECLARE_DECL_KIND
 };
 
-enum class TypeKind : unsigned {
-#define PASTA_DECLARE_TYPE_KIND(name) k ## name ,
-  PASTA_FOR_EACH_TYPE_IMPL(PASTA_DECLARE_TYPE_KIND)
-#undef PASTA_DECLARE_TYPE_KIND
-};
-
 enum class ADLCallKind : bool {
   kNotADL = 0,
   kUsesADL = 1,
@@ -665,7 +659,6 @@ enum class ArraySizeModifier : unsigned int {
 enum class ArrayTypeTrait : unsigned int {
   kArrayRank = 0,
   kArrayExtent = 1,
-  kLast = 1,
 };
 
 enum class AtomicOp : unsigned int {
@@ -1059,22 +1052,6 @@ enum class AttributeKind : unsigned int {
   kRenderScriptKernel = 328,
   kSwiftObjCMembers = 329,
   kThread = 330,
-  kFirstAttr = 0,
-  kLastAttr = 330,
-  kFirstTypeAttr = 0,
-  kLastTypeAttr = 21,
-  kFirstStmtAttr = 22,
-  kLastStmtAttr = 25,
-  kFirstDeclOrStmtAttr = 26,
-  kLastDeclOrStmtAttr = 26,
-  kFirstInheritableAttr = 26,
-  kLastInheritableAttr = 302,
-  kFirstDeclOrTypeAttr = 27,
-  kLastDeclOrTypeAttr = 46,
-  kFirstInheritableParamAttr = 47,
-  kLastInheritableParamAttr = 58,
-  kFirstParameterABIAttr = 47,
-  kLastParameterABIAttr = 49,
 };
 
 enum class AutoTypeKeyword : int {
@@ -1282,15 +1259,12 @@ enum class ComparisonCategoryResult : unsigned char {
   kLess = 2,
   kGreater = 3,
   kUnordered = 4,
-  kLast = 4,
 };
 
 enum class ComparisonCategoryType : unsigned char {
   kPartialOrdering = 0,
   kWeakOrdering = 1,
   kStrongOrdering = 2,
-  kFirst = 0,
-  kLast = 2,
 };
 
 enum class CompilingModuleKind : unsigned int {
@@ -1477,7 +1451,6 @@ enum class ExprValueKind : unsigned int {
 enum class ExpressionTrait : unsigned int {
   kIsLValueExpr = 0,
   kIsRValueExpr = 1,
-  kLast = 1,
 };
 
 enum class ExtKind : unsigned int {
@@ -1563,7 +1536,6 @@ enum class ID : unsigned int {
   kDevice = 2,
   kAllSVMDevices = 3,
   kSubGroup = 4,
-  kLast = 4,
 };
 
 enum class IdentKind : unsigned int {
@@ -1742,7 +1714,6 @@ enum class LangAS : unsigned int {
   kPtr32_sptr = 11,
   kPtr32_uptr = 12,
   kPtr64 = 13,
-  kFirstTargetAddressSpace = 14,
 };
 
 enum class LangFeatures : unsigned int {
@@ -2341,7 +2312,6 @@ enum class RangeExprOffset : int {
 
 enum class RangeLocOffset : int {
   kAssignLoc = 0,
-  kFirstColonLoc = 1,
   kSecondColonLoc = 2,
   kTotal = 3,
 };
@@ -2818,7 +2788,6 @@ enum class SubStmt : unsigned int {
   kResultDecl = 9,
   kReturnStmt = 10,
   kReturnStmtOnAllocFailure = 11,
-  kFirstParamMove = 12,
 };
 
 enum class SyncScope : int {
@@ -2826,7 +2795,6 @@ enum class SyncScope : int {
   kOpenCLDevice = 1,
   kOpenCLAllSVMDevices = 2,
   kOpenCLSubGroup = 3,
-  kLast = 3,
 };
 
 enum class Syntax : unsigned int {
@@ -2992,7 +2960,6 @@ enum class TypeClass : unsigned int {
   kUnresolvedUsing = 49,
   kVector = 50,
   kExtVector = 51,
-  kTypeLast = 51,
 };
 
 enum class TypeDependence : unsigned char {
@@ -3210,7 +3177,6 @@ enum class UnaryExprOrTypeTrait : unsigned int {
   kPreferredAlignOf = 2,
   kVecStep = 3,
   kOpenMPRequiredSimdAlign = 4,
-  kLast = 4,
 };
 
 enum class UnaryOperatorKind : unsigned int {
@@ -3304,6 +3270,60 @@ enum class IsModifiableLvalueResult : unsigned int {
   kClassTemporary = 15,
   kArrayTemporary = 16,
 };
+
+#define PASTA_FOR_EACH_TYPE_CLASS(m) \
+    m(Adjusted) \
+    m(Decayed) \
+    m(ConstantArray) \
+    m(DependentSizedArray) \
+    m(IncompleteArray) \
+    m(VariableArray) \
+    m(Atomic) \
+    m(Attributed) \
+    m(BlockPointer) \
+    m(Builtin) \
+    m(Complex) \
+    m(Decltype) \
+    m(Auto) \
+    m(DeducedTemplateSpecialization) \
+    m(DependentAddressSpace) \
+    m(DependentExtInt) \
+    m(DependentName) \
+    m(DependentSizedExtVector) \
+    m(DependentTemplateSpecialization) \
+    m(DependentVector) \
+    m(Elaborated) \
+    m(ExtInt) \
+    m(FunctionNoProto) \
+    m(FunctionProto) \
+    m(InjectedClassName) \
+    m(MacroQualified) \
+    m(ConstantMatrix) \
+    m(DependentSizedMatrix) \
+    m(MemberPointer) \
+    m(ObjCObjectPointer) \
+    m(ObjCObject) \
+    m(ObjCInterface) \
+    m(ObjCTypeParam) \
+    m(PackExpansion) \
+    m(Paren) \
+    m(Pipe) \
+    m(Pointer) \
+    m(LValueReference) \
+    m(RValueReference) \
+    m(SubstTemplateTypeParmPack) \
+    m(SubstTemplateTypeParm) \
+    m(Enum) \
+    m(Record) \
+    m(TemplateSpecialization) \
+    m(TemplateTypeParm) \
+    m(TypeOfExpr) \
+    m(TypeOf) \
+    m(Typedef) \
+    m(UnaryTransform) \
+    m(UnresolvedUsing) \
+    m(Vector) \
+    m(ExtVector)
 
 class AbstractConditionalOperator;
 class AccessSpecDecl;

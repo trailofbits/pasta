@@ -76,10 +76,10 @@ void GenerateTypeCpp(void) {
       << "void TypeVisitor::Accept(const Type &type) {\n"
       << "  switch (type.TypeClass()) {\n"
       << "#define PASTA_VISIT_TYPE(name) \\\n"
-      << "    case TypeKind::k ## name: \\\n"
+      << "    case TypeClass::k ## name: \\\n"
       << "      Visit ## name ## Type(reinterpret_cast<const name ## Type &>(type)); \\\n"
       << "      break;\n\n"
-      << "    PASTA_FOR_EACH_TYPE_IMPL(PASTA_VISIT_TYPE)\n"
+      << "    PASTA_FOR_EACH_TYPE_CLASS(PASTA_VISIT_TYPE)\n"
       << "#undef PASTA_VISIT_TYPE\n"
       << "  }\n"
       << "}\n\n";

@@ -4,6 +4,8 @@
 
 #include "Globals.h"
 
+std::unordered_map<std::string, std::vector<std::string>> gEnumerators;
+
 const std::vector<llvm::StringRef> kAllClassNames{
 #define PASTA_BEGIN_CLANG_WRAPPER(name, id) PASTA_STR(name) ,
 #include "Generated.h"

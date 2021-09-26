@@ -8,6 +8,8 @@
 
 namespace pasta {
 
+enum class TypeClass : unsigned int;
+
 class DeclBuilder {
  public:
   template <typename T, typename D>
@@ -18,20 +20,14 @@ class DeclBuilder {
 
 class TypeBuilder {
  public:
-  static pasta::Type Build(std::shared_ptr<ASTImpl> ast_,
-                           clang::QualType type) {
-    if (auto type_ptr = type.getTypePtrOrNull()) {
-      return pasta::Type(
-          std::move(ast_), type_ptr,
-          static_cast<TypeClass>(type_ptr->getTypeClass()),
-          type.getQualifiers().getAsOpaqueValue());
-    }
-    __builtin_unreachable();
-  }
+#ifndef PASTA_IN_BOOTSTRAP
+  static Type Build(std::shared_ptr<ASTImpl> ast_, clang::QualType type);
+#endif
 
   template <typename T, typename D>
   inline static T Create(std::shared_ptr<ASTImpl> ast_, const D *type_) {
-    return T(std::move(ast_), type_);
+    return T(std::move(ast_), type_,
+             static_cast<TypeClass>(type_->getTypeClass()), 0);
   }
 };
 

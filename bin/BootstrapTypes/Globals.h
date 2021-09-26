@@ -61,6 +61,7 @@ extern std::vector<std::string> gTopologicallyOrderedTypes;
 extern std::unordered_map<std::string, std::set<std::string>> gTransitiveBaseClasses;
 extern std::unordered_map<std::string, std::set<std::string>> gTransitiveDerivedClasses;
 
+extern std::unordered_map<std::string, std::vector<std::string>> gEnumerators;
 
 #define PASTA_BEGIN_CLANG_WRAPPER(cls, id) \
   extern const std::string kClassName_ ## id;

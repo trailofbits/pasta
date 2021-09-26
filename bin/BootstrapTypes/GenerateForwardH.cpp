@@ -81,15 +81,25 @@ void GenerateForwardH(void) {
       << "#define PASTA_DECLARE_DECL_KIND(name) k ## name ,\n"
       << "  PASTA_FOR_EACH_DECL_IMPL(PASTA_DECLARE_DECL_KIND)\n"
       << "#undef PASTA_DECLARE_DECL_KIND\n"
-      << "};\n\n"
-      << "enum class TypeKind : unsigned {\n"
-      << "#define PASTA_DECLARE_TYPE_KIND(name) k ## name ,\n"
-      << "  PASTA_FOR_EACH_TYPE_IMPL(PASTA_DECLARE_TYPE_KIND)\n"
-      << "#undef PASTA_DECLARE_TYPE_KIND\n"
       << "};\n\n";
+//      << "enum class TypeKind : unsigned {\n"
+//      << "#define PASTA_DECLARE_TYPE_KIND(name) k ## name ,\n"
+//      << "  PASTA_FOR_EACH_TYPE_IMPL(PASTA_DECLARE_TYPE_KIND)\n"
+//      << "#undef PASTA_DECLARE_TYPE_KIND\n"
+//      << "};\n\n";
 
   // Declare all of the enums.
   DeclareEnums(os);
+
+  os
+      << "#define PASTA_FOR_EACH_TYPE_CLASS(m) \\\n";
+  sep = "";
+  for (const std::string &type_class : gEnumerators["TypeClass"]) {
+    os << sep << "    m(" << type_class << ")";
+    sep = " \\\n";
+  }
+
+  os << "\n\n";
 
   // Forward declare them all.
   for (const auto &name : kAllClassNames) {

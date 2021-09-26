@@ -61,6 +61,7 @@ void GenerateTypeH(void) {
       << "// Wraps a type, including its qualifiers.\n"
       << "class Type {\n"
       << " protected:\n"
+      << "  friend class TypeBuilder;\n\n"
       << "  std::shared_ptr<ASTImpl> ast;\n"
       << "  union {\n";
   for (const auto &name : gTopologicallyOrderedTypes) {
@@ -140,6 +141,8 @@ void GenerateTypeH(void) {
     os
         << " private:\n";
     for (const auto &parent_class : gBaseClasses[name]) {
+      os << "  using " << parent_class << "::" << parent_class << ";\n";
+
       if (parent_class != "Type") {
         os << "  using " << parent_class << "::From;\n";
       }

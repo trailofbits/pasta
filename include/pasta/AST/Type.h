@@ -97,6 +97,8 @@ class TypeVisitor {
 // Wraps a type, including its qualifiers.
 class Type {
  protected:
+  friend class TypeBuilder;
+
   std::shared_ptr<ASTImpl> ast;
   union {
     const ::clang::Type *Type;
@@ -561,6 +563,7 @@ class Type {
 
 class TypeOfExprType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TypeOfExprType)
   PASTA_DECLARE_BASE_OPERATORS(Type, TypeOfExprType)
@@ -574,6 +577,7 @@ static_assert(sizeof(Type) == sizeof(TypeOfExprType));
 
 class TypeOfType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TypeOfType)
   PASTA_DECLARE_BASE_OPERATORS(Type, TypeOfType)
@@ -587,6 +591,7 @@ static_assert(sizeof(Type) == sizeof(TypeOfType));
 
 class TypedefType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TypedefType)
   PASTA_DECLARE_BASE_OPERATORS(Type, TypedefType)
@@ -600,6 +605,7 @@ static_assert(sizeof(Type) == sizeof(TypedefType));
 
 class UnaryTransformType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UnaryTransformType)
   PASTA_DECLARE_BASE_OPERATORS(Type, UnaryTransformType)
@@ -615,6 +621,7 @@ static_assert(sizeof(Type) == sizeof(UnaryTransformType));
 
 class UnresolvedUsingType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UnresolvedUsingType)
   PASTA_DECLARE_BASE_OPERATORS(Type, UnresolvedUsingType)
@@ -628,6 +635,7 @@ static_assert(sizeof(Type) == sizeof(UnresolvedUsingType));
 
 class VectorType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(VectorType)
   PASTA_DECLARE_BASE_OPERATORS(Type, VectorType)
@@ -644,6 +652,7 @@ static_assert(sizeof(Type) == sizeof(VectorType));
 
 class TypeWithKeyword : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TypeWithKeyword)
   PASTA_DECLARE_BASE_OPERATORS(Type, TypeWithKeyword)
@@ -658,6 +667,7 @@ static_assert(sizeof(Type) == sizeof(TypeWithKeyword));
 
 class AdjustedType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AdjustedType)
   PASTA_DECLARE_BASE_OPERATORS(Type, AdjustedType)
@@ -673,6 +683,7 @@ static_assert(sizeof(Type) == sizeof(AdjustedType));
 
 class ArrayType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ArrayType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ArrayType)
@@ -691,6 +702,7 @@ static_assert(sizeof(Type) == sizeof(ArrayType));
 
 class AtomicType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AtomicType)
   PASTA_DECLARE_BASE_OPERATORS(Type, AtomicType)
@@ -704,6 +716,7 @@ static_assert(sizeof(Type) == sizeof(AtomicType));
 
 class AttributedType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AttributedType)
   PASTA_DECLARE_BASE_OPERATORS(Type, AttributedType)
@@ -723,6 +736,7 @@ static_assert(sizeof(Type) == sizeof(AttributedType));
 
 class BlockPointerType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(BlockPointerType)
   PASTA_DECLARE_BASE_OPERATORS(Type, BlockPointerType)
@@ -736,6 +750,7 @@ static_assert(sizeof(Type) == sizeof(BlockPointerType));
 
 class BuiltinType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(BuiltinType)
   PASTA_DECLARE_BASE_OPERATORS(Type, BuiltinType)
@@ -756,6 +771,7 @@ static_assert(sizeof(Type) == sizeof(BuiltinType));
 
 class ComplexType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ComplexType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ComplexType)
@@ -769,6 +785,7 @@ static_assert(sizeof(Type) == sizeof(ComplexType));
 
 class ConstantArrayType : public ArrayType {
  private:
+  using ArrayType::ArrayType;
   using ArrayType::From;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ConstantArrayType)
@@ -785,6 +802,7 @@ static_assert(sizeof(Type) == sizeof(ConstantArrayType));
 
 class DecayedType : public AdjustedType {
  private:
+  using AdjustedType::AdjustedType;
   using AdjustedType::From;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DecayedType)
@@ -799,6 +817,7 @@ static_assert(sizeof(Type) == sizeof(DecayedType));
 
 class DecltypeType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DecltypeType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DecltypeType)
@@ -813,6 +832,7 @@ static_assert(sizeof(Type) == sizeof(DecltypeType));
 
 class DeducedType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DeducedType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DeducedType)
@@ -829,6 +849,7 @@ static_assert(sizeof(Type) == sizeof(DeducedType));
 
 class DependentAddressSpaceType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentAddressSpaceType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DependentAddressSpaceType)
@@ -844,6 +865,7 @@ static_assert(sizeof(Type) == sizeof(DependentAddressSpaceType));
 
 class DependentExtIntType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentExtIntType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DependentExtIntType)
@@ -859,6 +881,7 @@ static_assert(sizeof(Type) == sizeof(DependentExtIntType));
 
 class DependentNameType : public TypeWithKeyword {
  private:
+  using TypeWithKeyword::TypeWithKeyword;
   using TypeWithKeyword::From;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentNameType)
@@ -875,6 +898,7 @@ static_assert(sizeof(Type) == sizeof(DependentNameType));
 
 class DependentSizedArrayType : public ArrayType {
  private:
+  using ArrayType::ArrayType;
   using ArrayType::From;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentSizedArrayType)
@@ -893,6 +917,7 @@ static_assert(sizeof(Type) == sizeof(DependentSizedArrayType));
 
 class DependentSizedExtVectorType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentSizedExtVectorType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DependentSizedExtVectorType)
@@ -908,6 +933,7 @@ static_assert(sizeof(Type) == sizeof(DependentSizedExtVectorType));
 
 class DependentTemplateSpecializationType : public TypeWithKeyword {
  private:
+  using TypeWithKeyword::TypeWithKeyword;
   using TypeWithKeyword::From;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentTemplateSpecializationType)
@@ -930,6 +956,7 @@ static_assert(sizeof(Type) == sizeof(DependentTemplateSpecializationType));
 
 class DependentVectorType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentVectorType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DependentVectorType)
@@ -946,6 +973,7 @@ static_assert(sizeof(Type) == sizeof(DependentVectorType));
 
 class ElaboratedType : public TypeWithKeyword {
  private:
+  using TypeWithKeyword::TypeWithKeyword;
   using TypeWithKeyword::From;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ElaboratedType)
@@ -963,6 +991,7 @@ static_assert(sizeof(Type) == sizeof(ElaboratedType));
 
 class ExtIntType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ExtIntType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ExtIntType)
@@ -978,6 +1007,7 @@ static_assert(sizeof(Type) == sizeof(ExtIntType));
 
 class ExtVectorType : public VectorType {
  private:
+  using VectorType::VectorType;
   using VectorType::From;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ExtVectorType)
@@ -993,6 +1023,7 @@ static_assert(sizeof(Type) == sizeof(ExtVectorType));
 
 class FunctionType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(FunctionType)
   PASTA_DECLARE_BASE_OPERATORS(Type, FunctionType)
@@ -1016,6 +1047,7 @@ static_assert(sizeof(Type) == sizeof(FunctionType));
 
 class IncompleteArrayType : public ArrayType {
  private:
+  using ArrayType::ArrayType;
   using ArrayType::From;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(IncompleteArrayType)
@@ -1030,6 +1062,7 @@ static_assert(sizeof(Type) == sizeof(IncompleteArrayType));
 
 class InjectedClassNameType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(InjectedClassNameType)
   PASTA_DECLARE_BASE_OPERATORS(Type, InjectedClassNameType)
@@ -1046,6 +1079,7 @@ static_assert(sizeof(Type) == sizeof(InjectedClassNameType));
 
 class MacroQualifiedType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MacroQualifiedType)
   PASTA_DECLARE_BASE_OPERATORS(Type, MacroQualifiedType)
@@ -1061,6 +1095,7 @@ static_assert(sizeof(Type) == sizeof(MacroQualifiedType));
 
 class MatrixType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MatrixType)
   PASTA_DECLARE_BASE_OPERATORS(Type, MatrixType)
@@ -1076,6 +1111,7 @@ static_assert(sizeof(Type) == sizeof(MatrixType));
 
 class MemberPointerType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MemberPointerType)
   PASTA_DECLARE_BASE_OPERATORS(Type, MemberPointerType)
@@ -1093,6 +1129,7 @@ static_assert(sizeof(Type) == sizeof(MemberPointerType));
 
 class ObjCObjectPointerType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCObjectPointerType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ObjCObjectPointerType)
@@ -1126,6 +1163,7 @@ static_assert(sizeof(Type) == sizeof(ObjCObjectPointerType));
 
 class ObjCObjectType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCObjectType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ObjCObjectType)
@@ -1158,6 +1196,7 @@ static_assert(sizeof(Type) == sizeof(ObjCObjectType));
 
 class ObjCTypeParamType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCTypeParamType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ObjCTypeParamType)
@@ -1171,6 +1210,7 @@ static_assert(sizeof(Type) == sizeof(ObjCTypeParamType));
 
 class PackExpansionType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PackExpansionType)
   PASTA_DECLARE_BASE_OPERATORS(Type, PackExpansionType)
@@ -1185,6 +1225,7 @@ static_assert(sizeof(Type) == sizeof(PackExpansionType));
 
 class ParenType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ParenType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ParenType)
@@ -1198,6 +1239,7 @@ static_assert(sizeof(Type) == sizeof(ParenType));
 
 class PipeType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PipeType)
   PASTA_DECLARE_BASE_OPERATORS(Type, PipeType)
@@ -1212,6 +1254,7 @@ static_assert(sizeof(Type) == sizeof(PipeType));
 
 class PointerType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PointerType)
   PASTA_DECLARE_BASE_OPERATORS(Type, PointerType)
@@ -1225,6 +1268,7 @@ static_assert(sizeof(Type) == sizeof(PointerType));
 
 class ReferenceType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ReferenceType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ReferenceType)
@@ -1241,6 +1285,7 @@ static_assert(sizeof(Type) == sizeof(ReferenceType));
 
 class SubstTemplateTypeParmPackType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SubstTemplateTypeParmPackType)
   PASTA_DECLARE_BASE_OPERATORS(Type, SubstTemplateTypeParmPackType)
@@ -1257,6 +1302,7 @@ static_assert(sizeof(Type) == sizeof(SubstTemplateTypeParmPackType));
 
 class SubstTemplateTypeParmType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SubstTemplateTypeParmType)
   PASTA_DECLARE_BASE_OPERATORS(Type, SubstTemplateTypeParmType)
@@ -1271,6 +1317,7 @@ static_assert(sizeof(Type) == sizeof(SubstTemplateTypeParmType));
 
 class TagType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TagType)
   PASTA_DECLARE_BASE_OPERATORS(Type, TagType)
@@ -1285,6 +1332,7 @@ static_assert(sizeof(Type) == sizeof(TagType));
 
 class TemplateSpecializationType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TemplateSpecializationType)
   PASTA_DECLARE_BASE_OPERATORS(Type, TemplateSpecializationType)
@@ -1307,6 +1355,7 @@ static_assert(sizeof(Type) == sizeof(TemplateSpecializationType));
 
 class TemplateTypeParmType : public Type {
  private:
+  using Type::Type;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TemplateTypeParmType)
   PASTA_DECLARE_BASE_OPERATORS(Type, TemplateTypeParmType)
@@ -1324,6 +1373,7 @@ static_assert(sizeof(Type) == sizeof(TemplateTypeParmType));
 
 class VariableArrayType : public ArrayType {
  private:
+  using ArrayType::ArrayType;
   using ArrayType::From;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(VariableArrayType)
@@ -1342,6 +1392,7 @@ static_assert(sizeof(Type) == sizeof(VariableArrayType));
 
 class AutoType : public DeducedType {
  private:
+  using DeducedType::DeducedType;
   using DeducedType::From;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AutoType)
@@ -1362,6 +1413,7 @@ static_assert(sizeof(Type) == sizeof(AutoType));
 
 class ConstantMatrixType : public MatrixType {
  private:
+  using MatrixType::MatrixType;
   using MatrixType::From;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ConstantMatrixType)
@@ -1377,6 +1429,7 @@ static_assert(sizeof(Type) == sizeof(ConstantMatrixType));
 
 class DeducedTemplateSpecializationType : public DeducedType {
  private:
+  using DeducedType::DeducedType;
   using DeducedType::From;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DeducedTemplateSpecializationType)
@@ -1390,6 +1443,7 @@ static_assert(sizeof(Type) == sizeof(DeducedTemplateSpecializationType));
 
 class DependentSizedMatrixType : public MatrixType {
  private:
+  using MatrixType::MatrixType;
   using MatrixType::From;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentSizedMatrixType)
@@ -1408,6 +1462,7 @@ static_assert(sizeof(Type) == sizeof(DependentSizedMatrixType));
 
 class EnumType : public TagType {
  private:
+  using TagType::TagType;
   using TagType::From;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(EnumType)
@@ -1423,6 +1478,7 @@ static_assert(sizeof(Type) == sizeof(EnumType));
 
 class FunctionNoProtoType : public FunctionType {
  private:
+  using FunctionType::FunctionType;
   using FunctionType::From;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(FunctionNoProtoType)
@@ -1437,6 +1493,7 @@ static_assert(sizeof(Type) == sizeof(FunctionNoProtoType));
 
 class FunctionProtoType : public FunctionType {
  private:
+  using FunctionType::FunctionType;
   using FunctionType::From;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(FunctionProtoType)
@@ -1483,6 +1540,7 @@ static_assert(sizeof(Type) == sizeof(FunctionProtoType));
 
 class LValueReferenceType : public ReferenceType {
  private:
+  using ReferenceType::ReferenceType;
   using ReferenceType::From;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(LValueReferenceType)
@@ -1497,6 +1555,7 @@ static_assert(sizeof(Type) == sizeof(LValueReferenceType));
 
 class ObjCInterfaceType : public ObjCObjectType {
  private:
+  using ObjCObjectType::ObjCObjectType;
   using ObjCObjectType::From;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCInterfaceType)
@@ -1512,6 +1571,7 @@ static_assert(sizeof(Type) == sizeof(ObjCInterfaceType));
 
 class RValueReferenceType : public ReferenceType {
  private:
+  using ReferenceType::ReferenceType;
   using ReferenceType::From;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(RValueReferenceType)
@@ -1526,6 +1586,7 @@ static_assert(sizeof(Type) == sizeof(RValueReferenceType));
 
 class RecordType : public TagType {
  private:
+  using TagType::TagType;
   using TagType::From;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(RecordType)

@@ -10,7 +10,9 @@ std::string Capitalize(llvm::StringRef name) {
 }
 
 std::string CxxName(llvm::StringRef name) {
-  if (name == "getKind" || name == "getDeclKindName" || name == "asOpaquePtr") {
+  if (name == "getKind" || name == "getDeclKindName" || name == "asOpaquePtr" ||
+      name == "getTypePtr" || name == "getTypePtrOrNull" ||
+      name == "getAsOpaquePtr" || name == "getUnqualifiedType") {
     return "";  // We have our own `DeclKind`.
 
   } else if (name == "getFriendDecl") {

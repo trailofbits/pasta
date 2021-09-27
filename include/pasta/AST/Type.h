@@ -489,10 +489,11 @@ class Type {
   inline bool IsQualified(void) const noexcept {
     return qualifiers;
   }
-
+  inline Type UnqualifiedType(void) const noexcept {
+    return Type(ast, u.Type, type_class, 0);
+  }
   ::pasta::Type IgnoreParens(void) const;
   enum LangAS AddressSpace(void) const;
-  // AsOpaquePtr: (void *)
   ::pasta::Type AtomicUnqualifiedType(void) const;
   // BaseTypeIdentifier: (const clang::IdentifierInfo *)
   uint32_t CVRQualifiers(void) const;
@@ -511,9 +512,6 @@ class Type {
   ::pasta::Type SingleStepDesugaredType(void) const;
   // SplitDesugaredType: (clang::SplitQualType)
   // SplitUnqualifiedType: (clang::SplitQualType)
-  ::pasta::Type TypePtr(void) const;
-  ::pasta::Type TypePtrOrNull(void) const;
-  ::pasta::Type UnqualifiedType(void) const;
   bool HasAddressSpace(void) const;
   bool HasLocalNonFastQualifiers(void) const;
   bool HasLocalQualifiers(void) const;

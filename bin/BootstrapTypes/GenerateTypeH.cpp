@@ -115,7 +115,10 @@ void GenerateTypeH(void) {
   os
       << "  inline bool IsQualified(void) const noexcept {\n"
       << "    return qualifiers;\n"
-      << "  }\n\n";
+      << "  }\n"
+      << "  inline Type UnqualifiedType(void) const noexcept {\n"
+      << "    return Type(ast, u.Type, type_class, 0);\n"
+      << "  }\n";
 
   DeclareCppMethods(os, qual_type, gClassIDs[qual_type]);
 

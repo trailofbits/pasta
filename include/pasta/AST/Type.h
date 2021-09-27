@@ -486,6 +486,10 @@ class Type {
   bool IsVoidPointerType(void) const;
   bool IsVoidType(void) const;
   bool IsWideCharType(void) const;
+  inline bool IsQualified(void) const noexcept {
+    return qualifiers;
+  }
+
   ::pasta::Type IgnoreParens(void) const;
   enum LangAS AddressSpace(void) const;
   // AsOpaquePtr: (void *)

@@ -100,6 +100,8 @@ void GenerateTypeCpp(void) {
 
 //  DefineCppMethods(os, decl_context, gClassIDs[decl_context]);
 
+  const std::string qual_type{"QualType"};
+
   // Define them all.
   for (const auto &name : gTopologicallyOrderedTypes) {
     llvm::StringRef name_ref(name);
@@ -130,6 +132,11 @@ void GenerateTypeCpp(void) {
          << name << ", " << derived_class << ")\n";
     }
     DefineCppMethods(os, name, gClassIDs[name]);
+
+    // Put the `QualType` methods after the `Type` ones.
+    if (name == "Type") {
+      DefineCppMethods(os, qual_type, gClassIDs[qual_type]);
+    }
   }
 
   os

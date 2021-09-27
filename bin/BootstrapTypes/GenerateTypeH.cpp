@@ -112,6 +112,11 @@ void GenerateTypeH(void) {
     }
   }
   DeclareCppMethods(os, type, gClassIDs[type]);
+  os
+      << "  inline bool IsQualified(void) const noexcept {\n"
+      << "    return qualifiers;\n"
+      << "  }\n\n";
+
   DeclareCppMethods(os, qual_type, gClassIDs[qual_type]);
 
   os << "};";

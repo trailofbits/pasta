@@ -8,20 +8,24 @@
 #include "Globals.h"
 #include "Util.h"
 
+static const std::string gTypeClassName{"Type"};
+
 #define PASTA_INSTANCE_METHOD_0(cls, id, meth_id, meth, rt) \
     [[gnu::noinline]] \
     static void DefineCppMethod_ ## id ## _ ## meth_id( \
         std::ostream &os, const std::string &class_name) { \
+      const auto is_qual_type = class_name == "QualType"; \
+      const auto &real_class_name = is_qual_type ? gTypeClassName : class_name; \
       const auto meth_name = CxxName(PASTA_STR(meth)); \
       if (meth_name.empty()) { \
-        os << "// 0: " << class_name << "::" << meth_name << "\n"; \
+        os << "// 0: " << real_class_name << "::" << meth_name << "\n"; \
         return; \
       } \
       auto &rt_type = gRetTypeMap[PASTA_STR(rt)]; \
       auto &rt_val = gRetTypeToValMap[PASTA_STR(rt)]; \
       llvm::StringRef rt_ref(PASTA_STR(rt)); \
       if (rt_type.empty() || rt_val.empty()) { \
-        os << "// 0: " << class_name << "::" << meth_name << "\n"; \
+        os << "// 0: " << real_class_name << "::" << meth_name << "\n"; \
         return; \
       } \
       const auto can_ret_null = kCanReturnNullptr.count(\
@@ -31,8 +35,15 @@
       } else { \
         os << rt_type; \
       } \
-      os << " " << class_name << "::" << meth_name << "(void) const {\n" \
-         << "  auto val = u." << class_name << "->" << PASTA_STR(meth) << "();\n" \
+      os << " " << real_class_name << "::" << meth_name << "(void) const {\n"; \
+      if (is_qual_type) { \
+        os << "  auto &ast_ctx = ast->ci->getASTContext();\n" \
+           << "  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);\n" \
+           << "  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));\n"; \
+      } else { \
+        os << "  auto &self = *(u." << class_name << ");\n"; \
+      } \
+      os << "  auto val = self." << PASTA_STR(meth) << "();\n" \
          << rt_val; \
       if (rt_ref.endswith(" *)")) { \
         if (can_ret_null) { \
@@ -50,20 +61,22 @@
     [[gnu::noinline]] \
     static void DefineCppMethod_ ## id ## _ ## meth_id( \
         std::ostream &os, const std::string &class_name) { \
+      const auto is_qual_type = class_name == "QualType"; \
+      const auto &real_class_name = is_qual_type ? gTypeClassName : class_name; \
       const auto meth_name = CxxName(PASTA_STR(meth)); \
       if (meth_name.empty()) { \
-        os << "// 0: " << class_name << "::" << meth_name << "\n"; \
+        os << "// 1: " << real_class_name << "::" << meth_name << "\n"; \
         return; \
       } \
       auto &rt_type = gRetTypeMap[PASTA_STR(rt)]; \
       auto &rt_val = gRetTypeToValMap[PASTA_STR(rt)]; \
       llvm::StringRef rt_ref(PASTA_STR(rt)); \
       if (rt_type.empty() || rt_val.empty()) { \
-        os << "// 0: " << class_name << "::" << meth_name << "\n"; \
+        os << "// 1: " << real_class_name << "::" << meth_name << "\n"; \
         return; \
       } \
       if (strcmp(PASTA_STR(p0), "(const clang::ASTContext &)")) { \
-        os << "// 0: " << class_name << "::" << meth_name << "\n"; \
+        os << "// 1: " << real_class_name << "::" << meth_name << "\n"; \
         return; \
       } else { \
         const auto can_ret_null = kCanReturnNullptr.count(\
@@ -73,8 +86,15 @@
         } else { \
           os << rt_type; \
         } \
-        os << " " << class_name << "::" << meth_name << "(void) const {\n" \
-           << "  auto val = u." << class_name << "->" << PASTA_STR(meth) << "(ast->ci->getASTContext());\n" \
+        os << " " << real_class_name << "::" << meth_name << "(void) const {\n"; \
+        if (is_qual_type) { \
+          os << "  auto &ast_ctx = ast->ci->getASTContext();\n" \
+             << "  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);\n" \
+             << "  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));\n"; \
+        } else { \
+          os << "  auto &self = *(u." << class_name << ");\n"; \
+        } \
+        os << "  auto val = self." << PASTA_STR(meth) << "(ast->ci->getASTContext());\n" \
            << rt_val; \
         if (rt_ref.endswith(" *)")) { \
           if (can_ret_null) { \

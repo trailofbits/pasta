@@ -5,6 +5,24 @@
 #pragma once
 
 #include <type_traits>
+#include <optional>
+
+#define PASTA_DECLARE_BASE_OPERATORS(base, derived) \
+    static std::optional<class derived> From(const class base &);
+
+#define PASTA_DECLARE_DERIVED_OPERATORS(base, derived) \
+    friend class derived; \
+    base(const class derived &that_); \
+    base(class derived &&that_) noexcept;  \
+    base &operator=(const class derived &);  \
+    base &operator=(class derived &&) noexcept;
+
+#define PASTA_DECLARE_DEFAULT_CONSTRUCTORS(cls) \
+    ~cls(void) = default; \
+    cls(const cls &) = default; \
+    cls(cls &&) noexcept = default; \
+    cls &operator=(const cls &) = default; \
+    cls &operator=(cls &&) noexcept = default;
 
 namespace pasta {
 namespace detail {

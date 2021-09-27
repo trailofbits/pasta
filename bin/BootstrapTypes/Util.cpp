@@ -10,11 +10,18 @@ std::string Capitalize(llvm::StringRef name) {
 }
 
 std::string CxxName(llvm::StringRef name) {
-  if (name == "getKind" || name == "getDeclKindName") {
+  if (name == "getKind" || name == "getDeclKindName" || name == "asOpaquePtr" ||
+      name == "getTypePtr" || name == "getTypePtrOrNull" ||
+      name == "getAsOpaquePtr" || name == "getUnqualifiedType") {
     return "";  // We have our own `DeclKind`.
 
   } else if (name == "getFriendDecl") {
     return "FindFriendDecl";
+
+  } else if (name == "getAdjustedType" ||
+             name == "getDeducedType" ||
+             name == "getDecayedType") {
+    return "ResolvedType";
 
   } else if (name.startswith("get")) {
     return CxxName(name.substr(3));
@@ -36,7 +43,7 @@ std::string CxxName(llvm::StringRef name) {
     return "";
 
   } else if (name.endswith("Loc")) {
-    return name.substr(0, name.size() - 3).str() + "Token";
+    return CxxName(name.substr(0, name.size() - 3).str()) + "Token";
 
   } else if (auto name_it = kCxxMethodRenames.find(name.str());
              name_it != kCxxMethodRenames.end()) {

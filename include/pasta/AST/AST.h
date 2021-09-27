@@ -11,6 +11,7 @@
 
 #include "Decl.h"
 #include "Token.h"
+#include "Type.h"
 
 #include <pasta/Util/File.h>
 
@@ -24,6 +25,7 @@ class ASTImpl;
 class CompileJob;
 class Compiler;
 class Decl;
+class Type;
 
 // Abstraction around a Clang AST and the various data structures that need to
 // be retained in order to use it.

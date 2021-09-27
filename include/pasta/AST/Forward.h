@@ -326,6 +326,7 @@ class PragmaCommentDecl;
 class PragmaDetectMismatchDecl;
 class PredefinedExpr;
 class PseudoObjectExpr;
+class QualType;
 class RValueReferenceType;
 class RecordDecl;
 class RecordType;
@@ -370,6 +371,7 @@ class TypeOfExprType;
 class TypeOfType;
 class TypeSourceInfo;
 class TypeTraitExpr;
+class TypeWithKeyword;
 class TypedefDecl;
 class TypedefNameDecl;
 class TypedefType;
@@ -559,18 +561,13 @@ class TypeBuilder;
     m(UnaryTransform) \
     m(UnresolvedUsing) \
     m(VariableArray) \
-    m(Vector)
+    m(Vector) \
+    m(TypeWithKey)
 
 enum class DeclKind : unsigned {
 #define PASTA_DECLARE_DECL_KIND(name) k ## name ,
   PASTA_FOR_EACH_DECL_IMPL(PASTA_DECLARE_DECL_KIND)
 #undef PASTA_DECLARE_DECL_KIND
-};
-
-enum class TypeKind : unsigned {
-#define PASTA_DECLARE_TYPE_KIND(name) k ## name ,
-  PASTA_FOR_EACH_TYPE_IMPL(PASTA_DECLARE_TYPE_KIND)
-#undef PASTA_DECLARE_TYPE_KIND
 };
 
 enum class ADLCallKind : bool {
@@ -662,7 +659,6 @@ enum class ArraySizeModifier : unsigned int {
 enum class ArrayTypeTrait : unsigned int {
   kArrayRank = 0,
   kArrayExtent = 1,
-  kLast = 1,
 };
 
 enum class AtomicOp : unsigned int {
@@ -722,6 +718,340 @@ enum class AtomicOp : unsigned int {
 enum class AtomicScopeModelKind : int {
   kNone = 0,
   kOpenCL = 1,
+};
+
+enum class AttributeKind : unsigned int {
+  kAddressSpace = 0,
+  kArmMveStrictPolymorphism = 1,
+  kCmseNSCall = 2,
+  kNoDeref = 3,
+  kObjCGC = 4,
+  kObjCInertUnsafeUnretained = 5,
+  kObjCKindOf = 6,
+  kOpenCLConstantAddressSpace = 7,
+  kOpenCLGenericAddressSpace = 8,
+  kOpenCLGlobalAddressSpace = 9,
+  kOpenCLGlobalDeviceAddressSpace = 10,
+  kOpenCLGlobalHostAddressSpace = 11,
+  kOpenCLLocalAddressSpace = 12,
+  kOpenCLPrivateAddressSpace = 13,
+  kPtr32 = 14,
+  kPtr64 = 15,
+  kSPtr = 16,
+  kTypeNonNull = 17,
+  kTypeNullUnspecified = 18,
+  kTypeNullable = 19,
+  kTypeNullableResult = 20,
+  kUPtr = 21,
+  kFallThrough = 22,
+  kLikely = 23,
+  kSuppress = 24,
+  kUnlikely = 25,
+  kNoMerge = 26,
+  kAArch64VectorPcs = 27,
+  kAcquireHandle = 28,
+  kAnyX86NoCfCheck = 29,
+  kCDecl = 30,
+  kFastCall = 31,
+  kIntelOclBicc = 32,
+  kLifetimeBound = 33,
+  kMSABI = 34,
+  kNSReturnsRetained = 35,
+  kObjCOwnership = 36,
+  kPascal = 37,
+  kPcs = 38,
+  kPreserveAll = 39,
+  kPreserveMost = 40,
+  kRegCall = 41,
+  kStdCall = 42,
+  kSwiftCall = 43,
+  kSysVABI = 44,
+  kThisCall = 45,
+  kVectorCall = 46,
+  kSwiftContext = 47,
+  kSwiftErrorResult = 48,
+  kSwiftIndirectResult = 49,
+  kAnnotate = 50,
+  kCFConsumed = 51,
+  kCarriesDependency = 52,
+  kNSConsumed = 53,
+  kNonNull = 54,
+  kOSConsumed = 55,
+  kPassObjectSize = 56,
+  kReleaseHandle = 57,
+  kUseHandle = 58,
+  kAMDGPUFlatWorkGroupSize = 59,
+  kAMDGPUNumSGPR = 60,
+  kAMDGPUNumVGPR = 61,
+  kAMDGPUWavesPerEU = 62,
+  kARMInterrupt = 63,
+  kAVRInterrupt = 64,
+  kAVRSignal = 65,
+  kAcquireCapability = 66,
+  kAcquiredAfter = 67,
+  kAcquiredBefore = 68,
+  kAlignMac68k = 69,
+  kAlignNatural = 70,
+  kAligned = 71,
+  kAllocAlign = 72,
+  kAllocSize = 73,
+  kAlwaysDestroy = 74,
+  kAlwaysInline = 75,
+  kAnalyzerNoReturn = 76,
+  kAnyX86Interrupt = 77,
+  kAnyX86NoCallerSavedRegisters = 78,
+  kArcWeakrefUnavailable = 79,
+  kArgumentWithTypeTag = 80,
+  kArmBuiltinAlias = 81,
+  kArtificial = 82,
+  kAsmLabel = 83,
+  kAssertCapability = 84,
+  kAssertExclusiveLock = 85,
+  kAssertSharedLock = 86,
+  kAssumeAligned = 87,
+  kAssumption = 88,
+  kAvailability = 89,
+  kBPFPreserveAccessIndex = 90,
+  kBlocks = 91,
+  kBuiltin = 92,
+  kC11NoReturn = 93,
+  kCFAuditedTransfer = 94,
+  kCFGuard = 95,
+  kCFICanonicalJumpTable = 96,
+  kCFReturnsNotRetained = 97,
+  kCFReturnsRetained = 98,
+  kCFUnknownTransfer = 99,
+  kCPUDispatch = 100,
+  kCPUSpecific = 101,
+  kCUDAConstant = 102,
+  kCUDADevice = 103,
+  kCUDADeviceBuiltinSurfaceType = 104,
+  kCUDADeviceBuiltinTextureType = 105,
+  kCUDAGlobal = 106,
+  kCUDAHost = 107,
+  kCUDAInvalidTarget = 108,
+  kCUDALaunchBounds = 109,
+  kCUDAShared = 110,
+  kCXX11NoReturn = 111,
+  kCallableWhen = 112,
+  kCallback = 113,
+  kCapability = 114,
+  kCapturedRecord = 115,
+  kCleanup = 116,
+  kCmseNSEntry = 117,
+  kCodeSeg = 118,
+  kCold = 119,
+  kCommon = 120,
+  kConst = 121,
+  kConstInit = 122,
+  kConstructor = 123,
+  kConsumable = 124,
+  kConsumableAutoCast = 125,
+  kConsumableSetOnRead = 126,
+  kConvergent = 127,
+  kDLLExport = 128,
+  kDLLExportStaticLocal = 129,
+  kDLLImport = 130,
+  kDLLImportStaticLocal = 131,
+  kDeprecated = 132,
+  kDestructor = 133,
+  kDiagnoseIf = 134,
+  kDisableTailCalls = 135,
+  kEmptyBases = 136,
+  kEnableIf = 137,
+  kEnforceTCB = 138,
+  kEnforceTCBLeaf = 139,
+  kEnumExtensibility = 140,
+  kExcludeFromExplicitInstantiation = 141,
+  kExclusiveTrylockFunction = 142,
+  kExternalSourceSymbol = 143,
+  kFinal = 144,
+  kFlagEnum = 145,
+  kFlatten = 146,
+  kFormat = 147,
+  kFormatArg = 148,
+  kGNUInline = 149,
+  kGuardedBy = 150,
+  kGuardedVar = 151,
+  kHIPManaged = 152,
+  kHot = 153,
+  kIBAction = 154,
+  kIBOutlet = 155,
+  kIBOutletCollection = 156,
+  kInitPriority = 157,
+  kInternalLinkage = 158,
+  kLTOVisibilityPublic = 159,
+  kLayoutVersion = 160,
+  kLeaf = 161,
+  kLockReturned = 162,
+  kLocksExcluded = 163,
+  kMIGServerRoutine = 164,
+  kMSAllocator = 165,
+  kMSInheritance = 166,
+  kMSNoVTable = 167,
+  kMSP430Interrupt = 168,
+  kMSStruct = 169,
+  kMSVtorDisp = 170,
+  kMaxFieldAlignment = 171,
+  kMayAlias = 172,
+  kMicroMips = 173,
+  kMinSize = 174,
+  kMinVectorWidth = 175,
+  kMips16 = 176,
+  kMipsInterrupt = 177,
+  kMipsLongCall = 178,
+  kMipsShortCall = 179,
+  kNSConsumesSelf = 180,
+  kNSErrorDomain = 181,
+  kNSReturnsAutoreleased = 182,
+  kNSReturnsNotRetained = 183,
+  kNaked = 184,
+  kNoAlias = 185,
+  kNoCommon = 186,
+  kNoDebug = 187,
+  kNoDestroy = 188,
+  kNoDuplicate = 189,
+  kNoInline = 190,
+  kNoInstrumentFunction = 191,
+  kNoMicroMips = 192,
+  kNoMips16 = 193,
+  kNoReturn = 194,
+  kNoSanitize = 195,
+  kNoSpeculativeLoadHardening = 196,
+  kNoSplitStack = 197,
+  kNoStackProtector = 198,
+  kNoThreadSafetyAnalysis = 199,
+  kNoThrow = 200,
+  kNoUniqueAddress = 201,
+  kNotTailCalled = 202,
+  kOMPAllocateDecl = 203,
+  kOMPCaptureNoInit = 204,
+  kOMPDeclareTargetDecl = 205,
+  kOMPDeclareVariant = 206,
+  kOMPThreadPrivateDecl = 207,
+  kOSConsumesThis = 208,
+  kOSReturnsNotRetained = 209,
+  kOSReturnsRetained = 210,
+  kOSReturnsRetainedOnNonZero = 211,
+  kOSReturnsRetainedOnZero = 212,
+  kObjCBridge = 213,
+  kObjCBridgeMutable = 214,
+  kObjCBridgeRelated = 215,
+  kObjCException = 216,
+  kObjCExplicitProtocolImpl = 217,
+  kObjCExternallyRetained = 218,
+  kObjCIndependentClass = 219,
+  kObjCMethodFamily = 220,
+  kObjCNSObject = 221,
+  kObjCPreciseLifetime = 222,
+  kObjCRequiresPropertyDefs = 223,
+  kObjCRequiresSuper = 224,
+  kObjCReturnsInnerPointer = 225,
+  kObjCRootClass = 226,
+  kObjCSubclassingRestricted = 227,
+  kOpenCLIntelReqdSubGroupSize = 228,
+  kOpenCLKernel = 229,
+  kOpenCLUnrollHint = 230,
+  kOptimizeNone = 231,
+  kOverride = 232,
+  kOwner = 233,
+  kOwnership = 234,
+  kPacked = 235,
+  kParamTypestate = 236,
+  kPatchableFunctionEntry = 237,
+  kPointer = 238,
+  kPragmaClangBSSSection = 239,
+  kPragmaClangDataSection = 240,
+  kPragmaClangRelroSection = 241,
+  kPragmaClangRodataSection = 242,
+  kPragmaClangTextSection = 243,
+  kPreferredName = 244,
+  kPtGuardedBy = 245,
+  kPtGuardedVar = 246,
+  kPure = 247,
+  kRISCVInterrupt = 248,
+  kReinitializes = 249,
+  kReleaseCapability = 250,
+  kReqdWorkGroupSize = 251,
+  kRequiresCapability = 252,
+  kRestrict = 253,
+  kReturnTypestate = 254,
+  kReturnsNonNull = 255,
+  kReturnsTwice = 256,
+  kSYCLKernel = 257,
+  kScopedLockable = 258,
+  kSection = 259,
+  kSelectAny = 260,
+  kSentinel = 261,
+  kSetTypestate = 262,
+  kSharedTrylockFunction = 263,
+  kSpeculativeLoadHardening = 264,
+  kStrictFP = 265,
+  kSwiftAsync = 266,
+  kSwiftAsyncName = 267,
+  kSwiftAttr = 268,
+  kSwiftBridge = 269,
+  kSwiftBridgedTypedef = 270,
+  kSwiftError = 271,
+  kSwiftName = 272,
+  kSwiftNewType = 273,
+  kSwiftPrivate = 274,
+  kTLSModel = 275,
+  kTarget = 276,
+  kTestTypestate = 277,
+  kTransparentUnion = 278,
+  kTrivialABI = 279,
+  kTryAcquireCapability = 280,
+  kTypeTagForDatatype = 281,
+  kTypeVisibility = 282,
+  kUnavailable = 283,
+  kUninitialized = 284,
+  kUnused = 285,
+  kUsed = 286,
+  kUuid = 287,
+  kVecReturn = 288,
+  kVecTypeHint = 289,
+  kVisibility = 290,
+  kWarnUnused = 291,
+  kWarnUnusedResult = 292,
+  kWeak = 293,
+  kWeakImport = 294,
+  kWeakRef = 295,
+  kWebAssemblyExportName = 296,
+  kWebAssemblyImportModule = 297,
+  kWebAssemblyImportName = 298,
+  kWorkGroupSizeHint = 299,
+  kX86ForceAlignArgPointer = 300,
+  kXRayInstrument = 301,
+  kXRayLogArgs = 302,
+  kAbiTag = 303,
+  kAlias = 304,
+  kAlignValue = 305,
+  kCalledOnce = 306,
+  kIFunc = 307,
+  kInitSeg = 308,
+  kLoaderUninitialized = 309,
+  kLoopHint = 310,
+  kMode = 311,
+  kNoBuiltin = 312,
+  kNoEscape = 313,
+  kOMPCaptureKind = 314,
+  kOMPDeclareSimdDecl = 315,
+  kOMPReferencedVar = 316,
+  kObjCBoxable = 317,
+  kObjCClassStub = 318,
+  kObjCDesignatedInitializer = 319,
+  kObjCDirect = 320,
+  kObjCDirectMembers = 321,
+  kObjCNonLazyClass = 322,
+  kObjCNonRuntimeProtocol = 323,
+  kObjCRuntimeName = 324,
+  kObjCRuntimeVisible = 325,
+  kOpenCLAccess = 326,
+  kOverloadable = 327,
+  kRenderScriptKernel = 328,
+  kSwiftObjCMembers = 329,
+  kThread = 330,
 };
 
 enum class AutoTypeKeyword : int {
@@ -929,15 +1259,12 @@ enum class ComparisonCategoryResult : unsigned char {
   kLess = 2,
   kGreater = 3,
   kUnordered = 4,
-  kLast = 4,
 };
 
 enum class ComparisonCategoryType : unsigned char {
   kPartialOrdering = 0,
   kWeakOrdering = 1,
   kStrongOrdering = 2,
-  kFirst = 0,
-  kLast = 2,
 };
 
 enum class CompilingModuleKind : unsigned int {
@@ -1124,7 +1451,6 @@ enum class ExprValueKind : unsigned int {
 enum class ExpressionTrait : unsigned int {
   kIsLValueExpr = 0,
   kIsRValueExpr = 1,
-  kLast = 1,
 };
 
 enum class ExtKind : unsigned int {
@@ -1210,7 +1536,6 @@ enum class ID : unsigned int {
   kDevice = 2,
   kAllSVMDevices = 3,
   kSubGroup = 4,
-  kLast = 4,
 };
 
 enum class IdentKind : unsigned int {
@@ -1389,7 +1714,6 @@ enum class LangAS : unsigned int {
   kPtr32_sptr = 11,
   kPtr32_uptr = 12,
   kPtr64 = 13,
-  kFirstTargetAddressSpace = 14,
 };
 
 enum class LangFeatures : unsigned int {
@@ -1988,7 +2312,6 @@ enum class RangeExprOffset : int {
 
 enum class RangeLocOffset : int {
   kAssignLoc = 0,
-  kFirstColonLoc = 1,
   kSecondColonLoc = 2,
   kTotal = 3,
 };
@@ -2465,7 +2788,6 @@ enum class SubStmt : unsigned int {
   kResultDecl = 9,
   kReturnStmt = 10,
   kReturnStmtOnAllocFailure = 11,
-  kFirstParamMove = 12,
 };
 
 enum class SyncScope : int {
@@ -2473,7 +2795,6 @@ enum class SyncScope : int {
   kOpenCLDevice = 1,
   kOpenCLAllSVMDevices = 2,
   kOpenCLSubGroup = 3,
-  kLast = 3,
 };
 
 enum class Syntax : unsigned int {
@@ -2639,7 +2960,6 @@ enum class TypeClass : unsigned int {
   kUnresolvedUsing = 49,
   kVector = 50,
   kExtVector = 51,
-  kTypeLast = 51,
 };
 
 enum class TypeDependence : unsigned char {
@@ -2857,7 +3177,6 @@ enum class UnaryExprOrTypeTrait : unsigned int {
   kPreferredAlignOf = 2,
   kVecStep = 3,
   kOpenMPRequiredSimdAlign = 4,
-  kLast = 4,
 };
 
 enum class UnaryOperatorKind : unsigned int {
@@ -2951,6 +3270,60 @@ enum class IsModifiableLvalueResult : unsigned int {
   kClassTemporary = 15,
   kArrayTemporary = 16,
 };
+
+#define PASTA_FOR_EACH_TYPE_CLASS(m) \
+    m(Adjusted) \
+    m(Decayed) \
+    m(ConstantArray) \
+    m(DependentSizedArray) \
+    m(IncompleteArray) \
+    m(VariableArray) \
+    m(Atomic) \
+    m(Attributed) \
+    m(BlockPointer) \
+    m(Builtin) \
+    m(Complex) \
+    m(Decltype) \
+    m(Auto) \
+    m(DeducedTemplateSpecialization) \
+    m(DependentAddressSpace) \
+    m(DependentExtInt) \
+    m(DependentName) \
+    m(DependentSizedExtVector) \
+    m(DependentTemplateSpecialization) \
+    m(DependentVector) \
+    m(Elaborated) \
+    m(ExtInt) \
+    m(FunctionNoProto) \
+    m(FunctionProto) \
+    m(InjectedClassName) \
+    m(MacroQualified) \
+    m(ConstantMatrix) \
+    m(DependentSizedMatrix) \
+    m(MemberPointer) \
+    m(ObjCObjectPointer) \
+    m(ObjCObject) \
+    m(ObjCInterface) \
+    m(ObjCTypeParam) \
+    m(PackExpansion) \
+    m(Paren) \
+    m(Pipe) \
+    m(Pointer) \
+    m(LValueReference) \
+    m(RValueReference) \
+    m(SubstTemplateTypeParmPack) \
+    m(SubstTemplateTypeParm) \
+    m(Enum) \
+    m(Record) \
+    m(TemplateSpecialization) \
+    m(TemplateTypeParm) \
+    m(TypeOfExpr) \
+    m(TypeOf) \
+    m(Typedef) \
+    m(UnaryTransform) \
+    m(UnresolvedUsing) \
+    m(Vector) \
+    m(ExtVector)
 
 class AbstractConditionalOperator;
 class AccessSpecDecl;
@@ -3263,6 +3636,7 @@ class PragmaCommentDecl;
 class PragmaDetectMismatchDecl;
 class PredefinedExpr;
 class PseudoObjectExpr;
+class QualType;
 class RValueReferenceType;
 class RecordDecl;
 class RecordType;
@@ -3307,6 +3681,7 @@ class TypeOfExprType;
 class TypeOfType;
 class TypeSourceInfo;
 class TypeTraitExpr;
+class TypeWithKeyword;
 class TypedefDecl;
 class TypedefNameDecl;
 class TypedefType;

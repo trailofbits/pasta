@@ -9,7 +9,7 @@
 #include "Util.h"
 
 #define PASTA_INSTANCE_METHOD_0(cls, id, meth_id, meth, rt) \
-    [[gnu::noinline, gnu::optnone]] \
+    [[gnu::noinline]] \
     static void DeclareCppMethod_ ## id ## _ ## meth_id ( \
         std::ostream &os, const std::string &class_name) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); \
@@ -28,7 +28,7 @@
     }
 
 #define PASTA_INSTANCE_METHOD_1(cls, id, meth_id, meth, rt, p0) \
-    [[gnu::noinline, gnu::optnone]] \
+    [[gnu::noinline]] \
     static void DeclareCppMethod_ ## id ## _ ## meth_id ( \
       std::ostream &os, const std::string &class_name) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); \
@@ -47,7 +47,7 @@
     }
 
 #define PASTA_INSTANCE_METHOD_2(cls, id, meth_id, meth, rt, p0, p1) \
-    [[gnu::noinline, gnu::optnone]] \
+    [[gnu::noinline]] \
     static void DeclareCppMethod_ ## id ## _ ## meth_id ( \
       std::ostream &os, const std::string &class_name) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); \
@@ -57,7 +57,7 @@
     }
 
 #define PASTA_INSTANCE_METHOD_3(cls, id, meth_id, meth, rt, p0, p1, p2) \
-    [[gnu::noinline, gnu::optnone]] \
+    [[gnu::noinline]] \
     static void DeclareCppMethod_ ## id ## _ ## meth_id ( \
       std::ostream &os, const std::string &class_name) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); \
@@ -67,7 +67,7 @@
     }
 
 #define PASTA_INSTANCE_METHOD_4(cls, id, meth_id, meth, rt, p0, p1, p2, p3) \
-    [[gnu::noinline, gnu::optnone]] \
+    [[gnu::noinline]] \
     static void DeclareCppMethod_ ## id ## _ ## meth_id ( \
       std::ostream &os, const std::string &class_name) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); \
@@ -77,7 +77,7 @@
     }
 
 #define PASTA_INSTANCE_METHOD_5(cls, id, meth_id, meth, rt, p0, p1, p2, p3, p4) \
-    [[gnu::noinline, gnu::optnone]] \
+    [[gnu::noinline]] \
     static void DeclareCppMethod_ ## id ## _ ## meth_id ( \
       std::ostream &os, const std::string &class_name) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); \
@@ -87,7 +87,7 @@
     }
 
 #define PASTA_INSTANCE_METHOD_6(cls, id, meth_id, meth, rt, p0, p1, p2, p3, p4, p5) \
-    [[gnu::noinline, gnu::optnone]] \
+    [[gnu::noinline]] \
     static void DeclareCppMethod_ ## id ## _ ## meth_id ( \
       std::ostream &os, const std::string &class_name) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); \
@@ -98,7 +98,6 @@
 
 #include "Generated.h"
 
-[[gnu::optnone]]
 void DeclareCppMethods(std::ostream &os, const std::string &class_name,
                        uint32_t class_id) {
 

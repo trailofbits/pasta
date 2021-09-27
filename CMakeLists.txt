@@ -253,9 +253,13 @@ add_library(pasta_compiler STATIC
     "include/pasta/Compile/Job.h"
 
     "lib/AST/AST.cpp"
+    "lib/AST/Builder.cpp"
+    "lib/AST/Builder.h"
     "lib/AST/Decl.cpp"
     "lib/AST/DeclBootstrap.cpp"
     "lib/AST/Token.cpp"
+    "lib/AST/Token.h"
+    "lib/AST/Type.cpp"
     
     "${HOST_H_FILE}"
     "lib/Compile/Command.h"
@@ -326,8 +330,8 @@ if(PASTA_BOOTSTRAP_MACROS OR PASTA_BOOTSTRAP_TYPES)
     set(PASTA_SRC_AST_DECL_CPP_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/AST/Decl.cpp")
     set(PASTA_INCLUDE_AST_TYPE_H_PATH "${CMAKE_CURRENT_SOURCE_DIR}/include/pasta/AST/Type.h")
     set(PASTA_SRC_AST_TYPE_CPP_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/AST/Type.cpp")
-    set(PASTA_INCLUDE_AST_TYPE_H_PATH "${CMAKE_CURRENT_SOURCE_DIR}/include/pasta/AST/Stmt.h")
-    set(PASTA_SRC_AST_TYPE_CPP_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/AST/Stmt.cpp")
+    set(PASTA_INCLUDE_AST_STMT_H_PATH "${CMAKE_CURRENT_SOURCE_DIR}/include/pasta/AST/Stmt.h")
+    set(PASTA_SRC_AST_STMT_CPP_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/AST/Stmt.cpp")
     
     set(BOOTSTRAP_CONFIG_H_IN "${CMAKE_CURRENT_SOURCE_DIR}/BootstrapConfig.h.in")
     set(BOOTSTRAP_CONFIG_H "${CMAKE_CURRENT_BINARY_DIR}/BootstrapConfig.h")

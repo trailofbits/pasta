@@ -42,6 +42,9 @@ extern std::unordered_map<std::string, std::string> gRetTypeMap;
 // in the generated Decl.cpp file.
 extern std::unordered_map<std::string, std::string> gRetTypeToValMap;
 
+// All methods (class name, method name).
+extern const std::set<std::pair<std::string, std::string>> gMethodNames;
+
 // Prefixes on enumerators to strip.
 extern std::vector<llvm::StringRef> kEnumPrefixesToStrip;
 
@@ -53,10 +56,12 @@ extern std::unordered_map<std::string, uint32_t> gClassIDs;
 extern std::unordered_map<std::string, std::set<std::string>> gBaseClasses;
 extern std::unordered_map<std::string, std::set<std::string>> gDerivedClasses;
 extern std::vector<std::string> gTopologicallyOrderedDecls;
+extern std::vector<std::string> gTopologicallyOrderedTypes;
 
 extern std::unordered_map<std::string, std::set<std::string>> gTransitiveBaseClasses;
 extern std::unordered_map<std::string, std::set<std::string>> gTransitiveDerivedClasses;
 
+extern std::unordered_map<std::string, std::vector<std::string>> gEnumerators;
 
 #define PASTA_BEGIN_CLANG_WRAPPER(cls, id) \
   extern const std::string kClassName_ ## id;

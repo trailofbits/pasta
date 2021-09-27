@@ -27,6 +27,8 @@ class MacroGenerator : public clang::RecursiveASTVisitor<MacroGenerator> {
   std::unordered_set<std::string> acceptable_class_names;
   std::unordered_set<std::string> unacceptable_enum_names;
   std::map<std::string, clang::CXXRecordDecl *> decl_classes;
+
+  // Enums in the `clang` namespace.
   std::map<std::string, clang::EnumDecl *> decl_enums;
 };
 

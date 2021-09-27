@@ -34,6 +34,7 @@ void GenerateTypeCpp(void) {
       << "#include <clang/AST/DeclObjC.h>\n"
       << "#include <clang/AST/DeclOpenMP.h>\n"
       << "#include <clang/AST/DeclTemplate.h>\n"
+      << "#include <clang/Frontend/CompilerInstance.h>\n"
       << "#pragma clang diagnostic pop\n\n"
       << "#include <pasta/AST/Decl.h>\n"
       << "#include <pasta/AST/Type.h>\n"
@@ -49,9 +50,9 @@ void GenerateTypeCpp(void) {
       << "    }\n\n"
       << "#define PASTA_DEFINE_DERIVED_OPERATORS(base, derived) \\\n"
       << "    base::base(const class derived &that) \\\n"
-      << "        : base(that.ast, that.u.base, type_class, qualifiers) {} \\\n"
+      << "        : base(that.ast, that.u.base, that.type_class, that.qualifiers) {} \\\n"
       << "    base::base(class derived &&that) noexcept \\\n"
-      << "        : base(std::move(that.ast), that.u.base, type_class, qualifiers) {} \\\n"
+      << "        : base(std::move(that.ast), that.u.base, that.type_class, that.qualifiers) {} \\\n"
       << "    base &base::operator=(const class derived &that) { \\\n"
       << "      if (ast != that.ast) { \\\n"
       << "        ast = that.ast; \\\n"
@@ -83,167 +84,54 @@ void GenerateTypeCpp(void) {
       << "#undef PASTA_VISIT_TYPE\n"
       << "  }\n"
       << "}\n\n";
-#if 0
-  for (const auto &name : gTopologicallyOrderedDecls) {
-    if (name != "DeclContext") {
-      os << "void DeclVisitor::Visit" << name << "(const " << name << " &decl) {\n";
-      auto seen = false;
-      for (const auto &parent_class : gBaseClasses[name]) {
-        if (parent_class != "DeclContext") {
-          os << "  Visit" << parent_class << "(decl);\n";
-          seen = true;
-        }
-      }
-      if (!seen) {
-        os << "  (void) decl;\n";
-      }
-      os << "}\n\n";
+
+  for (const auto &name : gTopologicallyOrderedTypes) {
+    os << "void TypeVisitor::Visit" << name << "(const " << name << " &type) {\n";
+    auto seen = false;
+    for (const auto &parent_class : gBaseClasses[name]) {
+      os << "  Visit" << parent_class << "(type);\n";
+      seen = true;
     }
-  }
-
-  os
-      << "Decl::Decl(const class DeclContext &context)\n"
-      << "   : Decl(context.ast, clang::dyn_cast<clang::Decl>(context.u.DeclContext)) {}\n"
-      << "\n"
-      << "Decl::Decl(class DeclContext &&context) noexcept\n"
-      << "   : Decl(std::move(context.ast), clang::dyn_cast<clang::Decl>(context.u.DeclContext)) {}\n"
-      << "\n"
-      << "Decl &Decl::operator=(const class DeclContext &context) {\n"
-      << "  if (ast != context.ast) {\n"
-      << "    ast = context.ast;\n"
-      << "  }\n"
-      << "  u.Decl = clang::dyn_cast<clang::Decl>(context.u.DeclContext);\n"
-      << "  return *this;\n"
-      << "}\n"
-      << "\n"
-      << "Decl &Decl::operator=(class DeclContext &&context) noexcept {\n"
-      << "  if (ast != context.ast) {\n"
-      << "    ast = std::move(context.ast);\n"
-      << "  }\n"
-      << "  u.Decl = clang::dyn_cast<clang::Decl>(context.u.DeclContext);\n"
-      << "  return *this;\n"
-      << "}\n\n";
-
-  for (const auto &derived_class : gTransitiveDerivedClasses["DeclContext"]) {
-    os << "PASTA_DEFINE_DECLCONTEXT_OPERATORS(DeclContext, "
-       << derived_class << ")\n";
-  }
-
-  os
-      << "\n"
-      << "namespace {\n"
-      << "// Return the PASTA `DeclKind` for a Clang `Decl`.\n"
-      << "static DeclKind KindOfDecl(const clang::Decl *decl) {\n"
-      << "  switch (decl->getKind()) {\n"
-      << "#define ABSTRACT_DECL(DECL)\n"
-      << "#define DECL(DERIVED, BASE) \\\n"
-      << "    case clang::Decl::DERIVED: \\\n"
-      << "      return DeclKind::k ## DERIVED;\n"
-      << "#include <clang/AST/DeclNodes.inc>\n"
-      << "  }\n"
-      << "  __builtin_unreachable();\n"
-      << "}\n\n"
-      << "static const std::string_view kKindNames[] = {\n";
-
-  for (const auto &name_ : gDeclNames) {
-    llvm::StringRef name(name_);
-    if (name != "Decl" && name != "OMPDeclarativeDirectiveDecl" &&
-        name != "OMPDeclarativeDirectiveValueDecl") {
-      assert(name.endswith("Decl"));
-      name = name.substr(0, name.size() - 4);
-      os << "  \"" << name.str() << "\",\n";
+    if (!seen) {
+      os << "  (void) type;\n";
     }
+    os << "}\n\n";
   }
 
-  os
-      << "};\n"
-      << "}  // namespace\n\n"
-      << "std::string_view Decl::KindName(void) const {\n"
-      << "  return kKindNames[static_cast<unsigned>(kind)];\n"
-      << "}\n\n";
-
-
-  DefineCppMethods(os, decl_context, gClassIDs[decl_context]);
+//  DefineCppMethods(os, decl_context, gClassIDs[decl_context]);
 
   // Define them all.
-  for (const auto &name : gTopologicallyOrderedDecls) {
+  for (const auto &name : gTopologicallyOrderedTypes) {
     llvm::StringRef name_ref(name);
-    if (name == "DeclContext") {
-      continue;
-    }
 
-    os
-        << name << "::" << name << "(\n"
-        << "    std::shared_ptr<ASTImpl> ast_,\n"
-        << "    const ::clang::Decl *decl_)";
+    for (const auto &base_class : gTransitiveBaseClasses[name]) {
+      if (name == "TypeWithKeyword") {
 
-    // Dispatch to our hand-written constructor that takes the `DeclKind`.
-    if (name == "Decl") {
-      os << "\n    : Decl(std::move(ast_), decl_, KindOfDecl(decl_)) {}\n";
+        // This type has an overloaded `classof` that prevents `clang::dyn_cast`.
+        os << "std::optional<class TypeWithKeyword> TypeWithKeyword::From(const class Type &that) {\n"
+           << "  if (auto type_ptr1 = clang::dyn_cast<clang::DependentNameType>(that.u.Type)) {\n"
+           << "    return TypeBuilder::Create<class TypeWithKeyword>(that.ast, type_ptr1);\n"
+           << "  } else if (auto type_ptr2 = clang::dyn_cast<clang::DependentTemplateSpecializationType>(that.u.Type)) {\n"
+           << "    return TypeBuilder::Create<class TypeWithKeyword>(that.ast, type_ptr2);\n"
+           << "  } else if (auto type_ptr3 = clang::dyn_cast<clang::ElaboratedType>(that.u.Type)) {\n"
+           << "    return TypeBuilder::Create<class TypeWithKeyword>(that.ast, type_ptr3);\n"
+           << "  } else {\n"
+           << "    return std::nullopt;\n"
+           << "  }\n"
+           << "}\n\n";
 
-    // Dispatch to the base class constructor(s).
-    } else {
-      auto sep = "\n    : ";
-      const auto &base_classes = gBaseClasses[name];
-      auto prefix = base_classes.size() == 1u ? "std::move(" : "";
-      auto suffix = base_classes.size() == 1u ? ")" : "";
-      for (const auto &parent_class : base_classes) {
-        if (parent_class != "DeclContext") {
-          os << sep << parent_class << "(" << prefix << "ast_" << suffix
-             << ", decl_)";
-          sep = ",\n      ";
-        }
-      }
-      os << " {}\n\n";
-    }
-
-    // Constructors from derived class -> base class.
-    if (name_ref.endswith("Decl")) {
-
-      if (derived_from_decl_context.count(name)) {
-        os << "PASTA_DEFINE_BASE_OPERATORS(DeclContext, "
+      } else {
+        os << "PASTA_DEFINE_BASE_OPERATORS(" << base_class << ", "
            << name << ")\n";
       }
-
-      // These are annoying; these classes don't technically exist, so we need
-      // to "find" them by inferring them from their derived classes, which we
-      // shimmed in.
-      if (name == "OMPDeclarativeDirectiveDecl" ||
-          name == "OMPDeclarativeDirectiveValueDecl") {
-        for (const auto &base_class : gTransitiveBaseClasses[name]) {
-          os << "std::optional<" << name << "> " << name << "::From(const "
-             << base_class << " &that) {\n"
-             << "  if (false) {\n"
-             << "    return std::nullopt;\n";
-
-          for (const auto &derived_class : gDerivedClasses[name]) {
-            os << "  } else if (auto p_" << derived_class
-               << " = clang::dyn_cast<clang::" << derived_class << ">(that.u.Decl)) {\n"
-               << "    return DeclBuilder::Create<" << name << ">(that.ast, p_" << derived_class << ");\n";
-          }
-
-          os << "  } else {\n"
-             << "    return std::nullopt;\n"
-             << "  }\n"
-             << "}\n\n";
-        }
-
-      // Normal case.
-      } else {
-        for (const auto &base_class : gTransitiveBaseClasses[name]) {
-          os << "PASTA_DEFINE_BASE_OPERATORS(" << base_class << ", "
-             << name << ")\n";
-        }
-      }
-
-      for (const auto &derived_class : gTransitiveDerivedClasses[name]) {
-        os << "PASTA_DEFINE_DERIVED_OPERATORS("
-           << name << ", " << derived_class << ")\n";
-      }
+    }
+    for (const auto &derived_class : gTransitiveDerivedClasses[name]) {
+      os << "PASTA_DEFINE_DERIVED_OPERATORS("
+         << name << ", " << derived_class << ")\n";
     }
     DefineCppMethods(os, name, gClassIDs[name]);
   }
-#endif
+
   os
       << "}  // namespace pasta\n"
       << "#endif  // PASTA_IN_BOOTSTRAP\n";

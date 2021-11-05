@@ -21,6 +21,7 @@
     friend class ASTImpl; \
     friend class DeclBuilder; \
     friend class DeclVisitor; \
+    friend class DeclPrinter; \
     base(void) = delete; \
     explicit base( \
         std::shared_ptr<ASTImpl> ast_, \

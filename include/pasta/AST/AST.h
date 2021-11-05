@@ -16,6 +16,7 @@
 #include <pasta/Util/File.h>
 
 namespace clang {
+class Preprocessor;
 class ASTContext;
 }  // namespace clang
 
@@ -58,6 +59,8 @@ class AST {
   // Returns the top-level translation unit decl inside of this AST.
   TranslationUnitDecl TranslationUnit(void) const;
 
+  clang::Preprocessor &UnderlyingPP(void) const;
+
   // Return the main file which was parsed and thus resulted in this AST.
   File MainFile(void) const;
 
@@ -69,6 +72,7 @@ class AST {
   friend class Compiler;
   friend class CompileJob;
   friend class DeclBase;
+  friend class DeclPrinter;
 
   AST(void) = delete;
 

@@ -180,6 +180,7 @@ class TokenRange {
  private:
   friend class AST;
   friend class ASTImpl;
+  friend class DeclPrinter;
 
   TokenRange(void) = delete;
 

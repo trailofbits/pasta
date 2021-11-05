@@ -291,6 +291,9 @@ void TokenPrinterContext::Tokenize(void) {
     const auto at_end = lexer.LexFromRawLexer(tok);
     if (tok.is(clang::tok::eof)) {
       break;
+    } else if (tok.isOneOf(clang::tok::semi, clang::tok::comma)) {
+      num_nl = 0u;
+      num_sp = 0u;
     }
 
     std::string token_value;

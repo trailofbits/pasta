@@ -1728,7 +1728,6 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
                                             const clang::PrintingPolicy &policy,
                                             clang::Decl *decl) {
   std::string data;
-  data.reserve(4096);
   raw_string_ostream out(data);
   auto tokens = std::make_shared<PrintedTokenRangeImpl>(context);
 

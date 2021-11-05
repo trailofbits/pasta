@@ -4,6 +4,7 @@
 
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Decl.h>
+#include <pasta/AST/Printer.h>
 #include <pasta/Compile/Command.h>
 #include <pasta/Compile/Compiler.h>
 #include <pasta/Compile/Job.h>
@@ -15,60 +16,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include "../../include/pasta/AST/Printer.h"
 
-class ASTDumper final : public pasta::DeclVisitor {
- public:
-  virtual ~ASTDumper(void) = default;
-
-  explicit ASTDumper(const pasta::AST &ast_, std::ostream &os_)
-      : ast(ast_),
-        os(os_) {}
-
-  pasta::AST ast;
-  std::ostream &os;
-
-  void VisitDeclContext(const pasta::DeclContext &dc) {
-    for (const auto &decl : dc.AlreadyLoadedDecls()) {
-      Accept(decl);
-    }
-  }
-
-  void VisitTranslationUnitDecl(const pasta::TranslationUnitDecl &decl) final {
-    VisitDeclContext(decl);
-  }
-
-  void VisitNamespaceDecl(const pasta::NamespaceDecl &decl) final {
-    VisitDeclContext(decl);
-  }
-
-  void VisitExternCContextDecl(const pasta::ExternCContextDecl &decl) final {
-    VisitDeclContext(decl);
-  }
-
-
-  void VisitDecl(const pasta::Decl &decl) final {
-    os << decl.KindName() << "\n";
-
-    auto tokens = pasta::PrintedTokenRange::Create(decl);
-    for (pasta::PrintedToken tok : tokens) {
-      for (auto i = 0u, max_i = tok.NumLeadingNewLines(); i < max_i; ++i) {
-        std::cerr << '\n';
-      }
-      for (auto i = 0u, max_i = tok.NumleadingSpaces(); i < max_i; ++i) {
-        std::cerr << ' ';
-      }
-      std::cerr << tok.Data();
-    }
-
-    std::cerr << "\n\n";
-  }
-};
-
-static void DumpAST(pasta::AST ast) {
-  ASTDumper dumper(ast, std::cerr);
-  dumper.Accept(ast.TranslationUnit());
-}
 
 int main(int argc, char *argv[]) {
   if (2 > argc) {
@@ -113,7 +61,17 @@ int main(int argc, char *argv[]) {
       std::cerr << maybe_ast.TakeError() << std::endl;
       return EXIT_FAILURE;
     } else {
-      DumpAST(*maybe_ast);
+      auto tu = maybe_ast->TranslationUnit();
+      auto tokens = pasta::PrintedTokenRange::Create(tu);
+      for (pasta::PrintedToken tok : tokens) {
+        for (auto i = 0u, max_i = tok.NumLeadingNewLines(); i < max_i; ++i) {
+          std::cerr << '\n';
+        }
+        for (auto i = 0u, max_i = tok.NumleadingSpaces(); i < max_i; ++i) {
+          std::cerr << ' ';
+        }
+        std::cerr << tok.Data();
+      }
     }
   }
 

@@ -37,6 +37,7 @@ void GenerateDeclH(void) {
       << "    friend class DeclBuilder; \\\n"
       << "    friend class DeclVisitor; \\\n"
       << "    friend class DeclPrinter; \\\n"
+      << "    friend class PrintedTokenRange; \\\n"
       << "    base(void) = delete; \\\n"
       << "    explicit base( \\\n"
       << "        std::shared_ptr<ASTImpl> ast_, \\\n"

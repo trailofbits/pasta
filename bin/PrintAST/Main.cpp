@@ -1,7 +1,9 @@
+/*
+ * Copyright (c) 2021 Trail of Bits, Inc.
+ */
 
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Decl.h>
-#include <pasta/AST/DeclPrinter.h>
 #include <pasta/Compile/Command.h>
 #include <pasta/Compile/Compiler.h>
 #include <pasta/Compile/Job.h>
@@ -13,6 +15,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include "../../include/pasta/AST/Printer.h"
 
 class ASTDumper final : public pasta::DeclVisitor {
  public:
@@ -23,57 +26,36 @@ class ASTDumper final : public pasta::DeclVisitor {
         os(os_) {}
 
   pasta::AST ast;
-  std::string indent;
   std::ostream &os;
 
-  void PushIndent(void) {
-    indent += "  ";
-  }
-
-  void PopIndent(void) {
-    indent.resize(indent.size() - 2);
-  }
-
   void VisitDeclContext(const pasta::DeclContext &dc) {
-    os << " {\n";
-    PushIndent();
     for (const auto &decl : dc.AlreadyLoadedDecls()) {
       Accept(decl);
     }
-    PopIndent();
-    os << indent << "}\n";
   }
 
   void VisitTranslationUnitDecl(const pasta::TranslationUnitDecl &decl) final {
-    os << indent << decl.KindName();
     VisitDeclContext(decl);
   }
 
   void VisitNamespaceDecl(const pasta::NamespaceDecl &decl) final {
-    os << indent << decl.KindName();
     VisitDeclContext(decl);
   }
 
   void VisitExternCContextDecl(const pasta::ExternCContextDecl &decl) final {
-    os << indent << decl.KindName();
     VisitDeclContext(decl);
   }
 
 
   void VisitDecl(const pasta::Decl &decl) final {
-    os << indent << decl.KindName();
+    os << decl.KindName() << "\n";
 
-    pasta::DeclPrinter printer(ast, decl);
-    auto tokens = printer.Tokens();
-    std::cerr << tokens.size() << "\n";
-
-    auto loc = decl.Token();
-    if (auto file_loc = loc.FileLocation()) {
-      auto file = pasta::File::Containing(*file_loc);
-      os << ' ' << file.Path().generic_string() << ':'
-         << file_loc->Line() << ':' << file_loc->Column();
+    auto tokens = pasta::PrintedTokenRange::Create(decl);
+    for (pasta::PrintedToken tok : tokens) {
+      std::cerr << "\t" << tok.Data()  << "\n";
     }
-    os << "\n";
+
+    std::cerr << "\n";
   }
 };
 
@@ -131,5 +113,4 @@ int main(int argc, char *argv[]) {
 
   return EXIT_SUCCESS;
 }
-
 

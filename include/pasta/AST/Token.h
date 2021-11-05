@@ -20,7 +20,8 @@ class AST;
 class ASTImpl;
 class FileToken;
 class TokenIterator;
-struct TokenImpl;
+class TokenPrinterContext;
+class TokenImpl;
 class TokenRange;
 
 // Represents a token that has been pre-processed and parsed.
@@ -53,7 +54,9 @@ class Token {
   friend class AST;
   friend class ASTImpl;
   friend class TokenIterator;
+  friend class TokenPrinterContext;
   friend class TokenRange;
+  friend class Token
 
   Token(void) = delete;
 

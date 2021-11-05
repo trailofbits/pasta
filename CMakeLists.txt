@@ -262,6 +262,7 @@ add_library(pasta_compiler STATIC
     "lib/AST/Token.h"
     "lib/AST/Type.cpp"
     "lib/AST/Printer/DeclPrinter.cpp"
+    "lib/AST/Printer/DeclStmtPrinter.h"
     "lib/AST/Printer/Printer.cpp"
     "lib/AST/Printer/Printer.h"
     "lib/AST/Printer/raw_ostream.h"

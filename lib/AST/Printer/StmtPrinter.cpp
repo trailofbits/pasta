@@ -11,172 +11,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include <clang/AST/ASTContext.h>
-#include <clang/AST/Attr.h>
-#include <clang/AST/Decl.h>
-#include <clang/AST/DeclBase.h>
-#include <clang/AST/DeclCXX.h>
-#include <clang/AST/DeclObjC.h>
-#include <clang/AST/DeclOpenMP.h>
-#include <clang/AST/DeclTemplate.h>
-#include <clang/AST/Expr.h>
-#include <clang/AST/ExprCXX.h>
-#include <clang/AST/ExprObjC.h>
-#include <clang/AST/ExprOpenMP.h>
-#include <clang/AST/NestedNameSpecifier.h>
-#include <clang/AST/OpenMPClause.h>
-#include <clang/AST/PrettyPrinter.h>
-#include <clang/AST/Stmt.h>
-#include <clang/AST/StmtCXX.h>
-#include <clang/AST/StmtObjC.h>
-#include <clang/AST/StmtOpenMP.h>
-#include <clang/AST/StmtVisitor.h>
-#include <clang/AST/TemplateBase.h>
-#include <clang/AST/Type.h>
-#include <clang/Basic/CharInfo.h>
-#include <clang/Basic/ExpressionTraits.h>
-#include <clang/Basic/IdentifierTable.h>
-#include <clang/Basic/JsonSupport.h>
-#include <clang/Basic/LLVM.h>
-#include <clang/Basic/Lambda.h>
-#include <clang/Basic/OpenMPKinds.h>
-#include <clang/Basic/OperatorKinds.h>
-#include <clang/Basic/SourceLocation.h>
-#include <clang/Basic/TypeTraits.h>
-#include <clang/Lex/Lexer.h>
-#include <llvm/ADT/ArrayRef.h>
-#include <llvm/ADT/SmallString.h>
-#include <llvm/ADT/SmallVector.h>
-#include <llvm/ADT/StringRef.h>
-#include <llvm/Support/Casting.h>
-#include <llvm/Support/Compiler.h>
-#include <llvm/Support/ErrorHandling.h>
-#include <llvm/Support/Format.h>
-
-#include <clang/Basic/LangOptions.h>
-#include <clang/Lex/Lexer.h>
-#include <clang/Lex/Preprocessor.h>
-
-#include <cassert>
-#include <string>
-
-#include "raw_ostream.h"
-#include "Printer.h"
-
-
-//===----------------------------------------------------------------------===//
-// StmtPrinter Visitor
-//===----------------------------------------------------------------------===//
-
-namespace pasta {
-
-class PrintedTokenRangeImpl;
-
-class StmtPrinter : public clang::StmtVisitor<StmtPrinter> {
-  pasta::raw_string_ostream &OS;
-  unsigned IndentLevel;
-  clang::PrinterHelper* Helper;
-  clang::PrintingPolicy Policy;
-  std::string NL;
-  const clang::ASTContext *Context;
-
-  public:
-    StmtPrinter(pasta::raw_string_ostream &os, clang::PrinterHelper *helper,
-                PrintedTokenRangeImpl &tokens_,
-                const clang::PrintingPolicy &Policy, unsigned Indentation = 0,
-                clang::StringRef NL = "\n", const clang::ASTContext *Context = nullptr)
-        : OS(os), IndentLevel(Indentation), Helper(helper), Policy(Policy),
-          NL(NL), Context(Context), tokens(tokens_) {}
-
-    void PrintStmt(clang::Stmt *S) { PrintStmt(S, Policy.Indentation); }
-
-    void PrintStmt(clang::Stmt *S, unsigned SubIndent) {
-      IndentLevel += SubIndent;
-      if (S && clang::isa<clang::Expr>(S)) {
-        // If this is an expr used in a stmt context, indent and newline it.
-        Indent();
-        Visit(S);
-        OS << ";" << NL;
-      } else if (S) {
-        Visit(S);
-      } else {
-        Indent() << "<<<NULL STATEMENT>>>" << NL;
-      }
-      IndentLevel -= SubIndent;
-    }
-
-    void PrintInitStmt(clang::Stmt *S, unsigned PrefixWidth) {
-      // FIXME: Cope better with odd prefix widths.
-      IndentLevel += (PrefixWidth + 1) / 2;
-      if (auto *DS = clang::dyn_cast<clang::DeclStmt>(S))
-        PrintRawDeclStmt(DS);
-      else
-        PrintExpr(clang::cast<clang::Expr>(S));
-      OS << "; ";
-      IndentLevel -= (PrefixWidth + 1) / 2;
-    }
-
-    void PrintControlledStmt(clang::Stmt *S) {
-      if (auto *CS = clang::dyn_cast<clang::CompoundStmt>(S)) {
-        OS << " ";
-        PrintRawCompoundStmt(CS);
-        OS << NL;
-      } else {
-        OS << NL;
-        PrintStmt(S);
-      }
-    }
-
-    void PrintRawCompoundStmt(clang::CompoundStmt *S);
-    void PrintRawDecl(clang::Decl *D);
-    void PrintRawDeclStmt(const clang::DeclStmt *S);
-    void PrintRawIfStmt(clang::IfStmt *If);
-    void PrintRawCXXCatchStmt(clang::CXXCatchStmt *Catch);
-    void PrintCallArgs(clang::CallExpr *E);
-    void PrintRawSEHExceptHandler(clang::SEHExceptStmt *S);
-    void PrintRawSEHFinallyStmt(clang::SEHFinallyStmt *S);
-    void PrintOMPExecutableDirective(clang::OMPExecutableDirective *S,
-                                     bool ForceNoStmt = false);
-
-    void PrintExpr(clang::Expr *E) {
-      TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
-      if (E)
-        Visit(E);
-      else
-        OS << "<null expr>";
-    }
-
-    pasta::raw_string_ostream &Indent(int Delta = 0) {
-      for (unsigned i = 0, e = IndentLevel+Delta; i < e; ++i)
-        OS << "  ";
-      return OS;
-    }
-
-    void Visit(clang::Stmt* S) {
-      if (Helper && Helper->handledStmt(S,OS))
-          return;
-      else clang::StmtVisitor<StmtPrinter>::Visit(S);
-    }
-
-    void VisitStmt(clang::Stmt *Node) LLVM_ATTRIBUTE_UNUSED {
-      Indent() << "<<unknown stmt type>>" << NL;
-    }
-
-    void VisitExpr(clang::Expr *Node) LLVM_ATTRIBUTE_UNUSED {
-      OS << "<<unknown expr type>>";
-    }
-
-    void VisitCXXNamedCastExpr(clang::CXXNamedCastExpr *Node);
-
-#define ABSTRACT_STMT(CLASS)
-#define STMT(CLASS, PARENT) \
-    void Visit##CLASS(clang::CLASS *Node);
-#include "clang/AST/StmtNodes.inc"
-
-  PrintedTokenRangeImpl &tokens;
-};
-
-} // namespace
+#include "DeclStmtPrinter.h"
 
 //===----------------------------------------------------------------------===//
 //  Stmt printing methods.
@@ -199,10 +34,40 @@ void StmtPrinter::PrintRawDecl(clang::Decl *D) {
   D->print(OS, Policy, IndentLevel);
 }
 
+
+static void Decl_printGroup(clang::Decl** Begin, unsigned NumDecls,
+                            raw_string_ostream &Out, const clang::PrintingPolicy &Policy,
+                            unsigned Indentation) {
+  if (NumDecls == 1) {
+    (*Begin)->print(Out, Policy, Indentation);
+    return;
+  }
+  clang::Decl** End = Begin + NumDecls;
+  clang::TagDecl* TD = clang::dyn_cast<clang::TagDecl>(*Begin);
+  if (TD)
+    ++Begin;
+  clang::PrintingPolicy SubPolicy(Policy);
+  bool isFirst = true;
+  for ( ; Begin != End; ++Begin) {
+    if (isFirst) {
+      if(TD)
+        SubPolicy.IncludeTagDefinition = true;
+      SubPolicy.SuppressSpecifiers = false;
+      isFirst = false;
+    } else {
+      if (!isFirst) Out << ", ";
+      SubPolicy.IncludeTagDefinition = false;
+      SubPolicy.SuppressSpecifiers = true;
+    }
+    (*Begin)->print(Out, SubPolicy, Indentation);
+  }
+}
+
+
 void StmtPrinter::PrintRawDeclStmt(const clang::DeclStmt *S) {
   TokenPrinterContext ctx(OS, S, tokens, __FUNCTION__);
   clang::SmallVector<clang::Decl *, 2> Decls(S->decls());
-  clang::Decl::printGroup(Decls.data(), Decls.size(), OS, Policy, IndentLevel);
+  Decl_printGroup(Decls.data(), Decls.size(), OS, Policy, IndentLevel);
 }
 
 void StmtPrinter::VisitNullStmt(clang::NullStmt *Node) {

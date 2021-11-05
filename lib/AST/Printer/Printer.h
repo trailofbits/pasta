@@ -38,14 +38,21 @@ class PrintedTokenImpl {
   // we record its location here.
   clang::SourceLocation parsed_location;
 
+  uint16_t num_leading_new_lines;
+  uint16_t num_leading_spaces;
+
   // Kind of this token.
   clang::tok::TokenKind kind;
 
   inline PrintedTokenImpl(std::string data_,
                           const PrintedTokenContext *context_,
+                          unsigned num_leading_new_lines_,
+                          unsigned num_leading_spaces_,
                           clang::tok::TokenKind kind_)
       : data(std::move(data_)),
         context(context_),
+        num_leading_new_lines(static_cast<uint16_t>(num_leading_new_lines_)),
+        num_leading_spaces(static_cast<uint16_t>(num_leading_spaces_)),
         kind(kind_) {}
 };
 
@@ -97,7 +104,6 @@ class TokenPrinterContext {
   const PrintedTokenContext * const context;
   PrintedTokenRangeImpl &tokens;
   const char * const caller_fn;
-  size_t start_loc;
 };
 
 }  // namespace pasta

@@ -52,10 +52,16 @@ class ASTDumper final : public pasta::DeclVisitor {
 
     auto tokens = pasta::PrintedTokenRange::Create(decl);
     for (pasta::PrintedToken tok : tokens) {
-      std::cerr << "\t" << tok.Data()  << "\n";
+      for (auto i = 0u, max_i = tok.NumLeadingNewLines(); i < max_i; ++i) {
+        std::cerr << '\n';
+      }
+      for (auto i = 0u, max_i = tok.NumleadingSpaces(); i < max_i; ++i) {
+        std::cerr << ' ';
+      }
+      std::cerr << tok.Data();
     }
 
-    std::cerr << "\n";
+    std::cerr << "\n\n";
   }
 };
 

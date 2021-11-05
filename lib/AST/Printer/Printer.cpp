@@ -63,6 +63,15 @@ clang::tok::TokenKind PrintedToken::Kind(void) const {
   }
 }
 
+// Number of leading new lines (before any indentation spaces).
+unsigned PrintedToken::NumLeadingNewLines(void) const {
+  return impl->num_leading_new_lines;
+}
+
+// Number of leading spaces (after any leading new lines).
+unsigned PrintedToken::NumleadingSpaces(void) const {
+  return impl->num_leading_spaces;
+}
 
 // Prefix increment operator.
 PrintedTokenIterator &PrintedTokenIterator::operator++(void) noexcept {
@@ -194,12 +203,6 @@ void PrintedTokenRangeImpl::PopContext(void) {
 
   context_stack.pop_back();
   tokenizer_stack.pop_back();
-
-  // Update the next tokenizer down on the stack to not re-tokenize the
-  // tokens just tokenized by `last_tokenizer`.
-  if (!tokenizer_stack.empty()) {
-    tokenizer_stack.back()->start_loc = last_tokenizer->start_loc;
-  }
 }
 
 TokenPrinterContext::TokenPrinterContext(
@@ -208,8 +211,7 @@ TokenPrinterContext::TokenPrinterContext(
     : out(out_),
       context(tokens_.PushContext(this, decl_)),
       tokens(tokens_),
-      caller_fn(caller_),
-      start_loc(out.str().size()) {}
+      caller_fn(caller_) {}
 
 TokenPrinterContext::TokenPrinterContext(
     raw_string_ostream &out_, const clang::Stmt *stmt_,
@@ -217,15 +219,46 @@ TokenPrinterContext::TokenPrinterContext(
     : out(out_),
       context(tokens_.PushContext(this, stmt_)),
       tokens(tokens_),
-      caller_fn(caller_),
-      start_loc(out.str().size()) {}
+      caller_fn(caller_) {}
+
+namespace {
+
+static std::tuple<unsigned, unsigned, unsigned> SkipWhitespace(
+    const std::string &data, unsigned i) {
+  unsigned num_leading_spaces = 0;
+  unsigned num_leading_lines = 0;
+
+  for (const auto size = data.size(); i < size; ++i) {
+    switch (data[i]) {
+      case '\t':
+        num_leading_spaces += 4;
+        break;
+      case ' ':
+        num_leading_spaces += 1;
+        break;
+      case '\r':
+        break;
+      case '\n':
+        num_leading_spaces = 0;
+        num_leading_lines += 1;
+        break;
+      case '\\':
+        assert(false);
+        return {num_leading_lines, num_leading_spaces, i};
+      default:
+        return {num_leading_lines, num_leading_spaces, i};
+    }
+  }
+  return {num_leading_lines, num_leading_spaces, i};
+}
+
+}  // namespace
 
 void TokenPrinterContext::Tokenize(void) {
-  clang::SourceManager &sm = tokens.ast_context.getSourceManager();
   const clang::LangOptions &lo = tokens.ast_context.getLangOpts();
 
-  const std::string &token_data = out.str();
-  if (start_loc >= token_data.size()) {
+  std::string &token_data = out.str();
+  if (token_data.empty()) {
     return;
   }
 
@@ -233,7 +266,7 @@ void TokenPrinterContext::Tokenize(void) {
       clang::SourceLocation(),
       lo,
       &(token_data[0]),
-      &(token_data[start_loc]),
+      &(token_data[0]),
       &(token_data[0]) + token_data.size());
 
   lexer.SetKeepWhitespaceMode(false);
@@ -241,24 +274,53 @@ void TokenPrinterContext::Tokenize(void) {
 
   clang::Token tok;
 
-  for (lexer.LexFromRawLexer(tok); tok.isNot(clang::tok::eof);
-       lexer.LexFromRawLexer(tok)) {
+  unsigned num_nl = 0u;
+  unsigned num_sp = 0u;
+  unsigned i = 0u;
 
-    std::string tok_data;
-    if (!TryReadRawToken(sm, lo, tok, &tok_data)) {
-      llvm::errs() << "Unable to read token";
-      assert(false);
+  for (auto size = token_data.size(); i < size; ) {
+    auto last_i = i;
+    std::tie(num_nl, num_sp, i) = SkipWhitespace(token_data, i);
+    if (i >= size) {
+      break;
+    }
+
+    lexer.skipOver(last_i - i);
+    last_i = i;
+
+    const auto at_end = lexer.LexFromRawLexer(tok);
+    if (tok.is(clang::tok::eof)) {
+      break;
+    }
+
+    std::string token_value;
+    token_value.reserve(tok.getLength());
+    for (last_i = i, i += tok.getLength(); last_i < i; ++last_i) {
+      token_value.push_back(token_data[last_i]);
     }
 
     // Add the token in.
-    PrintedTokenImpl &ptok = tokens.tokens.emplace_back(
-        std::move(tok_data), context, tok.getKind());
+    tokens.tokens.emplace_back(
+        std::move(token_value), context, num_nl, num_sp, tok.getKind());
 
-    (void) ptok;
+    if (at_end) {
+      break;
+    }
   }
 
-  // Update for the next start location.
-  start_loc = token_data.size();
+  // Clear out so future streaming just re-fills.
+  token_data.clear();
+
+  // We only track spaces before a token, but there might be trailing whitespace
+  // after a token that needs to get picked up by the next call to `Tokenize`,
+  // so re-introduce the whitespace here.
+  for (i = 0u; i < num_nl; ++i) {
+    token_data.push_back('\n');
+  }
+
+  for (i = 0u; i < num_sp; ++i) {
+    token_data.push_back(' ');
+  }
 }
 
 void TokenPrinterContext::MarkLocation(clang::SourceLocation &loc) {

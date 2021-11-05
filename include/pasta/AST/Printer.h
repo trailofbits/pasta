@@ -94,6 +94,12 @@ class PrintedToken {
   // Kind of this token.
   clang::tok::TokenKind Kind(void) const;
 
+  // Number of leading new lines (before any indentation spaces).
+  unsigned NumLeadingNewLines(void) const;
+
+  // Number of leading spaces (after any leading new lines).
+  unsigned NumleadingSpaces(void) const;
+
   inline operator bool(void) const noexcept {
     return !!impl;
   }

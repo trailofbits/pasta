@@ -304,9 +304,12 @@ public:
   explicit TypePrinter(const clang::PrintingPolicy &Policy, unsigned Indentation = 0)
       : Policy(Policy), Indentation(Indentation) {}
 
-  void print(const clang::Type *ty, clang::Qualifiers qs, raw_string_ostream &OS,
-             clang::StringRef PlaceHolder);
-  void print(clang::QualType T, raw_string_ostream &OS, clang::StringRef PlaceHolder);
+  void print(const clang::Type *ty, clang::Qualifiers qs,
+             raw_string_ostream &OS, clang::StringRef PlaceHolder,
+             std::function<std::string(void)> *placeHolderFn = nullptr);
+
+  void print(clang::QualType T, raw_string_ostream &OS,
+             clang::StringRef PlaceHolder, std::function<std::string(void)> *placeHolderFn = nullptr);
 
   static bool canPrefixQualifiers(const clang::Type *T, bool &NeedARCStrongQualifier);
   void spaceBeforePlaceHolder(raw_string_ostream &OS);

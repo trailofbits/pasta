@@ -2200,7 +2200,7 @@ void StmtPrinter::VisitCXXNewExpr(clang::CXXNewExpr *E) {
     OS << "(";
   std::string TypeS;
   if (clang::Optional<clang::Expr *> Size = E->getArraySize()) {
-    llvm::raw_string_ostream s(TypeS);
+    raw_string_ostream s(TypeS);
     s << '[';
     if (*Size)
       (*Size)->printPretty(s, Helper, Policy);
@@ -2716,33 +2716,3 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
 }
 
 } // namespace pasta
-
-
-
-//===----------------------------------------------------------------------===//
-// Stmt method implementations
-//===----------------------------------------------------------------------===//
-
-#if 0
-void dumpPretty(const ASTContext &Context) const {
-  std::string s;
-  printPretty(s, nullptr, PrintingPolicy(Context.getLangOpts()));
-}
-
-void printPretty(pasta::raw_string_ostream &Out, PrinterHelper *Helper,
-                       const PrintingPolicy &Policy, unsigned Indentation,
-                       StringRef NL, const ASTContext *Context) const {
-  pasta::StmtPrinter P(Out, Helper, Policy, Indentation, NL, Context);
-  P.Visit(const_cast<Stmt *>(this));
-}
-
-void printJson(pasta::raw_string_ostream &Out, PrinterHelper *Helper,
-                     const PrintingPolicy &Policy, bool AddQuotes) const {
-  std::string Buf;
-  pasta::raw_string_ostream TempOut(Buf);
-
-  printPretty(TempOut, Helper, Policy);
-
-  Out << JsonFormat(TempOut.str(), AddQuotes);
-}
-#endif

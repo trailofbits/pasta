@@ -115,13 +115,19 @@ static clang::SplitQualType splitAccordingToPolicy(clang::QualType QT,
   return QT.split();
 }
 
-void TypePrinter::print(clang::QualType t, raw_string_ostream &OS, clang::StringRef PlaceHolder) {
+void TypePrinter::print(clang::QualType t,
+                        raw_string_ostream &OS,
+                        clang::StringRef PlaceHolder,
+                        std::function<std::string(void)> *placeHolderFn) {
   clang::SplitQualType split = splitAccordingToPolicy(t, Policy);
-  print(split.Ty, split.Quals, OS, PlaceHolder);
+  print(split.Ty, split.Quals, OS, PlaceHolder, placeHolderFn);
 }
 
-void TypePrinter::print(const clang::Type *T, clang::Qualifiers Quals,
-                        raw_string_ostream &OS, clang::StringRef PlaceHolder) {
+void TypePrinter::print(const clang::Type *T,
+                        clang::Qualifiers Quals,
+                        raw_string_ostream &OS,
+                        clang::StringRef PlaceHolder,
+                        std::function<std::string(void)> *placeHolderFn) {
   if (!T) {
     OS << "NULL TYPE";
     return;
@@ -130,7 +136,11 @@ void TypePrinter::print(const clang::Type *T, clang::Qualifiers Quals,
   SaveAndRestore<bool> PHVal(HasEmptyPlaceHolder, PlaceHolder.empty());
 
   printBefore(T, Quals, OS);
-  OS << PlaceHolder;
+  if (placeHolderFn != nullptr) {
+    OS << (*placeHolderFn)();
+  } else {
+    OS << PlaceHolder;
+  }
   printAfter(T, Quals, OS);
 }
 
@@ -560,8 +570,8 @@ void TypePrinter::printDependentSizedExtVectorBefore(
 }
 
 void TypePrinter::printDependentSizedExtVectorAfter(
-                                          const clang::DependentSizedExtVectorType *T,
-                                          raw_string_ostream &OS) {
+    const clang::DependentSizedExtVectorType *T, raw_string_ostream &OS) {
+  //TokenPrinterContext ctx(OS, T, this->tokens, __FUNCTION__);
   OS << " __attribute__((ext_vector_type(";
   if (T->getSizeExpr())
     T->getSizeExpr()->printPretty(OS, nullptr, Policy);

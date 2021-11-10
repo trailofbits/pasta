@@ -65,25 +65,25 @@ static clang::SplitQualType splitAccordingToPolicy(
   return QT.split();
 }
 
-static void print(const clang::Type *ty, clang::Qualifiers qs,
-           raw_string_ostream &OS, const clang::PrintingPolicy &policy,
-           const clang::Twine &PlaceHolder, unsigned Indentation) {
+static void print(clang::SplitQualType split,
+                  raw_string_ostream &OS,
+                  const clang::PrintingPolicy &policy,
+                  const clang::Twine &PlaceHolder,
+                  std::function<std::string(void)> *placeHolderFn = nullptr,
+                  unsigned Indentation = 0) {
   clang::SmallString<128> PHBuf;
   clang::StringRef PH = PlaceHolder.toStringRef(PHBuf);
-  TypePrinter(policy, Indentation).print(ty, qs, OS, PH);
+  TypePrinter(policy, Indentation).print(split.Ty,  split.Quals, OS, PH, placeHolderFn);
 }
 
-static void print(clang::SplitQualType split, raw_string_ostream &OS,
-                  const clang::PrintingPolicy &policy, const clang::Twine &PlaceHolder,
-                  unsigned Indentation = 0) {
-  return print(split.Ty, split.Quals, OS, policy, PlaceHolder, Indentation);
-}
-
-void printQualType(clang::QualType qt, raw_string_ostream &OS,
+void printQualType(clang::QualType qt,
+                   raw_string_ostream &OS,
                    const clang::PrintingPolicy &Policy,
-                   const clang::Twine &PlaceHolder = clang::Twine(), unsigned Indentation = 0) {
+                   const clang::Twine &PlaceHolder = clang::Twine(),
+                   std::function<std::string(void)> *placeHolderFn = nullptr,
+                   unsigned Indentation = 0) {
   auto split = splitAccordingToPolicy(qt, Policy);
-  print(split, OS, Policy, PlaceHolder, Indentation);
+  print(split, OS, Policy, PlaceHolder, placeHolderFn, Indentation);
 }
 
 
@@ -147,7 +147,7 @@ void DeclPrinter::printDeclType(clang::QualType T, clang::StringRef DeclName, bo
     Pack = true;
     T = PET->getPattern();
   }
-  printQualType(T, Out, Policy, (Pack ? "..." : "") + DeclName, Indentation);
+  printQualType(T, Out, Policy, (Pack ? "..." : "") + DeclName, nullptr, Indentation);
 }
 
 void DeclPrinter::ProcessDeclGroup(clang::SmallVectorImpl<clang::Decl*>& Decls) {
@@ -376,8 +376,7 @@ void DeclPrinter::VisitTypedefDecl(clang::TypedefDecl *D) {
       Out << "__module_private__ ";
   }
   clang::QualType Ty = D->getTypeSourceInfo()->getType();
-  printQualType(Ty, Out, Policy, D->getName(), Indentation);
-  //Ty.print(Out, Policy, D->getName(), Indentation);
+  printQualType(Ty, Out, Policy, D->getName(), nullptr, Indentation);
   prettyPrintAttributes(D);
 }
 
@@ -462,12 +461,6 @@ static void printExplicitSpecifier(clang::ExplicitSpecifier ES, raw_string_ostre
 void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
   TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
 
-  // This code is for debug prupose
-  //std::string debugStr;
-  //pasta::raw_string_ostream debugOS(debugStr);
-  //D->print(debugOS, Policy, Indentation, PrintInstantiation);
-  //llvm::errs() << "DEBUG clang printer " << debugOS.str() << "\n";
-
   if (!D->getDescribedFunctionTemplate() &&
       !D->isFunctionTemplateSpecialization())
     prettyPrintPragmas(D);
@@ -512,12 +505,14 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
   if (Policy.FullyQualifiedName) {
     ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
       std::string Proto = ProtoFn();
+      TokenPrinterContext ctx(Out, D, this->tokens, __FUNCTION__);
       Proto += D->getQualifiedNameAsString();
       return Proto;
     };
   } else {
     ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
       std::string Proto = ProtoFn();
+      TokenPrinterContext ctx(Out, D, this->tokens, __FUNCTION__);
       raw_string_ostream OS(Proto);
       if (!Policy.SuppressScope) {
         if (const clang::NestedNameSpecifier *NS = D->getQualifier()) {
@@ -568,6 +563,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
         std::string Proto = ProtoFn();
         Proto += "(";
         raw_string_ostream POut(Proto);
+        TokenPrinterContext ctx(POut, FT, this->tokens, __FUNCTION__);
         DeclPrinter ParamPrinter(POut, SubPolicy, Context, tokens, Indentation);
         for (unsigned i = 0, e = D->getNumParams(); i != e; ++i) {
           if (i) POut << ", ";
@@ -578,19 +574,21 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
           if (D->getNumParams()) POut << ", ";
           POut << "...";
         }
-        Proto += ")";
+        POut << ")";
         return Proto;
       };
     } else if (D->doesThisDeclarationHaveABody() && !D->hasPrototype()) {
       ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
         std::string Proto = ProtoFn();
-        Proto += "(";
+        raw_string_ostream POut(Proto);
+        TokenPrinterContext ctx(POut, FT, this->tokens, __FUNCTION__);
+        POut << "(";
         for (unsigned i = 0, e = D->getNumParams(); i != e; ++i) {
           if (i)
-            Proto += ", ";
-          Proto += D->getParamDecl(i)->getNameAsString();
+            POut << ", ";
+          POut << D->getParamDecl(i)->getNameAsString();
         }
-        Proto += ")";
+        POut << ")";
         return Proto;
       };
     }
@@ -598,21 +596,23 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
     if (FT) {
       ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
         std::string Proto = ProtoFn();
+        raw_string_ostream POut(Proto);
+        TokenPrinterContext ctx(POut, FT, this->tokens, __FUNCTION__);
         if (FT->isConst())
-          Proto += " const";
+          POut << " const";
         if (FT->isVolatile())
-          Proto += " volatile";
+          POut << " volatile";
         if (FT->isRestrict())
-          Proto += " restrict";
+          POut << " restrict";
 
         switch (FT->getRefQualifier()) {
         case clang::RQ_None:
           break;
         case clang::RQ_LValue:
-          Proto += " &";
+          POut << " &";
           break;
         case clang::RQ_RValue:
-          Proto += " &&";
+          POut << " &&";
           break;
         }
         return Proto;
@@ -620,28 +620,37 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
     }
 
     if (FT && FT->hasDynamicExceptionSpec()) {
-      Proto += " throw(";
-      if (FT->getExceptionSpecType() == clang::EST_MSAny)
-        Proto += "...";
-      else
-        for (unsigned I = 0, N = FT->getNumExceptions(); I != N; ++I) {
-          if (I)
-            Proto += ", ";
+      ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
+        std::string Proto = ProtoFn();
+        Proto += " throw(";
+        if (FT->getExceptionSpecType() == clang::EST_MSAny)
+          Proto += "...";
+        else
+          for (unsigned I = 0, N = FT->getNumExceptions(); I != N; ++I) {
+            if (I)
+              Proto += ", ";
 
-          Proto += FT->getExceptionType(I).getAsString(SubPolicy);
-        }
-      Proto += ")";
-    } else if (FT && isNoexceptExceptionSpec(FT->getExceptionSpecType())) {
-      Proto += " noexcept";
-      if (isComputedNoexcept(FT->getExceptionSpecType())) {
-        Proto += "(";
-        pasta::raw_string_ostream EOut(Proto);
-        printPrettyStmt(FT->getNoexceptExpr(), EOut,
-                        nullptr, SubPolicy, Indentation);
-        EOut.flush();
-        Proto += EOut.str();
+            Proto += FT->getExceptionType(I).getAsString(SubPolicy);
+          }
         Proto += ")";
-      }
+        return Proto;
+      };
+    } else if (FT && isNoexceptExceptionSpec(FT->getExceptionSpecType())) {
+      ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
+        std::string Proto = ProtoFn();
+        TokenPrinterContext ctx(Out, FT, this->tokens, __FUNCTION__);
+        Proto += " noexcept";
+        if (isComputedNoexcept(FT->getExceptionSpecType())) {
+          Proto += "(";
+          pasta::raw_string_ostream EOut(Proto);
+          printPrettyStmt(FT->getNoexceptExpr(), EOut,
+                          nullptr, SubPolicy, Indentation);
+          EOut.flush();
+          Proto += EOut.str();
+          Proto += ")";
+        }
+        return Proto;
+      };
     }
 
     if (CDecl) {
@@ -655,11 +664,11 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
         ProtoFn = [](void) -> std::string { return "";};
       }
 
-      printQualType(AFT->getReturnType(), Out, Policy, Proto);
+      printQualType(AFT->getReturnType(), Out, Policy, Proto, &ProtoFn);
       Proto.clear();
+      ProtoFn = [](void) -> std::string { return "";};
     }
 
-    Proto += ProtoFn();
     Out << Proto;
 
     if (clang::Expr *TrailingRequiresClause = D->getTrailingRequiresClause()) {

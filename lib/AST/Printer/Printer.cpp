@@ -180,6 +180,7 @@ const PrintedTokenContext *PrintedTokenRangeImpl::PushContext(
   if (!tokenizer_stack.empty()) {
     tokenizer_stack.back()->Tokenize();
   }
+
   tokenizer_stack.push_back(tokenizer);
 
   if (!context_stack.empty() && context_stack.back()->type == type) {
@@ -198,11 +199,13 @@ const PrintedTokenContext *PrintedTokenRangeImpl::PushContext(
 }
 
 void PrintedTokenRangeImpl::PopContext(void) {
-  const auto last_tokenizer = tokenizer_stack.back();
-  last_tokenizer->Tokenize();
+  if (!tokenizer_stack.empty()) {
+    const auto last_tokenizer = tokenizer_stack.back();
+    last_tokenizer->Tokenize();
 
-  context_stack.pop_back();
-  tokenizer_stack.pop_back();
+    context_stack.pop_back();
+    tokenizer_stack.pop_back();
+  }
 }
 
 TokenPrinterContext::TokenPrinterContext(
@@ -211,7 +214,8 @@ TokenPrinterContext::TokenPrinterContext(
     : out(out_),
       context(tokens_.PushContext(this, decl_)),
       tokens(tokens_),
-      caller_fn(caller_) {}
+      caller_fn(caller_),
+      out_size(out_.str().size()){}
 
 TokenPrinterContext::TokenPrinterContext(
     raw_string_ostream &out_, const clang::Stmt *stmt_,
@@ -219,7 +223,17 @@ TokenPrinterContext::TokenPrinterContext(
     : out(out_),
       context(tokens_.PushContext(this, stmt_)),
       tokens(tokens_),
-      caller_fn(caller_) {}
+      caller_fn(caller_),
+      out_size(out_.str().size()){}
+
+TokenPrinterContext::TokenPrinterContext(
+    raw_string_ostream &out_, const clang::Type *type_,
+    PrintedTokenRangeImpl &tokens_, const char * caller_)
+    : out(out_),
+      context(tokens_.PushContext(this, type_)),
+      tokens(tokens_),
+      caller_fn(caller_),
+      out_size(out_.str().size()){}
 
 namespace {
 

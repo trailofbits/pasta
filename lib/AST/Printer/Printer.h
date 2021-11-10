@@ -92,6 +92,9 @@ class TokenPrinterContext {
   TokenPrinterContext(raw_string_ostream &out_, const clang::Stmt *stmt_,
                       PrintedTokenRangeImpl &tokens_, const char * caller_ = "");
 
+  TokenPrinterContext(raw_string_ostream &out_, const clang::Type *type_,
+                      PrintedTokenRangeImpl &tokens_, const char * caller_ = "");
+
   void Tokenize(void);
 
   // Mark the last printed token as having location `loc`. This helps to
@@ -104,6 +107,7 @@ class TokenPrinterContext {
   const PrintedTokenContext * const context;
   PrintedTokenRangeImpl &tokens;
   const char * const caller_fn;
+  unsigned out_size;
 };
 
 }  // namespace pasta

@@ -164,6 +164,12 @@ class DeclPrinter : public clang::DeclVisitor<DeclPrinter> {
    void prettyPrintPragmas(clang::Decl *D);
    void printDeclType(clang::QualType T, llvm::StringRef DeclName, bool Pack = false);
 
+   void printPrettyStmt(clang::Stmt *stmt_,
+                        raw_string_ostream &Out,
+                        clang::PrinterHelper *Helper,
+                        const clang::PrintingPolicy &Policy,
+                        unsigned Indentation = 0, clang::StringRef NL = "\n");
+
 
    PrintedTokenRangeImpl &tokens;
 };
@@ -189,6 +195,14 @@ class StmtPrinter : public clang::StmtVisitor<StmtPrinter> {
           NL(NL), Context(Context), tokens(tokens_) {}
 
     void PrintStmt(clang::Stmt *S) { PrintStmt(S, Policy.Indentation); }
+
+    void printQualType(clang::QualType type_, raw_string_ostream &OS,
+               const clang::PrintingPolicy &Policy,
+               const clang::Twine &PlaceHolder = clang::Twine(),
+               unsigned Indentation = 0);
+
+    void printDecl(clang::Decl *D, raw_string_ostream &Out,
+                   const clang::PrintingPolicy &policy_, unsigned Indentation);
 
     void PrintStmt(clang::Stmt *S, unsigned SubIndent) {
       IndentLevel += SubIndent;
@@ -274,6 +288,48 @@ class StmtPrinter : public clang::StmtVisitor<StmtPrinter> {
 #include "clang/AST/StmtNodes.inc"
 
   PrintedTokenRangeImpl &tokens;
+};
+
+//===----------------------------------------------------------------------===//
+// TypePrinter Visitor
+//===----------------------------------------------------------------------===//
+
+class TypePrinter {
+  clang::PrintingPolicy Policy;
+  unsigned Indentation;
+  bool HasEmptyPlaceHolder = false;
+  bool InsideCCAttribute = false;
+
+public:
+  explicit TypePrinter(const clang::PrintingPolicy &Policy, unsigned Indentation = 0)
+      : Policy(Policy), Indentation(Indentation) {}
+
+  void print(const clang::Type *ty, clang::Qualifiers qs, raw_string_ostream &OS,
+             clang::StringRef PlaceHolder);
+  void print(clang::QualType T, raw_string_ostream &OS, clang::StringRef PlaceHolder);
+
+  static bool canPrefixQualifiers(const clang::Type *T, bool &NeedARCStrongQualifier);
+  void spaceBeforePlaceHolder(raw_string_ostream &OS);
+  void printTypeSpec(clang::NamedDecl *D, raw_string_ostream &OS);
+  void printTemplateId(const clang::TemplateSpecializationType *T, raw_string_ostream &OS,
+                       bool FullyQualify);
+
+  void printBefore(clang::QualType T, raw_string_ostream &OS);
+  void printAfter(clang::QualType T, raw_string_ostream &OS);
+  void AppendScope(clang::DeclContext *DC, raw_string_ostream &OS,
+                   clang::DeclarationName NameInScope);
+  void printTag(clang::TagDecl *T, raw_string_ostream &OS);
+  void printFunctionAfter(const clang::FunctionType::ExtInfo &Info, raw_string_ostream &OS);
+
+#define ABSTRACT_TYPE(CLASS, PARENT)
+#define TYPE(CLASS, PARENT) \
+  void print##CLASS##Before(const clang::CLASS##Type *T, raw_string_ostream &OS); \
+  void print##CLASS##After(const clang::CLASS##Type *T, raw_string_ostream &OS);
+#include "clang/AST/TypeNodes.inc"
+
+private:
+  void printBefore(const clang::Type *ty, clang::Qualifiers qs, raw_string_ostream &OS);
+  void printAfter(const clang::Type *ty, clang::Qualifiers qs, raw_string_ostream &OS);
 };
 
 } // namespace pasta

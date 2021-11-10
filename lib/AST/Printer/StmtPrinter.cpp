@@ -21,6 +21,37 @@
 /// with no newline after the }.
 namespace pasta {
 
+static clang::SplitQualType splitAccordingToPolicy(
+    clang::QualType QT,const clang::PrintingPolicy &Policy) {
+  if (Policy.PrintCanonicalTypes)
+    QT = QT.getCanonicalType();
+  return QT.split();
+}
+
+static void print(const clang::Type *ty, clang::Qualifiers qs,
+           raw_string_ostream &OS, const clang::PrintingPolicy &policy,
+           const clang::Twine &PlaceHolder, unsigned Indentation) {
+  clang::SmallString<128> PHBuf;
+  clang::StringRef PH = PlaceHolder.toStringRef(PHBuf);
+  TypePrinter(policy, Indentation).print(ty, qs, OS, PH);
+}
+
+static void print(clang::SplitQualType split, raw_string_ostream &OS,
+                  const clang::PrintingPolicy &policy, const clang::Twine &PlaceHolder,
+                  unsigned Indentation = 0) {
+  return print(split.Ty, split.Quals, OS, policy, PlaceHolder, Indentation);
+}
+
+void StmtPrinter::printQualType(clang::QualType type_,
+                        raw_string_ostream &OS,
+                        const clang::PrintingPolicy &Policy,
+                        const clang::Twine &PlaceHolder,
+                        unsigned Indentation){
+  auto split = splitAccordingToPolicy(type_, Policy);
+  print(split, OS, Policy, PlaceHolder, Indentation);
+}
+
+
 void StmtPrinter::PrintRawCompoundStmt(clang::CompoundStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
   OS << "{" << NL;
@@ -30,16 +61,27 @@ void StmtPrinter::PrintRawCompoundStmt(clang::CompoundStmt *Node) {
   Indent() << "}";
 }
 
+void StmtPrinter::printDecl(clang::Decl *D,
+                            raw_string_ostream &Out,
+                            const clang::PrintingPolicy &policy_,
+                            unsigned Indentation) {
+  DeclPrinter Printer(Out, policy_, D->getASTContext(), tokens, Indentation);
+  Printer.Visit(D);
+}
+
+
 void StmtPrinter::PrintRawDecl(clang::Decl *D) {
-  D->print(OS, Policy, IndentLevel);
+  DeclPrinter Printer(OS, Policy, D->getASTContext(), tokens, IndentLevel);
+  Printer.Visit(D);
 }
 
 
 static void Decl_printGroup(clang::Decl** Begin, unsigned NumDecls,
                             raw_string_ostream &Out, const clang::PrintingPolicy &Policy,
-                            unsigned Indentation) {
+                            unsigned Indentation, PrintedTokenRangeImpl &tokens) {
   if (NumDecls == 1) {
-    (*Begin)->print(Out, Policy, Indentation);
+    DeclPrinter Printer(Out, Policy,  (*Begin)->getASTContext(), tokens, Indentation);
+    Printer.Visit((*Begin));
     return;
   }
   clang::Decl** End = Begin + NumDecls;
@@ -59,15 +101,15 @@ static void Decl_printGroup(clang::Decl** Begin, unsigned NumDecls,
       SubPolicy.IncludeTagDefinition = false;
       SubPolicy.SuppressSpecifiers = true;
     }
-    (*Begin)->print(Out, SubPolicy, Indentation);
+    DeclPrinter Printer(Out, SubPolicy,  (*Begin)->getASTContext(), tokens, Indentation);
+    Printer.Visit((*Begin));
   }
 }
-
 
 void StmtPrinter::PrintRawDeclStmt(const clang::DeclStmt *S) {
   TokenPrinterContext ctx(OS, S, tokens, __FUNCTION__);
   clang::SmallVector<clang::Decl *, 2> Decls(S->decls());
-  Decl_printGroup(Decls.data(), Decls.size(), OS, Policy, IndentLevel);
+  Decl_printGroup(Decls.data(), Decls.size(), OS, Policy, IndentLevel, tokens);
 }
 
 void StmtPrinter::VisitNullStmt(clang::NullStmt *Node) {
@@ -246,7 +288,7 @@ void StmtPrinter::VisitCXXForRangeStmt(clang::CXXForRangeStmt *Node) {
     PrintInitStmt(Node->getInit(), 5);
   clang::PrintingPolicy SubPolicy(Policy);
   SubPolicy.SuppressInitializers = true;
-  Node->getLoopVariable()->print(OS, SubPolicy, IndentLevel);
+  printDecl(Node->getLoopVariable(), OS, SubPolicy, IndentLevel);
   OS << " : ";
   PrintExpr(Node->getRangeInit());
   OS << ")";
@@ -1244,7 +1286,7 @@ void StmtPrinter::VisitUnaryOperator(clang::UnaryOperator *Node) {
 void StmtPrinter::VisitOffsetOfExpr(clang::OffsetOfExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
   OS << "__builtin_offsetof(";
-  Node->getTypeSourceInfo()->getType().print(OS, Policy);
+  printQualType(Node->getTypeSourceInfo()->getType(), OS, Policy);
   OS << ", ";
   bool PrintedSomething = false;
   for (unsigned i = 0, n = Node->getNumComponents(); i < n; ++i) {
@@ -1293,7 +1335,7 @@ void StmtPrinter::VisitUnaryExprOrTypeTraitExpr(
 
   if (Node->isArgumentType()) {
     OS << '(';
-    Node->getArgumentType().print(OS, Policy);
+    printQualType(Node->getArgumentType(), OS, Policy);
     OS << ')';
   } else {
     OS << " ";
@@ -1311,7 +1353,7 @@ void StmtPrinter::VisitGenericSelectionExpr(clang::GenericSelectionExpr *Node) {
     if (T.isNull())
       OS << "default";
     else
-      T.print(OS, Policy);
+      printQualType(T, OS, Policy);
     OS << ": ";
     PrintExpr(Assoc.getAssociationExpr());
   }
@@ -1373,7 +1415,7 @@ void StmtPrinter::VisitOMPIteratorExpr(clang::OMPIteratorExpr *Node) {
   OS << "iterator(";
   for (unsigned I = 0, E = Node->numOfIterators(); I < E; ++I) {
     auto *VD = clang::cast<clang::ValueDecl>(Node->getIteratorDecl(I));
-    VD->getType().print(OS, Policy);
+    printQualType(VD->getType(), OS, Policy);
     const clang::OMPIteratorExpr::IteratorRange Range = Node->getIteratorRange(I);
     OS << " " << VD->getName() << " = ";
     PrintExpr(Range.Begin);
@@ -1457,7 +1499,7 @@ void StmtPrinter::VisitExtVectorElementExpr(clang::ExtVectorElementExpr *Node) {
 void StmtPrinter::VisitCStyleCastExpr(clang::CStyleCastExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
   OS << '(';
-  Node->getTypeAsWritten().print(OS, Policy);
+  printQualType(Node->getTypeAsWritten(), OS, Policy);
   OS << ')';
   PrintExpr(Node->getSubExpr());
 }
@@ -1465,7 +1507,7 @@ void StmtPrinter::VisitCStyleCastExpr(clang::CStyleCastExpr *Node) {
 void StmtPrinter::VisitCompoundLiteralExpr(clang::CompoundLiteralExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
   OS << '(';
-  Node->getType().print(OS, Policy);
+  printQualType(Node->getType(), OS, Policy);
   OS << ')';
   PrintExpr(Node->getInitializer());
 }
@@ -1551,7 +1593,7 @@ void StmtPrinter::VisitConvertVectorExpr(clang::ConvertVectorExpr *Node) {
   OS << "__builtin_convertvector(";
   PrintExpr(Node->getSrcExpr());
   OS << ", ";
-  Node->getType().print(OS, Policy);
+  printQualType(Node->getType(), OS, Policy);
   OS << ")";
 }
 
@@ -1652,11 +1694,11 @@ void StmtPrinter::VisitImplicitValueInitExpr(clang::ImplicitValueInitExpr *Node)
   TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
   if (Node->getType()->getAsCXXRecordDecl()) {
     OS << "/*implicit*/";
-    Node->getType().print(OS, Policy);
+    printQualType(Node->getType(), OS, Policy);
     OS << "()";
   } else {
     OS << "/*implicit*/(";
-    Node->getType().print(OS, Policy);
+    printQualType(Node->getType(), OS, Policy);
     OS << ')';
     if (Node->getType()->isRecordType())
       OS << "{}";
@@ -1670,7 +1712,7 @@ void StmtPrinter::VisitVAArgExpr(clang::VAArgExpr *Node) {
   OS << "__builtin_va_arg(";
   PrintExpr(Node->getSubExpr());
   OS << ", ";
-  Node->getType().print(OS, Policy);
+  printQualType(Node->getType(), OS, Policy);
   OS << ")";
 }
 
@@ -1797,7 +1839,7 @@ void StmtPrinter::VisitCXXRewrittenBinaryOperator(
 void StmtPrinter::VisitCXXNamedCastExpr(clang::CXXNamedCastExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
   OS << Node->getCastName() << '<';
-  Node->getTypeAsWritten().print(OS, Policy);
+  printQualType(Node->getTypeAsWritten(), OS, Policy);
   OS << ">(";
   PrintExpr(Node->getSubExpr());
   OS << ")";
@@ -1826,7 +1868,7 @@ void StmtPrinter::VisitCXXConstCastExpr(clang::CXXConstCastExpr *Node) {
 void StmtPrinter::VisitBuiltinBitCastExpr(clang::BuiltinBitCastExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
   OS << "__builtin_bit_cast(";
-  Node->getTypeInfoAsWritten()->getType().print(OS, Policy);
+  printQualType(Node->getTypeInfoAsWritten()->getType(), OS, Policy);
   OS << ", ";
   PrintExpr(Node->getSubExpr());
   OS << ")";
@@ -1841,7 +1883,7 @@ void StmtPrinter::VisitCXXTypeidExpr(clang::CXXTypeidExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
   OS << "typeid(";
   if (Node->isTypeOperand()) {
-    Node->getTypeOperandSourceInfo()->getType().print(OS, Policy);
+    printQualType(Node->getTypeOperandSourceInfo()->getType(), OS, Policy);
   } else {
     PrintExpr(Node->getExprOperand());
   }
@@ -1852,7 +1894,7 @@ void StmtPrinter::VisitCXXUuidofExpr(clang::CXXUuidofExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
   OS << "__uuidof(";
   if (Node->isTypeOperand()) {
-    Node->getTypeOperandSourceInfo()->getType().print(OS, Policy);
+    printQualType(Node->getTypeOperandSourceInfo()->getType(), OS, Policy);
   } else {
     PrintExpr(Node->getExprOperand());
   }
@@ -1963,7 +2005,7 @@ void StmtPrinter::VisitCXXDefaultInitExpr(clang::CXXDefaultInitExpr *Node) {
 
 void StmtPrinter::VisitCXXFunctionalCastExpr(clang::CXXFunctionalCastExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
-  Node->getType().print(OS, Policy);
+  printQualType(Node->getType(), OS, Policy);
   // If there are no parens, this is list-initialization, and the braces are
   // part of the syntax of the inner construct.
   if (Node->getLParenLoc().isValid())
@@ -1980,7 +2022,7 @@ void StmtPrinter::VisitCXXBindTemporaryExpr(clang::CXXBindTemporaryExpr *Node) {
 
 void StmtPrinter::VisitCXXTemporaryObjectExpr(clang::CXXTemporaryObjectExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
-  Node->getType().print(OS, Policy);
+  printQualType(Node->getType(), OS, Policy);
   if (Node->isStdInitListInitialization())
     /* Nothing to do; braces are part of creating the std::initializer_list. */;
   else if (Node->isListInitialization())
@@ -2096,7 +2138,7 @@ void StmtPrinter::VisitLambdaExpr(clang::LambdaExpr *Node) {
         NeedComma = true;
       }
       std::string ParamStr = P->getNameAsString();
-      P->getOriginalType().print(OS, Policy, ParamStr);
+      printQualType(P->getOriginalType(), OS, Policy, ParamStr);
     }
     if (Method->isVariadic()) {
       if (NeedComma)
@@ -2116,7 +2158,7 @@ void StmtPrinter::VisitLambdaExpr(clang::LambdaExpr *Node) {
     // Print the trailing return type if it was specified in the source.
     if (Node->hasExplicitResultType()) {
       OS << " -> ";
-      Proto->getReturnType().print(OS, Policy);
+      printQualType(Proto->getReturnType(), OS, Policy);
     }
   }
 
@@ -2131,9 +2173,9 @@ void StmtPrinter::VisitLambdaExpr(clang::LambdaExpr *Node) {
 void StmtPrinter::VisitCXXScalarValueInitExpr(clang::CXXScalarValueInitExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
   if (clang::TypeSourceInfo *TSInfo = Node->getTypeSourceInfo())
-    TSInfo->getType().print(OS, Policy);
+    printQualType(TSInfo->getType(), OS, Policy);
   else
-    Node->getType().print(OS, Policy);
+    printQualType(Node->getType(), OS, Policy);
   OS << "()";
 }
 
@@ -2164,7 +2206,7 @@ void StmtPrinter::VisitCXXNewExpr(clang::CXXNewExpr *E) {
       (*Size)->printPretty(s, Helper, Policy);
     s << ']';
   }
-  E->getAllocatedType().print(OS, Policy, TypeS);
+  printQualType(E->getAllocatedType(), OS, Policy, TypeS);
   if (E->isParenTypeId())
     OS << ")";
 
@@ -2202,7 +2244,7 @@ void StmtPrinter::VisitCXXPseudoDestructorExpr(clang::CXXPseudoDestructorExpr *E
   if (clang::IdentifierInfo *II = E->getDestroyedTypeIdentifier())
     OS << II->getName();
   else
-    E->getDestroyedType().print(OS, Policy);
+    printQualType(E->getDestroyedType(), OS, Policy);
 }
 
 void StmtPrinter::VisitCXXConstructExpr(clang::CXXConstructExpr *E) {
@@ -2245,7 +2287,7 @@ void
 StmtPrinter::VisitCXXUnresolvedConstructExpr(
     clang::CXXUnresolvedConstructExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
-  Node->getTypeAsWritten().print(OS, Policy);
+  printQualType(Node->getTypeAsWritten(), OS, Policy);
   OS << "(";
   for (clang::CXXUnresolvedConstructExpr::arg_iterator Arg = Node->arg_begin(),
                                              ArgEnd = Node->arg_end();
@@ -2294,7 +2336,7 @@ void StmtPrinter::VisitTypeTraitExpr(clang::TypeTraitExpr *E) {
   for (unsigned I = 0, N = E->getNumArgs(); I != N; ++I) {
     if (I > 0)
       OS << ", ";
-    E->getArg(I)->getType().print(OS, Policy);
+    printQualType(E->getArg(I)->getType(), OS, Policy);
   }
   OS << ")";
 }
@@ -2302,7 +2344,7 @@ void StmtPrinter::VisitTypeTraitExpr(clang::TypeTraitExpr *E) {
 void StmtPrinter::VisitArrayTypeTraitExpr(clang::ArrayTypeTraitExpr *E) {
   TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
   OS << getTraitSpelling(E->getTrait()) << '(';
-  E->getQueriedType().print(OS, Policy);
+  printQualType(E->getQueriedType(), OS, Policy);
   OS << ')';
 }
 
@@ -2401,7 +2443,7 @@ void StmtPrinter::VisitRequiresExpr(clang::RequiresExpr *E) {
       if (TypeReq->isSubstitutionFailure())
         OS << "<<error-type>>";
       else
-        TypeReq->getType()->getType().print(OS, Policy);
+        printQualType(TypeReq->getType()->getType(), OS, Policy);
     } else if (auto *ExprReq = clang::dyn_cast<clang::concepts::ExprRequirement>(Req)) {
       if (ExprReq->isCompound())
         OS << "{ ";
@@ -2516,7 +2558,7 @@ void StmtPrinter::VisitObjCDictionaryLiteral(clang::ObjCDictionaryLiteral *E) {
 void StmtPrinter::VisitObjCEncodeExpr(clang::ObjCEncodeExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
   OS << "@encode(";
-  Node->getEncodedType().print(OS, Policy);
+  printQualType(Node->getEncodedType(), OS, Policy);
   OS << ')';
 }
 
@@ -2541,7 +2583,7 @@ void StmtPrinter::VisitObjCMessageExpr(clang::ObjCMessageExpr *Mess) {
     break;
 
   case clang::ObjCMessageExpr::Class:
-    Mess->getClassReceiver().print(OS, Policy);
+    printQualType(Mess->getClassReceiver(), OS, Policy);
     break;
 
   case clang::ObjCMessageExpr::SuperInstance:
@@ -2586,7 +2628,7 @@ void
 StmtPrinter::VisitObjCBridgedCastExpr(clang::ObjCBridgedCastExpr *E) {
   TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
   OS << '(' << E->getBridgeKindName();
-  E->getType().print(OS, Policy);
+  printQualType(E->getType(), OS, Policy);
   OS << ')';
   PrintExpr(E->getSubExpr());
 }
@@ -2606,7 +2648,7 @@ void StmtPrinter::VisitBlockExpr(clang::BlockExpr *Node) {
          E = BD->param_end(); AI != E; ++AI) {
       if (AI != BD->param_begin()) OS << ", ";
       std::string ParamStr = (*AI)->getNameAsString();
-      (*AI)->getType().print(OS, Policy, ParamStr);
+      printQualType((*AI)->getType(), OS, Policy, ParamStr);
     }
 
     const auto *FT = clang::cast<clang::FunctionProtoType>(AFT);
@@ -2647,7 +2689,7 @@ void StmtPrinter::VisitAsTypeExpr(clang::AsTypeExpr *Node) {
   OS << "__builtin_astype(";
   PrintExpr(Node->getSrcExpr());
   OS << ", ";
-  Node->getType().print(OS, Policy);
+  printQualType(Node->getType(), OS, Policy);
   OS << ")";
 }
 

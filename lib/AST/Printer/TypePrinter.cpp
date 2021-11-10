@@ -10,40 +10,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "clang/AST/ASTContext.h"
-#include "clang/AST/Attr.h"
-#include "clang/AST/Decl.h"
-#include "clang/AST/DeclBase.h"
-#include "clang/AST/DeclCXX.h"
-#include "clang/AST/DeclObjC.h"
-#include "clang/AST/DeclTemplate.h"
-#include "clang/AST/Expr.h"
-#include "clang/AST/NestedNameSpecifier.h"
-#include "clang/AST/PrettyPrinter.h"
-#include "clang/AST/TemplateBase.h"
-#include "clang/AST/TemplateName.h"
-#include "clang/AST/Type.h"
-#include "clang/Basic/AddressSpaces.h"
-#include "clang/Basic/ExceptionSpecificationType.h"
-#include "clang/Basic/IdentifierTable.h"
-#include "clang/Basic/LLVM.h"
-#include "clang/Basic/LangOptions.h"
-#include "clang/Basic/SourceLocation.h"
-#include "clang/Basic/SourceManager.h"
-#include "clang/Basic/Specifiers.h"
-#include "llvm/ADT/ArrayRef.h"
-#include "llvm/ADT/SmallString.h"
-#include "llvm/ADT/StringRef.h"
-#include "llvm/ADT/Twine.h"
-#include "llvm/Support/Casting.h"
-#include "llvm/Support/Compiler.h"
-#include "llvm/Support/ErrorHandling.h"
-#include "llvm/Support/SaveAndRestore.h"
-
-#include <cassert>
-#include <string>
-
-#include "raw_ostream.h"
+#include "DeclStmtPrinter.h"
 
 namespace pasta {
 
@@ -99,42 +66,18 @@ namespace pasta {
     }
   };
 
-  class TypePrinter {
-    clang::PrintingPolicy Policy;
-    unsigned Indentation;
-    bool HasEmptyPlaceHolder = false;
-    bool InsideCCAttribute = false;
-
-  public:
-    explicit TypePrinter(const clang::PrintingPolicy &Policy, unsigned Indentation = 0)
-        : Policy(Policy), Indentation(Indentation) {}
-
-    void print(const clang::Type *ty, clang::Qualifiers qs, raw_string_ostream &OS,
-               clang::StringRef PlaceHolder);
-    void print(clang::QualType T, raw_string_ostream &OS, clang::StringRef PlaceHolder);
-
-    static bool canPrefixQualifiers(const clang::Type *T, bool &NeedARCStrongQualifier);
-    void spaceBeforePlaceHolder(raw_string_ostream &OS);
-    void printTypeSpec(clang::NamedDecl *D, raw_string_ostream &OS);
-    void printTemplateId(const clang::TemplateSpecializationType *T, raw_string_ostream &OS,
-                         bool FullyQualify);
-
-    void printBefore(clang::QualType T, raw_string_ostream &OS);
-    void printAfter(clang::QualType T, raw_string_ostream &OS);
-    void AppendScope(clang::DeclContext *DC, raw_string_ostream &OS,
-                     clang::DeclarationName NameInScope);
-    void printTag(clang::TagDecl *T, raw_string_ostream &OS);
-    void printFunctionAfter(const clang::FunctionType::ExtInfo &Info, raw_string_ostream &OS);
-
-#define ABSTRACT_TYPE(CLASS, PARENT)
-#define TYPE(CLASS, PARENT) \
-    void print##CLASS##Before(const clang::CLASS##Type *T, raw_string_ostream &OS); \
-    void print##CLASS##After(const clang::CLASS##Type *T, raw_string_ostream &OS);
-#include "clang/AST/TypeNodes.inc"
+/// A utility class that uses RAII to save and restore the value of a variable.
+  template <typename T> struct SaveAndRestore {
+    SaveAndRestore(T &X) : X(X), OldValue(X) {}
+    SaveAndRestore(T &X, const T &NewValue) : X(X), OldValue(X) {
+      X = NewValue;
+    }
+    ~SaveAndRestore() { X = OldValue; }
+    T get() { return OldValue; }
 
   private:
-    void printBefore(const clang::Type *ty, clang::Qualifiers qs, raw_string_ostream &OS);
-    void printAfter(const clang::Type *ty, clang::Qualifiers qs, raw_string_ostream &OS);
+    T &X;
+    T OldValue;
   };
 
 
@@ -184,7 +127,7 @@ void TypePrinter::print(const clang::Type *T, clang::Qualifiers Quals,
     return;
   }
 
-  clang::SaveAndRestore<bool> PHVal(HasEmptyPlaceHolder, PlaceHolder.empty());
+  SaveAndRestore<bool> PHVal(HasEmptyPlaceHolder, PlaceHolder.empty());
 
   printBefore(T, Quals, OS);
   OS << PlaceHolder;
@@ -300,7 +243,7 @@ void TypePrinter::printBefore(const clang::Type *T, clang::Qualifiers Quals, raw
   if (Policy.SuppressSpecifiers && T->isSpecifierType())
     return;
 
-  clang::SaveAndRestore<bool> PrevPHIsEmpty(HasEmptyPlaceHolder);
+  SaveAndRestore<bool> PrevPHIsEmpty(HasEmptyPlaceHolder);
 
   // Print qualifiers as appropriate.
 
@@ -377,7 +320,7 @@ void TypePrinter::printComplexAfter(const clang::ComplexType *T, raw_string_ostr
 
 void TypePrinter::printPointerBefore(const clang::PointerType *T, raw_string_ostream &OS) {
   IncludeStrongLifetimeRAII Strong(Policy);
-  clang::SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
+  SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   printBefore(T->getPointeeType(), OS);
   // Handle things like 'int (*A)[4];' correctly.
   // FIXME: this should include vectors, but vectors use attributes I guess.
@@ -388,7 +331,7 @@ void TypePrinter::printPointerBefore(const clang::PointerType *T, raw_string_ost
 
 void TypePrinter::printPointerAfter(const clang::PointerType *T, raw_string_ostream &OS) {
   IncludeStrongLifetimeRAII Strong(Policy);
-  clang::SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
+  SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   // Handle things like 'int (*A)[4];' correctly.
   // FIXME: this should include vectors, but vectors use attributes I guess.
   if (clang::isa<clang::ArrayType>(T->getPointeeType()))
@@ -398,14 +341,14 @@ void TypePrinter::printPointerAfter(const clang::PointerType *T, raw_string_ostr
 
 void TypePrinter::printBlockPointerBefore(const clang::BlockPointerType *T,
                                           raw_string_ostream &OS) {
-  clang::SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
+  SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   printBefore(T->getPointeeType(), OS);
   OS << '^';
 }
 
 void TypePrinter::printBlockPointerAfter(const clang::BlockPointerType *T,
                                           raw_string_ostream &OS) {
-  clang::SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
+  SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   printAfter(T->getPointeeType(), OS);
 }
 
@@ -420,7 +363,7 @@ static clang::QualType skipTopLevelReferences(clang::QualType T) {
 void TypePrinter::printLValueReferenceBefore(const clang::LValueReferenceType *T,
                                              raw_string_ostream &OS) {
   IncludeStrongLifetimeRAII Strong(Policy);
-  clang::SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
+  SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   clang::QualType Inner = skipTopLevelReferences(T->getPointeeTypeAsWritten());
   printBefore(Inner, OS);
   // Handle things like 'int (&A)[4];' correctly.
@@ -433,7 +376,7 @@ void TypePrinter::printLValueReferenceBefore(const clang::LValueReferenceType *T
 void TypePrinter::printLValueReferenceAfter(const clang::LValueReferenceType *T,
                                             raw_string_ostream &OS) {
   IncludeStrongLifetimeRAII Strong(Policy);
-  clang::SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
+  SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   clang::QualType Inner = skipTopLevelReferences(T->getPointeeTypeAsWritten());
   // Handle things like 'int (&A)[4];' correctly.
   // FIXME: this should include vectors, but vectors use attributes I guess.
@@ -445,7 +388,7 @@ void TypePrinter::printLValueReferenceAfter(const clang::LValueReferenceType *T,
 void TypePrinter::printRValueReferenceBefore(const clang::RValueReferenceType *T,
                                              raw_string_ostream &OS) {
   IncludeStrongLifetimeRAII Strong(Policy);
-  clang::SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
+  SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   clang::QualType Inner = skipTopLevelReferences(T->getPointeeTypeAsWritten());
   printBefore(Inner, OS);
   // Handle things like 'int (&&A)[4];' correctly.
@@ -458,7 +401,7 @@ void TypePrinter::printRValueReferenceBefore(const clang::RValueReferenceType *T
 void TypePrinter::printRValueReferenceAfter(const clang::RValueReferenceType *T,
                                             raw_string_ostream &OS) {
   IncludeStrongLifetimeRAII Strong(Policy);
-  clang::SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
+  SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   clang::QualType Inner = skipTopLevelReferences(T->getPointeeTypeAsWritten());
   // Handle things like 'int (&&A)[4];' correctly.
   // FIXME: this should include vectors, but vectors use attributes I guess.
@@ -470,7 +413,7 @@ void TypePrinter::printRValueReferenceAfter(const clang::RValueReferenceType *T,
 void TypePrinter::printMemberPointerBefore(const clang::MemberPointerType *T,
                                            raw_string_ostream &OS) {
   IncludeStrongLifetimeRAII Strong(Policy);
-  clang::SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
+  SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   printBefore(T->getPointeeType(), OS);
   // Handle things like 'int (Cls::*A)[4];' correctly.
   // FIXME: this should include vectors, but vectors use attributes I guess.
@@ -487,7 +430,7 @@ void TypePrinter::printMemberPointerBefore(const clang::MemberPointerType *T,
 void TypePrinter::printMemberPointerAfter(const clang::MemberPointerType *T,
                                           raw_string_ostream &OS) {
   IncludeStrongLifetimeRAII Strong(Policy);
-  clang::SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
+  SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   // Handle things like 'int (Cls::*A)[4];' correctly.
   // FIXME: this should include vectors, but vectors use attributes I guess.
   if (clang::isa<clang::ArrayType>(T->getPointeeType()))
@@ -498,7 +441,7 @@ void TypePrinter::printMemberPointerAfter(const clang::MemberPointerType *T,
 void TypePrinter::printConstantArrayBefore(const clang::ConstantArrayType *T,
                                            raw_string_ostream &OS) {
   IncludeStrongLifetimeRAII Strong(Policy);
-  clang::SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
+  SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   printBefore(T->getElementType(), OS);
 }
 
@@ -521,7 +464,7 @@ void TypePrinter::printConstantArrayAfter(const clang::ConstantArrayType *T,
 void TypePrinter::printIncompleteArrayBefore(const clang::IncompleteArrayType *T,
                                              raw_string_ostream &OS) {
   IncludeStrongLifetimeRAII Strong(Policy);
-  clang::SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
+  SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   printBefore(T->getElementType(), OS);
 }
 
@@ -535,7 +478,7 @@ void TypePrinter::printIncompleteArrayAfter(const clang::IncompleteArrayType *T,
 void TypePrinter::printVariableArrayBefore(const clang::VariableArrayType *T,
                                            raw_string_ostream &OS) {
   IncludeStrongLifetimeRAII Strong(Policy);
-  clang::SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
+  SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   printBefore(T->getElementType(), OS);
 }
 
@@ -582,7 +525,7 @@ void TypePrinter::printDependentSizedArrayBefore(
                                                const clang::DependentSizedArrayType *T,
                                                raw_string_ostream &OS) {
   IncludeStrongLifetimeRAII Strong(Policy);
-  clang::SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
+  SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   printBefore(T->getElementType(), OS);
 }
 
@@ -803,7 +746,7 @@ void TypePrinter::printFunctionProtoBefore(const clang::FunctionProtoType *T,
       OS << '(';
   } else {
     // If needed for precedence reasons, wrap the inner part in grouping parens.
-    clang::SaveAndRestore<bool> PrevPHIsEmpty(HasEmptyPlaceHolder, false);
+    SaveAndRestore<bool> PrevPHIsEmpty(HasEmptyPlaceHolder, false);
     printBefore(T->getReturnType(), OS);
     if (!PrevPHIsEmpty.get())
       OS << '(';
@@ -815,7 +758,7 @@ void TypePrinter::printFunctionProtoAfter(const clang::FunctionProtoType *T,
   // If needed for precedence reasons, wrap the inner part in grouping parens.
   if (!HasEmptyPlaceHolder)
     OS << ')';
-  clang::SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
+  SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
 
   OS << '(';
   {
@@ -957,7 +900,7 @@ void TypePrinter::printFunctionAfter(const clang::FunctionType::ExtInfo &Info,
 void TypePrinter::printFunctionNoProtoBefore(const clang::FunctionNoProtoType *T,
                                              raw_string_ostream &OS) {
   // If needed for precedence reasons, wrap the inner part in grouping parens.
-  clang::SaveAndRestore<bool> PrevPHIsEmpty(HasEmptyPlaceHolder, false);
+  SaveAndRestore<bool> PrevPHIsEmpty(HasEmptyPlaceHolder, false);
   printBefore(T->getReturnType(), OS);
   if (!PrevPHIsEmpty.get())
     OS << '(';
@@ -968,7 +911,7 @@ void TypePrinter::printFunctionNoProtoAfter(const clang::FunctionNoProtoType *T,
   // If needed for precedence reasons, wrap the inner part in grouping parens.
   if (!HasEmptyPlaceHolder)
     OS << ')';
-  clang::SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
+  SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
 
   OS << "()";
   printFunctionAfter(T->getExtInfo(), OS);
@@ -1582,7 +1525,7 @@ void TypePrinter::printAttributedAfter(const clang::AttributedType *T,
 
   // If this is a calling convention attribute, don't print the implicit CC from
   // the modified type.
-  clang::SaveAndRestore<bool> MaybeSuppressCC(InsideCCAttribute, T->isCallingConv());
+  SaveAndRestore<bool> MaybeSuppressCC(InsideCCAttribute, T->isCallingConv());
 
   printAfter(T->getModifiedType(), OS);
 

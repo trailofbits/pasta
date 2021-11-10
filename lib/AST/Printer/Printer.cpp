@@ -73,6 +73,25 @@ unsigned PrintedToken::NumleadingSpaces(void) const {
   return impl->num_leading_spaces;
 }
 
+// Return the index of this token in its token range.
+unsigned PrintedToken::Index(void) const {
+  if (!range) {
+    return ~0u;
+  }
+  const auto num_tokens = range->tokens.size();
+  if (!num_tokens) {
+    return ~0u;
+  }
+
+  auto begin = range->tokens.data();
+  auto end = &(begin[num_tokens]);
+  if (begin <= impl && impl < end) {
+    return static_cast<unsigned>(impl - begin);
+  } else {
+    return ~0u;
+  }
+}
+
 // Prefix increment operator.
 PrintedTokenIterator &PrintedTokenIterator::operator++(void) noexcept {
   ++token.impl;

@@ -34,10 +34,9 @@ class PrintedTokenRangeImpl;
 // the decl/stmt/type that led to the printing of this token, back to the root
 // printing request.
 struct PrintedTokenContext {
- private:
+ public:
   const PrintedTokenContext * const parent;
 
- public:
   // The decl associated with the token
   const clang::Decl * const decl;
 
@@ -47,8 +46,14 @@ struct PrintedTokenContext {
   // The types associated with the token
   const clang::Type * const type;
 
+  // Traverse up the chain.
+  static std::shared_ptr<const PrintedTokenContext> Parent(
+      std::shared_ptr<const PrintedTokenContext> curr);
+
  private:
   friend class PrintedTokenRangeImpl;
+
+  PrintedTokenContext(void) = delete;
 
   inline PrintedTokenContext(const PrintedTokenContext *parent_,
                              const clang::Stmt *stmt_)
@@ -70,10 +75,6 @@ struct PrintedTokenContext {
         decl(nullptr),
         stmt(nullptr),
         type(type_) {}
-
-  // Traverse up the chain.
-  static std::shared_ptr<const PrintedTokenContext> Parent(
-      std::shared_ptr<const PrintedTokenContext> curr);
 };
 
 class PrintedToken {
@@ -99,6 +100,9 @@ class PrintedToken {
 
   // Number of leading spaces (after any leading new lines).
   unsigned NumleadingSpaces(void) const;
+
+  // Return the index of this token in its token range.
+  unsigned Index(void) const;
 
   inline operator bool(void) const noexcept {
     return !!impl;

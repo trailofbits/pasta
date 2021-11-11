@@ -5,10 +5,12 @@
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Decl.h>
 #include <pasta/AST/Printer.h>
+#include <pasta/AST/Token.h>
 #include <pasta/Compile/Command.h>
 #include <pasta/Compile/Compiler.h>
 #include <pasta/Compile/Job.h>
 #include <pasta/Util/ArgumentVector.h>
+#include <pasta/Util/File.h>
 #include <pasta/Util/FileSystem.h>
 #include <pasta/Util/Init.h>
 
@@ -39,7 +41,22 @@ static std::string TokData(pasta::PrintedToken tok) {
   return ss.str();
 }
 
-static void PrintTokenGraph(pasta::Decl tld, pasta::PrintedTokenRange tokens) {
+static void PrintTokenGraph(pasta::Decl tld) {
+  auto tokens = pasta::PrintedTokenRange::Create(tld);
+  if (tokens.empty()) {
+    std::cerr
+        << "Empty tokens for " << tld.KindName();
+    if (pasta::Token loc = tld.Token()) {
+      if (std::optional<pasta::FileToken> floc = loc.FileLocation()) {
+        std::cerr
+            << " at " << pasta::File::Containing(*floc).Path()
+            << ":" << floc->Line() << ":" << floc->Column();
+      }
+    }
+    std::cerr << std::endl;
+    return;
+  }
+
   const auto a = reinterpret_cast<uintptr_t>(tld.RawDecl());
 
   std::cout
@@ -109,6 +126,38 @@ static void PrintTokenGraph(pasta::Decl tld, pasta::PrintedTokenRange tokens) {
   }
 }
 
+// Visit all top-level declarations.
+class TLDFinder final : public pasta::DeclVisitor {
+ public:
+  virtual ~TLDFinder(void) = default;
+
+  void VisitDeclContext(const pasta::DeclContext &dc) {
+    for (const auto &decl : dc.AlreadyLoadedDecls()) {
+      Accept(decl);
+    }
+  }
+
+  void VisitTranslationUnitDecl(const pasta::TranslationUnitDecl &decl) final {
+    VisitDeclContext(decl);
+  }
+
+  void VisitNamespaceDecl(const pasta::NamespaceDecl &decl) final {
+    VisitDeclContext(decl);
+  }
+
+  void VisitExternCContextDecl(const pasta::ExternCContextDecl &decl) final {
+    VisitDeclContext(decl);
+  }
+
+  void VisitLinkageSpecDecl(const pasta::LinkageSpecDecl &decl) final {
+    VisitDeclContext(decl);
+  }
+
+  void VisitDecl(const pasta::Decl &decl) final {
+    PrintTokenGraph(decl);
+  }
+};
+
 int main(int argc, char *argv[]) {
   if (2 > argc) {
     std::cout << "Usage: " << argv[0] << " COMPILE_COMMAND..."
@@ -156,11 +205,8 @@ int main(int argc, char *argv[]) {
       std::cout << maybe_ast.TakeError() << std::endl;
       return EXIT_FAILURE;
     } else {
-      auto tu = maybe_ast->TranslationUnit();
-      pasta::DeclContext dc(tu);
-      for (pasta::Decl decl : dc.Declarations()) {
-        PrintTokenGraph(decl, pasta::PrintedTokenRange::Create(decl));
-      }
+      TLDFinder finder;
+      finder.Accept(maybe_ast->TranslationUnit());
     }
   }
 

@@ -377,4 +377,24 @@ PrintedTokenRange PrintedTokenRange::Create(const Decl &decl_) {
   return ret;
 }
 
+// Number of tokens in this range.
+size_t PrintedTokenRange::Size(void) const noexcept {
+  return first ? impl->tokens.size() : 0;
+}
+
+// Return the `index`th token in this range. If `index` is too big, then
+// return nothing.
+std::optional<PrintedToken> PrintedTokenRange::At(size_t index) const noexcept {
+  if (auto ptr = &(first[index]); ptr < after_last) {
+    return PrintedToken(impl, ptr);
+  } else {
+    return std::nullopt;
+  }
+}
+
+// Unsafe indexed access into the token range.
+PrintedToken PrintedTokenRange::operator[](size_t index) const {
+  return PrintedToken(impl, &(first[index]));
+}
+
 }  // namespace pasta

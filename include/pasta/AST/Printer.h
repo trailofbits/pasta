@@ -230,6 +230,10 @@ class PrintedTokenRange {
     return Size();
   }
 
+  inline bool empty(void) const noexcept {
+    return !Size();
+  }
+
   // Number of tokens in this range.
   size_t Size(void) const noexcept;
 

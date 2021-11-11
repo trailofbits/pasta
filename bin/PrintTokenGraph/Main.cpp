@@ -32,17 +32,19 @@ static std::string TokData(pasta::PrintedToken tok) {
       case '"': ss << "&quot;"; break;
       case '\'': ss << "&apos;"; break;
       case '\n': ss << " "; break;
+      case '&': ss << "&amp;"; break;
       default: ss << ch; break;
     }
   }
   return ss.str();
 }
 
-static void PrintTokenGraph(pasta::PrintedTokenRange tokens) {
+static void PrintTokenGraph(pasta::Decl tld, pasta::PrintedTokenRange tokens) {
+  const auto a = reinterpret_cast<uintptr_t>(tld.RawDecl());
+
   std::cout
-      << "digraph {\n"
-      << "node [shape=none margin=0 nojustify=false labeljust=l font=courier];\n"
-      << "tokens [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" border=\"1\"><TR>";
+      << "tokens" << a
+      << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" border=\"1\"><TR>";
 
 
   std::unordered_set<const pasta::PrintedTokenContext *> contexts;
@@ -69,8 +71,10 @@ static void PrintTokenGraph(pasta::PrintedTokenRange tokens) {
       bgcolor = " bgcolor=\"cadetblue1\"";
     }
 
+    const auto c = reinterpret_cast<uintptr_t>(context);
+
     std::cout
-        << "c" << reinterpret_cast<const void *>(context)
+        << "c" << a << '_' << c
         << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" "
         << "border=\"1\"><TR><TD" << bgcolor << ">";
 
@@ -86,22 +90,23 @@ static void PrintTokenGraph(pasta::PrintedTokenRange tokens) {
         << "</TD></TR></TABLE>>];\n";
 
     if (context->parent) {
+
+      const auto cp = reinterpret_cast<uintptr_t>(context->parent);
       std::cout
-          << "c" << reinterpret_cast<const void *>(context)
-          << " -> c" << reinterpret_cast<const void *>(context->parent)
+          << "c" << a << '_' << c
+          << " -> c" << a << '_' << cp
           << ";\n";
     }
   }
 
   for (pasta::PrintedToken tok : tokens) {
     if (auto context = tok.RawContext().get()) {
+      const auto c = reinterpret_cast<uintptr_t>(context);
       std::cout
-          << "tokens:t" << tok.Index() << " -> c"
-          << reinterpret_cast<const void *>(context) << ";\n";
+          << "tokens" << a
+          << ":t" << tok.Index() << " -> c" << a << '_' << c << ";\n";
     }
   }
-
-  std::cout << "}\n";
 }
 
 int main(int argc, char *argv[]) {
@@ -141,6 +146,10 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
+  std::cout
+      << "digraph {\n"
+      << "node [shape=none margin=0 nojustify=false labeljust=l font=courier];\n";
+
   for (const auto &job : *maybe_jobs) {
     auto maybe_ast = job.Run();
     if (maybe_ast.Failed()) {
@@ -148,9 +157,14 @@ int main(int argc, char *argv[]) {
       return EXIT_FAILURE;
     } else {
       auto tu = maybe_ast->TranslationUnit();
-      PrintTokenGraph(pasta::PrintedTokenRange::Create(tu));
+      pasta::DeclContext dc(tu);
+      for (pasta::Decl decl : dc.Declarations()) {
+        PrintTokenGraph(decl, pasta::PrintedTokenRange::Create(decl));
+      }
     }
   }
+
+  std::cout << "}\n";
 
   return EXIT_SUCCESS;
 }

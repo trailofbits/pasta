@@ -26,7 +26,11 @@
     base(void) = delete; \
     explicit base( \
         std::shared_ptr<ASTImpl> ast_, \
-        const ::clang::Decl *decl_);
+        const ::clang::Decl *decl_); \
+  public: \
+    const clang::base *RawDecl(void) const noexcept { \
+      return u.base; \
+    }
 
 namespace pasta {
 class DeclVisitor {

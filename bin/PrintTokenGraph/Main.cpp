@@ -19,6 +19,7 @@
 #include <clang/AST/Stmt.h>
 
 #include <cstdlib>
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <sstream>
@@ -57,9 +58,16 @@ static void PrintTokenGraph(pasta::Decl tld) {
     return;
   }
 
+  static int x = 0;
+  std::ofstream os("/tmp/tokens/" + std::to_string(x++) + ".dot");
+
+  os
+      << "digraph {\n"
+      << "node [shape=none margin=0 nojustify=false labeljust=l font=courier];\n";
+
   const auto a = reinterpret_cast<uintptr_t>(tld.RawDecl());
 
-  std::cout
+  os
       << "tokens" << a
       << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" border=\"1\"><TR>";
 
@@ -72,11 +80,11 @@ static void PrintTokenGraph(pasta::Decl tld) {
       contexts.insert(context.get());
     }
 
-    std::cout
+    os
         << "<TD port=\"t" << tok.Index() << "\">" << TokData(tok) << "</TD>";
   }
 
-  std::cout << "</TR></TABLE>>];\n";
+  os << "</TR></TABLE>>];\n";
 
   for (const pasta::PrintedTokenContext *context : contexts) {
     auto bgcolor = "";
@@ -90,26 +98,26 @@ static void PrintTokenGraph(pasta::Decl tld) {
 
     const auto c = reinterpret_cast<uintptr_t>(context);
 
-    std::cout
+    os
         << "c" << a << '_' << c
         << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" "
         << "border=\"1\"><TR><TD" << bgcolor << ">";
 
     if (context->decl) {
-      std::cout << context->decl->getDeclKindName();
+      os << context->decl->getDeclKindName();
     } else if (context->stmt) {
-      std::cout << context->stmt->getStmtClassName();
+      os << context->stmt->getStmtClassName();
     } else if (context->type) {
-      std::cout << context->type->getTypeClassName();
+      os << context->type->getTypeClassName();
     }
 
-    std::cout
+    os
         << "</TD></TR></TABLE>>];\n";
 
     if (context->parent) {
 
       const auto cp = reinterpret_cast<uintptr_t>(context->parent);
-      std::cout
+      os
           << "c" << a << '_' << c
           << " -> c" << a << '_' << cp
           << ";\n";
@@ -119,11 +127,13 @@ static void PrintTokenGraph(pasta::Decl tld) {
   for (pasta::PrintedToken tok : tokens) {
     if (auto context = tok.RawContext().get()) {
       const auto c = reinterpret_cast<uintptr_t>(context);
-      std::cout
+      os
           << "tokens" << a
           << ":t" << tok.Index() << " -> c" << a << '_' << c << ";\n";
     }
   }
+
+  os << "}\n";
 }
 
 // Visit all top-level declarations.
@@ -195,10 +205,6 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
-  std::cout
-      << "digraph {\n"
-      << "node [shape=none margin=0 nojustify=false labeljust=l font=courier];\n";
-
   for (const auto &job : *maybe_jobs) {
     auto maybe_ast = job.Run();
     if (maybe_ast.Failed()) {
@@ -210,7 +216,6 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  std::cout << "}\n";
 
   return EXIT_SUCCESS;
 }

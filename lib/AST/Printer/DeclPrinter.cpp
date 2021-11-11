@@ -65,25 +65,16 @@ static clang::SplitQualType splitAccordingToPolicy(
   return QT.split();
 }
 
-static void print(clang::SplitQualType split,
-                  raw_string_ostream &OS,
-                  const clang::PrintingPolicy &policy,
-                  const clang::Twine &PlaceHolder,
-                  std::function<std::string(void)> *placeHolderFn = nullptr,
-                  unsigned Indentation = 0) {
-  clang::SmallString<128> PHBuf;
-  clang::StringRef PH = PlaceHolder.toStringRef(PHBuf);
-  TypePrinter(policy, Indentation).print(split.Ty,  split.Quals, OS, PH, placeHolderFn);
-}
-
-void printQualType(clang::QualType qt,
+void DeclPrinter::printQualType(clang::QualType qt,
                    raw_string_ostream &OS,
                    const clang::PrintingPolicy &Policy,
-                   const clang::Twine &PlaceHolder = clang::Twine(),
-                   std::function<std::string(void)> *placeHolderFn = nullptr,
-                   unsigned Indentation = 0) {
+                   const clang::Twine &PlaceHolder,
+                   std::function<std::string(void)> *placeHolderFn,
+                   unsigned Indentation) {
   auto split = splitAccordingToPolicy(qt, Policy);
-  print(split, OS, Policy, PlaceHolder, placeHolderFn, Indentation);
+  clang::SmallString<128> PHBuf;
+  clang::StringRef PH = PlaceHolder.toStringRef(PHBuf);
+  TypePrinter(Policy, tokens, Indentation).print(split.Ty,  split.Quals, OS, PH, placeHolderFn);
 }
 
 

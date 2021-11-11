@@ -107,7 +107,6 @@ class TokenPrinterContext {
   const PrintedTokenContext * const context;
   PrintedTokenRangeImpl &tokens;
   const char * const caller_fn;
-  unsigned out_size;
 };
 
 }  // namespace pasta

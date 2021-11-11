@@ -250,6 +250,7 @@ void TypePrinter::printBefore(clang::QualType T, raw_string_ostream &OS) {
 /// Prints the part of the type string before an identifier, e.g. for
 /// "int foo[10]" it prints "int ".
 void TypePrinter::printBefore(const clang::Type *T, clang::Qualifiers Quals, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   if (Policy.SuppressSpecifiers && T->isSpecifierType())
     return;
 
@@ -372,6 +373,7 @@ static clang::QualType skipTopLevelReferences(clang::QualType T) {
 
 void TypePrinter::printLValueReferenceBefore(const clang::LValueReferenceType *T,
                                              raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   IncludeStrongLifetimeRAII Strong(Policy);
   SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   clang::QualType Inner = skipTopLevelReferences(T->getPointeeTypeAsWritten());
@@ -385,6 +387,7 @@ void TypePrinter::printLValueReferenceBefore(const clang::LValueReferenceType *T
 
 void TypePrinter::printLValueReferenceAfter(const clang::LValueReferenceType *T,
                                             raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   IncludeStrongLifetimeRAII Strong(Policy);
   SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   clang::QualType Inner = skipTopLevelReferences(T->getPointeeTypeAsWritten());
@@ -397,6 +400,7 @@ void TypePrinter::printLValueReferenceAfter(const clang::LValueReferenceType *T,
 
 void TypePrinter::printRValueReferenceBefore(const clang::RValueReferenceType *T,
                                              raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   IncludeStrongLifetimeRAII Strong(Policy);
   SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   clang::QualType Inner = skipTopLevelReferences(T->getPointeeTypeAsWritten());
@@ -410,6 +414,7 @@ void TypePrinter::printRValueReferenceBefore(const clang::RValueReferenceType *T
 
 void TypePrinter::printRValueReferenceAfter(const clang::RValueReferenceType *T,
                                             raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   IncludeStrongLifetimeRAII Strong(Policy);
   SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   clang::QualType Inner = skipTopLevelReferences(T->getPointeeTypeAsWritten());
@@ -422,6 +427,7 @@ void TypePrinter::printRValueReferenceAfter(const clang::RValueReferenceType *T,
 
 void TypePrinter::printMemberPointerBefore(const clang::MemberPointerType *T,
                                            raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   IncludeStrongLifetimeRAII Strong(Policy);
   SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   printBefore(T->getPointeeType(), OS);
@@ -432,13 +438,14 @@ void TypePrinter::printMemberPointerBefore(const clang::MemberPointerType *T,
 
   clang::PrintingPolicy InnerPolicy(Policy);
   InnerPolicy.IncludeTagDefinition = false;
-  TypePrinter(InnerPolicy).print(clang::QualType(T->getClass(), 0), OS, clang::StringRef());
+  TypePrinter(InnerPolicy, tokens).print(clang::QualType(T->getClass(), 0), OS, clang::StringRef());
 
   OS << "::*";
 }
 
 void TypePrinter::printMemberPointerAfter(const clang::MemberPointerType *T,
                                           raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   IncludeStrongLifetimeRAII Strong(Policy);
   SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   // Handle things like 'int (Cls::*A)[4];' correctly.
@@ -450,6 +457,7 @@ void TypePrinter::printMemberPointerAfter(const clang::MemberPointerType *T,
 
 void TypePrinter::printConstantArrayBefore(const clang::ConstantArrayType *T,
                                            raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   IncludeStrongLifetimeRAII Strong(Policy);
   SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   printBefore(T->getElementType(), OS);
@@ -457,6 +465,7 @@ void TypePrinter::printConstantArrayBefore(const clang::ConstantArrayType *T,
 
 void TypePrinter::printConstantArrayAfter(const clang::ConstantArrayType *T,
                                           raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   OS << '[';
   if (T->getIndexTypeQualifiers().hasQualifiers()) {
     AppendTypeQualList(OS, T->getIndexTypeCVRQualifiers(),
@@ -473,6 +482,7 @@ void TypePrinter::printConstantArrayAfter(const clang::ConstantArrayType *T,
 
 void TypePrinter::printIncompleteArrayBefore(const clang::IncompleteArrayType *T,
                                              raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   IncludeStrongLifetimeRAII Strong(Policy);
   SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   printBefore(T->getElementType(), OS);
@@ -481,12 +491,14 @@ void TypePrinter::printIncompleteArrayBefore(const clang::IncompleteArrayType *T
 
 void TypePrinter::printIncompleteArrayAfter(const clang::IncompleteArrayType *T,
                                             raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   OS << "[]";
   printAfter(T->getElementType(), OS);
 }
 
 void TypePrinter::printVariableArrayBefore(const clang::VariableArrayType *T,
                                            raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   IncludeStrongLifetimeRAII Strong(Policy);
   SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   printBefore(T->getElementType(), OS);
@@ -494,6 +506,7 @@ void TypePrinter::printVariableArrayBefore(const clang::VariableArrayType *T,
 
 void TypePrinter::printVariableArrayAfter(const clang::VariableArrayType *T,
                                           raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   OS << '[';
   if (T->getIndexTypeQualifiers().hasQualifiers()) {
     AppendTypeQualList(OS, T->getIndexTypeCVRQualifiers(), Policy.Restrict);
@@ -515,33 +528,37 @@ void TypePrinter::printVariableArrayAfter(const clang::VariableArrayType *T,
 void TypePrinter::printAdjustedBefore(const clang::AdjustedType *T, raw_string_ostream &OS) {
   // Print the adjusted representation, otherwise the adjustment will be
   // invisible.
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   printBefore(T->getAdjustedType(), OS);
 }
 
 void TypePrinter::printAdjustedAfter(const clang::AdjustedType *T, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   printAfter(T->getAdjustedType(), OS);
 }
 
 void TypePrinter::printDecayedBefore(const clang::DecayedType *T, raw_string_ostream &OS) {
   // Print as though it's a pointer.
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   printAdjustedBefore(T, OS);
 }
 
 void TypePrinter::printDecayedAfter(const clang::DecayedType *T, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   printAdjustedAfter(T, OS);
 }
 
 void TypePrinter::printDependentSizedArrayBefore(
-                                               const clang::DependentSizedArrayType *T,
-                                               raw_string_ostream &OS) {
+    const clang::DependentSizedArrayType *T, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   IncludeStrongLifetimeRAII Strong(Policy);
   SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   printBefore(T->getElementType(), OS);
 }
 
 void TypePrinter::printDependentSizedArrayAfter(
-                                               const clang::DependentSizedArrayType *T,
-                                               raw_string_ostream &OS) {
+    const clang::DependentSizedArrayType *T, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   OS << '[';
   if (T->getSizeExpr())
     T->getSizeExpr()->printPretty(OS, nullptr, Policy);
@@ -556,6 +573,7 @@ void TypePrinter::printDependentAddressSpaceBefore(
 
 void TypePrinter::printDependentAddressSpaceAfter(
     const clang::DependentAddressSpaceType *T, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   OS << " __attribute__((address_space(";
   if (T->getAddrSpaceExpr())
     T->getAddrSpaceExpr()->printPretty(OS, nullptr, Policy);
@@ -564,14 +582,14 @@ void TypePrinter::printDependentAddressSpaceAfter(
 }
 
 void TypePrinter::printDependentSizedExtVectorBefore(
-                                          const clang::DependentSizedExtVectorType *T,
-                                          raw_string_ostream &OS) {
+    const clang::DependentSizedExtVectorType *T, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   printBefore(T->getElementType(), OS);
 }
 
 void TypePrinter::printDependentSizedExtVectorAfter(
     const clang::DependentSizedExtVectorType *T, raw_string_ostream &OS) {
-  //TokenPrinterContext ctx(OS, T, this->tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   OS << " __attribute__((ext_vector_type(";
   if (T->getSizeExpr())
     T->getSizeExpr()->printPretty(OS, nullptr, Policy);
@@ -580,6 +598,7 @@ void TypePrinter::printDependentSizedExtVectorAfter(
 }
 
 void TypePrinter::printVectorBefore(const clang::VectorType *T, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   switch (T->getVectorKind()) {
   case clang::VectorType::AltiVecPixel:
     OS << "__vector __pixel ";
@@ -635,11 +654,13 @@ void TypePrinter::printVectorBefore(const clang::VectorType *T, raw_string_ostre
 }
 
 void TypePrinter::printVectorAfter(const clang::VectorType *T, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   printAfter(T->getElementType(), OS);
 }
 
 void TypePrinter::printDependentVectorBefore(
     const clang::DependentVectorType *T, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   switch (T->getVectorKind()) {
   case clang::VectorType::AltiVecPixel:
     OS << "__vector __pixel ";
@@ -699,17 +720,20 @@ void TypePrinter::printDependentVectorBefore(
   }
 }
 
-void TypePrinter::printDependentVectorAfter(
-    const clang::DependentVectorType *T, raw_string_ostream &OS) {
+void TypePrinter::printDependentVectorAfter(const clang::DependentVectorType *T,
+                                            raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   printAfter(T->getElementType(), OS);
 }
 
 void TypePrinter::printExtVectorBefore(const clang::ExtVectorType *T,
                                        raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   printBefore(T->getElementType(), OS);
 }
 
 void TypePrinter::printExtVectorAfter(const clang::ExtVectorType *T, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   printAfter(T->getElementType(), OS);
   OS << " __attribute__((ext_vector_type(";
   OS << T->getNumElements();
@@ -718,6 +742,7 @@ void TypePrinter::printExtVectorAfter(const clang::ExtVectorType *T, raw_string_
 
 void TypePrinter::printConstantMatrixBefore(const clang::ConstantMatrixType *T,
                                             raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   printBefore(T->getElementType(), OS);
   OS << " __attribute__((matrix_type(";
   OS << T->getNumRows() << ", " << T->getNumColumns();
@@ -726,11 +751,13 @@ void TypePrinter::printConstantMatrixBefore(const clang::ConstantMatrixType *T,
 
 void TypePrinter::printConstantMatrixAfter(const clang::ConstantMatrixType *T,
                                            raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   printAfter(T->getElementType(), OS);
 }
 
-void TypePrinter::printDependentSizedMatrixBefore(
-    const clang::DependentSizedMatrixType *T, raw_string_ostream &OS) {
+void TypePrinter::printDependentSizedMatrixBefore(const clang::DependentSizedMatrixType *T,
+                                                  raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   printBefore(T->getElementType(), OS);
   OS << " __attribute__((matrix_type(";
   if (T->getRowExpr()) {
@@ -743,13 +770,15 @@ void TypePrinter::printDependentSizedMatrixBefore(
   OS << ")))";
 }
 
-void TypePrinter::printDependentSizedMatrixAfter(
-    const clang::DependentSizedMatrixType *T, raw_string_ostream &OS) {
+void TypePrinter::printDependentSizedMatrixAfter(const clang::DependentSizedMatrixType *T,
+                                                 raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   printAfter(T->getElementType(), OS);
 }
 
 void TypePrinter::printFunctionProtoBefore(const clang::FunctionProtoType *T,
                                            raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   if (T->hasTrailingReturn()) {
     OS << "auto ";
     if (!HasEmptyPlaceHolder)
@@ -766,6 +795,7 @@ void TypePrinter::printFunctionProtoBefore(const clang::FunctionProtoType *T,
 void TypePrinter::printFunctionProtoAfter(const clang::FunctionProtoType *T,
                                           raw_string_ostream &OS) {
   // If needed for precedence reasons, wrap the inner part in grouping parens.
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   if (!HasEmptyPlaceHolder)
     OS << ')';
   SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
@@ -909,6 +939,7 @@ void TypePrinter::printFunctionAfter(const clang::FunctionType::ExtInfo &Info,
 
 void TypePrinter::printFunctionNoProtoBefore(const clang::FunctionNoProtoType *T,
                                              raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   // If needed for precedence reasons, wrap the inner part in grouping parens.
   SaveAndRestore<bool> PrevPHIsEmpty(HasEmptyPlaceHolder, false);
   printBefore(T->getReturnType(), OS);
@@ -918,6 +949,7 @@ void TypePrinter::printFunctionNoProtoBefore(const clang::FunctionNoProtoType *T
 
 void TypePrinter::printFunctionNoProtoAfter(const clang::FunctionNoProtoType *T,
                                             raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   // If needed for precedence reasons, wrap the inner part in grouping parens.
   if (!HasEmptyPlaceHolder)
     OS << ')';
@@ -929,6 +961,8 @@ void TypePrinter::printFunctionNoProtoAfter(const clang::FunctionNoProtoType *T,
 }
 
 void TypePrinter::printTypeSpec(clang::NamedDecl *D, raw_string_ostream &OS) {
+
+  TokenPrinterContext ctx(OS, D, tokens, __FUNCTION__);
 
   // Compute the full nested-name-specifier for this type.
   // In C, this will always be empty except when the type
@@ -943,18 +977,22 @@ void TypePrinter::printTypeSpec(clang::NamedDecl *D, raw_string_ostream &OS) {
 
 void TypePrinter::printUnresolvedUsingBefore(const clang::UnresolvedUsingType *T,
                                              raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   printTypeSpec(T->getDecl(), OS);
 }
 
 void TypePrinter::printUnresolvedUsingAfter(const clang::UnresolvedUsingType *T,
                                             raw_string_ostream &OS) {}
 
-void TypePrinter::printTypedefBefore(const clang::TypedefType *T, raw_string_ostream &OS) {
+void TypePrinter::printTypedefBefore(const clang::TypedefType *T,
+                                     raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   printTypeSpec(T->getDecl(), OS);
 }
 
 void TypePrinter::printMacroQualifiedBefore(const clang::MacroQualifiedType *T,
                                             raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   clang::StringRef MacroName = T->getMacroIdentifier()->getName();
   OS << MacroName << " ";
 
@@ -965,6 +1003,7 @@ void TypePrinter::printMacroQualifiedBefore(const clang::MacroQualifiedType *T,
 
 void TypePrinter::printMacroQualifiedAfter(const clang::MacroQualifiedType *T,
                                            raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   printAfter(T->getModifiedType(), OS);
 }
 
@@ -972,6 +1011,7 @@ void TypePrinter::printTypedefAfter(const clang::TypedefType *T, raw_string_ostr
 
 void TypePrinter::printTypeOfExprBefore(const clang::TypeOfExprType *T,
                                         raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   OS << "typeof ";
   if (T->getUnderlyingExpr())
     T->getUnderlyingExpr()->printPretty(OS, nullptr, Policy);
@@ -982,6 +1022,7 @@ void TypePrinter::printTypeOfExprAfter(const clang::TypeOfExprType *T,
                                        raw_string_ostream &OS) {}
 
 void TypePrinter::printTypeOfBefore(const clang::TypeOfType *T, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   OS << "typeof(";
   print(T->getUnderlyingType(), OS, clang::StringRef());
   OS << ')';
@@ -991,6 +1032,7 @@ void TypePrinter::printTypeOfBefore(const clang::TypeOfType *T, raw_string_ostre
 void TypePrinter::printTypeOfAfter(const clang::TypeOfType *T, raw_string_ostream &OS) {}
 
 void TypePrinter::printDecltypeBefore(const clang::DecltypeType *T, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   OS << "decltype(";
   if (T->getUnderlyingExpr())
     T->getUnderlyingExpr()->printPretty(OS, nullptr, Policy);
@@ -1003,6 +1045,7 @@ void TypePrinter::printDecltypeAfter(const clang::DecltypeType *T, raw_string_os
 void TypePrinter::printUnaryTransformBefore(const clang::UnaryTransformType *T,
                                             raw_string_ostream &OS) {
   IncludeStrongLifetimeRAII Strong(Policy);
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
 
   switch (T->getUTTKind()) {
     case clang::UnaryTransformType::EnumUnderlyingType:
@@ -1019,6 +1062,7 @@ void TypePrinter::printUnaryTransformBefore(const clang::UnaryTransformType *T,
 void TypePrinter::printUnaryTransformAfter(const clang::UnaryTransformType *T,
                                            raw_string_ostream &OS) {
   IncludeStrongLifetimeRAII Strong(Policy);
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
 
   switch (T->getUTTKind()) {
     case clang::UnaryTransformType::EnumUnderlyingType:
@@ -1029,6 +1073,8 @@ void TypePrinter::printUnaryTransformAfter(const clang::UnaryTransformType *T,
 }
 
 void TypePrinter::printAutoBefore(const clang::AutoType *T, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
+
   // If the type has been deduced, do not print 'auto'.
   if (!T->getDeducedType().isNull()) {
     printBefore(T->getDeducedType(), OS);
@@ -1054,6 +1100,7 @@ void TypePrinter::printAutoBefore(const clang::AutoType *T, raw_string_ostream &
 }
 
 void TypePrinter::printAutoAfter(const clang::AutoType *T, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   // If the type has been deduced, do not print 'auto'.
   if (!T->getDeducedType().isNull())
     printAfter(T->getDeducedType(), OS);
@@ -1061,6 +1108,7 @@ void TypePrinter::printAutoAfter(const clang::AutoType *T, raw_string_ostream &O
 
 void TypePrinter::printDeducedTemplateSpecializationBefore(
     const clang::DeducedTemplateSpecializationType *T, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   // If the type has been deduced, print the deduced type.
   if (!T->getDeducedType().isNull()) {
     printBefore(T->getDeducedType(), OS);
@@ -1073,14 +1121,16 @@ void TypePrinter::printDeducedTemplateSpecializationBefore(
 
 void TypePrinter::printDeducedTemplateSpecializationAfter(
     const clang::DeducedTemplateSpecializationType *T, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   // If the type has been deduced, print the deduced type.
   if (!T->getDeducedType().isNull())
     printAfter(T->getDeducedType(), OS);
 }
 
 void TypePrinter::printAtomicBefore(const clang::AtomicType *T, raw_string_ostream &OS) {
-  IncludeStrongLifetimeRAII Strong(Policy);
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
 
+  IncludeStrongLifetimeRAII Strong(Policy);
   OS << "_Atomic(";
   print(T->getValueType(), OS, clang::StringRef());
   OS << ')';
@@ -1091,6 +1141,7 @@ void TypePrinter::printAtomicAfter(const clang::AtomicType *T, raw_string_ostrea
 
 void TypePrinter::printPipeBefore(const clang::PipeType *T, raw_string_ostream &OS) {
   IncludeStrongLifetimeRAII Strong(Policy);
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
 
   if (T->isReadOnly())
     OS << "read_only ";
@@ -1104,6 +1155,7 @@ void TypePrinter::printPipeBefore(const clang::PipeType *T, raw_string_ostream &
 void TypePrinter::printPipeAfter(const clang::PipeType *T, raw_string_ostream &OS) {}
 
 void TypePrinter::printExtIntBefore(const clang::ExtIntType *T, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   if (T->isUnsigned())
     OS << "unsigned ";
   OS << "_ExtInt(" << T->getNumBits() << ")";
@@ -1114,6 +1166,7 @@ void TypePrinter::printExtIntAfter(const clang::ExtIntType *T, raw_string_ostrea
 
 void TypePrinter::printDependentExtIntBefore(const clang::DependentExtIntType *T,
                                              raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   if (T->isUnsigned())
     OS << "unsigned ";
   OS << "_ExtInt(";
@@ -1178,6 +1231,8 @@ void TypePrinter::AppendScope(clang::DeclContext *DC, raw_string_ostream &OS,
 }
 
 void TypePrinter::printTag(clang::TagDecl *D, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, D, tokens, __FUNCTION__);
+
   if (Policy.IncludeTagDefinition) {
     clang::PrintingPolicy SubPolicy = Policy;
     SubPolicy.IncludeTagDefinition = false;
@@ -1267,6 +1322,7 @@ void TypePrinter::printTag(clang::TagDecl *D, raw_string_ostream &OS) {
 }
 
 void TypePrinter::printRecordBefore(const clang::RecordType *T, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   // Print the preferred name if we have one for this type.
   for (const auto *PNA : T->getDecl()->specific_attrs<clang::PreferredNameAttr>()) {
     if (declaresSameEntity(PNA->getTypedefType()->getAsCXXRecordDecl(),
@@ -1289,6 +1345,7 @@ void TypePrinter::printRecordBefore(const clang::RecordType *T, raw_string_ostre
 void TypePrinter::printRecordAfter(const clang::RecordType *T, raw_string_ostream &OS) {}
 
 void TypePrinter::printEnumBefore(const clang::EnumType *T, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   printTag(T->getDecl(), OS);
 }
 
@@ -1296,6 +1353,7 @@ void TypePrinter::printEnumAfter(const clang::EnumType *T, raw_string_ostream &O
 
 void TypePrinter::printTemplateTypeParmBefore(const clang::TemplateTypeParmType *T,
                                               raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   clang::TemplateTypeParmDecl *D = T->getDecl();
   if (D && D->isImplicit()) {
     if (auto *TC = D->getTypeConstraint()) {
@@ -1317,6 +1375,7 @@ void TypePrinter::printTemplateTypeParmAfter(const clang::TemplateTypeParmType *
 void TypePrinter::printSubstTemplateTypeParmBefore(
                                              const clang::SubstTemplateTypeParmType *T,
                                              raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   IncludeStrongLifetimeRAII Strong(Policy);
   printBefore(T->getReplacementType(), OS);
 }
@@ -1324,6 +1383,7 @@ void TypePrinter::printSubstTemplateTypeParmBefore(
 void TypePrinter::printSubstTemplateTypeParmAfter(
                                              const clang::SubstTemplateTypeParmType *T,
                                              raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   IncludeStrongLifetimeRAII Strong(Policy);
   printAfter(T->getReplacementType(), OS);
 }
@@ -1331,6 +1391,7 @@ void TypePrinter::printSubstTemplateTypeParmAfter(
 void TypePrinter::printSubstTemplateTypeParmPackBefore(
                                         const clang::SubstTemplateTypeParmPackType *T,
                                         raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   IncludeStrongLifetimeRAII Strong(Policy);
   printTemplateTypeParmBefore(T->getReplacedParameter(), OS);
 }
@@ -1338,12 +1399,14 @@ void TypePrinter::printSubstTemplateTypeParmPackBefore(
 void TypePrinter::printSubstTemplateTypeParmPackAfter(
                                         const clang::SubstTemplateTypeParmPackType *T,
                                         raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   IncludeStrongLifetimeRAII Strong(Policy);
   printTemplateTypeParmAfter(T->getReplacedParameter(), OS);
 }
 
 void TypePrinter::printTemplateId(const clang::TemplateSpecializationType *T,
                                   raw_string_ostream &OS, bool FullyQualify) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   IncludeStrongLifetimeRAII Strong(Policy);
 
   clang::TemplateDecl *TD = T->getTemplateName().getAsTemplateDecl();
@@ -1362,8 +1425,8 @@ void TypePrinter::printTemplateId(const clang::TemplateSpecializationType *T,
 }
 
 void TypePrinter::printTemplateSpecializationBefore(
-                                            const clang::TemplateSpecializationType *T,
-                                            raw_string_ostream &OS) {
+    const clang::TemplateSpecializationType *T, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   printTemplateId(T, OS, Policy.FullyQualifiedName);
 }
 
@@ -1373,6 +1436,7 @@ void TypePrinter::printTemplateSpecializationAfter(
 
 void TypePrinter::printInjectedClassNameBefore(const clang::InjectedClassNameType *T,
                                                raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   if (Policy.PrintInjectedClassNameWithArguments)
     return printTemplateSpecializationBefore(T->getInjectedTST(), OS);
 
@@ -1386,6 +1450,7 @@ void TypePrinter::printInjectedClassNameAfter(const clang::InjectedClassNameType
 
 void TypePrinter::printElaboratedBefore(const clang::ElaboratedType *T,
                                         raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   if (Policy.IncludeTagDefinition && T->getOwnedTagDecl()) {
     clang::TagDecl *OwnedTagDecl = T->getOwnedTagDecl();
     assert(OwnedTagDecl->getTypeForDecl() == T->getNamedType().getTypePtr() &&
@@ -1414,6 +1479,7 @@ void TypePrinter::printElaboratedBefore(const clang::ElaboratedType *T,
 
 void TypePrinter::printElaboratedAfter(const clang::ElaboratedType *T,
                                         raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   if (Policy.IncludeTagDefinition && T->getOwnedTagDecl())
     return;
   ElaboratedTypePolicyRAII PolicyRAII(Policy);
@@ -1421,6 +1487,7 @@ void TypePrinter::printElaboratedAfter(const clang::ElaboratedType *T,
 }
 
 void TypePrinter::printParenBefore(const clang::ParenType *T, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   if (!HasEmptyPlaceHolder && !clang::isa<clang::FunctionType>(T->getInnerType())) {
     printBefore(T->getInnerType(), OS);
     OS << '(';
@@ -1429,6 +1496,7 @@ void TypePrinter::printParenBefore(const clang::ParenType *T, raw_string_ostream
 }
 
 void TypePrinter::printParenAfter(const clang::ParenType *T, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   if (!HasEmptyPlaceHolder && !clang::isa<clang::FunctionType>(T->getInnerType())) {
     OS << ')';
     printAfter(T->getInnerType(), OS);
@@ -1438,6 +1506,7 @@ void TypePrinter::printParenAfter(const clang::ParenType *T, raw_string_ostream 
 
 void TypePrinter::printDependentNameBefore(const clang::DependentNameType *T,
                                            raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   OS << clang::TypeWithKeyword::getKeywordName(T->getKeyword());
   if (T->getKeyword() != clang::ETK_None)
     OS << " ";
@@ -1453,6 +1522,7 @@ void TypePrinter::printDependentNameAfter(const clang::DependentNameType *T,
 
 void TypePrinter::printDependentTemplateSpecializationBefore(
         const clang::DependentTemplateSpecializationType *T, raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   IncludeStrongLifetimeRAII Strong(Policy);
 
   OS << clang::TypeWithKeyword::getKeywordName(T->getKeyword());
@@ -1471,17 +1541,20 @@ void TypePrinter::printDependentTemplateSpecializationAfter(
 
 void TypePrinter::printPackExpansionBefore(const clang::PackExpansionType *T,
                                            raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   printBefore(T->getPattern(), OS);
 }
 
 void TypePrinter::printPackExpansionAfter(const clang::PackExpansionType *T,
                                           raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   printAfter(T->getPattern(), OS);
   OS << "...";
 }
 
 void TypePrinter::printAttributedBefore(const clang::AttributedType *T,
                                         raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   // FIXME: Generate this with TableGen.
 
   // Prefer the macro forms of the GC and ownership qualifiers.
@@ -1526,6 +1599,7 @@ void TypePrinter::printAttributedBefore(const clang::AttributedType *T,
 
 void TypePrinter::printAttributedAfter(const clang::AttributedType *T,
                                        raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   // FIXME: Generate this with TableGen.
 
   // Prefer the macro forms of the GC and ownership qualifiers.
@@ -1653,6 +1727,7 @@ void TypePrinter::printAttributedAfter(const clang::AttributedType *T,
 
 void TypePrinter::printObjCInterfaceBefore(const clang::ObjCInterfaceType *T,
                                            raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   OS << T->getDecl()->getName();
   spaceBeforePlaceHolder(OS);
 }
@@ -1662,6 +1737,7 @@ void TypePrinter::printObjCInterfaceAfter(const clang::ObjCInterfaceType *T,
 
 void TypePrinter::printObjCTypeParamBefore(const clang::ObjCTypeParamType *T,
                                           raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   OS << T->getDecl()->getName();
   if (!T->qual_empty()) {
     bool isFirst = true;
@@ -1684,6 +1760,7 @@ void TypePrinter::printObjCTypeParamAfter(const clang::ObjCTypeParamType *T,
 
 void TypePrinter::printObjCObjectBefore(const clang::ObjCObjectType *T,
                                         raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   if (T->qual_empty() && T->isUnspecializedAsWritten() &&
       !T->isKindOfTypeAsWritten())
     return printBefore(T->getBaseType(), OS);
@@ -1725,6 +1802,7 @@ void TypePrinter::printObjCObjectBefore(const clang::ObjCObjectType *T,
 
 void TypePrinter::printObjCObjectAfter(const clang::ObjCObjectType *T,
                                         raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   if (T->qual_empty() && T->isUnspecializedAsWritten() &&
       !T->isKindOfTypeAsWritten())
     return printAfter(T->getBaseType(), OS);
@@ -1732,6 +1810,7 @@ void TypePrinter::printObjCObjectAfter(const clang::ObjCObjectType *T,
 
 void TypePrinter::printObjCObjectPointerBefore(const clang::ObjCObjectPointerType *T,
                                                raw_string_ostream &OS) {
+  TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   printBefore(T->getPointeeType(), OS);
 
   // If we need to print the pointer, print it now.
@@ -1745,411 +1824,4 @@ void TypePrinter::printObjCObjectPointerBefore(const clang::ObjCObjectPointerTyp
 
 void TypePrinter::printObjCObjectPointerAfter(const clang::ObjCObjectPointerType *T,
                                               raw_string_ostream &OS) {}
-
-static
-const clang::TemplateArgument &getArgument(const clang::TemplateArgument &A) { return A; }
-
-static const clang::TemplateArgument &getArgument(const clang::TemplateArgumentLoc &A) {
-  return A.getArgument();
 }
-
-static void printArgument(const clang::TemplateArgument &A, const clang::PrintingPolicy &PP,
-                          raw_string_ostream &OS, bool IncludeType) {
-  A.print(PP, OS);
-}
-
-static void printArgument(const clang::TemplateArgumentLoc &A,
-                          const clang::PrintingPolicy &PP, raw_string_ostream &OS,
-                          bool IncludeType) {
-  const clang::TemplateArgument::ArgKind &Kind = A.getArgument().getKind();
-  if (Kind == clang::TemplateArgument::ArgKind::Type)
-    return A.getTypeSourceInfo()->getType().print(OS, PP);
-  return A.getArgument().print(PP, OS);
-}
-
-static bool isSubstitutedTemplateArgument(clang::ASTContext &Ctx, clang::TemplateArgument Arg,
-                                          clang::TemplateArgument Pattern,
-                                          clang::ArrayRef<clang::TemplateArgument> Args,
-                                          unsigned Depth);
-
-static bool isSubstitutedType(clang::ASTContext &Ctx, clang::QualType T, clang::QualType Pattern,
-                              clang::ArrayRef<clang::TemplateArgument> Args, unsigned Depth) {
-  if (Ctx.hasSameType(T, Pattern))
-    return true;
-
-  // A type parameter matches its argument.
-  if (auto *TTPT = Pattern->getAs<clang::TemplateTypeParmType>()) {
-    if (TTPT->getDepth() == Depth && TTPT->getIndex() < Args.size() &&
-        Args[TTPT->getIndex()].getKind() == clang::TemplateArgument::Type) {
-      clang::QualType SubstArg = Ctx.getQualifiedType(
-          Args[TTPT->getIndex()].getAsType(), Pattern.getQualifiers());
-      return Ctx.hasSameType(SubstArg, T);
-    }
-    return false;
-  }
-
-  // FIXME: Recurse into array types.
-
-  // All other cases will need the types to be identically qualified.
-  clang::Qualifiers TQual, PatQual;
-  T = Ctx.getUnqualifiedArrayType(T, TQual);
-  Pattern = Ctx.getUnqualifiedArrayType(Pattern, PatQual);
-  if (TQual != PatQual)
-    return false;
-
-  // Recurse into pointer-like types.
-  {
-    clang::QualType TPointee = T->getPointeeType();
-    clang::QualType PPointee = Pattern->getPointeeType();
-    if (!TPointee.isNull() && !PPointee.isNull())
-      return T->getTypeClass() == Pattern->getTypeClass() &&
-             isSubstitutedType(Ctx, TPointee, PPointee, Args, Depth);
-  }
-
-  // Recurse into template specialization types.
-  if (auto *PTST =
-          Pattern.getCanonicalType()->getAs<clang::TemplateSpecializationType>()) {
-    clang::TemplateName Template;
-    clang::ArrayRef<clang::TemplateArgument> TemplateArgs;
-    if (auto *TTST = T->getAs<clang::TemplateSpecializationType>()) {
-      Template = TTST->getTemplateName();
-      TemplateArgs = TTST->template_arguments();
-    } else if (auto *CTSD = clang::dyn_cast_or_null<clang::ClassTemplateSpecializationDecl>(
-                   T->getAsCXXRecordDecl())) {
-      Template = clang::TemplateName(CTSD->getSpecializedTemplate());
-      TemplateArgs = CTSD->getTemplateArgs().asArray();
-    } else {
-      return false;
-    }
-
-    if (!isSubstitutedTemplateArgument(Ctx, Template, PTST->getTemplateName(),
-                                       Args, Depth))
-      return false;
-    if (TemplateArgs.size() != PTST->getNumArgs())
-      return false;
-    for (unsigned I = 0, N = TemplateArgs.size(); I != N; ++I)
-      if (!isSubstitutedTemplateArgument(Ctx, TemplateArgs[I], PTST->getArg(I),
-                                         Args, Depth))
-        return false;
-    return true;
-  }
-
-  // FIXME: Handle more cases.
-  return false;
-}
-
-static bool isSubstitutedTemplateArgument(clang::ASTContext &Ctx, clang::TemplateArgument Arg,
-                                          clang::TemplateArgument Pattern,
-                                          clang::ArrayRef<clang::TemplateArgument> Args,
-                                          unsigned Depth) {
-  Arg = Ctx.getCanonicalTemplateArgument(Arg);
-  Pattern = Ctx.getCanonicalTemplateArgument(Pattern);
-  if (Arg.structurallyEquals(Pattern))
-    return true;
-
-  if (Pattern.getKind() == clang::TemplateArgument::Expression) {
-    if (auto *DRE =
-        clang::dyn_cast<clang::DeclRefExpr>(Pattern.getAsExpr()->IgnoreParenImpCasts())) {
-      if (auto *NTTP = clang::dyn_cast<clang::NonTypeTemplateParmDecl>(DRE->getDecl()))
-        return NTTP->getDepth() == Depth && Args.size() > NTTP->getIndex() &&
-               Args[NTTP->getIndex()].structurallyEquals(Arg);
-    }
-  }
-
-  if (Arg.getKind() != Pattern.getKind())
-    return false;
-
-  if (Arg.getKind() == clang::TemplateArgument::Type)
-    return isSubstitutedType(Ctx, Arg.getAsType(), Pattern.getAsType(), Args,
-                             Depth);
-
-  if (Arg.getKind() == clang::TemplateArgument::Template) {
-    clang::TemplateDecl *PatTD = Pattern.getAsTemplate().getAsTemplateDecl();
-    if (auto *TTPD = clang::dyn_cast_or_null<clang::TemplateTemplateParmDecl>(PatTD))
-      return TTPD->getDepth() == Depth && Args.size() > TTPD->getIndex() &&
-             Ctx.getCanonicalTemplateArgument(Args[TTPD->getIndex()])
-                 .structurallyEquals(Arg);
-  }
-
-  // FIXME: Handle more cases.
-  return false;
-}
-
-/// Make a best-effort determination of whether the type T can be produced by
-/// substituting Args into the default argument of Param.
-static bool isSubstitutedDefaultArgument(clang::ASTContext &Ctx, clang::TemplateArgument Arg,
-                                         const clang::NamedDecl *Param,
-                                         clang::ArrayRef<clang::TemplateArgument> Args,
-                                         unsigned Depth) {
-  // An empty pack is equivalent to not providing a pack argument.
-  if (Arg.getKind() == clang::TemplateArgument::Pack && Arg.pack_size() == 0)
-    return true;
-
-  if (auto *TTPD = clang::dyn_cast<clang::TemplateTypeParmDecl>(Param)) {
-    return TTPD->hasDefaultArgument() &&
-           isSubstitutedTemplateArgument(Ctx, Arg, TTPD->getDefaultArgument(),
-                                         Args, Depth);
-  } else if (auto *TTPD = clang::dyn_cast<clang::TemplateTemplateParmDecl>(Param)) {
-    return TTPD->hasDefaultArgument() &&
-           isSubstitutedTemplateArgument(
-               Ctx, Arg, TTPD->getDefaultArgument().getArgument(), Args, Depth);
-  } else if (auto *NTTPD = clang::dyn_cast<clang::NonTypeTemplateParmDecl>(Param)) {
-    return NTTPD->hasDefaultArgument() &&
-           isSubstitutedTemplateArgument(Ctx, Arg, NTTPD->getDefaultArgument(),
-                                         Args, Depth);
-  }
-  return false;
-}
-
-#if 0
-template <typename TA>
-static void printTo(raw_string_ostream &OS, clang::ArrayRef<TA> Args,
-                    const clang::PrintingPolicy &Policy, bool SkipBrackets,
-                    const clang::TemplateParameterList *TPL, bool IsPack,
-                    unsigned ParmIndex) {
-  // Drop trailing template arguments that match default arguments.
-  if (TPL && Policy.SuppressDefaultTemplateArgs &&
-      !Policy.PrintCanonicalTypes && !Args.empty() && !IsPack &&
-      Args.size() <= TPL->size()) {
-    clang::ASTContext &Ctx = TPL->getParam(0)->getASTContext();
-    llvm::SmallVector<clang::TemplateArgument, 8> OrigArgs;
-    for (const TA &A : Args)
-      OrigArgs.push_back(getArgument(A));
-    while (!Args.empty() &&
-           isSubstitutedDefaultArgument(Ctx, getArgument(Args.back()),
-                                        TPL->getParam(Args.size() - 1),
-                                        OrigArgs, TPL->getDepth()))
-      Args = Args.drop_back();
-  }
-
-  const char *Comma = Policy.MSVCFormatting ? "," : ", ";
-  if (!SkipBrackets)
-    OS << '<';
-
-  bool NeedSpace = false;
-  bool FirstArg = true;
-  for (const auto &Arg : Args) {
-    // Print the argument into a string.
-    clang::SmallString<128> Buf;
-    llvm::raw_svector_ostream ArgOS(Buf);
-    const clang::TemplateArgument &Argument = getArgument(Arg);
-    if (Argument.getKind() == clang::TemplateArgument::Pack) {
-      if (Argument.pack_size() && !FirstArg)
-        OS << Comma;
-      // TODO(kumarak)
-#if 0
-      printTo(ArgOS, Argument.getPackAsArray(), Policy, true, TPL,
-              /*IsPack*/ true, ParmIndex);
-#endif
-    } else {
-      if (!FirstArg)
-        OS << Comma;
-      // Tries to print the argument with location info if exists.
-      printArgument(
-          Arg, Policy, ArgOS,
-          clang::TemplateParameterList::shouldIncludeTypeForArgument(TPL, ParmIndex));
-    }
-    clang::StringRef ArgString = ArgOS.str();
-
-    // If this is the first argument and its string representation
-    // begins with the global scope specifier ('::foo'), add a space
-    // to avoid printing the diagraph '<:'.
-    if (FirstArg && !ArgString.empty() && ArgString[0] == ':')
-      OS << ' ';
-
-    OS << ArgString;
-
-    // If the last character of our string is '>', add another space to
-    // keep the two '>''s separate tokens.
-    NeedSpace = Policy.SplitTemplateClosers && !ArgString.empty() &&
-                ArgString.back() == '>';
-    FirstArg = false;
-
-    // Use same template parameter for all elements of Pack
-    if (!IsPack)
-      ParmIndex++;
-  }
-
-  if (NeedSpace)
-    OS << ' ';
-
-  if (!SkipBrackets)
-    OS << '>';
-}
-#endif
-}
-
-# if 0
-std::string Qualifiers::getAsString() const {
-  LangOptions LO;
-  return getAsString(clang::PrintingPolicy(LO));
-}
-
-// Appends qualifiers to the given string, separated by spaces.  Will
-// prefix a space if the string is non-empty.  Will not append a final
-// space.
-std::string Qualifiers::getAsString(const clang::PrintingPolicy &Policy) const {
-  SmallString<64> Buf;
-  llvm::raw_svector_ostream StrOS(Buf);
-  print(StrOS, Policy);
-  return std::string(StrOS.str());
-}
-
-bool Qualifiers::isEmptyWhenPrinted(const clang::PrintingPolicy &Policy) const {
-  if (getCVRQualifiers())
-    return false;
-
-  if (getAddressSpace() != LangAS::Default)
-    return false;
-
-  if (getObjCGCAttr())
-    return false;
-
-  if (Qualifiers::ObjCLifetime lifetime = getObjCLifetime())
-    if (!(lifetime == Qualifiers::OCL_Strong && Policy.SuppressStrongLifetime))
-      return false;
-
-  return true;
-}
-
-std::string Qualifiers::getAddrSpaceAsString(LangAS AS) {
-  switch (AS) {
-  case LangAS::Default:
-    return "";
-  case LangAS::opencl_global:
-  case LangAS::sycl_global:
-    return "__global";
-  case LangAS::opencl_local:
-  case LangAS::sycl_local:
-    return "__local";
-  case LangAS::opencl_private:
-  case LangAS::sycl_private:
-    return "__private";
-  case LangAS::opencl_constant:
-    return "__constant";
-  case LangAS::opencl_generic:
-    return "__generic";
-  case LangAS::opencl_global_device:
-  case LangAS::sycl_global_device:
-    return "__global_device";
-  case LangAS::opencl_global_host:
-  case LangAS::sycl_global_host:
-    return "__global_host";
-  case LangAS::cuda_device:
-    return "__device__";
-  case LangAS::cuda_constant:
-    return "__constant__";
-  case LangAS::cuda_shared:
-    return "__shared__";
-  case LangAS::ptr32_sptr:
-    return "__sptr __ptr32";
-  case LangAS::ptr32_uptr:
-    return "__uptr __ptr32";
-  case LangAS::ptr64:
-    return "__ptr64";
-  default:
-    return std::to_string(toTargetAddressSpace(AS));
-  }
-}
-
-// Appends qualifiers to the given string, separated by spaces.  Will
-// prefix a space if the string is non-empty.  Will not append a final
-// space.
-void Qualifiers::print(raw_string_ostream &OS, const clang::PrintingPolicy& Policy,
-                       bool appendSpaceIfNonEmpty) const {
-  bool addSpace = false;
-
-  unsigned quals = getCVRQualifiers();
-  if (quals) {
-    AppendTypeQualList(OS, quals, Policy.Restrict);
-    addSpace = true;
-  }
-  if (hasUnaligned()) {
-    if (addSpace)
-      OS << ' ';
-    OS << "__unaligned";
-    addSpace = true;
-  }
-  auto ASStr = getAddrSpaceAsString(getAddressSpace());
-  if (!ASStr.empty()) {
-    if (addSpace)
-      OS << ' ';
-    addSpace = true;
-    // Wrap target address space into an attribute syntax
-    if (isTargetAddressSpace(getAddressSpace()))
-      OS << "__attribute__((address_space(" << ASStr << ")))";
-    else
-      OS << ASStr;
-  }
-
-  if (Qualifiers::GC gc = getObjCGCAttr()) {
-    if (addSpace)
-      OS << ' ';
-    addSpace = true;
-    if (gc == Qualifiers::Weak)
-      OS << "__weak";
-    else
-      OS << "__strong";
-  }
-  if (Qualifiers::ObjCLifetime lifetime = getObjCLifetime()) {
-    if (!(lifetime == Qualifiers::OCL_Strong && Policy.SuppressStrongLifetime)){
-      if (addSpace)
-        OS << ' ';
-      addSpace = true;
-    }
-
-    switch (lifetime) {
-    case Qualifiers::OCL_None: llvm_unreachable("none but true");
-    case Qualifiers::OCL_ExplicitNone: OS << "__unsafe_unretained"; break;
-    case Qualifiers::OCL_Strong:
-      if (!Policy.SuppressStrongLifetime)
-        OS << "__strong";
-      break;
-
-    case Qualifiers::OCL_Weak: OS << "__weak"; break;
-    case Qualifiers::OCL_Autoreleasing: OS << "__autoreleasing"; break;
-    }
-  }
-
-  if (appendSpaceIfNonEmpty && addSpace)
-    OS << ' ';
-}
-
-std::string QualType::getAsString() const {
-  return getAsString(split(), LangOptions());
-}
-
-std::string QualType::getAsString(const clang::PrintingPolicy &Policy) const {
-  std::string S;
-  getAsStringInternal(S, Policy);
-  return S;
-}
-
-std::string QualType::getAsString(const Type *ty, Qualifiers qs,
-                                  const clang::PrintingPolicy &Policy) {
-  std::string buffer;
-  getAsStringInternal(ty, qs, buffer, Policy);
-  return buffer;
-}
-
-void QualType::print(raw_string_ostream &OS, const clang::PrintingPolicy &Policy,
-                     const Twine &PlaceHolder, unsigned Indentation) const {
-  print(splitAccordingToPolicy(*this, Policy), OS, Policy, PlaceHolder,
-        Indentation);
-}
-
-void QualType::print(const Type *ty, Qualifiers qs,
-                     raw_string_ostream &OS, const clang::PrintingPolicy &policy,
-                     const Twine &PlaceHolder, unsigned Indentation) {
-  SmallString<128> PHBuf;
-  StringRef PH = PlaceHolder.toStringRef(PHBuf);
-
-  TypePrinter(policy, Indentation).print(ty, qs, OS, PH);
-}
-
-void QualType::getAsStringInternal(std::string &Str,
-                                   const clang::PrintingPolicy &Policy) const {
-  return getAsStringInternal(splitAccordingToPolicy(*this, Policy), Str,
-                             Policy);
-}
-#endif

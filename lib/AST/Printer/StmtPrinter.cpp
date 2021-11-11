@@ -28,27 +28,15 @@ static clang::SplitQualType splitAccordingToPolicy(
   return QT.split();
 }
 
-static void print(const clang::Type *ty, clang::Qualifiers qs,
-           raw_string_ostream &OS, const clang::PrintingPolicy &policy,
-           const clang::Twine &PlaceHolder, unsigned Indentation) {
-  clang::SmallString<128> PHBuf;
-  clang::StringRef PH = PlaceHolder.toStringRef(PHBuf);
-  TypePrinter(policy, Indentation).print(ty, qs, OS, PH);
-}
-
-static void print(clang::SplitQualType split, raw_string_ostream &OS,
-                  const clang::PrintingPolicy &policy, const clang::Twine &PlaceHolder,
-                  unsigned Indentation = 0) {
-  return print(split.Ty, split.Quals, OS, policy, PlaceHolder, Indentation);
-}
-
 void StmtPrinter::printQualType(clang::QualType type_,
                         raw_string_ostream &OS,
                         const clang::PrintingPolicy &Policy,
                         const clang::Twine &PlaceHolder,
                         unsigned Indentation){
   auto split = splitAccordingToPolicy(type_, Policy);
-  print(split, OS, Policy, PlaceHolder, Indentation);
+  clang::SmallString<128> PHBuf;
+  clang::StringRef PH = PlaceHolder.toStringRef(PHBuf);
+  TypePrinter(Policy, tokens, Indentation).print(split.Ty, split.Quals, OS, PH);
 }
 
 
@@ -510,7 +498,7 @@ void StmtPrinter::VisitObjCAtSynchronizedStmt(clang::ObjCAtSynchronizedStmt *Nod
 void StmtPrinter::VisitObjCAutoreleasePoolStmt(clang::ObjCAutoreleasePoolStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
   Indent() << "@autoreleasepool";
-  PrintRawCompoundStmt(dyn_cast<clang::CompoundStmt>(Node->getSubStmt()));
+  PrintRawCompoundStmt(clang::dyn_cast<clang::CompoundStmt>(Node->getSubStmt()));
   OS << NL;
 }
 
@@ -522,7 +510,7 @@ void StmtPrinter::PrintRawCXXCatchStmt(clang::CXXCatchStmt *Node) {
   else
     OS << "...";
   OS << ") ";
-  PrintRawCompoundStmt(cast<clang::CompoundStmt>(Node->getHandlerBlock()));
+  PrintRawCompoundStmt(clang::cast<clang::CompoundStmt>(Node->getHandlerBlock()));
 }
 
 void StmtPrinter::VisitCXXCatchStmt(clang::CXXCatchStmt *Node) {

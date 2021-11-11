@@ -170,6 +170,13 @@ class DeclPrinter : public clang::DeclVisitor<DeclPrinter> {
                         const clang::PrintingPolicy &Policy,
                         unsigned Indentation = 0, clang::StringRef NL = "\n");
 
+   void printQualType(clang::QualType qt,
+                      raw_string_ostream &OS,
+                      const clang::PrintingPolicy &Policy,
+                      const clang::Twine &PlaceHolder = clang::Twine(),
+                      std::function<std::string(void)> *placeHolderFn = nullptr,
+                      unsigned Indentation = 0);
+
 
    PrintedTokenRangeImpl &tokens;
 };
@@ -301,8 +308,10 @@ class TypePrinter {
   bool InsideCCAttribute = false;
 
 public:
-  explicit TypePrinter(const clang::PrintingPolicy &Policy, unsigned Indentation = 0)
-      : Policy(Policy), Indentation(Indentation) {}
+  explicit TypePrinter(const clang::PrintingPolicy &Policy,
+                       PrintedTokenRangeImpl &tokens_,
+                       unsigned Indentation = 0)
+      : Policy(Policy), Indentation(Indentation), tokens(tokens_) {}
 
   void print(const clang::Type *ty, clang::Qualifiers qs,
              raw_string_ostream &OS, clang::StringRef PlaceHolder,
@@ -333,6 +342,8 @@ public:
 private:
   void printBefore(const clang::Type *ty, clang::Qualifiers qs, raw_string_ostream &OS);
   void printAfter(const clang::Type *ty, clang::Qualifiers qs, raw_string_ostream &OS);
+
+  PrintedTokenRangeImpl &tokens;
 };
 
 } // namespace pasta

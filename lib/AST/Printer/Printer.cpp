@@ -233,8 +233,7 @@ TokenPrinterContext::TokenPrinterContext(
     : out(out_),
       context(tokens_.PushContext(this, decl_)),
       tokens(tokens_),
-      caller_fn(caller_),
-      out_size(out_.str().size()){}
+      caller_fn(caller_){}
 
 TokenPrinterContext::TokenPrinterContext(
     raw_string_ostream &out_, const clang::Stmt *stmt_,
@@ -242,8 +241,7 @@ TokenPrinterContext::TokenPrinterContext(
     : out(out_),
       context(tokens_.PushContext(this, stmt_)),
       tokens(tokens_),
-      caller_fn(caller_),
-      out_size(out_.str().size()){}
+      caller_fn(caller_){}
 
 TokenPrinterContext::TokenPrinterContext(
     raw_string_ostream &out_, const clang::Type *type_,
@@ -251,8 +249,7 @@ TokenPrinterContext::TokenPrinterContext(
     : out(out_),
       context(tokens_.PushContext(this, type_)),
       tokens(tokens_),
-      caller_fn(caller_),
-      out_size(out_.str().size()){}
+      caller_fn(caller_){}
 
 namespace {
 

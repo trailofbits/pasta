@@ -738,8 +738,14 @@ void DeclPrinter::VisitFieldDecl(clang::FieldDecl *D) {
   if (!Policy.SuppressSpecifiers && D->isModulePrivate())
     Out << "__module_private__ ";
 
-  Out << D->getASTContext().getUnqualifiedObjCPointerType(D->getType()).
-         stream(Policy, D->getName(), Indentation);
+  {
+    auto split = splitAccordingToPolicy(D->getType(), Policy);
+    printQualType(D->getASTContext().getUnqualifiedObjCPointerType(D->getType()),
+                  Out, Policy, D->getName(), nullptr, Indentation);
+    //Out << D->getASTContext().getUnqualifiedObjCPointerType(D->getType()).
+    //       stream(Policy, D->getName(), Indentation);
+  }
+
 
   if (D->isBitField()) {
     Out << " : ";
@@ -907,6 +913,7 @@ void DeclPrinter::VisitCXXRecordDecl(clang::CXXRecordDecl *D) {
     Out << ' ' << *D;
 
     if (auto S = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(D)) {
+      TokenPrinterContext ctx(Out, S, tokens, __FUNCTION__);
       clang::ArrayRef<clang::TemplateArgument> Args = S->getTemplateArgs().asArray();
       if (!Policy.PrintCanonicalTypes)
         if (const auto* TSI = S->getTypeAsWritten())

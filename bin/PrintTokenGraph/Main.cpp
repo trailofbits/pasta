@@ -147,6 +147,24 @@ class TLDFinder final : public pasta::DeclVisitor {
     }
   }
 
+  void VisitVarTemplateDecl(const pasta::VarTemplateDecl &tpl) final {
+    for (pasta::VarTemplateSpecializationDecl decl : tpl.Specializations()) {
+      VisitVarTemplateSpecializationDecl(decl);
+    }
+  }
+
+  void VisitClassTemplateDecl(const pasta::ClassTemplateDecl &tpl) final {
+    for (pasta::ClassTemplateSpecializationDecl decl : tpl.Specializations()) {
+      VisitClassTemplateSpecializationDecl(decl);
+    }
+  }
+
+  void VisitFunctionTemplateDecl(const pasta::FunctionTemplateDecl &tpl) final {
+    for (pasta::FunctionDecl decl : tpl.Specializations()) {
+      VisitFunctionDecl(decl);
+    }
+  }
+
   void VisitTranslationUnitDecl(const pasta::TranslationUnitDecl &decl) final {
     VisitDeclContext(decl);
   }

@@ -27,7 +27,7 @@
     explicit base( \
         std::shared_ptr<ASTImpl> ast_, \
         const ::clang::Decl *decl_); \
-  public: \
+   public: \
     const clang::base *RawDecl(void) const noexcept { \
       return u.base; \
     }
@@ -2580,7 +2580,7 @@ class FunctionTemplateDecl : public RedeclarableTemplateDecl {
   ::pasta::FunctionDecl TemplatedDecl(void) const;
   bool IsAbbreviated(void) const;
   bool IsThisDeclarationADefinition(void) const;
-  // Specializations: (llvm::iterator_range<clang::RedeclarableTemplateDecl::SpecIterator<clang::FunctionTemplateSpecializationInfo, clang::RedeclarableTemplateDecl::SpecEntryTraits<clang::FunctionTemplateSpecializationInfo>, clang::FunctionDecl>>)
+  std::vector<::pasta::FunctionDecl> Specializations(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(FunctionTemplateDecl)
 };

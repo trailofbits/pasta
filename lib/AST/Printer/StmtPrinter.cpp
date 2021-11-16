@@ -63,37 +63,6 @@ void StmtPrinter::PrintRawDecl(clang::Decl *D) {
   Printer.Visit(D);
 }
 
-
-static void Decl_printGroup(clang::Decl** Begin, unsigned NumDecls,
-                            raw_string_ostream &Out, const clang::PrintingPolicy &Policy,
-                            unsigned Indentation, PrintedTokenRangeImpl &tokens) {
-  if (NumDecls == 1) {
-    DeclPrinter Printer(Out, Policy,  (*Begin)->getASTContext(), tokens, Indentation);
-    Printer.Visit((*Begin));
-    return;
-  }
-  clang::Decl** End = Begin + NumDecls;
-  clang::TagDecl* TD = clang::dyn_cast<clang::TagDecl>(*Begin);
-  if (TD)
-    ++Begin;
-  clang::PrintingPolicy SubPolicy(Policy);
-  bool isFirst = true;
-  for ( ; Begin != End; ++Begin) {
-    if (isFirst) {
-      if(TD)
-        SubPolicy.IncludeTagDefinition = true;
-      SubPolicy.SuppressSpecifiers = false;
-      isFirst = false;
-    } else {
-      if (!isFirst) Out << ", ";
-      SubPolicy.IncludeTagDefinition = false;
-      SubPolicy.SuppressSpecifiers = true;
-    }
-    DeclPrinter Printer(Out, SubPolicy,  (*Begin)->getASTContext(), tokens, Indentation);
-    Printer.Visit((*Begin));
-  }
-}
-
 void StmtPrinter::PrintRawDeclStmt(const clang::DeclStmt *S) {
   TokenPrinterContext ctx(OS, S, tokens, __FUNCTION__);
   clang::SmallVector<clang::Decl *, 2> Decls(S->decls());

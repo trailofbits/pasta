@@ -17,6 +17,37 @@ namespace pasta {
 
 class PrintedTokenRangeImpl;
 
+
+void Decl_printGroup(clang::Decl** Begin, unsigned NumDecls,
+                     raw_string_ostream &Out, const clang::PrintingPolicy &Policy,
+                     unsigned Indentation, PrintedTokenRangeImpl &tokens) {
+  if (NumDecls == 1) {
+    DeclPrinter Printer(Out, Policy,  (*Begin)->getASTContext(), tokens, Indentation);
+    Printer.Visit((*Begin));
+    return;
+  }
+  clang::Decl** End = Begin + NumDecls;
+  clang::TagDecl* TD = clang::dyn_cast<clang::TagDecl>(*Begin);
+  if (TD)
+    ++Begin;
+  clang::PrintingPolicy SubPolicy(Policy);
+  bool isFirst = true;
+  for ( ; Begin != End; ++Begin) {
+    if (isFirst) {
+      if(TD)
+        SubPolicy.IncludeTagDefinition = true;
+      SubPolicy.SuppressSpecifiers = false;
+      isFirst = false;
+    } else {
+      if (!isFirst) Out << ", ";
+      SubPolicy.IncludeTagDefinition = false;
+      SubPolicy.SuppressSpecifiers = true;
+    }
+    DeclPrinter Printer(Out, SubPolicy,  (*Begin)->getASTContext(), tokens, Indentation);
+    Printer.Visit((*Begin));
+  }
+}
+
 static clang::QualType GetBaseType(clang::QualType T) {
   // FIXME: This should be on the Type class!
   clang::QualType BaseType = T;
@@ -102,7 +133,10 @@ void DeclPrinter::prettyPrintAttributes(clang::Decl *D) {
 #include "clang/Basic/AttrList.inc"
         break;
       default:
-        A->printPretty(Out, Policy);
+        {
+          TokenPrinterContext ctx(Out, A, tokens, __FUNCTION__);
+          A->printPretty(Out, Policy);
+        }
         break;
       }
     }
@@ -120,7 +154,10 @@ void DeclPrinter::prettyPrintPragmas(clang::Decl *D) {
 #define ATTR(X)
 #define PRAGMA_SPELLING_ATTR(X) case clang::attr::X:
 #include "clang/Basic/AttrList.inc"
-        A->printPretty(Out, Policy);
+        {
+          TokenPrinterContext ctx(Out, A, tokens, __FUNCTION__);
+          A->printPretty(Out, Policy);
+        }
         Indent();
         break;
       default:
@@ -143,7 +180,8 @@ void DeclPrinter::printDeclType(clang::QualType T, clang::StringRef DeclName, bo
 
 void DeclPrinter::ProcessDeclGroup(clang::SmallVectorImpl<clang::Decl*>& Decls) {
   this->Indent();
-  clang::Decl::printGroup(Decls.data(), static_cast<unsigned>(Decls.size()), Out, Policy, Indentation);
+  Decl_printGroup(Decls.data(), static_cast<unsigned>(Decls.size()), Out,
+                  Policy, Indentation, tokens);
   Out << ";\n";
   Decls.clear();
 
@@ -429,7 +467,8 @@ void DeclPrinter::VisitEnumConstantDecl(clang::EnumConstantDecl *D) {
   prettyPrintAttributes(D);
   if (clang::Expr *Init = D->getInitExpr()) {
     Out << " = ";
-    Init->printPretty(Out, nullptr, Policy, Indentation, "\n", &Context);
+    StmtPrinter stmtPrinter(Out, nullptr, tokens, Policy, Indentation, "\n", &Context);
+    stmtPrinter.Visit(const_cast<clang::Expr *>(Init));
   }
 }
 
@@ -440,7 +479,8 @@ static void printExplicitSpecifier(clang::ExplicitSpecifier ES, raw_string_ostre
   raw_string_ostream EOut(Proto);
   if (ES.getExpr()) {
     EOut << "(";
-    StmtPrinter stmtPrinter(EOut, nullptr, tokens, Policy, Indentation);
+    StmtPrinter stmtPrinter(EOut, nullptr, tokens, Policy, Indentation, "\n",
+                            &tokens.ast_context);
     stmtPrinter.Visit(const_cast<clang::Expr *>(ES.getExpr()));
     EOut << ")";
   }
@@ -984,6 +1024,8 @@ void DeclPrinter::printTemplateParameters(const clang::TemplateParameterList *Pa
                                           bool OmitTemplateKW) {
   assert(Params);
 
+  TokenPrinterContext ctx(Out, Params, tokens, __FUNCTION__);
+
   if (!OmitTemplateKW)
     Out << "template ";
   Out << '<';
@@ -1018,6 +1060,7 @@ void DeclPrinter::printTemplateArguments(clang::ArrayRef<clang::TemplateArgument
   for (size_t I = 0, E = Args.size(); I < E; ++I) {
     if (I)
       Out << ", ";
+    TokenPrinterContext ctx(Out, &(Args[I]), tokens, __FUNCTION__);
     Args[I].print(Policy, Out);
   }
   Out << ">";
@@ -1028,6 +1071,8 @@ void DeclPrinter::printTemplateArguments(clang::ArrayRef<clang::TemplateArgument
   for (size_t I = 0, E = Args.size(); I < E; ++I) {
     if (I)
       Out << ", ";
+
+    TokenPrinterContext ctx(Out, &(Args[I].getArgument()), tokens, __FUNCTION__);
     Args[I].getArgument().print(Policy, Out);
   }
   Out << ">";
@@ -1662,8 +1707,10 @@ void DeclPrinter::VisitOMPCapturedExprDecl(clang::OMPCapturedExprDecl *D) {
 
 void DeclPrinter::VisitTemplateTypeParmDecl(const clang::TemplateTypeParmDecl *TTP) {
   TokenPrinterContext ctx(Out, TTP, tokens, __FUNCTION__);
-  if (const clang::TypeConstraint *TC = TTP->getTypeConstraint())
+  if (const clang::TypeConstraint *TC = TTP->getTypeConstraint()) {
+    TokenPrinterContext ctx(Out, TC, tokens, __FUNCTION__);
     TC->print(Out, Policy);
+  }
   else if (TTP->wasDeclaredWithTypename())
     Out << "typename";
   else
@@ -1679,7 +1726,10 @@ void DeclPrinter::VisitTemplateTypeParmDecl(const clang::TemplateTypeParmDecl *T
 
   if (TTP->hasDefaultArgument()) {
     Out << " = ";
-    Out << TTP->getDefaultArgument().getAsString(Policy);
+    {
+      TypePrinter printer(Policy, tokens, 0);
+      printer.print(TTP->getDefaultArgument(), Out, "", nullptr);
+    }
   }
 }
 

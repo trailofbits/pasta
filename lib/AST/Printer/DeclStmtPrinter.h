@@ -297,6 +297,10 @@ class StmtPrinter : public clang::StmtVisitor<StmtPrinter> {
   PrintedTokenRangeImpl &tokens;
 };
 
+void Decl_printGroup(clang::Decl** Begin, unsigned NumDecls,
+                     raw_string_ostream &Out, const clang::PrintingPolicy &Policy,
+                     unsigned Indentation, PrintedTokenRangeImpl &tokens);
+
 //===----------------------------------------------------------------------===//
 // TypePrinter Visitor
 //===----------------------------------------------------------------------===//

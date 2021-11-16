@@ -8,12 +8,30 @@
 #include <optional>
 #include <string_view>
 
+
+#define PASTA_FOR_EACH_PRINTED_TOKEN_KIND(pp) \
+    pp(Stmt) \
+    pp(Decl) \
+    pp(Type) \
+    pp(TemplateParameterList) \
+    pp(TemplateArgument) \
+    pp(TypeConstraint) \
+    pp(Attr)
+
+
 namespace clang {
 class ASTContext;
 class Decl;
 class Stmt;
+class TemplateArgument;
+class TemplateParameterList;
 class Type;
 class PrintingPolicy;
+
+#define PASTA_FORWARD_DECLARE_CLASS(cls) class cls;
+PASTA_FOR_EACH_PRINTED_TOKEN_KIND(PASTA_FORWARD_DECLARE_CLASS)
+#undef PASTA_FORWARD_DECLARE_CLASS
+
 namespace tok {
 enum TokenKind : unsigned short;
 }  // namespace tok
@@ -30,6 +48,13 @@ class PrintedTokenImpl;
 class PrintedTokenRange;
 class PrintedTokenRangeImpl;
 
+enum class PrintedTokenKind : unsigned char {
+
+#define PASTA_DECLARE_PRINTED_TOKEN_KIND(cls) k ## cls ,
+  PASTA_FOR_EACH_PRINTED_TOKEN_KIND(PASTA_DECLARE_PRINTED_TOKEN_KIND)
+#undef PASTA_DECLARE_PRINTED_TOKEN_KIND
+};
+
 // The context associated with a printed token. This represents a path from
 // the decl/stmt/type that led to the printing of this token, back to the root
 // printing request.
@@ -37,44 +62,29 @@ struct PrintedTokenContext {
  public:
   const PrintedTokenContext * const parent;
 
-  // The decl associated with the token
-  const clang::Decl * const decl;
-
-  // The stmt associated with the token
-  const clang::Stmt * const stmt;
-
-  // The types associated with the token
-  const clang::Type * const type;
+  const PrintedTokenKind kind;
+  const void * const data;
 
   // Traverse up the chain.
   static std::shared_ptr<const PrintedTokenContext> Parent(
       std::shared_ptr<const PrintedTokenContext> curr);
+
+  // String representation of this token context kind.
+  const char *KindName(void) const;
 
  private:
   friend class PrintedTokenRangeImpl;
 
   PrintedTokenContext(void) = delete;
 
-  inline PrintedTokenContext(const PrintedTokenContext *parent_,
-                             const clang::Stmt *stmt_)
-      : parent(parent_),
-        decl(nullptr),
-        stmt(stmt_),
-        type(nullptr) {}
-
-  inline PrintedTokenContext(const PrintedTokenContext *parent_,
-                             const clang::Decl *decl_)
-      : parent(parent_),
-        decl(decl_),
-        stmt(nullptr),
-        type(nullptr) {}
-
-  inline PrintedTokenContext(const PrintedTokenContext *parent_,
-                             const clang::Type *type_)
-      : parent(parent_),
-        decl(nullptr),
-        stmt(nullptr),
-        type(type_) {}
+#define PASTA_DEFINE_PRINTED_TOKEN_CONSTRUCTOR(cls) \
+    inline PrintedTokenContext(const PrintedTokenContext *parent_, \
+                               const clang::cls *stmt) \
+        : parent(parent_), \
+          kind(PrintedTokenKind::k ## cls), \
+          data(stmt) {}
+  PASTA_FOR_EACH_PRINTED_TOKEN_KIND(PASTA_DEFINE_PRINTED_TOKEN_CONSTRUCTOR)
+#undef PASTA_DECLARE_PRINTED_TOKEN_KIND
 };
 
 class PrintedToken {

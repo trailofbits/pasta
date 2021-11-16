@@ -63,6 +63,18 @@ clang::tok::TokenKind PrintedToken::Kind(void) const {
   }
 }
 
+const char *PrintedTokenContext::KindName(void) const {
+  switch (kind) {
+#define PASTA_PRINTED_TOKEN_KIND_CASE(cls) \
+    case PrintedTokenKind::k ## cls: return #cls ; \
+  PASTA_FOR_EACH_PRINTED_TOKEN_KIND(PASTA_PRINTED_TOKEN_KIND_CASE)
+#undef PASTA_PRINTED_TOKEN_KIND_CASE
+    default:
+      assert(false);
+      return "Unknown";
+  }
+}
+
 // Number of leading new lines (before any indentation spaces).
 unsigned PrintedToken::NumLeadingNewLines(void) const {
   return impl->num_leading_new_lines;
@@ -143,80 +155,6 @@ ptrdiff_t PrintedTokenIterator::operator-(
 
 PrintedTokenRangeImpl::~PrintedTokenRangeImpl(void) {}
 
-const PrintedTokenContext *PrintedTokenRangeImpl::PushContext(
-    TokenPrinterContext *tokenizer, const clang::Stmt *stmt) {
-
-  // Make sure any data streamed out between the last token context call and
-  // this one gets tokenized.
-  if (!tokenizer_stack.empty()) {
-    tokenizer_stack.back()->Tokenize();
-  }
-  tokenizer_stack.push_back(tokenizer);
-
-  if (!context_stack.empty() && context_stack.back()->stmt == stmt) {
-    auto context = context_stack.back();
-    context_stack.push_back(context);  // Re-use.
-    return context;
-
-  } else {
-    auto context = new PrintedTokenContext(
-        (context_stack.empty() ? nullptr : context_stack.back()),
-        stmt);
-    contexts.emplace_back(context);
-    context_stack.push_back(context);
-    return context;
-  }
-}
-
-const PrintedTokenContext *PrintedTokenRangeImpl::PushContext(
-    TokenPrinterContext *tokenizer, const clang::Decl *decl) {
-  // Make sure any data streamed out between the last token context call and
-  // this one gets tokenized.
-  if (!tokenizer_stack.empty()) {
-    tokenizer_stack.back()->Tokenize();
-  }
-  tokenizer_stack.push_back(tokenizer);
-
-  if (!context_stack.empty() && context_stack.back()->decl == decl) {
-    auto context = context_stack.back();
-    context_stack.push_back(context);  // Re-use.
-    return context;
-
-  } else {
-    auto context = new PrintedTokenContext(
-        (context_stack.empty() ? nullptr : context_stack.back()),
-        decl);
-    contexts.emplace_back(context);
-    context_stack.push_back(context);
-    return context;
-  }
-}
-
-const PrintedTokenContext *PrintedTokenRangeImpl::PushContext(
-    TokenPrinterContext *tokenizer, const clang::Type *type) {
-  // Make sure any data streamed out between the last token context call and
-  // this one get tokenized.
-  if (!tokenizer_stack.empty()) {
-    tokenizer_stack.back()->Tokenize();
-  }
-
-  tokenizer_stack.push_back(tokenizer);
-
-  if (!context_stack.empty() && context_stack.back()->type == type) {
-    auto context = context_stack.back();
-    context_stack.push_back(context);  // Re-use.
-    return context;
-
-  } else {
-    auto context = new PrintedTokenContext(
-        (context_stack.empty() ? nullptr : context_stack.back()),
-        type);
-    contexts.emplace_back(context);
-    context_stack.push_back(context);
-    return context;
-  }
-}
-
 void PrintedTokenRangeImpl::PopContext(void) {
   if (!tokenizer_stack.empty()) {
     const auto last_tokenizer = tokenizer_stack.back();
@@ -226,30 +164,6 @@ void PrintedTokenRangeImpl::PopContext(void) {
     tokenizer_stack.pop_back();
   }
 }
-
-TokenPrinterContext::TokenPrinterContext(
-    raw_string_ostream &out_, const clang::Decl *decl_,
-    PrintedTokenRangeImpl &tokens_, const char *caller_)
-    : out(out_),
-      context(tokens_.PushContext(this, decl_)),
-      tokens(tokens_),
-      caller_fn(caller_){}
-
-TokenPrinterContext::TokenPrinterContext(
-    raw_string_ostream &out_, const clang::Stmt *stmt_,
-    PrintedTokenRangeImpl &tokens_, const char * caller_)
-    : out(out_),
-      context(tokens_.PushContext(this, stmt_)),
-      tokens(tokens_),
-      caller_fn(caller_){}
-
-TokenPrinterContext::TokenPrinterContext(
-    raw_string_ostream &out_, const clang::Type *type_,
-    PrintedTokenRangeImpl &tokens_, const char * caller_)
-    : out(out_),
-      context(tokens_.PushContext(this, type_)),
-      tokens(tokens_),
-      caller_fn(caller_){}
 
 namespace {
 

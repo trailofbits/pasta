@@ -72,12 +72,9 @@ class PrintedTokenRangeImpl {
 
   ~PrintedTokenRangeImpl(void);
 
-  const PrintedTokenContext *PushContext(TokenPrinterContext *tokenizer,
-                                         const clang::Stmt *stmt);
-  const PrintedTokenContext *PushContext(TokenPrinterContext *tokenizer,
-                                         const clang::Decl *decl);
-  const PrintedTokenContext *PushContext(TokenPrinterContext *tokenizer,
-                                         const clang::Type *type);
+  template <typename T>
+  const PrintedTokenContext *PushContext(
+      TokenPrinterContext *tokenizer, const T *data);
 
   void PopContext(void);
 };
@@ -85,15 +82,14 @@ class PrintedTokenRangeImpl {
 // Context class for tokenizing what's inside of a particular stream stream.
 class TokenPrinterContext {
  public:
-  TokenPrinterContext(raw_string_ostream &out_, const clang::Decl *decl_,
-                      PrintedTokenRangeImpl &tokens_, const char *caller_ = "");
-
-
-  TokenPrinterContext(raw_string_ostream &out_, const clang::Stmt *stmt_,
-                      PrintedTokenRangeImpl &tokens_, const char * caller_ = "");
-
-  TokenPrinterContext(raw_string_ostream &out_, const clang::Type *type_,
-                      PrintedTokenRangeImpl &tokens_, const char * caller_ = "");
+  template <typename T>
+  inline TokenPrinterContext(
+      raw_string_ostream &out_, const T *data_,
+      PrintedTokenRangeImpl &tokens_, const char *caller_="")
+      : out(out_),
+        context(tokens_.PushContext<T>(this, data_)),
+        tokens(tokens_),
+        caller_fn(caller_){}
 
   void Tokenize(void);
 
@@ -108,5 +104,31 @@ class TokenPrinterContext {
   PrintedTokenRangeImpl &tokens;
   const char * const caller_fn;
 };
+
+template <typename T>
+const PrintedTokenContext *PrintedTokenRangeImpl::PushContext(
+    TokenPrinterContext *tokenizer, const T *data) {
+  // Make sure any data streamed out between the last token context call and
+  // this one get tokenized.
+  if (!tokenizer_stack.empty()) {
+    tokenizer_stack.back()->Tokenize();
+  }
+
+  tokenizer_stack.push_back(tokenizer);
+
+  if (!context_stack.empty() && context_stack.back()->data == data) {
+    auto context = context_stack.back();
+    context_stack.push_back(context);  // Re-use.
+    return context;
+
+  } else {
+    auto context = new PrintedTokenContext(
+        (context_stack.empty() ? nullptr : context_stack.back()),
+        data);
+    contexts.emplace_back(context);
+    context_stack.push_back(context);
+    return context;
+  }
+}
 
 }  // namespace pasta

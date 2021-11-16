@@ -518,8 +518,11 @@ void TypePrinter::printVariableArrayAfter(const clang::VariableArrayType *T,
   else if (T->getSizeModifier() == clang::VariableArrayType::Star)
     OS << '*';
 
-  if (T->getSizeExpr())
-    T->getSizeExpr()->printPretty(OS, nullptr, Policy);
+  if (T->getSizeExpr()) {
+    StmtPrinter stmtPrinter(OS, nullptr, tokens, Policy, 0, "\n",
+                            &(tokens.ast_context));
+    stmtPrinter.Visit((T->getSizeExpr()));
+  }
   OS << ']';
 
   printAfter(T->getElementType(), OS);
@@ -560,8 +563,11 @@ void TypePrinter::printDependentSizedArrayAfter(
     const clang::DependentSizedArrayType *T, raw_string_ostream &OS) {
   TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   OS << '[';
-  if (T->getSizeExpr())
-    T->getSizeExpr()->printPretty(OS, nullptr, Policy);
+  if (T->getSizeExpr()) {
+    StmtPrinter stmtPrinter(OS, nullptr, tokens, Policy, 0, "\n",
+                            &(tokens.ast_context));
+    stmtPrinter.Visit((T->getSizeExpr()));
+  }
   OS << ']';
   printAfter(T->getElementType(), OS);
 }
@@ -575,8 +581,11 @@ void TypePrinter::printDependentAddressSpaceAfter(
     const clang::DependentAddressSpaceType *T, raw_string_ostream &OS) {
   TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   OS << " __attribute__((address_space(";
-  if (T->getAddrSpaceExpr())
-    T->getAddrSpaceExpr()->printPretty(OS, nullptr, Policy);
+  if (T->getAddrSpaceExpr()) {
+    StmtPrinter stmtPrinter(OS, nullptr, tokens, Policy, 0, "\n",
+                            &(tokens.ast_context));
+    stmtPrinter.Visit((T->getAddrSpaceExpr()));
+  }
   OS << ")))";
   printAfter(T->getPointeeType(), OS);
 }
@@ -591,8 +600,11 @@ void TypePrinter::printDependentSizedExtVectorAfter(
     const clang::DependentSizedExtVectorType *T, raw_string_ostream &OS) {
   TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   OS << " __attribute__((ext_vector_type(";
-  if (T->getSizeExpr())
-    T->getSizeExpr()->printPretty(OS, nullptr, Policy);
+  if (T->getSizeExpr()) {
+    StmtPrinter stmtPrinter(OS, nullptr, tokens, Policy, 0, "\n",
+                            &(tokens.ast_context));
+    stmtPrinter.Visit((T->getSizeExpr()));
+  }
   OS << ")))";
   printAfter(T->getElementType(), OS);
 }
@@ -675,15 +687,21 @@ void TypePrinter::printDependentVectorBefore(
     break;
   case clang::VectorType::NeonVector:
     OS << "__attribute__((neon_vector_type(";
-    if (T->getSizeExpr())
-      T->getSizeExpr()->printPretty(OS, nullptr, Policy);
+    if (T->getSizeExpr()) {
+      StmtPrinter stmtPrinter(OS, nullptr, tokens, Policy, 0, "\n",
+                              &(tokens.ast_context));
+      stmtPrinter.Visit((T->getSizeExpr()));
+    }
     OS << "))) ";
     printBefore(T->getElementType(), OS);
     break;
   case clang::VectorType::NeonPolyVector:
     OS << "__attribute__((neon_polyvector_type(";
-    if (T->getSizeExpr())
-      T->getSizeExpr()->printPretty(OS, nullptr, Policy);
+    if (T->getSizeExpr()) {
+      StmtPrinter stmtPrinter(OS, nullptr, tokens, Policy, 0, "\n",
+                              &(tokens.ast_context));
+      stmtPrinter.Visit((T->getSizeExpr()));
+    }
     OS << "))) ";
     printBefore(T->getElementType(), OS);
     break;
@@ -691,8 +709,11 @@ void TypePrinter::printDependentVectorBefore(
     // FIXME: We prefer to print the size directly here, but have no way
     // to get the size of the type.
     OS << "__attribute__((__vector_size__(";
-    if (T->getSizeExpr())
-      T->getSizeExpr()->printPretty(OS, nullptr, Policy);
+    if (T->getSizeExpr()) {
+      StmtPrinter stmtPrinter(OS, nullptr, tokens, Policy, 0, "\n",
+                              &(tokens.ast_context));
+      stmtPrinter.Visit((T->getSizeExpr()));
+    }
     OS << " * sizeof(";
     print(T->getElementType(), OS, clang::StringRef());
     OS << ")))) ";
@@ -705,7 +726,10 @@ void TypePrinter::printDependentVectorBefore(
     // to get the size of the type.
     OS << "__attribute__((__arm_sve_vector_bits__(";
     if (T->getSizeExpr()) {
-      T->getSizeExpr()->printPretty(OS, nullptr, Policy);
+      StmtPrinter stmtPrinter(OS, nullptr, tokens, Policy, 0, "\n",
+                              &(tokens.ast_context));
+      stmtPrinter.Visit((T->getSizeExpr()));
+
       if (T->getVectorKind() == clang::VectorType::SveFixedLengthPredicateVector)
         // Predicates take a bit per byte of the vector size, multiply by 8 to
         // get the number of bits passed to the attribute.
@@ -761,11 +785,15 @@ void TypePrinter::printDependentSizedMatrixBefore(const clang::DependentSizedMat
   printBefore(T->getElementType(), OS);
   OS << " __attribute__((matrix_type(";
   if (T->getRowExpr()) {
-    T->getRowExpr()->printPretty(OS, nullptr, Policy);
+    StmtPrinter stmtPrinter(OS, nullptr, tokens, Policy, 0, "\n",
+                            &(tokens.ast_context));
+    stmtPrinter.Visit((T->getRowExpr()));
   }
   OS << ", ";
   if (T->getColumnExpr()) {
-    T->getColumnExpr()->printPretty(OS, nullptr, Policy);
+    StmtPrinter stmtPrinter(OS, nullptr, tokens, Policy, 0, "\n",
+                            &(tokens.ast_context));
+    stmtPrinter.Visit((T->getColumnExpr()));
   }
   OS << ")))";
 }
@@ -789,6 +817,41 @@ void TypePrinter::printFunctionProtoBefore(const clang::FunctionProtoType *T,
     printBefore(T->getReturnType(), OS);
     if (!PrevPHIsEmpty.get())
       OS << '(';
+  }
+}
+
+static void FunctionProtoType_printExceptionSpecification(
+    const clang::FunctionProtoType *T, PrintedTokenRangeImpl &tokens,
+    raw_string_ostream &OS,
+    const clang::PrintingPolicy &Policy) {
+  if (T->hasDynamicExceptionSpec()) {
+    OS << " throw(";
+    if (T->getExceptionSpecType() == clang::EST_MSAny)
+      OS << "...";
+    else
+      for (unsigned I = 0, N = T->getNumExceptions(); I != N; ++I) {
+        if (I)
+          OS << ", ";
+
+        TypePrinter printer(Policy, tokens, 0);
+        printer.print(T->getExceptionType(I), OS, "", nullptr);
+      }
+    OS << ')';
+  } else if (clang::EST_NoThrow == T->getExceptionSpecType()) {
+    OS << " __attribute__((nothrow))";
+  } else if (clang::isNoexceptExceptionSpec(T->getExceptionSpecType())) {
+    OS << " noexcept";
+    // FIXME:Is it useful to print out the expression for a non-dependent
+    // noexcept specification?
+    if (clang::isComputedNoexcept(T->getExceptionSpecType())) {
+      OS << '(';
+      if (T->getNoexceptExpr()) {
+        StmtPrinter stmtPrinter(OS, nullptr, tokens, Policy, 0, "\n",
+                                &(tokens.ast_context));
+        stmtPrinter.Visit((T->getNoexceptExpr()));
+      }
+      OS << ')';
+    }
   }
 }
 
@@ -848,7 +911,8 @@ void TypePrinter::printFunctionProtoAfter(const clang::FunctionProtoType *T,
     OS << " &&";
     break;
   }
-  T->printExceptionSpecification(OS, Policy);
+
+  FunctionProtoType_printExceptionSpecification(T, tokens, OS, Policy);
 
   if (T->hasTrailingReturn()) {
     OS << " -> ";
@@ -1013,8 +1077,11 @@ void TypePrinter::printTypeOfExprBefore(const clang::TypeOfExprType *T,
                                         raw_string_ostream &OS) {
   TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   OS << "typeof ";
-  if (T->getUnderlyingExpr())
-    T->getUnderlyingExpr()->printPretty(OS, nullptr, Policy);
+  if (T->getUnderlyingExpr()) {
+    StmtPrinter stmtPrinter(OS, nullptr, tokens, Policy, 0, "\n",
+                            &(tokens.ast_context));
+    stmtPrinter.Visit((T->getUnderlyingExpr()));
+  }
   spaceBeforePlaceHolder(OS);
 }
 
@@ -1034,8 +1101,11 @@ void TypePrinter::printTypeOfAfter(const clang::TypeOfType *T, raw_string_ostrea
 void TypePrinter::printDecltypeBefore(const clang::DecltypeType *T, raw_string_ostream &OS) {
   TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   OS << "decltype(";
-  if (T->getUnderlyingExpr())
-    T->getUnderlyingExpr()->printPretty(OS, nullptr, Policy);
+  if (T->getUnderlyingExpr()) {
+    StmtPrinter stmtPrinter(OS, nullptr, tokens, Policy, 0, "\n",
+                            &(tokens.ast_context));
+    stmtPrinter.Visit((T->getUnderlyingExpr()));
+  }
   OS << ')';
   spaceBeforePlaceHolder(OS);
 }
@@ -1170,7 +1240,11 @@ void TypePrinter::printDependentExtIntBefore(const clang::DependentExtIntType *T
   if (T->isUnsigned())
     OS << "unsigned ";
   OS << "_ExtInt(";
-  T->getNumBitsExpr()->printPretty(OS, nullptr, Policy);
+  {
+    StmtPrinter stmtPrinter(OS, nullptr, tokens, Policy, 0, "\n",
+                            &(tokens.ast_context));
+    stmtPrinter.Visit((T->getNumBitsExpr()));
+  }
   OS << ")";
   spaceBeforePlaceHolder(OS);
 }
@@ -1231,12 +1305,13 @@ void TypePrinter::AppendScope(clang::DeclContext *DC, raw_string_ostream &OS,
 }
 
 void TypePrinter::printTag(clang::TagDecl *D, raw_string_ostream &OS) {
-  TokenPrinterContext ctx(OS, D, tokens, __FUNCTION__);
 
   if (Policy.IncludeTagDefinition) {
     clang::PrintingPolicy SubPolicy = Policy;
     SubPolicy.IncludeTagDefinition = false;
-    D->print(OS, SubPolicy, Indentation);
+    DeclPrinter declPrinter(OS, SubPolicy, tokens.ast_context, tokens,
+                            Indentation);
+    declPrinter.Visit(D);
     spaceBeforePlaceHolder(OS);
     return;
   }
@@ -1356,7 +1431,10 @@ void TypePrinter::printTemplateTypeParmBefore(const clang::TemplateTypeParmType 
   TokenPrinterContext ctx(OS, T, tokens, __FUNCTION__);
   clang::TemplateTypeParmDecl *D = T->getDecl();
   if (D && D->isImplicit()) {
+    TokenPrinterContext ctx2(OS, D, tokens, __FUNCTION__);
     if (auto *TC = D->getTypeConstraint()) {
+
+      TokenPrinterContext ctx(OS, TC, tokens, __FUNCTION__);
       TC->print(OS, Policy);
       OS << ' ';
     }
@@ -1457,7 +1535,9 @@ void TypePrinter::printElaboratedBefore(const clang::ElaboratedType *T,
            "OwnedTagDecl expected to be a declaration for the type");
     clang::PrintingPolicy SubPolicy = Policy;
     SubPolicy.IncludeTagDefinition = false;
-    OwnedTagDecl->print(OS, SubPolicy, Indentation);
+    DeclPrinter declPrinter(OS, SubPolicy, tokens.ast_context, tokens,
+                            Indentation);
+    declPrinter.Visit(OwnedTagDecl);
     spaceBeforePlaceHolder(OS);
     return;
   }

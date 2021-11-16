@@ -88,12 +88,36 @@ static void PrintTokenGraph(pasta::Decl tld) {
 
   for (const pasta::PrintedTokenContext *context : contexts) {
     auto bgcolor = "";
-    if (context->decl) {
-      bgcolor = " bgcolor=\"antiquewhite\"";
-    } else if (context->stmt) {
-      bgcolor = " bgcolor=\"aquamarine\"";
-    } else if (context->type) {
-      bgcolor = " bgcolor=\"cadetblue1\"";
+    auto kind_name = context->KindName();
+    switch (context->kind) {
+      case pasta::PrintedTokenKind::kStmt:
+        bgcolor = " bgcolor=\"aquamarine\"";
+        kind_name = reinterpret_cast<const clang::Stmt *>(context->data)->getStmtClassName();
+        break;
+      case pasta::PrintedTokenKind::kDecl:
+        bgcolor = " bgcolor=\"antiquewhite\"";
+        kind_name = reinterpret_cast<const clang::Decl *>(context->data)->getDeclKindName();
+        break;
+      case pasta::PrintedTokenKind::kType:
+        bgcolor = " bgcolor=\"cadetblue1\"";
+        kind_name = reinterpret_cast<const clang::Type *>(context->data)->getTypeClassName();
+        break;
+      case pasta::PrintedTokenKind::kTemplateParameterList:
+        bgcolor = " bgcolor=\"chartreuse1\"";
+        kind_name = "TemplateParameterList";
+        break;
+      case pasta::PrintedTokenKind::kTemplateArgument:
+        bgcolor = " bgcolor=\"chocolate1\"";
+        kind_name = "TemplateArgument";
+        break;
+      case pasta::PrintedTokenKind::kTypeConstraint:
+        bgcolor = " bgcolor=\"deepskyblue2\"";
+        kind_name = "TypeConstraint";
+        break;
+      case pasta::PrintedTokenKind::kAttr:
+        bgcolor = " bgcolor=\"goldenrod1\"";
+        kind_name = "Attr";
+        break;
     }
 
     const auto c = reinterpret_cast<uintptr_t>(context);
@@ -103,13 +127,7 @@ static void PrintTokenGraph(pasta::Decl tld) {
         << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" "
         << "border=\"1\"><TR><TD" << bgcolor << ">";
 
-    if (context->decl) {
-      os << context->decl->getDeclKindName();
-    } else if (context->stmt) {
-      os << context->stmt->getStmtClassName();
-    } else if (context->type) {
-      os << context->type->getTypeClassName();
-    }
+    os << kind_name;
 
     os
         << "</TD></TR></TABLE>>];\n";

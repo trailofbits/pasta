@@ -14,6 +14,7 @@
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/AST/Type.h>
+#include <clang/AST/PrettyPrinter.h>
 #include <clang/Basic/FileManager.h>
 #include <clang/Lex/Token.h>
 #pragma clang diagnostic pop
@@ -90,6 +91,9 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // go back to the source manager to find the token data (as we need to find
   // it to fill up `preprocessed_code` anyway).
   std::string backup_token_data;
+
+  // Useful for when we want to print tokens of decls and such.
+  std::unique_ptr<clang::PrintingPolicy> printing_policy;
 
   // Append a token to the end of the AST. `offset` is the offset in
   // `preprocessed_code`, and `len` is the length in bytes of the token itself.

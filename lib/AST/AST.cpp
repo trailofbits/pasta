@@ -139,6 +139,10 @@ clang::ASTContext &AST::UnderlyingAST(void) const {
   return impl->ci->getASTContext();
 }
 
+clang::Preprocessor &AST::UnderlyingPP(void) const {
+  return impl->ci->getPreprocessor();
+}
+
 // Returns the top-level translation unit decl inside of this AST.
 TranslationUnitDecl AST::TranslationUnit(void) const {
   return TranslationUnitDecl(impl, impl->tu);

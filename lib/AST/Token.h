@@ -29,7 +29,7 @@ class Token;
 class ASTImpl;
 
 // Backing implementation of a token.
-struct TokenImpl {
+class TokenImpl {
  public:
   inline TokenImpl(uint32_t opaque_source_loc_, int32_t data_offset_,
                    uint16_t data_len_, clang::tok::TokenKind kind_)

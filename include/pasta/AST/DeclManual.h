@@ -14,6 +14,7 @@ class CXXBaseSpecifier;
 namespace pasta {
 
 class ASTImpl;
+class PrintedTokenRange;
 //
 //class CXXBaseSpecifier {
 // private:

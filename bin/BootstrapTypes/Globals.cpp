@@ -140,6 +140,8 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
    "std::vector<::pasta::ObjCMethodDecl>"},
   {"(llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::ObjCPropertyDecl>>)",
    "std::vector<::pasta::ObjCPropertyDecl>"},
+  {"(llvm::iterator_range<clang::RedeclarableTemplateDecl::SpecIterator<clang::FunctionTemplateSpecializationInfo, clang::RedeclarableTemplateDecl::SpecEntryTraits<clang::FunctionTemplateSpecializationInfo>, clang::FunctionDecl>>)",
+   "std::vector<::pasta::FunctionDecl>"},
 
   {"(llvm::iterator_range<clang::DeclContext::specific_decl_iterator<clang::ObjCPropertyImplDecl>>)",
    "std::vector<::pasta::ObjCPropertyImplDecl>"},
@@ -380,6 +382,9 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
 
   {"(llvm::iterator_range<clang::RedeclarableTemplateDecl::SpecIterator<clang::VarTemplateSpecializationDecl, clang::RedeclarableTemplateDecl::SpecEntryTraits<clang::VarTemplateSpecializationDecl>, clang::VarTemplateSpecializationDecl>>)",
    DECL_ITERATOR_IMPL(VarTemplateSpecializationDecl)},
+
+  {"(llvm::iterator_range<clang::RedeclarableTemplateDecl::SpecIterator<clang::FunctionTemplateSpecializationInfo, clang::RedeclarableTemplateDecl::SpecEntryTraits<clang::FunctionTemplateSpecializationInfo>, clang::FunctionDecl>>)",
+   DECL_ITERATOR_IMPL(FunctionDecl)},
 
   {"(llvm::iterator_range<clang::RedeclarableTemplateDecl::SpecIterator<clang::ClassTemplateSpecializationDecl, clang::RedeclarableTemplateDecl::SpecEntryTraits<clang::ClassTemplateSpecializationDecl>, clang::ClassTemplateSpecializationDecl>>)",
    DECL_ITERATOR_IMPL(ClassTemplateSpecializationDecl)},

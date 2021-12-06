@@ -22,6 +22,7 @@ class Decl {
  public:
   std::shared_ptr<ASTImpl> ast;
   union {
+    const clang::Decl *Decl;
     const void *opaque;
   } u;
   DeclKind kind;

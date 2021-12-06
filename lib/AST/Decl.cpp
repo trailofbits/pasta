@@ -6835,7 +6835,16 @@ bool FunctionTemplateDecl::IsThisDeclarationADefinition(void) const {
 
 // 0: FunctionTemplateDecl::
 // 0: FunctionTemplateDecl::
-// 0: FunctionTemplateDecl::Specializations
+std::vector<::pasta::FunctionDecl> FunctionTemplateDecl::Specializations(void) const {
+  auto &self = *(u.FunctionTemplateDecl);
+  auto val = self.specializations();
+  std::vector<::pasta::FunctionDecl> ret;
+  for (auto decl_ptr : val) {
+    ret.emplace_back(DeclBuilder::Create<::pasta::FunctionDecl>(ast, decl_ptr));
+  }
+  return ret;
+}
+
 ImplicitParamDecl::ImplicitParamDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)

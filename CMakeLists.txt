@@ -3,10 +3,11 @@
 cmake_minimum_required(VERSION 3.14.5)
 
 # Takes care of some vcpkg automation so that we can use VCPKG_ROOT
-include(cmake/vcpkg_helper.cmake)
+include("cmake/vcpkg_helper.cmake")
 
 project(pasta LANGUAGES C CXX)
 
+include("cmake/options.cmake")
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/settings.cmake")
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/utils.cmake")
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/ccache.cmake")
@@ -15,10 +16,10 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
 # --------------------------------------------
 # build-time options -------------------------
 # --------------------------------------------
-option(PASTA_WARNINGS_AS_ERRORS "Build treating warnings as errors" OFF)
-option(PASTA_BOOTSTRAP_MACROS "Boostrap the macro definitions" OFF)
-option(PASTA_BOOTSTRAP_TYPES "Bootstrap the type definitions from the macros" OFF)
-option(PASTA_PYTHON_BINDINGS "Build Python bindings" OFF)
+
+if(PASTA_ENABLE_INSTALL)
+    include("cmake/packaging.cmake")
+endif(PASTA_ENABLE_INSTALL)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -47,7 +48,8 @@ endif()
 # --------------------------------------------------
 add_library(pasta_cxx_settings INTERFACE)
 target_include_directories(pasta_cxx_settings INTERFACE
-    "${CMAKE_CURRENT_LIST_DIR}/include"
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
 )
 
 target_compile_options(pasta_cxx_settings INTERFACE ${CXX_WARNING_OPTIONS})
@@ -145,6 +147,29 @@ if(NOT Z3_FOUND)
     target_link_libraries(Z3 INTERFACE z3::libz3)
 endif()
 
+if(PASTA_ENABLE_INSTALL)
+  export(PACKAGE "${PROJECT_NAME}")
+  
+  set(cmake_install_dir "lib/cmake/${PROJECT_NAME}")
+  
+  include(CMakePackageConfigHelpers)
+  configure_package_config_file("${PROJECT_NAME}Config.cmake.in"
+      "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+      INSTALL_DESTINATION "${cmake_install_dir}"
+  )
+
+  install(
+      FILES
+          "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+          "${PROJECT_SOURCE_DIR}/cmake/modules/FindFilesystem.cmake"
+      DESTINATION "${cmake_install_dir}"
+  )
+  install(EXPORT "${PROJECT_NAME}Targets"
+      DESTINATION "${cmake_install_dir}"
+      NAMESPACE "${PROJECT_NAME}::"
+  )
+endif(PASTA_ENABLE_INSTALL)
+
 # --------------------------------------------
 # Configure lib/Compiler/Host.h --------------
 # --------------------------------------------
@@ -154,35 +179,35 @@ set(PASTA_CC_VERSION_OUT_FILE "${CMAKE_CURRENT_BINARY_DIR}/pasta.cc.version")
 set(PASTA_CXX_VERSION_OUT_FILE "${CMAKE_CURRENT_BINARY_DIR}/pasta.cxx.version")
 
 if(CMAKE_C_COMPILER_ID MATCHES "Clang")
-  if("x${CMAKE_C_SIMULATE_ID}" STREQUAL "xMSVC")
-    set(PASTA_C_COMPILER_ID 3)  # clang-cl
-  elseif(CMAKE_C_COMPILER_ID STREQUAL "AppleClang")
-    set(PASTA_C_COMPILER_ID 2)  # Apple's Clang
-  else()
-    set(PASTA_C_COMPILER_ID 1)  # LLVM Clang.
-  endif()
+    if("x${CMAKE_C_SIMULATE_ID}" STREQUAL "xMSVC")
+        set(PASTA_C_COMPILER_ID 3)  # clang-cl
+    elseif(CMAKE_C_COMPILER_ID STREQUAL "AppleClang")
+        set(PASTA_C_COMPILER_ID 2)  # Apple's Clang
+    else()
+        set(PASTA_C_COMPILER_ID 1)  # LLVM Clang.
+    endif()
 elseif (CMAKE_C_COMPILER_ID STREQUAL "MSVC")
-  set(PASTA_C_COMPILER_ID 4)  # cl
+    set(PASTA_C_COMPILER_ID 4)  # cl
 elseif (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-  set(PASTA_C_COMPILER_ID 5)  # g++
+    set(PASTA_C_COMPILER_ID 5)  # g++
 else()
-  set(PASTA_C_COMPILER_ID 0)  # Unknown.
+    set(PASTA_C_COMPILER_ID 0)  # Unknown.
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  if("x${CMAKE_CXX_SIMULATE_ID}" STREQUAL "xMSVC")
-    set(PASTA_CXX_COMPILER_ID 3)  # clang-cl
-  elseif(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-    set(PASTA_CXX_COMPILER_ID 2)  # Apple's Clang
-  else()
-    set(PASTA_CXX_COMPILER_ID 1)  # LLVM Clang.
-  endif()
+    if("x${CMAKE_CXX_SIMULATE_ID}" STREQUAL "xMSVC")
+        set(PASTA_CXX_COMPILER_ID 3)  # clang-cl
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+        set(PASTA_CXX_COMPILER_ID 2)  # Apple's Clang
+    else()
+        set(PASTA_CXX_COMPILER_ID 1)  # LLVM Clang.
+    endif()
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  set(PASTA_CXX_COMPILER_ID 4)  # cl
+    set(PASTA_CXX_COMPILER_ID 4)  # cl
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  set(PASTA_CXX_COMPILER_ID 5)  # g++
+    set(PASTA_CXX_COMPILER_ID 5)  # g++
 else()
-  set(PASTA_CXX_COMPILER_ID 0)  # Unknown.
+    set(PASTA_CXX_COMPILER_ID 0)  # Unknown.
 endif()
 
 set(HOST_H_IN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/lib/Compile/Host.h.in")
@@ -216,7 +241,7 @@ configure_file("${HOST_H_IN_FILE}" "${HOST_H_FILE}" @ONLY)
 # Main build targets -------------------------
 # --------------------------------------------
 
-add_library(pasta_util STATIC
+set(util_HEADERS
     "include/pasta/Util/ArgumentVector.h"
     "include/pasta/Util/Compiler.h"
     "include/pasta/Util/Error.h"
@@ -225,6 +250,10 @@ add_library(pasta_util STATIC
     "include/pasta/Util/FileSystem.h"
     "include/pasta/Util/Init.h"
     "include/pasta/Util/Result.h"
+)
+
+add_library(pasta_util STATIC
+    ${util_HEADERS}
     
     "lib/Util/FileManager.h"
     
@@ -236,13 +265,12 @@ add_library(pasta_util STATIC
     "lib/Util/Init.cpp"
 )
 
-target_link_libraries(pasta_util PRIVATE
+target_link_libraries(pasta_util PUBLIC
     pasta_cxx_settings
     pasta_thirdparty_llvm
 )
 
-add_library(pasta_compiler STATIC
-
+set(ast_HEADERS
     "include/pasta/AST/AST.h"
     "include/pasta/AST/Decl.h"
     "include/pasta/AST/DeclBootstrap.h"
@@ -252,6 +280,10 @@ add_library(pasta_compiler STATIC
     "include/pasta/Compile/Command.h"
     "include/pasta/Compile/Compiler.h"
     "include/pasta/Compile/Job.h"
+)
+
+add_library(pasta_compiler STATIC
+    ${ast_HEADERS}
 
     "lib/AST/AST.cpp"
     "lib/AST/Builder.cpp"
@@ -295,6 +327,13 @@ target_link_libraries(pasta_compiler PRIVATE
     pasta_thirdparty_llvm
     pasta_util
 )
+
+add_library("pasta" INTERFACE)
+target_link_libraries("pasta" INTERFACE
+    pasta_cxx_settings
+    pasta_thirdparty_llvm
+    pasta_util
+    pasta_compiler)
 
 if(PASTA_PYTHON_BINDINGS)
     add_library(pasta_python_bindings STATIC
@@ -357,6 +396,32 @@ if(PASTA_BOOTSTRAP_MACROS OR PASTA_BOOTSTRAP_TYPES)
 
 endif()
 
+if(PASTA_ENABLE_INSTALL)
+  install(
+    DIRECTORY
+      "include/pasta"
+    DESTINATION
+      "include")
+  
+  
+  install(
+    TARGETS
+      "pasta" "pasta_compiler" "pasta_util"
+      "pasta_thirdparty_llvm" "pasta_cxx_settings"
+    EXPORT
+      "${PROJECT_NAME}Targets"
+    RUNTIME
+      DESTINATION
+        "bin"
+    LIBRARY
+      DESTINATION
+        "lib"
+    ARCHIVE
+      DESTINATION
+        "lib"
+  )
+endif(PASTA_ENABLE_INSTALL)
+
 
 # --------------------------------------------
 # Configure setup.py.in and __init__.py.in ---
@@ -410,8 +475,9 @@ if(PASTA_PYTHON_BINDINGS)
     )
     
     add_custom_target(pasta_build_python_ext ALL DEPENDS "${OUTPUT}")
-    
-    install(CODE "execute_process(COMMAND \"${PYTHON_EXECUTABLE}\" \"${SETUP_PY}\" install --force)")
+    if(PASTA_ENABLE_INSTALL)
+        install(CODE "execute_process(COMMAND \"${PYTHON_EXECUTABLE}\" \"${SETUP_PY}\" install --force)")
+    endif(PASTA_ENABLE_INSTALL)
 endif(PASTA_PYTHON_BINDINGS)
 
 add_subdirectory(bin)

@@ -1477,7 +1477,16 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, FileScopeAsmDecl)
   return ast->TokenAt(val);
 }
 
-// 0: FileScopeAsmDecl::AsmString
+::pasta::StringLiteral FileScopeAsmDecl::AsmString(void) const {
+  auto &self = *(u.FileScopeAsmDecl);
+  auto val = self.getAsmString();
+  if (val) {
+    return StmtBuilder::Create<::pasta::StringLiteral>(ast, val);
+  }
+  assert(false && "FileScopeAsmDecl::AsmString can return nullptr!");
+  __builtin_unreachable();
+}
+
 ::pasta::Token FileScopeAsmDecl::RParenToken(void) const {
   auto &self = *(u.FileScopeAsmDecl);
   auto val = self.getRParenLoc();
@@ -3200,7 +3209,16 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, StaticAssertDecl)
   __builtin_unreachable();
 }
 
-// 0: StaticAssertDecl::Message
+::pasta::StringLiteral StaticAssertDecl::Message(void) const {
+  auto &self = *(u.StaticAssertDecl);
+  auto val = self.getMessage();
+  if (val) {
+    return StmtBuilder::Create<::pasta::StringLiteral>(ast, val);
+  }
+  assert(false && "StaticAssertDecl::Message can return nullptr!");
+  __builtin_unreachable();
+}
+
 ::pasta::Token StaticAssertDecl::RParenToken(void) const {
   auto &self = *(u.StaticAssertDecl);
   auto val = self.getRParenLoc();

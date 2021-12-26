@@ -89,17 +89,14 @@ void GenerateStmtH(void) {
         << "  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(" << name << ")\n";
 
     // Constructors from derived class -> base class.
-    if (name_ref != "Stmt") {
+    for (const auto &base_class : gTransitiveBaseClasses[name]) {
+      os << "  PASTA_DECLARE_BASE_OPERATORS(" << base_class << ", "
+         << name << ")\n";
+    }
 
-      for (const auto &base_class : gTransitiveBaseClasses[name]) {
-        os << "  PASTA_DECLARE_BASE_OPERATORS(" << base_class << ", "
-           << name << ")\n";
-      }
-
-      for (const auto &derived_class : gTransitiveDerivedClasses[name]) {
-        os << "  PASTA_DECLARE_DERIVED_OPERATORS(" << name << ", "
-           << derived_class << ")\n";
-      }
+    for (const auto &derived_class : gTransitiveDerivedClasses[name]) {
+      os << "  PASTA_DECLARE_DERIVED_OPERATORS(" << name << ", "
+         << derived_class << ")\n";
     }
 
     DeclareCppMethods(os, name, gClassIDs[name]);

@@ -87,7 +87,10 @@ int main(void) {
     } else if (class_name.endswith("Stmt") ||
                class_name.endswith("Expr") ||
                class_name.endswith("Operator") ||
-               class_name == "SwitchCase") {
+               class_name.endswith("Directive") ||
+               class_name.endswith("Literal") ||
+               class_name == "SwitchCase" ||
+               class_name == "ExprWithCleanups") {
       gStmtNames.push_back(class_name.str());
 
     } else if (class_name.endswith("Type") && class_name != "QualType") {

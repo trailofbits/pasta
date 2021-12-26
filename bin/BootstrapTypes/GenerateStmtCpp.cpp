@@ -32,6 +32,11 @@ void GenerateStmtCpp(void) {
       << "#include <clang/AST/StmtCXX.h>\n"
       << "#include <clang/AST/StmtObjC.h>\n"
       << "#include <clang/AST/StmtOpenMP.h>\n"
+      << "#include <clang/AST/Expr.h>\n"
+      << "#include <clang/AST/ExprConcepts.h>\n"
+      << "#include <clang/AST/ExprCXX.h>\n"
+      << "#include <clang/AST/ExprObjC.h>\n"
+      << "#include <clang/AST/ExprOpenMP.h>\n"
       << "#include <clang/Frontend/CompilerInstance.h>\n"
       << "#pragma clang diagnostic pop\n\n"
       << "#include <pasta/AST/Decl.h>\n"
@@ -123,16 +128,14 @@ void GenerateStmtCpp(void) {
     }
 
     // Constructors from derived class -> base class.
-    if (name_ref != "Stmt") {
-      for (const auto &base_class : gTransitiveBaseClasses[name]) {
-        os << "PASTA_DEFINE_BASE_OPERATORS(" << base_class << ", "
-           << name << ")\n";
-      }
+    for (const auto &base_class : gTransitiveBaseClasses[name]) {
+      os << "PASTA_DEFINE_BASE_OPERATORS(" << base_class << ", "
+         << name << ")\n";
+    }
 
-      for (const auto &derived_class : gTransitiveDerivedClasses[name]) {
-        os << "PASTA_DEFINE_DERIVED_OPERATORS("
-           << name << ", " << derived_class << ")\n";
-      }
+    for (const auto &derived_class : gTransitiveDerivedClasses[name]) {
+      os << "PASTA_DEFINE_DERIVED_OPERATORS("
+         << name << ", " << derived_class << ")\n";
     }
     DefineCppMethods(os, name, gClassIDs[name]);
   }

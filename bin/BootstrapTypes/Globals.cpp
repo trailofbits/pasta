@@ -200,7 +200,10 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
    "std::vector<::pasta::Stmt>"},
 
   {"(llvm::iterator_range<clang::Stmt::CastIterator<clang::Expr, const clang::Expr *const, const clang::Stmt *const>>)",
-   "std::vector<::pasta::Expr>"}
+   "std::vector<::pasta::Expr>"},
+
+  {"(llvm::iterator_range<clang::Stmt::CastIterator<clang::AddrLabelExpr, const clang::AddrLabelExpr *const, const clang::Stmt *const>>)",
+   "std::vector<::pasta::AddrLabelExpr>"}
 };
 
 // Maps return types from the macros file to how they should be returned
@@ -460,7 +463,10 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
    STMT_ITERATOR_IMPL(Stmt)},
 
   {"(llvm::iterator_range<clang::Stmt::CastIterator<clang::Expr, const clang::Expr *const, const clang::Stmt *const>>)",
-   STMT_ITERATOR_IMPL(Expr)}
+   STMT_ITERATOR_IMPL(Expr)},
+
+  {"(llvm::iterator_range<clang::Stmt::CastIterator<clang::AddrLabelExpr, const clang::AddrLabelExpr *const, const clang::Stmt *const>>)",
+   STMT_ITERATOR_IMPL(AddrLabelExpr)}
 };
 
 // Prefixes on enumerators to strip.

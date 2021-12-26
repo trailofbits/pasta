@@ -542,7 +542,7 @@ class TypeBuilder;
     e(CXXFunctionalCastExpr) \
     e(CXXInheritedCtorInitExpr) \
     e(CXXMemberCallExpr) \
-    e(CXXNamedCastExpr) \
+    a(CXXNamedCastExpr) \
     e(CXXNewExpr) \
     e(CXXNoexceptExpr) \
     e(CXXNullPtrLiteralExpr) \
@@ -563,7 +563,8 @@ class TypeBuilder;
     e(CallExpr) \
     s(CapturedStmt) \
     s(CaseStmt) \
-    e(CastExpr) \
+    a(CastExpr) \
+    l(CharacterLiteral) \
     e(ChooseExpr) \
     e(CoawaitExpr) \
     o(CompoundAssignOperator) \
@@ -576,7 +577,7 @@ class TypeBuilder;
     e(ConvertVectorExpr) \
     s(CoreturnStmt) \
     s(CoroutineBodyStmt) \
-    e(CoroutineSuspendExpr) \
+    a(CoroutineSuspendExpr) \
     e(CoyieldExpr) \
     e(DeclRefExpr) \
     s(DeclStmt) \
@@ -586,22 +587,27 @@ class TypeBuilder;
     e(DesignatedInitExpr) \
     e(DesignatedInitUpdateExpr) \
     s(DoStmt) \
-    e(ExplicitCastExpr) \
+    a(ExplicitCastExpr) \
     a(Expr) \
+    e(ExprWithCleanups) \
     e(ExpressionTraitExpr) \
     e(ExtVectorElementExpr) \
+    l(FixedPointLiteral) \
+    l(FloatingLiteral) \
     s(ForStmt) \
-    e(FullExpr) \
+    a(FullExpr) \
     e(FunctionParmPackExpr) \
     s(GCCAsmStmt) \
     e(GNUNullExpr) \
     e(GenericSelectionExpr) \
     s(GotoStmt) \
     s(IfStmt) \
+    l(ImaginaryLiteral) \
     e(ImplicitCastExpr) \
     e(ImplicitValueInitExpr) \
     s(IndirectGotoStmt) \
     e(InitListExpr) \
+    l(IntegerLiteral) \
     s(LabelStmt) \
     e(LambdaExpr) \
     s(MSAsmStmt) \
@@ -615,7 +621,64 @@ class TypeBuilder;
     s(NullStmt) \
     e(OMPArraySectionExpr) \
     e(OMPArrayShapingExpr) \
+    d(OMPAtomicDirective) \
+    d(OMPBarrierDirective) \
+    d(OMPCancelDirective) \
+    d(OMPCancellationPointDirective) \
+    d(OMPCriticalDirective) \
+    d(OMPDepobjDirective) \
+    d(OMPDistributeDirective) \
+    d(OMPDistributeParallelForDirective) \
+    d(OMPDistributeParallelForSimdDirective) \
+    d(OMPDistributeSimdDirective) \
+    a(OMPExecutableDirective) \
+    d(OMPFlushDirective) \
+    d(OMPForDirective) \
+    d(OMPForSimdDirective) \
     e(OMPIteratorExpr) \
+    a(OMPLoopDirective) \
+    d(OMPMasterDirective) \
+    d(OMPMasterTaskLoopDirective) \
+    d(OMPMasterTaskLoopSimdDirective) \
+    d(OMPOrderedDirective) \
+    d(OMPParallelDirective) \
+    d(OMPParallelForDirective) \
+    d(OMPParallelForSimdDirective) \
+    d(OMPParallelMasterDirective) \
+    d(OMPParallelMasterTaskLoopDirective) \
+    d(OMPParallelMasterTaskLoopSimdDirective) \
+    d(OMPParallelSectionsDirective) \
+    d(OMPScanDirective) \
+    d(OMPSectionDirective) \
+    d(OMPSectionsDirective) \
+    d(OMPSimdDirective) \
+    d(OMPSingleDirective) \
+    d(OMPTargetDataDirective) \
+    d(OMPTargetDirective) \
+    d(OMPTargetEnterDataDirective) \
+    d(OMPTargetExitDataDirective) \
+    d(OMPTargetParallelDirective) \
+    d(OMPTargetParallelForDirective) \
+    d(OMPTargetParallelForSimdDirective) \
+    d(OMPTargetSimdDirective) \
+    d(OMPTargetTeamsDirective) \
+    d(OMPTargetTeamsDistributeDirective) \
+    d(OMPTargetTeamsDistributeParallelForDirective) \
+    d(OMPTargetTeamsDistributeParallelForSimdDirective) \
+    d(OMPTargetTeamsDistributeSimdDirective) \
+    d(OMPTargetUpdateDirective) \
+    d(OMPTaskDirective) \
+    d(OMPTaskLoopDirective) \
+    d(OMPTaskLoopSimdDirective) \
+    d(OMPTaskgroupDirective) \
+    d(OMPTaskwaitDirective) \
+    d(OMPTaskyieldDirective) \
+    d(OMPTeamsDirective) \
+    d(OMPTeamsDistributeDirective) \
+    d(OMPTeamsDistributeParallelForDirective) \
+    d(OMPTeamsDistributeParallelForSimdDirective) \
+    d(OMPTeamsDistributeSimdDirective) \
+    l(ObjCArrayLiteral) \
     s(ObjCAtCatchStmt) \
     s(ObjCAtFinallyStmt) \
     s(ObjCAtSynchronizedStmt) \
@@ -626,6 +689,7 @@ class TypeBuilder;
     e(ObjCBoolLiteralExpr) \
     e(ObjCBoxedExpr) \
     e(ObjCBridgedCastExpr) \
+    l(ObjCDictionaryLiteral) \
     e(ObjCEncodeExpr) \
     s(ObjCForCollectionStmt) \
     e(ObjCIndirectCopyRestoreExpr) \
@@ -635,10 +699,11 @@ class TypeBuilder;
     e(ObjCPropertyRefExpr) \
     e(ObjCProtocolExpr) \
     e(ObjCSelectorExpr) \
+    l(ObjCStringLiteral) \
     e(ObjCSubscriptRefExpr) \
     e(OffsetOfExpr) \
     e(OpaqueValueExpr) \
-    e(OverloadExpr) \
+    a(OverloadExpr) \
     e(PackExpansionExpr) \
     e(ParenExpr) \
     e(ParenListExpr) \
@@ -656,6 +721,7 @@ class TypeBuilder;
     e(SourceLocExpr) \
     a(Stmt) \
     e(StmtExpr) \
+    l(StringLiteral) \
     e(SubstNonTypeTemplateParmExpr) \
     e(SubstNonTypeTemplateParmPackExpr) \
     a(SwitchCase) \
@@ -666,6 +732,7 @@ class TypeBuilder;
     o(UnaryOperator) \
     e(UnresolvedLookupExpr) \
     e(UnresolvedMemberExpr) \
+    l(UserDefinedLiteral) \
     e(VAArgExpr) \
     a(ValueStmt) \
     s(WhileStmt)

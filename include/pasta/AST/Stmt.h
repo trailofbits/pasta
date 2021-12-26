@@ -59,6 +59,8 @@ class StmtVisitor {
   virtual void VisitExpr(const Expr &);
   virtual void VisitExpressionTraitExpr(const ExpressionTraitExpr &);
   virtual void VisitExtVectorElementExpr(const ExtVectorElementExpr &);
+  virtual void VisitFixedPointLiteral(const FixedPointLiteral &);
+  virtual void VisitFloatingLiteral(const FloatingLiteral &);
   virtual void VisitForStmt(const ForStmt &);
   virtual void VisitFullExpr(const FullExpr &);
   virtual void VisitFunctionParmPackExpr(const FunctionParmPackExpr &);
@@ -67,9 +69,11 @@ class StmtVisitor {
   virtual void VisitGenericSelectionExpr(const GenericSelectionExpr &);
   virtual void VisitGotoStmt(const GotoStmt &);
   virtual void VisitIfStmt(const IfStmt &);
+  virtual void VisitImaginaryLiteral(const ImaginaryLiteral &);
   virtual void VisitImplicitValueInitExpr(const ImplicitValueInitExpr &);
   virtual void VisitIndirectGotoStmt(const IndirectGotoStmt &);
   virtual void VisitInitListExpr(const InitListExpr &);
+  virtual void VisitIntegerLiteral(const IntegerLiteral &);
   virtual void VisitLabelStmt(const LabelStmt &);
   virtual void VisitLambdaExpr(const LambdaExpr &);
   virtual void VisitMSAsmStmt(const MSAsmStmt &);
@@ -83,7 +87,52 @@ class StmtVisitor {
   virtual void VisitNullStmt(const NullStmt &);
   virtual void VisitOMPArraySectionExpr(const OMPArraySectionExpr &);
   virtual void VisitOMPArrayShapingExpr(const OMPArrayShapingExpr &);
+  virtual void VisitOMPExecutableDirective(const OMPExecutableDirective &);
+  virtual void VisitOMPFlushDirective(const OMPFlushDirective &);
   virtual void VisitOMPIteratorExpr(const OMPIteratorExpr &);
+  virtual void VisitOMPLoopDirective(const OMPLoopDirective &);
+  virtual void VisitOMPMasterDirective(const OMPMasterDirective &);
+  virtual void VisitOMPMasterTaskLoopDirective(const OMPMasterTaskLoopDirective &);
+  virtual void VisitOMPMasterTaskLoopSimdDirective(const OMPMasterTaskLoopSimdDirective &);
+  virtual void VisitOMPOrderedDirective(const OMPOrderedDirective &);
+  virtual void VisitOMPParallelDirective(const OMPParallelDirective &);
+  virtual void VisitOMPParallelForDirective(const OMPParallelForDirective &);
+  virtual void VisitOMPParallelForSimdDirective(const OMPParallelForSimdDirective &);
+  virtual void VisitOMPParallelMasterDirective(const OMPParallelMasterDirective &);
+  virtual void VisitOMPParallelMasterTaskLoopDirective(const OMPParallelMasterTaskLoopDirective &);
+  virtual void VisitOMPParallelMasterTaskLoopSimdDirective(const OMPParallelMasterTaskLoopSimdDirective &);
+  virtual void VisitOMPParallelSectionsDirective(const OMPParallelSectionsDirective &);
+  virtual void VisitOMPScanDirective(const OMPScanDirective &);
+  virtual void VisitOMPSectionDirective(const OMPSectionDirective &);
+  virtual void VisitOMPSectionsDirective(const OMPSectionsDirective &);
+  virtual void VisitOMPSimdDirective(const OMPSimdDirective &);
+  virtual void VisitOMPSingleDirective(const OMPSingleDirective &);
+  virtual void VisitOMPTargetDataDirective(const OMPTargetDataDirective &);
+  virtual void VisitOMPTargetDirective(const OMPTargetDirective &);
+  virtual void VisitOMPTargetEnterDataDirective(const OMPTargetEnterDataDirective &);
+  virtual void VisitOMPTargetExitDataDirective(const OMPTargetExitDataDirective &);
+  virtual void VisitOMPTargetParallelDirective(const OMPTargetParallelDirective &);
+  virtual void VisitOMPTargetParallelForDirective(const OMPTargetParallelForDirective &);
+  virtual void VisitOMPTargetParallelForSimdDirective(const OMPTargetParallelForSimdDirective &);
+  virtual void VisitOMPTargetSimdDirective(const OMPTargetSimdDirective &);
+  virtual void VisitOMPTargetTeamsDirective(const OMPTargetTeamsDirective &);
+  virtual void VisitOMPTargetTeamsDistributeDirective(const OMPTargetTeamsDistributeDirective &);
+  virtual void VisitOMPTargetTeamsDistributeParallelForDirective(const OMPTargetTeamsDistributeParallelForDirective &);
+  virtual void VisitOMPTargetTeamsDistributeParallelForSimdDirective(const OMPTargetTeamsDistributeParallelForSimdDirective &);
+  virtual void VisitOMPTargetTeamsDistributeSimdDirective(const OMPTargetTeamsDistributeSimdDirective &);
+  virtual void VisitOMPTargetUpdateDirective(const OMPTargetUpdateDirective &);
+  virtual void VisitOMPTaskDirective(const OMPTaskDirective &);
+  virtual void VisitOMPTaskLoopDirective(const OMPTaskLoopDirective &);
+  virtual void VisitOMPTaskLoopSimdDirective(const OMPTaskLoopSimdDirective &);
+  virtual void VisitOMPTaskgroupDirective(const OMPTaskgroupDirective &);
+  virtual void VisitOMPTaskwaitDirective(const OMPTaskwaitDirective &);
+  virtual void VisitOMPTaskyieldDirective(const OMPTaskyieldDirective &);
+  virtual void VisitOMPTeamsDirective(const OMPTeamsDirective &);
+  virtual void VisitOMPTeamsDistributeDirective(const OMPTeamsDistributeDirective &);
+  virtual void VisitOMPTeamsDistributeParallelForDirective(const OMPTeamsDistributeParallelForDirective &);
+  virtual void VisitOMPTeamsDistributeParallelForSimdDirective(const OMPTeamsDistributeParallelForSimdDirective &);
+  virtual void VisitOMPTeamsDistributeSimdDirective(const OMPTeamsDistributeSimdDirective &);
+  virtual void VisitObjCArrayLiteral(const ObjCArrayLiteral &);
   virtual void VisitObjCAtCatchStmt(const ObjCAtCatchStmt &);
   virtual void VisitObjCAtFinallyStmt(const ObjCAtFinallyStmt &);
   virtual void VisitObjCAtSynchronizedStmt(const ObjCAtSynchronizedStmt &);
@@ -93,6 +142,7 @@ class StmtVisitor {
   virtual void VisitObjCAvailabilityCheckExpr(const ObjCAvailabilityCheckExpr &);
   virtual void VisitObjCBoolLiteralExpr(const ObjCBoolLiteralExpr &);
   virtual void VisitObjCBoxedExpr(const ObjCBoxedExpr &);
+  virtual void VisitObjCDictionaryLiteral(const ObjCDictionaryLiteral &);
   virtual void VisitObjCEncodeExpr(const ObjCEncodeExpr &);
   virtual void VisitObjCForCollectionStmt(const ObjCForCollectionStmt &);
   virtual void VisitObjCIndirectCopyRestoreExpr(const ObjCIndirectCopyRestoreExpr &);
@@ -102,6 +152,7 @@ class StmtVisitor {
   virtual void VisitObjCPropertyRefExpr(const ObjCPropertyRefExpr &);
   virtual void VisitObjCProtocolExpr(const ObjCProtocolExpr &);
   virtual void VisitObjCSelectorExpr(const ObjCSelectorExpr &);
+  virtual void VisitObjCStringLiteral(const ObjCStringLiteral &);
   virtual void VisitObjCSubscriptRefExpr(const ObjCSubscriptRefExpr &);
   virtual void VisitOffsetOfExpr(const OffsetOfExpr &);
   virtual void VisitOpaqueValueExpr(const OpaqueValueExpr &);
@@ -122,6 +173,7 @@ class StmtVisitor {
   virtual void VisitSizeOfPackExpr(const SizeOfPackExpr &);
   virtual void VisitSourceLocExpr(const SourceLocExpr &);
   virtual void VisitStmtExpr(const StmtExpr &);
+  virtual void VisitStringLiteral(const StringLiteral &);
   virtual void VisitSubstNonTypeTemplateParmExpr(const SubstNonTypeTemplateParmExpr &);
   virtual void VisitSubstNonTypeTemplateParmPackExpr(const SubstNonTypeTemplateParmPackExpr &);
   virtual void VisitTypeTraitExpr(const TypeTraitExpr &);
@@ -166,6 +218,7 @@ class StmtVisitor {
   virtual void VisitCXXUuidofExpr(const CXXUuidofExpr &);
   virtual void VisitCallExpr(const CallExpr &);
   virtual void VisitCastExpr(const CastExpr &);
+  virtual void VisitCharacterLiteral(const CharacterLiteral &);
   virtual void VisitChooseExpr(const ChooseExpr &);
   virtual void VisitCompoundAssignOperator(const CompoundAssignOperator &);
   virtual void VisitCompoundLiteralExpr(const CompoundLiteralExpr &);
@@ -181,8 +234,22 @@ class StmtVisitor {
   virtual void VisitDesignatedInitExpr(const DesignatedInitExpr &);
   virtual void VisitDesignatedInitUpdateExpr(const DesignatedInitUpdateExpr &);
   virtual void VisitExplicitCastExpr(const ExplicitCastExpr &);
+  virtual void VisitExprWithCleanups(const ExprWithCleanups &);
   virtual void VisitImplicitCastExpr(const ImplicitCastExpr &);
+  virtual void VisitOMPAtomicDirective(const OMPAtomicDirective &);
+  virtual void VisitOMPBarrierDirective(const OMPBarrierDirective &);
+  virtual void VisitOMPCancelDirective(const OMPCancelDirective &);
+  virtual void VisitOMPCancellationPointDirective(const OMPCancellationPointDirective &);
+  virtual void VisitOMPCriticalDirective(const OMPCriticalDirective &);
+  virtual void VisitOMPDepobjDirective(const OMPDepobjDirective &);
+  virtual void VisitOMPDistributeDirective(const OMPDistributeDirective &);
+  virtual void VisitOMPDistributeParallelForDirective(const OMPDistributeParallelForDirective &);
+  virtual void VisitOMPDistributeParallelForSimdDirective(const OMPDistributeParallelForSimdDirective &);
+  virtual void VisitOMPDistributeSimdDirective(const OMPDistributeSimdDirective &);
+  virtual void VisitOMPForDirective(const OMPForDirective &);
+  virtual void VisitOMPForSimdDirective(const OMPForSimdDirective &);
   virtual void VisitObjCBridgedCastExpr(const ObjCBridgedCastExpr &);
+  virtual void VisitUserDefinedLiteral(const UserDefinedLiteral &);
   virtual void VisitBuiltinBitCastExpr(const BuiltinBitCastExpr &);
   virtual void VisitCStyleCastExpr(const CStyleCastExpr &);
   virtual void VisitCUDAKernelCallExpr(const CUDAKernelCallExpr &);
@@ -201,6 +268,232 @@ class StmtVisitor {
 class Stmt {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(Stmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, AbstractConditionalOperator)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, AddrLabelExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ArrayInitIndexExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ArrayInitLoopExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ArraySubscriptExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ArrayTypeTraitExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, AsTypeExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, AsmStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, AtomicExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, AttributedStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, BinaryConditionalOperator)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, BinaryOperator)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, BlockExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, BreakStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, BuiltinBitCastExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CStyleCastExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CUDAKernelCallExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXAddrspaceCastExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXBindTemporaryExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXBoolLiteralExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXCatchStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXConstCastExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXConstructExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXDefaultArgExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXDefaultInitExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXDeleteExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXDependentScopeMemberExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXDynamicCastExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXFoldExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXForRangeStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXFunctionalCastExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXInheritedCtorInitExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXMemberCallExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXNamedCastExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXNewExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXNoexceptExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXNullPtrLiteralExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXOperatorCallExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXPseudoDestructorExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXReinterpretCastExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXRewrittenBinaryOperator)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXScalarValueInitExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXStaticCastExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXStdInitializerListExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXTemporaryObjectExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXThisExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXThrowExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXTryStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXTypeidExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXUnresolvedConstructExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXUuidofExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CallExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CapturedStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CaseStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CastExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CharacterLiteral)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ChooseExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CoawaitExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CompoundAssignOperator)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CompoundLiteralExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CompoundStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ConceptSpecializationExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ConditionalOperator)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ConstantExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ContinueStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ConvertVectorExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CoreturnStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CoroutineBodyStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CoroutineSuspendExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CoyieldExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, DeclRefExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, DeclStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, DefaultStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, DependentCoawaitExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, DependentScopeDeclRefExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, DesignatedInitExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, DesignatedInitUpdateExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, DoStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ExplicitCastExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, Expr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ExprWithCleanups)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ExpressionTraitExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ExtVectorElementExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, FixedPointLiteral)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, FloatingLiteral)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ForStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, FullExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, FunctionParmPackExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, GCCAsmStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, GNUNullExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, GenericSelectionExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, GotoStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, IfStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ImaginaryLiteral)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ImplicitCastExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ImplicitValueInitExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, IndirectGotoStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, InitListExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, IntegerLiteral)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, LabelStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, LambdaExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, MSAsmStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, MSDependentExistsStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, MSPropertyRefExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, MSPropertySubscriptExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, MaterializeTemporaryExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, MatrixSubscriptExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, MemberExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, NoInitExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, NullStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPArraySectionExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPArrayShapingExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPAtomicDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPBarrierDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPCancelDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPCancellationPointDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPCriticalDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPDepobjDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPDistributeDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPDistributeParallelForDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPDistributeParallelForSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPDistributeSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPExecutableDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPFlushDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPForDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPForSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPIteratorExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPLoopDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPMasterDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPMasterTaskLoopDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPMasterTaskLoopSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPOrderedDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPParallelDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPParallelForDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPParallelForSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPParallelMasterDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPParallelMasterTaskLoopDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPParallelMasterTaskLoopSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPParallelSectionsDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPScanDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPSectionDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPSectionsDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPSingleDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTargetDataDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTargetDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTargetEnterDataDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTargetExitDataDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTargetParallelDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTargetParallelForDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTargetParallelForSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTargetSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTargetTeamsDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTargetTeamsDistributeDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTargetTeamsDistributeParallelForDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTargetTeamsDistributeParallelForSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTargetTeamsDistributeSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTargetUpdateDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTaskDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTaskLoopDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTaskLoopSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTaskgroupDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTaskwaitDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTaskyieldDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTeamsDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTeamsDistributeDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTeamsDistributeParallelForDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTeamsDistributeParallelForSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPTeamsDistributeSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ObjCArrayLiteral)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ObjCAtCatchStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ObjCAtFinallyStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ObjCAtSynchronizedStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ObjCAtThrowStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ObjCAtTryStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ObjCAutoreleasePoolStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ObjCAvailabilityCheckExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ObjCBoolLiteralExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ObjCBoxedExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ObjCBridgedCastExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ObjCDictionaryLiteral)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ObjCEncodeExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ObjCForCollectionStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ObjCIndirectCopyRestoreExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ObjCIsaExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ObjCIvarRefExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ObjCMessageExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ObjCPropertyRefExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ObjCProtocolExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ObjCSelectorExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ObjCStringLiteral)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ObjCSubscriptRefExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OffsetOfExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OpaqueValueExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OverloadExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, PackExpansionExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ParenExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ParenListExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, PredefinedExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, PseudoObjectExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, RecoveryExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, RequiresExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ReturnStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, SEHExceptStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, SEHFinallyStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, SEHLeaveStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, SEHTryStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ShuffleVectorExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, SizeOfPackExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, SourceLocExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, StmtExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, StringLiteral)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, SubstNonTypeTemplateParmExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, SubstNonTypeTemplateParmPackExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, SwitchCase)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, SwitchStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, TypeTraitExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, TypoExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, UnaryExprOrTypeTraitExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, UnaryOperator)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, UnresolvedLookupExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, UnresolvedMemberExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, UserDefinedLiteral)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, VAArgExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ValueStmt)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, WhileStmt)
   ::pasta::Stmt IgnoreContainers(void) const;
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
@@ -271,6 +564,7 @@ class Stmt {
     const ::clang::CapturedStmt *CapturedStmt;
     const ::clang::CaseStmt *CaseStmt;
     const ::clang::CastExpr *CastExpr;
+    const ::clang::CharacterLiteral *CharacterLiteral;
     const ::clang::ChooseExpr *ChooseExpr;
     const ::clang::CoawaitExpr *CoawaitExpr;
     const ::clang::CompoundAssignOperator *CompoundAssignOperator;
@@ -295,8 +589,11 @@ class Stmt {
     const ::clang::DoStmt *DoStmt;
     const ::clang::ExplicitCastExpr *ExplicitCastExpr;
     const ::clang::Expr *Expr;
+    const ::clang::ExprWithCleanups *ExprWithCleanups;
     const ::clang::ExpressionTraitExpr *ExpressionTraitExpr;
     const ::clang::ExtVectorElementExpr *ExtVectorElementExpr;
+    const ::clang::FixedPointLiteral *FixedPointLiteral;
+    const ::clang::FloatingLiteral *FloatingLiteral;
     const ::clang::ForStmt *ForStmt;
     const ::clang::FullExpr *FullExpr;
     const ::clang::FunctionParmPackExpr *FunctionParmPackExpr;
@@ -305,10 +602,12 @@ class Stmt {
     const ::clang::GenericSelectionExpr *GenericSelectionExpr;
     const ::clang::GotoStmt *GotoStmt;
     const ::clang::IfStmt *IfStmt;
+    const ::clang::ImaginaryLiteral *ImaginaryLiteral;
     const ::clang::ImplicitCastExpr *ImplicitCastExpr;
     const ::clang::ImplicitValueInitExpr *ImplicitValueInitExpr;
     const ::clang::IndirectGotoStmt *IndirectGotoStmt;
     const ::clang::InitListExpr *InitListExpr;
+    const ::clang::IntegerLiteral *IntegerLiteral;
     const ::clang::LabelStmt *LabelStmt;
     const ::clang::LambdaExpr *LambdaExpr;
     const ::clang::MSAsmStmt *MSAsmStmt;
@@ -322,7 +621,64 @@ class Stmt {
     const ::clang::NullStmt *NullStmt;
     const ::clang::OMPArraySectionExpr *OMPArraySectionExpr;
     const ::clang::OMPArrayShapingExpr *OMPArrayShapingExpr;
+    const ::clang::OMPAtomicDirective *OMPAtomicDirective;
+    const ::clang::OMPBarrierDirective *OMPBarrierDirective;
+    const ::clang::OMPCancelDirective *OMPCancelDirective;
+    const ::clang::OMPCancellationPointDirective *OMPCancellationPointDirective;
+    const ::clang::OMPCriticalDirective *OMPCriticalDirective;
+    const ::clang::OMPDepobjDirective *OMPDepobjDirective;
+    const ::clang::OMPDistributeDirective *OMPDistributeDirective;
+    const ::clang::OMPDistributeParallelForDirective *OMPDistributeParallelForDirective;
+    const ::clang::OMPDistributeParallelForSimdDirective *OMPDistributeParallelForSimdDirective;
+    const ::clang::OMPDistributeSimdDirective *OMPDistributeSimdDirective;
+    const ::clang::OMPExecutableDirective *OMPExecutableDirective;
+    const ::clang::OMPFlushDirective *OMPFlushDirective;
+    const ::clang::OMPForDirective *OMPForDirective;
+    const ::clang::OMPForSimdDirective *OMPForSimdDirective;
     const ::clang::OMPIteratorExpr *OMPIteratorExpr;
+    const ::clang::OMPLoopDirective *OMPLoopDirective;
+    const ::clang::OMPMasterDirective *OMPMasterDirective;
+    const ::clang::OMPMasterTaskLoopDirective *OMPMasterTaskLoopDirective;
+    const ::clang::OMPMasterTaskLoopSimdDirective *OMPMasterTaskLoopSimdDirective;
+    const ::clang::OMPOrderedDirective *OMPOrderedDirective;
+    const ::clang::OMPParallelDirective *OMPParallelDirective;
+    const ::clang::OMPParallelForDirective *OMPParallelForDirective;
+    const ::clang::OMPParallelForSimdDirective *OMPParallelForSimdDirective;
+    const ::clang::OMPParallelMasterDirective *OMPParallelMasterDirective;
+    const ::clang::OMPParallelMasterTaskLoopDirective *OMPParallelMasterTaskLoopDirective;
+    const ::clang::OMPParallelMasterTaskLoopSimdDirective *OMPParallelMasterTaskLoopSimdDirective;
+    const ::clang::OMPParallelSectionsDirective *OMPParallelSectionsDirective;
+    const ::clang::OMPScanDirective *OMPScanDirective;
+    const ::clang::OMPSectionDirective *OMPSectionDirective;
+    const ::clang::OMPSectionsDirective *OMPSectionsDirective;
+    const ::clang::OMPSimdDirective *OMPSimdDirective;
+    const ::clang::OMPSingleDirective *OMPSingleDirective;
+    const ::clang::OMPTargetDataDirective *OMPTargetDataDirective;
+    const ::clang::OMPTargetDirective *OMPTargetDirective;
+    const ::clang::OMPTargetEnterDataDirective *OMPTargetEnterDataDirective;
+    const ::clang::OMPTargetExitDataDirective *OMPTargetExitDataDirective;
+    const ::clang::OMPTargetParallelDirective *OMPTargetParallelDirective;
+    const ::clang::OMPTargetParallelForDirective *OMPTargetParallelForDirective;
+    const ::clang::OMPTargetParallelForSimdDirective *OMPTargetParallelForSimdDirective;
+    const ::clang::OMPTargetSimdDirective *OMPTargetSimdDirective;
+    const ::clang::OMPTargetTeamsDirective *OMPTargetTeamsDirective;
+    const ::clang::OMPTargetTeamsDistributeDirective *OMPTargetTeamsDistributeDirective;
+    const ::clang::OMPTargetTeamsDistributeParallelForDirective *OMPTargetTeamsDistributeParallelForDirective;
+    const ::clang::OMPTargetTeamsDistributeParallelForSimdDirective *OMPTargetTeamsDistributeParallelForSimdDirective;
+    const ::clang::OMPTargetTeamsDistributeSimdDirective *OMPTargetTeamsDistributeSimdDirective;
+    const ::clang::OMPTargetUpdateDirective *OMPTargetUpdateDirective;
+    const ::clang::OMPTaskDirective *OMPTaskDirective;
+    const ::clang::OMPTaskLoopDirective *OMPTaskLoopDirective;
+    const ::clang::OMPTaskLoopSimdDirective *OMPTaskLoopSimdDirective;
+    const ::clang::OMPTaskgroupDirective *OMPTaskgroupDirective;
+    const ::clang::OMPTaskwaitDirective *OMPTaskwaitDirective;
+    const ::clang::OMPTaskyieldDirective *OMPTaskyieldDirective;
+    const ::clang::OMPTeamsDirective *OMPTeamsDirective;
+    const ::clang::OMPTeamsDistributeDirective *OMPTeamsDistributeDirective;
+    const ::clang::OMPTeamsDistributeParallelForDirective *OMPTeamsDistributeParallelForDirective;
+    const ::clang::OMPTeamsDistributeParallelForSimdDirective *OMPTeamsDistributeParallelForSimdDirective;
+    const ::clang::OMPTeamsDistributeSimdDirective *OMPTeamsDistributeSimdDirective;
+    const ::clang::ObjCArrayLiteral *ObjCArrayLiteral;
     const ::clang::ObjCAtCatchStmt *ObjCAtCatchStmt;
     const ::clang::ObjCAtFinallyStmt *ObjCAtFinallyStmt;
     const ::clang::ObjCAtSynchronizedStmt *ObjCAtSynchronizedStmt;
@@ -333,6 +689,7 @@ class Stmt {
     const ::clang::ObjCBoolLiteralExpr *ObjCBoolLiteralExpr;
     const ::clang::ObjCBoxedExpr *ObjCBoxedExpr;
     const ::clang::ObjCBridgedCastExpr *ObjCBridgedCastExpr;
+    const ::clang::ObjCDictionaryLiteral *ObjCDictionaryLiteral;
     const ::clang::ObjCEncodeExpr *ObjCEncodeExpr;
     const ::clang::ObjCForCollectionStmt *ObjCForCollectionStmt;
     const ::clang::ObjCIndirectCopyRestoreExpr *ObjCIndirectCopyRestoreExpr;
@@ -342,6 +699,7 @@ class Stmt {
     const ::clang::ObjCPropertyRefExpr *ObjCPropertyRefExpr;
     const ::clang::ObjCProtocolExpr *ObjCProtocolExpr;
     const ::clang::ObjCSelectorExpr *ObjCSelectorExpr;
+    const ::clang::ObjCStringLiteral *ObjCStringLiteral;
     const ::clang::ObjCSubscriptRefExpr *ObjCSubscriptRefExpr;
     const ::clang::OffsetOfExpr *OffsetOfExpr;
     const ::clang::OpaqueValueExpr *OpaqueValueExpr;
@@ -363,6 +721,7 @@ class Stmt {
     const ::clang::SourceLocExpr *SourceLocExpr;
     const ::clang::Stmt *Stmt;
     const ::clang::StmtExpr *StmtExpr;
+    const ::clang::StringLiteral *StringLiteral;
     const ::clang::SubstNonTypeTemplateParmExpr *SubstNonTypeTemplateParmExpr;
     const ::clang::SubstNonTypeTemplateParmPackExpr *SubstNonTypeTemplateParmPackExpr;
     const ::clang::SwitchCase *SwitchCase;
@@ -373,6 +732,7 @@ class Stmt {
     const ::clang::UnaryOperator *UnaryOperator;
     const ::clang::UnresolvedLookupExpr *UnresolvedLookupExpr;
     const ::clang::UnresolvedMemberExpr *UnresolvedMemberExpr;
+    const ::clang::UserDefinedLiteral *UserDefinedLiteral;
     const ::clang::VAArgExpr *VAArgExpr;
     const ::clang::ValueStmt *ValueStmt;
     const ::clang::WhileStmt *WhileStmt;
@@ -490,6 +850,7 @@ class ValueStmt : public Stmt {
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, CXXUuidofExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, CallExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, CastExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, CharacterLiteral)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, ChooseExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, CoawaitExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, CompoundAssignOperator)
@@ -507,15 +868,20 @@ class ValueStmt : public Stmt {
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, DesignatedInitUpdateExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, ExplicitCastExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, Expr)
+  PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, ExprWithCleanups)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, ExpressionTraitExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, ExtVectorElementExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, FixedPointLiteral)
+  PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, FloatingLiteral)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, FullExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, FunctionParmPackExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, GNUNullExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, GenericSelectionExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, ImaginaryLiteral)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, ImplicitCastExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, ImplicitValueInitExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, InitListExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, IntegerLiteral)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, LabelStmt)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, LambdaExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, MSPropertyRefExpr)
@@ -527,10 +893,12 @@ class ValueStmt : public Stmt {
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, OMPArraySectionExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, OMPArrayShapingExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, OMPIteratorExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, ObjCArrayLiteral)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, ObjCAvailabilityCheckExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, ObjCBoolLiteralExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, ObjCBoxedExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, ObjCBridgedCastExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, ObjCDictionaryLiteral)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, ObjCEncodeExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, ObjCIndirectCopyRestoreExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, ObjCIsaExpr)
@@ -539,6 +907,7 @@ class ValueStmt : public Stmt {
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, ObjCPropertyRefExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, ObjCProtocolExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, ObjCSelectorExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, ObjCStringLiteral)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, ObjCSubscriptRefExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, OffsetOfExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, OpaqueValueExpr)
@@ -554,6 +923,7 @@ class ValueStmt : public Stmt {
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, SizeOfPackExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, SourceLocExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, StmtExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, StringLiteral)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, SubstNonTypeTemplateParmExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, SubstNonTypeTemplateParmPackExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, TypeTraitExpr)
@@ -562,6 +932,7 @@ class ValueStmt : public Stmt {
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, UnaryOperator)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, UnresolvedLookupExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, UnresolvedMemberExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, UserDefinedLiteral)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, VAArgExpr)
   ::pasta::Expr ExprStmt(void) const;
  protected:
@@ -962,6 +1333,7 @@ class Expr : public ValueStmt {
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, CXXUuidofExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, CallExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, CastExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Expr, CharacterLiteral)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, ChooseExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, CoawaitExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, CompoundAssignOperator)
@@ -978,15 +1350,20 @@ class Expr : public ValueStmt {
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, DesignatedInitExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, DesignatedInitUpdateExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, ExplicitCastExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Expr, ExprWithCleanups)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, ExpressionTraitExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, ExtVectorElementExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Expr, FixedPointLiteral)
+  PASTA_DECLARE_DERIVED_OPERATORS(Expr, FloatingLiteral)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, FullExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, FunctionParmPackExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, GNUNullExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, GenericSelectionExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Expr, ImaginaryLiteral)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, ImplicitCastExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, ImplicitValueInitExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, InitListExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Expr, IntegerLiteral)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, LambdaExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, MSPropertyRefExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, MSPropertySubscriptExpr)
@@ -997,10 +1374,12 @@ class Expr : public ValueStmt {
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, OMPArraySectionExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, OMPArrayShapingExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, OMPIteratorExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Expr, ObjCArrayLiteral)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, ObjCAvailabilityCheckExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, ObjCBoolLiteralExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, ObjCBoxedExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, ObjCBridgedCastExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Expr, ObjCDictionaryLiteral)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, ObjCEncodeExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, ObjCIndirectCopyRestoreExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, ObjCIsaExpr)
@@ -1009,6 +1388,7 @@ class Expr : public ValueStmt {
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, ObjCPropertyRefExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, ObjCProtocolExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, ObjCSelectorExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Expr, ObjCStringLiteral)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, ObjCSubscriptRefExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, OffsetOfExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, OpaqueValueExpr)
@@ -1024,6 +1404,7 @@ class Expr : public ValueStmt {
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, SizeOfPackExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, SourceLocExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, StmtExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Expr, StringLiteral)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, SubstNonTypeTemplateParmExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, SubstNonTypeTemplateParmPackExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, TypeTraitExpr)
@@ -1032,6 +1413,7 @@ class Expr : public ValueStmt {
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, UnaryOperator)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, UnresolvedLookupExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, UnresolvedMemberExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Expr, UserDefinedLiteral)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, VAArgExpr)
   // Classify: (clang::Expr::Classification)
   // ClassifyLValue: (clang::Expr::LValueClassification)
@@ -1153,6 +1535,49 @@ class ExtVectorElementExpr : public Expr {
 
 static_assert(sizeof(Stmt) == sizeof(ExtVectorElementExpr));
 
+class FixedPointLiteral : public Expr {
+ private:
+  using Expr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(FixedPointLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(Expr, FixedPointLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, FixedPointLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(ValueStmt, FixedPointLiteral)
+  std::vector<::pasta::Stmt> Children(void) const;
+  ::pasta::Token BeginToken(void) const;
+  ::pasta::Token EndToken(void) const;
+  ::pasta::Token Token(void) const;
+  uint32_t Scale(void) const;
+  // ValueAsString: (std::basic_string<char, std::char_traits<char>, std::allocator<char>>)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(FixedPointLiteral)
+};
+
+static_assert(sizeof(Stmt) == sizeof(FixedPointLiteral));
+
+class FloatingLiteral : public Expr {
+ private:
+  using Expr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(FloatingLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(Expr, FloatingLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, FloatingLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(ValueStmt, FloatingLiteral)
+  std::vector<::pasta::Stmt> Children(void) const;
+  ::pasta::Token BeginToken(void) const;
+  ::pasta::Token EndToken(void) const;
+  ::pasta::Token Token(void) const;
+  // RawSemantics: (llvm::APFloatBase::Semantics)
+  // Semantics: (const llvm::fltSemantics &)
+  // Value: (llvm::APFloat)
+  // ValueAsApproximateDouble: (double)
+  bool IsExact(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(FloatingLiteral)
+};
+
+static_assert(sizeof(Stmt) == sizeof(FloatingLiteral));
+
 class ForStmt : public Stmt {
  private:
  public:
@@ -1185,6 +1610,7 @@ class FullExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(Stmt, FullExpr)
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, FullExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(FullExpr, ConstantExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(FullExpr, ExprWithCleanups)
   ::pasta::Expr SubExpr(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(FullExpr)
@@ -1226,7 +1652,7 @@ class GCCAsmStmt : public AsmStmt {
   // Begin_labels: (clang::Stmt::CastIterator<clang::AddrLabelExpr, const clang::AddrLabelExpr *const, const clang::Stmt *const>)
   // End_labels: (clang::Stmt::CastIterator<clang::AddrLabelExpr, const clang::AddrLabelExpr *const, const clang::Stmt *const>)
   std::string GenerateAsmString(void) const;
-  // AsmString: (const clang::StringLiteral *)
+  ::pasta::StringLiteral AsmString(void) const;
   ::pasta::Token BeginToken(void) const;
   // Clobber: (llvm::StringRef)
   // ClobberStringLiteral: (const clang::StringLiteral *)
@@ -1248,7 +1674,7 @@ class GCCAsmStmt : public AsmStmt {
   // OutputName: (llvm::StringRef)
   ::pasta::Token RParenToken(void) const;
   bool IsAsmGoto(void) const;
-  // Labels: (llvm::iterator_range<clang::Stmt::CastIterator<clang::AddrLabelExpr, const clang::AddrLabelExpr *const, const clang::Stmt *const>>)
+  std::vector<::pasta::AddrLabelExpr> Labels(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(GCCAsmStmt)
 };
@@ -1349,6 +1775,24 @@ class IfStmt : public Stmt {
 
 static_assert(sizeof(Stmt) == sizeof(IfStmt));
 
+class ImaginaryLiteral : public Expr {
+ private:
+  using Expr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ImaginaryLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(Expr, ImaginaryLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, ImaginaryLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(ValueStmt, ImaginaryLiteral)
+  std::vector<::pasta::Stmt> Children(void) const;
+  ::pasta::Token BeginToken(void) const;
+  ::pasta::Token EndToken(void) const;
+  ::pasta::Expr SubExpr(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ImaginaryLiteral)
+};
+
+static_assert(sizeof(Stmt) == sizeof(ImaginaryLiteral));
+
 class ImplicitValueInitExpr : public Expr {
  private:
   using Expr::From;
@@ -1422,6 +1866,24 @@ class InitListExpr : public Expr {
 };
 
 static_assert(sizeof(Stmt) == sizeof(InitListExpr));
+
+class IntegerLiteral : public Expr {
+ private:
+  using Expr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(IntegerLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(Expr, IntegerLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, IntegerLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(ValueStmt, IntegerLiteral)
+  std::vector<::pasta::Stmt> Children(void) const;
+  ::pasta::Token BeginToken(void) const;
+  ::pasta::Token EndToken(void) const;
+  ::pasta::Token Token(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(IntegerLiteral)
+};
+
+static_assert(sizeof(Stmt) == sizeof(IntegerLiteral));
 
 class LabelStmt : public ValueStmt {
  private:
@@ -1741,6 +2203,99 @@ class OMPArrayShapingExpr : public Expr {
 
 static_assert(sizeof(Stmt) == sizeof(OMPArrayShapingExpr));
 
+class OMPExecutableDirective : public Stmt {
+ private:
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPExecutableDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPExecutableDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPAtomicDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPBarrierDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPCancelDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPCancellationPointDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPCriticalDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPDepobjDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPDistributeDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPDistributeParallelForDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPDistributeParallelForSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPDistributeSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPFlushDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPForDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPForSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPLoopDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPMasterDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPMasterTaskLoopDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPMasterTaskLoopSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPOrderedDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelForDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelForSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelMasterDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelMasterTaskLoopDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelMasterTaskLoopSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelSectionsDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPScanDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPSectionDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPSectionsDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPSingleDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetDataDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetEnterDataDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetExitDataDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetParallelDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetParallelForDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetParallelForSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetTeamsDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetTeamsDistributeDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetTeamsDistributeParallelForDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetTeamsDistributeParallelForSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetTeamsDistributeSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetUpdateDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTaskDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTaskLoopDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTaskLoopSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTaskgroupDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTaskwaitDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTaskyieldDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTeamsDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTeamsDistributeDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTeamsDistributeParallelForDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTeamsDistributeParallelForSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTeamsDistributeSimdDirective)
+  std::vector<::pasta::Stmt> Children(void) const;
+  // Clauses: (llvm::ArrayRef<clang::OMPClause *>)
+  ::pasta::Stmt AssociatedStmt(void) const;
+  ::pasta::Token BeginToken(void) const;
+  // FindCapturedStmt: (const clang::CapturedStmt *)
+  // Clause: (clang::OMPClause *)
+  // DirectiveKind: (llvm::omp::Directive)
+  ::pasta::Token EndToken(void) const;
+  ::pasta::CapturedStmt InnermostCapturedStmt(void) const;
+  uint32_t NumClauses(void) const;
+  ::pasta::Stmt FindRawStmt(void) const;
+  ::pasta::Stmt StructuredBlock(void) const;
+  bool HasAssociatedStmt(void) const;
+  bool IsStandaloneDirective(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPExecutableDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPExecutableDirective));
+
+class OMPFlushDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPFlushDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPFlushDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPFlushDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPFlushDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPFlushDirective));
+
 class OMPIteratorExpr : public Expr {
  private:
   using Expr::From;
@@ -1767,6 +2322,682 @@ class OMPIteratorExpr : public Expr {
 };
 
 static_assert(sizeof(Stmt) == sizeof(OMPIteratorExpr));
+
+class OMPLoopDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPLoopDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPLoopDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPLoopDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPDistributeDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPDistributeParallelForDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPDistributeParallelForSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPDistributeSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPForDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPForSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPMasterTaskLoopDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPMasterTaskLoopSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPParallelForDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPParallelForSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPParallelMasterTaskLoopDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPParallelMasterTaskLoopSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPTargetParallelForDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPTargetParallelForSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPTargetSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPTargetTeamsDistributeDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPTargetTeamsDistributeParallelForDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPTargetTeamsDistributeParallelForSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPTargetTeamsDistributeSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPTaskLoopDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPTaskLoopSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPTeamsDistributeDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPTeamsDistributeParallelForDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPTeamsDistributeParallelForSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPTeamsDistributeSimdDirective)
+  // Counters: (llvm::ArrayRef<clang::Expr *>)
+  // Dependent_counters: (llvm::ArrayRef<clang::Expr *>)
+  // Dependent_inits: (llvm::ArrayRef<clang::Expr *>)
+  // Finals: (llvm::ArrayRef<clang::Expr *>)
+  // Finals_conditions: (llvm::ArrayRef<clang::Expr *>)
+  ::pasta::Stmt Body(void) const;
+  ::pasta::Expr CalcLastIteration(void) const;
+  uint32_t CollapsedNumber(void) const;
+  ::pasta::Expr CombinedCond(void) const;
+  ::pasta::Expr CombinedDistCond(void) const;
+  ::pasta::Expr CombinedEnsureUpperBound(void) const;
+  ::pasta::Expr CombinedInit(void) const;
+  ::pasta::Expr CombinedLowerBoundVariable(void) const;
+  ::pasta::Expr CombinedNextLowerBound(void) const;
+  ::pasta::Expr CombinedNextUpperBound(void) const;
+  ::pasta::Expr CombinedParForInDistCond(void) const;
+  ::pasta::Expr CombinedUpperBoundVariable(void) const;
+  ::pasta::Expr Cond(void) const;
+  ::pasta::Expr DistInc(void) const;
+  ::pasta::Expr EnsureUpperBound(void) const;
+  ::pasta::Expr Inc(void) const;
+  ::pasta::Expr Init(void) const;
+  ::pasta::Expr IsLastIterVariable(void) const;
+  ::pasta::Expr IterationVariable(void) const;
+  ::pasta::Expr LastIteration(void) const;
+  ::pasta::Expr LowerBoundVariable(void) const;
+  ::pasta::Expr NextLowerBound(void) const;
+  ::pasta::Expr NextUpperBound(void) const;
+  ::pasta::Expr NumIterations(void) const;
+  ::pasta::Expr PreCond(void) const;
+  ::pasta::Stmt PreInits(void) const;
+  ::pasta::Expr PrevEnsureUpperBound(void) const;
+  ::pasta::Expr PrevLowerBoundVariable(void) const;
+  ::pasta::Expr PrevUpperBoundVariable(void) const;
+  ::pasta::Expr StrideVariable(void) const;
+  ::pasta::Expr UpperBoundVariable(void) const;
+  // Initializers: (llvm::ArrayRef<clang::Expr *>)
+  // Private_counters: (llvm::ArrayRef<clang::Expr *>)
+  // Updates: (llvm::ArrayRef<clang::Expr *>)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPLoopDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPLoopDirective));
+
+class OMPMasterDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPMasterDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPMasterDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPMasterDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPMasterDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPMasterDirective));
+
+class OMPMasterTaskLoopDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPMasterTaskLoopDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPMasterTaskLoopDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPMasterTaskLoopDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPMasterTaskLoopDirective)
+  bool HasCancel(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPMasterTaskLoopDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPMasterTaskLoopDirective));
+
+class OMPMasterTaskLoopSimdDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPMasterTaskLoopSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPMasterTaskLoopSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPMasterTaskLoopSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPMasterTaskLoopSimdDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPMasterTaskLoopSimdDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPMasterTaskLoopSimdDirective));
+
+class OMPOrderedDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPOrderedDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPOrderedDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPOrderedDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPOrderedDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPOrderedDirective));
+
+class OMPParallelDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPParallelDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPParallelDirective)
+  ::pasta::Expr TaskReductionRefExpr(void) const;
+  bool HasCancel(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPParallelDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPParallelDirective));
+
+class OMPParallelForDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPParallelForDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelForDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPParallelForDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPParallelForDirective)
+  ::pasta::Expr TaskReductionRefExpr(void) const;
+  bool HasCancel(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPParallelForDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPParallelForDirective));
+
+class OMPParallelForSimdDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPParallelForSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelForSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPParallelForSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPParallelForSimdDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPParallelForSimdDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPParallelForSimdDirective));
+
+class OMPParallelMasterDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPParallelMasterDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelMasterDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPParallelMasterDirective)
+  ::pasta::Expr TaskReductionRefExpr(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPParallelMasterDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPParallelMasterDirective));
+
+class OMPParallelMasterTaskLoopDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPParallelMasterTaskLoopDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelMasterTaskLoopDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPParallelMasterTaskLoopDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPParallelMasterTaskLoopDirective)
+  bool HasCancel(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPParallelMasterTaskLoopDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPParallelMasterTaskLoopDirective));
+
+class OMPParallelMasterTaskLoopSimdDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPParallelMasterTaskLoopSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelMasterTaskLoopSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPParallelMasterTaskLoopSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPParallelMasterTaskLoopSimdDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPParallelMasterTaskLoopSimdDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPParallelMasterTaskLoopSimdDirective));
+
+class OMPParallelSectionsDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPParallelSectionsDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelSectionsDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPParallelSectionsDirective)
+  ::pasta::Expr TaskReductionRefExpr(void) const;
+  bool HasCancel(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPParallelSectionsDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPParallelSectionsDirective));
+
+class OMPScanDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPScanDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPScanDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPScanDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPScanDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPScanDirective));
+
+class OMPSectionDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPSectionDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPSectionDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPSectionDirective)
+  bool HasCancel(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPSectionDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPSectionDirective));
+
+class OMPSectionsDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPSectionsDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPSectionsDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPSectionsDirective)
+  ::pasta::Expr TaskReductionRefExpr(void) const;
+  bool HasCancel(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPSectionsDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPSectionsDirective));
+
+class OMPSimdDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPSimdDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPSimdDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPSimdDirective));
+
+class OMPSingleDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPSingleDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPSingleDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPSingleDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPSingleDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPSingleDirective));
+
+class OMPTargetDataDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTargetDataDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetDataDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetDataDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetDataDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTargetDataDirective));
+
+class OMPTargetDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTargetDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTargetDirective));
+
+class OMPTargetEnterDataDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTargetEnterDataDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetEnterDataDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetEnterDataDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetEnterDataDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTargetEnterDataDirective));
+
+class OMPTargetExitDataDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTargetExitDataDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetExitDataDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetExitDataDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetExitDataDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTargetExitDataDirective));
+
+class OMPTargetParallelDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTargetParallelDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetParallelDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetParallelDirective)
+  ::pasta::Expr TaskReductionRefExpr(void) const;
+  bool HasCancel(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetParallelDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTargetParallelDirective));
+
+class OMPTargetParallelForDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTargetParallelForDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetParallelForDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTargetParallelForDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetParallelForDirective)
+  ::pasta::Expr TaskReductionRefExpr(void) const;
+  bool HasCancel(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetParallelForDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTargetParallelForDirective));
+
+class OMPTargetParallelForSimdDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTargetParallelForSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetParallelForSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTargetParallelForSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetParallelForSimdDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetParallelForSimdDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTargetParallelForSimdDirective));
+
+class OMPTargetSimdDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTargetSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTargetSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetSimdDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetSimdDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTargetSimdDirective));
+
+class OMPTargetTeamsDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTargetTeamsDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetTeamsDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetTeamsDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetTeamsDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTargetTeamsDirective));
+
+class OMPTargetTeamsDistributeDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTargetTeamsDistributeDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetTeamsDistributeDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTargetTeamsDistributeDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetTeamsDistributeDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetTeamsDistributeDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTargetTeamsDistributeDirective));
+
+class OMPTargetTeamsDistributeParallelForDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTargetTeamsDistributeParallelForDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetTeamsDistributeParallelForDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTargetTeamsDistributeParallelForDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetTeamsDistributeParallelForDirective)
+  ::pasta::Expr TaskReductionRefExpr(void) const;
+  bool HasCancel(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetTeamsDistributeParallelForDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTargetTeamsDistributeParallelForDirective));
+
+class OMPTargetTeamsDistributeParallelForSimdDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTargetTeamsDistributeParallelForSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetTeamsDistributeParallelForSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTargetTeamsDistributeParallelForSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetTeamsDistributeParallelForSimdDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetTeamsDistributeParallelForSimdDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTargetTeamsDistributeParallelForSimdDirective));
+
+class OMPTargetTeamsDistributeSimdDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTargetTeamsDistributeSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetTeamsDistributeSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTargetTeamsDistributeSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetTeamsDistributeSimdDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetTeamsDistributeSimdDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTargetTeamsDistributeSimdDirective));
+
+class OMPTargetUpdateDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTargetUpdateDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetUpdateDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetUpdateDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetUpdateDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTargetUpdateDirective));
+
+class OMPTaskDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTaskDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTaskDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTaskDirective)
+  bool HasCancel(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTaskDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTaskDirective));
+
+class OMPTaskLoopDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTaskLoopDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTaskLoopDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTaskLoopDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTaskLoopDirective)
+  bool HasCancel(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTaskLoopDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTaskLoopDirective));
+
+class OMPTaskLoopSimdDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTaskLoopSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTaskLoopSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTaskLoopSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTaskLoopSimdDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTaskLoopSimdDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTaskLoopSimdDirective));
+
+class OMPTaskgroupDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTaskgroupDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTaskgroupDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTaskgroupDirective)
+  ::pasta::Expr ReductionRef(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTaskgroupDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTaskgroupDirective));
+
+class OMPTaskwaitDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTaskwaitDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTaskwaitDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTaskwaitDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTaskwaitDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTaskwaitDirective));
+
+class OMPTaskyieldDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTaskyieldDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTaskyieldDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTaskyieldDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTaskyieldDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTaskyieldDirective));
+
+class OMPTeamsDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTeamsDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTeamsDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTeamsDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTeamsDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTeamsDirective));
+
+class OMPTeamsDistributeDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTeamsDistributeDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTeamsDistributeDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTeamsDistributeDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTeamsDistributeDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTeamsDistributeDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTeamsDistributeDirective));
+
+class OMPTeamsDistributeParallelForDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTeamsDistributeParallelForDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTeamsDistributeParallelForDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTeamsDistributeParallelForDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTeamsDistributeParallelForDirective)
+  ::pasta::Expr TaskReductionRefExpr(void) const;
+  bool HasCancel(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTeamsDistributeParallelForDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTeamsDistributeParallelForDirective));
+
+class OMPTeamsDistributeParallelForSimdDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTeamsDistributeParallelForSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTeamsDistributeParallelForSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTeamsDistributeParallelForSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTeamsDistributeParallelForSimdDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTeamsDistributeParallelForSimdDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTeamsDistributeParallelForSimdDirective));
+
+class OMPTeamsDistributeSimdDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTeamsDistributeSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTeamsDistributeSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTeamsDistributeSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTeamsDistributeSimdDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTeamsDistributeSimdDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPTeamsDistributeSimdDirective));
+
+class ObjCArrayLiteral : public Expr {
+ private:
+  using Expr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCArrayLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(Expr, ObjCArrayLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, ObjCArrayLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(ValueStmt, ObjCArrayLiteral)
+  std::vector<::pasta::Stmt> Children(void) const;
+  ::pasta::ObjCMethodDecl ArrayWithObjectsMethod(void) const;
+  ::pasta::Token BeginToken(void) const;
+  // Element: (const clang::Expr *)
+  // Elements: (const clang::Expr *const *)
+  ::pasta::Token EndToken(void) const;
+  uint32_t NumElements(void) const;
+  ::pasta::TokenRange TokenRange(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ObjCArrayLiteral)
+};
+
+static_assert(sizeof(Stmt) == sizeof(ObjCArrayLiteral));
 
 class ObjCAtCatchStmt : public Stmt {
  private:
@@ -1930,6 +3161,27 @@ class ObjCBoxedExpr : public Expr {
 };
 
 static_assert(sizeof(Stmt) == sizeof(ObjCBoxedExpr));
+
+class ObjCDictionaryLiteral : public Expr {
+ private:
+  using Expr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCDictionaryLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(Expr, ObjCDictionaryLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, ObjCDictionaryLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(ValueStmt, ObjCDictionaryLiteral)
+  std::vector<::pasta::Stmt> Children(void) const;
+  ::pasta::Token BeginToken(void) const;
+  ::pasta::ObjCMethodDecl DictWithObjectsMethod(void) const;
+  ::pasta::Token EndToken(void) const;
+  // KeyValueElement: (clang::ObjCDictionaryElement)
+  uint32_t NumElements(void) const;
+  ::pasta::TokenRange TokenRange(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ObjCDictionaryLiteral)
+};
+
+static_assert(sizeof(Stmt) == sizeof(ObjCDictionaryLiteral));
 
 class ObjCEncodeExpr : public Expr {
  private:
@@ -2157,6 +3409,25 @@ class ObjCSelectorExpr : public Expr {
 
 static_assert(sizeof(Stmt) == sizeof(ObjCSelectorExpr));
 
+class ObjCStringLiteral : public Expr {
+ private:
+  using Expr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCStringLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(Expr, ObjCStringLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, ObjCStringLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(ValueStmt, ObjCStringLiteral)
+  std::vector<::pasta::Stmt> Children(void) const;
+  ::pasta::Token AtToken(void) const;
+  ::pasta::Token BeginToken(void) const;
+  ::pasta::Token EndToken(void) const;
+  ::pasta::StringLiteral String(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ObjCStringLiteral)
+};
+
+static_assert(sizeof(Stmt) == sizeof(ObjCStringLiteral));
+
 class ObjCSubscriptRefExpr : public Expr {
  private:
   using Expr::From;
@@ -2307,7 +3578,7 @@ class ParenListExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  // Expr: (const clang::Expr *)
+  // FindExpr: (const clang::Expr *)
   ::pasta::Token LParenToken(void) const;
   uint32_t NumExprs(void) const;
   ::pasta::Token RParenToken(void) const;
@@ -2328,7 +3599,7 @@ class PredefinedExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  // FunctionName: (const clang::StringLiteral *)
+  ::pasta::StringLiteral FunctionName(void) const;
   // IdentKind: (clang::PredefinedExpr::IdentKind)
   std::string_view IdentKindName(void) const;
   ::pasta::Token Token(void) const;
@@ -2499,7 +3770,7 @@ class ShuffleVectorExpr : public Expr {
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token BuiltinToken(void) const;
   ::pasta::Token EndToken(void) const;
-  // Expr: (const clang::Expr *)
+  // FindExpr: (const clang::Expr *)
   uint32_t NumSubExprs(void) const;
   ::pasta::Token RParenToken(void) const;
   // ShuffleMaskIdx: (llvm::APSInt)
@@ -2577,6 +3848,40 @@ class StmtExpr : public Expr {
 };
 
 static_assert(sizeof(Stmt) == sizeof(StmtExpr));
+
+class StringLiteral : public Expr {
+ private:
+  using Expr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(StringLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(Expr, StringLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, StringLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(ValueStmt, StringLiteral)
+  std::vector<::pasta::Stmt> Children(void) const;
+  bool ContainsNonAscii(void) const;
+  bool ContainsNonAsciiOrNull(void) const;
+  ::pasta::Token BeginToken(void) const;
+  uint32_t ByteLength(void) const;
+  std::string_view Bytes(void) const;
+  uint32_t CharByteWidth(void) const;
+  // CodeUnit: (unsigned int)
+  ::pasta::Token EndToken(void) const;
+  uint32_t Length(void) const;
+  // LocationOfByte: (clang::SourceLocation)
+  uint32_t NumConcatenated(void) const;
+  // StrTokenToken: (clang::SourceLocation)
+  std::string_view String(void) const;
+  bool IsAscii(void) const;
+  bool IsPascal(void) const;
+  bool IsUTF16(void) const;
+  bool IsUTF32(void) const;
+  bool IsUTF8(void) const;
+  bool IsWide(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(StringLiteral)
+};
+
+static_assert(sizeof(Stmt) == sizeof(StringLiteral));
 
 class SubstNonTypeTemplateParmExpr : public Expr {
  private:
@@ -3133,7 +4438,7 @@ class CXXDefaultArgExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Expr Expr(void) const;
+  ::pasta::Expr FindExpr(void) const;
   ::pasta::Token ExprToken(void) const;
   ::pasta::ParmVarDecl Param(void) const;
   ::pasta::DeclContext UsedContext(void) const;
@@ -3155,7 +4460,7 @@ class CXXDefaultInitExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Expr Expr(void) const;
+  ::pasta::Expr FindExpr(void) const;
   ::pasta::FieldDecl Field(void) const;
   ::pasta::DeclContext UsedContext(void) const;
   ::pasta::Token UsedLocation(void) const;
@@ -3589,6 +4894,7 @@ class CallExpr : public Expr {
   PASTA_DECLARE_DERIVED_OPERATORS(CallExpr, CUDAKernelCallExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(CallExpr, CXXMemberCallExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(CallExpr, CXXOperatorCallExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(CallExpr, UserDefinedLiteral)
   std::vector<::pasta::Expr> Arguments(void) const;
   std::vector<::pasta::Stmt> Children(void) const;
   // ADLCallKind: (clang::CallExpr::ADLCallKind)
@@ -3657,6 +4963,25 @@ class CastExpr : public Expr {
 };
 
 static_assert(sizeof(Stmt) == sizeof(CastExpr));
+
+class CharacterLiteral : public Expr {
+ private:
+  using Expr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CharacterLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(Expr, CharacterLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, CharacterLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(ValueStmt, CharacterLiteral)
+  std::vector<::pasta::Stmt> Children(void) const;
+  ::pasta::Token BeginToken(void) const;
+  ::pasta::Token EndToken(void) const;
+  ::pasta::Token Token(void) const;
+  uint32_t Value(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CharacterLiteral)
+};
+
+static_assert(sizeof(Stmt) == sizeof(CharacterLiteral));
 
 class ChooseExpr : public Expr {
  private:
@@ -4013,6 +5338,28 @@ class ExplicitCastExpr : public CastExpr {
 
 static_assert(sizeof(Stmt) == sizeof(ExplicitCastExpr));
 
+class ExprWithCleanups : public FullExpr {
+ private:
+  using FullExpr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ExprWithCleanups)
+  PASTA_DECLARE_BASE_OPERATORS(Expr, ExprWithCleanups)
+  PASTA_DECLARE_BASE_OPERATORS(FullExpr, ExprWithCleanups)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, ExprWithCleanups)
+  PASTA_DECLARE_BASE_OPERATORS(ValueStmt, ExprWithCleanups)
+  std::vector<::pasta::Stmt> Children(void) const;
+  bool CleanupsHaveSideEffects(void) const;
+  ::pasta::Token BeginToken(void) const;
+  ::pasta::Token EndToken(void) const;
+  uint32_t NumObjects(void) const;
+  // Object: (llvm::PointerUnion<clang::BlockDecl *, clang::CompoundLiteralExpr *>)
+  // Objects: (llvm::ArrayRef<llvm::PointerUnion<clang::BlockDecl *, clang::CompoundLiteralExpr *>>)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ExprWithCleanups)
+};
+
+static_assert(sizeof(Stmt) == sizeof(ExprWithCleanups));
+
 class ImplicitCastExpr : public CastExpr {
  private:
   using CastExpr::From;
@@ -4030,6 +5377,181 @@ class ImplicitCastExpr : public CastExpr {
 };
 
 static_assert(sizeof(Stmt) == sizeof(ImplicitCastExpr));
+
+class OMPAtomicDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPAtomicDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPAtomicDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPAtomicDirective)
+  ::pasta::Expr FindExpr(void) const;
+  ::pasta::Expr UpdateExpr(void) const;
+  ::pasta::Expr V(void) const;
+  ::pasta::Expr X(void) const;
+  bool IsPostfixUpdate(void) const;
+  bool IsXLHSInRHSPart(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPAtomicDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPAtomicDirective));
+
+class OMPBarrierDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPBarrierDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPBarrierDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPBarrierDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPBarrierDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPBarrierDirective));
+
+class OMPCancelDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPCancelDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPCancelDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPCancelDirective)
+  // CancelRegion: (llvm::omp::Directive)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPCancelDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPCancelDirective));
+
+class OMPCancellationPointDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPCancellationPointDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPCancellationPointDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPCancellationPointDirective)
+  // CancelRegion: (llvm::omp::Directive)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPCancellationPointDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPCancellationPointDirective));
+
+class OMPCriticalDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPCriticalDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPCriticalDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPCriticalDirective)
+  // DirectiveName: (clang::DeclarationNameInfo)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPCriticalDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPCriticalDirective));
+
+class OMPDepobjDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPDepobjDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPDepobjDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPDepobjDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPDepobjDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPDepobjDirective));
+
+class OMPDistributeDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPDistributeDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPDistributeDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPDistributeDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPDistributeDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPDistributeDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPDistributeDirective));
+
+class OMPDistributeParallelForDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPDistributeParallelForDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPDistributeParallelForDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPDistributeParallelForDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPDistributeParallelForDirective)
+  ::pasta::Expr TaskReductionRefExpr(void) const;
+  bool HasCancel(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPDistributeParallelForDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPDistributeParallelForDirective));
+
+class OMPDistributeParallelForSimdDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPDistributeParallelForSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPDistributeParallelForSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPDistributeParallelForSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPDistributeParallelForSimdDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPDistributeParallelForSimdDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPDistributeParallelForSimdDirective));
+
+class OMPDistributeSimdDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPDistributeSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPDistributeSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPDistributeSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPDistributeSimdDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPDistributeSimdDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPDistributeSimdDirective));
+
+class OMPForDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPForDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPForDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPForDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPForDirective)
+  ::pasta::Expr TaskReductionRefExpr(void) const;
+  bool HasCancel(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPForDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPForDirective));
+
+class OMPForSimdDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPForSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPForSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPForSimdDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPForSimdDirective)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPForSimdDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPForSimdDirective));
 
 class ObjCBridgedCastExpr : public ExplicitCastExpr {
  private:
@@ -4052,6 +5574,27 @@ class ObjCBridgedCastExpr : public ExplicitCastExpr {
 };
 
 static_assert(sizeof(Stmt) == sizeof(ObjCBridgedCastExpr));
+
+class UserDefinedLiteral : public CallExpr {
+ private:
+  using CallExpr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UserDefinedLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(CallExpr, UserDefinedLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(Expr, UserDefinedLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, UserDefinedLiteral)
+  PASTA_DECLARE_BASE_OPERATORS(ValueStmt, UserDefinedLiteral)
+  ::pasta::Token BeginToken(void) const;
+  ::pasta::Expr CookedLiteral(void) const;
+  ::pasta::Token EndToken(void) const;
+  // LiteralOperatorKind: (clang::UserDefinedLiteral::LiteralOperatorKind)
+  // UDSuffix: (const clang::IdentifierInfo *)
+  ::pasta::Token UDSuffixToken(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(UserDefinedLiteral)
+};
+
+static_assert(sizeof(Stmt) == sizeof(UserDefinedLiteral));
 
 class BuiltinBitCastExpr : public ExplicitCastExpr {
  private:

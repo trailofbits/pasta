@@ -39,6 +39,12 @@ std::string CxxName(llvm::StringRef name) {
   } else if (name == "getFriendDecl") {
     return "FindFriendDecl";
 
+  } else if (name == "getRawStmt") {
+    return "FindRawStmt";
+
+  } else if (name == "getExpr") {
+    return "FindExpr";
+
   } else if (name == "getAdjustedType" ||
              name == "getDeducedType" ||
              name == "getDecayedType") {

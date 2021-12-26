@@ -212,6 +212,9 @@ class DeclContext {
   friend class Decl;
   friend class DeclVisitor;
   friend class UsingDirectiveDecl;
+  friend class SourceLocExpr;
+  friend class CXXDefaultArgExpr;
+  friend class CXXDefaultInitExpr;
   std::shared_ptr<ASTImpl> ast;
   union {
     void *opaque;
@@ -563,7 +566,7 @@ class FileScopeAsmDecl : public Decl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(FileScopeAsmDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, FileScopeAsmDecl)
   ::pasta::Token AsmToken(void) const;
-  // AsmString: (const clang::StringLiteral *)
+  ::pasta::StringLiteral AsmString(void) const;
   ::pasta::Token RParenToken(void) const;
   ::pasta::TokenRange TokenRange(void) const;
  protected:
@@ -1148,7 +1151,7 @@ class StaticAssertDecl : public Decl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(StaticAssertDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, StaticAssertDecl)
   ::pasta::Expr AssertExpr(void) const;
-  // Message: (const clang::StringLiteral *)
+  ::pasta::StringLiteral Message(void) const;
   ::pasta::Token RParenToken(void) const;
   ::pasta::TokenRange TokenRange(void) const;
   bool IsFailed(void) const;

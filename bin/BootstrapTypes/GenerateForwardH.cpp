@@ -77,13 +77,15 @@ void GenerateForwardH(void) {
         name == "AsmStmt" || name == "SwitchCase" || name == "ValueStmt" ||
         name == "Expr" || name == "CoroutineSuspendExpr" ||
         name == "ExplicitCastExpr" || name == "FullExpr" ||
-        name == "OverloadExpr") {
+        name == "OverloadExpr" || name == "CastExpr" ||
+        name == "CXXNamedCastExpr" || name == "OMPExecutableDirective" ||
+        name == "OMPLoopDirective") {
       os << sep << "    a(" << name.str() << ")";  // Abstract.
     } else if (name.endswith("Stmt")) {
       os << sep << "    s(" << name.str() << ")";
     } else if (name.endswith("Directive")) {
       os << sep << "    d(" << name.str() << ")";
-    } else if (name.endswith("Expr")) {
+    } else if (name.endswith("Expr") || name == "ExprWithCleanups") {
       os << sep << "    e(" << name.str() << ")";
     } else if (name.endswith("Operator")) {
       os << sep << "    o(" << name.str() << ")";

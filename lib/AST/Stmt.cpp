@@ -1247,7 +1247,12 @@ std::vector<::pasta::Stmt> Stmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-// 1: Stmt::ID
+int64_t Stmt::ID(void) const {
+  auto &self = *(u.Stmt);
+  auto val = self.getID(ast->ci->getASTContext());
+  return val;
+}
+
 ::pasta::TokenRange Stmt::TokenRange(void) const {
   auto &self = *(u.Stmt);
   auto val = self.getSourceRange();
@@ -1706,8 +1711,8 @@ AsmStmt::AsmStmt(
 PASTA_DEFINE_BASE_OPERATORS(Stmt, AsmStmt)
 PASTA_DEFINE_DERIVED_OPERATORS(AsmStmt, GCCAsmStmt)
 PASTA_DEFINE_DERIVED_OPERATORS(AsmStmt, MSAsmStmt)
-// 0: AsmStmt::Begin_inputs
-// 0: AsmStmt::Begin_outputs
+// 0: AsmStmt::
+// 0: AsmStmt::
 std::vector<::pasta::Stmt> AsmStmt::Children(void) const {
   auto &self = *(u.AsmStmt);
   auto val = self.children();
@@ -1718,8 +1723,8 @@ std::vector<::pasta::Stmt> AsmStmt::Children(void) const {
   return ret;
 }
 
-// 0: AsmStmt::End_inputs
-// 0: AsmStmt::End_outputs
+// 0: AsmStmt::
+// 0: AsmStmt::
 std::string AsmStmt::GenerateAsmString(void) const {
   auto &self = *(u.AsmStmt);
   auto val = self.generateAsmString(ast->ci->getASTContext());
@@ -1802,6 +1807,92 @@ std::vector<::pasta::Expr> AsmStmt::Outputs(void) const {
   std::vector<::pasta::Expr> ret;
   for (auto stmt_ptr : val) {
     ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+  }
+  return ret;
+}
+
+std::vector<std::string_view> AsmStmt::OutputConstraints(void) const {
+  auto convert_elem = [&] (llvm::StringRef val) {
+    if (auto size = val.size()) {
+      return std::string_view(val.data(), size);
+    } else {
+      return std::string_view();
+    }
+    __builtin_unreachable();
+  };
+  std::vector<std::string_view> ret;
+  auto count = u.AsmStmt->getNumOutputs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.AsmStmt->getOutputConstraint(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::Expr> AsmStmt::OutputExprs(void) const {
+  auto convert_elem = [&] (const clang::Expr * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::Expr>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::Expr> ret;
+  auto count = u.AsmStmt->getNumOutputs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.AsmStmt->getOutputExpr(i)));
+  }
+  return ret;
+}
+
+std::vector<std::string_view> AsmStmt::InputConstraints(void) const {
+  auto convert_elem = [&] (llvm::StringRef val) {
+    if (auto size = val.size()) {
+      return std::string_view(val.data(), size);
+    } else {
+      return std::string_view();
+    }
+    __builtin_unreachable();
+  };
+  std::vector<std::string_view> ret;
+  auto count = u.AsmStmt->getNumInputs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.AsmStmt->getInputConstraint(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::Expr> AsmStmt::InputExprs(void) const {
+  auto convert_elem = [&] (const clang::Expr * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::Expr>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::Expr> ret;
+  auto count = u.AsmStmt->getNumInputs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.AsmStmt->getInputExpr(i)));
+  }
+  return ret;
+}
+
+std::vector<std::string_view> AsmStmt::Clobbers(void) const {
+  auto convert_elem = [&] (llvm::StringRef val) {
+    if (auto size = val.size()) {
+      return std::string_view(val.data(), size);
+    } else {
+      return std::string_view();
+    }
+    __builtin_unreachable();
+  };
+  std::vector<std::string_view> ret;
+  auto count = u.AsmStmt->getNumClobbers();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.AsmStmt->getClobber(i)));
   }
   return ret;
 }
@@ -2147,6 +2238,22 @@ uint32_t CXXTryStmt::NumHandlers(void) const {
   auto &self = *(u.CXXTryStmt);
   auto val = self.getTryLoc();
   return ast->TokenAt(val);
+}
+
+std::vector<::pasta::CXXCatchStmt> CXXTryStmt::Handlers(void) const {
+  auto convert_elem = [&] (const clang::CXXCatchStmt * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::CXXCatchStmt>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::CXXCatchStmt> ret;
+  auto count = u.CXXTryStmt->getNumHandlers();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.CXXTryStmt->getHandler(i)));
+  }
+  return ret;
 }
 
 CapturedStmt::CapturedStmt(
@@ -2578,7 +2685,16 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::Children(void) const {
   __builtin_unreachable();
 }
 
-// 0: CoroutineBodyStmt::ParamMoves
+std::vector<::pasta::Stmt> CoroutineBodyStmt::ParamMoves(void) const {
+  auto &self = *(u.CoroutineBodyStmt);
+  auto val = self.getParamMoves();
+  std::vector<::pasta::Stmt> ret;
+  for (auto stmt_ptr : val) {
+    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+  }
+  return ret;
+}
+
 ::pasta::VarDecl CoroutineBodyStmt::PromiseDecl(void) const {
   auto &self = *(u.CoroutineBodyStmt);
   auto val = self.getPromiseDecl();
@@ -3706,6 +3822,22 @@ uint32_t FunctionParmPackExpr::NumExpansions(void) const {
   return ast->TokenAt(val);
 }
 
+std::vector<::pasta::VarDecl> FunctionParmPackExpr::Expansions(void) const {
+  auto convert_elem = [&] (clang::VarDecl * val) {
+    if (val) {
+      return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::VarDecl> ret;
+  auto count = u.FunctionParmPackExpr->getNumExpansions();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.FunctionParmPackExpr->getExpansion(i)));
+  }
+  return ret;
+}
+
 GCCAsmStmt::GCCAsmStmt(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -3714,8 +3846,8 @@ GCCAsmStmt::GCCAsmStmt(
 PASTA_DEFINE_BASE_OPERATORS(AsmStmt, GCCAsmStmt)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, GCCAsmStmt)
 // 3: GCCAsmStmt::AnalyzeAsmString
-// 0: GCCAsmStmt::Begin_labels
-// 0: GCCAsmStmt::End_labels
+// 0: GCCAsmStmt::
+// 0: GCCAsmStmt::
 std::string GCCAsmStmt::GenerateAsmString(void) const {
   auto &self = *(u.GCCAsmStmt);
   auto val = self.generateAsmString(ast->ci->getASTContext());
@@ -3788,6 +3920,40 @@ std::vector<::pasta::AddrLabelExpr> GCCAsmStmt::Labels(void) const {
   return ret;
 }
 
+std::vector<::pasta::AddrLabelExpr> GCCAsmStmt::LabelExprs(void) const {
+  auto convert_elem = [&] (clang::AddrLabelExpr * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::AddrLabelExpr>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::AddrLabelExpr> ret;
+  auto count = u.GCCAsmStmt->getNumLabels();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.GCCAsmStmt->getLabelExpr(i)));
+  }
+  return ret;
+}
+
+std::vector<std::string_view> GCCAsmStmt::LabelNames(void) const {
+  auto convert_elem = [&] (llvm::StringRef val) {
+    if (auto size = val.size()) {
+      return std::string_view(val.data(), size);
+    } else {
+      return std::string_view();
+    }
+    __builtin_unreachable();
+  };
+  std::vector<std::string_view> ret;
+  auto count = u.GCCAsmStmt->getNumLabels();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.GCCAsmStmt->getLabelName(i)));
+  }
+  return ret;
+}
+
 GNUNullExpr::GNUNullExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -3843,7 +4009,16 @@ std::vector<::pasta::Stmt> GenericSelectionExpr::Children(void) const {
   return ret;
 }
 
-// 0: GenericSelectionExpr::AssocExprs
+std::vector<::pasta::Expr> GenericSelectionExpr::AssocExprs(void) const {
+  auto &self = *(u.GenericSelectionExpr);
+  auto val = self.getAssocExprs();
+  std::vector<::pasta::Expr> ret;
+  for (auto stmt_ptr : val) {
+    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+  }
+  return ret;
+}
+
 // 0: GenericSelectionExpr::AssocTypeSourceInfos
 // 1: GenericSelectionExpr::Association
 ::pasta::Token GenericSelectionExpr::BeginToken(void) const {
@@ -4341,7 +4516,16 @@ bool InitListExpr::HasArrayFiller(void) const {
   return val;
 }
 
-// 0: InitListExpr::Initializers
+std::vector<::pasta::Expr> InitListExpr::Initializers(void) const {
+  auto &self = *(u.InitListExpr);
+  auto val = self.inits();
+  std::vector<::pasta::Expr> ret;
+  for (auto stmt_ptr : val) {
+    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+  }
+  return ret;
+}
+
 bool InitListExpr::IsExplicit(void) const {
   auto &self = *(u.InitListExpr);
   auto val = self.isExplicit();
@@ -4375,6 +4559,22 @@ bool InitListExpr::IsTransparent(void) const {
 
 // 0: InitListExpr::Rbegin
 // 0: InitListExpr::Rend
+std::vector<::pasta::Expr> InitListExpr::Inits(void) const {
+  auto convert_elem = [&] (const clang::Expr * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::Expr>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::Expr> ret;
+  auto count = u.InitListExpr->getNumInits();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.InitListExpr->getInit(i)));
+  }
+  return ret;
+}
+
 IntegerLiteral::IntegerLiteral(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -4658,8 +4858,27 @@ std::string MSAsmStmt::GenerateAsmString(void) const {
   return val;
 }
 
-// 0: MSAsmStmt::AllConstraints
-// 0: MSAsmStmt::AllExprs
+std::vector<std::string_view> MSAsmStmt::AllConstraints(void) const {
+  auto &self = *(u.MSAsmStmt);
+  auto val = self.getAllConstraints();
+  std::vector<std::string_view> ret;
+  for (auto sr : val) {
+    std::string_view sv(sr.data(), sr.size());
+    ret.emplace_back(std::move(sv));
+  }
+  return ret;
+}
+
+std::vector<::pasta::Expr> MSAsmStmt::AllExprs(void) const {
+  auto &self = *(u.MSAsmStmt);
+  auto val = self.getAllExprs();
+  std::vector<::pasta::Expr> ret;
+  for (auto stmt_ptr : val) {
+    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+  }
+  return ret;
+}
+
 std::string_view MSAsmStmt::AsmString(void) const {
   auto &self = *(u.MSAsmStmt);
   auto val = self.getAsmString();
@@ -4677,7 +4896,17 @@ std::string_view MSAsmStmt::AsmString(void) const {
 }
 
 // 1: MSAsmStmt::Clobber
-// 0: MSAsmStmt::Clobbers
+std::vector<std::string_view> MSAsmStmt::Clobbers(void) const {
+  auto &self = *(u.MSAsmStmt);
+  auto val = self.getClobbers();
+  std::vector<std::string_view> ret;
+  for (auto sr : val) {
+    std::string_view sv(sr.data(), sr.size());
+    ret.emplace_back(std::move(sv));
+  }
+  return ret;
+}
+
 ::pasta::Token MSAsmStmt::EndToken(void) const {
   auto &self = *(u.MSAsmStmt);
   auto val = self.getEndLoc();
@@ -5397,8 +5626,26 @@ std::vector<::pasta::Stmt> OMPArrayShapingExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-// 0: OMPArrayShapingExpr::BracketsRanges
-// 0: OMPArrayShapingExpr::Dimensions
+std::vector<::pasta::TokenRange> OMPArrayShapingExpr::BracketsRanges(void) const {
+  auto &self = *(u.OMPArrayShapingExpr);
+  auto val = self.getBracketsRanges();
+  std::vector<::pasta::TokenRange> ret;
+  for (auto sr : val) {
+    ret.emplace_back(ast->TokenRangeFrom(sr));
+  }
+  return ret;
+}
+
+std::vector<::pasta::Expr> OMPArrayShapingExpr::Dimensions(void) const {
+  auto &self = *(u.OMPArrayShapingExpr);
+  auto val = self.getDimensions();
+  std::vector<::pasta::Expr> ret;
+  for (auto stmt_ptr : val) {
+    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+  }
+  return ret;
+}
+
 ::pasta::Token OMPArrayShapingExpr::EndToken(void) const {
   auto &self = *(u.OMPArrayShapingExpr);
   auto val = self.getEndLoc();
@@ -5662,11 +5909,56 @@ PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPTeamsDistributeDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPTeamsDistributeParallelForDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPTeamsDistributeParallelForSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPTeamsDistributeSimdDirective)
-// 0: OMPLoopDirective::Counters
-// 0: OMPLoopDirective::Dependent_counters
-// 0: OMPLoopDirective::Dependent_inits
-// 0: OMPLoopDirective::Finals
-// 0: OMPLoopDirective::Finals_conditions
+std::vector<::pasta::Expr> OMPLoopDirective::Counters(void) const {
+  auto &self = *(u.OMPLoopDirective);
+  auto val = self.counters();
+  std::vector<::pasta::Expr> ret;
+  for (auto stmt_ptr : val) {
+    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+  }
+  return ret;
+}
+
+std::vector<::pasta::Expr> OMPLoopDirective::Dependent_counters(void) const {
+  auto &self = *(u.OMPLoopDirective);
+  auto val = self.dependent_counters();
+  std::vector<::pasta::Expr> ret;
+  for (auto stmt_ptr : val) {
+    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+  }
+  return ret;
+}
+
+std::vector<::pasta::Expr> OMPLoopDirective::Dependent_inits(void) const {
+  auto &self = *(u.OMPLoopDirective);
+  auto val = self.dependent_inits();
+  std::vector<::pasta::Expr> ret;
+  for (auto stmt_ptr : val) {
+    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+  }
+  return ret;
+}
+
+std::vector<::pasta::Expr> OMPLoopDirective::Finals(void) const {
+  auto &self = *(u.OMPLoopDirective);
+  auto val = self.finals();
+  std::vector<::pasta::Expr> ret;
+  for (auto stmt_ptr : val) {
+    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+  }
+  return ret;
+}
+
+std::vector<::pasta::Expr> OMPLoopDirective::Finals_conditions(void) const {
+  auto &self = *(u.OMPLoopDirective);
+  auto val = self.finals_conditions();
+  std::vector<::pasta::Expr> ret;
+  for (auto stmt_ptr : val) {
+    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+  }
+  return ret;
+}
+
 ::pasta::Stmt OMPLoopDirective::Body(void) const {
   auto &self = *(u.OMPLoopDirective);
   auto val = self.getBody();
@@ -5973,9 +6265,36 @@ uint32_t OMPLoopDirective::CollapsedNumber(void) const {
   __builtin_unreachable();
 }
 
-// 0: OMPLoopDirective::Initializers
-// 0: OMPLoopDirective::Private_counters
-// 0: OMPLoopDirective::Updates
+std::vector<::pasta::Expr> OMPLoopDirective::Initializers(void) const {
+  auto &self = *(u.OMPLoopDirective);
+  auto val = self.inits();
+  std::vector<::pasta::Expr> ret;
+  for (auto stmt_ptr : val) {
+    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+  }
+  return ret;
+}
+
+std::vector<::pasta::Expr> OMPLoopDirective::Private_counters(void) const {
+  auto &self = *(u.OMPLoopDirective);
+  auto val = self.private_counters();
+  std::vector<::pasta::Expr> ret;
+  for (auto stmt_ptr : val) {
+    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+  }
+  return ret;
+}
+
+std::vector<::pasta::Expr> OMPLoopDirective::Updates(void) const {
+  auto &self = *(u.OMPLoopDirective);
+  auto val = self.updates();
+  std::vector<::pasta::Expr> ret;
+  for (auto stmt_ptr : val) {
+    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+  }
+  return ret;
+}
+
 OMPMasterDirective::OMPMasterDirective(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -6515,6 +6834,22 @@ uint32_t ObjCArrayLiteral::NumElements(void) const {
   return ast->TokenRangeFrom(val);
 }
 
+std::vector<::pasta::Expr> ObjCArrayLiteral::Elements(void) const {
+  auto convert_elem = [&] (const clang::Expr * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::Expr>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::Expr> ret;
+  auto count = u.ObjCArrayLiteral->getNumElements();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.ObjCArrayLiteral->getElement(i)));
+  }
+  return ret;
+}
+
 ObjCAtCatchStmt::ObjCAtCatchStmt(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -6782,6 +7117,22 @@ uint32_t ObjCAtTryStmt::NumCatchStmts(void) const {
   }
   assert(false && "ObjCAtTryStmt::TryBody can return nullptr!");
   __builtin_unreachable();
+}
+
+std::vector<::pasta::ObjCAtCatchStmt> ObjCAtTryStmt::CatchStmts(void) const {
+  auto convert_elem = [&] (const clang::ObjCAtCatchStmt * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::ObjCAtCatchStmt>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::ObjCAtCatchStmt> ret;
+  auto count = u.ObjCAtTryStmt->getNumCatchStmts();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.ObjCAtTryStmt->getCatchStmt(i)));
+  }
+  return ret;
 }
 
 ObjCAutoreleasePoolStmt::ObjCAutoreleasePoolStmt(
@@ -7524,6 +7875,35 @@ bool ObjCMessageExpr::IsInstanceMessage(void) const {
   return val;
 }
 
+std::vector<::pasta::Token> ObjCMessageExpr::SelectorTokens(void) const {
+  auto convert_elem = [&] (clang::SourceLocation val) {
+    return ast->TokenAt(val);
+  };
+  std::vector<::pasta::Token> ret;
+  auto count = u.ObjCMessageExpr->getNumSelectorLocs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.ObjCMessageExpr->getSelectorLoc(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::Expr> ObjCMessageExpr::Args(void) const {
+  auto convert_elem = [&] (const clang::Expr * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::Expr>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::Expr> ret;
+  auto count = u.ObjCMessageExpr->getNumArgs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.ObjCMessageExpr->getArg(i)));
+  }
+  return ret;
+}
+
 ObjCPropertyRefExpr::ObjCPropertyRefExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -8246,6 +8626,22 @@ uint32_t ParenListExpr::NumExprs(void) const {
   return ast->TokenAt(val);
 }
 
+std::vector<::pasta::Expr> ParenListExpr::FindExprs(void) const {
+  auto convert_elem = [&] (const clang::Expr * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::Expr>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::Expr> ret;
+  auto count = u.ParenListExpr->getNumExprs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.ParenListExpr->getExpr(i)));
+  }
+  return ret;
+}
+
 PredefinedExpr::PredefinedExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -8375,6 +8771,22 @@ uint32_t PseudoObjectExpr::ResultExprIndex(void) const {
 // 0: PseudoObjectExpr::Semantics
 // 0: PseudoObjectExpr::
 // 0: PseudoObjectExpr::
+std::vector<::pasta::Expr> PseudoObjectExpr::SemanticExprs(void) const {
+  auto convert_elem = [&] (const clang::Expr * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::Expr>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::Expr> ret;
+  auto count = u.PseudoObjectExpr->getNumSemanticExprs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.PseudoObjectExpr->getSemanticExpr(i)));
+  }
+  return ret;
+}
+
 RecoveryExpr::RecoveryExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -8395,7 +8807,16 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, RecoveryExpr)
   return ast->TokenAt(val);
 }
 
-// 0: RecoveryExpr::SubExpressions
+std::vector<::pasta::Expr> RecoveryExpr::SubExpressions(void) const {
+  auto &self = *(u.RecoveryExpr);
+  auto val = self.subExpressions();
+  std::vector<::pasta::Expr> ret;
+  for (auto stmt_ptr : val) {
+    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+  }
+  return ret;
+}
+
 RequiresExpr::RequiresExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -10013,7 +10434,12 @@ enum ArrayTypeTrait ArrayTypeTraitExpr::Trait(void) const {
   return static_cast<::pasta::ArrayTypeTrait>(static_cast<unsigned int>(val));
 }
 
-// 0: ArrayTypeTraitExpr::Value
+uint64_t ArrayTypeTraitExpr::Value(void) const {
+  auto &self = *(u.ArrayTypeTraitExpr);
+  auto val = self.getValue();
+  return val;
+}
+
 AsTypeExpr::AsTypeExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -10713,6 +11139,22 @@ bool CXXConstructExpr::RequiresZeroInitialization(void) const {
   return val;
 }
 
+std::vector<::pasta::Expr> CXXConstructExpr::Args(void) const {
+  auto convert_elem = [&] (const clang::Expr * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::Expr>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::Expr> ret;
+  auto count = u.CXXConstructExpr->getNumArgs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.CXXConstructExpr->getArg(i)));
+  }
+  return ret;
+}
+
 CXXDefaultArgExpr::CXXDefaultArgExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -11398,6 +11840,22 @@ bool CXXNewExpr::ShouldNullCheckAllocation(void) const {
   return val;
 }
 
+std::vector<::pasta::Expr> CXXNewExpr::PlacementArgs(void) const {
+  auto convert_elem = [&] (const clang::Expr * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::Expr>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::Expr> ret;
+  auto count = u.CXXNewExpr->getNumPlacementArgs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.CXXNewExpr->getPlacementArg(i)));
+  }
+  return ret;
+}
+
 CXXNoexceptExpr::CXXNoexceptExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -12017,6 +12475,22 @@ bool CXXUnresolvedConstructExpr::IsListInitialization(void) const {
   return val;
 }
 
+std::vector<::pasta::Expr> CXXUnresolvedConstructExpr::Args(void) const {
+  auto convert_elem = [&] (const clang::Expr * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::Expr>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::Expr> ret;
+  auto count = u.CXXUnresolvedConstructExpr->getNumArgs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.CXXUnresolvedConstructExpr->getArg(i)));
+  }
+  return ret;
+}
+
 CXXUuidofExpr::CXXUuidofExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -12233,6 +12707,22 @@ bool CallExpr::UsesADL(void) const {
   auto &self = *(u.CallExpr);
   auto val = self.usesADL();
   return val;
+}
+
+std::vector<::pasta::Expr> CallExpr::Args(void) const {
+  auto convert_elem = [&] (const clang::Expr * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::Expr>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::Expr> ret;
+  auto count = u.CallExpr->getNumArgs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.CallExpr->getArg(i)));
+  }
+  return ret;
 }
 
 CastExpr::CastExpr(
@@ -13218,6 +13708,22 @@ bool DesignatedInitExpr::UsesGNUSyntax(void) const {
   return val;
 }
 
+std::vector<::pasta::Expr> DesignatedInitExpr::SubExprs(void) const {
+  auto convert_elem = [&] (clang::Expr * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::Expr>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::Expr> ret;
+  auto count = u.DesignatedInitExpr->getNumSubExprs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.DesignatedInitExpr->getSubExpr(i)));
+  }
+  return ret;
+}
+
 DesignatedInitUpdateExpr::DesignatedInitUpdateExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -13339,6 +13845,31 @@ uint32_t ExprWithCleanups::NumObjects(void) const {
 
 // 1: ExprWithCleanups::Object
 // 0: ExprWithCleanups::Objects
+std::vector<std::variant<std::monostate, ::pasta::BlockDecl, ::pasta::CompoundLiteralExpr>> ExprWithCleanups::Objects(void) const {
+  auto convert_elem = [&] (llvm::PointerUnion<clang::BlockDecl *, clang::CompoundLiteralExpr *> val) {
+    std::variant<std::monostate, ::pasta::BlockDecl, ::pasta::CompoundLiteralExpr> ret;
+    if (val) {
+      if (auto a_ptr = val.dyn_cast<clang::BlockDecl *>()) {
+        ret = DeclBuilder::Create<::pasta::BlockDecl>(ast, a_ptr);
+      } else if (auto b_ptr = val.dyn_cast<clang::CompoundLiteralExpr *>()) {
+        ret = StmtBuilder::Create<::pasta::CompoundLiteralExpr>(ast, b_ptr);
+      } else {
+        ret = {};
+      }
+    } else {
+      ret = {};
+    }
+    return ret;
+  };
+  std::vector<std::variant<std::monostate, ::pasta::BlockDecl, ::pasta::CompoundLiteralExpr>> ret;
+  auto count = u.ExprWithCleanups->getNumObjects();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.ExprWithCleanups->getObject(i)));
+  }
+  return ret;
+}
+
 ImplicitCastExpr::ImplicitCastExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)

@@ -3484,6 +3484,22 @@ std::vector<::pasta::ObjCProtocolDecl> ObjCObjectPointerType::Quals(void) const 
   __builtin_unreachable();
 }
 
+std::vector<::pasta::ObjCProtocolDecl> ObjCObjectPointerType::Protocols(void) const {
+  auto convert_elem = [&] (clang::ObjCProtocolDecl * val) {
+    if (val) {
+      return DeclBuilder::Create<::pasta::ObjCProtocolDecl>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::ObjCProtocolDecl> ret;
+  auto count = u.ObjCObjectPointerType->getNumProtocols();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.ObjCObjectPointerType->getProtocol(i)));
+  }
+  return ret;
+}
+
 PASTA_DEFINE_BASE_OPERATORS(Type, ObjCObjectType)
 PASTA_DEFINE_DERIVED_OPERATORS(ObjCObjectType, ObjCInterfaceType)
 ::pasta::Type ObjCObjectType::Desugar(void) const {
@@ -4293,6 +4309,19 @@ bool FunctionProtoType::IsVariadic(void) const {
 // 0: FunctionProtoType::
 // 0: FunctionProtoType::
 // 0: FunctionProtoType::Param_types
+std::vector<::pasta::Type> FunctionProtoType::ExceptionTypes(void) const {
+  auto convert_elem = [&] (clang::QualType val) {
+    return TypeBuilder::Build(ast, val);
+  };
+  std::vector<::pasta::Type> ret;
+  auto count = u.FunctionProtoType->getNumExceptions();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.FunctionProtoType->getExceptionType(i)));
+  }
+  return ret;
+}
+
 PASTA_DEFINE_BASE_OPERATORS(ReferenceType, LValueReferenceType)
 PASTA_DEFINE_BASE_OPERATORS(Type, LValueReferenceType)
 ::pasta::Type LValueReferenceType::Desugar(void) const {

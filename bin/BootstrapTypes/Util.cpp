@@ -62,7 +62,9 @@ std::string CxxName(llvm::StringRef name) {
   // Begin/end iterators.
   } else if (name.endswith("_begin") || name.endswith("_end") ||
              name.endswith("_size") || name.endswith("_empty") ||
-             name.endswith("_rbegin") || name.endswith("_rend")) {
+             name.endswith("_rbegin") || name.endswith("_rend") ||
+             name.startswith("begin_") || name.startswith("end_") ||
+             name.startswith("rbegin_") || name.startswith("rend_")) {
     return "";
 
   // Setters, ignore them.

@@ -188,7 +188,6 @@ int main(void) {
     }
   };
 
-
   transitive_rels(gTopologicallyOrderedDecls);
   transitive_rels(gTopologicallyOrderedStmts);
   transitive_rels(gTopologicallyOrderedTypes);
@@ -197,12 +196,16 @@ int main(void) {
   MapDeclRetTypes();
   MapStmtRetTypes();
   MapTypeRetTypes();
+
   GenerateForwardH();
+
+  // Generate headers first; they fill up `gIterators`.
   GenerateDeclH();
-  GenerateDeclCpp();
   GenerateStmtH();
-  GenerateStmtCpp();
   GenerateTypeH();
+
+  GenerateDeclCpp();
+  GenerateStmtCpp();
   GenerateTypeCpp();
   return EXIT_SUCCESS;
 }

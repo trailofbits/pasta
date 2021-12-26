@@ -33,6 +33,16 @@ extern std::vector<std::string> gDeclNames;
 extern std::vector<std::string> gStmtNames;
 extern std::vector<std::string> gTypeNames;
 
+struct IteratorSpec {
+  std::string getter_method;
+  std::string counter_method;
+  std::string cxx_method;
+  std::string elem_type;
+};
+
+// Maps class names to counter/nth getter methods.
+extern std::unordered_map<std::string, std::vector<IteratorSpec>> gIterators;
+
 extern const std::unordered_map<std::string, std::string> kCxxMethodRenames;
 
 // Maps return types from the macros file to their replacements in the

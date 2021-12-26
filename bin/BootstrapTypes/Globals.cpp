@@ -6,6 +6,9 @@
 
 std::unordered_map<std::string, std::vector<std::string>> gEnumerators;
 
+// Maps class names to counter/nth getter methods.
+std::unordered_map<std::string, std::vector<IteratorSpec>> gIterators;
+
 const std::vector<llvm::StringRef> kAllClassNames{
 #define PASTA_BEGIN_CLANG_WRAPPER(name, id) PASTA_STR(name) ,
 #include "Generated.h"
@@ -100,8 +103,10 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
   {"(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>)", "std::string"},
   {"(std::basic_string<char, std::char_traits<char>, std::allocator<char>>)", "std::string"},
   {"(unsigned int)", "uint32_t"},
+  {"(long)", "int64_t"},
   {"(unsigned long)", "uint64_t"},
-  {"(bool)", "bool"},
+  {"(long long)", "int64_t"},
+  {"(unsigned long long)", "uint64_t"},
   {"(const clang::DeclContext *)", "::pasta::DeclContext"},
   {"(clang::Decl::FriendObjectKind)", "::pasta::FriendObjectKind"},
   {"(clang::Decl::ModuleOwnershipKind)", "::pasta::ModuleOwnershipKind"},
@@ -195,6 +200,7 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
 
   DECL_VARIANT(ClassTemplateDecl, ClassTemplatePartialSpecializationDecl),
   DECL_VARIANT(VarTemplateDecl, VarTemplatePartialSpecializationDecl),
+  DECL_VARIANT(BlockDecl, CompoundLiteralExpr),
 
   {"(llvm::iterator_range<clang::ConstStmtIterator>)",
    "std::vector<::pasta::Stmt>"},
@@ -203,7 +209,28 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
    "std::vector<::pasta::Expr>"},
 
   {"(llvm::iterator_range<clang::Stmt::CastIterator<clang::AddrLabelExpr, const clang::AddrLabelExpr *const, const clang::Stmt *const>>)",
-   "std::vector<::pasta::AddrLabelExpr>"}
+   "std::vector<::pasta::AddrLabelExpr>"},
+
+  {"(llvm::ArrayRef<const clang::Stmt *>)",
+   "std::vector<::pasta::Stmt>"},
+
+   {"(llvm::ArrayRef<clang::Stmt *>)",
+    "std::vector<::pasta::Stmt>"},
+
+  {"(llvm::ArrayRef<const clang::Expr *>)",
+   "std::vector<::pasta::Expr>"},
+
+  {"(llvm::ArrayRef<clang::Expr *>)",
+   "std::vector<::pasta::Expr>"},
+
+  {"(llvm::ArrayRef<llvm::StringRef>)",
+   "std::vector<std::string_view>"},
+
+  {"(llvm::ArrayRef<clang::SourceRange>)",
+   "std::vector<::pasta::TokenRange>"},
+
+  {"(llvm::ArrayRef<clang::SourceLocation>)",
+   "std::vector<::pasta::Token>"}
 };
 
 // Maps return types from the macros file to how they should be returned
@@ -253,7 +280,16 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
   {"(unsigned int)",
    "  return val;\n"},
 
+  {"(long)",
+   "  return val;\n"},
+
+  {"(long long)",
+   "  return val;\n"},
+
   {"(unsigned long)",
+   "  return val;\n"},
+
+  {"(unsigned long long)",
    "  return val;\n"},
 
   {"(bool)",
@@ -437,20 +473,25 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
    "  }\n"
    "  return ret;\n"},
 
-#define DECL_VARIANT_IMPL(a, b) \
+#define DECL_VARIANT_IMPL(a, a_builder, b, b_builder) \
     {"(llvm::PointerUnion<clang::" #a " *, clang::" #b " *>)", \
      "  std::variant<std::monostate, ::pasta::" #a ", ::pasta::" #b "> ret;\n" \
      "  if (val) {\n" \
      "    if (auto a_ptr = val.dyn_cast<clang::" #a " *>()) {\n" \
-     "      return DeclBuilder::Create<::pasta::" #a ">(ast, a_ptr);\n" \
+     "      ret = " #a_builder "::Create<::pasta::" #a ">(ast, a_ptr);\n" \
      "    } else if (auto b_ptr = val.dyn_cast<clang::" #b " *>()) {\n" \
-     "      return DeclBuilder::Create<::pasta::" #b ">(ast, b_ptr);\n" \
+     "      ret = " #b_builder "::Create<::pasta::" #b ">(ast, b_ptr);\n" \
+     "    } else {\n" \
+     "      ret = {};\n" \
      "    }\n" \
+     "  } else {\n" \
+     "    ret = {};\n" \
      "  }\n" \
-     "  return {};\n"}
+     "  return ret;\n"}
 
-  DECL_VARIANT_IMPL(ClassTemplateDecl, ClassTemplatePartialSpecializationDecl),
-  DECL_VARIANT_IMPL(VarTemplateDecl, VarTemplatePartialSpecializationDecl),
+  DECL_VARIANT_IMPL(ClassTemplateDecl, DeclBuilder, ClassTemplatePartialSpecializationDecl, DeclBuilder),
+  DECL_VARIANT_IMPL(VarTemplateDecl, DeclBuilder, VarTemplatePartialSpecializationDecl, DeclBuilder),
+  DECL_VARIANT_IMPL(BlockDecl, DeclBuilder, CompoundLiteralExpr, StmtBuilder),
 
 #define STMT_ITERATOR_IMPL(cls) \
     "  std::vector<::pasta::" #cls "> ret;\n" \
@@ -466,7 +507,41 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
    STMT_ITERATOR_IMPL(Expr)},
 
   {"(llvm::iterator_range<clang::Stmt::CastIterator<clang::AddrLabelExpr, const clang::AddrLabelExpr *const, const clang::Stmt *const>>)",
-   STMT_ITERATOR_IMPL(AddrLabelExpr)}
+   STMT_ITERATOR_IMPL(AddrLabelExpr)},
+
+  {"(llvm::ArrayRef<const clang::Stmt *>)",
+   STMT_ITERATOR_IMPL(Stmt)},
+
+   {"(llvm::ArrayRef<clang::Stmt *>)",
+    STMT_ITERATOR_IMPL(Stmt)},
+
+   {"(llvm::ArrayRef<const clang::Expr *>)",
+    STMT_ITERATOR_IMPL(Expr)},
+
+   {"(llvm::ArrayRef<clang::Expr *>)",
+    STMT_ITERATOR_IMPL(Expr)},
+
+   {"(llvm::ArrayRef<llvm::StringRef>)",
+    "  std::vector<std::string_view> ret;\n"
+    "  for (auto sr : val) {\n"
+    "    std::string_view sv(sr.data(), sr.size());\n"
+    "    ret.emplace_back(std::move(sv));\n"
+    "  }\n"
+    "  return ret;\n"},
+
+  {"(llvm::ArrayRef<clang::SourceRange>)",
+   "  std::vector<::pasta::TokenRange> ret;\n"
+   "  for (auto sr : val) {\n"
+   "    ret.emplace_back(ast->TokenRangeFrom(sr));\n"
+   "  }\n"
+   "  return ret;\n"},
+
+   {"(llvm::ArrayRef<clang::SourceLocation>)",
+    "  std::vector<::pasta::Token> ret;\n"
+    "  for (auto sl : val) {\n"
+    "    ret.emplace_back(ast->TokenAt(sl));\n"
+    "  }\n"
+    "  return ret;\n"}
 };
 
 // Prefixes on enumerators to strip.

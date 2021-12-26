@@ -343,7 +343,7 @@ class Decl {
   ::pasta::FriendObjectKind FriendObjectKind(void) const;
   ::pasta::FunctionType FunctionType(void) const;
   uint32_t GlobalID(void) const;
-  // ID: (long long)
+  int64_t ID(void) const;
   uint32_t IdentifierNamespace(void) const;
   // ImportedOwningModule: (clang::Module *)
   // LangOpts: (const clang::LangOptions &)
@@ -603,6 +603,7 @@ class FriendTemplateDecl : public Decl {
   // FriendType: (clang::TypeSourceInfo *)
   uint32_t NumTemplateParameters(void) const;
   // TemplateParameterList: (clang::TemplateParameterList *)
+  // !!! TemplateParameter getNumTemplateParameters getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(FriendTemplateDecl)
 };
@@ -614,7 +615,7 @@ class ImportDecl : public Decl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ImportDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, ImportDecl)
-  // IdentifierLocs: (llvm::ArrayRef<clang::SourceLocation>)
+  std::vector<::pasta::Token> IdentifierLocs(void) const;
   // ImportedModule: (clang::Module *)
   ::pasta::TokenRange TokenRange(void) const;
  protected:
@@ -1012,6 +1013,7 @@ class ObjCMethodDecl : public NamedDecl {
   bool IsThisDeclarationADesignatedInitializer(void) const;
   bool IsVariadic(void) const;
   std::vector<::pasta::ParmVarDecl> Parameters(void) const;
+  std::vector<::pasta::Token> SelectorTokens(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCMethodDecl)
 };
@@ -1506,6 +1508,7 @@ class BlockDecl : public Decl {
   bool IsConversionFromLambda(void) const;
   bool IsVariadic(void) const;
   std::vector<::pasta::ParmVarDecl> Parameters(void) const;
+  std::vector<::pasta::ParmVarDecl> ParamDecls(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(BlockDecl)
 };
@@ -1541,6 +1544,7 @@ class CapturedDecl : public Decl {
   // Param: (clang::ImplicitParamDecl *)
   bool IsNothrow(void) const;
   std::vector<::pasta::ImplicitParamDecl> Parameters(void) const;
+  std::vector<::pasta::ImplicitParamDecl> Params(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CapturedDecl)
 };
@@ -1637,6 +1641,7 @@ class DeclaratorDecl : public ValueDecl {
   // TypeSourceInfo: (clang::TypeSourceInfo *)
   ::pasta::Token TypeSpecEndToken(void) const;
   ::pasta::Token TypeSpecStartToken(void) const;
+  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(DeclaratorDecl)
 };
@@ -1803,6 +1808,7 @@ class FunctionDecl : public DeclaratorDecl {
   std::vector<::pasta::ParmVarDecl> Parameters(void) const;
   bool UsesSEHTry(void) const;
   bool WillHaveBody(void) const;
+  std::vector<::pasta::ParmVarDecl> ParamDecls(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(FunctionDecl)
 };
@@ -1905,6 +1911,8 @@ class NonTypeTemplateParmDecl : public DeclaratorDecl {
   bool IsExpandedParameterPack(void) const;
   bool IsPackExpansion(void) const;
   bool IsParameterPack(void) const;
+  std::vector<::pasta::Type> ExpansionTypes(void) const;
+  // !!! ExpansionType getNumExpansionTypes getExpansionTypeSourceInfo (empty ret type = (clang::TypeSourceInfo *))
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(NonTypeTemplateParmDecl)
 };
@@ -2163,6 +2171,7 @@ class TagDecl : public TypeDecl {
   bool IsThisDeclarationADefinition(void) const;
   bool IsUnion(void) const;
   bool MayHaveOutOfDateDef(void) const;
+  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TagDecl)
 };
@@ -2459,8 +2468,6 @@ class CXXMethodDecl : public FunctionDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(CXXMethodDecl, CXXConstructorDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(CXXMethodDecl, CXXConversionDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(CXXMethodDecl, CXXDestructorDecl)
-  // Begin_overridden_methods: (const clang::CXXMethodDecl *const *)
-  // End_overridden_methods: (const clang::CXXMethodDecl *const *)
   ::pasta::CXXMethodDecl CanonicalDecl(void) const;
   // CorrespondingMethodDeclaredInClass: (const clang::CXXMethodDecl *)
   // CorrespondingMethodInClass: (const clang::CXXMethodDecl *)

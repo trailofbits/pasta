@@ -1102,7 +1102,12 @@ uint32_t Decl::GlobalID(void) const {
   return val;
 }
 
-// 0: Decl::ID
+int64_t Decl::ID(void) const {
+  auto &self = *(u.Decl);
+  auto val = self.getID();
+  return val;
+}
+
 uint32_t Decl::IdentifierNamespace(void) const {
   auto &self = *(u.Decl);
   auto val = self.getIdentifierNamespace();
@@ -1577,7 +1582,16 @@ ImportDecl::ImportDecl(
     : Decl(std::move(ast_), decl_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Decl, ImportDecl)
-// 0: ImportDecl::IdentifierLocs
+std::vector<::pasta::Token> ImportDecl::IdentifierLocs(void) const {
+  auto &self = *(u.ImportDecl);
+  auto val = self.getIdentifierLocs();
+  std::vector<::pasta::Token> ret;
+  for (auto sl : val) {
+    ret.emplace_back(ast->TokenAt(sl));
+  }
+  return ret;
+}
+
 // 0: ImportDecl::ImportedModule
 ::pasta::TokenRange ImportDecl::TokenRange(void) const {
   auto &self = *(u.ImportDecl);
@@ -2813,6 +2827,19 @@ std::vector<::pasta::ParmVarDecl> ObjCMethodDecl::Parameters(void) const {
 }
 
 // 0: ObjCMethodDecl::
+std::vector<::pasta::Token> ObjCMethodDecl::SelectorTokens(void) const {
+  auto convert_elem = [&] (clang::SourceLocation val) {
+    return ast->TokenAt(val);
+  };
+  std::vector<::pasta::Token> ret;
+  auto count = u.ObjCMethodDecl->getNumSelectorLocs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.ObjCMethodDecl->getSelectorLoc(i)));
+  }
+  return ret;
+}
+
 ObjCPropertyDecl::ObjCPropertyDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
@@ -3995,6 +4022,22 @@ std::vector<::pasta::ParmVarDecl> BlockDecl::Parameters(void) const {
   return ret;
 }
 
+std::vector<::pasta::ParmVarDecl> BlockDecl::ParamDecls(void) const {
+  auto convert_elem = [&] (const clang::ParmVarDecl * val) {
+    if (val) {
+      return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::ParmVarDecl> ret;
+  auto count = u.BlockDecl->getNumParams();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.BlockDecl->getParamDecl(i)));
+  }
+  return ret;
+}
+
 BuiltinTemplateDecl::BuiltinTemplateDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
@@ -4064,6 +4107,22 @@ std::vector<::pasta::ImplicitParamDecl> CapturedDecl::Parameters(void) const {
   std::vector<::pasta::ImplicitParamDecl> ret;
   for (auto decl_ptr : val) {
     ret.emplace_back(DeclBuilder::Create<::pasta::ImplicitParamDecl>(ast, decl_ptr));
+  }
+  return ret;
+}
+
+std::vector<::pasta::ImplicitParamDecl> CapturedDecl::Params(void) const {
+  auto convert_elem = [&] (clang::ImplicitParamDecl * val) {
+    if (val) {
+      return DeclBuilder::Create<::pasta::ImplicitParamDecl>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::ImplicitParamDecl> ret;
+  auto count = u.CapturedDecl->getNumParams();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.CapturedDecl->getParam(i)));
   }
   return ret;
 }
@@ -4995,6 +5054,22 @@ bool FunctionDecl::WillHaveBody(void) const {
   return val;
 }
 
+std::vector<::pasta::ParmVarDecl> FunctionDecl::ParamDecls(void) const {
+  auto convert_elem = [&] (const clang::ParmVarDecl * val) {
+    if (val) {
+      return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::ParmVarDecl> ret;
+  auto count = u.FunctionDecl->getNumParams();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.FunctionDecl->getParamDecl(i)));
+  }
+  return ret;
+}
+
 IndirectFieldDecl::IndirectFieldDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
@@ -5219,6 +5294,19 @@ bool NonTypeTemplateParmDecl::IsParameterPack(void) const {
   auto &self = *(u.NonTypeTemplateParmDecl);
   auto val = self.isParameterPack();
   return val;
+}
+
+std::vector<::pasta::Type> NonTypeTemplateParmDecl::ExpansionTypes(void) const {
+  auto convert_elem = [&] (clang::QualType val) {
+    return TypeBuilder::Build(ast, val);
+  };
+  std::vector<::pasta::Type> ret;
+  auto count = u.NonTypeTemplateParmDecl->getNumExpansionTypes();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.NonTypeTemplateParmDecl->getExpansionType(i)));
+  }
+  return ret;
 }
 
 OMPAllocateDecl::OMPAllocateDecl(
@@ -6529,12 +6617,16 @@ std::variant<std::monostate, ::pasta::VarTemplateDecl, ::pasta::VarTemplateParti
   std::variant<std::monostate, ::pasta::VarTemplateDecl, ::pasta::VarTemplatePartialSpecializationDecl> ret;
   if (val) {
     if (auto a_ptr = val.dyn_cast<clang::VarTemplateDecl *>()) {
-      return DeclBuilder::Create<::pasta::VarTemplateDecl>(ast, a_ptr);
+      ret = DeclBuilder::Create<::pasta::VarTemplateDecl>(ast, a_ptr);
     } else if (auto b_ptr = val.dyn_cast<clang::VarTemplatePartialSpecializationDecl *>()) {
-      return DeclBuilder::Create<::pasta::VarTemplatePartialSpecializationDecl>(ast, b_ptr);
+      ret = DeclBuilder::Create<::pasta::VarTemplatePartialSpecializationDecl>(ast, b_ptr);
+    } else {
+      ret = {};
     }
+  } else {
+    ret = {};
   }
-  return {};
+  return ret;
 }
 
 ::pasta::Token VarTemplateSpecializationDecl::PointOfInstantiation(void) const {
@@ -6565,12 +6657,16 @@ std::variant<std::monostate, ::pasta::VarTemplateDecl, ::pasta::VarTemplateParti
   std::variant<std::monostate, ::pasta::VarTemplateDecl, ::pasta::VarTemplatePartialSpecializationDecl> ret;
   if (val) {
     if (auto a_ptr = val.dyn_cast<clang::VarTemplateDecl *>()) {
-      return DeclBuilder::Create<::pasta::VarTemplateDecl>(ast, a_ptr);
+      ret = DeclBuilder::Create<::pasta::VarTemplateDecl>(ast, a_ptr);
     } else if (auto b_ptr = val.dyn_cast<clang::VarTemplatePartialSpecializationDecl *>()) {
-      return DeclBuilder::Create<::pasta::VarTemplatePartialSpecializationDecl>(ast, b_ptr);
+      ret = DeclBuilder::Create<::pasta::VarTemplatePartialSpecializationDecl>(ast, b_ptr);
+    } else {
+      ret = {};
     }
+  } else {
+    ret = {};
   }
-  return {};
+  return ret;
 }
 
 // 0: VarTemplateSpecializationDecl::TemplateArgs
@@ -6649,8 +6745,8 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXMethodDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(CXXMethodDecl, CXXConstructorDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(CXXMethodDecl, CXXConversionDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(CXXMethodDecl, CXXDestructorDecl)
-// 0: CXXMethodDecl::Begin_overridden_methods
-// 0: CXXMethodDecl::End_overridden_methods
+// 0: CXXMethodDecl::
+// 0: CXXMethodDecl::
 ::pasta::CXXMethodDecl CXXMethodDecl::CanonicalDecl(void) const {
   auto &self = *(u.CXXMethodDecl);
   auto val = self.getCanonicalDecl();
@@ -8500,12 +8596,16 @@ std::variant<std::monostate, ::pasta::ClassTemplateDecl, ::pasta::ClassTemplateP
   std::variant<std::monostate, ::pasta::ClassTemplateDecl, ::pasta::ClassTemplatePartialSpecializationDecl> ret;
   if (val) {
     if (auto a_ptr = val.dyn_cast<clang::ClassTemplateDecl *>()) {
-      return DeclBuilder::Create<::pasta::ClassTemplateDecl>(ast, a_ptr);
+      ret = DeclBuilder::Create<::pasta::ClassTemplateDecl>(ast, a_ptr);
     } else if (auto b_ptr = val.dyn_cast<clang::ClassTemplatePartialSpecializationDecl *>()) {
-      return DeclBuilder::Create<::pasta::ClassTemplatePartialSpecializationDecl>(ast, b_ptr);
+      ret = DeclBuilder::Create<::pasta::ClassTemplatePartialSpecializationDecl>(ast, b_ptr);
+    } else {
+      ret = {};
     }
+  } else {
+    ret = {};
   }
-  return {};
+  return ret;
 }
 
 ::pasta::Token ClassTemplateSpecializationDecl::PointOfInstantiation(void) const {
@@ -8542,12 +8642,16 @@ std::variant<std::monostate, ::pasta::ClassTemplateDecl, ::pasta::ClassTemplateP
   std::variant<std::monostate, ::pasta::ClassTemplateDecl, ::pasta::ClassTemplatePartialSpecializationDecl> ret;
   if (val) {
     if (auto a_ptr = val.dyn_cast<clang::ClassTemplateDecl *>()) {
-      return DeclBuilder::Create<::pasta::ClassTemplateDecl>(ast, a_ptr);
+      ret = DeclBuilder::Create<::pasta::ClassTemplateDecl>(ast, a_ptr);
     } else if (auto b_ptr = val.dyn_cast<clang::ClassTemplatePartialSpecializationDecl *>()) {
-      return DeclBuilder::Create<::pasta::ClassTemplatePartialSpecializationDecl>(ast, b_ptr);
+      ret = DeclBuilder::Create<::pasta::ClassTemplatePartialSpecializationDecl>(ast, b_ptr);
+    } else {
+      ret = {};
     }
+  } else {
+    ret = {};
   }
-  return {};
+  return ret;
 }
 
 // 0: ClassTemplateSpecializationDecl::TemplateArgs

@@ -955,6 +955,7 @@ class DependentTemplateSpecializationType : public TypeWithKeyword {
   // Qualifier: (clang::NestedNameSpecifier *)
   bool IsSugared(void) const;
   // Template_arguments: (llvm::ArrayRef<clang::TemplateArgument>)
+  // !!! Arg getNumArgs getArg (empty ret type = (const clang::TemplateArgument &))
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentTemplateSpecializationType)
 };
@@ -1162,6 +1163,7 @@ class ObjCObjectPointerType : public Type {
   bool IsUnspecializedAsWritten(void) const;
   std::vector<::pasta::ObjCProtocolDecl> Quals(void) const;
   ::pasta::ObjCObjectPointerType StripObjCKindOfTypeAndQuals(void) const;
+  std::vector<::pasta::ObjCProtocolDecl> Protocols(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ObjCObjectPointerType)
 };
@@ -1354,6 +1356,7 @@ class TemplateSpecializationType : public Type {
   bool IsSugared(void) const;
   bool IsTypeAlias(void) const;
   // Template_arguments: (llvm::ArrayRef<clang::TemplateArgument>)
+  // !!! Arg getNumArgs getArg (empty ret type = (const clang::TemplateArgument &))
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(TemplateSpecializationType)
 };
@@ -1412,6 +1415,7 @@ class AutoType : public DeducedType {
   ::pasta::ConceptDecl TypeConstraintConcept(void) const;
   bool IsConstrained(void) const;
   bool IsDecltypeAuto(void) const;
+  // !!! Arg getNumArgs getArg (empty ret type = (const clang::TemplateArgument &))
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(AutoType)
 };
@@ -1539,6 +1543,7 @@ class FunctionProtoType : public FunctionType {
   bool IsTemplateVariadic(void) const;
   bool IsVariadic(void) const;
   // Param_types: (llvm::iterator_range<const clang::QualType *>)
+  std::vector<::pasta::Type> ExceptionTypes(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(FunctionProtoType)
 };

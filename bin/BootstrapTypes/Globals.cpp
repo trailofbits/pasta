@@ -18,6 +18,7 @@ const std::vector<ClassExtends> kExtends{
 };
 
 std::vector<std::string> gDeclNames;
+std::vector<std::string> gStmtNames;
 std::vector<std::string> gTypeNames;
 
 // All methods (class name, method name).
@@ -92,7 +93,8 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
   {"(clang::SourceLocation)", "::pasta::Token"},
   {"(clang::SourceRange)", "::pasta::TokenRange"},
   {"(clang::QualType)", "::pasta::Type"},
-  {"(clang::Type::TypeClass)", "::pasta::TypeClass"},
+  {"(clang::Type::TypeClass)", "::pasta::TypeKind"},
+  {"(clang::Stmt::StmtClass)", "::pasta::StmtKind"},
   {"(llvm::StringRef)", "std::string_view"},
   {"(const char *)", "std::string_view"},
   {"(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>)", "std::string"},
@@ -193,6 +195,12 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
 
   DECL_VARIANT(ClassTemplateDecl, ClassTemplatePartialSpecializationDecl),
   DECL_VARIANT(VarTemplateDecl, VarTemplatePartialSpecializationDecl),
+
+  {"(llvm::iterator_range<clang::ConstStmtIterator>)",
+   "std::vector<::pasta::Stmt>"},
+
+  {"(llvm::iterator_range<clang::Stmt::CastIterator<clang::Expr, const clang::Expr *const, const clang::Stmt *const>>)",
+   "std::vector<::pasta::Expr>"}
 };
 
 // Maps return types from the macros file to how they should be returned
@@ -211,7 +219,10 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
    "  return TypeBuilder::Build(ast, val);\n"},
 
   {"(clang::Type::TypeClass)",
-   "  return static_cast<::pasta::TypeClass>(val);\n"},
+   "  return static_cast<::pasta::TypeKind>(val);\n"},
+
+  {"(clang::Stmt::StmtClass)",
+   "  return static_cast<::pasta::StmtKind>(val);\n"},
 
   {"(clang::attr::Kind)",
    "  return static_cast<::pasta::AttributeKind>(val);\n"},
@@ -437,6 +448,19 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
 
   DECL_VARIANT_IMPL(ClassTemplateDecl, ClassTemplatePartialSpecializationDecl),
   DECL_VARIANT_IMPL(VarTemplateDecl, VarTemplatePartialSpecializationDecl),
+
+#define STMT_ITERATOR_IMPL(cls) \
+    "  std::vector<::pasta::" #cls "> ret;\n" \
+    "  for (auto stmt_ptr : val) {\n" \
+    "    ret.emplace_back(StmtBuilder::Create<::pasta::" #cls ">(ast, stmt_ptr));\n" \
+    "  }\n" \
+    "  return ret;\n"
+
+  {"(llvm::iterator_range<clang::ConstStmtIterator>)",
+   STMT_ITERATOR_IMPL(Stmt)},
+
+  {"(llvm::iterator_range<clang::Stmt::CastIterator<clang::Expr, const clang::Expr *const, const clang::Stmt *const>>)",
+   STMT_ITERATOR_IMPL(Expr)}
 };
 
 // Prefixes on enumerators to strip.
@@ -567,6 +591,7 @@ std::unordered_map<std::string, uint32_t> gClassIDs;
 std::unordered_map<std::string, std::set<std::string>> gBaseClasses;
 std::unordered_map<std::string, std::set<std::string>> gDerivedClasses;
 std::vector<std::string> gTopologicallyOrderedDecls;
+std::vector<std::string> gTopologicallyOrderedStmts;
 std::vector<std::string> gTopologicallyOrderedTypes;
 
 std::unordered_map<std::string, std::set<std::string>> gTransitiveBaseClasses;

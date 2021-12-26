@@ -15,7 +15,7 @@ function(check_z3_version z3_include z3_lib)
     Z3_RETURNCODE
     Z3_COMPILED
     ${CMAKE_BINARY_DIR}
-    ${CMAKE_SOURCE_DIR}/cmake/modules/testz3.cpp
+    "${CMAKE_SOURCE_DIR}/cmake/modules/testz3.cpp"
     COMPILE_DEFINITIONS -I"${z3_include}"
     LINK_LIBRARIES -L${z3_lib_path} ${z3_link_libs}
     RUN_OUTPUT_VARIABLE SRC_OUTPUT

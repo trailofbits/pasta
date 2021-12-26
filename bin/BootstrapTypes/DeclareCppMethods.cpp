@@ -34,7 +34,9 @@
       if (const auto meth_name = CxxName(PASTA_STR(meth)); \
           !meth_name.empty()) { \
         auto &new_rt = gRetTypeMap[PASTA_STR(rt)]; \
-        if (!new_rt.empty() && !strcmp(PASTA_STR(p0), "(const clang::ASTContext &)")) { \
+        if (!new_rt.empty() && \
+            (!strcmp(PASTA_STR(p0), "(const clang::ASTContext &)") || \
+             !strcmp(PASTA_STR(p0), "(clang::ASTContext &)"))) { \
           if (kCanReturnNullptr.count(std::make_pair(class_name, meth_name))) { \
             os << "  std::optional<" << new_rt << "> " << meth_name << "(void) const;\n"; \
           } else { \

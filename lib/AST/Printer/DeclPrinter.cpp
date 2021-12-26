@@ -18,7 +18,7 @@ namespace pasta {
 class PrintedTokenRangeImpl;
 
 
-void Decl_printGroup(clang::Decl** Begin, unsigned NumDecls,
+void Decl_printGroup(clang::Decl** Begin, size_t NumDecls,
                      raw_string_ostream &Out, const clang::PrintingPolicy &Policy,
                      unsigned Indentation, PrintedTokenRangeImpl &tokens) {
   if (NumDecls == 1) {
@@ -83,7 +83,7 @@ static clang::QualType getDeclType(clang::Decl* D) {
   return clang::QualType();
 }
 
-raw_string_ostream& DeclPrinter::Indent(unsigned Indentation) {
+raw_string_ostream& DeclPrinter::Indent(int Indentation) {
   for (unsigned i = 0; i != Indentation; ++i)
     Out << "  ";
   return Out;
@@ -778,14 +778,8 @@ void DeclPrinter::VisitFieldDecl(clang::FieldDecl *D) {
   if (!Policy.SuppressSpecifiers && D->isModulePrivate())
     Out << "__module_private__ ";
 
-  {
-    auto split = splitAccordingToPolicy(D->getType(), Policy);
-    printQualType(D->getASTContext().getUnqualifiedObjCPointerType(D->getType()),
-                  Out, Policy, D->getName(), nullptr, Indentation);
-    //Out << D->getASTContext().getUnqualifiedObjCPointerType(D->getType()).
-    //       stream(Policy, D->getName(), Indentation);
-  }
-
+  printQualType(D->getASTContext().getUnqualifiedObjCPointerType(D->getType()),
+                Out, Policy, D->getName(), nullptr, Indentation);
 
   if (D->isBitField()) {
     Out << " : ";

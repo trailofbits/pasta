@@ -10,10 +10,31 @@ std::string Capitalize(llvm::StringRef name) {
 }
 
 std::string CxxName(llvm::StringRef name) {
-  if (name == "getKind" || name == "getDeclKindName" || name == "asOpaquePtr" ||
-      name == "getTypePtr" || name == "getTypePtrOrNull" ||
-      name == "getAsOpaquePtr" || name == "getUnqualifiedType") {
+  if (name == "getKind" || name == "getDeclKindName") {
     return "";  // We have our own `DeclKind`.
+
+  // Disable these.
+  } else if (name == "asOpaquePtr" ||
+             name == "getTypePtr" ||
+             name == "getTypePtrOrNull" ||
+             name == "getAsOpaquePtr" ||
+             name == "getUnqualifiedType") {
+    return "";
+
+  } else if (name == "getTypeClass") {
+    return "Kind";
+
+  } else if (name == "getTypeClassName") {
+    return "KindName";
+
+  } else if (name == "getStmtClass") {
+    return "Kind";
+
+  } else if (name == "getStmtClassName") {
+    return "KindName";
+
+  } else if (name == "getCapturedStmt") {
+    return "FindCapturedStmt";
 
   } else if (name == "getFriendDecl") {
     return "FindFriendDecl";

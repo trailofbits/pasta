@@ -75,10 +75,8 @@ static const std::string gTypeClassName{"Type"};
         os << "// 1: " << real_class_name << "::" << meth_name << "\n"; \
         return; \
       } \
-      if (strcmp(PASTA_STR(p0), "(const clang::ASTContext &)")) { \
-        os << "// 1: " << real_class_name << "::" << meth_name << "\n"; \
-        return; \
-      } else { \
+      if (!strcmp(PASTA_STR(p0), "(const clang::ASTContext &)") || \
+          !strcmp(PASTA_STR(p0), "(clang::ASTContext &)")) { \
         const auto can_ret_null = kCanReturnNullptr.count(\
             std::make_pair(class_name, meth_name)); \
         if (can_ret_null) { \
@@ -106,6 +104,9 @@ static const std::string gTypeClassName{"Type"};
           } \
         } \
         os << "}\n\n"; \
+      } else { \
+        os << "// 1: " << real_class_name << "::" << meth_name << "\n"; \
+        return; \
       } \
     }
 

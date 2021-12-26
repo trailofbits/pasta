@@ -23,7 +23,9 @@ void GenerateTypeH(void) {
       << " */\n\n"
       << "// This file is auto-generated.\n\n"
       << "#pragma once\n\n"
-      << "#ifndef PASTA_IN_BOOTSTRAP\n"
+      << "#ifdef PASTA_IN_BOOTSTRAP\n"
+      << "#  include \"TypeBootstrap.h\"\n"
+      << "#else\n"
       << "#include <variant>\n"
       << "#include <vector>\n"
       << "#include <pasta/Util/Compiler.h>\n"
@@ -33,6 +35,7 @@ void GenerateTypeH(void) {
       << "    friend class ASTImpl; \\\n"
       << "    friend class TypeBuilder; \\\n"
       << "    friend class TypeVisitor; \\\n"
+      << "    friend class PrintedTokenRange; \\\n"
       << "    base(void) = delete; \\\n"
       << "    explicit base( \\\n"
       << "        std::shared_ptr<ASTImpl> ast_, \\\n"
@@ -40,7 +43,6 @@ void GenerateTypeH(void) {
       << "    explicit base( \\\n"
       << "        std::shared_ptr<ASTImpl> ast_, \\\n"
       << "        const ::clang::QualType &type_);\n\n";
-
 
   os
       << "namespace pasta {\n"
@@ -61,7 +63,8 @@ void GenerateTypeH(void) {
       << "// Wraps a type, including its qualifiers.\n"
       << "class Type {\n"
       << " protected:\n"
-      << "  friend class TypeBuilder;\n\n"
+      << "  friend class TypeBuilder;\n"
+      << "  friend class PrintedTokenRange;\n\n"
       << "  std::shared_ptr<ASTImpl> ast;\n"
       << "  union {\n";
   for (const auto &name : gTopologicallyOrderedTypes) {
@@ -71,14 +74,14 @@ void GenerateTypeH(void) {
   os
       << "    void *opaque;\n"
       << "  } u;\n"
-      << "  ::pasta::TypeClass type_class;\n"
+      << "  ::pasta::TypeKind kind;\n"
       << "  uint32_t qualifiers;\n\n"
       << "  inline explicit Type(std::shared_ptr<ASTImpl> ast_,\n"
       << "                       const ::clang::Type *type_,\n"
-      << "                       ::pasta::TypeClass type_class_,\n"
+      << "                       ::pasta::TypeKind kind_,\n"
       << "                       uint32_t qualifiers_)\n"
       << "      : ast(std::move(ast_)),\n"
-      << "        type_class(type_class_),\n"
+      << "        kind(kind_),\n"
       << "        qualifiers(qualifiers_) {\n"
       << "    u.Type = type_;\n"
       << "  }\n\n"
@@ -117,7 +120,7 @@ void GenerateTypeH(void) {
       << "    return qualifiers;\n"
       << "  }\n"
       << "  inline Type UnqualifiedType(void) const noexcept {\n"
-      << "    return Type(ast, u.Type, type_class, 0);\n"
+      << "    return Type(ast, u.Type, kind, 0);\n"
       << "  }\n";
 
   DeclareCppMethods(os, qual_type, gClassIDs[qual_type]);
@@ -179,7 +182,9 @@ void GenerateTypeH(void) {
 
     // Requiring that all derivations have the same size as the base class
     // will let us do fun sketchy things.
-    os << "static_assert(sizeof(Type) == sizeof(" << name << "));";
+    if (name != "Type") {
+      os << "static_assert(sizeof(Type) == sizeof(" << name << "));";
+    }
   }
 
   os

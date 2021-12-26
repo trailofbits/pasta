@@ -291,6 +291,33 @@ PrintedTokenRange PrintedTokenRange::Create(const Decl &decl_) {
   return ret;
 }
 
+// More typical APIs when we've got PASTA ASTs.
+PrintedTokenRange PrintedTokenRange::Create(const Stmt &stmt_) {
+  auto &ast = stmt_.ast;
+  PrintedTokenRange ret = PrintedTokenRange::Create(
+      ast->ci->getASTContext(), *(ast->printing_policy),
+      const_cast<clang::Stmt *>(stmt_.u.Stmt));
+  ret.impl->ast = ast;
+  return ret;
+}
+
+// More typical APIs when we've got PASTA ASTs.
+PrintedTokenRange PrintedTokenRange::Create(const Type &type_) {
+
+  auto &ast = type_.ast;
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(type_.u.Type,
+                             type_.qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(
+      fast_qtype, clang::Qualifiers::fromOpaqueValue(type_.qualifiers));
+
+  PrintedTokenRange ret = PrintedTokenRange::Create(
+      ast_ctx, *(ast->printing_policy), self);
+  ret.impl->ast = ast;
+  return ret;
+}
+
+
 // Number of tokens in this range.
 size_t PrintedTokenRange::Size(void) const noexcept {
   return first ? impl->tokens.size() : 0;

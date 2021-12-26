@@ -6,7 +6,9 @@
 
 #pragma once
 
-#ifndef PASTA_IN_BOOTSTRAP
+#ifdef PASTA_IN_BOOTSTRAP
+#  include "TypeBootstrap.h"
+#else
 #include <variant>
 #include <vector>
 #include <pasta/Util/Compiler.h>
@@ -17,6 +19,7 @@
     friend class ASTImpl; \
     friend class TypeBuilder; \
     friend class TypeVisitor; \
+    friend class PrintedTokenRange; \
     base(void) = delete; \
     explicit base( \
         std::shared_ptr<ASTImpl> ast_, \
@@ -98,6 +101,7 @@ class TypeVisitor {
 class Type {
  protected:
   friend class TypeBuilder;
+  friend class PrintedTokenRange;
 
   std::shared_ptr<ASTImpl> ast;
   union {
@@ -163,15 +167,15 @@ class Type {
     const ::clang::RecordType *RecordType;
     void *opaque;
   } u;
-  ::pasta::TypeClass type_class;
+  ::pasta::TypeKind kind;
   uint32_t qualifiers;
 
   inline explicit Type(std::shared_ptr<ASTImpl> ast_,
                        const ::clang::Type *type_,
-                       ::pasta::TypeClass type_class_,
+                       ::pasta::TypeKind kind_,
                        uint32_t qualifiers_)
       : ast(std::move(ast_)),
-        type_class(type_class_),
+        kind(kind_),
         qualifiers(qualifiers_) {
     u.Type = type_;
   }
@@ -280,8 +284,8 @@ class Type {
   ::pasta::Type PointeeType(void) const;
   ::pasta::ScalarTypeKind ScalarTypeKind(void) const;
   ::pasta::Type SveEltType(void) const;
-  ::pasta::TypeClass TypeClass(void) const;
-  std::string_view TypeClassName(void) const;
+  ::pasta::TypeKind Kind(void) const;
+  std::string_view KindName(void) const;
   ::pasta::Type UnqualifiedDesugaredType(void) const;
   enum Visibility Visibility(void) const;
   // HasAttr: (bool)
@@ -303,7 +307,7 @@ class Type {
   bool IsArrayType(void) const;
   bool IsAtomicType(void) const;
   bool IsBFloat16Type(void) const;
-  // IsBlockCompatibleObjCPointerType: (bool)
+  bool IsBlockCompatibleObjCPointerType(void) const;
   bool IsBlockPointerType(void) const;
   bool IsBooleanType(void) const;
   bool IsBuiltinType(void) const;
@@ -490,7 +494,7 @@ class Type {
     return qualifiers;
   }
   inline Type UnqualifiedType(void) const noexcept {
-    return Type(ast, u.Type, type_class, 0);
+    return Type(ast, u.Type, kind, 0);
   }
   ::pasta::Type IgnoreParens(void) const;
   enum LangAS AddressSpace(void) const;
@@ -570,7 +574,7 @@ class TypeOfExprType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TypeOfExprType)
   PASTA_DECLARE_BASE_OPERATORS(Type, TypeOfExprType)
   ::pasta::Type Desugar(void) const;
-  // UnderlyingExpr: (clang::Expr *)
+  ::pasta::Expr UnderlyingExpr(void) const;
   bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(TypeOfExprType)
@@ -795,7 +799,7 @@ class ConstantArrayType : public ArrayType {
   PASTA_DECLARE_BASE_OPERATORS(Type, ConstantArrayType)
   ::pasta::Type Desugar(void) const;
   // Size: (const llvm::APInt &)
-  // SizeExpr: (const clang::Expr *)
+  ::pasta::Expr SizeExpr(void) const;
   bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ConstantArrayType)
@@ -824,7 +828,7 @@ class DecltypeType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DecltypeType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DecltypeType)
   ::pasta::Type Desugar(void) const;
-  // UnderlyingExpr: (clang::Expr *)
+  ::pasta::Expr UnderlyingExpr(void) const;
   ::pasta::Type UnderlyingType(void) const;
   bool IsSugared(void) const;
  protected:
@@ -856,7 +860,7 @@ class DependentAddressSpaceType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentAddressSpaceType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DependentAddressSpaceType)
   ::pasta::Type Desugar(void) const;
-  // AddrSpaceExpr: (clang::Expr *)
+  ::pasta::Expr AddrSpaceExpr(void) const;
   ::pasta::Token AttributeToken(void) const;
   ::pasta::Type PointeeType(void) const;
   bool IsSugared(void) const;
@@ -872,7 +876,7 @@ class DependentExtIntType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentExtIntType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DependentExtIntType)
   ::pasta::Type Desugar(void) const;
-  // NumBitsExpr: (clang::Expr *)
+  ::pasta::Expr NumBitsExpr(void) const;
   bool IsSigned(void) const;
   bool IsSugared(void) const;
   bool IsUnsigned(void) const;
@@ -910,7 +914,7 @@ class DependentSizedArrayType : public ArrayType {
   ::pasta::TokenRange BracketsRange(void) const;
   ::pasta::Token LBracketToken(void) const;
   ::pasta::Token RBracketToken(void) const;
-  // SizeExpr: (clang::Expr *)
+  ::pasta::Expr SizeExpr(void) const;
   bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentSizedArrayType)
@@ -926,7 +930,7 @@ class DependentSizedExtVectorType : public Type {
   ::pasta::Type Desugar(void) const;
   ::pasta::Token AttributeToken(void) const;
   ::pasta::Type ElementType(void) const;
-  // SizeExpr: (clang::Expr *)
+  ::pasta::Expr SizeExpr(void) const;
   bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentSizedExtVectorType)
@@ -965,7 +969,7 @@ class DependentVectorType : public Type {
   ::pasta::Type Desugar(void) const;
   ::pasta::Token AttributeToken(void) const;
   ::pasta::Type ElementType(void) const;
-  // SizeExpr: (clang::Expr *)
+  ::pasta::Expr SizeExpr(void) const;
   ::pasta::VectorKind VectorKind(void) const;
   bool IsSugared(void) const;
  protected:
@@ -1385,7 +1389,7 @@ class VariableArrayType : public ArrayType {
   ::pasta::TokenRange BracketsRange(void) const;
   ::pasta::Token LBracketToken(void) const;
   ::pasta::Token RBracketToken(void) const;
-  // SizeExpr: (clang::Expr *)
+  ::pasta::Expr SizeExpr(void) const;
   bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(VariableArrayType)
@@ -1453,9 +1457,9 @@ class DependentSizedMatrixType : public MatrixType {
   PASTA_DECLARE_BASE_OPERATORS(Type, DependentSizedMatrixType)
   ::pasta::Type Desugar(void) const;
   ::pasta::Token AttributeToken(void) const;
-  // ColumnExpr: (clang::Expr *)
+  ::pasta::Expr ColumnExpr(void) const;
   ::pasta::Type ElementType(void) const;
-  // RowExpr: (clang::Expr *)
+  ::pasta::Expr RowExpr(void) const;
   bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentSizedMatrixType)
@@ -1515,7 +1519,7 @@ class FunctionProtoType : public FunctionType {
   // ExtParameterInfosOrNull: (const clang::FunctionType::ExtParameterInfo *)
   // ExtProtoInfo: (clang::FunctionProtoType::ExtProtoInfo)
   // MethodQuals: (clang::Qualifiers)
-  // NoexceptExpr: (clang::Expr *)
+  ::pasta::Expr NoexceptExpr(void) const;
   uint32_t NumExceptions(void) const;
   uint32_t NumParams(void) const;
   // ParamType: (clang::QualType)

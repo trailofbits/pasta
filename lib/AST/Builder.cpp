@@ -13,7 +13,7 @@ Type TypeBuilder::Build(std::shared_ptr<ASTImpl> ast_, clang::QualType type) {
   if (auto type_ptr = type.getTypePtrOrNull()) {
     return Type(
         std::move(ast_), type_ptr,
-        static_cast<TypeClass>(type_ptr->getTypeClass()),
+        static_cast<TypeKind>(type_ptr->getTypeClass()),
         type.getQualifiers().getAsOpaqueValue());
   }
   assert(!"`type` is a null type.");

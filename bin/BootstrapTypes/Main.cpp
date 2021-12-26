@@ -35,6 +35,10 @@ void MapEnumRetTypes(void);
 // Decl types.
 void MapDeclRetTypes(void);
 
+// Adds mappings that translate between pointers to clang Stmt types and PASTA
+// Stmt types.
+void MapStmtRetTypes(void);
+
 // Adds mappings that translate between pointers to clang Type types and PASTA
 // Type types.
 void MapTypeRetTypes(void);
@@ -47,6 +51,12 @@ void GenerateDeclH(void);
 
 // Generate `lib/AST/Decl.cpp`.
 void GenerateDeclCpp(void);
+
+// Generate `include/pasta/AST/Stmt.h`.
+void GenerateStmtH(void);
+
+// Generate `lib/AST/Stmt.cpp`.
+void GenerateStmtCpp(void);
 
 // Generate `include/pasta/AST/Type.h`.
 void GenerateTypeH(void);
@@ -73,6 +83,12 @@ int main(void) {
   for (auto class_name : kAllClassNames) {
     if (class_name.endswith("Decl")) {
       gDeclNames.push_back(class_name.str());
+
+    } else if (class_name.endswith("Stmt") ||
+               class_name.endswith("Expr") ||
+               class_name.endswith("Operator") ||
+               class_name == "SwitchCase") {
+      gStmtNames.push_back(class_name.str());
 
     } else if (class_name.endswith("Type") && class_name != "QualType") {
       gTypeNames.push_back(class_name.str());
@@ -137,6 +153,7 @@ int main(void) {
 
   // Topologically order the classes by the parent/child relations.
   topo_sort(gDeclNames, gTopologicallyOrderedDecls);
+  topo_sort(gStmtNames, gTopologicallyOrderedStmts);
   topo_sort(gTypeNames, gTopologicallyOrderedTypes);
 
   auto transitive_rels = [] (const std::vector<std::string> &names) {
@@ -170,14 +187,18 @@ int main(void) {
 
 
   transitive_rels(gTopologicallyOrderedDecls);
+  transitive_rels(gTopologicallyOrderedStmts);
   transitive_rels(gTopologicallyOrderedTypes);
 
   MapEnumRetTypes();
   MapDeclRetTypes();
+  MapStmtRetTypes();
   MapTypeRetTypes();
   GenerateForwardH();
   GenerateDeclH();
   GenerateDeclCpp();
+  GenerateStmtH();
+  GenerateStmtCpp();
   GenerateTypeH();
   GenerateTypeCpp();
   return EXIT_SUCCESS;

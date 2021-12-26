@@ -14,6 +14,8 @@
 
 #include "Token.h"
 
+#define PASTA_IGNORE_ABSTRACT(...)
+
 namespace clang {
 class AbstractConditionalOperator;
 class AccessSpecDecl;
@@ -410,7 +412,7 @@ class ASTImpl;
 class DeclBuilder;
 class TypeBuilder;
 
-#define PASTA_FOR_EACH_DECL_IMPL(m) \
+#define PASTA_FOR_EACH_DECL_IMPL(m, a) \
     m(AccessSpec) \
     m(Binding) \
     m(Block) \
@@ -428,6 +430,7 @@ class TypeBuilder;
     m(ClassTemplateSpecialization) \
     m(Concept) \
     m(ConstructorUsingShadow) \
+    a() \
     m(Declarator) \
     m(Decomposition) \
     m(Empty) \
@@ -501,9 +504,173 @@ class TypeBuilder;
     m(Var) \
     m(VarTemplate) \
     m(VarTemplatePartialSpecialization) \
-    m(VarTemplateSpecialization)
+    m(VarTemplateSpecialization) \
+    a(OMPDeclarativeDirective) \
+    a(OMPDeclarativeDirectiveValue)
 
-#define PASTA_FOR_EACH_TYPE_IMPL(m) \
+#define PASTA_FOR_EACH_STMT_IMPL(s, d, e, o, l, a) \
+    a(AbstractConditionalOperator) \
+    e(AddrLabelExpr) \
+    e(ArrayInitIndexExpr) \
+    e(ArrayInitLoopExpr) \
+    e(ArraySubscriptExpr) \
+    e(ArrayTypeTraitExpr) \
+    e(AsTypeExpr) \
+    a(AsmStmt) \
+    e(AtomicExpr) \
+    s(AttributedStmt) \
+    o(BinaryConditionalOperator) \
+    o(BinaryOperator) \
+    e(BlockExpr) \
+    s(BreakStmt) \
+    e(BuiltinBitCastExpr) \
+    e(CStyleCastExpr) \
+    e(CUDAKernelCallExpr) \
+    e(CXXAddrspaceCastExpr) \
+    e(CXXBindTemporaryExpr) \
+    e(CXXBoolLiteralExpr) \
+    s(CXXCatchStmt) \
+    e(CXXConstCastExpr) \
+    e(CXXConstructExpr) \
+    e(CXXDefaultArgExpr) \
+    e(CXXDefaultInitExpr) \
+    e(CXXDeleteExpr) \
+    e(CXXDependentScopeMemberExpr) \
+    e(CXXDynamicCastExpr) \
+    e(CXXFoldExpr) \
+    s(CXXForRangeStmt) \
+    e(CXXFunctionalCastExpr) \
+    e(CXXInheritedCtorInitExpr) \
+    e(CXXMemberCallExpr) \
+    e(CXXNamedCastExpr) \
+    e(CXXNewExpr) \
+    e(CXXNoexceptExpr) \
+    e(CXXNullPtrLiteralExpr) \
+    e(CXXOperatorCallExpr) \
+    e(CXXPseudoDestructorExpr) \
+    e(CXXReinterpretCastExpr) \
+    o(CXXRewrittenBinaryOperator) \
+    e(CXXScalarValueInitExpr) \
+    e(CXXStaticCastExpr) \
+    e(CXXStdInitializerListExpr) \
+    e(CXXTemporaryObjectExpr) \
+    e(CXXThisExpr) \
+    e(CXXThrowExpr) \
+    s(CXXTryStmt) \
+    e(CXXTypeidExpr) \
+    e(CXXUnresolvedConstructExpr) \
+    e(CXXUuidofExpr) \
+    e(CallExpr) \
+    s(CapturedStmt) \
+    s(CaseStmt) \
+    e(CastExpr) \
+    e(ChooseExpr) \
+    e(CoawaitExpr) \
+    o(CompoundAssignOperator) \
+    e(CompoundLiteralExpr) \
+    s(CompoundStmt) \
+    e(ConceptSpecializationExpr) \
+    o(ConditionalOperator) \
+    e(ConstantExpr) \
+    s(ContinueStmt) \
+    e(ConvertVectorExpr) \
+    s(CoreturnStmt) \
+    s(CoroutineBodyStmt) \
+    e(CoroutineSuspendExpr) \
+    e(CoyieldExpr) \
+    e(DeclRefExpr) \
+    s(DeclStmt) \
+    s(DefaultStmt) \
+    e(DependentCoawaitExpr) \
+    e(DependentScopeDeclRefExpr) \
+    e(DesignatedInitExpr) \
+    e(DesignatedInitUpdateExpr) \
+    s(DoStmt) \
+    e(ExplicitCastExpr) \
+    a(Expr) \
+    e(ExpressionTraitExpr) \
+    e(ExtVectorElementExpr) \
+    s(ForStmt) \
+    e(FullExpr) \
+    e(FunctionParmPackExpr) \
+    s(GCCAsmStmt) \
+    e(GNUNullExpr) \
+    e(GenericSelectionExpr) \
+    s(GotoStmt) \
+    s(IfStmt) \
+    e(ImplicitCastExpr) \
+    e(ImplicitValueInitExpr) \
+    s(IndirectGotoStmt) \
+    e(InitListExpr) \
+    s(LabelStmt) \
+    e(LambdaExpr) \
+    s(MSAsmStmt) \
+    s(MSDependentExistsStmt) \
+    e(MSPropertyRefExpr) \
+    e(MSPropertySubscriptExpr) \
+    e(MaterializeTemporaryExpr) \
+    e(MatrixSubscriptExpr) \
+    e(MemberExpr) \
+    e(NoInitExpr) \
+    s(NullStmt) \
+    e(OMPArraySectionExpr) \
+    e(OMPArrayShapingExpr) \
+    e(OMPIteratorExpr) \
+    s(ObjCAtCatchStmt) \
+    s(ObjCAtFinallyStmt) \
+    s(ObjCAtSynchronizedStmt) \
+    s(ObjCAtThrowStmt) \
+    s(ObjCAtTryStmt) \
+    s(ObjCAutoreleasePoolStmt) \
+    e(ObjCAvailabilityCheckExpr) \
+    e(ObjCBoolLiteralExpr) \
+    e(ObjCBoxedExpr) \
+    e(ObjCBridgedCastExpr) \
+    e(ObjCEncodeExpr) \
+    s(ObjCForCollectionStmt) \
+    e(ObjCIndirectCopyRestoreExpr) \
+    e(ObjCIsaExpr) \
+    e(ObjCIvarRefExpr) \
+    e(ObjCMessageExpr) \
+    e(ObjCPropertyRefExpr) \
+    e(ObjCProtocolExpr) \
+    e(ObjCSelectorExpr) \
+    e(ObjCSubscriptRefExpr) \
+    e(OffsetOfExpr) \
+    e(OpaqueValueExpr) \
+    e(OverloadExpr) \
+    e(PackExpansionExpr) \
+    e(ParenExpr) \
+    e(ParenListExpr) \
+    e(PredefinedExpr) \
+    e(PseudoObjectExpr) \
+    e(RecoveryExpr) \
+    e(RequiresExpr) \
+    s(ReturnStmt) \
+    s(SEHExceptStmt) \
+    s(SEHFinallyStmt) \
+    s(SEHLeaveStmt) \
+    s(SEHTryStmt) \
+    e(ShuffleVectorExpr) \
+    e(SizeOfPackExpr) \
+    e(SourceLocExpr) \
+    a(Stmt) \
+    e(StmtExpr) \
+    e(SubstNonTypeTemplateParmExpr) \
+    e(SubstNonTypeTemplateParmPackExpr) \
+    a(SwitchCase) \
+    s(SwitchStmt) \
+    e(TypeTraitExpr) \
+    e(TypoExpr) \
+    e(UnaryExprOrTypeTraitExpr) \
+    o(UnaryOperator) \
+    e(UnresolvedLookupExpr) \
+    e(UnresolvedMemberExpr) \
+    e(VAArgExpr) \
+    a(ValueStmt) \
+    s(WhileStmt)
+
+#define PASTA_FOR_EACH_TYPE_IMPL(m, a) \
     m(Adjusted) \
     m(Array) \
     m(Atomic) \
@@ -555,6 +722,7 @@ class TypeBuilder;
     m(Tag) \
     m(TemplateSpecialization) \
     m(TemplateTypeParm) \
+    a() \
     m(TypeOfExpr) \
     m(TypeOf) \
     m(Typedef) \
@@ -566,7 +734,7 @@ class TypeBuilder;
 
 enum class DeclKind : unsigned {
 #define PASTA_DECLARE_DECL_KIND(name) k ## name ,
-  PASTA_FOR_EACH_DECL_IMPL(PASTA_DECLARE_DECL_KIND)
+  PASTA_FOR_EACH_DECL_IMPL(PASTA_DECLARE_DECL_KIND, PASTA_IGNORE_ABSTRACT)
 #undef PASTA_DECLARE_DECL_KIND
 };
 
@@ -2500,221 +2668,220 @@ enum class StackProtectorMode : unsigned int {
   kReq = 3,
 };
 
-enum class StmtClass : unsigned int {
-  kNoStmtClass = 0,
-  kGCCAsmStmtClass = 1,
-  kMSAsmStmtClass = 2,
-  kBreakStmtClass = 3,
-  kCXXCatchStmtClass = 4,
-  kCXXForRangeStmtClass = 5,
-  kCXXTryStmtClass = 6,
-  kCapturedStmtClass = 7,
-  kCompoundStmtClass = 8,
-  kContinueStmtClass = 9,
-  kCoreturnStmtClass = 10,
-  kCoroutineBodyStmtClass = 11,
-  kDeclStmtClass = 12,
-  kDoStmtClass = 13,
-  kForStmtClass = 14,
-  kGotoStmtClass = 15,
-  kIfStmtClass = 16,
-  kIndirectGotoStmtClass = 17,
-  kMSDependentExistsStmtClass = 18,
-  kNullStmtClass = 19,
-  kOMPAtomicDirectiveClass = 20,
-  kOMPBarrierDirectiveClass = 21,
-  kOMPCancelDirectiveClass = 22,
-  kOMPCancellationPointDirectiveClass = 23,
-  kOMPCriticalDirectiveClass = 24,
-  kOMPDepobjDirectiveClass = 25,
-  kOMPFlushDirectiveClass = 26,
-  kOMPDistributeDirectiveClass = 27,
-  kOMPDistributeParallelForDirectiveClass = 28,
-  kOMPDistributeParallelForSimdDirectiveClass = 29,
-  kOMPDistributeSimdDirectiveClass = 30,
-  kOMPForDirectiveClass = 31,
-  kOMPForSimdDirectiveClass = 32,
-  kOMPMasterTaskLoopDirectiveClass = 33,
-  kOMPMasterTaskLoopSimdDirectiveClass = 34,
-  kOMPParallelForDirectiveClass = 35,
-  kOMPParallelForSimdDirectiveClass = 36,
-  kOMPParallelMasterTaskLoopDirectiveClass = 37,
-  kOMPParallelMasterTaskLoopSimdDirectiveClass = 38,
-  kOMPSimdDirectiveClass = 39,
-  kOMPTargetParallelForSimdDirectiveClass = 40,
-  kOMPTargetSimdDirectiveClass = 41,
-  kOMPTargetTeamsDistributeDirectiveClass = 42,
-  kOMPTargetTeamsDistributeParallelForDirectiveClass = 43,
-  kOMPTargetTeamsDistributeParallelForSimdDirectiveClass = 44,
-  kOMPTargetTeamsDistributeSimdDirectiveClass = 45,
-  kOMPTaskLoopDirectiveClass = 46,
-  kOMPTaskLoopSimdDirectiveClass = 47,
-  kOMPTeamsDistributeDirectiveClass = 48,
-  kOMPTeamsDistributeParallelForDirectiveClass = 49,
-  kOMPTeamsDistributeParallelForSimdDirectiveClass = 50,
-  kOMPTeamsDistributeSimdDirectiveClass = 51,
-  kOMPMasterDirectiveClass = 52,
-  kOMPOrderedDirectiveClass = 53,
-  kOMPParallelDirectiveClass = 54,
-  kOMPParallelMasterDirectiveClass = 55,
-  kOMPParallelSectionsDirectiveClass = 56,
-  kOMPScanDirectiveClass = 57,
-  kOMPSectionDirectiveClass = 58,
-  kOMPSectionsDirectiveClass = 59,
-  kOMPSingleDirectiveClass = 60,
-  kOMPTargetDataDirectiveClass = 61,
-  kOMPTargetDirectiveClass = 62,
-  kOMPTargetEnterDataDirectiveClass = 63,
-  kOMPTargetExitDataDirectiveClass = 64,
-  kOMPTargetParallelDirectiveClass = 65,
-  kOMPTargetParallelForDirectiveClass = 66,
-  kOMPTargetTeamsDirectiveClass = 67,
-  kOMPTargetUpdateDirectiveClass = 68,
-  kOMPTaskDirectiveClass = 69,
-  kOMPTaskgroupDirectiveClass = 70,
-  kOMPTaskwaitDirectiveClass = 71,
-  kOMPTaskyieldDirectiveClass = 72,
-  kOMPTeamsDirectiveClass = 73,
-  kObjCAtCatchStmtClass = 74,
-  kObjCAtFinallyStmtClass = 75,
-  kObjCAtSynchronizedStmtClass = 76,
-  kObjCAtThrowStmtClass = 77,
-  kObjCAtTryStmtClass = 78,
-  kObjCAutoreleasePoolStmtClass = 79,
-  kObjCForCollectionStmtClass = 80,
-  kReturnStmtClass = 81,
-  kSEHExceptStmtClass = 82,
-  kSEHFinallyStmtClass = 83,
-  kSEHLeaveStmtClass = 84,
-  kSEHTryStmtClass = 85,
-  kCaseStmtClass = 86,
-  kDefaultStmtClass = 87,
-  kSwitchStmtClass = 88,
-  kAttributedStmtClass = 89,
-  kBinaryConditionalOperatorClass = 90,
-  kConditionalOperatorClass = 91,
-  kAddrLabelExprClass = 92,
-  kArrayInitIndexExprClass = 93,
-  kArrayInitLoopExprClass = 94,
-  kArraySubscriptExprClass = 95,
-  kArrayTypeTraitExprClass = 96,
-  kAsTypeExprClass = 97,
-  kAtomicExprClass = 98,
-  kBinaryOperatorClass = 99,
-  kCompoundAssignOperatorClass = 100,
-  kBlockExprClass = 101,
-  kCXXBindTemporaryExprClass = 102,
-  kCXXBoolLiteralExprClass = 103,
-  kCXXConstructExprClass = 104,
-  kCXXTemporaryObjectExprClass = 105,
-  kCXXDefaultArgExprClass = 106,
-  kCXXDefaultInitExprClass = 107,
-  kCXXDeleteExprClass = 108,
-  kCXXDependentScopeMemberExprClass = 109,
-  kCXXFoldExprClass = 110,
-  kCXXInheritedCtorInitExprClass = 111,
-  kCXXNewExprClass = 112,
-  kCXXNoexceptExprClass = 113,
-  kCXXNullPtrLiteralExprClass = 114,
-  kCXXPseudoDestructorExprClass = 115,
-  kCXXRewrittenBinaryOperatorClass = 116,
-  kCXXScalarValueInitExprClass = 117,
-  kCXXStdInitializerListExprClass = 118,
-  kCXXThisExprClass = 119,
-  kCXXThrowExprClass = 120,
-  kCXXTypeidExprClass = 121,
-  kCXXUnresolvedConstructExprClass = 122,
-  kCXXUuidofExprClass = 123,
-  kCallExprClass = 124,
-  kCUDAKernelCallExprClass = 125,
-  kCXXMemberCallExprClass = 126,
-  kCXXOperatorCallExprClass = 127,
-  kUserDefinedLiteralClass = 128,
-  kBuiltinBitCastExprClass = 129,
-  kCStyleCastExprClass = 130,
-  kCXXFunctionalCastExprClass = 131,
-  kCXXAddrspaceCastExprClass = 132,
-  kCXXConstCastExprClass = 133,
-  kCXXDynamicCastExprClass = 134,
-  kCXXReinterpretCastExprClass = 135,
-  kCXXStaticCastExprClass = 136,
-  kObjCBridgedCastExprClass = 137,
-  kImplicitCastExprClass = 138,
-  kCharacterLiteralClass = 139,
-  kChooseExprClass = 140,
-  kCompoundLiteralExprClass = 141,
-  kConceptSpecializationExprClass = 142,
-  kConvertVectorExprClass = 143,
-  kCoawaitExprClass = 144,
-  kCoyieldExprClass = 145,
-  kDeclRefExprClass = 146,
-  kDependentCoawaitExprClass = 147,
-  kDependentScopeDeclRefExprClass = 148,
-  kDesignatedInitExprClass = 149,
-  kDesignatedInitUpdateExprClass = 150,
-  kExpressionTraitExprClass = 151,
-  kExtVectorElementExprClass = 152,
-  kFixedPointLiteralClass = 153,
-  kFloatingLiteralClass = 154,
-  kConstantExprClass = 155,
-  kExprWithCleanupsClass = 156,
-  kFunctionParmPackExprClass = 157,
-  kGNUNullExprClass = 158,
-  kGenericSelectionExprClass = 159,
-  kImaginaryLiteralClass = 160,
-  kImplicitValueInitExprClass = 161,
-  kInitListExprClass = 162,
-  kIntegerLiteralClass = 163,
-  kLambdaExprClass = 164,
-  kMSPropertyRefExprClass = 165,
-  kMSPropertySubscriptExprClass = 166,
-  kMaterializeTemporaryExprClass = 167,
-  kMatrixSubscriptExprClass = 168,
-  kMemberExprClass = 169,
-  kNoInitExprClass = 170,
-  kOMPArraySectionExprClass = 171,
-  kOMPArrayShapingExprClass = 172,
-  kOMPIteratorExprClass = 173,
-  kObjCArrayLiteralClass = 174,
-  kObjCAvailabilityCheckExprClass = 175,
-  kObjCBoolLiteralExprClass = 176,
-  kObjCBoxedExprClass = 177,
-  kObjCDictionaryLiteralClass = 178,
-  kObjCEncodeExprClass = 179,
-  kObjCIndirectCopyRestoreExprClass = 180,
-  kObjCIsaExprClass = 181,
-  kObjCIvarRefExprClass = 182,
-  kObjCMessageExprClass = 183,
-  kObjCPropertyRefExprClass = 184,
-  kObjCProtocolExprClass = 185,
-  kObjCSelectorExprClass = 186,
-  kObjCStringLiteralClass = 187,
-  kObjCSubscriptRefExprClass = 188,
-  kOffsetOfExprClass = 189,
-  kOpaqueValueExprClass = 190,
-  kUnresolvedLookupExprClass = 191,
-  kUnresolvedMemberExprClass = 192,
-  kPackExpansionExprClass = 193,
-  kParenExprClass = 194,
-  kParenListExprClass = 195,
-  kPredefinedExprClass = 196,
-  kPseudoObjectExprClass = 197,
-  kRecoveryExprClass = 198,
-  kRequiresExprClass = 199,
-  kShuffleVectorExprClass = 200,
-  kSizeOfPackExprClass = 201,
-  kSourceLocExprClass = 202,
-  kStmtExprClass = 203,
-  kStringLiteralClass = 204,
-  kSubstNonTypeTemplateParmExprClass = 205,
-  kSubstNonTypeTemplateParmPackExprClass = 206,
-  kTypeTraitExprClass = 207,
-  kTypoExprClass = 208,
-  kUnaryExprOrTypeTraitExprClass = 209,
-  kUnaryOperatorClass = 210,
-  kVAArgExprClass = 211,
-  kLabelStmtClass = 212,
-  kWhileStmtClass = 213,
+enum class StmtKind : unsigned int {
+  kGCCAsmStmt = 1,
+  kMSAsmStmt = 2,
+  kBreakStmt = 3,
+  kCXXCatchStmt = 4,
+  kCXXForRangeStmt = 5,
+  kCXXTryStmt = 6,
+  kCapturedStmt = 7,
+  kCompoundStmt = 8,
+  kContinueStmt = 9,
+  kCoreturnStmt = 10,
+  kCoroutineBodyStmt = 11,
+  kDeclStmt = 12,
+  kDoStmt = 13,
+  kForStmt = 14,
+  kGotoStmt = 15,
+  kIfStmt = 16,
+  kIndirectGotoStmt = 17,
+  kMSDependentExistsStmt = 18,
+  kNullStmt = 19,
+  kOMPAtomicDirective = 20,
+  kOMPBarrierDirective = 21,
+  kOMPCancelDirective = 22,
+  kOMPCancellationPointDirective = 23,
+  kOMPCriticalDirective = 24,
+  kOMPDepobjDirective = 25,
+  kOMPFlushDirective = 26,
+  kOMPDistributeDirective = 27,
+  kOMPDistributeParallelForDirective = 28,
+  kOMPDistributeParallelForSimdDirective = 29,
+  kOMPDistributeSimdDirective = 30,
+  kOMPForDirective = 31,
+  kOMPForSimdDirective = 32,
+  kOMPMasterTaskLoopDirective = 33,
+  kOMPMasterTaskLoopSimdDirective = 34,
+  kOMPParallelForDirective = 35,
+  kOMPParallelForSimdDirective = 36,
+  kOMPParallelMasterTaskLoopDirective = 37,
+  kOMPParallelMasterTaskLoopSimdDirective = 38,
+  kOMPSimdDirective = 39,
+  kOMPTargetParallelForSimdDirective = 40,
+  kOMPTargetSimdDirective = 41,
+  kOMPTargetTeamsDistributeDirective = 42,
+  kOMPTargetTeamsDistributeParallelForDirective = 43,
+  kOMPTargetTeamsDistributeParallelForSimdDirective = 44,
+  kOMPTargetTeamsDistributeSimdDirective = 45,
+  kOMPTaskLoopDirective = 46,
+  kOMPTaskLoopSimdDirective = 47,
+  kOMPTeamsDistributeDirective = 48,
+  kOMPTeamsDistributeParallelForDirective = 49,
+  kOMPTeamsDistributeParallelForSimdDirective = 50,
+  kOMPTeamsDistributeSimdDirective = 51,
+  kOMPMasterDirective = 52,
+  kOMPOrderedDirective = 53,
+  kOMPParallelDirective = 54,
+  kOMPParallelMasterDirective = 55,
+  kOMPParallelSectionsDirective = 56,
+  kOMPScanDirective = 57,
+  kOMPSectionDirective = 58,
+  kOMPSectionsDirective = 59,
+  kOMPSingleDirective = 60,
+  kOMPTargetDataDirective = 61,
+  kOMPTargetDirective = 62,
+  kOMPTargetEnterDataDirective = 63,
+  kOMPTargetExitDataDirective = 64,
+  kOMPTargetParallelDirective = 65,
+  kOMPTargetParallelForDirective = 66,
+  kOMPTargetTeamsDirective = 67,
+  kOMPTargetUpdateDirective = 68,
+  kOMPTaskDirective = 69,
+  kOMPTaskgroupDirective = 70,
+  kOMPTaskwaitDirective = 71,
+  kOMPTaskyieldDirective = 72,
+  kOMPTeamsDirective = 73,
+  kObjCAtCatchStmt = 74,
+  kObjCAtFinallyStmt = 75,
+  kObjCAtSynchronizedStmt = 76,
+  kObjCAtThrowStmt = 77,
+  kObjCAtTryStmt = 78,
+  kObjCAutoreleasePoolStmt = 79,
+  kObjCForCollectionStmt = 80,
+  kReturnStmt = 81,
+  kSEHExceptStmt = 82,
+  kSEHFinallyStmt = 83,
+  kSEHLeaveStmt = 84,
+  kSEHTryStmt = 85,
+  kCaseStmt = 86,
+  kDefaultStmt = 87,
+  kSwitchStmt = 88,
+  kAttributedStmt = 89,
+  kBinaryConditionalOperator = 90,
+  kConditionalOperator = 91,
+  kAddrLabelExpr = 92,
+  kArrayInitIndexExpr = 93,
+  kArrayInitLoopExpr = 94,
+  kArraySubscriptExpr = 95,
+  kArrayTypeTraitExpr = 96,
+  kAsTypeExpr = 97,
+  kAtomicExpr = 98,
+  kBinaryOperator = 99,
+  kCompoundAssignOperator = 100,
+  kBlockExpr = 101,
+  kCXXBindTemporaryExpr = 102,
+  kCXXBoolLiteralExpr = 103,
+  kCXXConstructExpr = 104,
+  kCXXTemporaryObjectExpr = 105,
+  kCXXDefaultArgExpr = 106,
+  kCXXDefaultInitExpr = 107,
+  kCXXDeleteExpr = 108,
+  kCXXDependentScopeMemberExpr = 109,
+  kCXXFoldExpr = 110,
+  kCXXInheritedCtorInitExpr = 111,
+  kCXXNewExpr = 112,
+  kCXXNoexceptExpr = 113,
+  kCXXNullPtrLiteralExpr = 114,
+  kCXXPseudoDestructorExpr = 115,
+  kCXXRewrittenBinaryOperator = 116,
+  kCXXScalarValueInitExpr = 117,
+  kCXXStdInitializerListExpr = 118,
+  kCXXThisExpr = 119,
+  kCXXThrowExpr = 120,
+  kCXXTypeidExpr = 121,
+  kCXXUnresolvedConstructExpr = 122,
+  kCXXUuidofExpr = 123,
+  kCallExpr = 124,
+  kCUDAKernelCallExpr = 125,
+  kCXXMemberCallExpr = 126,
+  kCXXOperatorCallExpr = 127,
+  kUserDefinedLiteral = 128,
+  kBuiltinBitCastExpr = 129,
+  kCStyleCastExpr = 130,
+  kCXXFunctionalCastExpr = 131,
+  kCXXAddrspaceCastExpr = 132,
+  kCXXConstCastExpr = 133,
+  kCXXDynamicCastExpr = 134,
+  kCXXReinterpretCastExpr = 135,
+  kCXXStaticCastExpr = 136,
+  kObjCBridgedCastExpr = 137,
+  kImplicitCastExpr = 138,
+  kCharacterLiteral = 139,
+  kChooseExpr = 140,
+  kCompoundLiteralExpr = 141,
+  kConceptSpecializationExpr = 142,
+  kConvertVectorExpr = 143,
+  kCoawaitExpr = 144,
+  kCoyieldExpr = 145,
+  kDeclRefExpr = 146,
+  kDependentCoawaitExpr = 147,
+  kDependentScopeDeclRefExpr = 148,
+  kDesignatedInitExpr = 149,
+  kDesignatedInitUpdateExpr = 150,
+  kExpressionTraitExpr = 151,
+  kExtVectorElementExpr = 152,
+  kFixedPointLiteral = 153,
+  kFloatingLiteral = 154,
+  kConstantExpr = 155,
+  kExprWithCleanups = 156,
+  kFunctionParmPackExpr = 157,
+  kGNUNullExpr = 158,
+  kGenericSelectionExpr = 159,
+  kImaginaryLiteral = 160,
+  kImplicitValueInitExpr = 161,
+  kInitListExpr = 162,
+  kIntegerLiteral = 163,
+  kLambdaExpr = 164,
+  kMSPropertyRefExpr = 165,
+  kMSPropertySubscriptExpr = 166,
+  kMaterializeTemporaryExpr = 167,
+  kMatrixSubscriptExpr = 168,
+  kMemberExpr = 169,
+  kNoInitExpr = 170,
+  kOMPArraySectionExpr = 171,
+  kOMPArrayShapingExpr = 172,
+  kOMPIteratorExpr = 173,
+  kObjCArrayLiteral = 174,
+  kObjCAvailabilityCheckExpr = 175,
+  kObjCBoolLiteralExpr = 176,
+  kObjCBoxedExpr = 177,
+  kObjCDictionaryLiteral = 178,
+  kObjCEncodeExpr = 179,
+  kObjCIndirectCopyRestoreExpr = 180,
+  kObjCIsaExpr = 181,
+  kObjCIvarRefExpr = 182,
+  kObjCMessageExpr = 183,
+  kObjCPropertyRefExpr = 184,
+  kObjCProtocolExpr = 185,
+  kObjCSelectorExpr = 186,
+  kObjCStringLiteral = 187,
+  kObjCSubscriptRefExpr = 188,
+  kOffsetOfExpr = 189,
+  kOpaqueValueExpr = 190,
+  kUnresolvedLookupExpr = 191,
+  kUnresolvedMemberExpr = 192,
+  kPackExpansionExpr = 193,
+  kParenExpr = 194,
+  kParenListExpr = 195,
+  kPredefinedExpr = 196,
+  kPseudoObjectExpr = 197,
+  kRecoveryExpr = 198,
+  kRequiresExpr = 199,
+  kShuffleVectorExpr = 200,
+  kSizeOfPackExpr = 201,
+  kSourceLocExpr = 202,
+  kStmtExpr = 203,
+  kStringLiteral = 204,
+  kSubstNonTypeTemplateParmExpr = 205,
+  kSubstNonTypeTemplateParmPackExpr = 206,
+  kTypeTraitExpr = 207,
+  kTypoExpr = 208,
+  kUnaryExprOrTypeTraitExpr = 209,
+  kUnaryOperator = 210,
+  kVAArgExpr = 211,
+  kLabelStmt = 212,
+  kWhileStmt = 213,
 };
 
 enum class StorageClass : unsigned int {
@@ -2907,7 +3074,7 @@ enum class TrivialAutoVarInitKind : int {
   kPattern = 2,
 };
 
-enum class TypeClass : unsigned int {
+enum class TypeKind : unsigned int {
   kAdjusted = 0,
   kDecayed = 1,
   kConstantArray = 2,
@@ -3271,7 +3438,222 @@ enum class IsModifiableLvalueResult : unsigned int {
   kArrayTemporary = 16,
 };
 
-#define PASTA_FOR_EACH_TYPE_CLASS(m) \
+#define PASTA_FOR_EACH_STMT_KIND(m) \
+    m(GCCAsmStmt) \
+    m(MSAsmStmt) \
+    m(BreakStmt) \
+    m(CXXCatchStmt) \
+    m(CXXForRangeStmt) \
+    m(CXXTryStmt) \
+    m(CapturedStmt) \
+    m(CompoundStmt) \
+    m(ContinueStmt) \
+    m(CoreturnStmt) \
+    m(CoroutineBodyStmt) \
+    m(DeclStmt) \
+    m(DoStmt) \
+    m(ForStmt) \
+    m(GotoStmt) \
+    m(IfStmt) \
+    m(IndirectGotoStmt) \
+    m(MSDependentExistsStmt) \
+    m(NullStmt) \
+    m(OMPAtomicDirective) \
+    m(OMPBarrierDirective) \
+    m(OMPCancelDirective) \
+    m(OMPCancellationPointDirective) \
+    m(OMPCriticalDirective) \
+    m(OMPDepobjDirective) \
+    m(OMPFlushDirective) \
+    m(OMPDistributeDirective) \
+    m(OMPDistributeParallelForDirective) \
+    m(OMPDistributeParallelForSimdDirective) \
+    m(OMPDistributeSimdDirective) \
+    m(OMPForDirective) \
+    m(OMPForSimdDirective) \
+    m(OMPMasterTaskLoopDirective) \
+    m(OMPMasterTaskLoopSimdDirective) \
+    m(OMPParallelForDirective) \
+    m(OMPParallelForSimdDirective) \
+    m(OMPParallelMasterTaskLoopDirective) \
+    m(OMPParallelMasterTaskLoopSimdDirective) \
+    m(OMPSimdDirective) \
+    m(OMPTargetParallelForSimdDirective) \
+    m(OMPTargetSimdDirective) \
+    m(OMPTargetTeamsDistributeDirective) \
+    m(OMPTargetTeamsDistributeParallelForDirective) \
+    m(OMPTargetTeamsDistributeParallelForSimdDirective) \
+    m(OMPTargetTeamsDistributeSimdDirective) \
+    m(OMPTaskLoopDirective) \
+    m(OMPTaskLoopSimdDirective) \
+    m(OMPTeamsDistributeDirective) \
+    m(OMPTeamsDistributeParallelForDirective) \
+    m(OMPTeamsDistributeParallelForSimdDirective) \
+    m(OMPTeamsDistributeSimdDirective) \
+    m(OMPMasterDirective) \
+    m(OMPOrderedDirective) \
+    m(OMPParallelDirective) \
+    m(OMPParallelMasterDirective) \
+    m(OMPParallelSectionsDirective) \
+    m(OMPScanDirective) \
+    m(OMPSectionDirective) \
+    m(OMPSectionsDirective) \
+    m(OMPSingleDirective) \
+    m(OMPTargetDataDirective) \
+    m(OMPTargetDirective) \
+    m(OMPTargetEnterDataDirective) \
+    m(OMPTargetExitDataDirective) \
+    m(OMPTargetParallelDirective) \
+    m(OMPTargetParallelForDirective) \
+    m(OMPTargetTeamsDirective) \
+    m(OMPTargetUpdateDirective) \
+    m(OMPTaskDirective) \
+    m(OMPTaskgroupDirective) \
+    m(OMPTaskwaitDirective) \
+    m(OMPTaskyieldDirective) \
+    m(OMPTeamsDirective) \
+    m(ObjCAtCatchStmt) \
+    m(ObjCAtFinallyStmt) \
+    m(ObjCAtSynchronizedStmt) \
+    m(ObjCAtThrowStmt) \
+    m(ObjCAtTryStmt) \
+    m(ObjCAutoreleasePoolStmt) \
+    m(ObjCForCollectionStmt) \
+    m(ReturnStmt) \
+    m(SEHExceptStmt) \
+    m(SEHFinallyStmt) \
+    m(SEHLeaveStmt) \
+    m(SEHTryStmt) \
+    m(CaseStmt) \
+    m(DefaultStmt) \
+    m(SwitchStmt) \
+    m(AttributedStmt) \
+    m(BinaryConditionalOperator) \
+    m(ConditionalOperator) \
+    m(AddrLabelExpr) \
+    m(ArrayInitIndexExpr) \
+    m(ArrayInitLoopExpr) \
+    m(ArraySubscriptExpr) \
+    m(ArrayTypeTraitExpr) \
+    m(AsTypeExpr) \
+    m(AtomicExpr) \
+    m(BinaryOperator) \
+    m(CompoundAssignOperator) \
+    m(BlockExpr) \
+    m(CXXBindTemporaryExpr) \
+    m(CXXBoolLiteralExpr) \
+    m(CXXConstructExpr) \
+    m(CXXTemporaryObjectExpr) \
+    m(CXXDefaultArgExpr) \
+    m(CXXDefaultInitExpr) \
+    m(CXXDeleteExpr) \
+    m(CXXDependentScopeMemberExpr) \
+    m(CXXFoldExpr) \
+    m(CXXInheritedCtorInitExpr) \
+    m(CXXNewExpr) \
+    m(CXXNoexceptExpr) \
+    m(CXXNullPtrLiteralExpr) \
+    m(CXXPseudoDestructorExpr) \
+    m(CXXRewrittenBinaryOperator) \
+    m(CXXScalarValueInitExpr) \
+    m(CXXStdInitializerListExpr) \
+    m(CXXThisExpr) \
+    m(CXXThrowExpr) \
+    m(CXXTypeidExpr) \
+    m(CXXUnresolvedConstructExpr) \
+    m(CXXUuidofExpr) \
+    m(CallExpr) \
+    m(CUDAKernelCallExpr) \
+    m(CXXMemberCallExpr) \
+    m(CXXOperatorCallExpr) \
+    m(UserDefinedLiteral) \
+    m(BuiltinBitCastExpr) \
+    m(CStyleCastExpr) \
+    m(CXXFunctionalCastExpr) \
+    m(CXXAddrspaceCastExpr) \
+    m(CXXConstCastExpr) \
+    m(CXXDynamicCastExpr) \
+    m(CXXReinterpretCastExpr) \
+    m(CXXStaticCastExpr) \
+    m(ObjCBridgedCastExpr) \
+    m(ImplicitCastExpr) \
+    m(CharacterLiteral) \
+    m(ChooseExpr) \
+    m(CompoundLiteralExpr) \
+    m(ConceptSpecializationExpr) \
+    m(ConvertVectorExpr) \
+    m(CoawaitExpr) \
+    m(CoyieldExpr) \
+    m(DeclRefExpr) \
+    m(DependentCoawaitExpr) \
+    m(DependentScopeDeclRefExpr) \
+    m(DesignatedInitExpr) \
+    m(DesignatedInitUpdateExpr) \
+    m(ExpressionTraitExpr) \
+    m(ExtVectorElementExpr) \
+    m(FixedPointLiteral) \
+    m(FloatingLiteral) \
+    m(ConstantExpr) \
+    m(ExprWithCleanups) \
+    m(FunctionParmPackExpr) \
+    m(GNUNullExpr) \
+    m(GenericSelectionExpr) \
+    m(ImaginaryLiteral) \
+    m(ImplicitValueInitExpr) \
+    m(InitListExpr) \
+    m(IntegerLiteral) \
+    m(LambdaExpr) \
+    m(MSPropertyRefExpr) \
+    m(MSPropertySubscriptExpr) \
+    m(MaterializeTemporaryExpr) \
+    m(MatrixSubscriptExpr) \
+    m(MemberExpr) \
+    m(NoInitExpr) \
+    m(OMPArraySectionExpr) \
+    m(OMPArrayShapingExpr) \
+    m(OMPIteratorExpr) \
+    m(ObjCArrayLiteral) \
+    m(ObjCAvailabilityCheckExpr) \
+    m(ObjCBoolLiteralExpr) \
+    m(ObjCBoxedExpr) \
+    m(ObjCDictionaryLiteral) \
+    m(ObjCEncodeExpr) \
+    m(ObjCIndirectCopyRestoreExpr) \
+    m(ObjCIsaExpr) \
+    m(ObjCIvarRefExpr) \
+    m(ObjCMessageExpr) \
+    m(ObjCPropertyRefExpr) \
+    m(ObjCProtocolExpr) \
+    m(ObjCSelectorExpr) \
+    m(ObjCStringLiteral) \
+    m(ObjCSubscriptRefExpr) \
+    m(OffsetOfExpr) \
+    m(OpaqueValueExpr) \
+    m(UnresolvedLookupExpr) \
+    m(UnresolvedMemberExpr) \
+    m(PackExpansionExpr) \
+    m(ParenExpr) \
+    m(ParenListExpr) \
+    m(PredefinedExpr) \
+    m(PseudoObjectExpr) \
+    m(RecoveryExpr) \
+    m(RequiresExpr) \
+    m(ShuffleVectorExpr) \
+    m(SizeOfPackExpr) \
+    m(SourceLocExpr) \
+    m(StmtExpr) \
+    m(StringLiteral) \
+    m(SubstNonTypeTemplateParmExpr) \
+    m(SubstNonTypeTemplateParmPackExpr) \
+    m(TypeTraitExpr) \
+    m(TypoExpr) \
+    m(UnaryExprOrTypeTraitExpr) \
+    m(UnaryOperator) \
+    m(VAArgExpr) \
+    m(LabelStmt) \
+    m(WhileStmt)
+
+#define PASTA_FOR_EACH_TYPE_KIND(m) \
     m(Adjusted) \
     m(Decayed) \
     m(ConstantArray) \

@@ -8,10 +8,10 @@ include("cmake/vcpkg_helper.cmake")
 project(pasta LANGUAGES C CXX)
 
 include("cmake/options.cmake")
-include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/settings.cmake")
-include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/utils.cmake")
-include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/ccache.cmake")
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules")
+include("${PROJECT_SOURCE_DIR}/cmake/settings.cmake")
+include("${PROJECT_SOURCE_DIR}/cmake/utils.cmake")
+include("${PROJECT_SOURCE_DIR}/cmake/ccache.cmake")
+list(PREPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules")
 
 # --------------------------------------------
 # build-time options -------------------------
@@ -98,6 +98,7 @@ endif(PASTA_PYTHON_BINDINGS)
 # Clang/LLVM dependencies --------------------
 # --------------------------------------------
 
+find_package(Z3 4.8 REQUIRED)
 find_package(LLVM CONFIG REQUIRED)
 find_package(Clang CONFIG REQUIRED)
 add_library(pasta_thirdparty_llvm INTERFACE)
@@ -109,6 +110,8 @@ list(REMOVE_DUPLICATES LLVM_LIBRARIES)
 list(APPEND LLVM_LIBRARIES LLVMCore LLVMSupport)
 
 target_link_libraries(pasta_thirdparty_llvm INTERFACE
+    ${Z3_LIBS}
+
     ${LLVM_LIBRARIES}
 
     clangSema
@@ -136,16 +139,6 @@ target_compile_definitions(pasta_thirdparty_llvm INTERFACE
     ${LLVM_DEFINITIONS}
     ${Clang_DEFINITIONS}
 )
-
-# LLVM uses `-lZ3` somewhere, so this is a good way to sneak it in.
-# NOTE: Recent versions of cxx-common vcpkg llvm dependencies fix this
-if(NOT Z3_FOUND)
-    find_package(Z3 CONFIG REQUIRED)
-    if (NOT TARGET Z3)
-        add_library(Z3 INTERFACE)
-    endif()
-    target_link_libraries(Z3 INTERFACE z3::libz3)
-endif()
 
 if(PASTA_ENABLE_INSTALL)
   export(PACKAGE "${PROJECT_NAME}")
@@ -210,7 +203,7 @@ else()
     set(PASTA_CXX_COMPILER_ID 0)  # Unknown.
 endif()
 
-set(HOST_H_IN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/lib/Compile/Host.h.in")
+set(HOST_H_IN_FILE "${PROJECT_SOURCE_DIR}/lib/Compile/Host.h.in")
 set(HOST_H_FILE "${CMAKE_CURRENT_BINARY_DIR}/lib/Compile/Host.h")
 
 get_compiler_paths(
@@ -273,9 +266,11 @@ target_link_libraries(pasta_util PUBLIC
 set(ast_HEADERS
     "include/pasta/AST/AST.h"
     "include/pasta/AST/Decl.h"
-    "include/pasta/AST/DeclBootstrap.h"
+    "include/pasta/AST/DeclManual.h"
     "include/pasta/AST/Forward.h"
     "include/pasta/AST/Printer.h"
+    "include/pasta/AST/Stmt.h"
+    "include/pasta/AST/StmtManual.h"
     "include/pasta/AST/Token.h"
     "include/pasta/Compile/Command.h"
     "include/pasta/Compile/Compiler.h"
@@ -289,7 +284,7 @@ add_library(pasta_compiler STATIC
     "lib/AST/Builder.cpp"
     "lib/AST/Builder.h"
     "lib/AST/Decl.cpp"
-    "lib/AST/DeclBootstrap.cpp"
+    "lib/AST/Stmt.cpp"
     "lib/AST/Token.cpp"
     "lib/AST/Token.h"
     "lib/AST/Type.cpp"
@@ -333,9 +328,44 @@ target_link_libraries("pasta" INTERFACE
     pasta_cxx_settings
     pasta_thirdparty_llvm
     pasta_util
-    pasta_compiler)
+    pasta_compiler
+)
 
-if(PASTA_PYTHON_BINDINGS)
+if(PASTA_BOOTSTRAP_MACROS OR PASTA_BOOTSTRAP_TYPES)
+
+    # --------------------------------------------
+    # Add bootstrap library ----------------------
+    # --------------------------------------------
+
+    add_library(pasta_bootstrap STATIC
+        "include/pasta/AST/DeclBootstrap.h"
+        "include/pasta/AST/StmtBootstrap.h"
+        "include/pasta/AST/TypeBootstrap.h"
+        
+        "lib/AST/DeclBootstrap.cpp"
+        "lib/AST/StmtBootstrap.cpp"
+        "lib/AST/TypeBootstrap.cpp"
+    )
+    
+    target_include_directories(pasta_bootstrap PRIVATE
+        "${CMAKE_CURRENT_BINARY_DIR}/lib/Compile"
+    )
+    
+    target_link_libraries(pasta_bootstrap PRIVATE
+        pasta_cxx_settings
+        pasta_thirdparty_llvm
+        pasta_util
+    )
+    target_link_libraries("pasta" INTERFACE
+        pasta_bootstrap
+    )
+
+elseif(PASTA_PYTHON_BINDINGS)
+
+    # --------------------------------------------
+    # Add Python bindings libraries --------------
+    # --------------------------------------------
+
     add_library(pasta_python_bindings STATIC
         "include/pasta/Python/Bindings.h"
     
@@ -359,80 +389,15 @@ if(PASTA_PYTHON_BINDINGS)
         pasta_thirdparty_python
         pasta_util
     )
-endif(PASTA_PYTHON_BINDINGS)
-
-# ---------------------------------------------------
-# Configure bootstrap header files with source paths.
-# ---------------------------------------------------
-
-if(PASTA_BOOTSTRAP_MACROS OR PASTA_BOOTSTRAP_TYPES)
-    
-    set(PASTA_INCLUDE_SOURCE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/include")
-    set(PASTA_BINARY_PATH "${CMAKE_CURRENT_BINARY_DIR}")
-    set(PASTA_VCPKG_INCLUDE_PATH "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/include")
-    set(PASTA_BIN_BOOTSTRAP_MACROS_MACRO_GENERATOR_CPP_PATH "${CMAKE_CURRENT_SOURCE_DIR}/bin/BootstrapMacros/MacroGenerator.cpp")
-    set(PASTA_BIN_BOOTSTRAP_TYPES_GENERATED_H_PATH "${CMAKE_CURRENT_SOURCE_DIR}/bin/BootstrapTypes/Generated.h")
-    set(PASTA_INCLUDE_AST_FORWARD_H_PATH "${CMAKE_CURRENT_SOURCE_DIR}/include/pasta/AST/Forward.h")
-    set(PASTA_INCLUDE_AST_DECL_H_PATH "${CMAKE_CURRENT_SOURCE_DIR}/include/pasta/AST/Decl.h")
-    set(PASTA_SRC_AST_DECL_CPP_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/AST/Decl.cpp")
-    set(PASTA_INCLUDE_AST_TYPE_H_PATH "${CMAKE_CURRENT_SOURCE_DIR}/include/pasta/AST/Type.h")
-    set(PASTA_SRC_AST_TYPE_CPP_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/AST/Type.cpp")
-    set(PASTA_INCLUDE_AST_STMT_H_PATH "${CMAKE_CURRENT_SOURCE_DIR}/include/pasta/AST/Stmt.h")
-    set(PASTA_SRC_AST_STMT_CPP_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/AST/Stmt.cpp")
-    
-    set(BOOTSTRAP_CONFIG_H_IN "${CMAKE_CURRENT_SOURCE_DIR}/BootstrapConfig.h.in")
-    set(BOOTSTRAP_CONFIG_H "${CMAKE_CURRENT_BINARY_DIR}/BootstrapConfig.h")
-    configure_file("${BOOTSTRAP_CONFIG_H_IN}" "${BOOTSTRAP_CONFIG_H}" @ONLY)
     
     # --------------------------------------------
-    # Bootstrap build targets --------------------
+    # Configure setup.py.in and __init__.py.in ---
     # --------------------------------------------
     
-    add_library(pasta_bootstrap_config INTERFACE)
-    add_dependencies(pasta_bootstrap_config "${BOOTSTRAP_CONFIG_H}")
-    target_include_directories(pasta_bootstrap_config INTERFACE
-        "${CMAKE_CURRENT_BINARY_DIR}"
-    )
-
-endif()
-
-if(PASTA_ENABLE_INSTALL)
-  install(
-    DIRECTORY
-      "include/pasta"
-    DESTINATION
-      "include")
-  
-  
-  install(
-    TARGETS
-      "pasta" "pasta_compiler" "pasta_util"
-      "pasta_thirdparty_llvm" "pasta_cxx_settings"
-    EXPORT
-      "${PROJECT_NAME}Targets"
-    RUNTIME
-      DESTINATION
-        "bin"
-    LIBRARY
-      DESTINATION
-        "lib"
-    ARCHIVE
-      DESTINATION
-        "lib"
-  )
-endif(PASTA_ENABLE_INSTALL)
-
-
-# --------------------------------------------
-# Configure setup.py.in and __init__.py.in ---
-# --------------------------------------------
-
-if(PASTA_PYTHON_BINDINGS)
-    
-    set(SETUP_PY_IN "${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in")
+    set(SETUP_PY_IN "${PROJECT_SOURCE_DIR}/setup.py.in")
     set(SETUP_PY "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
     
-    set(INIT_PY_IN "${CMAKE_CURRENT_SOURCE_DIR}/__init__.py.in")
+    set(INIT_PY_IN "${PROJECT_SOURCE_DIR}/__init__.py.in")
     set(INIT_PY "${CMAKE_CURRENT_BINARY_DIR}/pasta/__init__.py")
     
     set(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/timestamp")
@@ -478,7 +443,68 @@ if(PASTA_PYTHON_BINDINGS)
     if(PASTA_ENABLE_INSTALL)
         install(CODE "execute_process(COMMAND \"${PYTHON_EXECUTABLE}\" \"${SETUP_PY}\" install --force)")
     endif(PASTA_ENABLE_INSTALL)
-endif(PASTA_PYTHON_BINDINGS)
+
+endif()
+
+# ---------------------------------------------------
+# Configure bootstrap header files with source paths.
+# ---------------------------------------------------
+
+if(PASTA_BOOTSTRAP_MACROS OR PASTA_BOOTSTRAP_TYPES)
+    
+    set(PASTA_INCLUDE_SOURCE_PATH "${PROJECT_SOURCE_DIR}/include")
+    set(PASTA_BINARY_PATH "${CMAKE_CURRENT_BINARY_DIR}")
+    set(PASTA_VCPKG_INCLUDE_PATH "${VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}/include")
+    set(PASTA_BIN_BOOTSTRAP_MACROS_MACRO_GENERATOR_CPP_PATH "${PROJECT_SOURCE_DIR}/bin/BootstrapMacros/MacroGenerator.cpp")
+    set(PASTA_BIN_BOOTSTRAP_TYPES_GENERATED_H_PATH "${PROJECT_SOURCE_DIR}/bin/BootstrapTypes/Generated.h")
+    set(PASTA_INCLUDE_AST_FORWARD_H_PATH "${PROJECT_SOURCE_DIR}/include/pasta/AST/Forward.h")
+    set(PASTA_INCLUDE_AST_DECL_H_PATH "${PROJECT_SOURCE_DIR}/include/pasta/AST/Decl.h")
+    set(PASTA_SRC_AST_DECL_CPP_PATH "${PROJECT_SOURCE_DIR}/lib/AST/Decl.cpp")
+    set(PASTA_INCLUDE_AST_TYPE_H_PATH "${PROJECT_SOURCE_DIR}/include/pasta/AST/Type.h")
+    set(PASTA_SRC_AST_TYPE_CPP_PATH "${PROJECT_SOURCE_DIR}/lib/AST/Type.cpp")
+    set(PASTA_INCLUDE_AST_STMT_H_PATH "${PROJECT_SOURCE_DIR}/include/pasta/AST/Stmt.h")
+    set(PASTA_SRC_AST_STMT_CPP_PATH "${PROJECT_SOURCE_DIR}/lib/AST/Stmt.cpp")
+    
+    set(BOOTSTRAP_CONFIG_H_IN "${PROJECT_SOURCE_DIR}/BootstrapConfig.h.in")
+    set(BOOTSTRAP_CONFIG_H "${CMAKE_CURRENT_BINARY_DIR}/BootstrapConfig.h")
+    configure_file("${BOOTSTRAP_CONFIG_H_IN}" "${BOOTSTRAP_CONFIG_H}" @ONLY)
+    
+    # --------------------------------------------
+    # Bootstrap build targets --------------------
+    # --------------------------------------------
+    
+    add_library(pasta_bootstrap_config INTERFACE)
+    add_dependencies(pasta_bootstrap_config "${BOOTSTRAP_CONFIG_H}")
+    target_include_directories(pasta_bootstrap_config INTERFACE
+        "${CMAKE_CURRENT_BINARY_DIR}"
+    )
+
+elseif(PASTA_ENABLE_INSTALL)
+
+  install(
+    DIRECTORY
+      "include/pasta"
+    DESTINATION
+      "include")
+  
+  
+  install(
+    TARGETS
+      "pasta" "pasta_compiler" "pasta_util"
+      "pasta_thirdparty_llvm" "pasta_cxx_settings"
+    EXPORT
+      "${PROJECT_NAME}Targets"
+    RUNTIME
+      DESTINATION
+        "bin"
+    LIBRARY
+      DESTINATION
+        "lib"
+    ARCHIVE
+      DESTINATION
+        "lib"
+  )
+endif()
 
 add_subdirectory(bin)
 

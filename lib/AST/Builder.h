@@ -10,13 +10,23 @@
 
 namespace pasta {
 
-enum class TypeClass : unsigned int;
+enum class DeclKind : unsigned int;
+enum class StmtKind : unsigned int;
+enum class TypeKind : unsigned int;
 
 class DeclBuilder {
  public:
   template <typename T, typename D>
   inline static T Create(std::shared_ptr<ASTImpl> ast_, const D *decl_) {
     return T(std::move(ast_), decl_);
+  }
+};
+
+class StmtBuilder {
+ public:
+  template <typename T, typename S>
+  inline static T Create(std::shared_ptr<ASTImpl> ast_, const S *stmt_) {
+    return T(std::move(ast_), stmt_);
   }
 };
 
@@ -29,7 +39,7 @@ class TypeBuilder {
   template <typename T, typename D>
   inline static T Create(std::shared_ptr<ASTImpl> ast_, const D *type_) {
     return T(std::move(ast_), type_,
-             static_cast<TypeClass>(type_->getTypeClass()), 0);
+             static_cast<TypeKind>(type_->getTypeClass()), 0);
   }
 
 #ifndef PASTA_IN_BOOTSTRAP

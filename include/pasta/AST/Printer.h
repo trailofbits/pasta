@@ -22,11 +22,12 @@
 namespace clang {
 class ASTContext;
 class Decl;
+class PrintingPolicy;
+class QualType;
 class Stmt;
 class TemplateArgument;
 class TemplateParameterList;
 class Type;
-class PrintingPolicy;
 
 #define PASTA_FORWARD_DECLARE_CLASS(cls) class cls;
 PASTA_FOR_EACH_PRINTED_TOKEN_KIND(PASTA_FORWARD_DECLARE_CLASS)
@@ -41,6 +42,7 @@ namespace pasta {
 class AST;
 class ASTImpl;
 class Decl;
+class Stmt;
 class Type;
 
 class PrintedTokenIterator;
@@ -221,12 +223,19 @@ class PrintedTokenRange {
   static PrintedTokenRange Create(clang::ASTContext &context_,
                                   const clang::PrintingPolicy &policy_,
                                   clang::Stmt *stmt_);
+
   static PrintedTokenRange Create(clang::ASTContext &context_,
                                   const clang::PrintingPolicy &policy_,
                                   clang::Decl *decl_);
 
+  static PrintedTokenRange Create(clang::ASTContext &context_,
+                                  const clang::PrintingPolicy &policy_,
+                                  const clang::QualType &type);
+
   // More typical APIs when we've got PASTA ASTs.
   static PrintedTokenRange Create(const Decl &decl_);
+  static PrintedTokenRange Create(const Stmt &stmt_);
+  static PrintedTokenRange Create(const Type &type_);
 
   inline PrintedTokenIterator begin(void) const noexcept {
     return PrintedTokenIterator(impl, first);

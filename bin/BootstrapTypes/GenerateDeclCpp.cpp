@@ -44,6 +44,7 @@ void GenerateDeclCpp(void) {
       << "using OMPDeclarativeDirectiveValueDecl = OMPDeclarativeDirective<ValueDecl>;\n"
       << "}  // namespace clang\n\n"
       << "#include <pasta/AST/Decl.h>\n"
+      << "#include <pasta/AST/Stmt.h>\n"
       << "#include <pasta/AST/Type.h>\n"
       << "#include \"AST.h\"\n"
       << "#include \"Builder.h\"\n\n"
@@ -102,7 +103,7 @@ void GenerateDeclCpp(void) {
       << "    case DeclKind::k ## name: \\\n"
       << "      Visit ## name ## Decl(reinterpret_cast<const name ## Decl &>(decl)); \\\n"
       << "      break;\n\n"
-      << "    PASTA_FOR_EACH_DECL_IMPL(PASTA_VISIT_DECL)\n"
+      << "    PASTA_FOR_EACH_DECL_IMPL(PASTA_VISIT_DECL, PASTA_IGNORE_ABSTRACT)\n"
       << "#undef PASTA_VISIT_DECL\n"
       << "  }\n"
       << "}\n\n";

@@ -30,7 +30,18 @@ extern const std::vector<llvm::StringRef> kAllClassNames;
 extern const std::vector<ClassExtends> kExtends;
 
 extern std::vector<std::string> gDeclNames;
+extern std::vector<std::string> gStmtNames;
 extern std::vector<std::string> gTypeNames;
+
+struct IteratorSpec {
+  std::string getter_method;
+  std::string counter_method;
+  std::string cxx_method;
+  std::string elem_type;
+};
+
+// Maps class names to counter/nth getter methods.
+extern std::unordered_map<std::string, std::vector<IteratorSpec>> gIterators;
 
 extern const std::unordered_map<std::string, std::string> kCxxMethodRenames;
 
@@ -56,6 +67,7 @@ extern std::unordered_map<std::string, uint32_t> gClassIDs;
 extern std::unordered_map<std::string, std::set<std::string>> gBaseClasses;
 extern std::unordered_map<std::string, std::set<std::string>> gDerivedClasses;
 extern std::vector<std::string> gTopologicallyOrderedDecls;
+extern std::vector<std::string> gTopologicallyOrderedStmts;
 extern std::vector<std::string> gTopologicallyOrderedTypes;
 
 extern std::unordered_map<std::string, std::set<std::string>> gTransitiveBaseClasses;

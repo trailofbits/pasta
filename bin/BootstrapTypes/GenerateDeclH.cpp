@@ -36,7 +36,6 @@ void GenerateDeclH(void) {
       << "    friend class ASTImpl; \\\n"
       << "    friend class DeclBuilder; \\\n"
       << "    friend class DeclVisitor; \\\n"
-      << "    friend class DeclPrinter; \\\n"
       << "    friend class PrintedTokenRange; \\\n"
       << "    base(void) = delete; \\\n"
       << "    explicit base( \\\n"
@@ -77,6 +76,9 @@ void GenerateDeclH(void) {
      << "  friend class Decl;\n"
      << "  friend class DeclVisitor;\n"
      << "  friend class UsingDirectiveDecl;\n"
+     << "  friend class SourceLocExpr;\n"
+     << "  friend class CXXDefaultArgExpr;\n"
+     << "  friend class CXXDefaultInitExpr;\n"
      << "  std::shared_ptr<ASTImpl> ast;\n"
      << "  union {\n"
      << "    void *opaque;\n"
@@ -195,10 +197,6 @@ void GenerateDeclH(void) {
     // will let us do fun sketchy things.
     if (name != "Decl" && name_ref.endswith("Decl")) {
       os << "static_assert(sizeof(Decl) == sizeof(" << name << "));\n\n";
-
-    // Require all `Type` derivations to have the same size as `Type`.
-    } else if (name != "Type" && name_ref.endswith("Type")) {
-      os << "static_assert(sizeof(Type) == sizeof(" << name << "));\n\n";
     }
   }
 

@@ -10,51 +10,54 @@
 #include <string_view>
 
 namespace clang {
-class Decl;
+class Stmt;
 }  // namespace clang
 namespace pasta {
 
 class AST;
 class ASTImpl;
-enum class DeclKind : unsigned;
+enum class StmtKind : unsigned;
 
-class Decl {
+class Stmt {
  public:
   std::shared_ptr<ASTImpl> ast;
   union {
-    const clang::Decl *Decl;
+    const clang::Stmt *Stmt;
     const void *opaque;
   } u;
-  DeclKind kind;
+  StmtKind kind;
 
-  inline explicit Decl(std::shared_ptr<ASTImpl> ast_,
-                       const ::clang::Decl *decl_,
-                       DeclKind kind_)
+  inline explicit Stmt(std::shared_ptr<ASTImpl> ast_,
+                       const ::clang::Stmt *decl_,
+                       StmtKind kind_)
       : ast(std::move(ast_)),
         kind(kind_) {
     u.opaque = decl_;
   }
 
-  inline DeclKind Kind(void) const noexcept {
+  inline StmtKind Kind(void) const noexcept {
     return kind;
   }
 
   std::string_view KindName(void) const noexcept;
 
  private:
-  Decl(void) = delete;
+  Stmt(void) = delete;
 
   friend class DeclBuilder;
   friend class AST;
   friend class ASTImpl;
 
  protected:
-  explicit Decl(
+  explicit Stmt(
       std::shared_ptr<ASTImpl> ast_,
-      const ::clang::Decl *decl_);
+      const ::clang::Stmt *decl_);
 };
 
-using TranslationUnitDecl = Decl;
+class Expr : public Stmt {
+ public:
+  using Stmt::Stmt;
+};
 
 }  // namespace pasta
 

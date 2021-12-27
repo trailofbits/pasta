@@ -11,6 +11,7 @@
 
 #include "Decl.h"
 #include "Token.h"
+#include "Stmt.h"
 #include "Type.h"
 
 #include <pasta/Util/File.h>

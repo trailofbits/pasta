@@ -10,13 +10,40 @@ std::string Capitalize(llvm::StringRef name) {
 }
 
 std::string CxxName(llvm::StringRef name) {
-  if (name == "getKind" || name == "getDeclKindName" || name == "asOpaquePtr" ||
-      name == "getTypePtr" || name == "getTypePtrOrNull" ||
-      name == "getAsOpaquePtr" || name == "getUnqualifiedType") {
+  if (name == "getKind" || name == "getDeclKindName") {
     return "";  // We have our own `DeclKind`.
+
+  // Disable these.
+  } else if (name == "asOpaquePtr" ||
+             name == "getTypePtr" ||
+             name == "getTypePtrOrNull" ||
+             name == "getAsOpaquePtr" ||
+             name == "getUnqualifiedType") {
+    return "";
+
+  } else if (name == "getTypeClass") {
+    return "Kind";
+
+  } else if (name == "getTypeClassName") {
+    return "KindName";
+
+  } else if (name == "getStmtClass") {
+    return "Kind";
+
+  } else if (name == "getStmtClassName") {
+    return "KindName";
+
+  } else if (name == "getCapturedStmt") {
+    return "FindCapturedStmt";
 
   } else if (name == "getFriendDecl") {
     return "FindFriendDecl";
+
+  } else if (name == "getRawStmt") {
+    return "FindRawStmt";
+
+  } else if (name == "getExpr") {
+    return "FindExpr";
 
   } else if (name == "getAdjustedType" ||
              name == "getDeducedType" ||
@@ -35,7 +62,9 @@ std::string CxxName(llvm::StringRef name) {
   // Begin/end iterators.
   } else if (name.endswith("_begin") || name.endswith("_end") ||
              name.endswith("_size") || name.endswith("_empty") ||
-             name.endswith("_rbegin") || name.endswith("_rend")) {
+             name.endswith("_rbegin") || name.endswith("_rend") ||
+             name.startswith("begin_") || name.startswith("end_") ||
+             name.startswith("rbegin_") || name.startswith("rend_")) {
     return "";
 
   // Setters, ignore them.

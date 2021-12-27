@@ -4,5 +4,15 @@ include(CMakeFindDependencyMacro)
 list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
 find_dependency(Filesystem)
 
+find_dependency(Z3)
+find_dependency(LLVM)
+find_dependency(Clang)
+
+set(PASTA_PYTHON_BINDINGS @PASTA_PYTHON_BINDINGS@)
+if(PASTA_PYTHON_BINDINGS)
+  find_dependency(PythonInterp)
+  find_dependency(PythonLibs)
+endif(PASTA_PYTHON_BINDINGS)
+
 include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake")
 check_required_components("@PROJECT_NAME@")

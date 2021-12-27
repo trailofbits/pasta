@@ -82,8 +82,8 @@ class DeclPrinter : public clang::DeclVisitor<DeclPrinter> {
   unsigned Indentation;
   bool PrintInstantiation;
 
-  raw_string_ostream& Indent() { return Indent(Indentation); }
-  raw_string_ostream& Indent(unsigned Indentation);
+  raw_string_ostream& Indent() { return Indent(static_cast<int>(Indentation)); }
+  raw_string_ostream& Indent(int Indentation);
   void ProcessDeclGroup(clang::SmallVectorImpl<clang::Decl*>& Decls);
   void Print(clang::AccessSpecifier AS);
   void PrintConstructorInitializers(clang::CXXConstructorDecl *CDecl,
@@ -268,7 +268,8 @@ class StmtPrinter : public clang::StmtVisitor<StmtPrinter> {
     }
 
     pasta::raw_string_ostream &Indent(int Delta = 0) {
-      for (unsigned i = 0, e = IndentLevel+Delta; i < e; ++i)
+      auto level = static_cast<int>(IndentLevel) + Delta;
+      for (int i = 0, e = level; i < e; ++i)
         OS << "  ";
       return OS;
     }
@@ -297,7 +298,7 @@ class StmtPrinter : public clang::StmtVisitor<StmtPrinter> {
   PrintedTokenRangeImpl &tokens;
 };
 
-void Decl_printGroup(clang::Decl** Begin, unsigned NumDecls,
+void Decl_printGroup(clang::Decl** Begin, size_t NumDecls,
                      raw_string_ostream &Out, const clang::PrintingPolicy &Policy,
                      unsigned Indentation, PrintedTokenRangeImpl &tokens);
 

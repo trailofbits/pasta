@@ -48,7 +48,8 @@ std::shared_ptr<const PrintedTokenContext> PrintedToken::RawContext(void) const 
 // Return the data associated with this token.
 std::string_view PrintedToken::Data(void) const {
   if (impl) {
-    return impl->data;
+    auto data_offset = static_cast<uint32_t>(impl->data_offset);
+    return std::string_view(range->data).substr(data_offset, impl->data_len);
   } else {
     return {};
   }
@@ -240,15 +241,20 @@ void TokenPrinterContext::Tokenize(void) {
       num_sp = 0u;
     }
 
-    std::string token_value;
-    token_value.reserve(tok.getLength());
+    const auto data_offset = static_cast<uint32_t>(tokens.data.size());
+    assert(0ll < static_cast<int32_t>(data_offset));
+    uint32_t data_len = 0u;
+    tokens.data.reserve(data_offset + tok.getLength());
     for (last_i = i, i += tok.getLength(); last_i < i; ++last_i) {
-      token_value.push_back(token_data[last_i]);
+      tokens.data.push_back(token_data[last_i]);
+      ++data_len;
+      assert(static_cast<uint16_t>(data_len) != 0u);
     }
 
     // Add the token in.
     tokens.tokens.emplace_back(
-        std::move(token_value), context, num_nl, num_sp, tok.getKind());
+        static_cast<int32_t>(data_offset), static_cast<uint16_t>(data_len),
+        context, num_nl, num_sp, tok.getKind());
 
     if (at_end) {
       break;
@@ -273,7 +279,7 @@ void TokenPrinterContext::Tokenize(void) {
 void TokenPrinterContext::MarkLocation(clang::SourceLocation &loc) {
   Tokenize();
   if (!tokens.tokens.empty()) {
-    tokens.tokens.back().parsed_location = loc;
+    tokens.tokens.back().opaque_source_loc = loc.getRawEncoding();
   }
 }
 

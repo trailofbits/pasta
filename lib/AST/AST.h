@@ -21,6 +21,7 @@
 
 #include <pasta/Util/FileManager.h>
 #include <pasta/Util/File.h>
+#include <pasta/Util/Result.h>
 
 #include "Token.h"
 
@@ -102,6 +103,9 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // Append a token to the end of the AST. `offset` is the offset in
   // `backup_token_data`, and `len` is the length in bytes of the token itself.
   void AppendBackupToken(const clang::Token &tok, size_t offset, size_t len);
+
+  // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
+  static Result<AST, std::string> AlignTokens(std::shared_ptr<ASTImpl> ast);
 
  private:
   ASTImpl(void) = delete;

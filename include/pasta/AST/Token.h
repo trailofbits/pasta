@@ -56,7 +56,7 @@ class Token {
   friend class TokenIterator;
   friend class TokenPrinterContext;
   friend class TokenRange;
-  friend class Token
+  friend class Token;
 
   Token(void) = delete;
 

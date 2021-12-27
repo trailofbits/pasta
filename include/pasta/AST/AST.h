@@ -70,6 +70,7 @@ class AST {
   const std::vector<::pasta::File> &ParsedFiles(void) const;
 
  private:
+  friend class ASTImpl;
   friend class Compiler;
   friend class CompileJob;
   friend class DeclBase;

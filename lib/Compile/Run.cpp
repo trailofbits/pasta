@@ -644,8 +644,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
   ast->fm = std::move(fm);
   ast->tu = ast_context.getTranslationUnitDecl();
   ast->printing_policy.reset(new clang::PrintingPolicy(*lang_opts));
-
-  return AST(std::move(ast));
+  return ASTImpl::AlignTokens(std::move(ast));
 }
 
 }  // namespace pasta

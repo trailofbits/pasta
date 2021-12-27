@@ -26,7 +26,7 @@ namespace pasta {
 class ASTImpl;
 class raw_string_ostream;
 
-class PrintedTokenImpl {
+class PrintedTokenImpl : public TokenImpl {
  public:
   // Data of this token.
   const std::string data;
@@ -34,26 +34,21 @@ class PrintedTokenImpl {
   // The context inherited from the token printer.
   const PrintedTokenContext * const context;
 
-  // If there is a specific parsed token associated with this token, then
-  // we record its location here.
-  clang::SourceLocation parsed_location;
-
   uint16_t num_leading_new_lines;
   uint16_t num_leading_spaces;
 
   // Kind of this token.
-  clang::tok::TokenKind kind;
+//  clang::tok::TokenKind kind;
 
-  inline PrintedTokenImpl(std::string data_,
+  inline PrintedTokenImpl(int32_t data_offset_, uint16_t data_len_,
                           const PrintedTokenContext *context_,
                           unsigned num_leading_new_lines_,
                           unsigned num_leading_spaces_,
                           clang::tok::TokenKind kind_)
-      : data(std::move(data_)),
+      : TokenImpl(0u  /* source loc */, data_offset_, data_len_, kind_),
         context(context_),
         num_leading_new_lines(static_cast<uint16_t>(num_leading_new_lines_)),
-        num_leading_spaces(static_cast<uint16_t>(num_leading_spaces_)),
-        kind(kind_) {}
+        num_leading_spaces(static_cast<uint16_t>(num_leading_spaces_)) {}
 };
 
 // The range of data contained in a token.
@@ -63,6 +58,7 @@ class PrintedTokenRangeImpl {
   clang::ASTContext &ast_context;
   std::shared_ptr<ASTImpl> ast;
   std::vector<PrintedTokenImpl> tokens;
+  std::string data;
   std::vector<std::unique_ptr<PrintedTokenContext>> contexts;
   std::vector<PrintedTokenContext *> context_stack;
   std::vector<TokenPrinterContext *> tokenizer_stack;

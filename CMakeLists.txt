@@ -279,7 +279,8 @@ set(ast_HEADERS
 
 add_library(pasta_compiler STATIC
     ${ast_HEADERS}
-
+    
+    "lib/AST/AlignTokens.cpp"
     "lib/AST/AST.cpp"
     "lib/AST/Builder.cpp"
     "lib/AST/Builder.h"

@@ -37,56 +37,77 @@ const std::set<std::pair<std::string, std::string>> gMethodNames{
 };
 
 const std::unordered_map<std::string, std::string> kCxxMethodRenames{
+
+  // Things to disable.
+  {"asOpaquePtr", ""},
+
+  // These are all getters that we want to disable, normally with `get` prefix.
+  {"TypePtr", ""},
+  {"TypePtrOrNull", ""},
+  {"AsOpaquePtr", ""},
+  {"UnqualifiedType", ""},
+
+  // These are all getters, normally with `get` prefix.
+  {"TypeClass", "Kind"},
+  {"TypeClassName", "KindName"},
+  {"StmtClass", "Kind"},
+  {"StmtClassName", "KindName"},
+
+  // Things to fixup.
+  {"AdjustedType", "ResolvedType"},
+  {"DeducedType", "ResolvedType"},
+  {"DecayedType", "ResolvedType"},
+
+  // Things to rename, most of these are singular and `CxxName` manages the
+  // plural forms.
+  {"SourceLocation", "Token"},
   {"SourceRange", "TokenRange"},
-  {"Vbases", "VBases"},
-  {"vbases", "VirtualBases"},
-  {"NumVbases", "NumVBases"},
-  {"Ctors", "Constructors"},
-  {"ctors", "Constructors"},
-  {"Dtors", "Destructors"},
-  {"dtors", "Destructors"},
+  {"Vbase", "VirtualBase"},
+  {"VBase", "VirtualBase"},
+  {"Ctor", "Constructor"},
+  {"Dtor", "Destructor"},
+  {"Stmt", "Statement"},
+  {"Cond", "Condition"},
+  {"Expr", "Expression"},
+  {"Assoc", "Association"},
+  {"Init", "Initializer"},
+  {"Idx", "Index"},
   {"Location", "Token"},
   {"clauselists", "Clauses"},  // `clang::OMPRequiresDecl::clauselists`
-  {"inits", "Initializers"},
-  {"Inits", "Initializers"},
-  {"ivars", "InstanceVariables"},
-  {"Ivars", "InstanceVariables"},
-  {"HasAttrs", "HasAttributes"},
-  {"hasAttrs", "HasAttributes"},
-  {"Redecls", "Redeclarations"},
-  {"redecls", "Redeclarations"},
-  {"class_methods", "ClassMethods"},
-  {"Class_methods", "ClassMethods"},
-  {"class_properties", "ClassProperties"},
-  {"Class_properties", "ClassProperties"},
-  {"instance_methods", "InstanceMethods"},
-  {"Instance_methods", "InstanceMethods"},
-  {"instance_properties", "InstanceProperties"},
-  {"Instance_properties", "InstanceProperties"},
-  {"property_impls", "PropertyImplementations"},
-  {"Property_impls", "PropertyImplementations"},
-  {"decls", "Declarations"},
-  {"Decls", "Declarations"},
-  {"attrs", "Attributes"},
-  {"Attrs", "Attributes"},
-  {"hasAttr", "HasAttribute"},
-  {"HasAttr", "HasAttribute"},
-  {"attrKind", "AttributeKind"},
-  {"AttrKind", "AttributeKind"},
-  {"noload_decls", "AlreadyLoadedDecls"},
-  {"Noload_decls", "AlreadyLoadedDecls"},
-  {"all_referenced_protocols", "AllReferencedProtocols"},
-  {"All_referenced_protocols", "AllReferencedProtocols"},
-  {"protocol_locs", "ProtocolLocations"},
-  {"Protocol_locs", "ProtocolLocations"},
-  {"known_categories", "KnownCategories"},
-  {"Known_categories", "KnownCategories"},
-  {"known_extensions", "KnownExtensions"},
-  {"Known_extensions", "KnownExtensions"},
-  {"visible_categories", "VisibleCategories"},
-  {"Visible_categories", "VisibleCategories"},
-  {"visible_extensions", "VisibleExtensions"},
-  {"Visible_extensions", "VisibleExtensions"},
+  {"Ivar", "InstanceVariable"},
+  {"Arg", "Argument"},
+  {"Attr", "Attribute"},
+  {"Redecl", "Redeclaration"},
+  {"Impl", "Implementation"},
+  {"Decl", "Declaration"},
+  {"Def", "Definition"},
+  {"Anon", "Anonymous"},
+  {"Var", "Variable"},
+  {"Loc", "Location"},
+  {"Asm", "Assembly"},
+  {"MSAsm", "MSAssembly"},
+  {"Str", "String"},
+  {"Ident", "Identifier"},
+  {"Ref", "Reference"},
+  {"Orig", "Original"},
+  {"Priv", "Private"},
+  {"Pub", "Public"},
+  {"Calc", "Calculate"},
+  {"Par", "Parallel"},
+  {"Dist", "Distance"},
+  {"Iter", "Iteration"},
+  {"Inc", "Increment"},
+  {"Dict", "Dictionary"},
+  {"Msg", "Message"},
+  {"Char", "Character"},
+  {"Bool", "Boolean"},
+  {"Op", "Operation"},
+  {"Ptr", "Pointer"},
+  {"Mem", "Memory"},
+  {"Parens", "Parentheses"},
+  {"Paren", "Parenthesis"},
+  {"noload_decls", "AlreadyLoadedDeclarations"},
+  {"Noload_decls", "AlreadyLoadedDeclarations"},
 };
 
 // Maps return types from the macros file to their replacements in the
@@ -110,6 +131,9 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
   {"(const clang::DeclContext *)", "::pasta::DeclContext"},
   {"(clang::Decl::FriendObjectKind)", "::pasta::FriendObjectKind"},
   {"(clang::Decl::ModuleOwnershipKind)", "::pasta::ModuleOwnershipKind"},
+  {"(clang::CallExpr::ADLCallKind)", "::pasta::ADLCallKind"},
+  {"(clang::APValue::ValueKind)", "::pasta::APValueKind"},
+  {"(clang::ConstantExpr::ResultStorageKind)", "::pasta::ResultStorageKind"},
   {"(clang::LinkageSpecDecl::LanguageIDs)", "::pasta::LanguageIDs"},
   {"(clang::ObjCMethodDecl::ImplementationControl)", "::pasta::ImplementationControl"},
   {"(clang::ObjCPropertyDecl::PropertyControl)", "::pasta::PropertyControl"},
@@ -121,12 +145,15 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
   {"(clang::ArrayType::ArraySizeModifier)", "::pasta::ArraySizeModifier"},
   {"(clang::VectorType::VectorKind)", "::pasta::VectorKind"},
   {"(clang::TypeDependenceScope::TypeDependence)", "::pasta::TypeDependence"},
+  {"(clang::CXXConstructExpr::ConstructionKind)", "::pasta::ConstructionKind"},
+  {"(clang::CXXNewExpr::InitializationStyle)", "::pasta::InitializationStyle"},
   {"(clang::Qualifiers::ObjCLifetime)", "::pasta::ObjCLifetime"},
   {"(clang::Type::ScalarTypeKind)", "::pasta::ScalarTypeKind"},
   {"(clang::QualType::PrimitiveCopyKind)", "::pasta::PrimitiveCopyKind"},
   {"(clang::QualType::PrimitiveDefaultInitializeKind)", "::pasta::PrimitiveDefaultInitializeKind"},
   {"(clang::attr::Kind)", "::pasta::AttributeKind"},
 
+  {"(llvm::Optional<const clang::Expr *>)", "std::optional<::pasta::Expr>"},
   {"(llvm::Optional<unsigned int>)", "std::optional<unsigned>"},
   {"(llvm::Optional<clang::NullabilityKind>)", "std::optional<::pasta::NullabilityKind>"},
 
@@ -230,7 +257,10 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
    "std::vector<::pasta::TokenRange>"},
 
   {"(llvm::ArrayRef<clang::SourceLocation>)",
-   "std::vector<::pasta::Token>"}
+   "std::vector<::pasta::Token>"},
+
+  {"(llvm::iterator_range<const clang::Expr *const *>)",
+   "std::vector<::pasta::Expr>"}
 };
 
 // Maps return types from the macros file to how they should be returned
@@ -306,6 +336,15 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
   {"(clang::Decl::ModuleOwnershipKind)",
    "  return static_cast<::pasta::ModuleOwnershipKind>(val);\n"},
 
+  {"(clang::CallExpr::ADLCallKind)",
+   "  return static_cast<::pasta::ADLCallKind>(val);\n"},
+
+  {"(clang::APValue::ValueKind)",
+   "  return static_cast<::pasta::APValueKind>(val);\n"},
+
+  {"(clang::ConstantExpr::ResultStorageKind)",
+   "  return static_cast<::pasta::ResultStorageKind>(val);\n"},
+
   {"(clang::LinkageSpecDecl::LanguageIDs)",
    "  return static_cast<::pasta::LanguageIDs>(val);\n"},
 
@@ -339,6 +378,12 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
   {"(clang::TypeDependenceScope::TypeDependence)",
    "  return static_cast<::pasta::TypeDependence>(val);\n"},
 
+  {"(clang::CXXConstructExpr::ConstructionKind)",
+   "  return static_cast<::pasta::ConstructionKind>(val);\n"},
+
+  {"(clang::CXXNewExpr::InitializationStyle)",
+   "  return static_cast<::pasta::InitializationStyle>(val);\n"},
+
   {"(clang::Qualifiers::ObjCLifetime)",
    "  return static_cast<::pasta::ObjCLifetime>(val);\n"},
   {"(clang::Type::ScalarTypeKind)",
@@ -348,12 +393,20 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
   {"(clang::QualType::PrimitiveDefaultInitializeKind)",
    "  return static_cast<::pasta::PrimitiveDefaultInitializeKind>(val);\n"},
 
+  {"(llvm::Optional<const clang::Expr *>)",
+   "  if (val.hasValue()) {\n"
+   "    return StmtBuilder::Create<::pasta::Expr>(ast, val.getValue());\n"
+   "  } else {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+
   {"(llvm::Optional<unsigned int>)",
    "  if (val.hasValue()) {\n"
    "    return val.getValue();\n"
    "  } else {\n"
    "    return std::nullopt;\n"
    "  }\n"},
+
   {"(llvm::Optional<clang::NullabilityKind>)",
    "  if (val.hasValue()) {\n"
    "    return static_cast<::pasta::NullabilityKind>(val.getValue());\n"
@@ -541,7 +594,10 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
     "  for (auto sl : val) {\n"
     "    ret.emplace_back(ast->TokenAt(sl));\n"
     "  }\n"
-    "  return ret;\n"}
+    "  return ret;\n"},
+
+   {"(llvm::iterator_range<const clang::Expr *const *>)",
+    STMT_ITERATOR_IMPL(Expr)}
 };
 
 // Prefixes on enumerators to strip.

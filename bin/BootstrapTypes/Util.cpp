@@ -10,45 +10,20 @@ std::string Capitalize(llvm::StringRef name) {
 }
 
 std::string CxxName(llvm::StringRef name) {
-  if (name == "getKind" || name == "getDeclKindName") {
-    return "";  // We have our own `DeclKind`.
 
   // Disable these.
-  } else if (name == "asOpaquePtr" ||
-             name == "getTypePtr" ||
-             name == "getTypePtrOrNull" ||
-             name == "getAsOpaquePtr" ||
-             name == "getUnqualifiedType") {
+  if (name == "asOpaquePtr" ||
+      name.endswith("_back") ||
+      name.endswith("_front") ||
+      name.endswith("_begin") ||
+      name.endswith("_end") ||
+      name.endswith("_rbegin") ||
+      name.endswith("_rend") ||
+      name.startswith("begin") ||
+      name.startswith("end") ||
+      name.startswith("rbegin") ||
+      name.startswith("rend")) {
     return "";
-
-  } else if (name == "getTypeClass") {
-    return "Kind";
-
-  } else if (name == "getTypeClassName") {
-    return "KindName";
-
-  } else if (name == "getStmtClass") {
-    return "Kind";
-
-  } else if (name == "getStmtClassName") {
-    return "KindName";
-
-  } else if (name == "getCapturedStmt") {
-    return "FindCapturedStmt";
-
-  } else if (name == "getFriendDecl") {
-    return "FindFriendDecl";
-
-  } else if (name == "getRawStmt") {
-    return "FindRawStmt";
-
-  } else if (name == "getExpr") {
-    return "FindExpr";
-
-  } else if (name == "getAdjustedType" ||
-             name == "getDeducedType" ||
-             name == "getDecayedType") {
-    return "ResolvedType";
 
   } else if (name.startswith("get")) {
     return CxxName(name.substr(3));
@@ -82,9 +57,48 @@ std::string CxxName(llvm::StringRef name) {
     return "";
 
   } else if (std::islower(name.front())) {
-    return Capitalize(name);
+    return CxxName(Capitalize(name));
 
+  // Recursively apply on all capitalized sub-components.
   } else {
-    return name.str();
+    auto num_upper = 1u;
+    for (auto i = 1u; i < name.size(); ++i) {
+      if (name[i] == '_') {
+        ++num_upper;
+      } else if (std::isupper(name[i]) && !std::isupper(name[i - 1u])) {
+        ++num_upper;
+      }
+    }
+
+    if (2u <= num_upper) {
+      std::stringstream name_ss;
+      std::stringstream ss;
+      ss << name[0];
+      for (auto i = 1u; i < name.size(); ++i) {
+        if (std::isupper(name[i])) {
+          if (auto sub_name = ss.str(); 1u < sub_name.size()) {
+            name_ss << CxxName(sub_name);
+            std::stringstream().swap(ss);
+          }
+        } else if (name[i] == '_') {
+          name_ss << CxxName(ss.str());
+          std::stringstream().swap(ss);
+        }
+
+        if (name[i] != '_') {
+          ss << name[i];
+        }
+      }
+      name_ss << CxxName(ss.str());
+
+      return name_ss.str();
+
+    } else {
+      if (1u < name.size() && name.endswith("s")) {
+        return CxxName(name.substr(0u, name.size() - 1u)) + "s";
+      } else {
+        return name.str();
+      }
+    }
   }
 }

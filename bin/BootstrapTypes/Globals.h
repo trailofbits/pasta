@@ -35,6 +35,7 @@ extern std::vector<std::string> gTypeNames;
 
 struct IteratorSpec {
   std::string getter_method;
+  std::string list_method;
   std::string counter_method;
   std::string cxx_method;
   std::string elem_type;

@@ -39,7 +39,7 @@ class ASTDumper final : public pasta::DeclVisitor {
   void VisitDeclContext(const pasta::DeclContext &dc) {
     os << " {\n";
     PushIndent();
-    for (const auto &decl : dc.AlreadyLoadedDecls()) {
+    for (const auto &decl : dc.AlreadyLoadedDeclarations()) {
       Accept(decl);
     }
     PopIndent();

@@ -764,7 +764,7 @@ class SwitchCase : public Stmt {
   ::pasta::Token EndToken(void) const;
   ::pasta::Token KeywordToken(void) const;
   ::pasta::SwitchCase NextSwitchCase(void) const;
-  ::pasta::Stmt SubStmt(void) const;
+  ::pasta::Stmt SubStatement(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(SwitchCase)
 };
@@ -779,17 +779,17 @@ class SwitchStmt : public Stmt {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Stmt Body(void) const;
-  ::pasta::Expr Cond(void) const;
+  ::pasta::Expr Condition(void) const;
   ::pasta::VarDecl ConditionVariable(void) const;
-  ::pasta::DeclStmt ConditionVariableDeclStmt(void) const;
+  ::pasta::DeclStmt ConditionVariableDeclarationStatement(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Stmt Init(void) const;
+  ::pasta::Stmt Initializer(void) const;
   ::pasta::Token LParenToken(void) const;
   ::pasta::Token RParenToken(void) const;
   ::pasta::SwitchCase SwitchCaseList(void) const;
   ::pasta::Token SwitchToken(void) const;
-  bool HasInitStorage(void) const;
-  bool HasVarStorage(void) const;
+  bool HasInitializerStorage(void) const;
+  bool HasVariableStorage(void) const;
   bool IsAllEnumCasesCovered(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(SwitchStmt)
@@ -934,7 +934,7 @@ class ValueStmt : public Stmt {
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, UnresolvedMemberExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, UserDefinedLiteral)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, VAArgExpr)
-  ::pasta::Expr ExprStmt(void) const;
+  ::pasta::Expr ExpressionStatement(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ValueStmt)
 };
@@ -949,14 +949,14 @@ class WhileStmt : public Stmt {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Stmt Body(void) const;
-  ::pasta::Expr Cond(void) const;
+  ::pasta::Expr Condition(void) const;
   ::pasta::VarDecl ConditionVariable(void) const;
-  ::pasta::DeclStmt ConditionVariableDeclStmt(void) const;
+  ::pasta::DeclStmt ConditionVariableDeclarationStatement(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Token LParenToken(void) const;
   ::pasta::Token RParenToken(void) const;
   ::pasta::Token WhileToken(void) const;
-  bool HasVarStorage(void) const;
+  bool HasVariableStorage(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(WhileStmt)
 };
@@ -971,28 +971,28 @@ class AsmStmt : public Stmt {
   PASTA_DECLARE_DERIVED_OPERATORS(AsmStmt, GCCAsmStmt)
   PASTA_DECLARE_DERIVED_OPERATORS(AsmStmt, MSAsmStmt)
   std::vector<::pasta::Stmt> Children(void) const;
-  std::string GenerateAsmString(void) const;
-  ::pasta::Token AsmToken(void) const;
+  std::string GenerateAssemblyString(void) const;
+  ::pasta::Token AssemblyToken(void) const;
   ::pasta::Token BeginToken(void) const;
   // Clobber: (llvm::StringRef)
   ::pasta::Token EndToken(void) const;
   // InputConstraint: (llvm::StringRef)
-  // InputExpr: (const clang::Expr *)
+  // InputExpression: (const clang::Expr *)
   uint32_t NumClobbers(void) const;
   uint32_t NumInputs(void) const;
   uint32_t NumOutputs(void) const;
   uint32_t NumPlusOperands(void) const;
   // OutputConstraint: (llvm::StringRef)
-  // OutputExpr: (const clang::Expr *)
+  // OutputExpression: (const clang::Expr *)
   std::vector<::pasta::Expr> Inputs(void) const;
   // IsOutputPlusConstraint: (bool)
   bool IsSimple(void) const;
   bool IsVolatile(void) const;
   std::vector<::pasta::Expr> Outputs(void) const;
   std::vector<std::string_view> OutputConstraints(void) const;
-  std::vector<::pasta::Expr> OutputExprs(void) const;
+  std::vector<::pasta::Expr> OutputExpressions(void) const;
   std::vector<std::string_view> InputConstraints(void) const;
-  std::vector<::pasta::Expr> InputExprs(void) const;
+  std::vector<::pasta::Expr> InputExpressions(void) const;
   std::vector<std::string_view> Clobbers(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(AsmStmt)
@@ -1008,11 +1008,11 @@ class AttributedStmt : public ValueStmt {
   PASTA_DECLARE_BASE_OPERATORS(Stmt, AttributedStmt)
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, AttributedStmt)
   std::vector<::pasta::Stmt> Children(void) const;
-  ::pasta::Token AttrToken(void) const;
+  ::pasta::Token AttributeToken(void) const;
   // Attributes: (llvm::ArrayRef<const clang::Attr *>)
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Stmt SubStmt(void) const;
+  ::pasta::Stmt SubStatement(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(AttributedStmt)
 };
@@ -1044,7 +1044,7 @@ class CXXCatchStmt : public Stmt {
   ::pasta::Token CatchToken(void) const;
   ::pasta::Type CaughtType(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::VarDecl ExceptionDecl(void) const;
+  ::pasta::VarDecl ExceptionDeclaration(void) const;
   ::pasta::Stmt HandlerBlock(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXCatchStmt)
@@ -1059,21 +1059,21 @@ class CXXForRangeStmt : public Stmt {
   PASTA_DECLARE_BASE_OPERATORS(Stmt, CXXForRangeStmt)
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
-  ::pasta::DeclStmt BeginStmt(void) const;
+  ::pasta::DeclStmt BeginStatement(void) const;
   ::pasta::Stmt Body(void) const;
   ::pasta::Token CoawaitToken(void) const;
   ::pasta::Token ColonToken(void) const;
-  ::pasta::Expr Cond(void) const;
+  ::pasta::Expr Condition(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::DeclStmt EndStmt(void) const;
+  ::pasta::DeclStmt EndStatement(void) const;
   ::pasta::Token ForToken(void) const;
-  ::pasta::Expr Inc(void) const;
-  ::pasta::Stmt Init(void) const;
-  ::pasta::DeclStmt LoopVarStmt(void) const;
+  ::pasta::Expr Increment(void) const;
+  ::pasta::Stmt Initializer(void) const;
+  ::pasta::DeclStmt LoopVariableStatement(void) const;
   ::pasta::VarDecl LoopVariable(void) const;
   ::pasta::Token RParenToken(void) const;
-  ::pasta::Expr RangeInit(void) const;
-  ::pasta::DeclStmt RangeStmt(void) const;
+  ::pasta::Expr RangeInitializer(void) const;
+  ::pasta::DeclStmt RangeStatement(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXForRangeStmt)
 };
@@ -1104,15 +1104,15 @@ class CapturedStmt : public Stmt {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CapturedStmt)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, CapturedStmt)
-  // Capture_inits: (llvm::iterator_range<clang::Expr *const *>)
+  // CaptureInitializers: (llvm::iterator_range<clang::Expr *const *>)
   // Captures: (llvm::iterator_range<const clang::CapturedStmt::Capture *>)
   // CapturesVariable: (bool)
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
-  ::pasta::CapturedDecl CapturedDecl(void) const;
-  ::pasta::RecordDecl CapturedRecordDecl(void) const;
+  ::pasta::CapturedDecl CapturedDeclaration(void) const;
+  ::pasta::RecordDecl CapturedRecordDeclaration(void) const;
   enum CapturedRegionKind CapturedRegionKind(void) const;
-  ::pasta::Stmt FindCapturedStmt(void) const;
+  ::pasta::Stmt CapturedStatement(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::TokenRange TokenRange(void) const;
  protected:
@@ -1128,7 +1128,7 @@ class CaseStmt : public SwitchCase {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CaseStmt)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, CaseStmt)
   PASTA_DECLARE_BASE_OPERATORS(SwitchCase, CaseStmt)
-  bool CaseStmtIsGNURange(void) const;
+  bool CaseStatementIsGNURange(void) const;
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token CaseToken(void) const;
@@ -1136,7 +1136,7 @@ class CaseStmt : public SwitchCase {
   ::pasta::Token EndToken(void) const;
   ::pasta::Expr LHS(void) const;
   ::pasta::Expr RHS(void) const;
-  ::pasta::Stmt SubStmt(void) const;
+  ::pasta::Stmt SubStatement(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CaseStmt)
 };
@@ -1149,14 +1149,12 @@ class CompoundStmt : public Stmt {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CompoundStmt)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, CompoundStmt)
   // Body: (llvm::iterator_range<clang::Stmt *const *>)
-  ::pasta::Stmt Body_back(void) const;
-  ::pasta::Stmt Body_front(void) const;
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Token LBracToken(void) const;
   ::pasta::Token RBracToken(void) const;
-  ::pasta::Stmt StmtExprResult(void) const;
+  ::pasta::Stmt StatementExpressionResult(void) const;
   uint32_t Size(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CompoundStmt)
@@ -1210,15 +1208,15 @@ class CoroutineBodyStmt : public Stmt {
   ::pasta::Token EndToken(void) const;
   ::pasta::Stmt ExceptionHandler(void) const;
   ::pasta::Stmt FallthroughHandler(void) const;
-  ::pasta::Stmt FinalSuspendStmt(void) const;
-  ::pasta::Stmt InitSuspendStmt(void) const;
+  ::pasta::Stmt FinalSuspendStatement(void) const;
+  ::pasta::Stmt InitializerSuspendStatement(void) const;
   std::vector<::pasta::Stmt> ParamMoves(void) const;
-  ::pasta::VarDecl PromiseDecl(void) const;
-  ::pasta::Stmt PromiseDeclStmt(void) const;
-  ::pasta::Stmt ResultDecl(void) const;
-  ::pasta::Stmt ReturnStmt(void) const;
-  ::pasta::Stmt ReturnStmtOnAllocFailure(void) const;
-  ::pasta::Expr ReturnValueInit(void) const;
+  ::pasta::VarDecl PromiseDeclaration(void) const;
+  ::pasta::Stmt PromiseDeclarationStatement(void) const;
+  ::pasta::Stmt ResultDeclaration(void) const;
+  ::pasta::Stmt ReturnStatement(void) const;
+  ::pasta::Stmt ReturnStatementOnAllocFailure(void) const;
+  ::pasta::Expr ReturnValueInitializer(void) const;
   bool HasDependentPromiseType(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CoroutineBodyStmt)
@@ -1234,10 +1232,10 @@ class DeclStmt : public Stmt {
   std::vector<::pasta::Stmt> Children(void) const;
   // Declarations: (llvm::iterator_range<clang::Decl *const *>)
   ::pasta::Token BeginToken(void) const;
-  // DeclGroup: (const clang::DeclGroupRef)
+  // DeclarationGroup: (const clang::DeclGroupRef)
   ::pasta::Token EndToken(void) const;
-  ::pasta::Decl SingleDecl(void) const;
-  bool IsSingleDecl(void) const;
+  ::pasta::Decl SingleDeclaration(void) const;
+  bool IsSingleDeclaration(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(DeclStmt)
 };
@@ -1255,7 +1253,7 @@ class DefaultStmt : public SwitchCase {
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token DefaultToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Stmt SubStmt(void) const;
+  ::pasta::Stmt SubStatement(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(DefaultStmt)
 };
@@ -1270,7 +1268,7 @@ class DoStmt : public Stmt {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Stmt Body(void) const;
-  ::pasta::Expr Cond(void) const;
+  ::pasta::Expr Condition(void) const;
   ::pasta::Token DoToken(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Token RParenToken(void) const;
@@ -1421,7 +1419,7 @@ class Expr : public ValueStmt {
   // ClassifyLValue: (clang::Expr::LValueClassification)
   // ClassifyModifiable: (clang::Expr::Classification)
   // EvaluateAsBooleanCondition: (bool)
-  // EvaluateAsConstantExpr: (bool)
+  // EvaluateAsConstantExpression: (bool)
   // EvaluateAsFixedPoint: (bool)
   // EvaluateAsFloat: (bool)
   // EvaluateAsInitializer: (bool)
@@ -1437,44 +1435,44 @@ class Expr : public ValueStmt {
   ::pasta::Expr IgnoreImpCasts(void) const;
   ::pasta::Expr IgnoreImplicit(void) const;
   ::pasta::Expr IgnoreImplicitAsWritten(void) const;
-  ::pasta::Expr IgnoreParenBaseCasts(void) const;
-  ::pasta::Expr IgnoreParenCasts(void) const;
-  ::pasta::Expr IgnoreParenImpCasts(void) const;
-  ::pasta::Expr IgnoreParenLValueCasts(void) const;
-  ::pasta::Expr IgnoreParenNoopCasts(void) const;
-  ::pasta::Expr IgnoreParens(void) const;
+  ::pasta::Expr IgnoreParenthesisBaseCasts(void) const;
+  ::pasta::Expr IgnoreParenthesisCasts(void) const;
+  ::pasta::Expr IgnoreParenthesisImpCasts(void) const;
+  ::pasta::Expr IgnoreParenthesisLValueCasts(void) const;
+  ::pasta::Expr IgnoreParenthesisNoopCasts(void) const;
+  ::pasta::Expr IgnoreParentheses(void) const;
   ::pasta::Expr IgnoreUnlessSpelledInSource(void) const;
   bool ContainsErrors(void) const;
   bool ContainsUnexpandedParameterPack(void) const;
   ::pasta::CXXRecordDecl BestDynamicClassType(void) const;
-  ::pasta::Expr BestDynamicClassTypeExpr(void) const;
+  ::pasta::Expr BestDynamicClassTypeExpression(void) const;
   // Dependence: (clang::ExprDependenceScope::ExprDependence)
-  ::pasta::Token ExprToken(void) const;
+  ::pasta::Token ExpressionToken(void) const;
   // FPFeaturesInEffect: (clang::FPOptions)
-  // IntegerConstantExpr: (llvm::Optional<llvm::APSInt>)
+  // IntegerConstantExpression: (llvm::Optional<llvm::APSInt>)
   ::pasta::ObjCPropertyRefExpr ObjCProperty(void) const;
   enum ExprObjectKind ObjectKind(void) const;
-  ::pasta::Decl ReferencedDeclOfCallee(void) const;
+  ::pasta::Decl ReferencedDeclarationOfCallee(void) const;
   ::pasta::FieldDecl SourceBitField(void) const;
   ::pasta::Type Type(void) const;
   enum ExprValueKind ValueKind(void) const;
   bool HasNonTrivialCall(void) const;
   bool IsBoundMemberFunction(void) const;
-  bool IsCXX11ConstantExpr(void) const;
-  bool IsCXX98IntegralConstantExpr(void) const;
+  bool IsCXX11ConstantExpression(void) const;
+  bool IsCXX98IntegralConstantExpression(void) const;
   // IsConstantInitializer: (bool)
   bool IsDefaultArgument(void) const;
   bool IsEvaluatable(void) const;
   bool IsGLValue(void) const;
   bool IsImplicitCXXThis(void) const;
   bool IsInstantiationDependent(void) const;
-  bool IsIntegerConstantExpr(void) const;
+  bool IsIntegerConstantExpression(void) const;
   bool IsKnownToHaveBooleanValue(void) const;
   bool IsLValue(void) const;
   // IsModifiableLvalue: (clang::Expr::isModifiableLvalueResult)
   // IsNullPointerConstant: (clang::Expr::NullPointerConstantKind)
   bool IsOBJCGCCandidate(void) const;
-  bool IsObjCSelfExpr(void) const;
+  bool IsObjCSelfExpression(void) const;
   bool IsOrdinaryOrBitFieldObject(void) const;
   bool IsRValue(void) const;
   bool IsReadIfDiscardedInCPlusPlus11(void) const;
@@ -1484,7 +1482,7 @@ class Expr : public ValueStmt {
   bool IsValueDependent(void) const;
   bool IsXValue(void) const;
   bool RefersToBitField(void) const;
-  bool RefersToGlobalRegisterVar(void) const;
+  bool RefersToGlobalRegisterVariable(void) const;
   bool RefersToMatrixElement(void) const;
   bool RefersToVectorElement(void) const;
   // TryEvaluateObjectSize: (bool)
@@ -1588,13 +1586,13 @@ class ForStmt : public Stmt {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Stmt Body(void) const;
-  ::pasta::Expr Cond(void) const;
+  ::pasta::Expr Condition(void) const;
   ::pasta::VarDecl ConditionVariable(void) const;
-  ::pasta::DeclStmt ConditionVariableDeclStmt(void) const;
+  ::pasta::DeclStmt ConditionVariableDeclarationStatement(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Token ForToken(void) const;
-  ::pasta::Expr Inc(void) const;
-  ::pasta::Stmt Init(void) const;
+  ::pasta::Expr Increment(void) const;
+  ::pasta::Stmt Initializer(void) const;
   ::pasta::Token LParenToken(void) const;
   ::pasta::Token RParenToken(void) const;
  protected:
@@ -1613,7 +1611,7 @@ class FullExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, FullExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(FullExpr, ConstantExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(FullExpr, ExprWithCleanups)
-  ::pasta::Expr SubExpr(void) const;
+  ::pasta::Expr SubExpression(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(FullExpr)
 };
@@ -1628,15 +1626,13 @@ class FunctionParmPackExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(Expr, FunctionParmPackExpr)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, FunctionParmPackExpr)
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, FunctionParmPackExpr)
-  // Begin: (clang::VarDecl *const *)
   std::vector<::pasta::Stmt> Children(void) const;
-  // End: (clang::VarDecl *const *)
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
   // Expansion: (clang::VarDecl *)
   uint32_t NumExpansions(void) const;
   ::pasta::VarDecl ParameterPack(void) const;
-  ::pasta::Token ParameterPackLocation(void) const;
+  ::pasta::Token ParameterPackToken(void) const;
   std::vector<::pasta::VarDecl> Expansions(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(FunctionParmPackExpr)
@@ -1651,32 +1647,44 @@ class GCCAsmStmt : public AsmStmt {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(GCCAsmStmt)
   PASTA_DECLARE_BASE_OPERATORS(AsmStmt, GCCAsmStmt)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, GCCAsmStmt)
-  // AnalyzeAsmString: (unsigned int)
-  std::string GenerateAsmString(void) const;
-  ::pasta::StringLiteral AsmString(void) const;
+  // AnalyzeAssemblyString: (unsigned int)
+  std::string GenerateAssemblyString(void) const;
+  ::pasta::StringLiteral AssemblyString(void) const;
   ::pasta::Token BeginToken(void) const;
   // Clobber: (llvm::StringRef)
   // ClobberStringLiteral: (const clang::StringLiteral *)
   ::pasta::Token EndToken(void) const;
   // InputConstraint: (llvm::StringRef)
   // InputConstraintLiteral: (const clang::StringLiteral *)
-  // InputExpr: (const clang::Expr *)
+  // InputExpression: (const clang::Expr *)
   // InputIdentifier: (clang::IdentifierInfo *)
   // InputName: (llvm::StringRef)
-  // LabelExpr: (clang::AddrLabelExpr *)
+  // LabelExpression: (clang::AddrLabelExpr *)
   // LabelIdentifier: (clang::IdentifierInfo *)
   // LabelName: (llvm::StringRef)
   // NamedOperand: (int)
   uint32_t NumLabels(void) const;
   // OutputConstraint: (llvm::StringRef)
   // OutputConstraintLiteral: (const clang::StringLiteral *)
-  // OutputExpr: (const clang::Expr *)
+  // OutputExpression: (const clang::Expr *)
   // OutputIdentifier: (clang::IdentifierInfo *)
   // OutputName: (llvm::StringRef)
   ::pasta::Token RParenToken(void) const;
-  bool IsAsmGoto(void) const;
+  bool IsAssemblyGoto(void) const;
   std::vector<::pasta::AddrLabelExpr> Labels(void) const;
-  std::vector<::pasta::AddrLabelExpr> LabelExprs(void) const;
+  std::vector<std::string_view> OutputConstraints(void) const;
+  std::vector<::pasta::StringLiteral> OutputConstraintLiterals(void) const;
+  std::vector<::pasta::Expr> OutputExpressions(void) const;
+  // !!! Output getNumOutputs getOutputIdentifier (empty ret type = (clang::IdentifierInfo *))
+  std::vector<std::string_view> OutputNames(void) const;
+  std::vector<std::string_view> InputConstraints(void) const;
+  std::vector<::pasta::StringLiteral> InputConstraintLiterals(void) const;
+  std::vector<::pasta::Expr> InputExpressions(void) const;
+  // !!! Input getNumInputs getInputIdentifier (empty ret type = (clang::IdentifierInfo *))
+  std::vector<std::string_view> InputNames(void) const;
+  std::vector<std::string_view> Clobbers(void) const;
+  std::vector<::pasta::StringLiteral> ClobberStringLiterals(void) const;
+  std::vector<::pasta::AddrLabelExpr> LabelExpressions(void) const;
   // !!! Label getNumLabels getLabelIdentifier (empty ret type = (clang::IdentifierInfo *))
   std::vector<std::string_view> LabelNames(void) const;
  protected:
@@ -1696,7 +1704,7 @@ class GNUNullExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Token TokenLocation(void) const;
+  ::pasta::Token TokenToken(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(GNUNullExpr)
 };
@@ -1713,17 +1721,17 @@ class GenericSelectionExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, GenericSelectionExpr)
   // Associations: (llvm::iterator_range<clang::GenericSelectionExpr::AssociationIteratorTy<true>>)
   std::vector<::pasta::Stmt> Children(void) const;
-  std::vector<::pasta::Expr> AssocExprs(void) const;
-  // AssocTypeSourceInfos: (llvm::ArrayRef<clang::TypeSourceInfo *>)
+  std::vector<::pasta::Expr> AssociationExpressions(void) const;
+  // AssociationTypeSourceInfos: (llvm::ArrayRef<clang::TypeSourceInfo *>)
   // Association: (clang::GenericSelectionExpr::AssociationTy<true>)
   ::pasta::Token BeginToken(void) const;
-  ::pasta::Expr ControllingExpr(void) const;
+  ::pasta::Expr ControllingExpression(void) const;
   ::pasta::Token DefaultToken(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Token GenericToken(void) const;
-  uint32_t NumAssocs(void) const;
+  uint32_t NumAssociations(void) const;
   ::pasta::Token RParenToken(void) const;
-  ::pasta::Expr ResultExpr(void) const;
+  ::pasta::Expr ResultExpression(void) const;
   uint32_t ResultIndex(void) const;
   bool IsResultDependent(void) const;
  protected:
@@ -1756,21 +1764,21 @@ class IfStmt : public Stmt {
   PASTA_DECLARE_BASE_OPERATORS(Stmt, IfStmt)
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
-  ::pasta::Expr Cond(void) const;
+  ::pasta::Expr Condition(void) const;
   ::pasta::VarDecl ConditionVariable(void) const;
-  ::pasta::DeclStmt ConditionVariableDeclStmt(void) const;
+  ::pasta::DeclStmt ConditionVariableDeclarationStatement(void) const;
   ::pasta::Stmt Else(void) const;
   ::pasta::Token ElseToken(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Token IfToken(void) const;
-  ::pasta::Stmt Init(void) const;
+  ::pasta::Stmt Initializer(void) const;
   ::pasta::Token LParenToken(void) const;
   // NondiscardedCase: (llvm::Optional<const clang::Stmt *>)
   ::pasta::Token RParenToken(void) const;
   ::pasta::Stmt Then(void) const;
   bool HasElseStorage(void) const;
-  bool HasInitStorage(void) const;
-  bool HasVarStorage(void) const;
+  bool HasInitializerStorage(void) const;
+  bool HasVariableStorage(void) const;
   bool IsConstexpr(void) const;
   bool IsObjCAvailabilityCheck(void) const;
  protected:
@@ -1790,7 +1798,7 @@ class ImaginaryLiteral : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Expr SubExpr(void) const;
+  ::pasta::Expr SubExpression(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ImaginaryLiteral)
 };
@@ -1840,17 +1848,15 @@ class InitListExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(Expr, InitListExpr)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, InitListExpr)
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, InitListExpr)
-  // Begin: (clang::Stmt *const *)
   std::vector<::pasta::Stmt> Children(void) const;
-  // End: (clang::Stmt *const *)
   ::pasta::Expr ArrayFiller(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  // Init: (const clang::Expr *)
+  // Initializer: (const clang::Expr *)
   ::pasta::FieldDecl InitializedFieldInUnion(void) const;
   // Initializers: (clang::Expr *const *)
   ::pasta::Token LBraceToken(void) const;
-  uint32_t NumInits(void) const;
+  uint32_t NumInitializers(void) const;
   ::pasta::Token RBraceToken(void) const;
   ::pasta::InitListExpr SemanticForm(void) const;
   ::pasta::InitListExpr SyntacticForm(void) const;
@@ -1860,12 +1866,9 @@ class InitListExpr : public Expr {
   bool IsExplicit(void) const;
   // IsIdiomaticZeroInitializer: (bool)
   bool IsSemanticForm(void) const;
-  bool IsStringLiteralInit(void) const;
+  bool IsStringLiteralInitializer(void) const;
   bool IsSyntacticForm(void) const;
   bool IsTransparent(void) const;
-  // Rbegin: (std::reverse_iterator<clang::Stmt *const *>)
-  // Rend: (std::reverse_iterator<clang::Stmt *const *>)
-  std::vector<::pasta::Expr> Inits(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(InitListExpr)
 };
@@ -1899,11 +1902,11 @@ class LabelStmt : public ValueStmt {
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, LabelStmt)
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
-  ::pasta::LabelDecl Decl(void) const;
+  ::pasta::LabelDecl Declaration(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Token IdentToken(void) const;
+  ::pasta::Token IdentifierToken(void) const;
   std::string_view Name(void) const;
-  ::pasta::Stmt SubStmt(void) const;
+  ::pasta::Stmt SubStatement(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(LabelStmt)
 };
@@ -1918,16 +1921,16 @@ class LambdaExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(Expr, LambdaExpr)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, LambdaExpr)
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, LambdaExpr)
-  // Capture_inits: (llvm::iterator_range<clang::Expr *const *>)
+  // CaptureInitializers: (llvm::iterator_range<clang::Expr *const *>)
   // Captures: (llvm::iterator_range<const clang::LambdaCapture *>)
   std::vector<::pasta::Stmt> Children(void) const;
-  // Explicit_captures: (llvm::iterator_range<const clang::LambdaCapture *>)
+  // ExplicitCaptures: (llvm::iterator_range<const clang::LambdaCapture *>)
   ::pasta::Token BeginToken(void) const;
   ::pasta::Stmt Body(void) const;
   ::pasta::CXXMethodDecl CallOperator(void) const;
   enum LambdaCaptureDefault CaptureDefault(void) const;
   ::pasta::Token CaptureDefaultToken(void) const;
-  ::pasta::CompoundStmt CompoundStmtBody(void) const;
+  ::pasta::CompoundStmt CompoundStatementBody(void) const;
   ::pasta::FunctionTemplateDecl DependentCallOperator(void) const;
   ::pasta::Token EndToken(void) const;
   std::vector<::pasta::NamedDecl> ExplicitTemplateParameters(void) const;
@@ -1937,9 +1940,9 @@ class LambdaExpr : public Expr {
   ::pasta::Expr TrailingRequiresClause(void) const;
   bool HasExplicitParameters(void) const;
   bool HasExplicitResultType(void) const;
-  // Implicit_captures: (llvm::iterator_range<const clang::LambdaCapture *>)
+  // ImplicitCaptures: (llvm::iterator_range<const clang::LambdaCapture *>)
   bool IsGenericLambda(void) const;
-  // IsInitCapture: (bool)
+  // IsInitializerCapture: (bool)
   bool IsMutable(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(LambdaExpr)
@@ -1955,20 +1958,24 @@ class MSAsmStmt : public AsmStmt {
   PASTA_DECLARE_BASE_OPERATORS(AsmStmt, MSAsmStmt)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, MSAsmStmt)
   std::vector<::pasta::Stmt> Children(void) const;
-  std::string GenerateAsmString(void) const;
+  std::string GenerateAssemblyString(void) const;
   std::vector<std::string_view> AllConstraints(void) const;
-  std::vector<::pasta::Expr> AllExprs(void) const;
-  std::string_view AsmString(void) const;
+  std::vector<::pasta::Expr> AllExpressions(void) const;
+  std::string_view AssemblyString(void) const;
   ::pasta::Token BeginToken(void) const;
   // Clobber: (llvm::StringRef)
   std::vector<std::string_view> Clobbers(void) const;
   ::pasta::Token EndToken(void) const;
   // InputConstraint: (llvm::StringRef)
-  // InputExpr: (const clang::Expr *)
+  // InputExpression: (const clang::Expr *)
   ::pasta::Token LBraceToken(void) const;
   // OutputConstraint: (llvm::StringRef)
-  // OutputExpr: (const clang::Expr *)
+  // OutputExpression: (const clang::Expr *)
   bool HasBraces(void) const;
+  std::vector<std::string_view> OutputConstraints(void) const;
+  std::vector<::pasta::Expr> OutputExpressions(void) const;
+  std::vector<std::string_view> InputConstraints(void) const;
+  std::vector<::pasta::Expr> InputExpressions(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(MSAsmStmt)
 };
@@ -1986,7 +1993,7 @@ class MSDependentExistsStmt : public Stmt {
   ::pasta::Token KeywordToken(void) const;
   // NameInfo: (clang::DeclarationNameInfo)
   // QualifierToken: (clang::NestedNameSpecifierLoc)
-  ::pasta::CompoundStmt SubStmt(void) const;
+  ::pasta::CompoundStmt SubStatement(void) const;
   bool IsIfExists(void) const;
   bool IsIfNotExists(void) const;
  protected:
@@ -2004,11 +2011,11 @@ class MSPropertyRefExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(Stmt, MSPropertyRefExpr)
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, MSPropertyRefExpr)
   std::vector<::pasta::Stmt> Children(void) const;
-  ::pasta::Expr BaseExpr(void) const;
+  ::pasta::Expr BaseExpression(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Token MemberToken(void) const;
-  ::pasta::MSPropertyDecl PropertyDecl(void) const;
+  ::pasta::MSPropertyDecl PropertyDeclaration(void) const;
   // QualifierToken: (clang::NestedNameSpecifierLoc)
   ::pasta::TokenRange TokenRange(void) const;
   bool IsArrow(void) const;
@@ -2031,8 +2038,8 @@ class MSPropertySubscriptExpr : public Expr {
   ::pasta::Expr Base(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Token ExprToken(void) const;
-  ::pasta::Expr Idx(void) const;
+  ::pasta::Token ExpressionToken(void) const;
+  ::pasta::Expr Index(void) const;
   ::pasta::Token RBracketToken(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(MSPropertySubscriptExpr)
@@ -2051,12 +2058,12 @@ class MaterializeTemporaryExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::ValueDecl ExtendingDecl(void) const;
-  ::pasta::LifetimeExtendedTemporaryDecl LifetimeExtendedTemporaryDecl(void) const;
+  ::pasta::ValueDecl ExtendingDeclaration(void) const;
+  ::pasta::LifetimeExtendedTemporaryDecl LifetimeExtendedTemporaryDeclaration(void) const;
   uint32_t ManglingNumber(void) const;
   // OrCreateValue: (clang::APValue *)
   enum StorageDuration StorageDuration(void) const;
-  ::pasta::Expr SubExpr(void) const;
+  ::pasta::Expr SubExpression(void) const;
   bool IsBoundToLvalueReference(void) const;
   bool IsUsableInConstantExpressions(void) const;
  protected:
@@ -2076,11 +2083,11 @@ class MatrixSubscriptExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Expr Base(void) const;
   ::pasta::Token BeginToken(void) const;
-  ::pasta::Expr ColumnIdx(void) const;
+  ::pasta::Expr ColumnIndex(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Token ExprToken(void) const;
+  ::pasta::Token ExpressionToken(void) const;
   ::pasta::Token RBracketToken(void) const;
-  ::pasta::Expr RowIdx(void) const;
+  ::pasta::Expr RowIndex(void) const;
   bool IsIncomplete(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(MatrixSubscriptExpr)
@@ -2100,28 +2107,28 @@ class MemberExpr : public Expr {
   ::pasta::Expr Base(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Token ExprToken(void) const;
-  // FoundDecl: (clang::DeclAccessPair)
+  ::pasta::Token ExpressionToken(void) const;
+  // FoundDeclaration: (clang::DeclAccessPair)
   ::pasta::Token LAngleToken(void) const;
-  ::pasta::ValueDecl MemberDecl(void) const;
+  ::pasta::ValueDecl MemberDeclaration(void) const;
   ::pasta::Token MemberToken(void) const;
   // MemberNameInfo: (clang::DeclarationNameInfo)
-  uint32_t NumTemplateArgs(void) const;
+  uint32_t NumTemplateArguments(void) const;
   ::pasta::Token OperatorToken(void) const;
   // Qualifier: (clang::NestedNameSpecifier *)
   // QualifierToken: (clang::NestedNameSpecifierLoc)
   ::pasta::Token RAngleToken(void) const;
-  // TemplateArgs: (const clang::TemplateArgumentLoc *)
+  // TemplateArguments: (const clang::TemplateArgumentLoc *)
   ::pasta::Token TemplateKeywordToken(void) const;
   bool HadMultipleCandidates(void) const;
-  bool HasExplicitTemplateArgs(void) const;
+  bool HasExplicitTemplateArguments(void) const;
   bool HasQualifier(void) const;
   bool HasTemplateKeyword(void) const;
   bool IsArrow(void) const;
   bool IsImplicitAccess(void) const;
   enum NonOdrUseReason IsNonOdrUse(void) const;
   // PerformsVirtualDispatch: (bool)
-  // Template_arguments: (llvm::ArrayRef<clang::TemplateArgumentLoc>)
+  // TemplateArguments: (llvm::ArrayRef<clang::TemplateArgumentLoc>)
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(MemberExpr)
 };
@@ -2172,10 +2179,10 @@ class OMPArraySectionExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Expr Base(void) const;
   ::pasta::Token BeginToken(void) const;
-  ::pasta::Token ColonLocFirst(void) const;
-  ::pasta::Token ColonLocSecond(void) const;
+  ::pasta::Token ColonTokenFirst(void) const;
+  ::pasta::Token ColonTokenSecond(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Token ExprToken(void) const;
+  ::pasta::Token ExpressionToken(void) const;
   ::pasta::Expr Length(void) const;
   ::pasta::Expr LowerBound(void) const;
   ::pasta::Token RBracketToken(void) const;
@@ -2270,17 +2277,17 @@ class OMPExecutableDirective : public Stmt {
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTeamsDistributeSimdDirective)
   std::vector<::pasta::Stmt> Children(void) const;
   // Clauses: (llvm::ArrayRef<clang::OMPClause *>)
-  ::pasta::Stmt AssociatedStmt(void) const;
+  ::pasta::Stmt AssociatedStatement(void) const;
   ::pasta::Token BeginToken(void) const;
-  // FindCapturedStmt: (const clang::CapturedStmt *)
+  // CapturedStatement: (const clang::CapturedStmt *)
   // Clause: (clang::OMPClause *)
   // DirectiveKind: (llvm::omp::Directive)
   ::pasta::Token EndToken(void) const;
-  ::pasta::CapturedStmt InnermostCapturedStmt(void) const;
+  ::pasta::CapturedStmt InnermostCapturedStatement(void) const;
   uint32_t NumClauses(void) const;
-  ::pasta::Stmt FindRawStmt(void) const;
+  ::pasta::Stmt RawStatement(void) const;
   ::pasta::Stmt StructuredBlock(void) const;
-  bool HasAssociatedStmt(void) const;
+  bool HasAssociatedStatement(void) const;
   bool IsStandaloneDirective(void) const;
   // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
@@ -2296,6 +2303,7 @@ class OMPFlushDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPFlushDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPFlushDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPFlushDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPFlushDirective)
 };
@@ -2316,7 +2324,7 @@ class OMPIteratorExpr : public Expr {
   // ColonToken: (clang::SourceLocation)
   ::pasta::Token EndToken(void) const;
   // Helper: (const clang::OMPIteratorHelperData &)
-  // IteratorDecl: (const clang::Decl *)
+  // IteratorDeclaration: (const clang::Decl *)
   ::pasta::Token IteratorKwToken(void) const;
   // IteratorRange: (const clang::OMPIteratorExpr::IteratorRange)
   ::pasta::Token LParenToken(void) const;
@@ -2363,44 +2371,45 @@ class OMPLoopDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPTeamsDistributeParallelForSimdDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPTeamsDistributeSimdDirective)
   std::vector<::pasta::Expr> Counters(void) const;
-  std::vector<::pasta::Expr> Dependent_counters(void) const;
-  std::vector<::pasta::Expr> Dependent_inits(void) const;
+  std::vector<::pasta::Expr> DependentCounters(void) const;
+  std::vector<::pasta::Expr> DependentInitializers(void) const;
   std::vector<::pasta::Expr> Finals(void) const;
-  std::vector<::pasta::Expr> Finals_conditions(void) const;
+  std::vector<::pasta::Expr> FinalsConditions(void) const;
   ::pasta::Stmt Body(void) const;
-  ::pasta::Expr CalcLastIteration(void) const;
+  ::pasta::Expr CalculateLastIteration(void) const;
   uint32_t CollapsedNumber(void) const;
-  ::pasta::Expr CombinedCond(void) const;
-  ::pasta::Expr CombinedDistCond(void) const;
+  ::pasta::Expr CombinedCondition(void) const;
+  ::pasta::Expr CombinedDistanceCondition(void) const;
   ::pasta::Expr CombinedEnsureUpperBound(void) const;
-  ::pasta::Expr CombinedInit(void) const;
+  ::pasta::Expr CombinedInitializer(void) const;
   ::pasta::Expr CombinedLowerBoundVariable(void) const;
   ::pasta::Expr CombinedNextLowerBound(void) const;
   ::pasta::Expr CombinedNextUpperBound(void) const;
-  ::pasta::Expr CombinedParForInDistCond(void) const;
+  ::pasta::Expr CombinedParallelForInDistanceCondition(void) const;
   ::pasta::Expr CombinedUpperBoundVariable(void) const;
-  ::pasta::Expr Cond(void) const;
-  ::pasta::Expr DistInc(void) const;
+  ::pasta::Expr Condition(void) const;
+  ::pasta::Expr DistanceIncrement(void) const;
   ::pasta::Expr EnsureUpperBound(void) const;
-  ::pasta::Expr Inc(void) const;
-  ::pasta::Expr Init(void) const;
-  ::pasta::Expr IsLastIterVariable(void) const;
+  ::pasta::Expr Increment(void) const;
+  ::pasta::Expr Initializer(void) const;
+  ::pasta::Expr IsLastIterationVariable(void) const;
   ::pasta::Expr IterationVariable(void) const;
   ::pasta::Expr LastIteration(void) const;
   ::pasta::Expr LowerBoundVariable(void) const;
   ::pasta::Expr NextLowerBound(void) const;
   ::pasta::Expr NextUpperBound(void) const;
   ::pasta::Expr NumIterations(void) const;
-  ::pasta::Expr PreCond(void) const;
-  ::pasta::Stmt PreInits(void) const;
+  ::pasta::Expr PreCondition(void) const;
+  ::pasta::Stmt PreInitializers(void) const;
   ::pasta::Expr PrevEnsureUpperBound(void) const;
   ::pasta::Expr PrevLowerBoundVariable(void) const;
   ::pasta::Expr PrevUpperBoundVariable(void) const;
   ::pasta::Expr StrideVariable(void) const;
   ::pasta::Expr UpperBoundVariable(void) const;
   std::vector<::pasta::Expr> Initializers(void) const;
-  std::vector<::pasta::Expr> Private_counters(void) const;
+  std::vector<::pasta::Expr> PrivateCounters(void) const;
   std::vector<::pasta::Expr> Updates(void) const;
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPLoopDirective)
 };
@@ -2414,6 +2423,7 @@ class OMPMasterDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPMasterDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPMasterDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPMasterDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPMasterDirective)
 };
@@ -2429,6 +2439,7 @@ class OMPMasterTaskLoopDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPMasterTaskLoopDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPMasterTaskLoopDirective)
   bool HasCancel(void) const;
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPMasterTaskLoopDirective)
 };
@@ -2443,6 +2454,7 @@ class OMPMasterTaskLoopSimdDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPMasterTaskLoopSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPMasterTaskLoopSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPMasterTaskLoopSimdDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPMasterTaskLoopSimdDirective)
 };
@@ -2456,6 +2468,7 @@ class OMPOrderedDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPOrderedDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPOrderedDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPOrderedDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPOrderedDirective)
 };
@@ -2469,8 +2482,9 @@ class OMPParallelDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPParallelDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPParallelDirective)
-  ::pasta::Expr TaskReductionRefExpr(void) const;
+  ::pasta::Expr TaskReductionReferenceExpression(void) const;
   bool HasCancel(void) const;
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPParallelDirective)
 };
@@ -2485,8 +2499,9 @@ class OMPParallelForDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelForDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPParallelForDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPParallelForDirective)
-  ::pasta::Expr TaskReductionRefExpr(void) const;
+  ::pasta::Expr TaskReductionReferenceExpression(void) const;
   bool HasCancel(void) const;
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPParallelForDirective)
 };
@@ -2501,6 +2516,7 @@ class OMPParallelForSimdDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelForSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPParallelForSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPParallelForSimdDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPParallelForSimdDirective)
 };
@@ -2514,7 +2530,8 @@ class OMPParallelMasterDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPParallelMasterDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelMasterDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPParallelMasterDirective)
-  ::pasta::Expr TaskReductionRefExpr(void) const;
+  ::pasta::Expr TaskReductionReferenceExpression(void) const;
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPParallelMasterDirective)
 };
@@ -2530,6 +2547,7 @@ class OMPParallelMasterTaskLoopDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPParallelMasterTaskLoopDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPParallelMasterTaskLoopDirective)
   bool HasCancel(void) const;
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPParallelMasterTaskLoopDirective)
 };
@@ -2544,6 +2562,7 @@ class OMPParallelMasterTaskLoopSimdDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelMasterTaskLoopSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPParallelMasterTaskLoopSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPParallelMasterTaskLoopSimdDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPParallelMasterTaskLoopSimdDirective)
 };
@@ -2557,8 +2576,9 @@ class OMPParallelSectionsDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPParallelSectionsDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelSectionsDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPParallelSectionsDirective)
-  ::pasta::Expr TaskReductionRefExpr(void) const;
+  ::pasta::Expr TaskReductionReferenceExpression(void) const;
   bool HasCancel(void) const;
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPParallelSectionsDirective)
 };
@@ -2572,6 +2592,7 @@ class OMPScanDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPScanDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPScanDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPScanDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPScanDirective)
 };
@@ -2586,6 +2607,7 @@ class OMPSectionDirective : public OMPExecutableDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPSectionDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPSectionDirective)
   bool HasCancel(void) const;
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPSectionDirective)
 };
@@ -2599,8 +2621,9 @@ class OMPSectionsDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPSectionsDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPSectionsDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPSectionsDirective)
-  ::pasta::Expr TaskReductionRefExpr(void) const;
+  ::pasta::Expr TaskReductionReferenceExpression(void) const;
   bool HasCancel(void) const;
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPSectionsDirective)
 };
@@ -2615,6 +2638,7 @@ class OMPSimdDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPSimdDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPSimdDirective)
 };
@@ -2628,6 +2652,7 @@ class OMPSingleDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPSingleDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPSingleDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPSingleDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPSingleDirective)
 };
@@ -2641,6 +2666,7 @@ class OMPTargetDataDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTargetDataDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetDataDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetDataDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetDataDirective)
 };
@@ -2654,6 +2680,7 @@ class OMPTargetDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTargetDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetDirective)
 };
@@ -2667,6 +2694,7 @@ class OMPTargetEnterDataDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTargetEnterDataDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetEnterDataDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetEnterDataDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetEnterDataDirective)
 };
@@ -2680,6 +2708,7 @@ class OMPTargetExitDataDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTargetExitDataDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetExitDataDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetExitDataDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetExitDataDirective)
 };
@@ -2693,8 +2722,9 @@ class OMPTargetParallelDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTargetParallelDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetParallelDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetParallelDirective)
-  ::pasta::Expr TaskReductionRefExpr(void) const;
+  ::pasta::Expr TaskReductionReferenceExpression(void) const;
   bool HasCancel(void) const;
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetParallelDirective)
 };
@@ -2709,8 +2739,9 @@ class OMPTargetParallelForDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetParallelForDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTargetParallelForDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetParallelForDirective)
-  ::pasta::Expr TaskReductionRefExpr(void) const;
+  ::pasta::Expr TaskReductionReferenceExpression(void) const;
   bool HasCancel(void) const;
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetParallelForDirective)
 };
@@ -2725,6 +2756,7 @@ class OMPTargetParallelForSimdDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetParallelForSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTargetParallelForSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetParallelForSimdDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetParallelForSimdDirective)
 };
@@ -2739,6 +2771,7 @@ class OMPTargetSimdDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTargetSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetSimdDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetSimdDirective)
 };
@@ -2752,6 +2785,7 @@ class OMPTargetTeamsDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTargetTeamsDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetTeamsDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetTeamsDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetTeamsDirective)
 };
@@ -2766,6 +2800,7 @@ class OMPTargetTeamsDistributeDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetTeamsDistributeDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTargetTeamsDistributeDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetTeamsDistributeDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetTeamsDistributeDirective)
 };
@@ -2780,8 +2815,9 @@ class OMPTargetTeamsDistributeParallelForDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetTeamsDistributeParallelForDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTargetTeamsDistributeParallelForDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetTeamsDistributeParallelForDirective)
-  ::pasta::Expr TaskReductionRefExpr(void) const;
+  ::pasta::Expr TaskReductionReferenceExpression(void) const;
   bool HasCancel(void) const;
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetTeamsDistributeParallelForDirective)
 };
@@ -2796,6 +2832,7 @@ class OMPTargetTeamsDistributeParallelForSimdDirective : public OMPLoopDirective
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetTeamsDistributeParallelForSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTargetTeamsDistributeParallelForSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetTeamsDistributeParallelForSimdDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetTeamsDistributeParallelForSimdDirective)
 };
@@ -2810,6 +2847,7 @@ class OMPTargetTeamsDistributeSimdDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetTeamsDistributeSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTargetTeamsDistributeSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetTeamsDistributeSimdDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetTeamsDistributeSimdDirective)
 };
@@ -2823,6 +2861,7 @@ class OMPTargetUpdateDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTargetUpdateDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetUpdateDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTargetUpdateDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTargetUpdateDirective)
 };
@@ -2837,6 +2876,7 @@ class OMPTaskDirective : public OMPExecutableDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTaskDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTaskDirective)
   bool HasCancel(void) const;
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTaskDirective)
 };
@@ -2852,6 +2892,7 @@ class OMPTaskLoopDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTaskLoopDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTaskLoopDirective)
   bool HasCancel(void) const;
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTaskLoopDirective)
 };
@@ -2866,6 +2907,7 @@ class OMPTaskLoopSimdDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTaskLoopSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTaskLoopSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTaskLoopSimdDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTaskLoopSimdDirective)
 };
@@ -2879,7 +2921,8 @@ class OMPTaskgroupDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTaskgroupDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTaskgroupDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTaskgroupDirective)
-  ::pasta::Expr ReductionRef(void) const;
+  ::pasta::Expr ReductionReference(void) const;
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTaskgroupDirective)
 };
@@ -2893,6 +2936,7 @@ class OMPTaskwaitDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTaskwaitDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTaskwaitDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTaskwaitDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTaskwaitDirective)
 };
@@ -2906,6 +2950,7 @@ class OMPTaskyieldDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTaskyieldDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTaskyieldDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTaskyieldDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTaskyieldDirective)
 };
@@ -2919,6 +2964,7 @@ class OMPTeamsDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTeamsDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTeamsDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTeamsDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTeamsDirective)
 };
@@ -2933,6 +2979,7 @@ class OMPTeamsDistributeDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTeamsDistributeDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTeamsDistributeDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTeamsDistributeDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTeamsDistributeDirective)
 };
@@ -2947,8 +2994,9 @@ class OMPTeamsDistributeParallelForDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTeamsDistributeParallelForDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTeamsDistributeParallelForDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTeamsDistributeParallelForDirective)
-  ::pasta::Expr TaskReductionRefExpr(void) const;
+  ::pasta::Expr TaskReductionReferenceExpression(void) const;
   bool HasCancel(void) const;
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTeamsDistributeParallelForDirective)
 };
@@ -2963,6 +3011,7 @@ class OMPTeamsDistributeParallelForSimdDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTeamsDistributeParallelForSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTeamsDistributeParallelForSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTeamsDistributeParallelForSimdDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTeamsDistributeParallelForSimdDirective)
 };
@@ -2977,6 +3026,7 @@ class OMPTeamsDistributeSimdDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTeamsDistributeSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPTeamsDistributeSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTeamsDistributeSimdDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPTeamsDistributeSimdDirective)
 };
@@ -3015,7 +3065,7 @@ class ObjCAtCatchStmt : public Stmt {
   ::pasta::Token AtCatchToken(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Stmt CatchBody(void) const;
-  ::pasta::VarDecl CatchParamDecl(void) const;
+  ::pasta::VarDecl CatchParamDeclaration(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Token RParenToken(void) const;
   bool HasEllipsis(void) const;
@@ -3051,7 +3101,7 @@ class ObjCAtSynchronizedStmt : public Stmt {
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::CompoundStmt SynchBody(void) const;
-  ::pasta::Expr SynchExpr(void) const;
+  ::pasta::Expr SynchExpression(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ObjCAtSynchronizedStmt)
 };
@@ -3066,7 +3116,7 @@ class ObjCAtThrowStmt : public Stmt {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Expr ThrowExpr(void) const;
+  ::pasta::Expr ThrowExpression(void) const;
   ::pasta::Token ThrowToken(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ObjCAtThrowStmt)
@@ -3082,12 +3132,12 @@ class ObjCAtTryStmt : public Stmt {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token AtTryToken(void) const;
   ::pasta::Token BeginToken(void) const;
-  // CatchStmt: (const clang::ObjCAtCatchStmt *)
+  // CatchStatement: (const clang::ObjCAtCatchStmt *)
   ::pasta::Token EndToken(void) const;
-  ::pasta::ObjCAtFinallyStmt FinallyStmt(void) const;
-  uint32_t NumCatchStmts(void) const;
+  ::pasta::ObjCAtFinallyStmt FinallyStatement(void) const;
+  uint32_t NumCatchStatements(void) const;
   ::pasta::Stmt TryBody(void) const;
-  std::vector<::pasta::ObjCAtCatchStmt> CatchStmts(void) const;
+  std::vector<::pasta::ObjCAtCatchStmt> CatchStatements(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ObjCAtTryStmt)
 };
@@ -3103,7 +3153,7 @@ class ObjCAutoreleasePoolStmt : public Stmt {
   ::pasta::Token AtToken(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Stmt SubStmt(void) const;
+  ::pasta::Stmt SubStatement(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ObjCAutoreleasePoolStmt)
 };
@@ -3162,7 +3212,7 @@ class ObjCBoxedExpr : public Expr {
   ::pasta::ObjCMethodDecl BoxingMethod(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::TokenRange TokenRange(void) const;
-  ::pasta::Expr SubExpr(void) const;
+  ::pasta::Expr SubExpression(void) const;
   bool IsExpressibleAsConstantInitializer(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ObjCBoxedExpr)
@@ -3180,7 +3230,7 @@ class ObjCDictionaryLiteral : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, ObjCDictionaryLiteral)
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
-  ::pasta::ObjCMethodDecl DictWithObjectsMethod(void) const;
+  ::pasta::ObjCMethodDecl DictionaryWithObjectsMethod(void) const;
   ::pasta::Token EndToken(void) const;
   // KeyValueElement: (clang::ObjCDictionaryElement)
   uint32_t NumElements(void) const;
@@ -3242,8 +3292,8 @@ class ObjCIndirectCopyRestoreExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Token ExprToken(void) const;
-  ::pasta::Expr SubExpr(void) const;
+  ::pasta::Token ExpressionToken(void) const;
+  ::pasta::Expr SubExpression(void) const;
   bool ShouldCopy(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ObjCIndirectCopyRestoreExpr)
@@ -3261,12 +3311,12 @@ class ObjCIsaExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, ObjCIsaExpr)
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Expr Base(void) const;
-  ::pasta::Token BaseLocEnd(void) const;
+  ::pasta::Token BaseTokenEnd(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Token ExprToken(void) const;
+  ::pasta::Token ExpressionToken(void) const;
   ::pasta::Token IsaMemberToken(void) const;
-  ::pasta::Token OpToken(void) const;
+  ::pasta::Token OperationToken(void) const;
   bool IsArrow(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ObjCIsaExpr)
@@ -3285,12 +3335,12 @@ class ObjCIvarRefExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Expr Base(void) const;
   ::pasta::Token BeginToken(void) const;
-  ::pasta::ObjCIvarDecl Decl(void) const;
+  ::pasta::ObjCIvarDecl Declaration(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Token Token(void) const;
-  ::pasta::Token OpToken(void) const;
+  ::pasta::Token OperationToken(void) const;
   bool IsArrow(void) const;
-  bool IsFreeIvar(void) const;
+  bool IsFreeInstanceVariable(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ObjCIvarRefExpr)
 };
@@ -3307,8 +3357,8 @@ class ObjCMessageExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, ObjCMessageExpr)
   std::vector<::pasta::Expr> Arguments(void) const;
   std::vector<::pasta::Stmt> Children(void) const;
-  // Arg: (const clang::Expr *)
-  // Args: (const clang::Expr *const *)
+  // Argument: (const clang::Expr *)
+  // Arguments: (const clang::Expr *const *)
   ::pasta::Token BeginToken(void) const;
   ::pasta::Type CallReturnType(void) const;
   ::pasta::Type ClassReceiver(void) const;
@@ -3316,10 +3366,10 @@ class ObjCMessageExpr : public Expr {
   ::pasta::Token EndToken(void) const;
   ::pasta::Expr InstanceReceiver(void) const;
   ::pasta::Token LeftToken(void) const;
-  ::pasta::ObjCMethodDecl MethodDecl(void) const;
+  ::pasta::ObjCMethodDecl MethodDeclaration(void) const;
   enum ObjCMethodFamily MethodFamily(void) const;
-  uint32_t NumArgs(void) const;
-  uint32_t NumSelectorLocs(void) const;
+  uint32_t NumArguments(void) const;
+  uint32_t NumSelectorTokens(void) const;
   ::pasta::ObjCInterfaceDecl ReceiverInterface(void) const;
   // ReceiverKind: (clang::ObjCMessageExpr::ReceiverKind)
   ::pasta::TokenRange ReceiverRange(void) const;
@@ -3331,11 +3381,10 @@ class ObjCMessageExpr : public Expr {
   ::pasta::Token SuperToken(void) const;
   ::pasta::Type SuperType(void) const;
   bool IsClassMessage(void) const;
-  bool IsDelegateInitCall(void) const;
+  bool IsDelegateInitializerCall(void) const;
   bool IsImplicit(void) const;
   bool IsInstanceMessage(void) const;
   std::vector<::pasta::Token> SelectorTokens(void) const;
-  std::vector<::pasta::Expr> Args(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ObjCMessageExpr)
 };
@@ -3360,7 +3409,7 @@ class ObjCPropertyRefExpr : public Expr {
   ::pasta::ObjCMethodDecl ImplicitPropertyGetter(void) const;
   ::pasta::ObjCMethodDecl ImplicitPropertySetter(void) const;
   ::pasta::Token Token(void) const;
-  ::pasta::Token ReceiverLocation(void) const;
+  ::pasta::Token ReceiverToken(void) const;
   ::pasta::Type ReceiverType(void) const;
   // SetterSelector: (clang::Selector)
   ::pasta::Type SuperReceiverType(void) const;
@@ -3410,7 +3459,7 @@ class ObjCSelectorExpr : public Expr {
   ::pasta::Token AtToken(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  uint32_t NumArgs(void) const;
+  uint32_t NumArguments(void) const;
   ::pasta::Token RParenToken(void) const;
   // Selector: (clang::Selector)
  protected:
@@ -3447,13 +3496,13 @@ class ObjCSubscriptRefExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(Stmt, ObjCSubscriptRefExpr)
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, ObjCSubscriptRefExpr)
   std::vector<::pasta::Stmt> Children(void) const;
-  ::pasta::ObjCMethodDecl AtIndexMethodDecl(void) const;
-  ::pasta::Expr BaseExpr(void) const;
+  ::pasta::ObjCMethodDecl AtIndexMethodDeclaration(void) const;
+  ::pasta::Expr BaseExpression(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Expr KeyExpr(void) const;
+  ::pasta::Expr KeyExpression(void) const;
   ::pasta::Token RBracket(void) const;
-  bool IsArraySubscriptRefExpr(void) const;
+  bool IsArraySubscriptReferenceExpression(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ObjCSubscriptRefExpr)
 };
@@ -3472,7 +3521,7 @@ class OffsetOfExpr : public Expr {
   ::pasta::Token BeginToken(void) const;
   // Component: (const clang::OffsetOfNode &)
   ::pasta::Token EndToken(void) const;
-  // IndexExpr: (const clang::Expr *)
+  // IndexExpression: (const clang::Expr *)
   uint32_t NumComponents(void) const;
   uint32_t NumExpressions(void) const;
   ::pasta::Token OperatorToken(void) const;
@@ -3496,9 +3545,9 @@ class OpaqueValueExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Token ExprToken(void) const;
+  ::pasta::Token ExpressionToken(void) const;
   ::pasta::Token Token(void) const;
-  ::pasta::Expr SourceExpr(void) const;
+  ::pasta::Expr SourceExpression(void) const;
   bool IsUnique(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OpaqueValueExpr)
@@ -3522,16 +3571,16 @@ class OverloadExpr : public Expr {
   // NameInfo: (const clang::DeclarationNameInfo &)
   ::pasta::Token NameToken(void) const;
   ::pasta::CXXRecordDecl NamingClass(void) const;
-  uint32_t NumDecls(void) const;
-  uint32_t NumTemplateArgs(void) const;
+  uint32_t NumDeclarations(void) const;
+  uint32_t NumTemplateArguments(void) const;
   // Qualifier: (clang::NestedNameSpecifier *)
   // QualifierToken: (clang::NestedNameSpecifierLoc)
   ::pasta::Token RAngleToken(void) const;
-  // TemplateArgs: (const clang::TemplateArgumentLoc *)
+  // TemplateArguments: (const clang::TemplateArgumentLoc *)
   ::pasta::Token TemplateKeywordToken(void) const;
-  bool HasExplicitTemplateArgs(void) const;
+  bool HasExplicitTemplateArguments(void) const;
   bool HasTemplateKeyword(void) const;
-  // Template_arguments: (llvm::ArrayRef<clang::TemplateArgumentLoc>)
+  // TemplateArguments: (llvm::ArrayRef<clang::TemplateArgumentLoc>)
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OverloadExpr)
 };
@@ -3571,7 +3620,7 @@ class ParenExpr : public Expr {
   ::pasta::Token EndToken(void) const;
   ::pasta::Token LParen(void) const;
   ::pasta::Token RParen(void) const;
-  ::pasta::Expr SubExpr(void) const;
+  ::pasta::Expr SubExpression(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ParenExpr)
 };
@@ -3589,11 +3638,11 @@ class ParenListExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  // FindExpr: (const clang::Expr *)
+  // Expression: (const clang::Expr *)
   ::pasta::Token LParenToken(void) const;
-  uint32_t NumExprs(void) const;
+  uint32_t NumExpressions(void) const;
   ::pasta::Token RParenToken(void) const;
-  std::vector<::pasta::Expr> FindExprs(void) const;
+  std::vector<::pasta::Expr> Expressions(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ParenListExpr)
 };
@@ -3612,8 +3661,8 @@ class PredefinedExpr : public Expr {
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::StringLiteral FunctionName(void) const;
-  // IdentKind: (clang::PredefinedExpr::IdentKind)
-  std::string_view IdentKindName(void) const;
+  // IdentifierKind: (clang::PredefinedExpr::IdentKind)
+  std::string_view IdentifierKindName(void) const;
   ::pasta::Token Token(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(PredefinedExpr)
@@ -3632,14 +3681,14 @@ class PseudoObjectExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Token ExprToken(void) const;
-  uint32_t NumSemanticExprs(void) const;
-  ::pasta::Expr ResultExpr(void) const;
-  uint32_t ResultExprIndex(void) const;
-  // SemanticExpr: (const clang::Expr *)
+  ::pasta::Token ExpressionToken(void) const;
+  uint32_t NumSemanticExpressions(void) const;
+  ::pasta::Expr ResultExpression(void) const;
+  uint32_t ResultExpressionIndex(void) const;
+  // SemanticExpression: (const clang::Expr *)
   ::pasta::Expr SyntacticForm(void) const;
-  // Semantics: (llvm::iterator_range<const clang::Expr *const *>)
-  std::vector<::pasta::Expr> SemanticExprs(void) const;
+  std::vector<::pasta::Expr> Semantics(void) const;
+  std::vector<::pasta::Expr> SemanticExpressions(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(PseudoObjectExpr)
 };
@@ -3713,7 +3762,7 @@ class SEHExceptStmt : public Stmt {
   ::pasta::CompoundStmt Block(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Token ExceptToken(void) const;
-  ::pasta::Expr FilterExpr(void) const;
+  ::pasta::Expr FilterExpression(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(SEHExceptStmt)
 };
@@ -3783,10 +3832,10 @@ class ShuffleVectorExpr : public Expr {
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token BuiltinToken(void) const;
   ::pasta::Token EndToken(void) const;
-  // FindExpr: (const clang::Expr *)
-  uint32_t NumSubExprs(void) const;
+  // Expression: (const clang::Expr *)
+  uint32_t NumSubExpressions(void) const;
   ::pasta::Token RParenToken(void) const;
-  // ShuffleMaskIdx: (llvm::APSInt)
+  // ShuffleMaskIndex: (llvm::APSInt)
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ShuffleVectorExpr)
 };
@@ -3828,9 +3877,9 @@ class SourceLocExpr : public Expr {
   // EvaluateInContext: (clang::APValue)
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
-  std::string_view BuiltinStr(void) const;
+  std::string_view BuiltinString(void) const;
   ::pasta::Token EndToken(void) const;
-  // IdentKind: (clang::SourceLocExpr::IdentKind)
+  // IdentifierKind: (clang::SourceLocExpr::IdentKind)
   ::pasta::Token Token(void) const;
   ::pasta::DeclContext ParentContext(void) const;
   bool IsIntType(void) const;
@@ -3854,7 +3903,7 @@ class StmtExpr : public Expr {
   ::pasta::Token EndToken(void) const;
   ::pasta::Token LParenToken(void) const;
   ::pasta::Token RParenToken(void) const;
-  ::pasta::CompoundStmt SubStmt(void) const;
+  ::pasta::CompoundStmt SubStatement(void) const;
   uint32_t TemplateDepth(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(StmtExpr)
@@ -3876,13 +3925,14 @@ class StringLiteral : public Expr {
   ::pasta::Token BeginToken(void) const;
   uint32_t ByteLength(void) const;
   std::string_view Bytes(void) const;
-  uint32_t CharByteWidth(void) const;
+  uint32_t CharacterByteWidth(void) const;
   // CodeUnit: (unsigned int)
   ::pasta::Token EndToken(void) const;
+  // Kind: (clang::StringLiteral::StringKind)
   uint32_t Length(void) const;
-  // LocationOfByte: (clang::SourceLocation)
+  // TokenOfByte: (clang::SourceLocation)
   uint32_t NumConcatenated(void) const;
-  // StrTokenToken: (clang::SourceLocation)
+  // StringTokenToken: (clang::SourceLocation)
   std::string_view String(void) const;
   bool IsAscii(void) const;
   bool IsPascal(void) const;
@@ -3931,7 +3981,7 @@ class SubstNonTypeTemplateParmPackExpr : public Expr {
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::NonTypeTemplateParmDecl ParameterPack(void) const;
-  ::pasta::Token ParameterPackLocation(void) const;
+  ::pasta::Token ParameterPackToken(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(SubstNonTypeTemplateParmPackExpr)
 };
@@ -3947,11 +3997,11 @@ class TypeTraitExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(Stmt, TypeTraitExpr)
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, TypeTraitExpr)
   std::vector<::pasta::Stmt> Children(void) const;
-  // Arg: (clang::TypeSourceInfo *)
-  // Args: (llvm::ArrayRef<clang::TypeSourceInfo *>)
+  // Argument: (clang::TypeSourceInfo *)
+  // Arguments: (llvm::ArrayRef<clang::TypeSourceInfo *>)
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  uint32_t NumArgs(void) const;
+  uint32_t NumArguments(void) const;
   enum TypeTrait Trait(void) const;
   bool Value(void) const;
   // !!! Arg getNumArgs getArg (empty ret type = (clang::TypeSourceInfo *))
@@ -3987,11 +4037,12 @@ class UnaryExprOrTypeTraitExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(Stmt, UnaryExprOrTypeTraitExpr)
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, UnaryExprOrTypeTraitExpr)
   std::vector<::pasta::Stmt> Children(void) const;
-  ::pasta::Expr ArgumentExpr(void) const;
+  ::pasta::Expr ArgumentExpression(void) const;
   ::pasta::Type ArgumentType(void) const;
   // ArgumentTypeInfo: (clang::TypeSourceInfo *)
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
+  enum UnaryExprOrTypeTrait Kind(void) const;
   ::pasta::Token OperatorToken(void) const;
   ::pasta::Token RParenToken(void) const;
   ::pasta::Type TypeOfArgument(void) const;
@@ -4014,20 +4065,20 @@ class UnaryOperator : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Token ExprToken(void) const;
+  ::pasta::Token ExpressionToken(void) const;
   // FPFeaturesInEffect: (clang::FPOptions)
   // FPOptionsOverride: (clang::FPOptionsOverride)
   enum UnaryOperatorKind Opcode(void) const;
   ::pasta::Token OperatorToken(void) const;
   // StoredFPFeatures: (clang::FPOptionsOverride)
-  ::pasta::Expr SubExpr(void) const;
+  ::pasta::Expr SubExpression(void) const;
   bool HasStoredFPFeatures(void) const;
-  bool IsArithmeticOp(void) const;
-  bool IsDecrementOp(void) const;
+  bool IsArithmeticOperation(void) const;
+  bool IsDecrementOperation(void) const;
   // IsFEnvAccessOn: (bool)
   // IsFPContractableWithinStatement: (bool)
-  bool IsIncrementDecrementOp(void) const;
-  bool IsIncrementOp(void) const;
+  bool IsIncrementDecrementOperation(void) const;
+  bool IsIncrementOperation(void) const;
   bool IsPostfix(void) const;
   bool IsPrefix(void) const;
  protected:
@@ -4071,7 +4122,7 @@ class UnresolvedMemberExpr : public OverloadExpr {
   ::pasta::Type BaseType(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Token ExprToken(void) const;
+  ::pasta::Token ExpressionToken(void) const;
   ::pasta::Token MemberToken(void) const;
   // MemberName: (clang::DeclarationName)
   // MemberNameInfo: (const clang::DeclarationNameInfo &)
@@ -4099,7 +4150,7 @@ class VAArgExpr : public Expr {
   ::pasta::Token BuiltinToken(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Token RParenToken(void) const;
-  ::pasta::Expr SubExpr(void) const;
+  ::pasta::Expr SubExpression(void) const;
   // WrittenTypeInfo: (clang::TypeSourceInfo *)
   bool IsMicrosoftABI(void) const;
  protected:
@@ -4119,10 +4170,10 @@ class AbstractConditionalOperator : public Expr {
   PASTA_DECLARE_DERIVED_OPERATORS(AbstractConditionalOperator, BinaryConditionalOperator)
   PASTA_DECLARE_DERIVED_OPERATORS(AbstractConditionalOperator, ConditionalOperator)
   ::pasta::Token ColonToken(void) const;
-  ::pasta::Expr Cond(void) const;
-  ::pasta::Expr FalseExpr(void) const;
+  ::pasta::Expr Condition(void) const;
+  ::pasta::Expr FalseExpression(void) const;
   ::pasta::Token QuestionToken(void) const;
-  ::pasta::Expr TrueExpr(void) const;
+  ::pasta::Expr TrueExpression(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(AbstractConditionalOperator)
 };
@@ -4177,9 +4228,9 @@ class ArrayInitLoopExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   // ArraySize: (llvm::APInt)
   ::pasta::Token BeginToken(void) const;
-  ::pasta::OpaqueValueExpr CommonExpr(void) const;
+  ::pasta::OpaqueValueExpr CommonExpression(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Expr SubExpr(void) const;
+  ::pasta::Expr SubExpression(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ArrayInitLoopExpr)
 };
@@ -4198,8 +4249,8 @@ class ArraySubscriptExpr : public Expr {
   ::pasta::Expr Base(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Token ExprToken(void) const;
-  ::pasta::Expr Idx(void) const;
+  ::pasta::Token ExpressionToken(void) const;
+  ::pasta::Expr Index(void) const;
   ::pasta::Expr LHS(void) const;
   ::pasta::Token RBracketToken(void) const;
   ::pasta::Expr RHS(void) const;
@@ -4244,7 +4295,7 @@ class AsTypeExpr : public Expr {
   ::pasta::Token BuiltinToken(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Token RParenToken(void) const;
-  ::pasta::Expr SrcExpr(void) const;
+  ::pasta::Expr SrcExpression(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(AsTypeExpr)
 };
@@ -4263,15 +4314,15 @@ class AtomicExpr : public Expr {
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token BuiltinToken(void) const;
   ::pasta::Token EndToken(void) const;
-  uint32_t NumSubExprs(void) const;
-  // Op: (clang::AtomicExpr::AtomicOp)
+  uint32_t NumSubExpressions(void) const;
+  // Operation: (clang::AtomicExpr::AtomicOp)
   ::pasta::Expr Order(void) const;
   ::pasta::Expr OrderFail(void) const;
-  ::pasta::Expr Ptr(void) const;
+  ::pasta::Expr Pointer(void) const;
   ::pasta::Token RParenToken(void) const;
   ::pasta::Expr Scope(void) const;
   // ScopeModel: (std::unique_ptr<clang::AtomicScopeModel, std::default_delete<clang::AtomicScopeModel>>)
-  // SubExprs: (const clang::Expr *const *)
+  // SubExpressions: (const clang::Expr *const *)
   ::pasta::Expr Val1(void) const;
   ::pasta::Expr Val2(void) const;
   ::pasta::Type ValueType(void) const;
@@ -4279,6 +4330,7 @@ class AtomicExpr : public Expr {
   bool IsCmpXChg(void) const;
   bool IsOpenCL(void) const;
   bool IsVolatile(void) const;
+  std::vector<::pasta::Expr> SubExpressions(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(AtomicExpr)
 };
@@ -4297,11 +4349,11 @@ class BinaryConditionalOperator : public AbstractConditionalOperator {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Expr Common(void) const;
-  ::pasta::Expr Cond(void) const;
+  ::pasta::Expr Condition(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Expr FalseExpr(void) const;
+  ::pasta::Expr FalseExpression(void) const;
   ::pasta::OpaqueValueExpr OpaqueValue(void) const;
-  ::pasta::Expr TrueExpr(void) const;
+  ::pasta::Expr TrueExpression(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(BinaryConditionalOperator)
 };
@@ -4320,31 +4372,31 @@ class BinaryOperator : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Token ExprToken(void) const;
+  ::pasta::Token ExpressionToken(void) const;
   // FPFeatures: (clang::FPOptionsOverride)
   // FPFeaturesInEffect: (clang::FPOptions)
   ::pasta::Expr LHS(void) const;
   enum BinaryOperatorKind Opcode(void) const;
-  std::string_view OpcodeStr(void) const;
+  std::string_view OpcodeString(void) const;
   ::pasta::Token OperatorToken(void) const;
   ::pasta::Expr RHS(void) const;
   // StoredFPFeatures: (clang::FPOptionsOverride)
   bool HasStoredFPFeatures(void) const;
-  bool IsAdditiveOp(void) const;
-  bool IsAssignmentOp(void) const;
-  bool IsBitwiseOp(void) const;
-  bool IsCommaOp(void) const;
-  bool IsComparisonOp(void) const;
-  bool IsCompoundAssignmentOp(void) const;
-  bool IsEqualityOp(void) const;
+  bool IsAdditiveOperation(void) const;
+  bool IsAssignmentOperation(void) const;
+  bool IsBitwiseOperation(void) const;
+  bool IsCommaOperation(void) const;
+  bool IsComparisonOperation(void) const;
+  bool IsCompoundAssignmentOperation(void) const;
+  bool IsEqualityOperation(void) const;
   // IsFEnvAccessOn: (bool)
   // IsFPContractableWithinStatement: (bool)
-  bool IsLogicalOp(void) const;
-  bool IsMultiplicativeOp(void) const;
-  bool IsPtrMemOp(void) const;
-  bool IsRelationalOp(void) const;
-  bool IsShiftAssignOp(void) const;
-  bool IsShiftOp(void) const;
+  bool IsLogicalOperation(void) const;
+  bool IsMultiplicativeOperation(void) const;
+  bool IsPointerMemoryOperation(void) const;
+  bool IsRelationalOperation(void) const;
+  bool IsShiftAssignOperation(void) const;
+  bool IsShiftOperation(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(BinaryOperator)
 };
@@ -4361,9 +4413,9 @@ class BlockExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, BlockExpr)
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
-  ::pasta::BlockDecl BlockDecl(void) const;
+  ::pasta::BlockDecl BlockDeclaration(void) const;
   ::pasta::Stmt Body(void) const;
-  ::pasta::Token CaretLocation(void) const;
+  ::pasta::Token CaretToken(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::FunctionProtoType FunctionType(void) const;
  protected:
@@ -4383,7 +4435,7 @@ class CXXBindTemporaryExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Expr SubExpr(void) const;
+  ::pasta::Expr SubExpression(void) const;
   // Temporary: (const clang::CXXTemporary *)
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXBindTemporaryExpr)
@@ -4421,21 +4473,20 @@ class CXXConstructExpr : public Expr {
   PASTA_DECLARE_DERIVED_OPERATORS(CXXConstructExpr, CXXTemporaryObjectExpr)
   std::vector<::pasta::Expr> Arguments(void) const;
   std::vector<::pasta::Stmt> Children(void) const;
-  // Arg: (const clang::Expr *)
-  // Args: (const clang::Expr *const *)
+  // Argument: (const clang::Expr *)
+  // Arguments: (const clang::Expr *const *)
   ::pasta::Token BeginToken(void) const;
-  // ConstructionKind: (clang::CXXConstructExpr::ConstructionKind)
+  ::pasta::ConstructionKind ConstructionKind(void) const;
   ::pasta::CXXConstructorDecl Constructor(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Token Token(void) const;
-  uint32_t NumArgs(void) const;
-  ::pasta::TokenRange ParenOrBraceRange(void) const;
+  uint32_t NumArguments(void) const;
+  ::pasta::TokenRange ParenthesisOrBraceRange(void) const;
   bool HadMultipleCandidates(void) const;
   bool IsElidable(void) const;
   bool IsListInitialization(void) const;
-  bool IsStdInitListInitialization(void) const;
+  bool IsStdInitializerListInitialization(void) const;
   bool RequiresZeroInitialization(void) const;
-  std::vector<::pasta::Expr> Args(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXConstructExpr)
 };
@@ -4453,11 +4504,11 @@ class CXXDefaultArgExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Expr FindExpr(void) const;
-  ::pasta::Token ExprToken(void) const;
+  ::pasta::Expr Expression(void) const;
+  ::pasta::Token ExpressionToken(void) const;
   ::pasta::ParmVarDecl Param(void) const;
   ::pasta::DeclContext UsedContext(void) const;
-  ::pasta::Token UsedLocation(void) const;
+  ::pasta::Token UsedToken(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXDefaultArgExpr)
 };
@@ -4475,10 +4526,10 @@ class CXXDefaultInitExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Expr FindExpr(void) const;
+  ::pasta::Expr Expression(void) const;
   ::pasta::FieldDecl Field(void) const;
   ::pasta::DeclContext UsedContext(void) const;
-  ::pasta::Token UsedLocation(void) const;
+  ::pasta::Token UsedToken(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXDefaultInitExpr)
 };
@@ -4527,18 +4578,18 @@ class CXXDependentScopeMemberExpr : public Expr {
   // Member: (clang::DeclarationName)
   ::pasta::Token MemberToken(void) const;
   // MemberNameInfo: (const clang::DeclarationNameInfo &)
-  uint32_t NumTemplateArgs(void) const;
+  uint32_t NumTemplateArguments(void) const;
   ::pasta::Token OperatorToken(void) const;
   // Qualifier: (clang::NestedNameSpecifier *)
   // QualifierToken: (clang::NestedNameSpecifierLoc)
   ::pasta::Token RAngleToken(void) const;
-  // TemplateArgs: (const clang::TemplateArgumentLoc *)
+  // TemplateArguments: (const clang::TemplateArgumentLoc *)
   ::pasta::Token TemplateKeywordToken(void) const;
-  bool HasExplicitTemplateArgs(void) const;
+  bool HasExplicitTemplateArguments(void) const;
   bool HasTemplateKeyword(void) const;
   bool IsArrow(void) const;
   bool IsImplicitAccess(void) const;
-  // Template_arguments: (llvm::ArrayRef<clang::TemplateArgumentLoc>)
+  // TemplateArguments: (llvm::ArrayRef<clang::TemplateArgumentLoc>)
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXDependentScopeMemberExpr)
 };
@@ -4558,7 +4609,7 @@ class CXXFoldExpr : public Expr {
   ::pasta::UnresolvedLookupExpr Callee(void) const;
   ::pasta::Token EllipsisToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Expr Init(void) const;
+  ::pasta::Expr Initializer(void) const;
   ::pasta::Expr LHS(void) const;
   ::pasta::Token LParenToken(void) const;
   std::optional<unsigned> NumExpansions(void) const;
@@ -4583,13 +4634,13 @@ class CXXInheritedCtorInitExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(Stmt, CXXInheritedCtorInitExpr)
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, CXXInheritedCtorInitExpr)
   std::vector<::pasta::Stmt> Children(void) const;
-  bool ConstructsVBase(void) const;
+  bool ConstructsVirtualBase(void) const;
   ::pasta::Token BeginToken(void) const;
-  // ConstructionKind: (clang::CXXConstructExpr::ConstructionKind)
+  ::pasta::ConstructionKind ConstructionKind(void) const;
   ::pasta::CXXConstructorDecl Constructor(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Token Token(void) const;
-  bool InheritedFromVBase(void) const;
+  bool InheritedFromVirtualBase(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXInheritedCtorInitExpr)
 };
@@ -4608,27 +4659,26 @@ class CXXNewExpr : public Expr {
   bool DoesUsualArrayDeleteWantSize(void) const;
   ::pasta::Type AllocatedType(void) const;
   // AllocatedTypeSourceInfo: (clang::TypeSourceInfo *)
-  // ArraySize: (llvm::Optional<const clang::Expr *>)
+  std::optional<::pasta::Expr> ArraySize(void) const;
   ::pasta::Token BeginToken(void) const;
-  ::pasta::CXXConstructExpr ConstructExpr(void) const;
-  ::pasta::TokenRange DirectInitRange(void) const;
+  ::pasta::CXXConstructExpr ConstructExpression(void) const;
+  ::pasta::TokenRange DirectInitializerRange(void) const;
   ::pasta::Token EndToken(void) const;
-  // InitializationStyle: (clang::CXXNewExpr::InitializationStyle)
+  ::pasta::InitializationStyle InitializationStyle(void) const;
   ::pasta::Expr Initializer(void) const;
-  uint32_t NumPlacementArgs(void) const;
+  uint32_t NumPlacementArguments(void) const;
   ::pasta::FunctionDecl OperatorDelete(void) const;
   ::pasta::FunctionDecl OperatorNew(void) const;
-  // PlacementArg: (const clang::Expr *)
+  // PlacementArgument: (const clang::Expr *)
   ::pasta::TokenRange TokenRange(void) const;
-  ::pasta::TokenRange TypeIdParens(void) const;
+  ::pasta::TokenRange TypeIdParentheses(void) const;
   bool HasInitializer(void) const;
   bool IsArray(void) const;
   bool IsGlobalNew(void) const;
-  bool IsParenTypeId(void) const;
+  bool IsParenthesisTypeId(void) const;
   bool PassAlignment(void) const;
-  std::vector<::pasta::Expr> Placement_arguments(void) const;
+  std::vector<::pasta::Expr> PlacementArguments(void) const;
   bool ShouldNullCheckAllocation(void) const;
-  std::vector<::pasta::Expr> PlacementArgs(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXNewExpr)
 };
@@ -4714,17 +4764,17 @@ class CXXRewrittenBinaryOperator : public Expr {
   ::pasta::Token BeginToken(void) const;
   // DecomposedForm: (clang::CXXRewrittenBinaryOperator::DecomposedForm)
   ::pasta::Token EndToken(void) const;
-  ::pasta::Token ExprToken(void) const;
+  ::pasta::Token ExpressionToken(void) const;
   ::pasta::Expr LHS(void) const;
   enum BinaryOperatorKind Opcode(void) const;
-  std::string_view OpcodeStr(void) const;
+  std::string_view OpcodeString(void) const;
   enum BinaryOperatorKind Operator(void) const;
   ::pasta::Token OperatorToken(void) const;
   ::pasta::Expr RHS(void) const;
   ::pasta::Expr SemanticForm(void) const;
   ::pasta::TokenRange TokenRange(void) const;
-  bool IsAssignmentOp(void) const;
-  bool IsComparisonOp(void) const;
+  bool IsAssignmentOperation(void) const;
+  bool IsComparisonOperation(void) const;
   bool IsReversed(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXRewrittenBinaryOperator)
@@ -4763,7 +4813,7 @@ class CXXStdInitializerListExpr : public Expr {
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::TokenRange TokenRange(void) const;
-  ::pasta::Expr SubExpr(void) const;
+  ::pasta::Expr SubExpression(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXStdInitializerListExpr)
 };
@@ -4782,6 +4832,7 @@ class CXXTemporaryObjectExpr : public CXXConstructExpr {
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
   // TypeSourceInfo: (clang::TypeSourceInfo *)
+  std::vector<::pasta::Expr> Arguments(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXTemporaryObjectExpr)
 };
@@ -4818,7 +4869,7 @@ class CXXThrowExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Expr SubExpr(void) const;
+  ::pasta::Expr SubExpression(void) const;
   ::pasta::Token ThrowToken(void) const;
   bool IsThrownVariableInScope(void) const;
  protected:
@@ -4838,7 +4889,7 @@ class CXXTypeidExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Expr ExprOperand(void) const;
+  ::pasta::Expr ExpressionOperand(void) const;
   ::pasta::TokenRange TokenRange(void) const;
   ::pasta::Type TypeOperand(void) const;
   // TypeOperandSourceInfo: (clang::TypeSourceInfo *)
@@ -4859,18 +4910,17 @@ class CXXUnresolvedConstructExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(Expr, CXXUnresolvedConstructExpr)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, CXXUnresolvedConstructExpr)
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, CXXUnresolvedConstructExpr)
-  // Arguments: (llvm::iterator_range<const clang::Expr *const *>)
+  std::vector<::pasta::Expr> Arguments(void) const;
   std::vector<::pasta::Stmt> Children(void) const;
-  // Arg: (const clang::Expr *)
+  // Argument: (const clang::Expr *)
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Token LParenToken(void) const;
-  uint32_t NumArgs(void) const;
+  uint32_t NumArguments(void) const;
   ::pasta::Token RParenToken(void) const;
   ::pasta::Type TypeAsWritten(void) const;
   // TypeSourceInfo: (clang::TypeSourceInfo *)
   bool IsListInitialization(void) const;
-  std::vector<::pasta::Expr> Args(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXUnresolvedConstructExpr)
 };
@@ -4888,8 +4938,8 @@ class CXXUuidofExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Expr ExprOperand(void) const;
-  ::pasta::MSGuidDecl GuidDecl(void) const;
+  ::pasta::Expr ExpressionOperand(void) const;
+  ::pasta::MSGuidDecl GuidDeclaration(void) const;
   ::pasta::TokenRange TokenRange(void) const;
   ::pasta::Type TypeOperand(void) const;
   // TypeOperandSourceInfo: (clang::TypeSourceInfo *)
@@ -4914,30 +4964,29 @@ class CallExpr : public Expr {
   PASTA_DECLARE_DERIVED_OPERATORS(CallExpr, UserDefinedLiteral)
   std::vector<::pasta::Expr> Arguments(void) const;
   std::vector<::pasta::Stmt> Children(void) const;
-  // ADLCallKind: (clang::CallExpr::ADLCallKind)
-  // Arg: (const clang::Expr *)
-  // Args: (const clang::Expr *const *)
+  ::pasta::ADLCallKind ADLCallKind(void) const;
+  // Argument: (const clang::Expr *)
+  // Arguments: (const clang::Expr *const *)
   ::pasta::Token BeginToken(void) const;
   uint32_t BuiltinCallee(void) const;
   ::pasta::Type CallReturnType(void) const;
   ::pasta::Expr Callee(void) const;
-  ::pasta::Decl CalleeDecl(void) const;
+  ::pasta::Decl CalleeDeclaration(void) const;
   ::pasta::FunctionDecl DirectCallee(void) const;
   ::pasta::Token EndToken(void) const;
   // FPFeatures: (clang::FPOptionsOverride)
   // FPFeaturesInEffect: (clang::FPOptions)
-  uint32_t NumArgs(void) const;
+  uint32_t NumArguments(void) const;
   uint32_t NumCommas(void) const;
   ::pasta::Token RParenToken(void) const;
   // StoredFPFeatures: (clang::FPOptionsOverride)
-  // UnusedResultAttr: (const clang::Attr *)
+  // UnusedResultAttribute: (const clang::Attr *)
   bool HasStoredFPFeatures(void) const;
-  bool HasUnusedResultAttr(void) const;
+  bool HasUnusedResultAttribute(void) const;
   bool IsBuiltinAssumeFalse(void) const;
   bool IsCallToStdMove(void) const;
   bool IsUnevaluatedBuiltinCall(void) const;
   bool UsesADL(void) const;
-  std::vector<::pasta::Expr> Args(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CallExpr)
 };
@@ -4971,8 +5020,8 @@ class CastExpr : public Expr {
   // FPFeatures: (clang::FPOptionsOverride)
   // FPFeaturesInEffect: (clang::FPOptions)
   // StoredFPFeatures: (clang::FPOptionsOverride)
-  ::pasta::Expr SubExpr(void) const;
-  ::pasta::Expr SubExprAsWritten(void) const;
+  ::pasta::Expr SubExpression(void) const;
+  ::pasta::Expr SubExpressionAsWritten(void) const;
   ::pasta::FieldDecl TargetUnionField(void) const;
   bool HasStoredFPFeatures(void) const;
   // Path: (llvm::iterator_range<const clang::CXXBaseSpecifier *const *>)
@@ -4993,6 +5042,7 @@ class CharacterLiteral : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
+  // Kind: (clang::CharacterLiteral::CharacterKind)
   ::pasta::Token Token(void) const;
   uint32_t Value(void) const;
  protected:
@@ -5012,8 +5062,8 @@ class ChooseExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token BuiltinToken(void) const;
-  ::pasta::Expr ChosenSubExpr(void) const;
-  ::pasta::Expr Cond(void) const;
+  ::pasta::Expr ChosenSubExpression(void) const;
+  ::pasta::Expr Condition(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Expr LHS(void) const;
   ::pasta::Expr RHS(void) const;
@@ -5095,12 +5145,12 @@ class ConditionalOperator : public AbstractConditionalOperator {
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, ConditionalOperator)
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
-  ::pasta::Expr Cond(void) const;
+  ::pasta::Expr Condition(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Expr FalseExpr(void) const;
+  ::pasta::Expr FalseExpression(void) const;
   ::pasta::Expr LHS(void) const;
   ::pasta::Expr RHS(void) const;
-  ::pasta::Expr TrueExpr(void) const;
+  ::pasta::Expr TrueExpression(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ConditionalOperator)
 };
@@ -5120,10 +5170,10 @@ class ConstantExpr : public FullExpr {
   // APValueResult: (clang::APValue)
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  // ResultAPValueKind: (clang::APValue::ValueKind)
+  ::pasta::APValueKind ResultAPValueKind(void) const;
   // ResultAsAPSInt: (llvm::APSInt)
   // ResultAsAPValue: (clang::APValue &)
-  // ResultStorageKind: (clang::ConstantExpr::ResultStorageKind)
+  ::pasta::ResultStorageKind ResultStorageKind(void) const;
   bool HasAPValueResult(void) const;
   bool IsImmediateInvocation(void) const;
  protected:
@@ -5145,7 +5195,7 @@ class ConvertVectorExpr : public Expr {
   ::pasta::Token BuiltinToken(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Token RParenToken(void) const;
-  ::pasta::Expr SrcExpr(void) const;
+  ::pasta::Expr SrcExpression(void) const;
   // TypeSourceInfo: (clang::TypeSourceInfo *)
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ConvertVectorExpr)
@@ -5165,13 +5215,13 @@ class CoroutineSuspendExpr : public Expr {
   PASTA_DECLARE_DERIVED_OPERATORS(CoroutineSuspendExpr, CoyieldExpr)
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
-  ::pasta::Expr CommonExpr(void) const;
+  ::pasta::Expr CommonExpression(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Token KeywordToken(void) const;
   ::pasta::OpaqueValueExpr OpaqueValue(void) const;
-  ::pasta::Expr ReadyExpr(void) const;
-  ::pasta::Expr ResumeExpr(void) const;
-  ::pasta::Expr SuspendExpr(void) const;
+  ::pasta::Expr ReadyExpression(void) const;
+  ::pasta::Expr ResumeExpression(void) const;
+  ::pasta::Expr SuspendExpression(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CoroutineSuspendExpr)
 };
@@ -5204,26 +5254,26 @@ class DeclRefExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, DeclRefExpr)
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
-  ::pasta::ValueDecl Decl(void) const;
+  ::pasta::ValueDecl Declaration(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::NamedDecl FoundDecl(void) const;
+  ::pasta::NamedDecl FoundDeclaration(void) const;
   ::pasta::Token LAngleToken(void) const;
   ::pasta::Token Token(void) const;
   // NameInfo: (clang::DeclarationNameInfo)
-  uint32_t NumTemplateArgs(void) const;
+  uint32_t NumTemplateArguments(void) const;
   // Qualifier: (clang::NestedNameSpecifier *)
   // QualifierToken: (clang::NestedNameSpecifierLoc)
   ::pasta::Token RAngleToken(void) const;
-  // TemplateArgs: (const clang::TemplateArgumentLoc *)
+  // TemplateArguments: (const clang::TemplateArgumentLoc *)
   ::pasta::Token TemplateKeywordToken(void) const;
   bool HadMultipleCandidates(void) const;
-  bool HasExplicitTemplateArgs(void) const;
+  bool HasExplicitTemplateArguments(void) const;
   bool HasQualifier(void) const;
-  bool HasTemplateKWAndArgsInfo(void) const;
+  bool HasTemplateKWAndArgumentsInfo(void) const;
   bool HasTemplateKeyword(void) const;
   enum NonOdrUseReason IsNonOdrUse(void) const;
   bool RefersToEnclosingVariableOrCapture(void) const;
-  // Template_arguments: (llvm::ArrayRef<clang::TemplateArgumentLoc>)
+  // TemplateArguments: (llvm::ArrayRef<clang::TemplateArgumentLoc>)
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(DeclRefExpr)
 };
@@ -5260,20 +5310,20 @@ class DependentScopeDeclRefExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, DependentScopeDeclRefExpr)
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
-  // DeclName: (clang::DeclarationName)
+  // DeclarationName: (clang::DeclarationName)
   ::pasta::Token EndToken(void) const;
   ::pasta::Token LAngleToken(void) const;
   ::pasta::Token Token(void) const;
   // NameInfo: (const clang::DeclarationNameInfo &)
-  uint32_t NumTemplateArgs(void) const;
+  uint32_t NumTemplateArguments(void) const;
   // Qualifier: (clang::NestedNameSpecifier *)
   // QualifierToken: (clang::NestedNameSpecifierLoc)
   ::pasta::Token RAngleToken(void) const;
-  // TemplateArgs: (const clang::TemplateArgumentLoc *)
+  // TemplateArguments: (const clang::TemplateArgumentLoc *)
   ::pasta::Token TemplateKeywordToken(void) const;
-  bool HasExplicitTemplateArgs(void) const;
+  bool HasExplicitTemplateArguments(void) const;
   bool HasTemplateKeyword(void) const;
-  // Template_arguments: (llvm::ArrayRef<clang::TemplateArgumentLoc>)
+  // TemplateArguments: (llvm::ArrayRef<clang::TemplateArgumentLoc>)
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(DependentScopeDeclRefExpr)
 };
@@ -5298,13 +5348,13 @@ class DesignatedInitExpr : public Expr {
   ::pasta::TokenRange DesignatorsSourceRange(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Token EqualOrColonToken(void) const;
-  ::pasta::Expr Init(void) const;
-  uint32_t NumSubExprs(void) const;
-  // SubExpr: (clang::Expr *)
-  bool IsDirectInit(void) const;
+  ::pasta::Expr Initializer(void) const;
+  uint32_t NumSubExpressions(void) const;
+  // SubExpression: (clang::Expr *)
+  bool IsDirectInitializer(void) const;
   uint32_t Size(void) const;
   bool UsesGNUSyntax(void) const;
-  std::vector<::pasta::Expr> SubExprs(void) const;
+  std::vector<::pasta::Expr> SubExpressions(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(DesignatedInitExpr)
 };
@@ -5405,12 +5455,13 @@ class OMPAtomicDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPAtomicDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPAtomicDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPAtomicDirective)
-  ::pasta::Expr FindExpr(void) const;
-  ::pasta::Expr UpdateExpr(void) const;
+  ::pasta::Expr Expression(void) const;
+  ::pasta::Expr UpdateExpression(void) const;
   ::pasta::Expr V(void) const;
   ::pasta::Expr X(void) const;
   bool IsPostfixUpdate(void) const;
   bool IsXLHSInRHSPart(void) const;
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPAtomicDirective)
 };
@@ -5424,6 +5475,7 @@ class OMPBarrierDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPBarrierDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPBarrierDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPBarrierDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPBarrierDirective)
 };
@@ -5438,6 +5490,7 @@ class OMPCancelDirective : public OMPExecutableDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPCancelDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPCancelDirective)
   // CancelRegion: (llvm::omp::Directive)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPCancelDirective)
 };
@@ -5452,6 +5505,7 @@ class OMPCancellationPointDirective : public OMPExecutableDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPCancellationPointDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPCancellationPointDirective)
   // CancelRegion: (llvm::omp::Directive)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPCancellationPointDirective)
 };
@@ -5466,6 +5520,7 @@ class OMPCriticalDirective : public OMPExecutableDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPCriticalDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPCriticalDirective)
   // DirectiveName: (clang::DeclarationNameInfo)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPCriticalDirective)
 };
@@ -5479,6 +5534,7 @@ class OMPDepobjDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPDepobjDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPDepobjDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPDepobjDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPDepobjDirective)
 };
@@ -5493,6 +5549,7 @@ class OMPDistributeDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPDistributeDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPDistributeDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPDistributeDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPDistributeDirective)
 };
@@ -5507,8 +5564,9 @@ class OMPDistributeParallelForDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPDistributeParallelForDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPDistributeParallelForDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPDistributeParallelForDirective)
-  ::pasta::Expr TaskReductionRefExpr(void) const;
+  ::pasta::Expr TaskReductionReferenceExpression(void) const;
   bool HasCancel(void) const;
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPDistributeParallelForDirective)
 };
@@ -5523,6 +5581,7 @@ class OMPDistributeParallelForSimdDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPDistributeParallelForSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPDistributeParallelForSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPDistributeParallelForSimdDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPDistributeParallelForSimdDirective)
 };
@@ -5537,6 +5596,7 @@ class OMPDistributeSimdDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPDistributeSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPDistributeSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPDistributeSimdDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPDistributeSimdDirective)
 };
@@ -5551,8 +5611,9 @@ class OMPForDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPForDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPForDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPForDirective)
-  ::pasta::Expr TaskReductionRefExpr(void) const;
+  ::pasta::Expr TaskReductionReferenceExpression(void) const;
   bool HasCancel(void) const;
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPForDirective)
 };
@@ -5567,6 +5628,7 @@ class OMPForSimdDirective : public OMPLoopDirective {
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPForSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPForSimdDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPForSimdDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPForSimdDirective)
 };
@@ -5610,6 +5672,7 @@ class UserDefinedLiteral : public CallExpr {
   // LiteralOperatorKind: (clang::UserDefinedLiteral::LiteralOperatorKind)
   // UDSuffix: (const clang::IdentifierInfo *)
   ::pasta::Token UDSuffixToken(void) const;
+  std::vector<::pasta::Expr> Arguments(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(UserDefinedLiteral)
 };
@@ -5664,6 +5727,7 @@ class CUDAKernelCallExpr : public CallExpr {
   PASTA_DECLARE_BASE_OPERATORS(Stmt, CUDAKernelCallExpr)
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, CUDAKernelCallExpr)
   ::pasta::CallExpr Config(void) const;
+  std::vector<::pasta::Expr> Arguments(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CUDAKernelCallExpr)
 };
@@ -5700,11 +5764,12 @@ class CXXMemberCallExpr : public CallExpr {
   PASTA_DECLARE_BASE_OPERATORS(Expr, CXXMemberCallExpr)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, CXXMemberCallExpr)
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, CXXMemberCallExpr)
-  ::pasta::Token ExprToken(void) const;
+  ::pasta::Token ExpressionToken(void) const;
   ::pasta::Expr ImplicitObjectArgument(void) const;
-  ::pasta::CXXMethodDecl MethodDecl(void) const;
+  ::pasta::CXXMethodDecl MethodDeclaration(void) const;
   ::pasta::Type ObjectType(void) const;
-  ::pasta::CXXRecordDecl RecordDecl(void) const;
+  ::pasta::CXXRecordDecl RecordDeclaration(void) const;
+  std::vector<::pasta::Expr> Arguments(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXMemberCallExpr)
 };
@@ -5749,13 +5814,14 @@ class CXXOperatorCallExpr : public CallExpr {
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, CXXOperatorCallExpr)
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  ::pasta::Token ExprToken(void) const;
+  ::pasta::Token ExpressionToken(void) const;
   enum OverloadedOperatorKind Operator(void) const;
   ::pasta::Token OperatorToken(void) const;
   ::pasta::TokenRange TokenRange(void) const;
-  bool IsAssignmentOp(void) const;
-  bool IsComparisonOp(void) const;
-  bool IsInfixBinaryOp(void) const;
+  bool IsAssignmentOperation(void) const;
+  bool IsComparisonOperation(void) const;
+  bool IsInfixBinaryOperation(void) const;
+  std::vector<::pasta::Expr> Arguments(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXOperatorCallExpr)
 };

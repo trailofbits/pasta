@@ -255,7 +255,7 @@ class Type {
   bool ContainsUnexpandedParameterPack(void) const;
   ::pasta::Type ArrayElementTypeNoTypeQual(void) const;
   std::optional<::pasta::ArrayType> AsArrayTypeUnsafe(void) const;
-  std::optional<::pasta::CXXRecordDecl> AsCXXRecordDecl(void) const;
+  std::optional<::pasta::CXXRecordDecl> AsCXXRecordDeclaration(void) const;
   std::optional<::pasta::ComplexType> AsComplexIntegerType(void) const;
   std::optional<::pasta::ObjCObjectPointerType> AsObjCInterfacePointerType(void) const;
   std::optional<::pasta::ObjCObjectType> AsObjCInterfaceType(void) const;
@@ -263,9 +263,9 @@ class Type {
   std::optional<::pasta::ObjCObjectPointerType> AsObjCQualifiedIdType(void) const;
   std::optional<::pasta::ObjCObjectType> AsObjCQualifiedInterfaceType(void) const;
   std::optional<::pasta::BuiltinType> AsPlaceholderType(void) const;
-  std::optional<::pasta::RecordDecl> AsRecordDecl(void) const;
+  std::optional<::pasta::RecordDecl> AsRecordDeclaration(void) const;
   std::optional<::pasta::RecordType> AsStructureType(void) const;
-  std::optional<::pasta::TagDecl> AsTagDecl(void) const;
+  std::optional<::pasta::TagDecl> AsTagDeclaration(void) const;
   std::optional<::pasta::RecordType> AsUnionType(void) const;
   std::optional<::pasta::Type> BaseElementTypeUnsafe(void) const;
   ::pasta::Type CanonicalTypeInternal(void) const;
@@ -279,7 +279,7 @@ class Type {
   std::optional<::pasta::NullabilityKind> Nullability(void) const;
   ::pasta::ObjCLifetime ObjCARCImplicitLifetime(void) const;
   // ObjCSubstitutions: (llvm::Optional<llvm::ArrayRef<clang::QualType>>)
-  std::optional<::pasta::CXXRecordDecl> PointeeCXXRecordDecl(void) const;
+  ::pasta::CXXRecordDecl PointeeCXXRecordDeclaration(void) const;
   ::pasta::Type PointeeOrArrayElementType(void) const;
   ::pasta::Type PointeeType(void) const;
   ::pasta::ScalarTypeKind ScalarTypeKind(void) const;
@@ -288,7 +288,7 @@ class Type {
   std::string_view KindName(void) const;
   ::pasta::Type UnqualifiedDesugaredType(void) const;
   enum Visibility Visibility(void) const;
-  // HasAttr: (bool)
+  // HasAttribute: (bool)
   bool HasAutoForTrailingReturnType(void) const;
   bool HasFloatingRepresentation(void) const;
   bool HasIntegerRepresentation(void) const;
@@ -318,7 +318,7 @@ class Type {
   bool IsChar16Type(void) const;
   bool IsChar32Type(void) const;
   bool IsChar8Type(void) const;
-  bool IsCharType(void) const;
+  bool IsCharacterType(void) const;
   bool IsClassType(void) const;
   bool IsClkEventT(void) const;
   bool IsComplexIntegerType(void) const;
@@ -368,7 +368,7 @@ class Type {
   bool IsMemberPointerType(void) const;
   bool IsNonOverloadPlaceholderType(void) const;
   bool IsNothrowT(void) const;
-  bool IsNullPtrType(void) const;
+  bool IsNullPointerType(void) const;
   bool IsOCLExtOpaqueType(void) const;
   bool IsOCLImage1dArrayROType(void) const;
   bool IsOCLImage1dArrayRWType(void) const;
@@ -406,12 +406,12 @@ class Type {
   bool IsOCLImage3dROType(void) const;
   bool IsOCLImage3dRWType(void) const;
   bool IsOCLImage3dWOType(void) const;
-  bool IsOCLIntelSubgroupAVCImeDualRefStreaminType(void) const;
+  bool IsOCLIntelSubgroupAVCImeDualReferenceStreaminType(void) const;
   bool IsOCLIntelSubgroupAVCImePayloadType(void) const;
-  bool IsOCLIntelSubgroupAVCImeResultDualRefStreamoutType(void) const;
-  bool IsOCLIntelSubgroupAVCImeResultSingleRefStreamoutType(void) const;
+  bool IsOCLIntelSubgroupAVCImeResultDualReferenceStreamoutType(void) const;
+  bool IsOCLIntelSubgroupAVCImeResultSingleReferenceStreamoutType(void) const;
   bool IsOCLIntelSubgroupAVCImeResultType(void) const;
-  bool IsOCLIntelSubgroupAVCImeSingleRefStreaminType(void) const;
+  bool IsOCLIntelSubgroupAVCImeSingleReferenceStreaminType(void) const;
   bool IsOCLIntelSubgroupAVCMcePayloadType(void) const;
   bool IsOCLIntelSubgroupAVCMceResultType(void) const;
   bool IsOCLIntelSubgroupAVCRefPayloadType(void) const;
@@ -489,14 +489,14 @@ class Type {
   bool IsVisibilityExplicit(void) const;
   bool IsVoidPointerType(void) const;
   bool IsVoidType(void) const;
-  bool IsWideCharType(void) const;
+  bool IsWideCharacterType(void) const;
   inline bool IsQualified(void) const noexcept {
     return qualifiers;
   }
   inline Type UnqualifiedType(void) const noexcept {
     return Type(ast, u.Type, kind, 0);
   }
-  ::pasta::Type IgnoreParens(void) const;
+  ::pasta::Type IgnoreParentheses(void) const;
   enum LangAS AddressSpace(void) const;
   ::pasta::Type AtomicUnqualifiedType(void) const;
   // BaseTypeIdentifier: (const clang::IdentifierInfo *)
@@ -507,7 +507,7 @@ class Type {
   uint32_t LocalFastQualifiers(void) const;
   // LocalQualifiers: (clang::Qualifiers)
   ::pasta::Type LocalUnqualifiedType(void) const;
-  ::pasta::Type NonLValueExprType(void) const;
+  ::pasta::Type NonLValueExpressionType(void) const;
   ::pasta::Type NonPackExpansionType(void) const;
   ::pasta::Type NonReferenceType(void) const;
   // ObjCGCAttr: (clang::Qualifiers::GC)
@@ -557,7 +557,7 @@ class Type {
   // Stream: (clang::QualType::StreamedQualTypeHelper)
   ::pasta::Type StripObjCKindOfType(void) const;
   // SubstObjCMemberType: (clang::QualType)
-  // SubstObjCTypeArgs: (clang::QualType)
+  // SubstObjCTypeArguments: (clang::QualType)
   // WithCVRQualifiers: (clang::QualType)
   ::pasta::Type WithConst(void) const;
   // WithExactLocalFastQualifiers: (clang::QualType)
@@ -574,7 +574,7 @@ class TypeOfExprType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TypeOfExprType)
   PASTA_DECLARE_BASE_OPERATORS(Type, TypeOfExprType)
   ::pasta::Type Desugar(void) const;
-  ::pasta::Expr UnderlyingExpr(void) const;
+  ::pasta::Expr UnderlyingExpression(void) const;
   bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(TypeOfExprType)
@@ -602,7 +602,7 @@ class TypedefType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TypedefType)
   PASTA_DECLARE_BASE_OPERATORS(Type, TypedefType)
   ::pasta::Type Desugar(void) const;
-  ::pasta::TypedefNameDecl Decl(void) const;
+  ::pasta::TypedefNameDecl Declaration(void) const;
   bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(TypedefType)
@@ -632,7 +632,7 @@ class UnresolvedUsingType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UnresolvedUsingType)
   PASTA_DECLARE_BASE_OPERATORS(Type, UnresolvedUsingType)
   ::pasta::Type Desugar(void) const;
-  ::pasta::UnresolvedUsingTypenameDecl Decl(void) const;
+  ::pasta::UnresolvedUsingTypenameDecl Declaration(void) const;
   bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(UnresolvedUsingType)
@@ -761,6 +761,7 @@ class BuiltinType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(BuiltinType)
   PASTA_DECLARE_BASE_OPERATORS(Type, BuiltinType)
   ::pasta::Type Desugar(void) const;
+  // Kind: (clang::BuiltinType::Kind)
   // Name: (llvm::StringRef)
   // NameAsCString: (const char *)
   bool IsFloatingPoint(void) const;
@@ -799,7 +800,7 @@ class ConstantArrayType : public ArrayType {
   PASTA_DECLARE_BASE_OPERATORS(Type, ConstantArrayType)
   ::pasta::Type Desugar(void) const;
   // Size: (const llvm::APInt &)
-  ::pasta::Expr SizeExpr(void) const;
+  ::pasta::Expr SizeExpression(void) const;
   bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ConstantArrayType)
@@ -828,7 +829,7 @@ class DecltypeType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DecltypeType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DecltypeType)
   ::pasta::Type Desugar(void) const;
-  ::pasta::Expr UnderlyingExpr(void) const;
+  ::pasta::Expr UnderlyingExpression(void) const;
   ::pasta::Type UnderlyingType(void) const;
   bool IsSugared(void) const;
  protected:
@@ -860,7 +861,7 @@ class DependentAddressSpaceType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentAddressSpaceType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DependentAddressSpaceType)
   ::pasta::Type Desugar(void) const;
-  ::pasta::Expr AddrSpaceExpr(void) const;
+  ::pasta::Expr AddrSpaceExpression(void) const;
   ::pasta::Token AttributeToken(void) const;
   ::pasta::Type PointeeType(void) const;
   bool IsSugared(void) const;
@@ -876,7 +877,7 @@ class DependentExtIntType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentExtIntType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DependentExtIntType)
   ::pasta::Type Desugar(void) const;
-  ::pasta::Expr NumBitsExpr(void) const;
+  ::pasta::Expr NumBitsExpression(void) const;
   bool IsSigned(void) const;
   bool IsSugared(void) const;
   bool IsUnsigned(void) const;
@@ -914,7 +915,7 @@ class DependentSizedArrayType : public ArrayType {
   ::pasta::TokenRange BracketsRange(void) const;
   ::pasta::Token LBracketToken(void) const;
   ::pasta::Token RBracketToken(void) const;
-  ::pasta::Expr SizeExpr(void) const;
+  ::pasta::Expr SizeExpression(void) const;
   bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentSizedArrayType)
@@ -930,7 +931,7 @@ class DependentSizedExtVectorType : public Type {
   ::pasta::Type Desugar(void) const;
   ::pasta::Token AttributeToken(void) const;
   ::pasta::Type ElementType(void) const;
-  ::pasta::Expr SizeExpr(void) const;
+  ::pasta::Expr SizeExpression(void) const;
   bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentSizedExtVectorType)
@@ -945,16 +946,14 @@ class DependentTemplateSpecializationType : public TypeWithKeyword {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentTemplateSpecializationType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DependentTemplateSpecializationType)
   PASTA_DECLARE_BASE_OPERATORS(TypeWithKeyword, DependentTemplateSpecializationType)
-  // Begin: (const clang::TemplateArgument *)
   ::pasta::Type Desugar(void) const;
-  // End: (const clang::TemplateArgument *)
-  // Arg: (const clang::TemplateArgument &)
-  // Args: (const clang::TemplateArgument *)
+  // Argument: (const clang::TemplateArgument &)
+  // Arguments: (const clang::TemplateArgument *)
   // Identifier: (const clang::IdentifierInfo *)
-  uint32_t NumArgs(void) const;
+  uint32_t NumArguments(void) const;
   // Qualifier: (clang::NestedNameSpecifier *)
   bool IsSugared(void) const;
-  // Template_arguments: (llvm::ArrayRef<clang::TemplateArgument>)
+  // TemplateArguments: (llvm::ArrayRef<clang::TemplateArgument>)
   // !!! Arg getNumArgs getArg (empty ret type = (const clang::TemplateArgument &))
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentTemplateSpecializationType)
@@ -970,7 +969,7 @@ class DependentVectorType : public Type {
   ::pasta::Type Desugar(void) const;
   ::pasta::Token AttributeToken(void) const;
   ::pasta::Type ElementType(void) const;
-  ::pasta::Expr SizeExpr(void) const;
+  ::pasta::Expr SizeExpression(void) const;
   ::pasta::VectorKind VectorKind(void) const;
   bool IsSugared(void) const;
  protected:
@@ -988,7 +987,7 @@ class ElaboratedType : public TypeWithKeyword {
   PASTA_DECLARE_BASE_OPERATORS(TypeWithKeyword, ElaboratedType)
   ::pasta::Type Desugar(void) const;
   ::pasta::Type NamedType(void) const;
-  ::pasta::TagDecl OwnedTagDecl(void) const;
+  ::pasta::TagDecl OwnedTagDeclaration(void) const;
   // Qualifier: (clang::NestedNameSpecifier *)
   bool IsSugared(void) const;
  protected:
@@ -1038,10 +1037,10 @@ class FunctionType : public Type {
   PASTA_DECLARE_DERIVED_OPERATORS(FunctionType, FunctionProtoType)
   enum CallingConv CallConv(void) const;
   ::pasta::Type CallResultType(void) const;
-  bool CmseNSCallAttr(void) const;
+  bool CmseNSCallAttribute(void) const;
   // ExtInfo: (clang::FunctionType::ExtInfo)
   bool HasRegParm(void) const;
-  bool NoReturnAttr(void) const;
+  bool NoReturnAttribute(void) const;
   uint32_t RegParmType(void) const;
   ::pasta::Type ReturnType(void) const;
   bool IsConst(void) const;
@@ -1074,7 +1073,7 @@ class InjectedClassNameType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(InjectedClassNameType)
   PASTA_DECLARE_BASE_OPERATORS(Type, InjectedClassNameType)
   ::pasta::Type Desugar(void) const;
-  ::pasta::CXXRecordDecl Decl(void) const;
+  ::pasta::CXXRecordDecl Declaration(void) const;
   ::pasta::Type InjectedSpecializationType(void) const;
   ::pasta::TemplateSpecializationType InjectedTST(void) const;
   // TemplateName: (clang::TemplateName)
@@ -1124,7 +1123,7 @@ class MemberPointerType : public Type {
   PASTA_DECLARE_BASE_OPERATORS(Type, MemberPointerType)
   ::pasta::Type Desugar(void) const;
   ::pasta::Type Class(void) const;
-  ::pasta::CXXRecordDecl MostRecentCXXRecordDecl(void) const;
+  ::pasta::CXXRecordDecl MostRecentCXXRecordDeclaration(void) const;
   ::pasta::Type PointeeType(void) const;
   bool IsMemberDataPointer(void) const;
   bool IsMemberFunctionPointer(void) const;
@@ -1141,15 +1140,15 @@ class ObjCObjectPointerType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCObjectPointerType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ObjCObjectPointerType)
   ::pasta::Type Desugar(void) const;
-  ::pasta::ObjCInterfaceDecl InterfaceDecl(void) const;
+  ::pasta::ObjCInterfaceDecl InterfaceDeclaration(void) const;
   ::pasta::ObjCInterfaceType InterfaceType(void) const;
   uint32_t NumProtocols(void) const;
   ::pasta::ObjCObjectType ObjectType(void) const;
   ::pasta::Type PointeeType(void) const;
   // Protocol: (clang::ObjCProtocolDecl *)
   ::pasta::Type SuperClassType(void) const;
-  std::vector<::pasta::Type> TypeArgs(void) const;
-  std::vector<::pasta::Type> TypeArgsAsWritten(void) const;
+  std::vector<::pasta::Type> TypeArguments(void) const;
+  std::vector<::pasta::Type> TypeArgumentsAsWritten(void) const;
   bool IsKindOfType(void) const;
   bool IsObjCClassType(void) const;
   bool IsObjCIdOrClassType(void) const;
@@ -1180,8 +1179,8 @@ class ObjCObjectType : public Type {
   ::pasta::Type BaseType(void) const;
   ::pasta::ObjCInterfaceDecl Interface(void) const;
   ::pasta::Type SuperClassType(void) const;
-  std::vector<::pasta::Type> TypeArgs(void) const;
-  std::vector<::pasta::Type> TypeArgsAsWritten(void) const;
+  std::vector<::pasta::Type> TypeArguments(void) const;
+  std::vector<::pasta::Type> TypeArgumentsAsWritten(void) const;
   bool IsKindOfType(void) const;
   bool IsKindOfTypeAsWritten(void) const;
   bool IsObjCClass(void) const;
@@ -1209,7 +1208,7 @@ class ObjCTypeParamType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCTypeParamType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ObjCTypeParamType)
   ::pasta::Type Desugar(void) const;
-  ::pasta::ObjCTypeParamDecl Decl(void) const;
+  ::pasta::ObjCTypeParamDecl Declaration(void) const;
   bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ObjCTypeParamType)
@@ -1284,7 +1283,7 @@ class ReferenceType : public Type {
   PASTA_DECLARE_DERIVED_OPERATORS(ReferenceType, RValueReferenceType)
   ::pasta::Type PointeeType(void) const;
   ::pasta::Type PointeeTypeAsWritten(void) const;
-  bool IsInnerRef(void) const;
+  bool IsInnerReference(void) const;
   bool IsSpelledAsLValue(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ReferenceType)
@@ -1300,7 +1299,7 @@ class SubstTemplateTypeParmPackType : public Type {
   ::pasta::Type Desugar(void) const;
   // ArgumentPack: (clang::TemplateArgument)
   // Identifier: (clang::IdentifierInfo *)
-  uint32_t NumArgs(void) const;
+  uint32_t NumArguments(void) const;
   ::pasta::TemplateTypeParmType ReplacedParameter(void) const;
   bool IsSugared(void) const;
  protected:
@@ -1331,7 +1330,7 @@ class TagType : public Type {
   PASTA_DECLARE_BASE_OPERATORS(Type, TagType)
   PASTA_DECLARE_DERIVED_OPERATORS(TagType, EnumType)
   PASTA_DECLARE_DERIVED_OPERATORS(TagType, RecordType)
-  ::pasta::TagDecl Decl(void) const;
+  ::pasta::TagDecl Declaration(void) const;
   bool IsBeingDefined(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(TagType)
@@ -1344,18 +1343,16 @@ class TemplateSpecializationType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TemplateSpecializationType)
   PASTA_DECLARE_BASE_OPERATORS(Type, TemplateSpecializationType)
-  // Begin: (const clang::TemplateArgument *)
   ::pasta::Type Desugar(void) const;
-  // End: (const clang::TemplateArgument *)
   ::pasta::Type AliasedType(void) const;
-  // Arg: (const clang::TemplateArgument &)
-  // Args: (const clang::TemplateArgument *)
-  uint32_t NumArgs(void) const;
+  // Argument: (const clang::TemplateArgument &)
+  // Arguments: (const clang::TemplateArgument *)
+  uint32_t NumArguments(void) const;
   // TemplateName: (clang::TemplateName)
   bool IsCurrentInstantiation(void) const;
   bool IsSugared(void) const;
   bool IsTypeAlias(void) const;
-  // Template_arguments: (llvm::ArrayRef<clang::TemplateArgument>)
+  // TemplateArguments: (llvm::ArrayRef<clang::TemplateArgument>)
   // !!! Arg getNumArgs getArg (empty ret type = (const clang::TemplateArgument &))
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(TemplateSpecializationType)
@@ -1369,7 +1366,7 @@ class TemplateTypeParmType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TemplateTypeParmType)
   PASTA_DECLARE_BASE_OPERATORS(Type, TemplateTypeParmType)
   ::pasta::Type Desugar(void) const;
-  ::pasta::TemplateTypeParmDecl Decl(void) const;
+  ::pasta::TemplateTypeParmDecl Declaration(void) const;
   uint32_t Depth(void) const;
   // Identifier: (clang::IdentifierInfo *)
   uint32_t Index(void) const;
@@ -1392,7 +1389,7 @@ class VariableArrayType : public ArrayType {
   ::pasta::TokenRange BracketsRange(void) const;
   ::pasta::Token LBracketToken(void) const;
   ::pasta::Token RBracketToken(void) const;
-  ::pasta::Expr SizeExpr(void) const;
+  ::pasta::Expr SizeExpression(void) const;
   bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(VariableArrayType)
@@ -1407,10 +1404,10 @@ class AutoType : public DeducedType {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AutoType)
   PASTA_DECLARE_BASE_OPERATORS(DeducedType, AutoType)
   PASTA_DECLARE_BASE_OPERATORS(Type, AutoType)
-  // Arg: (const clang::TemplateArgument &)
-  // Args: (const clang::TemplateArgument *)
+  // Argument: (const clang::TemplateArgument &)
+  // Arguments: (const clang::TemplateArgument *)
   enum AutoTypeKeyword Keyword(void) const;
-  uint32_t NumArgs(void) const;
+  uint32_t NumArguments(void) const;
   // TypeConstraintArguments: (llvm::ArrayRef<clang::TemplateArgument>)
   ::pasta::ConceptDecl TypeConstraintConcept(void) const;
   bool IsConstrained(void) const;
@@ -1461,9 +1458,9 @@ class DependentSizedMatrixType : public MatrixType {
   PASTA_DECLARE_BASE_OPERATORS(Type, DependentSizedMatrixType)
   ::pasta::Type Desugar(void) const;
   ::pasta::Token AttributeToken(void) const;
-  ::pasta::Expr ColumnExpr(void) const;
+  ::pasta::Expr ColumnExpression(void) const;
   ::pasta::Type ElementType(void) const;
-  ::pasta::Expr RowExpr(void) const;
+  ::pasta::Expr RowExpression(void) const;
   bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentSizedMatrixType)
@@ -1479,7 +1476,7 @@ class EnumType : public TagType {
   PASTA_DECLARE_BASE_OPERATORS(TagType, EnumType)
   PASTA_DECLARE_BASE_OPERATORS(Type, EnumType)
   ::pasta::Type Desugar(void) const;
-  ::pasta::EnumDecl Decl(void) const;
+  ::pasta::EnumDecl Declaration(void) const;
   bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(EnumType)
@@ -1513,7 +1510,7 @@ class FunctionProtoType : public FunctionType {
   ::pasta::Type Desugar(void) const;
   std::vector<::pasta::Type> Exceptions(void) const;
   ::pasta::Token EllipsisToken(void) const;
-  ::pasta::FunctionDecl ExceptionSpecDecl(void) const;
+  ::pasta::FunctionDecl ExceptionSpecDeclaration(void) const;
   // ExceptionSpecInfo: (clang::FunctionProtoType::ExceptionSpecInfo)
   ::pasta::FunctionDecl ExceptionSpecTemplate(void) const;
   enum ExceptionSpecificationType ExceptionSpecType(void) const;
@@ -1523,13 +1520,13 @@ class FunctionProtoType : public FunctionType {
   // ExtParameterInfosOrNull: (const clang::FunctionType::ExtParameterInfo *)
   // ExtProtoInfo: (clang::FunctionProtoType::ExtProtoInfo)
   // MethodQuals: (clang::Qualifiers)
-  ::pasta::Expr NoexceptExpr(void) const;
+  ::pasta::Expr NoexceptExpression(void) const;
   uint32_t NumExceptions(void) const;
   uint32_t NumParams(void) const;
   // ParamType: (clang::QualType)
   std::vector<::pasta::Type> ParamTypes(void) const;
   // ParameterABI: (clang::ParameterABI)
-  enum RefQualifierKind RefQualifier(void) const;
+  enum RefQualifierKind ReferenceQualifier(void) const;
   bool HasDependentExceptionSpec(void) const;
   bool HasDynamicExceptionSpec(void) const;
   bool HasExceptionSpec(void) const;
@@ -1542,7 +1539,7 @@ class FunctionProtoType : public FunctionType {
   bool IsSugared(void) const;
   bool IsTemplateVariadic(void) const;
   bool IsVariadic(void) const;
-  // Param_types: (llvm::iterator_range<const clang::QualType *>)
+  // ParamTypes: (llvm::iterator_range<const clang::QualType *>)
   std::vector<::pasta::Type> ExceptionTypes(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(FunctionProtoType)
@@ -1573,7 +1570,7 @@ class ObjCInterfaceType : public ObjCObjectType {
   PASTA_DECLARE_BASE_OPERATORS(ObjCObjectType, ObjCInterfaceType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ObjCInterfaceType)
   ::pasta::Type Desugar(void) const;
-  ::pasta::ObjCInterfaceDecl Decl(void) const;
+  ::pasta::ObjCInterfaceDecl Declaration(void) const;
   bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ObjCInterfaceType)
@@ -1604,7 +1601,7 @@ class RecordType : public TagType {
   PASTA_DECLARE_BASE_OPERATORS(TagType, RecordType)
   PASTA_DECLARE_BASE_OPERATORS(Type, RecordType)
   ::pasta::Type Desugar(void) const;
-  ::pasta::RecordDecl Decl(void) const;
+  ::pasta::RecordDecl Declaration(void) const;
   bool HasConstFields(void) const;
   bool IsSugared(void) const;
  protected:

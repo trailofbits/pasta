@@ -56,7 +56,7 @@ class TypeDumper final : public pasta::TypeVisitor {
   }
 
   void VisitRecordType(const pasta::RecordType &type) {
-    pasta::RecordDecl record = type.Decl();
+    pasta::RecordDecl record = type.Declaration();
 
     os << "record ";
     if (auto name = record.Name(); !name.empty()) {
@@ -91,7 +91,7 @@ class StructureFinder final : public pasta::DeclVisitor {
       : type_dumper(type_dumper_) {}
 
   void VisitDeclContext(const pasta::DeclContext &dc) {
-    for (const auto &decl : dc.AlreadyLoadedDecls()) {
+    for (const auto &decl : dc.AlreadyLoadedDeclarations()) {
       Accept(decl);
     }
   }
@@ -117,7 +117,7 @@ class StructureFinder final : public pasta::DeclVisitor {
   }
 
   void VisitRecordDecl(const pasta::RecordDecl &decl) final {
-    type_dumper.Accept(decl.TypeForDecl());
+    type_dumper.Accept(decl.TypeForDeclaration());
     type_dumper.os << "\n\n";
     VisitDeclContext(decl);
   }

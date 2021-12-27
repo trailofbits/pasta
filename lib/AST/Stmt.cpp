@@ -1329,13 +1329,13 @@ PASTA_DEFINE_DERIVED_OPERATORS(SwitchCase, DefaultStmt)
   __builtin_unreachable();
 }
 
-::pasta::Stmt SwitchCase::SubStmt(void) const {
+::pasta::Stmt SwitchCase::SubStatement(void) const {
   auto &self = *(u.SwitchCase);
   auto val = self.getSubStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "SwitchCase::SubStmt can return nullptr!");
+  assert(false && "SwitchCase::SubStatement can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -1371,13 +1371,13 @@ std::vector<::pasta::Stmt> SwitchStmt::Children(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Expr SwitchStmt::Cond(void) const {
+::pasta::Expr SwitchStmt::Condition(void) const {
   auto &self = *(u.SwitchStmt);
   auto val = self.getCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "SwitchStmt::Cond can return nullptr!");
+  assert(false && "SwitchStmt::Condition can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -1391,13 +1391,13 @@ std::vector<::pasta::Stmt> SwitchStmt::Children(void) const {
   __builtin_unreachable();
 }
 
-::pasta::DeclStmt SwitchStmt::ConditionVariableDeclStmt(void) const {
+::pasta::DeclStmt SwitchStmt::ConditionVariableDeclarationStatement(void) const {
   auto &self = *(u.SwitchStmt);
   auto val = self.getConditionVariableDeclStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::DeclStmt>(ast, val);
   }
-  assert(false && "SwitchStmt::ConditionVariableDeclStmt can return nullptr!");
+  assert(false && "SwitchStmt::ConditionVariableDeclarationStatement can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -1407,13 +1407,13 @@ std::vector<::pasta::Stmt> SwitchStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Stmt SwitchStmt::Init(void) const {
+::pasta::Stmt SwitchStmt::Initializer(void) const {
   auto &self = *(u.SwitchStmt);
   auto val = self.getInit();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "SwitchStmt::Init can return nullptr!");
+  assert(false && "SwitchStmt::Initializer can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -1445,13 +1445,13 @@ std::vector<::pasta::Stmt> SwitchStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-bool SwitchStmt::HasInitStorage(void) const {
+bool SwitchStmt::HasInitializerStorage(void) const {
   auto &self = *(u.SwitchStmt);
   auto val = self.hasInitStorage();
   return val;
 }
 
-bool SwitchStmt::HasVarStorage(void) const {
+bool SwitchStmt::HasVariableStorage(void) const {
   auto &self = *(u.SwitchStmt);
   auto val = self.hasVarStorage();
   return val;
@@ -1601,13 +1601,13 @@ PASTA_DEFINE_DERIVED_OPERATORS(ValueStmt, UnresolvedLookupExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueStmt, UnresolvedMemberExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueStmt, UserDefinedLiteral)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueStmt, VAArgExpr)
-::pasta::Expr ValueStmt::ExprStmt(void) const {
+::pasta::Expr ValueStmt::ExpressionStatement(void) const {
   auto &self = *(u.ValueStmt);
   auto val = self.getExprStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ValueStmt::ExprStmt can return nullptr!");
+  assert(false && "ValueStmt::ExpressionStatement can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -1643,13 +1643,13 @@ std::vector<::pasta::Stmt> WhileStmt::Children(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Expr WhileStmt::Cond(void) const {
+::pasta::Expr WhileStmt::Condition(void) const {
   auto &self = *(u.WhileStmt);
   auto val = self.getCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "WhileStmt::Cond can return nullptr!");
+  assert(false && "WhileStmt::Condition can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -1663,13 +1663,13 @@ std::vector<::pasta::Stmt> WhileStmt::Children(void) const {
   __builtin_unreachable();
 }
 
-::pasta::DeclStmt WhileStmt::ConditionVariableDeclStmt(void) const {
+::pasta::DeclStmt WhileStmt::ConditionVariableDeclarationStatement(void) const {
   auto &self = *(u.WhileStmt);
   auto val = self.getConditionVariableDeclStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::DeclStmt>(ast, val);
   }
-  assert(false && "WhileStmt::ConditionVariableDeclStmt can return nullptr!");
+  assert(false && "WhileStmt::ConditionVariableDeclarationStatement can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -1697,7 +1697,7 @@ std::vector<::pasta::Stmt> WhileStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-bool WhileStmt::HasVarStorage(void) const {
+bool WhileStmt::HasVariableStorage(void) const {
   auto &self = *(u.WhileStmt);
   auto val = self.hasVarStorage();
   return val;
@@ -1725,13 +1725,13 @@ std::vector<::pasta::Stmt> AsmStmt::Children(void) const {
 
 // 0: AsmStmt::
 // 0: AsmStmt::
-std::string AsmStmt::GenerateAsmString(void) const {
+std::string AsmStmt::GenerateAssemblyString(void) const {
   auto &self = *(u.AsmStmt);
   auto val = self.generateAsmString(ast->ci->getASTContext());
   return val;
 }
 
-::pasta::Token AsmStmt::AsmToken(void) const {
+::pasta::Token AsmStmt::AssemblyToken(void) const {
   auto &self = *(u.AsmStmt);
   auto val = self.getAsmLoc();
   return ast->TokenAt(val);
@@ -1751,7 +1751,7 @@ std::string AsmStmt::GenerateAsmString(void) const {
 }
 
 // 1: AsmStmt::InputConstraint
-// 1: AsmStmt::InputExpr
+// 1: AsmStmt::InputExpression
 uint32_t AsmStmt::NumClobbers(void) const {
   auto &self = *(u.AsmStmt);
   auto val = self.getNumClobbers();
@@ -1777,7 +1777,7 @@ uint32_t AsmStmt::NumPlusOperands(void) const {
 }
 
 // 1: AsmStmt::OutputConstraint
-// 1: AsmStmt::OutputExpr
+// 1: AsmStmt::OutputExpression
 std::vector<::pasta::Expr> AsmStmt::Inputs(void) const {
   auto &self = *(u.AsmStmt);
   auto val = self.inputs();
@@ -1829,7 +1829,7 @@ std::vector<std::string_view> AsmStmt::OutputConstraints(void) const {
   return ret;
 }
 
-std::vector<::pasta::Expr> AsmStmt::OutputExprs(void) const {
+std::vector<::pasta::Expr> AsmStmt::OutputExpressions(void) const {
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
@@ -1863,7 +1863,7 @@ std::vector<std::string_view> AsmStmt::InputConstraints(void) const {
   return ret;
 }
 
-std::vector<::pasta::Expr> AsmStmt::InputExprs(void) const {
+std::vector<::pasta::Expr> AsmStmt::InputExpressions(void) const {
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
@@ -1914,7 +1914,7 @@ std::vector<::pasta::Stmt> AttributedStmt::Children(void) const {
   return ret;
 }
 
-::pasta::Token AttributedStmt::AttrToken(void) const {
+::pasta::Token AttributedStmt::AttributeToken(void) const {
   auto &self = *(u.AttributedStmt);
   auto val = self.getAttrLoc();
   return ast->TokenAt(val);
@@ -1933,13 +1933,13 @@ std::vector<::pasta::Stmt> AttributedStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Stmt AttributedStmt::SubStmt(void) const {
+::pasta::Stmt AttributedStmt::SubStatement(void) const {
   auto &self = *(u.AttributedStmt);
   auto val = self.getSubStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "AttributedStmt::SubStmt can return nullptr!");
+  assert(false && "AttributedStmt::SubStatement can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2017,13 +2017,13 @@ std::vector<::pasta::Stmt> CXXCatchStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::VarDecl CXXCatchStmt::ExceptionDecl(void) const {
+::pasta::VarDecl CXXCatchStmt::ExceptionDeclaration(void) const {
   auto &self = *(u.CXXCatchStmt);
   auto val = self.getExceptionDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
-  assert(false && "CXXCatchStmt::ExceptionDecl can return nullptr!");
+  assert(false && "CXXCatchStmt::ExceptionDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2059,13 +2059,13 @@ std::vector<::pasta::Stmt> CXXForRangeStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::DeclStmt CXXForRangeStmt::BeginStmt(void) const {
+::pasta::DeclStmt CXXForRangeStmt::BeginStatement(void) const {
   auto &self = *(u.CXXForRangeStmt);
   auto val = self.getBeginStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::DeclStmt>(ast, val);
   }
-  assert(false && "CXXForRangeStmt::BeginStmt can return nullptr!");
+  assert(false && "CXXForRangeStmt::BeginStatement can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2091,13 +2091,13 @@ std::vector<::pasta::Stmt> CXXForRangeStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr CXXForRangeStmt::Cond(void) const {
+::pasta::Expr CXXForRangeStmt::Condition(void) const {
   auto &self = *(u.CXXForRangeStmt);
   auto val = self.getCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CXXForRangeStmt::Cond can return nullptr!");
+  assert(false && "CXXForRangeStmt::Condition can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2107,13 +2107,13 @@ std::vector<::pasta::Stmt> CXXForRangeStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::DeclStmt CXXForRangeStmt::EndStmt(void) const {
+::pasta::DeclStmt CXXForRangeStmt::EndStatement(void) const {
   auto &self = *(u.CXXForRangeStmt);
   auto val = self.getEndStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::DeclStmt>(ast, val);
   }
-  assert(false && "CXXForRangeStmt::EndStmt can return nullptr!");
+  assert(false && "CXXForRangeStmt::EndStatement can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2123,33 +2123,33 @@ std::vector<::pasta::Stmt> CXXForRangeStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr CXXForRangeStmt::Inc(void) const {
+::pasta::Expr CXXForRangeStmt::Increment(void) const {
   auto &self = *(u.CXXForRangeStmt);
   auto val = self.getInc();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CXXForRangeStmt::Inc can return nullptr!");
+  assert(false && "CXXForRangeStmt::Increment can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Stmt CXXForRangeStmt::Init(void) const {
+::pasta::Stmt CXXForRangeStmt::Initializer(void) const {
   auto &self = *(u.CXXForRangeStmt);
   auto val = self.getInit();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "CXXForRangeStmt::Init can return nullptr!");
+  assert(false && "CXXForRangeStmt::Initializer can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::DeclStmt CXXForRangeStmt::LoopVarStmt(void) const {
+::pasta::DeclStmt CXXForRangeStmt::LoopVariableStatement(void) const {
   auto &self = *(u.CXXForRangeStmt);
   auto val = self.getLoopVarStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::DeclStmt>(ast, val);
   }
-  assert(false && "CXXForRangeStmt::LoopVarStmt can return nullptr!");
+  assert(false && "CXXForRangeStmt::LoopVariableStatement can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2169,23 +2169,23 @@ std::vector<::pasta::Stmt> CXXForRangeStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr CXXForRangeStmt::RangeInit(void) const {
+::pasta::Expr CXXForRangeStmt::RangeInitializer(void) const {
   auto &self = *(u.CXXForRangeStmt);
   auto val = self.getRangeInit();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CXXForRangeStmt::RangeInit can return nullptr!");
+  assert(false && "CXXForRangeStmt::RangeInitializer can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::DeclStmt CXXForRangeStmt::RangeStmt(void) const {
+::pasta::DeclStmt CXXForRangeStmt::RangeStatement(void) const {
   auto &self = *(u.CXXForRangeStmt);
   auto val = self.getRangeStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::DeclStmt>(ast, val);
   }
-  assert(false && "CXXForRangeStmt::RangeStmt can return nullptr!");
+  assert(false && "CXXForRangeStmt::RangeStatement can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2266,7 +2266,7 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, CapturedStmt)
 // 0: CapturedStmt::
 // 0: CapturedStmt::
 // 0: CapturedStmt::
-// 0: CapturedStmt::Capture_inits
+// 0: CapturedStmt::CaptureInitializers
 // 0: CapturedStmt::
 // 0: CapturedStmt::Captures
 // 1: CapturedStmt::CapturesVariable
@@ -2286,23 +2286,23 @@ std::vector<::pasta::Stmt> CapturedStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::CapturedDecl CapturedStmt::CapturedDecl(void) const {
+::pasta::CapturedDecl CapturedStmt::CapturedDeclaration(void) const {
   auto &self = *(u.CapturedStmt);
   auto val = self.getCapturedDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::CapturedDecl>(ast, val);
   }
-  assert(false && "CapturedStmt::CapturedDecl can return nullptr!");
+  assert(false && "CapturedStmt::CapturedDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::RecordDecl CapturedStmt::CapturedRecordDecl(void) const {
+::pasta::RecordDecl CapturedStmt::CapturedRecordDeclaration(void) const {
   auto &self = *(u.CapturedStmt);
   auto val = self.getCapturedRecordDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::RecordDecl>(ast, val);
   }
-  assert(false && "CapturedStmt::CapturedRecordDecl can return nullptr!");
+  assert(false && "CapturedStmt::CapturedRecordDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2312,13 +2312,13 @@ enum CapturedRegionKind CapturedStmt::CapturedRegionKind(void) const {
   return static_cast<::pasta::CapturedRegionKind>(static_cast<unsigned int>(val));
 }
 
-::pasta::Stmt CapturedStmt::FindCapturedStmt(void) const {
+::pasta::Stmt CapturedStmt::CapturedStatement(void) const {
   auto &self = *(u.CapturedStmt);
   auto val = self.getCapturedStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "CapturedStmt::FindCapturedStmt can return nullptr!");
+  assert(false && "CapturedStmt::CapturedStatement can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2341,7 +2341,7 @@ CaseStmt::CaseStmt(
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CaseStmt)
 PASTA_DEFINE_BASE_OPERATORS(SwitchCase, CaseStmt)
-bool CaseStmt::CaseStmtIsGNURange(void) const {
+bool CaseStmt::CaseStatementIsGNURange(void) const {
   auto &self = *(u.CaseStmt);
   auto val = self.caseStmtIsGNURange();
   return val;
@@ -2401,13 +2401,13 @@ std::vector<::pasta::Stmt> CaseStmt::Children(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Stmt CaseStmt::SubStmt(void) const {
+::pasta::Stmt CaseStmt::SubStatement(void) const {
   auto &self = *(u.CaseStmt);
   auto val = self.getSubStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "CaseStmt::SubStmt can return nullptr!");
+  assert(false && "CaseStmt::SubStatement can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2418,29 +2418,11 @@ CompoundStmt::CompoundStmt(
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CompoundStmt)
 // 0: CompoundStmt::Body
-::pasta::Stmt CompoundStmt::Body_back(void) const {
-  auto &self = *(u.CompoundStmt);
-  auto val = self.body_back();
-  if (val) {
-    return StmtBuilder::Create<::pasta::Stmt>(ast, val);
-  }
-  assert(false && "CompoundStmt::Body_back can return nullptr!");
-  __builtin_unreachable();
-}
-
 // 0: CompoundStmt::
 // 0: CompoundStmt::
 // 0: CompoundStmt::
-::pasta::Stmt CompoundStmt::Body_front(void) const {
-  auto &self = *(u.CompoundStmt);
-  auto val = self.body_front();
-  if (val) {
-    return StmtBuilder::Create<::pasta::Stmt>(ast, val);
-  }
-  assert(false && "CompoundStmt::Body_front can return nullptr!");
-  __builtin_unreachable();
-}
-
+// 0: CompoundStmt::
+// 0: CompoundStmt::
 // 0: CompoundStmt::
 // 0: CompoundStmt::
 std::vector<::pasta::Stmt> CompoundStmt::Children(void) const {
@@ -2477,13 +2459,13 @@ std::vector<::pasta::Stmt> CompoundStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Stmt CompoundStmt::StmtExprResult(void) const {
+::pasta::Stmt CompoundStmt::StatementExpressionResult(void) const {
   auto &self = *(u.CompoundStmt);
   auto val = self.getStmtExprResult();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "CompoundStmt::StmtExprResult can return nullptr!");
+  assert(false && "CompoundStmt::StatementExpressionResult can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2665,23 +2647,23 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::Children(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Stmt CoroutineBodyStmt::FinalSuspendStmt(void) const {
+::pasta::Stmt CoroutineBodyStmt::FinalSuspendStatement(void) const {
   auto &self = *(u.CoroutineBodyStmt);
   auto val = self.getFinalSuspendStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "CoroutineBodyStmt::FinalSuspendStmt can return nullptr!");
+  assert(false && "CoroutineBodyStmt::FinalSuspendStatement can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Stmt CoroutineBodyStmt::InitSuspendStmt(void) const {
+::pasta::Stmt CoroutineBodyStmt::InitializerSuspendStatement(void) const {
   auto &self = *(u.CoroutineBodyStmt);
   auto val = self.getInitSuspendStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "CoroutineBodyStmt::InitSuspendStmt can return nullptr!");
+  assert(false && "CoroutineBodyStmt::InitializerSuspendStatement can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2695,63 +2677,63 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::ParamMoves(void) const {
   return ret;
 }
 
-::pasta::VarDecl CoroutineBodyStmt::PromiseDecl(void) const {
+::pasta::VarDecl CoroutineBodyStmt::PromiseDeclaration(void) const {
   auto &self = *(u.CoroutineBodyStmt);
   auto val = self.getPromiseDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
-  assert(false && "CoroutineBodyStmt::PromiseDecl can return nullptr!");
+  assert(false && "CoroutineBodyStmt::PromiseDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Stmt CoroutineBodyStmt::PromiseDeclStmt(void) const {
+::pasta::Stmt CoroutineBodyStmt::PromiseDeclarationStatement(void) const {
   auto &self = *(u.CoroutineBodyStmt);
   auto val = self.getPromiseDeclStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "CoroutineBodyStmt::PromiseDeclStmt can return nullptr!");
+  assert(false && "CoroutineBodyStmt::PromiseDeclarationStatement can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Stmt CoroutineBodyStmt::ResultDecl(void) const {
+::pasta::Stmt CoroutineBodyStmt::ResultDeclaration(void) const {
   auto &self = *(u.CoroutineBodyStmt);
   auto val = self.getResultDecl();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "CoroutineBodyStmt::ResultDecl can return nullptr!");
+  assert(false && "CoroutineBodyStmt::ResultDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Stmt CoroutineBodyStmt::ReturnStmt(void) const {
+::pasta::Stmt CoroutineBodyStmt::ReturnStatement(void) const {
   auto &self = *(u.CoroutineBodyStmt);
   auto val = self.getReturnStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "CoroutineBodyStmt::ReturnStmt can return nullptr!");
+  assert(false && "CoroutineBodyStmt::ReturnStatement can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Stmt CoroutineBodyStmt::ReturnStmtOnAllocFailure(void) const {
+::pasta::Stmt CoroutineBodyStmt::ReturnStatementOnAllocFailure(void) const {
   auto &self = *(u.CoroutineBodyStmt);
   auto val = self.getReturnStmtOnAllocFailure();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "CoroutineBodyStmt::ReturnStmtOnAllocFailure can return nullptr!");
+  assert(false && "CoroutineBodyStmt::ReturnStatementOnAllocFailure can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Expr CoroutineBodyStmt::ReturnValueInit(void) const {
+::pasta::Expr CoroutineBodyStmt::ReturnValueInitializer(void) const {
   auto &self = *(u.CoroutineBodyStmt);
   auto val = self.getReturnValueInit();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CoroutineBodyStmt::ReturnValueInit can return nullptr!");
+  assert(false && "CoroutineBodyStmt::ReturnValueInitializer can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2786,24 +2768,24 @@ std::vector<::pasta::Stmt> DeclStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-// 0: DeclStmt::DeclGroup
+// 0: DeclStmt::DeclarationGroup
 ::pasta::Token DeclStmt::EndToken(void) const {
   auto &self = *(u.DeclStmt);
   auto val = self.getEndLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Decl DeclStmt::SingleDecl(void) const {
+::pasta::Decl DeclStmt::SingleDeclaration(void) const {
   auto &self = *(u.DeclStmt);
   auto val = self.getSingleDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::Decl>(ast, val);
   }
-  assert(false && "DeclStmt::SingleDecl can return nullptr!");
+  assert(false && "DeclStmt::SingleDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
-bool DeclStmt::IsSingleDecl(void) const {
+bool DeclStmt::IsSingleDeclaration(void) const {
   auto &self = *(u.DeclStmt);
   auto val = self.isSingleDecl();
   return val;
@@ -2844,13 +2826,13 @@ std::vector<::pasta::Stmt> DefaultStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Stmt DefaultStmt::SubStmt(void) const {
+::pasta::Stmt DefaultStmt::SubStatement(void) const {
   auto &self = *(u.DefaultStmt);
   auto val = self.getSubStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "DefaultStmt::SubStmt can return nullptr!");
+  assert(false && "DefaultStmt::SubStatement can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2886,13 +2868,13 @@ std::vector<::pasta::Stmt> DoStmt::Children(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Expr DoStmt::Cond(void) const {
+::pasta::Expr DoStmt::Condition(void) const {
   auto &self = *(u.DoStmt);
   auto val = self.getCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "DoStmt::Cond can return nullptr!");
+  assert(false && "DoStmt::Condition can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -3060,7 +3042,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Expr, VAArgExpr)
 // 1: Expr::ClassifyLValue
 // 2: ClassifyModifiable
 // 2: EvaluateAsBooleanCondition
-// 2: EvaluateAsConstantExpr
+// 2: EvaluateAsConstantExpression
 // 2: EvaluateAsFixedPoint
 // 2: EvaluateAsFloat
 // 5: Expr::EvaluateAsInitializer
@@ -3126,63 +3108,63 @@ bool Expr::HasSideEffects(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Expr Expr::IgnoreParenBaseCasts(void) const {
+::pasta::Expr Expr::IgnoreParenthesisBaseCasts(void) const {
   auto &self = *(u.Expr);
   auto val = self.IgnoreParenBaseCasts();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "Expr::IgnoreParenBaseCasts can return nullptr!");
+  assert(false && "Expr::IgnoreParenthesisBaseCasts can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Expr Expr::IgnoreParenCasts(void) const {
+::pasta::Expr Expr::IgnoreParenthesisCasts(void) const {
   auto &self = *(u.Expr);
   auto val = self.IgnoreParenCasts();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "Expr::IgnoreParenCasts can return nullptr!");
+  assert(false && "Expr::IgnoreParenthesisCasts can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Expr Expr::IgnoreParenImpCasts(void) const {
+::pasta::Expr Expr::IgnoreParenthesisImpCasts(void) const {
   auto &self = *(u.Expr);
   auto val = self.IgnoreParenImpCasts();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "Expr::IgnoreParenImpCasts can return nullptr!");
+  assert(false && "Expr::IgnoreParenthesisImpCasts can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Expr Expr::IgnoreParenLValueCasts(void) const {
+::pasta::Expr Expr::IgnoreParenthesisLValueCasts(void) const {
   auto &self = *(u.Expr);
   auto val = self.IgnoreParenLValueCasts();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "Expr::IgnoreParenLValueCasts can return nullptr!");
+  assert(false && "Expr::IgnoreParenthesisLValueCasts can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Expr Expr::IgnoreParenNoopCasts(void) const {
+::pasta::Expr Expr::IgnoreParenthesisNoopCasts(void) const {
   auto &self = *(u.Expr);
   auto val = self.IgnoreParenNoopCasts(ast->ci->getASTContext());
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "Expr::IgnoreParenNoopCasts can return nullptr!");
+  assert(false && "Expr::IgnoreParenthesisNoopCasts can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Expr Expr::IgnoreParens(void) const {
+::pasta::Expr Expr::IgnoreParentheses(void) const {
   auto &self = *(u.Expr);
   auto val = self.IgnoreParens();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "Expr::IgnoreParens can return nullptr!");
+  assert(false && "Expr::IgnoreParentheses can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -3218,25 +3200,25 @@ bool Expr::ContainsUnexpandedParameterPack(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Expr Expr::BestDynamicClassTypeExpr(void) const {
+::pasta::Expr Expr::BestDynamicClassTypeExpression(void) const {
   auto &self = *(u.Expr);
   auto val = self.getBestDynamicClassTypeExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "Expr::BestDynamicClassTypeExpr can return nullptr!");
+  assert(false && "Expr::BestDynamicClassTypeExpression can return nullptr!");
   __builtin_unreachable();
 }
 
 // 0: Expr::Dependence
-::pasta::Token Expr::ExprToken(void) const {
+::pasta::Token Expr::ExpressionToken(void) const {
   auto &self = *(u.Expr);
   auto val = self.getExprLoc();
   return ast->TokenAt(val);
 }
 
 // 1: Expr::FPFeaturesInEffect
-// 1: Expr::IntegerConstantExpr
+// 1: Expr::IntegerConstantExpression
 ::pasta::ObjCPropertyRefExpr Expr::ObjCProperty(void) const {
   auto &self = *(u.Expr);
   auto val = self.getObjCProperty();
@@ -3253,13 +3235,13 @@ enum ExprObjectKind Expr::ObjectKind(void) const {
   return static_cast<::pasta::ExprObjectKind>(static_cast<unsigned int>(val));
 }
 
-::pasta::Decl Expr::ReferencedDeclOfCallee(void) const {
+::pasta::Decl Expr::ReferencedDeclarationOfCallee(void) const {
   auto &self = *(u.Expr);
   auto val = self.getReferencedDeclOfCallee();
   if (val) {
     return DeclBuilder::Create<::pasta::Decl>(ast, val);
   }
-  assert(false && "Expr::ReferencedDeclOfCallee can return nullptr!");
+  assert(false && "Expr::ReferencedDeclarationOfCallee can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -3297,13 +3279,13 @@ bool Expr::IsBoundMemberFunction(void) const {
   return val;
 }
 
-bool Expr::IsCXX11ConstantExpr(void) const {
+bool Expr::IsCXX11ConstantExpression(void) const {
   auto &self = *(u.Expr);
   auto val = self.isCXX11ConstantExpr(ast->ci->getASTContext());
   return val;
 }
 
-bool Expr::IsCXX98IntegralConstantExpr(void) const {
+bool Expr::IsCXX98IntegralConstantExpression(void) const {
   auto &self = *(u.Expr);
   auto val = self.isCXX98IntegralConstantExpr(ast->ci->getASTContext());
   return val;
@@ -3340,7 +3322,7 @@ bool Expr::IsInstantiationDependent(void) const {
   return val;
 }
 
-bool Expr::IsIntegerConstantExpr(void) const {
+bool Expr::IsIntegerConstantExpression(void) const {
   auto &self = *(u.Expr);
   auto val = self.isIntegerConstantExpr(ast->ci->getASTContext());
   return val;
@@ -3366,7 +3348,7 @@ bool Expr::IsOBJCGCCandidate(void) const {
   return val;
 }
 
-bool Expr::IsObjCSelfExpr(void) const {
+bool Expr::IsObjCSelfExpression(void) const {
   auto &self = *(u.Expr);
   auto val = self.isObjCSelfExpr();
   return val;
@@ -3416,7 +3398,7 @@ bool Expr::RefersToBitField(void) const {
   return val;
 }
 
-bool Expr::RefersToGlobalRegisterVar(void) const {
+bool Expr::RefersToGlobalRegisterVariable(void) const {
   auto &self = *(u.Expr);
   auto val = self.refersToGlobalRegisterVar();
   return val;
@@ -3673,13 +3655,13 @@ std::vector<::pasta::Stmt> ForStmt::Children(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Expr ForStmt::Cond(void) const {
+::pasta::Expr ForStmt::Condition(void) const {
   auto &self = *(u.ForStmt);
   auto val = self.getCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ForStmt::Cond can return nullptr!");
+  assert(false && "ForStmt::Condition can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -3693,13 +3675,13 @@ std::vector<::pasta::Stmt> ForStmt::Children(void) const {
   __builtin_unreachable();
 }
 
-::pasta::DeclStmt ForStmt::ConditionVariableDeclStmt(void) const {
+::pasta::DeclStmt ForStmt::ConditionVariableDeclarationStatement(void) const {
   auto &self = *(u.ForStmt);
   auto val = self.getConditionVariableDeclStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::DeclStmt>(ast, val);
   }
-  assert(false && "ForStmt::ConditionVariableDeclStmt can return nullptr!");
+  assert(false && "ForStmt::ConditionVariableDeclarationStatement can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -3715,23 +3697,23 @@ std::vector<::pasta::Stmt> ForStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr ForStmt::Inc(void) const {
+::pasta::Expr ForStmt::Increment(void) const {
   auto &self = *(u.ForStmt);
   auto val = self.getInc();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ForStmt::Inc can return nullptr!");
+  assert(false && "ForStmt::Increment can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Stmt ForStmt::Init(void) const {
+::pasta::Stmt ForStmt::Initializer(void) const {
   auto &self = *(u.ForStmt);
   auto val = self.getInit();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "ForStmt::Init can return nullptr!");
+  assert(false && "ForStmt::Initializer can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -3757,13 +3739,13 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, FullExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, FullExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(FullExpr, ConstantExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(FullExpr, ExprWithCleanups)
-::pasta::Expr FullExpr::SubExpr(void) const {
+::pasta::Expr FullExpr::SubExpression(void) const {
   auto &self = *(u.FullExpr);
   auto val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "FullExpr::SubExpr can return nullptr!");
+  assert(false && "FullExpr::SubExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -3775,7 +3757,7 @@ FunctionParmPackExpr::FunctionParmPackExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, FunctionParmPackExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, FunctionParmPackExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, FunctionParmPackExpr)
-// 0: FunctionParmPackExpr::Begin
+// 0: FunctionParmPackExpr::
 std::vector<::pasta::Stmt> FunctionParmPackExpr::Children(void) const {
   auto &self = *(u.FunctionParmPackExpr);
   auto val = self.children();
@@ -3786,7 +3768,7 @@ std::vector<::pasta::Stmt> FunctionParmPackExpr::Children(void) const {
   return ret;
 }
 
-// 0: FunctionParmPackExpr::End
+// 0: FunctionParmPackExpr::
 ::pasta::Token FunctionParmPackExpr::BeginToken(void) const {
   auto &self = *(u.FunctionParmPackExpr);
   auto val = self.getBeginLoc();
@@ -3816,7 +3798,7 @@ uint32_t FunctionParmPackExpr::NumExpansions(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Token FunctionParmPackExpr::ParameterPackLocation(void) const {
+::pasta::Token FunctionParmPackExpr::ParameterPackToken(void) const {
   auto &self = *(u.FunctionParmPackExpr);
   auto val = self.getParameterPackLocation();
   return ast->TokenAt(val);
@@ -3845,22 +3827,22 @@ GCCAsmStmt::GCCAsmStmt(
 
 PASTA_DEFINE_BASE_OPERATORS(AsmStmt, GCCAsmStmt)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, GCCAsmStmt)
-// 3: GCCAsmStmt::AnalyzeAsmString
+// 3: GCCAsmStmt::AnalyzeAssemblyString
 // 0: GCCAsmStmt::
 // 0: GCCAsmStmt::
-std::string GCCAsmStmt::GenerateAsmString(void) const {
+std::string GCCAsmStmt::GenerateAssemblyString(void) const {
   auto &self = *(u.GCCAsmStmt);
   auto val = self.generateAsmString(ast->ci->getASTContext());
   return val;
 }
 
-::pasta::StringLiteral GCCAsmStmt::AsmString(void) const {
+::pasta::StringLiteral GCCAsmStmt::AssemblyString(void) const {
   auto &self = *(u.GCCAsmStmt);
   auto val = self.getAsmString();
   if (val) {
     return StmtBuilder::Create<::pasta::StringLiteral>(ast, val);
   }
-  assert(false && "GCCAsmStmt::AsmString can return nullptr!");
+  assert(false && "GCCAsmStmt::AssemblyString can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -3880,10 +3862,10 @@ std::string GCCAsmStmt::GenerateAsmString(void) const {
 
 // 1: GCCAsmStmt::InputConstraint
 // 1: GCCAsmStmt::InputConstraintLiteral
-// 1: GCCAsmStmt::InputExpr
+// 1: GCCAsmStmt::InputExpression
 // 1: GCCAsmStmt::InputIdentifier
 // 1: GCCAsmStmt::InputName
-// 1: GCCAsmStmt::LabelExpr
+// 1: GCCAsmStmt::LabelExpression
 // 1: GCCAsmStmt::LabelIdentifier
 // 1: GCCAsmStmt::LabelName
 // 1: GCCAsmStmt::NamedOperand
@@ -3895,7 +3877,7 @@ uint32_t GCCAsmStmt::NumLabels(void) const {
 
 // 1: GCCAsmStmt::OutputConstraint
 // 1: GCCAsmStmt::OutputConstraintLiteral
-// 1: GCCAsmStmt::OutputExpr
+// 1: GCCAsmStmt::OutputExpression
 // 1: GCCAsmStmt::OutputIdentifier
 // 1: GCCAsmStmt::OutputName
 ::pasta::Token GCCAsmStmt::RParenToken(void) const {
@@ -3904,7 +3886,7 @@ uint32_t GCCAsmStmt::NumLabels(void) const {
   return ast->TokenAt(val);
 }
 
-bool GCCAsmStmt::IsAsmGoto(void) const {
+bool GCCAsmStmt::IsAssemblyGoto(void) const {
   auto &self = *(u.GCCAsmStmt);
   auto val = self.isAsmGoto();
   return val;
@@ -3920,7 +3902,177 @@ std::vector<::pasta::AddrLabelExpr> GCCAsmStmt::Labels(void) const {
   return ret;
 }
 
-std::vector<::pasta::AddrLabelExpr> GCCAsmStmt::LabelExprs(void) const {
+std::vector<std::string_view> GCCAsmStmt::OutputConstraints(void) const {
+  auto convert_elem = [&] (llvm::StringRef val) {
+    if (auto size = val.size()) {
+      return std::string_view(val.data(), size);
+    } else {
+      return std::string_view();
+    }
+    __builtin_unreachable();
+  };
+  std::vector<std::string_view> ret;
+  auto count = u.GCCAsmStmt->getNumOutputs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.GCCAsmStmt->getOutputConstraint(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::StringLiteral> GCCAsmStmt::OutputConstraintLiterals(void) const {
+  auto convert_elem = [&] (const clang::StringLiteral * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::StringLiteral>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::StringLiteral> ret;
+  auto count = u.GCCAsmStmt->getNumOutputs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.GCCAsmStmt->getOutputConstraintLiteral(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::Expr> GCCAsmStmt::OutputExpressions(void) const {
+  auto convert_elem = [&] (const clang::Expr * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::Expr>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::Expr> ret;
+  auto count = u.GCCAsmStmt->getNumOutputs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.GCCAsmStmt->getOutputExpr(i)));
+  }
+  return ret;
+}
+
+std::vector<std::string_view> GCCAsmStmt::OutputNames(void) const {
+  auto convert_elem = [&] (llvm::StringRef val) {
+    if (auto size = val.size()) {
+      return std::string_view(val.data(), size);
+    } else {
+      return std::string_view();
+    }
+    __builtin_unreachable();
+  };
+  std::vector<std::string_view> ret;
+  auto count = u.GCCAsmStmt->getNumOutputs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.GCCAsmStmt->getOutputName(i)));
+  }
+  return ret;
+}
+
+std::vector<std::string_view> GCCAsmStmt::InputConstraints(void) const {
+  auto convert_elem = [&] (llvm::StringRef val) {
+    if (auto size = val.size()) {
+      return std::string_view(val.data(), size);
+    } else {
+      return std::string_view();
+    }
+    __builtin_unreachable();
+  };
+  std::vector<std::string_view> ret;
+  auto count = u.GCCAsmStmt->getNumInputs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.GCCAsmStmt->getInputConstraint(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::StringLiteral> GCCAsmStmt::InputConstraintLiterals(void) const {
+  auto convert_elem = [&] (const clang::StringLiteral * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::StringLiteral>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::StringLiteral> ret;
+  auto count = u.GCCAsmStmt->getNumInputs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.GCCAsmStmt->getInputConstraintLiteral(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::Expr> GCCAsmStmt::InputExpressions(void) const {
+  auto convert_elem = [&] (const clang::Expr * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::Expr>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::Expr> ret;
+  auto count = u.GCCAsmStmt->getNumInputs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.GCCAsmStmt->getInputExpr(i)));
+  }
+  return ret;
+}
+
+std::vector<std::string_view> GCCAsmStmt::InputNames(void) const {
+  auto convert_elem = [&] (llvm::StringRef val) {
+    if (auto size = val.size()) {
+      return std::string_view(val.data(), size);
+    } else {
+      return std::string_view();
+    }
+    __builtin_unreachable();
+  };
+  std::vector<std::string_view> ret;
+  auto count = u.GCCAsmStmt->getNumInputs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.GCCAsmStmt->getInputName(i)));
+  }
+  return ret;
+}
+
+std::vector<std::string_view> GCCAsmStmt::Clobbers(void) const {
+  auto convert_elem = [&] (llvm::StringRef val) {
+    if (auto size = val.size()) {
+      return std::string_view(val.data(), size);
+    } else {
+      return std::string_view();
+    }
+    __builtin_unreachable();
+  };
+  std::vector<std::string_view> ret;
+  auto count = u.GCCAsmStmt->getNumClobbers();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.GCCAsmStmt->getClobber(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::StringLiteral> GCCAsmStmt::ClobberStringLiterals(void) const {
+  auto convert_elem = [&] (const clang::StringLiteral * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::StringLiteral>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::StringLiteral> ret;
+  auto count = u.GCCAsmStmt->getNumClobbers();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.GCCAsmStmt->getClobberStringLiteral(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::AddrLabelExpr> GCCAsmStmt::LabelExpressions(void) const {
   auto convert_elem = [&] (clang::AddrLabelExpr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::AddrLabelExpr>(ast, val);
@@ -3984,7 +4136,7 @@ std::vector<::pasta::Stmt> GNUNullExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Token GNUNullExpr::TokenLocation(void) const {
+::pasta::Token GNUNullExpr::TokenToken(void) const {
   auto &self = *(u.GNUNullExpr);
   auto val = self.getTokenLocation();
   return ast->TokenAt(val);
@@ -4009,7 +4161,7 @@ std::vector<::pasta::Stmt> GenericSelectionExpr::Children(void) const {
   return ret;
 }
 
-std::vector<::pasta::Expr> GenericSelectionExpr::AssocExprs(void) const {
+std::vector<::pasta::Expr> GenericSelectionExpr::AssociationExpressions(void) const {
   auto &self = *(u.GenericSelectionExpr);
   auto val = self.getAssocExprs();
   std::vector<::pasta::Expr> ret;
@@ -4019,7 +4171,7 @@ std::vector<::pasta::Expr> GenericSelectionExpr::AssocExprs(void) const {
   return ret;
 }
 
-// 0: GenericSelectionExpr::AssocTypeSourceInfos
+// 0: GenericSelectionExpr::AssociationTypeSourceInfos
 // 1: GenericSelectionExpr::Association
 ::pasta::Token GenericSelectionExpr::BeginToken(void) const {
   auto &self = *(u.GenericSelectionExpr);
@@ -4027,13 +4179,13 @@ std::vector<::pasta::Expr> GenericSelectionExpr::AssocExprs(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr GenericSelectionExpr::ControllingExpr(void) const {
+::pasta::Expr GenericSelectionExpr::ControllingExpression(void) const {
   auto &self = *(u.GenericSelectionExpr);
   auto val = self.getControllingExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "GenericSelectionExpr::ControllingExpr can return nullptr!");
+  assert(false && "GenericSelectionExpr::ControllingExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -4055,7 +4207,7 @@ std::vector<::pasta::Expr> GenericSelectionExpr::AssocExprs(void) const {
   return ast->TokenAt(val);
 }
 
-uint32_t GenericSelectionExpr::NumAssocs(void) const {
+uint32_t GenericSelectionExpr::NumAssociations(void) const {
   auto &self = *(u.GenericSelectionExpr);
   auto val = self.getNumAssocs();
   return val;
@@ -4067,13 +4219,13 @@ uint32_t GenericSelectionExpr::NumAssocs(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr GenericSelectionExpr::ResultExpr(void) const {
+::pasta::Expr GenericSelectionExpr::ResultExpression(void) const {
   auto &self = *(u.GenericSelectionExpr);
   auto val = self.getResultExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "GenericSelectionExpr::ResultExpr can return nullptr!");
+  assert(false && "GenericSelectionExpr::ResultExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -4161,13 +4313,13 @@ std::vector<::pasta::Stmt> IfStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr IfStmt::Cond(void) const {
+::pasta::Expr IfStmt::Condition(void) const {
   auto &self = *(u.IfStmt);
   auto val = self.getCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "IfStmt::Cond can return nullptr!");
+  assert(false && "IfStmt::Condition can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -4181,13 +4333,13 @@ std::vector<::pasta::Stmt> IfStmt::Children(void) const {
   __builtin_unreachable();
 }
 
-::pasta::DeclStmt IfStmt::ConditionVariableDeclStmt(void) const {
+::pasta::DeclStmt IfStmt::ConditionVariableDeclarationStatement(void) const {
   auto &self = *(u.IfStmt);
   auto val = self.getConditionVariableDeclStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::DeclStmt>(ast, val);
   }
-  assert(false && "IfStmt::ConditionVariableDeclStmt can return nullptr!");
+  assert(false && "IfStmt::ConditionVariableDeclarationStatement can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -4219,13 +4371,13 @@ std::vector<::pasta::Stmt> IfStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Stmt IfStmt::Init(void) const {
+::pasta::Stmt IfStmt::Initializer(void) const {
   auto &self = *(u.IfStmt);
   auto val = self.getInit();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "IfStmt::Init can return nullptr!");
+  assert(false && "IfStmt::Initializer can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -4258,13 +4410,13 @@ bool IfStmt::HasElseStorage(void) const {
   return val;
 }
 
-bool IfStmt::HasInitStorage(void) const {
+bool IfStmt::HasInitializerStorage(void) const {
   auto &self = *(u.IfStmt);
   auto val = self.hasInitStorage();
   return val;
 }
 
-bool IfStmt::HasVarStorage(void) const {
+bool IfStmt::HasVariableStorage(void) const {
   auto &self = *(u.IfStmt);
   auto val = self.hasVarStorage();
   return val;
@@ -4312,13 +4464,13 @@ std::vector<::pasta::Stmt> ImaginaryLiteral::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr ImaginaryLiteral::SubExpr(void) const {
+::pasta::Expr ImaginaryLiteral::SubExpression(void) const {
   auto &self = *(u.ImaginaryLiteral);
   auto val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ImaginaryLiteral::SubExpr can return nullptr!");
+  assert(false && "ImaginaryLiteral::SubExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -4420,7 +4572,7 @@ InitListExpr::InitListExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, InitListExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, InitListExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, InitListExpr)
-// 0: InitListExpr::Begin
+// 0: InitListExpr::
 std::vector<::pasta::Stmt> InitListExpr::Children(void) const {
   auto &self = *(u.InitListExpr);
   auto val = self.children();
@@ -4431,7 +4583,7 @@ std::vector<::pasta::Stmt> InitListExpr::Children(void) const {
   return ret;
 }
 
-// 0: InitListExpr::End
+// 0: InitListExpr::
 ::pasta::Expr InitListExpr::ArrayFiller(void) const {
   auto &self = *(u.InitListExpr);
   auto val = self.getArrayFiller();
@@ -4454,7 +4606,7 @@ std::vector<::pasta::Stmt> InitListExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-// 1: InitListExpr::Init
+// 1: InitListExpr::Initializer
 ::pasta::FieldDecl InitListExpr::InitializedFieldInUnion(void) const {
   auto &self = *(u.InitListExpr);
   auto val = self.getInitializedFieldInUnion();
@@ -4472,7 +4624,7 @@ std::vector<::pasta::Stmt> InitListExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-uint32_t InitListExpr::NumInits(void) const {
+uint32_t InitListExpr::NumInitializers(void) const {
   auto &self = *(u.InitListExpr);
   auto val = self.getNumInits();
   return val;
@@ -4539,7 +4691,7 @@ bool InitListExpr::IsSemanticForm(void) const {
   return val;
 }
 
-bool InitListExpr::IsStringLiteralInit(void) const {
+bool InitListExpr::IsStringLiteralInitializer(void) const {
   auto &self = *(u.InitListExpr);
   auto val = self.isStringLiteralInit();
   return val;
@@ -4557,24 +4709,8 @@ bool InitListExpr::IsTransparent(void) const {
   return val;
 }
 
-// 0: InitListExpr::Rbegin
-// 0: InitListExpr::Rend
-std::vector<::pasta::Expr> InitListExpr::Inits(void) const {
-  auto convert_elem = [&] (const clang::Expr * val) {
-    if (val) {
-      return StmtBuilder::Create<::pasta::Expr>(ast, val);
-    }
-    __builtin_unreachable();
-  };
-  std::vector<::pasta::Expr> ret;
-  auto count = u.InitListExpr->getNumInits();
-  decltype(count) i = 0;
-  for (; i < count; ++i) {
-    ret.emplace_back(convert_elem(u.InitListExpr->getInit(i)));
-  }
-  return ret;
-}
-
+// 0: InitListExpr::
+// 0: InitListExpr::
 IntegerLiteral::IntegerLiteral(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -4634,13 +4770,13 @@ std::vector<::pasta::Stmt> LabelStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::LabelDecl LabelStmt::Decl(void) const {
+::pasta::LabelDecl LabelStmt::Declaration(void) const {
   auto &self = *(u.LabelStmt);
   auto val = self.getDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::LabelDecl>(ast, val);
   }
-  assert(false && "LabelStmt::Decl can return nullptr!");
+  assert(false && "LabelStmt::Declaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -4650,7 +4786,7 @@ std::vector<::pasta::Stmt> LabelStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Token LabelStmt::IdentToken(void) const {
+::pasta::Token LabelStmt::IdentifierToken(void) const {
   auto &self = *(u.LabelStmt);
   auto val = self.getIdentLoc();
   return ast->TokenAt(val);
@@ -4668,13 +4804,13 @@ std::string_view LabelStmt::Name(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Stmt LabelStmt::SubStmt(void) const {
+::pasta::Stmt LabelStmt::SubStatement(void) const {
   auto &self = *(u.LabelStmt);
   auto val = self.getSubStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "LabelStmt::SubStmt can return nullptr!");
+  assert(false && "LabelStmt::SubStatement can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -4690,7 +4826,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, LambdaExpr)
 // 0: LambdaExpr::
 // 0: LambdaExpr::
 // 0: LambdaExpr::
-// 0: LambdaExpr::Capture_inits
+// 0: LambdaExpr::CaptureInitializers
 // 0: LambdaExpr::
 // 0: LambdaExpr::Captures
 std::vector<::pasta::Stmt> LambdaExpr::Children(void) const {
@@ -4705,7 +4841,7 @@ std::vector<::pasta::Stmt> LambdaExpr::Children(void) const {
 
 // 0: LambdaExpr::
 // 0: LambdaExpr::
-// 0: LambdaExpr::Explicit_captures
+// 0: LambdaExpr::ExplicitCaptures
 ::pasta::Token LambdaExpr::BeginToken(void) const {
   auto &self = *(u.LambdaExpr);
   auto val = self.getBeginLoc();
@@ -4744,13 +4880,13 @@ enum LambdaCaptureDefault LambdaExpr::CaptureDefault(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::CompoundStmt LambdaExpr::CompoundStmtBody(void) const {
+::pasta::CompoundStmt LambdaExpr::CompoundStatementBody(void) const {
   auto &self = *(u.LambdaExpr);
   auto val = self.getCompoundStmtBody();
   if (val) {
     return StmtBuilder::Create<::pasta::CompoundStmt>(ast, val);
   }
-  assert(false && "LambdaExpr::CompoundStmtBody can return nullptr!");
+  assert(false && "LambdaExpr::CompoundStatementBody can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -4821,14 +4957,14 @@ bool LambdaExpr::HasExplicitResultType(void) const {
 
 // 0: LambdaExpr::
 // 0: LambdaExpr::
-// 0: LambdaExpr::Implicit_captures
+// 0: LambdaExpr::ImplicitCaptures
 bool LambdaExpr::IsGenericLambda(void) const {
   auto &self = *(u.LambdaExpr);
   auto val = self.isGenericLambda();
   return val;
 }
 
-// 1: LambdaExpr::IsInitCapture
+// 1: LambdaExpr::IsInitializerCapture
 bool LambdaExpr::IsMutable(void) const {
   auto &self = *(u.LambdaExpr);
   auto val = self.isMutable();
@@ -4852,7 +4988,7 @@ std::vector<::pasta::Stmt> MSAsmStmt::Children(void) const {
   return ret;
 }
 
-std::string MSAsmStmt::GenerateAsmString(void) const {
+std::string MSAsmStmt::GenerateAssemblyString(void) const {
   auto &self = *(u.MSAsmStmt);
   auto val = self.generateAsmString(ast->ci->getASTContext());
   return val;
@@ -4869,7 +5005,7 @@ std::vector<std::string_view> MSAsmStmt::AllConstraints(void) const {
   return ret;
 }
 
-std::vector<::pasta::Expr> MSAsmStmt::AllExprs(void) const {
+std::vector<::pasta::Expr> MSAsmStmt::AllExpressions(void) const {
   auto &self = *(u.MSAsmStmt);
   auto val = self.getAllExprs();
   std::vector<::pasta::Expr> ret;
@@ -4879,7 +5015,7 @@ std::vector<::pasta::Expr> MSAsmStmt::AllExprs(void) const {
   return ret;
 }
 
-std::string_view MSAsmStmt::AsmString(void) const {
+std::string_view MSAsmStmt::AssemblyString(void) const {
   auto &self = *(u.MSAsmStmt);
   auto val = self.getAsmString();
   if (auto size = val.size()) {
@@ -4914,7 +5050,7 @@ std::vector<std::string_view> MSAsmStmt::Clobbers(void) const {
 }
 
 // 1: MSAsmStmt::InputConstraint
-// 1: MSAsmStmt::InputExpr
+// 1: MSAsmStmt::InputExpression
 ::pasta::Token MSAsmStmt::LBraceToken(void) const {
   auto &self = *(u.MSAsmStmt);
   auto val = self.getLBraceLoc();
@@ -4922,11 +5058,79 @@ std::vector<std::string_view> MSAsmStmt::Clobbers(void) const {
 }
 
 // 1: MSAsmStmt::OutputConstraint
-// 1: MSAsmStmt::OutputExpr
+// 1: MSAsmStmt::OutputExpression
 bool MSAsmStmt::HasBraces(void) const {
   auto &self = *(u.MSAsmStmt);
   auto val = self.hasBraces();
   return val;
+}
+
+std::vector<std::string_view> MSAsmStmt::OutputConstraints(void) const {
+  auto convert_elem = [&] (llvm::StringRef val) {
+    if (auto size = val.size()) {
+      return std::string_view(val.data(), size);
+    } else {
+      return std::string_view();
+    }
+    __builtin_unreachable();
+  };
+  std::vector<std::string_view> ret;
+  auto count = u.MSAsmStmt->getNumOutputs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.MSAsmStmt->getOutputConstraint(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::Expr> MSAsmStmt::OutputExpressions(void) const {
+  auto convert_elem = [&] (const clang::Expr * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::Expr>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::Expr> ret;
+  auto count = u.MSAsmStmt->getNumOutputs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.MSAsmStmt->getOutputExpr(i)));
+  }
+  return ret;
+}
+
+std::vector<std::string_view> MSAsmStmt::InputConstraints(void) const {
+  auto convert_elem = [&] (llvm::StringRef val) {
+    if (auto size = val.size()) {
+      return std::string_view(val.data(), size);
+    } else {
+      return std::string_view();
+    }
+    __builtin_unreachable();
+  };
+  std::vector<std::string_view> ret;
+  auto count = u.MSAsmStmt->getNumInputs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.MSAsmStmt->getInputConstraint(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::Expr> MSAsmStmt::InputExpressions(void) const {
+  auto convert_elem = [&] (const clang::Expr * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::Expr>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::Expr> ret;
+  auto count = u.MSAsmStmt->getNumInputs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.MSAsmStmt->getInputExpr(i)));
+  }
+  return ret;
 }
 
 MSDependentExistsStmt::MSDependentExistsStmt(
@@ -4965,13 +5169,13 @@ std::vector<::pasta::Stmt> MSDependentExistsStmt::Children(void) const {
 
 // 0: MSDependentExistsStmt::NameInfo
 // 0: MSDependentExistsStmt::QualifierToken
-::pasta::CompoundStmt MSDependentExistsStmt::SubStmt(void) const {
+::pasta::CompoundStmt MSDependentExistsStmt::SubStatement(void) const {
   auto &self = *(u.MSDependentExistsStmt);
   auto val = self.getSubStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::CompoundStmt>(ast, val);
   }
-  assert(false && "MSDependentExistsStmt::SubStmt can return nullptr!");
+  assert(false && "MSDependentExistsStmt::SubStatement can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -5005,13 +5209,13 @@ std::vector<::pasta::Stmt> MSPropertyRefExpr::Children(void) const {
   return ret;
 }
 
-::pasta::Expr MSPropertyRefExpr::BaseExpr(void) const {
+::pasta::Expr MSPropertyRefExpr::BaseExpression(void) const {
   auto &self = *(u.MSPropertyRefExpr);
   auto val = self.getBaseExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "MSPropertyRefExpr::BaseExpr can return nullptr!");
+  assert(false && "MSPropertyRefExpr::BaseExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -5033,13 +5237,13 @@ std::vector<::pasta::Stmt> MSPropertyRefExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::MSPropertyDecl MSPropertyRefExpr::PropertyDecl(void) const {
+::pasta::MSPropertyDecl MSPropertyRefExpr::PropertyDeclaration(void) const {
   auto &self = *(u.MSPropertyRefExpr);
   auto val = self.getPropertyDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::MSPropertyDecl>(ast, val);
   }
-  assert(false && "MSPropertyRefExpr::PropertyDecl can return nullptr!");
+  assert(false && "MSPropertyRefExpr::PropertyDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -5102,19 +5306,19 @@ std::vector<::pasta::Stmt> MSPropertySubscriptExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Token MSPropertySubscriptExpr::ExprToken(void) const {
+::pasta::Token MSPropertySubscriptExpr::ExpressionToken(void) const {
   auto &self = *(u.MSPropertySubscriptExpr);
   auto val = self.getExprLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Expr MSPropertySubscriptExpr::Idx(void) const {
+::pasta::Expr MSPropertySubscriptExpr::Index(void) const {
   auto &self = *(u.MSPropertySubscriptExpr);
   auto val = self.getIdx();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "MSPropertySubscriptExpr::Idx can return nullptr!");
+  assert(false && "MSPropertySubscriptExpr::Index can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -5154,23 +5358,23 @@ std::vector<::pasta::Stmt> MaterializeTemporaryExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::ValueDecl MaterializeTemporaryExpr::ExtendingDecl(void) const {
+::pasta::ValueDecl MaterializeTemporaryExpr::ExtendingDeclaration(void) const {
   auto &self = *(u.MaterializeTemporaryExpr);
   auto val = self.getExtendingDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::ValueDecl>(ast, val);
   }
-  assert(false && "MaterializeTemporaryExpr::ExtendingDecl can return nullptr!");
+  assert(false && "MaterializeTemporaryExpr::ExtendingDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::LifetimeExtendedTemporaryDecl MaterializeTemporaryExpr::LifetimeExtendedTemporaryDecl(void) const {
+::pasta::LifetimeExtendedTemporaryDecl MaterializeTemporaryExpr::LifetimeExtendedTemporaryDeclaration(void) const {
   auto &self = *(u.MaterializeTemporaryExpr);
   auto val = self.getLifetimeExtendedTemporaryDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::LifetimeExtendedTemporaryDecl>(ast, val);
   }
-  assert(false && "MaterializeTemporaryExpr::LifetimeExtendedTemporaryDecl can return nullptr!");
+  assert(false && "MaterializeTemporaryExpr::LifetimeExtendedTemporaryDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -5187,13 +5391,13 @@ enum StorageDuration MaterializeTemporaryExpr::StorageDuration(void) const {
   return static_cast<::pasta::StorageDuration>(static_cast<unsigned int>(val));
 }
 
-::pasta::Expr MaterializeTemporaryExpr::SubExpr(void) const {
+::pasta::Expr MaterializeTemporaryExpr::SubExpression(void) const {
   auto &self = *(u.MaterializeTemporaryExpr);
   auto val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "MaterializeTemporaryExpr::SubExpr can return nullptr!");
+  assert(false && "MaterializeTemporaryExpr::SubExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -5243,13 +5447,13 @@ std::vector<::pasta::Stmt> MatrixSubscriptExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr MatrixSubscriptExpr::ColumnIdx(void) const {
+::pasta::Expr MatrixSubscriptExpr::ColumnIndex(void) const {
   auto &self = *(u.MatrixSubscriptExpr);
   auto val = self.getColumnIdx();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "MatrixSubscriptExpr::ColumnIdx can return nullptr!");
+  assert(false && "MatrixSubscriptExpr::ColumnIndex can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -5259,7 +5463,7 @@ std::vector<::pasta::Stmt> MatrixSubscriptExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Token MatrixSubscriptExpr::ExprToken(void) const {
+::pasta::Token MatrixSubscriptExpr::ExpressionToken(void) const {
   auto &self = *(u.MatrixSubscriptExpr);
   auto val = self.getExprLoc();
   return ast->TokenAt(val);
@@ -5271,13 +5475,13 @@ std::vector<::pasta::Stmt> MatrixSubscriptExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr MatrixSubscriptExpr::RowIdx(void) const {
+::pasta::Expr MatrixSubscriptExpr::RowIndex(void) const {
   auto &self = *(u.MatrixSubscriptExpr);
   auto val = self.getRowIdx();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "MatrixSubscriptExpr::RowIdx can return nullptr!");
+  assert(false && "MatrixSubscriptExpr::RowIndex can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -5327,26 +5531,26 @@ std::vector<::pasta::Stmt> MemberExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Token MemberExpr::ExprToken(void) const {
+::pasta::Token MemberExpr::ExpressionToken(void) const {
   auto &self = *(u.MemberExpr);
   auto val = self.getExprLoc();
   return ast->TokenAt(val);
 }
 
-// 0: MemberExpr::FoundDecl
+// 0: MemberExpr::FoundDeclaration
 ::pasta::Token MemberExpr::LAngleToken(void) const {
   auto &self = *(u.MemberExpr);
   auto val = self.getLAngleLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::ValueDecl MemberExpr::MemberDecl(void) const {
+::pasta::ValueDecl MemberExpr::MemberDeclaration(void) const {
   auto &self = *(u.MemberExpr);
   auto val = self.getMemberDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::ValueDecl>(ast, val);
   }
-  assert(false && "MemberExpr::MemberDecl can return nullptr!");
+  assert(false && "MemberExpr::MemberDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -5357,7 +5561,7 @@ std::vector<::pasta::Stmt> MemberExpr::Children(void) const {
 }
 
 // 0: MemberExpr::MemberNameInfo
-uint32_t MemberExpr::NumTemplateArgs(void) const {
+uint32_t MemberExpr::NumTemplateArguments(void) const {
   auto &self = *(u.MemberExpr);
   auto val = self.getNumTemplateArgs();
   return val;
@@ -5377,7 +5581,7 @@ uint32_t MemberExpr::NumTemplateArgs(void) const {
   return ast->TokenAt(val);
 }
 
-// 0: MemberExpr::TemplateArgs
+// 0: MemberExpr::TemplateArguments
 ::pasta::Token MemberExpr::TemplateKeywordToken(void) const {
   auto &self = *(u.MemberExpr);
   auto val = self.getTemplateKeywordLoc();
@@ -5390,7 +5594,7 @@ bool MemberExpr::HadMultipleCandidates(void) const {
   return val;
 }
 
-bool MemberExpr::HasExplicitTemplateArgs(void) const {
+bool MemberExpr::HasExplicitTemplateArguments(void) const {
   auto &self = *(u.MemberExpr);
   auto val = self.hasExplicitTemplateArgs();
   return val;
@@ -5427,7 +5631,7 @@ enum NonOdrUseReason MemberExpr::IsNonOdrUse(void) const {
 }
 
 // 1: MemberExpr::PerformsVirtualDispatch
-// 0: MemberExpr::Template_arguments
+// 0: MemberExpr::TemplateArguments
 NoInitExpr::NoInitExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -5532,13 +5736,13 @@ std::vector<::pasta::Stmt> OMPArraySectionExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Token OMPArraySectionExpr::ColonLocFirst(void) const {
+::pasta::Token OMPArraySectionExpr::ColonTokenFirst(void) const {
   auto &self = *(u.OMPArraySectionExpr);
   auto val = self.getColonLocFirst();
   return ast->TokenAt(val);
 }
 
-::pasta::Token OMPArraySectionExpr::ColonLocSecond(void) const {
+::pasta::Token OMPArraySectionExpr::ColonTokenSecond(void) const {
   auto &self = *(u.OMPArraySectionExpr);
   auto val = self.getColonLocSecond();
   return ast->TokenAt(val);
@@ -5550,7 +5754,7 @@ std::vector<::pasta::Stmt> OMPArraySectionExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Token OMPArraySectionExpr::ExprToken(void) const {
+::pasta::Token OMPArraySectionExpr::ExpressionToken(void) const {
   auto &self = *(u.OMPArraySectionExpr);
   auto val = self.getExprLoc();
   return ast->TokenAt(val);
@@ -5736,13 +5940,13 @@ std::vector<::pasta::Stmt> OMPExecutableDirective::Children(void) const {
 }
 
 // 0: OMPExecutableDirective::Clauses
-::pasta::Stmt OMPExecutableDirective::AssociatedStmt(void) const {
+::pasta::Stmt OMPExecutableDirective::AssociatedStatement(void) const {
   auto &self = *(u.OMPExecutableDirective);
   auto val = self.getAssociatedStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "OMPExecutableDirective::AssociatedStmt can return nullptr!");
+  assert(false && "OMPExecutableDirective::AssociatedStatement can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -5752,7 +5956,7 @@ std::vector<::pasta::Stmt> OMPExecutableDirective::Children(void) const {
   return ast->TokenAt(val);
 }
 
-// 1: OMPExecutableDirective::FindCapturedStmt
+// 1: OMPExecutableDirective::CapturedStatement
 // 1: OMPExecutableDirective::Clause
 // 0: OMPExecutableDirective::DirectiveKind
 ::pasta::Token OMPExecutableDirective::EndToken(void) const {
@@ -5761,13 +5965,13 @@ std::vector<::pasta::Stmt> OMPExecutableDirective::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::CapturedStmt OMPExecutableDirective::InnermostCapturedStmt(void) const {
+::pasta::CapturedStmt OMPExecutableDirective::InnermostCapturedStatement(void) const {
   auto &self = *(u.OMPExecutableDirective);
   auto val = self.getInnermostCapturedStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::CapturedStmt>(ast, val);
   }
-  assert(false && "OMPExecutableDirective::InnermostCapturedStmt can return nullptr!");
+  assert(false && "OMPExecutableDirective::InnermostCapturedStatement can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -5777,13 +5981,13 @@ uint32_t OMPExecutableDirective::NumClauses(void) const {
   return val;
 }
 
-::pasta::Stmt OMPExecutableDirective::FindRawStmt(void) const {
+::pasta::Stmt OMPExecutableDirective::RawStatement(void) const {
   auto &self = *(u.OMPExecutableDirective);
   auto val = self.getRawStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "OMPExecutableDirective::FindRawStmt can return nullptr!");
+  assert(false && "OMPExecutableDirective::RawStatement can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -5797,7 +6001,7 @@ uint32_t OMPExecutableDirective::NumClauses(void) const {
   __builtin_unreachable();
 }
 
-bool OMPExecutableDirective::HasAssociatedStmt(void) const {
+bool OMPExecutableDirective::HasAssociatedStatement(void) const {
   auto &self = *(u.OMPExecutableDirective);
   auto val = self.hasAssociatedStmt();
   return val;
@@ -5849,7 +6053,7 @@ std::vector<::pasta::Stmt> OMPIteratorExpr::Children(void) const {
 }
 
 // 1: OMPIteratorExpr::Helper
-// 1: OMPIteratorExpr::IteratorDecl
+// 1: OMPIteratorExpr::IteratorDeclaration
 ::pasta::Token OMPIteratorExpr::IteratorKwToken(void) const {
   auto &self = *(u.OMPIteratorExpr);
   auto val = self.getIteratorKwLoc();
@@ -5919,7 +6123,7 @@ std::vector<::pasta::Expr> OMPLoopDirective::Counters(void) const {
   return ret;
 }
 
-std::vector<::pasta::Expr> OMPLoopDirective::Dependent_counters(void) const {
+std::vector<::pasta::Expr> OMPLoopDirective::DependentCounters(void) const {
   auto &self = *(u.OMPLoopDirective);
   auto val = self.dependent_counters();
   std::vector<::pasta::Expr> ret;
@@ -5929,7 +6133,7 @@ std::vector<::pasta::Expr> OMPLoopDirective::Dependent_counters(void) const {
   return ret;
 }
 
-std::vector<::pasta::Expr> OMPLoopDirective::Dependent_inits(void) const {
+std::vector<::pasta::Expr> OMPLoopDirective::DependentInitializers(void) const {
   auto &self = *(u.OMPLoopDirective);
   auto val = self.dependent_inits();
   std::vector<::pasta::Expr> ret;
@@ -5949,7 +6153,7 @@ std::vector<::pasta::Expr> OMPLoopDirective::Finals(void) const {
   return ret;
 }
 
-std::vector<::pasta::Expr> OMPLoopDirective::Finals_conditions(void) const {
+std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const {
   auto &self = *(u.OMPLoopDirective);
   auto val = self.finals_conditions();
   std::vector<::pasta::Expr> ret;
@@ -5969,13 +6173,13 @@ std::vector<::pasta::Expr> OMPLoopDirective::Finals_conditions(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Expr OMPLoopDirective::CalcLastIteration(void) const {
+::pasta::Expr OMPLoopDirective::CalculateLastIteration(void) const {
   auto &self = *(u.OMPLoopDirective);
   auto val = self.getCalcLastIteration();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPLoopDirective::CalcLastIteration can return nullptr!");
+  assert(false && "OMPLoopDirective::CalculateLastIteration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -5985,23 +6189,23 @@ uint32_t OMPLoopDirective::CollapsedNumber(void) const {
   return val;
 }
 
-::pasta::Expr OMPLoopDirective::CombinedCond(void) const {
+::pasta::Expr OMPLoopDirective::CombinedCondition(void) const {
   auto &self = *(u.OMPLoopDirective);
   auto val = self.getCombinedCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPLoopDirective::CombinedCond can return nullptr!");
+  assert(false && "OMPLoopDirective::CombinedCondition can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Expr OMPLoopDirective::CombinedDistCond(void) const {
+::pasta::Expr OMPLoopDirective::CombinedDistanceCondition(void) const {
   auto &self = *(u.OMPLoopDirective);
   auto val = self.getCombinedDistCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPLoopDirective::CombinedDistCond can return nullptr!");
+  assert(false && "OMPLoopDirective::CombinedDistanceCondition can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -6015,13 +6219,13 @@ uint32_t OMPLoopDirective::CollapsedNumber(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Expr OMPLoopDirective::CombinedInit(void) const {
+::pasta::Expr OMPLoopDirective::CombinedInitializer(void) const {
   auto &self = *(u.OMPLoopDirective);
   auto val = self.getCombinedInit();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPLoopDirective::CombinedInit can return nullptr!");
+  assert(false && "OMPLoopDirective::CombinedInitializer can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -6055,13 +6259,13 @@ uint32_t OMPLoopDirective::CollapsedNumber(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Expr OMPLoopDirective::CombinedParForInDistCond(void) const {
+::pasta::Expr OMPLoopDirective::CombinedParallelForInDistanceCondition(void) const {
   auto &self = *(u.OMPLoopDirective);
   auto val = self.getCombinedParForInDistCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPLoopDirective::CombinedParForInDistCond can return nullptr!");
+  assert(false && "OMPLoopDirective::CombinedParallelForInDistanceCondition can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -6075,23 +6279,23 @@ uint32_t OMPLoopDirective::CollapsedNumber(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Expr OMPLoopDirective::Cond(void) const {
+::pasta::Expr OMPLoopDirective::Condition(void) const {
   auto &self = *(u.OMPLoopDirective);
   auto val = self.getCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPLoopDirective::Cond can return nullptr!");
+  assert(false && "OMPLoopDirective::Condition can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Expr OMPLoopDirective::DistInc(void) const {
+::pasta::Expr OMPLoopDirective::DistanceIncrement(void) const {
   auto &self = *(u.OMPLoopDirective);
   auto val = self.getDistInc();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPLoopDirective::DistInc can return nullptr!");
+  assert(false && "OMPLoopDirective::DistanceIncrement can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -6105,33 +6309,33 @@ uint32_t OMPLoopDirective::CollapsedNumber(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Expr OMPLoopDirective::Inc(void) const {
+::pasta::Expr OMPLoopDirective::Increment(void) const {
   auto &self = *(u.OMPLoopDirective);
   auto val = self.getInc();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPLoopDirective::Inc can return nullptr!");
+  assert(false && "OMPLoopDirective::Increment can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Expr OMPLoopDirective::Init(void) const {
+::pasta::Expr OMPLoopDirective::Initializer(void) const {
   auto &self = *(u.OMPLoopDirective);
   auto val = self.getInit();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPLoopDirective::Init can return nullptr!");
+  assert(false && "OMPLoopDirective::Initializer can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Expr OMPLoopDirective::IsLastIterVariable(void) const {
+::pasta::Expr OMPLoopDirective::IsLastIterationVariable(void) const {
   auto &self = *(u.OMPLoopDirective);
   auto val = self.getIsLastIterVariable();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPLoopDirective::IsLastIterVariable can return nullptr!");
+  assert(false && "OMPLoopDirective::IsLastIterationVariable can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -6195,23 +6399,23 @@ uint32_t OMPLoopDirective::CollapsedNumber(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Expr OMPLoopDirective::PreCond(void) const {
+::pasta::Expr OMPLoopDirective::PreCondition(void) const {
   auto &self = *(u.OMPLoopDirective);
   auto val = self.getPreCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPLoopDirective::PreCond can return nullptr!");
+  assert(false && "OMPLoopDirective::PreCondition can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Stmt OMPLoopDirective::PreInits(void) const {
+::pasta::Stmt OMPLoopDirective::PreInitializers(void) const {
   auto &self = *(u.OMPLoopDirective);
   auto val = self.getPreInits();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "OMPLoopDirective::PreInits can return nullptr!");
+  assert(false && "OMPLoopDirective::PreInitializers can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -6275,7 +6479,7 @@ std::vector<::pasta::Expr> OMPLoopDirective::Initializers(void) const {
   return ret;
 }
 
-std::vector<::pasta::Expr> OMPLoopDirective::Private_counters(void) const {
+std::vector<::pasta::Expr> OMPLoopDirective::PrivateCounters(void) const {
   auto &self = *(u.OMPLoopDirective);
   auto val = self.private_counters();
   std::vector<::pasta::Expr> ret;
@@ -6338,13 +6542,13 @@ OMPParallelDirective::OMPParallelDirective(
 
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPParallelDirective)
-::pasta::Expr OMPParallelDirective::TaskReductionRefExpr(void) const {
+::pasta::Expr OMPParallelDirective::TaskReductionReferenceExpression(void) const {
   auto &self = *(u.OMPParallelDirective);
   auto val = self.getTaskReductionRefExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPParallelDirective::TaskReductionRefExpr can return nullptr!");
+  assert(false && "OMPParallelDirective::TaskReductionReferenceExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -6362,13 +6566,13 @@ OMPParallelForDirective::OMPParallelForDirective(
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelForDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPParallelForDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPParallelForDirective)
-::pasta::Expr OMPParallelForDirective::TaskReductionRefExpr(void) const {
+::pasta::Expr OMPParallelForDirective::TaskReductionReferenceExpression(void) const {
   auto &self = *(u.OMPParallelForDirective);
   auto val = self.getTaskReductionRefExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPParallelForDirective::TaskReductionRefExpr can return nullptr!");
+  assert(false && "OMPParallelForDirective::TaskReductionReferenceExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -6393,13 +6597,13 @@ OMPParallelMasterDirective::OMPParallelMasterDirective(
 
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelMasterDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPParallelMasterDirective)
-::pasta::Expr OMPParallelMasterDirective::TaskReductionRefExpr(void) const {
+::pasta::Expr OMPParallelMasterDirective::TaskReductionReferenceExpression(void) const {
   auto &self = *(u.OMPParallelMasterDirective);
   auto val = self.getTaskReductionRefExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPParallelMasterDirective::TaskReductionRefExpr can return nullptr!");
+  assert(false && "OMPParallelMasterDirective::TaskReductionReferenceExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -6432,13 +6636,13 @@ OMPParallelSectionsDirective::OMPParallelSectionsDirective(
 
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelSectionsDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPParallelSectionsDirective)
-::pasta::Expr OMPParallelSectionsDirective::TaskReductionRefExpr(void) const {
+::pasta::Expr OMPParallelSectionsDirective::TaskReductionReferenceExpression(void) const {
   auto &self = *(u.OMPParallelSectionsDirective);
   auto val = self.getTaskReductionRefExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPParallelSectionsDirective::TaskReductionRefExpr can return nullptr!");
+  assert(false && "OMPParallelSectionsDirective::TaskReductionReferenceExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -6475,13 +6679,13 @@ OMPSectionsDirective::OMPSectionsDirective(
 
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPSectionsDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPSectionsDirective)
-::pasta::Expr OMPSectionsDirective::TaskReductionRefExpr(void) const {
+::pasta::Expr OMPSectionsDirective::TaskReductionReferenceExpression(void) const {
   auto &self = *(u.OMPSectionsDirective);
   auto val = self.getTaskReductionRefExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPSectionsDirective::TaskReductionRefExpr can return nullptr!");
+  assert(false && "OMPSectionsDirective::TaskReductionReferenceExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -6541,13 +6745,13 @@ OMPTargetParallelDirective::OMPTargetParallelDirective(
 
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetParallelDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTargetParallelDirective)
-::pasta::Expr OMPTargetParallelDirective::TaskReductionRefExpr(void) const {
+::pasta::Expr OMPTargetParallelDirective::TaskReductionReferenceExpression(void) const {
   auto &self = *(u.OMPTargetParallelDirective);
   auto val = self.getTaskReductionRefExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPTargetParallelDirective::TaskReductionRefExpr can return nullptr!");
+  assert(false && "OMPTargetParallelDirective::TaskReductionReferenceExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -6565,13 +6769,13 @@ OMPTargetParallelForDirective::OMPTargetParallelForDirective(
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetParallelForDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPTargetParallelForDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTargetParallelForDirective)
-::pasta::Expr OMPTargetParallelForDirective::TaskReductionRefExpr(void) const {
+::pasta::Expr OMPTargetParallelForDirective::TaskReductionReferenceExpression(void) const {
   auto &self = *(u.OMPTargetParallelForDirective);
   auto val = self.getTaskReductionRefExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPTargetParallelForDirective::TaskReductionRefExpr can return nullptr!");
+  assert(false && "OMPTargetParallelForDirective::TaskReductionReferenceExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -6620,13 +6824,13 @@ OMPTargetTeamsDistributeParallelForDirective::OMPTargetTeamsDistributeParallelFo
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetTeamsDistributeParallelForDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPTargetTeamsDistributeParallelForDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTargetTeamsDistributeParallelForDirective)
-::pasta::Expr OMPTargetTeamsDistributeParallelForDirective::TaskReductionRefExpr(void) const {
+::pasta::Expr OMPTargetTeamsDistributeParallelForDirective::TaskReductionReferenceExpression(void) const {
   auto &self = *(u.OMPTargetTeamsDistributeParallelForDirective);
   auto val = self.getTaskReductionRefExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPTargetTeamsDistributeParallelForDirective::TaskReductionRefExpr can return nullptr!");
+  assert(false && "OMPTargetTeamsDistributeParallelForDirective::TaskReductionReferenceExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -6701,13 +6905,13 @@ OMPTaskgroupDirective::OMPTaskgroupDirective(
 
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPTaskgroupDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTaskgroupDirective)
-::pasta::Expr OMPTaskgroupDirective::ReductionRef(void) const {
+::pasta::Expr OMPTaskgroupDirective::ReductionReference(void) const {
   auto &self = *(u.OMPTaskgroupDirective);
   auto val = self.getReductionRef();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPTaskgroupDirective::ReductionRef can return nullptr!");
+  assert(false && "OMPTaskgroupDirective::ReductionReference can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -6748,13 +6952,13 @@ OMPTeamsDistributeParallelForDirective::OMPTeamsDistributeParallelForDirective(
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPTeamsDistributeParallelForDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPTeamsDistributeParallelForDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTeamsDistributeParallelForDirective)
-::pasta::Expr OMPTeamsDistributeParallelForDirective::TaskReductionRefExpr(void) const {
+::pasta::Expr OMPTeamsDistributeParallelForDirective::TaskReductionReferenceExpression(void) const {
   auto &self = *(u.OMPTeamsDistributeParallelForDirective);
   auto val = self.getTaskReductionRefExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPTeamsDistributeParallelForDirective::TaskReductionRefExpr can return nullptr!");
+  assert(false && "OMPTeamsDistributeParallelForDirective::TaskReductionReferenceExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -6888,13 +7092,13 @@ std::vector<::pasta::Stmt> ObjCAtCatchStmt::Children(void) const {
   __builtin_unreachable();
 }
 
-::pasta::VarDecl ObjCAtCatchStmt::CatchParamDecl(void) const {
+::pasta::VarDecl ObjCAtCatchStmt::CatchParamDeclaration(void) const {
   auto &self = *(u.ObjCAtCatchStmt);
   auto val = self.getCatchParamDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
-  assert(false && "ObjCAtCatchStmt::CatchParamDecl can return nullptr!");
+  assert(false && "ObjCAtCatchStmt::CatchParamDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -7004,13 +7208,13 @@ std::vector<::pasta::Stmt> ObjCAtSynchronizedStmt::Children(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Expr ObjCAtSynchronizedStmt::SynchExpr(void) const {
+::pasta::Expr ObjCAtSynchronizedStmt::SynchExpression(void) const {
   auto &self = *(u.ObjCAtSynchronizedStmt);
   auto val = self.getSynchExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ObjCAtSynchronizedStmt::SynchExpr can return nullptr!");
+  assert(false && "ObjCAtSynchronizedStmt::SynchExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -7042,13 +7246,13 @@ std::vector<::pasta::Stmt> ObjCAtThrowStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr ObjCAtThrowStmt::ThrowExpr(void) const {
+::pasta::Expr ObjCAtThrowStmt::ThrowExpression(void) const {
   auto &self = *(u.ObjCAtThrowStmt);
   auto val = self.getThrowExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ObjCAtThrowStmt::ThrowExpr can return nullptr!");
+  assert(false && "ObjCAtThrowStmt::ThrowExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -7086,24 +7290,24 @@ std::vector<::pasta::Stmt> ObjCAtTryStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-// 1: ObjCAtTryStmt::CatchStmt
+// 1: ObjCAtTryStmt::CatchStatement
 ::pasta::Token ObjCAtTryStmt::EndToken(void) const {
   auto &self = *(u.ObjCAtTryStmt);
   auto val = self.getEndLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::ObjCAtFinallyStmt ObjCAtTryStmt::FinallyStmt(void) const {
+::pasta::ObjCAtFinallyStmt ObjCAtTryStmt::FinallyStatement(void) const {
   auto &self = *(u.ObjCAtTryStmt);
   auto val = self.getFinallyStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::ObjCAtFinallyStmt>(ast, val);
   }
-  assert(false && "ObjCAtTryStmt::FinallyStmt can return nullptr!");
+  assert(false && "ObjCAtTryStmt::FinallyStatement can return nullptr!");
   __builtin_unreachable();
 }
 
-uint32_t ObjCAtTryStmt::NumCatchStmts(void) const {
+uint32_t ObjCAtTryStmt::NumCatchStatements(void) const {
   auto &self = *(u.ObjCAtTryStmt);
   auto val = self.getNumCatchStmts();
   return val;
@@ -7119,7 +7323,7 @@ uint32_t ObjCAtTryStmt::NumCatchStmts(void) const {
   __builtin_unreachable();
 }
 
-std::vector<::pasta::ObjCAtCatchStmt> ObjCAtTryStmt::CatchStmts(void) const {
+std::vector<::pasta::ObjCAtCatchStmt> ObjCAtTryStmt::CatchStatements(void) const {
   auto convert_elem = [&] (const clang::ObjCAtCatchStmt * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::ObjCAtCatchStmt>(ast, val);
@@ -7169,13 +7373,13 @@ std::vector<::pasta::Stmt> ObjCAutoreleasePoolStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Stmt ObjCAutoreleasePoolStmt::SubStmt(void) const {
+::pasta::Stmt ObjCAutoreleasePoolStmt::SubStatement(void) const {
   auto &self = *(u.ObjCAutoreleasePoolStmt);
   auto val = self.getSubStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "ObjCAutoreleasePoolStmt::SubStmt can return nullptr!");
+  assert(false && "ObjCAutoreleasePoolStmt::SubStatement can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -7317,13 +7521,13 @@ std::vector<::pasta::Stmt> ObjCBoxedExpr::Children(void) const {
   return ast->TokenRangeFrom(val);
 }
 
-::pasta::Expr ObjCBoxedExpr::SubExpr(void) const {
+::pasta::Expr ObjCBoxedExpr::SubExpression(void) const {
   auto &self = *(u.ObjCBoxedExpr);
   auto val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ObjCBoxedExpr::SubExpr can return nullptr!");
+  assert(false && "ObjCBoxedExpr::SubExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -7357,13 +7561,13 @@ std::vector<::pasta::Stmt> ObjCDictionaryLiteral::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::ObjCMethodDecl ObjCDictionaryLiteral::DictWithObjectsMethod(void) const {
+::pasta::ObjCMethodDecl ObjCDictionaryLiteral::DictionaryWithObjectsMethod(void) const {
   auto &self = *(u.ObjCDictionaryLiteral);
   auto val = self.getDictWithObjectsMethod();
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, val);
   }
-  assert(false && "ObjCDictionaryLiteral::DictWithObjectsMethod can return nullptr!");
+  assert(false && "ObjCDictionaryLiteral::DictionaryWithObjectsMethod can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -7535,19 +7739,19 @@ std::vector<::pasta::Stmt> ObjCIndirectCopyRestoreExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Token ObjCIndirectCopyRestoreExpr::ExprToken(void) const {
+::pasta::Token ObjCIndirectCopyRestoreExpr::ExpressionToken(void) const {
   auto &self = *(u.ObjCIndirectCopyRestoreExpr);
   auto val = self.getExprLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Expr ObjCIndirectCopyRestoreExpr::SubExpr(void) const {
+::pasta::Expr ObjCIndirectCopyRestoreExpr::SubExpression(void) const {
   auto &self = *(u.ObjCIndirectCopyRestoreExpr);
   auto val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ObjCIndirectCopyRestoreExpr::SubExpr can return nullptr!");
+  assert(false && "ObjCIndirectCopyRestoreExpr::SubExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -7585,7 +7789,7 @@ std::vector<::pasta::Stmt> ObjCIsaExpr::Children(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Token ObjCIsaExpr::BaseLocEnd(void) const {
+::pasta::Token ObjCIsaExpr::BaseTokenEnd(void) const {
   auto &self = *(u.ObjCIsaExpr);
   auto val = self.getBaseLocEnd();
   return ast->TokenAt(val);
@@ -7603,7 +7807,7 @@ std::vector<::pasta::Stmt> ObjCIsaExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Token ObjCIsaExpr::ExprToken(void) const {
+::pasta::Token ObjCIsaExpr::ExpressionToken(void) const {
   auto &self = *(u.ObjCIsaExpr);
   auto val = self.getExprLoc();
   return ast->TokenAt(val);
@@ -7615,7 +7819,7 @@ std::vector<::pasta::Stmt> ObjCIsaExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Token ObjCIsaExpr::OpToken(void) const {
+::pasta::Token ObjCIsaExpr::OperationToken(void) const {
   auto &self = *(u.ObjCIsaExpr);
   auto val = self.getOpLoc();
   return ast->TokenAt(val);
@@ -7661,13 +7865,13 @@ std::vector<::pasta::Stmt> ObjCIvarRefExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::ObjCIvarDecl ObjCIvarRefExpr::Decl(void) const {
+::pasta::ObjCIvarDecl ObjCIvarRefExpr::Declaration(void) const {
   auto &self = *(u.ObjCIvarRefExpr);
   auto val = self.getDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCIvarDecl>(ast, val);
   }
-  assert(false && "ObjCIvarRefExpr::Decl can return nullptr!");
+  assert(false && "ObjCIvarRefExpr::Declaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -7683,7 +7887,7 @@ std::vector<::pasta::Stmt> ObjCIvarRefExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Token ObjCIvarRefExpr::OpToken(void) const {
+::pasta::Token ObjCIvarRefExpr::OperationToken(void) const {
   auto &self = *(u.ObjCIvarRefExpr);
   auto val = self.getOpLoc();
   return ast->TokenAt(val);
@@ -7695,7 +7899,7 @@ bool ObjCIvarRefExpr::IsArrow(void) const {
   return val;
 }
 
-bool ObjCIvarRefExpr::IsFreeIvar(void) const {
+bool ObjCIvarRefExpr::IsFreeInstanceVariable(void) const {
   auto &self = *(u.ObjCIvarRefExpr);
   auto val = self.isFreeIvar();
   return val;
@@ -7731,8 +7935,8 @@ std::vector<::pasta::Stmt> ObjCMessageExpr::Children(void) const {
   return ret;
 }
 
-// 1: ObjCMessageExpr::Arg
-// 0: ObjCMessageExpr::Args
+// 1: ObjCMessageExpr::Argument
+// 0: ObjCMessageExpr::Arguments
 ::pasta::Token ObjCMessageExpr::BeginToken(void) const {
   auto &self = *(u.ObjCMessageExpr);
   auto val = self.getBeginLoc();
@@ -7774,13 +7978,13 @@ std::vector<::pasta::Stmt> ObjCMessageExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::ObjCMethodDecl ObjCMessageExpr::MethodDecl(void) const {
+::pasta::ObjCMethodDecl ObjCMessageExpr::MethodDeclaration(void) const {
   auto &self = *(u.ObjCMessageExpr);
   auto val = self.getMethodDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, val);
   }
-  assert(false && "ObjCMessageExpr::MethodDecl can return nullptr!");
+  assert(false && "ObjCMessageExpr::MethodDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -7790,13 +7994,13 @@ enum ObjCMethodFamily ObjCMessageExpr::MethodFamily(void) const {
   return static_cast<::pasta::ObjCMethodFamily>(static_cast<unsigned int>(val));
 }
 
-uint32_t ObjCMessageExpr::NumArgs(void) const {
+uint32_t ObjCMessageExpr::NumArguments(void) const {
   auto &self = *(u.ObjCMessageExpr);
   auto val = self.getNumArgs();
   return val;
 }
 
-uint32_t ObjCMessageExpr::NumSelectorLocs(void) const {
+uint32_t ObjCMessageExpr::NumSelectorTokens(void) const {
   auto &self = *(u.ObjCMessageExpr);
   auto val = self.getNumSelectorLocs();
   return val;
@@ -7857,7 +8061,7 @@ bool ObjCMessageExpr::IsClassMessage(void) const {
   return val;
 }
 
-bool ObjCMessageExpr::IsDelegateInitCall(void) const {
+bool ObjCMessageExpr::IsDelegateInitializerCall(void) const {
   auto &self = *(u.ObjCMessageExpr);
   auto val = self.isDelegateInitCall();
   return val;
@@ -7884,22 +8088,6 @@ std::vector<::pasta::Token> ObjCMessageExpr::SelectorTokens(void) const {
   decltype(count) i = 0;
   for (; i < count; ++i) {
     ret.emplace_back(convert_elem(u.ObjCMessageExpr->getSelectorLoc(i)));
-  }
-  return ret;
-}
-
-std::vector<::pasta::Expr> ObjCMessageExpr::Args(void) const {
-  auto convert_elem = [&] (const clang::Expr * val) {
-    if (val) {
-      return StmtBuilder::Create<::pasta::Expr>(ast, val);
-    }
-    __builtin_unreachable();
-  };
-  std::vector<::pasta::Expr> ret;
-  auto count = u.ObjCMessageExpr->getNumArgs();
-  decltype(count) i = 0;
-  for (; i < count; ++i) {
-    ret.emplace_back(convert_elem(u.ObjCMessageExpr->getArg(i)));
   }
   return ret;
 }
@@ -7991,7 +8179,7 @@ std::vector<::pasta::Stmt> ObjCPropertyRefExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Token ObjCPropertyRefExpr::ReceiverLocation(void) const {
+::pasta::Token ObjCPropertyRefExpr::ReceiverToken(void) const {
   auto &self = *(u.ObjCPropertyRefExpr);
   auto val = self.getReceiverLocation();
   return ast->TokenAt(val);
@@ -8146,7 +8334,7 @@ std::vector<::pasta::Stmt> ObjCSelectorExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-uint32_t ObjCSelectorExpr::NumArgs(void) const {
+uint32_t ObjCSelectorExpr::NumArguments(void) const {
   auto &self = *(u.ObjCSelectorExpr);
   auto val = self.getNumArgs();
   return val;
@@ -8223,23 +8411,23 @@ std::vector<::pasta::Stmt> ObjCSubscriptRefExpr::Children(void) const {
   return ret;
 }
 
-::pasta::ObjCMethodDecl ObjCSubscriptRefExpr::AtIndexMethodDecl(void) const {
+::pasta::ObjCMethodDecl ObjCSubscriptRefExpr::AtIndexMethodDeclaration(void) const {
   auto &self = *(u.ObjCSubscriptRefExpr);
   auto val = self.getAtIndexMethodDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, val);
   }
-  assert(false && "ObjCSubscriptRefExpr::AtIndexMethodDecl can return nullptr!");
+  assert(false && "ObjCSubscriptRefExpr::AtIndexMethodDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Expr ObjCSubscriptRefExpr::BaseExpr(void) const {
+::pasta::Expr ObjCSubscriptRefExpr::BaseExpression(void) const {
   auto &self = *(u.ObjCSubscriptRefExpr);
   auto val = self.getBaseExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ObjCSubscriptRefExpr::BaseExpr can return nullptr!");
+  assert(false && "ObjCSubscriptRefExpr::BaseExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -8255,13 +8443,13 @@ std::vector<::pasta::Stmt> ObjCSubscriptRefExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr ObjCSubscriptRefExpr::KeyExpr(void) const {
+::pasta::Expr ObjCSubscriptRefExpr::KeyExpression(void) const {
   auto &self = *(u.ObjCSubscriptRefExpr);
   auto val = self.getKeyExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ObjCSubscriptRefExpr::KeyExpr can return nullptr!");
+  assert(false && "ObjCSubscriptRefExpr::KeyExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -8271,7 +8459,7 @@ std::vector<::pasta::Stmt> ObjCSubscriptRefExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-bool ObjCSubscriptRefExpr::IsArraySubscriptRefExpr(void) const {
+bool ObjCSubscriptRefExpr::IsArraySubscriptReferenceExpression(void) const {
   auto &self = *(u.ObjCSubscriptRefExpr);
   auto val = self.isArraySubscriptRefExpr();
   return val;
@@ -8308,7 +8496,7 @@ std::vector<::pasta::Stmt> OffsetOfExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-// 1: OffsetOfExpr::IndexExpr
+// 1: OffsetOfExpr::IndexExpression
 uint32_t OffsetOfExpr::NumComponents(void) const {
   auto &self = *(u.OffsetOfExpr);
   auto val = self.getNumComponents();
@@ -8364,7 +8552,7 @@ std::vector<::pasta::Stmt> OpaqueValueExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Token OpaqueValueExpr::ExprToken(void) const {
+::pasta::Token OpaqueValueExpr::ExpressionToken(void) const {
   auto &self = *(u.OpaqueValueExpr);
   auto val = self.getExprLoc();
   return ast->TokenAt(val);
@@ -8376,13 +8564,13 @@ std::vector<::pasta::Stmt> OpaqueValueExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr OpaqueValueExpr::SourceExpr(void) const {
+::pasta::Expr OpaqueValueExpr::SourceExpression(void) const {
   auto &self = *(u.OpaqueValueExpr);
   auto val = self.getSourceExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OpaqueValueExpr::SourceExpr can return nullptr!");
+  assert(false && "OpaqueValueExpr::SourceExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -8429,13 +8617,13 @@ PASTA_DEFINE_DERIVED_OPERATORS(OverloadExpr, UnresolvedMemberExpr)
   __builtin_unreachable();
 }
 
-uint32_t OverloadExpr::NumDecls(void) const {
+uint32_t OverloadExpr::NumDeclarations(void) const {
   auto &self = *(u.OverloadExpr);
   auto val = self.getNumDecls();
   return val;
 }
 
-uint32_t OverloadExpr::NumTemplateArgs(void) const {
+uint32_t OverloadExpr::NumTemplateArguments(void) const {
   auto &self = *(u.OverloadExpr);
   auto val = self.getNumTemplateArgs();
   return val;
@@ -8449,14 +8637,14 @@ uint32_t OverloadExpr::NumTemplateArgs(void) const {
   return ast->TokenAt(val);
 }
 
-// 0: OverloadExpr::TemplateArgs
+// 0: OverloadExpr::TemplateArguments
 ::pasta::Token OverloadExpr::TemplateKeywordToken(void) const {
   auto &self = *(u.OverloadExpr);
   auto val = self.getTemplateKeywordLoc();
   return ast->TokenAt(val);
 }
 
-bool OverloadExpr::HasExplicitTemplateArgs(void) const {
+bool OverloadExpr::HasExplicitTemplateArguments(void) const {
   auto &self = *(u.OverloadExpr);
   auto val = self.hasExplicitTemplateArgs();
   return val;
@@ -8468,7 +8656,7 @@ bool OverloadExpr::HasTemplateKeyword(void) const {
   return val;
 }
 
-// 0: OverloadExpr::Template_arguments
+// 0: OverloadExpr::TemplateArguments
 PackExpansionExpr::PackExpansionExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -8567,13 +8755,13 @@ std::vector<::pasta::Stmt> ParenExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr ParenExpr::SubExpr(void) const {
+::pasta::Expr ParenExpr::SubExpression(void) const {
   auto &self = *(u.ParenExpr);
   auto val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ParenExpr::SubExpr can return nullptr!");
+  assert(false && "ParenExpr::SubExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -8607,14 +8795,14 @@ std::vector<::pasta::Stmt> ParenListExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-// 1: ParenListExpr::FindExpr
+// 1: ParenListExpr::Expression
 ::pasta::Token ParenListExpr::LParenToken(void) const {
   auto &self = *(u.ParenListExpr);
   auto val = self.getLParenLoc();
   return ast->TokenAt(val);
 }
 
-uint32_t ParenListExpr::NumExprs(void) const {
+uint32_t ParenListExpr::NumExpressions(void) const {
   auto &self = *(u.ParenListExpr);
   auto val = self.getNumExprs();
   return val;
@@ -8626,7 +8814,7 @@ uint32_t ParenListExpr::NumExprs(void) const {
   return ast->TokenAt(val);
 }
 
-std::vector<::pasta::Expr> ParenListExpr::FindExprs(void) const {
+std::vector<::pasta::Expr> ParenListExpr::Expressions(void) const {
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
@@ -8682,8 +8870,8 @@ std::vector<::pasta::Stmt> PredefinedExpr::Children(void) const {
   __builtin_unreachable();
 }
 
-// 0: PredefinedExpr::IdentKind
-std::string_view PredefinedExpr::IdentKindName(void) const {
+// 0: PredefinedExpr::IdentifierKind
+std::string_view PredefinedExpr::IdentifierKindName(void) const {
   auto &self = *(u.PredefinedExpr);
   auto val = self.getIdentKindName();
   if (auto size = val.size()) {
@@ -8729,35 +8917,35 @@ std::vector<::pasta::Stmt> PseudoObjectExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Token PseudoObjectExpr::ExprToken(void) const {
+::pasta::Token PseudoObjectExpr::ExpressionToken(void) const {
   auto &self = *(u.PseudoObjectExpr);
   auto val = self.getExprLoc();
   return ast->TokenAt(val);
 }
 
-uint32_t PseudoObjectExpr::NumSemanticExprs(void) const {
+uint32_t PseudoObjectExpr::NumSemanticExpressions(void) const {
   auto &self = *(u.PseudoObjectExpr);
   auto val = self.getNumSemanticExprs();
   return val;
 }
 
-::pasta::Expr PseudoObjectExpr::ResultExpr(void) const {
+::pasta::Expr PseudoObjectExpr::ResultExpression(void) const {
   auto &self = *(u.PseudoObjectExpr);
   auto val = self.getResultExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "PseudoObjectExpr::ResultExpr can return nullptr!");
+  assert(false && "PseudoObjectExpr::ResultExpression can return nullptr!");
   __builtin_unreachable();
 }
 
-uint32_t PseudoObjectExpr::ResultExprIndex(void) const {
+uint32_t PseudoObjectExpr::ResultExpressionIndex(void) const {
   auto &self = *(u.PseudoObjectExpr);
   auto val = self.getResultExprIndex();
   return val;
 }
 
-// 1: PseudoObjectExpr::SemanticExpr
+// 1: PseudoObjectExpr::SemanticExpression
 ::pasta::Expr PseudoObjectExpr::SyntacticForm(void) const {
   auto &self = *(u.PseudoObjectExpr);
   auto val = self.getSyntacticForm();
@@ -8768,10 +8956,19 @@ uint32_t PseudoObjectExpr::ResultExprIndex(void) const {
   __builtin_unreachable();
 }
 
-// 0: PseudoObjectExpr::Semantics
+std::vector<::pasta::Expr> PseudoObjectExpr::Semantics(void) const {
+  auto &self = *(u.PseudoObjectExpr);
+  auto val = self.semantics();
+  std::vector<::pasta::Expr> ret;
+  for (auto stmt_ptr : val) {
+    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+  }
+  return ret;
+}
+
 // 0: PseudoObjectExpr::
 // 0: PseudoObjectExpr::
-std::vector<::pasta::Expr> PseudoObjectExpr::SemanticExprs(void) const {
+std::vector<::pasta::Expr> PseudoObjectExpr::SemanticExpressions(void) const {
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
@@ -8984,13 +9181,13 @@ std::vector<::pasta::Stmt> SEHExceptStmt::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr SEHExceptStmt::FilterExpr(void) const {
+::pasta::Expr SEHExceptStmt::FilterExpression(void) const {
   auto &self = *(u.SEHExceptStmt);
   auto val = self.getFilterExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "SEHExceptStmt::FilterExpr can return nullptr!");
+  assert(false && "SEHExceptStmt::FilterExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -9188,8 +9385,8 @@ std::vector<::pasta::Stmt> ShuffleVectorExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-// 1: ShuffleVectorExpr::FindExpr
-uint32_t ShuffleVectorExpr::NumSubExprs(void) const {
+// 1: ShuffleVectorExpr::Expression
+uint32_t ShuffleVectorExpr::NumSubExpressions(void) const {
   auto &self = *(u.ShuffleVectorExpr);
   auto val = self.getNumSubExprs();
   return val;
@@ -9201,7 +9398,7 @@ uint32_t ShuffleVectorExpr::NumSubExprs(void) const {
   return ast->TokenAt(val);
 }
 
-// 2: ShuffleMaskIdx
+// 2: ShuffleMaskIndex
 SizeOfPackExpr::SizeOfPackExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -9298,7 +9495,7 @@ std::vector<::pasta::Stmt> SourceLocExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-std::string_view SourceLocExpr::BuiltinStr(void) const {
+std::string_view SourceLocExpr::BuiltinString(void) const {
   auto &self = *(u.SourceLocExpr);
   auto val = self.getBuiltinStr();
   if (auto size = val.size()) {
@@ -9314,7 +9511,7 @@ std::string_view SourceLocExpr::BuiltinStr(void) const {
   return ast->TokenAt(val);
 }
 
-// 0: SourceLocExpr::IdentKind
+// 0: SourceLocExpr::IdentifierKind
 ::pasta::Token SourceLocExpr::Token(void) const {
   auto &self = *(u.SourceLocExpr);
   auto val = self.getLocation();
@@ -9385,13 +9582,13 @@ std::vector<::pasta::Stmt> StmtExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::CompoundStmt StmtExpr::SubStmt(void) const {
+::pasta::CompoundStmt StmtExpr::SubStatement(void) const {
   auto &self = *(u.StmtExpr);
   auto val = self.getSubStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::CompoundStmt>(ast, val);
   }
-  assert(false && "StmtExpr::SubStmt can return nullptr!");
+  assert(false && "StmtExpr::SubStatement can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -9453,7 +9650,7 @@ std::string_view StringLiteral::Bytes(void) const {
   }
 }
 
-uint32_t StringLiteral::CharByteWidth(void) const {
+uint32_t StringLiteral::CharacterByteWidth(void) const {
   auto &self = *(u.StringLiteral);
   auto val = self.getCharByteWidth();
   return val;
@@ -9466,21 +9663,21 @@ uint32_t StringLiteral::CharByteWidth(void) const {
   return ast->TokenAt(val);
 }
 
-// 0: StringLiteral::
+// 0: StringLiteral::Kind
 uint32_t StringLiteral::Length(void) const {
   auto &self = *(u.StringLiteral);
   auto val = self.getLength();
   return val;
 }
 
-// 4: StringLiteral::LocationOfByte
+// 4: StringLiteral::TokenOfByte
 uint32_t StringLiteral::NumConcatenated(void) const {
   auto &self = *(u.StringLiteral);
   auto val = self.getNumConcatenated();
   return val;
 }
 
-// 1: StringLiteral::StrTokenToken
+// 1: StringLiteral::StringTokenToken
 std::string_view StringLiteral::String(void) const {
   auto &self = *(u.StringLiteral);
   auto val = self.getString();
@@ -9638,7 +9835,7 @@ std::vector<::pasta::Stmt> SubstNonTypeTemplateParmPackExpr::Children(void) cons
   __builtin_unreachable();
 }
 
-::pasta::Token SubstNonTypeTemplateParmPackExpr::ParameterPackLocation(void) const {
+::pasta::Token SubstNonTypeTemplateParmPackExpr::ParameterPackToken(void) const {
   auto &self = *(u.SubstNonTypeTemplateParmPackExpr);
   auto val = self.getParameterPackLocation();
   return ast->TokenAt(val);
@@ -9662,8 +9859,8 @@ std::vector<::pasta::Stmt> TypeTraitExpr::Children(void) const {
   return ret;
 }
 
-// 1: TypeTraitExpr::Arg
-// 0: TypeTraitExpr::Args
+// 1: TypeTraitExpr::Argument
+// 0: TypeTraitExpr::Arguments
 ::pasta::Token TypeTraitExpr::BeginToken(void) const {
   auto &self = *(u.TypeTraitExpr);
   auto val = self.getBeginLoc();
@@ -9676,7 +9873,7 @@ std::vector<::pasta::Stmt> TypeTraitExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-uint32_t TypeTraitExpr::NumArgs(void) const {
+uint32_t TypeTraitExpr::NumArguments(void) const {
   auto &self = *(u.TypeTraitExpr);
   auto val = self.getNumArgs();
   return val;
@@ -9742,13 +9939,13 @@ std::vector<::pasta::Stmt> UnaryExprOrTypeTraitExpr::Children(void) const {
   return ret;
 }
 
-::pasta::Expr UnaryExprOrTypeTraitExpr::ArgumentExpr(void) const {
+::pasta::Expr UnaryExprOrTypeTraitExpr::ArgumentExpression(void) const {
   auto &self = *(u.UnaryExprOrTypeTraitExpr);
   auto val = self.getArgumentExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "UnaryExprOrTypeTraitExpr::ArgumentExpr can return nullptr!");
+  assert(false && "UnaryExprOrTypeTraitExpr::ArgumentExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -9771,7 +9968,12 @@ std::vector<::pasta::Stmt> UnaryExprOrTypeTraitExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-// 0: UnaryExprOrTypeTraitExpr::
+enum UnaryExprOrTypeTrait UnaryExprOrTypeTraitExpr::Kind(void) const {
+  auto &self = *(u.UnaryExprOrTypeTraitExpr);
+  auto val = self.getKind();
+  return static_cast<::pasta::UnaryExprOrTypeTrait>(static_cast<unsigned int>(val));
+}
+
 ::pasta::Token UnaryExprOrTypeTraitExpr::OperatorToken(void) const {
   auto &self = *(u.UnaryExprOrTypeTraitExpr);
   auto val = self.getOperatorLoc();
@@ -9832,7 +10034,7 @@ std::vector<::pasta::Stmt> UnaryOperator::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Token UnaryOperator::ExprToken(void) const {
+::pasta::Token UnaryOperator::ExpressionToken(void) const {
   auto &self = *(u.UnaryOperator);
   auto val = self.getExprLoc();
   return ast->TokenAt(val);
@@ -9853,13 +10055,13 @@ enum UnaryOperatorKind UnaryOperator::Opcode(void) const {
 }
 
 // 0: UnaryOperator::StoredFPFeatures
-::pasta::Expr UnaryOperator::SubExpr(void) const {
+::pasta::Expr UnaryOperator::SubExpression(void) const {
   auto &self = *(u.UnaryOperator);
   auto val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "UnaryOperator::SubExpr can return nullptr!");
+  assert(false && "UnaryOperator::SubExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -9869,13 +10071,13 @@ bool UnaryOperator::HasStoredFPFeatures(void) const {
   return val;
 }
 
-bool UnaryOperator::IsArithmeticOp(void) const {
+bool UnaryOperator::IsArithmeticOperation(void) const {
   auto &self = *(u.UnaryOperator);
   auto val = self.isArithmeticOp();
   return val;
 }
 
-bool UnaryOperator::IsDecrementOp(void) const {
+bool UnaryOperator::IsDecrementOperation(void) const {
   auto &self = *(u.UnaryOperator);
   auto val = self.isDecrementOp();
   return val;
@@ -9883,13 +10085,13 @@ bool UnaryOperator::IsDecrementOp(void) const {
 
 // 1: UnaryOperator::IsFEnvAccessOn
 // 1: UnaryOperator::IsFPContractableWithinStatement
-bool UnaryOperator::IsIncrementDecrementOp(void) const {
+bool UnaryOperator::IsIncrementDecrementOperation(void) const {
   auto &self = *(u.UnaryOperator);
   auto val = self.isIncrementDecrementOp();
   return val;
 }
 
-bool UnaryOperator::IsIncrementOp(void) const {
+bool UnaryOperator::IsIncrementOperation(void) const {
   auto &self = *(u.UnaryOperator);
   auto val = self.isIncrementOp();
   return val;
@@ -10007,7 +10209,7 @@ std::vector<::pasta::Stmt> UnresolvedMemberExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Token UnresolvedMemberExpr::ExprToken(void) const {
+::pasta::Token UnresolvedMemberExpr::ExpressionToken(void) const {
   auto &self = *(u.UnresolvedMemberExpr);
   auto val = self.getExprLoc();
   return ast->TokenAt(val);
@@ -10097,13 +10299,13 @@ std::vector<::pasta::Stmt> VAArgExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr VAArgExpr::SubExpr(void) const {
+::pasta::Expr VAArgExpr::SubExpression(void) const {
   auto &self = *(u.VAArgExpr);
   auto val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "VAArgExpr::SubExpr can return nullptr!");
+  assert(false && "VAArgExpr::SubExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -10130,23 +10332,23 @@ PASTA_DEFINE_DERIVED_OPERATORS(AbstractConditionalOperator, ConditionalOperator)
   return ast->TokenAt(val);
 }
 
-::pasta::Expr AbstractConditionalOperator::Cond(void) const {
+::pasta::Expr AbstractConditionalOperator::Condition(void) const {
   auto &self = *(u.AbstractConditionalOperator);
   auto val = self.getCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "AbstractConditionalOperator::Cond can return nullptr!");
+  assert(false && "AbstractConditionalOperator::Condition can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Expr AbstractConditionalOperator::FalseExpr(void) const {
+::pasta::Expr AbstractConditionalOperator::FalseExpression(void) const {
   auto &self = *(u.AbstractConditionalOperator);
   auto val = self.getFalseExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "AbstractConditionalOperator::FalseExpr can return nullptr!");
+  assert(false && "AbstractConditionalOperator::FalseExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -10156,13 +10358,13 @@ PASTA_DEFINE_DERIVED_OPERATORS(AbstractConditionalOperator, ConditionalOperator)
   return ast->TokenAt(val);
 }
 
-::pasta::Expr AbstractConditionalOperator::TrueExpr(void) const {
+::pasta::Expr AbstractConditionalOperator::TrueExpression(void) const {
   auto &self = *(u.AbstractConditionalOperator);
   auto val = self.getTrueExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "AbstractConditionalOperator::TrueExpr can return nullptr!");
+  assert(false && "AbstractConditionalOperator::TrueExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -10273,13 +10475,13 @@ std::vector<::pasta::Stmt> ArrayInitLoopExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::OpaqueValueExpr ArrayInitLoopExpr::CommonExpr(void) const {
+::pasta::OpaqueValueExpr ArrayInitLoopExpr::CommonExpression(void) const {
   auto &self = *(u.ArrayInitLoopExpr);
   auto val = self.getCommonExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::OpaqueValueExpr>(ast, val);
   }
-  assert(false && "ArrayInitLoopExpr::CommonExpr can return nullptr!");
+  assert(false && "ArrayInitLoopExpr::CommonExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -10289,13 +10491,13 @@ std::vector<::pasta::Stmt> ArrayInitLoopExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr ArrayInitLoopExpr::SubExpr(void) const {
+::pasta::Expr ArrayInitLoopExpr::SubExpression(void) const {
   auto &self = *(u.ArrayInitLoopExpr);
   auto val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ArrayInitLoopExpr::SubExpr can return nullptr!");
+  assert(false && "ArrayInitLoopExpr::SubExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -10339,19 +10541,19 @@ std::vector<::pasta::Stmt> ArraySubscriptExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Token ArraySubscriptExpr::ExprToken(void) const {
+::pasta::Token ArraySubscriptExpr::ExpressionToken(void) const {
   auto &self = *(u.ArraySubscriptExpr);
   auto val = self.getExprLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Expr ArraySubscriptExpr::Idx(void) const {
+::pasta::Expr ArraySubscriptExpr::Index(void) const {
   auto &self = *(u.ArraySubscriptExpr);
   auto val = self.getIdx();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ArraySubscriptExpr::Idx can return nullptr!");
+  assert(false && "ArraySubscriptExpr::Index can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -10482,13 +10684,13 @@ std::vector<::pasta::Stmt> AsTypeExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr AsTypeExpr::SrcExpr(void) const {
+::pasta::Expr AsTypeExpr::SrcExpression(void) const {
   auto &self = *(u.AsTypeExpr);
   auto val = self.getSrcExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "AsTypeExpr::SrcExpr can return nullptr!");
+  assert(false && "AsTypeExpr::SrcExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -10528,13 +10730,13 @@ std::vector<::pasta::Stmt> AtomicExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-uint32_t AtomicExpr::NumSubExprs(void) const {
+uint32_t AtomicExpr::NumSubExpressions(void) const {
   auto &self = *(u.AtomicExpr);
   auto val = self.getNumSubExprs();
   return val;
 }
 
-// 0: AtomicExpr::Op
+// 0: AtomicExpr::Operation
 ::pasta::Expr AtomicExpr::Order(void) const {
   auto &self = *(u.AtomicExpr);
   auto val = self.getOrder();
@@ -10555,13 +10757,13 @@ uint32_t AtomicExpr::NumSubExprs(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Expr AtomicExpr::Ptr(void) const {
+::pasta::Expr AtomicExpr::Pointer(void) const {
   auto &self = *(u.AtomicExpr);
   auto val = self.getPtr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "AtomicExpr::Ptr can return nullptr!");
+  assert(false && "AtomicExpr::Pointer can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -10582,7 +10784,7 @@ uint32_t AtomicExpr::NumSubExprs(void) const {
 }
 
 // 0: AtomicExpr::ScopeModel
-// 0: AtomicExpr::SubExprs
+// 0: AtomicExpr::SubExpressions
 ::pasta::Expr AtomicExpr::Val1(void) const {
   auto &self = *(u.AtomicExpr);
   auto val = self.getVal1();
@@ -10637,6 +10839,22 @@ bool AtomicExpr::IsVolatile(void) const {
   return val;
 }
 
+std::vector<::pasta::Expr> AtomicExpr::SubExpressions(void) const {
+  auto convert_elem = [&] (const clang::Expr * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::Expr>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::Expr> ret;
+  auto count = u.AtomicExpr->getNumSubExprs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.AtomicExpr->getSubExprs()[i]));
+  }
+  return ret;
+}
+
 BinaryConditionalOperator::BinaryConditionalOperator(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -10672,13 +10890,13 @@ std::vector<::pasta::Stmt> BinaryConditionalOperator::Children(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Expr BinaryConditionalOperator::Cond(void) const {
+::pasta::Expr BinaryConditionalOperator::Condition(void) const {
   auto &self = *(u.BinaryConditionalOperator);
   auto val = self.getCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "BinaryConditionalOperator::Cond can return nullptr!");
+  assert(false && "BinaryConditionalOperator::Condition can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -10688,13 +10906,13 @@ std::vector<::pasta::Stmt> BinaryConditionalOperator::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr BinaryConditionalOperator::FalseExpr(void) const {
+::pasta::Expr BinaryConditionalOperator::FalseExpression(void) const {
   auto &self = *(u.BinaryConditionalOperator);
   auto val = self.getFalseExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "BinaryConditionalOperator::FalseExpr can return nullptr!");
+  assert(false && "BinaryConditionalOperator::FalseExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -10708,13 +10926,13 @@ std::vector<::pasta::Stmt> BinaryConditionalOperator::Children(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Expr BinaryConditionalOperator::TrueExpr(void) const {
+::pasta::Expr BinaryConditionalOperator::TrueExpression(void) const {
   auto &self = *(u.BinaryConditionalOperator);
   auto val = self.getTrueExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "BinaryConditionalOperator::TrueExpr can return nullptr!");
+  assert(false && "BinaryConditionalOperator::TrueExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -10749,7 +10967,7 @@ std::vector<::pasta::Stmt> BinaryOperator::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Token BinaryOperator::ExprToken(void) const {
+::pasta::Token BinaryOperator::ExpressionToken(void) const {
   auto &self = *(u.BinaryOperator);
   auto val = self.getExprLoc();
   return ast->TokenAt(val);
@@ -10773,7 +10991,7 @@ enum BinaryOperatorKind BinaryOperator::Opcode(void) const {
   return static_cast<::pasta::BinaryOperatorKind>(static_cast<unsigned int>(val));
 }
 
-std::string_view BinaryOperator::OpcodeStr(void) const {
+std::string_view BinaryOperator::OpcodeString(void) const {
   auto &self = *(u.BinaryOperator);
   auto val = self.getOpcodeStr();
   if (auto size = val.size()) {
@@ -10806,43 +11024,43 @@ bool BinaryOperator::HasStoredFPFeatures(void) const {
   return val;
 }
 
-bool BinaryOperator::IsAdditiveOp(void) const {
+bool BinaryOperator::IsAdditiveOperation(void) const {
   auto &self = *(u.BinaryOperator);
   auto val = self.isAdditiveOp();
   return val;
 }
 
-bool BinaryOperator::IsAssignmentOp(void) const {
+bool BinaryOperator::IsAssignmentOperation(void) const {
   auto &self = *(u.BinaryOperator);
   auto val = self.isAssignmentOp();
   return val;
 }
 
-bool BinaryOperator::IsBitwiseOp(void) const {
+bool BinaryOperator::IsBitwiseOperation(void) const {
   auto &self = *(u.BinaryOperator);
   auto val = self.isBitwiseOp();
   return val;
 }
 
-bool BinaryOperator::IsCommaOp(void) const {
+bool BinaryOperator::IsCommaOperation(void) const {
   auto &self = *(u.BinaryOperator);
   auto val = self.isCommaOp();
   return val;
 }
 
-bool BinaryOperator::IsComparisonOp(void) const {
+bool BinaryOperator::IsComparisonOperation(void) const {
   auto &self = *(u.BinaryOperator);
   auto val = self.isComparisonOp();
   return val;
 }
 
-bool BinaryOperator::IsCompoundAssignmentOp(void) const {
+bool BinaryOperator::IsCompoundAssignmentOperation(void) const {
   auto &self = *(u.BinaryOperator);
   auto val = self.isCompoundAssignmentOp();
   return val;
 }
 
-bool BinaryOperator::IsEqualityOp(void) const {
+bool BinaryOperator::IsEqualityOperation(void) const {
   auto &self = *(u.BinaryOperator);
   auto val = self.isEqualityOp();
   return val;
@@ -10850,37 +11068,37 @@ bool BinaryOperator::IsEqualityOp(void) const {
 
 // 1: BinaryOperator::IsFEnvAccessOn
 // 1: BinaryOperator::IsFPContractableWithinStatement
-bool BinaryOperator::IsLogicalOp(void) const {
+bool BinaryOperator::IsLogicalOperation(void) const {
   auto &self = *(u.BinaryOperator);
   auto val = self.isLogicalOp();
   return val;
 }
 
-bool BinaryOperator::IsMultiplicativeOp(void) const {
+bool BinaryOperator::IsMultiplicativeOperation(void) const {
   auto &self = *(u.BinaryOperator);
   auto val = self.isMultiplicativeOp();
   return val;
 }
 
-bool BinaryOperator::IsPtrMemOp(void) const {
+bool BinaryOperator::IsPointerMemoryOperation(void) const {
   auto &self = *(u.BinaryOperator);
   auto val = self.isPtrMemOp();
   return val;
 }
 
-bool BinaryOperator::IsRelationalOp(void) const {
+bool BinaryOperator::IsRelationalOperation(void) const {
   auto &self = *(u.BinaryOperator);
   auto val = self.isRelationalOp();
   return val;
 }
 
-bool BinaryOperator::IsShiftAssignOp(void) const {
+bool BinaryOperator::IsShiftAssignOperation(void) const {
   auto &self = *(u.BinaryOperator);
   auto val = self.isShiftAssignOp();
   return val;
 }
 
-bool BinaryOperator::IsShiftOp(void) const {
+bool BinaryOperator::IsShiftOperation(void) const {
   auto &self = *(u.BinaryOperator);
   auto val = self.isShiftOp();
   return val;
@@ -10910,13 +11128,13 @@ std::vector<::pasta::Stmt> BlockExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::BlockDecl BlockExpr::BlockDecl(void) const {
+::pasta::BlockDecl BlockExpr::BlockDeclaration(void) const {
   auto &self = *(u.BlockExpr);
   auto val = self.getBlockDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::BlockDecl>(ast, val);
   }
-  assert(false && "BlockExpr::BlockDecl can return nullptr!");
+  assert(false && "BlockExpr::BlockDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -10930,7 +11148,7 @@ std::vector<::pasta::Stmt> BlockExpr::Children(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Token BlockExpr::CaretLocation(void) const {
+::pasta::Token BlockExpr::CaretToken(void) const {
   auto &self = *(u.BlockExpr);
   auto val = self.getCaretLocation();
   return ast->TokenAt(val);
@@ -10982,13 +11200,13 @@ std::vector<::pasta::Stmt> CXXBindTemporaryExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr CXXBindTemporaryExpr::SubExpr(void) const {
+::pasta::Expr CXXBindTemporaryExpr::SubExpression(void) const {
   auto &self = *(u.CXXBindTemporaryExpr);
   auto val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CXXBindTemporaryExpr::SubExpr can return nullptr!");
+  assert(false && "CXXBindTemporaryExpr::SubExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -11066,15 +11284,20 @@ std::vector<::pasta::Stmt> CXXConstructExpr::Children(void) const {
   return ret;
 }
 
-// 1: CXXConstructExpr::Arg
-// 0: CXXConstructExpr::Args
+// 1: CXXConstructExpr::Argument
+// 0: CXXConstructExpr::Arguments
 ::pasta::Token CXXConstructExpr::BeginToken(void) const {
   auto &self = *(u.CXXConstructExpr);
   auto val = self.getBeginLoc();
   return ast->TokenAt(val);
 }
 
-// 0: CXXConstructExpr::ConstructionKind
+::pasta::ConstructionKind CXXConstructExpr::ConstructionKind(void) const {
+  auto &self = *(u.CXXConstructExpr);
+  auto val = self.getConstructionKind();
+  return static_cast<::pasta::ConstructionKind>(val);
+}
+
 ::pasta::CXXConstructorDecl CXXConstructExpr::Constructor(void) const {
   auto &self = *(u.CXXConstructExpr);
   auto val = self.getConstructor();
@@ -11097,13 +11320,13 @@ std::vector<::pasta::Stmt> CXXConstructExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-uint32_t CXXConstructExpr::NumArgs(void) const {
+uint32_t CXXConstructExpr::NumArguments(void) const {
   auto &self = *(u.CXXConstructExpr);
   auto val = self.getNumArgs();
   return val;
 }
 
-::pasta::TokenRange CXXConstructExpr::ParenOrBraceRange(void) const {
+::pasta::TokenRange CXXConstructExpr::ParenthesisOrBraceRange(void) const {
   auto &self = *(u.CXXConstructExpr);
   auto val = self.getParenOrBraceRange();
   return ast->TokenRangeFrom(val);
@@ -11127,7 +11350,7 @@ bool CXXConstructExpr::IsListInitialization(void) const {
   return val;
 }
 
-bool CXXConstructExpr::IsStdInitListInitialization(void) const {
+bool CXXConstructExpr::IsStdInitializerListInitialization(void) const {
   auto &self = *(u.CXXConstructExpr);
   auto val = self.isStdInitListInitialization();
   return val;
@@ -11137,22 +11360,6 @@ bool CXXConstructExpr::RequiresZeroInitialization(void) const {
   auto &self = *(u.CXXConstructExpr);
   auto val = self.requiresZeroInitialization();
   return val;
-}
-
-std::vector<::pasta::Expr> CXXConstructExpr::Args(void) const {
-  auto convert_elem = [&] (const clang::Expr * val) {
-    if (val) {
-      return StmtBuilder::Create<::pasta::Expr>(ast, val);
-    }
-    __builtin_unreachable();
-  };
-  std::vector<::pasta::Expr> ret;
-  auto count = u.CXXConstructExpr->getNumArgs();
-  decltype(count) i = 0;
-  for (; i < count; ++i) {
-    ret.emplace_back(convert_elem(u.CXXConstructExpr->getArg(i)));
-  }
-  return ret;
 }
 
 CXXDefaultArgExpr::CXXDefaultArgExpr(
@@ -11185,17 +11392,17 @@ std::vector<::pasta::Stmt> CXXDefaultArgExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr CXXDefaultArgExpr::FindExpr(void) const {
+::pasta::Expr CXXDefaultArgExpr::Expression(void) const {
   auto &self = *(u.CXXDefaultArgExpr);
   auto val = self.getExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CXXDefaultArgExpr::FindExpr can return nullptr!");
+  assert(false && "CXXDefaultArgExpr::Expression can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Token CXXDefaultArgExpr::ExprToken(void) const {
+::pasta::Token CXXDefaultArgExpr::ExpressionToken(void) const {
   auto &self = *(u.CXXDefaultArgExpr);
   auto val = self.getExprLoc();
   return ast->TokenAt(val);
@@ -11221,7 +11428,7 @@ std::vector<::pasta::Stmt> CXXDefaultArgExpr::Children(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Token CXXDefaultArgExpr::UsedLocation(void) const {
+::pasta::Token CXXDefaultArgExpr::UsedToken(void) const {
   auto &self = *(u.CXXDefaultArgExpr);
   auto val = self.getUsedLocation();
   return ast->TokenAt(val);
@@ -11257,13 +11464,13 @@ std::vector<::pasta::Stmt> CXXDefaultInitExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr CXXDefaultInitExpr::FindExpr(void) const {
+::pasta::Expr CXXDefaultInitExpr::Expression(void) const {
   auto &self = *(u.CXXDefaultInitExpr);
   auto val = self.getExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CXXDefaultInitExpr::FindExpr can return nullptr!");
+  assert(false && "CXXDefaultInitExpr::Expression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -11287,7 +11494,7 @@ std::vector<::pasta::Stmt> CXXDefaultInitExpr::Children(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Token CXXDefaultInitExpr::UsedLocation(void) const {
+::pasta::Token CXXDefaultInitExpr::UsedToken(void) const {
   auto &self = *(u.CXXDefaultInitExpr);
   auto val = self.getUsedLocation();
   return ast->TokenAt(val);
@@ -11443,7 +11650,7 @@ std::vector<::pasta::Stmt> CXXDependentScopeMemberExpr::Children(void) const {
 }
 
 // 0: CXXDependentScopeMemberExpr::MemberNameInfo
-uint32_t CXXDependentScopeMemberExpr::NumTemplateArgs(void) const {
+uint32_t CXXDependentScopeMemberExpr::NumTemplateArguments(void) const {
   auto &self = *(u.CXXDependentScopeMemberExpr);
   auto val = self.getNumTemplateArgs();
   return val;
@@ -11463,14 +11670,14 @@ uint32_t CXXDependentScopeMemberExpr::NumTemplateArgs(void) const {
   return ast->TokenAt(val);
 }
 
-// 0: CXXDependentScopeMemberExpr::TemplateArgs
+// 0: CXXDependentScopeMemberExpr::TemplateArguments
 ::pasta::Token CXXDependentScopeMemberExpr::TemplateKeywordToken(void) const {
   auto &self = *(u.CXXDependentScopeMemberExpr);
   auto val = self.getTemplateKeywordLoc();
   return ast->TokenAt(val);
 }
 
-bool CXXDependentScopeMemberExpr::HasExplicitTemplateArgs(void) const {
+bool CXXDependentScopeMemberExpr::HasExplicitTemplateArguments(void) const {
   auto &self = *(u.CXXDependentScopeMemberExpr);
   auto val = self.hasExplicitTemplateArgs();
   return val;
@@ -11494,7 +11701,7 @@ bool CXXDependentScopeMemberExpr::IsImplicitAccess(void) const {
   return val;
 }
 
-// 0: CXXDependentScopeMemberExpr::Template_arguments
+// 0: CXXDependentScopeMemberExpr::TemplateArguments
 CXXFoldExpr::CXXFoldExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -11541,13 +11748,13 @@ std::vector<::pasta::Stmt> CXXFoldExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr CXXFoldExpr::Init(void) const {
+::pasta::Expr CXXFoldExpr::Initializer(void) const {
   auto &self = *(u.CXXFoldExpr);
   auto val = self.getInit();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CXXFoldExpr::Init can return nullptr!");
+  assert(false && "CXXFoldExpr::Initializer can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -11639,7 +11846,7 @@ std::vector<::pasta::Stmt> CXXInheritedCtorInitExpr::Children(void) const {
   return ret;
 }
 
-bool CXXInheritedCtorInitExpr::ConstructsVBase(void) const {
+bool CXXInheritedCtorInitExpr::ConstructsVirtualBase(void) const {
   auto &self = *(u.CXXInheritedCtorInitExpr);
   auto val = self.constructsVBase();
   return val;
@@ -11651,7 +11858,12 @@ bool CXXInheritedCtorInitExpr::ConstructsVBase(void) const {
   return ast->TokenAt(val);
 }
 
-// 0: CXXInheritedCtorInitExpr::ConstructionKind
+::pasta::ConstructionKind CXXInheritedCtorInitExpr::ConstructionKind(void) const {
+  auto &self = *(u.CXXInheritedCtorInitExpr);
+  auto val = self.getConstructionKind();
+  return static_cast<::pasta::ConstructionKind>(val);
+}
+
 ::pasta::CXXConstructorDecl CXXInheritedCtorInitExpr::Constructor(void) const {
   auto &self = *(u.CXXInheritedCtorInitExpr);
   auto val = self.getConstructor();
@@ -11674,7 +11886,7 @@ bool CXXInheritedCtorInitExpr::ConstructsVBase(void) const {
   return ast->TokenAt(val);
 }
 
-bool CXXInheritedCtorInitExpr::InheritedFromVBase(void) const {
+bool CXXInheritedCtorInitExpr::InheritedFromVirtualBase(void) const {
   auto &self = *(u.CXXInheritedCtorInitExpr);
   auto val = self.inheritedFromVBase();
   return val;
@@ -11711,24 +11923,33 @@ bool CXXNewExpr::DoesUsualArrayDeleteWantSize(void) const {
 }
 
 // 0: CXXNewExpr::AllocatedTypeSourceInfo
-// 0: CXXNewExpr::ArraySize
+std::optional<::pasta::Expr> CXXNewExpr::ArraySize(void) const {
+  auto &self = *(u.CXXNewExpr);
+  auto val = self.getArraySize();
+  if (val.hasValue()) {
+    return StmtBuilder::Create<::pasta::Expr>(ast, val.getValue());
+  } else {
+    return std::nullopt;
+  }
+}
+
 ::pasta::Token CXXNewExpr::BeginToken(void) const {
   auto &self = *(u.CXXNewExpr);
   auto val = self.getBeginLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::CXXConstructExpr CXXNewExpr::ConstructExpr(void) const {
+::pasta::CXXConstructExpr CXXNewExpr::ConstructExpression(void) const {
   auto &self = *(u.CXXNewExpr);
   auto val = self.getConstructExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::CXXConstructExpr>(ast, val);
   }
-  assert(false && "CXXNewExpr::ConstructExpr can return nullptr!");
+  assert(false && "CXXNewExpr::ConstructExpression can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::TokenRange CXXNewExpr::DirectInitRange(void) const {
+::pasta::TokenRange CXXNewExpr::DirectInitializerRange(void) const {
   auto &self = *(u.CXXNewExpr);
   auto val = self.getDirectInitRange();
   return ast->TokenRangeFrom(val);
@@ -11740,7 +11961,12 @@ bool CXXNewExpr::DoesUsualArrayDeleteWantSize(void) const {
   return ast->TokenAt(val);
 }
 
-// 0: CXXNewExpr::InitializationStyle
+::pasta::InitializationStyle CXXNewExpr::InitializationStyle(void) const {
+  auto &self = *(u.CXXNewExpr);
+  auto val = self.getInitializationStyle();
+  return static_cast<::pasta::InitializationStyle>(val);
+}
+
 ::pasta::Expr CXXNewExpr::Initializer(void) const {
   auto &self = *(u.CXXNewExpr);
   auto val = self.getInitializer();
@@ -11751,7 +11977,7 @@ bool CXXNewExpr::DoesUsualArrayDeleteWantSize(void) const {
   __builtin_unreachable();
 }
 
-uint32_t CXXNewExpr::NumPlacementArgs(void) const {
+uint32_t CXXNewExpr::NumPlacementArguments(void) const {
   auto &self = *(u.CXXNewExpr);
   auto val = self.getNumPlacementArgs();
   return val;
@@ -11777,14 +12003,14 @@ uint32_t CXXNewExpr::NumPlacementArgs(void) const {
   __builtin_unreachable();
 }
 
-// 1: CXXNewExpr::PlacementArg
+// 1: CXXNewExpr::PlacementArgument
 ::pasta::TokenRange CXXNewExpr::TokenRange(void) const {
   auto &self = *(u.CXXNewExpr);
   auto val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
 }
 
-::pasta::TokenRange CXXNewExpr::TypeIdParens(void) const {
+::pasta::TokenRange CXXNewExpr::TypeIdParentheses(void) const {
   auto &self = *(u.CXXNewExpr);
   auto val = self.getTypeIdParens();
   return ast->TokenRangeFrom(val);
@@ -11808,7 +12034,7 @@ bool CXXNewExpr::IsGlobalNew(void) const {
   return val;
 }
 
-bool CXXNewExpr::IsParenTypeId(void) const {
+bool CXXNewExpr::IsParenthesisTypeId(void) const {
   auto &self = *(u.CXXNewExpr);
   auto val = self.isParenTypeId();
   return val;
@@ -11822,7 +12048,7 @@ bool CXXNewExpr::PassAlignment(void) const {
 
 // 0: CXXNewExpr::
 // 0: CXXNewExpr::
-std::vector<::pasta::Expr> CXXNewExpr::Placement_arguments(void) const {
+std::vector<::pasta::Expr> CXXNewExpr::PlacementArguments(void) const {
   auto &self = *(u.CXXNewExpr);
   auto val = self.placement_arguments();
   std::vector<::pasta::Expr> ret;
@@ -11838,22 +12064,6 @@ bool CXXNewExpr::ShouldNullCheckAllocation(void) const {
   auto &self = *(u.CXXNewExpr);
   auto val = self.shouldNullCheckAllocation();
   return val;
-}
-
-std::vector<::pasta::Expr> CXXNewExpr::PlacementArgs(void) const {
-  auto convert_elem = [&] (const clang::Expr * val) {
-    if (val) {
-      return StmtBuilder::Create<::pasta::Expr>(ast, val);
-    }
-    __builtin_unreachable();
-  };
-  std::vector<::pasta::Expr> ret;
-  auto count = u.CXXNewExpr->getNumPlacementArgs();
-  decltype(count) i = 0;
-  for (; i < count; ++i) {
-    ret.emplace_back(convert_elem(u.CXXNewExpr->getPlacementArg(i)));
-  }
-  return ret;
 }
 
 CXXNoexceptExpr::CXXNoexceptExpr(
@@ -12052,7 +12262,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXRewrittenBinaryOperator)
   return ast->TokenAt(val);
 }
 
-::pasta::Token CXXRewrittenBinaryOperator::ExprToken(void) const {
+::pasta::Token CXXRewrittenBinaryOperator::ExpressionToken(void) const {
   auto &self = *(u.CXXRewrittenBinaryOperator);
   auto val = self.getExprLoc();
   return ast->TokenAt(val);
@@ -12074,7 +12284,7 @@ enum BinaryOperatorKind CXXRewrittenBinaryOperator::Opcode(void) const {
   return static_cast<::pasta::BinaryOperatorKind>(static_cast<unsigned int>(val));
 }
 
-std::string_view CXXRewrittenBinaryOperator::OpcodeStr(void) const {
+std::string_view CXXRewrittenBinaryOperator::OpcodeString(void) const {
   auto &self = *(u.CXXRewrittenBinaryOperator);
   auto val = self.getOpcodeStr();
   if (auto size = val.size()) {
@@ -12122,13 +12332,13 @@ enum BinaryOperatorKind CXXRewrittenBinaryOperator::Operator(void) const {
   return ast->TokenRangeFrom(val);
 }
 
-bool CXXRewrittenBinaryOperator::IsAssignmentOp(void) const {
+bool CXXRewrittenBinaryOperator::IsAssignmentOperation(void) const {
   auto &self = *(u.CXXRewrittenBinaryOperator);
   auto val = self.isAssignmentOp();
   return val;
 }
 
-bool CXXRewrittenBinaryOperator::IsComparisonOp(void) const {
+bool CXXRewrittenBinaryOperator::IsComparisonOperation(void) const {
   auto &self = *(u.CXXRewrittenBinaryOperator);
   auto val = self.isComparisonOp();
   return val;
@@ -12213,13 +12423,13 @@ std::vector<::pasta::Stmt> CXXStdInitializerListExpr::Children(void) const {
   return ast->TokenRangeFrom(val);
 }
 
-::pasta::Expr CXXStdInitializerListExpr::SubExpr(void) const {
+::pasta::Expr CXXStdInitializerListExpr::SubExpression(void) const {
   auto &self = *(u.CXXStdInitializerListExpr);
   auto val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CXXStdInitializerListExpr::SubExpr can return nullptr!");
+  assert(false && "CXXStdInitializerListExpr::SubExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -12245,6 +12455,22 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXTemporaryObjectExpr)
 }
 
 // 0: CXXTemporaryObjectExpr::TypeSourceInfo
+std::vector<::pasta::Expr> CXXTemporaryObjectExpr::Arguments(void) const {
+  auto convert_elem = [&] (const clang::Expr * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::Expr>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::Expr> ret;
+  auto count = u.CXXTemporaryObjectExpr->getNumArgs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.CXXTemporaryObjectExpr->getArg(i)));
+  }
+  return ret;
+}
+
 CXXThisExpr::CXXThisExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -12317,13 +12543,13 @@ std::vector<::pasta::Stmt> CXXThrowExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr CXXThrowExpr::SubExpr(void) const {
+::pasta::Expr CXXThrowExpr::SubExpression(void) const {
   auto &self = *(u.CXXThrowExpr);
   auto val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CXXThrowExpr::SubExpr can return nullptr!");
+  assert(false && "CXXThrowExpr::SubExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -12369,13 +12595,13 @@ std::vector<::pasta::Stmt> CXXTypeidExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr CXXTypeidExpr::ExprOperand(void) const {
+::pasta::Expr CXXTypeidExpr::ExpressionOperand(void) const {
   auto &self = *(u.CXXTypeidExpr);
   auto val = self.getExprOperand();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CXXTypeidExpr::ExprOperand can return nullptr!");
+  assert(false && "CXXTypeidExpr::ExpressionOperand can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -12420,7 +12646,16 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXUnresolvedConstructExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXUnresolvedConstructExpr)
 // 0: CXXUnresolvedConstructExpr::
 // 0: CXXUnresolvedConstructExpr::
-// 0: CXXUnresolvedConstructExpr::Arguments
+std::vector<::pasta::Expr> CXXUnresolvedConstructExpr::Arguments(void) const {
+  auto &self = *(u.CXXUnresolvedConstructExpr);
+  auto val = self.arguments();
+  std::vector<::pasta::Expr> ret;
+  for (auto stmt_ptr : val) {
+    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+  }
+  return ret;
+}
+
 std::vector<::pasta::Stmt> CXXUnresolvedConstructExpr::Children(void) const {
   auto &self = *(u.CXXUnresolvedConstructExpr);
   auto val = self.children();
@@ -12431,7 +12666,7 @@ std::vector<::pasta::Stmt> CXXUnresolvedConstructExpr::Children(void) const {
   return ret;
 }
 
-// 1: CXXUnresolvedConstructExpr::Arg
+// 1: CXXUnresolvedConstructExpr::Argument
 ::pasta::Token CXXUnresolvedConstructExpr::BeginToken(void) const {
   auto &self = *(u.CXXUnresolvedConstructExpr);
   auto val = self.getBeginLoc();
@@ -12450,7 +12685,7 @@ std::vector<::pasta::Stmt> CXXUnresolvedConstructExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-uint32_t CXXUnresolvedConstructExpr::NumArgs(void) const {
+uint32_t CXXUnresolvedConstructExpr::NumArguments(void) const {
   auto &self = *(u.CXXUnresolvedConstructExpr);
   auto val = self.getNumArgs();
   return val;
@@ -12473,22 +12708,6 @@ bool CXXUnresolvedConstructExpr::IsListInitialization(void) const {
   auto &self = *(u.CXXUnresolvedConstructExpr);
   auto val = self.isListInitialization();
   return val;
-}
-
-std::vector<::pasta::Expr> CXXUnresolvedConstructExpr::Args(void) const {
-  auto convert_elem = [&] (const clang::Expr * val) {
-    if (val) {
-      return StmtBuilder::Create<::pasta::Expr>(ast, val);
-    }
-    __builtin_unreachable();
-  };
-  std::vector<::pasta::Expr> ret;
-  auto count = u.CXXUnresolvedConstructExpr->getNumArgs();
-  decltype(count) i = 0;
-  for (; i < count; ++i) {
-    ret.emplace_back(convert_elem(u.CXXUnresolvedConstructExpr->getArg(i)));
-  }
-  return ret;
 }
 
 CXXUuidofExpr::CXXUuidofExpr(
@@ -12521,23 +12740,23 @@ std::vector<::pasta::Stmt> CXXUuidofExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr CXXUuidofExpr::ExprOperand(void) const {
+::pasta::Expr CXXUuidofExpr::ExpressionOperand(void) const {
   auto &self = *(u.CXXUuidofExpr);
   auto val = self.getExprOperand();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CXXUuidofExpr::ExprOperand can return nullptr!");
+  assert(false && "CXXUuidofExpr::ExpressionOperand can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::MSGuidDecl CXXUuidofExpr::GuidDecl(void) const {
+::pasta::MSGuidDecl CXXUuidofExpr::GuidDeclaration(void) const {
   auto &self = *(u.CXXUuidofExpr);
   auto val = self.getGuidDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::MSGuidDecl>(ast, val);
   }
-  assert(false && "CXXUuidofExpr::GuidDecl can return nullptr!");
+  assert(false && "CXXUuidofExpr::GuidDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -12594,9 +12813,14 @@ std::vector<::pasta::Stmt> CallExpr::Children(void) const {
   return ret;
 }
 
-// 0: CallExpr::ADLCallKind
-// 1: CallExpr::Arg
-// 0: CallExpr::Args
+::pasta::ADLCallKind CallExpr::ADLCallKind(void) const {
+  auto &self = *(u.CallExpr);
+  auto val = self.getADLCallKind();
+  return static_cast<::pasta::ADLCallKind>(val);
+}
+
+// 1: CallExpr::Argument
+// 0: CallExpr::Arguments
 ::pasta::Token CallExpr::BeginToken(void) const {
   auto &self = *(u.CallExpr);
   auto val = self.getBeginLoc();
@@ -12625,13 +12849,13 @@ uint32_t CallExpr::BuiltinCallee(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Decl CallExpr::CalleeDecl(void) const {
+::pasta::Decl CallExpr::CalleeDeclaration(void) const {
   auto &self = *(u.CallExpr);
   auto val = self.getCalleeDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::Decl>(ast, val);
   }
-  assert(false && "CallExpr::CalleeDecl can return nullptr!");
+  assert(false && "CallExpr::CalleeDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -12653,7 +12877,7 @@ uint32_t CallExpr::BuiltinCallee(void) const {
 
 // 0: CallExpr::FPFeatures
 // 1: CallExpr::FPFeaturesInEffect
-uint32_t CallExpr::NumArgs(void) const {
+uint32_t CallExpr::NumArguments(void) const {
   auto &self = *(u.CallExpr);
   auto val = self.getNumArgs();
   return val;
@@ -12672,14 +12896,14 @@ uint32_t CallExpr::NumCommas(void) const {
 }
 
 // 0: CallExpr::StoredFPFeatures
-// 1: CallExpr::UnusedResultAttr
+// 1: CallExpr::UnusedResultAttribute
 bool CallExpr::HasStoredFPFeatures(void) const {
   auto &self = *(u.CallExpr);
   auto val = self.hasStoredFPFeatures();
   return val;
 }
 
-bool CallExpr::HasUnusedResultAttr(void) const {
+bool CallExpr::HasUnusedResultAttribute(void) const {
   auto &self = *(u.CallExpr);
   auto val = self.hasUnusedResultAttr(ast->ci->getASTContext());
   return val;
@@ -12707,22 +12931,6 @@ bool CallExpr::UsesADL(void) const {
   auto &self = *(u.CallExpr);
   auto val = self.usesADL();
   return val;
-}
-
-std::vector<::pasta::Expr> CallExpr::Args(void) const {
-  auto convert_elem = [&] (const clang::Expr * val) {
-    if (val) {
-      return StmtBuilder::Create<::pasta::Expr>(ast, val);
-    }
-    __builtin_unreachable();
-  };
-  std::vector<::pasta::Expr> ret;
-  auto count = u.CallExpr->getNumArgs();
-  decltype(count) i = 0;
-  for (; i < count; ++i) {
-    ret.emplace_back(convert_elem(u.CallExpr->getArg(i)));
-  }
-  return ret;
 }
 
 CastExpr::CastExpr(
@@ -12786,23 +12994,23 @@ std::string_view CastExpr::CastKindName(void) const {
 // 0: CastExpr::FPFeatures
 // 1: CastExpr::FPFeaturesInEffect
 // 0: CastExpr::StoredFPFeatures
-::pasta::Expr CastExpr::SubExpr(void) const {
+::pasta::Expr CastExpr::SubExpression(void) const {
   auto &self = *(u.CastExpr);
   auto val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CastExpr::SubExpr can return nullptr!");
+  assert(false && "CastExpr::SubExpression can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Expr CastExpr::SubExprAsWritten(void) const {
+::pasta::Expr CastExpr::SubExpressionAsWritten(void) const {
   auto &self = *(u.CastExpr);
   auto val = self.getSubExprAsWritten();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CastExpr::SubExprAsWritten can return nullptr!");
+  assert(false && "CastExpr::SubExpressionAsWritten can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -12857,7 +13065,7 @@ std::vector<::pasta::Stmt> CharacterLiteral::Children(void) const {
   return ast->TokenAt(val);
 }
 
-// 0: CharacterLiteral::
+// 0: CharacterLiteral::Kind
 ::pasta::Token CharacterLiteral::Token(void) const {
   auto &self = *(u.CharacterLiteral);
   auto val = self.getLocation();
@@ -12900,23 +13108,23 @@ std::vector<::pasta::Stmt> ChooseExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr ChooseExpr::ChosenSubExpr(void) const {
+::pasta::Expr ChooseExpr::ChosenSubExpression(void) const {
   auto &self = *(u.ChooseExpr);
   auto val = self.getChosenSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ChooseExpr::ChosenSubExpr can return nullptr!");
+  assert(false && "ChooseExpr::ChosenSubExpression can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Expr ChooseExpr::Cond(void) const {
+::pasta::Expr ChooseExpr::Condition(void) const {
   auto &self = *(u.ChooseExpr);
   auto val = self.getCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ChooseExpr::Cond can return nullptr!");
+  assert(false && "ChooseExpr::Condition can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -13101,13 +13309,13 @@ std::vector<::pasta::Stmt> ConditionalOperator::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr ConditionalOperator::Cond(void) const {
+::pasta::Expr ConditionalOperator::Condition(void) const {
   auto &self = *(u.ConditionalOperator);
   auto val = self.getCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ConditionalOperator::Cond can return nullptr!");
+  assert(false && "ConditionalOperator::Condition can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -13117,13 +13325,13 @@ std::vector<::pasta::Stmt> ConditionalOperator::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr ConditionalOperator::FalseExpr(void) const {
+::pasta::Expr ConditionalOperator::FalseExpression(void) const {
   auto &self = *(u.ConditionalOperator);
   auto val = self.getFalseExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ConditionalOperator::FalseExpr can return nullptr!");
+  assert(false && "ConditionalOperator::FalseExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -13147,13 +13355,13 @@ std::vector<::pasta::Stmt> ConditionalOperator::Children(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Expr ConditionalOperator::TrueExpr(void) const {
+::pasta::Expr ConditionalOperator::TrueExpression(void) const {
   auto &self = *(u.ConditionalOperator);
   auto val = self.getTrueExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ConditionalOperator::TrueExpr can return nullptr!");
+  assert(false && "ConditionalOperator::TrueExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -13189,10 +13397,20 @@ std::vector<::pasta::Stmt> ConstantExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-// 0: ConstantExpr::ResultAPValueKind
+::pasta::APValueKind ConstantExpr::ResultAPValueKind(void) const {
+  auto &self = *(u.ConstantExpr);
+  auto val = self.getResultAPValueKind();
+  return static_cast<::pasta::APValueKind>(val);
+}
+
 // 0: ConstantExpr::ResultAsAPSInt
 // 0: ConstantExpr::ResultAsAPValue
-// 0: ConstantExpr::ResultStorageKind
+::pasta::ResultStorageKind ConstantExpr::ResultStorageKind(void) const {
+  auto &self = *(u.ConstantExpr);
+  auto val = self.getResultStorageKind();
+  return static_cast<::pasta::ResultStorageKind>(val);
+}
+
 bool ConstantExpr::HasAPValueResult(void) const {
   auto &self = *(u.ConstantExpr);
   auto val = self.hasAPValueResult();
@@ -13247,13 +13465,13 @@ std::vector<::pasta::Stmt> ConvertVectorExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr ConvertVectorExpr::SrcExpr(void) const {
+::pasta::Expr ConvertVectorExpr::SrcExpression(void) const {
   auto &self = *(u.ConvertVectorExpr);
   auto val = self.getSrcExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ConvertVectorExpr::SrcExpr can return nullptr!");
+  assert(false && "ConvertVectorExpr::SrcExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -13284,13 +13502,13 @@ std::vector<::pasta::Stmt> CoroutineSuspendExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr CoroutineSuspendExpr::CommonExpr(void) const {
+::pasta::Expr CoroutineSuspendExpr::CommonExpression(void) const {
   auto &self = *(u.CoroutineSuspendExpr);
   auto val = self.getCommonExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CoroutineSuspendExpr::CommonExpr can return nullptr!");
+  assert(false && "CoroutineSuspendExpr::CommonExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -13316,33 +13534,33 @@ std::vector<::pasta::Stmt> CoroutineSuspendExpr::Children(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Expr CoroutineSuspendExpr::ReadyExpr(void) const {
+::pasta::Expr CoroutineSuspendExpr::ReadyExpression(void) const {
   auto &self = *(u.CoroutineSuspendExpr);
   auto val = self.getReadyExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CoroutineSuspendExpr::ReadyExpr can return nullptr!");
+  assert(false && "CoroutineSuspendExpr::ReadyExpression can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Expr CoroutineSuspendExpr::ResumeExpr(void) const {
+::pasta::Expr CoroutineSuspendExpr::ResumeExpression(void) const {
   auto &self = *(u.CoroutineSuspendExpr);
   auto val = self.getResumeExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CoroutineSuspendExpr::ResumeExpr can return nullptr!");
+  assert(false && "CoroutineSuspendExpr::ResumeExpression can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Expr CoroutineSuspendExpr::SuspendExpr(void) const {
+::pasta::Expr CoroutineSuspendExpr::SuspendExpression(void) const {
   auto &self = *(u.CoroutineSuspendExpr);
   auto val = self.getSuspendExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CoroutineSuspendExpr::SuspendExpr can return nullptr!");
+  assert(false && "CoroutineSuspendExpr::SuspendExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -13389,13 +13607,13 @@ std::vector<::pasta::Stmt> DeclRefExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::ValueDecl DeclRefExpr::Decl(void) const {
+::pasta::ValueDecl DeclRefExpr::Declaration(void) const {
   auto &self = *(u.DeclRefExpr);
   auto val = self.getDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::ValueDecl>(ast, val);
   }
-  assert(false && "DeclRefExpr::Decl can return nullptr!");
+  assert(false && "DeclRefExpr::Declaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -13405,13 +13623,13 @@ std::vector<::pasta::Stmt> DeclRefExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::NamedDecl DeclRefExpr::FoundDecl(void) const {
+::pasta::NamedDecl DeclRefExpr::FoundDeclaration(void) const {
   auto &self = *(u.DeclRefExpr);
   auto val = self.getFoundDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
   }
-  assert(false && "DeclRefExpr::FoundDecl can return nullptr!");
+  assert(false && "DeclRefExpr::FoundDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -13428,7 +13646,7 @@ std::vector<::pasta::Stmt> DeclRefExpr::Children(void) const {
 }
 
 // 0: DeclRefExpr::NameInfo
-uint32_t DeclRefExpr::NumTemplateArgs(void) const {
+uint32_t DeclRefExpr::NumTemplateArguments(void) const {
   auto &self = *(u.DeclRefExpr);
   auto val = self.getNumTemplateArgs();
   return val;
@@ -13442,7 +13660,7 @@ uint32_t DeclRefExpr::NumTemplateArgs(void) const {
   return ast->TokenAt(val);
 }
 
-// 0: DeclRefExpr::TemplateArgs
+// 0: DeclRefExpr::TemplateArguments
 ::pasta::Token DeclRefExpr::TemplateKeywordToken(void) const {
   auto &self = *(u.DeclRefExpr);
   auto val = self.getTemplateKeywordLoc();
@@ -13455,7 +13673,7 @@ bool DeclRefExpr::HadMultipleCandidates(void) const {
   return val;
 }
 
-bool DeclRefExpr::HasExplicitTemplateArgs(void) const {
+bool DeclRefExpr::HasExplicitTemplateArguments(void) const {
   auto &self = *(u.DeclRefExpr);
   auto val = self.hasExplicitTemplateArgs();
   return val;
@@ -13467,7 +13685,7 @@ bool DeclRefExpr::HasQualifier(void) const {
   return val;
 }
 
-bool DeclRefExpr::HasTemplateKWAndArgsInfo(void) const {
+bool DeclRefExpr::HasTemplateKWAndArgumentsInfo(void) const {
   auto &self = *(u.DeclRefExpr);
   auto val = self.hasTemplateKWAndArgsInfo();
   return val;
@@ -13491,7 +13709,7 @@ bool DeclRefExpr::RefersToEnclosingVariableOrCapture(void) const {
   return val;
 }
 
-// 0: DeclRefExpr::Template_arguments
+// 0: DeclRefExpr::TemplateArguments
 DependentCoawaitExpr::DependentCoawaitExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -13572,7 +13790,7 @@ std::vector<::pasta::Stmt> DependentScopeDeclRefExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-// 0: DependentScopeDeclRefExpr::DeclName
+// 0: DependentScopeDeclRefExpr::DeclarationName
 ::pasta::Token DependentScopeDeclRefExpr::EndToken(void) const {
   auto &self = *(u.DependentScopeDeclRefExpr);
   auto val = self.getEndLoc();
@@ -13592,7 +13810,7 @@ std::vector<::pasta::Stmt> DependentScopeDeclRefExpr::Children(void) const {
 }
 
 // 0: DependentScopeDeclRefExpr::NameInfo
-uint32_t DependentScopeDeclRefExpr::NumTemplateArgs(void) const {
+uint32_t DependentScopeDeclRefExpr::NumTemplateArguments(void) const {
   auto &self = *(u.DependentScopeDeclRefExpr);
   auto val = self.getNumTemplateArgs();
   return val;
@@ -13606,14 +13824,14 @@ uint32_t DependentScopeDeclRefExpr::NumTemplateArgs(void) const {
   return ast->TokenAt(val);
 }
 
-// 0: DependentScopeDeclRefExpr::TemplateArgs
+// 0: DependentScopeDeclRefExpr::TemplateArguments
 ::pasta::Token DependentScopeDeclRefExpr::TemplateKeywordToken(void) const {
   auto &self = *(u.DependentScopeDeclRefExpr);
   auto val = self.getTemplateKeywordLoc();
   return ast->TokenAt(val);
 }
 
-bool DependentScopeDeclRefExpr::HasExplicitTemplateArgs(void) const {
+bool DependentScopeDeclRefExpr::HasExplicitTemplateArguments(void) const {
   auto &self = *(u.DependentScopeDeclRefExpr);
   auto val = self.hasExplicitTemplateArgs();
   return val;
@@ -13625,7 +13843,7 @@ bool DependentScopeDeclRefExpr::HasTemplateKeyword(void) const {
   return val;
 }
 
-// 0: DependentScopeDeclRefExpr::Template_arguments
+// 0: DependentScopeDeclRefExpr::TemplateArguments
 DesignatedInitExpr::DesignatedInitExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -13673,24 +13891,24 @@ std::vector<::pasta::Stmt> DesignatedInitExpr::Children(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr DesignatedInitExpr::Init(void) const {
+::pasta::Expr DesignatedInitExpr::Initializer(void) const {
   auto &self = *(u.DesignatedInitExpr);
   auto val = self.getInit();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "DesignatedInitExpr::Init can return nullptr!");
+  assert(false && "DesignatedInitExpr::Initializer can return nullptr!");
   __builtin_unreachable();
 }
 
-uint32_t DesignatedInitExpr::NumSubExprs(void) const {
+uint32_t DesignatedInitExpr::NumSubExpressions(void) const {
   auto &self = *(u.DesignatedInitExpr);
   auto val = self.getNumSubExprs();
   return val;
 }
 
-// 1: DesignatedInitExpr::SubExpr
-bool DesignatedInitExpr::IsDirectInit(void) const {
+// 1: DesignatedInitExpr::SubExpression
+bool DesignatedInitExpr::IsDirectInitializer(void) const {
   auto &self = *(u.DesignatedInitExpr);
   auto val = self.isDirectInit();
   return val;
@@ -13708,7 +13926,7 @@ bool DesignatedInitExpr::UsesGNUSyntax(void) const {
   return val;
 }
 
-std::vector<::pasta::Expr> DesignatedInitExpr::SubExprs(void) const {
+std::vector<::pasta::Expr> DesignatedInitExpr::SubExpressions(void) const {
   auto convert_elem = [&] (clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
@@ -13904,23 +14122,23 @@ OMPAtomicDirective::OMPAtomicDirective(
 
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPAtomicDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPAtomicDirective)
-::pasta::Expr OMPAtomicDirective::FindExpr(void) const {
+::pasta::Expr OMPAtomicDirective::Expression(void) const {
   auto &self = *(u.OMPAtomicDirective);
   auto val = self.getExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPAtomicDirective::FindExpr can return nullptr!");
+  assert(false && "OMPAtomicDirective::Expression can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Expr OMPAtomicDirective::UpdateExpr(void) const {
+::pasta::Expr OMPAtomicDirective::UpdateExpression(void) const {
   auto &self = *(u.OMPAtomicDirective);
   auto val = self.getUpdateExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPAtomicDirective::UpdateExpr can return nullptr!");
+  assert(false && "OMPAtomicDirective::UpdateExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -14010,13 +14228,13 @@ OMPDistributeParallelForDirective::OMPDistributeParallelForDirective(
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPDistributeParallelForDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPDistributeParallelForDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPDistributeParallelForDirective)
-::pasta::Expr OMPDistributeParallelForDirective::TaskReductionRefExpr(void) const {
+::pasta::Expr OMPDistributeParallelForDirective::TaskReductionReferenceExpression(void) const {
   auto &self = *(u.OMPDistributeParallelForDirective);
   auto val = self.getTaskReductionRefExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPDistributeParallelForDirective::TaskReductionRefExpr can return nullptr!");
+  assert(false && "OMPDistributeParallelForDirective::TaskReductionReferenceExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -14050,13 +14268,13 @@ OMPForDirective::OMPForDirective(
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPForDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPForDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPForDirective)
-::pasta::Expr OMPForDirective::TaskReductionRefExpr(void) const {
+::pasta::Expr OMPForDirective::TaskReductionReferenceExpression(void) const {
   auto &self = *(u.OMPForDirective);
   auto val = self.getTaskReductionRefExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPForDirective::TaskReductionRefExpr can return nullptr!");
+  assert(false && "OMPForDirective::TaskReductionReferenceExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -14163,6 +14381,22 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, UserDefinedLiteral)
   return ast->TokenAt(val);
 }
 
+std::vector<::pasta::Expr> UserDefinedLiteral::Arguments(void) const {
+  auto convert_elem = [&] (const clang::Expr * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::Expr>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::Expr> ret;
+  auto count = u.UserDefinedLiteral->getNumArgs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.UserDefinedLiteral->getArg(i)));
+  }
+  return ret;
+}
+
 BuiltinBitCastExpr::BuiltinBitCastExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -14238,6 +14472,22 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CUDAKernelCallExpr)
   __builtin_unreachable();
 }
 
+std::vector<::pasta::Expr> CUDAKernelCallExpr::Arguments(void) const {
+  auto convert_elem = [&] (const clang::Expr * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::Expr>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::Expr> ret;
+  auto count = u.CUDAKernelCallExpr->getNumArgs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.CUDAKernelCallExpr->getArg(i)));
+  }
+  return ret;
+}
+
 CXXFunctionalCastExpr::CXXFunctionalCastExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -14287,7 +14537,7 @@ PASTA_DEFINE_BASE_OPERATORS(CallExpr, CXXMemberCallExpr)
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXMemberCallExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXMemberCallExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXMemberCallExpr)
-::pasta::Token CXXMemberCallExpr::ExprToken(void) const {
+::pasta::Token CXXMemberCallExpr::ExpressionToken(void) const {
   auto &self = *(u.CXXMemberCallExpr);
   auto val = self.getExprLoc();
   return ast->TokenAt(val);
@@ -14303,13 +14553,13 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXMemberCallExpr)
   __builtin_unreachable();
 }
 
-::pasta::CXXMethodDecl CXXMemberCallExpr::MethodDecl(void) const {
+::pasta::CXXMethodDecl CXXMemberCallExpr::MethodDeclaration(void) const {
   auto &self = *(u.CXXMemberCallExpr);
   auto val = self.getMethodDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::CXXMethodDecl>(ast, val);
   }
-  assert(false && "CXXMemberCallExpr::MethodDecl can return nullptr!");
+  assert(false && "CXXMemberCallExpr::MethodDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -14319,14 +14569,30 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXMemberCallExpr)
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::CXXRecordDecl CXXMemberCallExpr::RecordDecl(void) const {
+::pasta::CXXRecordDecl CXXMemberCallExpr::RecordDeclaration(void) const {
   auto &self = *(u.CXXMemberCallExpr);
   auto val = self.getRecordDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
-  assert(false && "CXXMemberCallExpr::RecordDecl can return nullptr!");
+  assert(false && "CXXMemberCallExpr::RecordDeclaration can return nullptr!");
   __builtin_unreachable();
+}
+
+std::vector<::pasta::Expr> CXXMemberCallExpr::Arguments(void) const {
+  auto convert_elem = [&] (const clang::Expr * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::Expr>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::Expr> ret;
+  auto count = u.CXXMemberCallExpr->getNumArgs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.CXXMemberCallExpr->getArg(i)));
+  }
+  return ret;
 }
 
 CXXNamedCastExpr::CXXNamedCastExpr(
@@ -14407,7 +14673,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXOperatorCallExpr)
   return ast->TokenAt(val);
 }
 
-::pasta::Token CXXOperatorCallExpr::ExprToken(void) const {
+::pasta::Token CXXOperatorCallExpr::ExpressionToken(void) const {
   auto &self = *(u.CXXOperatorCallExpr);
   auto val = self.getExprLoc();
   return ast->TokenAt(val);
@@ -14431,22 +14697,38 @@ enum OverloadedOperatorKind CXXOperatorCallExpr::Operator(void) const {
   return ast->TokenRangeFrom(val);
 }
 
-bool CXXOperatorCallExpr::IsAssignmentOp(void) const {
+bool CXXOperatorCallExpr::IsAssignmentOperation(void) const {
   auto &self = *(u.CXXOperatorCallExpr);
   auto val = self.isAssignmentOp();
   return val;
 }
 
-bool CXXOperatorCallExpr::IsComparisonOp(void) const {
+bool CXXOperatorCallExpr::IsComparisonOperation(void) const {
   auto &self = *(u.CXXOperatorCallExpr);
   auto val = self.isComparisonOp();
   return val;
 }
 
-bool CXXOperatorCallExpr::IsInfixBinaryOp(void) const {
+bool CXXOperatorCallExpr::IsInfixBinaryOperation(void) const {
   auto &self = *(u.CXXOperatorCallExpr);
   auto val = self.isInfixBinaryOp();
   return val;
+}
+
+std::vector<::pasta::Expr> CXXOperatorCallExpr::Arguments(void) const {
+  auto convert_elem = [&] (const clang::Expr * val) {
+    if (val) {
+      return StmtBuilder::Create<::pasta::Expr>(ast, val);
+    }
+    __builtin_unreachable();
+  };
+  std::vector<::pasta::Expr> ret;
+  auto count = u.CXXOperatorCallExpr->getNumArgs();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.CXXOperatorCallExpr->getArg(i)));
+  }
+  return ret;
 }
 
 CXXReinterpretCastExpr::CXXReinterpretCastExpr(

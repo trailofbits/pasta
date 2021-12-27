@@ -17,6 +17,8 @@ static std::string RenameEnum(llvm::StringRef name) {
     return "StmtKind";
   } else if (name == "TypeClass") {
     return "TypeKind";
+  } else if (name == "ValueKind") {
+    return "APValueKind";
   } else {
     return Capitalize(name);
   }

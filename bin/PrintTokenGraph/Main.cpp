@@ -160,7 +160,7 @@ class TLDFinder final : public pasta::DeclVisitor {
   virtual ~TLDFinder(void) = default;
 
   void VisitDeclContext(const pasta::DeclContext &dc) {
-    for (const auto &decl : dc.AlreadyLoadedDecls()) {
+    for (const auto &decl : dc.AlreadyLoadedDeclarations()) {
       Accept(decl);
     }
   }

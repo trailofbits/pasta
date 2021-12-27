@@ -3430,7 +3430,7 @@ enum class UnaryOperatorKind : unsigned int {
   kCoawait = 13,
 };
 
-enum class ValueKind : unsigned int {
+enum class APValueKind : unsigned int {
   kNone = 0,
   kIndeterminate = 1,
   kInt = 2,

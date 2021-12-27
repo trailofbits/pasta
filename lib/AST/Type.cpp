@@ -430,7 +430,7 @@ std::optional<::pasta::ArrayType> Type::AsArrayTypeUnsafe(void) const {
   return std::nullopt;
 }
 
-std::optional<::pasta::CXXRecordDecl> Type::AsCXXRecordDecl(void) const {
+std::optional<::pasta::CXXRecordDecl> Type::AsCXXRecordDeclaration(void) const {
   auto &self = *(u.Type);
   auto val = self.getAsCXXRecordDecl();
   if (val) {
@@ -502,7 +502,7 @@ std::optional<::pasta::BuiltinType> Type::AsPlaceholderType(void) const {
   return std::nullopt;
 }
 
-std::optional<::pasta::RecordDecl> Type::AsRecordDecl(void) const {
+std::optional<::pasta::RecordDecl> Type::AsRecordDeclaration(void) const {
   auto &self = *(u.Type);
   auto val = self.getAsRecordDecl();
   if (val) {
@@ -520,7 +520,7 @@ std::optional<::pasta::RecordType> Type::AsStructureType(void) const {
   return std::nullopt;
 }
 
-std::optional<::pasta::TagDecl> Type::AsTagDecl(void) const {
+std::optional<::pasta::TagDecl> Type::AsTagDeclaration(void) const {
   auto &self = *(u.Type);
   auto val = self.getAsTagDecl();
   if (val) {
@@ -610,13 +610,14 @@ std::optional<::pasta::NullabilityKind> Type::Nullability(void) const {
 }
 
 // 1: Type::ObjCSubstitutions
-std::optional<::pasta::CXXRecordDecl> Type::PointeeCXXRecordDecl(void) const {
+::pasta::CXXRecordDecl Type::PointeeCXXRecordDeclaration(void) const {
   auto &self = *(u.Type);
   auto val = self.getPointeeCXXRecordDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
-  return std::nullopt;
+  assert(false && "Type::PointeeCXXRecordDeclaration can return nullptr!");
+  __builtin_unreachable();
 }
 
 ::pasta::Type Type::PointeeOrArrayElementType(void) const {
@@ -681,7 +682,7 @@ enum Visibility Type::Visibility(void) const {
   return static_cast<::pasta::Visibility>(static_cast<unsigned int>(val));
 }
 
-// 1: Type::HasAttr
+// 1: Type::HasAttribute
 bool Type::HasAutoForTrailingReturnType(void) const {
   auto &self = *(u.Type);
   auto val = self.hasAutoForTrailingReturnType();
@@ -856,7 +857,7 @@ bool Type::IsChar8Type(void) const {
   return val;
 }
 
-bool Type::IsCharType(void) const {
+bool Type::IsCharacterType(void) const {
   auto &self = *(u.Type);
   auto val = self.isCharType();
   return val;
@@ -1156,7 +1157,7 @@ bool Type::IsNothrowT(void) const {
   return val;
 }
 
-bool Type::IsNullPtrType(void) const {
+bool Type::IsNullPointerType(void) const {
   auto &self = *(u.Type);
   auto val = self.isNullPtrType();
   return val;
@@ -1384,7 +1385,7 @@ bool Type::IsOCLImage3dWOType(void) const {
   return val;
 }
 
-bool Type::IsOCLIntelSubgroupAVCImeDualRefStreaminType(void) const {
+bool Type::IsOCLIntelSubgroupAVCImeDualReferenceStreaminType(void) const {
   auto &self = *(u.Type);
   auto val = self.isOCLIntelSubgroupAVCImeDualRefStreaminType();
   return val;
@@ -1396,13 +1397,13 @@ bool Type::IsOCLIntelSubgroupAVCImePayloadType(void) const {
   return val;
 }
 
-bool Type::IsOCLIntelSubgroupAVCImeResultDualRefStreamoutType(void) const {
+bool Type::IsOCLIntelSubgroupAVCImeResultDualReferenceStreamoutType(void) const {
   auto &self = *(u.Type);
   auto val = self.isOCLIntelSubgroupAVCImeResultDualRefStreamoutType();
   return val;
 }
 
-bool Type::IsOCLIntelSubgroupAVCImeResultSingleRefStreamoutType(void) const {
+bool Type::IsOCLIntelSubgroupAVCImeResultSingleReferenceStreamoutType(void) const {
   auto &self = *(u.Type);
   auto val = self.isOCLIntelSubgroupAVCImeResultSingleRefStreamoutType();
   return val;
@@ -1414,7 +1415,7 @@ bool Type::IsOCLIntelSubgroupAVCImeResultType(void) const {
   return val;
 }
 
-bool Type::IsOCLIntelSubgroupAVCImeSingleRefStreaminType(void) const {
+bool Type::IsOCLIntelSubgroupAVCImeSingleReferenceStreaminType(void) const {
   auto &self = *(u.Type);
   auto val = self.isOCLIntelSubgroupAVCImeSingleRefStreaminType();
   return val;
@@ -1867,13 +1868,13 @@ bool Type::IsVoidType(void) const {
   return val;
 }
 
-bool Type::IsWideCharType(void) const {
+bool Type::IsWideCharacterType(void) const {
   auto &self = *(u.Type);
   auto val = self.isWideCharType();
   return val;
 }
 
-::pasta::Type Type::IgnoreParens(void) const {
+::pasta::Type Type::IgnoreParentheses(void) const {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -1948,7 +1949,7 @@ uint32_t Type::LocalFastQualifiers(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type Type::NonLValueExprType(void) const {
+::pasta::Type Type::NonLValueExpressionType(void) const {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2274,7 +2275,7 @@ bool Type::MayBeNotDynamicClass(void) const {
 }
 
 // 3: QualType::SubstObjCMemberType
-// 3: QualType::SubstObjCTypeArgs
+// 3: QualType::SubstObjCTypeArguments
 // 1: Type::WithCVRQualifiers
 ::pasta::Type Type::WithConst(void) const {
   auto &ast_ctx = ast->ci->getASTContext();
@@ -2317,13 +2318,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, TypeOfExprType)
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Expr TypeOfExprType::UnderlyingExpr(void) const {
+::pasta::Expr TypeOfExprType::UnderlyingExpression(void) const {
   auto &self = *(u.TypeOfExprType);
   auto val = self.getUnderlyingExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "TypeOfExprType::UnderlyingExpr can return nullptr!");
+  assert(false && "TypeOfExprType::UnderlyingExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2359,13 +2360,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, TypedefType)
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::TypedefNameDecl TypedefType::Decl(void) const {
+::pasta::TypedefNameDecl TypedefType::Declaration(void) const {
   auto &self = *(u.TypedefType);
   auto val = self.getDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::TypedefNameDecl>(ast, val);
   }
-  assert(false && "TypedefType::Decl can return nullptr!");
+  assert(false && "TypedefType::Declaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2413,13 +2414,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, UnresolvedUsingType)
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::UnresolvedUsingTypenameDecl UnresolvedUsingType::Decl(void) const {
+::pasta::UnresolvedUsingTypenameDecl UnresolvedUsingType::Declaration(void) const {
   auto &self = *(u.UnresolvedUsingType);
   auto val = self.getDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::UnresolvedUsingTypenameDecl>(ast, val);
   }
-  assert(false && "UnresolvedUsingType::Decl can return nullptr!");
+  assert(false && "UnresolvedUsingType::Declaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2636,7 +2637,7 @@ PASTA_DEFINE_BASE_OPERATORS(Type, BuiltinType)
   return TypeBuilder::Build(ast, val);
 }
 
-// 0: BuiltinType::
+// 0: BuiltinType::Kind
 // 1: BuiltinType::Name
 // 1: BuiltinType::NameAsCString
 bool BuiltinType::IsFloatingPoint(void) const {
@@ -2709,13 +2710,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, ConstantArrayType)
 }
 
 // 0: ConstantArrayType::Size
-::pasta::Expr ConstantArrayType::SizeExpr(void) const {
+::pasta::Expr ConstantArrayType::SizeExpression(void) const {
   auto &self = *(u.ConstantArrayType);
   auto val = self.getSizeExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ConstantArrayType::SizeExpr can return nullptr!");
+  assert(false && "ConstantArrayType::SizeExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2746,13 +2747,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DecltypeType)
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Expr DecltypeType::UnderlyingExpr(void) const {
+::pasta::Expr DecltypeType::UnderlyingExpression(void) const {
   auto &self = *(u.DecltypeType);
   auto val = self.getUnderlyingExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "DecltypeType::UnderlyingExpr can return nullptr!");
+  assert(false && "DecltypeType::UnderlyingExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2802,13 +2803,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentAddressSpaceType)
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Expr DependentAddressSpaceType::AddrSpaceExpr(void) const {
+::pasta::Expr DependentAddressSpaceType::AddrSpaceExpression(void) const {
   auto &self = *(u.DependentAddressSpaceType);
   auto val = self.getAddrSpaceExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "DependentAddressSpaceType::AddrSpaceExpr can return nullptr!");
+  assert(false && "DependentAddressSpaceType::AddrSpaceExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2837,13 +2838,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentExtIntType)
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Expr DependentExtIntType::NumBitsExpr(void) const {
+::pasta::Expr DependentExtIntType::NumBitsExpression(void) const {
   auto &self = *(u.DependentExtIntType);
   auto val = self.getNumBitsExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "DependentExtIntType::NumBitsExpr can return nullptr!");
+  assert(false && "DependentExtIntType::NumBitsExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2907,13 +2908,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentSizedArrayType)
   return ast->TokenAt(val);
 }
 
-::pasta::Expr DependentSizedArrayType::SizeExpr(void) const {
+::pasta::Expr DependentSizedArrayType::SizeExpression(void) const {
   auto &self = *(u.DependentSizedArrayType);
   auto val = self.getSizeExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "DependentSizedArrayType::SizeExpr can return nullptr!");
+  assert(false && "DependentSizedArrayType::SizeExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2942,13 +2943,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentSizedExtVectorType)
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Expr DependentSizedExtVectorType::SizeExpr(void) const {
+::pasta::Expr DependentSizedExtVectorType::SizeExpression(void) const {
   auto &self = *(u.DependentSizedExtVectorType);
   auto val = self.getSizeExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "DependentSizedExtVectorType::SizeExpr can return nullptr!");
+  assert(false && "DependentSizedExtVectorType::SizeExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2960,18 +2961,18 @@ bool DependentSizedExtVectorType::IsSugared(void) const {
 
 PASTA_DEFINE_BASE_OPERATORS(Type, DependentTemplateSpecializationType)
 PASTA_DEFINE_BASE_OPERATORS(TypeWithKeyword, DependentTemplateSpecializationType)
-// 0: DependentTemplateSpecializationType::Begin
+// 0: DependentTemplateSpecializationType::
 ::pasta::Type DependentTemplateSpecializationType::Desugar(void) const {
   auto &self = *(u.DependentTemplateSpecializationType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-// 0: DependentTemplateSpecializationType::End
-// 1: DependentTemplateSpecializationType::Arg
-// 0: DependentTemplateSpecializationType::Args
+// 0: DependentTemplateSpecializationType::
+// 1: DependentTemplateSpecializationType::Argument
+// 0: DependentTemplateSpecializationType::Arguments
 // 0: DependentTemplateSpecializationType::Identifier
-uint32_t DependentTemplateSpecializationType::NumArgs(void) const {
+uint32_t DependentTemplateSpecializationType::NumArguments(void) const {
   auto &self = *(u.DependentTemplateSpecializationType);
   auto val = self.getNumArgs();
   return val;
@@ -2984,7 +2985,7 @@ bool DependentTemplateSpecializationType::IsSugared(void) const {
   return val;
 }
 
-// 0: DependentTemplateSpecializationType::Template_arguments
+// 0: DependentTemplateSpecializationType::TemplateArguments
 PASTA_DEFINE_BASE_OPERATORS(Type, DependentVectorType)
 ::pasta::Type DependentVectorType::Desugar(void) const {
   auto &self = *(u.DependentVectorType);
@@ -3004,13 +3005,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentVectorType)
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Expr DependentVectorType::SizeExpr(void) const {
+::pasta::Expr DependentVectorType::SizeExpression(void) const {
   auto &self = *(u.DependentVectorType);
   auto val = self.getSizeExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "DependentVectorType::SizeExpr can return nullptr!");
+  assert(false && "DependentVectorType::SizeExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -3040,13 +3041,13 @@ PASTA_DEFINE_BASE_OPERATORS(TypeWithKeyword, ElaboratedType)
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::TagDecl ElaboratedType::OwnedTagDecl(void) const {
+::pasta::TagDecl ElaboratedType::OwnedTagDeclaration(void) const {
   auto &self = *(u.ElaboratedType);
   auto val = self.getOwnedTagDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::TagDecl>(ast, val);
   }
-  assert(false && "ElaboratedType::OwnedTagDecl can return nullptr!");
+  assert(false && "ElaboratedType::OwnedTagDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -3118,7 +3119,7 @@ enum CallingConv FunctionType::CallConv(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
-bool FunctionType::CmseNSCallAttr(void) const {
+bool FunctionType::CmseNSCallAttribute(void) const {
   auto &self = *(u.FunctionType);
   auto val = self.getCmseNSCallAttr();
   return val;
@@ -3131,7 +3132,7 @@ bool FunctionType::HasRegParm(void) const {
   return val;
 }
 
-bool FunctionType::NoReturnAttr(void) const {
+bool FunctionType::NoReturnAttribute(void) const {
   auto &self = *(u.FunctionType);
   auto val = self.getNoReturnAttr();
   return val;
@@ -3188,13 +3189,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, InjectedClassNameType)
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::CXXRecordDecl InjectedClassNameType::Decl(void) const {
+::pasta::CXXRecordDecl InjectedClassNameType::Declaration(void) const {
   auto &self = *(u.InjectedClassNameType);
   auto val = self.getDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
-  assert(false && "InjectedClassNameType::Decl can return nullptr!");
+  assert(false && "InjectedClassNameType::Declaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -3285,13 +3286,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, MemberPointerType)
   __builtin_unreachable();
 }
 
-::pasta::CXXRecordDecl MemberPointerType::MostRecentCXXRecordDecl(void) const {
+::pasta::CXXRecordDecl MemberPointerType::MostRecentCXXRecordDeclaration(void) const {
   auto &self = *(u.MemberPointerType);
   auto val = self.getMostRecentCXXRecordDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
-  assert(false && "MemberPointerType::MostRecentCXXRecordDecl can return nullptr!");
+  assert(false && "MemberPointerType::MostRecentCXXRecordDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -3326,13 +3327,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, ObjCObjectPointerType)
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::ObjCInterfaceDecl ObjCObjectPointerType::InterfaceDecl(void) const {
+::pasta::ObjCInterfaceDecl ObjCObjectPointerType::InterfaceDeclaration(void) const {
   auto &self = *(u.ObjCObjectPointerType);
   auto val = self.getInterfaceDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCInterfaceDecl>(ast, val);
   }
-  assert(false && "ObjCObjectPointerType::InterfaceDecl can return nullptr!");
+  assert(false && "ObjCObjectPointerType::InterfaceDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -3375,7 +3376,7 @@ uint32_t ObjCObjectPointerType::NumProtocols(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
-std::vector<::pasta::Type> ObjCObjectPointerType::TypeArgs(void) const {
+std::vector<::pasta::Type> ObjCObjectPointerType::TypeArguments(void) const {
   auto &self = *(u.ObjCObjectPointerType);
   auto val = self.getTypeArgs();
   std::vector<::pasta::Type> ret;
@@ -3385,7 +3386,7 @@ std::vector<::pasta::Type> ObjCObjectPointerType::TypeArgs(void) const {
   return ret;
 }
 
-std::vector<::pasta::Type> ObjCObjectPointerType::TypeArgsAsWritten(void) const {
+std::vector<::pasta::Type> ObjCObjectPointerType::TypeArgumentsAsWritten(void) const {
   auto &self = *(u.ObjCObjectPointerType);
   auto val = self.getTypeArgsAsWritten();
   std::vector<::pasta::Type> ret;
@@ -3530,7 +3531,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(ObjCObjectType, ObjCInterfaceType)
   return TypeBuilder::Build(ast, val);
 }
 
-std::vector<::pasta::Type> ObjCObjectType::TypeArgs(void) const {
+std::vector<::pasta::Type> ObjCObjectType::TypeArguments(void) const {
   auto &self = *(u.ObjCObjectType);
   auto val = self.getTypeArgs();
   std::vector<::pasta::Type> ret;
@@ -3540,7 +3541,7 @@ std::vector<::pasta::Type> ObjCObjectType::TypeArgs(void) const {
   return ret;
 }
 
-std::vector<::pasta::Type> ObjCObjectType::TypeArgsAsWritten(void) const {
+std::vector<::pasta::Type> ObjCObjectType::TypeArgumentsAsWritten(void) const {
   auto &self = *(u.ObjCObjectType);
   auto val = self.getTypeArgsAsWritten();
   std::vector<::pasta::Type> ret;
@@ -3647,13 +3648,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, ObjCTypeParamType)
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::ObjCTypeParamDecl ObjCTypeParamType::Decl(void) const {
+::pasta::ObjCTypeParamDecl ObjCTypeParamType::Declaration(void) const {
   auto &self = *(u.ObjCTypeParamType);
   auto val = self.getDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCTypeParamDecl>(ast, val);
   }
-  assert(false && "ObjCTypeParamType::Decl can return nullptr!");
+  assert(false && "ObjCTypeParamType::Declaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -3770,7 +3771,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(ReferenceType, RValueReferenceType)
   return TypeBuilder::Build(ast, val);
 }
 
-bool ReferenceType::IsInnerRef(void) const {
+bool ReferenceType::IsInnerReference(void) const {
   auto &self = *(u.ReferenceType);
   auto val = self.isInnerRef();
   return val;
@@ -3791,7 +3792,7 @@ PASTA_DEFINE_BASE_OPERATORS(Type, SubstTemplateTypeParmPackType)
 
 // 0: SubstTemplateTypeParmPackType::ArgumentPack
 // 0: SubstTemplateTypeParmPackType::Identifier
-uint32_t SubstTemplateTypeParmPackType::NumArgs(void) const {
+uint32_t SubstTemplateTypeParmPackType::NumArguments(void) const {
   auto &self = *(u.SubstTemplateTypeParmPackType);
   auto val = self.getNumArgs();
   return val;
@@ -3845,13 +3846,13 @@ bool SubstTemplateTypeParmType::IsSugared(void) const {
 PASTA_DEFINE_BASE_OPERATORS(Type, TagType)
 PASTA_DEFINE_DERIVED_OPERATORS(TagType, EnumType)
 PASTA_DEFINE_DERIVED_OPERATORS(TagType, RecordType)
-::pasta::TagDecl TagType::Decl(void) const {
+::pasta::TagDecl TagType::Declaration(void) const {
   auto &self = *(u.TagType);
   auto val = self.getDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::TagDecl>(ast, val);
   }
-  assert(false && "TagType::Decl can return nullptr!");
+  assert(false && "TagType::Declaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -3862,23 +3863,23 @@ bool TagType::IsBeingDefined(void) const {
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, TemplateSpecializationType)
-// 0: TemplateSpecializationType::Begin
+// 0: TemplateSpecializationType::
 ::pasta::Type TemplateSpecializationType::Desugar(void) const {
   auto &self = *(u.TemplateSpecializationType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-// 0: TemplateSpecializationType::End
+// 0: TemplateSpecializationType::
 ::pasta::Type TemplateSpecializationType::AliasedType(void) const {
   auto &self = *(u.TemplateSpecializationType);
   auto val = self.getAliasedType();
   return TypeBuilder::Build(ast, val);
 }
 
-// 1: TemplateSpecializationType::Arg
-// 0: TemplateSpecializationType::Args
-uint32_t TemplateSpecializationType::NumArgs(void) const {
+// 1: TemplateSpecializationType::Argument
+// 0: TemplateSpecializationType::Arguments
+uint32_t TemplateSpecializationType::NumArguments(void) const {
   auto &self = *(u.TemplateSpecializationType);
   auto val = self.getNumArgs();
   return val;
@@ -3903,7 +3904,7 @@ bool TemplateSpecializationType::IsTypeAlias(void) const {
   return val;
 }
 
-// 0: TemplateSpecializationType::Template_arguments
+// 0: TemplateSpecializationType::TemplateArguments
 PASTA_DEFINE_BASE_OPERATORS(Type, TemplateTypeParmType)
 ::pasta::Type TemplateTypeParmType::Desugar(void) const {
   auto &self = *(u.TemplateTypeParmType);
@@ -3911,13 +3912,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, TemplateTypeParmType)
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::TemplateTypeParmDecl TemplateTypeParmType::Decl(void) const {
+::pasta::TemplateTypeParmDecl TemplateTypeParmType::Declaration(void) const {
   auto &self = *(u.TemplateTypeParmType);
   auto val = self.getDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::TemplateTypeParmDecl>(ast, val);
   }
-  assert(false && "TemplateTypeParmType::Decl can return nullptr!");
+  assert(false && "TemplateTypeParmType::Declaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -3972,13 +3973,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, VariableArrayType)
   return ast->TokenAt(val);
 }
 
-::pasta::Expr VariableArrayType::SizeExpr(void) const {
+::pasta::Expr VariableArrayType::SizeExpression(void) const {
   auto &self = *(u.VariableArrayType);
   auto val = self.getSizeExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "VariableArrayType::SizeExpr can return nullptr!");
+  assert(false && "VariableArrayType::SizeExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -3990,15 +3991,15 @@ bool VariableArrayType::IsSugared(void) const {
 
 PASTA_DEFINE_BASE_OPERATORS(DeducedType, AutoType)
 PASTA_DEFINE_BASE_OPERATORS(Type, AutoType)
-// 1: AutoType::Arg
-// 0: AutoType::Args
+// 1: AutoType::Argument
+// 0: AutoType::Arguments
 enum AutoTypeKeyword AutoType::Keyword(void) const {
   auto &self = *(u.AutoType);
   auto val = self.getKeyword();
   return static_cast<::pasta::AutoTypeKeyword>(static_cast<int>(val));
 }
 
-uint32_t AutoType::NumArgs(void) const {
+uint32_t AutoType::NumArguments(void) const {
   auto &self = *(u.AutoType);
   auto val = self.getNumArgs();
   return val;
@@ -4064,13 +4065,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentSizedMatrixType)
   return ast->TokenAt(val);
 }
 
-::pasta::Expr DependentSizedMatrixType::ColumnExpr(void) const {
+::pasta::Expr DependentSizedMatrixType::ColumnExpression(void) const {
   auto &self = *(u.DependentSizedMatrixType);
   auto val = self.getColumnExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "DependentSizedMatrixType::ColumnExpr can return nullptr!");
+  assert(false && "DependentSizedMatrixType::ColumnExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -4080,13 +4081,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentSizedMatrixType)
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Expr DependentSizedMatrixType::RowExpr(void) const {
+::pasta::Expr DependentSizedMatrixType::RowExpression(void) const {
   auto &self = *(u.DependentSizedMatrixType);
   auto val = self.getRowExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "DependentSizedMatrixType::RowExpr can return nullptr!");
+  assert(false && "DependentSizedMatrixType::RowExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -4104,13 +4105,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, EnumType)
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::EnumDecl EnumType::Decl(void) const {
+::pasta::EnumDecl EnumType::Declaration(void) const {
   auto &self = *(u.EnumType);
   auto val = self.getDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::EnumDecl>(ast, val);
   }
-  assert(false && "EnumType::Decl can return nullptr!");
+  assert(false && "EnumType::Declaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -4166,13 +4167,13 @@ std::vector<::pasta::Type> FunctionProtoType::Exceptions(void) const {
   return ast->TokenAt(val);
 }
 
-::pasta::FunctionDecl FunctionProtoType::ExceptionSpecDecl(void) const {
+::pasta::FunctionDecl FunctionProtoType::ExceptionSpecDeclaration(void) const {
   auto &self = *(u.FunctionProtoType);
   auto val = self.getExceptionSpecDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
   }
-  assert(false && "FunctionProtoType::ExceptionSpecDecl can return nullptr!");
+  assert(false && "FunctionProtoType::ExceptionSpecDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -4199,13 +4200,13 @@ enum ExceptionSpecificationType FunctionProtoType::ExceptionSpecType(void) const
 // 0: FunctionProtoType::ExtParameterInfosOrNull
 // 0: FunctionProtoType::ExtProtoInfo
 // 0: FunctionProtoType::MethodQuals
-::pasta::Expr FunctionProtoType::NoexceptExpr(void) const {
+::pasta::Expr FunctionProtoType::NoexceptExpression(void) const {
   auto &self = *(u.FunctionProtoType);
   auto val = self.getNoexceptExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "FunctionProtoType::NoexceptExpr can return nullptr!");
+  assert(false && "FunctionProtoType::NoexceptExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -4233,7 +4234,7 @@ std::vector<::pasta::Type> FunctionProtoType::ParamTypes(void) const {
 }
 
 // 1: FunctionProtoType::ParameterABI
-enum RefQualifierKind FunctionProtoType::RefQualifier(void) const {
+enum RefQualifierKind FunctionProtoType::ReferenceQualifier(void) const {
   auto &self = *(u.FunctionProtoType);
   auto val = self.getRefQualifier();
   return static_cast<::pasta::RefQualifierKind>(static_cast<unsigned int>(val));
@@ -4308,7 +4309,7 @@ bool FunctionProtoType::IsVariadic(void) const {
 
 // 0: FunctionProtoType::
 // 0: FunctionProtoType::
-// 0: FunctionProtoType::Param_types
+// 0: FunctionProtoType::ParamTypes
 std::vector<::pasta::Type> FunctionProtoType::ExceptionTypes(void) const {
   auto convert_elem = [&] (clang::QualType val) {
     return TypeBuilder::Build(ast, val);
@@ -4344,13 +4345,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, ObjCInterfaceType)
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::ObjCInterfaceDecl ObjCInterfaceType::Decl(void) const {
+::pasta::ObjCInterfaceDecl ObjCInterfaceType::Declaration(void) const {
   auto &self = *(u.ObjCInterfaceType);
   auto val = self.getDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCInterfaceDecl>(ast, val);
   }
-  assert(false && "ObjCInterfaceType::Decl can return nullptr!");
+  assert(false && "ObjCInterfaceType::Declaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -4382,13 +4383,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, RecordType)
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::RecordDecl RecordType::Decl(void) const {
+::pasta::RecordDecl RecordType::Declaration(void) const {
   auto &self = *(u.RecordType);
   auto val = self.getDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::RecordDecl>(ast, val);
   }
-  assert(false && "RecordType::Decl can return nullptr!");
+  assert(false && "RecordType::Declaration can return nullptr!");
   __builtin_unreachable();
 }
 

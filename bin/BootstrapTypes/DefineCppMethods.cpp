@@ -23,6 +23,11 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
     return;
   }
 
+  if (class_name == "Decl" &&
+      (meth_name_ref == "getKind" || meth_name_ref == "getDeclKindName")) {
+    return;
+  }
+
   std::string rt_str = rt_ref.str();
   auto &rt_type = gRetTypeMap[rt_str];
   auto &rt_val = gRetTypeToValMap[rt_str];
@@ -145,9 +150,19 @@ static void DefineIterators(std::ostream &os, const std::string &class_name) {
        << iterator.counter_method << "();\n"
        << "  decltype(count) i = 0;\n"
        << "  for (; i < count; ++i) {\n"
-       << "    ret.emplace_back(convert_elem(u." << class_name << "->"
-       << iterator.getter_method << "(i)));\n"
-       << "  }\n"
+       << "    ret.emplace_back(convert_elem(u." << class_name << "->";
+
+    if (!iterator.getter_method.empty()) {
+      os << iterator.getter_method << "(i)));\n";
+
+    } else if (!iterator.list_method.empty()) {
+      os << iterator.list_method << "()[i]));\n";
+
+    } else {
+      assert(false);
+    }
+
+    os << "  }\n"
        << "  return ret;\n"
        << "}\n\n";
   }

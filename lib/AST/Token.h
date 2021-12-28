@@ -25,8 +25,9 @@ class Token;
 
 namespace pasta {
 
-class Token;
 class ASTImpl;
+class Token;
+class PrintedTokenRangeImpl;
 
 // Backing implementation of a token.
 class TokenImpl {
@@ -42,6 +43,9 @@ class TokenImpl {
   inline clang::SourceLocation Location(void) const {
     return clang::SourceLocation::getFromRawEncoding(opaque_source_loc);
   }
+
+  std::string_view Data(const ASTImpl &ast) const noexcept;
+  std::string_view Data(const PrintedTokenRangeImpl &range) const noexcept;
 
   // The raw encoding of the source location of the token.
   uint32_t opaque_source_loc;

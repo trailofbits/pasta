@@ -48,8 +48,7 @@ std::shared_ptr<const PrintedTokenContext> PrintedToken::RawContext(void) const 
 // Return the data associated with this token.
 std::string_view PrintedToken::Data(void) const {
   if (impl) {
-    auto data_offset = static_cast<uint32_t>(impl->data_offset);
-    return std::string_view(range->data).substr(data_offset, impl->data_len);
+    return impl->Data(*range);
   } else {
     return {};
   }
@@ -245,11 +244,13 @@ void TokenPrinterContext::Tokenize(void) {
     assert(0ll < static_cast<int32_t>(data_offset));
     uint32_t data_len = 0u;
     tokens.data.reserve(data_offset + tok.getLength());
-    for (last_i = i, i += tok.getLength(); last_i < i; ++last_i) {
+    for (last_i = i, i += tok.getLength(); last_i < i && token_data[last_i];
+        ++last_i) {
       tokens.data.push_back(token_data[last_i]);
       ++data_len;
       assert(static_cast<uint16_t>(data_len) != 0u);
     }
+    tokens.data.push_back('\0');  // Make sure all tokens end up NUL-terminated.
 
     // Add the token in.
     tokens.tokens.emplace_back(

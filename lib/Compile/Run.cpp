@@ -45,6 +45,8 @@
 #include "../AST/Token.h"
 #include "../Util/FileManager.h"
 
+#define PASTA_DEBUG_RUN 1
+
 namespace pasta {
 namespace detail {
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, TLSSupported, bool);
@@ -94,7 +96,8 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
         impl.AppendToken(tok, 0, 0);
       } else {
         backup_os.flush();
-        impl.AppendBackupToken(tok, impl.backup_token_data.size(), tok_data.size());
+        impl.AppendBackupToken(tok, impl.backup_token_data.size(),
+                               tok_data.size());
         backup_os << tok_data;
       }
       os << '\n';
@@ -188,12 +191,13 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
 
   os.flush();
 
-
+#if PASTA_DEBUG_RUN
   // NOTE(pag): If there's a compiler error that "shouldn't happen," then
   //            enabling the below code can help diagnose it.
-//  auto fd = open("/tmp/source.cpp", O_TRUNC | O_CREAT | O_WRONLY, 0666);
-//  write(fd, impl.preprocessed_code.data(), impl.preprocessed_code.size());
-//  close(fd);
+  auto fd = open("/tmp/source.cpp", O_TRUNC | O_CREAT | O_WRONLY, 0666);
+  write(fd, impl.preprocessed_code.data(), impl.preprocessed_code.size());
+  close(fd);
+#endif  // PASTA_DEBUG_RUN
 }
 
 }  // namespace

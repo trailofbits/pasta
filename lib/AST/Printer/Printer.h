@@ -6,6 +6,7 @@
 
 #include <llvm/Support/raw_ostream.h>
 
+#include <cassert>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -28,17 +29,11 @@ class raw_string_ostream;
 
 class PrintedTokenImpl : public TokenImpl {
  public:
-  // Data of this token.
-  const std::string data;
-
   // The context inherited from the token printer.
   const PrintedTokenContext * const context;
 
   uint16_t num_leading_new_lines;
   uint16_t num_leading_spaces;
-
-  // Kind of this token.
-//  clang::tok::TokenKind kind;
 
   inline PrintedTokenImpl(int32_t data_offset_, uint16_t data_len_,
                           const PrintedTokenContext *context_,
@@ -48,7 +43,10 @@ class PrintedTokenImpl : public TokenImpl {
       : TokenImpl(0u  /* source loc */, data_offset_, data_len_, kind_),
         context(context_),
         num_leading_new_lines(static_cast<uint16_t>(num_leading_new_lines_)),
-        num_leading_spaces(static_cast<uint16_t>(num_leading_spaces_)) {}
+        num_leading_spaces(static_cast<uint16_t>(num_leading_spaces_)) {
+    assert(num_leading_new_lines == num_leading_new_lines_);
+    assert(num_leading_spaces == num_leading_spaces_);
+  }
 };
 
 // The range of data contained in a token.
@@ -58,7 +56,11 @@ class PrintedTokenRangeImpl {
   clang::ASTContext &ast_context;
   std::shared_ptr<ASTImpl> ast;
   std::vector<PrintedTokenImpl> tokens;
+
+  // The `data_offset` of the `TokenImpl` base of `PrintedTokenImpl` in `tokens`
+  // points into this string.
   std::string data;
+
   std::vector<std::unique_ptr<PrintedTokenContext>> contexts;
   std::vector<PrintedTokenContext *> context_stack;
   std::vector<TokenPrinterContext *> tokenizer_stack;

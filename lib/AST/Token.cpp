@@ -20,6 +20,7 @@
 #pragma clang diagnostic pop
 
 #include "AST.h"
+#include "Printer/Printer.h"
 
 namespace pasta {
 namespace {
@@ -205,22 +206,37 @@ clang::tok::TokenKind Token::Kind(void) const {
   return impl ? impl->kind : clang::tok::unknown;
 }
 
+std::string_view TokenImpl::Data(const ASTImpl &ast) const noexcept {
+  if (data_len) {
+    if (0 <= data_offset) {
+      return std::string_view(ast.preprocessed_code).substr(
+          static_cast<uint32_t>(data_offset), data_len);
+    } else {
+      return std::string_view(ast.backup_token_data).substr(
+          static_cast<uint32_t>(-data_offset), data_len);
+    }
+  } else {
+    return {};
+  }
+}
+
+std::string_view TokenImpl::Data(
+    const PrintedTokenRangeImpl &range) const noexcept {
+  if (data_len) {
+    return std::string_view(range.data).substr(
+        static_cast<uint32_t>(data_offset), data_len);
+  } else {
+    return {};
+  }
+}
+
 // Return the data associated with this token.
 std::string_view Token::Data(void) const {
-  std::string_view data;
-  if (!impl || !impl->data_len) {
-    return data;
-  }
-
-  size_t offset = 0;
-  if (0 <= impl->data_offset) {
-    data = ast->preprocessed_code;
-    offset = static_cast<unsigned>(impl->data_offset);
+  if (!impl) {
+    return {};
   } else {
-    data = ast->backup_token_data;
-    offset = static_cast<unsigned>(-impl->data_offset);
+    return impl->Data(*ast);
   }
-  return data.substr(offset, impl->data_len);
 }
 
 // Index of this token in the AST's token list.

@@ -25,6 +25,13 @@ namespace pasta {
 ASTImpl::ASTImpl(File main_source_file_)
     : main_source_file(std::move(main_source_file_)) {
   tokens.reserve(1024ull * 32u);
+  backup_token_data.reserve(1024ull * 4);
+
+  // A negative value of `TokenImpl::data_offset` represents an index into
+  // `backup_token_data`; thus we must initialize this string with at least one
+  // character, lest we try to store `-0`, which in two's complement is `0`,
+  // and which would then look just like an index into `token_data`.
+  backup_token_data.push_back('\0');
 }
 
 ASTImpl::~ASTImpl(void) {}
@@ -36,8 +43,8 @@ ASTImpl::~ASTImpl(void) {}
 void ASTImpl::AppendToken(const clang::Token &tok, size_t offset_,
                           size_t len_) {
   const auto len = static_cast<uint16_t>(len_);
-  assert(offset_ == (offset_ & 0x7FFFFFFFull));
-  assert(len == len);
+  assert(0u <= static_cast<int32_t>(offset_));  // Make sure it fits in 31 bits.
+  assert(len == len_);
   tokens.emplace_back(tok.getLocation().getRawEncoding(),
                       static_cast<int32_t>(offset_), len, tok.getKind());
 }
@@ -47,8 +54,8 @@ void ASTImpl::AppendToken(const clang::Token &tok, size_t offset_,
 void ASTImpl::AppendBackupToken(const clang::Token &tok, size_t offset_,
                                 size_t len_) {
   const auto len = static_cast<uint16_t>(len_);
-  assert(offset_ == (offset_ & 0x7FFFFFFFull));
-  assert(len == len);
+  assert(0u < static_cast<int32_t>(offset_));
+  assert(len == len_);
   tokens.emplace_back(tok.getLocation().getRawEncoding(),
                       -static_cast<int32_t>(offset_), len, tok.getKind());
 }

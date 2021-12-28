@@ -7,6 +7,7 @@ include("cmake/vcpkg_helper.cmake")
 
 project(pasta LANGUAGES C CXX)
 
+include(GNUInstallDirs)
 include("cmake/options.cmake")
 include("${PROJECT_SOURCE_DIR}/cmake/settings.cmake")
 include("${PROJECT_SOURCE_DIR}/cmake/utils.cmake")
@@ -102,6 +103,14 @@ find_package(Z3 4.8 REQUIRED)
 find_package(LLVM CONFIG REQUIRED)
 find_package(Clang CONFIG REQUIRED)
 add_library(pasta_thirdparty_llvm INTERFACE)
+
+if(PASTA_ENABLE_TESTING)
+  if("x${LLVM_DIR}x" STREQUAL "xx")
+    message(FATAL_ERROR "LLVM_DIR is not set")
+  endif()
+  list(APPEND CMAKE_MODULE_PATH "${LLVM_DIR}")
+  include(AddLLVM)  # For LLVM lit test suite stuff.
+endif(PASTA_ENABLE_TESTING)
 
 # These are out-of-order in `LLVM_AVAILABLE_LIBS` and should always be last.
 set(LLVM_LIBRARIES ${LLVM_AVAILABLE_LIBS})
@@ -509,3 +518,7 @@ endif()
 
 add_subdirectory(bin)
 
+if(PASTA_ENABLE_TESTING)
+  enable_testing()
+  add_subdirectory(test)
+endif(PASTA_ENABLE_TESTING)

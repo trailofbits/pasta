@@ -241,7 +241,7 @@ void TokenPrinterContext::Tokenize(void) {
     }
 
     const auto data_offset = static_cast<uint32_t>(tokens.data.size());
-    assert(0ll < static_cast<int32_t>(data_offset));
+    assert(0ll <= static_cast<int32_t>(data_offset));
     uint32_t data_len = 0u;
     tokens.data.reserve(data_offset + tok.getLength());
     for (last_i = i, i += tok.getLength(); last_i < i && token_data[last_i];

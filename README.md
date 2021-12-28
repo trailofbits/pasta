@@ -91,6 +91,21 @@ cmake \
     -DVCPKG_TARGET_TRIPLET=x64-osx-rel \
     -DCMAKE_C_COMPILER=`which clang` \
     -DCMAKE_CXX_COMPILER=`which clang++` \
+    -DPASTA_ENABLE_INSTALL=ON \
     ..
 make install
+```
+
+### Testing
+
+To run the test suite, configure PASTA in the usual way, with the addition of
+the `PASTA_ENABLE_TESTING` and `LLVM_EXTERNAL_LIT` options speficied.
+
+```shell
+cmake \
+    ... \
+    -DPASTA_ENABLE_TESTING=ON \
+    -DLLVM_EXTERNAL_LIT=/path/to/llvm-lit \
+    ..
+make check-pasta
 ```

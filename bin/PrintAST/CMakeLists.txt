@@ -1,3 +1,5 @@
+# Copyright (c) 2021 Trail of Bits, Inc., all rights reserved.
+
 add_executable(print-ast
     "Main.cpp"
 )

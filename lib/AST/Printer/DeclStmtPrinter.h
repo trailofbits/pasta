@@ -87,7 +87,7 @@ class DeclPrinter : public clang::DeclVisitor<DeclPrinter> {
   void ProcessDeclGroup(clang::SmallVectorImpl<clang::Decl*>& Decls);
   void Print(clang::AccessSpecifier AS);
   void PrintConstructorInitializers(clang::CXXConstructorDecl *CDecl,
-                                    std::string &Proto);
+                                    std::function<void(void)> &ProtoFn);
   /// Print an Objective-C method type in parentheses.
   ///
   /// \param Quals The Objective-C declaration qualifiers.
@@ -172,10 +172,13 @@ class DeclPrinter : public clang::DeclVisitor<DeclPrinter> {
 
    void printQualType(clang::QualType qt,
                       raw_string_ostream &OS,
-                      const clang::PrintingPolicy &Policy,
-                      const clang::Twine &PlaceHolder = clang::Twine(),
-                      std::function<std::string(void)> *placeHolderFn = nullptr,
-                      unsigned Indentation = 0);
+                      const clang::PrintingPolicy &Policy);
+
+   void printQualType(clang::QualType qt,
+                     raw_string_ostream &OS,
+                     const clang::PrintingPolicy &Policy,
+                     std::function<void(void)> ProtoFn,
+                     unsigned Indentation = 0);
 
 
    PrintedTokenRangeImpl &tokens;
@@ -204,9 +207,13 @@ class StmtPrinter : public clang::StmtVisitor<StmtPrinter> {
     void PrintStmt(clang::Stmt *S) { PrintStmt(S, Policy.Indentation); }
 
     void printQualType(clang::QualType type_, raw_string_ostream &OS,
-               const clang::PrintingPolicy &Policy,
-               const clang::Twine &PlaceHolder = clang::Twine(),
-               unsigned Indentation = 0);
+                       const clang::PrintingPolicy &Policy);
+
+    void printQualType(
+        clang::QualType type_, raw_string_ostream &OS,
+        const clang::PrintingPolicy &Policy,
+        std::function<void(void)> *PlaceHolderFn,
+        unsigned Indentation = 0);
 
     void printDecl(clang::Decl *D, raw_string_ostream &Out,
                    const clang::PrintingPolicy &policy_, unsigned Indentation);
@@ -267,10 +274,16 @@ class StmtPrinter : public clang::StmtVisitor<StmtPrinter> {
         OS << "<null expr>";
     }
 
+    bool suppress_leading_indent = false;
+
     pasta::raw_string_ostream &Indent(int Delta = 0) {
-      auto level = static_cast<int>(IndentLevel) + Delta;
-      for (int i = 0, e = level; i < e; ++i)
-        OS << "  ";
+      if (!suppress_leading_indent) {
+        auto level = static_cast<int>(IndentLevel) + Delta;
+        for (int i = 0, e = level; i < e; ++i)
+          OS << "  ";
+      } else {
+        suppress_leading_indent = false;
+      }
       return OS;
     }
 
@@ -320,10 +333,10 @@ public:
 
   void print(const clang::Type *ty, clang::Qualifiers qs,
              raw_string_ostream &OS, clang::StringRef PlaceHolder,
-             std::function<std::string(void)> *placeHolderFn = nullptr);
+             std::function<void(void)> *placeHolderFn = nullptr);
 
   void print(clang::QualType T, raw_string_ostream &OS,
-             clang::StringRef PlaceHolder, std::function<std::string(void)> *placeHolderFn = nullptr);
+             clang::StringRef PlaceHolder, std::function<void(void)> *placeHolderFn = nullptr);
 
   static bool canPrefixQualifiers(const clang::Type *T, bool &NeedARCStrongQualifier);
   void spaceBeforePlaceHolder(raw_string_ostream &OS);

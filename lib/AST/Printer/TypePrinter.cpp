@@ -118,7 +118,7 @@ static clang::SplitQualType splitAccordingToPolicy(clang::QualType QT,
 void TypePrinter::print(clang::QualType t,
                         raw_string_ostream &OS,
                         clang::StringRef PlaceHolder,
-                        std::function<std::string(void)> *placeHolderFn) {
+                        std::function<void(void)> *placeHolderFn) {
   clang::SplitQualType split = splitAccordingToPolicy(t, Policy);
   print(split.Ty, split.Quals, OS, PlaceHolder, placeHolderFn);
 }
@@ -127,7 +127,7 @@ void TypePrinter::print(const clang::Type *T,
                         clang::Qualifiers Quals,
                         raw_string_ostream &OS,
                         clang::StringRef PlaceHolder,
-                        std::function<std::string(void)> *placeHolderFn) {
+                        std::function<void(void)> *placeHolderFn) {
   if (!T) {
     OS << "NULL TYPE";
     return;
@@ -137,7 +137,7 @@ void TypePrinter::print(const clang::Type *T,
 
   printBefore(T, Quals, OS);
   if (placeHolderFn != nullptr) {
-    OS << (*placeHolderFn)();
+    (*placeHolderFn)();
   } else {
     OS << PlaceHolder;
   }

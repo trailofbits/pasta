@@ -21,24 +21,19 @@
 /// with no newline after the }.
 namespace pasta {
 
-static clang::SplitQualType splitAccordingToPolicy(
-    clang::QualType QT,const clang::PrintingPolicy &Policy) {
-  if (Policy.PrintCanonicalTypes)
-    QT = QT.getCanonicalType();
-  return QT.split();
-}
-
 void StmtPrinter::printQualType(clang::QualType type_,
                         raw_string_ostream &OS,
-                        const clang::PrintingPolicy &Policy,
-                        const clang::Twine &PlaceHolder,
-                        unsigned Indentation){
-  auto split = splitAccordingToPolicy(type_, Policy);
-  clang::SmallString<128> PHBuf;
-  clang::StringRef PH = PlaceHolder.toStringRef(PHBuf);
-  TypePrinter(Policy, tokens, Indentation).print(split.Ty, split.Quals, OS, PH);
+                        const clang::PrintingPolicy &Policy){
+  TypePrinter(Policy, tokens, 0).print(type_, OS, "");
 }
 
+void StmtPrinter::printQualType(
+    clang::QualType type_, raw_string_ostream &OS,
+    const clang::PrintingPolicy &Policy,
+    std::function<void(void)> *PlaceHolderFn,
+    unsigned Indentation) {
+  TypePrinter(Policy, tokens, Indentation).print(type_, OS, "", PlaceHolderFn);
+}
 
 void StmtPrinter::PrintRawCompoundStmt(clang::CompoundStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
@@ -2094,8 +2089,12 @@ void StmtPrinter::VisitLambdaExpr(clang::LambdaExpr *Node) {
       } else {
         NeedComma = true;
       }
-      std::string ParamStr = P->getNameAsString();
-      printQualType(P->getOriginalType(), OS, Policy, ParamStr);
+      std::function<void(void)> ParamStrFn = [=] (void) {
+        TokenPrinterContext ctx(OS, P, tokens, __FUNCTION__);
+        OS << P->getNameAsString();
+      };
+
+      printQualType(P->getOriginalType(), OS, Policy, &ParamStrFn);
     }
     if (Method->isVariadic()) {
       if (NeedComma)
@@ -2155,15 +2154,20 @@ void StmtPrinter::VisitCXXNewExpr(clang::CXXNewExpr *E) {
   }
   if (E->isParenTypeId())
     OS << "(";
-  std::string TypeS;
+
+  std::function<void(void)> TypeSFn = [] (void) -> void {};
+
   if (clang::Optional<clang::Expr *> Size = E->getArraySize()) {
-    raw_string_ostream s(TypeS);
-    s << '[';
-    if (*Size)
-      (*Size)->printPretty(s, Helper, Policy);
-    s << ']';
+    TypeSFn = [=] (void) {
+      OS << '[';
+      if (*Size) {
+        this->Visit(*Size);
+      }
+      OS << ']';
+    };
   }
-  printQualType(E->getAllocatedType(), OS, Policy, TypeS);
+
+  printQualType(E->getAllocatedType(), OS, Policy, &TypeSFn);
   if (E->isParenTypeId())
     OS << ")";
 
@@ -2604,8 +2608,12 @@ void StmtPrinter::VisitBlockExpr(clang::BlockExpr *Node) {
     for (clang::BlockDecl::param_iterator AI = BD->param_begin(),
          E = BD->param_end(); AI != E; ++AI) {
       if (AI != BD->param_begin()) OS << ", ";
-      std::string ParamStr = (*AI)->getNameAsString();
-      printQualType((*AI)->getType(), OS, Policy, ParamStr);
+      std::function<void(void)> ParamStrFn = [=] (void) {
+        clang::ParmVarDecl *P = *AI;
+        TokenPrinterContext ctx(OS, P, tokens, __FUNCTION__);
+        OS << P->getNameAsString();
+      };
+      printQualType((*AI)->getType(), OS, Policy, &ParamStrFn);
     }
 
     const auto *FT = clang::cast<clang::FunctionProtoType>(AFT);

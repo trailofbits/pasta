@@ -45,7 +45,7 @@
 #include "../AST/Token.h"
 #include "../Util/FileManager.h"
 
-#define PASTA_DEBUG_RUN 1
+#define PASTA_DEBUG_RUN 0
 
 namespace pasta {
 namespace detail {

@@ -338,10 +338,10 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
   parsed_tree->Print(parsed_os, "", *ast);
 
 
-  std::ofstream source_os("/tmp/source.printed");
-  for (auto it = range.first; it < range.after_last; ++it) {
-    source_os << it->Data(*(range.impl)) << '\n';
-  }
+//  std::ofstream source_os("/tmp/source.printed");
+//  for (auto it = range.first; it < range.after_last; ++it) {
+//    source_os << it->Data(*(range.impl)) << '\n';
+//  }
 #endif   // PASTA_DEBUG_ALIGN
 
   auto printed_tree = BuildRegions(

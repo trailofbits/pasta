@@ -870,12 +870,16 @@ void TypePrinter::printFunctionProtoAfter(const clang::FunctionProtoType *T,
       if (i) OS << ", ";
 
       auto EPI = T->getExtParameterInfo(i);
-      if (EPI.isConsumed()) OS << "__attribute__((ns_consumed)) ";
-      if (EPI.isNoEscape())
+      if (EPI.isConsumed()) {
+        OS << "__attribute__((ns_consumed)) ";
+      }
+      if (EPI.isNoEscape()) {
         OS << "__attribute__((noescape)) ";
+      }
       auto ABI = EPI.getABI();
-      if (ABI != clang::ParameterABI::Ordinary)
+      if (ABI != clang::ParameterABI::Ordinary) {
         OS << "__attribute__((" << clang::getParameterABISpelling(ABI) << ")) ";
+      }
 
       print(T->getParamType(i), OS, clang::StringRef());
     }
@@ -885,6 +889,7 @@ void TypePrinter::printFunctionProtoAfter(const clang::FunctionProtoType *T,
     if (T->getNumParams())
       OS << ", ";
     OS << "...";
+
   } else if (T->getNumParams() == 0 && Policy.UseVoidForZeroParams) {
     // Do not emit int() if we have a proto, emit 'int(void)'.
     OS << "void";

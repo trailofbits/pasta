@@ -604,7 +604,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
         if (auto l_paren = FTL.getLParenLoc();
             l_paren.isValid() && l_paren.isFileID()) {
           has_source_code = true;
-          auto after_l_paren = l_paren.getLocWithOffset(1);
+          clang::SourceLocation after_l_paren = l_paren.getLocWithOffset(1);
           clang::Token tok;
           if (TryLexRawToken(D->getASTContext(), after_l_paren, &tok)) {
             if (tok.getKind() == clang::tok::raw_identifier &&
@@ -616,6 +616,30 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
       }
     }
 
+    // Try to see if the last parameter is followed by a comma before
+    // the `...`. This is tricky because we might need to skip over a closing
+    // parenthesis, e.g. `void foo(void (*bar)...)` or over an identifier, e.g.
+    // `void foo(int bar...)`.
+    auto variadic_leading_comma = [&] (clang::ParmVarDecl *P) {
+      clang::SourceLocation param_end = P->getEndLoc();
+      if (!param_end.isValid() || !param_end.isFileID()) {
+        return true;  // Default.
+      }
+
+      clang::Token tok;
+      if (!TryLexRawToken(D->getASTContext(), param_end, &tok)) {
+        return true;
+      }
+
+      auto after_param_end = tok.getLocation().getLocWithOffset(
+          static_cast<int>(tok.getLength()));
+      if (!TryLexRawToken(D->getASTContext(), after_param_end, &tok)) {
+        return true;
+      }
+
+      return tok.getKind() == clang::tok::comma;
+    };
+
     if (FT) {
       ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
         ProtoFn();
@@ -625,19 +649,30 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
           Out << "void";
 
         } else if (!has_source_code && !D->getNumParams() &&
-                   SubPolicy.UseVoidForZeroParams &&
-                   Context.getLangOpts().CPlusPlus) {
+                   SubPolicy.UseVoidForZeroParams) {
           Out << "void";
 
         } else {
           DeclPrinter ParamPrinter(Out, SubPolicy, Context, tokens, Indentation);
+
+
+          bool leading_comma = true;
           for (unsigned i = 0, e = D->getNumParams(); i != e; ++i) {
-            if (i) Out << ", ";
-            ParamPrinter.VisitParmVarDecl(D->getParamDecl(i));
+            if (i) {
+              Out << ", ";
+            }
+            clang::ParmVarDecl *P = D->getParamDecl(i);
+            ParamPrinter.VisitParmVarDecl(P);
+
+            // Try to see if the last parameter is followed by a comma before
+            // the `...`.
+            if ((i + 1u) == e && FT->isVariadic()) {
+              leading_comma = variadic_leading_comma(P);
+            }
           }
 
           if (FT->isVariadic()) {
-            if (D->getNumParams()) {
+            if (leading_comma && D->getNumParams()) {
               Out << ", ";
             }
             Out << "...";

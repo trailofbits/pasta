@@ -49,9 +49,14 @@ config.pasta_tools_dir = os.path.join(config.pasta_obj_root, 'bin')
 
 tools = [
     ToolSubst(
-        "%print-cxx-tokens",
+        "print-cxx-tokens",
         os.path.join(config.pasta_obj_root, 'bin', 'PrintTokens', 'print-tokens'),
-        extra_args=["-x", "c++"])
+        extra_args=["-x", "c++"]),
+
+    ToolSubst(
+        "print-c-tokens",
+        os.path.join(config.pasta_obj_root, 'bin', 'PrintTokens', 'print-tokens'),
+        extra_args=["-x", "c"])
 ]
 
 llvm_config.add_tool_substitutions(tools)

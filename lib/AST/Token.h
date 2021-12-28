@@ -18,6 +18,7 @@
 #pragma clang diagnostic pop
 
 namespace clang {
+class ASTContext;
 class SourceManager;
 class LangOptions;
 class Token;
@@ -64,5 +65,14 @@ class TokenImpl {
 bool TryReadRawToken(clang::SourceManager &source_manager,
                      const clang::LangOptions &lang_opts,
                      const clang::Token &tok, std::string *out);
+
+// Try to lex the data at `loc` into the token `*out`.
+bool TryLexRawToken(clang::SourceManager &source_manager,
+                    const clang::LangOptions &lang_opts,
+                    clang::SourceLocation loc, clang::Token *out);
+
+// Try to lex the data at `loc` into the token `*out`.
+bool TryLexRawToken(clang::ASTContext &ast_context,
+                    clang::SourceLocation loc, clang::Token *out);
 
 } // namespace pasta

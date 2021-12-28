@@ -1,23 +1,17 @@
 
 // RUN: print-cxx-tokens %s | FileCheck %s
 
-// CHECK: struct
-// CHECK: foo
-// CHECK: {
-// CHECK: operator
 // CHECK: int
+// CHECK: foo
 // CHECK: (
+// CHECK: void
 // CHECK: )
 // CHECK: {
 // CHECK: return
 // CHECK: 1
 // CHECK: ;
 // CHECK: }
-// CHECK: }
-// CHECK: ;
 
-struct foo {
-  operator int () {
-    return 1;
-  }
-};
+int foo(void) {
+  return 1;
+}

@@ -11,6 +11,7 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/AST/ASTContext.h>
 #include <clang/Basic/IdentifierTable.h>
 #include <clang/Basic/SourceManager.h>
 #include <clang/Basic/TokenKinds.h>
@@ -42,7 +43,9 @@ static bool ReadRawTokenByKind(clang::SourceManager &source_manager,
     }
 
     case clang::tok::raw_identifier:
-      backup = tok.getRawIdentifier();
+      if (tok.getLength()) {
+        backup = tok.getRawIdentifier();
+      }
       break;
 
     case clang::tok::numeric_constant:
@@ -337,20 +340,26 @@ bool TryReadRawToken(clang::SourceManager &source_manager,
   } else if (!tok.needsCleaning()) {
     clang::IdentifierInfo *ident_info = nullptr;
 
-    if (tok.is(clang::tok::raw_identifier)) {
+    if (tok.is(clang::tok::raw_identifier) && tok.getLength()) {
       const auto raw_ident = tok.getRawIdentifier();
       out->assign(raw_ident.data(), raw_ident.size());
-      return true;
+      if (!out->empty()) {
+        return true;
+      }
 
     } else if (tok.is(clang::tok::identifier) &&
                nullptr != (ident_info = tok.getIdentifierInfo())) {
 
-      out->assign(ident_info->getNameStart(), ident_info->getLength());
-      return true;
+      if (!out->empty()) {
+        out->assign(ident_info->getNameStart(), ident_info->getLength());
+        return true;
+      }
 
     } else if (tok.isLiteral() && tok.getLiteralData()) {
-      out->assign(tok.getLiteralData(), tok.getLength());
-      return true;
+      if (!out->empty()) {
+        out->assign(tok.getLiteralData(), tok.getLength());
+        return true;
+      }
     }
   }
 
@@ -379,6 +388,25 @@ bool TryReadRawToken(clang::SourceManager &source_manager,
   // If all else fails, try to get the representation of the token using
   // its kind.
   return ReadRawTokenByKind(source_manager, tok, out);
+}
+
+// Try to lex the data at `loc` into the token `*out`.
+bool TryLexRawToken(clang::SourceManager &source_manager,
+                    const clang::LangOptions &lang_opts,
+                    clang::SourceLocation loc, clang::Token *out) {
+  if (loc.isFileID()) {
+    return !clang::Lexer::getRawToken(
+        loc, *out, source_manager, lang_opts, true);
+  } else {
+    return false;
+  }
+}
+
+// Try to lex the data at `loc` into the token `*out`.
+bool TryLexRawToken(clang::ASTContext &ast_context,
+                    clang::SourceLocation loc, clang::Token *out) {
+  return TryLexRawToken(ast_context.getSourceManager(),
+                        ast_context.getLangOpts(), loc, out);
 }
 
 Token::~Token(void) {}

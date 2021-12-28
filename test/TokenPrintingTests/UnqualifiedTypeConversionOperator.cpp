@@ -4,8 +4,12 @@
 // CHECK: struct
 // CHECK: foo
 // CHECK: {
-// CHECK: operator
+// CHECK: typedef
 // CHECK: int
+// CHECK: bar
+// CHECK: ;
+// CHECK: operator
+// CHECK: bar
 // CHECK: (
 // CHECK: )
 // CHECK: {
@@ -17,7 +21,8 @@
 // CHECK: ;
 
 struct foo {
-  operator int () {
+  typedef int bar;
+  operator bar() {
     return 1;
   }
 };

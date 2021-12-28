@@ -593,32 +593,88 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
     if (D->hasWrittenPrototype())
       FT = clang::dyn_cast<clang::FunctionProtoType>(AFT);
 
+    // We want to figure out if there's an explicit `void` in the declaration
+    // for the parameter list.
+    bool uses_explicit_void = false;
+    bool has_source_code = false;
+    if (clang::TypeSourceInfo *FTSI = D->getTypeSourceInfo();
+        FTSI && !D->getNumParams()) {
+      if (auto FTL = FTSI->getTypeLoc().getAs<clang::FunctionTypeLoc>();
+          !FTL.isNull()) {
+        if (auto l_paren = FTL.getLParenLoc();
+            l_paren.isValid() && l_paren.isFileID()) {
+          has_source_code = true;
+          auto after_l_paren = l_paren.getLocWithOffset(1);
+          clang::Token tok;
+          if (TryLexRawToken(D->getASTContext(), after_l_paren, &tok)) {
+            if (tok.getKind() == clang::tok::raw_identifier &&
+                tok.getRawIdentifier() == "void") {
+              uses_explicit_void = true;
+            }
+          }
+        }
+      }
+    }
+
     if (FT) {
       ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
         ProtoFn();
         Out << '(';
-        TokenPrinterContext ctx(Out, FT, this->tokens, __FUNCTION__);
-        DeclPrinter ParamPrinter(Out, SubPolicy, Context, tokens, Indentation);
-        for (unsigned i = 0, e = D->getNumParams(); i != e; ++i) {
-          if (i) Out << ", ";
-          ParamPrinter.VisitParmVarDecl(D->getParamDecl(i));
-        }
+        TokenPrinterContext ctx(Out, D, this->tokens, __FUNCTION__);
+        if (uses_explicit_void) {  // Does the original code use `void`?
+          Out << "void";
 
-        if (FT->isVariadic()) {
-          if (D->getNumParams()) Out << ", ";
-          Out << "...";
+        } else if (!has_source_code && !D->getNumParams() &&
+                   SubPolicy.UseVoidForZeroParams &&
+                   Context.getLangOpts().CPlusPlus) {
+          Out << "void";
+
+        } else {
+          DeclPrinter ParamPrinter(Out, SubPolicy, Context, tokens, Indentation);
+          for (unsigned i = 0, e = D->getNumParams(); i != e; ++i) {
+            if (i) Out << ", ";
+            ParamPrinter.VisitParmVarDecl(D->getParamDecl(i));
+          }
+
+          if (FT->isVariadic()) {
+            if (D->getNumParams()) {
+              Out << ", ";
+            }
+            Out << "...";
+          }
         }
         Out << ")";
       };
     } else if (D->doesThisDeclarationHaveABody() && !D->hasPrototype()) {
       ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
         ProtoFn();
-        TokenPrinterContext ctx(Out, FT, this->tokens, __FUNCTION__);
+        TokenPrinterContext ctx(Out, D, this->tokens, __FUNCTION__);
         Out << "(";
-        for (unsigned i = 0, e = D->getNumParams(); i != e; ++i) {
-          if (i)
-            Out << ", ";
-          Out << D->getParamDecl(i)->getNameAsString();
+        if (uses_explicit_void) {
+          Out << "void";
+
+        } else if (!has_source_code && !D->getNumParams() &&
+                   SubPolicy.UseVoidForZeroParams &&
+                   Context.getLangOpts().CPlusPlus) {
+          Out << "void";
+
+        } else {
+          for (unsigned i = 0, e = D->getNumParams(); i != e; ++i) {
+            if (i)
+              Out << ", ";
+            {
+              clang::ParmVarDecl *P = D->getParamDecl(i);
+              TokenPrinterContext ctx(Out, P, this->tokens, __FUNCTION__);
+              Out << P->getNameAsString();
+            }
+          }
+
+          if (D->isVariadic()) {
+            if (D->getNumParams()) {
+              Out << ", ";
+            }
+            Out << "...";
+          }
         }
         Out << ")";
       };
@@ -627,7 +683,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
     if (FT) {
       ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
         ProtoFn();
-        TokenPrinterContext ctx(Out, FT, this->tokens, __FUNCTION__);
+        TokenPrinterContext ctx(Out, D, this->tokens, __FUNCTION__);
         if (FT->isConst())
           Out << " const";
         if (FT->isVolatile())

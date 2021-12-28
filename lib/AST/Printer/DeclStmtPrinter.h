@@ -11,6 +11,10 @@
 //
 //===----------------------------------------------------------------------===//
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/AST/ASTContext.h>
 #include <clang/AST/Attr.h>
 #include <clang/AST/Decl.h>
@@ -58,10 +62,6 @@
 #include <clang/Lex/Lexer.h>
 #include <clang/Lex/Preprocessor.h>
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/Frontend/CompilerInstance.h>
 #pragma clang diagnostic pop
 
@@ -70,6 +70,7 @@
 
 #include "raw_ostream.h"
 #include "Printer.h"
+#include "../Token.h"
 
 namespace pasta {
 

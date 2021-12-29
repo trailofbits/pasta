@@ -88,6 +88,7 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
       break;
     }
 
+    tok_data.clear();
     if (tok.isOneOf(clang::tok::unknown, clang::tok::comment,
                     clang::tok::code_completion) ||
         !TryReadRawToken(source_manager, lang_opts, tok, &tok_data) ||

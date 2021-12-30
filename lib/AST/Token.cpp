@@ -184,6 +184,82 @@ static bool ReadRawTokenData(clang::SourceManager &source_manager,
 } // namespace
 
 
+const TokenContextImpl *TokenContextImpl::Parent(
+    const std::vector<TokenContextImpl> &contexts) const {
+  if (parent_index == kInvalidTokenContextIndex) {
+    return nullptr;
+  }
+
+  if (parent_index >= contexts.size()) {
+    assert(false);
+    return nullptr;
+  }
+
+  auto first_context = &(contexts.front());
+  auto last_context = &(contexts.back());
+  if (this < first_context || this > last_context) {
+    assert(false);
+    return nullptr;
+  }
+
+  if (parent_index >= static_cast<uint32_t>(this - first_context)) {
+    assert(false);
+    return nullptr;
+  }
+
+  return &(contexts[parent_index]);
+}
+
+const TokenContextImpl *TokenContextImpl::Aliasee(
+    const std::vector<TokenContextImpl> &contexts) const {
+  if (kind != TokenContextKind::kAlias) {
+    return this;
+  }
+
+  auto alias_index = reinterpret_cast<uintptr_t>(data);
+  assert(alias_index == static_cast<TokenContextIndex>(alias_index));
+
+  if (alias_index >= contexts.size()) {
+    assert(false);
+    return this;
+  }
+
+  auto first_context = &(contexts.front());
+  auto last_context = &(contexts.back());
+  if (this < first_context || this > last_context) {
+    assert(false);
+    return this;
+  }
+
+  if (alias_index >= static_cast<uint32_t>(this - first_context)) {
+    assert(false);
+    return this;
+  }
+
+  return contexts[alias_index].Aliasee(contexts);
+}
+
+const char *TokenContextImpl::KindName(
+      const std::vector<TokenContextImpl> &contexts) const {
+  switch (kind) {
+    case TokenContextKind::kInvalid:
+      return "Invalid";
+#define PASTA_TOKEN_CONTEXT_KIND_CASE(cls) \
+    case TokenContextKind::k ## cls: return #cls ;
+    PASTA_FOR_EACH_TOKEN_CONTEXT_KIND(PASTA_TOKEN_CONTEXT_KIND_CASE)
+#undef PASTA_TOKEN_CONTEXT_KIND_CASE
+    case TokenContextKind::kAlias:
+      if (auto aliasee = Aliasee(contexts); aliasee != this) {
+        return aliasee->KindName(contexts);
+      } else {
+        assert(false);
+        return "Alias";
+      }
+    case TokenContextKind::kString:
+      return "String";
+  }
+}
+
 // Return the index of this token context.
 uint32_t TokenContext::Index(void) const {
   if (impl) {
@@ -195,72 +271,66 @@ uint32_t TokenContext::Index(void) const {
 
 // String representation of this token context kind.
 const char *TokenContext::KindName(void) const {
-  if (impl) {
-    switch (impl->kind) {
-#define PASTA_PRINTED_TOKEN_KIND_CASE(cls) \
-      case PrintedTokenKind::k ## cls: return #cls ; \
-    PASTA_FOR_EACH_PRINTED_TOKEN_KIND(PASTA_PRINTED_TOKEN_KIND_CASE)
-#undef PASTA_PRINTED_TOKEN_KIND_CASE
-      default:
-        break;
-    }
-  }
-
-  return "Invalid";
+  return impl ? "Invalid" : impl->KindName(*contexts);
 }
 
 // Return the kind of this token.
 TokenContextKind TokenContext::Kind(void) const {
-  return impl ? impl->kind : TokenContextKind::kInvalid;
+  if (impl) {
+    return impl->Aliasee(*contexts)->kind;
+  } else {
+    return TokenContextKind::kInvalid;
+  }
 }
 
 // Return the data of this context.
 const void *TokenContext::Data(void) const {
-  return impl ? impl->data : nullptr;
+  if (impl) {
+    return impl->Aliasee(*contexts)->data;
+  } else {
+    return nullptr;
+  }
 }
 
 // Return the parent context.
 std::optional<TokenContext> TokenContext::Parent(void) const {
   if (!impl) {
     return std::nullopt;
-  } else if (impl->parent_index == kInvalidTokenContextIndex) {
-    return std::nullopt;
-  } else if (impl->parent_index >= contexts->size()) {
-    return std::nullopt;
-  } else {
-    auto first_context = &(contexts->front());
-    auto last_context = &(contexts->back());
-    if (first_context <= impl && impl <= last_context) {
-      assert(impl->parent_index <=
-             static_cast<uint32_t>(impl - first_context));
-      return TokenContext(&(contexts->at(impl->parent_index)), contexts);
-    } else {
-      assert(false);
-      return std::nullopt;
-    }
   }
+
+  auto parent = impl->Parent(*contexts);
+  if (!parent) {
+    return std::nullopt;
+  }
+
+  return TokenContext(parent, contexts);
+}
+
+// Return the context aliased by this context.
+std::optional<TokenContext> TokenContext::Aliasee(void) const {
+  if (!impl) {
+    return std::nullopt;
+  }
+
+  auto aliasee = impl->Aliasee(*contexts);
+  if (impl == aliasee) {
+    return std::nullopt;
+  }
+
+  return TokenContext(aliasee, contexts);
 }
 
 // Try to update this context to point to its parent.
 bool TokenContext::TryUpdateToParent(void) {
   if (!impl) {
     return false;
-  } else if (impl->parent_index == kInvalidTokenContextIndex) {
-    return false;
-  } else if (impl->parent_index >= contexts->size()) {
-    return false;
+  }
+
+  if (auto parent = impl->Parent(*contexts)) {
+    impl = parent;
+    return true;
   } else {
-    auto first_context = &(contexts->front());
-    auto last_context = &(contexts->back());
-    if (first_context <= impl && impl <= last_context) {
-      assert(impl->parent_index <=
-             static_cast<uint32_t>(impl - first_context));
-      impl = &(contexts->at(impl->parent_index));
-      return true;
-    } else {
-      assert(false);
-      return false;
-    }
+    return false;
   }
 }
 

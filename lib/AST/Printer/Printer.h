@@ -75,8 +75,13 @@ class PrintedTokenRangeImpl {
   const TokenContextIndex CreateContext(
       TokenPrinterContext *tokenizer, const T *data);
 
+  const TokenContextIndex CreateAlias(
+      TokenPrinterContext *tokenizer, TokenContextIndex aliasee);
+
 //  void PopContext(void);
 };
+
+struct no_alias_tag {};
 
 // Context class for tokenizing what's inside of a particular stream stream.
 class TokenPrinterContext {
@@ -94,17 +99,8 @@ class TokenPrinterContext {
     }
     tokens.curr_printer_context = this;
   }
-
-  TokenPrinterContext(const TokenPrinterContext &that_)
-      : out(that_.out),
-        prev_printer_context(that_.tokens.curr_printer_context),
-        context_index(that_.context_index),
-        tokens(that_.tokens) {
-    if (prev_printer_context) {
-      prev_printer_context->Tokenize();
-    }
-    tokens.curr_printer_context = this;
-  }
+  TokenPrinterContext(const TokenPrinterContext &that_, no_alias_tag);
+  TokenPrinterContext(const TokenPrinterContext &that_);
 
   void Tokenize(void);
 

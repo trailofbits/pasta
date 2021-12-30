@@ -1409,7 +1409,6 @@ void TypePrinter::printFunctionProto(const clang::FunctionProtoType *T,
     TokenPrinterContext jump_up_stack(ctx);
     OS << '(';
     {
-      TokenPrinterContext ctx(OS, "Parameters", tokens);
       {
         ParamPolicyRAII ParamPolicy(Policy);
         for (unsigned i = 0, e = T->getNumParams(); i != e; ++i) {
@@ -1436,7 +1435,6 @@ void TypePrinter::printFunctionProto(const clang::FunctionProtoType *T,
         if (T->getNumParams())
           OS << ", ";
 
-        TokenPrinterContext ctx(OS, "VariadicParameter", tokens);
         OS << "...";
 
       } else if (T->getNumParams() == 0 && Policy.UseVoidForZeroParams) {
@@ -1472,10 +1470,8 @@ void TypePrinter::printFunctionProto(const clang::FunctionProtoType *T,
   if (T->hasTrailingReturn()) {
     IdentFn();
     OS << " -> ";
-    TokenPrinterContext ctx(OS, "ReturnType", tokens);
     print(T->getReturnType(), OS, clang::StringRef());
   } else {
-    TokenPrinterContext ctx(OS, "ReturnType", tokens);
     printBeforeAfter(T->getReturnType(), OS, std::move(IdentFn));
   }
 }

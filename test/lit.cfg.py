@@ -56,7 +56,11 @@ tools = [
     ToolSubst(
         "print-c-tokens",
         os.path.join(config.pasta_obj_root, 'bin', 'PrintTokens', 'print-tokens'),
-        extra_args=["-x", "c"])
+        extra_args=["-x", "c"]),
+    
+    ToolSubst(
+        "FileCheck",
+        config.file_check_path)
 ]
 
 llvm_config.add_tool_substitutions(tools)

@@ -18,7 +18,7 @@
 
 #include "Printer/Printer.h"
 
-#define PASTA_DEBUG_ALIGN 1
+#define PASTA_DEBUG_ALIGN 0
 
 namespace pasta {
 namespace {

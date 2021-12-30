@@ -644,7 +644,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
       ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
         ProtoFn();
         Out << '(';
-        TokenPrinterContext ctx(Out, D, this->tokens);
+
         if (uses_explicit_void) {  // Does the original code use `void`?
           Out << "void";
 
@@ -663,7 +663,6 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
             }
             clang::ParmVarDecl *P = D->getParamDecl(i);
             ParamPrinter.VisitParmVarDecl(P);
-
             // Try to see if the last parameter is followed by a comma before
             // the `...`.
             if ((i + 1u) == e && FT->isVariadic()) {
@@ -675,6 +674,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
             if (leading_comma && D->getNumParams()) {
               Out << ", ";
             }
+
             Out << "...";
           }
         }
@@ -685,6 +685,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
         ProtoFn();
         TokenPrinterContext ctx(Out, D, this->tokens);
         Out << "(";
+
         if (uses_explicit_void) {
           Out << "void";
 
@@ -783,6 +784,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
           Out << " -> ";
           ProtoFn = EmtpyProtoFn;
         }
+
         printQualType(AFT->getReturnType(), Out, Policy, std::move(ProtoFn));
       };
     }
@@ -973,7 +975,6 @@ void DeclPrinter::VisitVarDecl(clang::VarDecl *D) {
 }
 
 void DeclPrinter::VisitParmVarDecl(clang::ParmVarDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens);
   VisitVarDecl(D);
 }
 

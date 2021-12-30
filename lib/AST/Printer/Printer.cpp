@@ -140,15 +140,26 @@ ptrdiff_t PrintedTokenIterator::operator-(
 
 PrintedTokenRangeImpl::~PrintedTokenRangeImpl(void) {}
 
-//void PrintedTokenRangeImpl::PopContext(void) {
-//  if (!tokenizer_stack.empty()) {
-//    const auto last_tokenizer = tokenizer_stack.back();
-//    last_tokenizer->Tokenize();
-//
-//    context_stack.pop_back();
-//    tokenizer_stack.pop_back();
-//  }
-//}
+
+const TokenContextIndex PrintedTokenRangeImpl::CreateAlias(
+    TokenPrinterContext *tokenizer, TokenContextIndex aliasee) {
+
+  // If the current thing on the stack is what we're aliasing, then don't alias
+  // it.
+  if (tokenizer->prev_printer_context &&
+      tokenizer->prev_printer_context->context_index == aliasee) {
+    return aliasee;
+  }
+
+  auto index = static_cast<TokenContextIndex>(contexts.size());
+  assert(index == contexts.size());
+  contexts.emplace_back(
+      (tokenizer->prev_printer_context ?
+          tokenizer->prev_printer_context->context_index :
+          kInvalidTokenContextIndex),
+      aliasee);
+  return index;
+}
 
 namespace {
 
@@ -182,6 +193,29 @@ static std::tuple<unsigned, unsigned, unsigned> SkipWhitespace(
 }
 
 }  // namespace
+
+TokenPrinterContext::TokenPrinterContext(
+    const TokenPrinterContext &that_, no_alias_tag)
+    : out(that_.out),
+      prev_printer_context(that_.tokens.curr_printer_context),
+      context_index(that_.context_index),
+      tokens(that_.tokens) {
+  if (prev_printer_context) {
+    prev_printer_context->Tokenize();
+  }
+  tokens.curr_printer_context = this;
+}
+
+TokenPrinterContext::TokenPrinterContext(const TokenPrinterContext &that_)
+    : out(that_.out),
+      prev_printer_context(that_.tokens.curr_printer_context),
+      context_index(that_.tokens.CreateAlias(this, that_.context_index)),
+      tokens(that_.tokens) {
+  if (prev_printer_context) {
+    prev_printer_context->Tokenize();
+  }
+  tokens.curr_printer_context = this;
+}
 
 void TokenPrinterContext::Tokenize(void) {
   const clang::LangOptions &lo = tokens.ast_context.getLangOpts();

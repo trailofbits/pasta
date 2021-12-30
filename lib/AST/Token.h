@@ -40,18 +40,34 @@ class TokenContextImpl {
   const TokenContextIndex parent_index;
   const TokenContextKind kind;
 
+  const TokenContextImpl *Parent(
+      const std::vector<TokenContextImpl> &contexts) const;
+
+  const TokenContextImpl *Aliasee(
+      const std::vector<TokenContextImpl> &contexts) const;
+
+  const char *KindName(
+      const std::vector<TokenContextImpl> &contexts) const;
+
 #define PASTA_DEFINE_TOKEN_CONTEXT_CONSTRUCTOR(cls) \
-    inline TokenContextImpl(uint32_t parent_index_, const clang::cls *data_) \
+    inline TokenContextImpl(TokenContextIndex parent_index_, \
+                            const clang::cls *data_) \
         : data(data_), \
           parent_index(parent_index_), \
           kind(TokenContextKind::k ## cls) {}
   PASTA_FOR_EACH_TOKEN_CONTEXT_KIND(PASTA_DEFINE_TOKEN_CONTEXT_CONSTRUCTOR)
 #undef PASTA_DEFINE_TOKEN_CONTEXT_CONSTRUCTOR
 
-  inline TokenContextImpl(uint32_t parent_index_, const char *data_)
+  inline TokenContextImpl(TokenContextIndex parent_index_, const char *data_)
       : data(data_),
         parent_index(parent_index_),
         kind(TokenContextKind::kString) {}
+
+  inline TokenContextImpl(TokenContextIndex parent_index_,
+                          TokenContextIndex aliasee_)
+      : data(reinterpret_cast<const void *>(aliasee_)),
+        parent_index(parent_index_),
+        kind(TokenContextKind::kAlias) {}
 };
 
 // Backing implementation of a token.

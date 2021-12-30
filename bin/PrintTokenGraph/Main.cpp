@@ -129,6 +129,11 @@ static void PrintTokenGraph(pasta::Decl tld) {
         bgcolor = " bgcolor=\"gainsboro\"";
         kind_name = reinterpret_cast<const char *>(context.Data());
         break;
+      case pasta::TokenContextKind::kAlias:
+        assert(false);
+        bgcolor = " bgcolor=\"deepskyblue3\"";
+        kind_name = "Alias";
+        break;
     }
 
     os
@@ -146,6 +151,14 @@ static void PrintTokenGraph(pasta::Decl tld) {
           << "c" << a << '_' << context.Index()
           << " -> c" << a << '_' << parent_context->Index()
           << ";\n";
+    }
+
+
+    if (auto alias_context = context.Aliasee()) {
+      os
+          << "c" << a << '_' << context.Index()
+          << " -> c" << a << '_' << alias_context->Index()
+          << " [style=dashed];\n";
     }
   }
 

@@ -46,7 +46,12 @@ enum class TokenContextKind : unsigned char {
 #define PASTA_DECLARE_TOKEN_CONTEXT_KIND(cls) k ## cls ,
   PASTA_FOR_EACH_TOKEN_CONTEXT_KIND(PASTA_DECLARE_TOKEN_CONTEXT_KIND)
 #undef PASTA_DECLARE_TOKEN_CONTEXT_KIND
-  kString
+
+  // This is some metadata of some fixed kind.
+  kString,
+
+  // This is an alias to another token kind higher up in the stack.
+  kAlias
 };
 
 // The context associated with a printed token. This represents a path from
@@ -72,6 +77,9 @@ class TokenContext {
 
   // Return the parent context.
   std::optional<TokenContext> Parent(void) const;
+
+  // Return the context aliased by this context.
+  std::optional<TokenContext> Aliasee(void) const;
 
   // Try to update this context to point to its parent.
   bool TryUpdateToParent(void);

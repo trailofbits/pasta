@@ -27,6 +27,7 @@ class ASTImpl;
 class CompileJob;
 class Compiler;
 class Decl;
+class TokenContext;
 class Type;
 
 // Abstraction around a Clang AST and the various data structures that need to

@@ -36,7 +36,7 @@ void StmtPrinter::printQualType(
 }
 
 void StmtPrinter::PrintRawCompoundStmt(clang::CompoundStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "{" << NL;
   for (auto *I : Node->body())
     PrintStmt(I);
@@ -59,32 +59,32 @@ void StmtPrinter::PrintRawDecl(clang::Decl *D) {
 }
 
 void StmtPrinter::PrintRawDeclStmt(const clang::DeclStmt *S) {
-  TokenPrinterContext ctx(OS, S, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, S, tokens);
   clang::SmallVector<clang::Decl *, 2> Decls(S->decls());
   Decl_printGroup(Decls.data(), Decls.size(), OS, Policy, IndentLevel, tokens);
 }
 
 void StmtPrinter::VisitNullStmt(clang::NullStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << ";" << NL;
 }
 
 void StmtPrinter::VisitDeclStmt(clang::DeclStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent();
   PrintRawDeclStmt(Node);
   OS << ";" << NL;
 }
 
 void StmtPrinter::VisitCompoundStmt(clang::CompoundStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent();
   PrintRawCompoundStmt(Node);
   OS << "" << NL;
 }
 
 void StmtPrinter::VisitCaseStmt(clang::CaseStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent(-1) << "case ";
   PrintExpr(Node->getLHS());
   if (Node->getRHS()) {
@@ -97,19 +97,19 @@ void StmtPrinter::VisitCaseStmt(clang::CaseStmt *Node) {
 }
 
 void StmtPrinter::VisitDefaultStmt(clang::DefaultStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent(-1) << "default:" << NL;
   PrintStmt(Node->getSubStmt(), 0);
 }
 
 void StmtPrinter::VisitLabelStmt(clang::LabelStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent(-1) << Node->getName() << ":" << NL;
   PrintStmt(Node->getSubStmt(), 0);
 }
 
 void StmtPrinter::VisitAttributedStmt(clang::AttributedStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   for (const auto *Attr : Node->getAttrs()) {
     Attr->printPretty(OS, Policy);
   }
@@ -118,7 +118,7 @@ void StmtPrinter::VisitAttributedStmt(clang::AttributedStmt *Node) {
 }
 
 void StmtPrinter::PrintRawIfStmt(clang::IfStmt *If) {
-  TokenPrinterContext ctx(OS, If, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, If, tokens);
   OS << "if (";
   if (If->getInit())
     PrintInitStmt(If->getInit(), 4);
@@ -156,13 +156,13 @@ void StmtPrinter::PrintRawIfStmt(clang::IfStmt *If) {
 }
 
 void StmtPrinter::VisitIfStmt(clang::IfStmt *If) {
-  TokenPrinterContext ctx(OS, If, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, If, tokens);
   Indent();
   PrintRawIfStmt(If);
 }
 
 void StmtPrinter::VisitSwitchStmt(clang::SwitchStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "switch (";
   if (Node->getInit())
     PrintInitStmt(Node->getInit(), 8);
@@ -175,7 +175,7 @@ void StmtPrinter::VisitSwitchStmt(clang::SwitchStmt *Node) {
 }
 
 void StmtPrinter::VisitWhileStmt(clang::WhileStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "while (";
   if (const clang::DeclStmt *DS = Node->getConditionVariableDeclStmt())
     PrintRawDeclStmt(DS);
@@ -186,7 +186,7 @@ void StmtPrinter::VisitWhileStmt(clang::WhileStmt *Node) {
 }
 
 void StmtPrinter::VisitDoStmt(clang::DoStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "do ";
   if (auto *CS = clang::dyn_cast<clang::CompoundStmt>(Node->getBody())) {
     PrintRawCompoundStmt(CS);
@@ -203,7 +203,7 @@ void StmtPrinter::VisitDoStmt(clang::DoStmt *Node) {
 }
 
 void StmtPrinter::VisitForStmt(clang::ForStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "for (";
   if (Node->getInit())
     PrintInitStmt(Node->getInit(), 5);
@@ -221,7 +221,7 @@ void StmtPrinter::VisitForStmt(clang::ForStmt *Node) {
 }
 
 void StmtPrinter::VisitObjCForCollectionStmt(clang::ObjCForCollectionStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "for (";
   if (auto *DS = clang::dyn_cast<clang::DeclStmt>(Node->getElement()))
     PrintRawDeclStmt(DS);
@@ -234,7 +234,7 @@ void StmtPrinter::VisitObjCForCollectionStmt(clang::ObjCForCollectionStmt *Node)
 }
 
 void StmtPrinter::VisitCXXForRangeStmt(clang::CXXForRangeStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "for (";
   if (Node->getInit())
     PrintInitStmt(Node->getInit(), 5);
@@ -248,7 +248,7 @@ void StmtPrinter::VisitCXXForRangeStmt(clang::CXXForRangeStmt *Node) {
 }
 
 void StmtPrinter::VisitMSDependentExistsStmt(clang::MSDependentExistsStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent();
   if (Node->isIfExists())
     OS << "__if_exists (";
@@ -265,13 +265,13 @@ void StmtPrinter::VisitMSDependentExistsStmt(clang::MSDependentExistsStmt *Node)
 }
 
 void StmtPrinter::VisitGotoStmt(clang::GotoStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "goto " << Node->getLabel()->getName() << ";";
   if (Policy.IncludeNewlines) OS << NL;
 }
 
 void StmtPrinter::VisitIndirectGotoStmt(clang::IndirectGotoStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "goto *";
   PrintExpr(Node->getTarget());
   OS << ";";
@@ -279,19 +279,19 @@ void StmtPrinter::VisitIndirectGotoStmt(clang::IndirectGotoStmt *Node) {
 }
 
 void StmtPrinter::VisitContinueStmt(clang::ContinueStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "continue;";
   if (Policy.IncludeNewlines) OS << NL;
 }
 
 void StmtPrinter::VisitBreakStmt(clang::BreakStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "break;";
   if (Policy.IncludeNewlines) OS << NL;
 }
 
 void StmtPrinter::VisitReturnStmt(clang::ReturnStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "return";
   if (Node->getRetValue()) {
     OS << " ";
@@ -302,7 +302,7 @@ void StmtPrinter::VisitReturnStmt(clang::ReturnStmt *Node) {
 }
 
 void StmtPrinter::VisitGCCAsmStmt(clang::GCCAsmStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "asm ";
 
   if (Node->isVolatile())
@@ -382,7 +382,7 @@ void StmtPrinter::VisitGCCAsmStmt(clang::GCCAsmStmt *Node) {
 }
 
 void StmtPrinter::VisitMSAsmStmt(clang::MSAsmStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   // FIXME: Implement MS style inline asm statement printer.
   Indent() << "__asm ";
   if (Node->hasBraces())
@@ -393,12 +393,12 @@ void StmtPrinter::VisitMSAsmStmt(clang::MSAsmStmt *Node) {
 }
 
 void StmtPrinter::VisitCapturedStmt(clang::CapturedStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   PrintStmt(Node->getCapturedDecl()->getBody());
 }
 
 void StmtPrinter::VisitObjCAtTryStmt(clang::ObjCAtTryStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "@try";
   if (auto *TS = clang::dyn_cast<clang::CompoundStmt>(Node->getTryBody())) {
     PrintRawCompoundStmt(TS);
@@ -430,12 +430,12 @@ void StmtPrinter::VisitObjCAtFinallyStmt(clang::ObjCAtFinallyStmt *Node) {
 }
 
 void StmtPrinter::VisitObjCAtCatchStmt (clang::ObjCAtCatchStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "@catch (...) { /* todo */ } " << NL;
 }
 
 void StmtPrinter::VisitObjCAtThrowStmt(clang::ObjCAtThrowStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "@throw";
   if (Node->getThrowExpr()) {
     OS << " ";
@@ -446,12 +446,12 @@ void StmtPrinter::VisitObjCAtThrowStmt(clang::ObjCAtThrowStmt *Node) {
 
 void StmtPrinter::VisitObjCAvailabilityCheckExpr(
     clang::ObjCAvailabilityCheckExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "@available(...)";
 }
 
 void StmtPrinter::VisitObjCAtSynchronizedStmt(clang::ObjCAtSynchronizedStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "@synchronized (";
   PrintExpr(Node->getSynchExpr());
   OS << ")";
@@ -460,14 +460,14 @@ void StmtPrinter::VisitObjCAtSynchronizedStmt(clang::ObjCAtSynchronizedStmt *Nod
 }
 
 void StmtPrinter::VisitObjCAutoreleasePoolStmt(clang::ObjCAutoreleasePoolStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "@autoreleasepool";
   PrintRawCompoundStmt(clang::dyn_cast<clang::CompoundStmt>(Node->getSubStmt()));
   OS << NL;
 }
 
 void StmtPrinter::PrintRawCXXCatchStmt(clang::CXXCatchStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "catch (";
   if (clang::Decl *ExDecl = Node->getExceptionDecl())
     PrintRawDecl(ExDecl);
@@ -478,14 +478,14 @@ void StmtPrinter::PrintRawCXXCatchStmt(clang::CXXCatchStmt *Node) {
 }
 
 void StmtPrinter::VisitCXXCatchStmt(clang::CXXCatchStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent();
   PrintRawCXXCatchStmt(Node);
   OS << NL;
 }
 
 void StmtPrinter::VisitCXXTryStmt(clang::CXXTryStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "try ";
   PrintRawCompoundStmt(Node->getTryBlock());
   for (unsigned i = 0, e = Node->getNumHandlers(); i < e; ++i) {
@@ -496,7 +496,7 @@ void StmtPrinter::VisitCXXTryStmt(clang::CXXTryStmt *Node) {
 }
 
 void StmtPrinter::VisitSEHTryStmt(clang::SEHTryStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << (Node->getIsCXXTry() ? "try " : "__try ");
   PrintRawCompoundStmt(Node->getTryBlock());
   clang::SEHExceptStmt *E = Node->getExceptHandler();
@@ -511,14 +511,14 @@ void StmtPrinter::VisitSEHTryStmt(clang::SEHTryStmt *Node) {
 }
 
 void StmtPrinter::PrintRawSEHFinallyStmt(clang::SEHFinallyStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "__finally ";
   PrintRawCompoundStmt(Node->getBlock());
   OS << NL;
 }
 
 void StmtPrinter::PrintRawSEHExceptHandler(clang::SEHExceptStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "__except (";
   VisitExpr(Node->getFilterExpr());
   OS << ")" << NL;
@@ -527,21 +527,21 @@ void StmtPrinter::PrintRawSEHExceptHandler(clang::SEHExceptStmt *Node) {
 }
 
 void StmtPrinter::VisitSEHExceptStmt(clang::SEHExceptStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent();
   PrintRawSEHExceptHandler(Node);
   OS << NL;
 }
 
 void StmtPrinter::VisitSEHFinallyStmt(clang::SEHFinallyStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent();
   PrintRawSEHFinallyStmt(Node);
   OS << NL;
 }
 
 void StmtPrinter::VisitSEHLeaveStmt(clang::SEHLeaveStmt *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "__leave;";
   if (Policy.IncludeNewlines) OS << NL;
 }
@@ -565,55 +565,55 @@ void StmtPrinter::PrintOMPExecutableDirective(clang::OMPExecutableDirective *S,
 }
 
 void StmtPrinter::VisitOMPParallelDirective(clang::OMPParallelDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp parallel";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPSimdDirective(clang::OMPSimdDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp simd";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPForDirective(clang::OMPForDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp for";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPForSimdDirective(clang::OMPForSimdDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp for simd";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPSectionsDirective(clang::OMPSectionsDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp sections";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPSectionDirective(clang::OMPSectionDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp section";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPSingleDirective(clang::OMPSingleDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp single";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPMasterDirective(clang::OMPMasterDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp master";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPCriticalDirective(clang::OMPCriticalDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp critical";
   if (Node->getDirectiveName().getName()) {
     OS << " (";
@@ -624,299 +624,299 @@ void StmtPrinter::VisitOMPCriticalDirective(clang::OMPCriticalDirective *Node) {
 }
 
 void StmtPrinter::VisitOMPParallelForDirective(clang::OMPParallelForDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp parallel for";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPParallelForSimdDirective(
     clang::OMPParallelForSimdDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp parallel for simd";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPParallelMasterDirective(
     clang::OMPParallelMasterDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp parallel master";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPParallelSectionsDirective(
     clang::OMPParallelSectionsDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp parallel sections";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPTaskDirective(clang::OMPTaskDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp task";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPTaskyieldDirective(clang::OMPTaskyieldDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp taskyield";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPBarrierDirective(clang::OMPBarrierDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp barrier";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPTaskwaitDirective(clang::OMPTaskwaitDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp taskwait";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPTaskgroupDirective(clang::OMPTaskgroupDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp taskgroup";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPFlushDirective(clang::OMPFlushDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp flush";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPDepobjDirective(clang::OMPDepobjDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp depobj";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPScanDirective(clang::OMPScanDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp scan";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPOrderedDirective(clang::OMPOrderedDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp ordered";
   PrintOMPExecutableDirective(Node, Node->hasClausesOfKind<clang::OMPDependClause>());
 }
 
 void StmtPrinter::VisitOMPAtomicDirective(clang::OMPAtomicDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp atomic";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPTargetDirective(clang::OMPTargetDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp target";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPTargetDataDirective(clang::OMPTargetDataDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp target data";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPTargetEnterDataDirective(
     clang::OMPTargetEnterDataDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp target enter data";
   PrintOMPExecutableDirective(Node, /*ForceNoStmt=*/true);
 }
 
 void StmtPrinter::VisitOMPTargetExitDataDirective(
     clang::OMPTargetExitDataDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp target exit data";
   PrintOMPExecutableDirective(Node, /*ForceNoStmt=*/true);
 }
 
 void StmtPrinter::VisitOMPTargetParallelDirective(
     clang::OMPTargetParallelDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp target parallel";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPTargetParallelForDirective(
     clang::OMPTargetParallelForDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp target parallel for";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPTeamsDirective(clang::OMPTeamsDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp teams";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPCancellationPointDirective(
     clang::OMPCancellationPointDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp cancellation point "
            << getOpenMPDirectiveName(Node->getCancelRegion());
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPCancelDirective(clang::OMPCancelDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp cancel "
            << getOpenMPDirectiveName(Node->getCancelRegion());
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPTaskLoopDirective(clang::OMPTaskLoopDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp taskloop";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPTaskLoopSimdDirective(
     clang::OMPTaskLoopSimdDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp taskloop simd";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPMasterTaskLoopDirective(
     clang::OMPMasterTaskLoopDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp master taskloop";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPMasterTaskLoopSimdDirective(
     clang::OMPMasterTaskLoopSimdDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp master taskloop simd";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPParallelMasterTaskLoopDirective(
     clang::OMPParallelMasterTaskLoopDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp parallel master taskloop";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPParallelMasterTaskLoopSimdDirective(
     clang::OMPParallelMasterTaskLoopSimdDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp parallel master taskloop simd";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPDistributeDirective(clang::OMPDistributeDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp distribute";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPTargetUpdateDirective(
     clang::OMPTargetUpdateDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp target update";
   PrintOMPExecutableDirective(Node, /*ForceNoStmt=*/true);
 }
 
 void StmtPrinter::VisitOMPDistributeParallelForDirective(
     clang::OMPDistributeParallelForDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp distribute parallel for";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPDistributeParallelForSimdDirective(
     clang::OMPDistributeParallelForSimdDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp distribute parallel for simd";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPDistributeSimdDirective(
     clang::OMPDistributeSimdDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp distribute simd";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPTargetParallelForSimdDirective(
     clang::OMPTargetParallelForSimdDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp target parallel for simd";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPTargetSimdDirective(clang::OMPTargetSimdDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp target simd";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPTeamsDistributeDirective(
     clang::OMPTeamsDistributeDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp teams distribute";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPTeamsDistributeSimdDirective(
     clang::OMPTeamsDistributeSimdDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp teams distribute simd";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPTeamsDistributeParallelForSimdDirective(
     clang::OMPTeamsDistributeParallelForSimdDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp teams distribute parallel for simd";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPTeamsDistributeParallelForDirective(
     clang::OMPTeamsDistributeParallelForDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp teams distribute parallel for";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPTargetTeamsDirective(clang::OMPTargetTeamsDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp target teams";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPTargetTeamsDistributeDirective(
     clang::OMPTargetTeamsDistributeDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp target teams distribute";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPTargetTeamsDistributeParallelForDirective(
     clang::OMPTargetTeamsDistributeParallelForDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp target teams distribute parallel for";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPTargetTeamsDistributeParallelForSimdDirective(
     clang::OMPTargetTeamsDistributeParallelForSimdDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp target teams distribute parallel for simd";
   PrintOMPExecutableDirective(Node);
 }
 
 void StmtPrinter::VisitOMPTargetTeamsDistributeSimdDirective(
     clang::OMPTargetTeamsDistributeSimdDirective *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp target teams distribute simd";
   PrintOMPExecutableDirective(Node);
 }
@@ -926,17 +926,17 @@ void StmtPrinter::VisitOMPTargetTeamsDistributeSimdDirective(
 //===----------------------------------------------------------------------===//
 
 void StmtPrinter::VisitSourceLocExpr(clang::SourceLocExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << Node->getBuiltinStr() << "()";
 }
 
 void StmtPrinter::VisitConstantExpr(clang::ConstantExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getSubExpr());
 }
 
 void StmtPrinter::VisitDeclRefExpr(clang::DeclRefExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   if (const auto *OCED = clang::dyn_cast<clang::OMPCapturedExprDecl>(Node->getDecl())) {
     OCED->getInit()->IgnoreImpCasts()->printPretty(OS, nullptr, Policy);
     return;
@@ -956,7 +956,7 @@ void StmtPrinter::VisitDeclRefExpr(clang::DeclRefExpr *Node) {
 
 void StmtPrinter::VisitDependentScopeDeclRefExpr(
     clang::DependentScopeDeclRefExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   if (clang::NestedNameSpecifier *Qualifier = Node->getQualifier())
     Qualifier->print(OS, Policy);
   if (Node->hasTemplateKeyword())
@@ -967,7 +967,7 @@ void StmtPrinter::VisitDependentScopeDeclRefExpr(
 }
 
 void StmtPrinter::VisitUnresolvedLookupExpr(clang::UnresolvedLookupExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   if (Node->getQualifier())
     Node->getQualifier()->print(OS, Policy);
   if (Node->hasTemplateKeyword())
@@ -989,7 +989,7 @@ static bool isImplicitSelf(const clang::Expr *E) {
 }
 
 void StmtPrinter::VisitObjCIvarRefExpr(clang::ObjCIvarRefExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   if (Node->getBase()) {
     if (!Policy.SuppressImplicitBase ||
         !isImplicitSelf(Node->getBase()->IgnoreImpCasts())) {
@@ -1001,7 +1001,7 @@ void StmtPrinter::VisitObjCIvarRefExpr(clang::ObjCIvarRefExpr *Node) {
 }
 
 void StmtPrinter::VisitObjCPropertyRefExpr(clang::ObjCPropertyRefExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   if (Node->isSuperReceiver())
     OS << "super.";
   else if (Node->isObjectReceiver() && Node->getBase()) {
@@ -1022,7 +1022,7 @@ void StmtPrinter::VisitObjCPropertyRefExpr(clang::ObjCPropertyRefExpr *Node) {
 }
 
 void StmtPrinter::VisitObjCSubscriptRefExpr(clang::ObjCSubscriptRefExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getBaseExpr());
   OS << "[";
   PrintExpr(Node->getKeyExpr());
@@ -1030,12 +1030,12 @@ void StmtPrinter::VisitObjCSubscriptRefExpr(clang::ObjCSubscriptRefExpr *Node) {
 }
 
 void StmtPrinter::VisitPredefinedExpr(clang::PredefinedExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << clang::PredefinedExpr::getIdentKindName(Node->getIdentKind());
 }
 
 void StmtPrinter::VisitCharacterLiteral(clang::CharacterLiteral *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   unsigned value = Node->getValue();
 
   switch (Node->getKind()) {
@@ -1115,7 +1115,7 @@ static bool printExprAsWritten(pasta::raw_string_ostream &OS, clang::Expr *E,
 }
 
 void StmtPrinter::VisitIntegerLiteral(clang::IntegerLiteral *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   if (Policy.ConstantsAsWritten && printExprAsWritten(OS, Node, Context))
     return;
   bool isSigned = Node->getType()->isSignedIntegerType();
@@ -1139,7 +1139,7 @@ void StmtPrinter::VisitIntegerLiteral(clang::IntegerLiteral *Node) {
 }
 
 void StmtPrinter::VisitFixedPointLiteral(clang::FixedPointLiteral *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   if (Policy.ConstantsAsWritten && printExprAsWritten(OS, Node, Context))
     return;
   OS << Node->getValueAsString(/*Radix=*/10);
@@ -1185,14 +1185,14 @@ static void PrintFloatingLiteral(pasta::raw_string_ostream &OS, clang::FloatingL
 }
 
 void StmtPrinter::VisitFloatingLiteral(clang::FloatingLiteral *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   if (Policy.ConstantsAsWritten && printExprAsWritten(OS, Node, Context))
     return;
   PrintFloatingLiteral(OS, Node, /*PrintSuffix=*/true);
 }
 
 void StmtPrinter::VisitImaginaryLiteral(clang::ImaginaryLiteral *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getSubExpr());
   OS << "i";
 }
@@ -1202,14 +1202,14 @@ void StmtPrinter::VisitStringLiteral(clang::StringLiteral *Str) {
 }
 
 void StmtPrinter::VisitParenExpr(clang::ParenExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "(";
   PrintExpr(Node->getSubExpr());
   OS << ")";
 }
 
 void StmtPrinter::VisitUnaryOperator(clang::UnaryOperator *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   if (!Node->isPostfix()) {
     OS << clang::UnaryOperator::getOpcodeStr(Node->getOpcode());
 
@@ -1236,7 +1236,7 @@ void StmtPrinter::VisitUnaryOperator(clang::UnaryOperator *Node) {
 }
 
 void StmtPrinter::VisitOffsetOfExpr(clang::OffsetOfExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "__builtin_offsetof(";
   printQualType(Node->getTypeSourceInfo()->getType(), OS, Policy);
   OS << ", ";
@@ -1272,7 +1272,7 @@ void StmtPrinter::VisitOffsetOfExpr(clang::OffsetOfExpr *Node) {
 
 void StmtPrinter::VisitUnaryExprOrTypeTraitExpr(
     clang::UnaryExprOrTypeTraitExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   const char *Spelling = getTraitSpelling(Node->getKind());
   if (Node->getKind() == clang::UETT_AlignOf) {
     if (Policy.Alignof)
@@ -1296,7 +1296,7 @@ void StmtPrinter::VisitUnaryExprOrTypeTraitExpr(
 }
 
 void StmtPrinter::VisitGenericSelectionExpr(clang::GenericSelectionExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "_Generic(";
   PrintExpr(Node->getControllingExpr());
   for (const clang::GenericSelectionExpr::Association Assoc : Node->associations()) {
@@ -1313,7 +1313,7 @@ void StmtPrinter::VisitGenericSelectionExpr(clang::GenericSelectionExpr *Node) {
 }
 
 void StmtPrinter::VisitArraySubscriptExpr(clang::ArraySubscriptExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getLHS());
   OS << "[";
   PrintExpr(Node->getRHS());
@@ -1321,7 +1321,7 @@ void StmtPrinter::VisitArraySubscriptExpr(clang::ArraySubscriptExpr *Node) {
 }
 
 void StmtPrinter::VisitMatrixSubscriptExpr(clang::MatrixSubscriptExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getBase());
   OS << "[";
   PrintExpr(Node->getRowIdx());
@@ -1332,7 +1332,7 @@ void StmtPrinter::VisitMatrixSubscriptExpr(clang::MatrixSubscriptExpr *Node) {
 }
 
 void StmtPrinter::VisitOMPArraySectionExpr(clang::OMPArraySectionExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getBase());
   OS << "[";
   if (Node->getLowerBound())
@@ -1351,7 +1351,7 @@ void StmtPrinter::VisitOMPArraySectionExpr(clang::OMPArraySectionExpr *Node) {
 }
 
 void StmtPrinter::VisitOMPArrayShapingExpr(clang::OMPArrayShapingExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "(";
   for (clang::Expr *E : Node->getDimensions()) {
     OS << "[";
@@ -1363,7 +1363,7 @@ void StmtPrinter::VisitOMPArrayShapingExpr(clang::OMPArrayShapingExpr *Node) {
 }
 
 void StmtPrinter::VisitOMPIteratorExpr(clang::OMPIteratorExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "iterator(";
   for (unsigned I = 0, E = Node->numOfIterators(); I < E; ++I) {
     auto *VD = clang::cast<clang::ValueDecl>(Node->getIteratorDecl(I));
@@ -1409,7 +1409,7 @@ static bool isImplicitThis(const clang::Expr *E) {
 }
 
 void StmtPrinter::VisitMemberExpr(clang::MemberExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   if (!Policy.SuppressImplicitBase || !isImplicitThis(Node->getBase())) {
     PrintExpr(Node->getBase());
 
@@ -1436,20 +1436,20 @@ void StmtPrinter::VisitMemberExpr(clang::MemberExpr *Node) {
 }
 
 void StmtPrinter::VisitObjCIsaExpr(clang::ObjCIsaExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getBase());
   OS << (Node->isArrow() ? "->isa" : ".isa");
 }
 
 void StmtPrinter::VisitExtVectorElementExpr(clang::ExtVectorElementExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getBase());
   OS << ".";
   OS << Node->getAccessor().getName();
 }
 
 void StmtPrinter::VisitCStyleCastExpr(clang::CStyleCastExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << '(';
   printQualType(Node->getTypeAsWritten(), OS, Policy);
   OS << ')';
@@ -1457,7 +1457,7 @@ void StmtPrinter::VisitCStyleCastExpr(clang::CStyleCastExpr *Node) {
 }
 
 void StmtPrinter::VisitCompoundLiteralExpr(clang::CompoundLiteralExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << '(';
   printQualType(Node->getType(), OS, Policy);
   OS << ')';
@@ -1465,27 +1465,27 @@ void StmtPrinter::VisitCompoundLiteralExpr(clang::CompoundLiteralExpr *Node) {
 }
 
 void StmtPrinter::VisitImplicitCastExpr(clang::ImplicitCastExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   // No need to print anything, simply forward to the subexpression.
   PrintExpr(Node->getSubExpr());
 }
 
 void StmtPrinter::VisitBinaryOperator(clang::BinaryOperator *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getLHS());
   OS << " " << clang::BinaryOperator::getOpcodeStr(Node->getOpcode()) << " ";
   PrintExpr(Node->getRHS());
 }
 
 void StmtPrinter::VisitCompoundAssignOperator(clang::CompoundAssignOperator *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getLHS());
   OS << " " << clang::BinaryOperator::getOpcodeStr(Node->getOpcode()) << " ";
   PrintExpr(Node->getRHS());
 }
 
 void StmtPrinter::VisitConditionalOperator(clang::ConditionalOperator *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getCond());
   OS << " ? ";
   PrintExpr(Node->getLHS());
@@ -1497,26 +1497,26 @@ void StmtPrinter::VisitConditionalOperator(clang::ConditionalOperator *Node) {
 
 void
 StmtPrinter::VisitBinaryConditionalOperator(clang::BinaryConditionalOperator *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getCommon());
   OS << " ?: ";
   PrintExpr(Node->getFalseExpr());
 }
 
 void StmtPrinter::VisitAddrLabelExpr(clang::AddrLabelExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "&&" << Node->getLabel()->getName();
 }
 
 void StmtPrinter::VisitStmtExpr(clang::StmtExpr *E) {
-  TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, E, tokens);
   OS << "(";
   PrintRawCompoundStmt(E->getSubStmt());
   OS << ")";
 }
 
 void StmtPrinter::VisitChooseExpr(clang::ChooseExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "__builtin_choose_expr(";
   PrintExpr(Node->getCond());
   OS << ", ";
@@ -1531,7 +1531,7 @@ void StmtPrinter::VisitGNUNullExpr(clang::GNUNullExpr *) {
 }
 
 void StmtPrinter::VisitShuffleVectorExpr(clang::ShuffleVectorExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "__builtin_shufflevector(";
   for (unsigned i = 0, e = Node->getNumSubExprs(); i != e; ++i) {
     if (i) OS << ", ";
@@ -1541,7 +1541,7 @@ void StmtPrinter::VisitShuffleVectorExpr(clang::ShuffleVectorExpr *Node) {
 }
 
 void StmtPrinter::VisitConvertVectorExpr(clang::ConvertVectorExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "__builtin_convertvector(";
   PrintExpr(Node->getSrcExpr());
   OS << ", ";
@@ -1550,7 +1550,7 @@ void StmtPrinter::VisitConvertVectorExpr(clang::ConvertVectorExpr *Node) {
 }
 
 void StmtPrinter::VisitInitListExpr(clang::InitListExpr* Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   if (Node->getSyntacticForm()) {
     Visit(Node->getSyntacticForm());
     return;
@@ -1568,7 +1568,7 @@ void StmtPrinter::VisitInitListExpr(clang::InitListExpr* Node) {
 }
 
 void StmtPrinter::VisitArrayInitLoopExpr(clang::ArrayInitLoopExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   // There's no way to express this expression in any of our supported
   // languages, so just emit something terse and (hopefully) clear.
   OS << "{";
@@ -1577,12 +1577,12 @@ void StmtPrinter::VisitArrayInitLoopExpr(clang::ArrayInitLoopExpr *Node) {
 }
 
 void StmtPrinter::VisitArrayInitIndexExpr(clang::ArrayInitIndexExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "*";
 }
 
 void StmtPrinter::VisitParenListExpr(clang::ParenListExpr* Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "(";
   for (unsigned i = 0, e = Node->getNumExprs(); i != e; ++i) {
     if (i) OS << ", ";
@@ -1592,7 +1592,7 @@ void StmtPrinter::VisitParenListExpr(clang::ParenListExpr* Node) {
 }
 
 void StmtPrinter::VisitDesignatedInitExpr(clang::DesignatedInitExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   bool NeedsEquals = true;
   for (const clang::DesignatedInitExpr::Designator &D : Node->designators()) {
     if (D.isFieldDesignator()) {
@@ -1626,7 +1626,7 @@ void StmtPrinter::VisitDesignatedInitExpr(clang::DesignatedInitExpr *Node) {
 
 void StmtPrinter::VisitDesignatedInitUpdateExpr(
     clang::DesignatedInitUpdateExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "{";
   OS << "/*base*/";
   PrintExpr(Node->getBase());
@@ -1638,12 +1638,12 @@ void StmtPrinter::VisitDesignatedInitUpdateExpr(
 }
 
 void StmtPrinter::VisitNoInitExpr(clang::NoInitExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "/*no init*/";
 }
 
 void StmtPrinter::VisitImplicitValueInitExpr(clang::ImplicitValueInitExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   if (Node->getType()->getAsCXXRecordDecl()) {
     OS << "/*implicit*/";
     printQualType(Node->getType(), OS, Policy);
@@ -1660,7 +1660,7 @@ void StmtPrinter::VisitImplicitValueInitExpr(clang::ImplicitValueInitExpr *Node)
 }
 
 void StmtPrinter::VisitVAArgExpr(clang::VAArgExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "__builtin_va_arg(";
   PrintExpr(Node->getSubExpr());
   OS << ", ";
@@ -1669,12 +1669,12 @@ void StmtPrinter::VisitVAArgExpr(clang::VAArgExpr *Node) {
 }
 
 void StmtPrinter::VisitPseudoObjectExpr(clang::PseudoObjectExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getSyntacticForm());
 }
 
 void StmtPrinter::VisitAtomicExpr(clang::AtomicExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   const char *Name = nullptr;
   switch (Node->getOp()) {
 #define BUILTIN(ID, TYPE, ATTRS)
@@ -1718,7 +1718,7 @@ void StmtPrinter::VisitAtomicExpr(clang::AtomicExpr *Node) {
 
 // C++
 void StmtPrinter::VisitCXXOperatorCallExpr(clang::CXXOperatorCallExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   clang::OverloadedOperatorKind Kind = Node->getOperator();
   if (Kind == clang::OO_PlusPlus || Kind == clang::OO_MinusMinus) {
     if (Node->getNumArgs() == 1) {
@@ -1758,7 +1758,7 @@ void StmtPrinter::VisitCXXOperatorCallExpr(clang::CXXOperatorCallExpr *Node) {
 }
 
 void StmtPrinter::VisitCXXMemberCallExpr(clang::CXXMemberCallExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   // If we have a conversion operator call only print the argument.
   clang::CXXMethodDecl *MD = Node->getMethodDecl();
   if (MD && clang::isa<clang::CXXConversionDecl>(MD)) {
@@ -1769,7 +1769,7 @@ void StmtPrinter::VisitCXXMemberCallExpr(clang::CXXMemberCallExpr *Node) {
 }
 
 void StmtPrinter::VisitCUDAKernelCallExpr(clang::CUDAKernelCallExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getCallee());
   OS << "<<<";
   PrintCallArgs(Node->getConfig());
@@ -1780,7 +1780,7 @@ void StmtPrinter::VisitCUDAKernelCallExpr(clang::CUDAKernelCallExpr *Node) {
 
 void StmtPrinter::VisitCXXRewrittenBinaryOperator(
     clang::CXXRewrittenBinaryOperator *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   clang::CXXRewrittenBinaryOperator::DecomposedForm Decomposed =
       Node->getDecomposedForm();
   PrintExpr(const_cast<clang::Expr*>(Decomposed.LHS));
@@ -1789,7 +1789,7 @@ void StmtPrinter::VisitCXXRewrittenBinaryOperator(
 }
 
 void StmtPrinter::VisitCXXNamedCastExpr(clang::CXXNamedCastExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << Node->getCastName() << '<';
   printQualType(Node->getTypeAsWritten(), OS, Policy);
   OS << ">(";
@@ -1798,27 +1798,27 @@ void StmtPrinter::VisitCXXNamedCastExpr(clang::CXXNamedCastExpr *Node) {
 }
 
 void StmtPrinter::VisitCXXStaticCastExpr(clang::CXXStaticCastExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   VisitCXXNamedCastExpr(Node);
 }
 
 void StmtPrinter::VisitCXXDynamicCastExpr(clang::CXXDynamicCastExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   VisitCXXNamedCastExpr(Node);
 }
 
 void StmtPrinter::VisitCXXReinterpretCastExpr(clang::CXXReinterpretCastExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   VisitCXXNamedCastExpr(Node);
 }
 
 void StmtPrinter::VisitCXXConstCastExpr(clang::CXXConstCastExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   VisitCXXNamedCastExpr(Node);
 }
 
 void StmtPrinter::VisitBuiltinBitCastExpr(clang::BuiltinBitCastExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "__builtin_bit_cast(";
   printQualType(Node->getTypeInfoAsWritten()->getType(), OS, Policy);
   OS << ", ";
@@ -1827,12 +1827,12 @@ void StmtPrinter::VisitBuiltinBitCastExpr(clang::BuiltinBitCastExpr *Node) {
 }
 
 void StmtPrinter::VisitCXXAddrspaceCastExpr(clang::CXXAddrspaceCastExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   VisitCXXNamedCastExpr(Node);
 }
 
 void StmtPrinter::VisitCXXTypeidExpr(clang::CXXTypeidExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "typeid(";
   if (Node->isTypeOperand()) {
     printQualType(Node->getTypeOperandSourceInfo()->getType(), OS, Policy);
@@ -1843,7 +1843,7 @@ void StmtPrinter::VisitCXXTypeidExpr(clang::CXXTypeidExpr *Node) {
 }
 
 void StmtPrinter::VisitCXXUuidofExpr(clang::CXXUuidofExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "__uuidof(";
   if (Node->isTypeOperand()) {
     printQualType(Node->getTypeOperandSourceInfo()->getType(), OS, Policy);
@@ -1854,7 +1854,7 @@ void StmtPrinter::VisitCXXUuidofExpr(clang::CXXUuidofExpr *Node) {
 }
 
 void StmtPrinter::VisitMSPropertyRefExpr(clang::MSPropertyRefExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getBaseExpr());
   if (Node->isArrow())
     OS << "->";
@@ -1867,7 +1867,7 @@ void StmtPrinter::VisitMSPropertyRefExpr(clang::MSPropertyRefExpr *Node) {
 }
 
 void StmtPrinter::VisitMSPropertySubscriptExpr(clang::MSPropertySubscriptExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getBase());
   OS << "[";
   PrintExpr(Node->getIdx());
@@ -1875,7 +1875,7 @@ void StmtPrinter::VisitMSPropertySubscriptExpr(clang::MSPropertySubscriptExpr *N
 }
 
 void StmtPrinter::VisitUserDefinedLiteral(clang::UserDefinedLiteral *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   switch (Node->getLiteralOperatorKind()) {
   case clang::UserDefinedLiteral::LOK_Raw:
     OS << clang::cast<clang::StringLiteral>(Node->getArg(0)->IgnoreImpCasts())->getString();
@@ -1921,22 +1921,22 @@ void StmtPrinter::VisitUserDefinedLiteral(clang::UserDefinedLiteral *Node) {
 }
 
 void StmtPrinter::VisitCXXBoolLiteralExpr(clang::CXXBoolLiteralExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << (Node->getValue() ? "true" : "false");
 }
 
 void StmtPrinter::VisitCXXNullPtrLiteralExpr(clang::CXXNullPtrLiteralExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "nullptr";
 }
 
 void StmtPrinter::VisitCXXThisExpr(clang::CXXThisExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "this";
 }
 
 void StmtPrinter::VisitCXXThrowExpr(clang::CXXThrowExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   if (!Node->getSubExpr())
     OS << "throw";
   else {
@@ -1946,17 +1946,17 @@ void StmtPrinter::VisitCXXThrowExpr(clang::CXXThrowExpr *Node) {
 }
 
 void StmtPrinter::VisitCXXDefaultArgExpr(clang::CXXDefaultArgExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   // Nothing to print: we picked up the default argument.
 }
 
 void StmtPrinter::VisitCXXDefaultInitExpr(clang::CXXDefaultInitExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   // Nothing to print: we picked up the default initializer.
 }
 
 void StmtPrinter::VisitCXXFunctionalCastExpr(clang::CXXFunctionalCastExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   printQualType(Node->getType(), OS, Policy);
   // If there are no parens, this is list-initialization, and the braces are
   // part of the syntax of the inner construct.
@@ -1968,12 +1968,12 @@ void StmtPrinter::VisitCXXFunctionalCastExpr(clang::CXXFunctionalCastExpr *Node)
 }
 
 void StmtPrinter::VisitCXXBindTemporaryExpr(clang::CXXBindTemporaryExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getSubExpr());
 }
 
 void StmtPrinter::VisitCXXTemporaryObjectExpr(clang::CXXTemporaryObjectExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   printQualType(Node->getType(), OS, Policy);
   if (Node->isStdInitListInitialization())
     /* Nothing to do; braces are part of creating the std::initializer_list. */;
@@ -1999,7 +1999,7 @@ void StmtPrinter::VisitCXXTemporaryObjectExpr(clang::CXXTemporaryObjectExpr *Nod
 }
 
 void StmtPrinter::VisitLambdaExpr(clang::LambdaExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << '[';
   bool NeedComma = false;
   switch (Node->getCaptureDefault()) {
@@ -2090,7 +2090,7 @@ void StmtPrinter::VisitLambdaExpr(clang::LambdaExpr *Node) {
         NeedComma = true;
       }
       std::function<void(void)> ParamStrFn = [=] (void) {
-        TokenPrinterContext ctx(OS, P, tokens, __FUNCTION__);
+        TokenPrinterContext ctx(OS, P, tokens);
         OS << P->getNameAsString();
       };
 
@@ -2127,7 +2127,7 @@ void StmtPrinter::VisitLambdaExpr(clang::LambdaExpr *Node) {
 }
 
 void StmtPrinter::VisitCXXScalarValueInitExpr(clang::CXXScalarValueInitExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   if (clang::TypeSourceInfo *TSInfo = Node->getTypeSourceInfo())
     printQualType(TSInfo->getType(), OS, Policy);
   else
@@ -2136,7 +2136,7 @@ void StmtPrinter::VisitCXXScalarValueInitExpr(clang::CXXScalarValueInitExpr *Nod
 }
 
 void StmtPrinter::VisitCXXNewExpr(clang::CXXNewExpr *E) {
-  TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, E, tokens);
   if (E->isGlobalNew())
     OS << "::";
   OS << "new ";
@@ -2182,7 +2182,7 @@ void StmtPrinter::VisitCXXNewExpr(clang::CXXNewExpr *E) {
 }
 
 void StmtPrinter::VisitCXXDeleteExpr(clang::CXXDeleteExpr *E) {
-  TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, E, tokens);
   if (E->isGlobalDelete())
     OS << "::";
   OS << "delete ";
@@ -2192,7 +2192,7 @@ void StmtPrinter::VisitCXXDeleteExpr(clang::CXXDeleteExpr *E) {
 }
 
 void StmtPrinter::VisitCXXPseudoDestructorExpr(clang::CXXPseudoDestructorExpr *E) {
-  TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, E, tokens);
   PrintExpr(E->getBase());
   if (E->isArrow())
     OS << "->";
@@ -2209,7 +2209,7 @@ void StmtPrinter::VisitCXXPseudoDestructorExpr(clang::CXXPseudoDestructorExpr *E
 }
 
 void StmtPrinter::VisitCXXConstructExpr(clang::CXXConstructExpr *E) {
-  TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, E, tokens);
   if (E->isListInitialization() && !E->isStdInitListInitialization())
     OS << "{";
 
@@ -2228,18 +2228,18 @@ void StmtPrinter::VisitCXXConstructExpr(clang::CXXConstructExpr *E) {
 }
 
 void StmtPrinter::VisitCXXInheritedCtorInitExpr(clang::CXXInheritedCtorInitExpr *E) {
-  TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, E, tokens);
   // Parens are printed by the surrounding context.
   OS << "<forwarded>";
 }
 
 void StmtPrinter::VisitCXXStdInitializerListExpr(clang::CXXStdInitializerListExpr *E) {
-  TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, E, tokens);
   PrintExpr(E->getSubExpr());
 }
 
 void StmtPrinter::VisitExprWithCleanups(clang::ExprWithCleanups *E) {
-  TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, E, tokens);
   // Just forward to the subexpression.
   PrintExpr(E->getSubExpr());
 }
@@ -2247,7 +2247,7 @@ void StmtPrinter::VisitExprWithCleanups(clang::ExprWithCleanups *E) {
 void
 StmtPrinter::VisitCXXUnresolvedConstructExpr(
     clang::CXXUnresolvedConstructExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   printQualType(Node->getTypeAsWritten(), OS, Policy);
   OS << "(";
   for (clang::CXXUnresolvedConstructExpr::arg_iterator Arg = Node->arg_begin(),
@@ -2262,7 +2262,7 @@ StmtPrinter::VisitCXXUnresolvedConstructExpr(
 
 void StmtPrinter::VisitCXXDependentScopeMemberExpr(
     clang::CXXDependentScopeMemberExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   if (!Node->isImplicitAccess()) {
     PrintExpr(Node->getBase());
     OS << (Node->isArrow() ? "->" : ".");
@@ -2277,7 +2277,7 @@ void StmtPrinter::VisitCXXDependentScopeMemberExpr(
 }
 
 void StmtPrinter::VisitUnresolvedMemberExpr(clang::UnresolvedMemberExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   if (!Node->isImplicitAccess()) {
     PrintExpr(Node->getBase());
     OS << (Node->isArrow() ? "->" : ".");
@@ -2292,7 +2292,7 @@ void StmtPrinter::VisitUnresolvedMemberExpr(clang::UnresolvedMemberExpr *Node) {
 }
 
 void StmtPrinter::VisitTypeTraitExpr(clang::TypeTraitExpr *E) {
-  TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, E, tokens);
   OS << getTraitSpelling(E->getTrait()) << "(";
   for (unsigned I = 0, N = E->getNumArgs(); I != N; ++I) {
     if (I > 0)
@@ -2303,61 +2303,61 @@ void StmtPrinter::VisitTypeTraitExpr(clang::TypeTraitExpr *E) {
 }
 
 void StmtPrinter::VisitArrayTypeTraitExpr(clang::ArrayTypeTraitExpr *E) {
-  TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, E, tokens);
   OS << getTraitSpelling(E->getTrait()) << '(';
   printQualType(E->getQueriedType(), OS, Policy);
   OS << ')';
 }
 
 void StmtPrinter::VisitExpressionTraitExpr(clang::ExpressionTraitExpr *E) {
-  TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, E, tokens);
   OS << getTraitSpelling(E->getTrait()) << '(';
   PrintExpr(E->getQueriedExpression());
   OS << ')';
 }
 
 void StmtPrinter::VisitCXXNoexceptExpr(clang::CXXNoexceptExpr *E) {
-  TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, E, tokens);
   OS << "noexcept(";
   PrintExpr(E->getOperand());
   OS << ")";
 }
 
 void StmtPrinter::VisitPackExpansionExpr(clang::PackExpansionExpr *E) {
-  TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, E, tokens);
   PrintExpr(E->getPattern());
   OS << "...";
 }
 
 void StmtPrinter::VisitSizeOfPackExpr(clang::SizeOfPackExpr *E) {
-  TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, E, tokens);
   OS << "sizeof...(" << *E->getPack() << ")";
 }
 
 void StmtPrinter::VisitSubstNonTypeTemplateParmPackExpr(
     clang::SubstNonTypeTemplateParmPackExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << *Node->getParameterPack();
 }
 
 void StmtPrinter::VisitSubstNonTypeTemplateParmExpr(
     clang::SubstNonTypeTemplateParmExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   Visit(Node->getReplacement());
 }
 
 void StmtPrinter::VisitFunctionParmPackExpr(clang::FunctionParmPackExpr *E) {
-  TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, E, tokens);
   OS << *E->getParameterPack();
 }
 
 void StmtPrinter::VisitMaterializeTemporaryExpr(clang::MaterializeTemporaryExpr *Node){
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getSubExpr());
 }
 
 void StmtPrinter::VisitCXXFoldExpr(clang::CXXFoldExpr *E) {
-  TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, E, tokens);
   OS << "(";
   if (E->getLHS()) {
     PrintExpr(E->getLHS());
@@ -2372,7 +2372,7 @@ void StmtPrinter::VisitCXXFoldExpr(clang::CXXFoldExpr *E) {
 }
 
 void StmtPrinter::VisitConceptSpecializationExpr(clang::ConceptSpecializationExpr *E) {
-  TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, E, tokens);
   clang::NestedNameSpecifierLoc NNS = E->getNestedNameSpecifierLoc();
   if (NNS)
     NNS.getNestedNameSpecifier()->print(OS, Policy);
@@ -2384,7 +2384,7 @@ void StmtPrinter::VisitConceptSpecializationExpr(clang::ConceptSpecializationExp
 }
 
 void StmtPrinter::VisitRequiresExpr(clang::RequiresExpr *E) {
-  TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, E, tokens);
   OS << "requires ";
   auto LocalParameters = E->getLocalParameters();
   if (!LocalParameters.empty()) {
@@ -2441,12 +2441,12 @@ void StmtPrinter::VisitRequiresExpr(clang::RequiresExpr *E) {
 // C++ Coroutines TS
 
 void StmtPrinter::VisitCoroutineBodyStmt(clang::CoroutineBodyStmt *S) {
-  TokenPrinterContext ctx(OS, S, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, S, tokens);
   Visit(S->getBody());
 }
 
 void StmtPrinter::VisitCoreturnStmt(clang::CoreturnStmt *S) {
-  TokenPrinterContext ctx(OS, S, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, S, tokens);
   OS << "co_return";
   if (S->getOperand()) {
     OS << " ";
@@ -2456,19 +2456,19 @@ void StmtPrinter::VisitCoreturnStmt(clang::CoreturnStmt *S) {
 }
 
 void StmtPrinter::VisitCoawaitExpr(clang::CoawaitExpr *S) {
-  TokenPrinterContext ctx(OS, S, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, S, tokens);
   OS << "co_await ";
   PrintExpr(S->getOperand());
 }
 
 void StmtPrinter::VisitDependentCoawaitExpr(clang::DependentCoawaitExpr *S) {
-  TokenPrinterContext ctx(OS, S, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, S, tokens);
   OS << "co_await ";
   PrintExpr(S->getOperand());
 }
 
 void StmtPrinter::VisitCoyieldExpr(clang::CoyieldExpr *S) {
-  TokenPrinterContext ctx(OS, S, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, S, tokens);
   OS << "co_yield ";
   PrintExpr(S->getOperand());
 }
@@ -2476,19 +2476,19 @@ void StmtPrinter::VisitCoyieldExpr(clang::CoyieldExpr *S) {
 // Obj-C
 
 void StmtPrinter::VisitObjCStringLiteral(clang::ObjCStringLiteral *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "@";
   VisitStringLiteral(Node->getString());
 }
 
 void StmtPrinter::VisitObjCBoxedExpr(clang::ObjCBoxedExpr *E) {
-  TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, E, tokens);
   OS << "@";
   Visit(E->getSubExpr());
 }
 
 void StmtPrinter::VisitObjCArrayLiteral(clang::ObjCArrayLiteral *E) {
-  TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, E, tokens);
   OS << "@[ ";
   clang::ObjCArrayLiteral::child_range Ch = E->children();
   for (auto I = Ch.begin(), E = Ch.end(); I != E; ++I) {
@@ -2500,7 +2500,7 @@ void StmtPrinter::VisitObjCArrayLiteral(clang::ObjCArrayLiteral *E) {
 }
 
 void StmtPrinter::VisitObjCDictionaryLiteral(clang::ObjCDictionaryLiteral *E) {
-  TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, E, tokens);
   OS << "@{ ";
   for (unsigned I = 0, N = E->getNumElements(); I != N; ++I) {
     if (I > 0)
@@ -2517,26 +2517,26 @@ void StmtPrinter::VisitObjCDictionaryLiteral(clang::ObjCDictionaryLiteral *E) {
 }
 
 void StmtPrinter::VisitObjCEncodeExpr(clang::ObjCEncodeExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "@encode(";
   printQualType(Node->getEncodedType(), OS, Policy);
   OS << ')';
 }
 
 void StmtPrinter::VisitObjCSelectorExpr(clang::ObjCSelectorExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "@selector(";
   Node->getSelector().print(OS);
   OS << ')';
 }
 
 void StmtPrinter::VisitObjCProtocolExpr(clang::ObjCProtocolExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "@protocol(" << *Node->getProtocol() << ')';
 }
 
 void StmtPrinter::VisitObjCMessageExpr(clang::ObjCMessageExpr *Mess) {
-  TokenPrinterContext ctx(OS, Mess, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Mess, tokens);
   OS << "[";
   switch (Mess->getReceiverKind()) {
   case clang::ObjCMessageExpr::Instance:
@@ -2575,19 +2575,19 @@ void StmtPrinter::VisitObjCMessageExpr(clang::ObjCMessageExpr *Mess) {
 }
 
 void StmtPrinter::VisitObjCBoolLiteralExpr(clang::ObjCBoolLiteralExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << (Node->getValue() ? "__objc_yes" : "__objc_no");
 }
 
 void
 StmtPrinter::VisitObjCIndirectCopyRestoreExpr(clang::ObjCIndirectCopyRestoreExpr *E) {
-  TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, E, tokens);
   PrintExpr(E->getSubExpr());
 }
 
 void
 StmtPrinter::VisitObjCBridgedCastExpr(clang::ObjCBridgedCastExpr *E) {
-  TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, E, tokens);
   OS << '(' << E->getBridgeKindName();
   printQualType(E->getType(), OS, Policy);
   OS << ')';
@@ -2595,7 +2595,7 @@ StmtPrinter::VisitObjCBridgedCastExpr(clang::ObjCBridgedCastExpr *E) {
 }
 
 void StmtPrinter::VisitBlockExpr(clang::BlockExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   clang::BlockDecl *BD = Node->getBlockDecl();
   OS << "^";
 
@@ -2610,7 +2610,7 @@ void StmtPrinter::VisitBlockExpr(clang::BlockExpr *Node) {
       if (AI != BD->param_begin()) OS << ", ";
       std::function<void(void)> ParamStrFn = [=] (void) {
         clang::ParmVarDecl *P = *AI;
-        TokenPrinterContext ctx(OS, P, tokens, __FUNCTION__);
+        TokenPrinterContext ctx(OS, P, tokens);
         OS << P->getNameAsString();
       };
       printQualType((*AI)->getType(), OS, Policy, &ParamStrFn);
@@ -2627,18 +2627,18 @@ void StmtPrinter::VisitBlockExpr(clang::BlockExpr *Node) {
 }
 
 void StmtPrinter::VisitOpaqueValueExpr(clang::OpaqueValueExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getSourceExpr());
 }
 
 void StmtPrinter::VisitTypoExpr(clang::TypoExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   // TODO: Print something reasonable for a TypoExpr, if necessary.
   llvm_unreachable("Cannot print TypoExpr nodes");
 }
 
 void StmtPrinter::VisitRecoveryExpr(clang::RecoveryExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "<recovery-expr>(";
   const char *Sep = "";
   for (clang::Expr *E : Node->subExpressions()) {
@@ -2650,7 +2650,7 @@ void StmtPrinter::VisitRecoveryExpr(clang::RecoveryExpr *Node) {
 }
 
 void StmtPrinter::VisitAsTypeExpr(clang::AsTypeExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "__builtin_astype(";
   PrintExpr(Node->getSrcExpr());
   OS << ", ";

@@ -163,7 +163,7 @@ class DeclPrinter : public clang::DeclVisitor<DeclPrinter> {
    void printTemplateArguments(llvm::ArrayRef<clang::TemplateArgumentLoc> Args);
    void prettyPrintAttributes(clang::Decl *D);
    void prettyPrintPragmas(clang::Decl *D);
-   void printDeclType(clang::QualType T, llvm::StringRef DeclName, bool Pack = false);
+   void printDeclType(clang::QualType T, std::function<void(void)> NameFn, bool Pack = false);
 
    void printPrettyStmt(clang::Stmt *stmt_,
                         raw_string_ostream &Out,
@@ -268,7 +268,7 @@ class StmtPrinter : public clang::StmtVisitor<StmtPrinter> {
                                      bool ForceNoStmt = false);
 
     void PrintExpr(clang::Expr *E) {
-      TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+      TokenPrinterContext ctx(OS, E, tokens);
       if (E)
         Visit(E);
       else
@@ -332,9 +332,9 @@ public:
                        unsigned Indentation = 0)
       : Policy(Policy), Indentation(Indentation), tokens(tokens_) {}
 
-  void print(const clang::Type *ty, clang::Qualifiers qs,
-             raw_string_ostream &OS, clang::StringRef PlaceHolder,
-             std::function<void(void)> *placeHolderFn = nullptr);
+//  void print(const clang::Type *ty, clang::Qualifiers qs,
+//             raw_string_ostream &OS, clang::StringRef PlaceHolder,
+//             std::function<void(void)> *placeHolderFn = nullptr);
 
   void print(clang::QualType T, raw_string_ostream &OS,
              clang::StringRef PlaceHolder, std::function<void(void)> *placeHolderFn = nullptr);
@@ -345,8 +345,9 @@ public:
   void printTemplateId(const clang::TemplateSpecializationType *T, raw_string_ostream &OS,
                        bool FullyQualify);
 
-  void printBefore(clang::QualType T, raw_string_ostream &OS);
-  void printAfter(clang::QualType T, raw_string_ostream &OS);
+//  void printBefore(clang::QualType T, raw_string_ostream &OS);
+//  void printAfter(clang::QualType T, raw_string_ostream &OS);
+  void printBeforeAfter(clang::QualType T, raw_string_ostream &OS, std::function<void(void)> IdentFn);
   void AppendScope(clang::DeclContext *DC, raw_string_ostream &OS,
                    clang::DeclarationName NameInScope);
   void printTag(clang::TagDecl *T, raw_string_ostream &OS);
@@ -354,13 +355,12 @@ public:
 
 #define ABSTRACT_TYPE(CLASS, PARENT)
 #define TYPE(CLASS, PARENT) \
-  void print##CLASS##Before(const clang::CLASS##Type *T, raw_string_ostream &OS); \
-  void print##CLASS##After(const clang::CLASS##Type *T, raw_string_ostream &OS);
+  void print##CLASS(const clang::CLASS##Type *T, raw_string_ostream &OS, std::function<void(void)> IdentFn);
 #include "clang/AST/TypeNodes.inc"
 
 private:
-  void printBefore(const clang::Type *ty, clang::Qualifiers qs, raw_string_ostream &OS);
-  void printAfter(const clang::Type *ty, clang::Qualifiers qs, raw_string_ostream &OS);
+//  void printBefore(const clang::Type *ty, clang::Qualifiers qs, raw_string_ostream &OS);
+//  void printAfter(const clang::Type *ty, clang::Qualifiers qs, raw_string_ostream &OS);
 
   PrintedTokenRangeImpl &tokens;
 };

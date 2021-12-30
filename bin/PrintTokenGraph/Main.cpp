@@ -72,12 +72,15 @@ static void PrintTokenGraph(pasta::Decl tld) {
       << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" border=\"1\"><TR>";
 
 
-  std::unordered_set<const pasta::PrintedTokenContext *> contexts;
+  std::unordered_set<pasta::TokenContext> contexts;
 
   for (pasta::PrintedToken tok : tokens) {
-    for (auto context = tok.RawContext(); context;
-         context = pasta::PrintedTokenContext::Parent(context)) {
-      contexts.insert(context.get());
+
+    if (auto maybe_context = tok.Context()) {
+      auto context = std::move(maybe_context.value());
+      do {
+        contexts.insert(context);
+      } while (context.TryUpdateToParent());
     }
 
     os
@@ -86,44 +89,50 @@ static void PrintTokenGraph(pasta::Decl tld) {
 
   os << "</TR></TABLE>>];\n";
 
-  for (const pasta::PrintedTokenContext *context : contexts) {
+  for (const auto &context : contexts) {
     auto bgcolor = "";
-    auto kind_name = context->KindName();
-    switch (context->kind) {
-      case pasta::PrintedTokenKind::kStmt:
+    auto kind_name = context.KindName();
+    switch (context.Kind()) {
+      case pasta::TokenContextKind::kInvalid:
+        bgcolor = " bgcolor=\"red\"";
+        kind_name = "?Invalid?";
+        break;
+      case pasta::TokenContextKind::kStmt:
         bgcolor = " bgcolor=\"aquamarine\"";
-        kind_name = reinterpret_cast<const clang::Stmt *>(context->data)->getStmtClassName();
+        kind_name = reinterpret_cast<const clang::Stmt *>(context.Data())->getStmtClassName();
         break;
-      case pasta::PrintedTokenKind::kDecl:
+      case pasta::TokenContextKind::kDecl:
         bgcolor = " bgcolor=\"antiquewhite\"";
-        kind_name = reinterpret_cast<const clang::Decl *>(context->data)->getDeclKindName();
+        kind_name = reinterpret_cast<const clang::Decl *>(context.Data())->getDeclKindName();
         break;
-      case pasta::PrintedTokenKind::kType:
+      case pasta::TokenContextKind::kType:
         bgcolor = " bgcolor=\"cadetblue1\"";
-        kind_name = reinterpret_cast<const clang::Type *>(context->data)->getTypeClassName();
+        kind_name = reinterpret_cast<const clang::Type *>(context.Data())->getTypeClassName();
         break;
-      case pasta::PrintedTokenKind::kTemplateParameterList:
+      case pasta::TokenContextKind::kTemplateParameterList:
         bgcolor = " bgcolor=\"chartreuse1\"";
         kind_name = "TemplateParameterList";
         break;
-      case pasta::PrintedTokenKind::kTemplateArgument:
+      case pasta::TokenContextKind::kTemplateArgument:
         bgcolor = " bgcolor=\"chocolate1\"";
         kind_name = "TemplateArgument";
         break;
-      case pasta::PrintedTokenKind::kTypeConstraint:
+      case pasta::TokenContextKind::kTypeConstraint:
         bgcolor = " bgcolor=\"deepskyblue2\"";
         kind_name = "TypeConstraint";
         break;
-      case pasta::PrintedTokenKind::kAttr:
+      case pasta::TokenContextKind::kAttr:
         bgcolor = " bgcolor=\"goldenrod1\"";
         kind_name = "Attr";
         break;
+      case pasta::TokenContextKind::kString:
+        bgcolor = " bgcolor=\"gainsboro\"";
+        kind_name = reinterpret_cast<const char *>(context.Data());
+        break;
     }
 
-    const auto c = reinterpret_cast<uintptr_t>(context);
-
     os
-        << "c" << a << '_' << c
+        << "c" << a << '_' << context.Index()
         << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" "
         << "border=\"1\"><TR><TD" << bgcolor << ">";
 
@@ -132,22 +141,20 @@ static void PrintTokenGraph(pasta::Decl tld) {
     os
         << "</TD></TR></TABLE>>];\n";
 
-    if (context->parent) {
-
-      const auto cp = reinterpret_cast<uintptr_t>(context->parent);
+    if (auto parent_context = context.Parent()) {
       os
-          << "c" << a << '_' << c
-          << " -> c" << a << '_' << cp
+          << "c" << a << '_' << context.Index()
+          << " -> c" << a << '_' << parent_context->Index()
           << ";\n";
     }
   }
 
   for (pasta::PrintedToken tok : tokens) {
-    if (auto context = tok.RawContext().get()) {
-      const auto c = reinterpret_cast<uintptr_t>(context);
+    if (auto context = tok.Context()) {
       os
           << "tokens" << a
-          << ":t" << tok.Index() << " -> c" << a << '_' << c << ";\n";
+          << ":t" << tok.Index() << " -> c" << a << '_' << context->Index()
+          << ";\n";
     }
   }
 

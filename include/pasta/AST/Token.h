@@ -8,8 +8,23 @@
 #include <memory>
 #include <optional>
 #include <string_view>
+#include <utility>
+
+#define PASTA_FOR_EACH_TOKEN_CONTEXT_KIND(pp) \
+    pp(Stmt) \
+    pp(Decl) \
+    pp(Type) \
+    pp(TemplateParameterList) \
+    pp(TemplateArgument) \
+    pp(TypeConstraint) \
+    pp(Attr)
 
 namespace clang {
+
+#define PASTA_FORWARD_DECLARE_CLASS(cls) class cls;
+PASTA_FOR_EACH_TOKEN_CONTEXT_KIND(PASTA_FORWARD_DECLARE_CLASS)
+#undef PASTA_FORWARD_DECLARE_CLASS
+
 namespace tok {
 enum TokenKind : unsigned short;
 }  // namespace tok
@@ -19,13 +34,79 @@ namespace pasta {
 class AST;
 class ASTImpl;
 class FileToken;
+class PrintedTokenRangeImpl;
+class TokenContextImpl;
 class TokenIterator;
 class TokenPrinterContext;
 class TokenImpl;
 class TokenRange;
 
+enum class TokenContextKind : unsigned char {
+  kInvalid,
+#define PASTA_DECLARE_TOKEN_CONTEXT_KIND(cls) k ## cls ,
+  PASTA_FOR_EACH_TOKEN_CONTEXT_KIND(PASTA_DECLARE_TOKEN_CONTEXT_KIND)
+#undef PASTA_DECLARE_TOKEN_CONTEXT_KIND
+  kString
+};
+
+// The context associated with a printed token. This represents a path from
+// the decl/stmt/type that led to the printing of this token, back to the root
+// printing request.
+class TokenContext {
+ private:
+  const TokenContextImpl *impl;
+  std::shared_ptr<const std::vector<TokenContextImpl>> contexts;
+
+ public:
+  // Return the index of this token context.
+  uint32_t Index(void) const;
+
+  // String representation of this token context kind.
+  const char *KindName(void) const;
+
+  // Return the kind of this context.
+  TokenContextKind Kind(void) const;
+
+  // Return the data of this context.
+  const void *Data(void) const;
+
+  // Return the parent context.
+  std::optional<TokenContext> Parent(void) const;
+
+  // Try to update this context to point to its parent.
+  bool TryUpdateToParent(void);
+
+  inline uint64_t Hash(void) const noexcept {
+    return std::hash<const TokenContextImpl *>{}(impl);
+  }
+
+  inline bool operator==(const TokenContext &that) const noexcept {
+    return impl == that.impl;
+  }
+
+  inline bool operator<(const TokenContext &that) const noexcept {
+    return impl < that.impl;
+  }
+
+ private:
+  friend class PrintedToken;
+  friend class Token;
+
+  TokenContext(void) = delete;
+
+  inline explicit TokenContext(
+      const TokenContextImpl *impl_,
+      std::shared_ptr<const std::vector<TokenContextImpl>> contexts_)
+      : impl(impl_),
+        contexts(std::move(contexts_)) {}
+};
+
 // Represents a token that has been pre-processed and parsed.
 class Token {
+ private:
+  std::shared_ptr<ASTImpl> ast;
+  const TokenImpl *impl;
+
  public:
   ~Token(void);
 
@@ -50,6 +131,21 @@ class Token {
     return !!impl;
   }
 
+  // Return this token's context, or a null context.
+  std::optional<TokenContext> Context(void) const noexcept;
+
+  inline uint64_t Hash(void) const noexcept {
+    return std::hash<const TokenImpl *>{}(impl);
+  }
+
+  inline bool operator==(const Token &that) const noexcept {
+    return impl == that.impl;
+  }
+
+  inline bool operator<(const Token &that) const noexcept {
+    return impl < that.impl;
+  }
+
  private:
   friend class AST;
   friend class ASTImpl;
@@ -64,16 +160,16 @@ class Token {
       : ast(std::move(ast_)),
         impl(nullptr) {}
 
-  inline explicit Token(std::shared_ptr<ASTImpl> ast_, TokenImpl *impl_)
+  inline explicit Token(std::shared_ptr<ASTImpl> ast_, const TokenImpl *impl_)
       : ast(std::move(ast_)),
         impl(impl_) {}
-
-  std::shared_ptr<ASTImpl> ast;
-  TokenImpl *impl;
 };
 
 // A bi-directional, random-access iterator over tokens.
 class TokenIterator {
+ private:
+  Token token;
+
  public:
   typedef Token value_type;
   typedef ptrdiff_t difference_type;
@@ -139,14 +235,17 @@ class TokenIterator {
   TokenIterator(void) = delete;
 
   inline explicit TokenIterator(const std::shared_ptr<ASTImpl> &ast_,
-                                TokenImpl *it_)
+                                const TokenImpl *it_)
       : token(ast_, it_) {}
-
-  Token token;
 };
 
 // Range of tokens.
 class TokenRange {
+ private:
+  std::shared_ptr<ASTImpl> ast;
+  const TokenImpl *first;
+  const TokenImpl *after_last;
+
  public:
   TokenRange(const TokenRange &) = default;
   TokenRange(TokenRange &&) noexcept = default;
@@ -193,14 +292,27 @@ class TokenRange {
         after_last(nullptr) {}
 
   inline explicit TokenRange(std::shared_ptr<ASTImpl> ast_,
-                             TokenImpl *begin_, TokenImpl *end_)
+                             const TokenImpl *begin_, const TokenImpl *end_)
       : ast(std::move(ast_)),
         first(begin_),
         after_last(end_) {}
-
-  std::shared_ptr<ASTImpl> ast;
-  TokenImpl *first;
-  TokenImpl *after_last;
 };
 
 }  // namespace pasta
+namespace std {
+
+template <>
+struct hash<::pasta::Token> {
+  uintptr_t operator()(const ::pasta::Token &tok) const noexcept {
+    return tok.Hash();
+  }
+};
+
+template <>
+struct hash<::pasta::TokenContext> {
+  uintptr_t operator()(const ::pasta::TokenContext &ctx) const noexcept {
+    return ctx.Hash();
+  }
+};
+
+}  // namespace std

@@ -30,12 +30,40 @@ class ASTImpl;
 class Token;
 class PrintedTokenRangeImpl;
 
+using TokenContextIndex = uint32_t;
+static constexpr TokenContextIndex kInvalidTokenContextIndex = ~0u;
+
+// Backing data for a token context.
+class TokenContextImpl {
+ public:
+  const void * const data;
+  const TokenContextIndex parent_index;
+  const TokenContextKind kind;
+
+#define PASTA_DEFINE_TOKEN_CONTEXT_CONSTRUCTOR(cls) \
+    inline TokenContextImpl(uint32_t parent_index_, const clang::cls *data_) \
+        : data(data_), \
+          parent_index(parent_index_), \
+          kind(TokenContextKind::k ## cls) {}
+  PASTA_FOR_EACH_TOKEN_CONTEXT_KIND(PASTA_DEFINE_TOKEN_CONTEXT_CONSTRUCTOR)
+#undef PASTA_DEFINE_TOKEN_CONTEXT_CONSTRUCTOR
+
+  inline TokenContextImpl(uint32_t parent_index_, const char *data_)
+      : data(data_),
+        parent_index(parent_index_),
+        kind(TokenContextKind::kString) {}
+};
+
 // Backing implementation of a token.
 class TokenImpl {
  public:
+  static constexpr uint32_t kInvalidSourceLocation = 0u;
+
   inline TokenImpl(uint32_t opaque_source_loc_, int32_t data_offset_,
-                   uint16_t data_len_, clang::tok::TokenKind kind_)
+                   uint16_t data_len_, clang::tok::TokenKind kind_,
+                   uint32_t token_context_index_=kInvalidTokenContextIndex)
       : opaque_source_loc(opaque_source_loc_),
+        context_index(token_context_index_),
         data_offset(data_offset_),
         data_len(data_len_),
         kind(kind_) {}
@@ -49,16 +77,20 @@ class TokenImpl {
   std::string_view Data(const PrintedTokenRangeImpl &range) const noexcept;
 
   // The raw encoding of the source location of the token.
-  uint32_t opaque_source_loc;
+  uint32_t opaque_source_loc{kInvalidSourceLocation};
+
+  // Index of the token context in either `ASTImpl::contexts` or
+  // `PrintedTokenRangeImpl::contexts`.
+  TokenContextIndex context_index{kInvalidTokenContextIndex};
 
   // Offset and length of this token's data. If `data_offset` is positive, then
   // the data is located in `ast->preprocessed_code`, otherwise it's located in
   // `ast->backup_code`.
-  int32_t data_offset;
-  uint16_t data_len;
+  int32_t data_offset{0u};
+  uint16_t data_len{0u};
 
   // The original token kind.
-  clang::tok::TokenKind kind;
+  clang::tok::TokenKind kind{clang::tok::unknown};
 };
 
 // Read the data of the token into the passed in string pointer

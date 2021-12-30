@@ -83,6 +83,10 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // List of tokens.
   std::vector<TokenImpl> tokens;
 
+  // List of token contexts from trying to print the entire AST using the token
+  // printer.
+  std::vector<TokenContextImpl> contexts;
+
   // Huge "file" containing one token per line. Sometimes some lines are empty.
   // This represents all code after pre-processing, and the relationship is that
   // there is one line per token in `tokens` above.

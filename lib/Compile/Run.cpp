@@ -649,6 +649,17 @@ Result<AST, std::string> CompileJob::Run(void) const {
   ast->fm = std::move(fm);
   ast->tu = ast_context.getTranslationUnitDecl();
   ast->printing_policy.reset(new clang::PrintingPolicy(*lang_opts));
+
+  // Initialize the policy to print tokens as closely as possible to what is
+  // written in the original code.
+  if (auto pp = ast->printing_policy.get()) {
+    pp->ConstantArraySizeAsWritten = true;
+    pp->ConstantsAsWritten = true;
+    pp->PrintCanonicalTypes = false;
+    pp->PrintInjectedClassNameWithArguments = false;
+    pp->SuppressUnwrittenScope = true;
+  }
+
   return ASTImpl::AlignTokens(std::move(ast));
 }
 

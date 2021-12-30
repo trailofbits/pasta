@@ -89,25 +89,20 @@ raw_string_ostream& DeclPrinter::Indent(int Indentation) {
   return Out;
 }
 
-static clang::SplitQualType splitAccordingToPolicy(
-    clang::QualType QT,const clang::PrintingPolicy &Policy) {
-  if (Policy.PrintCanonicalTypes)
-    QT = QT.getCanonicalType();
-  return QT.split();
-}
 
 void DeclPrinter::printQualType(clang::QualType qt,
                    raw_string_ostream &OS,
-                   const clang::PrintingPolicy &Policy,
-                   const clang::Twine &PlaceHolder,
-                   std::function<std::string(void)> *placeHolderFn,
-                   unsigned Indentation) {
-  auto split = splitAccordingToPolicy(qt, Policy);
-  clang::SmallString<128> PHBuf;
-  clang::StringRef PH = PlaceHolder.toStringRef(PHBuf);
-  TypePrinter(Policy, tokens, Indentation).print(split.Ty,  split.Quals, OS, PH, placeHolderFn);
+                   const clang::PrintingPolicy &Policy) {
+  TypePrinter(Policy, tokens, Indentation).print(qt, OS, "");
 }
 
+void DeclPrinter::printQualType(clang::QualType qt,
+                                raw_string_ostream &OS,
+                                const clang::PrintingPolicy &Policy,
+                                std::function<void(void)> ProtoFn,
+                                unsigned Indentation) {
+  TypePrinter(Policy, tokens, Indentation).print(qt, OS, "", &ProtoFn);
+}
 
 void DeclPrinter::printPrettyStmt(clang::Stmt *stmt_,
                                   raw_string_ostream &Out,
@@ -134,7 +129,7 @@ void DeclPrinter::prettyPrintAttributes(clang::Decl *D) {
         break;
       default:
         {
-          TokenPrinterContext ctx(Out, A, tokens, __FUNCTION__);
+          TokenPrinterContext ctx(Out, A, tokens);
           A->printPretty(Out, Policy);
         }
         break;
@@ -155,7 +150,7 @@ void DeclPrinter::prettyPrintPragmas(clang::Decl *D) {
 #define PRAGMA_SPELLING_ATTR(X) case clang::attr::X:
 #include "clang/Basic/AttrList.inc"
         {
-          TokenPrinterContext ctx(Out, A, tokens, __FUNCTION__);
+          TokenPrinterContext ctx(Out, A, tokens);
           A->printPretty(Out, Policy);
         }
         Indent();
@@ -167,7 +162,7 @@ void DeclPrinter::prettyPrintPragmas(clang::Decl *D) {
   }
 }
 
-void DeclPrinter::printDeclType(clang::QualType T, clang::StringRef DeclName, bool Pack) {
+void DeclPrinter::printDeclType(clang::QualType T, std::function<void(void)> NameFn, bool Pack) {
   // Normally, a PackExpansionType is written as T[3]... (for instance, as a
   // template argument), but if it is the type of a declaration, the ellipsis
   // is placed before the name being declared.
@@ -175,7 +170,13 @@ void DeclPrinter::printDeclType(clang::QualType T, clang::StringRef DeclName, bo
     Pack = true;
     T = PET->getPattern();
   }
-  printQualType(T, Out, Policy, (Pack ? "..." : "") + DeclName, nullptr, Indentation);
+
+  printQualType(T, Out, Policy, [=, NameFn = std::move(NameFn)] () {
+    if (Pack) {
+      Out << "...";
+    }
+    NameFn();
+  }, Indentation);
 }
 
 void DeclPrinter::ProcessDeclGroup(clang::SmallVectorImpl<clang::Decl*>& Decls) {
@@ -194,17 +195,17 @@ void DeclPrinter::Print(clang::AccessSpecifier AS) {
   Out << AccessSpelling;
 }
 
-void DeclPrinter::PrintConstructorInitializers(clang::CXXConstructorDecl *CDecl,
-                                               std::string &Proto) {
+void DeclPrinter::PrintConstructorInitializers(
+    clang::CXXConstructorDecl *CDecl, std::function<void(void)> &ProtoFn) {
   bool HasInitializerList = false;
   for (const auto *BMInitializer : CDecl->inits()) {
     if (BMInitializer->isInClassMemberInitializer())
       continue;
 
     if (!HasInitializerList) {
-      Proto += " : ";
-      Out << Proto;
-      Proto.clear();
+      ProtoFn();
+      Out << " : ";
+      ProtoFn = [] (void) -> void {};  // Reset in caller
       HasInitializerList = true;
     } else
       Out << ", ";
@@ -213,7 +214,7 @@ void DeclPrinter::PrintConstructorInitializers(clang::CXXConstructorDecl *CDecl,
       clang::FieldDecl *FD = BMInitializer->getAnyMember();
       Out << *FD;
     } else {
-      Out << clang::QualType(BMInitializer->getBaseClass(), 0).getAsString(Policy);
+      printQualType(clang::QualType(BMInitializer->getBaseClass(), 0), Out, Policy);
     }
 
     Out << "(";
@@ -392,12 +393,12 @@ void DeclPrinter::VisitDeclContext(clang::DeclContext *DC, bool Indent) {
 }
 
 void DeclPrinter::VisitTranslationUnitDecl(clang::TranslationUnitDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   VisitDeclContext(D, false);
 }
 
 void DeclPrinter::VisitTypedefDecl(clang::TypedefDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   if (!Policy.SuppressSpecifiers) {
     Out << "typedef ";
 
@@ -405,19 +406,26 @@ void DeclPrinter::VisitTypedefDecl(clang::TypedefDecl *D) {
       Out << "__module_private__ ";
   }
   clang::QualType Ty = D->getTypeSourceInfo()->getType();
-  printQualType(Ty, Out, Policy, D->getName(), nullptr, Indentation);
+  printQualType(
+      Ty, Out, Policy,
+      [=] () {
+        TokenPrinterContext ctx(Out, D, tokens);
+        Out << D->getName();
+      },
+      Indentation);
   prettyPrintAttributes(D);
 }
 
 void DeclPrinter::VisitTypeAliasDecl(clang::TypeAliasDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   Out << "using " << *D;
   prettyPrintAttributes(D);
-  Out << " = " << D->getTypeSourceInfo()->getType().getAsString(Policy);
+  Out << " = ";
+  printQualType(D->getTypeSourceInfo()->getType(), Out, Policy);
 }
 
 void DeclPrinter::VisitEnumDecl(clang::EnumDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   if (!Policy.SuppressSpecifiers && D->isModulePrivate())
     Out << "__module_private__ ";
   Out << "enum";
@@ -444,7 +452,7 @@ void DeclPrinter::VisitEnumDecl(clang::EnumDecl *D) {
 }
 
 void DeclPrinter::VisitRecordDecl(clang::RecordDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   if (!Policy.SuppressSpecifiers && D->isModulePrivate())
     Out << "__module_private__ ";
   Out << D->getKindName();
@@ -462,7 +470,7 @@ void DeclPrinter::VisitRecordDecl(clang::RecordDecl *D) {
 }
 
 void DeclPrinter::VisitEnumConstantDecl(clang::EnumConstantDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   Out << *D;
   prettyPrintAttributes(D);
   if (clang::Expr *Init = D->getInitExpr()) {
@@ -472,25 +480,8 @@ void DeclPrinter::VisitEnumConstantDecl(clang::EnumConstantDecl *D) {
   }
 }
 
-static void printExplicitSpecifier(clang::ExplicitSpecifier ES, raw_string_ostream &Out,
-                                   clang::PrintingPolicy &Policy,
-                                   unsigned Indentation, PrintedTokenRangeImpl &tokens) {
-  std::string Proto = "explicit";
-  raw_string_ostream EOut(Proto);
-  if (ES.getExpr()) {
-    EOut << "(";
-    StmtPrinter stmtPrinter(EOut, nullptr, tokens, Policy, Indentation, "\n",
-                            &tokens.ast_context);
-    stmtPrinter.Visit(const_cast<clang::Expr *>(ES.getExpr()));
-    EOut << ")";
-  }
-  EOut << " ";
-  EOut.flush();
-  Out << EOut.str();
-}
-
 void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
 
   if (!D->getDescribedFunctionTemplate() &&
       !D->isFunctionTemplateSpecialization())
@@ -522,46 +513,60 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
     if (D->isModulePrivate())    Out << "__module_private__ ";
     if (D->isConstexprSpecified() && !D->isExplicitlyDefaulted())
       Out << "constexpr ";
-    if (D->isConsteval())        Out << "consteval ";
-    clang::ExplicitSpecifier ExplicitSpec = clang::ExplicitSpecifier::getFromDecl(D);
-    if (ExplicitSpec.isSpecified())
-      printExplicitSpecifier(ExplicitSpec, Out, Policy, Indentation, tokens);
+    if (D->isConsteval())
+      Out << "consteval ";
+
+    clang::ExplicitSpecifier ES = clang::ExplicitSpecifier::getFromDecl(D);
+    if (ES.isSpecified()) {
+      Out << "explicit";
+      if (ES.getExpr()) {
+        Out << "(";
+        {
+          StmtPrinter stmtPrinter(Out, nullptr, tokens, Policy, Indentation,
+                                  "\n", &tokens.ast_context);
+          stmtPrinter.Visit(const_cast<clang::Expr *>(ES.getExpr()));
+        }
+        Out << ")";
+      }
+      Out << " ";
+    }
   }
 
   clang::PrintingPolicy SubPolicy(Policy);
   SubPolicy.SuppressSpecifiers = false;
-  std::string Proto;
-  std::function<std::string(void)> ProtoFn = [](void) -> std::string { return " "; };
 
+  std::function<void(void)> ProtoFn = [=](void) -> void { };
+  std::function<void(void)> EmtpyProtoFn = [](void) -> void { };
   if (Policy.FullyQualifiedName) {
     ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
-      std::string Proto = ProtoFn();
-      TokenPrinterContext ctx(Out, D, this->tokens, __FUNCTION__);
-      Proto += D->getQualifiedNameAsString();
-      return Proto;
+      ProtoFn();
+      TokenPrinterContext ctx(Out, D, this->tokens);
+      Out << D->getQualifiedNameAsString();
     };
   } else {
     ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
-      std::string Proto = ProtoFn();
-      TokenPrinterContext ctx(Out, D, this->tokens, __FUNCTION__);
-      raw_string_ostream OS(Proto);
+      ProtoFn();
+      TokenPrinterContext ctx(Out, D, this->tokens);
       if (!Policy.SuppressScope) {
         if (const clang::NestedNameSpecifier *NS = D->getQualifier()) {
-          NS->print(OS, Policy);
+          NS->print(Out, Policy);
         }
       }
-      D->getNameInfo().printName(OS, Policy);
-      return Proto;
+      D->getNameInfo().printName(Out, Policy);
     };
   }
 
-  if (GuideDecl)
-    Proto = GuideDecl->getDeducedTemplate()->getDeclName().getAsString();
+  if (GuideDecl) {
+    ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
+      ProtoFn();
+      TokenPrinterContext ctx(Out, D, this->tokens);
+      Out << GuideDecl->getDeducedTemplate()->getDeclName().getAsString();
+    };
+  }
   if (D->isFunctionTemplateSpecialization()) {
     ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
-      std::string Proto = ProtoFn();
-      raw_string_ostream POut(Proto);
-      DeclPrinter TArgPrinter(POut, SubPolicy, Context, tokens, Indentation);
+      ProtoFn();
+      DeclPrinter TArgPrinter(Out, SubPolicy, Context, tokens, Indentation);
 
       const auto *TArgAsWritten = D->getTemplateSpecializationArgsAsWritten();
       if (TArgAsWritten && !Policy.PrintCanonicalTypes)
@@ -569,17 +574,16 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
       else if (const clang::TemplateArgumentList *TArgs =
                    D->getTemplateSpecializationArgs())
         TArgPrinter.printTemplateArguments(TArgs->asArray());
-      return Proto;
     };
   }
 
   clang::QualType Ty = D->getType();
   while (const clang::ParenType *PT = clang::dyn_cast<clang::ParenType>(Ty)) {
     ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
-      std::string Proto = ProtoFn();
-      TokenPrinterContext ctx(Out, PT, this->tokens, __FUNCTION__);
-      Proto = '(' + ProtoFn() + ')';
-      return Proto;
+      TokenPrinterContext ctx(Out, PT, this->tokens);
+      Out << '(';
+      ProtoFn();
+      Out << ')';
     };
     Ty = PT->getInnerType();
   }
@@ -589,125 +593,213 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
     if (D->hasWrittenPrototype())
       FT = clang::dyn_cast<clang::FunctionProtoType>(AFT);
 
+    // We want to figure out if there's an explicit `void` in the declaration
+    // for the parameter list.
+    bool uses_explicit_void = false;
+    bool has_source_code = false;
+    if (clang::TypeSourceInfo *FTSI = D->getTypeSourceInfo();
+        FTSI && !D->getNumParams()) {
+      if (auto FTL = FTSI->getTypeLoc().getAs<clang::FunctionTypeLoc>();
+          !FTL.isNull()) {
+        if (auto l_paren = FTL.getLParenLoc();
+            l_paren.isValid() && l_paren.isFileID()) {
+          has_source_code = true;
+          clang::SourceLocation after_l_paren = l_paren.getLocWithOffset(1);
+          clang::Token tok;
+          if (TryLexRawToken(D->getASTContext(), after_l_paren, &tok)) {
+            if (tok.getKind() == clang::tok::raw_identifier &&
+                tok.getRawIdentifier() == "void") {
+              uses_explicit_void = true;
+            }
+          }
+        }
+      }
+    }
+
+    // Try to see if the last parameter is followed by a comma before
+    // the `...`. This is tricky because we might need to skip over a closing
+    // parenthesis, e.g. `void foo(void (*bar)...)` or over an identifier, e.g.
+    // `void foo(int bar...)`.
+    auto variadic_leading_comma = [&] (clang::ParmVarDecl *P) {
+      clang::SourceLocation param_end = P->getEndLoc();
+      if (!param_end.isValid() || !param_end.isFileID()) {
+        return true;  // Default.
+      }
+
+      clang::Token tok;
+      if (!TryLexRawToken(D->getASTContext(), param_end, &tok)) {
+        return true;
+      }
+
+      auto after_param_end = tok.getLocation().getLocWithOffset(
+          static_cast<int>(tok.getLength()));
+      if (!TryLexRawToken(D->getASTContext(), after_param_end, &tok)) {
+        return true;
+      }
+
+      return tok.getKind() == clang::tok::comma;
+    };
+
     if (FT) {
       ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
-        std::string Proto = ProtoFn();
-        Proto += "(";
-        raw_string_ostream POut(Proto);
-        TokenPrinterContext ctx(POut, FT, this->tokens, __FUNCTION__);
-        DeclPrinter ParamPrinter(POut, SubPolicy, Context, tokens, Indentation);
-        for (unsigned i = 0, e = D->getNumParams(); i != e; ++i) {
-          if (i) POut << ", ";
-          ParamPrinter.VisitParmVarDecl(D->getParamDecl(i));
-        }
+        ProtoFn();
+        Out << '(';
 
-        if (FT->isVariadic()) {
-          if (D->getNumParams()) POut << ", ";
-          POut << "...";
+        if (uses_explicit_void) {  // Does the original code use `void`?
+          Out << "void";
+
+        } else if (!has_source_code && !D->getNumParams() &&
+                   SubPolicy.UseVoidForZeroParams) {
+          Out << "void";
+
+        } else {
+          DeclPrinter ParamPrinter(Out, SubPolicy, Context, tokens, Indentation);
+
+
+          bool leading_comma = true;
+          for (unsigned i = 0, e = D->getNumParams(); i != e; ++i) {
+            if (i) {
+              Out << ", ";
+            }
+            clang::ParmVarDecl *P = D->getParamDecl(i);
+            ParamPrinter.VisitParmVarDecl(P);
+            // Try to see if the last parameter is followed by a comma before
+            // the `...`.
+            if ((i + 1u) == e && FT->isVariadic()) {
+              leading_comma = variadic_leading_comma(P);
+            }
+          }
+
+          if (FT->isVariadic()) {
+            if (leading_comma && D->getNumParams()) {
+              Out << ", ";
+            }
+
+            Out << "...";
+          }
         }
-        POut << ")";
-        return Proto;
+        Out << ")";
       };
     } else if (D->doesThisDeclarationHaveABody() && !D->hasPrototype()) {
       ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
-        std::string Proto = ProtoFn();
-        raw_string_ostream POut(Proto);
-        TokenPrinterContext ctx(POut, FT, this->tokens, __FUNCTION__);
-        POut << "(";
-        for (unsigned i = 0, e = D->getNumParams(); i != e; ++i) {
-          if (i)
-            POut << ", ";
-          POut << D->getParamDecl(i)->getNameAsString();
+        ProtoFn();
+        TokenPrinterContext ctx(Out, D, this->tokens);
+        Out << "(";
+
+        if (uses_explicit_void) {
+          Out << "void";
+
+        } else if (!has_source_code && !D->getNumParams() &&
+                   SubPolicy.UseVoidForZeroParams &&
+                   Context.getLangOpts().CPlusPlus) {
+          Out << "void";
+
+        } else {
+          for (unsigned i = 0, e = D->getNumParams(); i != e; ++i) {
+            if (i)
+              Out << ", ";
+            {
+              clang::ParmVarDecl *P = D->getParamDecl(i);
+              TokenPrinterContext ctx(Out, P, this->tokens);
+              Out << P->getNameAsString();
+            }
+          }
+
+          if (D->isVariadic()) {
+            if (D->getNumParams()) {
+              Out << ", ";
+            }
+            Out << "...";
+          }
         }
-        POut << ")";
-        return Proto;
+        Out << ")";
       };
     }
 
     if (FT) {
       ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
-        std::string Proto = ProtoFn();
-        raw_string_ostream POut(Proto);
-        TokenPrinterContext ctx(POut, FT, this->tokens, __FUNCTION__);
+        ProtoFn();
+        TokenPrinterContext ctx(Out, D, this->tokens);
         if (FT->isConst())
-          POut << " const";
+          Out << " const";
         if (FT->isVolatile())
-          POut << " volatile";
+          Out << " volatile";
         if (FT->isRestrict())
-          POut << " restrict";
+          Out << " restrict";
 
         switch (FT->getRefQualifier()) {
         case clang::RQ_None:
           break;
         case clang::RQ_LValue:
-          POut << " &";
+          Out << " &";
           break;
         case clang::RQ_RValue:
-          POut << " &&";
+          Out << " &&";
           break;
         }
-        return Proto;
       };
     }
 
     if (FT && FT->hasDynamicExceptionSpec()) {
       ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
-        std::string Proto = ProtoFn();
-        Proto += " throw(";
+        ProtoFn();
+        TokenPrinterContext ctx(Out, D, this->tokens);
+        Out << " throw(";
         if (FT->getExceptionSpecType() == clang::EST_MSAny)
-          Proto += "...";
+          Out << "...";
         else
           for (unsigned I = 0, N = FT->getNumExceptions(); I != N; ++I) {
             if (I)
-              Proto += ", ";
+              Out << ", ";
 
-            Proto += FT->getExceptionType(I).getAsString(SubPolicy);
+            TypePrinter TP(SubPolicy, this->tokens);
+            TP.print(FT->getExceptionType(I), Out, "", nullptr);
           }
-        Proto += ")";
-        return Proto;
+        Out << ")";
       };
     } else if (FT && isNoexceptExceptionSpec(FT->getExceptionSpecType())) {
       ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
-        std::string Proto = ProtoFn();
-        TokenPrinterContext ctx(Out, FT, this->tokens, __FUNCTION__);
-        Proto += " noexcept";
+        ProtoFn();
+        TokenPrinterContext ctx(Out, D, this->tokens);
+        Out << " noexcept";
         if (isComputedNoexcept(FT->getExceptionSpecType())) {
-          Proto += "(";
-          pasta::raw_string_ostream EOut(Proto);
-          printPrettyStmt(FT->getNoexceptExpr(), EOut,
+          Out << "(";
+          printPrettyStmt(FT->getNoexceptExpr(), Out,
                           nullptr, SubPolicy, Indentation);
-          EOut.flush();
-          Proto += EOut.str();
-          Proto += ")";
+          Out << ")";
         }
-        return Proto;
       };
     }
 
     if (CDecl) {
       if (!Policy.TerseOutput)
-        PrintConstructorInitializers(CDecl, Proto);
+        PrintConstructorInitializers(CDecl, ProtoFn);
     } else if (!ConversionDecl && !clang::isa<clang::CXXDestructorDecl>(D)) {
-      if (FT && FT->hasTrailingReturn()) {
-        if (!GuideDecl)
-          Out << "auto ";
-        Out << ProtoFn() << " -> ";
-        ProtoFn = [](void) -> std::string { return "";};
-      }
+      ProtoFn = [=, &EmtpyProtoFn, ProtoFn = std::move(ProtoFn)] (void) mutable {
+        if (FT && FT->hasTrailingReturn()) {
+          TokenPrinterContext ctx(Out, D, this->tokens);
+          if (!GuideDecl)
+            Out << "auto ";
+          ProtoFn();
+          Out << " -> ";
+          ProtoFn = EmtpyProtoFn;
+        }
 
-      printQualType(AFT->getReturnType(), Out, Policy, Proto, &ProtoFn);
-      Proto.clear();
-      ProtoFn = [](void) -> std::string { return "";};
+        printQualType(AFT->getReturnType(), Out, Policy, std::move(ProtoFn));
+      };
     }
 
-    Out << Proto;
+
+    ProtoFn();
+    ProtoFn = EmtpyProtoFn;
 
     if (clang::Expr *TrailingRequiresClause = D->getTrailingRequiresClause()) {
       Out << " requires ";
       printPrettyStmt(TrailingRequiresClause, Out, nullptr, SubPolicy, Indentation);
     }
   } else {
-    printQualType(Ty, Out, Policy, Proto);
+    printQualType(Ty, Out, Policy, std::move(ProtoFn));
+    ProtoFn = EmtpyProtoFn;
   }
 
   prettyPrintAttributes(D);
@@ -735,8 +827,11 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
       } else
         Out << ' ';
 
-      if (D->getBody())
-        printPrettyStmt(D->getBody(), Out, nullptr, SubPolicy, Indentation);
+      if (D->getBody()) {
+        StmtPrinter stmtPrinter(Out, nullptr, tokens, SubPolicy, Indentation, "\n", &Context);
+        stmtPrinter.suppress_leading_indent = true;
+        stmtPrinter.Visit(D->getBody());
+      }
     } else {
       if (!Policy.TerseOutput && clang::isa<clang::CXXConstructorDecl>(*D))
         Out << " {}";
@@ -745,13 +840,14 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
 }
 
 void DeclPrinter::VisitFriendDecl(clang::FriendDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   if (clang::TypeSourceInfo *TSI = D->getFriendType()) {
     unsigned NumTPLists = D->getFriendTypeNumTemplateParameterLists();
     for (unsigned i = 0; i < NumTPLists; ++i)
       printTemplateParameters(D->getFriendTypeTemplateParameterList(i));
     Out << "friend ";
-    Out << " " << TSI->getType().getAsString(Policy);
+    Out << " ";
+    printQualType(TSI->getType(), Out, Policy);
   }
   else if (clang::FunctionDecl *FD =
       clang::dyn_cast<clang::FunctionDecl>(D->getFriendDecl())) {
@@ -772,14 +868,21 @@ void DeclPrinter::VisitFriendDecl(clang::FriendDecl *D) {
 
 void DeclPrinter::VisitFieldDecl(clang::FieldDecl *D) {
   // FIXME: add printing of pragma attributes if required.
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   if (!Policy.SuppressSpecifiers && D->isMutable())
     Out << "mutable ";
   if (!Policy.SuppressSpecifiers && D->isModulePrivate())
     Out << "__module_private__ ";
 
-  printQualType(D->getASTContext().getUnqualifiedObjCPointerType(D->getType()),
-                Out, Policy, D->getName(), nullptr, Indentation);
+  printQualType(
+      D->getASTContext().getUnqualifiedObjCPointerType(D->getType()),
+      Out,
+      Policy,
+      [=] () {
+        TokenPrinterContext ctx(Out, D, tokens);
+        Out << D->getName();
+      },
+      Indentation);
 
   if (D->isBitField()) {
     Out << " : ";
@@ -798,12 +901,12 @@ void DeclPrinter::VisitFieldDecl(clang::FieldDecl *D) {
 }
 
 void DeclPrinter::VisitLabelDecl(clang::LabelDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   Out << *D << ":";
 }
 
 void DeclPrinter::VisitVarDecl(clang::VarDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   prettyPrintPragmas(D);
 
   clang::QualType T = D->getTypeSourceInfo()
@@ -838,7 +941,11 @@ void DeclPrinter::VisitVarDecl(clang::VarDecl *D) {
     }
   }
 
-  printDeclType(T, D->getName());
+  printDeclType(T, [&] () {
+    TokenPrinterContext jump_up_stack(ctx);
+    Out << D->getName();
+  });
+
   clang::Expr *Init = D->getInit();
   if (!Policy.SuppressInitializers && Init) {
     bool ImplicitInit = false;
@@ -868,25 +975,24 @@ void DeclPrinter::VisitVarDecl(clang::VarDecl *D) {
 }
 
 void DeclPrinter::VisitParmVarDecl(clang::ParmVarDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
   VisitVarDecl(D);
 }
 
 void DeclPrinter::VisitFileScopeAsmDecl(clang::FileScopeAsmDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   Out << "__asm (";
   printPrettyStmt(D->getAsmString(), Out, nullptr, Policy, Indentation);
   Out << ")";
 }
 
 void DeclPrinter::VisitImportDecl(clang::ImportDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   Out << "@import " << D->getImportedModule()->getFullModuleName()
       << ";\n";
 }
 
 void DeclPrinter::VisitStaticAssertDecl(clang::StaticAssertDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   Out << "static_assert(";
   printPrettyStmt(D->getAssertExpr(), Out, nullptr, Policy, Indentation);
   if (clang::StringLiteral *SL = D->getMessage()) {
@@ -900,7 +1006,7 @@ void DeclPrinter::VisitStaticAssertDecl(clang::StaticAssertDecl *D) {
 // C++ declarations
 //----------------------------------------------------------------------------
 void DeclPrinter::VisitNamespaceDecl(clang::NamespaceDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   if (D->isInline())
     Out << "inline ";
 
@@ -914,7 +1020,7 @@ void DeclPrinter::VisitNamespaceDecl(clang::NamespaceDecl *D) {
 }
 
 void DeclPrinter::VisitUsingDirectiveDecl(clang::UsingDirectiveDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   Out << "using namespace ";
   if (D->getQualifier())
     D->getQualifier()->print(Out, Policy);
@@ -922,7 +1028,7 @@ void DeclPrinter::VisitUsingDirectiveDecl(clang::UsingDirectiveDecl *D) {
 }
 
 void DeclPrinter::VisitNamespaceAliasDecl(clang::NamespaceAliasDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   Out << "namespace " << *D << " = ";
   if (D->getQualifier())
     D->getQualifier()->print(Out, Policy);
@@ -930,13 +1036,13 @@ void DeclPrinter::VisitNamespaceAliasDecl(clang::NamespaceAliasDecl *D) {
 }
 
 void DeclPrinter::VisitEmptyDecl(clang::EmptyDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   prettyPrintAttributes(D);
 }
 
 void DeclPrinter::VisitCXXRecordDecl(clang::CXXRecordDecl *D) {
   // FIXME: add printing of pragma attributes if required.
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   if (!Policy.SuppressSpecifiers && D->isModulePrivate())
     Out << "__module_private__ ";
   Out << D->getKindName();
@@ -947,7 +1053,7 @@ void DeclPrinter::VisitCXXRecordDecl(clang::CXXRecordDecl *D) {
     Out << ' ' << *D;
 
     if (auto S = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(D)) {
-      TokenPrinterContext ctx(Out, S, tokens, __FUNCTION__);
+      TokenPrinterContext ctx(Out, S, tokens);
       clang::ArrayRef<clang::TemplateArgument> Args = S->getTemplateArgs().asArray();
       if (!Policy.PrintCanonicalTypes)
         if (const auto* TSI = S->getTypeAsWritten())
@@ -975,7 +1081,8 @@ void DeclPrinter::VisitCXXRecordDecl(clang::CXXRecordDecl *D) {
           Print(AS);
           Out << " ";
         }
-        Out << Base->getType().getAsString(Policy);
+
+        printQualType(Base->getType(), Out, Policy);
 
         if (Base->isPackExpansion())
           Out << "...";
@@ -995,7 +1102,7 @@ void DeclPrinter::VisitCXXRecordDecl(clang::CXXRecordDecl *D) {
 }
 
 void DeclPrinter::VisitLinkageSpecDecl(clang::LinkageSpecDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   const char *l;
   if (D->getLanguage() == clang::LinkageSpecDecl::lang_c)
     l = "C";
@@ -1018,7 +1125,7 @@ void DeclPrinter::printTemplateParameters(const clang::TemplateParameterList *Pa
                                           bool OmitTemplateKW) {
   assert(Params);
 
-  TokenPrinterContext ctx(Out, Params, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, Params, tokens);
 
   if (!OmitTemplateKW)
     Out << "template ";
@@ -1054,7 +1161,7 @@ void DeclPrinter::printTemplateArguments(clang::ArrayRef<clang::TemplateArgument
   for (size_t I = 0, E = Args.size(); I < E; ++I) {
     if (I)
       Out << ", ";
-    TokenPrinterContext ctx(Out, &(Args[I]), tokens, __FUNCTION__);
+    TokenPrinterContext ctx(Out, &(Args[I]), tokens);
     Args[I].print(Policy, Out);
   }
   Out << ">";
@@ -1066,14 +1173,14 @@ void DeclPrinter::printTemplateArguments(clang::ArrayRef<clang::TemplateArgument
     if (I)
       Out << ", ";
 
-    TokenPrinterContext ctx(Out, &(Args[I].getArgument()), tokens, __FUNCTION__);
+    TokenPrinterContext ctx(Out, &(Args[I].getArgument()), tokens);
     Args[I].getArgument().print(Policy, Out);
   }
   Out << ">";
 }
 
 void DeclPrinter::VisitTemplateDecl(const clang::TemplateDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   printTemplateParameters(D->getTemplateParameters());
 
   if (const clang::TemplateTemplateParmDecl *TTP =
@@ -1097,7 +1204,7 @@ void DeclPrinter::VisitTemplateDecl(const clang::TemplateDecl *D) {
 }
 
 void DeclPrinter::VisitFunctionTemplateDecl(clang::FunctionTemplateDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   prettyPrintPragmas(D->getTemplatedDecl());
   // Print any leading template parameter lists.
   if (const clang::FunctionDecl *FD = D->getTemplatedDecl()) {
@@ -1131,7 +1238,7 @@ void DeclPrinter::VisitFunctionTemplateDecl(clang::FunctionTemplateDecl *D) {
 }
 
 void DeclPrinter::VisitClassTemplateDecl(clang::ClassTemplateDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   VisitRedeclarableTemplateDecl(D);
 
   if (PrintInstantiation) {
@@ -1146,13 +1253,13 @@ void DeclPrinter::VisitClassTemplateDecl(clang::ClassTemplateDecl *D) {
 }
 
 void DeclPrinter::VisitClassTemplateSpecializationDecl(clang::ClassTemplateSpecializationDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   Out << "template<> ";
   VisitCXXRecordDecl(D);
 }
 
 void DeclPrinter::VisitClassTemplatePartialSpecializationDecl(clang::ClassTemplatePartialSpecializationDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   printTemplateParameters(D->getTemplateParameters());
   VisitCXXRecordDecl(D);
 }
@@ -1182,8 +1289,7 @@ void DeclPrinter::PrintObjCMethodType(clang::ASTContext &Ctx,
     if (auto nullability = clang::AttributedType::stripOuterNullability(T))
       Out << getNullabilitySpelling(*nullability, true) << ' ';
   }
-
-  Out << Ctx.getUnqualifiedObjCPointerType(T).getAsString(Policy);
+  printQualType(Ctx.getUnqualifiedObjCPointerType(T), Out, Policy);
   Out << ')';
 }
 
@@ -1214,14 +1320,15 @@ void DeclPrinter::PrintObjCTypeParams(clang::ObjCTypeParamList *Params) {
     Out << Param->getDeclName();
 
     if (Param->hasExplicitBound()) {
-      Out << " : " << Param->getUnderlyingType().getAsString(Policy);
+      Out << " : ";
+      printQualType(Param->getUnderlyingType(), Out, Policy);
     }
   }
   Out << ">";
 }
 
 void DeclPrinter::VisitObjCMethodDecl(clang::ObjCMethodDecl *OMD) {
-  TokenPrinterContext ctx(Out, OMD, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, OMD, tokens);
   if (OMD->isInstanceMethod())
     Out << "- ";
   else
@@ -1263,7 +1370,7 @@ void DeclPrinter::VisitObjCMethodDecl(clang::ObjCMethodDecl *OMD) {
 }
 
 void DeclPrinter::VisitObjCImplementationDecl(clang::ObjCImplementationDecl *OID) {
-  TokenPrinterContext ctx(Out, OID, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, OID, tokens);
   std::string I = OID->getNameAsString();
   clang::ObjCInterfaceDecl *SID = OID->getSuperClass();
 
@@ -1278,8 +1385,11 @@ void DeclPrinter::VisitObjCImplementationDecl(clang::ObjCImplementationDecl *OID
     eolnOut = true;
     Indentation += Policy.Indentation;
     for (const auto *I : OID->ivars()) {
-      Indent() << I->getASTContext().getUnqualifiedObjCPointerType(I->getType()).
-                    getAsString(Policy) << ' ' << *I << ";\n";
+      Indent();
+      printQualType(
+          I->getASTContext().getUnqualifiedObjCPointerType(I->getType()),
+          Out, Policy);
+      Out << ' ' << *I << ";\n";
     }
     Indentation -= Policy.Indentation;
     Out << "}\n";
@@ -1295,7 +1405,7 @@ void DeclPrinter::VisitObjCImplementationDecl(clang::ObjCImplementationDecl *OID
 }
 
 void DeclPrinter::VisitObjCInterfaceDecl(clang::ObjCInterfaceDecl *OID) {
-  TokenPrinterContext ctx(Out, OID, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, OID, tokens);
   std::string I = OID->getNameAsString();
   clang::ObjCInterfaceDecl *SID = OID->getSuperClass();
 
@@ -1316,8 +1426,10 @@ void DeclPrinter::VisitObjCInterfaceDecl(clang::ObjCInterfaceDecl *OID) {
     PrintObjCTypeParams(TypeParams);
   }
 
-  if (SID)
-    Out << " : " << clang::QualType(OID->getSuperClassType(), 0).getAsString(Policy);
+  if (SID) {
+    Out << " : ";
+    printQualType(clang::QualType(OID->getSuperClassType(), 0), Out, Policy);
+  }
 
   // Protocols?
   const clang::ObjCList<clang::ObjCProtocolDecl> &Protocols = OID->getReferencedProtocols();
@@ -1333,9 +1445,11 @@ void DeclPrinter::VisitObjCInterfaceDecl(clang::ObjCInterfaceDecl *OID) {
     eolnOut = true;
     Indentation += Policy.Indentation;
     for (const auto *I : OID->ivars()) {
-      Indent() << I->getASTContext()
-                      .getUnqualifiedObjCPointerType(I->getType())
-                      .getAsString(Policy) << ' ' << *I << ";\n";
+      Indent();
+      printQualType(
+          I->getASTContext().getUnqualifiedObjCPointerType(I->getType()),
+          Out, Policy);
+      Out << ' ' << *I << ";\n";
     }
     Indentation -= Policy.Indentation;
     Out << "}\n";
@@ -1353,7 +1467,7 @@ void DeclPrinter::VisitObjCInterfaceDecl(clang::ObjCInterfaceDecl *OID) {
 }
 
 void DeclPrinter::VisitObjCProtocolDecl(clang::ObjCProtocolDecl *PID) {
-  TokenPrinterContext ctx(Out, PID, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, PID, tokens);
   if (!PID->isThisDeclarationADefinition()) {
     Out << "@protocol " << *PID << ";\n";
     return;
@@ -1373,7 +1487,7 @@ void DeclPrinter::VisitObjCProtocolDecl(clang::ObjCProtocolDecl *PID) {
 }
 
 void DeclPrinter::VisitObjCCategoryImplDecl(clang::ObjCCategoryImplDecl *PID) {
-  TokenPrinterContext ctx(Out, PID, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, PID, tokens);
   Out << "@implementation ";
   if (const auto *CID = PID->getClassInterface())
     Out << *CID;
@@ -1387,7 +1501,7 @@ void DeclPrinter::VisitObjCCategoryImplDecl(clang::ObjCCategoryImplDecl *PID) {
 }
 
 void DeclPrinter::VisitObjCCategoryDecl(clang::ObjCCategoryDecl *PID) {
-  TokenPrinterContext ctx(Out, PID, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, PID, tokens);
   Out << "@interface ";
   if (const auto *CID = PID->getClassInterface())
     Out << *CID;
@@ -1400,9 +1514,13 @@ void DeclPrinter::VisitObjCCategoryDecl(clang::ObjCCategoryDecl *PID) {
   if (PID->ivar_size() > 0) {
     Out << "{\n";
     Indentation += Policy.Indentation;
-    for (const auto *I : PID->ivars())
-      Indent() << I->getASTContext().getUnqualifiedObjCPointerType(I->getType()).
-                    getAsString(Policy) << ' ' << *I << ";\n";
+    for (const auto *I : PID->ivars()) {
+      Indent();
+      printQualType(
+          I->getASTContext().getUnqualifiedObjCPointerType(I->getType()),
+          Out, Policy);
+      Out << ' ' << *I << ";\n";
+    }
     Indentation -= Policy.Indentation;
     Out << "}\n";
   }
@@ -1414,7 +1532,7 @@ void DeclPrinter::VisitObjCCategoryDecl(clang::ObjCCategoryDecl *PID) {
 }
 
 void DeclPrinter::VisitObjCCompatibleAliasDecl(clang::ObjCCompatibleAliasDecl *AID) {
-  TokenPrinterContext ctx(Out, AID, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, AID, tokens);
   Out << "@compatibility_alias " << *AID
       << ' ' << *AID->getClassInterface() << ";\n";
 }
@@ -1429,7 +1547,7 @@ void DeclPrinter::VisitObjCCompatibleAliasDecl(clang::ObjCCompatibleAliasDecl *A
 /// - getter & setter
 /// - nullability
 void DeclPrinter::VisitObjCPropertyDecl(clang::ObjCPropertyDecl *PDecl) {
-  TokenPrinterContext ctx(Out, PDecl, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, PDecl, tokens);
   if (PDecl->getPropertyImplementation() == clang::ObjCPropertyDecl::Required)
     Out << "@required\n";
   else if (PDecl->getPropertyImplementation() == clang::ObjCPropertyDecl::Optional)
@@ -1529,7 +1647,12 @@ void DeclPrinter::VisitObjCPropertyDecl(clang::ObjCPropertyDecl *PDecl) {
   }
   std::string TypeStr = PDecl->getASTContext().getUnqualifiedObjCPointerType(T).
       getAsString(Policy);
-  Out << ' ' << TypeStr;
+
+  Out << ' ';
+  printQualType(
+      PDecl->getASTContext().getUnqualifiedObjCPointerType(T),
+      Out, Policy);
+
   if (!clang::StringRef(TypeStr).endswith("*"))
     Out << ' ';
   Out << *PDecl;
@@ -1538,7 +1661,7 @@ void DeclPrinter::VisitObjCPropertyDecl(clang::ObjCPropertyDecl *PDecl) {
 }
 
 void DeclPrinter::VisitObjCPropertyImplDecl(clang::ObjCPropertyImplDecl *PID) {
-  TokenPrinterContext ctx(Out, PID, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, PID, tokens);
   if (PID->getPropertyImplementation() == clang::ObjCPropertyImplDecl::Synthesize)
     Out << "@synthesize ";
   else
@@ -1549,7 +1672,7 @@ void DeclPrinter::VisitObjCPropertyImplDecl(clang::ObjCPropertyImplDecl *PID) {
 }
 
 void DeclPrinter::VisitUsingDecl(clang::UsingDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   if (!D->isAccessDeclaration())
     Out << "using ";
   if (D->hasTypename())
@@ -1571,14 +1694,14 @@ void DeclPrinter::VisitUsingDecl(clang::UsingDecl *D) {
 
 void
 DeclPrinter::VisitUnresolvedUsingTypenameDecl(clang::UnresolvedUsingTypenameDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   Out << "using typename ";
   D->getQualifier()->print(Out, Policy);
   Out << D->getDeclName();
 }
 
 void DeclPrinter::VisitUnresolvedUsingValueDecl(clang::UnresolvedUsingValueDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   if (!D->isAccessDeclaration())
     Out << "using ";
   D->getQualifier()->print(Out, Policy);
@@ -1586,12 +1709,12 @@ void DeclPrinter::VisitUnresolvedUsingValueDecl(clang::UnresolvedUsingValueDecl 
 }
 
 void DeclPrinter::VisitUsingShadowDecl(clang::UsingShadowDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   // ignore
 }
 
 void DeclPrinter::VisitOMPThreadPrivateDecl(clang::OMPThreadPrivateDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   Out << "#pragma omp threadprivate";
   if (!D->varlist_empty()) {
     for (clang::OMPThreadPrivateDecl::varlist_iterator I = D->varlist_begin(),
@@ -1606,7 +1729,7 @@ void DeclPrinter::VisitOMPThreadPrivateDecl(clang::OMPThreadPrivateDecl *D) {
 }
 
 void DeclPrinter::VisitOMPAllocateDecl(clang::OMPAllocateDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   Out << "#pragma omp allocate";
   if (!D->varlist_empty()) {
     for (clang::OMPAllocateDecl::varlist_iterator I = D->varlist_begin(),
@@ -1627,7 +1750,7 @@ void DeclPrinter::VisitOMPAllocateDecl(clang::OMPAllocateDecl *D) {
 }
 
 void DeclPrinter::VisitOMPRequiresDecl(clang::OMPRequiresDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   Out << "#pragma omp requires ";
   if (!D->clauselist_empty()) {
     clang::OMPClausePrinter Printer(Out, Policy);
@@ -1637,7 +1760,7 @@ void DeclPrinter::VisitOMPRequiresDecl(clang::OMPRequiresDecl *D) {
 }
 
 void DeclPrinter::VisitOMPDeclareReductionDecl(clang::OMPDeclareReductionDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   if (!D->isInvalidDecl()) {
     Out << "#pragma omp declare reduction (";
     if (D->getDeclName().getNameKind() == clang::DeclarationName::CXXOperatorName) {
@@ -1675,7 +1798,7 @@ void DeclPrinter::VisitOMPDeclareReductionDecl(clang::OMPDeclareReductionDecl *D
 }
 
 void DeclPrinter::VisitOMPDeclareMapperDecl(clang::OMPDeclareMapperDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   if (!D->isInvalidDecl()) {
     Out << "#pragma omp declare mapper (";
     D->printName(Out);
@@ -1695,14 +1818,14 @@ void DeclPrinter::VisitOMPDeclareMapperDecl(clang::OMPDeclareMapperDecl *D) {
 }
 
 void DeclPrinter::VisitOMPCapturedExprDecl(clang::OMPCapturedExprDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, D, tokens);
   printPrettyStmt(D->getInit(), Out, nullptr, Policy, Indentation);
 }
 
 void DeclPrinter::VisitTemplateTypeParmDecl(const clang::TemplateTypeParmDecl *TTP) {
-  TokenPrinterContext ctx(Out, TTP, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, TTP, tokens);
   if (const clang::TypeConstraint *TC = TTP->getTypeConstraint()) {
-    TokenPrinterContext ctx(Out, TC, tokens, __FUNCTION__);
+    TokenPrinterContext ctx(Out, TC, tokens);
     TC->print(Out, Policy);
   }
   else if (TTP->wasDeclaredWithTypename())
@@ -1729,11 +1852,18 @@ void DeclPrinter::VisitTemplateTypeParmDecl(const clang::TemplateTypeParmDecl *T
 
 void DeclPrinter::VisitNonTypeTemplateParmDecl(
     const clang::NonTypeTemplateParmDecl *NTTP) {
-  TokenPrinterContext ctx(Out, NTTP, tokens, __FUNCTION__);
+  TokenPrinterContext ctx(Out, NTTP, tokens);
   clang::StringRef Name;
   if (clang::IdentifierInfo *II = NTTP->getIdentifier())
     Name = II->getName();
-  printDeclType(NTTP->getType(), Name, NTTP->isParameterPack());
+
+  printDeclType(
+      NTTP->getType(),
+      [&, Name = std::move(Name)] () {
+        TokenPrinterContext jump_up_stack(ctx);
+        Out << Name;
+      },
+      NTTP->isParameterPack());
 
   if (NTTP->hasDefaultArgument()) {
     Out << " = ";

@@ -24,31 +24,12 @@
 
 namespace pasta {
 
-// Traverse up the chain.
-std::shared_ptr<const PrintedTokenContext> PrintedTokenContext::Parent(
-    std::shared_ptr<const PrintedTokenContext> curr) {
-  if (curr) {
-    return std::shared_ptr<const PrintedTokenContext>(curr, curr->parent);
-  } else {
-    return std::shared_ptr<const PrintedTokenContext>();
-  }
-}
-
 PrintedToken::~PrintedToken(void) {}
-
-// A pointer to the raw context.
-std::shared_ptr<const PrintedTokenContext> PrintedToken::RawContext(void) const {
-  if (impl) {
-    return std::shared_ptr<const PrintedTokenContext>(range, impl->context);
-  } else {
-    return std::shared_ptr<const PrintedTokenContext>();
-  }
-}
 
 // Return the data associated with this token.
 std::string_view PrintedToken::Data(void) const {
   if (impl) {
-    return impl->data;
+    return impl->Data(*range);
   } else {
     return {};
   }
@@ -60,18 +41,6 @@ clang::tok::TokenKind PrintedToken::Kind(void) const {
     return impl->kind;
   } else {
     return clang::tok::unknown;
-  }
-}
-
-const char *PrintedTokenContext::KindName(void) const {
-  switch (kind) {
-#define PASTA_PRINTED_TOKEN_KIND_CASE(cls) \
-    case PrintedTokenKind::k ## cls: return #cls ; \
-  PASTA_FOR_EACH_PRINTED_TOKEN_KIND(PASTA_PRINTED_TOKEN_KIND_CASE)
-#undef PASTA_PRINTED_TOKEN_KIND_CASE
-    default:
-      assert(false);
-      return "Unknown";
   }
 }
 
@@ -101,6 +70,22 @@ unsigned PrintedToken::Index(void) const {
     return static_cast<unsigned>(impl - begin);
   } else {
     return ~0u;
+  }
+}
+
+// Return this token's context, or a null context.
+std::optional<TokenContext> PrintedToken::Context(void) const noexcept {
+  if (!impl) {
+    return {};
+  } else if (impl->context_index == kInvalidTokenContextIndex) {
+    return {};
+  } else if (impl->context_index >= range->contexts.size()) {
+    return {};
+  } else {
+    std::shared_ptr<const std::vector<TokenContextImpl>> contexts(
+        range, &(range->contexts));
+    return TokenContext(&(range->contexts[impl->context_index]),
+                        std::move(contexts));
   }
 }
 
@@ -155,14 +140,25 @@ ptrdiff_t PrintedTokenIterator::operator-(
 
 PrintedTokenRangeImpl::~PrintedTokenRangeImpl(void) {}
 
-void PrintedTokenRangeImpl::PopContext(void) {
-  if (!tokenizer_stack.empty()) {
-    const auto last_tokenizer = tokenizer_stack.back();
-    last_tokenizer->Tokenize();
 
-    context_stack.pop_back();
-    tokenizer_stack.pop_back();
+const TokenContextIndex PrintedTokenRangeImpl::CreateAlias(
+    TokenPrinterContext *tokenizer, TokenContextIndex aliasee) {
+
+  // If the current thing on the stack is what we're aliasing, then don't alias
+  // it.
+  if (tokenizer->prev_printer_context &&
+      tokenizer->prev_printer_context->context_index == aliasee) {
+    return aliasee;
   }
+
+  auto index = static_cast<TokenContextIndex>(contexts.size());
+  assert(index == contexts.size());
+  contexts.emplace_back(
+      (tokenizer->prev_printer_context ?
+          tokenizer->prev_printer_context->context_index :
+          kInvalidTokenContextIndex),
+      aliasee);
+  return index;
 }
 
 namespace {
@@ -197,6 +193,29 @@ static std::tuple<unsigned, unsigned, unsigned> SkipWhitespace(
 }
 
 }  // namespace
+
+TokenPrinterContext::TokenPrinterContext(
+    const TokenPrinterContext &that_, no_alias_tag)
+    : out(that_.out),
+      prev_printer_context(that_.tokens.curr_printer_context),
+      context_index(that_.context_index),
+      tokens(that_.tokens) {
+  if (prev_printer_context) {
+    prev_printer_context->Tokenize();
+  }
+  tokens.curr_printer_context = this;
+}
+
+TokenPrinterContext::TokenPrinterContext(const TokenPrinterContext &that_)
+    : out(that_.out),
+      prev_printer_context(that_.tokens.curr_printer_context),
+      context_index(that_.tokens.CreateAlias(this, that_.context_index)),
+      tokens(that_.tokens) {
+  if (prev_printer_context) {
+    prev_printer_context->Tokenize();
+  }
+  tokens.curr_printer_context = this;
+}
 
 void TokenPrinterContext::Tokenize(void) {
   const clang::LangOptions &lo = tokens.ast_context.getLangOpts();
@@ -240,15 +259,22 @@ void TokenPrinterContext::Tokenize(void) {
       num_sp = 0u;
     }
 
-    std::string token_value;
-    token_value.reserve(tok.getLength());
-    for (last_i = i, i += tok.getLength(); last_i < i; ++last_i) {
-      token_value.push_back(token_data[last_i]);
+    const auto data_offset = static_cast<uint32_t>(tokens.data.size());
+    assert(0ll <= static_cast<int32_t>(data_offset));
+    uint32_t data_len = 0u;
+    tokens.data.reserve(data_offset + tok.getLength());
+    for (last_i = i, i += tok.getLength(); last_i < i && token_data[last_i];
+        ++last_i) {
+      tokens.data.push_back(token_data[last_i]);
+      ++data_len;
+      assert(static_cast<uint16_t>(data_len) != 0u);
     }
+    tokens.data.push_back('\0');  // Make sure all tokens end up NUL-terminated.
 
     // Add the token in.
     tokens.tokens.emplace_back(
-        std::move(token_value), context, num_nl, num_sp, tok.getKind());
+        static_cast<int32_t>(data_offset), static_cast<uint16_t>(data_len),
+        context_index, num_nl, num_sp, tok.getKind());
 
     if (at_end) {
       break;
@@ -270,15 +296,16 @@ void TokenPrinterContext::Tokenize(void) {
   }
 }
 
-void TokenPrinterContext::MarkLocation(clang::SourceLocation &loc) {
+void TokenPrinterContext::MarkLocation(clang::SourceLocation loc) {
   Tokenize();
-  if (!tokens.tokens.empty()) {
-    tokens.tokens.back().parsed_location = loc;
+  if (!tokens.tokens.empty() && loc.isValid()) {
+    tokens.tokens.back().opaque_source_loc = loc.getRawEncoding();
   }
 }
 
 TokenPrinterContext::~TokenPrinterContext(void) {
-  tokens.PopContext();
+  Tokenize();
+  tokens.curr_printer_context = prev_printer_context;
 }
 
 // More typical APIs when we've got PASTA ASTs.

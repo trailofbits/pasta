@@ -253,7 +253,7 @@ class Type {
   std::optional<::pasta::ArrayType> CastAsArrayTypeUnsafe(void) const;
   bool ContainsErrors(void) const;
   bool ContainsUnexpandedParameterPack(void) const;
-  ::pasta::Type ArrayElementTypeNoTypeQual(void) const;
+  ::pasta::Type ArrayElementTypeNoTypeQualified(void) const;
   std::optional<::pasta::ArrayType> AsArrayTypeUnsafe(void) const;
   std::optional<::pasta::CXXRecordDecl> AsCXXRecordDeclaration(void) const;
   std::optional<::pasta::ComplexType> AsComplexIntegerType(void) const;
@@ -1160,8 +1160,8 @@ class ObjCObjectPointerType : public Type {
   bool IsSugared(void) const;
   bool IsUnspecialized(void) const;
   bool IsUnspecializedAsWritten(void) const;
-  std::vector<::pasta::ObjCProtocolDecl> Quals(void) const;
-  ::pasta::ObjCObjectPointerType StripObjCKindOfTypeAndQuals(void) const;
+  std::vector<::pasta::ObjCProtocolDecl> Qualifieds(void) const;
+  ::pasta::ObjCObjectPointerType StripObjCKindOfTypeAndQualifieds(void) const;
   std::vector<::pasta::ObjCProtocolDecl> Protocols(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ObjCObjectPointerType)
@@ -1195,7 +1195,7 @@ class ObjCObjectType : public Type {
   bool IsSugared(void) const;
   bool IsUnspecialized(void) const;
   bool IsUnspecializedAsWritten(void) const;
-  ::pasta::Type StripObjCKindOfTypeAndQuals(void) const;
+  ::pasta::Type StripObjCKindOfTypeAndQualifieds(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ObjCObjectType)
 };
@@ -1519,7 +1519,7 @@ class FunctionProtoType : public FunctionType {
   // ExtParameterInfos: (llvm::ArrayRef<clang::FunctionType::ExtParameterInfo>)
   // ExtParameterInfosOrNull: (const clang::FunctionType::ExtParameterInfo *)
   // ExtProtoInfo: (clang::FunctionProtoType::ExtProtoInfo)
-  // MethodQuals: (clang::Qualifiers)
+  // MethodQualifieds: (clang::Qualifiers)
   ::pasta::Expr NoexceptExpression(void) const;
   uint32_t NumExceptions(void) const;
   uint32_t NumParams(void) const;

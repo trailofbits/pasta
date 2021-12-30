@@ -16,7 +16,7 @@ Type TypeBuilder::Build(std::shared_ptr<ASTImpl> ast_, clang::QualType type) {
         static_cast<TypeKind>(type_ptr->getTypeClass()),
         type.getQualifiers().getAsOpaqueValue());
   }
-  assert(!"`type` is a null type.");
+  assert(false && "`type` is a null type.");
   __builtin_unreachable();
 }
 #endif

@@ -11,6 +11,10 @@
 //
 //===----------------------------------------------------------------------===//
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/AST/ASTContext.h>
 #include <clang/AST/Attr.h>
 #include <clang/AST/Decl.h>
@@ -58,10 +62,6 @@
 #include <clang/Lex/Lexer.h>
 #include <clang/Lex/Preprocessor.h>
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/Frontend/CompilerInstance.h>
 #pragma clang diagnostic pop
 
@@ -70,6 +70,7 @@
 
 #include "raw_ostream.h"
 #include "Printer.h"
+#include "../Token.h"
 
 namespace pasta {
 
@@ -87,7 +88,7 @@ class DeclPrinter : public clang::DeclVisitor<DeclPrinter> {
   void ProcessDeclGroup(clang::SmallVectorImpl<clang::Decl*>& Decls);
   void Print(clang::AccessSpecifier AS);
   void PrintConstructorInitializers(clang::CXXConstructorDecl *CDecl,
-                                    std::string &Proto);
+                                    std::function<void(void)> &ProtoFn);
   /// Print an Objective-C method type in parentheses.
   ///
   /// \param Quals The Objective-C declaration qualifiers.
@@ -162,7 +163,7 @@ class DeclPrinter : public clang::DeclVisitor<DeclPrinter> {
    void printTemplateArguments(llvm::ArrayRef<clang::TemplateArgumentLoc> Args);
    void prettyPrintAttributes(clang::Decl *D);
    void prettyPrintPragmas(clang::Decl *D);
-   void printDeclType(clang::QualType T, llvm::StringRef DeclName, bool Pack = false);
+   void printDeclType(clang::QualType T, std::function<void(void)> NameFn, bool Pack = false);
 
    void printPrettyStmt(clang::Stmt *stmt_,
                         raw_string_ostream &Out,
@@ -172,10 +173,13 @@ class DeclPrinter : public clang::DeclVisitor<DeclPrinter> {
 
    void printQualType(clang::QualType qt,
                       raw_string_ostream &OS,
-                      const clang::PrintingPolicy &Policy,
-                      const clang::Twine &PlaceHolder = clang::Twine(),
-                      std::function<std::string(void)> *placeHolderFn = nullptr,
-                      unsigned Indentation = 0);
+                      const clang::PrintingPolicy &Policy);
+
+   void printQualType(clang::QualType qt,
+                     raw_string_ostream &OS,
+                     const clang::PrintingPolicy &Policy,
+                     std::function<void(void)> ProtoFn,
+                     unsigned Indentation = 0);
 
 
    PrintedTokenRangeImpl &tokens;
@@ -204,9 +208,13 @@ class StmtPrinter : public clang::StmtVisitor<StmtPrinter> {
     void PrintStmt(clang::Stmt *S) { PrintStmt(S, Policy.Indentation); }
 
     void printQualType(clang::QualType type_, raw_string_ostream &OS,
-               const clang::PrintingPolicy &Policy,
-               const clang::Twine &PlaceHolder = clang::Twine(),
-               unsigned Indentation = 0);
+                       const clang::PrintingPolicy &Policy);
+
+    void printQualType(
+        clang::QualType type_, raw_string_ostream &OS,
+        const clang::PrintingPolicy &Policy,
+        std::function<void(void)> *PlaceHolderFn,
+        unsigned Indentation = 0);
 
     void printDecl(clang::Decl *D, raw_string_ostream &Out,
                    const clang::PrintingPolicy &policy_, unsigned Indentation);
@@ -260,17 +268,23 @@ class StmtPrinter : public clang::StmtVisitor<StmtPrinter> {
                                      bool ForceNoStmt = false);
 
     void PrintExpr(clang::Expr *E) {
-      TokenPrinterContext ctx(OS, E, tokens, __FUNCTION__);
+      TokenPrinterContext ctx(OS, E, tokens);
       if (E)
         Visit(E);
       else
         OS << "<null expr>";
     }
 
+    bool suppress_leading_indent = false;
+
     pasta::raw_string_ostream &Indent(int Delta = 0) {
-      auto level = static_cast<int>(IndentLevel) + Delta;
-      for (int i = 0, e = level; i < e; ++i)
-        OS << "  ";
+      if (!suppress_leading_indent) {
+        auto level = static_cast<int>(IndentLevel) + Delta;
+        for (int i = 0, e = level; i < e; ++i)
+          OS << "  ";
+      } else {
+        suppress_leading_indent = false;
+      }
       return OS;
     }
 
@@ -318,12 +332,12 @@ public:
                        unsigned Indentation = 0)
       : Policy(Policy), Indentation(Indentation), tokens(tokens_) {}
 
-  void print(const clang::Type *ty, clang::Qualifiers qs,
-             raw_string_ostream &OS, clang::StringRef PlaceHolder,
-             std::function<std::string(void)> *placeHolderFn = nullptr);
+//  void print(const clang::Type *ty, clang::Qualifiers qs,
+//             raw_string_ostream &OS, clang::StringRef PlaceHolder,
+//             std::function<void(void)> *placeHolderFn = nullptr);
 
   void print(clang::QualType T, raw_string_ostream &OS,
-             clang::StringRef PlaceHolder, std::function<std::string(void)> *placeHolderFn = nullptr);
+             clang::StringRef PlaceHolder, std::function<void(void)> *placeHolderFn = nullptr);
 
   static bool canPrefixQualifiers(const clang::Type *T, bool &NeedARCStrongQualifier);
   void spaceBeforePlaceHolder(raw_string_ostream &OS);
@@ -331,8 +345,9 @@ public:
   void printTemplateId(const clang::TemplateSpecializationType *T, raw_string_ostream &OS,
                        bool FullyQualify);
 
-  void printBefore(clang::QualType T, raw_string_ostream &OS);
-  void printAfter(clang::QualType T, raw_string_ostream &OS);
+//  void printBefore(clang::QualType T, raw_string_ostream &OS);
+//  void printAfter(clang::QualType T, raw_string_ostream &OS);
+  void printBeforeAfter(clang::QualType T, raw_string_ostream &OS, std::function<void(void)> IdentFn);
   void AppendScope(clang::DeclContext *DC, raw_string_ostream &OS,
                    clang::DeclarationName NameInScope);
   void printTag(clang::TagDecl *T, raw_string_ostream &OS);
@@ -340,13 +355,12 @@ public:
 
 #define ABSTRACT_TYPE(CLASS, PARENT)
 #define TYPE(CLASS, PARENT) \
-  void print##CLASS##Before(const clang::CLASS##Type *T, raw_string_ostream &OS); \
-  void print##CLASS##After(const clang::CLASS##Type *T, raw_string_ostream &OS);
+  void print##CLASS(const clang::CLASS##Type *T, raw_string_ostream &OS, std::function<void(void)> IdentFn);
 #include "clang/AST/TypeNodes.inc"
 
 private:
-  void printBefore(const clang::Type *ty, clang::Qualifiers qs, raw_string_ostream &OS);
-  void printAfter(const clang::Type *ty, clang::Qualifiers qs, raw_string_ostream &OS);
+//  void printBefore(const clang::Type *ty, clang::Qualifiers qs, raw_string_ostream &OS);
+//  void printAfter(const clang::Type *ty, clang::Qualifiers qs, raw_string_ostream &OS);
 
   PrintedTokenRangeImpl &tokens;
 };

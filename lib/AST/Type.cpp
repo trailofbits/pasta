@@ -411,13 +411,13 @@ bool Type::ContainsUnexpandedParameterPack(void) const {
   return val;
 }
 
-::pasta::Type Type::ArrayElementTypeNoTypeQual(void) const {
+::pasta::Type Type::ArrayElementTypeNoTypeQualified(void) const {
   auto &self = *(u.Type);
   auto val = self.getArrayElementTypeNoTypeQual();
   if (val) {
     return TypeBuilder::Create<::pasta::Type>(ast, val);
   }
-  assert(false && "Type::ArrayElementTypeNoTypeQual can return nullptr!");
+  assert(false && "Type::ArrayElementTypeNoTypeQualified can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -3465,7 +3465,7 @@ bool ObjCObjectPointerType::IsUnspecializedAsWritten(void) const {
 // 0: ObjCObjectPointerType::
 // 0: ObjCObjectPointerType::
 // 0: ObjCObjectPointerType::
-std::vector<::pasta::ObjCProtocolDecl> ObjCObjectPointerType::Quals(void) const {
+std::vector<::pasta::ObjCProtocolDecl> ObjCObjectPointerType::Qualifieds(void) const {
   auto &self = *(u.ObjCObjectPointerType);
   auto val = self.quals();
   std::vector<::pasta::ObjCProtocolDecl> ret;
@@ -3475,13 +3475,13 @@ std::vector<::pasta::ObjCProtocolDecl> ObjCObjectPointerType::Quals(void) const 
   return ret;
 }
 
-::pasta::ObjCObjectPointerType ObjCObjectPointerType::StripObjCKindOfTypeAndQuals(void) const {
+::pasta::ObjCObjectPointerType ObjCObjectPointerType::StripObjCKindOfTypeAndQualifieds(void) const {
   auto &self = *(u.ObjCObjectPointerType);
   auto val = self.stripObjCKindOfTypeAndQuals(ast->ci->getASTContext());
   if (val) {
     return TypeBuilder::Create<::pasta::ObjCObjectPointerType>(ast, val);
   }
-  assert(false && "ObjCObjectPointerType::StripObjCKindOfTypeAndQuals can return nullptr!");
+  assert(false && "ObjCObjectPointerType::StripObjCKindOfTypeAndQualifieds can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -3635,7 +3635,7 @@ bool ObjCObjectType::IsUnspecializedAsWritten(void) const {
   return val;
 }
 
-::pasta::Type ObjCObjectType::StripObjCKindOfTypeAndQuals(void) const {
+::pasta::Type ObjCObjectType::StripObjCKindOfTypeAndQualifieds(void) const {
   auto &self = *(u.ObjCObjectType);
   auto val = self.stripObjCKindOfTypeAndQuals(ast->ci->getASTContext());
   return TypeBuilder::Build(ast, val);
@@ -4199,7 +4199,7 @@ enum ExceptionSpecificationType FunctionProtoType::ExceptionSpecType(void) const
 // 0: FunctionProtoType::ExtParameterInfos
 // 0: FunctionProtoType::ExtParameterInfosOrNull
 // 0: FunctionProtoType::ExtProtoInfo
-// 0: FunctionProtoType::MethodQuals
+// 0: FunctionProtoType::MethodQualifieds
 ::pasta::Expr FunctionProtoType::NoexceptExpression(void) const {
   auto &self = *(u.FunctionProtoType);
   auto val = self.getNoexceptExpr();

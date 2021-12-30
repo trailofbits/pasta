@@ -21,6 +21,7 @@
 
 #include <pasta/Util/FileManager.h>
 #include <pasta/Util/File.h>
+#include <pasta/Util/Result.h>
 
 #include "Token.h"
 
@@ -82,6 +83,10 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // List of tokens.
   std::vector<TokenImpl> tokens;
 
+  // List of token contexts from trying to print the entire AST using the token
+  // printer.
+  std::vector<TokenContextImpl> contexts;
+
   // Huge "file" containing one token per line. Sometimes some lines are empty.
   // This represents all code after pre-processing, and the relationship is that
   // there is one line per token in `tokens` above.
@@ -102,6 +107,9 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // Append a token to the end of the AST. `offset` is the offset in
   // `backup_token_data`, and `len` is the length in bytes of the token itself.
   void AppendBackupToken(const clang::Token &tok, size_t offset, size_t len);
+
+  // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
+  static Result<AST, std::string> AlignTokens(std::shared_ptr<ASTImpl> ast);
 
  private:
   ASTImpl(void) = delete;

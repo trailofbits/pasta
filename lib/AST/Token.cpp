@@ -11,6 +11,7 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/AST/ASTContext.h>
 #include <clang/Basic/IdentifierTable.h>
 #include <clang/Basic/SourceManager.h>
 #include <clang/Basic/TokenKinds.h>
@@ -20,6 +21,7 @@
 #pragma clang diagnostic pop
 
 #include "AST.h"
+#include "Printer/Printer.h"
 
 namespace pasta {
 namespace {
@@ -41,7 +43,9 @@ static bool ReadRawTokenByKind(clang::SourceManager &source_manager,
     }
 
     case clang::tok::raw_identifier:
-      backup = tok.getRawIdentifier();
+      if (tok.getLength()) {
+        backup = tok.getRawIdentifier();
+      }
       break;
 
     case clang::tok::numeric_constant:
@@ -179,6 +183,157 @@ static bool ReadRawTokenData(clang::SourceManager &source_manager,
 
 } // namespace
 
+
+const TokenContextImpl *TokenContextImpl::Parent(
+    const std::vector<TokenContextImpl> &contexts) const {
+  if (parent_index == kInvalidTokenContextIndex) {
+    return nullptr;
+  }
+
+  if (parent_index >= contexts.size()) {
+    assert(false);
+    return nullptr;
+  }
+
+  auto first_context = &(contexts.front());
+  auto last_context = &(contexts.back());
+  if (this < first_context || this > last_context) {
+    assert(false);
+    return nullptr;
+  }
+
+  if (parent_index >= static_cast<uint32_t>(this - first_context)) {
+    assert(false);
+    return nullptr;
+  }
+
+  return &(contexts[parent_index]);
+}
+
+const TokenContextImpl *TokenContextImpl::Aliasee(
+    const std::vector<TokenContextImpl> &contexts) const {
+  if (kind != TokenContextKind::kAlias) {
+    return this;
+  }
+
+  auto alias_index = reinterpret_cast<uintptr_t>(data);
+  assert(alias_index == static_cast<TokenContextIndex>(alias_index));
+
+  if (alias_index >= contexts.size()) {
+    assert(false);
+    return this;
+  }
+
+  auto first_context = &(contexts.front());
+  auto last_context = &(contexts.back());
+  if (this < first_context || this > last_context) {
+    assert(false);
+    return this;
+  }
+
+  if (alias_index >= static_cast<uint32_t>(this - first_context)) {
+    assert(false);
+    return this;
+  }
+
+  return contexts[alias_index].Aliasee(contexts);
+}
+
+const char *TokenContextImpl::KindName(
+      const std::vector<TokenContextImpl> &contexts) const {
+  switch (kind) {
+    case TokenContextKind::kInvalid:
+      return "Invalid";
+#define PASTA_TOKEN_CONTEXT_KIND_CASE(cls) \
+    case TokenContextKind::k ## cls: return #cls ;
+    PASTA_FOR_EACH_TOKEN_CONTEXT_KIND(PASTA_TOKEN_CONTEXT_KIND_CASE)
+#undef PASTA_TOKEN_CONTEXT_KIND_CASE
+    case TokenContextKind::kAlias:
+      if (auto aliasee = Aliasee(contexts); aliasee != this) {
+        return aliasee->KindName(contexts);
+      } else {
+        assert(false);
+        return "Alias";
+      }
+    case TokenContextKind::kString:
+      return "String";
+  }
+}
+
+// Return the index of this token context.
+uint32_t TokenContext::Index(void) const {
+  if (impl) {
+    return static_cast<TokenContextIndex>(impl - &(contexts->front()));
+  } else {
+    return kInvalidTokenContextIndex;
+  }
+}
+
+// String representation of this token context kind.
+const char *TokenContext::KindName(void) const {
+  return impl ? "Invalid" : impl->KindName(*contexts);
+}
+
+// Return the kind of this token.
+TokenContextKind TokenContext::Kind(void) const {
+  if (impl) {
+    return impl->Aliasee(*contexts)->kind;
+  } else {
+    return TokenContextKind::kInvalid;
+  }
+}
+
+// Return the data of this context.
+const void *TokenContext::Data(void) const {
+  if (impl) {
+    return impl->Aliasee(*contexts)->data;
+  } else {
+    return nullptr;
+  }
+}
+
+// Return the parent context.
+std::optional<TokenContext> TokenContext::Parent(void) const {
+  if (!impl) {
+    return std::nullopt;
+  }
+
+  auto parent = impl->Parent(*contexts);
+  if (!parent) {
+    return std::nullopt;
+  }
+
+  return TokenContext(parent, contexts);
+}
+
+// Return the context aliased by this context.
+std::optional<TokenContext> TokenContext::Aliasee(void) const {
+  if (!impl) {
+    return std::nullopt;
+  }
+
+  auto aliasee = impl->Aliasee(*contexts);
+  if (impl == aliasee) {
+    return std::nullopt;
+  }
+
+  return TokenContext(aliasee, contexts);
+}
+
+// Try to update this context to point to its parent.
+bool TokenContext::TryUpdateToParent(void) {
+  if (!impl) {
+    return false;
+  }
+
+  if (auto parent = impl->Parent(*contexts)) {
+    impl = parent;
+    return true;
+  } else {
+    return false;
+  }
+}
+
 // Location of the token in a file.
 std::optional<FileToken> Token::FileLocation(void) const {
   if (!impl) {
@@ -205,22 +360,53 @@ clang::tok::TokenKind Token::Kind(void) const {
   return impl ? impl->kind : clang::tok::unknown;
 }
 
+// Return this token's context, or a null context.
+std::optional<TokenContext> Token::Context(void) const noexcept {
+  if (!impl) {
+    return {};
+  } else if (impl->context_index == kInvalidTokenContextIndex) {
+    return {};
+  } else if (impl->context_index >= ast->contexts.size()) {
+    return {};
+  } else {
+    std::shared_ptr<const std::vector<TokenContextImpl>> contexts(
+        ast, &(ast->contexts));
+    return TokenContext(&(ast->contexts[impl->context_index]),
+                        std::move(contexts));
+  }
+}
+
+std::string_view TokenImpl::Data(const ASTImpl &ast) const noexcept {
+  if (data_len) {
+    if (0 <= data_offset) {
+      return std::string_view(ast.preprocessed_code).substr(
+          static_cast<uint32_t>(data_offset), data_len);
+    } else {
+      return std::string_view(ast.backup_token_data).substr(
+          static_cast<uint32_t>(-data_offset), data_len);
+    }
+  } else {
+    return {};
+  }
+}
+
+std::string_view TokenImpl::Data(
+    const PrintedTokenRangeImpl &range) const noexcept {
+  if (data_len) {
+    return std::string_view(range.data).substr(
+        static_cast<uint32_t>(data_offset), data_len);
+  } else {
+    return {};
+  }
+}
+
 // Return the data associated with this token.
 std::string_view Token::Data(void) const {
-  std::string_view data;
-  if (!impl || !impl->data_len) {
-    return data;
-  }
-
-  size_t offset = 0;
-  if (0 <= impl->data_offset) {
-    data = ast->preprocessed_code;
-    offset = static_cast<unsigned>(impl->data_offset);
+  if (!impl) {
+    return {};
   } else {
-    data = ast->backup_token_data;
-    offset = static_cast<unsigned>(-impl->data_offset);
+    return impl->Data(*ast);
   }
-  return data.substr(offset, impl->data_len);
 }
 
 // Index of this token in the AST's token list.
@@ -321,20 +507,26 @@ bool TryReadRawToken(clang::SourceManager &source_manager,
   } else if (!tok.needsCleaning()) {
     clang::IdentifierInfo *ident_info = nullptr;
 
-    if (tok.is(clang::tok::raw_identifier)) {
+    if (tok.is(clang::tok::raw_identifier) && tok.getLength()) {
       const auto raw_ident = tok.getRawIdentifier();
       out->assign(raw_ident.data(), raw_ident.size());
-      return true;
+      if (!out->empty()) {
+        return true;
+      }
 
     } else if (tok.is(clang::tok::identifier) &&
                nullptr != (ident_info = tok.getIdentifierInfo())) {
 
-      out->assign(ident_info->getNameStart(), ident_info->getLength());
-      return true;
+      if (!out->empty()) {
+        out->assign(ident_info->getNameStart(), ident_info->getLength());
+        return true;
+      }
 
     } else if (tok.isLiteral() && tok.getLiteralData()) {
-      out->assign(tok.getLiteralData(), tok.getLength());
-      return true;
+      if (!out->empty()) {
+        out->assign(tok.getLiteralData(), tok.getLength());
+        return true;
+      }
     }
   }
 
@@ -363,6 +555,25 @@ bool TryReadRawToken(clang::SourceManager &source_manager,
   // If all else fails, try to get the representation of the token using
   // its kind.
   return ReadRawTokenByKind(source_manager, tok, out);
+}
+
+// Try to lex the data at `loc` into the token `*out`.
+bool TryLexRawToken(clang::SourceManager &source_manager,
+                    const clang::LangOptions &lang_opts,
+                    clang::SourceLocation loc, clang::Token *out) {
+  if (loc.isFileID()) {
+    return !clang::Lexer::getRawToken(
+        loc, *out, source_manager, lang_opts, true);
+  } else {
+    return false;
+  }
+}
+
+// Try to lex the data at `loc` into the token `*out`.
+bool TryLexRawToken(clang::ASTContext &ast_context,
+                    clang::SourceLocation loc, clang::Token *out) {
+  return TryLexRawToken(ast_context.getSourceManager(),
+                        ast_context.getLangOpts(), loc, out);
 }
 
 Token::~Token(void) {}

@@ -106,6 +106,8 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   {"Mem", "Memory"},
   {"Parens", "Parentheses"},
   {"Paren", "Parenthesis"},
+  {"Qual", "Qualified"},
+  {"Unqual", "Unqualified"},
   {"noload_decls", "AlreadyLoadedDeclarations"},
   {"Noload_decls", "AlreadyLoadedDeclarations"},
 };

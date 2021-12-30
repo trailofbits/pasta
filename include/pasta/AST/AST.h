@@ -27,6 +27,7 @@ class ASTImpl;
 class CompileJob;
 class Compiler;
 class Decl;
+class TokenContext;
 class Type;
 
 // Abstraction around a Clang AST and the various data structures that need to
@@ -70,6 +71,7 @@ class AST {
   const std::vector<::pasta::File> &ParsedFiles(void) const;
 
  private:
+  friend class ASTImpl;
   friend class Compiler;
   friend class CompileJob;
   friend class DeclBase;

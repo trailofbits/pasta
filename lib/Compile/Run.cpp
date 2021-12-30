@@ -45,6 +45,8 @@
 #include "../AST/Token.h"
 #include "../Util/FileManager.h"
 
+#define PASTA_DEBUG_RUN 0
+
 namespace pasta {
 namespace detail {
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, TLSSupported, bool);
@@ -86,6 +88,7 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
       break;
     }
 
+    tok_data.clear();
     if (tok.isOneOf(clang::tok::unknown, clang::tok::comment,
                     clang::tok::code_completion) ||
         !TryReadRawToken(source_manager, lang_opts, tok, &tok_data) ||
@@ -94,7 +97,8 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
         impl.AppendToken(tok, 0, 0);
       } else {
         backup_os.flush();
-        impl.AppendBackupToken(tok, impl.backup_token_data.size(), tok_data.size());
+        impl.AppendBackupToken(tok, impl.backup_token_data.size(),
+                               tok_data.size());
         backup_os << tok_data;
       }
       os << '\n';
@@ -188,12 +192,13 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
 
   os.flush();
 
-
+#if PASTA_DEBUG_RUN
   // NOTE(pag): If there's a compiler error that "shouldn't happen," then
   //            enabling the below code can help diagnose it.
-//  auto fd = open("/tmp/source.cpp", O_TRUNC | O_CREAT | O_WRONLY, 0666);
-//  write(fd, impl.preprocessed_code.data(), impl.preprocessed_code.size());
-//  close(fd);
+  auto fd = open("/tmp/source.cpp", O_TRUNC | O_CREAT | O_WRONLY, 0666);
+  write(fd, impl.preprocessed_code.data(), impl.preprocessed_code.size());
+  close(fd);
+#endif  // PASTA_DEBUG_RUN
 }
 
 }  // namespace
@@ -645,7 +650,17 @@ Result<AST, std::string> CompileJob::Run(void) const {
   ast->tu = ast_context.getTranslationUnitDecl();
   ast->printing_policy.reset(new clang::PrintingPolicy(*lang_opts));
 
-  return AST(std::move(ast));
+  // Initialize the policy to print tokens as closely as possible to what is
+  // written in the original code.
+  if (auto pp = ast->printing_policy.get()) {
+    pp->ConstantArraySizeAsWritten = true;
+    pp->ConstantsAsWritten = true;
+    pp->PrintCanonicalTypes = false;
+    pp->PrintInjectedClassNameWithArguments = false;
+    pp->SuppressUnwrittenScope = true;
+  }
+
+  return ASTImpl::AlignTokens(std::move(ast));
 }
 
 }  // namespace pasta

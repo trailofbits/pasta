@@ -84,6 +84,9 @@ class TokenContext {
   // Try to update this context to point to its parent.
   bool TryUpdateToParent(void);
 
+  // Try to update this context to point to its aliasee.
+  bool TryUpdateToAliasee(void);
+
   inline uint64_t Hash(void) const noexcept {
     return std::hash<const TokenContextImpl *>{}(impl);
   }

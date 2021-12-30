@@ -334,6 +334,20 @@ bool TokenContext::TryUpdateToParent(void) {
   }
 }
 
+// Try to update this context to point to its aliasee.
+bool TokenContext::TryUpdateToAliasee(void) {
+  if (!impl) {
+    return false;
+  }
+
+  if (auto aliasee = impl->Aliasee(*contexts); aliasee != impl) {
+    impl = aliasee;
+    return true;
+  } else {
+    return false;
+  }
+}
+
 // Location of the token in a file.
 std::optional<FileToken> Token::FileLocation(void) const {
   if (!impl) {

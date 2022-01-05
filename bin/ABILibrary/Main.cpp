@@ -91,10 +91,10 @@ int main(int argc, char *argv[]) {
       return EXIT_FAILURE;
     } else {
       FunctionABIPrinter finder;
-      for (auto tok : maybe_ast->Tokens()) {
-        std::cout << tok.Data() << ' ';
-      }
-      std::cout << "\n\nextern void *__mcsema_symbols[] = {\n";
+//      for (auto tok : maybe_ast->Tokens()) {
+//        std::cout << tok.Data() << ' ';
+//      }
+      std::cout << "\nextern void *__mcsema_symbols[] = {\n";
       finder.Accept(maybe_ast->TranslationUnit());
       std::cout << "};\n\n";
       return EXIT_SUCCESS;

@@ -79,6 +79,17 @@ static void CollectGetNthMethod(const std::string &class_name,
 static void DeclareCppMethod0(std::ostream &os, const std::string &class_name,
                               const char *meth, const char *rt) {
   meth_name_ref = meth;
+
+  // `NamedDecl::getName` has an assertion in it where `getNameAsString` does
+  // not, and we introduce a method rename for `getNameAstString` to
+  // `getName`.
+  if (meth_name_ref == "getName") {
+    if (class_name == "NamedDecl" ||
+        class_name == "ObjCImplementationDecl") {
+      return;
+    }
+  }
+
   CollectGetNumMethod(class_name, rt);
   if (const auto meth_name = CxxName(meth_name_ref);
       !meth_name.empty()) {

@@ -273,6 +273,11 @@ void TypePrinter::printBeforeAfter(
     clang::QualType t, raw_string_ostream &OS,
     std::function<void(void)> IdentFn) {
 
+  if (t.isNull()) {
+    IdentFn();
+    return;
+  }
+
   clang::SplitQualType Split = splitAccordingToPolicy(t, Policy);
   const clang::Type *T = Split.Ty;
   clang::Qualifiers Quals = Split.Quals;

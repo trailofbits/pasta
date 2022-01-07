@@ -42,6 +42,10 @@ class FunctionABIPrinter final : public pasta::DeclVisitor {
     VisitDeclContext(decl);
   }
 
+  void VisitCXXMethodDecl(const pasta::CXXMethodDecl &) final {
+    // Do nothing for C++ methods.
+  }
+
   void VisitFunctionDecl(const pasta::FunctionDecl &decl) final {
     std::cout << "  (void *) &" << decl.Name() << ",\n";
   }

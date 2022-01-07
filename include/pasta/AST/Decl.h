@@ -743,8 +743,7 @@ class NamedDecl : public Decl {
   // LinkageAndVisibility: (clang::LinkageInfo)
   enum Linkage LinkageInternal(void) const;
   ::pasta::NamedDecl MostRecentDeclaration(void) const;
-  std::string_view Name(void) const;
-  std::string NameAsString(void) const;
+  std::string Name(void) const;
   enum ObjCStringFormatFamily ObjCFStringFormattingFamily(void) const;
   std::string QualifiedNameAsString(void) const;
   ::pasta::NamedDecl UnderlyingDeclaration(void) const;
@@ -891,8 +890,7 @@ class ObjCImplementationDecl : public ObjCImplDecl {
   // Identifier: (clang::IdentifierInfo *)
   ::pasta::Token InstanceVariableLBraceToken(void) const;
   ::pasta::Token InstanceVariableRBraceToken(void) const;
-  std::string_view Name(void) const;
-  std::string NameAsString(void) const;
+  std::string Name(void) const;
   uint32_t NumInstanceVariableInitializers(void) const;
   std::string_view ObjCRuntimeNameAsString(void) const;
   ::pasta::ObjCInterfaceDecl SuperClass(void) const;

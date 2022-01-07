@@ -110,6 +110,8 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   {"Unqual", "Unqualified"},
   {"noload_decls", "AlreadyLoadedDeclarations"},
   {"Noload_decls", "AlreadyLoadedDeclarations"},
+
+  {"NameAsString", "Name"},  // getNameAsString -> getName
 };
 
 // Maps return types from the macros file to their replacements in the
@@ -724,7 +726,16 @@ std::vector<llvm::StringRef> kEnumPrefixesToStrip{
 
 // Set of ClassName::MethodName pairs such that the class can return a nullptr,
 // and thus `std::optional` probably needs to be used.
-std::set<std::pair<std::string, std::string>> kCanReturnNullptr{};
+std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
+  {"DeclContext", "getParent"},
+  {"DeclContext", "getLexicalParent"},
+  {"DeclContext", "getLookupParent"},
+  {"DeclContext", "getInnermostBlockDecl"},
+  {"DeclContext", "getExternCContext"},
+  {"DeclContext", "getNonClosureAncestor"},
+  {"DeclContext", "getEnclosingNamespaceContext"},
+  {"DeclContext", "getOuterLexicalRecordContext"},
+};
 
 std::unordered_map<std::string, uint32_t> gClassIDs;
 std::unordered_map<std::string, std::set<std::string>> gBaseClasses;

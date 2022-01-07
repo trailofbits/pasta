@@ -1803,17 +1803,7 @@ enum Linkage NamedDecl::LinkageInternal(void) const {
   __builtin_unreachable();
 }
 
-std::string_view NamedDecl::Name(void) const {
-  auto &self = *(u.NamedDecl);
-  auto val = self.getName();
-  if (auto size = val.size()) {
-    return std::string_view(val.data(), size);
-  } else {
-    return std::string_view();
-  }
-}
-
-std::string NamedDecl::NameAsString(void) const {
+std::string NamedDecl::Name(void) const {
   auto &self = *(u.NamedDecl);
   auto val = self.getNameAsString();
   return val;
@@ -2217,17 +2207,7 @@ PASTA_DEFINE_BASE_OPERATORS(ObjCImplDecl, ObjCImplementationDecl)
   return ast->TokenAt(val);
 }
 
-std::string_view ObjCImplementationDecl::Name(void) const {
-  auto &self = *(u.ObjCImplementationDecl);
-  auto val = self.getName();
-  if (auto size = val.size()) {
-    return std::string_view(val.data(), size);
-  } else {
-    return std::string_view();
-  }
-}
-
-std::string ObjCImplementationDecl::NameAsString(void) const {
+std::string ObjCImplementationDecl::Name(void) const {
   auto &self = *(u.ObjCImplementationDecl);
   auto val = self.getNameAsString();
   return val;

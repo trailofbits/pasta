@@ -15,6 +15,17 @@ namespace {
 static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
                              llvm::StringRef meth_name_ref,
                              llvm::StringRef rt_ref) {
+
+  // `NamedDecl::getName` has an assertion in it where `getNameAsString` does
+  // not, and we introduce a method rename for `getNameAstString` to
+  // `getName`.
+  if (meth_name_ref == "getName") {
+    if (class_name == "NamedDecl" ||
+        class_name == "ObjCImplementationDecl") {
+      return;
+    }
+  }
+
   const auto is_qual_type = class_name == "QualType";
   const auto &real_class_name = is_qual_type ? gTypeClassName : class_name;
   const std::string meth_name = CxxName(meth_name_ref);

@@ -98,7 +98,11 @@ int main(int argc, char *argv[]) {
 //      for (auto tok : maybe_ast->Tokens()) {
 //        std::cout << tok.Data() << ' ';
 //      }
-      std::cout << "\nextern void *__mcsema_symbols[] = {\n";
+      std::cout
+          << "\nextern void *__mcsema_symbols_"
+          << static_cast<unsigned>(rand())
+          << '_'
+          << static_cast<unsigned>(rand()) << " [] = {\n";
       finder.Accept(maybe_ast->TranslationUnit());
       std::cout << "};\n\n";
       return EXIT_SUCCESS;

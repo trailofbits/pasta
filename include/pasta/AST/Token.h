@@ -9,6 +9,7 @@
 #include <optional>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 #define PASTA_FOR_EACH_TOKEN_CONTEXT_KIND(pp) \
     pp(Stmt) \

@@ -1419,7 +1419,6 @@ void TypePrinter::printFunctionProto(const clang::FunctionProtoType *T,
         for (unsigned i = 0, e = T->getNumParams(); i != e; ++i) {
           if (i) OS << ", ";
 
-          TokenPrinterContext ctx(OS, "Parameter", tokens);
           auto EPI = T->getExtParameterInfo(i);
           if (EPI.isConsumed()) {
             OS << "__attribute__((ns_consumed)) ";

@@ -60,6 +60,7 @@ class PrintedTokenRangeImpl {
   std::string data;
 
   std::vector<TokenContextImpl> contexts;
+  std::unordered_map<const void *, unsigned> data_to_index;
 
   TokenPrinterContext *curr_printer_context{nullptr};
 
@@ -114,11 +115,18 @@ class TokenPrinterContext {
   TokenPrinterContext * const prev_printer_context;
   const TokenContextIndex context_index;
   PrintedTokenRangeImpl &tokens;
+  const void *owns_data{nullptr};
 };
 
 template <typename T>
 const TokenContextIndex PrintedTokenRangeImpl::CreateContext(
     TokenPrinterContext *tokenizer, const T *data) {
+
+  if (data) {
+    if (auto it = data_to_index.find(data); it != data_to_index.end()) {
+      return it->second;
+    }
+  }
 
   if (tokenizer->prev_printer_context) {
     auto &prev = contexts[tokenizer->prev_printer_context->context_index];
@@ -134,6 +142,12 @@ const TokenContextIndex PrintedTokenRangeImpl::CreateContext(
           tokenizer->prev_printer_context->context_index :
           kInvalidTokenContextIndex),
       data);
+
+  if (data) {
+    tokenizer->owns_data = data;
+    data_to_index.emplace(data, index);
+  }
+
   return index;
 }
 

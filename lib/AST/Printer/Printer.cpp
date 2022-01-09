@@ -306,6 +306,10 @@ void TokenPrinterContext::MarkLocation(clang::SourceLocation loc) {
 TokenPrinterContext::~TokenPrinterContext(void) {
   Tokenize();
   tokens.curr_printer_context = prev_printer_context;
+
+  if (owns_data) {
+    tokens.data_to_index.erase(owns_data);
+  }
 }
 
 // More typical APIs when we've got PASTA ASTs.

@@ -544,9 +544,9 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
       Out << D->getQualifiedNameAsString();
     };
   } else {
-    ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
+    ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) {
       ProtoFn();
-      TokenPrinterContext ctx(Out, D, this->tokens);
+      TokenPrinterContext jump_up_stack(ctx);
       if (!Policy.SuppressScope) {
         if (const clang::NestedNameSpecifier *NS = D->getQualifier()) {
           NS->print(Out, Policy);
@@ -557,9 +557,9 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
   }
 
   if (GuideDecl) {
-    ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
+    ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) {
       ProtoFn();
-      TokenPrinterContext ctx(Out, D, this->tokens);
+      TokenPrinterContext jump_up_stack(ctx);
       Out << GuideDecl->getDeducedTemplate()->getDeclName().getAsString();
     };
   }
@@ -681,9 +681,9 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
         Out << ")";
       };
     } else if (D->doesThisDeclarationHaveABody() && !D->hasPrototype()) {
-      ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
+      ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) {
         ProtoFn();
-        TokenPrinterContext ctx(Out, D, this->tokens);
+        TokenPrinterContext jump_up_stack(ctx);
         Out << "(";
 
         if (uses_explicit_void) {
@@ -717,9 +717,9 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
     }
 
     if (FT) {
-      ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
+      ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) {
         ProtoFn();
-        TokenPrinterContext ctx(Out, D, this->tokens);
+        TokenPrinterContext jump_up_stack(ctx);
         if (FT->isConst())
           Out << " const";
         if (FT->isVolatile())
@@ -741,9 +741,9 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
     }
 
     if (FT && FT->hasDynamicExceptionSpec()) {
-      ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
+      ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) {
         ProtoFn();
-        TokenPrinterContext ctx(Out, D, this->tokens);
+        TokenPrinterContext jump_up_stack(ctx);
         Out << " throw(";
         if (FT->getExceptionSpecType() == clang::EST_MSAny)
           Out << "...";
@@ -758,9 +758,9 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
         Out << ")";
       };
     } else if (FT && isNoexceptExceptionSpec(FT->getExceptionSpecType())) {
-      ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
+      ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) {
         ProtoFn();
-        TokenPrinterContext ctx(Out, D, this->tokens);
+        TokenPrinterContext jump_up_stack(ctx);
         Out << " noexcept";
         if (isComputedNoexcept(FT->getExceptionSpecType())) {
           Out << "(";
@@ -775,9 +775,9 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
       if (!Policy.TerseOutput)
         PrintConstructorInitializers(CDecl, ProtoFn);
     } else if (!ConversionDecl && !clang::isa<clang::CXXDestructorDecl>(D)) {
-      ProtoFn = [=, &EmtpyProtoFn, ProtoFn = std::move(ProtoFn)] (void) mutable {
+      ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) mutable {
         if (FT && FT->hasTrailingReturn()) {
-          TokenPrinterContext ctx(Out, D, this->tokens);
+          TokenPrinterContext jump_up_stack(ctx);
           if (!GuideDecl)
             Out << "auto ";
           ProtoFn();
@@ -878,8 +878,8 @@ void DeclPrinter::VisitFieldDecl(clang::FieldDecl *D) {
       D->getASTContext().getUnqualifiedObjCPointerType(D->getType()),
       Out,
       Policy,
-      [=] () {
-        TokenPrinterContext ctx(Out, D, tokens);
+      [&] () {
+        TokenPrinterContext jump_up_stack(ctx);
         Out << D->getName();
       },
       Indentation);
@@ -1721,7 +1721,10 @@ void DeclPrinter::VisitOMPThreadPrivateDecl(clang::OMPThreadPrivateDecl *D) {
                                                 E = D->varlist_end();
                                                 I != E; ++I) {
       Out << (I == D->varlist_begin() ? '(' : ',');
-      clang::NamedDecl *ND = clang::cast<clang::DeclRefExpr>(*I)->getDecl();
+      auto DRE = clang::cast<clang::DeclRefExpr>(*I);
+      TokenPrinterContext ctx2(Out, DRE, tokens);
+      clang::NamedDecl *ND = DRE->getDecl();
+      TokenPrinterContext ctx3(Out, ND, tokens);
       ND->printQualifiedName(Out);
     }
     Out << ")";
@@ -1736,7 +1739,10 @@ void DeclPrinter::VisitOMPAllocateDecl(clang::OMPAllocateDecl *D) {
                                            E = D->varlist_end();
          I != E; ++I) {
       Out << (I == D->varlist_begin() ? '(' : ',');
-      clang::NamedDecl *ND = clang::cast<clang::DeclRefExpr>(*I)->getDecl();
+      auto DRE = clang::cast<clang::DeclRefExpr>(*I);
+      TokenPrinterContext ctx2(Out, DRE, tokens);
+      clang::NamedDecl *ND = DRE->getDecl();
+      TokenPrinterContext ctx3(Out, ND, tokens);
       ND->printQualifiedName(Out);
     }
     Out << ")";

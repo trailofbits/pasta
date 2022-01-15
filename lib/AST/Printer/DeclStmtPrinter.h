@@ -70,6 +70,7 @@
 
 #include "raw_ostream.h"
 #include "Printer.h"
+#include "../AST.h"
 #include "../Token.h"
 
 namespace pasta {

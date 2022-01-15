@@ -224,6 +224,17 @@ class PrintedTokenRange {
 
   PrintedTokenRange(void) = delete;
 
+  // Raw interfaces for when we're not using a PASTA AST, but when we want
+  // the power of its token printer.
+  static PrintedTokenRange Create(const std::shared_ptr<ASTImpl> &,
+                                  clang::Stmt *stmt_);
+
+  static PrintedTokenRange Create(const std::shared_ptr<ASTImpl> &,
+                                  clang::Decl *decl_);
+
+  static PrintedTokenRange Create(const std::shared_ptr<ASTImpl> &,
+                                  const clang::QualType &type);
+
   inline explicit PrintedTokenRange(
       std::shared_ptr<PrintedTokenRangeImpl> impl_)
       : impl(std::move(impl_)),

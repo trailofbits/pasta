@@ -299,7 +299,25 @@ void TokenPrinterContext::Tokenize(void) {
 void TokenPrinterContext::MarkLocation(clang::SourceLocation loc) {
   Tokenize();
   if (!tokens.tokens.empty() && loc.isValid()) {
-    tokens.tokens.back().opaque_source_loc = loc.getRawEncoding();
+
+    // Go figure it out from the AST. We need to go through a lot of indirection
+    // because the source locations inside of the parsed AST relate to a huge
+    // in-memory file where each post-preprocessed token is on its own line.
+    if (tokens.ast) {
+      auto &sm = tokens.ast->ci->getSourceManager();
+      bool invalid = false;
+      const auto line = sm.getSpellingLineNumber(loc, &invalid);
+      if (line && !invalid &&
+          static_cast<size_t>(line) < tokens.ast->tokens.size()) {
+        tokens.tokens.back().opaque_source_loc =
+            tokens.ast->tokens[line - 1u].opaque_source_loc;
+      }
+
+    // We don't has an `ASTImpl`, so we'll assume that `loc` is a "real" source
+    // location and not our weird indirect kind.
+    } else {
+      tokens.tokens.back().opaque_source_loc = loc.getRawEncoding();
+    }
   }
 }
 
@@ -313,41 +331,29 @@ TokenPrinterContext::~TokenPrinterContext(void) {
 }
 
 // More typical APIs when we've got PASTA ASTs.
-PrintedTokenRange PrintedTokenRange::Create(const Decl &decl_) {
-  auto &ast = decl_.ast;
-  PrintedTokenRange ret = PrintedTokenRange::Create(
-      ast->ci->getASTContext(), *(ast->printing_policy),
-      const_cast<clang::Decl *>(decl_.u.Decl));
-  ret.impl->ast = ast;
-  return ret;
+PrintedTokenRange PrintedTokenRange::Create(const Decl &decl) {
+  return PrintedTokenRange::Create(
+      decl.ast, const_cast<clang::Decl *>(decl.u.Decl));
 }
 
 // More typical APIs when we've got PASTA ASTs.
-PrintedTokenRange PrintedTokenRange::Create(const Stmt &stmt_) {
-  auto &ast = stmt_.ast;
-  PrintedTokenRange ret = PrintedTokenRange::Create(
-      ast->ci->getASTContext(), *(ast->printing_policy),
-      const_cast<clang::Stmt *>(stmt_.u.Stmt));
-  ret.impl->ast = ast;
-  return ret;
+PrintedTokenRange PrintedTokenRange::Create(const Stmt &stmt) {
+  return PrintedTokenRange::Create(
+      stmt.ast, const_cast<clang::Stmt *>(stmt.u.Stmt));
 }
 
 // More typical APIs when we've got PASTA ASTs.
-PrintedTokenRange PrintedTokenRange::Create(const Type &type_) {
+PrintedTokenRange PrintedTokenRange::Create(const Type &type) {
 
-  auto &ast = type_.ast;
+  auto &ast = type.ast;
   auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(type_.u.Type,
-                             type_.qualifiers & clang::Qualifiers::FastMask);
+  clang::QualType fast_qtype(type.u.Type,
+                             type.qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(
-      fast_qtype, clang::Qualifiers::fromOpaqueValue(type_.qualifiers));
+      fast_qtype, clang::Qualifiers::fromOpaqueValue(type.qualifiers));
 
-  PrintedTokenRange ret = PrintedTokenRange::Create(
-      ast_ctx, *(ast->printing_policy), self);
-  ret.impl->ast = ast;
-  return ret;
+  return PrintedTokenRange::Create(type.ast, self);
 }
-
 
 // Number of tokens in this range.
 size_t PrintedTokenRange::Size(void) const noexcept {

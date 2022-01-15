@@ -3254,4 +3254,25 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
   }
 }
 
+PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
+                                            const clang::QualType &type) {
+  std::string data;
+  raw_string_ostream out(data);
+  auto &context = ast->tu->getASTContext();
+  auto tokens = std::make_shared<PrintedTokenRangeImpl>(context);
+
+  if (!type.isNull()) {
+    TypePrinter printer(*(ast->printing_policy), *tokens);
+    printer.print(type, out, "", nullptr);
+  }
+
+  auto num_tokens = tokens->tokens.size();
+  if (!num_tokens) {
+    return PrintedTokenRange(std::move(tokens));
+  } else {
+    auto first = &(tokens->tokens[0]);
+    auto after_last = &(first[num_tokens]);
+    return PrintedTokenRange(std::move(tokens), first, after_last);
+  }
+}
 }  // namespace pasta

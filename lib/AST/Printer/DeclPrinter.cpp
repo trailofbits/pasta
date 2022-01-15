@@ -983,6 +983,7 @@ void DeclPrinter::VisitFileScopeAsmDecl(clang::FileScopeAsmDecl *D) {
   Out << "__asm (";
   printPrettyStmt(D->getAsmString(), Out, nullptr, Policy, Indentation);
   Out << ")";
+  ctx.MarkLocation(D->getRParenLoc());
 }
 
 void DeclPrinter::VisitImportDecl(clang::ImportDecl *D) {
@@ -1000,6 +1001,7 @@ void DeclPrinter::VisitStaticAssertDecl(clang::StaticAssertDecl *D) {
     printPrettyStmt(SL, Out, nullptr, Policy, Indentation);
   }
   Out << ")";
+  ctx.MarkLocation(D->getRParenLoc());
 }
 
 //----------------------------------------------------------------------------
@@ -1017,11 +1019,15 @@ void DeclPrinter::VisitNamespaceDecl(clang::NamespaceDecl *D) {
 
   VisitDeclContext(D);
   Indent() << "}";
+  ctx.MarkLocation(D->getRBraceLoc());
 }
 
 void DeclPrinter::VisitUsingDirectiveDecl(clang::UsingDirectiveDecl *D) {
   TokenPrinterContext ctx(Out, D, tokens);
-  Out << "using namespace ";
+  Out << "using";
+  ctx.MarkLocation(D->getUsingLoc());
+  Out << "namespace ";
+  ctx.MarkLocation(D->getNamespaceKeyLocation());
   if (D->getQualifier())
     D->getQualifier()->print(Out, Policy);
   Out << *D->getNominatedNamespaceAsWritten();
@@ -1029,7 +1035,11 @@ void DeclPrinter::VisitUsingDirectiveDecl(clang::UsingDirectiveDecl *D) {
 
 void DeclPrinter::VisitNamespaceAliasDecl(clang::NamespaceAliasDecl *D) {
   TokenPrinterContext ctx(Out, D, tokens);
-  Out << "namespace " << *D << " = ";
+  Out << "namespace ";
+  ctx.MarkLocation(D->getNamespaceLoc());
+  Out << *D;
+  ctx.MarkLocation(D->getAliasLoc());
+  Out << " = ";
   if (D->getQualifier())
     D->getQualifier()->print(Out, Policy);
   Out << *D->getAliasedNamespace();
@@ -1084,19 +1094,27 @@ void DeclPrinter::VisitCXXRecordDecl(clang::CXXRecordDecl *D) {
 
         printQualType(Base->getType(), Out, Policy);
 
-        if (Base->isPackExpansion())
+        if (Base->isPackExpansion()) {
           Out << "...";
+          ctx.MarkLocation(Base->getEllipsisLoc());
+        }
       }
     }
 
     // Print the class definition
     // FIXME: Doesn't print access specifiers, e.g., "public:"
     if (Policy.TerseOutput) {
-      Out << " {}";
+      Out << " {";
+      ctx.MarkLocation(D->getBraceRange().getBegin());
+      Out << "}";
+      ctx.MarkLocation(D->getBraceRange().getEnd());
     } else {
-      Out << " {\n";
+      Out << " {";
+      ctx.MarkLocation(D->getBraceRange().getBegin());
+      Out << "\n";
       VisitDeclContext(D);
       Indent() << "}";
+      ctx.MarkLocation(D->getBraceRange().getEnd());
     }
   }
 }
@@ -1112,11 +1130,14 @@ void DeclPrinter::VisitLinkageSpecDecl(clang::LinkageSpecDecl *D) {
     l = "C++";
   }
 
-  Out << "extern \"" << l << "\" ";
+  Out << "extern";
+  ctx.MarkLocation(D->getExternLoc());
+  Out << " \"" << l << "\" ";
   if (D->hasBraces()) {
     Out << "{\n";
     VisitDeclContext(D);
     Indent() << "}";
+    ctx.MarkLocation(D->getRBraceLoc());
   } else
     Visit(*D->decls_begin());
 }
@@ -1127,9 +1148,12 @@ void DeclPrinter::printTemplateParameters(const clang::TemplateParameterList *Pa
 
   TokenPrinterContext ctx(Out, Params, tokens);
 
-  if (!OmitTemplateKW)
+  if (!OmitTemplateKW) {
     Out << "template ";
+    ctx.MarkLocation(Params->getTemplateLoc());
+  }
   Out << '<';
+  ctx.MarkLocation(Params->getLAngleLoc());
 
   bool NeedComma = false;
   for (const clang::Decl *Param : *Params) {
@@ -1150,8 +1174,9 @@ void DeclPrinter::printTemplateParameters(const clang::TemplateParameterList *Pa
       // FIXME: print the default argument, if present.
     }
   }
-
+  ctx.Tokenize();
   Out << '>';
+  ctx.MarkLocation(Params->getRAngleLoc());
   if (!OmitTemplateKW)
     Out << ' ';
 }
@@ -1254,7 +1279,9 @@ void DeclPrinter::VisitClassTemplateDecl(clang::ClassTemplateDecl *D) {
 
 void DeclPrinter::VisitClassTemplateSpecializationDecl(clang::ClassTemplateSpecializationDecl *D) {
   TokenPrinterContext ctx(Out, D, tokens);
-  Out << "template<> ";
+  Out << "template";
+  ctx.MarkLocation(D->getTemplateKeywordLoc());
+  Out << "<> ";
   VisitCXXRecordDecl(D);
 }
 
@@ -1367,6 +1394,8 @@ void DeclPrinter::VisitObjCMethodDecl(clang::ObjCMethodDecl *OMD) {
   }
   else if (Policy.PolishForDeclaration)
     Out << ';';
+
+  ctx.MarkLocation(OMD->getDeclaratorEndLoc());
 }
 
 void DeclPrinter::VisitObjCImplementationDecl(clang::ObjCImplementationDecl *OID) {
@@ -1673,8 +1702,10 @@ void DeclPrinter::VisitObjCPropertyImplDecl(clang::ObjCPropertyImplDecl *PID) {
 
 void DeclPrinter::VisitUsingDecl(clang::UsingDecl *D) {
   TokenPrinterContext ctx(Out, D, tokens);
-  if (!D->isAccessDeclaration())
+  if (!D->isAccessDeclaration()) {
     Out << "using ";
+    ctx.MarkLocation(D->getUsingLoc());
+  }
   if (D->hasTypename())
     Out << "typename ";
   D->getQualifier()->print(Out, Policy);
@@ -1695,15 +1726,20 @@ void DeclPrinter::VisitUsingDecl(clang::UsingDecl *D) {
 void
 DeclPrinter::VisitUnresolvedUsingTypenameDecl(clang::UnresolvedUsingTypenameDecl *D) {
   TokenPrinterContext ctx(Out, D, tokens);
-  Out << "using typename ";
+  Out << "using ";
+  ctx.MarkLocation(D->getUsingLoc());
+  Out << "typename ";
+  ctx.MarkLocation(D->getTypenameLoc());
   D->getQualifier()->print(Out, Policy);
   Out << D->getDeclName();
 }
 
 void DeclPrinter::VisitUnresolvedUsingValueDecl(clang::UnresolvedUsingValueDecl *D) {
   TokenPrinterContext ctx(Out, D, tokens);
-  if (!D->isAccessDeclaration())
+  if (!D->isAccessDeclaration()) {
     Out << "using ";
+    ctx.MarkLocation(D->getUsingLoc());
+  }
   D->getQualifier()->print(Out, Policy);
   Out << D->getDeclName();
 }
@@ -1886,6 +1922,29 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
 
   if (decl) {
     DeclPrinter printer(out, policy, context, *tokens);
+    printer.Visit(decl);
+  }
+
+  auto num_tokens = tokens->tokens.size();
+  if (!num_tokens) {
+    return PrintedTokenRange(std::move(tokens));
+  } else {
+    auto first = &(tokens->tokens[0]);
+    auto after_last = &(first[num_tokens]);
+    return PrintedTokenRange(std::move(tokens), first, after_last);
+  }
+}
+
+PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
+                                            clang::Decl *decl) {
+  std::string data;
+  raw_string_ostream out(data);
+  auto &context = ast->tu->getASTContext();
+  auto tokens = std::make_shared<PrintedTokenRangeImpl>(context);
+  tokens->ast = ast;
+
+  if (decl) {
+    DeclPrinter printer(out, *(ast->printing_policy), context, *tokens);
     printer.Visit(decl);
   }
 

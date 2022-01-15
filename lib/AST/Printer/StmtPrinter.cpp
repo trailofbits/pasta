@@ -37,11 +37,14 @@ void StmtPrinter::printQualType(
 
 void StmtPrinter::PrintRawCompoundStmt(clang::CompoundStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  OS << "{" << NL;
+  OS << "{";
+  ctx.MarkLocation(Node->getLBracLoc());
+  OS << NL;
   for (auto *I : Node->body())
     PrintStmt(I);
 
   Indent() << "}";
+  ctx.MarkLocation(Node->getRBracLoc());
 }
 
 void StmtPrinter::printDecl(clang::Decl *D,
@@ -385,11 +388,15 @@ void StmtPrinter::VisitMSAsmStmt(clang::MSAsmStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   // FIXME: Implement MS style inline asm statement printer.
   Indent() << "__asm ";
-  if (Node->hasBraces())
-    OS << "{" << NL;
+  if (Node->hasBraces()) {
+    OS << "{";
+    ctx.MarkLocation(Node->getLBraceLoc());
+    OS << NL;
+  }
   OS << Node->getAsmString() << NL;
-  if (Node->hasBraces())
+  if (Node->hasBraces()) {
     Indent() << "}" << NL;
+  }
 }
 
 void StmtPrinter::VisitCapturedStmt(clang::CapturedStmt *Node) {
@@ -400,6 +407,8 @@ void StmtPrinter::VisitCapturedStmt(clang::CapturedStmt *Node) {
 void StmtPrinter::VisitObjCAtTryStmt(clang::ObjCAtTryStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "@try";
+
+  ctx.MarkLocation(Node->getAtTryLoc());
   if (auto *TS = clang::dyn_cast<clang::CompoundStmt>(Node->getTryBody())) {
     PrintRawCompoundStmt(TS);
     OS << NL;
@@ -407,7 +416,9 @@ void StmtPrinter::VisitObjCAtTryStmt(clang::ObjCAtTryStmt *Node) {
 
   for (unsigned I = 0, N = Node->getNumCatchStmts(); I != N; ++I) {
     clang::ObjCAtCatchStmt *catchStmt = Node->getCatchStmt(I);
-    Indent() << "@catch(";
+    Indent() << "@catch";
+    ctx.MarkLocation(catchStmt->getAtCatchLoc());
+    OS << '(';
     if (catchStmt->getCatchParamDecl()) {
       if (clang::Decl *DS = catchStmt->getCatchParamDecl())
         PrintRawDecl(DS);
@@ -421,7 +432,9 @@ void StmtPrinter::VisitObjCAtTryStmt(clang::ObjCAtTryStmt *Node) {
 
   if (auto *FS = static_cast<clang::ObjCAtFinallyStmt *>(Node->getFinallyStmt())) {
     Indent() << "@finally";
-    PrintRawCompoundStmt(clang::dyn_cast<clang::CompoundStmt>(FS->getFinallyBody()));
+    ctx.MarkLocation(FS->getAtFinallyLoc());
+    PrintRawCompoundStmt(
+        clang::dyn_cast<clang::CompoundStmt>(FS->getFinallyBody()));
     OS << NL;
   }
 }
@@ -431,12 +444,15 @@ void StmtPrinter::VisitObjCAtFinallyStmt(clang::ObjCAtFinallyStmt *Node) {
 
 void StmtPrinter::VisitObjCAtCatchStmt (clang::ObjCAtCatchStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  Indent() << "@catch (...) { /* todo */ } " << NL;
+  Indent() << "@catch";
+  ctx.MarkLocation(Node->getAtCatchLoc());
+  OS << "(...) { /* todo */ } " << NL;
 }
 
 void StmtPrinter::VisitObjCAtThrowStmt(clang::ObjCAtThrowStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "@throw";
+  ctx.MarkLocation(Node->getThrowLoc());
   if (Node->getThrowExpr()) {
     OS << " ";
     PrintExpr(Node->getThrowExpr());
@@ -447,12 +463,17 @@ void StmtPrinter::VisitObjCAtThrowStmt(clang::ObjCAtThrowStmt *Node) {
 void StmtPrinter::VisitObjCAvailabilityCheckExpr(
     clang::ObjCAvailabilityCheckExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  OS << "@available(...)";
+  OS << "@available";
+  ctx.MarkLocation(Node->getBeginLoc());
+  OS << "(...)";
+  ctx.MarkLocation(Node->getEndLoc());  // RParen loc.
 }
 
 void StmtPrinter::VisitObjCAtSynchronizedStmt(clang::ObjCAtSynchronizedStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  Indent() << "@synchronized (";
+  Indent() << "@synchronized";
+  ctx.MarkLocation(Node->getBeginLoc());
+  OS << " (";
   PrintExpr(Node->getSynchExpr());
   OS << ")";
   PrintRawCompoundStmt(Node->getSynchBody());
@@ -462,13 +483,16 @@ void StmtPrinter::VisitObjCAtSynchronizedStmt(clang::ObjCAtSynchronizedStmt *Nod
 void StmtPrinter::VisitObjCAutoreleasePoolStmt(clang::ObjCAutoreleasePoolStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "@autoreleasepool";
+  ctx.MarkLocation(Node->getBeginLoc());
   PrintRawCompoundStmt(clang::dyn_cast<clang::CompoundStmt>(Node->getSubStmt()));
   OS << NL;
 }
 
 void StmtPrinter::PrintRawCXXCatchStmt(clang::CXXCatchStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  OS << "catch (";
+  OS << "catch";
+  ctx.MarkLocation(Node->getCatchLoc());
+  OS << " (";
   if (clang::Decl *ExDecl = Node->getExceptionDecl())
     PrintRawDecl(ExDecl);
   else
@@ -487,6 +511,7 @@ void StmtPrinter::VisitCXXCatchStmt(clang::CXXCatchStmt *Node) {
 void StmtPrinter::VisitCXXTryStmt(clang::CXXTryStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "try ";
+  ctx.MarkLocation(Node->getTryLoc());
   PrintRawCompoundStmt(Node->getTryBlock());
   for (unsigned i = 0, e = Node->getNumHandlers(); i < e; ++i) {
     OS << " ";
@@ -498,6 +523,7 @@ void StmtPrinter::VisitCXXTryStmt(clang::CXXTryStmt *Node) {
 void StmtPrinter::VisitSEHTryStmt(clang::SEHTryStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << (Node->getIsCXXTry() ? "try " : "__try ");
+  ctx.MarkLocation(Node->getTryLoc());
   PrintRawCompoundStmt(Node->getTryBlock());
   clang::SEHExceptStmt *E = Node->getExceptHandler();
   clang::SEHFinallyStmt *F = Node->getFinallyHandler();
@@ -513,13 +539,16 @@ void StmtPrinter::VisitSEHTryStmt(clang::SEHTryStmt *Node) {
 void StmtPrinter::PrintRawSEHFinallyStmt(clang::SEHFinallyStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   OS << "__finally ";
+  ctx.MarkLocation(Node->getFinallyLoc());
   PrintRawCompoundStmt(Node->getBlock());
   OS << NL;
 }
 
 void StmtPrinter::PrintRawSEHExceptHandler(clang::SEHExceptStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  OS << "__except (";
+  OS << "__except";
+  ctx.MarkLocation(Node->getExceptLoc());
+  OS << " (";
   VisitExpr(Node->getFilterExpr());
   OS << ")" << NL;
   PrintRawCompoundStmt(Node->getBlock());
@@ -542,7 +571,9 @@ void StmtPrinter::VisitSEHFinallyStmt(clang::SEHFinallyStmt *Node) {
 
 void StmtPrinter::VisitSEHLeaveStmt(clang::SEHLeaveStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  Indent() << "__leave;";
+  Indent() << "__leave";
+  ctx.MarkLocation(Node->getLeaveLoc());
+  OS << ";";
   if (Policy.IncludeNewlines) OS << NL;
 }
 
@@ -927,7 +958,10 @@ void StmtPrinter::VisitOMPTargetTeamsDistributeSimdDirective(
 
 void StmtPrinter::VisitSourceLocExpr(clang::SourceLocExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  OS << Node->getBuiltinStr() << "()";
+  OS << Node->getBuiltinStr();
+  ctx.MarkLocation(Node->getBeginLoc());  // BuiltinLoc.
+  OS << "()";
+  ctx.MarkLocation(Node->getEndLoc());  // RParenLoc.
 }
 
 void StmtPrinter::VisitConstantExpr(clang::ConstantExpr *Node) {
@@ -947,8 +981,10 @@ void StmtPrinter::VisitDeclRefExpr(clang::DeclRefExpr *Node) {
   }
   if (clang::NestedNameSpecifier *Qualifier = Node->getQualifier())
     Qualifier->print(OS, Policy);
-  if (Node->hasTemplateKeyword())
+  if (Node->hasTemplateKeyword()) {
     OS << "template ";
+    ctx.MarkLocation(Node->getTemplateKeywordLoc());
+  }
   OS << Node->getNameInfo();
   if (Node->hasExplicitTemplateArgs())
     printTemplateArgumentList(OS, Node->template_arguments(), Policy);
@@ -959,8 +995,10 @@ void StmtPrinter::VisitDependentScopeDeclRefExpr(
   TokenPrinterContext ctx(OS, Node, tokens);
   if (clang::NestedNameSpecifier *Qualifier = Node->getQualifier())
     Qualifier->print(OS, Policy);
-  if (Node->hasTemplateKeyword())
+  if (Node->hasTemplateKeyword()) {
     OS << "template ";
+    ctx.MarkLocation(Node->getTemplateKeywordLoc());
+  }
   OS << Node->getNameInfo();
   if (Node->hasExplicitTemplateArgs())
     printTemplateArgumentList(OS, Node->template_arguments(), Policy);
@@ -970,8 +1008,10 @@ void StmtPrinter::VisitUnresolvedLookupExpr(clang::UnresolvedLookupExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   if (Node->getQualifier())
     Node->getQualifier()->print(OS, Policy);
-  if (Node->hasTemplateKeyword())
+  if (Node->hasTemplateKeyword()) {
     OS << "template ";
+    ctx.MarkLocation(Node->getTemplateKeywordLoc());
+  }
   OS << Node->getNameInfo();
   if (Node->hasExplicitTemplateArgs())
     printTemplateArgumentList(OS, Node->template_arguments(), Policy);
@@ -995,6 +1035,7 @@ void StmtPrinter::VisitObjCIvarRefExpr(clang::ObjCIvarRefExpr *Node) {
         !isImplicitSelf(Node->getBase()->IgnoreImpCasts())) {
       PrintExpr(Node->getBase());
       OS << (Node->isArrow() ? "->" : ".");
+      ctx.MarkLocation(Node->getOpLoc());
     }
   }
   OS << *Node->getDecl();
@@ -1027,6 +1068,7 @@ void StmtPrinter::VisitObjCSubscriptRefExpr(clang::ObjCSubscriptRefExpr *Node) {
   OS << "[";
   PrintExpr(Node->getKeyExpr());
   OS << "]";
+  ctx.MarkLocation(Node->getRBracket());
 }
 
 void StmtPrinter::VisitPredefinedExpr(clang::PredefinedExpr *Node) {
@@ -1095,6 +1137,7 @@ void StmtPrinter::VisitCharacterLiteral(clang::CharacterLiteral *Node) {
     else
       OS << "'\\U" << llvm::format("%08x", value) << "'";
   }
+  ctx.MarkLocation(Node->getLocation());
 }
 
 /// Prints the given expression using the original source text. Returns true on
@@ -1116,8 +1159,10 @@ static bool printExprAsWritten(pasta::raw_string_ostream &OS, clang::Expr *E,
 
 void StmtPrinter::VisitIntegerLiteral(clang::IntegerLiteral *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  if (Policy.ConstantsAsWritten && printExprAsWritten(OS, Node, Context))
+  if (Policy.ConstantsAsWritten && printExprAsWritten(OS, Node, Context)) {
+    ctx.MarkLocation(Node->getLocation());
     return;
+  }
   bool isSigned = Node->getType()->isSignedIntegerType();
   OS << Node->getValue().toString(10, isSigned);
 
@@ -1136,12 +1181,15 @@ void StmtPrinter::VisitIntegerLiteral(clang::IntegerLiteral *Node) {
   case clang::BuiltinType::LongLong:  OS << "LL"; break;
   case clang::BuiltinType::ULongLong: OS << "ULL"; break;
   }
+  ctx.MarkLocation(Node->getLocation());
 }
 
 void StmtPrinter::VisitFixedPointLiteral(clang::FixedPointLiteral *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  if (Policy.ConstantsAsWritten && printExprAsWritten(OS, Node, Context))
+  if (Policy.ConstantsAsWritten && printExprAsWritten(OS, Node, Context)) {
+    ctx.MarkLocation(Node->getLocation());
     return;
+  }
   OS << Node->getValueAsString(/*Radix=*/10);
 
   switch (Node->getType()->castAs<clang::BuiltinType>()->getKind()) {
@@ -1159,9 +1207,11 @@ void StmtPrinter::VisitFixedPointLiteral(clang::FixedPointLiteral *Node) {
     case clang::BuiltinType::ULongFract:   OS << "ulr"; break;
     case clang::BuiltinType::ULongAccum:   OS << "ulk"; break;
   }
+  ctx.MarkLocation(Node->getLocation());
 }
 
-static void PrintFloatingLiteral(pasta::raw_string_ostream &OS, clang::FloatingLiteral *Node,
+static void PrintFloatingLiteral(pasta::raw_string_ostream &OS,
+                                 clang::FloatingLiteral *Node,
                                  bool PrintSuffix) {
   clang::SmallString<16> Str;
   Node->getValue().toString(Str);
@@ -1169,8 +1219,9 @@ static void PrintFloatingLiteral(pasta::raw_string_ostream &OS, clang::FloatingL
   if (Str.find_first_not_of("-0123456789") == clang::StringRef::npos)
     OS << '.'; // Trailing dot in order to separate from ints.
 
-  if (!PrintSuffix)
+  if (!PrintSuffix) {
     return;
+  }
 
   // Emit suffixes.  Float literals are always a builtin float type.
   switch (Node->getType()->castAs<clang::BuiltinType>()->getKind()) {
@@ -1186,26 +1237,34 @@ static void PrintFloatingLiteral(pasta::raw_string_ostream &OS, clang::FloatingL
 
 void StmtPrinter::VisitFloatingLiteral(clang::FloatingLiteral *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  if (Policy.ConstantsAsWritten && printExprAsWritten(OS, Node, Context))
+  if (Policy.ConstantsAsWritten && printExprAsWritten(OS, Node, Context)) {
+    ctx.MarkLocation(Node->getLocation());
     return;
+  }
   PrintFloatingLiteral(OS, Node, /*PrintSuffix=*/true);
+  ctx.MarkLocation(Node->getLocation());
 }
 
 void StmtPrinter::VisitImaginaryLiteral(clang::ImaginaryLiteral *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getSubExpr());
   OS << "i";
+  ctx.MarkLocation(Node->getEndLoc());  // TODO(pag): Hrmm.
 }
 
 void StmtPrinter::VisitStringLiteral(clang::StringLiteral *Str) {
+  TokenPrinterContext ctx(OS, Str, tokens);
   Str->outputString(OS);
+  ctx.MarkLocation(Str->getBeginLoc());
 }
 
 void StmtPrinter::VisitParenExpr(clang::ParenExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   OS << "(";
+  ctx.MarkLocation(Node->getLParen());
   PrintExpr(Node->getSubExpr());
   OS << ")";
+  ctx.MarkLocation(Node->getRParen());
 }
 
 void StmtPrinter::VisitUnaryOperator(clang::UnaryOperator *Node) {
@@ -1237,7 +1296,9 @@ void StmtPrinter::VisitUnaryOperator(clang::UnaryOperator *Node) {
 
 void StmtPrinter::VisitOffsetOfExpr(clang::OffsetOfExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  OS << "__builtin_offsetof(";
+  OS << "__builtin_offsetof";
+  ctx.MarkLocation(Node->getOperatorLoc());
+  OS << "(";
   printQualType(Node->getTypeSourceInfo()->getType(), OS, Policy);
   OS << ", ";
   bool PrintedSomething = false;
@@ -1246,8 +1307,10 @@ void StmtPrinter::VisitOffsetOfExpr(clang::OffsetOfExpr *Node) {
     if (ON.getKind() == clang::OffsetOfNode::Array) {
       // Array node
       OS << "[";
+      ctx.MarkLocation(ON.getBeginLoc());
       PrintExpr(Node->getIndexExpr(ON.getArrayExprIndex()));
       OS << "]";
+      ctx.MarkLocation(ON.getEndLoc());
       PrintedSomething = true;
       continue;
     }
@@ -1268,6 +1331,7 @@ void StmtPrinter::VisitOffsetOfExpr(clang::OffsetOfExpr *Node) {
     OS << Id->getName();
   }
   OS << ")";
+  ctx.MarkLocation(Node->getRParenLoc());
 }
 
 void StmtPrinter::VisitUnaryExprOrTypeTraitExpr(
@@ -1284,11 +1348,13 @@ void StmtPrinter::VisitUnaryExprOrTypeTraitExpr(
   }
 
   OS << Spelling;
+  ctx.MarkLocation(Node->getOperatorLoc());
 
   if (Node->isArgumentType()) {
     OS << '(';
     printQualType(Node->getArgumentType(), OS, Policy);
     OS << ')';
+    ctx.MarkLocation(Node->getRParenLoc());
   } else {
     OS << " ";
     PrintExpr(Node->getArgumentExpr());
@@ -1302,14 +1368,16 @@ void StmtPrinter::VisitGenericSelectionExpr(clang::GenericSelectionExpr *Node) {
   for (const clang::GenericSelectionExpr::Association Assoc : Node->associations()) {
     OS << ", ";
     clang::QualType T = Assoc.getType();
-    if (T.isNull())
+    if (T.isNull()) {
       OS << "default";
-    else
+      ctx.MarkLocation(Node->getDefaultLoc());
+    } else
       printQualType(T, OS, Policy);
     OS << ": ";
     PrintExpr(Assoc.getAssociationExpr());
   }
   OS << ")";
+  ctx.MarkLocation(Node->getRParenLoc());
 }
 
 void StmtPrinter::VisitArraySubscriptExpr(clang::ArraySubscriptExpr *Node) {
@@ -1318,6 +1386,7 @@ void StmtPrinter::VisitArraySubscriptExpr(clang::ArraySubscriptExpr *Node) {
   OS << "[";
   PrintExpr(Node->getRHS());
   OS << "]";
+  ctx.MarkLocation(Node->getRBracketLoc());
 }
 
 void StmtPrinter::VisitMatrixSubscriptExpr(clang::MatrixSubscriptExpr *Node) {
@@ -1329,6 +1398,7 @@ void StmtPrinter::VisitMatrixSubscriptExpr(clang::MatrixSubscriptExpr *Node) {
   OS << "[";
   PrintExpr(Node->getColumnIdx());
   OS << "]";
+  ctx.MarkLocation(Node->getRBracketLoc());  // TODO(pag): Which r-bracket is this?
 }
 
 void StmtPrinter::VisitOMPArraySectionExpr(clang::OMPArraySectionExpr *Node) {
@@ -1339,48 +1409,68 @@ void StmtPrinter::VisitOMPArraySectionExpr(clang::OMPArraySectionExpr *Node) {
     PrintExpr(Node->getLowerBound());
   if (Node->getColonLocFirst().isValid()) {
     OS << ":";
+    ctx.MarkLocation(Node->getColonLocFirst());
     if (Node->getLength())
       PrintExpr(Node->getLength());
   }
   if (Node->getColonLocSecond().isValid()) {
     OS << ":";
+    ctx.MarkLocation(Node->getColonLocSecond());
     if (Node->getStride())
       PrintExpr(Node->getStride());
   }
   OS << "]";
+  ctx.MarkLocation(Node->getRBracketLoc());
 }
 
 void StmtPrinter::VisitOMPArrayShapingExpr(clang::OMPArrayShapingExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   OS << "(";
+  ctx.MarkLocation(Node->getLParenLoc());
+  auto i = 0u;
+  auto bracks_ranges = Node->getBracketsRanges();
   for (clang::Expr *E : Node->getDimensions()) {
     OS << "[";
+    if (i < bracks_ranges.size()) {
+      ctx.MarkLocation(bracks_ranges[i].getBegin());
+    }
     PrintExpr(E);
     OS << "]";
+    if (i < bracks_ranges.size()) {
+      ctx.MarkLocation(bracks_ranges[i].getEnd());
+    }
+    ++i;
   }
   OS << ")";
+  ctx.MarkLocation(Node->getRParenLoc());
   PrintExpr(Node->getBase());
 }
 
 void StmtPrinter::VisitOMPIteratorExpr(clang::OMPIteratorExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  OS << "iterator(";
+  OS << "iterator";
+  ctx.MarkLocation(Node->getIteratorKwLoc());
+  OS << "(";
   for (unsigned I = 0, E = Node->numOfIterators(); I < E; ++I) {
     auto *VD = clang::cast<clang::ValueDecl>(Node->getIteratorDecl(I));
     printQualType(VD->getType(), OS, Policy);
     const clang::OMPIteratorExpr::IteratorRange Range = Node->getIteratorRange(I);
     OS << " " << VD->getName() << " = ";
+    ctx.MarkLocation(Node->getAssignLoc(I));
     PrintExpr(Range.Begin);
     OS << ":";
+    ctx.MarkLocation(Node->getColonLoc(I));
     PrintExpr(Range.End);
     if (Range.Step) {
       OS << ":";
+      ctx.MarkLocation(Node->getSecondColonLoc(I));
       PrintExpr(Range.Step);
     }
     if (I < E - 1)
       OS << ", ";
   }
   OS << ")";
+  ctx.MarkLocation(Node->getRParenLoc());
 }
 
 void StmtPrinter::PrintCallArgs(clang::CallExpr *Call) {
@@ -1396,10 +1486,12 @@ void StmtPrinter::PrintCallArgs(clang::CallExpr *Call) {
 }
 
 void StmtPrinter::VisitCallExpr(clang::CallExpr *Call) {
+  TokenPrinterContext ctx(OS, Call, tokens);
   PrintExpr(Call->getCallee());
   OS << "(";
   PrintCallArgs(Call);
   OS << ")";
+  ctx.MarkLocation(Call->getRParenLoc());
 }
 
 static bool isImplicitThis(const clang::Expr *E) {
@@ -1418,8 +1510,10 @@ void StmtPrinter::VisitMemberExpr(clang::MemberExpr *Node) {
         ParentMember ? clang::dyn_cast<clang::FieldDecl>(ParentMember->getMemberDecl())
                      : nullptr;
 
-    if (!ParentDecl || !ParentDecl->isAnonymousStructOrUnion())
+    if (!ParentDecl || !ParentDecl->isAnonymousStructOrUnion()) {
       OS << (Node->isArrow() ? "->" : ".");
+      ctx.MarkLocation(Node->getOperatorLoc());
+    }
   }
 
   if (auto *FD = clang::dyn_cast<clang::FieldDecl>(Node->getMemberDecl()))
@@ -1428,8 +1522,10 @@ void StmtPrinter::VisitMemberExpr(clang::MemberExpr *Node) {
 
   if (clang::NestedNameSpecifier *Qualifier = Node->getQualifier())
     Qualifier->print(OS, Policy);
-  if (Node->hasTemplateKeyword())
+  if (Node->hasTemplateKeyword()) {
     OS << "template ";
+    ctx.MarkLocation(Node->getTemplateKeywordLoc());
+  }
   OS << Node->getMemberNameInfo();
   if (Node->hasExplicitTemplateArgs())
     printTemplateArgumentList(OS, Node->template_arguments(), Policy);
@@ -1438,7 +1534,10 @@ void StmtPrinter::VisitMemberExpr(clang::MemberExpr *Node) {
 void StmtPrinter::VisitObjCIsaExpr(clang::ObjCIsaExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getBase());
-  OS << (Node->isArrow() ? "->isa" : ".isa");
+  OS << (Node->isArrow() ? "->" : ".");
+  ctx.MarkLocation(Node->getOpLoc());
+  OS << "isa";
+  ctx.MarkLocation(Node->getIsaMemberLoc());
 }
 
 void StmtPrinter::VisitExtVectorElementExpr(clang::ExtVectorElementExpr *Node) {
@@ -1446,19 +1545,23 @@ void StmtPrinter::VisitExtVectorElementExpr(clang::ExtVectorElementExpr *Node) {
   PrintExpr(Node->getBase());
   OS << ".";
   OS << Node->getAccessor().getName();
+  ctx.MarkLocation(Node->getAccessorLoc());
 }
 
 void StmtPrinter::VisitCStyleCastExpr(clang::CStyleCastExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   OS << '(';
+  ctx.MarkLocation(Node->getLParenLoc());
   printQualType(Node->getTypeAsWritten(), OS, Policy);
   OS << ')';
+  ctx.MarkLocation(Node->getRParenLoc());
   PrintExpr(Node->getSubExpr());
 }
 
 void StmtPrinter::VisitCompoundLiteralExpr(clang::CompoundLiteralExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   OS << '(';
+  ctx.MarkLocation(Node->getLParenLoc());
   printQualType(Node->getType(), OS, Policy);
   OS << ')';
   PrintExpr(Node->getInitializer());
@@ -1474,6 +1577,7 @@ void StmtPrinter::VisitBinaryOperator(clang::BinaryOperator *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getLHS());
   OS << " " << clang::BinaryOperator::getOpcodeStr(Node->getOpcode()) << " ";
+  ctx.MarkLocation(Node->getOperatorLoc());
   PrintExpr(Node->getRHS());
 }
 
@@ -1481,6 +1585,7 @@ void StmtPrinter::VisitCompoundAssignOperator(clang::CompoundAssignOperator *Nod
   TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getLHS());
   OS << " " << clang::BinaryOperator::getOpcodeStr(Node->getOpcode()) << " ";
+  ctx.MarkLocation(Node->getOperatorLoc());
   PrintExpr(Node->getRHS());
 }
 
@@ -1488,8 +1593,10 @@ void StmtPrinter::VisitConditionalOperator(clang::ConditionalOperator *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getCond());
   OS << " ? ";
+  ctx.MarkLocation(Node->getQuestionLoc());
   PrintExpr(Node->getLHS());
   OS << " : ";
+  ctx.MarkLocation(Node->getColonLoc());
   PrintExpr(Node->getRHS());
 }
 
@@ -1500,12 +1607,15 @@ StmtPrinter::VisitBinaryConditionalOperator(clang::BinaryConditionalOperator *No
   TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getCommon());
   OS << " ?: ";
+  ctx.MarkLocation(Node->getQuestionLoc());
   PrintExpr(Node->getFalseExpr());
 }
 
 void StmtPrinter::VisitAddrLabelExpr(clang::AddrLabelExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  OS << "&&" << Node->getLabel()->getName();
+  OS << "&&";
+  ctx.MarkLocation(Node->getAmpAmpLoc());
+  OS << Node->getLabel()->getName();
 }
 
 void StmtPrinter::VisitStmtExpr(clang::StmtExpr *E) {
@@ -1513,43 +1623,55 @@ void StmtPrinter::VisitStmtExpr(clang::StmtExpr *E) {
   OS << "(";
   PrintRawCompoundStmt(E->getSubStmt());
   OS << ")";
+  ctx.MarkLocation(E->getRParenLoc());
 }
 
 void StmtPrinter::VisitChooseExpr(clang::ChooseExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  OS << "__builtin_choose_expr(";
+  OS << "__builtin_choose_expr";
+  ctx.MarkLocation(Node->getBuiltinLoc());
+  OS << "(";
   PrintExpr(Node->getCond());
   OS << ", ";
   PrintExpr(Node->getLHS());
   OS << ", ";
   PrintExpr(Node->getRHS());
   OS << ")";
+  ctx.MarkLocation(Node->getRParenLoc());
 }
 
-void StmtPrinter::VisitGNUNullExpr(clang::GNUNullExpr *) {
+void StmtPrinter::VisitGNUNullExpr(clang::GNUNullExpr *Node) {
+  TokenPrinterContext ctx(OS, Node, tokens);
   OS << "__null";
+  ctx.MarkLocation(Node->getTokenLocation());
 }
 
 void StmtPrinter::VisitShuffleVectorExpr(clang::ShuffleVectorExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  OS << "__builtin_shufflevector(";
+  OS << "__builtin_shufflevector";
+  ctx.MarkLocation(Node->getBuiltinLoc());
+  OS << "(";
   for (unsigned i = 0, e = Node->getNumSubExprs(); i != e; ++i) {
     if (i) OS << ", ";
     PrintExpr(Node->getExpr(i));
   }
   OS << ")";
+  ctx.MarkLocation(Node->getRParenLoc());
 }
 
 void StmtPrinter::VisitConvertVectorExpr(clang::ConvertVectorExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  OS << "__builtin_convertvector(";
+  OS << "__builtin_convertvector";
+  ctx.MarkLocation(Node->getBuiltinLoc());
+  OS << "(";
   PrintExpr(Node->getSrcExpr());
   OS << ", ";
   printQualType(Node->getType(), OS, Policy);
   OS << ")";
+  ctx.MarkLocation(Node->getRParenLoc());
 }
 
-void StmtPrinter::VisitInitListExpr(clang::InitListExpr* Node) {
+void StmtPrinter::VisitInitListExpr(clang::InitListExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   if (Node->getSyntacticForm()) {
     Visit(Node->getSyntacticForm());
@@ -1557,6 +1679,7 @@ void StmtPrinter::VisitInitListExpr(clang::InitListExpr* Node) {
   }
 
   OS << "{";
+  ctx.MarkLocation(Node->getLBraceLoc());
   for (unsigned i = 0, e = Node->getNumInits(); i != e; ++i) {
     if (i) OS << ", ";
     if (Node->getInit(i))
@@ -1565,6 +1688,7 @@ void StmtPrinter::VisitInitListExpr(clang::InitListExpr* Node) {
       OS << "{}";
   }
   OS << "}";
+  ctx.MarkLocation(Node->getRBraceLoc());
 }
 
 void StmtPrinter::VisitArrayInitLoopExpr(clang::ArrayInitLoopExpr *Node) {
@@ -1584,11 +1708,13 @@ void StmtPrinter::VisitArrayInitIndexExpr(clang::ArrayInitIndexExpr *Node) {
 void StmtPrinter::VisitParenListExpr(clang::ParenListExpr* Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   OS << "(";
+  ctx.MarkLocation(Node->getLParenLoc());
   for (unsigned i = 0, e = Node->getNumExprs(); i != e; ++i) {
     if (i) OS << ", ";
     PrintExpr(Node->getExpr(i));
   }
   OS << ")";
+  ctx.MarkLocation(Node->getRParenLoc());
 }
 
 void StmtPrinter::VisitDesignatedInitExpr(clang::DesignatedInitExpr *Node) {
@@ -1598,22 +1724,30 @@ void StmtPrinter::VisitDesignatedInitExpr(clang::DesignatedInitExpr *Node) {
     if (D.isFieldDesignator()) {
       if (D.getDotLoc().isInvalid()) {
         if (clang::IdentifierInfo *II = D.getFieldName()) {
-          OS << II->getName() << ":";
+          OS << II->getName();
+          ctx.MarkLocation(D.getFieldLoc());
+          OS << ":";
           NeedsEquals = false;
         }
       } else {
-        OS << "." << D.getFieldName()->getName();
+        OS << ".";
+        ctx.MarkLocation(D.getDotLoc());
+        OS << D.getFieldName()->getName();
+        ctx.MarkLocation(D.getFieldLoc());
       }
     } else {
       OS << "[";
+      ctx.MarkLocation(D.getLBracketLoc());
       if (D.isArrayDesignator()) {
         PrintExpr(Node->getArrayIndex(D));
       } else {
         PrintExpr(Node->getArrayRangeStart(D));
         OS << " ... ";
+        ctx.MarkLocation(D.getEllipsisLoc());
         PrintExpr(Node->getArrayRangeEnd(D));
       }
       OS << "]";
+      ctx.MarkLocation(D.getRBracketLoc());
     }
   }
 
@@ -1661,11 +1795,14 @@ void StmtPrinter::VisitImplicitValueInitExpr(clang::ImplicitValueInitExpr *Node)
 
 void StmtPrinter::VisitVAArgExpr(clang::VAArgExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  OS << "__builtin_va_arg(";
+  OS << "__builtin_va_arg";
+  ctx.MarkLocation(Node->getBuiltinLoc());
+  OS << "(";
   PrintExpr(Node->getSubExpr());
   OS << ", ";
   printQualType(Node->getType(), OS, Policy);
   OS << ")";
+  ctx.MarkLocation(Node->getRParenLoc());
 }
 
 void StmtPrinter::VisitPseudoObjectExpr(clang::PseudoObjectExpr *Node) {
@@ -1714,6 +1851,7 @@ void StmtPrinter::VisitAtomicExpr(clang::AtomicExpr *Node) {
     PrintExpr(Node->getOrderFail());
   }
   OS << ")";
+  ctx.MarkLocation(Node->getRParenLoc());
 }
 
 // C++
@@ -1723,10 +1861,12 @@ void StmtPrinter::VisitCXXOperatorCallExpr(clang::CXXOperatorCallExpr *Node) {
   if (Kind == clang::OO_PlusPlus || Kind == clang::OO_MinusMinus) {
     if (Node->getNumArgs() == 1) {
       OS << getOperatorSpelling(Kind) << ' ';
+      ctx.MarkLocation(Node->getOperatorLoc());
       PrintExpr(Node->getArg(0));
     } else {
       PrintExpr(Node->getArg(0));
       OS << ' ' << getOperatorSpelling(Kind);
+      ctx.MarkLocation(Node->getOperatorLoc());
     }
   } else if (Kind == clang::OO_Arrow) {
     PrintExpr(Node->getArg(0));
@@ -1771,11 +1911,16 @@ void StmtPrinter::VisitCXXMemberCallExpr(clang::CXXMemberCallExpr *Node) {
 void StmtPrinter::VisitCUDAKernelCallExpr(clang::CUDAKernelCallExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   PrintExpr(Node->getCallee());
+  ctx.Tokenize();
   OS << "<<<";
+  ctx.Tokenize();
   PrintCallArgs(Node->getConfig());
-  OS << ">>>(";
+  OS << ">>>";
+  ctx.Tokenize();
+  OS << "(";
   PrintCallArgs(Node);
   OS << ")";
+  ctx.MarkLocation(Node->getRParenLoc());
 }
 
 void StmtPrinter::VisitCXXRewrittenBinaryOperator(
@@ -1790,40 +1935,45 @@ void StmtPrinter::VisitCXXRewrittenBinaryOperator(
 
 void StmtPrinter::VisitCXXNamedCastExpr(clang::CXXNamedCastExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  OS << Node->getCastName() << '<';
+  OS << Node->getCastName();
+  ctx.MarkLocation(Node->getBeginLoc());
+  OS << '<';
+  ctx.MarkLocation(Node->getAngleBrackets().getBegin());
   printQualType(Node->getTypeAsWritten(), OS, Policy);
-  OS << ">(";
+  OS << ">";
+  ctx.MarkLocation(Node->getAngleBrackets().getEnd());
+  OS << "(";
   PrintExpr(Node->getSubExpr());
   OS << ")";
+  ctx.MarkLocation(Node->getRParenLoc());
 }
 
 void StmtPrinter::VisitCXXStaticCastExpr(clang::CXXStaticCastExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens);
   VisitCXXNamedCastExpr(Node);
 }
 
 void StmtPrinter::VisitCXXDynamicCastExpr(clang::CXXDynamicCastExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens);
   VisitCXXNamedCastExpr(Node);
 }
 
 void StmtPrinter::VisitCXXReinterpretCastExpr(clang::CXXReinterpretCastExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens);
   VisitCXXNamedCastExpr(Node);
 }
 
 void StmtPrinter::VisitCXXConstCastExpr(clang::CXXConstCastExpr *Node) {
-  TokenPrinterContext ctx(OS, Node, tokens);
   VisitCXXNamedCastExpr(Node);
 }
 
 void StmtPrinter::VisitBuiltinBitCastExpr(clang::BuiltinBitCastExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  OS << "__builtin_bit_cast(";
+  OS << "__builtin_bit_cast";
+  ctx.MarkLocation(Node->getBeginLoc());  // KWLoc.
+  OS << "(";
   printQualType(Node->getTypeInfoAsWritten()->getType(), OS, Policy);
   OS << ", ";
   PrintExpr(Node->getSubExpr());
   OS << ")";
+  ctx.MarkLocation(Node->getEndLoc());  // RParenLoc.
 }
 
 void StmtPrinter::VisitCXXAddrspaceCastExpr(clang::CXXAddrspaceCastExpr *Node) {
@@ -1833,7 +1983,8 @@ void StmtPrinter::VisitCXXAddrspaceCastExpr(clang::CXXAddrspaceCastExpr *Node) {
 
 void StmtPrinter::VisitCXXTypeidExpr(clang::CXXTypeidExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  OS << "typeid(";
+  OS << "typeid";
+  OS << "(";
   if (Node->isTypeOperand()) {
     printQualType(Node->getTypeOperandSourceInfo()->getType(), OS, Policy);
   } else {
@@ -1864,6 +2015,7 @@ void StmtPrinter::VisitMSPropertyRefExpr(clang::MSPropertyRefExpr *Node) {
       Node->getQualifierLoc().getNestedNameSpecifier())
     Qualifier->print(OS, Policy);
   OS << Node->getPropertyDecl()->getDeclName();
+  ctx.MarkLocation(Node->getMemberLoc());
 }
 
 void StmtPrinter::VisitMSPropertySubscriptExpr(clang::MSPropertySubscriptExpr *Node) {
@@ -1872,6 +2024,7 @@ void StmtPrinter::VisitMSPropertySubscriptExpr(clang::MSPropertySubscriptExpr *N
   OS << "[";
   PrintExpr(Node->getIdx());
   OS << "]";
+  ctx.MarkLocation(Node->getRBracketLoc());
 }
 
 void StmtPrinter::VisitUserDefinedLiteral(clang::UserDefinedLiteral *Node) {
@@ -1887,7 +2040,7 @@ void StmtPrinter::VisitUserDefinedLiteral(clang::UserDefinedLiteral *Node) {
     assert(Args);
 
     if (Args->size() != 1) {
-      OS << "operator\"\"" << Node->getUDSuffix()->getName();
+      OS << "operator \"\"" << Node->getUDSuffix()->getName();
       printTemplateArgumentList(OS, Args->asArray(), Policy);
       OS << "()";
       return;
@@ -1923,24 +2076,29 @@ void StmtPrinter::VisitUserDefinedLiteral(clang::UserDefinedLiteral *Node) {
 void StmtPrinter::VisitCXXBoolLiteralExpr(clang::CXXBoolLiteralExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   OS << (Node->getValue() ? "true" : "false");
+  ctx.MarkLocation(Node->getLocation());
 }
 
 void StmtPrinter::VisitCXXNullPtrLiteralExpr(clang::CXXNullPtrLiteralExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   OS << "nullptr";
+  ctx.MarkLocation(Node->getLocation());
 }
 
 void StmtPrinter::VisitCXXThisExpr(clang::CXXThisExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   OS << "this";
+  ctx.MarkLocation(Node->getLocation());
 }
 
 void StmtPrinter::VisitCXXThrowExpr(clang::CXXThrowExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  if (!Node->getSubExpr())
+  if (!Node->getSubExpr()) {
     OS << "throw";
-  else {
+    ctx.MarkLocation(Node->getThrowLoc());
+  } else {
     OS << "throw ";
+    ctx.MarkLocation(Node->getThrowLoc());
     PrintExpr(Node->getSubExpr());
   }
 }
@@ -1960,11 +2118,15 @@ void StmtPrinter::VisitCXXFunctionalCastExpr(clang::CXXFunctionalCastExpr *Node)
   printQualType(Node->getType(), OS, Policy);
   // If there are no parens, this is list-initialization, and the braces are
   // part of the syntax of the inner construct.
-  if (Node->getLParenLoc().isValid())
+  if (Node->getLParenLoc().isValid()) {
     OS << "(";
+    ctx.MarkLocation(Node->getLParenLoc());
+  }
   PrintExpr(Node->getSubExpr());
-  if (Node->getLParenLoc().isValid())
+  if (Node->getLParenLoc().isValid()) {
     OS << ")";
+    ctx.MarkLocation(Node->getRParenLoc());
+  }
 }
 
 void StmtPrinter::VisitCXXBindTemporaryExpr(clang::CXXBindTemporaryExpr *Node) {
@@ -1990,8 +2152,9 @@ void StmtPrinter::VisitCXXTemporaryObjectExpr(clang::CXXTemporaryObjectExpr *Nod
       OS << ", ";
     PrintExpr(*Arg);
   }
-  if (Node->isStdInitListInitialization())
+  if (Node->isStdInitListInitialization()) {
     /* See above. */;
+  }
   else if (Node->isListInitialization())
     OS << "}";
   else
@@ -2001,6 +2164,7 @@ void StmtPrinter::VisitCXXTemporaryObjectExpr(clang::CXXTemporaryObjectExpr *Nod
 void StmtPrinter::VisitLambdaExpr(clang::LambdaExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   OS << '[';
+  ctx.MarkLocation(Node->getIntroducerRange().getBegin());
   bool NeedComma = false;
   switch (Node->getCaptureDefault()) {
   case clang::LCD_None:
@@ -2008,11 +2172,13 @@ void StmtPrinter::VisitLambdaExpr(clang::LambdaExpr *Node) {
 
   case clang::LCD_ByCopy:
     OS << '=';
+    ctx.MarkLocation(Node->getCaptureDefaultLoc());
     NeedComma = true;
     break;
 
   case clang::LCD_ByRef:
     OS << '&';
+    ctx.MarkLocation(Node->getCaptureDefaultLoc());
     NeedComma = true;
     break;
   }
@@ -2037,8 +2203,9 @@ void StmtPrinter::VisitLambdaExpr(clang::LambdaExpr *Node) {
       break;
 
     case clang::LCK_ByRef:
-      if (Node->getCaptureDefault() != clang::LCD_ByRef || Node->isInitCapture(C))
+      if (Node->getCaptureDefault() != clang::LCD_ByRef || Node->isInitCapture(C)) {
         OS << '&';
+      }
       OS << C->getCapturedVar()->getName();
       break;
 
@@ -2072,6 +2239,7 @@ void StmtPrinter::VisitLambdaExpr(clang::LambdaExpr *Node) {
     }
   }
   OS << ']';
+  ctx.MarkLocation(Node->getIntroducerRange().getEnd());
 
   if (!Node->getExplicitTemplateParameters().empty()) {
     Node->getTemplateParameterList()->print(
@@ -2133,6 +2301,7 @@ void StmtPrinter::VisitCXXScalarValueInitExpr(clang::CXXScalarValueInitExpr *Nod
   else
     printQualType(Node->getType(), OS, Policy);
   OS << "()";
+  ctx.MarkLocation(Node->getRParenLoc());
 }
 
 void StmtPrinter::VisitCXXNewExpr(clang::CXXNewExpr *E) {
@@ -2173,11 +2342,15 @@ void StmtPrinter::VisitCXXNewExpr(clang::CXXNewExpr *E) {
 
   clang::CXXNewExpr::InitializationStyle InitStyle = E->getInitializationStyle();
   if (InitStyle) {
-    if (InitStyle == clang::CXXNewExpr::CallInit)
+    if (InitStyle == clang::CXXNewExpr::CallInit) {
       OS << "(";
+      ctx.MarkLocation(E->getDirectInitRange().getBegin());
+    }
     PrintExpr(E->getInitializer());
-    if (InitStyle == clang::CXXNewExpr::CallInit)
+    if (InitStyle == clang::CXXNewExpr::CallInit) {
       OS << ")";
+      ctx.MarkLocation(E->getDirectInitRange().getEnd());
+    }
   }
 }
 
@@ -2186,6 +2359,7 @@ void StmtPrinter::VisitCXXDeleteExpr(clang::CXXDeleteExpr *E) {
   if (E->isGlobalDelete())
     OS << "::";
   OS << "delete ";
+  ctx.MarkLocation(E->getBeginLoc());
   if (E->isArrayForm())
     OS << "[] ";
   PrintExpr(E->getArgument());
@@ -2198,9 +2372,17 @@ void StmtPrinter::VisitCXXPseudoDestructorExpr(clang::CXXPseudoDestructorExpr *E
     OS << "->";
   else
     OS << '.';
-  if (E->getQualifier())
+
+  ctx.MarkLocation(E->getOperatorLoc());
+
+  if (E->getQualifier()) {
     E->getQualifier()->print(OS, Policy);
+
+    ctx.MarkLocation(E->getColonColonLoc());  // TODO(pag): Hrmm...
+  }
+
   OS << "~";
+  ctx.MarkLocation(E->getTildeLoc());
 
   if (clang::IdentifierInfo *II = E->getDestroyedTypeIdentifier())
     OS << II->getName();
@@ -2210,8 +2392,10 @@ void StmtPrinter::VisitCXXPseudoDestructorExpr(clang::CXXPseudoDestructorExpr *E
 
 void StmtPrinter::VisitCXXConstructExpr(clang::CXXConstructExpr *E) {
   TokenPrinterContext ctx(OS, E, tokens);
-  if (E->isListInitialization() && !E->isStdInitListInitialization())
+  if (E->isListInitialization() && !E->isStdInitListInitialization()) {
     OS << "{";
+    ctx.MarkLocation(E->getParenOrBraceRange().getBegin());
+  }
 
   for (unsigned i = 0, e = E->getNumArgs(); i != e; ++i) {
     if (clang::isa<clang::CXXDefaultArgExpr>(E->getArg(i))) {
@@ -2223,14 +2407,16 @@ void StmtPrinter::VisitCXXConstructExpr(clang::CXXConstructExpr *E) {
     PrintExpr(E->getArg(i));
   }
 
-  if (E->isListInitialization() && !E->isStdInitListInitialization())
+  if (E->isListInitialization() && !E->isStdInitListInitialization()) {
     OS << "}";
+    ctx.MarkLocation(E->getParenOrBraceRange().getEnd());
+  }
 }
 
 void StmtPrinter::VisitCXXInheritedCtorInitExpr(clang::CXXInheritedCtorInitExpr *E) {
   TokenPrinterContext ctx(OS, E, tokens);
   // Parens are printed by the surrounding context.
-  OS << "<forwarded>";
+  OS << "<forwarded>";  // TODO(pag): Hrmmm...
 }
 
 void StmtPrinter::VisitCXXStdInitializerListExpr(clang::CXXStdInitializerListExpr *E) {
@@ -2250,6 +2436,7 @@ StmtPrinter::VisitCXXUnresolvedConstructExpr(
   TokenPrinterContext ctx(OS, Node, tokens);
   printQualType(Node->getTypeAsWritten(), OS, Policy);
   OS << "(";
+  ctx.MarkLocation(Node->getLParenLoc());
   for (clang::CXXUnresolvedConstructExpr::arg_iterator Arg = Node->arg_begin(),
                                              ArgEnd = Node->arg_end();
        Arg != ArgEnd; ++Arg) {
@@ -2258,6 +2445,7 @@ StmtPrinter::VisitCXXUnresolvedConstructExpr(
     PrintExpr(*Arg);
   }
   OS << ")";
+  ctx.MarkLocation(Node->getRParenLoc());
 }
 
 void StmtPrinter::VisitCXXDependentScopeMemberExpr(
@@ -2266,11 +2454,14 @@ void StmtPrinter::VisitCXXDependentScopeMemberExpr(
   if (!Node->isImplicitAccess()) {
     PrintExpr(Node->getBase());
     OS << (Node->isArrow() ? "->" : ".");
+    ctx.MarkLocation(Node->getOperatorLoc());
   }
   if (clang::NestedNameSpecifier *Qualifier = Node->getQualifier())
     Qualifier->print(OS, Policy);
-  if (Node->hasTemplateKeyword())
+  if (Node->hasTemplateKeyword()) {
     OS << "template ";
+    ctx.MarkLocation(Node->getTemplateKeywordLoc());
+  }
   OS << Node->getMemberNameInfo();
   if (Node->hasExplicitTemplateArgs())
     printTemplateArgumentList(OS, Node->template_arguments(), Policy);
@@ -2281,11 +2472,14 @@ void StmtPrinter::VisitUnresolvedMemberExpr(clang::UnresolvedMemberExpr *Node) {
   if (!Node->isImplicitAccess()) {
     PrintExpr(Node->getBase());
     OS << (Node->isArrow() ? "->" : ".");
+    ctx.MarkLocation(Node->getOperatorLoc());
   }
   if (clang::NestedNameSpecifier *Qualifier = Node->getQualifier())
     Qualifier->print(OS, Policy);
-  if (Node->hasTemplateKeyword())
+  if (Node->hasTemplateKeyword()) {
     OS << "template ";
+    ctx.MarkLocation(Node->getTemplateKeywordLoc());
+  }
   OS << Node->getMemberNameInfo();
   if (Node->hasExplicitTemplateArgs())
     printTemplateArgumentList(OS, Node->template_arguments(), Policy);
@@ -2293,27 +2487,37 @@ void StmtPrinter::VisitUnresolvedMemberExpr(clang::UnresolvedMemberExpr *Node) {
 
 void StmtPrinter::VisitTypeTraitExpr(clang::TypeTraitExpr *E) {
   TokenPrinterContext ctx(OS, E, tokens);
-  OS << getTraitSpelling(E->getTrait()) << "(";
+  OS << getTraitSpelling(E->getTrait());
+  ctx.MarkLocation(E->getBeginLoc());
+
+  OS << "(";
   for (unsigned I = 0, N = E->getNumArgs(); I != N; ++I) {
     if (I > 0)
       OS << ", ";
     printQualType(E->getArg(I)->getType(), OS, Policy);
   }
   OS << ")";
+  ctx.MarkLocation(E->getEndLoc());  // RParenLoc
 }
 
 void StmtPrinter::VisitArrayTypeTraitExpr(clang::ArrayTypeTraitExpr *E) {
   TokenPrinterContext ctx(OS, E, tokens);
-  OS << getTraitSpelling(E->getTrait()) << '(';
+  OS << getTraitSpelling(E->getTrait());
+  ctx.MarkLocation(E->getBeginLoc());
+  OS << '(';
   printQualType(E->getQueriedType(), OS, Policy);
   OS << ')';
+  ctx.MarkLocation(E->getEndLoc());  // RParenLoc
 }
 
 void StmtPrinter::VisitExpressionTraitExpr(clang::ExpressionTraitExpr *E) {
   TokenPrinterContext ctx(OS, E, tokens);
-  OS << getTraitSpelling(E->getTrait()) << '(';
+  OS << getTraitSpelling(E->getTrait());
+  ctx.MarkLocation(E->getBeginLoc());
+  OS << '(';
   PrintExpr(E->getQueriedExpression());
   OS << ')';
+  ctx.MarkLocation(E->getEndLoc());  // RParenLoc
 }
 
 void StmtPrinter::VisitCXXNoexceptExpr(clang::CXXNoexceptExpr *E) {
@@ -2327,11 +2531,17 @@ void StmtPrinter::VisitPackExpansionExpr(clang::PackExpansionExpr *E) {
   TokenPrinterContext ctx(OS, E, tokens);
   PrintExpr(E->getPattern());
   OS << "...";
+  ctx.MarkLocation(E->getEllipsisLoc());
 }
 
 void StmtPrinter::VisitSizeOfPackExpr(clang::SizeOfPackExpr *E) {
   TokenPrinterContext ctx(OS, E, tokens);
-  OS << "sizeof...(" << *E->getPack() << ")";
+  OS << "sizeof...";
+  ctx.MarkLocation(E->getOperatorLoc());  // TODO(pag): Will it lex as `sizeof` or `sizeof...`?
+  OS << "(";
+  OS << *E->getPack();
+  OS << ")";
+  ctx.MarkLocation(E->getRParenLoc());
 }
 
 void StmtPrinter::VisitSubstNonTypeTemplateParmPackExpr(
@@ -2359,16 +2569,19 @@ void StmtPrinter::VisitMaterializeTemporaryExpr(clang::MaterializeTemporaryExpr 
 void StmtPrinter::VisitCXXFoldExpr(clang::CXXFoldExpr *E) {
   TokenPrinterContext ctx(OS, E, tokens);
   OS << "(";
+  ctx.MarkLocation(E->getLParenLoc());
   if (E->getLHS()) {
     PrintExpr(E->getLHS());
     OS << " " << clang::BinaryOperator::getOpcodeStr(E->getOperator()) << " ";
   }
   OS << "...";
+  ctx.MarkLocation(E->getEllipsisLoc());
   if (E->getRHS()) {
     OS << " " << clang::BinaryOperator::getOpcodeStr(E->getOperator()) << " ";
     PrintExpr(E->getRHS());
   }
   OS << ")";
+  ctx.MarkLocation(E->getRParenLoc());
 }
 
 void StmtPrinter::VisitConceptSpecializationExpr(clang::ConceptSpecializationExpr *E) {
@@ -2376,8 +2589,10 @@ void StmtPrinter::VisitConceptSpecializationExpr(clang::ConceptSpecializationExp
   clang::NestedNameSpecifierLoc NNS = E->getNestedNameSpecifierLoc();
   if (NNS)
     NNS.getNestedNameSpecifier()->print(OS, Policy);
-  if (E->getTemplateKWLoc().isValid())
+  if (E->getTemplateKWLoc().isValid()) {
     OS << "template ";
+    ctx.MarkLocation(E->getTemplateKWLoc());
+  }
   OS << E->getFoundDecl()->getName();
   printTemplateArgumentList(OS, E->getTemplateArgsAsWritten()->arguments(),
                             Policy);
@@ -2386,6 +2601,7 @@ void StmtPrinter::VisitConceptSpecializationExpr(clang::ConceptSpecializationExp
 void StmtPrinter::VisitRequiresExpr(clang::RequiresExpr *E) {
   TokenPrinterContext ctx(OS, E, tokens);
   OS << "requires ";
+  ctx.MarkLocation(E->getRequiresKWLoc());
   auto LocalParameters = E->getLocalParameters();
   if (!LocalParameters.empty()) {
     OS << "(";
@@ -2436,6 +2652,7 @@ void StmtPrinter::VisitRequiresExpr(clang::RequiresExpr *E) {
     OS << "; ";
   }
   OS << "}";
+  ctx.MarkLocation(E->getRBraceLoc());
 }
 
 // C++ Coroutines TS
@@ -2448,6 +2665,7 @@ void StmtPrinter::VisitCoroutineBodyStmt(clang::CoroutineBodyStmt *S) {
 void StmtPrinter::VisitCoreturnStmt(clang::CoreturnStmt *S) {
   TokenPrinterContext ctx(OS, S, tokens);
   OS << "co_return";
+  ctx.MarkLocation(S->getKeywordLoc());
   if (S->getOperand()) {
     OS << " ";
     Visit(S->getOperand());
@@ -2458,18 +2676,21 @@ void StmtPrinter::VisitCoreturnStmt(clang::CoreturnStmt *S) {
 void StmtPrinter::VisitCoawaitExpr(clang::CoawaitExpr *S) {
   TokenPrinterContext ctx(OS, S, tokens);
   OS << "co_await ";
+  ctx.MarkLocation(S->getKeywordLoc());
   PrintExpr(S->getOperand());
 }
 
 void StmtPrinter::VisitDependentCoawaitExpr(clang::DependentCoawaitExpr *S) {
   TokenPrinterContext ctx(OS, S, tokens);
   OS << "co_await ";
+  ctx.MarkLocation(S->getKeywordLoc());
   PrintExpr(S->getOperand());
 }
 
 void StmtPrinter::VisitCoyieldExpr(clang::CoyieldExpr *S) {
   TokenPrinterContext ctx(OS, S, tokens);
   OS << "co_yield ";
+  ctx.MarkLocation(S->getKeywordLoc());
   PrintExpr(S->getOperand());
 }
 
@@ -2478,12 +2699,14 @@ void StmtPrinter::VisitCoyieldExpr(clang::CoyieldExpr *S) {
 void StmtPrinter::VisitObjCStringLiteral(clang::ObjCStringLiteral *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   OS << "@";
+  ctx.MarkLocation(Node->getAtLoc());
   VisitStringLiteral(Node->getString());
 }
 
 void StmtPrinter::VisitObjCBoxedExpr(clang::ObjCBoxedExpr *E) {
   TokenPrinterContext ctx(OS, E, tokens);
   OS << "@";
+  ctx.MarkLocation(E->getAtLoc());
   Visit(E->getSubExpr());
 }
 
@@ -2518,26 +2741,37 @@ void StmtPrinter::VisitObjCDictionaryLiteral(clang::ObjCDictionaryLiteral *E) {
 
 void StmtPrinter::VisitObjCEncodeExpr(clang::ObjCEncodeExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  OS << "@encode(";
+  OS << "@";
+  ctx.MarkLocation(Node->getAtLoc());
+
+  OS << "encode(";
   printQualType(Node->getEncodedType(), OS, Policy);
   OS << ')';
+  ctx.MarkLocation(Node->getRParenLoc());
 }
 
 void StmtPrinter::VisitObjCSelectorExpr(clang::ObjCSelectorExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  OS << "@selector(";
+  OS << "@";
+  ctx.MarkLocation(Node->getAtLoc());
+  OS << "selector(";
   Node->getSelector().print(OS);
   OS << ')';
+  ctx.MarkLocation(Node->getRParenLoc());
 }
 
 void StmtPrinter::VisitObjCProtocolExpr(clang::ObjCProtocolExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  OS << "@protocol(" << *Node->getProtocol() << ')';
+  OS << "@";
+  ctx.MarkLocation(Node->getAtLoc());
+  OS << "protocol(" << *Node->getProtocol() << ')';
+  ctx.MarkLocation(Node->getRParenLoc());
 }
 
 void StmtPrinter::VisitObjCMessageExpr(clang::ObjCMessageExpr *Mess) {
   TokenPrinterContext ctx(OS, Mess, tokens);
   OS << "[";
+  ctx.MarkLocation(Mess->getBeginLoc());  // LBracLoc
   switch (Mess->getReceiverKind()) {
   case clang::ObjCMessageExpr::Instance:
     PrintExpr(Mess->getInstanceReceiver());
@@ -2550,6 +2784,7 @@ void StmtPrinter::VisitObjCMessageExpr(clang::ObjCMessageExpr *Mess) {
   case clang::ObjCMessageExpr::SuperInstance:
   case clang::ObjCMessageExpr::SuperClass:
     OS << "Super";
+    ctx.MarkLocation(Mess->getSuperLoc());
     break;
   }
 
@@ -2572,11 +2807,13 @@ void StmtPrinter::VisitObjCMessageExpr(clang::ObjCMessageExpr *Mess) {
     }
   }
   OS << "]";
+  ctx.MarkLocation(Mess->getEndLoc());  // RBracLoc
 }
 
 void StmtPrinter::VisitObjCBoolLiteralExpr(clang::ObjCBoolLiteralExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   OS << (Node->getValue() ? "__objc_yes" : "__objc_no");
+  ctx.MarkLocation(Node->getLocation());
 }
 
 void
@@ -2588,7 +2825,11 @@ StmtPrinter::VisitObjCIndirectCopyRestoreExpr(clang::ObjCIndirectCopyRestoreExpr
 void
 StmtPrinter::VisitObjCBridgedCastExpr(clang::ObjCBridgedCastExpr *E) {
   TokenPrinterContext ctx(OS, E, tokens);
-  OS << '(' << E->getBridgeKindName();
+  OS << '(';
+  ctx.MarkLocation(E->getLParenLoc());
+
+  OS << E->getBridgeKindName();
+  ctx.MarkLocation(E->getBridgeKeywordLoc());
   printQualType(E->getType(), OS, Policy);
   OS << ')';
   PrintExpr(E->getSubExpr());
@@ -2598,6 +2839,7 @@ void StmtPrinter::VisitBlockExpr(clang::BlockExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   clang::BlockDecl *BD = Node->getBlockDecl();
   OS << "^";
+  ctx.MarkLocation(Node->getCaretLocation());
 
   const clang::FunctionType *AFT = Node->getFunctionType();
 
@@ -2651,11 +2893,14 @@ void StmtPrinter::VisitRecoveryExpr(clang::RecoveryExpr *Node) {
 
 void StmtPrinter::VisitAsTypeExpr(clang::AsTypeExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  OS << "__builtin_astype(";
+  OS << "__builtin_astype";
+  ctx.MarkLocation(Node->getBuiltinLoc());
+  OS << "(";
   PrintExpr(Node->getSrcExpr());
   OS << ", ";
   printQualType(Node->getType(), OS, Policy);
   OS << ")";
+  ctx.MarkLocation(Node->getRParenLoc());
 }
 
 PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
@@ -2680,4 +2925,25 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
   }
 }
 
+PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
+                                            clang::Stmt *stmt) {
+  std::string data;
+  raw_string_ostream out(data);
+  auto &context = ast->tu->getASTContext();
+  auto tokens = std::make_shared<PrintedTokenRangeImpl>(context);
+
+  if (stmt) {
+    StmtPrinter printer(out, nullptr, *tokens, *(ast->printing_policy));
+    printer.Visit(stmt);
+  }
+
+  auto num_tokens = tokens->tokens.size();
+  if (!num_tokens) {
+    return PrintedTokenRange(std::move(tokens));
+  } else {
+    auto first = &(tokens->tokens[0]);
+    auto after_last = &(first[num_tokens]);
+    return PrintedTokenRange(std::move(tokens), first, after_last);
+  }
+}
 } // namespace pasta

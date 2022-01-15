@@ -16,9 +16,10 @@
 #include <sstream>
 #include <fstream>
 
+#include "Builder.h"
 #include "Printer/Printer.h"
 
-#define PASTA_DEBUG_ALIGN 0
+#define PASTA_DEBUG_ALIGN 1
 
 namespace pasta {
 namespace {
@@ -50,34 +51,35 @@ struct Statement final : public Region {
 #if PASTA_DEBUG_ALIGN
   virtual void Print(std::ostream &os, std::string indent,
                      const ASTImpl &ast) const final {
-    os << indent;
-    auto sep = "\"";
-    for (auto it = begin; it <= end; ++it) {
+    for (TokenImpl *it = begin; it <= end; ++it) {
       if (it->kind == clang::tok::string_literal) {
-        os << sep << "<str>";
+        os << indent << "<str>";
       } else {
-        os << sep << it->Data(ast);
+        os << indent << it->Data(ast);
       }
-      sep = " ";
+
+      if (it->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
+        os << ' ' << std::hex << it->opaque_source_loc << std::dec;
+      }
+      os << '\n';
     }
-    os << "\"\n";
   }
 
   virtual void Print(std::ostream &os, std::string indent,
                      const PrintedTokenRangeImpl &range) const final {
-    os << indent;
-    auto sep = "\"";
     auto begin_ = reinterpret_cast<PrintedTokenImpl *>(begin);
     auto end_ = reinterpret_cast<PrintedTokenImpl *>(end);
-    for (auto it = begin_; it <= end_; ++it) {
+    for (PrintedTokenImpl *it = begin_; it <= end_; ++it) {
       if (it->kind == clang::tok::string_literal) {
-        os << sep << "<str>";
+        os << indent << "<str>";
       } else {
-        os << sep << it->Data(range);
+        os << indent << it->Data(range);
       }
-      sep = " ";
+      if (it->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
+        os << ' ' << std::hex << it->opaque_source_loc << std::dec;
+      }
+      os << '\n';
     }
-    os << "\"\n";
   }
 #endif  // PASTA_DEBUG_ALIGN
 
@@ -118,20 +120,38 @@ struct BalancedRegion final : public Region {
 #if PASTA_DEBUG_ALIGN
   virtual void Print(std::ostream &os, std::string indent,
                      const ASTImpl &ast) const final {
-    os << indent << begin->Data(ast) << '\n';
+    os << indent << begin->Data(ast);
+    if (begin->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
+      os << ' ' << std::hex << begin->opaque_source_loc << std::dec;
+    }
+    os << '\n';
+
     if (statements) {
       statements->Print(os, indent + "  ", ast);
     }
-    os << indent << end->Data(ast) << '\n';
+
+    os << indent << end->Data(ast);
+    if (end->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
+      os << ' ' << std::hex << end->opaque_source_loc << std::dec;
+    }
+    os << '\n';
   }
 
   virtual void Print(std::ostream &os, std::string indent,
                      const PrintedTokenRangeImpl &range) const final {
-    os << indent << begin->Data(range) << '\n';
+    os << indent << begin->Data(range);
+    if (begin->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
+      os << ' ' << std::hex << begin->opaque_source_loc << std::dec;
+    }
+    os << '\n';
     if (statements) {
       statements->Print(os, indent + "  ", range);
     }
-    os << indent << end->Data(range) << '\n';
+    os << indent << end->Data(range);
+    if (end->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
+      os << ' ' << std::hex << end->opaque_source_loc << std::dec;
+    }
+    os << '\n';
   }
 #endif  // PASTA_DEBUG_ALIGN
 
@@ -312,8 +332,8 @@ static SequenceRegion *BuildRegions(
 
 // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
 Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
-  auto range = PrintedTokenRange::Create(
-      ast->ci->getASTContext(), *ast->printing_policy, ast->tu);
+  auto tu = DeclBuilder::Create<TranslationUnitDecl>(ast, ast->tu);
+  auto range = PrintedTokenRange::Create(tu);
   if (range.empty()) {
     return AST(std::move(ast));
   }

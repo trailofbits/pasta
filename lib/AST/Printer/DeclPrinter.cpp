@@ -401,6 +401,7 @@ void DeclPrinter::VisitTypedefDecl(clang::TypedefDecl *D) {
   TokenPrinterContext ctx(Out, D, tokens);
   if (!Policy.SuppressSpecifiers) {
     Out << "typedef ";
+    ctx.MarkLocation(D->getBeginLoc());
 
     if (D->isModulePrivate())
       Out << "__module_private__ ";
@@ -408,9 +409,10 @@ void DeclPrinter::VisitTypedefDecl(clang::TypedefDecl *D) {
   clang::QualType Ty = D->getTypeSourceInfo()->getType();
   printQualType(
       Ty, Out, Policy,
-      [=] () {
-        TokenPrinterContext ctx(Out, D, tokens);
+      [&] () {
+        TokenPrinterContext jump_up_stack(ctx);
         Out << D->getName();
+        ctx.MarkLocation(D->getLocation());
       },
       Indentation);
   prettyPrintAttributes(D);
@@ -418,7 +420,10 @@ void DeclPrinter::VisitTypedefDecl(clang::TypedefDecl *D) {
 
 void DeclPrinter::VisitTypeAliasDecl(clang::TypeAliasDecl *D) {
   TokenPrinterContext ctx(Out, D, tokens);
-  Out << "using " << *D;
+  Out << "using ";
+  ctx.MarkLocation(D->getBeginLoc());
+  Out << *D;
+  ctx.MarkLocation(D->getLocation());
   prettyPrintAttributes(D);
   Out << " = ";
   printQualType(D->getTypeSourceInfo()->getType(), Out, Policy);
@@ -538,9 +543,9 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
   std::function<void(void)> ProtoFn = [=](void) -> void { };
   std::function<void(void)> EmtpyProtoFn = [](void) -> void { };
   if (Policy.FullyQualifiedName) {
-    ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
+    ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) {
       ProtoFn();
-      TokenPrinterContext ctx(Out, D, this->tokens);
+      TokenPrinterContext jump_up_stack(ctx);
       Out << D->getQualifiedNameAsString();
     };
   } else {

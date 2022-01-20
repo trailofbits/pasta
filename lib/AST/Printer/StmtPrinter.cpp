@@ -69,14 +69,18 @@ void StmtPrinter::PrintRawDeclStmt(const clang::DeclStmt *S) {
 
 void StmtPrinter::VisitNullStmt(clang::NullStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  Indent() << ";" << NL;
+  Indent() << ";";
+  ctx.MarkLocation(Node->getEndLoc());
+  OS << NL;
 }
 
 void StmtPrinter::VisitDeclStmt(clang::DeclStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   Indent();
   PrintRawDeclStmt(Node);
-  OS << ";" << NL;
+  OS << ";";
+//  ctx.MarkLocation(Node->getEndLoc());
+  OS << NL;
 }
 
 void StmtPrinter::VisitCompoundStmt(clang::CompoundStmt *Node) {
@@ -89,9 +93,11 @@ void StmtPrinter::VisitCompoundStmt(clang::CompoundStmt *Node) {
 void StmtPrinter::VisitCaseStmt(clang::CaseStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   Indent(-1) << "case ";
+  ctx.MarkLocation(Node->getCaseLoc());
   PrintExpr(Node->getLHS());
   if (Node->getRHS()) {
     OS << " ... ";
+    ctx.MarkLocation(Node->getEllipsisLoc());
     PrintExpr(Node->getRHS());
   }
   OS << ":" << NL;
@@ -101,13 +107,18 @@ void StmtPrinter::VisitCaseStmt(clang::CaseStmt *Node) {
 
 void StmtPrinter::VisitDefaultStmt(clang::DefaultStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  Indent(-1) << "default:" << NL;
+  Indent(-1) << "default";
+  ctx.MarkLocation(Node->getDefaultLoc());
+  OS << ":";
+  OS << NL;
   PrintStmt(Node->getSubStmt(), 0);
 }
 
 void StmtPrinter::VisitLabelStmt(clang::LabelStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  Indent(-1) << Node->getName() << ":" << NL;
+  Indent(-1) << Node->getName();
+  ctx.MarkLocation(Node->getIdentLoc());
+  OS << ":" << NL;
   PrintStmt(Node->getSubStmt(), 0);
 }
 
@@ -122,7 +133,10 @@ void StmtPrinter::VisitAttributedStmt(clang::AttributedStmt *Node) {
 
 void StmtPrinter::PrintRawIfStmt(clang::IfStmt *If) {
   TokenPrinterContext ctx(OS, If, tokens);
-  OS << "if (";
+  OS << "if ";
+  ctx.MarkLocation(If->getIfLoc());
+  OS << "(";
+  ctx.MarkLocation(If->getLParenLoc());
   if (If->getInit())
     PrintInitStmt(If->getInit(), 4);
   if (const clang::DeclStmt *DS = If->getConditionVariableDeclStmt())
@@ -130,6 +144,7 @@ void StmtPrinter::PrintRawIfStmt(clang::IfStmt *If) {
   else
     PrintExpr(If->getCond());
   OS << ')';
+  ctx.MarkLocation(If->getRParenLoc());
 
   if (auto *CS = clang::dyn_cast<clang::CompoundStmt>(If->getThen())) {
     OS << ' ';
@@ -143,6 +158,7 @@ void StmtPrinter::PrintRawIfStmt(clang::IfStmt *If) {
 
   if (clang::Stmt *Else = If->getElse()) {
     OS << "else";
+    ctx.MarkLocation(If->getElseLoc());
 
     if (auto *CS = clang::dyn_cast<clang::CompoundStmt>(Else)) {
       OS << ' ';
@@ -166,7 +182,10 @@ void StmtPrinter::VisitIfStmt(clang::IfStmt *If) {
 
 void StmtPrinter::VisitSwitchStmt(clang::SwitchStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  Indent() << "switch (";
+  Indent() << "switch ";
+  ctx.MarkLocation(Node->getSwitchLoc());
+  OS << "(";
+  ctx.MarkLocation(Node->getLParenLoc());
   if (Node->getInit())
     PrintInitStmt(Node->getInit(), 8);
   if (const clang::DeclStmt *DS = Node->getConditionVariableDeclStmt())
@@ -174,23 +193,30 @@ void StmtPrinter::VisitSwitchStmt(clang::SwitchStmt *Node) {
   else
     PrintExpr(Node->getCond());
   OS << ")";
+  ctx.MarkLocation(Node->getRParenLoc());
   PrintControlledStmt(Node->getBody());
 }
 
 void StmtPrinter::VisitWhileStmt(clang::WhileStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  Indent() << "while (";
+  Indent() << "while";
+  ctx.MarkLocation(Node->getWhileLoc());
+  OS << "(";
+  ctx.MarkLocation(Node->getLParenLoc());
   if (const clang::DeclStmt *DS = Node->getConditionVariableDeclStmt())
     PrintRawDeclStmt(DS);
   else
     PrintExpr(Node->getCond());
-  OS << ")" << NL;
+  OS << ")";
+  ctx.MarkLocation(Node->getRParenLoc());
+  OS << NL;
   PrintStmt(Node->getBody());
 }
 
 void StmtPrinter::VisitDoStmt(clang::DoStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "do ";
+  ctx.MarkLocation(Node->getDoLoc());
   if (auto *CS = clang::dyn_cast<clang::CompoundStmt>(Node->getBody())) {
     PrintRawCompoundStmt(CS);
     OS << " ";
@@ -200,14 +226,21 @@ void StmtPrinter::VisitDoStmt(clang::DoStmt *Node) {
     Indent();
   }
 
-  OS << "while (";
+  OS << "while";
+  ctx.MarkLocation(Node->getWhileLoc());
+  OS << "(";
   PrintExpr(Node->getCond());
-  OS << ");" << NL;
+  OS << ")";
+  ctx.MarkLocation(Node->getRParenLoc());
+  OS << ";" << NL;
 }
 
 void StmtPrinter::VisitForStmt(clang::ForStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  Indent() << "for (";
+  Indent() << "for ";
+  ctx.MarkLocation(Node->getForLoc());
+  OS << "(";
+  ctx.MarkLocation(Node->getLParenLoc());
   if (Node->getInit())
     PrintInitStmt(Node->getInit(), 5);
   else
@@ -220,12 +253,15 @@ void StmtPrinter::VisitForStmt(clang::ForStmt *Node) {
     PrintExpr(Node->getInc());
   }
   OS << ")";
+  ctx.MarkLocation(Node->getRParenLoc());
   PrintControlledStmt(Node->getBody());
 }
 
 void StmtPrinter::VisitObjCForCollectionStmt(clang::ObjCForCollectionStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  Indent() << "for (";
+  Indent() << "for ";
+  ctx.MarkLocation(Node->getForLoc());
+  OS << "(";
   if (auto *DS = clang::dyn_cast<clang::DeclStmt>(Node->getElement()))
     PrintRawDeclStmt(DS);
   else
@@ -233,20 +269,25 @@ void StmtPrinter::VisitObjCForCollectionStmt(clang::ObjCForCollectionStmt *Node)
   OS << " in ";
   PrintExpr(Node->getCollection());
   OS << ")";
+  ctx.MarkLocation(Node->getRParenLoc());
   PrintControlledStmt(Node->getBody());
 }
 
 void StmtPrinter::VisitCXXForRangeStmt(clang::CXXForRangeStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  Indent() << "for (";
+  Indent() << "for ";
+  ctx.MarkLocation(Node->getForLoc());
+  OS << "(";
   if (Node->getInit())
     PrintInitStmt(Node->getInit(), 5);
   clang::PrintingPolicy SubPolicy(Policy);
   SubPolicy.SuppressInitializers = true;
   printDecl(Node->getLoopVariable(), OS, SubPolicy, IndentLevel);
   OS << " : ";
+  ctx.MarkLocation(Node->getColonLoc());
   PrintExpr(Node->getRangeInit());
   OS << ")";
+  ctx.MarkLocation(Node->getRParenLoc());
   PrintControlledStmt(Node->getBody());
 }
 
@@ -269,13 +310,20 @@ void StmtPrinter::VisitMSDependentExistsStmt(clang::MSDependentExistsStmt *Node)
 
 void StmtPrinter::VisitGotoStmt(clang::GotoStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  Indent() << "goto " << Node->getLabel()->getName() << ";";
+  Indent() << "goto ";
+  ctx.MarkLocation(Node->getGotoLoc());
+  OS << Node->getLabel()->getName();
+  ctx.MarkLocation(Node->getLabelLoc());
+  OS << ";";
   if (Policy.IncludeNewlines) OS << NL;
 }
 
 void StmtPrinter::VisitIndirectGotoStmt(clang::IndirectGotoStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  Indent() << "goto *";
+  Indent() << "goto ";
+  ctx.MarkLocation(Node->getGotoLoc());
+  OS << "*";
+  ctx.MarkLocation(Node->getStarLoc());
   PrintExpr(Node->getTarget());
   OS << ";";
   if (Policy.IncludeNewlines) OS << NL;
@@ -283,19 +331,24 @@ void StmtPrinter::VisitIndirectGotoStmt(clang::IndirectGotoStmt *Node) {
 
 void StmtPrinter::VisitContinueStmt(clang::ContinueStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  Indent() << "continue;";
+  Indent() << "continue";
+  ctx.MarkLocation(Node->getContinueLoc());
+  OS << ";";
   if (Policy.IncludeNewlines) OS << NL;
 }
 
 void StmtPrinter::VisitBreakStmt(clang::BreakStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  Indent() << "break;";
+  Indent() << "break";
+  ctx.MarkLocation(Node->getBreakLoc());
+  OS << ";";
   if (Policy.IncludeNewlines) OS << NL;
 }
 
 void StmtPrinter::VisitReturnStmt(clang::ReturnStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "return";
+  ctx.MarkLocation(Node->getReturnLoc());
   if (Node->getRetValue()) {
     OS << " ";
     PrintExpr(Node->getRetValue());
@@ -380,7 +433,9 @@ void StmtPrinter::VisitGCCAsmStmt(clang::GCCAsmStmt *Node) {
     OS << Node->getLabelName(i);
   }
 
-  OS << ");";
+  OS << ")";
+  ctx.MarkLocation(Node->getRParenLoc());
+  OS << ";";
   if (Policy.IncludeNewlines) OS << NL;
 }
 
@@ -388,6 +443,7 @@ void StmtPrinter::VisitMSAsmStmt(clang::MSAsmStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   // FIXME: Implement MS style inline asm statement printer.
   Indent() << "__asm ";
+  ctx.MarkLocation(Node->getAsmLoc());
   if (Node->hasBraces()) {
     OS << "{";
     ctx.MarkLocation(Node->getLBraceLoc());
@@ -407,8 +463,8 @@ void StmtPrinter::VisitCapturedStmt(clang::CapturedStmt *Node) {
 void StmtPrinter::VisitObjCAtTryStmt(clang::ObjCAtTryStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "@try";
-
   ctx.MarkLocation(Node->getAtTryLoc());
+
   if (auto *TS = clang::dyn_cast<clang::CompoundStmt>(Node->getTryBody())) {
     PrintRawCompoundStmt(TS);
     OS << NL;
@@ -1727,6 +1783,7 @@ void StmtPrinter::VisitDesignatedInitExpr(clang::DesignatedInitExpr *Node) {
           OS << II->getName();
           ctx.MarkLocation(D.getFieldLoc());
           OS << ":";
+          ctx.MarkLocation(Node->getEqualOrColonLoc());
           NeedsEquals = false;
         }
       } else {
@@ -1751,9 +1808,10 @@ void StmtPrinter::VisitDesignatedInitExpr(clang::DesignatedInitExpr *Node) {
     }
   }
 
-  if (NeedsEquals)
+  if (NeedsEquals) {
     OS << " = ";
-  else
+    ctx.MarkLocation(Node->getEqualOrColonLoc());
+  } else
     OS << " ";
   PrintExpr(Node->getInit());
 }
@@ -1762,6 +1820,7 @@ void StmtPrinter::VisitDesignatedInitUpdateExpr(
     clang::DesignatedInitUpdateExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   OS << "{";
+  ctx.MarkLocation(Node->getBeginLoc());
   OS << "/*base*/";
   PrintExpr(Node->getBase());
   OS << ", ";
@@ -1769,6 +1828,7 @@ void StmtPrinter::VisitDesignatedInitUpdateExpr(
   OS << "/*updater*/";
   PrintExpr(Node->getUpdater());
   OS << "}";
+  ctx.MarkLocation(Node->getEndLoc());
 }
 
 void StmtPrinter::VisitNoInitExpr(clang::NoInitExpr *Node) {

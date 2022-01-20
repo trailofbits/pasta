@@ -2528,7 +2528,11 @@ void TypePrinter::printElaborated(const clang::ElaboratedType *T,
   }
 
   ElaboratedTypePolicyRAII PolicyRAII(Policy);
+
+  bool old_include_tag = Policy.IncludeTagDefinition;
+  Policy.IncludeTagDefinition = false;
   printBeforeAfter(T->getNamedType(), OS, std::move(IdentFn));
+  Policy.IncludeTagDefinition = old_include_tag;
 }
 
 //void TypePrinter::printElaboratedBefore(const clang::ElaboratedType *T,

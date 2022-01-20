@@ -658,6 +658,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
     pp->PrintCanonicalTypes = false;
     pp->PrintInjectedClassNameWithArguments = false;
     pp->SuppressUnwrittenScope = true;
+    pp->AnonymousTagLocations = false;
   }
 
   return ASTImpl::AlignTokens(std::move(ast));

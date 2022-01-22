@@ -547,6 +547,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
       ProtoFn();
       TokenPrinterContext jump_up_stack(ctx);
       Out << D->getQualifiedNameAsString();
+      ctx.MarkLocation(D->getLocation());
     };
   } else {
     ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) {
@@ -558,6 +559,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
         }
       }
       D->getNameInfo().printName(Out, Policy);
+      ctx.MarkLocation(D->getLocation());
     };
   }
 
@@ -600,7 +602,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
 
     // We want to figure out if there's an explicit `void` in the declaration
     // for the parameter list.
-    bool uses_explicit_void = false;
+    clang::SourceLocation uses_explicit_void;
     bool has_source_code = false;
     if (clang::TypeSourceInfo *FTSI = D->getTypeSourceInfo();
         FTSI && !D->getNumParams()) {
@@ -614,7 +616,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
           if (TryLexRawToken(D->getASTContext(), after_l_paren, &tok)) {
             if (tok.getKind() == clang::tok::raw_identifier &&
                 tok.getRawIdentifier() == "void") {
-              uses_explicit_void = true;
+              uses_explicit_void = tok.getLocation();
             }
           }
         }
@@ -625,74 +627,88 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
     // the `...`. This is tricky because we might need to skip over a closing
     // parenthesis, e.g. `void foo(void (*bar)...)` or over an identifier, e.g.
     // `void foo(int bar...)`.
-    auto variadic_leading_comma = [&] (clang::ParmVarDecl *P) {
+    auto loc_of_comma_after_param = [&] (clang::ParmVarDecl *P) -> clang::SourceLocation {
+      if (!P) {
+        return {};
+      }
       clang::SourceLocation param_end = P->getEndLoc();
       if (!param_end.isValid() || !param_end.isFileID()) {
-        return true;  // Default.
+        return {};  // Default.
       }
 
       clang::Token tok;
       if (!TryLexRawToken(D->getASTContext(), param_end, &tok)) {
-        return true;
+        return {};
       }
 
       auto after_param_end = tok.getLocation().getLocWithOffset(
           static_cast<int>(tok.getLength()));
       if (!TryLexRawToken(D->getASTContext(), after_param_end, &tok)) {
-        return true;
+        return {};
       }
 
-      return tok.getKind() == clang::tok::comma;
+      if (tok.getKind() == clang::tok::comma) {
+        return tok.getLocation();
+      } else {
+        return {};
+      }
     };
 
-    if (FT) {
-      ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
-        ProtoFn();
-        Out << '(';
-
-        if (uses_explicit_void) {  // Does the original code use `void`?
-          Out << "void";
-
-        } else if (!has_source_code && !D->getNumParams() &&
-                   SubPolicy.UseVoidForZeroParams) {
-          Out << "void";
-
-        } else {
-          DeclPrinter ParamPrinter(Out, SubPolicy, Context, tokens, Indentation);
-
-
-          bool leading_comma = true;
-          for (unsigned i = 0, e = D->getNumParams(); i != e; ++i) {
-            if (i) {
-              Out << ", ";
-            }
-            clang::ParmVarDecl *P = D->getParamDecl(i);
-            ParamPrinter.VisitParmVarDecl(P);
-            // Try to see if the last parameter is followed by a comma before
-            // the `...`.
-            if ((i + 1u) == e && FT->isVariadic()) {
-              leading_comma = variadic_leading_comma(P);
-            }
-          }
-
-          if (FT->isVariadic()) {
-            if (leading_comma && D->getNumParams()) {
-              Out << ", ";
-            }
-
-            Out << "...";
-          }
-        }
-        Out << ")";
-      };
-    } else if (D->doesThisDeclarationHaveABody() && !D->hasPrototype()) {
+//    if (FT) {
+//      ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
+//        ProtoFn();
+//        Out << '(';
+//
+//        if (uses_explicit_void.isValid()) {  // Does the original code use `void`?
+//          Out << "void";
+//          ctx.MarkLocation(uses_explicit_void);
+//
+//        } else if (!has_source_code && !D->getNumParams() &&
+//                   SubPolicy.UseVoidForZeroParams) {
+//          Out << "void";
+//
+//        } else {
+//          DeclPrinter ParamPrinter(Out, SubPolicy, Context, tokens, Indentation);
+//
+//
+//          bool leading_comma = true;
+//          for (unsigned i = 0, e = D->getNumParams(); i != e; ++i) {
+//            if (i) {
+//              Out << ", ";
+//            }
+//            clang::ParmVarDecl *P = D->getParamDecl(i);
+//            ParamPrinter.VisitParmVarDecl(P);
+//            // Try to see if the last parameter is followed by a comma before
+//            // the `...`.
+//            if ((i + 1u) == e && FT->isVariadic()) {
+//              leading_comma = variadic_leading_comma(P);
+//            }
+//          }
+//
+//          if (FT->isVariadic()) {
+//            if (leading_comma && D->getNumParams()) {
+//              Out << ", ";
+//            }
+//
+//            Out << "...";
+//            if (D->getEllipsisLoc().isValid()) {
+//              ctx.MarkLocation(D->getEllipsisLoc());
+//            } else {
+//              ctx.MarkLocation(FT->getEllipsisLoc());
+//            }
+//          }
+//        }
+//        Out << ")";
+//      };
+//    } else if (D->doesThisDeclarationHaveABody() && !D->hasPrototype()) {
       ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) {
         ProtoFn();
         TokenPrinterContext jump_up_stack(ctx);
         Out << "(";
 
-        if (uses_explicit_void) {
+        if (uses_explicit_void.isValid()) {
           Out << "void";
+          ctx.MarkLocation(uses_explicit_void);
 
         } else if (!has_source_code && !D->getNumParams() &&
                    SubPolicy.UseVoidForZeroParams &&
@@ -700,26 +716,31 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
           Out << "void";
 
         } else {
+          clang::ParmVarDecl *LastP = nullptr;
           for (unsigned i = 0, e = D->getNumParams(); i != e; ++i) {
-            if (i)
+            if (i) {
               Out << ", ";
-            {
-              clang::ParmVarDecl *P = D->getParamDecl(i);
-              TokenPrinterContext ctx(Out, P, this->tokens);
-              Out << P->getNameAsString();
+              ctx.MarkLocation(loc_of_comma_after_param(LastP));
             }
+
+            clang::ParmVarDecl *P = D->getParamDecl(i);
+            DeclPrinter ParamPrinter(Out, SubPolicy, Context, tokens, Indentation);
+            ParamPrinter.VisitParmVarDecl(P);
+            LastP = P;
           }
 
           if (D->isVariadic()) {
             if (D->getNumParams()) {
               Out << ", ";
+              ctx.MarkLocation(loc_of_comma_after_param(LastP));
             }
             Out << "...";
+            ctx.MarkLocation(D->getEllipsisLoc());
           }
         }
         Out << ")";
       };
-    }
+//    }
 
     if (FT) {
       ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) {
@@ -790,7 +811,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
           ProtoFn = EmtpyProtoFn;
         }
 
-        printQualType(AFT->getReturnType(), Out, Policy, std::move(ProtoFn));
+        printQualType(D->getDeclaredReturnType(), Out, Policy, std::move(ProtoFn));
       };
     }
 
@@ -949,6 +970,7 @@ void DeclPrinter::VisitVarDecl(clang::VarDecl *D) {
   printDeclType(T, [&] () {
     TokenPrinterContext jump_up_stack(ctx);
     Out << D->getName();
+    ctx.MarkLocation(D->getLocation());
   });
 
   clang::Expr *Init = D->getInit();

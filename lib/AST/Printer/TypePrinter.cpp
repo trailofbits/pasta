@@ -14,71 +14,86 @@
 
 namespace pasta {
 
-  /// RAII object that enables printing of the ARC __strong lifetime
-  /// qualifier.
-  class IncludeStrongLifetimeRAII {
-    clang::PrintingPolicy &Policy;
-    bool Old;
+/// RAII object that enables printing of the ARC __strong lifetime
+/// qualifier.
+class IncludeStrongLifetimeRAII {
+  clang::PrintingPolicy &Policy;
+  bool Old;
 
-  public:
-    explicit IncludeStrongLifetimeRAII(clang::PrintingPolicy &Policy)
-        : Policy(Policy), Old(Policy.SuppressStrongLifetime) {
-        if (!Policy.SuppressLifetimeQualifiers)
-          Policy.SuppressStrongLifetime = false;
-    }
+ public:
+  explicit IncludeStrongLifetimeRAII(clang::PrintingPolicy &Policy)
+      :
+      Policy(Policy),
+      Old(Policy.SuppressStrongLifetime) {
+    if (!Policy.SuppressLifetimeQualifiers)
+      Policy.SuppressStrongLifetime = false;
+  }
 
-    ~IncludeStrongLifetimeRAII() {
-      Policy.SuppressStrongLifetime = Old;
-    }
-  };
+  ~IncludeStrongLifetimeRAII() {
+    Policy.SuppressStrongLifetime = Old;
+  }
+};
 
-  class ParamPolicyRAII {
-    clang::PrintingPolicy &Policy;
-    bool Old;
+class ParamPolicyRAII {
+  clang::PrintingPolicy &Policy;
+  bool Old;
 
-  public:
-    explicit ParamPolicyRAII(clang::PrintingPolicy &Policy)
-        : Policy(Policy), Old(Policy.SuppressSpecifiers) {
-      Policy.SuppressSpecifiers = false;
-    }
+ public:
+  explicit ParamPolicyRAII(clang::PrintingPolicy &Policy)
+      :
+      Policy(Policy),
+      Old(Policy.SuppressSpecifiers) {
+    Policy.SuppressSpecifiers = false;
+  }
 
-    ~ParamPolicyRAII() {
-      Policy.SuppressSpecifiers = Old;
-    }
-  };
+  ~ParamPolicyRAII() {
+    Policy.SuppressSpecifiers = Old;
+  }
+};
 
-  class ElaboratedTypePolicyRAII {
-    clang::PrintingPolicy &Policy;
-    bool SuppressTagKeyword;
-    bool SuppressScope;
+class ElaboratedTypePolicyRAII {
+  clang::PrintingPolicy &Policy;
+  bool SuppressTagKeyword;
+  bool SuppressScope;
 
-  public:
-    explicit ElaboratedTypePolicyRAII(clang::PrintingPolicy &Policy) : Policy(Policy) {
-      SuppressTagKeyword = Policy.SuppressTagKeyword;
-      SuppressScope = Policy.SuppressScope;
-      Policy.SuppressTagKeyword = true;
-      Policy.SuppressScope = true;
-    }
+ public:
+  explicit ElaboratedTypePolicyRAII(clang::PrintingPolicy &Policy)
+      : Policy(Policy) {
+    SuppressTagKeyword = Policy.SuppressTagKeyword;
+    SuppressScope = Policy.SuppressScope;
+    Policy.SuppressTagKeyword = true;
+    Policy.SuppressScope = true;
+  }
 
-    ~ElaboratedTypePolicyRAII() {
-      Policy.SuppressTagKeyword = SuppressTagKeyword;
-      Policy.SuppressScope = SuppressScope;
-    }
-  };
+  ~ElaboratedTypePolicyRAII() {
+    Policy.SuppressTagKeyword = SuppressTagKeyword;
+    Policy.SuppressScope = SuppressScope;
+  }
+};
 
 /// A utility class that uses RAII to save and restore the value of a variable.
-  template <typename T> struct SaveAndRestore {
-    SaveAndRestore(T &X) : X(X), OldValue(X) {}
-    SaveAndRestore(T &X, const T &NewValue) : X(X), OldValue(X) {
-      X = NewValue;
-    }
-    ~SaveAndRestore() { X = OldValue; }
-    T get() { return OldValue; }
+template<typename T>
+struct SaveAndRestore {
+  SaveAndRestore(T &X)
+      : X(X),
+        OldValue(X) {}
 
-  private:
-    T &X;
-    T OldValue;
-  };
+  SaveAndRestore(T &X, const T &NewValue)
+      : X(X),
+        OldValue(X) {
+    X = NewValue;
+  }
+  ~SaveAndRestore() {
+    X = OldValue;
+  }
+  T get() {
+    return OldValue;
+  }
+
+ private:
+  T &X;
+  T OldValue;
+};
 
 
 static void AppendTypeQualList(pasta::raw_string_ostream &OS, unsigned TypeQuals,

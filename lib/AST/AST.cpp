@@ -96,30 +96,39 @@ TokenRange AST::Tokens(void) const {
 }
 
 // Try to return the token at the specified location.
-Token ASTImpl::TokenAt(clang::SourceLocation loc) {
-  auto self = shared_from_this();
+TokenImpl *ASTImpl::RawTokenAt(clang::SourceLocation loc) {
   if (loc.isInvalid()) {
-    return Token(std::move(self));
+    return nullptr;
   }
 
   // We shouldn't be getting requests with source locations in macro expansions
   // as that implies they are from the original parse of source, and not from
   // the parse of the pre-processed source.
   if (loc.isMacroID()) {
-    return Token(std::move(self));
+    return nullptr;
   }
 
   bool invalid = false;
   auto &sm = ci->getSourceManager();
   const auto line = sm.getSpellingLineNumber(loc, &invalid);
   if (!line || invalid || static_cast<size_t>(line) > tokens.size()) {
-    return Token(std::move(self));
+    return nullptr;
   }
 
-  return Token(std::move(self), &(tokens[line - 1u]));
+  return &(tokens[line - 1u]);
 }
 
-// Try to return teh token range from the specified source range.
+// Try to return the token at the specified location.
+Token ASTImpl::TokenAt(clang::SourceLocation loc) {
+  auto self = shared_from_this();
+  if (auto tok = RawTokenAt(loc)) {
+    return Token(std::move(self), tok);
+  } else {
+    return Token(std::move(self));
+  }
+}
+
+// Try to return the token range from the specified source range.
 TokenRange ASTImpl::TokenRangeFrom(clang::SourceRange range) {
   auto self = shared_from_this();
   auto begin = TokenAt(range.getBegin());

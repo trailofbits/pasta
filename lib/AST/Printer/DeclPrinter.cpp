@@ -196,7 +196,8 @@ void DeclPrinter::Print(clang::AccessSpecifier AS) {
 }
 
 void DeclPrinter::PrintConstructorInitializers(
-    clang::CXXConstructorDecl *CDecl, std::function<void(void)> &ProtoFn) {
+    TokenPrinterContext &ctx, clang::CXXConstructorDecl *CDecl,
+    std::function<void(void)> &ProtoFn) {
   bool HasInitializerList = false;
   for (const auto *BMInitializer : CDecl->inits()) {
     if (BMInitializer->isInClassMemberInitializer())
@@ -218,6 +219,8 @@ void DeclPrinter::PrintConstructorInitializers(
     }
 
     Out << "(";
+    ctx.MarkLocation(BMInitializer->getLParenLoc());
+
     if (!BMInitializer->getInit()) {
       // Nothing to print
     } else {
@@ -254,6 +257,7 @@ void DeclPrinter::PrintConstructorInitializers(
       }
     }
     Out << ")";
+    ctx.MarkLocation(BMInitializer->getRParenLoc());
     if (BMInitializer->isPackExpansion())
       Out << "...";
   }
@@ -799,7 +803,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
 
     if (CDecl) {
       if (!Policy.TerseOutput)
-        PrintConstructorInitializers(CDecl, ProtoFn);
+        PrintConstructorInitializers(ctx, CDecl, ProtoFn);
     } else if (!ConversionDecl && !clang::isa<clang::CXXDestructorDecl>(D)) {
       ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) mutable {
         if (FT && FT->hasTrailingReturn()) {
@@ -907,6 +911,7 @@ void DeclPrinter::VisitFieldDecl(clang::FieldDecl *D) {
       [&] () {
         TokenPrinterContext jump_up_stack(ctx);
         Out << D->getName();
+        ctx.MarkLocation(D->getLocation());
       },
       Indentation);
 
@@ -1249,7 +1254,9 @@ void DeclPrinter::VisitTemplateDecl(const clang::TemplateDecl *D) {
   } else if (auto *TD = D->getTemplatedDecl())
     Visit(TD);
   else if (const auto *Concept = clang::dyn_cast<clang::ConceptDecl>(D)) {
-    Out << "concept " << Concept->getName() << " = " ;
+    Out << "concept " << Concept->getName();
+    ctx.MarkLocation(Concept->getLocation());
+    Out << " = " ;
     printPrettyStmt(Concept->getConstraintExpr(), Out, nullptr, Policy, Indentation);
     Out << ";";
   }
@@ -1931,6 +1938,9 @@ void DeclPrinter::VisitNonTypeTemplateParmDecl(
       [&, Name = std::move(Name)] () {
         TokenPrinterContext jump_up_stack(ctx);
         Out << Name;
+        if (!Name.empty()) {
+          ctx.MarkLocation(NTTP->getLocation());
+        }
       },
       NTTP->isParameterPack());
 

@@ -62,10 +62,11 @@ int main(int argc, char *argv[]) {
       return EXIT_FAILURE;
     } else {
       auto tu = maybe_ast->TranslationUnit();
-      auto tokens = pasta::PrintedTokenRange::Create(tu);
-      for (pasta::PrintedToken tok : tokens) {
-        std::cout << tok.Data() << std::endl;
-      }
+//      auto tokens = pasta::PrintedTokenRange::Create(tu);
+//      for (pasta::PrintedToken tok : tokens) {
+//        std::cout << tok.Data() << std::endl;
+//      }
+      (void) tu;
     }
   }
 

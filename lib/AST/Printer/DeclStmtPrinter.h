@@ -88,7 +88,8 @@ class DeclPrinter : public clang::DeclVisitor<DeclPrinter> {
   raw_string_ostream& Indent(int Indentation);
   void ProcessDeclGroup(clang::SmallVectorImpl<clang::Decl*>& Decls);
   void Print(clang::AccessSpecifier AS);
-  void PrintConstructorInitializers(clang::CXXConstructorDecl *CDecl,
+  void PrintConstructorInitializers(TokenPrinterContext &ctx,
+                                    clang::CXXConstructorDecl *CDecl,
                                     std::function<void(void)> &ProtoFn);
   /// Print an Objective-C method type in parentheses.
   ///

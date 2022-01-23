@@ -38,7 +38,16 @@ class TokenContextImpl {
  public:
   const void * const data;
   const TokenContextIndex parent_index;
+  const uint16_t depth;
   const TokenContextKind kind;
+
+  // Return the common ancestor between two tokens. This focuses on the data
+  // itself, so if there are two distinct contexts sharing the same data, or
+  // aliasing the same data, the context associated with the second token is
+  // returned.
+  static const TokenContextImpl *CommonAncestor(
+      TokenImpl *a, TokenImpl *b,
+      const std::vector<TokenContextImpl> &contexts);
 
   const TokenContextImpl *Parent(
       const std::vector<TokenContextImpl> &contexts) const;
@@ -51,22 +60,29 @@ class TokenContextImpl {
 
 #define PASTA_DEFINE_TOKEN_CONTEXT_CONSTRUCTOR(cls) \
     inline TokenContextImpl(TokenContextIndex parent_index_, \
+                            uint16_t parent_depth, \
                             const clang::cls *data_) \
         : data(data_), \
           parent_index(parent_index_), \
+          depth(parent_depth + 1u), \
           kind(TokenContextKind::k ## cls) {}
   PASTA_FOR_EACH_TOKEN_CONTEXT_KIND(PASTA_DEFINE_TOKEN_CONTEXT_CONSTRUCTOR)
 #undef PASTA_DEFINE_TOKEN_CONTEXT_CONSTRUCTOR
 
-  inline TokenContextImpl(TokenContextIndex parent_index_, const char *data_)
+  inline TokenContextImpl(TokenContextIndex parent_index_,
+                          uint16_t parent_depth,
+                          const char *data_)
       : data(data_),
         parent_index(parent_index_),
+        depth(parent_depth + 1u),
         kind(TokenContextKind::kString) {}
 
   inline TokenContextImpl(TokenContextIndex parent_index_,
+                          uint16_t parent_depth,
                           TokenContextIndex aliasee_)
       : data(reinterpret_cast<const void *>(aliasee_)),
         parent_index(parent_index_),
+        depth(parent_depth + 1u),
         kind(TokenContextKind::kAlias) {}
 };
 

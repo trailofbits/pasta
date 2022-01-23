@@ -45,6 +45,9 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   ~ASTImpl(void);
 
   // Try to return the token at the specified location.
+  TokenImpl *RawTokenAt(clang::SourceLocation loc);
+
+  // Try to return the token at the specified location.
   Token TokenAt(clang::SourceLocation loc);
 
   // Try to return teh token range from the specified source range.
@@ -80,11 +83,14 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // Mapping of Clang source manager file IDs to offsets within `parsed_files`.
   std::unordered_map<unsigned  /* clang::FileID */, ::pasta::File> id_to_file;
 
-  // List of tokens.
+  // List of parsed tokens. We run the pre-processor, and each lexed token is
+  // added here. We also inject in some other tokens, such as whitespace and
+  // comments.
   std::vector<TokenImpl> tokens;
 
   // List of token contexts from trying to print the entire AST using the token
-  // printer.
+  // printer. The `TokenImpl::context_index` fields of the `tokens` vector above
+  // point into here.
   std::vector<TokenContextImpl> contexts;
 
   // Huge "file" containing one token per line. Sometimes some lines are empty.
@@ -110,6 +116,9 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
 
   // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
   static Result<AST, std::string> AlignTokens(std::shared_ptr<ASTImpl> ast);
+
+  // Refine the assignment of token contexts using a top-down AST visitor pass.
+  void RefineTokens(void);
 
  private:
   ASTImpl(void) = delete;

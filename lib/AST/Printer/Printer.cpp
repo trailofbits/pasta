@@ -153,11 +153,23 @@ const TokenContextIndex PrintedTokenRangeImpl::CreateAlias(
 
   auto index = static_cast<TokenContextIndex>(contexts.size());
   assert(index == contexts.size());
-  contexts.emplace_back(
-      (tokenizer->prev_printer_context ?
-          tokenizer->prev_printer_context->context_index :
-          kInvalidTokenContextIndex),
-      aliasee);
+
+  if (tokenizer->prev_printer_context &&
+      tokenizer->prev_printer_context->context_index !=
+          kInvalidTokenContextIndex) {
+    auto parent_index = tokenizer->prev_printer_context->context_index;
+    auto parent_depth = contexts[parent_index].depth;
+    contexts.emplace_back(
+        parent_index,
+        parent_depth,
+        aliasee);
+  } else {
+    assert(false);
+    contexts.emplace_back(
+        kInvalidTokenContextIndex,
+        static_cast<uint16_t>(0),
+        aliasee);
+  }
   return index;
 }
 
@@ -304,13 +316,8 @@ void TokenPrinterContext::MarkLocation(clang::SourceLocation loc) {
     // because the source locations inside of the parsed AST relate to a huge
     // in-memory file where each post-preprocessed token is on its own line.
     if (tokens.ast) {
-      auto &sm = tokens.ast->ci->getSourceManager();
-      bool invalid = false;
-      const auto line = sm.getSpellingLineNumber(loc, &invalid);
-      if (line && !invalid &&
-          static_cast<size_t>(line) < tokens.ast->tokens.size()) {
-        tokens.tokens.back().opaque_source_loc =
-            tokens.ast->tokens[line - 1u].opaque_source_loc;
+      if (auto raw_tok = tokens.ast->RawTokenAt(loc)) {
+        tokens.tokens.back().opaque_source_loc = raw_tok->opaque_source_loc;
       }
 
     // We don't has an `ASTImpl`, so we'll assume that `loc` is a "real" source

@@ -430,10 +430,11 @@ class Matcher {
                       bool &changed);
   bool MatchRegions(Region *parsed, Region *printed,
                     bool &changed);
-//  bool MatchFailed(void);
 
   bool MergeForward(TokenImpl *parsed, PrintedTokenImpl *printed, bool &changed);
   bool MergeBackward(TokenImpl *parsed, PrintedTokenImpl *printed, bool &changed);
+
+  void FixContexts(Region *parsed, Region *printed);
 };
 
 template <typename Parsed, typename Printed, typename Eq>
@@ -625,6 +626,35 @@ bool Matcher::MatchBalanced(BalancedRegion *parsed, BalancedRegion *printed,
     return false;
   }
 
+  // Look just before and just after the opening and/or closing tokens to
+  // see if we can match on those.
+  if (!begin_loc_matches && !end_loc_matches) {
+    const auto first_parsed_tok = &(ast.tokens.front());
+    const auto first_printed_tok = &(range.tokens.front());
+
+    // Look one before.
+    if (parsed->begin > first_parsed_tok &&
+        printed_begin > first_printed_tok) {
+      auto before_parsed = &(parsed->begin[-1]);
+      auto before_printed = &(printed_begin[-1]);
+      if (TokenLocationsMatch(before_parsed, before_printed)) {
+        begin_loc_matches = true;
+      }
+    }
+
+    // Look one beyond.
+    const auto last_parsed_tok = &(ast.tokens.back());
+    const auto last_printed_tok = &(range.tokens.back());
+    if (parsed->end < last_parsed_tok &&
+        printed_end < last_printed_tok) {
+      auto after_parsed = &(parsed->end[1]);
+      auto after_printed = &(printed_end[1]);
+      if (TokenLocationsMatch(after_parsed, after_printed)) {
+        end_loc_matches = true;
+      }
+    }
+  }
+
   auto did_recurse = false;
   if (!begin_loc_matches && !end_loc_matches) {
     did_recurse = true;
@@ -750,64 +780,6 @@ bool Matcher::MatchSequence(SequenceRegion *parsed, SequenceRegion *printed,
   // Allow ourselves to locally fail on this run, but benefit from a prior
   // matching.
   return parsed->matched_with == printed;
-
-//  do {
-//    auto parsed_dist = parsed_end - parsed_begin;
-//    auto printed_dist = printed_end - printed_begin;
-//
-//    // Special case: Skip over parsed statements ending in unknown/comments.
-//    while (auto stmt = dynamic_cast<StatementRegion *>(*parsed_end)) {
-//      if (stmt->end->kind == clang::tok::unknown ||
-//          stmt->end->kind == clang::tok::comment) {
-//        ++parsed_begin;
-//        if (parsed_begin > parsed_end) {
-//          break;
-//        }
-//      } else {
-//        break;
-//      }
-//    }
-//
-//    if (MatchRegions(*parsed_end, *printed_end, force - 1)) {
-//      ++parsed_begin;
-//      ++printed_begin;
-//      matched = true;
-//
-//    } else if (parsed_dist < printed_dist) {
-//      not_matched_printed.push_back(*printed_end);
-//      ++printed_begin;
-//
-//    } else if (parsed_dist > printed_dist) {
-//      not_matched_parsed.push_back(*parsed_end);
-//      ++parsed_begin;
-//
-//    } else {
-//      not_matched_printed.push_back(*printed_end);
-//      not_matched_parsed.push_back(*parsed_end);
-//      ++parsed_begin;
-//      ++printed_begin;
-//    }
-//
-//  } while (parsed_begin <= parsed_end && printed_begin <= printed_end);
-//
-//  // Try an all-by-all matching strategy.
-//  for (auto &sub_parsed : not_matched_parsed) {
-//    for (auto &sub_printed : not_matched_printed) {
-//      if (!sub_parsed) {
-//        break;
-//      }
-//      if (!sub_printed) {
-//        continue;
-//      }
-//      if (MatchRegions(sub_parsed, sub_printed, force - 1)) {
-//        sub_parsed = nullptr;
-//        sub_printed = nullptr;
-//        matched = true;
-//      }
-//    }
-//  }
-
-  return matched;
 }
 
 bool Matcher::MatchStatement(StatementRegion *parsed, StatementRegion *printed,
@@ -820,14 +792,17 @@ bool Matcher::MatchStatement(StatementRegion *parsed, StatementRegion *printed,
   const auto parsed_begin = parsed->begin;
   auto parsed_end = parsed->end;
 
-  const auto printed_begin = reinterpret_cast<PrintedTokenImpl *>(printed->begin);
+  const auto printed_begin =
+      reinterpret_cast<PrintedTokenImpl *>(printed->begin);
   auto printed_end = reinterpret_cast<PrintedTokenImpl *>(printed->end);
 
   std::unordered_map<uint64_t, std::vector<TokenImpl *>> parsed_toks;
   std::unordered_map<uint64_t, std::vector<PrintedTokenImpl *>> printed_toks;
 
   for (auto it = parsed_begin; it <= parsed_end; ++it) {
-    parsed_toks[Hash(it->kind, it->Data(ast))].emplace_back(it);
+    if (it->kind != clang::tok::unknown && it->kind != clang::tok::comment) {
+      parsed_toks[Hash(it->kind, it->Data(ast))].emplace_back(it);
+    }
   }
 
   for (auto it = printed_begin; it <= printed_end; ++it) {
@@ -858,12 +833,6 @@ bool Matcher::MatchStatement(StatementRegion *parsed, StatementRegion *printed,
           printed_tok = nullptr;
           break;
         }
-
-//        std::cerr
-//            << parsed_tok->Data(ast) << " l:" << std::hex << parsed_tok->opaque_source_loc
-//            << " vs. " << printed_tok->Data(range)
-//            << " c:" << printed_tok->context_index << std::dec << '\n';
-
       }
     }
   }
@@ -879,135 +848,6 @@ bool Matcher::MatchStatement(StatementRegion *parsed, StatementRegion *printed,
   // Allow ourselves to locally fail on this run, but benefit from a prior
   // matching.
   return parsed->matched_with == printed;
-
-#if 0
-  std::vector<bool> matched_parsed;
-  std::vector<bool> matched_printed;
-
-  matched_parsed.resize(static_cast<size_t>(parsed_end - parsed_begin) + 1u);
-  matched_printed.resize(static_cast<size_t>(printed_end - printed_begin) + 1u);
-
-  auto i = 0u;
-  auto j = 0u;
-  auto matched = false;
-  for (auto parsed_it = parsed_begin; parsed_it <= parsed_end;
-       ++parsed_it, ++i) {
-//    if (clang::tok::isAnyIdentifier(parsed_it->kind) ||
-//        clang::tok::getKeywordSpelling(parsed_it->kind)) {
-//
-//    }
-    j = 0u;
-    for (auto printed_it = printed_begin;
-        printed_it <= printed_end; ++printed_it, ++j) {
-
-      if (TokenLocationsMatch(parsed_it, printed_it)) {
-        matched_parsed[i] = true;
-        matched_printed[j] = true;
-        matched = true;
-        break;
-      }
-    }
-  }
-
-  if (!matched && 0 >= force) {
-    return false;
-  }
-
-  std::vector<TokenImpl *> parsed_unmatched;
-  std::vector<PrintedTokenImpl *> printed_unmatched;
-
-  i = 0u;
-  for (auto parsed_it = parsed_begin; parsed_it <= parsed_end;
-       ++parsed_it, ++i) {
-    if (!matched_parsed[i]) {
-      parsed_unmatched.push_back(parsed_it);
-    }
-  }
-
-  j = 0u;
-  for (auto printed_it = printed_begin;
-       printed_it <= printed_end; ++printed_it, ++j) {
-    if (!matched_printed[j]) {
-      printed_unmatched.push_back(printed_it);
-    }
-  }
-
-  for (auto parsed_tok : parsed_unmatched) {
-    for (auto printed_tok : printed_unmatched) {
-      if (MatchToken(parsed_tok, printed_tok)) {
-        MergeForward(parsed_tok, printed_tok);
-        MergeBackward(parsed_tok, printed_tok);
-        matched = true;
-      }
-    }
-  }
-
-  if (matched) {
-    parsed->matched_with = printed;
-    printed->matched_with = parsed;
-  }
-
-  return matched;
-#endif
-#if 0
-  const auto parsed_begin = parsed->begin;
-  auto parsed_end = parsed->end;
-
-  const auto printed_begin = reinterpret_cast<PrintedTokenImpl *>(printed->begin);
-  auto printed_end = reinterpret_cast<PrintedTokenImpl *>(printed->end);
-  auto matched = false;
-
-  std::vector<std::pair<TokenImpl *, PrintedTokenImpl *>> matches;
-
-  do {
-    auto parsed_dist = parsed_end - parsed_begin;
-    auto printed_dist = printed_end - printed_begin;
-
-    if (parsed_end->kind == clang::tok::unknown ||
-        parsed_end->kind == clang::tok::comment) {
-      --parsed_end;
-      continue;
-    }
-
-    if (MatchToken(parsed_end, printed_end)) {
-      matches.emplace_back(parsed_end, printed_end);
-      --parsed_end;
-      --printed_end;
-      matched = true;
-
-    // Sometimes in the parsed representation, we have commas, e.g. between
-    // fields, but in the printed we have semi-colons.
-    } else if (parsed_end->kind == clang::tok::comma &&
-               printed_end->kind == clang::tok::semi) {
-      matches.emplace_back(parsed_end, printed_end);
-      --parsed_end;
-      --printed_end;
-      matched = true;
-
-    } else if (parsed_dist < printed_dist) {
-      --printed_end;
-
-    } else if (parsed_dist > printed_dist) {
-      --parsed_end;
-
-    } else {
-      --parsed_end;
-      --printed_end;
-    }
-
-  } while (parsed_end >= parsed_begin && printed_end >= printed_begin);
-
-  for (auto [parsed_tok, printed_tok] : matches) {
-    MergeForward(parsed_tok, printed_tok);
-    MergeBackward(parsed_tok, printed_tok);
-  }
-
-  if (matched) {
-    parsed->matched_with = printed;
-    printed->matched_with = parsed;
-  }
-  return matched;
-#endif
 }
 
 bool Matcher::MatchRegions(Region *parsed, Region *printed,
@@ -1038,72 +878,11 @@ bool Matcher::MatchRegions(Region *parsed, Region *printed,
   return false;
 }
 
-//// Try to look at the tokens following balanced regions, and if they match, then
-//// back-propagate to the balanced regions. This is to help drill down on the
-//// source locations of things associated with types, as the type printer itself
-//// operates on `clang::QualType`s and not `clang::TypeLoc`s.
-//bool Matcher::MatchFailed(void) {
-//  std::vector<std::pair<BalancedRegion *, BalancedRegion *>>
-//      prev_failed_balanced;
-//
-//  const auto first_parsed_tok = &(ast.tokens.front());
-//
-//  auto global_changed = false;
-//  for (auto changed = true; changed && !failed_balanced.empty(); ) {
-//    changed = false;
-//    prev_failed_balanced.clear();
-//    prev_failed_balanced.swap(failed_balanced);
-//    for (auto [a, b] : failed_balanced) {
-//      BalancedRegion *parsed_balanced = a;
-//      BalancedRegion *printed_balanced = b;
-//
-//      auto merge = [&] (void) {
-//        parsed_balanced->begin->context_index =
-//            printed_balanced->begin->context_index;
-//        parsed_balanced->end->context_index =
-//            printed_balanced->end->context_index;
-//
-//        printed_balanced->begin->opaque_source_loc =
-//            parsed_balanced->begin->opaque_source_loc;
-//        printed_balanced->end->opaque_source_loc =
-//            parsed_balanced->end->opaque_source_loc;
-//
-//        changed = true;
-//        global_changed = true;
-//
-//        MatchBalanced(parsed_balanced, printed_balanced, 2);
-//      };
-//
-//      if (parsed_balanced->begin->context_index == kInvalidTokenContextIndex &&
-//          parsed_balanced->end->context_index == kInvalidTokenContextIndex) {
-//
-//        // Look at the token following the balanced token. It's safe-ish to look
-//        // ahead by one because there is always an `EOF` token at the end of the
-//        // parsed tokens.
-//        if ((parsed_balanced->end[1].context_index !=
-//                kInvalidTokenContextIndex) &&
-//            (parsed_balanced->end[1].opaque_source_loc ==
-//                printed_balanced->end[1].opaque_source_loc)) {
-//
-//          merge();
-//
-//        } else if (parsed_balanced->begin > first_parsed_tok &&
-//                   (parsed_balanced->begin[-1].context_index !=
-//                       kInvalidTokenContextIndex) &&
-//                   (parsed_balanced->begin[-1].opaque_source_loc ==
-//                       printed_balanced->begin[-1].opaque_source_loc)) {
-//
-//          merge();
-//        }
-//      } else {
-//        failed_balanced.emplace_back(parsed_balanced, printed_balanced);
-//      }
-//    }
-//  }
-//
-//  failed_balanced.clear();
-//  return global_changed;
-//}
+// Make sure that every parsed token is assign *some* kind of context. We try
+// to benefit from existing matches and common ancestors to apply contexts.
+void Matcher::FixContexts(Region *parsed, Region *printed) {
+
+}
 
 }  // namespace
 
@@ -1227,71 +1006,16 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
     join_based_linear_merge(changed);
     join_based_region_merge(changed);
   }
-//
-//  matcher.MatchRegions(parsed_tree, printed_tree, 0);
-//  join_based_region_merge();
-//  join_based_linear_merge();
-//  matcher.MatchFailed();
-//  join_based_linear_merge();
 
-//
-//
-////  std::cerr << "printed_begin_loc_to_balanced.size() = " << printed_begin_loc_to_balanced.size() << '\n';
-////  std::cerr << "printed_end_loc_to_balanced.size() = " << printed_end_loc_to_balanced.size() << '\n';
-////  std::cerr << "printed_end_loc_to_statement.size() = " << printed_end_loc_to_statement.size() << '\n';
-//  matcher.MatchFailed();
+  matcher.FixContexts(parsed_tree, printed_tree);
 
-//  // Perform isolated forward and backward propagation. This is isolated becuase
-//  // it looks at pairs of adjacent tokens. The key goal is that we know that
-//  // the type printer operates on QualTypes and not TypeLocs, so none of the
-//  // tokens nested inside of things like `[` or `(` are marked as such.
-//  auto printed_tok = range.first;
-//  for (auto tok = first_tok; tok < after_last_tok; ++tok) {
-//    auto found = false;
-//    auto prev_printed_tok = printed_tok;
-//
-//    // Does our current token have information?
-//    auto tok_missing_info =
-//        tok->opaque_source_loc == TokenImpl::kInvalidSourceLocation ||
-//        tok->context_index == kInvalidTokenContextIndex;
-//
-//    // If the next token has no information, then we want to forward-propagate.
-//    if (tok[1].opaque_source_loc == TokenImpl::kInvalidSourceLocation ||
-//        tok[1].context_index == kInvalidTokenContextIndex) {
-//
-//      // This isn't great :-/
-//      if (tok_missing_info) {
-//        continue;
-//      }
-//
-//    // If the next token has information, then we want to backward-propagate.
-//    } else {
-//
-//    }
-//
-//    // If our parsed token has good source location and has context due to
-//    // the above partial matching then we want to try to find a parsed token
-//    // with matching location information.
-//    if (tok->opaque_source_loc != TokenImpl::kInvalidSourceLocation &&
-//        tok->context_index != kInvalidTokenContextIndex) {
-//      for (; printed_tok < range.after_last; ++printed_tok) {
-//        if (tok->opaque_source_loc == printed_tok->opaque_source_loc &&
-//            tok->context_index == printed_tok->context_index) {
-//          found = true;
-//          break;
-//        }
-//      }
-//
-//      // Didn't find one :-/
-//      if (!found) {
-//        printed_tok = prev_printed_tok;
-//
-//      // We found one!
-//      } else {
-//
-//      }
-//    } else {
-//      assert(false);
+  ast->contexts = std::move(range.impl->contexts);
+  ast->RefineTokens();
+
+//  for (const auto &parsed_region : parsed_regions) {
+//    auto balanced = dynamic_cast<BalancedRegion *>(parsed_region.get());
+//    if (!balanced) {
+//      continue;
 //    }
 //
 //  }

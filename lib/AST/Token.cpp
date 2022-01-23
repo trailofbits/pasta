@@ -183,6 +183,52 @@ static bool ReadRawTokenData(clang::SourceManager &source_manager,
 
 } // namespace
 
+// Return the common ancestor between two tokens. This focuses on the data
+// itself, so if there are two distinct contexts sharing the same data, or
+// aliasing the same data, the context associated with the second token is
+// returned.
+const TokenContextImpl *TokenContextImpl::CommonAncestor(
+    TokenImpl *a, TokenImpl *b,
+    const std::vector<TokenContextImpl> &contexts) {
+  auto a_index = a->context_index;
+  auto b_index = b->context_index;
+  if (a_index == kInvalidTokenContextIndex ||
+      b_index == kInvalidTokenContextIndex) {
+    return nullptr;
+  }
+
+  auto a_context = &(contexts[a_index]);
+  auto b_context = &(contexts[b_index]);
+
+  for (auto i = std::max(a_context->depth, b_context->depth) * 2u + 1u;
+       i--; ) {
+    if (!a_context || !b_context) {
+      return nullptr;
+
+    } else if (a_context == b_context) {
+      return a_context;
+
+    } else if (a_context->data == b_context->data) {
+      return b_context;
+
+    } else if (a_context->Aliasee(contexts)->data ==
+               b_context->Aliasee(contexts)->data) {
+      return b_context;
+
+    } else if (a_context->depth > b_context->depth) {
+      a_context = a_context->Parent(contexts);
+
+    } else if (a_context->depth < b_context->depth) {
+      b_context = b_context->Parent(contexts);
+
+    } else {
+      a_context = a_context->Parent(contexts);
+      b_context = b_context->Parent(contexts);
+    }
+  }
+
+  return nullptr;
+}
 
 const TokenContextImpl *TokenContextImpl::Parent(
     const std::vector<TokenContextImpl> &contexts) const {

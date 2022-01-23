@@ -51,21 +51,35 @@ class PrintedTokenImpl : public TokenImpl {
 class PrintedTokenRangeImpl {
  public:
 
+  // The AST context. This is nifty to have because generally `clang::Stmt`s
+  // don't know about the context.
   clang::ASTContext &ast_context;
+
+  //
+  // NOTE(pag): May be null if we're printing a "raw" pointer, that possibly
+  //            was not produced via PASTA.
   std::shared_ptr<ASTImpl> ast;
+
   std::vector<PrintedTokenImpl> tokens;
 
   // The `data_offset` of the `TokenImpl` base of `PrintedTokenImpl` in `tokens`
   // points into this string.
   std::string data;
 
+  // All allocated token contexts live here. The `TokenImpl::context_index` of
+  // a `PrintedTokenImpl` points into `contexts`.
   std::vector<TokenContextImpl> contexts;
+
+  // Maps something, e.g. a `clang::Decl *`, `clang::Stmt *`, `clang::Type *`,
+  // etc. to the "owning" context for that thing. There can be multiple open
+  // contexts for a given thing; the first one is always the owning one, and
+  // the rest are aliasing ones.
   std::unordered_map<const void *, unsigned> data_to_index;
 
+  // The current top of the token printer context stack. The structure of the
+  // token printing context stack is induced via the call stack, which happens
+  // when we recursively print different AST entities.
   TokenPrinterContext *curr_printer_context{nullptr};
-
-//  std::vector<TokenContextIndex> context_stack;
-//  std::vector<TokenPrinterContext *> tokenizer_stack;
 
   inline PrintedTokenRangeImpl(clang::ASTContext &ast_context_)
       : ast_context(ast_context_) {}
@@ -137,11 +151,22 @@ const TokenContextIndex PrintedTokenRangeImpl::CreateContext(
 
   auto index = static_cast<TokenContextIndex>(contexts.size());
   assert(index == contexts.size());
-  contexts.emplace_back(
-      (tokenizer->prev_printer_context ?
-          tokenizer->prev_printer_context->context_index :
-          kInvalidTokenContextIndex),
-      data);
+
+  if (tokenizer->prev_printer_context &&
+      tokenizer->prev_printer_context->context_index !=
+          kInvalidTokenContextIndex) {
+    auto parent_index = tokenizer->prev_printer_context->context_index;
+    auto parent_depth = contexts[parent_index].depth;
+    contexts.emplace_back(
+        parent_index,
+        parent_depth,
+        data);
+  } else {
+    contexts.emplace_back(
+        kInvalidTokenContextIndex,
+        static_cast<uint16_t>(0),
+        data);
+  }
 
   if (data) {
     tokenizer->owns_data = data;

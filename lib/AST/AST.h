@@ -91,6 +91,13 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // List of token contexts from trying to print the entire AST using the token
   // printer. The `TokenImpl::context_index` fields of the `tokens` vector above
   // point into here.
+  //
+  // NOTE(pag): The last context in this list holds a raw data pointer to the
+  //            `ASTImpl` containing `contexts`. This is so that we can get the
+  //            `Decl`s, `Stmt`s, and `Type`s referenced by a token context.
+  //            This is safe because a `TokenContext` has a shared pointer to
+  //            a vector of contexts (this vector), where that shared pointer
+  //            aliases the `ASTImpl`s lifetime.
   std::vector<TokenContextImpl> contexts;
 
   // Huge "file" containing one token per line. Sometimes some lines are empty.

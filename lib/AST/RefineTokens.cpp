@@ -10,6 +10,8 @@
 
 #include <iostream>
 
+#define PASTA_DEBUG_REFINE 0
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
@@ -364,11 +366,12 @@ class TokenContextAssigner : public clang::DeclVisitor<TokenContextAssigner>,
     auto ent_begin = entity_stack.rbegin();
     auto ent_it = ent_begin;
     auto ent_end = entity_stack.rend();
+    auto top_entity = entity_stack.back();
 
     entity_to_context.clear();
 
     bool has_contexts = false;
-    auto found = 0u;
+    auto num_found = 0u;
     auto i = 0u;
     // Descend the token contexts that we already know about.
     for (auto index = tok->context_index;
@@ -378,7 +381,10 @@ class TokenContextAssigner : public clang::DeclVisitor<TokenContextAssigner>,
       const void *context_data = context.Aliasee(ast.contexts)->data;
       auto found_it = std::find(ent_it, ent_end, context_data);
       if (found_it != ent_end) {
-        ++found;
+        if (found_it == ent_begin || context_data == top_entity) {
+          return;  // We've found the top entity on the stack, assume refined.
+        }
+        ++num_found;
 
 //        if (found_it == ent_begin) {
 //
@@ -403,12 +409,20 @@ class TokenContextAssigner : public clang::DeclVisitor<TokenContextAssigner>,
       ++i;
     }
 
+    // Nothing to do.
+    if (num_found == i) {
+      return;
+    }
+
+#if PASTA_DEBUG_REFINE
     std::cerr
         << tok->Data(ast) << " c:" << std::hex << tok->context_index
         << " l:" << tok->opaque_source_loc << std::dec << " "
-        << entity_to_context.size() << '/' << found << '/' << i << '\n';
+        << entity_to_context.size() << '/' << num_found << '/' << i
+        << '/' << entity_stack.size() << '\n';
+#endif
 
-    assert(!has_contexts || found);
+    assert(!has_contexts || num_found);
   }
 
   // Add a cross-reference to the current entity.

@@ -41,6 +41,14 @@ class TokenContextImpl {
   const uint16_t depth;
   const TokenContextKind kind;
 
+  // Return the common ancestor between two contexts. This focuses on the data
+  // itself, so if there are two distinct contexts sharing the same data, or
+  // aliasing the same data, the context associated with the second token is
+  // returned.
+  static const TokenContextImpl *CommonAncestor(
+      const TokenContextImpl *a, const TokenContextImpl *b,
+      const std::vector<TokenContextImpl> &contexts);
+
   // Return the common ancestor between two tokens. This focuses on the data
   // itself, so if there are two distinct contexts sharing the same data, or
   // aliasing the same data, the context associated with the second token is
@@ -84,6 +92,13 @@ class TokenContextImpl {
         parent_index(parent_index_),
         depth(parent_depth + 1u),
         kind(TokenContextKind::kAlias) {}
+
+  // Special context that we place at the end of a vector.
+  inline TokenContextImpl(ASTImpl &ast)
+      : data(reinterpret_cast<const void *>(&ast)),
+        parent_index(kInvalidTokenContextIndex),
+        depth(std::numeric_limits<uint16_t>::max()),
+        kind(TokenContextKind::kInvalid) {}
 };
 
 // Backing implementation of a token.

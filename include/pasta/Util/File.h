@@ -53,6 +53,9 @@ class FileToken {
   // Kind of this token.
   unsigned Kind(void) const noexcept;
 
+  // Kind of this token.
+  const char *KindName(void) const noexcept;
+
   // Return the line number associated with this token.
   unsigned Line(void) const noexcept;
 
@@ -268,6 +271,19 @@ class File {
   inline bool operator!=(const File &that) const noexcept {
     return impl != that.impl;
   }
+
+  inline uint64_t HashCode(void) const noexcept {
+    return std::hash<void *>{}(impl.get());
+  }
 };
 
 }  // namespace pasta
+namespace std {
+template <>
+struct hash<::pasta::File> {
+ public:
+  inline uint64_t operator()(const ::pasta::File &file) const noexcept {
+    return file.HashCode();
+  }
+};
+}  // namespace std

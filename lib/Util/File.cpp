@@ -8,6 +8,13 @@
 
 #include "FileManager.h"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/Basic/TokenKinds.h>
+#pragma clang diagnostic pop
+
 namespace pasta {
 
 FileImpl::FileImpl(const std::shared_ptr<FileManagerImpl> &owner_, Stat stat_)
@@ -43,12 +50,12 @@ Result<std::string_view, std::error_code> File::Data(void) const noexcept {
 
   auto fm = impl->owner.lock();
   auto maybe_file = fm->file_system->ReadFile(impl->stat);
-  if (maybe_file.Failed()) {
-    impl->data_ec = maybe_file.TakeError();
-    return impl->data_ec;
-  } else {
+  if (maybe_file.Succeeded()) {
     maybe_file.TakeValue().swap(impl->data);
     return std::string_view(impl->data.data(), impl->data.size());
+  } else {
+    impl->data_ec = maybe_file.TakeError();
+    return impl->data_ec;
   }
 }
 
@@ -112,7 +119,16 @@ std::optional<FileToken> File::TokenAtOffset(unsigned offset) const noexcept {
 
 // Kind of this token.
 unsigned FileToken::Kind(void) const noexcept {
-  return impl ? impl->kind : 0u;
+  return impl ? impl->kind : clang::tok::unknown;
+}
+
+// Kind of this token.
+const char *FileToken::KindName(void) const noexcept {
+  if (impl) {
+    return clang::tok::getTokenName(static_cast<clang::tok::TokenKind>(impl->kind));
+  } else {
+    return clang::tok::getTokenName(clang::tok::unknown);
+  }
 }
 
 // Return the line number associated with this token.

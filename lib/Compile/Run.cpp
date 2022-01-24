@@ -258,12 +258,12 @@ class ParsedFileTracker : public clang::PPCallbacks {
 
     auto fs_path = fs->ParsePath(fe->getName().str(), cwd, fs->PathKind());
     auto fs_stat = fs->Stat(fs_path, cwd);
-    if (fs_stat.Failed()) {
+    if (!fs_stat.Succeeded()) {
       return;
     }
 
     auto maybe_file = fm.OpenFile(fs_stat.TakeValue());
-    if (maybe_file.Failed()) {
+    if (!maybe_file.Succeeded()) {
       return;
     }
 
@@ -282,7 +282,7 @@ class ParsedFileTracker : public clang::PPCallbacks {
     }
 
     auto maybe_data = file.Data();
-    if (maybe_data.Failed()) {
+    if (!maybe_data.Succeeded()) {
       return;
     }
 

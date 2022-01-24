@@ -10,6 +10,7 @@
 #include <limits>
 #include <new>
 
+#include "Builder.h"
 #include "Token.h"
 
 #pragma clang diagnostic push
@@ -175,4 +176,99 @@ const std::vector<::pasta::File> &AST::ParsedFiles(void) const {
   return impl->parsed_files;
 }
 
+std::optional<Decl> Decl::From(const TokenContext &context) {
+  if (context.Kind() != TokenContextKind::kDecl) {
+    return std::nullopt;
+  }
+
+  auto &contexts = *(context.contexts);
+  if (contexts.empty()) {
+    return std::nullopt;
+  }
+
+  auto &last_context = contexts.back();
+  if (!last_context.data || last_context.kind != TokenContextKind::kInvalid ||
+      last_context.depth != std::numeric_limits<uint16_t>::max() ||
+      last_context.parent_index != kInvalidTokenContextIndex) {
+    return std::nullopt;
+  }
+
+  auto ast = reinterpret_cast<ASTImpl *>(const_cast<void *>(last_context.data));
+  if (&(ast->contexts) != &contexts) {
+    assert(false);
+    return std::nullopt;
+  }
+
+  return DeclBuilder::Create<Decl, clang::Decl>(
+      ast->shared_from_this(),
+      reinterpret_cast<const clang::Decl *>(context.Data()));
+}
+
+std::optional<Stmt> Stmt::From(const TokenContext &context) {
+  if (context.Kind() != TokenContextKind::kStmt) {
+    return std::nullopt;
+  }
+
+  auto &contexts = *(context.contexts);
+  if (contexts.empty()) {
+    return std::nullopt;
+  }
+
+  auto &last_context = contexts.back();
+  if (!last_context.data || last_context.kind != TokenContextKind::kInvalid ||
+      last_context.depth != std::numeric_limits<uint16_t>::max() ||
+      last_context.parent_index != kInvalidTokenContextIndex) {
+    return std::nullopt;
+  }
+
+  auto ast = reinterpret_cast<ASTImpl *>(const_cast<void *>(last_context.data));
+  if (&(ast->contexts) != &contexts) {
+    assert(false);
+    return std::nullopt;
+  }
+
+  return StmtBuilder::Create<Stmt, clang::Stmt>(
+      ast->shared_from_this(),
+      reinterpret_cast<const clang::Stmt *>(context.Data()));
+}
+
+std::optional<Type> Type::From(const TokenContext &context) {
+  if (context.Kind() != TokenContextKind::kType) {
+    return std::nullopt;
+  }
+
+  auto &contexts = *(context.contexts);
+  if (contexts.empty()) {
+    return std::nullopt;
+  }
+
+  auto &last_context = contexts.back();
+  if (!last_context.data || last_context.kind != TokenContextKind::kInvalid ||
+      last_context.depth != std::numeric_limits<uint16_t>::max() ||
+      last_context.parent_index != kInvalidTokenContextIndex) {
+    return std::nullopt;
+  }
+
+  auto ast = reinterpret_cast<ASTImpl *>(const_cast<void *>(last_context.data));
+  if (&(ast->contexts) != &contexts) {
+    assert(false);
+    return std::nullopt;
+  }
+
+  return TypeBuilder::Create<Type, clang::Type>(
+      ast->shared_from_this(),
+      reinterpret_cast<const clang::Type *>(context.Data()));
+}
+
 }  // namespace pasta
+
+#ifndef PASTA_IN_BOOTSTRAP
+namespace std {
+
+uint64_t hash<::pasta::Decl>::operator()(
+    const ::pasta::Decl &decl) const noexcept {
+  return std::hash<const void *>{}(decl.RawDecl());
+}
+
+}  // namespace std
+#endif  // PASTA_IN_BOOTSTRAP

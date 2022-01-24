@@ -103,15 +103,15 @@ BorrowedPythonPtr<AST> CompileJob::Run(cache_kwarg cache) {
   }
 
   auto maybe_ast = job->Run();
-  if (maybe_ast.Failed()) {
-    PythonErrorStreamer(PyExc_Exception) << maybe_ast.TakeError();
-    return nullptr;
-  } else {
+  if (maybe_ast.Succeeded()) {
     auto ret = AST::New(maybe_ast.TakeValue());
     if (do_cache) {
       cached_ast = ret.Acquire();
     }
     return ret;
+  } else {
+    PythonErrorStreamer(PyExc_Exception) << maybe_ast.TakeError();
+    return nullptr;
   }
 }
 

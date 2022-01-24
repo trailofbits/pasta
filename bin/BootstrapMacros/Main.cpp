@@ -46,13 +46,13 @@ int main(void) {
   auto maybe_compiler =
       pasta::Compiler::CreateHostCompiler(fm, pasta::TargetLanguage::kCXX);
 
-  if (maybe_compiler.Failed()) {
+  if (!maybe_compiler.Succeeded()) {
     std::cerr << maybe_compiler.TakeError() << std::endl;
     return EXIT_FAILURE;
   }
 
   auto maybe_cwd = maybe_compiler->FileSystem()->CurrentWorkingDirectory();
-  if (maybe_cwd.Failed()) {
+  if (!maybe_cwd.Succeeded()) {
     std::cerr << maybe_compiler.TakeError() << std::endl;
     return EXIT_FAILURE;
   }
@@ -60,25 +60,26 @@ int main(void) {
   const pasta::ArgumentVector args(clang_command);
   auto maybe_command = pasta::CompileCommand::CreateFromArguments(
       args, maybe_cwd.TakeValue());
-  if (maybe_command.Failed()) {
+  if (!maybe_command.Succeeded()) {
     std::cerr << maybe_command.TakeError() << std::endl;
     return EXIT_FAILURE;
   }
 
-  auto maybe_jobs = maybe_compiler->CreateJobsForCommand(*maybe_command);
-  if (maybe_jobs.Failed()) {
+  auto maybe_jobs = maybe_compiler->CreateJobsForCommand(
+      maybe_command.TakeValue());
+  if (!maybe_jobs.Succeeded()) {
     std::cerr << maybe_jobs.TakeError() << std::endl;
     return EXIT_FAILURE;
   }
 
-  for (const auto &job : *maybe_jobs) {
+  for (const auto &job : maybe_jobs.TakeValue()) {
     auto maybe_ast = job.Run();
-    if (maybe_ast.Failed()) {
+    if (!maybe_ast.Succeeded()) {
       std::cerr << maybe_ast.TakeError() << std::endl;
       return EXIT_FAILURE;
     }
 
-    return GenerateBindings(*maybe_ast);
+    return GenerateBindings(maybe_ast.TakeValue());
   }
 
   std::cerr << "No ASTs were produced." << std::endl;

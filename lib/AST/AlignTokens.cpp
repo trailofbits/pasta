@@ -20,11 +20,21 @@
 #include "Builder.h"
 #include "Printer/Printer.h"
 
-#define PASTA_DEBUG_ALIGN 1
+#define PASTA_DEBUG_ALIGN 0
 #define TK(...)
 
 namespace pasta {
 namespace {
+
+static bool TokenHasLocationAndContext(TokenImpl *impl) {
+  return impl->opaque_source_loc != TokenImpl::kInvalidSourceLocation &&
+         impl->context_index != kInvalidTokenContextIndex;
+}
+
+static bool TokenLocationsMatch(TokenImpl *parsed, PrintedTokenImpl *printed) {
+  return (parsed->opaque_source_loc == printed->opaque_source_loc) &&
+          parsed->opaque_source_loc != TokenImpl::kInvalidSourceLocation;
+}
 
 enum class RegionKind {
   kStatement,
@@ -48,15 +58,53 @@ struct Region {
   virtual void Print(std::ostream &os, std::string indent,
                      const PrintedTokenRangeImpl &range) const = 0;
 #endif  // PASTA_DEBUG_ALIGN
+
+  // Return the first token that has location and context information.
+  virtual TokenImpl *FirstParsedToken(void) const = 0;
+  virtual PrintedTokenImpl *FirstPrintedToken(void) const = 0;
 };
 
 struct StatementRegion final : public Region {
-  virtual RegionKind Kind(void) const noexcept final {
+  RegionKind Kind(void) const noexcept final {
     return RegionKind::kStatement;
   }
 
+  TokenImpl *FirstParsedToken(void) const final {
+    if (TokenHasLocationAndContext(end)) {
+      if (end->kind == clang::tok::semi ||
+          end->kind == clang::tok::comma ||
+          end->kind == clang::tok::colon) {
+        return end;
+      }
+    }
+    for (auto it = begin; it <= end; ++it) {
+      if (TokenHasLocationAndContext(it)) {
+        return it;
+      }
+    }
+    return nullptr;
+  }
+
+  PrintedTokenImpl *FirstPrintedToken(void) const final {
+    if (TokenHasLocationAndContext(end)) {
+      if (end->kind == clang::tok::semi ||
+          end->kind == clang::tok::comma ||
+          end->kind == clang::tok::colon) {
+        return reinterpret_cast<PrintedTokenImpl *>(end);
+      }
+    }
+    for (auto it = reinterpret_cast<PrintedTokenImpl *>(begin),
+              it_end = reinterpret_cast<PrintedTokenImpl *>(end);
+         it <= it_end; ++it) {
+      if (TokenHasLocationAndContext(it)) {
+        return it;
+      }
+    }
+    return nullptr;
+  }
+
 #if PASTA_DEBUG_ALIGN
-  virtual void Print(std::ostream &os, std::string indent,
+  void Print(std::ostream &os, std::string indent,
                      const ASTImpl &ast) const final {
     os << indent << "------ST " << reinterpret_cast<const void *>(matched_with) << "------\n";
     for (TokenImpl *it = begin; it <= end; ++it) {
@@ -76,7 +124,7 @@ struct StatementRegion final : public Region {
     }
   }
 
-  virtual void Print(std::ostream &os, std::string indent,
+  void Print(std::ostream &os, std::string indent,
                      const PrintedTokenRangeImpl &range) const final {
     os << indent << "------ST " << reinterpret_cast<const void *>(this) << "------\n";
     auto begin_ = reinterpret_cast<PrintedTokenImpl *>(begin);
@@ -104,13 +152,31 @@ struct StatementRegion final : public Region {
 };
 
 struct SequenceRegion final : public Region {
-  virtual RegionKind Kind(void) const noexcept final {
+  RegionKind Kind(void) const noexcept final {
     return RegionKind::kSequence;
   }
 
+  TokenImpl *FirstParsedToken(void) const final {
+    for (auto it = regions.rbegin(), end = regions.rend(); it != end; ++it) {
+      if (auto tok = (*it)->FirstParsedToken()) {
+        return tok;
+      }
+    }
+    return nullptr;
+  }
+
+  PrintedTokenImpl *FirstPrintedToken(void) const final {
+    for (auto it = regions.rbegin(), end = regions.rend(); it != end; ++it) {
+      if (auto tok = (*it)->FirstPrintedToken()) {
+        return tok;
+      }
+    }
+    return nullptr;
+  }
+
 #if PASTA_DEBUG_ALIGN
-  virtual void Print(std::ostream &os, std::string indent,
-                     const ASTImpl &ast) const final {
+  void Print(std::ostream &os, std::string indent,
+             const ASTImpl &ast) const final {
     os << indent << "------SE " << reinterpret_cast<const void *>(matched_with) << "------\n";
     indent += "  ";
     for (auto it = regions.rbegin(), end = regions.rend(); it != end; ++it) {
@@ -118,8 +184,8 @@ struct SequenceRegion final : public Region {
     }
   }
 
-  virtual void Print(std::ostream &os, std::string indent,
-                     const PrintedTokenRangeImpl &range) const final {
+  void Print(std::ostream &os, std::string indent,
+             const PrintedTokenRangeImpl &range) const final {
     os << indent << "------SE " << reinterpret_cast<const void *>(this) << "------\n";
     indent += "  ";
     for (auto it = regions.rbegin(), end = regions.rend(); it != end; ++it) {
@@ -133,13 +199,45 @@ struct SequenceRegion final : public Region {
 };
 
 struct BalancedRegion final : public Region {
-  virtual RegionKind Kind(void) const noexcept final {
+
+  StatementRegion *predecessor{nullptr};
+  TokenImpl *begin{nullptr};
+  SequenceRegion *statements{nullptr};
+  TokenImpl *end{nullptr};
+
+  RegionKind Kind(void) const noexcept final {
     return RegionKind::kBalanced;
   }
 
+  TokenImpl *FirstParsedToken(void) const final {
+    if (TokenHasLocationAndContext(begin)) {
+      return begin;
+    }
+    if (TokenHasLocationAndContext(end)) {
+      return end;
+    }
+    if (statements) {
+      return statements->FirstParsedToken();
+    }
+    return nullptr;
+  }
+
+  PrintedTokenImpl *FirstPrintedToken(void) const final {
+    if (TokenHasLocationAndContext(begin)) {
+      return reinterpret_cast<PrintedTokenImpl *>(begin);
+    }
+    if (TokenHasLocationAndContext(end)) {
+      return reinterpret_cast<PrintedTokenImpl *>(end);
+    }
+    if (statements) {
+      return statements->FirstPrintedToken();
+    }
+    return nullptr;
+  }
+
 #if PASTA_DEBUG_ALIGN
-  virtual void Print(std::ostream &os, std::string indent,
-                     const ASTImpl &ast) const final {
+  void Print(std::ostream &os, std::string indent,
+             const ASTImpl &ast) const final {
     os << indent << "------BA " << reinterpret_cast<const void *>(matched_with) << "------\n";
     os << indent << begin->Data(ast) << " " << clang::tok::getTokenName(begin->kind);
     if (begin->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
@@ -164,8 +262,8 @@ struct BalancedRegion final : public Region {
     os << '\n';
   }
 
-  virtual void Print(std::ostream &os, std::string indent,
-                     const PrintedTokenRangeImpl &range) const final {
+  void Print(std::ostream &os, std::string indent,
+             const PrintedTokenRangeImpl &range) const final {
     os << indent << "------BA " << reinterpret_cast<const void *>(this) << "------\n";
     os << indent << begin->Data(range) << " " << clang::tok::getTokenName(begin->kind);
     if (begin->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
@@ -188,10 +286,6 @@ struct BalancedRegion final : public Region {
     os << '\n';
   }
 #endif  // PASTA_DEBUG_ALIGN
-
-  TokenImpl *begin{nullptr};
-  SequenceRegion *statements{nullptr};
-  TokenImpl *end{nullptr};
 };
 
 // Organize the tokens into a tree, grouped by brace/bracket/paren-enclosed
@@ -355,25 +449,6 @@ static SequenceRegion *BuildRegions(
     }
   }
 
-//  // Remove empty trailing regions on sequence regions.
-//  for (const auto &region : regions) {
-//    if (auto seq = dynamic_cast<SequenceRegion *>(region.get())) {
-//      if (seq->regions.empty()) {
-//        continue;
-//      }
-//      auto last_region = seq->regions.back();
-//      if (auto last_seq = dynamic_cast<SequenceRegion *>(last_region)) {
-//        if (last_seq->regions.empty()) {
-//          seq->regions.pop_back();
-//        }
-//      } else if (auto last_stmt = dynamic_cast<StatementRegion *>(last_region)) {
-//        if (last_stmt->begin > last_stmt->end) {
-//          seq->regions.pop_back();
-//        }
-//      }
-//    }
-//  }
-
   if (region_stack.size() != 1u) {
     err
         << "Region stack for " << list_kind << " tokens has "
@@ -386,14 +461,25 @@ static SequenceRegion *BuildRegions(
 }
 
 static bool MergeToken(TokenImpl *parsed, PrintedTokenImpl *printed,
-                       bool &changed) {
-  if (parsed->context_index == kInvalidTokenContextIndex) {
-    parsed->context_index = printed->context_index;
-    assert(parsed->context_index != kInvalidTokenContextIndex);
-    printed->opaque_source_loc = parsed->opaque_source_loc;
-    changed = true;
-    return true;
+                       bool &changed, bool force=false) {
 
+  if (parsed->context_index != printed->context_index) {
+    if (force) {
+      parsed->context_index = printed->context_index;
+      printed->opaque_source_loc = parsed->opaque_source_loc;
+      changed = true;
+      return true;
+
+    } else if (parsed->context_index == kInvalidTokenContextIndex) {
+      parsed->context_index = printed->context_index;
+      assert(parsed->context_index != kInvalidTokenContextIndex);
+      printed->opaque_source_loc = parsed->opaque_source_loc;
+      changed = true;
+      return true;
+
+    } else {
+      return false;
+    }
   } else {
     return false;
   }
@@ -434,7 +520,7 @@ class Matcher {
   bool MergeForward(TokenImpl *parsed, PrintedTokenImpl *printed, bool &changed);
   bool MergeBackward(TokenImpl *parsed, PrintedTokenImpl *printed, bool &changed);
 
-  void FixContexts(Region *parsed, Region *printed);
+  void FixContexts(Region *parsed, std::vector<TokenContextIndex> &stack);
 };
 
 template <typename Parsed, typename Printed, typename Eq>
@@ -571,16 +657,6 @@ bool Matcher::MergeBackward(TokenImpl *parsed, PrintedTokenImpl *printed,
   return merged;
 }
 
-static bool TokenHasLocationAndContext(TokenImpl *impl) {
-  return impl->opaque_source_loc != TokenImpl::kInvalidSourceLocation &&
-         impl->context_index != kInvalidTokenContextIndex;
-}
-
-static bool TokenLocationsMatch(TokenImpl *parsed, PrintedTokenImpl *printed) {
-  return (parsed->opaque_source_loc == printed->opaque_source_loc) &&
-          parsed->opaque_source_loc != TokenImpl::kInvalidSourceLocation;
-}
-
 bool Matcher::MatchToken(TokenImpl *parsed, PrintedTokenImpl *printed) {
   if (TokenLocationsMatch(parsed, printed)) {
     return true;
@@ -657,10 +733,17 @@ bool Matcher::MatchBalanced(BalancedRegion *parsed, BalancedRegion *printed,
 
   auto did_recurse = false;
   if (!begin_loc_matches && !end_loc_matches) {
-    did_recurse = true;
-    if (!parsed->statements || !printed->statements ||
-        !MatchSequence(parsed->statements, printed->statements, changed)) {
-      return parsed->matched_with == printed;
+    if (parsed->predecessor && printed->predecessor &&
+        parsed->predecessor->matched_with == printed->predecessor) {
+
+      if (parsed->statements && printed->statements &&
+          MatchSequence(parsed->statements, printed->statements, changed)) {
+        did_recurse = true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
     }
   }
 
@@ -668,8 +751,8 @@ bool Matcher::MatchBalanced(BalancedRegion *parsed, BalancedRegion *printed,
   parsed->matched_with = printed;
   printed->matched_with = parsed;
 
-  MergeToken(parsed->begin, printed_begin, changed);
-  MergeToken(parsed->end, printed_end, changed);
+  MergeToken(parsed->begin, printed_begin, changed, true);
+  MergeToken(parsed->end, printed_end, changed, true);
 
   // If we pivoted from a match on the ending to injecting a match on the
   // beginning, then apply linear matching around the beginning of the range.
@@ -880,8 +963,131 @@ bool Matcher::MatchRegions(Region *parsed, Region *printed,
 
 // Make sure that every parsed token is assign *some* kind of context. We try
 // to benefit from existing matches and common ancestors to apply contexts.
-void Matcher::FixContexts(Region *parsed, Region *printed) {
+void Matcher::FixContexts(
+    Region *parsed, std::vector<TokenContextIndex> &stack) {
 
+  TokenContextIndex prev_context = stack.back();
+
+  if (auto bal = dynamic_cast<BalancedRegion *>(parsed)) {
+    assert(!stack.empty());
+
+    // Happens when we match the `)` of an `__attribute__` against the `)`
+    // of the parameter list of the function to which the attribute applies.
+    if (TokenHasLocationAndContext(bal->begin) !=
+        TokenHasLocationAndContext(bal->end)) {
+      bal->begin->context_index = kInvalidTokenContextIndex;
+      bal->end->context_index = kInvalidTokenContextIndex;
+    }
+
+    // Take the parent context.
+    if (!TokenHasLocationAndContext(bal->begin)) {
+      assert(!TokenHasLocationAndContext(bal->end));
+      bal->begin->context_index = prev_context;
+      bal->end->context_index = prev_context;
+      stack.push_back(prev_context);
+
+    // Get the context from the balanced tokens.
+    } else {
+      stack.push_back(bal->begin->context_index);
+    }
+
+    // Fix the contexts of any tokens inside of this balanced range.
+    if (bal->statements) {
+      FixContexts(bal->statements, stack);
+    }
+
+  } else if (auto stmt = dynamic_cast<StatementRegion *>(parsed)) {
+
+    // Try to find the common ancestor of everything in this statement.
+    const TokenContextImpl *prev = nullptr;
+    for (auto tok = stmt->begin; tok <= stmt->end; ++tok) {
+      if (TokenHasLocationAndContext(tok)) {
+        const TokenContextImpl *curr = &(ast.contexts[tok->context_index]);
+        if (!prev) {
+          prev = curr;
+        } else {
+          prev = TokenContextImpl::CommonAncestor(prev, curr, ast.contexts);
+        }
+      }
+    }
+
+    // If we've got a common ancestor, then push its index, and double check
+    // it against our parent. Otherwise, push our parent.
+    if (prev) {
+      auto index = static_cast<TokenContextIndex>(
+          prev - &(ast.contexts.front()));
+
+      if (prev_context != kInvalidTokenContextIndex) {
+        auto parent = &(ast.contexts[prev_context]);
+        auto ancestor = TokenContextImpl::CommonAncestor(
+            prev, parent, ast.contexts);
+
+        if (!ancestor || ancestor->depth < parent->depth) {
+          index = prev_context;  // Fixup.
+        }
+      }
+
+      stack.push_back(index);
+
+    } else {
+      stack.push_back(prev_context);
+    }
+
+    // Assign the top context on the stack to any token lacking the context.
+    for (auto tok = stmt->begin; tok <= stmt->end; ++tok) {
+      if (!TokenHasLocationAndContext(tok)) {
+        tok->context_index = stack.back();
+      }
+    }
+
+  } else if (auto seq = dynamic_cast<SequenceRegion *>(parsed)) {
+
+    // Try to find the common ancestor of everything in this sequence.
+    const TokenContextImpl *prev = nullptr;
+    for (auto region : seq->regions) {
+      if (auto tok = region->FirstParsedToken()) {
+        assert(TokenHasLocationAndContext(tok));
+        const TokenContextImpl *curr = &(ast.contexts[tok->context_index]);
+        if (!prev) {
+          prev = curr;
+        } else {
+          prev = TokenContextImpl::CommonAncestor(prev, curr, ast.contexts);
+        }
+      }
+    }
+
+    // If we've got a common ancestor, then push its index, and double check
+    // it against our parent. Otherwise, push our parent.
+    if (prev) {
+      auto index = static_cast<TokenContextIndex>(
+          prev - &(ast.contexts.front()));
+
+      if (prev_context != kInvalidTokenContextIndex) {
+        auto parent = &(ast.contexts[prev_context]);
+        auto ancestor = TokenContextImpl::CommonAncestor(
+            prev, parent, ast.contexts);
+        if (!ancestor || ancestor->depth < parent->depth) {
+          index = prev_context;  // Fixup.
+        }
+      }
+
+      stack.push_back(index);
+
+    } else {
+      stack.push_back(prev_context);
+    }
+
+    // Fix the contexts of any tokens inside of this sequence.
+    for (auto region : seq->regions) {
+      FixContexts(region, stack);
+    }
+  }
+
+  stack.pop_back();
+}
+
+static bool HasNotBeenMatched(Region *r) {
+  return !r->matched_with;
 }
 
 }  // namespace
@@ -920,105 +1126,190 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
 
   Matcher matcher(*ast, *(range.impl));
 
+  std::unordered_map<unsigned, TokenImpl *> loc_to_toks;
+  for (auto tok = first_tok; tok < after_last_tok; ++tok) {
+    loc_to_toks.emplace(tok->opaque_source_loc, tok);
+  }
+
   // Join on the shared source locations, and linearly "spread"
   // outward from there. This should generally cover a bunch.
   auto join_based_linear_merge = [&] (bool &changed) {
-    std::unordered_map<unsigned, std::pair<TokenImpl *, PrintedTokenImpl *>>
-        loc_to_toks;
-    for (auto tok = range.first; tok < range.after_last; ++tok) {
-      if (tok->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
-        loc_to_toks[tok->opaque_source_loc].second = tok;
-      }
-    }
-    for (auto tok = first_tok; tok < after_last_tok; ++tok) {
-      if (loc_to_toks.count(tok->opaque_source_loc)) {
-        loc_to_toks[tok->opaque_source_loc].first = tok;
-      }
-    }
+    for (auto printed = range.first; printed < range.after_last; ++printed) {
+      if (printed->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
+        if (auto parsed = loc_to_toks[printed->opaque_source_loc];
+            parsed && !TokenHasLocationAndContext(parsed)) {
 
-    for (auto [loc, parsed_printed] : loc_to_toks) {
-      auto [parsed, printed] = parsed_printed;
-      if (parsed && printed) {
-        matcher.MergeBackward(parsed, printed, changed);
-        matcher.MergeForward(parsed, printed, changed);
-      }
-    }
-  };
-
-  // Join on the shared source locations of balanced and statement regions.
-  // This only joins unmatched ones.
-  auto join_based_region_merge = [&] (bool &changed) {
-    std::unordered_multimap<unsigned, BalancedRegion *> printed_begin_loc_to_balanced;
-    std::unordered_multimap<unsigned, BalancedRegion *> printed_end_loc_to_balanced;
-    std::unordered_multimap<unsigned, StatementRegion *> printed_end_loc_to_statement;
-
-    // We generally have decent-ish ability in the token printer (due to clang
-    // source locations) to find things like the location of a `}` or a `{`, or
-    // a `;`.
-    for (const auto &printed_region : printed_regions) {
-      if (auto balanced = dynamic_cast<BalancedRegion *>(printed_region.get());
-          balanced && !balanced->matched_with) {
-        printed_begin_loc_to_balanced.emplace(
-            balanced->begin->opaque_source_loc, balanced);
-
-        printed_end_loc_to_balanced.emplace(
-            balanced->end->opaque_source_loc, balanced);
-      } else if (auto statement =
-          dynamic_cast<StatementRegion *>(printed_region.get());
-          statement && !statement->matched_with) {
-          printed_end_loc_to_statement.emplace(
-              statement->end->opaque_source_loc, statement);
-      }
-    }
-
-    printed_begin_loc_to_balanced.erase(TokenImpl::kInvalidSourceLocation);
-    printed_end_loc_to_balanced.erase(TokenImpl::kInvalidSourceLocation);
-    printed_end_loc_to_statement.erase(TokenImpl::kInvalidSourceLocation);
-
-    for (const auto &parsed_region : parsed_regions) {
-      if (auto balanced = dynamic_cast<BalancedRegion *>(parsed_region.get());
-          balanced && !balanced->matched_with) {
-        auto [bb_it, bb_end] = printed_begin_loc_to_balanced.equal_range(
-            balanced->begin->opaque_source_loc);
-        for (; bb_it != bb_end; ++bb_it) {
-          matcher.MatchBalanced(balanced, bb_it->second, changed);
-        }
-
-        auto [be_it, be_end] = printed_end_loc_to_balanced.equal_range(
-            balanced->end->opaque_source_loc);
-        for (; be_it != be_end; ++be_it) {
-          matcher.MatchBalanced(balanced, be_it->second, changed);
-        }
-      } else if (auto statement =
-          dynamic_cast<StatementRegion *>(parsed_region.get());
-          statement && !statement->matched_with) {
-        auto [se_it, se_end] = printed_end_loc_to_statement.equal_range(
-            statement->end->opaque_source_loc);
-        for (; se_it != se_end; ++se_it) {
-          matcher.MatchStatement(statement, se_it->second, changed);
+          matcher.MergeBackward(parsed, printed, changed);
+          matcher.MergeForward(parsed, printed, changed);
         }
       }
     }
   };
 
-  for (auto changed = true; changed; ) {
-    changed = false;
-    join_based_linear_merge(changed);
-    join_based_region_merge(changed);
+  // Assign the predecessor sequences of balanced regions. These can be helpful
+  // for matching.
+  auto assign_preds = [] (Region *region) {
+    if (auto seq = dynamic_cast<SequenceRegion *>(region)) {
+      StatementRegion *pred_stmt = nullptr;
+      for (auto it = seq->regions.rbegin(), end = seq->regions.rend();
+           it != end; ++it) {
+        Region *curr = *it;
+        if (auto balanced = dynamic_cast<BalancedRegion *>(curr)) {
+          balanced->predecessor = pred_stmt;
+        }
+        pred_stmt = dynamic_cast<StatementRegion *>(curr);
+      }
+    }
+  };
+
+  for (const auto &printed_region : printed_regions) {
+    assign_preds(printed_region.get());
   }
 
-  matcher.FixContexts(parsed_tree, printed_tree);
+  std::vector<BalancedRegion *> parsed_balanced;
+  std::vector<StatementRegion *> parsed_statements;
+
+  std::vector<BalancedRegion *> printed_balanced;
+  std::vector<StatementRegion *> printed_statements;
+
+  for (const auto &region_ref : parsed_regions) {
+    const auto region = region_ref.get();
+    if (auto balanced = dynamic_cast<BalancedRegion *>(region)) {
+      parsed_balanced.push_back(balanced);
+    } else if (auto statement = dynamic_cast<StatementRegion *>(region)) {
+      parsed_statements.push_back(statement);
+    }
+  }
+
+  for (const auto &region_ref : printed_regions) {
+    const auto region = region_ref.get();
+    if (auto balanced = dynamic_cast<BalancedRegion *>(region)) {
+      printed_balanced.push_back(balanced);
+    } else if (auto statement = dynamic_cast<StatementRegion *>(region)) {
+      printed_statements.push_back(statement);
+    }
+  }
+
+  std::unordered_multimap<unsigned, BalancedRegion *> printed_loc_to_balanced;
+  std::unordered_multimap<unsigned, StatementRegion *> printed_end_loc_to_statement;
+
+  // Join on the shared source locations of balanced and statement regions.
+  // This only joins unmatched ones. We generally have decent-ish ability in
+  // the token printer (due to clang source locations) to find things like the
+  // location of a `}` or a `{`, or a `;`.
+  auto join_based_region_merge = [&] (bool &changed) {
+    printed_loc_to_balanced.clear();
+    printed_end_loc_to_statement.clear();
+
+    {
+      auto it = std::partition(parsed_balanced.begin(), parsed_balanced.end(),
+                               HasNotBeenMatched);
+      parsed_balanced.erase(it, parsed_balanced.end());
+    }
+    {
+      auto it = std::partition(printed_balanced.begin(), printed_balanced.end(),
+                               HasNotBeenMatched);
+      printed_balanced.erase(it, printed_balanced.end());
+    }
+    {
+      auto it = std::partition(parsed_statements.begin(),
+                               parsed_statements.end(), HasNotBeenMatched);
+      parsed_statements.erase(it, parsed_statements.end());
+    }
+    {
+      auto it = std::partition(printed_statements.begin(),
+                               printed_statements.end(), HasNotBeenMatched);
+      printed_statements.erase(it, printed_statements.end());
+    }
+
+#if PASTA_DEBUG_ALIGN
+    std::cerr
+        << "parsed_balanced="<<parsed_balanced.size()
+        << " printed_balanced="<<printed_balanced.size()
+        << " parsed_statements="<<parsed_statements.size()
+        << " printed_statements="<<printed_statements.size()
+        <<'\n';
+#endif
+
+    for (auto region : parsed_balanced) {
+      auto loc = region->begin->opaque_source_loc;
+      assert(loc != TokenImpl::kInvalidSourceLocation);
+      printed_loc_to_balanced.emplace(loc, region);
+
+      loc = region->end->opaque_source_loc;
+      assert(loc != TokenImpl::kInvalidSourceLocation);
+      printed_loc_to_balanced.emplace(loc, region);
+    }
+
+    for (auto region : printed_balanced) {
+      if (const auto begin_loc = region->begin->opaque_source_loc;
+          begin_loc != TokenImpl::kInvalidSourceLocation) {
+
+        auto [bb_it, bb_end] = printed_loc_to_balanced.equal_range(begin_loc);
+        for (; bb_it != bb_end; ++bb_it) {
+          matcher.MatchBalanced(bb_it->second, region, changed);
+        }
+      }
+
+      if (const auto end_loc = region->end->opaque_source_loc;
+          end_loc != TokenImpl::kInvalidSourceLocation) {
+
+        auto [bb_it, bb_end] = printed_loc_to_balanced.equal_range(end_loc);
+        for (; bb_it != bb_end; ++bb_it) {
+          matcher.MatchBalanced(bb_it->second, region, changed);
+        }
+      }
+    }
+
+    for (auto region : parsed_statements) {
+      auto loc = region->end->opaque_source_loc;
+      assert(loc != TokenImpl::kInvalidSourceLocation);
+      printed_end_loc_to_statement.emplace(loc, region);
+    }
+
+    for (auto region : printed_statements) {
+      if (const auto end_loc = region->end->opaque_source_loc;
+          end_loc != TokenImpl::kInvalidSourceLocation) {
+
+        auto [bb_it, bb_end] =
+            printed_end_loc_to_statement.equal_range(end_loc);
+        for (; bb_it != bb_end; ++bb_it) {
+          matcher.MatchStatement(bb_it->second, region, changed);
+        }
+      }
+    }
+  };
+
+  parsed_tree->matched_with = printed_tree;
+  printed_tree->matched_with = parsed_tree;
 
   ast->contexts = std::move(range.impl->contexts);
-  ast->RefineTokens();
 
-//  for (const auto &parsed_region : parsed_regions) {
-//    auto balanced = dynamic_cast<BalancedRegion *>(parsed_region.get());
-//    if (!balanced) {
-//      continue;
-//    }
-//
-//  }
+  auto max_iters = (parsed_regions.size() / 2) + 1u;
+  bool changed = true;
+
+  join_based_region_merge(changed);
+  join_based_linear_merge(changed);
+
+  for (changed = true; changed; ) {
+    changed = false;
+    matcher.MatchRegions(parsed_tree, printed_tree, changed);
+  }
+
+  for (size_t i = 0u; i < max_iters; ++i) {
+    changed = false;
+    join_based_region_merge(changed);
+    if (!changed) {
+      break;
+    }
+  }
+
+
+  std::vector<TokenContextIndex> context_stack;
+  context_stack.push_back(kInvalidTokenContextIndex);
+  matcher.FixContexts(parsed_tree, context_stack);
+
+  ast->RefineTokens();
 
 #if PASTA_DEBUG_ALIGN
 
@@ -1028,6 +1319,21 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
   std::ofstream printed_os("/tmp/tree.printed");
   printed_tree->Print(printed_os, "", *(range.impl));
 #endif   // PASTA_DEBUG_ALIGN
+
+//  for (const auto &parsed_region : parsed_regions) {
+//    auto balanced = dynamic_cast<BalancedRegion *>(parsed_region.get());
+//    if (!balanced) {
+//      continue;
+//    }
+//
+//  }
+
+  // This is pretty sketchy, but place a raw reference back to the AST at the
+  // end of the contexts list. Because `ASTImpl` extends
+  // `std::enable_shared_from_this`, and because references to this vector in
+  // token contexts alias the lifetime of the `ASTImpl`, we can safely go and
+  // find the AST given any token context.
+  ast->contexts.emplace_back(*ast);
 
   return AST(std::move(ast));
 }

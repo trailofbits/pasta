@@ -88,6 +88,11 @@ void GenerateStmtH(void) {
     os  << " public:\n"
         << "  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(" << name << ")\n";
 
+    if (name_ref == "Stmt") {
+      os << "  friend class TokenContext;\n"
+         << "  static std::optional<::pasta::Stmt> From(const TokenContext &);\n";
+    }
+
     // Constructors from derived class -> base class.
     for (const auto &base_class : gTransitiveBaseClasses[name]) {
       os << "  PASTA_DECLARE_BASE_OPERATORS(" << base_class << ", "

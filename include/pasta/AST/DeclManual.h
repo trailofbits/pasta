@@ -72,3 +72,10 @@ class PrintedTokenRange;
 //};
 
 }  // namespace pasta
+namespace std {
+template <>
+struct hash<::pasta::Decl> {
+ public:
+  uint64_t operator()(const ::pasta::Decl &decl) const noexcept;
+};
+}  // namespace std

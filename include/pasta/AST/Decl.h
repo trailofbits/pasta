@@ -408,7 +408,10 @@ class Decl {
   inline bool operator==(const Decl &that) const noexcept {
     return u.opaque == that.u.opaque;
   }
+  static std::optional<Decl> From(const TokenContext &);
  protected:
+  friend class TokenContext;
+
   std::shared_ptr<ASTImpl> ast;
   union {
     const ::clang::AccessSpecDecl *AccessSpecDecl;

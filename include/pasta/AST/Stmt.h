@@ -268,6 +268,8 @@ class StmtVisitor {
 class Stmt {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(Stmt)
+  friend class TokenContext;
+  static std::optional<Stmt> From(const TokenContext &);
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, AbstractConditionalOperator)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, AddrLabelExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ArrayInitIndexExpr)

@@ -398,10 +398,10 @@ std::filesystem::path FileSystem::ParsePath(std::string path,
 bool FileSystem::FileExists(std::filesystem::path path,
                             std::filesystem::path cwd) {
   auto maybe_stat = this->Stat(std::move(path), std::move(cwd));
-  if (maybe_stat.Failed()) {
-    return false;
-  } else {
+  if (maybe_stat.Succeeded()) {
     return maybe_stat->type != std::filesystem::file_type::not_found;
+  } else {
+    return false;
   }
 }
 
@@ -409,10 +409,10 @@ bool FileSystem::FileExists(std::filesystem::path path,
 Result<std::string, std::error_code> FileSystem::ReadFile(
       std::filesystem::path path, std::filesystem::path cwd) {
   auto stat = this->Stat(std::move(path), std::move(cwd));
-  if (stat.Failed()) {
-    return stat.TakeError();
-  } else {
+  if (stat.Succeeded()) {
     return this->ReadFile(stat.TakeValue());
+  } else {
+    return stat.TakeError();
   }
 }
 
@@ -421,10 +421,10 @@ Result<std::vector<std::filesystem::path>, std::error_code>
 FileSystem::ListDirectory(std::filesystem::path path,
                           std::filesystem::path cwd) {
   auto stat = this->Stat(std::move(path), std::move(cwd));
-  if (stat.Failed()) {
-    return stat.TakeError();
-  } else {
+  if (stat.Succeeded()) {
     return this->ListDirectory(stat.TakeValue());
+  } else {
+    return stat.TakeError();
   }
 }
 
@@ -439,7 +439,7 @@ FileSystemView::FileSystemView(std::shared_ptr<::pasta::FileSystem> impl_)
 std::error_code FileSystemView::PushWorkingDirectory(
     std::filesystem::path path) {
   auto maybe_status = impl->Stat(std::move(path), CurrentWorkingDirectory());
-  if (maybe_status.Failed()) {
+  if (!maybe_status.Succeeded()) {
     return maybe_status.TakeError();
 
   } else if (maybe_status->type != std::filesystem::file_type::directory) {

@@ -101,8 +101,11 @@ class TokenContext {
   }
 
  private:
+  friend class Decl;
   friend class PrintedToken;
+  friend class Stmt;
   friend class Token;
+  friend class Type;
 
   TokenContext(void) = delete;
 
@@ -137,7 +140,10 @@ class Token {
   uint64_t Index(void) const;
 
   // Kind of this token.
-  clang::tok::TokenKind Kind(void) const;
+  clang::tok::TokenKind Kind(void) const noexcept;
+
+  // Return the printable kind of this token.
+  const char *KindName(void) const noexcept;
 
   inline operator bool(void) const noexcept {
     return !!impl;

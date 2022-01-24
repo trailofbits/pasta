@@ -168,7 +168,7 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
 
   // Strip out all include path/file related arguments from non-include-related
   // arguments.
-  for (auto arg : args) {
+  for (llvm::opt::Arg *arg : args) {
     const auto id = arg->getOption().getID();
     if (IsIncludeOption(id)) {
       if (id == clang::driver::options::OPT_isysroot) {
@@ -196,7 +196,7 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
         arg->render(args, parsed_inc_args);
       }
     } else {
-      arg->render(args, parsed_args);
+      arg->renderAsInput(args, parsed_args);
     }
   }
 
@@ -380,7 +380,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
   // Double check the installation directory.
   if (!driver.InstalledDir.empty()) {
     if (auto idir = fs.Stat(driver.InstalledDir);
-        idir.Failed() || !idir->IsDirectory()) {
+        !idir.Succeeded() || !idir->IsDirectory()) {
       driver.InstalledDir.clear();
     }
   }
@@ -485,7 +485,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
     auto main_file_path = fs.ParsePath(frontend_opts.Inputs[0].getFile().str());
     auto main_file_stat = fs.Stat(main_file_path);
-    if (main_file_stat.Failed()) {
+    if (!main_file_stat.Succeeded()) {
       err << "Main input file '" << main_file_path.generic_string()
           << "' does not exist or cannot be opened: "
           << main_file_stat.TakeError().message();
@@ -493,7 +493,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
     }
 
     auto main_file = impl->file_manager.OpenFile(main_file_stat.TakeValue());
-    if (main_file.Failed()) {
+    if (!main_file.Succeeded()) {
       err << "Main input file '" << main_file_path.generic_string()
           << "' does not exist or cannot be opened: "
           << main_file.TakeError().message();

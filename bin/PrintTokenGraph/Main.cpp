@@ -235,13 +235,13 @@ int main(int argc, char *argv[]) {
   pasta::FileManager fm(pasta::FileSystem::CreateNative());
   auto maybe_compiler =
       pasta::Compiler::CreateHostCompiler(fm, pasta::TargetLanguage::kCXX);
-  if (maybe_compiler.Failed()) {
+  if (!maybe_compiler.Succeeded()) {
     std::cout << maybe_compiler.TakeError() << std::endl;
     return EXIT_FAILURE;
   }
 
   auto maybe_cwd = maybe_compiler->FileSystem()->CurrentWorkingDirectory();
-  if (maybe_cwd.Failed()) {
+  if (!maybe_cwd.Succeeded()) {
     std::cout << maybe_compiler.TakeError() << std::endl;
     return EXIT_FAILURE;
   }
@@ -249,21 +249,21 @@ int main(int argc, char *argv[]) {
   const pasta::ArgumentVector args(argc - 1, &argv[1]);
   auto maybe_command = pasta::CompileCommand::CreateFromArguments(
       args, maybe_cwd.TakeValue());
-  if (maybe_command.Failed()) {
+  if (!maybe_command.Succeeded()) {
     std::cout << maybe_command.TakeError() << std::endl;
     return EXIT_FAILURE;
   }
 
-  const auto command = std::move(*maybe_command);
+  const auto command = maybe_command.TakeValue();
   auto maybe_jobs = maybe_compiler->CreateJobsForCommand(command);
-  if (maybe_jobs.Failed()) {
+  if (!maybe_jobs.Succeeded()) {
     std::cout << maybe_jobs.TakeError() << std::endl;
     return EXIT_FAILURE;
   }
 
-  for (const auto &job : *maybe_jobs) {
+  for (const auto &job : maybe_jobs.TakeValue()) {
     auto maybe_ast = job.Run();
-    if (maybe_ast.Failed()) {
+    if (!maybe_ast.Succeeded()) {
       std::cout << maybe_ast.TakeError() << std::endl;
       return EXIT_FAILURE;
     } else {
@@ -271,7 +271,6 @@ int main(int argc, char *argv[]) {
       finder.Accept(maybe_ast->TranslationUnit());
     }
   }
-
 
   return EXIT_SUCCESS;
 }

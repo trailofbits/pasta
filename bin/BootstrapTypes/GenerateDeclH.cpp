@@ -167,7 +167,9 @@ void GenerateDeclH(void) {
           << "  inline bool operator==(const Decl &that) const noexcept {\n"
           << "    return u.opaque == that.u.opaque;\n"
           << "  }\n"
+          << "  static std::optional<::pasta::Decl> From(const TokenContext &);\n"
           << " protected:\n"
+          << "  friend class TokenContext;\n\n"
           << "  std::shared_ptr<ASTImpl> ast;\n"
           << "  union {\n";
 

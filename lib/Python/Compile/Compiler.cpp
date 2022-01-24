@@ -83,11 +83,11 @@ Compiler::Compiler(compiler_name_arg name, target_language_arg lang,
       ::pasta::Compiler::Create(*name, *lang, *compiler_path, *version_info,
                                 *version_info_fake_sysroot,
                                 CurrentWorkingDir(working_dir));
-  if (maybe_compiler.Failed()) {
-    PythonErrorStreamer(PyExc_Exception) << maybe_compiler.TakeError();
-  } else {
+  if (maybe_compiler.Succeeded()) {
     std::optional<::pasta::Compiler> cc(maybe_compiler.TakeValue());
     cc.swap(compiler);
+  } else {
+    PythonErrorStreamer(PyExc_Exception) << maybe_compiler.TakeError();
   }
 }
 
@@ -170,11 +170,11 @@ Compiler::CreateCommandForFile(file_path_arg file_path,
                                working_dir_kwarg working_dir) {
   auto maybe_command = compiler->CreateCommandForFile(
       *file_path, CurrentWorkingDir(working_dir));
-  if (maybe_command.Failed()) {
+  if (maybe_command.Succeeded()) {
+    return CompileCommand::New(maybe_command.TakeValue());
+  } else {
     PythonErrorStreamer(PyExc_Exception) << maybe_command.TakeError();
     return nullptr;
-  } else {
-    return CompileCommand::New(maybe_command.TakeValue());
   }
 }
 
@@ -183,13 +183,13 @@ std::vector<BorrowedPythonPtr<CompileJob>>
 Compiler::CreateJobsForCommand(command_arg command) {
   std::vector<BorrowedPythonPtr<CompileJob>> ret;
   auto maybe_jobs = compiler->CreateJobsForCommand(*((*command)->command));
-  if (maybe_jobs.Failed()) {
-    PythonErrorStreamer(PyExc_Exception) << maybe_jobs.TakeError();
-  } else {
+  if (maybe_jobs.Succeeded()) {
     for (auto &job : *maybe_jobs) {
       auto py_job = CompileJob::New(std::move(job));
       ret.emplace_back(std::move(py_job));
     }
+  } else {
+    PythonErrorStreamer(PyExc_Exception) << maybe_jobs.TakeError();
   }
   return ret;
 }

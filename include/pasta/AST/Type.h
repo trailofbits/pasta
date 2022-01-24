@@ -103,6 +103,7 @@ class Type {
   friend class TypeBuilder;
   friend class PrintedTokenRange;
 
+  friend class TokenContext;
   std::shared_ptr<ASTImpl> ast;
   union {
     const ::clang::Type *Type;
@@ -182,6 +183,7 @@ class Type {
 
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(Type)
+  static std::optional<Type> From(const TokenContext &);
   PASTA_DECLARE_DERIVED_OPERATORS(Type, AdjustedType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, ArrayType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, AtomicType)

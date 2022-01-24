@@ -1,0 +1,90 @@
+#!/usr/bin/env python3
+# Copyright 2022, Trail of Bits, Inc. All rights reserved.
+
+import argparse
+import html
+import json
+import os
+import pathlib
+import re
+import shutil
+import sys
+
+from typing import Any, Dict, List
+
+SPACE_FOLLOWED_BY_ANY = re.compile(r" ([^\n<])")
+
+def extract_file_id(path: pathlib.Path) -> str:
+  return path.parts[-1].split(".")[-2]
+
+def generate_source_file(file_id: str, source_data: Dict[str, Any], output_dir: str) -> None:
+  data: List[str] = []
+
+  data.append(f"<div id=\"file-{file_id}\" class=\"file\" data-file=\"{file_id}\">")
+  data.append("<h1>")
+  data.append("/".join(p.strip("/") for p in source_data["path"]))
+  data.append("</h1>")
+  data.append(f"<div id=\"tokens-{file_id}\" class=\"code\" style=\"font-family: monospace;\">")
+  for i, tok in enumerate(source_data["tokens"]):
+    col = tok["column"]
+    line = tok["line"]
+    tok_data = html.escape(tok["data"])
+    tok_data = SPACE_FOLLOWED_BY_ANY.sub(r"&nbsp;\1", tok_data)
+    tok_data = tok_data.replace("\n", "<br />")
+    data.append(f"<span data-offset=\"{i}\" data-column=\"{col}\" data-line=\"{line}\">{tok_data}</span>")
+  data.append("</div>")
+  data.append("</div>")
+
+  with open(os.path.join(output_dir, f"source.{file_id}.html"), "w") as f:
+    f.write("".join(data))
+
+def generate_tu_file(file_id: str, tu_data: Dict[str, Any], output_dir: str) -> None:
+  data: List[str] = []
+  data.append("<html>\n<head>\n<script src=\"render.js\"></script>\n</head>\n<body>\n<script>\n");
+  data.append("render_translation_unit(Object.freeze(")
+  data.append(json.dumps(tu_data, indent=2))
+  data.append("));\n</script>\n</body>\n</html>\n")
+  with open(os.path.join(output_dir, f"{tu_data['path'][-1]}.{file_id}.html"), "w") as f:
+    f.write("".join(data))
+
+def main() -> int:
+  arg_parser = argparse.ArgumentParser()
+  arg_parser.add_argument(
+      '--workspace_dir',
+      help='Path to where JSON files are dumped.',
+      required=True)
+
+  arg_parser.add_argument(
+      '--output_dir',
+      help='Path to where output HTML files should be stored.',
+      required=True)
+
+  args, _ = arg_parser.parse_known_args()
+  tld_paths = pathlib.Path(args.workspace_dir).rglob("tld.*.json")
+  tu_paths = pathlib.Path(args.workspace_dir).rglob("tu.*.json")
+  source_paths = pathlib.Path(args.workspace_dir).rglob("source.*.json")
+
+  sources_out_dir: str = os.path.join(args.output_dir, "sources")
+  try:
+    os.makedirs(sources_out_dir)
+  except:
+    pass
+
+  # Copy `render.js` to the output directory.
+  shutil.copyfile(os.path.join(os.path.dirname(__file__), "render.js"),
+                  os.path.join(args.output_dir, "render.js"))
+
+  for source_path in source_paths:
+    with source_path.open("r") as f:
+      generate_source_file(extract_file_id(source_path), json.load(f),
+                           sources_out_dir)
+
+  for tu_path in tu_paths:
+    with tu_path.open("r") as f:
+      generate_tu_file(extract_file_id(tu_path), json.load(f),
+                       args.output_dir)
+
+  return 0
+
+if __name__ == "__main__":
+  exit(main())

@@ -93,13 +93,13 @@ llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>>
 LLVMFile::getBuffer(const llvm::Twine &name, int64_t file_size,
                     bool requires_null_terminator, bool is_volatile) {
   auto data = impl.Data();
-  if (data.Failed()) {
-    auto ec = data.TakeError();
-    return ec;
-  } else {
+  if (data.Succeeded()) {
     auto ret = llvm::MemoryBuffer::getMemBuffer(
         data.TakeValue(), name.str(), false);
     return ret;
+  } else {
+    auto ec = data.TakeError();
+    return ec;
   }
 }
 
@@ -129,10 +129,10 @@ llvm::ErrorOr<llvm::vfs::Status>
 LLVMFileSystem::status(const llvm::Twine &path) {
   auto fs_path = file_system.ParsePath(path.str());
   auto stat = file_system.Stat(std::move(fs_path));
-  if (stat.Failed()) {
-    return stat.TakeError();
-  } else {
+  if (stat.Succeeded()) {
     return ToLLVM(stat.TakeValue());
+  } else {
+    return stat.TakeError();
   }
 }
 
@@ -141,15 +141,15 @@ llvm::ErrorOr<std::unique_ptr<llvm::vfs::File>>
 LLVMFileSystem::openFileForRead(const llvm::Twine &path) {
   auto fs_path = file_system.ParsePath(path.str());
   auto stat = file_system.Stat(std::move(fs_path));
-  if (stat.Failed()) {
-    return stat.TakeError();
-  } else {
+  if (stat.Succeeded()) {
     auto file = file_manager.OpenFile(stat.TakeValue());
-    if (file.Failed()) {
-      return file.TakeError();
-    } else {
+    if (file.Succeeded()) {
       return std::unique_ptr<llvm::vfs::File>(new LLVMFile(file.TakeValue()));
+    } else {
+      return file.TakeError();
     }
+  } else {
+    return stat.TakeError();
   }
 }
 
@@ -158,10 +158,7 @@ llvm::vfs::directory_iterator
 LLVMFileSystem::dir_begin(const llvm::Twine &path, std::error_code &ec) {
   auto fs_path = file_system.ParsePath(path.str());
   auto paths = file_system.ListDirectory(std::move(fs_path));
-  if (paths.Failed()) {
-    ec = paths.TakeError();
-    return llvm::vfs::directory_iterator();
-  } else {
+  if (paths.Succeeded()) {
     ec = {};
     std::vector<::pasta::Stat> path_stats;
     for (auto &path : paths.TakeValue()) {
@@ -172,6 +169,9 @@ LLVMFileSystem::dir_begin(const llvm::Twine &path, std::error_code &ec) {
     }
     return llvm::vfs::directory_iterator(
         std::make_shared<LLVMDirectoryIterator>(std::move(path_stats)));
+  } else {
+    ec = paths.TakeError();
+    return llvm::vfs::directory_iterator();
   }
 }
 
@@ -194,14 +194,14 @@ std::error_code LLVMFileSystem::getRealPath(
     const llvm::Twine &path, llvm::SmallVectorImpl<char> &output) const {
   auto fs_path = file_system.ParsePath(path.str());
   auto maybe_stat = file_system.Stat(std::move(fs_path));
-  if (maybe_stat.Failed()) {
-    return maybe_stat.TakeError();
-  } else {
+  if (maybe_stat.Succeeded()) {
     output.clear();
     auto data = maybe_stat.TakeValue().real_path.generic_string();
     output.reserve(data.size());
     output.insert(output.end(), data.begin(), data.end());
     return {};
+  } else {
+    return maybe_stat.TakeError();
   }
 }
 

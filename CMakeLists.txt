@@ -342,6 +342,16 @@ target_link_libraries("pasta" INTERFACE
     pasta_compiler
 )
 
+set_target_properties("pasta"
+  PROPERTIES
+    LINKER_LANGUAGE
+      CXX
+    VISIBILITY_INLINES_HIDDEN
+      YES
+    CXX_VISIBILITY_PRESET
+      hidden
+)
+
 if(PASTA_BOOTSTRAP_MACROS OR PASTA_BOOTSTRAP_TYPES)
 
     # --------------------------------------------

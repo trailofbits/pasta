@@ -16,15 +16,15 @@ namespace pasta {
 
 struct FileTokenImpl {
   inline FileTokenImpl(const char *data_, unsigned line_, unsigned column_,
-                       unsigned kind_)
+                       clang::tok::TokenKind kind_)
       : data(data_),
         line(line_),
         column(static_cast<uint16_t>(column_)),
-        kind(static_cast<uint16_t>(kind_)) {}
+        kind(kind_) {}
   const char *data;
   unsigned line;
   uint16_t column;
-  uint16_t kind;
+  clang::tok::TokenKind kind;
 };
 
 // Implementation of a backing file.

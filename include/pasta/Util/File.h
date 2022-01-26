@@ -14,6 +14,11 @@
 #include "Result.h"
 #include "StdFileSystem.h"
 
+namespace clang {
+namespace tok {
+enum TokenKind : unsigned short;
+}  // namespace tok
+}  // namspace clang
 namespace pasta {
 
 class AST;
@@ -51,7 +56,7 @@ class FileToken {
   ~FileToken(void);
 
   // Kind of this token.
-  unsigned Kind(void) const noexcept;
+  clang::tok::TokenKind Kind(void) const noexcept;
 
   // Kind of this token.
   const char *KindName(void) const noexcept;
@@ -109,13 +114,13 @@ class FileTokenIterator {
 
   // NOTE(pag): This is a bit sketchy; make sure not to let the reference to
   //            the token escape beyond a single iteration of the loop.
-  const FileToken &operator*(void) const noexcept {
+  inline const FileToken &operator*(void) const noexcept {
     return token;
   }
 
   // NOTE(pag): This is a bit sketchy; make sure not to let the reference to
   //            the token escape beyond a single iteration of the loop.
-  const FileToken *operator->(void) const noexcept {
+  inline const FileToken *operator->(void) const noexcept {
     return &token;
   }
 

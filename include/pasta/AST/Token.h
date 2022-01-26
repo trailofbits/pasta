@@ -202,13 +202,13 @@ class TokenIterator {
 
   // NOTE(pag): This is a bit sketchy; make sure not to let the reference to
   //            the token escape beyond a single iteration of the loop.
-  const Token &operator*(void) const noexcept {
+  inline const Token &operator*(void) const noexcept {
     return token;
   }
 
   // NOTE(pag): This is a bit sketchy; make sure not to let the reference to
   //            the token escape beyond a single iteration of the loop.
-  const Token *operator->(void) const noexcept {
+  inline const Token *operator->(void) const noexcept {
     return &token;
   }
 

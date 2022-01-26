@@ -97,7 +97,7 @@ std::optional<FileToken> File::TokenAtOffset(unsigned offset) const noexcept {
     data_ptr = &(impl->data[offset]);
   }
 
-  FileTokenImpl fake_tok(data_ptr, 0, 0, 0);
+  FileTokenImpl fake_tok(data_ptr, 0, 0, clang::tok::unknown);
 
   {
     std::unique_lock<std::mutex> locker(impl->tokens_lock);
@@ -118,7 +118,7 @@ std::optional<FileToken> File::TokenAtOffset(unsigned offset) const noexcept {
 }
 
 // Kind of this token.
-unsigned FileToken::Kind(void) const noexcept {
+clang::tok::TokenKind FileToken::Kind(void) const noexcept {
   return impl ? impl->kind : clang::tok::unknown;
 }
 

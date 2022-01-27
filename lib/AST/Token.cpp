@@ -66,12 +66,12 @@ static bool ReadRawTokenByKind(clang::SourceManager &source_manager,
 
 #define PUNCTUATOR(case_label, rep) \
     case clang::tok::case_label: \
-      backup = clang::tok::getPunctuatorSpelling(tok_kind); \
+      backup = rep ; \
       break;
 
 #define KEYWORD(case_label, feature) \
     case clang::tok::kw_ ## case_label: \
-      backup = clang::tok::getKeywordSpelling(tok_kind); \
+      backup = #case_label ; \
       break;
 
 // TODO(pag): Deal with Objective-C @ keywords.

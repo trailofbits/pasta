@@ -58,6 +58,9 @@ class FileToken {
   // Kind of this token.
   clang::tok::TokenKind Kind(void) const noexcept;
 
+  int PreProcessorKeywordKind(void) const noexcept;
+  int ObjectiveCAtKeywordKind(void) const noexcept;
+
   // Kind of this token.
   const char *KindName(void) const noexcept;
 

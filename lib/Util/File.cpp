@@ -16,6 +16,20 @@
 #pragma clang diagnostic pop
 
 namespace pasta {
+namespace {
+
+static const std::string_view kPPKeywordSpelling[] = {
+#define PPKEYWORD(X) "#" #X,
+#include "clang/Basic/TokenKinds.def"
+};
+
+
+static const std::string_view kObjCKeywordSpelling[] = {
+#define OBJC_AT_KEYWORD(X) "@" #X,
+#include "clang/Basic/TokenKinds.def"
+};
+
+}  // namespace
 
 FileImpl::FileImpl(const std::shared_ptr<FileManagerImpl> &owner_, Stat stat_)
     : owner(owner_),
@@ -119,13 +133,44 @@ std::optional<FileToken> File::TokenAtOffset(unsigned offset) const noexcept {
 
 // Kind of this token.
 clang::tok::TokenKind FileToken::Kind(void) const noexcept {
-  return impl ? impl->kind : clang::tok::unknown;
+  if (impl) {
+    return static_cast<clang::tok::TokenKind>(impl->kind.extended.kind);
+  } else {
+    return clang::tok::unknown;
+  }
+}
+
+int FileToken::PreProcessorKeywordKind(void) const noexcept {
+  if (impl) {
+    if (impl->kind.extended.is_pp_kw) {
+      return static_cast<clang::tok::PPKeywordKind>(
+          impl->kind.extended.alt_kind);
+    } else {
+      return clang::tok::pp_not_keyword;
+    }
+  } else {
+    return clang::tok::pp_not_keyword;
+  }
+}
+
+int FileToken::ObjectiveCAtKeywordKind(void) const noexcept {
+  if (impl) {
+    if (impl->kind.extended.is_objc_kw) {
+      return static_cast<clang::tok::ObjCKeywordKind>(
+          impl->kind.extended.alt_kind);
+    } else {
+      return clang::tok::objc_not_keyword;
+    }
+  } else {
+    return clang::tok::objc_not_keyword;
+  }
 }
 
 // Kind of this token.
 const char *FileToken::KindName(void) const noexcept {
   if (impl) {
-    return clang::tok::getTokenName(static_cast<clang::tok::TokenKind>(impl->kind));
+    return clang::tok::getTokenName(
+        static_cast<clang::tok::TokenKind>(impl->kind.extended.kind));
   } else {
     return clang::tok::getTokenName(clang::tok::unknown);
   }
@@ -144,9 +189,17 @@ unsigned FileToken::Column(void) const noexcept {
 // Return the data associated with this token.
 std::string_view FileToken::Data(void) const noexcept {
   if (impl) {
-    const FileTokenImpl *next_impl = &(impl[1]);
-    return std::string_view(
-        impl->data, static_cast<size_t>(next_impl->data - impl->data));
+    if (impl->kind.extended.is_pp_kw) {
+      return kPPKeywordSpelling[impl->kind.extended.alt_kind];
+
+    } else if (impl->kind.extended.is_objc_kw) {
+      return kObjCKeywordSpelling[impl->kind.extended.alt_kind];
+
+    } else {
+      const FileTokenImpl *next_impl = &(impl[1]);
+      return std::string_view(
+          impl->data, static_cast<size_t>(next_impl->data - impl->data));
+    }
   } else {
     return {};
   }

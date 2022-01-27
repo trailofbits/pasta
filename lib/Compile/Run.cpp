@@ -303,7 +303,7 @@ class ParsedFileTracker : public clang::PPCallbacks {
     const char * const buff_begin = last_tok_begin;
     const char * const buff_end = &(last_tok_begin[data.size()]);
     clang::Lexer lexer(loc, lang_opts, buff_begin, last_tok_begin, buff_end);
-    lexer.SetKeepWhitespaceMode(true);
+    lexer.SetKeepWhitespaceMode(true);  // Implies keep comments.
 
     // Raw lex this file's tokens.
     clang::Token tok;
@@ -311,15 +311,28 @@ class ParsedFileTracker : public clang::PPCallbacks {
       if (tok.is(clang::tok::eof)) {
         break;
       }
-
       const auto tok_loc = tok.getLocation();
       auto offset = sm.getFileOffset(tok_loc);
       assert(offset < data.size());
       auto ptr = &(buff_begin[offset]);
-      file.impl->tokens.emplace_back(
+      auto &last_tok = file.impl->tokens.emplace_back(
           ptr, sm.getSpellingLineNumber(tok_loc),
           sm.getSpellingColumnNumber(tok_loc),
           tok.getKind());
+      if (tok.is(clang::tok::identifier)) {
+        if (clang::IdentifierInfo *ii = tok.getIdentifierInfo()) {
+          auto ppk = ii->getPPKeywordID();
+          auto atk = ii->getObjCKeywordID();
+          if (ppk != clang::tok::pp_not_keyword) {
+            last_tok.kind.extended.is_pp_kw = 1;
+            last_tok.kind.extended.alt_kind = static_cast<uint16_t>(ppk);
+
+          } else if (atk != clang::tok::objc_not_keyword) {
+            last_tok.kind.extended.is_objc_kw = 1;
+            last_tok.kind.extended.alt_kind = static_cast<uint16_t>(ppk);
+          }
+        }
+      }
       last_tok_begin = ptr;
     }
 

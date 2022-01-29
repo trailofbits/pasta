@@ -81,11 +81,19 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
   pp.EnterMainSourceFile();
 
   for (clang::Token tok; ; ) {
+
     pp.Lex(tok);
 
     if (tok.is(clang::tok::eof)) {
       impl.AppendToken(tok, 0, 0);
       break;
+    }
+
+    // Skip `eod` directives; we inject them in the `ParsedFileTracker` to keep
+    // track of where macro expansions begin.
+    if (tok.is(clang::tok::eod)) {
+      assert(false);
+      continue;
     }
 
     tok_data.clear();
@@ -213,10 +221,13 @@ class ParsedFileTracker : public clang::PPCallbacks {
   std::shared_ptr<pasta::FileSystem> fs;
   const std::filesystem::path cwd;
   ASTImpl * const ast;
+  clang::FileID current_file_id;
+  std::optional<File> current_file;
 
   std::unordered_set<pasta::FileImpl *> seen;
 
  public:
+
   explicit ParsedFileTracker(clang::SourceManager &sm_,
                              const clang::LangOptions &lang_opts_,
                              const pasta::FileManager &fm_,
@@ -230,6 +241,13 @@ class ParsedFileTracker : public clang::PPCallbacks {
         ast(ast_) {}
 
   virtual ~ParsedFileTracker(void) {}
+
+  void Clear(void) {
+    current_file_id = {};
+    current_file.reset();
+    seen.clear();
+    fs.reset();
+  }
 
   // Each time we enter a source file, try to keep track of it.
   void FileChanged(clang::SourceLocation loc,
@@ -268,6 +286,9 @@ class ParsedFileTracker : public clang::PPCallbacks {
     }
 
     auto file = maybe_file.TakeValue();
+
+    current_file_id = file_id;
+    current_file = file;
 
     // Keep a mapping of Clang file IDs to parsed files.
     auto old_file_it = ast->id_to_file.find(file_id.getHashValue());
@@ -319,6 +340,9 @@ class ParsedFileTracker : public clang::PPCallbacks {
           ptr, sm.getSpellingLineNumber(tok_loc),
           sm.getSpellingColumnNumber(tok_loc),
           tok.getKind());
+
+      // TODO(pag): Try to merge with prior `tok::hash` and `tok::at`, and
+      //            ignore whitespace.
       if (tok.is(clang::tok::identifier)) {
         if (clang::IdentifierInfo *ii = tok.getIdentifierInfo()) {
           auto ppk = ii->getPPKeywordID();
@@ -340,6 +364,53 @@ class ParsedFileTracker : public clang::PPCallbacks {
     file.impl->tokens.emplace_back(
         buff_end, sm.getSpellingLineNumber(tok_loc),
         sm.getSpellingColumnNumber(tok_loc), clang::tok::eof);
+  }
+
+  // Called by Preprocessor::HandleMacroExpandedIdentifier when a
+  // macro invocation is found. We want to inject placeholder tokens into
+  // the parsed range that relates to where the macro is in the original file.
+  void MacroExpands(const clang::Token &macro_name_tok,
+                    const clang::MacroDefinition &def,
+                    clang::SourceRange use_range,
+                    const clang::MacroArgs *args) final {
+    if (current_file_id.isInvalid()) {
+      return;
+    }
+
+    // If the macro use isn't in the current file (e.g. it is a macro being
+    // expanded inside of another macro), then ignore it.
+    auto loc = macro_name_tok.getLocation();
+    if (!loc.isFileID()) {
+      return;
+    }
+
+    auto [file_id, offset] = sm.getDecomposedLoc(loc);
+    if (file_id != current_file_id) {
+      return;
+    }
+
+#ifndef NDEBUG
+    assert(current_file.has_value());
+    auto file_tok = current_file->TokenAtOffset(offset);
+    if (!file_tok) {
+      assert(false);
+    } else {
+      assert(file_tok->Kind() == clang::tok::identifier ||
+             file_tok->Kind() == clang::tok::raw_identifier);
+      bool invalid = false;
+      auto ident_data = sm.getCharacterData(loc, &invalid);
+      assert(!invalid);
+      std::string_view ident_name(ident_data, macro_name_tok.getLength());
+      assert(file_tok->Data() == ident_name);
+    }
+#endif
+
+    // The location `loc` should technically match up with what's in the file.
+    clang::Token expand_tok;
+    expand_tok.startToken();
+    expand_tok.setLocation(loc);
+    expand_tok.setKind(clang::tok::eod);
+    ast->AppendToken(expand_tok, 0, 0);
   }
 };
 
@@ -543,10 +614,11 @@ Result<AST, std::string> CompileJob::Run(void) const {
 
   // TODO(pag): Eventually add `PPCallbacks` so that we can capture macro
   //            definitions as tokens.
+  auto file_tracker_ptr = new ParsedFileTracker(
+      ci->getSourceManager(), ci->getLangOpts(),
+      impl->file_manager, WorkingDirectory(), ast.get());
   {
-    std::unique_ptr<clang::PPCallbacks> file_tracker(new ParsedFileTracker(
-        ci->getSourceManager(), ci->getLangOpts(),
-        impl->file_manager, WorkingDirectory(), ast.get()));
+    std::unique_ptr<clang::PPCallbacks> file_tracker(file_tracker_ptr);
     pp.addPPCallbacks(std::move(file_tracker));
   }
   pp.SetCommentRetentionState(true /* KeepComments */,
@@ -558,6 +630,8 @@ Result<AST, std::string> CompileJob::Run(void) const {
   // Picks up on the pre-processor and stuff.
   ci->InitializeSourceManager(input_files[0]);
   PreprocessCode(*ast, *ci, pp);
+
+  file_tracker_ptr->Clear();
 
   // Replace the main source file with the preprocessed file.
   const auto main_file_name = input_files[0].getFile().str();

@@ -139,6 +139,10 @@ class Token {
   // Index of this token in the AST's token list.
   uint64_t Index(void) const;
 
+  // Return `true` if this token was injected to mark the beginning of a macro
+  // expansion.
+  bool IsMacroExpansionStart(void) const noexcept;
+
   // Kind of this token.
   clang::tok::TokenKind Kind(void) const noexcept;
 

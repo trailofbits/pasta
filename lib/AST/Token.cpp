@@ -431,6 +431,12 @@ clang::tok::TokenKind Token::Kind(void) const noexcept {
   return impl ? impl->kind : clang::tok::unknown;
 }
 
+// Return `true` if this token was injected to mark the beginning of a macro
+// expansion.
+bool Token::IsMacroExpansionStart(void) const noexcept {
+  return impl ? impl->kind == clang::tok::eod : false;
+}
+
 // Kind of this token.
 const char *Token::KindName(void) const noexcept {
   if (impl) {

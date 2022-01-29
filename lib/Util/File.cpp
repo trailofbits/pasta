@@ -175,7 +175,6 @@ const char *FileToken::KindName(void) const noexcept {
     return clang::tok::getTokenName(clang::tok::unknown);
   }
 }
-
 // Return the line number associated with this token.
 unsigned FileToken::Line(void) const noexcept {
   return impl ? impl->line : 0u;

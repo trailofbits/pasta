@@ -28,7 +28,7 @@ class FileImpl;
 class FileManager;
 class FileManagerImpl;
 class FileTokenIterator;
-class FileFileTokenRange;
+class FileTokenRange;
 class ParsedFileTracker;
 struct Stat;
 struct FileTokenImpl;

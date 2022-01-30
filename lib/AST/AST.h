@@ -87,6 +87,7 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // added here. We also inject in some other tokens, such as whitespace and
   // comments.
   std::vector<TokenImpl> tokens;
+  unsigned num_lines{0u};
 
   // List of token contexts from trying to print the entire AST using the token
   // printer. The `TokenImpl::context_index` fields of the `tokens` vector above

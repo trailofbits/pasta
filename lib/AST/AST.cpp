@@ -40,43 +40,54 @@ ASTImpl::~ASTImpl(void) {}
 // Try to inject a token to represent the ending of a top-level macro
 // expansion.
 void ASTImpl::TryInjectEndOfMacroExpansion(clang::SourceLocation loc) {
-  if (!tokens.empty() && loc.isValid() && loc.isFileID() &&
-      (static_cast<TokenRole>(tokens.back().role) ==
-                TokenRole::kMacroExpansionToken)) {
-
-    bool invalid = false;
-    auto &sm = ci->getSourceManager();
-    auto [file_id, file_offset] = sm.getDecomposedLoc(loc);
-    llvm::StringRef file_data = sm.getBufferData(file_id, &invalid);
-    if (invalid) {
-      assert(false);
-      AppendMarker(loc, TokenRole::kEndOfMacroExpansionMarker);
-      return;
-    }
-
-    // Try to scan backwards and suck up whitespace that preceded this token
-    // so that we can more accurately capture the ending location of the macro
-    // expansion.
-    int loc_offset = 0;
-    for (; file_offset--; ) {
-      switch (file_data[file_offset]) {
-        case ' ': case '\t':  case '\n':case '\r':
-          --loc_offset;
-          continue;
-
-        case '\\':
-          loc_offset = 0;
-          [[clang::fallthrough]];
-
-        default:
-          AppendMarker(loc.getLocWithOffset(loc_offset),
-                       TokenRole::kEndOfMacroExpansionMarker);
-          return;
-      }
-    }
-
-    AppendMarker(loc, TokenRole::kEndOfMacroExpansionMarker);
+  if (tokens.empty() || !loc.isValid() || !loc.isFileID()) {
+    return;
   }
+
+  switch (static_cast<TokenRole>(tokens.back().role)) {
+
+    // Prior token is a macro expansion token, or is the start of an empty
+    // macro expansion.
+    case TokenRole::kBeginOfMacroExpansionMarker:
+    case TokenRole::kMacroExpansionToken:
+      break;
+
+    default:
+      return;
+  }
+
+  bool invalid = false;
+  auto &sm = ci->getSourceManager();
+  auto [file_id, file_offset] = sm.getDecomposedLoc(loc);
+  llvm::StringRef file_data = sm.getBufferData(file_id, &invalid);
+  if (invalid) {
+    assert(false);
+    AppendMarker(loc, TokenRole::kEndOfMacroExpansionMarker);
+    return;
+  }
+
+  // Try to scan backwards and suck up whitespace that preceded this token
+  // so that we can more accurately capture the ending location of the macro
+  // expansion.
+  int loc_offset = 0;
+  for (; file_offset--; ) {
+    switch (file_data[file_offset]) {
+      case ' ': case '\t':  case '\n':case '\r':
+        --loc_offset;
+        continue;
+
+      case '\\':
+        loc_offset = 0;
+        [[clang::fallthrough]];
+
+      default:
+        AppendMarker(loc.getLocWithOffset(loc_offset),
+                     TokenRole::kEndOfMacroExpansionMarker);
+        return;
+    }
+  }
+
+  AppendMarker(loc, TokenRole::kEndOfMacroExpansionMarker);
 }
 
 // Append a marker token to the parsed token list.

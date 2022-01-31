@@ -39,7 +39,7 @@ class CompileCommand {
   const ArgumentVector &Arguments(void) const;
 
   // Return the working directory in which this command executes.
-  const std::filesystem::path &WorkingDirectory(void) const;
+  std::filesystem::path WorkingDirectory(void) const;
 
  private:
   friend class CompileJob;

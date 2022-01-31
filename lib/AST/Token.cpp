@@ -454,18 +454,16 @@ const char *Token::KindName(void) const noexcept {
 // led to this macro expansion. Otherwise, return an empty range.
 FileTokenRange Token::MacroUseTokens(void) const noexcept {
   auto expansion_range = MacroExpandedTokens();
-  if (!expansion_range.Size()) {
+  auto begin = expansion_range.first;
+  auto end = expansion_range.after_last;
+  if (!begin) {
     return FileTokenRange(ast->main_source_file.impl);
   }
 
-  auto min = &(ast->tokens.front());
-  auto max = &(ast->tokens.back());
-
-  auto begin = expansion_range.first;
-  auto end = expansion_range.after_last;
-
-  assert(static_cast<TokenRole>(begin->role) ==
-         TokenRole::kMacroExpansionToken);
+  assert((static_cast<TokenRole>(begin->role) ==
+          TokenRole::kMacroExpansionToken) ||
+         (static_cast<TokenRole>(begin->role) ==
+          TokenRole::kEndOfMacroExpansionMarker));
   begin = &(begin[-1]);
   assert(static_cast<TokenRole>(begin->role) ==
          TokenRole::kBeginOfMacroExpansionMarker);
@@ -476,6 +474,8 @@ FileTokenRange Token::MacroUseTokens(void) const noexcept {
   auto end_loc = end->Location();
   assert(begin_loc.isValid() && begin_loc.isFileID());
   assert(end_loc.isValid() && end_loc.isFileID());
+  (void) begin_loc;
+  (void) end_loc;
 
   auto begin_ft = Token(ast, begin).FileLocation();
   auto end_ft = Token(ast, end).FileLocation();
@@ -483,12 +483,15 @@ FileTokenRange Token::MacroUseTokens(void) const noexcept {
   // If we can't find file locations for the expansion markers, or if they
   // look like they're from different files, or if they aren't ordered properly
   // then bail out.
-  if (!begin_ft || !end_ft || begin_ft->file != end_ft->file ||
-      end_ft->Index() < begin_ft->Index()) {
+  if (!begin_ft ||
+      !end_ft ||
+      begin_ft->file != end_ft->file ||
+      begin_ft->Index() >= end_ft->Index()) {
     assert(false);
     return FileTokenRange(ast->main_source_file.impl);
   }
 
+  assert(begin_ft->impl < end_ft->impl);
   return FileTokenRange(begin_ft->file, begin_ft->impl, end_ft->impl);
 }
 
@@ -514,7 +517,7 @@ TokenRange Token::MacroExpandedTokens(void) const noexcept {
   for (; begin > min; --begin) {
     switch (static_cast<TokenRole>(begin->role)) {
       case TokenRole::kBeginOfMacroExpansionMarker:
-        break;
+        goto found_begin;
       case TokenRole::kMacroExpansionToken:
       case TokenRole::kEndOfMacroExpansionMarker:
         continue;
@@ -523,6 +526,7 @@ TokenRange Token::MacroExpandedTokens(void) const noexcept {
         return TokenRange(ast);
     }
   }
+found_begin:
 
   // If we failed to find the beginning then bail out. Shouldn't happen.
   if (static_cast<TokenRole>(begin->role) !=
@@ -537,7 +541,7 @@ TokenRange Token::MacroExpandedTokens(void) const noexcept {
   for (; end < max; ++end) {
     switch (static_cast<TokenRole>(end->role)) {
       case TokenRole::kEndOfMacroExpansionMarker:
-        break;
+        goto found_end;
       case TokenRole::kBeginOfMacroExpansionMarker:
       case TokenRole::kMacroExpansionToken:
         continue;
@@ -546,6 +550,7 @@ TokenRange Token::MacroExpandedTokens(void) const noexcept {
         return TokenRange(ast);
     }
   }
+found_end:
 
   // If we failed to find the end then bail out. Shouldn't happen.
   if (static_cast<TokenRole>(end->role) !=

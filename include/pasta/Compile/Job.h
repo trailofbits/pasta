@@ -35,13 +35,13 @@ class CompileJob {
   const ArgumentVector &Arguments(void) const;
 
   // Return the working directory in which this command executes.
-  const std::filesystem::path &WorkingDirectory(void) const;
+  std::filesystem::path WorkingDirectory(void) const;
 
   // Return the compiler resource directory that this command should use.
-  const std::filesystem::path &ResourceDirectory(void) const;
+  std::filesystem::path ResourceDirectory(void) const;
 
   // Return the compiler system root directory that this command should use.
-  const std::filesystem::path &SystemRootDirectory(void) const;
+  std::filesystem::path SystemRootDirectory(void) const;
 
   // Return the path to the source file that this job compiles.
   File SourceFile(void) const;

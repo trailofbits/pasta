@@ -53,17 +53,17 @@ const ArgumentVector &CompileJob::Arguments(void) const {
 }
 
 // Return the working directory in which this command executes.
-const std::filesystem::path &CompileJob::WorkingDirectory(void) const {
+std::filesystem::path CompileJob::WorkingDirectory(void) const {
   return impl->working_dir;
 }
 
 // Return the compiler resource directory that this command should use.
-const std::filesystem::path &CompileJob::ResourceDirectory(void) const {
+std::filesystem::path CompileJob::ResourceDirectory(void) const {
   return impl->resource_dir;
 }
 
 // Return the compiler system root directory that this command should use.
-const std::filesystem::path &CompileJob::SystemRootDirectory(void) const {
+std::filesystem::path CompileJob::SystemRootDirectory(void) const {
   return impl->sysroot_dir;
 }
 
@@ -281,15 +281,16 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
 // The list of compiler jobs associated with this command.
 Result<std::vector<CompileJob>, std::string>
 Compiler::CreateJobsForCommand(const CompileCommand &command) const {
-
   std::stringstream err;
 
+  const std::filesystem::path working_dir_path = command.WorkingDirectory();
+  const std::string working_dir_str = working_dir_path.generic_string();
+
   FileSystemView fs(impl->file_manager.FileSystem());
-  auto ec = fs.PushWorkingDirectory(command.WorkingDirectory());
+  auto ec = fs.PushWorkingDirectory(working_dir_path);
   if (ec) {
     err << "Could not enter current working directory '"
-        << command.WorkingDirectory().generic_string()
-        << "' of compile command: " << ec.message();
+        << working_dir_str << "' of compile command: " << ec.message();
     return err.str();
   }
 
@@ -306,8 +307,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
   llvm::IntrusiveRefCntPtr<llvm::vfs::InMemoryFileSystem> mem_vfs(
       new llvm::vfs::InMemoryFileSystem);
   overlay_vfs->pushOverlay(mem_vfs.get());
-  overlay_vfs->setCurrentWorkingDirectory(
-      command.WorkingDirectory().generic_string());
+  overlay_vfs->setCurrentWorkingDirectory(working_dir_str);
 
   // Make the driver.
 #if LLVM_VERSION_NUMBER < LLVM_VERSION(12, 0)
@@ -438,7 +438,6 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
   std::vector<CompileJob> jobs;
 
-  auto working_dir = command.WorkingDirectory();
   const auto target_triple =
       compilation->getDefaultToolChain().getTriple().str();
 
@@ -539,7 +538,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
     }
 
     CompileJob job(std::make_shared<CompileJobImpl>(
-        new_argv, impl->file_manager, std::move(working_dir),
+        new_argv, impl->file_manager, working_dir_path,
         fs.ParsePath(driver.ResourceDir),
         fs.ParsePath(driver.SysRoot),
         main_file.TakeValue(),

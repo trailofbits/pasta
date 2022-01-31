@@ -232,10 +232,21 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
 
   // For some reason Clang doesn't invoke the `ExitFile` thing for the main
   // file.
-  if (tok.is(clang::tok::eof) &&
-      static_cast<TokenRole>(impl.tokens.back().role) !=
+  if (impl.tokens.back().kind != clang::tok::eof) {
+
+    // We didn't get an `ExitFile`.
+    if (static_cast<TokenRole>(impl.tokens.back().role) !=
           TokenRole::kEndOfFileMarker) {
-    impl.AppendMarker(tok.getLocation(), TokenRole::kEndOfFileMarker);
+      if (tok.is(clang::tok::eof)) {
+        impl.AppendMarker(tok.getLocation().getLocWithOffset(-1),
+                          TokenRole::kEndOfFileMarker);
+      } else {
+        auto loc = source_manager.getLocForEndOfFile(
+            source_manager.getMainFileID());
+        impl.AppendMarker(loc.getLocWithOffset(-1),
+                          TokenRole::kEndOfFileMarker);
+      }
+    }
     impl.tokens.back().kind = clang::tok::eof;
   }
 
@@ -400,7 +411,7 @@ class ParsedFileTracker : public clang::PPCallbacks {
 
     // Some macros might expand *just* before an `#include`, we want to
     // inject this to act as an upper bound on where the macro expansion ends.
-    InjectToken(hash_loc, TokenRole::kBeginOfDirectiveMarker);
+    ast->TryInjectEndOfMacroExpansion(hash_loc);
   }
 
   // Each time we enter a source file, try to keep track of it.
@@ -494,7 +505,8 @@ class ParsedFileTracker : public clang::PPCallbacks {
       // Add a dummy token signifying the end of the file.
       //
       // TODO(pag): Make it an `eof` token?
-      InjectToken(sm.getLocForEndOfFile(file_id), TokenRole::kEndOfFileMarker);
+      InjectToken(sm.getLocForEndOfFile(file_id).getLocWithOffset(-1),
+                  TokenRole::kEndOfFileMarker);
     }
 
     // Keep a mapping of Clang file IDs to parsed files.
@@ -576,15 +588,92 @@ class ParsedFileTracker : public clang::PPCallbacks {
 
   // Callback invoked when a `#ident` or `#sccs` directive is read.
   void Ident(clang::SourceLocation loc, clang::StringRef) final {
-    InjectToken(TryFindHash(loc, loc), TokenRole::kBeginOfDirectiveMarker);
+    ast->TryInjectEndOfMacroExpansion(TryFindHash(loc, loc));
   }
 
   // Callback invoked when start reading any pragma directive.
   void PragmaDirective(clang::SourceLocation loc,
                        clang::PragmaIntroducerKind introducer) final {
     if (clang::PragmaIntroducerKind::PIK_HashPragma == introducer) {
-      InjectToken(TryFindHash(loc, loc), TokenRole::kBeginOfDirectiveMarker);
+      ast->TryInjectEndOfMacroExpansion(TryFindHash(loc, loc));
     }
+  }
+
+
+
+  // Hook called when a source range is skipped.
+  void SourceRangeSkipped(clang::SourceRange range,
+                          clang::SourceLocation endif_loc) final {
+    auto begin = range.getBegin();
+    if (begin.isValid() && begin.isFileID()) {
+      ast->TryInjectEndOfMacroExpansion(begin);
+    }
+    (void) range;
+    (void) endif_loc;
+  }
+
+  // Hook called whenever an `#if` is seen.
+  //
+  // NOTE(pag): `condition_range` might point into file locations.
+  void If(clang::SourceLocation loc,
+          clang::SourceRange /* condition_range */,
+          ConditionValueKind cvk) final {
+
+    if (ConditionValueKind::CVK_NotEvaluated == cvk) {
+      ast->TryInjectEndOfMacroExpansion(TryFindHash(loc, loc));
+
+    // If the condition has been evaluated, then that implies that possible
+    // macro expansion has also happened, and so we don't want to mark the
+    // location of the `#` of the directive because that would precede the
+    // location of the injected token with role `kBeginOfMacroExpansion`.
+    } else if (auto eod_loc = TryFindEOD(loc); eod_loc.isValid()) {
+      ast->TryInjectEndOfMacroExpansion(eod_loc);
+    }
+  }
+
+  // Hook called whenever an `#elif` is seen.
+  //
+  // NOTE(pag): `condition_range` might point into file locations.
+  void Elif(clang::SourceLocation loc,
+            clang::SourceRange /* condition_range */,
+            ConditionValueKind cvk, clang::SourceLocation /* if_loc */) final {
+
+    if (ConditionValueKind::CVK_NotEvaluated == cvk) {
+      ast->TryInjectEndOfMacroExpansion(TryFindHash(loc, loc));
+
+    // If the condition has been evaluated, then that implies that possible
+    // macro expansion has also happened, and so we don't want to mark the
+    // location of the `#` of the directive because that would precede the
+    // location of the injected token with role `kBeginOfMacroExpansion`.
+    } else if (auto eod_loc = TryFindEOD(loc); eod_loc.isValid()) {
+      ast->TryInjectEndOfMacroExpansion(eod_loc);
+    }
+  }
+
+  // Hook called whenever an `#ifdef` is seen.
+  void Ifdef(clang::SourceLocation loc,
+             const clang::Token & /* macro_name_tested */,
+             const clang::MacroDefinition &) final {
+    ast->TryInjectEndOfMacroExpansion(TryFindHash(loc, loc));
+  }
+
+  // Hook called whenever an `#ifndef` is seen.
+  void Ifndef(clang::SourceLocation loc,
+              const clang::Token & /* macro_name_tested */,
+              const clang::MacroDefinition &) final {
+    ast->TryInjectEndOfMacroExpansion(TryFindHash(loc, loc));
+  }
+
+  /// Hook called whenever an `#else` is seen.
+  void Else(clang::SourceLocation loc,
+            clang::SourceLocation /* if_loc */) final {
+    ast->TryInjectEndOfMacroExpansion(TryFindHash(loc, loc));
+  }
+
+  // Hook called whenever an `#endif` is seen.
+  void Endif(clang::SourceLocation loc,
+             clang::SourceLocation /* if_loc */) final {
+    ast->TryInjectEndOfMacroExpansion(TryFindHash(loc, loc));
   }
 
   // Hook called whenever a macro definition is seen.
@@ -592,11 +681,11 @@ class ParsedFileTracker : public clang::PPCallbacks {
                     const clang::MacroDirective *directive) final {
     auto loc = macro_name.getLocation();
     if (directive) {
-      InjectToken(TryFindHash(loc, directive->getLocation()),
-                  TokenRole::kBeginOfDirectiveMarker);
+      ast->TryInjectEndOfMacroExpansion(
+          TryFindHash(loc, directive->getLocation()));
 
     } else if (loc.isValid() && loc.isFileID()) {
-      InjectToken(TryFindHash(loc, loc), TokenRole::kBeginOfDirectiveMarker);
+      ast->TryInjectEndOfMacroExpansion(TryFindHash(loc, loc));
       return;
     }
   }
@@ -610,85 +699,13 @@ class ParsedFileTracker : public clang::PPCallbacks {
 
     auto loc = macro_name.getLocation();
     if (directive) {
-      InjectToken(TryFindHash(loc, directive->getLocation()),
-                  TokenRole::kBeginOfDirectiveMarker);
+      ast->TryInjectEndOfMacroExpansion(
+          TryFindHash(loc, directive->getLocation()));
+
     } else if (loc.isValid() && loc.isFileID()) {
-      InjectToken(TryFindHash(loc, loc), TokenRole::kBeginOfDirectiveMarker);
+      ast->TryInjectEndOfMacroExpansion(TryFindHash(loc, loc));
       return;
     }
-  }
-
-  // Hook called when a source range is skipped.
-  void SourceRangeSkipped(clang::SourceRange range,
-                          clang::SourceLocation endif_loc) final {
-//    InjectToken(range.getBegin(), clang::tok::unknown);
-//    InjectToken(endif_loc, clang::tok::unknown);
-    (void) range;
-    (void) endif_loc;
-  }
-
-  // Hook called whenever an `#if` is seen.
-  //
-  // NOTE(pag): `condition_range` might point into file locations.
-  void If(clang::SourceLocation loc,
-          clang::SourceRange /* condition_range */,
-          ConditionValueKind cvk) final {
-
-    if (ConditionValueKind::CVK_NotEvaluated == cvk) {
-      InjectToken(TryFindHash(loc, loc), TokenRole::kBeginOfDirectiveMarker);
-
-    // If the condition has been evaluated, then that implies that possible
-    // macro expansion has also happened, and so we don't want to mark the
-    // location of the `#` of the directive because that would precede the
-    // location of the injected token with role `kBeginOfMacroExpansion`.
-    } else if (auto eod_loc = TryFindEOD(loc); eod_loc.isValid()) {
-      InjectToken(eod_loc, TokenRole::kEndOfDirectiveMarker);
-    }
-  }
-
-  // Hook called whenever an `#elif` is seen.
-  //
-  // NOTE(pag): `condition_range` might point into file locations.
-  void Elif(clang::SourceLocation loc,
-            clang::SourceRange /* condition_range */,
-            ConditionValueKind cvk, clang::SourceLocation /* if_loc */) final {
-
-    if (ConditionValueKind::CVK_NotEvaluated == cvk) {
-      InjectToken(TryFindHash(loc, loc), TokenRole::kBeginOfDirectiveMarker);
-
-    // If the condition has been evaluated, then that implies that possible
-    // macro expansion has also happened, and so we don't want to mark the
-    // location of the `#` of the directive because that would precede the
-    // location of the injected token with role `kBeginOfMacroExpansion`.
-    } else if (auto eod_loc = TryFindEOD(loc); eod_loc.isValid()) {
-      InjectToken(eod_loc, TokenRole::kEndOfDirectiveMarker);
-    }
-  }
-
-  // Hook called whenever an `#ifdef` is seen.
-  void Ifdef(clang::SourceLocation loc,
-             const clang::Token & /* macro_name_tested */,
-             const clang::MacroDefinition &) final {
-    InjectToken(TryFindHash(loc, loc), TokenRole::kBeginOfDirectiveMarker);
-  }
-
-  // Hook called whenever an `#ifndef` is seen.
-  void Ifndef(clang::SourceLocation loc,
-              const clang::Token & /* macro_name_tested */,
-              const clang::MacroDefinition &) final {
-    InjectToken(TryFindHash(loc, loc), TokenRole::kBeginOfDirectiveMarker);
-  }
-
-  /// Hook called whenever an `#else` is seen.
-  void Else(clang::SourceLocation loc,
-            clang::SourceLocation /* if_loc */) final {
-    InjectToken(TryFindHash(loc, loc), TokenRole::kBeginOfDirectiveMarker);
-  }
-
-  // Hook called whenever an `#endif` is seen.
-  void Endif(clang::SourceLocation loc,
-             clang::SourceLocation /* if_loc */) final {
-    InjectToken(TryFindHash(loc, loc), TokenRole::kBeginOfDirectiveMarker);
   }
 
   // Called by Preprocessor::HandleMacroExpandedIdentifier when a
@@ -696,7 +713,7 @@ class ParsedFileTracker : public clang::PPCallbacks {
   // the parsed range that relates to where the macro is in the original file.
   // Thus, we are trying to narrow down on the set of expansions that happen
   // at a file level, and not "sub-expansions" inside of other macro expansions.
-  void MacroExpands(const clang::Token &macro_name_tok,
+  void MacroExpands(const clang::Token &macro_name,
                     const clang::MacroDefinition &def,
                     clang::SourceRange use_range,
                     const clang::MacroArgs *args) final {
@@ -704,16 +721,16 @@ class ParsedFileTracker : public clang::PPCallbacks {
       return;
     }
 
-    // If the macro use isn't in the current file (e.g. it is a macro being
-    // expanded inside of another macro), then ignore it.
-    auto loc = macro_name_tok.getLocation();
-    if (!loc.isFileID()) {
+    // Macro expansion inside of a macro, or inside of a directive.
+    auto level = pp.*PASTA_ACCESS_MEMBER(clang, Preprocessor, LexLevel);
+    if ((logical_level_0 + 1u) < level) {
       return;
     }
 
-    // Macro expansion inside of a macro, or inside of a directive.
-    auto level = pp.*PASTA_ACCESS_MEMBER(clang, Preprocessor, LexLevel);
-    if ((logical_level_0 + 1u) != level) {
+    // If the macro use isn't in the current file (e.g. it is a macro being
+    // expanded inside of another macro), then ignore it.
+    auto loc = macro_name.getLocation();
+    if (!loc.isFileID()) {
       return;
     }
 
@@ -729,12 +746,12 @@ class ParsedFileTracker : public clang::PPCallbacks {
     if (!file_tok) {
       assert(false);
     } else {
-      assert(file_tok->Kind() == clang::tok::identifier ||
-             file_tok->Kind() == clang::tok::raw_identifier);
+      assert(clang::tok::isAnyIdentifier(file_tok->Kind()) ||
+             clang::tok::getKeywordSpelling(file_tok->Kind()));
       bool invalid = false;
       auto ident_data = sm.getCharacterData(loc, &invalid);
       assert(!invalid);
-      std::string_view ident_name(ident_data, macro_name_tok.getLength());
+      std::string_view ident_name(ident_data, macro_name.getLength());
       assert(file_tok->Data() == ident_name);
     }
 #endif

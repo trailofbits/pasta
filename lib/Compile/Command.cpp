@@ -176,7 +176,7 @@ const ArgumentVector &CompileCommand::Arguments(void) const {
 }
 
 // Return the working directory in which this command executes.
-const std::filesystem::path &CompileCommand::WorkingDirectory(void) const {
+std::filesystem::path CompileCommand::WorkingDirectory(void) const {
   return impl->working_dir;
 }
 

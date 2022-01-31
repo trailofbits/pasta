@@ -61,16 +61,16 @@ static void DumpExpandedMacros(pasta::AST ast) {
       // This token is the name of the macro. We might still need to collect
       // arguments if it's a function-like macro.
       pasta::FileToken macro_use = std::move(*maybe_macro_use);
-      assert(macro_use.Kind() == clang::tok::identifier ||
-             macro_use.Kind() == clang::tok::raw_identifier);
+      assert(clang::tok::isAnyIdentifier(macro_use.Kind()) ||
+             clang::tok::getKeywordSpelling(macro_use.Kind()));
 
       pasta::File file_containing_macro_use =
           pasta::File::Containing(macro_use);
 
-//      std::cerr
-//          << file_containing_macro_use.Path().generic_string()
-//          << '!' << macro_use.Line()
-//          << '!' << macro_use.Column() << '!' << macro_use.Data() << '\n';
+      std::cerr
+          << file_containing_macro_use.Path().generic_string()
+          << '!' << macro_use.Line()
+          << '!' << macro_use.Column() << '!' << macro_use.Data() << '\n';
 
       // Collect parsed tokens up until the next token with a file location.
       // This should cover the entire expansion of the macro.
@@ -84,8 +84,8 @@ static void DumpExpandedMacros(pasta::AST ast) {
           if (!expansion_tok.Data().empty()) {
             macro_exp_toks.emplace_back(expansion_tok.Data());
 //
-//            std::cerr
-//                << '\t' << expansion_tok.Data() << '\n';
+            std::cerr
+                << '\t' << expansion_tok.Data() << '\n';
           }
 
           ++token_it;
@@ -95,11 +95,11 @@ static void DumpExpandedMacros(pasta::AST ast) {
         // loop.
         } else {
 
-//          std::cerr
-//              << "\t>>> ends at "
-//              << pasta::File::Containing(*end_tok).Path().generic_string()
-//              << ':' << end_tok->Line()
-//              << ':' << end_tok->Column() << '\n';
+          std::cerr
+              << "\t>>> ends at "
+              << pasta::File::Containing(*end_tok).Path().generic_string()
+              << ':' << end_tok->Line()
+              << ':' << end_tok->Column() << '\n';
           break;
         }
       }
@@ -130,10 +130,10 @@ static void DumpExpandedMacros(pasta::AST ast) {
       macros.emplace_back(std::move(expansion));
 
     } else if (auto ft = token.FileLocation()) {
-//      std::cerr
-//          << pasta::File::Containing(*ft).Path().generic_string()
-//          << ':' << ft->Line()
-//          << ':' << ft->Column() << ':' << ft->Data() << '\n';
+      std::cerr
+          << pasta::File::Containing(*ft).Path().generic_string()
+          << ':' << ft->Line()
+          << ':' << ft->Column() << ':' << ft->Data() << '\n';
     } else {
       std::cerr
           << "Token " << token.KindName() << ": " << token.Data()
@@ -141,11 +141,11 @@ static void DumpExpandedMacros(pasta::AST ast) {
     }
   }
 
-  std::error_code ec;
-  llvm::raw_fd_ostream os("-", ec);
-  assert(!ec);
-  llvm::json::Value v(std::move(macros));
-  os << llvm::formatv("{0:2}", v);
+//  std::error_code ec;
+//  llvm::raw_fd_ostream os("-", ec);
+//  assert(!ec);
+//  llvm::json::Value v(std::move(macros));
+//  os << llvm::formatv("{0:2}", v);
 }
 
 int main(int argc, char *argv[]) {

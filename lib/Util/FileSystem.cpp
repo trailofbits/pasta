@@ -383,6 +383,11 @@ std::filesystem::path FileSystem::ParsePath(std::string path,
   std::filesystem::path base_path;
   if (!is_absolute) {
     base_path = cwd;
+
+  // TODO(pag): What should the root path be on Windows?
+  } else if (cwd.empty()) {
+    base_path = "/";
+
   } else {
     base_path = cwd.root_path();
   }

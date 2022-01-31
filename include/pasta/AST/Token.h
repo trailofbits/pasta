@@ -54,10 +54,6 @@ enum class TokenRole : std::underlying_type_t<clang::tok::TokenKind> {
   kMacroExpansionToken,
   kEndOfMacroExpansionMarker,
 
-  // NOTE(pag): These may not be balanced.
-  kBeginOfDirectiveMarker,
-  kEndOfDirectiveMarker,
-
   // An invented token from the pretty-printer.
   kPrintedToken,
 };

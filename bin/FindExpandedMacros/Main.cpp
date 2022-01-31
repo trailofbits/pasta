@@ -33,12 +33,14 @@ static bool IsMacroExpansionStart(const pasta::Token &token) {
 // NOTE(pag): This code shows how to re-compute macro expansions and original
 //            locations from scratch, but the data is available more
 //            conveniently with APIs in the `pasta::Token` class.
-static void DumpExpandedMacros(pasta::AST ast) {
+static void DumpExpandedMacrosOld(pasta::AST ast) {
   auto token_range = ast.Tokens();
   auto token_it = token_range.begin();
   auto token_end = token_range.end();
 
-  llvm::json::Array macros;
+  std::error_code ec;
+  llvm::raw_fd_ostream os("-", ec);
+  assert(!ec);
 
   while (token_it != token_end) {
     pasta::Token token = *token_it;
@@ -67,10 +69,10 @@ static void DumpExpandedMacros(pasta::AST ast) {
       pasta::File file_containing_macro_use =
           pasta::File::Containing(macro_use);
 
-      std::cerr
-          << file_containing_macro_use.Path().generic_string()
-          << '!' << macro_use.Line()
-          << '!' << macro_use.Column() << '!' << macro_use.Data() << '\n';
+//      std::cerr
+//          << file_containing_macro_use.Path().generic_string()
+//          << '!' << macro_use.Line()
+//          << '!' << macro_use.Column() << '!' << macro_use.Data() << '\n';
 
       // Collect parsed tokens up until the next token with a file location.
       // This should cover the entire expansion of the macro.
@@ -84,8 +86,8 @@ static void DumpExpandedMacros(pasta::AST ast) {
           if (!expansion_tok.Data().empty()) {
             macro_exp_toks.emplace_back(expansion_tok.Data());
 //
-            std::cerr
-                << '\t' << expansion_tok.Data() << '\n';
+//            std::cerr
+//                << '\t' << expansion_tok.Data() << '\n';
           }
 
           ++token_it;
@@ -95,11 +97,11 @@ static void DumpExpandedMacros(pasta::AST ast) {
         // loop.
         } else {
 
-          std::cerr
-              << "\t>>> ends at "
-              << pasta::File::Containing(*end_tok).Path().generic_string()
-              << ':' << end_tok->Line()
-              << ':' << end_tok->Column() << '\n';
+//          std::cerr
+//              << "\t>>> ends at "
+//              << pasta::File::Containing(*end_tok).Path().generic_string()
+//              << ':' << end_tok->Line()
+//              << ':' << end_tok->Column() << '\n';
           break;
         }
       }
@@ -127,25 +129,103 @@ static void DumpExpandedMacros(pasta::AST ast) {
       expansion.emplace_back(std::move(macro_use_toks));
       expansion.emplace_back(std::move(macro_exp_toks));
 
-      macros.emplace_back(std::move(expansion));
+      llvm::json::Value v(std::move(expansion));
+      os << "!!! " << llvm::formatv("{0:2}", v) << '\n';
 
     } else if (auto ft = token.FileLocation()) {
-      std::cerr
-          << pasta::File::Containing(*ft).Path().generic_string()
-          << ':' << ft->Line()
-          << ':' << ft->Column() << ':' << ft->Data() << '\n';
+//      std::cerr
+//          << pasta::File::Containing(*ft).Path().generic_string()
+//          << ':' << ft->Line()
+//          << ':' << ft->Column() << ':' << ft->Data() << '\n';
     } else {
       std::cerr
           << "Token " << token.KindName() << ": " << token.Data()
           << " that isn't a file token, and not in a macro?!" << std::endl;
     }
   }
+}
 
-//  std::error_code ec;
-//  llvm::raw_fd_ostream os("-", ec);
-//  assert(!ec);
-//  llvm::json::Value v(std::move(macros));
-//  os << llvm::formatv("{0:2}", v);
+static void DumpExpandedMacros(pasta::AST ast) {
+  std::vector<pasta::File> file_stack;
+  auto token_range = ast.Tokens();
+  auto token_it = token_range.begin();
+  auto token_end = token_range.end();
+
+  std::error_code ec;
+  llvm::raw_fd_ostream os("-", ec);
+  assert(!ec);
+
+  for (; token_it != token_end; ++token_it) {
+    pasta::Token token = *token_it;
+
+    switch (token.Role()) {
+      case pasta::TokenRole::kInvalid:
+      case pasta::TokenRole::kPrintedToken:
+        assert(false);
+        break;
+
+      case pasta::TokenRole::kBeginOfFileMarker: {
+        auto file_tok = token.FileLocation();
+        assert(file_tok.has_value());
+        file_stack.emplace_back(pasta::File::Containing(*file_tok));
+        continue;
+      }
+
+      case pasta::TokenRole::kEndOfFileMarker: {
+        auto file_tok = token.FileLocation();
+        assert(file_tok.has_value());
+        assert(!file_stack.empty());
+        assert(file_stack.back() == pasta::File::Containing(*file_tok));
+        file_stack.pop_back();
+        continue;
+      }
+
+      case pasta::TokenRole::kEndOfMacroExpansionMarker:
+        continue;
+
+      case pasta::TokenRole::kBeginOfMacroExpansionMarker: {
+        auto macro_exp_toks = token.MacroExpandedTokens();
+        auto macro_use_toks = token.MacroUseTokens();
+        assert(1u <= macro_use_toks.Size());
+        token_it = macro_exp_toks.end();  // Skip over it.
+        assert(token_it->Role() ==
+               pasta::TokenRole::kEndOfMacroExpansionMarker);
+
+        llvm::json::Array macro_use_toks_arr;
+        llvm::json::Array macro_exp_toks_arr;
+
+        for (auto ft : macro_use_toks) {
+          macro_use_toks_arr.emplace_back(ft.Data());
+        }
+
+        for (auto et : macro_exp_toks) {
+          macro_exp_toks_arr.emplace_back(et.Data());
+        }
+
+        llvm::json::Array expansion;
+        expansion.emplace_back(std::move(macro_use_toks_arr));
+        expansion.emplace_back(std::move(macro_exp_toks_arr));
+
+        llvm::json::Value v(std::move(expansion));
+        os << "!!! " << llvm::formatv("{0:2}", v) << '\n';
+
+        break;
+      }
+
+      case pasta::TokenRole::kFileToken: {
+        auto file_tok = token.FileLocation();
+        assert(file_tok.has_value());
+        break;
+      }
+
+      case pasta::TokenRole::kMacroExpansionToken:
+        std::cerr
+            << "??? Macro token " << token.KindName() << ": " << token.Data()
+            << " not properly nested; top-level file is "
+            << file_stack.front().Path().generic_string() << '\n';
+        break;
+    }
+  }
 }
 
 int main(int argc, char *argv[]) {
@@ -191,7 +271,11 @@ int main(int argc, char *argv[]) {
       std::cout << maybe_ast.TakeError() << std::endl;
       return EXIT_FAILURE;
     } else {
-      DumpExpandedMacros(maybe_ast.TakeValue());
+      if (PASTA_USE_OLD_MACROS_APPROACH) {
+        DumpExpandedMacrosOld(maybe_ast.TakeValue());
+      } else {
+        DumpExpandedMacros(maybe_ast.TakeValue());
+      }
     }
   }
 

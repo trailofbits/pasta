@@ -114,9 +114,12 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // Useful for when we want to print tokens of decls and such.
   std::unique_ptr<clang::PrintingPolicy> printing_policy;
 
+  // Where we expect the next macro use end location to be.
+  clang::SourceLocation macro_use_end_loc;
+
   // Try to inject a token to represent the ending of a top-level macro
   // expansion.
-  void TryInjectEndOfMacroExpansion(clang::SourceLocation loc);
+  bool TryInjectEndOfMacroExpansion(clang::SourceLocation loc);
 
   // Append a marker token to the parsed token list.
   void AppendMarker(clang::SourceLocation loc, TokenRole role);

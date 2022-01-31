@@ -39,9 +39,13 @@ ASTImpl::~ASTImpl(void) {}
 
 // Try to inject a token to represent the ending of a top-level macro
 // expansion.
-void ASTImpl::TryInjectEndOfMacroExpansion(clang::SourceLocation loc) {
+bool ASTImpl::TryInjectEndOfMacroExpansion(clang::SourceLocation loc) {
   if (tokens.empty() || !loc.isValid() || !loc.isFileID()) {
-    return;
+    return false;
+  }
+  if (macro_use_end_loc.isValid()) {
+    assert(macro_use_end_loc.isFileID());
+    loc = std::move(macro_use_end_loc);
   }
 
   switch (static_cast<TokenRole>(tokens.back().role)) {
@@ -52,8 +56,15 @@ void ASTImpl::TryInjectEndOfMacroExpansion(clang::SourceLocation loc) {
     case TokenRole::kMacroExpansionToken:
       break;
 
-    default:
-      return;
+    default: {
+#ifndef NDEBUG
+      auto last_loc = clang::SourceLocation::getFromRawEncoding(
+          tokens.back().opaque_source_loc);
+      assert(last_loc.isValid());
+      assert(!last_loc.isMacroID());
+#endif
+      return false;
+    }
   }
 
   bool invalid = false;
@@ -63,7 +74,7 @@ void ASTImpl::TryInjectEndOfMacroExpansion(clang::SourceLocation loc) {
   if (invalid) {
     assert(false);
     AppendMarker(loc, TokenRole::kEndOfMacroExpansionMarker);
-    return;
+    return true;
   }
 
   // Try to scan backwards and suck up whitespace that preceded this token
@@ -83,11 +94,12 @@ void ASTImpl::TryInjectEndOfMacroExpansion(clang::SourceLocation loc) {
       default:
         AppendMarker(loc.getLocWithOffset(loc_offset),
                      TokenRole::kEndOfMacroExpansionMarker);
-        return;
+        return true;
     }
   }
 
   AppendMarker(loc, TokenRole::kEndOfMacroExpansionMarker);
+  return true;
 }
 
 // Append a marker token to the parsed token list.

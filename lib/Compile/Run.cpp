@@ -295,12 +295,15 @@ class ParsedFileTracker : public clang::PPCallbacks {
   // expansions.
   unsigned logical_level_0{0u};
 
+  // Try to inject an end-of-macro token.
+  void TryInjectEOM(clang::SourceLocation loc) {
+    ast->TryInjectEndOfMacroExpansion(loc);
+  }
 
   void InjectToken(clang::SourceLocation loc, TokenRole role) {
     assert(loc.isValid());
     assert(loc.isFileID());
-
-    ast->TryInjectEndOfMacroExpansion(loc);
+    TryInjectEOM(loc);
     ast->AppendMarker(loc, role);
   }
 
@@ -411,7 +414,7 @@ class ParsedFileTracker : public clang::PPCallbacks {
 
     // Some macros might expand *just* before an `#include`, we want to
     // inject this to act as an upper bound on where the macro expansion ends.
-    ast->TryInjectEndOfMacroExpansion(hash_loc);
+    TryInjectEOM(hash_loc);
   }
 
   // Each time we enter a source file, try to keep track of it.
@@ -588,25 +591,23 @@ class ParsedFileTracker : public clang::PPCallbacks {
 
   // Callback invoked when a `#ident` or `#sccs` directive is read.
   void Ident(clang::SourceLocation loc, clang::StringRef) final {
-    ast->TryInjectEndOfMacroExpansion(TryFindHash(loc, loc));
+    TryInjectEOM(TryFindHash(loc, loc));
   }
 
   // Callback invoked when start reading any pragma directive.
   void PragmaDirective(clang::SourceLocation loc,
                        clang::PragmaIntroducerKind introducer) final {
     if (clang::PragmaIntroducerKind::PIK_HashPragma == introducer) {
-      ast->TryInjectEndOfMacroExpansion(TryFindHash(loc, loc));
+      TryInjectEOM(TryFindHash(loc, loc));
     }
   }
-
-
 
   // Hook called when a source range is skipped.
   void SourceRangeSkipped(clang::SourceRange range,
                           clang::SourceLocation endif_loc) final {
     auto begin = range.getBegin();
     if (begin.isValid() && begin.isFileID()) {
-      ast->TryInjectEndOfMacroExpansion(begin);
+      TryInjectEOM(begin);
     }
     (void) range;
     (void) endif_loc;
@@ -620,14 +621,14 @@ class ParsedFileTracker : public clang::PPCallbacks {
           ConditionValueKind cvk) final {
 
     if (ConditionValueKind::CVK_NotEvaluated == cvk) {
-      ast->TryInjectEndOfMacroExpansion(TryFindHash(loc, loc));
+      TryInjectEOM(TryFindHash(loc, loc));
 
     // If the condition has been evaluated, then that implies that possible
     // macro expansion has also happened, and so we don't want to mark the
     // location of the `#` of the directive because that would precede the
     // location of the injected token with role `kBeginOfMacroExpansion`.
     } else if (auto eod_loc = TryFindEOD(loc); eod_loc.isValid()) {
-      ast->TryInjectEndOfMacroExpansion(eod_loc);
+      TryInjectEOM(eod_loc);
     }
   }
 
@@ -639,14 +640,14 @@ class ParsedFileTracker : public clang::PPCallbacks {
             ConditionValueKind cvk, clang::SourceLocation /* if_loc */) final {
 
     if (ConditionValueKind::CVK_NotEvaluated == cvk) {
-      ast->TryInjectEndOfMacroExpansion(TryFindHash(loc, loc));
+      TryInjectEOM(TryFindHash(loc, loc));
 
     // If the condition has been evaluated, then that implies that possible
     // macro expansion has also happened, and so we don't want to mark the
     // location of the `#` of the directive because that would precede the
     // location of the injected token with role `kBeginOfMacroExpansion`.
     } else if (auto eod_loc = TryFindEOD(loc); eod_loc.isValid()) {
-      ast->TryInjectEndOfMacroExpansion(eod_loc);
+      TryInjectEOM(eod_loc);
     }
   }
 
@@ -654,26 +655,26 @@ class ParsedFileTracker : public clang::PPCallbacks {
   void Ifdef(clang::SourceLocation loc,
              const clang::Token & /* macro_name_tested */,
              const clang::MacroDefinition &) final {
-    ast->TryInjectEndOfMacroExpansion(TryFindHash(loc, loc));
+    TryInjectEOM(TryFindHash(loc, loc));
   }
 
   // Hook called whenever an `#ifndef` is seen.
   void Ifndef(clang::SourceLocation loc,
               const clang::Token & /* macro_name_tested */,
               const clang::MacroDefinition &) final {
-    ast->TryInjectEndOfMacroExpansion(TryFindHash(loc, loc));
+    TryInjectEOM(TryFindHash(loc, loc));
   }
 
   /// Hook called whenever an `#else` is seen.
   void Else(clang::SourceLocation loc,
             clang::SourceLocation /* if_loc */) final {
-    ast->TryInjectEndOfMacroExpansion(TryFindHash(loc, loc));
+    TryInjectEOM(TryFindHash(loc, loc));
   }
 
   // Hook called whenever an `#endif` is seen.
   void Endif(clang::SourceLocation loc,
              clang::SourceLocation /* if_loc */) final {
-    ast->TryInjectEndOfMacroExpansion(TryFindHash(loc, loc));
+    TryInjectEOM(TryFindHash(loc, loc));
   }
 
   // Hook called whenever a macro definition is seen.
@@ -681,11 +682,10 @@ class ParsedFileTracker : public clang::PPCallbacks {
                     const clang::MacroDirective *directive) final {
     auto loc = macro_name.getLocation();
     if (directive) {
-      ast->TryInjectEndOfMacroExpansion(
-          TryFindHash(loc, directive->getLocation()));
+      TryInjectEOM(TryFindHash(loc, directive->getLocation()));
 
     } else if (loc.isValid() && loc.isFileID()) {
-      ast->TryInjectEndOfMacroExpansion(TryFindHash(loc, loc));
+      TryInjectEOM(TryFindHash(loc, loc));
       return;
     }
   }
@@ -699,11 +699,10 @@ class ParsedFileTracker : public clang::PPCallbacks {
 
     auto loc = macro_name.getLocation();
     if (directive) {
-      ast->TryInjectEndOfMacroExpansion(
-          TryFindHash(loc, directive->getLocation()));
+      TryInjectEOM(TryFindHash(loc, directive->getLocation()));
 
     } else if (loc.isValid() && loc.isFileID()) {
-      ast->TryInjectEndOfMacroExpansion(TryFindHash(loc, loc));
+      TryInjectEOM(TryFindHash(loc, loc));
       return;
     }
   }
@@ -740,6 +739,12 @@ class ParsedFileTracker : public clang::PPCallbacks {
       return;
     }
 
+    auto end_loc = use_range.getEnd();
+    assert(end_loc.isValid());
+    assert(end_loc.isFileID());
+    auto [end_fid, end_offset] = sm.getDecomposedLoc(use_range.getEnd());
+    assert(end_fid == file_id);
+
 #ifndef NDEBUG
     assert(current_file.has_value());
     std::optional<FileToken> file_tok = current_file->TokenAtOffset(offset);
@@ -757,6 +762,33 @@ class ParsedFileTracker : public clang::PPCallbacks {
 #endif
 
     InjectToken(loc, TokenRole::kBeginOfMacroExpansionMarker);
+
+    if (offset == end_offset) {
+      assert(!args);
+      ast->macro_use_end_loc = loc.getLocWithOffset(
+          static_cast<int>(macro_name.getLength()));
+
+
+#ifndef NDEBUG
+    } else if (args) {
+      assert(offset < end_offset);
+      bool invalid = false;
+
+      // Scan forward and find the closing parenthesis.
+      auto end_data = sm.getCharacterData(end_loc, &invalid);
+      assert(!invalid);
+      assert(end_data[0] == ')');
+
+      // TODO(pag): Handle the case where the ending parenthesis is the
+      //            result of a macro expansion.
+      ast->macro_use_end_loc = end_loc.getLocWithOffset(1);
+
+    } else {
+      assert(false);
+#endif
+
+      ast->macro_use_end_loc = end_loc.getLocWithOffset(1);
+    }
   }
 };
 

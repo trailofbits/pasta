@@ -428,22 +428,134 @@ std::optional<FileToken> Token::FileLocation(void) const {
 
 // Kind of this token.
 clang::tok::TokenKind Token::Kind(void) const noexcept {
-  return impl ? impl->kind : clang::tok::unknown;
+  if (impl) {
+    return static_cast<clang::tok::TokenKind>(impl->kind);
+  } else {
+    return clang::tok::unknown;
+  }
 }
 
-// Return `true` if this token was injected to mark the beginning of a macro
-// expansion.
-bool Token::IsMacroExpansionStart(void) const noexcept {
-  return impl ? impl->kind == clang::tok::eod : false;
+// Return the role of this token.
+TokenRole Token::Role(void) const noexcept {
+  if (impl) {
+    return static_cast<TokenRole>(impl->role);
+  } else {
+    return TokenRole::kInvalid;
+  }
 }
 
 // Kind of this token.
 const char *Token::KindName(void) const noexcept {
-  if (impl) {
-    return clang::tok::getTokenName(impl->kind);
-  } else {
-    return clang::tok::getTokenName(clang::tok::unknown);
+  return clang::tok::getTokenName(Kind());
+}
+
+// If this token is a macro expansion token, or is the beginning or ending of
+// a macro expansion range, then return the entire range of file tokens which
+// led to this macro expansion. Otherwise, return an empty range.
+FileTokenRange Token::MacroUseTokens(void) const noexcept {
+  auto expansion_range = MacroExpandedTokens();
+  if (!expansion_range.Size()) {
+    return FileTokenRange(ast->main_source_file.impl);
   }
+
+  auto min = &(ast->tokens.front());
+  auto max = &(ast->tokens.back());
+
+  auto begin = expansion_range.first;
+  auto end = expansion_range.after_last;
+
+  assert(static_cast<TokenRole>(begin->role) ==
+         TokenRole::kMacroExpansionToken);
+  begin = &(begin[-1]);
+  assert(static_cast<TokenRole>(begin->role) ==
+         TokenRole::kBeginOfMacroExpansionMarker);
+  assert(static_cast<TokenRole>(end->role) ==
+         TokenRole::kEndOfMacroExpansionMarker);
+
+  auto begin_loc = begin->Location();
+  auto end_loc = end->Location();
+  assert(begin_loc.isValid() && begin_loc.isFileID());
+  assert(end_loc.isValid() && end_loc.isFileID());
+
+  auto begin_ft = Token(ast, begin).FileLocation();
+  auto end_ft = Token(ast, end).FileLocation();
+
+  // If we can't find file locations for the expansion markers, or if they
+  // look like they're from different files, or if they aren't ordered properly
+  // then bail out.
+  if (!begin_ft || !end_ft || begin_ft->file != end_ft->file ||
+      end_ft->Index() < begin_ft->Index()) {
+    assert(false);
+    return FileTokenRange(ast->main_source_file.impl);
+  }
+
+  return FileTokenRange(begin_ft->file, begin_ft->impl, end_ft->impl);
+}
+
+// If this token is a macro expansion token, or is the beginning or ending of
+// a macro expansion range, then return the entire range. Otherwise, this will
+// return an empty range.
+TokenRange Token::MacroExpandedTokens(void) const noexcept {
+  switch (Role()) {
+    case TokenRole::kBeginOfMacroExpansionMarker:
+    case TokenRole::kMacroExpansionToken:
+    case TokenRole::kEndOfMacroExpansionMarker:
+      break;
+    default:
+      return TokenRange(ast);
+  }
+
+  auto min = &(ast->tokens.front());
+  auto max = &(ast->tokens.back());
+
+  // Scan backwards. There should always be /some/ tokens before the beginning
+  // of a macro expansion marker, e.g. a file entry marker.
+  auto begin = impl;
+  for (; begin > min; --begin) {
+    switch (static_cast<TokenRole>(begin->role)) {
+      case TokenRole::kBeginOfMacroExpansionMarker:
+        break;
+      case TokenRole::kMacroExpansionToken:
+      case TokenRole::kEndOfMacroExpansionMarker:
+        continue;
+      default:
+        assert(false);
+        return TokenRange(ast);
+    }
+  }
+
+  // If we failed to find the beginning then bail out. Shouldn't happen.
+  if (static_cast<TokenRole>(begin->role) !=
+      TokenRole::kBeginOfMacroExpansionMarker) {
+    assert(false);
+    return TokenRange(ast);
+  }
+
+  // Scan forwards. There should always be /some/ tokens after the end
+  // of a macro expansion marker, e.g. a file exit marker.
+  auto end = impl;
+  for (; end < max; ++end) {
+    switch (static_cast<TokenRole>(end->role)) {
+      case TokenRole::kEndOfMacroExpansionMarker:
+        break;
+      case TokenRole::kBeginOfMacroExpansionMarker:
+      case TokenRole::kMacroExpansionToken:
+        continue;
+      default:
+        assert(false);
+        return TokenRange(ast);
+    }
+  }
+
+  // If we failed to find the end then bail out. Shouldn't happen.
+  if (static_cast<TokenRole>(end->role) !=
+      TokenRole::kEndOfMacroExpansionMarker) {
+    assert(false);
+    return TokenRange(ast);
+  }
+
+  // Return the range of tokens *inside* the two markers.
+  return TokenRange(ast, &(begin[1]), end);
 }
 
 // Return this token's context, or a null context.

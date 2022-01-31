@@ -35,12 +35,32 @@ namespace pasta {
 class AST;
 class ASTImpl;
 class FileToken;
+class FileTokenRange;
 class PrintedTokenRangeImpl;
 class TokenContextImpl;
 class TokenIterator;
 class TokenPrinterContext;
 class TokenImpl;
 class TokenRange;
+
+enum class TokenRole : std::underlying_type_t<clang::tok::TokenKind> {
+  kInvalid,
+
+  kBeginOfFileMarker,
+  kFileToken,
+  kEndOfFileMarker,
+
+  kBeginOfMacroExpansionMarker,
+  kMacroExpansionToken,
+  kEndOfMacroExpansionMarker,
+
+  // NOTE(pag): These may not be balanced.
+  kBeginOfDirectiveMarker,
+  kEndOfDirectiveMarker,
+
+  // An invented token from the pretty-printer.
+  kPrintedToken,
+};
 
 enum class TokenContextKind : unsigned char {
   kInvalid,
@@ -139,12 +159,11 @@ class Token {
   // Index of this token in the AST's token list.
   uint64_t Index(void) const;
 
-  // Return `true` if this token was injected to mark the beginning of a macro
-  // expansion.
-  bool IsMacroExpansionStart(void) const noexcept;
-
   // Kind of this token.
   clang::tok::TokenKind Kind(void) const noexcept;
+
+  // Return the role of this token.
+  TokenRole Role(void) const noexcept;
 
   // Return the printable kind of this token.
   const char *KindName(void) const noexcept;
@@ -152,6 +171,16 @@ class Token {
   inline operator bool(void) const noexcept {
     return !!impl;
   }
+
+  // If this token is a macro expansion token, or is the beginning or ending of
+  // a macro expansion range, then return the entire range of file tokens which
+  // led to this macro expansion. Otherwise, return an empty range.
+  FileTokenRange MacroUseTokens(void) const noexcept;
+
+  // If this token is a macro expansion token, or is the beginning or ending of
+  // a macro expansion range, then return the entire range. Otherwise, this will
+  // return an empty range.
+  TokenRange MacroExpandedTokens(void) const noexcept;
 
   // Return this token's context, or a null context.
   std::optional<TokenContext> Context(void) const noexcept;
@@ -305,6 +334,7 @@ class TokenRange {
   friend class AST;
   friend class ASTImpl;
   friend class DeclPrinter;
+  friend class Token;
 
   TokenRange(void) = delete;
 

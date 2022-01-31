@@ -578,8 +578,8 @@ static std::string_view HashableData(std::string_view view) {
 
 // Strip off leading and trailing underscores, then hash. This is to deal with
 // things like `asm` vs. `__asm`.
-static uint64_t Hash(clang::tok::TokenKind kind,  std::string_view view) {
-  if (clang::tok::isLiteral(kind)) {
+static uint64_t Hash(TokenKindBase kind,  std::string_view view) {
+  if (clang::tok::isLiteral(static_cast<clang::tok::TokenKind>(kind))) {
     return static_cast<uint64_t>(kind);
   } else {
     return kHasher(HashableData(view));
@@ -589,7 +589,8 @@ static uint64_t Hash(clang::tok::TokenKind kind,  std::string_view view) {
 bool Matcher::DataEquals(TokenImpl *parsed, PrintedTokenImpl *printed) {
   auto parsed_data = parsed->Data(ast);
   auto printed_data = printed->Data(range);
-  if (clang::tok::getKeywordSpelling(parsed->kind)) {
+  if (clang::tok::getKeywordSpelling(
+      static_cast<clang::tok::TokenKind>(parsed->kind))) {
     return HashableData(parsed_data) == HashableData(printed_data);
   } else {
     return parsed_data == printed_data;
@@ -668,7 +669,7 @@ bool Matcher::MatchToken(TokenImpl *parsed, PrintedTokenImpl *printed) {
 
 bool Matcher::MatchTokenByKindOrData(TokenImpl *parsed,
                                      PrintedTokenImpl *printed) {
-  if (clang::tok::isLiteral(parsed->kind)) {
+  if (clang::tok::isLiteral(static_cast<clang::tok::TokenKind>(parsed->kind))) {
     return parsed->kind == printed->kind;
 
   } else if (parsed->kind == printed->kind) {

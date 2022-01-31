@@ -19,13 +19,13 @@ namespace pasta {
 namespace {
 
 static const std::string_view kPPKeywordSpelling[] = {
-#define PPKEYWORD(X) "#" #X,
+#define PPKEYWORD(X) #X,
 #include "clang/Basic/TokenKinds.def"
 };
 
 
 static const std::string_view kObjCKeywordSpelling[] = {
-#define OBJC_AT_KEYWORD(X) "@" #X,
+#define OBJC_AT_KEYWORD(X) #X,
 #include "clang/Basic/TokenKinds.def"
 };
 
@@ -87,14 +87,17 @@ const ::pasta::Stat &File::Stat(void) const noexcept {
 // Return a range of file tokens.
 FileTokenRange File::Tokens(void) const noexcept {
   std::unique_lock<std::mutex> locker(impl->tokens_lock);
-  if (1u >= impl->tokens.size()) {
+  const auto num_toks = impl->tokens.size();
+  if (1u >= num_toks) {
     return FileTokenRange(impl);
 
   // NOTE(pag): The last token in the range exists to provide the ending
   //            pointer for the data of the "true" last token.
   } else {
-    auto begin = impl->tokens.data();
-    return FileTokenRange(impl, begin, &(begin[impl->tokens.size() - 1]));
+    auto first = impl->tokens.data();
+    auto last = &(first[num_toks - 1u]);
+    assert(last->kind.extended.kind == static_cast<uint16_t>(clang::tok::eof));
+    return FileTokenRange(impl, first, &(last[1]));
   }
 }
 
@@ -193,6 +196,11 @@ std::string_view FileToken::Data(void) const noexcept {
 
     } else if (impl->kind.extended.is_objc_kw) {
       return kObjCKeywordSpelling[impl->kind.extended.alt_kind];
+
+    // If it's the end of the file, then there is no next token.
+    } else if (impl->kind.extended.kind ==
+               static_cast<uint16_t>(clang::tok::eof)) {
+      return {};
 
     } else {
       const FileTokenImpl *next_impl = &(impl[1]);

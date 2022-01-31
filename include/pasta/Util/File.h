@@ -30,6 +30,8 @@ class FileManagerImpl;
 class FileTokenIterator;
 class FileTokenRange;
 class ParsedFileTracker;
+class Token;
+
 struct Stat;
 struct FileTokenImpl;
 
@@ -42,6 +44,7 @@ class FileToken {
   friend class FileImpl;
   friend class FileTokenIterator;
   friend class FileTokenRange;
+  friend class Token;
 
   FileToken(void) = delete;
 
@@ -212,6 +215,7 @@ class FileTokenRange {
  private:
   friend class File;
   friend class FileImpl;
+  friend class Token;
 
   FileTokenRange(void) = delete;
 
@@ -240,6 +244,7 @@ class File {
   friend class FileManager;
   friend class FileManagerImpl;
   friend class ParsedFileTracker;
+  friend class Token;
 
   File(void) = delete;
 

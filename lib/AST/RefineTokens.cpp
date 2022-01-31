@@ -2616,7 +2616,8 @@ EXPR_VISITOR(ArrayTypeTraitExpr, {
   }
 
   if (auto kw_tok = ast.RawTokenAt(expr->getBeginLoc());
-      kw_tok && clang::tok::getKeywordSpelling(kw_tok->kind)) {
+      kw_tok && clang::tok::getKeywordSpelling(
+                    static_cast<clang::tok::TokenKind>(kw_tok->kind))) {
     AssignContext(kw_tok);
   }
 

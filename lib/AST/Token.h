@@ -101,6 +101,8 @@ class TokenContextImpl {
         kind(TokenContextKind::kInvalid) {}
 };
 
+using TokenKindBase = std::underlying_type_t<clang::tok::TokenKind>;
+
 // Backing implementation of a token.
 class TokenImpl {
  public:
@@ -108,12 +110,13 @@ class TokenImpl {
 
   inline TokenImpl(uint32_t opaque_source_loc_, int32_t data_offset_,
                    uint16_t data_len_, clang::tok::TokenKind kind_,
-                   uint32_t token_context_index_=kInvalidTokenContextIndex)
+                   TokenRole role_, uint32_t token_context_index_=kInvalidTokenContextIndex)
       : opaque_source_loc(opaque_source_loc_),
         context_index(token_context_index_),
         data_offset(data_offset_),
         data_len(data_len_),
-        kind(kind_) {}
+        kind(static_cast<TokenKindBase>(kind_)),
+        role(static_cast<TokenKindBase>(role_)) {}
 
   // Return the source location of this token.
   inline clang::SourceLocation Location(void) const {
@@ -137,8 +140,9 @@ class TokenImpl {
   uint16_t data_len{0u};
 
   // The original token kind.
-  clang::tok::TokenKind kind{clang::tok::unknown};
-};
+  TokenKindBase kind:9;
+  TokenKindBase role:7;
+} __attribute__((packed));
 
 // Read the data of the token into the passed in string pointer
 bool TryReadRawToken(clang::SourceManager &source_manager,

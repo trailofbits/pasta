@@ -114,6 +114,13 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // Useful for when we want to print tokens of decls and such.
   std::unique_ptr<clang::PrintingPolicy> printing_policy;
 
+  // Try to inject a token to represent the ending of a top-level macro
+  // expansion.
+  void TryInjectEndOfMacroExpansion(clang::SourceLocation loc);
+
+  // Append a marker token to the parsed token list.
+  void AppendMarker(clang::SourceLocation loc, TokenRole role);
+
   // Append a token to the end of the AST. `offset` is the offset in
   // `preprocessed_code`, and `len` is the length in bytes of the token itself.
   void AppendToken(const clang::Token &tok, size_t offset, size_t len);

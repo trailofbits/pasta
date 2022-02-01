@@ -33,7 +33,7 @@ class PrintedTokenImpl : public TokenImpl {
   uint16_t num_leading_new_lines;
   uint16_t num_leading_spaces;
 
-  inline PrintedTokenImpl(int32_t data_offset_, uint16_t data_len_,
+  inline PrintedTokenImpl(int32_t data_offset_, uint32_t data_len_,
                           uint32_t token_context_index_,
                           unsigned num_leading_new_lines_,
                           unsigned num_leading_spaces_,

@@ -279,7 +279,7 @@ void TokenPrinterContext::Tokenize(void) {
         ++last_i) {
       tokens.data.push_back(token_data[last_i]);
       ++data_len;
-      assert(static_cast<uint32_t>(data_len & 0xfffff) != 0u);
+      assert(static_cast<uint32_t>(data_len & TokenImpl::kTokenSizeMask) != 0u);
     }
     tokens.data.push_back('\0');  // Make sure all tokens end up NUL-terminated.
 

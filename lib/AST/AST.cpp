@@ -118,7 +118,7 @@ void ASTImpl::AppendMarker(clang::SourceLocation loc, TokenRole role) {
 // length in bytes of the token itself.
 void ASTImpl::AppendToken(const clang::Token &tok, size_t offset_,
                           size_t len_) {
-  const auto len = static_cast<uint32_t>(len_ & 0xfffff);
+  const auto len = static_cast<uint32_t>(len_ & TokenImpl::kTokenSizeMask);
   assert(0u <= static_cast<int32_t>(offset_));  // Make sure it fits in 31 bits.
   assert(len == len_);
   auto loc = tok.getLocation();
@@ -140,7 +140,7 @@ void ASTImpl::AppendToken(const clang::Token &tok, size_t offset_,
 // `backup_token_data`, and `len` is the length in bytes of the token itself.
 void ASTImpl::AppendBackupToken(const clang::Token &tok, size_t offset_,
                                 size_t len_) {
-  const auto len = static_cast<uint32_t>(len_ & 0xfffff);
+  const auto len = static_cast<uint32_t>(len_ & TokenImpl::kTokenSizeMask);
   assert(0u < static_cast<int32_t>(offset_));
   assert(len == len_);
   auto loc = tok.getLocation();

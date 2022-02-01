@@ -108,13 +108,15 @@ class TokenImpl {
  public:
   static constexpr uint32_t kInvalidSourceLocation = 0u;
 
+  static constexpr uint32_t kTokenSizeMask = ((1u << 20) - 1u);
+
   inline TokenImpl(uint32_t opaque_source_loc_, int32_t data_offset_,
                    uint32_t data_len_, clang::tok::TokenKind kind_,
                    TokenRole role_, uint32_t token_context_index_=kInvalidTokenContextIndex)
       : opaque_source_loc(opaque_source_loc_),
         context_index(token_context_index_),
         data_offset(data_offset_),
-        data_len(static_cast<uint32_t>(data_len_ & 0xfffff)),
+        data_len(static_cast<uint32_t>(data_len_ & kTokenSizeMask)),
         kind(static_cast<TokenKindBase>(kind_)),
         role(static_cast<TokenKindBase>(role_)) {}
 

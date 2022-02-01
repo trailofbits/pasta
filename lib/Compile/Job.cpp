@@ -334,8 +334,9 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
       clang::driver::options::CC1Option | clang::driver::options::NoXarchOption;
 #endif
 
+  llvm::ArrayRef<const char *> command_args(command.Arguments().Arguments());
   auto parsed_args = opts.ParseArgs(
-      command.Arguments().Arguments(), missing_arg_index, missing_arg_count,
+      command_args.slice(1u), missing_arg_index, missing_arg_count,
       driver_options, clang::driver::options::CLOption);
 
   // Something didn't parse.

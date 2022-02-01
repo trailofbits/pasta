@@ -93,21 +93,18 @@ std::filesystem::path FullPath(std::filesystem::path path,
                                std::filesystem::path working_dir,
                                ::pasta::PathKind kind) {
   if (path.empty()) {
-    return working_dir;
+    assert(working_dir.is_absolute());
+    return working_dir.lexically_normal();
   }
 
-  auto root_name = path.root_name();
-  if (root_name.empty()) {
+  if (path.is_absolute()) {
     return path.lexically_normal();
   }
 
-  if (::pasta::PathKind::kWindows == kind) {
-    if (root_name.generic_string().back() == ':') {
-      return path.lexically_normal();
-    }
-  }
-
-  return (working_dir / path).lexically_normal();
+  assert(working_dir.is_absolute());
+  auto full_path = (working_dir / path).lexically_normal();
+  assert(full_path.is_absolute());
+  return full_path;
 }
 
 // Try to read the contents of a file.

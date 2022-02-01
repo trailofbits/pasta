@@ -109,12 +109,12 @@ class TokenImpl {
   static constexpr uint32_t kInvalidSourceLocation = 0u;
 
   inline TokenImpl(uint32_t opaque_source_loc_, int32_t data_offset_,
-                   uint16_t data_len_, clang::tok::TokenKind kind_,
+                   uint32_t data_len_, clang::tok::TokenKind kind_,
                    TokenRole role_, uint32_t token_context_index_=kInvalidTokenContextIndex)
       : opaque_source_loc(opaque_source_loc_),
         context_index(token_context_index_),
         data_offset(data_offset_),
-        data_len(data_len_),
+        data_len(static_cast<uint32_t>(data_len_ & 0xfffff)),
         kind(static_cast<TokenKindBase>(kind_)),
         role(static_cast<TokenKindBase>(role_)) {}
 
@@ -137,7 +137,10 @@ class TokenImpl {
   // the data is located in `ast->preprocessed_code`, otherwise it's located in
   // `ast->backup_code`.
   int32_t data_offset{0u};
-  uint16_t data_len{0u};
+
+  // The Linux kernel has some *massive* comments, e.g. comments in
+  // `tools/include/uapi/linux/bpf.h`.
+  uint32_t data_len:20;
 
   // The original token kind.
   TokenKindBase kind:9;

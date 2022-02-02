@@ -273,6 +273,7 @@ const std::vector<::pasta::File> &AST::ParsedFiles(void) const {
   return impl->parsed_files;
 }
 
+#ifndef PASTA_IN_BOOTSTRAP
 std::optional<Decl> Decl::From(const TokenContext &context) {
   if (context.Kind() != TokenContextKind::kDecl) {
     return std::nullopt;
@@ -357,6 +358,7 @@ std::optional<Type> Type::From(const TokenContext &context) {
       reinterpret_cast<const clang::Type *>(context.Data()));
 }
 
+#endif  // PASTA_IN_BOOTSTRAP
 }  // namespace pasta
 
 #ifndef PASTA_IN_BOOTSTRAP

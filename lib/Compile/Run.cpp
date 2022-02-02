@@ -739,14 +739,15 @@ class ParsedFileTracker : public clang::PPCallbacks {
       return;
     }
 
-    auto end_loc = use_range.getEnd();
-    assert(end_loc.isValid());
-    assert(end_loc.isFileID());
     auto [end_fid, end_offset] = sm.getDecomposedLoc(use_range.getEnd());
     assert(end_fid == file_id);
 
-#ifndef NDEBUG
+    auto end_loc = use_range.getEnd();
+    assert(end_loc.isValid());
+    assert(end_loc.isFileID());
     assert(current_file.has_value());
+
+#ifndef NDEBUG
     std::optional<FileToken> file_tok = current_file->TokenAtOffset(offset);
     if (!file_tok) {
       assert(false);
@@ -768,16 +769,16 @@ class ParsedFileTracker : public clang::PPCallbacks {
       ast->macro_use_end_loc = loc.getLocWithOffset(
           static_cast<int>(macro_name.getLength()));
 
-
-#ifndef NDEBUG
     } else if (args) {
       assert(offset < end_offset);
-      bool invalid = false;
 
+#ifndef NDEBUG
       // Scan forward and find the closing parenthesis.
+      bool invalid = false;
       auto end_data = sm.getCharacterData(end_loc, &invalid);
       assert(!invalid);
       assert(end_data[0] == ')');
+#endif
 
       // TODO(pag): Handle the case where the ending parenthesis is the
       //            result of a macro expansion.
@@ -785,8 +786,6 @@ class ParsedFileTracker : public clang::PPCallbacks {
 
     } else {
       assert(false);
-#endif
-
       ast->macro_use_end_loc = end_loc.getLocWithOffset(1);
     }
   }

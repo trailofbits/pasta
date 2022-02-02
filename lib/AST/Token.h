@@ -13,6 +13,7 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/AST/Decl.h>
 #include <clang/Basic/SourceLocation.h>
 #include <clang/Basic/TokenKinds.h>
 #pragma clang diagnostic pop
@@ -32,6 +33,16 @@ class PrintedTokenRangeImpl;
 
 using TokenContextIndex = uint32_t;
 static constexpr TokenContextIndex kInvalidTokenContextIndex = ~0u;
+
+template <typename T>
+inline static T *Canonicalize(clang::Decl *decl, T) {
+  return decl->getCanonicalDecl();
+}
+
+template <typename T>
+inline static T *Canonicalize(T *other, int) {
+  return other;
+}
 
 // Backing data for a token context.
 class TokenContextImpl {
@@ -70,7 +81,7 @@ class TokenContextImpl {
     inline TokenContextImpl(TokenContextIndex parent_index_, \
                             uint16_t parent_depth, \
                             const clang::cls *data_) \
-        : data(data_), \
+        : data(Canonicalize(data_, 0)), \
           parent_index(parent_index_), \
           depth(parent_depth + 1u), \
           kind(TokenContextKind::k ## cls) {}

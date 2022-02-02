@@ -90,6 +90,7 @@ static void DeclareCppMethod0(std::ostream &os, const std::string &class_name,
     }
   }
 
+
   CollectGetNumMethod(class_name, rt);
   if (const auto meth_name = CxxName(meth_name_ref);
       !meth_name.empty()) {
@@ -97,6 +98,7 @@ static void DeclareCppMethod0(std::ostream &os, const std::string &class_name,
         (meth_name_ref == "getKind" || meth_name_ref == "getDeclKindName")) {
       return;
     }
+
     auto &new_rt = gRetTypeMap[rt];
     if (!new_rt.empty()) {
       auto meth_key = std::make_pair(class_name, meth_name);

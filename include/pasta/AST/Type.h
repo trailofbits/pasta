@@ -183,7 +183,7 @@ class Type {
 
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(Type)
-  static std::optional<Type> From(const TokenContext &);
+  static std::optional<::pasta::Type> From(const TokenContext &);
   PASTA_DECLARE_DERIVED_OPERATORS(Type, AdjustedType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, ArrayType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, AtomicType)

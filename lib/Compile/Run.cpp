@@ -281,6 +281,7 @@ class ParsedFileTracker : public clang::PPCallbacks {
 
   // Tracks whether or not we've tokenized a file.
   std::unordered_set<pasta::FileImpl *> seen;
+//  std::unordered_map<std::string, clang::FileID> seen_file_ids;
 
   // Stack of file IDs that we're parsing.
   std::vector<clang::FileID> file_id_stack;
@@ -417,6 +418,29 @@ class ParsedFileTracker : public clang::PPCallbacks {
     TryInjectEOM(hash_loc);
   }
 
+//  // Callback invoked whenever a source file is skipped as the result
+//  // of header guard optimization.
+//  void FileSkipped(const clang::FileEntryRef &skipped_file,
+//                   const clang::Token &filename_tok,
+//                   clang::SrcMgr::CharacteristicKind) final {
+//    if (!skipped_file.isValid()) {
+//      return;
+//    }
+//
+//    auto it = seen_file_ids.find(skipped_file.getName().str());
+//    if (it == seen_file_ids.end()) {
+//      return;
+//    }
+//
+//    clang::FileID file_id = it->second;
+//
+//    // Inject dummy tokens representing the entry and exit of this file.
+//    InjectToken(sm.getLocForStartOfFile(file_id),
+//                TokenRole::kBeginOfFileMarker);
+//    InjectToken(sm.getLocForEndOfFile(file_id),
+//                TokenRole::kEndOfFileMarker);
+//  }
+
   // Each time we enter a source file, try to keep track of it.
   void FileChanged(clang::SourceLocation loc,
                    clang::PPCallbacks::FileChangeReason reason,
@@ -525,6 +549,8 @@ class ParsedFileTracker : public clang::PPCallbacks {
       return;
     }
 
+//    seen_file_ids.emplace(fe->getName().str(), file_id);
+
     auto maybe_data = file.Data();
     if (!maybe_data.Succeeded()) {
       return;
@@ -605,12 +631,9 @@ class ParsedFileTracker : public clang::PPCallbacks {
   // Hook called when a source range is skipped.
   void SourceRangeSkipped(clang::SourceRange range,
                           clang::SourceLocation endif_loc) final {
-    auto begin = range.getBegin();
-    if (begin.isValid() && begin.isFileID()) {
-      TryInjectEOM(begin);
-    }
-    (void) range;
-    (void) endif_loc;
+    TryInjectEOM(range.getBegin());
+    TryInjectEOM(range.getEnd());
+    TryInjectEOM(endif_loc);
   }
 
   // Hook called whenever an `#if` is seen.

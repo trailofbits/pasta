@@ -13,6 +13,7 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/AST/Decl.h>
 #include <clang/Basic/SourceLocation.h>
 #include <clang/Basic/TokenKinds.h>
 #pragma clang diagnostic pop
@@ -32,6 +33,16 @@ class PrintedTokenRangeImpl;
 
 using TokenContextIndex = uint32_t;
 static constexpr TokenContextIndex kInvalidTokenContextIndex = ~0u;
+
+template <typename T>
+inline static T *Canonicalize(clang::Decl *decl, T) {
+  return decl->getCanonicalDecl();
+}
+
+template <typename T>
+inline static T *Canonicalize(T *other, int) {
+  return other;
+}
 
 // Backing data for a token context.
 class TokenContextImpl {
@@ -70,7 +81,7 @@ class TokenContextImpl {
     inline TokenContextImpl(TokenContextIndex parent_index_, \
                             uint16_t parent_depth, \
                             const clang::cls *data_) \
-        : data(data_), \
+        : data(Canonicalize(data_, 0)), \
           parent_index(parent_index_), \
           depth(parent_depth + 1u), \
           kind(TokenContextKind::k ## cls) {}
@@ -108,13 +119,15 @@ class TokenImpl {
  public:
   static constexpr uint32_t kInvalidSourceLocation = 0u;
 
+  static constexpr uint32_t kTokenSizeMask = ((1u << 20) - 1u);
+
   inline TokenImpl(uint32_t opaque_source_loc_, int32_t data_offset_,
-                   uint16_t data_len_, clang::tok::TokenKind kind_,
+                   uint32_t data_len_, clang::tok::TokenKind kind_,
                    TokenRole role_, uint32_t token_context_index_=kInvalidTokenContextIndex)
       : opaque_source_loc(opaque_source_loc_),
         context_index(token_context_index_),
         data_offset(data_offset_),
-        data_len(data_len_),
+        data_len(static_cast<uint32_t>(data_len_ & kTokenSizeMask)),
         kind(static_cast<TokenKindBase>(kind_)),
         role(static_cast<TokenKindBase>(role_)) {}
 
@@ -137,7 +150,10 @@ class TokenImpl {
   // the data is located in `ast->preprocessed_code`, otherwise it's located in
   // `ast->backup_code`.
   int32_t data_offset{0u};
-  uint16_t data_len{0u};
+
+  // The Linux kernel has some *massive* comments, e.g. comments in
+  // `tools/include/uapi/linux/bpf.h`.
+  uint32_t data_len:20;
 
   // The original token kind.
   TokenKindBase kind:9;

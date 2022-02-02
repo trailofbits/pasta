@@ -8,9 +8,9 @@
 #include "Globals.h"
 #include "Util.h"
 
-static const std::string gTypeClassName{"Type"};
-
 namespace {
+
+static const std::string gTypeClassName{"Type"};
 
 static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
                              llvm::StringRef meth_name_ref,
@@ -56,6 +56,7 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
   }
 
   os << " " << real_class_name << "::" << meth_name << "(void) const {\n";
+
   if (is_qual_type) {
     os << "  auto &ast_ctx = ast->ci->getASTContext();\n"
        << "  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);\n"

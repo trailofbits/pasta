@@ -75,12 +75,8 @@ static void PrintTokenGraph(pasta::Decl tld) {
   std::unordered_set<pasta::TokenContext> contexts;
 
   for (pasta::PrintedToken tok : tokens) {
-
-    if (auto maybe_context = tok.Context()) {
-      auto context = std::move(maybe_context.value());
-      do {
-        contexts.insert(context);
-      } while (context.TryUpdateToParent());
+    for (auto context = tok.Context(); context; context = context->Parent()) {
+      contexts.insert(context.value());
     }
 
     os

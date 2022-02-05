@@ -291,6 +291,7 @@ add_library(pasta_compiler STATIC
     
     "lib/AST/AlignTokens.cpp"
     "lib/AST/AST.cpp"
+    "lib/AST/Bounds.cpp"
     "lib/AST/Builder.cpp"
     "lib/AST/Builder.h"
     "lib/AST/Decl.cpp"

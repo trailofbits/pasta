@@ -139,6 +139,14 @@ class TokenImpl {
   std::string_view Data(const ASTImpl &ast) const noexcept;
   std::string_view Data(const PrintedTokenRangeImpl &range) const noexcept;
 
+  inline TokenRole Role(void) const noexcept {
+    return static_cast<TokenRole>(role);
+  }
+
+  inline clang::tok::TokenKind Kind(void) const noexcept {
+    return static_cast<clang::tok::TokenKind>(kind);
+  }
+
   // The raw encoding of the source location of the token.
   uint32_t opaque_source_loc{kInvalidSourceLocation};
 

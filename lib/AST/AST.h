@@ -50,7 +50,7 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // Try to return the token at the specified location.
   Token TokenAt(clang::SourceLocation loc);
 
-  // Try to return teh token range from the specified source range.
+  // Try to return the token range from the specified source range.
   TokenRange TokenRangeFrom(clang::SourceRange range);
 
   // This is an `LLVMFileSystem`, from inside `lib/Compile/FileSystem.h`.
@@ -66,8 +66,11 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   std::shared_ptr<clang::Preprocessor> orig_source_pp;
 
   // Preprocessor over `preprocessed_code`, the huge file where there is a
-  // single toekn per line.
+  // single token per line.
   std::shared_ptr<clang::Preprocessor> token_per_line_pp;
+
+  // Used to find bounds on declarations.
+  std::unordered_map<clang::Decl *, std::pair<TokenImpl *, TokenImpl *>> bounds;
 
   std::shared_ptr<clang::CompilerInstance> ci;
   llvm::IntrusiveRefCntPtr<clang::FileManager> fm;
@@ -131,6 +134,14 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // Append a token to the end of the AST. `offset` is the offset in
   // `backup_token_data`, and `len` is the length in bytes of the token itself.
   void AppendBackupToken(const clang::Token &tok, size_t offset, size_t len);
+
+  // Try to return the inclusive bounds of a given declaration in terms of
+  // parsed tokens. This doesn't not try to expand the range to the ending
+  // of macro expansions.
+  std::pair<TokenImpl *, TokenImpl *> DeclBounds(clang::Decl *decl);
+
+  // Return a token range for the bounds of a declaration.
+  TokenRange DeclTokenRange(const clang::Decl *decl);
 
   // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
   static Result<AST, std::string> AlignTokens(std::shared_ptr<ASTImpl> ast);

@@ -71,10 +71,13 @@ struct StatementRegion final : public Region {
 
   TokenImpl *FirstParsedToken(void) const final {
     if (TokenHasLocationAndContext(end)) {
-      if (end->kind == clang::tok::semi ||
-          end->kind == clang::tok::comma ||
-          end->kind == clang::tok::colon) {
-        return end;
+      switch (end->Kind()) {
+        case clang::tok::semi:
+        case clang::tok::comma:
+        case clang::tok::colon:
+          return end;
+        default:
+          break;
       }
     }
     for (auto it = begin; it <= end; ++it) {
@@ -87,10 +90,13 @@ struct StatementRegion final : public Region {
 
   PrintedTokenImpl *FirstPrintedToken(void) const final {
     if (TokenHasLocationAndContext(end)) {
-      if (end->kind == clang::tok::semi ||
-          end->kind == clang::tok::comma ||
-          end->kind == clang::tok::colon) {
-        return reinterpret_cast<PrintedTokenImpl *>(end);
+      switch (end->Kind()) {
+        case clang::tok::semi:
+        case clang::tok::comma:
+        case clang::tok::colon:
+          return reinterpret_cast<PrintedTokenImpl *>(end);
+        default:
+          break;
       }
     }
     for (auto it = reinterpret_cast<PrintedTokenImpl *>(begin),

@@ -48,7 +48,7 @@ bool ASTImpl::TryInjectEndOfMacroExpansion(clang::SourceLocation loc) {
     loc = std::move(macro_use_end_loc);
   }
 
-  switch (static_cast<TokenRole>(tokens.back().role)) {
+  switch (tokens.back().Role()) {
 
     // Prior token is a macro expansion token, or is the start of an empty
     // macro expansion.

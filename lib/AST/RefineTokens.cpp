@@ -280,11 +280,12 @@ class TokenContextAssigner : public clang::DeclVisitor<TokenContextAssigner>,
     clang::tok::TokenKind close_kind = clang::tok::unknown;
 
     if (begin) {
-      if (begin->kind == clang::tok::l_paren) {
+      const auto begin_kind = begin->Kind();
+      if (begin_kind == clang::tok::l_paren) {
         close_kind = clang::tok::r_paren;
-      } else if (begin->kind == clang::tok::l_brace) {
+      } else if (begin_kind == clang::tok::l_brace) {
         close_kind = clang::tok::r_brace;
-      } else if (begin->kind == clang::tok::l_square) {
+      } else if (begin_kind == clang::tok::l_square) {
         close_kind = clang::tok::r_square;
       } else {
         begin = nullptr;
@@ -292,11 +293,12 @@ class TokenContextAssigner : public clang::DeclVisitor<TokenContextAssigner>,
     }
 
     if (end) {
-      if (end->kind == clang::tok::r_paren) {
+      const auto end_kind = end->Kind();
+      if (end_kind == clang::tok::r_paren) {
         open_kind = clang::tok::l_paren;
-      } else if (end->kind == clang::tok::r_brace) {
+      } else if (end_kind == clang::tok::r_brace) {
         open_kind = clang::tok::l_brace;
-      } else if (end->kind == clang::tok::r_square) {
+      } else if (end_kind == clang::tok::r_square) {
         open_kind = clang::tok::l_square;
       } else {
         end = nullptr;
@@ -304,7 +306,7 @@ class TokenContextAssigner : public clang::DeclVisitor<TokenContextAssigner>,
     }
 
     if (begin && end) {
-      if (begin->kind == open_kind && end->kind == close_kind) {
+      if (begin->Kind() == open_kind && end->Kind() == close_kind) {
         return {begin, end};
       } else {
         return {};
@@ -341,7 +343,7 @@ class TokenContextAssigner : public clang::DeclVisitor<TokenContextAssigner>,
     auto last_tok = &(ast.tokens.back());
 
     for (; first_tok <= tok && tok <= last_tok; tok = &(tok[increment])) {
-      if (tok->kind == kind) {
+      if (tok->Kind() == kind) {
         return tok;
       }
     }

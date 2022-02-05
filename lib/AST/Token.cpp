@@ -429,7 +429,7 @@ std::optional<FileToken> Token::FileLocation(void) const {
 // Kind of this token.
 clang::tok::TokenKind Token::Kind(void) const noexcept {
   if (impl) {
-    return static_cast<clang::tok::TokenKind>(impl->kind);
+    return impl->Kind();
   } else {
     return clang::tok::unknown;
   }
@@ -438,7 +438,7 @@ clang::tok::TokenKind Token::Kind(void) const noexcept {
 // Return the role of this token.
 TokenRole Token::Role(void) const noexcept {
   if (impl) {
-    return static_cast<TokenRole>(impl->role);
+    return impl->Role();
   } else {
     return TokenRole::kInvalid;
   }
@@ -460,15 +460,11 @@ FileTokenRange Token::MacroUseTokens(void) const noexcept {
     return FileTokenRange(ast->main_source_file.impl);
   }
 
-  assert((static_cast<TokenRole>(begin->role) ==
-          TokenRole::kMacroExpansionToken) ||
-         (static_cast<TokenRole>(begin->role) ==
-          TokenRole::kEndOfMacroExpansionMarker));
+  assert((begin->Role() == TokenRole::kMacroExpansionToken) ||
+         (begin->Role() == TokenRole::kEndOfMacroExpansionMarker));
   begin = &(begin[-1]);
-  assert(static_cast<TokenRole>(begin->role) ==
-         TokenRole::kBeginOfMacroExpansionMarker);
-  assert(static_cast<TokenRole>(end->role) ==
-         TokenRole::kEndOfMacroExpansionMarker);
+  assert(begin->Role() == TokenRole::kBeginOfMacroExpansionMarker);
+  assert(end->Role() == TokenRole::kEndOfMacroExpansionMarker);
 
   auto begin_loc = begin->Location();
   auto end_loc = end->Location();
@@ -515,7 +511,7 @@ TokenRange Token::MacroExpandedTokens(void) const noexcept {
   // of a macro expansion marker, e.g. a file entry marker.
   auto begin = impl;
   for (; begin > min; --begin) {
-    switch (static_cast<TokenRole>(begin->role)) {
+    switch (begin->Role()) {
       case TokenRole::kBeginOfMacroExpansionMarker:
         goto found_begin;
       case TokenRole::kMacroExpansionToken:
@@ -529,8 +525,7 @@ TokenRange Token::MacroExpandedTokens(void) const noexcept {
 found_begin:
 
   // If we failed to find the beginning then bail out. Shouldn't happen.
-  if (static_cast<TokenRole>(begin->role) !=
-      TokenRole::kBeginOfMacroExpansionMarker) {
+  if (begin->Role() != TokenRole::kBeginOfMacroExpansionMarker) {
     assert(false);
     return TokenRange(ast);
   }
@@ -539,7 +534,7 @@ found_begin:
   // of a macro expansion marker, e.g. a file exit marker.
   auto end = impl;
   for (; end < max; ++end) {
-    switch (static_cast<TokenRole>(end->role)) {
+    switch (end->Role()) {
       case TokenRole::kEndOfMacroExpansionMarker:
         goto found_end;
       case TokenRole::kBeginOfMacroExpansionMarker:
@@ -553,8 +548,7 @@ found_begin:
 found_end:
 
   // If we failed to find the end then bail out. Shouldn't happen.
-  if (static_cast<TokenRole>(end->role) !=
-      TokenRole::kEndOfMacroExpansionMarker) {
+  if (end->Role() != TokenRole::kEndOfMacroExpansionMarker) {
     assert(false);
     return TokenRange(ast);
   }

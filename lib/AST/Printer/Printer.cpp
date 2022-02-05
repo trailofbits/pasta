@@ -38,7 +38,7 @@ std::string_view PrintedToken::Data(void) const {
 // Kind of this token.
 clang::tok::TokenKind PrintedToken::Kind(void) const {
   if (impl) {
-    return static_cast<clang::tok::TokenKind>(impl->kind);
+    return impl->Kind();
   } else {
     return clang::tok::unknown;
   }

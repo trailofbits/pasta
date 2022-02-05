@@ -232,11 +232,10 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
 
   // For some reason Clang doesn't invoke the `ExitFile` thing for the main
   // file.
-  if (impl.tokens.back().kind != clang::tok::eof) {
+  if (impl.tokens.back().Kind() != clang::tok::eof) {
 
     // We didn't get an `ExitFile`.
-    if (static_cast<TokenRole>(impl.tokens.back().role) !=
-          TokenRole::kEndOfFileMarker) {
+    if (impl.tokens.back().Role() != TokenRole::kEndOfFileMarker) {
       if (tok.is(clang::tok::eof)) {
         impl.AppendMarker(tok.getLocation().getLocWithOffset(-1),
                           TokenRole::kEndOfFileMarker);

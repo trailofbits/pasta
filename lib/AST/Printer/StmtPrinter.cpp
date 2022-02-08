@@ -637,6 +637,11 @@ void StmtPrinter::VisitSEHLeaveStmt(clang::SEHLeaveStmt *Node) {
 //  OpenMP directives printing methods
 //===----------------------------------------------------------------------===//
 
+void StmtPrinter::VisitOMPCanonicalLoop(clang::OMPCanonicalLoop *Node) {
+  TokenPrinterContext ctx(OS, Node, tokens);
+  PrintStmt(Node->getLoopStmt());
+}
+
 void StmtPrinter::PrintOMPExecutableDirective(clang::OMPExecutableDirective *S,
                                               bool ForceNoStmt) {
   clang::OMPClausePrinter Printer(OS, Policy);
@@ -660,6 +665,18 @@ void StmtPrinter::VisitOMPParallelDirective(clang::OMPParallelDirective *Node) {
 void StmtPrinter::VisitOMPSimdDirective(clang::OMPSimdDirective *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp simd";
+  PrintOMPExecutableDirective(Node);
+}
+
+void StmtPrinter::VisitOMPTileDirective(clang::OMPTileDirective *Node) {
+  TokenPrinterContext ctx(OS, Node, tokens);
+  Indent() << "#pragma omp tile";
+  PrintOMPExecutableDirective(Node);
+}
+
+void StmtPrinter::VisitOMPUnrollDirective(clang::OMPUnrollDirective *Node) {
+  TokenPrinterContext ctx(OS, Node, tokens);
+  Indent() << "#pragma omp unroll";
   PrintOMPExecutableDirective(Node);
 }
 
@@ -1001,10 +1018,28 @@ void StmtPrinter::VisitOMPTargetTeamsDistributeParallelForSimdDirective(
   PrintOMPExecutableDirective(Node);
 }
 
+void StmtPrinter::VisitOMPMaskedDirective(clang::OMPMaskedDirective *Node) {
+  TokenPrinterContext ctx(OS, Node, tokens);
+  Indent() << "#pragma omp masked";
+  PrintOMPExecutableDirective(Node);
+}
+
 void StmtPrinter::VisitOMPTargetTeamsDistributeSimdDirective(
     clang::OMPTargetTeamsDistributeSimdDirective *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp target teams distribute simd";
+  PrintOMPExecutableDirective(Node);
+}
+
+void StmtPrinter::VisitOMPInteropDirective(clang::OMPInteropDirective *Node) {
+  TokenPrinterContext ctx(OS, Node, tokens);
+  Indent() << "#pragma omp interop";
+  PrintOMPExecutableDirective(Node);
+}
+
+void StmtPrinter::VisitOMPDispatchDirective(clang::OMPDispatchDirective *Node) {
+  TokenPrinterContext ctx(OS, Node, tokens);
+  Indent() << "#pragma omp dispatch";
   PrintOMPExecutableDirective(Node);
 }
 
@@ -1127,6 +1162,14 @@ void StmtPrinter::VisitObjCSubscriptRefExpr(clang::ObjCSubscriptRefExpr *Node) {
   ctx.MarkLocation(Node->getRBracket());
 }
 
+void StmtPrinter::VisitSYCLUniqueStableNameExpr(
+    clang::SYCLUniqueStableNameExpr *Node) {
+  TokenPrinterContext ctx(OS, Node, tokens);
+  OS << "__builtin_sycl_unique_stable_name(";
+  Node->getTypeSourceInfo()->getType().print(OS, Policy);
+  OS << ")";
+}
+
 void StmtPrinter::VisitPredefinedExpr(clang::PredefinedExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   OS << clang::PredefinedExpr::getIdentKindName(Node->getIdentKind());
@@ -1220,7 +1263,8 @@ void StmtPrinter::VisitIntegerLiteral(clang::IntegerLiteral *Node) {
     return;
   }
   bool isSigned = Node->getType()->isSignedIntegerType();
-  OS << Node->getValue().toString(10, isSigned);
+  OS << toString(Node->getValue(), 10, isSigned);
+  //OS << Node->getValue().toString(10, isSigned);
 
   // Emit suffixes.  Integer literals are always a builtin integer type.
   switch (Node->getType()->castAs<clang::BuiltinType>()->getKind()) {
@@ -2116,7 +2160,8 @@ void StmtPrinter::VisitUserDefinedLiteral(clang::UserDefinedLiteral *Node) {
   case clang::UserDefinedLiteral::LOK_Integer: {
     // Print integer literal without suffix.
     const auto *Int = clang::cast<clang::IntegerLiteral>(Node->getCookedLiteral());
-    OS << Int->getValue().toString(10, /*isSigned*/false);
+    OS << toString(Int->getValue(), 10, /*isSigned*/false);
+    //OS << Int->getValue().toString(10, /*isSigned*/false);
     break;
   }
   case clang::UserDefinedLiteral::LOK_Floating: {

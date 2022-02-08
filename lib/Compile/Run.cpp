@@ -996,7 +996,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
         clang::TargetInfo::CreateTargetInfo(*diagnostics_engine, aux_target));
   }
 
-  invocation_target.adjust(*lang_opts);
+  invocation_target.adjust(*diagnostics_engine, *lang_opts);
   invocation_target.adjustTargetOptions(ci.getCodeGenOpts(),
                                         ci.getTargetOpts());
 
@@ -1152,7 +1152,11 @@ Result<AST, std::string> CompileJob::Run(void) const {
     pp->AnonymousTagLocations = false;
   }
 
+#ifdef PASTA_IN_BOOTSTRAP
+  return AST(std::move(ast));
+#else
   return ASTImpl::AlignTokens(std::move(ast));
+#endif
 }
 
 }  // namespace pasta

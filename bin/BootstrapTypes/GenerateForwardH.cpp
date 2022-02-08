@@ -79,7 +79,8 @@ void GenerateForwardH(void) {
         name == "ExplicitCastExpr" || name == "FullExpr" ||
         name == "OverloadExpr" || name == "CastExpr" ||
         name == "CXXNamedCastExpr" || name == "OMPExecutableDirective" ||
-        name == "OMPLoopDirective") {
+        name == "OMPLoopDirective" || name == "OMPCanonicalLoop" ||
+        name == "OMPLoopBasedDirective") {
       os << sep << "    a(" << name.str() << ")";  // Abstract.
     } else if (name.endswith("Stmt")) {
       os << sep << "    s(" << name.str() << ")";

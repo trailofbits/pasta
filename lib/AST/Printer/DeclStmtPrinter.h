@@ -161,8 +161,12 @@ class DeclPrinter : public clang::DeclVisitor<DeclPrinter> {
    void VisitNonTypeTemplateParmDecl(const clang::NonTypeTemplateParmDecl *NTTP);
    void printTemplateParameters(const clang::TemplateParameterList *Params,
                                 bool OmitTemplateKW = false);
-   void printTemplateArguments(llvm::ArrayRef<clang::TemplateArgument> Args);
-   void printTemplateArguments(llvm::ArrayRef<clang::TemplateArgumentLoc> Args);
+   void printTemplateArguments(llvm::ArrayRef<clang::TemplateArgument> Args,
+                               const clang::TemplateParameterList *Params,
+                               bool TemplOverloaded);
+   void printTemplateArguments(llvm::ArrayRef<clang::TemplateArgumentLoc> Args,
+                               const clang::TemplateParameterList *Params,
+                               bool TemplOverloaded);
    void prettyPrintAttributes(clang::Decl *D);
    void prettyPrintPragmas(clang::Decl *D);
    void printDeclType(clang::QualType T, std::function<void(void)> NameFn, bool Pack = false);

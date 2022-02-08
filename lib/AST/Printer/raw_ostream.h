@@ -39,7 +39,7 @@ public:
     return OS;
   }
 
-  void reserveExtraSpace(uint64_t ExtraSize) {
+  void reserveExtraSpace(uint64_t ExtraSize) override {
     OS.reserve(tell() + ExtraSize);
   }
 

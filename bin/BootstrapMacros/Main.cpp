@@ -34,7 +34,6 @@ int main(void) {
       kCxxPath,
       "-x", "c++",
       "-c", kMacroGeneratorPath,
-      "-o", "/dev/null",
       "-std=c++17",
       "-isystem", kPastaBinaryPath,
       "-isystem", kPastaIncludeSourcePath,
@@ -68,14 +67,14 @@ int main(void) {
   auto maybe_jobs = maybe_compiler->CreateJobsForCommand(
       maybe_command.TakeValue());
   if (!maybe_jobs.Succeeded()) {
-    std::cerr << maybe_jobs.TakeError() << std::endl;
+    std::cerr << "Can't create compile jobs " << maybe_jobs.TakeError() << std::endl;
     return EXIT_FAILURE;
   }
 
   for (const auto &job : maybe_jobs.TakeValue()) {
     auto maybe_ast = job.Run();
     if (!maybe_ast.Succeeded()) {
-      std::cerr << maybe_ast.TakeError() << std::endl;
+      std::cerr << "AST generation failed " << maybe_ast.TakeError() << std::endl;
       return EXIT_FAILURE;
     }
 

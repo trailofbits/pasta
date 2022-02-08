@@ -580,11 +580,14 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
       DeclPrinter TArgPrinter(Out, SubPolicy, Context, tokens, Indentation);
 
       const auto *TArgAsWritten = D->getTemplateSpecializationArgsAsWritten();
+      const clang::TemplateParameterList *TPL = D->getTemplateSpecializationInfo()
+                                                ->getTemplate()
+                                                ->getTemplateParameters();
       if (TArgAsWritten && !Policy.PrintCanonicalTypes)
-        TArgPrinter.printTemplateArguments(TArgAsWritten->arguments());
+        TArgPrinter.printTemplateArguments(TArgAsWritten->arguments(), TPL, true);
       else if (const clang::TemplateArgumentList *TArgs =
                    D->getTemplateSpecializationArgs())
-        TArgPrinter.printTemplateArguments(TArgs->asArray());
+        TArgPrinter.printTemplateArguments(TArgs->asArray(), TPL, true);
     };
   }
 
@@ -1102,7 +1105,7 @@ void DeclPrinter::VisitCXXRecordDecl(clang::CXXRecordDecl *D) {
           if (const auto *TST =
                   clang::dyn_cast<clang::TemplateSpecializationType>(TSI->getType()))
             Args = TST->template_arguments();
-      printTemplateArguments(Args);
+      printTemplateArguments(Args, S->getSpecializedTemplate()->getTemplateParameters(), false);
     }
   }
 
@@ -1212,7 +1215,7 @@ void DeclPrinter::printTemplateParameters(const clang::TemplateParameterList *Pa
   if (!OmitTemplateKW)
     Out << ' ';
 }
-
+#if 0
 void DeclPrinter::printTemplateArguments(clang::ArrayRef<clang::TemplateArgument> Args) {
   Out << "<";
   for (size_t I = 0, E = Args.size(); I < E; ++I) {
@@ -1223,7 +1226,28 @@ void DeclPrinter::printTemplateArguments(clang::ArrayRef<clang::TemplateArgument
   }
   Out << ">";
 }
+#else
+void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgument> Args,
+                                         const clang::TemplateParameterList *Params,
+                                         bool TemplOverloaded) {
+  Out << "<";
+  for (size_t I = 0, E = Args.size(); I < E; ++I) {
+    if (I)
+      Out << ", ";
+    
+    TokenPrinterContext ctx(Out, &(Args[I]), tokens);
+    if (TemplOverloaded || !Params)
+      Args[I].print(Policy, Out, /*IncludeType*/ true);
+    else
+      Args[I].print(
+          Policy, Out,
+          clang::TemplateParameterList::shouldIncludeTypeForArgument(Params, I));
+  }
+  Out << ">";
+}
+#endif
 
+#if 0
 void DeclPrinter::printTemplateArguments(clang::ArrayRef<clang::TemplateArgumentLoc> Args) {
   Out << "<";
   for (size_t I = 0, E = Args.size(); I < E; ++I) {
@@ -1231,11 +1255,30 @@ void DeclPrinter::printTemplateArguments(clang::ArrayRef<clang::TemplateArgument
       Out << ", ";
 
     TokenPrinterContext ctx(Out, &(Args[I].getArgument()), tokens);
-    Args[I].getArgument().print(Policy, Out);
+    //Args[I].getArgument().print(Policy, Out);
   }
   Out << ">";
 }
+#else
+void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgumentLoc> Args,
+                                         const clang::TemplateParameterList *Params,
+                                         bool TemplOverloaded) {
+  Out << "<";
+  for (size_t I = 0, E = Args.size(); I < E; ++I) {
+    if (I)
+      Out << ", ";
 
+    TokenPrinterContext ctx(Out, &(Args[I].getArgument()), tokens);
+    if (TemplOverloaded)
+      Args[I].getArgument().print(Policy, Out, /*IncludeType*/ true);
+    else
+      Args[I].getArgument().print(
+          Policy, Out,
+          clang::TemplateParameterList::shouldIncludeTypeForArgument(Params, I));
+  }
+  Out << ">";
+}
+#endif
 void DeclPrinter::VisitTemplateDecl(const clang::TemplateDecl *D) {
   TokenPrinterContext ctx(Out, D, tokens);
   printTemplateParameters(D->getTemplateParameters());

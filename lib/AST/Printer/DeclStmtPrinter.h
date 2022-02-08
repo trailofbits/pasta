@@ -150,6 +150,7 @@ class DeclPrinter : public clang::DeclVisitor<DeclPrinter> {
    void VisitUnresolvedUsingTypenameDecl(clang::UnresolvedUsingTypenameDecl *D);
    void VisitUnresolvedUsingValueDecl(clang::UnresolvedUsingValueDecl *D);
    void VisitUsingDecl(clang::UsingDecl *D);
+   void VisitUsingEnumDecl(clang::UsingEnumDecl *D);
    void VisitUsingShadowDecl(clang::UsingShadowDecl *D);
    void VisitOMPThreadPrivateDecl(clang::OMPThreadPrivateDecl *D);
    void VisitOMPAllocateDecl(clang::OMPAllocateDecl *D);

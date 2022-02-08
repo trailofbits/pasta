@@ -1077,8 +1077,13 @@ void StmtPrinter::VisitDeclRefExpr(clang::DeclRefExpr *Node) {
     ctx.MarkLocation(Node->getTemplateKeywordLoc());
   }
   OS << Node->getNameInfo();
-  if (Node->hasExplicitTemplateArgs())
-    printTemplateArgumentList(OS, Node->template_arguments(), Policy);
+  if (Node->hasExplicitTemplateArgs()) {
+      const clang::TemplateParameterList *TPL = nullptr;
+    if (!Node->hadMultipleCandidates())
+      if (auto *TD = clang::dyn_cast<clang::TemplateDecl>(Node->getDecl()))
+        TPL = TD->getTemplateParameters();
+    printTemplateArgumentList(OS, Node->template_arguments(), Policy, TPL);
+  }
 }
 
 void StmtPrinter::VisitDependentScopeDeclRefExpr(
@@ -1177,66 +1182,7 @@ void StmtPrinter::VisitPredefinedExpr(clang::PredefinedExpr *Node) {
 
 void StmtPrinter::VisitCharacterLiteral(clang::CharacterLiteral *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
-  unsigned value = Node->getValue();
-
-  switch (Node->getKind()) {
-  case clang::CharacterLiteral::Ascii: break; // no prefix.
-  case clang::CharacterLiteral::Wide:  OS << 'L'; break;
-  case clang::CharacterLiteral::UTF8:  OS << "u8"; break;
-  case clang::CharacterLiteral::UTF16: OS << 'u'; break;
-  case clang::CharacterLiteral::UTF32: OS << 'U'; break;
-  }
-
-  switch (value) {
-  case '\\':
-    OS << "'\\\\'";
-    break;
-  case '\'':
-    OS << "'\\''";
-    break;
-  case '\a':
-    // TODO: K&R: the meaning of '\\a' is different in traditional C
-    OS << "'\\a'";
-    break;
-  case '\b':
-    OS << "'\\b'";
-    break;
-  // Nonstandard escape sequence.
-  /*case '\e':
-    OS << "'\\e'";
-    break;*/
-  case '\f':
-    OS << "'\\f'";
-    break;
-  case '\n':
-    OS << "'\\n'";
-    break;
-  case '\r':
-    OS << "'\\r'";
-    break;
-  case '\t':
-    OS << "'\\t'";
-    break;
-  case '\v':
-    OS << "'\\v'";
-    break;
-  default:
-    // A character literal might be sign-extended, which
-    // would result in an invalid \U escape sequence.
-    // FIXME: multicharacter literals such as '\xFF\xFF\xFF\xFF'
-    // are not correctly handled.
-    if ((value & ~0xFFu) == ~0xFFu && Node->getKind() == clang::CharacterLiteral::Ascii)
-      value &= 0xFFu;
-    if (value < 256 && clang::isPrintable((unsigned char)value))
-      OS << "'" << (char)value << "'";
-    else if (value < 256)
-      OS << "'\\x" << llvm::format("%02x", value) << "'";
-    else if (value <= 0xFFFF)
-      OS << "'\\u" << llvm::format("%04x", value) << "'";
-    else
-      OS << "'\\U" << llvm::format("%08x", value) << "'";
-  }
-  ctx.MarkLocation(Node->getLocation());
+  clang::CharacterLiteral::print(Node->getValue(), Node->getKind(), OS);
 }
 
 /// Prints the given expression using the original source text. Returns true on
@@ -1264,7 +1210,6 @@ void StmtPrinter::VisitIntegerLiteral(clang::IntegerLiteral *Node) {
   }
   bool isSigned = Node->getType()->isSignedIntegerType();
   OS << toString(Node->getValue(), 10, isSigned);
-  //OS << Node->getValue().toString(10, isSigned);
 
   // Emit suffixes.  Integer literals are always a builtin integer type.
   switch (Node->getType()->castAs<clang::BuiltinType>()->getKind()) {
@@ -1280,6 +1225,10 @@ void StmtPrinter::VisitIntegerLiteral(clang::IntegerLiteral *Node) {
   case clang::BuiltinType::ULong:     OS << "UL"; break;
   case clang::BuiltinType::LongLong:  OS << "LL"; break;
   case clang::BuiltinType::ULongLong: OS << "ULL"; break;
+  case clang::BuiltinType::Int128:
+    break; // no suffix.
+  case clang::BuiltinType::UInt128:
+    break; // no suffix.
   }
   ctx.MarkLocation(Node->getLocation());
 }
@@ -1627,8 +1576,16 @@ void StmtPrinter::VisitMemberExpr(clang::MemberExpr *Node) {
     ctx.MarkLocation(Node->getTemplateKeywordLoc());
   }
   OS << Node->getMemberNameInfo();
+  const clang::TemplateParameterList *TPL = nullptr;
+  if (auto *FD = clang::dyn_cast<clang::FunctionDecl>(Node->getMemberDecl())) {
+    if (!Node->hadMultipleCandidates())
+      if (auto *FTD = FD->getPrimaryTemplate())
+        TPL = FTD->getTemplateParameters();
+  } else if (auto *VTSD =
+                 clang::dyn_cast<clang::VarTemplateSpecializationDecl>(Node->getMemberDecl()))
+    TPL = VTSD->getSpecializedTemplate()->getTemplateParameters();
   if (Node->hasExplicitTemplateArgs())
-    printTemplateArgumentList(OS, Node->template_arguments(), Policy);
+    printTemplateArgumentList(OS, Node->template_arguments(), Policy, TPL);
 }
 
 void StmtPrinter::VisitObjCIsaExpr(clang::ObjCIsaExpr *Node) {
@@ -2144,8 +2101,12 @@ void StmtPrinter::VisitUserDefinedLiteral(clang::UserDefinedLiteral *Node) {
     assert(Args);
 
     if (Args->size() != 1) {
+      const clang::TemplateParameterList *TPL = nullptr;
+      if (!DRE->hadMultipleCandidates())
+        if (const auto *TD = clang::dyn_cast<clang::TemplateDecl>(DRE->getDecl()))
+          TPL = TD->getTemplateParameters();
       OS << "operator \"\"" << Node->getUDSuffix()->getName();
-      printTemplateArgumentList(OS, Args->asArray(), Policy);
+      printTemplateArgumentList(OS, Args->asArray(), Policy, TPL);
       OS << "()";
       return;
     }
@@ -2161,7 +2122,6 @@ void StmtPrinter::VisitUserDefinedLiteral(clang::UserDefinedLiteral *Node) {
     // Print integer literal without suffix.
     const auto *Int = clang::cast<clang::IntegerLiteral>(Node->getCookedLiteral());
     OS << toString(Int->getValue(), 10, /*isSigned*/false);
-    //OS << Int->getValue().toString(10, /*isSigned*/false);
     break;
   }
   case clang::UserDefinedLiteral::LOK_Floating: {
@@ -2700,7 +2660,8 @@ void StmtPrinter::VisitConceptSpecializationExpr(clang::ConceptSpecializationExp
   }
   OS << E->getFoundDecl()->getName();
   printTemplateArgumentList(OS, E->getTemplateArgsAsWritten()->arguments(),
-                            Policy);
+                            Policy,
+                            E->getNamedConcept()->getTemplateParameters());
 }
 
 void StmtPrinter::VisitRequiresExpr(clang::RequiresExpr *E) {

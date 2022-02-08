@@ -1215,18 +1215,7 @@ void DeclPrinter::printTemplateParameters(const clang::TemplateParameterList *Pa
   if (!OmitTemplateKW)
     Out << ' ';
 }
-#if 0
-void DeclPrinter::printTemplateArguments(clang::ArrayRef<clang::TemplateArgument> Args) {
-  Out << "<";
-  for (size_t I = 0, E = Args.size(); I < E; ++I) {
-    if (I)
-      Out << ", ";
-    TokenPrinterContext ctx(Out, &(Args[I]), tokens);
-    Args[I].print(Policy, Out);
-  }
-  Out << ">";
-}
-#else
+
 void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgument> Args,
                                          const clang::TemplateParameterList *Params,
                                          bool TemplOverloaded) {
@@ -1241,25 +1230,12 @@ void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgument>
     else
       Args[I].print(
           Policy, Out,
-          clang::TemplateParameterList::shouldIncludeTypeForArgument(Params, I));
+          clang::TemplateParameterList::shouldIncludeTypeForArgument(
+            Params, static_cast<unsigned int>(I)));
   }
   Out << ">";
 }
-#endif
 
-#if 0
-void DeclPrinter::printTemplateArguments(clang::ArrayRef<clang::TemplateArgumentLoc> Args) {
-  Out << "<";
-  for (size_t I = 0, E = Args.size(); I < E; ++I) {
-    if (I)
-      Out << ", ";
-
-    TokenPrinterContext ctx(Out, &(Args[I].getArgument()), tokens);
-    //Args[I].getArgument().print(Policy, Out);
-  }
-  Out << ">";
-}
-#else
 void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgumentLoc> Args,
                                          const clang::TemplateParameterList *Params,
                                          bool TemplOverloaded) {
@@ -1274,11 +1250,12 @@ void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgumentL
     else
       Args[I].getArgument().print(
           Policy, Out,
-          clang::TemplateParameterList::shouldIncludeTypeForArgument(Params, I));
+          clang::TemplateParameterList::shouldIncludeTypeForArgument(
+            Params, static_cast<unsigned int>(I)));
   }
   Out << ">";
 }
-#endif
+
 void DeclPrinter::VisitTemplateDecl(const clang::TemplateDecl *D) {
   TokenPrinterContext ctx(Out, D, tokens);
   printTemplateParameters(D->getTemplateParameters());
@@ -1798,6 +1775,11 @@ void DeclPrinter::VisitUsingDecl(clang::UsingDecl *D) {
     }
   }
   Out << *D;
+}
+
+void DeclPrinter::VisitUsingEnumDecl(clang::UsingEnumDecl *D) {
+  TokenPrinterContext ctx(Out, D, tokens);
+  Out << "using enum " << D->getEnumDecl();
 }
 
 void

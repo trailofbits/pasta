@@ -639,7 +639,7 @@ class TypeBuilder;
     d(OMPBarrierDirective) \
     d(OMPCancelDirective) \
     d(OMPCancellationPointDirective) \
-    a(OMPCanonicalLoop) \
+    s(OMPCanonicalLoop) \
     d(OMPCriticalDirective) \
     d(OMPDepobjDirective) \
     d(OMPDispatchDirective) \

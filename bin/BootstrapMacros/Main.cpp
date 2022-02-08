@@ -67,14 +67,14 @@ int main(void) {
   auto maybe_jobs = maybe_compiler->CreateJobsForCommand(
       maybe_command.TakeValue());
   if (!maybe_jobs.Succeeded()) {
-    std::cerr << "Can't create compile jobs " << maybe_jobs.TakeError() << std::endl;
+    std::cerr << maybe_jobs.TakeError() << std::endl;
     return EXIT_FAILURE;
   }
 
   for (const auto &job : maybe_jobs.TakeValue()) {
     auto maybe_ast = job.Run();
     if (!maybe_ast.Succeeded()) {
-      std::cerr << "AST generation failed " << maybe_ast.TakeError() << std::endl;
+      std::cerr << maybe_ast.TakeError() << std::endl;
       return EXIT_FAILURE;
     }
 

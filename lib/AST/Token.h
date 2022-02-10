@@ -47,10 +47,10 @@ inline static T *Canonicalize(T *other, int) {
 // Backing data for a token context.
 class TokenContextImpl {
  public:
-  const void * const data;
-  const TokenContextIndex parent_index;
-  const uint16_t depth;
-  const TokenContextKind kind;
+  const void *data;
+  TokenContextIndex parent_index;
+  uint16_t depth;
+  TokenContextKind kind;
 
   // Return the common ancestor between two contexts. This focuses on the data
   // itself, so if there are two distinct contexts sharing the same data, or
@@ -77,39 +77,43 @@ class TokenContextImpl {
   const char *KindName(
       const std::vector<TokenContextImpl> &contexts) const;
 
+  inline TokenContextImpl(const void *data_,
+                          TokenContextIndex parent_index_,
+                          unsigned parent_depth,
+                          TokenContextKind kind_)
+      : data(data_),
+        parent_index(parent_index_),
+        depth(static_cast<uint16_t>(parent_depth)),
+        kind(kind_) {}
+
 #define PASTA_DEFINE_TOKEN_CONTEXT_CONSTRUCTOR(cls) \
     inline TokenContextImpl(TokenContextIndex parent_index_, \
                             uint16_t parent_depth, \
                             const clang::cls *data_) \
-        : data(Canonicalize(data_, 0)), \
-          parent_index(parent_index_), \
-          depth(parent_depth + 1u), \
-          kind(TokenContextKind::k ## cls) {}
+        : TokenContextImpl(Canonicalize(data_, 0), parent_index_, \
+                           parent_depth + 1u, TokenContextKind::k ## cls) {}
   PASTA_FOR_EACH_TOKEN_CONTEXT_KIND(PASTA_DEFINE_TOKEN_CONTEXT_CONSTRUCTOR)
 #undef PASTA_DEFINE_TOKEN_CONTEXT_CONSTRUCTOR
 
   inline TokenContextImpl(TokenContextIndex parent_index_,
                           uint16_t parent_depth,
                           const char *data_)
-      : data(data_),
-        parent_index(parent_index_),
-        depth(parent_depth + 1u),
-        kind(TokenContextKind::kString) {}
+      : TokenContextImpl(data_, parent_index_,
+                         parent_depth + 1u, TokenContextKind::kString) {}
 
   inline TokenContextImpl(TokenContextIndex parent_index_,
                           uint16_t parent_depth,
                           TokenContextIndex aliasee_)
-      : data(reinterpret_cast<const void *>(aliasee_)),
-        parent_index(parent_index_),
-        depth(parent_depth + 1u),
-        kind(TokenContextKind::kAlias) {}
+      : TokenContextImpl(reinterpret_cast<const void *>(aliasee_),
+                         parent_index_, parent_depth + 1u,
+                         TokenContextKind::kAlias) {}
 
   // Special context that we place at the end of a vector.
   inline TokenContextImpl(ASTImpl &ast)
-      : data(reinterpret_cast<const void *>(&ast)),
-        parent_index(kInvalidTokenContextIndex),
-        depth(std::numeric_limits<uint16_t>::max()),
-        kind(TokenContextKind::kInvalid) {}
+      : TokenContextImpl(reinterpret_cast<const void *>(&ast),
+                         kInvalidTokenContextIndex,
+                         std::numeric_limits<uint16_t>::max(),
+                         TokenContextKind::kInvalid) {}
 };
 
 using TokenKindBase = std::underlying_type_t<clang::tok::TokenKind>;

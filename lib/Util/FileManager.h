@@ -19,16 +19,24 @@ static_assert(
     static_cast<unsigned>(clang::tok::TokenKind::NUM_TOKENS) <= (1u << 9u));
 
 struct FileTokenImpl {
-  inline FileTokenImpl(const char *data_, unsigned line_, unsigned column_,
+  inline FileTokenImpl(uint32_t data_offset_, uint32_t data_len_,
+                       uint32_t line_, unsigned column_,
                        clang::tok::TokenKind kind_)
-      : data(data_),
+      : data_offset(data_offset_),
+        data_len(data_len_),
         line(line_),
         column(static_cast<uint16_t>(column_)) {
     kind.extended.kind = static_cast<uint16_t>(kind_);
   }
-  const char *data;
-  unsigned line;
+  uint32_t data_offset;
+  uint32_t data_len;
+  uint32_t line;
   uint16_t column;
+
+  inline clang::tok::TokenKind Kind(void) const noexcept {
+    return static_cast<clang::tok::TokenKind>(kind.extended.kind);
+  }
+
   union {
     uint16_t flat{0};
     struct {

@@ -6,9 +6,6 @@
 
 #include <pasta/AST/AST.h>
 
-#include <string>
-#include <unordered_map>
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
@@ -22,6 +19,9 @@
 #include <pasta/Util/FileManager.h>
 #include <pasta/Util/File.h>
 #include <pasta/Util/Result.h>
+#include <string>
+#include <unordered_map>
+#include <variant>
 
 #include "Token.h"
 
@@ -70,6 +70,7 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   std::shared_ptr<clang::Preprocessor> token_per_line_pp;
 
   // Used to find bounds on declarations.
+  std::unordered_map<clang::Decl *, clang::Decl *> lexically_containing_decl;
   std::unordered_map<clang::Decl *, std::pair<TokenImpl *, TokenImpl *>> bounds;
 
   std::shared_ptr<clang::CompilerInstance> ci;
@@ -142,6 +143,12 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
 
   // Return a token range for the bounds of a declaration.
   TokenRange DeclTokenRange(const clang::Decl *decl);
+
+
+  // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
+  static Result<std::monostate, std::string> AlignTokens(
+      const std::shared_ptr<ASTImpl> &ast_, clang::Decl *decl,
+      std::unordered_multimap<const void *, TokenContextIndex> &data_to_context);
 
   // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
   static Result<AST, std::string> AlignTokens(std::shared_ptr<ASTImpl> ast);

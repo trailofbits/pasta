@@ -568,49 +568,78 @@ class ParsedFileTracker : public clang::PPCallbacks {
       return;
     }
 
-    const char *last_tok_begin = data.data();
-    const char * const buff_begin = last_tok_begin;
-    const char * const buff_end = &(last_tok_begin[data.size()]);
-    clang::Lexer lexer(loc, lang_opts, buff_begin, last_tok_begin, buff_end);
+    const char * const buff_begin = &(data.front());
+    const char * const buff_end = &(data[data.size()]);
+    clang::Lexer lexer(loc, lang_opts, buff_begin, buff_begin, buff_end);
     lexer.SetKeepWhitespaceMode(true);  // Implies keep comments.
 
     // Raw lex this file's tokens.
     clang::Token tok;
     while (!lexer.LexFromRawLexer(tok)) {
+      assert(!tok.hasLeadingEmptyMacro());
+      assert(!tok.isAnnotation());
       if (tok.is(clang::tok::eof)) {
         break;
       }
       const auto tok_loc = tok.getLocation();
       auto offset = sm.getFileOffset(tok_loc);
       assert(offset < data.size());
-      auto ptr = &(buff_begin[offset]);
-      auto &last_tok = file.impl->tokens.emplace_back(
-          ptr, sm.getSpellingLineNumber(tok_loc),
-          sm.getSpellingColumnNumber(tok_loc),
-          tok.getKind());
+      assert((offset + tok.getLength()) <= data.size());
+      auto tok_kind = tok.getKind();
 
-      // TODO(pag): Try to merge with prior `tok::hash` and `tok::at`, and
-      //            ignore whitespace.
-      if (tok.is(clang::tok::identifier)) {
-        if (clang::IdentifierInfo *ii = tok.getIdentifierInfo()) {
-          auto ppk = ii->getPPKeywordID();
-          auto atk = ii->getObjCKeywordID();
-          if (ppk != clang::tok::pp_not_keyword) {
-            last_tok.kind.extended.is_pp_kw = 1;
-            last_tok.kind.extended.alt_kind = static_cast<uint16_t>(ppk);
+      uint16_t is_pp_keyword = 0;
+      uint16_t is_objc_keyword = 0;
+      uint16_t alt_keyword = 0;
 
-          } else if (atk != clang::tok::objc_not_keyword) {
-            last_tok.kind.extended.is_objc_kw = 1;
-            last_tok.kind.extended.alt_kind = static_cast<uint16_t>(ppk);
+      if (clang::tok::isAnyIdentifier(tok_kind)) {
+        assert(tok_kind == clang::tok::raw_identifier);
+        tok_kind = clang::tok::identifier;
+
+        // Try to form a `pp_*` keyword, or an `objc_*` keyword.
+        if (!file.impl->tokens.empty()) {
+          const auto ident = tok.getRawIdentifier();
+          const auto num_file_toks = static_cast<uint32_t>(
+              file.impl->tokens.size());
+          for (auto i = 1u; i <= num_file_toks; ++i) {
+            auto p_tok = file.impl->tokens[num_file_toks - i];
+            switch (p_tok.Kind()) {
+              case clang::tok::unknown:
+                continue;
+              case clang::tok::at:
+                i = num_file_toks;
+                if (false) {}
+#define OBJC_AT_KEYWORD(x) else if (ident == #x) { is_objc_keyword = 1; alt_keyword = static_cast<uint16_t>(clang::tok::objc_##x); }
+#include <clang/Basic/TokenKinds.def>
+
+              case clang::tok::hash:
+                i = num_file_toks;
+                if (false) {}
+#define PPKEYWORD(x) else if (ident == #x) { is_pp_keyword = 1; alt_keyword = static_cast<uint16_t>(clang::tok::pp_##x); }
+#include <clang/Basic/TokenKinds.def>
+
+              default:
+                i = num_file_toks;
+                break;
+            }
           }
         }
       }
-      last_tok_begin = ptr;
+
+      auto &last_tok = file.impl->tokens.emplace_back(
+          offset,
+          tok.getLength(),
+          sm.getSpellingLineNumber(tok_loc),
+          sm.getSpellingColumnNumber(tok_loc),
+          tok_kind);
+
+      last_tok.kind.extended.is_pp_kw = is_pp_keyword;
+      last_tok.kind.extended.is_objc_kw = is_objc_keyword;
+      last_tok.kind.extended.alt_kind = alt_keyword;
     }
 
     const auto tok_loc = tok.getLocation();
     file.impl->tokens.emplace_back(
-        buff_end, sm.getSpellingLineNumber(tok_loc),
+        file.impl->data.size(), 0u, sm.getSpellingLineNumber(tok_loc),
         sm.getSpellingColumnNumber(tok_loc), clang::tok::eof);
   }
 
@@ -1142,13 +1171,14 @@ Result<AST, std::string> CompileJob::Run(void) const {
 
   // Initialize the policy to print tokens as closely as possible to what is
   // written in the original code.
-  if (auto pp = ast->printing_policy.get()) {
-    pp->ConstantArraySizeAsWritten = true;
-    pp->ConstantsAsWritten = true;
-    pp->PrintCanonicalTypes = false;
-    pp->PrintInjectedClassNameWithArguments = false;
-    pp->SuppressUnwrittenScope = true;
-    pp->AnonymousTagLocations = false;
+  if (auto policy = ast->printing_policy.get()) {
+    policy->ConstantArraySizeAsWritten = true;
+    policy->ConstantsAsWritten = true;
+    policy->PrintCanonicalTypes = false;
+    policy->PrintInjectedClassNameWithArguments = false;
+    policy->SuppressUnwrittenScope = true;
+    policy->AnonymousTagLocations = false;
+    policy->IncludeTagDefinition = true;
   }
 
   return ASTImpl::AlignTokens(std::move(ast));

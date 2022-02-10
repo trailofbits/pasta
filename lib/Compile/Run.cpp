@@ -50,6 +50,7 @@
 namespace pasta {
 namespace detail {
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, Preprocessor, LexLevel, unsigned);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, Preprocessor, CurTokenLexer, std::unique_ptr<clang::TokenLexer>);
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, TLSSupported, bool);
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, VLASupported, bool);
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasLegalHalfType, bool);
@@ -294,6 +295,7 @@ class ParsedFileTracker : public clang::PPCallbacks {
   // place where they occur in a file, from macro expansion tokens from sub-
   // expansions.
   unsigned logical_level_0{0u};
+
 
   // Try to inject an end-of-macro token.
   void TryInjectEOM(clang::SourceLocation loc) {
@@ -767,22 +769,34 @@ class ParsedFileTracker : public clang::PPCallbacks {
                     const clang::MacroDefinition &def,
                     clang::SourceRange use_range,
                     const clang::MacroArgs *args) final {
+
+    // We're lexing some macro arguments.
+    auto &tok_lexer = pp.*PASTA_ACCESS_MEMBER(clang, Preprocessor, CurTokenLexer);
+    if (tok_lexer) {
+      return;
+    }
+
+    auto loc = macro_name.getLocation();
+    assert(loc == use_range.getBegin());
+
     if (current_file_id.isInvalid()) {
       return;
     }
 
-    // Macro expansion inside of a macro, or inside of a directive.
-    auto level = pp.*PASTA_ACCESS_MEMBER(clang, Preprocessor, LexLevel);
-    if ((logical_level_0 + 1u) < level) {
-      return;
-    }
+//    // Macro expansion inside of a macro, or inside of a directive.
+//    auto level = pp.*PASTA_ACCESS_MEMBER(clang, Preprocessor, LexLevel);
+//    if ((logical_level_0 + 1u) < level) {
+//      assert(loc.isMacroID());
+//      return;
+//    }
 
     // If the macro use isn't in the current file (e.g. it is a macro being
     // expanded inside of another macro), then ignore it.
-    auto loc = macro_name.getLocation();
     if (!loc.isFileID()) {
       return;
     }
+
+    assert(use_range.getEnd().isFileID());
 
     auto [file_id, offset] = sm.getDecomposedLoc(loc);
     if (file_id != current_file_id) {

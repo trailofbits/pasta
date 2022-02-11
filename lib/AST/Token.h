@@ -29,18 +29,19 @@ namespace pasta {
 
 class ASTImpl;
 class Token;
+class PrintedTokenImpl;
 class PrintedTokenRangeImpl;
 
+using OpaqueSourceLoc = uint32_t;
 using TokenContextIndex = uint32_t;
 static constexpr TokenContextIndex kInvalidTokenContextIndex = ~0u;
 
-template <typename T>
-inline static T *Canonicalize(clang::Decl *decl, T) {
+inline static const clang::Decl *Canonicalize(const clang::Decl *decl) {
   return decl->getCanonicalDecl();
 }
 
 template <typename T>
-inline static T *Canonicalize(T *other, int) {
+inline static const T *Canonicalize(const T *other) {
   return other;
 }
 
@@ -90,7 +91,7 @@ class TokenContextImpl {
     inline TokenContextImpl(TokenContextIndex parent_index_, \
                             uint16_t parent_depth, \
                             const clang::cls *data_) \
-        : TokenContextImpl(Canonicalize(data_, 0), parent_index_, \
+        : TokenContextImpl(Canonicalize(data_), parent_index_, \
                            parent_depth + 1u, TokenContextKind::k ## cls) {}
   PASTA_FOR_EACH_TOKEN_CONTEXT_KIND(PASTA_DEFINE_TOKEN_CONTEXT_CONSTRUCTOR)
 #undef PASTA_DEFINE_TOKEN_CONTEXT_CONSTRUCTOR
@@ -121,13 +122,13 @@ using TokenKindBase = std::underlying_type_t<clang::tok::TokenKind>;
 // Backing implementation of a token.
 class TokenImpl {
  public:
-  static constexpr uint32_t kInvalidSourceLocation = 0u;
+  static constexpr OpaqueSourceLoc kInvalidSourceLocation = 0u;
 
   static constexpr uint32_t kTokenSizeMask = ((1u << 20) - 1u);
 
-  inline TokenImpl(uint32_t opaque_source_loc_, int32_t data_offset_,
+  inline TokenImpl(OpaqueSourceLoc opaque_source_loc_, int32_t data_offset_,
                    uint32_t data_len_, clang::tok::TokenKind kind_,
-                   TokenRole role_, uint32_t token_context_index_=kInvalidTokenContextIndex)
+                   TokenRole role_, TokenContextIndex token_context_index_=kInvalidTokenContextIndex)
       : opaque_source_loc(opaque_source_loc_),
         context_index(token_context_index_),
         data_offset(data_offset_),
@@ -152,7 +153,7 @@ class TokenImpl {
   }
 
   // The raw encoding of the source location of the token.
-  uint32_t opaque_source_loc{kInvalidSourceLocation};
+  OpaqueSourceLoc opaque_source_loc{kInvalidSourceLocation};
 
   // Index of the token context in either `ASTImpl::contexts` or
   // `PrintedTokenRangeImpl::contexts`.

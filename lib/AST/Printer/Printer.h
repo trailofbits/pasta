@@ -99,7 +99,7 @@ class PrintedTokenRangeImpl {
 
 struct no_alias_tag {};
 
-// Context class for tokenizing what's inside of a particular stream stream.
+// Context class for tokenizing what's inside of a particular stream.
 class TokenPrinterContext {
  public:
   template <typename T>
@@ -138,6 +138,7 @@ const TokenContextIndex PrintedTokenRangeImpl::CreateContext(
     TokenPrinterContext *tokenizer, const T *data) {
 
   if (data) {
+    data = Canonicalize(data);
     if (auto it = data_to_index.find(data); it != data_to_index.end()) {
       return it->second;
     }

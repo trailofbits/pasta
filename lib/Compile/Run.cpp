@@ -247,7 +247,7 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
                           TokenRole::kEndOfFileMarker);
       }
     }
-    impl.tokens.back().kind = clang::tok::eof;
+    impl.tokens.back().kind = static_cast<TokenKindBase>(clang::tok::eof);
   }
 
 #if PASTA_DEBUG_RUN

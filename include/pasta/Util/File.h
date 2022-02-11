@@ -259,6 +259,9 @@ class File {
   // Return the file containing a given file token.
   static File Containing(const FileToken &tok);
 
+  // Return the file containing a given file token.
+  static std::optional<File> Containing(const std::optional<FileToken> &tok);
+
   // Return the path of this file from within its file system.
   std::filesystem::path Path(void) const noexcept;
 

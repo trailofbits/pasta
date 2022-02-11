@@ -147,14 +147,13 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
 
   // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
   static Result<std::monostate, std::string> AlignTokens(
-      const std::shared_ptr<ASTImpl> &ast_, clang::Decl *decl,
-      std::unordered_multimap<const void *, TokenContextIndex> &data_to_context);
+      const std::shared_ptr<ASTImpl> &ast_,
+      TokenImpl *parsed_begin, TokenImpl *parsed_end,
+      PrintedTokenRangeImpl &range, TokenContextIndex decl_context_id,
+      bool log=false);
 
   // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
   static Result<AST, std::string> AlignTokens(std::shared_ptr<ASTImpl> ast);
-
-  // Refine the assignment of token contexts using a top-down AST visitor pass.
-  void RefineTokens(void);
 
  private:
   ASTImpl(void) = delete;

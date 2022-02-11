@@ -22,7 +22,7 @@
 #include <fstream>
 
 #include "Builder.h"
-#include "Printer/Printer.h"
+#include "Printer/DeclStmtPrinter.h"
 
 #define PASTA_DEBUG_ALIGN 0
 #define TK(...)
@@ -335,8 +335,8 @@ static SequenceRegion *BuildRegions(
   };
 
   push_empty_sequence();
-  stmt_stoppers.emplace_back(clang::tok::semi, clang::tok::semi,
-                             clang::tok::semi);
+  stmt_stoppers.emplace_back(clang::tok::semi, clang::tok::comma,
+                             clang::tok::eof);
 
   BalancedRegion *last_balanced = nullptr;
 
@@ -1000,12 +1000,18 @@ void Matcher::FixContexts(
   if (auto bal = dynamic_cast<BalancedRegion *>(parsed)) {
     assert(!stack.empty());
 
+    // If we have a predecessor context from an identifier or keyword, take
+    // it.
+    if (bal->leading_ident && TokenHasLocationAndContext(bal->leading_ident)) {
+      prev_context = bal->leading_ident->context_index;
+    }
+
     // Happens when we match the `)` of an `__attribute__` against the `)`
     // of the parameter list of the function to which the attribute applies.
     if (TokenHasLocationAndContext(bal->begin) !=
         TokenHasLocationAndContext(bal->end)) {
-      bal->begin->context_index = kInvalidTokenContextIndex;
-      bal->end->context_index = kInvalidTokenContextIndex;
+      bal->begin->context_index = prev_context;
+      bal->end->context_index = prev_context;
     }
 
     // Take the parent context.
@@ -1175,69 +1181,63 @@ static TokenContextIndex MigrateContexts(
 }  // namespace
 
 Result<std::monostate, std::string> ASTImpl::AlignTokens(
-      const std::shared_ptr<ASTImpl> &ast_, clang::Decl *decl,
-      std::unordered_multimap<const void *, TokenContextIndex> &data_to_context) {
+      const std::shared_ptr<ASTImpl> &ast_,
+      TokenImpl *parsed_begin, TokenImpl *parsed_end,
+      PrintedTokenRangeImpl &range,
+      TokenContextIndex decl_context_id, bool log) {
+  (void) log;
+
   ASTImpl * const ast = ast_.get();
-  auto decl_bounds = ast->DeclBounds(decl);
-  const auto first_tok = decl_bounds.first;
-  if (!first_tok) {
-    return std::monostate{};  // Decl from the builtin pre-amble.
-  }
-  const auto after_last_tok = &(decl_bounds.second[1u]);
-  assert(after_last_tok <= &(ast->tokens.back()));
-
-  Decl wrapped_decl = DeclBuilder::Create<Decl>(ast_, decl);
-
-  auto range = PrintedTokenRange::Create(wrapped_decl);
-  if (range.empty()) {
-    return std::monostate{};
-  }
-
-  // Migrate the token contexts into the AST.
-  std::unordered_map<TokenContextIndex, TokenContextIndex> context_map;
-  for (PrintedTokenImpl &tok : range.impl->tokens) {
-    tok.context_index = MigrateContexts(
-        tok.context_index, range.impl->contexts, ast->contexts,
-        data_to_context, context_map);
-  }
+  auto printed_begin = &(range.tokens[0]);
+  auto printed_end = &(printed_begin[range.tokens.size()]);
+  assert(parsed_begin < parsed_end);
+  assert(printed_begin < printed_end);
+  assert(parsed_end <= &(ast->tokens.back()));
 
   std::stringstream err;
   std::vector<std::unique_ptr<Region>> parsed_regions;
   std::vector<std::unique_ptr<Region>> printed_regions;
 
   auto parsed_tree = BuildRegions(
-      parsed_regions, err, reinterpret_cast<uint8_t *>(first_tok),
-      reinterpret_cast<uint8_t *>(after_last_tok), sizeof(*first_tok),
+      parsed_regions, err, reinterpret_cast<uint8_t *>(parsed_begin),
+      reinterpret_cast<uint8_t *>(parsed_end), sizeof(*parsed_begin),
       "parsed");
   if (!parsed_tree) {
-    decl->dumpColor();
-    for (auto tok = first_tok; tok < after_last_tok; ++tok) {
-      std::cerr
-          << clang::tok::getTokenName(tok->Kind())
-          << '\t' << tok->Data(*ast) << '\n';
-    }
+//    for (auto tok = parsed_begin; tok < parsed_end; ++tok) {
+//      std::cerr
+//          << clang::tok::getTokenName(tok->Kind())
+//          << '\t' << tok->Data(*ast) << '\n';
+//    }
     return err.str();
   }
 
+//  if (log) {
+//    for (auto tok = parsed_begin; tok < parsed_end; ++tok) {
+//      std::cerr
+//          << clang::tok::getTokenName(tok->Kind())
+//          << '\t' << tok->Data(*ast) << '\n';
+//    }
+//  }
+
   auto printed_tree = BuildRegions(
-      printed_regions, err, reinterpret_cast<uint8_t *>(range.first),
-      reinterpret_cast<uint8_t *>(range.after_last), sizeof(*range.first),
+      printed_regions, err, reinterpret_cast<uint8_t *>(printed_begin),
+      reinterpret_cast<uint8_t *>(printed_end), sizeof(*printed_begin),
       "printed");
   if (!printed_tree) {
     return err.str();
   }
 
-  Matcher matcher(*ast, *(range.impl), first_tok, after_last_tok);
+  Matcher matcher(*ast, range, parsed_begin, parsed_end);
 
-  std::unordered_map<unsigned, TokenImpl *> loc_to_toks;
-  for (auto tok = first_tok; tok < after_last_tok; ++tok) {
+  std::unordered_map<OpaqueSourceLoc, TokenImpl *> loc_to_toks;
+  for (auto tok = parsed_begin; tok < parsed_end; ++tok) {
     loc_to_toks.emplace(tok->opaque_source_loc, tok);
   }
 
   // Join on the shared source locations, and linearly "spread"
   // outward from there. This should generally cover a bunch.
   auto join_based_linear_merge = [&] (bool &changed) {
-    for (auto printed = range.first; printed < range.after_last; ++printed) {
+    for (auto printed = printed_begin; printed < printed_end; ++printed) {
       if (printed->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
         if (auto parsed = loc_to_toks[printed->opaque_source_loc];
             parsed && !TokenHasLocationAndContext(parsed)) {
@@ -1293,8 +1293,10 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
     }
   }
 
-  std::unordered_multimap<unsigned, BalancedRegion *> printed_loc_to_balanced;
-  std::unordered_multimap<unsigned, StatementRegion *> printed_end_loc_to_statement;
+  std::unordered_multimap<OpaqueSourceLoc, BalancedRegion *>
+      printed_loc_to_balanced;
+  std::unordered_multimap<OpaqueSourceLoc, StatementRegion *>
+      printed_end_loc_to_statement;
 
   // Join on the shared source locations of balanced and statement regions.
   // This only joins unmatched ones. We generally have decent-ish ability in
@@ -1406,16 +1408,21 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
   }
 
   std::vector<TokenContextIndex> context_stack;
-  context_stack.push_back(kInvalidTokenContextIndex);
+  context_stack.push_back(decl_context_id);
   matcher.FixContexts(parsed_tree, context_stack);
 
 #if PASTA_DEBUG_ALIGN
+//  if (log) {
+    std::ofstream parsed_os("/tmp/tree.parsed");
+    parsed_tree->Print(parsed_os, "", *ast);
 
-  std::ofstream parsed_os("/tmp/tree.parsed");
-  parsed_tree->Print(parsed_os, "", *ast);
-
-  std::ofstream printed_os("/tmp/tree.printed");
-  printed_tree->Print(printed_os, "", *(range.impl));
+    std::ofstream printed_os("/tmp/tree.printed");
+    printed_tree->Print(printed_os, "", range);
+//
+//    parsed_os.flush();
+//    printed_os.flush();
+//    assert(false);
+//  }
 #endif   // PASTA_DEBUG_ALIGN
 
 //  for (const auto &parsed_region : parsed_regions) {
@@ -1441,39 +1448,145 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
       case clang::Decl::TranslationUnit:
       case clang::Decl::LinkageSpec:
       case clang::Decl::ExternCContext:
-      case clang::Decl::Namespace: {
+      case clang::Decl::Namespace:
         for (auto sub_decl : clang::Decl::castToDeclContext(decl)->decls()) {
           work_list.push_back(sub_decl);
         }
         break;
-      }
-      default:
-        tlds.push_back(decl);
-    }
-  }
 
-  // Compute bounds of top-level decls. This will fill out
-  // `ast->lexically_containing_decl`.
-  for (auto decl : tlds) {
-    (void) ast->DeclBounds(decl);
+      default:
+        if (!decl->isImplicit()) {
+          // Compute bounds of top-level decls. This will fill out
+          // `ast->lexically_containing_decl`.
+          (void) ast->DeclBounds(decl);
+          tlds.push_back(decl);
+        }
+        break;
+    }
   }
 
   std::unordered_multimap<const void *, TokenContextIndex> data_to_context;
+  std::unordered_map<TokenContextIndex, TokenContextIndex> context_map;
+  std::vector<clang::Decl *> tld_group;
+  std::vector<clang::Decl *> parentage;
+  std::vector<TokenPrinterContext> context_stack;
+  std::string data;
+  auto &ast_context = ast->tu->getASTContext();
 
-  for (auto decl : tlds) {
-    auto &containing_decl = ast->lexically_containing_decl[decl];
+  for (auto tld_it = tlds.begin(), tld_end = tlds.end(); tld_it != tld_end; ) {
+    clang::Decl *decl = *tld_it;
+    clang::Decl *&containing_decl = ast->lexically_containing_decl[decl];
     if (!containing_decl) {
       containing_decl = decl;
     }
-    if (containing_decl == decl) {
-      auto res = AlignTokens(ast, decl, data_to_context);
-      if (!res.Succeeded()) {
-        return res.Error();
+
+    tld_group.clear();
+    tld_group.push_back(containing_decl);
+    for (; tld_it != tld_end; ++tld_it) {
+      clang::Decl *next_decl = *tld_it;
+      if (containing_decl == ast->lexically_containing_decl[next_decl]) {
+        if (next_decl != containing_decl) {
+          tld_group.push_back(next_decl);
+        }
+      } else {
+        break;
       }
     }
+
+    assert(1u <= tld_group.size());
+
+    // Go find the parentage of the containing decl. It is the path of lexical
+    // declaration contexts down to the one containing the `containing_decl`
+    // for this TLD group.
+    parentage.clear();
+    context_stack.clear();
+    for (auto dc = containing_decl->getLexicalDeclContext(); dc;
+         dc = dc->getLexicalParent()) {
+      if (auto dc_decl = clang::dyn_cast<clang::Decl>(dc)) {
+        parentage.push_back(dc_decl);
+      }
+    }
+
+    // Initialize a new printed token range.
+    data.clear();
+    raw_string_ostream out(data);
+    PrintedTokenRangeImpl range(ast_context);
+    range.ast = ast;
+    DeclPrinter printer(out, *(ast->printing_policy), ast_context, range);
+
+    // Build up a stack of the parentage for these decls. There should at least
+    // be the translation unit. This mimicks the call stack initialization of
+    // the printers.
+    assert(1u <= parentage.size());
+    context_stack.reserve(parentage.size());
+    for (auto pit = parentage.rbegin(), pend = parentage.rend();
+        pit != pend; ++pit) {
+      clang::Decl *dc_decl = *pit;
+      (void) context_stack.emplace_back(out, dc_decl, range);
+    }
+
+    for (clang::Decl *tld_decl : tld_group) {
+      printer.Visit(tld_decl);
+    }
+
+    // Unwind the tokenizer contexts.
+    while (!context_stack.empty()) {
+      context_stack.pop_back();
+    }
+
+    if (!range.tokens.empty()) {
+      context_map.clear();
+
+      // Migrate the token contexts into the AST.
+      for (auto &printed_tok : range.tokens) {
+        printed_tok.context_index = MigrateContexts(
+            printed_tok.context_index, range.contexts, ast->contexts,
+            data_to_context, context_map);
+      }
+
+      // Figure out the context for the declaration itself.
+      TokenContextIndex decl_context_id = kInvalidTokenContextIndex;
+      auto decl_context_it = range.data_to_index.find(
+          Canonicalize(containing_decl));
+      if (decl_context_it != range.data_to_index.end()) {
+        decl_context_id = MigrateContexts(
+            decl_context_it->second, range.contexts, ast->contexts,
+                data_to_context, context_map);
+      }
+
+      // Figure out the parsed bounds.
+      auto decl_bounds = ast->DeclBounds(decl);
+      if (decl_bounds.first) {
+
+        bool log = false;
+//        if (auto tdecl = clang::dyn_cast<clang::NamedDecl>(containing_decl);
+//            tdecl && tdecl->getNameAsString() == "optind") {
+//          log = true;
+//        }
+
+
+        auto res = AlignTokens(ast, decl_bounds.first, &(decl_bounds.second[1]),
+                               range, decl_context_id, log);
+        if (!res.Succeeded()) {
+          return res.TakeError();
+        }
+      }
+    }
+
   }
 
-//  ast->RefineTokens();
+//  for (auto decl : tlds) {
+//    auto &containing_decl = ast->lexically_containing_decl[decl];
+//    if (!containing_decl) {
+//      containing_decl = decl;
+//    }
+//    if (containing_decl == decl) {
+//      auto res = AlignTokens(ast, decl, data_to_context);
+//      if (!res.Succeeded()) {
+//        return res.Error();
+//      }
+//    }
+//  }
 
   // This is pretty sketchy, but place a raw reference back to the AST at the
   // end of the contexts list. Because `ASTImpl` extends

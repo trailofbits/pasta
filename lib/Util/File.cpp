@@ -44,6 +44,15 @@ File File::Containing(const FileToken &tok) {
   return File(tok.file);
 }
 
+// Return the file containing a given file token.
+std::optional<File> File::Containing(const std::optional<FileToken> &tok) {
+  if (!tok) {
+    return std::nullopt;
+  } else {
+    return File(tok->file);
+  }
+}
+
 // Return the path of this file.
 std::filesystem::path File::Path(void) const noexcept {
   return impl->stat.full_path;

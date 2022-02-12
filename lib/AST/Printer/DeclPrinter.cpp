@@ -726,7 +726,6 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
               Out << ", ";
               ctx.MarkLocation(loc_of_comma_after_param(LastP));
             }
-
             clang::ParmVarDecl *P = D->getParamDecl(i);
             DeclPrinter ParamPrinter(Out, SubPolicy, Context, tokens, Indentation);
             ParamPrinter.VisitParmVarDecl(P);

@@ -1156,7 +1156,8 @@ static TokenContextIndex MigrateContexts(
   }
 
   // Search for the matching one.
-  for (auto [it, end] = data_to_context.equal_range(c->data); it != end; ++it) {
+  for (auto [it, end] = data_to_context.equal_range(c->data);
+       it != end; ++it) {
     TokenContextIndex maybe_id = it->second;
     if (maybe_id == kInvalidTokenContextIndex ||
         maybe_id >= to_contexts.size()) {
@@ -1546,12 +1547,12 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
 
       // Figure out the context for the declaration itself.
       TokenContextIndex decl_context_id = kInvalidTokenContextIndex;
-      auto decl_context_it = range.data_to_index.find(
+      auto decl_context_it = data_to_context.equal_range(
           Canonicalize(containing_decl));
-      if (decl_context_it != range.data_to_index.end()) {
-        decl_context_id = MigrateContexts(
-            decl_context_it->second, range.contexts, ast->contexts,
-                data_to_context, context_map);
+      if (decl_context_it.first != decl_context_it.second) {
+        decl_context_id = decl_context_it.first->second;
+      } else {
+        assert(false);
       }
 
       // Figure out the parsed bounds.

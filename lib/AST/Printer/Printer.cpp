@@ -144,6 +144,10 @@ PrintedTokenRangeImpl::~PrintedTokenRangeImpl(void) {}
 const TokenContextIndex PrintedTokenRangeImpl::CreateAlias(
     TokenPrinterContext *tokenizer, TokenContextIndex aliasee) {
 
+  if (aliasee == kInvalidTokenContextIndex) {
+    return kInvalidTokenContextIndex;
+  }
+
   // If the current thing on the stack is what we're aliasing, then don't alias
   // it.
   if (tokenizer->prev_printer_context &&
@@ -151,13 +155,27 @@ const TokenContextIndex PrintedTokenRangeImpl::CreateAlias(
     return aliasee;
   }
 
+  TokenContextIndex parent_index = kInvalidTokenContextIndex;
+  if (tokenizer->prev_printer_context) {
+    parent_index = tokenizer->prev_printer_context->context_index;
+  }
+
+  // Try to combine identical aliases.
+  static_assert(sizeof(void *) == sizeof(uint64_t));
+  auto alias_addr = static_cast<uint64_t>(~aliasee);
+  alias_addr <<= 32u;
+  alias_addr |= parent_index;
+  const auto alias_data = reinterpret_cast<const void *>(alias_addr);
+  if (auto alias_it = data_to_index.find(alias_data);
+      alias_it != data_to_index.end()) {
+    return alias_it->second;  // Found an identical usage.
+  }
+
   auto index = static_cast<TokenContextIndex>(contexts.size());
   assert(index == contexts.size());
 
-  if (tokenizer->prev_printer_context &&
-      tokenizer->prev_printer_context->context_index !=
-          kInvalidTokenContextIndex) {
-    auto parent_index = tokenizer->prev_printer_context->context_index;
+  if (parent_index != kInvalidTokenContextIndex) {
+    assert(parent_index < contexts.size());
     auto parent_depth = contexts[parent_index].depth;
     contexts.emplace_back(
         parent_index,
@@ -170,6 +188,9 @@ const TokenContextIndex PrintedTokenRangeImpl::CreateAlias(
         static_cast<uint16_t>(0),
         aliasee);
   }
+
+  data_to_index.emplace(alias_data, index);
+
   return index;
 }
 

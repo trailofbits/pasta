@@ -314,6 +314,8 @@ const char *TokenContextImpl::KindName(
       }
     case TokenContextKind::kString:
       return "String";
+    case TokenContextKind::kAST:
+      return "AST";
   }
 }
 
@@ -328,7 +330,11 @@ uint32_t TokenContext::Index(void) const {
 
 // String representation of this token context kind.
 const char *TokenContext::KindName(void) const {
-  return impl ? "Invalid" : impl->KindName(*contexts);
+  if (impl) {
+    return impl->KindName(*contexts);
+  } else {
+    return "Invalid";
+  }
 }
 
 // Return the kind of this token.
@@ -557,19 +563,28 @@ found_end:
   return TokenRange(ast, &(begin[1]), end);
 }
 
+// Return the context of this token, or `nullptr`.
+const TokenContextImpl *TokenImpl::Context(
+    const std::vector<TokenContextImpl> &contexts) const noexcept {
+  if (context_index == kInvalidTokenContextIndex) {
+    return nullptr;
+  } else if (context_index >= contexts.size()) {
+    return nullptr;
+  } else {
+    return &(contexts[context_index]);
+  }
+}
+
 // Return this token's context, or a null context.
 std::optional<TokenContext> Token::Context(void) const noexcept {
   if (!impl) {
-    return {};
-  } else if (impl->context_index == kInvalidTokenContextIndex) {
-    return {};
-  } else if (impl->context_index >= ast->contexts.size()) {
-    return {};
-  } else {
+    return std::nullopt;
+  } else if (auto context = impl->Context(ast->contexts)) {
     std::shared_ptr<const std::vector<TokenContextImpl>> contexts(
         ast, &(ast->contexts));
-    return TokenContext(&(ast->contexts[impl->context_index]),
-                        std::move(contexts));
+    return TokenContext(context, std::move(contexts));
+  } else {
+    return std::nullopt;
   }
 }
 

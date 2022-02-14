@@ -125,6 +125,10 @@ static void PrintTokenGraph(pasta::Decl tld) {
         bgcolor = " bgcolor=\"gainsboro\"";
         kind_name = reinterpret_cast<const char *>(context.Data());
         break;
+      case pasta::TokenContextKind::kAST:
+        bgcolor = " bgcolor=\"white\"";
+        kind_name = "AST";
+        break;
       case pasta::TokenContextKind::kAlias:
         assert(false);
         bgcolor = " bgcolor=\"deepskyblue3\"";

@@ -284,14 +284,14 @@ std::optional<Decl> Decl::From(const TokenContext &context) {
     return std::nullopt;
   }
 
-  auto &last_context = contexts.back();
-  if (!last_context.data || last_context.kind != TokenContextKind::kInvalid ||
-      last_context.depth != std::numeric_limits<uint16_t>::max() ||
-      last_context.parent_index != kInvalidTokenContextIndex) {
+  auto &first_context = contexts.front();
+  if (!first_context.data || first_context.kind != TokenContextKind::kAST ||
+      first_context.depth != 0u ||
+      first_context.parent_index != kInvalidTokenContextIndex) {
     return std::nullopt;
   }
 
-  auto ast = reinterpret_cast<ASTImpl *>(const_cast<void *>(last_context.data));
+  auto ast = reinterpret_cast<ASTImpl *>(const_cast<void *>(first_context.data));
   if (&(ast->contexts) != &contexts) {
     assert(false);
     return std::nullopt;
@@ -312,14 +312,14 @@ std::optional<Stmt> Stmt::From(const TokenContext &context) {
     return std::nullopt;
   }
 
-  auto &last_context = contexts.back();
-  if (!last_context.data || last_context.kind != TokenContextKind::kInvalid ||
-      last_context.depth != std::numeric_limits<uint16_t>::max() ||
-      last_context.parent_index != kInvalidTokenContextIndex) {
+  auto &first_context = contexts.front();
+  if (!first_context.data || first_context.kind != TokenContextKind::kAST ||
+      first_context.depth != 0u ||
+      first_context.parent_index != kInvalidTokenContextIndex) {
     return std::nullopt;
   }
 
-  auto ast = reinterpret_cast<ASTImpl *>(const_cast<void *>(last_context.data));
+  auto ast = reinterpret_cast<ASTImpl *>(const_cast<void *>(first_context.data));
   if (&(ast->contexts) != &contexts) {
     assert(false);
     return std::nullopt;
@@ -340,14 +340,14 @@ std::optional<Type> Type::From(const TokenContext &context) {
     return std::nullopt;
   }
 
-  auto &last_context = contexts.back();
-  if (!last_context.data || last_context.kind != TokenContextKind::kInvalid ||
-      last_context.depth != std::numeric_limits<uint16_t>::max() ||
-      last_context.parent_index != kInvalidTokenContextIndex) {
+  auto &first_context = contexts.front();
+  if (!first_context.data || first_context.kind != TokenContextKind::kAST ||
+      first_context.depth != 0u ||
+      first_context.parent_index != kInvalidTokenContextIndex) {
     return std::nullopt;
   }
 
-  auto ast = reinterpret_cast<ASTImpl *>(const_cast<void *>(last_context.data));
+  auto ast = reinterpret_cast<ASTImpl *>(const_cast<void *>(first_context.data));
   if (&(ast->contexts) != &contexts) {
     assert(false);
     return std::nullopt;

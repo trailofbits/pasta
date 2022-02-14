@@ -35,6 +35,8 @@ class PrintedTokenRangeImpl;
 using OpaqueSourceLoc = uint32_t;
 using TokenContextIndex = uint32_t;
 static constexpr TokenContextIndex kInvalidTokenContextIndex = ~0u;
+static constexpr TokenContextIndex kASTTokenContextIndex = 0u;
+static constexpr TokenContextIndex kTranslationUnitTokenContextIndex = 1u;
 
 inline static const clang::Decl *Canonicalize(const clang::Decl *decl) {
   return decl->getCanonicalDecl();
@@ -78,13 +80,11 @@ class TokenContextImpl {
   const char *KindName(
       const std::vector<TokenContextImpl> &contexts) const;
 
-  inline TokenContextImpl(const void *data_,
-                          TokenContextIndex parent_index_,
-                          unsigned parent_depth,
-                          TokenContextKind kind_)
+  inline TokenContextImpl(const void *data_, TokenContextIndex parent_index_,
+                          unsigned depth_, TokenContextKind kind_)
       : data(data_),
         parent_index(parent_index_),
-        depth(static_cast<uint16_t>(parent_depth)),
+        depth(static_cast<uint16_t>(depth_)),
         kind(kind_) {}
 
 #define PASTA_DEFINE_TOKEN_CONTEXT_CONSTRUCTOR(cls) \
@@ -113,8 +113,8 @@ class TokenContextImpl {
   inline TokenContextImpl(ASTImpl &ast)
       : TokenContextImpl(reinterpret_cast<const void *>(&ast),
                          kInvalidTokenContextIndex,
-                         std::numeric_limits<uint16_t>::max(),
-                         TokenContextKind::kInvalid) {}
+                         0u,
+                         TokenContextKind::kAST) {}
 };
 
 using TokenKindBase = std::underlying_type_t<clang::tok::TokenKind>;
@@ -152,6 +152,10 @@ class TokenImpl {
     return static_cast<clang::tok::TokenKind>(kind);
   }
 
+  // Return the context of this token, or `nullptr`.
+  const TokenContextImpl *Context(
+      const std::vector<TokenContextImpl> &contexts) const noexcept;
+
   // The raw encoding of the source location of the token.
   OpaqueSourceLoc opaque_source_loc{kInvalidSourceLocation};
 
@@ -170,8 +174,12 @@ class TokenImpl {
 
   // The original token kind.
   TokenKindBase kind:9;
-  TokenKindBase role:7;
+
+  // The role of this token, e.g. parsed, printed, macro expansion, etc.
+  TokenKindBase role:3;
 } __attribute__((packed));
+
+static_assert(sizeof(TokenImpl) == 16u);
 
 // Read the data of the token into the passed in string pointer
 bool TryReadRawToken(clang::SourceManager &source_manager,

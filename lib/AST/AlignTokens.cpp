@@ -649,10 +649,13 @@ bool Matcher::MergeBackward(TokenImpl *parsed, PrintedTokenImpl *printed,
   const auto first_printed = &(range.tokens.front());
   while (parsed >= first_parsed && printed >= first_printed) {
 
-    if (parsed->Kind() == clang::tok::comment ||
-        parsed->Kind() == clang::tok::unknown) {
-      --parsed;
-      continue;
+    switch (parsed->Kind()) {
+      case clang::tok::comment:
+      case clang::tok::unknown:
+        --parsed;
+        continue;
+      default:
+        break;
     }
 
     if (!MatchTokenByKindOrData(parsed, printed)) {
@@ -1131,52 +1134,55 @@ static TokenContextIndex MigrateContexts(
     std::vector<TokenContextImpl> &from_contexts,
     std::vector<TokenContextImpl> &to_contexts,
     std::unordered_multimap<const void *, TokenContextIndex> &data_to_context,
-    std::unordered_map<TokenContextIndex, TokenContextIndex> &context_map) {
+    std::vector<TokenContextIndex> &context_map) {
 
   if (id == kInvalidTokenContextIndex) {
-    return id;
-  } else if (auto it = context_map.find(id); it != context_map.end()) {
-    return it->second;
-  } else if (id >= from_contexts.size()) {
-    return kInvalidTokenContextIndex;
+    return 0u;  // Return the index of the AST node.
   }
+
+  auto &ret_id = context_map[id];
+  if (ret_id) {
+    return ret_id;
+  }
+
+  assert(id < from_contexts.size());
 
   auto c = &(from_contexts[id]);
   auto parent_id = MigrateContexts(c->parent_index, from_contexts,
                                    to_contexts, data_to_context, context_map);
-  auto ac = c->Aliasee(from_contexts);
-  if (c != ac) {
+  if (c->kind == TokenContextKind::kAlias) {
     auto aliasee_id = MigrateContexts(
-        static_cast<TokenContextIndex>(ac - &(from_contexts.front())),
+        static_cast<TokenContextIndex>(reinterpret_cast<uintptr_t>(c->data)),
         from_contexts, to_contexts, data_to_context, context_map);
-    auto next_id = static_cast<TokenContextIndex>(to_contexts.size());
+    ret_id = static_cast<TokenContextIndex>(to_contexts.size());
     (void) to_contexts.emplace_back(parent_id, c->depth, aliasee_id);
-    context_map.emplace(id, next_id);
-    return next_id;
-  }
 
-  // Search for the matching one.
-  for (auto [it, end] = data_to_context.equal_range(c->data);
-       it != end; ++it) {
-    TokenContextIndex maybe_id = it->second;
-    if (maybe_id == kInvalidTokenContextIndex ||
-        maybe_id >= to_contexts.size()) {
-      continue;
+  } else {
+
+    // Search for the matching one.
+    for (auto [it, end] = data_to_context.equal_range(c->data);
+         it != end; ++it) {
+      TokenContextIndex maybe_id = it->second;
+      if (maybe_id == kInvalidTokenContextIndex ||
+          maybe_id >= to_contexts.size()) {
+        continue;
+      }
+
+      auto maybe_c = &(to_contexts[maybe_id]);
+      if (maybe_c->data == c->data && maybe_c->parent_index == parent_id &&
+          maybe_c->depth == c->depth && maybe_c->kind == c->kind) {
+        ret_id = maybe_id;
+        return maybe_id;
+      }
     }
 
-    auto maybe_c = &(to_contexts[maybe_id]);
-    if (maybe_c->data == c->data && maybe_c->parent_index == parent_id &&
-        maybe_c->depth == c->depth) {
-      context_map.emplace(id, maybe_id);
-      return maybe_id;
-    }
+    // Didn't find it.
+    ret_id = static_cast<TokenContextIndex>(to_contexts.size());
+    (void) to_contexts.emplace_back(c->data, parent_id, c->depth, c->kind);
+    data_to_context.emplace(c->data, ret_id);
   }
 
-  // Didn't find it.
-  auto next_id = static_cast<TokenContextIndex>(to_contexts.size());
-  (void) to_contexts.emplace_back(c->data, parent_id, c->depth, c->kind);
-  data_to_context.emplace(c->data, next_id);
-  return next_id;
+  return ret_id;
 }
 
 }  // namespace
@@ -1227,6 +1233,12 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
   if (!printed_tree) {
     return err.str();
   }
+
+//  if (log) {
+//    auto c = &(ast->tokens[69125].context_index);
+//    assert(*c == kInvalidTokenContextIndex);
+//    asm volatile ("nop;" ::"m"(c));
+//  }
 
   Matcher matcher(*ast, range, parsed_begin, parsed_end);
 
@@ -1422,8 +1434,22 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
 //
 //    parsed_os.flush();
 //    printed_os.flush();
+//  }
+//
+//  if (log) {
+//    auto t = &(parsed_end[-1]);
+//    for (auto c = t->Context(ast->contexts); c; c = c->Parent(ast->contexts)) {
+//      auto c_id = static_cast<uint64_t>(c - &(ast->contexts[0]));
+//      std::cerr << std::hex << c_id << std::dec << '\t' << c->KindName(ast->contexts) << ' ';
+//      if (c->kind == TokenContextKind::kDecl) {
+//        std::cerr << reinterpret_cast<const clang::Decl *>(c->data)->getDeclKindName();
+//      }
+//      std::cerr << '\n';
+//    }
+//
 //    assert(false);
 //  }
+
 #endif   // PASTA_DEBUG_ALIGN
 
 //  for (const auto &parsed_region : parsed_regions) {
@@ -1440,6 +1466,18 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
 Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
   std::vector<clang::Decl *> work_list;
   std::vector<clang::Decl *> tlds;
+
+  assert(ast->contexts.empty());
+
+  // Add a dummy context at the beginning. This is nifty so that we can use a
+  // vector as a `context_map` below instead of an map.
+  //
+  // This is pretty sketchy, but place a raw reference back to the AST at the
+  // beginning of the contexts list. Because `ASTImpl` extends
+  // `std::enable_shared_from_this`, and because references to this vector in
+  // token contexts alias the lifetime of the `ASTImpl`, we can safely go and
+  // find the AST given any token context.
+  (void) ast->contexts.emplace_back(*ast);
 
   work_list.push_back(ast->tu);
   while (!work_list.empty()) {
@@ -1467,7 +1505,7 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
   }
 
   std::unordered_multimap<const void *, TokenContextIndex> data_to_context;
-  std::unordered_map<TokenContextIndex, TokenContextIndex> context_map;
+  std::vector<TokenContextIndex> context_map;
   std::vector<clang::Decl *> tld_group;
   std::vector<clang::Decl *> parentage;
   std::vector<TokenPrinterContext> context_stack;
@@ -1518,8 +1556,9 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
     // Build up a stack of the parentage for these decls. There should at least
     // be the translation unit. This mimicks the call stack initialization of
     // the printers.
-    assert(1u <= parentage.size());
-    context_stack.reserve(parentage.size());
+    const auto num_parents = parentage.size();
+    assert(1u <= num_parents);
+    context_stack.reserve(num_parents);
     for (auto pit = parentage.rbegin(), pend = parentage.rend();
         pit != pend; ++pit) {
       clang::Decl *dc_decl = *pit;
@@ -1537,6 +1576,7 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
 
     if (!range.tokens.empty()) {
       context_map.clear();
+      context_map.resize(range.contexts.size());
 
       // Migrate the token contexts into the AST.
       for (auto &printed_tok : range.tokens) {
@@ -1547,25 +1587,40 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
 
       // Figure out the context for the declaration itself.
       TokenContextIndex decl_context_id = kInvalidTokenContextIndex;
-      auto decl_context_it = data_to_context.equal_range(
-          Canonicalize(containing_decl));
-      if (decl_context_it.first != decl_context_it.second) {
-        decl_context_id = decl_context_it.first->second;
-      } else {
-        assert(false);
+
+      // Go find the context ID of the primary declaration for our
+      auto cdecl = Canonicalize(containing_decl);
+      for (auto [dc_context_it, dc_context_end] = data_to_context.equal_range(cdecl);
+           dc_context_it != dc_context_end; ++dc_context_it) {
+        TokenContextIndex cid = dc_context_it->second;
+        const auto &c = ast->contexts[cid];
+
+        // Make sure we find the right isntance of this decl, at the right
+        // depth. It can easily happen that we find a version of this decl
+        // at a depth related to some internal usage.
+        if (c.data == cdecl && c.kind == TokenContextKind::kDecl &&
+            c.depth == (num_parents + 1u)) {
+          decl_context_id = cid;
+          break;
+        }
       }
+
+      bool log = false;
+//      if (auto tdecl = clang::dyn_cast<clang::NamedDecl>(containing_decl);
+//          tdecl && tdecl->getNameAsString() == "DFhook") {
+//        log = true;
+//      }
+
+      if (decl_context_id == kInvalidTokenContextIndex) {
+        assert(false);
+        decl_context_id = kTranslationUnitTokenContextIndex;
+      }
+
+      assert(decl_context_id != kInvalidTokenContextIndex);
 
       // Figure out the parsed bounds.
       auto decl_bounds = ast->DeclBounds(decl);
       if (decl_bounds.first) {
-
-        bool log = false;
-//        if (auto tdecl = clang::dyn_cast<clang::NamedDecl>(containing_decl);
-//            tdecl && tdecl->getNameAsString() == "optind") {
-//          log = true;
-//        }
-
-
         auto res = AlignTokens(ast, decl_bounds.first, &(decl_bounds.second[1]),
                                range, decl_context_id, log);
         if (!res.Succeeded()) {
@@ -1588,13 +1643,6 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
 //      }
 //    }
 //  }
-
-  // This is pretty sketchy, but place a raw reference back to the AST at the
-  // end of the contexts list. Because `ASTImpl` extends
-  // `std::enable_shared_from_this`, and because references to this vector in
-  // token contexts alias the lifetime of the `ASTImpl`, we can safely go and
-  // find the AST given any token context.
-  ast->contexts.emplace_back(*ast);
 
   return AST(std::move(ast));
 }

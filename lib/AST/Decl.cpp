@@ -219,12 +219,12 @@ void DeclVisitor::VisitTypedefNameDecl(const TypedefNameDecl &decl) {
   VisitTypeDecl(decl);
 }
 
-void DeclVisitor::VisitUnresolvedUsingTypenameDecl(const UnresolvedUsingTypenameDecl &decl) {
-  VisitTypeDecl(decl);
+void DeclVisitor::VisitUnresolvedUsingIfExistsDecl(const UnresolvedUsingIfExistsDecl &decl) {
+  VisitNamedDecl(decl);
 }
 
-void DeclVisitor::VisitUsingDecl(const UsingDecl &decl) {
-  VisitNamedDecl(decl);
+void DeclVisitor::VisitUnresolvedUsingTypenameDecl(const UnresolvedUsingTypenameDecl &decl) {
+  VisitTypeDecl(decl);
 }
 
 void DeclVisitor::VisitUsingDirectiveDecl(const UsingDirectiveDecl &decl) {
@@ -253,6 +253,10 @@ void DeclVisitor::VisitOMPDeclarativeDirectiveValueDecl(const OMPDeclarativeDire
 
 void DeclVisitor::VisitAccessSpecDecl(const AccessSpecDecl &decl) {
   VisitDecl(decl);
+}
+
+void DeclVisitor::VisitBaseUsingDecl(const BaseUsingDecl &decl) {
+  VisitNamedDecl(decl);
 }
 
 void DeclVisitor::VisitBindingDecl(const BindingDecl &decl) {
@@ -389,6 +393,14 @@ void DeclVisitor::VisitTypedefDecl(const TypedefDecl &decl) {
 
 void DeclVisitor::VisitUnresolvedUsingValueDecl(const UnresolvedUsingValueDecl &decl) {
   VisitValueDecl(decl);
+}
+
+void DeclVisitor::VisitUsingDecl(const UsingDecl &decl) {
+  VisitBaseUsingDecl(decl);
+}
+
+void DeclVisitor::VisitUsingEnumDecl(const UsingEnumDecl &decl) {
+  VisitBaseUsingDecl(decl);
 }
 
 void DeclVisitor::VisitVarDecl(const VarDecl &decl) {
@@ -539,6 +551,7 @@ static DeclKind KindOfDecl(const clang::Decl *decl) {
 
 static const std::string_view kKindNames[] = {
   "AccessSpec",
+  "BaseUsing",
   "Binding",
   "Block",
   "BuiltinTemplate",
@@ -618,10 +631,12 @@ static const std::string_view kKindNames[] = {
   "Type",
   "Typedef",
   "TypedefName",
+  "UnresolvedUsingIfExists",
   "UnresolvedUsingTypename",
   "UnresolvedUsingValue",
   "Using",
   "UsingDirective",
+  "UsingEnum",
   "UsingPack",
   "UsingShadow",
   "Value",
@@ -903,6 +918,7 @@ Decl::Decl(
     const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_, KindOfDecl(decl_)) {}
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, AccessSpecDecl)
+PASTA_DEFINE_DERIVED_OPERATORS(Decl, BaseUsingDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, BindingDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, BlockDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, BuiltinTemplateDecl)
@@ -984,10 +1000,12 @@ PASTA_DEFINE_DERIVED_OPERATORS(Decl, TypeAliasTemplateDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, TypeDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, TypedefDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, TypedefNameDecl)
+PASTA_DEFINE_DERIVED_OPERATORS(Decl, UnresolvedUsingIfExistsDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, UnresolvedUsingTypenameDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, UnresolvedUsingValueDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, UsingDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, UsingDirectiveDecl)
+PASTA_DEFINE_DERIVED_OPERATORS(Decl, UsingEnumDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, UsingPackDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, UsingShadowDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, ValueDecl)
@@ -1695,6 +1713,7 @@ NamedDecl::NamedDecl(
     : Decl(std::move(ast_), decl_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Decl, NamedDecl)
+PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, BaseUsingDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, BindingDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, BuiltinTemplateDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, CXXConstructorDecl)
@@ -1753,10 +1772,12 @@ PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, TypeAliasTemplateDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, TypeDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, TypedefDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, TypedefNameDecl)
+PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, UnresolvedUsingIfExistsDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, UnresolvedUsingTypenameDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, UnresolvedUsingValueDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, UsingDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, UsingDirectiveDecl)
+PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, UsingEnumDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, UsingPackDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, UsingShadowDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, ValueDecl)
@@ -1873,6 +1894,7 @@ bool NamedDecl::IsLinkageValid(void) const {
   return val;
 }
 
+// 1: NamedDecl::IsReserved
 NamespaceAliasDecl::NamespaceAliasDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
@@ -2006,6 +2028,7 @@ bool NamespaceDecl::IsOriginalNamespace(void) const {
   return val;
 }
 
+// 1: NamespaceDecl::IsRedundantInlineQualifierFor
 ObjCCompatibleAliasDecl::ObjCCompatibleAliasDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
@@ -3423,6 +3446,13 @@ bool TypedefNameDecl::IsTransparentTag(void) const {
   return val;
 }
 
+UnresolvedUsingIfExistsDecl::UnresolvedUsingIfExistsDecl(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Decl *decl_)
+    : NamedDecl(std::move(ast_), decl_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Decl, UnresolvedUsingIfExistsDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UnresolvedUsingIfExistsDecl)
 UnresolvedUsingTypenameDecl::UnresolvedUsingTypenameDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
@@ -3466,61 +3496,6 @@ bool UnresolvedUsingTypenameDecl::IsPackExpansion(void) const {
   auto &self = *(u.UnresolvedUsingTypenameDecl);
   auto val = self.isPackExpansion();
   return val;
-}
-
-UsingDecl::UsingDecl(
-    std::shared_ptr<ASTImpl> ast_,
-    const ::clang::Decl *decl_)
-    : NamedDecl(std::move(ast_), decl_) {}
-
-PASTA_DEFINE_BASE_OPERATORS(Decl, UsingDecl)
-PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingDecl)
-::pasta::UsingDecl UsingDecl::CanonicalDeclaration(void) const {
-  auto &self = *(u.UsingDecl);
-  auto val = self.getCanonicalDecl();
-  if (val) {
-    return DeclBuilder::Create<::pasta::UsingDecl>(ast, val);
-  }
-  assert(false && "UsingDecl::CanonicalDeclaration can return nullptr!");
-  __builtin_unreachable();
-}
-
-// 0: UsingDecl::NameInfo
-// 0: UsingDecl::Qualifier
-// 0: UsingDecl::QualifierToken
-::pasta::TokenRange UsingDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.UsingDecl);
-}
-
-::pasta::Token UsingDecl::UsingToken(void) const {
-  auto &self = *(u.UsingDecl);
-  auto val = self.getUsingLoc();
-  return ast->TokenAt(val);
-}
-
-bool UsingDecl::HasTypename(void) const {
-  auto &self = *(u.UsingDecl);
-  auto val = self.hasTypename();
-  return val;
-}
-
-bool UsingDecl::IsAccessDeclaration(void) const {
-  auto &self = *(u.UsingDecl);
-  auto val = self.isAccessDeclaration();
-  return val;
-}
-
-// 0: UsingDecl::
-// 0: UsingDecl::
-// 0: UsingDecl::
-std::vector<::pasta::UsingShadowDecl> UsingDecl::Shadows(void) const {
-  auto &self = *(u.UsingDecl);
-  auto val = self.shadows();
-  std::vector<::pasta::UsingShadowDecl> ret;
-  for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::UsingShadowDecl>(ast, decl_ptr));
-  }
-  return ret;
 }
 
 UsingDirectiveDecl::UsingDirectiveDecl(
@@ -3643,6 +3618,16 @@ PASTA_DEFINE_DERIVED_OPERATORS(UsingShadowDecl, ConstructorUsingShadowDecl)
   __builtin_unreachable();
 }
 
+::pasta::BaseUsingDecl UsingShadowDecl::Introducer(void) const {
+  auto &self = *(u.UsingShadowDecl);
+  auto val = self.getIntroducer();
+  if (val) {
+    return DeclBuilder::Create<::pasta::BaseUsingDecl>(ast, val);
+  }
+  assert(false && "UsingShadowDecl::Introducer can return nullptr!");
+  __builtin_unreachable();
+}
+
 ::pasta::UsingShadowDecl UsingShadowDecl::NextUsingShadowDeclaration(void) const {
   auto &self = *(u.UsingShadowDecl);
   auto val = self.getNextUsingShadowDecl();
@@ -3660,16 +3645,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(UsingShadowDecl, ConstructorUsingShadowDecl)
     return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
   }
   assert(false && "UsingShadowDecl::TargetDeclaration can return nullptr!");
-  __builtin_unreachable();
-}
-
-::pasta::UsingDecl UsingShadowDecl::UsingDeclaration(void) const {
-  auto &self = *(u.UsingShadowDecl);
-  auto val = self.getUsingDecl();
-  if (val) {
-    return DeclBuilder::Create<::pasta::UsingDecl>(ast, val);
-  }
-  assert(false && "UsingShadowDecl::UsingDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -3800,6 +3775,19 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, AccessSpecDecl)
   return ast->DeclTokenRange(u.AccessSpecDecl);
 }
 
+BaseUsingDecl::BaseUsingDecl(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Decl *decl_)
+    : NamedDecl(std::move(ast_), decl_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Decl, BaseUsingDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, BaseUsingDecl)
+PASTA_DEFINE_DERIVED_OPERATORS(BaseUsingDecl, UsingDecl)
+PASTA_DEFINE_DERIVED_OPERATORS(BaseUsingDecl, UsingEnumDecl)
+// 0: BaseUsingDecl::
+// 0: BaseUsingDecl::
+// 0: BaseUsingDecl::
+// 0: BaseUsingDecl::Shadows
 BindingDecl::BindingDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
@@ -4160,6 +4148,16 @@ bool ConstructorUsingShadowDecl::ConstructsVirtualBase(void) const {
     return DeclBuilder::Create<::pasta::ConstructorUsingShadowDecl>(ast, val);
   }
   assert(false && "ConstructorUsingShadowDecl::ConstructedBaseClassShadowDeclaration can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::UsingDecl ConstructorUsingShadowDecl::Introducer(void) const {
+  auto &self = *(u.ConstructorUsingShadowDecl);
+  auto val = self.getIntroducer();
+  if (val) {
+    return DeclBuilder::Create<::pasta::UsingDecl>(ast, val);
+  }
+  assert(false && "ConstructorUsingShadowDecl::Introducer can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -6097,6 +6095,97 @@ bool UnresolvedUsingValueDecl::IsPackExpansion(void) const {
   return val;
 }
 
+UsingDecl::UsingDecl(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Decl *decl_)
+    : BaseUsingDecl(std::move(ast_), decl_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(BaseUsingDecl, UsingDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, UsingDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingDecl)
+::pasta::UsingDecl UsingDecl::CanonicalDeclaration(void) const {
+  auto &self = *(u.UsingDecl);
+  auto val = self.getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::UsingDecl>(ast, val);
+  }
+  assert(false && "UsingDecl::CanonicalDeclaration can return nullptr!");
+  __builtin_unreachable();
+}
+
+// 0: UsingDecl::NameInfo
+// 0: UsingDecl::Qualifier
+// 0: UsingDecl::QualifierToken
+::pasta::TokenRange UsingDecl::TokenRange(void) const {
+  auto &self = *(u.UsingDecl);
+  auto val = self.getSourceRange();
+  return ast->TokenRangeFrom(val);
+}
+
+::pasta::Token UsingDecl::UsingToken(void) const {
+  auto &self = *(u.UsingDecl);
+  auto val = self.getUsingLoc();
+  return ast->TokenAt(val);
+}
+
+bool UsingDecl::HasTypename(void) const {
+  auto &self = *(u.UsingDecl);
+  auto val = self.hasTypename();
+  return val;
+}
+
+bool UsingDecl::IsAccessDeclaration(void) const {
+  auto &self = *(u.UsingDecl);
+  auto val = self.isAccessDeclaration();
+  return val;
+}
+
+UsingEnumDecl::UsingEnumDecl(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Decl *decl_)
+    : BaseUsingDecl(std::move(ast_), decl_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(BaseUsingDecl, UsingEnumDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, UsingEnumDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingEnumDecl)
+::pasta::UsingEnumDecl UsingEnumDecl::CanonicalDeclaration(void) const {
+  auto &self = *(u.UsingEnumDecl);
+  auto val = self.getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::UsingEnumDecl>(ast, val);
+  }
+  assert(false && "UsingEnumDecl::CanonicalDeclaration can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::EnumDecl UsingEnumDecl::EnumDeclaration(void) const {
+  auto &self = *(u.UsingEnumDecl);
+  auto val = self.getEnumDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::EnumDecl>(ast, val);
+  }
+  assert(false && "UsingEnumDecl::EnumDeclaration can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::Token UsingEnumDecl::EnumToken(void) const {
+  auto &self = *(u.UsingEnumDecl);
+  auto val = self.getEnumLoc();
+  return ast->TokenAt(val);
+}
+
+::pasta::TokenRange UsingEnumDecl::TokenRange(void) const {
+  auto &self = *(u.UsingEnumDecl);
+  auto val = self.getSourceRange();
+  return ast->TokenRangeFrom(val);
+}
+
+::pasta::Token UsingEnumDecl::UsingToken(void) const {
+  auto &self = *(u.UsingEnumDecl);
+  auto val = self.getUsingLoc();
+  return ast->TokenAt(val);
+}
+
 VarDecl::VarDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
@@ -6240,6 +6329,12 @@ enum TemplateSpecializationKind VarDecl::TemplateSpecializationKindForInstantiat
 bool VarDecl::HasConstantInitialization(void) const {
   auto &self = *(u.VarDecl);
   auto val = self.hasConstantInitialization();
+  return val;
+}
+
+bool VarDecl::HasDependentAlignment(void) const {
+  auto &self = *(u.VarDecl);
+  auto val = self.hasDependentAlignment();
   return val;
 }
 
@@ -6639,6 +6734,16 @@ PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, CXXDeductionGuideDecl)
 PASTA_DEFINE_BASE_OPERATORS(FunctionDecl, CXXDeductionGuideDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, CXXDeductionGuideDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXDeductionGuideDecl)
+::pasta::CXXConstructorDecl CXXDeductionGuideDecl::CorrespondingConstructor(void) const {
+  auto &self = *(u.CXXDeductionGuideDecl);
+  auto val = self.getCorrespondingConstructor();
+  if (val) {
+    return DeclBuilder::Create<::pasta::CXXConstructorDecl>(ast, val);
+  }
+  assert(false && "CXXDeductionGuideDecl::CorrespondingConstructor can return nullptr!");
+  __builtin_unreachable();
+}
+
 ::pasta::TemplateDecl CXXDeductionGuideDecl::DeducedTemplate(void) const {
   auto &self = *(u.CXXDeductionGuideDecl);
   auto val = self.getDeducedTemplate();

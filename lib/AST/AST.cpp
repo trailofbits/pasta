@@ -257,10 +257,12 @@ clang::Preprocessor &AST::UnderlyingPP(void) const {
   return impl->ci->getPreprocessor();
 }
 
+#ifndef PASTA_IN_BOOTSTRAP
 // Returns the top-level translation unit decl inside of this AST.
 TranslationUnitDecl AST::TranslationUnit(void) const {
   return TranslationUnitDecl(impl, impl->tu);
 }
+#endif
 
 // Return the main file which was parsed and thus resulted in this AST.
 File AST::MainFile(void) const {

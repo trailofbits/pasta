@@ -90,7 +90,8 @@ int main(void) {
                class_name.endswith("Directive") ||
                class_name.endswith("Literal") ||
                class_name == "SwitchCase" ||
-               class_name == "ExprWithCleanups") {
+               class_name == "ExprWithCleanups" ||
+               class_name == "OMPCanonicalLoop") {
       gStmtNames.push_back(class_name.str());
 
     } else if (class_name.endswith("Type") && class_name != "QualType") {

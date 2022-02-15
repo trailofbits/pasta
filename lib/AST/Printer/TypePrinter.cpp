@@ -1640,6 +1640,9 @@ void TypePrinter::printFunctionAfter(const clang::FunctionType::ExtInfo &Info,
     case clang::CC_Swift:
       OS << " __attribute__((swiftcall))";
       break;
+    case clang::CC_SwiftAsync:
+      OS << "__attribute__((swiftasynccall))";
+      break;
     case clang::CC_PreserveMost:
       OS << " __attribute__((preserve_most))";
       break;
@@ -2157,8 +2160,7 @@ void TypePrinter::AppendScope(clang::DeclContext *DC, raw_string_ostream &OS,
     // Only suppress an inline namespace if the name has the same lookup
     // results in the enclosing namespace.
     if (Policy.SuppressInlineNamespace && NS->isInline() && NameInScope &&
-        DC->getParent()->lookup(NameInScope).size() ==
-            DC->lookup(NameInScope).size())
+        NS->isRedundantInlineQualifierFor(NameInScope))
       return AppendScope(DC->getParent(), OS, NameInScope);
 
     AppendScope(DC->getParent(), OS, NS->getDeclName());
@@ -2846,6 +2848,7 @@ void TypePrinter::printAttributed(const clang::AttributedType *T,
         case clang::attr::StdCall: OS << "stdcall"; break;
         case clang::attr::ThisCall: OS << "thiscall"; break;
         case clang::attr::SwiftCall: OS << "swiftcall"; break;
+        case clang::attr::SwiftAsyncCall: OS << "swiftasynccall"; break;
         case clang::attr::VectorCall: OS << "vectorcall"; break;
         case clang::attr::Pascal: OS << "pascal"; break;
         case clang::attr::MSABI: OS << "ms_abi"; break;

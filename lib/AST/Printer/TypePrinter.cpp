@@ -22,9 +22,8 @@ class IncludeStrongLifetimeRAII {
 
  public:
   explicit IncludeStrongLifetimeRAII(clang::PrintingPolicy &Policy)
-      :
-      Policy(Policy),
-      Old(Policy.SuppressStrongLifetime) {
+      : Policy(Policy),
+        Old(Policy.SuppressStrongLifetime) {
     if (!Policy.SuppressLifetimeQualifiers)
       Policy.SuppressStrongLifetime = false;
   }
@@ -1429,10 +1428,13 @@ void TypePrinter::printFunctionProto(const clang::FunctionProtoType *T,
     TokenPrinterContext jump_up_stack(ctx);
     OS << '(';
     {
+      TokenPrinterContext ctx(OS, "ParameterTypeList", tokens);
       {
         ParamPolicyRAII ParamPolicy(Policy);
         for (unsigned i = 0, e = T->getNumParams(); i != e; ++i) {
           if (i) OS << ", ";
+
+          TokenPrinterContext ctx(OS, "ParameterType", tokens);
 
           auto EPI = T->getExtParameterInfo(i);
           if (EPI.isConsumed()) {

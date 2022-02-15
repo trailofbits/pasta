@@ -291,6 +291,7 @@ add_library(pasta_compiler STATIC
     
     "lib/AST/AlignTokens.cpp"
     "lib/AST/AST.cpp"
+    "lib/AST/Bounds.cpp"
     "lib/AST/Builder.cpp"
     "lib/AST/Builder.h"
     "lib/AST/Decl.cpp"
@@ -305,7 +306,6 @@ add_library(pasta_compiler STATIC
     "lib/AST/Printer/raw_ostream.h"
     "lib/AST/Printer/StmtPrinter.cpp"
     "lib/AST/Printer/TypePrinter.cpp"
-    "lib/AST/RefineTokens.cpp"
     
     "${HOST_H_FILE}"
     "lib/Compile/Command.h"

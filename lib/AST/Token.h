@@ -29,28 +29,31 @@ namespace pasta {
 
 class ASTImpl;
 class Token;
+class PrintedTokenImpl;
 class PrintedTokenRangeImpl;
 
+using OpaqueSourceLoc = uint32_t;
 using TokenContextIndex = uint32_t;
 static constexpr TokenContextIndex kInvalidTokenContextIndex = ~0u;
+static constexpr TokenContextIndex kASTTokenContextIndex = 0u;
+static constexpr TokenContextIndex kTranslationUnitTokenContextIndex = 1u;
 
-template <typename T>
-inline static T *Canonicalize(clang::Decl *decl, T) {
+inline static const clang::Decl *Canonicalize(const clang::Decl *decl) {
   return decl->getCanonicalDecl();
 }
 
 template <typename T>
-inline static T *Canonicalize(T *other, int) {
+inline static const T *Canonicalize(const T *other) {
   return other;
 }
 
 // Backing data for a token context.
 class TokenContextImpl {
  public:
-  const void * const data;
-  const TokenContextIndex parent_index;
-  const uint16_t depth;
-  const TokenContextKind kind;
+  const void *data;
+  TokenContextIndex parent_index;
+  uint16_t depth;
+  TokenContextKind kind;
 
   // Return the common ancestor between two contexts. This focuses on the data
   // itself, so if there are two distinct contexts sharing the same data, or
@@ -77,39 +80,41 @@ class TokenContextImpl {
   const char *KindName(
       const std::vector<TokenContextImpl> &contexts) const;
 
+  inline TokenContextImpl(const void *data_, TokenContextIndex parent_index_,
+                          unsigned depth_, TokenContextKind kind_)
+      : data(data_),
+        parent_index(parent_index_),
+        depth(static_cast<uint16_t>(depth_)),
+        kind(kind_) {}
+
 #define PASTA_DEFINE_TOKEN_CONTEXT_CONSTRUCTOR(cls) \
     inline TokenContextImpl(TokenContextIndex parent_index_, \
                             uint16_t parent_depth, \
                             const clang::cls *data_) \
-        : data(Canonicalize(data_, 0)), \
-          parent_index(parent_index_), \
-          depth(parent_depth + 1u), \
-          kind(TokenContextKind::k ## cls) {}
+        : TokenContextImpl(Canonicalize(data_), parent_index_, \
+                           parent_depth + 1u, TokenContextKind::k ## cls) {}
   PASTA_FOR_EACH_TOKEN_CONTEXT_KIND(PASTA_DEFINE_TOKEN_CONTEXT_CONSTRUCTOR)
 #undef PASTA_DEFINE_TOKEN_CONTEXT_CONSTRUCTOR
 
   inline TokenContextImpl(TokenContextIndex parent_index_,
                           uint16_t parent_depth,
                           const char *data_)
-      : data(data_),
-        parent_index(parent_index_),
-        depth(parent_depth + 1u),
-        kind(TokenContextKind::kString) {}
+      : TokenContextImpl(data_, parent_index_,
+                         parent_depth + 1u, TokenContextKind::kString) {}
 
   inline TokenContextImpl(TokenContextIndex parent_index_,
                           uint16_t parent_depth,
                           TokenContextIndex aliasee_)
-      : data(reinterpret_cast<const void *>(aliasee_)),
-        parent_index(parent_index_),
-        depth(parent_depth + 1u),
-        kind(TokenContextKind::kAlias) {}
+      : TokenContextImpl(reinterpret_cast<const void *>(aliasee_),
+                         parent_index_, parent_depth + 1u,
+                         TokenContextKind::kAlias) {}
 
   // Special context that we place at the end of a vector.
   inline TokenContextImpl(ASTImpl &ast)
-      : data(reinterpret_cast<const void *>(&ast)),
-        parent_index(kInvalidTokenContextIndex),
-        depth(std::numeric_limits<uint16_t>::max()),
-        kind(TokenContextKind::kInvalid) {}
+      : TokenContextImpl(reinterpret_cast<const void *>(&ast),
+                         kInvalidTokenContextIndex,
+                         0u,
+                         TokenContextKind::kAST) {}
 };
 
 using TokenKindBase = std::underlying_type_t<clang::tok::TokenKind>;
@@ -117,13 +122,13 @@ using TokenKindBase = std::underlying_type_t<clang::tok::TokenKind>;
 // Backing implementation of a token.
 class TokenImpl {
  public:
-  static constexpr uint32_t kInvalidSourceLocation = 0u;
+  static constexpr OpaqueSourceLoc kInvalidSourceLocation = 0u;
 
   static constexpr uint32_t kTokenSizeMask = ((1u << 20) - 1u);
 
-  inline TokenImpl(uint32_t opaque_source_loc_, int32_t data_offset_,
+  inline TokenImpl(OpaqueSourceLoc opaque_source_loc_, int32_t data_offset_,
                    uint32_t data_len_, clang::tok::TokenKind kind_,
-                   TokenRole role_, uint32_t token_context_index_=kInvalidTokenContextIndex)
+                   TokenRole role_, TokenContextIndex token_context_index_=kInvalidTokenContextIndex)
       : opaque_source_loc(opaque_source_loc_),
         context_index(token_context_index_),
         data_offset(data_offset_),
@@ -139,8 +144,20 @@ class TokenImpl {
   std::string_view Data(const ASTImpl &ast) const noexcept;
   std::string_view Data(const PrintedTokenRangeImpl &range) const noexcept;
 
+  inline TokenRole Role(void) const noexcept {
+    return static_cast<TokenRole>(role);
+  }
+
+  inline clang::tok::TokenKind Kind(void) const noexcept {
+    return static_cast<clang::tok::TokenKind>(kind);
+  }
+
+  // Return the context of this token, or `nullptr`.
+  const TokenContextImpl *Context(
+      const std::vector<TokenContextImpl> &contexts) const noexcept;
+
   // The raw encoding of the source location of the token.
-  uint32_t opaque_source_loc{kInvalidSourceLocation};
+  OpaqueSourceLoc opaque_source_loc{kInvalidSourceLocation};
 
   // Index of the token context in either `ASTImpl::contexts` or
   // `PrintedTokenRangeImpl::contexts`.
@@ -157,8 +174,12 @@ class TokenImpl {
 
   // The original token kind.
   TokenKindBase kind:9;
-  TokenKindBase role:7;
+
+  // The role of this token, e.g. parsed, printed, macro expansion, etc.
+  TokenKindBase role:3;
 } __attribute__((packed));
+
+static_assert(sizeof(TokenImpl) == 16u);
 
 // Read the data of the token into the passed in string pointer
 bool TryReadRawToken(clang::SourceManager &source_manager,

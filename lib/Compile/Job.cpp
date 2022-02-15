@@ -13,6 +13,7 @@
 #include <clang/Driver/Compilation.h>
 #include <clang/Driver/Driver.h>
 #include <clang/Driver/Options.h>
+#include <clang/Driver/Tool.h>
 #include <clang/Frontend/CompilerInvocation.h>
 #include <clang/Frontend/FrontendActions.h>
 #include <clang/Frontend/FrontendOptions.h>
@@ -417,8 +418,8 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
   // Collect the argument lists for the sub-jobs of interest.
   for (auto &job : compilation->getJobs()) {
-
     auto &job_args = job.getArguments();
+
     if (!job_args.size()) {
       continue;
 
@@ -428,12 +429,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
     // Probably a linking job.
     } else {
-      std::stringstream ss;
-      auto sep = "";
-      for (const auto &job_arg : job_args) {
-        ss << sep << job_arg;
-        sep = " ";
-      }
+
     }
   }
 
@@ -441,6 +437,8 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
   const auto target_triple =
       compilation->getDefaultToolChain().getTriple().str();
+
+  std::string last_job_args_str;
 
   for (auto job_args : cc1_jobs) {
     diagnostics_engine->Reset();
@@ -536,6 +534,21 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
       }
 
       new_argv.emplace_back(arg);
+    }
+
+    // Check for duplicates after canonicalization.
+    std::stringstream ss;
+    auto sep = "";
+    for (const auto &job_arg : new_argv) {
+      ss << sep << job_arg;
+      sep = " ";
+    }
+
+    auto job_args_str = ss.str();
+    if (last_job_args_str == job_args_str) {
+      continue;  // Duplicate.
+    } else {
+      last_job_args_str = std::move(job_args_str);
     }
 
     CompileJob job(std::make_shared<CompileJobImpl>(

@@ -1232,9 +1232,7 @@ uint32_t Decl::OwningModuleID(void) const {
 }
 
 ::pasta::TokenRange Decl::TokenRange(void) const {
-  auto &self = *(u.Decl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.Decl);
 }
 
 uint32_t Decl::TemplateDepth(void) const {
@@ -1479,9 +1477,7 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, ExportDecl)
 }
 
 ::pasta::TokenRange ExportDecl::TokenRange(void) const {
-  auto &self = *(u.ExportDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.ExportDecl);
 }
 
 bool ExportDecl::HasBraces(void) const {
@@ -1526,9 +1522,7 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, FileScopeAsmDecl)
 }
 
 ::pasta::TokenRange FileScopeAsmDecl::TokenRange(void) const {
-  auto &self = *(u.FileScopeAsmDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.FileScopeAsmDecl);
 }
 
 FriendDecl::FriendDecl(
@@ -1562,9 +1556,7 @@ uint32_t FriendDecl::FriendTypeNumTemplateParameterLists(void) const {
 
 // 1: FriendDecl::FriendTypeTemplateParameterList
 ::pasta::TokenRange FriendDecl::TokenRange(void) const {
-  auto &self = *(u.FriendDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.FriendDecl);
 }
 
 bool FriendDecl::IsUnsupportedFriend(void) const {
@@ -1621,9 +1613,7 @@ std::vector<::pasta::Token> ImportDecl::IdentifierTokens(void) const {
 
 // 0: ImportDecl::ImportedModule
 ::pasta::TokenRange ImportDecl::TokenRange(void) const {
-  auto &self = *(u.ImportDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.ImportDecl);
 }
 
 LifetimeExtendedTemporaryDecl::LifetimeExtendedTemporaryDecl(
@@ -1708,9 +1698,7 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, LinkageSpecDecl)
 }
 
 ::pasta::TokenRange LinkageSpecDecl::TokenRange(void) const {
-  auto &self = *(u.LinkageSpecDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.LinkageSpecDecl);
 }
 
 bool LinkageSpecDecl::HasBraces(void) const {
@@ -1959,9 +1947,7 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, NamespaceAliasDecl)
 // 0: NamespaceAliasDecl::Qualifier
 // 0: NamespaceAliasDecl::QualifierToken
 ::pasta::TokenRange NamespaceAliasDecl::TokenRange(void) const {
-  auto &self = *(u.NamespaceAliasDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.NamespaceAliasDecl);
 }
 
 ::pasta::Token NamespaceAliasDecl::TargetNameToken(void) const {
@@ -2021,9 +2007,7 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, NamespaceDecl)
 }
 
 ::pasta::TokenRange NamespaceDecl::TokenRange(void) const {
-  auto &self = *(u.NamespaceDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.NamespaceDecl);
 }
 
 bool NamespaceDecl::IsAnonymousNamespace(void) const {
@@ -2119,9 +2103,7 @@ std::vector<::pasta::ObjCPropertyDecl> ObjCContainerDecl::ClassProperties(void) 
 // 1: ObjCContainerDecl::InstanceVariableDeclaration
 // 2: Method
 ::pasta::TokenRange ObjCContainerDecl::TokenRange(void) const {
-  auto &self = *(u.ObjCContainerDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.ObjCContainerDecl);
 }
 
 std::vector<::pasta::ObjCMethodDecl> ObjCContainerDecl::InstanceMethods(void) const {
@@ -2388,9 +2370,7 @@ std::string_view ObjCInterfaceDecl::ObjCRuntimeNameAsString(void) const {
 
 // 0: ObjCInterfaceDecl::ReferencedProtocols
 ::pasta::TokenRange ObjCInterfaceDecl::TokenRange(void) const {
-  auto &self = *(u.ObjCInterfaceDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.ObjCInterfaceDecl);
 }
 
 ::pasta::ObjCInterfaceDecl ObjCInterfaceDecl::SuperClass(void) const {
@@ -2716,9 +2696,7 @@ uint32_t ObjCMethodDecl::NumSelectorTokens(void) const {
 
 // 4: ObjCMethodDecl::SelfType
 ::pasta::TokenRange ObjCMethodDecl::TokenRange(void) const {
-  auto &self = *(u.ObjCMethodDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.ObjCMethodDecl);
 }
 
 bool ObjCMethodDecl::HasBody(void) const {
@@ -2937,9 +2915,7 @@ enum ObjCPropertyQueryKind ObjCPropertyDecl::QueryKind(void) const {
 }
 
 ::pasta::TokenRange ObjCPropertyDecl::TokenRange(void) const {
-  auto &self = *(u.ObjCPropertyDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.ObjCPropertyDecl);
 }
 
 ::pasta::Type ObjCPropertyDecl::Type(void) const {
@@ -3072,9 +3048,7 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCPropertyImplDecl)
 }
 
 ::pasta::TokenRange ObjCPropertyImplDecl::TokenRange(void) const {
-  auto &self = *(u.ObjCPropertyImplDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.ObjCPropertyImplDecl);
 }
 
 bool ObjCPropertyImplDecl::IsInstanceVariableNameSpecified(void) const {
@@ -3124,9 +3098,7 @@ std::string_view ObjCProtocolDecl::ObjCRuntimeNameAsString(void) const {
 
 // 0: ObjCProtocolDecl::ReferencedProtocols
 ::pasta::TokenRange ObjCProtocolDecl::TokenRange(void) const {
-  auto &self = *(u.ObjCProtocolDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.ObjCProtocolDecl);
 }
 
 bool ObjCProtocolDecl::HasDefinition(void) const {
@@ -3265,9 +3237,7 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, StaticAssertDecl)
 }
 
 ::pasta::TokenRange StaticAssertDecl::TokenRange(void) const {
-  auto &self = *(u.StaticAssertDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.StaticAssertDecl);
 }
 
 bool StaticAssertDecl::IsFailed(void) const {
@@ -3292,9 +3262,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(TemplateDecl, TemplateTemplateParmDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TemplateDecl, TypeAliasTemplateDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TemplateDecl, VarTemplateDecl)
 ::pasta::TokenRange TemplateDecl::TokenRange(void) const {
-  auto &self = *(u.TemplateDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.TemplateDecl);
 }
 
 // 0: TemplateDecl::TemplateParameters
@@ -3344,9 +3312,7 @@ uint32_t TemplateTemplateParmDecl::NumExpansionTemplateParameters(void) const {
 }
 
 ::pasta::TokenRange TemplateTemplateParmDecl::TokenRange(void) const {
-  auto &self = *(u.TemplateTemplateParmDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.TemplateTemplateParmDecl);
 }
 
 bool TemplateTemplateParmDecl::HasDefaultArgument(void) const {
@@ -3417,9 +3383,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(TypeDecl, UnresolvedUsingTypenameDecl)
 }
 
 ::pasta::TokenRange TypeDecl::TokenRange(void) const {
-  auto &self = *(u.TypeDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.TypeDecl);
 }
 
 ::pasta::Type TypeDecl::TypeForDeclaration(void) const {
@@ -3586,9 +3550,7 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingDirectiveDecl)
 // 0: UsingDirectiveDecl::Qualifier
 // 0: UsingDirectiveDecl::QualifierToken
 ::pasta::TokenRange UsingDirectiveDecl::TokenRange(void) const {
-  auto &self = *(u.UsingDirectiveDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.UsingDirectiveDecl);
 }
 
 ::pasta::Token UsingDirectiveDecl::UsingToken(void) const {
@@ -3635,9 +3597,7 @@ std::vector<::pasta::NamedDecl> UsingPackDecl::Expansions(void) const {
 }
 
 ::pasta::TokenRange UsingPackDecl::TokenRange(void) const {
-  auto &self = *(u.UsingPackDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.UsingPackDecl);
 }
 
 UsingShadowDecl::UsingShadowDecl(
@@ -3812,9 +3772,7 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, AccessSpecDecl)
 }
 
 ::pasta::TokenRange AccessSpecDecl::TokenRange(void) const {
-  auto &self = *(u.AccessSpecDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.AccessSpecDecl);
 }
 
 BaseUsingDecl::BaseUsingDecl(
@@ -3960,9 +3918,7 @@ uint32_t BlockDecl::NumParams(void) const {
 // 1: BlockDecl::ParamDeclaration
 // 0: BlockDecl::SignatureAsWritten
 ::pasta::TokenRange BlockDecl::TokenRange(void) const {
-  auto &self = *(u.BlockDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.BlockDecl);
 }
 
 bool BlockDecl::HasCaptures(void) const {
@@ -4023,9 +3979,7 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, BuiltinTemplateDecl)
 PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, BuiltinTemplateDecl)
 // 0: BuiltinTemplateDecl::BuiltinTemplateKind
 ::pasta::TokenRange BuiltinTemplateDecl::TokenRange(void) const {
-  auto &self = *(u.BuiltinTemplateDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.BuiltinTemplateDecl);
 }
 
 CapturedDecl::CapturedDecl(
@@ -4154,9 +4108,7 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, ConceptDecl)
 }
 
 ::pasta::TokenRange ConceptDecl::TokenRange(void) const {
-  auto &self = *(u.ConceptDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.ConceptDecl);
 }
 
 bool ConceptDecl::IsTypeConcept(void) const {
@@ -4292,9 +4244,7 @@ uint32_t DeclaratorDecl::NumTemplateParameterLists(void) const {
 // 0: DeclaratorDecl::Qualifier
 // 0: DeclaratorDecl::QualifierToken
 ::pasta::TokenRange DeclaratorDecl::TokenRange(void) const {
-  auto &self = *(u.DeclaratorDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.DeclaratorDecl);
 }
 
 // 1: DeclaratorDecl::TemplateParameterList
@@ -4351,9 +4301,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, EnumConstantDecl)
 
 // 0: EnumConstantDecl::InitializerVal
 ::pasta::TokenRange EnumConstantDecl::TokenRange(void) const {
-  auto &self = *(u.EnumConstantDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.EnumConstantDecl);
 }
 
 FieldDecl::FieldDecl(
@@ -4436,9 +4384,7 @@ enum InClassInitStyle FieldDecl::InClassInitializerStyle(void) const {
 }
 
 ::pasta::TokenRange FieldDecl::TokenRange(void) const {
-  auto &self = *(u.FieldDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.FieldDecl);
 }
 
 bool FieldDecl::HasCapturedVLAType(void) const {
@@ -4682,9 +4628,7 @@ enum OverloadedOperatorKind FunctionDecl::OverloadedOperator(void) const {
 }
 
 ::pasta::TokenRange FunctionDecl::TokenRange(void) const {
-  auto &self = *(u.FunctionDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.FunctionDecl);
 }
 
 enum StorageClass FunctionDecl::StorageClass(void) const {
@@ -5129,9 +5073,7 @@ std::string_view LabelDecl::MSAssemblyLabel(void) const {
 }
 
 ::pasta::TokenRange LabelDecl::TokenRange(void) const {
-  auto &self = *(u.LabelDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.LabelDecl);
 }
 
 ::pasta::LabelStmt LabelDecl::Statement(void) const {
@@ -5246,9 +5188,7 @@ uint32_t NonTypeTemplateParmDecl::NumExpansionTypes(void) const {
 }
 
 ::pasta::TokenRange NonTypeTemplateParmDecl::TokenRange(void) const {
-  auto &self = *(u.NonTypeTemplateParmDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.NonTypeTemplateParmDecl);
 }
 
 bool NonTypeTemplateParmDecl::HasDefaultArgument(void) const {
@@ -5681,9 +5621,7 @@ uint32_t ObjCTypeParamDecl::Index(void) const {
 }
 
 ::pasta::TokenRange ObjCTypeParamDecl::TokenRange(void) const {
-  auto &self = *(u.ObjCTypeParamDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.ObjCTypeParamDecl);
 }
 
 enum ObjCTypeParamVariance ObjCTypeParamDecl::Variance(void) const {
@@ -5813,9 +5751,7 @@ uint32_t TagDecl::NumTemplateParameterLists(void) const {
 // 0: TagDecl::Qualifier
 // 0: TagDecl::QualifierToken
 ::pasta::TokenRange TagDecl::TokenRange(void) const {
-  auto &self = *(u.TagDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.TagDecl);
 }
 
 enum TagTypeKind TagDecl::TagKind(void) const {
@@ -5985,9 +5921,7 @@ uint32_t TemplateTypeParmDecl::NumExpansionParameters(void) const {
 }
 
 ::pasta::TokenRange TemplateTypeParmDecl::TokenRange(void) const {
-  auto &self = *(u.TemplateTypeParmDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.TemplateTypeParmDecl);
 }
 
 // 0: TemplateTypeParmDecl::TypeConstraint
@@ -6047,9 +5981,7 @@ PASTA_DEFINE_BASE_OPERATORS(TypedefNameDecl, TypeAliasDecl)
 }
 
 ::pasta::TokenRange TypeAliasDecl::TokenRange(void) const {
-  auto &self = *(u.TypeAliasDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.TypeAliasDecl);
 }
 
 TypeAliasTemplateDecl::TypeAliasTemplateDecl(
@@ -6111,9 +6043,7 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, TypedefDecl)
 PASTA_DEFINE_BASE_OPERATORS(TypeDecl, TypedefDecl)
 PASTA_DEFINE_BASE_OPERATORS(TypedefNameDecl, TypedefDecl)
 ::pasta::TokenRange TypedefDecl::TokenRange(void) const {
-  auto &self = *(u.TypedefDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.TypedefDecl);
 }
 
 UnresolvedUsingValueDecl::UnresolvedUsingValueDecl(
@@ -6144,9 +6074,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, UnresolvedUsingValueDecl)
 // 0: UnresolvedUsingValueDecl::Qualifier
 // 0: UnresolvedUsingValueDecl::QualifierToken
 ::pasta::TokenRange UnresolvedUsingValueDecl::TokenRange(void) const {
-  auto &self = *(u.UnresolvedUsingValueDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.UnresolvedUsingValueDecl);
 }
 
 ::pasta::Token UnresolvedUsingValueDecl::UsingToken(void) const {
@@ -6354,9 +6282,7 @@ enum LanguageLinkage VarDecl::LanguageLinkage(void) const {
 }
 
 ::pasta::TokenRange VarDecl::TokenRange(void) const {
-  auto &self = *(u.VarDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.VarDecl);
 }
 
 enum StorageClass VarDecl::StorageClass(void) const {
@@ -7372,9 +7298,7 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, OMPCapturedExprDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPCapturedExprDecl)
 PASTA_DEFINE_BASE_OPERATORS(VarDecl, OMPCapturedExprDecl)
 ::pasta::TokenRange OMPCapturedExprDecl::TokenRange(void) const {
-  auto &self = *(u.OMPCapturedExprDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.OMPCapturedExprDecl);
 }
 
 ParmVarDecl::ParmVarDecl(
@@ -7423,9 +7347,7 @@ uint32_t ParmVarDecl::FunctionScopeIndex(void) const {
 }
 
 ::pasta::TokenRange ParmVarDecl::TokenRange(void) const {
-  auto &self = *(u.ParmVarDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.ParmVarDecl);
 }
 
 ::pasta::Expr ParmVarDecl::UninstantiatedDefaultArgument(void) const {
@@ -8805,9 +8727,7 @@ std::variant<std::monostate, ::pasta::ClassTemplateDecl, ::pasta::ClassTemplateP
 }
 
 ::pasta::TokenRange ClassTemplateSpecializationDecl::TokenRange(void) const {
-  auto &self = *(u.ClassTemplateSpecializationDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.ClassTemplateSpecializationDecl);
 }
 
 enum TemplateSpecializationKind ClassTemplateSpecializationDecl::SpecializationKind(void) const {

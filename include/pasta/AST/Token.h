@@ -69,7 +69,11 @@ enum class TokenContextKind : unsigned char {
   kString,
 
   // This is an alias to another token kind higher up in the stack.
-  kAlias
+  kAlias,
+
+  // This is an AST marker node. These are the main roots of all parsed
+  // token ranges.
+  kAST,
 };
 
 // The context associated with a printed token. This represents a path from

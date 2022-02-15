@@ -44,6 +44,15 @@ File File::Containing(const FileToken &tok) {
   return File(tok.file);
 }
 
+// Return the file containing a given file token.
+std::optional<File> File::Containing(const std::optional<FileToken> &tok) {
+  if (!tok) {
+    return std::nullopt;
+  } else {
+    return File(tok->file);
+  }
+}
+
 // Return the path of this file.
 std::filesystem::path File::Path(void) const noexcept {
   return impl->stat.full_path;
@@ -104,17 +113,7 @@ FileTokenRange File::Tokens(void) const noexcept {
 // Return a token at a specific file offset.
 std::optional<FileToken> File::TokenAtOffset(unsigned offset) const noexcept {
 
-  const char *data_ptr = nullptr;
-  {
-    std::unique_lock<std::mutex> locker(impl->data_lock);
-    if (offset >= impl->data.size()) {
-      return std::nullopt;
-    }
-
-    data_ptr = &(impl->data[offset]);
-  }
-
-  FileTokenImpl fake_tok(data_ptr, 0, 0, clang::tok::unknown);
+  FileTokenImpl fake_tok(offset, 0, 0, 0, clang::tok::unknown);
 
   {
     std::unique_lock<std::mutex> locker(impl->tokens_lock);
@@ -123,7 +122,7 @@ std::optional<FileToken> File::TokenAtOffset(unsigned offset) const noexcept {
     auto ret = std::lower_bound(
         tokens, end_tokens, fake_tok,
         [] (const FileTokenImpl &a, const FileTokenImpl &b) {
-          return a.data < b.data;
+          return a.data_offset < b.data_offset;
         });
 
     if (tokens <= ret && ret < end_tokens) {
@@ -137,7 +136,7 @@ std::optional<FileToken> File::TokenAtOffset(unsigned offset) const noexcept {
 // Kind of this token.
 clang::tok::TokenKind FileToken::Kind(void) const noexcept {
   if (impl) {
-    return static_cast<clang::tok::TokenKind>(impl->kind.extended.kind);
+    return impl->Kind();
   } else {
     return clang::tok::unknown;
   }
@@ -197,15 +196,12 @@ std::string_view FileToken::Data(void) const noexcept {
     } else if (impl->kind.extended.is_objc_kw) {
       return kObjCKeywordSpelling[impl->kind.extended.alt_kind];
 
-    // If it's the end of the file, then there is no next token.
-    } else if (impl->kind.extended.kind ==
-               static_cast<uint16_t>(clang::tok::eof)) {
-      return {};
+    } else if (impl->data_len) {
+      return std::string_view(file->data).substr(
+          impl->data_offset, impl->data_len);
 
     } else {
-      const FileTokenImpl *next_impl = &(impl[1]);
-      return std::string_view(
-          impl->data, static_cast<size_t>(next_impl->data - impl->data));
+      return {};
     }
   } else {
     return {};

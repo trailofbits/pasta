@@ -314,6 +314,8 @@ const char *TokenContextImpl::KindName(
       }
     case TokenContextKind::kString:
       return "String";
+    case TokenContextKind::kAST:
+      return "AST";
   }
 }
 
@@ -328,7 +330,11 @@ uint32_t TokenContext::Index(void) const {
 
 // String representation of this token context kind.
 const char *TokenContext::KindName(void) const {
-  return impl ? "Invalid" : impl->KindName(*contexts);
+  if (impl) {
+    return impl->KindName(*contexts);
+  } else {
+    return "Invalid";
+  }
 }
 
 // Return the kind of this token.
@@ -429,7 +435,7 @@ std::optional<FileToken> Token::FileLocation(void) const {
 // Kind of this token.
 clang::tok::TokenKind Token::Kind(void) const noexcept {
   if (impl) {
-    return static_cast<clang::tok::TokenKind>(impl->kind);
+    return impl->Kind();
   } else {
     return clang::tok::unknown;
   }
@@ -438,7 +444,7 @@ clang::tok::TokenKind Token::Kind(void) const noexcept {
 // Return the role of this token.
 TokenRole Token::Role(void) const noexcept {
   if (impl) {
-    return static_cast<TokenRole>(impl->role);
+    return impl->Role();
   } else {
     return TokenRole::kInvalid;
   }
@@ -460,15 +466,11 @@ FileTokenRange Token::MacroUseTokens(void) const noexcept {
     return FileTokenRange(ast->main_source_file.impl);
   }
 
-  assert((static_cast<TokenRole>(begin->role) ==
-          TokenRole::kMacroExpansionToken) ||
-         (static_cast<TokenRole>(begin->role) ==
-          TokenRole::kEndOfMacroExpansionMarker));
+  assert((begin->Role() == TokenRole::kMacroExpansionToken) ||
+         (begin->Role() == TokenRole::kEndOfMacroExpansionMarker));
   begin = &(begin[-1]);
-  assert(static_cast<TokenRole>(begin->role) ==
-         TokenRole::kBeginOfMacroExpansionMarker);
-  assert(static_cast<TokenRole>(end->role) ==
-         TokenRole::kEndOfMacroExpansionMarker);
+  assert(begin->Role() == TokenRole::kBeginOfMacroExpansionMarker);
+  assert(end->Role() == TokenRole::kEndOfMacroExpansionMarker);
 
   auto begin_loc = begin->Location();
   auto end_loc = end->Location();
@@ -515,7 +517,7 @@ TokenRange Token::MacroExpandedTokens(void) const noexcept {
   // of a macro expansion marker, e.g. a file entry marker.
   auto begin = impl;
   for (; begin > min; --begin) {
-    switch (static_cast<TokenRole>(begin->role)) {
+    switch (begin->Role()) {
       case TokenRole::kBeginOfMacroExpansionMarker:
         goto found_begin;
       case TokenRole::kMacroExpansionToken:
@@ -529,8 +531,7 @@ TokenRange Token::MacroExpandedTokens(void) const noexcept {
 found_begin:
 
   // If we failed to find the beginning then bail out. Shouldn't happen.
-  if (static_cast<TokenRole>(begin->role) !=
-      TokenRole::kBeginOfMacroExpansionMarker) {
+  if (begin->Role() != TokenRole::kBeginOfMacroExpansionMarker) {
     assert(false);
     return TokenRange(ast);
   }
@@ -539,7 +540,7 @@ found_begin:
   // of a macro expansion marker, e.g. a file exit marker.
   auto end = impl;
   for (; end < max; ++end) {
-    switch (static_cast<TokenRole>(end->role)) {
+    switch (end->Role()) {
       case TokenRole::kEndOfMacroExpansionMarker:
         goto found_end;
       case TokenRole::kBeginOfMacroExpansionMarker:
@@ -553,8 +554,7 @@ found_begin:
 found_end:
 
   // If we failed to find the end then bail out. Shouldn't happen.
-  if (static_cast<TokenRole>(end->role) !=
-      TokenRole::kEndOfMacroExpansionMarker) {
+  if (end->Role() != TokenRole::kEndOfMacroExpansionMarker) {
     assert(false);
     return TokenRange(ast);
   }
@@ -563,19 +563,28 @@ found_end:
   return TokenRange(ast, &(begin[1]), end);
 }
 
+// Return the context of this token, or `nullptr`.
+const TokenContextImpl *TokenImpl::Context(
+    const std::vector<TokenContextImpl> &contexts) const noexcept {
+  if (context_index == kInvalidTokenContextIndex) {
+    return nullptr;
+  } else if (context_index >= contexts.size()) {
+    return nullptr;
+  } else {
+    return &(contexts[context_index]);
+  }
+}
+
 // Return this token's context, or a null context.
 std::optional<TokenContext> Token::Context(void) const noexcept {
   if (!impl) {
-    return {};
-  } else if (impl->context_index == kInvalidTokenContextIndex) {
-    return {};
-  } else if (impl->context_index >= ast->contexts.size()) {
-    return {};
-  } else {
+    return std::nullopt;
+  } else if (auto context = impl->Context(ast->contexts)) {
     std::shared_ptr<const std::vector<TokenContextImpl>> contexts(
         ast, &(ast->contexts));
-    return TokenContext(&(ast->contexts[impl->context_index]),
-                        std::move(contexts));
+    return TokenContext(context, std::move(contexts));
+  } else {
+    return std::nullopt;
   }
 }
 

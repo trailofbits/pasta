@@ -99,7 +99,7 @@ class PrintedTokenRangeImpl {
 
 struct no_alias_tag {};
 
-// Context class for tokenizing what's inside of a particular stream stream.
+// Context class for tokenizing what's inside of a particular stream.
 class TokenPrinterContext {
  public:
   template <typename T>
@@ -137,7 +137,10 @@ template <typename T>
 const TokenContextIndex PrintedTokenRangeImpl::CreateContext(
     TokenPrinterContext *tokenizer, const T *data) {
 
-  if (data) {
+  auto dedup = !std::is_same_v<T, char> && !std::is_base_of_v<clang::Type, T>;
+
+  if (data && dedup) {
+    data = Canonicalize(data);
     if (auto it = data_to_index.find(data); it != data_to_index.end()) {
       return it->second;
     }
@@ -171,7 +174,9 @@ const TokenContextIndex PrintedTokenRangeImpl::CreateContext(
 
   if (data) {
     tokenizer->owns_data = data;
-    data_to_index.emplace(data, index);
+    if (dedup) {
+      data_to_index.emplace(data, index);
+    }
   }
 
   return index;

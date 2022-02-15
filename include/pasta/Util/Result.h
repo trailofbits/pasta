@@ -140,9 +140,13 @@ void Result<ValueType, ErrorType>::VerifyState(void) const {
   if (!destroyed) {
     return;
   }
-
+#ifndef NDEBUG
   throw std::logic_error(
       "The Result<ValueType, ErrorType> object no longer contains its internal data because it has been moved with TakeError/TakeValue");
+#else
+  __builtin_trap();
+  __builtin_unreachable();
+#endif
 }
 
 template <typename ValueType, typename ErrorType>
@@ -151,8 +155,13 @@ void Result<ValueType, ErrorType>::VerifyChecked(void) const {
     return;
   }
 
+#ifndef NDEBUG
   throw std::logic_error(
       "The Result<ValueType, ErrorType> object was not checked for success");
+#else
+  __builtin_trap();
+  __builtin_unreachable();
+#endif
 }
 
 template <typename ValueType, typename ErrorType>
@@ -161,8 +170,13 @@ void Result<ValueType, ErrorType>::VerifySucceeded(void) const {
     return;
   }
 
+#ifndef NDEBUG
   throw std::logic_error(
       "The Result<ValueType, ErrorType> object has not succeeded");
+#else
+  __builtin_trap();
+  __builtin_unreachable();
+#endif
 }
 
 template <typename ValueType, typename ErrorType>
@@ -170,9 +184,13 @@ void Result<ValueType, ErrorType>::VerifyFailed(void) const {
   if (std::holds_alternative<ErrorType>(data)) {
     return;
   }
-
+#ifndef NDEBUG
   throw std::logic_error(
       "The Result<ValueType, ErrorType> object has not failed");
+#else
+  __builtin_trap();
+  __builtin_unreachable();
+#endif
 }
 
 }  // namespace pasta

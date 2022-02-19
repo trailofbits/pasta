@@ -976,7 +976,6 @@ enum class AtomicOp : unsigned int {
   kOpencl_atomic_fetch_max = 47,
   kAtomic_fetch_min = 48,
   kAtomic_fetch_max = 49,
-  kBI_First = 0,
 };
 
 enum class AtomicScopeModelKind : int {
@@ -2072,9 +2071,9 @@ enum class Level : unsigned int {
 };
 
 enum class Likelihood : int {
-  kLH_Unlikely = -1,
-  kLH_None = 0,
-  kLH_Likely = 1,
+  kUnlikely = -1,
+  kNone = 0,
+  kLikely = 1,
 };
 
 enum class Linkage : unsigned char {
@@ -2195,8 +2194,8 @@ enum class NestedNameSpecifierDependence : unsigned char {
 };
 
 enum class NewtypeKind : unsigned int {
-  kNK_Struct = 0,
-  kNK_Enum = 1,
+  kStruct = 0,
+  kEnum = 1,
 };
 
 enum class NonOdrUseReason : unsigned int {
@@ -2404,9 +2403,9 @@ enum class OpenMPMapModifierKind : unsigned int {
 };
 
 enum class OpenMPMotionModifierKind : unsigned int {
-  kOMPC_MOTION_MODIFIER_mapper = 0,
-  kOMPC_MOTION_MODIFIER_present = 1,
-  kOMPC_MOTION_MODIFIER_unknown = 2,
+  kMOTION_MODIFIER_mapper = 0,
+  kMOTION_MODIFIER_present = 1,
+  kMOTION_MODIFIER_unknown = 2,
 };
 
 enum class OpenMPOrderClauseKind : unsigned int {
@@ -2628,12 +2627,12 @@ enum class RefQualifierKind : unsigned int {
 };
 
 enum class RemarkKind : unsigned int {
-  kRK_Missing = 0,
-  kRK_Enabled = 1,
-  kRK_EnabledEverything = 2,
-  kRK_Disabled = 3,
-  kRK_DisabledEverything = 4,
-  kRK_WithPattern = 5,
+  kMissing = 0,
+  kEnabled = 1,
+  kEnabledEverything = 2,
+  kDisabled = 3,
+  kDisabledEverything = 4,
+  kWithPattern = 5,
 };
 
 enum class ReservedIdentifierStatus : int {
@@ -2658,10 +2657,10 @@ enum class SFINAEResponse : unsigned int {
 };
 
 enum class SYCLMajorVersion : unsigned int {
-  kSYCL_None = 0,
-  kSYCL_2017 = 1,
-  kSYCL_2020 = 2,
-  kSYCL_Default = 2,
+  kNone = 0,
+  k2017 = 1,
+  k2020 = 2,
+  kDefault = 2,
 };
 
 enum class SanitizerOrdinal : unsigned long long {
@@ -3086,9 +3085,9 @@ enum class StringKind : unsigned int {
 };
 
 enum class StructReturnConventionKind : unsigned int {
-  kSRCK_Default = 0,
-  kSRCK_OnStack = 1,
-  kSRCK_InRegs = 2,
+  kDefault = 0,
+  kOnStack = 1,
+  kInRegs = 2,
 };
 
 enum class SubExpr : unsigned int {

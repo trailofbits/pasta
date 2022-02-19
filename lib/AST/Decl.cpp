@@ -6117,9 +6117,7 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingDecl)
 // 0: UsingDecl::Qualifier
 // 0: UsingDecl::QualifierToken
 ::pasta::TokenRange UsingDecl::TokenRange(void) const {
-  auto &self = *(u.UsingDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.UsingDecl);
 }
 
 ::pasta::Token UsingDecl::UsingToken(void) const {
@@ -6175,9 +6173,7 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingEnumDecl)
 }
 
 ::pasta::TokenRange UsingEnumDecl::TokenRange(void) const {
-  auto &self = *(u.UsingEnumDecl);
-  auto val = self.getSourceRange();
-  return ast->TokenRangeFrom(val);
+  return ast->DeclTokenRange(u.UsingEnumDecl);
 }
 
 ::pasta::Token UsingEnumDecl::UsingToken(void) const {

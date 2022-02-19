@@ -1576,7 +1576,7 @@ class FixedPointLiteral : public Expr {
   ::pasta::Token EndToken(void) const;
   ::pasta::Token Token(void) const;
   uint32_t Scale(void) const;
-  // ValueAsString: (std::basic_string<char, std::char_traits<char>, std::allocator<char>>)
+  // ValueAsString: (std::string)
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(FixedPointLiteral)
 };

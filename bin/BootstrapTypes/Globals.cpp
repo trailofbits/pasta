@@ -127,6 +127,7 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
   {"(const char *)", "std::string_view"},
   {"(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>)", "std::string"},
   {"(std::basic_string<char, std::char_traits<char>, std::allocator<char>>)", "std::string"},
+  {"(std::string)", "std::string"},
   {"(unsigned int)", "uint32_t"},
   {"(long)", "int64_t"},
   {"(unsigned long)", "uint64_t"},
@@ -310,6 +311,9 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
 
   {"(std::basic_string<char, std::char_traits<char>, std::allocator<char>>)",
    "  return val;\n"},
+
+   {"(std::string)",
+    "  return val;\n"},
 
   {"(unsigned int)",
    "  return val;\n"},
@@ -724,6 +728,11 @@ std::vector<llvm::StringRef> kEnumPrefixesToStrip{
     "AR_",
     "RK_",
     "SYCL_",
+    "LH_",
+    "NK_",
+    "OMPC_",
+    "SRCK_",
+    "BI_",
 };
 
 // Set of ClassName::MethodName pairs such that the class can return a nullptr,

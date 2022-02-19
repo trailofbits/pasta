@@ -1754,7 +1754,7 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
 //        }
 //        assert(false);
 //      }
-      assert(t->context_index != kInvalidTokenContextIndex);
+      assert(t->context_index == kInvalidTokenContextIndex);
       t->context_index = kInvalidTokenContextIndex;
     }
 

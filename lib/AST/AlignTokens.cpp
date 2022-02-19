@@ -346,7 +346,6 @@ static SequenceRegion *BuildRegions(
   // for builtins, which are not present in the preprocessed code.
   for (auto it = after_last, end = first; it != end; ) {
 
-//    auto next_it = it;
     TokenImpl *next_tok_ptr = reinterpret_cast<TokenImpl *>(it);
 
     // Decrement by `sizeof(TokenImpl)` or `sizeof(PrintedTokenImpl)`.
@@ -408,7 +407,6 @@ static SequenceRegion *BuildRegions(
 
           match_stack.pop_back();
           stmt_stoppers.pop_back();
-//          at_stop(it, next_it);
 
           if (opening_kind != tok_kind) {
             err << "Unbalanced "
@@ -1231,6 +1229,38 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
       reinterpret_cast<uint8_t *>(printed_end), sizeof(*printed_begin),
       "printed");
   if (!printed_tree) {
+//
+//    std::ofstream parsed_os("/tmp/tree.parsed");
+//    parsed_tree->Print(parsed_os, "", *ast);
+//
+//    std::ofstream printed_os("/tmp/tree.printed");
+//    for (auto t = printed_begin; t < printed_end; ++t) {
+//      if (t->Kind() == clang::tok::string_literal) {
+//        printed_os << "\"str\"";
+//      } else {
+//        printed_os << t->Data(range);
+//      }
+////      if (t->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
+////        printed_os << " l:" << std::hex << t->opaque_source_loc << std::dec;
+////      }
+////      if (t->context_index != kInvalidTokenContextIndex) {
+////        printed_os << " c:" << std::hex << t->context_index << std::dec;
+////      }
+//
+//      if ((t - printed_begin) == 18025) {
+//        printed_os << "  /* HERE */";
+//      }
+//
+//      printed_os << '\n';
+//    }
+//
+//    parsed_os.flush();
+//    printed_os.flush();
+//    assert(false);
+
+//    std::ofstream printed_os("/tmp/tree.printed");
+//    printed_tree->Print(printed_os, "", range);
+
     return err.str();
   }
 
@@ -1425,7 +1455,7 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
   matcher.FixContexts(parsed_tree, context_stack);
 
 #if PASTA_DEBUG_ALIGN
-//  if (log) {
+  if (log) {
     std::ofstream parsed_os("/tmp/tree.parsed");
     parsed_tree->Print(parsed_os, "", *ast);
 
@@ -1434,7 +1464,7 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
 //
 //    parsed_os.flush();
 //    printed_os.flush();
-//  }
+  }
 //
 //  if (log) {
 //    auto t = &(parsed_end[-1]);
@@ -1466,8 +1496,13 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
 Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
   std::vector<clang::Decl *> work_list;
   std::vector<clang::Decl *> tlds;
+  std::unordered_set<const clang::Decl *> ignore_decls;
 
   assert(ast->contexts.empty());
+
+  ast->contexts.reserve(ast->tokens.size() * 32u);
+  assert(static_cast<uint32_t>(ast->contexts.capacity()) ==
+         ast->contexts.capacity());
 
   // Add a dummy context at the beginning. This is nifty so that we can use a
   // vector as a `context_map` below instead of an map.
@@ -1492,8 +1527,23 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
           work_list.push_back(sub_decl);
         }
         break;
-
       default:
+        if (auto ftpl = clang::dyn_cast<clang::FunctionTemplateDecl>(decl)) {
+          for (clang::Decl *spec : ftpl->specializations()) {
+            ignore_decls.insert(Canonicalize(spec));
+          }
+
+        } else if (auto ctpl = clang::dyn_cast<clang::ClassTemplateDecl>(decl)) {
+          for (clang::Decl *spec : ctpl->specializations()) {
+            ignore_decls.insert(Canonicalize(spec));
+          }
+
+        } else if (auto vtpl = clang::dyn_cast<clang::VarTemplateDecl>(decl)) {
+          for (clang::Decl *spec : vtpl->specializations()) {
+            ignore_decls.insert(Canonicalize(spec));
+          }
+        }
+
         if (!decl->isImplicit()) {
           // Compute bounds of top-level decls. This will fill out
           // `ast->lexically_containing_decl`.
@@ -1504,10 +1554,58 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
     }
   }
 
+  auto should_keep = [&ignore_decls] (clang::Decl *decl) {
+    // These are explicit, user-written specializations.
+    if (auto cspec = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(decl);
+        cspec && !clang::isa<clang::ClassTemplatePartialSpecializationDecl>(cspec)) {
+      return cspec->getSpecializationKind() == clang::TSK_ExplicitSpecialization;
+
+    } else if (auto vspec = clang::dyn_cast<clang::VarTemplateSpecializationDecl>(decl);
+               vspec && !clang::isa<clang::VarTemplatePartialSpecializationDecl>(vspec)) {
+      return vspec->getSpecializationKind() == clang::TSK_ExplicitSpecialization;
+    } else {
+      return !ignore_decls.count(Canonicalize(decl));
+    }
+  };
+
+  // Strip out template specializations.
+  tlds.erase(
+      std::partition(tlds.begin(), tlds.end(), should_keep),
+      tlds.end());
+
+  tlds.erase(std::unique(tlds.begin(), tlds.end()), tlds.end());
+
+  std::stable_sort(
+      tlds.begin(), tlds.end(),
+      [ast = ast.get()] (clang::Decl *a, clang::Decl *b) {
+        auto a_bounds = ast->DeclBounds(a);
+        auto b_bounds = ast->DeclBounds(b);
+
+        // If `a` starts first, put it first.
+        if (a_bounds.first < b_bounds.first) {
+          return true;
+
+        } else if (a_bounds.first > b_bounds.first) {
+          return false;
+
+        // If `b` encloses `a`, sort `b` first.
+        } else if (a_bounds.second < b_bounds.second) {
+          return false;
+
+        // If `a` encloses `b`, then sort `a` first.
+        } else if (a_bounds.second > b_bounds.second) {
+          return true;
+
+        // Keep the relative order from `tlds`.
+        } else {
+          return false;
+        }
+      });
+
   std::unordered_multimap<const void *, TokenContextIndex> data_to_context;
   std::vector<TokenContextIndex> context_map;
   std::vector<clang::Decl *> tld_group;
-  std::vector<clang::Decl *> parentage;
+  std::vector<const clang::Decl *> parentage;
   std::vector<TokenPrinterContext> context_stack;
   std::string data;
   auto &ast_context = ast->tu->getASTContext();
@@ -1539,6 +1637,7 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
     // for this TLD group.
     parentage.clear();
     context_stack.clear();
+    parentage.push_back(containing_decl);
     for (auto dc = containing_decl->getLexicalDeclContext(); dc;
          dc = dc->getLexicalParent()) {
       if (auto dc_decl = clang::dyn_cast<clang::Decl>(dc)) {
@@ -1548,10 +1647,12 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
 
     // Initialize a new printed token range.
     data.clear();
-    raw_string_ostream out(data);
+    raw_string_ostream out(data, 0);
     PrintedTokenRangeImpl range(ast_context);
     range.ast = ast;
-    DeclPrinter printer(out, *(ast->printing_policy), ast_context, range);
+
+    clang::PrintingPolicy pp = *(ast->printing_policy);
+    DeclPrinter printer(out, pp, ast_context, range);
 
     // Build up a stack of the parentage for these decls. There should at least
     // be the translation unit. This mimicks the call stack initialization of
@@ -1561,74 +1662,118 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
     context_stack.reserve(num_parents);
     for (auto pit = parentage.rbegin(), pend = parentage.rend();
         pit != pend; ++pit) {
-      clang::Decl *dc_decl = *pit;
+      const clang::Decl *dc_decl = *pit;
       (void) context_stack.emplace_back(out, dc_decl, range);
     }
+
+    // Force our current top of stack to be the canonical version of the
+    // first decl in our decl group.
+    assert(!context_stack.empty());
+    const TokenContextIndex decl_context_id = context_stack.back().context_index;
+    assert(decl_context_id != kInvalidTokenContextIndex);
 
     for (clang::Decl *tld_decl : tld_group) {
       printer.Visit(tld_decl);
     }
 
-    // Unwind the tokenizer contexts.
+    // Unwind the tokenizer contexts (just in case the destructors still have
+    // work to do).
     while (!context_stack.empty()) {
       context_stack.pop_back();
     }
 
-    if (!range.tokens.empty()) {
-      context_map.clear();
-      context_map.resize(range.contexts.size());
+    if (range.tokens.empty()) {
+      continue;
+    }
 
-      // Migrate the token contexts into the AST.
-      for (auto &printed_tok : range.tokens) {
-        printed_tok.context_index = MigrateContexts(
-            printed_tok.context_index, range.contexts, ast->contexts,
-            data_to_context, context_map);
-      }
+//      // Figure out the context for the declaration itself.
+//      TokenContextIndex decl_context_id = kInvalidTokenContextIndex;
+//
+//      // Go find the context ID of the primary declaration for our first
+//      // top-level decl in this group.
+//      auto cdecl = Canonicalize(containing_decl);
+//      for (auto [dc_context_it, dc_context_end] = data_to_context.equal_range(cdecl);
+//           dc_context_it != dc_context_end; ++dc_context_it) {
+//        TokenContextIndex cid = dc_context_it->second;
+//        const auto &c = ast->contexts[cid];
+//
+//        // Make sure we find the right instance of this decl, at the right
+//        // depth. It can easily happen that we find a version of this decl
+//        // at a depth related to some internal usage.
+//        if (c.data == cdecl && c.kind == TokenContextKind::kDecl &&
+//            c.depth == (num_parents + 1u)) {
+//          decl_context_id = cid;
+//          break;
+//        }
+//      }
 
-      // Figure out the context for the declaration itself.
-      TokenContextIndex decl_context_id = kInvalidTokenContextIndex;
+//      if (decl_context_id == kInvalidTokenContextIndex) {
+//        assert(false);
+//        decl_context_id = kTranslationUnitTokenContextIndex;
+//      }
+//
+//      assert(decl_context_id != kInvalidTokenContextIndex);
 
-      // Go find the context ID of the primary declaration for our
-      auto cdecl = Canonicalize(containing_decl);
-      for (auto [dc_context_it, dc_context_end] = data_to_context.equal_range(cdecl);
-           dc_context_it != dc_context_end; ++dc_context_it) {
-        TokenContextIndex cid = dc_context_it->second;
-        const auto &c = ast->contexts[cid];
 
-        // Make sure we find the right isntance of this decl, at the right
-        // depth. It can easily happen that we find a version of this decl
-        // at a depth related to some internal usage.
-        if (c.data == cdecl && c.kind == TokenContextKind::kDecl &&
-            c.depth == (num_parents + 1u)) {
-          decl_context_id = cid;
-          break;
-        }
-      }
-
-      bool log = false;
+    bool log = false;
 //      if (auto tdecl = clang::dyn_cast<clang::NamedDecl>(containing_decl);
 //          tdecl && tdecl->getNameAsString() == "DFhook") {
 //        log = true;
 //      }
-
-      if (decl_context_id == kInvalidTokenContextIndex) {
-        assert(false);
-        decl_context_id = kTranslationUnitTokenContextIndex;
-      }
-
-      assert(decl_context_id != kInvalidTokenContextIndex);
-
-      // Figure out the parsed bounds.
-      auto decl_bounds = ast->DeclBounds(decl);
-      if (decl_bounds.first) {
-        auto res = AlignTokens(ast, decl_bounds.first, &(decl_bounds.second[1]),
-                               range, decl_context_id, log);
-        if (!res.Succeeded()) {
-          return res.TakeError();
-        }
-      }
+    // Figure out the parsed bounds.
+    auto decl_bounds = ast->DeclBounds(decl);
+    if (!decl_bounds.first) {
+      continue;
     }
 
+//    auto first_tok = &(ast->tokens.front());
+//    auto begin_offset = decl_bounds.first - first_tok;
+//    auto end_offset = decl_bounds.second - first_tok;
+//    auto num = (decl_bounds.second - decl_bounds.first) + 1;
+//
+//    pasta::Token ft(ast, ast->RawTokenAt(containing_decl->getLocation()));
+//    if (auto fl = ft.FileLocation()) {
+//      auto f = pasta::File::Containing(*fl);
+//      std::cerr << f.Path().generic_string() << ':' << fl->Line() << ':' << fl->Column() << ": ";
+//    }
+//
+//    std::cerr
+//        << reinterpret_cast<const void *>(containing_decl)
+//        << " [" << begin_offset << ", " << end_offset << "] (size="
+//        << num << ") group=" << tld_group.size() << "\n";
+
+    // Clear out the old token contexts. We'll possibly detect issues here.
+    for (TokenImpl *t = decl_bounds.first; t <= decl_bounds.second; ++t) {
+//      if (t->context_index != kInvalidTokenContextIndex) {
+//        for (auto tt = decl_bounds.first; tt <= decl_bounds.second; ++tt) {
+//          if (tt->Kind() == clang::tok::string_literal) {
+//            std::cerr << "\"str\"";
+//          } else {
+//            std::cerr << tt->Data(*ast);
+//          }
+//        }
+//        assert(false);
+//      }
+      assert(t->context_index != kInvalidTokenContextIndex);
+      t->context_index = kInvalidTokenContextIndex;
+    }
+
+    auto res = AlignTokens(ast, decl_bounds.first, &(decl_bounds.second[1]),
+                           range, decl_context_id, log);
+    if (!res.Succeeded()) {
+      return res.TakeError();
+    }
+
+    // Migrate the token contexts into the AST. This will migrate only the
+    // contexts that were actually propagated into the parsed tokens, as
+    // opposed to all token contexts.
+    context_map.clear();
+    context_map.resize(range.contexts.size());
+    for (TokenImpl *t = decl_bounds.first; t <= decl_bounds.second; ++t) {
+      t->context_index = MigrateContexts(
+          t->context_index, range.contexts, ast->contexts,
+          data_to_context, context_map);
+    }
   }
 
 //  for (auto decl : tlds) {

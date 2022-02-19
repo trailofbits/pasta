@@ -38,6 +38,8 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
                          public clang::TypeLocVisitor<DeclBoundsFinder> {
  private:
   ASTImpl &ast;
+  TokenImpl * const first_tok;
+  TokenImpl * const last_tok;
 
   std::unordered_set<clang::Decl *> seen_decls;
 
@@ -49,9 +51,6 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   // Scans forward or backward, starting at `tok` and tries to identify the
   // next balanced paren, brace, or square.
   TokenImpl *ScanForMatching(TokenImpl *tok, int64_t increment) {
-
-    auto first_tok = &(ast.tokens.front());
-    auto last_tok = &(ast.tokens.back());
     auto count = 0;
 
     for (; first_tok <= tok && tok <= last_tok; tok = &(tok[increment])) {
@@ -419,7 +418,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     ExpandToTrailingToken(decl->getLocation(), clang::tok::semi);
   }
 
-  void VisitUsingDecl(clang::UsingDecl *decl) {
+  void VisitBaseUsingDecl(clang::BaseUsingDecl *decl) {
     VisitNamedDecl(decl);
     Expand(decl->getSourceRange());
     ExpandToLeadingToken(decl->getLocation(), clang::tok::kw_using);
@@ -475,32 +474,69 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   }
 
   void VisitTemplateDecl(clang::TemplateDecl *decl) {
+//    auto o_lower_bound = lower_bound;
+//    auto o_upper_bound = upper_bound;
     VisitNamedDecl(decl);
-    Expand(decl->getSourceRange());
-    ExpandToLeadingToken(decl->getLocation(), clang::tok::kw_template);
-    ExpandToTrailingToken(decl->getLocation(), clang::tok::semi);
+    Expand(decl->getSourceRange());  // Includes `getTemplateLoc`.
+//    ExpandToLeadingToken(decl->getLocation(), clang::tok::kw_template);
+
+    if (clang::isa<clang::VarTemplateDecl>(decl) ||
+        clang::isa<clang::ClassTemplateDecl>(decl)) {
+      ExpandToTrailingToken(decl->getLocation(), clang::tok::semi);
+    }
+
+//    if (&(first_tok[599265]) == lower_bound) {
+//      lower_bound = o_lower_bound;
+//      upper_bound = o_upper_bound;
+//      assert(&(first_tok[599265]) != lower_bound);
+//      VisitNamedDecl(decl);
+//      assert(&(first_tok[599265]) != lower_bound);
+//      Expand(decl->getSourceRange());
+//      assert(&(first_tok[599265]) != lower_bound);
+//      ExpandToTrailingToken(decl->getLocation(), clang::tok::semi);
+//      assert(&(first_tok[599265]) != lower_bound);
+//    }
   }
 
   void VisitClassScopeFunctionSpecializationDecl(
       clang::ClassScopeFunctionSpecializationDecl *decl) {
     Expand(decl->getSourceRange());
-    ExpandToLeadingToken(decl->getLocation(), clang::tok::kw_template);
+    if (auto args = decl->getTemplateArgsAsWritten()) {
+      ExpandToLeadingToken(args->getLAngleLoc(), clang::tok::kw_template);
+
+    } else if (auto params = decl->getDescribedTemplateParams()) {
+      Expand(params->getTemplateLoc());
+
+    } else {
+      ExpandToLeadingToken(decl->getLocation(), clang::tok::kw_template);
+    }
     ExpandToTrailingToken(decl->getLocation(), clang::tok::semi);
   }
+
   void VisitClassTemplateSpecializationDecl(
       clang::ClassTemplateSpecializationDecl *decl) {
     VisitCXXRecordDecl(decl);
     Expand(decl->getSourceRange());
-    ExpandToLeadingToken(decl->getLocation(), clang::tok::kw_template);
-    ExpandToTrailingToken(decl->getLocation(), clang::tok::semi);
+
+    if (decl->getSpecializationKind() == clang::TSK_ExplicitSpecialization) {
+      Expand(decl->getTemplateKeywordLoc());
+      ExpandToTrailingToken(decl->getLocation(), clang::tok::semi);
+    }
+
+//    ExpandToLeadingToken(decl->getLocation(), clang::tok::kw_template);
+//    ExpandToTrailingToken(decl->getLocation(), clang::tok::semi);
   }
 
   void VisitVarTemplateSpecializationDecl(
       clang::VarTemplateSpecializationDecl *decl) {
     VisitVarDecl(decl);
     Expand(decl->getSourceRange());
-    ExpandToLeadingToken(decl->getLocation(), clang::tok::kw_template);
-    ExpandToTrailingToken(decl->getLocation(), clang::tok::semi);
+    if (decl->getSpecializationKind() == clang::TSK_ExplicitSpecialization) {
+      Expand(decl->getTemplateKeywordLoc());
+      ExpandToTrailingToken(decl->getLocation(), clang::tok::semi);
+    }
+//    ExpandToLeadingToken(decl->getLocation(), clang::tok::kw_template);
+//    ExpandToTrailingToken(decl->getLocation(), clang::tok::semi);
   }
 
   void VisitEnumConstantDecl(clang::EnumConstantDecl *decl) {
@@ -743,7 +779,9 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   }
 
   DeclBoundsFinder(ASTImpl &ast_)
-      : ast(ast_) {}
+      : ast(ast_),
+        first_tok(&(ast.tokens.front())),
+        last_tok(&(ast.tokens.back())) {}
 
   std::pair<TokenImpl *, TokenImpl *> GetBounds(clang::Decl *decl) {
     seen_decls.clear();
@@ -817,6 +855,7 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
 
   using DeclRange = std::tuple<clang::Decl *, TokenImpl *, TokenImpl *>;
   std::vector<DeclRange> tlds;
+  std::unordered_map<clang::Decl *, clang::Decl *> remapped_decls;
 
   for (clang::Decl *tld_decl : dc->decls()) {
     switch (tld_decl->getKind()) {
@@ -852,16 +891,62 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
 //      }
 
       default: {
+        if (auto ftpl = clang::dyn_cast<clang::FunctionTemplateDecl>(tld_decl)) {
+          for (clang::Decl *spec : ftpl->specializations()) {
+            remapped_decls.emplace(spec, tld_decl);
+          }
+
+        } else if (auto ctpl = clang::dyn_cast<clang::ClassTemplateDecl>(tld_decl)) {
+          for (clang::Decl *spec : ctpl->specializations()) {
+            remapped_decls.emplace(spec, tld_decl);
+          }
+
+        } else if (auto vtpl = clang::dyn_cast<clang::VarTemplateDecl>(tld_decl)) {
+          for (clang::Decl *spec : vtpl->specializations()) {
+            remapped_decls.emplace(spec, tld_decl);
+          }
+        }
+
+        // Top-level specializations are ones that are explicitly fully
+        // specialized with their own definitions.
+        if (auto cspec = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(tld_decl);
+            cspec && !clang::isa<clang::ClassTemplatePartialSpecializationDecl>(cspec)) {
+          if (cspec->getSpecializationKind() == clang::TSK_ExplicitSpecialization) {
+            remapped_decls.erase(tld_decl);
+          } else {
+            break;
+          }
+
+        } else if (auto vspec = clang::dyn_cast<clang::VarTemplateSpecializationDecl>(tld_decl);
+                   vspec && !clang::isa<clang::VarTemplatePartialSpecializationDecl>(vspec)) {
+          if (vspec->getSpecializationKind() == clang::TSK_ExplicitSpecialization) {
+            remapped_decls.erase(tld_decl);
+          } else {
+            break;
+          }
+        }
+
         if (!decl->isImplicit()) {
-          auto &dd_bounds = bounds[tld_decl];
-          assert(tld_decl != decl || dd_bounds == old_bounds);
-          dd_bounds = finder.GetBounds(tld_decl);
-          assert(tld_decl != decl || dd_bounds == old_bounds);
-          tlds.emplace_back(tld_decl, dd_bounds.first, dd_bounds.second);
+          tlds.emplace_back(tld_decl, nullptr, nullptr);
         }
         break;
       }
     }
+  }
+
+  for (auto &[tld_decl, tld_begin, tld_end] : tlds) {
+    clang::Decl *decl_loc = tld_decl;
+    if (auto remap_it = remapped_decls.find(tld_decl);
+        remap_it != remapped_decls.end()) {
+      decl_loc = remap_it->second;
+    }
+
+    auto &dd_bounds = bounds[tld_decl];
+    assert(tld_decl != decl || dd_bounds == old_bounds);
+    dd_bounds = finder.GetBounds(decl_loc);
+    assert(tld_decl != decl || dd_bounds == old_bounds);
+    tld_begin = dd_bounds.first;
+    tld_end = dd_bounds.second;
   }
 
   // It's possible that we have two-or-more things that appear to be top-level
@@ -914,7 +999,7 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
       auto [j_decl, _b, _e] = tlds[j];
       auto &b = bounds[j_decl];
       assert(begin_tok <= b.first);
-      assert( b.second <= end_tok);
+      assert(b.second <= end_tok);
       b.first = begin_tok;
       b.second = end_tok;
       lexically_containing_decl.emplace(j_decl, decl);

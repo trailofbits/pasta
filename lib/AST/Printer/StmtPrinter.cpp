@@ -125,6 +125,7 @@ void StmtPrinter::VisitLabelStmt(clang::LabelStmt *Node) {
 void StmtPrinter::VisitAttributedStmt(clang::AttributedStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   for (const auto *Attr : Node->getAttrs()) {
+    TagDefinitionPolicyRAII disable_tags(Policy);
     Attr->printPretty(OS, Policy);
   }
 
@@ -1063,7 +1064,9 @@ void StmtPrinter::VisitConstantExpr(clang::ConstantExpr *Node) {
 void StmtPrinter::VisitDeclRefExpr(clang::DeclRefExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   if (const auto *OCED = clang::dyn_cast<clang::OMPCapturedExprDecl>(Node->getDecl())) {
-    OCED->getInit()->IgnoreImpCasts()->printPretty(OS, nullptr, Policy);
+    auto E = OCED->getInit()->IgnoreImpCasts();
+    StmtPrinter printer(OS, nullptr, tokens, Policy);
+    printer.PrintExpr(const_cast<clang::Expr *>(E));
     return;
   }
   if (const auto *TPOD = clang::dyn_cast<clang::TemplateParamObjectDecl>(Node->getDecl())) {
@@ -2973,7 +2976,7 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
                                             const clang::PrintingPolicy &policy,
                                             clang::Stmt *stmt) {
   std::string data;
-  raw_string_ostream out(data);
+  raw_string_ostream out(data, 0);
   auto tokens = std::make_shared<PrintedTokenRangeImpl>(context);
 
   if (stmt) {
@@ -2994,12 +2997,13 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
 PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
                                             clang::Stmt *stmt) {
   std::string data;
-  raw_string_ostream out(data);
+  raw_string_ostream out(data, 0);
   auto &context = ast->tu->getASTContext();
   auto tokens = std::make_shared<PrintedTokenRangeImpl>(context);
 
   if (stmt) {
-    StmtPrinter printer(out, nullptr, *tokens, *(ast->printing_policy));
+    clang::PrintingPolicy pp = *(ast->printing_policy);
+    StmtPrinter printer(out, nullptr, *tokens, pp);
     printer.Visit(stmt);
   }
 

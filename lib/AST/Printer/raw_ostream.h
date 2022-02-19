@@ -5,6 +5,7 @@
 #pragma once
 
 #include <llvm/Support/raw_ostream.h>
+#include <unordered_set>
 
 namespace pasta {
 
@@ -20,15 +21,19 @@ class raw_string_ostream : public clang::raw_ostream {
     return OS.size();
   }
 
+  raw_string_ostream(const raw_string_ostream &ss) = delete;
+  raw_string_ostream(raw_string_ostream &&ss) noexcept = delete;
+
 public:
+
+  // Keep track of already-printed definitions.
+  std::unordered_set<void *> printed_defs;
+
   ~raw_string_ostream() override {
     flush();
   }
 
-  raw_string_ostream(std::string &O) : OS(O) {}
-
-  raw_string_ostream(const raw_string_ostream &ss) : OS(ss.OS) {}
-  raw_string_ostream(raw_string_ostream &&ss) : OS(ss.OS) {}
+  explicit raw_string_ostream(std::string &O, int) : OS(O) {}
 
   size_t size(void) const {
     return 0;

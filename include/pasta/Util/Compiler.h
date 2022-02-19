@@ -74,7 +74,7 @@ inline const int steal_member_pointer = [] {
         &::pasta::detail::__temp_tag_##ns##_##cls##_##member>)
 
 }  // namespace detail
-}  // namespace mu
+}  // namespace pasta
 
 
 #define PASTA_LIKELY(x) __builtin_expect(!!(x), 1)

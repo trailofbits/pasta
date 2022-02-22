@@ -442,7 +442,7 @@ class TypeBuilder;
     m(ClassTemplateSpecialization) \
     m(Concept) \
     m(ConstructorUsingShadow) \
-    a() \
+    a(Decl) \
     m(Declarator) \
     m(Decomposition) \
     m(Empty) \
@@ -811,7 +811,7 @@ class TypeBuilder;
     m(Tag) \
     m(TemplateSpecialization) \
     m(TemplateTypeParm) \
-    a() \
+    a(Type) \
     m(TypeOfExpr) \
     m(TypeOf) \
     m(Typedef) \

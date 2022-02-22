@@ -324,6 +324,11 @@ add_library(pasta_compiler STATIC
     "lib/Compile/Run.cpp"
 )
 
+set_target_properties(
+    pasta_compiler PROPERTIES
+    VISIBILITY_INLINES_HIDDEN YES
+)
+
 target_include_directories(pasta_compiler PRIVATE
     "${CMAKE_CURRENT_BINARY_DIR}/lib/Compile"
 )

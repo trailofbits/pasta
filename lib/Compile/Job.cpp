@@ -198,12 +198,12 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
       } else {
         arg->render(args, parsed_inc_args);
       }
+
     } else if (id == clang::driver::options::OPT_o) {
       // If there is separator writing output to a file, add it as
       // an output file with the separator else it will be treated
       // as an input file.
-      auto path =  fs.ParsePath(arg->getValue());
-      output_to_use = std::move(path->real_path);
+      output_to_use = fs.ParsePath(arg->getValue());
     } else {
       arg->renderAsInput(args, parsed_args);
     }
@@ -243,7 +243,7 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
 
     auto path = fs.Stat(fs.ParsePath(parsed_arg));
     if (path.Succeeded()) {
-      new_args.emplace_back(std::move(path->real_path));
+      new_args.emplace_back(path.TakeValue().real_path);
     } else {
       new_args.emplace_back(parsed_arg);
     }

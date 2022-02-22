@@ -7839,7 +7839,16 @@ bool CXXRecordDecl::AllowConstDefaultInitializer(void) const {
   return val;
 }
 
-// 0: CXXRecordDecl::Bases
+std::vector<::pasta::CXXBaseSpecifier> CXXRecordDecl::Bases(void) const {
+  auto &self = *(u.CXXRecordDecl);
+  auto val = self.bases();
+  std::vector<::pasta::CXXBaseSpecifier> ret;
+  for (auto bs : val) {
+    ret.emplace_back(ast, bs);
+  }
+  return ret;
+}
+
 // 0: CXXRecordDecl::
 // 0: CXXRecordDecl::
 enum MSInheritanceModel CXXRecordDecl::CalculateInheritanceModel(void) const {
@@ -8676,7 +8685,16 @@ bool CXXRecordDecl::NullFieldOffsetIsZero(void) const {
   return val;
 }
 
-// 0: CXXRecordDecl::VirtualBases
+std::vector<::pasta::CXXBaseSpecifier> CXXRecordDecl::VirtualBases(void) const {
+  auto &self = *(u.CXXRecordDecl);
+  auto val = self.vbases();
+  std::vector<::pasta::CXXBaseSpecifier> ret;
+  for (auto bs : val) {
+    ret.emplace_back(ast, bs);
+  }
+  return ret;
+}
+
 // 0: CXXRecordDecl::
 // 0: CXXRecordDecl::
 ClassTemplateSpecializationDecl::ClassTemplateSpecializationDecl(

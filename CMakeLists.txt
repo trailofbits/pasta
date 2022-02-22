@@ -295,6 +295,7 @@ add_library(pasta_compiler STATIC
     "lib/AST/Builder.cpp"
     "lib/AST/Builder.h"
     "lib/AST/Decl.cpp"
+    "lib/AST/DeclManual.cpp"
     "lib/AST/Stmt.cpp"
     "lib/AST/Token.cpp"
     "lib/AST/Token.h"

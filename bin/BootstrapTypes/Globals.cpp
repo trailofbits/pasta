@@ -265,7 +265,10 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
    "std::vector<::pasta::Token>"},
 
   {"(llvm::iterator_range<const clang::Expr *const *>)",
-   "std::vector<::pasta::Expr>"}
+   "std::vector<::pasta::Expr>"},
+
+  {"(llvm::iterator_range<const clang::CXXBaseSpecifier *>)",
+   "std::vector<::pasta::CXXBaseSpecifier>"},
 };
 
 // Maps return types from the macros file to how they should be returned
@@ -605,7 +608,15 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
     "  return ret;\n"},
 
    {"(llvm::iterator_range<const clang::Expr *const *>)",
-    STMT_ITERATOR_IMPL(Expr)}
+    STMT_ITERATOR_IMPL(Expr)},
+
+
+   {"(llvm::iterator_range<const clang::CXXBaseSpecifier *>)",
+    "  std::vector<::pasta::CXXBaseSpecifier> ret;\n"
+    "  for (auto bs : val) {\n"
+    "    ret.emplace_back(ast, bs);\n"
+    "  }\n"
+    "  return ret;\n"},
 };
 
 // Prefixes on enumerators to strip.

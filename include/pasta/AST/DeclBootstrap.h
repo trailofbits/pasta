@@ -54,7 +54,7 @@ class Decl {
       const ::clang::Decl *decl_);
 };
 
-using TranslationUnitDecl = Decl;
+class TranslationUnitDecl : public Decl {};
 
 }  // namespace pasta
 

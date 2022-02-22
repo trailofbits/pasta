@@ -2906,7 +2906,7 @@ class CXXRecordDecl : public RecordDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(CXXRecordDecl, ClassTemplatePartialSpecializationDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(CXXRecordDecl, ClassTemplateSpecializationDecl)
   bool AllowConstDefaultInitializer(void) const;
-  // Bases: (llvm::iterator_range<const clang::CXXBaseSpecifier *>)
+  std::vector<::pasta::CXXBaseSpecifier> Bases(void) const;
   enum MSInheritanceModel CalculateInheritanceModel(void) const;
   // Captures: (llvm::iterator_range<const clang::LambdaCapture *>)
   std::vector<::pasta::CXXConstructorDecl> Constructors(void) const;
@@ -3042,7 +3042,7 @@ class CXXRecordDecl : public RecordDecl {
   bool NeedsOverloadResolutionForMoveAssignment(void) const;
   bool NeedsOverloadResolutionForMoveConstructor(void) const;
   bool NullFieldOffsetIsZero(void) const;
-  // VirtualBases: (llvm::iterator_range<const clang::CXXBaseSpecifier *>)
+  std::vector<::pasta::CXXBaseSpecifier> VirtualBases(void) const;
   // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXRecordDecl)

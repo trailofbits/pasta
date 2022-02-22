@@ -35,6 +35,7 @@ namespace pasta {
 
 class AST;
 class ASTImpl;
+class CXXBaseSpecifier;
 class FileToken;
 class FileTokenRange;
 class PrintedTokenRangeImpl;
@@ -201,6 +202,7 @@ class Token {
  private:
   friend class AST;
   friend class ASTImpl;
+  friend class CXXBaseSpecifier;
   friend class TokenIterator;
   friend class TokenPrinterContext;
   friend class TokenRange;
@@ -334,6 +336,7 @@ class TokenRange {
  private:
   friend class AST;
   friend class ASTImpl;
+  friend class CXXBaseSpecifier;
   friend class DeclPrinter;
   friend class Token;
 

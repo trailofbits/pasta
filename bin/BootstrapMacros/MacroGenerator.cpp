@@ -320,12 +320,27 @@ MacroGenerator::~MacroGenerator(void) {
     // keep these here so that we can do something like
     // `using Blah = ::pasta::Blah` later.
     for (const auto &[enum_name, enum_] : decl_named_enums) {
+      if (decl_name == "Decl" && enum_name == "Kind") {
+        continue;
+      }
+
       auto enum_def = enum_->getDefinition();
       auto itype = enum_->getIntegerType();
+      auto itype_str = itype.getAsString(print_policy);
       if (!itype.isNull() && enum_def) {
-        os << "    PASTA_DECLARE_CLASS_NAMED_ENUM(" << decl_name
-           << ", " << decl_id << ", " << enum_name << ", ("
-           << itype.getAsString(print_policy) << "))\n";
+        os << "  PASTA_BEGIN_CLASS_NAMED_ENUM(" << decl_name
+           << ", " << enum_name << ", ("
+           << itype_str << "))\n";
+
+        for (auto elem : enum_def->enumerators()) {
+          os << "    PASTA_CLASS_ENUMERATOR(" << elem->getNameAsString()
+             << ", (" << itype_str << "), (";
+          elem->getInitVal().print(os, IsSigned(itype));
+          os << "))\n";
+        }
+
+        os << "  PASTA_END_CLASS_NAMED_ENUM(" << decl_name
+           << ", " << enum_name << ")\n";
       }
     }
 

@@ -763,7 +763,7 @@ class BuiltinType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(BuiltinType)
   PASTA_DECLARE_BASE_OPERATORS(Type, BuiltinType)
   ::pasta::Type Desugar(void) const;
-  // Kind: (clang::BuiltinType::Kind)
+  ::pasta::BuiltinTypeKind Kind(void) const;
   // Name: (llvm::StringRef)
   // NameAsCString: (const char *)
   bool IsFloatingPoint(void) const;

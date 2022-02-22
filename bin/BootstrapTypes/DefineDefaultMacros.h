@@ -137,3 +137,15 @@
 #ifndef PASTA_END_NAMED_ENUM
 # define PASTA_END_NAMED_ENUM(name)
 #endif
+
+#ifndef PASTA_BEGIN_CLASS_NAMED_ENUM
+# define PASTA_BEGIN_CLASS_NAMED_ENUM(class_name, name, underlying_type)
+#endif
+
+#ifndef PASTA_CLASS_ENUMERATOR
+# define PASTA_CLASS_ENUMERATOR(name, underlying_type, value)
+#endif
+
+#ifndef PASTA_END_CLASS_NAMED_ENUM
+# define PASTA_END_CLASS_NAMED_ENUM(class_name, name)
+#endif

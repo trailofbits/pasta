@@ -269,6 +269,9 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
 
   {"(llvm::iterator_range<const clang::CXXBaseSpecifier *>)",
    "std::vector<::pasta::CXXBaseSpecifier>"},
+
+  {"(clang::BuiltinType::Kind)",
+   "::pasta::BuiltinTypeKind"}
 };
 
 // Maps return types from the macros file to how they should be returned
@@ -617,6 +620,9 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
     "    ret.emplace_back(ast, bs);\n"
     "  }\n"
     "  return ret;\n"},
+
+   {"(clang::BuiltinType::Kind)",
+    " return static_cast<::pasta::BuiltinTypeKind>(val);\n"}
 };
 
 // Prefixes on enumerators to strip.
@@ -744,6 +750,7 @@ std::vector<llvm::StringRef> kEnumPrefixesToStrip{
     "OMPC_",
     "SRCK_",
     "BI_",
+    "AO__",
 };
 
 // Set of ClassName::MethodName pairs such that the class can return a nullptr,

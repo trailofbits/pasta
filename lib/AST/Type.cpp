@@ -2637,7 +2637,12 @@ PASTA_DEFINE_BASE_OPERATORS(Type, BuiltinType)
   return TypeBuilder::Build(ast, val);
 }
 
-// 0: BuiltinType::Kind
+::pasta::BuiltinTypeKind BuiltinType::Kind(void) const {
+  auto &self = *(u.BuiltinType);
+  auto val = self.getKind();
+ return static_cast<::pasta::BuiltinTypeKind>(val);
+}
+
 // 1: BuiltinType::Name
 // 1: BuiltinType::NameAsCString
 bool BuiltinType::IsFloatingPoint(void) const {

@@ -49,6 +49,10 @@ static std::string RenameEnumerator(const std::string &name) {
       os << "enum class " << enum_name_str \
          << " : " << PASTA_STR(PASTA_SPLAT underlying_type) << " {\n";
 
+#define PASTA_BEGIN_CLASS_NAMED_ENUM(class_name, name, underlying_type) \
+    PASTA_BEGIN_NAMED_ENUM(class_name ## name, underlying_type)
+
+
 #define PASTA_NAMED_ENUMERATOR(enumerator_name_, underlying_type, val) \
       enumerator_name = #enumerator_name_; \
       for (auto prefix : kEnumPrefixesToStrip) { \
@@ -64,9 +68,14 @@ static std::string RenameEnumerator(const std::string &name) {
         enumerators.emplace_back(std::move(enumerator_str)); \
       }
 
+#define PASTA_CLASS_ENUMERATOR PASTA_NAMED_ENUMERATOR
+
 #define PASTA_END_NAMED_ENUM(enum_name) \
       os << "};\n\n"; \
     }
+
+#define PASTA_END_CLASS_NAMED_ENUM(class_name, enum_name) \
+    PASTA_END_NAMED_ENUM(enum_name)
 
 #include "Generated.h"
 
@@ -77,6 +86,9 @@ void DeclareEnums(std::ostream &os) {
 
 #define PASTA_BEGIN_NAMED_ENUM(enum_name, underlying_type) \
     DeclareEnum_ ## enum_name(os);
+
+#define PASTA_BEGIN_CLASS_NAMED_ENUM(class_name, name, underlying_type) \
+    PASTA_BEGIN_NAMED_ENUM(class_name ## name, underlying_type)
 
 #include "Generated.h"
 }

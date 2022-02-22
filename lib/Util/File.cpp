@@ -8,7 +8,28 @@
 
 #include "FileManager.h"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/Basic/TokenKinds.h>
+#pragma clang diagnostic pop
+
 namespace pasta {
+namespace {
+
+static const std::string_view kPPKeywordSpelling[] = {
+#define PPKEYWORD(X) #X,
+#include "clang/Basic/TokenKinds.def"
+};
+
+
+static const std::string_view kObjCKeywordSpelling[] = {
+#define OBJC_AT_KEYWORD(X) #X,
+#include "clang/Basic/TokenKinds.def"
+};
+
+}  // namespace
 
 FileImpl::FileImpl(const std::shared_ptr<FileManagerImpl> &owner_, Stat stat_)
     : owner(owner_),
@@ -21,6 +42,15 @@ File::~File(void) {}
 // Return the file containing a given file token.
 File File::Containing(const FileToken &tok) {
   return File(tok.file);
+}
+
+// Return the file containing a given file token.
+std::optional<File> File::Containing(const std::optional<FileToken> &tok) {
+  if (!tok) {
+    return std::nullopt;
+  } else {
+    return File(tok->file);
+  }
 }
 
 // Return the path of this file.
@@ -43,12 +73,12 @@ Result<std::string_view, std::error_code> File::Data(void) const noexcept {
 
   auto fm = impl->owner.lock();
   auto maybe_file = fm->file_system->ReadFile(impl->stat);
-  if (maybe_file.Failed()) {
-    impl->data_ec = maybe_file.TakeError();
-    return impl->data_ec;
-  } else {
+  if (maybe_file.Succeeded()) {
     maybe_file.TakeValue().swap(impl->data);
     return std::string_view(impl->data.data(), impl->data.size());
+  } else {
+    impl->data_ec = maybe_file.TakeError();
+    return impl->data_ec;
   }
 }
 
@@ -66,31 +96,24 @@ const ::pasta::Stat &File::Stat(void) const noexcept {
 // Return a range of file tokens.
 FileTokenRange File::Tokens(void) const noexcept {
   std::unique_lock<std::mutex> locker(impl->tokens_lock);
-  if (1u >= impl->tokens.size()) {
+  const auto num_toks = impl->tokens.size();
+  if (1u >= num_toks) {
     return FileTokenRange(impl);
 
   // NOTE(pag): The last token in the range exists to provide the ending
   //            pointer for the data of the "true" last token.
   } else {
-    auto begin = impl->tokens.data();
-    return FileTokenRange(impl, begin, &(begin[impl->tokens.size() - 1]));
+    auto first = impl->tokens.data();
+    auto last = &(first[num_toks - 1u]);
+    assert(last->kind.extended.kind == static_cast<uint16_t>(clang::tok::eof));
+    return FileTokenRange(impl, first, &(last[1]));
   }
 }
 
 // Return a token at a specific file offset.
 std::optional<FileToken> File::TokenAtOffset(unsigned offset) const noexcept {
 
-  const char *data_ptr = nullptr;
-  {
-    std::unique_lock<std::mutex> locker(impl->data_lock);
-    if (offset >= impl->data.size()) {
-      return std::nullopt;
-    }
-
-    data_ptr = &(impl->data[offset]);
-  }
-
-  FileTokenImpl fake_tok(data_ptr, 0, 0, 0);
+  FileTokenImpl fake_tok(offset, 0, 0, 0, clang::tok::unknown);
 
   {
     std::unique_lock<std::mutex> locker(impl->tokens_lock);
@@ -99,7 +122,7 @@ std::optional<FileToken> File::TokenAtOffset(unsigned offset) const noexcept {
     auto ret = std::lower_bound(
         tokens, end_tokens, fake_tok,
         [] (const FileTokenImpl &a, const FileTokenImpl &b) {
-          return a.data < b.data;
+          return a.data_offset < b.data_offset;
         });
 
     if (tokens <= ret && ret < end_tokens) {
@@ -111,10 +134,49 @@ std::optional<FileToken> File::TokenAtOffset(unsigned offset) const noexcept {
 }
 
 // Kind of this token.
-unsigned FileToken::Kind(void) const noexcept {
-  return impl ? impl->kind : 0u;
+clang::tok::TokenKind FileToken::Kind(void) const noexcept {
+  if (impl) {
+    return impl->Kind();
+  } else {
+    return clang::tok::unknown;
+  }
 }
 
+int FileToken::PreProcessorKeywordKind(void) const noexcept {
+  if (impl) {
+    if (impl->kind.extended.is_pp_kw) {
+      return static_cast<clang::tok::PPKeywordKind>(
+          impl->kind.extended.alt_kind);
+    } else {
+      return clang::tok::pp_not_keyword;
+    }
+  } else {
+    return clang::tok::pp_not_keyword;
+  }
+}
+
+int FileToken::ObjectiveCAtKeywordKind(void) const noexcept {
+  if (impl) {
+    if (impl->kind.extended.is_objc_kw) {
+      return static_cast<clang::tok::ObjCKeywordKind>(
+          impl->kind.extended.alt_kind);
+    } else {
+      return clang::tok::objc_not_keyword;
+    }
+  } else {
+    return clang::tok::objc_not_keyword;
+  }
+}
+
+// Kind of this token.
+const char *FileToken::KindName(void) const noexcept {
+  if (impl) {
+    return clang::tok::getTokenName(
+        static_cast<clang::tok::TokenKind>(impl->kind.extended.kind));
+  } else {
+    return clang::tok::getTokenName(clang::tok::unknown);
+  }
+}
 // Return the line number associated with this token.
 unsigned FileToken::Line(void) const noexcept {
   return impl ? impl->line : 0u;
@@ -128,9 +190,19 @@ unsigned FileToken::Column(void) const noexcept {
 // Return the data associated with this token.
 std::string_view FileToken::Data(void) const noexcept {
   if (impl) {
-    const FileTokenImpl *next_impl = &(impl[1]);
-    return std::string_view(
-        impl->data, static_cast<size_t>(next_impl->data - impl->data));
+    if (impl->kind.extended.is_pp_kw) {
+      return kPPKeywordSpelling[impl->kind.extended.alt_kind];
+
+    } else if (impl->kind.extended.is_objc_kw) {
+      return kObjCKeywordSpelling[impl->kind.extended.alt_kind];
+
+    } else if (impl->data_len) {
+      return std::string_view(file->data).substr(
+          impl->data_offset, impl->data_len);
+
+    } else {
+      return {};
+    }
   } else {
     return {};
   }

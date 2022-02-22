@@ -14,71 +14,84 @@
 
 namespace pasta {
 
-  /// RAII object that enables printing of the ARC __strong lifetime
-  /// qualifier.
-  class IncludeStrongLifetimeRAII {
-    clang::PrintingPolicy &Policy;
-    bool Old;
+/// RAII object that enables printing of the ARC __strong lifetime
+/// qualifier.
+class IncludeStrongLifetimeRAII {
+  clang::PrintingPolicy &Policy;
+  bool Old;
 
-  public:
-    explicit IncludeStrongLifetimeRAII(clang::PrintingPolicy &Policy)
-        : Policy(Policy), Old(Policy.SuppressStrongLifetime) {
-        if (!Policy.SuppressLifetimeQualifiers)
-          Policy.SuppressStrongLifetime = false;
-    }
+ public:
+  explicit IncludeStrongLifetimeRAII(clang::PrintingPolicy &Policy)
+      : Policy(Policy),
+        Old(Policy.SuppressStrongLifetime) {
+    if (!Policy.SuppressLifetimeQualifiers)
+      Policy.SuppressStrongLifetime = false;
+  }
 
-    ~IncludeStrongLifetimeRAII() {
-      Policy.SuppressStrongLifetime = Old;
-    }
-  };
+  ~IncludeStrongLifetimeRAII() {
+    Policy.SuppressStrongLifetime = Old;
+  }
+};
 
-  class ParamPolicyRAII {
-    clang::PrintingPolicy &Policy;
-    bool Old;
+class ParamPolicyRAII {
+  clang::PrintingPolicy &Policy;
+  bool Old;
 
-  public:
-    explicit ParamPolicyRAII(clang::PrintingPolicy &Policy)
-        : Policy(Policy), Old(Policy.SuppressSpecifiers) {
-      Policy.SuppressSpecifiers = false;
-    }
+ public:
+  explicit ParamPolicyRAII(clang::PrintingPolicy &Policy)
+      : Policy(Policy),
+        Old(Policy.SuppressSpecifiers) {
+    Policy.SuppressSpecifiers = false;
+  }
 
-    ~ParamPolicyRAII() {
-      Policy.SuppressSpecifiers = Old;
-    }
-  };
+  ~ParamPolicyRAII() {
+    Policy.SuppressSpecifiers = Old;
+  }
+};
 
-  class ElaboratedTypePolicyRAII {
-    clang::PrintingPolicy &Policy;
-    bool SuppressTagKeyword;
-    bool SuppressScope;
+class ElaboratedTypePolicyRAII {
+  clang::PrintingPolicy &Policy;
+  bool SuppressTagKeyword;
+  bool SuppressScope;
 
-  public:
-    explicit ElaboratedTypePolicyRAII(clang::PrintingPolicy &Policy) : Policy(Policy) {
-      SuppressTagKeyword = Policy.SuppressTagKeyword;
-      SuppressScope = Policy.SuppressScope;
-      Policy.SuppressTagKeyword = true;
-      Policy.SuppressScope = true;
-    }
+ public:
+  explicit ElaboratedTypePolicyRAII(clang::PrintingPolicy &Policy)
+      : Policy(Policy) {
+    SuppressTagKeyword = Policy.SuppressTagKeyword;
+    SuppressScope = Policy.SuppressScope;
+    Policy.SuppressTagKeyword = true;
+    Policy.SuppressScope = true;
+  }
 
-    ~ElaboratedTypePolicyRAII() {
-      Policy.SuppressTagKeyword = SuppressTagKeyword;
-      Policy.SuppressScope = SuppressScope;
-    }
-  };
+  ~ElaboratedTypePolicyRAII() {
+    Policy.SuppressTagKeyword = SuppressTagKeyword;
+    Policy.SuppressScope = SuppressScope;
+  }
+};
 
 /// A utility class that uses RAII to save and restore the value of a variable.
-  template <typename T> struct SaveAndRestore {
-    SaveAndRestore(T &X) : X(X), OldValue(X) {}
-    SaveAndRestore(T &X, const T &NewValue) : X(X), OldValue(X) {
-      X = NewValue;
-    }
-    ~SaveAndRestore() { X = OldValue; }
-    T get() { return OldValue; }
+template<typename T>
+struct SaveAndRestore {
+  SaveAndRestore(T &X)
+      : X(X),
+        OldValue(X) {}
 
-  private:
-    T &X;
-    T OldValue;
-  };
+  SaveAndRestore(T &X, const T &NewValue)
+      : X(X),
+        OldValue(X) {
+    X = NewValue;
+  }
+  ~SaveAndRestore() {
+    X = OldValue;
+  }
+  T get() {
+    return OldValue;
+  }
+
+ private:
+  T &X;
+  T OldValue;
+};
 
 
 static void AppendTypeQualList(pasta::raw_string_ostream &OS, unsigned TypeQuals,
@@ -405,6 +418,7 @@ void TypePrinter::printPointer(const clang::PointerType *T, raw_string_ostream &
     };
   }
 
+  TagDefinitionPolicyRAII disable_tags(Policy);
   IncludeStrongLifetimeRAII Strong(Policy);
   SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   printBeforeAfter(T->getPointeeType(), OS, std::move(IdentFn));
@@ -444,6 +458,7 @@ void TypePrinter::printBlockPointer(const clang::BlockPointerType *T,
     IdentFn();
   };
 
+  TagDefinitionPolicyRAII disable_tags(Policy);
   SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   printBeforeAfter(T->getPointeeType(), OS, std::move(IdentFn));
 }
@@ -497,6 +512,7 @@ void TypePrinter::printLValueReference(const clang::LValueReferenceType *T,
     };
   }
 
+  TagDefinitionPolicyRAII disable_tags(Policy);
   IncludeStrongLifetimeRAII Strong(Policy);
   SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   printBeforeAfter(Inner, OS, std::move(IdentFn));
@@ -557,6 +573,7 @@ void TypePrinter::printRValueReference(const clang::RValueReferenceType *T,
     };
   }
 
+  TagDefinitionPolicyRAII disable_tags(Policy);
   IncludeStrongLifetimeRAII Strong(Policy);
   SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   printBeforeAfter(Inner, OS, std::move(IdentFn));
@@ -597,11 +614,8 @@ void TypePrinter::printMemberPointer(const clang::MemberPointerType *T,
   IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
     {
       TokenPrinterContext jump_up_stack(ctx);
-
-      clang::PrintingPolicy InnerPolicy(Policy);
-      InnerPolicy.IncludeTagDefinition = false;
-
-      TypePrinter(InnerPolicy, tokens).print(
+      TagDefinitionPolicyRAII tag_raii(Policy);
+      TypePrinter(Policy, tokens).print(
           clang::QualType(T->getClass(), 0), OS, clang::StringRef());
       OS << "::*";
     }
@@ -622,6 +636,7 @@ void TypePrinter::printMemberPointer(const clang::MemberPointerType *T,
     };
   }
 
+  TagDefinitionPolicyRAII disable_tags(Policy);
   IncludeStrongLifetimeRAII Strong(Policy);
   SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
   printBeforeAfter(T->getPointeeType(), OS, std::move(IdentFn));
@@ -1414,10 +1429,15 @@ void TypePrinter::printFunctionProto(const clang::FunctionProtoType *T,
     TokenPrinterContext jump_up_stack(ctx);
     OS << '(';
     {
+      TokenPrinterContext ctx(OS, "ParameterTypeList", tokens);
       {
         ParamPolicyRAII ParamPolicy(Policy);
+        TagDefinitionPolicyRAII disable_tags(Policy);
+
         for (unsigned i = 0, e = T->getNumParams(); i != e; ++i) {
           if (i) OS << ", ";
+
+          TokenPrinterContext ctx(OS, "ParameterType", tokens);
 
           auto EPI = T->getExtParameterInfo(i);
           if (EPI.isConsumed()) {
@@ -1622,6 +1642,9 @@ void TypePrinter::printFunctionAfter(const clang::FunctionType::ExtInfo &Info,
       break;
     case clang::CC_Swift:
       OS << " __attribute__((swiftcall))";
+      break;
+    case clang::CC_SwiftAsync:
+      OS << "__attribute__((swiftasynccall))";
       break;
     case clang::CC_PreserveMost:
       OS << " __attribute__((preserve_most))";
@@ -2140,8 +2163,7 @@ void TypePrinter::AppendScope(clang::DeclContext *DC, raw_string_ostream &OS,
     // Only suppress an inline namespace if the name has the same lookup
     // results in the enclosing namespace.
     if (Policy.SuppressInlineNamespace && NS->isInline() && NameInScope &&
-        DC->getParent()->lookup(NameInScope).size() ==
-            DC->lookup(NameInScope).size())
+        NS->isRedundantInlineQualifierFor(NameInScope))
       return AppendScope(DC->getParent(), OS, NameInScope);
 
     AppendScope(DC->getParent(), OS, NS->getDeclName());
@@ -2174,9 +2196,9 @@ void TypePrinter::AppendScope(clang::DeclContext *DC, raw_string_ostream &OS,
 void TypePrinter::printTag(clang::TagDecl *D, raw_string_ostream &OS) {
 
   if (Policy.IncludeTagDefinition) {
-    clang::PrintingPolicy SubPolicy = Policy;
-    SubPolicy.IncludeTagDefinition = false;
-    DeclPrinter declPrinter(OS, SubPolicy, tokens.ast_context, tokens,
+//    clang::PrintingPolicy SubPolicy = Policy;
+//    SubPolicy.IncludeTagDefinition = false;
+    DeclPrinter declPrinter(OS, Policy, tokens.ast_context, tokens,
                             Indentation);
     declPrinter.Visit(D);
     spaceBeforePlaceHolder(OS);
@@ -2333,7 +2355,7 @@ void TypePrinter::printTemplateTypeParm(const clang::TemplateTypeParmType *T,
   if (D && D->isImplicit()) {
     TokenPrinterContext ctx2(OS, D, tokens);
     if (auto *TC = D->getTypeConstraint()) {
-
+      TagDefinitionPolicyRAII disable_tags(Policy);
       TokenPrinterContext ctx3(OS, TC, tokens);
       TC->print(OS, Policy);
       OS << ' ';
@@ -2502,33 +2524,33 @@ void TypePrinter::printElaborated(const clang::ElaboratedType *T,
                                   std::function<void(void)> IdentFn) {
   TokenPrinterContext ctx(OS, T, tokens);
 
-  if (Policy.IncludeTagDefinition && T->getOwnedTagDecl()) {
-    clang::TagDecl *OwnedTagDecl = T->getOwnedTagDecl();
+  if (clang::TagDecl *OwnedTagDecl = T->getOwnedTagDecl()) {
+
+    TagDefinitionPolicyRAII enable_tags(Policy, true);
+
     assert(OwnedTagDecl->getTypeForDecl() == T->getNamedType().getTypePtr() &&
            "OwnedTagDecl expected to be a declaration for the type");
-    clang::PrintingPolicy SubPolicy = Policy;
-    SubPolicy.IncludeTagDefinition = false;
-    DeclPrinter declPrinter(OS, SubPolicy, tokens.ast_context, tokens,
-                            Indentation);
-    declPrinter.Visit(OwnedTagDecl);
+    {
+      DeclPrinter declPrinter(OS,Policy, tokens.ast_context, tokens,
+                              Indentation);
+      declPrinter.Visit(OwnedTagDecl);
+    }
     spaceBeforePlaceHolder(OS);
     IdentFn();
-    return;
-  }
+  } else {
+    TagDefinitionPolicyRAII disable_tags(Policy);
 
-  // The tag definition will take care of these.
-  if (!Policy.IncludeTagDefinition)
-  {
+    // The tag definition will take care of these.
     OS << clang::TypeWithKeyword::getKeywordName(T->getKeyword());
     if (T->getKeyword() != clang::ETK_None)
       OS << " ";
     clang::NestedNameSpecifier *Qualifier = T->getQualifier();
     if (Qualifier)
       Qualifier->print(OS, Policy);
-  }
 
-  ElaboratedTypePolicyRAII PolicyRAII(Policy);
-  printBeforeAfter(T->getNamedType(), OS, std::move(IdentFn));
+    ElaboratedTypePolicyRAII PolicyRAII(Policy);
+    printBeforeAfter(T->getNamedType(), OS, std::move(IdentFn));
+  }
 }
 
 //void TypePrinter::printElaboratedBefore(const clang::ElaboratedType *T,
@@ -2612,6 +2634,7 @@ void TypePrinter::printDependentName(const clang::DependentNameType *T,
   if (T->getKeyword() != clang::ETK_None)
     OS << " ";
 
+  TagDefinitionPolicyRAII disable_tags(Policy);
   T->getQualifier()->print(OS, Policy);
 
   OS << T->getIdentifier()->getName();
@@ -2646,6 +2669,7 @@ void TypePrinter::printDependentTemplateSpecialization(
   if (T->getKeyword() != clang::ETK_None)
     OS << " ";
 
+  TagDefinitionPolicyRAII disable_tags(Policy);
   if (T->getQualifier())
     T->getQualifier()->print(OS, Policy);
   OS << "template " << T->getIdentifier()->getName();
@@ -2825,6 +2849,7 @@ void TypePrinter::printAttributed(const clang::AttributedType *T,
         case clang::attr::StdCall: OS << "stdcall"; break;
         case clang::attr::ThisCall: OS << "thiscall"; break;
         case clang::attr::SwiftCall: OS << "swiftcall"; break;
+        case clang::attr::SwiftAsyncCall: OS << "swiftasynccall"; break;
         case clang::attr::VectorCall: OS << "vectorcall"; break;
         case clang::attr::Pascal: OS << "pascal"; break;
         case clang::attr::MSABI: OS << "ms_abi"; break;
@@ -3236,7 +3261,7 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
                                             const clang::PrintingPolicy &policy,
                                             const clang::QualType &type) {
   std::string data;
-  raw_string_ostream out(data);
+  raw_string_ostream out(data, 0);
   auto tokens = std::make_shared<PrintedTokenRangeImpl>(context);
 
   if (!type.isNull()) {
@@ -3254,4 +3279,26 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
   }
 }
 
+PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
+                                            const clang::QualType &type) {
+  std::string data;
+  raw_string_ostream out(data, 0);
+  auto &context = ast->tu->getASTContext();
+  auto tokens = std::make_shared<PrintedTokenRangeImpl>(context);
+
+  if (!type.isNull()) {
+    clang::PrintingPolicy pp = *(ast->printing_policy);
+    TypePrinter printer(pp, *tokens);
+    printer.print(type, out, "", nullptr);
+  }
+
+  auto num_tokens = tokens->tokens.size();
+  if (!num_tokens) {
+    return PrintedTokenRange(std::move(tokens));
+  } else {
+    auto first = &(tokens->tokens[0]);
+    auto after_last = &(first[num_tokens]);
+    return PrintedTokenRange(std::move(tokens), first, after_last);
+  }
+}
 }  // namespace pasta

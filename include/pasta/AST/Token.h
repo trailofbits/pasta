@@ -8,6 +8,7 @@
 #include <memory>
 #include <optional>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -34,13 +35,30 @@ namespace pasta {
 
 class AST;
 class ASTImpl;
+class CXXBaseSpecifier;
 class FileToken;
+class FileTokenRange;
 class PrintedTokenRangeImpl;
 class TokenContextImpl;
 class TokenIterator;
 class TokenPrinterContext;
 class TokenImpl;
 class TokenRange;
+
+enum class TokenRole : std::underlying_type_t<clang::tok::TokenKind> {
+  kInvalid,
+
+  kBeginOfFileMarker,
+  kFileToken,
+  kEndOfFileMarker,
+
+  kBeginOfMacroExpansionMarker,
+  kMacroExpansionToken,
+  kEndOfMacroExpansionMarker,
+
+  // An invented token from the pretty-printer.
+  kPrintedToken,
+};
 
 enum class TokenContextKind : unsigned char {
   kInvalid,
@@ -52,7 +70,11 @@ enum class TokenContextKind : unsigned char {
   kString,
 
   // This is an alias to another token kind higher up in the stack.
-  kAlias
+  kAlias,
+
+  // This is an AST marker node. These are the main roots of all parsed
+  // token ranges.
+  kAST,
 };
 
 // The context associated with a printed token. This represents a path from
@@ -101,8 +123,11 @@ class TokenContext {
   }
 
  private:
+  friend class Decl;
   friend class PrintedToken;
+  friend class Stmt;
   friend class Token;
+  friend class Type;
 
   TokenContext(void) = delete;
 
@@ -137,11 +162,27 @@ class Token {
   uint64_t Index(void) const;
 
   // Kind of this token.
-  clang::tok::TokenKind Kind(void) const;
+  clang::tok::TokenKind Kind(void) const noexcept;
+
+  // Return the role of this token.
+  TokenRole Role(void) const noexcept;
+
+  // Return the printable kind of this token.
+  const char *KindName(void) const noexcept;
 
   inline operator bool(void) const noexcept {
     return !!impl;
   }
+
+  // If this token is a macro expansion token, or is the beginning or ending of
+  // a macro expansion range, then return the entire range of file tokens which
+  // led to this macro expansion. Otherwise, return an empty range.
+  FileTokenRange MacroUseTokens(void) const noexcept;
+
+  // If this token is a macro expansion token, or is the beginning or ending of
+  // a macro expansion range, then return the entire range. Otherwise, this will
+  // return an empty range.
+  TokenRange MacroExpandedTokens(void) const noexcept;
 
   // Return this token's context, or a null context.
   std::optional<TokenContext> Context(void) const noexcept;
@@ -161,6 +202,7 @@ class Token {
  private:
   friend class AST;
   friend class ASTImpl;
+  friend class CXXBaseSpecifier;
   friend class TokenIterator;
   friend class TokenPrinterContext;
   friend class TokenRange;
@@ -196,13 +238,13 @@ class TokenIterator {
 
   // NOTE(pag): This is a bit sketchy; make sure not to let the reference to
   //            the token escape beyond a single iteration of the loop.
-  const Token &operator*(void) const noexcept {
+  inline const Token &operator*(void) const noexcept {
     return token;
   }
 
   // NOTE(pag): This is a bit sketchy; make sure not to let the reference to
   //            the token escape beyond a single iteration of the loop.
-  const Token *operator->(void) const noexcept {
+  inline const Token *operator->(void) const noexcept {
     return &token;
   }
 
@@ -294,7 +336,9 @@ class TokenRange {
  private:
   friend class AST;
   friend class ASTImpl;
+  friend class CXXBaseSpecifier;
   friend class DeclPrinter;
+  friend class Token;
 
   TokenRange(void) = delete;
 

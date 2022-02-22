@@ -33,13 +33,14 @@ class PrintedTokenImpl : public TokenImpl {
   uint16_t num_leading_new_lines;
   uint16_t num_leading_spaces;
 
-  inline PrintedTokenImpl(int32_t data_offset_, uint16_t data_len_,
+  inline PrintedTokenImpl(int32_t data_offset_, uint32_t data_len_,
                           uint32_t token_context_index_,
                           unsigned num_leading_new_lines_,
                           unsigned num_leading_spaces_,
                           clang::tok::TokenKind kind_)
       : TokenImpl(TokenImpl::kInvalidSourceLocation, data_offset_,
-                  data_len_, kind_, token_context_index_),
+                  data_len_, kind_, TokenRole::kPrintedToken,
+                  token_context_index_),
         num_leading_new_lines(static_cast<uint16_t>(num_leading_new_lines_)),
         num_leading_spaces(static_cast<uint16_t>(num_leading_spaces_)) {
     assert(num_leading_new_lines == num_leading_new_lines_);
@@ -51,21 +52,35 @@ class PrintedTokenImpl : public TokenImpl {
 class PrintedTokenRangeImpl {
  public:
 
+  // The AST context. This is nifty to have because generally `clang::Stmt`s
+  // don't know about the context.
   clang::ASTContext &ast_context;
+
+  //
+  // NOTE(pag): May be null if we're printing a "raw" pointer, that possibly
+  //            was not produced via PASTA.
   std::shared_ptr<ASTImpl> ast;
+
   std::vector<PrintedTokenImpl> tokens;
 
   // The `data_offset` of the `TokenImpl` base of `PrintedTokenImpl` in `tokens`
   // points into this string.
   std::string data;
 
+  // All allocated token contexts live here. The `TokenImpl::context_index` of
+  // a `PrintedTokenImpl` points into `contexts`.
   std::vector<TokenContextImpl> contexts;
+
+  // Maps something, e.g. a `clang::Decl *`, `clang::Stmt *`, `clang::Type *`,
+  // etc. to the "owning" context for that thing. There can be multiple open
+  // contexts for a given thing; the first one is always the owning one, and
+  // the rest are aliasing ones.
   std::unordered_map<const void *, unsigned> data_to_index;
 
+  // The current top of the token printer context stack. The structure of the
+  // token printing context stack is induced via the call stack, which happens
+  // when we recursively print different AST entities.
   TokenPrinterContext *curr_printer_context{nullptr};
-
-//  std::vector<TokenContextIndex> context_stack;
-//  std::vector<TokenPrinterContext *> tokenizer_stack;
 
   inline PrintedTokenRangeImpl(clang::ASTContext &ast_context_)
       : ast_context(ast_context_) {}
@@ -84,7 +99,7 @@ class PrintedTokenRangeImpl {
 
 struct no_alias_tag {};
 
-// Context class for tokenizing what's inside of a particular stream stream.
+// Context class for tokenizing what's inside of a particular stream.
 class TokenPrinterContext {
  public:
   template <typename T>
@@ -122,7 +137,10 @@ template <typename T>
 const TokenContextIndex PrintedTokenRangeImpl::CreateContext(
     TokenPrinterContext *tokenizer, const T *data) {
 
-  if (data) {
+  auto dedup = !std::is_same_v<T, char> && !std::is_base_of_v<clang::Type, T>;
+
+  if (data && dedup) {
+    data = Canonicalize(data);
     if (auto it = data_to_index.find(data); it != data_to_index.end()) {
       return it->second;
     }
@@ -137,15 +155,28 @@ const TokenContextIndex PrintedTokenRangeImpl::CreateContext(
 
   auto index = static_cast<TokenContextIndex>(contexts.size());
   assert(index == contexts.size());
-  contexts.emplace_back(
-      (tokenizer->prev_printer_context ?
-          tokenizer->prev_printer_context->context_index :
-          kInvalidTokenContextIndex),
-      data);
+
+  if (tokenizer->prev_printer_context &&
+      tokenizer->prev_printer_context->context_index !=
+          kInvalidTokenContextIndex) {
+    auto parent_index = tokenizer->prev_printer_context->context_index;
+    auto parent_depth = contexts[parent_index].depth;
+    contexts.emplace_back(
+        parent_index,
+        parent_depth,
+        data);
+  } else {
+    contexts.emplace_back(
+        kInvalidTokenContextIndex,
+        static_cast<uint16_t>(0),
+        data);
+  }
 
   if (data) {
     tokenizer->owns_data = data;
-    data_to_index.emplace(data, index);
+    if (dedup) {
+      data_to_index.emplace(data, index);
+    }
   }
 
   return index;

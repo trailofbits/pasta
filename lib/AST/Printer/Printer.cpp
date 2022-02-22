@@ -38,7 +38,7 @@ std::string_view PrintedToken::Data(void) const {
 // Kind of this token.
 clang::tok::TokenKind PrintedToken::Kind(void) const {
   if (impl) {
-    return impl->kind;
+    return impl->Kind();
   } else {
     return clang::tok::unknown;
   }
@@ -144,6 +144,10 @@ PrintedTokenRangeImpl::~PrintedTokenRangeImpl(void) {}
 const TokenContextIndex PrintedTokenRangeImpl::CreateAlias(
     TokenPrinterContext *tokenizer, TokenContextIndex aliasee) {
 
+  if (aliasee == kInvalidTokenContextIndex) {
+    return kInvalidTokenContextIndex;
+  }
+
   // If the current thing on the stack is what we're aliasing, then don't alias
   // it.
   if (tokenizer->prev_printer_context &&
@@ -151,13 +155,42 @@ const TokenContextIndex PrintedTokenRangeImpl::CreateAlias(
     return aliasee;
   }
 
+  TokenContextIndex parent_index = kInvalidTokenContextIndex;
+  if (tokenizer->prev_printer_context) {
+    parent_index = tokenizer->prev_printer_context->context_index;
+  }
+
+  // Try to combine identical aliases.
+  static_assert(sizeof(void *) == sizeof(uint64_t));
+  auto alias_addr = static_cast<uint64_t>(~aliasee);
+  alias_addr <<= 32u;
+  alias_addr |= parent_index;
+  const auto alias_data = reinterpret_cast<const void *>(alias_addr);
+  if (auto alias_it = data_to_index.find(alias_data);
+      alias_it != data_to_index.end()) {
+    return alias_it->second;  // Found an identical usage.
+  }
+
   auto index = static_cast<TokenContextIndex>(contexts.size());
   assert(index == contexts.size());
-  contexts.emplace_back(
-      (tokenizer->prev_printer_context ?
-          tokenizer->prev_printer_context->context_index :
-          kInvalidTokenContextIndex),
-      aliasee);
+
+  if (parent_index != kInvalidTokenContextIndex) {
+    assert(parent_index < contexts.size());
+    auto parent_depth = contexts[parent_index].depth;
+    contexts.emplace_back(
+        parent_index,
+        parent_depth,
+        aliasee);
+  } else {
+    assert(false);
+    contexts.emplace_back(
+        kInvalidTokenContextIndex,
+        static_cast<uint16_t>(0),
+        aliasee);
+  }
+
+  data_to_index.emplace(alias_data, index);
+
   return index;
 }
 
@@ -267,13 +300,13 @@ void TokenPrinterContext::Tokenize(void) {
         ++last_i) {
       tokens.data.push_back(token_data[last_i]);
       ++data_len;
-      assert(static_cast<uint16_t>(data_len) != 0u);
+      assert(static_cast<uint32_t>(data_len & TokenImpl::kTokenSizeMask) != 0u);
     }
     tokens.data.push_back('\0');  // Make sure all tokens end up NUL-terminated.
 
     // Add the token in.
     tokens.tokens.emplace_back(
-        static_cast<int32_t>(data_offset), static_cast<uint16_t>(data_len),
+        static_cast<int32_t>(data_offset), static_cast<uint32_t>(data_len),
         context_index, num_nl, num_sp, tok.getKind());
 
     if (at_end) {
@@ -299,55 +332,55 @@ void TokenPrinterContext::Tokenize(void) {
 void TokenPrinterContext::MarkLocation(clang::SourceLocation loc) {
   Tokenize();
   if (!tokens.tokens.empty() && loc.isValid()) {
-    tokens.tokens.back().opaque_source_loc = loc.getRawEncoding();
+
+    // Go figure it out from the AST. We need to go through a lot of indirection
+    // because the source locations inside of the parsed AST relate to a huge
+    // in-memory file where each post-preprocessed token is on its own line.
+    if (tokens.ast) {
+      if (auto raw_tok = tokens.ast->RawTokenAt(loc)) {
+        tokens.tokens.back().opaque_source_loc = raw_tok->opaque_source_loc;
+      }
+
+    // We don't has an `ASTImpl`, so we'll assume that `loc` is a "real" source
+    // location and not our weird indirect kind.
+    } else {
+      tokens.tokens.back().opaque_source_loc = loc.getRawEncoding();
+    }
   }
 }
 
 TokenPrinterContext::~TokenPrinterContext(void) {
   Tokenize();
   tokens.curr_printer_context = prev_printer_context;
-
   if (owns_data) {
     tokens.data_to_index.erase(owns_data);
   }
 }
 
 // More typical APIs when we've got PASTA ASTs.
-PrintedTokenRange PrintedTokenRange::Create(const Decl &decl_) {
-  auto &ast = decl_.ast;
-  PrintedTokenRange ret = PrintedTokenRange::Create(
-      ast->ci->getASTContext(), *(ast->printing_policy),
-      const_cast<clang::Decl *>(decl_.u.Decl));
-  ret.impl->ast = ast;
-  return ret;
+PrintedTokenRange PrintedTokenRange::Create(const Decl &decl) {
+  return PrintedTokenRange::Create(
+      decl.ast, const_cast<clang::Decl *>(decl.u.Decl));
 }
 
 // More typical APIs when we've got PASTA ASTs.
-PrintedTokenRange PrintedTokenRange::Create(const Stmt &stmt_) {
-  auto &ast = stmt_.ast;
-  PrintedTokenRange ret = PrintedTokenRange::Create(
-      ast->ci->getASTContext(), *(ast->printing_policy),
-      const_cast<clang::Stmt *>(stmt_.u.Stmt));
-  ret.impl->ast = ast;
-  return ret;
+PrintedTokenRange PrintedTokenRange::Create(const Stmt &stmt) {
+  return PrintedTokenRange::Create(
+      stmt.ast, const_cast<clang::Stmt *>(stmt.u.Stmt));
 }
 
 // More typical APIs when we've got PASTA ASTs.
-PrintedTokenRange PrintedTokenRange::Create(const Type &type_) {
+PrintedTokenRange PrintedTokenRange::Create(const Type &type) {
 
-  auto &ast = type_.ast;
+  auto &ast = type.ast;
   auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(type_.u.Type,
-                             type_.qualifiers & clang::Qualifiers::FastMask);
+  clang::QualType fast_qtype(type.u.Type,
+                             type.qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(
-      fast_qtype, clang::Qualifiers::fromOpaqueValue(type_.qualifiers));
+      fast_qtype, clang::Qualifiers::fromOpaqueValue(type.qualifiers));
 
-  PrintedTokenRange ret = PrintedTokenRange::Create(
-      ast_ctx, *(ast->printing_policy), self);
-  ret.impl->ast = ast;
-  return ret;
+  return PrintedTokenRange::Create(type.ast, self);
 }
-
 
 // Number of tokens in this range.
 size_t PrintedTokenRange::Size(void) const noexcept {

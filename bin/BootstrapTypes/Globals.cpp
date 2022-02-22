@@ -127,6 +127,7 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
   {"(const char *)", "std::string_view"},
   {"(std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::allocator<char>>)", "std::string"},
   {"(std::basic_string<char, std::char_traits<char>, std::allocator<char>>)", "std::string"},
+  {"(std::string)", "std::string"},
   {"(unsigned int)", "uint32_t"},
   {"(long)", "int64_t"},
   {"(unsigned long)", "uint64_t"},
@@ -264,7 +265,10 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
    "std::vector<::pasta::Token>"},
 
   {"(llvm::iterator_range<const clang::Expr *const *>)",
-   "std::vector<::pasta::Expr>"}
+   "std::vector<::pasta::Expr>"},
+
+  {"(llvm::iterator_range<const clang::CXXBaseSpecifier *>)",
+   "std::vector<::pasta::CXXBaseSpecifier>"},
 };
 
 // Maps return types from the macros file to how they should be returned
@@ -310,6 +314,9 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
 
   {"(std::basic_string<char, std::char_traits<char>, std::allocator<char>>)",
    "  return val;\n"},
+
+   {"(std::string)",
+    "  return val;\n"},
 
   {"(unsigned int)",
    "  return val;\n"},
@@ -601,7 +608,15 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
     "  return ret;\n"},
 
    {"(llvm::iterator_range<const clang::Expr *const *>)",
-    STMT_ITERATOR_IMPL(Expr)}
+    STMT_ITERATOR_IMPL(Expr)},
+
+
+   {"(llvm::iterator_range<const clang::CXXBaseSpecifier *>)",
+    "  std::vector<::pasta::CXXBaseSpecifier> ret;\n"
+    "  for (auto bs : val) {\n"
+    "    ret.emplace_back(ast, bs);\n"
+    "  }\n"
+    "  return ret;\n"},
 };
 
 // Prefixes on enumerators to strip.
@@ -722,6 +737,13 @@ std::vector<llvm::StringRef> kEnumPrefixesToStrip{
     "FPM_",
     "ADOF_",
     "AR_",
+    "RK_",
+    "SYCL_",
+    "LH_",
+    "NK_",
+    "OMPC_",
+    "SRCK_",
+    "BI_",
 };
 
 // Set of ClassName::MethodName pairs such that the class can return a nullptr,

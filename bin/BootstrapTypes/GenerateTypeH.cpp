@@ -65,6 +65,7 @@ void GenerateTypeH(void) {
       << " protected:\n"
       << "  friend class TypeBuilder;\n"
       << "  friend class PrintedTokenRange;\n\n"
+      << "  friend class TokenContext;\n"
       << "  std::shared_ptr<ASTImpl> ast;\n"
       << "  union {\n";
   for (const auto &name : gTopologicallyOrderedTypes) {
@@ -86,7 +87,8 @@ void GenerateTypeH(void) {
       << "    u.Type = type_;\n"
       << "  }\n\n"
       << " public:\n"
-      << "  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(Type)\n";
+      << "  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(Type)\n"
+      << "  static std::optional<::pasta::Type> From(const TokenContext &);\n";
 
   const auto &derived_from_type =
       gTransitiveDerivedClasses[type];

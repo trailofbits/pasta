@@ -87,6 +87,8 @@ MacroGenerator::MacroGenerator(const clang::ASTContext *ctx)
   acceptable_class_names.insert("DeclContext");
   acceptable_class_names.insert("Stmt");
   acceptable_class_names.insert("Expr");
+  acceptable_class_names.insert("BaseUsingDecl");
+  acceptable_class_names.insert("UsingEnumDecl");
 
   unacceptable_enum_names.insert("Kind");  // Really, `clang::Decl::Kind`.
   unacceptable_enum_names.insert("OnStack_t");  // There's also `OnStackType`.

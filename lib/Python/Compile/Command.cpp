@@ -30,11 +30,11 @@ CompileCommand::CompileCommand(command_arg command_,
                                working_dir_kwarg working_dir) {
   auto maybe_command = ::pasta::CompileCommand::CreateFromArguments(
       *command_, CurrentWorkingDir(working_dir));
-  if (maybe_command.Failed()) {
-    PythonErrorStreamer(PyExc_Exception) << maybe_command.TakeError();
-  } else {
+  if (maybe_command.Succeeded()) {
     std::optional<::pasta::CompileCommand> cc(maybe_command.TakeValue());
     cc.swap(command);
+  } else {
+    PythonErrorStreamer(PyExc_Exception) << maybe_command.TakeError();
   }
 }
 

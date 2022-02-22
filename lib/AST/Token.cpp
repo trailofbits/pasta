@@ -66,12 +66,12 @@ static bool ReadRawTokenByKind(clang::SourceManager &source_manager,
 
 #define PUNCTUATOR(case_label, rep) \
     case clang::tok::case_label: \
-      backup = clang::tok::getPunctuatorSpelling(tok_kind); \
+      backup = rep ; \
       break;
 
 #define KEYWORD(case_label, feature) \
     case clang::tok::kw_ ## case_label: \
-      backup = clang::tok::getKeywordSpelling(tok_kind); \
+      backup = #case_label ; \
       break;
 
 // TODO(pag): Deal with Objective-C @ keywords.
@@ -183,6 +183,63 @@ static bool ReadRawTokenData(clang::SourceManager &source_manager,
 
 } // namespace
 
+// Return the common ancestor between two contexts. This focuses on the data
+// itself, so if there are two distinct contexts sharing the same data, or
+// aliasing the same data, the context associated with the second token is
+// returned.
+const TokenContextImpl *TokenContextImpl::CommonAncestor(
+    const TokenContextImpl *a, const TokenContextImpl *b,
+    const std::vector<TokenContextImpl> &contexts) {
+  if (!a || !b) {
+    return nullptr;
+  }
+  for (auto i = std::max(a->depth, b->depth) * 2u + 1u;
+       i--; ) {
+    if (!a || !b) {
+      return nullptr;
+
+    } else if (a == b) {
+      return a;
+
+    } else if (a->data == b->data) {
+      return a;
+
+    } else if (a->Aliasee(contexts)->data ==
+               b->Aliasee(contexts)->data) {
+      return b;
+
+    } else if (a->depth > b->depth) {
+      a = a->Parent(contexts);
+
+    } else if (a->depth < b->depth) {
+      b = b->Parent(contexts);
+
+    } else {
+      a = a->Parent(contexts);
+      b = b->Parent(contexts);
+    }
+  }
+
+  return nullptr;
+}
+
+// Return the common ancestor between two tokens. This focuses on the data
+// itself, so if there are two distinct contexts sharing the same data, or
+// aliasing the same data, the context associated with the second token is
+// returned.
+const TokenContextImpl *TokenContextImpl::CommonAncestor(
+    TokenImpl *a, TokenImpl *b, const std::vector<TokenContextImpl> &contexts) {
+  auto a_index = a->context_index;
+  auto b_index = b->context_index;
+  if (a_index == kInvalidTokenContextIndex ||
+      b_index == kInvalidTokenContextIndex) {
+    return nullptr;
+  }
+
+  const TokenContextImpl *a_context = &(contexts[a_index]);
+  const TokenContextImpl *b_context = &(contexts[b_index]);
+  return CommonAncestor(a_context, b_context, contexts);
+}
 
 const TokenContextImpl *TokenContextImpl::Parent(
     const std::vector<TokenContextImpl> &contexts) const {
@@ -257,6 +314,8 @@ const char *TokenContextImpl::KindName(
       }
     case TokenContextKind::kString:
       return "String";
+    case TokenContextKind::kAST:
+      return "AST";
   }
 }
 
@@ -271,7 +330,11 @@ uint32_t TokenContext::Index(void) const {
 
 // String representation of this token context kind.
 const char *TokenContext::KindName(void) const {
-  return impl ? "Invalid" : impl->KindName(*contexts);
+  if (impl) {
+    return impl->KindName(*contexts);
+  } else {
+    return "Invalid";
+  }
 }
 
 // Return the kind of this token.
@@ -370,23 +433,158 @@ std::optional<FileToken> Token::FileLocation(void) const {
 }
 
 // Kind of this token.
-clang::tok::TokenKind Token::Kind(void) const {
-  return impl ? impl->kind : clang::tok::unknown;
+clang::tok::TokenKind Token::Kind(void) const noexcept {
+  if (impl) {
+    return impl->Kind();
+  } else {
+    return clang::tok::unknown;
+  }
+}
+
+// Return the role of this token.
+TokenRole Token::Role(void) const noexcept {
+  if (impl) {
+    return impl->Role();
+  } else {
+    return TokenRole::kInvalid;
+  }
+}
+
+// Kind of this token.
+const char *Token::KindName(void) const noexcept {
+  return clang::tok::getTokenName(Kind());
+}
+
+// If this token is a macro expansion token, or is the beginning or ending of
+// a macro expansion range, then return the entire range of file tokens which
+// led to this macro expansion. Otherwise, return an empty range.
+FileTokenRange Token::MacroUseTokens(void) const noexcept {
+  auto expansion_range = MacroExpandedTokens();
+  auto begin = expansion_range.first;
+  auto end = expansion_range.after_last;
+  if (!begin) {
+    return FileTokenRange(ast->main_source_file.impl);
+  }
+
+  assert((begin->Role() == TokenRole::kMacroExpansionToken) ||
+         (begin->Role() == TokenRole::kEndOfMacroExpansionMarker));
+  begin = &(begin[-1]);
+  assert(begin->Role() == TokenRole::kBeginOfMacroExpansionMarker);
+  assert(end->Role() == TokenRole::kEndOfMacroExpansionMarker);
+
+  auto begin_loc = begin->Location();
+  auto end_loc = end->Location();
+  assert(begin_loc.isValid() && begin_loc.isFileID());
+  assert(end_loc.isValid() && end_loc.isFileID());
+  (void) begin_loc;
+  (void) end_loc;
+
+  auto begin_ft = Token(ast, begin).FileLocation();
+  auto end_ft = Token(ast, end).FileLocation();
+
+  // If we can't find file locations for the expansion markers, or if they
+  // look like they're from different files, or if they aren't ordered properly
+  // then bail out.
+  if (!begin_ft ||
+      !end_ft ||
+      begin_ft->file != end_ft->file ||
+      begin_ft->Index() >= end_ft->Index()) {
+    assert(false);
+    return FileTokenRange(ast->main_source_file.impl);
+  }
+
+  assert(begin_ft->impl < end_ft->impl);
+  return FileTokenRange(begin_ft->file, begin_ft->impl, end_ft->impl);
+}
+
+// If this token is a macro expansion token, or is the beginning or ending of
+// a macro expansion range, then return the entire range. Otherwise, this will
+// return an empty range.
+TokenRange Token::MacroExpandedTokens(void) const noexcept {
+  switch (Role()) {
+    case TokenRole::kBeginOfMacroExpansionMarker:
+    case TokenRole::kMacroExpansionToken:
+    case TokenRole::kEndOfMacroExpansionMarker:
+      break;
+    default:
+      return TokenRange(ast);
+  }
+
+  auto min = &(ast->tokens.front());
+  auto max = &(ast->tokens.back());
+
+  // Scan backwards. There should always be /some/ tokens before the beginning
+  // of a macro expansion marker, e.g. a file entry marker.
+  auto begin = impl;
+  for (; begin > min; --begin) {
+    switch (begin->Role()) {
+      case TokenRole::kBeginOfMacroExpansionMarker:
+        goto found_begin;
+      case TokenRole::kMacroExpansionToken:
+      case TokenRole::kEndOfMacroExpansionMarker:
+        continue;
+      default:
+        assert(false);
+        return TokenRange(ast);
+    }
+  }
+found_begin:
+
+  // If we failed to find the beginning then bail out. Shouldn't happen.
+  if (begin->Role() != TokenRole::kBeginOfMacroExpansionMarker) {
+    assert(false);
+    return TokenRange(ast);
+  }
+
+  // Scan forwards. There should always be /some/ tokens after the end
+  // of a macro expansion marker, e.g. a file exit marker.
+  auto end = impl;
+  for (; end < max; ++end) {
+    switch (end->Role()) {
+      case TokenRole::kEndOfMacroExpansionMarker:
+        goto found_end;
+      case TokenRole::kBeginOfMacroExpansionMarker:
+      case TokenRole::kMacroExpansionToken:
+        continue;
+      default:
+        assert(false);
+        return TokenRange(ast);
+    }
+  }
+found_end:
+
+  // If we failed to find the end then bail out. Shouldn't happen.
+  if (end->Role() != TokenRole::kEndOfMacroExpansionMarker) {
+    assert(false);
+    return TokenRange(ast);
+  }
+
+  // Return the range of tokens *inside* the two markers.
+  return TokenRange(ast, &(begin[1]), end);
+}
+
+// Return the context of this token, or `nullptr`.
+const TokenContextImpl *TokenImpl::Context(
+    const std::vector<TokenContextImpl> &contexts) const noexcept {
+  if (context_index == kInvalidTokenContextIndex) {
+    return nullptr;
+  } else if (context_index >= contexts.size()) {
+    return nullptr;
+  } else {
+    return &(contexts[context_index]);
+  }
 }
 
 // Return this token's context, or a null context.
 std::optional<TokenContext> Token::Context(void) const noexcept {
   if (!impl) {
-    return {};
-  } else if (impl->context_index == kInvalidTokenContextIndex) {
-    return {};
-  } else if (impl->context_index >= ast->contexts.size()) {
-    return {};
-  } else {
+    return std::nullopt;
+  } else if (auto context = impl->Context(ast->contexts)) {
     std::shared_ptr<const std::vector<TokenContextImpl>> contexts(
         ast, &(ast->contexts));
-    return TokenContext(&(ast->contexts[impl->context_index]),
-                        std::move(contexts));
+    return TokenContext(context, std::move(contexts));
+  } else {
+    return std::nullopt;
   }
 }
 

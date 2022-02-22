@@ -70,11 +70,29 @@
 
 #include "raw_ostream.h"
 #include "Printer.h"
+#include "../AST.h"
 #include "../Token.h"
 
 namespace pasta {
 
 class PrintedTokenRangeImpl;
+
+class TagDefinitionPolicyRAII {
+  clang::PrintingPolicy &Policy;
+  bool Old;
+
+ public:
+  explicit TagDefinitionPolicyRAII(clang::PrintingPolicy &Policy,
+                                   bool new_val=false)
+      : Policy(Policy),
+        Old(Policy.IncludeTagDefinition) {
+    Policy.IncludeTagDefinition = new_val;
+  }
+
+  ~TagDefinitionPolicyRAII() {
+    Policy.IncludeTagDefinition = Old;
+  }
+};
 
 class DeclPrinter : public clang::DeclVisitor<DeclPrinter> {
   raw_string_ostream &Out;
@@ -87,7 +105,8 @@ class DeclPrinter : public clang::DeclVisitor<DeclPrinter> {
   raw_string_ostream& Indent(int Indentation);
   void ProcessDeclGroup(clang::SmallVectorImpl<clang::Decl*>& Decls);
   void Print(clang::AccessSpecifier AS);
-  void PrintConstructorInitializers(clang::CXXConstructorDecl *CDecl,
+  void PrintConstructorInitializers(TokenPrinterContext &ctx,
+                                    clang::CXXConstructorDecl *CDecl,
                                     std::function<void(void)> &ProtoFn);
   /// Print an Objective-C method type in parentheses.
   ///
@@ -148,6 +167,7 @@ class DeclPrinter : public clang::DeclVisitor<DeclPrinter> {
    void VisitUnresolvedUsingTypenameDecl(clang::UnresolvedUsingTypenameDecl *D);
    void VisitUnresolvedUsingValueDecl(clang::UnresolvedUsingValueDecl *D);
    void VisitUsingDecl(clang::UsingDecl *D);
+   void VisitUsingEnumDecl(clang::UsingEnumDecl *D);
    void VisitUsingShadowDecl(clang::UsingShadowDecl *D);
    void VisitOMPThreadPrivateDecl(clang::OMPThreadPrivateDecl *D);
    void VisitOMPAllocateDecl(clang::OMPAllocateDecl *D);
@@ -159,8 +179,12 @@ class DeclPrinter : public clang::DeclVisitor<DeclPrinter> {
    void VisitNonTypeTemplateParmDecl(const clang::NonTypeTemplateParmDecl *NTTP);
    void printTemplateParameters(const clang::TemplateParameterList *Params,
                                 bool OmitTemplateKW = false);
-   void printTemplateArguments(llvm::ArrayRef<clang::TemplateArgument> Args);
-   void printTemplateArguments(llvm::ArrayRef<clang::TemplateArgumentLoc> Args);
+   void printTemplateArguments(llvm::ArrayRef<clang::TemplateArgument> Args,
+                               const clang::TemplateParameterList *Params,
+                               bool TemplOverloaded);
+   void printTemplateArguments(llvm::ArrayRef<clang::TemplateArgumentLoc> Args,
+                               const clang::TemplateParameterList *Params,
+                               bool TemplOverloaded);
    void prettyPrintAttributes(clang::Decl *D);
    void prettyPrintPragmas(clang::Decl *D);
    void printDeclType(clang::QualType T, std::function<void(void)> NameFn, bool Pack = false);

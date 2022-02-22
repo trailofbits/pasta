@@ -8,9 +8,9 @@
 #include "Globals.h"
 #include "Util.h"
 
-static const std::string gTypeClassName{"Type"};
-
 namespace {
+
+static const std::string gTypeClassName{"Type"};
 
 static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
                              llvm::StringRef meth_name_ref,
@@ -56,22 +56,30 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
   }
 
   os << " " << real_class_name << "::" << meth_name << "(void) const {\n";
-  if (is_qual_type) {
-    os << "  auto &ast_ctx = ast->ci->getASTContext();\n"
-       << "  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);\n"
-       << "  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));\n";
+
+  // Special case for `*Decl::TokenRange`.
+  if (meth_name == "TokenRange" &&
+      llvm::StringRef(real_class_name).endswith("Decl")) {
+    os << "  return ast->DeclTokenRange(u." << class_name << ");\n";
+
   } else {
-    os << "  auto &self = *(u." << class_name << ");\n";
-  }
-  os << "  auto val = self." << meth_name_ref.str() << "();\n"
-     << rt_val;
-  if (rt_ref.endswith(" *)")) {
-    if (can_ret_null) {
-      os << "  return std::nullopt;\n";
+    if (is_qual_type) {
+      os << "  auto &ast_ctx = ast->ci->getASTContext();\n"
+         << "  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);\n"
+         << "  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));\n";
     } else {
-      os << "  assert(false && \"" << class_name << "::"
-         << meth_name << " can return nullptr!\");\n"
-         << "  __builtin_unreachable();\n";
+      os << "  auto &self = *(u." << class_name << ");\n";
+    }
+    os << "  auto val = self." << meth_name_ref.str() << "();\n"
+       << rt_val;
+    if (rt_ref.endswith(" *)")) {
+      if (can_ret_null) {
+        os << "  return std::nullopt;\n";
+      } else {
+        os << "  assert(false && \"" << class_name << "::"
+           << meth_name << " can return nullptr!\");\n"
+           << "  __builtin_unreachable();\n";
+      }
     }
   }
   os << "}\n\n";

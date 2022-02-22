@@ -159,7 +159,7 @@ static void ParseOutputInto(FileSystemView &fs, std::stringstream &ss,
 #endif
 
       auto status = fs.Stat(fs.ParsePath(line.substr(1).str()));
-      if (status.Failed() || !status->IsDirectory()) {
+      if (!status.Succeeded() || !status->IsDirectory()) {
 
         // Silently ignore non-existant directories.
         continue;
@@ -429,17 +429,17 @@ Compiler::CreateHostCompiler(class FileManager file_manager,
 
   auto host_fs = file_manager.FileSystem();
   auto maybe_cwd = host_fs->CurrentWorkingDirectory();
-  if (maybe_cwd.Failed()) {
+  if (!maybe_cwd.Succeeded()) {
     return maybe_cwd.TakeError().message();
   }
 
   auto maybe_compiler = Create(
       std::move(file_manager), path.lexically_normal(), maybe_cwd.TakeValue(),
       name, lang, version_info, version_info_fake_sysroot);
-  if (maybe_compiler.Failed()) {
-    return maybe_compiler.TakeError();
+  if (maybe_compiler.Succeeded()) {
+    return maybe_compiler.TakeValue();
   } else {
-    return std::move(*maybe_compiler);
+    return maybe_compiler.TakeError();
   }
 }
 
@@ -473,7 +473,7 @@ Compiler::Create(class FileManager file_manager,
 
   // Get the status of the compiler executable.
   auto maybe_status = fs.Stat(compiler_path);
-  if (maybe_status.Failed()) {
+  if (!maybe_status.Succeeded()) {
     err << "Error with compiler path '" << compiler_path.generic_string()
         << "': " << maybe_status.TakeError().message();
     return err.str();
@@ -487,7 +487,7 @@ Compiler::Create(class FileManager file_manager,
         << "' is not a file or is not executable (type "
         << static_cast<int>(maybe_status->type) << "; perms "
         << static_cast<unsigned>(maybe_status->permissions) << ")";
-      return err.str();
+    return err.str();
   }
 
   working_dir = fs.CurrentWorkingDirectory();

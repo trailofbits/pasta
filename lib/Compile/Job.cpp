@@ -13,6 +13,7 @@
 #include <clang/Driver/Compilation.h>
 #include <clang/Driver/Driver.h>
 #include <clang/Driver/Options.h>
+#include <clang/Driver/Tool.h>
 #include <clang/Frontend/CompilerInvocation.h>
 #include <clang/Frontend/FrontendActions.h>
 #include <clang/Frontend/FrontendOptions.h>
@@ -33,6 +34,7 @@
 #include <cstring>
 #include <memory>
 #include <sstream>
+#include <iostream>
 
 #include "Command.h"
 #include "Compiler.h"
@@ -53,17 +55,17 @@ const ArgumentVector &CompileJob::Arguments(void) const {
 }
 
 // Return the working directory in which this command executes.
-const std::filesystem::path &CompileJob::WorkingDirectory(void) const {
+std::filesystem::path CompileJob::WorkingDirectory(void) const {
   return impl->working_dir;
 }
 
 // Return the compiler resource directory that this command should use.
-const std::filesystem::path &CompileJob::ResourceDirectory(void) const {
+std::filesystem::path CompileJob::ResourceDirectory(void) const {
   return impl->resource_dir;
 }
 
 // Return the compiler system root directory that this command should use.
-const std::filesystem::path &CompileJob::SystemRootDirectory(void) const {
+std::filesystem::path CompileJob::SystemRootDirectory(void) const {
   return impl->sysroot_dir;
 }
 
@@ -156,6 +158,7 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
   std::filesystem::path working_dir(command.WorkingDirectory());
   std::filesystem::path sysroot_to_use;
   std::filesystem::path resource_dir_to_use;
+  std::filesystem::path output_to_use;
 
   if (!compiler.SystemRootDirectory().empty()) {
     std::filesystem::path(compiler.SystemRootDirectory()).swap(sysroot_to_use);
@@ -168,7 +171,7 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
 
   // Strip out all include path/file related arguments from non-include-related
   // arguments.
-  for (auto arg : args) {
+  for (llvm::opt::Arg *arg : args) {
     const auto id = arg->getOption().getID();
     if (IsIncludeOption(id)) {
       if (id == clang::driver::options::OPT_isysroot) {
@@ -195,8 +198,14 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
       } else {
         arg->render(args, parsed_inc_args);
       }
+
+    } else if (id == clang::driver::options::OPT_o) {
+      // If there is separator writing output to a file, add it as
+      // an output file with the separator else it will be treated
+      // as an input file.
+      output_to_use = fs.ParsePath(arg->getValue());
     } else {
-      arg->render(args, parsed_args);
+      arg->renderAsInput(args, parsed_args);
     }
   }
 
@@ -234,7 +243,7 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
 
     auto path = fs.Stat(fs.ParsePath(parsed_arg));
     if (path.Succeeded()) {
-      new_args.emplace_back(std::move(path->real_path));
+      new_args.emplace_back(path.TakeValue().real_path);
     } else {
       new_args.emplace_back(parsed_arg);
     }
@@ -268,6 +277,11 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
         new_args.emplace_back(include_path.generic_string());
       });
 
+  if (!output_to_use.empty()) {
+    new_args.emplace_back("-o");
+    new_args.emplace_back(output_to_use.generic_string());
+  }
+
   // Finally, add in all non-include related arguments from the compile command.
   for (auto parsed_arg : parsed_args) {
     new_args.emplace_back(parsed_arg);
@@ -281,15 +295,16 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
 // The list of compiler jobs associated with this command.
 Result<std::vector<CompileJob>, std::string>
 Compiler::CreateJobsForCommand(const CompileCommand &command) const {
-
   std::stringstream err;
 
+  const std::filesystem::path working_dir_path = command.WorkingDirectory();
+  const std::string working_dir_str = working_dir_path.generic_string();
+
   FileSystemView fs(impl->file_manager.FileSystem());
-  auto ec = fs.PushWorkingDirectory(command.WorkingDirectory());
+  auto ec = fs.PushWorkingDirectory(working_dir_path);
   if (ec) {
     err << "Could not enter current working directory '"
-        << command.WorkingDirectory().generic_string()
-        << "' of compile command: " << ec.message();
+        << working_dir_str << "' of compile command: " << ec.message();
     return err.str();
   }
 
@@ -306,8 +321,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
   llvm::IntrusiveRefCntPtr<llvm::vfs::InMemoryFileSystem> mem_vfs(
       new llvm::vfs::InMemoryFileSystem);
   overlay_vfs->pushOverlay(mem_vfs.get());
-  overlay_vfs->setCurrentWorkingDirectory(
-      command.WorkingDirectory().generic_string());
+  overlay_vfs->setCurrentWorkingDirectory(working_dir_str);
 
   // Make the driver.
 #if LLVM_VERSION_NUMBER < LLVM_VERSION(12, 0)
@@ -334,8 +348,9 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
       clang::driver::options::CC1Option | clang::driver::options::NoXarchOption;
 #endif
 
+  llvm::ArrayRef<const char *> command_args(command.Arguments().Arguments());
   auto parsed_args = opts.ParseArgs(
-      command.Arguments().Arguments(), missing_arg_index, missing_arg_count,
+      command_args.slice(1u), missing_arg_index, missing_arg_count,
       driver_options, clang::driver::options::CLOption);
 
   // Something didn't parse.
@@ -380,7 +395,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
   // Double check the installation directory.
   if (!driver.InstalledDir.empty()) {
     if (auto idir = fs.Stat(driver.InstalledDir);
-        idir.Failed() || !idir->IsDirectory()) {
+        !idir.Succeeded() || !idir->IsDirectory()) {
       driver.InstalledDir.clear();
     }
   }
@@ -416,8 +431,8 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
   // Collect the argument lists for the sub-jobs of interest.
   for (auto &job : compilation->getJobs()) {
-
     auto &job_args = job.getArguments();
+
     if (!job_args.size()) {
       continue;
 
@@ -427,20 +442,16 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
     // Probably a linking job.
     } else {
-      std::stringstream ss;
-      auto sep = "";
-      for (const auto &job_arg : job_args) {
-        ss << sep << job_arg;
-        sep = " ";
-      }
+
     }
   }
 
   std::vector<CompileJob> jobs;
 
-  auto working_dir = command.WorkingDirectory();
   const auto target_triple =
       compilation->getDefaultToolChain().getTriple().str();
+
+  std::string last_job_args_str;
 
   for (auto job_args : cc1_jobs) {
     diagnostics_engine->Reset();
@@ -485,7 +496,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
     auto main_file_path = fs.ParsePath(frontend_opts.Inputs[0].getFile().str());
     auto main_file_stat = fs.Stat(main_file_path);
-    if (main_file_stat.Failed()) {
+    if (!main_file_stat.Succeeded()) {
       err << "Main input file '" << main_file_path.generic_string()
           << "' does not exist or cannot be opened: "
           << main_file_stat.TakeError().message();
@@ -493,7 +504,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
     }
 
     auto main_file = impl->file_manager.OpenFile(main_file_stat.TakeValue());
-    if (main_file.Failed()) {
+    if (!main_file.Succeeded()) {
       err << "Main input file '" << main_file_path.generic_string()
           << "' does not exist or cannot be opened: "
           << main_file.TakeError().message();
@@ -538,8 +549,23 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
       new_argv.emplace_back(arg);
     }
 
+    // Check for duplicates after canonicalization.
+    std::stringstream ss;
+    auto sep = "";
+    for (const auto &job_arg : new_argv) {
+      ss << sep << job_arg;
+      sep = " ";
+    }
+
+    auto job_args_str = ss.str();
+    if (last_job_args_str == job_args_str) {
+      continue;  // Duplicate.
+    } else {
+      last_job_args_str = std::move(job_args_str);
+    }
+
     CompileJob job(std::make_shared<CompileJobImpl>(
-        new_argv, impl->file_manager, std::move(working_dir),
+        new_argv, impl->file_manager, working_dir_path,
         fs.ParsePath(driver.ResourceDir),
         fs.ParsePath(driver.SysRoot),
         main_file.TakeValue(),

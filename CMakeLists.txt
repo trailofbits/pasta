@@ -291,9 +291,11 @@ add_library(pasta_compiler STATIC
     
     "lib/AST/AlignTokens.cpp"
     "lib/AST/AST.cpp"
+    "lib/AST/Bounds.cpp"
     "lib/AST/Builder.cpp"
     "lib/AST/Builder.h"
     "lib/AST/Decl.cpp"
+    "lib/AST/DeclManual.cpp"
     "lib/AST/Stmt.cpp"
     "lib/AST/Token.cpp"
     "lib/AST/Token.h"
@@ -344,6 +346,16 @@ target_link_libraries("pasta" INTERFACE
     pasta_thirdparty_llvm
     pasta_util
     pasta_compiler
+)
+
+set_target_properties("pasta"
+  PROPERTIES
+    LINKER_LANGUAGE
+      CXX
+    VISIBILITY_INLINES_HIDDEN
+      YES
+    CXX_VISIBILITY_PRESET
+      hidden
 )
 
 if(PASTA_BOOTSTRAP_MACROS OR PASTA_BOOTSTRAP_TYPES)
@@ -500,7 +512,8 @@ elseif(PASTA_ENABLE_INSTALL)
     DIRECTORY
       "include/pasta"
     DESTINATION
-      "include")
+      "${CMAKE_INSTALL_INCLUDEDIR}"
+  )
   
   
   install(
@@ -511,13 +524,13 @@ elseif(PASTA_ENABLE_INSTALL)
       "${PROJECT_NAME}Targets"
     RUNTIME
       DESTINATION
-        "bin"
+        "${CMAKE_INSTALL_BINDIR}"
     LIBRARY
       DESTINATION
-        "lib"
+        "${CMAKE_INSTALL_LIBDIR}"
     ARCHIVE
       DESTINATION
-        "lib"
+        "${CMAKE_INSTALL_LIBDIR}"
   )
 endif()
 

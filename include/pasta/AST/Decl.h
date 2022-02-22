@@ -67,8 +67,8 @@ class DeclVisitor {
   virtual void VisitTranslationUnitDecl(const TranslationUnitDecl &);
   virtual void VisitTypeDecl(const TypeDecl &);
   virtual void VisitTypedefNameDecl(const TypedefNameDecl &);
+  virtual void VisitUnresolvedUsingIfExistsDecl(const UnresolvedUsingIfExistsDecl &);
   virtual void VisitUnresolvedUsingTypenameDecl(const UnresolvedUsingTypenameDecl &);
-  virtual void VisitUsingDecl(const UsingDecl &);
   virtual void VisitUsingDirectiveDecl(const UsingDirectiveDecl &);
   virtual void VisitUsingPackDecl(const UsingPackDecl &);
   virtual void VisitUsingShadowDecl(const UsingShadowDecl &);
@@ -76,6 +76,7 @@ class DeclVisitor {
   virtual void VisitOMPDeclarativeDirectiveDecl(const OMPDeclarativeDirectiveDecl &);
   virtual void VisitOMPDeclarativeDirectiveValueDecl(const OMPDeclarativeDirectiveValueDecl &);
   virtual void VisitAccessSpecDecl(const AccessSpecDecl &);
+  virtual void VisitBaseUsingDecl(const BaseUsingDecl &);
   virtual void VisitBindingDecl(const BindingDecl &);
   virtual void VisitBlockDecl(const BlockDecl &);
   virtual void VisitBuiltinTemplateDecl(const BuiltinTemplateDecl &);
@@ -110,6 +111,8 @@ class DeclVisitor {
   virtual void VisitTypeAliasTemplateDecl(const TypeAliasTemplateDecl &);
   virtual void VisitTypedefDecl(const TypedefDecl &);
   virtual void VisitUnresolvedUsingValueDecl(const UnresolvedUsingValueDecl &);
+  virtual void VisitUsingDecl(const UsingDecl &);
+  virtual void VisitUsingEnumDecl(const UsingEnumDecl &);
   virtual void VisitVarDecl(const VarDecl &);
   virtual void VisitVarTemplateDecl(const VarTemplateDecl &);
   virtual void VisitVarTemplateSpecializationDecl(const VarTemplateSpecializationDecl &);
@@ -231,6 +234,7 @@ class Decl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(Decl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, AccessSpecDecl)
+  PASTA_DECLARE_DERIVED_OPERATORS(Decl, BaseUsingDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, BindingDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, BlockDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, BuiltinTemplateDecl)
@@ -312,10 +316,12 @@ class Decl {
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, TypeDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, TypedefDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, TypedefNameDecl)
+  PASTA_DECLARE_DERIVED_OPERATORS(Decl, UnresolvedUsingIfExistsDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, UnresolvedUsingTypenameDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, UnresolvedUsingValueDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, UsingDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, UsingDirectiveDecl)
+  PASTA_DECLARE_DERIVED_OPERATORS(Decl, UsingEnumDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, UsingPackDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, UsingShadowDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, ValueDecl)
@@ -408,10 +414,14 @@ class Decl {
   inline bool operator==(const Decl &that) const noexcept {
     return u.opaque == that.u.opaque;
   }
+  static std::optional<::pasta::Decl> From(const TokenContext &);
  protected:
+  friend class TokenContext;
+
   std::shared_ptr<ASTImpl> ast;
   union {
     const ::clang::AccessSpecDecl *AccessSpecDecl;
+    const ::clang::BaseUsingDecl *BaseUsingDecl;
     const ::clang::BindingDecl *BindingDecl;
     const ::clang::BlockDecl *BlockDecl;
     const ::clang::BuiltinTemplateDecl *BuiltinTemplateDecl;
@@ -492,10 +502,12 @@ class Decl {
     const ::clang::TypeDecl *TypeDecl;
     const ::clang::TypedefDecl *TypedefDecl;
     const ::clang::TypedefNameDecl *TypedefNameDecl;
+    const ::clang::UnresolvedUsingIfExistsDecl *UnresolvedUsingIfExistsDecl;
     const ::clang::UnresolvedUsingTypenameDecl *UnresolvedUsingTypenameDecl;
     const ::clang::UnresolvedUsingValueDecl *UnresolvedUsingValueDecl;
     const ::clang::UsingDecl *UsingDecl;
     const ::clang::UsingDirectiveDecl *UsingDirectiveDecl;
+    const ::clang::UsingEnumDecl *UsingEnumDecl;
     const ::clang::UsingPackDecl *UsingPackDecl;
     const ::clang::UsingShadowDecl *UsingShadowDecl;
     const ::clang::ValueDecl *ValueDecl;
@@ -666,6 +678,7 @@ class NamedDecl : public Decl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NamedDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, NamedDecl)
+  PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, BaseUsingDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, BindingDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, BuiltinTemplateDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, CXXConstructorDecl)
@@ -724,10 +737,12 @@ class NamedDecl : public Decl {
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, TypeDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, TypedefDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, TypedefNameDecl)
+  PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, UnresolvedUsingIfExistsDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, UnresolvedUsingTypenameDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, UnresolvedUsingValueDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, UsingDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, UsingDirectiveDecl)
+  PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, UsingEnumDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, UsingPackDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, UsingShadowDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, ValueDecl)
@@ -756,6 +771,7 @@ class NamedDecl : public Decl {
   bool IsExternallyDeclarable(void) const;
   bool IsExternallyVisible(void) const;
   bool IsLinkageValid(void) const;
+  // IsReserved: (clang::ReservedIdentifierStatus)
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(NamedDecl)
 };
@@ -801,6 +817,7 @@ class NamespaceDecl : public NamedDecl {
   bool IsAnonymousNamespace(void) const;
   bool IsInline(void) const;
   bool IsOriginalNamespace(void) const;
+  // IsRedundantInlineQualifierFor: (bool)
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(NamespaceDecl)
 };
@@ -1277,6 +1294,19 @@ class TypedefNameDecl : public TypeDecl {
 
 static_assert(sizeof(Decl) == sizeof(TypedefNameDecl));
 
+class UnresolvedUsingIfExistsDecl : public NamedDecl {
+ private:
+  using NamedDecl::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UnresolvedUsingIfExistsDecl)
+  PASTA_DECLARE_BASE_OPERATORS(Decl, UnresolvedUsingIfExistsDecl)
+  PASTA_DECLARE_BASE_OPERATORS(NamedDecl, UnresolvedUsingIfExistsDecl)
+ protected:
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(UnresolvedUsingIfExistsDecl)
+};
+
+static_assert(sizeof(Decl) == sizeof(UnresolvedUsingIfExistsDecl));
+
 class UnresolvedUsingTypenameDecl : public TypeDecl {
  private:
   using TypeDecl::From;
@@ -1298,28 +1328,6 @@ class UnresolvedUsingTypenameDecl : public TypeDecl {
 };
 
 static_assert(sizeof(Decl) == sizeof(UnresolvedUsingTypenameDecl));
-
-class UsingDecl : public NamedDecl {
- private:
-  using NamedDecl::From;
- public:
-  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UsingDecl)
-  PASTA_DECLARE_BASE_OPERATORS(Decl, UsingDecl)
-  PASTA_DECLARE_BASE_OPERATORS(NamedDecl, UsingDecl)
-  ::pasta::UsingDecl CanonicalDeclaration(void) const;
-  // NameInfo: (clang::DeclarationNameInfo)
-  // Qualifier: (clang::NestedNameSpecifier *)
-  // QualifierToken: (clang::NestedNameSpecifierLoc)
-  ::pasta::TokenRange TokenRange(void) const;
-  ::pasta::Token UsingToken(void) const;
-  bool HasTypename(void) const;
-  bool IsAccessDeclaration(void) const;
-  std::vector<::pasta::UsingShadowDecl> Shadows(void) const;
- protected:
-  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(UsingDecl)
-};
-
-static_assert(sizeof(Decl) == sizeof(UsingDecl));
 
 class UsingDirectiveDecl : public NamedDecl {
  private:
@@ -1369,9 +1377,9 @@ class UsingShadowDecl : public NamedDecl {
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, UsingShadowDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(UsingShadowDecl, ConstructorUsingShadowDecl)
   ::pasta::UsingShadowDecl CanonicalDeclaration(void) const;
+  ::pasta::BaseUsingDecl Introducer(void) const;
   ::pasta::UsingShadowDecl NextUsingShadowDeclaration(void) const;
   ::pasta::NamedDecl TargetDeclaration(void) const;
-  ::pasta::UsingDecl UsingDeclaration(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(UsingShadowDecl)
 };
@@ -1463,6 +1471,22 @@ class AccessSpecDecl : public Decl {
 };
 
 static_assert(sizeof(Decl) == sizeof(AccessSpecDecl));
+
+class BaseUsingDecl : public NamedDecl {
+ private:
+  using NamedDecl::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(BaseUsingDecl)
+  PASTA_DECLARE_BASE_OPERATORS(Decl, BaseUsingDecl)
+  PASTA_DECLARE_BASE_OPERATORS(NamedDecl, BaseUsingDecl)
+  PASTA_DECLARE_DERIVED_OPERATORS(BaseUsingDecl, UsingDecl)
+  PASTA_DECLARE_DERIVED_OPERATORS(BaseUsingDecl, UsingEnumDecl)
+  // Shadows: (llvm::iterator_range<clang::BaseUsingDecl::shadow_iterator>)
+ protected:
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(BaseUsingDecl)
+};
+
+static_assert(sizeof(Decl) == sizeof(BaseUsingDecl));
 
 class BindingDecl : public ValueDecl {
  private:
@@ -1593,6 +1617,7 @@ class ConstructorUsingShadowDecl : public UsingShadowDecl {
   bool ConstructsVirtualBase(void) const;
   ::pasta::CXXRecordDecl ConstructedBaseClass(void) const;
   ::pasta::ConstructorUsingShadowDecl ConstructedBaseClassShadowDeclaration(void) const;
+  ::pasta::UsingDecl Introducer(void) const;
   ::pasta::CXXRecordDecl NominatedBaseClass(void) const;
   ::pasta::ConstructorUsingShadowDecl NominatedBaseClassShadowDeclaration(void) const;
   ::pasta::CXXRecordDecl Parent(void) const;
@@ -2304,6 +2329,47 @@ class UnresolvedUsingValueDecl : public ValueDecl {
 
 static_assert(sizeof(Decl) == sizeof(UnresolvedUsingValueDecl));
 
+class UsingDecl : public BaseUsingDecl {
+ private:
+  using BaseUsingDecl::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UsingDecl)
+  PASTA_DECLARE_BASE_OPERATORS(BaseUsingDecl, UsingDecl)
+  PASTA_DECLARE_BASE_OPERATORS(Decl, UsingDecl)
+  PASTA_DECLARE_BASE_OPERATORS(NamedDecl, UsingDecl)
+  ::pasta::UsingDecl CanonicalDeclaration(void) const;
+  // NameInfo: (clang::DeclarationNameInfo)
+  // Qualifier: (clang::NestedNameSpecifier *)
+  // QualifierToken: (clang::NestedNameSpecifierLoc)
+  ::pasta::TokenRange TokenRange(void) const;
+  ::pasta::Token UsingToken(void) const;
+  bool HasTypename(void) const;
+  bool IsAccessDeclaration(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(UsingDecl)
+};
+
+static_assert(sizeof(Decl) == sizeof(UsingDecl));
+
+class UsingEnumDecl : public BaseUsingDecl {
+ private:
+  using BaseUsingDecl::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UsingEnumDecl)
+  PASTA_DECLARE_BASE_OPERATORS(BaseUsingDecl, UsingEnumDecl)
+  PASTA_DECLARE_BASE_OPERATORS(Decl, UsingEnumDecl)
+  PASTA_DECLARE_BASE_OPERATORS(NamedDecl, UsingEnumDecl)
+  ::pasta::UsingEnumDecl CanonicalDeclaration(void) const;
+  ::pasta::EnumDecl EnumDeclaration(void) const;
+  ::pasta::Token EnumToken(void) const;
+  ::pasta::TokenRange TokenRange(void) const;
+  ::pasta::Token UsingToken(void) const;
+ protected:
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(UsingEnumDecl)
+};
+
+static_assert(sizeof(Decl) == sizeof(UsingEnumDecl));
+
 class VarDecl : public DeclaratorDecl {
  private:
   using DeclaratorDecl::From;
@@ -2344,6 +2410,7 @@ class VarDecl : public DeclaratorDecl {
   enum TemplateSpecializationKind TemplateSpecializationKind(void) const;
   enum TemplateSpecializationKind TemplateSpecializationKindForInstantiation(void) const;
   bool HasConstantInitialization(void) const;
+  bool HasDependentAlignment(void) const;
   bool HasExternalStorage(void) const;
   bool HasGlobalStorage(void) const;
   bool HasICEInitializer(void) const;
@@ -2451,6 +2518,7 @@ class CXXDeductionGuideDecl : public FunctionDecl {
   PASTA_DECLARE_BASE_OPERATORS(FunctionDecl, CXXDeductionGuideDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, CXXDeductionGuideDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, CXXDeductionGuideDecl)
+  ::pasta::CXXConstructorDecl CorrespondingConstructor(void) const;
   ::pasta::TemplateDecl DeducedTemplate(void) const;
   // ExplicitSpecifier: (const clang::ExplicitSpecifier)
   bool IsCopyDeductionCandidate(void) const;
@@ -2838,7 +2906,7 @@ class CXXRecordDecl : public RecordDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(CXXRecordDecl, ClassTemplatePartialSpecializationDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(CXXRecordDecl, ClassTemplateSpecializationDecl)
   bool AllowConstDefaultInitializer(void) const;
-  // Bases: (llvm::iterator_range<const clang::CXXBaseSpecifier *>)
+  std::vector<::pasta::CXXBaseSpecifier> Bases(void) const;
   enum MSInheritanceModel CalculateInheritanceModel(void) const;
   // Captures: (llvm::iterator_range<const clang::LambdaCapture *>)
   std::vector<::pasta::CXXConstructorDecl> Constructors(void) const;
@@ -2974,7 +3042,7 @@ class CXXRecordDecl : public RecordDecl {
   bool NeedsOverloadResolutionForMoveAssignment(void) const;
   bool NeedsOverloadResolutionForMoveConstructor(void) const;
   bool NullFieldOffsetIsZero(void) const;
-  // VirtualBases: (llvm::iterator_range<const clang::CXXBaseSpecifier *>)
+  std::vector<::pasta::CXXBaseSpecifier> VirtualBases(void) const;
   // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXRecordDecl)

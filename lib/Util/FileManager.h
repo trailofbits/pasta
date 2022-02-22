@@ -11,20 +11,41 @@
 #include <unordered_map>
 
 #include <pasta/Util/File.h>
+#include <clang/Basic/TokenKinds.h>
 
 namespace pasta {
 
+static_assert(
+    static_cast<unsigned>(clang::tok::TokenKind::NUM_TOKENS) <= (1u << 9u));
+
 struct FileTokenImpl {
-  inline FileTokenImpl(const char *data_, unsigned line_, unsigned column_,
-                       unsigned kind_)
-      : data(data_),
+  inline FileTokenImpl(uint32_t data_offset_, uint32_t data_len_,
+                       uint32_t line_, unsigned column_,
+                       clang::tok::TokenKind kind_)
+      : data_offset(data_offset_),
+        data_len(data_len_),
         line(line_),
-        column(static_cast<uint16_t>(column_)),
-        kind(static_cast<uint16_t>(kind_)) {}
-  const char *data;
-  unsigned line;
+        column(static_cast<uint16_t>(column_)) {
+    kind.extended.kind = static_cast<uint16_t>(kind_);
+  }
+  uint32_t data_offset;
+  uint32_t data_len;
+  uint32_t line;
   uint16_t column;
-  uint16_t kind;
+
+  inline clang::tok::TokenKind Kind(void) const noexcept {
+    return static_cast<clang::tok::TokenKind>(kind.extended.kind);
+  }
+
+  union {
+    uint16_t flat{0};
+    struct {
+      uint16_t kind:9;
+      uint16_t is_pp_kw:1;
+      uint16_t is_objc_kw:1;
+      uint16_t alt_kind:5;
+    } extended;
+  } __attribute__((packed)) kind;
 };
 
 // Implementation of a backing file.

@@ -49,6 +49,14 @@ class ArgumentVector {
   int Argc(void) const;
   const char **Argv(void) const;
 
+  inline auto begin(void) const -> decltype(Arguments().begin()) {
+    return Arguments().begin();
+  }
+
+  inline auto end(void) const -> decltype(Arguments().end()) {
+    return Arguments().end();
+  }
+
  private:
   std::vector<const char *> argv;
   std::unique_ptr<char[]> data;

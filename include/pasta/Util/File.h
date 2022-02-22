@@ -14,6 +14,11 @@
 #include "Result.h"
 #include "StdFileSystem.h"
 
+namespace clang {
+namespace tok {
+enum TokenKind : unsigned short;
+}  // namespace tok
+}  // namspace clang
 namespace pasta {
 
 class AST;
@@ -23,8 +28,10 @@ class FileImpl;
 class FileManager;
 class FileManagerImpl;
 class FileTokenIterator;
-class FileFileTokenRange;
+class FileTokenRange;
 class ParsedFileTracker;
+class Token;
+
 struct Stat;
 struct FileTokenImpl;
 
@@ -37,6 +44,7 @@ class FileToken {
   friend class FileImpl;
   friend class FileTokenIterator;
   friend class FileTokenRange;
+  friend class Token;
 
   FileToken(void) = delete;
 
@@ -51,7 +59,13 @@ class FileToken {
   ~FileToken(void);
 
   // Kind of this token.
-  unsigned Kind(void) const noexcept;
+  clang::tok::TokenKind Kind(void) const noexcept;
+
+  int PreProcessorKeywordKind(void) const noexcept;
+  int ObjectiveCAtKeywordKind(void) const noexcept;
+
+  // Kind of this token.
+  const char *KindName(void) const noexcept;
 
   // Return the line number associated with this token.
   unsigned Line(void) const noexcept;
@@ -106,13 +120,13 @@ class FileTokenIterator {
 
   // NOTE(pag): This is a bit sketchy; make sure not to let the reference to
   //            the token escape beyond a single iteration of the loop.
-  const FileToken &operator*(void) const noexcept {
+  inline const FileToken &operator*(void) const noexcept {
     return token;
   }
 
   // NOTE(pag): This is a bit sketchy; make sure not to let the reference to
   //            the token escape beyond a single iteration of the loop.
-  const FileToken *operator->(void) const noexcept {
+  inline const FileToken *operator->(void) const noexcept {
     return &token;
   }
 
@@ -201,6 +215,7 @@ class FileTokenRange {
  private:
   friend class File;
   friend class FileImpl;
+  friend class Token;
 
   FileTokenRange(void) = delete;
 
@@ -229,6 +244,7 @@ class File {
   friend class FileManager;
   friend class FileManagerImpl;
   friend class ParsedFileTracker;
+  friend class Token;
 
   File(void) = delete;
 
@@ -242,6 +258,9 @@ class File {
 
   // Return the file containing a given file token.
   static File Containing(const FileToken &tok);
+
+  // Return the file containing a given file token.
+  static std::optional<File> Containing(const std::optional<FileToken> &tok);
 
   // Return the path of this file from within its file system.
   std::filesystem::path Path(void) const noexcept;
@@ -268,6 +287,19 @@ class File {
   inline bool operator!=(const File &that) const noexcept {
     return impl != that.impl;
   }
+
+  inline uint64_t HashCode(void) const noexcept {
+    return std::hash<void *>{}(impl.get());
+  }
 };
 
 }  // namespace pasta
+namespace std {
+template <>
+struct hash<::pasta::File> {
+ public:
+  inline uint64_t operator()(const ::pasta::File &file) const noexcept {
+    return file.HashCode();
+  }
+};
+}  // namespace std

@@ -34,6 +34,7 @@
 #include <cstring>
 #include <memory>
 #include <sstream>
+#include <iostream>
 
 #include "Command.h"
 #include "Compiler.h"
@@ -157,6 +158,7 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
   std::filesystem::path working_dir(command.WorkingDirectory());
   std::filesystem::path sysroot_to_use;
   std::filesystem::path resource_dir_to_use;
+  std::filesystem::path output_to_use;
 
   if (!compiler.SystemRootDirectory().empty()) {
     std::filesystem::path(compiler.SystemRootDirectory()).swap(sysroot_to_use);
@@ -196,6 +198,12 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
       } else {
         arg->render(args, parsed_inc_args);
       }
+    } else if (id == clang::driver::options::OPT_o) {
+      // If there is separator writing output to a file, add it as
+      // an output file with the separator else it will be treated
+      // as an input file.
+      auto path =  fs.ParsePath(arg->getValue());
+      output_to_use = std::move(path->real_path);
     } else {
       arg->renderAsInput(args, parsed_args);
     }
@@ -268,6 +276,11 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
         }
         new_args.emplace_back(include_path.generic_string());
       });
+
+  if (!output_to_use.empty()) {
+    new_args.emplace_back("-o");
+    new_args.emplace_back(output_to_use.generic_string());
+  }
 
   // Finally, add in all non-include related arguments from the compile command.
   for (auto parsed_arg : parsed_args) {

@@ -34,6 +34,7 @@ int main(void) {
       kCxxPath,
       "-x", "c++",
       "-c", kMacroGeneratorPath,
+      "-o", "/dev/null",
       "-std=c++17",
       "-isystem", kPastaBinaryPath,
       "-isystem", kPastaIncludeSourcePath,

@@ -270,8 +270,12 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
   {"(llvm::iterator_range<const clang::CXXBaseSpecifier *>)",
    "std::vector<::pasta::CXXBaseSpecifier>"},
 
-  {"(clang::BuiltinType::Kind)",
-   "::pasta::BuiltinTypeKind"}
+  {"(clang::BuiltinType::Kind)", "::pasta::BuiltinTypeKind"},
+
+  {"(const llvm::APSInt &)", "llvm::APSInt"},
+  {"(llvm::APSInt)", "llvm::APSInt"},
+  {"(const llvm::APInt &)", "llvm::APInt"},
+  {"(llvm::APInt)", "llvm::APInt"},
 };
 
 // Maps return types from the macros file to how they should be returned
@@ -622,7 +626,19 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
     "  return ret;\n"},
 
    {"(clang::BuiltinType::Kind)",
-    " return static_cast<::pasta::BuiltinTypeKind>(val);\n"}
+    "  return static_cast<::pasta::BuiltinTypeKind>(val);\n"},
+
+   {"(const llvm::APSInt &)",
+    "  return val;\n"},
+
+   {"(llvm::APSInt)",
+    "  return val;\n"},
+
+   {"(const llvm::APInt &)",
+    "  return val;\n"},
+
+   {"(llvm::APInt)",
+    "  return val;\n"},
 };
 
 // Prefixes on enumerators to strip.

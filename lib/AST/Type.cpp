@@ -2640,7 +2640,7 @@ PASTA_DEFINE_BASE_OPERATORS(Type, BuiltinType)
 ::pasta::BuiltinTypeKind BuiltinType::Kind(void) const {
   auto &self = *(u.BuiltinType);
   auto val = self.getKind();
- return static_cast<::pasta::BuiltinTypeKind>(val);
+  return static_cast<::pasta::BuiltinTypeKind>(val);
 }
 
 // 1: BuiltinType::Name
@@ -2714,7 +2714,12 @@ PASTA_DEFINE_BASE_OPERATORS(Type, ConstantArrayType)
   return TypeBuilder::Build(ast, val);
 }
 
-// 0: ConstantArrayType::Size
+llvm::APInt ConstantArrayType::Size(void) const {
+  auto &self = *(u.ConstantArrayType);
+  auto val = self.getSize();
+  return val;
+}
+
 ::pasta::Expr ConstantArrayType::SizeExpression(void) const {
   auto &self = *(u.ConstantArrayType);
   auto val = self.getSizeExpr();

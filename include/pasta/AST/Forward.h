@@ -7,6 +7,7 @@
 #pragma once
 
 #include <cstdint>
+#include <llvm/ADT/APSInt.h>
 #include <memory>
 #include <optional>
 #include <string>

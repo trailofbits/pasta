@@ -4299,7 +4299,12 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, EnumConstantDecl)
   __builtin_unreachable();
 }
 
-// 0: EnumConstantDecl::InitializerVal
+llvm::APSInt EnumConstantDecl::InitializerVal(void) const {
+  auto &self = *(u.EnumConstantDecl);
+  auto val = self.getInitVal();
+  return val;
+}
+
 ::pasta::TokenRange EnumConstantDecl::TokenRange(void) const {
   return ast->DeclTokenRange(u.EnumConstantDecl);
 }

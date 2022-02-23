@@ -3091,8 +3091,18 @@ PASTA_DEFINE_DERIVED_OPERATORS(Expr, VAArgExpr)
 // 2: EvaluateAsInt
 // 2: EvaluateAsLValue
 // 2: EvaluateAsRValue
-// 1: Expr::EvaluateKnownConstInt
-// 1: Expr::EvaluateKnownConstIntCheckOverflow
+llvm::APSInt Expr::EvaluateKnownConstInt(void) const {
+  auto &self = *(u.Expr);
+  auto val = self.EvaluateKnownConstInt(ast->ci->getASTContext());
+  return val;
+}
+
+llvm::APSInt Expr::EvaluateKnownConstIntCheckOverflow(void) const {
+  auto &self = *(u.Expr);
+  auto val = self.EvaluateKnownConstIntCheckOverflow(ast->ci->getASTContext());
+  return val;
+}
+
 // 4: Expr::EvaluateWithSubstitution
 bool Expr::HasSideEffects(void) const {
   auto &self = *(u.Expr);
@@ -10778,7 +10788,12 @@ std::vector<::pasta::Stmt> ArrayInitLoopExpr::Children(void) const {
   return ret;
 }
 
-// 0: ArrayInitLoopExpr::ArraySize
+llvm::APInt ArrayInitLoopExpr::ArraySize(void) const {
+  auto &self = *(u.ArrayInitLoopExpr);
+  auto val = self.getArraySize();
+  return val;
+}
+
 ::pasta::Token ArrayInitLoopExpr::BeginToken(void) const {
   auto &self = *(u.ArrayInitLoopExpr);
   auto val = self.getBeginLoc();
@@ -13713,7 +13728,12 @@ std::vector<::pasta::Stmt> ConstantExpr::Children(void) const {
   return static_cast<::pasta::APValueKind>(val);
 }
 
-// 0: ConstantExpr::ResultAsAPSInt
+llvm::APSInt ConstantExpr::ResultAsAPSInt(void) const {
+  auto &self = *(u.ConstantExpr);
+  auto val = self.getResultAsAPSInt();
+  return val;
+}
+
 // 0: ConstantExpr::ResultAsAPValue
 ::pasta::ResultStorageKind ConstantExpr::ResultStorageKind(void) const {
   auto &self = *(u.ConstantExpr);

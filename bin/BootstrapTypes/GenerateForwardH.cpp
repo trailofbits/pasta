@@ -24,6 +24,7 @@ void GenerateForwardH(void) {
       << "// This file is auto-generated.\n\n"
       << "#pragma once\n\n"
       << "#include <cstdint>\n"
+      << "#include <llvm/ADT/APSInt.h>\n"
       << "#include <memory>\n"
       << "#include <optional>\n"
       << "#include <string>\n"

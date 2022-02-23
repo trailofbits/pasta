@@ -1454,8 +1454,8 @@ class Expr : public ValueStmt {
   // EvaluateAsInt: (bool)
   // EvaluateAsLValue: (bool)
   // EvaluateAsRValue: (bool)
-  // EvaluateKnownConstInt: (llvm::APSInt)
-  // EvaluateKnownConstIntCheckOverflow: (llvm::APSInt)
+  llvm::APSInt EvaluateKnownConstInt(void) const;
+  llvm::APSInt EvaluateKnownConstIntCheckOverflow(void) const;
   // EvaluateWithSubstitution: (bool)
   bool HasSideEffects(void) const;
   ::pasta::Expr IgnoreCasts(void) const;
@@ -4428,7 +4428,7 @@ class ArrayInitLoopExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(Stmt, ArrayInitLoopExpr)
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, ArrayInitLoopExpr)
   std::vector<::pasta::Stmt> Children(void) const;
-  // ArraySize: (llvm::APInt)
+  llvm::APInt ArraySize(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::OpaqueValueExpr CommonExpression(void) const;
   ::pasta::Token EndToken(void) const;
@@ -5373,7 +5373,7 @@ class ConstantExpr : public FullExpr {
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::APValueKind ResultAPValueKind(void) const;
-  // ResultAsAPSInt: (llvm::APSInt)
+  llvm::APSInt ResultAsAPSInt(void) const;
   // ResultAsAPValue: (clang::APValue &)
   ::pasta::ResultStorageKind ResultStorageKind(void) const;
   bool HasAPValueResult(void) const;

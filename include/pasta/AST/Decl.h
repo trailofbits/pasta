@@ -1682,7 +1682,7 @@ class EnumConstantDecl : public ValueDecl {
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, EnumConstantDecl)
   ::pasta::EnumConstantDecl CanonicalDeclaration(void) const;
   ::pasta::Expr InitializerExpression(void) const;
-  // InitializerVal: (const llvm::APSInt &)
+  llvm::APSInt InitializerVal(void) const;
   ::pasta::TokenRange TokenRange(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(EnumConstantDecl)

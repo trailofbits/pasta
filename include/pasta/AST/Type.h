@@ -801,7 +801,7 @@ class ConstantArrayType : public ArrayType {
   PASTA_DECLARE_BASE_OPERATORS(ArrayType, ConstantArrayType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ConstantArrayType)
   ::pasta::Type Desugar(void) const;
-  // Size: (const llvm::APInt &)
+  llvm::APInt Size(void) const;
   ::pasta::Expr SizeExpression(void) const;
   bool IsSugared(void) const;
  protected:

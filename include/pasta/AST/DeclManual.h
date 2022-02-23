@@ -85,4 +85,11 @@ struct hash<::pasta::Decl> {
  public:
   uint64_t operator()(const ::pasta::Decl &decl) const noexcept;
 };
+#define PASTA_DEFINE_DECL_HASH(name) \
+    template <> \
+    struct hash<::pasta::name ## Decl> : public hash<::pasta::Decl> {};
+
+PASTA_FOR_EACH_DECL_IMPL(PASTA_DEFINE_DECL_HASH, PASTA_IGNORE_ABSTRACT)
+#undef PASTA_DEFINE_DECL_HASH
+
 }  // namespace std

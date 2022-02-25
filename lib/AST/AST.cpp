@@ -362,14 +362,3 @@ std::optional<Type> Type::From(const TokenContext &context) {
 
 #endif  // PASTA_IN_BOOTSTRAP
 }  // namespace pasta
-
-#ifndef PASTA_IN_BOOTSTRAP
-namespace std {
-
-uint64_t hash<::pasta::Decl>::operator()(
-    const ::pasta::Decl &decl) const noexcept {
-  return std::hash<const void *>{}(decl.RawDecl());
-}
-
-}  // namespace std
-#endif  // PASTA_IN_BOOTSTRAP

@@ -133,6 +133,20 @@ class FileSystemView {
         std::move(path), CurrentWorkingDirectory(), impl->PathKind());
   }
 
+  // Parse a path string into a path object.
+  inline std::filesystem::path ParsePath(std::string path,
+                                         std::string cwd) const {
+    const auto pk = impl->PathKind();
+    if (cwd.empty()) {
+      return impl->ParsePath(std::move(path), CurrentWorkingDirectory(), pk);
+    } else {
+      return impl->ParsePath(
+          std::move(path),
+          impl->ParsePath(std::move(cwd), CurrentWorkingDirectory(), pk),
+          pk);
+    }
+  }
+
   // Returns `true` if `path` looks like a resource directory for a compiler.
   inline bool IsResourceDir(std::filesystem::path path) const {
     return impl->IsResourceDir(std::move(path), CurrentWorkingDirectory());

@@ -30,7 +30,7 @@
 
 #define PASTA_DEFINE_BASE_OPERATORS(base, derived) \
     std::optional<class derived> derived::From(const class base &that) { \
-      if (auto stmt_ptr = clang::dyn_cast<clang::derived>(that.u.base)) { \
+      if (auto stmt_ptr = clang::dyn_cast_or_null<clang::derived>(that.u.Stmt)) { \
         return StmtBuilder::Create<class derived>(that.ast, stmt_ptr); \
       } else { \
         return std::nullopt; \
@@ -51,11 +51,10 @@
       return *this; \
     } \
     base &base::operator=(class derived &&that) noexcept { \
-      if (this != &that) { \
-        ast = std::move(that.ast); \
-        u.Stmt = that.u.Stmt; \
-        kind = that.kind; \
-      } \
+      class derived new_that(std::forward<class derived>(that)); \
+      ast = std::move(new_that.ast); \
+      u.Stmt = new_that.u.Stmt; \
+      kind = new_that.kind; \
       return *this; \
     }
 

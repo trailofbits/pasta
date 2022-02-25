@@ -61,11 +61,11 @@ class CXXBaseSpecifier {
   // specifier as written in the source code, use `LexicalAccessSpecifier`.
   ::pasta::AccessSpecifier SemanticAccessSpecifier(void) const noexcept;
 
-  /// Retrieves the access specifier as written in the source code
-  /// (which may mean that no access specifier was explicitly written).
-  ///
-  /// Use `SemanticAccessSpecifier` to retrieve the access specifier for use in
-  /// semantic analysis.
+  // Retrieves the access specifier as written in the source code
+  // (which may mean that no access specifier was explicitly written).
+  //
+  // Use `SemanticAccessSpecifier` to retrieve the access specifier for use in
+  // semantic analysis.
   ::pasta::AccessSpecifier LexicalAccessSpecifier(void) const noexcept;
 
   // Retrieves the type of the base class.
@@ -79,17 +79,3 @@ class CXXBaseSpecifier {
 };
 
 }  // namespace pasta
-namespace std {
-template <>
-struct hash<::pasta::Decl> {
- public:
-  uint64_t operator()(const ::pasta::Decl &decl) const noexcept;
-};
-#define PASTA_DEFINE_DECL_HASH(name) \
-    template <> \
-    struct hash<::pasta::name ## Decl> : public hash<::pasta::Decl> {};
-
-PASTA_FOR_EACH_DECL_IMPL(PASTA_DEFINE_DECL_HASH, PASTA_IGNORE_ABSTRACT)
-#undef PASTA_DEFINE_DECL_HASH
-
-}  // namespace std

@@ -7,6 +7,7 @@
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include <llvm/ADT/StringRef.h>
+#include <llvm/ADT/Triple.h>
 #include <llvm/Support/Error.h>
 #pragma clang diagnostic pop
 
@@ -32,13 +33,13 @@ static constexpr auto kAnyExecutable = std::filesystem::perms::owner_exec |
 static void ParseGCCInstalledDir(FileSystemView &fs, CompilerImpl &info,
                                  llvm::StringRef line) {
   const auto pos = line.find("--prefix");
-  if (std::string::npos == pos) {
+  if (llvm::StringRef::npos == pos) {
     return;
   }
 
   ArgumentVector vec(line.substr(pos));
   std::string guess;
-  if (std::string::npos != line.find("--prefix=", pos)) {
+  if (llvm::StringRef::npos != line.find("--prefix=", pos)) {
     guess = &(vec[0][9]);
   } else if (2 <= vec.Size()) {
     guess = vec[1];
@@ -52,45 +53,81 @@ static void ParseGCCInstalledDir(FileSystemView &fs, CompilerImpl &info,
   }
 }
 
-// Try to parse the resource directory out of the compiler's output. This
-// only really works for Clang-based compilers.
-static void ParseClangResourceDir(FileSystemView &fs, CompilerImpl &info,
-                                  llvm::StringRef line) {
-  const auto pos = line.find("-resource-dir");
-  if (std::string::npos == pos) {
+// Try to parse out the system root directory of this version of GCC.
+static void ParseGCCSysRootDir(FileSystemView &fs, CompilerImpl &info,
+                               llvm::StringRef line) {
+  const auto pos = line.find("--with-sysroot");
+  if (llvm::StringRef::npos == pos) {
     return;
   }
 
   ArgumentVector vec(line.substr(pos));
-  if (2 > vec.Size()) {
+  std::string guess;
+  if (llvm::StringRef::npos != line.find("--with-sysroot=", pos)) {
+    guess = &(vec[0][9]);
+  } else if (2 <= vec.Size()) {
+    guess = vec[1];
+  } else {
     return;
   }
 
-  auto status = fs.Stat(fs.ParsePath(vec[1]));
+  auto status = fs.Stat(fs.ParsePath(guess));
   if (status.Succeeded() && status->IsDirectory()) {
-    if (fs.IsResourceDir(status->real_path)) {
-      info.resource_dir = std::move(status->real_path);
-    }
+    info.sysroot_dir = std::move(status->real_path);
   }
 }
 
 // Try to parse the system root directory out of the compiler's output. This
 // only really works for Clang-based compilers.
-static void ParseClangSysroot(FileSystemView &fs, CompilerImpl &info,
-                              llvm::StringRef line) {
-  const auto pos = line.find("-isysroot");
-  if (std::string::npos == pos) {
-    return;
+static std::optional<std::filesystem::path>
+ParseOptionSpaceDir(FileSystemView &fs, CompilerImpl &info,
+                  llvm::StringRef line, const char *option) {
+  const auto pos = line.find(option);
+  if (llvm::StringRef::npos == pos) {
+    return std::nullopt;
   }
 
   ArgumentVector vec(line.substr(pos));
   if (2 > vec.Size()) {
-    return;
+    return std::nullopt;
   }
 
   auto status = fs.Stat(fs.ParsePath(vec[1]));
   if (status.Succeeded() && status->IsDirectory()) {
-    info.sysroot_dir = std::move(status->real_path);
+    return status.TakeValue().real_path;
+  }
+
+  return std::nullopt;
+}
+
+// Try to parse the resource directory out of the compiler's output. This
+// only really works for Clang-based compilers.
+static void ParseClangResourceDir(FileSystemView &fs, CompilerImpl &info,
+                                  llvm::StringRef line) {
+  auto opt_resource_dir = ParseOptionSpaceDir(fs, info, line, "-resource-dir");
+  if (!opt_resource_dir) {
+    return;
+  }
+
+  auto status = fs.Stat(fs.ParsePath(*opt_resource_dir));
+  if (status.Succeeded() && status->IsDirectory()) {
+    auto real_path = status.TakeValue().real_path;
+    if (fs.IsResourceDir(real_path)) {
+      info.resource_dir = std::move(real_path);
+    }
+  }
+}
+
+// We have a line that starts with something like:
+// ` "/usr/local/bin/clang-9" -cc1 ` and we want to cut out the compiler
+// executable path `/usr/local/bin/clang-9`.
+static void ParseClangCompilerExe(FileSystemView &fs, CompilerImpl &info,
+                                  llvm::StringRef line) {
+  line = line.substr(2);
+  line = line.substr(0, line.find("\" -cc1"));
+  auto status = fs.Stat(fs.ParsePath(line.str()));
+  if (status.Succeeded() && status->IsDirectory()) {
+    info.compiler_exe = status.TakeValue().real_path;
   }
 }
 
@@ -120,20 +157,39 @@ static void ParseOutputInto(FileSystemView &fs, std::stringstream &ss,
     kInSystemIncludeList,
   } state = kUnknown;
 
+  auto find_sysroots = [&fs, &info] (llvm::StringRef line) {
+    if (auto opt_sysroot = ParseOptionSpaceDir(fs, info, line, "--sysroot")) {
+      info.sysroot_dir = std::move(opt_sysroot.value());
+    }
+
+    if (auto opt_isysroot = ParseOptionSpaceDir(fs, info, line, "-isysroot")) {
+      info.isysroot_dir = std::move(opt_isysroot.value());
+    }
+  };
+
   for (std::string line_; std::getline(ss, line_);) {
     llvm::StringRef line(line_);
 
     ParseClangResourceDir(fs, info, line);
-    ParseClangSysroot(fs, info, line);
 
-    if (line.startswith("InstalledDir: ")) {
+    if (line.startswith("Target: ")) {
+      info.triple = llvm::Triple::normalize(line.substr(8));
+
+    } else if (line.startswith("InstalledDir: ")) {
       auto maybe_status = fs.Stat(fs.ParsePath(line.substr(14).str()));
       if (maybe_status.Succeeded() && maybe_status->IsDirectory()) {
         info.install_dir = std::move(maybe_status->real_path);
       }
 
     } else if (line.startswith("Configured with: ")) {
+      find_sysroots(line);
       ParseGCCInstalledDir(fs, info, line);
+      ParseGCCSysRootDir(fs, info, line);
+
+    // Probably the path to the clang binary, followed by the `-cc1` options.
+    } else if (line.startswith(" \"") && line.contains("-cc1")) {
+      find_sysroots(line);
+      ParseClangCompilerExe(fs, info, line);
 
     } else if (line.startswith("#include \"...\"")) {
       state = kInUserIncludeList;
@@ -494,7 +550,7 @@ Compiler::Create(class FileManager file_manager,
   compiler_path = std::move(maybe_status->real_path);
 
   std::shared_ptr<CompilerImpl> impl(std::make_shared<CompilerImpl>(
-      file_manager, compiler_path, name, lang));
+      file_manager, compiler_path, name, lang, HostTargetTriple()));
 
   std::stringstream ss;
   ss << version_info;
@@ -544,7 +600,8 @@ Compiler::Create(class FileManager file_manager,
   if (!version_info_fake_sysroot.empty()) {
 
     CompilerImpl fake_sysroot_impl(
-        file_manager, impl->compiler_exe, impl->compiler_name, impl->target_lang);
+        file_manager, impl->compiler_exe, impl->compiler_name,
+        impl->target_lang, impl->triple);
     std::stringstream ss2;
     ss2 << version_info_fake_sysroot;
     ParseOutputInto(fs, ss2, fake_sysroot_impl);

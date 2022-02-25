@@ -930,6 +930,10 @@ Result<AST, std::string> CompileJob::Run(void) const {
           << diag->error;
       return err.str();
     }
+  } else if (!diag->error.empty()) {
+    err << "Unable to create compiler invocation from command due to error: "
+        << diag->error;
+    return err.str();
   }
 
   // Just in case parsing of the command-line args changed this.
@@ -938,6 +942,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
   diagnostics_engine->setErrorLimit(1);
   diagnostics_engine->setIgnoreAllWarnings(true);
   diagnostics_engine->setWarningsAsErrors(false);
+  diagnostics_engine->setErrorsAsFatal(true);
 
   // Some old GNU code exposes some C++ functions, e.g. `acosf`, as `constexpr`
   // implemented in terms of builtins like `__builtin_acosf`, but really this is
@@ -972,8 +977,14 @@ Result<AST, std::string> CompileJob::Run(void) const {
 
   const auto lang_opts = invocation.getLangOpts();
 
+  lang_opts->Bool = true;
+  lang_opts->Half = true;
+  lang_opts->WChar = true;
+  lang_opts->Char8 = true;
+  lang_opts->IEEE128 = true;
   lang_opts->EmitAllDecls = true;
   lang_opts->CXXExceptions = true;
+  lang_opts->Coroutines = true;
   lang_opts->Blocks = true;
   lang_opts->POSIXThreads = true;
   lang_opts->HeinousExtensions = true;
@@ -985,6 +996,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
   lang_opts->RetainCommentsFromSystemHeaders = false;
   lang_opts->AllowEditorPlaceholders = false;
   lang_opts->CommentOpts.ParseAllComments = false;
+  lang_opts->ForceEmitVTables = true;
 
   // Affects `PPCallbacks`, and also does additional parsing of things in
   // Objective-C mode, e.g. parsing module imports.
@@ -1134,6 +1146,9 @@ Result<AST, std::string> CompileJob::Run(void) const {
   auto &pp2 = ci.getPreprocessor();
   ast->token_per_line_pp = ci.getPreprocessorPtr();
 
+  assert(pp2.getLangOpts().EmitAllDecls);
+  assert(lang_opts->EmitAllDecls);
+
   std::unique_ptr<clang::Parser> parser(
       new clang::Parser(pp2, sema, false /* SkipFunctionBodies */));
 
@@ -1174,6 +1189,9 @@ Result<AST, std::string> CompileJob::Run(void) const {
       err << "A clang diagnostic or uncompilable error was produced when trying"
           << " to get an AST due to error: " << diag->error;
     }
+  } else if (!diag->error.empty()) {
+    err << "A clang diagnostic was produced when trying"
+        << " to get an AST due to error: " << diag->error;
   }
 
   ast->real_fs = std::move(real_vfs);

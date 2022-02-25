@@ -14,7 +14,7 @@
 #include <pasta/Util/Compiler.h>
 #include "Forward.h"
 
-#include "DeclManual.h"
+#include "DeclHead.h"
 
 #define PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(base) \
     friend class AST; \
@@ -3113,3 +3113,4 @@ static_assert(sizeof(Decl) == sizeof(ClassTemplatePartialSpecializationDecl));
 }  // namespace pasta
 #undef PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR
 #endif  // PASTA_IN_BOOTSTRAP
+#include "DeclTail.h"

@@ -620,7 +620,7 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
 
    {"(llvm::iterator_range<const clang::CXXBaseSpecifier *>)",
     "  std::vector<::pasta::CXXBaseSpecifier> ret;\n"
-    "  for (auto bs : val) {\n"
+    "  for (const auto &bs : val) {\n"
     "    ret.emplace_back(ast, bs);\n"
     "  }\n"
     "  return ret;\n"},

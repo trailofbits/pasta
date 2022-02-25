@@ -30,7 +30,7 @@ void GenerateDeclH(void) {
       << "#include <vector>\n"
       << "#include <pasta/Util/Compiler.h>\n"
       << "#include \"Forward.h\"\n\n"
-      << "#include \"DeclManual.h\"\n\n"
+      << "#include \"DeclHead.h\"\n\n"
       << "#define PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(base) \\\n"
       << "    friend class AST; \\\n"
       << "    friend class ASTImpl; \\\n"
@@ -205,5 +205,6 @@ void GenerateDeclH(void) {
   os
       << "}  // namespace pasta\n"
       << "#undef PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR\n"
-      << "#endif  // PASTA_IN_BOOTSTRAP\n";
+      << "#endif  // PASTA_IN_BOOTSTRAP\n"
+      << "#include \"DeclTail.h\"\n";
 }

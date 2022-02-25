@@ -32,7 +32,7 @@ using OMPDeclarativeDirectiveValueDecl = OMPDeclarativeDirective<ValueDecl>;
 
 #define PASTA_DEFINE_BASE_OPERATORS(base, derived) \
     std::optional<class derived> derived::From(const class base &that) { \
-      if (auto decl_ptr = clang::dyn_cast<clang::derived>(that.u.base)) { \
+      if (auto decl_ptr = clang::dyn_cast_or_null<clang::derived>(that.u.base)) { \
         return DeclBuilder::Create<class derived>(that.ast, decl_ptr); \
       } else { \
         return std::nullopt; \
@@ -53,11 +53,10 @@ using OMPDeclarativeDirectiveValueDecl = OMPDeclarativeDirective<ValueDecl>;
       return *this; \
     } \
     base &base::operator=(class derived &&that) noexcept { \
-      if (this != &that) { \
-        ast = std::move(that.ast); \
-        u.Decl = that.u.Decl; \
-        kind = that.kind; \
-      } \
+      class derived new_that(std::forward<class derived>(that)); \
+      ast = std::move(new_that.ast); \
+      u.Decl = new_that.u.Decl; \
+      kind = new_that.kind; \
       return *this; \
     }
 
@@ -7848,7 +7847,7 @@ std::vector<::pasta::CXXBaseSpecifier> CXXRecordDecl::Bases(void) const {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.bases();
   std::vector<::pasta::CXXBaseSpecifier> ret;
-  for (auto bs : val) {
+  for (const auto &bs : val) {
     ret.emplace_back(ast, bs);
   }
   return ret;
@@ -8694,7 +8693,7 @@ std::vector<::pasta::CXXBaseSpecifier> CXXRecordDecl::VirtualBases(void) const {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.vbases();
   std::vector<::pasta::CXXBaseSpecifier> ret;
-  for (auto bs : val) {
+  for (const auto &bs : val) {
     ret.emplace_back(ast, bs);
   }
   return ret;

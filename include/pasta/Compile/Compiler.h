@@ -53,19 +53,29 @@ class Compiler {
   // Target language for this compiler.
   enum TargetLanguage TargetLanguage(void) const;
 
+  // Return the default target triple for the host.
+  static std::string HostTargetTriple(void) noexcept;
+
+  // Return the default target triple for this compiler.
+  std::string TargetTriple(void) const noexcept;
+
   // Path to the executable.
-  const std::filesystem::path &ExecutablePath(void) const;
+  std::filesystem::path ExecutablePath(void) const;
 
   // Resource directory of the compiler, i.e. where you find compiler-specific
   // header files.
-  const std::filesystem::path &ResourceDirectory(void) const;
+  std::filesystem::path ResourceDirectory(void) const;
 
   // Directory to treat as the system root. Useful for cross-compilation
   // toolchains.
-  const std::filesystem::path &SystemRootDirectory(void) const;
+  std::filesystem::path SystemRootDirectory(void) const;
+
+  // Directory to treat as the system root for inclusions. Useful for cross-
+  // compilation toolchains.
+  std::filesystem::path SystemRootIncludeDirectory(void) const;
 
   // Directory where the compiler is installed.
-  const std::filesystem::path &InstallationDirectory(void) const;
+  std::filesystem::path InstallationDirectory(void) const;
 
   // Return the file system associated with this compiler's paths.
   std::shared_ptr<FileSystem> FileSystem(void) const;

@@ -991,7 +991,7 @@ bool Matcher::MatchRegions(Region *parsed, Region *printed,
   return false;
 }
 
-// Make sure that every parsed token is assign *some* kind of context. We try
+// Make sure that every parsed token is assigned *some* kind of context. We try
 // to benefit from existing matches and common ancestors to apply contexts.
 void Matcher::FixContexts(
     Region *parsed, std::vector<TokenContextIndex> &stack) {
@@ -1038,11 +1038,11 @@ void Matcher::FixContexts(
     const TokenContextImpl *prev = nullptr;
     for (auto tok = stmt->begin; tok <= stmt->end; ++tok) {
       if (TokenHasLocationAndContext(tok)) {
-        const TokenContextImpl *curr = &(ast.contexts[tok->context_index]);
+        const TokenContextImpl *curr = &(range.contexts[tok->context_index]);
         if (!prev) {
           prev = curr;
         } else {
-          prev = TokenContextImpl::CommonAncestor(prev, curr, ast.contexts);
+          prev = TokenContextImpl::CommonAncestor(prev, curr, range.contexts);
         }
       }
     }
@@ -1051,12 +1051,12 @@ void Matcher::FixContexts(
     // it against our parent. Otherwise, push our parent.
     if (prev) {
       auto index = static_cast<TokenContextIndex>(
-          prev - &(ast.contexts.front()));
+          prev - &(range.contexts.front()));
 
       if (prev_context != kInvalidTokenContextIndex) {
-        auto parent = &(ast.contexts[prev_context]);
+        auto parent = &(range.contexts[prev_context]);
         auto ancestor = TokenContextImpl::CommonAncestor(
-            prev, parent, ast.contexts);
+            prev, parent, range.contexts);
 
         if (!ancestor || ancestor->depth < parent->depth) {
           index = prev_context;  // Fixup.
@@ -1083,11 +1083,11 @@ void Matcher::FixContexts(
     for (auto region : seq->regions) {
       if (auto tok = region->FirstParsedToken()) {
         assert(TokenHasLocationAndContext(tok));
-        const TokenContextImpl *curr = &(ast.contexts[tok->context_index]);
+        const TokenContextImpl *curr = &(range.contexts[tok->context_index]);
         if (!prev) {
           prev = curr;
         } else {
-          prev = TokenContextImpl::CommonAncestor(prev, curr, ast.contexts);
+          prev = TokenContextImpl::CommonAncestor(prev, curr, range.contexts);
         }
       }
     }
@@ -1096,12 +1096,12 @@ void Matcher::FixContexts(
     // it against our parent. Otherwise, push our parent.
     if (prev) {
       auto index = static_cast<TokenContextIndex>(
-          prev - &(ast.contexts.front()));
+          prev - &(range.contexts.front()));
 
       if (prev_context != kInvalidTokenContextIndex) {
-        auto parent = &(ast.contexts[prev_context]);
+        auto parent = &(range.contexts[prev_context]);
         auto ancestor = TokenContextImpl::CommonAncestor(
-            prev, parent, ast.contexts);
+            prev, parent, range.contexts);
         if (!ancestor || ancestor->depth < parent->depth) {
           index = prev_context;  // Fixup.
         }

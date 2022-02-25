@@ -2,7 +2,7 @@
  * Copyright (c) 2022 Trail of Bits, Inc.
  */
 
-#include <pasta/AST/DeclManual.h>
+#include <pasta/AST/DeclHead.h>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
@@ -80,11 +80,11 @@ CXXBaseSpecifier::SemanticAccessSpecifier(void) const noexcept {
   return static_cast<::pasta::AccessSpecifier>(spec->getAccessSpecifier());
 }
 
-/// Retrieves the access specifier as written in the source code
-/// (which may mean that no access specifier was explicitly written).
-///
-/// Use `SemanticAccessSpecifier` to retrieve the access specifier for use in
-/// semantic analysis.
+// Retrieves the access specifier as written in the source code
+// (which may mean that no access specifier was explicitly written).
+//
+// Use `SemanticAccessSpecifier` to retrieve the access specifier for use in
+// semantic analysis.
 ::pasta::AccessSpecifier
 CXXBaseSpecifier::LexicalAccessSpecifier(void) const noexcept {
   return static_cast<::pasta::AccessSpecifier>(
@@ -95,7 +95,11 @@ CXXBaseSpecifier::LexicalAccessSpecifier(void) const noexcept {
 //
 // This type will always be an unqualified class type.
 ::pasta::Type CXXBaseSpecifier::BaseType(void) const noexcept {
-  return TypeBuilder::Build(ast, spec->getType());
+
+  // NOTE(pag): `spec->getType()` can sometimes crash when computing the
+  //            unqualified base type.
+  auto tsi = spec->getTypeSourceInfo();
+  return TypeBuilder::Build(ast, tsi->getType()).UnqualifiedType();
 }
 
 #endif  // PASTA_IN_BOOTSTRAP

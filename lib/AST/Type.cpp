@@ -26,8 +26,8 @@
 
 #define PASTA_DEFINE_BASE_OPERATORS(base, derived) \
     std::optional<class derived> derived::From(const class base &that) { \
-      if (auto type_ptr = clang::dyn_cast<clang::derived>(that.u.base)) { \
-        return TypeBuilder::Create<class derived>(that.ast, type_ptr); \
+      if (auto type_ptr = clang::dyn_cast_or_null<clang::derived>(that.u.Type)) { \
+        return TypeBuilder::Create<class derived>(that.ast, type_ptr, that.qualifiers); \
       } else { \
         return std::nullopt; \
       } \
@@ -48,12 +48,11 @@
       return *this; \
     } \
     base &base::operator=(class derived &&that) noexcept { \
-      if (this != &that) { \
-        ast = std::move(that.ast); \
-        u.Type = that.u.Type; \
-        kind = that.kind; \
-        qualifiers = that.qualifiers; \
-      } \
+      class derived new_that(std::forward<class derived>(that)); \
+      ast = std::move(new_that.ast); \
+      u.Type = new_that.u.Type; \
+      kind = new_that.kind; \
+      qualifiers = new_that.qualifiers; \
       return *this; \
     }
 

@@ -893,7 +893,11 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
       default: {
         if (auto ftpl = clang::dyn_cast<clang::FunctionTemplateDecl>(tld_decl)) {
           for (clang::Decl *spec : ftpl->specializations()) {
-            remapped_decls.emplace(spec, tld_decl);
+            auto func = clang::dyn_cast<clang::FunctionDecl>(spec);
+            if (func->getTemplateSpecializationKind() !=
+                clang::TSK_ExplicitSpecialization) {
+              remapped_decls.emplace(spec, tld_decl);
+            }
           }
 
         } else if (auto ctpl = clang::dyn_cast<clang::ClassTemplateDecl>(tld_decl)) {
@@ -944,6 +948,19 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
     auto &dd_bounds = bounds[tld_decl];
     assert(tld_decl != decl || dd_bounds == old_bounds);
     dd_bounds = finder.GetBounds(decl_loc);
+//    if (!(tld_decl != decl || dd_bounds == old_bounds)) {
+//      std::cerr << "---------------------------\n";
+//      for (auto t = dd_bounds.first; t <= dd_bounds.second; ++t) {
+//        std::cerr << ' ' << t->Data(*this);
+//      }
+//      std::cerr << "\n\n---------------------------\n";
+//      for (auto t = old_bounds.first; t <= old_bounds.second; ++t) {
+//
+//        std::cerr << ' ' << t->Data(*this);
+//      }
+//      std::cerr << '\n';
+//      assert(false);
+//    }
     assert(tld_decl != decl || dd_bounds == old_bounds);
     tld_begin = dd_bounds.first;
     tld_end = dd_bounds.second;
@@ -1018,7 +1035,12 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
 // Return a token range for the bounds of a declaration.
 TokenRange ASTImpl::DeclTokenRange(const clang::Decl *decl) {
   auto [first, last] = DeclBounds(const_cast<clang::Decl *>(decl));
-  return TokenRange(this->shared_from_this(), first, &(last[1]));
+  if (first) {
+    assert(first <= last);
+    return TokenRange(this->shared_from_this(), first, &(last[1]));
+  } else {
+    return TokenRange(this->shared_from_this());
+  }
 }
 
 }  // namespace pasta

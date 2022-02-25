@@ -1744,16 +1744,20 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
 
     // Clear out the old token contexts. We'll possibly detect issues here.
     for (TokenImpl *t = decl_bounds.first; t <= decl_bounds.second; ++t) {
-//      if (t->context_index != kInvalidTokenContextIndex) {
-//        for (auto tt = decl_bounds.first; tt <= decl_bounds.second; ++tt) {
-//          if (tt->Kind() == clang::tok::string_literal) {
-//            std::cerr << "\"str\"";
-//          } else {
-//            std::cerr << tt->Data(*ast);
-//          }
-//        }
-//        assert(false);
-//      }
+      if (t->context_index != kInvalidTokenContextIndex) {
+        for (auto tt = decl_bounds.first; tt <= decl_bounds.second; ++tt) {
+          if (tt->Kind() == clang::tok::string_literal) {
+            std::cerr << "\"str\"";
+          } else {
+            std::cerr << tt->Data(*ast);
+          }
+          if (tt->context_index != kInvalidTokenContextIndex) {
+            std::cerr << "  <<<< " << tt->context_index;
+          }
+          std::cerr << '\n';
+        }
+        assert(false);
+      }
       assert(t->context_index == kInvalidTokenContextIndex);
       t->context_index = kInvalidTokenContextIndex;
     }

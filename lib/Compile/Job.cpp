@@ -712,9 +712,9 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
     // NOTE(pag): `CreateFromArgs` below requires that we not pass in a
     //            `-cc1` command.
     llvm::ArrayRef<const char *> new_job_args(job_args);
-//    if (!strcmp(new_job_args.front(), "-cc1")) {
-//      new_job_args = new_job_args.slice(1);
-//    }
+    if (!strcmp(new_job_args.front(), "-cc1")) {
+      new_job_args = new_job_args.slice(1);
+    }
 
     clang::CompilerInvocation invocation;
     invocation.getFileSystemOpts().WorkingDir = driver.Dir;
@@ -801,6 +801,9 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
     }
 
     auto job_args_str = ss.str();
+
+    std::cerr << "JOB: " << job_args_str << "\n\n";
+
     if (last_job_args_str == job_args_str) {
       continue;  // Duplicate.
     } else {

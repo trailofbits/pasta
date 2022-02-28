@@ -73,6 +73,9 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   std::unordered_map<clang::Decl *, clang::Decl *> lexically_containing_decl;
   std::unordered_map<clang::Decl *, std::pair<TokenImpl *, TokenImpl *>> bounds;
 
+  // Maps parens/brackets/braces to each-other.
+  std::unordered_map<TokenImpl *, TokenImpl *> matching;
+
   std::shared_ptr<clang::CompilerInstance> ci;
   llvm::IntrusiveRefCntPtr<clang::FileManager> fm;
 
@@ -143,7 +146,6 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
 
   // Return a token range for the bounds of a declaration.
   TokenRange DeclTokenRange(const clang::Decl *decl);
-
 
   // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
   static Result<std::monostate, std::string> AlignTokens(

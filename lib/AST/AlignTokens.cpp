@@ -1726,21 +1726,21 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
       continue;
     }
 
-//    auto first_tok = &(ast->tokens.front());
-//    auto begin_offset = decl_bounds.first - first_tok;
-//    auto end_offset = decl_bounds.second - first_tok;
-//    auto num = (decl_bounds.second - decl_bounds.first) + 1;
-//
-//    pasta::Token ft(ast, ast->RawTokenAt(containing_decl->getLocation()));
-//    if (auto fl = ft.FileLocation()) {
-//      auto f = pasta::File::Containing(*fl);
-//      std::cerr << f.Path().generic_string() << ':' << fl->Line() << ':' << fl->Column() << ": ";
-//    }
-//
-//    std::cerr
-//        << reinterpret_cast<const void *>(containing_decl)
-//        << " [" << begin_offset << ", " << end_offset << "] (size="
-//        << num << ") group=" << tld_group.size() << "\n";
+    auto first_tok = &(ast->tokens.front());
+    auto begin_offset = decl_bounds.first - first_tok;
+    auto end_offset = decl_bounds.second - first_tok;
+    auto num = (decl_bounds.second - decl_bounds.first) + 1;
+
+    pasta::Token ft(ast, ast->RawTokenAt(containing_decl->getLocation()));
+    if (auto fl = ft.FileLocation()) {
+      auto f = pasta::File::Containing(*fl);
+      std::cerr << f.Path().generic_string() << ':' << fl->Line() << ':' << fl->Column() << ": ";
+    }
+
+    std::cerr
+        << reinterpret_cast<const void *>(containing_decl)
+        << " [" << begin_offset << ", " << end_offset << "] (size="
+        << num << ") group=" << tld_group.size() << "\n";
 
     // Clear out the old token contexts. We'll possibly detect issues here.
     for (TokenImpl *t = decl_bounds.first; t <= decl_bounds.second; ++t) {

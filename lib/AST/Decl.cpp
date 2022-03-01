@@ -646,8 +646,25 @@ static const std::string_view kKindNames[] = {
 };
 }  // namespace
 
-std::string_view Decl::KindName(void) const {
+std::string_view Decl::KindName(void) const noexcept {
   return kKindNames[static_cast<unsigned>(kind)];
+}
+
+::pasta::TokenRange Decl::TokenRange(void) const noexcept {
+  return ast->DeclTokenRange(u.Decl);
+}
+
+::pasta::Token Decl::Token(void) const noexcept {
+  clang::SourceLocation loc;
+  switch (u.Decl->getKind()) {
+#define ABSTRACT_DECL(DECL)
+#define DECL(DERIVED, BASE) \
+    case clang::Decl::DERIVED: \
+      loc = (u.DERIVED ## Decl)->getLocation(); \
+      break;
+#include <clang/AST/DeclNodes.inc>
+  }
+  return ast->TokenAt(loc);
 }
 
 // 1: DeclContext::Encloses
@@ -656,7 +673,7 @@ std::string_view Decl::KindName(void) const {
 // 1: DeclContext::ContainsDeclaration
 // 1: DeclContext::ContainsDeclarationAndLoad
 // 0: DeclContext::Ddiags
-std::vector<::pasta::Decl> DeclContext::Declarations(void) const {
+std::vector<::pasta::Decl> DeclContext::Declarations(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.decls();
   std::vector<::pasta::Decl> ret;
@@ -669,13 +686,13 @@ std::vector<::pasta::Decl> DeclContext::Declarations(void) const {
 // 0: DeclContext::
 // 0: DeclContext::
 // 0: DeclContext::
-::pasta::DeclKind DeclContext::DeclarationKind(void) const {
+::pasta::DeclKind DeclContext::DeclarationKind(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.getDeclKind();
   return static_cast<::pasta::DeclKind>(val);
 }
 
-std::string_view DeclContext::DeclarationKindName(void) const {
+std::string_view DeclContext::DeclarationKindName(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.getDeclKindName();
   if (val) {
@@ -687,7 +704,7 @@ std::string_view DeclContext::DeclarationKindName(void) const {
   __builtin_unreachable();
 }
 
-::pasta::DeclContext DeclContext::EnclosingNamespaceContext(void) const {
+::pasta::DeclContext DeclContext::EnclosingNamespaceContext(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.getEnclosingNamespaceContext();
   if (val) {
@@ -697,7 +714,7 @@ std::string_view DeclContext::DeclarationKindName(void) const {
   __builtin_unreachable();
 }
 
-::pasta::LinkageSpecDecl DeclContext::ExternCContext(void) const {
+::pasta::LinkageSpecDecl DeclContext::ExternCContext(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.getExternCContext();
   if (val) {
@@ -707,7 +724,7 @@ std::string_view DeclContext::DeclarationKindName(void) const {
   __builtin_unreachable();
 }
 
-::pasta::BlockDecl DeclContext::InnermostBlockDeclaration(void) const {
+::pasta::BlockDecl DeclContext::InnermostBlockDeclaration(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.getInnermostBlockDecl();
   if (val) {
@@ -717,7 +734,7 @@ std::string_view DeclContext::DeclarationKindName(void) const {
   __builtin_unreachable();
 }
 
-::pasta::DeclContext DeclContext::LexicalParent(void) const {
+::pasta::DeclContext DeclContext::LexicalParent(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.getLexicalParent();
   if (val) {
@@ -727,7 +744,7 @@ std::string_view DeclContext::DeclarationKindName(void) const {
   __builtin_unreachable();
 }
 
-::pasta::DeclContext DeclContext::LookupParent(void) const {
+::pasta::DeclContext DeclContext::LookupParent(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.getLookupParent();
   if (val) {
@@ -738,7 +755,7 @@ std::string_view DeclContext::DeclarationKindName(void) const {
 }
 
 // 0: DeclContext::LookupPointer
-::pasta::Decl DeclContext::NonClosureAncestor(void) const {
+::pasta::Decl DeclContext::NonClosureAncestor(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.getNonClosureAncestor();
   if (val) {
@@ -748,7 +765,7 @@ std::string_view DeclContext::DeclarationKindName(void) const {
   __builtin_unreachable();
 }
 
-::pasta::RecordDecl DeclContext::OuterLexicalRecordContext(void) const {
+::pasta::RecordDecl DeclContext::OuterLexicalRecordContext(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.getOuterLexicalRecordContext();
   if (val) {
@@ -758,7 +775,7 @@ std::string_view DeclContext::DeclarationKindName(void) const {
   __builtin_unreachable();
 }
 
-::pasta::DeclContext DeclContext::Parent(void) const {
+::pasta::DeclContext DeclContext::Parent(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.getParent();
   if (val) {
@@ -769,7 +786,7 @@ std::string_view DeclContext::DeclarationKindName(void) const {
 }
 
 // 0: DeclContext::ParentASTContext
-::pasta::DeclContext DeclContext::PrimaryContext(void) const {
+::pasta::DeclContext DeclContext::PrimaryContext(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.getPrimaryContext();
   if (val) {
@@ -779,7 +796,7 @@ std::string_view DeclContext::DeclarationKindName(void) const {
   __builtin_unreachable();
 }
 
-::pasta::DeclContext DeclContext::RedeclarationContext(void) const {
+::pasta::DeclContext DeclContext::RedeclarationContext(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.getRedeclContext();
   if (val) {
@@ -789,98 +806,98 @@ std::string_view DeclContext::DeclarationKindName(void) const {
   __builtin_unreachable();
 }
 
-bool DeclContext::HasExternalLexicalStorage(void) const {
+bool DeclContext::HasExternalLexicalStorage(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.hasExternalLexicalStorage();
   return val;
 }
 
-bool DeclContext::HasExternalVisibleStorage(void) const {
+bool DeclContext::HasExternalVisibleStorage(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.hasExternalVisibleStorage();
   return val;
 }
 
-bool DeclContext::IsClosure(void) const {
+bool DeclContext::IsClosure(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.isClosure();
   return val;
 }
 
 // 1: DeclContext::IsDeclarationInLexicalTraversal
-bool DeclContext::IsDependentContext(void) const {
+bool DeclContext::IsDependentContext(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.isDependentContext();
   return val;
 }
 
-bool DeclContext::IsExternCContext(void) const {
+bool DeclContext::IsExternCContext(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.isExternCContext();
   return val;
 }
 
-bool DeclContext::IsExternCXXContext(void) const {
+bool DeclContext::IsExternCXXContext(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.isExternCXXContext();
   return val;
 }
 
-bool DeclContext::IsFileContext(void) const {
+bool DeclContext::IsFileContext(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.isFileContext();
   return val;
 }
 
-bool DeclContext::IsFunctionOrMethod(void) const {
+bool DeclContext::IsFunctionOrMethod(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.isFunctionOrMethod();
   return val;
 }
 
-bool DeclContext::IsInlineNamespace(void) const {
+bool DeclContext::IsInlineNamespace(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.isInlineNamespace();
   return val;
 }
 
-bool DeclContext::IsLookupContext(void) const {
+bool DeclContext::IsLookupContext(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.isLookupContext();
   return val;
 }
 
-bool DeclContext::IsNamespace(void) const {
+bool DeclContext::IsNamespace(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.isNamespace();
   return val;
 }
 
-bool DeclContext::IsObjCContainer(void) const {
+bool DeclContext::IsObjCContainer(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.isObjCContainer();
   return val;
 }
 
-bool DeclContext::IsRecord(void) const {
+bool DeclContext::IsRecord(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.isRecord();
   return val;
 }
 
-bool DeclContext::IsStdNamespace(void) const {
+bool DeclContext::IsStdNamespace(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.isStdNamespace();
   return val;
 }
 
-bool DeclContext::IsTranslationUnit(void) const {
+bool DeclContext::IsTranslationUnit(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.isTranslationUnit();
   return val;
 }
 
-bool DeclContext::IsTransparentContext(void) const {
+bool DeclContext::IsTransparentContext(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.isTransparentContext();
   return val;
@@ -890,7 +907,7 @@ bool DeclContext::IsTransparentContext(void) const {
 // 0: DeclContext::Lookups
 // 0: DeclContext::
 // 0: DeclContext::
-std::vector<::pasta::Decl> DeclContext::AlreadyLoadedDeclarations(void) const {
+std::vector<::pasta::Decl> DeclContext::AlreadyLoadedDeclarations(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.noload_decls();
   std::vector<::pasta::Decl> ret;
@@ -905,7 +922,7 @@ std::vector<::pasta::Decl> DeclContext::AlreadyLoadedDeclarations(void) const {
 // 1: DeclContext::NoloadLookups
 // 0: DeclContext::
 // 0: DeclContext::
-bool DeclContext::ShouldUseQualifiedLookup(void) const {
+bool DeclContext::ShouldUseQualifiedLookup(void) const noexcept {
   auto &self = *(u.DeclContext);
   auto val = self.shouldUseQualifiedLookup();
   return val;
@@ -1017,19 +1034,19 @@ PASTA_DEFINE_DERIVED_OPERATORS(Decl, VarTemplateSpecializationDecl)
 // 0: Decl::Attributes
 // 1: Decl::CanBeWeakImported
 // 0: Decl::ASTContext
-enum AccessSpecifier Decl::Access(void) const {
+enum AccessSpecifier Decl::Access(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getAccess();
   return static_cast<::pasta::AccessSpecifier>(static_cast<unsigned int>(val));
 }
 
-enum AccessSpecifier Decl::AccessUnsafe(void) const {
+enum AccessSpecifier Decl::AccessUnsafe(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getAccessUnsafe();
   return static_cast<::pasta::AccessSpecifier>(static_cast<unsigned int>(val));
 }
 
-::pasta::FunctionDecl Decl::AsFunction(void) const {
+::pasta::FunctionDecl Decl::AsFunction(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getAsFunction();
   if (val) {
@@ -1040,19 +1057,19 @@ enum AccessSpecifier Decl::AccessUnsafe(void) const {
 }
 
 // 0: Decl::Attributes
-enum AvailabilityResult Decl::Availability(void) const {
+enum AvailabilityResult Decl::Availability(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getAvailability();
   return static_cast<::pasta::AvailabilityResult>(static_cast<unsigned int>(val));
 }
 
-::pasta::Token Decl::BeginToken(void) const {
+::pasta::Token Decl::BeginToken(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getBeginLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Stmt Decl::Body(void) const {
+::pasta::Stmt Decl::Body(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getBody();
   if (val) {
@@ -1062,13 +1079,13 @@ enum AvailabilityResult Decl::Availability(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Token Decl::BodyRBrace(void) const {
+::pasta::Token Decl::BodyRBrace(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getBodyRBrace();
   return ast->TokenAt(val);
 }
 
-::pasta::Decl Decl::CanonicalDeclaration(void) const {
+::pasta::Decl Decl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -1078,7 +1095,7 @@ enum AvailabilityResult Decl::Availability(void) const {
   __builtin_unreachable();
 }
 
-::pasta::DeclContext Decl::DeclarationContext(void) const {
+::pasta::DeclContext Decl::DeclarationContext(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getDeclContext();
   if (val) {
@@ -1089,7 +1106,7 @@ enum AvailabilityResult Decl::Availability(void) const {
 }
 
 // 0: Decl::DefiningAttribute
-::pasta::TemplateDecl Decl::DescribedTemplate(void) const {
+::pasta::TemplateDecl Decl::DescribedTemplate(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getDescribedTemplate();
   if (val) {
@@ -1099,21 +1116,28 @@ enum AvailabilityResult Decl::Availability(void) const {
   __builtin_unreachable();
 }
 
-// 0: Decl::DescribedTemplateParams
-::pasta::Token Decl::EndToken(void) const {
+::pasta::TemplateParameterList Decl::DescribedTemplateParams(void) const noexcept {
+  auto &self = *(u.Decl);
+  auto val = self.getDescribedTemplateParams();
+  return ::pasta::TemplateParameterList(ast, val);
+  assert(false && "Decl::DescribedTemplateParams can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::Token Decl::EndToken(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getEndLoc();
   return ast->TokenAt(val);
 }
 
 // 0: Decl::ExternalSourceSymbolAttribute
-::pasta::FriendObjectKind Decl::FriendObjectKind(void) const {
+::pasta::FriendObjectKind Decl::FriendObjectKind(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getFriendObjectKind();
   return static_cast<::pasta::FriendObjectKind>(val);
 }
 
-::pasta::FunctionType Decl::FunctionType(void) const {
+::pasta::FunctionType Decl::FunctionType(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getFunctionType();
   if (val) {
@@ -1123,19 +1147,19 @@ enum AvailabilityResult Decl::Availability(void) const {
   __builtin_unreachable();
 }
 
-uint32_t Decl::GlobalID(void) const {
+uint32_t Decl::GlobalID(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getGlobalID();
   return val;
 }
 
-int64_t Decl::ID(void) const {
+int64_t Decl::ID(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getID();
   return val;
 }
 
-uint32_t Decl::IdentifierNamespace(void) const {
+uint32_t Decl::IdentifierNamespace(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getIdentifierNamespace();
   return val;
@@ -1143,7 +1167,7 @@ uint32_t Decl::IdentifierNamespace(void) const {
 
 // 0: Decl::ImportedOwningModule
 // 0: Decl::LangOpts
-::pasta::DeclContext Decl::LexicalDeclarationContext(void) const {
+::pasta::DeclContext Decl::LexicalDeclarationContext(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getLexicalDeclContext();
   if (val) {
@@ -1154,25 +1178,19 @@ uint32_t Decl::IdentifierNamespace(void) const {
 }
 
 // 0: Decl::LocalOwningModule
-::pasta::Token Decl::Token(void) const {
-  auto &self = *(u.Decl);
-  auto val = self.getLocation();
-  return ast->TokenAt(val);
-}
-
-uint32_t Decl::MaxAlignment(void) const {
+uint32_t Decl::MaxAlignment(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getMaxAlignment();
   return val;
 }
 
-::pasta::ModuleOwnershipKind Decl::ModuleOwnershipKind(void) const {
+::pasta::ModuleOwnershipKind Decl::ModuleOwnershipKind(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getModuleOwnershipKind();
   return static_cast<::pasta::ModuleOwnershipKind>(val);
 }
 
-::pasta::Decl Decl::MostRecentDeclaration(void) const {
+::pasta::Decl Decl::MostRecentDeclaration(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getMostRecentDecl();
   if (val) {
@@ -1182,7 +1200,7 @@ uint32_t Decl::MaxAlignment(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Decl Decl::NextDeclarationInContext(void) const {
+::pasta::Decl Decl::NextDeclarationInContext(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getNextDeclInContext();
   if (val) {
@@ -1192,7 +1210,7 @@ uint32_t Decl::MaxAlignment(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Decl Decl::NonClosureContext(void) const {
+::pasta::Decl Decl::NonClosureContext(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getNonClosureContext();
   if (val) {
@@ -1204,13 +1222,13 @@ uint32_t Decl::MaxAlignment(void) const {
 
 // 0: Decl::OwningModule
 // 0: Decl::OwningModuleForLinkage
-uint32_t Decl::OwningModuleID(void) const {
+uint32_t Decl::OwningModuleID(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getOwningModuleID();
   return val;
 }
 
-::pasta::DeclContext Decl::ParentFunctionOrMethod(void) const {
+::pasta::DeclContext Decl::ParentFunctionOrMethod(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getParentFunctionOrMethod();
   if (val) {
@@ -1220,7 +1238,7 @@ uint32_t Decl::OwningModuleID(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Decl Decl::PreviousDeclaration(void) const {
+::pasta::Decl Decl::PreviousDeclaration(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getPreviousDecl();
   if (val) {
@@ -1230,17 +1248,13 @@ uint32_t Decl::OwningModuleID(void) const {
   __builtin_unreachable();
 }
 
-::pasta::TokenRange Decl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.Decl);
-}
-
-uint32_t Decl::TemplateDepth(void) const {
+uint32_t Decl::TemplateDepth(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getTemplateDepth();
   return val;
 }
 
-::pasta::TranslationUnitDecl Decl::TranslationUnitDeclaration(void) const {
+::pasta::TranslationUnitDecl Decl::TranslationUnitDeclaration(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.getTranslationUnitDecl();
   if (val) {
@@ -1251,188 +1265,188 @@ uint32_t Decl::TemplateDepth(void) const {
 }
 
 // 0: Decl::VersionIntroduced
-bool Decl::HasAttributes(void) const {
+bool Decl::HasAttributes(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.hasAttrs();
   return val;
 }
 
-bool Decl::HasBody(void) const {
+bool Decl::HasBody(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.hasBody();
   return val;
 }
 
-bool Decl::HasDefiningAttribute(void) const {
+bool Decl::HasDefiningAttribute(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.hasDefiningAttr();
   return val;
 }
 
-bool Decl::HasOwningModule(void) const {
+bool Decl::HasOwningModule(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.hasOwningModule();
   return val;
 }
 
-bool Decl::HasTagIdentifierNamespace(void) const {
+bool Decl::HasTagIdentifierNamespace(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.hasTagIdentifierNamespace();
   return val;
 }
 
-bool Decl::IsCanonicalDeclaration(void) const {
+bool Decl::IsCanonicalDeclaration(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isCanonicalDecl();
   return val;
 }
 
-bool Decl::IsDefinedOutsideFunctionOrMethod(void) const {
+bool Decl::IsDefinedOutsideFunctionOrMethod(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isDefinedOutsideFunctionOrMethod();
   return val;
 }
 
-bool Decl::IsDeprecated(void) const {
+bool Decl::IsDeprecated(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isDeprecated();
   return val;
 }
 
-bool Decl::IsFirstDeclaration(void) const {
+bool Decl::IsFirstDeclaration(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isFirstDecl();
   return val;
 }
 
-bool Decl::IsFromASTFile(void) const {
+bool Decl::IsFromASTFile(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isFromASTFile();
   return val;
 }
 
-bool Decl::IsFunctionOrFunctionTemplate(void) const {
+bool Decl::IsFunctionOrFunctionTemplate(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isFunctionOrFunctionTemplate();
   return val;
 }
 
-bool Decl::IsImplicit(void) const {
+bool Decl::IsImplicit(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isImplicit();
   return val;
 }
 
-bool Decl::IsInAnonymousNamespace(void) const {
+bool Decl::IsInAnonymousNamespace(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isInAnonymousNamespace();
   return val;
 }
 
 // 1: Decl::IsInIdentifierNamespace
-bool Decl::IsInLocalScopeForInstantiation(void) const {
+bool Decl::IsInLocalScopeForInstantiation(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isInLocalScopeForInstantiation();
   return val;
 }
 
-bool Decl::IsInStdNamespace(void) const {
+bool Decl::IsInStdNamespace(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isInStdNamespace();
   return val;
 }
 
-bool Decl::IsInvalidDeclaration(void) const {
+bool Decl::IsInvalidDeclaration(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isInvalidDecl();
   return val;
 }
 
-bool Decl::IsModulePrivate(void) const {
+bool Decl::IsModulePrivate(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isModulePrivate();
   return val;
 }
 
-bool Decl::IsOutOfLine(void) const {
+bool Decl::IsOutOfLine(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isOutOfLine();
   return val;
 }
 
-bool Decl::IsParameterPack(void) const {
+bool Decl::IsParameterPack(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isParameterPack();
   return val;
 }
 
-bool Decl::IsReferenced(void) const {
+bool Decl::IsReferenced(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isReferenced();
   return val;
 }
 
-bool Decl::IsTemplateDeclaration(void) const {
+bool Decl::IsTemplateDeclaration(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isTemplateDecl();
   return val;
 }
 
-bool Decl::IsTemplateParameter(void) const {
+bool Decl::IsTemplateParameter(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isTemplateParameter();
   return val;
 }
 
-bool Decl::IsTemplateParameterPack(void) const {
+bool Decl::IsTemplateParameterPack(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isTemplateParameterPack();
   return val;
 }
 
-bool Decl::IsTemplated(void) const {
+bool Decl::IsTemplated(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isTemplated();
   return val;
 }
 
-bool Decl::IsThisDeclarationReferenced(void) const {
+bool Decl::IsThisDeclarationReferenced(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isThisDeclarationReferenced();
   return val;
 }
 
-bool Decl::IsTopLevelDeclarationInObjCContainer(void) const {
+bool Decl::IsTopLevelDeclarationInObjCContainer(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isTopLevelDeclInObjCContainer();
   return val;
 }
 
-bool Decl::IsUnavailable(void) const {
+bool Decl::IsUnavailable(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isUnavailable();
   return val;
 }
 
-bool Decl::IsUnconditionallyVisible(void) const {
+bool Decl::IsUnconditionallyVisible(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isUnconditionallyVisible();
   return val;
 }
 
-bool Decl::IsUsed(void) const {
+bool Decl::IsUsed(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isUsed();
   return val;
 }
 
-bool Decl::IsWeakImported(void) const {
+bool Decl::IsWeakImported(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.isWeakImported();
   return val;
 }
 
-std::vector<::pasta::Decl> Decl::Redeclarations(void) const {
+std::vector<::pasta::Decl> Decl::Redeclarations(void) const noexcept {
   auto &self = *(u.Decl);
   auto val = self.redecls();
   std::vector<::pasta::Decl> ret;
@@ -1457,29 +1471,25 @@ ExportDecl::ExportDecl(
 
 PASTA_DEFINE_BASE_OPERATORS(DeclContext, ExportDecl)
 PASTA_DEFINE_BASE_OPERATORS(Decl, ExportDecl)
-::pasta::Token ExportDecl::EndToken(void) const {
+::pasta::Token ExportDecl::EndToken(void) const noexcept {
   auto &self = *(u.ExportDecl);
   auto val = self.getEndLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Token ExportDecl::ExportToken(void) const {
+::pasta::Token ExportDecl::ExportToken(void) const noexcept {
   auto &self = *(u.ExportDecl);
   auto val = self.getExportLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Token ExportDecl::RBraceToken(void) const {
+::pasta::Token ExportDecl::RBraceToken(void) const noexcept {
   auto &self = *(u.ExportDecl);
   auto val = self.getRBraceLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::TokenRange ExportDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.ExportDecl);
-}
-
-bool ExportDecl::HasBraces(void) const {
+bool ExportDecl::HasBraces(void) const noexcept {
   auto &self = *(u.ExportDecl);
   auto val = self.hasBraces();
   return val;
@@ -1498,13 +1508,13 @@ FileScopeAsmDecl::FileScopeAsmDecl(
     : Decl(std::move(ast_), decl_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Decl, FileScopeAsmDecl)
-::pasta::Token FileScopeAsmDecl::AssemblyToken(void) const {
+::pasta::Token FileScopeAsmDecl::AssemblyToken(void) const noexcept {
   auto &self = *(u.FileScopeAsmDecl);
   auto val = self.getAsmLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::StringLiteral FileScopeAsmDecl::AssemblyString(void) const {
+::pasta::StringLiteral FileScopeAsmDecl::AssemblyString(void) const noexcept {
   auto &self = *(u.FileScopeAsmDecl);
   auto val = self.getAsmString();
   if (val) {
@@ -1514,14 +1524,10 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, FileScopeAsmDecl)
   __builtin_unreachable();
 }
 
-::pasta::Token FileScopeAsmDecl::RParenToken(void) const {
+::pasta::Token FileScopeAsmDecl::RParenToken(void) const noexcept {
   auto &self = *(u.FileScopeAsmDecl);
   auto val = self.getRParenLoc();
   return ast->TokenAt(val);
-}
-
-::pasta::TokenRange FileScopeAsmDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.FileScopeAsmDecl);
 }
 
 FriendDecl::FriendDecl(
@@ -1530,7 +1536,7 @@ FriendDecl::FriendDecl(
     : Decl(std::move(ast_), decl_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Decl, FriendDecl)
-::pasta::NamedDecl FriendDecl::FriendDeclaration(void) const {
+::pasta::NamedDecl FriendDecl::FriendDeclaration(void) const noexcept {
   auto &self = *(u.FriendDecl);
   auto val = self.getFriendDecl();
   if (val) {
@@ -1540,28 +1546,43 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, FriendDecl)
   __builtin_unreachable();
 }
 
-::pasta::Token FriendDecl::FriendToken(void) const {
+::pasta::Token FriendDecl::FriendToken(void) const noexcept {
   auto &self = *(u.FriendDecl);
   auto val = self.getFriendLoc();
   return ast->TokenAt(val);
 }
 
-// 0: FriendDecl::FriendType
-uint32_t FriendDecl::FriendTypeNumTemplateParameterLists(void) const {
+::pasta::Type FriendDecl::FriendType(void) const noexcept {
+  auto &self = *(u.FriendDecl);
+  auto val = self.getFriendType();
+  return TypeBuilder::Build(ast, val->getType());  assert(false && "FriendDecl::FriendType can return nullptr!");
+  __builtin_unreachable();
+}
+
+uint32_t FriendDecl::FriendTypeNumTemplateParameterLists(void) const noexcept {
   auto &self = *(u.FriendDecl);
   auto val = self.getFriendTypeNumTemplateParameterLists();
   return val;
 }
 
 // 1: FriendDecl::FriendTypeTemplateParameterList
-::pasta::TokenRange FriendDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.FriendDecl);
-}
-
-bool FriendDecl::IsUnsupportedFriend(void) const {
+bool FriendDecl::IsUnsupportedFriend(void) const noexcept {
   auto &self = *(u.FriendDecl);
   auto val = self.isUnsupportedFriend();
   return val;
+}
+
+std::vector<::pasta::TemplateParameterList> FriendDecl::FriendTypeTemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.FriendDecl->getFriendTypeNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.FriendDecl->getFriendTypeTemplateParameterList(i)));
+  }
+  return ret;
 }
 
 FriendTemplateDecl::FriendTemplateDecl(
@@ -1570,7 +1591,7 @@ FriendTemplateDecl::FriendTemplateDecl(
     : Decl(std::move(ast_), decl_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Decl, FriendTemplateDecl)
-::pasta::NamedDecl FriendTemplateDecl::FriendDeclaration(void) const {
+::pasta::NamedDecl FriendTemplateDecl::FriendDeclaration(void) const noexcept {
   auto &self = *(u.FriendTemplateDecl);
   auto val = self.getFriendDecl();
   if (val) {
@@ -1580,27 +1601,46 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, FriendTemplateDecl)
   __builtin_unreachable();
 }
 
-::pasta::Token FriendTemplateDecl::FriendToken(void) const {
+::pasta::Token FriendTemplateDecl::FriendToken(void) const noexcept {
   auto &self = *(u.FriendTemplateDecl);
   auto val = self.getFriendLoc();
   return ast->TokenAt(val);
 }
 
-// 0: FriendTemplateDecl::FriendType
-uint32_t FriendTemplateDecl::NumTemplateParameters(void) const {
+::pasta::Type FriendTemplateDecl::FriendType(void) const noexcept {
+  auto &self = *(u.FriendTemplateDecl);
+  auto val = self.getFriendType();
+  return TypeBuilder::Build(ast, val->getType());  assert(false && "FriendTemplateDecl::FriendType can return nullptr!");
+  __builtin_unreachable();
+}
+
+uint32_t FriendTemplateDecl::NumTemplateParameters(void) const noexcept {
   auto &self = *(u.FriendTemplateDecl);
   auto val = self.getNumTemplateParameters();
   return val;
 }
 
 // 1: FriendTemplateDecl::TemplateParameterList
+std::vector<::pasta::TemplateParameterList> FriendTemplateDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.FriendTemplateDecl->getNumTemplateParameters();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.FriendTemplateDecl->getTemplateParameterList(i)));
+  }
+  return ret;
+}
+
 ImportDecl::ImportDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Decl, ImportDecl)
-std::vector<::pasta::Token> ImportDecl::IdentifierTokens(void) const {
+std::vector<::pasta::Token> ImportDecl::IdentifierTokens(void) const noexcept {
   auto &self = *(u.ImportDecl);
   auto val = self.getIdentifierLocs();
   std::vector<::pasta::Token> ret;
@@ -1611,17 +1651,13 @@ std::vector<::pasta::Token> ImportDecl::IdentifierTokens(void) const {
 }
 
 // 0: ImportDecl::ImportedModule
-::pasta::TokenRange ImportDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.ImportDecl);
-}
-
 LifetimeExtendedTemporaryDecl::LifetimeExtendedTemporaryDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Decl, LifetimeExtendedTemporaryDecl)
-std::vector<::pasta::Stmt> LifetimeExtendedTemporaryDecl::ChildrenExpression(void) const {
+std::vector<::pasta::Stmt> LifetimeExtendedTemporaryDecl::ChildrenExpression(void) const noexcept {
   auto &self = *(u.LifetimeExtendedTemporaryDecl);
   auto val = self.childrenExpr();
   std::vector<::pasta::Stmt> ret;
@@ -1631,7 +1667,7 @@ std::vector<::pasta::Stmt> LifetimeExtendedTemporaryDecl::ChildrenExpression(voi
   return ret;
 }
 
-::pasta::ValueDecl LifetimeExtendedTemporaryDecl::ExtendingDeclaration(void) const {
+::pasta::ValueDecl LifetimeExtendedTemporaryDecl::ExtendingDeclaration(void) const noexcept {
   auto &self = *(u.LifetimeExtendedTemporaryDecl);
   auto val = self.getExtendingDecl();
   if (val) {
@@ -1641,20 +1677,20 @@ std::vector<::pasta::Stmt> LifetimeExtendedTemporaryDecl::ChildrenExpression(voi
   __builtin_unreachable();
 }
 
-uint32_t LifetimeExtendedTemporaryDecl::ManglingNumber(void) const {
+uint32_t LifetimeExtendedTemporaryDecl::ManglingNumber(void) const noexcept {
   auto &self = *(u.LifetimeExtendedTemporaryDecl);
   auto val = self.getManglingNumber();
   return val;
 }
 
 // 1: LifetimeExtendedTemporaryDecl::OrCreateValue
-enum StorageDuration LifetimeExtendedTemporaryDecl::StorageDuration(void) const {
+enum StorageDuration LifetimeExtendedTemporaryDecl::StorageDuration(void) const noexcept {
   auto &self = *(u.LifetimeExtendedTemporaryDecl);
   auto val = self.getStorageDuration();
   return static_cast<::pasta::StorageDuration>(static_cast<unsigned int>(val));
 }
 
-::pasta::Expr LifetimeExtendedTemporaryDecl::TemporaryExpression(void) const {
+::pasta::Expr LifetimeExtendedTemporaryDecl::TemporaryExpression(void) const noexcept {
   auto &self = *(u.LifetimeExtendedTemporaryDecl);
   auto val = self.getTemporaryExpr();
   if (val) {
@@ -1672,35 +1708,31 @@ LinkageSpecDecl::LinkageSpecDecl(
 
 PASTA_DEFINE_BASE_OPERATORS(DeclContext, LinkageSpecDecl)
 PASTA_DEFINE_BASE_OPERATORS(Decl, LinkageSpecDecl)
-::pasta::Token LinkageSpecDecl::EndToken(void) const {
+::pasta::Token LinkageSpecDecl::EndToken(void) const noexcept {
   auto &self = *(u.LinkageSpecDecl);
   auto val = self.getEndLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Token LinkageSpecDecl::ExternToken(void) const {
+::pasta::Token LinkageSpecDecl::ExternToken(void) const noexcept {
   auto &self = *(u.LinkageSpecDecl);
   auto val = self.getExternLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::LanguageIDs LinkageSpecDecl::Language(void) const {
+::pasta::LanguageIDs LinkageSpecDecl::Language(void) const noexcept {
   auto &self = *(u.LinkageSpecDecl);
   auto val = self.getLanguage();
   return static_cast<::pasta::LanguageIDs>(val);
 }
 
-::pasta::Token LinkageSpecDecl::RBraceToken(void) const {
+::pasta::Token LinkageSpecDecl::RBraceToken(void) const noexcept {
   auto &self = *(u.LinkageSpecDecl);
   auto val = self.getRBraceLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::TokenRange LinkageSpecDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.LinkageSpecDecl);
-}
-
-bool LinkageSpecDecl::HasBraces(void) const {
+bool LinkageSpecDecl::HasBraces(void) const noexcept {
   auto &self = *(u.LinkageSpecDecl);
   auto val = self.hasBraces();
   return val;
@@ -1787,7 +1819,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, VarTemplateSpecializationDecl)
 // 1: NamedDecl::DeclarationReplaces
 // 0: NamedDecl::DeclarationName
 // 1: NamedDecl::ExplicitVisibility
-enum Linkage NamedDecl::FormalLinkage(void) const {
+enum Linkage NamedDecl::FormalLinkage(void) const noexcept {
   auto &self = *(u.NamedDecl);
   auto val = self.getFormalLinkage();
   return static_cast<::pasta::Linkage>(static_cast<unsigned char>(val));
@@ -1795,13 +1827,13 @@ enum Linkage NamedDecl::FormalLinkage(void) const {
 
 // 0: NamedDecl::Identifier
 // 0: NamedDecl::LinkageAndVisibility
-enum Linkage NamedDecl::LinkageInternal(void) const {
+enum Linkage NamedDecl::LinkageInternal(void) const noexcept {
   auto &self = *(u.NamedDecl);
   auto val = self.getLinkageInternal();
   return static_cast<::pasta::Linkage>(static_cast<unsigned char>(val));
 }
 
-::pasta::NamedDecl NamedDecl::MostRecentDeclaration(void) const {
+::pasta::NamedDecl NamedDecl::MostRecentDeclaration(void) const noexcept {
   auto &self = *(u.NamedDecl);
   auto val = self.getMostRecentDecl();
   if (val) {
@@ -1811,25 +1843,25 @@ enum Linkage NamedDecl::LinkageInternal(void) const {
   __builtin_unreachable();
 }
 
-std::string NamedDecl::Name(void) const {
+std::string NamedDecl::Name(void) const noexcept {
   auto &self = *(u.NamedDecl);
   auto val = self.getNameAsString();
   return val;
 }
 
-enum ObjCStringFormatFamily NamedDecl::ObjCFStringFormattingFamily(void) const {
+enum ObjCStringFormatFamily NamedDecl::ObjCFStringFormattingFamily(void) const noexcept {
   auto &self = *(u.NamedDecl);
   auto val = self.getObjCFStringFormattingFamily();
   return static_cast<::pasta::ObjCStringFormatFamily>(static_cast<unsigned int>(val));
 }
 
-std::string NamedDecl::QualifiedNameAsString(void) const {
+std::string NamedDecl::QualifiedNameAsString(void) const noexcept {
   auto &self = *(u.NamedDecl);
   auto val = self.getQualifiedNameAsString();
   return val;
 }
 
-::pasta::NamedDecl NamedDecl::UnderlyingDeclaration(void) const {
+::pasta::NamedDecl NamedDecl::UnderlyingDeclaration(void) const noexcept {
   auto &self = *(u.NamedDecl);
   auto val = self.getUnderlyingDecl();
   if (val) {
@@ -1839,55 +1871,55 @@ std::string NamedDecl::QualifiedNameAsString(void) const {
   __builtin_unreachable();
 }
 
-enum Visibility NamedDecl::Visibility(void) const {
+enum Visibility NamedDecl::Visibility(void) const noexcept {
   auto &self = *(u.NamedDecl);
   auto val = self.getVisibility();
   return static_cast<::pasta::Visibility>(static_cast<unsigned int>(val));
 }
 
-bool NamedDecl::HasExternalFormalLinkage(void) const {
+bool NamedDecl::HasExternalFormalLinkage(void) const noexcept {
   auto &self = *(u.NamedDecl);
   auto val = self.hasExternalFormalLinkage();
   return val;
 }
 
-bool NamedDecl::HasLinkage(void) const {
+bool NamedDecl::HasLinkage(void) const noexcept {
   auto &self = *(u.NamedDecl);
   auto val = self.hasLinkage();
   return val;
 }
 
-bool NamedDecl::HasLinkageBeenComputed(void) const {
+bool NamedDecl::HasLinkageBeenComputed(void) const noexcept {
   auto &self = *(u.NamedDecl);
   auto val = self.hasLinkageBeenComputed();
   return val;
 }
 
-bool NamedDecl::IsCXXClassMember(void) const {
+bool NamedDecl::IsCXXClassMember(void) const noexcept {
   auto &self = *(u.NamedDecl);
   auto val = self.isCXXClassMember();
   return val;
 }
 
-bool NamedDecl::IsCXXInstanceMember(void) const {
+bool NamedDecl::IsCXXInstanceMember(void) const noexcept {
   auto &self = *(u.NamedDecl);
   auto val = self.isCXXInstanceMember();
   return val;
 }
 
-bool NamedDecl::IsExternallyDeclarable(void) const {
+bool NamedDecl::IsExternallyDeclarable(void) const noexcept {
   auto &self = *(u.NamedDecl);
   auto val = self.isExternallyDeclarable();
   return val;
 }
 
-bool NamedDecl::IsExternallyVisible(void) const {
+bool NamedDecl::IsExternallyVisible(void) const noexcept {
   auto &self = *(u.NamedDecl);
   auto val = self.isExternallyVisible();
   return val;
 }
 
-bool NamedDecl::IsLinkageValid(void) const {
+bool NamedDecl::IsLinkageValid(void) const noexcept {
   auto &self = *(u.NamedDecl);
   auto val = self.isLinkageValid();
   return val;
@@ -1901,13 +1933,13 @@ NamespaceAliasDecl::NamespaceAliasDecl(
 
 PASTA_DEFINE_BASE_OPERATORS(Decl, NamespaceAliasDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, NamespaceAliasDecl)
-::pasta::Token NamespaceAliasDecl::AliasToken(void) const {
+::pasta::Token NamespaceAliasDecl::AliasToken(void) const noexcept {
   auto &self = *(u.NamespaceAliasDecl);
   auto val = self.getAliasLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::NamedDecl NamespaceAliasDecl::AliasedNamespace(void) const {
+::pasta::NamedDecl NamespaceAliasDecl::AliasedNamespace(void) const noexcept {
   auto &self = *(u.NamespaceAliasDecl);
   auto val = self.getAliasedNamespace();
   if (val) {
@@ -1917,7 +1949,7 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, NamespaceAliasDecl)
   __builtin_unreachable();
 }
 
-::pasta::NamespaceAliasDecl NamespaceAliasDecl::CanonicalDeclaration(void) const {
+::pasta::NamespaceAliasDecl NamespaceAliasDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.NamespaceAliasDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -1927,7 +1959,7 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, NamespaceAliasDecl)
   __builtin_unreachable();
 }
 
-::pasta::NamespaceDecl NamespaceAliasDecl::Namespace(void) const {
+::pasta::NamespaceDecl NamespaceAliasDecl::Namespace(void) const noexcept {
   auto &self = *(u.NamespaceAliasDecl);
   auto val = self.getNamespace();
   if (val) {
@@ -1937,7 +1969,7 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, NamespaceAliasDecl)
   __builtin_unreachable();
 }
 
-::pasta::Token NamespaceAliasDecl::NamespaceToken(void) const {
+::pasta::Token NamespaceAliasDecl::NamespaceToken(void) const noexcept {
   auto &self = *(u.NamespaceAliasDecl);
   auto val = self.getNamespaceLoc();
   return ast->TokenAt(val);
@@ -1945,11 +1977,7 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, NamespaceAliasDecl)
 
 // 0: NamespaceAliasDecl::Qualifier
 // 0: NamespaceAliasDecl::QualifierToken
-::pasta::TokenRange NamespaceAliasDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.NamespaceAliasDecl);
-}
-
-::pasta::Token NamespaceAliasDecl::TargetNameToken(void) const {
+::pasta::Token NamespaceAliasDecl::TargetNameToken(void) const noexcept {
   auto &self = *(u.NamespaceAliasDecl);
   auto val = self.getTargetNameLoc();
   return ast->TokenAt(val);
@@ -1963,7 +1991,7 @@ NamespaceDecl::NamespaceDecl(
 PASTA_DEFINE_BASE_OPERATORS(DeclContext, NamespaceDecl)
 PASTA_DEFINE_BASE_OPERATORS(Decl, NamespaceDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, NamespaceDecl)
-::pasta::NamespaceDecl NamespaceDecl::AnonymousNamespace(void) const {
+::pasta::NamespaceDecl NamespaceDecl::AnonymousNamespace(void) const noexcept {
   auto &self = *(u.NamespaceDecl);
   auto val = self.getAnonymousNamespace();
   if (val) {
@@ -1973,13 +2001,13 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, NamespaceDecl)
   __builtin_unreachable();
 }
 
-::pasta::Token NamespaceDecl::BeginToken(void) const {
+::pasta::Token NamespaceDecl::BeginToken(void) const noexcept {
   auto &self = *(u.NamespaceDecl);
   auto val = self.getBeginLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::NamespaceDecl NamespaceDecl::CanonicalDeclaration(void) const {
+::pasta::NamespaceDecl NamespaceDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.NamespaceDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -1989,7 +2017,7 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, NamespaceDecl)
   __builtin_unreachable();
 }
 
-::pasta::NamespaceDecl NamespaceDecl::OriginalNamespace(void) const {
+::pasta::NamespaceDecl NamespaceDecl::OriginalNamespace(void) const noexcept {
   auto &self = *(u.NamespaceDecl);
   auto val = self.getOriginalNamespace();
   if (val) {
@@ -1999,29 +2027,25 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, NamespaceDecl)
   __builtin_unreachable();
 }
 
-::pasta::Token NamespaceDecl::RBraceToken(void) const {
+::pasta::Token NamespaceDecl::RBraceToken(void) const noexcept {
   auto &self = *(u.NamespaceDecl);
   auto val = self.getRBraceLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::TokenRange NamespaceDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.NamespaceDecl);
-}
-
-bool NamespaceDecl::IsAnonymousNamespace(void) const {
+bool NamespaceDecl::IsAnonymousNamespace(void) const noexcept {
   auto &self = *(u.NamespaceDecl);
   auto val = self.isAnonymousNamespace();
   return val;
 }
 
-bool NamespaceDecl::IsInline(void) const {
+bool NamespaceDecl::IsInline(void) const noexcept {
   auto &self = *(u.NamespaceDecl);
   auto val = self.isInline();
   return val;
 }
 
-bool NamespaceDecl::IsOriginalNamespace(void) const {
+bool NamespaceDecl::IsOriginalNamespace(void) const noexcept {
   auto &self = *(u.NamespaceDecl);
   auto val = self.isOriginalNamespace();
   return val;
@@ -2035,7 +2059,7 @@ ObjCCompatibleAliasDecl::ObjCCompatibleAliasDecl(
 
 PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCCompatibleAliasDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCCompatibleAliasDecl)
-::pasta::ObjCInterfaceDecl ObjCCompatibleAliasDecl::ClassInterface(void) const {
+::pasta::ObjCInterfaceDecl ObjCCompatibleAliasDecl::ClassInterface(void) const noexcept {
   auto &self = *(u.ObjCCompatibleAliasDecl);
   auto val = self.getClassInterface();
   if (val) {
@@ -2061,7 +2085,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(ObjCContainerDecl, ObjCInterfaceDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ObjCContainerDecl, ObjCProtocolDecl)
 // 2: FindPropertyDeclaration
 // 1: ObjCContainerDecl::HasUserDeclaredSetterMethod
-std::vector<::pasta::ObjCMethodDecl> ObjCContainerDecl::ClassMethods(void) const {
+std::vector<::pasta::ObjCMethodDecl> ObjCContainerDecl::ClassMethods(void) const noexcept {
   auto &self = *(u.ObjCContainerDecl);
   auto val = self.class_methods();
   std::vector<::pasta::ObjCMethodDecl> ret;
@@ -2071,7 +2095,7 @@ std::vector<::pasta::ObjCMethodDecl> ObjCContainerDecl::ClassMethods(void) const
   return ret;
 }
 
-std::vector<::pasta::ObjCPropertyDecl> ObjCContainerDecl::ClassProperties(void) const {
+std::vector<::pasta::ObjCPropertyDecl> ObjCContainerDecl::ClassProperties(void) const noexcept {
   auto &self = *(u.ObjCContainerDecl);
   auto val = self.class_properties();
   std::vector<::pasta::ObjCPropertyDecl> ret;
@@ -2085,13 +2109,13 @@ std::vector<::pasta::ObjCPropertyDecl> ObjCContainerDecl::ClassProperties(void) 
 // 0: ObjCContainerDecl::
 // 0: ObjCContainerDecl::
 // 0: ObjCContainerDecl::
-::pasta::TokenRange ObjCContainerDecl::AtEndRange(void) const {
+::pasta::TokenRange ObjCContainerDecl::AtEndRange(void) const noexcept {
   auto &self = *(u.ObjCContainerDecl);
   auto val = self.getAtEndRange();
   return ast->TokenRangeFrom(val);
 }
 
-::pasta::Token ObjCContainerDecl::AtStartToken(void) const {
+::pasta::Token ObjCContainerDecl::AtStartToken(void) const noexcept {
   auto &self = *(u.ObjCContainerDecl);
   auto val = self.getAtStartLoc();
   return ast->TokenAt(val);
@@ -2101,11 +2125,7 @@ std::vector<::pasta::ObjCPropertyDecl> ObjCContainerDecl::ClassProperties(void) 
 // 1: ObjCContainerDecl::InstanceMethod
 // 1: ObjCContainerDecl::InstanceVariableDeclaration
 // 2: Method
-::pasta::TokenRange ObjCContainerDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.ObjCContainerDecl);
-}
-
-std::vector<::pasta::ObjCMethodDecl> ObjCContainerDecl::InstanceMethods(void) const {
+std::vector<::pasta::ObjCMethodDecl> ObjCContainerDecl::InstanceMethods(void) const noexcept {
   auto &self = *(u.ObjCContainerDecl);
   auto val = self.instance_methods();
   std::vector<::pasta::ObjCMethodDecl> ret;
@@ -2115,7 +2135,7 @@ std::vector<::pasta::ObjCMethodDecl> ObjCContainerDecl::InstanceMethods(void) co
   return ret;
 }
 
-std::vector<::pasta::ObjCPropertyDecl> ObjCContainerDecl::InstanceProperties(void) const {
+std::vector<::pasta::ObjCPropertyDecl> ObjCContainerDecl::InstanceProperties(void) const noexcept {
   auto &self = *(u.ObjCContainerDecl);
   auto val = self.instance_properties();
   std::vector<::pasta::ObjCPropertyDecl> ret;
@@ -2131,7 +2151,7 @@ std::vector<::pasta::ObjCPropertyDecl> ObjCContainerDecl::InstanceProperties(voi
 // 0: ObjCContainerDecl::
 // 0: ObjCContainerDecl::
 // 0: ObjCContainerDecl::
-std::vector<::pasta::ObjCMethodDecl> ObjCContainerDecl::Methods(void) const {
+std::vector<::pasta::ObjCMethodDecl> ObjCContainerDecl::Methods(void) const noexcept {
   auto &self = *(u.ObjCContainerDecl);
   auto val = self.methods();
   std::vector<::pasta::ObjCMethodDecl> ret;
@@ -2143,7 +2163,7 @@ std::vector<::pasta::ObjCMethodDecl> ObjCContainerDecl::Methods(void) const {
 
 // 0: ObjCContainerDecl::
 // 0: ObjCContainerDecl::
-std::vector<::pasta::ObjCPropertyDecl> ObjCContainerDecl::Properties(void) const {
+std::vector<::pasta::ObjCPropertyDecl> ObjCContainerDecl::Properties(void) const noexcept {
   auto &self = *(u.ObjCContainerDecl);
   auto val = self.properties();
   std::vector<::pasta::ObjCPropertyDecl> ret;
@@ -2166,7 +2186,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(ObjCImplDecl, ObjCCategoryImplDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ObjCImplDecl, ObjCImplementationDecl)
 // 2: FindPropertyImplementationDeclaration
 // 1: ObjCImplDecl::FindPropertyImplementationInstanceVariableDeclaration
-::pasta::ObjCInterfaceDecl ObjCImplDecl::ClassInterface(void) const {
+::pasta::ObjCInterfaceDecl ObjCImplDecl::ClassInterface(void) const noexcept {
   auto &self = *(u.ObjCImplDecl);
   auto val = self.getClassInterface();
   if (val) {
@@ -2176,7 +2196,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(ObjCImplDecl, ObjCImplementationDecl)
   __builtin_unreachable();
 }
 
-std::vector<::pasta::ObjCPropertyImplDecl> ObjCImplDecl::PropertyImplementations(void) const {
+std::vector<::pasta::ObjCPropertyImplDecl> ObjCImplDecl::PropertyImplementations(void) const noexcept {
   auto &self = *(u.ObjCImplDecl);
   auto val = self.property_impls();
   std::vector<::pasta::ObjCPropertyImplDecl> ret;
@@ -2199,31 +2219,31 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCImplementationDecl)
 PASTA_DEFINE_BASE_OPERATORS(ObjCContainerDecl, ObjCImplementationDecl)
 PASTA_DEFINE_BASE_OPERATORS(ObjCImplDecl, ObjCImplementationDecl)
 // 0: ObjCImplementationDecl::Identifier
-::pasta::Token ObjCImplementationDecl::InstanceVariableLBraceToken(void) const {
+::pasta::Token ObjCImplementationDecl::InstanceVariableLBraceToken(void) const noexcept {
   auto &self = *(u.ObjCImplementationDecl);
   auto val = self.getIvarLBraceLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Token ObjCImplementationDecl::InstanceVariableRBraceToken(void) const {
+::pasta::Token ObjCImplementationDecl::InstanceVariableRBraceToken(void) const noexcept {
   auto &self = *(u.ObjCImplementationDecl);
   auto val = self.getIvarRBraceLoc();
   return ast->TokenAt(val);
 }
 
-std::string ObjCImplementationDecl::Name(void) const {
+std::string ObjCImplementationDecl::Name(void) const noexcept {
   auto &self = *(u.ObjCImplementationDecl);
   auto val = self.getNameAsString();
   return val;
 }
 
-uint32_t ObjCImplementationDecl::NumInstanceVariableInitializers(void) const {
+uint32_t ObjCImplementationDecl::NumInstanceVariableInitializers(void) const noexcept {
   auto &self = *(u.ObjCImplementationDecl);
   auto val = self.getNumIvarInitializers();
   return val;
 }
 
-std::string_view ObjCImplementationDecl::ObjCRuntimeNameAsString(void) const {
+std::string_view ObjCImplementationDecl::ObjCRuntimeNameAsString(void) const noexcept {
   auto &self = *(u.ObjCImplementationDecl);
   auto val = self.getObjCRuntimeNameAsString();
   if (auto size = val.size()) {
@@ -2233,7 +2253,7 @@ std::string_view ObjCImplementationDecl::ObjCRuntimeNameAsString(void) const {
   }
 }
 
-::pasta::ObjCInterfaceDecl ObjCImplementationDecl::SuperClass(void) const {
+::pasta::ObjCInterfaceDecl ObjCImplementationDecl::SuperClass(void) const noexcept {
   auto &self = *(u.ObjCImplementationDecl);
   auto val = self.getSuperClass();
   if (val) {
@@ -2243,19 +2263,19 @@ std::string_view ObjCImplementationDecl::ObjCRuntimeNameAsString(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Token ObjCImplementationDecl::SuperClassToken(void) const {
+::pasta::Token ObjCImplementationDecl::SuperClassToken(void) const noexcept {
   auto &self = *(u.ObjCImplementationDecl);
   auto val = self.getSuperClassLoc();
   return ast->TokenAt(val);
 }
 
-bool ObjCImplementationDecl::HasDestructors(void) const {
+bool ObjCImplementationDecl::HasDestructors(void) const noexcept {
   auto &self = *(u.ObjCImplementationDecl);
   auto val = self.hasDestructors();
   return val;
 }
 
-bool ObjCImplementationDecl::HasNonZeroConstructors(void) const {
+bool ObjCImplementationDecl::HasNonZeroConstructors(void) const noexcept {
   auto &self = *(u.ObjCImplementationDecl);
   auto val = self.hasNonZeroConstructors();
   return val;
@@ -2268,7 +2288,7 @@ bool ObjCImplementationDecl::HasNonZeroConstructors(void) const {
 // 0: ObjCImplementationDecl::
 // 0: ObjCImplementationDecl::
 // 0: ObjCImplementationDecl::
-std::vector<::pasta::ObjCIvarDecl> ObjCImplementationDecl::InstanceVariables(void) const {
+std::vector<::pasta::ObjCIvarDecl> ObjCImplementationDecl::InstanceVariables(void) const noexcept {
   auto &self = *(u.ObjCImplementationDecl);
   auto val = self.ivars();
   std::vector<::pasta::ObjCIvarDecl> ret;
@@ -2292,7 +2312,7 @@ PASTA_DEFINE_BASE_OPERATORS(ObjCContainerDecl, ObjCInterfaceDecl)
 // 0: ObjCInterfaceDecl::
 // 0: ObjCInterfaceDecl::
 // 0: ObjCInterfaceDecl::
-std::vector<::pasta::ObjCProtocolDecl> ObjCInterfaceDecl::AllReferencedProtocols(void) const {
+std::vector<::pasta::ObjCProtocolDecl> ObjCInterfaceDecl::AllReferencedProtocols(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.all_referenced_protocols();
   std::vector<::pasta::ObjCProtocolDecl> ret;
@@ -2302,13 +2322,13 @@ std::vector<::pasta::ObjCProtocolDecl> ObjCInterfaceDecl::AllReferencedProtocols
   return ret;
 }
 
-bool ObjCInterfaceDecl::DeclaresOrInheritsDesignatedInitializers(void) const {
+bool ObjCInterfaceDecl::DeclaresOrInheritsDesignatedInitializers(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.declaresOrInheritsDesignatedInitializers();
   return val;
 }
 
-::pasta::ObjCInterfaceDecl ObjCInterfaceDecl::CanonicalDeclaration(void) const {
+::pasta::ObjCInterfaceDecl ObjCInterfaceDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -2320,7 +2340,7 @@ bool ObjCInterfaceDecl::DeclaresOrInheritsDesignatedInitializers(void) const {
 
 // 1: ObjCInterfaceDecl::CategoryClassMethod
 // 1: ObjCInterfaceDecl::CategoryInstanceMethod
-::pasta::ObjCCategoryDecl ObjCInterfaceDecl::CategoryListRaw(void) const {
+::pasta::ObjCCategoryDecl ObjCInterfaceDecl::CategoryListRaw(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.getCategoryListRaw();
   if (val) {
@@ -2331,7 +2351,7 @@ bool ObjCInterfaceDecl::DeclaresOrInheritsDesignatedInitializers(void) const {
 }
 
 // 2: CategoryMethod
-::pasta::ObjCInterfaceDecl ObjCInterfaceDecl::Definition(void) const {
+::pasta::ObjCInterfaceDecl ObjCInterfaceDecl::Definition(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.getDefinition();
   if (val) {
@@ -2341,13 +2361,13 @@ bool ObjCInterfaceDecl::DeclaresOrInheritsDesignatedInitializers(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Token ObjCInterfaceDecl::EndOfDefinitionToken(void) const {
+::pasta::Token ObjCInterfaceDecl::EndOfDefinitionToken(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.getEndOfDefinitionLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::ObjCImplementationDecl ObjCInterfaceDecl::Implementation(void) const {
+::pasta::ObjCImplementationDecl ObjCInterfaceDecl::Implementation(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.getImplementation();
   if (val) {
@@ -2357,7 +2377,7 @@ bool ObjCInterfaceDecl::DeclaresOrInheritsDesignatedInitializers(void) const {
   __builtin_unreachable();
 }
 
-std::string_view ObjCInterfaceDecl::ObjCRuntimeNameAsString(void) const {
+std::string_view ObjCInterfaceDecl::ObjCRuntimeNameAsString(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.getObjCRuntimeNameAsString();
   if (auto size = val.size()) {
@@ -2368,11 +2388,7 @@ std::string_view ObjCInterfaceDecl::ObjCRuntimeNameAsString(void) const {
 }
 
 // 0: ObjCInterfaceDecl::ReferencedProtocols
-::pasta::TokenRange ObjCInterfaceDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.ObjCInterfaceDecl);
-}
-
-::pasta::ObjCInterfaceDecl ObjCInterfaceDecl::SuperClass(void) const {
+::pasta::ObjCInterfaceDecl ObjCInterfaceDecl::SuperClass(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.getSuperClass();
   if (val) {
@@ -2382,14 +2398,20 @@ std::string_view ObjCInterfaceDecl::ObjCRuntimeNameAsString(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Token ObjCInterfaceDecl::SuperClassToken(void) const {
+::pasta::Token ObjCInterfaceDecl::SuperClassToken(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.getSuperClassLoc();
   return ast->TokenAt(val);
 }
 
-// 0: ObjCInterfaceDecl::SuperClassTInfo
-::pasta::ObjCObjectType ObjCInterfaceDecl::SuperClassType(void) const {
+::pasta::Type ObjCInterfaceDecl::SuperClassTInfo(void) const noexcept {
+  auto &self = *(u.ObjCInterfaceDecl);
+  auto val = self.getSuperClassTInfo();
+  return TypeBuilder::Build(ast, val->getType());  assert(false && "ObjCInterfaceDecl::SuperClassTInfo can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::ObjCObjectType ObjCInterfaceDecl::SuperClassType(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.getSuperClassType();
   if (val) {
@@ -2399,7 +2421,7 @@ std::string_view ObjCInterfaceDecl::ObjCRuntimeNameAsString(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Type ObjCInterfaceDecl::TypeForDeclaration(void) const {
+::pasta::Type ObjCInterfaceDecl::TypeForDeclaration(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.getTypeForDecl();
   if (val) {
@@ -2411,32 +2433,32 @@ std::string_view ObjCInterfaceDecl::ObjCRuntimeNameAsString(void) const {
 
 // 0: ObjCInterfaceDecl::TypeParamList
 // 0: ObjCInterfaceDecl::TypeParamListAsWritten
-bool ObjCInterfaceDecl::HasDefinition(void) const {
+bool ObjCInterfaceDecl::HasDefinition(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.hasDefinition();
   return val;
 }
 
-bool ObjCInterfaceDecl::HasDesignatedInitializers(void) const {
+bool ObjCInterfaceDecl::HasDesignatedInitializers(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.hasDesignatedInitializers();
   return val;
 }
 
-bool ObjCInterfaceDecl::IsArcWeakrefUnavailable(void) const {
+bool ObjCInterfaceDecl::IsArcWeakrefUnavailable(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.isArcWeakrefUnavailable();
   return val;
 }
 
 // 1: ObjCInterfaceDecl::IsDesignatedInitializer
-bool ObjCInterfaceDecl::IsImplicitInterfaceDeclaration(void) const {
+bool ObjCInterfaceDecl::IsImplicitInterfaceDeclaration(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.isImplicitInterfaceDecl();
   return val;
 }
 
-::pasta::ObjCInterfaceDecl ObjCInterfaceDecl::IsObjCRequiresPropertyDefinitions(void) const {
+::pasta::ObjCInterfaceDecl ObjCInterfaceDecl::IsObjCRequiresPropertyDefinitions(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.isObjCRequiresPropertyDefs();
   if (val) {
@@ -2447,7 +2469,7 @@ bool ObjCInterfaceDecl::IsImplicitInterfaceDeclaration(void) const {
 }
 
 // 1: ObjCInterfaceDecl::IsSuperClassOf
-bool ObjCInterfaceDecl::IsThisDeclarationADefinition(void) const {
+bool ObjCInterfaceDecl::IsThisDeclarationADefinition(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.isThisDeclarationADefinition();
   return val;
@@ -2457,7 +2479,7 @@ bool ObjCInterfaceDecl::IsThisDeclarationADefinition(void) const {
 // 0: ObjCInterfaceDecl::
 // 0: ObjCInterfaceDecl::
 // 0: ObjCInterfaceDecl::
-std::vector<::pasta::ObjCIvarDecl> ObjCInterfaceDecl::InstanceVariables(void) const {
+std::vector<::pasta::ObjCIvarDecl> ObjCInterfaceDecl::InstanceVariables(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.ivars();
   std::vector<::pasta::ObjCIvarDecl> ret;
@@ -2467,7 +2489,7 @@ std::vector<::pasta::ObjCIvarDecl> ObjCInterfaceDecl::InstanceVariables(void) co
   return ret;
 }
 
-std::vector<::pasta::ObjCCategoryDecl> ObjCInterfaceDecl::KnownCategories(void) const {
+std::vector<::pasta::ObjCCategoryDecl> ObjCInterfaceDecl::KnownCategories(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.known_categories();
   std::vector<::pasta::ObjCCategoryDecl> ret;
@@ -2480,7 +2502,7 @@ std::vector<::pasta::ObjCCategoryDecl> ObjCInterfaceDecl::KnownCategories(void) 
 // 0: ObjCInterfaceDecl::
 // 0: ObjCInterfaceDecl::
 // 0: ObjCInterfaceDecl::
-std::vector<::pasta::ObjCCategoryDecl> ObjCInterfaceDecl::KnownExtensions(void) const {
+std::vector<::pasta::ObjCCategoryDecl> ObjCInterfaceDecl::KnownExtensions(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.known_extensions();
   std::vector<::pasta::ObjCCategoryDecl> ret;
@@ -2502,7 +2524,7 @@ std::vector<::pasta::ObjCCategoryDecl> ObjCInterfaceDecl::KnownExtensions(void) 
 // 0: ObjCInterfaceDecl::
 // 0: ObjCInterfaceDecl::
 // 0: ObjCInterfaceDecl::
-std::vector<::pasta::Token> ObjCInterfaceDecl::ProtocolTokens(void) const {
+std::vector<::pasta::Token> ObjCInterfaceDecl::ProtocolTokens(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.protocol_locs();
   std::vector<::pasta::Token> ret;
@@ -2514,7 +2536,7 @@ std::vector<::pasta::Token> ObjCInterfaceDecl::ProtocolTokens(void) const {
   return ret;
 }
 
-std::vector<::pasta::ObjCProtocolDecl> ObjCInterfaceDecl::Protocols(void) const {
+std::vector<::pasta::ObjCProtocolDecl> ObjCInterfaceDecl::Protocols(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.protocols();
   std::vector<::pasta::ObjCProtocolDecl> ret;
@@ -2524,7 +2546,7 @@ std::vector<::pasta::ObjCProtocolDecl> ObjCInterfaceDecl::Protocols(void) const 
   return ret;
 }
 
-std::vector<::pasta::ObjCCategoryDecl> ObjCInterfaceDecl::VisibleCategories(void) const {
+std::vector<::pasta::ObjCCategoryDecl> ObjCInterfaceDecl::VisibleCategories(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.visible_categories();
   std::vector<::pasta::ObjCCategoryDecl> ret;
@@ -2537,7 +2559,7 @@ std::vector<::pasta::ObjCCategoryDecl> ObjCInterfaceDecl::VisibleCategories(void
 // 0: ObjCInterfaceDecl::
 // 0: ObjCInterfaceDecl::
 // 0: ObjCInterfaceDecl::
-std::vector<::pasta::ObjCCategoryDecl> ObjCInterfaceDecl::VisibleExtensions(void) const {
+std::vector<::pasta::ObjCCategoryDecl> ObjCInterfaceDecl::VisibleExtensions(void) const noexcept {
   auto &self = *(u.ObjCInterfaceDecl);
   auto val = self.visible_extensions();
   std::vector<::pasta::ObjCCategoryDecl> ret;
@@ -2558,13 +2580,13 @@ ObjCMethodDecl::ObjCMethodDecl(
 PASTA_DEFINE_BASE_OPERATORS(DeclContext, ObjCMethodDecl)
 PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCMethodDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCMethodDecl)
-bool ObjCMethodDecl::DefinedInNSObject(void) const {
+bool ObjCMethodDecl::DefinedInNSObject(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.definedInNSObject(ast->ci->getASTContext());
   return val;
 }
 
-::pasta::ObjCPropertyDecl ObjCMethodDecl::FindPropertyDeclaration(void) const {
+::pasta::ObjCPropertyDecl ObjCMethodDecl::FindPropertyDeclaration(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.findPropertyDecl();
   if (val) {
@@ -2574,13 +2596,13 @@ bool ObjCMethodDecl::DefinedInNSObject(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Token ObjCMethodDecl::BeginToken(void) const {
+::pasta::Token ObjCMethodDecl::BeginToken(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.getBeginLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Stmt ObjCMethodDecl::Body(void) const {
+::pasta::Stmt ObjCMethodDecl::Body(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.getBody();
   if (val) {
@@ -2590,7 +2612,7 @@ bool ObjCMethodDecl::DefinedInNSObject(void) const {
   __builtin_unreachable();
 }
 
-::pasta::ObjCMethodDecl ObjCMethodDecl::CanonicalDeclaration(void) const {
+::pasta::ObjCMethodDecl ObjCMethodDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -2600,7 +2622,7 @@ bool ObjCMethodDecl::DefinedInNSObject(void) const {
   __builtin_unreachable();
 }
 
-::pasta::ObjCCategoryDecl ObjCMethodDecl::Category(void) const {
+::pasta::ObjCCategoryDecl ObjCMethodDecl::Category(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.getCategory();
   if (val) {
@@ -2610,7 +2632,7 @@ bool ObjCMethodDecl::DefinedInNSObject(void) const {
   __builtin_unreachable();
 }
 
-::pasta::ObjCInterfaceDecl ObjCMethodDecl::ClassInterface(void) const {
+::pasta::ObjCInterfaceDecl ObjCMethodDecl::ClassInterface(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.getClassInterface();
   if (val) {
@@ -2620,7 +2642,7 @@ bool ObjCMethodDecl::DefinedInNSObject(void) const {
   __builtin_unreachable();
 }
 
-::pasta::ImplicitParamDecl ObjCMethodDecl::CmdDeclaration(void) const {
+::pasta::ImplicitParamDecl ObjCMethodDecl::CmdDeclaration(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.getCmdDecl();
   if (val) {
@@ -2630,31 +2652,31 @@ bool ObjCMethodDecl::DefinedInNSObject(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Token ObjCMethodDecl::DeclaratorEndToken(void) const {
+::pasta::Token ObjCMethodDecl::DeclaratorEndToken(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.getDeclaratorEndLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Token ObjCMethodDecl::EndToken(void) const {
+::pasta::Token ObjCMethodDecl::EndToken(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.getEndLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::ImplementationControl ObjCMethodDecl::ImplementationControl(void) const {
+::pasta::ImplementationControl ObjCMethodDecl::ImplementationControl(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.getImplementationControl();
   return static_cast<::pasta::ImplementationControl>(val);
 }
 
-enum ObjCMethodFamily ObjCMethodDecl::MethodFamily(void) const {
+enum ObjCMethodFamily ObjCMethodDecl::MethodFamily(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.getMethodFamily();
   return static_cast<::pasta::ObjCMethodFamily>(static_cast<unsigned int>(val));
 }
 
-uint32_t ObjCMethodDecl::NumSelectorTokens(void) const {
+uint32_t ObjCMethodDecl::NumSelectorTokens(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.getNumSelectorLocs();
   return val;
@@ -2662,14 +2684,20 @@ uint32_t ObjCMethodDecl::NumSelectorTokens(void) const {
 
 // 0: ObjCMethodDecl::ObjCDeclQualifier
 // 1: ObjCMethodDecl::ParamDeclaration
-::pasta::Type ObjCMethodDecl::ReturnType(void) const {
+::pasta::Type ObjCMethodDecl::ReturnType(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.getReturnType();
   return TypeBuilder::Build(ast, val);
 }
 
-// 0: ObjCMethodDecl::ReturnTypeSourceInfo
-::pasta::TokenRange ObjCMethodDecl::ReturnTypeSourceRange(void) const {
+::pasta::Type ObjCMethodDecl::ReturnTypeSourceInfo(void) const noexcept {
+  auto &self = *(u.ObjCMethodDecl);
+  auto val = self.getReturnTypeSourceInfo();
+  return TypeBuilder::Build(ast, val->getType());  assert(false && "ObjCMethodDecl::ReturnTypeSourceInfo can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::TokenRange ObjCMethodDecl::ReturnTypeSourceRange(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.getReturnTypeSourceRange();
   return ast->TokenRangeFrom(val);
@@ -2677,13 +2705,13 @@ uint32_t ObjCMethodDecl::NumSelectorTokens(void) const {
 
 // 0: ObjCMethodDecl::Selector
 // 1: ObjCMethodDecl::SelectorToken
-::pasta::Token ObjCMethodDecl::SelectorStartToken(void) const {
+::pasta::Token ObjCMethodDecl::SelectorStartToken(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.getSelectorStartLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::ImplicitParamDecl ObjCMethodDecl::SelfDeclaration(void) const {
+::pasta::ImplicitParamDecl ObjCMethodDecl::SelfDeclaration(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.getSelfDecl();
   if (val) {
@@ -2694,107 +2722,103 @@ uint32_t ObjCMethodDecl::NumSelectorTokens(void) const {
 }
 
 // 4: ObjCMethodDecl::SelfType
-::pasta::TokenRange ObjCMethodDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.ObjCMethodDecl);
-}
-
-bool ObjCMethodDecl::HasBody(void) const {
+bool ObjCMethodDecl::HasBody(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.hasBody();
   return val;
 }
 
-bool ObjCMethodDecl::HasRedeclaration(void) const {
+bool ObjCMethodDecl::HasRedeclaration(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.hasRedeclaration();
   return val;
 }
 
-bool ObjCMethodDecl::HasRelatedResultType(void) const {
+bool ObjCMethodDecl::HasRelatedResultType(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.hasRelatedResultType();
   return val;
 }
 
-bool ObjCMethodDecl::HasSkippedBody(void) const {
+bool ObjCMethodDecl::HasSkippedBody(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.hasSkippedBody();
   return val;
 }
 
-bool ObjCMethodDecl::IsClassMethod(void) const {
+bool ObjCMethodDecl::IsClassMethod(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.isClassMethod();
   return val;
 }
 
-bool ObjCMethodDecl::IsDefined(void) const {
+bool ObjCMethodDecl::IsDefined(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.isDefined();
   return val;
 }
 
-bool ObjCMethodDecl::IsDesignatedInitializerForTheInterface(void) const {
+bool ObjCMethodDecl::IsDesignatedInitializerForTheInterface(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.isDesignatedInitializerForTheInterface();
   return val;
 }
 
-bool ObjCMethodDecl::IsDirectMethod(void) const {
+bool ObjCMethodDecl::IsDirectMethod(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.isDirectMethod();
   return val;
 }
 
-bool ObjCMethodDecl::IsInstanceMethod(void) const {
+bool ObjCMethodDecl::IsInstanceMethod(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.isInstanceMethod();
   return val;
 }
 
-bool ObjCMethodDecl::IsOptional(void) const {
+bool ObjCMethodDecl::IsOptional(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.isOptional();
   return val;
 }
 
-bool ObjCMethodDecl::IsOverriding(void) const {
+bool ObjCMethodDecl::IsOverriding(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.isOverriding();
   return val;
 }
 
-bool ObjCMethodDecl::IsPropertyAccessor(void) const {
+bool ObjCMethodDecl::IsPropertyAccessor(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.isPropertyAccessor();
   return val;
 }
 
-bool ObjCMethodDecl::IsRedeclaration(void) const {
+bool ObjCMethodDecl::IsRedeclaration(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.isRedeclaration();
   return val;
 }
 
-bool ObjCMethodDecl::IsSynthesizedAccessorStub(void) const {
+bool ObjCMethodDecl::IsSynthesizedAccessorStub(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.isSynthesizedAccessorStub();
   return val;
 }
 
-bool ObjCMethodDecl::IsThisDeclarationADefinition(void) const {
+bool ObjCMethodDecl::IsThisDeclarationADefinition(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.isThisDeclarationADefinition();
   return val;
 }
 
-bool ObjCMethodDecl::IsThisDeclarationADesignatedInitializer(void) const {
+bool ObjCMethodDecl::IsThisDeclarationADesignatedInitializer(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.isThisDeclarationADesignatedInitializer();
   return val;
 }
 
-bool ObjCMethodDecl::IsVariadic(void) const {
+bool ObjCMethodDecl::IsVariadic(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.isVariadic();
   return val;
@@ -2805,7 +2829,7 @@ bool ObjCMethodDecl::IsVariadic(void) const {
 // 0: ObjCMethodDecl::
 // 0: ObjCMethodDecl::
 // 0: ObjCMethodDecl::
-std::vector<::pasta::ParmVarDecl> ObjCMethodDecl::Parameters(void) const {
+std::vector<::pasta::ParmVarDecl> ObjCMethodDecl::Parameters(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.parameters();
   std::vector<::pasta::ParmVarDecl> ret;
@@ -2816,7 +2840,7 @@ std::vector<::pasta::ParmVarDecl> ObjCMethodDecl::Parameters(void) const {
 }
 
 // 0: ObjCMethodDecl::
-std::vector<::pasta::Token> ObjCMethodDecl::SelectorTokens(void) const {
+std::vector<::pasta::Token> ObjCMethodDecl::SelectorTokens(void) const noexcept {
   auto convert_elem = [&] (clang::SourceLocation val) {
     return ast->TokenAt(val);
   };
@@ -2836,14 +2860,14 @@ ObjCPropertyDecl::ObjCPropertyDecl(
 
 PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCPropertyDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCPropertyDecl)
-::pasta::Token ObjCPropertyDecl::AtToken(void) const {
+::pasta::Token ObjCPropertyDecl::AtToken(void) const noexcept {
   auto &self = *(u.ObjCPropertyDecl);
   auto val = self.getAtLoc();
   return ast->TokenAt(val);
 }
 
 // 1: ObjCPropertyDecl::DefaultSynthInstanceVariableName
-::pasta::ObjCMethodDecl ObjCPropertyDecl::GetterMethodDeclaration(void) const {
+::pasta::ObjCMethodDecl ObjCPropertyDecl::GetterMethodDeclaration(void) const noexcept {
   auto &self = *(u.ObjCPropertyDecl);
   auto val = self.getGetterMethodDecl();
   if (val) {
@@ -2854,13 +2878,13 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCPropertyDecl)
 }
 
 // 0: ObjCPropertyDecl::GetterName
-::pasta::Token ObjCPropertyDecl::GetterNameToken(void) const {
+::pasta::Token ObjCPropertyDecl::GetterNameToken(void) const noexcept {
   auto &self = *(u.ObjCPropertyDecl);
   auto val = self.getGetterNameLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Token ObjCPropertyDecl::LParenToken(void) const {
+::pasta::Token ObjCPropertyDecl::LParenToken(void) const noexcept {
   auto &self = *(u.ObjCPropertyDecl);
   auto val = self.getLParenLoc();
   return ast->TokenAt(val);
@@ -2868,13 +2892,13 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCPropertyDecl)
 
 // 0: ObjCPropertyDecl::PropertyAttributes
 // 0: ObjCPropertyDecl::PropertyAttributesAsWritten
-::pasta::PropertyControl ObjCPropertyDecl::PropertyImplementation(void) const {
+::pasta::PropertyControl ObjCPropertyDecl::PropertyImplementation(void) const noexcept {
   auto &self = *(u.ObjCPropertyDecl);
   auto val = self.getPropertyImplementation();
   return static_cast<::pasta::PropertyControl>(val);
 }
 
-::pasta::ObjCIvarDecl ObjCPropertyDecl::PropertyInstanceVariableDeclaration(void) const {
+::pasta::ObjCIvarDecl ObjCPropertyDecl::PropertyInstanceVariableDeclaration(void) const noexcept {
   auto &self = *(u.ObjCPropertyDecl);
   auto val = self.getPropertyIvarDecl();
   if (val) {
@@ -2884,19 +2908,19 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCPropertyDecl)
   __builtin_unreachable();
 }
 
-enum ObjCPropertyQueryKind ObjCPropertyDecl::QueryKind(void) const {
+enum ObjCPropertyQueryKind ObjCPropertyDecl::QueryKind(void) const noexcept {
   auto &self = *(u.ObjCPropertyDecl);
   auto val = self.getQueryKind();
   return static_cast<::pasta::ObjCPropertyQueryKind>(static_cast<unsigned char>(val));
 }
 
-::pasta::SetterKind ObjCPropertyDecl::SetterKind(void) const {
+::pasta::SetterKind ObjCPropertyDecl::SetterKind(void) const noexcept {
   auto &self = *(u.ObjCPropertyDecl);
   auto val = self.getSetterKind();
   return static_cast<::pasta::SetterKind>(val);
 }
 
-::pasta::ObjCMethodDecl ObjCPropertyDecl::SetterMethodDeclaration(void) const {
+::pasta::ObjCMethodDecl ObjCPropertyDecl::SetterMethodDeclaration(void) const noexcept {
   auto &self = *(u.ObjCPropertyDecl);
   auto val = self.getSetterMethodDecl();
   if (val) {
@@ -2907,61 +2931,63 @@ enum ObjCPropertyQueryKind ObjCPropertyDecl::QueryKind(void) const {
 }
 
 // 0: ObjCPropertyDecl::SetterName
-::pasta::Token ObjCPropertyDecl::SetterNameToken(void) const {
+::pasta::Token ObjCPropertyDecl::SetterNameToken(void) const noexcept {
   auto &self = *(u.ObjCPropertyDecl);
   auto val = self.getSetterNameLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::TokenRange ObjCPropertyDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.ObjCPropertyDecl);
-}
-
-::pasta::Type ObjCPropertyDecl::Type(void) const {
+::pasta::Type ObjCPropertyDecl::Type(void) const noexcept {
   auto &self = *(u.ObjCPropertyDecl);
   auto val = self.getType();
   return TypeBuilder::Build(ast, val);
 }
 
-// 0: ObjCPropertyDecl::TypeSourceInfo
+::pasta::Type ObjCPropertyDecl::TypeSourceInfo(void) const noexcept {
+  auto &self = *(u.ObjCPropertyDecl);
+  auto val = self.getTypeSourceInfo();
+  return TypeBuilder::Build(ast, val->getType());  assert(false && "ObjCPropertyDecl::TypeSourceInfo can return nullptr!");
+  __builtin_unreachable();
+}
+
 // 1: ObjCPropertyDecl::UsageType
-bool ObjCPropertyDecl::IsAtomic(void) const {
+bool ObjCPropertyDecl::IsAtomic(void) const noexcept {
   auto &self = *(u.ObjCPropertyDecl);
   auto val = self.isAtomic();
   return val;
 }
 
-bool ObjCPropertyDecl::IsClassProperty(void) const {
+bool ObjCPropertyDecl::IsClassProperty(void) const noexcept {
   auto &self = *(u.ObjCPropertyDecl);
   auto val = self.isClassProperty();
   return val;
 }
 
-bool ObjCPropertyDecl::IsDirectProperty(void) const {
+bool ObjCPropertyDecl::IsDirectProperty(void) const noexcept {
   auto &self = *(u.ObjCPropertyDecl);
   auto val = self.isDirectProperty();
   return val;
 }
 
-bool ObjCPropertyDecl::IsInstanceProperty(void) const {
+bool ObjCPropertyDecl::IsInstanceProperty(void) const noexcept {
   auto &self = *(u.ObjCPropertyDecl);
   auto val = self.isInstanceProperty();
   return val;
 }
 
-bool ObjCPropertyDecl::IsOptional(void) const {
+bool ObjCPropertyDecl::IsOptional(void) const noexcept {
   auto &self = *(u.ObjCPropertyDecl);
   auto val = self.isOptional();
   return val;
 }
 
-bool ObjCPropertyDecl::IsReadOnly(void) const {
+bool ObjCPropertyDecl::IsReadOnly(void) const noexcept {
   auto &self = *(u.ObjCPropertyDecl);
   auto val = self.isReadOnly();
   return val;
 }
 
-bool ObjCPropertyDecl::IsRetaining(void) const {
+bool ObjCPropertyDecl::IsRetaining(void) const noexcept {
   auto &self = *(u.ObjCPropertyDecl);
   auto val = self.isRetaining();
   return val;
@@ -2973,13 +2999,13 @@ ObjCPropertyImplDecl::ObjCPropertyImplDecl(
     : Decl(std::move(ast_), decl_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCPropertyImplDecl)
-::pasta::Token ObjCPropertyImplDecl::BeginToken(void) const {
+::pasta::Token ObjCPropertyImplDecl::BeginToken(void) const noexcept {
   auto &self = *(u.ObjCPropertyImplDecl);
   auto val = self.getBeginLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Expr ObjCPropertyImplDecl::GetterCXXConstructor(void) const {
+::pasta::Expr ObjCPropertyImplDecl::GetterCXXConstructor(void) const noexcept {
   auto &self = *(u.ObjCPropertyImplDecl);
   auto val = self.getGetterCXXConstructor();
   if (val) {
@@ -2989,7 +3015,7 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCPropertyImplDecl)
   __builtin_unreachable();
 }
 
-::pasta::ObjCMethodDecl ObjCPropertyImplDecl::GetterMethodDeclaration(void) const {
+::pasta::ObjCMethodDecl ObjCPropertyImplDecl::GetterMethodDeclaration(void) const noexcept {
   auto &self = *(u.ObjCPropertyImplDecl);
   auto val = self.getGetterMethodDecl();
   if (val) {
@@ -2999,7 +3025,7 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCPropertyImplDecl)
   __builtin_unreachable();
 }
 
-::pasta::ObjCPropertyDecl ObjCPropertyImplDecl::PropertyDeclaration(void) const {
+::pasta::ObjCPropertyDecl ObjCPropertyImplDecl::PropertyDeclaration(void) const noexcept {
   auto &self = *(u.ObjCPropertyImplDecl);
   auto val = self.getPropertyDecl();
   if (val) {
@@ -3010,7 +3036,7 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCPropertyImplDecl)
 }
 
 // 0: ObjCPropertyImplDecl::PropertyImplementation
-::pasta::ObjCIvarDecl ObjCPropertyImplDecl::PropertyInstanceVariableDeclaration(void) const {
+::pasta::ObjCIvarDecl ObjCPropertyImplDecl::PropertyInstanceVariableDeclaration(void) const noexcept {
   auto &self = *(u.ObjCPropertyImplDecl);
   auto val = self.getPropertyIvarDecl();
   if (val) {
@@ -3020,13 +3046,13 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCPropertyImplDecl)
   __builtin_unreachable();
 }
 
-::pasta::Token ObjCPropertyImplDecl::PropertyInstanceVariableDeclarationToken(void) const {
+::pasta::Token ObjCPropertyImplDecl::PropertyInstanceVariableDeclarationToken(void) const noexcept {
   auto &self = *(u.ObjCPropertyImplDecl);
   auto val = self.getPropertyIvarDeclLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Expr ObjCPropertyImplDecl::SetterCXXAssignment(void) const {
+::pasta::Expr ObjCPropertyImplDecl::SetterCXXAssignment(void) const noexcept {
   auto &self = *(u.ObjCPropertyImplDecl);
   auto val = self.getSetterCXXAssignment();
   if (val) {
@@ -3036,7 +3062,7 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCPropertyImplDecl)
   __builtin_unreachable();
 }
 
-::pasta::ObjCMethodDecl ObjCPropertyImplDecl::SetterMethodDeclaration(void) const {
+::pasta::ObjCMethodDecl ObjCPropertyImplDecl::SetterMethodDeclaration(void) const noexcept {
   auto &self = *(u.ObjCPropertyImplDecl);
   auto val = self.getSetterMethodDecl();
   if (val) {
@@ -3046,11 +3072,7 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCPropertyImplDecl)
   __builtin_unreachable();
 }
 
-::pasta::TokenRange ObjCPropertyImplDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.ObjCPropertyImplDecl);
-}
-
-bool ObjCPropertyImplDecl::IsInstanceVariableNameSpecified(void) const {
+bool ObjCPropertyImplDecl::IsInstanceVariableNameSpecified(void) const noexcept {
   auto &self = *(u.ObjCPropertyImplDecl);
   auto val = self.isIvarNameSpecified();
   return val;
@@ -3065,7 +3087,7 @@ PASTA_DEFINE_BASE_OPERATORS(DeclContext, ObjCProtocolDecl)
 PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCProtocolDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCProtocolDecl)
 PASTA_DEFINE_BASE_OPERATORS(ObjCContainerDecl, ObjCProtocolDecl)
-::pasta::ObjCProtocolDecl ObjCProtocolDecl::CanonicalDeclaration(void) const {
+::pasta::ObjCProtocolDecl ObjCProtocolDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.ObjCProtocolDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -3075,7 +3097,7 @@ PASTA_DEFINE_BASE_OPERATORS(ObjCContainerDecl, ObjCProtocolDecl)
   __builtin_unreachable();
 }
 
-::pasta::ObjCProtocolDecl ObjCProtocolDecl::Definition(void) const {
+::pasta::ObjCProtocolDecl ObjCProtocolDecl::Definition(void) const noexcept {
   auto &self = *(u.ObjCProtocolDecl);
   auto val = self.getDefinition();
   if (val) {
@@ -3085,7 +3107,7 @@ PASTA_DEFINE_BASE_OPERATORS(ObjCContainerDecl, ObjCProtocolDecl)
   __builtin_unreachable();
 }
 
-std::string_view ObjCProtocolDecl::ObjCRuntimeNameAsString(void) const {
+std::string_view ObjCProtocolDecl::ObjCRuntimeNameAsString(void) const noexcept {
   auto &self = *(u.ObjCProtocolDecl);
   auto val = self.getObjCRuntimeNameAsString();
   if (auto size = val.size()) {
@@ -3096,23 +3118,19 @@ std::string_view ObjCProtocolDecl::ObjCRuntimeNameAsString(void) const {
 }
 
 // 0: ObjCProtocolDecl::ReferencedProtocols
-::pasta::TokenRange ObjCProtocolDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.ObjCProtocolDecl);
-}
-
-bool ObjCProtocolDecl::HasDefinition(void) const {
+bool ObjCProtocolDecl::HasDefinition(void) const noexcept {
   auto &self = *(u.ObjCProtocolDecl);
   auto val = self.hasDefinition();
   return val;
 }
 
-bool ObjCProtocolDecl::IsNonRuntimeProtocol(void) const {
+bool ObjCProtocolDecl::IsNonRuntimeProtocol(void) const noexcept {
   auto &self = *(u.ObjCProtocolDecl);
   auto val = self.isNonRuntimeProtocol();
   return val;
 }
 
-bool ObjCProtocolDecl::IsThisDeclarationADefinition(void) const {
+bool ObjCProtocolDecl::IsThisDeclarationADefinition(void) const noexcept {
   auto &self = *(u.ObjCProtocolDecl);
   auto val = self.isThisDeclarationADefinition();
   return val;
@@ -3125,7 +3143,7 @@ bool ObjCProtocolDecl::IsThisDeclarationADefinition(void) const {
 // 0: ObjCProtocolDecl::
 // 0: ObjCProtocolDecl::
 // 0: ObjCProtocolDecl::
-std::vector<::pasta::Token> ObjCProtocolDecl::ProtocolTokens(void) const {
+std::vector<::pasta::Token> ObjCProtocolDecl::ProtocolTokens(void) const noexcept {
   auto &self = *(u.ObjCProtocolDecl);
   auto val = self.protocol_locs();
   std::vector<::pasta::Token> ret;
@@ -3138,7 +3156,7 @@ std::vector<::pasta::Token> ObjCProtocolDecl::ProtocolTokens(void) const {
 }
 
 // 0: ObjCProtocolDecl::
-std::vector<::pasta::ObjCProtocolDecl> ObjCProtocolDecl::Protocols(void) const {
+std::vector<::pasta::ObjCProtocolDecl> ObjCProtocolDecl::Protocols(void) const noexcept {
   auto &self = *(u.ObjCProtocolDecl);
   auto val = self.protocols();
   std::vector<::pasta::ObjCProtocolDecl> ret;
@@ -3154,7 +3172,7 @@ PragmaCommentDecl::PragmaCommentDecl(
     : Decl(std::move(ast_), decl_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Decl, PragmaCommentDecl)
-std::string_view PragmaCommentDecl::Argument(void) const {
+std::string_view PragmaCommentDecl::Argument(void) const noexcept {
   auto &self = *(u.PragmaCommentDecl);
   auto val = self.getArg();
   if (auto size = val.size()) {
@@ -3164,7 +3182,7 @@ std::string_view PragmaCommentDecl::Argument(void) const {
   }
 }
 
-enum PragmaMSCommentKind PragmaCommentDecl::CommentKind(void) const {
+enum PragmaMSCommentKind PragmaCommentDecl::CommentKind(void) const noexcept {
   auto &self = *(u.PragmaCommentDecl);
   auto val = self.getCommentKind();
   return static_cast<::pasta::PragmaMSCommentKind>(static_cast<unsigned int>(val));
@@ -3176,7 +3194,7 @@ PragmaDetectMismatchDecl::PragmaDetectMismatchDecl(
     : Decl(std::move(ast_), decl_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Decl, PragmaDetectMismatchDecl)
-std::string_view PragmaDetectMismatchDecl::Name(void) const {
+std::string_view PragmaDetectMismatchDecl::Name(void) const noexcept {
   auto &self = *(u.PragmaDetectMismatchDecl);
   auto val = self.getName();
   if (auto size = val.size()) {
@@ -3186,7 +3204,7 @@ std::string_view PragmaDetectMismatchDecl::Name(void) const {
   }
 }
 
-std::string_view PragmaDetectMismatchDecl::Value(void) const {
+std::string_view PragmaDetectMismatchDecl::Value(void) const noexcept {
   auto &self = *(u.PragmaDetectMismatchDecl);
   auto val = self.getValue();
   if (auto size = val.size()) {
@@ -3209,7 +3227,7 @@ StaticAssertDecl::StaticAssertDecl(
     : Decl(std::move(ast_), decl_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Decl, StaticAssertDecl)
-::pasta::Expr StaticAssertDecl::AssertExpression(void) const {
+::pasta::Expr StaticAssertDecl::AssertExpression(void) const noexcept {
   auto &self = *(u.StaticAssertDecl);
   auto val = self.getAssertExpr();
   if (val) {
@@ -3219,7 +3237,7 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, StaticAssertDecl)
   __builtin_unreachable();
 }
 
-::pasta::StringLiteral StaticAssertDecl::Message(void) const {
+::pasta::StringLiteral StaticAssertDecl::Message(void) const noexcept {
   auto &self = *(u.StaticAssertDecl);
   auto val = self.getMessage();
   if (val) {
@@ -3229,17 +3247,13 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, StaticAssertDecl)
   __builtin_unreachable();
 }
 
-::pasta::Token StaticAssertDecl::RParenToken(void) const {
+::pasta::Token StaticAssertDecl::RParenToken(void) const noexcept {
   auto &self = *(u.StaticAssertDecl);
   auto val = self.getRParenLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::TokenRange StaticAssertDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.StaticAssertDecl);
-}
-
-bool StaticAssertDecl::IsFailed(void) const {
+bool StaticAssertDecl::IsFailed(void) const noexcept {
   auto &self = *(u.StaticAssertDecl);
   auto val = self.isFailed();
   return val;
@@ -3260,12 +3274,15 @@ PASTA_DEFINE_DERIVED_OPERATORS(TemplateDecl, RedeclarableTemplateDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TemplateDecl, TemplateTemplateParmDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TemplateDecl, TypeAliasTemplateDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TemplateDecl, VarTemplateDecl)
-::pasta::TokenRange TemplateDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.TemplateDecl);
+::pasta::TemplateParameterList TemplateDecl::TemplateParameters(void) const noexcept {
+  auto &self = *(u.TemplateDecl);
+  auto val = self.getTemplateParameters();
+  return ::pasta::TemplateParameterList(ast, val);
+  assert(false && "TemplateDecl::TemplateParameters can return nullptr!");
+  __builtin_unreachable();
 }
 
-// 0: TemplateDecl::TemplateParameters
-::pasta::NamedDecl TemplateDecl::TemplatedDeclaration(void) const {
+::pasta::NamedDecl TemplateDecl::TemplatedDeclaration(void) const noexcept {
   auto &self = *(u.TemplateDecl);
   auto val = self.getTemplatedDecl();
   if (val) {
@@ -3275,7 +3292,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(TemplateDecl, VarTemplateDecl)
   __builtin_unreachable();
 }
 
-bool TemplateDecl::HasAssociatedConstraints(void) const {
+bool TemplateDecl::HasAssociatedConstraints(void) const noexcept {
   auto &self = *(u.TemplateDecl);
   auto val = self.hasAssociatedConstraints();
   return val;
@@ -3289,7 +3306,7 @@ TemplateTemplateParmDecl::TemplateTemplateParmDecl(
 PASTA_DEFINE_BASE_OPERATORS(Decl, TemplateTemplateParmDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, TemplateTemplateParmDecl)
 PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, TemplateTemplateParmDecl)
-bool TemplateTemplateParmDecl::DefaultArgumentWasInherited(void) const {
+bool TemplateTemplateParmDecl::DefaultArgumentWasInherited(void) const noexcept {
   auto &self = *(u.TemplateTemplateParmDecl);
   auto val = self.defaultArgumentWasInherited();
   return val;
@@ -3297,42 +3314,38 @@ bool TemplateTemplateParmDecl::DefaultArgumentWasInherited(void) const {
 
 // 0: TemplateTemplateParmDecl::DefaultArgumentStorage
 // 0: TemplateTemplateParmDecl::DefaultArgument
-::pasta::Token TemplateTemplateParmDecl::DefaultArgumentToken(void) const {
+::pasta::Token TemplateTemplateParmDecl::DefaultArgumentToken(void) const noexcept {
   auto &self = *(u.TemplateTemplateParmDecl);
   auto val = self.getDefaultArgumentLoc();
   return ast->TokenAt(val);
 }
 
 // 1: TemplateTemplateParmDecl::ExpansionTemplateParameters
-uint32_t TemplateTemplateParmDecl::NumExpansionTemplateParameters(void) const {
+uint32_t TemplateTemplateParmDecl::NumExpansionTemplateParameters(void) const noexcept {
   auto &self = *(u.TemplateTemplateParmDecl);
   auto val = self.getNumExpansionTemplateParameters();
   return val;
 }
 
-::pasta::TokenRange TemplateTemplateParmDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.TemplateTemplateParmDecl);
-}
-
-bool TemplateTemplateParmDecl::HasDefaultArgument(void) const {
+bool TemplateTemplateParmDecl::HasDefaultArgument(void) const noexcept {
   auto &self = *(u.TemplateTemplateParmDecl);
   auto val = self.hasDefaultArgument();
   return val;
 }
 
-bool TemplateTemplateParmDecl::IsExpandedParameterPack(void) const {
+bool TemplateTemplateParmDecl::IsExpandedParameterPack(void) const noexcept {
   auto &self = *(u.TemplateTemplateParmDecl);
   auto val = self.isExpandedParameterPack();
   return val;
 }
 
-bool TemplateTemplateParmDecl::IsPackExpansion(void) const {
+bool TemplateTemplateParmDecl::IsPackExpansion(void) const noexcept {
   auto &self = *(u.TemplateTemplateParmDecl);
   auto val = self.isPackExpansion();
   return val;
 }
 
-bool TemplateTemplateParmDecl::IsParameterPack(void) const {
+bool TemplateTemplateParmDecl::IsParameterPack(void) const noexcept {
   auto &self = *(u.TemplateTemplateParmDecl);
   auto val = self.isParameterPack();
   return val;
@@ -3346,7 +3359,7 @@ TranslationUnitDecl::TranslationUnitDecl(
 PASTA_DEFINE_BASE_OPERATORS(DeclContext, TranslationUnitDecl)
 PASTA_DEFINE_BASE_OPERATORS(Decl, TranslationUnitDecl)
 // 0: TranslationUnitDecl::ASTContext
-::pasta::NamespaceDecl TranslationUnitDecl::AnonymousNamespace(void) const {
+::pasta::NamespaceDecl TranslationUnitDecl::AnonymousNamespace(void) const noexcept {
   auto &self = *(u.TranslationUnitDecl);
   auto val = self.getAnonymousNamespace();
   if (val) {
@@ -3375,17 +3388,13 @@ PASTA_DEFINE_DERIVED_OPERATORS(TypeDecl, TypeAliasDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeDecl, TypedefDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeDecl, TypedefNameDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeDecl, UnresolvedUsingTypenameDecl)
-::pasta::Token TypeDecl::BeginToken(void) const {
+::pasta::Token TypeDecl::BeginToken(void) const noexcept {
   auto &self = *(u.TypeDecl);
   auto val = self.getBeginLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::TokenRange TypeDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.TypeDecl);
-}
-
-::pasta::Type TypeDecl::TypeForDeclaration(void) const {
+::pasta::Type TypeDecl::TypeForDeclaration(void) const noexcept {
   auto &self = *(u.TypeDecl);
   auto val = self.getTypeForDecl();
   if (val) {
@@ -3406,7 +3415,7 @@ PASTA_DEFINE_BASE_OPERATORS(TypeDecl, TypedefNameDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TypedefNameDecl, ObjCTypeParamDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TypedefNameDecl, TypeAliasDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TypedefNameDecl, TypedefDecl)
-::pasta::TagDecl TypedefNameDecl::AnonymousDeclarationWithTypedefName(void) const {
+::pasta::TagDecl TypedefNameDecl::AnonymousDeclarationWithTypedefName(void) const noexcept {
   auto &self = *(u.TypedefNameDecl);
   auto val = self.getAnonDeclWithTypedefName();
   if (val) {
@@ -3416,7 +3425,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(TypedefNameDecl, TypedefDecl)
   __builtin_unreachable();
 }
 
-::pasta::TypedefNameDecl TypedefNameDecl::CanonicalDeclaration(void) const {
+::pasta::TypedefNameDecl TypedefNameDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.TypedefNameDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -3426,20 +3435,26 @@ PASTA_DEFINE_DERIVED_OPERATORS(TypedefNameDecl, TypedefDecl)
   __builtin_unreachable();
 }
 
-// 0: TypedefNameDecl::TypeSourceInfo
-::pasta::Type TypedefNameDecl::UnderlyingType(void) const {
+::pasta::Type TypedefNameDecl::TypeSourceInfo(void) const noexcept {
+  auto &self = *(u.TypedefNameDecl);
+  auto val = self.getTypeSourceInfo();
+  return TypeBuilder::Build(ast, val->getType());  assert(false && "TypedefNameDecl::TypeSourceInfo can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::Type TypedefNameDecl::UnderlyingType(void) const noexcept {
   auto &self = *(u.TypedefNameDecl);
   auto val = self.getUnderlyingType();
   return TypeBuilder::Build(ast, val);
 }
 
-bool TypedefNameDecl::IsModed(void) const {
+bool TypedefNameDecl::IsModed(void) const noexcept {
   auto &self = *(u.TypedefNameDecl);
   auto val = self.isModed();
   return val;
 }
 
-bool TypedefNameDecl::IsTransparentTag(void) const {
+bool TypedefNameDecl::IsTransparentTag(void) const noexcept {
   auto &self = *(u.TypedefNameDecl);
   auto val = self.isTransparentTag();
   return val;
@@ -3460,7 +3475,7 @@ UnresolvedUsingTypenameDecl::UnresolvedUsingTypenameDecl(
 PASTA_DEFINE_BASE_OPERATORS(Decl, UnresolvedUsingTypenameDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UnresolvedUsingTypenameDecl)
 PASTA_DEFINE_BASE_OPERATORS(TypeDecl, UnresolvedUsingTypenameDecl)
-::pasta::UnresolvedUsingTypenameDecl UnresolvedUsingTypenameDecl::CanonicalDeclaration(void) const {
+::pasta::UnresolvedUsingTypenameDecl UnresolvedUsingTypenameDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.UnresolvedUsingTypenameDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -3470,7 +3485,7 @@ PASTA_DEFINE_BASE_OPERATORS(TypeDecl, UnresolvedUsingTypenameDecl)
   __builtin_unreachable();
 }
 
-::pasta::Token UnresolvedUsingTypenameDecl::EllipsisToken(void) const {
+::pasta::Token UnresolvedUsingTypenameDecl::EllipsisToken(void) const noexcept {
   auto &self = *(u.UnresolvedUsingTypenameDecl);
   auto val = self.getEllipsisLoc();
   return ast->TokenAt(val);
@@ -3479,19 +3494,19 @@ PASTA_DEFINE_BASE_OPERATORS(TypeDecl, UnresolvedUsingTypenameDecl)
 // 0: UnresolvedUsingTypenameDecl::NameInfo
 // 0: UnresolvedUsingTypenameDecl::Qualifier
 // 0: UnresolvedUsingTypenameDecl::QualifierToken
-::pasta::Token UnresolvedUsingTypenameDecl::TypenameToken(void) const {
+::pasta::Token UnresolvedUsingTypenameDecl::TypenameToken(void) const noexcept {
   auto &self = *(u.UnresolvedUsingTypenameDecl);
   auto val = self.getTypenameLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Token UnresolvedUsingTypenameDecl::UsingToken(void) const {
+::pasta::Token UnresolvedUsingTypenameDecl::UsingToken(void) const noexcept {
   auto &self = *(u.UnresolvedUsingTypenameDecl);
   auto val = self.getUsingLoc();
   return ast->TokenAt(val);
 }
 
-bool UnresolvedUsingTypenameDecl::IsPackExpansion(void) const {
+bool UnresolvedUsingTypenameDecl::IsPackExpansion(void) const noexcept {
   auto &self = *(u.UnresolvedUsingTypenameDecl);
   auto val = self.isPackExpansion();
   return val;
@@ -3504,7 +3519,7 @@ UsingDirectiveDecl::UsingDirectiveDecl(
 
 PASTA_DEFINE_BASE_OPERATORS(Decl, UsingDirectiveDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingDirectiveDecl)
-::pasta::DeclContext UsingDirectiveDecl::CommonAncestor(void) const {
+::pasta::DeclContext UsingDirectiveDecl::CommonAncestor(void) const noexcept {
   auto &self = *(u.UsingDirectiveDecl);
   auto val = self.getCommonAncestor();
   if (val) {
@@ -3514,19 +3529,19 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingDirectiveDecl)
   __builtin_unreachable();
 }
 
-::pasta::Token UsingDirectiveDecl::IdentifierToken(void) const {
+::pasta::Token UsingDirectiveDecl::IdentifierToken(void) const noexcept {
   auto &self = *(u.UsingDirectiveDecl);
   auto val = self.getIdentLocation();
   return ast->TokenAt(val);
 }
 
-::pasta::Token UsingDirectiveDecl::NamespaceKeyToken(void) const {
+::pasta::Token UsingDirectiveDecl::NamespaceKeyToken(void) const noexcept {
   auto &self = *(u.UsingDirectiveDecl);
   auto val = self.getNamespaceKeyLocation();
   return ast->TokenAt(val);
 }
 
-::pasta::NamespaceDecl UsingDirectiveDecl::NominatedNamespace(void) const {
+::pasta::NamespaceDecl UsingDirectiveDecl::NominatedNamespace(void) const noexcept {
   auto &self = *(u.UsingDirectiveDecl);
   auto val = self.getNominatedNamespace();
   if (val) {
@@ -3536,7 +3551,7 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingDirectiveDecl)
   __builtin_unreachable();
 }
 
-::pasta::NamedDecl UsingDirectiveDecl::NominatedNamespaceAsWritten(void) const {
+::pasta::NamedDecl UsingDirectiveDecl::NominatedNamespaceAsWritten(void) const noexcept {
   auto &self = *(u.UsingDirectiveDecl);
   auto val = self.getNominatedNamespaceAsWritten();
   if (val) {
@@ -3548,11 +3563,7 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingDirectiveDecl)
 
 // 0: UsingDirectiveDecl::Qualifier
 // 0: UsingDirectiveDecl::QualifierToken
-::pasta::TokenRange UsingDirectiveDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.UsingDirectiveDecl);
-}
-
-::pasta::Token UsingDirectiveDecl::UsingToken(void) const {
+::pasta::Token UsingDirectiveDecl::UsingToken(void) const noexcept {
   auto &self = *(u.UsingDirectiveDecl);
   auto val = self.getUsingLoc();
   return ast->TokenAt(val);
@@ -3565,7 +3576,7 @@ UsingPackDecl::UsingPackDecl(
 
 PASTA_DEFINE_BASE_OPERATORS(Decl, UsingPackDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingPackDecl)
-std::vector<::pasta::NamedDecl> UsingPackDecl::Expansions(void) const {
+std::vector<::pasta::NamedDecl> UsingPackDecl::Expansions(void) const noexcept {
   auto &self = *(u.UsingPackDecl);
   auto val = self.expansions();
   std::vector<::pasta::NamedDecl> ret;
@@ -3575,7 +3586,7 @@ std::vector<::pasta::NamedDecl> UsingPackDecl::Expansions(void) const {
   return ret;
 }
 
-::pasta::UsingPackDecl UsingPackDecl::CanonicalDeclaration(void) const {
+::pasta::UsingPackDecl UsingPackDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.UsingPackDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -3585,7 +3596,7 @@ std::vector<::pasta::NamedDecl> UsingPackDecl::Expansions(void) const {
   __builtin_unreachable();
 }
 
-::pasta::NamedDecl UsingPackDecl::InstantiatedFromUsingDeclaration(void) const {
+::pasta::NamedDecl UsingPackDecl::InstantiatedFromUsingDeclaration(void) const noexcept {
   auto &self = *(u.UsingPackDecl);
   auto val = self.getInstantiatedFromUsingDecl();
   if (val) {
@@ -3593,10 +3604,6 @@ std::vector<::pasta::NamedDecl> UsingPackDecl::Expansions(void) const {
   }
   assert(false && "UsingPackDecl::InstantiatedFromUsingDeclaration can return nullptr!");
   __builtin_unreachable();
-}
-
-::pasta::TokenRange UsingPackDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.UsingPackDecl);
 }
 
 UsingShadowDecl::UsingShadowDecl(
@@ -3607,7 +3614,7 @@ UsingShadowDecl::UsingShadowDecl(
 PASTA_DEFINE_BASE_OPERATORS(Decl, UsingShadowDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingShadowDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(UsingShadowDecl, ConstructorUsingShadowDecl)
-::pasta::UsingShadowDecl UsingShadowDecl::CanonicalDeclaration(void) const {
+::pasta::UsingShadowDecl UsingShadowDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.UsingShadowDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -3617,7 +3624,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(UsingShadowDecl, ConstructorUsingShadowDecl)
   __builtin_unreachable();
 }
 
-::pasta::BaseUsingDecl UsingShadowDecl::Introducer(void) const {
+::pasta::BaseUsingDecl UsingShadowDecl::Introducer(void) const noexcept {
   auto &self = *(u.UsingShadowDecl);
   auto val = self.getIntroducer();
   if (val) {
@@ -3627,7 +3634,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(UsingShadowDecl, ConstructorUsingShadowDecl)
   __builtin_unreachable();
 }
 
-::pasta::UsingShadowDecl UsingShadowDecl::NextUsingShadowDeclaration(void) const {
+::pasta::UsingShadowDecl UsingShadowDecl::NextUsingShadowDeclaration(void) const noexcept {
   auto &self = *(u.UsingShadowDecl);
   auto val = self.getNextUsingShadowDecl();
   if (val) {
@@ -3637,7 +3644,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(UsingShadowDecl, ConstructorUsingShadowDecl)
   __builtin_unreachable();
 }
 
-::pasta::NamedDecl UsingShadowDecl::TargetDeclaration(void) const {
+::pasta::NamedDecl UsingShadowDecl::TargetDeclaration(void) const noexcept {
   auto &self = *(u.UsingShadowDecl);
   auto val = self.getTargetDecl();
   if (val) {
@@ -3682,13 +3689,13 @@ PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, UnresolvedUsingValueDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, VarDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, VarTemplatePartialSpecializationDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, VarTemplateSpecializationDecl)
-::pasta::Type ValueDecl::Type(void) const {
+::pasta::Type ValueDecl::Type(void) const noexcept {
   auto &self = *(u.ValueDecl);
   auto val = self.getType();
   return TypeBuilder::Build(ast, val);
 }
 
-bool ValueDecl::IsWeak(void) const {
+bool ValueDecl::IsWeak(void) const noexcept {
   auto &self = *(u.ValueDecl);
   auto val = self.isWeak();
   return val;
@@ -3758,20 +3765,16 @@ AccessSpecDecl::AccessSpecDecl(
     : Decl(std::move(ast_), decl_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Decl, AccessSpecDecl)
-::pasta::Token AccessSpecDecl::AccessSpecifierToken(void) const {
+::pasta::Token AccessSpecDecl::AccessSpecifierToken(void) const noexcept {
   auto &self = *(u.AccessSpecDecl);
   auto val = self.getAccessSpecifierLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Token AccessSpecDecl::ColonToken(void) const {
+::pasta::Token AccessSpecDecl::ColonToken(void) const noexcept {
   auto &self = *(u.AccessSpecDecl);
   auto val = self.getColonLoc();
   return ast->TokenAt(val);
-}
-
-::pasta::TokenRange AccessSpecDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.AccessSpecDecl);
 }
 
 BaseUsingDecl::BaseUsingDecl(
@@ -3786,7 +3789,16 @@ PASTA_DEFINE_DERIVED_OPERATORS(BaseUsingDecl, UsingEnumDecl)
 // 0: BaseUsingDecl::
 // 0: BaseUsingDecl::
 // 0: BaseUsingDecl::
-// 0: BaseUsingDecl::Shadows
+std::vector<::pasta::UsingShadowDecl> BaseUsingDecl::Shadows(void) const noexcept {
+  auto &self = *(u.BaseUsingDecl);
+  auto val = self.shadows();
+  std::vector<::pasta::UsingShadowDecl> ret;
+  for (auto decl_ptr : val) {
+    ret.emplace_back(DeclBuilder::Create<::pasta::UsingShadowDecl>(ast, decl_ptr));
+  }
+  return ret;
+}
+
 BindingDecl::BindingDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
@@ -3795,7 +3807,7 @@ BindingDecl::BindingDecl(
 PASTA_DEFINE_BASE_OPERATORS(Decl, BindingDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, BindingDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, BindingDecl)
-::pasta::Expr BindingDecl::Binding(void) const {
+::pasta::Expr BindingDecl::Binding(void) const noexcept {
   auto &self = *(u.BindingDecl);
   auto val = self.getBinding();
   if (val) {
@@ -3805,7 +3817,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, BindingDecl)
   __builtin_unreachable();
 }
 
-::pasta::ValueDecl BindingDecl::DecomposedDeclaration(void) const {
+::pasta::ValueDecl BindingDecl::DecomposedDeclaration(void) const noexcept {
   auto &self = *(u.BindingDecl);
   auto val = self.getDecomposedDecl();
   if (val) {
@@ -3815,7 +3827,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, BindingDecl)
   __builtin_unreachable();
 }
 
-::pasta::VarDecl BindingDecl::HoldingVariable(void) const {
+::pasta::VarDecl BindingDecl::HoldingVariable(void) const noexcept {
   auto &self = *(u.BindingDecl);
   auto val = self.getHoldingVar();
   if (val) {
@@ -3832,13 +3844,13 @@ BlockDecl::BlockDecl(
 
 PASTA_DEFINE_BASE_OPERATORS(DeclContext, BlockDecl)
 PASTA_DEFINE_BASE_OPERATORS(Decl, BlockDecl)
-bool BlockDecl::BlockMissingReturnType(void) const {
+bool BlockDecl::BlockMissingReturnType(void) const noexcept {
   auto &self = *(u.BlockDecl);
   auto val = self.blockMissingReturnType();
   return val;
 }
 
-bool BlockDecl::CanAvoidCopyToHeap(void) const {
+bool BlockDecl::CanAvoidCopyToHeap(void) const noexcept {
   auto &self = *(u.BlockDecl);
   auto val = self.canAvoidCopyToHeap();
   return val;
@@ -3847,20 +3859,20 @@ bool BlockDecl::CanAvoidCopyToHeap(void) const {
 // 0: BlockDecl::
 // 0: BlockDecl::
 // 0: BlockDecl::Captures
-bool BlockDecl::CapturesCXXThis(void) const {
+bool BlockDecl::CapturesCXXThis(void) const noexcept {
   auto &self = *(u.BlockDecl);
   auto val = self.capturesCXXThis();
   return val;
 }
 
 // 1: BlockDecl::CapturesVariable
-bool BlockDecl::DoesNotEscape(void) const {
+bool BlockDecl::DoesNotEscape(void) const noexcept {
   auto &self = *(u.BlockDecl);
   auto val = self.doesNotEscape();
   return val;
 }
 
-::pasta::Decl BlockDecl::BlockManglingContextDeclaration(void) const {
+::pasta::Decl BlockDecl::BlockManglingContextDeclaration(void) const noexcept {
   auto &self = *(u.BlockDecl);
   auto val = self.getBlockManglingContextDecl();
   if (val) {
@@ -3870,13 +3882,13 @@ bool BlockDecl::DoesNotEscape(void) const {
   __builtin_unreachable();
 }
 
-uint32_t BlockDecl::BlockManglingNumber(void) const {
+uint32_t BlockDecl::BlockManglingNumber(void) const noexcept {
   auto &self = *(u.BlockDecl);
   auto val = self.getBlockManglingNumber();
   return val;
 }
 
-::pasta::Stmt BlockDecl::Body(void) const {
+::pasta::Stmt BlockDecl::Body(void) const noexcept {
   auto &self = *(u.BlockDecl);
   auto val = self.getBody();
   if (val) {
@@ -3886,13 +3898,13 @@ uint32_t BlockDecl::BlockManglingNumber(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Token BlockDecl::CaretToken(void) const {
+::pasta::Token BlockDecl::CaretToken(void) const noexcept {
   auto &self = *(u.BlockDecl);
   auto val = self.getCaretLocation();
   return ast->TokenAt(val);
 }
 
-::pasta::CompoundStmt BlockDecl::CompoundBody(void) const {
+::pasta::CompoundStmt BlockDecl::CompoundBody(void) const noexcept {
   auto &self = *(u.BlockDecl);
   auto val = self.getCompoundBody();
   if (val) {
@@ -3902,37 +3914,39 @@ uint32_t BlockDecl::BlockManglingNumber(void) const {
   __builtin_unreachable();
 }
 
-uint32_t BlockDecl::NumCaptures(void) const {
+uint32_t BlockDecl::NumCaptures(void) const noexcept {
   auto &self = *(u.BlockDecl);
   auto val = self.getNumCaptures();
   return val;
 }
 
-uint32_t BlockDecl::NumParams(void) const {
+uint32_t BlockDecl::NumParams(void) const noexcept {
   auto &self = *(u.BlockDecl);
   auto val = self.getNumParams();
   return val;
 }
 
 // 1: BlockDecl::ParamDeclaration
-// 0: BlockDecl::SignatureAsWritten
-::pasta::TokenRange BlockDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.BlockDecl);
+::pasta::Type BlockDecl::SignatureAsWritten(void) const noexcept {
+  auto &self = *(u.BlockDecl);
+  auto val = self.getSignatureAsWritten();
+  return TypeBuilder::Build(ast, val->getType());  assert(false && "BlockDecl::SignatureAsWritten can return nullptr!");
+  __builtin_unreachable();
 }
 
-bool BlockDecl::HasCaptures(void) const {
+bool BlockDecl::HasCaptures(void) const noexcept {
   auto &self = *(u.BlockDecl);
   auto val = self.hasCaptures();
   return val;
 }
 
-bool BlockDecl::IsConversionFromLambda(void) const {
+bool BlockDecl::IsConversionFromLambda(void) const noexcept {
   auto &self = *(u.BlockDecl);
   auto val = self.isConversionFromLambda();
   return val;
 }
 
-bool BlockDecl::IsVariadic(void) const {
+bool BlockDecl::IsVariadic(void) const noexcept {
   auto &self = *(u.BlockDecl);
   auto val = self.isVariadic();
   return val;
@@ -3942,7 +3956,7 @@ bool BlockDecl::IsVariadic(void) const {
 // 0: BlockDecl::
 // 0: BlockDecl::
 // 0: BlockDecl::
-std::vector<::pasta::ParmVarDecl> BlockDecl::Parameters(void) const {
+std::vector<::pasta::ParmVarDecl> BlockDecl::Parameters(void) const noexcept {
   auto &self = *(u.BlockDecl);
   auto val = self.parameters();
   std::vector<::pasta::ParmVarDecl> ret;
@@ -3952,7 +3966,7 @@ std::vector<::pasta::ParmVarDecl> BlockDecl::Parameters(void) const {
   return ret;
 }
 
-std::vector<::pasta::ParmVarDecl> BlockDecl::ParamDeclarations(void) const {
+std::vector<::pasta::ParmVarDecl> BlockDecl::ParamDeclarations(void) const noexcept {
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
@@ -3977,10 +3991,6 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, BuiltinTemplateDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, BuiltinTemplateDecl)
 PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, BuiltinTemplateDecl)
 // 0: BuiltinTemplateDecl::BuiltinTemplateKind
-::pasta::TokenRange BuiltinTemplateDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.BuiltinTemplateDecl);
-}
-
 CapturedDecl::CapturedDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
@@ -3988,7 +3998,7 @@ CapturedDecl::CapturedDecl(
 
 PASTA_DEFINE_BASE_OPERATORS(DeclContext, CapturedDecl)
 PASTA_DEFINE_BASE_OPERATORS(Decl, CapturedDecl)
-::pasta::Stmt CapturedDecl::Body(void) const {
+::pasta::Stmt CapturedDecl::Body(void) const noexcept {
   auto &self = *(u.CapturedDecl);
   auto val = self.getBody();
   if (val) {
@@ -3998,7 +4008,7 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, CapturedDecl)
   __builtin_unreachable();
 }
 
-::pasta::ImplicitParamDecl CapturedDecl::ContextParam(void) const {
+::pasta::ImplicitParamDecl CapturedDecl::ContextParam(void) const noexcept {
   auto &self = *(u.CapturedDecl);
   auto val = self.getContextParam();
   if (val) {
@@ -4008,20 +4018,20 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, CapturedDecl)
   __builtin_unreachable();
 }
 
-uint32_t CapturedDecl::ContextParamPosition(void) const {
+uint32_t CapturedDecl::ContextParamPosition(void) const noexcept {
   auto &self = *(u.CapturedDecl);
   auto val = self.getContextParamPosition();
   return val;
 }
 
-uint32_t CapturedDecl::NumParams(void) const {
+uint32_t CapturedDecl::NumParams(void) const noexcept {
   auto &self = *(u.CapturedDecl);
   auto val = self.getNumParams();
   return val;
 }
 
 // 1: CapturedDecl::Param
-bool CapturedDecl::IsNothrow(void) const {
+bool CapturedDecl::IsNothrow(void) const noexcept {
   auto &self = *(u.CapturedDecl);
   auto val = self.isNothrow();
   return val;
@@ -4029,7 +4039,7 @@ bool CapturedDecl::IsNothrow(void) const {
 
 // 0: CapturedDecl::
 // 0: CapturedDecl::
-std::vector<::pasta::ImplicitParamDecl> CapturedDecl::Parameters(void) const {
+std::vector<::pasta::ImplicitParamDecl> CapturedDecl::Parameters(void) const noexcept {
   auto &self = *(u.CapturedDecl);
   auto val = self.parameters();
   std::vector<::pasta::ImplicitParamDecl> ret;
@@ -4039,7 +4049,7 @@ std::vector<::pasta::ImplicitParamDecl> CapturedDecl::Parameters(void) const {
   return ret;
 }
 
-std::vector<::pasta::ImplicitParamDecl> CapturedDecl::Params(void) const {
+std::vector<::pasta::ImplicitParamDecl> CapturedDecl::Params(void) const noexcept {
   auto convert_elem = [&] (clang::ImplicitParamDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::ImplicitParamDecl>(ast, val);
@@ -4061,7 +4071,7 @@ ClassScopeFunctionSpecializationDecl::ClassScopeFunctionSpecializationDecl(
     : Decl(std::move(ast_), decl_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Decl, ClassScopeFunctionSpecializationDecl)
-::pasta::CXXMethodDecl ClassScopeFunctionSpecializationDecl::Specialization(void) const {
+::pasta::CXXMethodDecl ClassScopeFunctionSpecializationDecl::Specialization(void) const noexcept {
   auto &self = *(u.ClassScopeFunctionSpecializationDecl);
   auto val = self.getSpecialization();
   if (val) {
@@ -4072,7 +4082,7 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, ClassScopeFunctionSpecializationDecl)
 }
 
 // 0: ClassScopeFunctionSpecializationDecl::TemplateArgumentsAsWritten
-bool ClassScopeFunctionSpecializationDecl::HasExplicitTemplateArguments(void) const {
+bool ClassScopeFunctionSpecializationDecl::HasExplicitTemplateArguments(void) const noexcept {
   auto &self = *(u.ClassScopeFunctionSpecializationDecl);
   auto val = self.hasExplicitTemplateArgs();
   return val;
@@ -4086,7 +4096,7 @@ ConceptDecl::ConceptDecl(
 PASTA_DEFINE_BASE_OPERATORS(Decl, ConceptDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ConceptDecl)
 PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, ConceptDecl)
-::pasta::ConceptDecl ConceptDecl::CanonicalDeclaration(void) const {
+::pasta::ConceptDecl ConceptDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.ConceptDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -4096,7 +4106,7 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, ConceptDecl)
   __builtin_unreachable();
 }
 
-::pasta::Expr ConceptDecl::ConstraintExpression(void) const {
+::pasta::Expr ConceptDecl::ConstraintExpression(void) const noexcept {
   auto &self = *(u.ConceptDecl);
   auto val = self.getConstraintExpr();
   if (val) {
@@ -4106,11 +4116,7 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, ConceptDecl)
   __builtin_unreachable();
 }
 
-::pasta::TokenRange ConceptDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.ConceptDecl);
-}
-
-bool ConceptDecl::IsTypeConcept(void) const {
+bool ConceptDecl::IsTypeConcept(void) const noexcept {
   auto &self = *(u.ConceptDecl);
   auto val = self.isTypeConcept();
   return val;
@@ -4124,13 +4130,13 @@ ConstructorUsingShadowDecl::ConstructorUsingShadowDecl(
 PASTA_DEFINE_BASE_OPERATORS(Decl, ConstructorUsingShadowDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ConstructorUsingShadowDecl)
 PASTA_DEFINE_BASE_OPERATORS(UsingShadowDecl, ConstructorUsingShadowDecl)
-bool ConstructorUsingShadowDecl::ConstructsVirtualBase(void) const {
+bool ConstructorUsingShadowDecl::ConstructsVirtualBase(void) const noexcept {
   auto &self = *(u.ConstructorUsingShadowDecl);
   auto val = self.constructsVirtualBase();
   return val;
 }
 
-::pasta::CXXRecordDecl ConstructorUsingShadowDecl::ConstructedBaseClass(void) const {
+::pasta::CXXRecordDecl ConstructorUsingShadowDecl::ConstructedBaseClass(void) const noexcept {
   auto &self = *(u.ConstructorUsingShadowDecl);
   auto val = self.getConstructedBaseClass();
   if (val) {
@@ -4140,7 +4146,7 @@ bool ConstructorUsingShadowDecl::ConstructsVirtualBase(void) const {
   __builtin_unreachable();
 }
 
-::pasta::ConstructorUsingShadowDecl ConstructorUsingShadowDecl::ConstructedBaseClassShadowDeclaration(void) const {
+::pasta::ConstructorUsingShadowDecl ConstructorUsingShadowDecl::ConstructedBaseClassShadowDeclaration(void) const noexcept {
   auto &self = *(u.ConstructorUsingShadowDecl);
   auto val = self.getConstructedBaseClassShadowDecl();
   if (val) {
@@ -4150,7 +4156,7 @@ bool ConstructorUsingShadowDecl::ConstructsVirtualBase(void) const {
   __builtin_unreachable();
 }
 
-::pasta::UsingDecl ConstructorUsingShadowDecl::Introducer(void) const {
+::pasta::UsingDecl ConstructorUsingShadowDecl::Introducer(void) const noexcept {
   auto &self = *(u.ConstructorUsingShadowDecl);
   auto val = self.getIntroducer();
   if (val) {
@@ -4160,7 +4166,7 @@ bool ConstructorUsingShadowDecl::ConstructsVirtualBase(void) const {
   __builtin_unreachable();
 }
 
-::pasta::CXXRecordDecl ConstructorUsingShadowDecl::NominatedBaseClass(void) const {
+::pasta::CXXRecordDecl ConstructorUsingShadowDecl::NominatedBaseClass(void) const noexcept {
   auto &self = *(u.ConstructorUsingShadowDecl);
   auto val = self.getNominatedBaseClass();
   if (val) {
@@ -4170,7 +4176,7 @@ bool ConstructorUsingShadowDecl::ConstructsVirtualBase(void) const {
   __builtin_unreachable();
 }
 
-::pasta::ConstructorUsingShadowDecl ConstructorUsingShadowDecl::NominatedBaseClassShadowDeclaration(void) const {
+::pasta::ConstructorUsingShadowDecl ConstructorUsingShadowDecl::NominatedBaseClassShadowDeclaration(void) const noexcept {
   auto &self = *(u.ConstructorUsingShadowDecl);
   auto val = self.getNominatedBaseClassShadowDecl();
   if (val) {
@@ -4180,7 +4186,7 @@ bool ConstructorUsingShadowDecl::ConstructsVirtualBase(void) const {
   __builtin_unreachable();
 }
 
-::pasta::CXXRecordDecl ConstructorUsingShadowDecl::Parent(void) const {
+::pasta::CXXRecordDecl ConstructorUsingShadowDecl::Parent(void) const noexcept {
   auto &self = *(u.ConstructorUsingShadowDecl);
   auto val = self.getParent();
   if (val) {
@@ -4216,25 +4222,25 @@ PASTA_DEFINE_DERIVED_OPERATORS(DeclaratorDecl, ParmVarDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(DeclaratorDecl, VarDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(DeclaratorDecl, VarTemplatePartialSpecializationDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(DeclaratorDecl, VarTemplateSpecializationDecl)
-::pasta::Token DeclaratorDecl::BeginToken(void) const {
+::pasta::Token DeclaratorDecl::BeginToken(void) const noexcept {
   auto &self = *(u.DeclaratorDecl);
   auto val = self.getBeginLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Token DeclaratorDecl::InnerTokenStart(void) const {
+::pasta::Token DeclaratorDecl::InnerTokenStart(void) const noexcept {
   auto &self = *(u.DeclaratorDecl);
   auto val = self.getInnerLocStart();
   return ast->TokenAt(val);
 }
 
-uint32_t DeclaratorDecl::NumTemplateParameterLists(void) const {
+uint32_t DeclaratorDecl::NumTemplateParameterLists(void) const noexcept {
   auto &self = *(u.DeclaratorDecl);
   auto val = self.getNumTemplateParameterLists();
   return val;
 }
 
-::pasta::Token DeclaratorDecl::OuterTokenStart(void) const {
+::pasta::Token DeclaratorDecl::OuterTokenStart(void) const noexcept {
   auto &self = *(u.DeclaratorDecl);
   auto val = self.getOuterLocStart();
   return ast->TokenAt(val);
@@ -4242,12 +4248,8 @@ uint32_t DeclaratorDecl::NumTemplateParameterLists(void) const {
 
 // 0: DeclaratorDecl::Qualifier
 // 0: DeclaratorDecl::QualifierToken
-::pasta::TokenRange DeclaratorDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.DeclaratorDecl);
-}
-
 // 1: DeclaratorDecl::TemplateParameterList
-::pasta::Expr DeclaratorDecl::TrailingRequiresClause(void) const {
+::pasta::Expr DeclaratorDecl::TrailingRequiresClause(void) const noexcept {
   auto &self = *(u.DeclaratorDecl);
   auto val = self.getTrailingRequiresClause();
   if (val) {
@@ -4257,17 +4259,36 @@ uint32_t DeclaratorDecl::NumTemplateParameterLists(void) const {
   __builtin_unreachable();
 }
 
-// 0: DeclaratorDecl::TypeSourceInfo
-::pasta::Token DeclaratorDecl::TypeSpecEndToken(void) const {
+::pasta::Type DeclaratorDecl::TypeSourceInfo(void) const noexcept {
+  auto &self = *(u.DeclaratorDecl);
+  auto val = self.getTypeSourceInfo();
+  return TypeBuilder::Build(ast, val->getType());  assert(false && "DeclaratorDecl::TypeSourceInfo can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::Token DeclaratorDecl::TypeSpecEndToken(void) const noexcept {
   auto &self = *(u.DeclaratorDecl);
   auto val = self.getTypeSpecEndLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Token DeclaratorDecl::TypeSpecStartToken(void) const {
+::pasta::Token DeclaratorDecl::TypeSpecStartToken(void) const noexcept {
   auto &self = *(u.DeclaratorDecl);
   auto val = self.getTypeSpecStartLoc();
   return ast->TokenAt(val);
+}
+
+std::vector<::pasta::TemplateParameterList> DeclaratorDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.DeclaratorDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.DeclaratorDecl->getTemplateParameterList(i)));
+  }
+  return ret;
 }
 
 EnumConstantDecl::EnumConstantDecl(
@@ -4278,7 +4299,7 @@ EnumConstantDecl::EnumConstantDecl(
 PASTA_DEFINE_BASE_OPERATORS(Decl, EnumConstantDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, EnumConstantDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, EnumConstantDecl)
-::pasta::EnumConstantDecl EnumConstantDecl::CanonicalDeclaration(void) const {
+::pasta::EnumConstantDecl EnumConstantDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.EnumConstantDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -4288,7 +4309,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, EnumConstantDecl)
   __builtin_unreachable();
 }
 
-::pasta::Expr EnumConstantDecl::InitializerExpression(void) const {
+::pasta::Expr EnumConstantDecl::InitializerExpression(void) const noexcept {
   auto &self = *(u.EnumConstantDecl);
   auto val = self.getInitExpr();
   if (val) {
@@ -4298,14 +4319,10 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, EnumConstantDecl)
   __builtin_unreachable();
 }
 
-llvm::APSInt EnumConstantDecl::InitializerVal(void) const {
+llvm::APSInt EnumConstantDecl::InitializerVal(void) const noexcept {
   auto &self = *(u.EnumConstantDecl);
   auto val = self.getInitVal();
   return val;
-}
-
-::pasta::TokenRange EnumConstantDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.EnumConstantDecl);
 }
 
 FieldDecl::FieldDecl(
@@ -4319,7 +4336,7 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, FieldDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, FieldDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FieldDecl, ObjCAtDefsFieldDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FieldDecl, ObjCIvarDecl)
-::pasta::Expr FieldDecl::BitWidth(void) const {
+::pasta::Expr FieldDecl::BitWidth(void) const noexcept {
   auto &self = *(u.FieldDecl);
   auto val = self.getBitWidth();
   if (val) {
@@ -4329,13 +4346,13 @@ PASTA_DEFINE_DERIVED_OPERATORS(FieldDecl, ObjCIvarDecl)
   __builtin_unreachable();
 }
 
-uint32_t FieldDecl::BitWidthValue(void) const {
+uint32_t FieldDecl::BitWidthValue(void) const noexcept {
   auto &self = *(u.FieldDecl);
   auto val = self.getBitWidthValue(ast->ci->getASTContext());
   return val;
 }
 
-::pasta::FieldDecl FieldDecl::CanonicalDeclaration(void) const {
+::pasta::FieldDecl FieldDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.FieldDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -4345,7 +4362,7 @@ uint32_t FieldDecl::BitWidthValue(void) const {
   __builtin_unreachable();
 }
 
-::pasta::VariableArrayType FieldDecl::CapturedVLAType(void) const {
+::pasta::VariableArrayType FieldDecl::CapturedVLAType(void) const noexcept {
   auto &self = *(u.FieldDecl);
   auto val = self.getCapturedVLAType();
   if (val) {
@@ -4355,19 +4372,19 @@ uint32_t FieldDecl::BitWidthValue(void) const {
   __builtin_unreachable();
 }
 
-uint32_t FieldDecl::FieldIndex(void) const {
+uint32_t FieldDecl::FieldIndex(void) const noexcept {
   auto &self = *(u.FieldDecl);
   auto val = self.getFieldIndex();
   return val;
 }
 
-enum InClassInitStyle FieldDecl::InClassInitializerStyle(void) const {
+enum InClassInitStyle FieldDecl::InClassInitializerStyle(void) const noexcept {
   auto &self = *(u.FieldDecl);
   auto val = self.getInClassInitStyle();
   return static_cast<::pasta::InClassInitStyle>(static_cast<unsigned int>(val));
 }
 
-::pasta::Expr FieldDecl::InClassInitializer(void) const {
+::pasta::Expr FieldDecl::InClassInitializer(void) const noexcept {
   auto &self = *(u.FieldDecl);
   auto val = self.getInClassInitializer();
   if (val) {
@@ -4377,7 +4394,7 @@ enum InClassInitStyle FieldDecl::InClassInitializerStyle(void) const {
   __builtin_unreachable();
 }
 
-::pasta::RecordDecl FieldDecl::Parent(void) const {
+::pasta::RecordDecl FieldDecl::Parent(void) const noexcept {
   auto &self = *(u.FieldDecl);
   auto val = self.getParent();
   if (val) {
@@ -4387,56 +4404,65 @@ enum InClassInitStyle FieldDecl::InClassInitializerStyle(void) const {
   __builtin_unreachable();
 }
 
-::pasta::TokenRange FieldDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.FieldDecl);
-}
-
-bool FieldDecl::HasCapturedVLAType(void) const {
+bool FieldDecl::HasCapturedVLAType(void) const noexcept {
   auto &self = *(u.FieldDecl);
   auto val = self.hasCapturedVLAType();
   return val;
 }
 
-bool FieldDecl::HasInClassInitializer(void) const {
+bool FieldDecl::HasInClassInitializer(void) const noexcept {
   auto &self = *(u.FieldDecl);
   auto val = self.hasInClassInitializer();
   return val;
 }
 
-bool FieldDecl::IsAnonymousStructOrUnion(void) const {
+bool FieldDecl::IsAnonymousStructOrUnion(void) const noexcept {
   auto &self = *(u.FieldDecl);
   auto val = self.isAnonymousStructOrUnion();
   return val;
 }
 
-bool FieldDecl::IsBitField(void) const {
+bool FieldDecl::IsBitField(void) const noexcept {
   auto &self = *(u.FieldDecl);
   auto val = self.isBitField();
   return val;
 }
 
-bool FieldDecl::IsMutable(void) const {
+bool FieldDecl::IsMutable(void) const noexcept {
   auto &self = *(u.FieldDecl);
   auto val = self.isMutable();
   return val;
 }
 
-bool FieldDecl::IsUnnamedBitfield(void) const {
+bool FieldDecl::IsUnnamedBitfield(void) const noexcept {
   auto &self = *(u.FieldDecl);
   auto val = self.isUnnamedBitfield();
   return val;
 }
 
-bool FieldDecl::IsZeroLengthBitField(void) const {
+bool FieldDecl::IsZeroLengthBitField(void) const noexcept {
   auto &self = *(u.FieldDecl);
   auto val = self.isZeroLengthBitField(ast->ci->getASTContext());
   return val;
 }
 
-bool FieldDecl::IsZeroSize(void) const {
+bool FieldDecl::IsZeroSize(void) const noexcept {
   auto &self = *(u.FieldDecl);
   auto val = self.isZeroSize(ast->ci->getASTContext());
   return val;
+}
+
+std::vector<::pasta::TemplateParameterList> FieldDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.FieldDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.FieldDecl->getTemplateParameterList(i)));
+  }
+  return ret;
 }
 
 FunctionDecl::FunctionDecl(
@@ -4454,31 +4480,31 @@ PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXConversionDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXDeductionGuideDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXDestructorDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXMethodDecl)
-bool FunctionDecl::DoesDeclarationForceExternallyVisibleDefinition(void) const {
+bool FunctionDecl::DoesDeclarationForceExternallyVisibleDefinition(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.doesDeclarationForceExternallyVisibleDefinition();
   return val;
 }
 
-bool FunctionDecl::DoesThisDeclarationHaveABody(void) const {
+bool FunctionDecl::DoesThisDeclarationHaveABody(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.doesThisDeclarationHaveABody();
   return val;
 }
 
-uint32_t FunctionDecl::BuiltinID(void) const {
+uint32_t FunctionDecl::BuiltinID(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getBuiltinID();
   return val;
 }
 
-::pasta::Type FunctionDecl::CallResultType(void) const {
+::pasta::Type FunctionDecl::CallResultType(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getCallResultType();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::FunctionDecl FunctionDecl::CanonicalDeclaration(void) const {
+::pasta::FunctionDecl FunctionDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -4488,20 +4514,20 @@ uint32_t FunctionDecl::BuiltinID(void) const {
   __builtin_unreachable();
 }
 
-enum ConstexprSpecKind FunctionDecl::ConstexprKind(void) const {
+enum ConstexprSpecKind FunctionDecl::ConstexprKind(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getConstexprKind();
   return static_cast<::pasta::ConstexprSpecKind>(static_cast<int>(val));
 }
 
-::pasta::Type FunctionDecl::DeclaredReturnType(void) const {
+::pasta::Type FunctionDecl::DeclaredReturnType(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getDeclaredReturnType();
   return TypeBuilder::Build(ast, val);
 }
 
 // 0: FunctionDecl::DefaultedFunctionInfo
-::pasta::FunctionDecl FunctionDecl::Definition(void) const {
+::pasta::FunctionDecl FunctionDecl::Definition(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getDefinition();
   if (val) {
@@ -4512,7 +4538,7 @@ enum ConstexprSpecKind FunctionDecl::ConstexprKind(void) const {
 }
 
 // 0: FunctionDecl::DependentSpecializationInfo
-::pasta::FunctionTemplateDecl FunctionDecl::DescribedFunctionTemplate(void) const {
+::pasta::FunctionTemplateDecl FunctionDecl::DescribedFunctionTemplate(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getDescribedFunctionTemplate();
   if (val) {
@@ -4522,26 +4548,26 @@ enum ConstexprSpecKind FunctionDecl::ConstexprKind(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Token FunctionDecl::EllipsisToken(void) const {
+::pasta::Token FunctionDecl::EllipsisToken(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getEllipsisLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::TokenRange FunctionDecl::ExceptionSpecSourceRange(void) const {
+::pasta::TokenRange FunctionDecl::ExceptionSpecSourceRange(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getExceptionSpecSourceRange();
   return ast->TokenRangeFrom(val);
 }
 
-enum ExceptionSpecificationType FunctionDecl::ExceptionSpecType(void) const {
+enum ExceptionSpecificationType FunctionDecl::ExceptionSpecType(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getExceptionSpecType();
   return static_cast<::pasta::ExceptionSpecificationType>(static_cast<unsigned int>(val));
 }
 
 // 0: FunctionDecl::FunctionTypeToken
-::pasta::FunctionDecl FunctionDecl::InstantiatedFromMemberFunction(void) const {
+::pasta::FunctionDecl FunctionDecl::InstantiatedFromMemberFunction(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getInstantiatedFromMemberFunction();
   if (val) {
@@ -4551,7 +4577,7 @@ enum ExceptionSpecificationType FunctionDecl::ExceptionSpecType(void) const {
   __builtin_unreachable();
 }
 
-enum LanguageLinkage FunctionDecl::LanguageLinkage(void) const {
+enum LanguageLinkage FunctionDecl::LanguageLinkage(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getLanguageLinkage();
   return static_cast<::pasta::LanguageLinkage>(static_cast<unsigned int>(val));
@@ -4559,57 +4585,57 @@ enum LanguageLinkage FunctionDecl::LanguageLinkage(void) const {
 
 // 0: FunctionDecl::LiteralIdentifier
 // 0: FunctionDecl::MemberSpecializationInfo
-uint32_t FunctionDecl::MemoryFunctionKind(void) const {
+uint32_t FunctionDecl::MemoryFunctionKind(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getMemoryFunctionKind();
   return val;
 }
 
-uint32_t FunctionDecl::MinRequiredArguments(void) const {
+uint32_t FunctionDecl::MinRequiredArguments(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getMinRequiredArguments();
   return val;
 }
 
-enum MultiVersionKind FunctionDecl::MultiVersionKind(void) const {
+enum MultiVersionKind FunctionDecl::MultiVersionKind(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getMultiVersionKind();
   return static_cast<::pasta::MultiVersionKind>(static_cast<int>(val));
 }
 
 // 0: FunctionDecl::NameInfo
-uint32_t FunctionDecl::NumParams(void) const {
+uint32_t FunctionDecl::NumParams(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getNumParams();
   return val;
 }
 
-uint32_t FunctionDecl::ODRHash(void) const {
+uint32_t FunctionDecl::ODRHash(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getODRHash();
   return val;
 }
 
-enum OverloadedOperatorKind FunctionDecl::OverloadedOperator(void) const {
+enum OverloadedOperatorKind FunctionDecl::OverloadedOperator(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getOverloadedOperator();
   return static_cast<::pasta::OverloadedOperatorKind>(static_cast<int>(val));
 }
 
 // 1: FunctionDecl::ParamDeclaration
-::pasta::TokenRange FunctionDecl::ParametersSourceRange(void) const {
+::pasta::TokenRange FunctionDecl::ParametersSourceRange(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getParametersSourceRange();
   return ast->TokenRangeFrom(val);
 }
 
-::pasta::Token FunctionDecl::PointOfInstantiation(void) const {
+::pasta::Token FunctionDecl::PointOfInstantiation(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getPointOfInstantiation();
   return ast->TokenAt(val);
 }
 
-::pasta::FunctionTemplateDecl FunctionDecl::PrimaryTemplate(void) const {
+::pasta::FunctionTemplateDecl FunctionDecl::PrimaryTemplate(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getPrimaryTemplate();
   if (val) {
@@ -4619,29 +4645,25 @@ enum OverloadedOperatorKind FunctionDecl::OverloadedOperator(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Type FunctionDecl::ReturnType(void) const {
+::pasta::Type FunctionDecl::ReturnType(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getReturnType();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::TokenRange FunctionDecl::ReturnTypeSourceRange(void) const {
+::pasta::TokenRange FunctionDecl::ReturnTypeSourceRange(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getReturnTypeSourceRange();
   return ast->TokenRangeFrom(val);
 }
 
-::pasta::TokenRange FunctionDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.FunctionDecl);
-}
-
-enum StorageClass FunctionDecl::StorageClass(void) const {
+enum StorageClass FunctionDecl::StorageClass(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getStorageClass();
   return static_cast<::pasta::StorageClass>(static_cast<unsigned int>(val));
 }
 
-::pasta::FunctionDecl FunctionDecl::TemplateInstantiationPattern(void) const {
+::pasta::FunctionDecl FunctionDecl::TemplateInstantiationPattern(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getTemplateInstantiationPattern();
   if (val) {
@@ -4654,308 +4676,308 @@ enum StorageClass FunctionDecl::StorageClass(void) const {
 // 0: FunctionDecl::TemplateSpecializationArguments
 // 0: FunctionDecl::TemplateSpecializationArgumentsAsWritten
 // 0: FunctionDecl::TemplateSpecializationInfo
-enum TemplateSpecializationKind FunctionDecl::TemplateSpecializationKind(void) const {
+enum TemplateSpecializationKind FunctionDecl::TemplateSpecializationKind(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getTemplateSpecializationKind();
   return static_cast<::pasta::TemplateSpecializationKind>(static_cast<unsigned int>(val));
 }
 
-enum TemplateSpecializationKind FunctionDecl::TemplateSpecializationKindForInstantiation(void) const {
+enum TemplateSpecializationKind FunctionDecl::TemplateSpecializationKindForInstantiation(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.getTemplateSpecializationKindForInstantiation();
   return static_cast<::pasta::TemplateSpecializationKind>(static_cast<unsigned int>(val));
 }
 
 // 0: FunctionDecl::TemplatedKind
-bool FunctionDecl::HasImplicitReturnZero(void) const {
+bool FunctionDecl::HasImplicitReturnZero(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.hasImplicitReturnZero();
   return val;
 }
 
-bool FunctionDecl::HasInheritedPrototype(void) const {
+bool FunctionDecl::HasInheritedPrototype(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.hasInheritedPrototype();
   return val;
 }
 
-bool FunctionDecl::HasOneParamOrDefaultArguments(void) const {
+bool FunctionDecl::HasOneParamOrDefaultArguments(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.hasOneParamOrDefaultArgs();
   return val;
 }
 
-bool FunctionDecl::HasPrototype(void) const {
+bool FunctionDecl::HasPrototype(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.hasPrototype();
   return val;
 }
 
-bool FunctionDecl::HasSkippedBody(void) const {
+bool FunctionDecl::HasSkippedBody(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.hasSkippedBody();
   return val;
 }
 
-bool FunctionDecl::HasTrivialBody(void) const {
+bool FunctionDecl::HasTrivialBody(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.hasTrivialBody();
   return val;
 }
 
-bool FunctionDecl::HasWrittenPrototype(void) const {
+bool FunctionDecl::HasWrittenPrototype(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.hasWrittenPrototype();
   return val;
 }
 
-bool FunctionDecl::InstantiationIsPending(void) const {
+bool FunctionDecl::InstantiationIsPending(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.instantiationIsPending();
   return val;
 }
 
-bool FunctionDecl::IsCPUDispatchMultiVersion(void) const {
+bool FunctionDecl::IsCPUDispatchMultiVersion(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isCPUDispatchMultiVersion();
   return val;
 }
 
-bool FunctionDecl::IsCPUSpecificMultiVersion(void) const {
+bool FunctionDecl::IsCPUSpecificMultiVersion(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isCPUSpecificMultiVersion();
   return val;
 }
 
-bool FunctionDecl::IsConsteval(void) const {
+bool FunctionDecl::IsConsteval(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isConsteval();
   return val;
 }
 
-bool FunctionDecl::IsConstexpr(void) const {
+bool FunctionDecl::IsConstexpr(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isConstexpr();
   return val;
 }
 
-bool FunctionDecl::IsConstexprSpecified(void) const {
+bool FunctionDecl::IsConstexprSpecified(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isConstexprSpecified();
   return val;
 }
 
-bool FunctionDecl::IsDefaulted(void) const {
+bool FunctionDecl::IsDefaulted(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isDefaulted();
   return val;
 }
 
-bool FunctionDecl::IsDeleted(void) const {
+bool FunctionDecl::IsDeleted(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isDeleted();
   return val;
 }
 
-bool FunctionDecl::IsDeletedAsWritten(void) const {
+bool FunctionDecl::IsDeletedAsWritten(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isDeletedAsWritten();
   return val;
 }
 
-bool FunctionDecl::IsDestroyingOperatorDelete(void) const {
+bool FunctionDecl::IsDestroyingOperatorDelete(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isDestroyingOperatorDelete();
   return val;
 }
 
-bool FunctionDecl::IsExplicitlyDefaulted(void) const {
+bool FunctionDecl::IsExplicitlyDefaulted(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isExplicitlyDefaulted();
   return val;
 }
 
-bool FunctionDecl::IsExternC(void) const {
+bool FunctionDecl::IsExternC(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isExternC();
   return val;
 }
 
-bool FunctionDecl::IsFunctionTemplateSpecialization(void) const {
+bool FunctionDecl::IsFunctionTemplateSpecialization(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isFunctionTemplateSpecialization();
   return val;
 }
 
-bool FunctionDecl::IsGlobal(void) const {
+bool FunctionDecl::IsGlobal(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isGlobal();
   return val;
 }
 
-bool FunctionDecl::IsImplicitlyInstantiable(void) const {
+bool FunctionDecl::IsImplicitlyInstantiable(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isImplicitlyInstantiable();
   return val;
 }
 
-bool FunctionDecl::IsInExternCContext(void) const {
+bool FunctionDecl::IsInExternCContext(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isInExternCContext();
   return val;
 }
 
-bool FunctionDecl::IsInExternCXXContext(void) const {
+bool FunctionDecl::IsInExternCXXContext(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isInExternCXXContext();
   return val;
 }
 
-bool FunctionDecl::IsInlineBuiltinDeclaration(void) const {
+bool FunctionDecl::IsInlineBuiltinDeclaration(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isInlineBuiltinDeclaration();
   return val;
 }
 
-bool FunctionDecl::IsInlineDefinitionExternallyVisible(void) const {
+bool FunctionDecl::IsInlineDefinitionExternallyVisible(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isInlineDefinitionExternallyVisible();
   return val;
 }
 
-bool FunctionDecl::IsInlineSpecified(void) const {
+bool FunctionDecl::IsInlineSpecified(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isInlineSpecified();
   return val;
 }
 
-bool FunctionDecl::IsInlined(void) const {
+bool FunctionDecl::IsInlined(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isInlined();
   return val;
 }
 
-bool FunctionDecl::IsLateTemplateParsed(void) const {
+bool FunctionDecl::IsLateTemplateParsed(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isLateTemplateParsed();
   return val;
 }
 
-bool FunctionDecl::IsMSExternInline(void) const {
+bool FunctionDecl::IsMSExternInline(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isMSExternInline();
   return val;
 }
 
-bool FunctionDecl::IsMSVCRTEntryPoint(void) const {
+bool FunctionDecl::IsMSVCRTEntryPoint(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isMSVCRTEntryPoint();
   return val;
 }
 
-bool FunctionDecl::IsMain(void) const {
+bool FunctionDecl::IsMain(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isMain();
   return val;
 }
 
-bool FunctionDecl::IsMultiVersion(void) const {
+bool FunctionDecl::IsMultiVersion(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isMultiVersion();
   return val;
 }
 
-bool FunctionDecl::IsNoReturn(void) const {
+bool FunctionDecl::IsNoReturn(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isNoReturn();
   return val;
 }
 
-bool FunctionDecl::IsOutOfLine(void) const {
+bool FunctionDecl::IsOutOfLine(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isOutOfLine();
   return val;
 }
 
-bool FunctionDecl::IsOverloadedOperator(void) const {
+bool FunctionDecl::IsOverloadedOperator(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isOverloadedOperator();
   return val;
 }
 
-bool FunctionDecl::IsPure(void) const {
+bool FunctionDecl::IsPure(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isPure();
   return val;
 }
 
-bool FunctionDecl::IsReplaceableGlobalAllocationFunction(void) const {
+bool FunctionDecl::IsReplaceableGlobalAllocationFunction(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isReplaceableGlobalAllocationFunction();
   return val;
 }
 
-bool FunctionDecl::IsReservedGlobalPlacementOperator(void) const {
+bool FunctionDecl::IsReservedGlobalPlacementOperator(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isReservedGlobalPlacementOperator();
   return val;
 }
 
-bool FunctionDecl::IsStatic(void) const {
+bool FunctionDecl::IsStatic(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isStatic();
   return val;
 }
 
-bool FunctionDecl::IsTargetMultiVersion(void) const {
+bool FunctionDecl::IsTargetMultiVersion(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isTargetMultiVersion();
   return val;
 }
 
-bool FunctionDecl::IsTemplateInstantiation(void) const {
+bool FunctionDecl::IsTemplateInstantiation(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isTemplateInstantiation();
   return val;
 }
 
-bool FunctionDecl::IsThisDeclarationADefinition(void) const {
+bool FunctionDecl::IsThisDeclarationADefinition(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isThisDeclarationADefinition();
   return val;
 }
 
-bool FunctionDecl::IsThisDeclarationInstantiatedFromAFriendDefinition(void) const {
+bool FunctionDecl::IsThisDeclarationInstantiatedFromAFriendDefinition(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isThisDeclarationInstantiatedFromAFriendDefinition();
   return val;
 }
 
-bool FunctionDecl::IsTrivial(void) const {
+bool FunctionDecl::IsTrivial(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isTrivial();
   return val;
 }
 
-bool FunctionDecl::IsTrivialForCall(void) const {
+bool FunctionDecl::IsTrivialForCall(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isTrivialForCall();
   return val;
 }
 
-bool FunctionDecl::IsUserProvided(void) const {
+bool FunctionDecl::IsUserProvided(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isUserProvided();
   return val;
 }
 
-bool FunctionDecl::IsVariadic(void) const {
+bool FunctionDecl::IsVariadic(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isVariadic();
   return val;
 }
 
-bool FunctionDecl::IsVirtualAsWritten(void) const {
+bool FunctionDecl::IsVirtualAsWritten(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isVirtualAsWritten();
   return val;
@@ -4965,7 +4987,7 @@ bool FunctionDecl::IsVirtualAsWritten(void) const {
 // 0: FunctionDecl::
 // 0: FunctionDecl::
 // 0: FunctionDecl::
-std::vector<::pasta::ParmVarDecl> FunctionDecl::Parameters(void) const {
+std::vector<::pasta::ParmVarDecl> FunctionDecl::Parameters(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.parameters();
   std::vector<::pasta::ParmVarDecl> ret;
@@ -4975,19 +4997,32 @@ std::vector<::pasta::ParmVarDecl> FunctionDecl::Parameters(void) const {
   return ret;
 }
 
-bool FunctionDecl::UsesSEHTry(void) const {
+bool FunctionDecl::UsesSEHTry(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.usesSEHTry();
   return val;
 }
 
-bool FunctionDecl::WillHaveBody(void) const {
+bool FunctionDecl::WillHaveBody(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.willHaveBody();
   return val;
 }
 
-std::vector<::pasta::ParmVarDecl> FunctionDecl::ParamDeclarations(void) const {
+std::vector<::pasta::TemplateParameterList> FunctionDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.FunctionDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.FunctionDecl->getTemplateParameterList(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::ParmVarDecl> FunctionDecl::ParamDeclarations(void) const noexcept {
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
@@ -5011,7 +5046,7 @@ IndirectFieldDecl::IndirectFieldDecl(
 PASTA_DEFINE_BASE_OPERATORS(Decl, IndirectFieldDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, IndirectFieldDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, IndirectFieldDecl)
-std::vector<::pasta::NamedDecl> IndirectFieldDecl::Chain(void) const {
+std::vector<::pasta::NamedDecl> IndirectFieldDecl::Chain(void) const noexcept {
   auto &self = *(u.IndirectFieldDecl);
   auto val = self.chain();
   std::vector<::pasta::NamedDecl> ret;
@@ -5023,7 +5058,7 @@ std::vector<::pasta::NamedDecl> IndirectFieldDecl::Chain(void) const {
 
 // 0: IndirectFieldDecl::
 // 0: IndirectFieldDecl::
-::pasta::FieldDecl IndirectFieldDecl::AnonymousField(void) const {
+::pasta::FieldDecl IndirectFieldDecl::AnonymousField(void) const noexcept {
   auto &self = *(u.IndirectFieldDecl);
   auto val = self.getAnonField();
   if (val) {
@@ -5033,7 +5068,7 @@ std::vector<::pasta::NamedDecl> IndirectFieldDecl::Chain(void) const {
   __builtin_unreachable();
 }
 
-::pasta::IndirectFieldDecl IndirectFieldDecl::CanonicalDeclaration(void) const {
+::pasta::IndirectFieldDecl IndirectFieldDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.IndirectFieldDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -5043,13 +5078,13 @@ std::vector<::pasta::NamedDecl> IndirectFieldDecl::Chain(void) const {
   __builtin_unreachable();
 }
 
-uint32_t IndirectFieldDecl::ChainingSize(void) const {
+uint32_t IndirectFieldDecl::ChainingSize(void) const noexcept {
   auto &self = *(u.IndirectFieldDecl);
   auto val = self.getChainingSize();
   return val;
 }
 
-::pasta::VarDecl IndirectFieldDecl::VariableDeclaration(void) const {
+::pasta::VarDecl IndirectFieldDecl::VariableDeclaration(void) const noexcept {
   auto &self = *(u.IndirectFieldDecl);
   auto val = self.getVarDecl();
   if (val) {
@@ -5066,7 +5101,7 @@ LabelDecl::LabelDecl(
 
 PASTA_DEFINE_BASE_OPERATORS(Decl, LabelDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, LabelDecl)
-std::string_view LabelDecl::MSAssemblyLabel(void) const {
+std::string_view LabelDecl::MSAssemblyLabel(void) const noexcept {
   auto &self = *(u.LabelDecl);
   auto val = self.getMSAsmLabel();
   if (auto size = val.size()) {
@@ -5076,11 +5111,7 @@ std::string_view LabelDecl::MSAssemblyLabel(void) const {
   }
 }
 
-::pasta::TokenRange LabelDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.LabelDecl);
-}
-
-::pasta::LabelStmt LabelDecl::Statement(void) const {
+::pasta::LabelStmt LabelDecl::Statement(void) const noexcept {
   auto &self = *(u.LabelDecl);
   auto val = self.getStmt();
   if (val) {
@@ -5090,19 +5121,19 @@ std::string_view LabelDecl::MSAssemblyLabel(void) const {
   __builtin_unreachable();
 }
 
-bool LabelDecl::IsGnuLocal(void) const {
+bool LabelDecl::IsGnuLocal(void) const noexcept {
   auto &self = *(u.LabelDecl);
   auto val = self.isGnuLocal();
   return val;
 }
 
-bool LabelDecl::IsMSAssemblyLabel(void) const {
+bool LabelDecl::IsMSAssemblyLabel(void) const noexcept {
   auto &self = *(u.LabelDecl);
   auto val = self.isMSAsmLabel();
   return val;
 }
 
-bool LabelDecl::IsResolvedMSAssemblyLabel(void) const {
+bool LabelDecl::IsResolvedMSAssemblyLabel(void) const noexcept {
   auto &self = *(u.LabelDecl);
   auto val = self.isResolvedMSAsmLabel();
   return val;
@@ -5129,16 +5160,29 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, MSPropertyDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, MSPropertyDecl)
 // 0: MSPropertyDecl::GetterId
 // 0: MSPropertyDecl::SetterId
-bool MSPropertyDecl::HasGetter(void) const {
+bool MSPropertyDecl::HasGetter(void) const noexcept {
   auto &self = *(u.MSPropertyDecl);
   auto val = self.hasGetter();
   return val;
 }
 
-bool MSPropertyDecl::HasSetter(void) const {
+bool MSPropertyDecl::HasSetter(void) const noexcept {
   auto &self = *(u.MSPropertyDecl);
   auto val = self.hasSetter();
   return val;
+}
+
+std::vector<::pasta::TemplateParameterList> MSPropertyDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.MSPropertyDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.MSPropertyDecl->getTemplateParameterList(i)));
+  }
+  return ret;
 }
 
 NonTypeTemplateParmDecl::NonTypeTemplateParmDecl(
@@ -5150,14 +5194,14 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, NonTypeTemplateParmDecl)
 PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, NonTypeTemplateParmDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, NonTypeTemplateParmDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, NonTypeTemplateParmDecl)
-bool NonTypeTemplateParmDecl::DefaultArgumentWasInherited(void) const {
+bool NonTypeTemplateParmDecl::DefaultArgumentWasInherited(void) const noexcept {
   auto &self = *(u.NonTypeTemplateParmDecl);
   auto val = self.defaultArgumentWasInherited();
   return val;
 }
 
 // 0: NonTypeTemplateParmDecl::DefaultArgumentStorage
-::pasta::Expr NonTypeTemplateParmDecl::DefaultArgument(void) const {
+::pasta::Expr NonTypeTemplateParmDecl::DefaultArgument(void) const noexcept {
   auto &self = *(u.NonTypeTemplateParmDecl);
   auto val = self.getDefaultArgument();
   if (val) {
@@ -5167,7 +5211,7 @@ bool NonTypeTemplateParmDecl::DefaultArgumentWasInherited(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Token NonTypeTemplateParmDecl::DefaultArgumentToken(void) const {
+::pasta::Token NonTypeTemplateParmDecl::DefaultArgumentToken(void) const noexcept {
   auto &self = *(u.NonTypeTemplateParmDecl);
   auto val = self.getDefaultArgumentLoc();
   return ast->TokenAt(val);
@@ -5175,13 +5219,13 @@ bool NonTypeTemplateParmDecl::DefaultArgumentWasInherited(void) const {
 
 // 1: NonTypeTemplateParmDecl::ExpansionType
 // 1: NonTypeTemplateParmDecl::ExpansionTypeSourceInfo
-uint32_t NonTypeTemplateParmDecl::NumExpansionTypes(void) const {
+uint32_t NonTypeTemplateParmDecl::NumExpansionTypes(void) const noexcept {
   auto &self = *(u.NonTypeTemplateParmDecl);
   auto val = self.getNumExpansionTypes();
   return val;
 }
 
-::pasta::Expr NonTypeTemplateParmDecl::PlaceholderTypeConstraint(void) const {
+::pasta::Expr NonTypeTemplateParmDecl::PlaceholderTypeConstraint(void) const noexcept {
   auto &self = *(u.NonTypeTemplateParmDecl);
   auto val = self.getPlaceholderTypeConstraint();
   if (val) {
@@ -5191,41 +5235,50 @@ uint32_t NonTypeTemplateParmDecl::NumExpansionTypes(void) const {
   __builtin_unreachable();
 }
 
-::pasta::TokenRange NonTypeTemplateParmDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.NonTypeTemplateParmDecl);
-}
-
-bool NonTypeTemplateParmDecl::HasDefaultArgument(void) const {
+bool NonTypeTemplateParmDecl::HasDefaultArgument(void) const noexcept {
   auto &self = *(u.NonTypeTemplateParmDecl);
   auto val = self.hasDefaultArgument();
   return val;
 }
 
-bool NonTypeTemplateParmDecl::HasPlaceholderTypeConstraint(void) const {
+bool NonTypeTemplateParmDecl::HasPlaceholderTypeConstraint(void) const noexcept {
   auto &self = *(u.NonTypeTemplateParmDecl);
   auto val = self.hasPlaceholderTypeConstraint();
   return val;
 }
 
-bool NonTypeTemplateParmDecl::IsExpandedParameterPack(void) const {
+bool NonTypeTemplateParmDecl::IsExpandedParameterPack(void) const noexcept {
   auto &self = *(u.NonTypeTemplateParmDecl);
   auto val = self.isExpandedParameterPack();
   return val;
 }
 
-bool NonTypeTemplateParmDecl::IsPackExpansion(void) const {
+bool NonTypeTemplateParmDecl::IsPackExpansion(void) const noexcept {
   auto &self = *(u.NonTypeTemplateParmDecl);
   auto val = self.isPackExpansion();
   return val;
 }
 
-bool NonTypeTemplateParmDecl::IsParameterPack(void) const {
+bool NonTypeTemplateParmDecl::IsParameterPack(void) const noexcept {
   auto &self = *(u.NonTypeTemplateParmDecl);
   auto val = self.isParameterPack();
   return val;
 }
 
-std::vector<::pasta::Type> NonTypeTemplateParmDecl::ExpansionTypes(void) const {
+std::vector<::pasta::TemplateParameterList> NonTypeTemplateParmDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.NonTypeTemplateParmDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.NonTypeTemplateParmDecl->getTemplateParameterList(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::Type> NonTypeTemplateParmDecl::ExpansionTypes(void) const noexcept {
   auto convert_elem = [&] (clang::QualType val) {
     return TypeBuilder::Build(ast, val);
   };
@@ -5234,6 +5287,19 @@ std::vector<::pasta::Type> NonTypeTemplateParmDecl::ExpansionTypes(void) const {
   decltype(count) i = 0;
   for (; i < count; ++i) {
     ret.emplace_back(convert_elem(u.NonTypeTemplateParmDecl->getExpansionType(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::Type> NonTypeTemplateParmDecl::ExpansionTypeSourceInfos(void) const noexcept {
+  auto convert_elem = [&] (clang::TypeSourceInfo * val) {
+    return TypeBuilder::Build(ast, val->getType());
+  };
+  std::vector<::pasta::Type> ret;
+  auto count = u.NonTypeTemplateParmDecl->getNumExpansionTypes();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.NonTypeTemplateParmDecl->getExpansionTypeSourceInfo(i)));
   }
   return ret;
 }
@@ -5254,7 +5320,7 @@ PASTA_DEFINE_BASE_OPERATORS(OMPDeclarativeDirectiveDecl, OMPAllocateDecl)
 // 0: OMPAllocateDecl::
 // 0: OMPAllocateDecl::
 // 0: OMPAllocateDecl::
-std::vector<::pasta::Expr> OMPAllocateDecl::Varlists(void) const {
+std::vector<::pasta::Expr> OMPAllocateDecl::Varlists(void) const noexcept {
   auto &self = *(u.OMPAllocateDecl);
   auto val = self.varlists();
   std::vector<::pasta::Expr> ret;
@@ -5279,7 +5345,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPDeclareMapperDecl)
 // 0: OMPDeclareMapperDecl::
 // 0: OMPDeclareMapperDecl::
 // 0: OMPDeclareMapperDecl::Clauses
-::pasta::Expr OMPDeclareMapperDecl::MapperVariableReference(void) const {
+::pasta::Expr OMPDeclareMapperDecl::MapperVariableReference(void) const noexcept {
   auto &self = *(u.OMPDeclareMapperDecl);
   auto val = self.getMapperVarRef();
   if (val) {
@@ -5289,7 +5355,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPDeclareMapperDecl)
   __builtin_unreachable();
 }
 
-::pasta::OMPDeclareMapperDecl OMPDeclareMapperDecl::PrevDeclarationInScope(void) const {
+::pasta::OMPDeclareMapperDecl OMPDeclareMapperDecl::PrevDeclarationInScope(void) const noexcept {
   auto &self = *(u.OMPDeclareMapperDecl);
   auto val = self.getPrevDeclInScope();
   if (val) {
@@ -5308,7 +5374,7 @@ PASTA_DEFINE_BASE_OPERATORS(DeclContext, OMPDeclareReductionDecl)
 PASTA_DEFINE_BASE_OPERATORS(Decl, OMPDeclareReductionDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, OMPDeclareReductionDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPDeclareReductionDecl)
-::pasta::Expr OMPDeclareReductionDecl::Combiner(void) const {
+::pasta::Expr OMPDeclareReductionDecl::Combiner(void) const noexcept {
   auto &self = *(u.OMPDeclareReductionDecl);
   auto val = self.getCombiner();
   if (val) {
@@ -5318,7 +5384,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPDeclareReductionDecl)
   __builtin_unreachable();
 }
 
-::pasta::Expr OMPDeclareReductionDecl::CombinerIn(void) const {
+::pasta::Expr OMPDeclareReductionDecl::CombinerIn(void) const noexcept {
   auto &self = *(u.OMPDeclareReductionDecl);
   auto val = self.getCombinerIn();
   if (val) {
@@ -5328,7 +5394,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPDeclareReductionDecl)
   __builtin_unreachable();
 }
 
-::pasta::Expr OMPDeclareReductionDecl::CombinerOut(void) const {
+::pasta::Expr OMPDeclareReductionDecl::CombinerOut(void) const noexcept {
   auto &self = *(u.OMPDeclareReductionDecl);
   auto val = self.getCombinerOut();
   if (val) {
@@ -5338,7 +5404,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPDeclareReductionDecl)
   __builtin_unreachable();
 }
 
-::pasta::Expr OMPDeclareReductionDecl::InitializerOriginal(void) const {
+::pasta::Expr OMPDeclareReductionDecl::InitializerOriginal(void) const noexcept {
   auto &self = *(u.OMPDeclareReductionDecl);
   auto val = self.getInitOrig();
   if (val) {
@@ -5348,7 +5414,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPDeclareReductionDecl)
   __builtin_unreachable();
 }
 
-::pasta::Expr OMPDeclareReductionDecl::InitializerPrivate(void) const {
+::pasta::Expr OMPDeclareReductionDecl::InitializerPrivate(void) const noexcept {
   auto &self = *(u.OMPDeclareReductionDecl);
   auto val = self.getInitPriv();
   if (val) {
@@ -5358,7 +5424,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPDeclareReductionDecl)
   __builtin_unreachable();
 }
 
-::pasta::Expr OMPDeclareReductionDecl::Initializer(void) const {
+::pasta::Expr OMPDeclareReductionDecl::Initializer(void) const noexcept {
   auto &self = *(u.OMPDeclareReductionDecl);
   auto val = self.getInitializer();
   if (val) {
@@ -5369,7 +5435,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPDeclareReductionDecl)
 }
 
 // 0: OMPDeclareReductionDecl::InitializerKind
-::pasta::OMPDeclareReductionDecl OMPDeclareReductionDecl::PrevDeclarationInScope(void) const {
+::pasta::OMPDeclareReductionDecl OMPDeclareReductionDecl::PrevDeclarationInScope(void) const noexcept {
   auto &self = *(u.OMPDeclareReductionDecl);
   auto val = self.getPrevDeclInScope();
   if (val) {
@@ -5402,7 +5468,7 @@ PASTA_DEFINE_BASE_OPERATORS(OMPDeclarativeDirectiveDecl, OMPThreadPrivateDecl)
 // 0: OMPThreadPrivateDecl::
 // 0: OMPThreadPrivateDecl::
 // 0: OMPThreadPrivateDecl::
-std::vector<::pasta::Expr> OMPThreadPrivateDecl::Varlists(void) const {
+std::vector<::pasta::Expr> OMPThreadPrivateDecl::Varlists(void) const noexcept {
   auto &self = *(u.OMPThreadPrivateDecl);
   auto val = self.varlists();
   std::vector<::pasta::Expr> ret;
@@ -5422,6 +5488,19 @@ PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, ObjCAtDefsFieldDecl)
 PASTA_DEFINE_BASE_OPERATORS(FieldDecl, ObjCAtDefsFieldDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCAtDefsFieldDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, ObjCAtDefsFieldDecl)
+std::vector<::pasta::TemplateParameterList> ObjCAtDefsFieldDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.ObjCAtDefsFieldDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.ObjCAtDefsFieldDecl->getTemplateParameterList(i)));
+  }
+  return ret;
+}
+
 ObjCCategoryDecl::ObjCCategoryDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
@@ -5431,19 +5510,19 @@ PASTA_DEFINE_BASE_OPERATORS(DeclContext, ObjCCategoryDecl)
 PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCCategoryDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCCategoryDecl)
 PASTA_DEFINE_BASE_OPERATORS(ObjCContainerDecl, ObjCCategoryDecl)
-bool ObjCCategoryDecl::IsClassExtension(void) const {
+bool ObjCCategoryDecl::IsClassExtension(void) const noexcept {
   auto &self = *(u.ObjCCategoryDecl);
   auto val = self.IsClassExtension();
   return val;
 }
 
-::pasta::Token ObjCCategoryDecl::CategoryNameToken(void) const {
+::pasta::Token ObjCCategoryDecl::CategoryNameToken(void) const noexcept {
   auto &self = *(u.ObjCCategoryDecl);
   auto val = self.getCategoryNameLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::ObjCInterfaceDecl ObjCCategoryDecl::ClassInterface(void) const {
+::pasta::ObjCInterfaceDecl ObjCCategoryDecl::ClassInterface(void) const noexcept {
   auto &self = *(u.ObjCCategoryDecl);
   auto val = self.getClassInterface();
   if (val) {
@@ -5453,7 +5532,7 @@ bool ObjCCategoryDecl::IsClassExtension(void) const {
   __builtin_unreachable();
 }
 
-::pasta::ObjCCategoryImplDecl ObjCCategoryDecl::Implementation(void) const {
+::pasta::ObjCCategoryImplDecl ObjCCategoryDecl::Implementation(void) const noexcept {
   auto &self = *(u.ObjCCategoryDecl);
   auto val = self.getImplementation();
   if (val) {
@@ -5463,19 +5542,19 @@ bool ObjCCategoryDecl::IsClassExtension(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Token ObjCCategoryDecl::InstanceVariableLBraceToken(void) const {
+::pasta::Token ObjCCategoryDecl::InstanceVariableLBraceToken(void) const noexcept {
   auto &self = *(u.ObjCCategoryDecl);
   auto val = self.getIvarLBraceLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Token ObjCCategoryDecl::InstanceVariableRBraceToken(void) const {
+::pasta::Token ObjCCategoryDecl::InstanceVariableRBraceToken(void) const noexcept {
   auto &self = *(u.ObjCCategoryDecl);
   auto val = self.getIvarRBraceLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::ObjCCategoryDecl ObjCCategoryDecl::NextClassCategory(void) const {
+::pasta::ObjCCategoryDecl ObjCCategoryDecl::NextClassCategory(void) const noexcept {
   auto &self = *(u.ObjCCategoryDecl);
   auto val = self.getNextClassCategory();
   if (val) {
@@ -5485,7 +5564,7 @@ bool ObjCCategoryDecl::IsClassExtension(void) const {
   __builtin_unreachable();
 }
 
-::pasta::ObjCCategoryDecl ObjCCategoryDecl::NextClassCategoryRaw(void) const {
+::pasta::ObjCCategoryDecl ObjCCategoryDecl::NextClassCategoryRaw(void) const noexcept {
   auto &self = *(u.ObjCCategoryDecl);
   auto val = self.getNextClassCategoryRaw();
   if (val) {
@@ -5501,7 +5580,7 @@ bool ObjCCategoryDecl::IsClassExtension(void) const {
 // 0: ObjCCategoryDecl::
 // 0: ObjCCategoryDecl::
 // 0: ObjCCategoryDecl::
-std::vector<::pasta::ObjCIvarDecl> ObjCCategoryDecl::InstanceVariables(void) const {
+std::vector<::pasta::ObjCIvarDecl> ObjCCategoryDecl::InstanceVariables(void) const noexcept {
   auto &self = *(u.ObjCCategoryDecl);
   auto val = self.ivars();
   std::vector<::pasta::ObjCIvarDecl> ret;
@@ -5515,7 +5594,7 @@ std::vector<::pasta::ObjCIvarDecl> ObjCCategoryDecl::InstanceVariables(void) con
 // 0: ObjCCategoryDecl::
 // 0: ObjCCategoryDecl::
 // 0: ObjCCategoryDecl::
-std::vector<::pasta::Token> ObjCCategoryDecl::ProtocolTokens(void) const {
+std::vector<::pasta::Token> ObjCCategoryDecl::ProtocolTokens(void) const noexcept {
   auto &self = *(u.ObjCCategoryDecl);
   auto val = self.protocol_locs();
   std::vector<::pasta::Token> ret;
@@ -5528,7 +5607,7 @@ std::vector<::pasta::Token> ObjCCategoryDecl::ProtocolTokens(void) const {
 }
 
 // 0: ObjCCategoryDecl::
-std::vector<::pasta::ObjCProtocolDecl> ObjCCategoryDecl::Protocols(void) const {
+std::vector<::pasta::ObjCProtocolDecl> ObjCCategoryDecl::Protocols(void) const noexcept {
   auto &self = *(u.ObjCCategoryDecl);
   auto val = self.protocols();
   std::vector<::pasta::ObjCProtocolDecl> ret;
@@ -5548,7 +5627,7 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCCategoryImplDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCCategoryImplDecl)
 PASTA_DEFINE_BASE_OPERATORS(ObjCContainerDecl, ObjCCategoryImplDecl)
 PASTA_DEFINE_BASE_OPERATORS(ObjCImplDecl, ObjCCategoryImplDecl)
-::pasta::ObjCCategoryDecl ObjCCategoryImplDecl::CategoryDeclaration(void) const {
+::pasta::ObjCCategoryDecl ObjCCategoryImplDecl::CategoryDeclaration(void) const noexcept {
   auto &self = *(u.ObjCCategoryImplDecl);
   auto val = self.getCategoryDecl();
   if (val) {
@@ -5558,7 +5637,7 @@ PASTA_DEFINE_BASE_OPERATORS(ObjCImplDecl, ObjCCategoryImplDecl)
   __builtin_unreachable();
 }
 
-::pasta::Token ObjCCategoryImplDecl::CategoryNameToken(void) const {
+::pasta::Token ObjCCategoryImplDecl::CategoryNameToken(void) const noexcept {
   auto &self = *(u.ObjCCategoryImplDecl);
   auto val = self.getCategoryNameLoc();
   return ast->TokenAt(val);
@@ -5576,7 +5655,7 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCIvarDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, ObjCIvarDecl)
 // 0: ObjCIvarDecl::AccessControl
 // 0: ObjCIvarDecl::CanonicalAccessControl
-::pasta::ObjCInterfaceDecl ObjCIvarDecl::ContainingInterface(void) const {
+::pasta::ObjCInterfaceDecl ObjCIvarDecl::ContainingInterface(void) const noexcept {
   auto &self = *(u.ObjCIvarDecl);
   auto val = self.getContainingInterface();
   if (val) {
@@ -5586,7 +5665,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, ObjCIvarDecl)
   __builtin_unreachable();
 }
 
-::pasta::ObjCIvarDecl ObjCIvarDecl::NextInstanceVariable(void) const {
+::pasta::ObjCIvarDecl ObjCIvarDecl::NextInstanceVariable(void) const noexcept {
   auto &self = *(u.ObjCIvarDecl);
   auto val = self.getNextIvar();
   if (val) {
@@ -5596,13 +5675,26 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, ObjCIvarDecl)
   __builtin_unreachable();
 }
 
-bool ObjCIvarDecl::Synthesize(void) const {
+bool ObjCIvarDecl::Synthesize(void) const noexcept {
   auto &self = *(u.ObjCIvarDecl);
   auto val = self.getSynthesize();
   return val;
 }
 
 // 1: ObjCIvarDecl::UsageType
+std::vector<::pasta::TemplateParameterList> ObjCIvarDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.ObjCIvarDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.ObjCIvarDecl->getTemplateParameterList(i)));
+  }
+  return ret;
+}
+
 ObjCTypeParamDecl::ObjCTypeParamDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
@@ -5612,35 +5704,31 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCTypeParamDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCTypeParamDecl)
 PASTA_DEFINE_BASE_OPERATORS(TypeDecl, ObjCTypeParamDecl)
 PASTA_DEFINE_BASE_OPERATORS(TypedefNameDecl, ObjCTypeParamDecl)
-::pasta::Token ObjCTypeParamDecl::ColonToken(void) const {
+::pasta::Token ObjCTypeParamDecl::ColonToken(void) const noexcept {
   auto &self = *(u.ObjCTypeParamDecl);
   auto val = self.getColonLoc();
   return ast->TokenAt(val);
 }
 
-uint32_t ObjCTypeParamDecl::Index(void) const {
+uint32_t ObjCTypeParamDecl::Index(void) const noexcept {
   auto &self = *(u.ObjCTypeParamDecl);
   auto val = self.getIndex();
   return val;
 }
 
-::pasta::TokenRange ObjCTypeParamDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.ObjCTypeParamDecl);
-}
-
-enum ObjCTypeParamVariance ObjCTypeParamDecl::Variance(void) const {
+enum ObjCTypeParamVariance ObjCTypeParamDecl::Variance(void) const noexcept {
   auto &self = *(u.ObjCTypeParamDecl);
   auto val = self.getVariance();
   return static_cast<::pasta::ObjCTypeParamVariance>(static_cast<unsigned char>(val));
 }
 
-::pasta::Token ObjCTypeParamDecl::VarianceToken(void) const {
+::pasta::Token ObjCTypeParamDecl::VarianceToken(void) const noexcept {
   auto &self = *(u.ObjCTypeParamDecl);
   auto val = self.getVarianceLoc();
   return ast->TokenAt(val);
 }
 
-bool ObjCTypeParamDecl::HasExplicitBound(void) const {
+bool ObjCTypeParamDecl::HasExplicitBound(void) const noexcept {
   auto &self = *(u.ObjCTypeParamDecl);
   auto val = self.hasExplicitBound();
   return val;
@@ -5658,7 +5746,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(RedeclarableTemplateDecl, ClassTemplateDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(RedeclarableTemplateDecl, FunctionTemplateDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(RedeclarableTemplateDecl, TypeAliasTemplateDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(RedeclarableTemplateDecl, VarTemplateDecl)
-::pasta::RedeclarableTemplateDecl RedeclarableTemplateDecl::CanonicalDeclaration(void) const {
+::pasta::RedeclarableTemplateDecl RedeclarableTemplateDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.RedeclarableTemplateDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -5668,7 +5756,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(RedeclarableTemplateDecl, VarTemplateDecl)
   __builtin_unreachable();
 }
 
-::pasta::RedeclarableTemplateDecl RedeclarableTemplateDecl::InstantiatedFromMemberTemplate(void) const {
+::pasta::RedeclarableTemplateDecl RedeclarableTemplateDecl::InstantiatedFromMemberTemplate(void) const noexcept {
   auto &self = *(u.RedeclarableTemplateDecl);
   auto val = self.getInstantiatedFromMemberTemplate();
   if (val) {
@@ -5678,7 +5766,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(RedeclarableTemplateDecl, VarTemplateDecl)
   __builtin_unreachable();
 }
 
-bool RedeclarableTemplateDecl::IsMemberSpecialization(void) const {
+bool RedeclarableTemplateDecl::IsMemberSpecialization(void) const noexcept {
   auto &self = *(u.RedeclarableTemplateDecl);
   auto val = self.isMemberSpecialization();
   return val;
@@ -5698,13 +5786,13 @@ PASTA_DEFINE_DERIVED_OPERATORS(TagDecl, ClassTemplatePartialSpecializationDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TagDecl, ClassTemplateSpecializationDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TagDecl, EnumDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(TagDecl, RecordDecl)
-::pasta::TokenRange TagDecl::BraceRange(void) const {
+::pasta::TokenRange TagDecl::BraceRange(void) const noexcept {
   auto &self = *(u.TagDecl);
   auto val = self.getBraceRange();
   return ast->TokenRangeFrom(val);
 }
 
-::pasta::TagDecl TagDecl::CanonicalDeclaration(void) const {
+::pasta::TagDecl TagDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.TagDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -5714,7 +5802,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(TagDecl, RecordDecl)
   __builtin_unreachable();
 }
 
-::pasta::TagDecl TagDecl::Definition(void) const {
+::pasta::TagDecl TagDecl::Definition(void) const noexcept {
   auto &self = *(u.TagDecl);
   auto val = self.getDefinition();
   if (val) {
@@ -5724,13 +5812,13 @@ PASTA_DEFINE_DERIVED_OPERATORS(TagDecl, RecordDecl)
   __builtin_unreachable();
 }
 
-::pasta::Token TagDecl::InnerTokenStart(void) const {
+::pasta::Token TagDecl::InnerTokenStart(void) const noexcept {
   auto &self = *(u.TagDecl);
   auto val = self.getInnerLocStart();
   return ast->TokenAt(val);
 }
 
-std::string_view TagDecl::KindName(void) const {
+std::string_view TagDecl::KindName(void) const noexcept {
   auto &self = *(u.TagDecl);
   auto val = self.getKindName();
   if (auto size = val.size()) {
@@ -5740,13 +5828,13 @@ std::string_view TagDecl::KindName(void) const {
   }
 }
 
-uint32_t TagDecl::NumTemplateParameterLists(void) const {
+uint32_t TagDecl::NumTemplateParameterLists(void) const noexcept {
   auto &self = *(u.TagDecl);
   auto val = self.getNumTemplateParameterLists();
   return val;
 }
 
-::pasta::Token TagDecl::OuterTokenStart(void) const {
+::pasta::Token TagDecl::OuterTokenStart(void) const noexcept {
   auto &self = *(u.TagDecl);
   auto val = self.getOuterLocStart();
   return ast->TokenAt(val);
@@ -5754,18 +5842,14 @@ uint32_t TagDecl::NumTemplateParameterLists(void) const {
 
 // 0: TagDecl::Qualifier
 // 0: TagDecl::QualifierToken
-::pasta::TokenRange TagDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.TagDecl);
-}
-
-enum TagTypeKind TagDecl::TagKind(void) const {
+enum TagTypeKind TagDecl::TagKind(void) const noexcept {
   auto &self = *(u.TagDecl);
   auto val = self.getTagKind();
   return static_cast<::pasta::TagTypeKind>(static_cast<unsigned int>(val));
 }
 
 // 1: TagDecl::TemplateParameterList
-::pasta::TypedefNameDecl TagDecl::TypedefNameForAnonymousDeclaration(void) const {
+::pasta::TypedefNameDecl TagDecl::TypedefNameForAnonymousDeclaration(void) const noexcept {
   auto &self = *(u.TagDecl);
   auto val = self.getTypedefNameForAnonDecl();
   if (val) {
@@ -5775,88 +5859,101 @@ enum TagTypeKind TagDecl::TagKind(void) const {
   __builtin_unreachable();
 }
 
-bool TagDecl::HasNameForLinkage(void) const {
+bool TagDecl::HasNameForLinkage(void) const noexcept {
   auto &self = *(u.TagDecl);
   auto val = self.hasNameForLinkage();
   return val;
 }
 
-bool TagDecl::IsBeingDefined(void) const {
+bool TagDecl::IsBeingDefined(void) const noexcept {
   auto &self = *(u.TagDecl);
   auto val = self.isBeingDefined();
   return val;
 }
 
-bool TagDecl::IsClass(void) const {
+bool TagDecl::IsClass(void) const noexcept {
   auto &self = *(u.TagDecl);
   auto val = self.isClass();
   return val;
 }
 
-bool TagDecl::IsCompleteDefinition(void) const {
+bool TagDecl::IsCompleteDefinition(void) const noexcept {
   auto &self = *(u.TagDecl);
   auto val = self.isCompleteDefinition();
   return val;
 }
 
-bool TagDecl::IsCompleteDefinitionRequired(void) const {
+bool TagDecl::IsCompleteDefinitionRequired(void) const noexcept {
   auto &self = *(u.TagDecl);
   auto val = self.isCompleteDefinitionRequired();
   return val;
 }
 
-bool TagDecl::IsDependentType(void) const {
+bool TagDecl::IsDependentType(void) const noexcept {
   auto &self = *(u.TagDecl);
   auto val = self.isDependentType();
   return val;
 }
 
-bool TagDecl::IsEmbeddedInDeclarator(void) const {
+bool TagDecl::IsEmbeddedInDeclarator(void) const noexcept {
   auto &self = *(u.TagDecl);
   auto val = self.isEmbeddedInDeclarator();
   return val;
 }
 
-bool TagDecl::IsEnum(void) const {
+bool TagDecl::IsEnum(void) const noexcept {
   auto &self = *(u.TagDecl);
   auto val = self.isEnum();
   return val;
 }
 
-bool TagDecl::IsFreeStanding(void) const {
+bool TagDecl::IsFreeStanding(void) const noexcept {
   auto &self = *(u.TagDecl);
   auto val = self.isFreeStanding();
   return val;
 }
 
-bool TagDecl::IsInterface(void) const {
+bool TagDecl::IsInterface(void) const noexcept {
   auto &self = *(u.TagDecl);
   auto val = self.isInterface();
   return val;
 }
 
-bool TagDecl::IsStruct(void) const {
+bool TagDecl::IsStruct(void) const noexcept {
   auto &self = *(u.TagDecl);
   auto val = self.isStruct();
   return val;
 }
 
-bool TagDecl::IsThisDeclarationADefinition(void) const {
+bool TagDecl::IsThisDeclarationADefinition(void) const noexcept {
   auto &self = *(u.TagDecl);
   auto val = self.isThisDeclarationADefinition();
   return val;
 }
 
-bool TagDecl::IsUnion(void) const {
+bool TagDecl::IsUnion(void) const noexcept {
   auto &self = *(u.TagDecl);
   auto val = self.isUnion();
   return val;
 }
 
-bool TagDecl::MayHaveOutOfDateDefinition(void) const {
+bool TagDecl::MayHaveOutOfDateDefinition(void) const noexcept {
   auto &self = *(u.TagDecl);
   auto val = self.mayHaveOutOfDateDef();
   return val;
+}
+
+std::vector<::pasta::TemplateParameterList> TagDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.TagDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.TagDecl->getTemplateParameterList(i)));
+  }
+  return ret;
 }
 
 TemplateParamObjectDecl::TemplateParamObjectDecl(
@@ -5867,7 +5964,7 @@ TemplateParamObjectDecl::TemplateParamObjectDecl(
 PASTA_DEFINE_BASE_OPERATORS(Decl, TemplateParamObjectDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, TemplateParamObjectDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, TemplateParamObjectDecl)
-::pasta::TemplateParamObjectDecl TemplateParamObjectDecl::CanonicalDeclaration(void) const {
+::pasta::TemplateParamObjectDecl TemplateParamObjectDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.TemplateParamObjectDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -5886,80 +5983,82 @@ TemplateTypeParmDecl::TemplateTypeParmDecl(
 PASTA_DEFINE_BASE_OPERATORS(Decl, TemplateTypeParmDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, TemplateTypeParmDecl)
 PASTA_DEFINE_BASE_OPERATORS(TypeDecl, TemplateTypeParmDecl)
-bool TemplateTypeParmDecl::DefaultArgumentWasInherited(void) const {
+bool TemplateTypeParmDecl::DefaultArgumentWasInherited(void) const noexcept {
   auto &self = *(u.TemplateTypeParmDecl);
   auto val = self.defaultArgumentWasInherited();
   return val;
 }
 
 // 0: TemplateTypeParmDecl::DefaultArgumentStorage
-::pasta::Type TemplateTypeParmDecl::DefaultArgument(void) const {
+::pasta::Type TemplateTypeParmDecl::DefaultArgument(void) const noexcept {
   auto &self = *(u.TemplateTypeParmDecl);
   auto val = self.getDefaultArgument();
   return TypeBuilder::Build(ast, val);
 }
 
-// 0: TemplateTypeParmDecl::DefaultArgumentInfo
-::pasta::Token TemplateTypeParmDecl::DefaultArgumentToken(void) const {
+::pasta::Type TemplateTypeParmDecl::DefaultArgumentInfo(void) const noexcept {
+  auto &self = *(u.TemplateTypeParmDecl);
+  auto val = self.getDefaultArgumentInfo();
+  return TypeBuilder::Build(ast, val->getType());  assert(false && "TemplateTypeParmDecl::DefaultArgumentInfo can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::Token TemplateTypeParmDecl::DefaultArgumentToken(void) const noexcept {
   auto &self = *(u.TemplateTypeParmDecl);
   auto val = self.getDefaultArgumentLoc();
   return ast->TokenAt(val);
 }
 
-uint32_t TemplateTypeParmDecl::Depth(void) const {
+uint32_t TemplateTypeParmDecl::Depth(void) const noexcept {
   auto &self = *(u.TemplateTypeParmDecl);
   auto val = self.getDepth();
   return val;
 }
 
-uint32_t TemplateTypeParmDecl::Index(void) const {
+uint32_t TemplateTypeParmDecl::Index(void) const noexcept {
   auto &self = *(u.TemplateTypeParmDecl);
   auto val = self.getIndex();
   return val;
 }
 
-uint32_t TemplateTypeParmDecl::NumExpansionParameters(void) const {
+uint32_t TemplateTypeParmDecl::NumExpansionParameters(void) const noexcept {
   auto &self = *(u.TemplateTypeParmDecl);
   auto val = self.getNumExpansionParameters();
   return val;
 }
 
-::pasta::TokenRange TemplateTypeParmDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.TemplateTypeParmDecl);
-}
-
 // 0: TemplateTypeParmDecl::TypeConstraint
-bool TemplateTypeParmDecl::HasDefaultArgument(void) const {
+bool TemplateTypeParmDecl::HasDefaultArgument(void) const noexcept {
   auto &self = *(u.TemplateTypeParmDecl);
   auto val = self.hasDefaultArgument();
   return val;
 }
 
-bool TemplateTypeParmDecl::HasTypeConstraint(void) const {
+bool TemplateTypeParmDecl::HasTypeConstraint(void) const noexcept {
   auto &self = *(u.TemplateTypeParmDecl);
   auto val = self.hasTypeConstraint();
   return val;
 }
 
-bool TemplateTypeParmDecl::IsExpandedParameterPack(void) const {
+bool TemplateTypeParmDecl::IsExpandedParameterPack(void) const noexcept {
   auto &self = *(u.TemplateTypeParmDecl);
   auto val = self.isExpandedParameterPack();
   return val;
 }
 
-bool TemplateTypeParmDecl::IsPackExpansion(void) const {
+bool TemplateTypeParmDecl::IsPackExpansion(void) const noexcept {
   auto &self = *(u.TemplateTypeParmDecl);
   auto val = self.isPackExpansion();
   return val;
 }
 
-bool TemplateTypeParmDecl::IsParameterPack(void) const {
+bool TemplateTypeParmDecl::IsParameterPack(void) const noexcept {
   auto &self = *(u.TemplateTypeParmDecl);
   auto val = self.isParameterPack();
   return val;
 }
 
-bool TemplateTypeParmDecl::WasDeclaredWithTypename(void) const {
+bool TemplateTypeParmDecl::WasDeclaredWithTypename(void) const noexcept {
   auto &self = *(u.TemplateTypeParmDecl);
   auto val = self.wasDeclaredWithTypename();
   return val;
@@ -5974,7 +6073,7 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, TypeAliasDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, TypeAliasDecl)
 PASTA_DEFINE_BASE_OPERATORS(TypeDecl, TypeAliasDecl)
 PASTA_DEFINE_BASE_OPERATORS(TypedefNameDecl, TypeAliasDecl)
-::pasta::TypeAliasTemplateDecl TypeAliasDecl::DescribedAliasTemplate(void) const {
+::pasta::TypeAliasTemplateDecl TypeAliasDecl::DescribedAliasTemplate(void) const noexcept {
   auto &self = *(u.TypeAliasDecl);
   auto val = self.getDescribedAliasTemplate();
   if (val) {
@@ -5982,10 +6081,6 @@ PASTA_DEFINE_BASE_OPERATORS(TypedefNameDecl, TypeAliasDecl)
   }
   assert(false && "TypeAliasDecl::DescribedAliasTemplate can return nullptr!");
   __builtin_unreachable();
-}
-
-::pasta::TokenRange TypeAliasDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.TypeAliasDecl);
 }
 
 TypeAliasTemplateDecl::TypeAliasTemplateDecl(
@@ -5997,7 +6092,7 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, TypeAliasTemplateDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, TypeAliasTemplateDecl)
 PASTA_DEFINE_BASE_OPERATORS(RedeclarableTemplateDecl, TypeAliasTemplateDecl)
 PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, TypeAliasTemplateDecl)
-::pasta::TypeAliasTemplateDecl TypeAliasTemplateDecl::CanonicalDeclaration(void) const {
+::pasta::TypeAliasTemplateDecl TypeAliasTemplateDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.TypeAliasTemplateDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -6007,7 +6102,7 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, TypeAliasTemplateDecl)
   __builtin_unreachable();
 }
 
-::pasta::TypeAliasTemplateDecl TypeAliasTemplateDecl::InstantiatedFromMemberTemplate(void) const {
+::pasta::TypeAliasTemplateDecl TypeAliasTemplateDecl::InstantiatedFromMemberTemplate(void) const noexcept {
   auto &self = *(u.TypeAliasTemplateDecl);
   auto val = self.getInstantiatedFromMemberTemplate();
   if (val) {
@@ -6017,7 +6112,7 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, TypeAliasTemplateDecl)
   __builtin_unreachable();
 }
 
-::pasta::TypeAliasTemplateDecl TypeAliasTemplateDecl::PreviousDeclaration(void) const {
+::pasta::TypeAliasTemplateDecl TypeAliasTemplateDecl::PreviousDeclaration(void) const noexcept {
   auto &self = *(u.TypeAliasTemplateDecl);
   auto val = self.getPreviousDecl();
   if (val) {
@@ -6027,7 +6122,7 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, TypeAliasTemplateDecl)
   __builtin_unreachable();
 }
 
-::pasta::TypeAliasDecl TypeAliasTemplateDecl::TemplatedDeclaration(void) const {
+::pasta::TypeAliasDecl TypeAliasTemplateDecl::TemplatedDeclaration(void) const noexcept {
   auto &self = *(u.TypeAliasTemplateDecl);
   auto val = self.getTemplatedDecl();
   if (val) {
@@ -6046,10 +6141,6 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, TypedefDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, TypedefDecl)
 PASTA_DEFINE_BASE_OPERATORS(TypeDecl, TypedefDecl)
 PASTA_DEFINE_BASE_OPERATORS(TypedefNameDecl, TypedefDecl)
-::pasta::TokenRange TypedefDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.TypedefDecl);
-}
-
 UnresolvedUsingValueDecl::UnresolvedUsingValueDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
@@ -6058,7 +6149,7 @@ UnresolvedUsingValueDecl::UnresolvedUsingValueDecl(
 PASTA_DEFINE_BASE_OPERATORS(Decl, UnresolvedUsingValueDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UnresolvedUsingValueDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, UnresolvedUsingValueDecl)
-::pasta::UnresolvedUsingValueDecl UnresolvedUsingValueDecl::CanonicalDeclaration(void) const {
+::pasta::UnresolvedUsingValueDecl UnresolvedUsingValueDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.UnresolvedUsingValueDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -6068,7 +6159,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, UnresolvedUsingValueDecl)
   __builtin_unreachable();
 }
 
-::pasta::Token UnresolvedUsingValueDecl::EllipsisToken(void) const {
+::pasta::Token UnresolvedUsingValueDecl::EllipsisToken(void) const noexcept {
   auto &self = *(u.UnresolvedUsingValueDecl);
   auto val = self.getEllipsisLoc();
   return ast->TokenAt(val);
@@ -6077,23 +6168,19 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, UnresolvedUsingValueDecl)
 // 0: UnresolvedUsingValueDecl::NameInfo
 // 0: UnresolvedUsingValueDecl::Qualifier
 // 0: UnresolvedUsingValueDecl::QualifierToken
-::pasta::TokenRange UnresolvedUsingValueDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.UnresolvedUsingValueDecl);
-}
-
-::pasta::Token UnresolvedUsingValueDecl::UsingToken(void) const {
+::pasta::Token UnresolvedUsingValueDecl::UsingToken(void) const noexcept {
   auto &self = *(u.UnresolvedUsingValueDecl);
   auto val = self.getUsingLoc();
   return ast->TokenAt(val);
 }
 
-bool UnresolvedUsingValueDecl::IsAccessDeclaration(void) const {
+bool UnresolvedUsingValueDecl::IsAccessDeclaration(void) const noexcept {
   auto &self = *(u.UnresolvedUsingValueDecl);
   auto val = self.isAccessDeclaration();
   return val;
 }
 
-bool UnresolvedUsingValueDecl::IsPackExpansion(void) const {
+bool UnresolvedUsingValueDecl::IsPackExpansion(void) const noexcept {
   auto &self = *(u.UnresolvedUsingValueDecl);
   auto val = self.isPackExpansion();
   return val;
@@ -6107,7 +6194,7 @@ UsingDecl::UsingDecl(
 PASTA_DEFINE_BASE_OPERATORS(BaseUsingDecl, UsingDecl)
 PASTA_DEFINE_BASE_OPERATORS(Decl, UsingDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingDecl)
-::pasta::UsingDecl UsingDecl::CanonicalDeclaration(void) const {
+::pasta::UsingDecl UsingDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.UsingDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -6120,23 +6207,19 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingDecl)
 // 0: UsingDecl::NameInfo
 // 0: UsingDecl::Qualifier
 // 0: UsingDecl::QualifierToken
-::pasta::TokenRange UsingDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.UsingDecl);
-}
-
-::pasta::Token UsingDecl::UsingToken(void) const {
+::pasta::Token UsingDecl::UsingToken(void) const noexcept {
   auto &self = *(u.UsingDecl);
   auto val = self.getUsingLoc();
   return ast->TokenAt(val);
 }
 
-bool UsingDecl::HasTypename(void) const {
+bool UsingDecl::HasTypename(void) const noexcept {
   auto &self = *(u.UsingDecl);
   auto val = self.hasTypename();
   return val;
 }
 
-bool UsingDecl::IsAccessDeclaration(void) const {
+bool UsingDecl::IsAccessDeclaration(void) const noexcept {
   auto &self = *(u.UsingDecl);
   auto val = self.isAccessDeclaration();
   return val;
@@ -6150,7 +6233,7 @@ UsingEnumDecl::UsingEnumDecl(
 PASTA_DEFINE_BASE_OPERATORS(BaseUsingDecl, UsingEnumDecl)
 PASTA_DEFINE_BASE_OPERATORS(Decl, UsingEnumDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingEnumDecl)
-::pasta::UsingEnumDecl UsingEnumDecl::CanonicalDeclaration(void) const {
+::pasta::UsingEnumDecl UsingEnumDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.UsingEnumDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -6160,7 +6243,7 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingEnumDecl)
   __builtin_unreachable();
 }
 
-::pasta::EnumDecl UsingEnumDecl::EnumDeclaration(void) const {
+::pasta::EnumDecl UsingEnumDecl::EnumDeclaration(void) const noexcept {
   auto &self = *(u.UsingEnumDecl);
   auto val = self.getEnumDecl();
   if (val) {
@@ -6170,17 +6253,13 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingEnumDecl)
   __builtin_unreachable();
 }
 
-::pasta::Token UsingEnumDecl::EnumToken(void) const {
+::pasta::Token UsingEnumDecl::EnumToken(void) const noexcept {
   auto &self = *(u.UsingEnumDecl);
   auto val = self.getEnumLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::TokenRange UsingEnumDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.UsingEnumDecl);
-}
-
-::pasta::Token UsingEnumDecl::UsingToken(void) const {
+::pasta::Token UsingEnumDecl::UsingToken(void) const noexcept {
   auto &self = *(u.UsingEnumDecl);
   auto val = self.getUsingLoc();
   return ast->TokenAt(val);
@@ -6205,7 +6284,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(VarDecl, VarTemplateSpecializationDecl)
 // 0: VarDecl::EnsureEvaluatedStatement
 // 1: VarDecl::EvaluateDestruction
 // 0: VarDecl::EvaluateValue
-::pasta::VarDecl VarDecl::ActingDefinition(void) const {
+::pasta::VarDecl VarDecl::ActingDefinition(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.getActingDefinition();
   if (val) {
@@ -6215,7 +6294,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(VarDecl, VarTemplateSpecializationDecl)
   __builtin_unreachable();
 }
 
-::pasta::VarDecl VarDecl::CanonicalDeclaration(void) const {
+::pasta::VarDecl VarDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -6225,7 +6304,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(VarDecl, VarTemplateSpecializationDecl)
   __builtin_unreachable();
 }
 
-::pasta::VarTemplateDecl VarDecl::DescribedVariableTemplate(void) const {
+::pasta::VarTemplateDecl VarDecl::DescribedVariableTemplate(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.getDescribedVarTemplate();
   if (val) {
@@ -6237,7 +6316,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(VarDecl, VarTemplateSpecializationDecl)
 
 // 0: VarDecl::EvaluatedStatement
 // 0: VarDecl::EvaluatedValue
-::pasta::Expr VarDecl::Initializer(void) const {
+::pasta::Expr VarDecl::Initializer(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.getInit();
   if (val) {
@@ -6248,7 +6327,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(VarDecl, VarTemplateSpecializationDecl)
 }
 
 // 0: VarDecl::InitializerStyle
-::pasta::VarDecl VarDecl::InitializingDeclaration(void) const {
+::pasta::VarDecl VarDecl::InitializingDeclaration(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.getInitializingDeclaration();
   if (val) {
@@ -6258,7 +6337,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(VarDecl, VarTemplateSpecializationDecl)
   __builtin_unreachable();
 }
 
-::pasta::VarDecl VarDecl::InstantiatedFromStaticDataMember(void) const {
+::pasta::VarDecl VarDecl::InstantiatedFromStaticDataMember(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.getInstantiatedFromStaticDataMember();
   if (val) {
@@ -6268,43 +6347,39 @@ PASTA_DEFINE_DERIVED_OPERATORS(VarDecl, VarTemplateSpecializationDecl)
   __builtin_unreachable();
 }
 
-enum LanguageLinkage VarDecl::LanguageLinkage(void) const {
+enum LanguageLinkage VarDecl::LanguageLinkage(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.getLanguageLinkage();
   return static_cast<::pasta::LanguageLinkage>(static_cast<unsigned int>(val));
 }
 
 // 0: VarDecl::MemberSpecializationInfo
-::pasta::Token VarDecl::PointOfInstantiation(void) const {
+::pasta::Token VarDecl::PointOfInstantiation(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.getPointOfInstantiation();
   return ast->TokenAt(val);
 }
 
-::pasta::TokenRange VarDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.VarDecl);
-}
-
-enum StorageClass VarDecl::StorageClass(void) const {
+enum StorageClass VarDecl::StorageClass(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.getStorageClass();
   return static_cast<::pasta::StorageClass>(static_cast<unsigned int>(val));
 }
 
-enum StorageDuration VarDecl::StorageDuration(void) const {
+enum StorageDuration VarDecl::StorageDuration(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.getStorageDuration();
   return static_cast<::pasta::StorageDuration>(static_cast<unsigned int>(val));
 }
 
 // 0: VarDecl::TLSKind
-enum ThreadStorageClassSpecifier VarDecl::TSCSpec(void) const {
+enum ThreadStorageClassSpecifier VarDecl::TSCSpec(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.getTSCSpec();
   return static_cast<::pasta::ThreadStorageClassSpecifier>(static_cast<unsigned int>(val));
 }
 
-::pasta::VarDecl VarDecl::TemplateInstantiationPattern(void) const {
+::pasta::VarDecl VarDecl::TemplateInstantiationPattern(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.getTemplateInstantiationPattern();
   if (val) {
@@ -6314,235 +6389,248 @@ enum ThreadStorageClassSpecifier VarDecl::TSCSpec(void) const {
   __builtin_unreachable();
 }
 
-enum TemplateSpecializationKind VarDecl::TemplateSpecializationKind(void) const {
+enum TemplateSpecializationKind VarDecl::TemplateSpecializationKind(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.getTemplateSpecializationKind();
   return static_cast<::pasta::TemplateSpecializationKind>(static_cast<unsigned int>(val));
 }
 
-enum TemplateSpecializationKind VarDecl::TemplateSpecializationKindForInstantiation(void) const {
+enum TemplateSpecializationKind VarDecl::TemplateSpecializationKindForInstantiation(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.getTemplateSpecializationKindForInstantiation();
   return static_cast<::pasta::TemplateSpecializationKind>(static_cast<unsigned int>(val));
 }
 
-bool VarDecl::HasConstantInitialization(void) const {
+bool VarDecl::HasConstantInitialization(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.hasConstantInitialization();
   return val;
 }
 
-bool VarDecl::HasDependentAlignment(void) const {
+bool VarDecl::HasDependentAlignment(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.hasDependentAlignment();
   return val;
 }
 
-bool VarDecl::HasExternalStorage(void) const {
+bool VarDecl::HasExternalStorage(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.hasExternalStorage();
   return val;
 }
 
-bool VarDecl::HasGlobalStorage(void) const {
+bool VarDecl::HasGlobalStorage(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.hasGlobalStorage();
   return val;
 }
 
-bool VarDecl::HasICEInitializer(void) const {
+bool VarDecl::HasICEInitializer(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.hasICEInitializer(ast->ci->getASTContext());
   return val;
 }
 
-bool VarDecl::HasInitializer(void) const {
+bool VarDecl::HasInitializer(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.hasInit();
   return val;
 }
 
-bool VarDecl::HasLocalStorage(void) const {
+bool VarDecl::HasLocalStorage(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.hasLocalStorage();
   return val;
 }
 
-bool VarDecl::IsARCPseudoStrong(void) const {
+bool VarDecl::IsARCPseudoStrong(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isARCPseudoStrong();
   return val;
 }
 
-bool VarDecl::IsCXXForRangeDeclaration(void) const {
+bool VarDecl::IsCXXForRangeDeclaration(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isCXXForRangeDecl();
   return val;
 }
 
-bool VarDecl::IsConstexpr(void) const {
+bool VarDecl::IsConstexpr(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isConstexpr();
   return val;
 }
 
-bool VarDecl::IsDirectInitializer(void) const {
+bool VarDecl::IsDirectInitializer(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isDirectInit();
   return val;
 }
 
-bool VarDecl::IsEscapingByref(void) const {
+bool VarDecl::IsEscapingByref(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isEscapingByref();
   return val;
 }
 
-bool VarDecl::IsExceptionVariable(void) const {
+bool VarDecl::IsExceptionVariable(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isExceptionVariable();
   return val;
 }
 
-bool VarDecl::IsExternC(void) const {
+bool VarDecl::IsExternC(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isExternC();
   return val;
 }
 
-bool VarDecl::IsFileVariableDeclaration(void) const {
+bool VarDecl::IsFileVariableDeclaration(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isFileVarDecl();
   return val;
 }
 
-bool VarDecl::IsFunctionOrMethodVariableDeclaration(void) const {
+bool VarDecl::IsFunctionOrMethodVariableDeclaration(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isFunctionOrMethodVarDecl();
   return val;
 }
 
-bool VarDecl::IsInExternCContext(void) const {
+bool VarDecl::IsInExternCContext(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isInExternCContext();
   return val;
 }
 
-bool VarDecl::IsInExternCXXContext(void) const {
+bool VarDecl::IsInExternCXXContext(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isInExternCXXContext();
   return val;
 }
 
-bool VarDecl::IsInitializerCapture(void) const {
+bool VarDecl::IsInitializerCapture(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isInitCapture();
   return val;
 }
 
-bool VarDecl::IsInline(void) const {
+bool VarDecl::IsInline(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isInline();
   return val;
 }
 
-bool VarDecl::IsInlineSpecified(void) const {
+bool VarDecl::IsInlineSpecified(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isInlineSpecified();
   return val;
 }
 
-bool VarDecl::IsKnownToBeDefined(void) const {
+bool VarDecl::IsKnownToBeDefined(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isKnownToBeDefined();
   return val;
 }
 
-bool VarDecl::IsLocalVariableDeclaration(void) const {
+bool VarDecl::IsLocalVariableDeclaration(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isLocalVarDecl();
   return val;
 }
 
-bool VarDecl::IsLocalVariableDeclarationOrParm(void) const {
+bool VarDecl::IsLocalVariableDeclarationOrParm(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isLocalVarDeclOrParm();
   return val;
 }
 
-bool VarDecl::IsNRVOVariable(void) const {
+bool VarDecl::IsNRVOVariable(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isNRVOVariable();
   return val;
 }
 
-bool VarDecl::IsNoDestroy(void) const {
+bool VarDecl::IsNoDestroy(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isNoDestroy(ast->ci->getASTContext());
   return val;
 }
 
-bool VarDecl::IsNonEscapingByref(void) const {
+bool VarDecl::IsNonEscapingByref(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isNonEscapingByref();
   return val;
 }
 
-bool VarDecl::IsObjCForDeclaration(void) const {
+bool VarDecl::IsObjCForDeclaration(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isObjCForDecl();
   return val;
 }
 
-bool VarDecl::IsOutOfLine(void) const {
+bool VarDecl::IsOutOfLine(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isOutOfLine();
   return val;
 }
 
-bool VarDecl::IsParameterPack(void) const {
+bool VarDecl::IsParameterPack(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isParameterPack();
   return val;
 }
 
-bool VarDecl::IsPreviousDeclarationInSameBlockScope(void) const {
+bool VarDecl::IsPreviousDeclarationInSameBlockScope(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isPreviousDeclInSameBlockScope();
   return val;
 }
 
-bool VarDecl::IsStaticDataMember(void) const {
+bool VarDecl::IsStaticDataMember(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isStaticDataMember();
   return val;
 }
 
-bool VarDecl::IsStaticLocal(void) const {
+bool VarDecl::IsStaticLocal(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isStaticLocal();
   return val;
 }
 
-bool VarDecl::IsThisDeclarationADemotedDefinition(void) const {
+bool VarDecl::IsThisDeclarationADemotedDefinition(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isThisDeclarationADemotedDefinition();
   return val;
 }
 
-bool VarDecl::IsUsableInConstantExpressions(void) const {
+bool VarDecl::IsUsableInConstantExpressions(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isUsableInConstantExpressions(ast->ci->getASTContext());
   return val;
 }
 
-bool VarDecl::MightBeUsableInConstantExpressions(void) const {
+bool VarDecl::MightBeUsableInConstantExpressions(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.mightBeUsableInConstantExpressions(ast->ci->getASTContext());
   return val;
 }
 
 // 1: VarDecl::NeedsDestruction
+std::vector<::pasta::TemplateParameterList> VarDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.VarDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.VarDecl->getTemplateParameterList(i)));
+  }
+  return ret;
+}
+
 VarTemplateDecl::VarTemplateDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
@@ -6552,7 +6640,7 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, VarTemplateDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, VarTemplateDecl)
 PASTA_DEFINE_BASE_OPERATORS(RedeclarableTemplateDecl, VarTemplateDecl)
 PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, VarTemplateDecl)
-::pasta::VarTemplateDecl VarTemplateDecl::CanonicalDeclaration(void) const {
+::pasta::VarTemplateDecl VarTemplateDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.VarTemplateDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -6562,7 +6650,7 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, VarTemplateDecl)
   __builtin_unreachable();
 }
 
-::pasta::VarTemplateDecl VarTemplateDecl::InstantiatedFromMemberTemplate(void) const {
+::pasta::VarTemplateDecl VarTemplateDecl::InstantiatedFromMemberTemplate(void) const noexcept {
   auto &self = *(u.VarTemplateDecl);
   auto val = self.getInstantiatedFromMemberTemplate();
   if (val) {
@@ -6572,7 +6660,7 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, VarTemplateDecl)
   __builtin_unreachable();
 }
 
-::pasta::VarTemplateDecl VarTemplateDecl::MostRecentDeclaration(void) const {
+::pasta::VarTemplateDecl VarTemplateDecl::MostRecentDeclaration(void) const noexcept {
   auto &self = *(u.VarTemplateDecl);
   auto val = self.getMostRecentDecl();
   if (val) {
@@ -6582,7 +6670,7 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, VarTemplateDecl)
   __builtin_unreachable();
 }
 
-::pasta::VarTemplateDecl VarTemplateDecl::PreviousDeclaration(void) const {
+::pasta::VarTemplateDecl VarTemplateDecl::PreviousDeclaration(void) const noexcept {
   auto &self = *(u.VarTemplateDecl);
   auto val = self.getPreviousDecl();
   if (val) {
@@ -6592,7 +6680,7 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, VarTemplateDecl)
   __builtin_unreachable();
 }
 
-::pasta::VarDecl VarTemplateDecl::TemplatedDeclaration(void) const {
+::pasta::VarDecl VarTemplateDecl::TemplatedDeclaration(void) const noexcept {
   auto &self = *(u.VarTemplateDecl);
   auto val = self.getTemplatedDecl();
   if (val) {
@@ -6602,7 +6690,7 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, VarTemplateDecl)
   __builtin_unreachable();
 }
 
-bool VarTemplateDecl::IsThisDeclarationADefinition(void) const {
+bool VarTemplateDecl::IsThisDeclarationADefinition(void) const noexcept {
   auto &self = *(u.VarTemplateDecl);
   auto val = self.isThisDeclarationADefinition();
   return val;
@@ -6610,7 +6698,7 @@ bool VarTemplateDecl::IsThisDeclarationADefinition(void) const {
 
 // 0: VarTemplateDecl::
 // 0: VarTemplateDecl::
-std::vector<::pasta::VarTemplateSpecializationDecl> VarTemplateDecl::Specializations(void) const {
+std::vector<::pasta::VarTemplateSpecializationDecl> VarTemplateDecl::Specializations(void) const noexcept {
   auto &self = *(u.VarTemplateDecl);
   auto val = self.specializations();
   std::vector<::pasta::VarTemplateSpecializationDecl> ret;
@@ -6631,13 +6719,13 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, VarTemplateSpecializationDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, VarTemplateSpecializationDecl)
 PASTA_DEFINE_BASE_OPERATORS(VarDecl, VarTemplateSpecializationDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(VarTemplateSpecializationDecl, VarTemplatePartialSpecializationDecl)
-::pasta::Token VarTemplateSpecializationDecl::ExternToken(void) const {
+::pasta::Token VarTemplateSpecializationDecl::ExternToken(void) const noexcept {
   auto &self = *(u.VarTemplateSpecializationDecl);
   auto val = self.getExternLoc();
   return ast->TokenAt(val);
 }
 
-std::variant<std::monostate, ::pasta::VarTemplateDecl, ::pasta::VarTemplatePartialSpecializationDecl> VarTemplateSpecializationDecl::InstantiatedFrom(void) const {
+std::variant<std::monostate, ::pasta::VarTemplateDecl, ::pasta::VarTemplatePartialSpecializationDecl> VarTemplateSpecializationDecl::InstantiatedFrom(void) const noexcept {
   auto &self = *(u.VarTemplateSpecializationDecl);
   auto val = self.getInstantiatedFrom();
   std::variant<std::monostate, ::pasta::VarTemplateDecl, ::pasta::VarTemplatePartialSpecializationDecl> ret;
@@ -6655,19 +6743,19 @@ std::variant<std::monostate, ::pasta::VarTemplateDecl, ::pasta::VarTemplateParti
   return ret;
 }
 
-::pasta::Token VarTemplateSpecializationDecl::PointOfInstantiation(void) const {
+::pasta::Token VarTemplateSpecializationDecl::PointOfInstantiation(void) const noexcept {
   auto &self = *(u.VarTemplateSpecializationDecl);
   auto val = self.getPointOfInstantiation();
   return ast->TokenAt(val);
 }
 
-enum TemplateSpecializationKind VarTemplateSpecializationDecl::SpecializationKind(void) const {
+enum TemplateSpecializationKind VarTemplateSpecializationDecl::SpecializationKind(void) const noexcept {
   auto &self = *(u.VarTemplateSpecializationDecl);
   auto val = self.getSpecializationKind();
   return static_cast<::pasta::TemplateSpecializationKind>(static_cast<unsigned int>(val));
 }
 
-::pasta::VarTemplateDecl VarTemplateSpecializationDecl::SpecializedTemplate(void) const {
+::pasta::VarTemplateDecl VarTemplateSpecializationDecl::SpecializedTemplate(void) const noexcept {
   auto &self = *(u.VarTemplateSpecializationDecl);
   auto val = self.getSpecializedTemplate();
   if (val) {
@@ -6677,7 +6765,7 @@ enum TemplateSpecializationKind VarTemplateSpecializationDecl::SpecializationKin
   __builtin_unreachable();
 }
 
-std::variant<std::monostate, ::pasta::VarTemplateDecl, ::pasta::VarTemplatePartialSpecializationDecl> VarTemplateSpecializationDecl::SpecializedTemplateOrPartial(void) const {
+std::variant<std::monostate, ::pasta::VarTemplateDecl, ::pasta::VarTemplatePartialSpecializationDecl> VarTemplateSpecializationDecl::SpecializedTemplateOrPartial(void) const noexcept {
   auto &self = *(u.VarTemplateSpecializationDecl);
   auto val = self.getSpecializedTemplateOrPartial();
   std::variant<std::monostate, ::pasta::VarTemplateDecl, ::pasta::VarTemplatePartialSpecializationDecl> ret;
@@ -6698,29 +6786,48 @@ std::variant<std::monostate, ::pasta::VarTemplateDecl, ::pasta::VarTemplateParti
 // 0: VarTemplateSpecializationDecl::TemplateArguments
 // 0: VarTemplateSpecializationDecl::TemplateArgumentsInfo
 // 0: VarTemplateSpecializationDecl::TemplateInstantiationArguments
-::pasta::Token VarTemplateSpecializationDecl::TemplateKeywordToken(void) const {
+::pasta::Token VarTemplateSpecializationDecl::TemplateKeywordToken(void) const noexcept {
   auto &self = *(u.VarTemplateSpecializationDecl);
   auto val = self.getTemplateKeywordLoc();
   return ast->TokenAt(val);
 }
 
-// 0: VarTemplateSpecializationDecl::TypeAsWritten
-bool VarTemplateSpecializationDecl::IsClassScopeExplicitSpecialization(void) const {
+::pasta::Type VarTemplateSpecializationDecl::TypeAsWritten(void) const noexcept {
+  auto &self = *(u.VarTemplateSpecializationDecl);
+  auto val = self.getTypeAsWritten();
+  return TypeBuilder::Build(ast, val->getType());  assert(false && "VarTemplateSpecializationDecl::TypeAsWritten can return nullptr!");
+  __builtin_unreachable();
+}
+
+bool VarTemplateSpecializationDecl::IsClassScopeExplicitSpecialization(void) const noexcept {
   auto &self = *(u.VarTemplateSpecializationDecl);
   auto val = self.isClassScopeExplicitSpecialization();
   return val;
 }
 
-bool VarTemplateSpecializationDecl::IsExplicitInstantiationOrSpecialization(void) const {
+bool VarTemplateSpecializationDecl::IsExplicitInstantiationOrSpecialization(void) const noexcept {
   auto &self = *(u.VarTemplateSpecializationDecl);
   auto val = self.isExplicitInstantiationOrSpecialization();
   return val;
 }
 
-bool VarTemplateSpecializationDecl::IsExplicitSpecialization(void) const {
+bool VarTemplateSpecializationDecl::IsExplicitSpecialization(void) const noexcept {
   auto &self = *(u.VarTemplateSpecializationDecl);
   auto val = self.isExplicitSpecialization();
   return val;
+}
+
+std::vector<::pasta::TemplateParameterList> VarTemplateSpecializationDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.VarTemplateSpecializationDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.VarTemplateSpecializationDecl->getTemplateParameterList(i)));
+  }
+  return ret;
 }
 
 CXXDeductionGuideDecl::CXXDeductionGuideDecl(
@@ -6734,7 +6841,7 @@ PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, CXXDeductionGuideDecl)
 PASTA_DEFINE_BASE_OPERATORS(FunctionDecl, CXXDeductionGuideDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, CXXDeductionGuideDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXDeductionGuideDecl)
-::pasta::CXXConstructorDecl CXXDeductionGuideDecl::CorrespondingConstructor(void) const {
+::pasta::CXXConstructorDecl CXXDeductionGuideDecl::CorrespondingConstructor(void) const noexcept {
   auto &self = *(u.CXXDeductionGuideDecl);
   auto val = self.getCorrespondingConstructor();
   if (val) {
@@ -6744,7 +6851,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXDeductionGuideDecl)
   __builtin_unreachable();
 }
 
-::pasta::TemplateDecl CXXDeductionGuideDecl::DeducedTemplate(void) const {
+::pasta::TemplateDecl CXXDeductionGuideDecl::DeducedTemplate(void) const noexcept {
   auto &self = *(u.CXXDeductionGuideDecl);
   auto val = self.getDeducedTemplate();
   if (val) {
@@ -6755,19 +6862,32 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXDeductionGuideDecl)
 }
 
 // 0: CXXDeductionGuideDecl::ExplicitSpecifier
-bool CXXDeductionGuideDecl::IsCopyDeductionCandidate(void) const {
+bool CXXDeductionGuideDecl::IsCopyDeductionCandidate(void) const noexcept {
   auto &self = *(u.CXXDeductionGuideDecl);
   auto val = self.isCopyDeductionCandidate();
   return val;
 }
 
-bool CXXDeductionGuideDecl::IsExplicit(void) const {
+bool CXXDeductionGuideDecl::IsExplicit(void) const noexcept {
   auto &self = *(u.CXXDeductionGuideDecl);
   auto val = self.isExplicit();
   return val;
 }
 
-std::vector<::pasta::ParmVarDecl> CXXDeductionGuideDecl::ParamDeclarations(void) const {
+std::vector<::pasta::TemplateParameterList> CXXDeductionGuideDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.CXXDeductionGuideDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.CXXDeductionGuideDecl->getTemplateParameterList(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::ParmVarDecl> CXXDeductionGuideDecl::ParamDeclarations(void) const noexcept {
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
@@ -6799,7 +6919,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(CXXMethodDecl, CXXConversionDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(CXXMethodDecl, CXXDestructorDecl)
 // 0: CXXMethodDecl::
 // 0: CXXMethodDecl::
-::pasta::CXXMethodDecl CXXMethodDecl::CanonicalDeclaration(void) const {
+::pasta::CXXMethodDecl CXXMethodDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.CXXMethodDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -6813,7 +6933,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(CXXMethodDecl, CXXDestructorDecl)
 // 1: CXXMethodDecl::CorrespondingMethodInClass
 // 2: DevirtualizedMethod
 // 0: CXXMethodDecl::MethodQualifiers
-::pasta::CXXMethodDecl CXXMethodDecl::MostRecentDeclaration(void) const {
+::pasta::CXXMethodDecl CXXMethodDecl::MostRecentDeclaration(void) const noexcept {
   auto &self = *(u.CXXMethodDecl);
   auto val = self.getMostRecentDecl();
   if (val) {
@@ -6823,7 +6943,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(CXXMethodDecl, CXXDestructorDecl)
   __builtin_unreachable();
 }
 
-::pasta::CXXRecordDecl CXXMethodDecl::Parent(void) const {
+::pasta::CXXRecordDecl CXXMethodDecl::Parent(void) const noexcept {
   auto &self = *(u.CXXMethodDecl);
   auto val = self.getParent();
   if (val) {
@@ -6833,87 +6953,109 @@ PASTA_DEFINE_DERIVED_OPERATORS(CXXMethodDecl, CXXDestructorDecl)
   __builtin_unreachable();
 }
 
-enum RefQualifierKind CXXMethodDecl::ReferenceQualifier(void) const {
+enum RefQualifierKind CXXMethodDecl::ReferenceQualifier(void) const noexcept {
   auto &self = *(u.CXXMethodDecl);
   auto val = self.getRefQualifier();
   return static_cast<::pasta::RefQualifierKind>(static_cast<unsigned int>(val));
 }
 
-::pasta::Type CXXMethodDecl::ThisObjectType(void) const {
+::pasta::Type CXXMethodDecl::ThisObjectType(void) const noexcept {
   auto &self = *(u.CXXMethodDecl);
   auto val = self.getThisObjectType();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type CXXMethodDecl::ThisType(void) const {
+::pasta::Type CXXMethodDecl::ThisType(void) const noexcept {
   auto &self = *(u.CXXMethodDecl);
   auto val = self.getThisType();
   return TypeBuilder::Build(ast, val);
 }
 
-bool CXXMethodDecl::HasInlineBody(void) const {
+bool CXXMethodDecl::HasInlineBody(void) const noexcept {
   auto &self = *(u.CXXMethodDecl);
   auto val = self.hasInlineBody();
   return val;
 }
 
-bool CXXMethodDecl::IsConst(void) const {
+bool CXXMethodDecl::IsConst(void) const noexcept {
   auto &self = *(u.CXXMethodDecl);
   auto val = self.isConst();
   return val;
 }
 
-bool CXXMethodDecl::IsCopyAssignmentOperator(void) const {
+bool CXXMethodDecl::IsCopyAssignmentOperator(void) const noexcept {
   auto &self = *(u.CXXMethodDecl);
   auto val = self.isCopyAssignmentOperator();
   return val;
 }
 
-bool CXXMethodDecl::IsInstance(void) const {
+bool CXXMethodDecl::IsInstance(void) const noexcept {
   auto &self = *(u.CXXMethodDecl);
   auto val = self.isInstance();
   return val;
 }
 
-bool CXXMethodDecl::IsLambdaStaticInvoker(void) const {
+bool CXXMethodDecl::IsLambdaStaticInvoker(void) const noexcept {
   auto &self = *(u.CXXMethodDecl);
   auto val = self.isLambdaStaticInvoker();
   return val;
 }
 
-bool CXXMethodDecl::IsMoveAssignmentOperator(void) const {
+bool CXXMethodDecl::IsMoveAssignmentOperator(void) const noexcept {
   auto &self = *(u.CXXMethodDecl);
   auto val = self.isMoveAssignmentOperator();
   return val;
 }
 
-bool CXXMethodDecl::IsStatic(void) const {
+bool CXXMethodDecl::IsStatic(void) const noexcept {
   auto &self = *(u.CXXMethodDecl);
   auto val = self.isStatic();
   return val;
 }
 
 // 1: CXXMethodDecl::IsUsualDeallocationFunction
-bool CXXMethodDecl::IsVirtual(void) const {
+bool CXXMethodDecl::IsVirtual(void) const noexcept {
   auto &self = *(u.CXXMethodDecl);
   auto val = self.isVirtual();
   return val;
 }
 
-bool CXXMethodDecl::IsVolatile(void) const {
+bool CXXMethodDecl::IsVolatile(void) const noexcept {
   auto &self = *(u.CXXMethodDecl);
   auto val = self.isVolatile();
   return val;
 }
 
-// 0: CXXMethodDecl::OverriddenMethods
-uint32_t CXXMethodDecl::SizeOverriddenMethods(void) const {
+std::vector<::pasta::CXXMethodDecl> CXXMethodDecl::OverriddenMethods(void) const noexcept {
+  auto &self = *(u.CXXMethodDecl);
+  auto val = self.overridden_methods();
+  std::vector<::pasta::CXXMethodDecl> ret;
+  for (auto decl_ptr : val) {
+    ret.emplace_back(DeclBuilder::Create<::pasta::CXXMethodDecl>(ast, decl_ptr));
+  }
+  return ret;
+}
+
+uint32_t CXXMethodDecl::SizeOverriddenMethods(void) const noexcept {
   auto &self = *(u.CXXMethodDecl);
   auto val = self.size_overridden_methods();
   return val;
 }
 
-std::vector<::pasta::ParmVarDecl> CXXMethodDecl::ParamDeclarations(void) const {
+std::vector<::pasta::TemplateParameterList> CXXMethodDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.CXXMethodDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.CXXMethodDecl->getTemplateParameterList(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::ParmVarDecl> CXXMethodDecl::ParamDeclarations(void) const noexcept {
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
@@ -6938,7 +7080,7 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, ClassTemplateDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ClassTemplateDecl)
 PASTA_DEFINE_BASE_OPERATORS(RedeclarableTemplateDecl, ClassTemplateDecl)
 PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, ClassTemplateDecl)
-::pasta::ClassTemplateDecl ClassTemplateDecl::CanonicalDeclaration(void) const {
+::pasta::ClassTemplateDecl ClassTemplateDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.ClassTemplateDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -6948,7 +7090,7 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, ClassTemplateDecl)
   __builtin_unreachable();
 }
 
-::pasta::ClassTemplateDecl ClassTemplateDecl::InstantiatedFromMemberTemplate(void) const {
+::pasta::ClassTemplateDecl ClassTemplateDecl::InstantiatedFromMemberTemplate(void) const noexcept {
   auto &self = *(u.ClassTemplateDecl);
   auto val = self.getInstantiatedFromMemberTemplate();
   if (val) {
@@ -6958,7 +7100,7 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, ClassTemplateDecl)
   __builtin_unreachable();
 }
 
-::pasta::ClassTemplateDecl ClassTemplateDecl::MostRecentDeclaration(void) const {
+::pasta::ClassTemplateDecl ClassTemplateDecl::MostRecentDeclaration(void) const noexcept {
   auto &self = *(u.ClassTemplateDecl);
   auto val = self.getMostRecentDecl();
   if (val) {
@@ -6968,7 +7110,7 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, ClassTemplateDecl)
   __builtin_unreachable();
 }
 
-::pasta::ClassTemplateDecl ClassTemplateDecl::PreviousDeclaration(void) const {
+::pasta::ClassTemplateDecl ClassTemplateDecl::PreviousDeclaration(void) const noexcept {
   auto &self = *(u.ClassTemplateDecl);
   auto val = self.getPreviousDecl();
   if (val) {
@@ -6978,7 +7120,7 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, ClassTemplateDecl)
   __builtin_unreachable();
 }
 
-::pasta::CXXRecordDecl ClassTemplateDecl::TemplatedDeclaration(void) const {
+::pasta::CXXRecordDecl ClassTemplateDecl::TemplatedDeclaration(void) const noexcept {
   auto &self = *(u.ClassTemplateDecl);
   auto val = self.getTemplatedDecl();
   if (val) {
@@ -6988,7 +7130,7 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, ClassTemplateDecl)
   __builtin_unreachable();
 }
 
-bool ClassTemplateDecl::IsThisDeclarationADefinition(void) const {
+bool ClassTemplateDecl::IsThisDeclarationADefinition(void) const noexcept {
   auto &self = *(u.ClassTemplateDecl);
   auto val = self.isThisDeclarationADefinition();
   return val;
@@ -6996,7 +7138,7 @@ bool ClassTemplateDecl::IsThisDeclarationADefinition(void) const {
 
 // 0: ClassTemplateDecl::
 // 0: ClassTemplateDecl::
-std::vector<::pasta::ClassTemplateSpecializationDecl> ClassTemplateDecl::Specializations(void) const {
+std::vector<::pasta::ClassTemplateSpecializationDecl> ClassTemplateDecl::Specializations(void) const noexcept {
   auto &self = *(u.ClassTemplateDecl);
   auto val = self.specializations();
   std::vector<::pasta::ClassTemplateSpecializationDecl> ret;
@@ -7016,12 +7158,25 @@ PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, DecompositionDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, DecompositionDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, DecompositionDecl)
 PASTA_DEFINE_BASE_OPERATORS(VarDecl, DecompositionDecl)
-std::vector<::pasta::BindingDecl> DecompositionDecl::Bindings(void) const {
+std::vector<::pasta::BindingDecl> DecompositionDecl::Bindings(void) const noexcept {
   auto &self = *(u.DecompositionDecl);
   auto val = self.bindings();
   std::vector<::pasta::BindingDecl> ret;
   for (auto decl_ptr : val) {
     ret.emplace_back(DeclBuilder::Create<::pasta::BindingDecl>(ast, decl_ptr));
+  }
+  return ret;
+}
+
+std::vector<::pasta::TemplateParameterList> DecompositionDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.DecompositionDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.DecompositionDecl->getTemplateParameterList(i)));
   }
   return ret;
 }
@@ -7038,7 +7193,7 @@ PASTA_DEFINE_BASE_OPERATORS(TagDecl, EnumDecl)
 PASTA_DEFINE_BASE_OPERATORS(TypeDecl, EnumDecl)
 // 0: EnumDecl::
 // 0: EnumDecl::
-std::vector<::pasta::EnumConstantDecl> EnumDecl::Enumerators(void) const {
+std::vector<::pasta::EnumConstantDecl> EnumDecl::Enumerators(void) const noexcept {
   auto &self = *(u.EnumDecl);
   auto val = self.enumerators();
   std::vector<::pasta::EnumConstantDecl> ret;
@@ -7048,7 +7203,7 @@ std::vector<::pasta::EnumConstantDecl> EnumDecl::Enumerators(void) const {
   return ret;
 }
 
-::pasta::EnumDecl EnumDecl::CanonicalDeclaration(void) const {
+::pasta::EnumDecl EnumDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.EnumDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -7058,7 +7213,7 @@ std::vector<::pasta::EnumConstantDecl> EnumDecl::Enumerators(void) const {
   __builtin_unreachable();
 }
 
-::pasta::EnumDecl EnumDecl::Definition(void) const {
+::pasta::EnumDecl EnumDecl::Definition(void) const noexcept {
   auto &self = *(u.EnumDecl);
   auto val = self.getDefinition();
   if (val) {
@@ -7068,7 +7223,7 @@ std::vector<::pasta::EnumConstantDecl> EnumDecl::Enumerators(void) const {
   __builtin_unreachable();
 }
 
-::pasta::EnumDecl EnumDecl::InstantiatedFromMemberEnum(void) const {
+::pasta::EnumDecl EnumDecl::InstantiatedFromMemberEnum(void) const noexcept {
   auto &self = *(u.EnumDecl);
   auto val = self.getInstantiatedFromMemberEnum();
   if (val) {
@@ -7078,21 +7233,27 @@ std::vector<::pasta::EnumConstantDecl> EnumDecl::Enumerators(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Type EnumDecl::IntegerType(void) const {
+::pasta::Type EnumDecl::IntegerType(void) const noexcept {
   auto &self = *(u.EnumDecl);
   auto val = self.getIntegerType();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::TokenRange EnumDecl::IntegerTypeRange(void) const {
+::pasta::TokenRange EnumDecl::IntegerTypeRange(void) const noexcept {
   auto &self = *(u.EnumDecl);
   auto val = self.getIntegerTypeRange();
   return ast->TokenRangeFrom(val);
 }
 
-// 0: EnumDecl::IntegerTypeSourceInfo
+::pasta::Type EnumDecl::IntegerTypeSourceInfo(void) const noexcept {
+  auto &self = *(u.EnumDecl);
+  auto val = self.getIntegerTypeSourceInfo();
+  return TypeBuilder::Build(ast, val->getType());  assert(false && "EnumDecl::IntegerTypeSourceInfo can return nullptr!");
+  __builtin_unreachable();
+}
+
 // 0: EnumDecl::MemberSpecializationInfo
-::pasta::EnumDecl EnumDecl::MostRecentDeclaration(void) const {
+::pasta::EnumDecl EnumDecl::MostRecentDeclaration(void) const noexcept {
   auto &self = *(u.EnumDecl);
   auto val = self.getMostRecentDecl();
   if (val) {
@@ -7102,19 +7263,19 @@ std::vector<::pasta::EnumConstantDecl> EnumDecl::Enumerators(void) const {
   __builtin_unreachable();
 }
 
-uint32_t EnumDecl::NumNegativeBits(void) const {
+uint32_t EnumDecl::NumNegativeBits(void) const noexcept {
   auto &self = *(u.EnumDecl);
   auto val = self.getNumNegativeBits();
   return val;
 }
 
-uint32_t EnumDecl::NumPositiveBits(void) const {
+uint32_t EnumDecl::NumPositiveBits(void) const noexcept {
   auto &self = *(u.EnumDecl);
   auto val = self.getNumPositiveBits();
   return val;
 }
 
-::pasta::EnumDecl EnumDecl::PreviousDeclaration(void) const {
+::pasta::EnumDecl EnumDecl::PreviousDeclaration(void) const noexcept {
   auto &self = *(u.EnumDecl);
   auto val = self.getPreviousDecl();
   if (val) {
@@ -7124,13 +7285,13 @@ uint32_t EnumDecl::NumPositiveBits(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Type EnumDecl::PromotionType(void) const {
+::pasta::Type EnumDecl::PromotionType(void) const noexcept {
   auto &self = *(u.EnumDecl);
   auto val = self.getPromotionType();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::EnumDecl EnumDecl::TemplateInstantiationPattern(void) const {
+::pasta::EnumDecl EnumDecl::TemplateInstantiationPattern(void) const noexcept {
   auto &self = *(u.EnumDecl);
   auto val = self.getTemplateInstantiationPattern();
   if (val) {
@@ -7140,52 +7301,65 @@ uint32_t EnumDecl::NumPositiveBits(void) const {
   __builtin_unreachable();
 }
 
-enum TemplateSpecializationKind EnumDecl::TemplateSpecializationKind(void) const {
+enum TemplateSpecializationKind EnumDecl::TemplateSpecializationKind(void) const noexcept {
   auto &self = *(u.EnumDecl);
   auto val = self.getTemplateSpecializationKind();
   return static_cast<::pasta::TemplateSpecializationKind>(static_cast<unsigned int>(val));
 }
 
-bool EnumDecl::IsClosed(void) const {
+bool EnumDecl::IsClosed(void) const noexcept {
   auto &self = *(u.EnumDecl);
   auto val = self.isClosed();
   return val;
 }
 
-bool EnumDecl::IsClosedFlag(void) const {
+bool EnumDecl::IsClosedFlag(void) const noexcept {
   auto &self = *(u.EnumDecl);
   auto val = self.isClosedFlag();
   return val;
 }
 
-bool EnumDecl::IsClosedNonFlag(void) const {
+bool EnumDecl::IsClosedNonFlag(void) const noexcept {
   auto &self = *(u.EnumDecl);
   auto val = self.isClosedNonFlag();
   return val;
 }
 
-bool EnumDecl::IsComplete(void) const {
+bool EnumDecl::IsComplete(void) const noexcept {
   auto &self = *(u.EnumDecl);
   auto val = self.isComplete();
   return val;
 }
 
-bool EnumDecl::IsFixed(void) const {
+bool EnumDecl::IsFixed(void) const noexcept {
   auto &self = *(u.EnumDecl);
   auto val = self.isFixed();
   return val;
 }
 
-bool EnumDecl::IsScoped(void) const {
+bool EnumDecl::IsScoped(void) const noexcept {
   auto &self = *(u.EnumDecl);
   auto val = self.isScoped();
   return val;
 }
 
-bool EnumDecl::IsScopedUsingClassTag(void) const {
+bool EnumDecl::IsScopedUsingClassTag(void) const noexcept {
   auto &self = *(u.EnumDecl);
   auto val = self.isScopedUsingClassTag();
   return val;
+}
+
+std::vector<::pasta::TemplateParameterList> EnumDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.EnumDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.EnumDecl->getTemplateParameterList(i)));
+  }
+  return ret;
 }
 
 FunctionTemplateDecl::FunctionTemplateDecl(
@@ -7197,7 +7371,7 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, FunctionTemplateDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, FunctionTemplateDecl)
 PASTA_DEFINE_BASE_OPERATORS(RedeclarableTemplateDecl, FunctionTemplateDecl)
 PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, FunctionTemplateDecl)
-::pasta::FunctionTemplateDecl FunctionTemplateDecl::CanonicalDeclaration(void) const {
+::pasta::FunctionTemplateDecl FunctionTemplateDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.FunctionTemplateDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -7207,7 +7381,7 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, FunctionTemplateDecl)
   __builtin_unreachable();
 }
 
-::pasta::FunctionTemplateDecl FunctionTemplateDecl::InstantiatedFromMemberTemplate(void) const {
+::pasta::FunctionTemplateDecl FunctionTemplateDecl::InstantiatedFromMemberTemplate(void) const noexcept {
   auto &self = *(u.FunctionTemplateDecl);
   auto val = self.getInstantiatedFromMemberTemplate();
   if (val) {
@@ -7217,7 +7391,7 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, FunctionTemplateDecl)
   __builtin_unreachable();
 }
 
-::pasta::FunctionTemplateDecl FunctionTemplateDecl::MostRecentDeclaration(void) const {
+::pasta::FunctionTemplateDecl FunctionTemplateDecl::MostRecentDeclaration(void) const noexcept {
   auto &self = *(u.FunctionTemplateDecl);
   auto val = self.getMostRecentDecl();
   if (val) {
@@ -7227,7 +7401,7 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, FunctionTemplateDecl)
   __builtin_unreachable();
 }
 
-::pasta::FunctionTemplateDecl FunctionTemplateDecl::PreviousDeclaration(void) const {
+::pasta::FunctionTemplateDecl FunctionTemplateDecl::PreviousDeclaration(void) const noexcept {
   auto &self = *(u.FunctionTemplateDecl);
   auto val = self.getPreviousDecl();
   if (val) {
@@ -7237,7 +7411,7 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, FunctionTemplateDecl)
   __builtin_unreachable();
 }
 
-::pasta::FunctionDecl FunctionTemplateDecl::TemplatedDeclaration(void) const {
+::pasta::FunctionDecl FunctionTemplateDecl::TemplatedDeclaration(void) const noexcept {
   auto &self = *(u.FunctionTemplateDecl);
   auto val = self.getTemplatedDecl();
   if (val) {
@@ -7247,13 +7421,13 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, FunctionTemplateDecl)
   __builtin_unreachable();
 }
 
-bool FunctionTemplateDecl::IsAbbreviated(void) const {
+bool FunctionTemplateDecl::IsAbbreviated(void) const noexcept {
   auto &self = *(u.FunctionTemplateDecl);
   auto val = self.isAbbreviated();
   return val;
 }
 
-bool FunctionTemplateDecl::IsThisDeclarationADefinition(void) const {
+bool FunctionTemplateDecl::IsThisDeclarationADefinition(void) const noexcept {
   auto &self = *(u.FunctionTemplateDecl);
   auto val = self.isThisDeclarationADefinition();
   return val;
@@ -7261,7 +7435,7 @@ bool FunctionTemplateDecl::IsThisDeclarationADefinition(void) const {
 
 // 0: FunctionTemplateDecl::
 // 0: FunctionTemplateDecl::
-std::vector<::pasta::FunctionDecl> FunctionTemplateDecl::Specializations(void) const {
+std::vector<::pasta::FunctionDecl> FunctionTemplateDecl::Specializations(void) const noexcept {
   auto &self = *(u.FunctionTemplateDecl);
   auto val = self.specializations();
   std::vector<::pasta::FunctionDecl> ret;
@@ -7281,10 +7455,23 @@ PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, ImplicitParamDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ImplicitParamDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, ImplicitParamDecl)
 PASTA_DEFINE_BASE_OPERATORS(VarDecl, ImplicitParamDecl)
-::pasta::ImplicitParamKind ImplicitParamDecl::ParameterKind(void) const {
+::pasta::ImplicitParamKind ImplicitParamDecl::ParameterKind(void) const noexcept {
   auto &self = *(u.ImplicitParamDecl);
   auto val = self.getParameterKind();
   return static_cast<::pasta::ImplicitParamKind>(val);
+}
+
+std::vector<::pasta::TemplateParameterList> ImplicitParamDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.ImplicitParamDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.ImplicitParamDecl->getTemplateParameterList(i)));
+  }
+  return ret;
 }
 
 OMPCapturedExprDecl::OMPCapturedExprDecl(
@@ -7297,8 +7484,17 @@ PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, OMPCapturedExprDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, OMPCapturedExprDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPCapturedExprDecl)
 PASTA_DEFINE_BASE_OPERATORS(VarDecl, OMPCapturedExprDecl)
-::pasta::TokenRange OMPCapturedExprDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.OMPCapturedExprDecl);
+std::vector<::pasta::TemplateParameterList> OMPCapturedExprDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.OMPCapturedExprDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.OMPCapturedExprDecl->getTemplateParameterList(i)));
+  }
+  return ret;
 }
 
 ParmVarDecl::ParmVarDecl(
@@ -7311,7 +7507,7 @@ PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, ParmVarDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ParmVarDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, ParmVarDecl)
 PASTA_DEFINE_BASE_OPERATORS(VarDecl, ParmVarDecl)
-::pasta::Expr ParmVarDecl::DefaultArgument(void) const {
+::pasta::Expr ParmVarDecl::DefaultArgument(void) const noexcept {
   auto &self = *(u.ParmVarDecl);
   auto val = self.getDefaultArg();
   if (val) {
@@ -7321,36 +7517,32 @@ PASTA_DEFINE_BASE_OPERATORS(VarDecl, ParmVarDecl)
   __builtin_unreachable();
 }
 
-::pasta::TokenRange ParmVarDecl::DefaultArgumentRange(void) const {
+::pasta::TokenRange ParmVarDecl::DefaultArgumentRange(void) const noexcept {
   auto &self = *(u.ParmVarDecl);
   auto val = self.getDefaultArgRange();
   return ast->TokenRangeFrom(val);
 }
 
-uint32_t ParmVarDecl::FunctionScopeDepth(void) const {
+uint32_t ParmVarDecl::FunctionScopeDepth(void) const noexcept {
   auto &self = *(u.ParmVarDecl);
   auto val = self.getFunctionScopeDepth();
   return val;
 }
 
-uint32_t ParmVarDecl::FunctionScopeIndex(void) const {
+uint32_t ParmVarDecl::FunctionScopeIndex(void) const noexcept {
   auto &self = *(u.ParmVarDecl);
   auto val = self.getFunctionScopeIndex();
   return val;
 }
 
 // 0: ParmVarDecl::ObjCDeclQualifier
-::pasta::Type ParmVarDecl::OriginalType(void) const {
+::pasta::Type ParmVarDecl::OriginalType(void) const noexcept {
   auto &self = *(u.ParmVarDecl);
   auto val = self.getOriginalType();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::TokenRange ParmVarDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.ParmVarDecl);
-}
-
-::pasta::Expr ParmVarDecl::UninstantiatedDefaultArgument(void) const {
+::pasta::Expr ParmVarDecl::UninstantiatedDefaultArgument(void) const noexcept {
   auto &self = *(u.ParmVarDecl);
   auto val = self.getUninstantiatedDefaultArg();
   if (val) {
@@ -7360,46 +7552,59 @@ uint32_t ParmVarDecl::FunctionScopeIndex(void) const {
   __builtin_unreachable();
 }
 
-bool ParmVarDecl::HasDefaultArgument(void) const {
+bool ParmVarDecl::HasDefaultArgument(void) const noexcept {
   auto &self = *(u.ParmVarDecl);
   auto val = self.hasDefaultArg();
   return val;
 }
 
-bool ParmVarDecl::HasInheritedDefaultArgument(void) const {
+bool ParmVarDecl::HasInheritedDefaultArgument(void) const noexcept {
   auto &self = *(u.ParmVarDecl);
   auto val = self.hasInheritedDefaultArg();
   return val;
 }
 
-bool ParmVarDecl::HasUninstantiatedDefaultArgument(void) const {
+bool ParmVarDecl::HasUninstantiatedDefaultArgument(void) const noexcept {
   auto &self = *(u.ParmVarDecl);
   auto val = self.hasUninstantiatedDefaultArg();
   return val;
 }
 
-bool ParmVarDecl::HasUnparsedDefaultArgument(void) const {
+bool ParmVarDecl::HasUnparsedDefaultArgument(void) const noexcept {
   auto &self = *(u.ParmVarDecl);
   auto val = self.hasUnparsedDefaultArg();
   return val;
 }
 
-bool ParmVarDecl::IsDestroyedInCallee(void) const {
+bool ParmVarDecl::IsDestroyedInCallee(void) const noexcept {
   auto &self = *(u.ParmVarDecl);
   auto val = self.isDestroyedInCallee();
   return val;
 }
 
-bool ParmVarDecl::IsKNRPromoted(void) const {
+bool ParmVarDecl::IsKNRPromoted(void) const noexcept {
   auto &self = *(u.ParmVarDecl);
   auto val = self.isKNRPromoted();
   return val;
 }
 
-bool ParmVarDecl::IsObjCMethodParameter(void) const {
+bool ParmVarDecl::IsObjCMethodParameter(void) const noexcept {
   auto &self = *(u.ParmVarDecl);
   auto val = self.isObjCMethodParameter();
   return val;
+}
+
+std::vector<::pasta::TemplateParameterList> ParmVarDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.ParmVarDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.ParmVarDecl->getTemplateParameterList(i)));
+  }
+  return ret;
 }
 
 RecordDecl::RecordDecl(
@@ -7415,7 +7620,7 @@ PASTA_DEFINE_BASE_OPERATORS(TypeDecl, RecordDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(RecordDecl, CXXRecordDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(RecordDecl, ClassTemplatePartialSpecializationDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(RecordDecl, ClassTemplateSpecializationDecl)
-bool RecordDecl::CanPassInRegisters(void) const {
+bool RecordDecl::CanPassInRegisters(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.canPassInRegisters();
   return val;
@@ -7424,7 +7629,7 @@ bool RecordDecl::CanPassInRegisters(void) const {
 // 0: RecordDecl::
 // 0: RecordDecl::
 // 0: RecordDecl::
-std::vector<::pasta::FieldDecl> RecordDecl::Fields(void) const {
+std::vector<::pasta::FieldDecl> RecordDecl::Fields(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.fields();
   std::vector<::pasta::FieldDecl> ret;
@@ -7434,7 +7639,7 @@ std::vector<::pasta::FieldDecl> RecordDecl::Fields(void) const {
   return ret;
 }
 
-::pasta::FieldDecl RecordDecl::FindFirstNamedDataMember(void) const {
+::pasta::FieldDecl RecordDecl::FindFirstNamedDataMember(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.findFirstNamedDataMember();
   if (val) {
@@ -7444,13 +7649,13 @@ std::vector<::pasta::FieldDecl> RecordDecl::Fields(void) const {
   __builtin_unreachable();
 }
 
-::pasta::ArgPassingKind RecordDecl::ArgumentPassingRestrictions(void) const {
+::pasta::ArgPassingKind RecordDecl::ArgumentPassingRestrictions(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.getArgPassingRestrictions();
   return static_cast<::pasta::ArgPassingKind>(val);
 }
 
-::pasta::RecordDecl RecordDecl::Definition(void) const {
+::pasta::RecordDecl RecordDecl::Definition(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.getDefinition();
   if (val) {
@@ -7460,7 +7665,7 @@ std::vector<::pasta::FieldDecl> RecordDecl::Fields(void) const {
   __builtin_unreachable();
 }
 
-::pasta::RecordDecl RecordDecl::MostRecentDeclaration(void) const {
+::pasta::RecordDecl RecordDecl::MostRecentDeclaration(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.getMostRecentDecl();
   if (val) {
@@ -7470,7 +7675,7 @@ std::vector<::pasta::FieldDecl> RecordDecl::Fields(void) const {
   __builtin_unreachable();
 }
 
-::pasta::RecordDecl RecordDecl::PreviousDeclaration(void) const {
+::pasta::RecordDecl RecordDecl::PreviousDeclaration(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.getPreviousDecl();
   if (val) {
@@ -7480,112 +7685,125 @@ std::vector<::pasta::FieldDecl> RecordDecl::Fields(void) const {
   __builtin_unreachable();
 }
 
-bool RecordDecl::HasFlexibleArrayMember(void) const {
+bool RecordDecl::HasFlexibleArrayMember(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.hasFlexibleArrayMember();
   return val;
 }
 
-bool RecordDecl::HasLoadedFieldsFromExternalStorage(void) const {
+bool RecordDecl::HasLoadedFieldsFromExternalStorage(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.hasLoadedFieldsFromExternalStorage();
   return val;
 }
 
-bool RecordDecl::HasNonTrivialToPrimitiveCopyCUnion(void) const {
+bool RecordDecl::HasNonTrivialToPrimitiveCopyCUnion(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.hasNonTrivialToPrimitiveCopyCUnion();
   return val;
 }
 
-bool RecordDecl::HasNonTrivialToPrimitiveDefaultInitializeCUnion(void) const {
+bool RecordDecl::HasNonTrivialToPrimitiveDefaultInitializeCUnion(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.hasNonTrivialToPrimitiveDefaultInitializeCUnion();
   return val;
 }
 
-bool RecordDecl::HasNonTrivialToPrimitiveDestructCUnion(void) const {
+bool RecordDecl::HasNonTrivialToPrimitiveDestructCUnion(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.hasNonTrivialToPrimitiveDestructCUnion();
   return val;
 }
 
-bool RecordDecl::HasObjectMember(void) const {
+bool RecordDecl::HasObjectMember(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.hasObjectMember();
   return val;
 }
 
-bool RecordDecl::HasVolatileMember(void) const {
+bool RecordDecl::HasVolatileMember(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.hasVolatileMember();
   return val;
 }
 
-bool RecordDecl::IsAnonymousStructOrUnion(void) const {
+bool RecordDecl::IsAnonymousStructOrUnion(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.isAnonymousStructOrUnion();
   return val;
 }
 
-bool RecordDecl::IsCapturedRecord(void) const {
+bool RecordDecl::IsCapturedRecord(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.isCapturedRecord();
   return val;
 }
 
-bool RecordDecl::IsInjectedClassName(void) const {
+bool RecordDecl::IsInjectedClassName(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.isInjectedClassName();
   return val;
 }
 
-bool RecordDecl::IsLambda(void) const {
+bool RecordDecl::IsLambda(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.isLambda();
   return val;
 }
 
-bool RecordDecl::IsMsStruct(void) const {
+bool RecordDecl::IsMsStruct(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.isMsStruct(ast->ci->getASTContext());
   return val;
 }
 
-bool RecordDecl::IsNonTrivialToPrimitiveCopy(void) const {
+bool RecordDecl::IsNonTrivialToPrimitiveCopy(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.isNonTrivialToPrimitiveCopy();
   return val;
 }
 
-bool RecordDecl::IsNonTrivialToPrimitiveDefaultInitialize(void) const {
+bool RecordDecl::IsNonTrivialToPrimitiveDefaultInitialize(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.isNonTrivialToPrimitiveDefaultInitialize();
   return val;
 }
 
-bool RecordDecl::IsNonTrivialToPrimitiveDestroy(void) const {
+bool RecordDecl::IsNonTrivialToPrimitiveDestroy(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.isNonTrivialToPrimitiveDestroy();
   return val;
 }
 
-bool RecordDecl::IsOrContainsUnion(void) const {
+bool RecordDecl::IsOrContainsUnion(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.isOrContainsUnion();
   return val;
 }
 
-bool RecordDecl::IsParamDestroyedInCallee(void) const {
+bool RecordDecl::IsParamDestroyedInCallee(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.isParamDestroyedInCallee();
   return val;
 }
 
-bool RecordDecl::MayInsertExtraPadding(void) const {
+bool RecordDecl::MayInsertExtraPadding(void) const noexcept {
   auto &self = *(u.RecordDecl);
   auto val = self.mayInsertExtraPadding();
   return val;
+}
+
+std::vector<::pasta::TemplateParameterList> RecordDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.RecordDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.RecordDecl->getTemplateParameterList(i)));
+  }
+  return ret;
 }
 
 VarTemplatePartialSpecializationDecl::VarTemplatePartialSpecializationDecl(
@@ -7599,7 +7817,7 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, VarTemplatePartialSpecializationDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, VarTemplatePartialSpecializationDecl)
 PASTA_DEFINE_BASE_OPERATORS(VarDecl, VarTemplatePartialSpecializationDecl)
 PASTA_DEFINE_BASE_OPERATORS(VarTemplateSpecializationDecl, VarTemplatePartialSpecializationDecl)
-::pasta::VarTemplatePartialSpecializationDecl VarTemplatePartialSpecializationDecl::InstantiatedFromMember(void) const {
+::pasta::VarTemplatePartialSpecializationDecl VarTemplatePartialSpecializationDecl::InstantiatedFromMember(void) const noexcept {
   auto &self = *(u.VarTemplatePartialSpecializationDecl);
   auto val = self.getInstantiatedFromMember();
   if (val) {
@@ -7610,11 +7828,31 @@ PASTA_DEFINE_BASE_OPERATORS(VarTemplateSpecializationDecl, VarTemplatePartialSpe
 }
 
 // 0: VarTemplatePartialSpecializationDecl::TemplateArgumentsAsWritten
-// 0: VarTemplatePartialSpecializationDecl::TemplateParameters
-bool VarTemplatePartialSpecializationDecl::HasAssociatedConstraints(void) const {
+::pasta::TemplateParameterList VarTemplatePartialSpecializationDecl::TemplateParameters(void) const noexcept {
+  auto &self = *(u.VarTemplatePartialSpecializationDecl);
+  auto val = self.getTemplateParameters();
+  return ::pasta::TemplateParameterList(ast, val);
+  assert(false && "VarTemplatePartialSpecializationDecl::TemplateParameters can return nullptr!");
+  __builtin_unreachable();
+}
+
+bool VarTemplatePartialSpecializationDecl::HasAssociatedConstraints(void) const noexcept {
   auto &self = *(u.VarTemplatePartialSpecializationDecl);
   auto val = self.hasAssociatedConstraints();
   return val;
+}
+
+std::vector<::pasta::TemplateParameterList> VarTemplatePartialSpecializationDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.VarTemplatePartialSpecializationDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.VarTemplatePartialSpecializationDecl->getTemplateParameterList(i)));
+  }
+  return ret;
 }
 
 CXXConstructorDecl::CXXConstructorDecl(
@@ -7629,7 +7867,7 @@ PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, CXXConstructorDecl)
 PASTA_DEFINE_BASE_OPERATORS(FunctionDecl, CXXConstructorDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, CXXConstructorDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXConstructorDecl)
-::pasta::CXXConstructorDecl CXXConstructorDecl::CanonicalDeclaration(void) const {
+::pasta::CXXConstructorDecl CXXConstructorDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.CXXConstructorDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -7641,13 +7879,13 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXConstructorDecl)
 
 // 0: CXXConstructorDecl::ExplicitSpecifier
 // 0: CXXConstructorDecl::InheritedConstructor
-uint32_t CXXConstructorDecl::NumConstructorInitializers(void) const {
+uint32_t CXXConstructorDecl::NumConstructorInitializers(void) const noexcept {
   auto &self = *(u.CXXConstructorDecl);
   auto val = self.getNumCtorInitializers();
   return val;
 }
 
-::pasta::CXXConstructorDecl CXXConstructorDecl::TargetConstructor(void) const {
+::pasta::CXXConstructorDecl CXXConstructorDecl::TargetConstructor(void) const noexcept {
   auto &self = *(u.CXXConstructorDecl);
   auto val = self.getTargetConstructor();
   if (val) {
@@ -7662,38 +7900,56 @@ uint32_t CXXConstructorDecl::NumConstructorInitializers(void) const {
 // 0: CXXConstructorDecl::
 // 0: CXXConstructorDecl::
 // 0: CXXConstructorDecl::Initializers
-// 1: CXXConstructorDecl::IsConvertingConstructor
-bool CXXConstructorDecl::IsDefaultConstructor(void) const {
+bool CXXConstructorDecl::IsConvertingConstructor(bool b) const noexcept {
+  auto &self = *(u.CXXConstructorDecl);
+  auto val = self.isConvertingConstructor(b);
+  return val;
+}
+
+bool CXXConstructorDecl::IsDefaultConstructor(void) const noexcept {
   auto &self = *(u.CXXConstructorDecl);
   auto val = self.isDefaultConstructor();
   return val;
 }
 
-bool CXXConstructorDecl::IsDelegatingConstructor(void) const {
+bool CXXConstructorDecl::IsDelegatingConstructor(void) const noexcept {
   auto &self = *(u.CXXConstructorDecl);
   auto val = self.isDelegatingConstructor();
   return val;
 }
 
-bool CXXConstructorDecl::IsExplicit(void) const {
+bool CXXConstructorDecl::IsExplicit(void) const noexcept {
   auto &self = *(u.CXXConstructorDecl);
   auto val = self.isExplicit();
   return val;
 }
 
-bool CXXConstructorDecl::IsInheritingConstructor(void) const {
+bool CXXConstructorDecl::IsInheritingConstructor(void) const noexcept {
   auto &self = *(u.CXXConstructorDecl);
   auto val = self.isInheritingConstructor();
   return val;
 }
 
-bool CXXConstructorDecl::IsSpecializationCopyingObject(void) const {
+bool CXXConstructorDecl::IsSpecializationCopyingObject(void) const noexcept {
   auto &self = *(u.CXXConstructorDecl);
   auto val = self.isSpecializationCopyingObject();
   return val;
 }
 
-std::vector<::pasta::ParmVarDecl> CXXConstructorDecl::ParamDeclarations(void) const {
+std::vector<::pasta::TemplateParameterList> CXXConstructorDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.CXXConstructorDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.CXXConstructorDecl->getTemplateParameterList(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::ParmVarDecl> CXXConstructorDecl::ParamDeclarations(void) const noexcept {
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
@@ -7721,7 +7977,7 @@ PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, CXXConversionDecl)
 PASTA_DEFINE_BASE_OPERATORS(FunctionDecl, CXXConversionDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, CXXConversionDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXConversionDecl)
-::pasta::CXXConversionDecl CXXConversionDecl::CanonicalDeclaration(void) const {
+::pasta::CXXConversionDecl CXXConversionDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.CXXConversionDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -7731,26 +7987,39 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXConversionDecl)
   __builtin_unreachable();
 }
 
-::pasta::Type CXXConversionDecl::ConversionType(void) const {
+::pasta::Type CXXConversionDecl::ConversionType(void) const noexcept {
   auto &self = *(u.CXXConversionDecl);
   auto val = self.getConversionType();
   return TypeBuilder::Build(ast, val);
 }
 
 // 0: CXXConversionDecl::ExplicitSpecifier
-bool CXXConversionDecl::IsExplicit(void) const {
+bool CXXConversionDecl::IsExplicit(void) const noexcept {
   auto &self = *(u.CXXConversionDecl);
   auto val = self.isExplicit();
   return val;
 }
 
-bool CXXConversionDecl::IsLambdaToBlockPointerConversion(void) const {
+bool CXXConversionDecl::IsLambdaToBlockPointerConversion(void) const noexcept {
   auto &self = *(u.CXXConversionDecl);
   auto val = self.isLambdaToBlockPointerConversion();
   return val;
 }
 
-std::vector<::pasta::ParmVarDecl> CXXConversionDecl::ParamDeclarations(void) const {
+std::vector<::pasta::TemplateParameterList> CXXConversionDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.CXXConversionDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.CXXConversionDecl->getTemplateParameterList(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::ParmVarDecl> CXXConversionDecl::ParamDeclarations(void) const noexcept {
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
@@ -7778,7 +8047,7 @@ PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, CXXDestructorDecl)
 PASTA_DEFINE_BASE_OPERATORS(FunctionDecl, CXXDestructorDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, CXXDestructorDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXDestructorDecl)
-::pasta::CXXDestructorDecl CXXDestructorDecl::CanonicalDeclaration(void) const {
+::pasta::CXXDestructorDecl CXXDestructorDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.CXXDestructorDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -7788,7 +8057,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXDestructorDecl)
   __builtin_unreachable();
 }
 
-::pasta::FunctionDecl CXXDestructorDecl::OperatorDelete(void) const {
+::pasta::FunctionDecl CXXDestructorDecl::OperatorDelete(void) const noexcept {
   auto &self = *(u.CXXDestructorDecl);
   auto val = self.getOperatorDelete();
   if (val) {
@@ -7798,7 +8067,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXDestructorDecl)
   __builtin_unreachable();
 }
 
-::pasta::Expr CXXDestructorDecl::OperatorDeleteThisArgument(void) const {
+::pasta::Expr CXXDestructorDecl::OperatorDeleteThisArgument(void) const noexcept {
   auto &self = *(u.CXXDestructorDecl);
   auto val = self.getOperatorDeleteThisArg();
   if (val) {
@@ -7808,7 +8077,20 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXDestructorDecl)
   __builtin_unreachable();
 }
 
-std::vector<::pasta::ParmVarDecl> CXXDestructorDecl::ParamDeclarations(void) const {
+std::vector<::pasta::TemplateParameterList> CXXDestructorDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.CXXDestructorDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.CXXDestructorDecl->getTemplateParameterList(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::ParmVarDecl> CXXDestructorDecl::ParamDeclarations(void) const noexcept {
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
@@ -7837,13 +8119,13 @@ PASTA_DEFINE_BASE_OPERATORS(TagDecl, CXXRecordDecl)
 PASTA_DEFINE_BASE_OPERATORS(TypeDecl, CXXRecordDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(CXXRecordDecl, ClassTemplatePartialSpecializationDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(CXXRecordDecl, ClassTemplateSpecializationDecl)
-bool CXXRecordDecl::AllowConstDefaultInitializer(void) const {
+bool CXXRecordDecl::AllowConstDefaultInitializer(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.allowConstDefaultInit();
   return val;
 }
 
-std::vector<::pasta::CXXBaseSpecifier> CXXRecordDecl::Bases(void) const {
+std::vector<::pasta::CXXBaseSpecifier> CXXRecordDecl::Bases(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.bases();
   std::vector<::pasta::CXXBaseSpecifier> ret;
@@ -7855,7 +8137,7 @@ std::vector<::pasta::CXXBaseSpecifier> CXXRecordDecl::Bases(void) const {
 
 // 0: CXXRecordDecl::
 // 0: CXXRecordDecl::
-enum MSInheritanceModel CXXRecordDecl::CalculateInheritanceModel(void) const {
+enum MSInheritanceModel CXXRecordDecl::CalculateInheritanceModel(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.calculateInheritanceModel();
   return static_cast<::pasta::MSInheritanceModel>(static_cast<int>(val));
@@ -7869,7 +8151,7 @@ enum MSInheritanceModel CXXRecordDecl::CalculateInheritanceModel(void) const {
 // 0: CXXRecordDecl::
 // 0: CXXRecordDecl::
 // 0: CXXRecordDecl::
-std::vector<::pasta::CXXConstructorDecl> CXXRecordDecl::Constructors(void) const {
+std::vector<::pasta::CXXConstructorDecl> CXXRecordDecl::Constructors(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.ctors();
   std::vector<::pasta::CXXConstructorDecl> ret;
@@ -7879,31 +8161,31 @@ std::vector<::pasta::CXXConstructorDecl> CXXRecordDecl::Constructors(void) const
   return ret;
 }
 
-bool CXXRecordDecl::DefaultedCopyConstructorIsDeleted(void) const {
+bool CXXRecordDecl::DefaultedCopyConstructorIsDeleted(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.defaultedCopyConstructorIsDeleted();
   return val;
 }
 
-bool CXXRecordDecl::DefaultedDefaultConstructorIsConstexpr(void) const {
+bool CXXRecordDecl::DefaultedDefaultConstructorIsConstexpr(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.defaultedDefaultConstructorIsConstexpr();
   return val;
 }
 
-bool CXXRecordDecl::DefaultedDestructorIsConstexpr(void) const {
+bool CXXRecordDecl::DefaultedDestructorIsConstexpr(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.defaultedDestructorIsConstexpr();
   return val;
 }
 
-bool CXXRecordDecl::DefaultedDestructorIsDeleted(void) const {
+bool CXXRecordDecl::DefaultedDestructorIsDeleted(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.defaultedDestructorIsDeleted();
   return val;
 }
 
-bool CXXRecordDecl::DefaultedMoveConstructorIsDeleted(void) const {
+bool CXXRecordDecl::DefaultedMoveConstructorIsDeleted(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.defaultedMoveConstructorIsDeleted();
   return val;
@@ -7912,7 +8194,7 @@ bool CXXRecordDecl::DefaultedMoveConstructorIsDeleted(void) const {
 // 1: CXXRecordDecl::ForallBases
 // 0: CXXRecordDecl::
 // 0: CXXRecordDecl::
-std::vector<::pasta::FriendDecl> CXXRecordDecl::Friends(void) const {
+std::vector<::pasta::FriendDecl> CXXRecordDecl::Friends(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.friends();
   std::vector<::pasta::FriendDecl> ret;
@@ -7922,7 +8204,7 @@ std::vector<::pasta::FriendDecl> CXXRecordDecl::Friends(void) const {
   return ret;
 }
 
-::pasta::CXXRecordDecl CXXRecordDecl::CanonicalDeclaration(void) const {
+::pasta::CXXRecordDecl CXXRecordDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.getCanonicalDecl();
   if (val) {
@@ -7932,7 +8214,7 @@ std::vector<::pasta::FriendDecl> CXXRecordDecl::Friends(void) const {
   __builtin_unreachable();
 }
 
-::pasta::CXXRecordDecl CXXRecordDecl::Definition(void) const {
+::pasta::CXXRecordDecl CXXRecordDecl::Definition(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.getDefinition();
   if (val) {
@@ -7942,7 +8224,7 @@ std::vector<::pasta::FriendDecl> CXXRecordDecl::Friends(void) const {
   __builtin_unreachable();
 }
 
-::pasta::FunctionTemplateDecl CXXRecordDecl::DependentLambdaCallOperator(void) const {
+::pasta::FunctionTemplateDecl CXXRecordDecl::DependentLambdaCallOperator(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.getDependentLambdaCallOperator();
   if (val) {
@@ -7952,7 +8234,7 @@ std::vector<::pasta::FriendDecl> CXXRecordDecl::Friends(void) const {
   __builtin_unreachable();
 }
 
-::pasta::ClassTemplateDecl CXXRecordDecl::DescribedClassTemplate(void) const {
+::pasta::ClassTemplateDecl CXXRecordDecl::DescribedClassTemplate(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.getDescribedClassTemplate();
   if (val) {
@@ -7962,7 +8244,7 @@ std::vector<::pasta::FriendDecl> CXXRecordDecl::Friends(void) const {
   __builtin_unreachable();
 }
 
-::pasta::CXXDestructorDecl CXXRecordDecl::Destructor(void) const {
+::pasta::CXXDestructorDecl CXXRecordDecl::Destructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.getDestructor();
   if (val) {
@@ -7972,14 +8254,21 @@ std::vector<::pasta::FriendDecl> CXXRecordDecl::Friends(void) const {
   __builtin_unreachable();
 }
 
-uint32_t CXXRecordDecl::DeviceLambdaManglingNumber(void) const {
+uint32_t CXXRecordDecl::DeviceLambdaManglingNumber(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.getDeviceLambdaManglingNumber();
   return val;
 }
 
-// 0: CXXRecordDecl::GenericLambdaTemplateParameterList
-::pasta::CXXRecordDecl CXXRecordDecl::InstantiatedFromMemberClass(void) const {
+::pasta::TemplateParameterList CXXRecordDecl::GenericLambdaTemplateParameterList(void) const noexcept {
+  auto &self = *(u.CXXRecordDecl);
+  auto val = self.getGenericLambdaTemplateParameterList();
+  return ::pasta::TemplateParameterList(ast, val);
+  assert(false && "CXXRecordDecl::GenericLambdaTemplateParameterList can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::CXXRecordDecl CXXRecordDecl::InstantiatedFromMemberClass(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.getInstantiatedFromMemberClass();
   if (val) {
@@ -7989,7 +8278,7 @@ uint32_t CXXRecordDecl::DeviceLambdaManglingNumber(void) const {
   __builtin_unreachable();
 }
 
-::pasta::CXXMethodDecl CXXRecordDecl::LambdaCallOperator(void) const {
+::pasta::CXXMethodDecl CXXRecordDecl::LambdaCallOperator(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.getLambdaCallOperator();
   if (val) {
@@ -7999,13 +8288,13 @@ uint32_t CXXRecordDecl::DeviceLambdaManglingNumber(void) const {
   __builtin_unreachable();
 }
 
-enum LambdaCaptureDefault CXXRecordDecl::LambdaCaptureDefault(void) const {
+enum LambdaCaptureDefault CXXRecordDecl::LambdaCaptureDefault(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.getLambdaCaptureDefault();
   return static_cast<::pasta::LambdaCaptureDefault>(static_cast<unsigned int>(val));
 }
 
-::pasta::Decl CXXRecordDecl::LambdaContextDeclaration(void) const {
+::pasta::Decl CXXRecordDecl::LambdaContextDeclaration(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.getLambdaContextDecl();
   if (val) {
@@ -8015,7 +8304,7 @@ enum LambdaCaptureDefault CXXRecordDecl::LambdaCaptureDefault(void) const {
   __builtin_unreachable();
 }
 
-std::vector<::pasta::NamedDecl> CXXRecordDecl::LambdaExplicitTemplateParameters(void) const {
+std::vector<::pasta::NamedDecl> CXXRecordDecl::LambdaExplicitTemplateParameters(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.getLambdaExplicitTemplateParameters();
   std::vector<::pasta::NamedDecl> ret;
@@ -8025,27 +8314,33 @@ std::vector<::pasta::NamedDecl> CXXRecordDecl::LambdaExplicitTemplateParameters(
   return ret;
 }
 
-uint32_t CXXRecordDecl::LambdaManglingNumber(void) const {
+uint32_t CXXRecordDecl::LambdaManglingNumber(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.getLambdaManglingNumber();
   return val;
 }
 
-// 0: CXXRecordDecl::LambdaTypeInfo
-enum MSInheritanceModel CXXRecordDecl::MSInheritanceModel(void) const {
+::pasta::Type CXXRecordDecl::LambdaTypeInfo(void) const noexcept {
+  auto &self = *(u.CXXRecordDecl);
+  auto val = self.getLambdaTypeInfo();
+  return TypeBuilder::Build(ast, val->getType());  assert(false && "CXXRecordDecl::LambdaTypeInfo can return nullptr!");
+  __builtin_unreachable();
+}
+
+enum MSInheritanceModel CXXRecordDecl::MSInheritanceModel(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.getMSInheritanceModel();
   return static_cast<::pasta::MSInheritanceModel>(static_cast<int>(val));
 }
 
-enum MSVtorDispMode CXXRecordDecl::MSVtorDispMode(void) const {
+enum MSVtorDispMode CXXRecordDecl::MSVtorDispMode(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.getMSVtorDispMode();
   return static_cast<::pasta::MSVtorDispMode>(static_cast<int>(val));
 }
 
 // 0: CXXRecordDecl::MemberSpecializationInfo
-::pasta::CXXRecordDecl CXXRecordDecl::MostRecentDeclaration(void) const {
+::pasta::CXXRecordDecl CXXRecordDecl::MostRecentDeclaration(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.getMostRecentDecl();
   if (val) {
@@ -8055,7 +8350,7 @@ enum MSVtorDispMode CXXRecordDecl::MSVtorDispMode(void) const {
   __builtin_unreachable();
 }
 
-::pasta::CXXRecordDecl CXXRecordDecl::MostRecentNonInjectedDeclaration(void) const {
+::pasta::CXXRecordDecl CXXRecordDecl::MostRecentNonInjectedDeclaration(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.getMostRecentNonInjectedDecl();
   if (val) {
@@ -8065,25 +8360,25 @@ enum MSVtorDispMode CXXRecordDecl::MSVtorDispMode(void) const {
   __builtin_unreachable();
 }
 
-uint32_t CXXRecordDecl::NumBases(void) const {
+uint32_t CXXRecordDecl::NumBases(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.getNumBases();
   return val;
 }
 
-uint32_t CXXRecordDecl::NumVirtualBases(void) const {
+uint32_t CXXRecordDecl::NumVirtualBases(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.getNumVBases();
   return val;
 }
 
-uint32_t CXXRecordDecl::ODRHash(void) const {
+uint32_t CXXRecordDecl::ODRHash(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.getODRHash();
   return val;
 }
 
-::pasta::CXXRecordDecl CXXRecordDecl::PreviousDeclaration(void) const {
+::pasta::CXXRecordDecl CXXRecordDecl::PreviousDeclaration(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.getPreviousDecl();
   if (val) {
@@ -8093,7 +8388,7 @@ uint32_t CXXRecordDecl::ODRHash(void) const {
   __builtin_unreachable();
 }
 
-::pasta::CXXRecordDecl CXXRecordDecl::TemplateInstantiationPattern(void) const {
+::pasta::CXXRecordDecl CXXRecordDecl::TemplateInstantiationPattern(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.getTemplateInstantiationPattern();
   if (val) {
@@ -8103,430 +8398,430 @@ uint32_t CXXRecordDecl::ODRHash(void) const {
   __builtin_unreachable();
 }
 
-enum TemplateSpecializationKind CXXRecordDecl::TemplateSpecializationKind(void) const {
+enum TemplateSpecializationKind CXXRecordDecl::TemplateSpecializationKind(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.getTemplateSpecializationKind();
   return static_cast<::pasta::TemplateSpecializationKind>(static_cast<unsigned int>(val));
 }
 
 // 0: CXXRecordDecl::VisibleConversionFunctions
-bool CXXRecordDecl::HasAnyDependentBases(void) const {
+bool CXXRecordDecl::HasAnyDependentBases(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasAnyDependentBases();
   return val;
 }
 
-bool CXXRecordDecl::HasConstexprDefaultConstructor(void) const {
+bool CXXRecordDecl::HasConstexprDefaultConstructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasConstexprDefaultConstructor();
   return val;
 }
 
-bool CXXRecordDecl::HasConstexprDestructor(void) const {
+bool CXXRecordDecl::HasConstexprDestructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasConstexprDestructor();
   return val;
 }
 
-bool CXXRecordDecl::HasConstexprNonCopyMoveConstructor(void) const {
+bool CXXRecordDecl::HasConstexprNonCopyMoveConstructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasConstexprNonCopyMoveConstructor();
   return val;
 }
 
-bool CXXRecordDecl::HasCopyAssignmentWithConstParam(void) const {
+bool CXXRecordDecl::HasCopyAssignmentWithConstParam(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasCopyAssignmentWithConstParam();
   return val;
 }
 
-bool CXXRecordDecl::HasCopyConstructorWithConstParam(void) const {
+bool CXXRecordDecl::HasCopyConstructorWithConstParam(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasCopyConstructorWithConstParam();
   return val;
 }
 
-bool CXXRecordDecl::HasDefaultConstructor(void) const {
+bool CXXRecordDecl::HasDefaultConstructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasDefaultConstructor();
   return val;
 }
 
-bool CXXRecordDecl::HasDefinition(void) const {
+bool CXXRecordDecl::HasDefinition(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasDefinition();
   return val;
 }
 
-bool CXXRecordDecl::HasDirectFields(void) const {
+bool CXXRecordDecl::HasDirectFields(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasDirectFields();
   return val;
 }
 
-bool CXXRecordDecl::HasFriends(void) const {
+bool CXXRecordDecl::HasFriends(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasFriends();
   return val;
 }
 
-bool CXXRecordDecl::HasInClassInitializer(void) const {
+bool CXXRecordDecl::HasInClassInitializer(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasInClassInitializer();
   return val;
 }
 
-bool CXXRecordDecl::HasInheritedAssignment(void) const {
+bool CXXRecordDecl::HasInheritedAssignment(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasInheritedAssignment();
   return val;
 }
 
-bool CXXRecordDecl::HasInheritedConstructor(void) const {
+bool CXXRecordDecl::HasInheritedConstructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasInheritedConstructor();
   return val;
 }
 
-bool CXXRecordDecl::HasIrrelevantDestructor(void) const {
+bool CXXRecordDecl::HasIrrelevantDestructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasIrrelevantDestructor();
   return val;
 }
 
-bool CXXRecordDecl::HasKnownLambdaInternalLinkage(void) const {
+bool CXXRecordDecl::HasKnownLambdaInternalLinkage(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasKnownLambdaInternalLinkage();
   return val;
 }
 
 // 1: CXXRecordDecl::HasMemberName
-bool CXXRecordDecl::HasMoveAssignment(void) const {
+bool CXXRecordDecl::HasMoveAssignment(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasMoveAssignment();
   return val;
 }
 
-bool CXXRecordDecl::HasMoveConstructor(void) const {
+bool CXXRecordDecl::HasMoveConstructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasMoveConstructor();
   return val;
 }
 
-bool CXXRecordDecl::HasMutableFields(void) const {
+bool CXXRecordDecl::HasMutableFields(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasMutableFields();
   return val;
 }
 
-bool CXXRecordDecl::HasNonLiteralTypeFieldsOrBases(void) const {
+bool CXXRecordDecl::HasNonLiteralTypeFieldsOrBases(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasNonLiteralTypeFieldsOrBases();
   return val;
 }
 
-bool CXXRecordDecl::HasNonTrivialCopyAssignment(void) const {
+bool CXXRecordDecl::HasNonTrivialCopyAssignment(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasNonTrivialCopyAssignment();
   return val;
 }
 
-bool CXXRecordDecl::HasNonTrivialCopyConstructor(void) const {
+bool CXXRecordDecl::HasNonTrivialCopyConstructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasNonTrivialCopyConstructor();
   return val;
 }
 
-bool CXXRecordDecl::HasNonTrivialCopyConstructorForCall(void) const {
+bool CXXRecordDecl::HasNonTrivialCopyConstructorForCall(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasNonTrivialCopyConstructorForCall();
   return val;
 }
 
-bool CXXRecordDecl::HasNonTrivialDefaultConstructor(void) const {
+bool CXXRecordDecl::HasNonTrivialDefaultConstructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasNonTrivialDefaultConstructor();
   return val;
 }
 
-bool CXXRecordDecl::HasNonTrivialDestructor(void) const {
+bool CXXRecordDecl::HasNonTrivialDestructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasNonTrivialDestructor();
   return val;
 }
 
-bool CXXRecordDecl::HasNonTrivialDestructorForCall(void) const {
+bool CXXRecordDecl::HasNonTrivialDestructorForCall(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasNonTrivialDestructorForCall();
   return val;
 }
 
-bool CXXRecordDecl::HasNonTrivialMoveAssignment(void) const {
+bool CXXRecordDecl::HasNonTrivialMoveAssignment(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasNonTrivialMoveAssignment();
   return val;
 }
 
-bool CXXRecordDecl::HasNonTrivialMoveConstructor(void) const {
+bool CXXRecordDecl::HasNonTrivialMoveConstructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasNonTrivialMoveConstructor();
   return val;
 }
 
-bool CXXRecordDecl::HasNonTrivialMoveConstructorForCall(void) const {
+bool CXXRecordDecl::HasNonTrivialMoveConstructorForCall(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasNonTrivialMoveConstructorForCall();
   return val;
 }
 
-bool CXXRecordDecl::HasPrivateFields(void) const {
+bool CXXRecordDecl::HasPrivateFields(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasPrivateFields();
   return val;
 }
 
-bool CXXRecordDecl::HasProtectedFields(void) const {
+bool CXXRecordDecl::HasProtectedFields(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasProtectedFields();
   return val;
 }
 
-bool CXXRecordDecl::HasSimpleCopyAssignment(void) const {
+bool CXXRecordDecl::HasSimpleCopyAssignment(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasSimpleCopyAssignment();
   return val;
 }
 
-bool CXXRecordDecl::HasSimpleCopyConstructor(void) const {
+bool CXXRecordDecl::HasSimpleCopyConstructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasSimpleCopyConstructor();
   return val;
 }
 
-bool CXXRecordDecl::HasSimpleDestructor(void) const {
+bool CXXRecordDecl::HasSimpleDestructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasSimpleDestructor();
   return val;
 }
 
-bool CXXRecordDecl::HasSimpleMoveAssignment(void) const {
+bool CXXRecordDecl::HasSimpleMoveAssignment(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasSimpleMoveAssignment();
   return val;
 }
 
-bool CXXRecordDecl::HasSimpleMoveConstructor(void) const {
+bool CXXRecordDecl::HasSimpleMoveConstructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasSimpleMoveConstructor();
   return val;
 }
 
-bool CXXRecordDecl::HasTrivialCopyAssignment(void) const {
+bool CXXRecordDecl::HasTrivialCopyAssignment(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasTrivialCopyAssignment();
   return val;
 }
 
-bool CXXRecordDecl::HasTrivialCopyConstructor(void) const {
+bool CXXRecordDecl::HasTrivialCopyConstructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasTrivialCopyConstructor();
   return val;
 }
 
-bool CXXRecordDecl::HasTrivialCopyConstructorForCall(void) const {
+bool CXXRecordDecl::HasTrivialCopyConstructorForCall(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasTrivialCopyConstructorForCall();
   return val;
 }
 
-bool CXXRecordDecl::HasTrivialDefaultConstructor(void) const {
+bool CXXRecordDecl::HasTrivialDefaultConstructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasTrivialDefaultConstructor();
   return val;
 }
 
-bool CXXRecordDecl::HasTrivialDestructor(void) const {
+bool CXXRecordDecl::HasTrivialDestructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasTrivialDestructor();
   return val;
 }
 
-bool CXXRecordDecl::HasTrivialDestructorForCall(void) const {
+bool CXXRecordDecl::HasTrivialDestructorForCall(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasTrivialDestructorForCall();
   return val;
 }
 
-bool CXXRecordDecl::HasTrivialMoveAssignment(void) const {
+bool CXXRecordDecl::HasTrivialMoveAssignment(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasTrivialMoveAssignment();
   return val;
 }
 
-bool CXXRecordDecl::HasTrivialMoveConstructor(void) const {
+bool CXXRecordDecl::HasTrivialMoveConstructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasTrivialMoveConstructor();
   return val;
 }
 
-bool CXXRecordDecl::HasTrivialMoveConstructorForCall(void) const {
+bool CXXRecordDecl::HasTrivialMoveConstructorForCall(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasTrivialMoveConstructorForCall();
   return val;
 }
 
-bool CXXRecordDecl::HasUninitializedReferenceMember(void) const {
+bool CXXRecordDecl::HasUninitializedReferenceMember(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasUninitializedReferenceMember();
   return val;
 }
 
-bool CXXRecordDecl::HasUserDeclaredConstructor(void) const {
+bool CXXRecordDecl::HasUserDeclaredConstructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasUserDeclaredConstructor();
   return val;
 }
 
-bool CXXRecordDecl::HasUserDeclaredCopyAssignment(void) const {
+bool CXXRecordDecl::HasUserDeclaredCopyAssignment(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasUserDeclaredCopyAssignment();
   return val;
 }
 
-bool CXXRecordDecl::HasUserDeclaredCopyConstructor(void) const {
+bool CXXRecordDecl::HasUserDeclaredCopyConstructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasUserDeclaredCopyConstructor();
   return val;
 }
 
-bool CXXRecordDecl::HasUserDeclaredDestructor(void) const {
+bool CXXRecordDecl::HasUserDeclaredDestructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasUserDeclaredDestructor();
   return val;
 }
 
-bool CXXRecordDecl::HasUserDeclaredMoveAssignment(void) const {
+bool CXXRecordDecl::HasUserDeclaredMoveAssignment(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasUserDeclaredMoveAssignment();
   return val;
 }
 
-bool CXXRecordDecl::HasUserDeclaredMoveConstructor(void) const {
+bool CXXRecordDecl::HasUserDeclaredMoveConstructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasUserDeclaredMoveConstructor();
   return val;
 }
 
-bool CXXRecordDecl::HasUserDeclaredMoveOperation(void) const {
+bool CXXRecordDecl::HasUserDeclaredMoveOperation(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasUserDeclaredMoveOperation();
   return val;
 }
 
-bool CXXRecordDecl::HasUserProvidedDefaultConstructor(void) const {
+bool CXXRecordDecl::HasUserProvidedDefaultConstructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasUserProvidedDefaultConstructor();
   return val;
 }
 
-bool CXXRecordDecl::HasVariantMembers(void) const {
+bool CXXRecordDecl::HasVariantMembers(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.hasVariantMembers();
   return val;
 }
 
-bool CXXRecordDecl::ImplicitCopyAssignmentHasConstParam(void) const {
+bool CXXRecordDecl::ImplicitCopyAssignmentHasConstParam(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.implicitCopyAssignmentHasConstParam();
   return val;
 }
 
-bool CXXRecordDecl::ImplicitCopyConstructorHasConstParam(void) const {
+bool CXXRecordDecl::ImplicitCopyConstructorHasConstParam(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.implicitCopyConstructorHasConstParam();
   return val;
 }
 
-bool CXXRecordDecl::IsAbstract(void) const {
+bool CXXRecordDecl::IsAbstract(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.isAbstract();
   return val;
 }
 
-bool CXXRecordDecl::IsAggregate(void) const {
+bool CXXRecordDecl::IsAggregate(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.isAggregate();
   return val;
 }
 
-bool CXXRecordDecl::IsAnyDestructorNoReturn(void) const {
+bool CXXRecordDecl::IsAnyDestructorNoReturn(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.isAnyDestructorNoReturn();
   return val;
 }
 
-bool CXXRecordDecl::IsCLike(void) const {
+bool CXXRecordDecl::IsCLike(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.isCLike();
   return val;
 }
 
-bool CXXRecordDecl::IsCXX11StandardLayout(void) const {
+bool CXXRecordDecl::IsCXX11StandardLayout(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.isCXX11StandardLayout();
   return val;
 }
 
 // 1: CXXRecordDecl::IsCurrentInstantiation
-bool CXXRecordDecl::IsDependentLambda(void) const {
+bool CXXRecordDecl::IsDependentLambda(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.isDependentLambda();
   return val;
 }
 
-bool CXXRecordDecl::IsDynamicClass(void) const {
+bool CXXRecordDecl::IsDynamicClass(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.isDynamicClass();
   return val;
 }
 
-bool CXXRecordDecl::IsEffectivelyFinal(void) const {
+bool CXXRecordDecl::IsEffectivelyFinal(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.isEffectivelyFinal();
   return val;
 }
 
-bool CXXRecordDecl::IsEmpty(void) const {
+bool CXXRecordDecl::IsEmpty(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.isEmpty();
   return val;
 }
 
-bool CXXRecordDecl::IsGenericLambda(void) const {
+bool CXXRecordDecl::IsGenericLambda(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.isGenericLambda();
   return val;
 }
 
-bool CXXRecordDecl::IsInterfaceLike(void) const {
+bool CXXRecordDecl::IsInterfaceLike(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.isInterfaceLike();
   return val;
 }
 
-bool CXXRecordDecl::IsLambda(void) const {
+bool CXXRecordDecl::IsLambda(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.isLambda();
   return val;
 }
 
-bool CXXRecordDecl::IsLiteral(void) const {
+bool CXXRecordDecl::IsLiteral(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.isLiteral();
   return val;
 }
 
-::pasta::FunctionDecl CXXRecordDecl::IsLocalClass(void) const {
+::pasta::FunctionDecl CXXRecordDecl::IsLocalClass(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.isLocalClass();
   if (val) {
@@ -8536,70 +8831,70 @@ bool CXXRecordDecl::IsLiteral(void) const {
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::IsPOD(void) const {
+bool CXXRecordDecl::IsPOD(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.isPOD();
   return val;
 }
 
-bool CXXRecordDecl::IsParsingBaseSpecifiers(void) const {
+bool CXXRecordDecl::IsParsingBaseSpecifiers(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.isParsingBaseSpecifiers();
   return val;
 }
 
-bool CXXRecordDecl::IsPolymorphic(void) const {
+bool CXXRecordDecl::IsPolymorphic(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.isPolymorphic();
   return val;
 }
 
 // 1: CXXRecordDecl::IsProvablyNotDerivedFrom
-bool CXXRecordDecl::IsStandardLayout(void) const {
+bool CXXRecordDecl::IsStandardLayout(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.isStandardLayout();
   return val;
 }
 
-bool CXXRecordDecl::IsStructural(void) const {
+bool CXXRecordDecl::IsStructural(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.isStructural();
   return val;
 }
 
-bool CXXRecordDecl::IsTrivial(void) const {
+bool CXXRecordDecl::IsTrivial(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.isTrivial();
   return val;
 }
 
-bool CXXRecordDecl::IsTriviallyCopyable(void) const {
+bool CXXRecordDecl::IsTriviallyCopyable(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.isTriviallyCopyable();
   return val;
 }
 
 // 1: CXXRecordDecl::IsVirtuallyDerivedFrom
-bool CXXRecordDecl::LambdaIsDefaultConstructibleAndAssignable(void) const {
+bool CXXRecordDecl::LambdaIsDefaultConstructibleAndAssignable(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.lambdaIsDefaultConstructibleAndAssignable();
   return val;
 }
 
 // 2: LookupInBases
-bool CXXRecordDecl::MayBeAbstract(void) const {
+bool CXXRecordDecl::MayBeAbstract(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.mayBeAbstract();
   return val;
 }
 
-bool CXXRecordDecl::MayBeDynamicClass(void) const {
+bool CXXRecordDecl::MayBeDynamicClass(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.mayBeDynamicClass();
   return val;
 }
 
-bool CXXRecordDecl::MayBeNonDynamicClass(void) const {
+bool CXXRecordDecl::MayBeNonDynamicClass(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.mayBeNonDynamicClass();
   return val;
@@ -8607,7 +8902,7 @@ bool CXXRecordDecl::MayBeNonDynamicClass(void) const {
 
 // 0: CXXRecordDecl::
 // 0: CXXRecordDecl::
-std::vector<::pasta::CXXMethodDecl> CXXRecordDecl::Methods(void) const {
+std::vector<::pasta::CXXMethodDecl> CXXRecordDecl::Methods(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.methods();
   std::vector<::pasta::CXXMethodDecl> ret;
@@ -8617,79 +8912,79 @@ std::vector<::pasta::CXXMethodDecl> CXXRecordDecl::Methods(void) const {
   return ret;
 }
 
-bool CXXRecordDecl::NeedsImplicitCopyAssignment(void) const {
+bool CXXRecordDecl::NeedsImplicitCopyAssignment(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.needsImplicitCopyAssignment();
   return val;
 }
 
-bool CXXRecordDecl::NeedsImplicitCopyConstructor(void) const {
+bool CXXRecordDecl::NeedsImplicitCopyConstructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.needsImplicitCopyConstructor();
   return val;
 }
 
-bool CXXRecordDecl::NeedsImplicitDefaultConstructor(void) const {
+bool CXXRecordDecl::NeedsImplicitDefaultConstructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.needsImplicitDefaultConstructor();
   return val;
 }
 
-bool CXXRecordDecl::NeedsImplicitDestructor(void) const {
+bool CXXRecordDecl::NeedsImplicitDestructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.needsImplicitDestructor();
   return val;
 }
 
-bool CXXRecordDecl::NeedsImplicitMoveAssignment(void) const {
+bool CXXRecordDecl::NeedsImplicitMoveAssignment(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.needsImplicitMoveAssignment();
   return val;
 }
 
-bool CXXRecordDecl::NeedsImplicitMoveConstructor(void) const {
+bool CXXRecordDecl::NeedsImplicitMoveConstructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.needsImplicitMoveConstructor();
   return val;
 }
 
-bool CXXRecordDecl::NeedsOverloadResolutionForCopyAssignment(void) const {
+bool CXXRecordDecl::NeedsOverloadResolutionForCopyAssignment(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.needsOverloadResolutionForCopyAssignment();
   return val;
 }
 
-bool CXXRecordDecl::NeedsOverloadResolutionForCopyConstructor(void) const {
+bool CXXRecordDecl::NeedsOverloadResolutionForCopyConstructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.needsOverloadResolutionForCopyConstructor();
   return val;
 }
 
-bool CXXRecordDecl::NeedsOverloadResolutionForDestructor(void) const {
+bool CXXRecordDecl::NeedsOverloadResolutionForDestructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.needsOverloadResolutionForDestructor();
   return val;
 }
 
-bool CXXRecordDecl::NeedsOverloadResolutionForMoveAssignment(void) const {
+bool CXXRecordDecl::NeedsOverloadResolutionForMoveAssignment(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.needsOverloadResolutionForMoveAssignment();
   return val;
 }
 
-bool CXXRecordDecl::NeedsOverloadResolutionForMoveConstructor(void) const {
+bool CXXRecordDecl::NeedsOverloadResolutionForMoveConstructor(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.needsOverloadResolutionForMoveConstructor();
   return val;
 }
 
-bool CXXRecordDecl::NullFieldOffsetIsZero(void) const {
+bool CXXRecordDecl::NullFieldOffsetIsZero(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.nullFieldOffsetIsZero();
   return val;
 }
 
-std::vector<::pasta::CXXBaseSpecifier> CXXRecordDecl::VirtualBases(void) const {
+std::vector<::pasta::CXXBaseSpecifier> CXXRecordDecl::VirtualBases(void) const noexcept {
   auto &self = *(u.CXXRecordDecl);
   auto val = self.vbases();
   std::vector<::pasta::CXXBaseSpecifier> ret;
@@ -8701,6 +8996,19 @@ std::vector<::pasta::CXXBaseSpecifier> CXXRecordDecl::VirtualBases(void) const {
 
 // 0: CXXRecordDecl::
 // 0: CXXRecordDecl::
+std::vector<::pasta::TemplateParameterList> CXXRecordDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.CXXRecordDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.CXXRecordDecl->getTemplateParameterList(i)));
+  }
+  return ret;
+}
+
 ClassTemplateSpecializationDecl::ClassTemplateSpecializationDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
@@ -8714,13 +9022,13 @@ PASTA_DEFINE_BASE_OPERATORS(RecordDecl, ClassTemplateSpecializationDecl)
 PASTA_DEFINE_BASE_OPERATORS(TagDecl, ClassTemplateSpecializationDecl)
 PASTA_DEFINE_BASE_OPERATORS(TypeDecl, ClassTemplateSpecializationDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ClassTemplateSpecializationDecl, ClassTemplatePartialSpecializationDecl)
-::pasta::Token ClassTemplateSpecializationDecl::ExternToken(void) const {
+::pasta::Token ClassTemplateSpecializationDecl::ExternToken(void) const noexcept {
   auto &self = *(u.ClassTemplateSpecializationDecl);
   auto val = self.getExternLoc();
   return ast->TokenAt(val);
 }
 
-std::variant<std::monostate, ::pasta::ClassTemplateDecl, ::pasta::ClassTemplatePartialSpecializationDecl> ClassTemplateSpecializationDecl::InstantiatedFrom(void) const {
+std::variant<std::monostate, ::pasta::ClassTemplateDecl, ::pasta::ClassTemplatePartialSpecializationDecl> ClassTemplateSpecializationDecl::InstantiatedFrom(void) const noexcept {
   auto &self = *(u.ClassTemplateSpecializationDecl);
   auto val = self.getInstantiatedFrom();
   std::variant<std::monostate, ::pasta::ClassTemplateDecl, ::pasta::ClassTemplatePartialSpecializationDecl> ret;
@@ -8738,23 +9046,19 @@ std::variant<std::monostate, ::pasta::ClassTemplateDecl, ::pasta::ClassTemplateP
   return ret;
 }
 
-::pasta::Token ClassTemplateSpecializationDecl::PointOfInstantiation(void) const {
+::pasta::Token ClassTemplateSpecializationDecl::PointOfInstantiation(void) const noexcept {
   auto &self = *(u.ClassTemplateSpecializationDecl);
   auto val = self.getPointOfInstantiation();
   return ast->TokenAt(val);
 }
 
-::pasta::TokenRange ClassTemplateSpecializationDecl::TokenRange(void) const {
-  return ast->DeclTokenRange(u.ClassTemplateSpecializationDecl);
-}
-
-enum TemplateSpecializationKind ClassTemplateSpecializationDecl::SpecializationKind(void) const {
+enum TemplateSpecializationKind ClassTemplateSpecializationDecl::SpecializationKind(void) const noexcept {
   auto &self = *(u.ClassTemplateSpecializationDecl);
   auto val = self.getSpecializationKind();
   return static_cast<::pasta::TemplateSpecializationKind>(static_cast<unsigned int>(val));
 }
 
-::pasta::ClassTemplateDecl ClassTemplateSpecializationDecl::SpecializedTemplate(void) const {
+::pasta::ClassTemplateDecl ClassTemplateSpecializationDecl::SpecializedTemplate(void) const noexcept {
   auto &self = *(u.ClassTemplateSpecializationDecl);
   auto val = self.getSpecializedTemplate();
   if (val) {
@@ -8764,7 +9068,7 @@ enum TemplateSpecializationKind ClassTemplateSpecializationDecl::SpecializationK
   __builtin_unreachable();
 }
 
-std::variant<std::monostate, ::pasta::ClassTemplateDecl, ::pasta::ClassTemplatePartialSpecializationDecl> ClassTemplateSpecializationDecl::SpecializedTemplateOrPartial(void) const {
+std::variant<std::monostate, ::pasta::ClassTemplateDecl, ::pasta::ClassTemplatePartialSpecializationDecl> ClassTemplateSpecializationDecl::SpecializedTemplateOrPartial(void) const noexcept {
   auto &self = *(u.ClassTemplateSpecializationDecl);
   auto val = self.getSpecializedTemplateOrPartial();
   std::variant<std::monostate, ::pasta::ClassTemplateDecl, ::pasta::ClassTemplatePartialSpecializationDecl> ret;
@@ -8784,29 +9088,48 @@ std::variant<std::monostate, ::pasta::ClassTemplateDecl, ::pasta::ClassTemplateP
 
 // 0: ClassTemplateSpecializationDecl::TemplateArguments
 // 0: ClassTemplateSpecializationDecl::TemplateInstantiationArguments
-::pasta::Token ClassTemplateSpecializationDecl::TemplateKeywordToken(void) const {
+::pasta::Token ClassTemplateSpecializationDecl::TemplateKeywordToken(void) const noexcept {
   auto &self = *(u.ClassTemplateSpecializationDecl);
   auto val = self.getTemplateKeywordLoc();
   return ast->TokenAt(val);
 }
 
-// 0: ClassTemplateSpecializationDecl::TypeAsWritten
-bool ClassTemplateSpecializationDecl::IsClassScopeExplicitSpecialization(void) const {
+::pasta::Type ClassTemplateSpecializationDecl::TypeAsWritten(void) const noexcept {
+  auto &self = *(u.ClassTemplateSpecializationDecl);
+  auto val = self.getTypeAsWritten();
+  return TypeBuilder::Build(ast, val->getType());  assert(false && "ClassTemplateSpecializationDecl::TypeAsWritten can return nullptr!");
+  __builtin_unreachable();
+}
+
+bool ClassTemplateSpecializationDecl::IsClassScopeExplicitSpecialization(void) const noexcept {
   auto &self = *(u.ClassTemplateSpecializationDecl);
   auto val = self.isClassScopeExplicitSpecialization();
   return val;
 }
 
-bool ClassTemplateSpecializationDecl::IsExplicitInstantiationOrSpecialization(void) const {
+bool ClassTemplateSpecializationDecl::IsExplicitInstantiationOrSpecialization(void) const noexcept {
   auto &self = *(u.ClassTemplateSpecializationDecl);
   auto val = self.isExplicitInstantiationOrSpecialization();
   return val;
 }
 
-bool ClassTemplateSpecializationDecl::IsExplicitSpecialization(void) const {
+bool ClassTemplateSpecializationDecl::IsExplicitSpecialization(void) const noexcept {
   auto &self = *(u.ClassTemplateSpecializationDecl);
   auto val = self.isExplicitSpecialization();
   return val;
+}
+
+std::vector<::pasta::TemplateParameterList> ClassTemplateSpecializationDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.ClassTemplateSpecializationDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.ClassTemplateSpecializationDecl->getTemplateParameterList(i)));
+  }
+  return ret;
 }
 
 ClassTemplatePartialSpecializationDecl::ClassTemplatePartialSpecializationDecl(
@@ -8822,13 +9145,13 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ClassTemplatePartialSpecializationDecl)
 PASTA_DEFINE_BASE_OPERATORS(RecordDecl, ClassTemplatePartialSpecializationDecl)
 PASTA_DEFINE_BASE_OPERATORS(TagDecl, ClassTemplatePartialSpecializationDecl)
 PASTA_DEFINE_BASE_OPERATORS(TypeDecl, ClassTemplatePartialSpecializationDecl)
-::pasta::Type ClassTemplatePartialSpecializationDecl::InjectedSpecializationType(void) const {
+::pasta::Type ClassTemplatePartialSpecializationDecl::InjectedSpecializationType(void) const noexcept {
   auto &self = *(u.ClassTemplatePartialSpecializationDecl);
   auto val = self.getInjectedSpecializationType();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::ClassTemplatePartialSpecializationDecl ClassTemplatePartialSpecializationDecl::InstantiatedFromMember(void) const {
+::pasta::ClassTemplatePartialSpecializationDecl ClassTemplatePartialSpecializationDecl::InstantiatedFromMember(void) const noexcept {
   auto &self = *(u.ClassTemplatePartialSpecializationDecl);
   auto val = self.getInstantiatedFromMember();
   if (val) {
@@ -8838,7 +9161,7 @@ PASTA_DEFINE_BASE_OPERATORS(TypeDecl, ClassTemplatePartialSpecializationDecl)
   __builtin_unreachable();
 }
 
-::pasta::ClassTemplatePartialSpecializationDecl ClassTemplatePartialSpecializationDecl::InstantiatedFromMemberTemplate(void) const {
+::pasta::ClassTemplatePartialSpecializationDecl ClassTemplatePartialSpecializationDecl::InstantiatedFromMemberTemplate(void) const noexcept {
   auto &self = *(u.ClassTemplatePartialSpecializationDecl);
   auto val = self.getInstantiatedFromMemberTemplate();
   if (val) {
@@ -8849,11 +9172,31 @@ PASTA_DEFINE_BASE_OPERATORS(TypeDecl, ClassTemplatePartialSpecializationDecl)
 }
 
 // 0: ClassTemplatePartialSpecializationDecl::TemplateArgumentsAsWritten
-// 0: ClassTemplatePartialSpecializationDecl::TemplateParameters
-bool ClassTemplatePartialSpecializationDecl::HasAssociatedConstraints(void) const {
+::pasta::TemplateParameterList ClassTemplatePartialSpecializationDecl::TemplateParameters(void) const noexcept {
+  auto &self = *(u.ClassTemplatePartialSpecializationDecl);
+  auto val = self.getTemplateParameters();
+  return ::pasta::TemplateParameterList(ast, val);
+  assert(false && "ClassTemplatePartialSpecializationDecl::TemplateParameters can return nullptr!");
+  __builtin_unreachable();
+}
+
+bool ClassTemplatePartialSpecializationDecl::HasAssociatedConstraints(void) const noexcept {
   auto &self = *(u.ClassTemplatePartialSpecializationDecl);
   auto val = self.hasAssociatedConstraints();
   return val;
+}
+
+std::vector<::pasta::TemplateParameterList> ClassTemplatePartialSpecializationDecl::TemplateParameterLists(void) const noexcept {
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto count = u.ClassTemplatePartialSpecializationDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.ClassTemplatePartialSpecializationDecl->getTemplateParameterList(i)));
+  }
+  return ret;
 }
 
 }  // namespace pasta

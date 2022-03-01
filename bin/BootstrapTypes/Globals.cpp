@@ -222,6 +222,11 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
 
   {"(llvm::iterator_range<clang::UsingDecl::shadow_iterator>)",
    "std::vector<::pasta::UsingShadowDecl>"},
+  {"(llvm::iterator_range<clang::BaseUsingDecl::shadow_iterator>)",
+   "std::vector<::pasta::UsingShadowDecl>"},
+
+  {"(llvm::iterator_range<const clang::CXXMethodDecl *const *>)",
+   "std::vector<::pasta::CXXMethodDecl>"},
 
   {"(llvm::iterator_range<const clang::SourceLocation *>)",
    "std::vector<::pasta::Token>"},
@@ -246,8 +251,8 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
   {"(llvm::ArrayRef<const clang::Stmt *>)",
    "std::vector<::pasta::Stmt>"},
 
-   {"(llvm::ArrayRef<clang::Stmt *>)",
-    "std::vector<::pasta::Stmt>"},
+  {"(llvm::ArrayRef<clang::Stmt *>)",
+   "std::vector<::pasta::Stmt>"},
 
   {"(llvm::ArrayRef<const clang::Expr *>)",
    "std::vector<::pasta::Expr>"},
@@ -276,6 +281,11 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
   {"(llvm::APSInt)", "llvm::APSInt"},
   {"(const llvm::APInt &)", "llvm::APInt"},
   {"(llvm::APInt)", "llvm::APInt"},
+
+  {"(const clang::TemplateParameterList *)", "::pasta::TemplateParameterList"},
+  {"(clang::TemplateParameterList *)", "::pasta::TemplateParameterList"},
+  {"(clang::TypeSourceInfo *)", "::pasta::Type"},
+  {"(const clang::TypeSourceInfo *)", "::pasta::Type"},
 };
 
 // Maps return types from the macros file to how they should be returned
@@ -535,6 +545,12 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
   {"(llvm::iterator_range<clang::UsingDecl::shadow_iterator>)",
    DECL_ITERATOR_IMPL(UsingShadowDecl)},
 
+  {"(llvm::iterator_range<clang::BaseUsingDecl::shadow_iterator>)",
+   DECL_ITERATOR_IMPL(UsingShadowDecl)},
+
+  {"(llvm::iterator_range<const clang::CXXMethodDecl *const *>)",
+   DECL_ITERATOR_IMPL(CXXMethodDecl)},
+
   {"(llvm::iterator_range<const clang::SourceLocation *>)",
    "  std::vector<::pasta::Token> ret;\n"
    "  for (auto loc : val) {\n"
@@ -583,22 +599,22 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
   {"(llvm::ArrayRef<const clang::Stmt *>)",
    STMT_ITERATOR_IMPL(Stmt)},
 
-   {"(llvm::ArrayRef<clang::Stmt *>)",
-    STMT_ITERATOR_IMPL(Stmt)},
+  {"(llvm::ArrayRef<clang::Stmt *>)",
+   STMT_ITERATOR_IMPL(Stmt)},
 
-   {"(llvm::ArrayRef<const clang::Expr *>)",
-    STMT_ITERATOR_IMPL(Expr)},
+  {"(llvm::ArrayRef<const clang::Expr *>)",
+   STMT_ITERATOR_IMPL(Expr)},
 
-   {"(llvm::ArrayRef<clang::Expr *>)",
-    STMT_ITERATOR_IMPL(Expr)},
+  {"(llvm::ArrayRef<clang::Expr *>)",
+   STMT_ITERATOR_IMPL(Expr)},
 
-   {"(llvm::ArrayRef<llvm::StringRef>)",
-    "  std::vector<std::string_view> ret;\n"
-    "  for (auto sr : val) {\n"
-    "    std::string_view sv(sr.data(), sr.size());\n"
-    "    ret.emplace_back(std::move(sv));\n"
-    "  }\n"
-    "  return ret;\n"},
+  {"(llvm::ArrayRef<llvm::StringRef>)",
+   "  std::vector<std::string_view> ret;\n"
+   "  for (auto sr : val) {\n"
+   "    std::string_view sv(sr.data(), sr.size());\n"
+   "    ret.emplace_back(std::move(sv));\n"
+   "  }\n"
+   "  return ret;\n"},
 
   {"(llvm::ArrayRef<clang::SourceRange>)",
    "  std::vector<::pasta::TokenRange> ret;\n"
@@ -607,38 +623,49 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
    "  }\n"
    "  return ret;\n"},
 
-   {"(llvm::ArrayRef<clang::SourceLocation>)",
-    "  std::vector<::pasta::Token> ret;\n"
-    "  for (auto sl : val) {\n"
-    "    ret.emplace_back(ast->TokenAt(sl));\n"
-    "  }\n"
-    "  return ret;\n"},
+  {"(llvm::ArrayRef<clang::SourceLocation>)",
+   "  std::vector<::pasta::Token> ret;\n"
+   "  for (auto sl : val) {\n"
+   "    ret.emplace_back(ast->TokenAt(sl));\n"
+   "  }\n"
+   "  return ret;\n"},
 
-   {"(llvm::iterator_range<const clang::Expr *const *>)",
-    STMT_ITERATOR_IMPL(Expr)},
+  {"(llvm::iterator_range<const clang::Expr *const *>)",
+   STMT_ITERATOR_IMPL(Expr)},
 
+  {"(llvm::iterator_range<const clang::CXXBaseSpecifier *>)",
+   "  std::vector<::pasta::CXXBaseSpecifier> ret;\n"
+   "  for (const auto &bs : val) {\n"
+   "    ret.emplace_back(ast, bs);\n"
+   "  }\n"
+   "  return ret;\n"},
 
-   {"(llvm::iterator_range<const clang::CXXBaseSpecifier *>)",
-    "  std::vector<::pasta::CXXBaseSpecifier> ret;\n"
-    "  for (const auto &bs : val) {\n"
-    "    ret.emplace_back(ast, bs);\n"
-    "  }\n"
-    "  return ret;\n"},
+  {"(clang::BuiltinType::Kind)",
+   "  return static_cast<::pasta::BuiltinTypeKind>(val);\n"},
 
-   {"(clang::BuiltinType::Kind)",
-    "  return static_cast<::pasta::BuiltinTypeKind>(val);\n"},
+  {"(const llvm::APSInt &)",
+   "  return val;\n"},
 
-   {"(const llvm::APSInt &)",
-    "  return val;\n"},
+  {"(llvm::APSInt)",
+   "  return val;\n"},
 
-   {"(llvm::APSInt)",
-    "  return val;\n"},
+  {"(const llvm::APInt &)",
+   "  return val;\n"},
 
-   {"(const llvm::APInt &)",
-    "  return val;\n"},
+  {"(llvm::APInt)",
+   "  return val;\n"},
 
-   {"(llvm::APInt)",
-    "  return val;\n"},
+  {"(const clang::TemplateParameterList *)",
+   "  return ::pasta::TemplateParameterList(ast, val);\n"},
+
+  {"(clang::TemplateParameterList *)",
+   "  return ::pasta::TemplateParameterList(ast, val);\n"},
+
+  {"(clang::TypeSourceInfo *)",
+   "  return TypeBuilder::Build(ast, val->getType());"},
+
+  {"(const clang::TypeSourceInfo *)",
+   "  return TypeBuilder::Build(ast, val->getType());"},
 };
 
 // Prefixes on enumerators to strip.
@@ -780,6 +807,37 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"DeclContext", "getNonClosureAncestor"},
   {"DeclContext", "getEnclosingNamespaceContext"},
   {"DeclContext", "getOuterLexicalRecordContext"},
+  {"FunctionDecl", "getDescribedFunctionTemplate"},
+  {"FunctionDecl", "getMemberSpecializationInfo"},
+  {"FunctionDecl", "getInstantiatedFromMemberFunction"},
+  {"FunctionDecl", "getTemplateInstantiationPattern"},
+  {"FunctionDecl", "getPrimaryTemplate"},
+  {"FunctionDecl", "getTemplateSpecializationInfo"},
+  {"FunctionDecl", "getTemplateSpecializationArgs"},
+  {"FunctionDecl", "getTemplateSpecializationArgsAsWritten"},
+  {"TagDecl", "getDefinition"},
+  {"EnumDecl", "getTemplateInstantiationPattern"},
+  {"EnumDecl", "getInstantiatedFromMemberEnum"},
+  {"RecordDecl", "findFirstNamedDataMember"},
+  {"TypedefNameDecl", "getAnonDeclWithTypedefName"},
+  {"Decl", "getOwningModuleForLinkage"},
+  {"VarDecl", "getActingDefinition"},
+  {"VarDecl", "getDefinition"},
+  {"VarDecl", "getAnyInitializer"},
+  {"VarDecl", "getInit"},
+  {"VarDecl", "getInitializingDeclaration"},
+  {"VarDecl", "getEvaluatedStmt"},
+  {"VarDecl", "evaluateValue"},
+  {"VarDecl", "evaluateValueImpl"},
+  {"VarDecl", "getEvaluatedValue"},
+  {"VarDecl", "getTemplateInstantiationPattern"},
+  {"VarDecl", "getInstantiatedFromStaticDataMember"},
+  {"VarDecl", "getDescribedVarTemplate"},
+  {"VarDecl", "getMemberSpecializationInfo"},
+  {"ParmVarDecl", "getDefaultArg"},
+  {"ParmVarDecl", "getUninstantiatedDefaultArg"},
+  {"FunctionDecl", "getBody"},
+  {"FunctionDecl", "getDependentSpecializationInfo"},
 };
 
 std::unordered_map<std::string, uint32_t> gClassIDs;

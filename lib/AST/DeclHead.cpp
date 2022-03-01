@@ -9,6 +9,7 @@
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/AST/DeclCXX.h>
+#include <clang/AST/DeclTemplate.h>
 #pragma clang diagnostic pop
 
 #include "AST.h"
@@ -100,6 +101,72 @@ CXXBaseSpecifier::LexicalAccessSpecifier(void) const noexcept {
   //            unqualified base type.
   auto tsi = spec->getTypeSourceInfo();
   return TypeBuilder::Build(ast, tsi->getType()).UnqualifiedType();
+}
+
+// Total number of parameters.
+unsigned TemplateParameterList::NumParameters(void) const noexcept {
+  return params->size();
+}
+
+// Minimum number of required parameters needed to be explicitly specified
+// by arguments when specializing this template.
+unsigned TemplateParameterList::NumRequiredParameters(void) const noexcept {
+  return params->getMinRequiredArguments();
+}
+
+// Get the depth of this template parameter list in the set of
+// template parameter lists.
+//
+// The first template parameter list in a declaration will have depth `0`,
+// the second template parameter list will have depth `1`, etc.
+unsigned TemplateParameterList::Depth(void) const noexcept {
+  return params->getDepth();
+}
+
+// Returns `true` if this parameter list contains an unexpanded template
+// parameter pack.
+bool TemplateParameterList::HasUnexpandedParameterPack(void) const noexcept {
+  return params->containsUnexpandedParameterPack();
+}
+
+// Returns `true` if this parameter list contains a parameter pack.
+bool TemplateParameterList::HasParameterPack(void) const noexcept {
+  return params->hasParameterPack();
+}
+
+// The constraint-expression of the associated requires-clause.
+std::optional<::pasta::Expr>
+TemplateParameterList::RequiresClause(void) const noexcept {
+  if (auto expr = params->getRequiresClause()) {
+    return StmtBuilder::Create<::pasta::Expr>(ast, expr);
+  } else {
+    return std::nullopt;
+  }
+}
+
+::pasta::Token TemplateParameterList::TemplateKeywordToken(void) const noexcept {
+  return ast->TokenAt(params->getTemplateLoc());
+}
+
+::pasta::Token TemplateParameterList::LeftAngleToken(void) const noexcept {
+  return ast->TokenAt(params->getLAngleLoc());
+}
+
+::pasta::Token TemplateParameterList::RightAngleToken(void) const noexcept {
+  return ast->TokenAt(params->getRAngleLoc());
+}
+
+::pasta::TokenRange TemplateParameterList::TokenRange(void) const noexcept {
+  return ast->TokenRangeFrom(params->getSourceRange());
+}
+
+std::vector<::pasta::NamedDecl>
+TemplateParameterList::Parameters(void) const noexcept {
+  std::vector<::pasta::NamedDecl> ret;
+  for (clang::NamedDecl *param : *params) {
+    ret.emplace_back(DeclBuilder::Create<pasta::NamedDecl>(ast, param));
+  }
+  return ret;
 }
 
 #endif  // PASTA_IN_BOOTSTRAP

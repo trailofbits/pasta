@@ -181,8 +181,28 @@ void GenerateDeclCpp(void) {
   os
       << "};\n"
       << "}  // namespace\n\n"
-      << "std::string_view Decl::KindName(void) const {\n"
+      << "std::string_view Decl::KindName(void) const noexcept {\n"
       << "  return kKindNames[static_cast<unsigned>(kind)];\n"
+      << "}\n\n"
+
+      // All decls use the same mechanis for token ranges.
+      << "::pasta::TokenRange Decl::TokenRange(void) const noexcept {\n"
+      << "  return ast->DeclTokenRange(u.Decl);\n"
+      << "}\n\n"
+
+      // We manually "virtualize" `Decl::getLocation`, which isn't normally
+      // virtualized.
+      << "::pasta::Token Decl::Token(void) const noexcept {\n"
+      << "  clang::SourceLocation loc;\n"
+      << "  switch (u.Decl->getKind()) {\n"
+      << "#define ABSTRACT_DECL(DECL)\n"
+      << "#define DECL(DERIVED, BASE) \\\n"
+      << "    case clang::Decl::DERIVED: \\\n"
+      << "      loc = (u.DERIVED ## Decl)->getLocation(); \\\n"
+      << "      break;\n"
+      << "#include <clang/AST/DeclNodes.inc>\n"
+      << "  }\n"
+      << "  return ast->TokenAt(loc);\n"
       << "}\n\n";
 
 

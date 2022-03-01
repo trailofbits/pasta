@@ -345,6 +345,13 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
     } else if (id == clang::driver::options::OPT_x) {
       curr_lang = arg->getValue();
 
+    // These should have been stripped out prior to calling.
+    } else if (id == clang::driver::options::OPT_Xclang ||
+               id == clang::driver::options::OPT_Xlinker ||
+               id == clang::driver::options::OPT_Xassembler) {
+      assert(false);
+      RenderPrefixed(arg, parsed_args, prefix);
+
     // If there is separator writing output to a file, add it as
     // an output file with the separator else it will be treated
     // as an input file.
@@ -358,7 +365,13 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
 
     // Capture the main input file.
     } else if (id == clang::driver::options::OPT_INPUT) {
-      inputs_to_use[curr_lang].emplace_back(fs.ParsePath(arg->getValue()));
+      if (auto path = fs.Stat(fs.ParsePath(arg->getValue()));
+          path.Succeeded()) {
+        inputs_to_use[curr_lang].emplace_back(path.TakeValue().real_path);
+
+      } else {
+        RenderPrefixed(arg, parsed_args, prefix);
+      }
 
     // If we're parsing a `-cc1` command then that changes the interpretation
     // and rendering of some options.
@@ -500,7 +513,9 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
   } else {
     for (const auto &[lang, inputs] : inputs_to_use) {
       if (!lang.empty()) {
+        new_args.emplace_back("-Xclang");
         new_args.emplace_back("-x");
+        new_args.emplace_back("-Xclang");
         new_args.push_back(lang);
       }
       for (const auto &input : inputs) {
@@ -545,10 +560,23 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
   overlay_vfs->pushOverlay(mem_vfs.get());
   overlay_vfs->setCurrentWorkingDirectory(working_dir_str);
 
-  auto exe_path = fs.ParsePath(command.Arguments()[0],
-                               InstallationDirectory());
-  if (!fs.Stat(exe_path).Succeeded()) {
-    exe_path = ExecutablePath();
+  // Find the compiler executable path.
+  auto exe_path = ExecutablePath();
+  std::vector<const char *> all_args;
+  if (command.Arguments().Size()) {
+    auto first_arg = command.Arguments().Argv()[0];
+
+    // Look for the common mistake of omitting the compiler path.
+    if (first_arg && first_arg[0] == '-') {
+      all_args.push_back(exe_path.c_str());
+
+    } else if (first_arg) {
+      exe_path = fs.ParsePath(command.Arguments()[0],
+                              InstallationDirectory());
+      if (!fs.Stat(exe_path).Succeeded()) {
+        exe_path = ExecutablePath();
+      }
+    }
   }
 
   // Make the driver.
@@ -584,7 +612,17 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
     excluded_driver_options |= clang::driver::options::CLOption;
   }
 
-  llvm::ArrayRef<const char *> command_args(command.Arguments().Arguments());
+  // Strip out `-Xclang`, etc. because our `CreateAdjustedCompilerCommand`
+  // function will do a proper job at re-introducing them.
+  for (auto arg : command.Arguments().Arguments()) {
+    if (strcmp("-Xclang", arg) &&
+        strcmp("-Xlinker", arg) &&
+        strcmp("-Xassembler", arg)) {
+      all_args.push_back(arg);
+    }
+  }
+
+  llvm::ArrayRef<const char *> command_args(all_args);
   auto parsed_args = opts.ParseArgs(
       command_args.slice(1u), missing_arg_index, missing_arg_count,
       driver_options, excluded_driver_options);
@@ -603,7 +641,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
   driver.setCheckInputsExist(true);
 
   if (driver.Dir.empty() || driver.ClangExecutable.empty()) {
-    if (auto exe_path = ExecutablePath(); !exe_path.empty()) {
+    if (!exe_path.empty()) {
       if (driver.Name.empty()) {
         driver.Name = exe_path.filename().generic_string();
       }
@@ -642,7 +680,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
   if (!compilation) {
     if (diag->error.empty()) {
-      err << "Unable to build compilation jobs for command: "
+      err << "Unable to build compilation for frontend command: "
           << new_args.Join();
       return err.str();
 
@@ -651,6 +689,10 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
           << diag->error;
       return err.str();
     }
+  } else if (!diag->error.empty()) {
+    err << "Built compilation for frontend command but got diagnostic: "
+        << diag->error;
+    return err.str();
   }
 
   std::vector<llvm::opt::ArgStringList> cc1_jobs;
@@ -734,7 +776,7 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
         return err.str();
       }
     } else if (!diag->error.empty()) {
-      err << "Built compiler invocation for command but got diagnostic: "
+      err << "Built compiler invocation for cc1 command but got diagnostic: "
           << diag->error;
       return err.str();
     }
@@ -776,15 +818,20 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
       // Try to look for things that look file file names, then see if they are
       // file names, and if so, make them absolute paths.
-      if (a.contains("../") || a.endswith(".o") || a.endswith(".cc") ||
-          a.endswith(".cpp") || a.endswith(".cxx") || a.endswith(".h") ||
-          a.endswith(".hxx") || a.endswith(".hh") || a.endswith(".c") ||
-          a.endswith(".gcno") || a.endswith(".pch") || a.endswith(".s") ||
-          a.endswith(".S") || a.endswith(".asm") || a.endswith(".mm") ||
-          a.endswith(".d") || a.endswith(".sdk")) {
+      if (a.contains("./") || a.endswith_insensitive(".o") ||
+          a.endswith_insensitive(".cc") || a.endswith_insensitive(".hh") ||
+          a.endswith_insensitive(".cpp") || a.endswith_insensitive(".hpp") ||
+          a.endswith_insensitive(".c++") || a.endswith_insensitive(".h++") ||
+          a.endswith_insensitive(".cxx") || a.endswith_insensitive(".hxx") ||
+          a.endswith_insensitive(".c") || a.endswith_insensitive(".h") ||
+          a.endswith_insensitive(".gcno") || a.endswith_insensitive(".pch") ||
+          a.endswith_insensitive(".s") || a.endswith_insensitive(".asm") ||
+          a.endswith_insensitive(".mm") || a.endswith_insensitive(".d") ||
+          a.endswith_insensitive(".sdk")) {
 
         if (auto maybe_info = fs.Stat(arg); maybe_info.Succeeded()) {
-          new_argv.emplace_back(maybe_info->real_path.generic_string());
+          new_argv.emplace_back(
+              maybe_info.TakeValue().real_path.generic_string());
           continue;
         }
       }
@@ -802,14 +849,13 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
     auto job_args_str = ss.str();
 
-    std::cerr << "JOB: " << job_args_str << "\n\n";
+//    std::cerr << "JOB: " << job_args_str << "\n\n";
 
     if (last_job_args_str == job_args_str) {
       continue;  // Duplicate.
     } else {
       last_job_args_str = std::move(job_args_str);
     }
-
 
     CompileJob job(std::make_shared<CompileJobImpl>(
         new_argv, impl->file_manager, working_dir_path,

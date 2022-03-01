@@ -91,14 +91,18 @@ Compiler::CreateCommandForFile(std::filesystem::path file_name,
   // Force the language.
   switch (info.target_lang) {
     case TargetLanguage::kC:
+      argv.emplace_back("-Xclang");
       argv.emplace_back("-x");
+      argv.emplace_back("-Xclang");
       argv.emplace_back("c");
       argv.emplace_back("-std=c11");
       break;
     case TargetLanguage::kCXX:
+      argv.emplace_back("-Xclang");
       argv.emplace_back("-x");
+      argv.emplace_back("-Xclang");
       argv.emplace_back("c++");
-      argv.emplace_back("-std=c++17");
+      argv.emplace_back("-std=c++20");
       break;
   }
 
@@ -119,10 +123,14 @@ Compiler::CreateCommandForFile(std::filesystem::path file_name,
     argv.emplace_back(info.resource_dir.generic_string());
   }
 
-  // System root directory.
   if (!info.sysroot_dir.empty()) {
+    argv.emplace_back("--sysroot=" + info.sysroot_dir.generic_string());
+  }
+
+  // System root directory.
+  if (!info.isysroot_dir.empty()) {
     argv.emplace_back("-isysroot");
-    argv.push_back(info.sysroot_dir.generic_string());
+    argv.push_back(info.isysroot_dir.generic_string());
   }
 
   ForEachSystemIncludeDirectory(

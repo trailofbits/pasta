@@ -445,6 +445,7 @@ static void RelativizePaths(FileSystemView &fs,
     }
 
     if (!found) {
+      assert(false);
       orig_entry.second = IncludePathLocation::kSysrootRelative;
     }
   }
@@ -609,7 +610,7 @@ Compiler::Create(class FileManager file_manager,
     // If we've got "fake" system root-relative versions to compare against
     // then we might be able to do a better job of finding the 'true' system
     // root directory.
-    std::filesystem::path sysroot_dir(impl->sysroot_dir);
+    std::filesystem::path isysroot_dir(impl->isysroot_dir);
     std::vector<std::filesystem::path> sysroot_rel_paths;
     FindSystemRootRelPaths(
         fs, impl->system_includes, fake_sysroot_impl.system_includes,
@@ -618,14 +619,14 @@ Compiler::Create(class FileManager file_manager,
         fs, impl->user_includes, fake_sysroot_impl.user_includes,
         sysroot_rel_paths);
 
-    FindRealSystemRoot(sysroot_dir, sysroot_rel_paths).swap(impl->sysroot_dir);
+    FindRealSystemRoot(isysroot_dir, sysroot_rel_paths).swap(impl->sysroot_dir);
 
     // Relative the paths w.r.t. the true system root directory.
-    RelativizePaths(fs, sysroot_dir, impl->system_includes,
+    RelativizePaths(fs, isysroot_dir, impl->system_includes,
                     fake_sysroot_impl.system_includes);
-    RelativizePaths(fs, sysroot_dir, impl->user_includes,
+    RelativizePaths(fs, isysroot_dir, impl->user_includes,
                     fake_sysroot_impl.user_includes);
-    RelativizePaths(fs, sysroot_dir, impl->frameworks,
+    RelativizePaths(fs, isysroot_dir, impl->frameworks,
                     fake_sysroot_impl.frameworks);
   }
 

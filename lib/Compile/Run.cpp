@@ -918,11 +918,11 @@ Result<AST, std::string> CompileJob::Run(void) const {
   const auto &argv = Arguments();
   llvm::ArrayRef<const char *> argv_arr(argv.Argv(), argv.Size());
 
-  // NOTE(pag): `CreateFromArgs` below requires that we not pass in a
-  //            `-cc1` command.
-  if (!argv_arr.empty() && !strcmp(argv_arr.front(), "-cc1")) {
-    argv_arr = argv_arr.slice(1);
-  }
+//  // NOTE(pag): `CreateFromArgs` below requires that we not pass in a
+//  //            `-cc1` command.
+//  if (!argv_arr.empty() && !strcmp(argv_arr.front(), "-cc1")) {
+//    argv_arr = argv_arr.slice(1);
+//  }
 
   const auto invocation_is_valid = clang::CompilerInvocation::CreateFromArgs(
       invocation, argv_arr, *diagnostics_engine);

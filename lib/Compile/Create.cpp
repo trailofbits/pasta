@@ -445,7 +445,6 @@ static void RelativizePaths(FileSystemView &fs,
     }
 
     if (!found) {
-      assert(false);
       orig_entry.second = IncludePathLocation::kSysrootRelative;
     }
   }

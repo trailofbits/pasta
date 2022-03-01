@@ -205,12 +205,12 @@ static std::tuple<unsigned, unsigned, unsigned> SkipWhitespace(
     switch (data[i]) {
       case '\t':
         num_leading_spaces += 4;
-        break;
+        continue;
       case ' ':
         num_leading_spaces += 1;
-        break;
+        continue;
       case '\r':
-        break;
+        continue;
       case '\n':
         num_leading_spaces = 0;
         num_leading_lines += 1;
@@ -288,8 +288,8 @@ void TokenPrinterContext::Tokenize(void) {
     if (tok.is(clang::tok::eof)) {
       break;
     } else if (tok.isOneOf(clang::tok::semi, clang::tok::comma)) {
-      num_nl = 0u;
-      num_sp = 0u;
+      num_nl = 0;
+      num_sp = 0;
     }
 
     const auto data_offset = static_cast<uint32_t>(tokens.data.size());
@@ -308,6 +308,11 @@ void TokenPrinterContext::Tokenize(void) {
     tokens.tokens.emplace_back(
         static_cast<int32_t>(data_offset), static_cast<uint32_t>(data_len),
         context_index, num_nl, num_sp, tok.getKind());
+
+    // Reset so that if there is no whitespace afte the last token, then we
+    // don't randomly add in trailing whitespace.
+    num_nl = 0;
+    num_sp = 0;
 
     if (at_end) {
       break;

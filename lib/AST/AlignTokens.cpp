@@ -1554,18 +1554,27 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
     }
   }
 
+  // File explicit, user-written explicit template specializations, and ignore
+  // all other specializations.
   auto should_keep = [&ignore_decls] (clang::Decl *decl) {
-    // These are explicit, user-written specializations.
+    auto tsk = clang::TSK_Undeclared;
     if (auto cspec = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(decl);
         cspec && !clang::isa<clang::ClassTemplatePartialSpecializationDecl>(cspec)) {
-      return cspec->getSpecializationKind() == clang::TSK_ExplicitSpecialization;
+      tsk = cspec->getSpecializationKind();
 
     } else if (auto vspec = clang::dyn_cast<clang::VarTemplateSpecializationDecl>(decl);
                vspec && !clang::isa<clang::VarTemplatePartialSpecializationDecl>(vspec)) {
-      return vspec->getSpecializationKind() == clang::TSK_ExplicitSpecialization;
+      tsk = vspec->getSpecializationKind();
+
+    } else if (auto fdecl = clang::dyn_cast<clang::FunctionDecl>(decl)) {
+      tsk = fdecl->getTemplateSpecializationKind();
+
     } else {
       return !ignore_decls.count(Canonicalize(decl));
     }
+
+    return tsk == clang::TSK_ExplicitSpecialization ||
+           tsk == clang::TSK_Undeclared;
   };
 
   // Strip out template specializations.
@@ -1720,7 +1729,10 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
 //          tdecl && tdecl->getNameAsString() == "DFhook") {
 //        log = true;
 //      }
-    // Figure out the parsed bounds.
+
+    // Figure out the parsed bounds. If we don't have bounds then we are
+    // probably dealing with something like a namespace / linkage spec /
+    // extern C, or an implicit declaration.
     auto decl_bounds = ast->DeclBounds(decl);
     if (!decl_bounds.first) {
       continue;

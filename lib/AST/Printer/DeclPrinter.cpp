@@ -547,8 +547,10 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
       !D->isFunctionTemplateSpecialization())
     prettyPrintPragmas(D);
 
-  if (D->isFunctionTemplateSpecialization())
-    Out << "template<> ";
+  if (D->isFunctionTemplateSpecialization()) {
+    Out << "template < > ";
+  }
+
   else if (!D->getDescribedFunctionTemplate()) {
     for (unsigned I = 0, NumTemplateParams = D->getNumTemplateParameterLists();
          I < NumTemplateParams; ++I)
@@ -1413,7 +1415,7 @@ void DeclPrinter::VisitClassTemplateSpecializationDecl(clang::ClassTemplateSpeci
   TokenPrinterContext ctx(Out, D, tokens);
   Out << "template";
   ctx.MarkLocation(D->getTemplateKeywordLoc());
-  Out << "<> ";
+  Out << " < > ";
   VisitCXXRecordDecl(D);
 }
 

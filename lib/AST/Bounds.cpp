@@ -469,14 +469,16 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   }
 
   void VisitCommonFunctionDecl(clang::FunctionDecl *decl) {
-
-//    if (decl->getDescribedTemplate()) {}
-    TokenImpl *tok_loc = ast.RawTokenAt(decl->getLocation());
-    Expand(tok_loc);
-    Expand(decl->getSourceRange());
-//    Expand(decl->getEllipsisLoc());
     if (auto ftl = decl->getFunctionTypeLoc()) {
       this->TypeLocVisitor::Visit(ftl);
+    }
+
+    TokenImpl *tok_loc = ast.RawTokenAt(decl->getLocation());
+    if (tok_loc) {
+      if (auto end_tok = FindEndOfFunction(tok_loc)) {
+        upper_bound = end_tok;
+        return;
+      }
     }
 
     const clang::FunctionDecl *def = nullptr;
@@ -677,20 +679,6 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   }
 
   void VisitTemplateDecl(clang::TemplateDecl *decl) {
-//    auto X = decl->getNameAsString() == "try_lock_until";
-//    auto D = [=] (const char * d) {
-//      if (X) {
-//        std::cerr
-//            << "--------------------------- " << d << " "
-//            << reinterpret_cast<void *>(decl) << " lower_bound="
-//            << reinterpret_cast<void *>(lower_bound) << " upper_bound="
-//            << reinterpret_cast<void *>(upper_bound) << '\n' ;
-//        for (auto t = lower_bound; t && t <= upper_bound; ++t) {
-//          std::cerr << ' ' << t->Data(ast);
-//        }
-//        std::cerr << "\n\n";
-//      }
-//    };
     VisitNamedDecl(decl);
     this->Visit(decl->getTemplatedDecl());
 //    Expand(decl->getSourceRange());  // Includes `getTemplateLoc`.
@@ -719,11 +707,29 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
   void VisitClassTemplateSpecializationDecl(
       clang::ClassTemplateSpecializationDecl *decl) {
+    auto X = decl->getNameAsString() == "basic_streambuf";
+    auto D = [=] (const char * d) {
+      if (X) {
+        std::cerr
+            << "--------------------------- " << d << " decl="
+            << reinterpret_cast<void *>(decl) << " lower_bound="
+            << reinterpret_cast<void *>(lower_bound) << " upper_bound="
+            << reinterpret_cast<void *>(upper_bound) << '\n' ;
+        for (auto t = lower_bound; t && t <= upper_bound; ++t) {
+          std::cerr << ' ' << t->Data(ast);
+        }
+        std::cerr << "\n\n";
+      }
+    };
+
+    D("a");
     VisitCXXRecordDecl(decl);
+    D("b");
 //    Expand(decl->getSourceRange());
 
     if (decl->getSpecializationKind() == clang::TSK_ExplicitSpecialization) {
       Expand(decl->getTemplateKeywordLoc());
+      D("c");
     }
 
 //    ExpandToLeadingToken(decl->getLocation(), clang::tok::kw_template);

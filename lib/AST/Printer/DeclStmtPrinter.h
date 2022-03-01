@@ -295,8 +295,10 @@ class StmtPrinter : public clang::StmtVisitor<StmtPrinter> {
       TokenPrinterContext ctx(OS, E, tokens);
       if (E)
         Visit(E);
-      else
+      else {
+        // E.g. due to an `OpaqueValueExpr`.
         OS << "<null expr>";
+      }
     }
 
     bool suppress_leading_indent = false;

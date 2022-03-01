@@ -1085,8 +1085,8 @@ Result<AST, std::string> CompileJob::Run(void) const {
     pp.addPPCallbacks(std::move(file_tracker));
   }
 
-  pp.SetCommentRetentionState(true /* KeepComments */,
-                              true /* KeepMacroComments */);
+  pp.SetCommentRetentionState(false /* KeepComments */,
+                              false /* KeepMacroComments */);
 
   pp.getBuiltinInfo().initializeBuiltins(pp.getIdentifierTable(), *lang_opts);
   pp.setPragmasEnabled(true);

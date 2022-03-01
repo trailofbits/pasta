@@ -707,29 +707,29 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
   void VisitClassTemplateSpecializationDecl(
       clang::ClassTemplateSpecializationDecl *decl) {
-    auto X = decl->getNameAsString() == "basic_streambuf";
-    auto D = [=] (const char * d) {
-      if (X) {
-        std::cerr
-            << "--------------------------- " << d << " decl="
-            << reinterpret_cast<void *>(decl) << " lower_bound="
-            << reinterpret_cast<void *>(lower_bound) << " upper_bound="
-            << reinterpret_cast<void *>(upper_bound) << '\n' ;
-        for (auto t = lower_bound; t && t <= upper_bound; ++t) {
-          std::cerr << ' ' << t->Data(ast);
-        }
-        std::cerr << "\n\n";
-      }
-    };
+//    auto X = decl->getNameAsString() == "basic_streambuf";
+//    auto D = [=] (const char * d) {
+//      if (X) {
+//        std::cerr
+//            << "--------------------------- " << d << " decl="
+//            << reinterpret_cast<void *>(decl) << " lower_bound="
+//            << reinterpret_cast<void *>(lower_bound) << " upper_bound="
+//            << reinterpret_cast<void *>(upper_bound) << '\n' ;
+//        for (auto t = lower_bound; t && t <= upper_bound; ++t) {
+//          std::cerr << ' ' << t->Data(ast);
+//        }
+//        std::cerr << "\n\n";
+//      }
+//    };
 
-    D("a");
+//    D("a");
     VisitCXXRecordDecl(decl);
-    D("b");
+//    D("b");
 //    Expand(decl->getSourceRange());
 
     if (decl->getSpecializationKind() == clang::TSK_ExplicitSpecialization) {
       Expand(decl->getTemplateKeywordLoc());
-      D("c");
+//      D("c");
     }
 
 //    ExpandToLeadingToken(decl->getLocation(), clang::tok::kw_template);

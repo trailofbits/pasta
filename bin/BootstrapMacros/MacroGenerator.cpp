@@ -195,6 +195,8 @@ MacroGenerator::~MacroGenerator(void) {
 
     for (const auto enclosed_decl : decl->decls()) {
       if (clang::CXXMethodDecl *method = clang::dyn_cast<clang::CXXMethodDecl>(enclosed_decl)) {
+        auto method_name_str = method->getNameAsString();
+        llvm::StringRef method_name(method_name_str);
 
         // Skip over operator overloads, as we don't have any reasonable way to
         // bind them to Python. Also skip over non-public methods, which we
@@ -203,6 +205,7 @@ MacroGenerator::~MacroGenerator(void) {
             clang::dyn_cast<clang::CXXConstructorDecl>(method) ||
             clang::dyn_cast<clang::CXXDestructorDecl>(method) ||
             clang::dyn_cast<clang::CXXConversionDecl>(method) ||
+            method_name == "hasODRHash" ||
             method->getAccess() != clang::AS_public) {
           continue;
         }
@@ -215,11 +218,10 @@ MacroGenerator::~MacroGenerator(void) {
         }
 
         // Ignore "setters", as well as factory functions.
-        auto method_name = method->getName();
         if (!method_name.startswith("set") &&
             !method_name.startswith("remove") &&
             method_name != "Create" &&
-            method->isConst()) {
+            (method->isConst() || method_name == "getODRHash")) {
           decl_methods[method_name.str()].push_back(method);
         }
 

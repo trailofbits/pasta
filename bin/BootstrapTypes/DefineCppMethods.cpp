@@ -68,7 +68,7 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
        << "  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);\n"
        << "  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));\n";
   } else {
-    os << "  auto &self = *(u." << class_name << ");\n";
+    os << "  auto &self = *const_cast<clang::" << class_name << " *>(u." << class_name << ");\n";
   }
   os << "  auto val = self." << meth_name_ref.str() << "();\n"
      << rt_val;

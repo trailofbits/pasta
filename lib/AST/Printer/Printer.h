@@ -136,10 +136,17 @@ class TokenPrinterContext {
 template <typename T>
 const TokenContextIndex PrintedTokenRangeImpl::CreateContext(
     TokenPrinterContext *tokenizer, const T *data) {
+  if (!data) {
+    if (tokenizer->prev_printer_context) {
+      return tokenizer->prev_printer_context->context_index;
+    } else {
+      return kInvalidTokenContextIndex;
+    }
+  }
 
   auto dedup = !std::is_same_v<T, char> && !std::is_base_of_v<clang::Type, T>;
 
-  if (data && dedup) {
+  if (dedup) {
     data = Canonicalize(data);
     if (auto it = data_to_index.find(data); it != data_to_index.end()) {
       return it->second;
@@ -172,11 +179,9 @@ const TokenContextIndex PrintedTokenRangeImpl::CreateContext(
         data);
   }
 
-  if (data) {
-    tokenizer->owns_data = data;
-    if (dedup) {
-      data_to_index.emplace(data, index);
-    }
+  tokenizer->owns_data = data;
+  if (dedup) {
+    data_to_index.emplace(data, index);
   }
 
   return index;

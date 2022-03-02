@@ -838,6 +838,9 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"ParmVarDecl", "getUninstantiatedDefaultArg"},
   {"FunctionDecl", "getBody"},
   {"FunctionDecl", "getDependentSpecializationInfo"},
+  {"TypeAliasDecl", "getDescribedAliasTemplate"},
+  {"ConstructorUsingShadowDecl", "getNominatedBaseClassShadowDecl"},
+  {"ConstructorUsingShadowDecl", "getConstructedBaseClassShadowDecl"},
 };
 
 std::unordered_map<std::string, uint32_t> gClassIDs;

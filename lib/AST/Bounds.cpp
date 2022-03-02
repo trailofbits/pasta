@@ -28,6 +28,8 @@
 
 #include <iostream>
 
+#include "Util.h"
+
 namespace pasta {
 namespace {
 
@@ -1036,11 +1038,13 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   }
 };
 
+// NOTE(pag): This logic needs to be kept in sync with `ASTImpl::AlignTokens`
+//            and `ASTImpl::DeclBounds`.
 clang::Decl *RemapDecl(clang::Decl *decl) {
+  auto end_loc = decl->getSourceRange().getEnd();
   if (auto cspec = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(decl);
       cspec && cspec->getSpecializationKind() != clang::TSK_ExplicitSpecialization) {
     auto ret = cspec->getSpecializedTemplateOrPartial();
-    auto end_loc = decl->getSourceRange().getEnd();
     if (ret.is<clang::ClassTemplateDecl *>()) {
       clang::RedeclarableTemplateDecl *remapped =
           ret.get<clang::ClassTemplateDecl *>();
@@ -1060,10 +1064,10 @@ clang::Decl *RemapDecl(clang::Decl *decl) {
       }
       return RemapDecl(remapped);
     }
+
   } else if (auto vspec = clang::dyn_cast<clang::VarTemplateSpecializationDecl>(decl);
              vspec && vspec->getTemplateSpecializationKind() != clang::TSK_ExplicitSpecialization) {
     auto ret = vspec->getSpecializedTemplateOrPartial();
-    auto end_loc = decl->getSourceRange().getEnd();
     if (ret.is<clang::VarTemplateDecl *>()) {
       clang::RedeclarableTemplateDecl *remapped =
           ret.get<clang::VarTemplateDecl *>();
@@ -1076,6 +1080,37 @@ clang::Decl *RemapDecl(clang::Decl *decl) {
     } else {
       clang::VarDecl *remapped =
           ret.get<clang::VarTemplatePartialSpecializationDecl *>();
+      for (auto redecl : remapped->redecls()) {
+        if (redecl->getSourceRange().getEnd() == end_loc) {
+          remapped = redecl;
+        }
+      }
+      return RemapDecl(remapped);
+    }
+
+  } else if (auto fd = clang::dyn_cast<clang::FunctionDecl>(decl)) {
+    if (clang::RedeclarableTemplateDecl *remapped =
+            fd->getDescribedFunctionTemplate()) {
+      for (auto redecl : remapped->redecls()) {
+        if (redecl->getSourceRange().getEnd() == end_loc) {
+          remapped = redecl;
+        }
+      }
+      return RemapDecl(remapped);
+    }
+  } else if (auto vd = clang::dyn_cast<clang::VarDecl>(decl)) {
+    if (clang::RedeclarableTemplateDecl *remapped =
+            vd->getDescribedVarTemplate()) {
+      for (auto redecl : remapped->redecls()) {
+        if (redecl->getSourceRange().getEnd() == end_loc) {
+          remapped = redecl;
+        }
+      }
+      return RemapDecl(remapped);
+    }
+  } else if (auto ta = clang::dyn_cast<clang::TypeAliasDecl>(decl)) {
+    if (clang::RedeclarableTemplateDecl *remapped =
+            ta->getDescribedAliasTemplate()) {
       for (auto redecl : remapped->redecls()) {
         if (redecl->getSourceRange().getEnd() == end_loc) {
           remapped = redecl;
@@ -1153,52 +1188,59 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
 //        break;
 //      }
 
+      // NOTE(pag): A lot of this logic is duplicated in `AlignTokens.cpp` and
+      //            is kind of in flux.
       default: {
         if (auto ftpl = clang::dyn_cast<clang::FunctionTemplateDecl>(tld_decl)) {
-          for (clang::Decl *spec : ftpl->specializations()) {
-            auto func = clang::dyn_cast<clang::FunctionDecl>(spec);
-            auto tsk = func->getTemplateSpecializationKind();
-            if (tsk != clang::TSK_ExplicitSpecialization &&
-                tsk != clang::TSK_Undeclared) {
+          for (clang::FunctionDecl *spec : ftpl->specializations()) {
+            auto tsk = spec->getTemplateSpecializationKind();
+            if (!IsExplicitInstantiation(tsk, false)) {
               remapped_decls.emplace(spec, tld_decl);
             }
           }
 
         } else if (auto ctpl = clang::dyn_cast<clang::ClassTemplateDecl>(tld_decl)) {
-          for (clang::Decl *spec : ctpl->specializations()) {
-            if (auto cspec = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(spec);
-                !cspec || cspec->getSpecializationKind() != clang::TSK_ExplicitSpecialization) {
+          for (clang::ClassTemplateSpecializationDecl *spec : ctpl->specializations()) {
+            auto tsk = spec->getSpecializationKind();
+            auto has_spec_or_partial = !spec->getSpecializedTemplateOrPartial().isNull();
+            if (!IsExplicitInstantiation(tsk, has_spec_or_partial)) {
               remapped_decls.emplace(spec, tld_decl);
             }
           }
 
         } else if (auto vtpl = clang::dyn_cast<clang::VarTemplateDecl>(tld_decl)) {
-          for (clang::Decl *spec : vtpl->specializations()) {
-            if (auto vspec = clang::dyn_cast<clang::VarTemplateSpecializationDecl>(spec);
-                !vspec || vspec->getSpecializationKind() != clang::TSK_ExplicitSpecialization) {
+          for (clang::VarTemplateSpecializationDecl *spec : vtpl->specializations()) {
+            auto tsk = spec->getSpecializationKind();
+            auto has_spec_or_partial = !spec->getSpecializedTemplateOrPartial().isNull();
+            if (!IsExplicitInstantiation(tsk, has_spec_or_partial)) {
               remapped_decls.emplace(spec, tld_decl);
             }
           }
-        }
 
-        // Top-level specializations are ones that are explicitly fully
-        // specialized with their own definitions.
-        if (auto cspec = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(tld_decl);
-            cspec && !clang::isa<clang::ClassTemplatePartialSpecializationDecl>(cspec)) {
-          if (cspec->getSpecializationKind() == clang::TSK_ExplicitSpecialization) {
-            remapped_decls.erase(cspec);
-          } else {
-            break;
-          }
-
-        } else if (auto vspec = clang::dyn_cast<clang::VarTemplateSpecializationDecl>(tld_decl);
-                   vspec && !clang::isa<clang::VarTemplatePartialSpecializationDecl>(vspec)) {
-          if (vspec->getSpecializationKind() == clang::TSK_ExplicitSpecialization) {
-            remapped_decls.erase(vspec);
-          } else {
-            break;
+        } else if (auto ta = clang::dyn_cast<clang::TypeAliasDecl>(tld_decl)) {
+          if (auto tatpl = ta->getDescribedAliasTemplate()) {
+            remapped_decls.emplace(tld_decl, tatpl);
           }
         }
+
+//        // Top-level specializations are ones that are explicitly fully
+//        // specialized with their own definitions.
+//        if (auto cspec = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(tld_decl);
+//            cspec && !clang::isa<clang::ClassTemplatePartialSpecializationDecl>(cspec)) {
+//          if (cspec->getSpecializationKind() == clang::TSK_ExplicitSpecialization) {
+//            remapped_decls.erase(cspec);
+//          } else {
+//            break;
+//          }
+//
+//        } else if (auto vspec = clang::dyn_cast<clang::VarTemplateSpecializationDecl>(tld_decl);
+//                   vspec && !clang::isa<clang::VarTemplatePartialSpecializationDecl>(vspec)) {
+//          if (vspec->getSpecializationKind() == clang::TSK_ExplicitSpecialization) {
+//            remapped_decls.erase(vspec);
+//          } else {
+//            break;
+//          }
+//        }
 
         if (!decl->isImplicit()) {
           tlds.emplace_back(tld_decl, nullptr, nullptr);

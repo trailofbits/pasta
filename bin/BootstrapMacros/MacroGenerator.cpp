@@ -250,7 +250,7 @@ MacroGenerator::~MacroGenerator(void) {
     auto method_id = 0u;
     for (const auto &[method_name, methods] : decl_methods) {
 
-      // The simplest cast of declaring a method is that it is not overridden.
+      // The simplest case of declaring a method is that it is not overridden.
       if (methods.size() != 1u) {
         os << "    // Skipped overloaded " << method_name << '\n';
       } else {
@@ -264,6 +264,8 @@ MacroGenerator::~MacroGenerator(void) {
 
         if (!method->isInstance()) {
           os << "    PASTA_CLASS_METHOD_" << num_args << '(';
+        } else if (method->isVirtual() && method->size_overridden_methods()) {
+          os << "    PASTA_OVERRIDE_METHOD_" << num_args << '(';
         } else {
           os << "    PASTA_INSTANCE_METHOD_" << num_args << '(';
         }

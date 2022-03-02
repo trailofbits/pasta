@@ -982,7 +982,6 @@ class ObjCMethodDecl : public NamedDecl {
   bool DefinedInNSObject(void) const noexcept;
   ::pasta::ObjCPropertyDecl FindPropertyDeclaration(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
-  ::pasta::Stmt Body(void) const noexcept;
   ::pasta::ObjCMethodDecl CanonicalDeclaration(void) const noexcept;
   ::pasta::ObjCCategoryDecl Category(void) const noexcept;
   ::pasta::ObjCInterfaceDecl ClassInterface(void) const noexcept;
@@ -1002,7 +1001,6 @@ class ObjCMethodDecl : public NamedDecl {
   ::pasta::Token SelectorStartToken(void) const noexcept;
   ::pasta::ImplicitParamDecl SelfDeclaration(void) const noexcept;
   // SelfType: (clang::QualType)
-  bool HasBody(void) const noexcept;
   bool HasRedeclaration(void) const noexcept;
   bool HasRelatedResultType(void) const noexcept;
   bool HasSkippedBody(void) const noexcept;
@@ -1500,7 +1498,6 @@ class BlockDecl : public Decl {
   bool DoesNotEscape(void) const noexcept;
   ::pasta::Decl BlockManglingContextDeclaration(void) const noexcept;
   uint32_t BlockManglingNumber(void) const noexcept;
-  ::pasta::Stmt Body(void) const noexcept;
   ::pasta::Token CaretToken(void) const noexcept;
   ::pasta::CompoundStmt CompoundBody(void) const noexcept;
   uint32_t NumCaptures(void) const noexcept;
@@ -1539,7 +1536,6 @@ class CapturedDecl : public Decl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CapturedDecl)
   PASTA_DECLARE_BASE_OPERATORS(DeclContext, CapturedDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, CapturedDecl)
-  ::pasta::Stmt Body(void) const noexcept;
   ::pasta::ImplicitParamDecl ContextParam(void) const noexcept;
   uint32_t ContextParamPosition(void) const noexcept;
   uint32_t NumParams(void) const noexcept;
@@ -1789,7 +1785,6 @@ class FunctionDecl : public DeclaratorDecl {
   bool IsMain(void) const noexcept;
   bool IsMultiVersion(void) const noexcept;
   bool IsNoReturn(void) const noexcept;
-  bool IsOutOfLine(void) const noexcept;
   bool IsOverloadedOperator(void) const noexcept;
   bool IsPure(void) const noexcept;
   bool IsReplaceableGlobalAllocationFunction(void) const noexcept;
@@ -2400,7 +2395,6 @@ class VarDecl : public DeclaratorDecl {
   bool IsNoDestroy(void) const noexcept;
   bool IsNonEscapingByref(void) const noexcept;
   bool IsObjCForDeclaration(void) const noexcept;
-  bool IsOutOfLine(void) const noexcept;
   bool IsParameterPack(void) const noexcept;
   bool IsPreviousDeclarationInSameBlockScope(void) const noexcept;
   bool IsStaticDataMember(void) const noexcept;

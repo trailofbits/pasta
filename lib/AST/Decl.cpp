@@ -2602,16 +2602,6 @@ bool ObjCMethodDecl::DefinedInNSObject(void) const noexcept {
   return ast->TokenAt(val);
 }
 
-::pasta::Stmt ObjCMethodDecl::Body(void) const noexcept {
-  auto &self = *(u.ObjCMethodDecl);
-  auto val = self.getBody();
-  if (val) {
-    return StmtBuilder::Create<::pasta::Stmt>(ast, val);
-  }
-  assert(false && "ObjCMethodDecl::Body can return nullptr!");
-  __builtin_unreachable();
-}
-
 ::pasta::ObjCMethodDecl ObjCMethodDecl::CanonicalDeclaration(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.getCanonicalDecl();
@@ -2722,12 +2712,6 @@ uint32_t ObjCMethodDecl::NumSelectorTokens(void) const noexcept {
 }
 
 // 4: ObjCMethodDecl::SelfType
-bool ObjCMethodDecl::HasBody(void) const noexcept {
-  auto &self = *(u.ObjCMethodDecl);
-  auto val = self.hasBody();
-  return val;
-}
-
 bool ObjCMethodDecl::HasRedeclaration(void) const noexcept {
   auto &self = *(u.ObjCMethodDecl);
   auto val = self.hasRedeclaration();
@@ -3888,16 +3872,6 @@ uint32_t BlockDecl::BlockManglingNumber(void) const noexcept {
   return val;
 }
 
-::pasta::Stmt BlockDecl::Body(void) const noexcept {
-  auto &self = *(u.BlockDecl);
-  auto val = self.getBody();
-  if (val) {
-    return StmtBuilder::Create<::pasta::Stmt>(ast, val);
-  }
-  assert(false && "BlockDecl::Body can return nullptr!");
-  __builtin_unreachable();
-}
-
 ::pasta::Token BlockDecl::CaretToken(void) const noexcept {
   auto &self = *(u.BlockDecl);
   auto val = self.getCaretLocation();
@@ -3998,16 +3972,6 @@ CapturedDecl::CapturedDecl(
 
 PASTA_DEFINE_BASE_OPERATORS(DeclContext, CapturedDecl)
 PASTA_DEFINE_BASE_OPERATORS(Decl, CapturedDecl)
-::pasta::Stmt CapturedDecl::Body(void) const noexcept {
-  auto &self = *(u.CapturedDecl);
-  auto val = self.getBody();
-  if (val) {
-    return StmtBuilder::Create<::pasta::Stmt>(ast, val);
-  }
-  assert(false && "CapturedDecl::Body can return nullptr!");
-  __builtin_unreachable();
-}
-
 ::pasta::ImplicitParamDecl CapturedDecl::ContextParam(void) const noexcept {
   auto &self = *(u.CapturedDecl);
   auto val = self.getContextParam();
@@ -4890,12 +4854,6 @@ bool FunctionDecl::IsMultiVersion(void) const noexcept {
 bool FunctionDecl::IsNoReturn(void) const noexcept {
   auto &self = *(u.FunctionDecl);
   auto val = self.isNoReturn();
-  return val;
-}
-
-bool FunctionDecl::IsOutOfLine(void) const noexcept {
-  auto &self = *(u.FunctionDecl);
-  auto val = self.isOutOfLine();
   return val;
 }
 
@@ -6566,12 +6524,6 @@ bool VarDecl::IsNonEscapingByref(void) const noexcept {
 bool VarDecl::IsObjCForDeclaration(void) const noexcept {
   auto &self = *(u.VarDecl);
   auto val = self.isObjCForDecl();
-  return val;
-}
-
-bool VarDecl::IsOutOfLine(void) const noexcept {
-  auto &self = *(u.VarDecl);
-  auto val = self.isOutOfLine();
   return val;
 }
 

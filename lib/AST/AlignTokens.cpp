@@ -23,6 +23,7 @@
 
 #include "Builder.h"
 #include "Printer/DeclStmtPrinter.h"
+#include "Util.h"
 
 #define PASTA_DEBUG_ALIGN 0
 #define TK(...)
@@ -1559,23 +1560,33 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
   // all other specializations.
   auto should_keep = [&ignore_decls] (clang::Decl *decl) {
     auto tsk = clang::TSK_Undeclared;
+    bool has_spec_or_partial = false;
     if (auto cspec = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(decl);
         cspec && !clang::isa<clang::ClassTemplatePartialSpecializationDecl>(cspec)) {
       tsk = cspec->getSpecializationKind();
+      has_spec_or_partial = !cspec->getSpecializedTemplateOrPartial().isNull();
 
     } else if (auto vspec = clang::dyn_cast<clang::VarTemplateSpecializationDecl>(decl);
                vspec && !clang::isa<clang::VarTemplatePartialSpecializationDecl>(vspec)) {
       tsk = vspec->getSpecializationKind();
+      has_spec_or_partial = !vspec->getSpecializedTemplateOrPartial().isNull();
 
     } else if (auto fdecl = clang::dyn_cast<clang::FunctionDecl>(decl)) {
       tsk = fdecl->getTemplateSpecializationKind();
 
+    } else if (auto vdecl = clang::dyn_cast<clang::VarDecl>(decl)) {
+      tsk = vdecl->getTemplateSpecializationKind();
+
+    } else if (auto ta = clang::dyn_cast<clang::TypeAliasDecl>(decl)) {
+      if (ta->getDescribedAliasTemplate()) {
+        tsk = clang::TSK_ImplicitInstantiation;  // Fake it.
+      }
+
     } else {
-      return !ignore_decls.count(Canonicalize(decl));
+      has_spec_or_partial = ignore_decls.count(Canonicalize(decl));
     }
 
-    return tsk == clang::TSK_ExplicitSpecialization ||
-           tsk == clang::TSK_Undeclared;
+    return IsExplicitInstantiation(tsk, has_spec_or_partial);
   };
 
   // Strip out template specializations.

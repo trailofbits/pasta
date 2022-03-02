@@ -4561,6 +4561,12 @@ uint32_t FunctionDecl::NumParams(void) const noexcept {
   return val;
 }
 
+uint32_t FunctionDecl::ODRHash(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  auto val = self.getODRHash();
+  return val;
+}
+
 enum OverloadedOperatorKind FunctionDecl::OverloadedOperator(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   auto val = self.getOverloadedOperator();

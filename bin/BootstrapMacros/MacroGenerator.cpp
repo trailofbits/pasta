@@ -221,7 +221,10 @@ MacroGenerator::~MacroGenerator(void) {
         if (!method_name.startswith("set") &&
             !method_name.startswith("remove") &&
             method_name != "Create" &&
-            (method->isConst() || method_name == "getODRHash")) {
+            method->isConst()) {
+          decl_methods[method_name.str()].push_back(method);
+
+        } else if (decl_name == "EnumDecl" && method_name == "getODRHash") {
           decl_methods[method_name.str()].push_back(method);
         }
 
@@ -239,7 +242,6 @@ MacroGenerator::~MacroGenerator(void) {
         if (!enum_name.empty()) {
           decl_named_enums.emplace(std::move(enum_name),
                                    enum_->getCanonicalDecl());
-
         } else {
           decl_unnamed_enums.insert(enum_->getCanonicalDecl());
         }

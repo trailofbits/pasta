@@ -1735,6 +1735,7 @@ class FunctionDecl : public DeclaratorDecl {
   enum MultiVersionKind MultiVersionKind(void) const noexcept;
   // NameInfo: (clang::DeclarationNameInfo)
   uint32_t NumParams(void) const noexcept;
+  uint32_t ODRHash(void) const noexcept;
   enum OverloadedOperatorKind OverloadedOperator(void) const noexcept;
   // ParamDeclaration: (const clang::ParmVarDecl *)
   ::pasta::TokenRange ParametersSourceRange(void) const noexcept;

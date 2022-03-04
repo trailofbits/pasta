@@ -14,11 +14,6 @@
 #include "Result.h"
 #include "StdFileSystem.h"
 
-namespace clang {
-namespace tok {
-enum TokenKind : unsigned short;
-}  // namespace tok
-}  // namspace clang
 namespace pasta {
 
 class AST;
@@ -34,6 +29,13 @@ class Token;
 
 struct Stat;
 struct FileTokenImpl;
+
+enum class ObjCKeywordKind : unsigned int;
+enum class PPKeywordKind : unsigned int;
+enum class TokenKind : unsigned short;
+
+bool IsIdentifierTokenKind(TokenKind) noexcept;
+const char *KeywordSpellingOrNull(TokenKind) noexcept;
 
 // A file token is a token, lexed from a file, but which is not directly
 // associated with a specific parse or AST. Instead, AST tokens and macro
@@ -58,11 +60,9 @@ class FileToken {
  public:
   ~FileToken(void);
 
-  // Kind of this token.
-  clang::tok::TokenKind Kind(void) const noexcept;
-
-  int PreProcessorKeywordKind(void) const noexcept;
-  int ObjectiveCAtKeywordKind(void) const noexcept;
+  TokenKind Kind(void) const noexcept;
+  PPKeywordKind PreProcessorKeywordKind(void) const noexcept;
+  ObjCKeywordKind ObjectiveCAtKeywordKind(void) const noexcept;
 
   // Kind of this token.
   const char *KindName(void) const noexcept;

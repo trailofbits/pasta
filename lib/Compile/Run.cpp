@@ -817,8 +817,9 @@ class ParsedFileTracker : public clang::PPCallbacks {
     if (!file_tok) {
       assert(false);
     } else {
-      assert(clang::tok::isAnyIdentifier(file_tok->Kind()) ||
-             clang::tok::getKeywordSpelling(file_tok->Kind()));
+      auto file_tok_kind = static_cast<clang::tok::TokenKind>(file_tok->Kind());
+      assert(clang::tok::isAnyIdentifier(file_tok_kind) ||
+             clang::tok::getKeywordSpelling(file_tok_kind));
       bool invalid = false;
       auto ident_data = sm.getCharacterData(loc, &invalid);
       assert(!invalid);

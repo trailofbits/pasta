@@ -12,7 +12,6 @@
 #include <pasta/Util/FileSystem.h>
 #include <pasta/Util/Init.h>
 
-#include <clang/Basic/TokenKinds.h>
 #include <llvm/Support/FormatVariadic.h>
 #include <llvm/Support/JSON.h>
 #include <llvm/Support/raw_ostream.h>
@@ -63,8 +62,8 @@ static void DumpExpandedMacrosOld(pasta::AST ast) {
       // This token is the name of the macro. We might still need to collect
       // arguments if it's a function-like macro.
       pasta::FileToken macro_use = std::move(*maybe_macro_use);
-      assert(clang::tok::isAnyIdentifier(macro_use.Kind()) ||
-             clang::tok::getKeywordSpelling(macro_use.Kind()));
+      assert(pasta::IsIdentifierTokenKind(macro_use.Kind()) ||
+             pasta::KeywordSpellingOrNull(macro_use.Kind()));
 
       pasta::File file_containing_macro_use =
           pasta::File::Containing(macro_use);

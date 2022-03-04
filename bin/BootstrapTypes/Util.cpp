@@ -56,17 +56,30 @@ std::string CxxName(llvm::StringRef name) {
   } else if (name.empty()) {
     return "";
 
+  } else if (name[0] == '_') {
+    return "_" + CxxName(name.substr(1));
+
+  } else if (name.endswith("_")) {
+    return CxxName(name.substr(0, name.size() - 1u)) + "_";
+
   } else if (std::islower(name.front())) {
     return CxxName(Capitalize(name));
 
   // Recursively apply on all capitalized sub-components.
   } else {
     auto num_upper = 1u;
+    auto seen_us = false;
     for (auto i = 1u; i < name.size(); ++i) {
       if (name[i] == '_') {
-        ++num_upper;
+        if (!seen_us) {
+          ++num_upper;
+          seen_us = true;
+        }
       } else if (std::isupper(name[i]) && !std::isupper(name[i - 1u])) {
         ++num_upper;
+        seen_us = false;
+      } else {
+        seen_us = false;
       }
     }
 

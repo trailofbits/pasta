@@ -5,6 +5,7 @@
 #include <pasta/Util/File.h>
 
 #include <algorithm>
+#include <pasta/AST/Forward.h>
 
 #include "FileManager.h"
 
@@ -133,38 +134,37 @@ std::optional<FileToken> File::TokenAtOffset(unsigned offset) const noexcept {
   return std::nullopt;
 }
 
-// Kind of this token.
-clang::tok::TokenKind FileToken::Kind(void) const noexcept {
+TokenKind FileToken::Kind(void) const noexcept {
   if (impl) {
-    return impl->Kind();
+    return static_cast<TokenKind>(impl->Kind());
   } else {
-    return clang::tok::unknown;
+    return TokenKind::kUnknown;
   }
 }
 
-int FileToken::PreProcessorKeywordKind(void) const noexcept {
+PPKeywordKind FileToken::PreProcessorKeywordKind(void) const noexcept {
   if (impl) {
     if (impl->kind.extended.is_pp_kw) {
-      return static_cast<clang::tok::PPKeywordKind>(
+      return static_cast<PPKeywordKind>(
           impl->kind.extended.alt_kind);
     } else {
-      return clang::tok::pp_not_keyword;
+      return PPKeywordKind::kNotKeyword;
     }
   } else {
-    return clang::tok::pp_not_keyword;
+    return PPKeywordKind::kNotKeyword;
   }
 }
 
-int FileToken::ObjectiveCAtKeywordKind(void) const noexcept {
+ObjCKeywordKind FileToken::ObjectiveCAtKeywordKind(void) const noexcept {
   if (impl) {
     if (impl->kind.extended.is_objc_kw) {
-      return static_cast<clang::tok::ObjCKeywordKind>(
+      return static_cast<ObjCKeywordKind>(
           impl->kind.extended.alt_kind);
     } else {
-      return clang::tok::objc_not_keyword;
+      return ObjCKeywordKind::kNotKeyword;
     }
   } else {
-    return clang::tok::objc_not_keyword;
+    return ObjCKeywordKind::kNotKeyword;
   }
 }
 
@@ -289,6 +289,15 @@ std::optional<FileToken> FileTokenRange::At(size_t index) const noexcept {
 // Unsafe indexed access into the token range.
 FileToken FileTokenRange::operator[](size_t index) const {
   return FileToken(file, &(first[index]));
+}
+
+bool IsIdentifierTokenKind(TokenKind kind) noexcept {
+  return clang::tok::isAnyIdentifier(static_cast<clang::tok::TokenKind>(kind));
+}
+
+const char *KeywordSpellingOrNull(TokenKind kind) noexcept {
+  return clang::tok::getKeywordSpelling(
+      static_cast<clang::tok::TokenKind>(kind));
 }
 
 }  // namespace pasta

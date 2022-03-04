@@ -433,11 +433,11 @@ std::optional<FileToken> Token::FileLocation(void) const {
 }
 
 // Kind of this token.
-clang::tok::TokenKind Token::Kind(void) const noexcept {
+TokenKind Token::Kind(void) const noexcept {
   if (impl) {
-    return impl->Kind();
+    return static_cast<TokenKind>(impl->Kind());
   } else {
-    return clang::tok::unknown;
+    return TokenKind::kUnknown;
   }
 }
 
@@ -452,7 +452,11 @@ TokenRole Token::Role(void) const noexcept {
 
 // Kind of this token.
 const char *Token::KindName(void) const noexcept {
-  return clang::tok::getTokenName(Kind());
+  if (impl) {
+    return clang::tok::getTokenName(impl->Kind());
+  } else {
+    return clang::tok::getTokenName(clang::tok::unknown);
+  }
 }
 
 // If this token is a macro expansion token, or is the beginning or ending of

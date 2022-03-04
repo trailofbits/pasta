@@ -292,10 +292,10 @@ class StmtPrinter : public clang::StmtVisitor<StmtPrinter> {
                                      bool ForceNoStmt = false);
 
     void PrintExpr(clang::Expr *E) {
-      TokenPrinterContext ctx(OS, E, tokens);
-      if (E)
+      if (E) {
+        TokenPrinterContext ctx(OS, E, tokens);
         Visit(E);
-      else {
+      } else {
         // E.g. due to an `OpaqueValueExpr`.
         OS << "<null expr>";
       }

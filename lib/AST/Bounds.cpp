@@ -33,6 +33,91 @@
 namespace pasta {
 namespace {
 
+// NOTE(pag): This logic needs to be kept in sync with `ASTImpl::AlignTokens`
+//            and `ASTImpl::DeclBounds`.
+static clang::Decl *RemapDecl(clang::Decl *decl) {
+  auto end_loc = decl->getSourceRange().getEnd();
+  if (auto cspec = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(decl);
+      cspec && cspec->getSpecializationKind() != clang::TSK_ExplicitSpecialization) {
+    auto ret = cspec->getSpecializedTemplateOrPartial();
+    if (ret.is<clang::ClassTemplateDecl *>()) {
+      clang::RedeclarableTemplateDecl *remapped =
+          ret.get<clang::ClassTemplateDecl *>();
+      for (clang::RedeclarableTemplateDecl *redecl : remapped->redecls()) {
+        if (redecl->getSourceRange().getEnd() == end_loc) {
+          remapped = redecl;
+        }
+      }
+      return RemapDecl(remapped);
+    } else {
+      clang::TagDecl *remapped =
+          ret.get<clang::ClassTemplatePartialSpecializationDecl *>();
+      for (clang::TagDecl *redecl : remapped->redecls()) {
+        if (redecl->getSourceRange().getEnd() == end_loc) {
+          remapped = redecl;
+        }
+      }
+      return RemapDecl(remapped);
+    }
+
+  } else if (auto vspec = clang::dyn_cast<clang::VarTemplateSpecializationDecl>(decl);
+             vspec && vspec->getTemplateSpecializationKind() != clang::TSK_ExplicitSpecialization) {
+    auto ret = vspec->getSpecializedTemplateOrPartial();
+    if (ret.is<clang::VarTemplateDecl *>()) {
+      clang::RedeclarableTemplateDecl *remapped =
+          ret.get<clang::VarTemplateDecl *>();
+      for (auto redecl : remapped->redecls()) {
+        if (redecl->getSourceRange().getEnd() == end_loc) {
+          remapped = redecl;
+        }
+      }
+      return RemapDecl(remapped);
+    } else {
+      clang::VarDecl *remapped =
+          ret.get<clang::VarTemplatePartialSpecializationDecl *>();
+      for (auto redecl : remapped->redecls()) {
+        if (redecl->getSourceRange().getEnd() == end_loc) {
+          remapped = redecl;
+        }
+      }
+      return RemapDecl(remapped);
+    }
+
+  } else if (auto fd = clang::dyn_cast<clang::FunctionDecl>(decl)) {
+    if (clang::RedeclarableTemplateDecl *remapped =
+            fd->getDescribedFunctionTemplate()) {
+      for (auto redecl : remapped->redecls()) {
+        if (redecl->getSourceRange().getEnd() == end_loc) {
+          remapped = redecl;
+        }
+      }
+      return RemapDecl(remapped);
+    }
+  } else if (auto vd = clang::dyn_cast<clang::VarDecl>(decl)) {
+    if (clang::RedeclarableTemplateDecl *remapped =
+            vd->getDescribedVarTemplate()) {
+      for (auto redecl : remapped->redecls()) {
+        if (redecl->getSourceRange().getEnd() == end_loc) {
+          remapped = redecl;
+        }
+      }
+      return RemapDecl(remapped);
+    }
+  } else if (auto ta = clang::dyn_cast<clang::TypeAliasDecl>(decl)) {
+    if (clang::RedeclarableTemplateDecl *remapped =
+            ta->getDescribedAliasTemplate()) {
+      for (auto redecl : remapped->redecls()) {
+        if (redecl->getSourceRange().getEnd() == end_loc) {
+          remapped = redecl;
+        }
+      }
+      return RemapDecl(remapped);
+    }
+  }
+
+  return decl;
+}
+
 // The decl bounds finder exists to find the beginning and ending of
 // declarations. A lot of the best information comes from `clang::TypeLoc`s,
 // and some from `Stmt`s.
@@ -603,11 +688,17 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     ExpandToTrailingToken(decl->getLocation(), clang::tok::semi);
   }
   void VisitUsingDirectiveDecl(clang::UsingDirectiveDecl *decl) {
-    VisitNamedDecl(decl);
-    Expand(decl->getSourceRange());
-    ExpandToLeadingToken(decl->getLocation(), clang::tok::kw_using);
-    ExpandToTrailingToken(decl->getLocation(), clang::tok::semi);
+//    VisitNamedDecl(decl);
+//    Expand(decl->getSourceRange());
+
+    ExpandToLeadingToken(decl->getUsingLoc(), clang::tok::kw_using);
+    ExpandToLeadingToken(decl->getNamespaceKeyLocation(), clang::tok::kw_using);
+    assert(lower_bound->Kind() == clang::tok::kw_using);
+
+    ExpandToTrailingToken(lower_bound, clang::tok::semi);
+    assert(upper_bound->Kind() == clang::tok::semi);
   }
+
   void VisitUsingShadowDecl(clang::UsingShadowDecl *decl) {
     VisitNamedDecl(decl);
     Expand(decl->getSourceRange());
@@ -725,15 +816,19 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 //    };
 
 //    D("a");
-    VisitCXXRecordDecl(decl);
 //    D("b");
 //    Expand(decl->getSourceRange());
 
     if (decl->getSpecializationKind() == clang::TSK_ExplicitSpecialization) {
       Expand(decl->getTemplateKeywordLoc());
 //      D("c");
+
+    // One annoying thing with clang is that often the `decl->getLocation()`
+    // be for a canonical decl, but the rest of the info will be for the
+    // definition, so go through and try to fix up the location of this decl.
     }
 
+    VisitCXXRecordDecl(decl);
 //    ExpandToLeadingToken(decl->getLocation(), clang::tok::kw_template);
 //    ExpandToTrailingToken(decl->getLocation(), clang::tok::semi);
   }
@@ -1038,99 +1133,12 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   }
 };
 
-// NOTE(pag): This logic needs to be kept in sync with `ASTImpl::AlignTokens`
-//            and `ASTImpl::DeclBounds`.
-clang::Decl *RemapDecl(clang::Decl *decl) {
-  auto end_loc = decl->getSourceRange().getEnd();
-  if (auto cspec = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(decl);
-      cspec && cspec->getSpecializationKind() != clang::TSK_ExplicitSpecialization) {
-    auto ret = cspec->getSpecializedTemplateOrPartial();
-    if (ret.is<clang::ClassTemplateDecl *>()) {
-      clang::RedeclarableTemplateDecl *remapped =
-          ret.get<clang::ClassTemplateDecl *>();
-      for (auto redecl : remapped->redecls()) {
-        if (redecl->getSourceRange().getEnd() == end_loc) {
-          remapped = redecl;
-        }
-      }
-      return RemapDecl(remapped);
-    } else {
-      clang::TagDecl *remapped =
-          ret.get<clang::ClassTemplatePartialSpecializationDecl *>();
-      for (auto redecl : remapped->redecls()) {
-        if (redecl->getSourceRange().getEnd() == end_loc) {
-          remapped = redecl;
-        }
-      }
-      return RemapDecl(remapped);
-    }
-
-  } else if (auto vspec = clang::dyn_cast<clang::VarTemplateSpecializationDecl>(decl);
-             vspec && vspec->getTemplateSpecializationKind() != clang::TSK_ExplicitSpecialization) {
-    auto ret = vspec->getSpecializedTemplateOrPartial();
-    if (ret.is<clang::VarTemplateDecl *>()) {
-      clang::RedeclarableTemplateDecl *remapped =
-          ret.get<clang::VarTemplateDecl *>();
-      for (auto redecl : remapped->redecls()) {
-        if (redecl->getSourceRange().getEnd() == end_loc) {
-          remapped = redecl;
-        }
-      }
-      return RemapDecl(remapped);
-    } else {
-      clang::VarDecl *remapped =
-          ret.get<clang::VarTemplatePartialSpecializationDecl *>();
-      for (auto redecl : remapped->redecls()) {
-        if (redecl->getSourceRange().getEnd() == end_loc) {
-          remapped = redecl;
-        }
-      }
-      return RemapDecl(remapped);
-    }
-
-  } else if (auto fd = clang::dyn_cast<clang::FunctionDecl>(decl)) {
-    if (clang::RedeclarableTemplateDecl *remapped =
-            fd->getDescribedFunctionTemplate()) {
-      for (auto redecl : remapped->redecls()) {
-        if (redecl->getSourceRange().getEnd() == end_loc) {
-          remapped = redecl;
-        }
-      }
-      return RemapDecl(remapped);
-    }
-  } else if (auto vd = clang::dyn_cast<clang::VarDecl>(decl)) {
-    if (clang::RedeclarableTemplateDecl *remapped =
-            vd->getDescribedVarTemplate()) {
-      for (auto redecl : remapped->redecls()) {
-        if (redecl->getSourceRange().getEnd() == end_loc) {
-          remapped = redecl;
-        }
-      }
-      return RemapDecl(remapped);
-    }
-  } else if (auto ta = clang::dyn_cast<clang::TypeAliasDecl>(decl)) {
-    if (clang::RedeclarableTemplateDecl *remapped =
-            ta->getDescribedAliasTemplate()) {
-      for (auto redecl : remapped->redecls()) {
-        if (redecl->getSourceRange().getEnd() == end_loc) {
-          remapped = redecl;
-        }
-      }
-      return RemapDecl(remapped);
-    }
-  }
-
-  return decl;
-}
-
 }  // namespace
 
 // Try to return the inclusive bounds of a given declaration in terms of
 // parsed tokens. This doesn't not try to expand the range to the ending
 // of macro expansions.
 std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
-//  decl = RemapDecl(decl);
-
   auto &ret = bounds[decl];
   if (ret.first || decl->isImplicit()) {
     return ret;
@@ -1146,6 +1154,14 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
     return ret;
   }
 
+  // Go from specializations back to templates.
+  if (auto remap_it = remapped_decls.find(decl);
+      remap_it != remapped_decls.end() &&
+      decl != remap_it->second) {
+    ret = DeclBounds(remap_it->second);
+    return ret;
+  }
+
   clang::DeclContext *dc = decl->getLexicalDeclContext();
 
 //  std::set<TokenImpl *> lower_bounds;
@@ -1153,7 +1169,6 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
 
   using DeclRange = std::tuple<clang::Decl *, TokenImpl *, TokenImpl *>;
   std::vector<DeclRange> tlds;
-  std::unordered_map<clang::Decl *, clang::Decl *> remapped_decls;
 
   for (clang::Decl *tld_decl : dc->decls()) {
     switch (tld_decl->getKind()) {
@@ -1242,7 +1257,7 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
 //          }
 //        }
 
-        if (!decl->isImplicit()) {
+        if (!tld_decl->isImplicit()) {
           tlds.emplace_back(tld_decl, nullptr, nullptr);
         }
         break;
@@ -1250,37 +1265,29 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
     }
   }
 
-  // Go from specializations back to templates.
-  if (auto remap_it = remapped_decls.find(decl);
-      remap_it != remapped_decls.end()) {
-//    assert(remap_it->second == RemapDecl(decl));
-    if (decl != remap_it->second) {
-      decl = remap_it->second;
-      ret = DeclBounds(decl);
-    }
-  }
-
   DeclBoundsFinder finder(*this);
 
-  // NOTE(pag): Assign just in case our top-level scanning approach doesn't.
-  ret = finder.GetBounds(decl);
-  const auto old_bounds = ret;
-
-
   for (auto &[tld_decl, tld_begin, tld_end] : tlds) {
-    clang::Decl *decl_loc = tld_decl;
+    clang::Decl *remapped_decl = tld_decl;
     if (auto remap_it = remapped_decls.find(tld_decl);
         remap_it != remapped_decls.end()) {
-      decl_loc = remap_it->second;
+      remapped_decl = remap_it->second;
     }
 
     auto &dd_bounds = bounds[tld_decl];
     assert(!dd_bounds.first == !dd_bounds.second);
 
-    assert(tld_decl != decl || dd_bounds == old_bounds);
-    dd_bounds = finder.GetBounds(decl_loc);
+    if (remapped_decl == tld_decl) {
+      dd_bounds = finder.GetBounds(remapped_decl);
 
-    assert(!dd_bounds.first == !dd_bounds.second);
+    // Only find the bounds of the remapped thing once.
+    } else {
+      auto &remapped_bounds = bounds[remapped_decl];
+      if (!remapped_bounds.first) {
+        remapped_bounds = finder.GetBounds(remapped_decl);
+      }
+      dd_bounds = remapped_bounds;
+    }
 
 //    if (!(tld_decl != decl || dd_bounds == old_bounds)) {
 //      std::cerr << "---------------------------\n";
@@ -1295,9 +1302,27 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
 //      std::cerr << '\n';
 //      assert(false);
 //    }
-    assert(tld_decl != decl || dd_bounds == old_bounds);
+//    assert(remapped_decl != decl || dd_bounds == old_bounds);
     tld_begin = dd_bounds.first;
     tld_end = dd_bounds.second;
+
+    // NOTE(pag): This is a heuristic assert to try to find edge cases.
+//    assert((tld_end - tld_begin) < 25000);
+
+    // The `tld_decl->getLocation()` is often wrong for template
+    // specializations, so try to fix it up here first.
+    auto remapped_loc = remapped_decl->getLocation();
+    auto remapped_tok = RawTokenAt(remapped_loc);
+    if (tld_begin <= remapped_tok && remapped_tok <= tld_end) {
+      tld_decl->setLocation(remapped_loc);
+    }
+
+#ifndef NDEBUG
+    // Make sure `->getLocation()` is always in range, even in the presence
+    // of remappings.
+    auto tok = RawTokenAt(tld_decl->getLocation());
+    assert(tld_begin <= tok && tok <= tld_end);
+#endif
   }
 
   // It's possible that we have two-or-more things that appear to be top-level
@@ -1378,6 +1403,17 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
       assert(b.second <= end_tok);
       b.first = begin_tok;
       b.second = end_tok;
+
+      // Make the remapped stuff enclose as well.
+      if (auto remap_it = remapped_decls.find(next_tld_decl);
+          remap_it != remapped_decls.end()) {
+        auto &rb = bounds[next_tld_decl];
+        assert(begin_tok <= rb.first);
+        assert(rb.second <= end_tok);
+        rb.first = begin_tok;
+        rb.second = end_tok;
+      }
+
       lexically_containing_decl.emplace(next_tld_decl, tld_decl);
       ++num_tlds;
     }
@@ -1398,16 +1434,18 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
 
     // TODO(pag): Integrate upper/lower bounds.
   }
-
-  assert(ret.first <= old_bounds.first);
-  assert(old_bounds.second <= ret.second);
-  (void) old_bounds;
+//
+//  assert(ret.first <= old_bounds.first);
+//  assert(old_bounds.second <= ret.second);
+//  (void) old_bounds;
 
   return ret;
 }
 
 // Return a token range for the bounds of a declaration.
 TokenRange ASTImpl::DeclTokenRange(const clang::Decl *decl_) {
+  std::unique_lock<std::mutex> locker(bounds_mutex);
+
   auto decl = const_cast<clang::Decl *>(decl_);
   if (auto [first, last] = DeclBounds(decl); first && first <= last) {
     return TokenRange(this->shared_from_this(), first, &(last[1]));

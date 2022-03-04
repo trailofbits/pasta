@@ -151,6 +151,7 @@ jobs:
         cmake -G "Ninja" \
           -DVCPKG_ROOT=${{ steps.cxx_common_installer.outputs.PATH }} \
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+          -DPASTA_ENABLE_TESTING=OFF \
           "${{ steps.build_paths.outputs.SOURCE }}"
 
     - name: Build the project

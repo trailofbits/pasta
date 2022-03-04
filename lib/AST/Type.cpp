@@ -26,8 +26,8 @@
 
 #define PASTA_DEFINE_BASE_OPERATORS(base, derived) \
     std::optional<class derived> derived::From(const class base &that) { \
-      if (auto type_ptr = clang::dyn_cast<clang::derived>(that.u.base)) { \
-        return TypeBuilder::Create<class derived>(that.ast, type_ptr); \
+      if (auto type_ptr = clang::dyn_cast_or_null<clang::derived>(that.u.Type)) { \
+        return TypeBuilder::Create<class derived>(that.ast, type_ptr, that.qualifiers); \
       } else { \
         return std::nullopt; \
       } \
@@ -48,12 +48,11 @@
       return *this; \
     } \
     base &base::operator=(class derived &&that) noexcept { \
-      if (this != &that) { \
-        ast = std::move(that.ast); \
-        u.Type = that.u.Type; \
-        kind = that.kind; \
-        qualifiers = that.qualifiers; \
-      } \
+      class derived new_that(std::forward<class derived>(that)); \
+      ast = std::move(new_that.ast); \
+      u.Type = new_that.u.Type; \
+      kind = new_that.kind; \
+      qualifiers = new_that.qualifiers; \
       return *this; \
     }
 
@@ -372,26 +371,26 @@ PASTA_DEFINE_DERIVED_OPERATORS(Type, UnaryTransformType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, UnresolvedUsingType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, VariableArrayType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, VectorType)
-bool Type::AcceptsObjCTypeParams(void) const {
-  auto &self = *(u.Type);
+bool Type::AcceptsObjCTypeParams(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.acceptsObjCTypeParams();
   return val;
 }
 
-bool Type::CanDecayToPointerType(void) const {
-  auto &self = *(u.Type);
+bool Type::CanDecayToPointerType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.canDecayToPointerType();
   return val;
 }
 
-bool Type::CanHaveNullability(void) const {
-  auto &self = *(u.Type);
+bool Type::CanHaveNullability(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.canHaveNullability();
   return val;
 }
 
-std::optional<::pasta::ArrayType> Type::CastAsArrayTypeUnsafe(void) const {
-  auto &self = *(u.Type);
+std::optional<::pasta::ArrayType> Type::CastAsArrayTypeUnsafe(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.castAsArrayTypeUnsafe();
   if (val) {
     return TypeBuilder::Create<::pasta::ArrayType>(ast, val);
@@ -399,20 +398,20 @@ std::optional<::pasta::ArrayType> Type::CastAsArrayTypeUnsafe(void) const {
   return std::nullopt;
 }
 
-bool Type::ContainsErrors(void) const {
-  auto &self = *(u.Type);
+bool Type::ContainsErrors(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.containsErrors();
   return val;
 }
 
-bool Type::ContainsUnexpandedParameterPack(void) const {
-  auto &self = *(u.Type);
+bool Type::ContainsUnexpandedParameterPack(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.containsUnexpandedParameterPack();
   return val;
 }
 
-::pasta::Type Type::ArrayElementTypeNoTypeQualified(void) const {
-  auto &self = *(u.Type);
+::pasta::Type Type::ArrayElementTypeNoTypeQualified(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getArrayElementTypeNoTypeQual();
   if (val) {
     return TypeBuilder::Create<::pasta::Type>(ast, val);
@@ -421,8 +420,8 @@ bool Type::ContainsUnexpandedParameterPack(void) const {
   __builtin_unreachable();
 }
 
-std::optional<::pasta::ArrayType> Type::AsArrayTypeUnsafe(void) const {
-  auto &self = *(u.Type);
+std::optional<::pasta::ArrayType> Type::AsArrayTypeUnsafe(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getAsArrayTypeUnsafe();
   if (val) {
     return TypeBuilder::Create<::pasta::ArrayType>(ast, val);
@@ -430,8 +429,8 @@ std::optional<::pasta::ArrayType> Type::AsArrayTypeUnsafe(void) const {
   return std::nullopt;
 }
 
-std::optional<::pasta::CXXRecordDecl> Type::AsCXXRecordDeclaration(void) const {
-  auto &self = *(u.Type);
+std::optional<::pasta::CXXRecordDecl> Type::AsCXXRecordDeclaration(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getAsCXXRecordDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
@@ -439,8 +438,8 @@ std::optional<::pasta::CXXRecordDecl> Type::AsCXXRecordDeclaration(void) const {
   return std::nullopt;
 }
 
-std::optional<::pasta::ComplexType> Type::AsComplexIntegerType(void) const {
-  auto &self = *(u.Type);
+std::optional<::pasta::ComplexType> Type::AsComplexIntegerType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getAsComplexIntegerType();
   if (val) {
     return TypeBuilder::Create<::pasta::ComplexType>(ast, val);
@@ -448,8 +447,8 @@ std::optional<::pasta::ComplexType> Type::AsComplexIntegerType(void) const {
   return std::nullopt;
 }
 
-std::optional<::pasta::ObjCObjectPointerType> Type::AsObjCInterfacePointerType(void) const {
-  auto &self = *(u.Type);
+std::optional<::pasta::ObjCObjectPointerType> Type::AsObjCInterfacePointerType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getAsObjCInterfacePointerType();
   if (val) {
     return TypeBuilder::Create<::pasta::ObjCObjectPointerType>(ast, val);
@@ -457,8 +456,8 @@ std::optional<::pasta::ObjCObjectPointerType> Type::AsObjCInterfacePointerType(v
   return std::nullopt;
 }
 
-std::optional<::pasta::ObjCObjectType> Type::AsObjCInterfaceType(void) const {
-  auto &self = *(u.Type);
+std::optional<::pasta::ObjCObjectType> Type::AsObjCInterfaceType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getAsObjCInterfaceType();
   if (val) {
     return TypeBuilder::Create<::pasta::ObjCObjectType>(ast, val);
@@ -466,8 +465,8 @@ std::optional<::pasta::ObjCObjectType> Type::AsObjCInterfaceType(void) const {
   return std::nullopt;
 }
 
-std::optional<::pasta::ObjCObjectPointerType> Type::AsObjCQualifiedClassType(void) const {
-  auto &self = *(u.Type);
+std::optional<::pasta::ObjCObjectPointerType> Type::AsObjCQualifiedClassType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getAsObjCQualifiedClassType();
   if (val) {
     return TypeBuilder::Create<::pasta::ObjCObjectPointerType>(ast, val);
@@ -475,8 +474,8 @@ std::optional<::pasta::ObjCObjectPointerType> Type::AsObjCQualifiedClassType(voi
   return std::nullopt;
 }
 
-std::optional<::pasta::ObjCObjectPointerType> Type::AsObjCQualifiedIdType(void) const {
-  auto &self = *(u.Type);
+std::optional<::pasta::ObjCObjectPointerType> Type::AsObjCQualifiedIdType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getAsObjCQualifiedIdType();
   if (val) {
     return TypeBuilder::Create<::pasta::ObjCObjectPointerType>(ast, val);
@@ -484,8 +483,8 @@ std::optional<::pasta::ObjCObjectPointerType> Type::AsObjCQualifiedIdType(void) 
   return std::nullopt;
 }
 
-std::optional<::pasta::ObjCObjectType> Type::AsObjCQualifiedInterfaceType(void) const {
-  auto &self = *(u.Type);
+std::optional<::pasta::ObjCObjectType> Type::AsObjCQualifiedInterfaceType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getAsObjCQualifiedInterfaceType();
   if (val) {
     return TypeBuilder::Create<::pasta::ObjCObjectType>(ast, val);
@@ -493,8 +492,8 @@ std::optional<::pasta::ObjCObjectType> Type::AsObjCQualifiedInterfaceType(void) 
   return std::nullopt;
 }
 
-std::optional<::pasta::BuiltinType> Type::AsPlaceholderType(void) const {
-  auto &self = *(u.Type);
+std::optional<::pasta::BuiltinType> Type::AsPlaceholderType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getAsPlaceholderType();
   if (val) {
     return TypeBuilder::Create<::pasta::BuiltinType>(ast, val);
@@ -502,8 +501,8 @@ std::optional<::pasta::BuiltinType> Type::AsPlaceholderType(void) const {
   return std::nullopt;
 }
 
-std::optional<::pasta::RecordDecl> Type::AsRecordDeclaration(void) const {
-  auto &self = *(u.Type);
+std::optional<::pasta::RecordDecl> Type::AsRecordDeclaration(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getAsRecordDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::RecordDecl>(ast, val);
@@ -511,8 +510,8 @@ std::optional<::pasta::RecordDecl> Type::AsRecordDeclaration(void) const {
   return std::nullopt;
 }
 
-std::optional<::pasta::RecordType> Type::AsStructureType(void) const {
-  auto &self = *(u.Type);
+std::optional<::pasta::RecordType> Type::AsStructureType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getAsStructureType();
   if (val) {
     return TypeBuilder::Create<::pasta::RecordType>(ast, val);
@@ -520,8 +519,8 @@ std::optional<::pasta::RecordType> Type::AsStructureType(void) const {
   return std::nullopt;
 }
 
-std::optional<::pasta::TagDecl> Type::AsTagDeclaration(void) const {
-  auto &self = *(u.Type);
+std::optional<::pasta::TagDecl> Type::AsTagDeclaration(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getAsTagDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::TagDecl>(ast, val);
@@ -529,8 +528,8 @@ std::optional<::pasta::TagDecl> Type::AsTagDeclaration(void) const {
   return std::nullopt;
 }
 
-std::optional<::pasta::RecordType> Type::AsUnionType(void) const {
-  auto &self = *(u.Type);
+std::optional<::pasta::RecordType> Type::AsUnionType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getAsUnionType();
   if (val) {
     return TypeBuilder::Create<::pasta::RecordType>(ast, val);
@@ -538,8 +537,8 @@ std::optional<::pasta::RecordType> Type::AsUnionType(void) const {
   return std::nullopt;
 }
 
-std::optional<::pasta::Type> Type::BaseElementTypeUnsafe(void) const {
-  auto &self = *(u.Type);
+std::optional<::pasta::Type> Type::BaseElementTypeUnsafe(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getBaseElementTypeUnsafe();
   if (val) {
     return TypeBuilder::Create<::pasta::Type>(ast, val);
@@ -547,15 +546,15 @@ std::optional<::pasta::Type> Type::BaseElementTypeUnsafe(void) const {
   return std::nullopt;
 }
 
-::pasta::Type Type::CanonicalTypeInternal(void) const {
-  auto &self = *(u.Type);
+::pasta::Type Type::CanonicalTypeInternal(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getCanonicalTypeInternal();
   return TypeBuilder::Build(ast, val);
 }
 
 // 0: Type::CanonicalTypeUnqualified
-::pasta::AutoType Type::ContainedAutoType(void) const {
-  auto &self = *(u.Type);
+::pasta::AutoType Type::ContainedAutoType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getContainedAutoType();
   if (val) {
     return TypeBuilder::Create<::pasta::AutoType>(ast, val);
@@ -564,8 +563,8 @@ std::optional<::pasta::Type> Type::BaseElementTypeUnsafe(void) const {
   __builtin_unreachable();
 }
 
-::pasta::DeducedType Type::ContainedDeducedType(void) const {
-  auto &self = *(u.Type);
+::pasta::DeducedType Type::ContainedDeducedType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getContainedDeducedType();
   if (val) {
     return TypeBuilder::Create<::pasta::DeducedType>(ast, val);
@@ -574,26 +573,26 @@ std::optional<::pasta::Type> Type::BaseElementTypeUnsafe(void) const {
   __builtin_unreachable();
 }
 
-::pasta::TypeDependence Type::Dependence(void) const {
-  auto &self = *(u.Type);
+::pasta::TypeDependence Type::Dependence(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getDependence();
   return static_cast<::pasta::TypeDependence>(val);
 }
 
-enum Linkage Type::Linkage(void) const {
-  auto &self = *(u.Type);
+enum Linkage Type::Linkage(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getLinkage();
   return static_cast<::pasta::Linkage>(static_cast<unsigned char>(val));
 }
 
 // 0: Type::LinkageAndVisibility
-::pasta::Type Type::LocallyUnqualifiedSingleStepDesugaredType(void) const {
-  auto &self = *(u.Type);
+::pasta::Type Type::LocallyUnqualifiedSingleStepDesugaredType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getLocallyUnqualifiedSingleStepDesugaredType();
   return TypeBuilder::Build(ast, val);
 }
 
-std::optional<::pasta::NullabilityKind> Type::Nullability(void) const {
+std::optional<::pasta::NullabilityKind> Type::Nullability(void) const noexcept {
   auto &self = *(u.Type);
   auto val = self.getNullability(ast->ci->getASTContext());
   if (val.hasValue()) {
@@ -603,15 +602,15 @@ std::optional<::pasta::NullabilityKind> Type::Nullability(void) const {
   }
 }
 
-::pasta::ObjCLifetime Type::ObjCARCImplicitLifetime(void) const {
-  auto &self = *(u.Type);
+::pasta::ObjCLifetime Type::ObjCARCImplicitLifetime(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getObjCARCImplicitLifetime();
   return static_cast<::pasta::ObjCLifetime>(val);
 }
 
 // 1: Type::ObjCSubstitutions
-::pasta::CXXRecordDecl Type::PointeeCXXRecordDeclaration(void) const {
-  auto &self = *(u.Type);
+::pasta::CXXRecordDecl Type::PointeeCXXRecordDeclaration(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getPointeeCXXRecordDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
@@ -620,8 +619,8 @@ std::optional<::pasta::NullabilityKind> Type::Nullability(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Type Type::PointeeOrArrayElementType(void) const {
-  auto &self = *(u.Type);
+::pasta::Type Type::PointeeOrArrayElementType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getPointeeOrArrayElementType();
   if (val) {
     return TypeBuilder::Create<::pasta::Type>(ast, val);
@@ -630,32 +629,32 @@ std::optional<::pasta::NullabilityKind> Type::Nullability(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Type Type::PointeeType(void) const {
-  auto &self = *(u.Type);
+::pasta::Type Type::PointeeType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getPointeeType();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::ScalarTypeKind Type::ScalarTypeKind(void) const {
-  auto &self = *(u.Type);
+::pasta::ScalarTypeKind Type::ScalarTypeKind(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getScalarTypeKind();
   return static_cast<::pasta::ScalarTypeKind>(val);
 }
 
-::pasta::Type Type::SveEltType(void) const {
+::pasta::Type Type::SveEltType(void) const noexcept {
   auto &self = *(u.Type);
   auto val = self.getSveEltType(ast->ci->getASTContext());
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::TypeKind Type::Kind(void) const {
-  auto &self = *(u.Type);
+::pasta::TypeKind Type::Kind(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getTypeClass();
   return static_cast<::pasta::TypeKind>(val);
 }
 
-std::string_view Type::KindName(void) const {
-  auto &self = *(u.Type);
+std::string_view Type::KindName(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getTypeClassName();
   if (val) {
     return std::string_view(val);
@@ -666,8 +665,8 @@ std::string_view Type::KindName(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Type Type::UnqualifiedDesugaredType(void) const {
-  auto &self = *(u.Type);
+::pasta::Type Type::UnqualifiedDesugaredType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getUnqualifiedDesugaredType();
   if (val) {
     return TypeBuilder::Create<::pasta::Type>(ast, val);
@@ -676,1205 +675,1205 @@ std::string_view Type::KindName(void) const {
   __builtin_unreachable();
 }
 
-enum Visibility Type::Visibility(void) const {
-  auto &self = *(u.Type);
+enum Visibility Type::Visibility(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getVisibility();
   return static_cast<::pasta::Visibility>(static_cast<unsigned int>(val));
 }
 
 // 1: Type::HasAttribute
-bool Type::HasAutoForTrailingReturnType(void) const {
-  auto &self = *(u.Type);
+bool Type::HasAutoForTrailingReturnType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.hasAutoForTrailingReturnType();
   return val;
 }
 
-bool Type::HasFloatingRepresentation(void) const {
-  auto &self = *(u.Type);
+bool Type::HasFloatingRepresentation(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.hasFloatingRepresentation();
   return val;
 }
 
-bool Type::HasIntegerRepresentation(void) const {
-  auto &self = *(u.Type);
+bool Type::HasIntegerRepresentation(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.hasIntegerRepresentation();
   return val;
 }
 
-bool Type::HasObjCPointerRepresentation(void) const {
-  auto &self = *(u.Type);
+bool Type::HasObjCPointerRepresentation(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.hasObjCPointerRepresentation();
   return val;
 }
 
-bool Type::HasPointerRepresentation(void) const {
-  auto &self = *(u.Type);
+bool Type::HasPointerRepresentation(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.hasPointerRepresentation();
   return val;
 }
 
-bool Type::HasSignedIntegerRepresentation(void) const {
-  auto &self = *(u.Type);
+bool Type::HasSignedIntegerRepresentation(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.hasSignedIntegerRepresentation();
   return val;
 }
 
-bool Type::HasSizedVLAType(void) const {
-  auto &self = *(u.Type);
+bool Type::HasSizedVLAType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.hasSizedVLAType();
   return val;
 }
 
-bool Type::HasUnnamedOrLocalType(void) const {
-  auto &self = *(u.Type);
+bool Type::HasUnnamedOrLocalType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.hasUnnamedOrLocalType();
   return val;
 }
 
-bool Type::HasUnsignedIntegerRepresentation(void) const {
-  auto &self = *(u.Type);
+bool Type::HasUnsignedIntegerRepresentation(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.hasUnsignedIntegerRepresentation();
   return val;
 }
 
-bool Type::IsAggregateType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsAggregateType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isAggregateType();
   return val;
 }
 
-bool Type::IsAlignValT(void) const {
-  auto &self = *(u.Type);
+bool Type::IsAlignValT(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isAlignValT();
   return val;
 }
 
-bool Type::IsAnyCharacterType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsAnyCharacterType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isAnyCharacterType();
   return val;
 }
 
-bool Type::IsAnyComplexType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsAnyComplexType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isAnyComplexType();
   return val;
 }
 
-bool Type::IsAnyPointerType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsAnyPointerType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isAnyPointerType();
   return val;
 }
 
-bool Type::IsArithmeticType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsArithmeticType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isArithmeticType();
   return val;
 }
 
-bool Type::IsArrayType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsArrayType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isArrayType();
   return val;
 }
 
-bool Type::IsAtomicType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsAtomicType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isAtomicType();
   return val;
 }
 
-bool Type::IsBFloat16Type(void) const {
-  auto &self = *(u.Type);
+bool Type::IsBFloat16Type(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isBFloat16Type();
   return val;
 }
 
-bool Type::IsBlockCompatibleObjCPointerType(void) const {
+bool Type::IsBlockCompatibleObjCPointerType(void) const noexcept {
   auto &self = *(u.Type);
   auto val = self.isBlockCompatibleObjCPointerType(ast->ci->getASTContext());
   return val;
 }
 
-bool Type::IsBlockPointerType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsBlockPointerType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isBlockPointerType();
   return val;
 }
 
-bool Type::IsBooleanType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsBooleanType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isBooleanType();
   return val;
 }
 
-bool Type::IsBuiltinType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsBuiltinType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isBuiltinType();
   return val;
 }
 
-bool Type::IsCARCBridgableType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsCARCBridgableType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isCARCBridgableType();
   return val;
 }
 
-bool Type::IsCUDADeviceBuiltinSurfaceType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsCUDADeviceBuiltinSurfaceType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isCUDADeviceBuiltinSurfaceType();
   return val;
 }
 
-bool Type::IsCUDADeviceBuiltinTextureType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsCUDADeviceBuiltinTextureType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isCUDADeviceBuiltinTextureType();
   return val;
 }
 
-bool Type::IsCanonicalUnqualified(void) const {
-  auto &self = *(u.Type);
+bool Type::IsCanonicalUnqualified(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isCanonicalUnqualified();
   return val;
 }
 
-bool Type::IsChar16Type(void) const {
-  auto &self = *(u.Type);
+bool Type::IsChar16Type(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isChar16Type();
   return val;
 }
 
-bool Type::IsChar32Type(void) const {
-  auto &self = *(u.Type);
+bool Type::IsChar32Type(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isChar32Type();
   return val;
 }
 
-bool Type::IsChar8Type(void) const {
-  auto &self = *(u.Type);
+bool Type::IsChar8Type(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isChar8Type();
   return val;
 }
 
-bool Type::IsCharacterType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsCharacterType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isCharType();
   return val;
 }
 
-bool Type::IsClassType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsClassType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isClassType();
   return val;
 }
 
-bool Type::IsClkEventT(void) const {
-  auto &self = *(u.Type);
+bool Type::IsClkEventT(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isClkEventT();
   return val;
 }
 
-bool Type::IsComplexIntegerType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsComplexIntegerType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isComplexIntegerType();
   return val;
 }
 
-bool Type::IsComplexType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsComplexType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isComplexType();
   return val;
 }
 
-bool Type::IsCompoundType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsCompoundType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isCompoundType();
   return val;
 }
 
-bool Type::IsConstantArrayType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsConstantArrayType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isConstantArrayType();
   return val;
 }
 
-bool Type::IsConstantMatrixType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsConstantMatrixType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isConstantMatrixType();
   return val;
 }
 
-bool Type::IsConstantSizeType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsConstantSizeType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isConstantSizeType();
   return val;
 }
 
-bool Type::IsDecltypeType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsDecltypeType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isDecltypeType();
   return val;
 }
 
-bool Type::IsDependentAddressSpaceType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsDependentAddressSpaceType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isDependentAddressSpaceType();
   return val;
 }
 
-bool Type::IsDependentSizedArrayType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsDependentSizedArrayType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isDependentSizedArrayType();
   return val;
 }
 
-bool Type::IsDependentType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsDependentType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isDependentType();
   return val;
 }
 
-bool Type::IsElaboratedTypeSpecifier(void) const {
-  auto &self = *(u.Type);
+bool Type::IsElaboratedTypeSpecifier(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isElaboratedTypeSpecifier();
   return val;
 }
 
-bool Type::IsEnumeralType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsEnumeralType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isEnumeralType();
   return val;
 }
 
-bool Type::IsEventT(void) const {
-  auto &self = *(u.Type);
+bool Type::IsEventT(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isEventT();
   return val;
 }
 
-bool Type::IsExtIntType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsExtIntType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isExtIntType();
   return val;
 }
 
-bool Type::IsExtVectorType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsExtVectorType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isExtVectorType();
   return val;
 }
 
-bool Type::IsFixedPointOrIntegerType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsFixedPointOrIntegerType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isFixedPointOrIntegerType();
   return val;
 }
 
-bool Type::IsFixedPointType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsFixedPointType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isFixedPointType();
   return val;
 }
 
-bool Type::IsFloat128Type(void) const {
-  auto &self = *(u.Type);
+bool Type::IsFloat128Type(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isFloat128Type();
   return val;
 }
 
-bool Type::IsFloat16Type(void) const {
-  auto &self = *(u.Type);
+bool Type::IsFloat16Type(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isFloat16Type();
   return val;
 }
 
-bool Type::IsFloatingType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsFloatingType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isFloatingType();
   return val;
 }
 
-bool Type::IsFromAST(void) const {
-  auto &self = *(u.Type);
+bool Type::IsFromAST(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isFromAST();
   return val;
 }
 
-bool Type::IsFunctionNoProtoType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsFunctionNoProtoType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isFunctionNoProtoType();
   return val;
 }
 
-bool Type::IsFunctionPointerType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsFunctionPointerType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isFunctionPointerType();
   return val;
 }
 
-bool Type::IsFunctionProtoType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsFunctionProtoType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isFunctionProtoType();
   return val;
 }
 
-bool Type::IsFunctionReferenceType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsFunctionReferenceType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isFunctionReferenceType();
   return val;
 }
 
-bool Type::IsFunctionType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsFunctionType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isFunctionType();
   return val;
 }
 
-bool Type::IsFundamentalType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsFundamentalType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isFundamentalType();
   return val;
 }
 
-bool Type::IsHalfType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsHalfType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isHalfType();
   return val;
 }
 
-bool Type::IsImageType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsImageType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isImageType();
   return val;
 }
 
-bool Type::IsIncompleteArrayType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsIncompleteArrayType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isIncompleteArrayType();
   return val;
 }
 
-bool Type::IsIncompleteOrObjectType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsIncompleteOrObjectType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isIncompleteOrObjectType();
   return val;
 }
 
-bool Type::IsIncompleteType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsIncompleteType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isIncompleteType();
   return val;
 }
 
-bool Type::IsInstantiationDependentType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsInstantiationDependentType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isInstantiationDependentType();
   return val;
 }
 
-bool Type::IsIntegerType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsIntegerType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isIntegerType();
   return val;
 }
 
-bool Type::IsIntegralOrEnumerationType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsIntegralOrEnumerationType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isIntegralOrEnumerationType();
   return val;
 }
 
-bool Type::IsIntegralOrUnscopedEnumerationType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsIntegralOrUnscopedEnumerationType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isIntegralOrUnscopedEnumerationType();
   return val;
 }
 
-bool Type::IsIntegralType(void) const {
+bool Type::IsIntegralType(void) const noexcept {
   auto &self = *(u.Type);
   auto val = self.isIntegralType(ast->ci->getASTContext());
   return val;
 }
 
-bool Type::IsInterfaceType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsInterfaceType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isInterfaceType();
   return val;
 }
 
-bool Type::IsLValueReferenceType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsLValueReferenceType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isLValueReferenceType();
   return val;
 }
 
-bool Type::IsLinkageValid(void) const {
-  auto &self = *(u.Type);
+bool Type::IsLinkageValid(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isLinkageValid();
   return val;
 }
 
-bool Type::IsLiteralType(void) const {
+bool Type::IsLiteralType(void) const noexcept {
   auto &self = *(u.Type);
   auto val = self.isLiteralType(ast->ci->getASTContext());
   return val;
 }
 
-bool Type::IsMatrixType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsMatrixType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isMatrixType();
   return val;
 }
 
-bool Type::IsMemberDataPointerType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsMemberDataPointerType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isMemberDataPointerType();
   return val;
 }
 
-bool Type::IsMemberFunctionPointerType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsMemberFunctionPointerType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isMemberFunctionPointerType();
   return val;
 }
 
-bool Type::IsMemberPointerType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsMemberPointerType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isMemberPointerType();
   return val;
 }
 
-bool Type::IsNonOverloadPlaceholderType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsNonOverloadPlaceholderType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isNonOverloadPlaceholderType();
   return val;
 }
 
-bool Type::IsNothrowT(void) const {
-  auto &self = *(u.Type);
+bool Type::IsNothrowT(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isNothrowT();
   return val;
 }
 
-bool Type::IsNullPointerType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsNullPointerType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isNullPtrType();
   return val;
 }
 
-bool Type::IsOCLExtOpaqueType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLExtOpaqueType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLExtOpaqueType();
   return val;
 }
 
-bool Type::IsOCLImage1dArrayROType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage1dArrayROType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage1dArrayROType();
   return val;
 }
 
-bool Type::IsOCLImage1dArrayRWType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage1dArrayRWType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage1dArrayRWType();
   return val;
 }
 
-bool Type::IsOCLImage1dArrayWOType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage1dArrayWOType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage1dArrayWOType();
   return val;
 }
 
-bool Type::IsOCLImage1dBufferROType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage1dBufferROType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage1dBufferROType();
   return val;
 }
 
-bool Type::IsOCLImage1dBufferRWType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage1dBufferRWType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage1dBufferRWType();
   return val;
 }
 
-bool Type::IsOCLImage1dBufferWOType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage1dBufferWOType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage1dBufferWOType();
   return val;
 }
 
-bool Type::IsOCLImage1dROType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage1dROType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage1dROType();
   return val;
 }
 
-bool Type::IsOCLImage1dRWType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage1dRWType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage1dRWType();
   return val;
 }
 
-bool Type::IsOCLImage1dWOType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage1dWOType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage1dWOType();
   return val;
 }
 
-bool Type::IsOCLImage2dArrayDepthROType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage2dArrayDepthROType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage2dArrayDepthROType();
   return val;
 }
 
-bool Type::IsOCLImage2dArrayDepthRWType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage2dArrayDepthRWType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage2dArrayDepthRWType();
   return val;
 }
 
-bool Type::IsOCLImage2dArrayDepthWOType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage2dArrayDepthWOType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage2dArrayDepthWOType();
   return val;
 }
 
-bool Type::IsOCLImage2dArrayMSAADepthROType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage2dArrayMSAADepthROType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage2dArrayMSAADepthROType();
   return val;
 }
 
-bool Type::IsOCLImage2dArrayMSAADepthRWType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage2dArrayMSAADepthRWType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage2dArrayMSAADepthRWType();
   return val;
 }
 
-bool Type::IsOCLImage2dArrayMSAADepthWOType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage2dArrayMSAADepthWOType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage2dArrayMSAADepthWOType();
   return val;
 }
 
-bool Type::IsOCLImage2dArrayMSAAROType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage2dArrayMSAAROType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage2dArrayMSAAROType();
   return val;
 }
 
-bool Type::IsOCLImage2dArrayMSAARWType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage2dArrayMSAARWType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage2dArrayMSAARWType();
   return val;
 }
 
-bool Type::IsOCLImage2dArrayMSAAWOType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage2dArrayMSAAWOType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage2dArrayMSAAWOType();
   return val;
 }
 
-bool Type::IsOCLImage2dArrayROType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage2dArrayROType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage2dArrayROType();
   return val;
 }
 
-bool Type::IsOCLImage2dArrayRWType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage2dArrayRWType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage2dArrayRWType();
   return val;
 }
 
-bool Type::IsOCLImage2dArrayWOType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage2dArrayWOType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage2dArrayWOType();
   return val;
 }
 
-bool Type::IsOCLImage2dDepthROType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage2dDepthROType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage2dDepthROType();
   return val;
 }
 
-bool Type::IsOCLImage2dDepthRWType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage2dDepthRWType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage2dDepthRWType();
   return val;
 }
 
-bool Type::IsOCLImage2dDepthWOType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage2dDepthWOType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage2dDepthWOType();
   return val;
 }
 
-bool Type::IsOCLImage2dMSAADepthROType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage2dMSAADepthROType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage2dMSAADepthROType();
   return val;
 }
 
-bool Type::IsOCLImage2dMSAADepthRWType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage2dMSAADepthRWType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage2dMSAADepthRWType();
   return val;
 }
 
-bool Type::IsOCLImage2dMSAADepthWOType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage2dMSAADepthWOType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage2dMSAADepthWOType();
   return val;
 }
 
-bool Type::IsOCLImage2dMSAAROType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage2dMSAAROType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage2dMSAAROType();
   return val;
 }
 
-bool Type::IsOCLImage2dMSAARWType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage2dMSAARWType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage2dMSAARWType();
   return val;
 }
 
-bool Type::IsOCLImage2dMSAAWOType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage2dMSAAWOType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage2dMSAAWOType();
   return val;
 }
 
-bool Type::IsOCLImage2dROType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage2dROType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage2dROType();
   return val;
 }
 
-bool Type::IsOCLImage2dRWType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage2dRWType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage2dRWType();
   return val;
 }
 
-bool Type::IsOCLImage2dWOType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage2dWOType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage2dWOType();
   return val;
 }
 
-bool Type::IsOCLImage3dROType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage3dROType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage3dROType();
   return val;
 }
 
-bool Type::IsOCLImage3dRWType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage3dRWType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage3dRWType();
   return val;
 }
 
-bool Type::IsOCLImage3dWOType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLImage3dWOType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLImage3dWOType();
   return val;
 }
 
-bool Type::IsOCLIntelSubgroupAVCImeDualReferenceStreaminType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLIntelSubgroupAVCImeDualReferenceStreaminType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLIntelSubgroupAVCImeDualRefStreaminType();
   return val;
 }
 
-bool Type::IsOCLIntelSubgroupAVCImePayloadType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLIntelSubgroupAVCImePayloadType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLIntelSubgroupAVCImePayloadType();
   return val;
 }
 
-bool Type::IsOCLIntelSubgroupAVCImeResultDualReferenceStreamoutType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLIntelSubgroupAVCImeResultDualReferenceStreamoutType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLIntelSubgroupAVCImeResultDualRefStreamoutType();
   return val;
 }
 
-bool Type::IsOCLIntelSubgroupAVCImeResultSingleReferenceStreamoutType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLIntelSubgroupAVCImeResultSingleReferenceStreamoutType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLIntelSubgroupAVCImeResultSingleRefStreamoutType();
   return val;
 }
 
-bool Type::IsOCLIntelSubgroupAVCImeResultType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLIntelSubgroupAVCImeResultType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLIntelSubgroupAVCImeResultType();
   return val;
 }
 
-bool Type::IsOCLIntelSubgroupAVCImeSingleReferenceStreaminType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLIntelSubgroupAVCImeSingleReferenceStreaminType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLIntelSubgroupAVCImeSingleRefStreaminType();
   return val;
 }
 
-bool Type::IsOCLIntelSubgroupAVCMcePayloadType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLIntelSubgroupAVCMcePayloadType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLIntelSubgroupAVCMcePayloadType();
   return val;
 }
 
-bool Type::IsOCLIntelSubgroupAVCMceResultType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLIntelSubgroupAVCMceResultType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLIntelSubgroupAVCMceResultType();
   return val;
 }
 
-bool Type::IsOCLIntelSubgroupAVCRefPayloadType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLIntelSubgroupAVCRefPayloadType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLIntelSubgroupAVCRefPayloadType();
   return val;
 }
 
-bool Type::IsOCLIntelSubgroupAVCRefResultType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLIntelSubgroupAVCRefResultType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLIntelSubgroupAVCRefResultType();
   return val;
 }
 
-bool Type::IsOCLIntelSubgroupAVCSicPayloadType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLIntelSubgroupAVCSicPayloadType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLIntelSubgroupAVCSicPayloadType();
   return val;
 }
 
-bool Type::IsOCLIntelSubgroupAVCSicResultType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLIntelSubgroupAVCSicResultType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLIntelSubgroupAVCSicResultType();
   return val;
 }
 
-bool Type::IsOCLIntelSubgroupAVCType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOCLIntelSubgroupAVCType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOCLIntelSubgroupAVCType();
   return val;
 }
 
-bool Type::IsObjCARCBridgableType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsObjCARCBridgableType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isObjCARCBridgableType();
   return val;
 }
 
-bool Type::IsObjCARCImplicitlyUnretainedType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsObjCARCImplicitlyUnretainedType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isObjCARCImplicitlyUnretainedType();
   return val;
 }
 
-bool Type::IsObjCBoxableRecordType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsObjCBoxableRecordType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isObjCBoxableRecordType();
   return val;
 }
 
-bool Type::IsObjCBuiltinType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsObjCBuiltinType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isObjCBuiltinType();
   return val;
 }
 
-bool Type::IsObjCClassOrClassKindOfType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsObjCClassOrClassKindOfType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isObjCClassOrClassKindOfType();
   return val;
 }
 
-bool Type::IsObjCClassType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsObjCClassType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isObjCClassType();
   return val;
 }
 
 // 2: IsObjCIdOrObjectKindOfType
-bool Type::IsObjCIdType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsObjCIdType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isObjCIdType();
   return val;
 }
 
-bool Type::IsObjCIndependentClassType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsObjCIndependentClassType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isObjCIndependentClassType();
   return val;
 }
 
-bool Type::IsObjCIndirectLifetimeType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsObjCIndirectLifetimeType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isObjCIndirectLifetimeType();
   return val;
 }
 
-bool Type::IsObjCInertUnsafeUnretainedType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsObjCInertUnsafeUnretainedType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isObjCInertUnsafeUnretainedType();
   return val;
 }
 
-bool Type::IsObjCLifetimeType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsObjCLifetimeType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isObjCLifetimeType();
   return val;
 }
 
-bool Type::IsObjCNSObjectType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsObjCNSObjectType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isObjCNSObjectType();
   return val;
 }
 
-bool Type::IsObjCObjectOrInterfaceType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsObjCObjectOrInterfaceType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isObjCObjectOrInterfaceType();
   return val;
 }
 
-bool Type::IsObjCObjectPointerType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsObjCObjectPointerType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isObjCObjectPointerType();
   return val;
 }
 
-bool Type::IsObjCObjectType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsObjCObjectType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isObjCObjectType();
   return val;
 }
 
-bool Type::IsObjCQualifiedClassType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsObjCQualifiedClassType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isObjCQualifiedClassType();
   return val;
 }
 
-bool Type::IsObjCQualifiedIdType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsObjCQualifiedIdType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isObjCQualifiedIdType();
   return val;
 }
 
-bool Type::IsObjCQualifiedInterfaceType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsObjCQualifiedInterfaceType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isObjCQualifiedInterfaceType();
   return val;
 }
 
-bool Type::IsObjCRetainableType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsObjCRetainableType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isObjCRetainableType();
   return val;
 }
 
-bool Type::IsObjCSelType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsObjCSelType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isObjCSelType();
   return val;
 }
 
-bool Type::IsObjectPointerType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsObjectPointerType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isObjectPointerType();
   return val;
 }
 
-bool Type::IsObjectType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsObjectType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isObjectType();
   return val;
 }
 
-bool Type::IsOpenCLSpecificType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOpenCLSpecificType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOpenCLSpecificType();
   return val;
 }
 
-bool Type::IsOverloadableType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsOverloadableType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isOverloadableType();
   return val;
 }
 
-bool Type::IsPipeType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsPipeType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isPipeType();
   return val;
 }
 
-bool Type::IsPlaceholderType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsPlaceholderType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isPlaceholderType();
   return val;
 }
 
-bool Type::IsPointerType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsPointerType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isPointerType();
   return val;
 }
 
-bool Type::IsPromotableIntegerType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsPromotableIntegerType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isPromotableIntegerType();
   return val;
 }
 
-bool Type::IsQueueT(void) const {
-  auto &self = *(u.Type);
+bool Type::IsQueueT(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isQueueT();
   return val;
 }
 
-bool Type::IsRValueReferenceType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsRValueReferenceType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isRValueReferenceType();
   return val;
 }
 
-bool Type::IsRealFloatingType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsRealFloatingType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isRealFloatingType();
   return val;
 }
 
-bool Type::IsRealType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsRealType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isRealType();
   return val;
 }
 
-bool Type::IsRecordType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsRecordType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isRecordType();
   return val;
 }
 
-bool Type::IsReferenceType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsReferenceType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isReferenceType();
   return val;
 }
 
-bool Type::IsReserveIDT(void) const {
-  auto &self = *(u.Type);
+bool Type::IsReserveIDT(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isReserveIDT();
   return val;
 }
 
-bool Type::IsSamplerT(void) const {
-  auto &self = *(u.Type);
+bool Type::IsSamplerT(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isSamplerT();
   return val;
 }
 
-bool Type::IsSaturatedFixedPointType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsSaturatedFixedPointType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isSaturatedFixedPointType();
   return val;
 }
 
-bool Type::IsScalarType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsScalarType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isScalarType();
   return val;
 }
 
-bool Type::IsScopedEnumeralType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsScopedEnumeralType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isScopedEnumeralType();
   return val;
 }
 
-bool Type::IsSignedFixedPointType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsSignedFixedPointType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isSignedFixedPointType();
   return val;
 }
 
-bool Type::IsSignedIntegerOrEnumerationType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsSignedIntegerOrEnumerationType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isSignedIntegerOrEnumerationType();
   return val;
 }
 
-bool Type::IsSignedIntegerType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsSignedIntegerType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isSignedIntegerType();
   return val;
 }
 
-bool Type::IsSizelessBuiltinType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsSizelessBuiltinType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isSizelessBuiltinType();
   return val;
 }
 
-bool Type::IsSizelessType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsSizelessType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isSizelessType();
   return val;
 }
 
 // 1: Type::IsSpecificBuiltinType
 // 1: Type::IsSpecificPlaceholderType
-bool Type::IsSpecifierType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsSpecifierType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isSpecifierType();
   return val;
 }
 
-bool Type::IsStandardLayoutType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsStandardLayoutType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isStandardLayoutType();
   return val;
 }
 
-bool Type::IsStdByteType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsStdByteType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isStdByteType();
   return val;
 }
 
-bool Type::IsStructuralType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsStructuralType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isStructuralType();
   return val;
 }
 
-bool Type::IsStructureOrClassType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsStructureOrClassType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isStructureOrClassType();
   return val;
 }
 
-bool Type::IsStructureType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsStructureType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isStructureType();
   return val;
 }
 
-bool Type::IsTemplateTypeParmType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsTemplateTypeParmType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isTemplateTypeParmType();
   return val;
 }
 
-bool Type::IsTypedefNameType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsTypedefNameType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isTypedefNameType();
   return val;
 }
 
-bool Type::IsUndeducedAutoType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsUndeducedAutoType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isUndeducedAutoType();
   return val;
 }
 
-bool Type::IsUndeducedType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsUndeducedType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isUndeducedType();
   return val;
 }
 
-bool Type::IsUnionType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsUnionType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isUnionType();
   return val;
 }
 
-bool Type::IsUnsaturatedFixedPointType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsUnsaturatedFixedPointType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isUnsaturatedFixedPointType();
   return val;
 }
 
-bool Type::IsUnscopedEnumerationType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsUnscopedEnumerationType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isUnscopedEnumerationType();
   return val;
 }
 
-bool Type::IsUnsignedFixedPointType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsUnsignedFixedPointType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isUnsignedFixedPointType();
   return val;
 }
 
-bool Type::IsUnsignedIntegerOrEnumerationType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsUnsignedIntegerOrEnumerationType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isUnsignedIntegerOrEnumerationType();
   return val;
 }
 
-bool Type::IsUnsignedIntegerType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsUnsignedIntegerType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isUnsignedIntegerType();
   return val;
 }
 
-bool Type::IsVLSTBuiltinType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsVLSTBuiltinType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isVLSTBuiltinType();
   return val;
 }
 
-bool Type::IsVariableArrayType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsVariableArrayType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isVariableArrayType();
   return val;
 }
 
-bool Type::IsVariablyModifiedType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsVariablyModifiedType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isVariablyModifiedType();
   return val;
 }
 
-bool Type::IsVectorType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsVectorType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isVectorType();
   return val;
 }
 
-bool Type::IsVisibilityExplicit(void) const {
-  auto &self = *(u.Type);
+bool Type::IsVisibilityExplicit(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isVisibilityExplicit();
   return val;
 }
 
-bool Type::IsVoidPointerType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsVoidPointerType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isVoidPointerType();
   return val;
 }
 
-bool Type::IsVoidType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsVoidType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isVoidType();
   return val;
 }
 
-bool Type::IsWideCharacterType(void) const {
-  auto &self = *(u.Type);
+bool Type::IsWideCharacterType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.isWideCharType();
   return val;
 }
 
-::pasta::Type Type::IgnoreParentheses(void) const {
+::pasta::Type Type::IgnoreParentheses(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -1882,7 +1881,7 @@ bool Type::IsWideCharacterType(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
-enum LangAS Type::AddressSpace(void) const {
+enum LangAS Type::AddressSpace(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -1891,7 +1890,7 @@ enum LangAS Type::AddressSpace(void) const {
 }
 
 // 0: Type::
-::pasta::Type Type::AtomicUnqualifiedType(void) const {
+::pasta::Type Type::AtomicUnqualifiedType(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -1900,7 +1899,7 @@ enum LangAS Type::AddressSpace(void) const {
 }
 
 // 0: Type::BaseTypeIdentifier
-uint32_t Type::CVRQualifiers(void) const {
+uint32_t Type::CVRQualifiers(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -1908,7 +1907,7 @@ uint32_t Type::CVRQualifiers(void) const {
   return val;
 }
 
-::pasta::Type Type::CanonicalType(void) const {
+::pasta::Type Type::CanonicalType(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -1916,7 +1915,7 @@ uint32_t Type::CVRQualifiers(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type Type::DesugaredType(void) const {
+::pasta::Type Type::DesugaredType(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -1924,7 +1923,7 @@ uint32_t Type::CVRQualifiers(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
-uint32_t Type::LocalCVRQualifiers(void) const {
+uint32_t Type::LocalCVRQualifiers(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -1932,7 +1931,7 @@ uint32_t Type::LocalCVRQualifiers(void) const {
   return val;
 }
 
-uint32_t Type::LocalFastQualifiers(void) const {
+uint32_t Type::LocalFastQualifiers(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -1941,7 +1940,7 @@ uint32_t Type::LocalFastQualifiers(void) const {
 }
 
 // 0: Type::LocalQualifiers
-::pasta::Type Type::LocalUnqualifiedType(void) const {
+::pasta::Type Type::LocalUnqualifiedType(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -1949,7 +1948,7 @@ uint32_t Type::LocalFastQualifiers(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type Type::NonLValueExpressionType(void) const {
+::pasta::Type Type::NonLValueExpressionType(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -1957,7 +1956,7 @@ uint32_t Type::LocalFastQualifiers(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type Type::NonPackExpansionType(void) const {
+::pasta::Type Type::NonPackExpansionType(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -1965,7 +1964,7 @@ uint32_t Type::LocalFastQualifiers(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type Type::NonReferenceType(void) const {
+::pasta::Type Type::NonReferenceType(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -1974,7 +1973,7 @@ uint32_t Type::LocalFastQualifiers(void) const {
 }
 
 // 0: Type::ObjCGCAttr
-::pasta::ObjCLifetime Type::ObjCLifetime(void) const {
+::pasta::ObjCLifetime Type::ObjCLifetime(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -1983,7 +1982,7 @@ uint32_t Type::LocalFastQualifiers(void) const {
 }
 
 // 0: Type::Qualifiers
-::pasta::Type Type::SingleStepDesugaredType(void) const {
+::pasta::Type Type::SingleStepDesugaredType(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -1996,7 +1995,7 @@ uint32_t Type::LocalFastQualifiers(void) const {
 // 0: Type::
 // 0: Type::
 // 0: Type::
-bool Type::HasAddressSpace(void) const {
+bool Type::HasAddressSpace(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2004,7 +2003,7 @@ bool Type::HasAddressSpace(void) const {
   return val;
 }
 
-bool Type::HasLocalNonFastQualifiers(void) const {
+bool Type::HasLocalNonFastQualifiers(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2012,7 +2011,7 @@ bool Type::HasLocalNonFastQualifiers(void) const {
   return val;
 }
 
-bool Type::HasLocalQualifiers(void) const {
+bool Type::HasLocalQualifiers(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2020,7 +2019,7 @@ bool Type::HasLocalQualifiers(void) const {
   return val;
 }
 
-bool Type::HasNonTrivialObjCLifetime(void) const {
+bool Type::HasNonTrivialObjCLifetime(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2028,7 +2027,7 @@ bool Type::HasNonTrivialObjCLifetime(void) const {
   return val;
 }
 
-bool Type::HasNonTrivialToPrimitiveCopyCUnion(void) const {
+bool Type::HasNonTrivialToPrimitiveCopyCUnion(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2036,7 +2035,7 @@ bool Type::HasNonTrivialToPrimitiveCopyCUnion(void) const {
   return val;
 }
 
-bool Type::HasNonTrivialToPrimitiveDefaultInitializeCUnion(void) const {
+bool Type::HasNonTrivialToPrimitiveDefaultInitializeCUnion(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2044,7 +2043,7 @@ bool Type::HasNonTrivialToPrimitiveDefaultInitializeCUnion(void) const {
   return val;
 }
 
-bool Type::HasNonTrivialToPrimitiveDestructCUnion(void) const {
+bool Type::HasNonTrivialToPrimitiveDestructCUnion(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2052,7 +2051,7 @@ bool Type::HasNonTrivialToPrimitiveDestructCUnion(void) const {
   return val;
 }
 
-bool Type::HasQualifiers(void) const {
+bool Type::HasQualifiers(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2060,7 +2059,7 @@ bool Type::HasQualifiers(void) const {
   return val;
 }
 
-bool Type::HasStrongOrWeakObjCLifetime(void) const {
+bool Type::HasStrongOrWeakObjCLifetime(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2070,7 +2069,7 @@ bool Type::HasStrongOrWeakObjCLifetime(void) const {
 
 // 1: Type::IsAddressSpaceOverlapping
 // 1: Type::IsAtLeastAsQualifiedAs
-bool Type::IsCForbiddenLValueType(void) const {
+bool Type::IsCForbiddenLValueType(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2078,7 +2077,7 @@ bool Type::IsCForbiddenLValueType(void) const {
   return val;
 }
 
-bool Type::IsCXX11PODType(void) const {
+bool Type::IsCXX11PODType(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2086,7 +2085,7 @@ bool Type::IsCXX11PODType(void) const {
   return val;
 }
 
-bool Type::IsCXX98PODType(void) const {
+bool Type::IsCXX98PODType(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2094,7 +2093,7 @@ bool Type::IsCXX98PODType(void) const {
   return val;
 }
 
-bool Type::IsCanonical(void) const {
+bool Type::IsCanonical(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2102,7 +2101,7 @@ bool Type::IsCanonical(void) const {
   return val;
 }
 
-bool Type::IsCanonicalAsParam(void) const {
+bool Type::IsCanonicalAsParam(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2110,7 +2109,7 @@ bool Type::IsCanonicalAsParam(void) const {
   return val;
 }
 
-bool Type::IsConstQualified(void) const {
+bool Type::IsConstQualified(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2118,7 +2117,7 @@ bool Type::IsConstQualified(void) const {
   return val;
 }
 
-bool Type::IsConstant(void) const {
+bool Type::IsConstant(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2127,7 +2126,7 @@ bool Type::IsConstant(void) const {
 }
 
 // 0: Type::IsDestructedType
-bool Type::IsLocalConstQualified(void) const {
+bool Type::IsLocalConstQualified(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2135,7 +2134,7 @@ bool Type::IsLocalConstQualified(void) const {
   return val;
 }
 
-bool Type::IsLocalRestrictQualified(void) const {
+bool Type::IsLocalRestrictQualified(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2143,7 +2142,7 @@ bool Type::IsLocalRestrictQualified(void) const {
   return val;
 }
 
-bool Type::IsLocalVolatileQualified(void) const {
+bool Type::IsLocalVolatileQualified(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2152,7 +2151,7 @@ bool Type::IsLocalVolatileQualified(void) const {
 }
 
 // 1: Type::IsMoreQualifiedThan
-::pasta::PrimitiveCopyKind Type::IsNonTrivialToPrimitiveCopy(void) const {
+::pasta::PrimitiveCopyKind Type::IsNonTrivialToPrimitiveCopy(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2160,7 +2159,7 @@ bool Type::IsLocalVolatileQualified(void) const {
   return static_cast<::pasta::PrimitiveCopyKind>(val);
 }
 
-::pasta::PrimitiveDefaultInitializeKind Type::IsNonTrivialToPrimitiveDefaultInitialize(void) const {
+::pasta::PrimitiveDefaultInitializeKind Type::IsNonTrivialToPrimitiveDefaultInitialize(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2168,7 +2167,7 @@ bool Type::IsLocalVolatileQualified(void) const {
   return static_cast<::pasta::PrimitiveDefaultInitializeKind>(val);
 }
 
-::pasta::PrimitiveCopyKind Type::IsNonTrivialToPrimitiveDestructiveMove(void) const {
+::pasta::PrimitiveCopyKind Type::IsNonTrivialToPrimitiveDestructiveMove(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2176,7 +2175,7 @@ bool Type::IsLocalVolatileQualified(void) const {
   return static_cast<::pasta::PrimitiveCopyKind>(val);
 }
 
-bool Type::IsNonWeakInMRRWithObjCWeak(void) const {
+bool Type::IsNonWeakInMRRWithObjCWeak(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2184,7 +2183,7 @@ bool Type::IsNonWeakInMRRWithObjCWeak(void) const {
   return val;
 }
 
-bool Type::IsNull(void) const {
+bool Type::IsNull(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2192,7 +2191,7 @@ bool Type::IsNull(void) const {
   return val;
 }
 
-bool Type::IsObjCGCStrong(void) const {
+bool Type::IsObjCGCStrong(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2200,7 +2199,7 @@ bool Type::IsObjCGCStrong(void) const {
   return val;
 }
 
-bool Type::IsObjCGCWeak(void) const {
+bool Type::IsObjCGCWeak(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2208,7 +2207,7 @@ bool Type::IsObjCGCWeak(void) const {
   return val;
 }
 
-bool Type::IsPODType(void) const {
+bool Type::IsPODType(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2216,7 +2215,7 @@ bool Type::IsPODType(void) const {
   return val;
 }
 
-bool Type::IsRestrictQualified(void) const {
+bool Type::IsRestrictQualified(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2224,7 +2223,7 @@ bool Type::IsRestrictQualified(void) const {
   return val;
 }
 
-bool Type::IsTrivialType(void) const {
+bool Type::IsTrivialType(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2232,7 +2231,7 @@ bool Type::IsTrivialType(void) const {
   return val;
 }
 
-bool Type::IsTriviallyCopyableType(void) const {
+bool Type::IsTriviallyCopyableType(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2240,7 +2239,7 @@ bool Type::IsTriviallyCopyableType(void) const {
   return val;
 }
 
-bool Type::IsVolatileQualified(void) const {
+bool Type::IsVolatileQualified(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2248,7 +2247,7 @@ bool Type::IsVolatileQualified(void) const {
   return val;
 }
 
-bool Type::MayBeDynamicClass(void) const {
+bool Type::MayBeDynamicClass(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2256,7 +2255,7 @@ bool Type::MayBeDynamicClass(void) const {
   return val;
 }
 
-bool Type::MayBeNotDynamicClass(void) const {
+bool Type::MayBeNotDynamicClass(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2266,7 +2265,7 @@ bool Type::MayBeNotDynamicClass(void) const {
 
 // 0: Type::Split
 // 1: Type::Stream
-::pasta::Type Type::StripObjCKindOfType(void) const {
+::pasta::Type Type::StripObjCKindOfType(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2277,7 +2276,7 @@ bool Type::MayBeNotDynamicClass(void) const {
 // 3: QualType::SubstObjCMemberType
 // 3: QualType::SubstObjCTypeArguments
 // 1: Type::WithCVRQualifiers
-::pasta::Type Type::WithConst(void) const {
+::pasta::Type Type::WithConst(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2287,7 +2286,7 @@ bool Type::MayBeNotDynamicClass(void) const {
 
 // 1: Type::WithExactLocalFastQualifiers
 // 1: Type::WithFastQualifiers
-::pasta::Type Type::WithRestrict(void) const {
+::pasta::Type Type::WithRestrict(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2295,7 +2294,7 @@ bool Type::MayBeNotDynamicClass(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type Type::WithVolatile(void) const {
+::pasta::Type Type::WithVolatile(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2303,7 +2302,7 @@ bool Type::MayBeNotDynamicClass(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type Type::WithoutLocalFastQualifiers(void) const {
+::pasta::Type Type::WithoutLocalFastQualifiers(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -2312,14 +2311,14 @@ bool Type::MayBeNotDynamicClass(void) const {
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, TypeOfExprType)
-::pasta::Type TypeOfExprType::Desugar(void) const {
-  auto &self = *(u.TypeOfExprType);
+::pasta::Type TypeOfExprType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::TypeOfExprType *>(u.TypeOfExprType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Expr TypeOfExprType::UnderlyingExpression(void) const {
-  auto &self = *(u.TypeOfExprType);
+::pasta::Expr TypeOfExprType::UnderlyingExpression(void) const noexcept {
+  auto &self = *const_cast<clang::TypeOfExprType *>(u.TypeOfExprType);
   auto val = self.getUnderlyingExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
@@ -2328,40 +2327,40 @@ PASTA_DEFINE_BASE_OPERATORS(Type, TypeOfExprType)
   __builtin_unreachable();
 }
 
-bool TypeOfExprType::IsSugared(void) const {
-  auto &self = *(u.TypeOfExprType);
+bool TypeOfExprType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::TypeOfExprType *>(u.TypeOfExprType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, TypeOfType)
-::pasta::Type TypeOfType::Desugar(void) const {
-  auto &self = *(u.TypeOfType);
+::pasta::Type TypeOfType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::TypeOfType *>(u.TypeOfType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type TypeOfType::UnderlyingType(void) const {
-  auto &self = *(u.TypeOfType);
+::pasta::Type TypeOfType::UnderlyingType(void) const noexcept {
+  auto &self = *const_cast<clang::TypeOfType *>(u.TypeOfType);
   auto val = self.getUnderlyingType();
   return TypeBuilder::Build(ast, val);
 }
 
-bool TypeOfType::IsSugared(void) const {
-  auto &self = *(u.TypeOfType);
+bool TypeOfType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::TypeOfType *>(u.TypeOfType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, TypedefType)
-::pasta::Type TypedefType::Desugar(void) const {
-  auto &self = *(u.TypedefType);
+::pasta::Type TypedefType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::TypedefType *>(u.TypedefType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::TypedefNameDecl TypedefType::Declaration(void) const {
-  auto &self = *(u.TypedefType);
+::pasta::TypedefNameDecl TypedefType::Declaration(void) const noexcept {
+  auto &self = *const_cast<clang::TypedefType *>(u.TypedefType);
   auto val = self.getDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::TypedefNameDecl>(ast, val);
@@ -2370,52 +2369,52 @@ PASTA_DEFINE_BASE_OPERATORS(Type, TypedefType)
   __builtin_unreachable();
 }
 
-bool TypedefType::IsSugared(void) const {
-  auto &self = *(u.TypedefType);
+bool TypedefType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::TypedefType *>(u.TypedefType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, UnaryTransformType)
-::pasta::Type UnaryTransformType::Desugar(void) const {
-  auto &self = *(u.UnaryTransformType);
+::pasta::Type UnaryTransformType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::UnaryTransformType *>(u.UnaryTransformType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type UnaryTransformType::BaseType(void) const {
-  auto &self = *(u.UnaryTransformType);
+::pasta::Type UnaryTransformType::BaseType(void) const noexcept {
+  auto &self = *const_cast<clang::UnaryTransformType *>(u.UnaryTransformType);
   auto val = self.getBaseType();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::UTTKind UnaryTransformType::UTTKind(void) const {
-  auto &self = *(u.UnaryTransformType);
+::pasta::UTTKind UnaryTransformType::UTTKind(void) const noexcept {
+  auto &self = *const_cast<clang::UnaryTransformType *>(u.UnaryTransformType);
   auto val = self.getUTTKind();
   return static_cast<::pasta::UTTKind>(val);
 }
 
-::pasta::Type UnaryTransformType::UnderlyingType(void) const {
-  auto &self = *(u.UnaryTransformType);
+::pasta::Type UnaryTransformType::UnderlyingType(void) const noexcept {
+  auto &self = *const_cast<clang::UnaryTransformType *>(u.UnaryTransformType);
   auto val = self.getUnderlyingType();
   return TypeBuilder::Build(ast, val);
 }
 
-bool UnaryTransformType::IsSugared(void) const {
-  auto &self = *(u.UnaryTransformType);
+bool UnaryTransformType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::UnaryTransformType *>(u.UnaryTransformType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, UnresolvedUsingType)
-::pasta::Type UnresolvedUsingType::Desugar(void) const {
-  auto &self = *(u.UnresolvedUsingType);
+::pasta::Type UnresolvedUsingType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::UnresolvedUsingType *>(u.UnresolvedUsingType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::UnresolvedUsingTypenameDecl UnresolvedUsingType::Declaration(void) const {
-  auto &self = *(u.UnresolvedUsingType);
+::pasta::UnresolvedUsingTypenameDecl UnresolvedUsingType::Declaration(void) const noexcept {
+  auto &self = *const_cast<clang::UnresolvedUsingType *>(u.UnresolvedUsingType);
   auto val = self.getDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::UnresolvedUsingTypenameDecl>(ast, val);
@@ -2424,40 +2423,40 @@ PASTA_DEFINE_BASE_OPERATORS(Type, UnresolvedUsingType)
   __builtin_unreachable();
 }
 
-bool UnresolvedUsingType::IsSugared(void) const {
-  auto &self = *(u.UnresolvedUsingType);
+bool UnresolvedUsingType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::UnresolvedUsingType *>(u.UnresolvedUsingType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, VectorType)
 PASTA_DEFINE_DERIVED_OPERATORS(VectorType, ExtVectorType)
-::pasta::Type VectorType::Desugar(void) const {
-  auto &self = *(u.VectorType);
+::pasta::Type VectorType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::VectorType *>(u.VectorType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type VectorType::ElementType(void) const {
-  auto &self = *(u.VectorType);
+::pasta::Type VectorType::ElementType(void) const noexcept {
+  auto &self = *const_cast<clang::VectorType *>(u.VectorType);
   auto val = self.getElementType();
   return TypeBuilder::Build(ast, val);
 }
 
-uint32_t VectorType::NumElements(void) const {
-  auto &self = *(u.VectorType);
+uint32_t VectorType::NumElements(void) const noexcept {
+  auto &self = *const_cast<clang::VectorType *>(u.VectorType);
   auto val = self.getNumElements();
   return val;
 }
 
-::pasta::VectorKind VectorType::VectorKind(void) const {
-  auto &self = *(u.VectorType);
+::pasta::VectorKind VectorType::VectorKind(void) const noexcept {
+  auto &self = *const_cast<clang::VectorType *>(u.VectorType);
   auto val = self.getVectorKind();
   return static_cast<::pasta::VectorKind>(val);
 }
 
-bool VectorType::IsSugared(void) const {
-  auto &self = *(u.VectorType);
+bool VectorType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::VectorType *>(u.VectorType);
   auto val = self.isSugared();
   return val;
 }
@@ -2477,34 +2476,34 @@ std::optional<class TypeWithKeyword> TypeWithKeyword::From(const class Type &tha
 PASTA_DEFINE_DERIVED_OPERATORS(TypeWithKeyword, DependentNameType)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeWithKeyword, DependentTemplateSpecializationType)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeWithKeyword, ElaboratedType)
-enum ElaboratedTypeKeyword TypeWithKeyword::Keyword(void) const {
-  auto &self = *(u.TypeWithKeyword);
+enum ElaboratedTypeKeyword TypeWithKeyword::Keyword(void) const noexcept {
+  auto &self = *const_cast<clang::TypeWithKeyword *>(u.TypeWithKeyword);
   auto val = self.getKeyword();
   return static_cast<::pasta::ElaboratedTypeKeyword>(static_cast<unsigned int>(val));
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, AdjustedType)
 PASTA_DEFINE_DERIVED_OPERATORS(AdjustedType, DecayedType)
-::pasta::Type AdjustedType::Desugar(void) const {
-  auto &self = *(u.AdjustedType);
+::pasta::Type AdjustedType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::AdjustedType *>(u.AdjustedType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type AdjustedType::ResolvedType(void) const {
-  auto &self = *(u.AdjustedType);
+::pasta::Type AdjustedType::ResolvedType(void) const noexcept {
+  auto &self = *const_cast<clang::AdjustedType *>(u.AdjustedType);
   auto val = self.getAdjustedType();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type AdjustedType::OriginalType(void) const {
-  auto &self = *(u.AdjustedType);
+::pasta::Type AdjustedType::OriginalType(void) const noexcept {
+  auto &self = *const_cast<clang::AdjustedType *>(u.AdjustedType);
   auto val = self.getOriginalType();
   return TypeBuilder::Build(ast, val);
 }
 
-bool AdjustedType::IsSugared(void) const {
-  auto &self = *(u.AdjustedType);
+bool AdjustedType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::AdjustedType *>(u.AdjustedType);
   auto val = self.isSugared();
   return val;
 }
@@ -2514,65 +2513,65 @@ PASTA_DEFINE_DERIVED_OPERATORS(ArrayType, ConstantArrayType)
 PASTA_DEFINE_DERIVED_OPERATORS(ArrayType, DependentSizedArrayType)
 PASTA_DEFINE_DERIVED_OPERATORS(ArrayType, IncompleteArrayType)
 PASTA_DEFINE_DERIVED_OPERATORS(ArrayType, VariableArrayType)
-::pasta::Type ArrayType::ElementType(void) const {
-  auto &self = *(u.ArrayType);
+::pasta::Type ArrayType::ElementType(void) const noexcept {
+  auto &self = *const_cast<clang::ArrayType *>(u.ArrayType);
   auto val = self.getElementType();
   return TypeBuilder::Build(ast, val);
 }
 
-uint32_t ArrayType::IndexTypeCVRQualifiers(void) const {
-  auto &self = *(u.ArrayType);
+uint32_t ArrayType::IndexTypeCVRQualifiers(void) const noexcept {
+  auto &self = *const_cast<clang::ArrayType *>(u.ArrayType);
   auto val = self.getIndexTypeCVRQualifiers();
   return val;
 }
 
 // 0: ArrayType::IndexTypeQualifiers
-::pasta::ArraySizeModifier ArrayType::SizeModifier(void) const {
-  auto &self = *(u.ArrayType);
+::pasta::ArraySizeModifier ArrayType::SizeModifier(void) const noexcept {
+  auto &self = *const_cast<clang::ArrayType *>(u.ArrayType);
   auto val = self.getSizeModifier();
   return static_cast<::pasta::ArraySizeModifier>(val);
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, AtomicType)
-::pasta::Type AtomicType::Desugar(void) const {
-  auto &self = *(u.AtomicType);
+::pasta::Type AtomicType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::AtomicType *>(u.AtomicType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type AtomicType::ValueType(void) const {
-  auto &self = *(u.AtomicType);
+::pasta::Type AtomicType::ValueType(void) const noexcept {
+  auto &self = *const_cast<clang::AtomicType *>(u.AtomicType);
   auto val = self.getValueType();
   return TypeBuilder::Build(ast, val);
 }
 
-bool AtomicType::IsSugared(void) const {
-  auto &self = *(u.AtomicType);
+bool AtomicType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::AtomicType *>(u.AtomicType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, AttributedType)
-::pasta::Type AttributedType::Desugar(void) const {
-  auto &self = *(u.AttributedType);
+::pasta::Type AttributedType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::AttributedType *>(u.AttributedType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::AttributeKind AttributedType::AttributeKind(void) const {
-  auto &self = *(u.AttributedType);
+::pasta::AttributeKind AttributedType::AttributeKind(void) const noexcept {
+  auto &self = *const_cast<clang::AttributedType *>(u.AttributedType);
   auto val = self.getAttrKind();
   return static_cast<::pasta::AttributeKind>(val);
 }
 
-::pasta::Type AttributedType::EquivalentType(void) const {
-  auto &self = *(u.AttributedType);
+::pasta::Type AttributedType::EquivalentType(void) const noexcept {
+  auto &self = *const_cast<clang::AttributedType *>(u.AttributedType);
   auto val = self.getEquivalentType();
   return TypeBuilder::Build(ast, val);
 }
 
-std::optional<::pasta::NullabilityKind> AttributedType::ImmediateNullability(void) const {
-  auto &self = *(u.AttributedType);
+std::optional<::pasta::NullabilityKind> AttributedType::ImmediateNullability(void) const noexcept {
+  auto &self = *const_cast<clang::AttributedType *>(u.AttributedType);
   auto val = self.getImmediateNullability();
   if (val.hasValue()) {
     return static_cast<::pasta::NullabilityKind>(val.getValue());
@@ -2581,147 +2580,147 @@ std::optional<::pasta::NullabilityKind> AttributedType::ImmediateNullability(voi
   }
 }
 
-::pasta::Type AttributedType::ModifiedType(void) const {
-  auto &self = *(u.AttributedType);
+::pasta::Type AttributedType::ModifiedType(void) const noexcept {
+  auto &self = *const_cast<clang::AttributedType *>(u.AttributedType);
   auto val = self.getModifiedType();
   return TypeBuilder::Build(ast, val);
 }
 
-bool AttributedType::IsCallingConv(void) const {
-  auto &self = *(u.AttributedType);
+bool AttributedType::IsCallingConv(void) const noexcept {
+  auto &self = *const_cast<clang::AttributedType *>(u.AttributedType);
   auto val = self.isCallingConv();
   return val;
 }
 
-bool AttributedType::IsMSTypeSpec(void) const {
-  auto &self = *(u.AttributedType);
+bool AttributedType::IsMSTypeSpec(void) const noexcept {
+  auto &self = *const_cast<clang::AttributedType *>(u.AttributedType);
   auto val = self.isMSTypeSpec();
   return val;
 }
 
-bool AttributedType::IsQualifier(void) const {
-  auto &self = *(u.AttributedType);
+bool AttributedType::IsQualifier(void) const noexcept {
+  auto &self = *const_cast<clang::AttributedType *>(u.AttributedType);
   auto val = self.isQualifier();
   return val;
 }
 
-bool AttributedType::IsSugared(void) const {
-  auto &self = *(u.AttributedType);
+bool AttributedType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::AttributedType *>(u.AttributedType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, BlockPointerType)
-::pasta::Type BlockPointerType::Desugar(void) const {
-  auto &self = *(u.BlockPointerType);
+::pasta::Type BlockPointerType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::BlockPointerType *>(u.BlockPointerType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type BlockPointerType::PointeeType(void) const {
-  auto &self = *(u.BlockPointerType);
+::pasta::Type BlockPointerType::PointeeType(void) const noexcept {
+  auto &self = *const_cast<clang::BlockPointerType *>(u.BlockPointerType);
   auto val = self.getPointeeType();
   return TypeBuilder::Build(ast, val);
 }
 
-bool BlockPointerType::IsSugared(void) const {
-  auto &self = *(u.BlockPointerType);
+bool BlockPointerType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::BlockPointerType *>(u.BlockPointerType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, BuiltinType)
-::pasta::Type BuiltinType::Desugar(void) const {
-  auto &self = *(u.BuiltinType);
+::pasta::Type BuiltinType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::BuiltinType *>(u.BuiltinType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::BuiltinTypeKind BuiltinType::Kind(void) const {
-  auto &self = *(u.BuiltinType);
+::pasta::BuiltinTypeKind BuiltinType::Kind(void) const noexcept {
+  auto &self = *const_cast<clang::BuiltinType *>(u.BuiltinType);
   auto val = self.getKind();
   return static_cast<::pasta::BuiltinTypeKind>(val);
 }
 
 // 1: BuiltinType::Name
 // 1: BuiltinType::NameAsCString
-bool BuiltinType::IsFloatingPoint(void) const {
-  auto &self = *(u.BuiltinType);
+bool BuiltinType::IsFloatingPoint(void) const noexcept {
+  auto &self = *const_cast<clang::BuiltinType *>(u.BuiltinType);
   auto val = self.isFloatingPoint();
   return val;
 }
 
-bool BuiltinType::IsInteger(void) const {
-  auto &self = *(u.BuiltinType);
+bool BuiltinType::IsInteger(void) const noexcept {
+  auto &self = *const_cast<clang::BuiltinType *>(u.BuiltinType);
   auto val = self.isInteger();
   return val;
 }
 
-bool BuiltinType::IsNonOverloadPlaceholderType(void) const {
-  auto &self = *(u.BuiltinType);
+bool BuiltinType::IsNonOverloadPlaceholderType(void) const noexcept {
+  auto &self = *const_cast<clang::BuiltinType *>(u.BuiltinType);
   auto val = self.isNonOverloadPlaceholderType();
   return val;
 }
 
-bool BuiltinType::IsPlaceholderType(void) const {
-  auto &self = *(u.BuiltinType);
+bool BuiltinType::IsPlaceholderType(void) const noexcept {
+  auto &self = *const_cast<clang::BuiltinType *>(u.BuiltinType);
   auto val = self.isPlaceholderType();
   return val;
 }
 
-bool BuiltinType::IsSignedInteger(void) const {
-  auto &self = *(u.BuiltinType);
+bool BuiltinType::IsSignedInteger(void) const noexcept {
+  auto &self = *const_cast<clang::BuiltinType *>(u.BuiltinType);
   auto val = self.isSignedInteger();
   return val;
 }
 
-bool BuiltinType::IsSugared(void) const {
-  auto &self = *(u.BuiltinType);
+bool BuiltinType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::BuiltinType *>(u.BuiltinType);
   auto val = self.isSugared();
   return val;
 }
 
-bool BuiltinType::IsUnsignedInteger(void) const {
-  auto &self = *(u.BuiltinType);
+bool BuiltinType::IsUnsignedInteger(void) const noexcept {
+  auto &self = *const_cast<clang::BuiltinType *>(u.BuiltinType);
   auto val = self.isUnsignedInteger();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, ComplexType)
-::pasta::Type ComplexType::Desugar(void) const {
-  auto &self = *(u.ComplexType);
+::pasta::Type ComplexType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::ComplexType *>(u.ComplexType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type ComplexType::ElementType(void) const {
-  auto &self = *(u.ComplexType);
+::pasta::Type ComplexType::ElementType(void) const noexcept {
+  auto &self = *const_cast<clang::ComplexType *>(u.ComplexType);
   auto val = self.getElementType();
   return TypeBuilder::Build(ast, val);
 }
 
-bool ComplexType::IsSugared(void) const {
-  auto &self = *(u.ComplexType);
+bool ComplexType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::ComplexType *>(u.ComplexType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(ArrayType, ConstantArrayType)
 PASTA_DEFINE_BASE_OPERATORS(Type, ConstantArrayType)
-::pasta::Type ConstantArrayType::Desugar(void) const {
-  auto &self = *(u.ConstantArrayType);
+::pasta::Type ConstantArrayType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::ConstantArrayType *>(u.ConstantArrayType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-llvm::APInt ConstantArrayType::Size(void) const {
-  auto &self = *(u.ConstantArrayType);
+llvm::APInt ConstantArrayType::Size(void) const noexcept {
+  auto &self = *const_cast<clang::ConstantArrayType *>(u.ConstantArrayType);
   auto val = self.getSize();
   return val;
 }
 
-::pasta::Expr ConstantArrayType::SizeExpression(void) const {
-  auto &self = *(u.ConstantArrayType);
+::pasta::Expr ConstantArrayType::SizeExpression(void) const noexcept {
+  auto &self = *const_cast<clang::ConstantArrayType *>(u.ConstantArrayType);
   auto val = self.getSizeExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
@@ -2730,35 +2729,35 @@ llvm::APInt ConstantArrayType::Size(void) const {
   __builtin_unreachable();
 }
 
-bool ConstantArrayType::IsSugared(void) const {
-  auto &self = *(u.ConstantArrayType);
+bool ConstantArrayType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::ConstantArrayType *>(u.ConstantArrayType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(AdjustedType, DecayedType)
 PASTA_DEFINE_BASE_OPERATORS(Type, DecayedType)
-::pasta::Type DecayedType::ResolvedType(void) const {
-  auto &self = *(u.DecayedType);
+::pasta::Type DecayedType::ResolvedType(void) const noexcept {
+  auto &self = *const_cast<clang::DecayedType *>(u.DecayedType);
   auto val = self.getDecayedType();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type DecayedType::PointeeType(void) const {
-  auto &self = *(u.DecayedType);
+::pasta::Type DecayedType::PointeeType(void) const noexcept {
+  auto &self = *const_cast<clang::DecayedType *>(u.DecayedType);
   auto val = self.getPointeeType();
   return TypeBuilder::Build(ast, val);
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, DecltypeType)
-::pasta::Type DecltypeType::Desugar(void) const {
-  auto &self = *(u.DecltypeType);
+::pasta::Type DecltypeType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::DecltypeType *>(u.DecltypeType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Expr DecltypeType::UnderlyingExpression(void) const {
-  auto &self = *(u.DecltypeType);
+::pasta::Expr DecltypeType::UnderlyingExpression(void) const noexcept {
+  auto &self = *const_cast<clang::DecltypeType *>(u.DecltypeType);
   auto val = self.getUnderlyingExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
@@ -2767,14 +2766,14 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DecltypeType)
   __builtin_unreachable();
 }
 
-::pasta::Type DecltypeType::UnderlyingType(void) const {
-  auto &self = *(u.DecltypeType);
+::pasta::Type DecltypeType::UnderlyingType(void) const noexcept {
+  auto &self = *const_cast<clang::DecltypeType *>(u.DecltypeType);
   auto val = self.getUnderlyingType();
   return TypeBuilder::Build(ast, val);
 }
 
-bool DecltypeType::IsSugared(void) const {
-  auto &self = *(u.DecltypeType);
+bool DecltypeType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::DecltypeType *>(u.DecltypeType);
   auto val = self.isSugared();
   return val;
 }
@@ -2782,39 +2781,39 @@ bool DecltypeType::IsSugared(void) const {
 PASTA_DEFINE_BASE_OPERATORS(Type, DeducedType)
 PASTA_DEFINE_DERIVED_OPERATORS(DeducedType, AutoType)
 PASTA_DEFINE_DERIVED_OPERATORS(DeducedType, DeducedTemplateSpecializationType)
-::pasta::Type DeducedType::Desugar(void) const {
-  auto &self = *(u.DeducedType);
+::pasta::Type DeducedType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::DeducedType *>(u.DeducedType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type DeducedType::ResolvedType(void) const {
-  auto &self = *(u.DeducedType);
+::pasta::Type DeducedType::ResolvedType(void) const noexcept {
+  auto &self = *const_cast<clang::DeducedType *>(u.DeducedType);
   auto val = self.getDeducedType();
   return TypeBuilder::Build(ast, val);
 }
 
-bool DeducedType::IsDeduced(void) const {
-  auto &self = *(u.DeducedType);
+bool DeducedType::IsDeduced(void) const noexcept {
+  auto &self = *const_cast<clang::DeducedType *>(u.DeducedType);
   auto val = self.isDeduced();
   return val;
 }
 
-bool DeducedType::IsSugared(void) const {
-  auto &self = *(u.DeducedType);
+bool DeducedType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::DeducedType *>(u.DeducedType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, DependentAddressSpaceType)
-::pasta::Type DependentAddressSpaceType::Desugar(void) const {
-  auto &self = *(u.DependentAddressSpaceType);
+::pasta::Type DependentAddressSpaceType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::DependentAddressSpaceType *>(u.DependentAddressSpaceType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Expr DependentAddressSpaceType::AddrSpaceExpression(void) const {
-  auto &self = *(u.DependentAddressSpaceType);
+::pasta::Expr DependentAddressSpaceType::AddrSpaceExpression(void) const noexcept {
+  auto &self = *const_cast<clang::DependentAddressSpaceType *>(u.DependentAddressSpaceType);
   auto val = self.getAddrSpaceExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
@@ -2823,33 +2822,33 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentAddressSpaceType)
   __builtin_unreachable();
 }
 
-::pasta::Token DependentAddressSpaceType::AttributeToken(void) const {
-  auto &self = *(u.DependentAddressSpaceType);
+::pasta::Token DependentAddressSpaceType::AttributeToken(void) const noexcept {
+  auto &self = *const_cast<clang::DependentAddressSpaceType *>(u.DependentAddressSpaceType);
   auto val = self.getAttributeLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Type DependentAddressSpaceType::PointeeType(void) const {
-  auto &self = *(u.DependentAddressSpaceType);
+::pasta::Type DependentAddressSpaceType::PointeeType(void) const noexcept {
+  auto &self = *const_cast<clang::DependentAddressSpaceType *>(u.DependentAddressSpaceType);
   auto val = self.getPointeeType();
   return TypeBuilder::Build(ast, val);
 }
 
-bool DependentAddressSpaceType::IsSugared(void) const {
-  auto &self = *(u.DependentAddressSpaceType);
+bool DependentAddressSpaceType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::DependentAddressSpaceType *>(u.DependentAddressSpaceType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, DependentExtIntType)
-::pasta::Type DependentExtIntType::Desugar(void) const {
-  auto &self = *(u.DependentExtIntType);
+::pasta::Type DependentExtIntType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::DependentExtIntType *>(u.DependentExtIntType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Expr DependentExtIntType::NumBitsExpression(void) const {
-  auto &self = *(u.DependentExtIntType);
+::pasta::Expr DependentExtIntType::NumBitsExpression(void) const noexcept {
+  auto &self = *const_cast<clang::DependentExtIntType *>(u.DependentExtIntType);
   auto val = self.getNumBitsExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
@@ -2858,68 +2857,68 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentExtIntType)
   __builtin_unreachable();
 }
 
-bool DependentExtIntType::IsSigned(void) const {
-  auto &self = *(u.DependentExtIntType);
+bool DependentExtIntType::IsSigned(void) const noexcept {
+  auto &self = *const_cast<clang::DependentExtIntType *>(u.DependentExtIntType);
   auto val = self.isSigned();
   return val;
 }
 
-bool DependentExtIntType::IsSugared(void) const {
-  auto &self = *(u.DependentExtIntType);
+bool DependentExtIntType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::DependentExtIntType *>(u.DependentExtIntType);
   auto val = self.isSugared();
   return val;
 }
 
-bool DependentExtIntType::IsUnsigned(void) const {
-  auto &self = *(u.DependentExtIntType);
+bool DependentExtIntType::IsUnsigned(void) const noexcept {
+  auto &self = *const_cast<clang::DependentExtIntType *>(u.DependentExtIntType);
   auto val = self.isUnsigned();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, DependentNameType)
 PASTA_DEFINE_BASE_OPERATORS(TypeWithKeyword, DependentNameType)
-::pasta::Type DependentNameType::Desugar(void) const {
-  auto &self = *(u.DependentNameType);
+::pasta::Type DependentNameType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::DependentNameType *>(u.DependentNameType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
 // 0: DependentNameType::Identifier
 // 0: DependentNameType::Qualifier
-bool DependentNameType::IsSugared(void) const {
-  auto &self = *(u.DependentNameType);
+bool DependentNameType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::DependentNameType *>(u.DependentNameType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(ArrayType, DependentSizedArrayType)
 PASTA_DEFINE_BASE_OPERATORS(Type, DependentSizedArrayType)
-::pasta::Type DependentSizedArrayType::Desugar(void) const {
-  auto &self = *(u.DependentSizedArrayType);
+::pasta::Type DependentSizedArrayType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::DependentSizedArrayType *>(u.DependentSizedArrayType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::TokenRange DependentSizedArrayType::BracketsRange(void) const {
-  auto &self = *(u.DependentSizedArrayType);
+::pasta::TokenRange DependentSizedArrayType::BracketsRange(void) const noexcept {
+  auto &self = *const_cast<clang::DependentSizedArrayType *>(u.DependentSizedArrayType);
   auto val = self.getBracketsRange();
   return ast->TokenRangeFrom(val);
 }
 
-::pasta::Token DependentSizedArrayType::LBracketToken(void) const {
-  auto &self = *(u.DependentSizedArrayType);
+::pasta::Token DependentSizedArrayType::LBracketToken(void) const noexcept {
+  auto &self = *const_cast<clang::DependentSizedArrayType *>(u.DependentSizedArrayType);
   auto val = self.getLBracketLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Token DependentSizedArrayType::RBracketToken(void) const {
-  auto &self = *(u.DependentSizedArrayType);
+::pasta::Token DependentSizedArrayType::RBracketToken(void) const noexcept {
+  auto &self = *const_cast<clang::DependentSizedArrayType *>(u.DependentSizedArrayType);
   auto val = self.getRBracketLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Expr DependentSizedArrayType::SizeExpression(void) const {
-  auto &self = *(u.DependentSizedArrayType);
+::pasta::Expr DependentSizedArrayType::SizeExpression(void) const noexcept {
+  auto &self = *const_cast<clang::DependentSizedArrayType *>(u.DependentSizedArrayType);
   auto val = self.getSizeExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
@@ -2928,33 +2927,33 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentSizedArrayType)
   __builtin_unreachable();
 }
 
-bool DependentSizedArrayType::IsSugared(void) const {
-  auto &self = *(u.DependentSizedArrayType);
+bool DependentSizedArrayType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::DependentSizedArrayType *>(u.DependentSizedArrayType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, DependentSizedExtVectorType)
-::pasta::Type DependentSizedExtVectorType::Desugar(void) const {
-  auto &self = *(u.DependentSizedExtVectorType);
+::pasta::Type DependentSizedExtVectorType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::DependentSizedExtVectorType *>(u.DependentSizedExtVectorType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Token DependentSizedExtVectorType::AttributeToken(void) const {
-  auto &self = *(u.DependentSizedExtVectorType);
+::pasta::Token DependentSizedExtVectorType::AttributeToken(void) const noexcept {
+  auto &self = *const_cast<clang::DependentSizedExtVectorType *>(u.DependentSizedExtVectorType);
   auto val = self.getAttributeLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Type DependentSizedExtVectorType::ElementType(void) const {
-  auto &self = *(u.DependentSizedExtVectorType);
+::pasta::Type DependentSizedExtVectorType::ElementType(void) const noexcept {
+  auto &self = *const_cast<clang::DependentSizedExtVectorType *>(u.DependentSizedExtVectorType);
   auto val = self.getElementType();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Expr DependentSizedExtVectorType::SizeExpression(void) const {
-  auto &self = *(u.DependentSizedExtVectorType);
+::pasta::Expr DependentSizedExtVectorType::SizeExpression(void) const noexcept {
+  auto &self = *const_cast<clang::DependentSizedExtVectorType *>(u.DependentSizedExtVectorType);
   auto val = self.getSizeExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
@@ -2963,8 +2962,8 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentSizedExtVectorType)
   __builtin_unreachable();
 }
 
-bool DependentSizedExtVectorType::IsSugared(void) const {
-  auto &self = *(u.DependentSizedExtVectorType);
+bool DependentSizedExtVectorType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::DependentSizedExtVectorType *>(u.DependentSizedExtVectorType);
   auto val = self.isSugared();
   return val;
 }
@@ -2972,8 +2971,8 @@ bool DependentSizedExtVectorType::IsSugared(void) const {
 PASTA_DEFINE_BASE_OPERATORS(Type, DependentTemplateSpecializationType)
 PASTA_DEFINE_BASE_OPERATORS(TypeWithKeyword, DependentTemplateSpecializationType)
 // 0: DependentTemplateSpecializationType::
-::pasta::Type DependentTemplateSpecializationType::Desugar(void) const {
-  auto &self = *(u.DependentTemplateSpecializationType);
+::pasta::Type DependentTemplateSpecializationType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::DependentTemplateSpecializationType *>(u.DependentTemplateSpecializationType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
@@ -2982,41 +2981,41 @@ PASTA_DEFINE_BASE_OPERATORS(TypeWithKeyword, DependentTemplateSpecializationType
 // 1: DependentTemplateSpecializationType::Argument
 // 0: DependentTemplateSpecializationType::Arguments
 // 0: DependentTemplateSpecializationType::Identifier
-uint32_t DependentTemplateSpecializationType::NumArguments(void) const {
-  auto &self = *(u.DependentTemplateSpecializationType);
+uint32_t DependentTemplateSpecializationType::NumArguments(void) const noexcept {
+  auto &self = *const_cast<clang::DependentTemplateSpecializationType *>(u.DependentTemplateSpecializationType);
   auto val = self.getNumArgs();
   return val;
 }
 
 // 0: DependentTemplateSpecializationType::Qualifier
-bool DependentTemplateSpecializationType::IsSugared(void) const {
-  auto &self = *(u.DependentTemplateSpecializationType);
+bool DependentTemplateSpecializationType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::DependentTemplateSpecializationType *>(u.DependentTemplateSpecializationType);
   auto val = self.isSugared();
   return val;
 }
 
 // 0: DependentTemplateSpecializationType::TemplateArguments
 PASTA_DEFINE_BASE_OPERATORS(Type, DependentVectorType)
-::pasta::Type DependentVectorType::Desugar(void) const {
-  auto &self = *(u.DependentVectorType);
+::pasta::Type DependentVectorType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::DependentVectorType *>(u.DependentVectorType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Token DependentVectorType::AttributeToken(void) const {
-  auto &self = *(u.DependentVectorType);
+::pasta::Token DependentVectorType::AttributeToken(void) const noexcept {
+  auto &self = *const_cast<clang::DependentVectorType *>(u.DependentVectorType);
   auto val = self.getAttributeLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Type DependentVectorType::ElementType(void) const {
-  auto &self = *(u.DependentVectorType);
+::pasta::Type DependentVectorType::ElementType(void) const noexcept {
+  auto &self = *const_cast<clang::DependentVectorType *>(u.DependentVectorType);
   auto val = self.getElementType();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Expr DependentVectorType::SizeExpression(void) const {
-  auto &self = *(u.DependentVectorType);
+::pasta::Expr DependentVectorType::SizeExpression(void) const noexcept {
+  auto &self = *const_cast<clang::DependentVectorType *>(u.DependentVectorType);
   auto val = self.getSizeExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
@@ -3025,34 +3024,34 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentVectorType)
   __builtin_unreachable();
 }
 
-::pasta::VectorKind DependentVectorType::VectorKind(void) const {
-  auto &self = *(u.DependentVectorType);
+::pasta::VectorKind DependentVectorType::VectorKind(void) const noexcept {
+  auto &self = *const_cast<clang::DependentVectorType *>(u.DependentVectorType);
   auto val = self.getVectorKind();
   return static_cast<::pasta::VectorKind>(val);
 }
 
-bool DependentVectorType::IsSugared(void) const {
-  auto &self = *(u.DependentVectorType);
+bool DependentVectorType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::DependentVectorType *>(u.DependentVectorType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, ElaboratedType)
 PASTA_DEFINE_BASE_OPERATORS(TypeWithKeyword, ElaboratedType)
-::pasta::Type ElaboratedType::Desugar(void) const {
-  auto &self = *(u.ElaboratedType);
+::pasta::Type ElaboratedType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::ElaboratedType *>(u.ElaboratedType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type ElaboratedType::NamedType(void) const {
-  auto &self = *(u.ElaboratedType);
+::pasta::Type ElaboratedType::NamedType(void) const noexcept {
+  auto &self = *const_cast<clang::ElaboratedType *>(u.ElaboratedType);
   auto val = self.getNamedType();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::TagDecl ElaboratedType::OwnedTagDeclaration(void) const {
-  auto &self = *(u.ElaboratedType);
+::pasta::TagDecl ElaboratedType::OwnedTagDeclaration(void) const noexcept {
+  auto &self = *const_cast<clang::ElaboratedType *>(u.ElaboratedType);
   auto val = self.getOwnedTagDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::TagDecl>(ast, val);
@@ -3062,54 +3061,54 @@ PASTA_DEFINE_BASE_OPERATORS(TypeWithKeyword, ElaboratedType)
 }
 
 // 0: ElaboratedType::Qualifier
-bool ElaboratedType::IsSugared(void) const {
-  auto &self = *(u.ElaboratedType);
+bool ElaboratedType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::ElaboratedType *>(u.ElaboratedType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, ExtIntType)
-::pasta::Type ExtIntType::Desugar(void) const {
-  auto &self = *(u.ExtIntType);
+::pasta::Type ExtIntType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::ExtIntType *>(u.ExtIntType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-uint32_t ExtIntType::NumBits(void) const {
-  auto &self = *(u.ExtIntType);
+uint32_t ExtIntType::NumBits(void) const noexcept {
+  auto &self = *const_cast<clang::ExtIntType *>(u.ExtIntType);
   auto val = self.getNumBits();
   return val;
 }
 
-bool ExtIntType::IsSigned(void) const {
-  auto &self = *(u.ExtIntType);
+bool ExtIntType::IsSigned(void) const noexcept {
+  auto &self = *const_cast<clang::ExtIntType *>(u.ExtIntType);
   auto val = self.isSigned();
   return val;
 }
 
-bool ExtIntType::IsSugared(void) const {
-  auto &self = *(u.ExtIntType);
+bool ExtIntType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::ExtIntType *>(u.ExtIntType);
   auto val = self.isSugared();
   return val;
 }
 
-bool ExtIntType::IsUnsigned(void) const {
-  auto &self = *(u.ExtIntType);
+bool ExtIntType::IsUnsigned(void) const noexcept {
+  auto &self = *const_cast<clang::ExtIntType *>(u.ExtIntType);
   auto val = self.isUnsigned();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, ExtVectorType)
 PASTA_DEFINE_BASE_OPERATORS(VectorType, ExtVectorType)
-::pasta::Type ExtVectorType::Desugar(void) const {
-  auto &self = *(u.ExtVectorType);
+::pasta::Type ExtVectorType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::ExtVectorType *>(u.ExtVectorType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
 // 2: IsAccessorWithinNumElements
-bool ExtVectorType::IsSugared(void) const {
-  auto &self = *(u.ExtVectorType);
+bool ExtVectorType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::ExtVectorType *>(u.ExtVectorType);
   auto val = self.isSugared();
   return val;
 }
@@ -3117,90 +3116,90 @@ bool ExtVectorType::IsSugared(void) const {
 PASTA_DEFINE_BASE_OPERATORS(Type, FunctionType)
 PASTA_DEFINE_DERIVED_OPERATORS(FunctionType, FunctionNoProtoType)
 PASTA_DEFINE_DERIVED_OPERATORS(FunctionType, FunctionProtoType)
-enum CallingConv FunctionType::CallConv(void) const {
-  auto &self = *(u.FunctionType);
+enum CallingConv FunctionType::CallConv(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionType *>(u.FunctionType);
   auto val = self.getCallConv();
   return static_cast<::pasta::CallingConv>(static_cast<unsigned int>(val));
 }
 
-::pasta::Type FunctionType::CallResultType(void) const {
+::pasta::Type FunctionType::CallResultType(void) const noexcept {
   auto &self = *(u.FunctionType);
   auto val = self.getCallResultType(ast->ci->getASTContext());
   return TypeBuilder::Build(ast, val);
 }
 
-bool FunctionType::CmseNSCallAttribute(void) const {
-  auto &self = *(u.FunctionType);
+bool FunctionType::CmseNSCallAttribute(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionType *>(u.FunctionType);
   auto val = self.getCmseNSCallAttr();
   return val;
 }
 
 // 0: FunctionType::ExtInfo
-bool FunctionType::HasRegParm(void) const {
-  auto &self = *(u.FunctionType);
+bool FunctionType::HasRegParm(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionType *>(u.FunctionType);
   auto val = self.getHasRegParm();
   return val;
 }
 
-bool FunctionType::NoReturnAttribute(void) const {
-  auto &self = *(u.FunctionType);
+bool FunctionType::NoReturnAttribute(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionType *>(u.FunctionType);
   auto val = self.getNoReturnAttr();
   return val;
 }
 
-uint32_t FunctionType::RegParmType(void) const {
-  auto &self = *(u.FunctionType);
+uint32_t FunctionType::RegParmType(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionType *>(u.FunctionType);
   auto val = self.getRegParmType();
   return val;
 }
 
-::pasta::Type FunctionType::ReturnType(void) const {
-  auto &self = *(u.FunctionType);
+::pasta::Type FunctionType::ReturnType(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionType *>(u.FunctionType);
   auto val = self.getReturnType();
   return TypeBuilder::Build(ast, val);
 }
 
-bool FunctionType::IsConst(void) const {
-  auto &self = *(u.FunctionType);
+bool FunctionType::IsConst(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionType *>(u.FunctionType);
   auto val = self.isConst();
   return val;
 }
 
-bool FunctionType::IsRestrict(void) const {
-  auto &self = *(u.FunctionType);
+bool FunctionType::IsRestrict(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionType *>(u.FunctionType);
   auto val = self.isRestrict();
   return val;
 }
 
-bool FunctionType::IsVolatile(void) const {
-  auto &self = *(u.FunctionType);
+bool FunctionType::IsVolatile(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionType *>(u.FunctionType);
   auto val = self.isVolatile();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(ArrayType, IncompleteArrayType)
 PASTA_DEFINE_BASE_OPERATORS(Type, IncompleteArrayType)
-::pasta::Type IncompleteArrayType::Desugar(void) const {
-  auto &self = *(u.IncompleteArrayType);
+::pasta::Type IncompleteArrayType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::IncompleteArrayType *>(u.IncompleteArrayType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-bool IncompleteArrayType::IsSugared(void) const {
-  auto &self = *(u.IncompleteArrayType);
+bool IncompleteArrayType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::IncompleteArrayType *>(u.IncompleteArrayType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, InjectedClassNameType)
-::pasta::Type InjectedClassNameType::Desugar(void) const {
-  auto &self = *(u.InjectedClassNameType);
+::pasta::Type InjectedClassNameType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::InjectedClassNameType *>(u.InjectedClassNameType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::CXXRecordDecl InjectedClassNameType::Declaration(void) const {
-  auto &self = *(u.InjectedClassNameType);
+::pasta::CXXRecordDecl InjectedClassNameType::Declaration(void) const noexcept {
+  auto &self = *const_cast<clang::InjectedClassNameType *>(u.InjectedClassNameType);
   auto val = self.getDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
@@ -3209,14 +3208,14 @@ PASTA_DEFINE_BASE_OPERATORS(Type, InjectedClassNameType)
   __builtin_unreachable();
 }
 
-::pasta::Type InjectedClassNameType::InjectedSpecializationType(void) const {
-  auto &self = *(u.InjectedClassNameType);
+::pasta::Type InjectedClassNameType::InjectedSpecializationType(void) const noexcept {
+  auto &self = *const_cast<clang::InjectedClassNameType *>(u.InjectedClassNameType);
   auto val = self.getInjectedSpecializationType();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::TemplateSpecializationType InjectedClassNameType::InjectedTST(void) const {
-  auto &self = *(u.InjectedClassNameType);
+::pasta::TemplateSpecializationType InjectedClassNameType::InjectedTST(void) const noexcept {
+  auto &self = *const_cast<clang::InjectedClassNameType *>(u.InjectedClassNameType);
   auto val = self.getInjectedTST();
   if (val) {
     return TypeBuilder::Create<::pasta::TemplateSpecializationType>(ast, val);
@@ -3226,34 +3225,34 @@ PASTA_DEFINE_BASE_OPERATORS(Type, InjectedClassNameType)
 }
 
 // 0: InjectedClassNameType::TemplateName
-bool InjectedClassNameType::IsSugared(void) const {
-  auto &self = *(u.InjectedClassNameType);
+bool InjectedClassNameType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::InjectedClassNameType *>(u.InjectedClassNameType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, MacroQualifiedType)
-::pasta::Type MacroQualifiedType::Desugar(void) const {
-  auto &self = *(u.MacroQualifiedType);
+::pasta::Type MacroQualifiedType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::MacroQualifiedType *>(u.MacroQualifiedType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
 // 0: MacroQualifiedType::MacroIdentifier
-::pasta::Type MacroQualifiedType::ModifiedType(void) const {
-  auto &self = *(u.MacroQualifiedType);
+::pasta::Type MacroQualifiedType::ModifiedType(void) const noexcept {
+  auto &self = *const_cast<clang::MacroQualifiedType *>(u.MacroQualifiedType);
   auto val = self.getModifiedType();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type MacroQualifiedType::UnderlyingType(void) const {
-  auto &self = *(u.MacroQualifiedType);
+::pasta::Type MacroQualifiedType::UnderlyingType(void) const noexcept {
+  auto &self = *const_cast<clang::MacroQualifiedType *>(u.MacroQualifiedType);
   auto val = self.getUnderlyingType();
   return TypeBuilder::Build(ast, val);
 }
 
-bool MacroQualifiedType::IsSugared(void) const {
-  auto &self = *(u.MacroQualifiedType);
+bool MacroQualifiedType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::MacroQualifiedType *>(u.MacroQualifiedType);
   auto val = self.isSugared();
   return val;
 }
@@ -3261,33 +3260,33 @@ bool MacroQualifiedType::IsSugared(void) const {
 PASTA_DEFINE_BASE_OPERATORS(Type, MatrixType)
 PASTA_DEFINE_DERIVED_OPERATORS(MatrixType, ConstantMatrixType)
 PASTA_DEFINE_DERIVED_OPERATORS(MatrixType, DependentSizedMatrixType)
-::pasta::Type MatrixType::Desugar(void) const {
-  auto &self = *(u.MatrixType);
+::pasta::Type MatrixType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::MatrixType *>(u.MatrixType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type MatrixType::ElementType(void) const {
-  auto &self = *(u.MatrixType);
+::pasta::Type MatrixType::ElementType(void) const noexcept {
+  auto &self = *const_cast<clang::MatrixType *>(u.MatrixType);
   auto val = self.getElementType();
   return TypeBuilder::Build(ast, val);
 }
 
-bool MatrixType::IsSugared(void) const {
-  auto &self = *(u.MatrixType);
+bool MatrixType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::MatrixType *>(u.MatrixType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, MemberPointerType)
-::pasta::Type MemberPointerType::Desugar(void) const {
-  auto &self = *(u.MemberPointerType);
+::pasta::Type MemberPointerType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::MemberPointerType *>(u.MemberPointerType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type MemberPointerType::Class(void) const {
-  auto &self = *(u.MemberPointerType);
+::pasta::Type MemberPointerType::Class(void) const noexcept {
+  auto &self = *const_cast<clang::MemberPointerType *>(u.MemberPointerType);
   auto val = self.getClass();
   if (val) {
     return TypeBuilder::Create<::pasta::Type>(ast, val);
@@ -3296,8 +3295,8 @@ PASTA_DEFINE_BASE_OPERATORS(Type, MemberPointerType)
   __builtin_unreachable();
 }
 
-::pasta::CXXRecordDecl MemberPointerType::MostRecentCXXRecordDeclaration(void) const {
-  auto &self = *(u.MemberPointerType);
+::pasta::CXXRecordDecl MemberPointerType::MostRecentCXXRecordDeclaration(void) const noexcept {
+  auto &self = *const_cast<clang::MemberPointerType *>(u.MemberPointerType);
   auto val = self.getMostRecentCXXRecordDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
@@ -3306,39 +3305,39 @@ PASTA_DEFINE_BASE_OPERATORS(Type, MemberPointerType)
   __builtin_unreachable();
 }
 
-::pasta::Type MemberPointerType::PointeeType(void) const {
-  auto &self = *(u.MemberPointerType);
+::pasta::Type MemberPointerType::PointeeType(void) const noexcept {
+  auto &self = *const_cast<clang::MemberPointerType *>(u.MemberPointerType);
   auto val = self.getPointeeType();
   return TypeBuilder::Build(ast, val);
 }
 
-bool MemberPointerType::IsMemberDataPointer(void) const {
-  auto &self = *(u.MemberPointerType);
+bool MemberPointerType::IsMemberDataPointer(void) const noexcept {
+  auto &self = *const_cast<clang::MemberPointerType *>(u.MemberPointerType);
   auto val = self.isMemberDataPointer();
   return val;
 }
 
-bool MemberPointerType::IsMemberFunctionPointer(void) const {
-  auto &self = *(u.MemberPointerType);
+bool MemberPointerType::IsMemberFunctionPointer(void) const noexcept {
+  auto &self = *const_cast<clang::MemberPointerType *>(u.MemberPointerType);
   auto val = self.isMemberFunctionPointer();
   return val;
 }
 
-bool MemberPointerType::IsSugared(void) const {
-  auto &self = *(u.MemberPointerType);
+bool MemberPointerType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::MemberPointerType *>(u.MemberPointerType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, ObjCObjectPointerType)
-::pasta::Type ObjCObjectPointerType::Desugar(void) const {
-  auto &self = *(u.ObjCObjectPointerType);
+::pasta::Type ObjCObjectPointerType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::ObjCInterfaceDecl ObjCObjectPointerType::InterfaceDeclaration(void) const {
-  auto &self = *(u.ObjCObjectPointerType);
+::pasta::ObjCInterfaceDecl ObjCObjectPointerType::InterfaceDeclaration(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   auto val = self.getInterfaceDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCInterfaceDecl>(ast, val);
@@ -3347,8 +3346,8 @@ PASTA_DEFINE_BASE_OPERATORS(Type, ObjCObjectPointerType)
   __builtin_unreachable();
 }
 
-::pasta::ObjCInterfaceType ObjCObjectPointerType::InterfaceType(void) const {
-  auto &self = *(u.ObjCObjectPointerType);
+::pasta::ObjCInterfaceType ObjCObjectPointerType::InterfaceType(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   auto val = self.getInterfaceType();
   if (val) {
     return TypeBuilder::Create<::pasta::ObjCInterfaceType>(ast, val);
@@ -3357,14 +3356,14 @@ PASTA_DEFINE_BASE_OPERATORS(Type, ObjCObjectPointerType)
   __builtin_unreachable();
 }
 
-uint32_t ObjCObjectPointerType::NumProtocols(void) const {
-  auto &self = *(u.ObjCObjectPointerType);
+uint32_t ObjCObjectPointerType::NumProtocols(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   auto val = self.getNumProtocols();
   return val;
 }
 
-::pasta::ObjCObjectType ObjCObjectPointerType::ObjectType(void) const {
-  auto &self = *(u.ObjCObjectPointerType);
+::pasta::ObjCObjectType ObjCObjectPointerType::ObjectType(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   auto val = self.getObjectType();
   if (val) {
     return TypeBuilder::Create<::pasta::ObjCObjectType>(ast, val);
@@ -3373,21 +3372,21 @@ uint32_t ObjCObjectPointerType::NumProtocols(void) const {
   __builtin_unreachable();
 }
 
-::pasta::Type ObjCObjectPointerType::PointeeType(void) const {
-  auto &self = *(u.ObjCObjectPointerType);
+::pasta::Type ObjCObjectPointerType::PointeeType(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   auto val = self.getPointeeType();
   return TypeBuilder::Build(ast, val);
 }
 
 // 1: ObjCObjectPointerType::Protocol
-::pasta::Type ObjCObjectPointerType::SuperClassType(void) const {
-  auto &self = *(u.ObjCObjectPointerType);
+::pasta::Type ObjCObjectPointerType::SuperClassType(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   auto val = self.getSuperClassType();
   return TypeBuilder::Build(ast, val);
 }
 
-std::vector<::pasta::Type> ObjCObjectPointerType::TypeArguments(void) const {
-  auto &self = *(u.ObjCObjectPointerType);
+std::vector<::pasta::Type> ObjCObjectPointerType::TypeArguments(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   auto val = self.getTypeArgs();
   std::vector<::pasta::Type> ret;
   for (auto qual_type : val) {
@@ -3396,8 +3395,8 @@ std::vector<::pasta::Type> ObjCObjectPointerType::TypeArguments(void) const {
   return ret;
 }
 
-std::vector<::pasta::Type> ObjCObjectPointerType::TypeArgumentsAsWritten(void) const {
-  auto &self = *(u.ObjCObjectPointerType);
+std::vector<::pasta::Type> ObjCObjectPointerType::TypeArgumentsAsWritten(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   auto val = self.getTypeArgsAsWritten();
   std::vector<::pasta::Type> ret;
   for (auto qual_type : val) {
@@ -3406,68 +3405,68 @@ std::vector<::pasta::Type> ObjCObjectPointerType::TypeArgumentsAsWritten(void) c
   return ret;
 }
 
-bool ObjCObjectPointerType::IsKindOfType(void) const {
-  auto &self = *(u.ObjCObjectPointerType);
+bool ObjCObjectPointerType::IsKindOfType(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   auto val = self.isKindOfType();
   return val;
 }
 
-bool ObjCObjectPointerType::IsObjCClassType(void) const {
-  auto &self = *(u.ObjCObjectPointerType);
+bool ObjCObjectPointerType::IsObjCClassType(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   auto val = self.isObjCClassType();
   return val;
 }
 
-bool ObjCObjectPointerType::IsObjCIdOrClassType(void) const {
-  auto &self = *(u.ObjCObjectPointerType);
+bool ObjCObjectPointerType::IsObjCIdOrClassType(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   auto val = self.isObjCIdOrClassType();
   return val;
 }
 
-bool ObjCObjectPointerType::IsObjCIdType(void) const {
-  auto &self = *(u.ObjCObjectPointerType);
+bool ObjCObjectPointerType::IsObjCIdType(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   auto val = self.isObjCIdType();
   return val;
 }
 
-bool ObjCObjectPointerType::IsObjCQualifiedClassType(void) const {
-  auto &self = *(u.ObjCObjectPointerType);
+bool ObjCObjectPointerType::IsObjCQualifiedClassType(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   auto val = self.isObjCQualifiedClassType();
   return val;
 }
 
-bool ObjCObjectPointerType::IsObjCQualifiedIdType(void) const {
-  auto &self = *(u.ObjCObjectPointerType);
+bool ObjCObjectPointerType::IsObjCQualifiedIdType(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   auto val = self.isObjCQualifiedIdType();
   return val;
 }
 
-bool ObjCObjectPointerType::IsSpecialized(void) const {
-  auto &self = *(u.ObjCObjectPointerType);
+bool ObjCObjectPointerType::IsSpecialized(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   auto val = self.isSpecialized();
   return val;
 }
 
-bool ObjCObjectPointerType::IsSpecializedAsWritten(void) const {
-  auto &self = *(u.ObjCObjectPointerType);
+bool ObjCObjectPointerType::IsSpecializedAsWritten(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   auto val = self.isSpecializedAsWritten();
   return val;
 }
 
-bool ObjCObjectPointerType::IsSugared(void) const {
-  auto &self = *(u.ObjCObjectPointerType);
+bool ObjCObjectPointerType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   auto val = self.isSugared();
   return val;
 }
 
-bool ObjCObjectPointerType::IsUnspecialized(void) const {
-  auto &self = *(u.ObjCObjectPointerType);
+bool ObjCObjectPointerType::IsUnspecialized(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   auto val = self.isUnspecialized();
   return val;
 }
 
-bool ObjCObjectPointerType::IsUnspecializedAsWritten(void) const {
-  auto &self = *(u.ObjCObjectPointerType);
+bool ObjCObjectPointerType::IsUnspecializedAsWritten(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   auto val = self.isUnspecializedAsWritten();
   return val;
 }
@@ -3475,8 +3474,8 @@ bool ObjCObjectPointerType::IsUnspecializedAsWritten(void) const {
 // 0: ObjCObjectPointerType::
 // 0: ObjCObjectPointerType::
 // 0: ObjCObjectPointerType::
-std::vector<::pasta::ObjCProtocolDecl> ObjCObjectPointerType::Qualifieds(void) const {
-  auto &self = *(u.ObjCObjectPointerType);
+std::vector<::pasta::ObjCProtocolDecl> ObjCObjectPointerType::Qualifieds(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   auto val = self.quals();
   std::vector<::pasta::ObjCProtocolDecl> ret;
   for (auto decl_ptr : val) {
@@ -3485,7 +3484,7 @@ std::vector<::pasta::ObjCProtocolDecl> ObjCObjectPointerType::Qualifieds(void) c
   return ret;
 }
 
-::pasta::ObjCObjectPointerType ObjCObjectPointerType::StripObjCKindOfTypeAndQualifieds(void) const {
+::pasta::ObjCObjectPointerType ObjCObjectPointerType::StripObjCKindOfTypeAndQualifieds(void) const noexcept {
   auto &self = *(u.ObjCObjectPointerType);
   auto val = self.stripObjCKindOfTypeAndQuals(ast->ci->getASTContext());
   if (val) {
@@ -3495,7 +3494,7 @@ std::vector<::pasta::ObjCProtocolDecl> ObjCObjectPointerType::Qualifieds(void) c
   __builtin_unreachable();
 }
 
-std::vector<::pasta::ObjCProtocolDecl> ObjCObjectPointerType::Protocols(void) const {
+std::vector<::pasta::ObjCProtocolDecl> ObjCObjectPointerType::Protocols(void) const noexcept {
   auto convert_elem = [&] (clang::ObjCProtocolDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::ObjCProtocolDecl>(ast, val);
@@ -3513,20 +3512,20 @@ std::vector<::pasta::ObjCProtocolDecl> ObjCObjectPointerType::Protocols(void) co
 
 PASTA_DEFINE_BASE_OPERATORS(Type, ObjCObjectType)
 PASTA_DEFINE_DERIVED_OPERATORS(ObjCObjectType, ObjCInterfaceType)
-::pasta::Type ObjCObjectType::Desugar(void) const {
-  auto &self = *(u.ObjCObjectType);
+::pasta::Type ObjCObjectType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectType *>(u.ObjCObjectType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type ObjCObjectType::BaseType(void) const {
-  auto &self = *(u.ObjCObjectType);
+::pasta::Type ObjCObjectType::BaseType(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectType *>(u.ObjCObjectType);
   auto val = self.getBaseType();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::ObjCInterfaceDecl ObjCObjectType::Interface(void) const {
-  auto &self = *(u.ObjCObjectType);
+::pasta::ObjCInterfaceDecl ObjCObjectType::Interface(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectType *>(u.ObjCObjectType);
   auto val = self.getInterface();
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCInterfaceDecl>(ast, val);
@@ -3535,14 +3534,14 @@ PASTA_DEFINE_DERIVED_OPERATORS(ObjCObjectType, ObjCInterfaceType)
   __builtin_unreachable();
 }
 
-::pasta::Type ObjCObjectType::SuperClassType(void) const {
-  auto &self = *(u.ObjCObjectType);
+::pasta::Type ObjCObjectType::SuperClassType(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectType *>(u.ObjCObjectType);
   auto val = self.getSuperClassType();
   return TypeBuilder::Build(ast, val);
 }
 
-std::vector<::pasta::Type> ObjCObjectType::TypeArguments(void) const {
-  auto &self = *(u.ObjCObjectType);
+std::vector<::pasta::Type> ObjCObjectType::TypeArguments(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectType *>(u.ObjCObjectType);
   auto val = self.getTypeArgs();
   std::vector<::pasta::Type> ret;
   for (auto qual_type : val) {
@@ -3551,8 +3550,8 @@ std::vector<::pasta::Type> ObjCObjectType::TypeArguments(void) const {
   return ret;
 }
 
-std::vector<::pasta::Type> ObjCObjectType::TypeArgumentsAsWritten(void) const {
-  auto &self = *(u.ObjCObjectType);
+std::vector<::pasta::Type> ObjCObjectType::TypeArgumentsAsWritten(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectType *>(u.ObjCObjectType);
   auto val = self.getTypeArgsAsWritten();
   std::vector<::pasta::Type> ret;
   for (auto qual_type : val) {
@@ -3561,105 +3560,105 @@ std::vector<::pasta::Type> ObjCObjectType::TypeArgumentsAsWritten(void) const {
   return ret;
 }
 
-bool ObjCObjectType::IsKindOfType(void) const {
-  auto &self = *(u.ObjCObjectType);
+bool ObjCObjectType::IsKindOfType(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectType *>(u.ObjCObjectType);
   auto val = self.isKindOfType();
   return val;
 }
 
-bool ObjCObjectType::IsKindOfTypeAsWritten(void) const {
-  auto &self = *(u.ObjCObjectType);
+bool ObjCObjectType::IsKindOfTypeAsWritten(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectType *>(u.ObjCObjectType);
   auto val = self.isKindOfTypeAsWritten();
   return val;
 }
 
-bool ObjCObjectType::IsObjCClass(void) const {
-  auto &self = *(u.ObjCObjectType);
+bool ObjCObjectType::IsObjCClass(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectType *>(u.ObjCObjectType);
   auto val = self.isObjCClass();
   return val;
 }
 
-bool ObjCObjectType::IsObjCId(void) const {
-  auto &self = *(u.ObjCObjectType);
+bool ObjCObjectType::IsObjCId(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectType *>(u.ObjCObjectType);
   auto val = self.isObjCId();
   return val;
 }
 
-bool ObjCObjectType::IsObjCQualifiedClass(void) const {
-  auto &self = *(u.ObjCObjectType);
+bool ObjCObjectType::IsObjCQualifiedClass(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectType *>(u.ObjCObjectType);
   auto val = self.isObjCQualifiedClass();
   return val;
 }
 
-bool ObjCObjectType::IsObjCQualifiedId(void) const {
-  auto &self = *(u.ObjCObjectType);
+bool ObjCObjectType::IsObjCQualifiedId(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectType *>(u.ObjCObjectType);
   auto val = self.isObjCQualifiedId();
   return val;
 }
 
-bool ObjCObjectType::IsObjCUnqualifiedClass(void) const {
-  auto &self = *(u.ObjCObjectType);
+bool ObjCObjectType::IsObjCUnqualifiedClass(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectType *>(u.ObjCObjectType);
   auto val = self.isObjCUnqualifiedClass();
   return val;
 }
 
-bool ObjCObjectType::IsObjCUnqualifiedId(void) const {
-  auto &self = *(u.ObjCObjectType);
+bool ObjCObjectType::IsObjCUnqualifiedId(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectType *>(u.ObjCObjectType);
   auto val = self.isObjCUnqualifiedId();
   return val;
 }
 
-bool ObjCObjectType::IsObjCUnqualifiedIdOrClass(void) const {
-  auto &self = *(u.ObjCObjectType);
+bool ObjCObjectType::IsObjCUnqualifiedIdOrClass(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectType *>(u.ObjCObjectType);
   auto val = self.isObjCUnqualifiedIdOrClass();
   return val;
 }
 
-bool ObjCObjectType::IsSpecialized(void) const {
-  auto &self = *(u.ObjCObjectType);
+bool ObjCObjectType::IsSpecialized(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectType *>(u.ObjCObjectType);
   auto val = self.isSpecialized();
   return val;
 }
 
-bool ObjCObjectType::IsSpecializedAsWritten(void) const {
-  auto &self = *(u.ObjCObjectType);
+bool ObjCObjectType::IsSpecializedAsWritten(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectType *>(u.ObjCObjectType);
   auto val = self.isSpecializedAsWritten();
   return val;
 }
 
-bool ObjCObjectType::IsSugared(void) const {
-  auto &self = *(u.ObjCObjectType);
+bool ObjCObjectType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectType *>(u.ObjCObjectType);
   auto val = self.isSugared();
   return val;
 }
 
-bool ObjCObjectType::IsUnspecialized(void) const {
-  auto &self = *(u.ObjCObjectType);
+bool ObjCObjectType::IsUnspecialized(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectType *>(u.ObjCObjectType);
   auto val = self.isUnspecialized();
   return val;
 }
 
-bool ObjCObjectType::IsUnspecializedAsWritten(void) const {
-  auto &self = *(u.ObjCObjectType);
+bool ObjCObjectType::IsUnspecializedAsWritten(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCObjectType *>(u.ObjCObjectType);
   auto val = self.isUnspecializedAsWritten();
   return val;
 }
 
-::pasta::Type ObjCObjectType::StripObjCKindOfTypeAndQualifieds(void) const {
+::pasta::Type ObjCObjectType::StripObjCKindOfTypeAndQualifieds(void) const noexcept {
   auto &self = *(u.ObjCObjectType);
   auto val = self.stripObjCKindOfTypeAndQuals(ast->ci->getASTContext());
   return TypeBuilder::Build(ast, val);
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, ObjCTypeParamType)
-::pasta::Type ObjCTypeParamType::Desugar(void) const {
-  auto &self = *(u.ObjCTypeParamType);
+::pasta::Type ObjCTypeParamType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCTypeParamType *>(u.ObjCTypeParamType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::ObjCTypeParamDecl ObjCTypeParamType::Declaration(void) const {
-  auto &self = *(u.ObjCTypeParamType);
+::pasta::ObjCTypeParamDecl ObjCTypeParamType::Declaration(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCTypeParamType *>(u.ObjCTypeParamType);
   auto val = self.getDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCTypeParamDecl>(ast, val);
@@ -3668,21 +3667,21 @@ PASTA_DEFINE_BASE_OPERATORS(Type, ObjCTypeParamType)
   __builtin_unreachable();
 }
 
-bool ObjCTypeParamType::IsSugared(void) const {
-  auto &self = *(u.ObjCTypeParamType);
+bool ObjCTypeParamType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCTypeParamType *>(u.ObjCTypeParamType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, PackExpansionType)
-::pasta::Type PackExpansionType::Desugar(void) const {
-  auto &self = *(u.PackExpansionType);
+::pasta::Type PackExpansionType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::PackExpansionType *>(u.PackExpansionType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-std::optional<unsigned> PackExpansionType::NumExpansions(void) const {
-  auto &self = *(u.PackExpansionType);
+std::optional<unsigned> PackExpansionType::NumExpansions(void) const noexcept {
+  auto &self = *const_cast<clang::PackExpansionType *>(u.PackExpansionType);
   auto val = self.getNumExpansions();
   if (val.hasValue()) {
     return val.getValue();
@@ -3691,77 +3690,77 @@ std::optional<unsigned> PackExpansionType::NumExpansions(void) const {
   }
 }
 
-::pasta::Type PackExpansionType::Pattern(void) const {
-  auto &self = *(u.PackExpansionType);
+::pasta::Type PackExpansionType::Pattern(void) const noexcept {
+  auto &self = *const_cast<clang::PackExpansionType *>(u.PackExpansionType);
   auto val = self.getPattern();
   return TypeBuilder::Build(ast, val);
 }
 
-bool PackExpansionType::IsSugared(void) const {
-  auto &self = *(u.PackExpansionType);
+bool PackExpansionType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::PackExpansionType *>(u.PackExpansionType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, ParenType)
-::pasta::Type ParenType::Desugar(void) const {
-  auto &self = *(u.ParenType);
+::pasta::Type ParenType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::ParenType *>(u.ParenType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type ParenType::InnerType(void) const {
-  auto &self = *(u.ParenType);
+::pasta::Type ParenType::InnerType(void) const noexcept {
+  auto &self = *const_cast<clang::ParenType *>(u.ParenType);
   auto val = self.getInnerType();
   return TypeBuilder::Build(ast, val);
 }
 
-bool ParenType::IsSugared(void) const {
-  auto &self = *(u.ParenType);
+bool ParenType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::ParenType *>(u.ParenType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, PipeType)
-::pasta::Type PipeType::Desugar(void) const {
-  auto &self = *(u.PipeType);
+::pasta::Type PipeType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::PipeType *>(u.PipeType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type PipeType::ElementType(void) const {
-  auto &self = *(u.PipeType);
+::pasta::Type PipeType::ElementType(void) const noexcept {
+  auto &self = *const_cast<clang::PipeType *>(u.PipeType);
   auto val = self.getElementType();
   return TypeBuilder::Build(ast, val);
 }
 
-bool PipeType::IsReadOnly(void) const {
-  auto &self = *(u.PipeType);
+bool PipeType::IsReadOnly(void) const noexcept {
+  auto &self = *const_cast<clang::PipeType *>(u.PipeType);
   auto val = self.isReadOnly();
   return val;
 }
 
-bool PipeType::IsSugared(void) const {
-  auto &self = *(u.PipeType);
+bool PipeType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::PipeType *>(u.PipeType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, PointerType)
-::pasta::Type PointerType::Desugar(void) const {
-  auto &self = *(u.PointerType);
+::pasta::Type PointerType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::PointerType *>(u.PointerType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type PointerType::PointeeType(void) const {
-  auto &self = *(u.PointerType);
+::pasta::Type PointerType::PointeeType(void) const noexcept {
+  auto &self = *const_cast<clang::PointerType *>(u.PointerType);
   auto val = self.getPointeeType();
   return TypeBuilder::Build(ast, val);
 }
 
-bool PointerType::IsSugared(void) const {
-  auto &self = *(u.PointerType);
+bool PointerType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::PointerType *>(u.PointerType);
   auto val = self.isSugared();
   return val;
 }
@@ -3769,47 +3768,47 @@ bool PointerType::IsSugared(void) const {
 PASTA_DEFINE_BASE_OPERATORS(Type, ReferenceType)
 PASTA_DEFINE_DERIVED_OPERATORS(ReferenceType, LValueReferenceType)
 PASTA_DEFINE_DERIVED_OPERATORS(ReferenceType, RValueReferenceType)
-::pasta::Type ReferenceType::PointeeType(void) const {
-  auto &self = *(u.ReferenceType);
+::pasta::Type ReferenceType::PointeeType(void) const noexcept {
+  auto &self = *const_cast<clang::ReferenceType *>(u.ReferenceType);
   auto val = self.getPointeeType();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Type ReferenceType::PointeeTypeAsWritten(void) const {
-  auto &self = *(u.ReferenceType);
+::pasta::Type ReferenceType::PointeeTypeAsWritten(void) const noexcept {
+  auto &self = *const_cast<clang::ReferenceType *>(u.ReferenceType);
   auto val = self.getPointeeTypeAsWritten();
   return TypeBuilder::Build(ast, val);
 }
 
-bool ReferenceType::IsInnerReference(void) const {
-  auto &self = *(u.ReferenceType);
+bool ReferenceType::IsInnerReference(void) const noexcept {
+  auto &self = *const_cast<clang::ReferenceType *>(u.ReferenceType);
   auto val = self.isInnerRef();
   return val;
 }
 
-bool ReferenceType::IsSpelledAsLValue(void) const {
-  auto &self = *(u.ReferenceType);
+bool ReferenceType::IsSpelledAsLValue(void) const noexcept {
+  auto &self = *const_cast<clang::ReferenceType *>(u.ReferenceType);
   auto val = self.isSpelledAsLValue();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, SubstTemplateTypeParmPackType)
-::pasta::Type SubstTemplateTypeParmPackType::Desugar(void) const {
-  auto &self = *(u.SubstTemplateTypeParmPackType);
+::pasta::Type SubstTemplateTypeParmPackType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::SubstTemplateTypeParmPackType *>(u.SubstTemplateTypeParmPackType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
 // 0: SubstTemplateTypeParmPackType::ArgumentPack
 // 0: SubstTemplateTypeParmPackType::Identifier
-uint32_t SubstTemplateTypeParmPackType::NumArguments(void) const {
-  auto &self = *(u.SubstTemplateTypeParmPackType);
+uint32_t SubstTemplateTypeParmPackType::NumArguments(void) const noexcept {
+  auto &self = *const_cast<clang::SubstTemplateTypeParmPackType *>(u.SubstTemplateTypeParmPackType);
   auto val = self.getNumArgs();
   return val;
 }
 
-::pasta::TemplateTypeParmType SubstTemplateTypeParmPackType::ReplacedParameter(void) const {
-  auto &self = *(u.SubstTemplateTypeParmPackType);
+::pasta::TemplateTypeParmType SubstTemplateTypeParmPackType::ReplacedParameter(void) const noexcept {
+  auto &self = *const_cast<clang::SubstTemplateTypeParmPackType *>(u.SubstTemplateTypeParmPackType);
   auto val = self.getReplacedParameter();
   if (val) {
     return TypeBuilder::Create<::pasta::TemplateTypeParmType>(ast, val);
@@ -3818,21 +3817,21 @@ uint32_t SubstTemplateTypeParmPackType::NumArguments(void) const {
   __builtin_unreachable();
 }
 
-bool SubstTemplateTypeParmPackType::IsSugared(void) const {
-  auto &self = *(u.SubstTemplateTypeParmPackType);
+bool SubstTemplateTypeParmPackType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::SubstTemplateTypeParmPackType *>(u.SubstTemplateTypeParmPackType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, SubstTemplateTypeParmType)
-::pasta::Type SubstTemplateTypeParmType::Desugar(void) const {
-  auto &self = *(u.SubstTemplateTypeParmType);
+::pasta::Type SubstTemplateTypeParmType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::SubstTemplateTypeParmType *>(u.SubstTemplateTypeParmType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::TemplateTypeParmType SubstTemplateTypeParmType::ReplacedParameter(void) const {
-  auto &self = *(u.SubstTemplateTypeParmType);
+::pasta::TemplateTypeParmType SubstTemplateTypeParmType::ReplacedParameter(void) const noexcept {
+  auto &self = *const_cast<clang::SubstTemplateTypeParmType *>(u.SubstTemplateTypeParmType);
   auto val = self.getReplacedParameter();
   if (val) {
     return TypeBuilder::Create<::pasta::TemplateTypeParmType>(ast, val);
@@ -3841,14 +3840,14 @@ PASTA_DEFINE_BASE_OPERATORS(Type, SubstTemplateTypeParmType)
   __builtin_unreachable();
 }
 
-::pasta::Type SubstTemplateTypeParmType::ReplacementType(void) const {
-  auto &self = *(u.SubstTemplateTypeParmType);
+::pasta::Type SubstTemplateTypeParmType::ReplacementType(void) const noexcept {
+  auto &self = *const_cast<clang::SubstTemplateTypeParmType *>(u.SubstTemplateTypeParmType);
   auto val = self.getReplacementType();
   return TypeBuilder::Build(ast, val);
 }
 
-bool SubstTemplateTypeParmType::IsSugared(void) const {
-  auto &self = *(u.SubstTemplateTypeParmType);
+bool SubstTemplateTypeParmType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::SubstTemplateTypeParmType *>(u.SubstTemplateTypeParmType);
   auto val = self.isSugared();
   return val;
 }
@@ -3856,8 +3855,8 @@ bool SubstTemplateTypeParmType::IsSugared(void) const {
 PASTA_DEFINE_BASE_OPERATORS(Type, TagType)
 PASTA_DEFINE_DERIVED_OPERATORS(TagType, EnumType)
 PASTA_DEFINE_DERIVED_OPERATORS(TagType, RecordType)
-::pasta::TagDecl TagType::Declaration(void) const {
-  auto &self = *(u.TagType);
+::pasta::TagDecl TagType::Declaration(void) const noexcept {
+  auto &self = *const_cast<clang::TagType *>(u.TagType);
   auto val = self.getDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::TagDecl>(ast, val);
@@ -3866,64 +3865,64 @@ PASTA_DEFINE_DERIVED_OPERATORS(TagType, RecordType)
   __builtin_unreachable();
 }
 
-bool TagType::IsBeingDefined(void) const {
-  auto &self = *(u.TagType);
+bool TagType::IsBeingDefined(void) const noexcept {
+  auto &self = *const_cast<clang::TagType *>(u.TagType);
   auto val = self.isBeingDefined();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, TemplateSpecializationType)
 // 0: TemplateSpecializationType::
-::pasta::Type TemplateSpecializationType::Desugar(void) const {
-  auto &self = *(u.TemplateSpecializationType);
+::pasta::Type TemplateSpecializationType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::TemplateSpecializationType *>(u.TemplateSpecializationType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
 // 0: TemplateSpecializationType::
-::pasta::Type TemplateSpecializationType::AliasedType(void) const {
-  auto &self = *(u.TemplateSpecializationType);
+::pasta::Type TemplateSpecializationType::AliasedType(void) const noexcept {
+  auto &self = *const_cast<clang::TemplateSpecializationType *>(u.TemplateSpecializationType);
   auto val = self.getAliasedType();
   return TypeBuilder::Build(ast, val);
 }
 
 // 1: TemplateSpecializationType::Argument
 // 0: TemplateSpecializationType::Arguments
-uint32_t TemplateSpecializationType::NumArguments(void) const {
-  auto &self = *(u.TemplateSpecializationType);
+uint32_t TemplateSpecializationType::NumArguments(void) const noexcept {
+  auto &self = *const_cast<clang::TemplateSpecializationType *>(u.TemplateSpecializationType);
   auto val = self.getNumArgs();
   return val;
 }
 
 // 0: TemplateSpecializationType::TemplateName
-bool TemplateSpecializationType::IsCurrentInstantiation(void) const {
-  auto &self = *(u.TemplateSpecializationType);
+bool TemplateSpecializationType::IsCurrentInstantiation(void) const noexcept {
+  auto &self = *const_cast<clang::TemplateSpecializationType *>(u.TemplateSpecializationType);
   auto val = self.isCurrentInstantiation();
   return val;
 }
 
-bool TemplateSpecializationType::IsSugared(void) const {
-  auto &self = *(u.TemplateSpecializationType);
+bool TemplateSpecializationType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::TemplateSpecializationType *>(u.TemplateSpecializationType);
   auto val = self.isSugared();
   return val;
 }
 
-bool TemplateSpecializationType::IsTypeAlias(void) const {
-  auto &self = *(u.TemplateSpecializationType);
+bool TemplateSpecializationType::IsTypeAlias(void) const noexcept {
+  auto &self = *const_cast<clang::TemplateSpecializationType *>(u.TemplateSpecializationType);
   auto val = self.isTypeAlias();
   return val;
 }
 
 // 0: TemplateSpecializationType::TemplateArguments
 PASTA_DEFINE_BASE_OPERATORS(Type, TemplateTypeParmType)
-::pasta::Type TemplateTypeParmType::Desugar(void) const {
-  auto &self = *(u.TemplateTypeParmType);
+::pasta::Type TemplateTypeParmType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::TemplateTypeParmType *>(u.TemplateTypeParmType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::TemplateTypeParmDecl TemplateTypeParmType::Declaration(void) const {
-  auto &self = *(u.TemplateTypeParmType);
+::pasta::TemplateTypeParmDecl TemplateTypeParmType::Declaration(void) const noexcept {
+  auto &self = *const_cast<clang::TemplateTypeParmType *>(u.TemplateTypeParmType);
   auto val = self.getDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::TemplateTypeParmDecl>(ast, val);
@@ -3932,59 +3931,59 @@ PASTA_DEFINE_BASE_OPERATORS(Type, TemplateTypeParmType)
   __builtin_unreachable();
 }
 
-uint32_t TemplateTypeParmType::Depth(void) const {
-  auto &self = *(u.TemplateTypeParmType);
+uint32_t TemplateTypeParmType::Depth(void) const noexcept {
+  auto &self = *const_cast<clang::TemplateTypeParmType *>(u.TemplateTypeParmType);
   auto val = self.getDepth();
   return val;
 }
 
 // 0: TemplateTypeParmType::Identifier
-uint32_t TemplateTypeParmType::Index(void) const {
-  auto &self = *(u.TemplateTypeParmType);
+uint32_t TemplateTypeParmType::Index(void) const noexcept {
+  auto &self = *const_cast<clang::TemplateTypeParmType *>(u.TemplateTypeParmType);
   auto val = self.getIndex();
   return val;
 }
 
-bool TemplateTypeParmType::IsParameterPack(void) const {
-  auto &self = *(u.TemplateTypeParmType);
+bool TemplateTypeParmType::IsParameterPack(void) const noexcept {
+  auto &self = *const_cast<clang::TemplateTypeParmType *>(u.TemplateTypeParmType);
   auto val = self.isParameterPack();
   return val;
 }
 
-bool TemplateTypeParmType::IsSugared(void) const {
-  auto &self = *(u.TemplateTypeParmType);
+bool TemplateTypeParmType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::TemplateTypeParmType *>(u.TemplateTypeParmType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(ArrayType, VariableArrayType)
 PASTA_DEFINE_BASE_OPERATORS(Type, VariableArrayType)
-::pasta::Type VariableArrayType::Desugar(void) const {
-  auto &self = *(u.VariableArrayType);
+::pasta::Type VariableArrayType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::VariableArrayType *>(u.VariableArrayType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::TokenRange VariableArrayType::BracketsRange(void) const {
-  auto &self = *(u.VariableArrayType);
+::pasta::TokenRange VariableArrayType::BracketsRange(void) const noexcept {
+  auto &self = *const_cast<clang::VariableArrayType *>(u.VariableArrayType);
   auto val = self.getBracketsRange();
   return ast->TokenRangeFrom(val);
 }
 
-::pasta::Token VariableArrayType::LBracketToken(void) const {
-  auto &self = *(u.VariableArrayType);
+::pasta::Token VariableArrayType::LBracketToken(void) const noexcept {
+  auto &self = *const_cast<clang::VariableArrayType *>(u.VariableArrayType);
   auto val = self.getLBracketLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Token VariableArrayType::RBracketToken(void) const {
-  auto &self = *(u.VariableArrayType);
+::pasta::Token VariableArrayType::RBracketToken(void) const noexcept {
+  auto &self = *const_cast<clang::VariableArrayType *>(u.VariableArrayType);
   auto val = self.getRBracketLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Expr VariableArrayType::SizeExpression(void) const {
-  auto &self = *(u.VariableArrayType);
+::pasta::Expr VariableArrayType::SizeExpression(void) const noexcept {
+  auto &self = *const_cast<clang::VariableArrayType *>(u.VariableArrayType);
   auto val = self.getSizeExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
@@ -3993,8 +3992,8 @@ PASTA_DEFINE_BASE_OPERATORS(Type, VariableArrayType)
   __builtin_unreachable();
 }
 
-bool VariableArrayType::IsSugared(void) const {
-  auto &self = *(u.VariableArrayType);
+bool VariableArrayType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::VariableArrayType *>(u.VariableArrayType);
   auto val = self.isSugared();
   return val;
 }
@@ -4003,21 +4002,21 @@ PASTA_DEFINE_BASE_OPERATORS(DeducedType, AutoType)
 PASTA_DEFINE_BASE_OPERATORS(Type, AutoType)
 // 1: AutoType::Argument
 // 0: AutoType::Arguments
-enum AutoTypeKeyword AutoType::Keyword(void) const {
-  auto &self = *(u.AutoType);
+enum AutoTypeKeyword AutoType::Keyword(void) const noexcept {
+  auto &self = *const_cast<clang::AutoType *>(u.AutoType);
   auto val = self.getKeyword();
   return static_cast<::pasta::AutoTypeKeyword>(static_cast<int>(val));
 }
 
-uint32_t AutoType::NumArguments(void) const {
-  auto &self = *(u.AutoType);
+uint32_t AutoType::NumArguments(void) const noexcept {
+  auto &self = *const_cast<clang::AutoType *>(u.AutoType);
   auto val = self.getNumArgs();
   return val;
 }
 
 // 0: AutoType::TypeConstraintArguments
-::pasta::ConceptDecl AutoType::TypeConstraintConcept(void) const {
-  auto &self = *(u.AutoType);
+::pasta::ConceptDecl AutoType::TypeConstraintConcept(void) const noexcept {
+  auto &self = *const_cast<clang::AutoType *>(u.AutoType);
   auto val = self.getTypeConstraintConcept();
   if (val) {
     return DeclBuilder::Create<::pasta::ConceptDecl>(ast, val);
@@ -4026,34 +4025,34 @@ uint32_t AutoType::NumArguments(void) const {
   __builtin_unreachable();
 }
 
-bool AutoType::IsConstrained(void) const {
-  auto &self = *(u.AutoType);
+bool AutoType::IsConstrained(void) const noexcept {
+  auto &self = *const_cast<clang::AutoType *>(u.AutoType);
   auto val = self.isConstrained();
   return val;
 }
 
-bool AutoType::IsDecltypeAuto(void) const {
-  auto &self = *(u.AutoType);
+bool AutoType::IsDecltypeAuto(void) const noexcept {
+  auto &self = *const_cast<clang::AutoType *>(u.AutoType);
   auto val = self.isDecltypeAuto();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(MatrixType, ConstantMatrixType)
 PASTA_DEFINE_BASE_OPERATORS(Type, ConstantMatrixType)
-uint32_t ConstantMatrixType::NumColumns(void) const {
-  auto &self = *(u.ConstantMatrixType);
+uint32_t ConstantMatrixType::NumColumns(void) const noexcept {
+  auto &self = *const_cast<clang::ConstantMatrixType *>(u.ConstantMatrixType);
   auto val = self.getNumColumns();
   return val;
 }
 
-uint32_t ConstantMatrixType::NumElementsFlattened(void) const {
-  auto &self = *(u.ConstantMatrixType);
+uint32_t ConstantMatrixType::NumElementsFlattened(void) const noexcept {
+  auto &self = *const_cast<clang::ConstantMatrixType *>(u.ConstantMatrixType);
   auto val = self.getNumElementsFlattened();
   return val;
 }
 
-uint32_t ConstantMatrixType::NumRows(void) const {
-  auto &self = *(u.ConstantMatrixType);
+uint32_t ConstantMatrixType::NumRows(void) const noexcept {
+  auto &self = *const_cast<clang::ConstantMatrixType *>(u.ConstantMatrixType);
   auto val = self.getNumRows();
   return val;
 }
@@ -4063,20 +4062,20 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DeducedTemplateSpecializationType)
 // 0: DeducedTemplateSpecializationType::TemplateName
 PASTA_DEFINE_BASE_OPERATORS(MatrixType, DependentSizedMatrixType)
 PASTA_DEFINE_BASE_OPERATORS(Type, DependentSizedMatrixType)
-::pasta::Type DependentSizedMatrixType::Desugar(void) const {
-  auto &self = *(u.DependentSizedMatrixType);
+::pasta::Type DependentSizedMatrixType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::DependentSizedMatrixType *>(u.DependentSizedMatrixType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Token DependentSizedMatrixType::AttributeToken(void) const {
-  auto &self = *(u.DependentSizedMatrixType);
+::pasta::Token DependentSizedMatrixType::AttributeToken(void) const noexcept {
+  auto &self = *const_cast<clang::DependentSizedMatrixType *>(u.DependentSizedMatrixType);
   auto val = self.getAttributeLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::Expr DependentSizedMatrixType::ColumnExpression(void) const {
-  auto &self = *(u.DependentSizedMatrixType);
+::pasta::Expr DependentSizedMatrixType::ColumnExpression(void) const noexcept {
+  auto &self = *const_cast<clang::DependentSizedMatrixType *>(u.DependentSizedMatrixType);
   auto val = self.getColumnExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
@@ -4085,14 +4084,14 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentSizedMatrixType)
   __builtin_unreachable();
 }
 
-::pasta::Type DependentSizedMatrixType::ElementType(void) const {
-  auto &self = *(u.DependentSizedMatrixType);
+::pasta::Type DependentSizedMatrixType::ElementType(void) const noexcept {
+  auto &self = *const_cast<clang::DependentSizedMatrixType *>(u.DependentSizedMatrixType);
   auto val = self.getElementType();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Expr DependentSizedMatrixType::RowExpression(void) const {
-  auto &self = *(u.DependentSizedMatrixType);
+::pasta::Expr DependentSizedMatrixType::RowExpression(void) const noexcept {
+  auto &self = *const_cast<clang::DependentSizedMatrixType *>(u.DependentSizedMatrixType);
   auto val = self.getRowExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
@@ -4101,22 +4100,22 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentSizedMatrixType)
   __builtin_unreachable();
 }
 
-bool DependentSizedMatrixType::IsSugared(void) const {
-  auto &self = *(u.DependentSizedMatrixType);
+bool DependentSizedMatrixType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::DependentSizedMatrixType *>(u.DependentSizedMatrixType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(TagType, EnumType)
 PASTA_DEFINE_BASE_OPERATORS(Type, EnumType)
-::pasta::Type EnumType::Desugar(void) const {
-  auto &self = *(u.EnumType);
+::pasta::Type EnumType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::EnumType *>(u.EnumType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::EnumDecl EnumType::Declaration(void) const {
-  auto &self = *(u.EnumType);
+::pasta::EnumDecl EnumType::Declaration(void) const noexcept {
+  auto &self = *const_cast<clang::EnumType *>(u.EnumType);
   auto val = self.getDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::EnumDecl>(ast, val);
@@ -4125,44 +4124,44 @@ PASTA_DEFINE_BASE_OPERATORS(Type, EnumType)
   __builtin_unreachable();
 }
 
-bool EnumType::IsSugared(void) const {
-  auto &self = *(u.EnumType);
+bool EnumType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::EnumType *>(u.EnumType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(FunctionType, FunctionNoProtoType)
 PASTA_DEFINE_BASE_OPERATORS(Type, FunctionNoProtoType)
-::pasta::Type FunctionNoProtoType::Desugar(void) const {
-  auto &self = *(u.FunctionNoProtoType);
+::pasta::Type FunctionNoProtoType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionNoProtoType *>(u.FunctionNoProtoType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-bool FunctionNoProtoType::IsSugared(void) const {
-  auto &self = *(u.FunctionNoProtoType);
+bool FunctionNoProtoType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionNoProtoType *>(u.FunctionNoProtoType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(FunctionType, FunctionProtoType)
 PASTA_DEFINE_BASE_OPERATORS(Type, FunctionProtoType)
-enum CanThrowResult FunctionProtoType::CanThrow(void) const {
-  auto &self = *(u.FunctionProtoType);
+enum CanThrowResult FunctionProtoType::CanThrow(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.canThrow();
   return static_cast<::pasta::CanThrowResult>(static_cast<unsigned int>(val));
 }
 
-::pasta::Type FunctionProtoType::Desugar(void) const {
-  auto &self = *(u.FunctionProtoType);
+::pasta::Type FunctionProtoType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
 // 0: FunctionProtoType::
 // 0: FunctionProtoType::
-std::vector<::pasta::Type> FunctionProtoType::Exceptions(void) const {
-  auto &self = *(u.FunctionProtoType);
+std::vector<::pasta::Type> FunctionProtoType::Exceptions(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.exceptions();
   std::vector<::pasta::Type> ret;
   for (auto qual_type : val) {
@@ -4171,14 +4170,14 @@ std::vector<::pasta::Type> FunctionProtoType::Exceptions(void) const {
   return ret;
 }
 
-::pasta::Token FunctionProtoType::EllipsisToken(void) const {
-  auto &self = *(u.FunctionProtoType);
+::pasta::Token FunctionProtoType::EllipsisToken(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.getEllipsisLoc();
   return ast->TokenAt(val);
 }
 
-::pasta::FunctionDecl FunctionProtoType::ExceptionSpecDeclaration(void) const {
-  auto &self = *(u.FunctionProtoType);
+::pasta::FunctionDecl FunctionProtoType::ExceptionSpecDeclaration(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.getExceptionSpecDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
@@ -4188,8 +4187,8 @@ std::vector<::pasta::Type> FunctionProtoType::Exceptions(void) const {
 }
 
 // 0: FunctionProtoType::ExceptionSpecInfo
-::pasta::FunctionDecl FunctionProtoType::ExceptionSpecTemplate(void) const {
-  auto &self = *(u.FunctionProtoType);
+::pasta::FunctionDecl FunctionProtoType::ExceptionSpecTemplate(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.getExceptionSpecTemplate();
   if (val) {
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
@@ -4198,8 +4197,8 @@ std::vector<::pasta::Type> FunctionProtoType::Exceptions(void) const {
   __builtin_unreachable();
 }
 
-enum ExceptionSpecificationType FunctionProtoType::ExceptionSpecType(void) const {
-  auto &self = *(u.FunctionProtoType);
+enum ExceptionSpecificationType FunctionProtoType::ExceptionSpecType(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.getExceptionSpecType();
   return static_cast<::pasta::ExceptionSpecificationType>(static_cast<unsigned int>(val));
 }
@@ -4210,8 +4209,8 @@ enum ExceptionSpecificationType FunctionProtoType::ExceptionSpecType(void) const
 // 0: FunctionProtoType::ExtParameterInfosOrNull
 // 0: FunctionProtoType::ExtProtoInfo
 // 0: FunctionProtoType::MethodQualifieds
-::pasta::Expr FunctionProtoType::NoexceptExpression(void) const {
-  auto &self = *(u.FunctionProtoType);
+::pasta::Expr FunctionProtoType::NoexceptExpression(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.getNoexceptExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
@@ -4220,21 +4219,21 @@ enum ExceptionSpecificationType FunctionProtoType::ExceptionSpecType(void) const
   __builtin_unreachable();
 }
 
-uint32_t FunctionProtoType::NumExceptions(void) const {
-  auto &self = *(u.FunctionProtoType);
+uint32_t FunctionProtoType::NumExceptions(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.getNumExceptions();
   return val;
 }
 
-uint32_t FunctionProtoType::NumParams(void) const {
-  auto &self = *(u.FunctionProtoType);
+uint32_t FunctionProtoType::NumParams(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.getNumParams();
   return val;
 }
 
 // 1: FunctionProtoType::ParamType
-std::vector<::pasta::Type> FunctionProtoType::ParamTypes(void) const {
-  auto &self = *(u.FunctionProtoType);
+std::vector<::pasta::Type> FunctionProtoType::ParamTypes(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.getParamTypes();
   std::vector<::pasta::Type> ret;
   for (auto qual_type : val) {
@@ -4244,75 +4243,75 @@ std::vector<::pasta::Type> FunctionProtoType::ParamTypes(void) const {
 }
 
 // 1: FunctionProtoType::ParameterABI
-enum RefQualifierKind FunctionProtoType::ReferenceQualifier(void) const {
-  auto &self = *(u.FunctionProtoType);
+enum RefQualifierKind FunctionProtoType::ReferenceQualifier(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.getRefQualifier();
   return static_cast<::pasta::RefQualifierKind>(static_cast<unsigned int>(val));
 }
 
-bool FunctionProtoType::HasDependentExceptionSpec(void) const {
-  auto &self = *(u.FunctionProtoType);
+bool FunctionProtoType::HasDependentExceptionSpec(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.hasDependentExceptionSpec();
   return val;
 }
 
-bool FunctionProtoType::HasDynamicExceptionSpec(void) const {
-  auto &self = *(u.FunctionProtoType);
+bool FunctionProtoType::HasDynamicExceptionSpec(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.hasDynamicExceptionSpec();
   return val;
 }
 
-bool FunctionProtoType::HasExceptionSpec(void) const {
-  auto &self = *(u.FunctionProtoType);
+bool FunctionProtoType::HasExceptionSpec(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.hasExceptionSpec();
   return val;
 }
 
-bool FunctionProtoType::HasExtParameterInfos(void) const {
-  auto &self = *(u.FunctionProtoType);
+bool FunctionProtoType::HasExtParameterInfos(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.hasExtParameterInfos();
   return val;
 }
 
-bool FunctionProtoType::HasInstantiationDependentExceptionSpec(void) const {
-  auto &self = *(u.FunctionProtoType);
+bool FunctionProtoType::HasInstantiationDependentExceptionSpec(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.hasInstantiationDependentExceptionSpec();
   return val;
 }
 
-bool FunctionProtoType::HasNoexceptExceptionSpec(void) const {
-  auto &self = *(u.FunctionProtoType);
+bool FunctionProtoType::HasNoexceptExceptionSpec(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.hasNoexceptExceptionSpec();
   return val;
 }
 
-bool FunctionProtoType::HasTrailingReturn(void) const {
-  auto &self = *(u.FunctionProtoType);
+bool FunctionProtoType::HasTrailingReturn(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.hasTrailingReturn();
   return val;
 }
 
-bool FunctionProtoType::IsNothrow(void) const {
-  auto &self = *(u.FunctionProtoType);
+bool FunctionProtoType::IsNothrow(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.isNothrow();
   return val;
 }
 
 // 1: FunctionProtoType::IsParamConsumed
-bool FunctionProtoType::IsSugared(void) const {
-  auto &self = *(u.FunctionProtoType);
+bool FunctionProtoType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.isSugared();
   return val;
 }
 
-bool FunctionProtoType::IsTemplateVariadic(void) const {
-  auto &self = *(u.FunctionProtoType);
+bool FunctionProtoType::IsTemplateVariadic(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.isTemplateVariadic();
   return val;
 }
 
-bool FunctionProtoType::IsVariadic(void) const {
-  auto &self = *(u.FunctionProtoType);
+bool FunctionProtoType::IsVariadic(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.isVariadic();
   return val;
 }
@@ -4320,7 +4319,7 @@ bool FunctionProtoType::IsVariadic(void) const {
 // 0: FunctionProtoType::
 // 0: FunctionProtoType::
 // 0: FunctionProtoType::ParamTypes
-std::vector<::pasta::Type> FunctionProtoType::ExceptionTypes(void) const {
+std::vector<::pasta::Type> FunctionProtoType::ExceptionTypes(void) const noexcept {
   auto convert_elem = [&] (clang::QualType val) {
     return TypeBuilder::Build(ast, val);
   };
@@ -4335,28 +4334,28 @@ std::vector<::pasta::Type> FunctionProtoType::ExceptionTypes(void) const {
 
 PASTA_DEFINE_BASE_OPERATORS(ReferenceType, LValueReferenceType)
 PASTA_DEFINE_BASE_OPERATORS(Type, LValueReferenceType)
-::pasta::Type LValueReferenceType::Desugar(void) const {
-  auto &self = *(u.LValueReferenceType);
+::pasta::Type LValueReferenceType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::LValueReferenceType *>(u.LValueReferenceType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-bool LValueReferenceType::IsSugared(void) const {
-  auto &self = *(u.LValueReferenceType);
+bool LValueReferenceType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::LValueReferenceType *>(u.LValueReferenceType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(ObjCObjectType, ObjCInterfaceType)
 PASTA_DEFINE_BASE_OPERATORS(Type, ObjCInterfaceType)
-::pasta::Type ObjCInterfaceType::Desugar(void) const {
-  auto &self = *(u.ObjCInterfaceType);
+::pasta::Type ObjCInterfaceType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCInterfaceType *>(u.ObjCInterfaceType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::ObjCInterfaceDecl ObjCInterfaceType::Declaration(void) const {
-  auto &self = *(u.ObjCInterfaceType);
+::pasta::ObjCInterfaceDecl ObjCInterfaceType::Declaration(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCInterfaceType *>(u.ObjCInterfaceType);
   auto val = self.getDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCInterfaceDecl>(ast, val);
@@ -4365,36 +4364,36 @@ PASTA_DEFINE_BASE_OPERATORS(Type, ObjCInterfaceType)
   __builtin_unreachable();
 }
 
-bool ObjCInterfaceType::IsSugared(void) const {
-  auto &self = *(u.ObjCInterfaceType);
+bool ObjCInterfaceType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCInterfaceType *>(u.ObjCInterfaceType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(ReferenceType, RValueReferenceType)
 PASTA_DEFINE_BASE_OPERATORS(Type, RValueReferenceType)
-::pasta::Type RValueReferenceType::Desugar(void) const {
-  auto &self = *(u.RValueReferenceType);
+::pasta::Type RValueReferenceType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::RValueReferenceType *>(u.RValueReferenceType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-bool RValueReferenceType::IsSugared(void) const {
-  auto &self = *(u.RValueReferenceType);
+bool RValueReferenceType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::RValueReferenceType *>(u.RValueReferenceType);
   auto val = self.isSugared();
   return val;
 }
 
 PASTA_DEFINE_BASE_OPERATORS(TagType, RecordType)
 PASTA_DEFINE_BASE_OPERATORS(Type, RecordType)
-::pasta::Type RecordType::Desugar(void) const {
-  auto &self = *(u.RecordType);
+::pasta::Type RecordType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::RecordType *>(u.RecordType);
   auto val = self.desugar();
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::RecordDecl RecordType::Declaration(void) const {
-  auto &self = *(u.RecordType);
+::pasta::RecordDecl RecordType::Declaration(void) const noexcept {
+  auto &self = *const_cast<clang::RecordType *>(u.RecordType);
   auto val = self.getDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::RecordDecl>(ast, val);
@@ -4403,14 +4402,14 @@ PASTA_DEFINE_BASE_OPERATORS(Type, RecordType)
   __builtin_unreachable();
 }
 
-bool RecordType::HasConstFields(void) const {
-  auto &self = *(u.RecordType);
+bool RecordType::HasConstFields(void) const noexcept {
+  auto &self = *const_cast<clang::RecordType *>(u.RecordType);
   auto val = self.hasConstFields();
   return val;
 }
 
-bool RecordType::IsSugared(void) const {
-  auto &self = *(u.RecordType);
+bool RecordType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::RecordType *>(u.RecordType);
   auto val = self.isSugared();
   return val;
 }

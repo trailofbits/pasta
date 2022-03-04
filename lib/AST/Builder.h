@@ -42,6 +42,13 @@ class TypeBuilder {
              static_cast<TypeKind>(type_->getTypeClass()), 0);
   }
 
+  template <typename T, typename D>
+  inline static T Create(std::shared_ptr<ASTImpl> ast_, const D *type_,
+                         uint32_t qualifiers_) {
+    return T(std::move(ast_), type_,
+             static_cast<TypeKind>(type_->getTypeClass()), qualifiers_);
+  }
+
 #ifndef PASTA_IN_BOOTSTRAP
   template <typename T>
   inline static T Create(std::shared_ptr<ASTImpl> ast_, clang::QualType type) {

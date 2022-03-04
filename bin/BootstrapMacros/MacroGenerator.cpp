@@ -195,6 +195,8 @@ MacroGenerator::~MacroGenerator(void) {
 
     for (const auto enclosed_decl : decl->decls()) {
       if (clang::CXXMethodDecl *method = clang::dyn_cast<clang::CXXMethodDecl>(enclosed_decl)) {
+        auto method_name_str = method->getNameAsString();
+        llvm::StringRef method_name(method_name_str);
 
         // Skip over operator overloads, as we don't have any reasonable way to
         // bind them to Python. Also skip over non-public methods, which we
@@ -203,6 +205,7 @@ MacroGenerator::~MacroGenerator(void) {
             clang::dyn_cast<clang::CXXConstructorDecl>(method) ||
             clang::dyn_cast<clang::CXXDestructorDecl>(method) ||
             clang::dyn_cast<clang::CXXConversionDecl>(method) ||
+            method_name == "hasODRHash" ||
             method->getAccess() != clang::AS_public) {
           continue;
         }
@@ -215,11 +218,13 @@ MacroGenerator::~MacroGenerator(void) {
         }
 
         // Ignore "setters", as well as factory functions.
-        auto method_name = method->getName();
         if (!method_name.startswith("set") &&
             !method_name.startswith("remove") &&
             method_name != "Create" &&
             method->isConst()) {
+          decl_methods[method_name.str()].push_back(method);
+
+        } else if (decl_name == "EnumDecl" && method_name == "getODRHash") {
           decl_methods[method_name.str()].push_back(method);
         }
 
@@ -237,7 +242,6 @@ MacroGenerator::~MacroGenerator(void) {
         if (!enum_name.empty()) {
           decl_named_enums.emplace(std::move(enum_name),
                                    enum_->getCanonicalDecl());
-
         } else {
           decl_unnamed_enums.insert(enum_->getCanonicalDecl());
         }
@@ -250,7 +254,7 @@ MacroGenerator::~MacroGenerator(void) {
     auto method_id = 0u;
     for (const auto &[method_name, methods] : decl_methods) {
 
-      // The simplest cast of declaring a method is that it is not overridden.
+      // The simplest case of declaring a method is that it is not overridden.
       if (methods.size() != 1u) {
         os << "    // Skipped overloaded " << method_name << '\n';
       } else {
@@ -264,6 +268,8 @@ MacroGenerator::~MacroGenerator(void) {
 
         if (!method->isInstance()) {
           os << "    PASTA_CLASS_METHOD_" << num_args << '(';
+        } else if (method->isVirtual() && method->size_overridden_methods()) {
+          os << "    PASTA_OVERRIDE_METHOD_" << num_args << '(';
         } else {
           os << "    PASTA_INSTANCE_METHOD_" << num_args << '(';
         }

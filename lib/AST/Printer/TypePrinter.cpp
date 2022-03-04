@@ -1940,14 +1940,16 @@ void TypePrinter::printAuto(const clang::AutoType *T, raw_string_ostream &OS,
 //  } else {
 
   if (T->isConstrained()) {
+    TagDefinitionPolicyRAII tag_raii(Policy);
     // FIXME: Track a TypeConstraint as type sugar, so that we can print the
     // type as it was written.
     T->getTypeConstraintConcept()->getDeclName().print(OS, Policy);
     auto Args = T->getTypeConstraintArguments();
-    if (!Args.empty())
+    if (!Args.empty()) {
       printTemplateArgumentList(
           OS, Args, Policy,
           T->getTypeConstraintConcept()->getTemplateParameters());
+    }
     OS << ' ';
   }
 
@@ -2176,9 +2178,12 @@ void TypePrinter::AppendScope(clang::DeclContext *DC, raw_string_ostream &OS,
     IncludeStrongLifetimeRAII Strong(Policy);
     OS << Spec->getIdentifier()->getName();
     const clang::TemplateArgumentList &TemplateArgs = Spec->getTemplateArgs();
-    printTemplateArgumentList(
-        OS, TemplateArgs.asArray(), Policy,
-        Spec->getSpecializedTemplate()->getTemplateParameters());
+    {
+      TagDefinitionPolicyRAII tag_raii(Policy);
+      printTemplateArgumentList(
+          OS, TemplateArgs.asArray(), Policy,
+          Spec->getSpecializedTemplate()->getTemplateParameters());
+    }
     OS << "::";
   } else if (const auto *Tag = clang::dyn_cast<clang::TagDecl>(DC)) {
     AppendScope(DC->getParent(), OS, Tag->getDeclName());
@@ -2456,6 +2461,7 @@ void TypePrinter::printTemplateId(const clang::TemplateSpecializationType *T,
                                   raw_string_ostream &OS, bool FullyQualify) {
   TokenPrinterContext ctx(OS, T, tokens);
   IncludeStrongLifetimeRAII Strong(Policy);
+  TagDefinitionPolicyRAII tag_raii(Policy);
 
   clang::TemplateDecl *TD = T->getTemplateName().getAsTemplateDecl();
   if (FullyQualify && TD) {
@@ -2664,6 +2670,7 @@ void TypePrinter::printDependentTemplateSpecialization(
 
   TokenPrinterContext ctx(OS, T, tokens);
   IncludeStrongLifetimeRAII Strong(Policy);
+  TagDefinitionPolicyRAII tag_raii(Policy);
 
   OS << clang::TypeWithKeyword::getKeywordName(T->getKeyword());
   if (T->getKeyword() != clang::ETK_None)
@@ -2673,6 +2680,7 @@ void TypePrinter::printDependentTemplateSpecialization(
   if (T->getQualifier())
     T->getQualifier()->print(OS, Policy);
   OS << "template " << T->getIdentifier()->getName();
+  assert(!Policy.IncludeTagDefinition);
   printTemplateArgumentList(OS, T->template_arguments(), Policy);
   spaceBeforePlaceHolder(OS);
   IdentFn();

@@ -50,7 +50,7 @@ void GenerateDeclCpp(void) {
       << "#include \"Builder.h\"\n\n"
       << "#define PASTA_DEFINE_BASE_OPERATORS(base, derived) \\\n"
       << "    std::optional<class derived> derived::From(const class base &that) { \\\n"
-      << "      if (auto decl_ptr = clang::dyn_cast<clang::derived>(that.u.base)) { \\\n"
+      << "      if (auto decl_ptr = clang::dyn_cast_or_null<clang::derived>(that.u.base)) { \\\n"
       << "        return DeclBuilder::Create<class derived>(that.ast, decl_ptr); \\\n"
       << "      } else { \\\n"
       << "        return std::nullopt; \\\n"
@@ -70,11 +70,10 @@ void GenerateDeclCpp(void) {
       << "      return *this; \\\n"
       << "    } \\\n"
       << "    base &base::operator=(class derived &&that) noexcept { \\\n"
-      << "      if (this != &that) { \\\n"
-      << "        ast = std::move(that.ast); \\\n"
-      << "        u.Decl = that.u.Decl; \\\n"
-      << "        kind = that.kind; \\\n"
-      << "      } \\\n"
+      << "      class derived new_that(std::forward<class derived>(that)); \\\n"
+      << "      ast = std::move(new_that.ast); \\\n"
+      << "      u.Decl = new_that.u.Decl; \\\n"
+      << "      kind = new_that.kind; \\\n"
       << "      return *this; \\\n"
       << "    }\n\n"
       << "#define PASTA_DEFINE_DECLCONTEXT_OPERATORS(base, derived) \\\n"
@@ -182,8 +181,28 @@ void GenerateDeclCpp(void) {
   os
       << "};\n"
       << "}  // namespace\n\n"
-      << "std::string_view Decl::KindName(void) const {\n"
+      << "std::string_view Decl::KindName(void) const noexcept {\n"
       << "  return kKindNames[static_cast<unsigned>(kind)];\n"
+      << "}\n\n"
+
+      // All decls use the same mechanis for token ranges.
+      << "::pasta::TokenRange Decl::TokenRange(void) const noexcept {\n"
+      << "  return ast->DeclTokenRange(u.Decl);\n"
+      << "}\n\n"
+
+      // We manually "virtualize" `Decl::getLocation`, which isn't normally
+      // virtualized.
+      << "::pasta::Token Decl::Token(void) const noexcept {\n"
+      << "  clang::SourceLocation loc;\n"
+      << "  switch (u.Decl->getKind()) {\n"
+      << "#define ABSTRACT_DECL(DECL)\n"
+      << "#define DECL(DERIVED, BASE) \\\n"
+      << "    case clang::Decl::DERIVED: \\\n"
+      << "      loc = (u.DERIVED ## Decl)->getLocation(); \\\n"
+      << "      break;\n"
+      << "#include <clang/AST/DeclNodes.inc>\n"
+      << "  }\n"
+      << "  return ast->TokenAt(loc);\n"
       << "}\n\n";
 
 

@@ -547,8 +547,10 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
       !D->isFunctionTemplateSpecialization())
     prettyPrintPragmas(D);
 
-  if (D->isFunctionTemplateSpecialization())
-    Out << "template<> ";
+  if (D->isFunctionTemplateSpecialization()) {
+    Out << "template <> ";
+  }
+
   else if (!D->getDescribedFunctionTemplate()) {
     for (unsigned I = 0, NumTemplateParams = D->getNumTemplateParameterLists();
          I < NumTemplateParams; ++I)
@@ -1297,6 +1299,8 @@ void DeclPrinter::printTemplateParameters(const clang::TemplateParameterList *Pa
 void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgument> Args,
                                          const clang::TemplateParameterList *Params,
                                          bool TemplOverloaded) {
+  TagDefinitionPolicyRAII tag_raii(Policy);
+
   Out << "<";
   for (size_t I = 0, E = Args.size(); I < E; ++I) {
     if (I)
@@ -1317,6 +1321,8 @@ void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgument>
 void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgumentLoc> Args,
                                          const clang::TemplateParameterList *Params,
                                          bool TemplOverloaded) {
+  TagDefinitionPolicyRAII tag_raii(Policy);
+
   Out << "<";
   for (size_t I = 0, E = Args.size(); I < E; ++I) {
     if (I)
@@ -1413,7 +1419,7 @@ void DeclPrinter::VisitClassTemplateSpecializationDecl(clang::ClassTemplateSpeci
   TokenPrinterContext ctx(Out, D, tokens);
   Out << "template";
   ctx.MarkLocation(D->getTemplateKeywordLoc());
-  Out << "<> ";
+  Out << " <> ";
   VisitCXXRecordDecl(D);
 }
 
@@ -1455,6 +1461,7 @@ void DeclPrinter::PrintObjCMethodType(clang::ASTContext &Ctx,
 void DeclPrinter::PrintObjCTypeParams(clang::ObjCTypeParamList *Params) {
   //DeclPrinterContext ctx(Out, Params);
   Out << "<";
+  TagDefinitionPolicyRAII tag_raii(Policy);
   unsigned First = true;
   for (auto *Param : *Params) {
     if (First) {

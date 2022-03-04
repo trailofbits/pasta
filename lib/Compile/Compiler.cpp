@@ -4,6 +4,7 @@
 
 #include "Compiler.h"
 
+#include <llvm/Support/Host.h>
 #include <pasta/Util/FileSystem.h>
 
 namespace pasta {
@@ -23,25 +24,40 @@ CompilerName Compiler::Name(void) const {
   return impl->target_lang;
 }
 
+std::string Compiler::HostTargetTriple(void) noexcept {
+  return llvm::sys::getDefaultTargetTriple();
+}
+
+// Return the default target triple for this compiler.
+std::string Compiler::TargetTriple(void) const noexcept {
+  return impl->triple;
+}
+
 // Path to the executable.
-const std::filesystem::path &Compiler::ExecutablePath(void) const {
+std::filesystem::path Compiler::ExecutablePath(void) const {
   return impl->compiler_exe;
 }
 
 // Resource directory of the compiler, i.e. where you find compiler-specific
 // header files.
-const std::filesystem::path &Compiler::ResourceDirectory(void) const {
+std::filesystem::path Compiler::ResourceDirectory(void) const {
   return impl->resource_dir;
 }
 
 // Directory to treat as the system root. Useful for cross-compilation
 // toolchains.
-const std::filesystem::path &Compiler::SystemRootDirectory(void) const {
-  return impl->sysroot_dir;
+std::filesystem::path Compiler::SystemRootDirectory(void) const {
+  return impl->sysroot_dir.empty() ? impl->install_dir : impl->sysroot_dir;
+}
+
+// Directory to treat as the system root for inclusions. Useful for cross-
+// compilation toolchains.
+std::filesystem::path Compiler::SystemRootIncludeDirectory(void) const {
+  return impl->isysroot_dir;
 }
 
 // Directory where the compiler is installed.
-const std::filesystem::path &Compiler::InstallationDirectory(void) const {
+std::filesystem::path Compiler::InstallationDirectory(void) const {
   return impl->install_dir;
 }
 

@@ -39,6 +39,12 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
     return;
   }
 
+  if (class_name.find("Decl") != std::string::npos) {
+    if (meth_name_ref == "getLocation" || meth_name_ref == "getSourceRange") {
+      return;
+    }
+  }
+
   std::string rt_str = rt_ref.str();
   auto &rt_type = gRetTypeMap[rt_str];
   auto &rt_val = gRetTypeToValMap[rt_str];
@@ -55,33 +61,27 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
     os << rt_type;
   }
 
-  os << " " << real_class_name << "::" << meth_name << "(void) const {\n";
+  os << " " << real_class_name << "::" << meth_name << "(void) const noexcept {\n";
 
-  // Special case for `*Decl::TokenRange`.
-  if (meth_name == "TokenRange" &&
-      llvm::StringRef(real_class_name).endswith("Decl")) {
-    os << "  return ast->DeclTokenRange(u." << class_name << ");\n";
-
+  if (is_qual_type) {
+    os << "  auto &ast_ctx = ast->ci->getASTContext();\n"
+       << "  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);\n"
+       << "  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));\n";
   } else {
-    if (is_qual_type) {
-      os << "  auto &ast_ctx = ast->ci->getASTContext();\n"
-         << "  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);\n"
-         << "  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));\n";
+    os << "  auto &self = *const_cast<clang::" << class_name << " *>(u." << class_name << ");\n";
+  }
+  os << "  auto val = self." << meth_name_ref.str() << "();\n"
+     << rt_val;
+  if (rt_ref.endswith(" *)")) {
+    if (can_ret_null) {
+      os << "  return std::nullopt;\n";
     } else {
-      os << "  auto &self = *(u." << class_name << ");\n";
-    }
-    os << "  auto val = self." << meth_name_ref.str() << "();\n"
-       << rt_val;
-    if (rt_ref.endswith(" *)")) {
-      if (can_ret_null) {
-        os << "  return std::nullopt;\n";
-      } else {
-        os << "  assert(false && \"" << class_name << "::"
-           << meth_name << " can return nullptr!\");\n"
-           << "  __builtin_unreachable();\n";
-      }
+      os << "  assert(false && \"" << class_name << "::"
+         << meth_name << " can return nullptr!\");\n"
+         << "  __builtin_unreachable();\n";
     }
   }
+
   os << "}\n\n";
 }
 
@@ -115,7 +115,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
     } else {
       os << rt_type;
     }
-    os << " " << real_class_name << "::" << meth_name << "(void) const {\n";
+    os << " " << real_class_name << "::" << meth_name << "(void) const noexcept {\n";
     if (is_qual_type) {
       os << "  auto &ast_ctx = ast->ci->getASTContext();\n"
          << "  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);\n"
@@ -135,6 +135,36 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
       }
     }
     os << "}\n\n";
+
+  } else if (p0_ref == "(bool)") {
+    const auto can_ret_null = kCanReturnNullptr.count(
+        std::make_pair(class_name, meth_name));
+    if (can_ret_null) {
+      os << "std::optional<" << rt_type << ">";
+    } else {
+      os << rt_type;
+    }
+    os << " " << real_class_name << "::" << meth_name << "(bool b) const noexcept {\n";
+    if (is_qual_type) {
+      os << "  auto &ast_ctx = ast->ci->getASTContext();\n"
+         << "  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);\n"
+         << "  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));\n";
+    } else {
+      os << "  auto &self = *(u." << class_name << ");\n";
+    }
+    os << "  auto val = self." << meth_name_ref.str() << "(b);\n"
+       << rt_val;
+    if (rt_ref.endswith(" *)")) {
+      if (can_ret_null) {
+        os << "  return std::nullopt;\n";
+      } else {
+        os << "  assert(false && \"" << class_name << "::"
+           << meth_name << " can return nullptr!\");\n"
+           << "  __builtin_unreachable();\n";
+      }
+    }
+    os << "}\n\n";
+
   } else { \
     os << "// 1: " << real_class_name << "::" << meth_name << "\n";
     return;
@@ -146,7 +176,7 @@ static void DefineIterators(std::ostream &os, const std::string &class_name) {
     auto &rt_type = gRetTypeMap[iterator.elem_type];
     auto &rt_val = gRetTypeToValMap[iterator.elem_type];
     os << "std::vector<" << rt_type << "> " << class_name << "::"
-       << iterator.cxx_method << "(void) const {\n"
+       << iterator.cxx_method << "(void) const noexcept {\n"
        << "  auto convert_elem = [&] ("
        << iterator.elem_type.substr(1, iterator.elem_type.size() - 2)
        << " val) {\n";

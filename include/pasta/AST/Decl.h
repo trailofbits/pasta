@@ -14,7 +14,7 @@
 #include <pasta/Util/Compiler.h>
 #include "Forward.h"
 
-#include "DeclManual.h"
+#include "DeclHead.h"
 
 #define PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(base) \
     friend class AST; \
@@ -174,43 +174,43 @@ class DeclContext {
   // ContainsDeclaration: (bool)
   // ContainsDeclarationAndLoad: (bool)
   // Ddiags: (llvm::iterator_range<clang::DeclContext::ddiag_iterator>)
-  std::vector<::pasta::Decl> Declarations(void) const;
-  ::pasta::DeclKind DeclarationKind(void) const;
-  std::string_view DeclarationKindName(void) const;
-  ::pasta::DeclContext EnclosingNamespaceContext(void) const;
-  ::pasta::LinkageSpecDecl ExternCContext(void) const;
-  ::pasta::BlockDecl InnermostBlockDeclaration(void) const;
-  ::pasta::DeclContext LexicalParent(void) const;
-  ::pasta::DeclContext LookupParent(void) const;
+  std::vector<::pasta::Decl> Declarations(void) const noexcept;
+  ::pasta::DeclKind DeclarationKind(void) const noexcept;
+  std::string_view DeclarationKindName(void) const noexcept;
+  std::optional<::pasta::DeclContext> EnclosingNamespaceContext(void) const noexcept;
+  std::optional<::pasta::LinkageSpecDecl> ExternCContext(void) const noexcept;
+  std::optional<::pasta::BlockDecl> InnermostBlockDeclaration(void) const noexcept;
+  std::optional<::pasta::DeclContext> LexicalParent(void) const noexcept;
+  std::optional<::pasta::DeclContext> LookupParent(void) const noexcept;
   // LookupPointer: (clang::StoredDeclsMap *)
-  ::pasta::Decl NonClosureAncestor(void) const;
-  ::pasta::RecordDecl OuterLexicalRecordContext(void) const;
-  ::pasta::DeclContext Parent(void) const;
+  std::optional<::pasta::Decl> NonClosureAncestor(void) const noexcept;
+  std::optional<::pasta::RecordDecl> OuterLexicalRecordContext(void) const noexcept;
+  std::optional<::pasta::DeclContext> Parent(void) const noexcept;
   // ParentASTContext: (clang::ASTContext &)
-  ::pasta::DeclContext PrimaryContext(void) const;
-  ::pasta::DeclContext RedeclarationContext(void) const;
-  bool HasExternalLexicalStorage(void) const;
-  bool HasExternalVisibleStorage(void) const;
-  bool IsClosure(void) const;
+  ::pasta::DeclContext PrimaryContext(void) const noexcept;
+  ::pasta::DeclContext RedeclarationContext(void) const noexcept;
+  bool HasExternalLexicalStorage(void) const noexcept;
+  bool HasExternalVisibleStorage(void) const noexcept;
+  bool IsClosure(void) const noexcept;
   // IsDeclarationInLexicalTraversal: (bool)
-  bool IsDependentContext(void) const;
-  bool IsExternCContext(void) const;
-  bool IsExternCXXContext(void) const;
-  bool IsFileContext(void) const;
-  bool IsFunctionOrMethod(void) const;
-  bool IsInlineNamespace(void) const;
-  bool IsLookupContext(void) const;
-  bool IsNamespace(void) const;
-  bool IsObjCContainer(void) const;
-  bool IsRecord(void) const;
-  bool IsStdNamespace(void) const;
-  bool IsTranslationUnit(void) const;
-  bool IsTransparentContext(void) const;
+  bool IsDependentContext(void) const noexcept;
+  bool IsExternCContext(void) const noexcept;
+  bool IsExternCXXContext(void) const noexcept;
+  bool IsFileContext(void) const noexcept;
+  bool IsFunctionOrMethod(void) const noexcept;
+  bool IsInlineNamespace(void) const noexcept;
+  bool IsLookupContext(void) const noexcept;
+  bool IsNamespace(void) const noexcept;
+  bool IsObjCContainer(void) const noexcept;
+  bool IsRecord(void) const noexcept;
+  bool IsStdNamespace(void) const noexcept;
+  bool IsTranslationUnit(void) const noexcept;
+  bool IsTransparentContext(void) const noexcept;
   // Lookup: (clang::DeclContextLookupResult)
   // Lookups: (llvm::iterator_range<clang::DeclContext::all_lookups_iterator>)
-  std::vector<::pasta::Decl> AlreadyLoadedDeclarations(void) const;
+  std::vector<::pasta::Decl> AlreadyLoadedDeclarations(void) const noexcept;
   // NoloadLookups: (llvm::iterator_range<clang::DeclContext::all_lookups_iterator>)
-  bool ShouldUseQualifiedLookup(void) const;
+  bool ShouldUseQualifiedLookup(void) const noexcept;
   // UsingDirectives: (llvm::iterator_range<clang::DeclContext::udir_iterator>)
  private:
   friend class Decl;
@@ -332,84 +332,84 @@ class Decl {
   // Attributes: (llvm::iterator_range<clang::Attr *const *>)
   // CanBeWeakImported: (bool)
   // ASTContext: (clang::ASTContext &)
-  enum AccessSpecifier Access(void) const;
-  enum AccessSpecifier AccessUnsafe(void) const;
-  ::pasta::FunctionDecl AsFunction(void) const;
+  enum AccessSpecifier Access(void) const noexcept;
+  enum AccessSpecifier AccessUnsafe(void) const noexcept;
+  ::pasta::FunctionDecl AsFunction(void) const noexcept;
   // Attributes: (const llvm::SmallVector<clang::Attr *, 4> &)
-  enum AvailabilityResult Availability(void) const;
-  ::pasta::Token BeginToken(void) const;
-  ::pasta::Stmt Body(void) const;
-  ::pasta::Token BodyRBrace(void) const;
-  ::pasta::Decl CanonicalDeclaration(void) const;
-  ::pasta::DeclContext DeclarationContext(void) const;
+  enum AvailabilityResult Availability(void) const noexcept;
+  ::pasta::Token BeginToken(void) const noexcept;
+  ::pasta::Stmt Body(void) const noexcept;
+  ::pasta::Token BodyRBrace(void) const noexcept;
+  ::pasta::Decl CanonicalDeclaration(void) const noexcept;
+  ::pasta::DeclContext DeclarationContext(void) const noexcept;
   // DefiningAttribute: (const clang::Attr *)
-  ::pasta::TemplateDecl DescribedTemplate(void) const;
-  // DescribedTemplateParams: (const clang::TemplateParameterList *)
-  ::pasta::Token EndToken(void) const;
+  ::pasta::TemplateDecl DescribedTemplate(void) const noexcept;
+  ::pasta::TemplateParameterList DescribedTemplateParams(void) const noexcept;
+  ::pasta::Token EndToken(void) const noexcept;
   // ExternalSourceSymbolAttribute: (clang::ExternalSourceSymbolAttr *)
-  ::pasta::FriendObjectKind FriendObjectKind(void) const;
-  ::pasta::FunctionType FunctionType(void) const;
-  uint32_t GlobalID(void) const;
-  int64_t ID(void) const;
-  uint32_t IdentifierNamespace(void) const;
+  ::pasta::FriendObjectKind FriendObjectKind(void) const noexcept;
+  ::pasta::FunctionType FunctionType(void) const noexcept;
+  uint32_t GlobalID(void) const noexcept;
+  int64_t ID(void) const noexcept;
+  uint32_t IdentifierNamespace(void) const noexcept;
   // ImportedOwningModule: (clang::Module *)
   // LangOpts: (const clang::LangOptions &)
-  ::pasta::DeclContext LexicalDeclarationContext(void) const;
+  ::pasta::DeclContext LexicalDeclarationContext(void) const noexcept;
   // LocalOwningModule: (clang::Module *)
-  ::pasta::Token Token(void) const;
-  uint32_t MaxAlignment(void) const;
-  ::pasta::ModuleOwnershipKind ModuleOwnershipKind(void) const;
-  ::pasta::Decl MostRecentDeclaration(void) const;
-  ::pasta::Decl NextDeclarationInContext(void) const;
-  ::pasta::Decl NonClosureContext(void) const;
+  uint32_t MaxAlignment(void) const noexcept;
+  ::pasta::ModuleOwnershipKind ModuleOwnershipKind(void) const noexcept;
+  ::pasta::Decl MostRecentDeclaration(void) const noexcept;
+  ::pasta::Decl NextDeclarationInContext(void) const noexcept;
+  ::pasta::Decl NonClosureContext(void) const noexcept;
   // OwningModule: (clang::Module *)
   // OwningModuleForLinkage: (clang::Module *)
-  uint32_t OwningModuleID(void) const;
-  ::pasta::DeclContext ParentFunctionOrMethod(void) const;
-  ::pasta::Decl PreviousDeclaration(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
-  uint32_t TemplateDepth(void) const;
-  ::pasta::TranslationUnitDecl TranslationUnitDeclaration(void) const;
+  uint32_t OwningModuleID(void) const noexcept;
+  ::pasta::DeclContext ParentFunctionOrMethod(void) const noexcept;
+  ::pasta::Decl PreviousDeclaration(void) const noexcept;
+  uint32_t TemplateDepth(void) const noexcept;
+  ::pasta::TranslationUnitDecl TranslationUnitDeclaration(void) const noexcept;
   // VersionIntroduced: (llvm::VersionTuple)
-  bool HasAttributes(void) const;
-  bool HasBody(void) const;
-  bool HasDefiningAttribute(void) const;
-  bool HasOwningModule(void) const;
-  bool HasTagIdentifierNamespace(void) const;
-  bool IsCanonicalDeclaration(void) const;
-  bool IsDefinedOutsideFunctionOrMethod(void) const;
-  bool IsDeprecated(void) const;
-  bool IsFirstDeclaration(void) const;
-  bool IsFromASTFile(void) const;
-  bool IsFunctionOrFunctionTemplate(void) const;
-  bool IsImplicit(void) const;
-  bool IsInAnonymousNamespace(void) const;
+  bool HasAttributes(void) const noexcept;
+  bool HasBody(void) const noexcept;
+  bool HasDefiningAttribute(void) const noexcept;
+  bool HasOwningModule(void) const noexcept;
+  bool HasTagIdentifierNamespace(void) const noexcept;
+  bool IsCanonicalDeclaration(void) const noexcept;
+  bool IsDefinedOutsideFunctionOrMethod(void) const noexcept;
+  bool IsDeprecated(void) const noexcept;
+  bool IsFirstDeclaration(void) const noexcept;
+  bool IsFromASTFile(void) const noexcept;
+  bool IsFunctionOrFunctionTemplate(void) const noexcept;
+  bool IsImplicit(void) const noexcept;
+  bool IsInAnonymousNamespace(void) const noexcept;
   // IsInIdentifierNamespace: (bool)
-  bool IsInLocalScopeForInstantiation(void) const;
-  bool IsInStdNamespace(void) const;
-  bool IsInvalidDeclaration(void) const;
-  bool IsModulePrivate(void) const;
-  bool IsOutOfLine(void) const;
-  bool IsParameterPack(void) const;
-  bool IsReferenced(void) const;
-  bool IsTemplateDeclaration(void) const;
-  bool IsTemplateParameter(void) const;
-  bool IsTemplateParameterPack(void) const;
-  bool IsTemplated(void) const;
-  bool IsThisDeclarationReferenced(void) const;
-  bool IsTopLevelDeclarationInObjCContainer(void) const;
-  bool IsUnavailable(void) const;
-  bool IsUnconditionallyVisible(void) const;
-  bool IsUsed(void) const;
-  bool IsWeakImported(void) const;
-  std::vector<::pasta::Decl> Redeclarations(void) const;
+  bool IsInLocalScopeForInstantiation(void) const noexcept;
+  bool IsInStdNamespace(void) const noexcept;
+  bool IsInvalidDeclaration(void) const noexcept;
+  bool IsModulePrivate(void) const noexcept;
+  bool IsOutOfLine(void) const noexcept;
+  bool IsParameterPack(void) const noexcept;
+  bool IsReferenced(void) const noexcept;
+  bool IsTemplateDeclaration(void) const noexcept;
+  bool IsTemplateParameter(void) const noexcept;
+  bool IsTemplateParameterPack(void) const noexcept;
+  bool IsTemplated(void) const noexcept;
+  bool IsThisDeclarationReferenced(void) const noexcept;
+  bool IsTopLevelDeclarationInObjCContainer(void) const noexcept;
+  bool IsUnavailable(void) const noexcept;
+  bool IsUnconditionallyVisible(void) const noexcept;
+  bool IsUsed(void) const noexcept;
+  bool IsWeakImported(void) const noexcept;
+  std::vector<::pasta::Decl> Redeclarations(void) const noexcept;
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, DeclContext)
 
   inline DeclKind Kind(void) const {
     return kind;
   }
 
-  std::string_view KindName(void) const;
+  std::string_view KindName(void) const noexcept;
+  ::pasta::Token Token(void) const noexcept;
+  ::pasta::TokenRange TokenRange(void) const noexcept;
 
   inline bool operator==(const Decl &that) const noexcept {
     return u.opaque == that.u.opaque;
@@ -550,11 +550,10 @@ class ExportDecl : public Decl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ExportDecl)
   PASTA_DECLARE_BASE_OPERATORS(DeclContext, ExportDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, ExportDecl)
-  ::pasta::Token EndToken(void) const;
-  ::pasta::Token ExportToken(void) const;
-  ::pasta::Token RBraceToken(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
-  bool HasBraces(void) const;
+  ::pasta::Token EndToken(void) const noexcept;
+  ::pasta::Token ExportToken(void) const noexcept;
+  ::pasta::Token RBraceToken(void) const noexcept;
+  bool HasBraces(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ExportDecl)
 };
@@ -578,10 +577,9 @@ class FileScopeAsmDecl : public Decl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(FileScopeAsmDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, FileScopeAsmDecl)
-  ::pasta::Token AssemblyToken(void) const;
-  ::pasta::StringLiteral AssemblyString(void) const;
-  ::pasta::Token RParenToken(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
+  ::pasta::Token AssemblyToken(void) const noexcept;
+  ::pasta::StringLiteral AssemblyString(void) const noexcept;
+  ::pasta::Token RParenToken(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(FileScopeAsmDecl)
 };
@@ -593,13 +591,13 @@ class FriendDecl : public Decl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(FriendDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, FriendDecl)
-  ::pasta::NamedDecl FriendDeclaration(void) const;
-  ::pasta::Token FriendToken(void) const;
-  // FriendType: (clang::TypeSourceInfo *)
-  uint32_t FriendTypeNumTemplateParameterLists(void) const;
+  ::pasta::NamedDecl FriendDeclaration(void) const noexcept;
+  ::pasta::Token FriendToken(void) const noexcept;
+  ::pasta::Type FriendType(void) const noexcept;
+  uint32_t FriendTypeNumTemplateParameterLists(void) const noexcept;
   // FriendTypeTemplateParameterList: (clang::TemplateParameterList *)
-  ::pasta::TokenRange TokenRange(void) const;
-  bool IsUnsupportedFriend(void) const;
+  bool IsUnsupportedFriend(void) const noexcept;
+  std::vector<::pasta::TemplateParameterList> FriendTypeTemplateParameterLists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(FriendDecl)
 };
@@ -611,12 +609,12 @@ class FriendTemplateDecl : public Decl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(FriendTemplateDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, FriendTemplateDecl)
-  ::pasta::NamedDecl FriendDeclaration(void) const;
-  ::pasta::Token FriendToken(void) const;
-  // FriendType: (clang::TypeSourceInfo *)
-  uint32_t NumTemplateParameters(void) const;
+  ::pasta::NamedDecl FriendDeclaration(void) const noexcept;
+  ::pasta::Token FriendToken(void) const noexcept;
+  ::pasta::Type FriendType(void) const noexcept;
+  uint32_t NumTemplateParameters(void) const noexcept;
   // TemplateParameterList: (clang::TemplateParameterList *)
-  // !!! TemplateParameter getNumTemplateParameters getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(FriendTemplateDecl)
 };
@@ -628,9 +626,8 @@ class ImportDecl : public Decl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ImportDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, ImportDecl)
-  std::vector<::pasta::Token> IdentifierTokens(void) const;
+  std::vector<::pasta::Token> IdentifierTokens(void) const noexcept;
   // ImportedModule: (clang::Module *)
-  ::pasta::TokenRange TokenRange(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ImportDecl)
 };
@@ -642,12 +639,12 @@ class LifetimeExtendedTemporaryDecl : public Decl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(LifetimeExtendedTemporaryDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, LifetimeExtendedTemporaryDecl)
-  std::vector<::pasta::Stmt> ChildrenExpression(void) const;
-  ::pasta::ValueDecl ExtendingDeclaration(void) const;
-  uint32_t ManglingNumber(void) const;
+  std::vector<::pasta::Stmt> ChildrenExpression(void) const noexcept;
+  ::pasta::ValueDecl ExtendingDeclaration(void) const noexcept;
+  uint32_t ManglingNumber(void) const noexcept;
   // OrCreateValue: (clang::APValue *)
-  enum StorageDuration StorageDuration(void) const;
-  ::pasta::Expr TemporaryExpression(void) const;
+  enum StorageDuration StorageDuration(void) const noexcept;
+  ::pasta::Expr TemporaryExpression(void) const noexcept;
   // Value: (clang::APValue *)
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(LifetimeExtendedTemporaryDecl)
@@ -661,12 +658,11 @@ class LinkageSpecDecl : public Decl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(LinkageSpecDecl)
   PASTA_DECLARE_BASE_OPERATORS(DeclContext, LinkageSpecDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, LinkageSpecDecl)
-  ::pasta::Token EndToken(void) const;
-  ::pasta::Token ExternToken(void) const;
-  ::pasta::LanguageIDs Language(void) const;
-  ::pasta::Token RBraceToken(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
-  bool HasBraces(void) const;
+  ::pasta::Token EndToken(void) const noexcept;
+  ::pasta::Token ExternToken(void) const noexcept;
+  ::pasta::LanguageIDs Language(void) const noexcept;
+  ::pasta::Token RBraceToken(void) const noexcept;
+  bool HasBraces(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(LinkageSpecDecl)
 };
@@ -753,24 +749,24 @@ class NamedDecl : public Decl {
   // DeclarationReplaces: (bool)
   // DeclarationName: (clang::DeclarationName)
   // ExplicitVisibility: (llvm::Optional<clang::Visibility>)
-  enum Linkage FormalLinkage(void) const;
+  enum Linkage FormalLinkage(void) const noexcept;
   // Identifier: (clang::IdentifierInfo *)
   // LinkageAndVisibility: (clang::LinkageInfo)
-  enum Linkage LinkageInternal(void) const;
-  ::pasta::NamedDecl MostRecentDeclaration(void) const;
-  std::string Name(void) const;
-  enum ObjCStringFormatFamily ObjCFStringFormattingFamily(void) const;
-  std::string QualifiedNameAsString(void) const;
-  ::pasta::NamedDecl UnderlyingDeclaration(void) const;
-  enum Visibility Visibility(void) const;
-  bool HasExternalFormalLinkage(void) const;
-  bool HasLinkage(void) const;
-  bool HasLinkageBeenComputed(void) const;
-  bool IsCXXClassMember(void) const;
-  bool IsCXXInstanceMember(void) const;
-  bool IsExternallyDeclarable(void) const;
-  bool IsExternallyVisible(void) const;
-  bool IsLinkageValid(void) const;
+  enum Linkage LinkageInternal(void) const noexcept;
+  ::pasta::NamedDecl MostRecentDeclaration(void) const noexcept;
+  std::string Name(void) const noexcept;
+  enum ObjCStringFormatFamily ObjCFStringFormattingFamily(void) const noexcept;
+  std::string QualifiedNameAsString(void) const noexcept;
+  ::pasta::NamedDecl UnderlyingDeclaration(void) const noexcept;
+  enum Visibility Visibility(void) const noexcept;
+  bool HasExternalFormalLinkage(void) const noexcept;
+  bool HasLinkage(void) const noexcept;
+  bool HasLinkageBeenComputed(void) const noexcept;
+  bool IsCXXClassMember(void) const noexcept;
+  bool IsCXXInstanceMember(void) const noexcept;
+  bool IsExternallyDeclarable(void) const noexcept;
+  bool IsExternallyVisible(void) const noexcept;
+  bool IsLinkageValid(void) const noexcept;
   // IsReserved: (clang::ReservedIdentifierStatus)
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(NamedDecl)
@@ -785,15 +781,14 @@ class NamespaceAliasDecl : public NamedDecl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NamespaceAliasDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, NamespaceAliasDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, NamespaceAliasDecl)
-  ::pasta::Token AliasToken(void) const;
-  ::pasta::NamedDecl AliasedNamespace(void) const;
-  ::pasta::NamespaceAliasDecl CanonicalDeclaration(void) const;
-  ::pasta::NamespaceDecl Namespace(void) const;
-  ::pasta::Token NamespaceToken(void) const;
+  ::pasta::Token AliasToken(void) const noexcept;
+  ::pasta::NamedDecl AliasedNamespace(void) const noexcept;
+  ::pasta::NamespaceAliasDecl CanonicalDeclaration(void) const noexcept;
+  ::pasta::NamespaceDecl Namespace(void) const noexcept;
+  ::pasta::Token NamespaceToken(void) const noexcept;
   // Qualifier: (clang::NestedNameSpecifier *)
   // QualifierToken: (clang::NestedNameSpecifierLoc)
-  ::pasta::TokenRange TokenRange(void) const;
-  ::pasta::Token TargetNameToken(void) const;
+  ::pasta::Token TargetNameToken(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(NamespaceAliasDecl)
 };
@@ -808,15 +803,14 @@ class NamespaceDecl : public NamedDecl {
   PASTA_DECLARE_BASE_OPERATORS(DeclContext, NamespaceDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, NamespaceDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, NamespaceDecl)
-  ::pasta::NamespaceDecl AnonymousNamespace(void) const;
-  ::pasta::Token BeginToken(void) const;
-  ::pasta::NamespaceDecl CanonicalDeclaration(void) const;
-  ::pasta::NamespaceDecl OriginalNamespace(void) const;
-  ::pasta::Token RBraceToken(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
-  bool IsAnonymousNamespace(void) const;
-  bool IsInline(void) const;
-  bool IsOriginalNamespace(void) const;
+  ::pasta::NamespaceDecl AnonymousNamespace(void) const noexcept;
+  ::pasta::Token BeginToken(void) const noexcept;
+  ::pasta::NamespaceDecl CanonicalDeclaration(void) const noexcept;
+  ::pasta::NamespaceDecl OriginalNamespace(void) const noexcept;
+  ::pasta::Token RBraceToken(void) const noexcept;
+  bool IsAnonymousNamespace(void) const noexcept;
+  bool IsInline(void) const noexcept;
+  bool IsOriginalNamespace(void) const noexcept;
   // IsRedundantInlineQualifierFor: (bool)
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(NamespaceDecl)
@@ -831,7 +825,7 @@ class ObjCCompatibleAliasDecl : public NamedDecl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCCompatibleAliasDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, ObjCCompatibleAliasDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, ObjCCompatibleAliasDecl)
-  ::pasta::ObjCInterfaceDecl ClassInterface(void) const;
+  ::pasta::ObjCInterfaceDecl ClassInterface(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCCompatibleAliasDecl)
 };
@@ -854,19 +848,18 @@ class ObjCContainerDecl : public NamedDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(ObjCContainerDecl, ObjCProtocolDecl)
   // FindPropertyDeclaration: (clang::ObjCPropertyDecl *)
   // HasUserDeclaredSetterMethod: (bool)
-  std::vector<::pasta::ObjCMethodDecl> ClassMethods(void) const;
-  std::vector<::pasta::ObjCPropertyDecl> ClassProperties(void) const;
-  ::pasta::TokenRange AtEndRange(void) const;
-  ::pasta::Token AtStartToken(void) const;
+  std::vector<::pasta::ObjCMethodDecl> ClassMethods(void) const noexcept;
+  std::vector<::pasta::ObjCPropertyDecl> ClassProperties(void) const noexcept;
+  ::pasta::TokenRange AtEndRange(void) const noexcept;
+  ::pasta::Token AtStartToken(void) const noexcept;
   // ClassMethod: (clang::ObjCMethodDecl *)
   // InstanceMethod: (clang::ObjCMethodDecl *)
   // InstanceVariableDeclaration: (clang::ObjCIvarDecl *)
   // Method: (clang::ObjCMethodDecl *)
-  ::pasta::TokenRange TokenRange(void) const;
-  std::vector<::pasta::ObjCMethodDecl> InstanceMethods(void) const;
-  std::vector<::pasta::ObjCPropertyDecl> InstanceProperties(void) const;
-  std::vector<::pasta::ObjCMethodDecl> Methods(void) const;
-  std::vector<::pasta::ObjCPropertyDecl> Properties(void) const;
+  std::vector<::pasta::ObjCMethodDecl> InstanceMethods(void) const noexcept;
+  std::vector<::pasta::ObjCPropertyDecl> InstanceProperties(void) const noexcept;
+  std::vector<::pasta::ObjCMethodDecl> Methods(void) const noexcept;
+  std::vector<::pasta::ObjCPropertyDecl> Properties(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCContainerDecl)
 };
@@ -886,8 +879,8 @@ class ObjCImplDecl : public ObjCContainerDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(ObjCImplDecl, ObjCImplementationDecl)
   // FindPropertyImplementationDeclaration: (clang::ObjCPropertyImplDecl *)
   // FindPropertyImplementationInstanceVariableDeclaration: (clang::ObjCPropertyImplDecl *)
-  ::pasta::ObjCInterfaceDecl ClassInterface(void) const;
-  std::vector<::pasta::ObjCPropertyImplDecl> PropertyImplementations(void) const;
+  ::pasta::ObjCInterfaceDecl ClassInterface(void) const noexcept;
+  std::vector<::pasta::ObjCPropertyImplDecl> PropertyImplementations(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCImplDecl)
 };
@@ -905,17 +898,17 @@ class ObjCImplementationDecl : public ObjCImplDecl {
   PASTA_DECLARE_BASE_OPERATORS(ObjCContainerDecl, ObjCImplementationDecl)
   PASTA_DECLARE_BASE_OPERATORS(ObjCImplDecl, ObjCImplementationDecl)
   // Identifier: (clang::IdentifierInfo *)
-  ::pasta::Token InstanceVariableLBraceToken(void) const;
-  ::pasta::Token InstanceVariableRBraceToken(void) const;
-  std::string Name(void) const;
-  uint32_t NumInstanceVariableInitializers(void) const;
-  std::string_view ObjCRuntimeNameAsString(void) const;
-  ::pasta::ObjCInterfaceDecl SuperClass(void) const;
-  ::pasta::Token SuperClassToken(void) const;
-  bool HasDestructors(void) const;
-  bool HasNonZeroConstructors(void) const;
+  ::pasta::Token InstanceVariableLBraceToken(void) const noexcept;
+  ::pasta::Token InstanceVariableRBraceToken(void) const noexcept;
+  std::string Name(void) const noexcept;
+  uint32_t NumInstanceVariableInitializers(void) const noexcept;
+  std::string_view ObjCRuntimeNameAsString(void) const noexcept;
+  ::pasta::ObjCInterfaceDecl SuperClass(void) const noexcept;
+  ::pasta::Token SuperClassToken(void) const noexcept;
+  bool HasDestructors(void) const noexcept;
+  bool HasNonZeroConstructors(void) const noexcept;
   // Initializers: (llvm::iterator_range<clang::CXXCtorInitializer *const *>)
-  std::vector<::pasta::ObjCIvarDecl> InstanceVariables(void) const;
+  std::vector<::pasta::ObjCIvarDecl> InstanceVariables(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCImplementationDecl)
 };
@@ -933,46 +926,45 @@ class ObjCInterfaceDecl : public ObjCContainerDecl {
   PASTA_DECLARE_BASE_OPERATORS(ObjCContainerDecl, ObjCInterfaceDecl)
   // FindCategoryDeclaration: (clang::ObjCCategoryDecl *)
   // FindPropertyVisibleInPrimaryClass: (clang::ObjCPropertyDecl *)
-  std::vector<::pasta::ObjCProtocolDecl> AllReferencedProtocols(void) const;
-  bool DeclaresOrInheritsDesignatedInitializers(void) const;
-  ::pasta::ObjCInterfaceDecl CanonicalDeclaration(void) const;
+  std::vector<::pasta::ObjCProtocolDecl> AllReferencedProtocols(void) const noexcept;
+  bool DeclaresOrInheritsDesignatedInitializers(void) const noexcept;
+  ::pasta::ObjCInterfaceDecl CanonicalDeclaration(void) const noexcept;
   // CategoryClassMethod: (clang::ObjCMethodDecl *)
   // CategoryInstanceMethod: (clang::ObjCMethodDecl *)
-  ::pasta::ObjCCategoryDecl CategoryListRaw(void) const;
+  ::pasta::ObjCCategoryDecl CategoryListRaw(void) const noexcept;
   // CategoryMethod: (clang::ObjCMethodDecl *)
-  ::pasta::ObjCInterfaceDecl Definition(void) const;
-  ::pasta::Token EndOfDefinitionToken(void) const;
-  ::pasta::ObjCImplementationDecl Implementation(void) const;
-  std::string_view ObjCRuntimeNameAsString(void) const;
+  ::pasta::ObjCInterfaceDecl Definition(void) const noexcept;
+  ::pasta::Token EndOfDefinitionToken(void) const noexcept;
+  ::pasta::ObjCImplementationDecl Implementation(void) const noexcept;
+  std::string_view ObjCRuntimeNameAsString(void) const noexcept;
   // ReferencedProtocols: (const clang::ObjCProtocolList &)
-  ::pasta::TokenRange TokenRange(void) const;
-  ::pasta::ObjCInterfaceDecl SuperClass(void) const;
-  ::pasta::Token SuperClassToken(void) const;
-  // SuperClassTInfo: (clang::TypeSourceInfo *)
-  ::pasta::ObjCObjectType SuperClassType(void) const;
-  ::pasta::Type TypeForDeclaration(void) const;
+  ::pasta::ObjCInterfaceDecl SuperClass(void) const noexcept;
+  ::pasta::Token SuperClassToken(void) const noexcept;
+  ::pasta::Type SuperClassTInfo(void) const noexcept;
+  ::pasta::ObjCObjectType SuperClassType(void) const noexcept;
+  ::pasta::Type TypeForDeclaration(void) const noexcept;
   // TypeParamList: (clang::ObjCTypeParamList *)
   // TypeParamListAsWritten: (clang::ObjCTypeParamList *)
-  bool HasDefinition(void) const;
-  bool HasDesignatedInitializers(void) const;
-  bool IsArcWeakrefUnavailable(void) const;
+  bool HasDefinition(void) const noexcept;
+  bool HasDesignatedInitializers(void) const noexcept;
+  bool IsArcWeakrefUnavailable(void) const noexcept;
   // IsDesignatedInitializer: (bool)
-  bool IsImplicitInterfaceDeclaration(void) const;
-  ::pasta::ObjCInterfaceDecl IsObjCRequiresPropertyDefinitions(void) const;
+  bool IsImplicitInterfaceDeclaration(void) const noexcept;
+  ::pasta::ObjCInterfaceDecl IsObjCRequiresPropertyDefinitions(void) const noexcept;
   // IsSuperClassOf: (bool)
-  bool IsThisDeclarationADefinition(void) const;
-  std::vector<::pasta::ObjCIvarDecl> InstanceVariables(void) const;
-  std::vector<::pasta::ObjCCategoryDecl> KnownCategories(void) const;
-  std::vector<::pasta::ObjCCategoryDecl> KnownExtensions(void) const;
+  bool IsThisDeclarationADefinition(void) const noexcept;
+  std::vector<::pasta::ObjCIvarDecl> InstanceVariables(void) const noexcept;
+  std::vector<::pasta::ObjCCategoryDecl> KnownCategories(void) const noexcept;
+  std::vector<::pasta::ObjCCategoryDecl> KnownExtensions(void) const noexcept;
   // LookupClassMethod: (clang::ObjCMethodDecl *)
   // LookupInstanceMethod: (clang::ObjCMethodDecl *)
   // LookupMethod: (clang::ObjCMethodDecl *)
   // LookupPrivateMethod: (clang::ObjCMethodDecl *)
   // LookupPropertyAccessor: (clang::ObjCMethodDecl *)
-  std::vector<::pasta::Token> ProtocolTokens(void) const;
-  std::vector<::pasta::ObjCProtocolDecl> Protocols(void) const;
-  std::vector<::pasta::ObjCCategoryDecl> VisibleCategories(void) const;
-  std::vector<::pasta::ObjCCategoryDecl> VisibleExtensions(void) const;
+  std::vector<::pasta::Token> ProtocolTokens(void) const noexcept;
+  std::vector<::pasta::ObjCProtocolDecl> Protocols(void) const noexcept;
+  std::vector<::pasta::ObjCCategoryDecl> VisibleCategories(void) const noexcept;
+  std::vector<::pasta::ObjCCategoryDecl> VisibleExtensions(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCInterfaceDecl)
 };
@@ -987,49 +979,46 @@ class ObjCMethodDecl : public NamedDecl {
   PASTA_DECLARE_BASE_OPERATORS(DeclContext, ObjCMethodDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, ObjCMethodDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, ObjCMethodDecl)
-  bool DefinedInNSObject(void) const;
-  ::pasta::ObjCPropertyDecl FindPropertyDeclaration(void) const;
-  ::pasta::Token BeginToken(void) const;
-  ::pasta::Stmt Body(void) const;
-  ::pasta::ObjCMethodDecl CanonicalDeclaration(void) const;
-  ::pasta::ObjCCategoryDecl Category(void) const;
-  ::pasta::ObjCInterfaceDecl ClassInterface(void) const;
-  ::pasta::ImplicitParamDecl CmdDeclaration(void) const;
-  ::pasta::Token DeclaratorEndToken(void) const;
-  ::pasta::Token EndToken(void) const;
-  ::pasta::ImplementationControl ImplementationControl(void) const;
-  enum ObjCMethodFamily MethodFamily(void) const;
-  uint32_t NumSelectorTokens(void) const;
+  bool DefinedInNSObject(void) const noexcept;
+  ::pasta::ObjCPropertyDecl FindPropertyDeclaration(void) const noexcept;
+  ::pasta::Token BeginToken(void) const noexcept;
+  ::pasta::ObjCMethodDecl CanonicalDeclaration(void) const noexcept;
+  ::pasta::ObjCCategoryDecl Category(void) const noexcept;
+  ::pasta::ObjCInterfaceDecl ClassInterface(void) const noexcept;
+  ::pasta::ImplicitParamDecl CmdDeclaration(void) const noexcept;
+  ::pasta::Token DeclaratorEndToken(void) const noexcept;
+  ::pasta::Token EndToken(void) const noexcept;
+  ::pasta::ImplementationControl ImplementationControl(void) const noexcept;
+  enum ObjCMethodFamily MethodFamily(void) const noexcept;
+  uint32_t NumSelectorTokens(void) const noexcept;
   // ObjCDeclQualifier: (clang::Decl::ObjCDeclQualifier)
   // ParamDeclaration: (const clang::ParmVarDecl *)
-  ::pasta::Type ReturnType(void) const;
-  // ReturnTypeSourceInfo: (clang::TypeSourceInfo *)
-  ::pasta::TokenRange ReturnTypeSourceRange(void) const;
+  ::pasta::Type ReturnType(void) const noexcept;
+  ::pasta::Type ReturnTypeSourceInfo(void) const noexcept;
+  ::pasta::TokenRange ReturnTypeSourceRange(void) const noexcept;
   // Selector: (clang::Selector)
   // SelectorToken: (clang::SourceLocation)
-  ::pasta::Token SelectorStartToken(void) const;
-  ::pasta::ImplicitParamDecl SelfDeclaration(void) const;
+  ::pasta::Token SelectorStartToken(void) const noexcept;
+  ::pasta::ImplicitParamDecl SelfDeclaration(void) const noexcept;
   // SelfType: (clang::QualType)
-  ::pasta::TokenRange TokenRange(void) const;
-  bool HasBody(void) const;
-  bool HasRedeclaration(void) const;
-  bool HasRelatedResultType(void) const;
-  bool HasSkippedBody(void) const;
-  bool IsClassMethod(void) const;
-  bool IsDefined(void) const;
-  bool IsDesignatedInitializerForTheInterface(void) const;
-  bool IsDirectMethod(void) const;
-  bool IsInstanceMethod(void) const;
-  bool IsOptional(void) const;
-  bool IsOverriding(void) const;
-  bool IsPropertyAccessor(void) const;
-  bool IsRedeclaration(void) const;
-  bool IsSynthesizedAccessorStub(void) const;
-  bool IsThisDeclarationADefinition(void) const;
-  bool IsThisDeclarationADesignatedInitializer(void) const;
-  bool IsVariadic(void) const;
-  std::vector<::pasta::ParmVarDecl> Parameters(void) const;
-  std::vector<::pasta::Token> SelectorTokens(void) const;
+  bool HasRedeclaration(void) const noexcept;
+  bool HasRelatedResultType(void) const noexcept;
+  bool HasSkippedBody(void) const noexcept;
+  bool IsClassMethod(void) const noexcept;
+  bool IsDefined(void) const noexcept;
+  bool IsDesignatedInitializerForTheInterface(void) const noexcept;
+  bool IsDirectMethod(void) const noexcept;
+  bool IsInstanceMethod(void) const noexcept;
+  bool IsOptional(void) const noexcept;
+  bool IsOverriding(void) const noexcept;
+  bool IsPropertyAccessor(void) const noexcept;
+  bool IsRedeclaration(void) const noexcept;
+  bool IsSynthesizedAccessorStub(void) const noexcept;
+  bool IsThisDeclarationADefinition(void) const noexcept;
+  bool IsThisDeclarationADesignatedInitializer(void) const noexcept;
+  bool IsVariadic(void) const noexcept;
+  std::vector<::pasta::ParmVarDecl> Parameters(void) const noexcept;
+  std::vector<::pasta::Token> SelectorTokens(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCMethodDecl)
 };
@@ -1043,32 +1032,31 @@ class ObjCPropertyDecl : public NamedDecl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCPropertyDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, ObjCPropertyDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, ObjCPropertyDecl)
-  ::pasta::Token AtToken(void) const;
+  ::pasta::Token AtToken(void) const noexcept;
   // DefaultSynthInstanceVariableName: (clang::IdentifierInfo *)
-  ::pasta::ObjCMethodDecl GetterMethodDeclaration(void) const;
+  ::pasta::ObjCMethodDecl GetterMethodDeclaration(void) const noexcept;
   // GetterName: (clang::Selector)
-  ::pasta::Token GetterNameToken(void) const;
-  ::pasta::Token LParenToken(void) const;
+  ::pasta::Token GetterNameToken(void) const noexcept;
+  ::pasta::Token LParenToken(void) const noexcept;
   // PropertyAttributes: (clang::ObjCPropertyAttribute::Kind)
   // PropertyAttributesAsWritten: (clang::ObjCPropertyAttribute::Kind)
-  ::pasta::PropertyControl PropertyImplementation(void) const;
-  ::pasta::ObjCIvarDecl PropertyInstanceVariableDeclaration(void) const;
-  enum ObjCPropertyQueryKind QueryKind(void) const;
-  ::pasta::SetterKind SetterKind(void) const;
-  ::pasta::ObjCMethodDecl SetterMethodDeclaration(void) const;
+  ::pasta::PropertyControl PropertyImplementation(void) const noexcept;
+  ::pasta::ObjCIvarDecl PropertyInstanceVariableDeclaration(void) const noexcept;
+  enum ObjCPropertyQueryKind QueryKind(void) const noexcept;
+  ::pasta::SetterKind SetterKind(void) const noexcept;
+  ::pasta::ObjCMethodDecl SetterMethodDeclaration(void) const noexcept;
   // SetterName: (clang::Selector)
-  ::pasta::Token SetterNameToken(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
-  ::pasta::Type Type(void) const;
-  // TypeSourceInfo: (clang::TypeSourceInfo *)
+  ::pasta::Token SetterNameToken(void) const noexcept;
+  ::pasta::Type Type(void) const noexcept;
+  ::pasta::Type TypeSourceInfo(void) const noexcept;
   // UsageType: (clang::QualType)
-  bool IsAtomic(void) const;
-  bool IsClassProperty(void) const;
-  bool IsDirectProperty(void) const;
-  bool IsInstanceProperty(void) const;
-  bool IsOptional(void) const;
-  bool IsReadOnly(void) const;
-  bool IsRetaining(void) const;
+  bool IsAtomic(void) const noexcept;
+  bool IsClassProperty(void) const noexcept;
+  bool IsDirectProperty(void) const noexcept;
+  bool IsInstanceProperty(void) const noexcept;
+  bool IsOptional(void) const noexcept;
+  bool IsReadOnly(void) const noexcept;
+  bool IsRetaining(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCPropertyDecl)
 };
@@ -1080,17 +1068,16 @@ class ObjCPropertyImplDecl : public Decl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCPropertyImplDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, ObjCPropertyImplDecl)
-  ::pasta::Token BeginToken(void) const;
-  ::pasta::Expr GetterCXXConstructor(void) const;
-  ::pasta::ObjCMethodDecl GetterMethodDeclaration(void) const;
-  ::pasta::ObjCPropertyDecl PropertyDeclaration(void) const;
+  ::pasta::Token BeginToken(void) const noexcept;
+  ::pasta::Expr GetterCXXConstructor(void) const noexcept;
+  ::pasta::ObjCMethodDecl GetterMethodDeclaration(void) const noexcept;
+  ::pasta::ObjCPropertyDecl PropertyDeclaration(void) const noexcept;
   // PropertyImplementation: (clang::ObjCPropertyImplDecl::Kind)
-  ::pasta::ObjCIvarDecl PropertyInstanceVariableDeclaration(void) const;
-  ::pasta::Token PropertyInstanceVariableDeclarationToken(void) const;
-  ::pasta::Expr SetterCXXAssignment(void) const;
-  ::pasta::ObjCMethodDecl SetterMethodDeclaration(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
-  bool IsInstanceVariableNameSpecified(void) const;
+  ::pasta::ObjCIvarDecl PropertyInstanceVariableDeclaration(void) const noexcept;
+  ::pasta::Token PropertyInstanceVariableDeclarationToken(void) const noexcept;
+  ::pasta::Expr SetterCXXAssignment(void) const noexcept;
+  ::pasta::ObjCMethodDecl SetterMethodDeclaration(void) const noexcept;
+  bool IsInstanceVariableNameSpecified(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCPropertyImplDecl)
 };
@@ -1106,19 +1093,18 @@ class ObjCProtocolDecl : public ObjCContainerDecl {
   PASTA_DECLARE_BASE_OPERATORS(Decl, ObjCProtocolDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, ObjCProtocolDecl)
   PASTA_DECLARE_BASE_OPERATORS(ObjCContainerDecl, ObjCProtocolDecl)
-  ::pasta::ObjCProtocolDecl CanonicalDeclaration(void) const;
-  ::pasta::ObjCProtocolDecl Definition(void) const;
-  std::string_view ObjCRuntimeNameAsString(void) const;
+  ::pasta::ObjCProtocolDecl CanonicalDeclaration(void) const noexcept;
+  ::pasta::ObjCProtocolDecl Definition(void) const noexcept;
+  std::string_view ObjCRuntimeNameAsString(void) const noexcept;
   // ReferencedProtocols: (const clang::ObjCProtocolList &)
-  ::pasta::TokenRange TokenRange(void) const;
-  bool HasDefinition(void) const;
-  bool IsNonRuntimeProtocol(void) const;
-  bool IsThisDeclarationADefinition(void) const;
+  bool HasDefinition(void) const noexcept;
+  bool IsNonRuntimeProtocol(void) const noexcept;
+  bool IsThisDeclarationADefinition(void) const noexcept;
   // LookupClassMethod: (clang::ObjCMethodDecl *)
   // LookupInstanceMethod: (clang::ObjCMethodDecl *)
   // LookupMethod: (clang::ObjCMethodDecl *)
-  std::vector<::pasta::Token> ProtocolTokens(void) const;
-  std::vector<::pasta::ObjCProtocolDecl> Protocols(void) const;
+  std::vector<::pasta::Token> ProtocolTokens(void) const noexcept;
+  std::vector<::pasta::ObjCProtocolDecl> Protocols(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCProtocolDecl)
 };
@@ -1130,8 +1116,8 @@ class PragmaCommentDecl : public Decl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PragmaCommentDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, PragmaCommentDecl)
-  std::string_view Argument(void) const;
-  enum PragmaMSCommentKind CommentKind(void) const;
+  std::string_view Argument(void) const noexcept;
+  enum PragmaMSCommentKind CommentKind(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(PragmaCommentDecl)
 };
@@ -1143,8 +1129,8 @@ class PragmaDetectMismatchDecl : public Decl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PragmaDetectMismatchDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, PragmaDetectMismatchDecl)
-  std::string_view Name(void) const;
-  std::string_view Value(void) const;
+  std::string_view Name(void) const noexcept;
+  std::string_view Value(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(PragmaDetectMismatchDecl)
 };
@@ -1168,11 +1154,10 @@ class StaticAssertDecl : public Decl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(StaticAssertDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, StaticAssertDecl)
-  ::pasta::Expr AssertExpression(void) const;
-  ::pasta::StringLiteral Message(void) const;
-  ::pasta::Token RParenToken(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
-  bool IsFailed(void) const;
+  ::pasta::Expr AssertExpression(void) const noexcept;
+  ::pasta::StringLiteral Message(void) const noexcept;
+  ::pasta::Token RParenToken(void) const noexcept;
+  bool IsFailed(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(StaticAssertDecl)
 };
@@ -1194,10 +1179,9 @@ class TemplateDecl : public NamedDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(TemplateDecl, TemplateTemplateParmDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(TemplateDecl, TypeAliasTemplateDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(TemplateDecl, VarTemplateDecl)
-  ::pasta::TokenRange TokenRange(void) const;
-  // TemplateParameters: (clang::TemplateParameterList *)
-  ::pasta::NamedDecl TemplatedDeclaration(void) const;
-  bool HasAssociatedConstraints(void) const;
+  ::pasta::TemplateParameterList TemplateParameters(void) const noexcept;
+  ::pasta::NamedDecl TemplatedDeclaration(void) const noexcept;
+  bool HasAssociatedConstraints(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TemplateDecl)
 };
@@ -1212,17 +1196,16 @@ class TemplateTemplateParmDecl : public TemplateDecl {
   PASTA_DECLARE_BASE_OPERATORS(Decl, TemplateTemplateParmDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, TemplateTemplateParmDecl)
   PASTA_DECLARE_BASE_OPERATORS(TemplateDecl, TemplateTemplateParmDecl)
-  bool DefaultArgumentWasInherited(void) const;
+  bool DefaultArgumentWasInherited(void) const noexcept;
   // DefaultArgumentStorage: (const clang::DefaultArgStorage<clang::TemplateTemplateParmDecl, clang::TemplateArgumentLoc *> &)
   // DefaultArgument: (const clang::TemplateArgumentLoc &)
-  ::pasta::Token DefaultArgumentToken(void) const;
+  ::pasta::Token DefaultArgumentToken(void) const noexcept;
   // ExpansionTemplateParameters: (clang::TemplateParameterList *)
-  uint32_t NumExpansionTemplateParameters(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
-  bool HasDefaultArgument(void) const;
-  bool IsExpandedParameterPack(void) const;
-  bool IsPackExpansion(void) const;
-  bool IsParameterPack(void) const;
+  uint32_t NumExpansionTemplateParameters(void) const noexcept;
+  bool HasDefaultArgument(void) const noexcept;
+  bool IsExpandedParameterPack(void) const noexcept;
+  bool IsPackExpansion(void) const noexcept;
+  bool IsParameterPack(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TemplateTemplateParmDecl)
 };
@@ -1236,7 +1219,7 @@ class TranslationUnitDecl : public Decl {
   PASTA_DECLARE_BASE_OPERATORS(DeclContext, TranslationUnitDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, TranslationUnitDecl)
   // ASTContext: (clang::ASTContext &)
-  ::pasta::NamespaceDecl AnonymousNamespace(void) const;
+  ::pasta::NamespaceDecl AnonymousNamespace(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TranslationUnitDecl)
 };
@@ -1262,9 +1245,8 @@ class TypeDecl : public NamedDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(TypeDecl, TypedefDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeDecl, TypedefNameDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeDecl, UnresolvedUsingTypenameDecl)
-  ::pasta::Token BeginToken(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
-  ::pasta::Type TypeForDeclaration(void) const;
+  ::pasta::Token BeginToken(void) const noexcept;
+  ::pasta::Type TypeForDeclaration(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TypeDecl)
 };
@@ -1282,12 +1264,12 @@ class TypedefNameDecl : public TypeDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(TypedefNameDecl, ObjCTypeParamDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(TypedefNameDecl, TypeAliasDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(TypedefNameDecl, TypedefDecl)
-  ::pasta::TagDecl AnonymousDeclarationWithTypedefName(void) const;
-  ::pasta::TypedefNameDecl CanonicalDeclaration(void) const;
-  // TypeSourceInfo: (clang::TypeSourceInfo *)
-  ::pasta::Type UnderlyingType(void) const;
-  bool IsModed(void) const;
-  bool IsTransparentTag(void) const;
+  std::optional<::pasta::TagDecl> AnonymousDeclarationWithTypedefName(void) const noexcept;
+  ::pasta::TypedefNameDecl CanonicalDeclaration(void) const noexcept;
+  ::pasta::Type TypeSourceInfo(void) const noexcept;
+  ::pasta::Type UnderlyingType(void) const noexcept;
+  bool IsModed(void) const noexcept;
+  bool IsTransparentTag(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TypedefNameDecl)
 };
@@ -1315,14 +1297,14 @@ class UnresolvedUsingTypenameDecl : public TypeDecl {
   PASTA_DECLARE_BASE_OPERATORS(Decl, UnresolvedUsingTypenameDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, UnresolvedUsingTypenameDecl)
   PASTA_DECLARE_BASE_OPERATORS(TypeDecl, UnresolvedUsingTypenameDecl)
-  ::pasta::UnresolvedUsingTypenameDecl CanonicalDeclaration(void) const;
-  ::pasta::Token EllipsisToken(void) const;
+  ::pasta::UnresolvedUsingTypenameDecl CanonicalDeclaration(void) const noexcept;
+  ::pasta::Token EllipsisToken(void) const noexcept;
   // NameInfo: (clang::DeclarationNameInfo)
   // Qualifier: (clang::NestedNameSpecifier *)
   // QualifierToken: (clang::NestedNameSpecifierLoc)
-  ::pasta::Token TypenameToken(void) const;
-  ::pasta::Token UsingToken(void) const;
-  bool IsPackExpansion(void) const;
+  ::pasta::Token TypenameToken(void) const noexcept;
+  ::pasta::Token UsingToken(void) const noexcept;
+  bool IsPackExpansion(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(UnresolvedUsingTypenameDecl)
 };
@@ -1336,15 +1318,14 @@ class UsingDirectiveDecl : public NamedDecl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UsingDirectiveDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, UsingDirectiveDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, UsingDirectiveDecl)
-  ::pasta::DeclContext CommonAncestor(void) const;
-  ::pasta::Token IdentifierToken(void) const;
-  ::pasta::Token NamespaceKeyToken(void) const;
-  ::pasta::NamespaceDecl NominatedNamespace(void) const;
-  ::pasta::NamedDecl NominatedNamespaceAsWritten(void) const;
+  ::pasta::DeclContext CommonAncestor(void) const noexcept;
+  ::pasta::Token IdentifierToken(void) const noexcept;
+  ::pasta::Token NamespaceKeyToken(void) const noexcept;
+  ::pasta::NamespaceDecl NominatedNamespace(void) const noexcept;
+  ::pasta::NamedDecl NominatedNamespaceAsWritten(void) const noexcept;
   // Qualifier: (clang::NestedNameSpecifier *)
   // QualifierToken: (clang::NestedNameSpecifierLoc)
-  ::pasta::TokenRange TokenRange(void) const;
-  ::pasta::Token UsingToken(void) const;
+  ::pasta::Token UsingToken(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(UsingDirectiveDecl)
 };
@@ -1358,10 +1339,9 @@ class UsingPackDecl : public NamedDecl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UsingPackDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, UsingPackDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, UsingPackDecl)
-  std::vector<::pasta::NamedDecl> Expansions(void) const;
-  ::pasta::UsingPackDecl CanonicalDeclaration(void) const;
-  ::pasta::NamedDecl InstantiatedFromUsingDeclaration(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
+  std::vector<::pasta::NamedDecl> Expansions(void) const noexcept;
+  ::pasta::UsingPackDecl CanonicalDeclaration(void) const noexcept;
+  ::pasta::NamedDecl InstantiatedFromUsingDeclaration(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(UsingPackDecl)
 };
@@ -1376,10 +1356,10 @@ class UsingShadowDecl : public NamedDecl {
   PASTA_DECLARE_BASE_OPERATORS(Decl, UsingShadowDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, UsingShadowDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(UsingShadowDecl, ConstructorUsingShadowDecl)
-  ::pasta::UsingShadowDecl CanonicalDeclaration(void) const;
-  ::pasta::BaseUsingDecl Introducer(void) const;
-  ::pasta::UsingShadowDecl NextUsingShadowDeclaration(void) const;
-  ::pasta::NamedDecl TargetDeclaration(void) const;
+  ::pasta::UsingShadowDecl CanonicalDeclaration(void) const noexcept;
+  ::pasta::BaseUsingDecl Introducer(void) const noexcept;
+  ::pasta::UsingShadowDecl NextUsingShadowDeclaration(void) const noexcept;
+  ::pasta::NamedDecl TargetDeclaration(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(UsingShadowDecl)
 };
@@ -1421,8 +1401,8 @@ class ValueDecl : public NamedDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(ValueDecl, VarDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueDecl, VarTemplatePartialSpecializationDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueDecl, VarTemplateSpecializationDecl)
-  ::pasta::Type Type(void) const;
-  bool IsWeak(void) const;
+  ::pasta::Type Type(void) const noexcept;
+  bool IsWeak(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ValueDecl)
 };
@@ -1463,9 +1443,8 @@ class AccessSpecDecl : public Decl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AccessSpecDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, AccessSpecDecl)
-  ::pasta::Token AccessSpecifierToken(void) const;
-  ::pasta::Token ColonToken(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
+  ::pasta::Token AccessSpecifierToken(void) const noexcept;
+  ::pasta::Token ColonToken(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(AccessSpecDecl)
 };
@@ -1481,7 +1460,7 @@ class BaseUsingDecl : public NamedDecl {
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, BaseUsingDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(BaseUsingDecl, UsingDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(BaseUsingDecl, UsingEnumDecl)
-  // Shadows: (llvm::iterator_range<clang::BaseUsingDecl::shadow_iterator>)
+  std::vector<::pasta::UsingShadowDecl> Shadows(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(BaseUsingDecl)
 };
@@ -1496,9 +1475,9 @@ class BindingDecl : public ValueDecl {
   PASTA_DECLARE_BASE_OPERATORS(Decl, BindingDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, BindingDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, BindingDecl)
-  ::pasta::Expr Binding(void) const;
-  ::pasta::ValueDecl DecomposedDeclaration(void) const;
-  ::pasta::VarDecl HoldingVariable(void) const;
+  ::pasta::Expr Binding(void) const noexcept;
+  ::pasta::ValueDecl DecomposedDeclaration(void) const noexcept;
+  ::pasta::VarDecl HoldingVariable(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(BindingDecl)
 };
@@ -1511,27 +1490,25 @@ class BlockDecl : public Decl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(BlockDecl)
   PASTA_DECLARE_BASE_OPERATORS(DeclContext, BlockDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, BlockDecl)
-  bool BlockMissingReturnType(void) const;
-  bool CanAvoidCopyToHeap(void) const;
+  bool BlockMissingReturnType(void) const noexcept;
+  bool CanAvoidCopyToHeap(void) const noexcept;
   // Captures: (llvm::ArrayRef<clang::BlockDecl::Capture>)
-  bool CapturesCXXThis(void) const;
+  bool CapturesCXXThis(void) const noexcept;
   // CapturesVariable: (bool)
-  bool DoesNotEscape(void) const;
-  ::pasta::Decl BlockManglingContextDeclaration(void) const;
-  uint32_t BlockManglingNumber(void) const;
-  ::pasta::Stmt Body(void) const;
-  ::pasta::Token CaretToken(void) const;
-  ::pasta::CompoundStmt CompoundBody(void) const;
-  uint32_t NumCaptures(void) const;
-  uint32_t NumParams(void) const;
+  bool DoesNotEscape(void) const noexcept;
+  ::pasta::Decl BlockManglingContextDeclaration(void) const noexcept;
+  uint32_t BlockManglingNumber(void) const noexcept;
+  ::pasta::Token CaretToken(void) const noexcept;
+  ::pasta::CompoundStmt CompoundBody(void) const noexcept;
+  uint32_t NumCaptures(void) const noexcept;
+  uint32_t NumParams(void) const noexcept;
   // ParamDeclaration: (const clang::ParmVarDecl *)
-  // SignatureAsWritten: (clang::TypeSourceInfo *)
-  ::pasta::TokenRange TokenRange(void) const;
-  bool HasCaptures(void) const;
-  bool IsConversionFromLambda(void) const;
-  bool IsVariadic(void) const;
-  std::vector<::pasta::ParmVarDecl> Parameters(void) const;
-  std::vector<::pasta::ParmVarDecl> ParamDeclarations(void) const;
+  ::pasta::Type SignatureAsWritten(void) const noexcept;
+  bool HasCaptures(void) const noexcept;
+  bool IsConversionFromLambda(void) const noexcept;
+  bool IsVariadic(void) const noexcept;
+  std::vector<::pasta::ParmVarDecl> Parameters(void) const noexcept;
+  std::vector<::pasta::ParmVarDecl> ParamDeclarations(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(BlockDecl)
 };
@@ -1547,7 +1524,6 @@ class BuiltinTemplateDecl : public TemplateDecl {
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, BuiltinTemplateDecl)
   PASTA_DECLARE_BASE_OPERATORS(TemplateDecl, BuiltinTemplateDecl)
   // BuiltinTemplateKind: (clang::BuiltinTemplateKind)
-  ::pasta::TokenRange TokenRange(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(BuiltinTemplateDecl)
 };
@@ -1560,14 +1536,13 @@ class CapturedDecl : public Decl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CapturedDecl)
   PASTA_DECLARE_BASE_OPERATORS(DeclContext, CapturedDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, CapturedDecl)
-  ::pasta::Stmt Body(void) const;
-  ::pasta::ImplicitParamDecl ContextParam(void) const;
-  uint32_t ContextParamPosition(void) const;
-  uint32_t NumParams(void) const;
+  ::pasta::ImplicitParamDecl ContextParam(void) const noexcept;
+  uint32_t ContextParamPosition(void) const noexcept;
+  uint32_t NumParams(void) const noexcept;
   // Param: (clang::ImplicitParamDecl *)
-  bool IsNothrow(void) const;
-  std::vector<::pasta::ImplicitParamDecl> Parameters(void) const;
-  std::vector<::pasta::ImplicitParamDecl> Params(void) const;
+  bool IsNothrow(void) const noexcept;
+  std::vector<::pasta::ImplicitParamDecl> Parameters(void) const noexcept;
+  std::vector<::pasta::ImplicitParamDecl> Params(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CapturedDecl)
 };
@@ -1579,9 +1554,9 @@ class ClassScopeFunctionSpecializationDecl : public Decl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ClassScopeFunctionSpecializationDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, ClassScopeFunctionSpecializationDecl)
-  ::pasta::CXXMethodDecl Specialization(void) const;
+  ::pasta::CXXMethodDecl Specialization(void) const noexcept;
   // TemplateArgumentsAsWritten: (const clang::ASTTemplateArgumentListInfo *)
-  bool HasExplicitTemplateArguments(void) const;
+  bool HasExplicitTemplateArguments(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ClassScopeFunctionSpecializationDecl)
 };
@@ -1596,10 +1571,9 @@ class ConceptDecl : public TemplateDecl {
   PASTA_DECLARE_BASE_OPERATORS(Decl, ConceptDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, ConceptDecl)
   PASTA_DECLARE_BASE_OPERATORS(TemplateDecl, ConceptDecl)
-  ::pasta::ConceptDecl CanonicalDeclaration(void) const;
-  ::pasta::Expr ConstraintExpression(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
-  bool IsTypeConcept(void) const;
+  ::pasta::ConceptDecl CanonicalDeclaration(void) const noexcept;
+  ::pasta::Expr ConstraintExpression(void) const noexcept;
+  bool IsTypeConcept(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ConceptDecl)
 };
@@ -1614,13 +1588,13 @@ class ConstructorUsingShadowDecl : public UsingShadowDecl {
   PASTA_DECLARE_BASE_OPERATORS(Decl, ConstructorUsingShadowDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, ConstructorUsingShadowDecl)
   PASTA_DECLARE_BASE_OPERATORS(UsingShadowDecl, ConstructorUsingShadowDecl)
-  bool ConstructsVirtualBase(void) const;
-  ::pasta::CXXRecordDecl ConstructedBaseClass(void) const;
-  ::pasta::ConstructorUsingShadowDecl ConstructedBaseClassShadowDeclaration(void) const;
-  ::pasta::UsingDecl Introducer(void) const;
-  ::pasta::CXXRecordDecl NominatedBaseClass(void) const;
-  ::pasta::ConstructorUsingShadowDecl NominatedBaseClassShadowDeclaration(void) const;
-  ::pasta::CXXRecordDecl Parent(void) const;
+  bool ConstructsVirtualBase(void) const noexcept;
+  ::pasta::CXXRecordDecl ConstructedBaseClass(void) const noexcept;
+  std::optional<::pasta::ConstructorUsingShadowDecl> ConstructedBaseClassShadowDeclaration(void) const noexcept;
+  ::pasta::UsingDecl Introducer(void) const noexcept;
+  ::pasta::CXXRecordDecl NominatedBaseClass(void) const noexcept;
+  std::optional<::pasta::ConstructorUsingShadowDecl> NominatedBaseClassShadowDeclaration(void) const noexcept;
+  ::pasta::CXXRecordDecl Parent(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ConstructorUsingShadowDecl)
 };
@@ -1653,19 +1627,18 @@ class DeclaratorDecl : public ValueDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(DeclaratorDecl, VarDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(DeclaratorDecl, VarTemplatePartialSpecializationDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(DeclaratorDecl, VarTemplateSpecializationDecl)
-  ::pasta::Token BeginToken(void) const;
-  ::pasta::Token InnerTokenStart(void) const;
-  uint32_t NumTemplateParameterLists(void) const;
-  ::pasta::Token OuterTokenStart(void) const;
+  ::pasta::Token BeginToken(void) const noexcept;
+  ::pasta::Token InnerTokenStart(void) const noexcept;
+  uint32_t NumTemplateParameterLists(void) const noexcept;
+  ::pasta::Token OuterTokenStart(void) const noexcept;
   // Qualifier: (clang::NestedNameSpecifier *)
   // QualifierToken: (clang::NestedNameSpecifierLoc)
-  ::pasta::TokenRange TokenRange(void) const;
   // TemplateParameterList: (clang::TemplateParameterList *)
-  ::pasta::Expr TrailingRequiresClause(void) const;
-  // TypeSourceInfo: (clang::TypeSourceInfo *)
-  ::pasta::Token TypeSpecEndToken(void) const;
-  ::pasta::Token TypeSpecStartToken(void) const;
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
+  ::pasta::Expr TrailingRequiresClause(void) const noexcept;
+  ::pasta::Type TypeSourceInfo(void) const noexcept;
+  ::pasta::Token TypeSpecEndToken(void) const noexcept;
+  ::pasta::Token TypeSpecStartToken(void) const noexcept;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(DeclaratorDecl)
 };
@@ -1680,10 +1653,9 @@ class EnumConstantDecl : public ValueDecl {
   PASTA_DECLARE_BASE_OPERATORS(Decl, EnumConstantDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, EnumConstantDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, EnumConstantDecl)
-  ::pasta::EnumConstantDecl CanonicalDeclaration(void) const;
-  ::pasta::Expr InitializerExpression(void) const;
-  llvm::APSInt InitializerVal(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
+  ::pasta::EnumConstantDecl CanonicalDeclaration(void) const noexcept;
+  ::pasta::Expr InitializerExpression(void) const noexcept;
+  llvm::APSInt InitializerVal(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(EnumConstantDecl)
 };
@@ -1701,24 +1673,23 @@ class FieldDecl : public DeclaratorDecl {
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, FieldDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(FieldDecl, ObjCAtDefsFieldDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(FieldDecl, ObjCIvarDecl)
-  ::pasta::Expr BitWidth(void) const;
-  uint32_t BitWidthValue(void) const;
-  ::pasta::FieldDecl CanonicalDeclaration(void) const;
-  ::pasta::VariableArrayType CapturedVLAType(void) const;
-  uint32_t FieldIndex(void) const;
-  enum InClassInitStyle InClassInitializerStyle(void) const;
-  ::pasta::Expr InClassInitializer(void) const;
-  ::pasta::RecordDecl Parent(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
-  bool HasCapturedVLAType(void) const;
-  bool HasInClassInitializer(void) const;
-  bool IsAnonymousStructOrUnion(void) const;
-  bool IsBitField(void) const;
-  bool IsMutable(void) const;
-  bool IsUnnamedBitfield(void) const;
-  bool IsZeroLengthBitField(void) const;
-  bool IsZeroSize(void) const;
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
+  ::pasta::Expr BitWidth(void) const noexcept;
+  uint32_t BitWidthValue(void) const noexcept;
+  ::pasta::FieldDecl CanonicalDeclaration(void) const noexcept;
+  ::pasta::VariableArrayType CapturedVLAType(void) const noexcept;
+  uint32_t FieldIndex(void) const noexcept;
+  enum InClassInitStyle InClassInitializerStyle(void) const noexcept;
+  ::pasta::Expr InClassInitializer(void) const noexcept;
+  ::pasta::RecordDecl Parent(void) const noexcept;
+  bool HasCapturedVLAType(void) const noexcept;
+  bool HasInClassInitializer(void) const noexcept;
+  bool IsAnonymousStructOrUnion(void) const noexcept;
+  bool IsBitField(void) const noexcept;
+  bool IsMutable(void) const noexcept;
+  bool IsUnnamedBitfield(void) const noexcept;
+  bool IsZeroLengthBitField(void) const noexcept;
+  bool IsZeroSize(void) const noexcept;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(FieldDecl)
 };
@@ -1740,101 +1711,99 @@ class FunctionDecl : public DeclaratorDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(FunctionDecl, CXXDeductionGuideDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(FunctionDecl, CXXDestructorDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(FunctionDecl, CXXMethodDecl)
-  bool DoesDeclarationForceExternallyVisibleDefinition(void) const;
-  bool DoesThisDeclarationHaveABody(void) const;
-  uint32_t BuiltinID(void) const;
-  ::pasta::Type CallResultType(void) const;
-  ::pasta::FunctionDecl CanonicalDeclaration(void) const;
-  enum ConstexprSpecKind ConstexprKind(void) const;
-  ::pasta::Type DeclaredReturnType(void) const;
+  bool DoesDeclarationForceExternallyVisibleDefinition(void) const noexcept;
+  bool DoesThisDeclarationHaveABody(void) const noexcept;
+  uint32_t BuiltinID(void) const noexcept;
+  ::pasta::Type CallResultType(void) const noexcept;
+  ::pasta::FunctionDecl CanonicalDeclaration(void) const noexcept;
+  enum ConstexprSpecKind ConstexprKind(void) const noexcept;
+  ::pasta::Type DeclaredReturnType(void) const noexcept;
   // DefaultedFunctionInfo: (clang::FunctionDecl::DefaultedFunctionInfo *)
-  ::pasta::FunctionDecl Definition(void) const;
+  ::pasta::FunctionDecl Definition(void) const noexcept;
   // DependentSpecializationInfo: (clang::DependentFunctionTemplateSpecializationInfo *)
-  ::pasta::FunctionTemplateDecl DescribedFunctionTemplate(void) const;
-  ::pasta::Token EllipsisToken(void) const;
-  ::pasta::TokenRange ExceptionSpecSourceRange(void) const;
-  enum ExceptionSpecificationType ExceptionSpecType(void) const;
+  std::optional<::pasta::FunctionTemplateDecl> DescribedFunctionTemplate(void) const noexcept;
+  ::pasta::Token EllipsisToken(void) const noexcept;
+  ::pasta::TokenRange ExceptionSpecSourceRange(void) const noexcept;
+  enum ExceptionSpecificationType ExceptionSpecType(void) const noexcept;
   // FunctionTypeToken: (clang::FunctionTypeLoc)
-  ::pasta::FunctionDecl InstantiatedFromMemberFunction(void) const;
-  enum LanguageLinkage LanguageLinkage(void) const;
+  std::optional<::pasta::FunctionDecl> InstantiatedFromMemberFunction(void) const noexcept;
+  enum LanguageLinkage LanguageLinkage(void) const noexcept;
   // LiteralIdentifier: (const clang::IdentifierInfo *)
   // MemberSpecializationInfo: (clang::MemberSpecializationInfo *)
-  uint32_t MemoryFunctionKind(void) const;
-  uint32_t MinRequiredArguments(void) const;
-  enum MultiVersionKind MultiVersionKind(void) const;
+  uint32_t MemoryFunctionKind(void) const noexcept;
+  uint32_t MinRequiredArguments(void) const noexcept;
+  enum MultiVersionKind MultiVersionKind(void) const noexcept;
   // NameInfo: (clang::DeclarationNameInfo)
-  uint32_t NumParams(void) const;
-  uint32_t ODRHash(void) const;
-  enum OverloadedOperatorKind OverloadedOperator(void) const;
+  uint32_t NumParams(void) const noexcept;
+  uint32_t ODRHash(void) const noexcept;
+  enum OverloadedOperatorKind OverloadedOperator(void) const noexcept;
   // ParamDeclaration: (const clang::ParmVarDecl *)
-  ::pasta::TokenRange ParametersSourceRange(void) const;
-  ::pasta::Token PointOfInstantiation(void) const;
-  ::pasta::FunctionTemplateDecl PrimaryTemplate(void) const;
-  ::pasta::Type ReturnType(void) const;
-  ::pasta::TokenRange ReturnTypeSourceRange(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
-  enum StorageClass StorageClass(void) const;
-  ::pasta::FunctionDecl TemplateInstantiationPattern(void) const;
+  ::pasta::TokenRange ParametersSourceRange(void) const noexcept;
+  ::pasta::Token PointOfInstantiation(void) const noexcept;
+  std::optional<::pasta::FunctionTemplateDecl> PrimaryTemplate(void) const noexcept;
+  ::pasta::Type ReturnType(void) const noexcept;
+  ::pasta::TokenRange ReturnTypeSourceRange(void) const noexcept;
+  enum StorageClass StorageClass(void) const noexcept;
+  std::optional<::pasta::FunctionDecl> TemplateInstantiationPattern(void) const noexcept;
   // TemplateSpecializationArguments: (const clang::TemplateArgumentList *)
   // TemplateSpecializationArgumentsAsWritten: (const clang::ASTTemplateArgumentListInfo *)
   // TemplateSpecializationInfo: (clang::FunctionTemplateSpecializationInfo *)
-  enum TemplateSpecializationKind TemplateSpecializationKind(void) const;
-  enum TemplateSpecializationKind TemplateSpecializationKindForInstantiation(void) const;
+  enum TemplateSpecializationKind TemplateSpecializationKind(void) const noexcept;
+  enum TemplateSpecializationKind TemplateSpecializationKindForInstantiation(void) const noexcept;
   // TemplatedKind: (clang::FunctionDecl::TemplatedKind)
-  bool HasImplicitReturnZero(void) const;
-  bool HasInheritedPrototype(void) const;
-  bool HasOneParamOrDefaultArguments(void) const;
-  bool HasPrototype(void) const;
-  bool HasSkippedBody(void) const;
-  bool HasTrivialBody(void) const;
-  bool HasWrittenPrototype(void) const;
-  bool InstantiationIsPending(void) const;
-  bool IsCPUDispatchMultiVersion(void) const;
-  bool IsCPUSpecificMultiVersion(void) const;
-  bool IsConsteval(void) const;
-  bool IsConstexpr(void) const;
-  bool IsConstexprSpecified(void) const;
-  bool IsDefaulted(void) const;
-  bool IsDeleted(void) const;
-  bool IsDeletedAsWritten(void) const;
-  bool IsDestroyingOperatorDelete(void) const;
-  bool IsExplicitlyDefaulted(void) const;
-  bool IsExternC(void) const;
-  bool IsFunctionTemplateSpecialization(void) const;
-  bool IsGlobal(void) const;
-  bool IsImplicitlyInstantiable(void) const;
-  bool IsInExternCContext(void) const;
-  bool IsInExternCXXContext(void) const;
-  bool IsInlineBuiltinDeclaration(void) const;
-  bool IsInlineDefinitionExternallyVisible(void) const;
-  bool IsInlineSpecified(void) const;
-  bool IsInlined(void) const;
-  bool IsLateTemplateParsed(void) const;
-  bool IsMSExternInline(void) const;
-  bool IsMSVCRTEntryPoint(void) const;
-  bool IsMain(void) const;
-  bool IsMultiVersion(void) const;
-  bool IsNoReturn(void) const;
-  bool IsOutOfLine(void) const;
-  bool IsOverloadedOperator(void) const;
-  bool IsPure(void) const;
-  bool IsReplaceableGlobalAllocationFunction(void) const;
-  bool IsReservedGlobalPlacementOperator(void) const;
-  bool IsStatic(void) const;
-  bool IsTargetMultiVersion(void) const;
-  bool IsTemplateInstantiation(void) const;
-  bool IsThisDeclarationADefinition(void) const;
-  bool IsThisDeclarationInstantiatedFromAFriendDefinition(void) const;
-  bool IsTrivial(void) const;
-  bool IsTrivialForCall(void) const;
-  bool IsUserProvided(void) const;
-  bool IsVariadic(void) const;
-  bool IsVirtualAsWritten(void) const;
-  std::vector<::pasta::ParmVarDecl> Parameters(void) const;
-  bool UsesSEHTry(void) const;
-  bool WillHaveBody(void) const;
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
-  std::vector<::pasta::ParmVarDecl> ParamDeclarations(void) const;
+  bool HasImplicitReturnZero(void) const noexcept;
+  bool HasInheritedPrototype(void) const noexcept;
+  bool HasOneParamOrDefaultArguments(void) const noexcept;
+  bool HasPrototype(void) const noexcept;
+  bool HasSkippedBody(void) const noexcept;
+  bool HasTrivialBody(void) const noexcept;
+  bool HasWrittenPrototype(void) const noexcept;
+  bool InstantiationIsPending(void) const noexcept;
+  bool IsCPUDispatchMultiVersion(void) const noexcept;
+  bool IsCPUSpecificMultiVersion(void) const noexcept;
+  bool IsConsteval(void) const noexcept;
+  bool IsConstexpr(void) const noexcept;
+  bool IsConstexprSpecified(void) const noexcept;
+  bool IsDefaulted(void) const noexcept;
+  bool IsDeleted(void) const noexcept;
+  bool IsDeletedAsWritten(void) const noexcept;
+  bool IsDestroyingOperatorDelete(void) const noexcept;
+  bool IsExplicitlyDefaulted(void) const noexcept;
+  bool IsExternC(void) const noexcept;
+  bool IsFunctionTemplateSpecialization(void) const noexcept;
+  bool IsGlobal(void) const noexcept;
+  bool IsImplicitlyInstantiable(void) const noexcept;
+  bool IsInExternCContext(void) const noexcept;
+  bool IsInExternCXXContext(void) const noexcept;
+  bool IsInlineBuiltinDeclaration(void) const noexcept;
+  bool IsInlineDefinitionExternallyVisible(void) const noexcept;
+  bool IsInlineSpecified(void) const noexcept;
+  bool IsInlined(void) const noexcept;
+  bool IsLateTemplateParsed(void) const noexcept;
+  bool IsMSExternInline(void) const noexcept;
+  bool IsMSVCRTEntryPoint(void) const noexcept;
+  bool IsMain(void) const noexcept;
+  bool IsMultiVersion(void) const noexcept;
+  bool IsNoReturn(void) const noexcept;
+  bool IsOverloadedOperator(void) const noexcept;
+  bool IsPure(void) const noexcept;
+  bool IsReplaceableGlobalAllocationFunction(void) const noexcept;
+  bool IsReservedGlobalPlacementOperator(void) const noexcept;
+  bool IsStatic(void) const noexcept;
+  bool IsTargetMultiVersion(void) const noexcept;
+  bool IsTemplateInstantiation(void) const noexcept;
+  bool IsThisDeclarationADefinition(void) const noexcept;
+  bool IsThisDeclarationInstantiatedFromAFriendDefinition(void) const noexcept;
+  bool IsTrivial(void) const noexcept;
+  bool IsTrivialForCall(void) const noexcept;
+  bool IsUserProvided(void) const noexcept;
+  bool IsVariadic(void) const noexcept;
+  bool IsVirtualAsWritten(void) const noexcept;
+  std::vector<::pasta::ParmVarDecl> Parameters(void) const noexcept;
+  bool UsesSEHTry(void) const noexcept;
+  bool WillHaveBody(void) const noexcept;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
+  std::vector<::pasta::ParmVarDecl> ParamDeclarations(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(FunctionDecl)
 };
@@ -1849,11 +1818,11 @@ class IndirectFieldDecl : public ValueDecl {
   PASTA_DECLARE_BASE_OPERATORS(Decl, IndirectFieldDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, IndirectFieldDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, IndirectFieldDecl)
-  std::vector<::pasta::NamedDecl> Chain(void) const;
-  ::pasta::FieldDecl AnonymousField(void) const;
-  ::pasta::IndirectFieldDecl CanonicalDeclaration(void) const;
-  uint32_t ChainingSize(void) const;
-  ::pasta::VarDecl VariableDeclaration(void) const;
+  std::vector<::pasta::NamedDecl> Chain(void) const noexcept;
+  ::pasta::FieldDecl AnonymousField(void) const noexcept;
+  ::pasta::IndirectFieldDecl CanonicalDeclaration(void) const noexcept;
+  uint32_t ChainingSize(void) const noexcept;
+  ::pasta::VarDecl VariableDeclaration(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(IndirectFieldDecl)
 };
@@ -1867,12 +1836,11 @@ class LabelDecl : public NamedDecl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(LabelDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, LabelDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, LabelDecl)
-  std::string_view MSAssemblyLabel(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
-  ::pasta::LabelStmt Statement(void) const;
-  bool IsGnuLocal(void) const;
-  bool IsMSAssemblyLabel(void) const;
-  bool IsResolvedMSAssemblyLabel(void) const;
+  std::string_view MSAssemblyLabel(void) const noexcept;
+  ::pasta::LabelStmt Statement(void) const noexcept;
+  bool IsGnuLocal(void) const noexcept;
+  bool IsMSAssemblyLabel(void) const noexcept;
+  bool IsResolvedMSAssemblyLabel(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(LabelDecl)
 };
@@ -1906,9 +1874,9 @@ class MSPropertyDecl : public DeclaratorDecl {
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, MSPropertyDecl)
   // GetterId: (clang::IdentifierInfo *)
   // SetterId: (clang::IdentifierInfo *)
-  bool HasGetter(void) const;
-  bool HasSetter(void) const;
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
+  bool HasGetter(void) const noexcept;
+  bool HasSetter(void) const noexcept;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(MSPropertyDecl)
 };
@@ -1924,23 +1892,22 @@ class NonTypeTemplateParmDecl : public DeclaratorDecl {
   PASTA_DECLARE_BASE_OPERATORS(DeclaratorDecl, NonTypeTemplateParmDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, NonTypeTemplateParmDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, NonTypeTemplateParmDecl)
-  bool DefaultArgumentWasInherited(void) const;
+  bool DefaultArgumentWasInherited(void) const noexcept;
   // DefaultArgumentStorage: (const clang::DefaultArgStorage<clang::NonTypeTemplateParmDecl, clang::Expr *> &)
-  ::pasta::Expr DefaultArgument(void) const;
-  ::pasta::Token DefaultArgumentToken(void) const;
+  ::pasta::Expr DefaultArgument(void) const noexcept;
+  ::pasta::Token DefaultArgumentToken(void) const noexcept;
   // ExpansionType: (clang::QualType)
   // ExpansionTypeSourceInfo: (clang::TypeSourceInfo *)
-  uint32_t NumExpansionTypes(void) const;
-  ::pasta::Expr PlaceholderTypeConstraint(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
-  bool HasDefaultArgument(void) const;
-  bool HasPlaceholderTypeConstraint(void) const;
-  bool IsExpandedParameterPack(void) const;
-  bool IsPackExpansion(void) const;
-  bool IsParameterPack(void) const;
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
-  std::vector<::pasta::Type> ExpansionTypes(void) const;
-  // !!! ExpansionType getNumExpansionTypes getExpansionTypeSourceInfo (empty ret type = (clang::TypeSourceInfo *))
+  uint32_t NumExpansionTypes(void) const noexcept;
+  ::pasta::Expr PlaceholderTypeConstraint(void) const noexcept;
+  bool HasDefaultArgument(void) const noexcept;
+  bool HasPlaceholderTypeConstraint(void) const noexcept;
+  bool IsExpandedParameterPack(void) const noexcept;
+  bool IsPackExpansion(void) const noexcept;
+  bool IsParameterPack(void) const noexcept;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
+  std::vector<::pasta::Type> ExpansionTypes(void) const noexcept;
+  std::vector<::pasta::Type> ExpansionTypeSourceInfos(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(NonTypeTemplateParmDecl)
 };
@@ -1955,7 +1922,7 @@ class OMPAllocateDecl : public OMPDeclarativeDirectiveDecl {
   PASTA_DECLARE_BASE_OPERATORS(Decl, OMPAllocateDecl)
   PASTA_DECLARE_BASE_OPERATORS(OMPDeclarativeDirectiveDecl, OMPAllocateDecl)
   // Clauses: (llvm::iterator_range<const clang::OMPClause *const *>)
-  std::vector<::pasta::Expr> Varlists(void) const;
+  std::vector<::pasta::Expr> Varlists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(OMPAllocateDecl)
 };
@@ -1973,8 +1940,8 @@ class OMPDeclareMapperDecl : public OMPDeclarativeDirectiveValueDecl {
   PASTA_DECLARE_BASE_OPERATORS(OMPDeclarativeDirectiveValueDecl, OMPDeclareMapperDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, OMPDeclareMapperDecl)
   // Clauses: (llvm::iterator_range<const clang::OMPClause *const *>)
-  ::pasta::Expr MapperVariableReference(void) const;
-  ::pasta::OMPDeclareMapperDecl PrevDeclarationInScope(void) const;
+  ::pasta::Expr MapperVariableReference(void) const noexcept;
+  ::pasta::OMPDeclareMapperDecl PrevDeclarationInScope(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(OMPDeclareMapperDecl)
 };
@@ -1990,14 +1957,14 @@ class OMPDeclareReductionDecl : public ValueDecl {
   PASTA_DECLARE_BASE_OPERATORS(Decl, OMPDeclareReductionDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, OMPDeclareReductionDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, OMPDeclareReductionDecl)
-  ::pasta::Expr Combiner(void) const;
-  ::pasta::Expr CombinerIn(void) const;
-  ::pasta::Expr CombinerOut(void) const;
-  ::pasta::Expr InitializerOriginal(void) const;
-  ::pasta::Expr InitializerPrivate(void) const;
-  ::pasta::Expr Initializer(void) const;
+  ::pasta::Expr Combiner(void) const noexcept;
+  ::pasta::Expr CombinerIn(void) const noexcept;
+  ::pasta::Expr CombinerOut(void) const noexcept;
+  ::pasta::Expr InitializerOriginal(void) const noexcept;
+  ::pasta::Expr InitializerPrivate(void) const noexcept;
+  ::pasta::Expr Initializer(void) const noexcept;
   // InitializerKind: (clang::OMPDeclareReductionDecl::InitKind)
-  ::pasta::OMPDeclareReductionDecl PrevDeclarationInScope(void) const;
+  ::pasta::OMPDeclareReductionDecl PrevDeclarationInScope(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(OMPDeclareReductionDecl)
 };
@@ -2025,7 +1992,7 @@ class OMPThreadPrivateDecl : public OMPDeclarativeDirectiveDecl {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPThreadPrivateDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, OMPThreadPrivateDecl)
   PASTA_DECLARE_BASE_OPERATORS(OMPDeclarativeDirectiveDecl, OMPThreadPrivateDecl)
-  std::vector<::pasta::Expr> Varlists(void) const;
+  std::vector<::pasta::Expr> Varlists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(OMPThreadPrivateDecl)
 };
@@ -2042,7 +2009,7 @@ class ObjCAtDefsFieldDecl : public FieldDecl {
   PASTA_DECLARE_BASE_OPERATORS(FieldDecl, ObjCAtDefsFieldDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, ObjCAtDefsFieldDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, ObjCAtDefsFieldDecl)
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCAtDefsFieldDecl)
 };
@@ -2058,19 +2025,19 @@ class ObjCCategoryDecl : public ObjCContainerDecl {
   PASTA_DECLARE_BASE_OPERATORS(Decl, ObjCCategoryDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, ObjCCategoryDecl)
   PASTA_DECLARE_BASE_OPERATORS(ObjCContainerDecl, ObjCCategoryDecl)
-  bool IsClassExtension(void) const;
-  ::pasta::Token CategoryNameToken(void) const;
-  ::pasta::ObjCInterfaceDecl ClassInterface(void) const;
-  ::pasta::ObjCCategoryImplDecl Implementation(void) const;
-  ::pasta::Token InstanceVariableLBraceToken(void) const;
-  ::pasta::Token InstanceVariableRBraceToken(void) const;
-  ::pasta::ObjCCategoryDecl NextClassCategory(void) const;
-  ::pasta::ObjCCategoryDecl NextClassCategoryRaw(void) const;
+  bool IsClassExtension(void) const noexcept;
+  ::pasta::Token CategoryNameToken(void) const noexcept;
+  ::pasta::ObjCInterfaceDecl ClassInterface(void) const noexcept;
+  ::pasta::ObjCCategoryImplDecl Implementation(void) const noexcept;
+  ::pasta::Token InstanceVariableLBraceToken(void) const noexcept;
+  ::pasta::Token InstanceVariableRBraceToken(void) const noexcept;
+  ::pasta::ObjCCategoryDecl NextClassCategory(void) const noexcept;
+  ::pasta::ObjCCategoryDecl NextClassCategoryRaw(void) const noexcept;
   // ReferencedProtocols: (const clang::ObjCProtocolList &)
   // TypeParamList: (clang::ObjCTypeParamList *)
-  std::vector<::pasta::ObjCIvarDecl> InstanceVariables(void) const;
-  std::vector<::pasta::Token> ProtocolTokens(void) const;
-  std::vector<::pasta::ObjCProtocolDecl> Protocols(void) const;
+  std::vector<::pasta::ObjCIvarDecl> InstanceVariables(void) const noexcept;
+  std::vector<::pasta::Token> ProtocolTokens(void) const noexcept;
+  std::vector<::pasta::ObjCProtocolDecl> Protocols(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCCategoryDecl)
 };
@@ -2087,8 +2054,8 @@ class ObjCCategoryImplDecl : public ObjCImplDecl {
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, ObjCCategoryImplDecl)
   PASTA_DECLARE_BASE_OPERATORS(ObjCContainerDecl, ObjCCategoryImplDecl)
   PASTA_DECLARE_BASE_OPERATORS(ObjCImplDecl, ObjCCategoryImplDecl)
-  ::pasta::ObjCCategoryDecl CategoryDeclaration(void) const;
-  ::pasta::Token CategoryNameToken(void) const;
+  ::pasta::ObjCCategoryDecl CategoryDeclaration(void) const noexcept;
+  ::pasta::Token CategoryNameToken(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCCategoryImplDecl)
 };
@@ -2107,11 +2074,11 @@ class ObjCIvarDecl : public FieldDecl {
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, ObjCIvarDecl)
   // AccessControl: (clang::ObjCIvarDecl::AccessControl)
   // CanonicalAccessControl: (clang::ObjCIvarDecl::AccessControl)
-  ::pasta::ObjCInterfaceDecl ContainingInterface(void) const;
-  ::pasta::ObjCIvarDecl NextInstanceVariable(void) const;
-  bool Synthesize(void) const;
+  ::pasta::ObjCInterfaceDecl ContainingInterface(void) const noexcept;
+  ::pasta::ObjCIvarDecl NextInstanceVariable(void) const noexcept;
+  bool Synthesize(void) const noexcept;
   // UsageType: (clang::QualType)
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCIvarDecl)
 };
@@ -2127,12 +2094,11 @@ class ObjCTypeParamDecl : public TypedefNameDecl {
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, ObjCTypeParamDecl)
   PASTA_DECLARE_BASE_OPERATORS(TypeDecl, ObjCTypeParamDecl)
   PASTA_DECLARE_BASE_OPERATORS(TypedefNameDecl, ObjCTypeParamDecl)
-  ::pasta::Token ColonToken(void) const;
-  uint32_t Index(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
-  enum ObjCTypeParamVariance Variance(void) const;
-  ::pasta::Token VarianceToken(void) const;
-  bool HasExplicitBound(void) const;
+  ::pasta::Token ColonToken(void) const noexcept;
+  uint32_t Index(void) const noexcept;
+  enum ObjCTypeParamVariance Variance(void) const noexcept;
+  ::pasta::Token VarianceToken(void) const noexcept;
+  bool HasExplicitBound(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ObjCTypeParamDecl)
 };
@@ -2151,9 +2117,9 @@ class RedeclarableTemplateDecl : public TemplateDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(RedeclarableTemplateDecl, FunctionTemplateDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(RedeclarableTemplateDecl, TypeAliasTemplateDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(RedeclarableTemplateDecl, VarTemplateDecl)
-  ::pasta::RedeclarableTemplateDecl CanonicalDeclaration(void) const;
-  ::pasta::RedeclarableTemplateDecl InstantiatedFromMemberTemplate(void) const;
-  bool IsMemberSpecialization(void) const;
+  ::pasta::RedeclarableTemplateDecl CanonicalDeclaration(void) const noexcept;
+  ::pasta::RedeclarableTemplateDecl InstantiatedFromMemberTemplate(void) const noexcept;
+  bool IsMemberSpecialization(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(RedeclarableTemplateDecl)
 };
@@ -2174,34 +2140,33 @@ class TagDecl : public TypeDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(TagDecl, ClassTemplateSpecializationDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(TagDecl, EnumDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(TagDecl, RecordDecl)
-  ::pasta::TokenRange BraceRange(void) const;
-  ::pasta::TagDecl CanonicalDeclaration(void) const;
-  ::pasta::TagDecl Definition(void) const;
-  ::pasta::Token InnerTokenStart(void) const;
-  std::string_view KindName(void) const;
-  uint32_t NumTemplateParameterLists(void) const;
-  ::pasta::Token OuterTokenStart(void) const;
+  ::pasta::TokenRange BraceRange(void) const noexcept;
+  ::pasta::TagDecl CanonicalDeclaration(void) const noexcept;
+  std::optional<::pasta::TagDecl> Definition(void) const noexcept;
+  ::pasta::Token InnerTokenStart(void) const noexcept;
+  std::string_view KindName(void) const noexcept;
+  uint32_t NumTemplateParameterLists(void) const noexcept;
+  ::pasta::Token OuterTokenStart(void) const noexcept;
   // Qualifier: (clang::NestedNameSpecifier *)
   // QualifierToken: (clang::NestedNameSpecifierLoc)
-  ::pasta::TokenRange TokenRange(void) const;
-  enum TagTypeKind TagKind(void) const;
+  enum TagTypeKind TagKind(void) const noexcept;
   // TemplateParameterList: (clang::TemplateParameterList *)
-  ::pasta::TypedefNameDecl TypedefNameForAnonymousDeclaration(void) const;
-  bool HasNameForLinkage(void) const;
-  bool IsBeingDefined(void) const;
-  bool IsClass(void) const;
-  bool IsCompleteDefinition(void) const;
-  bool IsCompleteDefinitionRequired(void) const;
-  bool IsDependentType(void) const;
-  bool IsEmbeddedInDeclarator(void) const;
-  bool IsEnum(void) const;
-  bool IsFreeStanding(void) const;
-  bool IsInterface(void) const;
-  bool IsStruct(void) const;
-  bool IsThisDeclarationADefinition(void) const;
-  bool IsUnion(void) const;
-  bool MayHaveOutOfDateDefinition(void) const;
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
+  ::pasta::TypedefNameDecl TypedefNameForAnonymousDeclaration(void) const noexcept;
+  bool HasNameForLinkage(void) const noexcept;
+  bool IsBeingDefined(void) const noexcept;
+  bool IsClass(void) const noexcept;
+  bool IsCompleteDefinition(void) const noexcept;
+  bool IsCompleteDefinitionRequired(void) const noexcept;
+  bool IsDependentType(void) const noexcept;
+  bool IsEmbeddedInDeclarator(void) const noexcept;
+  bool IsEnum(void) const noexcept;
+  bool IsFreeStanding(void) const noexcept;
+  bool IsInterface(void) const noexcept;
+  bool IsStruct(void) const noexcept;
+  bool IsThisDeclarationADefinition(void) const noexcept;
+  bool IsUnion(void) const noexcept;
+  bool MayHaveOutOfDateDefinition(void) const noexcept;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TagDecl)
 };
@@ -2216,7 +2181,7 @@ class TemplateParamObjectDecl : public ValueDecl {
   PASTA_DECLARE_BASE_OPERATORS(Decl, TemplateParamObjectDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, TemplateParamObjectDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, TemplateParamObjectDecl)
-  ::pasta::TemplateParamObjectDecl CanonicalDeclaration(void) const;
+  ::pasta::TemplateParamObjectDecl CanonicalDeclaration(void) const noexcept;
   // Value: (const clang::APValue &)
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TemplateParamObjectDecl)
@@ -2232,22 +2197,21 @@ class TemplateTypeParmDecl : public TypeDecl {
   PASTA_DECLARE_BASE_OPERATORS(Decl, TemplateTypeParmDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, TemplateTypeParmDecl)
   PASTA_DECLARE_BASE_OPERATORS(TypeDecl, TemplateTypeParmDecl)
-  bool DefaultArgumentWasInherited(void) const;
+  bool DefaultArgumentWasInherited(void) const noexcept;
   // DefaultArgumentStorage: (const clang::DefaultArgStorage<clang::TemplateTypeParmDecl, clang::TypeSourceInfo *> &)
-  ::pasta::Type DefaultArgument(void) const;
-  // DefaultArgumentInfo: (clang::TypeSourceInfo *)
-  ::pasta::Token DefaultArgumentToken(void) const;
-  uint32_t Depth(void) const;
-  uint32_t Index(void) const;
-  uint32_t NumExpansionParameters(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
+  ::pasta::Type DefaultArgument(void) const noexcept;
+  ::pasta::Type DefaultArgumentInfo(void) const noexcept;
+  ::pasta::Token DefaultArgumentToken(void) const noexcept;
+  uint32_t Depth(void) const noexcept;
+  uint32_t Index(void) const noexcept;
+  uint32_t NumExpansionParameters(void) const noexcept;
   // TypeConstraint: (const clang::TypeConstraint *)
-  bool HasDefaultArgument(void) const;
-  bool HasTypeConstraint(void) const;
-  bool IsExpandedParameterPack(void) const;
-  bool IsPackExpansion(void) const;
-  bool IsParameterPack(void) const;
-  bool WasDeclaredWithTypename(void) const;
+  bool HasDefaultArgument(void) const noexcept;
+  bool HasTypeConstraint(void) const noexcept;
+  bool IsExpandedParameterPack(void) const noexcept;
+  bool IsPackExpansion(void) const noexcept;
+  bool IsParameterPack(void) const noexcept;
+  bool WasDeclaredWithTypename(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TemplateTypeParmDecl)
 };
@@ -2263,8 +2227,7 @@ class TypeAliasDecl : public TypedefNameDecl {
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, TypeAliasDecl)
   PASTA_DECLARE_BASE_OPERATORS(TypeDecl, TypeAliasDecl)
   PASTA_DECLARE_BASE_OPERATORS(TypedefNameDecl, TypeAliasDecl)
-  ::pasta::TypeAliasTemplateDecl DescribedAliasTemplate(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
+  std::optional<::pasta::TypeAliasTemplateDecl> DescribedAliasTemplate(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TypeAliasDecl)
 };
@@ -2280,10 +2243,10 @@ class TypeAliasTemplateDecl : public RedeclarableTemplateDecl {
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, TypeAliasTemplateDecl)
   PASTA_DECLARE_BASE_OPERATORS(RedeclarableTemplateDecl, TypeAliasTemplateDecl)
   PASTA_DECLARE_BASE_OPERATORS(TemplateDecl, TypeAliasTemplateDecl)
-  ::pasta::TypeAliasTemplateDecl CanonicalDeclaration(void) const;
-  ::pasta::TypeAliasTemplateDecl InstantiatedFromMemberTemplate(void) const;
-  ::pasta::TypeAliasTemplateDecl PreviousDeclaration(void) const;
-  ::pasta::TypeAliasDecl TemplatedDeclaration(void) const;
+  ::pasta::TypeAliasTemplateDecl CanonicalDeclaration(void) const noexcept;
+  ::pasta::TypeAliasTemplateDecl InstantiatedFromMemberTemplate(void) const noexcept;
+  ::pasta::TypeAliasTemplateDecl PreviousDeclaration(void) const noexcept;
+  ::pasta::TypeAliasDecl TemplatedDeclaration(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TypeAliasTemplateDecl)
 };
@@ -2299,7 +2262,6 @@ class TypedefDecl : public TypedefNameDecl {
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, TypedefDecl)
   PASTA_DECLARE_BASE_OPERATORS(TypeDecl, TypedefDecl)
   PASTA_DECLARE_BASE_OPERATORS(TypedefNameDecl, TypedefDecl)
-  ::pasta::TokenRange TokenRange(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TypedefDecl)
 };
@@ -2314,15 +2276,14 @@ class UnresolvedUsingValueDecl : public ValueDecl {
   PASTA_DECLARE_BASE_OPERATORS(Decl, UnresolvedUsingValueDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, UnresolvedUsingValueDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, UnresolvedUsingValueDecl)
-  ::pasta::UnresolvedUsingValueDecl CanonicalDeclaration(void) const;
-  ::pasta::Token EllipsisToken(void) const;
+  ::pasta::UnresolvedUsingValueDecl CanonicalDeclaration(void) const noexcept;
+  ::pasta::Token EllipsisToken(void) const noexcept;
   // NameInfo: (clang::DeclarationNameInfo)
   // Qualifier: (clang::NestedNameSpecifier *)
   // QualifierToken: (clang::NestedNameSpecifierLoc)
-  ::pasta::TokenRange TokenRange(void) const;
-  ::pasta::Token UsingToken(void) const;
-  bool IsAccessDeclaration(void) const;
-  bool IsPackExpansion(void) const;
+  ::pasta::Token UsingToken(void) const noexcept;
+  bool IsAccessDeclaration(void) const noexcept;
+  bool IsPackExpansion(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(UnresolvedUsingValueDecl)
 };
@@ -2337,14 +2298,13 @@ class UsingDecl : public BaseUsingDecl {
   PASTA_DECLARE_BASE_OPERATORS(BaseUsingDecl, UsingDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, UsingDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, UsingDecl)
-  ::pasta::UsingDecl CanonicalDeclaration(void) const;
+  ::pasta::UsingDecl CanonicalDeclaration(void) const noexcept;
   // NameInfo: (clang::DeclarationNameInfo)
   // Qualifier: (clang::NestedNameSpecifier *)
   // QualifierToken: (clang::NestedNameSpecifierLoc)
-  ::pasta::TokenRange TokenRange(void) const;
-  ::pasta::Token UsingToken(void) const;
-  bool HasTypename(void) const;
-  bool IsAccessDeclaration(void) const;
+  ::pasta::Token UsingToken(void) const noexcept;
+  bool HasTypename(void) const noexcept;
+  bool IsAccessDeclaration(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(UsingDecl)
 };
@@ -2359,11 +2319,10 @@ class UsingEnumDecl : public BaseUsingDecl {
   PASTA_DECLARE_BASE_OPERATORS(BaseUsingDecl, UsingEnumDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, UsingEnumDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, UsingEnumDecl)
-  ::pasta::UsingEnumDecl CanonicalDeclaration(void) const;
-  ::pasta::EnumDecl EnumDeclaration(void) const;
-  ::pasta::Token EnumToken(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
-  ::pasta::Token UsingToken(void) const;
+  ::pasta::UsingEnumDecl CanonicalDeclaration(void) const noexcept;
+  ::pasta::EnumDecl EnumDeclaration(void) const noexcept;
+  ::pasta::Token EnumToken(void) const noexcept;
+  ::pasta::Token UsingToken(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(UsingEnumDecl)
 };
@@ -2389,64 +2348,62 @@ class VarDecl : public DeclaratorDecl {
   // EnsureEvaluatedStatement: (clang::EvaluatedStmt *)
   // EvaluateDestruction: (bool)
   // EvaluateValue: (clang::APValue *)
-  ::pasta::VarDecl ActingDefinition(void) const;
-  ::pasta::VarDecl CanonicalDeclaration(void) const;
-  ::pasta::VarTemplateDecl DescribedVariableTemplate(void) const;
+  std::optional<::pasta::VarDecl> ActingDefinition(void) const noexcept;
+  ::pasta::VarDecl CanonicalDeclaration(void) const noexcept;
+  std::optional<::pasta::VarTemplateDecl> DescribedVariableTemplate(void) const noexcept;
   // EvaluatedStatement: (clang::EvaluatedStmt *)
   // EvaluatedValue: (clang::APValue *)
-  ::pasta::Expr Initializer(void) const;
+  std::optional<::pasta::Expr> Initializer(void) const noexcept;
   // InitializerStyle: (clang::VarDecl::InitializationStyle)
-  ::pasta::VarDecl InitializingDeclaration(void) const;
-  ::pasta::VarDecl InstantiatedFromStaticDataMember(void) const;
-  enum LanguageLinkage LanguageLinkage(void) const;
+  std::optional<::pasta::VarDecl> InitializingDeclaration(void) const noexcept;
+  std::optional<::pasta::VarDecl> InstantiatedFromStaticDataMember(void) const noexcept;
+  enum LanguageLinkage LanguageLinkage(void) const noexcept;
   // MemberSpecializationInfo: (clang::MemberSpecializationInfo *)
-  ::pasta::Token PointOfInstantiation(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
-  enum StorageClass StorageClass(void) const;
-  enum StorageDuration StorageDuration(void) const;
+  ::pasta::Token PointOfInstantiation(void) const noexcept;
+  enum StorageClass StorageClass(void) const noexcept;
+  enum StorageDuration StorageDuration(void) const noexcept;
   // TLSKind: (clang::VarDecl::TLSKind)
-  enum ThreadStorageClassSpecifier TSCSpec(void) const;
-  ::pasta::VarDecl TemplateInstantiationPattern(void) const;
-  enum TemplateSpecializationKind TemplateSpecializationKind(void) const;
-  enum TemplateSpecializationKind TemplateSpecializationKindForInstantiation(void) const;
-  bool HasConstantInitialization(void) const;
-  bool HasDependentAlignment(void) const;
-  bool HasExternalStorage(void) const;
-  bool HasGlobalStorage(void) const;
-  bool HasICEInitializer(void) const;
-  bool HasInitializer(void) const;
-  bool HasLocalStorage(void) const;
-  bool IsARCPseudoStrong(void) const;
-  bool IsCXXForRangeDeclaration(void) const;
-  bool IsConstexpr(void) const;
-  bool IsDirectInitializer(void) const;
-  bool IsEscapingByref(void) const;
-  bool IsExceptionVariable(void) const;
-  bool IsExternC(void) const;
-  bool IsFileVariableDeclaration(void) const;
-  bool IsFunctionOrMethodVariableDeclaration(void) const;
-  bool IsInExternCContext(void) const;
-  bool IsInExternCXXContext(void) const;
-  bool IsInitializerCapture(void) const;
-  bool IsInline(void) const;
-  bool IsInlineSpecified(void) const;
-  bool IsKnownToBeDefined(void) const;
-  bool IsLocalVariableDeclaration(void) const;
-  bool IsLocalVariableDeclarationOrParm(void) const;
-  bool IsNRVOVariable(void) const;
-  bool IsNoDestroy(void) const;
-  bool IsNonEscapingByref(void) const;
-  bool IsObjCForDeclaration(void) const;
-  bool IsOutOfLine(void) const;
-  bool IsParameterPack(void) const;
-  bool IsPreviousDeclarationInSameBlockScope(void) const;
-  bool IsStaticDataMember(void) const;
-  bool IsStaticLocal(void) const;
-  bool IsThisDeclarationADemotedDefinition(void) const;
-  bool IsUsableInConstantExpressions(void) const;
-  bool MightBeUsableInConstantExpressions(void) const;
+  enum ThreadStorageClassSpecifier TSCSpec(void) const noexcept;
+  std::optional<::pasta::VarDecl> TemplateInstantiationPattern(void) const noexcept;
+  enum TemplateSpecializationKind TemplateSpecializationKind(void) const noexcept;
+  enum TemplateSpecializationKind TemplateSpecializationKindForInstantiation(void) const noexcept;
+  bool HasConstantInitialization(void) const noexcept;
+  bool HasDependentAlignment(void) const noexcept;
+  bool HasExternalStorage(void) const noexcept;
+  bool HasGlobalStorage(void) const noexcept;
+  bool HasICEInitializer(void) const noexcept;
+  bool HasInitializer(void) const noexcept;
+  bool HasLocalStorage(void) const noexcept;
+  bool IsARCPseudoStrong(void) const noexcept;
+  bool IsCXXForRangeDeclaration(void) const noexcept;
+  bool IsConstexpr(void) const noexcept;
+  bool IsDirectInitializer(void) const noexcept;
+  bool IsEscapingByref(void) const noexcept;
+  bool IsExceptionVariable(void) const noexcept;
+  bool IsExternC(void) const noexcept;
+  bool IsFileVariableDeclaration(void) const noexcept;
+  bool IsFunctionOrMethodVariableDeclaration(void) const noexcept;
+  bool IsInExternCContext(void) const noexcept;
+  bool IsInExternCXXContext(void) const noexcept;
+  bool IsInitializerCapture(void) const noexcept;
+  bool IsInline(void) const noexcept;
+  bool IsInlineSpecified(void) const noexcept;
+  bool IsKnownToBeDefined(void) const noexcept;
+  bool IsLocalVariableDeclaration(void) const noexcept;
+  bool IsLocalVariableDeclarationOrParm(void) const noexcept;
+  bool IsNRVOVariable(void) const noexcept;
+  bool IsNoDestroy(void) const noexcept;
+  bool IsNonEscapingByref(void) const noexcept;
+  bool IsObjCForDeclaration(void) const noexcept;
+  bool IsParameterPack(void) const noexcept;
+  bool IsPreviousDeclarationInSameBlockScope(void) const noexcept;
+  bool IsStaticDataMember(void) const noexcept;
+  bool IsStaticLocal(void) const noexcept;
+  bool IsThisDeclarationADemotedDefinition(void) const noexcept;
+  bool IsUsableInConstantExpressions(void) const noexcept;
+  bool MightBeUsableInConstantExpressions(void) const noexcept;
   // NeedsDestruction: (clang::QualType::DestructionKind)
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(VarDecl)
 };
@@ -2462,13 +2419,13 @@ class VarTemplateDecl : public RedeclarableTemplateDecl {
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, VarTemplateDecl)
   PASTA_DECLARE_BASE_OPERATORS(RedeclarableTemplateDecl, VarTemplateDecl)
   PASTA_DECLARE_BASE_OPERATORS(TemplateDecl, VarTemplateDecl)
-  ::pasta::VarTemplateDecl CanonicalDeclaration(void) const;
-  ::pasta::VarTemplateDecl InstantiatedFromMemberTemplate(void) const;
-  ::pasta::VarTemplateDecl MostRecentDeclaration(void) const;
-  ::pasta::VarTemplateDecl PreviousDeclaration(void) const;
-  ::pasta::VarDecl TemplatedDeclaration(void) const;
-  bool IsThisDeclarationADefinition(void) const;
-  std::vector<::pasta::VarTemplateSpecializationDecl> Specializations(void) const;
+  ::pasta::VarTemplateDecl CanonicalDeclaration(void) const noexcept;
+  ::pasta::VarTemplateDecl InstantiatedFromMemberTemplate(void) const noexcept;
+  ::pasta::VarTemplateDecl MostRecentDeclaration(void) const noexcept;
+  ::pasta::VarTemplateDecl PreviousDeclaration(void) const noexcept;
+  ::pasta::VarDecl TemplatedDeclaration(void) const noexcept;
+  bool IsThisDeclarationADefinition(void) const noexcept;
+  std::vector<::pasta::VarTemplateSpecializationDecl> Specializations(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(VarTemplateDecl)
 };
@@ -2486,21 +2443,21 @@ class VarTemplateSpecializationDecl : public VarDecl {
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, VarTemplateSpecializationDecl)
   PASTA_DECLARE_BASE_OPERATORS(VarDecl, VarTemplateSpecializationDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(VarTemplateSpecializationDecl, VarTemplatePartialSpecializationDecl)
-  ::pasta::Token ExternToken(void) const;
-  std::variant<std::monostate, ::pasta::VarTemplateDecl, ::pasta::VarTemplatePartialSpecializationDecl> InstantiatedFrom(void) const;
-  ::pasta::Token PointOfInstantiation(void) const;
-  enum TemplateSpecializationKind SpecializationKind(void) const;
-  ::pasta::VarTemplateDecl SpecializedTemplate(void) const;
-  std::variant<std::monostate, ::pasta::VarTemplateDecl, ::pasta::VarTemplatePartialSpecializationDecl> SpecializedTemplateOrPartial(void) const;
+  ::pasta::Token ExternToken(void) const noexcept;
+  std::variant<std::monostate, ::pasta::VarTemplateDecl, ::pasta::VarTemplatePartialSpecializationDecl> InstantiatedFrom(void) const noexcept;
+  ::pasta::Token PointOfInstantiation(void) const noexcept;
+  enum TemplateSpecializationKind SpecializationKind(void) const noexcept;
+  ::pasta::VarTemplateDecl SpecializedTemplate(void) const noexcept;
+  std::variant<std::monostate, ::pasta::VarTemplateDecl, ::pasta::VarTemplatePartialSpecializationDecl> SpecializedTemplateOrPartial(void) const noexcept;
   // TemplateArguments: (const clang::TemplateArgumentList &)
   // TemplateArgumentsInfo: (const clang::TemplateArgumentListInfo &)
   // TemplateInstantiationArguments: (const clang::TemplateArgumentList &)
-  ::pasta::Token TemplateKeywordToken(void) const;
-  // TypeAsWritten: (clang::TypeSourceInfo *)
-  bool IsClassScopeExplicitSpecialization(void) const;
-  bool IsExplicitInstantiationOrSpecialization(void) const;
-  bool IsExplicitSpecialization(void) const;
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
+  ::pasta::Token TemplateKeywordToken(void) const noexcept;
+  ::pasta::Type TypeAsWritten(void) const noexcept;
+  bool IsClassScopeExplicitSpecialization(void) const noexcept;
+  bool IsExplicitInstantiationOrSpecialization(void) const noexcept;
+  bool IsExplicitSpecialization(void) const noexcept;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(VarTemplateSpecializationDecl)
 };
@@ -2518,13 +2475,13 @@ class CXXDeductionGuideDecl : public FunctionDecl {
   PASTA_DECLARE_BASE_OPERATORS(FunctionDecl, CXXDeductionGuideDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, CXXDeductionGuideDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, CXXDeductionGuideDecl)
-  ::pasta::CXXConstructorDecl CorrespondingConstructor(void) const;
-  ::pasta::TemplateDecl DeducedTemplate(void) const;
+  ::pasta::CXXConstructorDecl CorrespondingConstructor(void) const noexcept;
+  ::pasta::TemplateDecl DeducedTemplate(void) const noexcept;
   // ExplicitSpecifier: (const clang::ExplicitSpecifier)
-  bool IsCopyDeductionCandidate(void) const;
-  bool IsExplicit(void) const;
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
-  std::vector<::pasta::ParmVarDecl> ParamDeclarations(void) const;
+  bool IsCopyDeductionCandidate(void) const noexcept;
+  bool IsExplicit(void) const noexcept;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
+  std::vector<::pasta::ParmVarDecl> ParamDeclarations(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXDeductionGuideDecl)
 };
@@ -2545,30 +2502,30 @@ class CXXMethodDecl : public FunctionDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(CXXMethodDecl, CXXConstructorDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(CXXMethodDecl, CXXConversionDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(CXXMethodDecl, CXXDestructorDecl)
-  ::pasta::CXXMethodDecl CanonicalDeclaration(void) const;
+  ::pasta::CXXMethodDecl CanonicalDeclaration(void) const noexcept;
   // CorrespondingMethodDeclaredInClass: (const clang::CXXMethodDecl *)
   // CorrespondingMethodInClass: (const clang::CXXMethodDecl *)
   // DevirtualizedMethod: (const clang::CXXMethodDecl *)
   // MethodQualifiers: (clang::Qualifiers)
-  ::pasta::CXXMethodDecl MostRecentDeclaration(void) const;
-  ::pasta::CXXRecordDecl Parent(void) const;
-  enum RefQualifierKind ReferenceQualifier(void) const;
-  ::pasta::Type ThisObjectType(void) const;
-  ::pasta::Type ThisType(void) const;
-  bool HasInlineBody(void) const;
-  bool IsConst(void) const;
-  bool IsCopyAssignmentOperator(void) const;
-  bool IsInstance(void) const;
-  bool IsLambdaStaticInvoker(void) const;
-  bool IsMoveAssignmentOperator(void) const;
-  bool IsStatic(void) const;
+  ::pasta::CXXMethodDecl MostRecentDeclaration(void) const noexcept;
+  ::pasta::CXXRecordDecl Parent(void) const noexcept;
+  enum RefQualifierKind ReferenceQualifier(void) const noexcept;
+  ::pasta::Type ThisObjectType(void) const noexcept;
+  ::pasta::Type ThisType(void) const noexcept;
+  bool HasInlineBody(void) const noexcept;
+  bool IsConst(void) const noexcept;
+  bool IsCopyAssignmentOperator(void) const noexcept;
+  bool IsInstance(void) const noexcept;
+  bool IsLambdaStaticInvoker(void) const noexcept;
+  bool IsMoveAssignmentOperator(void) const noexcept;
+  bool IsStatic(void) const noexcept;
   // IsUsualDeallocationFunction: (bool)
-  bool IsVirtual(void) const;
-  bool IsVolatile(void) const;
-  // OverriddenMethods: (llvm::iterator_range<const clang::CXXMethodDecl *const *>)
-  uint32_t SizeOverriddenMethods(void) const;
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
-  std::vector<::pasta::ParmVarDecl> ParamDeclarations(void) const;
+  bool IsVirtual(void) const noexcept;
+  bool IsVolatile(void) const noexcept;
+  std::vector<::pasta::CXXMethodDecl> OverriddenMethods(void) const noexcept;
+  uint32_t SizeOverriddenMethods(void) const noexcept;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
+  std::vector<::pasta::ParmVarDecl> ParamDeclarations(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXMethodDecl)
 };
@@ -2584,13 +2541,13 @@ class ClassTemplateDecl : public RedeclarableTemplateDecl {
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, ClassTemplateDecl)
   PASTA_DECLARE_BASE_OPERATORS(RedeclarableTemplateDecl, ClassTemplateDecl)
   PASTA_DECLARE_BASE_OPERATORS(TemplateDecl, ClassTemplateDecl)
-  ::pasta::ClassTemplateDecl CanonicalDeclaration(void) const;
-  ::pasta::ClassTemplateDecl InstantiatedFromMemberTemplate(void) const;
-  ::pasta::ClassTemplateDecl MostRecentDeclaration(void) const;
-  ::pasta::ClassTemplateDecl PreviousDeclaration(void) const;
-  ::pasta::CXXRecordDecl TemplatedDeclaration(void) const;
-  bool IsThisDeclarationADefinition(void) const;
-  std::vector<::pasta::ClassTemplateSpecializationDecl> Specializations(void) const;
+  ::pasta::ClassTemplateDecl CanonicalDeclaration(void) const noexcept;
+  ::pasta::ClassTemplateDecl InstantiatedFromMemberTemplate(void) const noexcept;
+  ::pasta::ClassTemplateDecl MostRecentDeclaration(void) const noexcept;
+  ::pasta::ClassTemplateDecl PreviousDeclaration(void) const noexcept;
+  ::pasta::CXXRecordDecl TemplatedDeclaration(void) const noexcept;
+  bool IsThisDeclarationADefinition(void) const noexcept;
+  std::vector<::pasta::ClassTemplateSpecializationDecl> Specializations(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ClassTemplateDecl)
 };
@@ -2607,8 +2564,8 @@ class DecompositionDecl : public VarDecl {
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, DecompositionDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, DecompositionDecl)
   PASTA_DECLARE_BASE_OPERATORS(VarDecl, DecompositionDecl)
-  std::vector<::pasta::BindingDecl> Bindings(void) const;
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
+  std::vector<::pasta::BindingDecl> Bindings(void) const noexcept;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(DecompositionDecl)
 };
@@ -2625,29 +2582,30 @@ class EnumDecl : public TagDecl {
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, EnumDecl)
   PASTA_DECLARE_BASE_OPERATORS(TagDecl, EnumDecl)
   PASTA_DECLARE_BASE_OPERATORS(TypeDecl, EnumDecl)
-  std::vector<::pasta::EnumConstantDecl> Enumerators(void) const;
-  ::pasta::EnumDecl CanonicalDeclaration(void) const;
-  ::pasta::EnumDecl Definition(void) const;
-  ::pasta::EnumDecl InstantiatedFromMemberEnum(void) const;
-  ::pasta::Type IntegerType(void) const;
-  ::pasta::TokenRange IntegerTypeRange(void) const;
-  // IntegerTypeSourceInfo: (clang::TypeSourceInfo *)
+  std::vector<::pasta::EnumConstantDecl> Enumerators(void) const noexcept;
+  ::pasta::EnumDecl CanonicalDeclaration(void) const noexcept;
+  ::pasta::EnumDecl Definition(void) const noexcept;
+  std::optional<::pasta::EnumDecl> InstantiatedFromMemberEnum(void) const noexcept;
+  ::pasta::Type IntegerType(void) const noexcept;
+  ::pasta::TokenRange IntegerTypeRange(void) const noexcept;
+  ::pasta::Type IntegerTypeSourceInfo(void) const noexcept;
   // MemberSpecializationInfo: (clang::MemberSpecializationInfo *)
-  ::pasta::EnumDecl MostRecentDeclaration(void) const;
-  uint32_t NumNegativeBits(void) const;
-  uint32_t NumPositiveBits(void) const;
-  ::pasta::EnumDecl PreviousDeclaration(void) const;
-  ::pasta::Type PromotionType(void) const;
-  ::pasta::EnumDecl TemplateInstantiationPattern(void) const;
-  enum TemplateSpecializationKind TemplateSpecializationKind(void) const;
-  bool IsClosed(void) const;
-  bool IsClosedFlag(void) const;
-  bool IsClosedNonFlag(void) const;
-  bool IsComplete(void) const;
-  bool IsFixed(void) const;
-  bool IsScoped(void) const;
-  bool IsScopedUsingClassTag(void) const;
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
+  ::pasta::EnumDecl MostRecentDeclaration(void) const noexcept;
+  uint32_t NumNegativeBits(void) const noexcept;
+  uint32_t NumPositiveBits(void) const noexcept;
+  uint32_t ODRHash(void) const noexcept;
+  ::pasta::EnumDecl PreviousDeclaration(void) const noexcept;
+  ::pasta::Type PromotionType(void) const noexcept;
+  std::optional<::pasta::EnumDecl> TemplateInstantiationPattern(void) const noexcept;
+  enum TemplateSpecializationKind TemplateSpecializationKind(void) const noexcept;
+  bool IsClosed(void) const noexcept;
+  bool IsClosedFlag(void) const noexcept;
+  bool IsClosedNonFlag(void) const noexcept;
+  bool IsComplete(void) const noexcept;
+  bool IsFixed(void) const noexcept;
+  bool IsScoped(void) const noexcept;
+  bool IsScopedUsingClassTag(void) const noexcept;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(EnumDecl)
 };
@@ -2663,14 +2621,14 @@ class FunctionTemplateDecl : public RedeclarableTemplateDecl {
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, FunctionTemplateDecl)
   PASTA_DECLARE_BASE_OPERATORS(RedeclarableTemplateDecl, FunctionTemplateDecl)
   PASTA_DECLARE_BASE_OPERATORS(TemplateDecl, FunctionTemplateDecl)
-  ::pasta::FunctionTemplateDecl CanonicalDeclaration(void) const;
-  ::pasta::FunctionTemplateDecl InstantiatedFromMemberTemplate(void) const;
-  ::pasta::FunctionTemplateDecl MostRecentDeclaration(void) const;
-  ::pasta::FunctionTemplateDecl PreviousDeclaration(void) const;
-  ::pasta::FunctionDecl TemplatedDeclaration(void) const;
-  bool IsAbbreviated(void) const;
-  bool IsThisDeclarationADefinition(void) const;
-  std::vector<::pasta::FunctionDecl> Specializations(void) const;
+  ::pasta::FunctionTemplateDecl CanonicalDeclaration(void) const noexcept;
+  ::pasta::FunctionTemplateDecl InstantiatedFromMemberTemplate(void) const noexcept;
+  ::pasta::FunctionTemplateDecl MostRecentDeclaration(void) const noexcept;
+  ::pasta::FunctionTemplateDecl PreviousDeclaration(void) const noexcept;
+  ::pasta::FunctionDecl TemplatedDeclaration(void) const noexcept;
+  bool IsAbbreviated(void) const noexcept;
+  bool IsThisDeclarationADefinition(void) const noexcept;
+  std::vector<::pasta::FunctionDecl> Specializations(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(FunctionTemplateDecl)
 };
@@ -2687,8 +2645,8 @@ class ImplicitParamDecl : public VarDecl {
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, ImplicitParamDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, ImplicitParamDecl)
   PASTA_DECLARE_BASE_OPERATORS(VarDecl, ImplicitParamDecl)
-  ::pasta::ImplicitParamKind ParameterKind(void) const;
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
+  ::pasta::ImplicitParamKind ParameterKind(void) const noexcept;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ImplicitParamDecl)
 };
@@ -2705,8 +2663,7 @@ class OMPCapturedExprDecl : public VarDecl {
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, OMPCapturedExprDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, OMPCapturedExprDecl)
   PASTA_DECLARE_BASE_OPERATORS(VarDecl, OMPCapturedExprDecl)
-  ::pasta::TokenRange TokenRange(void) const;
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(OMPCapturedExprDecl)
 };
@@ -2723,22 +2680,21 @@ class ParmVarDecl : public VarDecl {
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, ParmVarDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, ParmVarDecl)
   PASTA_DECLARE_BASE_OPERATORS(VarDecl, ParmVarDecl)
-  ::pasta::Expr DefaultArgument(void) const;
-  ::pasta::TokenRange DefaultArgumentRange(void) const;
-  uint32_t FunctionScopeDepth(void) const;
-  uint32_t FunctionScopeIndex(void) const;
+  std::optional<::pasta::Expr> DefaultArgument(void) const noexcept;
+  ::pasta::TokenRange DefaultArgumentRange(void) const noexcept;
+  uint32_t FunctionScopeDepth(void) const noexcept;
+  uint32_t FunctionScopeIndex(void) const noexcept;
   // ObjCDeclQualifier: (clang::Decl::ObjCDeclQualifier)
-  ::pasta::Type OriginalType(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
-  ::pasta::Expr UninstantiatedDefaultArgument(void) const;
-  bool HasDefaultArgument(void) const;
-  bool HasInheritedDefaultArgument(void) const;
-  bool HasUninstantiatedDefaultArgument(void) const;
-  bool HasUnparsedDefaultArgument(void) const;
-  bool IsDestroyedInCallee(void) const;
-  bool IsKNRPromoted(void) const;
-  bool IsObjCMethodParameter(void) const;
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
+  ::pasta::Type OriginalType(void) const noexcept;
+  std::optional<::pasta::Expr> UninstantiatedDefaultArgument(void) const noexcept;
+  bool HasDefaultArgument(void) const noexcept;
+  bool HasInheritedDefaultArgument(void) const noexcept;
+  bool HasUninstantiatedDefaultArgument(void) const noexcept;
+  bool HasUnparsedDefaultArgument(void) const noexcept;
+  bool IsDestroyedInCallee(void) const noexcept;
+  bool IsKNRPromoted(void) const noexcept;
+  bool IsObjCMethodParameter(void) const noexcept;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ParmVarDecl)
 };
@@ -2758,32 +2714,32 @@ class RecordDecl : public TagDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(RecordDecl, CXXRecordDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(RecordDecl, ClassTemplatePartialSpecializationDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(RecordDecl, ClassTemplateSpecializationDecl)
-  bool CanPassInRegisters(void) const;
-  std::vector<::pasta::FieldDecl> Fields(void) const;
-  ::pasta::FieldDecl FindFirstNamedDataMember(void) const;
-  ::pasta::ArgPassingKind ArgumentPassingRestrictions(void) const;
-  ::pasta::RecordDecl Definition(void) const;
-  ::pasta::RecordDecl MostRecentDeclaration(void) const;
-  ::pasta::RecordDecl PreviousDeclaration(void) const;
-  bool HasFlexibleArrayMember(void) const;
-  bool HasLoadedFieldsFromExternalStorage(void) const;
-  bool HasNonTrivialToPrimitiveCopyCUnion(void) const;
-  bool HasNonTrivialToPrimitiveDefaultInitializeCUnion(void) const;
-  bool HasNonTrivialToPrimitiveDestructCUnion(void) const;
-  bool HasObjectMember(void) const;
-  bool HasVolatileMember(void) const;
-  bool IsAnonymousStructOrUnion(void) const;
-  bool IsCapturedRecord(void) const;
-  bool IsInjectedClassName(void) const;
-  bool IsLambda(void) const;
-  bool IsMsStruct(void) const;
-  bool IsNonTrivialToPrimitiveCopy(void) const;
-  bool IsNonTrivialToPrimitiveDefaultInitialize(void) const;
-  bool IsNonTrivialToPrimitiveDestroy(void) const;
-  bool IsOrContainsUnion(void) const;
-  bool IsParamDestroyedInCallee(void) const;
-  bool MayInsertExtraPadding(void) const;
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
+  bool CanPassInRegisters(void) const noexcept;
+  std::vector<::pasta::FieldDecl> Fields(void) const noexcept;
+  std::optional<::pasta::FieldDecl> FindFirstNamedDataMember(void) const noexcept;
+  ::pasta::ArgPassingKind ArgumentPassingRestrictions(void) const noexcept;
+  ::pasta::RecordDecl Definition(void) const noexcept;
+  ::pasta::RecordDecl MostRecentDeclaration(void) const noexcept;
+  ::pasta::RecordDecl PreviousDeclaration(void) const noexcept;
+  bool HasFlexibleArrayMember(void) const noexcept;
+  bool HasLoadedFieldsFromExternalStorage(void) const noexcept;
+  bool HasNonTrivialToPrimitiveCopyCUnion(void) const noexcept;
+  bool HasNonTrivialToPrimitiveDefaultInitializeCUnion(void) const noexcept;
+  bool HasNonTrivialToPrimitiveDestructCUnion(void) const noexcept;
+  bool HasObjectMember(void) const noexcept;
+  bool HasVolatileMember(void) const noexcept;
+  bool IsAnonymousStructOrUnion(void) const noexcept;
+  bool IsCapturedRecord(void) const noexcept;
+  bool IsInjectedClassName(void) const noexcept;
+  bool IsLambda(void) const noexcept;
+  bool IsMsStruct(void) const noexcept;
+  bool IsNonTrivialToPrimitiveCopy(void) const noexcept;
+  bool IsNonTrivialToPrimitiveDefaultInitialize(void) const noexcept;
+  bool IsNonTrivialToPrimitiveDestroy(void) const noexcept;
+  bool IsOrContainsUnion(void) const noexcept;
+  bool IsParamDestroyedInCallee(void) const noexcept;
+  bool MayInsertExtraPadding(void) const noexcept;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(RecordDecl)
 };
@@ -2801,11 +2757,11 @@ class VarTemplatePartialSpecializationDecl : public VarTemplateSpecializationDec
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, VarTemplatePartialSpecializationDecl)
   PASTA_DECLARE_BASE_OPERATORS(VarDecl, VarTemplatePartialSpecializationDecl)
   PASTA_DECLARE_BASE_OPERATORS(VarTemplateSpecializationDecl, VarTemplatePartialSpecializationDecl)
-  ::pasta::VarTemplatePartialSpecializationDecl InstantiatedFromMember(void) const;
+  ::pasta::VarTemplatePartialSpecializationDecl InstantiatedFromMember(void) const noexcept;
   // TemplateArgumentsAsWritten: (const clang::ASTTemplateArgumentListInfo *)
-  // TemplateParameters: (clang::TemplateParameterList *)
-  bool HasAssociatedConstraints(void) const;
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
+  ::pasta::TemplateParameterList TemplateParameters(void) const noexcept;
+  bool HasAssociatedConstraints(void) const noexcept;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(VarTemplatePartialSpecializationDecl)
 };
@@ -2824,20 +2780,20 @@ class CXXConstructorDecl : public CXXMethodDecl {
   PASTA_DECLARE_BASE_OPERATORS(FunctionDecl, CXXConstructorDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, CXXConstructorDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, CXXConstructorDecl)
-  ::pasta::CXXConstructorDecl CanonicalDeclaration(void) const;
+  ::pasta::CXXConstructorDecl CanonicalDeclaration(void) const noexcept;
   // ExplicitSpecifier: (const clang::ExplicitSpecifier)
   // InheritedConstructor: (clang::InheritedConstructor)
-  uint32_t NumConstructorInitializers(void) const;
-  ::pasta::CXXConstructorDecl TargetConstructor(void) const;
+  uint32_t NumConstructorInitializers(void) const noexcept;
+  ::pasta::CXXConstructorDecl TargetConstructor(void) const noexcept;
   // Initializers: (llvm::iterator_range<clang::CXXCtorInitializer *const *>)
-  // IsConvertingConstructor: (bool)
-  bool IsDefaultConstructor(void) const;
-  bool IsDelegatingConstructor(void) const;
-  bool IsExplicit(void) const;
-  bool IsInheritingConstructor(void) const;
-  bool IsSpecializationCopyingObject(void) const;
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
-  std::vector<::pasta::ParmVarDecl> ParamDeclarations(void) const;
+  bool IsConvertingConstructor(bool) const noexcept;
+  bool IsDefaultConstructor(void) const noexcept;
+  bool IsDelegatingConstructor(void) const noexcept;
+  bool IsExplicit(void) const noexcept;
+  bool IsInheritingConstructor(void) const noexcept;
+  bool IsSpecializationCopyingObject(void) const noexcept;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
+  std::vector<::pasta::ParmVarDecl> ParamDeclarations(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXConstructorDecl)
 };
@@ -2856,13 +2812,13 @@ class CXXConversionDecl : public CXXMethodDecl {
   PASTA_DECLARE_BASE_OPERATORS(FunctionDecl, CXXConversionDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, CXXConversionDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, CXXConversionDecl)
-  ::pasta::CXXConversionDecl CanonicalDeclaration(void) const;
-  ::pasta::Type ConversionType(void) const;
+  ::pasta::CXXConversionDecl CanonicalDeclaration(void) const noexcept;
+  ::pasta::Type ConversionType(void) const noexcept;
   // ExplicitSpecifier: (const clang::ExplicitSpecifier)
-  bool IsExplicit(void) const;
-  bool IsLambdaToBlockPointerConversion(void) const;
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
-  std::vector<::pasta::ParmVarDecl> ParamDeclarations(void) const;
+  bool IsExplicit(void) const noexcept;
+  bool IsLambdaToBlockPointerConversion(void) const noexcept;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
+  std::vector<::pasta::ParmVarDecl> ParamDeclarations(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXConversionDecl)
 };
@@ -2881,11 +2837,11 @@ class CXXDestructorDecl : public CXXMethodDecl {
   PASTA_DECLARE_BASE_OPERATORS(FunctionDecl, CXXDestructorDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, CXXDestructorDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, CXXDestructorDecl)
-  ::pasta::CXXDestructorDecl CanonicalDeclaration(void) const;
-  ::pasta::FunctionDecl OperatorDelete(void) const;
-  ::pasta::Expr OperatorDeleteThisArgument(void) const;
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
-  std::vector<::pasta::ParmVarDecl> ParamDeclarations(void) const;
+  ::pasta::CXXDestructorDecl CanonicalDeclaration(void) const noexcept;
+  ::pasta::FunctionDecl OperatorDelete(void) const noexcept;
+  ::pasta::Expr OperatorDeleteThisArgument(void) const noexcept;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
+  std::vector<::pasta::ParmVarDecl> ParamDeclarations(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXDestructorDecl)
 };
@@ -2905,145 +2861,145 @@ class CXXRecordDecl : public RecordDecl {
   PASTA_DECLARE_BASE_OPERATORS(TypeDecl, CXXRecordDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(CXXRecordDecl, ClassTemplatePartialSpecializationDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(CXXRecordDecl, ClassTemplateSpecializationDecl)
-  bool AllowConstDefaultInitializer(void) const;
-  std::vector<::pasta::CXXBaseSpecifier> Bases(void) const;
-  enum MSInheritanceModel CalculateInheritanceModel(void) const;
+  bool AllowConstDefaultInitializer(void) const noexcept;
+  std::vector<::pasta::CXXBaseSpecifier> Bases(void) const noexcept;
+  enum MSInheritanceModel CalculateInheritanceModel(void) const noexcept;
   // Captures: (llvm::iterator_range<const clang::LambdaCapture *>)
-  std::vector<::pasta::CXXConstructorDecl> Constructors(void) const;
-  bool DefaultedCopyConstructorIsDeleted(void) const;
-  bool DefaultedDefaultConstructorIsConstexpr(void) const;
-  bool DefaultedDestructorIsConstexpr(void) const;
-  bool DefaultedDestructorIsDeleted(void) const;
-  bool DefaultedMoveConstructorIsDeleted(void) const;
+  std::vector<::pasta::CXXConstructorDecl> Constructors(void) const noexcept;
+  bool DefaultedCopyConstructorIsDeleted(void) const noexcept;
+  bool DefaultedDefaultConstructorIsConstexpr(void) const noexcept;
+  bool DefaultedDestructorIsConstexpr(void) const noexcept;
+  bool DefaultedDestructorIsDeleted(void) const noexcept;
+  bool DefaultedMoveConstructorIsDeleted(void) const noexcept;
   // ForallBases: (bool)
-  std::vector<::pasta::FriendDecl> Friends(void) const;
-  ::pasta::CXXRecordDecl CanonicalDeclaration(void) const;
-  ::pasta::CXXRecordDecl Definition(void) const;
-  ::pasta::FunctionTemplateDecl DependentLambdaCallOperator(void) const;
-  ::pasta::ClassTemplateDecl DescribedClassTemplate(void) const;
-  ::pasta::CXXDestructorDecl Destructor(void) const;
-  uint32_t DeviceLambdaManglingNumber(void) const;
-  // GenericLambdaTemplateParameterList: (clang::TemplateParameterList *)
-  ::pasta::CXXRecordDecl InstantiatedFromMemberClass(void) const;
-  ::pasta::CXXMethodDecl LambdaCallOperator(void) const;
-  enum LambdaCaptureDefault LambdaCaptureDefault(void) const;
-  ::pasta::Decl LambdaContextDeclaration(void) const;
-  std::vector<::pasta::NamedDecl> LambdaExplicitTemplateParameters(void) const;
-  uint32_t LambdaManglingNumber(void) const;
-  // LambdaTypeInfo: (clang::TypeSourceInfo *)
-  enum MSInheritanceModel MSInheritanceModel(void) const;
-  enum MSVtorDispMode MSVtorDispMode(void) const;
+  std::vector<::pasta::FriendDecl> Friends(void) const noexcept;
+  ::pasta::CXXRecordDecl CanonicalDeclaration(void) const noexcept;
+  ::pasta::CXXRecordDecl Definition(void) const noexcept;
+  ::pasta::FunctionTemplateDecl DependentLambdaCallOperator(void) const noexcept;
+  ::pasta::ClassTemplateDecl DescribedClassTemplate(void) const noexcept;
+  ::pasta::CXXDestructorDecl Destructor(void) const noexcept;
+  uint32_t DeviceLambdaManglingNumber(void) const noexcept;
+  ::pasta::TemplateParameterList GenericLambdaTemplateParameterList(void) const noexcept;
+  ::pasta::CXXRecordDecl InstantiatedFromMemberClass(void) const noexcept;
+  ::pasta::CXXMethodDecl LambdaCallOperator(void) const noexcept;
+  enum LambdaCaptureDefault LambdaCaptureDefault(void) const noexcept;
+  ::pasta::Decl LambdaContextDeclaration(void) const noexcept;
+  std::vector<::pasta::NamedDecl> LambdaExplicitTemplateParameters(void) const noexcept;
+  uint32_t LambdaManglingNumber(void) const noexcept;
+  ::pasta::Type LambdaTypeInfo(void) const noexcept;
+  enum MSInheritanceModel MSInheritanceModel(void) const noexcept;
+  enum MSVtorDispMode MSVtorDispMode(void) const noexcept;
   // MemberSpecializationInfo: (clang::MemberSpecializationInfo *)
-  ::pasta::CXXRecordDecl MostRecentDeclaration(void) const;
-  ::pasta::CXXRecordDecl MostRecentNonInjectedDeclaration(void) const;
-  uint32_t NumBases(void) const;
-  uint32_t NumVirtualBases(void) const;
-  uint32_t ODRHash(void) const;
-  ::pasta::CXXRecordDecl PreviousDeclaration(void) const;
-  ::pasta::CXXRecordDecl TemplateInstantiationPattern(void) const;
-  enum TemplateSpecializationKind TemplateSpecializationKind(void) const;
+  ::pasta::CXXRecordDecl MostRecentDeclaration(void) const noexcept;
+  ::pasta::CXXRecordDecl MostRecentNonInjectedDeclaration(void) const noexcept;
+  uint32_t NumBases(void) const noexcept;
+  uint32_t NumVirtualBases(void) const noexcept;
+  uint32_t ODRHash(void) const noexcept;
+  ::pasta::CXXRecordDecl PreviousDeclaration(void) const noexcept;
+  ::pasta::CXXRecordDecl TemplateInstantiationPattern(void) const noexcept;
+  enum TemplateSpecializationKind TemplateSpecializationKind(void) const noexcept;
   // VisibleConversionFunctions: (llvm::iterator_range<clang::UnresolvedSetIterator>)
-  bool HasAnyDependentBases(void) const;
-  bool HasConstexprDefaultConstructor(void) const;
-  bool HasConstexprDestructor(void) const;
-  bool HasConstexprNonCopyMoveConstructor(void) const;
-  bool HasCopyAssignmentWithConstParam(void) const;
-  bool HasCopyConstructorWithConstParam(void) const;
-  bool HasDefaultConstructor(void) const;
-  bool HasDefinition(void) const;
-  bool HasDirectFields(void) const;
-  bool HasFriends(void) const;
-  bool HasInClassInitializer(void) const;
-  bool HasInheritedAssignment(void) const;
-  bool HasInheritedConstructor(void) const;
-  bool HasIrrelevantDestructor(void) const;
-  bool HasKnownLambdaInternalLinkage(void) const;
+  bool HasAnyDependentBases(void) const noexcept;
+  bool HasConstexprDefaultConstructor(void) const noexcept;
+  bool HasConstexprDestructor(void) const noexcept;
+  bool HasConstexprNonCopyMoveConstructor(void) const noexcept;
+  bool HasCopyAssignmentWithConstParam(void) const noexcept;
+  bool HasCopyConstructorWithConstParam(void) const noexcept;
+  bool HasDefaultConstructor(void) const noexcept;
+  bool HasDefinition(void) const noexcept;
+  bool HasDirectFields(void) const noexcept;
+  bool HasFriends(void) const noexcept;
+  bool HasInClassInitializer(void) const noexcept;
+  bool HasInheritedAssignment(void) const noexcept;
+  bool HasInheritedConstructor(void) const noexcept;
+  bool HasIrrelevantDestructor(void) const noexcept;
+  bool HasKnownLambdaInternalLinkage(void) const noexcept;
   // HasMemberName: (bool)
-  bool HasMoveAssignment(void) const;
-  bool HasMoveConstructor(void) const;
-  bool HasMutableFields(void) const;
-  bool HasNonLiteralTypeFieldsOrBases(void) const;
-  bool HasNonTrivialCopyAssignment(void) const;
-  bool HasNonTrivialCopyConstructor(void) const;
-  bool HasNonTrivialCopyConstructorForCall(void) const;
-  bool HasNonTrivialDefaultConstructor(void) const;
-  bool HasNonTrivialDestructor(void) const;
-  bool HasNonTrivialDestructorForCall(void) const;
-  bool HasNonTrivialMoveAssignment(void) const;
-  bool HasNonTrivialMoveConstructor(void) const;
-  bool HasNonTrivialMoveConstructorForCall(void) const;
-  bool HasPrivateFields(void) const;
-  bool HasProtectedFields(void) const;
-  bool HasSimpleCopyAssignment(void) const;
-  bool HasSimpleCopyConstructor(void) const;
-  bool HasSimpleDestructor(void) const;
-  bool HasSimpleMoveAssignment(void) const;
-  bool HasSimpleMoveConstructor(void) const;
-  bool HasTrivialCopyAssignment(void) const;
-  bool HasTrivialCopyConstructor(void) const;
-  bool HasTrivialCopyConstructorForCall(void) const;
-  bool HasTrivialDefaultConstructor(void) const;
-  bool HasTrivialDestructor(void) const;
-  bool HasTrivialDestructorForCall(void) const;
-  bool HasTrivialMoveAssignment(void) const;
-  bool HasTrivialMoveConstructor(void) const;
-  bool HasTrivialMoveConstructorForCall(void) const;
-  bool HasUninitializedReferenceMember(void) const;
-  bool HasUserDeclaredConstructor(void) const;
-  bool HasUserDeclaredCopyAssignment(void) const;
-  bool HasUserDeclaredCopyConstructor(void) const;
-  bool HasUserDeclaredDestructor(void) const;
-  bool HasUserDeclaredMoveAssignment(void) const;
-  bool HasUserDeclaredMoveConstructor(void) const;
-  bool HasUserDeclaredMoveOperation(void) const;
-  bool HasUserProvidedDefaultConstructor(void) const;
-  bool HasVariantMembers(void) const;
-  bool ImplicitCopyAssignmentHasConstParam(void) const;
-  bool ImplicitCopyConstructorHasConstParam(void) const;
-  bool IsAbstract(void) const;
-  bool IsAggregate(void) const;
-  bool IsAnyDestructorNoReturn(void) const;
-  bool IsCLike(void) const;
-  bool IsCXX11StandardLayout(void) const;
+  bool HasMoveAssignment(void) const noexcept;
+  bool HasMoveConstructor(void) const noexcept;
+  bool HasMutableFields(void) const noexcept;
+  bool HasNonLiteralTypeFieldsOrBases(void) const noexcept;
+  bool HasNonTrivialCopyAssignment(void) const noexcept;
+  bool HasNonTrivialCopyConstructor(void) const noexcept;
+  bool HasNonTrivialCopyConstructorForCall(void) const noexcept;
+  bool HasNonTrivialDefaultConstructor(void) const noexcept;
+  bool HasNonTrivialDestructor(void) const noexcept;
+  bool HasNonTrivialDestructorForCall(void) const noexcept;
+  bool HasNonTrivialMoveAssignment(void) const noexcept;
+  bool HasNonTrivialMoveConstructor(void) const noexcept;
+  bool HasNonTrivialMoveConstructorForCall(void) const noexcept;
+  bool HasPrivateFields(void) const noexcept;
+  bool HasProtectedFields(void) const noexcept;
+  bool HasSimpleCopyAssignment(void) const noexcept;
+  bool HasSimpleCopyConstructor(void) const noexcept;
+  bool HasSimpleDestructor(void) const noexcept;
+  bool HasSimpleMoveAssignment(void) const noexcept;
+  bool HasSimpleMoveConstructor(void) const noexcept;
+  bool HasTrivialCopyAssignment(void) const noexcept;
+  bool HasTrivialCopyConstructor(void) const noexcept;
+  bool HasTrivialCopyConstructorForCall(void) const noexcept;
+  bool HasTrivialDefaultConstructor(void) const noexcept;
+  bool HasTrivialDestructor(void) const noexcept;
+  bool HasTrivialDestructorForCall(void) const noexcept;
+  bool HasTrivialMoveAssignment(void) const noexcept;
+  bool HasTrivialMoveConstructor(void) const noexcept;
+  bool HasTrivialMoveConstructorForCall(void) const noexcept;
+  bool HasUninitializedReferenceMember(void) const noexcept;
+  bool HasUserDeclaredConstructor(void) const noexcept;
+  bool HasUserDeclaredCopyAssignment(void) const noexcept;
+  bool HasUserDeclaredCopyConstructor(void) const noexcept;
+  bool HasUserDeclaredDestructor(void) const noexcept;
+  bool HasUserDeclaredMoveAssignment(void) const noexcept;
+  bool HasUserDeclaredMoveConstructor(void) const noexcept;
+  bool HasUserDeclaredMoveOperation(void) const noexcept;
+  bool HasUserProvidedDefaultConstructor(void) const noexcept;
+  bool HasVariantMembers(void) const noexcept;
+  bool ImplicitCopyAssignmentHasConstParam(void) const noexcept;
+  bool ImplicitCopyConstructorHasConstParam(void) const noexcept;
+  bool IsAbstract(void) const noexcept;
+  bool IsAggregate(void) const noexcept;
+  bool IsAnyDestructorNoReturn(void) const noexcept;
+  bool IsCLike(void) const noexcept;
+  bool IsCXX11StandardLayout(void) const noexcept;
   // IsCurrentInstantiation: (bool)
-  bool IsDependentLambda(void) const;
-  bool IsDynamicClass(void) const;
-  bool IsEffectivelyFinal(void) const;
-  bool IsEmpty(void) const;
-  bool IsGenericLambda(void) const;
-  bool IsInterfaceLike(void) const;
-  bool IsLambda(void) const;
-  bool IsLiteral(void) const;
-  ::pasta::FunctionDecl IsLocalClass(void) const;
-  bool IsPOD(void) const;
-  bool IsParsingBaseSpecifiers(void) const;
-  bool IsPolymorphic(void) const;
+  bool IsDependentLambda(void) const noexcept;
+  bool IsDynamicClass(void) const noexcept;
+  bool IsEffectivelyFinal(void) const noexcept;
+  bool IsEmpty(void) const noexcept;
+  bool IsGenericLambda(void) const noexcept;
+  bool IsInterfaceLike(void) const noexcept;
+  bool IsLambda(void) const noexcept;
+  bool IsLiteral(void) const noexcept;
+  ::pasta::FunctionDecl IsLocalClass(void) const noexcept;
+  bool IsPOD(void) const noexcept;
+  bool IsParsingBaseSpecifiers(void) const noexcept;
+  bool IsPolymorphic(void) const noexcept;
   // IsProvablyNotDerivedFrom: (bool)
-  bool IsStandardLayout(void) const;
-  bool IsStructural(void) const;
-  bool IsTrivial(void) const;
-  bool IsTriviallyCopyable(void) const;
+  bool IsStandardLayout(void) const noexcept;
+  bool IsStructural(void) const noexcept;
+  bool IsTrivial(void) const noexcept;
+  bool IsTriviallyCopyable(void) const noexcept;
   // IsVirtuallyDerivedFrom: (bool)
-  bool LambdaIsDefaultConstructibleAndAssignable(void) const;
+  bool LambdaIsDefaultConstructibleAndAssignable(void) const noexcept;
   // LookupInBases: (bool)
-  bool MayBeAbstract(void) const;
-  bool MayBeDynamicClass(void) const;
-  bool MayBeNonDynamicClass(void) const;
-  std::vector<::pasta::CXXMethodDecl> Methods(void) const;
-  bool NeedsImplicitCopyAssignment(void) const;
-  bool NeedsImplicitCopyConstructor(void) const;
-  bool NeedsImplicitDefaultConstructor(void) const;
-  bool NeedsImplicitDestructor(void) const;
-  bool NeedsImplicitMoveAssignment(void) const;
-  bool NeedsImplicitMoveConstructor(void) const;
-  bool NeedsOverloadResolutionForCopyAssignment(void) const;
-  bool NeedsOverloadResolutionForCopyConstructor(void) const;
-  bool NeedsOverloadResolutionForDestructor(void) const;
-  bool NeedsOverloadResolutionForMoveAssignment(void) const;
-  bool NeedsOverloadResolutionForMoveConstructor(void) const;
-  bool NullFieldOffsetIsZero(void) const;
-  std::vector<::pasta::CXXBaseSpecifier> VirtualBases(void) const;
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
+  bool MayBeAbstract(void) const noexcept;
+  bool MayBeDynamicClass(void) const noexcept;
+  bool MayBeNonDynamicClass(void) const noexcept;
+  std::vector<::pasta::CXXMethodDecl> Methods(void) const noexcept;
+  bool NeedsImplicitCopyAssignment(void) const noexcept;
+  bool NeedsImplicitCopyConstructor(void) const noexcept;
+  bool NeedsImplicitDefaultConstructor(void) const noexcept;
+  bool NeedsImplicitDestructor(void) const noexcept;
+  bool NeedsImplicitMoveAssignment(void) const noexcept;
+  bool NeedsImplicitMoveConstructor(void) const noexcept;
+  bool NeedsOverloadResolutionForCopyAssignment(void) const noexcept;
+  bool NeedsOverloadResolutionForCopyConstructor(void) const noexcept;
+  bool NeedsOverloadResolutionForDestructor(void) const noexcept;
+  bool NeedsOverloadResolutionForMoveAssignment(void) const noexcept;
+  bool NeedsOverloadResolutionForMoveConstructor(void) const noexcept;
+  bool NullFieldOffsetIsZero(void) const noexcept;
+  std::vector<::pasta::CXXBaseSpecifier> VirtualBases(void) const noexcept;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXRecordDecl)
 };
@@ -3063,21 +3019,20 @@ class ClassTemplateSpecializationDecl : public CXXRecordDecl {
   PASTA_DECLARE_BASE_OPERATORS(TagDecl, ClassTemplateSpecializationDecl)
   PASTA_DECLARE_BASE_OPERATORS(TypeDecl, ClassTemplateSpecializationDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(ClassTemplateSpecializationDecl, ClassTemplatePartialSpecializationDecl)
-  ::pasta::Token ExternToken(void) const;
-  std::variant<std::monostate, ::pasta::ClassTemplateDecl, ::pasta::ClassTemplatePartialSpecializationDecl> InstantiatedFrom(void) const;
-  ::pasta::Token PointOfInstantiation(void) const;
-  ::pasta::TokenRange TokenRange(void) const;
-  enum TemplateSpecializationKind SpecializationKind(void) const;
-  ::pasta::ClassTemplateDecl SpecializedTemplate(void) const;
-  std::variant<std::monostate, ::pasta::ClassTemplateDecl, ::pasta::ClassTemplatePartialSpecializationDecl> SpecializedTemplateOrPartial(void) const;
+  ::pasta::Token ExternToken(void) const noexcept;
+  std::variant<std::monostate, ::pasta::ClassTemplateDecl, ::pasta::ClassTemplatePartialSpecializationDecl> InstantiatedFrom(void) const noexcept;
+  ::pasta::Token PointOfInstantiation(void) const noexcept;
+  enum TemplateSpecializationKind SpecializationKind(void) const noexcept;
+  ::pasta::ClassTemplateDecl SpecializedTemplate(void) const noexcept;
+  std::variant<std::monostate, ::pasta::ClassTemplateDecl, ::pasta::ClassTemplatePartialSpecializationDecl> SpecializedTemplateOrPartial(void) const noexcept;
   // TemplateArguments: (const clang::TemplateArgumentList &)
   // TemplateInstantiationArguments: (const clang::TemplateArgumentList &)
-  ::pasta::Token TemplateKeywordToken(void) const;
-  // TypeAsWritten: (clang::TypeSourceInfo *)
-  bool IsClassScopeExplicitSpecialization(void) const;
-  bool IsExplicitInstantiationOrSpecialization(void) const;
-  bool IsExplicitSpecialization(void) const;
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
+  ::pasta::Token TemplateKeywordToken(void) const noexcept;
+  ::pasta::Type TypeAsWritten(void) const noexcept;
+  bool IsClassScopeExplicitSpecialization(void) const noexcept;
+  bool IsExplicitInstantiationOrSpecialization(void) const noexcept;
+  bool IsExplicitSpecialization(void) const noexcept;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ClassTemplateSpecializationDecl)
 };
@@ -3097,13 +3052,13 @@ class ClassTemplatePartialSpecializationDecl : public ClassTemplateSpecializatio
   PASTA_DECLARE_BASE_OPERATORS(RecordDecl, ClassTemplatePartialSpecializationDecl)
   PASTA_DECLARE_BASE_OPERATORS(TagDecl, ClassTemplatePartialSpecializationDecl)
   PASTA_DECLARE_BASE_OPERATORS(TypeDecl, ClassTemplatePartialSpecializationDecl)
-  ::pasta::Type InjectedSpecializationType(void) const;
-  ::pasta::ClassTemplatePartialSpecializationDecl InstantiatedFromMember(void) const;
-  ::pasta::ClassTemplatePartialSpecializationDecl InstantiatedFromMemberTemplate(void) const;
+  ::pasta::Type InjectedSpecializationType(void) const noexcept;
+  ::pasta::ClassTemplatePartialSpecializationDecl InstantiatedFromMember(void) const noexcept;
+  ::pasta::ClassTemplatePartialSpecializationDecl InstantiatedFromMemberTemplate(void) const noexcept;
   // TemplateArgumentsAsWritten: (const clang::ASTTemplateArgumentListInfo *)
-  // TemplateParameters: (clang::TemplateParameterList *)
-  bool HasAssociatedConstraints(void) const;
-  // !!! TemplateParameterList getNumTemplateParameterLists getTemplateParameterList (empty ret type = (clang::TemplateParameterList *))
+  ::pasta::TemplateParameterList TemplateParameters(void) const noexcept;
+  bool HasAssociatedConstraints(void) const noexcept;
+  std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ClassTemplatePartialSpecializationDecl)
 };
@@ -3113,3 +3068,4 @@ static_assert(sizeof(Decl) == sizeof(ClassTemplatePartialSpecializationDecl));
 }  // namespace pasta
 #undef PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR
 #endif  // PASTA_IN_BOOTSTRAP
+#include "DeclTail.h"

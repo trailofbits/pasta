@@ -41,6 +41,10 @@ class Decl {
 
   std::string_view KindName(void) const noexcept;
 
+  inline const clang::Decl *RawDecl(void) const noexcept {
+    return u.Decl;
+  }
+
  private:
   Decl(void) = delete;
 

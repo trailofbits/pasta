@@ -43,6 +43,10 @@ class CompileJob {
   // Return the compiler system root directory that this command should use.
   std::filesystem::path SystemRootDirectory(void) const;
 
+  // Return the compiler system root include directory that this command
+  // should use.
+  std::filesystem::path SystemRootIncludeDirectory(void) const;
+
   // Return the path to the source file that this job compiles.
   File SourceFile(void) const;
 

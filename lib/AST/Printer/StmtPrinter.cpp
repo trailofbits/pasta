@@ -2109,6 +2109,7 @@ void StmtPrinter::VisitUserDefinedLiteral(clang::UserDefinedLiteral *Node) {
         if (const auto *TD = clang::dyn_cast<clang::TemplateDecl>(DRE->getDecl()))
           TPL = TD->getTemplateParameters();
       OS << "operator \"\"" << Node->getUDSuffix()->getName();
+      TagDefinitionPolicyRAII tag_raii(Policy);
       printTemplateArgumentList(OS, Args->asArray(), Policy, TPL);
       OS << "()";
       return;

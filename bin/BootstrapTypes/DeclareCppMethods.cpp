@@ -7,6 +7,8 @@
 #include <string>
 #include <sstream>
 
+#include <llvm/ADT/StringRef.h>
+
 #include "Globals.h"
 #include "Util.h"
 
@@ -24,18 +26,36 @@ static std::unordered_multimap<std::string, std::tuple<llvm::StringRef, llvm::St
 
 static void CollectGetNumMethod(const std::string &class_name,
                                 llvm::StringRef rt) {
-  if (meth_name_ref.startswith("getNum") && rt == "(unsigned int)") {
+  if (meth_name_ref.startswith("get") && meth_name_ref.contains("Num") &&
+      rt == "(unsigned int)") {
     std::tuple<llvm::StringRef, llvm::StringRef> t{meth_name_ref, rt};
     class_methods0.emplace(class_name, std::move(t));
 
-    if (meth_name_ref.endswith("s")) {
-      get_num_method.emplace(
-          meth_name_ref.substr(6, meth_name_ref.size() - 7).str(),
-          meth_name_ref);
+    if (meth_name_ref.startswith("getNum")) {
+      if (meth_name_ref.endswith("s")) {
+        get_num_method.emplace(
+            meth_name_ref.substr(6, meth_name_ref.size() - 7).str(),
+            meth_name_ref);
+      } else {
+        get_num_method.emplace(
+            meth_name_ref.substr(6, meth_name_ref.size() - 6).str(),
+            meth_name_ref);
+      }
     } else {
+      std::stringstream ss;
+      auto max_i = meth_name_ref.find("Num");
+      for (auto i = 3u; i < max_i; ++i) {
+        ss << meth_name_ref[i];
+      }
+      auto len = meth_name_ref.size();
+      if (meth_name_ref.endswith("s")) {
+        len -= 1;
+      }
+      for (auto i = max_i + 3; i < len; ++i) {
+        ss << meth_name_ref[i];
+      }
       get_num_method.emplace(
-          meth_name_ref.substr(6, meth_name_ref.size() - 6).str(),
-          meth_name_ref);
+          ss.str(), meth_name_ref);
     }
 
   // List form, returns an array of pointers.
@@ -90,6 +110,11 @@ static void DeclareCppMethod0(std::ostream &os, const std::string &class_name,
     }
   }
 
+  if (class_name.find("Decl") != std::string::npos) {
+    if (meth_name_ref == "getLocation" || meth_name_ref == "getSourceRange") {
+      return;
+    }
+  }
 
   CollectGetNumMethod(class_name, rt);
   if (const auto meth_name = CxxName(meth_name_ref);
@@ -104,9 +129,9 @@ static void DeclareCppMethod0(std::ostream &os, const std::string &class_name,
       auto meth_key = std::make_pair(class_name, meth_name);
       existing_methods.insert(meth_key);
       if (kCanReturnNullptr.count(meth_key)) {
-        os << "  std::optional<" << new_rt << "> " << meth_name << "(void) const;\n";
+        os << "  std::optional<" << new_rt << "> " << meth_name << "(void) const noexcept;\n";
       } else {
-        os << "  " << new_rt << ' ' << meth_name << "(void) const;\n";
+        os << "  " << new_rt << ' ' << meth_name << "(void) const noexcept;\n";
       }
     } else {
       os << "  // " << meth_name << ": " << rt << "\n";
@@ -126,9 +151,15 @@ static void DeclareCppMethod1(
         (!strcmp(p0, "(const clang::ASTContext &)") ||
          !strcmp(p0, "(clang::ASTContext &)"))) {
       if (kCanReturnNullptr.count(std::make_pair(class_name, meth_name))) {
-        os << "  std::optional<" << new_rt << "> " << meth_name << "(void) const;\n";
+        os << "  std::optional<" << new_rt << "> " << meth_name << "(void) const noexcept;\n";
       } else {
-        os << "  " << new_rt << ' ' << meth_name << "(void) const;\n";
+        os << "  " << new_rt << ' ' << meth_name << "(void) const noexcept;\n";
+      }
+    } else if (!new_rt.empty() &&!strcmp(p0, "(bool)")) {
+      if (kCanReturnNullptr.count(std::make_pair(class_name, meth_name))) {
+        os << "  std::optional<" << new_rt << "> " << meth_name << "(bool) const noexcept;\n";
+      } else {
+        os << "  " << new_rt << ' ' << meth_name << "(bool) const noexcept;\n";
       }
     } else {
       os << "  // " << meth_name << ": " << rt << "\n";
@@ -167,7 +198,7 @@ static void ProcessIterators(std::ostream &os, const std::string &class_name) {
 
       existing_methods.insert(std::move(meth_key));
 
-      os << "  std::vector<" << new_rt << "> " << name << "(void) const;\n";
+      os << "  std::vector<" << new_rt << "> " << name << "(void) const noexcept;\n";
 
       IteratorSpec spec;
       spec.counter_method = counter_method.str();
@@ -201,7 +232,7 @@ static void ProcessIterators(std::ostream &os, const std::string &class_name) {
 
       existing_methods.insert(std::move(meth_key));
 
-      os << "  std::vector<" << new_rt << "> " << name << "(void) const;\n";
+      os << "  std::vector<" << new_rt << "> " << name << "(void) const noexcept;\n";
 
       IteratorSpec spec;
       spec.counter_method = counter_method.str();

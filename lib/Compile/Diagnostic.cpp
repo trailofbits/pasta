@@ -13,6 +13,7 @@
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/Basic/FileManager.h>
 #include <clang/Basic/SourceManager.h>
+#include <clang/Driver/DriverDiagnostic.h>
 #pragma clang diagnostic pop
 
 #include "../AST/AST.h"
@@ -35,6 +36,24 @@ void SaveFirstErrorDiagConsumer::HandleDiagnostic(
       clang::DiagnosticsEngine::Fatal != level) {
     return;
   }
+
+  constexpr clang::diag::kind ignored_opts[] = {
+      clang::diag::err_drv_unknown_argument,
+      clang::diag::err_drv_unknown_argument_with_suggestion,
+      clang::diag::err_drv_unsupported_opt,
+      clang::diag::err_drv_unsupported_opt_for_target,
+      clang::diag::err_drv_unsupported_opt_with_suggestion,
+      clang::diag::err_drv_unsupported_option_argument,
+  };
+
+  clang::diag::kind id = info.getID();
+  for (auto ignored_id : ignored_opts) {
+    if (id == ignored_id) {
+      return;
+    }
+  }
+
+//  std::cerr << "diag=" << info.getID() << '\n';
 
   std::stringstream ss;
   const auto &tokens = ast->tokens;

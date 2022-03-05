@@ -25,10 +25,10 @@ std::string CxxName(llvm::StringRef name) {
       name.startswith("rend")) {
     return "";
 
-  } else if (name.startswith("get")) {
+  } else if (name.startswith("get") && !name.startswith("gets")) {
     return CxxName(name.substr(3));
 
-  } else if (name.startswith("has")) {
+  } else if (name.startswith("has") && !name.startswith("hash")) {
     return "Has" + CxxName(name.substr(3));
 
   } else if (name.startswith("is")) {
@@ -43,7 +43,7 @@ std::string CxxName(llvm::StringRef name) {
     return "";
 
   // Setters, ignore them.
-  } else if (name.startswith("set")) {
+  } else if (name.startswith("set") && !name.startswith("sets")) {
     return "";
 
   } else if (name.endswith("Loc")) {

@@ -17,10 +17,6 @@ class Stmt;
 class TemplateArgument;
 class TemplateParameterList;
 class Type;
-
-namespace tok {
-enum TokenKind : unsigned short;
-}  // namespace tok
 }  // namespace clang
 namespace pasta {
 
@@ -37,6 +33,8 @@ class PrintedTokenRangeImpl;
 
 class TokenContext;
 
+enum class TokenKind : unsigned short;
+
 class PrintedToken {
  public:
   ~PrintedToken(void);
@@ -50,7 +48,7 @@ class PrintedToken {
   std::string_view Data(void) const;
 
   // Kind of this token.
-  clang::tok::TokenKind Kind(void) const;
+  TokenKind Kind(void) const;
 
   // Number of leading new lines (before any indentation spaces).
   unsigned NumLeadingNewLines(void) const;

@@ -38,8 +38,13 @@ static bool AcceptEnumerator(const std::string &name) {
 }
 
 static std::string RenameEnumerator(const std::string &name) {
+  if (enumerator_name == "eof") {
+    return "EndOfFile";
 
-  if (enumerator_name.endswith("less")) {
+  } else if (enumerator_name == "eod") {
+    return "EndOfDirective";
+
+  } else if (enumerator_name.endswith("less")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 4);
     return RenameEnumerator(name) + "Less";
 
@@ -66,6 +71,14 @@ static std::string RenameEnumerator(const std::string &name) {
   } else if (enumerator_name.endswith("minus")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 5);
     return RenameEnumerator(name) + "Minus";
+
+  } else if (enumerator_name.endswith("hash")) {
+    enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 4);
+    return RenameEnumerator(name) + "Hash";
+
+  } else if (enumerator_name.endswith("amp")) {
+    enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 3);
+    return RenameEnumerator(name) + "Amp";
 
   } else if (enumerator_name.endswith("star")) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 4);

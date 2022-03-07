@@ -4207,8 +4207,8 @@ enum class ThreadStorageClassSpecifier : unsigned int {
 
 enum class TokenKind : unsigned short {
   kUnknown = 0,
-  kEof = 1,
-  kEod = 2,
+  kEndOfFile = 1,
+  kEndOfDirective = 2,
   kCodeCompletion = 3,
   kComment = 4,
   kIdentifier = 5,
@@ -4234,7 +4234,7 @@ enum class TokenKind : unsigned short {
   kPeriod = 25,
   kEllipsis = 26,
   kAmp = 27,
-  kAmpamp = 28,
+  kAmpAmp = 28,
   kAmpEqual = 29,
   kStar = 30,
   kStarEqual = 31,
@@ -4273,7 +4273,7 @@ enum class TokenKind : unsigned short {
   kEqualEqual = 64,
   kComma = 65,
   kHash = 66,
-  kHashhash = 67,
+  kHashHash = 67,
   kHashat = 68,
   kPeriodStar = 69,
   kArrowStar = 70,

@@ -258,16 +258,6 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
   unsigned output_id = 0;
   std::filesystem::path output_to_use;
 
-  unsigned backend_option_flags =
-      clang::driver::options::CC1Option |
-      clang::driver::options::CC1AsOption |
-      clang::driver::options::CoreOption |
-      clang::driver::options::NoDriverOption;
-  if (enable_cl) {
-    backend_option_flags &= ~static_cast<unsigned>(
-        clang::driver::options::CoreOption);
-  }
-
   std::string curr_lang;
 
 //  bool is_cc1 = !!args.getLastArg(clang::driver::options::OPT_cc1);

@@ -11,7 +11,7 @@ struct hash<::pasta::Decl> {
   using Hasher = std::hash<const clang::Decl *>;
   static constexpr Hasher kHasher{};
 
-  inline Hasher::result_type operator()(
+  inline auto operator()(
       const ::pasta::Decl &decl) const noexcept {
     return kHasher(decl.RawDecl());
   }

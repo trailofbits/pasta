@@ -44,13 +44,13 @@ cd cxx-common
 The repository uses [vcpkg](https://github.com/microsoft/vcpkg) which makes entire process rather easy.
 
 ```shell
-./build_dependencies.sh llvm-12
+./build_dependencies.sh llvm-13
 ```
 
 If you do not plan to tinker with or work on PASTA, then we recommend adding in
 `--release` so that you get a release build of LLVM.
 
-It is important *do not forget the llvm-12* option, otherwise it will not build
+It is important *do not forget the llvm-13* option, otherwise it will not build
 and subsequently the projects built in next step will try to link system libraries
 and that is highly unstable and not
 tested (at least for now).

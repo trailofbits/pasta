@@ -26,6 +26,7 @@
 #include <clang/AST/StmtObjC.h>
 #include <clang/AST/StmtOpenMP.h>
 #include <clang/AST/Type.h>
+#include <clang/Basic/TokenKinds.h>
 #include <llvm/Support/raw_ostream.h>
 #pragma clang diagnostic pop
 
@@ -440,6 +441,18 @@ bool MacroGenerator::VisitEnumDecl(clang::EnumDecl *decl) {
       if (ns_ns->getName() == "clang") {
 
         std::string decl_name = "Attribute" + decl->getName().str();
+        if (!unacceptable_enum_names.count(decl_name)) {
+          decl_enums.emplace(std::move(decl_name), decl_def);
+        }
+      }
+    }
+
+  // Find top-level enums in the `clang::tok` namespace.
+  } else if (ns->getName() == "tok") {
+    if (auto ns_ns_dc = ns->getParent(); ns_ns_dc && ns_ns_dc->isNamespace()) {
+      const auto ns_ns = clang::NamespaceDecl::castFromDeclContext(ns_ns_dc);
+      if (ns_ns->getName() == "clang") {
+        std::string decl_name =decl->getName().str();
         if (!unacceptable_enum_names.count(decl_name)) {
           decl_enums.emplace(std::move(decl_name), decl_def);
         }

@@ -31,15 +31,92 @@ static bool AcceptEnumerator(const std::string &name) {
          !enumerator_name.startswith("First") &&
          !enumerator_name.startswith("Last") &&
          !enumerator_name.endswith("Last") &&
-         enumerator_name != "NoStmtClass";
+         enumerator_name != "NoStmtClass" &&
+         enumerator_name != "NUM_TOKENS" &&
+         enumerator_name != "NUM_PP_KEYWORDS" &&
+         enumerator_name != "NUM_OBJC_KEYWORDS";
 }
 
 static std::string RenameEnumerator(const std::string &name) {
+  if (enumerator_name == "eof") {
+    return "EndOfFile";
+
+  } else if (enumerator_name == "eod") {
+    return "EndOfDirective";
+
+  } else if (enumerator_name.endswith("less")) {
+    enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 4);
+    return RenameEnumerator(name) + "Less";
+
+  } else if (enumerator_name.endswith("greater")) {
+    enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 7);
+    return RenameEnumerator(name) + "Greater";
+
+  } else if (enumerator_name.endswith("equal")) {
+    enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 5);
+    return RenameEnumerator(name) + "Equal";
+
+  } else if (enumerator_name.endswith("pipe")) {
+    enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 4);
+    return RenameEnumerator(name) + "Pipe";
+
+  } else if (enumerator_name.endswith("colon")) {
+    enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 5);
+    return RenameEnumerator(name)+ "Colon";
+
+  } else if (enumerator_name.endswith("plus")) {
+    enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 4);
+    return RenameEnumerator(name) + "Plus";
+
+  } else if (enumerator_name.endswith("minus")) {
+    enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 5);
+    return RenameEnumerator(name) + "Minus";
+
+  } else if (enumerator_name.endswith("hash")) {
+    enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 4);
+    return RenameEnumerator(name) + "Hash";
+
+  } else if (enumerator_name.endswith("amp")) {
+    enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 3);
+    return RenameEnumerator(name) + "Amp";
+
+  } else if (enumerator_name.endswith("star")) {
+    enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 4);
+    return RenameEnumerator(name) + "Star";
+
+  } else if (enumerator_name.endswith("_begin")) {
+    enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 6);
+    return RenameEnumerator(name) + "Begin";
+
+  } else if (enumerator_name.endswith("_end")) {
+    enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 4);
+    return RenameEnumerator(name) + "End";
+
+  } else if (enumerator_name.startswith("kw_")) {
+    enumerator_name = enumerator_name.substr(3);
+    return "Keyword" + RenameEnumerator(name);
+
+  } else if (enumerator_name.startswith("pp_") && name == "PPKeywordKind") {
+    enumerator_name = enumerator_name.substr(3);
+    return RenameEnumerator(name);
+
+  } else if (enumerator_name.startswith("objc_") && name == "ObjCKeywordKind") {
+    enumerator_name = enumerator_name.substr(5);
+    return RenameEnumerator(name);
+
+  // `CxxName` strips things starting with `end`.
+  } else if (enumerator_name == "endif") {
+    return "Endif";
+  }
+
   if (name == "StmtKind" && enumerator_name.endswith("Class")) {
     return Capitalize(enumerator_name.substr(
         0, enumerator_name.size() - 5));
+
+  } else if (name == "DeclKind" || name == "TypeClass" || name == "TypeKind") {
+    return Capitalize(enumerator_name);
   }
-  return Capitalize(enumerator_name);
+  return CxxName(enumerator_name);
 }
 
 #define PASTA_BEGIN_NAMED_ENUM(enum_name, underlying_type) \

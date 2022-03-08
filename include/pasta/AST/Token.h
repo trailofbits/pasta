@@ -27,9 +27,6 @@ namespace clang {
 PASTA_FOR_EACH_TOKEN_CONTEXT_KIND(PASTA_FORWARD_DECLARE_CLASS)
 #undef PASTA_FORWARD_DECLARE_CLASS
 
-namespace tok {
-enum TokenKind : unsigned short;
-}  // namespace tok
 }  // namespace clang
 namespace pasta {
 
@@ -45,7 +42,8 @@ class TokenPrinterContext;
 class TokenImpl;
 class TokenRange;
 
-enum class TokenRole : std::underlying_type_t<clang::tok::TokenKind> {
+enum class TokenKind : unsigned short;
+enum class TokenRole : std::underlying_type_t<TokenKind> {
   kInvalid,
 
   kBeginOfFileMarker,
@@ -138,6 +136,9 @@ class TokenContext {
         contexts(std::move(contexts_)) {}
 };
 
+bool IsIdentifierTokenKind(TokenKind) noexcept;
+const char *KeywordSpellingOrNull(TokenKind) noexcept;
+
 // Represents a token that has been pre-processed and parsed.
 class Token {
  private:
@@ -162,7 +163,7 @@ class Token {
   uint64_t Index(void) const;
 
   // Kind of this token.
-  clang::tok::TokenKind Kind(void) const noexcept;
+  TokenKind Kind(void) const noexcept;
 
   // Return the role of this token.
   TokenRole Role(void) const noexcept;

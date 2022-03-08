@@ -5,6 +5,7 @@
 #pragma once
 
 #include <pasta/AST/Token.h>
+#include <pasta/AST/Forward.h>
 
 #include <cstdint>
 #include <string>

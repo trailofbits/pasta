@@ -794,6 +794,7 @@ std::vector<llvm::StringRef> kEnumPrefixesToStrip{
     "SRCK_",
     "BI_",
     "AO__",
+    "OOS_",
 };
 
 // Set of ClassName::MethodName pairs such that the class can return a nullptr,

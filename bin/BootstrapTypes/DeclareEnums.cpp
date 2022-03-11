@@ -34,7 +34,8 @@ static bool AcceptEnumerator(const std::string &name) {
          enumerator_name != "NoStmtClass" &&
          enumerator_name != "NUM_TOKENS" &&
          enumerator_name != "NUM_PP_KEYWORDS" &&
-         enumerator_name != "NUM_OBJC_KEYWORDS";
+         enumerator_name != "NUM_OBJC_KEYWORDS" &&
+         enumerator_name != "NUM_OVERLOADED_OPERATORS";
 }
 
 static std::string RenameEnumerator(const std::string &name) {
@@ -103,6 +104,30 @@ static std::string RenameEnumerator(const std::string &name) {
   } else if (enumerator_name.startswith("objc_") && name == "ObjCKeywordKind") {
     enumerator_name = enumerator_name.substr(5);
     return RenameEnumerator(name);
+
+  } else if (enumerator_name.startswith("is_")) {
+    enumerator_name = enumerator_name.substr(3);
+    return "Is" + RenameEnumerator(name);
+
+  } else if (enumerator_name.startswith("has_")) {
+    enumerator_name = enumerator_name.substr(4);
+    return "Has" + RenameEnumerator(name);
+
+  } else if (enumerator_name.startswith("_is_")) {
+    enumerator_name = enumerator_name.substr(4);
+    return "_Is" + RenameEnumerator(name);
+
+  } else if (enumerator_name.startswith("_has_")) {
+    enumerator_name = enumerator_name.substr(5);
+    return "_Has" + RenameEnumerator(name);
+
+  } else if (enumerator_name.startswith("__is_")) {
+    enumerator_name = enumerator_name.substr(5);
+    return "__Is" + RenameEnumerator(name);
+
+  } else if (enumerator_name.startswith("__has_")) {
+    enumerator_name = enumerator_name.substr(6);
+    return "__Has" + RenameEnumerator(name);
 
   // `CxxName` strips things starting with `end`.
   } else if (enumerator_name == "endif") {

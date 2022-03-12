@@ -93,6 +93,21 @@ std::string_view CompileJob::AuxiliaryTargetTriple(void) const {
 
 namespace {
 
+static bool OmitOption(unsigned id) {
+  switch (id) {
+    case clang::driver::options::OPT_cc1:
+    case clang::driver::options::OPT_cc1as:
+    case clang::driver::options::OPT_fdebug_compilation_dir_EQ:
+    case clang::driver::options::OPT_fcoverage_compilation_dir_EQ:
+    case clang::driver::options::OPT_fcoverage_mapping:
+    case clang::driver::options::OPT_fcoverage_prefix_map_EQ:
+    case clang::driver::options::OPT_fcrash_diagnostics_dir:
+      return true;
+    default:
+      return false;
+  }
+}
+
 static bool IsIncludeOption(unsigned id) {
   switch (id) {
     case clang::driver::options::OPT_I_:
@@ -365,8 +380,7 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
 
     // If we're parsing a `-cc1` command then that changes the interpretation
     // and rendering of some options.
-    } else if (id == clang::driver::options::OPT_cc1 ||
-               id == clang::driver::options::OPT_cc1as) {
+    } else if (OmitOption(id)) {
       // Skip
 
     // Rename these to `-target`.

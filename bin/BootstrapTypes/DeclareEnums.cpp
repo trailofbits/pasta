@@ -13,7 +13,11 @@ namespace {
 static llvm::StringRef enumerator_name;
 
 static std::string RenameEnum(llvm::StringRef name) {
-  if (name == "StmtClass") {
+  if (name.endswith("_t")) {
+    return RenameEnum(name.substr(0, name.size() - 2));
+  } else if (name == "Nonce_ObjCInterface") {
+    return "NonceObjCInterface";
+  } else if (name == "StmtClass") {
     return "StmtKind";
   } else if (name == "TypeClass") {
     return "TypeKind";

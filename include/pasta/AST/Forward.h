@@ -1275,7 +1275,7 @@ enum class FunctionDeclTemplatedKind : unsigned int {
   kDependentFunctionTemplateSpecialization = 4,
 };
 
-enum class ImplicitCastExprOnStack_t : unsigned int {
+enum class ImplicitCastExprOnStack : unsigned int {
   kOnStack = 0,
 };
 
@@ -3101,7 +3101,7 @@ enum class NameKind : unsigned int {
   kSubstTemplateTemplateParmPack = 6,
 };
 
-enum class NeedExtraManglingDecl_t : unsigned int {
+enum class NeedExtraManglingDecl : unsigned int {
   kNeedExtraManglingDeclaration = 0,
 };
 
@@ -3127,7 +3127,7 @@ enum class NonOdrUseReason : unsigned int {
   kDiscarded = 3,
 };
 
-enum class Nonce_ObjCInterface : unsigned int {
+enum class NonceObjCInterface : unsigned int {
   kObjCInterface = 0,
 };
 

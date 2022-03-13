@@ -23,6 +23,8 @@ static std::string RenameEnum(llvm::StringRef name) {
     return "TypeKind";
   } else if (name == "ValueKind") {
     return "APValueKind";
+  } else if (name == "TemplateArgumentArgKind") {
+    return "TemplateArgumentKind";
   } else {
     return Capitalize(name);
   }
@@ -136,6 +138,9 @@ static std::string RenameEnumerator(const std::string &name) {
   // `CxxName` strips things starting with `end`.
   } else if (enumerator_name == "endif") {
     return "Endif";
+
+  } else if (enumerator_name == "Null" && name == "TemplateArgumentKind") {
+    return "Empty";
   }
 
   if (name == "StmtKind" && enumerator_name.endswith("Class")) {

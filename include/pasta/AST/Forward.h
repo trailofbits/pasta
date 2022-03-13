@@ -1627,8 +1627,8 @@ enum class StringLiteralStringKind : unsigned int {
   kUTF32 = 4,
 };
 
-enum class TemplateArgumentArgKind : unsigned int {
-  kNull = 0,
+enum class TemplateArgumentKind : unsigned int {
+  kEmpty = 0,
   kType = 1,
   kDeclaration = 2,
   kNullPointer = 3,

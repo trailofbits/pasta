@@ -573,16 +573,11 @@ std::optional<::pasta::Type> Type::BaseElementTypeUnsafe(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::TypeDependence Type::Dependence(void) const noexcept {
-  auto &self = *const_cast<clang::Type *>(u.Type);
-  auto val = self.getDependence();
-  return static_cast<::pasta::TypeDependence>(val);
-}
-
+// 0: Type::Dependence
 enum Linkage Type::Linkage(void) const noexcept {
   auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getLinkage();
-  return static_cast<::pasta::Linkage>(static_cast<unsigned char>(val));
+  return static_cast<::pasta::Linkage>(val);
 }
 
 // 0: Type::LinkageAndVisibility
@@ -602,12 +597,7 @@ std::optional<::pasta::NullabilityKind> Type::Nullability(void) const noexcept {
   }
 }
 
-::pasta::ObjCLifetime Type::ObjCARCImplicitLifetime(void) const noexcept {
-  auto &self = *const_cast<clang::Type *>(u.Type);
-  auto val = self.getObjCARCImplicitLifetime();
-  return static_cast<::pasta::ObjCLifetime>(val);
-}
-
+// 0: Type::ObjCARCImplicitLifetime
 // 1: Type::ObjCSubstitutions
 ::pasta::CXXRecordDecl Type::PointeeCXXRecordDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::Type *>(u.Type);
@@ -635,10 +625,10 @@ std::optional<::pasta::NullabilityKind> Type::Nullability(void) const noexcept {
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::ScalarTypeKind Type::ScalarTypeKind(void) const noexcept {
+enum TypeScalarTypeKind Type::ScalarTypeKind(void) const noexcept {
   auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getScalarTypeKind();
-  return static_cast<::pasta::ScalarTypeKind>(val);
+  return static_cast<::pasta::TypeScalarTypeKind>(val);
 }
 
 ::pasta::Type Type::SveEltType(void) const noexcept {
@@ -678,7 +668,7 @@ std::string_view Type::KindName(void) const noexcept {
 enum Visibility Type::Visibility(void) const noexcept {
   auto &self = *const_cast<clang::Type *>(u.Type);
   auto val = self.getVisibility();
-  return static_cast<::pasta::Visibility>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::Visibility>(val);
 }
 
 // 1: Type::HasAttribute
@@ -1886,7 +1876,7 @@ enum LangAS Type::AddressSpace(void) const noexcept {
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
   auto val = self.getAddressSpace();
-  return static_cast<::pasta::LangAS>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::LangAS>(val);
 }
 
 // 0: Type::
@@ -1973,14 +1963,7 @@ uint32_t Type::LocalFastQualifiers(void) const noexcept {
 }
 
 // 0: Type::ObjCGCAttr
-::pasta::ObjCLifetime Type::ObjCLifetime(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  auto val = self.getObjCLifetime();
-  return static_cast<::pasta::ObjCLifetime>(val);
-}
-
+// 0: Type::ObjCLifetime
 // 0: Type::Qualifiers
 ::pasta::Type Type::SingleStepDesugaredType(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
@@ -2125,7 +2108,14 @@ bool Type::IsConstant(void) const noexcept {
   return val;
 }
 
-// 0: Type::IsDestructedType
+enum QualTypeDestructionKind Type::IsDestructedType(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  auto val = self.isDestructedType();
+  return static_cast<::pasta::QualTypeDestructionKind>(val);
+}
+
 bool Type::IsLocalConstQualified(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
@@ -2151,28 +2141,28 @@ bool Type::IsLocalVolatileQualified(void) const noexcept {
 }
 
 // 1: Type::IsMoreQualifiedThan
-::pasta::PrimitiveCopyKind Type::IsNonTrivialToPrimitiveCopy(void) const noexcept {
+enum QualTypePrimitiveCopyKind Type::IsNonTrivialToPrimitiveCopy(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
   auto val = self.isNonTrivialToPrimitiveCopy();
-  return static_cast<::pasta::PrimitiveCopyKind>(val);
+  return static_cast<::pasta::QualTypePrimitiveCopyKind>(val);
 }
 
-::pasta::PrimitiveDefaultInitializeKind Type::IsNonTrivialToPrimitiveDefaultInitialize(void) const noexcept {
+enum QualTypePrimitiveDefaultInitializeKind Type::IsNonTrivialToPrimitiveDefaultInitialize(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
   auto val = self.isNonTrivialToPrimitiveDefaultInitialize();
-  return static_cast<::pasta::PrimitiveDefaultInitializeKind>(val);
+  return static_cast<::pasta::QualTypePrimitiveDefaultInitializeKind>(val);
 }
 
-::pasta::PrimitiveCopyKind Type::IsNonTrivialToPrimitiveDestructiveMove(void) const noexcept {
+enum QualTypePrimitiveCopyKind Type::IsNonTrivialToPrimitiveDestructiveMove(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
   auto val = self.isNonTrivialToPrimitiveDestructiveMove();
-  return static_cast<::pasta::PrimitiveCopyKind>(val);
+  return static_cast<::pasta::QualTypePrimitiveCopyKind>(val);
 }
 
 bool Type::IsNonWeakInMRRWithObjCWeak(void) const noexcept {
@@ -2388,10 +2378,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, UnaryTransformType)
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::UTTKind UnaryTransformType::UTTKind(void) const noexcept {
+enum UnaryTransformTypeUTTKind UnaryTransformType::UTTKind(void) const noexcept {
   auto &self = *const_cast<clang::UnaryTransformType *>(u.UnaryTransformType);
   auto val = self.getUTTKind();
-  return static_cast<::pasta::UTTKind>(val);
+  return static_cast<::pasta::UnaryTransformTypeUTTKind>(val);
 }
 
 ::pasta::Type UnaryTransformType::UnderlyingType(void) const noexcept {
@@ -2449,10 +2439,10 @@ uint32_t VectorType::NumElements(void) const noexcept {
   return val;
 }
 
-::pasta::VectorKind VectorType::VectorKind(void) const noexcept {
+enum VectorTypeVectorKind VectorType::VectorKind(void) const noexcept {
   auto &self = *const_cast<clang::VectorType *>(u.VectorType);
   auto val = self.getVectorKind();
-  return static_cast<::pasta::VectorKind>(val);
+  return static_cast<::pasta::VectorTypeVectorKind>(val);
 }
 
 bool VectorType::IsSugared(void) const noexcept {
@@ -2479,7 +2469,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(TypeWithKeyword, ElaboratedType)
 enum ElaboratedTypeKeyword TypeWithKeyword::Keyword(void) const noexcept {
   auto &self = *const_cast<clang::TypeWithKeyword *>(u.TypeWithKeyword);
   auto val = self.getKeyword();
-  return static_cast<::pasta::ElaboratedTypeKeyword>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::ElaboratedTypeKeyword>(val);
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, AdjustedType)
@@ -2526,10 +2516,10 @@ uint32_t ArrayType::IndexTypeCVRQualifiers(void) const noexcept {
 }
 
 // 0: ArrayType::IndexTypeQualifiers
-::pasta::ArraySizeModifier ArrayType::SizeModifier(void) const noexcept {
+enum ArrayTypeArraySizeModifier ArrayType::SizeModifier(void) const noexcept {
   auto &self = *const_cast<clang::ArrayType *>(u.ArrayType);
   auto val = self.getSizeModifier();
-  return static_cast<::pasta::ArraySizeModifier>(val);
+  return static_cast<::pasta::ArrayTypeArraySizeModifier>(val);
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, AtomicType)
@@ -3024,10 +3014,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentVectorType)
   __builtin_unreachable();
 }
 
-::pasta::VectorKind DependentVectorType::VectorKind(void) const noexcept {
+enum VectorTypeVectorKind DependentVectorType::VectorKind(void) const noexcept {
   auto &self = *const_cast<clang::DependentVectorType *>(u.DependentVectorType);
   auto val = self.getVectorKind();
-  return static_cast<::pasta::VectorKind>(val);
+  return static_cast<::pasta::VectorTypeVectorKind>(val);
 }
 
 bool DependentVectorType::IsSugared(void) const noexcept {
@@ -3119,7 +3109,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(FunctionType, FunctionProtoType)
 enum CallingConv FunctionType::CallConv(void) const noexcept {
   auto &self = *const_cast<clang::FunctionType *>(u.FunctionType);
   auto val = self.getCallConv();
-  return static_cast<::pasta::CallingConv>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::CallingConv>(val);
 }
 
 ::pasta::Type FunctionType::CallResultType(void) const noexcept {
@@ -4005,7 +3995,7 @@ PASTA_DEFINE_BASE_OPERATORS(Type, AutoType)
 enum AutoTypeKeyword AutoType::Keyword(void) const noexcept {
   auto &self = *const_cast<clang::AutoType *>(u.AutoType);
   auto val = self.getKeyword();
-  return static_cast<::pasta::AutoTypeKeyword>(static_cast<int>(val));
+  return static_cast<::pasta::AutoTypeKeyword>(val);
 }
 
 uint32_t AutoType::NumArguments(void) const noexcept {
@@ -4149,7 +4139,7 @@ PASTA_DEFINE_BASE_OPERATORS(Type, FunctionProtoType)
 enum CanThrowResult FunctionProtoType::CanThrow(void) const noexcept {
   auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.canThrow();
-  return static_cast<::pasta::CanThrowResult>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::CanThrowResult>(val);
 }
 
 ::pasta::Type FunctionProtoType::Desugar(void) const noexcept {
@@ -4200,7 +4190,7 @@ std::vector<::pasta::Type> FunctionProtoType::Exceptions(void) const noexcept {
 enum ExceptionSpecificationType FunctionProtoType::ExceptionSpecType(void) const noexcept {
   auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.getExceptionSpecType();
-  return static_cast<::pasta::ExceptionSpecificationType>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::ExceptionSpecificationType>(val);
 }
 
 // 1: FunctionProtoType::ExceptionType
@@ -4246,7 +4236,7 @@ std::vector<::pasta::Type> FunctionProtoType::ParamTypes(void) const noexcept {
 enum RefQualifierKind FunctionProtoType::ReferenceQualifier(void) const noexcept {
   auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   auto val = self.getRefQualifier();
-  return static_cast<::pasta::RefQualifierKind>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::RefQualifierKind>(val);
 }
 
 bool FunctionProtoType::HasDependentExceptionSpec(void) const noexcept {

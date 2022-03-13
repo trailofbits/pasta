@@ -2349,7 +2349,7 @@ std::vector<::pasta::Stmt> CapturedStmt::Children(void) const noexcept {
 enum CapturedRegionKind CapturedStmt::CapturedRegionKind(void) const noexcept {
   auto &self = *const_cast<clang::CapturedStmt *>(u.CapturedStmt);
   auto val = self.getCapturedRegionKind();
-  return static_cast<::pasta::CapturedRegionKind>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::CapturedRegionKind>(val);
 }
 
 ::pasta::Stmt CapturedStmt::CapturedStatement(void) const noexcept {
@@ -3080,7 +3080,12 @@ PASTA_DEFINE_DERIVED_OPERATORS(Expr, UnresolvedMemberExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(Expr, UserDefinedLiteral)
 PASTA_DEFINE_DERIVED_OPERATORS(Expr, VAArgExpr)
 // 1: Expr::Classify
-// 1: Expr::ClassifyLValue
+enum ExprLValueClassification Expr::ClassifyLValue(void) const noexcept {
+  auto &self = *(u.Expr);
+  auto val = self.ClassifyLValue(ast->ci->getASTContext());
+  return static_cast<::pasta::ExprLValueClassification>(val);
+}
+
 // 2: ClassifyModifiable
 // 2: EvaluateAsBooleanCondition
 // 2: EvaluateAsConstantExpression
@@ -3283,7 +3288,7 @@ bool Expr::ContainsUnexpandedParameterPack(void) const noexcept {
 enum ExprObjectKind Expr::ObjectKind(void) const noexcept {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   auto val = self.getObjectKind();
-  return static_cast<::pasta::ExprObjectKind>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::ExprObjectKind>(val);
 }
 
 ::pasta::Decl Expr::ReferencedDeclarationOfCallee(void) const noexcept {
@@ -3315,7 +3320,7 @@ enum ExprObjectKind Expr::ObjectKind(void) const noexcept {
 enum ExprValueKind Expr::ValueKind(void) const noexcept {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   auto val = self.getValueKind();
-  return static_cast<::pasta::ExprValueKind>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::ExprValueKind>(val);
 }
 
 bool Expr::HasNonTrivialCall(void) const noexcept {
@@ -3391,7 +3396,12 @@ bool Expr::IsLValue(void) const noexcept {
   return val;
 }
 
-// 1: Expr::IsModifiableLvalue
+enum ExprisModifiableLvalueResult Expr::IsModifiableLvalue(void) const noexcept {
+  auto &self = *(u.Expr);
+  auto val = self.isModifiableLvalue(ast->ci->getASTContext());
+  return static_cast<::pasta::ExprisModifiableLvalueResult>(val);
+}
+
 // 2: IsNullPointerConstant
 bool Expr::IsOBJCGCCandidate(void) const noexcept {
   auto &self = *(u.Expr);
@@ -3511,7 +3521,7 @@ std::vector<::pasta::Stmt> ExpressionTraitExpr::Children(void) const noexcept {
 enum ExpressionTrait ExpressionTraitExpr::Trait(void) const noexcept {
   auto &self = *const_cast<clang::ExpressionTraitExpr *>(u.ExpressionTraitExpr);
   auto val = self.getTrait();
-  return static_cast<::pasta::ExpressionTrait>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::ExpressionTrait>(val);
 }
 
 bool ExpressionTraitExpr::Value(void) const noexcept {
@@ -4928,7 +4938,7 @@ std::vector<::pasta::Stmt> LambdaExpr::Children(void) const noexcept {
 enum LambdaCaptureDefault LambdaExpr::CaptureDefault(void) const noexcept {
   auto &self = *const_cast<clang::LambdaExpr *>(u.LambdaExpr);
   auto val = self.getCaptureDefault();
-  return static_cast<::pasta::LambdaCaptureDefault>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::LambdaCaptureDefault>(val);
 }
 
 ::pasta::Token LambdaExpr::CaptureDefaultToken(void) const noexcept {
@@ -5452,7 +5462,7 @@ uint32_t MaterializeTemporaryExpr::ManglingNumber(void) const noexcept {
 enum StorageDuration MaterializeTemporaryExpr::StorageDuration(void) const noexcept {
   auto &self = *const_cast<clang::MaterializeTemporaryExpr *>(u.MaterializeTemporaryExpr);
   auto val = self.getStorageDuration();
-  return static_cast<::pasta::StorageDuration>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::StorageDuration>(val);
 }
 
 ::pasta::Expr MaterializeTemporaryExpr::SubExpression(void) const noexcept {
@@ -5691,7 +5701,7 @@ bool MemberExpr::IsImplicitAccess(void) const noexcept {
 enum NonOdrUseReason MemberExpr::IsNonOdrUse(void) const noexcept {
   auto &self = *const_cast<clang::MemberExpr *>(u.MemberExpr);
   auto val = self.isNonOdrUse();
-  return static_cast<::pasta::NonOdrUseReason>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::NonOdrUseReason>(val);
 }
 
 // 1: MemberExpr::PerformsVirtualDispatch
@@ -8274,7 +8284,7 @@ std::vector<::pasta::Stmt> ObjCMessageExpr::Children(void) const noexcept {
 enum ObjCMethodFamily ObjCMessageExpr::MethodFamily(void) const noexcept {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   auto val = self.getMethodFamily();
-  return static_cast<::pasta::ObjCMethodFamily>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::ObjCMethodFamily>(val);
 }
 
 uint32_t ObjCMessageExpr::NumArguments(void) const noexcept {
@@ -8299,7 +8309,12 @@ uint32_t ObjCMessageExpr::NumSelectorTokens(void) const noexcept {
   __builtin_unreachable();
 }
 
-// 0: ObjCMessageExpr::ReceiverKind
+enum ObjCMessageExprReceiverKind ObjCMessageExpr::ReceiverKind(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
+  auto val = self.getReceiverKind();
+  return static_cast<::pasta::ObjCMessageExprReceiverKind>(val);
+}
+
 ::pasta::TokenRange ObjCMessageExpr::ReceiverRange(void) const noexcept {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   auto val = self.getReceiverRange();
@@ -9159,7 +9174,12 @@ std::vector<::pasta::Stmt> PredefinedExpr::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-// 0: PredefinedExpr::IdentifierKind
+enum PredefinedExprIdentKind PredefinedExpr::IdentifierKind(void) const noexcept {
+  auto &self = *const_cast<clang::PredefinedExpr *>(u.PredefinedExpr);
+  auto val = self.getIdentKind();
+  return static_cast<::pasta::PredefinedExprIdentKind>(val);
+}
+
 std::string_view PredefinedExpr::IdentifierKindName(void) const noexcept {
   auto &self = *const_cast<clang::PredefinedExpr *>(u.PredefinedExpr);
   auto val = self.getIdentKindName();
@@ -9861,7 +9881,12 @@ std::string_view SourceLocExpr::BuiltinString(void) const noexcept {
   return ast->TokenAt(val);
 }
 
-// 0: SourceLocExpr::IdentifierKind
+enum SourceLocExprIdentKind SourceLocExpr::IdentifierKind(void) const noexcept {
+  auto &self = *const_cast<clang::SourceLocExpr *>(u.SourceLocExpr);
+  auto val = self.getIdentKind();
+  return static_cast<::pasta::SourceLocExprIdentKind>(val);
+}
+
 ::pasta::Token SourceLocExpr::Token(void) const noexcept {
   auto &self = *const_cast<clang::SourceLocExpr *>(u.SourceLocExpr);
   auto val = self.getLocation();
@@ -10013,7 +10038,12 @@ uint32_t StringLiteral::CharacterByteWidth(void) const noexcept {
   return ast->TokenAt(val);
 }
 
-// 0: StringLiteral::Kind
+enum StringLiteralStringKind StringLiteral::Kind(void) const noexcept {
+  auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
+  auto val = self.getKind();
+  return static_cast<::pasta::StringLiteralStringKind>(val);
+}
+
 uint32_t StringLiteral::Length(void) const noexcept {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
   auto val = self.getLength();
@@ -10232,7 +10262,7 @@ uint32_t TypeTraitExpr::NumArguments(void) const noexcept {
 enum TypeTrait TypeTraitExpr::Trait(void) const noexcept {
   auto &self = *const_cast<clang::TypeTraitExpr *>(u.TypeTraitExpr);
   auto val = self.getTrait();
-  return static_cast<::pasta::TypeTrait>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::TypeTrait>(val);
 }
 
 bool TypeTraitExpr::Value(void) const noexcept {
@@ -10340,7 +10370,7 @@ std::vector<::pasta::Stmt> UnaryExprOrTypeTraitExpr::Children(void) const noexce
 enum UnaryExprOrTypeTrait UnaryExprOrTypeTraitExpr::Kind(void) const noexcept {
   auto &self = *const_cast<clang::UnaryExprOrTypeTraitExpr *>(u.UnaryExprOrTypeTraitExpr);
   auto val = self.getKind();
-  return static_cast<::pasta::UnaryExprOrTypeTrait>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::UnaryExprOrTypeTrait>(val);
 }
 
 ::pasta::Token UnaryExprOrTypeTraitExpr::OperatorToken(void) const noexcept {
@@ -10414,7 +10444,7 @@ std::vector<::pasta::Stmt> UnaryOperator::Children(void) const noexcept {
 enum UnaryOperatorKind UnaryOperator::Opcode(void) const noexcept {
   auto &self = *const_cast<clang::UnaryOperator *>(u.UnaryOperator);
   auto val = self.getOpcode();
-  return static_cast<::pasta::UnaryOperatorKind>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::UnaryOperatorKind>(val);
 }
 
 ::pasta::Token UnaryOperator::OperatorToken(void) const noexcept {
@@ -11019,7 +11049,7 @@ std::vector<::pasta::Stmt> ArrayTypeTraitExpr::Children(void) const noexcept {
 enum ArrayTypeTrait ArrayTypeTraitExpr::Trait(void) const noexcept {
   auto &self = *const_cast<clang::ArrayTypeTraitExpr *>(u.ArrayTypeTraitExpr);
   auto val = self.getTrait();
-  return static_cast<::pasta::ArrayTypeTrait>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::ArrayTypeTrait>(val);
 }
 
 uint64_t ArrayTypeTraitExpr::Value(void) const noexcept {
@@ -11122,7 +11152,12 @@ uint32_t AtomicExpr::NumSubExpressions(void) const noexcept {
   return val;
 }
 
-// 0: AtomicExpr::Operation
+enum AtomicExprAtomicOp AtomicExpr::Operation(void) const noexcept {
+  auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
+  auto val = self.getOp();
+  return static_cast<::pasta::AtomicExprAtomicOp>(val);
+}
+
 ::pasta::Expr AtomicExpr::Order(void) const noexcept {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
   auto val = self.getOrder();
@@ -11374,7 +11409,7 @@ std::vector<::pasta::Stmt> BinaryOperator::Children(void) const noexcept {
 enum BinaryOperatorKind BinaryOperator::Opcode(void) const noexcept {
   auto &self = *const_cast<clang::BinaryOperator *>(u.BinaryOperator);
   auto val = self.getOpcode();
-  return static_cast<::pasta::BinaryOperatorKind>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::BinaryOperatorKind>(val);
 }
 
 std::string_view BinaryOperator::OpcodeString(void) const noexcept {
@@ -11678,10 +11713,10 @@ std::vector<::pasta::Stmt> CXXConstructExpr::Children(void) const noexcept {
   return ast->TokenAt(val);
 }
 
-::pasta::ConstructionKind CXXConstructExpr::ConstructionKind(void) const noexcept {
+enum CXXConstructExprConstructionKind CXXConstructExpr::ConstructionKind(void) const noexcept {
   auto &self = *const_cast<clang::CXXConstructExpr *>(u.CXXConstructExpr);
   auto val = self.getConstructionKind();
-  return static_cast<::pasta::ConstructionKind>(val);
+  return static_cast<::pasta::CXXConstructExprConstructionKind>(val);
 }
 
 ::pasta::CXXConstructorDecl CXXConstructExpr::Constructor(void) const noexcept {
@@ -12173,7 +12208,7 @@ std::optional<unsigned> CXXFoldExpr::NumExpansions(void) const noexcept {
 enum BinaryOperatorKind CXXFoldExpr::Operator(void) const noexcept {
   auto &self = *const_cast<clang::CXXFoldExpr *>(u.CXXFoldExpr);
   auto val = self.getOperator();
-  return static_cast<::pasta::BinaryOperatorKind>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::BinaryOperatorKind>(val);
 }
 
 ::pasta::Expr CXXFoldExpr::Pattern(void) const noexcept {
@@ -12244,10 +12279,10 @@ bool CXXInheritedCtorInitExpr::ConstructsVirtualBase(void) const noexcept {
   return ast->TokenAt(val);
 }
 
-::pasta::ConstructionKind CXXInheritedCtorInitExpr::ConstructionKind(void) const noexcept {
+enum CXXConstructExprConstructionKind CXXInheritedCtorInitExpr::ConstructionKind(void) const noexcept {
   auto &self = *const_cast<clang::CXXInheritedCtorInitExpr *>(u.CXXInheritedCtorInitExpr);
   auto val = self.getConstructionKind();
-  return static_cast<::pasta::ConstructionKind>(val);
+  return static_cast<::pasta::CXXConstructExprConstructionKind>(val);
 }
 
 ::pasta::CXXConstructorDecl CXXInheritedCtorInitExpr::Constructor(void) const noexcept {
@@ -12353,10 +12388,10 @@ std::optional<::pasta::Expr> CXXNewExpr::ArraySize(void) const noexcept {
   return ast->TokenAt(val);
 }
 
-::pasta::InitializationStyle CXXNewExpr::InitializationStyle(void) const noexcept {
+enum CXXNewExprInitializationStyle CXXNewExpr::InitializationStyle(void) const noexcept {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   auto val = self.getInitializationStyle();
-  return static_cast<::pasta::InitializationStyle>(val);
+  return static_cast<::pasta::CXXNewExprInitializationStyle>(val);
 }
 
 ::pasta::Expr CXXNewExpr::Initializer(void) const noexcept {
@@ -12685,7 +12720,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXRewrittenBinaryOperator)
 enum BinaryOperatorKind CXXRewrittenBinaryOperator::Opcode(void) const noexcept {
   auto &self = *const_cast<clang::CXXRewrittenBinaryOperator *>(u.CXXRewrittenBinaryOperator);
   auto val = self.getOpcode();
-  return static_cast<::pasta::BinaryOperatorKind>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::BinaryOperatorKind>(val);
 }
 
 std::string_view CXXRewrittenBinaryOperator::OpcodeString(void) const noexcept {
@@ -12701,7 +12736,7 @@ std::string_view CXXRewrittenBinaryOperator::OpcodeString(void) const noexcept {
 enum BinaryOperatorKind CXXRewrittenBinaryOperator::Operator(void) const noexcept {
   auto &self = *const_cast<clang::CXXRewrittenBinaryOperator *>(u.CXXRewrittenBinaryOperator);
   auto val = self.getOperator();
-  return static_cast<::pasta::BinaryOperatorKind>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::BinaryOperatorKind>(val);
 }
 
 ::pasta::Token CXXRewrittenBinaryOperator::OperatorToken(void) const noexcept {
@@ -13247,10 +13282,10 @@ std::vector<::pasta::Stmt> CallExpr::Children(void) const noexcept {
   return ret;
 }
 
-::pasta::ADLCallKind CallExpr::ADLCallKind(void) const noexcept {
+enum CallExprADLCallKind CallExpr::ADLCallKind(void) const noexcept {
   auto &self = *const_cast<clang::CallExpr *>(u.CallExpr);
   auto val = self.getADLCallKind();
-  return static_cast<::pasta::ADLCallKind>(val);
+  return static_cast<::pasta::CallExprADLCallKind>(val);
 }
 
 // 1: CallExpr::Argument
@@ -13400,7 +13435,7 @@ std::vector<::pasta::Stmt> CastExpr::Children(void) const noexcept {
 enum CastKind CastExpr::CastKind(void) const noexcept {
   auto &self = *const_cast<clang::CastExpr *>(u.CastExpr);
   auto val = self.getCastKind();
-  return static_cast<::pasta::CastKind>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::CastKind>(val);
 }
 
 std::string_view CastExpr::CastKindName(void) const noexcept {
@@ -13499,7 +13534,12 @@ std::vector<::pasta::Stmt> CharacterLiteral::Children(void) const noexcept {
   return ast->TokenAt(val);
 }
 
-// 0: CharacterLiteral::Kind
+enum CharacterLiteralCharacterKind CharacterLiteral::Kind(void) const noexcept {
+  auto &self = *const_cast<clang::CharacterLiteral *>(u.CharacterLiteral);
+  auto val = self.getKind();
+  return static_cast<::pasta::CharacterLiteralCharacterKind>(val);
+}
+
 ::pasta::Token CharacterLiteral::Token(void) const noexcept {
   auto &self = *const_cast<clang::CharacterLiteral *>(u.CharacterLiteral);
   auto val = self.getLocation();
@@ -13837,12 +13877,7 @@ std::vector<::pasta::Stmt> ConstantExpr::Children(void) const noexcept {
   return ast->TokenAt(val);
 }
 
-::pasta::APValueKind ConstantExpr::ResultAPValueKind(void) const noexcept {
-  auto &self = *const_cast<clang::ConstantExpr *>(u.ConstantExpr);
-  auto val = self.getResultAPValueKind();
-  return static_cast<::pasta::APValueKind>(val);
-}
-
+// 0: ConstantExpr::ResultAPValueKind
 llvm::APSInt ConstantExpr::ResultAsAPSInt(void) const noexcept {
   auto &self = *const_cast<clang::ConstantExpr *>(u.ConstantExpr);
   auto val = self.getResultAsAPSInt();
@@ -13850,10 +13885,10 @@ llvm::APSInt ConstantExpr::ResultAsAPSInt(void) const noexcept {
 }
 
 // 0: ConstantExpr::ResultAsAPValue
-::pasta::ResultStorageKind ConstantExpr::ResultStorageKind(void) const noexcept {
+enum ConstantExprResultStorageKind ConstantExpr::ResultStorageKind(void) const noexcept {
   auto &self = *const_cast<clang::ConstantExpr *>(u.ConstantExpr);
   auto val = self.getResultStorageKind();
-  return static_cast<::pasta::ResultStorageKind>(val);
+  return static_cast<::pasta::ConstantExprResultStorageKind>(val);
 }
 
 bool ConstantExpr::HasAPValueResult(void) const noexcept {
@@ -14145,7 +14180,7 @@ bool DeclRefExpr::HasTemplateKeyword(void) const noexcept {
 enum NonOdrUseReason DeclRefExpr::IsNonOdrUse(void) const noexcept {
   auto &self = *const_cast<clang::DeclRefExpr *>(u.DeclRefExpr);
   auto val = self.isNonOdrUse();
-  return static_cast<::pasta::NonOdrUseReason>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::NonOdrUseReason>(val);
 }
 
 bool DeclRefExpr::RefersToEnclosingVariableOrCapture(void) const noexcept {
@@ -14781,7 +14816,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ObjCBridgedCastExpr)
 enum ObjCBridgeCastKind ObjCBridgedCastExpr::BridgeKind(void) const noexcept {
   auto &self = *const_cast<clang::ObjCBridgedCastExpr *>(u.ObjCBridgedCastExpr);
   auto val = self.getBridgeKind();
-  return static_cast<::pasta::ObjCBridgeCastKind>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::ObjCBridgeCastKind>(val);
 }
 
 std::string_view ObjCBridgedCastExpr::BridgeKindName(void) const noexcept {
@@ -14837,7 +14872,12 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, UserDefinedLiteral)
   return ast->TokenAt(val);
 }
 
-// 0: UserDefinedLiteral::LiteralOperatorKind
+enum UserDefinedLiteralLiteralOperatorKind UserDefinedLiteral::LiteralOperatorKind(void) const noexcept {
+  auto &self = *const_cast<clang::UserDefinedLiteral *>(u.UserDefinedLiteral);
+  auto val = self.getLiteralOperatorKind();
+  return static_cast<::pasta::UserDefinedLiteralLiteralOperatorKind>(val);
+}
+
 // 0: UserDefinedLiteral::UDSuffix
 ::pasta::Token UserDefinedLiteral::UDSuffixToken(void) const noexcept {
   auto &self = *const_cast<clang::UserDefinedLiteral *>(u.UserDefinedLiteral);
@@ -15146,7 +15186,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXOperatorCallExpr)
 enum OverloadedOperatorKind CXXOperatorCallExpr::Operator(void) const noexcept {
   auto &self = *const_cast<clang::CXXOperatorCallExpr *>(u.CXXOperatorCallExpr);
   auto val = self.getOperator();
-  return static_cast<::pasta::OverloadedOperatorKind>(static_cast<int>(val));
+  return static_cast<::pasta::OverloadedOperatorKind>(val);
 }
 
 ::pasta::Token CXXOperatorCallExpr::OperatorToken(void) const noexcept {

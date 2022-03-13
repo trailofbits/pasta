@@ -17,9 +17,9 @@ static std::string RenameEnum(llvm::StringRef name) {
     return RenameEnum(name.substr(0, name.size() - 2));
   } else if (name == "Nonce_ObjCInterface") {
     return "NonceObjCInterface";
-  } else if (name == "StmtClass") {
+  } else if (name == "StmtStmtClass") {
     return "StmtKind";
-  } else if (name == "TypeClass") {
+  } else if (name == "TypeTypeClass") {
     return "TypeKind";
   } else if (name == "ValueKind") {
     return "APValueKind";
@@ -157,11 +157,27 @@ static std::string RenameEnumerator(const std::string &name) {
     static void DeclareEnum_ ## enum_name(std::ostream &os) { \
       auto enum_name_str = RenameEnum(PASTA_STR(enum_name)); \
       auto &enumerators = gEnumerators[enum_name_str]; \
+      gRetTypeMap.emplace( \
+          "(clang::" PASTA_STR(enum_name) ")", \
+          "enum " + enum_name_str); \
+      gRetTypeToValMap.emplace( \
+          "(clang::" PASTA_STR(enum_name) ")", \
+          "  return static_cast<::pasta::" + enum_name_str + ">(val);\n"); \
       os << "enum class " << enum_name_str \
          << " : " << PASTA_STR(PASTA_SPLAT underlying_type) << " {\n";
 
-#define PASTA_BEGIN_CLASS_NAMED_ENUM(class_name, name, underlying_type) \
-    PASTA_BEGIN_NAMED_ENUM(class_name ## name, underlying_type)
+#define PASTA_BEGIN_CLASS_NAMED_ENUM(class_name, enum_name, underlying_type) \
+    static void DeclareEnum_ ## class_name ## _ ## enum_name(std::ostream &os) { \
+      auto enum_name_str = RenameEnum(PASTA_STR(class_name) PASTA_STR(enum_name)); \
+      auto &enumerators = gEnumerators[enum_name_str]; \
+      gRetTypeMap.emplace( \
+          "(clang::" PASTA_STR(class_name) "::" PASTA_STR(enum_name) ")", \
+          "enum " + enum_name_str); \
+      gRetTypeToValMap.emplace( \
+          "(clang::" PASTA_STR(class_name) "::" PASTA_STR(enum_name) ")", \
+          "  return static_cast<::pasta::" + enum_name_str + ">(val);\n"); \
+      os << "enum class " << enum_name_str \
+         << " : " << PASTA_STR(PASTA_SPLAT underlying_type) << " {\n";
 
 
 #define PASTA_NAMED_ENUMERATOR(enumerator_name_, underlying_type, val) \
@@ -198,8 +214,8 @@ void DeclareEnums(std::ostream &os) {
 #define PASTA_BEGIN_NAMED_ENUM(enum_name, underlying_type) \
     DeclareEnum_ ## enum_name(os);
 
-#define PASTA_BEGIN_CLASS_NAMED_ENUM(class_name, name, underlying_type) \
-    PASTA_BEGIN_NAMED_ENUM(class_name ## name, underlying_type)
+#define PASTA_BEGIN_CLASS_NAMED_ENUM(class_name, enum_name, underlying_type) \
+    DeclareEnum_ ## class_name ## _ ## enum_name(os);
 
 #include "Generated.h"
 }

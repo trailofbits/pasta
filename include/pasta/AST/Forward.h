@@ -1396,227 +1396,227 @@ enum class StmtLikelihood : int {
   kLikely = 1,
 };
 
-enum class StmtStmtClass : unsigned int {
-  kGCCAsmStatementClass = 1,
-  kMSAssemblyStatementClass = 2,
-  kBreakStatementClass = 3,
-  kCXXCatchStatementClass = 4,
-  kCXXForRangeStatementClass = 5,
-  kCXXTryStatementClass = 6,
-  kCapturedStatementClass = 7,
-  kCompoundStatementClass = 8,
-  kContinueStatementClass = 9,
-  kCoreturnStatementClass = 10,
-  kCoroutineBodyStatementClass = 11,
-  kDeclarationStatementClass = 12,
-  kDoStatementClass = 13,
-  kForStatementClass = 14,
-  kGotoStatementClass = 15,
-  kIfStatementClass = 16,
-  kIndirectGotoStatementClass = 17,
-  kMSDependentExistsStatementClass = 18,
-  kNullStatementClass = 19,
-  kOMPCanonicalLoopClass = 20,
-  kOMPAtomicDirectiveClass = 21,
-  kOMPBarrierDirectiveClass = 22,
-  kOMPCancelDirectiveClass = 23,
-  kOMPCancellationPointDirectiveClass = 24,
-  kOMPCriticalDirectiveClass = 25,
-  kOMPDepobjDirectiveClass = 26,
-  kOMPDispatchDirectiveClass = 27,
-  kOMPFlushDirectiveClass = 28,
-  kOMPInteropDirectiveClass = 29,
-  kOMPDistributeDirectiveClass = 30,
-  kOMPDistributeParallelForDirectiveClass = 31,
-  kOMPDistributeParallelForSimdDirectiveClass = 32,
-  kOMPDistributeSimdDirectiveClass = 33,
-  kOMPForDirectiveClass = 34,
-  kOMPForSimdDirectiveClass = 35,
-  kOMPMasterTaskLoopDirectiveClass = 36,
-  kOMPMasterTaskLoopSimdDirectiveClass = 37,
-  kOMPParallelForDirectiveClass = 38,
-  kOMPParallelForSimdDirectiveClass = 39,
-  kOMPParallelMasterTaskLoopDirectiveClass = 40,
-  kOMPParallelMasterTaskLoopSimdDirectiveClass = 41,
-  kOMPSimdDirectiveClass = 42,
-  kOMPTargetParallelForSimdDirectiveClass = 43,
-  kOMPTargetSimdDirectiveClass = 44,
-  kOMPTargetTeamsDistributeDirectiveClass = 45,
-  kOMPTargetTeamsDistributeParallelForDirectiveClass = 46,
-  kOMPTargetTeamsDistributeParallelForSimdDirectiveClass = 47,
-  kOMPTargetTeamsDistributeSimdDirectiveClass = 48,
-  kOMPTaskLoopDirectiveClass = 49,
-  kOMPTaskLoopSimdDirectiveClass = 50,
-  kOMPTeamsDistributeDirectiveClass = 51,
-  kOMPTeamsDistributeParallelForDirectiveClass = 52,
-  kOMPTeamsDistributeParallelForSimdDirectiveClass = 53,
-  kOMPTeamsDistributeSimdDirectiveClass = 54,
-  kOMPTileDirectiveClass = 55,
-  kOMPUnrollDirectiveClass = 56,
-  kOMPMaskedDirectiveClass = 57,
-  kOMPMasterDirectiveClass = 58,
-  kOMPOrderedDirectiveClass = 59,
-  kOMPParallelDirectiveClass = 60,
-  kOMPParallelMasterDirectiveClass = 61,
-  kOMPParallelSectionsDirectiveClass = 62,
-  kOMPScanDirectiveClass = 63,
-  kOMPSectionDirectiveClass = 64,
-  kOMPSectionsDirectiveClass = 65,
-  kOMPSingleDirectiveClass = 66,
-  kOMPTargetDataDirectiveClass = 67,
-  kOMPTargetDirectiveClass = 68,
-  kOMPTargetEnterDataDirectiveClass = 69,
-  kOMPTargetExitDataDirectiveClass = 70,
-  kOMPTargetParallelDirectiveClass = 71,
-  kOMPTargetParallelForDirectiveClass = 72,
-  kOMPTargetTeamsDirectiveClass = 73,
-  kOMPTargetUpdateDirectiveClass = 74,
-  kOMPTaskDirectiveClass = 75,
-  kOMPTaskgroupDirectiveClass = 76,
-  kOMPTaskwaitDirectiveClass = 77,
-  kOMPTaskyieldDirectiveClass = 78,
-  kOMPTeamsDirectiveClass = 79,
-  kObjCAtCatchStatementClass = 80,
-  kObjCAtFinallyStatementClass = 81,
-  kObjCAtSynchronizedStatementClass = 82,
-  kObjCAtThrowStatementClass = 83,
-  kObjCAtTryStatementClass = 84,
-  kObjCAutoreleasePoolStatementClass = 85,
-  kObjCForCollectionStatementClass = 86,
-  kReturnStatementClass = 87,
-  kSEHExceptStatementClass = 88,
-  kSEHFinallyStatementClass = 89,
-  kSEHLeaveStatementClass = 90,
-  kSEHTryStatementClass = 91,
-  kCaseStatementClass = 92,
-  kDefaultStatementClass = 93,
-  kSwitchStatementClass = 94,
-  kAttributedStatementClass = 95,
-  kBinaryConditionalOperatorClass = 96,
-  kConditionalOperatorClass = 97,
-  kAddrLabelExpressionClass = 98,
-  kArrayInitializerIndexExpressionClass = 99,
-  kArrayInitializerLoopExpressionClass = 100,
-  kArraySubscriptExpressionClass = 101,
-  kArrayTypeTraitExpressionClass = 102,
-  kAsTypeExpressionClass = 103,
-  kAtomicExpressionClass = 104,
-  kBinaryOperatorClass = 105,
-  kCompoundAssignOperatorClass = 106,
-  kBlockExpressionClass = 107,
-  kCXXBindTemporaryExpressionClass = 108,
-  kCXXBoolLiteralExpressionClass = 109,
-  kCXXConstructExpressionClass = 110,
-  kCXXTemporaryObjectExpressionClass = 111,
-  kCXXDefaultArgumentExpressionClass = 112,
-  kCXXDefaultInitializerExpressionClass = 113,
-  kCXXDeleteExpressionClass = 114,
-  kCXXDependentScopeMemberExpressionClass = 115,
-  kCXXFoldExpressionClass = 116,
-  kCXXInheritedConstructorInitializerExpressionClass = 117,
-  kCXXNewExpressionClass = 118,
-  kCXXNoexceptExpressionClass = 119,
-  kCXXNullPointerLiteralExpressionClass = 120,
-  kCXXPseudoDestructorExpressionClass = 121,
-  kCXXRewrittenBinaryOperatorClass = 122,
-  kCXXScalarValueInitializerExpressionClass = 123,
-  kCXXStdInitializerListExpressionClass = 124,
-  kCXXThisExpressionClass = 125,
-  kCXXThrowExpressionClass = 126,
-  kCXXTypeidExpressionClass = 127,
-  kCXXUnresolvedConstructExpressionClass = 128,
-  kCXXUuidofExpressionClass = 129,
-  kCallExpressionClass = 130,
-  kCUDAKernelCallExpressionClass = 131,
-  kCXXMemberCallExpressionClass = 132,
-  kCXXOperatorCallExpressionClass = 133,
-  kUserDefinedLiteralClass = 134,
-  kBuiltinBitCastExpressionClass = 135,
-  kCStyleCastExpressionClass = 136,
-  kCXXFunctionalCastExpressionClass = 137,
-  kCXXAddrspaceCastExpressionClass = 138,
-  kCXXConstCastExpressionClass = 139,
-  kCXXDynamicCastExpressionClass = 140,
-  kCXXReinterpretCastExpressionClass = 141,
-  kCXXStaticCastExpressionClass = 142,
-  kObjCBridgedCastExpressionClass = 143,
-  kImplicitCastExpressionClass = 144,
-  kCharacterLiteralClass = 145,
-  kChooseExpressionClass = 146,
-  kCompoundLiteralExpressionClass = 147,
-  kConceptSpecializationExpressionClass = 148,
-  kConvertVectorExpressionClass = 149,
-  kCoawaitExpressionClass = 150,
-  kCoyieldExpressionClass = 151,
-  kDeclarationReferenceExpressionClass = 152,
-  kDependentCoawaitExpressionClass = 153,
-  kDependentScopeDeclarationReferenceExpressionClass = 154,
-  kDesignatedInitializerExpressionClass = 155,
-  kDesignatedInitializerUpdateExpressionClass = 156,
-  kExpressionTraitExpressionClass = 157,
-  kExtVectorElementExpressionClass = 158,
-  kFixedPointLiteralClass = 159,
-  kFloatingLiteralClass = 160,
-  kConstantExpressionClass = 161,
-  kExpressionWithCleanupsClass = 162,
-  kFunctionParmPackExpressionClass = 163,
-  kGNUNullExpressionClass = 164,
-  kGenericSelectionExpressionClass = 165,
-  kImaginaryLiteralClass = 166,
-  kImplicitValueInitializerExpressionClass = 167,
-  kInitializerListExpressionClass = 168,
-  kIntegerLiteralClass = 169,
-  kLambdaExpressionClass = 170,
-  kMSPropertyReferenceExpressionClass = 171,
-  kMSPropertySubscriptExpressionClass = 172,
-  kMaterializeTemporaryExpressionClass = 173,
-  kMatrixSubscriptExpressionClass = 174,
-  kMemberExpressionClass = 175,
-  kNoInitializerExpressionClass = 176,
-  kOMPArraySectionExpressionClass = 177,
-  kOMPArrayShapingExpressionClass = 178,
-  kOMPIteratorExpressionClass = 179,
-  kObjCArrayLiteralClass = 180,
-  kObjCAvailabilityCheckExpressionClass = 181,
-  kObjCBoolLiteralExpressionClass = 182,
-  kObjCBoxedExpressionClass = 183,
-  kObjCDictionaryLiteralClass = 184,
-  kObjCEncodeExpressionClass = 185,
-  kObjCIndirectCopyRestoreExpressionClass = 186,
-  kObjCIsaExpressionClass = 187,
-  kObjCIvarReferenceExpressionClass = 188,
-  kObjCMessageExpressionClass = 189,
-  kObjCPropertyReferenceExpressionClass = 190,
-  kObjCProtocolExpressionClass = 191,
-  kObjCSelectorExpressionClass = 192,
-  kObjCStringLiteralClass = 193,
-  kObjCSubscriptReferenceExpressionClass = 194,
-  kOffsetOfExpressionClass = 195,
-  kOpaqueValueExpressionClass = 196,
-  kUnresolvedLookupExpressionClass = 197,
-  kUnresolvedMemberExpressionClass = 198,
-  kPackExpansionExpressionClass = 199,
-  kParenthesisExpressionClass = 200,
-  kParenthesisListExpressionClass = 201,
-  kPredefinedExpressionClass = 202,
-  kPseudoObjectExpressionClass = 203,
-  kRecoveryExpressionClass = 204,
-  kRequiresExpressionClass = 205,
-  kSYCLUniqueStableNameExpressionClass = 206,
-  kShuffleVectorExpressionClass = 207,
-  kSizeOfPackExpressionClass = 208,
-  kSourceTokenExpressionClass = 209,
-  kStatementExpressionClass = 210,
-  kStringLiteralClass = 211,
-  kSubstNonTypeTemplateParmExpressionClass = 212,
-  kSubstNonTypeTemplateParmPackExpressionClass = 213,
-  kTypeTraitExpressionClass = 214,
-  kTypoExpressionClass = 215,
-  kUnaryExpressionOrTypeTraitExpressionClass = 216,
-  kUnaryOperatorClass = 217,
-  kVAArgumentExpressionClass = 218,
-  kLabelStatementClass = 219,
-  kWhileStatementClass = 220,
+enum class StmtKind : unsigned int {
+  kGCCAsmStmt = 1,
+  kMSAsmStmt = 2,
+  kBreakStmt = 3,
+  kCXXCatchStmt = 4,
+  kCXXForRangeStmt = 5,
+  kCXXTryStmt = 6,
+  kCapturedStmt = 7,
+  kCompoundStmt = 8,
+  kContinueStmt = 9,
+  kCoreturnStmt = 10,
+  kCoroutineBodyStmt = 11,
+  kDeclStmt = 12,
+  kDoStmt = 13,
+  kForStmt = 14,
+  kGotoStmt = 15,
+  kIfStmt = 16,
+  kIndirectGotoStmt = 17,
+  kMSDependentExistsStmt = 18,
+  kNullStmt = 19,
+  kOMPCanonicalLoop = 20,
+  kOMPAtomicDirective = 21,
+  kOMPBarrierDirective = 22,
+  kOMPCancelDirective = 23,
+  kOMPCancellationPointDirective = 24,
+  kOMPCriticalDirective = 25,
+  kOMPDepobjDirective = 26,
+  kOMPDispatchDirective = 27,
+  kOMPFlushDirective = 28,
+  kOMPInteropDirective = 29,
+  kOMPDistributeDirective = 30,
+  kOMPDistributeParallelForDirective = 31,
+  kOMPDistributeParallelForSimdDirective = 32,
+  kOMPDistributeSimdDirective = 33,
+  kOMPForDirective = 34,
+  kOMPForSimdDirective = 35,
+  kOMPMasterTaskLoopDirective = 36,
+  kOMPMasterTaskLoopSimdDirective = 37,
+  kOMPParallelForDirective = 38,
+  kOMPParallelForSimdDirective = 39,
+  kOMPParallelMasterTaskLoopDirective = 40,
+  kOMPParallelMasterTaskLoopSimdDirective = 41,
+  kOMPSimdDirective = 42,
+  kOMPTargetParallelForSimdDirective = 43,
+  kOMPTargetSimdDirective = 44,
+  kOMPTargetTeamsDistributeDirective = 45,
+  kOMPTargetTeamsDistributeParallelForDirective = 46,
+  kOMPTargetTeamsDistributeParallelForSimdDirective = 47,
+  kOMPTargetTeamsDistributeSimdDirective = 48,
+  kOMPTaskLoopDirective = 49,
+  kOMPTaskLoopSimdDirective = 50,
+  kOMPTeamsDistributeDirective = 51,
+  kOMPTeamsDistributeParallelForDirective = 52,
+  kOMPTeamsDistributeParallelForSimdDirective = 53,
+  kOMPTeamsDistributeSimdDirective = 54,
+  kOMPTileDirective = 55,
+  kOMPUnrollDirective = 56,
+  kOMPMaskedDirective = 57,
+  kOMPMasterDirective = 58,
+  kOMPOrderedDirective = 59,
+  kOMPParallelDirective = 60,
+  kOMPParallelMasterDirective = 61,
+  kOMPParallelSectionsDirective = 62,
+  kOMPScanDirective = 63,
+  kOMPSectionDirective = 64,
+  kOMPSectionsDirective = 65,
+  kOMPSingleDirective = 66,
+  kOMPTargetDataDirective = 67,
+  kOMPTargetDirective = 68,
+  kOMPTargetEnterDataDirective = 69,
+  kOMPTargetExitDataDirective = 70,
+  kOMPTargetParallelDirective = 71,
+  kOMPTargetParallelForDirective = 72,
+  kOMPTargetTeamsDirective = 73,
+  kOMPTargetUpdateDirective = 74,
+  kOMPTaskDirective = 75,
+  kOMPTaskgroupDirective = 76,
+  kOMPTaskwaitDirective = 77,
+  kOMPTaskyieldDirective = 78,
+  kOMPTeamsDirective = 79,
+  kObjCAtCatchStmt = 80,
+  kObjCAtFinallyStmt = 81,
+  kObjCAtSynchronizedStmt = 82,
+  kObjCAtThrowStmt = 83,
+  kObjCAtTryStmt = 84,
+  kObjCAutoreleasePoolStmt = 85,
+  kObjCForCollectionStmt = 86,
+  kReturnStmt = 87,
+  kSEHExceptStmt = 88,
+  kSEHFinallyStmt = 89,
+  kSEHLeaveStmt = 90,
+  kSEHTryStmt = 91,
+  kCaseStmt = 92,
+  kDefaultStmt = 93,
+  kSwitchStmt = 94,
+  kAttributedStmt = 95,
+  kBinaryConditionalOperator = 96,
+  kConditionalOperator = 97,
+  kAddrLabelExpr = 98,
+  kArrayInitIndexExpr = 99,
+  kArrayInitLoopExpr = 100,
+  kArraySubscriptExpr = 101,
+  kArrayTypeTraitExpr = 102,
+  kAsTypeExpr = 103,
+  kAtomicExpr = 104,
+  kBinaryOperator = 105,
+  kCompoundAssignOperator = 106,
+  kBlockExpr = 107,
+  kCXXBindTemporaryExpr = 108,
+  kCXXBoolLiteralExpr = 109,
+  kCXXConstructExpr = 110,
+  kCXXTemporaryObjectExpr = 111,
+  kCXXDefaultArgExpr = 112,
+  kCXXDefaultInitExpr = 113,
+  kCXXDeleteExpr = 114,
+  kCXXDependentScopeMemberExpr = 115,
+  kCXXFoldExpr = 116,
+  kCXXInheritedCtorInitExpr = 117,
+  kCXXNewExpr = 118,
+  kCXXNoexceptExpr = 119,
+  kCXXNullPtrLiteralExpr = 120,
+  kCXXPseudoDestructorExpr = 121,
+  kCXXRewrittenBinaryOperator = 122,
+  kCXXScalarValueInitExpr = 123,
+  kCXXStdInitializerListExpr = 124,
+  kCXXThisExpr = 125,
+  kCXXThrowExpr = 126,
+  kCXXTypeidExpr = 127,
+  kCXXUnresolvedConstructExpr = 128,
+  kCXXUuidofExpr = 129,
+  kCallExpr = 130,
+  kCUDAKernelCallExpr = 131,
+  kCXXMemberCallExpr = 132,
+  kCXXOperatorCallExpr = 133,
+  kUserDefinedLiteral = 134,
+  kBuiltinBitCastExpr = 135,
+  kCStyleCastExpr = 136,
+  kCXXFunctionalCastExpr = 137,
+  kCXXAddrspaceCastExpr = 138,
+  kCXXConstCastExpr = 139,
+  kCXXDynamicCastExpr = 140,
+  kCXXReinterpretCastExpr = 141,
+  kCXXStaticCastExpr = 142,
+  kObjCBridgedCastExpr = 143,
+  kImplicitCastExpr = 144,
+  kCharacterLiteral = 145,
+  kChooseExpr = 146,
+  kCompoundLiteralExpr = 147,
+  kConceptSpecializationExpr = 148,
+  kConvertVectorExpr = 149,
+  kCoawaitExpr = 150,
+  kCoyieldExpr = 151,
+  kDeclRefExpr = 152,
+  kDependentCoawaitExpr = 153,
+  kDependentScopeDeclRefExpr = 154,
+  kDesignatedInitExpr = 155,
+  kDesignatedInitUpdateExpr = 156,
+  kExpressionTraitExpr = 157,
+  kExtVectorElementExpr = 158,
+  kFixedPointLiteral = 159,
+  kFloatingLiteral = 160,
+  kConstantExpr = 161,
+  kExprWithCleanups = 162,
+  kFunctionParmPackExpr = 163,
+  kGNUNullExpr = 164,
+  kGenericSelectionExpr = 165,
+  kImaginaryLiteral = 166,
+  kImplicitValueInitExpr = 167,
+  kInitListExpr = 168,
+  kIntegerLiteral = 169,
+  kLambdaExpr = 170,
+  kMSPropertyRefExpr = 171,
+  kMSPropertySubscriptExpr = 172,
+  kMaterializeTemporaryExpr = 173,
+  kMatrixSubscriptExpr = 174,
+  kMemberExpr = 175,
+  kNoInitExpr = 176,
+  kOMPArraySectionExpr = 177,
+  kOMPArrayShapingExpr = 178,
+  kOMPIteratorExpr = 179,
+  kObjCArrayLiteral = 180,
+  kObjCAvailabilityCheckExpr = 181,
+  kObjCBoolLiteralExpr = 182,
+  kObjCBoxedExpr = 183,
+  kObjCDictionaryLiteral = 184,
+  kObjCEncodeExpr = 185,
+  kObjCIndirectCopyRestoreExpr = 186,
+  kObjCIsaExpr = 187,
+  kObjCIvarRefExpr = 188,
+  kObjCMessageExpr = 189,
+  kObjCPropertyRefExpr = 190,
+  kObjCProtocolExpr = 191,
+  kObjCSelectorExpr = 192,
+  kObjCStringLiteral = 193,
+  kObjCSubscriptRefExpr = 194,
+  kOffsetOfExpr = 195,
+  kOpaqueValueExpr = 196,
+  kUnresolvedLookupExpr = 197,
+  kUnresolvedMemberExpr = 198,
+  kPackExpansionExpr = 199,
+  kParenExpr = 200,
+  kParenListExpr = 201,
+  kPredefinedExpr = 202,
+  kPseudoObjectExpr = 203,
+  kRecoveryExpr = 204,
+  kRequiresExpr = 205,
+  kSYCLUniqueStableNameExpr = 206,
+  kShuffleVectorExpr = 207,
+  kSizeOfPackExpr = 208,
+  kSourceLocExpr = 209,
+  kStmtExpr = 210,
+  kStringLiteral = 211,
+  kSubstNonTypeTemplateParmExpr = 212,
+  kSubstNonTypeTemplateParmPackExpr = 213,
+  kTypeTraitExpr = 214,
+  kTypoExpr = 215,
+  kUnaryExprOrTypeTraitExpr = 216,
+  kUnaryOperator = 217,
+  kVAArgExpr = 218,
+  kLabelStmt = 219,
+  kWhileStmt = 220,
 };
 
 enum class StringLiteralStringKind : unsigned int {
@@ -1652,7 +1652,7 @@ enum class TypeScalarTypeKind : unsigned int {
   kFixedPoint = 9,
 };
 
-enum class TypeTypeClass : unsigned int {
+enum class TypeKind : unsigned int {
   kAdjusted = 0,
   kDecayed = 1,
   kConstantArray = 2,
@@ -1687,7 +1687,7 @@ enum class TypeTypeClass : unsigned int {
   kObjCInterface = 31,
   kObjCTypeParam = 32,
   kPackExpansion = 33,
-  kParenthesis = 34,
+  kParen = 34,
   kPipe = 35,
   kPointer = 36,
   kLValueReference = 37,
@@ -1698,7 +1698,7 @@ enum class TypeTypeClass : unsigned int {
   kRecord = 42,
   kTemplateSpecialization = 43,
   kTemplateTypeParm = 44,
-  kTypeOfExpression = 45,
+  kTypeOfExpr = 45,
   kTypeOf = 46,
   kTypedef = 47,
   kUnaryTransform = 48,
@@ -1749,22 +1749,9 @@ enum class VectorTypeVectorKind : unsigned int {
   kSveFixedLengthPredicateVector = 7,
 };
 
-enum class ADLCallKind : bool {
-  kNotADL = 0,
-  kUsesADL = 1,
-};
-
 enum class ASTDumpOutputFormat : unsigned int {
   kDefault = 0,
   kJSON = 1,
-};
-
-enum class AccessControl : unsigned int {
-  kNone = 0,
-  kPrivate = 1,
-  kProtected = 2,
-  kPublic = 3,
-  kPackage = 4,
 };
 
 enum class AccessSpecifier : unsigned int {
@@ -1800,24 +1787,6 @@ enum class AltivecSrcCompatKind : int {
   kDefault = 0,
 };
 
-enum class ArgKind : unsigned int {
-  kNull = 0,
-  kType = 1,
-  kDeclaration = 2,
-  kNullPointer = 3,
-  kIntegral = 4,
-  kTemplate = 5,
-  kTemplateExpansion = 6,
-  kExpression = 7,
-  kPack = 8,
-};
-
-enum class ArgPassingKind : unsigned int {
-  kCanPassInRegs = 0,
-  kCannotPassInRegs = 1,
-  kCanNeverPassInRegs = 2,
-};
-
 enum class ArgumentKind : unsigned int {
   kStdString = 0,
   kCString = 1,
@@ -1836,68 +1805,9 @@ enum class ArgumentKind : unsigned int {
   kAttribute = 14,
 };
 
-enum class ArraySizeModifier : unsigned int {
-  kNormal = 0,
-  kStatic = 1,
-  kStar = 2,
-};
-
 enum class ArrayTypeTrait : unsigned int {
   kArrayRank = 0,
   kArrayExtent = 1,
-};
-
-enum class AtomicOp : unsigned int {
-  kC11AtomicInitializer = 0,
-  kC11AtomicLoad = 1,
-  kC11AtomicStore = 2,
-  kC11AtomicExchange = 3,
-  kC11AtomicCompareExchangeStrong = 4,
-  kC11AtomicCompareExchangeWeak = 5,
-  kC11AtomicFetchAdd = 6,
-  kC11AtomicFetchSub = 7,
-  kC11AtomicFetchAnd = 8,
-  kC11AtomicFetchOr = 9,
-  kC11AtomicFetchXor = 10,
-  kC11AtomicFetchMax = 11,
-  kC11AtomicFetchMin = 12,
-  kAtomicLoad = 13,
-  kAtomicLoadN = 14,
-  kAtomicStore = 15,
-  kAtomicStoreN = 16,
-  kAtomicExchange = 17,
-  kAtomicExchangeN = 18,
-  kAtomicCompareExchange = 19,
-  kAtomicCompareExchangeN = 20,
-  kAtomicFetchAdd = 21,
-  kAtomicFetchSub = 22,
-  kAtomicFetchAnd = 23,
-  kAtomicFetchOr = 24,
-  kAtomicFetchXor = 25,
-  kAtomicFetchNand = 26,
-  kAtomicAddFetch = 27,
-  kAtomicSubFetch = 28,
-  kAtomicAndFetch = 29,
-  kAtomicOrFetch = 30,
-  kAtomicXorFetch = 31,
-  kAtomicMaxFetch = 32,
-  kAtomicMinFetch = 33,
-  kAtomicNandFetch = 34,
-  kOpenclAtomicInitializer = 35,
-  kOpenclAtomicLoad = 36,
-  kOpenclAtomicStore = 37,
-  kOpenclAtomicExchange = 38,
-  kOpenclAtomicCompareExchangeStrong = 39,
-  kOpenclAtomicCompareExchangeWeak = 40,
-  kOpenclAtomicFetchAdd = 41,
-  kOpenclAtomicFetchSub = 42,
-  kOpenclAtomicFetchAnd = 43,
-  kOpenclAtomicFetchOr = 44,
-  kOpenclAtomicFetchXor = 45,
-  kOpenclAtomicFetchMin = 46,
-  kOpenclAtomicFetchMax = 47,
-  kAtomicFetchMin = 48,
-  kAtomicFetchMax = 49,
 };
 
 enum class AtomicScopeModelKind : int {
@@ -2422,14 +2332,6 @@ enum class CastKind : unsigned int {
   kIntToOCLSampler = 64,
 };
 
-enum class CharacterKind : unsigned int {
-  kAscii = 0,
-  kWide = 1,
-  kUTF8 = 2,
-  kUTF16 = 3,
-  kUTF32 = 4,
-};
-
 enum class ClangABI : int {
   kVer38 = 0,
   kVer4 = 1,
@@ -2473,25 +2375,11 @@ enum class CompilingModuleKind : unsigned int {
   kModuleInterface = 3,
 };
 
-enum class ConstantExprKind : int {
-  kNormal = 0,
-  kNonClassTemplateArgument = 1,
-  kClassTemplateArgument = 2,
-  kImmediateInvocation = 3,
-};
-
 enum class ConstexprSpecKind : int {
   kUnspecified = 0,
   kConstexpr = 1,
   kConsteval = 2,
   kConstinit = 3,
-};
-
-enum class ConstructionKind : unsigned int {
-  kComplete = 0,
-  kNonVirtualBase = 1,
-  kVirtualBase = 2,
-  kDelegating = 3,
 };
 
 enum class ConsumedState : unsigned int {
@@ -2531,20 +2419,6 @@ enum class DefaultCallingConvention : unsigned int {
   kStdCall = 3,
   kVectorCall = 4,
   kRegCall = 5,
-};
-
-enum class DefinitionKind : unsigned int {
-  kDeclarationOnly = 0,
-  kTentativeDefinition = 1,
-  kDefinition = 2,
-};
-
-enum class DestructionKind : unsigned int {
-  kNone = 0,
-  kCxxDestructor = 1,
-  kObjcStrongLifetime = 2,
-  kObjcWeakLifetime = 3,
-  kNontrivialCStruct = 4,
 };
 
 enum class DevTypeTy : unsigned int {
@@ -2611,11 +2485,6 @@ enum class ExplicitSpecKind : unsigned int {
   kResolvedFalse = 0,
   kResolvedTrue = 1,
   kUnresolved = 2,
-};
-
-enum class ExplicitVisibilityKind : unsigned int {
-  kVisibilityForType = 0,
-  kVisibilityForValue = 1,
 };
 
 enum class ExprDependence : unsigned char {
@@ -2704,12 +2573,6 @@ enum class FramePointerKind : int {
   kAll = 2,
 };
 
-enum class FriendObjectKind : unsigned int {
-  kNone = 0,
-  kDeclared = 1,
-  kUndeclared = 2,
-};
-
 enum class GC : unsigned int {
   kGCNone = 0,
   kWeak = 1,
@@ -2749,17 +2612,6 @@ enum class ID : unsigned int {
   kSubGroup = 4,
 };
 
-enum class IdentKind : unsigned int {
-  kFunc = 0,
-  kFunction = 1,
-  kLFunction = 2,
-  kFuncDName = 3,
-  kFuncSig = 4,
-  kLFuncSig = 5,
-  kPrettyFunction = 6,
-  kPrettyFunctionNoVirtual = 7,
-};
-
 enum class IdentifierInfoFlag : unsigned int {
   kZeroArgument = 1,
   kOneArgument = 2,
@@ -2767,43 +2619,11 @@ enum class IdentifierInfoFlag : unsigned int {
   kArgumentFlags = 7,
 };
 
-enum class IdentifierNamespace : unsigned int {
-  kLabel = 1,
-  kTag = 2,
-  kType = 4,
-  kMember = 8,
-  kNamespace = 16,
-  kOrdinary = 32,
-  kObjCProtocol = 64,
-  kOrdinaryFriend = 128,
-  kTagFriend = 256,
-  kUsing = 512,
-  kNonMemberOperator = 1024,
-  kLocalExtern = 2048,
-  kOMPReduction = 4096,
-  kOMPMapper = 8192,
-};
-
 enum class ImbueAttribute : int {
   kNONE = 0,
   kALWAYS = 1,
   kNEVER = 2,
   kALWAYSARG1 = 3,
-};
-
-enum class ImplementationControl : unsigned int {
-  kNone = 0,
-  kRequired = 1,
-  kOptional = 2,
-};
-
-enum class ImplicitParamKind : unsigned int {
-  kObjCSelf = 0,
-  kObjCCmd = 1,
-  kCXXThis = 2,
-  kCXXVTT = 3,
-  kCapturedContext = 4,
-  kOther = 5,
 };
 
 enum class ImplicitReason : unsigned int {
@@ -2827,23 +2647,11 @@ enum class InheritedDesignatedInitializersState : unsigned int {
   kNotInherited = 2,
 };
 
-enum class InitKind : unsigned int {
-  kCallInitializer = 0,
-  kDirectInitializer = 1,
-  kCopyInitializer = 2,
-};
-
 enum class InitStorageKind : unsigned int {
   kNoInitializer = 0,
   kInClassCopyInitializer = 1,
   kInClassListInitializer = 2,
   kCapturedVLAType = 3,
-};
-
-enum class InitializationStyle : unsigned int {
-  kCInit = 0,
-  kCallInitializer = 1,
-  kListInitializer = 2,
 };
 
 enum class InlineVariableDefinitionKind : int {
@@ -2881,19 +2689,6 @@ enum class Kinds : unsigned int {
   kArrayTemporary = 9,
   kObjCMessageRValue = 10,
   kPRValue = 11,
-};
-
-enum class LValueClassification : unsigned int {
-  kValid = 0,
-  kNotObjectType = 1,
-  kIncompleteVoidType = 2,
-  kDuplicateVectorComponents = 3,
-  kInvalidExpression = 4,
-  kInvalidMessageExpression = 5,
-  kMemberFunction = 6,
-  kSubObjCPropertySetting = 7,
-  kClassTemporary = 8,
-  kArrayTemporary = 9,
 };
 
 enum class LambdaCaptureDefault : unsigned int {
@@ -2966,11 +2761,6 @@ enum class Language : unsigned char {
   kHIP = 11,
 };
 
-enum class LanguageIDs : unsigned int {
-  kC = 1,
-  kCxx = 2,
-};
-
 enum class LanguageLinkage : unsigned int {
   kCLanguageLinkage = 0,
   kCXXLanguageLinkage = 1,
@@ -2992,12 +2782,6 @@ enum class Level : unsigned int {
   kFatal = 5,
 };
 
-enum class Likelihood : int {
-  kUnlikely = -1,
-  kNone = 0,
-  kLikely = 1,
-};
-
 enum class Linkage : unsigned char {
   kNoLinkage = 0,
   kInternalLinkage = 1,
@@ -3006,15 +2790,6 @@ enum class Linkage : unsigned char {
   kModuleInternalLinkage = 4,
   kModuleLinkage = 5,
   kExternalLinkage = 6,
-};
-
-enum class LiteralOperatorKind : unsigned int {
-  kRaw = 0,
-  kTemplate = 1,
-  kInteger = 2,
-  kFloating = 3,
-  kString = 4,
-  kCharacter = 5,
 };
 
 enum class LoopHintState : unsigned int {
@@ -3077,13 +2852,6 @@ enum class ModifiableType : unsigned int {
   kIncompleteType = 10,
 };
 
-enum class ModuleOwnershipKind : unsigned int {
-  kUnowned = 0,
-  kVisible = 1,
-  kVisibleWhenImported = 2,
-  kModulePrivate = 3,
-};
-
 enum class MultiVersionKind : int {
   kNone = 0,
   kTarget = 1,
@@ -3131,20 +2899,6 @@ enum class NonceObjCInterface : unsigned int {
   kObjCInterface = 0,
 };
 
-enum class NullPointerConstantKind : unsigned int {
-  kNotNull = 0,
-  kZeroExpression = 1,
-  kZeroLiteral = 2,
-  kCXX11Nullptr = 3,
-  kGNUNull = 4,
-};
-
-enum class NullPointerConstantValueDependence : unsigned int {
-  kNeverValueDependent = 0,
-  kValueDependentIsNull = 1,
-  kValueDependentIsNotNull = 2,
-};
-
 enum class NullabilityKind : unsigned char {
   kNonNull = 0,
   kNullable = 1,
@@ -3156,17 +2910,6 @@ enum class ObjCBridgeCastKind : unsigned int {
   kBridge = 0,
   kBridgeTransfer = 1,
   kBridgeRetained = 2,
-};
-
-enum class ObjCDeclQualifier : unsigned int {
-  kNone = 0,
-  kIn = 1,
-  kInout = 2,
-  kOut = 4,
-  kBycopy = 8,
-  kByref = 16,
-  kOneway = 32,
-  kCSNullability = 64,
 };
 
 enum class ObjCDispatchMethodKind : unsigned int {
@@ -3558,32 +3301,11 @@ enum class PragmaSectionFlag : unsigned int {
   kInvalid = 2147483648,
 };
 
-enum class PrimitiveCopyKind : unsigned int {
-  kTrivial = 0,
-  kVolatileTrivial = 1,
-  kARCStrong = 2,
-  kARCWeak = 3,
-  kStruct = 4,
-};
-
-enum class PrimitiveDefaultInitializeKind : unsigned int {
-  kTrivial = 0,
-  kARCStrong = 1,
-  kARCWeak = 2,
-  kStruct = 3,
-};
-
 enum class ProfileInstrKind : unsigned int {
   kProfileNone = 0,
   kProfileClangInstr = 1,
   kProfileIRInstr = 2,
   kProfileCSIRInstr = 3,
-};
-
-enum class PropertyControl : unsigned int {
-  kNone = 0,
-  kRequired = 1,
-  kOptional = 2,
 };
 
 enum class RangeExprOffset : int {
@@ -3597,13 +3319,6 @@ enum class RangeLocOffset : int {
   kAssignToken = 0,
   kSecondColonToken = 2,
   kTotal = 3,
-};
-
-enum class ReceiverKind : unsigned int {
-  kClass = 0,
-  kInstance = 1,
-  kSuperClass = 2,
-  kSuperInstance = 3,
 };
 
 enum class RefQualifierKind : unsigned int {
@@ -3627,12 +3342,6 @@ enum class ReservedIdentifierStatus : int {
   kStartsWithDoubleUnderscore = 2,
   kStartsWithUnderscoreFollowedByCapitalLetter = 3,
   kContainsDoubleUnderscore = 4,
-};
-
-enum class ResultStorageKind : unsigned int {
-  kNone = 0,
-  kInt64 = 1,
-  kAPValue = 2,
 };
 
 enum class SFINAEResponse : unsigned int {
@@ -3719,36 +3428,10 @@ enum class SanitizerOrdinal : unsigned long long {
   kCount = 66,
 };
 
-enum class ScalarTypeKind : unsigned int {
-  kCPointer = 0,
-  kBlockPointer = 1,
-  kObjCObjectPointer = 2,
-  kMemberPointer = 3,
-  kBoolean = 4,
-  kIntegral = 5,
-  kFloating = 6,
-  kIntegralComplex = 7,
-  kFloatingComplex = 8,
-  kFixedPoint = 9,
-};
-
 enum class SelectorLocationsKind : unsigned int {
   kNonStandard = 0,
   kStandardNoSpace = 1,
   kStandardWithSpace = 2,
-};
-
-enum class SetterKind : unsigned int {
-  kAssign = 0,
-  kRetain = 1,
-  kCopy = 2,
-  kWeak = 3,
-};
-
-enum class SideEffectsKind : unsigned int {
-  kNoSideEffects = 0,
-  kAllowUndefinedBehavior = 1,
-  kAllowSideEffects = 2,
 };
 
 enum class SignReturnAddressKeyKind : int {
@@ -3802,229 +3485,6 @@ enum class StackProtectorMode : unsigned int {
   kReq = 3,
 };
 
-enum class StmtKind : unsigned int {
-  kGCCAsmStmt = 1,
-  kMSAsmStmt = 2,
-  kBreakStmt = 3,
-  kCXXCatchStmt = 4,
-  kCXXForRangeStmt = 5,
-  kCXXTryStmt = 6,
-  kCapturedStmt = 7,
-  kCompoundStmt = 8,
-  kContinueStmt = 9,
-  kCoreturnStmt = 10,
-  kCoroutineBodyStmt = 11,
-  kDeclStmt = 12,
-  kDoStmt = 13,
-  kForStmt = 14,
-  kGotoStmt = 15,
-  kIfStmt = 16,
-  kIndirectGotoStmt = 17,
-  kMSDependentExistsStmt = 18,
-  kNullStmt = 19,
-  kOMPCanonicalLoop = 20,
-  kOMPAtomicDirective = 21,
-  kOMPBarrierDirective = 22,
-  kOMPCancelDirective = 23,
-  kOMPCancellationPointDirective = 24,
-  kOMPCriticalDirective = 25,
-  kOMPDepobjDirective = 26,
-  kOMPDispatchDirective = 27,
-  kOMPFlushDirective = 28,
-  kOMPInteropDirective = 29,
-  kOMPDistributeDirective = 30,
-  kOMPDistributeParallelForDirective = 31,
-  kOMPDistributeParallelForSimdDirective = 32,
-  kOMPDistributeSimdDirective = 33,
-  kOMPForDirective = 34,
-  kOMPForSimdDirective = 35,
-  kOMPMasterTaskLoopDirective = 36,
-  kOMPMasterTaskLoopSimdDirective = 37,
-  kOMPParallelForDirective = 38,
-  kOMPParallelForSimdDirective = 39,
-  kOMPParallelMasterTaskLoopDirective = 40,
-  kOMPParallelMasterTaskLoopSimdDirective = 41,
-  kOMPSimdDirective = 42,
-  kOMPTargetParallelForSimdDirective = 43,
-  kOMPTargetSimdDirective = 44,
-  kOMPTargetTeamsDistributeDirective = 45,
-  kOMPTargetTeamsDistributeParallelForDirective = 46,
-  kOMPTargetTeamsDistributeParallelForSimdDirective = 47,
-  kOMPTargetTeamsDistributeSimdDirective = 48,
-  kOMPTaskLoopDirective = 49,
-  kOMPTaskLoopSimdDirective = 50,
-  kOMPTeamsDistributeDirective = 51,
-  kOMPTeamsDistributeParallelForDirective = 52,
-  kOMPTeamsDistributeParallelForSimdDirective = 53,
-  kOMPTeamsDistributeSimdDirective = 54,
-  kOMPTileDirective = 55,
-  kOMPUnrollDirective = 56,
-  kOMPMaskedDirective = 57,
-  kOMPMasterDirective = 58,
-  kOMPOrderedDirective = 59,
-  kOMPParallelDirective = 60,
-  kOMPParallelMasterDirective = 61,
-  kOMPParallelSectionsDirective = 62,
-  kOMPScanDirective = 63,
-  kOMPSectionDirective = 64,
-  kOMPSectionsDirective = 65,
-  kOMPSingleDirective = 66,
-  kOMPTargetDataDirective = 67,
-  kOMPTargetDirective = 68,
-  kOMPTargetEnterDataDirective = 69,
-  kOMPTargetExitDataDirective = 70,
-  kOMPTargetParallelDirective = 71,
-  kOMPTargetParallelForDirective = 72,
-  kOMPTargetTeamsDirective = 73,
-  kOMPTargetUpdateDirective = 74,
-  kOMPTaskDirective = 75,
-  kOMPTaskgroupDirective = 76,
-  kOMPTaskwaitDirective = 77,
-  kOMPTaskyieldDirective = 78,
-  kOMPTeamsDirective = 79,
-  kObjCAtCatchStmt = 80,
-  kObjCAtFinallyStmt = 81,
-  kObjCAtSynchronizedStmt = 82,
-  kObjCAtThrowStmt = 83,
-  kObjCAtTryStmt = 84,
-  kObjCAutoreleasePoolStmt = 85,
-  kObjCForCollectionStmt = 86,
-  kReturnStmt = 87,
-  kSEHExceptStmt = 88,
-  kSEHFinallyStmt = 89,
-  kSEHLeaveStmt = 90,
-  kSEHTryStmt = 91,
-  kCaseStmt = 92,
-  kDefaultStmt = 93,
-  kSwitchStmt = 94,
-  kAttributedStmt = 95,
-  kBinaryConditionalOperator = 96,
-  kConditionalOperator = 97,
-  kAddrLabelExpr = 98,
-  kArrayInitIndexExpr = 99,
-  kArrayInitLoopExpr = 100,
-  kArraySubscriptExpr = 101,
-  kArrayTypeTraitExpr = 102,
-  kAsTypeExpr = 103,
-  kAtomicExpr = 104,
-  kBinaryOperator = 105,
-  kCompoundAssignOperator = 106,
-  kBlockExpr = 107,
-  kCXXBindTemporaryExpr = 108,
-  kCXXBoolLiteralExpr = 109,
-  kCXXConstructExpr = 110,
-  kCXXTemporaryObjectExpr = 111,
-  kCXXDefaultArgExpr = 112,
-  kCXXDefaultInitExpr = 113,
-  kCXXDeleteExpr = 114,
-  kCXXDependentScopeMemberExpr = 115,
-  kCXXFoldExpr = 116,
-  kCXXInheritedCtorInitExpr = 117,
-  kCXXNewExpr = 118,
-  kCXXNoexceptExpr = 119,
-  kCXXNullPtrLiteralExpr = 120,
-  kCXXPseudoDestructorExpr = 121,
-  kCXXRewrittenBinaryOperator = 122,
-  kCXXScalarValueInitExpr = 123,
-  kCXXStdInitializerListExpr = 124,
-  kCXXThisExpr = 125,
-  kCXXThrowExpr = 126,
-  kCXXTypeidExpr = 127,
-  kCXXUnresolvedConstructExpr = 128,
-  kCXXUuidofExpr = 129,
-  kCallExpr = 130,
-  kCUDAKernelCallExpr = 131,
-  kCXXMemberCallExpr = 132,
-  kCXXOperatorCallExpr = 133,
-  kUserDefinedLiteral = 134,
-  kBuiltinBitCastExpr = 135,
-  kCStyleCastExpr = 136,
-  kCXXFunctionalCastExpr = 137,
-  kCXXAddrspaceCastExpr = 138,
-  kCXXConstCastExpr = 139,
-  kCXXDynamicCastExpr = 140,
-  kCXXReinterpretCastExpr = 141,
-  kCXXStaticCastExpr = 142,
-  kObjCBridgedCastExpr = 143,
-  kImplicitCastExpr = 144,
-  kCharacterLiteral = 145,
-  kChooseExpr = 146,
-  kCompoundLiteralExpr = 147,
-  kConceptSpecializationExpr = 148,
-  kConvertVectorExpr = 149,
-  kCoawaitExpr = 150,
-  kCoyieldExpr = 151,
-  kDeclRefExpr = 152,
-  kDependentCoawaitExpr = 153,
-  kDependentScopeDeclRefExpr = 154,
-  kDesignatedInitExpr = 155,
-  kDesignatedInitUpdateExpr = 156,
-  kExpressionTraitExpr = 157,
-  kExtVectorElementExpr = 158,
-  kFixedPointLiteral = 159,
-  kFloatingLiteral = 160,
-  kConstantExpr = 161,
-  kExprWithCleanups = 162,
-  kFunctionParmPackExpr = 163,
-  kGNUNullExpr = 164,
-  kGenericSelectionExpr = 165,
-  kImaginaryLiteral = 166,
-  kImplicitValueInitExpr = 167,
-  kInitListExpr = 168,
-  kIntegerLiteral = 169,
-  kLambdaExpr = 170,
-  kMSPropertyRefExpr = 171,
-  kMSPropertySubscriptExpr = 172,
-  kMaterializeTemporaryExpr = 173,
-  kMatrixSubscriptExpr = 174,
-  kMemberExpr = 175,
-  kNoInitExpr = 176,
-  kOMPArraySectionExpr = 177,
-  kOMPArrayShapingExpr = 178,
-  kOMPIteratorExpr = 179,
-  kObjCArrayLiteral = 180,
-  kObjCAvailabilityCheckExpr = 181,
-  kObjCBoolLiteralExpr = 182,
-  kObjCBoxedExpr = 183,
-  kObjCDictionaryLiteral = 184,
-  kObjCEncodeExpr = 185,
-  kObjCIndirectCopyRestoreExpr = 186,
-  kObjCIsaExpr = 187,
-  kObjCIvarRefExpr = 188,
-  kObjCMessageExpr = 189,
-  kObjCPropertyRefExpr = 190,
-  kObjCProtocolExpr = 191,
-  kObjCSelectorExpr = 192,
-  kObjCStringLiteral = 193,
-  kObjCSubscriptRefExpr = 194,
-  kOffsetOfExpr = 195,
-  kOpaqueValueExpr = 196,
-  kUnresolvedLookupExpr = 197,
-  kUnresolvedMemberExpr = 198,
-  kPackExpansionExpr = 199,
-  kParenExpr = 200,
-  kParenListExpr = 201,
-  kPredefinedExpr = 202,
-  kPseudoObjectExpr = 203,
-  kRecoveryExpr = 204,
-  kRequiresExpr = 205,
-  kSYCLUniqueStableNameExpr = 206,
-  kShuffleVectorExpr = 207,
-  kSizeOfPackExpr = 208,
-  kSourceLocExpr = 209,
-  kStmtExpr = 210,
-  kStringLiteral = 211,
-  kSubstNonTypeTemplateParmExpr = 212,
-  kSubstNonTypeTemplateParmPackExpr = 213,
-  kTypeTraitExpr = 214,
-  kTypoExpr = 215,
-  kUnaryExprOrTypeTraitExpr = 216,
-  kUnaryOperator = 217,
-  kVAArgExpr = 218,
-  kLabelStmt = 219,
-  kWhileStmt = 220,
-};
-
 enum class StorageClass : unsigned int {
   kNone = 0,
   kExtern = 1,
@@ -4060,14 +3520,6 @@ enum class StoredSpecifierKind : unsigned int {
   kStoredDeclaration = 1,
   kStoredTypeSpec = 2,
   kStoredTypeSpecWithTemplate = 3,
-};
-
-enum class StringKind : unsigned int {
-  kAscii = 0,
-  kWide = 1,
-  kUTF8 = 2,
-  kUTF16 = 3,
-  kUTF32 = 4,
 };
 
 enum class StructReturnConventionKind : unsigned int {
@@ -4114,12 +3566,6 @@ enum class Syntax : unsigned int {
   kKeyword = 5,
   kPragma = 6,
   kContextSensitiveKeyword = 7,
-};
-
-enum class TLSKind : unsigned int {
-  kNone = 0,
-  kStatic = 1,
-  kDynamic = 2,
 };
 
 enum class TLSModel : unsigned int {
@@ -4176,14 +3622,6 @@ enum class TemplateSpecializationKind : unsigned int {
   kExplicitSpecialization = 2,
   kExplicitInstantiationDeclaration = 3,
   kExplicitInstantiationDefinition = 4,
-};
-
-enum class TemplatedKind : unsigned int {
-  kNonTemplate = 0,
-  kFunctionTemplate = 1,
-  kMemberSpecialization = 2,
-  kFunctionTemplateSpecialization = 3,
-  kDependentFunctionTemplateSpecialization = 4,
 };
 
 enum class TextDiagnosticFormat : unsigned int {
@@ -4614,61 +4052,6 @@ enum class TrivialAutoVarInitKind : int {
   kPattern = 2,
 };
 
-enum class TypeKind : unsigned int {
-  kAdjusted = 0,
-  kDecayed = 1,
-  kConstantArray = 2,
-  kDependentSizedArray = 3,
-  kIncompleteArray = 4,
-  kVariableArray = 5,
-  kAtomic = 6,
-  kAttributed = 7,
-  kBlockPointer = 8,
-  kBuiltin = 9,
-  kComplex = 10,
-  kDecltype = 11,
-  kAuto = 12,
-  kDeducedTemplateSpecialization = 13,
-  kDependentAddressSpace = 14,
-  kDependentExtInt = 15,
-  kDependentName = 16,
-  kDependentSizedExtVector = 17,
-  kDependentTemplateSpecialization = 18,
-  kDependentVector = 19,
-  kElaborated = 20,
-  kExtInt = 21,
-  kFunctionNoProto = 22,
-  kFunctionProto = 23,
-  kInjectedClassName = 24,
-  kMacroQualified = 25,
-  kConstantMatrix = 26,
-  kDependentSizedMatrix = 27,
-  kMemberPointer = 28,
-  kObjCObjectPointer = 29,
-  kObjCObject = 30,
-  kObjCInterface = 31,
-  kObjCTypeParam = 32,
-  kPackExpansion = 33,
-  kParen = 34,
-  kPipe = 35,
-  kPointer = 36,
-  kLValueReference = 37,
-  kRValueReference = 38,
-  kSubstTemplateTypeParmPack = 39,
-  kSubstTemplateTypeParm = 40,
-  kEnum = 41,
-  kRecord = 42,
-  kTemplateSpecialization = 43,
-  kTemplateTypeParm = 44,
-  kTypeOfExpr = 45,
-  kTypeOf = 46,
-  kTypedef = 47,
-  kUnaryTransform = 48,
-  kUnresolvedUsing = 49,
-  kVector = 50,
-  kExtVector = 51,
-};
-
 enum class TypeDependence : unsigned char {
   kUnexpandedPack = 1,
   kInstantiation = 2,
@@ -4874,10 +4257,6 @@ enum class TypeTrait : unsigned int {
   kIsTriviallyConstructible = 63,
 };
 
-enum class UTTKind : unsigned int {
-  kEnumUnderlyingType = 0,
-};
-
 enum class UnaryExprOrTypeTrait : unsigned int {
   kSizeOf = 0,
   kAlignOf = 1,
@@ -4920,24 +4299,6 @@ enum class APValueKind : unsigned int {
   kAddrLabelDiff = 13,
 };
 
-enum class VariableCaptureKind : unsigned int {
-  kThis = 0,
-  kByReference = 1,
-  kByCopy = 2,
-  kVLAType = 3,
-};
-
-enum class VectorKind : unsigned int {
-  kGenericVector = 0,
-  kAltiVecVector = 1,
-  kAltiVecPixel = 2,
-  kAltiVecBoolean = 3,
-  kNeonVector = 4,
-  kNeonPolyVector = 5,
-  kSveFixedLengthDataVector = 6,
-  kSveFixedLengthPredicateVector = 7,
-};
-
 enum class VectorLibrary : unsigned int {
   kNoLibrary = 0,
   kAccelerate = 1,
@@ -4957,26 +4318,6 @@ enum class VisibilityType : unsigned int {
   kDefault = 0,
   kHidden = 1,
   kProtected = 2,
-};
-
-enum class IsModifiableLvalueResult : unsigned int {
-  kValid = 0,
-  kNotObjectType = 1,
-  kIncompleteVoidType = 2,
-  kDuplicateVectorComponents = 3,
-  kInvalidExpression = 4,
-  kLValueCast = 5,
-  kIncompleteType = 6,
-  kConstQualified = 7,
-  kConstQualifiedField = 8,
-  kConstAddrSpace = 9,
-  kArrayType = 10,
-  kNoSetterProperty = 11,
-  kMemberFunction = 12,
-  kSubObjCPropertySetting = 13,
-  kInvalidMessageExpression = 14,
-  kClassTemporary = 15,
-  kArrayTemporary = 16,
 };
 
 #define PASTA_FOR_EACH_STMT_KIND(m) \

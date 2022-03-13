@@ -274,17 +274,17 @@ class Type {
   // CanonicalTypeUnqualified: (clang::CanQual<clang::Type>)
   ::pasta::AutoType ContainedAutoType(void) const noexcept;
   ::pasta::DeducedType ContainedDeducedType(void) const noexcept;
-  ::pasta::TypeDependence Dependence(void) const noexcept;
+  // Dependence: (clang::TypeDependenceScope::TypeDependence)
   enum Linkage Linkage(void) const noexcept;
   // LinkageAndVisibility: (clang::LinkageInfo)
   ::pasta::Type LocallyUnqualifiedSingleStepDesugaredType(void) const noexcept;
   std::optional<::pasta::NullabilityKind> Nullability(void) const noexcept;
-  ::pasta::ObjCLifetime ObjCARCImplicitLifetime(void) const noexcept;
+  // ObjCARCImplicitLifetime: (clang::Qualifiers::ObjCLifetime)
   // ObjCSubstitutions: (llvm::Optional<llvm::ArrayRef<clang::QualType>>)
   ::pasta::CXXRecordDecl PointeeCXXRecordDeclaration(void) const noexcept;
   ::pasta::Type PointeeOrArrayElementType(void) const noexcept;
   ::pasta::Type PointeeType(void) const noexcept;
-  ::pasta::ScalarTypeKind ScalarTypeKind(void) const noexcept;
+  enum TypeScalarTypeKind ScalarTypeKind(void) const noexcept;
   ::pasta::Type SveEltType(void) const noexcept;
   ::pasta::TypeKind Kind(void) const noexcept;
   std::string_view KindName(void) const noexcept;
@@ -513,7 +513,7 @@ class Type {
   ::pasta::Type NonPackExpansionType(void) const noexcept;
   ::pasta::Type NonReferenceType(void) const noexcept;
   // ObjCGCAttr: (clang::Qualifiers::GC)
-  ::pasta::ObjCLifetime ObjCLifetime(void) const noexcept;
+  // ObjCLifetime: (clang::Qualifiers::ObjCLifetime)
   // Qualifiers: (clang::Qualifiers)
   ::pasta::Type SingleStepDesugaredType(void) const noexcept;
   // SplitDesugaredType: (clang::SplitQualType)
@@ -536,14 +536,14 @@ class Type {
   bool IsCanonicalAsParam(void) const noexcept;
   bool IsConstQualified(void) const noexcept;
   bool IsConstant(void) const noexcept;
-  // IsDestructedType: (clang::QualType::DestructionKind)
+  enum QualTypeDestructionKind IsDestructedType(void) const noexcept;
   bool IsLocalConstQualified(void) const noexcept;
   bool IsLocalRestrictQualified(void) const noexcept;
   bool IsLocalVolatileQualified(void) const noexcept;
   // IsMoreQualifiedThan: (bool)
-  ::pasta::PrimitiveCopyKind IsNonTrivialToPrimitiveCopy(void) const noexcept;
-  ::pasta::PrimitiveDefaultInitializeKind IsNonTrivialToPrimitiveDefaultInitialize(void) const noexcept;
-  ::pasta::PrimitiveCopyKind IsNonTrivialToPrimitiveDestructiveMove(void) const noexcept;
+  enum QualTypePrimitiveCopyKind IsNonTrivialToPrimitiveCopy(void) const noexcept;
+  enum QualTypePrimitiveDefaultInitializeKind IsNonTrivialToPrimitiveDefaultInitialize(void) const noexcept;
+  enum QualTypePrimitiveCopyKind IsNonTrivialToPrimitiveDestructiveMove(void) const noexcept;
   bool IsNonWeakInMRRWithObjCWeak(void) const noexcept;
   bool IsNull(void) const noexcept;
   bool IsObjCGCStrong(void) const noexcept;
@@ -619,7 +619,7 @@ class UnaryTransformType : public Type {
   PASTA_DECLARE_BASE_OPERATORS(Type, UnaryTransformType)
   ::pasta::Type Desugar(void) const noexcept;
   ::pasta::Type BaseType(void) const noexcept;
-  ::pasta::UTTKind UTTKind(void) const noexcept;
+  enum UnaryTransformTypeUTTKind UTTKind(void) const noexcept;
   ::pasta::Type UnderlyingType(void) const noexcept;
   bool IsSugared(void) const noexcept;
  protected:
@@ -651,7 +651,7 @@ class VectorType : public Type {
   ::pasta::Type Desugar(void) const noexcept;
   ::pasta::Type ElementType(void) const noexcept;
   uint32_t NumElements(void) const noexcept;
-  ::pasta::VectorKind VectorKind(void) const noexcept;
+  enum VectorTypeVectorKind VectorKind(void) const noexcept;
   bool IsSugared(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(VectorType)
@@ -702,7 +702,7 @@ class ArrayType : public Type {
   ::pasta::Type ElementType(void) const noexcept;
   uint32_t IndexTypeCVRQualifiers(void) const noexcept;
   // IndexTypeQualifiers: (clang::Qualifiers)
-  ::pasta::ArraySizeModifier SizeModifier(void) const noexcept;
+  enum ArrayTypeArraySizeModifier SizeModifier(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ArrayType)
 };
@@ -972,7 +972,7 @@ class DependentVectorType : public Type {
   ::pasta::Token AttributeToken(void) const noexcept;
   ::pasta::Type ElementType(void) const noexcept;
   ::pasta::Expr SizeExpression(void) const noexcept;
-  ::pasta::VectorKind VectorKind(void) const noexcept;
+  enum VectorTypeVectorKind VectorKind(void) const noexcept;
   bool IsSugared(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentVectorType)

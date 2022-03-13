@@ -1029,13 +1029,13 @@ PASTA_DEFINE_DERIVED_OPERATORS(Decl, VarTemplateSpecializationDecl)
 enum AccessSpecifier Decl::Access(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   auto val = self.getAccess();
-  return static_cast<::pasta::AccessSpecifier>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::AccessSpecifier>(val);
 }
 
 enum AccessSpecifier Decl::AccessUnsafe(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   auto val = self.getAccessUnsafe();
-  return static_cast<::pasta::AccessSpecifier>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::AccessSpecifier>(val);
 }
 
 ::pasta::FunctionDecl Decl::AsFunction(void) const noexcept {
@@ -1052,7 +1052,7 @@ enum AccessSpecifier Decl::AccessUnsafe(void) const noexcept {
 enum AvailabilityResult Decl::Availability(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   auto val = self.getAvailability();
-  return static_cast<::pasta::AvailabilityResult>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::AvailabilityResult>(val);
 }
 
 ::pasta::Token Decl::BeginToken(void) const noexcept {
@@ -1123,10 +1123,10 @@ enum AvailabilityResult Decl::Availability(void) const noexcept {
 }
 
 // 0: Decl::ExternalSourceSymbolAttribute
-::pasta::FriendObjectKind Decl::FriendObjectKind(void) const noexcept {
+enum DeclFriendObjectKind Decl::FriendObjectKind(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   auto val = self.getFriendObjectKind();
-  return static_cast<::pasta::FriendObjectKind>(val);
+  return static_cast<::pasta::DeclFriendObjectKind>(val);
 }
 
 ::pasta::FunctionType Decl::FunctionType(void) const noexcept {
@@ -1176,10 +1176,10 @@ uint32_t Decl::MaxAlignment(void) const noexcept {
   return val;
 }
 
-::pasta::ModuleOwnershipKind Decl::ModuleOwnershipKind(void) const noexcept {
+enum DeclModuleOwnershipKind Decl::ModuleOwnershipKind(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   auto val = self.getModuleOwnershipKind();
-  return static_cast<::pasta::ModuleOwnershipKind>(val);
+  return static_cast<::pasta::DeclModuleOwnershipKind>(val);
 }
 
 ::pasta::Decl Decl::MostRecentDeclaration(void) const noexcept {
@@ -1679,7 +1679,7 @@ uint32_t LifetimeExtendedTemporaryDecl::ManglingNumber(void) const noexcept {
 enum StorageDuration LifetimeExtendedTemporaryDecl::StorageDuration(void) const noexcept {
   auto &self = *const_cast<clang::LifetimeExtendedTemporaryDecl *>(u.LifetimeExtendedTemporaryDecl);
   auto val = self.getStorageDuration();
-  return static_cast<::pasta::StorageDuration>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::StorageDuration>(val);
 }
 
 ::pasta::Expr LifetimeExtendedTemporaryDecl::TemporaryExpression(void) const noexcept {
@@ -1712,10 +1712,10 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, LinkageSpecDecl)
   return ast->TokenAt(val);
 }
 
-::pasta::LanguageIDs LinkageSpecDecl::Language(void) const noexcept {
+enum LinkageSpecDeclLanguageIDs LinkageSpecDecl::Language(void) const noexcept {
   auto &self = *const_cast<clang::LinkageSpecDecl *>(u.LinkageSpecDecl);
   auto val = self.getLanguage();
-  return static_cast<::pasta::LanguageIDs>(val);
+  return static_cast<::pasta::LinkageSpecDeclLanguageIDs>(val);
 }
 
 ::pasta::Token LinkageSpecDecl::RBraceToken(void) const noexcept {
@@ -1814,7 +1814,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, VarTemplateSpecializationDecl)
 enum Linkage NamedDecl::FormalLinkage(void) const noexcept {
   auto &self = *const_cast<clang::NamedDecl *>(u.NamedDecl);
   auto val = self.getFormalLinkage();
-  return static_cast<::pasta::Linkage>(static_cast<unsigned char>(val));
+  return static_cast<::pasta::Linkage>(val);
 }
 
 // 0: NamedDecl::Identifier
@@ -1822,7 +1822,7 @@ enum Linkage NamedDecl::FormalLinkage(void) const noexcept {
 enum Linkage NamedDecl::LinkageInternal(void) const noexcept {
   auto &self = *const_cast<clang::NamedDecl *>(u.NamedDecl);
   auto val = self.getLinkageInternal();
-  return static_cast<::pasta::Linkage>(static_cast<unsigned char>(val));
+  return static_cast<::pasta::Linkage>(val);
 }
 
 ::pasta::NamedDecl NamedDecl::MostRecentDeclaration(void) const noexcept {
@@ -1844,7 +1844,7 @@ std::string NamedDecl::Name(void) const noexcept {
 enum ObjCStringFormatFamily NamedDecl::ObjCFStringFormattingFamily(void) const noexcept {
   auto &self = *const_cast<clang::NamedDecl *>(u.NamedDecl);
   auto val = self.getObjCFStringFormattingFamily();
-  return static_cast<::pasta::ObjCStringFormatFamily>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::ObjCStringFormatFamily>(val);
 }
 
 std::string NamedDecl::QualifiedNameAsString(void) const noexcept {
@@ -1866,7 +1866,7 @@ std::string NamedDecl::QualifiedNameAsString(void) const noexcept {
 enum Visibility NamedDecl::Visibility(void) const noexcept {
   auto &self = *const_cast<clang::NamedDecl *>(u.NamedDecl);
   auto val = self.getVisibility();
-  return static_cast<::pasta::Visibility>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::Visibility>(val);
 }
 
 bool NamedDecl::HasExternalFormalLinkage(void) const noexcept {
@@ -2646,16 +2646,16 @@ bool ObjCMethodDecl::DefinedInNSObject(void) const noexcept {
   return ast->TokenAt(val);
 }
 
-::pasta::ImplementationControl ObjCMethodDecl::ImplementationControl(void) const noexcept {
+enum ObjCMethodDeclImplementationControl ObjCMethodDecl::ImplementationControl(void) const noexcept {
   auto &self = *const_cast<clang::ObjCMethodDecl *>(u.ObjCMethodDecl);
   auto val = self.getImplementationControl();
-  return static_cast<::pasta::ImplementationControl>(val);
+  return static_cast<::pasta::ObjCMethodDeclImplementationControl>(val);
 }
 
 enum ObjCMethodFamily ObjCMethodDecl::MethodFamily(void) const noexcept {
   auto &self = *const_cast<clang::ObjCMethodDecl *>(u.ObjCMethodDecl);
   auto val = self.getMethodFamily();
-  return static_cast<::pasta::ObjCMethodFamily>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::ObjCMethodFamily>(val);
 }
 
 uint32_t ObjCMethodDecl::NumSelectorTokens(void) const noexcept {
@@ -2664,7 +2664,12 @@ uint32_t ObjCMethodDecl::NumSelectorTokens(void) const noexcept {
   return val;
 }
 
-// 0: ObjCMethodDecl::ObjCDeclQualifier
+enum DeclObjCDeclQualifier ObjCMethodDecl::ObjCDeclQualifier(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCMethodDecl *>(u.ObjCMethodDecl);
+  auto val = self.getObjCDeclQualifier();
+  return static_cast<::pasta::DeclObjCDeclQualifier>(val);
+}
+
 // 1: ObjCMethodDecl::ParamDeclaration
 ::pasta::Type ObjCMethodDecl::ReturnType(void) const noexcept {
   auto &self = *const_cast<clang::ObjCMethodDecl *>(u.ObjCMethodDecl);
@@ -2868,10 +2873,10 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCPropertyDecl)
 
 // 0: ObjCPropertyDecl::PropertyAttributes
 // 0: ObjCPropertyDecl::PropertyAttributesAsWritten
-::pasta::PropertyControl ObjCPropertyDecl::PropertyImplementation(void) const noexcept {
+enum ObjCPropertyDeclPropertyControl ObjCPropertyDecl::PropertyImplementation(void) const noexcept {
   auto &self = *const_cast<clang::ObjCPropertyDecl *>(u.ObjCPropertyDecl);
   auto val = self.getPropertyImplementation();
-  return static_cast<::pasta::PropertyControl>(val);
+  return static_cast<::pasta::ObjCPropertyDeclPropertyControl>(val);
 }
 
 ::pasta::ObjCIvarDecl ObjCPropertyDecl::PropertyInstanceVariableDeclaration(void) const noexcept {
@@ -2887,13 +2892,13 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCPropertyDecl)
 enum ObjCPropertyQueryKind ObjCPropertyDecl::QueryKind(void) const noexcept {
   auto &self = *const_cast<clang::ObjCPropertyDecl *>(u.ObjCPropertyDecl);
   auto val = self.getQueryKind();
-  return static_cast<::pasta::ObjCPropertyQueryKind>(static_cast<unsigned char>(val));
+  return static_cast<::pasta::ObjCPropertyQueryKind>(val);
 }
 
-::pasta::SetterKind ObjCPropertyDecl::SetterKind(void) const noexcept {
+enum ObjCPropertyDeclSetterKind ObjCPropertyDecl::SetterKind(void) const noexcept {
   auto &self = *const_cast<clang::ObjCPropertyDecl *>(u.ObjCPropertyDecl);
   auto val = self.getSetterKind();
-  return static_cast<::pasta::SetterKind>(val);
+  return static_cast<::pasta::ObjCPropertyDeclSetterKind>(val);
 }
 
 ::pasta::ObjCMethodDecl ObjCPropertyDecl::SetterMethodDeclaration(void) const noexcept {
@@ -3011,7 +3016,12 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCPropertyImplDecl)
   __builtin_unreachable();
 }
 
-// 0: ObjCPropertyImplDecl::PropertyImplementation
+enum ObjCPropertyImplDeclKind ObjCPropertyImplDecl::PropertyImplementation(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCPropertyImplDecl *>(u.ObjCPropertyImplDecl);
+  auto val = self.getPropertyImplementation();
+  return static_cast<::pasta::ObjCPropertyImplDeclKind>(val);
+}
+
 ::pasta::ObjCIvarDecl ObjCPropertyImplDecl::PropertyInstanceVariableDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::ObjCPropertyImplDecl *>(u.ObjCPropertyImplDecl);
   auto val = self.getPropertyIvarDecl();
@@ -3161,7 +3171,7 @@ std::string_view PragmaCommentDecl::Argument(void) const noexcept {
 enum PragmaMSCommentKind PragmaCommentDecl::CommentKind(void) const noexcept {
   auto &self = *const_cast<clang::PragmaCommentDecl *>(u.PragmaCommentDecl);
   auto val = self.getCommentKind();
-  return static_cast<::pasta::PragmaMSCommentKind>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::PragmaMSCommentKind>(val);
 }
 
 PragmaDetectMismatchDecl::PragmaDetectMismatchDecl(
@@ -4334,7 +4344,7 @@ uint32_t FieldDecl::FieldIndex(void) const noexcept {
 enum InClassInitStyle FieldDecl::InClassInitializerStyle(void) const noexcept {
   auto &self = *const_cast<clang::FieldDecl *>(u.FieldDecl);
   auto val = self.getInClassInitStyle();
-  return static_cast<::pasta::InClassInitStyle>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::InClassInitStyle>(val);
 }
 
 ::pasta::Expr FieldDecl::InClassInitializer(void) const noexcept {
@@ -4470,7 +4480,7 @@ uint32_t FunctionDecl::BuiltinID(void) const noexcept {
 enum ConstexprSpecKind FunctionDecl::ConstexprKind(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   auto val = self.getConstexprKind();
-  return static_cast<::pasta::ConstexprSpecKind>(static_cast<int>(val));
+  return static_cast<::pasta::ConstexprSpecKind>(val);
 }
 
 ::pasta::Type FunctionDecl::DeclaredReturnType(void) const noexcept {
@@ -4515,7 +4525,7 @@ std::optional<::pasta::FunctionTemplateDecl> FunctionDecl::DescribedFunctionTemp
 enum ExceptionSpecificationType FunctionDecl::ExceptionSpecType(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   auto val = self.getExceptionSpecType();
-  return static_cast<::pasta::ExceptionSpecificationType>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::ExceptionSpecificationType>(val);
 }
 
 // 0: FunctionDecl::FunctionTypeToken
@@ -4531,7 +4541,7 @@ std::optional<::pasta::FunctionDecl> FunctionDecl::InstantiatedFromMemberFunctio
 enum LanguageLinkage FunctionDecl::LanguageLinkage(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   auto val = self.getLanguageLinkage();
-  return static_cast<::pasta::LanguageLinkage>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::LanguageLinkage>(val);
 }
 
 // 0: FunctionDecl::LiteralIdentifier
@@ -4551,7 +4561,7 @@ uint32_t FunctionDecl::MinRequiredArguments(void) const noexcept {
 enum MultiVersionKind FunctionDecl::MultiVersionKind(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   auto val = self.getMultiVersionKind();
-  return static_cast<::pasta::MultiVersionKind>(static_cast<int>(val));
+  return static_cast<::pasta::MultiVersionKind>(val);
 }
 
 // 0: FunctionDecl::NameInfo
@@ -4570,7 +4580,7 @@ uint32_t FunctionDecl::ODRHash(void) const noexcept {
 enum OverloadedOperatorKind FunctionDecl::OverloadedOperator(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   auto val = self.getOverloadedOperator();
-  return static_cast<::pasta::OverloadedOperatorKind>(static_cast<int>(val));
+  return static_cast<::pasta::OverloadedOperatorKind>(val);
 }
 
 // 1: FunctionDecl::ParamDeclaration
@@ -4610,7 +4620,7 @@ std::optional<::pasta::FunctionTemplateDecl> FunctionDecl::PrimaryTemplate(void)
 enum StorageClass FunctionDecl::StorageClass(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   auto val = self.getStorageClass();
-  return static_cast<::pasta::StorageClass>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::StorageClass>(val);
 }
 
 std::optional<::pasta::FunctionDecl> FunctionDecl::TemplateInstantiationPattern(void) const noexcept {
@@ -4628,16 +4638,21 @@ std::optional<::pasta::FunctionDecl> FunctionDecl::TemplateInstantiationPattern(
 enum TemplateSpecializationKind FunctionDecl::TemplateSpecializationKind(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   auto val = self.getTemplateSpecializationKind();
-  return static_cast<::pasta::TemplateSpecializationKind>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::TemplateSpecializationKind>(val);
 }
 
 enum TemplateSpecializationKind FunctionDecl::TemplateSpecializationKindForInstantiation(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   auto val = self.getTemplateSpecializationKindForInstantiation();
-  return static_cast<::pasta::TemplateSpecializationKind>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::TemplateSpecializationKind>(val);
 }
 
-// 0: FunctionDecl::TemplatedKind
+enum FunctionDeclTemplatedKind FunctionDecl::TemplatedKind(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  auto val = self.getTemplatedKind();
+  return static_cast<::pasta::FunctionDeclTemplatedKind>(val);
+}
+
 bool FunctionDecl::HasImplicitReturnZero(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   auto val = self.hasImplicitReturnZero();
@@ -5377,7 +5392,12 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPDeclareReductionDecl)
   __builtin_unreachable();
 }
 
-// 0: OMPDeclareReductionDecl::InitializerKind
+enum OMPDeclareReductionDeclInitKind OMPDeclareReductionDecl::InitializerKind(void) const noexcept {
+  auto &self = *const_cast<clang::OMPDeclareReductionDecl *>(u.OMPDeclareReductionDecl);
+  auto val = self.getInitializerKind();
+  return static_cast<::pasta::OMPDeclareReductionDeclInitKind>(val);
+}
+
 ::pasta::OMPDeclareReductionDecl OMPDeclareReductionDecl::PrevDeclarationInScope(void) const noexcept {
   auto &self = *const_cast<clang::OMPDeclareReductionDecl *>(u.OMPDeclareReductionDecl);
   auto val = self.getPrevDeclInScope();
@@ -5596,8 +5616,18 @@ PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, ObjCIvarDecl)
 PASTA_DEFINE_BASE_OPERATORS(FieldDecl, ObjCIvarDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCIvarDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, ObjCIvarDecl)
-// 0: ObjCIvarDecl::AccessControl
-// 0: ObjCIvarDecl::CanonicalAccessControl
+enum ObjCIvarDeclAccessControl ObjCIvarDecl::AccessControl(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCIvarDecl *>(u.ObjCIvarDecl);
+  auto val = self.getAccessControl();
+  return static_cast<::pasta::ObjCIvarDeclAccessControl>(val);
+}
+
+enum ObjCIvarDeclAccessControl ObjCIvarDecl::CanonicalAccessControl(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCIvarDecl *>(u.ObjCIvarDecl);
+  auto val = self.getCanonicalAccessControl();
+  return static_cast<::pasta::ObjCIvarDeclAccessControl>(val);
+}
+
 ::pasta::ObjCInterfaceDecl ObjCIvarDecl::ContainingInterface(void) const noexcept {
   auto &self = *const_cast<clang::ObjCIvarDecl *>(u.ObjCIvarDecl);
   auto val = self.getContainingInterface();
@@ -5662,7 +5692,7 @@ uint32_t ObjCTypeParamDecl::Index(void) const noexcept {
 enum ObjCTypeParamVariance ObjCTypeParamDecl::Variance(void) const noexcept {
   auto &self = *const_cast<clang::ObjCTypeParamDecl *>(u.ObjCTypeParamDecl);
   auto val = self.getVariance();
-  return static_cast<::pasta::ObjCTypeParamVariance>(static_cast<unsigned char>(val));
+  return static_cast<::pasta::ObjCTypeParamVariance>(val);
 }
 
 ::pasta::Token ObjCTypeParamDecl::VarianceToken(void) const noexcept {
@@ -5787,7 +5817,7 @@ uint32_t TagDecl::NumTemplateParameterLists(void) const noexcept {
 enum TagTypeKind TagDecl::TagKind(void) const noexcept {
   auto &self = *const_cast<clang::TagDecl *>(u.TagDecl);
   auto val = self.getTagKind();
-  return static_cast<::pasta::TagTypeKind>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::TagTypeKind>(val);
 }
 
 // 1: TagDecl::TemplateParameterList
@@ -6264,7 +6294,12 @@ std::optional<::pasta::Expr> VarDecl::Initializer(void) const noexcept {
   return std::nullopt;
 }
 
-// 0: VarDecl::InitializerStyle
+enum VarDeclInitializationStyle VarDecl::InitializerStyle(void) const noexcept {
+  auto &self = *const_cast<clang::VarDecl *>(u.VarDecl);
+  auto val = self.getInitStyle();
+  return static_cast<::pasta::VarDeclInitializationStyle>(val);
+}
+
 std::optional<::pasta::VarDecl> VarDecl::InitializingDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::VarDecl *>(u.VarDecl);
   auto val = self.getInitializingDeclaration();
@@ -6286,7 +6321,7 @@ std::optional<::pasta::VarDecl> VarDecl::InstantiatedFromStaticDataMember(void) 
 enum LanguageLinkage VarDecl::LanguageLinkage(void) const noexcept {
   auto &self = *const_cast<clang::VarDecl *>(u.VarDecl);
   auto val = self.getLanguageLinkage();
-  return static_cast<::pasta::LanguageLinkage>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::LanguageLinkage>(val);
 }
 
 // 0: VarDecl::MemberSpecializationInfo
@@ -6299,20 +6334,25 @@ enum LanguageLinkage VarDecl::LanguageLinkage(void) const noexcept {
 enum StorageClass VarDecl::StorageClass(void) const noexcept {
   auto &self = *const_cast<clang::VarDecl *>(u.VarDecl);
   auto val = self.getStorageClass();
-  return static_cast<::pasta::StorageClass>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::StorageClass>(val);
 }
 
 enum StorageDuration VarDecl::StorageDuration(void) const noexcept {
   auto &self = *const_cast<clang::VarDecl *>(u.VarDecl);
   auto val = self.getStorageDuration();
-  return static_cast<::pasta::StorageDuration>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::StorageDuration>(val);
 }
 
-// 0: VarDecl::TLSKind
+enum VarDeclTLSKind VarDecl::TLSKind(void) const noexcept {
+  auto &self = *const_cast<clang::VarDecl *>(u.VarDecl);
+  auto val = self.getTLSKind();
+  return static_cast<::pasta::VarDeclTLSKind>(val);
+}
+
 enum ThreadStorageClassSpecifier VarDecl::TSCSpec(void) const noexcept {
   auto &self = *const_cast<clang::VarDecl *>(u.VarDecl);
   auto val = self.getTSCSpec();
-  return static_cast<::pasta::ThreadStorageClassSpecifier>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::ThreadStorageClassSpecifier>(val);
 }
 
 std::optional<::pasta::VarDecl> VarDecl::TemplateInstantiationPattern(void) const noexcept {
@@ -6327,13 +6367,13 @@ std::optional<::pasta::VarDecl> VarDecl::TemplateInstantiationPattern(void) cons
 enum TemplateSpecializationKind VarDecl::TemplateSpecializationKind(void) const noexcept {
   auto &self = *const_cast<clang::VarDecl *>(u.VarDecl);
   auto val = self.getTemplateSpecializationKind();
-  return static_cast<::pasta::TemplateSpecializationKind>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::TemplateSpecializationKind>(val);
 }
 
 enum TemplateSpecializationKind VarDecl::TemplateSpecializationKindForInstantiation(void) const noexcept {
   auto &self = *const_cast<clang::VarDecl *>(u.VarDecl);
   auto val = self.getTemplateSpecializationKindForInstantiation();
-  return static_cast<::pasta::TemplateSpecializationKind>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::TemplateSpecializationKind>(val);
 }
 
 bool VarDecl::HasConstantInitialization(void) const noexcept {
@@ -6546,7 +6586,12 @@ bool VarDecl::MightBeUsableInConstantExpressions(void) const noexcept {
   return val;
 }
 
-// 1: VarDecl::NeedsDestruction
+enum QualTypeDestructionKind VarDecl::NeedsDestruction(void) const noexcept {
+  auto &self = *(u.VarDecl);
+  auto val = self.needsDestruction(ast->ci->getASTContext());
+  return static_cast<::pasta::QualTypeDestructionKind>(val);
+}
+
 std::vector<::pasta::TemplateParameterList> VarDecl::TemplateParameterLists(void) const noexcept {
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
@@ -6681,7 +6726,7 @@ std::variant<std::monostate, ::pasta::VarTemplateDecl, ::pasta::VarTemplateParti
 enum TemplateSpecializationKind VarTemplateSpecializationDecl::SpecializationKind(void) const noexcept {
   auto &self = *const_cast<clang::VarTemplateSpecializationDecl *>(u.VarTemplateSpecializationDecl);
   auto val = self.getSpecializationKind();
-  return static_cast<::pasta::TemplateSpecializationKind>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::TemplateSpecializationKind>(val);
 }
 
 ::pasta::VarTemplateDecl VarTemplateSpecializationDecl::SpecializedTemplate(void) const noexcept {
@@ -6885,7 +6930,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(CXXMethodDecl, CXXDestructorDecl)
 enum RefQualifierKind CXXMethodDecl::ReferenceQualifier(void) const noexcept {
   auto &self = *const_cast<clang::CXXMethodDecl *>(u.CXXMethodDecl);
   auto val = self.getRefQualifier();
-  return static_cast<::pasta::RefQualifierKind>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::RefQualifierKind>(val);
 }
 
 ::pasta::Type CXXMethodDecl::ThisObjectType(void) const noexcept {
@@ -7237,7 +7282,7 @@ std::optional<::pasta::EnumDecl> EnumDecl::TemplateInstantiationPattern(void) co
 enum TemplateSpecializationKind EnumDecl::TemplateSpecializationKind(void) const noexcept {
   auto &self = *const_cast<clang::EnumDecl *>(u.EnumDecl);
   auto val = self.getTemplateSpecializationKind();
-  return static_cast<::pasta::TemplateSpecializationKind>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::TemplateSpecializationKind>(val);
 }
 
 bool EnumDecl::IsClosed(void) const noexcept {
@@ -7388,10 +7433,10 @@ PASTA_DEFINE_BASE_OPERATORS(DeclaratorDecl, ImplicitParamDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ImplicitParamDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, ImplicitParamDecl)
 PASTA_DEFINE_BASE_OPERATORS(VarDecl, ImplicitParamDecl)
-::pasta::ImplicitParamKind ImplicitParamDecl::ParameterKind(void) const noexcept {
+enum ImplicitParamDeclImplicitParamKind ImplicitParamDecl::ParameterKind(void) const noexcept {
   auto &self = *const_cast<clang::ImplicitParamDecl *>(u.ImplicitParamDecl);
   auto val = self.getParameterKind();
-  return static_cast<::pasta::ImplicitParamKind>(val);
+  return static_cast<::pasta::ImplicitParamDeclImplicitParamKind>(val);
 }
 
 std::vector<::pasta::TemplateParameterList> ImplicitParamDecl::TemplateParameterLists(void) const noexcept {
@@ -7467,7 +7512,12 @@ uint32_t ParmVarDecl::FunctionScopeIndex(void) const noexcept {
   return val;
 }
 
-// 0: ParmVarDecl::ObjCDeclQualifier
+enum DeclObjCDeclQualifier ParmVarDecl::ObjCDeclQualifier(void) const noexcept {
+  auto &self = *const_cast<clang::ParmVarDecl *>(u.ParmVarDecl);
+  auto val = self.getObjCDeclQualifier();
+  return static_cast<::pasta::DeclObjCDeclQualifier>(val);
+}
+
 ::pasta::Type ParmVarDecl::OriginalType(void) const noexcept {
   auto &self = *const_cast<clang::ParmVarDecl *>(u.ParmVarDecl);
   auto val = self.getOriginalType();
@@ -7579,10 +7629,10 @@ std::optional<::pasta::FieldDecl> RecordDecl::FindFirstNamedDataMember(void) con
   return std::nullopt;
 }
 
-::pasta::ArgPassingKind RecordDecl::ArgumentPassingRestrictions(void) const noexcept {
+enum RecordDeclArgPassingKind RecordDecl::ArgumentPassingRestrictions(void) const noexcept {
   auto &self = *const_cast<clang::RecordDecl *>(u.RecordDecl);
   auto val = self.getArgPassingRestrictions();
-  return static_cast<::pasta::ArgPassingKind>(val);
+  return static_cast<::pasta::RecordDeclArgPassingKind>(val);
 }
 
 ::pasta::RecordDecl RecordDecl::Definition(void) const noexcept {
@@ -8070,7 +8120,7 @@ std::vector<::pasta::CXXBaseSpecifier> CXXRecordDecl::Bases(void) const noexcept
 enum MSInheritanceModel CXXRecordDecl::CalculateInheritanceModel(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
   auto val = self.calculateInheritanceModel();
-  return static_cast<::pasta::MSInheritanceModel>(static_cast<int>(val));
+  return static_cast<::pasta::MSInheritanceModel>(val);
 }
 
 // 0: CXXRecordDecl::
@@ -8221,7 +8271,7 @@ uint32_t CXXRecordDecl::DeviceLambdaManglingNumber(void) const noexcept {
 enum LambdaCaptureDefault CXXRecordDecl::LambdaCaptureDefault(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
   auto val = self.getLambdaCaptureDefault();
-  return static_cast<::pasta::LambdaCaptureDefault>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::LambdaCaptureDefault>(val);
 }
 
 ::pasta::Decl CXXRecordDecl::LambdaContextDeclaration(void) const noexcept {
@@ -8260,13 +8310,13 @@ uint32_t CXXRecordDecl::LambdaManglingNumber(void) const noexcept {
 enum MSInheritanceModel CXXRecordDecl::MSInheritanceModel(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
   auto val = self.getMSInheritanceModel();
-  return static_cast<::pasta::MSInheritanceModel>(static_cast<int>(val));
+  return static_cast<::pasta::MSInheritanceModel>(val);
 }
 
 enum MSVtorDispMode CXXRecordDecl::MSVtorDispMode(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
   auto val = self.getMSVtorDispMode();
-  return static_cast<::pasta::MSVtorDispMode>(static_cast<int>(val));
+  return static_cast<::pasta::MSVtorDispMode>(val);
 }
 
 // 0: CXXRecordDecl::MemberSpecializationInfo
@@ -8331,7 +8381,7 @@ uint32_t CXXRecordDecl::ODRHash(void) const noexcept {
 enum TemplateSpecializationKind CXXRecordDecl::TemplateSpecializationKind(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
   auto val = self.getTemplateSpecializationKind();
-  return static_cast<::pasta::TemplateSpecializationKind>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::TemplateSpecializationKind>(val);
 }
 
 // 0: CXXRecordDecl::VisibleConversionFunctions
@@ -8985,7 +9035,7 @@ std::variant<std::monostate, ::pasta::ClassTemplateDecl, ::pasta::ClassTemplateP
 enum TemplateSpecializationKind ClassTemplateSpecializationDecl::SpecializationKind(void) const noexcept {
   auto &self = *const_cast<clang::ClassTemplateSpecializationDecl *>(u.ClassTemplateSpecializationDecl);
   auto val = self.getSpecializationKind();
-  return static_cast<::pasta::TemplateSpecializationKind>(static_cast<unsigned int>(val));
+  return static_cast<::pasta::TemplateSpecializationKind>(val);
 }
 
 ::pasta::ClassTemplateDecl ClassTemplateSpecializationDecl::SpecializedTemplate(void) const noexcept {

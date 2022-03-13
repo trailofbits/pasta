@@ -153,6 +153,7 @@ MacroGenerator::~MacroGenerator(void) {
   std::map<std::string, clang::FieldDecl *> decl_fields;
   std::map<std::string, clang::EnumDecl *> decl_named_enums;
   std::unordered_set<clang::EnumDecl *> decl_unnamed_enums;
+  std::unordered_set<clang::EnumDecl *> seen_enums;
 
   os << "#include \"DefineDefaultMacros.h\"\n\n";
 
@@ -332,6 +333,9 @@ MacroGenerator::~MacroGenerator(void) {
       }
 
       auto enum_def = enum_->getDefinition();
+      if (!seen_enums.emplace(enum_def).second) {
+        continue;
+      }
       auto itype = enum_->getIntegerType();
       auto itype_str = itype.getAsString(print_policy);
       if (!itype.isNull() && enum_def) {
@@ -382,6 +386,9 @@ MacroGenerator::~MacroGenerator(void) {
   // Dump out top-level enums.
   for (const auto &[enum_name, enum_] : decl_enums) {
     auto enum_def = enum_->getDefinition();
+    if (!seen_enums.emplace(enum_def).second) {
+      continue;
+    }
     auto itype = enum_->getIntegerType();
     if (itype.isNull() || !enum_def) {
       os << "PASTA_DECLARE_NAMED_ENUM(" << enum_name << ", (int))\n\n";

@@ -134,28 +134,28 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
   {"(long long)", "int64_t"},
   {"(unsigned long long)", "uint64_t"},
   {"(const clang::DeclContext *)", "::pasta::DeclContext"},
-  {"(clang::Decl::FriendObjectKind)", "::pasta::FriendObjectKind"},
-  {"(clang::Decl::ModuleOwnershipKind)", "::pasta::ModuleOwnershipKind"},
-  {"(clang::CallExpr::ADLCallKind)", "::pasta::ADLCallKind"},
-  {"(clang::APValue::ValueKind)", "::pasta::APValueKind"},
-  {"(clang::ConstantExpr::ResultStorageKind)", "::pasta::ResultStorageKind"},
-  {"(clang::LinkageSpecDecl::LanguageIDs)", "::pasta::LanguageIDs"},
-  {"(clang::ObjCMethodDecl::ImplementationControl)", "::pasta::ImplementationControl"},
-  {"(clang::ObjCPropertyDecl::PropertyControl)", "::pasta::PropertyControl"},
-  {"(clang::ObjCPropertyDecl::SetterKind)", "::pasta::SetterKind"},
+//  {"(clang::Decl::FriendObjectKind)", "::pasta::FriendObjectKind"},
+//  {"(clang::Decl::ModuleOwnershipKind)", "::pasta::ModuleOwnershipKind"},
+//  {"(clang::CallExpr::ADLCallKind)", "::pasta::ADLCallKind"},
+//  {"(clang::APValue::ValueKind)", "::pasta::APValueKind"},
+//  {"(clang::ConstantExpr::ResultStorageKind)", "::pasta::ResultStorageKind"},
+//  {"(clang::LinkageSpecDecl::LanguageIDs)", "::pasta::LanguageIDs"},
+//  {"(clang::ObjCMethodDecl::ImplementationControl)", "::pasta::ImplementationControl"},
+//  {"(clang::ObjCPropertyDecl::PropertyControl)", "::pasta::PropertyControl"},
+//  {"(clang::ObjCPropertyDecl::SetterKind)", "::pasta::SetterKind"},
   {"(clang::Decl::Kind)", "::pasta::DeclKind"},
-  {"(clang::ImplicitParamDecl::ImplicitParamKind)", "::pasta::ImplicitParamKind"},
-  {"(clang::RecordDecl::ArgPassingKind)", "::pasta::ArgPassingKind"},
-  {"(clang::UnaryTransformType::UTTKind)", "::pasta::UTTKind"},
-  {"(clang::ArrayType::ArraySizeModifier)", "::pasta::ArraySizeModifier"},
-  {"(clang::VectorType::VectorKind)", "::pasta::VectorKind"},
-  {"(clang::TypeDependenceScope::TypeDependence)", "::pasta::TypeDependence"},
-  {"(clang::CXXConstructExpr::ConstructionKind)", "::pasta::ConstructionKind"},
-  {"(clang::CXXNewExpr::InitializationStyle)", "::pasta::InitializationStyle"},
-  {"(clang::Qualifiers::ObjCLifetime)", "::pasta::ObjCLifetime"},
-  {"(clang::Type::ScalarTypeKind)", "::pasta::ScalarTypeKind"},
-  {"(clang::QualType::PrimitiveCopyKind)", "::pasta::PrimitiveCopyKind"},
-  {"(clang::QualType::PrimitiveDefaultInitializeKind)", "::pasta::PrimitiveDefaultInitializeKind"},
+//  {"(clang::ImplicitParamDecl::ImplicitParamKind)", "::pasta::ImplicitParamKind"},
+//  {"(clang::RecordDecl::ArgPassingKind)", "::pasta::ArgPassingKind"},
+//  {"(clang::UnaryTransformType::UTTKind)", "::pasta::UTTKind"},
+//  {"(clang::ArrayType::ArraySizeModifier)", "::pasta::ArraySizeModifier"},
+//  {"(clang::VectorType::VectorKind)", "::pasta::VectorKind"},
+//  {"(clang::TypeDependenceScope::TypeDependence)", "::pasta::TypeDependence"},
+//  {"(clang::CXXConstructExpr::ConstructionKind)", "::pasta::ConstructionKind"},
+//  {"(clang::CXXNewExpr::InitializationStyle)", "::pasta::InitializationStyle"},
+//  {"(clang::Qualifiers::ObjCLifetime)", "::pasta::ObjCLifetime"},
+//  {"(clang::Type::ScalarTypeKind)", "::pasta::ScalarTypeKind"},
+//  {"(clang::QualType::PrimitiveCopyKind)", "::pasta::PrimitiveCopyKind"},
+//  {"(clang::QualType::PrimitiveDefaultInitializeKind)", "::pasta::PrimitiveDefaultInitializeKind"},
   {"(clang::attr::Kind)", "::pasta::AttributeKind"},
 
   {"(llvm::Optional<const clang::Expr *>)", "std::optional<::pasta::Expr>"},
@@ -358,68 +358,68 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
    "    return ::pasta::DeclContext(ast, val);\n"
    "  }\n"},
 
-  {"(clang::Decl::FriendObjectKind)",
-   "  return static_cast<::pasta::FriendObjectKind>(val);\n"},
-
-  {"(clang::Decl::ModuleOwnershipKind)",
-   "  return static_cast<::pasta::ModuleOwnershipKind>(val);\n"},
-
-  {"(clang::CallExpr::ADLCallKind)",
-   "  return static_cast<::pasta::ADLCallKind>(val);\n"},
-
-  {"(clang::APValue::ValueKind)",
-   "  return static_cast<::pasta::APValueKind>(val);\n"},
-
-  {"(clang::ConstantExpr::ResultStorageKind)",
-   "  return static_cast<::pasta::ResultStorageKind>(val);\n"},
-
-  {"(clang::LinkageSpecDecl::LanguageIDs)",
-   "  return static_cast<::pasta::LanguageIDs>(val);\n"},
-
-  {"(clang::ObjCMethodDecl::ImplementationControl)",
-   "  return static_cast<::pasta::ImplementationControl>(val);\n"},
-
-  {"(clang::ObjCPropertyDecl::PropertyControl)",
-   "  return static_cast<::pasta::PropertyControl>(val);\n"},
-
-  {"(clang::ObjCPropertyDecl::SetterKind)",
-   "  return static_cast<::pasta::SetterKind>(val);\n"},
-
+//  {"(clang::Decl::FriendObjectKind)",
+//   "  return static_cast<::pasta::FriendObjectKind>(val);\n"},
+//
+//  {"(clang::Decl::ModuleOwnershipKind)",
+//   "  return static_cast<::pasta::ModuleOwnershipKind>(val);\n"},
+//
+//  {"(clang::CallExpr::ADLCallKind)",
+//   "  return static_cast<::pasta::ADLCallKind>(val);\n"},
+//
+//  {"(clang::APValue::ValueKind)",
+//   "  return static_cast<::pasta::APValueKind>(val);\n"},
+//
+//  {"(clang::ConstantExpr::ResultStorageKind)",
+//   "  return static_cast<::pasta::ResultStorageKind>(val);\n"},
+//
+//  {"(clang::LinkageSpecDecl::LanguageIDs)",
+//   "  return static_cast<::pasta::LanguageIDs>(val);\n"},
+//
+//  {"(clang::ObjCMethodDecl::ImplementationControl)",
+//   "  return static_cast<::pasta::ImplementationControl>(val);\n"},
+//
+//  {"(clang::ObjCPropertyDecl::PropertyControl)",
+//   "  return static_cast<::pasta::PropertyControl>(val);\n"},
+//
+//  {"(clang::ObjCPropertyDecl::SetterKind)",
+//   "  return static_cast<::pasta::SetterKind>(val);\n"},
+//
   {"(clang::Decl::Kind)",
    "  return static_cast<::pasta::DeclKind>(val);\n"},
-
-  {"(clang::ImplicitParamDecl::ImplicitParamKind)",
-   "  return static_cast<::pasta::ImplicitParamKind>(val);\n"},
-
-  {"(clang::RecordDecl::ArgPassingKind)",
-   "  return static_cast<::pasta::ArgPassingKind>(val);\n"},
-
-  {"(clang::UnaryTransformType::UTTKind)",
-   "  return static_cast<::pasta::UTTKind>(val);\n"},
-
-  {"(clang::ArrayType::ArraySizeModifier)",
-   "  return static_cast<::pasta::ArraySizeModifier>(val);\n"},
-
-  {"(clang::VectorType::VectorKind)",
-   "  return static_cast<::pasta::VectorKind>(val);\n"},
-
-  {"(clang::TypeDependenceScope::TypeDependence)",
-   "  return static_cast<::pasta::TypeDependence>(val);\n"},
-
-  {"(clang::CXXConstructExpr::ConstructionKind)",
-   "  return static_cast<::pasta::ConstructionKind>(val);\n"},
-
-  {"(clang::CXXNewExpr::InitializationStyle)",
-   "  return static_cast<::pasta::InitializationStyle>(val);\n"},
-
-  {"(clang::Qualifiers::ObjCLifetime)",
-   "  return static_cast<::pasta::ObjCLifetime>(val);\n"},
-  {"(clang::Type::ScalarTypeKind)",
-   "  return static_cast<::pasta::ScalarTypeKind>(val);\n"},
-  {"(clang::QualType::PrimitiveCopyKind)",
-   "  return static_cast<::pasta::PrimitiveCopyKind>(val);\n"},
-  {"(clang::QualType::PrimitiveDefaultInitializeKind)",
-   "  return static_cast<::pasta::PrimitiveDefaultInitializeKind>(val);\n"},
+//
+//  {"(clang::ImplicitParamDecl::ImplicitParamKind)",
+//   "  return static_cast<::pasta::ImplicitParamKind>(val);\n"},
+//
+//  {"(clang::RecordDecl::ArgPassingKind)",
+//   "  return static_cast<::pasta::ArgPassingKind>(val);\n"},
+//
+//  {"(clang::UnaryTransformType::UTTKind)",
+//   "  return static_cast<::pasta::UTTKind>(val);\n"},
+//
+//  {"(clang::ArrayType::ArraySizeModifier)",
+//   "  return static_cast<::pasta::ArraySizeModifier>(val);\n"},
+//
+//  {"(clang::VectorType::VectorKind)",
+//   "  return static_cast<::pasta::VectorKind>(val);\n"},
+//
+//  {"(clang::TypeDependenceScope::TypeDependence)",
+//   "  return static_cast<::pasta::TypeDependence>(val);\n"},
+//
+//  {"(clang::CXXConstructExpr::ConstructionKind)",
+//   "  return static_cast<::pasta::ConstructionKind>(val);\n"},
+//
+//  {"(clang::CXXNewExpr::InitializationStyle)",
+//   "  return static_cast<::pasta::InitializationStyle>(val);\n"},
+//
+//  {"(clang::Qualifiers::ObjCLifetime)",
+//   "  return static_cast<::pasta::ObjCLifetime>(val);\n"},
+//  {"(clang::Type::ScalarTypeKind)",
+//   "  return static_cast<::pasta::ScalarTypeKind>(val);\n"},
+//  {"(clang::QualType::PrimitiveCopyKind)",
+//   "  return static_cast<::pasta::PrimitiveCopyKind>(val);\n"},
+//  {"(clang::QualType::PrimitiveDefaultInitializeKind)",
+//   "  return static_cast<::pasta::PrimitiveDefaultInitializeKind>(val);\n"},
 
   {"(llvm::Optional<const clang::Expr *>)",
    "  if (val.hasValue()) {\n"

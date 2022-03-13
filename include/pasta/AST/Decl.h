@@ -347,7 +347,7 @@ class Decl {
   ::pasta::TemplateParameterList DescribedTemplateParams(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   // ExternalSourceSymbolAttribute: (clang::ExternalSourceSymbolAttr *)
-  ::pasta::FriendObjectKind FriendObjectKind(void) const noexcept;
+  enum DeclFriendObjectKind FriendObjectKind(void) const noexcept;
   ::pasta::FunctionType FunctionType(void) const noexcept;
   uint32_t GlobalID(void) const noexcept;
   int64_t ID(void) const noexcept;
@@ -357,7 +357,7 @@ class Decl {
   ::pasta::DeclContext LexicalDeclarationContext(void) const noexcept;
   // LocalOwningModule: (clang::Module *)
   uint32_t MaxAlignment(void) const noexcept;
-  ::pasta::ModuleOwnershipKind ModuleOwnershipKind(void) const noexcept;
+  enum DeclModuleOwnershipKind ModuleOwnershipKind(void) const noexcept;
   ::pasta::Decl MostRecentDeclaration(void) const noexcept;
   ::pasta::Decl NextDeclarationInContext(void) const noexcept;
   ::pasta::Decl NonClosureContext(void) const noexcept;
@@ -660,7 +660,7 @@ class LinkageSpecDecl : public Decl {
   PASTA_DECLARE_BASE_OPERATORS(Decl, LinkageSpecDecl)
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Token ExternToken(void) const noexcept;
-  ::pasta::LanguageIDs Language(void) const noexcept;
+  enum LinkageSpecDeclLanguageIDs Language(void) const noexcept;
   ::pasta::Token RBraceToken(void) const noexcept;
   bool HasBraces(void) const noexcept;
  protected:
@@ -988,10 +988,10 @@ class ObjCMethodDecl : public NamedDecl {
   ::pasta::ImplicitParamDecl CmdDeclaration(void) const noexcept;
   ::pasta::Token DeclaratorEndToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  ::pasta::ImplementationControl ImplementationControl(void) const noexcept;
+  enum ObjCMethodDeclImplementationControl ImplementationControl(void) const noexcept;
   enum ObjCMethodFamily MethodFamily(void) const noexcept;
   uint32_t NumSelectorTokens(void) const noexcept;
-  // ObjCDeclQualifier: (clang::Decl::ObjCDeclQualifier)
+  enum DeclObjCDeclQualifier ObjCDeclQualifier(void) const noexcept;
   // ParamDeclaration: (const clang::ParmVarDecl *)
   ::pasta::Type ReturnType(void) const noexcept;
   ::pasta::Type ReturnTypeSourceInfo(void) const noexcept;
@@ -1040,10 +1040,10 @@ class ObjCPropertyDecl : public NamedDecl {
   ::pasta::Token LParenToken(void) const noexcept;
   // PropertyAttributes: (clang::ObjCPropertyAttribute::Kind)
   // PropertyAttributesAsWritten: (clang::ObjCPropertyAttribute::Kind)
-  ::pasta::PropertyControl PropertyImplementation(void) const noexcept;
+  enum ObjCPropertyDeclPropertyControl PropertyImplementation(void) const noexcept;
   ::pasta::ObjCIvarDecl PropertyInstanceVariableDeclaration(void) const noexcept;
   enum ObjCPropertyQueryKind QueryKind(void) const noexcept;
-  ::pasta::SetterKind SetterKind(void) const noexcept;
+  enum ObjCPropertyDeclSetterKind SetterKind(void) const noexcept;
   ::pasta::ObjCMethodDecl SetterMethodDeclaration(void) const noexcept;
   // SetterName: (clang::Selector)
   ::pasta::Token SetterNameToken(void) const noexcept;
@@ -1072,7 +1072,7 @@ class ObjCPropertyImplDecl : public Decl {
   ::pasta::Expr GetterCXXConstructor(void) const noexcept;
   ::pasta::ObjCMethodDecl GetterMethodDeclaration(void) const noexcept;
   ::pasta::ObjCPropertyDecl PropertyDeclaration(void) const noexcept;
-  // PropertyImplementation: (clang::ObjCPropertyImplDecl::Kind)
+  enum ObjCPropertyImplDeclKind PropertyImplementation(void) const noexcept;
   ::pasta::ObjCIvarDecl PropertyInstanceVariableDeclaration(void) const noexcept;
   ::pasta::Token PropertyInstanceVariableDeclarationToken(void) const noexcept;
   ::pasta::Expr SetterCXXAssignment(void) const noexcept;
@@ -1750,7 +1750,7 @@ class FunctionDecl : public DeclaratorDecl {
   // TemplateSpecializationInfo: (clang::FunctionTemplateSpecializationInfo *)
   enum TemplateSpecializationKind TemplateSpecializationKind(void) const noexcept;
   enum TemplateSpecializationKind TemplateSpecializationKindForInstantiation(void) const noexcept;
-  // TemplatedKind: (clang::FunctionDecl::TemplatedKind)
+  enum FunctionDeclTemplatedKind TemplatedKind(void) const noexcept;
   bool HasImplicitReturnZero(void) const noexcept;
   bool HasInheritedPrototype(void) const noexcept;
   bool HasOneParamOrDefaultArguments(void) const noexcept;
@@ -1963,7 +1963,7 @@ class OMPDeclareReductionDecl : public ValueDecl {
   ::pasta::Expr InitializerOriginal(void) const noexcept;
   ::pasta::Expr InitializerPrivate(void) const noexcept;
   ::pasta::Expr Initializer(void) const noexcept;
-  // InitializerKind: (clang::OMPDeclareReductionDecl::InitKind)
+  enum OMPDeclareReductionDeclInitKind InitializerKind(void) const noexcept;
   ::pasta::OMPDeclareReductionDecl PrevDeclarationInScope(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(OMPDeclareReductionDecl)
@@ -2072,8 +2072,8 @@ class ObjCIvarDecl : public FieldDecl {
   PASTA_DECLARE_BASE_OPERATORS(FieldDecl, ObjCIvarDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, ObjCIvarDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, ObjCIvarDecl)
-  // AccessControl: (clang::ObjCIvarDecl::AccessControl)
-  // CanonicalAccessControl: (clang::ObjCIvarDecl::AccessControl)
+  enum ObjCIvarDeclAccessControl AccessControl(void) const noexcept;
+  enum ObjCIvarDeclAccessControl CanonicalAccessControl(void) const noexcept;
   ::pasta::ObjCInterfaceDecl ContainingInterface(void) const noexcept;
   ::pasta::ObjCIvarDecl NextInstanceVariable(void) const noexcept;
   bool Synthesize(void) const noexcept;
@@ -2354,7 +2354,7 @@ class VarDecl : public DeclaratorDecl {
   // EvaluatedStatement: (clang::EvaluatedStmt *)
   // EvaluatedValue: (clang::APValue *)
   std::optional<::pasta::Expr> Initializer(void) const noexcept;
-  // InitializerStyle: (clang::VarDecl::InitializationStyle)
+  enum VarDeclInitializationStyle InitializerStyle(void) const noexcept;
   std::optional<::pasta::VarDecl> InitializingDeclaration(void) const noexcept;
   std::optional<::pasta::VarDecl> InstantiatedFromStaticDataMember(void) const noexcept;
   enum LanguageLinkage LanguageLinkage(void) const noexcept;
@@ -2362,7 +2362,7 @@ class VarDecl : public DeclaratorDecl {
   ::pasta::Token PointOfInstantiation(void) const noexcept;
   enum StorageClass StorageClass(void) const noexcept;
   enum StorageDuration StorageDuration(void) const noexcept;
-  // TLSKind: (clang::VarDecl::TLSKind)
+  enum VarDeclTLSKind TLSKind(void) const noexcept;
   enum ThreadStorageClassSpecifier TSCSpec(void) const noexcept;
   std::optional<::pasta::VarDecl> TemplateInstantiationPattern(void) const noexcept;
   enum TemplateSpecializationKind TemplateSpecializationKind(void) const noexcept;
@@ -2402,7 +2402,7 @@ class VarDecl : public DeclaratorDecl {
   bool IsThisDeclarationADemotedDefinition(void) const noexcept;
   bool IsUsableInConstantExpressions(void) const noexcept;
   bool MightBeUsableInConstantExpressions(void) const noexcept;
-  // NeedsDestruction: (clang::QualType::DestructionKind)
+  enum QualTypeDestructionKind NeedsDestruction(void) const noexcept;
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(VarDecl)
@@ -2645,7 +2645,7 @@ class ImplicitParamDecl : public VarDecl {
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, ImplicitParamDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, ImplicitParamDecl)
   PASTA_DECLARE_BASE_OPERATORS(VarDecl, ImplicitParamDecl)
-  ::pasta::ImplicitParamKind ParameterKind(void) const noexcept;
+  enum ImplicitParamDeclImplicitParamKind ParameterKind(void) const noexcept;
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ImplicitParamDecl)
@@ -2684,7 +2684,7 @@ class ParmVarDecl : public VarDecl {
   ::pasta::TokenRange DefaultArgumentRange(void) const noexcept;
   uint32_t FunctionScopeDepth(void) const noexcept;
   uint32_t FunctionScopeIndex(void) const noexcept;
-  // ObjCDeclQualifier: (clang::Decl::ObjCDeclQualifier)
+  enum DeclObjCDeclQualifier ObjCDeclQualifier(void) const noexcept;
   ::pasta::Type OriginalType(void) const noexcept;
   std::optional<::pasta::Expr> UninstantiatedDefaultArgument(void) const noexcept;
   bool HasDefaultArgument(void) const noexcept;
@@ -2717,7 +2717,7 @@ class RecordDecl : public TagDecl {
   bool CanPassInRegisters(void) const noexcept;
   std::vector<::pasta::FieldDecl> Fields(void) const noexcept;
   std::optional<::pasta::FieldDecl> FindFirstNamedDataMember(void) const noexcept;
-  ::pasta::ArgPassingKind ArgumentPassingRestrictions(void) const noexcept;
+  enum RecordDeclArgPassingKind ArgumentPassingRestrictions(void) const noexcept;
   ::pasta::RecordDecl Definition(void) const noexcept;
   ::pasta::RecordDecl MostRecentDeclaration(void) const noexcept;
   ::pasta::RecordDecl PreviousDeclaration(void) const noexcept;

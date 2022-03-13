@@ -27,9 +27,9 @@
 #include "Globals.h"
 #include "Util.h"
 
-// Adds mappings that translate between clang enumeration types and PASTA
-// enumeration types.
-void MapEnumRetTypes(void);
+//// Adds mappings that translate between clang enumeration types and PASTA
+//// enumeration types.
+//void MapEnumRetTypes(void);
 
 // Adds mappings that translate between pointers to clang Decl types and PASTA
 // Decl types.
@@ -193,11 +193,12 @@ int main(void) {
   transitive_rels(gTopologicallyOrderedStmts);
   transitive_rels(gTopologicallyOrderedTypes);
 
-  MapEnumRetTypes();
+//  MapEnumRetTypes();
   MapDeclRetTypes();
   MapStmtRetTypes();
   MapTypeRetTypes();
 
+  // NOTE(pag): This also maps enum return types.
   GenerateForwardH();
 
   // Generate headers first; they fill up `gIterators`.

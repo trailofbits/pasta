@@ -1444,7 +1444,7 @@ class Expr : public ValueStmt {
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, UserDefinedLiteral)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, VAArgExpr)
   // Classify: (clang::Expr::Classification)
-  // ClassifyLValue: (clang::Expr::LValueClassification)
+  enum ExprLValueClassification ClassifyLValue(void) const noexcept;
   // ClassifyModifiable: (clang::Expr::Classification)
   // EvaluateAsBooleanCondition: (bool)
   // EvaluateAsConstantExpression: (bool)
@@ -1497,7 +1497,7 @@ class Expr : public ValueStmt {
   bool IsIntegerConstantExpression(void) const noexcept;
   bool IsKnownToHaveBooleanValue(void) const noexcept;
   bool IsLValue(void) const noexcept;
-  // IsModifiableLvalue: (clang::Expr::isModifiableLvalueResult)
+  enum ExprisModifiableLvalueResult IsModifiableLvalue(void) const noexcept;
   // IsNullPointerConstant: (clang::Expr::NullPointerConstantKind)
   bool IsOBJCGCCandidate(void) const noexcept;
   bool IsObjCSelfExpression(void) const noexcept;
@@ -3551,7 +3551,7 @@ class ObjCMessageExpr : public Expr {
   uint32_t NumArguments(void) const noexcept;
   uint32_t NumSelectorTokens(void) const noexcept;
   ::pasta::ObjCInterfaceDecl ReceiverInterface(void) const noexcept;
-  // ReceiverKind: (clang::ObjCMessageExpr::ReceiverKind)
+  enum ObjCMessageExprReceiverKind ReceiverKind(void) const noexcept;
   ::pasta::TokenRange ReceiverRange(void) const noexcept;
   ::pasta::Type ReceiverType(void) const noexcept;
   ::pasta::Token RightToken(void) const noexcept;
@@ -3841,7 +3841,7 @@ class PredefinedExpr : public Expr {
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::StringLiteral FunctionName(void) const noexcept;
-  // IdentifierKind: (clang::PredefinedExpr::IdentKind)
+  enum PredefinedExprIdentKind IdentifierKind(void) const noexcept;
   std::string_view IdentifierKindName(void) const noexcept;
   ::pasta::Token Token(void) const noexcept;
  protected:
@@ -4081,7 +4081,7 @@ class SourceLocExpr : public Expr {
   ::pasta::Token BeginToken(void) const noexcept;
   std::string_view BuiltinString(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  // IdentifierKind: (clang::SourceLocExpr::IdentKind)
+  enum SourceLocExprIdentKind IdentifierKind(void) const noexcept;
   ::pasta::Token Token(void) const noexcept;
   ::pasta::DeclContext ParentContext(void) const noexcept;
   bool IsIntType(void) const noexcept;
@@ -4130,7 +4130,7 @@ class StringLiteral : public Expr {
   uint32_t CharacterByteWidth(void) const noexcept;
   // CodeUnit: (unsigned int)
   ::pasta::Token EndToken(void) const noexcept;
-  // Kind: (clang::StringLiteral::StringKind)
+  enum StringLiteralStringKind Kind(void) const noexcept;
   uint32_t Length(void) const noexcept;
   // TokenOfByte: (clang::SourceLocation)
   uint32_t NumConcatenated(void) const noexcept;
@@ -4517,7 +4517,7 @@ class AtomicExpr : public Expr {
   ::pasta::Token BuiltinToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   uint32_t NumSubExpressions(void) const noexcept;
-  // Operation: (clang::AtomicExpr::AtomicOp)
+  enum AtomicExprAtomicOp Operation(void) const noexcept;
   ::pasta::Expr Order(void) const noexcept;
   ::pasta::Expr OrderFail(void) const noexcept;
   ::pasta::Expr Pointer(void) const noexcept;
@@ -4678,7 +4678,7 @@ class CXXConstructExpr : public Expr {
   // Argument: (const clang::Expr *)
   // Arguments: (const clang::Expr *const *)
   ::pasta::Token BeginToken(void) const noexcept;
-  ::pasta::ConstructionKind ConstructionKind(void) const noexcept;
+  enum CXXConstructExprConstructionKind ConstructionKind(void) const noexcept;
   ::pasta::CXXConstructorDecl Constructor(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Token Token(void) const noexcept;
@@ -4838,7 +4838,7 @@ class CXXInheritedCtorInitExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   bool ConstructsVirtualBase(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
-  ::pasta::ConstructionKind ConstructionKind(void) const noexcept;
+  enum CXXConstructExprConstructionKind ConstructionKind(void) const noexcept;
   ::pasta::CXXConstructorDecl Constructor(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Token Token(void) const noexcept;
@@ -4866,7 +4866,7 @@ class CXXNewExpr : public Expr {
   ::pasta::CXXConstructExpr ConstructExpression(void) const noexcept;
   ::pasta::TokenRange DirectInitializerRange(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  ::pasta::InitializationStyle InitializationStyle(void) const noexcept;
+  enum CXXNewExprInitializationStyle InitializationStyle(void) const noexcept;
   ::pasta::Expr Initializer(void) const noexcept;
   uint32_t NumPlacementArguments(void) const noexcept;
   ::pasta::FunctionDecl OperatorDelete(void) const noexcept;
@@ -5166,7 +5166,7 @@ class CallExpr : public Expr {
   PASTA_DECLARE_DERIVED_OPERATORS(CallExpr, UserDefinedLiteral)
   std::vector<::pasta::Expr> Arguments(void) const noexcept;
   std::vector<::pasta::Stmt> Children(void) const noexcept;
-  ::pasta::ADLCallKind ADLCallKind(void) const noexcept;
+  enum CallExprADLCallKind ADLCallKind(void) const noexcept;
   // Argument: (const clang::Expr *)
   // Arguments: (const clang::Expr *const *)
   ::pasta::Token BeginToken(void) const noexcept;
@@ -5244,7 +5244,7 @@ class CharacterLiteral : public Expr {
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  // Kind: (clang::CharacterLiteral::CharacterKind)
+  enum CharacterLiteralCharacterKind Kind(void) const noexcept;
   ::pasta::Token Token(void) const noexcept;
   uint32_t Value(void) const noexcept;
  protected:
@@ -5372,10 +5372,10 @@ class ConstantExpr : public FullExpr {
   // APValueResult: (clang::APValue)
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  ::pasta::APValueKind ResultAPValueKind(void) const noexcept;
+  // ResultAPValueKind: (clang::APValue::ValueKind)
   llvm::APSInt ResultAsAPSInt(void) const noexcept;
   // ResultAsAPValue: (clang::APValue &)
-  ::pasta::ResultStorageKind ResultStorageKind(void) const noexcept;
+  enum ConstantExprResultStorageKind ResultStorageKind(void) const noexcept;
   bool HasAPValueResult(void) const noexcept;
   bool IsImmediateInvocation(void) const noexcept;
  protected:
@@ -5890,7 +5890,7 @@ class UserDefinedLiteral : public CallExpr {
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Expr CookedLiteral(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  // LiteralOperatorKind: (clang::UserDefinedLiteral::LiteralOperatorKind)
+  enum UserDefinedLiteralLiteralOperatorKind LiteralOperatorKind(void) const noexcept;
   // UDSuffix: (const clang::IdentifierInfo *)
   ::pasta::Token UDSuffixToken(void) const noexcept;
   std::vector<::pasta::Expr> Arguments(void) const noexcept;

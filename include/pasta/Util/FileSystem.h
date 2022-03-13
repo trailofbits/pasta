@@ -15,9 +15,22 @@
 
 namespace pasta {
 
-enum class PathKind : char{
+enum class PathKind : int8_t {
   kUnix = '/',
   kWindows = '\\'
+};
+
+enum class FileType : int8_t {
+  kNone = static_cast<int8_t>(std::filesystem::file_type::none),
+  kNotFound = static_cast<int8_t>(std::filesystem::file_type::not_found),
+  kRegular = static_cast<int8_t>(std::filesystem::file_type::regular),
+  kDirectory = static_cast<int8_t>(std::filesystem::file_type::directory),
+  kSymbolicLink = static_cast<int8_t>(std::filesystem::file_type::symlink),
+  kBlock = static_cast<int8_t>(std::filesystem::file_type::block),
+  kCharacter = static_cast<int8_t>(std::filesystem::file_type::character),
+  kFirstInFirstOut = static_cast<int8_t>(std::filesystem::file_type::fifo),
+  kSocket = static_cast<int8_t>(std::filesystem::file_type::socket),
+  kKnknown = static_cast<int8_t>(std::filesystem::file_type::unknown),
 };
 
 // Stat information about a file.
@@ -36,6 +49,26 @@ struct Stat {
 
   // Size of the file. Only valid for regular files.
   std::optional<std::uintmax_t> size;
+
+  inline std::filesystem::path FullPath(void) const noexcept {
+    return full_path;
+  }
+
+  inline std::filesystem::path RealPath(void) const noexcept {
+    return real_path;
+  }
+
+  inline FileType Type(void) const noexcept {
+    return static_cast<FileType>(type);
+  }
+
+  inline unsigned Permissions(void) const noexcept {
+    return static_cast<unsigned>(permissions);
+  }
+
+  inline bool IsSymbolicLink(void) const noexcept {
+    return type == std::filesystem::file_type::symlink;
+  }
 
   inline bool IsRegularFile(void) const noexcept {
     return type == std::filesystem::file_type::regular;

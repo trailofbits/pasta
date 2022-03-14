@@ -99,7 +99,7 @@ endif(PASTA_PYTHON_BINDINGS)
 # Clang/LLVM dependencies --------------------
 # --------------------------------------------
 
-find_package(Z3 4.8 REQUIRED)
+find_package(Z3 4.8 CONFIG REQUIRED)
 find_package(LLVM CONFIG REQUIRED)
 find_package(Clang CONFIG REQUIRED)
 add_library(pasta_thirdparty_llvm INTERFACE)

@@ -15,12 +15,12 @@
 
 namespace pasta {
 
-enum class PathKind : int8_t {
+enum class PathKind : signed char {
   kUnix = '/',
   kWindows = '\\'
 };
 
-enum class FileType : int8_t {
+enum class FileType : signed char {
   kNone = static_cast<int8_t>(std::filesystem::file_type::none),
   kNotFound = static_cast<int8_t>(std::filesystem::file_type::not_found),
   kRegular = static_cast<int8_t>(std::filesystem::file_type::regular),

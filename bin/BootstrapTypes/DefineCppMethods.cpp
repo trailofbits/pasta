@@ -70,7 +70,7 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
   } else {
     os << "  auto &self = *const_cast<clang::" << class_name << " *>(u." << class_name << ");\n";
   }
-  os << "  auto val = self." << meth_name_ref.str() << "();\n"
+  os << "  decltype(auto) val = self." << meth_name_ref.str() << "();\n"
      << rt_val;
   if (rt_ref.endswith(" *)")) {
     if (can_ret_null) {
@@ -123,7 +123,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
     } else {
       os << "  auto &self = *(u." << class_name << ");\n";
     }
-    os << "  auto val = self." << meth_name_ref.str() << "(ast->ci->getASTContext());\n"
+    os << "  decltype(auto) val = self." << meth_name_ref.str() << "(ast->ci->getASTContext());\n"
        << rt_val;
     if (rt_ref.endswith(" *)")) {
       if (can_ret_null) {
@@ -152,7 +152,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
     } else {
       os << "  auto &self = *(u." << class_name << ");\n";
     }
-    os << "  auto val = self." << meth_name_ref.str() << "(b);\n"
+    os << "  decltype(auto) val = self." << meth_name_ref.str() << "(b);\n"
        << rt_val;
     if (rt_ref.endswith(" *)")) {
       if (can_ret_null) {

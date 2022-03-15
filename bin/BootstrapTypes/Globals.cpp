@@ -288,6 +288,7 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
   {"(const clang::TypeSourceInfo *)", "::pasta::Type"},
 
   {"(llvm::ArrayRef<clang::TemplateArgument>)", "std::vector<::pasta::TemplateArgument>"},
+  {"(const clang::TemplateArgumentList &)", "std::vector<::pasta::TemplateArgument>"},
 };
 
 // Maps return types from the macros file to how they should be returned
@@ -676,6 +677,14 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
    {"(llvm::ArrayRef<clang::TemplateArgument>)",
     "  std::vector<::pasta::TemplateArgument> ret;\n"
     "  for (const auto &arg : val) {\n"
+    "    ret.emplace_back(ast, arg);\n"
+    "  }\n"
+    "  return ret;\n"},
+
+   {"(const clang::TemplateArgumentList &)",
+    "  std::vector<::pasta::TemplateArgument> ret;\n"
+    "  for (auto i = 0u, max_i = val.size(); i < max_i; ++i) {\n"
+    "    const auto &arg = val[i];\n"
     "    ret.emplace_back(ast, arg);\n"
     "  }\n"
     "  return ret;\n"},

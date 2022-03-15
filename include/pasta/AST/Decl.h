@@ -2449,9 +2449,9 @@ class VarTemplateSpecializationDecl : public VarDecl {
   enum TemplateSpecializationKind SpecializationKind(void) const noexcept;
   ::pasta::VarTemplateDecl SpecializedTemplate(void) const noexcept;
   std::variant<std::monostate, ::pasta::VarTemplateDecl, ::pasta::VarTemplatePartialSpecializationDecl> SpecializedTemplateOrPartial(void) const noexcept;
-  // TemplateArguments: (const clang::TemplateArgumentList &)
+  std::vector<::pasta::TemplateArgument> TemplateArguments(void) const noexcept;
   // TemplateArgumentsInfo: (const clang::TemplateArgumentListInfo &)
-  // TemplateInstantiationArguments: (const clang::TemplateArgumentList &)
+  std::vector<::pasta::TemplateArgument> TemplateInstantiationArguments(void) const noexcept;
   ::pasta::Token TemplateKeywordToken(void) const noexcept;
   ::pasta::Type TypeAsWritten(void) const noexcept;
   bool IsClassScopeExplicitSpecialization(void) const noexcept;
@@ -3025,8 +3025,8 @@ class ClassTemplateSpecializationDecl : public CXXRecordDecl {
   enum TemplateSpecializationKind SpecializationKind(void) const noexcept;
   ::pasta::ClassTemplateDecl SpecializedTemplate(void) const noexcept;
   std::variant<std::monostate, ::pasta::ClassTemplateDecl, ::pasta::ClassTemplatePartialSpecializationDecl> SpecializedTemplateOrPartial(void) const noexcept;
-  // TemplateArguments: (const clang::TemplateArgumentList &)
-  // TemplateInstantiationArguments: (const clang::TemplateArgumentList &)
+  std::vector<::pasta::TemplateArgument> TemplateArguments(void) const noexcept;
+  std::vector<::pasta::TemplateArgument> TemplateInstantiationArguments(void) const noexcept;
   ::pasta::Token TemplateKeywordToken(void) const noexcept;
   ::pasta::Type TypeAsWritten(void) const noexcept;
   bool IsClassScopeExplicitSpecialization(void) const noexcept;

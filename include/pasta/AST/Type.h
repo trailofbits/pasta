@@ -955,7 +955,7 @@ class DependentTemplateSpecializationType : public TypeWithKeyword {
   uint32_t NumArguments(void) const noexcept;
   // Qualifier: (clang::NestedNameSpecifier *)
   bool IsSugared(void) const noexcept;
-  // TemplateArguments: (llvm::ArrayRef<clang::TemplateArgument>)
+  std::vector<::pasta::TemplateArgument> TemplateArguments(void) const noexcept;
   // !!! Arg getNumArgs getArg (empty ret type = (const clang::TemplateArgument &))
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentTemplateSpecializationType)
@@ -1354,7 +1354,7 @@ class TemplateSpecializationType : public Type {
   bool IsCurrentInstantiation(void) const noexcept;
   bool IsSugared(void) const noexcept;
   bool IsTypeAlias(void) const noexcept;
-  // TemplateArguments: (llvm::ArrayRef<clang::TemplateArgument>)
+  std::vector<::pasta::TemplateArgument> TemplateArguments(void) const noexcept;
   // !!! Arg getNumArgs getArg (empty ret type = (const clang::TemplateArgument &))
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(TemplateSpecializationType)
@@ -1410,7 +1410,7 @@ class AutoType : public DeducedType {
   // Arguments: (const clang::TemplateArgument *)
   enum AutoTypeKeyword Keyword(void) const noexcept;
   uint32_t NumArguments(void) const noexcept;
-  // TypeConstraintArguments: (llvm::ArrayRef<clang::TemplateArgument>)
+  std::vector<::pasta::TemplateArgument> TypeConstraintArguments(void) const noexcept;
   ::pasta::ConceptDecl TypeConstraintConcept(void) const noexcept;
   bool IsConstrained(void) const noexcept;
   bool IsDecltypeAuto(void) const noexcept;

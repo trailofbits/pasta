@@ -265,16 +265,15 @@ static bool ScanForResourceDir(FileSystemView &fs, CompilerImpl &info,
 
 // Try to derive the resource directory from the include paths of the compiler.
 static bool DeriveResourceDirs(FileSystemView &fs, CompilerImpl &info) {
-  for (const auto &entry : info.system_includes) {
+  for (const IncludePath &entry : info.system_includes) {
     std::filesystem::path path;
-    if (entry.second == IncludePathLocation::kAbsolute) {
-      path = entry.first;
+    if (entry.location == IncludePathLocation::kAbsolute) {
+      path = entry.path;
     } else {
-      path = info.sysroot_dir;
-      path /= entry.first;
+      path = info.sysroot_dir / entry.path;
     }
 
-    if (ScanForResourceDir(fs, info, path)) {
+    if (ScanForResourceDir(fs, info, std::move(path))) {
       return true;
     }
   }
@@ -325,15 +324,15 @@ static void FindSystemRootRelPaths(
 
   for (auto &orig_entry : orig) {
     auto found = false;
-    for (const auto &sysroot_entry : sysroot_rel) {
-      if (orig_entry.first == sysroot_entry.first) {
+    for (const IncludePath &sysroot_entry : sysroot_rel) {
+      if (orig_entry.path == sysroot_entry.path) {
         found = true;
         break;
       }
     }
 
     if (!found) {
-      auto include_dir = fs.Stat(orig_entry.first);
+      auto include_dir = fs.Stat(orig_entry.path);
       if (include_dir.Succeeded() && include_dir->IsDirectory()) {
         sysroot_rel_paths.emplace_back(std::move(include_dir->real_path));
       }
@@ -421,16 +420,16 @@ static void RelativizePaths(FileSystemView &fs,
 
     // Sometimes things are sysroot relative, even though they pretend not
     // to be. At least this is the case with AppleClang.
-    std::filesystem::path path = orig_entry.first;
+    std::filesystem::path path = orig_entry.path;
 
     auto extracted_path = ExtractRelativeComponent(fs, sysroot_dir,
-                                                   orig_entry.first);
+                                                   orig_entry.path);
     const auto extracted_path_str = extracted_path.generic_string();
 
     if (path.generic_string() != extracted_path_str &&
         extracted_path_str != sysroot_path_str) {
-      orig_entry.first = std::move(extracted_path);
-      orig_entry.second = IncludePathLocation::kSysrootRelative;
+      orig_entry.path = std::move(extracted_path);
+      orig_entry.location = IncludePathLocation::kSysrootRelative;
       continue;
     }
 
@@ -438,14 +437,14 @@ static void RelativizePaths(FileSystemView &fs,
     // means it is likely to be relative to `-isysroot`.
     auto found = false;
     for (const auto &sysroot_entry : sysroot_rel) {
-      if (orig_entry.first == sysroot_entry.first) {
+      if (orig_entry.path == sysroot_entry.path) {
         found = true;
         break;
       }
     }
 
     if (!found) {
-      orig_entry.second = IncludePathLocation::kSysrootRelative;
+      orig_entry.location = IncludePathLocation::kSysrootRelative;
     }
   }
 }

@@ -103,6 +103,59 @@ CXXBaseSpecifier::LexicalAccessSpecifier(void) const noexcept {
   return TypeBuilder::Build(ast, tsi->getType()).UnqualifiedType();
 }
 
+// Return the kind of the stored template argument.
+TemplateArgumentKind TemplateArgument::Kind(void) const noexcept {
+  return static_cast<TemplateArgumentKind>(arg->getKind());
+}
+
+// Whether this template argument is dependent on a template
+// parameter such that its result can change from one instantiation to
+// another.
+bool TemplateArgument::IsDependent(void) const noexcept {
+  return arg->isDependent();
+}
+
+// Whether this template argument is dependent on a template parameter.
+bool TemplateArgument::IsInstantiationDependent(void) const noexcept {
+  return arg->isInstantiationDependent();
+}
+
+// Whether this template argument contains an unexpanded parameter pack.
+bool TemplateArgument::ContainsUnexpandedParameterPack(void) const noexcept {
+  return arg->containsUnexpandedParameterPack();
+}
+
+// Determine whether this template argument is a pack expansion.
+bool TemplateArgument::IsPackExpansion(void) const noexcept {
+  return arg->isPackExpansion();
+}
+
+// Retrieve the declaration for a declaration non-type template argument.
+std::optional<ValueDecl> TemplateArgument::AsDeclaration(void) const noexcept {
+  if (Kind() == TemplateArgumentKind::kDeclaration) {
+    return DeclBuilder::Create<pasta::ValueDecl>(ast, arg->getAsDecl());
+  } else {
+    return std::nullopt;
+  }
+}
+
+std::optional<Type>
+TemplateArgument::ParameterTypeForDeclaration(void) const noexcept {
+  if (Kind() == TemplateArgumentKind::kDeclaration) {
+    return TypeBuilder::Build(ast, arg->getParamTypeForDecl());
+  } else {
+    return std::nullopt;
+  }
+}
+
+std::optional<Type> TemplateArgument::NullPointerType(void) const noexcept {
+  if (Kind() == TemplateArgumentKind::kNullPointer) {
+    return TypeBuilder::Build(ast, arg->getNullPtrType());
+  } else {
+    return std::nullopt;
+  }
+}
+
 // Total number of parameters.
 unsigned TemplateParameterList::NumParameters(void) const noexcept {
   return params->size();

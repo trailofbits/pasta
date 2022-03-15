@@ -73,38 +73,20 @@ FileManager Compiler::FileManager(void) const {
 }
 
 // Invoke a callback `cb` for each system include directory. Think `-isystem`.
-void Compiler::ForEachSystemIncludeDirectory(
-    std::function<void(const std::filesystem::path &,
-                       IncludePathLocation)> cb) const {
-  for (const auto &entry : impl->system_includes) {
-    if (!entry.first.empty()) {
-      cb(entry.first, entry.second);
-    }
-  }
+std::vector<IncludePath> Compiler::SystemIncludeDirectories(void) const {
+  return impl->system_includes;
 }
 
 // Invoke a callback `cb` for each user include directory. Think `-I` or
 // `-iquote`.
-void Compiler::ForEachUserIncludeDirectory(
-    std::function<void(const std::filesystem::path &,
-                       IncludePathLocation)> cb) const {
-  for (const auto &entry : impl->user_includes) {
-    if (!entry.first.empty()) {
-      cb(entry.first, entry.second);
-    }
-  }
+std::vector<IncludePath> Compiler::UserIncludeDirectories(void) const {
+  return impl->user_includes;
 }
 
 // Invoke a callback `cb` for each user include directory. Think `-iframework`
 // or `iframeworkwithsysroot`.
-void Compiler::ForEachFrameworkDirectory(
-    std::function<void(const std::filesystem::path &,
-                       IncludePathLocation)> cb) const {
-  for (const auto &entry : impl->frameworks) {
-    if (!entry.first.empty()) {
-      cb(entry.first, entry.second);
-    }
-  }
+std::vector<IncludePath> Compiler::FrameworkDirectories(void) const {
+  return impl->frameworks;
 }
 
 }  // namespace pasta

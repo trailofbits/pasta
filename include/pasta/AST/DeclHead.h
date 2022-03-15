@@ -11,6 +11,7 @@
 
 namespace clang {
 class CXXBaseSpecifier;
+class TemplateArgument;
 class TemplateParameterList;
 }  // namespace clang
 namespace pasta {
@@ -35,6 +36,8 @@ class PrintedTokenRange;
 class RecordDecl;
 class Token;
 class VarTemplatePartialSpecializationDecl;
+
+enum class TemplateArgumentKind : unsigned int;
 
 class CXXBaseSpecifier {
  private:
@@ -100,6 +103,58 @@ class CXXBaseSpecifier {
   //            to a struct/class type.
   ::pasta::Type BaseType(void) const noexcept;
 #endif  // PASTA_IN_BOOTSTRAP
+};
+
+class TemplateArgument {
+ private:
+  std::shared_ptr<ASTImpl> ast;
+  const clang::TemplateArgument *arg;
+
+ public:
+  inline TemplateArgument(std::shared_ptr<ASTImpl> ast_,
+                          const clang::TemplateArgument &arg_)
+      : ast(std::move(ast_)),
+        arg(&arg_) {}
+
+  inline TemplateArgument(std::shared_ptr<ASTImpl> ast_,
+                          const clang::TemplateArgument *arg_)
+      : ast(std::move(ast_)),
+        arg(arg_) {}
+
+#ifndef PASTA_IN_BOOTSTRAP
+  // Return the kind of the stored template argument.
+  TemplateArgumentKind Kind(void) const noexcept;
+
+  // Determine whether this template argument has no value.
+  inline bool IsNull(void) const noexcept {
+    return Kind() == TemplateArgumentKind::kEmpty;
+  }
+
+  // TODO(pag): Implement `getDependence` and `TemplateArgumentDependence`.
+
+  // Whether this template argument is dependent on a template
+  // parameter such that its result can change from one instantiation to
+  // another.
+  bool IsDependent(void) const noexcept;
+
+  // Whether this template argument is dependent on a template parameter.
+  bool IsInstantiationDependent(void) const noexcept;
+
+  // Whether this template argument contains an unexpanded parameter pack.
+  bool ContainsUnexpandedParameterPack(void) const noexcept;
+
+  // Determine whether this template argument is a pack expansion.
+  bool IsPackExpansion(void) const noexcept;
+
+  // Retrieve the declaration for a declaration non-type template argument.
+  std::optional<ValueDecl> AsDeclaration(void) const noexcept;
+
+  std::optional<Type> ParameterTypeForDeclaration(void) const noexcept;
+
+  std::optional<Type> NullPointerType(void) const noexcept;
+
+  // TODO(pag): Others methods.
+#endif
 };
 
 class TemplateParameterList {

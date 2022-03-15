@@ -286,6 +286,8 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
   {"(clang::TemplateParameterList *)", "::pasta::TemplateParameterList"},
   {"(clang::TypeSourceInfo *)", "::pasta::Type"},
   {"(const clang::TypeSourceInfo *)", "::pasta::Type"},
+
+  {"(llvm::ArrayRef<clang::TemplateArgument>)", "std::vector<::pasta::TemplateArgument>"},
 };
 
 // Maps return types from the macros file to how they should be returned
@@ -670,6 +672,13 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
 
   {"(const clang::TypeSourceInfo *)",
    "  return TypeBuilder::Build(ast, val->getType());"},
+
+   {"(llvm::ArrayRef<clang::TemplateArgument>)",
+    "  std::vector<::pasta::TemplateArgument> ret;\n"
+    "  for (const auto &arg : val) {\n"
+    "    ret.emplace_back(ast, arg);\n"
+    "  }\n"
+    "  return ret;\n"},
 };
 
 // Prefixes on enumerators to strip.

@@ -459,31 +459,30 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
 
   // Then, add in the built-in include paths of `compiler`.
   if (include_default_search_paths) {
-    compiler.ForEachSystemIncludeDirectory(
-        [&](const std::filesystem::path &include_path, IncludePathLocation loc) {
-          if (loc == IncludePathLocation::kAbsolute) {
-            new_args.emplace_back("-isystem");
-          } else {
-            new_args.emplace_back("-iwithsysroot");
-          }
-          new_args.emplace_back(include_path.generic_string());
-        });
+    for (IncludePath ip : compiler.SystemIncludeDirectories()) {
+      if (ip.location == IncludePathLocation::kAbsolute) {
+        new_args.emplace_back("-isystem");
+      } else {
+        new_args.emplace_back("-iwithsysroot");
+      }
+      new_args.emplace_back(ip.path.generic_string());
+    }
 
-    compiler.ForEachUserIncludeDirectory(
-        [&](const std::filesystem::path &include_path, IncludePathLocation) {
-          new_args.emplace_back("-I");
-          new_args.emplace_back(include_path.generic_string());
-        });
+    for (IncludePath ip : compiler.UserIncludeDirectories()) {
+      if (ip.location == IncludePathLocation::kAbsolute) {
+        new_args.emplace_back("-I");
+        new_args.emplace_back(ip.path.generic_string());
+      }
+    }
 
-    compiler.ForEachFrameworkDirectory(
-        [&](const std::filesystem::path &include_path, IncludePathLocation loc) {
-          if (loc == IncludePathLocation::kAbsolute) {
-            new_args.emplace_back("-iframework");
-          } else {
-            new_args.emplace_back("-iframeworkwithsysroot");
-          }
-          new_args.emplace_back(include_path.generic_string());
-        });
+    for (IncludePath ip : compiler.FrameworkDirectories()) {
+      if (ip.location == IncludePathLocation::kAbsolute) {
+        new_args.emplace_back("-iframework");
+      } else {
+        new_args.emplace_back("-iframeworkwithsysroot");
+      }
+      new_args.emplace_back(ip.path.generic_string());
+    }
   }
 
   // Add in all non-include related arguments from the compile command.

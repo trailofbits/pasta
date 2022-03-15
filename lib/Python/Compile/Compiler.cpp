@@ -119,48 +119,42 @@ std::string_view Compiler::InstallationDirectory(void) {
 // List of system include directories.
 const std::vector<std::string> Compiler::SystemIncludeDirectories(void) {
   std::vector<std::string> list;
-  compiler->ForEachSystemIncludeDirectory(
-      [&](std::string_view path_str, IncludePathLocation loc) {
-        if (loc == IncludePathLocation::kAbsolute) {
-          list.emplace_back(path_str);
-        } else {
-          std::filesystem::path path(compiler->SystemRootDirectory());
-          path += path_str;
-          list.emplace_back(path.string());
-        }
-      });
+  for (auto ip : compiler->SystemIncludeDirectories()) {
+    if (ip.location == IncludePathLocation::kAbsolute) {
+      list.emplace_back(ip.path.generic_string());
+    } else {
+      list.emplace_back(
+          (compiler->SystemRootDirectory() / ip.path).generic_string());
+    }
+  }
   return list;
 }
 
 // List of user include directories.
 const std::vector<std::string> Compiler::UserIncludeDirectories(void) {
   std::vector<std::string> list;
-  compiler->ForEachUserIncludeDirectory(
-      [&](std::string_view path_str, IncludePathLocation loc) {
-        if (loc == IncludePathLocation::kAbsolute) {
-          list.emplace_back(path_str);
-        } else {
-          std::filesystem::path path(compiler->SystemRootDirectory());
-          path += path_str;
-          list.emplace_back(path.string());
-        }
-      });
+  for (auto ip : compiler->UserIncludeDirectories()) {
+    if (ip.location == IncludePathLocation::kAbsolute) {
+      list.emplace_back(ip.path.generic_string());
+    } else {
+      list.emplace_back(
+          (compiler->SystemRootDirectory() / ip.path).generic_string());
+    }
+  }
   return list;
 }
 
 // List of framework directories.
 const std::vector<std::string> Compiler::FrameworkDirectories(void) {
   std::vector<std::string> list;
-  compiler->ForEachFrameworkDirectory(
-      [&](std::string_view path_str, IncludePathLocation loc) {
-        if (loc == IncludePathLocation::kAbsolute) {
-          list.emplace_back(path_str);
-        } else {
-          std::filesystem::path path(compiler->SystemRootDirectory());
-          path += path_str;
-          list.emplace_back(path.string());
-        }
-      });
+  for (auto ip : compiler->FrameworkDirectories()) {
+    if (ip.location == IncludePathLocation::kAbsolute) {
+      list.emplace_back(ip.path.generic_string());
+    } else {
+      list.emplace_back(
+          (compiler->SystemRootDirectory() / ip.path).generic_string());
+    }
+  }
   return list;
 }
 

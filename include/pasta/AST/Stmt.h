@@ -4059,7 +4059,7 @@ class SizeOfPackExpr : public Expr {
   ::pasta::NamedDecl Pack(void) const noexcept;
   uint32_t PackLength(void) const noexcept;
   ::pasta::Token PackToken(void) const noexcept;
-  // PartialArguments: (llvm::ArrayRef<clang::TemplateArgument>)
+  std::vector<::pasta::TemplateArgument> PartialArguments(void) const noexcept;
   ::pasta::Token RParenToken(void) const noexcept;
   bool IsPartiallySubstituted(void) const noexcept;
  protected:
@@ -5328,7 +5328,7 @@ class ConceptSpecializationExpr : public Expr {
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   // Satisfaction: (const clang::ASTConstraintSatisfaction &)
-  // TemplateArguments: (llvm::ArrayRef<clang::TemplateArgument>)
+  std::vector<::pasta::TemplateArgument> TemplateArguments(void) const noexcept;
   bool IsSatisfied(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ConceptSpecializationExpr)

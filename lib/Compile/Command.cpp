@@ -133,31 +133,31 @@ Compiler::CreateCommandForFile(std::filesystem::path file_name,
     argv.push_back(info.isysroot_dir.generic_string());
   }
 
-  ForEachSystemIncludeDirectory(
-      [&] (const std::filesystem::path &include_path, IncludePathLocation loc) {
-        if (loc == IncludePathLocation::kAbsolute) {
-          argv.emplace_back("-isystem");
-        } else {
-          argv.emplace_back("-iwithsysroot");
-        }
-        argv.emplace_back(include_path.generic_string());
-      });
+  for (const IncludePath &ip : impl->system_includes) {
+    if (ip.location == IncludePathLocation::kAbsolute) {
+      argv.emplace_back("-isystem");
+    } else {
+      argv.emplace_back("-iwithsysroot");
+    }
+    argv.emplace_back(ip.path.generic_string());
+  }
 
-  ForEachUserIncludeDirectory(
-      [&] (const std::filesystem::path &include_path, IncludePathLocation) {
-        argv.emplace_back("-I");
-        argv.emplace_back(include_path);
-      });
+  for (const IncludePath &ip : impl->user_includes) {
+    if (ip.location == IncludePathLocation::kAbsolute) {
+      argv.emplace_back("-I");
+      argv.emplace_back(ip.path.generic_string());
+    }
+  }
 
-  ForEachFrameworkDirectory(
-      [&] (const std::filesystem::path &include_path, IncludePathLocation loc) {
-        if (loc == IncludePathLocation::kAbsolute) {
-          argv.emplace_back("-iframework");
-        } else {
-          argv.emplace_back("-iframeworkwithsysroot");
-        }
-        argv.emplace_back(include_path.generic_string());
-      });
+
+  for (const IncludePath &ip : impl->frameworks) {
+    if (ip.location == IncludePathLocation::kAbsolute) {
+      argv.emplace_back("-iframework");
+    } else {
+      argv.emplace_back("-iframeworkwithsysroot");
+    }
+    argv.emplace_back(ip.path.generic_string());
+  }
 
   argv.emplace_back("-c");
   argv.emplace_back(file_name.generic_string());

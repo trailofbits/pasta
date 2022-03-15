@@ -37,6 +37,16 @@ class CompileCommand;
 class CompileJob;
 class CompilerImpl;
 
+struct IncludePath {
+ public:
+  std::filesystem::path path;
+  IncludePathLocation location;
+
+  inline IncludePath(std::filesystem::path path_, IncludePathLocation location_)
+      : path(std::move(path_)),
+        location(location_) {}
+};
+
 // Abstract compiler interface.
 class Compiler {
  public:
@@ -84,22 +94,15 @@ class Compiler {
   // read by this compiler.
   FileManager FileManager(void) const;
 
-  // Invoke a callback `cb` for each system include directory. Think `-isystem`.
-  void ForEachSystemIncludeDirectory(
-      std::function<void(const std::filesystem::path &,
-                         IncludePathLocation)> cb) const;
+  // Related to `-isystem`.
+  std::vector<IncludePath> SystemIncludeDirectories(void) const;
 
-  // Invoke a callback `cb` for each user include directory. Think `-I` or
-  // `-iquote`.
-  void ForEachUserIncludeDirectory(
-      std::function<void(const std::filesystem::path &,
-                         IncludePathLocation)> cb) const;
+  // User include directories, think `-I` or `-iquote`.
+  std::vector<IncludePath> UserIncludeDirectories(void) const;
 
-  // Invoke a callback `cb` for each user include directory. Think `-iframework`
+  // System framework include directories. Think `-iframework`
   // or `iframeworkwithsysroot`.
-  void ForEachFrameworkDirectory(
-      std::function<void(const std::filesystem::path &,
-                         IncludePathLocation)> cb) const;
+  std::vector<IncludePath> FrameworkDirectories(void) const;
 
   // Create a "host" compiler instance, i.e. a compiler instance based on the
   // compiler used to compile this library.

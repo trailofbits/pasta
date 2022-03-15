@@ -2984,7 +2984,16 @@ bool DependentTemplateSpecializationType::IsSugared(void) const noexcept {
   return val;
 }
 
-// 0: DependentTemplateSpecializationType::TemplateArguments
+std::vector<::pasta::TemplateArgument> DependentTemplateSpecializationType::TemplateArguments(void) const noexcept {
+  auto &self = *const_cast<clang::DependentTemplateSpecializationType *>(u.DependentTemplateSpecializationType);
+  auto val = self.template_arguments();
+  std::vector<::pasta::TemplateArgument> ret;
+  for (const auto &arg : val) {
+    ret.emplace_back(ast, arg);
+  }
+  return ret;
+}
+
 PASTA_DEFINE_BASE_OPERATORS(Type, DependentVectorType)
 ::pasta::Type DependentVectorType::Desugar(void) const noexcept {
   auto &self = *const_cast<clang::DependentVectorType *>(u.DependentVectorType);
@@ -3905,7 +3914,16 @@ bool TemplateSpecializationType::IsTypeAlias(void) const noexcept {
   return val;
 }
 
-// 0: TemplateSpecializationType::TemplateArguments
+std::vector<::pasta::TemplateArgument> TemplateSpecializationType::TemplateArguments(void) const noexcept {
+  auto &self = *const_cast<clang::TemplateSpecializationType *>(u.TemplateSpecializationType);
+  auto val = self.template_arguments();
+  std::vector<::pasta::TemplateArgument> ret;
+  for (const auto &arg : val) {
+    ret.emplace_back(ast, arg);
+  }
+  return ret;
+}
+
 PASTA_DEFINE_BASE_OPERATORS(Type, TemplateTypeParmType)
 ::pasta::Type TemplateTypeParmType::Desugar(void) const noexcept {
   auto &self = *const_cast<clang::TemplateTypeParmType *>(u.TemplateTypeParmType);
@@ -4006,7 +4024,16 @@ uint32_t AutoType::NumArguments(void) const noexcept {
   return val;
 }
 
-// 0: AutoType::TypeConstraintArguments
+std::vector<::pasta::TemplateArgument> AutoType::TypeConstraintArguments(void) const noexcept {
+  auto &self = *const_cast<clang::AutoType *>(u.AutoType);
+  auto val = self.getTypeConstraintArguments();
+  std::vector<::pasta::TemplateArgument> ret;
+  for (const auto &arg : val) {
+    ret.emplace_back(ast, arg);
+  }
+  return ret;
+}
+
 ::pasta::ConceptDecl AutoType::TypeConstraintConcept(void) const noexcept {
   auto &self = *const_cast<clang::AutoType *>(u.AutoType);
   auto val = self.getTypeConstraintConcept();

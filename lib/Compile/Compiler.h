@@ -12,8 +12,6 @@
 
 namespace pasta {
 
-using IncludePath = std::pair<std::filesystem::path, IncludePathLocation>;
-
 class CompilerImpl {
  public:
   inline CompilerImpl(FileManager file_manager_,

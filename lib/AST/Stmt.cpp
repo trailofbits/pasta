@@ -10043,7 +10043,16 @@ uint32_t SizeOfPackExpr::PackLength(void) const noexcept {
   return ast->TokenAt(val);
 }
 
-// 0: SizeOfPackExpr::PartialArguments
+std::vector<::pasta::TemplateArgument> SizeOfPackExpr::PartialArguments(void) const noexcept {
+  auto &self = *const_cast<clang::SizeOfPackExpr *>(u.SizeOfPackExpr);
+  auto val = self.getPartialArguments();
+  std::vector<::pasta::TemplateArgument> ret;
+  for (const auto &arg : val) {
+    ret.emplace_back(ast, arg);
+  }
+  return ret;
+}
+
 ::pasta::Token SizeOfPackExpr::RParenToken(void) const noexcept {
   auto &self = *const_cast<clang::SizeOfPackExpr *>(u.SizeOfPackExpr);
   auto val = self.getRParenLoc();
@@ -14077,7 +14086,16 @@ std::vector<::pasta::Stmt> ConceptSpecializationExpr::Children(void) const noexc
 }
 
 // 0: ConceptSpecializationExpr::Satisfaction
-// 0: ConceptSpecializationExpr::TemplateArguments
+std::vector<::pasta::TemplateArgument> ConceptSpecializationExpr::TemplateArguments(void) const noexcept {
+  auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
+  auto val = self.getTemplateArguments();
+  std::vector<::pasta::TemplateArgument> ret;
+  for (const auto &arg : val) {
+    ret.emplace_back(ast, arg);
+  }
+  return ret;
+}
+
 bool ConceptSpecializationExpr::IsSatisfied(void) const noexcept {
   auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
   auto val = self.isSatisfied();

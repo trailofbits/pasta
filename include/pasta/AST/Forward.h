@@ -425,6 +425,8 @@ class DeclBuilder;
 class TypeBuilder;
 
 #define PASTA_FOR_EACH_DECL_IMPL(m, a) \
+    a(OMPDeclarativeDirective) \
+    a(OMPDeclarativeDirectiveValue) \
     m(AccessSpec) \
     m(BaseUsing) \
     m(Binding) \
@@ -519,9 +521,7 @@ class TypeBuilder;
     m(Var) \
     m(VarTemplate) \
     m(VarTemplatePartialSpecialization) \
-    m(VarTemplateSpecialization) \
-    a(OMPDeclarativeDirective) \
-    a(OMPDeclarativeDirectiveValue)
+    m(VarTemplateSpecialization)
 
 #define PASTA_FOR_EACH_STMT_IMPL(s, d, e, o, l, a) \
     a(AbstractConditionalOperator) \
@@ -4596,6 +4596,8 @@ enum class VisibilityType : unsigned int {
     m(Vector) \
     m(ExtVector)
 
+class OMPDeclarativeDirectiveDecl;
+class OMPDeclarativeDirectiveValueDecl;
 class AbstractConditionalOperator;
 class AccessSpecDecl;
 class AddrLabelExpr;

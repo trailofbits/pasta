@@ -10,6 +10,8 @@ std::unordered_map<std::string, std::vector<std::string>> gEnumerators;
 std::unordered_map<std::string, std::vector<IteratorSpec>> gIterators;
 
 const std::vector<llvm::StringRef> kAllClassNames{
+  "OMPDeclarativeDirectiveDecl",
+  "OMPDeclarativeDirectiveValueDecl",
 #define PASTA_BEGIN_CLANG_WRAPPER(name, id) PASTA_STR(name) ,
 #include "Generated.h"
 };

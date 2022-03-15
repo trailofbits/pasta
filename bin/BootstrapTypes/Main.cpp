@@ -110,11 +110,9 @@ int main(void) {
   // Fixups. `OMPDeclarativeDirectiveDecl` and `OMPDeclarativeDirectiveValueDecl`
   // are classes defined in `bin/BootstrapMapcros/MacroGenerator.cpp` that
   // extend the intermediate templates, so that we can link everything together.
-  gDeclNames.push_back("OMPDeclarativeDirectiveDecl");
   gBaseClasses["OMPDeclarativeDirectiveDecl"].insert("Decl");
   gDerivedClasses["Decl"].insert("OMPDeclarativeDirectiveDecl");
 
-  gDeclNames.push_back("OMPDeclarativeDirectiveValueDecl");
   gBaseClasses["OMPDeclarativeDirectiveValueDecl"].insert("ValueDecl");
   gDerivedClasses["ValueDecl"].insert("OMPDeclarativeDirectiveValueDecl");
 

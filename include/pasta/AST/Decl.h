@@ -420,6 +420,8 @@ class Decl {
 
   std::shared_ptr<ASTImpl> ast;
   union {
+    const ::clang::OMPDeclarativeDirectiveDecl *OMPDeclarativeDirectiveDecl;
+    const ::clang::OMPDeclarativeDirectiveValueDecl *OMPDeclarativeDirectiveValueDecl;
     const ::clang::AccessSpecDecl *AccessSpecDecl;
     const ::clang::BaseUsingDecl *BaseUsingDecl;
     const ::clang::BindingDecl *BindingDecl;
@@ -515,8 +517,6 @@ class Decl {
     const ::clang::VarTemplateDecl *VarTemplateDecl;
     const ::clang::VarTemplatePartialSpecializationDecl *VarTemplatePartialSpecializationDecl;
     const ::clang::VarTemplateSpecializationDecl *VarTemplateSpecializationDecl;
-    const ::clang::OMPDeclarativeDirectiveDecl *OMPDeclarativeDirectiveDecl;
-    const ::clang::OMPDeclarativeDirectiveValueDecl *OMPDeclarativeDirectiveValueDecl;
     const void *opaque;
   } u;
   DeclKind kind;

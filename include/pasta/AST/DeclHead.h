@@ -149,6 +149,9 @@ class TemplateArgument {
   // Retrieve the declaration for a declaration non-type template argument.
   std::optional<ValueDecl> AsDeclaration(void) const noexcept;
 
+  // Retrieve the type for a type template argument.
+  std::optional<Type> AsType(void) const noexcept;
+
   std::optional<Type> ParameterTypeForDeclaration(void) const noexcept;
 
   std::optional<Type> NullPointerType(void) const noexcept;

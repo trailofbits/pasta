@@ -631,7 +631,7 @@ enum TypeScalarTypeKind Type::ScalarTypeKind(void) const noexcept {
   return static_cast<::pasta::TypeScalarTypeKind>(val);
 }
 
-::pasta::Type Type::SveEltType(void) const noexcept {
+::pasta::Type Type::SveElementType(void) const noexcept {
   auto &self = *(u.Type);
   decltype(auto) val = self.getSveEltType(ast->ci->getASTContext());
   return TypeBuilder::Build(ast, val);

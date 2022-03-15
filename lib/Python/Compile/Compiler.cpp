@@ -120,11 +120,11 @@ std::string_view Compiler::InstallationDirectory(void) {
 const std::vector<std::string> Compiler::SystemIncludeDirectories(void) {
   std::vector<std::string> list;
   for (auto ip : compiler->SystemIncludeDirectories()) {
-    if (ip.location == IncludePathLocation::kAbsolute) {
-      list.emplace_back(ip.path.generic_string());
+    if (ip.Location() == IncludePathLocation::kAbsolute) {
+      list.emplace_back(ip.Path().generic_string());
     } else {
       list.emplace_back(
-          (compiler->SystemRootDirectory() / ip.path).generic_string());
+          (compiler->SystemRootDirectory() / ip.Path()).generic_string());
     }
   }
   return list;
@@ -134,11 +134,11 @@ const std::vector<std::string> Compiler::SystemIncludeDirectories(void) {
 const std::vector<std::string> Compiler::UserIncludeDirectories(void) {
   std::vector<std::string> list;
   for (auto ip : compiler->UserIncludeDirectories()) {
-    if (ip.location == IncludePathLocation::kAbsolute) {
-      list.emplace_back(ip.path.generic_string());
+    if (ip.Location() == IncludePathLocation::kAbsolute) {
+      list.emplace_back(ip.Path().generic_string());
     } else {
       list.emplace_back(
-          (compiler->SystemRootDirectory() / ip.path).generic_string());
+          (compiler->SystemRootDirectory() / ip.Path()).generic_string());
     }
   }
   return list;
@@ -148,11 +148,11 @@ const std::vector<std::string> Compiler::UserIncludeDirectories(void) {
 const std::vector<std::string> Compiler::FrameworkDirectories(void) {
   std::vector<std::string> list;
   for (auto ip : compiler->FrameworkDirectories()) {
-    if (ip.location == IncludePathLocation::kAbsolute) {
-      list.emplace_back(ip.path.generic_string());
+    if (ip.Location() == IncludePathLocation::kAbsolute) {
+      list.emplace_back(ip.Path().generic_string());
     } else {
       list.emplace_back(
-          (compiler->SystemRootDirectory() / ip.path).generic_string());
+          (compiler->SystemRootDirectory() / ip.Path()).generic_string());
     }
   }
   return list;

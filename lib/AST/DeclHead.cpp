@@ -139,6 +139,15 @@ std::optional<ValueDecl> TemplateArgument::AsDeclaration(void) const noexcept {
   }
 }
 
+// Retrieve the type for a type template argument.
+std::optional<Type> TemplateArgument::AsType(void) const noexcept {
+  if (Kind() == TemplateArgumentKind::kType) {
+    return TypeBuilder::Build(ast, arg->getAsType());
+  } else {
+    return std::nullopt;
+  }
+}
+
 std::optional<Type>
 TemplateArgument::ParameterTypeForDeclaration(void) const noexcept {
   if (Kind() == TemplateArgumentKind::kDeclaration) {

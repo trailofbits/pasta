@@ -134,29 +134,29 @@ Compiler::CreateCommandForFile(std::filesystem::path file_name,
   }
 
   for (const IncludePath &ip : impl->system_includes) {
-    if (ip.location == IncludePathLocation::kAbsolute) {
+    if (ip.Location() == IncludePathLocation::kAbsolute) {
       argv.emplace_back("-isystem");
     } else {
       argv.emplace_back("-iwithsysroot");
     }
-    argv.emplace_back(ip.path.generic_string());
+    argv.emplace_back(ip.Path().generic_string());
   }
 
   for (const IncludePath &ip : impl->user_includes) {
-    if (ip.location == IncludePathLocation::kAbsolute) {
+    if (ip.Location() == IncludePathLocation::kAbsolute) {
       argv.emplace_back("-I");
-      argv.emplace_back(ip.path.generic_string());
+      argv.emplace_back(ip.Path().generic_string());
     }
   }
 
 
   for (const IncludePath &ip : impl->frameworks) {
-    if (ip.location == IncludePathLocation::kAbsolute) {
+    if (ip.Location() == IncludePathLocation::kAbsolute) {
       argv.emplace_back("-iframework");
     } else {
       argv.emplace_back("-iframeworkwithsysroot");
     }
-    argv.emplace_back(ip.path.generic_string());
+    argv.emplace_back(ip.Path().generic_string());
   }
 
   argv.emplace_back("-c");

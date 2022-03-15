@@ -285,7 +285,7 @@ class Type {
   ::pasta::Type PointeeOrArrayElementType(void) const noexcept;
   ::pasta::Type PointeeType(void) const noexcept;
   enum TypeScalarTypeKind ScalarTypeKind(void) const noexcept;
-  ::pasta::Type SveEltType(void) const noexcept;
+  ::pasta::Type SveElementType(void) const noexcept;
   ::pasta::TypeKind Kind(void) const noexcept;
   std::string_view KindName(void) const noexcept;
   ::pasta::Type UnqualifiedDesugaredType(void) const noexcept;

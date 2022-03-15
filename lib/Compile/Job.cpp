@@ -460,28 +460,28 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
   // Then, add in the built-in include paths of `compiler`.
   if (include_default_search_paths) {
     for (IncludePath ip : compiler.SystemIncludeDirectories()) {
-      if (ip.location == IncludePathLocation::kAbsolute) {
+      if (ip.Location() == IncludePathLocation::kAbsolute) {
         new_args.emplace_back("-isystem");
       } else {
         new_args.emplace_back("-iwithsysroot");
       }
-      new_args.emplace_back(ip.path.generic_string());
+      new_args.emplace_back(ip.Path().generic_string());
     }
 
     for (IncludePath ip : compiler.UserIncludeDirectories()) {
-      if (ip.location == IncludePathLocation::kAbsolute) {
+      if (ip.Location() == IncludePathLocation::kAbsolute) {
         new_args.emplace_back("-I");
-        new_args.emplace_back(ip.path.generic_string());
+        new_args.emplace_back(ip.Path().generic_string());
       }
     }
 
     for (IncludePath ip : compiler.FrameworkDirectories()) {
-      if (ip.location == IncludePathLocation::kAbsolute) {
+      if (ip.Location() == IncludePathLocation::kAbsolute) {
         new_args.emplace_back("-iframework");
       } else {
         new_args.emplace_back("-iframeworkwithsysroot");
       }
-      new_args.emplace_back(ip.path.generic_string());
+      new_args.emplace_back(ip.Path().generic_string());
     }
   }
 

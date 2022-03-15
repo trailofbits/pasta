@@ -37,14 +37,23 @@ class CompileCommand;
 class CompileJob;
 class CompilerImpl;
 
-struct IncludePath {
- public:
+class IncludePath {
+ private:
   std::filesystem::path path;
   IncludePathLocation location;
 
+ public:
   inline IncludePath(std::filesystem::path path_, IncludePathLocation location_)
       : path(std::move(path_)),
         location(location_) {}
+
+  inline std::filesystem::path Path(void) const noexcept {
+    return path;
+  }
+
+  inline IncludePathLocation Location(void) const noexcept {
+    return location;
+  }
 };
 
 // Abstract compiler interface.

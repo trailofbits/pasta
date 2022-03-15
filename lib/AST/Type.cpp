@@ -3469,7 +3469,9 @@ std::vector<::pasta::ObjCProtocolDecl> ObjCObjectPointerType::Qualifieds(void) c
   auto val = self.quals();
   std::vector<::pasta::ObjCProtocolDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ObjCProtocolDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ObjCProtocolDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }

@@ -1269,7 +1269,9 @@ std::vector<::pasta::Stmt> Stmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -1389,7 +1391,9 @@ std::vector<::pasta::Stmt> SwitchStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -1662,7 +1666,9 @@ std::vector<::pasta::Stmt> WhileStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -1758,7 +1764,9 @@ std::vector<::pasta::Stmt> AsmStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -1823,7 +1831,9 @@ std::vector<::pasta::Expr> AsmStmt::Inputs(void) const noexcept {
   auto val = self.inputs();
   std::vector<::pasta::Expr> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -1846,7 +1856,9 @@ std::vector<::pasta::Expr> AsmStmt::Outputs(void) const noexcept {
   auto val = self.outputs();
   std::vector<::pasta::Expr> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -1949,7 +1961,9 @@ std::vector<::pasta::Stmt> AttributedStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -1994,7 +2008,9 @@ std::vector<::pasta::Stmt> BreakStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -2028,7 +2044,9 @@ std::vector<::pasta::Stmt> CXXCatchStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -2088,7 +2106,9 @@ std::vector<::pasta::Stmt> CXXForRangeStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -2240,7 +2260,9 @@ std::vector<::pasta::Stmt> CXXTryStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -2315,7 +2337,9 @@ std::vector<::pasta::Stmt> CapturedStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -2392,7 +2416,9 @@ std::vector<::pasta::Stmt> CaseStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -2470,7 +2496,9 @@ std::vector<::pasta::Stmt> CompoundStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -2526,7 +2554,9 @@ std::vector<::pasta::Stmt> ContinueStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -2560,7 +2590,9 @@ std::vector<::pasta::Stmt> CoreturnStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -2620,7 +2652,9 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -2712,7 +2746,9 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::ParamMoves(void) const noexcept {
   auto val = self.getParamMoves();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -2794,7 +2830,9 @@ std::vector<::pasta::Stmt> DeclStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -2843,7 +2881,9 @@ std::vector<::pasta::Stmt> DefaultStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -2887,7 +2927,9 @@ std::vector<::pasta::Stmt> DoStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -3491,7 +3533,9 @@ std::vector<::pasta::Stmt> ExpressionTraitExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -3543,7 +3587,9 @@ std::vector<::pasta::Stmt> ExtVectorElementExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -3608,7 +3654,9 @@ std::vector<::pasta::Stmt> FixedPointLiteral::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -3651,7 +3699,9 @@ std::vector<::pasta::Stmt> FloatingLiteral::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -3695,7 +3745,9 @@ std::vector<::pasta::Stmt> ForStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -3824,7 +3876,9 @@ std::vector<::pasta::Stmt> FunctionParmPackExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -3958,7 +4012,9 @@ std::vector<::pasta::AddrLabelExpr> GCCAsmStmt::Labels(void) const noexcept {
   auto val = self.labels();
   std::vector<::pasta::AddrLabelExpr> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::AddrLabelExpr>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::AddrLabelExpr>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -4180,7 +4236,9 @@ std::vector<::pasta::Stmt> GNUNullExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -4217,7 +4275,9 @@ std::vector<::pasta::Stmt> GenericSelectionExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -4227,7 +4287,9 @@ std::vector<::pasta::Expr> GenericSelectionExpr::AssociationExpressions(void) co
   auto val = self.getAssocExprs();
   std::vector<::pasta::Expr> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -4313,7 +4375,9 @@ std::vector<::pasta::Stmt> GotoStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -4363,7 +4427,9 @@ std::vector<::pasta::Stmt> IfStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -4508,7 +4574,9 @@ std::vector<::pasta::Stmt> ImaginaryLiteral::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -4548,7 +4616,9 @@ std::vector<::pasta::Stmt> ImplicitValueInitExpr::Children(void) const noexcept 
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -4576,7 +4646,9 @@ std::vector<::pasta::Stmt> IndirectGotoStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -4639,7 +4711,9 @@ std::vector<::pasta::Stmt> InitListExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -4734,7 +4808,9 @@ std::vector<::pasta::Expr> InitListExpr::Initializers(void) const noexcept {
   auto val = self.inits();
   std::vector<::pasta::Expr> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -4785,7 +4861,9 @@ std::vector<::pasta::Stmt> IntegerLiteral::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -4820,7 +4898,9 @@ std::vector<::pasta::Stmt> LabelStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -4901,7 +4981,9 @@ std::vector<::pasta::Stmt> LambdaExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -4978,7 +5060,9 @@ std::vector<::pasta::NamedDecl> LambdaExpr::ExplicitTemplateParameters(void) con
   auto val = self.getExplicitTemplateParameters();
   std::vector<::pasta::NamedDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::NamedDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::NamedDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -5057,7 +5141,9 @@ std::vector<::pasta::Stmt> MSAsmStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -5084,7 +5170,9 @@ std::vector<::pasta::Expr> MSAsmStmt::AllExpressions(void) const noexcept {
   auto val = self.getAllExprs();
   std::vector<::pasta::Expr> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -5218,7 +5306,9 @@ std::vector<::pasta::Stmt> MSDependentExistsStmt::Children(void) const noexcept 
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -5278,7 +5368,9 @@ std::vector<::pasta::Stmt> MSPropertyRefExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -5353,7 +5445,9 @@ std::vector<::pasta::Stmt> MSPropertySubscriptExpr::Children(void) const noexcep
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -5415,7 +5509,9 @@ std::vector<::pasta::Stmt> MaterializeTemporaryExpr::Children(void) const noexce
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -5500,7 +5596,9 @@ std::vector<::pasta::Stmt> MatrixSubscriptExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -5578,7 +5676,9 @@ std::vector<::pasta::Stmt> MemberExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -5719,7 +5819,9 @@ std::vector<::pasta::Stmt> NoInitExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -5747,7 +5849,9 @@ std::vector<::pasta::Stmt> NullStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -5789,7 +5893,9 @@ std::vector<::pasta::Stmt> OMPArraySectionExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -5883,7 +5989,9 @@ std::vector<::pasta::Stmt> OMPArrayShapingExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -5919,7 +6027,9 @@ std::vector<::pasta::Expr> OMPArrayShapingExpr::Dimensions(void) const noexcept 
   auto val = self.getDimensions();
   std::vector<::pasta::Expr> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -5953,7 +6063,9 @@ std::vector<::pasta::Stmt> OMPCanonicalLoop::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -6082,7 +6194,9 @@ std::vector<::pasta::Stmt> OMPExecutableDirective::Children(void) const noexcept
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -6188,7 +6302,9 @@ std::vector<::pasta::Stmt> OMPIteratorExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -6316,7 +6432,9 @@ std::vector<::pasta::Expr> OMPLoopDirective::Counters(void) const noexcept {
   auto val = self.counters();
   std::vector<::pasta::Expr> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -6326,7 +6444,9 @@ std::vector<::pasta::Expr> OMPLoopDirective::DependentCounters(void) const noexc
   auto val = self.dependent_counters();
   std::vector<::pasta::Expr> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -6336,7 +6456,9 @@ std::vector<::pasta::Expr> OMPLoopDirective::DependentInitializers(void) const n
   auto val = self.dependent_inits();
   std::vector<::pasta::Expr> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -6346,7 +6468,9 @@ std::vector<::pasta::Expr> OMPLoopDirective::Finals(void) const noexcept {
   auto val = self.finals();
   std::vector<::pasta::Expr> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -6356,7 +6480,9 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
   auto val = self.finals_conditions();
   std::vector<::pasta::Expr> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -6666,7 +6792,9 @@ std::vector<::pasta::Expr> OMPLoopDirective::Initializers(void) const noexcept {
   auto val = self.inits();
   std::vector<::pasta::Expr> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -6676,7 +6804,9 @@ std::vector<::pasta::Expr> OMPLoopDirective::PrivateCounters(void) const noexcep
   auto val = self.private_counters();
   std::vector<::pasta::Expr> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -6686,7 +6816,9 @@ std::vector<::pasta::Expr> OMPLoopDirective::Updates(void) const noexcept {
   auto val = self.updates();
   std::vector<::pasta::Expr> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -7278,7 +7410,9 @@ std::vector<::pasta::Stmt> ObjCArrayLiteral::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -7346,7 +7480,9 @@ std::vector<::pasta::Stmt> ObjCAtCatchStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -7412,7 +7548,9 @@ std::vector<::pasta::Stmt> ObjCAtFinallyStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -7456,7 +7594,9 @@ std::vector<::pasta::Stmt> ObjCAtSynchronizedStmt::Children(void) const noexcept
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -7510,7 +7650,9 @@ std::vector<::pasta::Stmt> ObjCAtThrowStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -7554,7 +7696,9 @@ std::vector<::pasta::Stmt> ObjCAtTryStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -7631,7 +7775,9 @@ std::vector<::pasta::Stmt> ObjCAutoreleasePoolStmt::Children(void) const noexcep
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -7677,7 +7823,9 @@ std::vector<::pasta::Stmt> ObjCAvailabilityCheckExpr::Children(void) const noexc
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -7719,7 +7867,9 @@ std::vector<::pasta::Stmt> ObjCBoolLiteralExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -7763,7 +7913,9 @@ std::vector<::pasta::Stmt> ObjCBoxedExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -7831,7 +7983,9 @@ std::vector<::pasta::Stmt> ObjCDictionaryLiteral::Children(void) const noexcept 
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -7884,7 +8038,9 @@ std::vector<::pasta::Stmt> ObjCEncodeExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -7937,7 +8093,9 @@ std::vector<::pasta::Stmt> ObjCForCollectionStmt::Children(void) const noexcept 
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -8009,7 +8167,9 @@ std::vector<::pasta::Stmt> ObjCIndirectCopyRestoreExpr::Children(void) const noe
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -8061,7 +8221,9 @@ std::vector<::pasta::Stmt> ObjCIsaExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -8131,7 +8293,9 @@ std::vector<::pasta::Stmt> ObjCIvarRefExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -8207,7 +8371,9 @@ std::vector<::pasta::Expr> ObjCMessageExpr::Arguments(void) const noexcept {
   auto val = self.arguments();
   std::vector<::pasta::Expr> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -8217,7 +8383,9 @@ std::vector<::pasta::Stmt> ObjCMessageExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -8403,7 +8571,9 @@ std::vector<::pasta::Stmt> ObjCPropertyRefExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -8551,7 +8721,9 @@ std::vector<::pasta::Stmt> ObjCProtocolExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -8609,7 +8781,9 @@ std::vector<::pasta::Stmt> ObjCSelectorExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -8658,7 +8832,9 @@ std::vector<::pasta::Stmt> ObjCStringLiteral::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -8704,7 +8880,9 @@ std::vector<::pasta::Stmt> ObjCSubscriptRefExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -8776,7 +8954,9 @@ std::vector<::pasta::Stmt> OffsetOfExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -8839,7 +9019,9 @@ std::vector<::pasta::Stmt> OpaqueValueExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -8974,7 +9156,9 @@ std::vector<::pasta::Stmt> PackExpansionExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -9030,7 +9214,9 @@ std::vector<::pasta::Stmt> ParenExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -9082,7 +9268,9 @@ std::vector<::pasta::Stmt> ParenListExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -9147,7 +9335,9 @@ std::vector<::pasta::Stmt> PredefinedExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -9209,7 +9399,9 @@ std::vector<::pasta::Stmt> PseudoObjectExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -9270,7 +9462,9 @@ std::vector<::pasta::Expr> PseudoObjectExpr::Semantics(void) const noexcept {
   auto val = self.semantics();
   std::vector<::pasta::Expr> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -9318,7 +9512,9 @@ std::vector<::pasta::Expr> RecoveryExpr::SubExpressions(void) const noexcept {
   auto val = self.subExpressions();
   std::vector<::pasta::Expr> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -9336,7 +9532,9 @@ std::vector<::pasta::Stmt> RequiresExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -9368,7 +9566,9 @@ std::vector<::pasta::ParmVarDecl> RequiresExpr::LocalParameters(void) const noex
   auto val = self.getLocalParameters();
   std::vector<::pasta::ParmVarDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ParmVarDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ParmVarDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -9403,7 +9603,9 @@ std::vector<::pasta::Stmt> ReturnStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -9457,7 +9659,9 @@ std::vector<::pasta::Stmt> SEHExceptStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -9511,7 +9715,9 @@ std::vector<::pasta::Stmt> SEHFinallyStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -9555,7 +9761,9 @@ std::vector<::pasta::Stmt> SEHLeaveStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -9589,7 +9797,9 @@ std::vector<::pasta::Stmt> SEHTryStmt::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -9677,7 +9887,9 @@ std::vector<::pasta::Stmt> SYCLUniqueStableNameExpr::Children(void) const noexce
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -9732,7 +9944,9 @@ std::vector<::pasta::Stmt> ShuffleVectorExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -9782,7 +9996,9 @@ std::vector<::pasta::Stmt> SizeOfPackExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -9854,7 +10070,9 @@ std::vector<::pasta::Stmt> SourceLocExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -9928,7 +10146,9 @@ std::vector<::pasta::Stmt> StmtExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -9986,7 +10206,9 @@ std::vector<::pasta::Stmt> StringLiteral::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -10119,7 +10341,9 @@ std::vector<::pasta::Stmt> SubstNonTypeTemplateParmExpr::Children(void) const no
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -10187,7 +10411,9 @@ std::vector<::pasta::Stmt> SubstNonTypeTemplateParmPackExpr::Children(void) cons
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -10234,7 +10460,9 @@ std::vector<::pasta::Stmt> TypeTraitExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -10297,7 +10525,9 @@ std::vector<::pasta::Stmt> TypoExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -10327,7 +10557,9 @@ std::vector<::pasta::Stmt> UnaryExprOrTypeTraitExpr::Children(void) const noexce
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -10416,7 +10648,9 @@ std::vector<::pasta::Stmt> UnaryOperator::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -10522,7 +10756,9 @@ std::vector<::pasta::Stmt> UnresolvedLookupExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -10575,7 +10811,9 @@ std::vector<::pasta::Stmt> UnresolvedMemberExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -10669,7 +10907,9 @@ std::vector<::pasta::Stmt> VAArgExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -10786,7 +11026,9 @@ std::vector<::pasta::Stmt> AddrLabelExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -10838,7 +11080,9 @@ std::vector<::pasta::Stmt> ArrayInitIndexExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -10868,7 +11112,9 @@ std::vector<::pasta::Stmt> ArrayInitLoopExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -10924,7 +11170,9 @@ std::vector<::pasta::Stmt> ArraySubscriptExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -11006,7 +11254,9 @@ std::vector<::pasta::Stmt> ArrayTypeTraitExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -11071,7 +11321,9 @@ std::vector<::pasta::Stmt> AsTypeExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -11123,7 +11375,9 @@ std::vector<::pasta::Stmt> AtomicExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -11290,7 +11544,9 @@ std::vector<::pasta::Stmt> BinaryConditionalOperator::Children(void) const noexc
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -11371,7 +11627,9 @@ std::vector<::pasta::Stmt> BinaryOperator::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -11538,7 +11796,9 @@ std::vector<::pasta::Stmt> BlockExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -11604,7 +11864,9 @@ std::vector<::pasta::Stmt> CXXBindTemporaryExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -11645,7 +11907,9 @@ std::vector<::pasta::Stmt> CXXBoolLiteralExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -11690,7 +11954,9 @@ std::vector<::pasta::Expr> CXXConstructExpr::Arguments(void) const noexcept {
   auto val = self.arguments();
   std::vector<::pasta::Expr> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -11700,7 +11966,9 @@ std::vector<::pasta::Stmt> CXXConstructExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -11796,7 +12064,9 @@ std::vector<::pasta::Stmt> CXXDefaultArgExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -11868,7 +12138,9 @@ std::vector<::pasta::Stmt> CXXDefaultInitExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -11934,7 +12206,9 @@ std::vector<::pasta::Stmt> CXXDeleteExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -12014,7 +12288,9 @@ std::vector<::pasta::Stmt> CXXDependentScopeMemberExpr::Children(void) const noe
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -12136,7 +12412,9 @@ std::vector<::pasta::Stmt> CXXFoldExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -12262,7 +12540,9 @@ std::vector<::pasta::Stmt> CXXInheritedCtorInitExpr::Children(void) const noexce
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -12326,7 +12606,9 @@ std::vector<::pasta::Stmt> CXXNewExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -12480,7 +12762,9 @@ std::vector<::pasta::Expr> CXXNewExpr::PlacementArguments(void) const noexcept {
   auto val = self.placement_arguments();
   std::vector<::pasta::Expr> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -12506,7 +12790,9 @@ std::vector<::pasta::Stmt> CXXNoexceptExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -12558,7 +12844,9 @@ std::vector<::pasta::Stmt> CXXNullPtrLiteralExpr::Children(void) const noexcept 
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -12594,7 +12882,9 @@ std::vector<::pasta::Stmt> CXXPseudoDestructorExpr::Children(void) const noexcep
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -12802,7 +13092,9 @@ std::vector<::pasta::Stmt> CXXScalarValueInitExpr::Children(void) const noexcept
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -12845,7 +13137,9 @@ std::vector<::pasta::Stmt> CXXStdInitializerListExpr::Children(void) const noexc
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -12935,7 +13229,9 @@ std::vector<::pasta::Stmt> CXXThisExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -12977,7 +13273,9 @@ std::vector<::pasta::Stmt> CXXThrowExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -13029,7 +13327,9 @@ std::vector<::pasta::Stmt> CXXTypeidExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -13108,7 +13408,9 @@ std::vector<::pasta::Expr> CXXUnresolvedConstructExpr::Arguments(void) const noe
   auto val = self.arguments();
   std::vector<::pasta::Expr> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -13118,7 +13420,9 @@ std::vector<::pasta::Stmt> CXXUnresolvedConstructExpr::Children(void) const noex
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -13186,7 +13490,9 @@ std::vector<::pasta::Stmt> CXXUuidofExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -13267,7 +13573,9 @@ std::vector<::pasta::Expr> CallExpr::Arguments(void) const noexcept {
   auto val = self.arguments();
   std::vector<::pasta::Expr> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -13277,7 +13585,9 @@ std::vector<::pasta::Stmt> CallExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -13427,7 +13737,9 @@ std::vector<::pasta::Stmt> CastExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -13517,7 +13829,9 @@ std::vector<::pasta::Stmt> CharacterLiteral::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -13565,7 +13879,9 @@ std::vector<::pasta::Stmt> ChooseExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -13680,7 +13996,9 @@ std::vector<::pasta::Stmt> CompoundLiteralExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -13739,7 +14057,9 @@ std::vector<::pasta::Stmt> ConceptSpecializationExpr::Children(void) const noexc
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -13778,7 +14098,9 @@ std::vector<::pasta::Stmt> ConditionalOperator::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -13859,7 +14181,9 @@ std::vector<::pasta::Stmt> ConstantExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -13916,7 +14240,9 @@ std::vector<::pasta::Stmt> ConvertVectorExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -13977,7 +14303,9 @@ std::vector<::pasta::Stmt> CoroutineSuspendExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -14082,7 +14410,9 @@ std::vector<::pasta::Stmt> DeclRefExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -14203,7 +14533,9 @@ std::vector<::pasta::Stmt> DependentCoawaitExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -14259,7 +14591,9 @@ std::vector<::pasta::Stmt> DependentScopeDeclRefExpr::Children(void) const noexc
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -14331,7 +14665,9 @@ std::vector<::pasta::Stmt> DesignatedInitExpr::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -14429,7 +14765,9 @@ std::vector<::pasta::Stmt> DesignatedInitUpdateExpr::Children(void) const noexce
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -14512,7 +14850,9 @@ std::vector<::pasta::Stmt> ExprWithCleanups::Children(void) const noexcept {
   auto val = self.children();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }

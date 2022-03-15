@@ -1654,7 +1654,7 @@ class EnumConstantDecl : public ValueDecl {
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, EnumConstantDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, EnumConstantDecl)
   ::pasta::EnumConstantDecl CanonicalDeclaration(void) const noexcept;
-  ::pasta::Expr InitializerExpression(void) const noexcept;
+  std::optional<::pasta::Expr> InitializerExpression(void) const noexcept;
   llvm::APSInt InitializerVal(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(EnumConstantDecl)
@@ -1673,13 +1673,13 @@ class FieldDecl : public DeclaratorDecl {
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, FieldDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(FieldDecl, ObjCAtDefsFieldDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(FieldDecl, ObjCIvarDecl)
-  ::pasta::Expr BitWidth(void) const noexcept;
+  std::optional<::pasta::Expr> BitWidth(void) const noexcept;
   uint32_t BitWidthValue(void) const noexcept;
   ::pasta::FieldDecl CanonicalDeclaration(void) const noexcept;
   ::pasta::VariableArrayType CapturedVLAType(void) const noexcept;
   uint32_t FieldIndex(void) const noexcept;
   enum InClassInitStyle InClassInitializerStyle(void) const noexcept;
-  ::pasta::Expr InClassInitializer(void) const noexcept;
+  std::optional<::pasta::Expr> InClassInitializer(void) const noexcept;
   ::pasta::RecordDecl Parent(void) const noexcept;
   bool HasCapturedVLAType(void) const noexcept;
   bool HasInClassInitializer(void) const noexcept;

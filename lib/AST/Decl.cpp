@@ -678,7 +678,9 @@ std::vector<::pasta::Decl> DeclContext::Declarations(void) const noexcept {
   auto val = self.decls();
   std::vector<::pasta::Decl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::Decl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::Decl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -904,7 +906,9 @@ std::vector<::pasta::Decl> DeclContext::AlreadyLoadedDeclarations(void) const no
   auto val = self.noload_decls();
   std::vector<::pasta::Decl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::Decl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::Decl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -1443,7 +1447,9 @@ std::vector<::pasta::Decl> Decl::Redeclarations(void) const noexcept {
   auto val = self.redecls();
   std::vector<::pasta::Decl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::Decl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::Decl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -1654,7 +1660,9 @@ std::vector<::pasta::Stmt> LifetimeExtendedTemporaryDecl::ChildrenExpression(voi
   auto val = self.childrenExpr();
   std::vector<::pasta::Stmt> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Stmt>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -2082,7 +2090,9 @@ std::vector<::pasta::ObjCMethodDecl> ObjCContainerDecl::ClassMethods(void) const
   auto val = self.class_methods();
   std::vector<::pasta::ObjCMethodDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -2092,7 +2102,9 @@ std::vector<::pasta::ObjCPropertyDecl> ObjCContainerDecl::ClassProperties(void) 
   auto val = self.class_properties();
   std::vector<::pasta::ObjCPropertyDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ObjCPropertyDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ObjCPropertyDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -2122,7 +2134,9 @@ std::vector<::pasta::ObjCMethodDecl> ObjCContainerDecl::InstanceMethods(void) co
   auto val = self.instance_methods();
   std::vector<::pasta::ObjCMethodDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -2132,7 +2146,9 @@ std::vector<::pasta::ObjCPropertyDecl> ObjCContainerDecl::InstanceProperties(voi
   auto val = self.instance_properties();
   std::vector<::pasta::ObjCPropertyDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ObjCPropertyDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ObjCPropertyDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -2148,7 +2164,9 @@ std::vector<::pasta::ObjCMethodDecl> ObjCContainerDecl::Methods(void) const noex
   auto val = self.methods();
   std::vector<::pasta::ObjCMethodDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -2160,7 +2178,9 @@ std::vector<::pasta::ObjCPropertyDecl> ObjCContainerDecl::Properties(void) const
   auto val = self.properties();
   std::vector<::pasta::ObjCPropertyDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ObjCPropertyDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ObjCPropertyDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -2193,7 +2213,9 @@ std::vector<::pasta::ObjCPropertyImplDecl> ObjCImplDecl::PropertyImplementations
   auto val = self.property_impls();
   std::vector<::pasta::ObjCPropertyImplDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ObjCPropertyImplDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ObjCPropertyImplDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -2285,7 +2307,9 @@ std::vector<::pasta::ObjCIvarDecl> ObjCImplementationDecl::InstanceVariables(voi
   auto val = self.ivars();
   std::vector<::pasta::ObjCIvarDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ObjCIvarDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ObjCIvarDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -2309,7 +2333,9 @@ std::vector<::pasta::ObjCProtocolDecl> ObjCInterfaceDecl::AllReferencedProtocols
   auto val = self.all_referenced_protocols();
   std::vector<::pasta::ObjCProtocolDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ObjCProtocolDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ObjCProtocolDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -2476,7 +2502,9 @@ std::vector<::pasta::ObjCIvarDecl> ObjCInterfaceDecl::InstanceVariables(void) co
   auto val = self.ivars();
   std::vector<::pasta::ObjCIvarDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ObjCIvarDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ObjCIvarDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -2486,7 +2514,9 @@ std::vector<::pasta::ObjCCategoryDecl> ObjCInterfaceDecl::KnownCategories(void) 
   auto val = self.known_categories();
   std::vector<::pasta::ObjCCategoryDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ObjCCategoryDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ObjCCategoryDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -2499,7 +2529,9 @@ std::vector<::pasta::ObjCCategoryDecl> ObjCInterfaceDecl::KnownExtensions(void) 
   auto val = self.known_extensions();
   std::vector<::pasta::ObjCCategoryDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ObjCCategoryDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ObjCCategoryDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -2533,7 +2565,9 @@ std::vector<::pasta::ObjCProtocolDecl> ObjCInterfaceDecl::Protocols(void) const 
   auto val = self.protocols();
   std::vector<::pasta::ObjCProtocolDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ObjCProtocolDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ObjCProtocolDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -2543,7 +2577,9 @@ std::vector<::pasta::ObjCCategoryDecl> ObjCInterfaceDecl::VisibleCategories(void
   auto val = self.visible_categories();
   std::vector<::pasta::ObjCCategoryDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ObjCCategoryDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ObjCCategoryDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -2556,7 +2592,9 @@ std::vector<::pasta::ObjCCategoryDecl> ObjCInterfaceDecl::VisibleExtensions(void
   auto val = self.visible_extensions();
   std::vector<::pasta::ObjCCategoryDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ObjCCategoryDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ObjCCategoryDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -2815,7 +2853,9 @@ std::vector<::pasta::ParmVarDecl> ObjCMethodDecl::Parameters(void) const noexcep
   auto val = self.parameters();
   std::vector<::pasta::ParmVarDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ParmVarDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ParmVarDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -3147,7 +3187,9 @@ std::vector<::pasta::ObjCProtocolDecl> ObjCProtocolDecl::Protocols(void) const n
   auto val = self.protocols();
   std::vector<::pasta::ObjCProtocolDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ObjCProtocolDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ObjCProtocolDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -3566,7 +3608,9 @@ std::vector<::pasta::NamedDecl> UsingPackDecl::Expansions(void) const noexcept {
   auto val = self.expansions();
   std::vector<::pasta::NamedDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::NamedDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::NamedDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -3779,7 +3823,9 @@ std::vector<::pasta::UsingShadowDecl> BaseUsingDecl::Shadows(void) const noexcep
   auto val = self.shadows();
   std::vector<::pasta::UsingShadowDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::UsingShadowDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::UsingShadowDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -3936,7 +3982,9 @@ std::vector<::pasta::ParmVarDecl> BlockDecl::Parameters(void) const noexcept {
   auto val = self.parameters();
   std::vector<::pasta::ParmVarDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ParmVarDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ParmVarDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -4009,7 +4057,9 @@ std::vector<::pasta::ImplicitParamDecl> CapturedDecl::Parameters(void) const noe
   auto val = self.parameters();
   std::vector<::pasta::ImplicitParamDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ImplicitParamDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ImplicitParamDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -4272,14 +4322,13 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, EnumConstantDecl)
   __builtin_unreachable();
 }
 
-::pasta::Expr EnumConstantDecl::InitializerExpression(void) const noexcept {
+std::optional<::pasta::Expr> EnumConstantDecl::InitializerExpression(void) const noexcept {
   auto &self = *const_cast<clang::EnumConstantDecl *>(u.EnumConstantDecl);
   auto val = self.getInitExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "EnumConstantDecl::InitializerExpression can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 llvm::APSInt EnumConstantDecl::InitializerVal(void) const noexcept {
@@ -4299,14 +4348,13 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, FieldDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, FieldDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FieldDecl, ObjCAtDefsFieldDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FieldDecl, ObjCIvarDecl)
-::pasta::Expr FieldDecl::BitWidth(void) const noexcept {
+std::optional<::pasta::Expr> FieldDecl::BitWidth(void) const noexcept {
   auto &self = *const_cast<clang::FieldDecl *>(u.FieldDecl);
   auto val = self.getBitWidth();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "FieldDecl::BitWidth can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 uint32_t FieldDecl::BitWidthValue(void) const noexcept {
@@ -4347,14 +4395,13 @@ enum InClassInitStyle FieldDecl::InClassInitializerStyle(void) const noexcept {
   return static_cast<::pasta::InClassInitStyle>(val);
 }
 
-::pasta::Expr FieldDecl::InClassInitializer(void) const noexcept {
+std::optional<::pasta::Expr> FieldDecl::InClassInitializer(void) const noexcept {
   auto &self = *const_cast<clang::FieldDecl *>(u.FieldDecl);
   auto val = self.getInClassInitializer();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "FieldDecl::InClassInitializer can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 ::pasta::RecordDecl FieldDecl::Parent(void) const noexcept {
@@ -4950,7 +4997,9 @@ std::vector<::pasta::ParmVarDecl> FunctionDecl::Parameters(void) const noexcept 
   auto val = self.parameters();
   std::vector<::pasta::ParmVarDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ParmVarDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ParmVarDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -5009,7 +5058,9 @@ std::vector<::pasta::NamedDecl> IndirectFieldDecl::Chain(void) const noexcept {
   auto val = self.chain();
   std::vector<::pasta::NamedDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::NamedDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::NamedDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -5283,7 +5334,9 @@ std::vector<::pasta::Expr> OMPAllocateDecl::Varlists(void) const noexcept {
   auto val = self.varlists();
   std::vector<::pasta::Expr> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -5436,7 +5489,9 @@ std::vector<::pasta::Expr> OMPThreadPrivateDecl::Varlists(void) const noexcept {
   auto val = self.varlists();
   std::vector<::pasta::Expr> ret;
   for (auto stmt_ptr : val) {
-    ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    if (stmt_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Expr>(ast, stmt_ptr));
+    }
   }
   return ret;
 }
@@ -5548,7 +5603,9 @@ std::vector<::pasta::ObjCIvarDecl> ObjCCategoryDecl::InstanceVariables(void) con
   auto val = self.ivars();
   std::vector<::pasta::ObjCIvarDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ObjCIvarDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ObjCIvarDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -5575,7 +5632,9 @@ std::vector<::pasta::ObjCProtocolDecl> ObjCCategoryDecl::Protocols(void) const n
   auto val = self.protocols();
   std::vector<::pasta::ObjCProtocolDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ObjCProtocolDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ObjCProtocolDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -6677,7 +6736,9 @@ std::vector<::pasta::VarTemplateSpecializationDecl> VarTemplateDecl::Specializat
   auto val = self.specializations();
   std::vector<::pasta::VarTemplateSpecializationDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::VarTemplateSpecializationDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::VarTemplateSpecializationDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -7005,7 +7066,9 @@ std::vector<::pasta::CXXMethodDecl> CXXMethodDecl::OverriddenMethods(void) const
   auto val = self.overridden_methods();
   std::vector<::pasta::CXXMethodDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::CXXMethodDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::CXXMethodDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -7117,7 +7180,9 @@ std::vector<::pasta::ClassTemplateSpecializationDecl> ClassTemplateDecl::Special
   auto val = self.specializations();
   std::vector<::pasta::ClassTemplateSpecializationDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::ClassTemplateSpecializationDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::ClassTemplateSpecializationDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -7137,7 +7202,9 @@ std::vector<::pasta::BindingDecl> DecompositionDecl::Bindings(void) const noexce
   auto val = self.bindings();
   std::vector<::pasta::BindingDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::BindingDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::BindingDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -7172,7 +7239,9 @@ std::vector<::pasta::EnumConstantDecl> EnumDecl::Enumerators(void) const noexcep
   auto val = self.enumerators();
   std::vector<::pasta::EnumConstantDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::EnumConstantDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::EnumConstantDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -7418,7 +7487,9 @@ std::vector<::pasta::FunctionDecl> FunctionTemplateDecl::Specializations(void) c
   auto val = self.specializations();
   std::vector<::pasta::FunctionDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::FunctionDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::FunctionDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -7615,7 +7686,9 @@ std::vector<::pasta::FieldDecl> RecordDecl::Fields(void) const noexcept {
   auto val = self.fields();
   std::vector<::pasta::FieldDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::FieldDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::FieldDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -8136,7 +8209,9 @@ std::vector<::pasta::CXXConstructorDecl> CXXRecordDecl::Constructors(void) const
   auto val = self.ctors();
   std::vector<::pasta::CXXConstructorDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::CXXConstructorDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::CXXConstructorDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -8179,7 +8254,9 @@ std::vector<::pasta::FriendDecl> CXXRecordDecl::Friends(void) const noexcept {
   auto val = self.friends();
   std::vector<::pasta::FriendDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::FriendDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::FriendDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -8289,7 +8366,9 @@ std::vector<::pasta::NamedDecl> CXXRecordDecl::LambdaExplicitTemplateParameters(
   auto val = self.getLambdaExplicitTemplateParameters();
   std::vector<::pasta::NamedDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::NamedDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::NamedDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }
@@ -8887,7 +8966,9 @@ std::vector<::pasta::CXXMethodDecl> CXXRecordDecl::Methods(void) const noexcept 
   auto val = self.methods();
   std::vector<::pasta::CXXMethodDecl> ret;
   for (auto decl_ptr : val) {
-    ret.emplace_back(DeclBuilder::Create<::pasta::CXXMethodDecl>(ast, decl_ptr));
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::CXXMethodDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }

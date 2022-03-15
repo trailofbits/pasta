@@ -462,7 +462,9 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
 #define DECL_ITERATOR_IMPL(cls) \
     "  std::vector<::pasta::" #cls "> ret;\n" \
     "  for (auto decl_ptr : val) {\n" \
-    "    ret.emplace_back(DeclBuilder::Create<::pasta::" #cls ">(ast, decl_ptr));\n" \
+    "    if (decl_ptr) {\n" \
+    "      ret.emplace_back(DeclBuilder::Create<::pasta::" #cls ">(ast, decl_ptr));\n" \
+    "    }\n" \
     "  }\n" \
     "  return ret;\n"
 
@@ -583,7 +585,9 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
 #define STMT_ITERATOR_IMPL(cls) \
     "  std::vector<::pasta::" #cls "> ret;\n" \
     "  for (auto stmt_ptr : val) {\n" \
-    "    ret.emplace_back(StmtBuilder::Create<::pasta::" #cls ">(ast, stmt_ptr));\n" \
+    "    if (stmt_ptr) {\n" \
+    "      ret.emplace_back(StmtBuilder::Create<::pasta::" #cls ">(ast, stmt_ptr));\n" \
+    "    }\n" \
     "  }\n" \
     "  return ret;\n"
 
@@ -842,6 +846,9 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"TypeAliasDecl", "DescribedAliasTemplate"},
   {"ConstructorUsingShadowDecl", "NominatedBaseClassShadowDeclaration"},
   {"ConstructorUsingShadowDecl", "ConstructedBaseClassShadowDeclaration"},
+  {"EnumConstantDecl", "InitializerExpression"},
+  {"FieldDecl", "BitWidth"},
+  {"FieldDecl", "InClassInitializer"},
 };
 
 std::unordered_map<std::string, uint32_t> gClassIDs;

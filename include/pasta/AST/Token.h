@@ -153,6 +153,10 @@ class Token {
   Token &operator=(const Token &) = default;
   Token &operator=(Token &&) noexcept = default;
 
+  inline const void *RawToken(void) const noexcept {
+    return impl;
+  }
+
   // Location of the token in a file.
   std::optional<FileToken> FileLocation(void) const;
 

@@ -57,12 +57,12 @@ void GenerateForwardH(void) {
   static constexpr auto kDeclLen = 4u;
   for (const auto &name_ : gDeclNames) {
     llvm::StringRef name(name_);
-    if (name == "Decl") {
-      os << sep << "    a(Decl)";
 
-    } else if (name == "OMPDeclarativeDirectiveDecl" ||
-               name == "OMPDeclarativeDirectiveValueDecl") {
-      os << sep << "    a(" << name.substr(0, name.size() - kDeclLen).str() << ")";
+    // Abstract ones.
+    if (name == "Decl" ||
+        name == "OMPDeclarativeDirectiveDecl" ||
+        name == "OMPDeclarativeDirectiveValueDecl") {
+      os << sep << "    a(" << name_ << ")";
 
     } else {
       assert(name.endswith("Decl"));

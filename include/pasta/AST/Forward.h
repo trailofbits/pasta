@@ -425,8 +425,8 @@ class DeclBuilder;
 class TypeBuilder;
 
 #define PASTA_FOR_EACH_DECL_IMPL(m, a) \
-    a(OMPDeclarativeDirective) \
-    a(OMPDeclarativeDirectiveValue) \
+    a(OMPDeclarativeDirectiveDecl) \
+    a(OMPDeclarativeDirectiveValueDecl) \
     m(AccessSpec) \
     m(BaseUsing) \
     m(Binding) \

@@ -60,6 +60,10 @@ class FileToken {
  public:
   ~FileToken(void);
 
+  inline const void *RawFileToken(void) const noexcept {
+    return impl;
+  }
+
   TokenKind Kind(void) const noexcept;
   PPKeywordKind PreProcessorKeywordKind(void) const noexcept;
   ObjCKeywordKind ObjectiveCAtKeywordKind(void) const noexcept;

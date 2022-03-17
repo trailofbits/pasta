@@ -3139,14 +3139,26 @@ enum ExprLValueClassification Expr::ClassifyLValue(void) const noexcept {
 // 2: EvaluateAsInt
 // 2: EvaluateAsLValue
 // 2: EvaluateAsRValue
-llvm::APSInt Expr::EvaluateKnownConstInt(void) const noexcept {
+std::optional<llvm::APSInt> Expr::EvaluateKnownConstInt(void) const noexcept {
   auto &self = *(u.Expr);
+  if (self.isValueDependent()) {
+    return std::nullopt;
+  } else {
+    auto &ac = ast->ci->getASTContext();
+    return self.EvaluateKnownConstInt(ac);
+  }
   decltype(auto) val = self.EvaluateKnownConstInt(ast->ci->getASTContext());
   return val;
 }
 
-llvm::APSInt Expr::EvaluateKnownConstIntCheckOverflow(void) const noexcept {
+std::optional<llvm::APSInt> Expr::EvaluateKnownConstIntCheckOverflow(void) const noexcept {
   auto &self = *(u.Expr);
+  if (self.isValueDependent()) {
+    return std::nullopt;
+  } else {
+    auto &ac = ast->ci->getASTContext();
+    return self.EvaluateKnownConstIntCheckOverflow(ac);
+  }
   decltype(auto) val = self.EvaluateKnownConstIntCheckOverflow(ast->ci->getASTContext());
   return val;
 }
@@ -3379,14 +3391,29 @@ bool Expr::IsBoundMemberFunction(void) const noexcept {
   return val;
 }
 
-bool Expr::IsCXX11ConstantExpression(void) const noexcept {
+std::optional<bool> Expr::IsCXX11ConstantExpression(void) const noexcept {
   auto &self = *(u.Expr);
+  if (self.isValueDependent()) {
+    return std::nullopt;
+  }
+  auto &ac = ast->ci->getASTContext();
+  if (!ac.getLangOpts().CPlusPlus) {
+    return std::nullopt;
+  } else {
+    return self.isCXX11ConstantExpr(ac);
+  }
   decltype(auto) val = self.isCXX11ConstantExpr(ast->ci->getASTContext());
   return val;
 }
 
-bool Expr::IsCXX98IntegralConstantExpression(void) const noexcept {
+std::optional<bool> Expr::IsCXX98IntegralConstantExpression(void) const noexcept {
   auto &self = *(u.Expr);
+  if (self.isValueDependent()) {
+    return std::nullopt;
+  } else {
+    auto &ac = ast->ci->getASTContext();
+    return self.isCXX98IntegralConstantExpr(ac);
+  }
   decltype(auto) val = self.isCXX98IntegralConstantExpr(ast->ci->getASTContext());
   return val;
 }
@@ -3398,8 +3425,14 @@ bool Expr::IsDefaultArgument(void) const noexcept {
   return val;
 }
 
-bool Expr::IsEvaluatable(void) const noexcept {
+std::optional<bool> Expr::IsEvaluatable(void) const noexcept {
   auto &self = *(u.Expr);
+  if (self.isValueDependent()) {
+    return std::nullopt;
+  } else {
+    auto &ac = ast->ci->getASTContext();
+    return self.isEvaluatable(ac);
+  }
   decltype(auto) val = self.isEvaluatable(ast->ci->getASTContext());
   return val;
 }
@@ -3422,8 +3455,14 @@ bool Expr::IsInstantiationDependent(void) const noexcept {
   return val;
 }
 
-bool Expr::IsIntegerConstantExpression(void) const noexcept {
+std::optional<bool> Expr::IsIntegerConstantExpression(void) const noexcept {
   auto &self = *(u.Expr);
+  if (self.isValueDependent()) {
+    return std::nullopt;
+  } else {
+    auto &ac = ast->ci->getASTContext();
+    return self.isIntegerConstantExpr(ac);
+  }
   decltype(auto) val = self.isIntegerConstantExpr(ast->ci->getASTContext());
   return val;
 }

@@ -938,6 +938,51 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  if (!self.isBitField()) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
+  {{"Expr", "IsCXX11ConstantExpression"},
+   "  if (self.isValueDependent()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"
+   "  auto &ac = ast->ci->getASTContext();\n"
+   "  if (!ac.getLangOpts().CPlusPlus) {\n"
+   "    return std::nullopt;\n"
+   "  } else {\n"
+   "    return self.isCXX11ConstantExpr(ac);\n"
+   "  }\n"},
+  {{"Expr", "IsIntegerConstantExpression"},
+   "  if (self.isValueDependent()) {\n"
+   "    return std::nullopt;\n"
+   "  } else {\n"
+   "    auto &ac = ast->ci->getASTContext();\n"
+   "    return self.isIntegerConstantExpr(ac);\n"
+   "  }\n"},
+  {{"Expr", "IsCXX98IntegralConstantExpression"},
+   "  if (self.isValueDependent()) {\n"
+   "    return std::nullopt;\n"
+   "  } else {\n"
+   "    auto &ac = ast->ci->getASTContext();\n"
+   "    return self.isCXX98IntegralConstantExpr(ac);\n"
+   "  }\n"},
+  {{"Expr", "IsEvaluatable"},
+   "  if (self.isValueDependent()) {\n"
+   "    return std::nullopt;\n"
+   "  } else {\n"
+   "    auto &ac = ast->ci->getASTContext();\n"
+   "    return self.isEvaluatable(ac);\n"
+   "  }\n"},
+  {{"Expr", "EvaluateKnownConstInt"},
+   "  if (self.isValueDependent()) {\n"
+   "    return std::nullopt;\n"
+   "  } else {\n"
+   "    auto &ac = ast->ci->getASTContext();\n"
+   "    return self.EvaluateKnownConstInt(ac);\n"
+   "  }\n"},
+  {{"Expr", "EvaluateKnownConstIntCheckOverflow"},
+   "  if (self.isValueDependent()) {\n"
+   "    return std::nullopt;\n"
+   "  } else {\n"
+   "    auto &ac = ast->ci->getASTContext();\n"
+   "    return self.EvaluateKnownConstIntCheckOverflow(ac);\n"
+   "  }\n"},
 };
 
 std::unordered_map<std::string, uint32_t> gClassIDs;

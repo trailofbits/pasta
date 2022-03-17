@@ -1454,8 +1454,8 @@ class Expr : public ValueStmt {
   // EvaluateAsInt: (bool)
   // EvaluateAsLValue: (bool)
   // EvaluateAsRValue: (bool)
-  llvm::APSInt EvaluateKnownConstInt(void) const noexcept;
-  llvm::APSInt EvaluateKnownConstIntCheckOverflow(void) const noexcept;
+  std::optional<llvm::APSInt> EvaluateKnownConstInt(void) const noexcept;
+  std::optional<llvm::APSInt> EvaluateKnownConstIntCheckOverflow(void) const noexcept;
   // EvaluateWithSubstitution: (bool)
   bool HasSideEffects(void) const noexcept;
   ::pasta::Expr IgnoreCasts(void) const noexcept;
@@ -1486,15 +1486,15 @@ class Expr : public ValueStmt {
   enum ExprValueKind ValueKind(void) const noexcept;
   bool HasNonTrivialCall(void) const noexcept;
   bool IsBoundMemberFunction(void) const noexcept;
-  bool IsCXX11ConstantExpression(void) const noexcept;
-  bool IsCXX98IntegralConstantExpression(void) const noexcept;
+  std::optional<bool> IsCXX11ConstantExpression(void) const noexcept;
+  std::optional<bool> IsCXX98IntegralConstantExpression(void) const noexcept;
   // IsConstantInitializer: (bool)
   bool IsDefaultArgument(void) const noexcept;
-  bool IsEvaluatable(void) const noexcept;
+  std::optional<bool> IsEvaluatable(void) const noexcept;
   bool IsGLValue(void) const noexcept;
   bool IsImplicitCXXThis(void) const noexcept;
   bool IsInstantiationDependent(void) const noexcept;
-  bool IsIntegerConstantExpression(void) const noexcept;
+  std::optional<bool> IsIntegerConstantExpression(void) const noexcept;
   bool IsKnownToHaveBooleanValue(void) const noexcept;
   bool IsLValue(void) const noexcept;
   enum ExprisModifiableLvalueResult IsModifiableLvalue(void) const noexcept;

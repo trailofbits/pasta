@@ -95,7 +95,7 @@ void SaveFirstErrorDiagConsumer::HandleDiagnostic(
     }
 
     ss << presumed_loc.getFilename()
-       << ':' << static_cast<int>(line_number) << ':'
+       << ':' << static_cast<int>(presumed_loc.getLine()) << ':'
        << static_cast<int>(presumed_loc.getColumn()) << ' ';
   }
 

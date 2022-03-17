@@ -987,7 +987,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
 
   lang_opts->Bool = true;
   lang_opts->Half = true;
-  lang_opts->WChar = true;
+  lang_opts->WChar = lang_opts->CPlusPlus;
   lang_opts->Char8 = true;
   lang_opts->IEEE128 = true;
   lang_opts->EmitAllDecls = true;

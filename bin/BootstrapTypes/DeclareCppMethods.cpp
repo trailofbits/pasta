@@ -120,7 +120,8 @@ static void DeclareCppMethod0(std::ostream &os, const std::string &class_name,
   if (const auto meth_name = CxxName(meth_name_ref);
       !meth_name.empty()) {
     if (class_name == "Decl" &&
-        (meth_name_ref == "getKind" || meth_name_ref == "getDeclKindName")) {
+        (meth_name_ref == "getKind" || meth_name_ref == "getDeclKindName" ||
+         meth_name_ref == "getBody")) {
       return;
     }
 
@@ -128,7 +129,10 @@ static void DeclareCppMethod0(std::ostream &os, const std::string &class_name,
     if (!new_rt.empty()) {
       auto meth_key = std::make_pair(class_name, meth_name);
       existing_methods.insert(meth_key);
-      if (kCanReturnNullptr.count(meth_key)) {
+      const auto null_key = std::make_pair(class_name, meth_name);
+      const auto can_ret_null = kCanReturnNullptr.count(null_key) ||
+                                kConditionalNullptr.count(null_key);
+      if (can_ret_null) {
         os << "  std::optional<" << new_rt << "> " << meth_name << "(void) const noexcept;\n";
       } else {
         os << "  " << new_rt << ' ' << meth_name << "(void) const noexcept;\n";
@@ -146,17 +150,21 @@ static void DeclareCppMethod1(
   CollectGetNthMethod(class_name, p0, rt);
   if (const auto meth_name = CxxName(meth_name_ref);
       !meth_name.empty()) {
+    const auto null_key = std::make_pair(class_name, meth_name);
+    const auto can_ret_null = kCanReturnNullptr.count(null_key) ||
+                              kConditionalNullptr.count(null_key);
     auto &new_rt = gRetTypeMap[rt];
     if (!new_rt.empty() &&
         (!strcmp(p0, "(const clang::ASTContext &)") ||
          !strcmp(p0, "(clang::ASTContext &)"))) {
-      if (kCanReturnNullptr.count(std::make_pair(class_name, meth_name))) {
+
+      if (can_ret_null) {
         os << "  std::optional<" << new_rt << "> " << meth_name << "(void) const noexcept;\n";
       } else {
         os << "  " << new_rt << ' ' << meth_name << "(void) const noexcept;\n";
       }
-    } else if (!new_rt.empty() &&!strcmp(p0, "(bool)")) {
-      if (kCanReturnNullptr.count(std::make_pair(class_name, meth_name))) {
+    } else if (!new_rt.empty() && !strcmp(p0, "(bool)")) {
+      if (can_ret_null) {
         os << "  std::optional<" << new_rt << "> " << meth_name << "(bool) const noexcept;\n";
       } else {
         os << "  " << new_rt << ' ' << meth_name << "(bool) const noexcept;\n";

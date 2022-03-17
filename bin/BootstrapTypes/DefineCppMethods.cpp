@@ -35,7 +35,8 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
   }
 
   if (class_name == "Decl" &&
-      (meth_name_ref == "getKind" || meth_name_ref == "getDeclKindName")) {
+      (meth_name_ref == "getKind" || meth_name_ref == "getDeclKindName" ||
+       meth_name_ref == "getBody")) {
     return;
   }
 
@@ -53,8 +54,10 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
     os << "// 0: " << real_class_name << "::" << meth_name << "\n";
     return;
   }
-  const auto can_ret_null = kCanReturnNullptr.count(
-      std::make_pair(class_name, meth_name));
+
+  const auto null_key = std::make_pair(class_name, meth_name);
+  const auto can_ret_null = kCanReturnNullptr.count(null_key) ||
+                            kConditionalNullptr.count(null_key);
   if (can_ret_null) {
     os << "std::optional<" << rt_type << ">";
   } else {
@@ -69,6 +72,9 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
        << "  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));\n";
   } else {
     os << "  auto &self = *const_cast<clang::" << class_name << " *>(u." << class_name << ");\n";
+  }
+  if (auto it = kConditionalNullptr.find(null_key); it != kConditionalNullptr.end()) {
+    os << it->second;
   }
   os << "  decltype(auto) val = self." << meth_name_ref.str() << "();\n"
      << rt_val;
@@ -108,8 +114,9 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
 
   if (p0_ref == "(const clang::ASTContext &)" ||
       p0_ref == "(clang::ASTContext &)") {
-    const auto can_ret_null = kCanReturnNullptr.count(
-        std::make_pair(class_name, meth_name));
+    const auto null_key = std::make_pair(class_name, meth_name);
+    const auto can_ret_null = kCanReturnNullptr.count(null_key) ||
+                              kConditionalNullptr.count(null_key);
     if (can_ret_null) {
       os << "std::optional<" << rt_type << ">";
     } else {
@@ -122,6 +129,9 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
          << "  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));\n";
     } else {
       os << "  auto &self = *(u." << class_name << ");\n";
+    }
+    if (auto it = kConditionalNullptr.find(null_key); it != kConditionalNullptr.end()) {
+      os << it->second;
     }
     os << "  decltype(auto) val = self." << meth_name_ref.str() << "(ast->ci->getASTContext());\n"
        << rt_val;

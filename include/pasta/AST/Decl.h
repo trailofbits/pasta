@@ -338,7 +338,6 @@ class Decl {
   // Attributes: (const llvm::SmallVector<clang::Attr *, 4> &)
   enum AvailabilityResult Availability(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
-  ::pasta::Stmt Body(void) const noexcept;
   ::pasta::Token BodyRBrace(void) const noexcept;
   ::pasta::Decl CanonicalDeclaration(void) const noexcept;
   ::pasta::DeclContext DeclarationContext(void) const noexcept;
@@ -1711,7 +1710,7 @@ class FunctionDecl : public DeclaratorDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(FunctionDecl, CXXDeductionGuideDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(FunctionDecl, CXXDestructorDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(FunctionDecl, CXXMethodDecl)
-  bool DoesDeclarationForceExternallyVisibleDefinition(void) const noexcept;
+  std::optional<bool> DoesDeclarationForceExternallyVisibleDefinition(void) const noexcept;
   bool DoesThisDeclarationHaveABody(void) const noexcept;
   uint32_t BuiltinID(void) const noexcept;
   ::pasta::Type CallResultType(void) const noexcept;
@@ -1776,11 +1775,11 @@ class FunctionDecl : public DeclaratorDecl {
   bool IsInExternCContext(void) const noexcept;
   bool IsInExternCXXContext(void) const noexcept;
   bool IsInlineBuiltinDeclaration(void) const noexcept;
-  bool IsInlineDefinitionExternallyVisible(void) const noexcept;
+  std::optional<bool> IsInlineDefinitionExternallyVisible(void) const noexcept;
   bool IsInlineSpecified(void) const noexcept;
   bool IsInlined(void) const noexcept;
   bool IsLateTemplateParsed(void) const noexcept;
-  bool IsMSExternInline(void) const noexcept;
+  std::optional<bool> IsMSExternInline(void) const noexcept;
   bool IsMSVCRTEntryPoint(void) const noexcept;
   bool IsMain(void) const noexcept;
   bool IsMultiVersion(void) const noexcept;
@@ -1788,7 +1787,7 @@ class FunctionDecl : public DeclaratorDecl {
   bool IsOverloadedOperator(void) const noexcept;
   bool IsPure(void) const noexcept;
   bool IsReplaceableGlobalAllocationFunction(void) const noexcept;
-  bool IsReservedGlobalPlacementOperator(void) const noexcept;
+  std::optional<bool> IsReservedGlobalPlacementOperator(void) const noexcept;
   bool IsStatic(void) const noexcept;
   bool IsTargetMultiVersion(void) const noexcept;
   bool IsTemplateInstantiation(void) const noexcept;
@@ -1804,6 +1803,7 @@ class FunctionDecl : public DeclaratorDecl {
   bool WillHaveBody(void) const noexcept;
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
   std::vector<::pasta::ParmVarDecl> ParamDeclarations(void) const noexcept;
+  std::optional<::pasta::Stmt> Body(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(FunctionDecl)
 };
@@ -2371,7 +2371,7 @@ class VarDecl : public DeclaratorDecl {
   bool HasDependentAlignment(void) const noexcept;
   bool HasExternalStorage(void) const noexcept;
   bool HasGlobalStorage(void) const noexcept;
-  bool HasICEInitializer(void) const noexcept;
+  std::optional<bool> HasICEInitializer(void) const noexcept;
   bool HasInitializer(void) const noexcept;
   bool HasLocalStorage(void) const noexcept;
   bool IsARCPseudoStrong(void) const noexcept;

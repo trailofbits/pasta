@@ -1196,10 +1196,12 @@ Result<AST, std::string> CompileJob::Run(void) const {
     } else {
       err << "A clang diagnostic or uncompilable error was produced when trying"
           << " to get an AST due to error: " << diag->error;
+      return err.str();
     }
   } else if (!diag->error.empty()) {
     err << "A clang diagnostic was produced when trying"
         << " to get an AST due to error: " << diag->error;
+    return err.str();
   }
 
   ast->real_fs = std::move(real_vfs);

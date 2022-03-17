@@ -10,6 +10,7 @@
 #include <cstring>
 #include <iostream>
 #include <fstream>
+#include <map>
 #include <set>
 #include <sstream>
 #include <string>
@@ -63,6 +64,7 @@ extern std::vector<llvm::StringRef> kEnumPrefixesToStrip;
 // Set of ClassName::MethodName pairs such that the class can return a nullptr,
 // and thus `std::optional` probably needs to be used.
 extern std::set<std::pair<std::string, std::string>> kCanReturnNullptr;
+extern std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr;
 
 extern std::unordered_map<std::string, uint32_t> gClassIDs;
 extern std::unordered_map<std::string, std::set<std::string>> gBaseClasses;

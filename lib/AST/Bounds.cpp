@@ -773,7 +773,9 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
   void VisitTemplateDecl(clang::TemplateDecl *decl) {
     VisitNamedDecl(decl);
-    this->Visit(decl->getTemplatedDecl());
+    if (auto templated_decl = decl->getTemplatedDecl()) {
+      this->Visit(templated_decl);
+    }
 //    Expand(decl->getSourceRange());  // Includes `getTemplateLoc`.
 //    ExpandToLeadingToken(decl->getLocation(), clang::tok::kw_template);
 

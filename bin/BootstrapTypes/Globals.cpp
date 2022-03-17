@@ -871,6 +871,73 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"EnumConstantDecl", "InitializerExpression"},
   {"FieldDecl", "BitWidth"},
   {"FieldDecl", "InClassInitializer"},
+  {"DeclStmt", "SingleDeclaration"},
+  {"FunctionDecl", "TemplateInstantiationPattern"},  // TODO(pag): contains assert.
+};
+
+std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
+  {{"ParmVarDecl", "DefaultArgument"},
+   "  if (HasUninstantiatedDefaultArgument() ||\n"
+   "      HasUnparsedDefaultArgument()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"ParmVarDecl", "UninstantiatedDefaultArgument"},
+   "  if (!HasUninstantiatedDefaultArgument()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"DeclStmt", "SingleDeclaration"},
+   "  if (!IsSingleDeclaration()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"VarDecl", "HasICEInitializer"},
+   "  if (!self.getInit()) {\n"
+   "    return std::nullopt;\n"
+   "  } else {\n"
+   "    return self.hasICEInitializer(self.getASTContext());\n"
+   "  }\n"},
+  {{"FunctionDecl", "IsReservedGlobalPlacementOperator"},
+   "  decltype(auto) dname = self.getDeclName();\n"
+   "  if (dname.getNameKind() != clang::DeclarationName::CXXOperatorName) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"
+   "  auto oo = dname.getCXXOverloadedOperator();\n"
+   "  if (oo == clang::OO_New || oo == clang::OO_Delete ||\n"
+   "      oo == clang::OO_Array_New || oo == clang::OO_Array_Delete) {\n"
+   "    return self.isReservedGlobalPlacementOperator();\n"
+   "  } else {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"FunctionDecl", "IsMSExternInline"},
+   "  if (!self.isInlined()) {\n"
+   "    return std::nullopt;\n"
+   "  } else {\n"
+   "    return self.isMSExternInline();\n"
+   "  }\n"},
+  {{"FunctionDecl", "DoesDeclarationForceExternallyVisibleDefinition"},
+   "  if (!self.doesThisDeclarationHaveABody()) {\n"
+   "    return std::nullopt;\n"
+   "  } else {\n"
+   "    return self.doesDeclarationForceExternallyVisibleDefinition();\n"
+   "  }\n"},
+  {{"FunctionDecl", "IsInlineDefinitionExternallyVisible"},
+   "  if (!self.doesThisDeclarationHaveABody() &&\n"
+   "      !self.willHaveBody() && !self.hasAttr<clang::AliasAttr>()) {\n"
+   "    return std::nullopt;\n"
+   "  } else if (!self.isInlined()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"
+   "  clang::ASTContext &ac = self.getASTContext();\n"
+   "  if (ac.getLangOpts().GNUInline || self.hasAttr<clang::GNUInlineAttr>()) {\n"
+   "    return self.isInlineDefinitionExternallyVisible();\n"
+   "  } else if (ac.getLangOpts().CPlusPlus) {\n"
+   "    return std::nullopt;\n"
+   "  } else {\n"
+   "    return self.isInlineDefinitionExternallyVisible();\n"
+   "  }\n"},
+  {{"FieldDecl", "BitWidth"},
+   "  if (!self.isBitField()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
 };
 
 std::unordered_map<std::string, uint32_t> gClassIDs;

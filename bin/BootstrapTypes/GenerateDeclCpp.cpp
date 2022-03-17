@@ -31,6 +31,7 @@ void GenerateDeclCpp(void) {
       << "#pragma clang diagnostic ignored \"-Wimplicit-int-conversion\"\n"
       << "#pragma clang diagnostic ignored \"-Wsign-conversion\"\n"
       << "#pragma clang diagnostic ignored \"-Wshorten-64-to-32\"\n"
+      << "#include <clang/AST/Attr.h>\n"
       << "#include <clang/AST/Decl.h>\n"
       << "#include <clang/AST/DeclCXX.h>\n"
       << "#include <clang/AST/DeclFriend.h>\n"
@@ -285,6 +286,27 @@ void GenerateDeclCpp(void) {
       }
     }
     DefineCppMethods(os, name, gClassIDs[name]);
+
+    // We need to manually inject our own `Body` method. Normally there would
+    // be `Decl::Body`, but we explicitly remove that. We make is so that
+    // `FunctionDecl::Body` only returns something if the request is coming
+    // from the function definition itself.
+    if (name == "FunctionDecl") {
+      os
+      << "std::optional<::pasta::Stmt> FunctionDecl::Body(void) const noexcept {\n"
+      << "  const clang::FunctionDecl *decl = u.FunctionDecl;\n"
+      << "  const clang::FunctionDecl *def = nullptr;\n"
+      << "  if (!decl->hasBody(def) || decl != def) {\n"
+      << "    return std::nullopt;\n"
+      << "  } else if (def->getDefaultedFunctionInfo()) {\n"
+      << "    return std::nullopt;\n"
+      << "  } else if (auto body = def->getBody()) {\n"
+      << "    return StmtBuilder::Create<::pasta::Stmt>(ast, body);\n"
+      << "  } else {\n"
+      << "    return std::nullopt;\n"
+      << "  }\n"
+      << "}\n\n";
+    }
   }
 
   os

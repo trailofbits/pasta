@@ -190,6 +190,11 @@ void GenerateDeclH(void) {
           << "        kind(kind_) {\n"
           << "    u.Decl = decl_;\n"
           << "  }\n\n";
+
+    // We need to manually inject our own `Body` method.
+    } else if (name == "FunctionDecl") {
+      os
+          << "  std::optional<::pasta::Stmt> Body(void) const noexcept;\n";
     }
 
     os

@@ -2853,14 +2853,16 @@ std::vector<::pasta::Stmt> DeclStmt::Children(void) const noexcept {
   return ast->TokenAt(val);
 }
 
-::pasta::Decl DeclStmt::SingleDeclaration(void) const noexcept {
+std::optional<::pasta::Decl> DeclStmt::SingleDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::DeclStmt *>(u.DeclStmt);
+  if (!IsSingleDeclaration()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getSingleDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::Decl>(ast, val);
   }
-  assert(false && "DeclStmt::SingleDeclaration can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 bool DeclStmt::IsSingleDeclaration(void) const noexcept {

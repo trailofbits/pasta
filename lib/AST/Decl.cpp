@@ -10,6 +10,7 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/AST/Attr.h>
 #include <clang/AST/Decl.h>
 #include <clang/AST/DeclCXX.h>
 #include <clang/AST/DeclFriend.h>
@@ -1063,16 +1064,6 @@ enum AvailabilityResult Decl::Availability(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-}
-
-::pasta::Stmt Decl::Body(void) const noexcept {
-  auto &self = *const_cast<clang::Decl *>(u.Decl);
-  decltype(auto) val = self.getBody();
-  if (val) {
-    return StmtBuilder::Create<::pasta::Stmt>(ast, val);
-  }
-  assert(false && "Decl::Body can return nullptr!");
-  __builtin_unreachable();
 }
 
 ::pasta::Token Decl::BodyRBrace(void) const noexcept {
@@ -4350,6 +4341,9 @@ PASTA_DEFINE_DERIVED_OPERATORS(FieldDecl, ObjCAtDefsFieldDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FieldDecl, ObjCIvarDecl)
 std::optional<::pasta::Expr> FieldDecl::BitWidth(void) const noexcept {
   auto &self = *const_cast<clang::FieldDecl *>(u.FieldDecl);
+  if (!self.isBitField()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getBitWidth();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
@@ -4490,8 +4484,13 @@ PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXConversionDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXDeductionGuideDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXDestructorDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXMethodDecl)
-bool FunctionDecl::DoesDeclarationForceExternallyVisibleDefinition(void) const noexcept {
+std::optional<bool> FunctionDecl::DoesDeclarationForceExternallyVisibleDefinition(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  if (!self.doesThisDeclarationHaveABody()) {
+    return std::nullopt;
+  } else {
+    return self.doesDeclarationForceExternallyVisibleDefinition();
+  }
   decltype(auto) val = self.doesDeclarationForceExternallyVisibleDefinition();
   return val;
 }
@@ -4850,8 +4849,22 @@ bool FunctionDecl::IsInlineBuiltinDeclaration(void) const noexcept {
   return val;
 }
 
-bool FunctionDecl::IsInlineDefinitionExternallyVisible(void) const noexcept {
+std::optional<bool> FunctionDecl::IsInlineDefinitionExternallyVisible(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  if (!self.doesThisDeclarationHaveABody() &&
+      !self.willHaveBody() && !self.hasAttr<clang::AliasAttr>()) {
+    return std::nullopt;
+  } else if (!self.isInlined()) {
+    return std::nullopt;
+  }
+  clang::ASTContext &ac = self.getASTContext();
+  if (ac.getLangOpts().GNUInline || self.hasAttr<clang::GNUInlineAttr>()) {
+    return self.isInlineDefinitionExternallyVisible();
+  } else if (ac.getLangOpts().CPlusPlus) {
+    return std::nullopt;
+  } else {
+    return self.isInlineDefinitionExternallyVisible();
+  }
   decltype(auto) val = self.isInlineDefinitionExternallyVisible();
   return val;
 }
@@ -4874,8 +4887,13 @@ bool FunctionDecl::IsLateTemplateParsed(void) const noexcept {
   return val;
 }
 
-bool FunctionDecl::IsMSExternInline(void) const noexcept {
+std::optional<bool> FunctionDecl::IsMSExternInline(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  if (!self.isInlined()) {
+    return std::nullopt;
+  } else {
+    return self.isMSExternInline();
+  }
   decltype(auto) val = self.isMSExternInline();
   return val;
 }
@@ -4922,8 +4940,19 @@ bool FunctionDecl::IsReplaceableGlobalAllocationFunction(void) const noexcept {
   return val;
 }
 
-bool FunctionDecl::IsReservedGlobalPlacementOperator(void) const noexcept {
+std::optional<bool> FunctionDecl::IsReservedGlobalPlacementOperator(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  decltype(auto) dname = self.getDeclName();
+  if (dname.getNameKind() != clang::DeclarationName::CXXOperatorName) {
+    return std::nullopt;
+  }
+  auto oo = dname.getCXXOverloadedOperator();
+  if (oo == clang::OO_New || oo == clang::OO_Delete ||
+      oo == clang::OO_Array_New || oo == clang::OO_Array_Delete) {
+    return self.isReservedGlobalPlacementOperator();
+  } else {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isReservedGlobalPlacementOperator();
   return val;
 }
@@ -5043,6 +5072,20 @@ std::vector<::pasta::ParmVarDecl> FunctionDecl::ParamDeclarations(void) const no
     ret.emplace_back(convert_elem(u.FunctionDecl->getParamDecl(i)));
   }
   return ret;
+}
+
+std::optional<::pasta::Stmt> FunctionDecl::Body(void) const noexcept {
+  const clang::FunctionDecl *decl = u.FunctionDecl;
+  const clang::FunctionDecl *def = nullptr;
+  if (!decl->hasBody(def) || decl != def) {
+    return std::nullopt;
+  } else if (def->getDefaultedFunctionInfo()) {
+    return std::nullopt;
+  } else if (auto body = def->getBody()) {
+    return StmtBuilder::Create<::pasta::Stmt>(ast, body);
+  } else {
+    return std::nullopt;
+  }
 }
 
 IndirectFieldDecl::IndirectFieldDecl(
@@ -6459,8 +6502,13 @@ bool VarDecl::HasGlobalStorage(void) const noexcept {
   return val;
 }
 
-bool VarDecl::HasICEInitializer(void) const noexcept {
+std::optional<bool> VarDecl::HasICEInitializer(void) const noexcept {
   auto &self = *(u.VarDecl);
+  if (!self.getInit()) {
+    return std::nullopt;
+  } else {
+    return self.hasICEInitializer(self.getASTContext());
+  }
   decltype(auto) val = self.hasICEInitializer(ast->ci->getASTContext());
   return val;
 }
@@ -7578,6 +7626,10 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, ParmVarDecl)
 PASTA_DEFINE_BASE_OPERATORS(VarDecl, ParmVarDecl)
 std::optional<::pasta::Expr> ParmVarDecl::DefaultArgument(void) const noexcept {
   auto &self = *const_cast<clang::ParmVarDecl *>(u.ParmVarDecl);
+  if (HasUninstantiatedDefaultArgument() ||
+      HasUnparsedDefaultArgument()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getDefaultArg();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
@@ -7617,6 +7669,9 @@ enum DeclObjCDeclQualifier ParmVarDecl::ObjCDeclQualifier(void) const noexcept {
 
 std::optional<::pasta::Expr> ParmVarDecl::UninstantiatedDefaultArgument(void) const noexcept {
   auto &self = *const_cast<clang::ParmVarDecl *>(u.ParmVarDecl);
+  if (!HasUninstantiatedDefaultArgument()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getUninstantiatedDefaultArg();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);

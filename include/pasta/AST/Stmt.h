@@ -1261,7 +1261,7 @@ class DeclStmt : public Stmt {
   ::pasta::Token BeginToken(void) const noexcept;
   // DeclarationGroup: (const clang::DeclGroupRef)
   ::pasta::Token EndToken(void) const noexcept;
-  ::pasta::Decl SingleDeclaration(void) const noexcept;
+  std::optional<::pasta::Decl> SingleDeclaration(void) const noexcept;
   bool IsSingleDeclaration(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(DeclStmt)

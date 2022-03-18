@@ -806,8 +806,8 @@ class SwitchStmt : public Stmt {
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Stmt Body(void) const noexcept;
   ::pasta::Expr Condition(void) const noexcept;
-  ::pasta::VarDecl ConditionVariable(void) const noexcept;
-  ::pasta::DeclStmt ConditionVariableDeclarationStatement(void) const noexcept;
+  std::optional<::pasta::VarDecl> ConditionVariable(void) const noexcept;
+  std::optional<::pasta::DeclStmt> ConditionVariableDeclarationStatement(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Stmt Initializer(void) const noexcept;
   ::pasta::Token LParenToken(void) const noexcept;
@@ -977,8 +977,8 @@ class WhileStmt : public Stmt {
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Stmt Body(void) const noexcept;
   ::pasta::Expr Condition(void) const noexcept;
-  ::pasta::VarDecl ConditionVariable(void) const noexcept;
-  ::pasta::DeclStmt ConditionVariableDeclarationStatement(void) const noexcept;
+  std::optional<::pasta::VarDecl> ConditionVariable(void) const noexcept;
+  std::optional<::pasta::DeclStmt> ConditionVariableDeclarationStatement(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Token LParenToken(void) const noexcept;
   ::pasta::Token RParenToken(void) const noexcept;
@@ -1257,7 +1257,7 @@ class DeclStmt : public Stmt {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DeclStmt)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, DeclStmt)
   std::vector<::pasta::Stmt> Children(void) const noexcept;
-  // Declarations: (llvm::iterator_range<clang::Decl *const *>)
+  std::vector<::pasta::Decl> Declarations(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   // DeclarationGroup: (const clang::DeclGroupRef)
   ::pasta::Token EndToken(void) const noexcept;
@@ -1472,16 +1472,16 @@ class Expr : public ValueStmt {
   ::pasta::Expr IgnoreUnlessSpelledInSource(void) const noexcept;
   bool ContainsErrors(void) const noexcept;
   bool ContainsUnexpandedParameterPack(void) const noexcept;
-  ::pasta::CXXRecordDecl BestDynamicClassType(void) const noexcept;
+  std::optional<::pasta::CXXRecordDecl> BestDynamicClassType(void) const noexcept;
   ::pasta::Expr BestDynamicClassTypeExpression(void) const noexcept;
   // Dependence: (clang::ExprDependenceScope::ExprDependence)
   ::pasta::Token ExpressionToken(void) const noexcept;
   // FPFeaturesInEffect: (clang::FPOptions)
   // IntegerConstantExpression: (llvm::Optional<llvm::APSInt>)
-  ::pasta::ObjCPropertyRefExpr ObjCProperty(void) const noexcept;
+  std::optional<::pasta::ObjCPropertyRefExpr> ObjCProperty(void) const noexcept;
   enum ExprObjectKind ObjectKind(void) const noexcept;
   ::pasta::Decl ReferencedDeclarationOfCallee(void) const noexcept;
-  ::pasta::FieldDecl SourceBitField(void) const noexcept;
+  std::optional<::pasta::FieldDecl> SourceBitField(void) const noexcept;
   ::pasta::Type Type(void) const noexcept;
   enum ExprValueKind ValueKind(void) const noexcept;
   bool HasNonTrivialCall(void) const noexcept;
@@ -1614,13 +1614,13 @@ class ForStmt : public Stmt {
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Stmt Body(void) const noexcept;
-  ::pasta::Expr Condition(void) const noexcept;
-  ::pasta::VarDecl ConditionVariable(void) const noexcept;
-  ::pasta::DeclStmt ConditionVariableDeclarationStatement(void) const noexcept;
+  std::optional<::pasta::Expr> Condition(void) const noexcept;
+  std::optional<::pasta::VarDecl> ConditionVariable(void) const noexcept;
+  std::optional<::pasta::DeclStmt> ConditionVariableDeclarationStatement(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Token ForToken(void) const noexcept;
-  ::pasta::Expr Increment(void) const noexcept;
-  ::pasta::Stmt Initializer(void) const noexcept;
+  std::optional<::pasta::Expr> Increment(void) const noexcept;
+  std::optional<::pasta::Stmt> Initializer(void) const noexcept;
   ::pasta::Token LParenToken(void) const noexcept;
   ::pasta::Token RParenToken(void) const noexcept;
  protected:
@@ -1793,8 +1793,8 @@ class IfStmt : public Stmt {
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Expr Condition(void) const noexcept;
-  ::pasta::VarDecl ConditionVariable(void) const noexcept;
-  ::pasta::DeclStmt ConditionVariableDeclarationStatement(void) const noexcept;
+  std::optional<::pasta::VarDecl> ConditionVariable(void) const noexcept;
+  std::optional<::pasta::DeclStmt> ConditionVariableDeclarationStatement(void) const noexcept;
   ::pasta::Stmt Else(void) const noexcept;
   ::pasta::Token ElseToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
@@ -1881,13 +1881,13 @@ class InitListExpr : public Expr {
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   // Initializer: (const clang::Expr *)
-  ::pasta::FieldDecl InitializedFieldInUnion(void) const noexcept;
+  std::optional<::pasta::FieldDecl> InitializedFieldInUnion(void) const noexcept;
   // Initializers: (clang::Expr *const *)
   ::pasta::Token LBraceToken(void) const noexcept;
   uint32_t NumInitializers(void) const noexcept;
   ::pasta::Token RBraceToken(void) const noexcept;
-  ::pasta::InitListExpr SemanticForm(void) const noexcept;
-  ::pasta::InitListExpr SyntacticForm(void) const noexcept;
+  std::optional<::pasta::InitListExpr> SemanticForm(void) const noexcept;
+  std::optional<::pasta::InitListExpr> SyntacticForm(void) const noexcept;
   bool HadArrayRangeDesignator(void) const noexcept;
   bool HasArrayFiller(void) const noexcept;
   std::vector<::pasta::Expr> Initializers(void) const noexcept;
@@ -3923,7 +3923,7 @@ class ReturnStmt : public Stmt {
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  ::pasta::VarDecl NRVOCandidate(void) const noexcept;
+  std::optional<::pasta::VarDecl> NRVOCandidate(void) const noexcept;
   ::pasta::Expr RetValue(void) const noexcept;
   ::pasta::Token ReturnToken(void) const noexcept;
  protected:
@@ -5174,7 +5174,7 @@ class CallExpr : public Expr {
   ::pasta::Type CallReturnType(void) const noexcept;
   ::pasta::Expr Callee(void) const noexcept;
   ::pasta::Decl CalleeDeclaration(void) const noexcept;
-  ::pasta::FunctionDecl DirectCallee(void) const noexcept;
+  std::optional<::pasta::FunctionDecl> DirectCallee(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   // FPFeatures: (clang::FPOptionsOverride)
   // FPFeaturesInEffect: (clang::FPOptions)
@@ -5218,13 +5218,13 @@ class CastExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   enum CastKind CastKind(void) const noexcept;
   std::string_view CastKindName(void) const noexcept;
-  ::pasta::NamedDecl ConversionFunction(void) const noexcept;
+  std::optional<::pasta::NamedDecl> ConversionFunction(void) const noexcept;
   // FPFeatures: (clang::FPOptionsOverride)
   // FPFeaturesInEffect: (clang::FPOptions)
   // StoredFPFeatures: (clang::FPOptionsOverride)
   ::pasta::Expr SubExpression(void) const noexcept;
   ::pasta::Expr SubExpressionAsWritten(void) const noexcept;
-  ::pasta::FieldDecl TargetUnionField(void) const noexcept;
+  std::optional<::pasta::FieldDecl> TargetUnionField(void) const noexcept;
   bool HasStoredFPFeatures(void) const noexcept;
   // Path: (llvm::iterator_range<const clang::CXXBaseSpecifier *const *>)
  protected:

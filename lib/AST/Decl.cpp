@@ -4516,14 +4516,13 @@ enum ConstexprSpecKind FunctionDecl::ConstexprKind(void) const noexcept {
 }
 
 // 0: FunctionDecl::DefaultedFunctionInfo
-::pasta::FunctionDecl FunctionDecl::Definition(void) const noexcept {
+std::optional<::pasta::FunctionDecl> FunctionDecl::Definition(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.getDefinition();
   if (val) {
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
   }
-  assert(false && "FunctionDecl::Definition can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 // 0: FunctionDecl::DependentSpecializationInfo
@@ -5090,14 +5089,16 @@ std::vector<::pasta::NamedDecl> IndirectFieldDecl::Chain(void) const noexcept {
 
 // 0: IndirectFieldDecl::
 // 0: IndirectFieldDecl::
-::pasta::FieldDecl IndirectFieldDecl::AnonymousField(void) const noexcept {
+std::optional<::pasta::FieldDecl> IndirectFieldDecl::AnonymousField(void) const noexcept {
   auto &self = *const_cast<clang::IndirectFieldDecl *>(u.IndirectFieldDecl);
+  if (self.chain().size() < 2) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getAnonField();
   if (val) {
     return DeclBuilder::Create<::pasta::FieldDecl>(ast, val);
   }
-  assert(false && "IndirectFieldDecl::AnonymousField can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 ::pasta::IndirectFieldDecl IndirectFieldDecl::CanonicalDeclaration(void) const noexcept {
@@ -5116,14 +5117,16 @@ uint32_t IndirectFieldDecl::ChainingSize(void) const noexcept {
   return val;
 }
 
-::pasta::VarDecl IndirectFieldDecl::VariableDeclaration(void) const noexcept {
+std::optional<::pasta::VarDecl> IndirectFieldDecl::VariableDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::IndirectFieldDecl *>(u.IndirectFieldDecl);
+  if (self.chain().size() < 2) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getVarDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
-  assert(false && "IndirectFieldDecl::VariableDeclaration can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 LabelDecl::LabelDecl(
@@ -5903,14 +5906,13 @@ enum TagTypeKind TagDecl::TagKind(void) const noexcept {
 }
 
 // 1: TagDecl::TemplateParameterList
-::pasta::TypedefNameDecl TagDecl::TypedefNameForAnonymousDeclaration(void) const noexcept {
+std::optional<::pasta::TypedefNameDecl> TagDecl::TypedefNameForAnonymousDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::TagDecl *>(u.TagDecl);
   decltype(auto) val = self.getTypedefNameForAnonDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::TypedefNameDecl>(ast, val);
   }
-  assert(false && "TagDecl::TypedefNameForAnonymousDeclaration can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 bool TagDecl::HasNameForLinkage(void) const noexcept {

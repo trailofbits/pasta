@@ -1717,7 +1717,7 @@ class FunctionDecl : public DeclaratorDecl {
   enum ConstexprSpecKind ConstexprKind(void) const noexcept;
   ::pasta::Type DeclaredReturnType(void) const noexcept;
   // DefaultedFunctionInfo: (clang::FunctionDecl::DefaultedFunctionInfo *)
-  ::pasta::FunctionDecl Definition(void) const noexcept;
+  std::optional<::pasta::FunctionDecl> Definition(void) const noexcept;
   // DependentSpecializationInfo: (clang::DependentFunctionTemplateSpecializationInfo *)
   std::optional<::pasta::FunctionTemplateDecl> DescribedFunctionTemplate(void) const noexcept;
   ::pasta::Token EllipsisToken(void) const noexcept;
@@ -1818,10 +1818,10 @@ class IndirectFieldDecl : public ValueDecl {
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, IndirectFieldDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, IndirectFieldDecl)
   std::vector<::pasta::NamedDecl> Chain(void) const noexcept;
-  ::pasta::FieldDecl AnonymousField(void) const noexcept;
+  std::optional<::pasta::FieldDecl> AnonymousField(void) const noexcept;
   ::pasta::IndirectFieldDecl CanonicalDeclaration(void) const noexcept;
   uint32_t ChainingSize(void) const noexcept;
-  ::pasta::VarDecl VariableDeclaration(void) const noexcept;
+  std::optional<::pasta::VarDecl> VariableDeclaration(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(IndirectFieldDecl)
 };
@@ -2150,7 +2150,7 @@ class TagDecl : public TypeDecl {
   // QualifierToken: (clang::NestedNameSpecifierLoc)
   enum TagTypeKind TagKind(void) const noexcept;
   // TemplateParameterList: (clang::TemplateParameterList *)
-  ::pasta::TypedefNameDecl TypedefNameForAnonymousDeclaration(void) const noexcept;
+  std::optional<::pasta::TypedefNameDecl> TypedefNameForAnonymousDeclaration(void) const noexcept;
   bool HasNameForLinkage(void) const noexcept;
   bool IsBeingDefined(void) const noexcept;
   bool IsClass(void) const noexcept;

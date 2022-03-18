@@ -1424,24 +1424,22 @@ std::vector<::pasta::Stmt> SwitchStmt::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::VarDecl SwitchStmt::ConditionVariable(void) const noexcept {
+std::optional<::pasta::VarDecl> SwitchStmt::ConditionVariable(void) const noexcept {
   auto &self = *const_cast<clang::SwitchStmt *>(u.SwitchStmt);
   decltype(auto) val = self.getConditionVariable();
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
-  assert(false && "SwitchStmt::ConditionVariable can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
-::pasta::DeclStmt SwitchStmt::ConditionVariableDeclarationStatement(void) const noexcept {
+std::optional<::pasta::DeclStmt> SwitchStmt::ConditionVariableDeclarationStatement(void) const noexcept {
   auto &self = *const_cast<clang::SwitchStmt *>(u.SwitchStmt);
   decltype(auto) val = self.getConditionVariableDeclStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::DeclStmt>(ast, val);
   }
-  assert(false && "SwitchStmt::ConditionVariableDeclarationStatement can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 ::pasta::Token SwitchStmt::EndToken(void) const noexcept {
@@ -1699,24 +1697,22 @@ std::vector<::pasta::Stmt> WhileStmt::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::VarDecl WhileStmt::ConditionVariable(void) const noexcept {
+std::optional<::pasta::VarDecl> WhileStmt::ConditionVariable(void) const noexcept {
   auto &self = *const_cast<clang::WhileStmt *>(u.WhileStmt);
   decltype(auto) val = self.getConditionVariable();
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
-  assert(false && "WhileStmt::ConditionVariable can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
-::pasta::DeclStmt WhileStmt::ConditionVariableDeclarationStatement(void) const noexcept {
+std::optional<::pasta::DeclStmt> WhileStmt::ConditionVariableDeclarationStatement(void) const noexcept {
   auto &self = *const_cast<clang::WhileStmt *>(u.WhileStmt);
   decltype(auto) val = self.getConditionVariableDeclStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::DeclStmt>(ast, val);
   }
-  assert(false && "WhileStmt::ConditionVariableDeclarationStatement can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 ::pasta::Token WhileStmt::EndToken(void) const noexcept {
@@ -2839,7 +2835,18 @@ std::vector<::pasta::Stmt> DeclStmt::Children(void) const noexcept {
 
 // 0: DeclStmt::
 // 0: DeclStmt::
-// 0: DeclStmt::Declarations
+std::vector<::pasta::Decl> DeclStmt::Declarations(void) const noexcept {
+  auto &self = *const_cast<clang::DeclStmt *>(u.DeclStmt);
+  decltype(auto) val = self.decls();
+  std::vector<::pasta::Decl> ret;
+  for (auto decl_ptr : val) {
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::Decl>(ast, decl_ptr));
+    }
+  }
+  return ret;
+}
+
 ::pasta::Token DeclStmt::BeginToken(void) const noexcept {
   auto &self = *const_cast<clang::DeclStmt *>(u.DeclStmt);
   decltype(auto) val = self.getBeginLoc();
@@ -3302,14 +3309,13 @@ bool Expr::ContainsUnexpandedParameterPack(void) const noexcept {
   return val;
 }
 
-::pasta::CXXRecordDecl Expr::BestDynamicClassType(void) const noexcept {
+std::optional<::pasta::CXXRecordDecl> Expr::BestDynamicClassType(void) const noexcept {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.getBestDynamicClassType();
   if (val) {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
-  assert(false && "Expr::BestDynamicClassType can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 ::pasta::Expr Expr::BestDynamicClassTypeExpression(void) const noexcept {
@@ -3331,14 +3337,16 @@ bool Expr::ContainsUnexpandedParameterPack(void) const noexcept {
 
 // 1: Expr::FPFeaturesInEffect
 // 1: Expr::IntegerConstantExpression
-::pasta::ObjCPropertyRefExpr Expr::ObjCProperty(void) const noexcept {
+std::optional<::pasta::ObjCPropertyRefExpr> Expr::ObjCProperty(void) const noexcept {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
+  if (!self.isLValue() || self.getObjectKind() != clang::OK_ObjCProperty) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getObjCProperty();
   if (val) {
     return StmtBuilder::Create<::pasta::ObjCPropertyRefExpr>(ast, val);
   }
-  assert(false && "Expr::ObjCProperty can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 enum ExprObjectKind Expr::ObjectKind(void) const noexcept {
@@ -3357,14 +3365,13 @@ enum ExprObjectKind Expr::ObjectKind(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::FieldDecl Expr::SourceBitField(void) const noexcept {
+std::optional<::pasta::FieldDecl> Expr::SourceBitField(void) const noexcept {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.getSourceBitField();
   if (val) {
     return DeclBuilder::Create<::pasta::FieldDecl>(ast, val);
   }
-  assert(false && "Expr::SourceBitField can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 ::pasta::Type Expr::Type(void) const noexcept {
@@ -3809,34 +3816,31 @@ std::vector<::pasta::Stmt> ForStmt::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Expr ForStmt::Condition(void) const noexcept {
+std::optional<::pasta::Expr> ForStmt::Condition(void) const noexcept {
   auto &self = *const_cast<clang::ForStmt *>(u.ForStmt);
   decltype(auto) val = self.getCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ForStmt::Condition can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
-::pasta::VarDecl ForStmt::ConditionVariable(void) const noexcept {
+std::optional<::pasta::VarDecl> ForStmt::ConditionVariable(void) const noexcept {
   auto &self = *const_cast<clang::ForStmt *>(u.ForStmt);
   decltype(auto) val = self.getConditionVariable();
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
-  assert(false && "ForStmt::ConditionVariable can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
-::pasta::DeclStmt ForStmt::ConditionVariableDeclarationStatement(void) const noexcept {
+std::optional<::pasta::DeclStmt> ForStmt::ConditionVariableDeclarationStatement(void) const noexcept {
   auto &self = *const_cast<clang::ForStmt *>(u.ForStmt);
   decltype(auto) val = self.getConditionVariableDeclStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::DeclStmt>(ast, val);
   }
-  assert(false && "ForStmt::ConditionVariableDeclarationStatement can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 ::pasta::Token ForStmt::EndToken(void) const noexcept {
@@ -3851,24 +3855,22 @@ std::vector<::pasta::Stmt> ForStmt::Children(void) const noexcept {
   return ast->TokenAt(val);
 }
 
-::pasta::Expr ForStmt::Increment(void) const noexcept {
+std::optional<::pasta::Expr> ForStmt::Increment(void) const noexcept {
   auto &self = *const_cast<clang::ForStmt *>(u.ForStmt);
   decltype(auto) val = self.getInc();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ForStmt::Increment can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
-::pasta::Stmt ForStmt::Initializer(void) const noexcept {
+std::optional<::pasta::Stmt> ForStmt::Initializer(void) const noexcept {
   auto &self = *const_cast<clang::ForStmt *>(u.ForStmt);
   decltype(auto) val = self.getInit();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "ForStmt::Initializer can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 ::pasta::Token ForStmt::LParenToken(void) const noexcept {
@@ -4491,24 +4493,22 @@ std::vector<::pasta::Stmt> IfStmt::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::VarDecl IfStmt::ConditionVariable(void) const noexcept {
+std::optional<::pasta::VarDecl> IfStmt::ConditionVariable(void) const noexcept {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.getConditionVariable();
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
-  assert(false && "IfStmt::ConditionVariable can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
-::pasta::DeclStmt IfStmt::ConditionVariableDeclarationStatement(void) const noexcept {
+std::optional<::pasta::DeclStmt> IfStmt::ConditionVariableDeclarationStatement(void) const noexcept {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.getConditionVariableDeclStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::DeclStmt>(ast, val);
   }
-  assert(false && "IfStmt::ConditionVariableDeclarationStatement can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 ::pasta::Stmt IfStmt::Else(void) const noexcept {
@@ -4783,14 +4783,13 @@ std::vector<::pasta::Stmt> InitListExpr::Children(void) const noexcept {
 }
 
 // 1: InitListExpr::Initializer
-::pasta::FieldDecl InitListExpr::InitializedFieldInUnion(void) const noexcept {
+std::optional<::pasta::FieldDecl> InitListExpr::InitializedFieldInUnion(void) const noexcept {
   auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
   decltype(auto) val = self.getInitializedFieldInUnion();
   if (val) {
     return DeclBuilder::Create<::pasta::FieldDecl>(ast, val);
   }
-  assert(false && "InitListExpr::InitializedFieldInUnion can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 // 0: InitListExpr::Initializers
@@ -4812,24 +4811,22 @@ uint32_t InitListExpr::NumInitializers(void) const noexcept {
   return ast->TokenAt(val);
 }
 
-::pasta::InitListExpr InitListExpr::SemanticForm(void) const noexcept {
+std::optional<::pasta::InitListExpr> InitListExpr::SemanticForm(void) const noexcept {
   auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
   decltype(auto) val = self.getSemanticForm();
   if (val) {
     return StmtBuilder::Create<::pasta::InitListExpr>(ast, val);
   }
-  assert(false && "InitListExpr::SemanticForm can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
-::pasta::InitListExpr InitListExpr::SyntacticForm(void) const noexcept {
+std::optional<::pasta::InitListExpr> InitListExpr::SyntacticForm(void) const noexcept {
   auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
   decltype(auto) val = self.getSyntacticForm();
   if (val) {
     return StmtBuilder::Create<::pasta::InitListExpr>(ast, val);
   }
-  assert(false && "InitListExpr::SyntacticForm can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 bool InitListExpr::HadArrayRangeDesignator(void) const noexcept {
@@ -9663,14 +9660,13 @@ std::vector<::pasta::Stmt> ReturnStmt::Children(void) const noexcept {
   return ast->TokenAt(val);
 }
 
-::pasta::VarDecl ReturnStmt::NRVOCandidate(void) const noexcept {
+std::optional<::pasta::VarDecl> ReturnStmt::NRVOCandidate(void) const noexcept {
   auto &self = *const_cast<clang::ReturnStmt *>(u.ReturnStmt);
   decltype(auto) val = self.getNRVOCandidate();
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
-  assert(false && "ReturnStmt::NRVOCandidate can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 ::pasta::Expr ReturnStmt::RetValue(void) const noexcept {
@@ -13688,14 +13684,13 @@ uint32_t CallExpr::BuiltinCallee(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::FunctionDecl CallExpr::DirectCallee(void) const noexcept {
+std::optional<::pasta::FunctionDecl> CallExpr::DirectCallee(void) const noexcept {
   auto &self = *const_cast<clang::CallExpr *>(u.CallExpr);
   decltype(auto) val = self.getDirectCallee();
   if (val) {
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
   }
-  assert(false && "CallExpr::DirectCallee can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 ::pasta::Token CallExpr::EndToken(void) const noexcept {
@@ -13812,14 +13807,13 @@ std::string_view CastExpr::CastKindName(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::NamedDecl CastExpr::ConversionFunction(void) const noexcept {
+std::optional<::pasta::NamedDecl> CastExpr::ConversionFunction(void) const noexcept {
   auto &self = *const_cast<clang::CastExpr *>(u.CastExpr);
   decltype(auto) val = self.getConversionFunction();
   if (val) {
     return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
   }
-  assert(false && "CastExpr::ConversionFunction can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 // 0: CastExpr::FPFeatures
@@ -13845,14 +13839,16 @@ std::string_view CastExpr::CastKindName(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::FieldDecl CastExpr::TargetUnionField(void) const noexcept {
+std::optional<::pasta::FieldDecl> CastExpr::TargetUnionField(void) const noexcept {
   auto &self = *const_cast<clang::CastExpr *>(u.CastExpr);
+  if (self.getCastKind() != clang::CK_ToUnion) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getTargetUnionField();
   if (val) {
     return DeclBuilder::Create<::pasta::FieldDecl>(ast, val);
   }
-  assert(false && "CastExpr::TargetUnionField can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 bool CastExpr::HasStoredFPFeatures(void) const noexcept {

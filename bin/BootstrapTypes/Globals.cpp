@@ -173,6 +173,7 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
 
   {"(llvm::iterator_range<clang::DeclContext::decl_iterator>)", "std::vector<::pasta::Decl>"},
   {"(llvm::iterator_range<clang::Decl::redecl_iterator>)", "std::vector<::pasta::Decl>"},
+  {"(llvm::iterator_range<clang::Decl *const *>)", "std::vector<::pasta::Decl>"},
   {"(llvm::iterator_range<clang::DeclContext::filtered_decl_iterator<clang::ObjCMethodDecl, &clang::ObjCMethodDecl::isClassMethod>>)",
    "std::vector<::pasta::ObjCMethodDecl>"},
   {"(llvm::iterator_range<clang::DeclContext::filtered_decl_iterator<clang::ObjCPropertyDecl, &clang::ObjCPropertyDecl::isClassProperty>>)",
@@ -481,6 +482,9 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
    DECL_ITERATOR_IMPL(Decl)},
 
   {"(llvm::iterator_range<clang::Decl::redecl_iterator>)",
+   DECL_ITERATOR_IMPL(Decl)},
+
+  {"(llvm::iterator_range<clang::Decl *const *>)",
    DECL_ITERATOR_IMPL(Decl)},
 
   {"(llvm::iterator_range<clang::DeclContext::filtered_decl_iterator<clang::ObjCMethodDecl, &clang::ObjCMethodDecl::isClassMethod>>)",
@@ -886,6 +890,28 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"Type", "PointeeOrArrayElementType"},
   {"Type", "PointeeType"},
   {"Type", "SveElementType"},
+  {"FunctionDecl", "Definition"},
+  {"ReturnStmt", "NRVOCandidate"},
+  {"Expr", "BestDynamicClassType"},
+  {"TagDecl", "TypedefNameForAnonymousDeclaration"},
+  {"Expr", "SourceBitField"},
+  {"CastExpr", "ConversionFunction"},
+  {"IfStmt", "ConditionVariable"},
+  {"IfStmt", "ConditionVariableDeclarationStatement"},
+  {"SwitchStmt", "ConditionVariable"},
+  {"SwitchStmt", "ConditionVariableDeclarationStatement"},
+  {"WhileStmt", "ConditionVariable"},
+  {"WhileStmt", "ConditionVariableDeclarationStatement"},
+  {"ForStmt", "Condition"},
+  {"ForStmt", "ConditionVariable"},
+  {"ForStmt", "ConditionVariableDeclarationStatement"},
+  {"ForStmt", "Increment"},
+  {"ForStmt", "Initializer"},
+  {"InitListExpr", "InitializedFieldInUnion"},
+  {"InitListExpr", "SemanticForm"},
+  {"InitListExpr", "SyntacticForm"},
+  {"IndirectFieldDecl", "VariableDeclaration"},
+  {"CallExpr", "DirectCallee"},
 };
 
 std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
@@ -995,6 +1021,22 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  } else {\n"
    "    auto &ac = ast->ci->getASTContext();\n"
    "    return self.EvaluateKnownConstIntCheckOverflow(ac);\n"
+   "  }\n"},
+  {{"Expr", "ObjCProperty"},
+   "  if (!self.isLValue() || self.getObjectKind() != clang::OK_ObjCProperty) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"CastExpr", "TargetUnionField"},
+   "  if (self.getCastKind() != clang::CK_ToUnion) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"IndirectFieldDecl", "AnonymousField"},
+   "  if (self.chain().size() < 2) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"IndirectFieldDecl", "VariableDeclaration"},
+   "  if (self.chain().size() < 2) {\n"
+   "    return std::nullopt;\n"
    "  }\n"},
 };
 

@@ -249,7 +249,7 @@ class Type {
   inline bool operator!=(const Type &that) const noexcept {
     return u.opaque != that.u.opaque || qualifiers != that.qualifiers;
   }
-  bool AcceptsObjCTypeParams(void) const noexcept;
+  bool AcceptsObjCTypeParameters(void) const noexcept;
   bool CanDecayToPointerType(void) const noexcept;
   bool CanHaveNullability(void) const noexcept;
   std::optional<::pasta::ArrayType> CastAsArrayTypeUnsafe(void) const noexcept;
@@ -272,8 +272,8 @@ class Type {
   std::optional<::pasta::Type> BaseElementTypeUnsafe(void) const noexcept;
   ::pasta::Type CanonicalTypeInternal(void) const noexcept;
   // CanonicalTypeUnqualified: (clang::CanQual<clang::Type>)
-  ::pasta::AutoType ContainedAutoType(void) const noexcept;
-  ::pasta::DeducedType ContainedDeducedType(void) const noexcept;
+  std::optional<::pasta::AutoType> ContainedAutoType(void) const noexcept;
+  std::optional<::pasta::DeducedType> ContainedDeducedType(void) const noexcept;
   // Dependence: (clang::TypeDependenceScope::TypeDependence)
   enum Linkage Linkage(void) const noexcept;
   // LinkageAndVisibility: (clang::LinkageInfo)
@@ -281,11 +281,11 @@ class Type {
   std::optional<::pasta::NullabilityKind> Nullability(void) const noexcept;
   // ObjCARCImplicitLifetime: (clang::Qualifiers::ObjCLifetime)
   // ObjCSubstitutions: (llvm::Optional<llvm::ArrayRef<clang::QualType>>)
-  ::pasta::CXXRecordDecl PointeeCXXRecordDeclaration(void) const noexcept;
-  ::pasta::Type PointeeOrArrayElementType(void) const noexcept;
-  ::pasta::Type PointeeType(void) const noexcept;
+  std::optional<::pasta::CXXRecordDecl> PointeeCXXRecordDeclaration(void) const noexcept;
+  std::optional<::pasta::Type> PointeeOrArrayElementType(void) const noexcept;
+  std::optional<::pasta::Type> PointeeType(void) const noexcept;
   enum TypeScalarTypeKind ScalarTypeKind(void) const noexcept;
-  ::pasta::Type SveElementType(void) const noexcept;
+  std::optional<::pasta::Type> SveElementType(void) const noexcept;
   ::pasta::TypeKind Kind(void) const noexcept;
   std::string_view KindName(void) const noexcept;
   ::pasta::Type UnqualifiedDesugaredType(void) const noexcept;
@@ -533,7 +533,7 @@ class Type {
   bool IsCXX11PODType(void) const noexcept;
   bool IsCXX98PODType(void) const noexcept;
   bool IsCanonical(void) const noexcept;
-  bool IsCanonicalAsParam(void) const noexcept;
+  bool IsCanonicalAsParameter(void) const noexcept;
   bool IsConstQualified(void) const noexcept;
   bool IsConstant(void) const noexcept;
   enum QualTypeDestructionKind IsDestructedType(void) const noexcept;
@@ -1524,9 +1524,9 @@ class FunctionProtoType : public FunctionType {
   // MethodQualifieds: (clang::Qualifiers)
   ::pasta::Expr NoexceptExpression(void) const noexcept;
   uint32_t NumExceptions(void) const noexcept;
-  uint32_t NumParams(void) const noexcept;
-  // ParamType: (clang::QualType)
-  std::vector<::pasta::Type> ParamTypes(void) const noexcept;
+  uint32_t NumParameters(void) const noexcept;
+  // ParameterType: (clang::QualType)
+  std::vector<::pasta::Type> ParameterTypes(void) const noexcept;
   // ParameterABI: (clang::ParameterABI)
   enum RefQualifierKind ReferenceQualifier(void) const noexcept;
   bool HasDependentExceptionSpec(void) const noexcept;
@@ -1537,11 +1537,11 @@ class FunctionProtoType : public FunctionType {
   bool HasNoexceptExceptionSpec(void) const noexcept;
   bool HasTrailingReturn(void) const noexcept;
   bool IsNothrow(void) const noexcept;
-  // IsParamConsumed: (bool)
+  // IsParameterConsumed: (bool)
   bool IsSugared(void) const noexcept;
   bool IsTemplateVariadic(void) const noexcept;
   bool IsVariadic(void) const noexcept;
-  // ParamTypes: (llvm::iterator_range<const clang::QualType *>)
+  // ParameterTypes: (llvm::iterator_range<const clang::QualType *>)
   std::vector<::pasta::Type> ExceptionTypes(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(FunctionProtoType)

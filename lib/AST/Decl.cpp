@@ -1043,14 +1043,13 @@ enum AccessSpecifier Decl::AccessUnsafe(void) const noexcept {
   return static_cast<::pasta::AccessSpecifier>(val);
 }
 
-::pasta::FunctionDecl Decl::AsFunction(void) const noexcept {
+std::optional<::pasta::FunctionDecl> Decl::AsFunction(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.getAsFunction();
   if (val) {
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
   }
-  assert(false && "Decl::AsFunction can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 // 0: Decl::Attributes
@@ -1093,22 +1092,20 @@ enum AvailabilityResult Decl::Availability(void) const noexcept {
 }
 
 // 0: Decl::DefiningAttribute
-::pasta::TemplateDecl Decl::DescribedTemplate(void) const noexcept {
+std::optional<::pasta::TemplateDecl> Decl::DescribedTemplate(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.getDescribedTemplate();
   if (val) {
     return DeclBuilder::Create<::pasta::TemplateDecl>(ast, val);
   }
-  assert(false && "Decl::DescribedTemplate can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
-::pasta::TemplateParameterList Decl::DescribedTemplateParams(void) const noexcept {
+std::optional<::pasta::TemplateParameterList> Decl::DescribedTemplateParameters(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.getDescribedTemplateParams();
   return ::pasta::TemplateParameterList(ast, val);
-  assert(false && "Decl::DescribedTemplateParams can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 ::pasta::Token Decl::EndToken(void) const noexcept {
@@ -1215,14 +1212,13 @@ uint32_t Decl::OwningModuleID(void) const noexcept {
   return val;
 }
 
-::pasta::DeclContext Decl::ParentFunctionOrMethod(void) const noexcept {
+std::optional<::pasta::DeclContext> Decl::ParentFunctionOrMethod(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.getParentFunctionOrMethod();
   if (val) {
     return ::pasta::DeclContext(ast, val);
   }
-  assert(false && "Decl::ParentFunctionOrMethod can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 ::pasta::Decl Decl::PreviousDeclaration(void) const noexcept {
@@ -2440,8 +2436,8 @@ std::string_view ObjCInterfaceDecl::ObjCRuntimeNameAsString(void) const noexcept
   __builtin_unreachable();
 }
 
-// 0: ObjCInterfaceDecl::TypeParamList
-// 0: ObjCInterfaceDecl::TypeParamListAsWritten
+// 0: ObjCInterfaceDecl::TypeParameterList
+// 0: ObjCInterfaceDecl::TypeParameterListAsWritten
 bool ObjCInterfaceDecl::HasDefinition(void) const noexcept {
   auto &self = *const_cast<clang::ObjCInterfaceDecl *>(u.ObjCInterfaceDecl);
   decltype(auto) val = self.hasDefinition();
@@ -2699,7 +2695,7 @@ enum DeclObjCDeclQualifier ObjCMethodDecl::ObjCDeclQualifier(void) const noexcep
   return static_cast<::pasta::DeclObjCDeclQualifier>(val);
 }
 
-// 1: ObjCMethodDecl::ParamDeclaration
+// 1: ObjCMethodDecl::ParameterDeclaration
 ::pasta::Type ObjCMethodDecl::ReturnType(void) const noexcept {
   auto &self = *const_cast<clang::ObjCMethodDecl *>(u.ObjCMethodDecl);
   decltype(auto) val = self.getReturnType();
@@ -3932,13 +3928,13 @@ uint32_t BlockDecl::NumCaptures(void) const noexcept {
   return val;
 }
 
-uint32_t BlockDecl::NumParams(void) const noexcept {
+uint32_t BlockDecl::NumParameters(void) const noexcept {
   auto &self = *const_cast<clang::BlockDecl *>(u.BlockDecl);
   decltype(auto) val = self.getNumParams();
   return val;
 }
 
-// 1: BlockDecl::ParamDeclaration
+// 1: BlockDecl::ParameterDeclaration
 ::pasta::Type BlockDecl::SignatureAsWritten(void) const noexcept {
   auto &self = *const_cast<clang::BlockDecl *>(u.BlockDecl);
   decltype(auto) val = self.getSignatureAsWritten();
@@ -3980,7 +3976,7 @@ std::vector<::pasta::ParmVarDecl> BlockDecl::Parameters(void) const noexcept {
   return ret;
 }
 
-std::vector<::pasta::ParmVarDecl> BlockDecl::ParamDeclarations(void) const noexcept {
+std::vector<::pasta::ParmVarDecl> BlockDecl::ParameterDeclarations(void) const noexcept {
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
@@ -4012,29 +4008,29 @@ CapturedDecl::CapturedDecl(
 
 PASTA_DEFINE_BASE_OPERATORS(DeclContext, CapturedDecl)
 PASTA_DEFINE_BASE_OPERATORS(Decl, CapturedDecl)
-::pasta::ImplicitParamDecl CapturedDecl::ContextParam(void) const noexcept {
+::pasta::ImplicitParamDecl CapturedDecl::ContextParameter(void) const noexcept {
   auto &self = *const_cast<clang::CapturedDecl *>(u.CapturedDecl);
   decltype(auto) val = self.getContextParam();
   if (val) {
     return DeclBuilder::Create<::pasta::ImplicitParamDecl>(ast, val);
   }
-  assert(false && "CapturedDecl::ContextParam can return nullptr!");
+  assert(false && "CapturedDecl::ContextParameter can return nullptr!");
   __builtin_unreachable();
 }
 
-uint32_t CapturedDecl::ContextParamPosition(void) const noexcept {
+uint32_t CapturedDecl::ContextParameterPosition(void) const noexcept {
   auto &self = *const_cast<clang::CapturedDecl *>(u.CapturedDecl);
   decltype(auto) val = self.getContextParamPosition();
   return val;
 }
 
-uint32_t CapturedDecl::NumParams(void) const noexcept {
+uint32_t CapturedDecl::NumParameters(void) const noexcept {
   auto &self = *const_cast<clang::CapturedDecl *>(u.CapturedDecl);
   decltype(auto) val = self.getNumParams();
   return val;
 }
 
-// 1: CapturedDecl::Param
+// 1: CapturedDecl::Parameter
 bool CapturedDecl::IsNothrow(void) const noexcept {
   auto &self = *const_cast<clang::CapturedDecl *>(u.CapturedDecl);
   decltype(auto) val = self.isNothrow();
@@ -4051,22 +4047,6 @@ std::vector<::pasta::ImplicitParamDecl> CapturedDecl::Parameters(void) const noe
     if (decl_ptr) {
       ret.emplace_back(DeclBuilder::Create<::pasta::ImplicitParamDecl>(ast, decl_ptr));
     }
-  }
-  return ret;
-}
-
-std::vector<::pasta::ImplicitParamDecl> CapturedDecl::Params(void) const noexcept {
-  auto convert_elem = [&] (clang::ImplicitParamDecl * val) {
-    if (val) {
-      return DeclBuilder::Create<::pasta::ImplicitParamDecl>(ast, val);
-    }
-    __builtin_unreachable();
-  };
-  std::vector<::pasta::ImplicitParamDecl> ret;
-  auto count = u.CapturedDecl->getNumParams();
-  decltype(count) i = 0;
-  for (; i < count; ++i) {
-    ret.emplace_back(convert_elem(u.CapturedDecl->getParam(i)));
   }
   return ret;
 }
@@ -4611,7 +4591,7 @@ enum MultiVersionKind FunctionDecl::MultiVersionKind(void) const noexcept {
 }
 
 // 0: FunctionDecl::NameInfo
-uint32_t FunctionDecl::NumParams(void) const noexcept {
+uint32_t FunctionDecl::NumParameters(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.getNumParams();
   return val;
@@ -4629,7 +4609,7 @@ enum OverloadedOperatorKind FunctionDecl::OverloadedOperator(void) const noexcep
   return static_cast<::pasta::OverloadedOperatorKind>(val);
 }
 
-// 1: FunctionDecl::ParamDeclaration
+// 1: FunctionDecl::ParameterDeclaration
 ::pasta::TokenRange FunctionDecl::ParametersSourceRange(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.getParametersSourceRange();
@@ -4711,7 +4691,7 @@ bool FunctionDecl::HasInheritedPrototype(void) const noexcept {
   return val;
 }
 
-bool FunctionDecl::HasOneParamOrDefaultArguments(void) const noexcept {
+bool FunctionDecl::HasOneParameterOrDefaultArguments(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.hasOneParamOrDefaultArgs();
   return val;
@@ -5058,7 +5038,7 @@ std::vector<::pasta::TemplateParameterList> FunctionDecl::TemplateParameterLists
   return ret;
 }
 
-std::vector<::pasta::ParmVarDecl> FunctionDecl::ParamDeclarations(void) const noexcept {
+std::vector<::pasta::ParmVarDecl> FunctionDecl::ParameterDeclarations(void) const noexcept {
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
@@ -5636,7 +5616,7 @@ bool ObjCCategoryDecl::IsClassExtension(void) const noexcept {
 }
 
 // 0: ObjCCategoryDecl::ReferencedProtocols
-// 0: ObjCCategoryDecl::TypeParamList
+// 0: ObjCCategoryDecl::TypeParameterList
 // 0: ObjCCategoryDecl::
 // 0: ObjCCategoryDecl::
 // 0: ObjCCategoryDecl::
@@ -6990,7 +6970,7 @@ std::vector<::pasta::TemplateParameterList> CXXDeductionGuideDecl::TemplateParam
   return ret;
 }
 
-std::vector<::pasta::ParmVarDecl> CXXDeductionGuideDecl::ParamDeclarations(void) const noexcept {
+std::vector<::pasta::ParmVarDecl> CXXDeductionGuideDecl::ParameterDeclarations(void) const noexcept {
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
@@ -7160,7 +7140,7 @@ std::vector<::pasta::TemplateParameterList> CXXMethodDecl::TemplateParameterList
   return ret;
 }
 
-std::vector<::pasta::ParmVarDecl> CXXMethodDecl::ParamDeclarations(void) const noexcept {
+std::vector<::pasta::ParmVarDecl> CXXMethodDecl::ParameterDeclarations(void) const noexcept {
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
@@ -7909,7 +7889,7 @@ bool RecordDecl::IsOrContainsUnion(void) const noexcept {
   return val;
 }
 
-bool RecordDecl::IsParamDestroyedInCallee(void) const noexcept {
+bool RecordDecl::IsParameterDestroyedInCallee(void) const noexcept {
   auto &self = *const_cast<clang::RecordDecl *>(u.RecordDecl);
   decltype(auto) val = self.isParamDestroyedInCallee();
   return val;
@@ -8077,7 +8057,7 @@ std::vector<::pasta::TemplateParameterList> CXXConstructorDecl::TemplateParamete
   return ret;
 }
 
-std::vector<::pasta::ParmVarDecl> CXXConstructorDecl::ParamDeclarations(void) const noexcept {
+std::vector<::pasta::ParmVarDecl> CXXConstructorDecl::ParameterDeclarations(void) const noexcept {
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
@@ -8147,7 +8127,7 @@ std::vector<::pasta::TemplateParameterList> CXXConversionDecl::TemplateParameter
   return ret;
 }
 
-std::vector<::pasta::ParmVarDecl> CXXConversionDecl::ParamDeclarations(void) const noexcept {
+std::vector<::pasta::ParmVarDecl> CXXConversionDecl::ParameterDeclarations(void) const noexcept {
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
@@ -8218,7 +8198,7 @@ std::vector<::pasta::TemplateParameterList> CXXDestructorDecl::TemplateParameter
   return ret;
 }
 
-std::vector<::pasta::ParmVarDecl> CXXDestructorDecl::ParamDeclarations(void) const noexcept {
+std::vector<::pasta::ParmVarDecl> CXXDestructorDecl::ParameterDeclarations(void) const noexcept {
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
@@ -8563,13 +8543,13 @@ bool CXXRecordDecl::HasConstexprNonCopyMoveConstructor(void) const noexcept {
   return val;
 }
 
-bool CXXRecordDecl::HasCopyAssignmentWithConstParam(void) const noexcept {
+bool CXXRecordDecl::HasCopyAssignmentWithConstParameter(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
   decltype(auto) val = self.hasCopyAssignmentWithConstParam();
   return val;
 }
 
-bool CXXRecordDecl::HasCopyConstructorWithConstParam(void) const noexcept {
+bool CXXRecordDecl::HasCopyConstructorWithConstParameter(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
   decltype(auto) val = self.hasCopyConstructorWithConstParam();
   return val;
@@ -8864,13 +8844,13 @@ bool CXXRecordDecl::HasVariantMembers(void) const noexcept {
   return val;
 }
 
-bool CXXRecordDecl::ImplicitCopyAssignmentHasConstParam(void) const noexcept {
+bool CXXRecordDecl::ImplicitCopyAssignmentHasConstParameter(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
   decltype(auto) val = self.implicitCopyAssignmentHasConstParam();
   return val;
 }
 
-bool CXXRecordDecl::ImplicitCopyConstructorHasConstParam(void) const noexcept {
+bool CXXRecordDecl::ImplicitCopyConstructorHasConstParameter(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
   decltype(auto) val = self.implicitCopyConstructorHasConstParam();
   return val;

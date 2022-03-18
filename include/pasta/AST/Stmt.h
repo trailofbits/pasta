@@ -1237,7 +1237,7 @@ class CoroutineBodyStmt : public Stmt {
   ::pasta::Stmt FallthroughHandler(void) const noexcept;
   ::pasta::Stmt FinalSuspendStatement(void) const noexcept;
   ::pasta::Stmt InitializerSuspendStatement(void) const noexcept;
-  std::vector<::pasta::Stmt> ParamMoves(void) const noexcept;
+  std::vector<::pasta::Stmt> ParameterMoves(void) const noexcept;
   ::pasta::VarDecl PromiseDeclaration(void) const noexcept;
   ::pasta::Stmt PromiseDeclarationStatement(void) const noexcept;
   ::pasta::Stmt ResultDeclaration(void) const noexcept;
@@ -3245,7 +3245,7 @@ class ObjCAtCatchStmt : public Stmt {
   ::pasta::Token AtCatchToken(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Stmt CatchBody(void) const noexcept;
-  ::pasta::VarDecl CatchParamDeclaration(void) const noexcept;
+  ::pasta::VarDecl CatchParameterDeclaration(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Token RParenToken(void) const noexcept;
   bool HasEllipsis(void) const noexcept;
@@ -4708,7 +4708,7 @@ class CXXDefaultArgExpr : public Expr {
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Expr Expression(void) const noexcept;
   ::pasta::Token ExpressionToken(void) const noexcept;
-  ::pasta::ParmVarDecl Param(void) const noexcept;
+  ::pasta::ParmVarDecl Parameter(void) const noexcept;
   ::pasta::DeclContext UsedContext(void) const noexcept;
   ::pasta::Token UsedToken(void) const noexcept;
  protected:

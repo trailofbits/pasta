@@ -371,7 +371,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Type, UnaryTransformType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, UnresolvedUsingType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, VariableArrayType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, VectorType)
-bool Type::AcceptsObjCTypeParams(void) const noexcept {
+bool Type::AcceptsObjCTypeParameters(void) const noexcept {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.acceptsObjCTypeParams();
   return val;
@@ -553,24 +553,22 @@ std::optional<::pasta::Type> Type::BaseElementTypeUnsafe(void) const noexcept {
 }
 
 // 0: Type::CanonicalTypeUnqualified
-::pasta::AutoType Type::ContainedAutoType(void) const noexcept {
+std::optional<::pasta::AutoType> Type::ContainedAutoType(void) const noexcept {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.getContainedAutoType();
   if (val) {
     return TypeBuilder::Create<::pasta::AutoType>(ast, val);
   }
-  assert(false && "Type::ContainedAutoType can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
-::pasta::DeducedType Type::ContainedDeducedType(void) const noexcept {
+std::optional<::pasta::DeducedType> Type::ContainedDeducedType(void) const noexcept {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.getContainedDeducedType();
   if (val) {
     return TypeBuilder::Create<::pasta::DeducedType>(ast, val);
   }
-  assert(false && "Type::ContainedDeducedType can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 // 0: Type::Dependence
@@ -599,27 +597,25 @@ std::optional<::pasta::NullabilityKind> Type::Nullability(void) const noexcept {
 
 // 0: Type::ObjCARCImplicitLifetime
 // 1: Type::ObjCSubstitutions
-::pasta::CXXRecordDecl Type::PointeeCXXRecordDeclaration(void) const noexcept {
+std::optional<::pasta::CXXRecordDecl> Type::PointeeCXXRecordDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.getPointeeCXXRecordDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
-  assert(false && "Type::PointeeCXXRecordDeclaration can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
-::pasta::Type Type::PointeeOrArrayElementType(void) const noexcept {
+std::optional<::pasta::Type> Type::PointeeOrArrayElementType(void) const noexcept {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.getPointeeOrArrayElementType();
   if (val) {
     return TypeBuilder::Create<::pasta::Type>(ast, val);
   }
-  assert(false && "Type::PointeeOrArrayElementType can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
-::pasta::Type Type::PointeeType(void) const noexcept {
+std::optional<::pasta::Type> Type::PointeeType(void) const noexcept {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.getPointeeType();
   return TypeBuilder::Build(ast, val);
@@ -631,7 +627,7 @@ enum TypeScalarTypeKind Type::ScalarTypeKind(void) const noexcept {
   return static_cast<::pasta::TypeScalarTypeKind>(val);
 }
 
-::pasta::Type Type::SveElementType(void) const noexcept {
+std::optional<::pasta::Type> Type::SveElementType(void) const noexcept {
   auto &self = *(u.Type);
   decltype(auto) val = self.getSveEltType(ast->ci->getASTContext());
   return TypeBuilder::Build(ast, val);
@@ -2084,7 +2080,7 @@ bool Type::IsCanonical(void) const noexcept {
   return val;
 }
 
-bool Type::IsCanonicalAsParam(void) const noexcept {
+bool Type::IsCanonicalAsParameter(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
@@ -4244,14 +4240,14 @@ uint32_t FunctionProtoType::NumExceptions(void) const noexcept {
   return val;
 }
 
-uint32_t FunctionProtoType::NumParams(void) const noexcept {
+uint32_t FunctionProtoType::NumParameters(void) const noexcept {
   auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   decltype(auto) val = self.getNumParams();
   return val;
 }
 
-// 1: FunctionProtoType::ParamType
-std::vector<::pasta::Type> FunctionProtoType::ParamTypes(void) const noexcept {
+// 1: FunctionProtoType::ParameterType
+std::vector<::pasta::Type> FunctionProtoType::ParameterTypes(void) const noexcept {
   auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   decltype(auto) val = self.getParamTypes();
   std::vector<::pasta::Type> ret;
@@ -4316,7 +4312,7 @@ bool FunctionProtoType::IsNothrow(void) const noexcept {
   return val;
 }
 
-// 1: FunctionProtoType::IsParamConsumed
+// 1: FunctionProtoType::IsParameterConsumed
 bool FunctionProtoType::IsSugared(void) const noexcept {
   auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   decltype(auto) val = self.isSugared();
@@ -4337,7 +4333,7 @@ bool FunctionProtoType::IsVariadic(void) const noexcept {
 
 // 0: FunctionProtoType::
 // 0: FunctionProtoType::
-// 0: FunctionProtoType::ParamTypes
+// 0: FunctionProtoType::ParameterTypes
 std::vector<::pasta::Type> FunctionProtoType::ExceptionTypes(void) const noexcept {
   auto convert_elem = [&] (clang::QualType val) {
     return TypeBuilder::Build(ast, val);

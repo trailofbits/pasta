@@ -2741,7 +2741,7 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-std::vector<::pasta::Stmt> CoroutineBodyStmt::ParamMoves(void) const noexcept {
+std::vector<::pasta::Stmt> CoroutineBodyStmt::ParameterMoves(void) const noexcept {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.getParamMoves();
   std::vector<::pasta::Stmt> ret;
@@ -7550,13 +7550,13 @@ std::vector<::pasta::Stmt> ObjCAtCatchStmt::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::VarDecl ObjCAtCatchStmt::CatchParamDeclaration(void) const noexcept {
+::pasta::VarDecl ObjCAtCatchStmt::CatchParameterDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::ObjCAtCatchStmt *>(u.ObjCAtCatchStmt);
   decltype(auto) val = self.getCatchParamDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
-  assert(false && "ObjCAtCatchStmt::CatchParamDeclaration can return nullptr!");
+  assert(false && "ObjCAtCatchStmt::CatchParameterDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -12149,13 +12149,13 @@ std::vector<::pasta::Stmt> CXXDefaultArgExpr::Children(void) const noexcept {
   return ast->TokenAt(val);
 }
 
-::pasta::ParmVarDecl CXXDefaultArgExpr::Param(void) const noexcept {
+::pasta::ParmVarDecl CXXDefaultArgExpr::Parameter(void) const noexcept {
   auto &self = *const_cast<clang::CXXDefaultArgExpr *>(u.CXXDefaultArgExpr);
   decltype(auto) val = self.getParam();
   if (val) {
     return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
   }
-  assert(false && "CXXDefaultArgExpr::Param can return nullptr!");
+  assert(false && "CXXDefaultArgExpr::Parameter can return nullptr!");
   __builtin_unreachable();
 }
 

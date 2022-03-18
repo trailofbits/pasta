@@ -114,6 +114,8 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   {"SveEltType", "SveElementType"},
   {"noload_decls", "AlreadyLoadedDeclarations"},
   {"Noload_decls", "AlreadyLoadedDeclarations"},
+  {"Param", "Parameter"},
+  {"Params", "Parameters"},
 
   {"NameAsString", "Name"},  // getNameAsString -> getName
 };
@@ -873,6 +875,17 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"FieldDecl", "InClassInitializer"},
   {"DeclStmt", "SingleDeclaration"},
   {"FunctionDecl", "TemplateInstantiationPattern"},  // TODO(pag): contains assert.
+  {"Decl", "ParentFunctionOrMethod"},
+  {"Decl", "AsFunction"},
+  {"Decl", "DescribedTemplate"},
+  {"Decl", "DescribedTemplateParams"},
+  {"Decl", "DescribedTemplateParameters"},
+  {"Type", "ContainedAutoType"},
+  {"Type", "ContainedDeducedType"},
+  {"Type", "PointeeCXXRecordDeclaration"},
+  {"Type", "PointeeOrArrayElementType"},
+  {"Type", "PointeeType"},
+  {"Type", "SveElementType"},
 };
 
 std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{

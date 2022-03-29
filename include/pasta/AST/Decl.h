@@ -2717,7 +2717,7 @@ class RecordDecl : public TagDecl {
   std::vector<::pasta::FieldDecl> Fields(void) const noexcept;
   std::optional<::pasta::FieldDecl> FindFirstNamedDataMember(void) const noexcept;
   enum RecordDeclArgPassingKind ArgumentPassingRestrictions(void) const noexcept;
-  ::pasta::RecordDecl Definition(void) const noexcept;
+  std::optional<::pasta::RecordDecl> Definition(void) const noexcept;
   ::pasta::RecordDecl MostRecentDeclaration(void) const noexcept;
   ::pasta::RecordDecl PreviousDeclaration(void) const noexcept;
   bool HasFlexibleArrayMember(void) const noexcept;

@@ -7765,14 +7765,13 @@ enum RecordDeclArgPassingKind RecordDecl::ArgumentPassingRestrictions(void) cons
   return static_cast<::pasta::RecordDeclArgPassingKind>(val);
 }
 
-::pasta::RecordDecl RecordDecl::Definition(void) const noexcept {
+std::optional<::pasta::RecordDecl> RecordDecl::Definition(void) const noexcept {
   auto &self = *const_cast<clang::RecordDecl *>(u.RecordDecl);
   decltype(auto) val = self.getDefinition();
   if (val) {
     return DeclBuilder::Create<::pasta::RecordDecl>(ast, val);
   }
-  assert(false && "RecordDecl::Definition can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 ::pasta::RecordDecl RecordDecl::MostRecentDeclaration(void) const noexcept {

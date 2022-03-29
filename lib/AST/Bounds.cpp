@@ -1181,6 +1181,13 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
       case clang::Decl::ExternCContext:
         continue;  // NOTE(pag): Not added to `tlds`.
 
+//      case clang::Decl::LinkageSpec:
+//        if (auto lsp = llvm::dyn_cast<clang::LinkageSpecDecl>(tld_decl);
+//            !lsp->hasBraces() && !lsp->isImplicit()) {
+//          tlds.emplace_back(tld_decl, nullptr, nullptr);
+//        }
+//        continue;
+
 //      case clang::Decl::Export:
 //      case clang::Decl::TypeAlias:
 //      case clang::Decl::Typedef:

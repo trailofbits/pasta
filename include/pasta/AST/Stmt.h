@@ -1960,13 +1960,13 @@ class LambdaExpr : public Expr {
   enum LambdaCaptureDefault CaptureDefault(void) const noexcept;
   ::pasta::Token CaptureDefaultToken(void) const noexcept;
   ::pasta::CompoundStmt CompoundStatementBody(void) const noexcept;
-  ::pasta::FunctionTemplateDecl DependentCallOperator(void) const noexcept;
+  std::optional<::pasta::FunctionTemplateDecl> DependentCallOperator(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   std::vector<::pasta::NamedDecl> ExplicitTemplateParameters(void) const noexcept;
   ::pasta::TokenRange IntroducerRange(void) const noexcept;
   ::pasta::CXXRecordDecl LambdaClass(void) const noexcept;
-  ::pasta::TemplateParameterList TemplateParameterList(void) const noexcept;
-  ::pasta::Expr TrailingRequiresClause(void) const noexcept;
+  std::optional<::pasta::TemplateParameterList> TemplateParameterList(void) const noexcept;
+  std::optional<::pasta::Expr> TrailingRequiresClause(void) const noexcept;
   bool HasExplicitParameters(void) const noexcept;
   bool HasExplicitResultType(void) const noexcept;
   // ImplicitCaptures: (llvm::iterator_range<const clang::LambdaCapture *>)

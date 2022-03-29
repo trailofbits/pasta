@@ -922,6 +922,9 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"CXXRecordDecl", "DependentLambdaCallOperator"},
   {"CXXRecordDecl", "Definition"},
   {"RecordDecl", "Definition"},
+  {"LambdaExpr", "TrailingRequiresClause"},
+  {"LambdaExpr", "TemplateParameterList"},
+  {"LambdaExpr", "DependentCallOperator"},
 };
 
 std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{

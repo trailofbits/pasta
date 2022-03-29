@@ -1529,6 +1529,26 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
           work_list.push_back(sub_decl);
         }
         break;
+
+//      // If it's something like `extern "C" int foo;` then we want to treat it
+//      // as top-level, otherwise, it's more like `extern "C" { ... }` and so we
+//      // want to find the top-level decls in the `...`.
+//      case clang::Decl::LinkageSpec:
+//        if (auto lsp = llvm::dyn_cast<clang::LinkageSpecDecl>(decl);
+//            !lsp->hasBraces() && !lsp->isImplicit()) {
+//
+//          // Compute bounds of top-level decls. This will fill out
+//          // `ast->lexically_containing_decl`.
+//          (void) ast->DeclBounds(decl);
+//          tlds.push_back(decl);
+//
+//        } else {
+//          for (auto sub_decl : clang::Decl::castToDeclContext(decl)->decls()) {
+//            work_list.push_back(sub_decl);
+//          }
+//        }
+//        break;
+
       default:
         if (auto ftpl = clang::dyn_cast<clang::FunctionTemplateDecl>(decl)) {
           for (clang::Decl *spec : ftpl->specializations()) {

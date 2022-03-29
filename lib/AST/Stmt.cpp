@@ -5077,14 +5077,13 @@ enum LambdaCaptureDefault LambdaExpr::CaptureDefault(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::FunctionTemplateDecl LambdaExpr::DependentCallOperator(void) const noexcept {
+std::optional<::pasta::FunctionTemplateDecl> LambdaExpr::DependentCallOperator(void) const noexcept {
   auto &self = *const_cast<clang::LambdaExpr *>(u.LambdaExpr);
   decltype(auto) val = self.getDependentCallOperator();
   if (val) {
     return DeclBuilder::Create<::pasta::FunctionTemplateDecl>(ast, val);
   }
-  assert(false && "LambdaExpr::DependentCallOperator can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 ::pasta::Token LambdaExpr::EndToken(void) const noexcept {
@@ -5121,22 +5120,20 @@ std::vector<::pasta::NamedDecl> LambdaExpr::ExplicitTemplateParameters(void) con
   __builtin_unreachable();
 }
 
-::pasta::TemplateParameterList LambdaExpr::TemplateParameterList(void) const noexcept {
+std::optional<::pasta::TemplateParameterList> LambdaExpr::TemplateParameterList(void) const noexcept {
   auto &self = *const_cast<clang::LambdaExpr *>(u.LambdaExpr);
   decltype(auto) val = self.getTemplateParameterList();
   return ::pasta::TemplateParameterList(ast, val);
-  assert(false && "LambdaExpr::TemplateParameterList can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
-::pasta::Expr LambdaExpr::TrailingRequiresClause(void) const noexcept {
+std::optional<::pasta::Expr> LambdaExpr::TrailingRequiresClause(void) const noexcept {
   auto &self = *const_cast<clang::LambdaExpr *>(u.LambdaExpr);
   decltype(auto) val = self.getTrailingRequiresClause();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "LambdaExpr::TrailingRequiresClause can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 bool LambdaExpr::HasExplicitParameters(void) const noexcept {

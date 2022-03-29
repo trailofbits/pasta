@@ -2873,14 +2873,14 @@ class CXXRecordDecl : public RecordDecl {
   // ForallBases: (bool)
   std::vector<::pasta::FriendDecl> Friends(void) const noexcept;
   ::pasta::CXXRecordDecl CanonicalDeclaration(void) const noexcept;
-  ::pasta::CXXRecordDecl Definition(void) const noexcept;
-  ::pasta::FunctionTemplateDecl DependentLambdaCallOperator(void) const noexcept;
-  ::pasta::ClassTemplateDecl DescribedClassTemplate(void) const noexcept;
-  ::pasta::CXXDestructorDecl Destructor(void) const noexcept;
+  std::optional<::pasta::CXXRecordDecl> Definition(void) const noexcept;
+  std::optional<::pasta::FunctionTemplateDecl> DependentLambdaCallOperator(void) const noexcept;
+  std::optional<::pasta::ClassTemplateDecl> DescribedClassTemplate(void) const noexcept;
+  std::optional<::pasta::CXXDestructorDecl> Destructor(void) const noexcept;
   uint32_t DeviceLambdaManglingNumber(void) const noexcept;
-  ::pasta::TemplateParameterList GenericLambdaTemplateParameterList(void) const noexcept;
-  ::pasta::CXXRecordDecl InstantiatedFromMemberClass(void) const noexcept;
-  ::pasta::CXXMethodDecl LambdaCallOperator(void) const noexcept;
+  std::optional<::pasta::TemplateParameterList> GenericLambdaTemplateParameterList(void) const noexcept;
+  std::optional<::pasta::CXXRecordDecl> InstantiatedFromMemberClass(void) const noexcept;
+  std::optional<::pasta::CXXMethodDecl> LambdaCallOperator(void) const noexcept;
   enum LambdaCaptureDefault LambdaCaptureDefault(void) const noexcept;
   ::pasta::Decl LambdaContextDeclaration(void) const noexcept;
   std::vector<::pasta::NamedDecl> LambdaExplicitTemplateParameters(void) const noexcept;
@@ -2895,7 +2895,7 @@ class CXXRecordDecl : public RecordDecl {
   uint32_t NumVirtualBases(void) const noexcept;
   uint32_t ODRHash(void) const noexcept;
   ::pasta::CXXRecordDecl PreviousDeclaration(void) const noexcept;
-  ::pasta::CXXRecordDecl TemplateInstantiationPattern(void) const noexcept;
+  std::optional<::pasta::CXXRecordDecl> TemplateInstantiationPattern(void) const noexcept;
   enum TemplateSpecializationKind TemplateSpecializationKind(void) const noexcept;
   // VisibleConversionFunctions: (llvm::iterator_range<clang::UnresolvedSetIterator>)
   bool HasAnyDependentBases(void) const noexcept;
@@ -2969,7 +2969,7 @@ class CXXRecordDecl : public RecordDecl {
   bool IsInterfaceLike(void) const noexcept;
   bool IsLambda(void) const noexcept;
   bool IsLiteral(void) const noexcept;
-  ::pasta::FunctionDecl IsLocalClass(void) const noexcept;
+  std::optional<::pasta::FunctionDecl> IsLocalClass(void) const noexcept;
   bool IsPOD(void) const noexcept;
   bool IsParsingBaseSpecifiers(void) const noexcept;
   bool IsPolymorphic(void) const noexcept;

@@ -912,6 +912,15 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"InitListExpr", "SyntacticForm"},
   {"IndirectFieldDecl", "VariableDeclaration"},
   {"CallExpr", "DirectCallee"},
+  {"CXXRecordDecl", "IsLocalClass"},
+  {"CXXRecordDecl", "TemplateInstantiationPattern"},
+  {"CXXRecordDecl", "LambdaCallOperator"},
+  {"CXXRecordDecl", "InstantiatedFromMemberClass"},
+  {"CXXRecordDecl", "GenericLambdaTemplateParameterList"},
+  {"CXXRecordDecl", "Destructor"},
+  {"CXXRecordDecl", "DescribedClassTemplate"},
+  {"CXXRecordDecl", "DependentLambdaCallOperator"},
+  {"CXXRecordDecl", "Definition"},
 };
 
 std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
@@ -1036,6 +1045,11 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  }\n"},
   {{"IndirectFieldDecl", "VariableDeclaration"},
    "  if (self.chain().size() < 2) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+
+  {{"CXXRecordDecl", "TemplateInstantiationPattern"},
+   "  if (!clang::isTemplateInstantiation(self.getTemplateSpecializationKind())) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
 };

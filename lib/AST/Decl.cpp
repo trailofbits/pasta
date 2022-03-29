@@ -8328,44 +8328,40 @@ std::vector<::pasta::FriendDecl> CXXRecordDecl::Friends(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::CXXRecordDecl CXXRecordDecl::Definition(void) const noexcept {
+std::optional<::pasta::CXXRecordDecl> CXXRecordDecl::Definition(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
   decltype(auto) val = self.getDefinition();
   if (val) {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
-  assert(false && "CXXRecordDecl::Definition can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
-::pasta::FunctionTemplateDecl CXXRecordDecl::DependentLambdaCallOperator(void) const noexcept {
+std::optional<::pasta::FunctionTemplateDecl> CXXRecordDecl::DependentLambdaCallOperator(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
   decltype(auto) val = self.getDependentLambdaCallOperator();
   if (val) {
     return DeclBuilder::Create<::pasta::FunctionTemplateDecl>(ast, val);
   }
-  assert(false && "CXXRecordDecl::DependentLambdaCallOperator can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
-::pasta::ClassTemplateDecl CXXRecordDecl::DescribedClassTemplate(void) const noexcept {
+std::optional<::pasta::ClassTemplateDecl> CXXRecordDecl::DescribedClassTemplate(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
   decltype(auto) val = self.getDescribedClassTemplate();
   if (val) {
     return DeclBuilder::Create<::pasta::ClassTemplateDecl>(ast, val);
   }
-  assert(false && "CXXRecordDecl::DescribedClassTemplate can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
-::pasta::CXXDestructorDecl CXXRecordDecl::Destructor(void) const noexcept {
+std::optional<::pasta::CXXDestructorDecl> CXXRecordDecl::Destructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
   decltype(auto) val = self.getDestructor();
   if (val) {
     return DeclBuilder::Create<::pasta::CXXDestructorDecl>(ast, val);
   }
-  assert(false && "CXXRecordDecl::Destructor can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 uint32_t CXXRecordDecl::DeviceLambdaManglingNumber(void) const noexcept {
@@ -8374,32 +8370,29 @@ uint32_t CXXRecordDecl::DeviceLambdaManglingNumber(void) const noexcept {
   return val;
 }
 
-::pasta::TemplateParameterList CXXRecordDecl::GenericLambdaTemplateParameterList(void) const noexcept {
+std::optional<::pasta::TemplateParameterList> CXXRecordDecl::GenericLambdaTemplateParameterList(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
   decltype(auto) val = self.getGenericLambdaTemplateParameterList();
   return ::pasta::TemplateParameterList(ast, val);
-  assert(false && "CXXRecordDecl::GenericLambdaTemplateParameterList can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
-::pasta::CXXRecordDecl CXXRecordDecl::InstantiatedFromMemberClass(void) const noexcept {
+std::optional<::pasta::CXXRecordDecl> CXXRecordDecl::InstantiatedFromMemberClass(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
   decltype(auto) val = self.getInstantiatedFromMemberClass();
   if (val) {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
-  assert(false && "CXXRecordDecl::InstantiatedFromMemberClass can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
-::pasta::CXXMethodDecl CXXRecordDecl::LambdaCallOperator(void) const noexcept {
+std::optional<::pasta::CXXMethodDecl> CXXRecordDecl::LambdaCallOperator(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
   decltype(auto) val = self.getLambdaCallOperator();
   if (val) {
     return DeclBuilder::Create<::pasta::CXXMethodDecl>(ast, val);
   }
-  assert(false && "CXXRecordDecl::LambdaCallOperator can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 enum LambdaCaptureDefault CXXRecordDecl::LambdaCaptureDefault(void) const noexcept {
@@ -8504,14 +8497,16 @@ uint32_t CXXRecordDecl::ODRHash(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::CXXRecordDecl CXXRecordDecl::TemplateInstantiationPattern(void) const noexcept {
+std::optional<::pasta::CXXRecordDecl> CXXRecordDecl::TemplateInstantiationPattern(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!clang::isTemplateInstantiation(self.getTemplateSpecializationKind())) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getTemplateInstantiationPattern();
   if (val) {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
-  assert(false && "CXXRecordDecl::TemplateInstantiationPattern can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 enum TemplateSpecializationKind CXXRecordDecl::TemplateSpecializationKind(void) const noexcept {
@@ -8937,14 +8932,13 @@ bool CXXRecordDecl::IsLiteral(void) const noexcept {
   return val;
 }
 
-::pasta::FunctionDecl CXXRecordDecl::IsLocalClass(void) const noexcept {
+std::optional<::pasta::FunctionDecl> CXXRecordDecl::IsLocalClass(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
   decltype(auto) val = self.isLocalClass();
   if (val) {
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
   }
-  assert(false && "CXXRecordDecl::IsLocalClass can return nullptr!");
-  __builtin_unreachable();
+  return std::nullopt;
 }
 
 bool CXXRecordDecl::IsPOD(void) const noexcept {

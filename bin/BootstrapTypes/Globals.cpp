@@ -118,6 +118,8 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   {"Params", "Parameters"},
 
   {"NameAsString", "Name"},  // getNameAsString -> getName
+
+  {"SwitchCaseList", "FirstSwitchCase"},
 };
 
 // Maps return types from the macros file to their replacements in the
@@ -925,6 +927,9 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"LambdaExpr", "TrailingRequiresClause"},
   {"LambdaExpr", "TemplateParameterList"},
   {"LambdaExpr", "DependentCallOperator"},
+  {"SwitchStmt", "FirstSwitchCase"},
+  {"SwitchStmt", "Initializer"},
+  {"SwitchCase", "NextSwitchCase"},
 };
 
 std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{

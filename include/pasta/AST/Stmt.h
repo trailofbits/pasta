@@ -789,7 +789,7 @@ class SwitchCase : public Stmt {
   ::pasta::Token ColonToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Token KeywordToken(void) const noexcept;
-  ::pasta::SwitchCase NextSwitchCase(void) const noexcept;
+  std::optional<::pasta::SwitchCase> NextSwitchCase(void) const noexcept;
   ::pasta::Stmt SubStatement(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(SwitchCase)
@@ -809,10 +809,10 @@ class SwitchStmt : public Stmt {
   std::optional<::pasta::VarDecl> ConditionVariable(void) const noexcept;
   std::optional<::pasta::DeclStmt> ConditionVariableDeclarationStatement(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  ::pasta::Stmt Initializer(void) const noexcept;
+  std::optional<::pasta::Stmt> Initializer(void) const noexcept;
   ::pasta::Token LParenToken(void) const noexcept;
   ::pasta::Token RParenToken(void) const noexcept;
-  ::pasta::SwitchCase SwitchCaseList(void) const noexcept;
+  std::optional<::pasta::SwitchCase> FirstSwitchCase(void) const noexcept;
   ::pasta::Token SwitchToken(void) const noexcept;
   bool HasInitializerStorage(void) const noexcept;
   bool HasVariableStorage(void) const noexcept;

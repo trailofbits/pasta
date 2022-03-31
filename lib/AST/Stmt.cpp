@@ -1373,14 +1373,15 @@ PASTA_DEFINE_DERIVED_OPERATORS(SwitchCase, DefaultStmt)
   __builtin_unreachable();
 }
 
-::pasta::SwitchCase SwitchCase::NextSwitchCase(void) const noexcept {
+std::optional<::pasta::SwitchCase> SwitchCase::NextSwitchCase(void) const noexcept {
   auto &self = *const_cast<clang::SwitchCase *>(u.SwitchCase);
   decltype(auto) val = self.getNextSwitchCase();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::SwitchCase>(ast, val);
   }
-  assert(false && "SwitchCase::NextSwitchCase can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -1474,14 +1475,15 @@ std::optional<::pasta::DeclStmt> SwitchStmt::ConditionVariableDeclarationStateme
   __builtin_unreachable();
 }
 
-::pasta::Stmt SwitchStmt::Initializer(void) const noexcept {
+std::optional<::pasta::Stmt> SwitchStmt::Initializer(void) const noexcept {
   auto &self = *const_cast<clang::SwitchStmt *>(u.SwitchStmt);
   decltype(auto) val = self.getInit();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "SwitchStmt::Initializer can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -1499,14 +1501,15 @@ std::optional<::pasta::DeclStmt> SwitchStmt::ConditionVariableDeclarationStateme
   __builtin_unreachable();
 }
 
-::pasta::SwitchCase SwitchStmt::SwitchCaseList(void) const noexcept {
+std::optional<::pasta::SwitchCase> SwitchStmt::FirstSwitchCase(void) const noexcept {
   auto &self = *const_cast<clang::SwitchStmt *>(u.SwitchStmt);
   decltype(auto) val = self.getSwitchCaseList();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::SwitchCase>(ast, val);
   }
-  assert(false && "SwitchStmt::SwitchCaseList can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 

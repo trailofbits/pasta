@@ -358,13 +358,13 @@ class Decl {
   uint32_t MaxAlignment(void) const noexcept;
   enum DeclModuleOwnershipKind ModuleOwnershipKind(void) const noexcept;
   ::pasta::Decl MostRecentDeclaration(void) const noexcept;
-  ::pasta::Decl NextDeclarationInContext(void) const noexcept;
-  ::pasta::Decl NonClosureContext(void) const noexcept;
+  std::optional<::pasta::Decl> NextDeclarationInContext(void) const noexcept;
+  std::optional<::pasta::Decl> NonClosureContext(void) const noexcept;
   // OwningModule: (clang::Module *)
   // OwningModuleForLinkage: (clang::Module *)
   uint32_t OwningModuleID(void) const noexcept;
   std::optional<::pasta::DeclContext> ParentFunctionOrMethod(void) const noexcept;
-  ::pasta::Decl PreviousDeclaration(void) const noexcept;
+  std::optional<::pasta::Decl> PreviousDeclaration(void) const noexcept;
   uint32_t TemplateDepth(void) const noexcept;
   ::pasta::TranslationUnitDecl TranslationUnitDeclaration(void) const noexcept;
   // VersionIntroduced: (llvm::VersionTuple)
@@ -1632,7 +1632,7 @@ class DeclaratorDecl : public ValueDecl {
   // Qualifier: (clang::NestedNameSpecifier *)
   // QualifierToken: (clang::NestedNameSpecifierLoc)
   // TemplateParameterList: (clang::TemplateParameterList *)
-  ::pasta::Expr TrailingRequiresClause(void) const noexcept;
+  std::optional<::pasta::Expr> TrailingRequiresClause(void) const noexcept;
   ::pasta::Type TypeSourceInfo(void) const noexcept;
   ::pasta::Token TypeSpecEndToken(void) const noexcept;
   ::pasta::Token TypeSpecStartToken(void) const noexcept;

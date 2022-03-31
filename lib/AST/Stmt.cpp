@@ -1680,14 +1680,15 @@ PASTA_DEFINE_DERIVED_OPERATORS(ValueStmt, UnresolvedLookupExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueStmt, UnresolvedMemberExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueStmt, UserDefinedLiteral)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueStmt, VAArgExpr)
-::pasta::Expr ValueStmt::ExpressionStatement(void) const noexcept {
+std::optional<::pasta::Expr> ValueStmt::ExpressionStatement(void) const noexcept {
   auto &self = *const_cast<clang::ValueStmt *>(u.ValueStmt);
   decltype(auto) val = self.getExprStmt();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ValueStmt::ExpressionStatement can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2573,14 +2574,15 @@ std::vector<::pasta::Stmt> CaseStmt::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Expr CaseStmt::RHS(void) const noexcept {
+std::optional<::pasta::Expr> CaseStmt::RHS(void) const noexcept {
   auto &self = *const_cast<clang::CaseStmt *>(u.CaseStmt);
   decltype(auto) val = self.getRHS();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CaseStmt::RHS can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2636,28 +2638,29 @@ std::vector<::pasta::Stmt> CompoundStmt::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Token CompoundStmt::LBracToken(void) const noexcept {
+::pasta::Token CompoundStmt::LeftBraceToken(void) const noexcept {
   auto &self = *const_cast<clang::CompoundStmt *>(u.CompoundStmt);
   decltype(auto) val = self.getLBracLoc();
   return ast->TokenAt(val);
   __builtin_unreachable();
 }
 
-::pasta::Token CompoundStmt::RBracToken(void) const noexcept {
+::pasta::Token CompoundStmt::RightBraceToken(void) const noexcept {
   auto &self = *const_cast<clang::CompoundStmt *>(u.CompoundStmt);
   decltype(auto) val = self.getRBracLoc();
   return ast->TokenAt(val);
   __builtin_unreachable();
 }
 
-::pasta::Stmt CompoundStmt::StatementExpressionResult(void) const noexcept {
+std::optional<::pasta::Stmt> CompoundStmt::StatementExpressionResult(void) const noexcept {
   auto &self = *const_cast<clang::CompoundStmt *>(u.CompoundStmt);
   decltype(auto) val = self.getStmtExprResult();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "CompoundStmt::StatementExpressionResult can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3561,14 +3564,15 @@ enum ExprObjectKind Expr::ObjectKind(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Decl Expr::ReferencedDeclarationOfCallee(void) const noexcept {
+std::optional<::pasta::Decl> Expr::ReferencedDeclarationOfCallee(void) const noexcept {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.getReferencedDeclOfCallee();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::Decl>(ast, val);
   }
-  assert(false && "Expr::ReferencedDeclarationOfCallee can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -4840,14 +4844,15 @@ std::optional<::pasta::DeclStmt> IfStmt::ConditionVariableDeclarationStatement(v
   __builtin_unreachable();
 }
 
-::pasta::Stmt IfStmt::Else(void) const noexcept {
+std::optional<::pasta::Stmt> IfStmt::Else(void) const noexcept {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.getElse();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "IfStmt::Else can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -4872,14 +4877,15 @@ std::optional<::pasta::DeclStmt> IfStmt::ConditionVariableDeclarationStatement(v
   __builtin_unreachable();
 }
 
-::pasta::Stmt IfStmt::Initializer(void) const noexcept {
+std::optional<::pasta::Stmt> IfStmt::Initializer(void) const noexcept {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.getInit();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "IfStmt::Initializer can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -5117,14 +5123,15 @@ std::vector<::pasta::Stmt> InitListExpr::Children(void) const noexcept {
 }
 
 // 0: InitListExpr::
-::pasta::Expr InitListExpr::ArrayFiller(void) const noexcept {
+std::optional<::pasta::Expr> InitListExpr::ArrayFiller(void) const noexcept {
   auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
   decltype(auto) val = self.getArrayFiller();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "InitListExpr::ArrayFiller can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -10521,14 +10528,15 @@ std::optional<::pasta::VarDecl> ReturnStmt::NRVOCandidate(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Expr ReturnStmt::RetValue(void) const noexcept {
+std::optional<::pasta::Expr> ReturnStmt::ReturnValue(void) const noexcept {
   auto &self = *const_cast<clang::ReturnStmt *>(u.ReturnStmt);
   decltype(auto) val = self.getRetValue();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ReturnStmt::RetValue can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -11569,19 +11577,26 @@ std::vector<::pasta::Stmt> UnaryExprOrTypeTraitExpr::Children(void) const noexce
   __builtin_unreachable();
 }
 
-::pasta::Expr UnaryExprOrTypeTraitExpr::ArgumentExpression(void) const noexcept {
+std::optional<::pasta::Expr> UnaryExprOrTypeTraitExpr::ArgumentExpression(void) const noexcept {
   auto &self = *const_cast<clang::UnaryExprOrTypeTraitExpr *>(u.UnaryExprOrTypeTraitExpr);
+  if (!self.isArgumentType()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getArgumentExpr();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "UnaryExprOrTypeTraitExpr::ArgumentExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
-::pasta::Type UnaryExprOrTypeTraitExpr::ArgumentType(void) const noexcept {
+std::optional<::pasta::Type> UnaryExprOrTypeTraitExpr::ArgumentType(void) const noexcept {
   auto &self = *const_cast<clang::UnaryExprOrTypeTraitExpr *>(u.UnaryExprOrTypeTraitExpr);
+  if (!self.isArgumentType()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getArgumentType();
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
@@ -14990,14 +15005,15 @@ uint32_t CallExpr::BuiltinCallee(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Decl CallExpr::CalleeDeclaration(void) const noexcept {
+std::optional<::pasta::Decl> CallExpr::CalleeDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::CallExpr *>(u.CallExpr);
   decltype(auto) val = self.getCalleeDecl();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::Decl>(ast, val);
   }
-  assert(false && "CallExpr::CalleeDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 

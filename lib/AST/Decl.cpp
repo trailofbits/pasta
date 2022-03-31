@@ -1257,25 +1257,27 @@ enum DeclModuleOwnershipKind Decl::ModuleOwnershipKind(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Decl Decl::NextDeclarationInContext(void) const noexcept {
+std::optional<::pasta::Decl> Decl::NextDeclarationInContext(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.getNextDeclInContext();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::Decl>(ast, val);
   }
-  assert(false && "Decl::NextDeclarationInContext can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
-::pasta::Decl Decl::NonClosureContext(void) const noexcept {
+std::optional<::pasta::Decl> Decl::NonClosureContext(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.getNonClosureContext();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::Decl>(ast, val);
   }
-  assert(false && "Decl::NonClosureContext can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -1300,14 +1302,15 @@ std::optional<::pasta::DeclContext> Decl::ParentFunctionOrMethod(void) const noe
   __builtin_unreachable();
 }
 
-::pasta::Decl Decl::PreviousDeclaration(void) const noexcept {
+std::optional<::pasta::Decl> Decl::PreviousDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.getPreviousDecl();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::Decl>(ast, val);
   }
-  assert(false && "Decl::PreviousDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -4617,14 +4620,15 @@ uint32_t DeclaratorDecl::NumTemplateParameterLists(void) const noexcept {
 // 0: DeclaratorDecl::Qualifier
 // 0: DeclaratorDecl::QualifierToken
 // 1: DeclaratorDecl::TemplateParameterList
-::pasta::Expr DeclaratorDecl::TrailingRequiresClause(void) const noexcept {
+std::optional<::pasta::Expr> DeclaratorDecl::TrailingRequiresClause(void) const noexcept {
   auto &self = *const_cast<clang::DeclaratorDecl *>(u.DeclaratorDecl);
   decltype(auto) val = self.getTrailingRequiresClause();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "DeclaratorDecl::TrailingRequiresClause can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 

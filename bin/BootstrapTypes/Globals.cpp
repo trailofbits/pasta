@@ -70,6 +70,7 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   {"Dtor", "Destructor"},
   {"Stmt", "Statement"},
   {"Cond", "Condition"},
+  {"Ret", "Return"},
   {"Expr", "Expression"},
   {"Assoc", "Association"},
   {"Init", "Initializer"},
@@ -116,7 +117,9 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   {"Noload_decls", "AlreadyLoadedDeclarations"},
   {"Param", "Parameter"},
   {"Params", "Parameters"},
-
+  {"Brac", "Brace"},
+  {"RBrac", "RightBrace"},
+  {"LBrac", "LeftBrace"},
   {"NameAsString", "Name"},  // getNameAsString -> getName
 
   {"SwitchCaseList", "FirstSwitchCase"},
@@ -900,6 +903,8 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"CastExpr", "ConversionFunction"},
   {"IfStmt", "ConditionVariable"},
   {"IfStmt", "ConditionVariableDeclarationStatement"},
+  {"IfStmt", "Initializer"},
+  {"IfStmt", "Else"},
   {"SwitchStmt", "ConditionVariable"},
   {"SwitchStmt", "ConditionVariableDeclarationStatement"},
   {"WhileStmt", "ConditionVariable"},
@@ -930,6 +935,21 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"SwitchStmt", "FirstSwitchCase"},
   {"SwitchStmt", "Initializer"},
   {"SwitchCase", "NextSwitchCase"},
+  {"Decl", "NextDeclarationInContext"},
+  {"Decl", "PreviousDeclaration"},
+  {"Decl", "NextDeclaration"},
+  {"Decl", "NonClosureContext"},
+  {"Expr", "ReferencedDeclarationOfCallee"},
+  {"DeclaratorDecl", "TrailingRequiresClause"},
+  {"CaseStmt", "RHS"},
+  {"InitListExpr", "ArrayFiller"},
+  {"UnaryExprOrTypeTraitExpr", "ArgumentExpression"},
+  {"UnaryExprOrTypeTraitExpr", "ArgumentType"},
+  {"ReturnStmt", "RetValue"},
+  {"ReturnStmt", "ReturnValue"},
+  {"ValueStmt", "ExpressionStatement"},
+  {"CompoundStmt", "StatementExpressionResult"},
+  {"CallExpr", "CalleeDeclaration"},
 };
 
 std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
@@ -1061,6 +1081,16 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  if (!clang::isTemplateInstantiation(self.getTemplateSpecializationKind())) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
+
+  {{"UnaryExprOrTypeTraitExpr", "ArgumentExpression"},
+   "  if (!self.isArgumentType()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+
+   {{"UnaryExprOrTypeTraitExpr", "ArgumentType"},
+    "  if (!self.isArgumentType()) {\n"
+    "    return std::nullopt;\n"
+    "  }\n"},
 };
 
 std::unordered_map<std::string, uint32_t> gClassIDs;

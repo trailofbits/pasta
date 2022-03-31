@@ -76,19 +76,27 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
   if (auto it = kConditionalNullptr.find(null_key); it != kConditionalNullptr.end()) {
     os << it->second;
   }
-  os << "  decltype(auto) val = self." << meth_name_ref.str() << "();\n"
-     << rt_val;
+  os << "  decltype(auto) val = self." << meth_name_ref.str() << "();\n";
   if (rt_ref.endswith(" *)")) {
     if (can_ret_null) {
-      os << "  return std::nullopt;\n";
+      os
+          << "  if (!val) {\n"
+          << "    return std::nullopt;\n"
+          << "  }\n"
+          << rt_val;
     } else {
-      os << "  assert(false && \"" << class_name << "::"
+      os
+         << rt_val
+         << "  assert(false && \"" << class_name << "::"
          << meth_name << " can return nullptr!\");\n"
          << "  __builtin_unreachable();\n";
     }
+  } else {
+    os << rt_val;
   }
 
-  os << "}\n\n";
+  os << "  __builtin_unreachable();\n"
+     << "}\n\n";
 }
 
 
@@ -133,18 +141,25 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
     if (auto it = kConditionalNullptr.find(null_key); it != kConditionalNullptr.end()) {
       os << it->second;
     }
-    os << "  decltype(auto) val = self." << meth_name_ref.str() << "(ast->ci->getASTContext());\n"
-       << rt_val;
+    os << "  decltype(auto) val = self." << meth_name_ref.str() << "(ast->ci->getASTContext());\n";
     if (rt_ref.endswith(" *)")) {
       if (can_ret_null) {
-        os << "  return std::nullopt;\n";
+        os
+            << "  if (!val) {\n"
+            << "    return std::nullopt;\n"
+            << "  }\n"
+            << rt_val;
       } else {
-        os << "  assert(false && \"" << class_name << "::"
+        os << rt_val
+           << "  assert(false && \"" << class_name << "::"
            << meth_name << " can return nullptr!\");\n"
            << "  __builtin_unreachable();\n";
       }
+    } else {
+      os << rt_val;
     }
-    os << "}\n\n";
+    os << "  __builtin_unreachable();\n"
+       << "}\n\n";
 
   } else if (p0_ref == "(bool)") {
     const auto can_ret_null = kCanReturnNullptr.count(
@@ -162,18 +177,25 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
     } else {
       os << "  auto &self = *(u." << class_name << ");\n";
     }
-    os << "  decltype(auto) val = self." << meth_name_ref.str() << "(b);\n"
-       << rt_val;
+    os << "  decltype(auto) val = self." << meth_name_ref.str() << "(b);\n";
     if (rt_ref.endswith(" *)")) {
       if (can_ret_null) {
-        os << "  return std::nullopt;\n";
+        os
+            << "  if (!val) {\n"
+            << "    return std::nullopt;\n"
+            << "  }\n"
+            << rt_val;
       } else {
-        os << "  assert(false && \"" << class_name << "::"
+        os << rt_val
+           << "  assert(false && \"" << class_name << "::"
            << meth_name << " can return nullptr!\");\n"
            << "  __builtin_unreachable();\n";
       }
+    } else {
+      os << rt_val;
     }
-    os << "}\n\n";
+    os << "  __builtin_unreachable();\n"
+       << "}\n\n";
 
   } else { \
     os << "// 1: " << real_class_name << "::" << meth_name << "\n";

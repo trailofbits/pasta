@@ -1083,7 +1083,7 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  }\n"},
 
   {{"UnaryExprOrTypeTraitExpr", "ArgumentExpression"},
-   "  if (!self.isArgumentType()) {\n"
+   "  if (self.isArgumentType()) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
 

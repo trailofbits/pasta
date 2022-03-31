@@ -11579,7 +11579,7 @@ std::vector<::pasta::Stmt> UnaryExprOrTypeTraitExpr::Children(void) const noexce
 
 std::optional<::pasta::Expr> UnaryExprOrTypeTraitExpr::ArgumentExpression(void) const noexcept {
   auto &self = *const_cast<clang::UnaryExprOrTypeTraitExpr *>(u.UnaryExprOrTypeTraitExpr);
-  if (!self.isArgumentType()) {
+  if (self.isArgumentType()) {
     return std::nullopt;
   }
   decltype(auto) val = self.getArgumentExpr();

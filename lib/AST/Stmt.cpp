@@ -12543,14 +12543,18 @@ enum AtomicExprAtomicOp AtomicExpr::Operation(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Expr AtomicExpr::OrderFail(void) const noexcept {
+std::optional<::pasta::Expr> AtomicExpr::OrderFail(void) const noexcept {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
+  if (self.getNumSubExprs() <= 3 /* ORDER_FAIL */) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getOrderFail();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "AtomicExpr::OrderFail can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -12572,38 +12576,54 @@ enum AtomicExprAtomicOp AtomicExpr::Operation(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Expr AtomicExpr::Scope(void) const noexcept {
+std::optional<::pasta::Expr> AtomicExpr::Scope(void) const noexcept {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
+  if (self.getOp() < clang::AtomicExpr::AO__opencl_atomic_load ||
+      self.getOp() > clang::AtomicExpr::AO__opencl_atomic_fetch_max) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getScope();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "AtomicExpr::Scope can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
 // 0: AtomicExpr::ScopeModel
 // 0: AtomicExpr::SubExpressions
-::pasta::Expr AtomicExpr::Val1(void) const noexcept {
+std::optional<::pasta::Expr> AtomicExpr::Value1(void) const noexcept {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
+  if (self.getOp() != clang::AtomicExpr::AO__c11_atomic_init &&
+      self.getOp() != clang::AtomicExpr::AO__opencl_atomic_init &&
+      self.getNumSubExprs() <= 2 /* VAL1 */) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getVal1();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "AtomicExpr::Val1 can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
-::pasta::Expr AtomicExpr::Val2(void) const noexcept {
+std::optional<::pasta::Expr> AtomicExpr::Value2(void) const noexcept {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
+  if (self.getOp() != clang::AtomicExpr::AO__atomic_exchange &&
+      self.getNumSubExprs() <= 4 /* VAL2 */) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getVal2();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "AtomicExpr::Val2 can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -12614,14 +12634,18 @@ enum AtomicExprAtomicOp AtomicExpr::Operation(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Expr AtomicExpr::Weak(void) const noexcept {
+std::optional<::pasta::Expr> AtomicExpr::Weak(void) const noexcept {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
+  if (self.getNumSubExprs() <= 5 /* WEAK */) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getWeak();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "AtomicExpr::Weak can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 

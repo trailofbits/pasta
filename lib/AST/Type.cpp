@@ -812,7 +812,7 @@ bool Type::IsAggregateType(void) const noexcept {
   __builtin_unreachable();
 }
 
-bool Type::IsAlignValT(void) const noexcept {
+bool Type::IsAlignValueT(void) const noexcept {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.isAlignValT();
   return val;

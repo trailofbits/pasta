@@ -1653,7 +1653,7 @@ class EnumConstantDecl : public ValueDecl {
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, EnumConstantDecl)
   ::pasta::EnumConstantDecl CanonicalDeclaration(void) const noexcept;
   std::optional<::pasta::Expr> InitializerExpression(void) const noexcept;
-  llvm::APSInt InitializerVal(void) const noexcept;
+  llvm::APSInt InitializerValue(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(EnumConstantDecl)
 };

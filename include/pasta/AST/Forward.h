@@ -3079,7 +3079,7 @@ enum class OpenMPLastprivateModifier : unsigned int {
 };
 
 enum class OpenMPLinearClauseKind : unsigned int {
-  kVal = 0,
+  kValue = 0,
   kReference = 1,
   kUval = 2,
   kUnknown = 3,

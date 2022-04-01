@@ -301,7 +301,7 @@ class Type {
   bool HasUnnamedOrLocalType(void) const noexcept;
   bool HasUnsignedIntegerRepresentation(void) const noexcept;
   bool IsAggregateType(void) const noexcept;
-  bool IsAlignValT(void) const noexcept;
+  bool IsAlignValueT(void) const noexcept;
   bool IsAnyCharacterType(void) const noexcept;
   bool IsAnyComplexType(void) const noexcept;
   bool IsAnyPointerType(void) const noexcept;

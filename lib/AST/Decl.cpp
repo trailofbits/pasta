@@ -4698,7 +4698,7 @@ std::optional<::pasta::Expr> EnumConstantDecl::InitializerExpression(void) const
   __builtin_unreachable();
 }
 
-llvm::APSInt EnumConstantDecl::InitializerVal(void) const noexcept {
+llvm::APSInt EnumConstantDecl::InitializerValue(void) const noexcept {
   auto &self = *const_cast<clang::EnumConstantDecl *>(u.EnumConstantDecl);
   decltype(auto) val = self.getInitVal();
   return val;

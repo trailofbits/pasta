@@ -4519,16 +4519,16 @@ class AtomicExpr : public Expr {
   uint32_t NumSubExpressions(void) const noexcept;
   enum AtomicExprAtomicOp Operation(void) const noexcept;
   ::pasta::Expr Order(void) const noexcept;
-  ::pasta::Expr OrderFail(void) const noexcept;
+  std::optional<::pasta::Expr> OrderFail(void) const noexcept;
   ::pasta::Expr Pointer(void) const noexcept;
   ::pasta::Token RParenToken(void) const noexcept;
-  ::pasta::Expr Scope(void) const noexcept;
+  std::optional<::pasta::Expr> Scope(void) const noexcept;
   // ScopeModel: (std::unique_ptr<clang::AtomicScopeModel, std::default_delete<clang::AtomicScopeModel>>)
   // SubExpressions: (const clang::Expr *const *)
-  ::pasta::Expr Val1(void) const noexcept;
-  ::pasta::Expr Val2(void) const noexcept;
+  std::optional<::pasta::Expr> Value1(void) const noexcept;
+  std::optional<::pasta::Expr> Value2(void) const noexcept;
   ::pasta::Type ValueType(void) const noexcept;
-  ::pasta::Expr Weak(void) const noexcept;
+  std::optional<::pasta::Expr> Weak(void) const noexcept;
   bool IsCmpXChg(void) const noexcept;
   bool IsOpenCL(void) const noexcept;
   bool IsVolatile(void) const noexcept;

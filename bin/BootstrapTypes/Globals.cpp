@@ -121,6 +121,9 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   {"RBrac", "RightBrace"},
   {"LBrac", "LeftBrace"},
   {"NameAsString", "Name"},  // getNameAsString -> getName
+  {"Val", "Value"},
+  {"Val1", "Value1"},
+  {"Val2", "Value2"},
 
   {"SwitchCaseList", "FirstSwitchCase"},
 };
@@ -1087,10 +1090,39 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "    return std::nullopt;\n"
    "  }\n"},
 
-   {{"UnaryExprOrTypeTraitExpr", "ArgumentType"},
-    "  if (!self.isArgumentType()) {\n"
-    "    return std::nullopt;\n"
-    "  }\n"},
+  {{"UnaryExprOrTypeTraitExpr", "ArgumentType"},
+   "  if (!self.isArgumentType()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+
+  {{"AtomicExpr", "OrderFail"},
+   "  if (self.getNumSubExprs() <= 3 /* ORDER_FAIL */) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+
+  {{"AtomicExpr", "Weak"},
+   "  if (self.getNumSubExprs() <= 5 /* WEAK */) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+
+  {{"AtomicExpr", "Value1"},
+   "  if (self.getOp() != clang::AtomicExpr::AO__c11_atomic_init &&\n"
+   "      self.getOp() != clang::AtomicExpr::AO__opencl_atomic_init &&\n"
+   "      self.getNumSubExprs() <= 2 /* VAL1 */) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+
+  {{"AtomicExpr", "Value2"},
+   "  if (self.getOp() != clang::AtomicExpr::AO__atomic_exchange &&\n"
+   "      self.getNumSubExprs() <= 4 /* VAL2 */) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+
+  {{"AtomicExpr", "Scope"},
+   "  if (self.getOp() < clang::AtomicExpr::AO__opencl_atomic_load ||\n"
+   "      self.getOp() > clang::AtomicExpr::AO__opencl_atomic_fetch_max) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
 };
 
 std::unordered_map<std::string, uint32_t> gClassIDs;

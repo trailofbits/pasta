@@ -2152,14 +2152,15 @@ std::vector<::pasta::Stmt> CXXCatchStmt::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::VarDecl CXXCatchStmt::ExceptionDeclaration(void) const noexcept {
+std::optional<::pasta::VarDecl> CXXCatchStmt::ExceptionDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::CXXCatchStmt *>(u.CXXCatchStmt);
   decltype(auto) val = self.getExceptionDecl();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
-  assert(false && "CXXCatchStmt::ExceptionDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 

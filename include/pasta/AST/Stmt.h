@@ -1071,7 +1071,7 @@ class CXXCatchStmt : public Stmt {
   ::pasta::Token CatchToken(void) const noexcept;
   ::pasta::Type CaughtType(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  ::pasta::VarDecl ExceptionDeclaration(void) const noexcept;
+  std::optional<::pasta::VarDecl> ExceptionDeclaration(void) const noexcept;
   ::pasta::Stmt HandlerBlock(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXCatchStmt)

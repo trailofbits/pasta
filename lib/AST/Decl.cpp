@@ -4888,7 +4888,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXDestructorDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXMethodDecl)
 std::optional<bool> FunctionDecl::DoesDeclarationForceExternallyVisibleDefinition(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
-  if (!self.doesThisDeclarationHaveABody()) {
+  if (self.doesThisDeclarationHaveABody()) {
     return std::nullopt;
   } else {
     return self.doesDeclarationForceExternallyVisibleDefinition();

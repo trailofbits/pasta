@@ -965,6 +965,7 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"CXXTypeidExpr", "IsMostDerived"},
   {"UsingShadowDecl", "NextUsingShadowDeclaration"},
   {"FriendDecl", "FriendDeclaration"},
+  {"CXXCatchStmt", "ExceptionDeclaration"},
 };
 
 std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
@@ -1006,7 +1007,7 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "    return self.isMSExternInline();\n"
    "  }\n"},
   {{"FunctionDecl", "DoesDeclarationForceExternallyVisibleDefinition"},
-   "  if (!self.doesThisDeclarationHaveABody()) {\n"
+   "  if (self.doesThisDeclarationHaveABody()) {\n"
    "    return std::nullopt;\n"
    "  } else {\n"
    "    return self.doesDeclarationForceExternallyVisibleDefinition();\n"
@@ -1357,6 +1358,10 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  }\n"},
   {{"TypeTraitExpr", "Value"},
    "  if (self.isValueDependent()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"VarDecl", "HasICEInitializer"},
+   "  if (auto init = self.getInit(); !init || init->isValueDependent()) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
 

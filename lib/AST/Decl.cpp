@@ -7162,10 +7162,8 @@ bool VarDecl::HasGlobalStorage(void) const noexcept {
 
 std::optional<bool> VarDecl::HasICEInitializer(void) const noexcept {
   auto &self = *(u.VarDecl);
-  if (!self.getInit()) {
+  if (auto init = self.getInit(); !init || init->isValueDependent()) {
     return std::nullopt;
-  } else {
-    return self.hasICEInitializer(self.getASTContext());
   }
   decltype(auto) val = self.hasICEInitializer(ast->ci->getASTContext());
   return val;

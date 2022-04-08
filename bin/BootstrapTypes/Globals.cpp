@@ -982,12 +982,6 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  if (!IsSingleDeclaration()) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
-  {{"VarDecl", "HasICEInitializer"},
-   "  if (!self.getInit()) {\n"
-   "    return std::nullopt;\n"
-   "  } else {\n"
-   "    return self.hasICEInitializer(self.getASTContext());\n"
-   "  }\n"},
   {{"FunctionDecl", "IsReservedGlobalPlacementOperator"},
    "  decltype(auto) dname = self.getDeclName();\n"
    "  if (dname.getNameKind() != clang::DeclarationName::CXXOperatorName) {\n"

@@ -953,6 +953,18 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"ValueStmt", "ExpressionStatement"},
   {"CompoundStmt", "StatementExpressionResult"},
   {"CallExpr", "CalleeDeclaration"},
+  {"CXXRecordDecl", "Bases"},
+  {"CXXRecordDecl", "VirtualBases"},
+  {"CXXRecordDecl", "Friends"},
+  {"CXXRecordDecl", "MostRecentNonInjectedDeclaration"},
+  {"MaterializeTemporaryExpr", "ExtendingDeclaration"},
+  {"MaterializeTemporaryExpr", "LifetimeExtendedTemporaryDeclaration"},
+  {"CXXDestructorDecl", "OperatorDelete"},
+  {"CXXDestructorDecl", "OperatorDeleteThisArgument"},
+  {"CXXTypeidExpr", "ExpressionOperand"},
+  {"CXXTypeidExpr", "IsMostDerived"},
+  {"UsingShadowDecl", "NextUsingShadowDeclaration"},
+  {"FriendDecl", "FriendDeclaration"},
 };
 
 std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
@@ -1123,6 +1135,238 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "      self.getOp() > clang::AtomicExpr::AO__opencl_atomic_fetch_max) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
+
+
+#define SELF_IS_DEFINITION \
+    "  if (!self.getDefinition()) {\n" \
+    "    return std::nullopt;\n" \
+    "  }\n"
+
+#define SELF_IS_LAMBDA \
+    "  if (!self.isLambda()) {\n" \
+    "    return std::nullopt;\n" \
+    "  }\n"
+
+  {{"CXXRecordDecl", "NumBases"},
+   SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "NumVirtualBases"},
+   SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "Bases"},
+   SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "VirtualBases"},
+   SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "Methods"},
+   SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "GenericLambdaTemplateParameterList"},
+   "  if (!self.isGenericLambda()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"CXXRecordDecl", "LambdaCallOperator"},
+   SELF_IS_LAMBDA},
+  {{"CXXRecordDecl", "LambdaManglingNumber"},
+   SELF_IS_LAMBDA},
+  {{"CXXRecordDecl", "HasKnownLambdaInternalLinkage"},
+   SELF_IS_LAMBDA},
+  {{"CXXRecordDecl", "LambdaIsDefaultConstructibleAndAssignable"},
+   SELF_IS_LAMBDA},
+  {{"CXXRecordDecl", "LambdaCaptureDefault"},
+   SELF_IS_LAMBDA},
+  {{"CXXRecordDecl", "LambdaContextDeclaration"},
+   SELF_IS_LAMBDA},
+  {{"CXXRecordDecl", "LambdaExplicitTemplateParameters"},
+   "  if (!self.getGenericLambdaTemplateParameterList()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"CXXRecordDecl", "LambdaTypeInfo"},
+   SELF_IS_LAMBDA},
+  {{"CXXRecordDecl", "ODRHash"},
+   SELF_IS_DEFINITION},
+  {{"EnumDecl", "ODRHash"},
+   "  auto def = const_cast<clang::EnumDecl *>(self.getDefinition());\n"
+   "  if (!def) {\n"
+   "    return std::nullopt;\n"
+   "  } else {\n"
+   "    return def->getODRHash();\n"
+   "  }\n"},
+  {{"FunctionDecl", "ODRHash"},
+   "  auto def = const_cast<clang::FunctionDecl *>(self.getDefinition());\n"
+   "  if (!def) {\n"
+   "    return std::nullopt;\n"
+   "  } else {\n"
+   "    return def->getODRHash();\n"
+   "  }\n"},
+  {{"CXXRecordDecl", "MSInheritanceModel"},
+   "  if (!self.getAttr<clang::MSInheritanceAttr>()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"CXXRecordDecl", "NullFieldOffsetIsZero"},
+   "  if (!self.getAttr<clang::MSInheritanceAttr>()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"CXXRecordDecl", "AllowConstDefaultInitializer"},
+   SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "DefaultedCopyConstructorIsDeleted"},
+   SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "DefaultedDefaultConstructorIsConstexpr"},
+   SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "DefaultedDestructorIsConstexpr"},
+   SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "DefaultedDestructorIsDeleted"},
+   SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "DefaultedMoveConstructorIsDeleted"},
+   SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasAnyDependentBases"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasConstexprDefaultConstructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasConstexprDestructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasConstexprNonCopyMoveConstructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasCopyAssignmentWithConstParameter"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasCopyConstructorWithConstParameter"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasDefaultConstructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasDefinition"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasDirectFields"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasFriends"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasInClassInitializer"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasInheritedAssignment"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasInheritedConstructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasIrrelevantDestructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasKnownLambdaInternalLinkage"}, SELF_IS_LAMBDA SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasMemberName"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasMoveAssignment"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasMoveConstructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasMutableFields"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasNonLiteralTypeFieldsOrBases"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasNonTrivialCopyAssignment"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasNonTrivialCopyConstructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasNonTrivialCopyConstructorForCall"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasNonTrivialDefaultConstructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasNonTrivialDestructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasNonTrivialDestructorForCall"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasNonTrivialMoveAssignment"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasNonTrivialMoveConstructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasNonTrivialMoveConstructorForCall"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasPrivateFields"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasProtectedFields"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasSimpleCopyAssignment"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasSimpleCopyConstructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasSimpleDestructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasSimpleMoveAssignment"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasSimpleMoveConstructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasTrivialCopyAssignment"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasTrivialCopyConstructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasTrivialCopyConstructorForCall"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasTrivialDefaultConstructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasTrivialDestructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasTrivialDestructorForCall"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasTrivialMoveAssignment"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasTrivialMoveConstructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasTrivialMoveConstructorForCall"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasUninitializedReferenceMember"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasUserDeclaredConstructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasUserDeclaredCopyAssignment"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasUserDeclaredCopyConstructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasUserDeclaredDestructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasUserDeclaredMoveAssignment"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasUserDeclaredMoveConstructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasUserDeclaredMoveOperation"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasUserProvidedDefaultConstructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasVariantMembers"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "Friends"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "ImplicitCopyAssignmentHasConstParameter"},SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "ImplicitCopyConstructorHasConstParameter"},SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsAbstract"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsAggregate"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsAnyDestructorNoReturn"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsCLike"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsCXX11StandardLayout"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsCurrentInstantiation"}, SELF_IS_DEFINITION},
+//  {{"CXXRecordDecl", "IsDependentLambda"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsDynamicClass"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsEffectivelyFinal"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsEmpty"}, SELF_IS_DEFINITION},
+  //{{"CXXRecordDecl", "IsGenericLambda"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsInterfaceLike"}, SELF_IS_DEFINITION},
+  //{{"CXXRecordDecl", "IsLambda"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsLiteral"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsLocalClass"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsPOD"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsParsingBaseSpecifiers"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsPolymorphic"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsProvablyNotDerivedFrom"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsStandardLayout"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsStructural"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsTrivial"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsTriviallyCopyable"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsVirtuallyDerivedFrom"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "MayBeAbstract"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "MayBeDynamicClass"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "MayBeNonDynamicClass"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "NeedsImplicitCopyAssignment"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "NeedsImplicitCopyConstructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "NeedsImplicitDefaultConstructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "NeedsImplicitDestructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "NeedsImplicitMoveAssignment"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "NeedsImplicitMoveConstructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "NeedsOverloadResolutionForCopyAssignment"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "NeedsOverloadResolutionForCopyConstructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "NeedsOverloadResolutionForDestructor"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "NeedsOverloadResolutionForMoveAssignment"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "NeedsOverloadResolutionForMoveConstructor"}, SELF_IS_DEFINITION},
+
+  {{"NamedDecl", "ObjCFStringFormattingFamily"},
+   "  if (!self.getIdentifier()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+
+  {{"FunctionDecl", "DoesDeclarationForceExternallyVisibleDefinition"},
+   "  if (self.doesThisDeclarationHaveABody()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+
+  {{"CXXConstructorDecl", "TargetConstructor"},
+   "  if (!self.isDelegatingConstructor()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+
+  {{"CXXTypeidExpr", "ExpressionOperand"},
+   "  if (self.isTypeOperand()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"CXXTypeidExpr", "IsMostDerived"},
+   "  if (self.isTypeOperand()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"FunctionDecl", "DoesDeclarationForceExternallyVisibleDefinition"},
+   "  if (self.doesThisDeclarationHaveABody()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"SizeOfPackExpr", "PartialArguments"},
+   "  if (!self.isPartiallySubstituted()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"SizeOfPackExpr", "PackLength"},
+   "  if (self.isValueDependent()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"CXXUuidofExpr", "ExpressionOperand"},
+   "  if (self.isTypeOperand()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"CXXDefaultInitExpr", "Expression"},
+   "  if (!self.getField()->getInClassInitializer()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"TypeTraitExpr", "Value"},
+   "  if (self.isValueDependent()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+
+//  {{"CXXRecordDecl", "DefaultedMoveConstructorIsDeleted"},
+//   "  if (self.needsOverloadResolutionForMoveConstructor() ||\n"
+//   "      self.needsImplicitMoveConstructor()) {\n"
+//   "    return self.defaultedMoveConstructorIsDeleted();\n"
+//   "  } else {\n"
+//   "    return std::nullopt;\n"
+//   "  }\n"},
 };
 
 std::unordered_map<std::string, uint32_t> gClassIDs;

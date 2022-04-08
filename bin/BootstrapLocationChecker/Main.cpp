@@ -52,35 +52,38 @@ static int GenerateFromClasses(std::vector<pasta::CXXRecordDecl> decls,
        << "    CHECK_LE(begin_index, end_index);\n";
 
     auto i = 0u;
-    for (auto method : decl.Methods()) {
-      auto meth_name = method.Name();
-      if (meth_name == "TokenRange") {
-        continue;
-      }
+    auto methods = decl.Methods();
+    if (methods) {
+      for (auto method : *methods) {
+        auto meth_name = method.Name();
+        if (meth_name == "TokenRange") {
+          continue;
+        }
 
-      auto return_type = method.ReturnType();
-      auto record = return_type.AsRecordDeclaration();
-      if (!record) {
-        continue;
-      }
+        auto return_type = method.ReturnType();
+        auto record = return_type.AsRecordDeclaration();
+        if (!record) {
+          continue;
+        }
 
-      auto rname = record->Name();
-      if (rname == "Token") {
-        os << "    if (auto t_" << i << " = decl." << meth_name << "()) {\n"
-           << "      LOG_IF(ERROR, begin_index > t_" << i << ".Index()) << \"" << decl_name << ":" << meth_name << "\";\n"
-           << "      LOG_IF(ERROR, t_" << i << ".Index() > end_index) << \"" << decl_name << ":" << meth_name << "\";\n"
-           << "    }\n";
-        ++i;
-      } else if (rname == "TokenRange") {
-        os << "    if (auto r_" << i << " = decl." << meth_name << "(); r_"
-           << i << ".Size()) {\n"
-           << "      auto r_begin_index = r_" << i << ".begin()->Index();\n"
-           << "      auto r_end_index = (--r_" << i << ".end())->Index();\n"
-           << "      CHECK_LE(r_begin_index, r_end_index) << \"" << decl_name << ":" << meth_name << "\";\n"
-           << "      LOG_IF(ERROR, r_begin_index < begin_index) << \"" << decl_name << ":" << meth_name << "\";\n"
-           << "      LOG_IF(ERROR, r_end_index > end_index) << \"" << decl_name << ":" << meth_name << "\";\n"
-           << "    }\n";
-        ++i;
+        auto rname = record->Name();
+        if (rname == "Token") {
+          os << "    if (auto t_" << i << " = decl." << meth_name << "()) {\n"
+             << "      LOG_IF(ERROR, begin_index > t_" << i << ".Index()) << \"" << decl_name << ":" << meth_name << "\";\n"
+             << "      LOG_IF(ERROR, t_" << i << ".Index() > end_index) << \"" << decl_name << ":" << meth_name << "\";\n"
+             << "    }\n";
+          ++i;
+        } else if (rname == "TokenRange") {
+          os << "    if (auto r_" << i << " = decl." << meth_name << "(); r_"
+             << i << ".Size()) {\n"
+             << "      auto r_begin_index = r_" << i << ".begin()->Index();\n"
+             << "      auto r_end_index = (--r_" << i << ".end())->Index();\n"
+             << "      CHECK_LE(r_begin_index, r_end_index) << \"" << decl_name << ":" << meth_name << "\";\n"
+             << "      LOG_IF(ERROR, r_begin_index < begin_index) << \"" << decl_name << ":" << meth_name << "\";\n"
+             << "      LOG_IF(ERROR, r_end_index > end_index) << \"" << decl_name << ":" << meth_name << "\";\n"
+             << "    }\n";
+          ++i;
+        }
       }
     }
 

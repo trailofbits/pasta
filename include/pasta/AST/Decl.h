@@ -590,7 +590,7 @@ class FriendDecl : public Decl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(FriendDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, FriendDecl)
-  ::pasta::NamedDecl FriendDeclaration(void) const noexcept;
+  std::optional<::pasta::NamedDecl> FriendDeclaration(void) const noexcept;
   ::pasta::Token FriendToken(void) const noexcept;
   ::pasta::Type FriendType(void) const noexcept;
   uint32_t FriendTypeNumTemplateParameterLists(void) const noexcept;
@@ -754,7 +754,7 @@ class NamedDecl : public Decl {
   enum Linkage LinkageInternal(void) const noexcept;
   ::pasta::NamedDecl MostRecentDeclaration(void) const noexcept;
   std::string Name(void) const noexcept;
-  enum ObjCStringFormatFamily ObjCFStringFormattingFamily(void) const noexcept;
+  std::optional<enum ObjCStringFormatFamily> ObjCFStringFormattingFamily(void) const noexcept;
   std::string QualifiedNameAsString(void) const noexcept;
   ::pasta::NamedDecl UnderlyingDeclaration(void) const noexcept;
   enum Visibility Visibility(void) const noexcept;
@@ -1357,7 +1357,7 @@ class UsingShadowDecl : public NamedDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(UsingShadowDecl, ConstructorUsingShadowDecl)
   ::pasta::UsingShadowDecl CanonicalDeclaration(void) const noexcept;
   ::pasta::BaseUsingDecl Introducer(void) const noexcept;
-  ::pasta::UsingShadowDecl NextUsingShadowDeclaration(void) const noexcept;
+  std::optional<::pasta::UsingShadowDecl> NextUsingShadowDeclaration(void) const noexcept;
   ::pasta::NamedDecl TargetDeclaration(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(UsingShadowDecl)
@@ -1733,7 +1733,7 @@ class FunctionDecl : public DeclaratorDecl {
   enum MultiVersionKind MultiVersionKind(void) const noexcept;
   // NameInfo: (clang::DeclarationNameInfo)
   uint32_t NumParameters(void) const noexcept;
-  uint32_t ODRHash(void) const noexcept;
+  std::optional<uint32_t> ODRHash(void) const noexcept;
   enum OverloadedOperatorKind OverloadedOperator(void) const noexcept;
   // ParameterDeclaration: (const clang::ParmVarDecl *)
   ::pasta::TokenRange ParametersSourceRange(void) const noexcept;
@@ -2592,7 +2592,7 @@ class EnumDecl : public TagDecl {
   ::pasta::EnumDecl MostRecentDeclaration(void) const noexcept;
   uint32_t NumNegativeBits(void) const noexcept;
   uint32_t NumPositiveBits(void) const noexcept;
-  uint32_t ODRHash(void) const noexcept;
+  std::optional<uint32_t> ODRHash(void) const noexcept;
   ::pasta::EnumDecl PreviousDeclaration(void) const noexcept;
   ::pasta::Type PromotionType(void) const noexcept;
   std::optional<::pasta::EnumDecl> TemplateInstantiationPattern(void) const noexcept;
@@ -2783,7 +2783,7 @@ class CXXConstructorDecl : public CXXMethodDecl {
   // ExplicitSpecifier: (const clang::ExplicitSpecifier)
   // InheritedConstructor: (clang::InheritedConstructor)
   uint32_t NumConstructorInitializers(void) const noexcept;
-  ::pasta::CXXConstructorDecl TargetConstructor(void) const noexcept;
+  std::optional<::pasta::CXXConstructorDecl> TargetConstructor(void) const noexcept;
   // Initializers: (llvm::iterator_range<clang::CXXCtorInitializer *const *>)
   bool IsConvertingConstructor(bool) const noexcept;
   bool IsDefaultConstructor(void) const noexcept;
@@ -2837,8 +2837,8 @@ class CXXDestructorDecl : public CXXMethodDecl {
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, CXXDestructorDecl)
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, CXXDestructorDecl)
   ::pasta::CXXDestructorDecl CanonicalDeclaration(void) const noexcept;
-  ::pasta::FunctionDecl OperatorDelete(void) const noexcept;
-  ::pasta::Expr OperatorDeleteThisArgument(void) const noexcept;
+  std::optional<::pasta::FunctionDecl> OperatorDelete(void) const noexcept;
+  std::optional<::pasta::Expr> OperatorDeleteThisArgument(void) const noexcept;
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
   std::vector<::pasta::ParmVarDecl> ParameterDeclarations(void) const noexcept;
  protected:
@@ -2860,18 +2860,18 @@ class CXXRecordDecl : public RecordDecl {
   PASTA_DECLARE_BASE_OPERATORS(TypeDecl, CXXRecordDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(CXXRecordDecl, ClassTemplatePartialSpecializationDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(CXXRecordDecl, ClassTemplateSpecializationDecl)
-  bool AllowConstDefaultInitializer(void) const noexcept;
-  std::vector<::pasta::CXXBaseSpecifier> Bases(void) const noexcept;
+  std::optional<bool> AllowConstDefaultInitializer(void) const noexcept;
+  std::optional<std::vector<::pasta::CXXBaseSpecifier>> Bases(void) const noexcept;
   enum MSInheritanceModel CalculateInheritanceModel(void) const noexcept;
   // Captures: (llvm::iterator_range<const clang::LambdaCapture *>)
   std::vector<::pasta::CXXConstructorDecl> Constructors(void) const noexcept;
-  bool DefaultedCopyConstructorIsDeleted(void) const noexcept;
-  bool DefaultedDefaultConstructorIsConstexpr(void) const noexcept;
-  bool DefaultedDestructorIsConstexpr(void) const noexcept;
-  bool DefaultedDestructorIsDeleted(void) const noexcept;
-  bool DefaultedMoveConstructorIsDeleted(void) const noexcept;
+  std::optional<bool> DefaultedCopyConstructorIsDeleted(void) const noexcept;
+  std::optional<bool> DefaultedDefaultConstructorIsConstexpr(void) const noexcept;
+  std::optional<bool> DefaultedDestructorIsConstexpr(void) const noexcept;
+  std::optional<bool> DefaultedDestructorIsDeleted(void) const noexcept;
+  std::optional<bool> DefaultedMoveConstructorIsDeleted(void) const noexcept;
   // ForallBases: (bool)
-  std::vector<::pasta::FriendDecl> Friends(void) const noexcept;
+  std::optional<std::vector<::pasta::FriendDecl>> Friends(void) const noexcept;
   ::pasta::CXXRecordDecl CanonicalDeclaration(void) const noexcept;
   std::optional<::pasta::CXXRecordDecl> Definition(void) const noexcept;
   std::optional<::pasta::FunctionTemplateDecl> DependentLambdaCallOperator(void) const noexcept;
@@ -2881,123 +2881,123 @@ class CXXRecordDecl : public RecordDecl {
   std::optional<::pasta::TemplateParameterList> GenericLambdaTemplateParameterList(void) const noexcept;
   std::optional<::pasta::CXXRecordDecl> InstantiatedFromMemberClass(void) const noexcept;
   std::optional<::pasta::CXXMethodDecl> LambdaCallOperator(void) const noexcept;
-  enum LambdaCaptureDefault LambdaCaptureDefault(void) const noexcept;
-  ::pasta::Decl LambdaContextDeclaration(void) const noexcept;
-  std::vector<::pasta::NamedDecl> LambdaExplicitTemplateParameters(void) const noexcept;
-  uint32_t LambdaManglingNumber(void) const noexcept;
-  ::pasta::Type LambdaTypeInfo(void) const noexcept;
-  enum MSInheritanceModel MSInheritanceModel(void) const noexcept;
+  std::optional<enum LambdaCaptureDefault> LambdaCaptureDefault(void) const noexcept;
+  std::optional<::pasta::Decl> LambdaContextDeclaration(void) const noexcept;
+  std::optional<std::vector<::pasta::NamedDecl>> LambdaExplicitTemplateParameters(void) const noexcept;
+  std::optional<uint32_t> LambdaManglingNumber(void) const noexcept;
+  std::optional<::pasta::Type> LambdaTypeInfo(void) const noexcept;
+  std::optional<enum MSInheritanceModel> MSInheritanceModel(void) const noexcept;
   enum MSVtorDispMode MSVtorDispMode(void) const noexcept;
   // MemberSpecializationInfo: (clang::MemberSpecializationInfo *)
   ::pasta::CXXRecordDecl MostRecentDeclaration(void) const noexcept;
-  ::pasta::CXXRecordDecl MostRecentNonInjectedDeclaration(void) const noexcept;
-  uint32_t NumBases(void) const noexcept;
-  uint32_t NumVirtualBases(void) const noexcept;
-  uint32_t ODRHash(void) const noexcept;
+  std::optional<::pasta::CXXRecordDecl> MostRecentNonInjectedDeclaration(void) const noexcept;
+  std::optional<uint32_t> NumBases(void) const noexcept;
+  std::optional<uint32_t> NumVirtualBases(void) const noexcept;
+  std::optional<uint32_t> ODRHash(void) const noexcept;
   ::pasta::CXXRecordDecl PreviousDeclaration(void) const noexcept;
   std::optional<::pasta::CXXRecordDecl> TemplateInstantiationPattern(void) const noexcept;
   enum TemplateSpecializationKind TemplateSpecializationKind(void) const noexcept;
   // VisibleConversionFunctions: (llvm::iterator_range<clang::UnresolvedSetIterator>)
-  bool HasAnyDependentBases(void) const noexcept;
-  bool HasConstexprDefaultConstructor(void) const noexcept;
-  bool HasConstexprDestructor(void) const noexcept;
-  bool HasConstexprNonCopyMoveConstructor(void) const noexcept;
-  bool HasCopyAssignmentWithConstParameter(void) const noexcept;
-  bool HasCopyConstructorWithConstParameter(void) const noexcept;
-  bool HasDefaultConstructor(void) const noexcept;
-  bool HasDefinition(void) const noexcept;
-  bool HasDirectFields(void) const noexcept;
-  bool HasFriends(void) const noexcept;
-  bool HasInClassInitializer(void) const noexcept;
-  bool HasInheritedAssignment(void) const noexcept;
-  bool HasInheritedConstructor(void) const noexcept;
-  bool HasIrrelevantDestructor(void) const noexcept;
-  bool HasKnownLambdaInternalLinkage(void) const noexcept;
+  std::optional<bool> HasAnyDependentBases(void) const noexcept;
+  std::optional<bool> HasConstexprDefaultConstructor(void) const noexcept;
+  std::optional<bool> HasConstexprDestructor(void) const noexcept;
+  std::optional<bool> HasConstexprNonCopyMoveConstructor(void) const noexcept;
+  std::optional<bool> HasCopyAssignmentWithConstParameter(void) const noexcept;
+  std::optional<bool> HasCopyConstructorWithConstParameter(void) const noexcept;
+  std::optional<bool> HasDefaultConstructor(void) const noexcept;
+  std::optional<bool> HasDefinition(void) const noexcept;
+  std::optional<bool> HasDirectFields(void) const noexcept;
+  std::optional<bool> HasFriends(void) const noexcept;
+  std::optional<bool> HasInClassInitializer(void) const noexcept;
+  std::optional<bool> HasInheritedAssignment(void) const noexcept;
+  std::optional<bool> HasInheritedConstructor(void) const noexcept;
+  std::optional<bool> HasIrrelevantDestructor(void) const noexcept;
+  std::optional<bool> HasKnownLambdaInternalLinkage(void) const noexcept;
   // HasMemberName: (bool)
-  bool HasMoveAssignment(void) const noexcept;
-  bool HasMoveConstructor(void) const noexcept;
-  bool HasMutableFields(void) const noexcept;
-  bool HasNonLiteralTypeFieldsOrBases(void) const noexcept;
-  bool HasNonTrivialCopyAssignment(void) const noexcept;
-  bool HasNonTrivialCopyConstructor(void) const noexcept;
-  bool HasNonTrivialCopyConstructorForCall(void) const noexcept;
-  bool HasNonTrivialDefaultConstructor(void) const noexcept;
-  bool HasNonTrivialDestructor(void) const noexcept;
-  bool HasNonTrivialDestructorForCall(void) const noexcept;
-  bool HasNonTrivialMoveAssignment(void) const noexcept;
-  bool HasNonTrivialMoveConstructor(void) const noexcept;
-  bool HasNonTrivialMoveConstructorForCall(void) const noexcept;
-  bool HasPrivateFields(void) const noexcept;
-  bool HasProtectedFields(void) const noexcept;
-  bool HasSimpleCopyAssignment(void) const noexcept;
-  bool HasSimpleCopyConstructor(void) const noexcept;
-  bool HasSimpleDestructor(void) const noexcept;
-  bool HasSimpleMoveAssignment(void) const noexcept;
-  bool HasSimpleMoveConstructor(void) const noexcept;
-  bool HasTrivialCopyAssignment(void) const noexcept;
-  bool HasTrivialCopyConstructor(void) const noexcept;
-  bool HasTrivialCopyConstructorForCall(void) const noexcept;
-  bool HasTrivialDefaultConstructor(void) const noexcept;
-  bool HasTrivialDestructor(void) const noexcept;
-  bool HasTrivialDestructorForCall(void) const noexcept;
-  bool HasTrivialMoveAssignment(void) const noexcept;
-  bool HasTrivialMoveConstructor(void) const noexcept;
-  bool HasTrivialMoveConstructorForCall(void) const noexcept;
-  bool HasUninitializedReferenceMember(void) const noexcept;
-  bool HasUserDeclaredConstructor(void) const noexcept;
-  bool HasUserDeclaredCopyAssignment(void) const noexcept;
-  bool HasUserDeclaredCopyConstructor(void) const noexcept;
-  bool HasUserDeclaredDestructor(void) const noexcept;
-  bool HasUserDeclaredMoveAssignment(void) const noexcept;
-  bool HasUserDeclaredMoveConstructor(void) const noexcept;
-  bool HasUserDeclaredMoveOperation(void) const noexcept;
-  bool HasUserProvidedDefaultConstructor(void) const noexcept;
-  bool HasVariantMembers(void) const noexcept;
-  bool ImplicitCopyAssignmentHasConstParameter(void) const noexcept;
-  bool ImplicitCopyConstructorHasConstParameter(void) const noexcept;
-  bool IsAbstract(void) const noexcept;
-  bool IsAggregate(void) const noexcept;
-  bool IsAnyDestructorNoReturn(void) const noexcept;
-  bool IsCLike(void) const noexcept;
-  bool IsCXX11StandardLayout(void) const noexcept;
+  std::optional<bool> HasMoveAssignment(void) const noexcept;
+  std::optional<bool> HasMoveConstructor(void) const noexcept;
+  std::optional<bool> HasMutableFields(void) const noexcept;
+  std::optional<bool> HasNonLiteralTypeFieldsOrBases(void) const noexcept;
+  std::optional<bool> HasNonTrivialCopyAssignment(void) const noexcept;
+  std::optional<bool> HasNonTrivialCopyConstructor(void) const noexcept;
+  std::optional<bool> HasNonTrivialCopyConstructorForCall(void) const noexcept;
+  std::optional<bool> HasNonTrivialDefaultConstructor(void) const noexcept;
+  std::optional<bool> HasNonTrivialDestructor(void) const noexcept;
+  std::optional<bool> HasNonTrivialDestructorForCall(void) const noexcept;
+  std::optional<bool> HasNonTrivialMoveAssignment(void) const noexcept;
+  std::optional<bool> HasNonTrivialMoveConstructor(void) const noexcept;
+  std::optional<bool> HasNonTrivialMoveConstructorForCall(void) const noexcept;
+  std::optional<bool> HasPrivateFields(void) const noexcept;
+  std::optional<bool> HasProtectedFields(void) const noexcept;
+  std::optional<bool> HasSimpleCopyAssignment(void) const noexcept;
+  std::optional<bool> HasSimpleCopyConstructor(void) const noexcept;
+  std::optional<bool> HasSimpleDestructor(void) const noexcept;
+  std::optional<bool> HasSimpleMoveAssignment(void) const noexcept;
+  std::optional<bool> HasSimpleMoveConstructor(void) const noexcept;
+  std::optional<bool> HasTrivialCopyAssignment(void) const noexcept;
+  std::optional<bool> HasTrivialCopyConstructor(void) const noexcept;
+  std::optional<bool> HasTrivialCopyConstructorForCall(void) const noexcept;
+  std::optional<bool> HasTrivialDefaultConstructor(void) const noexcept;
+  std::optional<bool> HasTrivialDestructor(void) const noexcept;
+  std::optional<bool> HasTrivialDestructorForCall(void) const noexcept;
+  std::optional<bool> HasTrivialMoveAssignment(void) const noexcept;
+  std::optional<bool> HasTrivialMoveConstructor(void) const noexcept;
+  std::optional<bool> HasTrivialMoveConstructorForCall(void) const noexcept;
+  std::optional<bool> HasUninitializedReferenceMember(void) const noexcept;
+  std::optional<bool> HasUserDeclaredConstructor(void) const noexcept;
+  std::optional<bool> HasUserDeclaredCopyAssignment(void) const noexcept;
+  std::optional<bool> HasUserDeclaredCopyConstructor(void) const noexcept;
+  std::optional<bool> HasUserDeclaredDestructor(void) const noexcept;
+  std::optional<bool> HasUserDeclaredMoveAssignment(void) const noexcept;
+  std::optional<bool> HasUserDeclaredMoveConstructor(void) const noexcept;
+  std::optional<bool> HasUserDeclaredMoveOperation(void) const noexcept;
+  std::optional<bool> HasUserProvidedDefaultConstructor(void) const noexcept;
+  std::optional<bool> HasVariantMembers(void) const noexcept;
+  std::optional<bool> ImplicitCopyAssignmentHasConstParameter(void) const noexcept;
+  std::optional<bool> ImplicitCopyConstructorHasConstParameter(void) const noexcept;
+  std::optional<bool> IsAbstract(void) const noexcept;
+  std::optional<bool> IsAggregate(void) const noexcept;
+  std::optional<bool> IsAnyDestructorNoReturn(void) const noexcept;
+  std::optional<bool> IsCLike(void) const noexcept;
+  std::optional<bool> IsCXX11StandardLayout(void) const noexcept;
   // IsCurrentInstantiation: (bool)
   bool IsDependentLambda(void) const noexcept;
-  bool IsDynamicClass(void) const noexcept;
-  bool IsEffectivelyFinal(void) const noexcept;
-  bool IsEmpty(void) const noexcept;
+  std::optional<bool> IsDynamicClass(void) const noexcept;
+  std::optional<bool> IsEffectivelyFinal(void) const noexcept;
+  std::optional<bool> IsEmpty(void) const noexcept;
   bool IsGenericLambda(void) const noexcept;
-  bool IsInterfaceLike(void) const noexcept;
+  std::optional<bool> IsInterfaceLike(void) const noexcept;
   bool IsLambda(void) const noexcept;
-  bool IsLiteral(void) const noexcept;
+  std::optional<bool> IsLiteral(void) const noexcept;
   std::optional<::pasta::FunctionDecl> IsLocalClass(void) const noexcept;
-  bool IsPOD(void) const noexcept;
-  bool IsParsingBaseSpecifiers(void) const noexcept;
-  bool IsPolymorphic(void) const noexcept;
+  std::optional<bool> IsPOD(void) const noexcept;
+  std::optional<bool> IsParsingBaseSpecifiers(void) const noexcept;
+  std::optional<bool> IsPolymorphic(void) const noexcept;
   // IsProvablyNotDerivedFrom: (bool)
-  bool IsStandardLayout(void) const noexcept;
-  bool IsStructural(void) const noexcept;
-  bool IsTrivial(void) const noexcept;
-  bool IsTriviallyCopyable(void) const noexcept;
+  std::optional<bool> IsStandardLayout(void) const noexcept;
+  std::optional<bool> IsStructural(void) const noexcept;
+  std::optional<bool> IsTrivial(void) const noexcept;
+  std::optional<bool> IsTriviallyCopyable(void) const noexcept;
   // IsVirtuallyDerivedFrom: (bool)
-  bool LambdaIsDefaultConstructibleAndAssignable(void) const noexcept;
+  std::optional<bool> LambdaIsDefaultConstructibleAndAssignable(void) const noexcept;
   // LookupInBases: (bool)
-  bool MayBeAbstract(void) const noexcept;
-  bool MayBeDynamicClass(void) const noexcept;
-  bool MayBeNonDynamicClass(void) const noexcept;
-  std::vector<::pasta::CXXMethodDecl> Methods(void) const noexcept;
-  bool NeedsImplicitCopyAssignment(void) const noexcept;
-  bool NeedsImplicitCopyConstructor(void) const noexcept;
-  bool NeedsImplicitDefaultConstructor(void) const noexcept;
-  bool NeedsImplicitDestructor(void) const noexcept;
-  bool NeedsImplicitMoveAssignment(void) const noexcept;
-  bool NeedsImplicitMoveConstructor(void) const noexcept;
-  bool NeedsOverloadResolutionForCopyAssignment(void) const noexcept;
-  bool NeedsOverloadResolutionForCopyConstructor(void) const noexcept;
-  bool NeedsOverloadResolutionForDestructor(void) const noexcept;
-  bool NeedsOverloadResolutionForMoveAssignment(void) const noexcept;
-  bool NeedsOverloadResolutionForMoveConstructor(void) const noexcept;
-  bool NullFieldOffsetIsZero(void) const noexcept;
-  std::vector<::pasta::CXXBaseSpecifier> VirtualBases(void) const noexcept;
+  std::optional<bool> MayBeAbstract(void) const noexcept;
+  std::optional<bool> MayBeDynamicClass(void) const noexcept;
+  std::optional<bool> MayBeNonDynamicClass(void) const noexcept;
+  std::optional<std::vector<::pasta::CXXMethodDecl>> Methods(void) const noexcept;
+  std::optional<bool> NeedsImplicitCopyAssignment(void) const noexcept;
+  std::optional<bool> NeedsImplicitCopyConstructor(void) const noexcept;
+  std::optional<bool> NeedsImplicitDefaultConstructor(void) const noexcept;
+  std::optional<bool> NeedsImplicitDestructor(void) const noexcept;
+  std::optional<bool> NeedsImplicitMoveAssignment(void) const noexcept;
+  std::optional<bool> NeedsImplicitMoveConstructor(void) const noexcept;
+  std::optional<bool> NeedsOverloadResolutionForCopyAssignment(void) const noexcept;
+  std::optional<bool> NeedsOverloadResolutionForCopyConstructor(void) const noexcept;
+  std::optional<bool> NeedsOverloadResolutionForDestructor(void) const noexcept;
+  std::optional<bool> NeedsOverloadResolutionForMoveAssignment(void) const noexcept;
+  std::optional<bool> NeedsOverloadResolutionForMoveConstructor(void) const noexcept;
+  std::optional<bool> NullFieldOffsetIsZero(void) const noexcept;
+  std::optional<std::vector<::pasta::CXXBaseSpecifier>> VirtualBases(void) const noexcept;
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXRecordDecl)

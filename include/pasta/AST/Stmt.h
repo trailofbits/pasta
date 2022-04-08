@@ -2087,8 +2087,8 @@ class MaterializeTemporaryExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  ::pasta::ValueDecl ExtendingDeclaration(void) const noexcept;
-  ::pasta::LifetimeExtendedTemporaryDecl LifetimeExtendedTemporaryDeclaration(void) const noexcept;
+  std::optional<::pasta::ValueDecl> ExtendingDeclaration(void) const noexcept;
+  std::optional<::pasta::LifetimeExtendedTemporaryDecl> LifetimeExtendedTemporaryDeclaration(void) const noexcept;
   uint32_t ManglingNumber(void) const noexcept;
   // OrCreateValue: (clang::APValue *)
   enum StorageDuration StorageDuration(void) const noexcept;
@@ -4057,9 +4057,9 @@ class SizeOfPackExpr : public Expr {
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Token OperatorToken(void) const noexcept;
   ::pasta::NamedDecl Pack(void) const noexcept;
-  uint32_t PackLength(void) const noexcept;
+  std::optional<uint32_t> PackLength(void) const noexcept;
   ::pasta::Token PackToken(void) const noexcept;
-  std::vector<::pasta::TemplateArgument> PartialArguments(void) const noexcept;
+  std::optional<std::vector<::pasta::TemplateArgument>> PartialArguments(void) const noexcept;
   ::pasta::Token RParenToken(void) const noexcept;
   bool IsPartiallySubstituted(void) const noexcept;
  protected:
@@ -4205,7 +4205,7 @@ class TypeTraitExpr : public Expr {
   ::pasta::Token EndToken(void) const noexcept;
   uint32_t NumArguments(void) const noexcept;
   enum TypeTrait Trait(void) const noexcept;
-  bool Value(void) const noexcept;
+  std::optional<bool> Value(void) const noexcept;
   std::vector<::pasta::Type> Arguments(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(TypeTraitExpr)
@@ -4728,7 +4728,7 @@ class CXXDefaultInitExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  ::pasta::Expr Expression(void) const noexcept;
+  std::optional<::pasta::Expr> Expression(void) const noexcept;
   ::pasta::FieldDecl Field(void) const noexcept;
   ::pasta::DeclContext UsedContext(void) const noexcept;
   ::pasta::Token UsedToken(void) const noexcept;
@@ -5091,11 +5091,11 @@ class CXXTypeidExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  ::pasta::Expr ExpressionOperand(void) const noexcept;
+  std::optional<::pasta::Expr> ExpressionOperand(void) const noexcept;
   ::pasta::TokenRange TokenRange(void) const noexcept;
   ::pasta::Type TypeOperand(void) const noexcept;
   ::pasta::Type TypeOperandSourceInfo(void) const noexcept;
-  bool IsMostDerived(void) const noexcept;
+  std::optional<bool> IsMostDerived(void) const noexcept;
   bool IsPotentiallyEvaluated(void) const noexcept;
   bool IsTypeOperand(void) const noexcept;
  protected:
@@ -5140,7 +5140,7 @@ class CXXUuidofExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  ::pasta::Expr ExpressionOperand(void) const noexcept;
+  std::optional<::pasta::Expr> ExpressionOperand(void) const noexcept;
   ::pasta::MSGuidDecl GuidDeclaration(void) const noexcept;
   ::pasta::TokenRange TokenRange(void) const noexcept;
   ::pasta::Type TypeOperand(void) const noexcept;

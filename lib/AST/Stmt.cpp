@@ -6022,25 +6022,27 @@ std::vector<::pasta::Stmt> MaterializeTemporaryExpr::Children(void) const noexce
   __builtin_unreachable();
 }
 
-::pasta::ValueDecl MaterializeTemporaryExpr::ExtendingDeclaration(void) const noexcept {
+std::optional<::pasta::ValueDecl> MaterializeTemporaryExpr::ExtendingDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::MaterializeTemporaryExpr *>(u.MaterializeTemporaryExpr);
   decltype(auto) val = self.getExtendingDecl();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::ValueDecl>(ast, val);
   }
-  assert(false && "MaterializeTemporaryExpr::ExtendingDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
-::pasta::LifetimeExtendedTemporaryDecl MaterializeTemporaryExpr::LifetimeExtendedTemporaryDeclaration(void) const noexcept {
+std::optional<::pasta::LifetimeExtendedTemporaryDecl> MaterializeTemporaryExpr::LifetimeExtendedTemporaryDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::MaterializeTemporaryExpr *>(u.MaterializeTemporaryExpr);
   decltype(auto) val = self.getLifetimeExtendedTemporaryDecl();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::LifetimeExtendedTemporaryDecl>(ast, val);
   }
-  assert(false && "MaterializeTemporaryExpr::LifetimeExtendedTemporaryDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -10973,8 +10975,11 @@ std::vector<::pasta::Stmt> SizeOfPackExpr::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-uint32_t SizeOfPackExpr::PackLength(void) const noexcept {
+std::optional<uint32_t> SizeOfPackExpr::PackLength(void) const noexcept {
   auto &self = *const_cast<clang::SizeOfPackExpr *>(u.SizeOfPackExpr);
+  if (self.isValueDependent()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getPackLength();
   return val;
   __builtin_unreachable();
@@ -10987,8 +10992,11 @@ uint32_t SizeOfPackExpr::PackLength(void) const noexcept {
   __builtin_unreachable();
 }
 
-std::vector<::pasta::TemplateArgument> SizeOfPackExpr::PartialArguments(void) const noexcept {
+std::optional<std::vector<::pasta::TemplateArgument>> SizeOfPackExpr::PartialArguments(void) const noexcept {
   auto &self = *const_cast<clang::SizeOfPackExpr *>(u.SizeOfPackExpr);
+  if (!self.isPartiallySubstituted()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getPartialArguments();
   std::vector<::pasta::TemplateArgument> ret;
   for (const auto &arg : val) {
@@ -11501,8 +11509,11 @@ enum TypeTrait TypeTraitExpr::Trait(void) const noexcept {
   __builtin_unreachable();
 }
 
-bool TypeTraitExpr::Value(void) const noexcept {
+std::optional<bool> TypeTraitExpr::Value(void) const noexcept {
   auto &self = *const_cast<clang::TypeTraitExpr *>(u.TypeTraitExpr);
+  if (self.isValueDependent()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getValue();
   return val;
   __builtin_unreachable();
@@ -13385,14 +13396,18 @@ std::vector<::pasta::Stmt> CXXDefaultInitExpr::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Expr CXXDefaultInitExpr::Expression(void) const noexcept {
+std::optional<::pasta::Expr> CXXDefaultInitExpr::Expression(void) const noexcept {
   auto &self = *const_cast<clang::CXXDefaultInitExpr *>(u.CXXDefaultInitExpr);
+  if (!self.getField()->getInClassInitializer()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getExpr();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CXXDefaultInitExpr::Expression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -14714,14 +14729,18 @@ std::vector<::pasta::Stmt> CXXTypeidExpr::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Expr CXXTypeidExpr::ExpressionOperand(void) const noexcept {
+std::optional<::pasta::Expr> CXXTypeidExpr::ExpressionOperand(void) const noexcept {
   auto &self = *const_cast<clang::CXXTypeidExpr *>(u.CXXTypeidExpr);
+  if (self.isTypeOperand()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getExprOperand();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CXXTypeidExpr::ExpressionOperand can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -14747,8 +14766,11 @@ std::vector<::pasta::Stmt> CXXTypeidExpr::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-bool CXXTypeidExpr::IsMostDerived(void) const noexcept {
+std::optional<bool> CXXTypeidExpr::IsMostDerived(void) const noexcept {
   auto &self = *(u.CXXTypeidExpr);
+  if (self.isTypeOperand()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isMostDerived(ast->ci->getASTContext());
   return val;
   __builtin_unreachable();
@@ -14897,14 +14919,18 @@ std::vector<::pasta::Stmt> CXXUuidofExpr::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Expr CXXUuidofExpr::ExpressionOperand(void) const noexcept {
+std::optional<::pasta::Expr> CXXUuidofExpr::ExpressionOperand(void) const noexcept {
   auto &self = *const_cast<clang::CXXUuidofExpr *>(u.CXXUuidofExpr);
+  if (self.isTypeOperand()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getExprOperand();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CXXUuidofExpr::ExpressionOperand can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 

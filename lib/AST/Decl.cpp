@@ -1644,14 +1644,15 @@ FriendDecl::FriendDecl(
     : Decl(std::move(ast_), decl_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Decl, FriendDecl)
-::pasta::NamedDecl FriendDecl::FriendDeclaration(void) const noexcept {
+std::optional<::pasta::NamedDecl> FriendDecl::FriendDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::FriendDecl *>(u.FriendDecl);
   decltype(auto) val = self.getFriendDecl();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
   }
-  assert(false && "FriendDecl::FriendDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -1983,8 +1984,11 @@ std::string NamedDecl::Name(void) const noexcept {
   __builtin_unreachable();
 }
 
-enum ObjCStringFormatFamily NamedDecl::ObjCFStringFormattingFamily(void) const noexcept {
+std::optional<enum ObjCStringFormatFamily> NamedDecl::ObjCFStringFormattingFamily(void) const noexcept {
   auto &self = *const_cast<clang::NamedDecl *>(u.NamedDecl);
+  if (!self.getIdentifier()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getObjCFStringFormattingFamily();
   return static_cast<::pasta::ObjCStringFormatFamily>(val);
   __builtin_unreachable();
@@ -3987,14 +3991,15 @@ PASTA_DEFINE_DERIVED_OPERATORS(UsingShadowDecl, ConstructorUsingShadowDecl)
   __builtin_unreachable();
 }
 
-::pasta::UsingShadowDecl UsingShadowDecl::NextUsingShadowDeclaration(void) const noexcept {
+std::optional<::pasta::UsingShadowDecl> UsingShadowDecl::NextUsingShadowDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::UsingShadowDecl *>(u.UsingShadowDecl);
   decltype(auto) val = self.getNextUsingShadowDecl();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::UsingShadowDecl>(ast, val);
   }
-  assert(false && "UsingShadowDecl::NextUsingShadowDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -5037,8 +5042,14 @@ uint32_t FunctionDecl::NumParameters(void) const noexcept {
   __builtin_unreachable();
 }
 
-uint32_t FunctionDecl::ODRHash(void) const noexcept {
+std::optional<uint32_t> FunctionDecl::ODRHash(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  auto def = const_cast<clang::FunctionDecl *>(self.getDefinition());
+  if (!def) {
+    return std::nullopt;
+  } else {
+    return def->getODRHash();
+  }
   decltype(auto) val = self.getODRHash();
   return val;
   __builtin_unreachable();
@@ -8125,8 +8136,14 @@ uint32_t EnumDecl::NumPositiveBits(void) const noexcept {
   __builtin_unreachable();
 }
 
-uint32_t EnumDecl::ODRHash(void) const noexcept {
+std::optional<uint32_t> EnumDecl::ODRHash(void) const noexcept {
   auto &self = *const_cast<clang::EnumDecl *>(u.EnumDecl);
+  auto def = const_cast<clang::EnumDecl *>(self.getDefinition());
+  if (!def) {
+    return std::nullopt;
+  } else {
+    return def->getODRHash();
+  }
   decltype(auto) val = self.getODRHash();
   return val;
   __builtin_unreachable();
@@ -8827,14 +8844,18 @@ uint32_t CXXConstructorDecl::NumConstructorInitializers(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::CXXConstructorDecl CXXConstructorDecl::TargetConstructor(void) const noexcept {
+std::optional<::pasta::CXXConstructorDecl> CXXConstructorDecl::TargetConstructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXConstructorDecl *>(u.CXXConstructorDecl);
+  if (!self.isDelegatingConstructor()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getTargetConstructor();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::CXXConstructorDecl>(ast, val);
   }
-  assert(false && "CXXConstructorDecl::TargetConstructor can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -9011,25 +9032,27 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXDestructorDecl)
   __builtin_unreachable();
 }
 
-::pasta::FunctionDecl CXXDestructorDecl::OperatorDelete(void) const noexcept {
+std::optional<::pasta::FunctionDecl> CXXDestructorDecl::OperatorDelete(void) const noexcept {
   auto &self = *const_cast<clang::CXXDestructorDecl *>(u.CXXDestructorDecl);
   decltype(auto) val = self.getOperatorDelete();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
   }
-  assert(false && "CXXDestructorDecl::OperatorDelete can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
-::pasta::Expr CXXDestructorDecl::OperatorDeleteThisArgument(void) const noexcept {
+std::optional<::pasta::Expr> CXXDestructorDecl::OperatorDeleteThisArgument(void) const noexcept {
   auto &self = *const_cast<clang::CXXDestructorDecl *>(u.CXXDestructorDecl);
   decltype(auto) val = self.getOperatorDeleteThisArg();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CXXDestructorDecl::OperatorDeleteThisArgument can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -9075,15 +9098,21 @@ PASTA_DEFINE_BASE_OPERATORS(TagDecl, CXXRecordDecl)
 PASTA_DEFINE_BASE_OPERATORS(TypeDecl, CXXRecordDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(CXXRecordDecl, ClassTemplatePartialSpecializationDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(CXXRecordDecl, ClassTemplateSpecializationDecl)
-bool CXXRecordDecl::AllowConstDefaultInitializer(void) const noexcept {
+std::optional<bool> CXXRecordDecl::AllowConstDefaultInitializer(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.allowConstDefaultInit();
   return val;
   __builtin_unreachable();
 }
 
-std::vector<::pasta::CXXBaseSpecifier> CXXRecordDecl::Bases(void) const noexcept {
+std::optional<std::vector<::pasta::CXXBaseSpecifier>> CXXRecordDecl::Bases(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.bases();
   std::vector<::pasta::CXXBaseSpecifier> ret;
   for (const auto &bs : val) {
@@ -9123,36 +9152,51 @@ std::vector<::pasta::CXXConstructorDecl> CXXRecordDecl::Constructors(void) const
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::DefaultedCopyConstructorIsDeleted(void) const noexcept {
+std::optional<bool> CXXRecordDecl::DefaultedCopyConstructorIsDeleted(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.defaultedCopyConstructorIsDeleted();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::DefaultedDefaultConstructorIsConstexpr(void) const noexcept {
+std::optional<bool> CXXRecordDecl::DefaultedDefaultConstructorIsConstexpr(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.defaultedDefaultConstructorIsConstexpr();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::DefaultedDestructorIsConstexpr(void) const noexcept {
+std::optional<bool> CXXRecordDecl::DefaultedDestructorIsConstexpr(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.defaultedDestructorIsConstexpr();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::DefaultedDestructorIsDeleted(void) const noexcept {
+std::optional<bool> CXXRecordDecl::DefaultedDestructorIsDeleted(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.defaultedDestructorIsDeleted();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::DefaultedMoveConstructorIsDeleted(void) const noexcept {
+std::optional<bool> CXXRecordDecl::DefaultedMoveConstructorIsDeleted(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.defaultedMoveConstructorIsDeleted();
   return val;
   __builtin_unreachable();
@@ -9161,8 +9205,11 @@ bool CXXRecordDecl::DefaultedMoveConstructorIsDeleted(void) const noexcept {
 // 1: CXXRecordDecl::ForallBases
 // 0: CXXRecordDecl::
 // 0: CXXRecordDecl::
-std::vector<::pasta::FriendDecl> CXXRecordDecl::Friends(void) const noexcept {
+std::optional<std::vector<::pasta::FriendDecl>> CXXRecordDecl::Friends(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.friends();
   std::vector<::pasta::FriendDecl> ret;
   for (auto decl_ptr : val) {
@@ -9242,6 +9289,9 @@ uint32_t CXXRecordDecl::DeviceLambdaManglingNumber(void) const noexcept {
 
 std::optional<::pasta::TemplateParameterList> CXXRecordDecl::GenericLambdaTemplateParameterList(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.isGenericLambda()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getGenericLambdaTemplateParameterList();
   if (!val) {
     return std::nullopt;
@@ -9264,6 +9314,9 @@ std::optional<::pasta::CXXRecordDecl> CXXRecordDecl::InstantiatedFromMemberClass
 
 std::optional<::pasta::CXXMethodDecl> CXXRecordDecl::LambdaCallOperator(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.isLambda()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getLambdaCallOperator();
   if (!val) {
     return std::nullopt;
@@ -9274,26 +9327,36 @@ std::optional<::pasta::CXXMethodDecl> CXXRecordDecl::LambdaCallOperator(void) co
   __builtin_unreachable();
 }
 
-enum LambdaCaptureDefault CXXRecordDecl::LambdaCaptureDefault(void) const noexcept {
+std::optional<enum LambdaCaptureDefault> CXXRecordDecl::LambdaCaptureDefault(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.isLambda()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getLambdaCaptureDefault();
   return static_cast<::pasta::LambdaCaptureDefault>(val);
   __builtin_unreachable();
 }
 
-::pasta::Decl CXXRecordDecl::LambdaContextDeclaration(void) const noexcept {
+std::optional<::pasta::Decl> CXXRecordDecl::LambdaContextDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.isLambda()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getLambdaContextDecl();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::Decl>(ast, val);
   }
-  assert(false && "CXXRecordDecl::LambdaContextDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
-std::vector<::pasta::NamedDecl> CXXRecordDecl::LambdaExplicitTemplateParameters(void) const noexcept {
+std::optional<std::vector<::pasta::NamedDecl>> CXXRecordDecl::LambdaExplicitTemplateParameters(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getGenericLambdaTemplateParameterList()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getLambdaExplicitTemplateParameters();
   std::vector<::pasta::NamedDecl> ret;
   for (auto decl_ptr : val) {
@@ -9305,23 +9368,33 @@ std::vector<::pasta::NamedDecl> CXXRecordDecl::LambdaExplicitTemplateParameters(
   __builtin_unreachable();
 }
 
-uint32_t CXXRecordDecl::LambdaManglingNumber(void) const noexcept {
+std::optional<uint32_t> CXXRecordDecl::LambdaManglingNumber(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.isLambda()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getLambdaManglingNumber();
   return val;
   __builtin_unreachable();
 }
 
-::pasta::Type CXXRecordDecl::LambdaTypeInfo(void) const noexcept {
+std::optional<::pasta::Type> CXXRecordDecl::LambdaTypeInfo(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.isLambda()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getLambdaTypeInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "CXXRecordDecl::LambdaTypeInfo can return nullptr!");
-  __builtin_unreachable();
-  __builtin_unreachable();
+  if (!val) {
+    return std::nullopt;
+  }
+  return TypeBuilder::Build(ast, val->getType());  __builtin_unreachable();
 }
 
-enum MSInheritanceModel CXXRecordDecl::MSInheritanceModel(void) const noexcept {
+std::optional<enum MSInheritanceModel> CXXRecordDecl::MSInheritanceModel(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getAttr<clang::MSInheritanceAttr>()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getMSInheritanceModel();
   return static_cast<::pasta::MSInheritanceModel>(val);
   __builtin_unreachable();
@@ -9346,33 +9419,43 @@ enum MSVtorDispMode CXXRecordDecl::MSVtorDispMode(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::CXXRecordDecl CXXRecordDecl::MostRecentNonInjectedDeclaration(void) const noexcept {
+std::optional<::pasta::CXXRecordDecl> CXXRecordDecl::MostRecentNonInjectedDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
   decltype(auto) val = self.getMostRecentNonInjectedDecl();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
-  assert(false && "CXXRecordDecl::MostRecentNonInjectedDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
-uint32_t CXXRecordDecl::NumBases(void) const noexcept {
+std::optional<uint32_t> CXXRecordDecl::NumBases(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getNumBases();
   return val;
   __builtin_unreachable();
 }
 
-uint32_t CXXRecordDecl::NumVirtualBases(void) const noexcept {
+std::optional<uint32_t> CXXRecordDecl::NumVirtualBases(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getNumVBases();
   return val;
   __builtin_unreachable();
 }
 
-uint32_t CXXRecordDecl::ODRHash(void) const noexcept {
+std::optional<uint32_t> CXXRecordDecl::ODRHash(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getODRHash();
   return val;
   __builtin_unreachable();
@@ -9412,429 +9495,612 @@ enum TemplateSpecializationKind CXXRecordDecl::TemplateSpecializationKind(void) 
 }
 
 // 0: CXXRecordDecl::VisibleConversionFunctions
-bool CXXRecordDecl::HasAnyDependentBases(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasAnyDependentBases(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasAnyDependentBases();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasConstexprDefaultConstructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasConstexprDefaultConstructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasConstexprDefaultConstructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasConstexprDestructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasConstexprDestructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasConstexprDestructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasConstexprNonCopyMoveConstructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasConstexprNonCopyMoveConstructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasConstexprNonCopyMoveConstructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasCopyAssignmentWithConstParameter(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasCopyAssignmentWithConstParameter(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasCopyAssignmentWithConstParam();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasCopyConstructorWithConstParameter(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasCopyConstructorWithConstParameter(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasCopyConstructorWithConstParam();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasDefaultConstructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasDefaultConstructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasDefaultConstructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasDefinition(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasDefinition(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasDefinition();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasDirectFields(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasDirectFields(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasDirectFields();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasFriends(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasFriends(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasFriends();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasInClassInitializer(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasInClassInitializer(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasInClassInitializer();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasInheritedAssignment(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasInheritedAssignment(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasInheritedAssignment();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasInheritedConstructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasInheritedConstructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasInheritedConstructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasIrrelevantDestructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasIrrelevantDestructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasIrrelevantDestructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasKnownLambdaInternalLinkage(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasKnownLambdaInternalLinkage(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.isLambda()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasKnownLambdaInternalLinkage();
   return val;
   __builtin_unreachable();
 }
 
 // 1: CXXRecordDecl::HasMemberName
-bool CXXRecordDecl::HasMoveAssignment(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasMoveAssignment(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasMoveAssignment();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasMoveConstructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasMoveConstructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasMoveConstructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasMutableFields(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasMutableFields(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasMutableFields();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasNonLiteralTypeFieldsOrBases(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasNonLiteralTypeFieldsOrBases(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasNonLiteralTypeFieldsOrBases();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasNonTrivialCopyAssignment(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasNonTrivialCopyAssignment(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasNonTrivialCopyAssignment();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasNonTrivialCopyConstructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasNonTrivialCopyConstructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasNonTrivialCopyConstructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasNonTrivialCopyConstructorForCall(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasNonTrivialCopyConstructorForCall(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasNonTrivialCopyConstructorForCall();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasNonTrivialDefaultConstructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasNonTrivialDefaultConstructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasNonTrivialDefaultConstructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasNonTrivialDestructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasNonTrivialDestructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasNonTrivialDestructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasNonTrivialDestructorForCall(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasNonTrivialDestructorForCall(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasNonTrivialDestructorForCall();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasNonTrivialMoveAssignment(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasNonTrivialMoveAssignment(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasNonTrivialMoveAssignment();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasNonTrivialMoveConstructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasNonTrivialMoveConstructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasNonTrivialMoveConstructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasNonTrivialMoveConstructorForCall(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasNonTrivialMoveConstructorForCall(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasNonTrivialMoveConstructorForCall();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasPrivateFields(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasPrivateFields(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasPrivateFields();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasProtectedFields(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasProtectedFields(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasProtectedFields();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasSimpleCopyAssignment(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasSimpleCopyAssignment(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasSimpleCopyAssignment();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasSimpleCopyConstructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasSimpleCopyConstructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasSimpleCopyConstructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasSimpleDestructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasSimpleDestructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasSimpleDestructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasSimpleMoveAssignment(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasSimpleMoveAssignment(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasSimpleMoveAssignment();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasSimpleMoveConstructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasSimpleMoveConstructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasSimpleMoveConstructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasTrivialCopyAssignment(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasTrivialCopyAssignment(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasTrivialCopyAssignment();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasTrivialCopyConstructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasTrivialCopyConstructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasTrivialCopyConstructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasTrivialCopyConstructorForCall(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasTrivialCopyConstructorForCall(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasTrivialCopyConstructorForCall();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasTrivialDefaultConstructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasTrivialDefaultConstructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasTrivialDefaultConstructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasTrivialDestructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasTrivialDestructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasTrivialDestructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasTrivialDestructorForCall(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasTrivialDestructorForCall(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasTrivialDestructorForCall();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasTrivialMoveAssignment(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasTrivialMoveAssignment(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasTrivialMoveAssignment();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasTrivialMoveConstructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasTrivialMoveConstructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasTrivialMoveConstructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasTrivialMoveConstructorForCall(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasTrivialMoveConstructorForCall(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasTrivialMoveConstructorForCall();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasUninitializedReferenceMember(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasUninitializedReferenceMember(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasUninitializedReferenceMember();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasUserDeclaredConstructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasUserDeclaredConstructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasUserDeclaredConstructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasUserDeclaredCopyAssignment(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasUserDeclaredCopyAssignment(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasUserDeclaredCopyAssignment();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasUserDeclaredCopyConstructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasUserDeclaredCopyConstructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasUserDeclaredCopyConstructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasUserDeclaredDestructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasUserDeclaredDestructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasUserDeclaredDestructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasUserDeclaredMoveAssignment(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasUserDeclaredMoveAssignment(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasUserDeclaredMoveAssignment();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasUserDeclaredMoveConstructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasUserDeclaredMoveConstructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasUserDeclaredMoveConstructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasUserDeclaredMoveOperation(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasUserDeclaredMoveOperation(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasUserDeclaredMoveOperation();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasUserProvidedDefaultConstructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasUserProvidedDefaultConstructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasUserProvidedDefaultConstructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasVariantMembers(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasVariantMembers(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasVariantMembers();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::ImplicitCopyAssignmentHasConstParameter(void) const noexcept {
+std::optional<bool> CXXRecordDecl::ImplicitCopyAssignmentHasConstParameter(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.implicitCopyAssignmentHasConstParam();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::ImplicitCopyConstructorHasConstParameter(void) const noexcept {
+std::optional<bool> CXXRecordDecl::ImplicitCopyConstructorHasConstParameter(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.implicitCopyConstructorHasConstParam();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::IsAbstract(void) const noexcept {
+std::optional<bool> CXXRecordDecl::IsAbstract(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isAbstract();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::IsAggregate(void) const noexcept {
+std::optional<bool> CXXRecordDecl::IsAggregate(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isAggregate();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::IsAnyDestructorNoReturn(void) const noexcept {
+std::optional<bool> CXXRecordDecl::IsAnyDestructorNoReturn(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isAnyDestructorNoReturn();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::IsCLike(void) const noexcept {
+std::optional<bool> CXXRecordDecl::IsCLike(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isCLike();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::IsCXX11StandardLayout(void) const noexcept {
+std::optional<bool> CXXRecordDecl::IsCXX11StandardLayout(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isCXX11StandardLayout();
   return val;
   __builtin_unreachable();
@@ -9848,22 +10114,31 @@ bool CXXRecordDecl::IsDependentLambda(void) const noexcept {
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::IsDynamicClass(void) const noexcept {
+std::optional<bool> CXXRecordDecl::IsDynamicClass(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isDynamicClass();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::IsEffectivelyFinal(void) const noexcept {
+std::optional<bool> CXXRecordDecl::IsEffectivelyFinal(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isEffectivelyFinal();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::IsEmpty(void) const noexcept {
+std::optional<bool> CXXRecordDecl::IsEmpty(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isEmpty();
   return val;
   __builtin_unreachable();
@@ -9876,8 +10151,11 @@ bool CXXRecordDecl::IsGenericLambda(void) const noexcept {
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::IsInterfaceLike(void) const noexcept {
+std::optional<bool> CXXRecordDecl::IsInterfaceLike(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isInterfaceLike();
   return val;
   __builtin_unreachable();
@@ -9890,8 +10168,11 @@ bool CXXRecordDecl::IsLambda(void) const noexcept {
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::IsLiteral(void) const noexcept {
+std::optional<bool> CXXRecordDecl::IsLiteral(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isLiteral();
   return val;
   __builtin_unreachable();
@@ -9899,6 +10180,9 @@ bool CXXRecordDecl::IsLiteral(void) const noexcept {
 
 std::optional<::pasta::FunctionDecl> CXXRecordDecl::IsLocalClass(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isLocalClass();
   if (!val) {
     return std::nullopt;
@@ -9909,81 +10193,114 @@ std::optional<::pasta::FunctionDecl> CXXRecordDecl::IsLocalClass(void) const noe
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::IsPOD(void) const noexcept {
+std::optional<bool> CXXRecordDecl::IsPOD(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isPOD();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::IsParsingBaseSpecifiers(void) const noexcept {
+std::optional<bool> CXXRecordDecl::IsParsingBaseSpecifiers(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isParsingBaseSpecifiers();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::IsPolymorphic(void) const noexcept {
+std::optional<bool> CXXRecordDecl::IsPolymorphic(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isPolymorphic();
   return val;
   __builtin_unreachable();
 }
 
 // 1: CXXRecordDecl::IsProvablyNotDerivedFrom
-bool CXXRecordDecl::IsStandardLayout(void) const noexcept {
+std::optional<bool> CXXRecordDecl::IsStandardLayout(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isStandardLayout();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::IsStructural(void) const noexcept {
+std::optional<bool> CXXRecordDecl::IsStructural(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isStructural();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::IsTrivial(void) const noexcept {
+std::optional<bool> CXXRecordDecl::IsTrivial(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isTrivial();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::IsTriviallyCopyable(void) const noexcept {
+std::optional<bool> CXXRecordDecl::IsTriviallyCopyable(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isTriviallyCopyable();
   return val;
   __builtin_unreachable();
 }
 
 // 1: CXXRecordDecl::IsVirtuallyDerivedFrom
-bool CXXRecordDecl::LambdaIsDefaultConstructibleAndAssignable(void) const noexcept {
+std::optional<bool> CXXRecordDecl::LambdaIsDefaultConstructibleAndAssignable(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.isLambda()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.lambdaIsDefaultConstructibleAndAssignable();
   return val;
   __builtin_unreachable();
 }
 
 // 2: LookupInBases
-bool CXXRecordDecl::MayBeAbstract(void) const noexcept {
+std::optional<bool> CXXRecordDecl::MayBeAbstract(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.mayBeAbstract();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::MayBeDynamicClass(void) const noexcept {
+std::optional<bool> CXXRecordDecl::MayBeDynamicClass(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.mayBeDynamicClass();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::MayBeNonDynamicClass(void) const noexcept {
+std::optional<bool> CXXRecordDecl::MayBeNonDynamicClass(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.mayBeNonDynamicClass();
   return val;
   __builtin_unreachable();
@@ -9991,8 +10308,11 @@ bool CXXRecordDecl::MayBeNonDynamicClass(void) const noexcept {
 
 // 0: CXXRecordDecl::
 // 0: CXXRecordDecl::
-std::vector<::pasta::CXXMethodDecl> CXXRecordDecl::Methods(void) const noexcept {
+std::optional<std::vector<::pasta::CXXMethodDecl>> CXXRecordDecl::Methods(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.methods();
   std::vector<::pasta::CXXMethodDecl> ret;
   for (auto decl_ptr : val) {
@@ -10004,92 +10324,131 @@ std::vector<::pasta::CXXMethodDecl> CXXRecordDecl::Methods(void) const noexcept 
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::NeedsImplicitCopyAssignment(void) const noexcept {
+std::optional<bool> CXXRecordDecl::NeedsImplicitCopyAssignment(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.needsImplicitCopyAssignment();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::NeedsImplicitCopyConstructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::NeedsImplicitCopyConstructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.needsImplicitCopyConstructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::NeedsImplicitDefaultConstructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::NeedsImplicitDefaultConstructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.needsImplicitDefaultConstructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::NeedsImplicitDestructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::NeedsImplicitDestructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.needsImplicitDestructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::NeedsImplicitMoveAssignment(void) const noexcept {
+std::optional<bool> CXXRecordDecl::NeedsImplicitMoveAssignment(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.needsImplicitMoveAssignment();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::NeedsImplicitMoveConstructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::NeedsImplicitMoveConstructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.needsImplicitMoveConstructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::NeedsOverloadResolutionForCopyAssignment(void) const noexcept {
+std::optional<bool> CXXRecordDecl::NeedsOverloadResolutionForCopyAssignment(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.needsOverloadResolutionForCopyAssignment();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::NeedsOverloadResolutionForCopyConstructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::NeedsOverloadResolutionForCopyConstructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.needsOverloadResolutionForCopyConstructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::NeedsOverloadResolutionForDestructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::NeedsOverloadResolutionForDestructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.needsOverloadResolutionForDestructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::NeedsOverloadResolutionForMoveAssignment(void) const noexcept {
+std::optional<bool> CXXRecordDecl::NeedsOverloadResolutionForMoveAssignment(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.needsOverloadResolutionForMoveAssignment();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::NeedsOverloadResolutionForMoveConstructor(void) const noexcept {
+std::optional<bool> CXXRecordDecl::NeedsOverloadResolutionForMoveConstructor(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.needsOverloadResolutionForMoveConstructor();
   return val;
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::NullFieldOffsetIsZero(void) const noexcept {
+std::optional<bool> CXXRecordDecl::NullFieldOffsetIsZero(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getAttr<clang::MSInheritanceAttr>()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.nullFieldOffsetIsZero();
   return val;
   __builtin_unreachable();
 }
 
-std::vector<::pasta::CXXBaseSpecifier> CXXRecordDecl::VirtualBases(void) const noexcept {
+std::optional<std::vector<::pasta::CXXBaseSpecifier>> CXXRecordDecl::VirtualBases(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.vbases();
   std::vector<::pasta::CXXBaseSpecifier> ret;
   for (const auto &bs : val) {

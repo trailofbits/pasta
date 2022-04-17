@@ -2284,14 +2284,15 @@ std::vector<::pasta::Stmt> CXXForRangeStmt::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Stmt CXXForRangeStmt::Initializer(void) const noexcept {
+std::optional<::pasta::Stmt> CXXForRangeStmt::Initializer(void) const noexcept {
   auto &self = *const_cast<clang::CXXForRangeStmt *>(u.CXXForRangeStmt);
   decltype(auto) val = self.getInit();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  assert(false && "CXXForRangeStmt::Initializer can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -11195,8 +11196,11 @@ std::vector<::pasta::Stmt> StringLiteral::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-bool StringLiteral::ContainsNonAscii(void) const noexcept {
+std::optional<bool> StringLiteral::ContainsNonAscii(void) const noexcept {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
+  if (self.getCharByteWidth() > 1) {
+     return std::nullopt;
+  }
   decltype(auto) val = self.containsNonAscii();
   return val;
   __builtin_unreachable();
@@ -13586,14 +13590,15 @@ std::vector<::pasta::Stmt> CXXDependentScopeMemberExpr::Children(void) const noe
   __builtin_unreachable();
 }
 
-::pasta::NamedDecl CXXDependentScopeMemberExpr::FirstQualifierFoundInScope(void) const noexcept {
+std::optional<::pasta::NamedDecl> CXXDependentScopeMemberExpr::FirstQualifierFoundInScope(void) const noexcept {
   auto &self = *const_cast<clang::CXXDependentScopeMemberExpr *>(u.CXXDependentScopeMemberExpr);
   decltype(auto) val = self.getFirstQualifierFoundInScope();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
   }
-  assert(false && "CXXDependentScopeMemberExpr::FirstQualifierFoundInScope can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -13951,14 +13956,15 @@ std::optional<::pasta::Expr> CXXNewExpr::ArraySize(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::CXXConstructExpr CXXNewExpr::ConstructExpression(void) const noexcept {
+std::optional<::pasta::CXXConstructExpr> CXXNewExpr::ConstructExpression(void) const noexcept {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getConstructExpr();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::CXXConstructExpr>(ast, val);
   }
-  assert(false && "CXXNewExpr::ConstructExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -13983,14 +13989,15 @@ enum CXXNewExprInitializationStyle CXXNewExpr::InitializationStyle(void) const n
   __builtin_unreachable();
 }
 
-::pasta::Expr CXXNewExpr::Initializer(void) const noexcept {
+std::optional<::pasta::Expr> CXXNewExpr::Initializer(void) const noexcept {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getInitializer();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CXXNewExpr::Initializer can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -14670,14 +14677,15 @@ std::vector<::pasta::Stmt> CXXThrowExpr::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Expr CXXThrowExpr::SubExpression(void) const noexcept {
+std::optional<::pasta::Expr> CXXThrowExpr::SubExpression(void) const noexcept {
   auto &self = *const_cast<clang::CXXThrowExpr *>(u.CXXThrowExpr);
   decltype(auto) val = self.getSubExpr();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CXXThrowExpr::SubExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -17016,14 +17024,15 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXMemberCallExpr)
   __builtin_unreachable();
 }
 
-::pasta::CXXMethodDecl CXXMemberCallExpr::MethodDeclaration(void) const noexcept {
+std::optional<::pasta::CXXMethodDecl> CXXMemberCallExpr::MethodDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::CXXMemberCallExpr *>(u.CXXMemberCallExpr);
   decltype(auto) val = self.getMethodDecl();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::CXXMethodDecl>(ast, val);
   }
-  assert(false && "CXXMemberCallExpr::MethodDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 

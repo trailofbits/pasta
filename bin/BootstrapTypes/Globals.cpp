@@ -966,6 +966,12 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"UsingShadowDecl", "NextUsingShadowDeclaration"},
   {"FriendDecl", "FriendDeclaration"},
   {"CXXCatchStmt", "ExceptionDeclaration"},
+  {"CXXMemberCallExpr", "MethodDeclaration"},
+  {"CXXForRangeStmt", "Initializer"},
+  {"CXXThrowExpr", "SubExpression"},
+  {"CXXNewExpr", "ConstructExpression"},
+  {"CXXNewExpr", "Initializer"},
+  {"CXXDependentScopeMemberExpr", "FirstQualifierFoundInScope"},
 };
 
 std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
@@ -1198,6 +1204,10 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  if (!self.getAttr<clang::MSInheritanceAttr>()) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
+  {{"CXXRecordDecl", "CalculateInheritanceModel"},
+   "  if (!self.getAttr<clang::MSInheritanceAttr>()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
   {{"CXXRecordDecl", "AllowConstDefaultInitializer"},
    SELF_IS_DEFINITION},
   {{"CXXRecordDecl", "DefaultedCopyConstructorIsDeleted"},
@@ -1341,6 +1351,10 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
   {{"SizeOfPackExpr", "PackLength"},
    "  if (self.isValueDependent()) {\n"
    "    return std::nullopt;\n"
+   "  }\n"},
+  {{"StringLiteral", "ContainsNonAscii"},
+   "  if (self.getCharByteWidth() > 1) {\n"
+   "     return std::nullopt;\n"
    "  }\n"},
   {{"CXXUuidofExpr", "ExpressionOperand"},
    "  if (self.isTypeOperand()) {\n"

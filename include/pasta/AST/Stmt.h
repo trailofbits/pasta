@@ -1095,7 +1095,7 @@ class CXXForRangeStmt : public Stmt {
   ::pasta::DeclStmt EndStatement(void) const noexcept;
   ::pasta::Token ForToken(void) const noexcept;
   ::pasta::Expr Increment(void) const noexcept;
-  ::pasta::Stmt Initializer(void) const noexcept;
+  std::optional<::pasta::Stmt> Initializer(void) const noexcept;
   ::pasta::DeclStmt LoopVariableStatement(void) const noexcept;
   ::pasta::VarDecl LoopVariable(void) const noexcept;
   ::pasta::Token RParenToken(void) const noexcept;
@@ -4122,7 +4122,7 @@ class StringLiteral : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(Stmt, StringLiteral)
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, StringLiteral)
   std::vector<::pasta::Stmt> Children(void) const noexcept;
-  bool ContainsNonAscii(void) const noexcept;
+  std::optional<bool> ContainsNonAscii(void) const noexcept;
   bool ContainsNonAsciiOrNull(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   uint32_t ByteLength(void) const noexcept;
@@ -4775,7 +4775,7 @@ class CXXDependentScopeMemberExpr : public Expr {
   ::pasta::Type BaseType(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  ::pasta::NamedDecl FirstQualifierFoundInScope(void) const noexcept;
+  std::optional<::pasta::NamedDecl> FirstQualifierFoundInScope(void) const noexcept;
   ::pasta::Token LAngleToken(void) const noexcept;
   // Member: (clang::DeclarationName)
   ::pasta::Token MemberToken(void) const noexcept;
@@ -4863,11 +4863,11 @@ class CXXNewExpr : public Expr {
   ::pasta::Type AllocatedTypeSourceInfo(void) const noexcept;
   std::optional<::pasta::Expr> ArraySize(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
-  ::pasta::CXXConstructExpr ConstructExpression(void) const noexcept;
+  std::optional<::pasta::CXXConstructExpr> ConstructExpression(void) const noexcept;
   ::pasta::TokenRange DirectInitializerRange(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   enum CXXNewExprInitializationStyle InitializationStyle(void) const noexcept;
-  ::pasta::Expr Initializer(void) const noexcept;
+  std::optional<::pasta::Expr> Initializer(void) const noexcept;
   uint32_t NumPlacementArguments(void) const noexcept;
   ::pasta::FunctionDecl OperatorDelete(void) const noexcept;
   ::pasta::FunctionDecl OperatorNew(void) const noexcept;
@@ -5071,7 +5071,7 @@ class CXXThrowExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  ::pasta::Expr SubExpression(void) const noexcept;
+  std::optional<::pasta::Expr> SubExpression(void) const noexcept;
   ::pasta::Token ThrowToken(void) const noexcept;
   bool IsThrownVariableInScope(void) const noexcept;
  protected:
@@ -5987,7 +5987,7 @@ class CXXMemberCallExpr : public CallExpr {
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, CXXMemberCallExpr)
   ::pasta::Token ExpressionToken(void) const noexcept;
   ::pasta::Expr ImplicitObjectArgument(void) const noexcept;
-  ::pasta::CXXMethodDecl MethodDeclaration(void) const noexcept;
+  std::optional<::pasta::CXXMethodDecl> MethodDeclaration(void) const noexcept;
   ::pasta::Type ObjectType(void) const noexcept;
   ::pasta::CXXRecordDecl RecordDeclaration(void) const noexcept;
   std::vector<::pasta::Expr> Arguments(void) const noexcept;

@@ -2862,7 +2862,7 @@ class CXXRecordDecl : public RecordDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(CXXRecordDecl, ClassTemplateSpecializationDecl)
   std::optional<bool> AllowConstDefaultInitializer(void) const noexcept;
   std::optional<std::vector<::pasta::CXXBaseSpecifier>> Bases(void) const noexcept;
-  enum MSInheritanceModel CalculateInheritanceModel(void) const noexcept;
+  std::optional<enum MSInheritanceModel> CalculateInheritanceModel(void) const noexcept;
   // Captures: (llvm::iterator_range<const clang::LambdaCapture *>)
   std::vector<::pasta::CXXConstructorDecl> Constructors(void) const noexcept;
   std::optional<bool> DefaultedCopyConstructorIsDeleted(void) const noexcept;

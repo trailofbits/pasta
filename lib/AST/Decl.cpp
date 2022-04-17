@@ -9122,8 +9122,11 @@ std::optional<std::vector<::pasta::CXXBaseSpecifier>> CXXRecordDecl::Bases(void)
 
 // 0: CXXRecordDecl::
 // 0: CXXRecordDecl::
-enum MSInheritanceModel CXXRecordDecl::CalculateInheritanceModel(void) const noexcept {
+std::optional<enum MSInheritanceModel> CXXRecordDecl::CalculateInheritanceModel(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getAttr<clang::MSInheritanceAttr>()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.calculateInheritanceModel();
   return static_cast<::pasta::MSInheritanceModel>(val);
   __builtin_unreachable();

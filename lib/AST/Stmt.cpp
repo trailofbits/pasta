@@ -11206,8 +11206,11 @@ std::optional<bool> StringLiteral::ContainsNonAscii(void) const noexcept {
   __builtin_unreachable();
 }
 
-bool StringLiteral::ContainsNonAsciiOrNull(void) const noexcept {
+std::optional<bool> StringLiteral::ContainsNonAsciiOrNull(void) const noexcept {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
+  if (self.getCharByteWidth() > 1) {
+     return std::nullopt;
+  }
   decltype(auto) val = self.containsNonAsciiOrNull();
   return val;
   __builtin_unreachable();
@@ -11276,8 +11279,11 @@ uint32_t StringLiteral::NumConcatenated(void) const noexcept {
 }
 
 // 1: StringLiteral::StringTokenToken
-std::string_view StringLiteral::String(void) const noexcept {
+std::optional<std::string_view> StringLiteral::String(void) const noexcept {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
+  if (self.getCharByteWidth() > 1) {
+     return std::nullopt;
+  }
   decltype(auto) val = self.getString();
   if (auto size = val.size()) {
     return std::string_view(val.data(), size);

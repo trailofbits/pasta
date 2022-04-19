@@ -1356,6 +1356,14 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  if (self.getCharByteWidth() > 1) {\n"
    "     return std::nullopt;\n"
    "  }\n"},
+  {{"StringLiteral", "ContainsNonAsciiOrNull"},
+   "  if (self.getCharByteWidth() > 1) {\n"
+   "     return std::nullopt;\n"
+   "  }\n"},
+  {{"StringLiteral", "String"},
+   "  if (self.getCharByteWidth() > 1) {\n"
+   "     return std::nullopt;\n"
+   "  }\n"},
   {{"CXXUuidofExpr", "ExpressionOperand"},
    "  if (self.isTypeOperand()) {\n"
    "    return std::nullopt;\n"

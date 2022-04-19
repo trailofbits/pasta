@@ -1495,7 +1495,7 @@ class BlockDecl : public Decl {
   bool CapturesCXXThis(void) const noexcept;
   // CapturesVariable: (bool)
   bool DoesNotEscape(void) const noexcept;
-  ::pasta::Decl BlockManglingContextDeclaration(void) const noexcept;
+  std::optional<::pasta::Decl> BlockManglingContextDeclaration(void) const noexcept;
   uint32_t BlockManglingNumber(void) const noexcept;
   ::pasta::Token CaretToken(void) const noexcept;
   ::pasta::CompoundStmt CompoundBody(void) const noexcept;

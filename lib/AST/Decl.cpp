@@ -4246,14 +4246,15 @@ bool BlockDecl::DoesNotEscape(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Decl BlockDecl::BlockManglingContextDeclaration(void) const noexcept {
+std::optional<::pasta::Decl> BlockDecl::BlockManglingContextDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::BlockDecl *>(u.BlockDecl);
   decltype(auto) val = self.getBlockManglingContextDecl();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::Decl>(ast, val);
   }
-  assert(false && "BlockDecl::BlockManglingContextDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 

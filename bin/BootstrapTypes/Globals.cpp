@@ -972,6 +972,7 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"CXXNewExpr", "ConstructExpression"},
   {"CXXNewExpr", "Initializer"},
   {"CXXDependentScopeMemberExpr", "FirstQualifierFoundInScope"},
+  {"BlockDecl", "BlockManglingContextDeclaration"},
 };
 
 std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
@@ -1353,6 +1354,14 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "    return std::nullopt;\n"
    "  }\n"},
   {{"StringLiteral", "ContainsNonAscii"},
+   "  if (self.getCharByteWidth() > 1) {\n"
+   "     return std::nullopt;\n"
+   "  }\n"},
+  {{"StringLiteral", "ContainsNonAsciiOrNull"},
+   "  if (self.getCharByteWidth() > 1) {\n"
+   "     return std::nullopt;\n"
+   "  }\n"},
+  {{"StringLiteral", "String"},
    "  if (self.getCharByteWidth() > 1) {\n"
    "     return std::nullopt;\n"
    "  }\n"},

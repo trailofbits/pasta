@@ -4123,7 +4123,7 @@ class StringLiteral : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, StringLiteral)
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   std::optional<bool> ContainsNonAscii(void) const noexcept;
-  bool ContainsNonAsciiOrNull(void) const noexcept;
+  std::optional<bool> ContainsNonAsciiOrNull(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   uint32_t ByteLength(void) const noexcept;
   std::string_view Bytes(void) const noexcept;
@@ -4135,7 +4135,7 @@ class StringLiteral : public Expr {
   // TokenOfByte: (clang::SourceLocation)
   uint32_t NumConcatenated(void) const noexcept;
   // StringTokenToken: (clang::SourceLocation)
-  std::string_view String(void) const noexcept;
+  std::optional<std::string_view> String(void) const noexcept;
   bool IsAscii(void) const noexcept;
   bool IsPascal(void) const noexcept;
   bool IsUTF16(void) const noexcept;

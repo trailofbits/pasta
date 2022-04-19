@@ -972,6 +972,7 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"CXXNewExpr", "ConstructExpression"},
   {"CXXNewExpr", "Initializer"},
   {"CXXDependentScopeMemberExpr", "FirstQualifierFoundInScope"},
+  {"BlockDecl", "BlockManglingContextDeclaration"},
 };
 
 std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{

@@ -596,7 +596,9 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   //            out-of-line methods on class templates.
   void VisitParmVarDecl(clang::ParmVarDecl *decl) {
     Expand(decl->getSourceRange());
-    Expand(decl->getDefaultArgRange());
+    if (!decl->hasInheritedDefaultArg()) {
+      Expand(decl->getDefaultArgRange());
+    }
   }
 
 

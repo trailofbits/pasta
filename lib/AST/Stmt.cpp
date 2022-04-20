@@ -5059,14 +5059,15 @@ std::vector<::pasta::Stmt> IndirectGotoStmt::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::LabelDecl IndirectGotoStmt::ConstantTarget(void) const noexcept {
+std::optional<::pasta::LabelDecl> IndirectGotoStmt::ConstantTarget(void) const noexcept {
   auto &self = *const_cast<clang::IndirectGotoStmt *>(u.IndirectGotoStmt);
   decltype(auto) val = self.getConstantTarget();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::LabelDecl>(ast, val);
   }
-  assert(false && "IndirectGotoStmt::ConstantTarget can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 

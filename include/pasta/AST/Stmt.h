@@ -1857,7 +1857,7 @@ class IndirectGotoStmt : public Stmt {
   PASTA_DECLARE_BASE_OPERATORS(Stmt, IndirectGotoStmt)
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
-  ::pasta::LabelDecl ConstantTarget(void) const noexcept;
+  std::optional<::pasta::LabelDecl> ConstantTarget(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Token GotoToken(void) const noexcept;
   ::pasta::Token StarToken(void) const noexcept;

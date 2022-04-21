@@ -117,8 +117,10 @@ class StructureFinder final : public pasta::DeclVisitor {
   }
 
   void VisitRecordDecl(const pasta::RecordDecl &decl) final {
-    type_dumper.Accept(decl.TypeForDeclaration());
-    type_dumper.os << "\n\n";
+    if (auto ty = decl.TypeForDeclaration()) {
+      type_dumper.Accept(*ty);
+      type_dumper.os << "\n\n";
+    }
     VisitDeclContext(decl);
   }
 };

@@ -42,7 +42,7 @@ void GenerateDeclH(void) {
       << "        std::shared_ptr<ASTImpl> ast_, \\\n"
       << "        const ::clang::Decl *decl_); \\\n"
       << "   public: \\\n"
-      << "    const clang::base *RawDecl(void) const noexcept { \\\n"
+      << "    inline const clang::base *RawDecl(void) const noexcept { \\\n"
       << "      return u.base; \\\n"
       << "    }\n\n"
       << "namespace pasta {\n"
@@ -86,6 +86,7 @@ void GenerateDeclH(void) {
      << "  } u;\n"
      << "  inline DeclContext(std::shared_ptr<ASTImpl> ast_, const clang::DeclContext *context_)\n"
      << "      : ast(std::move(ast_)) {\n"
+     << "    assert(ast.get() != nullptr);\n"
      << "    u.DeclContext = context_;\n"
      << "  }\n"
      << "};\n\n";
@@ -188,6 +189,7 @@ void GenerateDeclH(void) {
           << "                       DeclKind kind_)\n"
           << "      : ast(std::move(ast_)),\n"
           << "        kind(kind_) {\n"
+          << "    assert(ast.get() != nullptr);\n"
           << "    u.Decl = decl_;\n"
           << "  }\n\n";
 

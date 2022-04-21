@@ -771,6 +771,7 @@ class Stmt {
                        StmtKind kind_)
       : ast(std::move(ast_)),
         kind(kind_) {
+    assert(ast.get() != nullptr);
     u.Stmt = decl_;
   }
 
@@ -4241,7 +4242,7 @@ class UnaryExprOrTypeTraitExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   std::optional<::pasta::Expr> ArgumentExpression(void) const noexcept;
   std::optional<::pasta::Type> ArgumentType(void) const noexcept;
-  ::pasta::Type ArgumentTypeInfo(void) const noexcept;
+  std::optional<::pasta::Type> ArgumentTypeInfo(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   enum UnaryExprOrTypeTrait Kind(void) const noexcept;

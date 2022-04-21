@@ -27,7 +27,7 @@
         std::shared_ptr<ASTImpl> ast_, \
         const ::clang::Decl *decl_); \
    public: \
-    const clang::base *RawDecl(void) const noexcept { \
+    inline const clang::base *RawDecl(void) const noexcept { \
       return u.base; \
     }
 
@@ -226,6 +226,7 @@ class DeclContext {
   } u;
   inline DeclContext(std::shared_ptr<ASTImpl> ast_, const clang::DeclContext *context_)
       : ast(std::move(ast_)) {
+    assert(ast.get() != nullptr);
     u.DeclContext = context_;
   }
 };
@@ -333,7 +334,6 @@ class Decl {
   // CanBeWeakImported: (bool)
   // ASTContext: (clang::ASTContext &)
   enum AccessSpecifier Access(void) const noexcept;
-  enum AccessSpecifier AccessUnsafe(void) const noexcept;
   std::optional<::pasta::FunctionDecl> AsFunction(void) const noexcept;
   // Attributes: (const llvm::SmallVector<clang::Attr *, 4> &)
   enum AvailabilityResult Availability(void) const noexcept;
@@ -347,7 +347,7 @@ class Decl {
   ::pasta::Token EndToken(void) const noexcept;
   // ExternalSourceSymbolAttribute: (clang::ExternalSourceSymbolAttr *)
   enum DeclFriendObjectKind FriendObjectKind(void) const noexcept;
-  ::pasta::FunctionType FunctionType(void) const noexcept;
+  std::optional<::pasta::FunctionType> FunctionType(void) const noexcept;
   uint32_t GlobalID(void) const noexcept;
   int64_t ID(void) const noexcept;
   uint32_t IdentifierNamespace(void) const noexcept;
@@ -525,6 +525,7 @@ class Decl {
                        DeclKind kind_)
       : ast(std::move(ast_)),
         kind(kind_) {
+    assert(ast.get() != nullptr);
     u.Decl = decl_;
   }
 
@@ -937,10 +938,10 @@ class ObjCInterfaceDecl : public ObjCContainerDecl {
   ::pasta::ObjCImplementationDecl Implementation(void) const noexcept;
   std::string_view ObjCRuntimeNameAsString(void) const noexcept;
   // ReferencedProtocols: (const clang::ObjCProtocolList &)
-  ::pasta::ObjCInterfaceDecl SuperClass(void) const noexcept;
+  std::optional<::pasta::ObjCInterfaceDecl> SuperClass(void) const noexcept;
   ::pasta::Token SuperClassToken(void) const noexcept;
-  ::pasta::Type SuperClassTInfo(void) const noexcept;
-  ::pasta::ObjCObjectType SuperClassType(void) const noexcept;
+  std::optional<::pasta::Type> SuperClassTypeInfo(void) const noexcept;
+  std::optional<::pasta::ObjCObjectType> SuperClassType(void) const noexcept;
   ::pasta::Type TypeForDeclaration(void) const noexcept;
   // TypeParameterList: (clang::ObjCTypeParamList *)
   // TypeParameterListAsWritten: (clang::ObjCTypeParamList *)
@@ -1245,7 +1246,7 @@ class TypeDecl : public NamedDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(TypeDecl, TypedefNameDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeDecl, UnresolvedUsingTypenameDecl)
   ::pasta::Token BeginToken(void) const noexcept;
-  ::pasta::Type TypeForDeclaration(void) const noexcept;
+  std::optional<::pasta::Type> TypeForDeclaration(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TypeDecl)
 };
@@ -1674,7 +1675,7 @@ class FieldDecl : public DeclaratorDecl {
   std::optional<::pasta::Expr> BitWidth(void) const noexcept;
   uint32_t BitWidthValue(void) const noexcept;
   ::pasta::FieldDecl CanonicalDeclaration(void) const noexcept;
-  ::pasta::VariableArrayType CapturedVLAType(void) const noexcept;
+  std::optional<::pasta::VariableArrayType> CapturedVLAType(void) const noexcept;
   uint32_t FieldIndex(void) const noexcept;
   enum InClassInitStyle InClassInitializerStyle(void) const noexcept;
   std::optional<::pasta::Expr> InClassInitializer(void) const noexcept;
@@ -2585,9 +2586,9 @@ class EnumDecl : public TagDecl {
   ::pasta::EnumDecl CanonicalDeclaration(void) const noexcept;
   ::pasta::EnumDecl Definition(void) const noexcept;
   std::optional<::pasta::EnumDecl> InstantiatedFromMemberEnum(void) const noexcept;
-  ::pasta::Type IntegerType(void) const noexcept;
+  std::optional<::pasta::Type> IntegerType(void) const noexcept;
   ::pasta::TokenRange IntegerTypeRange(void) const noexcept;
-  ::pasta::Type IntegerTypeSourceInfo(void) const noexcept;
+  std::optional<::pasta::Type> IntegerTypeSourceInfo(void) const noexcept;
   // MemberSpecializationInfo: (clang::MemberSpecializationInfo *)
   ::pasta::EnumDecl MostRecentDeclaration(void) const noexcept;
   uint32_t NumNegativeBits(void) const noexcept;

@@ -2141,6 +2141,7 @@ std::vector<::pasta::Stmt> CXXCatchStmt::Children(void) const noexcept {
 ::pasta::Type CXXCatchStmt::CaughtType(void) const noexcept {
   auto &self = *const_cast<clang::CXXCatchStmt *>(u.CXXCatchStmt);
   decltype(auto) val = self.getCaughtType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -3593,6 +3594,7 @@ std::optional<::pasta::FieldDecl> Expr::SourceBitField(void) const noexcept {
 ::pasta::Type Expr::Type(void) const noexcept {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.getType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -8781,6 +8783,7 @@ std::vector<::pasta::Stmt> ObjCEncodeExpr::Children(void) const noexcept {
 ::pasta::Type ObjCEncodeExpr::EncodedType(void) const noexcept {
   auto &self = *const_cast<clang::ObjCEncodeExpr *>(u.ObjCEncodeExpr);
   decltype(auto) val = self.getEncodedType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -8788,7 +8791,8 @@ std::vector<::pasta::Stmt> ObjCEncodeExpr::Children(void) const noexcept {
 ::pasta::Type ObjCEncodeExpr::EncodedTypeSourceInfo(void) const noexcept {
   auto &self = *const_cast<clang::ObjCEncodeExpr *>(u.ObjCEncodeExpr);
   decltype(auto) val = self.getEncodedTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "ObjCEncodeExpr::EncodedTypeSourceInfo can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "ObjCEncodeExpr::EncodedTypeSourceInfo can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -9161,6 +9165,7 @@ std::vector<::pasta::Stmt> ObjCMessageExpr::Children(void) const noexcept {
 ::pasta::Type ObjCMessageExpr::CallReturnType(void) const noexcept {
   auto &self = *(u.ObjCMessageExpr);
   decltype(auto) val = self.getCallReturnType(ast->ci->getASTContext());
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -9168,6 +9173,7 @@ std::vector<::pasta::Stmt> ObjCMessageExpr::Children(void) const noexcept {
 ::pasta::Type ObjCMessageExpr::ClassReceiver(void) const noexcept {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getClassReceiver();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -9175,7 +9181,8 @@ std::vector<::pasta::Stmt> ObjCMessageExpr::Children(void) const noexcept {
 ::pasta::Type ObjCMessageExpr::ClassReceiverTypeInfo(void) const noexcept {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getClassReceiverTypeInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "ObjCMessageExpr::ClassReceiverTypeInfo can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "ObjCMessageExpr::ClassReceiverTypeInfo can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -9265,6 +9272,7 @@ enum ObjCMessageExprReceiverKind ObjCMessageExpr::ReceiverKind(void) const noexc
 ::pasta::Type ObjCMessageExpr::ReceiverType(void) const noexcept {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getReceiverType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -9295,6 +9303,7 @@ enum ObjCMessageExprReceiverKind ObjCMessageExpr::ReceiverKind(void) const noexc
 ::pasta::Type ObjCMessageExpr::SuperType(void) const noexcept {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getSuperType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -9448,6 +9457,7 @@ std::vector<::pasta::Stmt> ObjCPropertyRefExpr::Children(void) const noexcept {
 ::pasta::Type ObjCPropertyRefExpr::ReceiverType(void) const noexcept {
   auto &self = *(u.ObjCPropertyRefExpr);
   decltype(auto) val = self.getReceiverType(ast->ci->getASTContext());
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -9456,6 +9466,7 @@ std::vector<::pasta::Stmt> ObjCPropertyRefExpr::Children(void) const noexcept {
 ::pasta::Type ObjCPropertyRefExpr::SuperReceiverType(void) const noexcept {
   auto &self = *const_cast<clang::ObjCPropertyRefExpr *>(u.ObjCPropertyRefExpr);
   decltype(auto) val = self.getSuperReceiverType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -9836,7 +9847,8 @@ uint32_t OffsetOfExpr::NumExpressions(void) const noexcept {
 ::pasta::Type OffsetOfExpr::TypeSourceInfo(void) const noexcept {
   auto &self = *const_cast<clang::OffsetOfExpr *>(u.OffsetOfExpr);
   decltype(auto) val = self.getTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "OffsetOfExpr::TypeSourceInfo can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "OffsetOfExpr::TypeSourceInfo can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -10862,7 +10874,8 @@ std::vector<::pasta::Stmt> SYCLUniqueStableNameExpr::Children(void) const noexce
 ::pasta::Type SYCLUniqueStableNameExpr::TypeSourceInfo(void) const noexcept {
   auto &self = *const_cast<clang::SYCLUniqueStableNameExpr *>(u.SYCLUniqueStableNameExpr);
   decltype(auto) val = self.getTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "SYCLUniqueStableNameExpr::TypeSourceInfo can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "SYCLUniqueStableNameExpr::TypeSourceInfo can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -11394,6 +11407,7 @@ std::vector<::pasta::Stmt> SubstNonTypeTemplateParmExpr::Children(void) const no
 ::pasta::Type SubstNonTypeTemplateParmExpr::ParameterType(void) const noexcept {
   auto &self = *(u.SubstNonTypeTemplateParmExpr);
   decltype(auto) val = self.getParameterType(ast->ci->getASTContext());
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -11621,15 +11635,23 @@ std::optional<::pasta::Type> UnaryExprOrTypeTraitExpr::ArgumentType(void) const 
     return std::nullopt;
   }
   decltype(auto) val = self.getArgumentType();
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
 
-::pasta::Type UnaryExprOrTypeTraitExpr::ArgumentTypeInfo(void) const noexcept {
+std::optional<::pasta::Type> UnaryExprOrTypeTraitExpr::ArgumentTypeInfo(void) const noexcept {
   auto &self = *const_cast<clang::UnaryExprOrTypeTraitExpr *>(u.UnaryExprOrTypeTraitExpr);
+  if (!self.isArgumentType()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getArgumentTypeInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "UnaryExprOrTypeTraitExpr::ArgumentTypeInfo can return nullptr!");
-  __builtin_unreachable();
+  if (!val) {
+    return std::nullopt;
+  }
+  return TypeBuilder::Build(ast, val->getType());
   __builtin_unreachable();
 }
 
@@ -11671,6 +11693,7 @@ enum UnaryExprOrTypeTrait UnaryExprOrTypeTraitExpr::Kind(void) const noexcept {
 ::pasta::Type UnaryExprOrTypeTraitExpr::TypeOfArgument(void) const noexcept {
   auto &self = *const_cast<clang::UnaryExprOrTypeTraitExpr *>(u.UnaryExprOrTypeTraitExpr);
   decltype(auto) val = self.getTypeOfArgument();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -11907,6 +11930,7 @@ std::vector<::pasta::Stmt> UnresolvedMemberExpr::Children(void) const noexcept {
 ::pasta::Type UnresolvedMemberExpr::BaseType(void) const noexcept {
   auto &self = *const_cast<clang::UnresolvedMemberExpr *>(u.UnresolvedMemberExpr);
   decltype(auto) val = self.getBaseType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -12043,7 +12067,8 @@ std::vector<::pasta::Stmt> VAArgExpr::Children(void) const noexcept {
 ::pasta::Type VAArgExpr::WrittenTypeInfo(void) const noexcept {
   auto &self = *const_cast<clang::VAArgExpr *>(u.VAArgExpr);
   decltype(auto) val = self.getWrittenTypeInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "VAArgExpr::WrittenTypeInfo can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "VAArgExpr::WrittenTypeInfo can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -12413,6 +12438,7 @@ std::vector<::pasta::Stmt> ArrayTypeTraitExpr::Children(void) const noexcept {
 ::pasta::Type ArrayTypeTraitExpr::QueriedType(void) const noexcept {
   auto &self = *const_cast<clang::ArrayTypeTraitExpr *>(u.ArrayTypeTraitExpr);
   decltype(auto) val = self.getQueriedType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -12420,7 +12446,8 @@ std::vector<::pasta::Stmt> ArrayTypeTraitExpr::Children(void) const noexcept {
 ::pasta::Type ArrayTypeTraitExpr::QueriedTypeSourceInfo(void) const noexcept {
   auto &self = *const_cast<clang::ArrayTypeTraitExpr *>(u.ArrayTypeTraitExpr);
   decltype(auto) val = self.getQueriedTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "ArrayTypeTraitExpr::QueriedTypeSourceInfo can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "ArrayTypeTraitExpr::QueriedTypeSourceInfo can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -12653,6 +12680,7 @@ std::optional<::pasta::Expr> AtomicExpr::Value2(void) const noexcept {
 ::pasta::Type AtomicExpr::ValueType(void) const noexcept {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
   decltype(auto) val = self.getValueType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -13501,6 +13529,7 @@ bool CXXDeleteExpr::DoesUsualArrayDeleteWantSize(void) const noexcept {
 ::pasta::Type CXXDeleteExpr::DestroyedType(void) const noexcept {
   auto &self = *const_cast<clang::CXXDeleteExpr *>(u.CXXDeleteExpr);
   decltype(auto) val = self.getDestroyedType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -13579,6 +13608,7 @@ std::vector<::pasta::Stmt> CXXDependentScopeMemberExpr::Children(void) const noe
 ::pasta::Type CXXDependentScopeMemberExpr::BaseType(void) const noexcept {
   auto &self = *const_cast<clang::CXXDependentScopeMemberExpr *>(u.CXXDependentScopeMemberExpr);
   decltype(auto) val = self.getBaseType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -13933,6 +13963,7 @@ bool CXXNewExpr::DoesUsualArrayDeleteWantSize(void) const noexcept {
 ::pasta::Type CXXNewExpr::AllocatedType(void) const noexcept {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getAllocatedType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -13940,7 +13971,8 @@ bool CXXNewExpr::DoesUsualArrayDeleteWantSize(void) const noexcept {
 ::pasta::Type CXXNewExpr::AllocatedTypeSourceInfo(void) const noexcept {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getAllocatedTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "CXXNewExpr::AllocatedTypeSourceInfo can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "CXXNewExpr::AllocatedTypeSourceInfo can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -14262,6 +14294,7 @@ std::vector<::pasta::Stmt> CXXPseudoDestructorExpr::Children(void) const noexcep
 ::pasta::Type CXXPseudoDestructorExpr::DestroyedType(void) const noexcept {
   auto &self = *const_cast<clang::CXXPseudoDestructorExpr *>(u.CXXPseudoDestructorExpr);
   decltype(auto) val = self.getDestroyedType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -14270,7 +14303,8 @@ std::vector<::pasta::Stmt> CXXPseudoDestructorExpr::Children(void) const noexcep
 ::pasta::Type CXXPseudoDestructorExpr::DestroyedTypeInfo(void) const noexcept {
   auto &self = *const_cast<clang::CXXPseudoDestructorExpr *>(u.CXXPseudoDestructorExpr);
   decltype(auto) val = self.getDestroyedTypeInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "CXXPseudoDestructorExpr::DestroyedTypeInfo can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "CXXPseudoDestructorExpr::DestroyedTypeInfo can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -14301,7 +14335,8 @@ std::vector<::pasta::Stmt> CXXPseudoDestructorExpr::Children(void) const noexcep
 ::pasta::Type CXXPseudoDestructorExpr::ScopeTypeInfo(void) const noexcept {
   auto &self = *const_cast<clang::CXXPseudoDestructorExpr *>(u.CXXPseudoDestructorExpr);
   decltype(auto) val = self.getScopeTypeInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "CXXPseudoDestructorExpr::ScopeTypeInfo can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "CXXPseudoDestructorExpr::ScopeTypeInfo can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -14495,7 +14530,8 @@ std::vector<::pasta::Stmt> CXXScalarValueInitExpr::Children(void) const noexcept
 ::pasta::Type CXXScalarValueInitExpr::TypeSourceInfo(void) const noexcept {
   auto &self = *const_cast<clang::CXXScalarValueInitExpr *>(u.CXXScalarValueInitExpr);
   decltype(auto) val = self.getTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "CXXScalarValueInitExpr::TypeSourceInfo can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "CXXScalarValueInitExpr::TypeSourceInfo can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -14579,7 +14615,8 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXTemporaryObjectExpr)
 ::pasta::Type CXXTemporaryObjectExpr::TypeSourceInfo(void) const noexcept {
   auto &self = *const_cast<clang::CXXTemporaryObjectExpr *>(u.CXXTemporaryObjectExpr);
   decltype(auto) val = self.getTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "CXXTemporaryObjectExpr::TypeSourceInfo can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "CXXTemporaryObjectExpr::TypeSourceInfo can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -14770,6 +14807,7 @@ std::optional<::pasta::Expr> CXXTypeidExpr::ExpressionOperand(void) const noexce
 ::pasta::Type CXXTypeidExpr::TypeOperand(void) const noexcept {
   auto &self = *(u.CXXTypeidExpr);
   decltype(auto) val = self.getTypeOperand(ast->ci->getASTContext());
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -14777,7 +14815,8 @@ std::optional<::pasta::Expr> CXXTypeidExpr::ExpressionOperand(void) const noexce
 ::pasta::Type CXXTypeidExpr::TypeOperandSourceInfo(void) const noexcept {
   auto &self = *const_cast<clang::CXXTypeidExpr *>(u.CXXTypeidExpr);
   decltype(auto) val = self.getTypeOperandSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "CXXTypeidExpr::TypeOperandSourceInfo can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "CXXTypeidExpr::TypeOperandSourceInfo can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -14881,6 +14920,7 @@ uint32_t CXXUnresolvedConstructExpr::NumArguments(void) const noexcept {
 ::pasta::Type CXXUnresolvedConstructExpr::TypeAsWritten(void) const noexcept {
   auto &self = *const_cast<clang::CXXUnresolvedConstructExpr *>(u.CXXUnresolvedConstructExpr);
   decltype(auto) val = self.getTypeAsWritten();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -14888,7 +14928,8 @@ uint32_t CXXUnresolvedConstructExpr::NumArguments(void) const noexcept {
 ::pasta::Type CXXUnresolvedConstructExpr::TypeSourceInfo(void) const noexcept {
   auto &self = *const_cast<clang::CXXUnresolvedConstructExpr *>(u.CXXUnresolvedConstructExpr);
   decltype(auto) val = self.getTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "CXXUnresolvedConstructExpr::TypeSourceInfo can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "CXXUnresolvedConstructExpr::TypeSourceInfo can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -14971,6 +15012,7 @@ std::optional<::pasta::Expr> CXXUuidofExpr::ExpressionOperand(void) const noexce
 ::pasta::Type CXXUuidofExpr::TypeOperand(void) const noexcept {
   auto &self = *(u.CXXUuidofExpr);
   decltype(auto) val = self.getTypeOperand(ast->ci->getASTContext());
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -14978,7 +15020,8 @@ std::optional<::pasta::Expr> CXXUuidofExpr::ExpressionOperand(void) const noexce
 ::pasta::Type CXXUuidofExpr::TypeOperandSourceInfo(void) const noexcept {
   auto &self = *const_cast<clang::CXXUuidofExpr *>(u.CXXUuidofExpr);
   decltype(auto) val = self.getTypeOperandSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "CXXUuidofExpr::TypeOperandSourceInfo can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "CXXUuidofExpr::TypeOperandSourceInfo can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -15056,6 +15099,7 @@ uint32_t CallExpr::BuiltinCallee(void) const noexcept {
 ::pasta::Type CallExpr::CallReturnType(void) const noexcept {
   auto &self = *(u.CallExpr);
   decltype(auto) val = self.getCallReturnType(ast->ci->getASTContext());
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -15461,6 +15505,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CompoundAssignOperator)
 ::pasta::Type CompoundAssignOperator::ComputationLHSType(void) const noexcept {
   auto &self = *const_cast<clang::CompoundAssignOperator *>(u.CompoundAssignOperator);
   decltype(auto) val = self.getComputationLHSType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -15468,6 +15513,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CompoundAssignOperator)
 ::pasta::Type CompoundAssignOperator::ComputationResultType(void) const noexcept {
   auto &self = *const_cast<clang::CompoundAssignOperator *>(u.CompoundAssignOperator);
   decltype(auto) val = self.getComputationResultType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -15528,7 +15574,8 @@ std::vector<::pasta::Stmt> CompoundLiteralExpr::Children(void) const noexcept {
 ::pasta::Type CompoundLiteralExpr::TypeSourceInfo(void) const noexcept {
   auto &self = *const_cast<clang::CompoundLiteralExpr *>(u.CompoundLiteralExpr);
   decltype(auto) val = self.getTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "CompoundLiteralExpr::TypeSourceInfo can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "CompoundLiteralExpr::TypeSourceInfo can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -15815,7 +15862,8 @@ std::vector<::pasta::Stmt> ConvertVectorExpr::Children(void) const noexcept {
 ::pasta::Type ConvertVectorExpr::TypeSourceInfo(void) const noexcept {
   auto &self = *const_cast<clang::ConvertVectorExpr *>(u.ConvertVectorExpr);
   decltype(auto) val = self.getTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "ConvertVectorExpr::TypeSourceInfo can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "ConvertVectorExpr::TypeSourceInfo can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -16414,6 +16462,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(ExplicitCastExpr, ObjCBridgedCastExpr)
 ::pasta::Type ExplicitCastExpr::TypeAsWritten(void) const noexcept {
   auto &self = *const_cast<clang::ExplicitCastExpr *>(u.ExplicitCastExpr);
   decltype(auto) val = self.getTypeAsWritten();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -16421,7 +16470,8 @@ PASTA_DEFINE_DERIVED_OPERATORS(ExplicitCastExpr, ObjCBridgedCastExpr)
 ::pasta::Type ExplicitCastExpr::TypeInfoAsWritten(void) const noexcept {
   auto &self = *const_cast<clang::ExplicitCastExpr *>(u.ExplicitCastExpr);
   decltype(auto) val = self.getTypeInfoAsWritten();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "ExplicitCastExpr::TypeInfoAsWritten can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "ExplicitCastExpr::TypeInfoAsWritten can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -17046,6 +17096,7 @@ std::optional<::pasta::CXXMethodDecl> CXXMemberCallExpr::MethodDeclaration(void)
 ::pasta::Type CXXMemberCallExpr::ObjectType(void) const noexcept {
   auto &self = *const_cast<clang::CXXMemberCallExpr *>(u.CXXMemberCallExpr);
   decltype(auto) val = self.getObjectType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }

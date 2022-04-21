@@ -26,7 +26,11 @@
         const ::clang::Type *type_); \
     explicit base( \
         std::shared_ptr<ASTImpl> ast_, \
-        const ::clang::QualType &type_);
+        const ::clang::QualType &type_); \
+   public: \
+    inline const clang::base *RawType(void) const noexcept { \
+      return u.base; \
+    }
 
 namespace pasta {
 class TypeBuilder;
@@ -178,11 +182,18 @@ class Type {
       : ast(std::move(ast_)),
         kind(kind_),
         qualifiers(qualifiers_) {
+    assert(ast.get() != nullptr);
     u.Type = type_;
   }
 
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(Type)
+  inline const clang::Type *RawType(void) const noexcept {
+    return u.Type;
+  }
+  inline uint32_t RawQualifiers(void) const noexcept {
+    return qualifiers;
+  }
   static std::optional<::pasta::Type> From(const TokenContext &);
   PASTA_DECLARE_DERIVED_OPERATORS(Type, AdjustedType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, ArrayType)
@@ -249,14 +260,20 @@ class Type {
   inline bool operator!=(const Type &that) const noexcept {
     return u.opaque != that.u.opaque || qualifiers != that.qualifiers;
   }
+  inline bool IsQualified(void) const noexcept {
+    return qualifiers;
+  }
+  inline Type UnqualifiedType(void) const noexcept {
+    return Type(ast, u.Type, kind, 0);
+  }
+
+  /* Type methods */
   bool AcceptsObjCTypeParameters(void) const noexcept;
   bool CanDecayToPointerType(void) const noexcept;
   bool CanHaveNullability(void) const noexcept;
-  std::optional<::pasta::ArrayType> CastAsArrayTypeUnsafe(void) const noexcept;
   bool ContainsErrors(void) const noexcept;
   bool ContainsUnexpandedParameterPack(void) const noexcept;
-  ::pasta::Type ArrayElementTypeNoTypeQualified(void) const noexcept;
-  std::optional<::pasta::ArrayType> AsArrayTypeUnsafe(void) const noexcept;
+  std::optional<::pasta::Type> ArrayElementTypeNoTypeQualified(void) const noexcept;
   std::optional<::pasta::CXXRecordDecl> AsCXXRecordDeclaration(void) const noexcept;
   std::optional<::pasta::ComplexType> AsComplexIntegerType(void) const noexcept;
   std::optional<::pasta::ObjCObjectPointerType> AsObjCInterfacePointerType(void) const noexcept;
@@ -269,7 +286,6 @@ class Type {
   std::optional<::pasta::RecordType> AsStructureType(void) const noexcept;
   std::optional<::pasta::TagDecl> AsTagDeclaration(void) const noexcept;
   std::optional<::pasta::RecordType> AsUnionType(void) const noexcept;
-  std::optional<::pasta::Type> BaseElementTypeUnsafe(void) const noexcept;
   ::pasta::Type CanonicalTypeInternal(void) const noexcept;
   // CanonicalTypeUnqualified: (clang::CanQual<clang::Type>)
   std::optional<::pasta::AutoType> ContainedAutoType(void) const noexcept;
@@ -284,7 +300,7 @@ class Type {
   std::optional<::pasta::CXXRecordDecl> PointeeCXXRecordDeclaration(void) const noexcept;
   std::optional<::pasta::Type> PointeeOrArrayElementType(void) const noexcept;
   std::optional<::pasta::Type> PointeeType(void) const noexcept;
-  enum TypeScalarTypeKind ScalarTypeKind(void) const noexcept;
+  std::optional<enum TypeScalarTypeKind> ScalarTypeKind(void) const noexcept;
   std::optional<::pasta::Type> SveElementType(void) const noexcept;
   ::pasta::TypeKind Kind(void) const noexcept;
   std::string_view KindName(void) const noexcept;
@@ -328,7 +344,7 @@ class Type {
   bool IsCompoundType(void) const noexcept;
   bool IsConstantArrayType(void) const noexcept;
   bool IsConstantMatrixType(void) const noexcept;
-  bool IsConstantSizeType(void) const noexcept;
+  std::optional<bool> IsConstantSizeType(void) const noexcept;
   bool IsDecltypeType(void) const noexcept;
   bool IsDependentAddressSpaceType(void) const noexcept;
   bool IsDependentSizedArrayType(void) const noexcept;
@@ -363,7 +379,7 @@ class Type {
   bool IsInterfaceType(void) const noexcept;
   bool IsLValueReferenceType(void) const noexcept;
   bool IsLinkageValid(void) const noexcept;
-  bool IsLiteralType(void) const noexcept;
+  std::optional<bool> IsLiteralType(void) const noexcept;
   bool IsMatrixType(void) const noexcept;
   bool IsMemberDataPointerType(void) const noexcept;
   bool IsMemberFunctionPointerType(void) const noexcept;
@@ -422,7 +438,7 @@ class Type {
   bool IsOCLIntelSubgroupAVCSicResultType(void) const noexcept;
   bool IsOCLIntelSubgroupAVCType(void) const noexcept;
   bool IsObjCARCBridgableType(void) const noexcept;
-  bool IsObjCARCImplicitlyUnretainedType(void) const noexcept;
+  std::optional<bool> IsObjCARCImplicitlyUnretainedType(void) const noexcept;
   bool IsObjCBoxableRecordType(void) const noexcept;
   bool IsObjCBuiltinType(void) const noexcept;
   bool IsObjCClassOrClassKindOfType(void) const noexcept;
@@ -469,7 +485,7 @@ class Type {
   // IsSpecificBuiltinType: (bool)
   // IsSpecificPlaceholderType: (bool)
   bool IsSpecifierType(void) const noexcept;
-  bool IsStandardLayoutType(void) const noexcept;
+  std::optional<bool> IsStandardLayoutType(void) const noexcept;
   bool IsStdByteType(void) const noexcept;
   bool IsStructuralType(void) const noexcept;
   bool IsStructureOrClassType(void) const noexcept;
@@ -492,12 +508,8 @@ class Type {
   bool IsVoidPointerType(void) const noexcept;
   bool IsVoidType(void) const noexcept;
   bool IsWideCharacterType(void) const noexcept;
-  inline bool IsQualified(void) const noexcept {
-    return qualifiers;
-  }
-  inline Type UnqualifiedType(void) const noexcept {
-    return Type(ast, u.Type, kind, 0);
-  }
+
+  /* QualType methods */
   ::pasta::Type IgnoreParentheses(void) const noexcept;
   enum LangAS AddressSpace(void) const noexcept;
   ::pasta::Type AtomicUnqualifiedType(void) const noexcept;
@@ -802,7 +814,7 @@ class ConstantArrayType : public ArrayType {
   PASTA_DECLARE_BASE_OPERATORS(Type, ConstantArrayType)
   ::pasta::Type Desugar(void) const noexcept;
   llvm::APInt Size(void) const noexcept;
-  ::pasta::Expr SizeExpression(void) const noexcept;
+  std::optional<::pasta::Expr> SizeExpression(void) const noexcept;
   bool IsSugared(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ConstantArrayType)
@@ -989,7 +1001,7 @@ class ElaboratedType : public TypeWithKeyword {
   PASTA_DECLARE_BASE_OPERATORS(TypeWithKeyword, ElaboratedType)
   ::pasta::Type Desugar(void) const noexcept;
   ::pasta::Type NamedType(void) const noexcept;
-  ::pasta::TagDecl OwnedTagDeclaration(void) const noexcept;
+  std::optional<::pasta::TagDecl> OwnedTagDeclaration(void) const noexcept;
   // Qualifier: (clang::NestedNameSpecifier *)
   bool IsSugared(void) const noexcept;
  protected:
@@ -1180,7 +1192,7 @@ class ObjCObjectType : public Type {
   ::pasta::Type Desugar(void) const noexcept;
   ::pasta::Type BaseType(void) const noexcept;
   ::pasta::ObjCInterfaceDecl Interface(void) const noexcept;
-  ::pasta::Type SuperClassType(void) const noexcept;
+  std::optional<::pasta::Type> SuperClassType(void) const noexcept;
   std::vector<::pasta::Type> TypeArguments(void) const noexcept;
   std::vector<::pasta::Type> TypeArgumentsAsWritten(void) const noexcept;
   bool IsKindOfType(void) const noexcept;
@@ -1512,9 +1524,9 @@ class FunctionProtoType : public FunctionType {
   ::pasta::Type Desugar(void) const noexcept;
   std::vector<::pasta::Type> Exceptions(void) const noexcept;
   ::pasta::Token EllipsisToken(void) const noexcept;
-  ::pasta::FunctionDecl ExceptionSpecDeclaration(void) const noexcept;
+  std::optional<::pasta::FunctionDecl> ExceptionSpecDeclaration(void) const noexcept;
   // ExceptionSpecInfo: (clang::FunctionProtoType::ExceptionSpecInfo)
-  ::pasta::FunctionDecl ExceptionSpecTemplate(void) const noexcept;
+  std::optional<::pasta::FunctionDecl> ExceptionSpecTemplate(void) const noexcept;
   enum ExceptionSpecificationType ExceptionSpecType(void) const noexcept;
   // ExceptionType: (clang::QualType)
   // ExtParameterInfo: (clang::FunctionType::ExtParameterInfo)
@@ -1522,7 +1534,7 @@ class FunctionProtoType : public FunctionType {
   // ExtParameterInfosOrNull: (const clang::FunctionType::ExtParameterInfo *)
   // ExtProtoInfo: (clang::FunctionProtoType::ExtProtoInfo)
   // MethodQualifieds: (clang::Qualifiers)
-  ::pasta::Expr NoexceptExpression(void) const noexcept;
+  std::optional<::pasta::Expr> NoexceptExpression(void) const noexcept;
   uint32_t NumExceptions(void) const noexcept;
   uint32_t NumParameters(void) const noexcept;
   // ParameterType: (clang::QualType)

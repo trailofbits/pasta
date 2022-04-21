@@ -13,6 +13,7 @@ namespace pasta {
 Type TypeBuilder::Build(std::shared_ptr<ASTImpl> ast_, clang::QualType type) {
   if (auto type_ptr = type.getTypePtrOrNull();
       4095ul < reinterpret_cast<uintptr_t>(type_ptr)) {
+    assert(ast_.get() != nullptr);
     return Type(
         std::move(ast_), type_ptr,
         static_cast<TypeKind>(type_ptr->getTypeClass()),

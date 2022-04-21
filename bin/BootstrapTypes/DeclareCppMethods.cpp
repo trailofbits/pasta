@@ -99,6 +99,9 @@ static void CollectGetNthMethod(const std::string &class_name,
 static void DeclareCppMethod0(std::ostream &os, const std::string &class_name,
                               const char *meth, const char *rt) {
   meth_name_ref = meth;
+  if (meth_name_ref.endswith("Unsafe")) {
+    return;
+  }
 
   // `NamedDecl::getName` has an assertion in it where `getNameAsString` does
   // not, and we introduce a method rename for `getNameAstString` to

@@ -129,6 +129,7 @@ void GenerateStmtH(void) {
           << "                       StmtKind kind_)\n"
           << "      : ast(std::move(ast_)),\n"
           << "        kind(kind_) {\n"
+          << "    assert(ast.get() != nullptr);\n"
           << "    u.Stmt = decl_;\n"
           << "  }\n\n";
     }

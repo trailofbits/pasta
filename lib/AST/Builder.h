@@ -38,6 +38,7 @@ class TypeBuilder {
 
   template <typename T, typename D>
   inline static T Create(std::shared_ptr<ASTImpl> ast_, const D *type_) {
+    assert(ast_.get() != nullptr);
     return T(std::move(ast_), type_,
              static_cast<TypeKind>(type_->getTypeClass()), 0);
   }
@@ -45,6 +46,7 @@ class TypeBuilder {
   template <typename T, typename D>
   inline static T Create(std::shared_ptr<ASTImpl> ast_, const D *type_,
                          uint32_t qualifiers_) {
+    assert(ast_.get() != nullptr);
     return T(std::move(ast_), type_,
              static_cast<TypeKind>(type_->getTypeClass()), qualifiers_);
   }
@@ -52,6 +54,7 @@ class TypeBuilder {
 #ifndef PASTA_IN_BOOTSTRAP
   template <typename T>
   inline static T Create(std::shared_ptr<ASTImpl> ast_, clang::QualType type) {
+    assert(ast_.get() != nullptr);
     if constexpr (std::is_same_v<T, pasta::Type>) {
       return Build(std::move(ast_), type);
     } else {

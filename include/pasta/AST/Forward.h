@@ -762,7 +762,7 @@ class TypeBuilder;
 
 #define PASTA_FOR_EACH_TYPE_IMPL(m, a) \
     m(Adjusted) \
-    m(Array) \
+    a(ArrayType) \
     m(Atomic) \
     m(Attributed) \
     m(Auto) \
@@ -774,7 +774,7 @@ class TypeBuilder;
     m(Decayed) \
     m(Decltype) \
     m(DeducedTemplateSpecialization) \
-    m(Deduced) \
+    a(DeducedType) \
     m(DependentAddressSpace) \
     m(DependentExtInt) \
     m(DependentName) \
@@ -789,12 +789,12 @@ class TypeBuilder;
     m(ExtVector) \
     m(FunctionNoProto) \
     m(FunctionProto) \
-    m(Function) \
+    a(FunctionType) \
     m(IncompleteArray) \
     m(InjectedClassName) \
     m(LValueReference) \
     m(MacroQualified) \
-    m(Matrix) \
+    a(MatrixType) \
     m(MemberPointer) \
     m(ObjCInterface) \
     m(ObjCObjectPointer) \
@@ -806,10 +806,10 @@ class TypeBuilder;
     m(Pointer) \
     m(RValueReference) \
     m(Record) \
-    m(Reference) \
+    a(ReferenceType) \
     m(SubstTemplateTypeParmPack) \
     m(SubstTemplateTypeParm) \
-    m(Tag) \
+    a(TagType) \
     m(TemplateSpecialization) \
     m(TemplateTypeParm) \
     a(Type) \
@@ -820,7 +820,7 @@ class TypeBuilder;
     m(UnresolvedUsing) \
     m(VariableArray) \
     m(Vector) \
-    m(TypeWithKey)
+    a(TypeWithKeyword)
 
 enum class DeclKind : unsigned {
 #define PASTA_DECLARE_DECL_KIND(name) k ## name ,

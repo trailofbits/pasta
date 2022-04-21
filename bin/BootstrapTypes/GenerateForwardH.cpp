@@ -110,8 +110,11 @@ void GenerateForwardH(void) {
   static constexpr auto kTypeLen = 4u;
   for (const auto &name_ : gTypeNames) {
     llvm::StringRef name(name_);
-    if (name == "Type") {
-      os << sep << "    a(Type)";
+    if (name == "Type" || name == "TagType" || name == "ReferenceType" ||
+        name == "MatrixType" || name == "FunctionType" ||
+        name == "DeducedType" || name == "ArrayType" ||
+        name == "TypeWithKeyword") {
+      os << sep << "    a(" << name_ << ")";
     } else {
       os << sep << "    m(" << name.substr(0, name.size() - kTypeLen).str() << ")";
     }

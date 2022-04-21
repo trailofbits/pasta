@@ -124,7 +124,9 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   {"Val", "Value"},
   {"Val1", "Value1"},
   {"Val2", "Value2"},
+  {"TInfo", "TypeInfo"},
 
+  {"ArrayElementTypeNoTypeQualified", "ArrayElementTypeWithoutQualifiers"},
   {"SwitchCaseList", "FirstSwitchCase"},
 };
 
@@ -687,10 +689,10 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
    "  return ::pasta::TemplateParameterList(ast, val);\n"},
 
   {"(clang::TypeSourceInfo *)",
-   "  return TypeBuilder::Build(ast, val->getType());"},
+   "  return TypeBuilder::Build(ast, val->getType());\n"},
 
   {"(const clang::TypeSourceInfo *)",
-   "  return TypeBuilder::Build(ast, val->getType());"},
+   "  return TypeBuilder::Build(ast, val->getType());\n"},
 
    {"(llvm::ArrayRef<clang::TemplateArgument>)",
     "  std::vector<::pasta::TemplateArgument> ret;\n"
@@ -974,6 +976,21 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"CXXDependentScopeMemberExpr", "FirstQualifierFoundInScope"},
   {"BlockDecl", "BlockManglingContextDeclaration"},
   {"IndirectGotoStmt", "ConstantTarget"},
+  {"Decl", "FunctionType"},
+  {"ObjCInterfaceDecl", "SuperClass"},
+  {"ObjCInterfaceDecl", "SuperClassTInfo"},
+  {"ObjCInterfaceDecl", "SuperClassTypeInfo"},
+  {"ObjCInterfaceDecl", "SuperClassType"},
+  {"Type", "ArrayElementTypeNoTypeQualified"},
+  {"Type", "ArrayElementTypeWithoutQualifiers"},
+  {"ObjCObjectType", "SuperClassType"},
+  {"FunctionProtoType", "ExceptionSpecDeclaration"},
+  {"FunctionProtoType", "ExceptionSpecTemplate"},
+  {"FunctionProtoType", "NoexceptExpression"},
+  {"ConstantArrayType", "SizeExpression"},
+  {"TypeDecl", "TypeForDeclaration"},
+  {"FieldDecl", "CapturedVLAType"},
+  {"ElaboratedType", "OwnedTagDeclaration"},
 };
 
 std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
@@ -1383,6 +1400,69 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "    return std::nullopt;\n"
    "  }\n"},
 
+  {{"Type", "ScalarTypeKind"},
+   "  if (!self.isScalarType()) {\n"
+   "    return std::nullopt;\n"
+   "  } else {\n"
+   "    const clang::Type *t = self.getCanonicalTypeInternal().getTypePtr();\n"
+   "    if (const clang::EnumType *et = clang::dyn_cast<clang::EnumType>(t)) {\n"
+   "      if (!et->getDecl()->isComplete()) {\n"
+   "        return std::nullopt;\n"
+   "      }\n"
+   "    }\n"
+   "  }\n"},
+  {{"Type", "SveElementType"},
+   "  if (!self.isVLSTBuiltinType()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"Type", "IsObjCARCImplicitlyUnretainedType"},
+   "  if (!self.isObjCLifetimeType()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"Type", "IsConstantSizeType"},
+   "  if (self.isIncompleteType() || self.isDependentType()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"Type", "IsLiteralType"},
+   "  if (self.isDependentType()) {\n"
+   "    return false;\n"
+   "  } else {\n"
+   "    auto &c = ast->ci->getASTContext();\n"
+   "    if (c.getLangOpts().CPlusPlus14 && self.isVoidType()) {\n"
+   "      return true;\n"
+   "    } else if (self.isVariableArrayType()) {\n"
+   "      return false;\n"
+   "    } else if (!self.getBaseElementTypeUnsafe()) {\n"
+   "      return std::nullopt;\n"
+   "    }\n"
+   "  }\n"},
+   {{"Type", "IsStandardLayoutType"},
+    "  if (self.isDependentType()) {\n"
+    "    return false;\n"
+    "  } else if (!self.getBaseElementTypeUnsafe()) {\n"
+    "    return std::nullopt;\n"
+    "  }\n"},
+   {{"Type", "IsCXX11PODType"},
+    "  const clang::Type *t = self.getTypePtr();\n"
+    "  if (t->isDependentType()) {\n"
+    "    return false;\n"
+    "  } else if (self.hasNonTrivialObjCLifetime()) {\n"
+    "    return false;\n"
+    "  } else if (!t->getBaseElementTypeUnsafe()) {\n"
+    "    return std::nullopt;\n"
+    "  }\n"},
+   {{"UnaryExprOrTypeTraitExpr", "ArgumentTypeInfo"},
+    "  if (!self.isArgumentType()) {\n"
+    "    return std::nullopt;\n"
+    "  }\n"},
+   {{"EnumDecl", "IntegerTypeSourceInfo"},
+    "  if (!self.getIntegerTypeSourceInfo()) {\n"
+    "    return std::nullopt;\n"
+    "  }\n"},
+   {{"EnumDecl", "IntegerType"},
+    "  if (self.getIntegerType().isNull()) {\n"
+    "    return std::nullopt;\n"
+    "  }\n"},
 //  {{"CXXRecordDecl", "DefaultedMoveConstructorIsDeleted"},
 //   "  if (self.needsOverloadResolutionForMoveConstructor() ||\n"
 //   "      self.needsImplicitMoveConstructor()) {\n"

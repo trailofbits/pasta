@@ -42,7 +42,11 @@ void GenerateTypeH(void) {
       << "        const ::clang::Type *type_); \\\n"
       << "    explicit base( \\\n"
       << "        std::shared_ptr<ASTImpl> ast_, \\\n"
-      << "        const ::clang::QualType &type_);\n\n";
+      << "        const ::clang::QualType &type_); \\\n"
+      << "   public: \\\n"
+      << "    inline const clang::base *RawType(void) const noexcept { \\\n"
+      << "      return u.base; \\\n"
+      << "    }\n\n";
 
   os
       << "namespace pasta {\n"
@@ -84,10 +88,17 @@ void GenerateTypeH(void) {
       << "      : ast(std::move(ast_)),\n"
       << "        kind(kind_),\n"
       << "        qualifiers(qualifiers_) {\n"
+      << "    assert(ast.get() != nullptr);\n"
       << "    u.Type = type_;\n"
       << "  }\n\n"
       << " public:\n"
       << "  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(Type)\n"
+      << "  inline const clang::Type *RawType(void) const noexcept {\n"
+      << "    return u.Type;\n"
+      << "  }\n"
+      << "  inline uint32_t RawQualifiers(void) const noexcept {\n"
+      << "    return qualifiers;\n"
+      << "  }\n"
       << "  static std::optional<::pasta::Type> From(const TokenContext &);\n";
 
   const auto &derived_from_type =
@@ -116,14 +127,18 @@ void GenerateTypeH(void) {
       }
     }
   }
-  DeclareCppMethods(os, type, gClassIDs[type]);
   os
       << "  inline bool IsQualified(void) const noexcept {\n"
       << "    return qualifiers;\n"
       << "  }\n"
       << "  inline Type UnqualifiedType(void) const noexcept {\n"
       << "    return Type(ast, u.Type, kind, 0);\n"
-      << "  }\n";
+      << "  }\n\n"
+      << "  /* Type methods */\n";
+
+  DeclareCppMethods(os, type, gClassIDs[type]);
+
+  os  << "\n  /* QualType methods */\n";
 
   DeclareCppMethods(os, qual_type, gClassIDs[qual_type]);
 

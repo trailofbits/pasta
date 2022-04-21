@@ -1085,13 +1085,6 @@ enum AccessSpecifier Decl::Access(void) const noexcept {
   __builtin_unreachable();
 }
 
-enum AccessSpecifier Decl::AccessUnsafe(void) const noexcept {
-  auto &self = *const_cast<clang::Decl *>(u.Decl);
-  decltype(auto) val = self.getAccessUnsafe();
-  return static_cast<::pasta::AccessSpecifier>(val);
-  __builtin_unreachable();
-}
-
 std::optional<::pasta::FunctionDecl> Decl::AsFunction(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.getAsFunction();
@@ -1186,14 +1179,15 @@ enum DeclFriendObjectKind Decl::FriendObjectKind(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::FunctionType Decl::FunctionType(void) const noexcept {
+std::optional<::pasta::FunctionType> Decl::FunctionType(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.getFunctionType();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return TypeBuilder::Create<::pasta::FunctionType>(ast, val);
   }
-  assert(false && "Decl::FunctionType can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -1666,7 +1660,8 @@ std::optional<::pasta::NamedDecl> FriendDecl::FriendDeclaration(void) const noex
 ::pasta::Type FriendDecl::FriendType(void) const noexcept {
   auto &self = *const_cast<clang::FriendDecl *>(u.FriendDecl);
   decltype(auto) val = self.getFriendType();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "FriendDecl::FriendType can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "FriendDecl::FriendType can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -1726,7 +1721,8 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, FriendTemplateDecl)
 ::pasta::Type FriendTemplateDecl::FriendType(void) const noexcept {
   auto &self = *const_cast<clang::FriendTemplateDecl *>(u.FriendTemplateDecl);
   decltype(auto) val = self.getFriendType();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "FriendTemplateDecl::FriendType can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "FriendTemplateDecl::FriendType can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -2599,14 +2595,15 @@ std::string_view ObjCInterfaceDecl::ObjCRuntimeNameAsString(void) const noexcept
 }
 
 // 0: ObjCInterfaceDecl::ReferencedProtocols
-::pasta::ObjCInterfaceDecl ObjCInterfaceDecl::SuperClass(void) const noexcept {
+std::optional<::pasta::ObjCInterfaceDecl> ObjCInterfaceDecl::SuperClass(void) const noexcept {
   auto &self = *const_cast<clang::ObjCInterfaceDecl *>(u.ObjCInterfaceDecl);
   decltype(auto) val = self.getSuperClass();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCInterfaceDecl>(ast, val);
   }
-  assert(false && "ObjCInterfaceDecl::SuperClass can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2617,22 +2614,25 @@ std::string_view ObjCInterfaceDecl::ObjCRuntimeNameAsString(void) const noexcept
   __builtin_unreachable();
 }
 
-::pasta::Type ObjCInterfaceDecl::SuperClassTInfo(void) const noexcept {
+std::optional<::pasta::Type> ObjCInterfaceDecl::SuperClassTypeInfo(void) const noexcept {
   auto &self = *const_cast<clang::ObjCInterfaceDecl *>(u.ObjCInterfaceDecl);
   decltype(auto) val = self.getSuperClassTInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "ObjCInterfaceDecl::SuperClassTInfo can return nullptr!");
-  __builtin_unreachable();
+  if (!val) {
+    return std::nullopt;
+  }
+  return TypeBuilder::Build(ast, val->getType());
   __builtin_unreachable();
 }
 
-::pasta::ObjCObjectType ObjCInterfaceDecl::SuperClassType(void) const noexcept {
+std::optional<::pasta::ObjCObjectType> ObjCInterfaceDecl::SuperClassType(void) const noexcept {
   auto &self = *const_cast<clang::ObjCInterfaceDecl *>(u.ObjCInterfaceDecl);
   decltype(auto) val = self.getSuperClassType();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return TypeBuilder::Create<::pasta::ObjCObjectType>(ast, val);
   }
-  assert(false && "ObjCInterfaceDecl::SuperClassType can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2936,6 +2936,7 @@ enum DeclObjCDeclQualifier ObjCMethodDecl::ObjCDeclQualifier(void) const noexcep
 ::pasta::Type ObjCMethodDecl::ReturnType(void) const noexcept {
   auto &self = *const_cast<clang::ObjCMethodDecl *>(u.ObjCMethodDecl);
   decltype(auto) val = self.getReturnType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -2943,7 +2944,8 @@ enum DeclObjCDeclQualifier ObjCMethodDecl::ObjCDeclQualifier(void) const noexcep
 ::pasta::Type ObjCMethodDecl::ReturnTypeSourceInfo(void) const noexcept {
   auto &self = *const_cast<clang::ObjCMethodDecl *>(u.ObjCMethodDecl);
   decltype(auto) val = self.getReturnTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "ObjCMethodDecl::ReturnTypeSourceInfo can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "ObjCMethodDecl::ReturnTypeSourceInfo can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -3217,6 +3219,7 @@ enum ObjCPropertyDeclSetterKind ObjCPropertyDecl::SetterKind(void) const noexcep
 ::pasta::Type ObjCPropertyDecl::Type(void) const noexcept {
   auto &self = *const_cast<clang::ObjCPropertyDecl *>(u.ObjCPropertyDecl);
   decltype(auto) val = self.getType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -3224,7 +3227,8 @@ enum ObjCPropertyDeclSetterKind ObjCPropertyDecl::SetterKind(void) const noexcep
 ::pasta::Type ObjCPropertyDecl::TypeSourceInfo(void) const noexcept {
   auto &self = *const_cast<clang::ObjCPropertyDecl *>(u.ObjCPropertyDecl);
   decltype(auto) val = self.getTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "ObjCPropertyDecl::TypeSourceInfo can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "ObjCPropertyDecl::TypeSourceInfo can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -3725,14 +3729,15 @@ PASTA_DEFINE_DERIVED_OPERATORS(TypeDecl, UnresolvedUsingTypenameDecl)
   __builtin_unreachable();
 }
 
-::pasta::Type TypeDecl::TypeForDeclaration(void) const noexcept {
+std::optional<::pasta::Type> TypeDecl::TypeForDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::TypeDecl *>(u.TypeDecl);
   decltype(auto) val = self.getTypeForDecl();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return TypeBuilder::Create<::pasta::Type>(ast, val);
   }
-  assert(false && "TypeDecl::TypeForDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3773,7 +3778,8 @@ std::optional<::pasta::TagDecl> TypedefNameDecl::AnonymousDeclarationWithTypedef
 ::pasta::Type TypedefNameDecl::TypeSourceInfo(void) const noexcept {
   auto &self = *const_cast<clang::TypedefNameDecl *>(u.TypedefNameDecl);
   decltype(auto) val = self.getTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "TypedefNameDecl::TypeSourceInfo can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "TypedefNameDecl::TypeSourceInfo can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -3781,6 +3787,7 @@ std::optional<::pasta::TagDecl> TypedefNameDecl::AnonymousDeclarationWithTypedef
 ::pasta::Type TypedefNameDecl::UnderlyingType(void) const noexcept {
   auto &self = *const_cast<clang::TypedefNameDecl *>(u.TypedefNameDecl);
   decltype(auto) val = self.getUnderlyingType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -4052,6 +4059,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, VarTemplateSpecializationDecl)
 ::pasta::Type ValueDecl::Type(void) const noexcept {
   auto &self = *const_cast<clang::ValueDecl *>(u.ValueDecl);
   decltype(auto) val = self.getType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -4301,7 +4309,8 @@ uint32_t BlockDecl::NumParameters(void) const noexcept {
 ::pasta::Type BlockDecl::SignatureAsWritten(void) const noexcept {
   auto &self = *const_cast<clang::BlockDecl *>(u.BlockDecl);
   decltype(auto) val = self.getSignatureAsWritten();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "BlockDecl::SignatureAsWritten can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "BlockDecl::SignatureAsWritten can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -4641,7 +4650,8 @@ std::optional<::pasta::Expr> DeclaratorDecl::TrailingRequiresClause(void) const 
 ::pasta::Type DeclaratorDecl::TypeSourceInfo(void) const noexcept {
   auto &self = *const_cast<clang::DeclaratorDecl *>(u.DeclaratorDecl);
   decltype(auto) val = self.getTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "DeclaratorDecl::TypeSourceInfo can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "DeclaratorDecl::TypeSourceInfo can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -4755,14 +4765,15 @@ uint32_t FieldDecl::BitWidthValue(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::VariableArrayType FieldDecl::CapturedVLAType(void) const noexcept {
+std::optional<::pasta::VariableArrayType> FieldDecl::CapturedVLAType(void) const noexcept {
   auto &self = *const_cast<clang::FieldDecl *>(u.FieldDecl);
   decltype(auto) val = self.getCapturedVLAType();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return TypeBuilder::Create<::pasta::VariableArrayType>(ast, val);
   }
-  assert(false && "FieldDecl::CapturedVLAType can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -4916,6 +4927,7 @@ uint32_t FunctionDecl::BuiltinID(void) const noexcept {
 ::pasta::Type FunctionDecl::CallResultType(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.getCallResultType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -4941,6 +4953,7 @@ enum ConstexprSpecKind FunctionDecl::ConstexprKind(void) const noexcept {
 ::pasta::Type FunctionDecl::DeclaredReturnType(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.getDeclaredReturnType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -5093,6 +5106,7 @@ std::optional<::pasta::FunctionTemplateDecl> FunctionDecl::PrimaryTemplate(void)
 ::pasta::Type FunctionDecl::ReturnType(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.getReturnType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -6662,6 +6676,7 @@ bool TemplateTypeParmDecl::DefaultArgumentWasInherited(void) const noexcept {
 ::pasta::Type TemplateTypeParmDecl::DefaultArgument(void) const noexcept {
   auto &self = *const_cast<clang::TemplateTypeParmDecl *>(u.TemplateTypeParmDecl);
   decltype(auto) val = self.getDefaultArgument();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -6669,7 +6684,8 @@ bool TemplateTypeParmDecl::DefaultArgumentWasInherited(void) const noexcept {
 ::pasta::Type TemplateTypeParmDecl::DefaultArgumentInfo(void) const noexcept {
   auto &self = *const_cast<clang::TemplateTypeParmDecl *>(u.TemplateTypeParmDecl);
   decltype(auto) val = self.getDefaultArgumentInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "TemplateTypeParmDecl::DefaultArgumentInfo can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "TemplateTypeParmDecl::DefaultArgumentInfo can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -7603,7 +7619,8 @@ std::vector<::pasta::TemplateArgument> VarTemplateSpecializationDecl::TemplateIn
 ::pasta::Type VarTemplateSpecializationDecl::TypeAsWritten(void) const noexcept {
   auto &self = *const_cast<clang::VarTemplateSpecializationDecl *>(u.VarTemplateSpecializationDecl);
   decltype(auto) val = self.getTypeAsWritten();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "VarTemplateSpecializationDecl::TypeAsWritten can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "VarTemplateSpecializationDecl::TypeAsWritten can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -7782,6 +7799,7 @@ enum RefQualifierKind CXXMethodDecl::ReferenceQualifier(void) const noexcept {
 ::pasta::Type CXXMethodDecl::ThisObjectType(void) const noexcept {
   auto &self = *const_cast<clang::CXXMethodDecl *>(u.CXXMethodDecl);
   decltype(auto) val = self.getThisObjectType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -7789,6 +7807,7 @@ enum RefQualifierKind CXXMethodDecl::ReferenceQualifier(void) const noexcept {
 ::pasta::Type CXXMethodDecl::ThisType(void) const noexcept {
   auto &self = *const_cast<clang::CXXMethodDecl *>(u.CXXMethodDecl);
   decltype(auto) val = self.getThisType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -8087,9 +8106,15 @@ std::optional<::pasta::EnumDecl> EnumDecl::InstantiatedFromMemberEnum(void) cons
   __builtin_unreachable();
 }
 
-::pasta::Type EnumDecl::IntegerType(void) const noexcept {
+std::optional<::pasta::Type> EnumDecl::IntegerType(void) const noexcept {
   auto &self = *const_cast<clang::EnumDecl *>(u.EnumDecl);
+  if (self.getIntegerType().isNull()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getIntegerType();
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -8101,11 +8126,16 @@ std::optional<::pasta::EnumDecl> EnumDecl::InstantiatedFromMemberEnum(void) cons
   __builtin_unreachable();
 }
 
-::pasta::Type EnumDecl::IntegerTypeSourceInfo(void) const noexcept {
+std::optional<::pasta::Type> EnumDecl::IntegerTypeSourceInfo(void) const noexcept {
   auto &self = *const_cast<clang::EnumDecl *>(u.EnumDecl);
+  if (!self.getIntegerTypeSourceInfo()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getIntegerTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "EnumDecl::IntegerTypeSourceInfo can return nullptr!");
-  __builtin_unreachable();
+  if (!val) {
+    return std::nullopt;
+  }
+  return TypeBuilder::Build(ast, val->getType());
   __builtin_unreachable();
 }
 
@@ -8162,6 +8192,7 @@ std::optional<uint32_t> EnumDecl::ODRHash(void) const noexcept {
 ::pasta::Type EnumDecl::PromotionType(void) const noexcept {
   auto &self = *const_cast<clang::EnumDecl *>(u.EnumDecl);
   decltype(auto) val = self.getPromotionType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -8450,6 +8481,7 @@ enum DeclObjCDeclQualifier ParmVarDecl::ObjCDeclQualifier(void) const noexcept {
 ::pasta::Type ParmVarDecl::OriginalType(void) const noexcept {
   auto &self = *const_cast<clang::ParmVarDecl *>(u.ParmVarDecl);
   decltype(auto) val = self.getOriginalType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -8960,6 +8992,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXConversionDecl)
 ::pasta::Type CXXConversionDecl::ConversionType(void) const noexcept {
   auto &self = *const_cast<clang::CXXConversionDecl *>(u.CXXConversionDecl);
   decltype(auto) val = self.getConversionType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -9389,7 +9422,8 @@ std::optional<::pasta::Type> CXXRecordDecl::LambdaTypeInfo(void) const noexcept 
   if (!val) {
     return std::nullopt;
   }
-  return TypeBuilder::Build(ast, val->getType());  __builtin_unreachable();
+  return TypeBuilder::Build(ast, val->getType());
+  __builtin_unreachable();
 }
 
 std::optional<enum MSInheritanceModel> CXXRecordDecl::MSInheritanceModel(void) const noexcept {
@@ -10592,7 +10626,8 @@ std::vector<::pasta::TemplateArgument> ClassTemplateSpecializationDecl::Template
 ::pasta::Type ClassTemplateSpecializationDecl::TypeAsWritten(void) const noexcept {
   auto &self = *const_cast<clang::ClassTemplateSpecializationDecl *>(u.ClassTemplateSpecializationDecl);
   decltype(auto) val = self.getTypeAsWritten();
-  return TypeBuilder::Build(ast, val->getType());  assert(false && "ClassTemplateSpecializationDecl::TypeAsWritten can return nullptr!");
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "ClassTemplateSpecializationDecl::TypeAsWritten can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -10647,6 +10682,7 @@ PASTA_DEFINE_BASE_OPERATORS(TypeDecl, ClassTemplatePartialSpecializationDecl)
 ::pasta::Type ClassTemplatePartialSpecializationDecl::InjectedSpecializationType(void) const noexcept {
   auto &self = *const_cast<clang::ClassTemplatePartialSpecializationDecl *>(u.ClassTemplatePartialSpecializationDecl);
   decltype(auto) val = self.getInjectedSpecializationType();
+  assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }

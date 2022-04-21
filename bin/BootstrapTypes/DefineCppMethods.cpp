@@ -16,6 +16,10 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
                              llvm::StringRef meth_name_ref,
                              llvm::StringRef rt_ref) {
 
+  if (meth_name_ref.endswith("Unsafe")) {
+    return;
+  }
+
   // `NamedDecl::getName` has an assertion in it where `getNameAsString` does
   // not, and we introduce a method rename for `getNameAstString` to
   // `getName`.
@@ -77,7 +81,19 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
     os << it->second;
   }
   os << "  decltype(auto) val = self." << meth_name_ref.str() << "();\n";
-  if (rt_ref.endswith(" *)")) {
+  if (rt_ref.endswith("QualType)")) {
+    if (can_ret_null) {
+      os
+          << "  if (val.isNull()) {\n"
+          << "    return std::nullopt;\n"
+          << "  }\n"
+          << rt_val;
+    } else {
+      os
+          << "  assert(!val.isNull());\n"
+          << rt_val;
+    }
+  } else if (rt_ref.endswith(" *)")) {
     if (can_ret_null) {
       os
           << "  if (!val) {\n"
@@ -92,6 +108,7 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
          << "  __builtin_unreachable();\n";
     }
   } else {
+    assert(!can_ret_null);
     os << rt_val;
   }
 
@@ -142,7 +159,18 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
       os << it->second;
     }
     os << "  decltype(auto) val = self." << meth_name_ref.str() << "(ast->ci->getASTContext());\n";
-    if (rt_ref.endswith(" *)")) {
+    if (rt_ref.endswith("QualType)")) {
+      if (can_ret_null) {
+        os
+            << "  if (val.isNull()) {\n"
+            << "    return std::nullopt;\n"
+            << "  }\n"
+            << rt_val;
+      } else {
+        os << "  assert(!val.isNull());\n"
+           << rt_val;
+      }
+    } else if (rt_ref.endswith(" *)")) {
       if (can_ret_null) {
         os
             << "  if (!val) {\n"
@@ -156,6 +184,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
            << "  __builtin_unreachable();\n";
       }
     } else {
+      assert(!can_ret_null);
       os << rt_val;
     }
     os << "  __builtin_unreachable();\n"
@@ -178,7 +207,18 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
       os << "  auto &self = *(u." << class_name << ");\n";
     }
     os << "  decltype(auto) val = self." << meth_name_ref.str() << "(b);\n";
-    if (rt_ref.endswith(" *)")) {
+    if (rt_ref.endswith("QualType)")) {
+      if (can_ret_null) {
+        os
+            << "  if (val.isNull()) {\n"
+            << "    return std::nullopt;\n"
+            << "  }\n"
+            << rt_val;
+      } else {
+        os << "  assert(!val.isNull());\n"
+           << rt_val;
+      }
+    } else if (rt_ref.endswith(" *)")) {
       if (can_ret_null) {
         os
             << "  if (!val) {\n"
@@ -192,6 +232,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
            << "  __builtin_unreachable();\n";
       }
     } else {
+      assert(!can_ret_null);
       os << rt_val;
     }
     os << "  __builtin_unreachable();\n"

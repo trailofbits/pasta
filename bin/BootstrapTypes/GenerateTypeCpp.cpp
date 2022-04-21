@@ -42,6 +42,7 @@ void GenerateTypeCpp(void) {
       << "#include \"Builder.h\"\n\n"
       << "#define PASTA_DEFINE_BASE_OPERATORS(base, derived) \\\n"
       << "    std::optional<class derived> derived::From(const class base &that) { \\\n"
+      << "      assert(that.ast.get() != nullptr); \\\n"
       << "      if (auto type_ptr = clang::dyn_cast_or_null<clang::derived>(that.u.Type)) { \\\n"
       << "        return TypeBuilder::Create<class derived>(that.ast, type_ptr, that.qualifiers); \\\n"
       << "      } else { \\\n"

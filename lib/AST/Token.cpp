@@ -493,7 +493,6 @@ FileTokenRange Token::MacroUseTokens(void) const noexcept {
       !end_ft ||
       begin_ft->file != end_ft->file ||
       begin_ft->Index() >= end_ft->Index()) {
-    assert(false);
     return FileTokenRange(ast->main_source_file.impl);
   }
 

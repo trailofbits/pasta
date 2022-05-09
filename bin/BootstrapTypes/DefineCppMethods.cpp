@@ -38,9 +38,12 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
     return;
   }
 
+  // NOTE(pag): For `isImplicit`, we define our own that walks up the decl
+  //            contexts.
   if (class_name == "Decl" &&
       (meth_name_ref == "getKind" || meth_name_ref == "getDeclKindName" ||
-       meth_name_ref == "getBody")) {
+       meth_name_ref == "getBody" || meth_name_ref == "isImplicit" ||
+       meth_name_ref == "getBodyRBrace")) {
     return;
   }
 

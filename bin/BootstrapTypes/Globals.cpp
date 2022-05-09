@@ -991,9 +991,18 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"TypeDecl", "TypeForDeclaration"},
   {"FieldDecl", "CapturedVLAType"},
   {"ElaboratedType", "OwnedTagDeclaration"},
+  {"DeclaratorDecl", "TypeSourceInfo"},
 };
 
 std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
+  {{"InitListExpr", "IsTransparent"},
+   "  if (!self.isSemanticForm()) {\n"
+   "    return std::nullopt;\n"
+   "  } else if (self.isGLValue()) {\n"
+   "    if (self.getNumInits() != 1) {\n"
+   "      return std::nullopt;\n"
+   "    }\n"
+   "  }\n"},
   {{"ParmVarDecl", "DefaultArgument"},
    "  if (HasUninstantiatedDefaultArgument() ||\n"
    "      HasUnparsedDefaultArgument()) {\n"

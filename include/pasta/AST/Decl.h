@@ -338,7 +338,6 @@ class Decl {
   // Attributes: (const llvm::SmallVector<clang::Attr *, 4> &)
   enum AvailabilityResult Availability(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
-  ::pasta::Token BodyRBrace(void) const noexcept;
   ::pasta::Decl CanonicalDeclaration(void) const noexcept;
   ::pasta::DeclContext DeclarationContext(void) const noexcept;
   // DefiningAttribute: (const clang::Attr *)
@@ -1634,7 +1633,7 @@ class DeclaratorDecl : public ValueDecl {
   // QualifierToken: (clang::NestedNameSpecifierLoc)
   // TemplateParameterList: (clang::TemplateParameterList *)
   std::optional<::pasta::Expr> TrailingRequiresClause(void) const noexcept;
-  ::pasta::Type TypeSourceInfo(void) const noexcept;
+  std::optional<::pasta::Type> TypeSourceInfo(void) const noexcept;
   ::pasta::Token TypeSpecEndToken(void) const noexcept;
   ::pasta::Token TypeSpecStartToken(void) const noexcept;
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;

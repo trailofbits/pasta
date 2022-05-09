@@ -1897,7 +1897,7 @@ class InitListExpr : public Expr {
   bool IsSemanticForm(void) const noexcept;
   bool IsStringLiteralInitializer(void) const noexcept;
   bool IsSyntacticForm(void) const noexcept;
-  bool IsTransparent(void) const noexcept;
+  std::optional<bool> IsTransparent(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(InitListExpr)
 };

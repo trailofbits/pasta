@@ -1148,8 +1148,8 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
     return ret;
   }
 
-  TokenImpl * const first_tok = &(tokens.front());
-  TokenImpl * const last_tok = &((&(tokens.back()))[-1]);  // `.back()` is `eof`.
+  TokenImpl *first_tok = &(tokens.front());
+  TokenImpl *last_tok = &((&(tokens.back()))[-1]);  // `.back()` is `eof`.
 
   // Handle this off-the-bat; it doesn't really conform to any other thing.
   if (clang::isa<clang::TranslationUnitDecl>(decl)) {
@@ -1166,7 +1166,17 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
     return ret;
   }
 
+  // Ask our lexical parent for their bounds.
   clang::DeclContext *dc = decl->getLexicalDeclContext();
+  if (auto dc_decl = clang::dyn_cast<clang::Decl>(dc)) {
+
+    // E.g. structure fields inside of `__va_list_tag`.
+    if (dc_decl->isImplicit()) {
+      return ret;
+    }
+
+    std::tie(first_tok, last_tok) = DeclBounds(dc_decl);
+  }
 
 //  std::set<TokenImpl *> lower_bounds;
 //  std::set<TokenImpl *> upper_bounds;

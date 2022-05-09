@@ -1112,13 +1112,6 @@ enum AvailabilityResult Decl::Availability(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Token Decl::BodyRBrace(void) const noexcept {
-  auto &self = *const_cast<clang::Decl *>(u.Decl);
-  decltype(auto) val = self.getBodyRBrace();
-  return ast->TokenAt(val);
-  __builtin_unreachable();
-}
-
 ::pasta::Decl Decl::CanonicalDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.getCanonicalDecl();
@@ -1400,13 +1393,6 @@ bool Decl::IsFromASTFile(void) const noexcept {
 bool Decl::IsFunctionOrFunctionTemplate(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.isFunctionOrFunctionTemplate();
-  return val;
-  __builtin_unreachable();
-}
-
-bool Decl::IsImplicit(void) const noexcept {
-  auto &self = *const_cast<clang::Decl *>(u.Decl);
-  decltype(auto) val = self.isImplicit();
   return val;
   __builtin_unreachable();
 }
@@ -4647,12 +4633,13 @@ std::optional<::pasta::Expr> DeclaratorDecl::TrailingRequiresClause(void) const 
   __builtin_unreachable();
 }
 
-::pasta::Type DeclaratorDecl::TypeSourceInfo(void) const noexcept {
+std::optional<::pasta::Type> DeclaratorDecl::TypeSourceInfo(void) const noexcept {
   auto &self = *const_cast<clang::DeclaratorDecl *>(u.DeclaratorDecl);
   decltype(auto) val = self.getTypeSourceInfo();
+  if (!val) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val->getType());
-  assert(false && "DeclaratorDecl::TypeSourceInfo can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 

@@ -58,6 +58,10 @@ class CXXBaseSpecifier {
         spec(spec_) {}
 
 #ifndef PASTA_IN_BOOTSTRAP
+  inline const void *RawCXXBaseSpecifier(void) const noexcept {
+    return spec;
+  }
+
   // Range of the tokens for the specific.
   ::pasta::TokenRange TokenRange(void) const noexcept;
 
@@ -122,6 +126,10 @@ class TemplateArgument {
         arg(arg_) {}
 
 #ifndef PASTA_IN_BOOTSTRAP
+  inline const void *RawTemplateArgument(void) const noexcept {
+    return arg;
+  }
+
   // Return the kind of the stored template argument.
   TemplateArgumentKind Kind(void) const noexcept;
 
@@ -193,6 +201,9 @@ class TemplateParameterList {
         params(params_) {}
 
 #ifndef PASTA_IN_BOOTSTRAP
+  inline const void *RawTemplateParameterList(void) const noexcept {
+    return params;
+  }
 
   // Total number of parameters.
   unsigned NumParameters(void) const noexcept;

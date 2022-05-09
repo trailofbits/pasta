@@ -5269,8 +5269,15 @@ bool InitListExpr::IsSyntacticForm(void) const noexcept {
   __builtin_unreachable();
 }
 
-bool InitListExpr::IsTransparent(void) const noexcept {
+std::optional<bool> InitListExpr::IsTransparent(void) const noexcept {
   auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
+  if (!self.isSemanticForm()) {
+    return std::nullopt;
+  } else if (self.isGLValue()) {
+    if (self.getNumInits() != 1) {
+      return std::nullopt;
+    }
+  }
   decltype(auto) val = self.isTransparent();
   return val;
   __builtin_unreachable();

@@ -124,7 +124,7 @@ static void DeclareCppMethod0(std::ostream &os, const std::string &class_name,
       !meth_name.empty()) {
     if (class_name == "Decl" &&
         (meth_name_ref == "getKind" || meth_name_ref == "getDeclKindName" ||
-         meth_name_ref == "getBody")) {
+         meth_name_ref == "getBody" || meth_name_ref == "getBodyRBrace")) {
       return;
     }
 

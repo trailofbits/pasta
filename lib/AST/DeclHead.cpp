@@ -19,6 +19,27 @@ namespace pasta {
 
 #ifndef PASTA_IN_BOOTSTRAP
 
+static bool IsImplicitImpl(clang::Decl *decl) {
+  if (decl->isImplicit()) {
+    return true;
+  } else {
+    auto dc_decl = clang::dyn_cast_or_null<clang::Decl>(
+        decl->getLexicalDeclContext());
+    if (!dc_decl || dc_decl == decl ||
+        llvm::isa<clang::TranslationUnitDecl>(dc_decl)) {
+      return false;
+    } else {
+      return IsImplicitImpl(dc_decl);
+    }
+  }
+}
+
+// Manually implemented to handle things like field declarations inside of
+// implicitly-defined record declarations.
+bool Decl::IsImplicit(void) const noexcept {
+  return IsImplicitImpl(const_cast<clang::Decl *>(u.Decl));
+}
+
 // Range of the tokens for the specific.
 ::pasta::TokenRange CXXBaseSpecifier::TokenRange(void) const noexcept {
   auto range = spec->getSourceRange();

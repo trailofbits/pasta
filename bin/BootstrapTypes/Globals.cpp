@@ -63,7 +63,7 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   // Things to rename, most of these are singular and `CxxName` manages the
   // plural forms.
   {"SourceLocation", "Token"},
-  {"SourceRange", "TokenRange"},
+  {"SourceRange", "Tokens"},
   {"Vbase", "VirtualBase"},
   {"VBase", "VirtualBase"},
   {"Ctor", "Constructor"},

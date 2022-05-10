@@ -187,7 +187,7 @@ void GenerateDeclCpp(void) {
       << "}\n\n"
 
       // All decls use the same mechanis for token ranges.
-      << "::pasta::TokenRange Decl::TokenRange(void) const noexcept {\n"
+      << "::pasta::TokenRange Decl::Tokens(void) const noexcept {\n"
       << "  return ast->DeclTokenRange(u.Decl);\n"
       << "}\n\n"
 

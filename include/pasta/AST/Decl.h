@@ -407,7 +407,7 @@ class Decl {
 
   std::string_view KindName(void) const noexcept;
   ::pasta::Token Token(void) const noexcept;
-  ::pasta::TokenRange TokenRange(void) const noexcept;
+  ::pasta::TokenRange Tokens(void) const noexcept;
 
   inline bool operator==(const Decl &that) const noexcept {
     return u.opaque == that.u.opaque;

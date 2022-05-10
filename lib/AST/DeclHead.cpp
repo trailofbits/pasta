@@ -41,7 +41,7 @@ bool Decl::IsImplicit(void) const noexcept {
 }
 
 // Range of the tokens for the specific.
-::pasta::TokenRange CXXBaseSpecifier::TokenRange(void) const noexcept {
+::pasta::TokenRange CXXBaseSpecifier::Tokens(void) const noexcept {
   auto range = spec->getSourceRange();
   auto begin = ast->RawTokenAt(range.getBegin());
   auto end = ast->RawTokenAt(range.getEnd());
@@ -239,7 +239,7 @@ TemplateParameterList::RequiresClause(void) const noexcept {
   return ast->TokenAt(params->getRAngleLoc());
 }
 
-::pasta::TokenRange TemplateParameterList::TokenRange(void) const noexcept {
+::pasta::TokenRange TemplateParameterList::Tokens(void) const noexcept {
   return ast->TokenRangeFrom(params->getSourceRange());
 }
 

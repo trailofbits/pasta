@@ -517,7 +517,7 @@ class Stmt {
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   int64_t ID(void) const noexcept;
-  ::pasta::TokenRange TokenRange(void) const noexcept;
+  ::pasta::TokenRange Tokens(void) const noexcept;
   ::pasta::StmtKind Kind(void) const noexcept;
   std::string_view KindName(void) const noexcept;
   ::pasta::Stmt StripLabelLikeStatements(void) const noexcept;
@@ -1142,7 +1142,7 @@ class CapturedStmt : public Stmt {
   enum CapturedRegionKind CapturedRegionKind(void) const noexcept;
   ::pasta::Stmt CapturedStatement(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  ::pasta::TokenRange TokenRange(void) const noexcept;
+  ::pasta::TokenRange Tokens(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CapturedStmt)
 };
@@ -2047,7 +2047,7 @@ class MSPropertyRefExpr : public Expr {
   ::pasta::Token MemberToken(void) const noexcept;
   ::pasta::MSPropertyDecl PropertyDeclaration(void) const noexcept;
   // QualifierToken: (clang::NestedNameSpecifierLoc)
-  ::pasta::TokenRange TokenRange(void) const noexcept;
+  ::pasta::TokenRange Tokens(void) const noexcept;
   bool IsArrow(void) const noexcept;
   bool IsImplicitAccess(void) const noexcept;
  protected:
@@ -3229,7 +3229,7 @@ class ObjCArrayLiteral : public Expr {
   // Elements: (const clang::Expr *const *)
   ::pasta::Token EndToken(void) const noexcept;
   uint32_t NumElements(void) const noexcept;
-  ::pasta::TokenRange TokenRange(void) const noexcept;
+  ::pasta::TokenRange Tokens(void) const noexcept;
   std::vector<::pasta::Expr> Elements(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ObjCArrayLiteral)
@@ -3352,7 +3352,7 @@ class ObjCAvailabilityCheckExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  ::pasta::TokenRange TokenRange(void) const noexcept;
+  ::pasta::TokenRange Tokens(void) const noexcept;
   bool HasVersion(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ObjCAvailabilityCheckExpr)
@@ -3392,7 +3392,7 @@ class ObjCBoxedExpr : public Expr {
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::ObjCMethodDecl BoxingMethod(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  ::pasta::TokenRange TokenRange(void) const noexcept;
+  ::pasta::TokenRange Tokens(void) const noexcept;
   ::pasta::Expr SubExpression(void) const noexcept;
   bool IsExpressibleAsConstantInitializer(void) const noexcept;
  protected:
@@ -3415,7 +3415,7 @@ class ObjCDictionaryLiteral : public Expr {
   ::pasta::Token EndToken(void) const noexcept;
   // KeyValueElement: (clang::ObjCDictionaryElement)
   uint32_t NumElements(void) const noexcept;
-  ::pasta::TokenRange TokenRange(void) const noexcept;
+  ::pasta::TokenRange Tokens(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ObjCDictionaryLiteral)
 };
@@ -4873,7 +4873,7 @@ class CXXNewExpr : public Expr {
   ::pasta::FunctionDecl OperatorDelete(void) const noexcept;
   ::pasta::FunctionDecl OperatorNew(void) const noexcept;
   // PlacementArgument: (const clang::Expr *)
-  ::pasta::TokenRange TokenRange(void) const noexcept;
+  ::pasta::TokenRange Tokens(void) const noexcept;
   ::pasta::TokenRange TypeIdParentheses(void) const noexcept;
   bool HasInitializer(void) const noexcept;
   bool IsArray(void) const noexcept;
@@ -4900,7 +4900,7 @@ class CXXNoexceptExpr : public Expr {
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Expr Operand(void) const noexcept;
-  ::pasta::TokenRange TokenRange(void) const noexcept;
+  ::pasta::TokenRange Tokens(void) const noexcept;
   bool Value(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXNoexceptExpr)
@@ -4975,7 +4975,7 @@ class CXXRewrittenBinaryOperator : public Expr {
   ::pasta::Token OperatorToken(void) const noexcept;
   ::pasta::Expr RHS(void) const noexcept;
   ::pasta::Expr SemanticForm(void) const noexcept;
-  ::pasta::TokenRange TokenRange(void) const noexcept;
+  ::pasta::TokenRange Tokens(void) const noexcept;
   bool IsAssignmentOperation(void) const noexcept;
   bool IsComparisonOperation(void) const noexcept;
   bool IsReversed(void) const noexcept;
@@ -5015,7 +5015,7 @@ class CXXStdInitializerListExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  ::pasta::TokenRange TokenRange(void) const noexcept;
+  ::pasta::TokenRange Tokens(void) const noexcept;
   ::pasta::Expr SubExpression(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXStdInitializerListExpr)
@@ -5093,7 +5093,7 @@ class CXXTypeidExpr : public Expr {
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   std::optional<::pasta::Expr> ExpressionOperand(void) const noexcept;
-  ::pasta::TokenRange TokenRange(void) const noexcept;
+  ::pasta::TokenRange Tokens(void) const noexcept;
   ::pasta::Type TypeOperand(void) const noexcept;
   ::pasta::Type TypeOperandSourceInfo(void) const noexcept;
   std::optional<bool> IsMostDerived(void) const noexcept;
@@ -5143,7 +5143,7 @@ class CXXUuidofExpr : public Expr {
   ::pasta::Token EndToken(void) const noexcept;
   std::optional<::pasta::Expr> ExpressionOperand(void) const noexcept;
   ::pasta::MSGuidDecl GuidDeclaration(void) const noexcept;
-  ::pasta::TokenRange TokenRange(void) const noexcept;
+  ::pasta::TokenRange Tokens(void) const noexcept;
   ::pasta::Type TypeOperand(void) const noexcept;
   ::pasta::Type TypeOperandSourceInfo(void) const noexcept;
   bool IsTypeOperand(void) const noexcept;
@@ -6039,7 +6039,7 @@ class CXXOperatorCallExpr : public CallExpr {
   ::pasta::Token ExpressionToken(void) const noexcept;
   enum OverloadedOperatorKind Operator(void) const noexcept;
   ::pasta::Token OperatorToken(void) const noexcept;
-  ::pasta::TokenRange TokenRange(void) const noexcept;
+  ::pasta::TokenRange Tokens(void) const noexcept;
   bool IsAssignmentOperation(void) const noexcept;
   bool IsComparisonOperation(void) const noexcept;
   bool IsInfixBinaryOperation(void) const noexcept;

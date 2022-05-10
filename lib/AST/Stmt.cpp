@@ -1299,7 +1299,7 @@ int64_t Stmt::ID(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::TokenRange Stmt::TokenRange(void) const noexcept {
+::pasta::TokenRange Stmt::Tokens(void) const noexcept {
   auto &self = *const_cast<clang::Stmt *>(u.Stmt);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
@@ -2504,7 +2504,7 @@ enum CapturedRegionKind CapturedStmt::CapturedRegionKind(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::TokenRange CapturedStmt::TokenRange(void) const noexcept {
+::pasta::TokenRange CapturedStmt::Tokens(void) const noexcept {
   auto &self = *const_cast<clang::CapturedStmt *>(u.CapturedStmt);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
@@ -5907,7 +5907,7 @@ std::vector<::pasta::Stmt> MSPropertyRefExpr::Children(void) const noexcept {
 }
 
 // 0: MSPropertyRefExpr::QualifierToken
-::pasta::TokenRange MSPropertyRefExpr::TokenRange(void) const noexcept {
+::pasta::TokenRange MSPropertyRefExpr::Tokens(void) const noexcept {
   auto &self = *const_cast<clang::MSPropertyRefExpr *>(u.MSPropertyRefExpr);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
@@ -8113,7 +8113,7 @@ uint32_t ObjCArrayLiteral::NumElements(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::TokenRange ObjCArrayLiteral::TokenRange(void) const noexcept {
+::pasta::TokenRange ObjCArrayLiteral::Tokens(void) const noexcept {
   auto &self = *const_cast<clang::ObjCArrayLiteral *>(u.ObjCArrayLiteral);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
@@ -8548,7 +8548,7 @@ std::vector<::pasta::Stmt> ObjCAvailabilityCheckExpr::Children(void) const noexc
   __builtin_unreachable();
 }
 
-::pasta::TokenRange ObjCAvailabilityCheckExpr::TokenRange(void) const noexcept {
+::pasta::TokenRange ObjCAvailabilityCheckExpr::Tokens(void) const noexcept {
   auto &self = *const_cast<clang::ObjCAvailabilityCheckExpr *>(u.ObjCAvailabilityCheckExpr);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
@@ -8666,7 +8666,7 @@ std::vector<::pasta::Stmt> ObjCBoxedExpr::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::TokenRange ObjCBoxedExpr::TokenRange(void) const noexcept {
+::pasta::TokenRange ObjCBoxedExpr::Tokens(void) const noexcept {
   auto &self = *const_cast<clang::ObjCBoxedExpr *>(u.ObjCBoxedExpr);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
@@ -8745,7 +8745,7 @@ uint32_t ObjCDictionaryLiteral::NumElements(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::TokenRange ObjCDictionaryLiteral::TokenRange(void) const noexcept {
+::pasta::TokenRange ObjCDictionaryLiteral::Tokens(void) const noexcept {
   auto &self = *const_cast<clang::ObjCDictionaryLiteral *>(u.ObjCDictionaryLiteral);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
@@ -14077,7 +14077,7 @@ uint32_t CXXNewExpr::NumPlacementArguments(void) const noexcept {
 }
 
 // 1: CXXNewExpr::PlacementArgument
-::pasta::TokenRange CXXNewExpr::TokenRange(void) const noexcept {
+::pasta::TokenRange CXXNewExpr::Tokens(void) const noexcept {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
@@ -14196,7 +14196,7 @@ std::vector<::pasta::Stmt> CXXNoexceptExpr::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::TokenRange CXXNoexceptExpr::TokenRange(void) const noexcept {
+::pasta::TokenRange CXXNoexceptExpr::Tokens(void) const noexcept {
   auto &self = *const_cast<clang::CXXNoexceptExpr *>(u.CXXNoexceptExpr);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
@@ -14464,7 +14464,7 @@ enum BinaryOperatorKind CXXRewrittenBinaryOperator::Operator(void) const noexcep
   __builtin_unreachable();
 }
 
-::pasta::TokenRange CXXRewrittenBinaryOperator::TokenRange(void) const noexcept {
+::pasta::TokenRange CXXRewrittenBinaryOperator::Tokens(void) const noexcept {
   auto &self = *const_cast<clang::CXXRewrittenBinaryOperator *>(u.CXXRewrittenBinaryOperator);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
@@ -14578,7 +14578,7 @@ std::vector<::pasta::Stmt> CXXStdInitializerListExpr::Children(void) const noexc
   __builtin_unreachable();
 }
 
-::pasta::TokenRange CXXStdInitializerListExpr::TokenRange(void) const noexcept {
+::pasta::TokenRange CXXStdInitializerListExpr::Tokens(void) const noexcept {
   auto &self = *const_cast<clang::CXXStdInitializerListExpr *>(u.CXXStdInitializerListExpr);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
@@ -14804,7 +14804,7 @@ std::optional<::pasta::Expr> CXXTypeidExpr::ExpressionOperand(void) const noexce
   __builtin_unreachable();
 }
 
-::pasta::TokenRange CXXTypeidExpr::TokenRange(void) const noexcept {
+::pasta::TokenRange CXXTypeidExpr::Tokens(void) const noexcept {
   auto &self = *const_cast<clang::CXXTypeidExpr *>(u.CXXTypeidExpr);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
@@ -15009,7 +15009,7 @@ std::optional<::pasta::Expr> CXXUuidofExpr::ExpressionOperand(void) const noexce
   __builtin_unreachable();
 }
 
-::pasta::TokenRange CXXUuidofExpr::TokenRange(void) const noexcept {
+::pasta::TokenRange CXXUuidofExpr::Tokens(void) const noexcept {
   auto &self = *const_cast<clang::CXXUuidofExpr *>(u.CXXUuidofExpr);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
@@ -17242,7 +17242,7 @@ enum OverloadedOperatorKind CXXOperatorCallExpr::Operator(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::TokenRange CXXOperatorCallExpr::TokenRange(void) const noexcept {
+::pasta::TokenRange CXXOperatorCallExpr::Tokens(void) const noexcept {
   auto &self = *const_cast<clang::CXXOperatorCallExpr *>(u.CXXOperatorCallExpr);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);

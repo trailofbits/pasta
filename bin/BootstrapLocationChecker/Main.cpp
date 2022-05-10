@@ -43,7 +43,7 @@ static int GenerateFromClasses(std::vector<pasta::CXXRecordDecl> decls,
     auto decl_name = decl.Name();
     os << "  void Visit" << decl_name << "(const pasta::"
        << decl_name << " &decl) final {\n"
-       << "    auto decl_range = decl.TokenRange();\n"
+       << "    auto decl_range = decl.Tokens();\n"
        << "    if (decl.IsImplicit() || !decl_range.Size()) {\n"
        << "      return;\n"
        << "    }\n"
@@ -56,7 +56,7 @@ static int GenerateFromClasses(std::vector<pasta::CXXRecordDecl> decls,
     if (methods) {
       for (auto method : *methods) {
         auto meth_name = method.Name();
-        if (meth_name == "TokenRange") {
+        if (meth_name == "Tokens") {
           continue;
         }
 
@@ -73,7 +73,7 @@ static int GenerateFromClasses(std::vector<pasta::CXXRecordDecl> decls,
              << "      LOG_IF(ERROR, t_" << i << ".Index() > end_index) << \"" << decl_name << ":" << meth_name << "\";\n"
              << "    }\n";
           ++i;
-        } else if (rname == "TokenRange") {
+        } else if (rname == "Tokens") {
           os << "    if (auto r_" << i << " = decl." << meth_name << "(); r_"
              << i << ".Size()) {\n"
              << "      auto r_begin_index = r_" << i << ".begin()->Index();\n"

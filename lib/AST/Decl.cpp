@@ -651,7 +651,7 @@ std::string_view Decl::KindName(void) const noexcept {
   return kKindNames[static_cast<unsigned>(kind)];
 }
 
-::pasta::TokenRange Decl::TokenRange(void) const noexcept {
+::pasta::TokenRange Decl::Tokens(void) const noexcept {
   return ast->DeclTokenRange(u.Decl);
 }
 

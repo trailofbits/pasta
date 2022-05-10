@@ -166,7 +166,7 @@ void GenerateDeclH(void) {
           << "  }\n\n"
           << "  std::string_view KindName(void) const noexcept;\n"
           << "  ::pasta::Token Token(void) const noexcept;\n"
-          << "  ::pasta::TokenRange TokenRange(void) const noexcept;\n\n"
+          << "  ::pasta::TokenRange Tokens(void) const noexcept;\n\n"
           << "  inline bool operator==(const Decl &that) const noexcept {\n"
           << "    return u.opaque == that.u.opaque;\n"
           << "  }\n"

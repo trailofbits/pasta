@@ -63,7 +63,7 @@ class CXXBaseSpecifier {
   }
 
   // Range of the tokens for the specific.
-  ::pasta::TokenRange TokenRange(void) const noexcept;
+  ::pasta::TokenRange Tokens(void) const noexcept;
 
   // Token of the the base type name. Doesn't include the qualifiers.
   ::pasta::Token BaseTypeToken(void) const noexcept;
@@ -232,7 +232,7 @@ class TemplateParameterList {
   ::pasta::Token TemplateKeywordToken(void) const noexcept;
   ::pasta::Token LeftAngleToken(void) const noexcept;
   ::pasta::Token RightAngleToken(void) const noexcept;
-  ::pasta::TokenRange TokenRange(void) const noexcept;
+  ::pasta::TokenRange Tokens(void) const noexcept;
 
   std::vector<::pasta::NamedDecl> Parameters(void) const noexcept;
 

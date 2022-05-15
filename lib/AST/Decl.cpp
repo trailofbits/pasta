@@ -2865,13 +2865,13 @@ bool ObjCMethodDecl::DefinedInNSObject(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::ImplicitParamDecl ObjCMethodDecl::CmdDeclaration(void) const noexcept {
+::pasta::ImplicitParamDecl ObjCMethodDecl::CommandDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::ObjCMethodDecl *>(u.ObjCMethodDecl);
   decltype(auto) val = self.getCmdDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::ImplicitParamDecl>(ast, val);
   }
-  assert(false && "ObjCMethodDecl::CmdDeclaration can return nullptr!");
+  assert(false && "ObjCMethodDecl::CommandDeclaration can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -4597,7 +4597,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(DeclaratorDecl, VarTemplateSpecializationDecl)
   __builtin_unreachable();
 }
 
-::pasta::Token DeclaratorDecl::InnerTokenStart(void) const noexcept {
+::pasta::Token DeclaratorDecl::FirstInnerToken(void) const noexcept {
   auto &self = *const_cast<clang::DeclaratorDecl *>(u.DeclaratorDecl);
   decltype(auto) val = self.getInnerLocStart();
   return ast->TokenAt(val);
@@ -4611,7 +4611,7 @@ uint32_t DeclaratorDecl::NumTemplateParameterLists(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Token DeclaratorDecl::OuterTokenStart(void) const noexcept {
+::pasta::Token DeclaratorDecl::FirstOuterToken(void) const noexcept {
   auto &self = *const_cast<clang::DeclaratorDecl *>(u.DeclaratorDecl);
   decltype(auto) val = self.getOuterLocStart();
   return ast->TokenAt(val);
@@ -6459,7 +6459,7 @@ std::optional<::pasta::TagDecl> TagDecl::Definition(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Token TagDecl::InnerTokenStart(void) const noexcept {
+::pasta::Token TagDecl::FirstInnerToken(void) const noexcept {
   auto &self = *const_cast<clang::TagDecl *>(u.TagDecl);
   decltype(auto) val = self.getInnerLocStart();
   return ast->TokenAt(val);
@@ -6484,7 +6484,7 @@ uint32_t TagDecl::NumTemplateParameterLists(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Token TagDecl::OuterTokenStart(void) const noexcept {
+::pasta::Token TagDecl::FirstOuterToken(void) const noexcept {
   auto &self = *const_cast<clang::TagDecl *>(u.TagDecl);
   decltype(auto) val = self.getOuterLocStart();
   return ast->TokenAt(val);
@@ -8586,7 +8586,7 @@ std::vector<::pasta::FieldDecl> RecordDecl::Fields(void) const noexcept {
   __builtin_unreachable();
 }
 
-std::optional<::pasta::FieldDecl> RecordDecl::FindFirstNamedDataMember(void) const noexcept {
+std::optional<::pasta::FieldDecl> RecordDecl::FirstNamedDataMember(void) const noexcept {
   auto &self = *const_cast<clang::RecordDecl *>(u.RecordDecl);
   decltype(auto) val = self.findFirstNamedDataMember();
   if (!val) {
@@ -8628,14 +8628,15 @@ std::optional<::pasta::RecordDecl> RecordDecl::Definition(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::RecordDecl RecordDecl::PreviousDeclaration(void) const noexcept {
+std::optional<::pasta::RecordDecl> RecordDecl::PreviousDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::RecordDecl *>(u.RecordDecl);
   decltype(auto) val = self.getPreviousDecl();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::RecordDecl>(ast, val);
   }
-  assert(false && "RecordDecl::PreviousDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 

@@ -83,7 +83,7 @@ class CXXBaseSpecifier {
   bool ConstructorsAreInherited(void) const noexcept;
 
   // For a pack expansion, determine the location of the ellipsis.
-  std::optional<Token> Ellipsis(void) const noexcept;
+  std::optional<Token> EllipsisToken(void) const noexcept;
 
   // Returns the access specifier for this base specifier.
   //

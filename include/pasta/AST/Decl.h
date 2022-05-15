@@ -984,7 +984,7 @@ class ObjCMethodDecl : public NamedDecl {
   ::pasta::ObjCMethodDecl CanonicalDeclaration(void) const noexcept;
   ::pasta::ObjCCategoryDecl Category(void) const noexcept;
   ::pasta::ObjCInterfaceDecl ClassInterface(void) const noexcept;
-  ::pasta::ImplicitParamDecl CmdDeclaration(void) const noexcept;
+  ::pasta::ImplicitParamDecl CommandDeclaration(void) const noexcept;
   ::pasta::Token DeclaratorEndToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   enum ObjCMethodDeclImplementationControl ImplementationControl(void) const noexcept;
@@ -1626,9 +1626,9 @@ class DeclaratorDecl : public ValueDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(DeclaratorDecl, VarTemplatePartialSpecializationDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(DeclaratorDecl, VarTemplateSpecializationDecl)
   ::pasta::Token BeginToken(void) const noexcept;
-  ::pasta::Token InnerTokenStart(void) const noexcept;
+  ::pasta::Token FirstInnerToken(void) const noexcept;
   uint32_t NumTemplateParameterLists(void) const noexcept;
-  ::pasta::Token OuterTokenStart(void) const noexcept;
+  ::pasta::Token FirstOuterToken(void) const noexcept;
   // Qualifier: (clang::NestedNameSpecifier *)
   // QualifierToken: (clang::NestedNameSpecifierLoc)
   // TemplateParameterList: (clang::TemplateParameterList *)
@@ -2142,10 +2142,10 @@ class TagDecl : public TypeDecl {
   ::pasta::TokenRange BraceRange(void) const noexcept;
   ::pasta::TagDecl CanonicalDeclaration(void) const noexcept;
   std::optional<::pasta::TagDecl> Definition(void) const noexcept;
-  ::pasta::Token InnerTokenStart(void) const noexcept;
+  ::pasta::Token FirstInnerToken(void) const noexcept;
   std::string_view KindName(void) const noexcept;
   uint32_t NumTemplateParameterLists(void) const noexcept;
-  ::pasta::Token OuterTokenStart(void) const noexcept;
+  ::pasta::Token FirstOuterToken(void) const noexcept;
   // Qualifier: (clang::NestedNameSpecifier *)
   // QualifierToken: (clang::NestedNameSpecifierLoc)
   enum TagTypeKind TagKind(void) const noexcept;
@@ -2715,11 +2715,11 @@ class RecordDecl : public TagDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(RecordDecl, ClassTemplateSpecializationDecl)
   bool CanPassInRegisters(void) const noexcept;
   std::vector<::pasta::FieldDecl> Fields(void) const noexcept;
-  std::optional<::pasta::FieldDecl> FindFirstNamedDataMember(void) const noexcept;
+  std::optional<::pasta::FieldDecl> FirstNamedDataMember(void) const noexcept;
   enum RecordDeclArgPassingKind ArgumentPassingRestrictions(void) const noexcept;
   std::optional<::pasta::RecordDecl> Definition(void) const noexcept;
   ::pasta::RecordDecl MostRecentDeclaration(void) const noexcept;
-  ::pasta::RecordDecl PreviousDeclaration(void) const noexcept;
+  std::optional<::pasta::RecordDecl> PreviousDeclaration(void) const noexcept;
   bool HasFlexibleArrayMember(void) const noexcept;
   bool HasLoadedFieldsFromExternalStorage(void) const noexcept;
   bool HasNonTrivialToPrimitiveCopyCUnion(void) const noexcept;

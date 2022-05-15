@@ -84,7 +84,7 @@ bool CXXBaseSpecifier::ConstructorsAreInherited(void) const noexcept {
 }
 
 // For a pack expansion, determine the location of the ellipsis.
-std::optional<Token> CXXBaseSpecifier::Ellipsis(void) const noexcept {
+std::optional<Token> CXXBaseSpecifier::EllipsisToken(void) const noexcept {
   if (auto tok = ast->RawTokenAt(spec->getEllipsisLoc())) {
     return Token(ast, tok);
   } else {

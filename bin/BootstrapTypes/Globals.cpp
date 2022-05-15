@@ -125,9 +125,18 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   {"Val1", "Value1"},
   {"Val2", "Value2"},
   {"TInfo", "TypeInfo"},
+  {"Cmd", "Command"},
+  {"TST", "TemplateSpecializationType"},
 
+  {"ColonLocFirst", "FirstColonToken"},
+  {"ColonLocSecond", "SecondColonToken"},
   {"ArrayElementTypeNoTypeQualified", "ArrayElementTypeWithoutQualifiers"},
   {"SwitchCaseList", "FirstSwitchCase"},
+  {"FindFirstNamedDataMember", "FirstNamedDataMember"},
+  {"OuterLocStart", "FirstOuterToken"},
+  {"InnerLocStart", "FirstInnerToken"},
+  {"RightLoc", "RBracketToken"},
+  {"LeftLoc", "LBracketToken"},
 };
 
 // Maps return types from the macros file to their replacements in the
@@ -992,6 +1001,25 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"FieldDecl", "CapturedVLAType"},
   {"ElaboratedType", "OwnedTagDeclaration"},
   {"DeclaratorDecl", "TypeSourceInfo"},
+  {"Decl", "PreviousDeclaration"},
+  {"TypeAliasTemplateDecl", "PreviousDeclaration"},
+  {"VarTemplateDecl", "PreviousDeclaration"},
+  {"ClassTemplateDecl", "PreviousDeclaration"},
+  {"FunctionTemplateDecl", "PreviousDeclaration"},
+  {"CXXRecordDecl", "PreviousDeclaration"},
+  {"EnumDecl", "PreviousDeclaration"},
+  {"RecordDecl", "PreviousDeclaration"},
+  {"RecordDecl", "FirstNamedDataMember"},
+
+
+//  {"FunctionProtoType", "EllipsisToken"},
+//  {"FunctionDecl", "EllipsisToken"},
+//  {"FunctionDecl", "PointOfInstantiation"},
+//  {"VarDecl", "PointOfInstantiation"},
+//  {"DeclaratorDecl", "TypeSpecEndToken"},
+//  {"DeclaratorDecl", "TypeSpecStartToken"},
+//  {"Decl", "BeginToken"},
+//  {"Decl", "EndToken"},
 };
 
 std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{

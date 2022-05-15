@@ -3255,8 +3255,8 @@ enum class ParameterABI : int {
 };
 
 enum class ParenLocsOffsets : int {
-  kLParen = 0,
-  kRParen = 1,
+  kLParenToken = 0,
+  kRParenToken = 1,
   kTotal = 2,
 };
 
@@ -3666,8 +3666,8 @@ enum class TokenKind : unsigned short {
   kRSquare = 20,
   kLParenthesis = 21,
   kRParenthesis = 22,
-  kLBrace = 23,
-  kRBrace = 24,
+  kLBraceToken = 23,
+  kRBraceToken = 24,
   kPeriod = 25,
   kEllipsis = 26,
   kAmp = 27,

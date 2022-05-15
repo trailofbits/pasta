@@ -2209,8 +2209,8 @@ class OMPArraySectionExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   ::pasta::Expr Base(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
-  ::pasta::Token ColonTokenFirst(void) const noexcept;
-  ::pasta::Token ColonTokenSecond(void) const noexcept;
+  ::pasta::Token FirstColonToken(void) const noexcept;
+  ::pasta::Token SecondColonToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Token ExpressionToken(void) const noexcept;
   ::pasta::Expr Length(void) const noexcept;
@@ -3682,7 +3682,7 @@ class ObjCSubscriptRefExpr : public Expr {
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Expr KeyExpression(void) const noexcept;
-  ::pasta::Token RBracket(void) const noexcept;
+  ::pasta::Token RBracketToken(void) const noexcept;
   bool IsArraySubscriptReferenceExpression(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ObjCSubscriptRefExpr)
@@ -3799,8 +3799,8 @@ class ParenExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  ::pasta::Token LParen(void) const noexcept;
-  ::pasta::Token RParen(void) const noexcept;
+  ::pasta::Token LParenToken(void) const noexcept;
+  ::pasta::Token RParenToken(void) const noexcept;
   ::pasta::Expr SubExpression(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ParenExpr)

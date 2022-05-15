@@ -9,7 +9,7 @@ std::string Capitalize(llvm::StringRef name) {
   return name.substr(0, 1).upper() + name.substr(1).str();
 }
 
-std::string CxxName(llvm::StringRef name) {
+static std::string CxxNameImpl(llvm::StringRef name) {
 
   // Disable these.
   if (name == "asOpaquePtr" ||
@@ -26,13 +26,13 @@ std::string CxxName(llvm::StringRef name) {
     return "";
 
   } else if (name.startswith("get") && !name.startswith("gets")) {
-    return CxxName(name.substr(3));
+    return CxxNameImpl(name.substr(3));
 
   } else if (name.startswith("has") && !name.startswith("hash")) {
-    return "Has" + CxxName(name.substr(3));
+    return "Has" + CxxNameImpl(name.substr(3));
 
   } else if (name.startswith("is")) {
-    return "Is" + CxxName(name.substr(2));
+    return "Is" + CxxNameImpl(name.substr(2));
 
   // Begin/end iterators.
   } else if (name.endswith("_begin") || name.endswith("_end") ||
@@ -47,7 +47,7 @@ std::string CxxName(llvm::StringRef name) {
     return "";
 
   } else if (name.endswith("Loc")) {
-    return CxxName(name.substr(0, name.size() - 3).str()) + "Token";
+    return CxxNameImpl(name.substr(0, name.size() - 3).str()) + "Token";
 
   } else if (auto name_it = kCxxMethodRenames.find(name.str());
              name_it != kCxxMethodRenames.end()) {
@@ -57,13 +57,13 @@ std::string CxxName(llvm::StringRef name) {
     return "";
 
   } else if (name[0] == '_') {
-    return "_" + CxxName(name.substr(1));
+    return "_" + CxxNameImpl(name.substr(1));
 
   } else if (name.endswith("_")) {
-    return CxxName(name.substr(0, name.size() - 1u)) + "_";
+    return CxxNameImpl(name.substr(0, name.size() - 1u)) + "_";
 
   } else if (std::islower(name.front())) {
-    return CxxName(Capitalize(name));
+    return CxxNameImpl(Capitalize(name));
 
   // Recursively apply on all capitalized sub-components.
   } else {
@@ -90,11 +90,11 @@ std::string CxxName(llvm::StringRef name) {
       for (auto i = 1u; i < name.size(); ++i) {
         if (std::isupper(name[i])) {
           if (auto sub_name = ss.str(); 1u < sub_name.size()) {
-            name_ss << CxxName(sub_name);
+            name_ss << CxxNameImpl(sub_name);
             std::stringstream().swap(ss);
           }
         } else if (name[i] == '_') {
-          name_ss << CxxName(ss.str());
+          name_ss << CxxNameImpl(ss.str());
           std::stringstream().swap(ss);
         }
 
@@ -102,16 +102,34 @@ std::string CxxName(llvm::StringRef name) {
           ss << name[i];
         }
       }
-      name_ss << CxxName(ss.str());
+      name_ss << CxxNameImpl(ss.str());
 
       return name_ss.str();
 
     } else {
       if (1u < name.size() && name.endswith("s")) {
-        return CxxName(name.substr(0u, name.size() - 1u)) + "s";
+        return CxxNameImpl(name.substr(0u, name.size() - 1u)) + "s";
       } else {
         return name.str();
       }
     }
   }
+}
+
+std::string CxxName(llvm::StringRef name_) {
+  auto name = CxxNameImpl(name_);
+  if (name == "LParen") {
+    return "LParenToken";
+  } else if (name == "RParen") {
+    return "RParenToken";
+  } else if (name == "LBracket") {
+    return "LBracketToken";
+  } else if (name == "RBracket") {
+    return "RBracketToken";
+  } else if (name == "LBrace") {
+    return "LBraceToken";
+  } else if (name == "RBrace") {
+    return "RBraceToken";
+  }
+  return name;
 }

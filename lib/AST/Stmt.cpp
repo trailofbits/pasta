@@ -6470,14 +6470,14 @@ std::vector<::pasta::Stmt> OMPArraySectionExpr::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Token OMPArraySectionExpr::ColonTokenFirst(void) const noexcept {
+::pasta::Token OMPArraySectionExpr::FirstColonToken(void) const noexcept {
   auto &self = *const_cast<clang::OMPArraySectionExpr *>(u.OMPArraySectionExpr);
   decltype(auto) val = self.getColonLocFirst();
   return ast->TokenAt(val);
   __builtin_unreachable();
 }
 
-::pasta::Token OMPArraySectionExpr::ColonTokenSecond(void) const noexcept {
+::pasta::Token OMPArraySectionExpr::SecondColonToken(void) const noexcept {
   auto &self = *const_cast<clang::OMPArraySectionExpr *>(u.OMPArraySectionExpr);
   decltype(auto) val = self.getColonLocSecond();
   return ast->TokenAt(val);
@@ -9772,7 +9772,7 @@ std::vector<::pasta::Stmt> ObjCSubscriptRefExpr::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Token ObjCSubscriptRefExpr::RBracket(void) const noexcept {
+::pasta::Token ObjCSubscriptRefExpr::RBracketToken(void) const noexcept {
   auto &self = *const_cast<clang::ObjCSubscriptRefExpr *>(u.ObjCSubscriptRefExpr);
   decltype(auto) val = self.getRBracket();
   return ast->TokenAt(val);
@@ -10112,14 +10112,14 @@ std::vector<::pasta::Stmt> ParenExpr::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Token ParenExpr::LParen(void) const noexcept {
+::pasta::Token ParenExpr::LParenToken(void) const noexcept {
   auto &self = *const_cast<clang::ParenExpr *>(u.ParenExpr);
   decltype(auto) val = self.getLParen();
   return ast->TokenAt(val);
   __builtin_unreachable();
 }
 
-::pasta::Token ParenExpr::RParen(void) const noexcept {
+::pasta::Token ParenExpr::RParenToken(void) const noexcept {
   auto &self = *const_cast<clang::ParenExpr *>(u.ParenExpr);
   decltype(auto) val = self.getRParen();
   return ast->TokenAt(val);

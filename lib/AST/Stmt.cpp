@@ -10493,7 +10493,7 @@ std::vector<::pasta::ParmVarDecl> RequiresExpr::LocalParameters(void) const noex
 }
 
 // 0: RequiresExpr::Requirements
-::pasta::Token RequiresExpr::RequiresKWToken(void) const noexcept {
+::pasta::Token RequiresExpr::RequiresKeywordToken(void) const noexcept {
   auto &self = *const_cast<clang::RequiresExpr *>(u.RequiresExpr);
   decltype(auto) val = self.getRequiresKWLoc();
   return ast->TokenAt(val);
@@ -16104,7 +16104,7 @@ bool DeclRefExpr::HasQualifier(void) const noexcept {
   __builtin_unreachable();
 }
 
-bool DeclRefExpr::HasTemplateKWAndArgumentsInfo(void) const noexcept {
+bool DeclRefExpr::HasTemplateKeywordAndArgumentsInfo(void) const noexcept {
   auto &self = *const_cast<clang::DeclRefExpr *>(u.DeclRefExpr);
   decltype(auto) val = self.hasTemplateKWAndArgsInfo();
   return val;

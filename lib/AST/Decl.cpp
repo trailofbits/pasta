@@ -6800,14 +6800,15 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, TypeAliasTemplateDecl)
   __builtin_unreachable();
 }
 
-::pasta::TypeAliasTemplateDecl TypeAliasTemplateDecl::PreviousDeclaration(void) const noexcept {
+std::optional<::pasta::TypeAliasTemplateDecl> TypeAliasTemplateDecl::PreviousDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::TypeAliasTemplateDecl *>(u.TypeAliasTemplateDecl);
   decltype(auto) val = self.getPreviousDecl();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::TypeAliasTemplateDecl>(ast, val);
   }
-  assert(false && "TypeAliasTemplateDecl::PreviousDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7446,14 +7447,15 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, VarTemplateDecl)
   __builtin_unreachable();
 }
 
-::pasta::VarTemplateDecl VarTemplateDecl::PreviousDeclaration(void) const noexcept {
+std::optional<::pasta::VarTemplateDecl> VarTemplateDecl::PreviousDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::VarTemplateDecl *>(u.VarTemplateDecl);
   decltype(auto) val = self.getPreviousDecl();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::VarTemplateDecl>(ast, val);
   }
-  assert(false && "VarTemplateDecl::PreviousDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7954,14 +7956,15 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, ClassTemplateDecl)
   __builtin_unreachable();
 }
 
-::pasta::ClassTemplateDecl ClassTemplateDecl::PreviousDeclaration(void) const noexcept {
+std::optional<::pasta::ClassTemplateDecl> ClassTemplateDecl::PreviousDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::ClassTemplateDecl *>(u.ClassTemplateDecl);
   decltype(auto) val = self.getPreviousDecl();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::ClassTemplateDecl>(ast, val);
   }
-  assert(false && "ClassTemplateDecl::PreviousDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -8165,14 +8168,15 @@ std::optional<uint32_t> EnumDecl::ODRHash(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::EnumDecl EnumDecl::PreviousDeclaration(void) const noexcept {
+std::optional<::pasta::EnumDecl> EnumDecl::PreviousDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::EnumDecl *>(u.EnumDecl);
   decltype(auto) val = self.getPreviousDecl();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::EnumDecl>(ast, val);
   }
-  assert(false && "EnumDecl::PreviousDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -8307,14 +8311,15 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, FunctionTemplateDecl)
   __builtin_unreachable();
 }
 
-::pasta::FunctionTemplateDecl FunctionTemplateDecl::PreviousDeclaration(void) const noexcept {
+std::optional<::pasta::FunctionTemplateDecl> FunctionTemplateDecl::PreviousDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::FunctionTemplateDecl *>(u.FunctionTemplateDecl);
   decltype(auto) val = self.getPreviousDecl();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::FunctionTemplateDecl>(ast, val);
   }
-  assert(false && "FunctionTemplateDecl::PreviousDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -9485,14 +9490,15 @@ std::optional<uint32_t> CXXRecordDecl::ODRHash(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::CXXRecordDecl CXXRecordDecl::PreviousDeclaration(void) const noexcept {
+std::optional<::pasta::CXXRecordDecl> CXXRecordDecl::PreviousDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
   decltype(auto) val = self.getPreviousDecl();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
-  assert(false && "CXXRecordDecl::PreviousDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 

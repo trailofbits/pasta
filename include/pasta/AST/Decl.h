@@ -2244,7 +2244,7 @@ class TypeAliasTemplateDecl : public RedeclarableTemplateDecl {
   PASTA_DECLARE_BASE_OPERATORS(TemplateDecl, TypeAliasTemplateDecl)
   ::pasta::TypeAliasTemplateDecl CanonicalDeclaration(void) const noexcept;
   ::pasta::TypeAliasTemplateDecl InstantiatedFromMemberTemplate(void) const noexcept;
-  ::pasta::TypeAliasTemplateDecl PreviousDeclaration(void) const noexcept;
+  std::optional<::pasta::TypeAliasTemplateDecl> PreviousDeclaration(void) const noexcept;
   ::pasta::TypeAliasDecl TemplatedDeclaration(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TypeAliasTemplateDecl)
@@ -2421,7 +2421,7 @@ class VarTemplateDecl : public RedeclarableTemplateDecl {
   ::pasta::VarTemplateDecl CanonicalDeclaration(void) const noexcept;
   ::pasta::VarTemplateDecl InstantiatedFromMemberTemplate(void) const noexcept;
   ::pasta::VarTemplateDecl MostRecentDeclaration(void) const noexcept;
-  ::pasta::VarTemplateDecl PreviousDeclaration(void) const noexcept;
+  std::optional<::pasta::VarTemplateDecl> PreviousDeclaration(void) const noexcept;
   ::pasta::VarDecl TemplatedDeclaration(void) const noexcept;
   bool IsThisDeclarationADefinition(void) const noexcept;
   std::vector<::pasta::VarTemplateSpecializationDecl> Specializations(void) const noexcept;
@@ -2543,7 +2543,7 @@ class ClassTemplateDecl : public RedeclarableTemplateDecl {
   ::pasta::ClassTemplateDecl CanonicalDeclaration(void) const noexcept;
   ::pasta::ClassTemplateDecl InstantiatedFromMemberTemplate(void) const noexcept;
   ::pasta::ClassTemplateDecl MostRecentDeclaration(void) const noexcept;
-  ::pasta::ClassTemplateDecl PreviousDeclaration(void) const noexcept;
+  std::optional<::pasta::ClassTemplateDecl> PreviousDeclaration(void) const noexcept;
   ::pasta::CXXRecordDecl TemplatedDeclaration(void) const noexcept;
   bool IsThisDeclarationADefinition(void) const noexcept;
   std::vector<::pasta::ClassTemplateSpecializationDecl> Specializations(void) const noexcept;
@@ -2593,7 +2593,7 @@ class EnumDecl : public TagDecl {
   uint32_t NumNegativeBits(void) const noexcept;
   uint32_t NumPositiveBits(void) const noexcept;
   std::optional<uint32_t> ODRHash(void) const noexcept;
-  ::pasta::EnumDecl PreviousDeclaration(void) const noexcept;
+  std::optional<::pasta::EnumDecl> PreviousDeclaration(void) const noexcept;
   ::pasta::Type PromotionType(void) const noexcept;
   std::optional<::pasta::EnumDecl> TemplateInstantiationPattern(void) const noexcept;
   enum TemplateSpecializationKind TemplateSpecializationKind(void) const noexcept;
@@ -2623,7 +2623,7 @@ class FunctionTemplateDecl : public RedeclarableTemplateDecl {
   ::pasta::FunctionTemplateDecl CanonicalDeclaration(void) const noexcept;
   ::pasta::FunctionTemplateDecl InstantiatedFromMemberTemplate(void) const noexcept;
   ::pasta::FunctionTemplateDecl MostRecentDeclaration(void) const noexcept;
-  ::pasta::FunctionTemplateDecl PreviousDeclaration(void) const noexcept;
+  std::optional<::pasta::FunctionTemplateDecl> PreviousDeclaration(void) const noexcept;
   ::pasta::FunctionDecl TemplatedDeclaration(void) const noexcept;
   bool IsAbbreviated(void) const noexcept;
   bool IsThisDeclarationADefinition(void) const noexcept;
@@ -2894,7 +2894,7 @@ class CXXRecordDecl : public RecordDecl {
   std::optional<uint32_t> NumBases(void) const noexcept;
   std::optional<uint32_t> NumVirtualBases(void) const noexcept;
   std::optional<uint32_t> ODRHash(void) const noexcept;
-  ::pasta::CXXRecordDecl PreviousDeclaration(void) const noexcept;
+  std::optional<::pasta::CXXRecordDecl> PreviousDeclaration(void) const noexcept;
   std::optional<::pasta::CXXRecordDecl> TemplateInstantiationPattern(void) const noexcept;
   enum TemplateSpecializationKind TemplateSpecializationKind(void) const noexcept;
   // VisibleConversionFunctions: (llvm::iterator_range<clang::UnresolvedSetIterator>)

@@ -127,6 +127,7 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   {"TInfo", "TypeInfo"},
   {"Cmd", "Command"},
   {"TST", "TemplateSpecializationType"},
+  {"KW", "Keyword"},
 
   {"ColonLocFirst", "FirstColonToken"},
   {"ColonLocSecond", "SecondColonToken"},

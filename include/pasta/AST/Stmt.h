@@ -12,7 +12,7 @@
 #include <variant>
 #include <vector>
 #include <pasta/Util/Compiler.h>
-#include "Forward.h"
+#include "DeclHead.h"
 
 #include "StmtManual.h"
 
@@ -3908,7 +3908,7 @@ class RequiresExpr : public Expr {
   std::vector<::pasta::ParmVarDecl> LocalParameters(void) const noexcept;
   ::pasta::Token RBraceToken(void) const noexcept;
   // Requirements: (llvm::ArrayRef<clang::concepts::Requirement *>)
-  ::pasta::Token RequiresKWToken(void) const noexcept;
+  ::pasta::Token RequiresKeywordToken(void) const noexcept;
   bool IsSatisfied(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(RequiresExpr)
@@ -5471,7 +5471,7 @@ class DeclRefExpr : public Expr {
   bool HadMultipleCandidates(void) const noexcept;
   bool HasExplicitTemplateArguments(void) const noexcept;
   bool HasQualifier(void) const noexcept;
-  bool HasTemplateKWAndArgumentsInfo(void) const noexcept;
+  bool HasTemplateKeywordAndArgumentsInfo(void) const noexcept;
   bool HasTemplateKeyword(void) const noexcept;
   enum NonOdrUseReason IsNonOdrUse(void) const noexcept;
   bool RefersToEnclosingVariableOrCapture(void) const noexcept;

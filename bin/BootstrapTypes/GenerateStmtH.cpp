@@ -28,7 +28,7 @@ void GenerateStmtH(void) {
       << "#include <variant>\n"
       << "#include <vector>\n"
       << "#include <pasta/Util/Compiler.h>\n"
-      << "#include \"Forward.h\"\n\n"
+      << "#include \"DeclHead.h\"\n\n"
       << "#include \"StmtManual.h\"\n\n"
       << "#define PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(base) \\\n"
       << "    friend class AST; \\\n"

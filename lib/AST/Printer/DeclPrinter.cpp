@@ -1313,7 +1313,7 @@ void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgument>
       Args[I].print(
           Policy, Out,
           clang::TemplateParameterList::shouldIncludeTypeForArgument(
-            Params, static_cast<unsigned int>(I)));
+              Policy, Params, static_cast<unsigned int>(I)));
   }
   Out << ">";
 }
@@ -1335,7 +1335,7 @@ void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgumentL
       Args[I].getArgument().print(
           Policy, Out,
           clang::TemplateParameterList::shouldIncludeTypeForArgument(
-            Params, static_cast<unsigned int>(I)));
+              Policy, Params, static_cast<unsigned int>(I)));
   }
   Out << ">";
 }

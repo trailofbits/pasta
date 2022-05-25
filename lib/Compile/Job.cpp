@@ -155,8 +155,7 @@ static bool IsIncludeOption(unsigned id) {
     case clang::driver::options::OPT__sysroot:
     case clang::driver::options::OPT__sysroot_EQ:
     case clang::driver::options::OPT_nobuiltininc:
-    case clang::driver::options::OPT_gcc_toolchain:
-    case clang::driver::options::OPT_gcc_toolchain_legacy_spelling: return true;
+    case clang::driver::options::OPT_gcc_toolchain: return true;
 
     // NOTE(pag): These two are here because they do not affect actual
     //            inclusion paths, and therefore must be part of the final
@@ -337,9 +336,7 @@ CreateAdjustedCompilerCommand(FileSystemView &fs, const Compiler &compiler,
           continue;
         }
 
-      } else if (id == clang::driver::options::OPT_gcc_toolchain ||
-                 id == clang::driver::options::
-                           OPT_gcc_toolchain_legacy_spelling) {
+      } else if (id == clang::driver::options::OPT_gcc_toolchain) {
         RenderPrefixed(arg, parsed_inc_args, prefix);
 
       } else {

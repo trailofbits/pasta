@@ -111,7 +111,8 @@ MacroGenerator::MacroGenerator(const clang::ASTContext *ctx)
     acceptable_class_names.insert(#Base); \
     acceptable_class_names.insert(#Type); \
     acceptable_class_names.insert(#Type "Expr"); \
-    acceptable_class_names.insert(#Type "Stmt");
+    acceptable_class_names.insert(#Type "Stmt"); \
+    acceptable_class_names.insert(#Type "Directive");
 #include "clang/AST/StmtNodes.inc"
 #undef DECL
 }

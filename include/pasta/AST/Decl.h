@@ -184,6 +184,7 @@ class DeclContext {
   std::optional<::pasta::DeclContext> LookupParent(void) const noexcept;
   // LookupPointer: (clang::StoredDeclsMap *)
   std::optional<::pasta::Decl> NonClosureAncestor(void) const noexcept;
+  ::pasta::DeclContext NonTransparentContext(void) const noexcept;
   std::optional<::pasta::RecordDecl> OuterLexicalRecordContext(void) const noexcept;
   std::optional<::pasta::DeclContext> Parent(void) const noexcept;
   // ParentASTContext: (clang::ASTContext &)
@@ -380,6 +381,7 @@ class Decl {
   bool IsFunctionOrFunctionTemplate(void) const noexcept;
   bool IsImplicit(void) const noexcept;
   bool IsInAnonymousNamespace(void) const noexcept;
+  bool IsInExportDeclarationContext(void) const noexcept;
   // IsInIdentifierNamespace: (bool)
   bool IsInLocalScopeForInstantiation(void) const noexcept;
   bool IsInStdNamespace(void) const noexcept;
@@ -855,6 +857,7 @@ class ObjCContainerDecl : public NamedDecl {
   // InstanceMethod: (clang::ObjCMethodDecl *)
   // InstanceVariableDeclaration: (clang::ObjCIvarDecl *)
   // Method: (clang::ObjCMethodDecl *)
+  // Property: (clang::ObjCPropertyDecl *)
   std::vector<::pasta::ObjCMethodDecl> InstanceMethods(void) const noexcept;
   std::vector<::pasta::ObjCPropertyDecl> InstanceProperties(void) const noexcept;
   std::vector<::pasta::ObjCMethodDecl> Methods(void) const noexcept;
@@ -1000,6 +1003,7 @@ class ObjCMethodDecl : public NamedDecl {
   ::pasta::Token SelectorStartToken(void) const noexcept;
   ::pasta::ImplicitParamDecl SelfDeclaration(void) const noexcept;
   // SelfType: (clang::QualType)
+  bool HasParameterDestroyedInCallee(void) const noexcept;
   bool HasRedeclaration(void) const noexcept;
   bool HasRelatedResultType(void) const noexcept;
   bool HasSkippedBody(void) const noexcept;
@@ -1709,6 +1713,7 @@ class FunctionDecl : public DeclaratorDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(FunctionDecl, CXXDeductionGuideDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(FunctionDecl, CXXDestructorDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(FunctionDecl, CXXMethodDecl)
+  bool UsesFPIntrin(void) const noexcept;
   std::optional<bool> DoesDeclarationForceExternallyVisibleDefinition(void) const noexcept;
   bool DoesThisDeclarationHaveABody(void) const noexcept;
   uint32_t BuiltinID(void) const noexcept;
@@ -1788,6 +1793,7 @@ class FunctionDecl : public DeclaratorDecl {
   bool IsReplaceableGlobalAllocationFunction(void) const noexcept;
   std::optional<bool> IsReservedGlobalPlacementOperator(void) const noexcept;
   bool IsStatic(void) const noexcept;
+  bool IsTargetClonesMultiVersion(void) const noexcept;
   bool IsTargetMultiVersion(void) const noexcept;
   bool IsTemplateInstantiation(void) const noexcept;
   bool IsThisDeclarationADefinition(void) const noexcept;
@@ -2073,6 +2079,7 @@ class ObjCIvarDecl : public FieldDecl {
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, ObjCIvarDecl)
   enum ObjCIvarDeclAccessControl AccessControl(void) const noexcept;
   enum ObjCIvarDeclAccessControl CanonicalAccessControl(void) const noexcept;
+  ::pasta::ObjCIvarDecl CanonicalDeclaration(void) const noexcept;
   ::pasta::ObjCInterfaceDecl ContainingInterface(void) const noexcept;
   ::pasta::ObjCIvarDecl NextInstanceVariable(void) const noexcept;
   bool Synthesize(void) const noexcept;
@@ -2911,6 +2918,7 @@ class CXXRecordDecl : public RecordDecl {
   std::optional<bool> HasInClassInitializer(void) const noexcept;
   std::optional<bool> HasInheritedAssignment(void) const noexcept;
   std::optional<bool> HasInheritedConstructor(void) const noexcept;
+  bool HasInitializerMethod(void) const noexcept;
   std::optional<bool> HasIrrelevantDestructor(void) const noexcept;
   std::optional<bool> HasKnownLambdaInternalLinkage(void) const noexcept;
   // HasMemberName: (bool)

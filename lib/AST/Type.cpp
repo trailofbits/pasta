@@ -97,6 +97,10 @@ void TypeVisitor::VisitUnresolvedUsingType(const UnresolvedUsingType &type) {
   VisitType(type);
 }
 
+void TypeVisitor::VisitUsingType(const UsingType &type) {
+  VisitType(type);
+}
+
 void TypeVisitor::VisitVectorType(const VectorType &type) {
   VisitType(type);
 }
@@ -118,6 +122,10 @@ void TypeVisitor::VisitAtomicType(const AtomicType &type) {
 }
 
 void TypeVisitor::VisitAttributedType(const AttributedType &type) {
+  VisitType(type);
+}
+
+void TypeVisitor::VisitBitIntType(const BitIntType &type) {
   VisitType(type);
 }
 
@@ -153,7 +161,7 @@ void TypeVisitor::VisitDependentAddressSpaceType(const DependentAddressSpaceType
   VisitType(type);
 }
 
-void TypeVisitor::VisitDependentExtIntType(const DependentExtIntType &type) {
+void TypeVisitor::VisitDependentBitIntType(const DependentBitIntType &type) {
   VisitType(type);
 }
 
@@ -179,10 +187,6 @@ void TypeVisitor::VisitDependentVectorType(const DependentVectorType &type) {
 
 void TypeVisitor::VisitElaboratedType(const ElaboratedType &type) {
   VisitTypeWithKeyword(type);
-}
-
-void TypeVisitor::VisitExtIntType(const ExtIntType &type) {
-  VisitType(type);
 }
 
 void TypeVisitor::VisitExtVectorType(const ExtVectorType &type) {
@@ -318,6 +322,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Type, ArrayType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, AtomicType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, AttributedType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, AutoType)
+PASTA_DEFINE_DERIVED_OPERATORS(Type, BitIntType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, BlockPointerType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, BuiltinType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, ComplexType)
@@ -328,7 +333,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Type, DecltypeType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, DeducedTemplateSpecializationType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, DeducedType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, DependentAddressSpaceType)
-PASTA_DEFINE_DERIVED_OPERATORS(Type, DependentExtIntType)
+PASTA_DEFINE_DERIVED_OPERATORS(Type, DependentBitIntType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, DependentNameType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, DependentSizedArrayType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, DependentSizedExtVectorType)
@@ -337,7 +342,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(Type, DependentTemplateSpecializationType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, DependentVectorType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, ElaboratedType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, EnumType)
-PASTA_DEFINE_DERIVED_OPERATORS(Type, ExtIntType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, ExtVectorType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, FunctionNoProtoType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, FunctionProtoType)
@@ -370,6 +374,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Type, TypeWithKeyword)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, TypedefType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, UnaryTransformType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, UnresolvedUsingType)
+PASTA_DEFINE_DERIVED_OPERATORS(Type, UsingType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, VariableArrayType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, VectorType)
 bool Type::AcceptsObjCTypeParameters(void) const noexcept {
@@ -855,6 +860,13 @@ bool Type::IsBFloat16Type(void) const noexcept {
   __builtin_unreachable();
 }
 
+bool Type::IsBitIntType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
+  decltype(auto) val = self.isBitIntType();
+  return val;
+  __builtin_unreachable();
+}
+
 bool Type::IsBlockCompatibleObjCPointerType(void) const noexcept {
   auto &self = *(u.Type);
   decltype(auto) val = self.isBlockCompatibleObjCPointerType(ast->ci->getASTContext());
@@ -1047,13 +1059,6 @@ bool Type::IsEventT(void) const noexcept {
   __builtin_unreachable();
 }
 
-bool Type::IsExtIntType(void) const noexcept {
-  auto &self = *const_cast<clang::Type *>(u.Type);
-  decltype(auto) val = self.isExtIntType();
-  return val;
-  __builtin_unreachable();
-}
-
 bool Type::IsExtVectorType(void) const noexcept {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.isExtVectorType();
@@ -1148,6 +1153,13 @@ bool Type::IsFundamentalType(void) const noexcept {
 bool Type::IsHalfType(void) const noexcept {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.isHalfType();
+  return val;
+  __builtin_unreachable();
+}
+
+bool Type::IsIbm128Type(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
+  decltype(auto) val = self.isIbm128Type();
   return val;
   __builtin_unreachable();
 }
@@ -2788,6 +2800,41 @@ bool UnresolvedUsingType::IsSugared(void) const noexcept {
   __builtin_unreachable();
 }
 
+PASTA_DEFINE_BASE_OPERATORS(Type, UsingType)
+::pasta::Type UsingType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::UsingType *>(u.UsingType);
+  decltype(auto) val = self.desugar();
+  assert(!val.isNull());
+  return TypeBuilder::Build(ast, val);
+  __builtin_unreachable();
+}
+
+::pasta::UsingShadowDecl UsingType::FoundDeclaration(void) const noexcept {
+  auto &self = *const_cast<clang::UsingType *>(u.UsingType);
+  decltype(auto) val = self.getFoundDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::UsingShadowDecl>(ast, val);
+  }
+  assert(false && "UsingType::FoundDeclaration can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
+::pasta::Type UsingType::UnderlyingType(void) const noexcept {
+  auto &self = *const_cast<clang::UsingType *>(u.UsingType);
+  decltype(auto) val = self.getUnderlyingType();
+  assert(!val.isNull());
+  return TypeBuilder::Build(ast, val);
+  __builtin_unreachable();
+}
+
+bool UsingType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::UsingType *>(u.UsingType);
+  decltype(auto) val = self.isSugared();
+  return val;
+  __builtin_unreachable();
+}
+
 PASTA_DEFINE_BASE_OPERATORS(Type, VectorType)
 PASTA_DEFINE_DERIVED_OPERATORS(VectorType, ExtVectorType)
 ::pasta::Type VectorType::Desugar(void) const noexcept {
@@ -3001,6 +3048,43 @@ bool AttributedType::IsQualifier(void) const noexcept {
 bool AttributedType::IsSugared(void) const noexcept {
   auto &self = *const_cast<clang::AttributedType *>(u.AttributedType);
   decltype(auto) val = self.isSugared();
+  return val;
+  __builtin_unreachable();
+}
+
+PASTA_DEFINE_BASE_OPERATORS(Type, BitIntType)
+::pasta::Type BitIntType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::BitIntType *>(u.BitIntType);
+  decltype(auto) val = self.desugar();
+  assert(!val.isNull());
+  return TypeBuilder::Build(ast, val);
+  __builtin_unreachable();
+}
+
+uint32_t BitIntType::NumBits(void) const noexcept {
+  auto &self = *const_cast<clang::BitIntType *>(u.BitIntType);
+  decltype(auto) val = self.getNumBits();
+  return val;
+  __builtin_unreachable();
+}
+
+bool BitIntType::IsSigned(void) const noexcept {
+  auto &self = *const_cast<clang::BitIntType *>(u.BitIntType);
+  decltype(auto) val = self.isSigned();
+  return val;
+  __builtin_unreachable();
+}
+
+bool BitIntType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::BitIntType *>(u.BitIntType);
+  decltype(auto) val = self.isSugared();
+  return val;
+  __builtin_unreachable();
+}
+
+bool BitIntType::IsUnsigned(void) const noexcept {
+  auto &self = *const_cast<clang::BitIntType *>(u.BitIntType);
+  decltype(auto) val = self.isUnsigned();
   return val;
   __builtin_unreachable();
 }
@@ -3284,42 +3368,42 @@ bool DependentAddressSpaceType::IsSugared(void) const noexcept {
   __builtin_unreachable();
 }
 
-PASTA_DEFINE_BASE_OPERATORS(Type, DependentExtIntType)
-::pasta::Type DependentExtIntType::Desugar(void) const noexcept {
-  auto &self = *const_cast<clang::DependentExtIntType *>(u.DependentExtIntType);
+PASTA_DEFINE_BASE_OPERATORS(Type, DependentBitIntType)
+::pasta::Type DependentBitIntType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::DependentBitIntType *>(u.DependentBitIntType);
   decltype(auto) val = self.desugar();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
 
-::pasta::Expr DependentExtIntType::NumBitsExpression(void) const noexcept {
-  auto &self = *const_cast<clang::DependentExtIntType *>(u.DependentExtIntType);
+::pasta::Expr DependentBitIntType::NumBitsExpression(void) const noexcept {
+  auto &self = *const_cast<clang::DependentBitIntType *>(u.DependentBitIntType);
   decltype(auto) val = self.getNumBitsExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "DependentExtIntType::NumBitsExpression can return nullptr!");
+  assert(false && "DependentBitIntType::NumBitsExpression can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
 
-bool DependentExtIntType::IsSigned(void) const noexcept {
-  auto &self = *const_cast<clang::DependentExtIntType *>(u.DependentExtIntType);
+bool DependentBitIntType::IsSigned(void) const noexcept {
+  auto &self = *const_cast<clang::DependentBitIntType *>(u.DependentBitIntType);
   decltype(auto) val = self.isSigned();
   return val;
   __builtin_unreachable();
 }
 
-bool DependentExtIntType::IsSugared(void) const noexcept {
-  auto &self = *const_cast<clang::DependentExtIntType *>(u.DependentExtIntType);
+bool DependentBitIntType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::DependentBitIntType *>(u.DependentBitIntType);
   decltype(auto) val = self.isSugared();
   return val;
   __builtin_unreachable();
 }
 
-bool DependentExtIntType::IsUnsigned(void) const noexcept {
-  auto &self = *const_cast<clang::DependentExtIntType *>(u.DependentExtIntType);
+bool DependentBitIntType::IsUnsigned(void) const noexcept {
+  auto &self = *const_cast<clang::DependentBitIntType *>(u.DependentBitIntType);
   decltype(auto) val = self.isUnsigned();
   return val;
   __builtin_unreachable();
@@ -3559,43 +3643,6 @@ std::optional<::pasta::TagDecl> ElaboratedType::OwnedTagDeclaration(void) const 
 bool ElaboratedType::IsSugared(void) const noexcept {
   auto &self = *const_cast<clang::ElaboratedType *>(u.ElaboratedType);
   decltype(auto) val = self.isSugared();
-  return val;
-  __builtin_unreachable();
-}
-
-PASTA_DEFINE_BASE_OPERATORS(Type, ExtIntType)
-::pasta::Type ExtIntType::Desugar(void) const noexcept {
-  auto &self = *const_cast<clang::ExtIntType *>(u.ExtIntType);
-  decltype(auto) val = self.desugar();
-  assert(!val.isNull());
-  return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
-}
-
-uint32_t ExtIntType::NumBits(void) const noexcept {
-  auto &self = *const_cast<clang::ExtIntType *>(u.ExtIntType);
-  decltype(auto) val = self.getNumBits();
-  return val;
-  __builtin_unreachable();
-}
-
-bool ExtIntType::IsSigned(void) const noexcept {
-  auto &self = *const_cast<clang::ExtIntType *>(u.ExtIntType);
-  decltype(auto) val = self.isSigned();
-  return val;
-  __builtin_unreachable();
-}
-
-bool ExtIntType::IsSugared(void) const noexcept {
-  auto &self = *const_cast<clang::ExtIntType *>(u.ExtIntType);
-  decltype(auto) val = self.isSugared();
-  return val;
-  __builtin_unreachable();
-}
-
-bool ExtIntType::IsUnsigned(void) const noexcept {
-  auto &self = *const_cast<clang::ExtIntType *>(u.ExtIntType);
-  decltype(auto) val = self.isUnsigned();
   return val;
   __builtin_unreachable();
 }
@@ -4759,14 +4806,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DeducedTemplateSpecializationType)
 // 0: DeducedTemplateSpecializationType::TemplateName
 PASTA_DEFINE_BASE_OPERATORS(MatrixType, DependentSizedMatrixType)
 PASTA_DEFINE_BASE_OPERATORS(Type, DependentSizedMatrixType)
-::pasta::Type DependentSizedMatrixType::Desugar(void) const noexcept {
-  auto &self = *const_cast<clang::DependentSizedMatrixType *>(u.DependentSizedMatrixType);
-  decltype(auto) val = self.desugar();
-  assert(!val.isNull());
-  return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
-}
-
 ::pasta::Token DependentSizedMatrixType::AttributeToken(void) const noexcept {
   auto &self = *const_cast<clang::DependentSizedMatrixType *>(u.DependentSizedMatrixType);
   decltype(auto) val = self.getAttributeLoc();
@@ -4785,14 +4824,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentSizedMatrixType)
   __builtin_unreachable();
 }
 
-::pasta::Type DependentSizedMatrixType::ElementType(void) const noexcept {
-  auto &self = *const_cast<clang::DependentSizedMatrixType *>(u.DependentSizedMatrixType);
-  decltype(auto) val = self.getElementType();
-  assert(!val.isNull());
-  return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
-}
-
 ::pasta::Expr DependentSizedMatrixType::RowExpression(void) const noexcept {
   auto &self = *const_cast<clang::DependentSizedMatrixType *>(u.DependentSizedMatrixType);
   decltype(auto) val = self.getRowExpr();
@@ -4801,13 +4832,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentSizedMatrixType)
   }
   assert(false && "DependentSizedMatrixType::RowExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
-}
-
-bool DependentSizedMatrixType::IsSugared(void) const noexcept {
-  auto &self = *const_cast<clang::DependentSizedMatrixType *>(u.DependentSizedMatrixType);
-  decltype(auto) val = self.isSugared();
-  return val;
   __builtin_unreachable();
 }
 

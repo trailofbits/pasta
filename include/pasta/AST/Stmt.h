@@ -94,10 +94,12 @@ class StmtVisitor {
   virtual void VisitOMPIteratorExpr(const OMPIteratorExpr &);
   virtual void VisitOMPLoopBasedDirective(const OMPLoopBasedDirective &);
   virtual void VisitOMPLoopDirective(const OMPLoopDirective &);
+  virtual void VisitOMPLoopTransformationDirective(const OMPLoopTransformationDirective &);
   virtual void VisitOMPMaskedDirective(const OMPMaskedDirective &);
   virtual void VisitOMPMasterDirective(const OMPMasterDirective &);
   virtual void VisitOMPMasterTaskLoopDirective(const OMPMasterTaskLoopDirective &);
   virtual void VisitOMPMasterTaskLoopSimdDirective(const OMPMasterTaskLoopSimdDirective &);
+  virtual void VisitOMPMetaDirective(const OMPMetaDirective &);
   virtual void VisitOMPOrderedDirective(const OMPOrderedDirective &);
   virtual void VisitOMPParallelDirective(const OMPParallelDirective &);
   virtual void VisitOMPParallelForDirective(const OMPParallelForDirective &);
@@ -256,6 +258,7 @@ class StmtVisitor {
   virtual void VisitOMPDistributeSimdDirective(const OMPDistributeSimdDirective &);
   virtual void VisitOMPForDirective(const OMPForDirective &);
   virtual void VisitOMPForSimdDirective(const OMPForSimdDirective &);
+  virtual void VisitOMPGenericLoopDirective(const OMPGenericLoopDirective &);
   virtual void VisitObjCBridgedCastExpr(const ObjCBridgedCastExpr &);
   virtual void VisitUserDefinedLiteral(const UserDefinedLiteral &);
   virtual void VisitBuiltinBitCastExpr(const BuiltinBitCastExpr &);
@@ -406,14 +409,17 @@ class Stmt {
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPFlushDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPForDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPForSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPGenericLoopDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPInteropDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPIteratorExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPLoopBasedDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPLoopDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPLoopTransformationDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPMaskedDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPMasterDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPMasterTaskLoopDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPMasterTaskLoopSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPMetaDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPOrderedDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPParallelDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPParallelForDirective)
@@ -655,14 +661,17 @@ class Stmt {
     const ::clang::OMPFlushDirective *OMPFlushDirective;
     const ::clang::OMPForDirective *OMPForDirective;
     const ::clang::OMPForSimdDirective *OMPForSimdDirective;
+    const ::clang::OMPGenericLoopDirective *OMPGenericLoopDirective;
     const ::clang::OMPInteropDirective *OMPInteropDirective;
     const ::clang::OMPIteratorExpr *OMPIteratorExpr;
     const ::clang::OMPLoopBasedDirective *OMPLoopBasedDirective;
     const ::clang::OMPLoopDirective *OMPLoopDirective;
+    const ::clang::OMPLoopTransformationDirective *OMPLoopTransformationDirective;
     const ::clang::OMPMaskedDirective *OMPMaskedDirective;
     const ::clang::OMPMasterDirective *OMPMasterDirective;
     const ::clang::OMPMasterTaskLoopDirective *OMPMasterTaskLoopDirective;
     const ::clang::OMPMasterTaskLoopSimdDirective *OMPMasterTaskLoopSimdDirective;
+    const ::clang::OMPMetaDirective *OMPMetaDirective;
     const ::clang::OMPOrderedDirective *OMPOrderedDirective;
     const ::clang::OMPParallelDirective *OMPParallelDirective;
     const ::clang::OMPParallelForDirective *OMPParallelForDirective;
@@ -1473,6 +1482,7 @@ class Expr : public ValueStmt {
   ::pasta::Expr IgnoreUnlessSpelledInSource(void) const noexcept;
   bool ContainsErrors(void) const noexcept;
   bool ContainsUnexpandedParameterPack(void) const noexcept;
+  ::pasta::ValueDecl AsBuiltinConstantDeclarationReference(void) const noexcept;
   std::optional<::pasta::CXXRecordDecl> BestDynamicClassType(void) const noexcept;
   ::pasta::Expr BestDynamicClassTypeExpression(void) const noexcept;
   // Dependence: (clang::ExprDependenceScope::ExprDependence)
@@ -1515,6 +1525,7 @@ class Expr : public ValueStmt {
   bool RefersToMatrixElement(void) const noexcept;
   bool RefersToVectorElement(void) const noexcept;
   // TryEvaluateObjectSize: (bool)
+  // TryEvaluateStringLen: (bool)
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(Expr)
 };
@@ -1804,11 +1815,15 @@ class IfStmt : public Stmt {
   ::pasta::Token LParenToken(void) const noexcept;
   // NondiscardedCase: (llvm::Optional<const clang::Stmt *>)
   ::pasta::Token RParenToken(void) const noexcept;
+  enum IfStatementKind StatementKind(void) const noexcept;
   ::pasta::Stmt Then(void) const noexcept;
   bool HasElseStorage(void) const noexcept;
   bool HasInitializerStorage(void) const noexcept;
   bool HasVariableStorage(void) const noexcept;
+  bool IsConsteval(void) const noexcept;
   bool IsConstexpr(void) const noexcept;
+  bool IsNegatedConsteval(void) const noexcept;
+  bool IsNonNegatedConsteval(void) const noexcept;
   bool IsObjCAvailabilityCheck(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(IfStmt)
@@ -2282,13 +2297,16 @@ class OMPExecutableDirective : public Stmt {
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPFlushDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPForDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPForSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPGenericLoopDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPInteropDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPLoopBasedDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPLoopDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPLoopTransformationDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPMaskedDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPMasterDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPMasterTaskLoopDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPMasterTaskLoopSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPMetaDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPOrderedDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelForDirective)
@@ -2418,7 +2436,9 @@ class OMPLoopBasedDirective : public OMPExecutableDirective {
   PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPDistributeSimdDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPForDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPForSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPGenericLoopDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPLoopDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPLoopTransformationDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPMasterTaskLoopDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPMasterTaskLoopSimdDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPParallelForDirective)
@@ -2463,6 +2483,7 @@ class OMPLoopDirective : public OMPLoopBasedDirective {
   PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPDistributeSimdDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPForDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPForSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPGenericLoopDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPMasterTaskLoopDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPMasterTaskLoopSimdDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopDirective, OMPParallelForDirective)
@@ -2528,6 +2549,26 @@ class OMPLoopDirective : public OMPLoopBasedDirective {
 
 static_assert(sizeof(Stmt) == sizeof(OMPLoopDirective));
 
+class OMPLoopTransformationDirective : public OMPLoopBasedDirective {
+ private:
+  using OMPLoopBasedDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPLoopTransformationDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPLoopTransformationDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopBasedDirective, OMPLoopTransformationDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPLoopTransformationDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopTransformationDirective, OMPTileDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPLoopTransformationDirective, OMPUnrollDirective)
+  uint32_t NumAssociatedLoops(void) const noexcept;
+  ::pasta::Stmt PreInitializers(void) const noexcept;
+  ::pasta::Stmt TransformedStatement(void) const noexcept;
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPLoopTransformationDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPLoopTransformationDirective));
+
 class OMPMaskedDirective : public OMPExecutableDirective {
  private:
   using OMPExecutableDirective::From;
@@ -2588,6 +2629,21 @@ class OMPMasterTaskLoopSimdDirective : public OMPLoopDirective {
 };
 
 static_assert(sizeof(Stmt) == sizeof(OMPMasterTaskLoopSimdDirective));
+
+class OMPMetaDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPMetaDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPMetaDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPMetaDirective)
+  ::pasta::Stmt IfStatement(void) const noexcept;
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPMetaDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPMetaDirective));
 
 class OMPOrderedDirective : public OMPExecutableDirective {
  private:
@@ -3179,15 +3235,15 @@ class OMPTeamsDistributeSimdDirective : public OMPLoopDirective {
 
 static_assert(sizeof(Stmt) == sizeof(OMPTeamsDistributeSimdDirective));
 
-class OMPTileDirective : public OMPLoopBasedDirective {
+class OMPTileDirective : public OMPLoopTransformationDirective {
  private:
-  using OMPLoopBasedDirective::From;
+  using OMPLoopTransformationDirective::From;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPTileDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPTileDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopBasedDirective, OMPTileDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopTransformationDirective, OMPTileDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPTileDirective)
-  uint32_t NumAssociatedLoops(void) const noexcept;
   ::pasta::Stmt PreInitializers(void) const noexcept;
   ::pasta::Stmt TransformedStatement(void) const noexcept;
   // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
@@ -3197,13 +3253,14 @@ class OMPTileDirective : public OMPLoopBasedDirective {
 
 static_assert(sizeof(Stmt) == sizeof(OMPTileDirective));
 
-class OMPUnrollDirective : public OMPLoopBasedDirective {
+class OMPUnrollDirective : public OMPLoopTransformationDirective {
  private:
-  using OMPLoopBasedDirective::From;
+  using OMPLoopTransformationDirective::From;
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPUnrollDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPUnrollDirective)
   PASTA_DECLARE_BASE_OPERATORS(OMPLoopBasedDirective, OMPUnrollDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopTransformationDirective, OMPUnrollDirective)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPUnrollDirective)
   ::pasta::Stmt PreInitializers(void) const noexcept;
   ::pasta::Stmt TransformedStatement(void) const noexcept;
@@ -3310,6 +3367,7 @@ class ObjCAtTryStmt : public Stmt {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCAtTryStmt)
   PASTA_DECLARE_BASE_OPERATORS(Stmt, ObjCAtTryStmt)
+  // CatchStatements: (llvm::iterator_range<clang::Stmt::CastIterator<clang::ObjCAtCatchStmt, const clang::ObjCAtCatchStmt *const, const clang::Stmt *const>>)
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   ::pasta::Token AtTryToken(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
@@ -3353,6 +3411,7 @@ class ObjCAvailabilityCheckExpr : public Expr {
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::TokenRange Tokens(void) const noexcept;
+  // Version: (llvm::VersionTuple)
   bool HasVersion(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ObjCAvailabilityCheckExpr)
@@ -5856,6 +5915,22 @@ class OMPForSimdDirective : public OMPLoopDirective {
 };
 
 static_assert(sizeof(Stmt) == sizeof(OMPForSimdDirective));
+
+class OMPGenericLoopDirective : public OMPLoopDirective {
+ private:
+  using OMPLoopDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPGenericLoopDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPGenericLoopDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopBasedDirective, OMPGenericLoopDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPLoopDirective, OMPGenericLoopDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPGenericLoopDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPGenericLoopDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPGenericLoopDirective));
 
 class ObjCBridgedCastExpr : public ExplicitCastExpr {
  private:

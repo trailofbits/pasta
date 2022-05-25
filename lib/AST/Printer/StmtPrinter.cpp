@@ -657,6 +657,12 @@ void StmtPrinter::PrintOMPExecutableDirective(clang::OMPExecutableDirective *S,
     PrintStmt(S->getRawStmt());
 }
 
+void StmtPrinter::VisitOMPMetaDirective(clang::OMPMetaDirective *Node) {
+  TokenPrinterContext ctx(OS, Node, tokens);
+  Indent() << "#pragma omp metadirective";
+  PrintOMPExecutableDirective(Node);
+}
+
 void StmtPrinter::VisitOMPParallelDirective(clang::OMPParallelDirective *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp parallel";
@@ -1022,6 +1028,13 @@ void StmtPrinter::VisitOMPTargetTeamsDistributeParallelForSimdDirective(
 void StmtPrinter::VisitOMPMaskedDirective(clang::OMPMaskedDirective *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   Indent() << "#pragma omp masked";
+  PrintOMPExecutableDirective(Node);
+}
+
+void StmtPrinter::VisitOMPGenericLoopDirective(
+      clang::OMPGenericLoopDirective *Node) {
+  TokenPrinterContext ctx(OS, Node, tokens);
+  Indent() << "#pragma omp loop";
   PrintOMPExecutableDirective(Node);
 }
 

@@ -176,17 +176,19 @@ bool TypePrinter::canPrefixQualifiers(const clang::Type *T,
   // type expands to a simple string.
   bool CanPrefixQualifiers = false;
   NeedARCStrongQualifier = false;
-  clang::Type::TypeClass TC = T->getTypeClass();
+  const clang::Type *UnderlyingType = T;
   if (const auto *AT = clang::dyn_cast<clang::AutoType>(T))
-    TC = AT->desugar()->getTypeClass();
+    UnderlyingType = AT->desugar().getTypePtr();
   if (const auto *Subst = clang::dyn_cast<clang::SubstTemplateTypeParmType>(T))
-    TC = Subst->getReplacementType()->getTypeClass();
+    UnderlyingType = Subst->getReplacementType().getTypePtr();
+  clang::Type::TypeClass TC = UnderlyingType->getTypeClass();
 
   switch (TC) {
     case clang::Type::Auto:
     case clang::Type::Builtin:
     case clang::Type::Complex:
     case clang::Type::UnresolvedUsing:
+    case clang::Type::Using:
     case clang::Type::Typedef:
     case clang::Type::TypeOfExpr:
     case clang::Type::TypeOf:
@@ -207,8 +209,8 @@ bool TypePrinter::canPrefixQualifiers(const clang::Type *T,
     case clang::Type::ObjCInterface:
     case clang::Type::Atomic:
     case clang::Type::Pipe:
-    case clang::Type::ExtInt:
-    case clang::Type::DependentExtInt:
+    case clang::Type::BitInt:
+    case clang::Type::DependentBitInt:
       CanPrefixQualifiers = true;
       break;
 
@@ -217,12 +219,16 @@ bool TypePrinter::canPrefixQualifiers(const clang::Type *T,
         T->isObjCQualifiedIdType() || T->isObjCQualifiedClassType();
       break;
 
-    case clang::Type::ConstantArray:
-    case clang::Type::IncompleteArray:
     case clang::Type::VariableArray:
     case clang::Type::DependentSizedArray:
       NeedARCStrongQualifier = true;
       LLVM_FALLTHROUGH;
+
+    case clang::Type::ConstantArray:
+    case clang::Type::IncompleteArray:
+      return canPrefixQualifiers(
+          clang::cast<clang::ArrayType>(UnderlyingType)->getElementType().getTypePtr(),
+          NeedARCStrongQualifier);
 
     case clang::Type::Adjusted:
     case clang::Type::Decayed:
@@ -250,7 +256,7 @@ bool TypePrinter::canPrefixQualifiers(const clang::Type *T,
     case clang::Type::Attributed: {
       // We still want to print the address_space before the type if it is an
       // address_space attribute.
-      const auto *AttrTy = clang::cast<clang::AttributedType>(T);
+      const auto *AttrTy = clang::cast<clang::AttributedType>(UnderlyingType);
       CanPrefixQualifiers = AttrTy->getAttrKind() == clang::attr::AddressSpace;
     }
   }
@@ -1755,6 +1761,38 @@ void TypePrinter::printUnresolvedUsing(const clang::UnresolvedUsingType *T,
 //void TypePrinter::printUnresolvedUsingAfter(const clang::UnresolvedUsingType *T,
 //                                            raw_string_ostream &OS) {}
 
+void TypePrinter::printUsing(const clang::UsingType *T,
+                             raw_string_ostream &OS,
+                             std::function<void(void)> IdentFn) {
+  TokenPrinterContext ctx(OS, T, tokens);
+  // After `namespace b { using a::X }`, is the type X within B a::X or b::X?
+  //
+  // - b::X is more formally correct given the UsingType model
+  // - b::X makes sense if "re-exporting" a symbol in a new namespace
+  // - a::X makes sense if "importing" a symbol for convenience
+  //
+  // The "importing" use seems much more common, so we print a::X.
+  // This could be a policy option, but the right choice seems to rest more
+  // with the intent of the code than the caller.
+  printTypeSpec(T->getFoundDecl()->getUnderlyingDecl(), OS);
+  IdentFn();
+}
+
+// void TypePrinter::printUsingBefore(const UsingType *T, raw_ostream &OS) {
+//   // After `namespace b { using a::X }`, is the type X within B a::X or b::X?
+//   //
+//   // - b::X is more formally correct given the UsingType model
+//   // - b::X makes sense if "re-exporting" a symbol in a new namespace
+//   // - a::X makes sense if "importing" a symbol for convenience
+//   //
+//   // The "importing" use seems much more common, so we print a::X.
+//   // This could be a policy option, but the right choice seems to rest more
+//   // with the intent of the code than the caller.
+//   printTypeSpec(T->getFoundDecl()->getUnderlyingDecl(), OS);
+// }
+
+// void TypePrinter::printUsingAfter(const UsingType *T, raw_ostream &OS) {}
+
 void TypePrinter::printTypedef(const clang::TypedefType *T,
                                raw_string_ostream &OS,
                                std::function<void(void)> IdentFn) {
@@ -2088,13 +2126,13 @@ void TypePrinter::printPipe(const clang::PipeType *T, raw_string_ostream &OS,
 //
 //void TypePrinter::printPipeAfter(const clang::PipeType *T, raw_string_ostream &OS) {}
 
-void TypePrinter::printExtInt(const clang::ExtIntType *T,
+void TypePrinter::printBitInt(const clang::BitIntType *T,
                               raw_string_ostream &OS,
                               std::function<void(void)> IdentFn) {
   TokenPrinterContext ctx(OS, T, tokens);
   if (T->isUnsigned())
     OS << "unsigned ";
-  OS << "_ExtInt(" << T->getNumBits() << ")";
+  OS << "_BitInt(" << T->getNumBits() << ")";
   spaceBeforePlaceHolder(OS);
   IdentFn();
 }
@@ -2109,13 +2147,13 @@ void TypePrinter::printExtInt(const clang::ExtIntType *T,
 //
 //void TypePrinter::printExtIntAfter(const clang::ExtIntType *T, raw_string_ostream &OS) {}
 
-void TypePrinter::printDependentExtInt(const clang::DependentExtIntType *T,
+void TypePrinter::printDependentBitInt(const clang::DependentBitIntType *T,
                                        raw_string_ostream &OS,
                                        std::function<void(void)> IdentFn) {
   TokenPrinterContext ctx(OS, T, tokens);
   if (T->isUnsigned())
     OS << "unsigned ";
-  OS << "_ExtInt(";
+  OS << "_BitInt(";
   {
     StmtPrinter stmtPrinter(OS, nullptr, tokens, Policy, 0, "\n",
                             &(tokens.ast_context));
@@ -2890,6 +2928,9 @@ void TypePrinter::printAttributed(const clang::AttributedType *T,
           break;
         case clang::attr::ArmMveStrictPolymorphism:
           OS << "__clang_arm_mve_strict_polymorphism";
+          break;
+        case clang::attr::BTFTypeTag:
+          OS << "btf_type_tag";
           break;
         }
         OS << "))";

@@ -80,8 +80,10 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
   } else {
     os << "  auto &self = *const_cast<clang::" << class_name << " *>(u." << class_name << ");\n";
   }
+  auto handled_null_ret = false;
   if (auto it = kConditionalNullptr.find(null_key); it != kConditionalNullptr.end()) {
     os << it->second;
+    handled_null_ret = true;
   }
   os << "  decltype(auto) val = self." << meth_name_ref.str() << "();\n";
   if (rt_ref.endswith("QualType)")) {
@@ -111,7 +113,7 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
          << "  __builtin_unreachable();\n";
     }
   } else {
-    assert(!can_ret_null);
+    assert(!can_ret_null || handled_null_ret);
     os << rt_val;
   }
 
@@ -158,8 +160,10 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
     } else {
       os << "  auto &self = *(u." << class_name << ");\n";
     }
+    auto handled_null_ret = false;
     if (auto it = kConditionalNullptr.find(null_key); it != kConditionalNullptr.end()) {
       os << it->second;
+      handled_null_ret = true;
     }
     os << "  decltype(auto) val = self." << meth_name_ref.str() << "(ast->ci->getASTContext());\n";
     if (rt_ref.endswith("QualType)")) {
@@ -187,7 +191,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
            << "  __builtin_unreachable();\n";
       }
     } else {
-      assert(!can_ret_null);
+      assert(!can_ret_null || handled_null_ret);
       os << rt_val;
     }
     os << "  __builtin_unreachable();\n"

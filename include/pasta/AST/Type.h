@@ -45,12 +45,14 @@ class TypeVisitor {
   virtual void VisitTypedefType(const TypedefType &);
   virtual void VisitUnaryTransformType(const UnaryTransformType &);
   virtual void VisitUnresolvedUsingType(const UnresolvedUsingType &);
+  virtual void VisitUsingType(const UsingType &);
   virtual void VisitVectorType(const VectorType &);
   virtual void VisitTypeWithKeyword(const TypeWithKeyword &);
   virtual void VisitAdjustedType(const AdjustedType &);
   virtual void VisitArrayType(const ArrayType &);
   virtual void VisitAtomicType(const AtomicType &);
   virtual void VisitAttributedType(const AttributedType &);
+  virtual void VisitBitIntType(const BitIntType &);
   virtual void VisitBlockPointerType(const BlockPointerType &);
   virtual void VisitBuiltinType(const BuiltinType &);
   virtual void VisitComplexType(const ComplexType &);
@@ -59,14 +61,13 @@ class TypeVisitor {
   virtual void VisitDecltypeType(const DecltypeType &);
   virtual void VisitDeducedType(const DeducedType &);
   virtual void VisitDependentAddressSpaceType(const DependentAddressSpaceType &);
-  virtual void VisitDependentExtIntType(const DependentExtIntType &);
+  virtual void VisitDependentBitIntType(const DependentBitIntType &);
   virtual void VisitDependentNameType(const DependentNameType &);
   virtual void VisitDependentSizedArrayType(const DependentSizedArrayType &);
   virtual void VisitDependentSizedExtVectorType(const DependentSizedExtVectorType &);
   virtual void VisitDependentTemplateSpecializationType(const DependentTemplateSpecializationType &);
   virtual void VisitDependentVectorType(const DependentVectorType &);
   virtual void VisitElaboratedType(const ElaboratedType &);
-  virtual void VisitExtIntType(const ExtIntType &);
   virtual void VisitExtVectorType(const ExtVectorType &);
   virtual void VisitFunctionType(const FunctionType &);
   virtual void VisitIncompleteArrayType(const IncompleteArrayType &);
@@ -116,12 +117,14 @@ class Type {
     const ::clang::TypedefType *TypedefType;
     const ::clang::UnaryTransformType *UnaryTransformType;
     const ::clang::UnresolvedUsingType *UnresolvedUsingType;
+    const ::clang::UsingType *UsingType;
     const ::clang::VectorType *VectorType;
     const ::clang::TypeWithKeyword *TypeWithKeyword;
     const ::clang::AdjustedType *AdjustedType;
     const ::clang::ArrayType *ArrayType;
     const ::clang::AtomicType *AtomicType;
     const ::clang::AttributedType *AttributedType;
+    const ::clang::BitIntType *BitIntType;
     const ::clang::BlockPointerType *BlockPointerType;
     const ::clang::BuiltinType *BuiltinType;
     const ::clang::ComplexType *ComplexType;
@@ -130,14 +133,13 @@ class Type {
     const ::clang::DecltypeType *DecltypeType;
     const ::clang::DeducedType *DeducedType;
     const ::clang::DependentAddressSpaceType *DependentAddressSpaceType;
-    const ::clang::DependentExtIntType *DependentExtIntType;
+    const ::clang::DependentBitIntType *DependentBitIntType;
     const ::clang::DependentNameType *DependentNameType;
     const ::clang::DependentSizedArrayType *DependentSizedArrayType;
     const ::clang::DependentSizedExtVectorType *DependentSizedExtVectorType;
     const ::clang::DependentTemplateSpecializationType *DependentTemplateSpecializationType;
     const ::clang::DependentVectorType *DependentVectorType;
     const ::clang::ElaboratedType *ElaboratedType;
-    const ::clang::ExtIntType *ExtIntType;
     const ::clang::ExtVectorType *ExtVectorType;
     const ::clang::FunctionType *FunctionType;
     const ::clang::IncompleteArrayType *IncompleteArrayType;
@@ -200,6 +202,7 @@ class Type {
   PASTA_DECLARE_DERIVED_OPERATORS(Type, AtomicType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, AttributedType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, AutoType)
+  PASTA_DECLARE_DERIVED_OPERATORS(Type, BitIntType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, BlockPointerType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, BuiltinType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, ComplexType)
@@ -210,7 +213,7 @@ class Type {
   PASTA_DECLARE_DERIVED_OPERATORS(Type, DeducedTemplateSpecializationType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, DeducedType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, DependentAddressSpaceType)
-  PASTA_DECLARE_DERIVED_OPERATORS(Type, DependentExtIntType)
+  PASTA_DECLARE_DERIVED_OPERATORS(Type, DependentBitIntType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, DependentNameType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, DependentSizedArrayType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, DependentSizedExtVectorType)
@@ -219,7 +222,6 @@ class Type {
   PASTA_DECLARE_DERIVED_OPERATORS(Type, DependentVectorType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, ElaboratedType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, EnumType)
-  PASTA_DECLARE_DERIVED_OPERATORS(Type, ExtIntType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, ExtVectorType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, FunctionNoProtoType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, FunctionProtoType)
@@ -252,6 +254,7 @@ class Type {
   PASTA_DECLARE_DERIVED_OPERATORS(Type, TypedefType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, UnaryTransformType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, UnresolvedUsingType)
+  PASTA_DECLARE_DERIVED_OPERATORS(Type, UsingType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, VariableArrayType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, VectorType)
   inline bool operator==(const Type &that) const noexcept {
@@ -325,6 +328,7 @@ class Type {
   bool IsArrayType(void) const noexcept;
   bool IsAtomicType(void) const noexcept;
   bool IsBFloat16Type(void) const noexcept;
+  bool IsBitIntType(void) const noexcept;
   bool IsBlockCompatibleObjCPointerType(void) const noexcept;
   bool IsBlockPointerType(void) const noexcept;
   bool IsBooleanType(void) const noexcept;
@@ -352,7 +356,6 @@ class Type {
   bool IsElaboratedTypeSpecifier(void) const noexcept;
   bool IsEnumeralType(void) const noexcept;
   bool IsEventT(void) const noexcept;
-  bool IsExtIntType(void) const noexcept;
   bool IsExtVectorType(void) const noexcept;
   bool IsFixedPointOrIntegerType(void) const noexcept;
   bool IsFixedPointType(void) const noexcept;
@@ -367,6 +370,7 @@ class Type {
   bool IsFunctionType(void) const noexcept;
   bool IsFundamentalType(void) const noexcept;
   bool IsHalfType(void) const noexcept;
+  bool IsIbm128Type(void) const noexcept;
   bool IsImageType(void) const noexcept;
   bool IsIncompleteArrayType(void) const noexcept;
   bool IsIncompleteOrObjectType(void) const noexcept;
@@ -653,6 +657,21 @@ class UnresolvedUsingType : public Type {
 };
 static_assert(sizeof(Type) == sizeof(UnresolvedUsingType));
 
+class UsingType : public Type {
+ private:
+  using Type::Type;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UsingType)
+  PASTA_DECLARE_BASE_OPERATORS(Type, UsingType)
+  ::pasta::Type Desugar(void) const noexcept;
+  ::pasta::UsingShadowDecl FoundDeclaration(void) const noexcept;
+  ::pasta::Type UnderlyingType(void) const noexcept;
+  bool IsSugared(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(UsingType)
+};
+static_assert(sizeof(Type) == sizeof(UsingType));
+
 class VectorType : public Type {
  private:
   using Type::Type;
@@ -753,6 +772,22 @@ class AttributedType : public Type {
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(AttributedType)
 };
 static_assert(sizeof(Type) == sizeof(AttributedType));
+
+class BitIntType : public Type {
+ private:
+  using Type::Type;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(BitIntType)
+  PASTA_DECLARE_BASE_OPERATORS(Type, BitIntType)
+  ::pasta::Type Desugar(void) const noexcept;
+  uint32_t NumBits(void) const noexcept;
+  bool IsSigned(void) const noexcept;
+  bool IsSugared(void) const noexcept;
+  bool IsUnsigned(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(BitIntType)
+};
+static_assert(sizeof(Type) == sizeof(BitIntType));
 
 class BlockPointerType : public Type {
  private:
@@ -884,21 +919,21 @@ class DependentAddressSpaceType : public Type {
 };
 static_assert(sizeof(Type) == sizeof(DependentAddressSpaceType));
 
-class DependentExtIntType : public Type {
+class DependentBitIntType : public Type {
  private:
   using Type::Type;
  public:
-  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentExtIntType)
-  PASTA_DECLARE_BASE_OPERATORS(Type, DependentExtIntType)
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentBitIntType)
+  PASTA_DECLARE_BASE_OPERATORS(Type, DependentBitIntType)
   ::pasta::Type Desugar(void) const noexcept;
   ::pasta::Expr NumBitsExpression(void) const noexcept;
   bool IsSigned(void) const noexcept;
   bool IsSugared(void) const noexcept;
   bool IsUnsigned(void) const noexcept;
  protected:
-  PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentExtIntType)
+  PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentBitIntType)
 };
-static_assert(sizeof(Type) == sizeof(DependentExtIntType));
+static_assert(sizeof(Type) == sizeof(DependentBitIntType));
 
 class DependentNameType : public TypeWithKeyword {
  private:
@@ -1008,22 +1043,6 @@ class ElaboratedType : public TypeWithKeyword {
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ElaboratedType)
 };
 static_assert(sizeof(Type) == sizeof(ElaboratedType));
-
-class ExtIntType : public Type {
- private:
-  using Type::Type;
- public:
-  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ExtIntType)
-  PASTA_DECLARE_BASE_OPERATORS(Type, ExtIntType)
-  ::pasta::Type Desugar(void) const noexcept;
-  uint32_t NumBits(void) const noexcept;
-  bool IsSigned(void) const noexcept;
-  bool IsSugared(void) const noexcept;
-  bool IsUnsigned(void) const noexcept;
- protected:
-  PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ExtIntType)
-};
-static_assert(sizeof(Type) == sizeof(ExtIntType));
 
 class ExtVectorType : public VectorType {
  private:
@@ -1470,12 +1489,9 @@ class DependentSizedMatrixType : public MatrixType {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentSizedMatrixType)
   PASTA_DECLARE_BASE_OPERATORS(MatrixType, DependentSizedMatrixType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DependentSizedMatrixType)
-  ::pasta::Type Desugar(void) const noexcept;
   ::pasta::Token AttributeToken(void) const noexcept;
   ::pasta::Expr ColumnExpression(void) const noexcept;
-  ::pasta::Type ElementType(void) const noexcept;
   ::pasta::Expr RowExpression(void) const noexcept;
-  bool IsSugared(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentSizedMatrixType)
 };

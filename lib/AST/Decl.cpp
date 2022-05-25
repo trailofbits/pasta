@@ -783,6 +783,17 @@ std::optional<::pasta::Decl> DeclContext::NonClosureAncestor(void) const noexcep
   __builtin_unreachable();
 }
 
+::pasta::DeclContext DeclContext::NonTransparentContext(void) const noexcept {
+  auto &self = *const_cast<clang::DeclContext *>(u.DeclContext);
+  decltype(auto) val = self.getNonTransparentContext();
+  if (val) {
+    return ::pasta::DeclContext(ast, val);
+  }
+  assert(false && "DeclContext::NonTransparentContext can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::optional<::pasta::RecordDecl> DeclContext::OuterLexicalRecordContext(void) const noexcept {
   auto &self = *const_cast<clang::DeclContext *>(u.DeclContext);
   decltype(auto) val = self.getOuterLexicalRecordContext();
@@ -1400,6 +1411,13 @@ bool Decl::IsFunctionOrFunctionTemplate(void) const noexcept {
 bool Decl::IsInAnonymousNamespace(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.isInAnonymousNamespace();
+  return val;
+  __builtin_unreachable();
+}
+
+bool Decl::IsInExportDeclarationContext(void) const noexcept {
+  auto &self = *const_cast<clang::Decl *>(u.Decl);
+  decltype(auto) val = self.isInExportDeclContext();
   return val;
   __builtin_unreachable();
 }
@@ -2280,6 +2298,7 @@ std::vector<::pasta::ObjCPropertyDecl> ObjCContainerDecl::ClassProperties(void) 
 // 1: ObjCContainerDecl::InstanceMethod
 // 1: ObjCContainerDecl::InstanceVariableDeclaration
 // 2: Method
+// 2: Property
 std::vector<::pasta::ObjCMethodDecl> ObjCContainerDecl::InstanceMethods(void) const noexcept {
   auto &self = *const_cast<clang::ObjCContainerDecl *>(u.ObjCContainerDecl);
   decltype(auto) val = self.instance_methods();
@@ -2964,6 +2983,13 @@ enum DeclObjCDeclQualifier ObjCMethodDecl::ObjCDeclQualifier(void) const noexcep
 }
 
 // 4: ObjCMethodDecl::SelfType
+bool ObjCMethodDecl::HasParameterDestroyedInCallee(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCMethodDecl *>(u.ObjCMethodDecl);
+  decltype(auto) val = self.hasParamDestroyedInCallee();
+  return val;
+  __builtin_unreachable();
+}
+
 bool ObjCMethodDecl::HasRedeclaration(void) const noexcept {
   auto &self = *const_cast<clang::ObjCMethodDecl *>(u.ObjCMethodDecl);
   decltype(auto) val = self.hasRedeclaration();
@@ -4885,6 +4911,13 @@ PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXConversionDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXDeductionGuideDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXDestructorDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXMethodDecl)
+bool FunctionDecl::UsesFPIntrin(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  decltype(auto) val = self.UsesFPIntrin();
+  return val;
+  __builtin_unreachable();
+}
+
 std::optional<bool> FunctionDecl::DoesDeclarationForceExternallyVisibleDefinition(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   if (self.doesThisDeclarationHaveABody()) {
@@ -5447,6 +5480,13 @@ std::optional<bool> FunctionDecl::IsReservedGlobalPlacementOperator(void) const 
 bool FunctionDecl::IsStatic(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.isStatic();
+  return val;
+  __builtin_unreachable();
+}
+
+bool FunctionDecl::IsTargetClonesMultiVersion(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  decltype(auto) val = self.isTargetClonesMultiVersion();
   return val;
   __builtin_unreachable();
 }
@@ -6284,6 +6324,17 @@ enum ObjCIvarDeclAccessControl ObjCIvarDecl::CanonicalAccessControl(void) const 
   auto &self = *const_cast<clang::ObjCIvarDecl *>(u.ObjCIvarDecl);
   decltype(auto) val = self.getCanonicalAccessControl();
   return static_cast<::pasta::ObjCIvarDeclAccessControl>(val);
+  __builtin_unreachable();
+}
+
+::pasta::ObjCIvarDecl ObjCIvarDecl::CanonicalDeclaration(void) const noexcept {
+  auto &self = *const_cast<clang::ObjCIvarDecl *>(u.ObjCIvarDecl);
+  decltype(auto) val = self.getCanonicalDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::ObjCIvarDecl>(ast, val);
+  }
+  assert(false && "ObjCIvarDecl::CanonicalDeclaration can return nullptr!");
+  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -9651,6 +9702,13 @@ std::optional<bool> CXXRecordDecl::HasInheritedConstructor(void) const noexcept 
     return std::nullopt;
   }
   decltype(auto) val = self.hasInheritedConstructor();
+  return val;
+  __builtin_unreachable();
+}
+
+bool CXXRecordDecl::HasInitializerMethod(void) const noexcept {
+  auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  decltype(auto) val = self.hasInitMethod();
   return val;
   __builtin_unreachable();
 }

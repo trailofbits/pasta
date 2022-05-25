@@ -78,13 +78,22 @@ void GenerateForwardH(void) {
   sep = "";
   for (const auto &name_ : gStmtNames) {
     llvm::StringRef name(name_);
-    if (name == "Stmt" || name == "AbstractConditionalOperator" ||
-        name == "AsmStmt" || name == "SwitchCase" || name == "ValueStmt" ||
-        name == "Expr" || name == "CoroutineSuspendExpr" ||
-        name == "ExplicitCastExpr" || name == "FullExpr" ||
-        name == "OverloadExpr" || name == "CastExpr" ||
-        name == "CXXNamedCastExpr" || name == "OMPExecutableDirective" ||
-        name == "OMPLoopDirective" || name == "OMPLoopBasedDirective") {
+    if (name == "Stmt" ||
+        name == "AbstractConditionalOperator" ||
+        name == "AsmStmt" ||
+        name == "SwitchCase" ||
+        name == "ValueStmt" ||
+        name == "Expr" ||
+        name == "CoroutineSuspendExpr" ||
+        name == "ExplicitCastExpr" ||
+        name == "FullExpr" ||
+        name == "OverloadExpr" ||
+        name == "CastExpr" ||
+        name == "CXXNamedCastExpr" ||
+        name == "OMPExecutableDirective" ||
+        name == "OMPLoopDirective" ||
+        name == "OMPLoopBasedDirective" ||
+        name == "OMPLoopTransformationDirective") {
       os << sep << "    a(" << name.str() << ")";  // Abstract.
     } else if (name.endswith("Stmt") || name == "OMPCanonicalLoop") {
       os << sep << "    s(" << name.str() << ")";

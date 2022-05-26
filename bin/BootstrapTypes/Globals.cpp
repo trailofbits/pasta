@@ -1039,6 +1039,8 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"CXXPseudoDestructorExpr", "ScopeType"},
   {"TypeAliasTemplateDecl", "InstantiatedFromMemberTemplate"},
   {"NonTypeTemplateParmDecl", "DefaultArgument"},
+  {"Type", "StripObjCKindOfType"},
+  {"NonTypeTemplateParmDecl", "NumExpansionTypes"},
 
 //  {"FunctionProtoType", "EllipsisToken"},
 //  {"FunctionDecl", "EllipsisToken"},
@@ -1065,6 +1067,10 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  }\n"},
   {{"CXXDependentScopeMemberExpr", "Base"},
    "  if (self.isImplicitAccess()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"NonTypeTemplateParmDecl", "NumExpansionTypes"},
+   "  if (!self.isExpandedParameterPack()) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
   {{"NonTypeTemplateParmDecl", "ExpansionTypes"},
@@ -1420,6 +1426,8 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
   {{"CXXRecordDecl", "ImplicitCopyConstructorHasConstParameter"},SELF_IS_DEFINITION},
   {{"CXXRecordDecl", "IsAbstract"}, SELF_IS_DEFINITION},
   {{"CXXRecordDecl", "IsAggregate"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsStructural"}, SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "IsLiteral"}, SELF_IS_DEFINITION},
   {{"CXXRecordDecl", "IsAnyDestructorNoReturn"}, SELF_IS_DEFINITION},
   {{"CXXRecordDecl", "IsCLike"}, SELF_IS_DEFINITION},
   {{"CXXRecordDecl", "IsCXX11StandardLayout"}, SELF_IS_DEFINITION},
@@ -1542,6 +1550,34 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  }\n"},
 
   {{"Type", "IsAggregateType"},
+   "  if (auto klass = self.getAsCXXRecordDecl()) {\n"
+   "    if (!klass->getDefinition()) {\n"
+   "      return std::nullopt;\n"
+   "    }\n"
+   "  }\n"},
+  
+  {{"Type", "IsPODType"},
+   "  if (auto klass = self.getAsCXXRecordDecl()) {\n"
+   "    if (!klass->getDefinition()) {\n"
+   "      return std::nullopt;\n"
+   "    }\n"
+   "  }\n"},
+
+  {{"Type", "IsCXX11PODType"},
+   "  if (auto klass = self.getAsCXXRecordDecl()) {\n"
+   "    if (!klass->getDefinition()) {\n"
+   "      return std::nullopt;\n"
+   "    }\n"
+   "  }\n"},
+  
+  {{"Type", "IsCXX98PODType"},
+   "  if (auto klass = self.getAsCXXRecordDecl()) {\n"
+   "    if (!klass->getDefinition()) {\n"
+   "      return std::nullopt;\n"
+   "    }\n"
+   "  }\n"},
+
+  {{"Type", "IsStructuralType"},
    "  if (auto klass = self.getAsCXXRecordDecl()) {\n"
    "    if (!klass->getDefinition()) {\n"
    "      return std::nullopt;\n"

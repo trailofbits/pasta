@@ -2011,8 +2011,13 @@ bool Type::IsStdByteType(void) const noexcept {
   __builtin_unreachable();
 }
 
-bool Type::IsStructuralType(void) const noexcept {
+std::optional<bool> Type::IsStructuralType(void) const noexcept {
   auto &self = *const_cast<clang::Type *>(u.Type);
+  if (auto klass = self.getAsCXXRecordDecl()) {
+    if (!klass->getDefinition()) {
+      return std::nullopt;
+    }
+  }
   decltype(auto) val = self.isStructuralType();
   return val;
   __builtin_unreachable();

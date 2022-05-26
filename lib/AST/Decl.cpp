@@ -5807,6 +5807,9 @@ std::optional<::pasta::Expr> NonTypeTemplateParmDecl::DefaultArgument(void) cons
 // 1: NonTypeTemplateParmDecl::ExpansionType
 std::optional<uint32_t> NonTypeTemplateParmDecl::NumExpansionTypes(void) const noexcept {
   auto &self = *const_cast<clang::NonTypeTemplateParmDecl *>(u.NonTypeTemplateParmDecl);
+  if (!self.isExpandedParameterPack()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getNumExpansionTypes();
   return val;
   __builtin_unreachable();

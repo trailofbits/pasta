@@ -491,7 +491,7 @@ class Type {
   bool IsSpecifierType(void) const noexcept;
   std::optional<bool> IsStandardLayoutType(void) const noexcept;
   bool IsStdByteType(void) const noexcept;
-  bool IsStructuralType(void) const noexcept;
+  std::optional<bool> IsStructuralType(void) const noexcept;
   bool IsStructureOrClassType(void) const noexcept;
   bool IsStructureType(void) const noexcept;
   bool IsTemplateTypeParmType(void) const noexcept;

@@ -11,6 +11,7 @@
 namespace {
 
 static const std::string gTypeClassName{"Type"};
+static std::set<std::pair<std::string, std::string>> existing_methods;
 
 static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
                              llvm::StringRef meth_name_ref,
@@ -59,6 +60,12 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
 
   if (rt_type.empty() || rt_val.empty()) {
     os << "// 0: " << real_class_name << "::" << meth_name << "\n";
+    return;
+  }
+
+  auto meth_key = std::make_pair(class_name, meth_name);
+  auto [_, added] = existing_methods.insert(meth_key);
+  if (!added) {
     return;
   }
 
@@ -115,6 +122,7 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
   } else {
     assert(!can_ret_null || handled_null_ret);
     os << rt_val;
+    (void) handled_null_ret;
   }
 
   os << "  __builtin_unreachable();\n"
@@ -193,6 +201,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
     } else {
       assert(!can_ret_null || handled_null_ret);
       os << rt_val;
+      (void) handled_null_ret;
     }
     os << "  __builtin_unreachable();\n"
        << "}\n\n";
@@ -257,12 +266,20 @@ static void DefineIterators(std::ostream &os, const std::string &class_name) {
     auto &rt_val = gRetTypeToValMap[iterator.elem_type];
     os << "std::vector<" << rt_type << "> " << class_name << "::"
        << iterator.cxx_method << "(void) const noexcept {\n"
-       << "  auto convert_elem = [&] ("
+       << "  std::vector<" << rt_type << "> ret;\n";
+
+    std::pair<std::string, std::string> null_key(class_name, iterator.cxx_method);
+    if (auto null_it = kConditionalNullptr.find(null_key); null_it != kConditionalNullptr.end()) {
+      os << null_it->second;
+    }
+
+    os << "  auto convert_elem = [&] ("
        << iterator.elem_type.substr(1, iterator.elem_type.size() - 2)
        << " val) {\n";
 
     std::stringstream ss;
     ss << rt_val;
+
     auto last_is_rbrace = false;
     for (std::string line; std::getline(ss, line); line.clear()) {
       os << "  " << line << "\n";
@@ -274,7 +291,6 @@ static void DefineIterators(std::ostream &os, const std::string &class_name) {
     }
 
     os << "  };\n"
-       << "  std::vector<" << rt_type << "> ret;\n"
        << "  auto count = u." << class_name << "->"
        << iterator.counter_method << "();\n"
        << "  decltype(count) i = 0;\n"

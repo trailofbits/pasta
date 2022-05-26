@@ -55,6 +55,9 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   {"StmtClass", "Kind"},
   {"StmtClassName", "KindName"},
 
+  {"TypeSourceInfo", "Type"},
+  {"TypeInfo", "Type"},
+
   // Things to fixup.
   {"AdjustedType", "ResolvedType"},
   {"DeducedType", "ResolvedType"},
@@ -1002,6 +1005,7 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"FieldDecl", "CapturedVLAType"},
   {"ElaboratedType", "OwnedTagDeclaration"},
   {"DeclaratorDecl", "TypeSourceInfo"},
+  {"DeclaratorDecl", "Type"},
   {"Decl", "PreviousDeclaration"},
   {"TypeAliasTemplateDecl", "PreviousDeclaration"},
   {"VarTemplateDecl", "PreviousDeclaration"},
@@ -1011,7 +1015,30 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"EnumDecl", "PreviousDeclaration"},
   {"RecordDecl", "PreviousDeclaration"},
   {"RecordDecl", "FirstNamedDataMember"},
-
+  {"Expr", "AsBuiltinConstantDeclarationReference"},
+  {"CXXMethodDecl", "ThisObjectType"},
+  {"CXXMethodDecl", "ThisType"},
+  {"TemplateSpecializationType", "AliasedType"},
+  {"DeducedType", "ResolvedType"},
+  {"AutoType", "TypeConstraintConcept"},
+  {"CXXRecordDecl", "HasInitializerMethod"},
+  {"TemplateTypeParmDecl", "DefaultArgument"},
+  {"FunctionProtoType", "CanThrow"},
+  {"FunctionProtoType", "IsNothrow"},
+  {"TemplateTypeParmDecl", "DefaultArgumentInfo"},
+  {"TemplateTypeParmType", "Declaration"},
+  {"Type", "StripObjCKindOfType"},
+  {"NonTypeTemplateParmDecl", "PlaceholderTypeConstraint"},
+  {"NonTypeTemplateParmDecl", "NumExpansionTypes"},
+  {"CXXDependentScopeMemberExpr", "Base"},
+  {"OverloadExpr", "NamingClass"},
+  {"UnresolvedLookupExpr", "NamingClass"},
+  {"ClassTemplateSpecializationDecl", "TypeAsWritten"},
+  {"Expr", "Type"},
+  {"FriendDecl", "FriendType"},
+  {"CXXPseudoDestructorExpr", "ScopeType"},
+  {"TypeAliasTemplateDecl", "InstantiatedFromMemberTemplate"},
+  {"NonTypeTemplateParmDecl", "DefaultArgument"},
 
 //  {"FunctionProtoType", "EllipsisToken"},
 //  {"FunctionDecl", "EllipsisToken"},
@@ -1024,6 +1051,58 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
 };
 
 std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
+  {{"CXXPseudoDestructorExpr", "ScopeType"},
+   "  if (!self.getScopeTypeInfo()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"FriendDecl", "FriendType"},
+   "  if (!self.getFriendType()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"ClassTemplateSpecializationDecl", "TypeAsWritten"},
+   "  if (!self.getTypeAsWritten()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"CXXDependentScopeMemberExpr", "Base"},
+   "  if (self.isImplicitAccess()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"NonTypeTemplateParmDecl", "ExpansionTypes"},
+   "  if (!u.NonTypeTemplateParmDecl->isExpandedParameterPack()) {\n"
+   "    return ret;\n"  // Vector from derived iterator.
+   "  }\n"},
+  {{"FunctionProtoType", "CanThrow"},
+   "  switch (self.getExceptionSpecType()) {\n"
+   "    case clang::EST_Unparsed:\n"
+   "    case clang::EST_Unevaluated:\n"
+   "    case clang::EST_Uninstantiated:\n"
+   "      return std::nullopt;\n"
+   "    default: break;\n"
+   "  }\n"},
+  {{"FunctionProtoType", "IsNothrow"},
+   "  switch (self.getExceptionSpecType()) {\n"
+   "    case clang::EST_Unparsed:\n"
+   "    case clang::EST_Unevaluated:\n"
+   "    case clang::EST_Uninstantiated:\n"
+   "      return std::nullopt;\n"
+   "    default: break;\n"
+   "  }\n"},
+  {{"TemplateTypeParmDecl", "DefaultArgument"},
+   "  if (!self.getDefaultArgumentInfo()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"TemplateSpecializationType", "AliasedType"},
+   "  if (!self.isTypeAlias()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"CXXMethodDecl", "ThisObjectType"},
+   "  if (!self.isInstance()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"CXXMethodDecl", "ThisType"},
+   "  if (!self.isInstance()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
   {{"InitListExpr", "IsTransparent"},
    "  if (!self.isSemanticForm()) {\n"
    "    return std::nullopt;\n"
@@ -1237,7 +1316,11 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  }\n"},
   {{"CXXRecordDecl", "LambdaTypeInfo"},
    SELF_IS_LAMBDA},
+  {{"CXXRecordDecl", "LambdaType"},
+   SELF_IS_LAMBDA},
   {{"CXXRecordDecl", "ODRHash"},
+   SELF_IS_DEFINITION},
+  {{"CXXRecordDecl", "HasInitializerMethod"},
    SELF_IS_DEFINITION},
   {{"EnumDecl", "ODRHash"},
    "  auto def = const_cast<clang::EnumDecl *>(self.getDefinition());\n"
@@ -1457,6 +1540,13 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  if (!self.isObjCLifetimeType()) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
+
+  {{"Type", "IsAggregateType"},
+   "  if (auto klass = self.getAsCXXRecordDecl()) {\n"
+   "    if (!klass->getDefinition()) {\n"
+   "      return std::nullopt;\n"
+   "    }\n"
+   "  }\n"},
   {{"Type", "IsConstantSizeType"},
    "  if (self.isIncompleteType() || self.isDependentType()) {\n"
    "    return std::nullopt;\n"
@@ -1490,6 +1580,10 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
     "    return std::nullopt;\n"
     "  }\n"},
    {{"UnaryExprOrTypeTraitExpr", "ArgumentTypeInfo"},
+    "  if (!self.isArgumentType()) {\n"
+    "    return std::nullopt;\n"
+    "  }\n"},
+   {{"UnaryExprOrTypeTraitExpr", "ArgumentType"},
     "  if (!self.isArgumentType()) {\n"
     "    return std::nullopt;\n"
     "  }\n"},

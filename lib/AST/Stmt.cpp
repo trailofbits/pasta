@@ -1942,6 +1942,7 @@ std::vector<::pasta::Expr> AsmStmt::Outputs(void) const noexcept {
 }
 
 std::vector<std::string_view> AsmStmt::OutputConstraints(void) const noexcept {
+  std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
     if (auto size = val.size()) {
       return std::string_view(val.data(), size);
@@ -1950,7 +1951,6 @@ std::vector<std::string_view> AsmStmt::OutputConstraints(void) const noexcept {
     }
     __builtin_unreachable();
   };
-  std::vector<std::string_view> ret;
   auto count = u.AsmStmt->getNumOutputs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -1960,13 +1960,13 @@ std::vector<std::string_view> AsmStmt::OutputConstraints(void) const noexcept {
 }
 
 std::vector<::pasta::Expr> AsmStmt::OutputExpressions(void) const noexcept {
+  std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::Expr> ret;
   auto count = u.AsmStmt->getNumOutputs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -1976,6 +1976,7 @@ std::vector<::pasta::Expr> AsmStmt::OutputExpressions(void) const noexcept {
 }
 
 std::vector<std::string_view> AsmStmt::InputConstraints(void) const noexcept {
+  std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
     if (auto size = val.size()) {
       return std::string_view(val.data(), size);
@@ -1984,7 +1985,6 @@ std::vector<std::string_view> AsmStmt::InputConstraints(void) const noexcept {
     }
     __builtin_unreachable();
   };
-  std::vector<std::string_view> ret;
   auto count = u.AsmStmt->getNumInputs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -1994,13 +1994,13 @@ std::vector<std::string_view> AsmStmt::InputConstraints(void) const noexcept {
 }
 
 std::vector<::pasta::Expr> AsmStmt::InputExpressions(void) const noexcept {
+  std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::Expr> ret;
   auto count = u.AsmStmt->getNumInputs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -2010,6 +2010,7 @@ std::vector<::pasta::Expr> AsmStmt::InputExpressions(void) const noexcept {
 }
 
 std::vector<std::string_view> AsmStmt::Clobbers(void) const noexcept {
+  std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
     if (auto size = val.size()) {
       return std::string_view(val.data(), size);
@@ -2018,7 +2019,6 @@ std::vector<std::string_view> AsmStmt::Clobbers(void) const noexcept {
     }
     __builtin_unreachable();
   };
-  std::vector<std::string_view> ret;
   auto count = u.AsmStmt->getNumClobbers();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -2423,13 +2423,13 @@ uint32_t CXXTryStmt::NumHandlers(void) const noexcept {
 }
 
 std::vector<::pasta::CXXCatchStmt> CXXTryStmt::Handlers(void) const noexcept {
+  std::vector<::pasta::CXXCatchStmt> ret;
   auto convert_elem = [&] (const clang::CXXCatchStmt * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::CXXCatchStmt>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::CXXCatchStmt> ret;
   auto count = u.CXXTryStmt->getNumHandlers();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -3527,14 +3527,15 @@ bool Expr::ContainsUnexpandedParameterPack(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::ValueDecl Expr::AsBuiltinConstantDeclarationReference(void) const noexcept {
+std::optional<::pasta::ValueDecl> Expr::AsBuiltinConstantDeclarationReference(void) const noexcept {
   auto &self = *(u.Expr);
   decltype(auto) val = self.getAsBuiltinConstantDeclRef(ast->ci->getASTContext());
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::ValueDecl>(ast, val);
   }
-  assert(false && "Expr::AsBuiltinConstantDeclarationReference can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3617,10 +3618,12 @@ std::optional<::pasta::FieldDecl> Expr::SourceBitField(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Type Expr::Type(void) const noexcept {
+std::optional<::pasta::Type> Expr::Type(void) const noexcept {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.getType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -4288,13 +4291,13 @@ uint32_t FunctionParmPackExpr::NumExpansions(void) const noexcept {
 }
 
 std::vector<::pasta::VarDecl> FunctionParmPackExpr::Expansions(void) const noexcept {
+  std::vector<::pasta::VarDecl> ret;
   auto convert_elem = [&] (clang::VarDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::VarDecl> ret;
   auto count = u.FunctionParmPackExpr->getNumExpansions();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -4396,6 +4399,7 @@ std::vector<::pasta::AddrLabelExpr> GCCAsmStmt::Labels(void) const noexcept {
 }
 
 std::vector<std::string_view> GCCAsmStmt::OutputConstraints(void) const noexcept {
+  std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
     if (auto size = val.size()) {
       return std::string_view(val.data(), size);
@@ -4404,7 +4408,6 @@ std::vector<std::string_view> GCCAsmStmt::OutputConstraints(void) const noexcept
     }
     __builtin_unreachable();
   };
-  std::vector<std::string_view> ret;
   auto count = u.GCCAsmStmt->getNumOutputs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -4414,13 +4417,13 @@ std::vector<std::string_view> GCCAsmStmt::OutputConstraints(void) const noexcept
 }
 
 std::vector<::pasta::StringLiteral> GCCAsmStmt::OutputConstraintLiterals(void) const noexcept {
+  std::vector<::pasta::StringLiteral> ret;
   auto convert_elem = [&] (const clang::StringLiteral * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::StringLiteral>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::StringLiteral> ret;
   auto count = u.GCCAsmStmt->getNumOutputs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -4430,13 +4433,13 @@ std::vector<::pasta::StringLiteral> GCCAsmStmt::OutputConstraintLiterals(void) c
 }
 
 std::vector<::pasta::Expr> GCCAsmStmt::OutputExpressions(void) const noexcept {
+  std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::Expr> ret;
   auto count = u.GCCAsmStmt->getNumOutputs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -4446,6 +4449,7 @@ std::vector<::pasta::Expr> GCCAsmStmt::OutputExpressions(void) const noexcept {
 }
 
 std::vector<std::string_view> GCCAsmStmt::OutputNames(void) const noexcept {
+  std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
     if (auto size = val.size()) {
       return std::string_view(val.data(), size);
@@ -4454,7 +4458,6 @@ std::vector<std::string_view> GCCAsmStmt::OutputNames(void) const noexcept {
     }
     __builtin_unreachable();
   };
-  std::vector<std::string_view> ret;
   auto count = u.GCCAsmStmt->getNumOutputs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -4464,6 +4467,7 @@ std::vector<std::string_view> GCCAsmStmt::OutputNames(void) const noexcept {
 }
 
 std::vector<std::string_view> GCCAsmStmt::InputConstraints(void) const noexcept {
+  std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
     if (auto size = val.size()) {
       return std::string_view(val.data(), size);
@@ -4472,7 +4476,6 @@ std::vector<std::string_view> GCCAsmStmt::InputConstraints(void) const noexcept 
     }
     __builtin_unreachable();
   };
-  std::vector<std::string_view> ret;
   auto count = u.GCCAsmStmt->getNumInputs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -4482,13 +4485,13 @@ std::vector<std::string_view> GCCAsmStmt::InputConstraints(void) const noexcept 
 }
 
 std::vector<::pasta::StringLiteral> GCCAsmStmt::InputConstraintLiterals(void) const noexcept {
+  std::vector<::pasta::StringLiteral> ret;
   auto convert_elem = [&] (const clang::StringLiteral * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::StringLiteral>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::StringLiteral> ret;
   auto count = u.GCCAsmStmt->getNumInputs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -4498,13 +4501,13 @@ std::vector<::pasta::StringLiteral> GCCAsmStmt::InputConstraintLiterals(void) co
 }
 
 std::vector<::pasta::Expr> GCCAsmStmt::InputExpressions(void) const noexcept {
+  std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::Expr> ret;
   auto count = u.GCCAsmStmt->getNumInputs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -4514,6 +4517,7 @@ std::vector<::pasta::Expr> GCCAsmStmt::InputExpressions(void) const noexcept {
 }
 
 std::vector<std::string_view> GCCAsmStmt::InputNames(void) const noexcept {
+  std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
     if (auto size = val.size()) {
       return std::string_view(val.data(), size);
@@ -4522,7 +4526,6 @@ std::vector<std::string_view> GCCAsmStmt::InputNames(void) const noexcept {
     }
     __builtin_unreachable();
   };
-  std::vector<std::string_view> ret;
   auto count = u.GCCAsmStmt->getNumInputs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -4532,6 +4535,7 @@ std::vector<std::string_view> GCCAsmStmt::InputNames(void) const noexcept {
 }
 
 std::vector<std::string_view> GCCAsmStmt::Clobbers(void) const noexcept {
+  std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
     if (auto size = val.size()) {
       return std::string_view(val.data(), size);
@@ -4540,7 +4544,6 @@ std::vector<std::string_view> GCCAsmStmt::Clobbers(void) const noexcept {
     }
     __builtin_unreachable();
   };
-  std::vector<std::string_view> ret;
   auto count = u.GCCAsmStmt->getNumClobbers();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -4550,13 +4553,13 @@ std::vector<std::string_view> GCCAsmStmt::Clobbers(void) const noexcept {
 }
 
 std::vector<::pasta::StringLiteral> GCCAsmStmt::ClobberStringLiterals(void) const noexcept {
+  std::vector<::pasta::StringLiteral> ret;
   auto convert_elem = [&] (const clang::StringLiteral * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::StringLiteral>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::StringLiteral> ret;
   auto count = u.GCCAsmStmt->getNumClobbers();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -4566,13 +4569,13 @@ std::vector<::pasta::StringLiteral> GCCAsmStmt::ClobberStringLiterals(void) cons
 }
 
 std::vector<::pasta::AddrLabelExpr> GCCAsmStmt::LabelExpressions(void) const noexcept {
+  std::vector<::pasta::AddrLabelExpr> ret;
   auto convert_elem = [&] (clang::AddrLabelExpr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::AddrLabelExpr>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::AddrLabelExpr> ret;
   auto count = u.GCCAsmStmt->getNumLabels();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -4582,6 +4585,7 @@ std::vector<::pasta::AddrLabelExpr> GCCAsmStmt::LabelExpressions(void) const noe
 }
 
 std::vector<std::string_view> GCCAsmStmt::LabelNames(void) const noexcept {
+  std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
     if (auto size = val.size()) {
       return std::string_view(val.data(), size);
@@ -4590,7 +4594,6 @@ std::vector<std::string_view> GCCAsmStmt::LabelNames(void) const noexcept {
     }
     __builtin_unreachable();
   };
-  std::vector<std::string_view> ret;
   auto count = u.GCCAsmStmt->getNumLabels();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -4676,7 +4679,7 @@ std::vector<::pasta::Expr> GenericSelectionExpr::AssociationExpressions(void) co
   __builtin_unreachable();
 }
 
-// 0: GenericSelectionExpr::AssociationTypeSourceInfos
+// 0: GenericSelectionExpr::AssociationTypes
 // 1: GenericSelectionExpr::Association
 ::pasta::Token GenericSelectionExpr::BeginToken(void) const noexcept {
   auto &self = *const_cast<clang::GenericSelectionExpr *>(u.GenericSelectionExpr);
@@ -5763,6 +5766,7 @@ bool MSAsmStmt::HasBraces(void) const noexcept {
 }
 
 std::vector<std::string_view> MSAsmStmt::OutputConstraints(void) const noexcept {
+  std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
     if (auto size = val.size()) {
       return std::string_view(val.data(), size);
@@ -5771,7 +5775,6 @@ std::vector<std::string_view> MSAsmStmt::OutputConstraints(void) const noexcept 
     }
     __builtin_unreachable();
   };
-  std::vector<std::string_view> ret;
   auto count = u.MSAsmStmt->getNumOutputs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -5781,13 +5784,13 @@ std::vector<std::string_view> MSAsmStmt::OutputConstraints(void) const noexcept 
 }
 
 std::vector<::pasta::Expr> MSAsmStmt::OutputExpressions(void) const noexcept {
+  std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::Expr> ret;
   auto count = u.MSAsmStmt->getNumOutputs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -5797,6 +5800,7 @@ std::vector<::pasta::Expr> MSAsmStmt::OutputExpressions(void) const noexcept {
 }
 
 std::vector<std::string_view> MSAsmStmt::InputConstraints(void) const noexcept {
+  std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
     if (auto size = val.size()) {
       return std::string_view(val.data(), size);
@@ -5805,7 +5809,6 @@ std::vector<std::string_view> MSAsmStmt::InputConstraints(void) const noexcept {
     }
     __builtin_unreachable();
   };
-  std::vector<std::string_view> ret;
   auto count = u.MSAsmStmt->getNumInputs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -5815,13 +5818,13 @@ std::vector<std::string_view> MSAsmStmt::InputConstraints(void) const noexcept {
 }
 
 std::vector<::pasta::Expr> MSAsmStmt::InputExpressions(void) const noexcept {
+  std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::Expr> ret;
   auto count = u.MSAsmStmt->getNumInputs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -8234,13 +8237,13 @@ uint32_t ObjCArrayLiteral::NumElements(void) const noexcept {
 }
 
 std::vector<::pasta::Expr> ObjCArrayLiteral::Elements(void) const noexcept {
+  std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::Expr> ret;
   auto count = u.ObjCArrayLiteral->getNumElements();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -8563,13 +8566,13 @@ uint32_t ObjCAtTryStmt::NumCatchStatements(void) const noexcept {
 }
 
 std::vector<::pasta::ObjCAtCatchStmt> ObjCAtTryStmt::CatchStatements(void) const noexcept {
+  std::vector<::pasta::ObjCAtCatchStmt> ret;
   auto convert_elem = [&] (const clang::ObjCAtCatchStmt * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::ObjCAtCatchStmt>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::ObjCAtCatchStmt> ret;
   auto count = u.ObjCAtTryStmt->getNumCatchStmts();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -8909,15 +8912,6 @@ std::vector<::pasta::Stmt> ObjCEncodeExpr::Children(void) const noexcept {
   decltype(auto) val = self.getEncodedType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
-}
-
-::pasta::Type ObjCEncodeExpr::EncodedTypeSourceInfo(void) const noexcept {
-  auto &self = *const_cast<clang::ObjCEncodeExpr *>(u.ObjCEncodeExpr);
-  decltype(auto) val = self.getEncodedTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());
-  assert(false && "ObjCEncodeExpr::EncodedTypeSourceInfo can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -9302,11 +9296,11 @@ std::vector<::pasta::Stmt> ObjCMessageExpr::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Type ObjCMessageExpr::ClassReceiverTypeInfo(void) const noexcept {
+::pasta::Type ObjCMessageExpr::ClassReceiverType(void) const noexcept {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getClassReceiverTypeInfo();
   return TypeBuilder::Build(ast, val->getType());
-  assert(false && "ObjCMessageExpr::ClassReceiverTypeInfo can return nullptr!");
+  assert(false && "ObjCMessageExpr::ClassReceiverType can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -9461,10 +9455,10 @@ bool ObjCMessageExpr::IsInstanceMessage(void) const noexcept {
 }
 
 std::vector<::pasta::Token> ObjCMessageExpr::SelectorTokens(void) const noexcept {
+  std::vector<::pasta::Token> ret;
   auto convert_elem = [&] (clang::SourceLocation val) {
     return ast->TokenAt(val);
   };
-  std::vector<::pasta::Token> ret;
   auto count = u.ObjCMessageExpr->getNumSelectorLocs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -9968,15 +9962,7 @@ uint32_t OffsetOfExpr::NumExpressions(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Type OffsetOfExpr::TypeSourceInfo(void) const noexcept {
-  auto &self = *const_cast<clang::OffsetOfExpr *>(u.OffsetOfExpr);
-  decltype(auto) val = self.getTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());
-  assert(false && "OffsetOfExpr::TypeSourceInfo can return nullptr!");
-  __builtin_unreachable();
-  __builtin_unreachable();
-}
-
+// 0: OffsetOfExpr::
 OpaqueValueExpr::OpaqueValueExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -10073,14 +10059,15 @@ PASTA_DEFINE_DERIVED_OPERATORS(OverloadExpr, UnresolvedMemberExpr)
   __builtin_unreachable();
 }
 
-::pasta::CXXRecordDecl OverloadExpr::NamingClass(void) const noexcept {
+std::optional<::pasta::CXXRecordDecl> OverloadExpr::NamingClass(void) const noexcept {
   auto &self = *const_cast<clang::OverloadExpr *>(u.OverloadExpr);
   decltype(auto) val = self.getNamingClass();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
-  assert(false && "OverloadExpr::NamingClass can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -10312,13 +10299,13 @@ uint32_t ParenListExpr::NumExpressions(void) const noexcept {
 }
 
 std::vector<::pasta::Expr> ParenListExpr::Expressions(void) const noexcept {
+  std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::Expr> ret;
   auto count = u.ParenListExpr->getNumExprs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -10493,13 +10480,13 @@ std::vector<::pasta::Expr> PseudoObjectExpr::Semantics(void) const noexcept {
 // 0: PseudoObjectExpr::
 // 0: PseudoObjectExpr::
 std::vector<::pasta::Expr> PseudoObjectExpr::SemanticExpressions(void) const noexcept {
+  std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::Expr> ret;
   auto count = u.PseudoObjectExpr->getNumSemanticExprs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -10995,15 +10982,7 @@ std::vector<::pasta::Stmt> SYCLUniqueStableNameExpr::Children(void) const noexce
   __builtin_unreachable();
 }
 
-::pasta::Type SYCLUniqueStableNameExpr::TypeSourceInfo(void) const noexcept {
-  auto &self = *const_cast<clang::SYCLUniqueStableNameExpr *>(u.SYCLUniqueStableNameExpr);
-  decltype(auto) val = self.getTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());
-  assert(false && "SYCLUniqueStableNameExpr::TypeSourceInfo can return nullptr!");
-  __builtin_unreachable();
-  __builtin_unreachable();
-}
-
+// 0: SYCLUniqueStableNameExpr::
 ShuffleVectorExpr::ShuffleVectorExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -11670,10 +11649,10 @@ std::optional<bool> TypeTraitExpr::Value(void) const noexcept {
 }
 
 std::vector<::pasta::Type> TypeTraitExpr::Arguments(void) const noexcept {
+  std::vector<::pasta::Type> ret;
   auto convert_elem = [&] (clang::TypeSourceInfo * val) {
     return TypeBuilder::Build(ast, val->getType());
   };
-  std::vector<::pasta::Type> ret;
   auto count = u.TypeTraitExpr->getNumArgs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -11763,19 +11742,6 @@ std::optional<::pasta::Type> UnaryExprOrTypeTraitExpr::ArgumentType(void) const 
     return std::nullopt;
   }
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
-}
-
-std::optional<::pasta::Type> UnaryExprOrTypeTraitExpr::ArgumentTypeInfo(void) const noexcept {
-  auto &self = *const_cast<clang::UnaryExprOrTypeTraitExpr *>(u.UnaryExprOrTypeTraitExpr);
-  if (!self.isArgumentType()) {
-    return std::nullopt;
-  }
-  decltype(auto) val = self.getArgumentTypeInfo();
-  if (!val) {
-    return std::nullopt;
-  }
-  return TypeBuilder::Build(ast, val->getType());
   __builtin_unreachable();
 }
 
@@ -11993,14 +11959,15 @@ std::vector<::pasta::Stmt> UnresolvedLookupExpr::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::CXXRecordDecl UnresolvedLookupExpr::NamingClass(void) const noexcept {
+std::optional<::pasta::CXXRecordDecl> UnresolvedLookupExpr::NamingClass(void) const noexcept {
   auto &self = *const_cast<clang::UnresolvedLookupExpr *>(u.UnresolvedLookupExpr);
   decltype(auto) val = self.getNamingClass();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
-  assert(false && "UnresolvedLookupExpr::NamingClass can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -12188,11 +12155,11 @@ std::vector<::pasta::Stmt> VAArgExpr::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Type VAArgExpr::WrittenTypeInfo(void) const noexcept {
+::pasta::Type VAArgExpr::WrittenType(void) const noexcept {
   auto &self = *const_cast<clang::VAArgExpr *>(u.VAArgExpr);
   decltype(auto) val = self.getWrittenTypeInfo();
   return TypeBuilder::Build(ast, val->getType());
-  assert(false && "VAArgExpr::WrittenTypeInfo can return nullptr!");
+  assert(false && "VAArgExpr::WrittenType can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -12567,15 +12534,6 @@ std::vector<::pasta::Stmt> ArrayTypeTraitExpr::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Type ArrayTypeTraitExpr::QueriedTypeSourceInfo(void) const noexcept {
-  auto &self = *const_cast<clang::ArrayTypeTraitExpr *>(u.ArrayTypeTraitExpr);
-  decltype(auto) val = self.getQueriedTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());
-  assert(false && "ArrayTypeTraitExpr::QueriedTypeSourceInfo can return nullptr!");
-  __builtin_unreachable();
-  __builtin_unreachable();
-}
-
 enum ArrayTypeTrait ArrayTypeTraitExpr::Trait(void) const noexcept {
   auto &self = *const_cast<clang::ArrayTypeTraitExpr *>(u.ArrayTypeTraitExpr);
   decltype(auto) val = self.getTrait();
@@ -12846,13 +12804,13 @@ bool AtomicExpr::IsVolatile(void) const noexcept {
 }
 
 std::vector<::pasta::Expr> AtomicExpr::SubExpressions(void) const noexcept {
+  std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::Expr> ret;
   auto count = u.AtomicExpr->getNumSubExprs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -13718,14 +13676,18 @@ std::vector<::pasta::Stmt> CXXDependentScopeMemberExpr::Children(void) const noe
   __builtin_unreachable();
 }
 
-::pasta::Expr CXXDependentScopeMemberExpr::Base(void) const noexcept {
+std::optional<::pasta::Expr> CXXDependentScopeMemberExpr::Base(void) const noexcept {
   auto &self = *const_cast<clang::CXXDependentScopeMemberExpr *>(u.CXXDependentScopeMemberExpr);
+  if (self.isImplicitAccess()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getBase();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CXXDependentScopeMemberExpr::Base can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -14092,15 +14054,6 @@ bool CXXNewExpr::DoesUsualArrayDeleteWantSize(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Type CXXNewExpr::AllocatedTypeSourceInfo(void) const noexcept {
-  auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
-  decltype(auto) val = self.getAllocatedTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());
-  assert(false && "CXXNewExpr::AllocatedTypeSourceInfo can return nullptr!");
-  __builtin_unreachable();
-  __builtin_unreachable();
-}
-
 std::optional<::pasta::Expr> CXXNewExpr::ArraySize(void) const noexcept {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getArraySize();
@@ -14424,15 +14377,6 @@ std::vector<::pasta::Stmt> CXXPseudoDestructorExpr::Children(void) const noexcep
 }
 
 // 0: CXXPseudoDestructorExpr::DestroyedTypeIdentifier
-::pasta::Type CXXPseudoDestructorExpr::DestroyedTypeInfo(void) const noexcept {
-  auto &self = *const_cast<clang::CXXPseudoDestructorExpr *>(u.CXXPseudoDestructorExpr);
-  decltype(auto) val = self.getDestroyedTypeInfo();
-  return TypeBuilder::Build(ast, val->getType());
-  assert(false && "CXXPseudoDestructorExpr::DestroyedTypeInfo can return nullptr!");
-  __builtin_unreachable();
-  __builtin_unreachable();
-}
-
 ::pasta::Token CXXPseudoDestructorExpr::DestroyedTypeToken(void) const noexcept {
   auto &self = *const_cast<clang::CXXPseudoDestructorExpr *>(u.CXXPseudoDestructorExpr);
   decltype(auto) val = self.getDestroyedTypeLoc();
@@ -14456,12 +14400,16 @@ std::vector<::pasta::Stmt> CXXPseudoDestructorExpr::Children(void) const noexcep
 
 // 0: CXXPseudoDestructorExpr::Qualifier
 // 0: CXXPseudoDestructorExpr::QualifierToken
-::pasta::Type CXXPseudoDestructorExpr::ScopeTypeInfo(void) const noexcept {
+std::optional<::pasta::Type> CXXPseudoDestructorExpr::ScopeType(void) const noexcept {
   auto &self = *const_cast<clang::CXXPseudoDestructorExpr *>(u.CXXPseudoDestructorExpr);
+  if (!self.getScopeTypeInfo()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getScopeTypeInfo();
+  if (!val) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val->getType());
-  assert(false && "CXXPseudoDestructorExpr::ScopeTypeInfo can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -14651,15 +14599,7 @@ std::vector<::pasta::Stmt> CXXScalarValueInitExpr::Children(void) const noexcept
   __builtin_unreachable();
 }
 
-::pasta::Type CXXScalarValueInitExpr::TypeSourceInfo(void) const noexcept {
-  auto &self = *const_cast<clang::CXXScalarValueInitExpr *>(u.CXXScalarValueInitExpr);
-  decltype(auto) val = self.getTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());
-  assert(false && "CXXScalarValueInitExpr::TypeSourceInfo can return nullptr!");
-  __builtin_unreachable();
-  __builtin_unreachable();
-}
-
+// 0: CXXScalarValueInitExpr::
 CXXStdInitializerListExpr::CXXStdInitializerListExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -14736,23 +14676,15 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXTemporaryObjectExpr)
   __builtin_unreachable();
 }
 
-::pasta::Type CXXTemporaryObjectExpr::TypeSourceInfo(void) const noexcept {
-  auto &self = *const_cast<clang::CXXTemporaryObjectExpr *>(u.CXXTemporaryObjectExpr);
-  decltype(auto) val = self.getTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());
-  assert(false && "CXXTemporaryObjectExpr::TypeSourceInfo can return nullptr!");
-  __builtin_unreachable();
-  __builtin_unreachable();
-}
-
+// 0: CXXTemporaryObjectExpr::
 std::vector<::pasta::Expr> CXXTemporaryObjectExpr::Arguments(void) const noexcept {
+  std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::Expr> ret;
   auto count = u.CXXTemporaryObjectExpr->getNumArgs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -15049,15 +14981,7 @@ uint32_t CXXUnresolvedConstructExpr::NumArguments(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Type CXXUnresolvedConstructExpr::TypeSourceInfo(void) const noexcept {
-  auto &self = *const_cast<clang::CXXUnresolvedConstructExpr *>(u.CXXUnresolvedConstructExpr);
-  decltype(auto) val = self.getTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());
-  assert(false && "CXXUnresolvedConstructExpr::TypeSourceInfo can return nullptr!");
-  __builtin_unreachable();
-  __builtin_unreachable();
-}
-
+// 0: CXXUnresolvedConstructExpr::
 bool CXXUnresolvedConstructExpr::IsListInitialization(void) const noexcept {
   auto &self = *const_cast<clang::CXXUnresolvedConstructExpr *>(u.CXXUnresolvedConstructExpr);
   decltype(auto) val = self.isListInitialization();
@@ -15695,15 +15619,7 @@ std::vector<::pasta::Stmt> CompoundLiteralExpr::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Type CompoundLiteralExpr::TypeSourceInfo(void) const noexcept {
-  auto &self = *const_cast<clang::CompoundLiteralExpr *>(u.CompoundLiteralExpr);
-  decltype(auto) val = self.getTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());
-  assert(false && "CompoundLiteralExpr::TypeSourceInfo can return nullptr!");
-  __builtin_unreachable();
-  __builtin_unreachable();
-}
-
+// 0: CompoundLiteralExpr::
 bool CompoundLiteralExpr::IsFileScope(void) const noexcept {
   auto &self = *const_cast<clang::CompoundLiteralExpr *>(u.CompoundLiteralExpr);
   decltype(auto) val = self.isFileScope();
@@ -15983,15 +15899,7 @@ std::vector<::pasta::Stmt> ConvertVectorExpr::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Type ConvertVectorExpr::TypeSourceInfo(void) const noexcept {
-  auto &self = *const_cast<clang::ConvertVectorExpr *>(u.ConvertVectorExpr);
-  decltype(auto) val = self.getTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());
-  assert(false && "ConvertVectorExpr::TypeSourceInfo can return nullptr!");
-  __builtin_unreachable();
-  __builtin_unreachable();
-}
-
+// 0: ConvertVectorExpr::
 CoroutineSuspendExpr::CoroutineSuspendExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -16492,13 +16400,13 @@ bool DesignatedInitExpr::UsesGNUSyntax(void) const noexcept {
 }
 
 std::vector<::pasta::Expr> DesignatedInitExpr::SubExpressions(void) const noexcept {
+  std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::Expr> ret;
   auto count = u.DesignatedInitExpr->getNumSubExprs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -16653,6 +16561,7 @@ uint32_t ExprWithCleanups::NumObjects(void) const noexcept {
 // 1: ExprWithCleanups::Object
 // 0: ExprWithCleanups::Objects
 std::vector<std::variant<std::monostate, ::pasta::BlockDecl, ::pasta::CompoundLiteralExpr>> ExprWithCleanups::Objects(void) const noexcept {
+  std::vector<std::variant<std::monostate, ::pasta::BlockDecl, ::pasta::CompoundLiteralExpr>> ret;
   auto convert_elem = [&] (llvm::PointerUnion<clang::BlockDecl *, clang::CompoundLiteralExpr *> val) {
     std::variant<std::monostate, ::pasta::BlockDecl, ::pasta::CompoundLiteralExpr> ret;
     if (val) {
@@ -16668,7 +16577,6 @@ std::vector<std::variant<std::monostate, ::pasta::BlockDecl, ::pasta::CompoundLi
     }
     return ret;
   };
-  std::vector<std::variant<std::monostate, ::pasta::BlockDecl, ::pasta::CompoundLiteralExpr>> ret;
   auto count = u.ExprWithCleanups->getNumObjects();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -17029,13 +16937,13 @@ enum UserDefinedLiteralLiteralOperatorKind UserDefinedLiteral::LiteralOperatorKi
 }
 
 std::vector<::pasta::Expr> UserDefinedLiteral::Arguments(void) const noexcept {
+  std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::Expr> ret;
   auto count = u.UserDefinedLiteral->getNumArgs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -17127,13 +17035,13 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CUDAKernelCallExpr)
 }
 
 std::vector<::pasta::Expr> CUDAKernelCallExpr::Arguments(void) const noexcept {
+  std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::Expr> ret;
   auto count = u.CUDAKernelCallExpr->getNumArgs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -17246,13 +17154,13 @@ std::optional<::pasta::CXXMethodDecl> CXXMemberCallExpr::MethodDeclaration(void)
 }
 
 std::vector<::pasta::Expr> CXXMemberCallExpr::Arguments(void) const noexcept {
+  std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::Expr> ret;
   auto count = u.CXXMemberCallExpr->getNumArgs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -17397,13 +17305,13 @@ bool CXXOperatorCallExpr::IsInfixBinaryOperation(void) const noexcept {
 }
 
 std::vector<::pasta::Expr> CXXOperatorCallExpr::Arguments(void) const noexcept {
+  std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::Expr> ret;
   auto count = u.CXXOperatorCallExpr->getNumArgs();
   decltype(count) i = 0;
   for (; i < count; ++i) {

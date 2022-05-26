@@ -319,7 +319,7 @@ class Type {
   bool HasSizedVLAType(void) const noexcept;
   bool HasUnnamedOrLocalType(void) const noexcept;
   bool HasUnsignedIntegerRepresentation(void) const noexcept;
-  bool IsAggregateType(void) const noexcept;
+  std::optional<bool> IsAggregateType(void) const noexcept;
   bool IsAlignValueT(void) const noexcept;
   bool IsAnyCharacterType(void) const noexcept;
   bool IsAnyComplexType(void) const noexcept;
@@ -895,7 +895,7 @@ class DeducedType : public Type {
   PASTA_DECLARE_DERIVED_OPERATORS(DeducedType, AutoType)
   PASTA_DECLARE_DERIVED_OPERATORS(DeducedType, DeducedTemplateSpecializationType)
   ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::Type ResolvedType(void) const noexcept;
+  std::optional<::pasta::Type> ResolvedType(void) const noexcept;
   bool IsDeduced(void) const noexcept;
   bool IsSugared(void) const noexcept;
  protected:
@@ -1377,7 +1377,7 @@ class TemplateSpecializationType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TemplateSpecializationType)
   PASTA_DECLARE_BASE_OPERATORS(Type, TemplateSpecializationType)
   ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::Type AliasedType(void) const noexcept;
+  std::optional<::pasta::Type> AliasedType(void) const noexcept;
   // Argument: (const clang::TemplateArgument &)
   // Arguments: (const clang::TemplateArgument *)
   uint32_t NumArguments(void) const noexcept;
@@ -1399,7 +1399,7 @@ class TemplateTypeParmType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TemplateTypeParmType)
   PASTA_DECLARE_BASE_OPERATORS(Type, TemplateTypeParmType)
   ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::TemplateTypeParmDecl Declaration(void) const noexcept;
+  std::optional<::pasta::TemplateTypeParmDecl> Declaration(void) const noexcept;
   uint32_t Depth(void) const noexcept;
   // Identifier: (clang::IdentifierInfo *)
   uint32_t Index(void) const noexcept;
@@ -1442,7 +1442,7 @@ class AutoType : public DeducedType {
   enum AutoTypeKeyword Keyword(void) const noexcept;
   uint32_t NumArguments(void) const noexcept;
   std::vector<::pasta::TemplateArgument> TypeConstraintArguments(void) const noexcept;
-  ::pasta::ConceptDecl TypeConstraintConcept(void) const noexcept;
+  std::optional<::pasta::ConceptDecl> TypeConstraintConcept(void) const noexcept;
   bool IsConstrained(void) const noexcept;
   bool IsDecltypeAuto(void) const noexcept;
   // !!! Arg getNumArgs getArg (empty ret type = (const clang::TemplateArgument &))
@@ -1536,7 +1536,7 @@ class FunctionProtoType : public FunctionType {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(FunctionProtoType)
   PASTA_DECLARE_BASE_OPERATORS(FunctionType, FunctionProtoType)
   PASTA_DECLARE_BASE_OPERATORS(Type, FunctionProtoType)
-  enum CanThrowResult CanThrow(void) const noexcept;
+  std::optional<enum CanThrowResult> CanThrow(void) const noexcept;
   ::pasta::Type Desugar(void) const noexcept;
   std::vector<::pasta::Type> Exceptions(void) const noexcept;
   ::pasta::Token EllipsisToken(void) const noexcept;
@@ -1564,7 +1564,7 @@ class FunctionProtoType : public FunctionType {
   bool HasInstantiationDependentExceptionSpec(void) const noexcept;
   bool HasNoexceptExceptionSpec(void) const noexcept;
   bool HasTrailingReturn(void) const noexcept;
-  bool IsNothrow(void) const noexcept;
+  std::optional<bool> IsNothrow(void) const noexcept;
   // IsParameterConsumed: (bool)
   bool IsSugared(void) const noexcept;
   bool IsTemplateVariadic(void) const noexcept;

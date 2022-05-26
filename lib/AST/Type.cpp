@@ -797,8 +797,13 @@ bool Type::HasUnsignedIntegerRepresentation(void) const noexcept {
   __builtin_unreachable();
 }
 
-bool Type::IsAggregateType(void) const noexcept {
+std::optional<bool> Type::IsAggregateType(void) const noexcept {
   auto &self = *const_cast<clang::Type *>(u.Type);
+  if (auto klass = self.getAsCXXRecordDecl()) {
+    if (!klass->getDefinition()) {
+      return std::nullopt;
+    }
+  }
   decltype(auto) val = self.isAggregateType();
   return val;
   __builtin_unreachable();
@@ -3304,10 +3309,12 @@ PASTA_DEFINE_DERIVED_OPERATORS(DeducedType, DeducedTemplateSpecializationType)
   __builtin_unreachable();
 }
 
-::pasta::Type DeducedType::ResolvedType(void) const noexcept {
+std::optional<::pasta::Type> DeducedType::ResolvedType(void) const noexcept {
   auto &self = *const_cast<clang::DeducedType *>(u.DeducedType);
   decltype(auto) val = self.getDeducedType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -4117,13 +4124,13 @@ std::vector<::pasta::ObjCProtocolDecl> ObjCObjectPointerType::Qualifieds(void) c
 }
 
 std::vector<::pasta::ObjCProtocolDecl> ObjCObjectPointerType::Protocols(void) const noexcept {
+  std::vector<::pasta::ObjCProtocolDecl> ret;
   auto convert_elem = [&] (clang::ObjCProtocolDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::ObjCProtocolDecl>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::ObjCProtocolDecl> ret;
   auto count = u.ObjCObjectPointerType->getNumProtocols();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -4576,10 +4583,15 @@ PASTA_DEFINE_BASE_OPERATORS(Type, TemplateSpecializationType)
 }
 
 // 0: TemplateSpecializationType::
-::pasta::Type TemplateSpecializationType::AliasedType(void) const noexcept {
+std::optional<::pasta::Type> TemplateSpecializationType::AliasedType(void) const noexcept {
   auto &self = *const_cast<clang::TemplateSpecializationType *>(u.TemplateSpecializationType);
+  if (!self.isTypeAlias()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getAliasedType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -4635,14 +4647,15 @@ PASTA_DEFINE_BASE_OPERATORS(Type, TemplateTypeParmType)
   __builtin_unreachable();
 }
 
-::pasta::TemplateTypeParmDecl TemplateTypeParmType::Declaration(void) const noexcept {
+std::optional<::pasta::TemplateTypeParmDecl> TemplateTypeParmType::Declaration(void) const noexcept {
   auto &self = *const_cast<clang::TemplateTypeParmType *>(u.TemplateTypeParmType);
   decltype(auto) val = self.getDecl();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::TemplateTypeParmDecl>(ast, val);
   }
-  assert(false && "TemplateTypeParmType::Declaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -4753,14 +4766,15 @@ std::vector<::pasta::TemplateArgument> AutoType::TypeConstraintArguments(void) c
   __builtin_unreachable();
 }
 
-::pasta::ConceptDecl AutoType::TypeConstraintConcept(void) const noexcept {
+std::optional<::pasta::ConceptDecl> AutoType::TypeConstraintConcept(void) const noexcept {
   auto &self = *const_cast<clang::AutoType *>(u.AutoType);
   decltype(auto) val = self.getTypeConstraintConcept();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::ConceptDecl>(ast, val);
   }
-  assert(false && "AutoType::TypeConstraintConcept can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -4882,8 +4896,15 @@ bool FunctionNoProtoType::IsSugared(void) const noexcept {
 
 PASTA_DEFINE_BASE_OPERATORS(FunctionType, FunctionProtoType)
 PASTA_DEFINE_BASE_OPERATORS(Type, FunctionProtoType)
-enum CanThrowResult FunctionProtoType::CanThrow(void) const noexcept {
+std::optional<enum CanThrowResult> FunctionProtoType::CanThrow(void) const noexcept {
   auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
+  switch (self.getExceptionSpecType()) {
+    case clang::EST_Unparsed:
+    case clang::EST_Unevaluated:
+    case clang::EST_Uninstantiated:
+      return std::nullopt;
+    default: break;
+  }
   decltype(auto) val = self.canThrow();
   return static_cast<::pasta::CanThrowResult>(val);
   __builtin_unreachable();
@@ -5050,8 +5071,15 @@ bool FunctionProtoType::HasTrailingReturn(void) const noexcept {
   __builtin_unreachable();
 }
 
-bool FunctionProtoType::IsNothrow(void) const noexcept {
+std::optional<bool> FunctionProtoType::IsNothrow(void) const noexcept {
   auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
+  switch (self.getExceptionSpecType()) {
+    case clang::EST_Unparsed:
+    case clang::EST_Unevaluated:
+    case clang::EST_Uninstantiated:
+      return std::nullopt;
+    default: break;
+  }
   decltype(auto) val = self.isNothrow();
   return val;
   __builtin_unreachable();
@@ -5083,10 +5111,10 @@ bool FunctionProtoType::IsVariadic(void) const noexcept {
 // 0: FunctionProtoType::
 // 0: FunctionProtoType::ParameterTypes
 std::vector<::pasta::Type> FunctionProtoType::ExceptionTypes(void) const noexcept {
+  std::vector<::pasta::Type> ret;
   auto convert_elem = [&] (clang::QualType val) {
     return TypeBuilder::Build(ast, val);
   };
-  std::vector<::pasta::Type> ret;
   auto count = u.FunctionProtoType->getNumExceptions();
   decltype(count) i = 0;
   for (; i < count; ++i) {

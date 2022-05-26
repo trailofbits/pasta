@@ -1661,12 +1661,16 @@ std::optional<::pasta::NamedDecl> FriendDecl::FriendDeclaration(void) const noex
   __builtin_unreachable();
 }
 
-::pasta::Type FriendDecl::FriendType(void) const noexcept {
+std::optional<::pasta::Type> FriendDecl::FriendType(void) const noexcept {
   auto &self = *const_cast<clang::FriendDecl *>(u.FriendDecl);
+  if (!self.getFriendType()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getFriendType();
+  if (!val) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val->getType());
-  assert(false && "FriendDecl::FriendType can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -1686,10 +1690,10 @@ bool FriendDecl::IsUnsupportedFriend(void) const noexcept {
 }
 
 std::vector<::pasta::TemplateParameterList> FriendDecl::FriendTypeTemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.FriendDecl->getFriendTypeNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -1740,10 +1744,10 @@ uint32_t FriendTemplateDecl::NumTemplateParameters(void) const noexcept {
 
 // 1: FriendTemplateDecl::TemplateParameterList
 std::vector<::pasta::TemplateParameterList> FriendTemplateDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.FriendTemplateDecl->getNumTemplateParameters();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -2946,15 +2950,6 @@ enum DeclObjCDeclQualifier ObjCMethodDecl::ObjCDeclQualifier(void) const noexcep
   __builtin_unreachable();
 }
 
-::pasta::Type ObjCMethodDecl::ReturnTypeSourceInfo(void) const noexcept {
-  auto &self = *const_cast<clang::ObjCMethodDecl *>(u.ObjCMethodDecl);
-  decltype(auto) val = self.getReturnTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());
-  assert(false && "ObjCMethodDecl::ReturnTypeSourceInfo can return nullptr!");
-  __builtin_unreachable();
-  __builtin_unreachable();
-}
-
 ::pasta::TokenRange ObjCMethodDecl::ReturnTypeSourceRange(void) const noexcept {
   auto &self = *const_cast<clang::ObjCMethodDecl *>(u.ObjCMethodDecl);
   decltype(auto) val = self.getReturnTypeSourceRange();
@@ -3122,10 +3117,10 @@ std::vector<::pasta::ParmVarDecl> ObjCMethodDecl::Parameters(void) const noexcep
 
 // 0: ObjCMethodDecl::
 std::vector<::pasta::Token> ObjCMethodDecl::SelectorTokens(void) const noexcept {
+  std::vector<::pasta::Token> ret;
   auto convert_elem = [&] (clang::SourceLocation val) {
     return ast->TokenAt(val);
   };
-  std::vector<::pasta::Token> ret;
   auto count = u.ObjCMethodDecl->getNumSelectorLocs();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -3236,15 +3231,7 @@ enum ObjCPropertyDeclSetterKind ObjCPropertyDecl::SetterKind(void) const noexcep
   __builtin_unreachable();
 }
 
-::pasta::Type ObjCPropertyDecl::TypeSourceInfo(void) const noexcept {
-  auto &self = *const_cast<clang::ObjCPropertyDecl *>(u.ObjCPropertyDecl);
-  decltype(auto) val = self.getTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());
-  assert(false && "ObjCPropertyDecl::TypeSourceInfo can return nullptr!");
-  __builtin_unreachable();
-  __builtin_unreachable();
-}
-
+// 0: ObjCPropertyDecl::
 // 1: ObjCPropertyDecl::UsageType
 bool ObjCPropertyDecl::IsAtomic(void) const noexcept {
   auto &self = *const_cast<clang::ObjCPropertyDecl *>(u.ObjCPropertyDecl);
@@ -3787,15 +3774,7 @@ std::optional<::pasta::TagDecl> TypedefNameDecl::AnonymousDeclarationWithTypedef
   __builtin_unreachable();
 }
 
-::pasta::Type TypedefNameDecl::TypeSourceInfo(void) const noexcept {
-  auto &self = *const_cast<clang::TypedefNameDecl *>(u.TypedefNameDecl);
-  decltype(auto) val = self.getTypeSourceInfo();
-  return TypeBuilder::Build(ast, val->getType());
-  assert(false && "TypedefNameDecl::TypeSourceInfo can return nullptr!");
-  __builtin_unreachable();
-  __builtin_unreachable();
-}
-
+// 0: TypedefNameDecl::
 ::pasta::Type TypedefNameDecl::UnderlyingType(void) const noexcept {
   auto &self = *const_cast<clang::TypedefNameDecl *>(u.TypedefNameDecl);
   decltype(auto) val = self.getUnderlyingType();
@@ -4366,13 +4345,13 @@ std::vector<::pasta::ParmVarDecl> BlockDecl::Parameters(void) const noexcept {
 }
 
 std::vector<::pasta::ParmVarDecl> BlockDecl::ParameterDeclarations(void) const noexcept {
+  std::vector<::pasta::ParmVarDecl> ret;
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::ParmVarDecl> ret;
   auto count = u.BlockDecl->getNumParams();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -4659,16 +4638,7 @@ std::optional<::pasta::Expr> DeclaratorDecl::TrailingRequiresClause(void) const 
   __builtin_unreachable();
 }
 
-std::optional<::pasta::Type> DeclaratorDecl::TypeSourceInfo(void) const noexcept {
-  auto &self = *const_cast<clang::DeclaratorDecl *>(u.DeclaratorDecl);
-  decltype(auto) val = self.getTypeSourceInfo();
-  if (!val) {
-    return std::nullopt;
-  }
-  return TypeBuilder::Build(ast, val->getType());
-  __builtin_unreachable();
-}
-
+// 0: DeclaratorDecl::
 ::pasta::Token DeclaratorDecl::TypeSpecEndToken(void) const noexcept {
   auto &self = *const_cast<clang::DeclaratorDecl *>(u.DeclaratorDecl);
   decltype(auto) val = self.getTypeSpecEndLoc();
@@ -4684,10 +4654,10 @@ std::optional<::pasta::Type> DeclaratorDecl::TypeSourceInfo(void) const noexcept
 }
 
 std::vector<::pasta::TemplateParameterList> DeclaratorDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.DeclaratorDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -4884,10 +4854,10 @@ bool FieldDecl::IsZeroSize(void) const noexcept {
 }
 
 std::vector<::pasta::TemplateParameterList> FieldDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.FieldDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -5586,10 +5556,10 @@ bool FunctionDecl::WillHaveBody(void) const noexcept {
 }
 
 std::vector<::pasta::TemplateParameterList> FunctionDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.FunctionDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -5599,13 +5569,13 @@ std::vector<::pasta::TemplateParameterList> FunctionDecl::TemplateParameterLists
 }
 
 std::vector<::pasta::ParmVarDecl> FunctionDecl::ParameterDeclarations(void) const noexcept {
+  std::vector<::pasta::ParmVarDecl> ret;
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::ParmVarDecl> ret;
   auto count = u.FunctionDecl->getNumParams();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -5785,10 +5755,10 @@ bool MSPropertyDecl::HasSetter(void) const noexcept {
 }
 
 std::vector<::pasta::TemplateParameterList> MSPropertyDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.MSPropertyDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -5814,14 +5784,15 @@ bool NonTypeTemplateParmDecl::DefaultArgumentWasInherited(void) const noexcept {
 }
 
 // 0: NonTypeTemplateParmDecl::DefaultArgumentStorage
-::pasta::Expr NonTypeTemplateParmDecl::DefaultArgument(void) const noexcept {
+std::optional<::pasta::Expr> NonTypeTemplateParmDecl::DefaultArgument(void) const noexcept {
   auto &self = *const_cast<clang::NonTypeTemplateParmDecl *>(u.NonTypeTemplateParmDecl);
   decltype(auto) val = self.getDefaultArgument();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "NonTypeTemplateParmDecl::DefaultArgument can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -5833,22 +5804,23 @@ bool NonTypeTemplateParmDecl::DefaultArgumentWasInherited(void) const noexcept {
 }
 
 // 1: NonTypeTemplateParmDecl::ExpansionType
-// 1: NonTypeTemplateParmDecl::ExpansionTypeSourceInfo
-uint32_t NonTypeTemplateParmDecl::NumExpansionTypes(void) const noexcept {
+// 1: NonTypeTemplateParmDecl::ExpansionType
+std::optional<uint32_t> NonTypeTemplateParmDecl::NumExpansionTypes(void) const noexcept {
   auto &self = *const_cast<clang::NonTypeTemplateParmDecl *>(u.NonTypeTemplateParmDecl);
   decltype(auto) val = self.getNumExpansionTypes();
   return val;
   __builtin_unreachable();
 }
 
-::pasta::Expr NonTypeTemplateParmDecl::PlaceholderTypeConstraint(void) const noexcept {
+std::optional<::pasta::Expr> NonTypeTemplateParmDecl::PlaceholderTypeConstraint(void) const noexcept {
   auto &self = *const_cast<clang::NonTypeTemplateParmDecl *>(u.NonTypeTemplateParmDecl);
   decltype(auto) val = self.getPlaceholderTypeConstraint();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "NonTypeTemplateParmDecl::PlaceholderTypeConstraint can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -5888,10 +5860,10 @@ bool NonTypeTemplateParmDecl::IsParameterPack(void) const noexcept {
 }
 
 std::vector<::pasta::TemplateParameterList> NonTypeTemplateParmDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.NonTypeTemplateParmDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -5901,27 +5873,17 @@ std::vector<::pasta::TemplateParameterList> NonTypeTemplateParmDecl::TemplatePar
 }
 
 std::vector<::pasta::Type> NonTypeTemplateParmDecl::ExpansionTypes(void) const noexcept {
+  std::vector<::pasta::Type> ret;
+  if (!u.NonTypeTemplateParmDecl->isExpandedParameterPack()) {
+    return ret;
+  }
   auto convert_elem = [&] (clang::QualType val) {
     return TypeBuilder::Build(ast, val);
   };
-  std::vector<::pasta::Type> ret;
   auto count = u.NonTypeTemplateParmDecl->getNumExpansionTypes();
   decltype(count) i = 0;
   for (; i < count; ++i) {
     ret.emplace_back(convert_elem(u.NonTypeTemplateParmDecl->getExpansionType(i)));
-  }
-  return ret;
-}
-
-std::vector<::pasta::Type> NonTypeTemplateParmDecl::ExpansionTypeSourceInfos(void) const noexcept {
-  auto convert_elem = [&] (clang::TypeSourceInfo * val) {
-    return TypeBuilder::Build(ast, val->getType());
-  };
-  std::vector<::pasta::Type> ret;
-  auto count = u.NonTypeTemplateParmDecl->getNumExpansionTypes();
-  decltype(count) i = 0;
-  for (; i < count; ++i) {
-    ret.emplace_back(convert_elem(u.NonTypeTemplateParmDecl->getExpansionTypeSourceInfo(i)));
   }
   return ret;
 }
@@ -6132,10 +6094,10 @@ PASTA_DEFINE_BASE_OPERATORS(FieldDecl, ObjCAtDefsFieldDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCAtDefsFieldDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, ObjCAtDefsFieldDecl)
 std::vector<::pasta::TemplateParameterList> ObjCAtDefsFieldDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.ObjCAtDefsFieldDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -6369,10 +6331,10 @@ bool ObjCIvarDecl::Synthesize(void) const noexcept {
 
 // 1: ObjCIvarDecl::UsageType
 std::vector<::pasta::TemplateParameterList> ObjCIvarDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.ObjCIvarDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -6663,10 +6625,10 @@ bool TagDecl::MayHaveOutOfDateDefinition(void) const noexcept {
 }
 
 std::vector<::pasta::TemplateParameterList> TagDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.TagDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -6711,20 +6673,26 @@ bool TemplateTypeParmDecl::DefaultArgumentWasInherited(void) const noexcept {
 }
 
 // 0: TemplateTypeParmDecl::DefaultArgumentStorage
-::pasta::Type TemplateTypeParmDecl::DefaultArgument(void) const noexcept {
+std::optional<::pasta::Type> TemplateTypeParmDecl::DefaultArgument(void) const noexcept {
   auto &self = *const_cast<clang::TemplateTypeParmDecl *>(u.TemplateTypeParmDecl);
+  if (!self.getDefaultArgumentInfo()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getDefaultArgument();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
 
-::pasta::Type TemplateTypeParmDecl::DefaultArgumentInfo(void) const noexcept {
+std::optional<::pasta::Type> TemplateTypeParmDecl::DefaultArgumentInfo(void) const noexcept {
   auto &self = *const_cast<clang::TemplateTypeParmDecl *>(u.TemplateTypeParmDecl);
   decltype(auto) val = self.getDefaultArgumentInfo();
+  if (!val) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val->getType());
-  assert(false && "TemplateTypeParmDecl::DefaultArgumentInfo can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -6840,14 +6808,15 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, TypeAliasTemplateDecl)
   __builtin_unreachable();
 }
 
-::pasta::TypeAliasTemplateDecl TypeAliasTemplateDecl::InstantiatedFromMemberTemplate(void) const noexcept {
+std::optional<::pasta::TypeAliasTemplateDecl> TypeAliasTemplateDecl::InstantiatedFromMemberTemplate(void) const noexcept {
   auto &self = *const_cast<clang::TypeAliasTemplateDecl *>(u.TypeAliasTemplateDecl);
   decltype(auto) val = self.getInstantiatedFromMemberTemplate();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::TypeAliasTemplateDecl>(ast, val);
   }
-  assert(false && "TypeAliasTemplateDecl::InstantiatedFromMemberTemplate can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7444,10 +7413,10 @@ enum QualTypeDestructionKind VarDecl::NeedsDestruction(void) const noexcept {
 }
 
 std::vector<::pasta::TemplateParameterList> VarDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.VarDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -7687,10 +7656,10 @@ bool VarTemplateSpecializationDecl::IsExplicitSpecialization(void) const noexcep
 }
 
 std::vector<::pasta::TemplateParameterList> VarTemplateSpecializationDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.VarTemplateSpecializationDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -7748,10 +7717,10 @@ bool CXXDeductionGuideDecl::IsExplicit(void) const noexcept {
 }
 
 std::vector<::pasta::TemplateParameterList> CXXDeductionGuideDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.CXXDeductionGuideDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -7761,13 +7730,13 @@ std::vector<::pasta::TemplateParameterList> CXXDeductionGuideDecl::TemplateParam
 }
 
 std::vector<::pasta::ParmVarDecl> CXXDeductionGuideDecl::ParameterDeclarations(void) const noexcept {
+  std::vector<::pasta::ParmVarDecl> ret;
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::ParmVarDecl> ret;
   auto count = u.CXXDeductionGuideDecl->getNumParams();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -7836,18 +7805,28 @@ enum RefQualifierKind CXXMethodDecl::ReferenceQualifier(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Type CXXMethodDecl::ThisObjectType(void) const noexcept {
+std::optional<::pasta::Type> CXXMethodDecl::ThisObjectType(void) const noexcept {
   auto &self = *const_cast<clang::CXXMethodDecl *>(u.CXXMethodDecl);
+  if (!self.isInstance()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getThisObjectType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
 
-::pasta::Type CXXMethodDecl::ThisType(void) const noexcept {
+std::optional<::pasta::Type> CXXMethodDecl::ThisType(void) const noexcept {
   auto &self = *const_cast<clang::CXXMethodDecl *>(u.CXXMethodDecl);
+  if (!self.isInstance()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getThisType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
@@ -7937,10 +7916,10 @@ uint32_t CXXMethodDecl::SizeOverriddenMethods(void) const noexcept {
 }
 
 std::vector<::pasta::TemplateParameterList> CXXMethodDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.CXXMethodDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -7950,13 +7929,13 @@ std::vector<::pasta::TemplateParameterList> CXXMethodDecl::TemplateParameterList
 }
 
 std::vector<::pasta::ParmVarDecl> CXXMethodDecl::ParameterDeclarations(void) const noexcept {
+  std::vector<::pasta::ParmVarDecl> ret;
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::ParmVarDecl> ret;
   auto count = u.CXXMethodDecl->getNumParams();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -8076,10 +8055,10 @@ std::vector<::pasta::BindingDecl> DecompositionDecl::Bindings(void) const noexce
 }
 
 std::vector<::pasta::TemplateParameterList> DecompositionDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.DecompositionDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -8164,19 +8143,6 @@ std::optional<::pasta::Type> EnumDecl::IntegerType(void) const noexcept {
   auto &self = *const_cast<clang::EnumDecl *>(u.EnumDecl);
   decltype(auto) val = self.getIntegerTypeRange();
   return ast->TokenRangeFrom(val);
-  __builtin_unreachable();
-}
-
-std::optional<::pasta::Type> EnumDecl::IntegerTypeSourceInfo(void) const noexcept {
-  auto &self = *const_cast<clang::EnumDecl *>(u.EnumDecl);
-  if (!self.getIntegerTypeSourceInfo()) {
-    return std::nullopt;
-  }
-  decltype(auto) val = self.getIntegerTypeSourceInfo();
-  if (!val) {
-    return std::nullopt;
-  }
-  return TypeBuilder::Build(ast, val->getType());
   __builtin_unreachable();
 }
 
@@ -8308,10 +8274,10 @@ bool EnumDecl::IsScopedUsingClassTag(void) const noexcept {
 }
 
 std::vector<::pasta::TemplateParameterList> EnumDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.EnumDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -8432,10 +8398,10 @@ enum ImplicitParamDeclImplicitParamKind ImplicitParamDecl::ParameterKind(void) c
 }
 
 std::vector<::pasta::TemplateParameterList> ImplicitParamDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.ImplicitParamDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -8455,10 +8421,10 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, OMPCapturedExprDecl)
 PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPCapturedExprDecl)
 PASTA_DEFINE_BASE_OPERATORS(VarDecl, OMPCapturedExprDecl)
 std::vector<::pasta::TemplateParameterList> OMPCapturedExprDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.OMPCapturedExprDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -8594,10 +8560,10 @@ bool ParmVarDecl::IsObjCMethodParameter(void) const noexcept {
 }
 
 std::vector<::pasta::TemplateParameterList> ParmVarDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.ParmVarDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -8823,10 +8789,10 @@ bool RecordDecl::MayInsertExtraPadding(void) const noexcept {
 }
 
 std::vector<::pasta::TemplateParameterList> RecordDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.RecordDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -8875,10 +8841,10 @@ bool VarTemplatePartialSpecializationDecl::HasAssociatedConstraints(void) const 
 }
 
 std::vector<::pasta::TemplateParameterList> VarTemplatePartialSpecializationDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.VarTemplatePartialSpecializationDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -8982,10 +8948,10 @@ bool CXXConstructorDecl::IsSpecializationCopyingObject(void) const noexcept {
 }
 
 std::vector<::pasta::TemplateParameterList> CXXConstructorDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.CXXConstructorDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -8995,13 +8961,13 @@ std::vector<::pasta::TemplateParameterList> CXXConstructorDecl::TemplateParamete
 }
 
 std::vector<::pasta::ParmVarDecl> CXXConstructorDecl::ParameterDeclarations(void) const noexcept {
+  std::vector<::pasta::ParmVarDecl> ret;
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::ParmVarDecl> ret;
   auto count = u.CXXConstructorDecl->getNumParams();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -9057,10 +9023,10 @@ bool CXXConversionDecl::IsLambdaToBlockPointerConversion(void) const noexcept {
 }
 
 std::vector<::pasta::TemplateParameterList> CXXConversionDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.CXXConversionDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -9070,13 +9036,13 @@ std::vector<::pasta::TemplateParameterList> CXXConversionDecl::TemplateParameter
 }
 
 std::vector<::pasta::ParmVarDecl> CXXConversionDecl::ParameterDeclarations(void) const noexcept {
+  std::vector<::pasta::ParmVarDecl> ret;
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::ParmVarDecl> ret;
   auto count = u.CXXConversionDecl->getNumParams();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -9133,10 +9099,10 @@ std::optional<::pasta::Expr> CXXDestructorDecl::OperatorDeleteThisArgument(void)
 }
 
 std::vector<::pasta::TemplateParameterList> CXXDestructorDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.CXXDestructorDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -9146,13 +9112,13 @@ std::vector<::pasta::TemplateParameterList> CXXDestructorDecl::TemplateParameter
 }
 
 std::vector<::pasta::ParmVarDecl> CXXDestructorDecl::ParameterDeclarations(void) const noexcept {
+  std::vector<::pasta::ParmVarDecl> ret;
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
     }
     __builtin_unreachable();
   };
-  std::vector<::pasta::ParmVarDecl> ret;
   auto count = u.CXXDestructorDecl->getNumParams();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -9457,7 +9423,7 @@ std::optional<uint32_t> CXXRecordDecl::LambdaManglingNumber(void) const noexcept
   __builtin_unreachable();
 }
 
-std::optional<::pasta::Type> CXXRecordDecl::LambdaTypeInfo(void) const noexcept {
+std::optional<::pasta::Type> CXXRecordDecl::LambdaType(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
   if (!self.isLambda()) {
     return std::nullopt;
@@ -9706,8 +9672,11 @@ std::optional<bool> CXXRecordDecl::HasInheritedConstructor(void) const noexcept 
   __builtin_unreachable();
 }
 
-bool CXXRecordDecl::HasInitializerMethod(void) const noexcept {
+std::optional<bool> CXXRecordDecl::HasInitializerMethod(void) const noexcept {
   auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  if (!self.getDefinition()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasInitMethod();
   return val;
   __builtin_unreachable();
@@ -10549,10 +10518,10 @@ std::optional<std::vector<::pasta::CXXBaseSpecifier>> CXXRecordDecl::VirtualBase
 // 0: CXXRecordDecl::
 // 0: CXXRecordDecl::
 std::vector<::pasta::TemplateParameterList> CXXRecordDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.CXXRecordDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -10675,12 +10644,16 @@ std::vector<::pasta::TemplateArgument> ClassTemplateSpecializationDecl::Template
   __builtin_unreachable();
 }
 
-::pasta::Type ClassTemplateSpecializationDecl::TypeAsWritten(void) const noexcept {
+std::optional<::pasta::Type> ClassTemplateSpecializationDecl::TypeAsWritten(void) const noexcept {
   auto &self = *const_cast<clang::ClassTemplateSpecializationDecl *>(u.ClassTemplateSpecializationDecl);
+  if (!self.getTypeAsWritten()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getTypeAsWritten();
+  if (!val) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val->getType());
-  assert(false && "ClassTemplateSpecializationDecl::TypeAsWritten can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -10706,10 +10679,10 @@ bool ClassTemplateSpecializationDecl::IsExplicitSpecialization(void) const noexc
 }
 
 std::vector<::pasta::TemplateParameterList> ClassTemplateSpecializationDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.ClassTemplateSpecializationDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {
@@ -10779,10 +10752,10 @@ bool ClassTemplatePartialSpecializationDecl::HasAssociatedConstraints(void) cons
 }
 
 std::vector<::pasta::TemplateParameterList> ClassTemplatePartialSpecializationDecl::TemplateParameterLists(void) const noexcept {
+  std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {
     return ::pasta::TemplateParameterList(ast, val);
   };
-  std::vector<::pasta::TemplateParameterList> ret;
   auto count = u.ClassTemplatePartialSpecializationDecl->getNumTemplateParameterLists();
   decltype(count) i = 0;
   for (; i < count; ++i) {

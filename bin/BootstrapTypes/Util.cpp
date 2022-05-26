@@ -118,6 +118,7 @@ static std::string CxxNameImpl(llvm::StringRef name) {
 
 std::string CxxName(llvm::StringRef name_) {
   auto name = CxxNameImpl(name_);
+
   if (name == "LParen") {
     return "LParenToken";
   } else if (name == "RParen") {
@@ -130,6 +131,38 @@ std::string CxxName(llvm::StringRef name_) {
     return "LBraceToken";
   } else if (name == "RBrace") {
     return "RBraceToken";
+
+  } else if (name_.endswith("TypeSourceInfo")) {
+    name.pop_back();  // `o`
+    name.pop_back();  // `f`
+    name.pop_back();  // `n`
+    name.pop_back();  // `I`
+    name.pop_back();  // `e`
+    name.pop_back();  // `c`
+    name.pop_back();  // `r`
+    name.pop_back();  // `u`
+    name.pop_back();  // `o`
+    name.pop_back();  // `S`
+
+  } else if (name_.endswith("TypeSourceInfos")) {
+    name.pop_back();  // `s`
+    name.pop_back();  // `o`
+    name.pop_back();  // `f`
+    name.pop_back();  // `n`
+    name.pop_back();  // `I`
+    name.pop_back();  // `e`
+    name.pop_back();  // `c`
+    name.pop_back();  // `r`
+    name.pop_back();  // `u`
+    name.pop_back();  // `o`
+    name.pop_back();  // `S`
+    name.push_back('s');
+
+  } else if (name_.endswith("TypeInfo")) {
+    name.pop_back();  // `o`
+    name.pop_back();  // `f`
+    name.pop_back();  // `n`
+    name.pop_back();  // `I`
   }
   return name;
 }

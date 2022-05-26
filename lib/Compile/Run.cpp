@@ -911,9 +911,12 @@ Result<AST, std::string> CompileJob::Run(void) const {
   // may not. Nonetheless, we want to parse them.
   target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, TLSSupported) = true;
   target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, VLASupported) = true;
-  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasLegalHalfType) = true;
   target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasFloat128) = true;
   target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasFloat16) = true;
+
+  const bool had_legal_half_type = target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasLegalHalfType);
+  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasLegalHalfType) = true;
+  
   ci.setTarget(target_info);
 
   const auto &argv = Arguments();
@@ -986,7 +989,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
   const auto lang_opts = invocation.getLangOpts();
 
   lang_opts->Bool = true;
-  lang_opts->Half = true;
+  lang_opts->Half = had_legal_half_type;
   lang_opts->WChar = lang_opts->CPlusPlus;
   lang_opts->Char8 = true;
   lang_opts->IEEE128 = true;

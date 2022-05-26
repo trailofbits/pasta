@@ -129,19 +129,24 @@ static void DeclareCppMethod0(std::ostream &os, const std::string &class_name,
     }
 
     auto &new_rt = gRetTypeMap[rt];
-    if (!new_rt.empty()) {
-      auto meth_key = std::make_pair(class_name, meth_name);
-      existing_methods.insert(meth_key);
-      const auto null_key = std::make_pair(class_name, meth_name);
-      const auto can_ret_null = kCanReturnNullptr.count(null_key) ||
-                                kConditionalNullptr.count(null_key);
-      if (can_ret_null) {
-        os << "  std::optional<" << new_rt << "> " << meth_name << "(void) const noexcept;\n";
-      } else {
-        os << "  " << new_rt << ' ' << meth_name << "(void) const noexcept;\n";
-      }
-    } else {
+    if (new_rt.empty()) {
       os << "  // " << meth_name << ": " << rt << "\n";
+      return;
+    }
+
+    auto meth_key = std::make_pair(class_name, meth_name);
+    auto [_, added] = existing_methods.insert(meth_key);
+    if (!added) {
+      return;
+    }
+
+    const auto null_key = std::make_pair(class_name, meth_name);
+    const auto can_ret_null = kCanReturnNullptr.count(null_key) ||
+                              kConditionalNullptr.count(null_key);
+    if (can_ret_null) {
+      os << "  std::optional<" << new_rt << "> " << meth_name << "(void) const noexcept;\n";
+    } else {
+      os << "  " << new_rt << ' ' << meth_name << "(void) const noexcept;\n";
     }
   }
 }
@@ -203,11 +208,10 @@ static void ProcessIterators(std::ostream &os, const std::string &class_name) {
       }
 
       auto meth_key = std::make_pair(class_name, name);
-      if (existing_methods.count(meth_key)) {
+      auto [_, added] = existing_methods.insert(std::move(meth_key));
+      if (!added) {
         continue;  // Already defined.
       }
-
-      existing_methods.insert(std::move(meth_key));
 
       os << "  std::vector<" << new_rt << "> " << name << "(void) const noexcept;\n";
 
@@ -237,11 +241,10 @@ static void ProcessIterators(std::ostream &os, const std::string &class_name) {
       }
 
       auto meth_key = std::make_pair(class_name, name);
-      if (existing_methods.count(meth_key)) {
+      auto [_, added] = existing_methods.insert(std::move(meth_key));
+      if (!added) {
         continue;  // Already defined.
       }
-
-      existing_methods.insert(std::move(meth_key));
 
       os << "  std::vector<" << new_rt << "> " << name << "(void) const noexcept;\n";
 

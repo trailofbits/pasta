@@ -594,7 +594,7 @@ class FriendDecl : public Decl {
   PASTA_DECLARE_BASE_OPERATORS(Decl, FriendDecl)
   std::optional<::pasta::NamedDecl> FriendDeclaration(void) const noexcept;
   ::pasta::Token FriendToken(void) const noexcept;
-  ::pasta::Type FriendType(void) const noexcept;
+  std::optional<::pasta::Type> FriendType(void) const noexcept;
   uint32_t FriendTypeNumTemplateParameterLists(void) const noexcept;
   // FriendTypeTemplateParameterList: (clang::TemplateParameterList *)
   bool IsUnsupportedFriend(void) const noexcept;
@@ -996,7 +996,6 @@ class ObjCMethodDecl : public NamedDecl {
   enum DeclObjCDeclQualifier ObjCDeclQualifier(void) const noexcept;
   // ParameterDeclaration: (const clang::ParmVarDecl *)
   ::pasta::Type ReturnType(void) const noexcept;
-  ::pasta::Type ReturnTypeSourceInfo(void) const noexcept;
   ::pasta::TokenRange ReturnTypeSourceRange(void) const noexcept;
   // Selector: (clang::Selector)
   // SelectorToken: (clang::SourceLocation)
@@ -1051,7 +1050,6 @@ class ObjCPropertyDecl : public NamedDecl {
   // SetterName: (clang::Selector)
   ::pasta::Token SetterNameToken(void) const noexcept;
   ::pasta::Type Type(void) const noexcept;
-  ::pasta::Type TypeSourceInfo(void) const noexcept;
   // UsageType: (clang::QualType)
   bool IsAtomic(void) const noexcept;
   bool IsClassProperty(void) const noexcept;
@@ -1269,7 +1267,6 @@ class TypedefNameDecl : public TypeDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(TypedefNameDecl, TypedefDecl)
   std::optional<::pasta::TagDecl> AnonymousDeclarationWithTypedefName(void) const noexcept;
   ::pasta::TypedefNameDecl CanonicalDeclaration(void) const noexcept;
-  ::pasta::Type TypeSourceInfo(void) const noexcept;
   ::pasta::Type UnderlyingType(void) const noexcept;
   bool IsModed(void) const noexcept;
   bool IsTransparentTag(void) const noexcept;
@@ -1637,7 +1634,6 @@ class DeclaratorDecl : public ValueDecl {
   // QualifierToken: (clang::NestedNameSpecifierLoc)
   // TemplateParameterList: (clang::TemplateParameterList *)
   std::optional<::pasta::Expr> TrailingRequiresClause(void) const noexcept;
-  std::optional<::pasta::Type> TypeSourceInfo(void) const noexcept;
   ::pasta::Token TypeSpecEndToken(void) const noexcept;
   ::pasta::Token TypeSpecStartToken(void) const noexcept;
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
@@ -1899,12 +1895,12 @@ class NonTypeTemplateParmDecl : public DeclaratorDecl {
   PASTA_DECLARE_BASE_OPERATORS(ValueDecl, NonTypeTemplateParmDecl)
   bool DefaultArgumentWasInherited(void) const noexcept;
   // DefaultArgumentStorage: (const clang::DefaultArgStorage<clang::NonTypeTemplateParmDecl, clang::Expr *> &)
-  ::pasta::Expr DefaultArgument(void) const noexcept;
+  std::optional<::pasta::Expr> DefaultArgument(void) const noexcept;
   ::pasta::Token DefaultArgumentToken(void) const noexcept;
   // ExpansionType: (clang::QualType)
-  // ExpansionTypeSourceInfo: (clang::TypeSourceInfo *)
-  uint32_t NumExpansionTypes(void) const noexcept;
-  ::pasta::Expr PlaceholderTypeConstraint(void) const noexcept;
+  // ExpansionType: (clang::TypeSourceInfo *)
+  std::optional<uint32_t> NumExpansionTypes(void) const noexcept;
+  std::optional<::pasta::Expr> PlaceholderTypeConstraint(void) const noexcept;
   bool HasDefaultArgument(void) const noexcept;
   bool HasPlaceholderTypeConstraint(void) const noexcept;
   bool IsExpandedParameterPack(void) const noexcept;
@@ -1912,7 +1908,6 @@ class NonTypeTemplateParmDecl : public DeclaratorDecl {
   bool IsParameterPack(void) const noexcept;
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
   std::vector<::pasta::Type> ExpansionTypes(void) const noexcept;
-  std::vector<::pasta::Type> ExpansionTypeSourceInfos(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(NonTypeTemplateParmDecl)
 };
@@ -2205,8 +2200,8 @@ class TemplateTypeParmDecl : public TypeDecl {
   PASTA_DECLARE_BASE_OPERATORS(TypeDecl, TemplateTypeParmDecl)
   bool DefaultArgumentWasInherited(void) const noexcept;
   // DefaultArgumentStorage: (const clang::DefaultArgStorage<clang::TemplateTypeParmDecl, clang::TypeSourceInfo *> &)
-  ::pasta::Type DefaultArgument(void) const noexcept;
-  ::pasta::Type DefaultArgumentInfo(void) const noexcept;
+  std::optional<::pasta::Type> DefaultArgument(void) const noexcept;
+  std::optional<::pasta::Type> DefaultArgumentInfo(void) const noexcept;
   ::pasta::Token DefaultArgumentToken(void) const noexcept;
   uint32_t Depth(void) const noexcept;
   uint32_t Index(void) const noexcept;
@@ -2250,7 +2245,7 @@ class TypeAliasTemplateDecl : public RedeclarableTemplateDecl {
   PASTA_DECLARE_BASE_OPERATORS(RedeclarableTemplateDecl, TypeAliasTemplateDecl)
   PASTA_DECLARE_BASE_OPERATORS(TemplateDecl, TypeAliasTemplateDecl)
   ::pasta::TypeAliasTemplateDecl CanonicalDeclaration(void) const noexcept;
-  ::pasta::TypeAliasTemplateDecl InstantiatedFromMemberTemplate(void) const noexcept;
+  std::optional<::pasta::TypeAliasTemplateDecl> InstantiatedFromMemberTemplate(void) const noexcept;
   std::optional<::pasta::TypeAliasTemplateDecl> PreviousDeclaration(void) const noexcept;
   ::pasta::TypeAliasDecl TemplatedDeclaration(void) const noexcept;
  protected:
@@ -2516,8 +2511,8 @@ class CXXMethodDecl : public FunctionDecl {
   ::pasta::CXXMethodDecl MostRecentDeclaration(void) const noexcept;
   ::pasta::CXXRecordDecl Parent(void) const noexcept;
   enum RefQualifierKind ReferenceQualifier(void) const noexcept;
-  ::pasta::Type ThisObjectType(void) const noexcept;
-  ::pasta::Type ThisType(void) const noexcept;
+  std::optional<::pasta::Type> ThisObjectType(void) const noexcept;
+  std::optional<::pasta::Type> ThisType(void) const noexcept;
   bool HasInlineBody(void) const noexcept;
   bool IsConst(void) const noexcept;
   bool IsCopyAssignmentOperator(void) const noexcept;
@@ -2594,7 +2589,6 @@ class EnumDecl : public TagDecl {
   std::optional<::pasta::EnumDecl> InstantiatedFromMemberEnum(void) const noexcept;
   std::optional<::pasta::Type> IntegerType(void) const noexcept;
   ::pasta::TokenRange IntegerTypeRange(void) const noexcept;
-  std::optional<::pasta::Type> IntegerTypeSourceInfo(void) const noexcept;
   // MemberSpecializationInfo: (clang::MemberSpecializationInfo *)
   ::pasta::EnumDecl MostRecentDeclaration(void) const noexcept;
   uint32_t NumNegativeBits(void) const noexcept;
@@ -2892,7 +2886,7 @@ class CXXRecordDecl : public RecordDecl {
   std::optional<::pasta::Decl> LambdaContextDeclaration(void) const noexcept;
   std::optional<std::vector<::pasta::NamedDecl>> LambdaExplicitTemplateParameters(void) const noexcept;
   std::optional<uint32_t> LambdaManglingNumber(void) const noexcept;
-  std::optional<::pasta::Type> LambdaTypeInfo(void) const noexcept;
+  std::optional<::pasta::Type> LambdaType(void) const noexcept;
   std::optional<enum MSInheritanceModel> MSInheritanceModel(void) const noexcept;
   enum MSVtorDispMode MSVtorDispMode(void) const noexcept;
   // MemberSpecializationInfo: (clang::MemberSpecializationInfo *)
@@ -2918,7 +2912,7 @@ class CXXRecordDecl : public RecordDecl {
   std::optional<bool> HasInClassInitializer(void) const noexcept;
   std::optional<bool> HasInheritedAssignment(void) const noexcept;
   std::optional<bool> HasInheritedConstructor(void) const noexcept;
-  bool HasInitializerMethod(void) const noexcept;
+  std::optional<bool> HasInitializerMethod(void) const noexcept;
   std::optional<bool> HasIrrelevantDestructor(void) const noexcept;
   std::optional<bool> HasKnownLambdaInternalLinkage(void) const noexcept;
   // HasMemberName: (bool)
@@ -3035,7 +3029,7 @@ class ClassTemplateSpecializationDecl : public CXXRecordDecl {
   std::vector<::pasta::TemplateArgument> TemplateArguments(void) const noexcept;
   std::vector<::pasta::TemplateArgument> TemplateInstantiationArguments(void) const noexcept;
   ::pasta::Token TemplateKeywordToken(void) const noexcept;
-  ::pasta::Type TypeAsWritten(void) const noexcept;
+  std::optional<::pasta::Type> TypeAsWritten(void) const noexcept;
   bool IsClassScopeExplicitSpecialization(void) const noexcept;
   bool IsExplicitInstantiationOrSpecialization(void) const noexcept;
   bool IsExplicitSpecialization(void) const noexcept;

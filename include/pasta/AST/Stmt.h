@@ -1482,7 +1482,7 @@ class Expr : public ValueStmt {
   ::pasta::Expr IgnoreUnlessSpelledInSource(void) const noexcept;
   bool ContainsErrors(void) const noexcept;
   bool ContainsUnexpandedParameterPack(void) const noexcept;
-  ::pasta::ValueDecl AsBuiltinConstantDeclarationReference(void) const noexcept;
+  std::optional<::pasta::ValueDecl> AsBuiltinConstantDeclarationReference(void) const noexcept;
   std::optional<::pasta::CXXRecordDecl> BestDynamicClassType(void) const noexcept;
   ::pasta::Expr BestDynamicClassTypeExpression(void) const noexcept;
   // Dependence: (clang::ExprDependenceScope::ExprDependence)
@@ -1493,7 +1493,7 @@ class Expr : public ValueStmt {
   enum ExprObjectKind ObjectKind(void) const noexcept;
   std::optional<::pasta::Decl> ReferencedDeclarationOfCallee(void) const noexcept;
   std::optional<::pasta::FieldDecl> SourceBitField(void) const noexcept;
-  ::pasta::Type Type(void) const noexcept;
+  std::optional<::pasta::Type> Type(void) const noexcept;
   enum ExprValueKind ValueKind(void) const noexcept;
   bool HasNonTrivialCall(void) const noexcept;
   bool IsBoundMemberFunction(void) const noexcept;
@@ -1762,7 +1762,7 @@ class GenericSelectionExpr : public Expr {
   // Associations: (llvm::iterator_range<clang::GenericSelectionExpr::AssociationIteratorTy<true>>)
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   std::vector<::pasta::Expr> AssociationExpressions(void) const noexcept;
-  // AssociationTypeSourceInfos: (llvm::ArrayRef<clang::TypeSourceInfo *>)
+  // AssociationTypes: (llvm::ArrayRef<clang::TypeSourceInfo *>)
   // Association: (clang::GenericSelectionExpr::AssociationTy<true>)
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Expr ControllingExpression(void) const noexcept;
@@ -3493,7 +3493,6 @@ class ObjCEncodeExpr : public Expr {
   ::pasta::Token AtToken(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Type EncodedType(void) const noexcept;
-  ::pasta::Type EncodedTypeSourceInfo(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Token RParenToken(void) const noexcept;
  protected:
@@ -3602,7 +3601,7 @@ class ObjCMessageExpr : public Expr {
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Type CallReturnType(void) const noexcept;
   ::pasta::Type ClassReceiver(void) const noexcept;
-  ::pasta::Type ClassReceiverTypeInfo(void) const noexcept;
+  ::pasta::Type ClassReceiverType(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Expr InstanceReceiver(void) const noexcept;
   ::pasta::Token LeftToken(void) const noexcept;
@@ -3766,7 +3765,6 @@ class OffsetOfExpr : public Expr {
   uint32_t NumExpressions(void) const noexcept;
   ::pasta::Token OperatorToken(void) const noexcept;
   ::pasta::Token RParenToken(void) const noexcept;
-  ::pasta::Type TypeSourceInfo(void) const noexcept;
   // !!! Component getNumComponents getComponent (empty ret type = (const clang::OffsetOfNode &))
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OffsetOfExpr)
@@ -3810,7 +3808,7 @@ class OverloadExpr : public Expr {
   // Name: (clang::DeclarationName)
   // NameInfo: (const clang::DeclarationNameInfo &)
   ::pasta::Token NameToken(void) const noexcept;
-  ::pasta::CXXRecordDecl NamingClass(void) const noexcept;
+  std::optional<::pasta::CXXRecordDecl> NamingClass(void) const noexcept;
   uint32_t NumDeclarations(void) const noexcept;
   uint32_t NumTemplateArguments(void) const noexcept;
   // Qualifier: (clang::NestedNameSpecifier *)
@@ -4075,7 +4073,6 @@ class SYCLUniqueStableNameExpr : public Expr {
   ::pasta::Token LParenToken(void) const noexcept;
   ::pasta::Token Token(void) const noexcept;
   ::pasta::Token RParenToken(void) const noexcept;
-  ::pasta::Type TypeSourceInfo(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(SYCLUniqueStableNameExpr)
 };
@@ -4301,7 +4298,6 @@ class UnaryExprOrTypeTraitExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   std::optional<::pasta::Expr> ArgumentExpression(void) const noexcept;
   std::optional<::pasta::Type> ArgumentType(void) const noexcept;
-  std::optional<::pasta::Type> ArgumentTypeInfo(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   enum UnaryExprOrTypeTrait Kind(void) const noexcept;
@@ -4361,7 +4357,7 @@ class UnresolvedLookupExpr : public OverloadExpr {
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  ::pasta::CXXRecordDecl NamingClass(void) const noexcept;
+  std::optional<::pasta::CXXRecordDecl> NamingClass(void) const noexcept;
   bool IsOverloaded(void) const noexcept;
   bool RequiresADL(void) const noexcept;
  protected:
@@ -4413,7 +4409,7 @@ class VAArgExpr : public Expr {
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Token RParenToken(void) const noexcept;
   ::pasta::Expr SubExpression(void) const noexcept;
-  ::pasta::Type WrittenTypeInfo(void) const noexcept;
+  ::pasta::Type WrittenType(void) const noexcept;
   bool IsMicrosoftABI(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(VAArgExpr)
@@ -4535,7 +4531,6 @@ class ArrayTypeTraitExpr : public Expr {
   ::pasta::Expr DimensionExpression(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Type QueriedType(void) const noexcept;
-  ::pasta::Type QueriedTypeSourceInfo(void) const noexcept;
   enum ArrayTypeTrait Trait(void) const noexcept;
   uint64_t Value(void) const noexcept;
  protected:
@@ -4831,7 +4826,7 @@ class CXXDependentScopeMemberExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(Stmt, CXXDependentScopeMemberExpr)
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, CXXDependentScopeMemberExpr)
   std::vector<::pasta::Stmt> Children(void) const noexcept;
-  ::pasta::Expr Base(void) const noexcept;
+  std::optional<::pasta::Expr> Base(void) const noexcept;
   ::pasta::Type BaseType(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
@@ -4920,7 +4915,6 @@ class CXXNewExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   bool DoesUsualArrayDeleteWantSize(void) const noexcept;
   ::pasta::Type AllocatedType(void) const noexcept;
-  ::pasta::Type AllocatedTypeSourceInfo(void) const noexcept;
   std::optional<::pasta::Expr> ArraySize(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   std::optional<::pasta::CXXConstructExpr> ConstructExpression(void) const noexcept;
@@ -4999,13 +4993,12 @@ class CXXPseudoDestructorExpr : public Expr {
   ::pasta::Token ColonColonToken(void) const noexcept;
   ::pasta::Type DestroyedType(void) const noexcept;
   // DestroyedTypeIdentifier: (clang::IdentifierInfo *)
-  ::pasta::Type DestroyedTypeInfo(void) const noexcept;
   ::pasta::Token DestroyedTypeToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Token OperatorToken(void) const noexcept;
   // Qualifier: (clang::NestedNameSpecifier *)
   // QualifierToken: (clang::NestedNameSpecifierLoc)
-  ::pasta::Type ScopeTypeInfo(void) const noexcept;
+  std::optional<::pasta::Type> ScopeType(void) const noexcept;
   ::pasta::Token TildeToken(void) const noexcept;
   bool HasQualifier(void) const noexcept;
   bool IsArrow(void) const noexcept;
@@ -5056,7 +5049,6 @@ class CXXScalarValueInitExpr : public Expr {
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Token RParenToken(void) const noexcept;
-  ::pasta::Type TypeSourceInfo(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXScalarValueInitExpr)
 };
@@ -5093,7 +5085,6 @@ class CXXTemporaryObjectExpr : public CXXConstructExpr {
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, CXXTemporaryObjectExpr)
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  ::pasta::Type TypeSourceInfo(void) const noexcept;
   std::vector<::pasta::Expr> Arguments(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXTemporaryObjectExpr)
@@ -5181,7 +5172,6 @@ class CXXUnresolvedConstructExpr : public Expr {
   uint32_t NumArguments(void) const noexcept;
   ::pasta::Token RParenToken(void) const noexcept;
   ::pasta::Type TypeAsWritten(void) const noexcept;
-  ::pasta::Type TypeSourceInfo(void) const noexcept;
   bool IsListInitialization(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXUnresolvedConstructExpr)
@@ -5368,7 +5358,6 @@ class CompoundLiteralExpr : public Expr {
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Expr Initializer(void) const noexcept;
   ::pasta::Token LParenToken(void) const noexcept;
-  ::pasta::Type TypeSourceInfo(void) const noexcept;
   bool IsFileScope(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CompoundLiteralExpr)
@@ -5458,7 +5447,6 @@ class ConvertVectorExpr : public Expr {
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Token RParenToken(void) const noexcept;
   ::pasta::Expr SrcExpression(void) const noexcept;
-  ::pasta::Type TypeSourceInfo(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(ConvertVectorExpr)
 };

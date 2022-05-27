@@ -9,6 +9,7 @@
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/AST/DeclCXX.h>
+#include <clang/AST/DeclObjC.h>
 #include <clang/AST/DeclTemplate.h>
 #pragma clang diagnostic pop
 
@@ -18,6 +19,169 @@
 namespace pasta {
 
 #ifndef PASTA_IN_BOOTSTRAP
+
+namespace {
+
+static ::pasta::DeclCategory ClassifyDecl(const clang::Decl *decl) {
+  if (!decl) {
+    return ::pasta::DeclCategory::kUnknown;
+  }
+
+  if (clang::isa<clang::NamespaceDecl>(decl) ||
+      clang::isa<clang::NamespaceAliasDecl>(decl) ||
+      clang::isa<clang::UsingDirectiveDecl>(decl)) {
+    return ::pasta::DeclCategory::kNamespace;
+
+  } else if (auto tpl_decl = clang::dyn_cast<clang::TemplateDecl>(decl)) {
+    if (clang::isa<clang::TemplateTemplateParmDecl>(decl)) {
+      return ::pasta::DeclCategory::kTemplateTypeParameter;
+
+    } else {
+      return ClassifyDecl(tpl_decl->getTemplatedDecl());
+    }
+
+  } else if (auto type_decl = clang::dyn_cast<clang::TypeDecl>(decl)) {
+    if (auto tag_decl = clang::dyn_cast<clang::TagDecl>(decl)) {
+      if (clang::isa<clang::EnumDecl>(decl)) {
+        return ::pasta::DeclCategory::kEnumeration;
+      } else if (auto record_decl = clang::dyn_cast<clang::RecordDecl>(decl)) {
+        switch (record_decl->getTagKind()) {
+          case clang::TTK_Struct:
+            return ::pasta::DeclCategory::kStructure;
+          case clang::TTK_Interface:
+            return ::pasta::DeclCategory::kInterface;
+          case clang::TTK_Union:
+            return ::pasta::DeclCategory::kUnion;
+          case clang::TTK_Class:
+            return ::pasta::DeclCategory::kClass;
+          case clang::TTK_Enum:
+            return ::pasta::DeclCategory::kEnumeration;
+        }
+      } else {
+        assert(false);
+        return ::pasta::DeclCategory::kStructure;
+      }
+    } else if (clang::isa<clang::TemplateTypeParmDecl>(decl)) {
+      return ::pasta::DeclCategory::kTemplateTypeParameter;
+
+    } else if (clang::isa<clang::TypedefNameDecl>(decl)) {
+      return ::pasta::DeclCategory::kTypeAlias;
+
+    } else if (clang::isa<clang::UnresolvedUsingTypenameDecl>(decl)) {
+      return ::pasta::DeclCategory::kTypeAlias;
+
+    } else {
+      assert(false);
+      return ::pasta::DeclCategory::kTypeAlias;
+    }
+
+  } else if (auto method_decl_objc = clang::dyn_cast<clang::ObjCMethodDecl>(decl)) {
+    if (method_decl_objc->isInstanceMethod()) {
+      return ::pasta::DeclCategory::kInstanceMethod;
+    } else {
+      return ::pasta::DeclCategory::kClassMethod;
+    }
+
+  } else if (clang::isa<clang::LabelDecl>(decl)) {
+    return ::pasta::DeclCategory::kLabel;
+
+  } else if (auto using_decl = clang::dyn_cast<clang::UsingDecl>(decl)) {
+    auto ret = ::pasta::DeclCategory::kUnknown;
+    for (auto shadow : using_decl->shadows()) {
+      if (auto used_decl = shadow->getTargetDecl()) {
+        if (used_decl != using_decl) {
+          ret = ClassifyDecl(used_decl);
+          if (ret != ::pasta::DeclCategory::kUnknown) {
+            return ret;
+          }
+        }
+      }
+    }
+
+    return ::pasta::DeclCategory::kUnknown;
+
+  } else if (auto using_pack = clang::dyn_cast<clang::UsingPackDecl>(decl)) {
+    for (auto used_decl : using_pack->expansions()) {
+      return ClassifyDecl(used_decl);
+    }
+
+    goto done;
+
+  } else if (auto using_shadow = clang::dyn_cast<clang::UsingShadowDecl>(decl)) {
+    if (auto used_decl = using_shadow->getTargetDecl()) {
+      if (used_decl != decl) {
+        return ClassifyDecl(used_decl);
+      }
+    }
+    goto done;
+
+  } else if (clang::isa<clang::ValueDecl>(decl)) {
+    if (clang::isa<clang::BindingDecl>(decl)) {
+      return ::pasta::DeclCategory::kLocalVariable;
+
+    } else if (clang::isa<clang::EnumConstantDecl>(decl)) {
+      return ::pasta::DeclCategory::kEnumerator;
+
+    } else if (clang::isa<clang::IndirectFieldDecl>(decl)) {
+      return ::pasta::DeclCategory::kInstanceMember;
+
+    } else if (clang::isa<clang::FieldDecl>(decl)) {
+      return ::pasta::DeclCategory::kInstanceMember;
+
+    } else if (auto func_decl = clang::dyn_cast<clang::FunctionDecl>(decl)) {
+      if (auto method_decl_cxx = clang::dyn_cast<clang::CXXMethodDecl>(decl)) {
+        if (method_decl_cxx->isInstance()) {
+          return ::pasta::DeclCategory::kInstanceMethod;
+        } else {
+          return ::pasta::DeclCategory::kClassMethod;
+        }
+      } else {
+        return ::pasta::DeclCategory::kFunction;
+      }
+    } else if (auto var_decl = clang::dyn_cast<clang::VarDecl>(decl)) {
+      if (clang::isa<clang::ParmVarDecl>(decl)) {
+        return ::pasta::DeclCategory::kParameterVariable;
+
+      } else if (auto iparam = clang::dyn_cast<clang::ImplicitParamDecl>(decl)) {
+        switch (iparam->getParameterKind()) {
+          case clang::ImplicitParamDecl::ObjCSelf:
+          case clang::ImplicitParamDecl::CXXThis:
+            return ::pasta::DeclCategory::kThis;
+          default:
+            return ::pasta::DeclCategory::kParameterVariable;
+        }
+      }
+
+      if (var_decl->isLocalVarDecl()) {
+        return ::pasta::DeclCategory::kLocalVariable;
+      } else {
+        auto dc = var_decl->getDeclContext();
+        if (dc->isFileContext() || dc->isExternCContext() ||
+            dc->isNamespace() || dc->isExternCXXContext()) {
+          return ::pasta::DeclCategory::kGlobalVariable;
+
+        } else if (dc->isRecord()) {
+          return ::pasta::DeclCategory::kClassMember;
+        }
+      }
+    } else if (clang::isa<clang::NonTypeTemplateParmDecl>(decl)) {
+      return ::pasta::DeclCategory::kTemplateValueParameter;
+    } else if (clang::isa<clang::TemplateTypeParmDecl>(decl)) {
+      return ::pasta::DeclCategory::kTemplateTypeParameter;
+    } else if (clang::isa<clang::TemplateTemplateParmDecl>(decl)) {
+      return ::pasta::DeclCategory::kTemplateTypeParameter;
+    }
+  }
+
+done:
+  return ::pasta::DeclCategory::kUnknown;
+}
+
+}  // namespace
+
+::pasta::DeclCategory Decl::Category(void) const noexcept {
+  return ClassifyDecl(u.Decl);
+}
 
 static bool IsImplicitImpl(clang::Decl *decl) {
   if (decl->isImplicit()) {

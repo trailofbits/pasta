@@ -407,6 +407,7 @@ class Decl {
     return kind;
   }
 
+  ::pasta::DeclCategory Category(void) const noexcept;
   std::string_view KindName(void) const noexcept;
   ::pasta::Token Token(void) const noexcept;
   ::pasta::TokenRange Tokens(void) const noexcept;

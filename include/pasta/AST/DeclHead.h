@@ -39,6 +39,30 @@ class VarTemplatePartialSpecializationDecl;
 
 enum class TemplateArgumentKind : unsigned int;
 
+enum class DeclCategory : unsigned int {
+  kUnknown,
+  kLocalVariable,
+  kGlobalVariable,
+  kParameterVariable,
+  kFunction,
+  kInstanceMethod,
+  kInstanceMember,
+  kClassMethod,
+  kClassMember,
+  kThis,
+  kClass,
+  kStructure,
+  kUnion,
+  kInterface,
+  kEnumeration,
+  kEnumerator,
+  kNamespace,
+  kTypeAlias,
+  kTemplateTypeParameter,
+  kTemplateValueParameter,
+  kLabel,
+};
+
 class CXXBaseSpecifier {
  private:
   std::shared_ptr<ASTImpl> ast;

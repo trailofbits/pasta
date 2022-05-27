@@ -164,6 +164,7 @@ void GenerateDeclH(void) {
           << "  inline DeclKind Kind(void) const {\n"
           << "    return kind;\n"
           << "  }\n\n"
+          << "  ::pasta::DeclCategory Category(void) const noexcept;\n"
           << "  std::string_view KindName(void) const noexcept;\n"
           << "  ::pasta::Token Token(void) const noexcept;\n"
           << "  ::pasta::TokenRange Tokens(void) const noexcept;\n\n"

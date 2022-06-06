@@ -372,6 +372,32 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     return prev_tok;
   }
 
+  void ExpandLeadingKeyword(clang::tok::TokenKind kind) {
+    auto first_tok = &(ast.tokens.front());
+    auto i = 0;
+    if (!lower_bound) {
+      return;
+    } else if (lower_bound->Kind() == kind) {
+      return;
+    }
+
+    for (auto tok = &(lower_bound[-1]); first_tok <= tok && i < 2; --tok) {
+      const auto tok_kind = tok->Kind();
+      if (tok_kind == kind) {
+        lower_bound = tok;
+      } else if (tok_kind == clang::tok::string_literal) {
+        ++i;
+      } else if (tok_kind == clang::tok::unknown ||
+                 tok_kind == clang::tok::eof ||
+                 tok_kind == clang::tok::eod ||
+                 tok_kind == clang::tok::comment) {
+        continue;
+      } else {
+        return;
+      }
+    }
+  }
+
   // Scans forward or backward, starting at `tok` and tries to identify the
   // next token with kind `kind`.
   TokenImpl *FindNext(
@@ -558,6 +584,17 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   void VisitCommonFunctionDecl(clang::FunctionDecl *decl) {
     if (auto ftl = decl->getFunctionTypeLoc()) {
       this->TypeLocVisitor::Visit(ftl);
+    }
+
+    switch (decl->getStorageClass()) {
+      case clang::StorageClass::SC_Static:
+        ExpandLeadingKeyword(clang::tok::kw_static);
+        break;
+      case clang::StorageClass::SC_Extern:
+        ExpandLeadingKeyword(clang::tok::kw_extern);
+        break;
+      default:
+        break;
     }
 
     TokenImpl *tok_loc = ast.RawTokenAt(decl->getLocation());

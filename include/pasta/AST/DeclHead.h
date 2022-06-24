@@ -138,10 +138,12 @@ class Designator {
  private:
   std::shared_ptr<ASTImpl> ast;
 
-  // It is a placeholder for `clang::DesignatedInitExpr::Designator`. We can't forward
-  // declare `DesignatedInitExpr::Designator`
+  // NOTE(kumarak): This is a placeholder for `clang::DesignatedInitExpr::Designator`.
+  //                We can't forward declare `DesignatedInitExpr::Designator`
   const void *spec;
-
+  
+  Designator(void) = delete;
+  
  public:
   inline Designator(std::shared_ptr<ASTImpl> ast_, const void *spec_)
       : ast(std::move(ast_)), spec(spec_) {}

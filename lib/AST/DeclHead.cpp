@@ -288,6 +288,48 @@ CXXBaseSpecifier::LexicalAccessSpecifier(void) const noexcept {
   return TypeBuilder::Build(ast, tsi->getType()).UnqualifiedType();
 }
 
+// Is this a field designator?
+bool Designator::IsFieldDesignator(void) const noexcept {
+  // Cast the void pointers to `clang::DesignatedInitExpr::Designator`
+  auto desig = static_cast<const clang::DesignatedInitExpr::Designator*>(spec);
+  assert(desig != nullptr);
+  return desig->isFieldDesignator();
+}
+
+// Is this an array designator?
+bool Designator::IsArrayDesignator(void) const noexcept {
+  // Cast the void pointers to `clang::DesignatedInitExpr::Designator`
+  auto desig = static_cast<const clang::DesignatedInitExpr::Designator*>(spec);
+  assert(desig != nullptr);
+  return desig->isArrayDesignator();
+}
+
+// Is this an array range designator?
+bool Designator::IsArrayRangeDesignator(void) const noexcept {
+  // Cast the void pointers to `clang::DesignatedInitExpr::Designator`
+  auto desig = static_cast<const clang::DesignatedInitExpr::Designator*>(spec);
+  assert(desig != nullptr);
+  return desig->isArrayRangeDesignator();
+}
+
+// Returns the FieldDecl for the designator if it is field designator
+::pasta::FieldDecl Designator::FieldDecl() const noexcept {
+
+  // Cast the void pointers to `clang::DesignatedInitExpr::Designator`
+  auto desig = static_cast<const clang::DesignatedInitExpr::Designator*>(spec);
+  assert(desig != nullptr);
+  return DeclBuilder::Create<pasta::FieldDecl>(ast, desig->getField());
+}
+
+// Returns the TokenRange for the designator.
+::pasta::TokenRange Designator::SourceRange(void) const noexcept {
+
+  // Cast the void pointers to `clang::DesignatedInitExpr::Designator`
+  auto desig = static_cast<const clang::DesignatedInitExpr::Designator*>(spec);
+  assert(desig != nullptr);
+  return ast->TokenRangeFrom(desig->getSourceRange());
+}
+
 // Return the kind of the stored template argument.
 TemplateArgumentKind TemplateArgument::Kind(void) const noexcept {
   return static_cast<TemplateArgumentKind>(arg->getKind());

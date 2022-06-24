@@ -26,6 +26,7 @@ class CXXMethodDecl;
 class CXXRecordDecl;
 class Decl;
 class DecompositionDecl;
+class Designator;
 class EnumDecl;
 class Expr;
 class ImplicitParamDecl;
@@ -131,6 +132,37 @@ class CXXBaseSpecifier {
   //            to a struct/class type.
   ::pasta::Type BaseType(void) const noexcept;
 #endif  // PASTA_IN_BOOTSTRAP
+};
+
+class Designator {
+ private:
+  std::shared_ptr<ASTImpl> ast;
+
+  // It is a placeholder for `clang::DesignatedInitExpr::Designator`. We can't forward
+  // declare `DesignatedInitExpr::Designator`
+  const void *spec;
+
+ public:
+  inline Designator(std::shared_ptr<ASTImpl> ast_, const void *spec_)
+      : ast(std::move(ast_)), spec(spec_) {}
+
+#ifndef PASTA_IN_BOOTSTRAP
+  // Is this a field designator?
+  bool IsFieldDesignator(void) const noexcept;
+
+  // Is this an array designator?
+  bool IsArrayDesignator(void) const noexcept;
+
+  // Is this an array range designator?
+  bool IsArrayRangeDesignator(void) const noexcept;
+
+  // Returns the FieldDecl for the designator. It is only
+  // valid when Designator is of type field.
+  ::pasta::FieldDecl FieldDecl(void) const noexcept;
+
+  // Returns the TokenRange for the designator.
+  ::pasta::TokenRange SourceRange(void) const noexcept;
+#endif
 };
 
 class TemplateArgument {

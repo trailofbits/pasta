@@ -16339,6 +16339,9 @@ std::vector<::pasta::Stmt> DesignatedInitExpr::Children(void) const noexcept {
 
 std::optional<::pasta::Designator> DesignatedInitExpr::Designator(unsigned int idx) const noexcept {
   auto &self = *const_cast<clang::DesignatedInitExpr *>(u.DesignatedInitExpr);
+  if (idx >= self.designators().size()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getDesignator(idx);
   if (!val) {
     return std::nullopt;

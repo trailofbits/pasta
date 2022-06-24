@@ -160,10 +160,10 @@ class Designator {
 
   // Returns the FieldDecl for the designator. It is only
   // valid when Designator is of type field.
-  ::pasta::FieldDecl FieldDecl(void) const noexcept;
+  std::optional<::pasta::FieldDecl> FieldDecl(void) const noexcept;
 
   // Returns the TokenRange for the designator.
-  ::pasta::TokenRange SourceRange(void) const noexcept;
+  ::pasta::TokenRange Tokens(void) const noexcept;
 #endif
 };
 

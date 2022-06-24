@@ -291,7 +291,7 @@ CXXBaseSpecifier::LexicalAccessSpecifier(void) const noexcept {
 // Is this a field designator?
 bool Designator::IsFieldDesignator(void) const noexcept {
   // Cast the void pointers to `clang::DesignatedInitExpr::Designator`
-  auto desig = static_cast<const clang::DesignatedInitExpr::Designator*>(spec);
+  auto desig = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
   assert(desig != nullptr);
   return desig->isFieldDesignator();
 }
@@ -299,7 +299,7 @@ bool Designator::IsFieldDesignator(void) const noexcept {
 // Is this an array designator?
 bool Designator::IsArrayDesignator(void) const noexcept {
   // Cast the void pointers to `clang::DesignatedInitExpr::Designator`
-  auto desig = static_cast<const clang::DesignatedInitExpr::Designator*>(spec);
+  auto desig = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
   assert(desig != nullptr);
   return desig->isArrayDesignator();
 }
@@ -307,25 +307,25 @@ bool Designator::IsArrayDesignator(void) const noexcept {
 // Is this an array range designator?
 bool Designator::IsArrayRangeDesignator(void) const noexcept {
   // Cast the void pointers to `clang::DesignatedInitExpr::Designator`
-  auto desig = static_cast<const clang::DesignatedInitExpr::Designator*>(spec);
+  auto desig = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
   assert(desig != nullptr);
   return desig->isArrayRangeDesignator();
 }
 
 // Returns the FieldDecl for the designator if it is field designator
-::pasta::FieldDecl Designator::FieldDecl() const noexcept {
+std::optional<::pasta::FieldDecl> Designator::FieldDecl(void) const noexcept {
 
   // Cast the void pointers to `clang::DesignatedInitExpr::Designator`
-  auto desig = static_cast<const clang::DesignatedInitExpr::Designator*>(spec);
+  auto desig = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
   assert(desig != nullptr);
   return DeclBuilder::Create<pasta::FieldDecl>(ast, desig->getField());
 }
 
 // Returns the TokenRange for the designator.
-::pasta::TokenRange Designator::SourceRange(void) const noexcept {
+::pasta::TokenRange Designator::Tokens(void) const noexcept {
 
   // Cast the void pointers to `clang::DesignatedInitExpr::Designator`
-  auto desig = static_cast<const clang::DesignatedInitExpr::Designator*>(spec);
+  auto desig = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
   assert(desig != nullptr);
   return ast->TokenRangeFrom(desig->getSourceRange());
 }

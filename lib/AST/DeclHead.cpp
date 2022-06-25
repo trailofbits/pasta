@@ -291,43 +291,112 @@ CXXBaseSpecifier::LexicalAccessSpecifier(void) const noexcept {
 // Is this a field designator?
 bool Designator::IsFieldDesignator(void) const noexcept {
   // Cast the void pointers to `clang::DesignatedInitExpr::Designator`
-  auto desig = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
-  assert(desig != nullptr);
-  return desig->isFieldDesignator();
+  auto design = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
+  assert(design != nullptr);
+  return design->isFieldDesignator();
 }
 
 // Is this an array designator?
 bool Designator::IsArrayDesignator(void) const noexcept {
   // Cast the void pointers to `clang::DesignatedInitExpr::Designator`
-  auto desig = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
-  assert(desig != nullptr);
-  return desig->isArrayDesignator();
+  auto design = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
+  assert(design != nullptr);
+  return design->isArrayDesignator();
 }
 
 // Is this an array range designator?
 bool Designator::IsArrayRangeDesignator(void) const noexcept {
   // Cast the void pointers to `clang::DesignatedInitExpr::Designator`
-  auto desig = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
-  assert(desig != nullptr);
-  return desig->isArrayRangeDesignator();
+  auto design = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
+  assert(design != nullptr);
+  return design->isArrayRangeDesignator();
 }
 
 // Returns the FieldDecl for the designator if it is field designator
-std::optional<::pasta::FieldDecl> Designator::FieldDecl(void) const noexcept {
+std::optional<::pasta::FieldDecl> Designator::Field(void) const noexcept {
 
   // Cast the void pointers to `clang::DesignatedInitExpr::Designator`
-  auto desig = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
-  assert(desig != nullptr);
-  return DeclBuilder::Create<pasta::FieldDecl>(ast, desig->getField());
+  auto design = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
+  assert(design != nullptr);
+  if (!design->isFieldDesignator()) {
+    return std::nullopt;
+  }
+  return DeclBuilder::Create<pasta::FieldDecl>(ast, design->getField());
 }
 
 // Returns the TokenRange for the designator.
 ::pasta::TokenRange Designator::Tokens(void) const noexcept {
-
   // Cast the void pointers to `clang::DesignatedInitExpr::Designator`
-  auto desig = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
-  assert(desig != nullptr);
-  return ast->TokenRangeFrom(desig->getSourceRange());
+  auto design = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
+  assert(design != nullptr);
+  return ast->TokenRangeFrom(design->getSourceRange());
+}
+
+// Get the token for dot location
+::pasta::Token Designator::DotLoc(void) const noexcept {
+  auto design = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
+  assert(design != nullptr);
+  if (!design->isFieldDesignator()) {
+    // If this is not field designator; it will return empty token
+    return ast->TokenAt(clang::SourceLocation());
+  }
+  return ast->TokenAt(design->getDotLoc());
+}
+
+// Get the token for field location
+::pasta::Token Designator::FieldLoc(void) const noexcept {
+  auto design = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
+  assert(design != nullptr);
+  if (!design->isFieldDesignator()) {
+    // If this is not a field designator; it will return empty token
+    return ast->TokenAt(clang::SourceLocation());
+  }
+  return ast->TokenAt(design->getFieldLoc());
+}
+
+// Get the token for l-bracket location
+::pasta::Token Designator::LBracketLoc(void) const noexcept {
+  auto design = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
+  assert(design != nullptr);
+  if (!(design->isArrayDesignator() || design->isArrayRangeDesignator())) {
+    // If this is field designator it will return empty token
+    return ast->TokenAt(clang::SourceLocation());
+  }
+  return ast->TokenAt(design->getLBracketLoc());
+}
+
+// Get the token for r-bracket location
+::pasta::Token Designator::RBracketLoc(void) const noexcept {
+  auto design = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
+  assert(design != nullptr);
+  if (!(design->isArrayDesignator() || design->isArrayRangeDesignator())) {
+    // if the designator is of field type and has no right braces, it will return empty token
+    return ast->TokenAt(clang::SourceLocation());
+  }
+  return ast->TokenAt(design->getRBracketLoc());
+}
+
+// Get the token for ellipsis location
+::pasta::Token Designator::EllipsisLoc(void) const noexcept {
+  auto design = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
+  assert(design != nullptr);
+  if (!design->isArrayRangeDesignator()) {
+    // if the designator is not an array range; it will not have ellipsis. Return empty token
+    return ast->TokenAt(clang::SourceLocation());
+  }
+  return ast->TokenAt(design->getEllipsisLoc());
+}
+
+// Get the index for first designator expression. It will be only valid for
+unsigned Designator::FirstExprIndex(void) const noexcept {
+  auto design = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
+  assert(design != nullptr);
+  if (!(design->isArrayDesignator() || design->isArrayRangeDesignator())) {
+    // TODO(kumarak) : 0 could be a valid index. Should we make return
+    //                 type as signed
+    return 0;
+  }
+  return design->getFirstExprIndex();
 }
 
 // Return the kind of the stored template argument.

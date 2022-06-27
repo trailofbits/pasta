@@ -333,7 +333,7 @@ std::optional<::pasta::FieldDecl> Designator::Field(void) const noexcept {
 }
 
 // Get the token for dot location
-::pasta::Token Designator::DotLoc(void) const noexcept {
+::pasta::Token Designator::DotToken(void) const noexcept {
   auto design = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
   assert(design != nullptr);
   if (!design->isFieldDesignator()) {
@@ -344,7 +344,7 @@ std::optional<::pasta::FieldDecl> Designator::Field(void) const noexcept {
 }
 
 // Get the token for field location
-::pasta::Token Designator::FieldLoc(void) const noexcept {
+::pasta::Token Designator::FieldToken(void) const noexcept {
   auto design = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
   assert(design != nullptr);
   if (!design->isFieldDesignator()) {
@@ -355,7 +355,7 @@ std::optional<::pasta::FieldDecl> Designator::Field(void) const noexcept {
 }
 
 // Get the token for l-bracket location
-::pasta::Token Designator::LBracketLoc(void) const noexcept {
+::pasta::Token Designator::LBracketToken(void) const noexcept {
   auto design = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
   assert(design != nullptr);
   if (!(design->isArrayDesignator() || design->isArrayRangeDesignator())) {
@@ -366,7 +366,7 @@ std::optional<::pasta::FieldDecl> Designator::Field(void) const noexcept {
 }
 
 // Get the token for r-bracket location
-::pasta::Token Designator::RBracketLoc(void) const noexcept {
+::pasta::Token Designator::RBracketToken(void) const noexcept {
   auto design = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
   assert(design != nullptr);
   if (!(design->isArrayDesignator() || design->isArrayRangeDesignator())) {
@@ -377,7 +377,7 @@ std::optional<::pasta::FieldDecl> Designator::Field(void) const noexcept {
 }
 
 // Get the token for ellipsis location
-::pasta::Token Designator::EllipsisLoc(void) const noexcept {
+::pasta::Token Designator::EllipsisToken(void) const noexcept {
   auto design = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
   assert(design != nullptr);
   if (!design->isArrayRangeDesignator()) {
@@ -388,13 +388,11 @@ std::optional<::pasta::FieldDecl> Designator::Field(void) const noexcept {
 }
 
 // Get the index for first designator expression. It will be only valid for
-unsigned Designator::FirstExprIndex(void) const noexcept {
+std::optional<unsigned> Designator::FirstExpressionIndex(void) const noexcept {
   auto design = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
   assert(design != nullptr);
   if (!(design->isArrayDesignator() || design->isArrayRangeDesignator())) {
-    // TODO(kumarak) : 0 could be a valid index. Should we make return
-    //                 type as signed
-    return 0;
+    return std::nullopt;
   }
   return design->getFirstExprIndex();
 }

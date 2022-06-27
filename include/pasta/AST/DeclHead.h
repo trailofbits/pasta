@@ -167,29 +167,26 @@ class Designator {
 
   // Returns the Token for dot location. It is only valid on
   // field designators.
-  ::pasta::Token DotLoc(void) const noexcept;
+  ::pasta::Token DotToken(void) const noexcept;
 
   // Returns the Field token for the designator. It is only
   // valid for field designators.
-  ::pasta::Token FieldLoc(void) const noexcept;
+  ::pasta::Token FieldToken(void) const noexcept;
 
-  // Returns the LBracket token. It will be only valid
+  // Returns the l-bracket token. It will be only valid
   // on an array or array-range designators.
-  ::pasta::Token LBracketLoc(void) const noexcept;
+  ::pasta::Token LBracketToken(void) const noexcept;
 
-  // Returns the token for RBracket location. It will be only valid
+  // Returns the token for r-bracket location. It will be only valid
   // on an array or array-range designators.
-  ::pasta::Token RBracketLoc(void) const noexcept;
+  ::pasta::Token RBracketToken(void) const noexcept;
 
   // Returns the token for Ellipsis location. It will be only valid
   // on an array-range designators.
-  ::pasta::Token EllipsisLoc(void) const noexcept;
+  ::pasta::Token EllipsisToken(void) const noexcept;
 
   // Returns the index of first designator expression.
-  // TODO(kumarak) : It is valid only for array and array range designators
-  //                 Should it return signed to avoid return index as 0 if
-  //                 the designator type is Field
-  unsigned FirstExprIndex(void) const noexcept;
+  std::optional<unsigned> FirstExpressionIndex(void) const noexcept;
 #endif
 };
 

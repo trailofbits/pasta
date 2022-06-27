@@ -1794,6 +1794,7 @@ void StmtPrinter::VisitDesignatedInitExpr(clang::DesignatedInitExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   bool NeedsEquals = true;
   for (const clang::DesignatedInitExpr::Designator &D : Node->designators()) {
+    TokenPrinterContext ctx(OS, &D, tokens);
     if (D.isFieldDesignator()) {
       if (D.getDotLoc().isInvalid()) {
         if (clang::IdentifierInfo *II = D.getFieldName()) {

@@ -15,6 +15,7 @@
 #define PASTA_FOR_EACH_TOKEN_CONTEXT_KIND(pp) \
     pp(Stmt) \
     pp(Decl) \
+    pp(Designator) \
     pp(Type) \
     pp(TemplateParameterList) \
     pp(TemplateArgument) \

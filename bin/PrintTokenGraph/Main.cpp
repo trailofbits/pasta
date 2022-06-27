@@ -26,7 +26,8 @@
 #include <string>
 #include <unordered_set>
 
-static std::string TokData(pasta::PrintedToken tok) {
+template <typename TokT>
+static std::string TokData(const TokT &tok) {
   std::stringstream ss;
   for (auto ch : tok.Data()) {
     switch (ch) {
@@ -43,7 +44,8 @@ static std::string TokData(pasta::PrintedToken tok) {
 }
 
 static void PrintTokenGraph(pasta::Decl tld) {
-  auto tokens = pasta::PrintedTokenRange::Create(tld);
+//  auto tokens = pasta::PrintedTokenRange::Create(tld);
+  auto tokens = tld.Tokens();
   if (tokens.empty()) {
     std::cerr
         << "Empty tokens for " << tld.KindName();
@@ -74,7 +76,7 @@ static void PrintTokenGraph(pasta::Decl tld) {
 
   std::unordered_set<pasta::TokenContext> contexts;
 
-  for (pasta::PrintedToken tok : tokens) {
+  for (auto tok : tokens) {
     for (auto context = tok.Context(); context; context = context->Parent()) {
       contexts.insert(context.value());
     }
@@ -162,7 +164,7 @@ static void PrintTokenGraph(pasta::Decl tld) {
     }
   }
 
-  for (pasta::PrintedToken tok : tokens) {
+  for (auto tok : tokens) {
     if (auto context = tok.Context()) {
       os
           << "tokens" << a

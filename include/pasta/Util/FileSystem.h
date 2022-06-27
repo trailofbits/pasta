@@ -146,7 +146,7 @@ class FileSystemView {
   explicit FileSystemView(std::shared_ptr<FileSystem> impl_);
 
   // Return the file system associated with this view.
-  inline std::shared_ptr<::pasta::FileSystem> FileSystem(void) const {
+  inline std::shared_ptr<::pasta::FileSystem> UnderlyingFileSystem(void) const {
     return impl;
   }
 

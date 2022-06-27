@@ -208,10 +208,10 @@ class Token {
   friend class AST;
   friend class ASTImpl;
   friend class CXXBaseSpecifier;
+  friend class TokenContext;
   friend class TokenIterator;
   friend class TokenPrinterContext;
   friend class TokenRange;
-  friend class Token;
 
   Token(void) = delete;
 
@@ -321,6 +321,10 @@ class TokenRange {
 
   inline size_t size(void) const noexcept {
     return Size();
+  }
+
+  inline bool empty(void) const noexcept {
+    return !Size();
   }
 
   // Number of tokens in this range.

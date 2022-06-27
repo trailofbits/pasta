@@ -355,7 +355,7 @@ std::optional<::pasta::FieldDecl> Designator::Field(void) const noexcept {
 }
 
 // Get the token for l-bracket location
-::pasta::Token Designator::LBracketToken(void) const noexcept {
+::pasta::Token Designator::LeftBracketToken(void) const noexcept {
   auto design = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
   assert(design != nullptr);
   if (!(design->isArrayDesignator() || design->isArrayRangeDesignator())) {
@@ -366,7 +366,7 @@ std::optional<::pasta::FieldDecl> Designator::Field(void) const noexcept {
 }
 
 // Get the token for r-bracket location
-::pasta::Token Designator::RBracketToken(void) const noexcept {
+::pasta::Token Designator::RightBracketToken(void) const noexcept {
   auto design = reinterpret_cast<const clang::DesignatedInitExpr::Designator *>(spec);
   assert(design != nullptr);
   if (!(design->isArrayDesignator() || design->isArrayRangeDesignator())) {

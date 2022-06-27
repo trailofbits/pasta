@@ -175,11 +175,11 @@ class Designator {
 
   // Returns the l-bracket token. It will be only valid
   // on an array or array-range designators.
-  ::pasta::Token LBracketToken(void) const noexcept;
+  ::pasta::Token LeftBracketToken(void) const noexcept;
 
   // Returns the token for r-bracket location. It will be only valid
   // on an array or array-range designators.
-  ::pasta::Token RBracketToken(void) const noexcept;
+  ::pasta::Token RightBracketToken(void) const noexcept;
 
   // Returns the token for Ellipsis location. It will be only valid
   // on an array-range designators.

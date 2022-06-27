@@ -1,6 +1,6 @@
 # PASTA
 
-PASTA is a C++ and Python library that abstracts the Clang compiler toolchain, and provides
+PASTA is a C++ library that abstracts the Clang compiler toolchain, and provides
 detailed access to compilation artifacts using APIs that mirror those available in Clang. PASTA
 tries to achieve the following goals:
 

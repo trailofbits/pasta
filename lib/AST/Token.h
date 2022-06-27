@@ -127,11 +127,11 @@ class TokenImpl {
 
   static constexpr uint32_t kTokenSizeMask = ((1u << 20) - 1u);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
   inline TokenImpl(OpaqueSourceLoc opaque_source_loc_, int32_t data_offset_,
                    uint32_t data_len_, clang::tok::TokenKind kind_,
                    TokenRole role_, TokenContextIndex token_context_index_=kInvalidTokenContextIndex)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
       : opaque_source_loc(opaque_source_loc_),
         context_index(token_context_index_),
         data_offset(data_offset_),

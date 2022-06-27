@@ -177,6 +177,10 @@ static void DeclareCppMethod1(
       } else {
         os << "  " << new_rt << ' ' << meth_name << "(bool) const noexcept;\n";
       }
+    } else if (!new_rt.empty() &&
+        !strcmp(class_name.c_str(), "DesignatedInitExpr") &&
+        !strcmp(meth_name.c_str(), "Designator")) {
+      os << "  " << new_rt << ' ' << meth_name << "(unsigned int) const noexcept;\n";
     } else {
       os << "  // " << meth_name << ": " << rt << "\n";
     }

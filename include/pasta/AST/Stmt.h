@@ -5592,7 +5592,7 @@ class DesignatedInitExpr : public Expr {
   // ArrayRangeEnd: (clang::Expr *)
   // ArrayRangeStart: (clang::Expr *)
   ::pasta::Token BeginToken(void) const noexcept;
-  // Designator: (const clang::DesignatedInitExpr::Designator *)
+  std::optional<::pasta::Designator> Designator(unsigned int) const noexcept;
   ::pasta::TokenRange DesignatorsSourceRange(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Token EqualOrColonToken(void) const noexcept;

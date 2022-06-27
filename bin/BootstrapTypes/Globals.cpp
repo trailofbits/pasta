@@ -319,6 +319,8 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
 
   {"(llvm::ArrayRef<clang::TemplateArgument>)", "std::vector<::pasta::TemplateArgument>"},
   {"(const clang::TemplateArgumentList &)", "std::vector<::pasta::TemplateArgument>"},
+
+  {"(const clang::DesignatedInitExpr::Designator *)", "std::optional<::pasta::Designator>"},
 };
 
 // Maps return types from the macros file to how they should be returned
@@ -721,6 +723,11 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
     "    ret.emplace_back(ast, arg);\n"
     "  }\n"
     "  return ret;\n"},
+
+    {"(const clang::DesignatedInitExpr::Designator *)",
+        "  if (val) {\n"
+        "    return DeclBuilder::Create<::pasta::Designator>(ast, val);\n"
+        "  }\n"},
 };
 
 // Prefixes on enumerators to strip.

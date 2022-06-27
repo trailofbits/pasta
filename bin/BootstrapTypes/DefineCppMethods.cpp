@@ -254,6 +254,20 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
     os << "  __builtin_unreachable();\n"
        << "}\n\n";
 
+  } else if (!strcmp(real_class_name.c_str(), "DesignatedInitExpr") &&
+      !strcmp(meth_name.c_str(), "Designator")) {
+    os << rt_type << " " << real_class_name << "::" << meth_name << "(unsigned int idx) const noexcept {\n"
+       << "  auto &self = *const_cast<clang::"<< real_class_name << " *>(u." << real_class_name  <<");\n"
+       << "  if (idx >= self.designators().size()) {\n"
+       << "    return std::nullopt;\n"
+       << "  }\n"
+       << "  decltype(auto) val = self." << meth_name_ref.str() << "(idx);\n"
+       << "  if (!val) {\n"
+       << "    return std::nullopt;\n"
+       << "  }\n"
+       << rt_val
+       << "  __builtin_unreachable();\n"
+       << "}\n\n";
   } else { \
     os << "// 1: " << real_class_name << "::" << meth_name << "\n";
     return;

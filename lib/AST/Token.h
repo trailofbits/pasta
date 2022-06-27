@@ -15,6 +15,7 @@
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/AST/Decl.h>
+#include <clang/AST/Expr.h>
 #include <clang/Basic/SourceLocation.h>
 #include <clang/Basic/TokenKinds.h>
 #pragma clang diagnostic pop
@@ -109,6 +110,12 @@ class TokenContextImpl {
       : TokenContextImpl(reinterpret_cast<const void *>(aliasee_),
                          parent_index_, parent_depth + 1u,
                          TokenContextKind::kAlias) {}
+
+  inline TokenContextImpl(TokenContextIndex parent_index_, \
+                          uint16_t parent_depth, \
+                          const clang::DesignatedInitExpr::Designator *data_) \
+      : TokenContextImpl(Canonicalize(data_), parent_index_, \
+                         parent_depth + 1u, TokenContextKind::kDesignator) {} \
 
   // Special context that we place at the end of a vector.
   inline TokenContextImpl(ASTImpl &ast)

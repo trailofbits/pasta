@@ -16337,7 +16337,21 @@ std::vector<::pasta::Stmt> DesignatedInitExpr::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-// 1: DesignatedInitExpr::Designator
+std::optional<::pasta::Designator> DesignatedInitExpr::Designator(unsigned int idx) const noexcept {
+  auto &self = *const_cast<clang::DesignatedInitExpr *>(u.DesignatedInitExpr);
+  if (idx >= self.designators().size()) {
+    return std::nullopt;
+  }
+  decltype(auto) val = self.getDesignator(idx);
+  if (!val) {
+    return std::nullopt;
+  }
+  if (val) {
+    return DeclBuilder::Create<::pasta::Designator>(ast, val);
+  }
+  __builtin_unreachable();
+}
+
 ::pasta::TokenRange DesignatedInitExpr::DesignatorsSourceRange(void) const noexcept {
   auto &self = *const_cast<clang::DesignatedInitExpr *>(u.DesignatedInitExpr);
   decltype(auto) val = self.getDesignatorsSourceRange();

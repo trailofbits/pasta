@@ -15,6 +15,7 @@
 #include <pasta/Util/Init.h>
 
 #include <clang/AST/Decl.h>
+#include <clang/AST/Expr.h>
 #include <clang/AST/Type.h>
 #include <clang/AST/Stmt.h>
 
@@ -102,6 +103,11 @@ static void PrintTokenGraph(pasta::Decl tld) {
       case pasta::TokenContextKind::kDecl:
         bgcolor = " bgcolor=\"antiquewhite\"";
         kind_name = reinterpret_cast<const clang::Decl *>(context.Data())->getDeclKindName();
+        break;
+      case pasta::TokenContextKind::kDesignator:
+        bgcolor = " bgcolor=\"teal\"";
+        // NOTE(kumarak) : Designator does not have api for getting the class name. Using kindname instead.
+        kind_name = context.KindName();
         break;
       case pasta::TokenContextKind::kType:
         bgcolor = " bgcolor=\"cadetblue1\"";

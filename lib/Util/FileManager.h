@@ -26,7 +26,10 @@ struct FileTokenImpl {
         data_len(data_len_),
         line(line_),
         column(static_cast<uint16_t>(column_)) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
     kind.extended.kind = static_cast<uint16_t>(kind_);
+#pragma GCC diagnostic pop
   }
   uint32_t data_offset;
   uint32_t data_len;

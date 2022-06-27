@@ -202,6 +202,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
           return {matching_tok, tok};
         }
         default:
+          (void) tok_kind;
           return {};
       }
     } else {

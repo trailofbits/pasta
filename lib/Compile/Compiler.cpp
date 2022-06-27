@@ -9,6 +9,16 @@
 
 namespace pasta {
 
+// Get the file system used by a compiler.
+std::shared_ptr<FileSystem> FileSystem::From(const Compiler &compiler) {
+  return compiler.impl->file_manager.FileSystem();
+}
+
+// Return the file manager associated with a compiler.
+FileManager FileManager::From(const Compiler &compiler) {
+  return compiler.impl->file_manager;
+}
+
 Compiler::~Compiler(void) {}
 
 Compiler::Compiler(std::shared_ptr<CompilerImpl> impl_)
@@ -59,17 +69,6 @@ std::filesystem::path Compiler::SystemRootIncludeDirectory(void) const {
 // Directory where the compiler is installed.
 std::filesystem::path Compiler::InstallationDirectory(void) const {
   return impl->install_dir;
-}
-
-// Return the file system associated with this compiler's paths.
-std::shared_ptr<FileSystem> Compiler::FileSystem(void) const {
-  return impl->file_manager.FileSystem();
-}
-
-// Return the file manager associated with files that will be opened and
-// read by this compiler.
-FileManager Compiler::FileManager(void) const {
-  return impl->file_manager;
 }
 
 // Invoke a callback `cb` for each system include directory. Think `-isystem`.

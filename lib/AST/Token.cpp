@@ -30,7 +30,7 @@ namespace {
 static bool ReadRawTokenByKind(clang::SourceManager &source_manager,
                                clang::Token tok, std::string *out) {
   llvm::StringRef backup;
-  switch (const auto tok_kind = tok.getKind()) {
+  switch (tok.getKind()) {
     case clang::tok::eof:
     case clang::tok::code_completion:
       return false;
@@ -317,6 +317,7 @@ const char *TokenContextImpl::KindName(
     case TokenContextKind::kAST:
       return "AST";
   }
+  return "";
 }
 
 // Return the index of this token context.

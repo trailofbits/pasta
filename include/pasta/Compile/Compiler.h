@@ -96,13 +96,6 @@ class Compiler {
   // Directory where the compiler is installed.
   std::filesystem::path InstallationDirectory(void) const;
 
-  // Return the file system associated with this compiler's paths.
-  std::shared_ptr<FileSystem> FileSystem(void) const;
-
-  // Return the file manager associated with files that will be opened and
-  // read by this compiler.
-  FileManager FileManager(void) const;
-
   // Related to `-isystem`.
   std::vector<IncludePath> SystemIncludeDirectories(void) const;
 
@@ -143,6 +136,8 @@ class Compiler {
  private:
   friend class CompileCommand;
   friend class CompileJob;
+  friend class FileManager;
+  friend class FileSystem;
 
   Compiler(void) = delete;
 

@@ -14,6 +14,7 @@ namespace pasta {
 
 class AST;
 class ASTImpl;
+class Compiler;
 class File;
 class FileImpl;
 class FileManagerImpl;
@@ -28,6 +29,9 @@ class FileManager {
   // Return the file manager containing a file.
   static FileManager Containing(const File &file);
 
+  // Return the file manager associated with a compiler.
+  static FileManager From(const Compiler &file);
+
   // Try to open a file.
   Result<File, std::error_code> OpenFile(Stat stat) const;
 
@@ -35,6 +39,7 @@ class FileManager {
   std::shared_ptr<::pasta::FileSystem> FileSystem(void) const;
 
  private:
+  friend class Compiler;
   friend class File;
   friend class FileImpl;
   friend class FileManagerImpl;

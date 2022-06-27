@@ -32,7 +32,7 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
-  auto maybe_cwd = maybe_compiler->FileSystem()->CurrentWorkingDirectory();
+  auto maybe_cwd = pasta::FileSystem::From(maybe_compiler.Value())->CurrentWorkingDirectory();
   if (!maybe_cwd.Succeeded()) {
     std::cerr << maybe_compiler.TakeError() << std::endl;
     return EXIT_FAILURE;

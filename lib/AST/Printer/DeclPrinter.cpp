@@ -84,7 +84,7 @@ static clang::QualType getDeclType(clang::Decl* D) {
 }
 
 raw_string_ostream& DeclPrinter::Indent(int Indentation) {
-  for (unsigned i = 0; i != Indentation; ++i)
+  for (int i = 0; i != Indentation; ++i)
     Out << "  ";
   return Out;
 }

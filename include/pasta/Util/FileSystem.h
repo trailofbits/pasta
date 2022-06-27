@@ -15,6 +15,8 @@
 
 namespace pasta {
 
+class Compiler;
+
 enum class PathKind : signed char {
   kUnix = '/',
   kWindows = '\\'
@@ -82,7 +84,12 @@ struct Stat {
 // Virtual interface to a file system.
 class FileSystem : public std::enable_shared_from_this<FileSystem> {
  public:
+  friend class Compiler;
+
   virtual ~FileSystem(void);
+
+  // Get the file system used by a compiler.
+  static std::shared_ptr<FileSystem> From(const Compiler &);
 
   // Create a native file system.
   static std::shared_ptr<FileSystem> CreateNative(void);

@@ -354,8 +354,8 @@ void TypePrinter::printBeforeAfter(
 //                             raw_string_ostream &OS) {
 //  switch (T->getTypeClass()) {
 //#define ABSTRACT_TYPE(CLASS, PARENT)
-//#define TYPE(CLASS, PARENT) case clang::Type::CLASS: \
-//    print##CLASS##After(clang::cast<clang::CLASS##Type>(T), OS); \
+//#define TYPE(CLASS, PARENT) case clang::Type::CLASS:
+//    print##CLASS##After(clang::cast<clang::CLASS##Type>(T), OS);
 //    break;
 //#include "clang/AST/TypeNodes.inc"
 //  }

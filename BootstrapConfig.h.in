@@ -3,7 +3,8 @@
  */
 
 #pragma once
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
 static const char *kCxxPath = "@CMAKE_CXX_COMPILER@";
 
 static const char *kMacroGeneratorPath = "@PASTA_BIN_BOOTSTRAP_MACROS_MACRO_GENERATOR_CPP_PATH@";
@@ -29,3 +30,4 @@ static const char *kASTTypeCpp = "@PASTA_SRC_AST_TYPE_CPP_PATH@";
 static const char *kASTStmtHeader = "@PASTA_INCLUDE_AST_STMT_H_PATH@";
 
 static const char *kASTStmtCpp = "@PASTA_SRC_AST_STMT_CPP_PATH@";
+#pragma GCC diagnostic pop

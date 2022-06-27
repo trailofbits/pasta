@@ -633,10 +633,12 @@ class ParsedFileTracker : public clang::PPCallbacks {
           sm.getSpellingLineNumber(tok_loc),
           sm.getSpellingColumnNumber(tok_loc),
           tok_kind);
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
       last_tok.kind.extended.is_pp_kw = is_pp_keyword;
       last_tok.kind.extended.is_objc_kw = is_objc_keyword;
       last_tok.kind.extended.alt_kind = alt_keyword;
+#pragma GCC diagnostic pop
     }
 
     const auto tok_loc = tok.getLocation();

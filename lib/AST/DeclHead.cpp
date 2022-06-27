@@ -40,8 +40,8 @@ static ::pasta::DeclCategory ClassifyDecl(const clang::Decl *decl) {
       return ClassifyDecl(tpl_decl->getTemplatedDecl());
     }
 
-  } else if (auto type_decl = clang::dyn_cast<clang::TypeDecl>(decl)) {
-    if (auto tag_decl = clang::dyn_cast<clang::TagDecl>(decl)) {
+  } else if (clang::isa<clang::TypeDecl>(decl)) {
+    if (clang::isa<clang::TagDecl>(decl)) {
       if (clang::isa<clang::EnumDecl>(decl)) {
         return ::pasta::DeclCategory::kEnumeration;
       } else if (auto record_decl = clang::dyn_cast<clang::RecordDecl>(decl)) {
@@ -128,7 +128,7 @@ static ::pasta::DeclCategory ClassifyDecl(const clang::Decl *decl) {
     } else if (clang::isa<clang::FieldDecl>(decl)) {
       return ::pasta::DeclCategory::kInstanceMember;
 
-    } else if (auto func_decl = clang::dyn_cast<clang::FunctionDecl>(decl)) {
+    } else if (clang::isa<clang::FunctionDecl>(decl)) {
       if (auto method_decl_cxx = clang::dyn_cast<clang::CXXMethodDecl>(decl)) {
         if (method_decl_cxx->isInstance()) {
           return ::pasta::DeclCategory::kInstanceMethod;

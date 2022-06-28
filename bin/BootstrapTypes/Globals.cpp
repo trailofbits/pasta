@@ -220,7 +220,8 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
    "std::vector<::pasta::ObjCProtocolDecl>"},
   {"(llvm::ArrayRef<clang::ParmVarDecl *>)",
    "std::vector<::pasta::ParmVarDecl>"},
-
+  {"(llvm::ArrayRef<clang::DesignatedInitExpr::Designator>)",
+   "std::vector<::pasta::Designator>"},
   {"(llvm::ArrayRef<clang::NamedDecl *>)",
    "std::vector<::pasta::NamedDecl>"},
   {"(llvm::ArrayRef<clang::ImplicitParamDecl *>)",
@@ -541,6 +542,13 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
 
   {"(llvm::ArrayRef<clang::ParmVarDecl *>)",
    DECL_ITERATOR_IMPL(ParmVarDecl)},
+
+  {"(llvm::ArrayRef<clang::DesignatedInitExpr::Designator>)",
+   "  std::vector<::pasta::Designator> ret;\n"
+   "  for (const auto &d : val) {\n"
+   "    ret.emplace_back(ast, &d);\n"
+   "  }\n"
+   "  return ret;\n"},
 
   {"(llvm::ArrayRef<clang::NamedDecl *>)",
    DECL_ITERATOR_IMPL(NamedDecl)},

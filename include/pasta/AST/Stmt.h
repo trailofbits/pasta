@@ -5587,7 +5587,7 @@ class DesignatedInitExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(Stmt, DesignatedInitExpr)
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, DesignatedInitExpr)
   std::vector<::pasta::Stmt> Children(void) const noexcept;
-  // Designators: (llvm::ArrayRef<clang::DesignatedInitExpr::Designator>)
+  std::vector<::pasta::Designator> Designators(void) const noexcept;
   // ArrayIndex: (clang::Expr *)
   // ArrayRangeEnd: (clang::Expr *)
   // ArrayRangeStart: (clang::Expr *)

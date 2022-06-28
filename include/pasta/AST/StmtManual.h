@@ -52,6 +52,10 @@ class Designator {
   inline Designator(std::shared_ptr<ASTImpl> ast_, const void *spec_)
       : ast(std::move(ast_)), spec(spec_) {}
 
+  inline const void *RawDesignator(void) const noexcept {
+    return spec;
+  }
+
 #ifndef PASTA_IN_BOOTSTRAP
   // Is this a field designator?
   bool IsFieldDesignator(void) const noexcept;

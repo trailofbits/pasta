@@ -57,7 +57,7 @@ std::filesystem::path Compiler::ResourceDirectory(void) const {
 // Directory to treat as the system root. Useful for cross-compilation
 // toolchains.
 std::filesystem::path Compiler::SystemRootDirectory(void) const {
-  return impl->sysroot_dir.empty() ? impl->install_dir : impl->sysroot_dir;
+  return impl->sysroot_dir;
 }
 
 // Directory to treat as the system root for inclusions. Useful for cross-

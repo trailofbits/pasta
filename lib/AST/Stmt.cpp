@@ -1275,7 +1275,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(Stmt, WhileStmt)
   }
   assert(false && "Stmt::IgnoreContainers can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 // 0: Stmt::
@@ -1338,7 +1337,6 @@ std::string_view Stmt::KindName(void) const noexcept {
   }
   assert(false && "Stmt::KindName can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Stmt Stmt::StripLabelLikeStatements(void) const noexcept {
@@ -1348,7 +1346,6 @@ std::string_view Stmt::KindName(void) const noexcept {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "Stmt::StripLabelLikeStatements can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -1408,7 +1405,6 @@ std::optional<::pasta::SwitchCase> SwitchCase::NextSwitchCase(void) const noexce
   }
   assert(false && "SwitchCase::SubStatement can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 SwitchStmt::SwitchStmt(
@@ -1445,7 +1441,6 @@ std::vector<::pasta::Stmt> SwitchStmt::Children(void) const noexcept {
   }
   assert(false && "SwitchStmt::Body can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr SwitchStmt::Condition(void) const noexcept {
@@ -1455,7 +1450,6 @@ std::vector<::pasta::Stmt> SwitchStmt::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "SwitchStmt::Condition can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -1741,7 +1735,6 @@ std::vector<::pasta::Stmt> WhileStmt::Children(void) const noexcept {
   }
   assert(false && "WhileStmt::Body can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr WhileStmt::Condition(void) const noexcept {
@@ -1751,7 +1744,6 @@ std::vector<::pasta::Stmt> WhileStmt::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "WhileStmt::Condition can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2054,7 +2046,19 @@ std::vector<::pasta::Stmt> AttributedStmt::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-// 0: AttributedStmt::Attributes
+std::vector<::pasta::Attr> AttributedStmt::Attributes(void) const noexcept {
+  auto &self = *const_cast<clang::AttributedStmt *>(u.AttributedStmt);
+  decltype(auto) val = self.getAttrs();
+  std::vector<::pasta::Attr> ret;
+  for (auto attr_ptr : val) {
+    if (attr_ptr) {
+      ret.emplace_back(StmtBuilder::Create<::pasta::Attr>(ast, attr_ptr));
+    }
+  }
+  return ret;
+  __builtin_unreachable();
+}
+
 ::pasta::Token AttributedStmt::BeginToken(void) const noexcept {
   auto &self = *const_cast<clang::AttributedStmt *>(u.AttributedStmt);
   decltype(auto) val = self.getBeginLoc();
@@ -2076,7 +2080,6 @@ std::vector<::pasta::Stmt> AttributedStmt::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "AttributedStmt::SubStatement can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2188,7 +2191,6 @@ std::optional<::pasta::VarDecl> CXXCatchStmt::ExceptionDeclaration(void) const n
   }
   assert(false && "CXXCatchStmt::HandlerBlock can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 CXXForRangeStmt::CXXForRangeStmt(
@@ -2225,7 +2227,6 @@ std::vector<::pasta::Stmt> CXXForRangeStmt::Children(void) const noexcept {
   }
   assert(false && "CXXForRangeStmt::BeginStatement can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Stmt CXXForRangeStmt::Body(void) const noexcept {
@@ -2235,7 +2236,6 @@ std::vector<::pasta::Stmt> CXXForRangeStmt::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "CXXForRangeStmt::Body can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2261,7 +2261,6 @@ std::vector<::pasta::Stmt> CXXForRangeStmt::Children(void) const noexcept {
   }
   assert(false && "CXXForRangeStmt::Condition can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token CXXForRangeStmt::EndToken(void) const noexcept {
@@ -2279,7 +2278,6 @@ std::vector<::pasta::Stmt> CXXForRangeStmt::Children(void) const noexcept {
   }
   assert(false && "CXXForRangeStmt::EndStatement can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token CXXForRangeStmt::ForToken(void) const noexcept {
@@ -2296,7 +2294,6 @@ std::vector<::pasta::Stmt> CXXForRangeStmt::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXForRangeStmt::Increment can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2320,7 +2317,6 @@ std::optional<::pasta::Stmt> CXXForRangeStmt::Initializer(void) const noexcept {
   }
   assert(false && "CXXForRangeStmt::LoopVariableStatement can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::VarDecl CXXForRangeStmt::LoopVariable(void) const noexcept {
@@ -2330,7 +2326,6 @@ std::optional<::pasta::Stmt> CXXForRangeStmt::Initializer(void) const noexcept {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
   assert(false && "CXXForRangeStmt::LoopVariable can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2349,7 +2344,6 @@ std::optional<::pasta::Stmt> CXXForRangeStmt::Initializer(void) const noexcept {
   }
   assert(false && "CXXForRangeStmt::RangeInitializer can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::DeclStmt CXXForRangeStmt::RangeStatement(void) const noexcept {
@@ -2359,7 +2353,6 @@ std::optional<::pasta::Stmt> CXXForRangeStmt::Initializer(void) const noexcept {
     return StmtBuilder::Create<::pasta::DeclStmt>(ast, val);
   }
   assert(false && "CXXForRangeStmt::RangeStatement can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2411,7 +2404,6 @@ uint32_t CXXTryStmt::NumHandlers(void) const noexcept {
     return StmtBuilder::Create<::pasta::CompoundStmt>(ast, val);
   }
   assert(false && "CXXTryStmt::TryBlock can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2480,7 +2472,6 @@ std::vector<::pasta::Stmt> CapturedStmt::Children(void) const noexcept {
   }
   assert(false && "CapturedStmt::CapturedDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::RecordDecl CapturedStmt::CapturedRecordDeclaration(void) const noexcept {
@@ -2490,7 +2481,6 @@ std::vector<::pasta::Stmt> CapturedStmt::Children(void) const noexcept {
     return DeclBuilder::Create<::pasta::RecordDecl>(ast, val);
   }
   assert(false && "CapturedStmt::CapturedRecordDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2508,7 +2498,6 @@ enum CapturedRegionKind CapturedStmt::CapturedRegionKind(void) const noexcept {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "CapturedStmt::CapturedStatement can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2589,7 +2578,6 @@ std::vector<::pasta::Stmt> CaseStmt::Children(void) const noexcept {
   }
   assert(false && "CaseStmt::LHS can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 std::optional<::pasta::Expr> CaseStmt::RHS(void) const noexcept {
@@ -2611,7 +2599,6 @@ std::optional<::pasta::Expr> CaseStmt::RHS(void) const noexcept {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "CaseStmt::SubStatement can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2777,7 +2764,6 @@ std::vector<::pasta::Stmt> CoreturnStmt::Children(void) const noexcept {
   }
   assert(false && "CoreturnStmt::Operand can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr CoreturnStmt::PromiseCall(void) const noexcept {
@@ -2787,7 +2773,6 @@ std::vector<::pasta::Stmt> CoreturnStmt::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CoreturnStmt::PromiseCall can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2825,7 +2810,6 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::Children(void) const noexcept {
   }
   assert(false && "CoroutineBodyStmt::Allocate can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token CoroutineBodyStmt::BeginToken(void) const noexcept {
@@ -2843,7 +2827,6 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::Children(void) const noexcept {
   }
   assert(false && "CoroutineBodyStmt::Body can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr CoroutineBodyStmt::Deallocate(void) const noexcept {
@@ -2853,7 +2836,6 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CoroutineBodyStmt::Deallocate can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2872,7 +2854,6 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::Children(void) const noexcept {
   }
   assert(false && "CoroutineBodyStmt::ExceptionHandler can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Stmt CoroutineBodyStmt::FallthroughHandler(void) const noexcept {
@@ -2882,7 +2863,6 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "CoroutineBodyStmt::FallthroughHandler can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2894,7 +2874,6 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::Children(void) const noexcept {
   }
   assert(false && "CoroutineBodyStmt::FinalSuspendStatement can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Stmt CoroutineBodyStmt::InitializerSuspendStatement(void) const noexcept {
@@ -2904,7 +2883,6 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "CoroutineBodyStmt::InitializerSuspendStatement can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2929,7 +2907,6 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::ParameterMoves(void) const noexcep
   }
   assert(false && "CoroutineBodyStmt::PromiseDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Stmt CoroutineBodyStmt::PromiseDeclarationStatement(void) const noexcept {
@@ -2939,7 +2916,6 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::ParameterMoves(void) const noexcep
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "CoroutineBodyStmt::PromiseDeclarationStatement can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2951,7 +2927,6 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::ParameterMoves(void) const noexcep
   }
   assert(false && "CoroutineBodyStmt::ResultDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Stmt CoroutineBodyStmt::ReturnStatement(void) const noexcept {
@@ -2961,7 +2936,6 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::ParameterMoves(void) const noexcep
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "CoroutineBodyStmt::ReturnStatement can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2973,7 +2947,6 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::ParameterMoves(void) const noexcep
   }
   assert(false && "CoroutineBodyStmt::ReturnStatementOnAllocFailure can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr CoroutineBodyStmt::ReturnValueInitializer(void) const noexcept {
@@ -2983,7 +2956,6 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::ParameterMoves(void) const noexcep
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CoroutineBodyStmt::ReturnValueInitializer can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3114,7 +3086,6 @@ std::vector<::pasta::Stmt> DefaultStmt::Children(void) const noexcept {
   }
   assert(false && "DefaultStmt::SubStatement can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 DoStmt::DoStmt(
@@ -3151,7 +3122,6 @@ std::vector<::pasta::Stmt> DoStmt::Children(void) const noexcept {
   }
   assert(false && "DoStmt::Body can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr DoStmt::Condition(void) const noexcept {
@@ -3161,7 +3131,6 @@ std::vector<::pasta::Stmt> DoStmt::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "DoStmt::Condition can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3389,7 +3358,6 @@ bool Expr::HasSideEffects(void) const noexcept {
   }
   assert(false && "Expr::IgnoreCasts can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr Expr::IgnoreConversionOperatorSingleStep(void) const noexcept {
@@ -3399,7 +3367,6 @@ bool Expr::HasSideEffects(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "Expr::IgnoreConversionOperatorSingleStep can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3411,7 +3378,6 @@ bool Expr::HasSideEffects(void) const noexcept {
   }
   assert(false && "Expr::IgnoreImpCasts can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr Expr::IgnoreImplicit(void) const noexcept {
@@ -3421,7 +3387,6 @@ bool Expr::HasSideEffects(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "Expr::IgnoreImplicit can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3433,7 +3398,6 @@ bool Expr::HasSideEffects(void) const noexcept {
   }
   assert(false && "Expr::IgnoreImplicitAsWritten can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr Expr::IgnoreParenthesisBaseCasts(void) const noexcept {
@@ -3443,7 +3407,6 @@ bool Expr::HasSideEffects(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "Expr::IgnoreParenthesisBaseCasts can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3455,7 +3418,6 @@ bool Expr::HasSideEffects(void) const noexcept {
   }
   assert(false && "Expr::IgnoreParenthesisCasts can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr Expr::IgnoreParenthesisImpCasts(void) const noexcept {
@@ -3466,7 +3428,6 @@ bool Expr::HasSideEffects(void) const noexcept {
   }
   assert(false && "Expr::IgnoreParenthesisImpCasts can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr Expr::IgnoreParenthesisLValueCasts(void) const noexcept {
@@ -3476,7 +3437,6 @@ bool Expr::HasSideEffects(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "Expr::IgnoreParenthesisLValueCasts can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3499,7 +3459,6 @@ bool Expr::HasSideEffects(void) const noexcept {
   }
   assert(false && "Expr::IgnoreParentheses can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr Expr::IgnoreUnlessSpelledInSource(void) const noexcept {
@@ -3509,7 +3468,6 @@ bool Expr::HasSideEffects(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "Expr::IgnoreUnlessSpelledInSource can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3558,7 +3516,6 @@ std::optional<::pasta::CXXRecordDecl> Expr::BestDynamicClassType(void) const noe
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "Expr::BestDynamicClassTypeExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3886,7 +3843,6 @@ std::vector<::pasta::Stmt> ExpressionTraitExpr::Children(void) const noexcept {
   }
   assert(false && "ExpressionTraitExpr::QueriedExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 enum ExpressionTrait ExpressionTraitExpr::Trait(void) const noexcept {
@@ -3946,7 +3902,6 @@ bool ExtVectorElementExpr::ContainsDuplicateElements(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ExtVectorElementExpr::Base can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -4115,7 +4070,6 @@ std::vector<::pasta::Stmt> ForStmt::Children(void) const noexcept {
   }
   assert(false && "ForStmt::Body can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 std::optional<::pasta::Expr> ForStmt::Condition(void) const noexcept {
@@ -4224,7 +4178,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(FullExpr, ExprWithCleanups)
   }
   assert(false && "FullExpr::SubExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 FunctionParmPackExpr::FunctionParmPackExpr(
@@ -4280,7 +4233,6 @@ uint32_t FunctionParmPackExpr::NumExpansions(void) const noexcept {
   }
   assert(false && "FunctionParmPackExpr::ParameterPack can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token FunctionParmPackExpr::ParameterPackToken(void) const noexcept {
@@ -4330,7 +4282,6 @@ std::string GCCAsmStmt::GenerateAssemblyString(void) const noexcept {
     return StmtBuilder::Create<::pasta::StringLiteral>(ast, val);
   }
   assert(false && "GCCAsmStmt::AssemblyString can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -4696,7 +4647,6 @@ std::vector<::pasta::Expr> GenericSelectionExpr::AssociationExpressions(void) co
   }
   assert(false && "GenericSelectionExpr::ControllingExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token GenericSelectionExpr::DefaultToken(void) const noexcept {
@@ -4741,7 +4691,6 @@ uint32_t GenericSelectionExpr::NumAssociations(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "GenericSelectionExpr::ResultExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -4807,7 +4756,6 @@ std::vector<::pasta::Stmt> GotoStmt::Children(void) const noexcept {
   }
   assert(false && "GotoStmt::Label can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token GotoStmt::LabelToken(void) const noexcept {
@@ -4850,7 +4798,6 @@ std::vector<::pasta::Stmt> IfStmt::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "IfStmt::Condition can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -4953,7 +4900,6 @@ enum IfStatementKind IfStmt::StatementKind(void) const noexcept {
   }
   assert(false && "IfStmt::Then can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 bool IfStmt::HasElseStorage(void) const noexcept {
@@ -5054,7 +5000,6 @@ std::vector<::pasta::Stmt> ImaginaryLiteral::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ImaginaryLiteral::SubExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -5159,7 +5104,6 @@ std::optional<::pasta::LabelDecl> IndirectGotoStmt::ConstantTarget(void) const n
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "IndirectGotoStmt::Target can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -5420,7 +5364,6 @@ std::vector<::pasta::Stmt> LabelStmt::Children(void) const noexcept {
   }
   assert(false && "LabelStmt::Declaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token LabelStmt::EndToken(void) const noexcept {
@@ -5447,7 +5390,6 @@ std::string_view LabelStmt::Name(void) const noexcept {
   }
   assert(false && "LabelStmt::Name can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Stmt LabelStmt::SubStatement(void) const noexcept {
@@ -5457,7 +5399,6 @@ std::string_view LabelStmt::Name(void) const noexcept {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "LabelStmt::SubStatement can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -5514,7 +5455,6 @@ std::vector<::pasta::Stmt> LambdaExpr::Children(void) const noexcept {
   }
   assert(false && "LambdaExpr::Body can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::CXXMethodDecl LambdaExpr::CallOperator(void) const noexcept {
@@ -5524,7 +5464,6 @@ std::vector<::pasta::Stmt> LambdaExpr::Children(void) const noexcept {
     return DeclBuilder::Create<::pasta::CXXMethodDecl>(ast, val);
   }
   assert(false && "LambdaExpr::CallOperator can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -5549,7 +5488,6 @@ enum LambdaCaptureDefault LambdaExpr::CaptureDefault(void) const noexcept {
     return StmtBuilder::Create<::pasta::CompoundStmt>(ast, val);
   }
   assert(false && "LambdaExpr::CompoundStatementBody can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -5599,7 +5537,6 @@ std::vector<::pasta::NamedDecl> LambdaExpr::ExplicitTemplateParameters(void) con
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
   assert(false && "LambdaExpr::LambdaClass can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -5883,7 +5820,6 @@ std::vector<::pasta::Stmt> MSDependentExistsStmt::Children(void) const noexcept 
   }
   assert(false && "MSDependentExistsStmt::SubStatement can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 bool MSDependentExistsStmt::IsIfExists(void) const noexcept {
@@ -5929,7 +5865,6 @@ std::vector<::pasta::Stmt> MSPropertyRefExpr::Children(void) const noexcept {
   }
   assert(false && "MSPropertyRefExpr::BaseExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token MSPropertyRefExpr::BeginToken(void) const noexcept {
@@ -5960,7 +5895,6 @@ std::vector<::pasta::Stmt> MSPropertyRefExpr::Children(void) const noexcept {
     return DeclBuilder::Create<::pasta::MSPropertyDecl>(ast, val);
   }
   assert(false && "MSPropertyRefExpr::PropertyDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -6015,7 +5949,6 @@ std::vector<::pasta::Stmt> MSPropertySubscriptExpr::Children(void) const noexcep
   }
   assert(false && "MSPropertySubscriptExpr::Base can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token MSPropertySubscriptExpr::BeginToken(void) const noexcept {
@@ -6046,7 +5979,6 @@ std::vector<::pasta::Stmt> MSPropertySubscriptExpr::Children(void) const noexcep
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "MSPropertySubscriptExpr::Index can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -6139,7 +6071,6 @@ enum StorageDuration MaterializeTemporaryExpr::StorageDuration(void) const noexc
   }
   assert(false && "MaterializeTemporaryExpr::SubExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 bool MaterializeTemporaryExpr::IsBoundToLvalueReference(void) const noexcept {
@@ -6185,7 +6116,6 @@ std::vector<::pasta::Stmt> MatrixSubscriptExpr::Children(void) const noexcept {
   }
   assert(false && "MatrixSubscriptExpr::Base can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token MatrixSubscriptExpr::BeginToken(void) const noexcept {
@@ -6202,7 +6132,6 @@ std::vector<::pasta::Stmt> MatrixSubscriptExpr::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "MatrixSubscriptExpr::ColumnIndex can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -6234,7 +6163,6 @@ std::vector<::pasta::Stmt> MatrixSubscriptExpr::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "MatrixSubscriptExpr::RowIndex can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -6274,7 +6202,6 @@ std::vector<::pasta::Stmt> MemberExpr::Children(void) const noexcept {
   }
   assert(false && "MemberExpr::Base can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token MemberExpr::BeginToken(void) const noexcept {
@@ -6313,7 +6240,6 @@ std::vector<::pasta::Stmt> MemberExpr::Children(void) const noexcept {
     return DeclBuilder::Create<::pasta::ValueDecl>(ast, val);
   }
   assert(false && "MemberExpr::MemberDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -6518,7 +6444,6 @@ std::vector<::pasta::Stmt> OMPArraySectionExpr::Children(void) const noexcept {
   }
   assert(false && "OMPArraySectionExpr::Base can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token OMPArraySectionExpr::BeginToken(void) const noexcept {
@@ -6564,7 +6489,6 @@ std::vector<::pasta::Stmt> OMPArraySectionExpr::Children(void) const noexcept {
   }
   assert(false && "OMPArraySectionExpr::Length can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr OMPArraySectionExpr::LowerBound(void) const noexcept {
@@ -6574,7 +6498,6 @@ std::vector<::pasta::Stmt> OMPArraySectionExpr::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPArraySectionExpr::LowerBound can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -6592,7 +6515,6 @@ std::vector<::pasta::Stmt> OMPArraySectionExpr::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPArraySectionExpr::Stride can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -6624,7 +6546,6 @@ std::vector<::pasta::Stmt> OMPArrayShapingExpr::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPArrayShapingExpr::Base can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -6714,7 +6635,6 @@ std::vector<::pasta::Stmt> OMPCanonicalLoop::Children(void) const noexcept {
   }
   assert(false && "OMPCanonicalLoop::DistanceFunc can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token OMPCanonicalLoop::EndToken(void) const noexcept {
@@ -6732,7 +6652,6 @@ std::vector<::pasta::Stmt> OMPCanonicalLoop::Children(void) const noexcept {
   }
   assert(false && "OMPCanonicalLoop::LoopStatement can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::CapturedStmt OMPCanonicalLoop::LoopVariableFunc(void) const noexcept {
@@ -6743,7 +6662,6 @@ std::vector<::pasta::Stmt> OMPCanonicalLoop::Children(void) const noexcept {
   }
   assert(false && "OMPCanonicalLoop::LoopVariableFunc can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::DeclRefExpr OMPCanonicalLoop::LoopVariableReference(void) const noexcept {
@@ -6753,7 +6671,6 @@ std::vector<::pasta::Stmt> OMPCanonicalLoop::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::DeclRefExpr>(ast, val);
   }
   assert(false && "OMPCanonicalLoop::LoopVariableReference can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -6849,7 +6766,6 @@ std::vector<::pasta::Stmt> OMPExecutableDirective::Children(void) const noexcept
   }
   assert(false && "OMPExecutableDirective::AssociatedStatement can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token OMPExecutableDirective::BeginToken(void) const noexcept {
@@ -6877,7 +6793,6 @@ std::vector<::pasta::Stmt> OMPExecutableDirective::Children(void) const noexcept
   }
   assert(false && "OMPExecutableDirective::InnermostCapturedStatement can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 uint32_t OMPExecutableDirective::NumClauses(void) const noexcept {
@@ -6895,7 +6810,6 @@ uint32_t OMPExecutableDirective::NumClauses(void) const noexcept {
   }
   assert(false && "OMPExecutableDirective::RawStatement can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Stmt OMPExecutableDirective::StructuredBlock(void) const noexcept {
@@ -6905,7 +6819,6 @@ uint32_t OMPExecutableDirective::NumClauses(void) const noexcept {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "OMPExecutableDirective::StructuredBlock can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7159,7 +7072,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
   }
   assert(false && "OMPLoopDirective::Body can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr OMPLoopDirective::CalculateLastIteration(void) const noexcept {
@@ -7169,7 +7081,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::CalculateLastIteration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7181,7 +7092,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
   }
   assert(false && "OMPLoopDirective::CombinedCondition can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr OMPLoopDirective::CombinedDistanceCondition(void) const noexcept {
@@ -7191,7 +7101,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::CombinedDistanceCondition can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7203,7 +7112,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
   }
   assert(false && "OMPLoopDirective::CombinedEnsureUpperBound can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr OMPLoopDirective::CombinedInitializer(void) const noexcept {
@@ -7213,7 +7121,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::CombinedInitializer can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7225,7 +7132,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
   }
   assert(false && "OMPLoopDirective::CombinedLowerBoundVariable can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr OMPLoopDirective::CombinedNextLowerBound(void) const noexcept {
@@ -7235,7 +7141,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::CombinedNextLowerBound can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7247,7 +7152,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
   }
   assert(false && "OMPLoopDirective::CombinedNextUpperBound can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr OMPLoopDirective::CombinedParallelForInDistanceCondition(void) const noexcept {
@@ -7257,7 +7161,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::CombinedParallelForInDistanceCondition can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7269,7 +7172,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
   }
   assert(false && "OMPLoopDirective::CombinedUpperBoundVariable can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr OMPLoopDirective::Condition(void) const noexcept {
@@ -7279,7 +7181,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::Condition can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7291,7 +7192,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
   }
   assert(false && "OMPLoopDirective::DistanceIncrement can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr OMPLoopDirective::EnsureUpperBound(void) const noexcept {
@@ -7301,7 +7201,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::EnsureUpperBound can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7313,7 +7212,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
   }
   assert(false && "OMPLoopDirective::Increment can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr OMPLoopDirective::Initializer(void) const noexcept {
@@ -7323,7 +7221,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::Initializer can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7335,7 +7232,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
   }
   assert(false && "OMPLoopDirective::IsLastIterationVariable can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr OMPLoopDirective::IterationVariable(void) const noexcept {
@@ -7345,7 +7241,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::IterationVariable can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7357,7 +7252,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
   }
   assert(false && "OMPLoopDirective::LastIteration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr OMPLoopDirective::LowerBoundVariable(void) const noexcept {
@@ -7367,7 +7261,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::LowerBoundVariable can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7379,7 +7272,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
   }
   assert(false && "OMPLoopDirective::NextLowerBound can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr OMPLoopDirective::NextUpperBound(void) const noexcept {
@@ -7389,7 +7281,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::NextUpperBound can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7401,7 +7292,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
   }
   assert(false && "OMPLoopDirective::NumIterations can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr OMPLoopDirective::PreCondition(void) const noexcept {
@@ -7411,7 +7301,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::PreCondition can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7423,7 +7312,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
   }
   assert(false && "OMPLoopDirective::PreInitializers can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr OMPLoopDirective::PrevEnsureUpperBound(void) const noexcept {
@@ -7433,7 +7321,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::PrevEnsureUpperBound can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7445,7 +7332,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
   }
   assert(false && "OMPLoopDirective::PrevLowerBoundVariable can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr OMPLoopDirective::PrevUpperBoundVariable(void) const noexcept {
@@ -7455,7 +7341,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::PrevUpperBoundVariable can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7467,7 +7352,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
   }
   assert(false && "OMPLoopDirective::StrideVariable can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr OMPLoopDirective::UpperBoundVariable(void) const noexcept {
@@ -7477,7 +7361,6 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::UpperBoundVariable can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7545,7 +7428,6 @@ uint32_t OMPLoopTransformationDirective::NumAssociatedLoops(void) const noexcept
   }
   assert(false && "OMPLoopTransformationDirective::PreInitializers can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Stmt OMPLoopTransformationDirective::TransformedStatement(void) const noexcept {
@@ -7555,7 +7437,6 @@ uint32_t OMPLoopTransformationDirective::NumAssociatedLoops(void) const noexcept
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "OMPLoopTransformationDirective::TransformedStatement can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7613,7 +7494,6 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPMetaDirective)
   }
   assert(false && "OMPMetaDirective::IfStatement can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 OMPOrderedDirective::OMPOrderedDirective(
@@ -7637,7 +7517,6 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPParallelDirective)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPParallelDirective::TaskReductionReferenceExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7664,7 +7543,6 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPParallelForDirective)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPParallelForDirective::TaskReductionReferenceExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7698,7 +7576,6 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPParallelMasterDirective)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPParallelMasterDirective::TaskReductionReferenceExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7741,7 +7618,6 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPParallelSectionsDirective)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPParallelSectionsDirective::TaskReductionReferenceExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7787,7 +7663,6 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPSectionsDirective)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPSectionsDirective::TaskReductionReferenceExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7857,7 +7732,6 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTargetParallelDirective)
   }
   assert(false && "OMPTargetParallelDirective::TaskReductionReferenceExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 bool OMPTargetParallelDirective::HasCancel(void) const noexcept {
@@ -7883,7 +7757,6 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTargetParallelForDirective)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPTargetParallelForDirective::TaskReductionReferenceExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7944,7 +7817,6 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTargetTeamsDistributeParallelForDirective)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPTargetTeamsDistributeParallelForDirective::TaskReductionReferenceExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -8034,7 +7906,6 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTaskgroupDirective)
   }
   assert(false && "OMPTaskgroupDirective::ReductionReference can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 OMPTaskwaitDirective::OMPTaskwaitDirective(
@@ -8084,7 +7955,6 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTeamsDistributeParallelForDirective)
   }
   assert(false && "OMPTeamsDistributeParallelForDirective::TaskReductionReferenceExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 bool OMPTeamsDistributeParallelForDirective::HasCancel(void) const noexcept {
@@ -8129,7 +7999,6 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTileDirective)
   }
   assert(false && "OMPTileDirective::PreInitializers can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Stmt OMPTileDirective::TransformedStatement(void) const noexcept {
@@ -8139,7 +8008,6 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTileDirective)
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "OMPTileDirective::TransformedStatement can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -8160,7 +8028,6 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPUnrollDirective)
   }
   assert(false && "OMPUnrollDirective::PreInitializers can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Stmt OMPUnrollDirective::TransformedStatement(void) const noexcept {
@@ -8170,7 +8037,6 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPUnrollDirective)
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "OMPUnrollDirective::TransformedStatement can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -8202,7 +8068,6 @@ std::vector<::pasta::Stmt> ObjCArrayLiteral::Children(void) const noexcept {
     return DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, val);
   }
   assert(false && "ObjCArrayLiteral::ArrayWithObjectsMethod can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -8293,7 +8158,6 @@ std::vector<::pasta::Stmt> ObjCAtCatchStmt::Children(void) const noexcept {
   }
   assert(false && "ObjCAtCatchStmt::CatchBody can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::VarDecl ObjCAtCatchStmt::CatchParameterDeclaration(void) const noexcept {
@@ -8303,7 +8167,6 @@ std::vector<::pasta::Stmt> ObjCAtCatchStmt::Children(void) const noexcept {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
   assert(false && "ObjCAtCatchStmt::CatchParameterDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -8376,7 +8239,6 @@ std::vector<::pasta::Stmt> ObjCAtFinallyStmt::Children(void) const noexcept {
   }
   assert(false && "ObjCAtFinallyStmt::FinallyBody can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ObjCAtSynchronizedStmt::ObjCAtSynchronizedStmt(
@@ -8427,7 +8289,6 @@ std::vector<::pasta::Stmt> ObjCAtSynchronizedStmt::Children(void) const noexcept
   }
   assert(false && "ObjCAtSynchronizedStmt::SynchBody can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr ObjCAtSynchronizedStmt::SynchExpression(void) const noexcept {
@@ -8437,7 +8298,6 @@ std::vector<::pasta::Stmt> ObjCAtSynchronizedStmt::Children(void) const noexcept
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ObjCAtSynchronizedStmt::SynchExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -8481,7 +8341,6 @@ std::vector<::pasta::Stmt> ObjCAtThrowStmt::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ObjCAtThrowStmt::ThrowExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -8544,7 +8403,6 @@ std::vector<::pasta::Stmt> ObjCAtTryStmt::Children(void) const noexcept {
   }
   assert(false && "ObjCAtTryStmt::FinallyStatement can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 uint32_t ObjCAtTryStmt::NumCatchStatements(void) const noexcept {
@@ -8561,7 +8419,6 @@ uint32_t ObjCAtTryStmt::NumCatchStatements(void) const noexcept {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "ObjCAtTryStmt::TryBody can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -8628,7 +8485,6 @@ std::vector<::pasta::Stmt> ObjCAutoreleasePoolStmt::Children(void) const noexcep
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "ObjCAutoreleasePoolStmt::SubStatement can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -8776,7 +8632,6 @@ std::vector<::pasta::Stmt> ObjCBoxedExpr::Children(void) const noexcept {
   }
   assert(false && "ObjCBoxedExpr::BoxingMethod can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token ObjCBoxedExpr::EndToken(void) const noexcept {
@@ -8800,7 +8655,6 @@ std::vector<::pasta::Stmt> ObjCBoxedExpr::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ObjCBoxedExpr::SubExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -8846,7 +8700,6 @@ std::vector<::pasta::Stmt> ObjCDictionaryLiteral::Children(void) const noexcept 
     return DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, val);
   }
   assert(false && "ObjCDictionaryLiteral::DictionaryWithObjectsMethod can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -8963,7 +8816,6 @@ std::vector<::pasta::Stmt> ObjCForCollectionStmt::Children(void) const noexcept 
   }
   assert(false && "ObjCForCollectionStmt::Body can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr ObjCForCollectionStmt::Collection(void) const noexcept {
@@ -8974,7 +8826,6 @@ std::vector<::pasta::Stmt> ObjCForCollectionStmt::Children(void) const noexcept 
   }
   assert(false && "ObjCForCollectionStmt::Collection can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Stmt ObjCForCollectionStmt::Element(void) const noexcept {
@@ -8984,7 +8835,6 @@ std::vector<::pasta::Stmt> ObjCForCollectionStmt::Children(void) const noexcept 
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "ObjCForCollectionStmt::Element can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -9059,7 +8909,6 @@ std::vector<::pasta::Stmt> ObjCIndirectCopyRestoreExpr::Children(void) const noe
   }
   assert(false && "ObjCIndirectCopyRestoreExpr::SubExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 bool ObjCIndirectCopyRestoreExpr::ShouldCopy(void) const noexcept {
@@ -9097,7 +8946,6 @@ std::vector<::pasta::Stmt> ObjCIsaExpr::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ObjCIsaExpr::Base can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -9179,7 +9027,6 @@ std::vector<::pasta::Stmt> ObjCIvarRefExpr::Children(void) const noexcept {
   }
   assert(false && "ObjCIvarRefExpr::Base can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token ObjCIvarRefExpr::BeginToken(void) const noexcept {
@@ -9196,7 +9043,6 @@ std::vector<::pasta::Stmt> ObjCIvarRefExpr::Children(void) const noexcept {
     return DeclBuilder::Create<::pasta::ObjCIvarDecl>(ast, val);
   }
   assert(false && "ObjCIvarRefExpr::Declaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -9302,7 +9148,6 @@ std::vector<::pasta::Stmt> ObjCMessageExpr::Children(void) const noexcept {
   return TypeBuilder::Build(ast, val->getType());
   assert(false && "ObjCMessageExpr::ClassReceiverType can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token ObjCMessageExpr::EndToken(void) const noexcept {
@@ -9320,7 +9165,6 @@ std::vector<::pasta::Stmt> ObjCMessageExpr::Children(void) const noexcept {
   }
   assert(false && "ObjCMessageExpr::InstanceReceiver can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token ObjCMessageExpr::LeftToken(void) const noexcept {
@@ -9337,7 +9181,6 @@ std::vector<::pasta::Stmt> ObjCMessageExpr::Children(void) const noexcept {
     return DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, val);
   }
   assert(false && "ObjCMessageExpr::MethodDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -9369,7 +9212,6 @@ uint32_t ObjCMessageExpr::NumSelectorTokens(void) const noexcept {
     return DeclBuilder::Create<::pasta::ObjCInterfaceDecl>(ast, val);
   }
   assert(false && "ObjCMessageExpr::ReceiverInterface can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -9496,7 +9338,6 @@ std::vector<::pasta::Stmt> ObjCPropertyRefExpr::Children(void) const noexcept {
   }
   assert(false && "ObjCPropertyRefExpr::Base can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token ObjCPropertyRefExpr::BeginToken(void) const noexcept {
@@ -9513,7 +9354,6 @@ std::vector<::pasta::Stmt> ObjCPropertyRefExpr::Children(void) const noexcept {
     return DeclBuilder::Create<::pasta::ObjCInterfaceDecl>(ast, val);
   }
   assert(false && "ObjCPropertyRefExpr::ClassReceiver can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -9532,7 +9372,6 @@ std::vector<::pasta::Stmt> ObjCPropertyRefExpr::Children(void) const noexcept {
   }
   assert(false && "ObjCPropertyRefExpr::ExplicitProperty can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 // 0: ObjCPropertyRefExpr::GetterSelector
@@ -9544,7 +9383,6 @@ std::vector<::pasta::Stmt> ObjCPropertyRefExpr::Children(void) const noexcept {
   }
   assert(false && "ObjCPropertyRefExpr::ImplicitPropertyGetter can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::ObjCMethodDecl ObjCPropertyRefExpr::ImplicitPropertySetter(void) const noexcept {
@@ -9554,7 +9392,6 @@ std::vector<::pasta::Stmt> ObjCPropertyRefExpr::Children(void) const noexcept {
     return DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, val);
   }
   assert(false && "ObjCPropertyRefExpr::ImplicitPropertySetter can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -9688,7 +9525,6 @@ std::vector<::pasta::Stmt> ObjCProtocolExpr::Children(void) const noexcept {
   }
   assert(false && "ObjCProtocolExpr::Protocol can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token ObjCProtocolExpr::ProtocolIdToken(void) const noexcept {
@@ -9812,7 +9648,6 @@ std::vector<::pasta::Stmt> ObjCStringLiteral::Children(void) const noexcept {
   }
   assert(false && "ObjCStringLiteral::String can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ObjCSubscriptRefExpr::ObjCSubscriptRefExpr(
@@ -9844,7 +9679,6 @@ std::vector<::pasta::Stmt> ObjCSubscriptRefExpr::Children(void) const noexcept {
   }
   assert(false && "ObjCSubscriptRefExpr::AtIndexMethodDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr ObjCSubscriptRefExpr::BaseExpression(void) const noexcept {
@@ -9854,7 +9688,6 @@ std::vector<::pasta::Stmt> ObjCSubscriptRefExpr::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ObjCSubscriptRefExpr::BaseExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -9879,7 +9712,6 @@ std::vector<::pasta::Stmt> ObjCSubscriptRefExpr::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ObjCSubscriptRefExpr::KeyExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -10019,7 +9851,6 @@ std::vector<::pasta::Stmt> OpaqueValueExpr::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OpaqueValueExpr::SourceExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -10178,7 +10009,6 @@ std::optional<unsigned> PackExpansionExpr::NumExpansions(void) const noexcept {
   }
   assert(false && "PackExpansionExpr::Pattern can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ParenExpr::ParenExpr(
@@ -10237,7 +10067,6 @@ std::vector<::pasta::Stmt> ParenExpr::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ParenExpr::SubExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -10357,7 +10186,6 @@ std::vector<::pasta::Stmt> PredefinedExpr::Children(void) const noexcept {
   }
   assert(false && "PredefinedExpr::FunctionName can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 enum PredefinedExprIdentKind PredefinedExpr::IdentifierKind(void) const noexcept {
@@ -10442,7 +10270,6 @@ uint32_t PseudoObjectExpr::NumSemanticExpressions(void) const noexcept {
   }
   assert(false && "PseudoObjectExpr::ResultExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 uint32_t PseudoObjectExpr::ResultExpressionIndex(void) const noexcept {
@@ -10460,7 +10287,6 @@ uint32_t PseudoObjectExpr::ResultExpressionIndex(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "PseudoObjectExpr::SyntacticForm can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -10565,7 +10391,6 @@ std::vector<::pasta::Stmt> RequiresExpr::Children(void) const noexcept {
     return DeclBuilder::Create<::pasta::RequiresExprBodyDecl>(ast, val);
   }
   assert(false && "RequiresExpr::Body can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -10709,7 +10534,6 @@ std::vector<::pasta::Stmt> SEHExceptStmt::Children(void) const noexcept {
   }
   assert(false && "SEHExceptStmt::Block can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token SEHExceptStmt::EndToken(void) const noexcept {
@@ -10733,7 +10557,6 @@ std::vector<::pasta::Stmt> SEHExceptStmt::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "SEHExceptStmt::FilterExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -10770,7 +10593,6 @@ std::vector<::pasta::Stmt> SEHFinallyStmt::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::CompoundStmt>(ast, val);
   }
   assert(false && "SEHFinallyStmt::Block can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -10869,7 +10691,6 @@ std::vector<::pasta::Stmt> SEHTryStmt::Children(void) const noexcept {
   }
   assert(false && "SEHTryStmt::ExceptHandler can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::SEHFinallyStmt SEHTryStmt::FinallyHandler(void) const noexcept {
@@ -10880,7 +10701,6 @@ std::vector<::pasta::Stmt> SEHTryStmt::Children(void) const noexcept {
   }
   assert(false && "SEHTryStmt::FinallyHandler can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Stmt SEHTryStmt::Handler(void) const noexcept {
@@ -10890,7 +10710,6 @@ std::vector<::pasta::Stmt> SEHTryStmt::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "SEHTryStmt::Handler can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -10908,7 +10727,6 @@ bool SEHTryStmt::IsCXXTry(void) const noexcept {
     return StmtBuilder::Create<::pasta::CompoundStmt>(ast, val);
   }
   assert(false && "SEHTryStmt::TryBlock can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -11091,7 +10909,6 @@ std::vector<::pasta::Stmt> SizeOfPackExpr::Children(void) const noexcept {
   }
   assert(false && "SizeOfPackExpr::Pack can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 std::optional<uint32_t> SizeOfPackExpr::PackLength(void) const noexcept {
@@ -11208,7 +11025,6 @@ enum SourceLocExprIdentKind SourceLocExpr::IdentifierKind(void) const noexcept {
   }
   assert(false && "SourceLocExpr::ParentContext can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 bool SourceLocExpr::IsIntType(void) const noexcept {
@@ -11281,7 +11097,6 @@ std::vector<::pasta::Stmt> StmtExpr::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::CompoundStmt>(ast, val);
   }
   assert(false && "StmtExpr::SubStatement can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -11504,7 +11319,6 @@ std::vector<::pasta::Stmt> SubstNonTypeTemplateParmExpr::Children(void) const no
   }
   assert(false && "SubstNonTypeTemplateParmExpr::Parameter can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Type SubstNonTypeTemplateParmExpr::ParameterType(void) const noexcept {
@@ -11522,7 +11336,6 @@ std::vector<::pasta::Stmt> SubstNonTypeTemplateParmExpr::Children(void) const no
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "SubstNonTypeTemplateParmExpr::Replacement can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -11576,7 +11389,6 @@ std::vector<::pasta::Stmt> SubstNonTypeTemplateParmPackExpr::Children(void) cons
     return DeclBuilder::Create<::pasta::NonTypeTemplateParmDecl>(ast, val);
   }
   assert(false && "SubstNonTypeTemplateParmPackExpr::ParameterPack can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -11869,7 +11681,6 @@ enum UnaryOperatorKind UnaryOperator::Opcode(void) const noexcept {
   }
   assert(false && "UnaryOperator::SubExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 bool UnaryOperator::HasStoredFPFeatures(void) const noexcept {
@@ -12015,7 +11826,6 @@ std::vector<::pasta::Stmt> UnresolvedMemberExpr::Children(void) const noexcept {
   }
   assert(false && "UnresolvedMemberExpr::Base can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Type UnresolvedMemberExpr::BaseType(void) const noexcept {
@@ -12063,7 +11873,6 @@ std::vector<::pasta::Stmt> UnresolvedMemberExpr::Children(void) const noexcept {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
   assert(false && "UnresolvedMemberExpr::NamingClass can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -12152,7 +11961,6 @@ std::vector<::pasta::Stmt> VAArgExpr::Children(void) const noexcept {
   }
   assert(false && "VAArgExpr::SubExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Type VAArgExpr::WrittenType(void) const noexcept {
@@ -12160,7 +11968,6 @@ std::vector<::pasta::Stmt> VAArgExpr::Children(void) const noexcept {
   decltype(auto) val = self.getWrittenTypeInfo();
   return TypeBuilder::Build(ast, val->getType());
   assert(false && "VAArgExpr::WrittenType can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -12196,7 +12003,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(AbstractConditionalOperator, ConditionalOperator)
   }
   assert(false && "AbstractConditionalOperator::Condition can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr AbstractConditionalOperator::FalseExpression(void) const noexcept {
@@ -12206,7 +12012,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(AbstractConditionalOperator, ConditionalOperator)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "AbstractConditionalOperator::FalseExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -12224,7 +12029,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(AbstractConditionalOperator, ConditionalOperator)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "AbstractConditionalOperator::TrueExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -12277,7 +12081,6 @@ std::vector<::pasta::Stmt> AddrLabelExpr::Children(void) const noexcept {
     return DeclBuilder::Create<::pasta::LabelDecl>(ast, val);
   }
   assert(false && "AddrLabelExpr::Label can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -12366,7 +12169,6 @@ llvm::APInt ArrayInitLoopExpr::ArraySize(void) const noexcept {
   }
   assert(false && "ArrayInitLoopExpr::CommonExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token ArrayInitLoopExpr::EndToken(void) const noexcept {
@@ -12383,7 +12185,6 @@ llvm::APInt ArrayInitLoopExpr::ArraySize(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ArrayInitLoopExpr::SubExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -12416,7 +12217,6 @@ std::vector<::pasta::Stmt> ArraySubscriptExpr::Children(void) const noexcept {
   }
   assert(false && "ArraySubscriptExpr::Base can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token ArraySubscriptExpr::BeginToken(void) const noexcept {
@@ -12448,7 +12248,6 @@ std::vector<::pasta::Stmt> ArraySubscriptExpr::Children(void) const noexcept {
   }
   assert(false && "ArraySubscriptExpr::Index can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr ArraySubscriptExpr::LHS(void) const noexcept {
@@ -12458,7 +12257,6 @@ std::vector<::pasta::Stmt> ArraySubscriptExpr::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ArraySubscriptExpr::LHS can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -12476,7 +12274,6 @@ std::vector<::pasta::Stmt> ArraySubscriptExpr::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ArraySubscriptExpr::RHS can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -12515,7 +12312,6 @@ std::vector<::pasta::Stmt> ArrayTypeTraitExpr::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ArrayTypeTraitExpr::DimensionExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -12605,7 +12401,6 @@ std::vector<::pasta::Stmt> AsTypeExpr::Children(void) const noexcept {
   }
   assert(false && "AsTypeExpr::SrcExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 AtomicExpr::AtomicExpr(
@@ -12672,7 +12467,6 @@ enum AtomicExprAtomicOp AtomicExpr::Operation(void) const noexcept {
   }
   assert(false && "AtomicExpr::Order can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 std::optional<::pasta::Expr> AtomicExpr::OrderFail(void) const noexcept {
@@ -12697,7 +12491,6 @@ std::optional<::pasta::Expr> AtomicExpr::OrderFail(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "AtomicExpr::Pointer can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -12856,7 +12649,6 @@ std::vector<::pasta::Stmt> BinaryConditionalOperator::Children(void) const noexc
   }
   assert(false && "BinaryConditionalOperator::Common can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr BinaryConditionalOperator::Condition(void) const noexcept {
@@ -12866,7 +12658,6 @@ std::vector<::pasta::Stmt> BinaryConditionalOperator::Children(void) const noexc
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "BinaryConditionalOperator::Condition can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -12885,7 +12676,6 @@ std::vector<::pasta::Stmt> BinaryConditionalOperator::Children(void) const noexc
   }
   assert(false && "BinaryConditionalOperator::FalseExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::OpaqueValueExpr BinaryConditionalOperator::OpaqueValue(void) const noexcept {
@@ -12896,7 +12686,6 @@ std::vector<::pasta::Stmt> BinaryConditionalOperator::Children(void) const noexc
   }
   assert(false && "BinaryConditionalOperator::OpaqueValue can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr BinaryConditionalOperator::TrueExpression(void) const noexcept {
@@ -12906,7 +12695,6 @@ std::vector<::pasta::Stmt> BinaryConditionalOperator::Children(void) const noexc
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "BinaryConditionalOperator::TrueExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -12963,7 +12751,6 @@ std::vector<::pasta::Stmt> BinaryOperator::Children(void) const noexcept {
   }
   assert(false && "BinaryOperator::LHS can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 enum BinaryOperatorKind BinaryOperator::Opcode(void) const noexcept {
@@ -12998,7 +12785,6 @@ std::string_view BinaryOperator::OpcodeString(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "BinaryOperator::RHS can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -13139,7 +12925,6 @@ std::vector<::pasta::Stmt> BlockExpr::Children(void) const noexcept {
   }
   assert(false && "BlockExpr::BlockDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Stmt BlockExpr::Body(void) const noexcept {
@@ -13149,7 +12934,6 @@ std::vector<::pasta::Stmt> BlockExpr::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "BlockExpr::Body can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -13174,7 +12958,6 @@ std::vector<::pasta::Stmt> BlockExpr::Children(void) const noexcept {
     return TypeBuilder::Create<::pasta::FunctionProtoType>(ast, val);
   }
   assert(false && "BlockExpr::FunctionType can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -13220,7 +13003,6 @@ std::vector<::pasta::Stmt> CXXBindTemporaryExpr::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXBindTemporaryExpr::SubExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -13335,7 +13117,6 @@ enum CXXConstructExprConstructionKind CXXConstructExpr::ConstructionKind(void) c
   }
   assert(false && "CXXConstructExpr::Constructor can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token CXXConstructExpr::EndToken(void) const noexcept {
@@ -13444,7 +13225,6 @@ std::vector<::pasta::Stmt> CXXDefaultArgExpr::Children(void) const noexcept {
   }
   assert(false && "CXXDefaultArgExpr::Expression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token CXXDefaultArgExpr::ExpressionToken(void) const noexcept {
@@ -13462,7 +13242,6 @@ std::vector<::pasta::Stmt> CXXDefaultArgExpr::Children(void) const noexcept {
   }
   assert(false && "CXXDefaultArgExpr::Parameter can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::DeclContext CXXDefaultArgExpr::UsedContext(void) const noexcept {
@@ -13472,7 +13251,6 @@ std::vector<::pasta::Stmt> CXXDefaultArgExpr::Children(void) const noexcept {
     return ::pasta::DeclContext(ast, val);
   }
   assert(false && "CXXDefaultArgExpr::UsedContext can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -13541,7 +13319,6 @@ std::optional<::pasta::Expr> CXXDefaultInitExpr::Expression(void) const noexcept
   }
   assert(false && "CXXDefaultInitExpr::Field can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::DeclContext CXXDefaultInitExpr::UsedContext(void) const noexcept {
@@ -13551,7 +13328,6 @@ std::optional<::pasta::Expr> CXXDefaultInitExpr::Expression(void) const noexcept
     return ::pasta::DeclContext(ast, val);
   }
   assert(false && "CXXDefaultInitExpr::UsedContext can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -13598,7 +13374,6 @@ bool CXXDeleteExpr::DoesUsualArrayDeleteWantSize(void) const noexcept {
   }
   assert(false && "CXXDeleteExpr::Argument can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token CXXDeleteExpr::BeginToken(void) const noexcept {
@@ -13630,7 +13405,6 @@ bool CXXDeleteExpr::DoesUsualArrayDeleteWantSize(void) const noexcept {
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
   }
   assert(false && "CXXDeleteExpr::OperatorDelete can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -13837,7 +13611,6 @@ std::vector<::pasta::Stmt> CXXFoldExpr::Children(void) const noexcept {
   }
   assert(false && "CXXFoldExpr::Callee can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token CXXFoldExpr::EllipsisToken(void) const noexcept {
@@ -13862,7 +13635,6 @@ std::vector<::pasta::Stmt> CXXFoldExpr::Children(void) const noexcept {
   }
   assert(false && "CXXFoldExpr::Initializer can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr CXXFoldExpr::LHS(void) const noexcept {
@@ -13872,7 +13644,6 @@ std::vector<::pasta::Stmt> CXXFoldExpr::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXFoldExpr::LHS can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -13909,7 +13680,6 @@ enum BinaryOperatorKind CXXFoldExpr::Operator(void) const noexcept {
   }
   assert(false && "CXXFoldExpr::Pattern can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr CXXFoldExpr::RHS(void) const noexcept {
@@ -13919,7 +13689,6 @@ enum BinaryOperatorKind CXXFoldExpr::Operator(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXFoldExpr::RHS can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -13993,7 +13762,6 @@ enum CXXConstructExprConstructionKind CXXInheritedCtorInitExpr::ConstructionKind
     return DeclBuilder::Create<::pasta::CXXConstructorDecl>(ast, val);
   }
   assert(false && "CXXInheritedCtorInitExpr::Constructor can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -14132,7 +13900,6 @@ uint32_t CXXNewExpr::NumPlacementArguments(void) const noexcept {
   }
   assert(false && "CXXNewExpr::OperatorDelete can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::FunctionDecl CXXNewExpr::OperatorNew(void) const noexcept {
@@ -14142,7 +13909,6 @@ uint32_t CXXNewExpr::NumPlacementArguments(void) const noexcept {
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
   }
   assert(false && "CXXNewExpr::OperatorNew can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -14263,7 +14029,6 @@ std::vector<::pasta::Stmt> CXXNoexceptExpr::Children(void) const noexcept {
   }
   assert(false && "CXXNoexceptExpr::Operand can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::TokenRange CXXNoexceptExpr::Tokens(void) const noexcept {
@@ -14350,7 +14115,6 @@ std::vector<::pasta::Stmt> CXXPseudoDestructorExpr::Children(void) const noexcep
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXPseudoDestructorExpr::Base can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -14472,7 +14236,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXRewrittenBinaryOperator)
   }
   assert(false && "CXXRewrittenBinaryOperator::LHS can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 enum BinaryOperatorKind CXXRewrittenBinaryOperator::Opcode(void) const noexcept {
@@ -14515,7 +14278,6 @@ enum BinaryOperatorKind CXXRewrittenBinaryOperator::Operator(void) const noexcep
   }
   assert(false && "CXXRewrittenBinaryOperator::RHS can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr CXXRewrittenBinaryOperator::SemanticForm(void) const noexcept {
@@ -14525,7 +14287,6 @@ enum BinaryOperatorKind CXXRewrittenBinaryOperator::Operator(void) const noexcep
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXRewrittenBinaryOperator::SemanticForm can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -14649,7 +14410,6 @@ std::vector<::pasta::Stmt> CXXStdInitializerListExpr::Children(void) const noexc
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXStdInitializerListExpr::SubExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -14874,7 +14634,6 @@ std::optional<::pasta::Expr> CXXTypeidExpr::ExpressionOperand(void) const noexce
   return TypeBuilder::Build(ast, val->getType());
   assert(false && "CXXTypeidExpr::TypeOperandSourceInfo can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 std::optional<bool> CXXTypeidExpr::IsMostDerived(void) const noexcept {
@@ -15047,7 +14806,6 @@ std::optional<::pasta::Expr> CXXUuidofExpr::ExpressionOperand(void) const noexce
   }
   assert(false && "CXXUuidofExpr::GuidDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::TokenRange CXXUuidofExpr::Tokens(void) const noexcept {
@@ -15070,7 +14828,6 @@ std::optional<::pasta::Expr> CXXUuidofExpr::ExpressionOperand(void) const noexce
   decltype(auto) val = self.getTypeOperandSourceInfo();
   return TypeBuilder::Build(ast, val->getType());
   assert(false && "CXXUuidofExpr::TypeOperandSourceInfo can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -15160,7 +14917,6 @@ uint32_t CallExpr::BuiltinCallee(void) const noexcept {
   }
   assert(false && "CallExpr::Callee can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 std::optional<::pasta::Decl> CallExpr::CalleeDeclaration(void) const noexcept {
@@ -15218,7 +14974,18 @@ uint32_t CallExpr::NumCommas(void) const noexcept {
 }
 
 // 0: CallExpr::StoredFPFeatures
-// 1: CallExpr::UnusedResultAttribute
+std::optional<::pasta::Attr> CallExpr::UnusedResultAttribute(void) const noexcept {
+  auto &self = *(u.CallExpr);
+  decltype(auto) val = self.getUnusedResultAttr(ast->ci->getASTContext());
+  if (!val) {
+    return std::nullopt;
+  }
+  if (val) {
+    return ::pasta::Attr(ast, val);
+  }
+  __builtin_unreachable();
+}
+
 bool CallExpr::HasStoredFPFeatures(void) const noexcept {
   auto &self = *const_cast<clang::CallExpr *>(u.CallExpr);
   decltype(auto) val = self.hasStoredFPFeatures();
@@ -15311,7 +15078,6 @@ std::string_view CastExpr::CastKindName(void) const noexcept {
   }
   assert(false && "CastExpr::CastKindName can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 std::optional<::pasta::NamedDecl> CastExpr::ConversionFunction(void) const noexcept {
@@ -15337,7 +15103,6 @@ std::optional<::pasta::NamedDecl> CastExpr::ConversionFunction(void) const noexc
   }
   assert(false && "CastExpr::SubExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr CastExpr::SubExpressionAsWritten(void) const noexcept {
@@ -15347,7 +15112,6 @@ std::optional<::pasta::NamedDecl> CastExpr::ConversionFunction(void) const noexc
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CastExpr::SubExpressionAsWritten can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -15477,7 +15241,6 @@ std::vector<::pasta::Stmt> ChooseExpr::Children(void) const noexcept {
   }
   assert(false && "ChooseExpr::ChosenSubExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr ChooseExpr::Condition(void) const noexcept {
@@ -15487,7 +15250,6 @@ std::vector<::pasta::Stmt> ChooseExpr::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ChooseExpr::Condition can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -15506,7 +15268,6 @@ std::vector<::pasta::Stmt> ChooseExpr::Children(void) const noexcept {
   }
   assert(false && "ChooseExpr::LHS can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr ChooseExpr::RHS(void) const noexcept {
@@ -15516,7 +15277,6 @@ std::vector<::pasta::Stmt> ChooseExpr::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ChooseExpr::RHS can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -15608,7 +15368,6 @@ std::vector<::pasta::Stmt> CompoundLiteralExpr::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CompoundLiteralExpr::Initializer can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -15718,7 +15477,6 @@ std::vector<::pasta::Stmt> ConditionalOperator::Children(void) const noexcept {
   }
   assert(false && "ConditionalOperator::Condition can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token ConditionalOperator::EndToken(void) const noexcept {
@@ -15736,7 +15494,6 @@ std::vector<::pasta::Stmt> ConditionalOperator::Children(void) const noexcept {
   }
   assert(false && "ConditionalOperator::FalseExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr ConditionalOperator::LHS(void) const noexcept {
@@ -15746,7 +15503,6 @@ std::vector<::pasta::Stmt> ConditionalOperator::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ConditionalOperator::LHS can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -15758,7 +15514,6 @@ std::vector<::pasta::Stmt> ConditionalOperator::Children(void) const noexcept {
   }
   assert(false && "ConditionalOperator::RHS can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr ConditionalOperator::TrueExpression(void) const noexcept {
@@ -15768,7 +15523,6 @@ std::vector<::pasta::Stmt> ConditionalOperator::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ConditionalOperator::TrueExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -15896,7 +15650,6 @@ std::vector<::pasta::Stmt> ConvertVectorExpr::Children(void) const noexcept {
   }
   assert(false && "ConvertVectorExpr::SrcExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 // 0: ConvertVectorExpr::
@@ -15938,7 +15691,6 @@ std::vector<::pasta::Stmt> CoroutineSuspendExpr::Children(void) const noexcept {
   }
   assert(false && "CoroutineSuspendExpr::CommonExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token CoroutineSuspendExpr::EndToken(void) const noexcept {
@@ -15963,7 +15715,6 @@ std::vector<::pasta::Stmt> CoroutineSuspendExpr::Children(void) const noexcept {
   }
   assert(false && "CoroutineSuspendExpr::OpaqueValue can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr CoroutineSuspendExpr::ReadyExpression(void) const noexcept {
@@ -15973,7 +15724,6 @@ std::vector<::pasta::Stmt> CoroutineSuspendExpr::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CoroutineSuspendExpr::ReadyExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -15985,7 +15735,6 @@ std::vector<::pasta::Stmt> CoroutineSuspendExpr::Children(void) const noexcept {
   }
   assert(false && "CoroutineSuspendExpr::ResumeExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr CoroutineSuspendExpr::SuspendExpression(void) const noexcept {
@@ -15995,7 +15744,6 @@ std::vector<::pasta::Stmt> CoroutineSuspendExpr::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CoroutineSuspendExpr::SuspendExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -16015,7 +15763,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CoyieldExpr)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CoyieldExpr::Operand can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -16055,7 +15802,6 @@ std::vector<::pasta::Stmt> DeclRefExpr::Children(void) const noexcept {
   }
   assert(false && "DeclRefExpr::Declaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token DeclRefExpr::EndToken(void) const noexcept {
@@ -16072,7 +15818,6 @@ std::vector<::pasta::Stmt> DeclRefExpr::Children(void) const noexcept {
     return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
   }
   assert(false && "DeclRefExpr::FoundDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -16208,7 +15953,6 @@ std::vector<::pasta::Stmt> DependentCoawaitExpr::Children(void) const noexcept {
   }
   assert(false && "DependentCoawaitExpr::Operand can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::UnresolvedLookupExpr DependentCoawaitExpr::OperatorCoawaitLookup(void) const noexcept {
@@ -16218,7 +15962,6 @@ std::vector<::pasta::Stmt> DependentCoawaitExpr::Children(void) const noexcept {
     return StmtBuilder::Create<::pasta::UnresolvedLookupExpr>(ast, val);
   }
   assert(false && "DependentCoawaitExpr::OperatorCoawaitLookup can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -16391,7 +16134,6 @@ std::optional<::pasta::Designator> DesignatedInitExpr::Designator(unsigned int i
   }
   assert(false && "DesignatedInitExpr::Initializer can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 uint32_t DesignatedInitExpr::NumSubExpressions(void) const noexcept {
@@ -16468,7 +16210,6 @@ std::vector<::pasta::Stmt> DesignatedInitUpdateExpr::Children(void) const noexce
   }
   assert(false && "DesignatedInitUpdateExpr::Base can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token DesignatedInitUpdateExpr::BeginToken(void) const noexcept {
@@ -16492,7 +16233,6 @@ std::vector<::pasta::Stmt> DesignatedInitUpdateExpr::Children(void) const noexce
     return StmtBuilder::Create<::pasta::InitListExpr>(ast, val);
   }
   assert(false && "DesignatedInitUpdateExpr::Updater can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -16528,7 +16268,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(ExplicitCastExpr, ObjCBridgedCastExpr)
   decltype(auto) val = self.getTypeInfoAsWritten();
   return TypeBuilder::Build(ast, val->getType());
   assert(false && "ExplicitCastExpr::TypeInfoAsWritten can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -16654,7 +16393,6 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPAtomicDirective)
   }
   assert(false && "OMPAtomicDirective::Expression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr OMPAtomicDirective::UpdateExpression(void) const noexcept {
@@ -16664,7 +16402,6 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPAtomicDirective)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPAtomicDirective::UpdateExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -16676,7 +16413,6 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPAtomicDirective)
   }
   assert(false && "OMPAtomicDirective::V can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr OMPAtomicDirective::X(void) const noexcept {
@@ -16686,7 +16422,6 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPAtomicDirective)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPAtomicDirective::X can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -16782,7 +16517,6 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPDistributeParallelForDirective)
   }
   assert(false && "OMPDistributeParallelForDirective::TaskReductionReferenceExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 bool OMPDistributeParallelForDirective::HasCancel(void) const noexcept {
@@ -16826,7 +16560,6 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPForDirective)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPForDirective::TaskReductionReferenceExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -16934,7 +16667,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, UserDefinedLiteral)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "UserDefinedLiteral::CookedLiteral can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -17055,7 +16787,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CUDAKernelCallExpr)
   }
   assert(false && "CUDAKernelCallExpr::Config can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 std::vector<::pasta::Expr> CUDAKernelCallExpr::Arguments(void) const noexcept {
@@ -17143,7 +16874,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXMemberCallExpr)
   }
   assert(false && "CXXMemberCallExpr::ImplicitObjectArgument can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 std::optional<::pasta::CXXMethodDecl> CXXMemberCallExpr::MethodDeclaration(void) const noexcept {
@@ -17173,7 +16903,6 @@ std::optional<::pasta::CXXMethodDecl> CXXMemberCallExpr::MethodDeclaration(void)
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
   assert(false && "CXXMemberCallExpr::RecordDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -17231,7 +16960,6 @@ std::string_view CXXNamedCastExpr::CastName(void) const noexcept {
     return std::string_view();
   }
   assert(false && "CXXNamedCastExpr::CastName can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -17382,7 +17110,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CoawaitExpr)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CoawaitExpr::Operand can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 

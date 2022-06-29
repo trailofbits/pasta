@@ -14,6 +14,14 @@ enum class DeclKind : unsigned int;
 enum class StmtKind : unsigned int;
 enum class TypeKind : unsigned int;
 
+class AttrBuilder {
+ public:
+  template <typename T, typename A>
+  inline static T Create(std::shared_ptr<ASTImpl> ast_, const A *attr_) {
+    return T(std::move(ast_), attr_);
+  }
+};
+
 class DeclBuilder {
  public:
   template <typename T, typename D>

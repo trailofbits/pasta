@@ -17,6 +17,7 @@ class TemplateParameterList;
 namespace pasta {
 
 class ASTImpl;
+class Attr;
 class ClassTemplatePartialSpecializationDecl;
 class ClassTemplateSpecializationDecl;
 class CXXConstructorDecl;

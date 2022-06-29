@@ -712,7 +712,6 @@ std::string_view Type::KindName(void) const noexcept {
   }
   assert(false && "Type::KindName can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Type Type::UnqualifiedDesugaredType(void) const noexcept {
@@ -722,7 +721,6 @@ std::string_view Type::KindName(void) const noexcept {
     return TypeBuilder::Create<::pasta::Type>(ast, val);
   }
   assert(false && "Type::UnqualifiedDesugaredType can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2683,7 +2681,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, TypeOfExprType)
   }
   assert(false && "TypeOfExprType::UnderlyingExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 bool TypeOfExprType::IsSugared(void) const noexcept {
@@ -2733,7 +2730,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, TypedefType)
     return DeclBuilder::Create<::pasta::TypedefNameDecl>(ast, val);
   }
   assert(false && "TypedefType::Declaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2800,7 +2796,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, UnresolvedUsingType)
   }
   assert(false && "UnresolvedUsingType::Declaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 bool UnresolvedUsingType::IsSugared(void) const noexcept {
@@ -2826,7 +2821,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, UsingType)
     return DeclBuilder::Create<::pasta::UsingShadowDecl>(ast, val);
   }
   assert(false && "UsingType::FoundDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3285,7 +3279,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DecltypeType)
   }
   assert(false && "DecltypeType::UnderlyingExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Type DecltypeType::UnderlyingType(void) const noexcept {
@@ -3355,7 +3348,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentAddressSpaceType)
   }
   assert(false && "DependentAddressSpaceType::AddrSpaceExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token DependentAddressSpaceType::AttributeToken(void) const noexcept {
@@ -3396,7 +3388,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentBitIntType)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "DependentBitIntType::NumBitsExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3479,7 +3470,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentSizedArrayType)
   }
   assert(false && "DependentSizedArrayType::SizeExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 bool DependentSizedArrayType::IsSugared(void) const noexcept {
@@ -3520,7 +3510,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentSizedExtVectorType)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "DependentSizedExtVectorType::SizeExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3603,7 +3592,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentVectorType)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "DependentVectorType::SizeExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3787,7 +3775,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, InjectedClassNameType)
   }
   assert(false && "InjectedClassNameType::Declaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Type InjectedClassNameType::InjectedSpecializationType(void) const noexcept {
@@ -3805,7 +3792,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, InjectedClassNameType)
     return TypeBuilder::Create<::pasta::TemplateSpecializationType>(ast, val);
   }
   assert(false && "InjectedClassNameType::InjectedTST can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3893,7 +3879,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, MemberPointerType)
   }
   assert(false && "MemberPointerType::Class can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::CXXRecordDecl MemberPointerType::MostRecentCXXRecordDeclaration(void) const noexcept {
@@ -3903,7 +3888,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, MemberPointerType)
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
   assert(false && "MemberPointerType::MostRecentCXXRecordDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3953,7 +3937,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, ObjCObjectPointerType)
   }
   assert(false && "ObjCObjectPointerType::InterfaceDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::ObjCInterfaceType ObjCObjectPointerType::InterfaceType(void) const noexcept {
@@ -3963,7 +3946,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, ObjCObjectPointerType)
     return TypeBuilder::Create<::pasta::ObjCInterfaceType>(ast, val);
   }
   assert(false && "ObjCObjectPointerType::InterfaceType can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3981,7 +3963,6 @@ uint32_t ObjCObjectPointerType::NumProtocols(void) const noexcept {
     return TypeBuilder::Create<::pasta::ObjCObjectType>(ast, val);
   }
   assert(false && "ObjCObjectPointerType::ObjectType can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -4170,7 +4151,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(ObjCObjectType, ObjCInterfaceType)
   }
   assert(false && "ObjCObjectType::Interface can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 std::optional<::pasta::Type> ObjCObjectType::SuperClassType(void) const noexcept {
@@ -4327,7 +4307,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, ObjCTypeParamType)
     return DeclBuilder::Create<::pasta::ObjCTypeParamDecl>(ast, val);
   }
   assert(false && "ObjCTypeParamType::Declaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -4511,7 +4490,6 @@ uint32_t SubstTemplateTypeParmPackType::NumArguments(void) const noexcept {
   }
   assert(false && "SubstTemplateTypeParmPackType::ReplacedParameter can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 bool SubstTemplateTypeParmPackType::IsSugared(void) const noexcept {
@@ -4537,7 +4515,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, SubstTemplateTypeParmType)
     return TypeBuilder::Create<::pasta::TemplateTypeParmType>(ast, val);
   }
   assert(false && "SubstTemplateTypeParmType::ReplacedParameter can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -4566,7 +4543,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(TagType, RecordType)
     return DeclBuilder::Create<::pasta::TagDecl>(ast, val);
   }
   assert(false && "TagType::Declaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -4732,7 +4708,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, VariableArrayType)
   }
   assert(false && "VariableArrayType::SizeExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 bool VariableArrayType::IsSugared(void) const noexcept {
@@ -4840,7 +4815,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentSizedMatrixType)
   }
   assert(false && "DependentSizedMatrixType::ColumnExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr DependentSizedMatrixType::RowExpression(void) const noexcept {
@@ -4850,7 +4824,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentSizedMatrixType)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "DependentSizedMatrixType::RowExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -4871,7 +4844,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, EnumType)
     return DeclBuilder::Create<::pasta::EnumDecl>(ast, val);
   }
   assert(false && "EnumType::Declaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -5163,7 +5135,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, ObjCInterfaceType)
   }
   assert(false && "ObjCInterfaceType::Declaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 bool ObjCInterfaceType::IsSugared(void) const noexcept {
@@ -5207,7 +5178,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, RecordType)
     return DeclBuilder::Create<::pasta::RecordDecl>(ast, val);
   }
   assert(false && "RecordType::Declaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 

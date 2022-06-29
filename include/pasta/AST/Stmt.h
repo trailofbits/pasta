@@ -12,6 +12,7 @@
 #include <variant>
 #include <vector>
 #include <pasta/Util/Compiler.h>
+#include "Attr.h"
 #include "DeclHead.h"
 
 #include "StmtManual.h"
@@ -1046,7 +1047,7 @@ class AttributedStmt : public ValueStmt {
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, AttributedStmt)
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   ::pasta::Token AttributeToken(void) const noexcept;
-  // Attributes: (llvm::ArrayRef<const clang::Attr *>)
+  std::vector<::pasta::Attr> Attributes(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Stmt SubStatement(void) const noexcept;
@@ -5232,7 +5233,7 @@ class CallExpr : public Expr {
   uint32_t NumCommas(void) const noexcept;
   ::pasta::Token RParenToken(void) const noexcept;
   // StoredFPFeatures: (clang::FPOptionsOverride)
-  // UnusedResultAttribute: (const clang::Attr *)
+  std::optional<::pasta::Attr> UnusedResultAttribute(void) const noexcept;
   bool HasStoredFPFeatures(void) const noexcept;
   bool HasUnusedResultAttribute(void) const noexcept;
   bool IsBuiltinAssumeFalse(void) const noexcept;

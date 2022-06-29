@@ -14,6 +14,7 @@
 #include <pasta/Util/FileSystem.h>
 #include <pasta/Util/Init.h>
 
+#include <clang/AST/Attr.h>
 #include <clang/AST/Decl.h>
 #include <clang/AST/Expr.h>
 #include <clang/AST/Type.h>
@@ -42,6 +43,16 @@ static std::string TokData(const TokT &tok) {
     }
   }
   return ss.str();
+}
+
+const char* AttributeKindName(const clang::Attr *attr) {
+  switch (attr->getKind()) {
+#define ATTR(X) \
+    case clang::attr::Kind::X: \
+      return #X"Attr";
+#include "clang/Basic/AttrList.inc"
+  }
+  return "Attr";
 }
 
 static void PrintTokenGraph(pasta::Decl tld) {
@@ -127,7 +138,7 @@ static void PrintTokenGraph(pasta::Decl tld) {
         break;
       case pasta::TokenContextKind::kAttr:
         bgcolor = " bgcolor=\"goldenrod1\"";
-        kind_name = "Attr";
+        kind_name = AttributeKindName(reinterpret_cast<const clang::Attr *>(context.Data()));
         break;
       case pasta::TokenContextKind::kString:
         bgcolor = " bgcolor=\"gainsboro\"";

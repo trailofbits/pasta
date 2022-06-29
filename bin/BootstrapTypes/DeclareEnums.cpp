@@ -99,6 +99,18 @@ static std::string RenameEnumerator(const std::string &name) {
     enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 4);
     return RenameEnumerator(name) + "End";
 
+  } else if (enumerator_name.endswith("_size")) {
+    enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 5);
+    return RenameEnumerator(name) + "Size";
+
+  } else if (enumerator_name.endswith("_alloc")) {
+    enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 6);
+    return RenameEnumerator(name) + "Alloc";
+
+  } else if (enumerator_name.endswith("_Alignas")) {
+    enumerator_name = enumerator_name.substr(0, enumerator_name.size() - 8);
+    return RenameEnumerator(name) + "_Alignas";
+
   } else if (enumerator_name.startswith("kw_")) {
     enumerator_name = enumerator_name.substr(3);
     return "Keyword" + RenameEnumerator(name);

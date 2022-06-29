@@ -33,6 +33,7 @@ extern const std::vector<ClassExtends> kExtends;
 extern std::vector<std::string> gDeclNames;
 extern std::vector<std::string> gStmtNames;
 extern std::vector<std::string> gTypeNames;
+extern std::vector<std::string> gAttrNames;
 
 struct IteratorSpec {
   std::string getter_method;
@@ -72,6 +73,7 @@ extern std::unordered_map<std::string, std::set<std::string>> gDerivedClasses;
 extern std::vector<std::string> gTopologicallyOrderedDecls;
 extern std::vector<std::string> gTopologicallyOrderedStmts;
 extern std::vector<std::string> gTopologicallyOrderedTypes;
+extern std::vector<std::string> gTopologicallyOrderedAttrs;
 
 extern std::unordered_map<std::string, std::set<std::string>> gTransitiveBaseClasses;
 extern std::unordered_map<std::string, std::set<std::string>> gTransitiveDerivedClasses;

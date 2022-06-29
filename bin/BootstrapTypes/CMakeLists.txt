@@ -9,6 +9,8 @@ add_executable(bootstrap-types
     "DeclareCppMethods.cpp"
     "DeclareEnums.cpp"
     "DefineCppMethods.cpp"
+    "GenerateAttrCpp.cpp"
+    "GenerateAttrH.cpp"
     "GenerateDeclCpp.cpp"
     "GenerateDeclH.cpp"
     "GenerateForwardH.cpp"

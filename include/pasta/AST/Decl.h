@@ -14,6 +14,7 @@
 #include <pasta/Util/Compiler.h>
 #include "Forward.h"
 
+#include "Attr.h"
 #include "DeclHead.h"
 
 #define PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(base) \
@@ -331,7 +332,7 @@ class Decl {
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, VarTemplateDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, VarTemplatePartialSpecializationDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, VarTemplateSpecializationDecl)
-  // Attributes: (llvm::iterator_range<clang::Attr *const *>)
+  std::vector<::pasta::Attr> Attributes(void) const noexcept;
   // CanBeWeakImported: (bool)
   // ASTContext: (clang::ASTContext &)
   enum AccessSpecifier Access(void) const noexcept;
@@ -341,7 +342,7 @@ class Decl {
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Decl CanonicalDeclaration(void) const noexcept;
   ::pasta::DeclContext DeclarationContext(void) const noexcept;
-  // DefiningAttribute: (const clang::Attr *)
+  std::optional<::pasta::Attr> DefiningAttribute(void) const noexcept;
   std::optional<::pasta::TemplateDecl> DescribedTemplate(void) const noexcept;
   std::optional<::pasta::TemplateParameterList> DescribedTemplateParameters(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;

@@ -25,6 +25,7 @@ const std::vector<ClassExtends> kExtends{
 std::vector<std::string> gDeclNames;
 std::vector<std::string> gStmtNames;
 std::vector<std::string> gTypeNames;
+std::vector<std::string> gAttrNames;
 
 // All methods (class name, method name).
 const std::set<std::pair<std::string, std::string>> gMethodNames{
@@ -322,6 +323,10 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
   {"(const clang::TemplateArgumentList &)", "std::vector<::pasta::TemplateArgument>"},
 
   {"(const clang::DesignatedInitExpr::Designator *)", "std::optional<::pasta::Designator>"},
+
+  {"(llvm::ArrayRef<const clang::Attr *>)", "std::vector<::pasta::Attr>"},
+  {"(llvm::iterator_range<clang::Attr *const *>)", "std::vector<::pasta::Attr>"},
+  {"(const clang::Attr *)", "::pasta::Attr"},
 };
 
 // Maps return types from the macros file to how they should be returned
@@ -736,6 +741,28 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
         "  if (val) {\n"
         "    return DeclBuilder::Create<::pasta::Designator>(ast, val);\n"
         "  }\n"},
+
+    {"(llvm::ArrayRef<const clang::Attr *>)",
+        "  std::vector<::pasta::Attr> ret;\n"
+        "  for (auto attr_ptr : val) {\n"
+        "    if (attr_ptr) {\n"
+        "      ret.emplace_back(StmtBuilder::Create<::pasta::Attr>(ast, attr_ptr));\n"
+        "    }\n"
+        "  }\n"
+        "  return ret;\n"},
+
+    {"(llvm::iterator_range<clang::Attr *const *>)",
+        "  std::vector<::pasta::Attr> ret;\n"
+        "  for (auto attr_ptr : val) {\n"
+        "    if (attr_ptr) {\n"
+        "      ret.emplace_back(DeclBuilder::Create<::pasta::Attr>(ast, attr_ptr));\n"
+        "    }\n"
+        "  }\n"
+        "  return ret;\n"},
+    {"(const clang::Attr *)",
+         "  if (val) {\n"
+         "    return ::pasta::Attr(ast, val);\n"
+         "  }\n"},
 };
 
 // Prefixes on enumerators to strip.
@@ -1056,6 +1083,8 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"NonTypeTemplateParmDecl", "DefaultArgument"},
   {"Type", "StripObjCKindOfType"},
   {"NonTypeTemplateParmDecl", "NumExpansionTypes"},
+  {"Decl","DefiningAttribute"},
+  {"CallExpr","UnusedResultAttribute"},
 
 //  {"FunctionProtoType", "EllipsisToken"},
 //  {"FunctionDecl", "EllipsisToken"},
@@ -1661,6 +1690,7 @@ std::unordered_map<std::string, std::set<std::string>> gDerivedClasses;
 std::vector<std::string> gTopologicallyOrderedDecls;
 std::vector<std::string> gTopologicallyOrderedStmts;
 std::vector<std::string> gTopologicallyOrderedTypes;
+std::vector<std::string> gTopologicallyOrderedAttrs;
 
 std::unordered_map<std::string, std::set<std::string>> gTransitiveBaseClasses;
 std::unordered_map<std::string, std::set<std::string>> gTransitiveDerivedClasses;

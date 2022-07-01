@@ -36,6 +36,7 @@ class ParmVarDecl;
 class PrintedTokenRange;
 class RecordDecl;
 class Token;
+class TokenContext;
 class VarTemplatePartialSpecializationDecl;
 
 class Designator {
@@ -57,6 +58,8 @@ class Designator {
   }
 
 #ifndef PASTA_IN_BOOTSTRAP
+  static std::optional<Designator> From(const TokenContext &);
+
   // Is this a field designator?
   bool IsFieldDesignator(void) const noexcept;
 

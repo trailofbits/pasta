@@ -123,6 +123,7 @@ class TokenContext {
 
  private:
   friend class Decl;
+  friend class Designator;
   friend class PrintedToken;
   friend class Stmt;
   friend class Token;

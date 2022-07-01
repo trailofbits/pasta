@@ -373,20 +373,24 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     return prev_tok;
   }
 
-  void ExpandLeadingKeyword(clang::tok::TokenKind kind) {
+  bool ExpandLeadingKeyword(clang::tok::TokenKind kind,
+                            bool allow_string_literal=false) {
     auto first_tok = &(ast.tokens.front());
     auto i = 0;
     if (!lower_bound) {
-      return;
+      return false;
     } else if (lower_bound->Kind() == kind) {
-      return;
+      return false;
     }
 
     for (auto tok = &(lower_bound[-1]); first_tok <= tok && i < 2; --tok) {
       const auto tok_kind = tok->Kind();
       if (tok_kind == kind) {
         lower_bound = tok;
-      } else if (tok_kind == clang::tok::string_literal) {
+        return true;
+
+      } else if (allow_string_literal &&
+                 tok_kind == clang::tok::string_literal) {
         ++i;
       } else if (tok_kind == clang::tok::unknown ||
                  tok_kind == clang::tok::eof ||
@@ -394,9 +398,10 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
                  tok_kind == clang::tok::comment) {
         continue;
       } else {
-        return;
+        return false;
       }
     }
+    return false;
   }
 
   // Scans forward or backward, starting at `tok` and tries to identify the
@@ -587,15 +592,20 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       this->TypeLocVisitor::Visit(ftl);
     }
 
-    switch (decl->getStorageClass()) {
-      case clang::StorageClass::SC_Static:
-        ExpandLeadingKeyword(clang::tok::kw_static);
-        break;
-      case clang::StorageClass::SC_Extern:
-        ExpandLeadingKeyword(clang::tok::kw_extern);
-        break;
-      default:
-        break;
+    // Expand to handle things like: `static const char *` or
+    // `inline static constexpr`.
+    for (auto changed = true; changed; ) {
+      changed = false;
+      changed = ExpandLeadingKeyword(clang::tok::kw_static) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw_extern, true) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw_unsigned) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw_signed) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw_short) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw_long) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw_volatile) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw_inline) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw_const) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw_constexpr) || changed;
     }
 
     TokenImpl *tok_loc = ast.RawTokenAt(decl->getLocation());

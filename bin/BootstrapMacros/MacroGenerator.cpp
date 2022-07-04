@@ -114,7 +114,21 @@ MacroGenerator::MacroGenerator(const clang::ASTContext *ctx)
     acceptable_class_names.insert(#Type "Stmt"); \
     acceptable_class_names.insert(#Type "Directive");
 #include "clang/AST/StmtNodes.inc"
-#undef DECL
+#undef STMT
+
+  acceptable_class_names.insert("Attr");
+  acceptable_class_names.insert("TypeAttr");
+  acceptable_class_names.insert("StmtAttr");
+  acceptable_class_names.insert("DeclOrStmtAttr");
+  acceptable_class_names.insert("InheritableAttr");
+  acceptable_class_names.insert("InheritableParamAttr");
+  acceptable_class_names.insert("ParameterABIAttr");
+
+#define ATTR(x) \
+    acceptable_class_names.insert(#x "Attr");
+
+#include "clang/Basic/AttrList.inc"
+#undef ATTR
 }
 
 MacroGenerator::~MacroGenerator(void) {

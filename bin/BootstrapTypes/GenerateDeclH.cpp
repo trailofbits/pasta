@@ -30,6 +30,7 @@ void GenerateDeclH(void) {
       << "#include <vector>\n"
       << "#include <pasta/Util/Compiler.h>\n"
       << "#include \"Forward.h\"\n\n"
+      << "#include \"Attr.h\"\n"
       << "#include \"DeclHead.h\"\n\n"
       << "#define PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(base) \\\n"
       << "    friend class AST; \\\n"

@@ -274,6 +274,8 @@ target_link_libraries(pasta_util PUBLIC
 
 set(ast_HEADERS
     "include/pasta/AST/AST.h"
+    "include/pasta/AST/Attr.h"
+    "include/pasta/AST/AttrManual.h"
     "include/pasta/AST/Decl.h"
     "include/pasta/AST/DeclHead.h"
     "include/pasta/AST/DeclTail.h"
@@ -292,6 +294,8 @@ add_library(pasta_compiler STATIC
     
     "lib/AST/AlignTokens.cpp"
     "lib/AST/AST.cpp"
+    "lib/AST/Attr.cpp"
+    "lib/AST/AttrManual.cpp"
     "lib/AST/Bounds.cpp"
     "lib/AST/Builder.cpp"
     "lib/AST/Builder.h"
@@ -482,6 +486,8 @@ set(PASTA_INCLUDE_AST_TYPE_H_PATH "${PROJECT_SOURCE_DIR}/include/pasta/AST/Type.
 set(PASTA_SRC_AST_TYPE_CPP_PATH "${PROJECT_SOURCE_DIR}/lib/AST/Type.cpp")
 set(PASTA_INCLUDE_AST_STMT_H_PATH "${PROJECT_SOURCE_DIR}/include/pasta/AST/Stmt.h")
 set(PASTA_SRC_AST_STMT_CPP_PATH "${PROJECT_SOURCE_DIR}/lib/AST/Stmt.cpp")
+set(PASTA_INCLUDE_AST_ATTR_H_PATH "${PROJECT_SOURCE_DIR}/include/pasta/AST/Attr.h")
+set(PASTA_SRC_AST_ATTR_CPP_PATH "${PROJECT_SOURCE_DIR}/lib/AST/Attr.cpp")
 
 set(BOOTSTRAP_CONFIG_H_IN "${PROJECT_SOURCE_DIR}/BootstrapConfig.h.in")
 set(BOOTSTRAP_CONFIG_H "${CMAKE_CURRENT_BINARY_DIR}/BootstrapConfig.h")

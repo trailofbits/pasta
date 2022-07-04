@@ -11,6 +11,7 @@
 #include <clang/AST/DeclCXX.h>
 #include <clang/AST/DeclObjC.h>
 #include <clang/AST/DeclTemplate.h>
+#include <clang/AST/Attr.h>
 #pragma clang diagnostic pop
 
 #include "AST.h"

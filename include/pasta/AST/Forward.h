@@ -18,22 +18,66 @@
 #define PASTA_IGNORE_ABSTRACT(...)
 
 namespace clang {
+class AArch64VectorPcsAttr;
+class AMDGPUFlatWorkGroupSizeAttr;
+class AMDGPUNumSGPRAttr;
+class AMDGPUNumVGPRAttr;
+class AMDGPUWavesPerEUAttr;
+class ARMInterruptAttr;
+class AVRInterruptAttr;
+class AVRSignalAttr;
+class AbiTagAttr;
 class AbstractConditionalOperator;
 class AccessSpecDecl;
+class AcquireCapabilityAttr;
+class AcquireHandleAttr;
+class AcquiredAfterAttr;
+class AcquiredBeforeAttr;
 class AddrLabelExpr;
+class AddressSpaceAttr;
 class AdjustedType;
+class AliasAttr;
+class AlignMac68kAttr;
+class AlignNaturalAttr;
+class AlignValueAttr;
+class AlignedAttr;
+class AllocAlignAttr;
+class AllocSizeAttr;
+class AlwaysDestroyAttr;
+class AlwaysInlineAttr;
+class AnalyzerNoReturnAttr;
+class AnnotateAttr;
+class AnyX86InterruptAttr;
+class AnyX86NoCallerSavedRegistersAttr;
+class AnyX86NoCfCheckAttr;
+class ArcWeakrefUnavailableAttr;
+class ArgumentWithTypeTagAttr;
+class ArmBuiltinAliasAttr;
+class ArmMveStrictPolymorphismAttr;
 class ArrayInitIndexExpr;
 class ArrayInitLoopExpr;
 class ArraySubscriptExpr;
 class ArrayType;
 class ArrayTypeTraitExpr;
+class ArtificialAttr;
 class AsTypeExpr;
+class AsmLabelAttr;
 class AsmStmt;
+class AssertCapabilityAttr;
+class AssertExclusiveLockAttr;
+class AssertSharedLockAttr;
+class AssumeAlignedAttr;
+class AssumptionAttr;
 class AtomicExpr;
 class AtomicType;
+class Attr;
 class AttributedStmt;
 class AttributedType;
 class AutoType;
+class AvailabilityAttr;
+class BPFPreserveAccessIndexAttr;
+class BTFDeclTagAttr;
+class BTFTypeTagAttr;
 class BaseUsingDecl;
 class BinaryConditionalOperator;
 class BinaryOperator;
@@ -42,12 +86,36 @@ class BitIntType;
 class BlockDecl;
 class BlockExpr;
 class BlockPointerType;
+class BlocksAttr;
 class BreakStmt;
+class BuiltinAliasAttr;
+class BuiltinAttr;
 class BuiltinBitCastExpr;
 class BuiltinTemplateDecl;
 class BuiltinType;
+class C11NoReturnAttr;
+class CDeclAttr;
+class CFAuditedTransferAttr;
+class CFConsumedAttr;
+class CFGuardAttr;
+class CFICanonicalJumpTableAttr;
+class CFReturnsNotRetainedAttr;
+class CFReturnsRetainedAttr;
+class CFUnknownTransferAttr;
+class CPUDispatchAttr;
+class CPUSpecificAttr;
 class CStyleCastExpr;
+class CUDAConstantAttr;
+class CUDADeviceAttr;
+class CUDADeviceBuiltinSurfaceTypeAttr;
+class CUDADeviceBuiltinTextureTypeAttr;
+class CUDAGlobalAttr;
+class CUDAHostAttr;
+class CUDAInvalidTargetAttr;
 class CUDAKernelCallExpr;
+class CUDALaunchBoundsAttr;
+class CUDASharedAttr;
+class CXX11NoReturnAttr;
 class CXXAddrspaceCastExpr;
 class CXXBindTemporaryExpr;
 class CXXBoolLiteralExpr;
@@ -89,8 +157,14 @@ class CXXTypeidExpr;
 class CXXUnresolvedConstructExpr;
 class CXXUuidofExpr;
 class CallExpr;
+class CallableWhenAttr;
+class CallbackAttr;
+class CalledOnceAttr;
+class CapabilityAttr;
 class CapturedDecl;
+class CapturedRecordAttr;
 class CapturedStmt;
+class CarriesDependencyAttr;
 class CaseStmt;
 class CastExpr;
 class CharacterLiteral;
@@ -99,7 +173,13 @@ class ClassScopeFunctionSpecializationDecl;
 class ClassTemplateDecl;
 class ClassTemplatePartialSpecializationDecl;
 class ClassTemplateSpecializationDecl;
+class CleanupAttr;
+class CmseNSCallAttr;
+class CmseNSEntryAttr;
 class CoawaitExpr;
+class CodeSegAttr;
+class ColdAttr;
+class CommonAttr;
 class ComplexType;
 class CompoundAssignOperator;
 class CompoundLiteralExpr;
@@ -107,19 +187,31 @@ class CompoundStmt;
 class ConceptDecl;
 class ConceptSpecializationExpr;
 class ConditionalOperator;
+class ConstAttr;
+class ConstInitAttr;
 class ConstantArrayType;
 class ConstantExpr;
 class ConstantMatrixType;
+class ConstructorAttr;
 class ConstructorUsingShadowDecl;
+class ConsumableAttr;
+class ConsumableAutoCastAttr;
+class ConsumableSetOnReadAttr;
 class ContinueStmt;
+class ConvergentAttr;
 class ConvertVectorExpr;
 class CoreturnStmt;
 class CoroutineBodyStmt;
 class CoroutineSuspendExpr;
 class CoyieldExpr;
+class DLLExportAttr;
+class DLLExportStaticLocalAttr;
+class DLLImportAttr;
+class DLLImportStaticLocalAttr;
 class DecayedType;
 class Decl;
 class DeclContext;
+class DeclOrStmtAttr;
 class DeclRefExpr;
 class DeclStmt;
 class DeclaratorDecl;
@@ -138,14 +230,28 @@ class DependentSizedExtVectorType;
 class DependentSizedMatrixType;
 class DependentTemplateSpecializationType;
 class DependentVectorType;
+class DeprecatedAttr;
 class DesignatedInitExpr;
 class DesignatedInitUpdateExpr;
+class DestructorAttr;
+class DiagnoseAsBuiltinAttr;
+class DiagnoseIfAttr;
+class DisableSanitizerInstrumentationAttr;
+class DisableTailCallsAttr;
 class DoStmt;
 class ElaboratedType;
+class EmptyBasesAttr;
 class EmptyDecl;
+class EnableIfAttr;
+class EnforceTCBAttr;
+class EnforceTCBLeafAttr;
 class EnumConstantDecl;
 class EnumDecl;
+class EnumExtensibilityAttr;
 class EnumType;
+class ErrorAttr;
+class ExcludeFromExplicitInstantiationAttr;
+class ExclusiveTrylockFunctionAttr;
 class ExplicitCastExpr;
 class ExportDecl;
 class Expr;
@@ -154,11 +260,19 @@ class ExpressionTraitExpr;
 class ExtVectorElementExpr;
 class ExtVectorType;
 class ExternCContextDecl;
+class ExternalSourceSymbolAttr;
+class FallThroughAttr;
+class FastCallAttr;
 class FieldDecl;
 class FileScopeAsmDecl;
+class FinalAttr;
 class FixedPointLiteral;
+class FlagEnumAttr;
+class FlattenAttr;
 class FloatingLiteral;
 class ForStmt;
+class FormatArgAttr;
+class FormatAttr;
 class FriendDecl;
 class FriendTemplateDecl;
 class FullExpr;
@@ -170,9 +284,18 @@ class FunctionTemplateDecl;
 class FunctionTemplateSpecializationInfo;
 class FunctionType;
 class GCCAsmStmt;
+class GNUInlineAttr;
 class GNUNullExpr;
 class GenericSelectionExpr;
 class GotoStmt;
+class GuardedByAttr;
+class GuardedVarAttr;
+class HIPManagedAttr;
+class HotAttr;
+class IBActionAttr;
+class IBOutletAttr;
+class IBOutletCollectionAttr;
+class IFuncAttr;
 class IfStmt;
 class ImaginaryLiteral;
 class ImplicitCastExpr;
@@ -182,34 +305,101 @@ class ImportDecl;
 class IncompleteArrayType;
 class IndirectFieldDecl;
 class IndirectGotoStmt;
+class InheritableAttr;
+class InheritableParamAttr;
 class InitListExpr;
+class InitPriorityAttr;
+class InitSegAttr;
 class InjectedClassNameType;
 class IntegerLiteral;
+class IntelOclBiccAttr;
+class InternalLinkageAttr;
+class LTOVisibilityPublicAttr;
 class LValueReferenceType;
 class LabelDecl;
 class LabelStmt;
 class LambdaExpr;
+class LayoutVersionAttr;
+class LeafAttr;
+class LifetimeBoundAttr;
 class LifetimeExtendedTemporaryDecl;
+class LikelyAttr;
 class LinkageSpecDecl;
+class LoaderUninitializedAttr;
+class LockReturnedAttr;
+class LocksExcludedAttr;
+class LoopHintAttr;
+class M68kInterruptAttr;
+class MIGServerRoutineAttr;
+class MSABIAttr;
+class MSAllocatorAttr;
 class MSAsmStmt;
 class MSDependentExistsStmt;
 class MSGuidDecl;
+class MSInheritanceAttr;
+class MSNoVTableAttr;
+class MSP430InterruptAttr;
 class MSPropertyDecl;
 class MSPropertyRefExpr;
 class MSPropertySubscriptExpr;
+class MSStructAttr;
+class MSVtorDispAttr;
 class MacroQualifiedType;
 class MaterializeTemporaryExpr;
 class MatrixSubscriptExpr;
 class MatrixType;
+class MaxFieldAlignmentAttr;
+class MayAliasAttr;
 class MemberExpr;
 class MemberPointerType;
+class MicroMipsAttr;
+class MinSizeAttr;
+class MinVectorWidthAttr;
+class Mips16Attr;
+class MipsInterruptAttr;
+class MipsLongCallAttr;
+class MipsShortCallAttr;
+class ModeAttr;
+class MustTailAttr;
+class NSConsumedAttr;
+class NSConsumesSelfAttr;
+class NSErrorDomainAttr;
+class NSReturnsAutoreleasedAttr;
+class NSReturnsNotRetainedAttr;
+class NSReturnsRetainedAttr;
+class NakedAttr;
 class NamedDecl;
 class NamespaceAliasDecl;
 class NamespaceDecl;
+class NoAliasAttr;
+class NoBuiltinAttr;
+class NoCommonAttr;
+class NoDebugAttr;
+class NoDerefAttr;
+class NoDestroyAttr;
+class NoDuplicateAttr;
+class NoEscapeAttr;
 class NoInitExpr;
+class NoInlineAttr;
+class NoInstrumentFunctionAttr;
+class NoMergeAttr;
+class NoMicroMipsAttr;
+class NoMips16Attr;
+class NoProfileFunctionAttr;
+class NoReturnAttr;
+class NoSanitizeAttr;
+class NoSpeculativeLoadHardeningAttr;
+class NoSplitStackAttr;
+class NoStackProtectorAttr;
+class NoThreadSafetyAnalysisAttr;
+class NoThrowAttr;
+class NoUniqueAddressAttr;
+class NonNullAttr;
 class NonTypeTemplateParmDecl;
+class NotTailCalledAttr;
 class NullStmt;
 class OMPAllocateDecl;
+class OMPAllocateDeclAttr;
 class OMPArraySectionExpr;
 class OMPArrayShapingExpr;
 class OMPAtomicDirective;
@@ -217,10 +407,15 @@ class OMPBarrierDirective;
 class OMPCancelDirective;
 class OMPCancellationPointDirective;
 class OMPCanonicalLoop;
+class OMPCaptureKindAttr;
+class OMPCaptureNoInitAttr;
 class OMPCapturedExprDecl;
 class OMPCriticalDirective;
 class OMPDeclareMapperDecl;
 class OMPDeclareReductionDecl;
+class OMPDeclareSimdDeclAttr;
+class OMPDeclareTargetDeclAttr;
+class OMPDeclareVariantAttr;
 class OMPDepobjDirective;
 class OMPDispatchDirective;
 class OMPDistributeDirective;
@@ -250,6 +445,7 @@ class OMPParallelMasterDirective;
 class OMPParallelMasterTaskLoopDirective;
 class OMPParallelMasterTaskLoopSimdDirective;
 class OMPParallelSectionsDirective;
+class OMPReferencedVarAttr;
 class OMPRequiresDecl;
 class OMPScanDirective;
 class OMPSectionDirective;
@@ -282,8 +478,15 @@ class OMPTeamsDistributeParallelForDirective;
 class OMPTeamsDistributeParallelForSimdDirective;
 class OMPTeamsDistributeSimdDirective;
 class OMPThreadPrivateDecl;
+class OMPThreadPrivateDeclAttr;
 class OMPTileDirective;
 class OMPUnrollDirective;
+class OSConsumedAttr;
+class OSConsumesThisAttr;
+class OSReturnsNotRetainedAttr;
+class OSReturnsRetainedAttr;
+class OSReturnsRetainedOnNonZeroAttr;
+class OSReturnsRetainedOnZeroAttr;
 class ObjCArrayLiteral;
 class ObjCAtCatchStmt;
 class ObjCAtDefsFieldDecl;
@@ -294,82 +497,196 @@ class ObjCAtTryStmt;
 class ObjCAutoreleasePoolStmt;
 class ObjCAvailabilityCheckExpr;
 class ObjCBoolLiteralExpr;
+class ObjCBoxableAttr;
 class ObjCBoxedExpr;
+class ObjCBridgeAttr;
+class ObjCBridgeMutableAttr;
+class ObjCBridgeRelatedAttr;
 class ObjCBridgedCastExpr;
 class ObjCCategoryDecl;
 class ObjCCategoryImplDecl;
+class ObjCClassStubAttr;
 class ObjCCompatibleAliasDecl;
 class ObjCContainerDecl;
+class ObjCDesignatedInitializerAttr;
 class ObjCDictionaryLiteral;
+class ObjCDirectAttr;
+class ObjCDirectMembersAttr;
 class ObjCEncodeExpr;
+class ObjCExceptionAttr;
+class ObjCExplicitProtocolImplAttr;
+class ObjCExternallyRetainedAttr;
 class ObjCForCollectionStmt;
+class ObjCGCAttr;
 class ObjCImplDecl;
 class ObjCImplementationDecl;
+class ObjCIndependentClassAttr;
 class ObjCIndirectCopyRestoreExpr;
+class ObjCInertUnsafeUnretainedAttr;
 class ObjCInterfaceDecl;
 class ObjCInterfaceType;
 class ObjCIsaExpr;
 class ObjCIvarDecl;
 class ObjCIvarRefExpr;
+class ObjCKindOfAttr;
 class ObjCMessageExpr;
 class ObjCMethodDecl;
+class ObjCMethodFamilyAttr;
+class ObjCNSObjectAttr;
+class ObjCNonLazyClassAttr;
+class ObjCNonRuntimeProtocolAttr;
 class ObjCObjectPointerType;
 class ObjCObjectType;
+class ObjCOwnershipAttr;
+class ObjCPreciseLifetimeAttr;
 class ObjCPropertyDecl;
 class ObjCPropertyImplDecl;
 class ObjCPropertyRefExpr;
 class ObjCProtocolDecl;
 class ObjCProtocolExpr;
+class ObjCRequiresPropertyDefsAttr;
+class ObjCRequiresSuperAttr;
+class ObjCReturnsInnerPointerAttr;
+class ObjCRootClassAttr;
+class ObjCRuntimeNameAttr;
+class ObjCRuntimeVisibleAttr;
 class ObjCSelectorExpr;
 class ObjCStringLiteral;
+class ObjCSubclassingRestrictedAttr;
 class ObjCSubscriptRefExpr;
 class ObjCTypeParamDecl;
 class ObjCTypeParamType;
 class OffsetOfExpr;
 class OpaqueValueExpr;
+class OpenCLAccessAttr;
+class OpenCLConstantAddressSpaceAttr;
+class OpenCLGenericAddressSpaceAttr;
+class OpenCLGlobalAddressSpaceAttr;
+class OpenCLGlobalDeviceAddressSpaceAttr;
+class OpenCLGlobalHostAddressSpaceAttr;
+class OpenCLIntelReqdSubGroupSizeAttr;
+class OpenCLKernelAttr;
+class OpenCLLocalAddressSpaceAttr;
+class OpenCLPrivateAddressSpaceAttr;
+class OpenCLUnrollHintAttr;
+class OptimizeNoneAttr;
 class OverloadExpr;
+class OverloadableAttr;
+class OverrideAttr;
+class OwnerAttr;
+class OwnershipAttr;
 class PackExpansionExpr;
 class PackExpansionType;
+class PackedAttr;
+class ParamTypestateAttr;
+class ParameterABIAttr;
 class ParenExpr;
 class ParenListExpr;
 class ParenType;
 class ParmVarDecl;
+class PascalAttr;
+class PassObjectSizeAttr;
+class PatchableFunctionEntryAttr;
+class PcsAttr;
 class PipeType;
+class PointerAttr;
 class PointerType;
+class PragmaClangBSSSectionAttr;
+class PragmaClangDataSectionAttr;
+class PragmaClangRelroSectionAttr;
+class PragmaClangRodataSectionAttr;
+class PragmaClangTextSectionAttr;
 class PragmaCommentDecl;
 class PragmaDetectMismatchDecl;
 class PredefinedExpr;
+class PreferredNameAttr;
+class PreserveAllAttr;
+class PreserveMostAttr;
 class PseudoObjectExpr;
+class PtGuardedByAttr;
+class PtGuardedVarAttr;
+class Ptr32Attr;
+class Ptr64Attr;
+class PureAttr;
 class QualType;
+class RISCVInterruptAttr;
 class RValueReferenceType;
 class RecordDecl;
 class RecordType;
 class RecoveryExpr;
 class RedeclarableTemplateDecl;
 class ReferenceType;
+class RegCallAttr;
+class ReinitializesAttr;
+class ReleaseCapabilityAttr;
+class ReleaseHandleAttr;
+class RenderScriptKernelAttr;
+class ReqdWorkGroupSizeAttr;
+class RequiresCapabilityAttr;
 class RequiresExpr;
 class RequiresExprBodyDecl;
+class RestrictAttr;
+class RetainAttr;
 class ReturnStmt;
+class ReturnTypestateAttr;
+class ReturnsNonNullAttr;
+class ReturnsTwiceAttr;
 class SEHExceptStmt;
 class SEHFinallyStmt;
 class SEHLeaveStmt;
 class SEHTryStmt;
+class SPtrAttr;
+class SYCLKernelAttr;
+class SYCLSpecialClassAttr;
 class SYCLUniqueStableNameExpr;
+class ScopedLockableAttr;
+class SectionAttr;
+class SelectAnyAttr;
+class SentinelAttr;
+class SetTypestateAttr;
+class SharedTrylockFunctionAttr;
 class ShuffleVectorExpr;
 class SizeOfPackExpr;
 class SourceLocExpr;
+class SpeculativeLoadHardeningAttr;
+class StandaloneDebugAttr;
 class StaticAssertDecl;
+class StdCallAttr;
 class Stmt;
+class StmtAttr;
 class StmtExpr;
+class StrictFPAttr;
 class StringLiteral;
 class SubstNonTypeTemplateParmExpr;
 class SubstNonTypeTemplateParmPackExpr;
 class SubstTemplateTypeParmPackType;
 class SubstTemplateTypeParmType;
+class SuppressAttr;
+class SwiftAsyncAttr;
+class SwiftAsyncCallAttr;
+class SwiftAsyncContextAttr;
+class SwiftAsyncErrorAttr;
+class SwiftAsyncNameAttr;
+class SwiftAttrAttr;
+class SwiftBridgeAttr;
+class SwiftBridgedTypedefAttr;
+class SwiftCallAttr;
+class SwiftContextAttr;
+class SwiftErrorAttr;
+class SwiftErrorResultAttr;
+class SwiftIndirectResultAttr;
+class SwiftNameAttr;
+class SwiftNewTypeAttr;
+class SwiftObjCMembersAttr;
+class SwiftPrivateAttr;
 class SwitchCase;
 class SwitchStmt;
+class SysVABIAttr;
+class TLSModelAttr;
 class TagDecl;
 class TagType;
+class TargetAttr;
+class TargetClonesAttr;
 class TemplateArgument;
 class TemplateDecl;
 class TemplateParamObjectDecl;
@@ -377,36 +694,58 @@ class TemplateSpecializationType;
 class TemplateTemplateParmDecl;
 class TemplateTypeParmDecl;
 class TemplateTypeParmType;
+class TestTypestateAttr;
+class ThisCallAttr;
+class ThreadAttr;
 class TranslationUnitDecl;
+class TransparentUnionAttr;
+class TrivialABIAttr;
+class TryAcquireCapabilityAttr;
 class Type;
 class TypeAliasDecl;
 class TypeAliasTemplateDecl;
+class TypeAttr;
 class TypeDecl;
+class TypeNonNullAttr;
+class TypeNullUnspecifiedAttr;
+class TypeNullableAttr;
+class TypeNullableResultAttr;
 class TypeOfExprType;
 class TypeOfType;
 class TypeSourceInfo;
+class TypeTagForDatatypeAttr;
 class TypeTraitExpr;
+class TypeVisibilityAttr;
 class TypeWithKeyword;
 class TypedefDecl;
 class TypedefNameDecl;
 class TypedefType;
 class TypoExpr;
+class UPtrAttr;
 class UnaryExprOrTypeTraitExpr;
 class UnaryOperator;
 class UnaryTransformType;
+class UnavailableAttr;
+class UninitializedAttr;
+class UnlikelyAttr;
 class UnresolvedLookupExpr;
 class UnresolvedMemberExpr;
 class UnresolvedUsingIfExistsDecl;
 class UnresolvedUsingType;
 class UnresolvedUsingTypenameDecl;
 class UnresolvedUsingValueDecl;
+class UnusedAttr;
+class UseHandleAttr;
+class UsedAttr;
 class UserDefinedLiteral;
 class UsingDecl;
 class UsingDirectiveDecl;
 class UsingEnumDecl;
+class UsingIfExistsAttr;
 class UsingPackDecl;
 class UsingShadowDecl;
 class UsingType;
+class UuidAttr;
 class VAArgExpr;
 class ValueDecl;
 class ValueStmt;
@@ -415,8 +754,24 @@ class VarTemplateDecl;
 class VarTemplatePartialSpecializationDecl;
 class VarTemplateSpecializationDecl;
 class VariableArrayType;
+class VecReturnAttr;
+class VecTypeHintAttr;
+class VectorCallAttr;
 class VectorType;
+class VisibilityAttr;
+class WarnUnusedAttr;
+class WarnUnusedResultAttr;
+class WeakAttr;
+class WeakImportAttr;
+class WeakRefAttr;
+class WebAssemblyExportNameAttr;
+class WebAssemblyImportModuleAttr;
+class WebAssemblyImportNameAttr;
 class WhileStmt;
+class WorkGroupSizeHintAttr;
+class X86ForceAlignArgPointerAttr;
+class XRayInstrumentAttr;
+class XRayLogArgsAttr;
 #ifndef PASTA_IN_DECL_CPP
 using OMPDeclarativeDirectiveDecl = Decl;
 using OMPDeclarativeDirectiveValueDecl = ValueDecl;
@@ -836,10 +1191,239 @@ enum class DeclKind : unsigned {
 #undef PASTA_DECLARE_DECL_KIND
 };
 
+enum class AArch64VectorPcsAttrSpelling : unsigned int {
+  kGNUAarch64VectorPcs = 0,
+  kCXX11ClangAarch64VectorPcs = 1,
+  kC2xClangAarch64VectorPcs = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AMDGPUFlatWorkGroupSizeAttrSpelling : unsigned int {
+  kGNUAmdgpuFlatWorkGroupSize = 0,
+  kCXX11ClangAmdgpuFlatWorkGroupSize = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AMDGPUNumSGPRAttrSpelling : unsigned int {
+  kGNUAmdgpuNumSgpr = 0,
+  kCXX11ClangAmdgpuNumSgpr = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AMDGPUNumVGPRAttrSpelling : unsigned int {
+  kGNUAmdgpuNumVgpr = 0,
+  kCXX11ClangAmdgpuNumVgpr = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AMDGPUWavesPerEUAttrSpelling : unsigned int {
+  kGNUAmdgpuWavesPerEu = 0,
+  kCXX11ClangAmdgpuWavesPerEu = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ARMInterruptAttrInterruptType : unsigned int {
+  kIRQ = 0,
+  kFIQ = 1,
+  kSWI = 2,
+  kABORT = 3,
+  kUNDEF = 4,
+  kGeneric = 5,
+};
+
+enum class ARMInterruptAttrSpelling : unsigned int {
+  kGNUInterrupt = 0,
+  kCXX11GnuInterrupt = 1,
+  kC2xGnuInterrupt = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AVRInterruptAttrSpelling : unsigned int {
+  kGNUInterrupt = 0,
+  kCXX11GnuInterrupt = 1,
+  kC2xGnuInterrupt = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AVRSignalAttrSpelling : unsigned int {
+  kGNUSignal = 0,
+  kCXX11GnuSignal = 1,
+  kC2xGnuSignal = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AbiTagAttrSpelling : unsigned int {
+  kGNUAbiTag = 0,
+  kCXX11GnuAbiTag = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AcquireCapabilityAttrSpelling : unsigned int {
+  kGNUAcquireCapability = 0,
+  kCXX11ClangAcquireCapability = 1,
+  kGNUAcquireSharedCapability = 2,
+  kCXX11ClangAcquireSharedCapability = 3,
+  kGNUExclusiveLockFunction = 4,
+  kGNUSharedLockFunction = 5,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AcquireHandleAttrSpelling : unsigned int {
+  kGNUAcquireHandle = 0,
+  kCXX11ClangAcquireHandle = 1,
+  kC2xClangAcquireHandle = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AddressSpaceAttrSpelling : unsigned int {
+  kGNUAddressSpace = 0,
+  kCXX11ClangAddressSpace = 1,
+  kC2xClangAddressSpace = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AliasAttrSpelling : unsigned int {
+  kGNUAlias = 0,
+  kCXX11GnuAlias = 1,
+  kC2xGnuAlias = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AlignedAttrSpelling : unsigned int {
+  kGNUAligned = 0,
+  kCXX11GnuAligned = 1,
+  kC2xGnuAligned = 2,
+  kDeclspecAlign = 3,
+  kKeywordAlignas = 4,
+  kKeyword_Alignas = 5,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AllocAlignAttrSpelling : unsigned int {
+  kGNUAllocAlign = 0,
+  kCXX11GnuAllocAlign = 1,
+  kC2xGnuAllocAlign = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AllocSizeAttrSpelling : unsigned int {
+  kGNUAllocSize = 0,
+  kCXX11GnuAllocSize = 1,
+  kC2xGnuAllocSize = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AlwaysDestroyAttrSpelling : unsigned int {
+  kGNUAlwaysDestroy = 0,
+  kCXX11ClangAlwaysDestroy = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AlwaysInlineAttrSpelling : unsigned int {
+  kGNUAlwaysInline = 0,
+  kCXX11GnuAlwaysInline = 1,
+  kC2xGnuAlwaysInline = 2,
+  kKeywordForceinline = 3,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AnnotateAttrSpelling : unsigned int {
+  kGNUAnnotate = 0,
+  kCXX11ClangAnnotate = 1,
+  kC2xClangAnnotate = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AnyX86InterruptAttrSpelling : unsigned int {
+  kGNUInterrupt = 0,
+  kCXX11GnuInterrupt = 1,
+  kC2xGnuInterrupt = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AnyX86NoCallerSavedRegistersAttrSpelling : unsigned int {
+  kGNUNoCallerSavedRegisters = 0,
+  kCXX11GnuNoCallerSavedRegisters = 1,
+  kC2xGnuNoCallerSavedRegisters = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AnyX86NoCfCheckAttrSpelling : unsigned int {
+  kGNUNocfCheck = 0,
+  kCXX11GnuNocfCheck = 1,
+  kC2xGnuNocfCheck = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ArcWeakrefUnavailableAttrSpelling : unsigned int {
+  kGNUObjcArcWeakReferenceUnavailable = 0,
+  kCXX11ClangObjcArcWeakReferenceUnavailable = 1,
+  kC2xClangObjcArcWeakReferenceUnavailable = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ArgumentWithTypeTagAttrSpelling : unsigned int {
+  kGNUArgumentWithTypeTag = 0,
+  kCXX11ClangArgumentWithTypeTag = 1,
+  kC2xClangArgumentWithTypeTag = 2,
+  kGNUPointerWithTypeTag = 3,
+  kCXX11ClangPointerWithTypeTag = 4,
+  kC2xClangPointerWithTypeTag = 5,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ArmBuiltinAliasAttrSpelling : unsigned int {
+  kGNUClangArmBuiltinAlias = 0,
+  kCXX11ClangClangArmBuiltinAlias = 1,
+  kC2xClangClangArmBuiltinAlias = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ArmMveStrictPolymorphismAttrSpelling : unsigned int {
+  kGNUClangArmMveStrictPolymorphism = 0,
+  kCXX11ClangClangArmMveStrictPolymorphism = 1,
+  kC2xClangClangArmMveStrictPolymorphism = 2,
+  kSpellingNotCalculated = 15,
+};
+
 enum class ArrayTypeArraySizeModifier : unsigned int {
   kNormal = 0,
   kStatic = 1,
   kStar = 2,
+};
+
+enum class ArtificialAttrSpelling : unsigned int {
+  kGNUArtificial = 0,
+  kCXX11GnuArtificial = 1,
+  kC2xGnuArtificial = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AsmLabelAttrSpelling : unsigned int {
+  kKeywordAssembly = 0,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AssertCapabilityAttrSpelling : unsigned int {
+  kGNUAssertCapability = 0,
+  kCXX11ClangAssertCapability = 1,
+  kGNUAssertSharedCapability = 2,
+  kCXX11ClangAssertSharedCapability = 3,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AssumeAlignedAttrSpelling : unsigned int {
+  kGNUAssumeAligned = 0,
+  kCXX11GnuAssumeAligned = 1,
+  kC2xGnuAssumeAligned = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class AssumptionAttrSpelling : unsigned int {
+  kGNUAssume = 0,
+  kCXX11ClangAssume = 1,
+  kC2xClangAssume = 2,
+  kSpellingNotCalculated = 15,
 };
 
 enum class AtomicExprAtomicOp : unsigned int {
@@ -905,6 +1489,52 @@ enum class AtomicExprAtomicOp : unsigned int {
   kHipAtomicFetchXor = 59,
   kHipAtomicFetchMin = 60,
   kHipAtomicFetchMax = 61,
+};
+
+enum class AvailabilityAttrSpelling : unsigned int {
+  kGNUAvailability = 0,
+  kCXX11ClangAvailability = 1,
+  kC2xClangAvailability = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class BPFPreserveAccessIndexAttrSpelling : unsigned int {
+  kGNUPreserveAccessIndex = 0,
+  kCXX11ClangPreserveAccessIndex = 1,
+  kC2xClangPreserveAccessIndex = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class BTFDeclTagAttrSpelling : unsigned int {
+  kGNUBtfDeclarationTag = 0,
+  kCXX11ClangBtfDeclarationTag = 1,
+  kC2xClangBtfDeclarationTag = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class BTFTypeTagAttrSpelling : unsigned int {
+  kGNUBtfTypeTag = 0,
+  kCXX11ClangBtfTypeTag = 1,
+  kC2xClangBtfTypeTag = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class BlocksAttrBlockType : unsigned int {
+  kByReference = 0,
+};
+
+enum class BlocksAttrSpelling : unsigned int {
+  kGNUBlocks = 0,
+  kCXX11ClangBlocks = 1,
+  kC2xClangBlocks = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class BuiltinAliasAttrSpelling : unsigned int {
+  kCXX11ClangBuiltinAlias = 0,
+  kC2xClangBuiltinAlias = 1,
+  kGNUClangBuiltinAlias = 2,
+  kSpellingNotCalculated = 15,
 };
 
 enum class BuiltinTypeKind : unsigned int {
@@ -1148,6 +1778,124 @@ enum class BuiltinTypeKind : unsigned int {
   kOMPIterator = 237,
 };
 
+enum class CDeclAttrSpelling : unsigned int {
+  kGNUCdecl = 0,
+  kCXX11GnuCdecl = 1,
+  kC2xGnuCdecl = 2,
+  kKeywordCdecl = 3,
+  kSpellingNotCalculated = 15,
+};
+
+enum class CFAuditedTransferAttrSpelling : unsigned int {
+  kGNUCfAuditedTransfer = 0,
+  kCXX11ClangCfAuditedTransfer = 1,
+  kC2xClangCfAuditedTransfer = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class CFConsumedAttrSpelling : unsigned int {
+  kGNUCfConsumed = 0,
+  kCXX11ClangCfConsumed = 1,
+  kC2xClangCfConsumed = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class CFGuardAttrGuardArg : unsigned int {
+  kNocf = 0,
+};
+
+enum class CFICanonicalJumpTableAttrSpelling : unsigned int {
+  kGNUCfiCanonicalJumpTable = 0,
+  kCXX11ClangCfiCanonicalJumpTable = 1,
+  kC2xClangCfiCanonicalJumpTable = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class CFReturnsNotRetainedAttrSpelling : unsigned int {
+  kGNUCfReturnsNotRetained = 0,
+  kCXX11ClangCfReturnsNotRetained = 1,
+  kC2xClangCfReturnsNotRetained = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class CFReturnsRetainedAttrSpelling : unsigned int {
+  kGNUCfReturnsRetained = 0,
+  kCXX11ClangCfReturnsRetained = 1,
+  kC2xClangCfReturnsRetained = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class CFUnknownTransferAttrSpelling : unsigned int {
+  kGNUCfUnknownTransfer = 0,
+  kCXX11ClangCfUnknownTransfer = 1,
+  kC2xClangCfUnknownTransfer = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class CPUDispatchAttrSpelling : unsigned int {
+  kGNUCpuDispatch = 0,
+  kCXX11ClangCpuDispatch = 1,
+  kC2xClangCpuDispatch = 2,
+  kDeclspecCpuDispatch = 3,
+  kSpellingNotCalculated = 15,
+};
+
+enum class CPUSpecificAttrSpelling : unsigned int {
+  kGNUCpuSpecific = 0,
+  kCXX11ClangCpuSpecific = 1,
+  kC2xClangCpuSpecific = 2,
+  kDeclspecCpuSpecific = 3,
+  kSpellingNotCalculated = 15,
+};
+
+enum class CUDAConstantAttrSpelling : unsigned int {
+  kGNUConstant = 0,
+  kDeclspecConstant = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class CUDADeviceAttrSpelling : unsigned int {
+  kGNUDevice = 0,
+  kDeclspecDevice = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class CUDADeviceBuiltinSurfaceTypeAttrSpelling : unsigned int {
+  kGNUDeviceBuiltinSurfaceType = 0,
+  kDeclspecDeviceBuiltinSurfaceType = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class CUDADeviceBuiltinTextureTypeAttrSpelling : unsigned int {
+  kGNUDeviceBuiltinTextureType = 0,
+  kDeclspecDeviceBuiltinTextureType = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class CUDAGlobalAttrSpelling : unsigned int {
+  kGNUGlobal = 0,
+  kDeclspecGlobal = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class CUDAHostAttrSpelling : unsigned int {
+  kGNUHost = 0,
+  kDeclspecHost = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class CUDALaunchBoundsAttrSpelling : unsigned int {
+  kGNULaunchBounds = 0,
+  kDeclspecLaunchBounds = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class CUDASharedAttrSpelling : unsigned int {
+  kGNUShared = 0,
+  kDeclspecShared = 1,
+  kSpellingNotCalculated = 15,
+};
+
 enum class CXXConstructExprConstructionKind : unsigned int {
   kComplete = 0,
   kNonVirtualBase = 1,
@@ -1166,11 +1914,51 @@ enum class CallExprADLCallKind : bool {
   kUsesADL = 1,
 };
 
+enum class CallableWhenAttrConsumedState : unsigned int {
+  kUnknown = 0,
+  kConsumed = 1,
+  kUnconsumed = 2,
+};
+
+enum class CallableWhenAttrSpelling : unsigned int {
+  kGNUCallableWhen = 0,
+  kCXX11ClangCallableWhen = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class CallbackAttrSpelling : unsigned int {
+  kGNUCallback = 0,
+  kCXX11ClangCallback = 1,
+  kC2xClangCallback = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class CalledOnceAttrSpelling : unsigned int {
+  kGNUCalledOnce = 0,
+  kCXX11ClangCalledOnce = 1,
+  kC2xClangCalledOnce = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class CapabilityAttrSpelling : unsigned int {
+  kGNUCapability = 0,
+  kCXX11ClangCapability = 1,
+  kGNUSharedCapability = 2,
+  kCXX11ClangSharedCapability = 3,
+  kSpellingNotCalculated = 15,
+};
+
 enum class CapturedStmtVariableCaptureKind : unsigned int {
   kThis = 0,
   kByReference = 1,
   kByCopy = 2,
   kVLAType = 3,
+};
+
+enum class CarriesDependencyAttrSpelling : unsigned int {
+  kGNUCarriesDependency = 0,
+  kCXX11CarriesDependency = 1,
+  kSpellingNotCalculated = 15,
 };
 
 enum class CharacterLiteralCharacterKind : unsigned int {
@@ -1181,10 +1969,99 @@ enum class CharacterLiteralCharacterKind : unsigned int {
   kUTF32 = 4,
 };
 
+enum class CleanupAttrSpelling : unsigned int {
+  kGNUCleanup = 0,
+  kCXX11GnuCleanup = 1,
+  kC2xGnuCleanup = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ColdAttrSpelling : unsigned int {
+  kGNUCold = 0,
+  kCXX11GnuCold = 1,
+  kC2xGnuCold = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class CommonAttrSpelling : unsigned int {
+  kGNUCommon = 0,
+  kCXX11GnuCommon = 1,
+  kC2xGnuCommon = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ConstAttrSpelling : unsigned int {
+  kGNUConst = 0,
+  kCXX11GnuConst = 1,
+  kC2xGnuConst = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ConstInitAttrSpelling : unsigned int {
+  kKeywordConstinit = 0,
+  kGNURequireConstantInitialization = 1,
+  kCXX11ClangRequireConstantInitialization = 2,
+  kSpellingNotCalculated = 15,
+};
+
 enum class ConstantExprResultStorageKind : unsigned int {
   kNone = 0,
   kInt64 = 1,
   kAPValue = 2,
+};
+
+enum class ConstructorAttrSpelling : unsigned int {
+  kGNUConstructor = 0,
+  kCXX11GnuConstructor = 1,
+  kC2xGnuConstructor = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ConsumableAttrConsumedState : unsigned int {
+  kUnknown = 0,
+  kConsumed = 1,
+  kUnconsumed = 2,
+};
+
+enum class ConsumableAttrSpelling : unsigned int {
+  kGNUConsumable = 0,
+  kCXX11ClangConsumable = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ConsumableAutoCastAttrSpelling : unsigned int {
+  kGNUConsumableAutoCastState = 0,
+  kCXX11ClangConsumableAutoCastState = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ConsumableSetOnReadAttrSpelling : unsigned int {
+  kGNUConsumableStateOnRead = 0,
+  kCXX11ClangConsumableStateOnRead = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ConvergentAttrSpelling : unsigned int {
+  kGNUConvergent = 0,
+  kCXX11ClangConvergent = 1,
+  kC2xClangConvergent = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class DLLExportAttrSpelling : unsigned int {
+  kDeclspecDllexport = 0,
+  kGNUDllexport = 1,
+  kCXX11GnuDllexport = 2,
+  kC2xGnuDllexport = 3,
+  kSpellingNotCalculated = 15,
+};
+
+enum class DLLImportAttrSpelling : unsigned int {
+  kDeclspecDllimport = 0,
+  kGNUDllimport = 1,
+  kCXX11GnuDllimport = 2,
+  kC2xGnuDllimport = 3,
+  kSpellingNotCalculated = 15,
 };
 
 enum class DeclFriendObjectKind : unsigned int {
@@ -1226,6 +2103,92 @@ enum class DeclObjCDeclQualifier : unsigned int {
   kByref = 16,
   kOneway = 32,
   kCSNullability = 64,
+};
+
+enum class DeprecatedAttrSpelling : unsigned int {
+  kGNUDeprecated = 0,
+  kCXX11GnuDeprecated = 1,
+  kC2xGnuDeprecated = 2,
+  kDeclspecDeprecated = 3,
+  kCXX11Deprecated = 4,
+  kC2xDeprecated = 5,
+  kSpellingNotCalculated = 15,
+};
+
+enum class DestructorAttrSpelling : unsigned int {
+  kGNUDestructor = 0,
+  kCXX11GnuDestructor = 1,
+  kC2xGnuDestructor = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class DiagnoseAsBuiltinAttrSpelling : unsigned int {
+  kGNUDiagnoseAsBuiltin = 0,
+  kCXX11ClangDiagnoseAsBuiltin = 1,
+  kC2xClangDiagnoseAsBuiltin = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class DiagnoseIfAttrDiagnosticType : unsigned int {
+  kError = 0,
+  kWarning = 1,
+};
+
+enum class DisableSanitizerInstrumentationAttrSpelling : unsigned int {
+  kGNUDisableSanitizerInstrumentation = 0,
+  kCXX11ClangDisableSanitizerInstrumentation = 1,
+  kC2xClangDisableSanitizerInstrumentation = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class DisableTailCallsAttrSpelling : unsigned int {
+  kGNUDisableTailCalls = 0,
+  kCXX11ClangDisableTailCalls = 1,
+  kC2xClangDisableTailCalls = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class EnforceTCBAttrSpelling : unsigned int {
+  kGNUEnforceTcb = 0,
+  kCXX11ClangEnforceTcb = 1,
+  kC2xClangEnforceTcb = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class EnforceTCBLeafAttrSpelling : unsigned int {
+  kGNUEnforceTcbLeaf = 0,
+  kCXX11ClangEnforceTcbLeaf = 1,
+  kC2xClangEnforceTcbLeaf = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class EnumExtensibilityAttrKind : unsigned int {
+  kClosed = 0,
+  kOpen = 1,
+};
+
+enum class EnumExtensibilityAttrSpelling : unsigned int {
+  kGNUEnumExtensibility = 0,
+  kCXX11ClangEnumExtensibility = 1,
+  kC2xClangEnumExtensibility = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ErrorAttrSpelling : unsigned int {
+  kGNUError = 0,
+  kCXX11GnuError = 1,
+  kC2xGnuError = 2,
+  kGNUWarning = 3,
+  kCXX11GnuWarning = 4,
+  kC2xGnuWarning = 5,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ExcludeFromExplicitInstantiationAttrSpelling : unsigned int {
+  kGNUExcludeFromExplicitInstantiation = 0,
+  kCXX11ClangExcludeFromExplicitInstantiation = 1,
+  kC2xClangExcludeFromExplicitInstantiation = 2,
+  kSpellingNotCalculated = 15,
 };
 
 enum class ExprConstantExprKind : int {
@@ -1288,12 +2251,125 @@ enum class ExprisModifiableLvalueResult : unsigned int {
   kArrayTemporary = 16,
 };
 
+enum class ExternalSourceSymbolAttrSpelling : unsigned int {
+  kGNUExternalSourceSymbol = 0,
+  kCXX11ClangExternalSourceSymbol = 1,
+  kC2xClangExternalSourceSymbol = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class FallThroughAttrSpelling : unsigned int {
+  kCXX11Fallthrough = 0,
+  kC2xFallthrough = 1,
+  kCXX11ClangFallthrough = 2,
+  kGNUFallthrough = 3,
+  kCXX11GnuFallthrough = 4,
+  kC2xGnuFallthrough = 5,
+  kSpellingNotCalculated = 15,
+};
+
+enum class FastCallAttrSpelling : unsigned int {
+  kGNUFastcall = 0,
+  kCXX11GnuFastcall = 1,
+  kC2xGnuFastcall = 2,
+  kKeywordFastcall = 3,
+  kSpellingNotCalculated = 15,
+};
+
+enum class FinalAttrSpelling : unsigned int {
+  kKeywordFinal = 0,
+  kKeywordSealed = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class FlagEnumAttrSpelling : unsigned int {
+  kGNUFlagEnum = 0,
+  kCXX11ClangFlagEnum = 1,
+  kC2xClangFlagEnum = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class FlattenAttrSpelling : unsigned int {
+  kGNUFlatten = 0,
+  kCXX11GnuFlatten = 1,
+  kC2xGnuFlatten = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class FormatArgAttrSpelling : unsigned int {
+  kGNUFormatArgument = 0,
+  kCXX11GnuFormatArgument = 1,
+  kC2xGnuFormatArgument = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class FormatAttrSpelling : unsigned int {
+  kGNUFormat = 0,
+  kCXX11GnuFormat = 1,
+  kC2xGnuFormat = 2,
+  kSpellingNotCalculated = 15,
+};
+
 enum class FunctionDeclTemplatedKind : unsigned int {
   kNonTemplate = 0,
   kFunctionTemplate = 1,
   kMemberSpecialization = 2,
   kFunctionTemplateSpecialization = 3,
   kDependentFunctionTemplateSpecialization = 4,
+};
+
+enum class GNUInlineAttrSpelling : unsigned int {
+  kGNUGnuInline = 0,
+  kCXX11GnuGnuInline = 1,
+  kC2xGnuGnuInline = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class GuardedVarAttrSpelling : unsigned int {
+  kGNUGuardedVariable = 0,
+  kCXX11ClangGuardedVariable = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class HIPManagedAttrSpelling : unsigned int {
+  kGNUManaged = 0,
+  kDeclspecManaged = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class HotAttrSpelling : unsigned int {
+  kGNUHot = 0,
+  kCXX11GnuHot = 1,
+  kC2xGnuHot = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class IBActionAttrSpelling : unsigned int {
+  kGNUIbaction = 0,
+  kCXX11ClangIbaction = 1,
+  kC2xClangIbaction = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class IBOutletAttrSpelling : unsigned int {
+  kGNUIboutlet = 0,
+  kCXX11ClangIboutlet = 1,
+  kC2xClangIboutlet = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class IBOutletCollectionAttrSpelling : unsigned int {
+  kGNUIboutletcollection = 0,
+  kCXX11ClangIboutletcollection = 1,
+  kC2xClangIboutletcollection = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class IFuncAttrSpelling : unsigned int {
+  kGNUIfunc = 0,
+  kCXX11GnuIfunc = 1,
+  kC2xGnuIfunc = 2,
+  kSpellingNotCalculated = 15,
 };
 
 enum class ImplicitCastExprOnStack : unsigned int {
@@ -1309,9 +2385,262 @@ enum class ImplicitParamDeclImplicitParamKind : unsigned int {
   kOther = 5,
 };
 
+enum class InitPriorityAttrSpelling : unsigned int {
+  kGNUInitializerPriority = 0,
+  kCXX11GnuInitializerPriority = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class IntelOclBiccAttrSpelling : unsigned int {
+  kGNUIntelOclBicc = 0,
+  kCXX11ClangIntelOclBicc = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class InternalLinkageAttrSpelling : unsigned int {
+  kGNUInternalLinkage = 0,
+  kCXX11ClangInternalLinkage = 1,
+  kC2xClangInternalLinkage = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class LTOVisibilityPublicAttrSpelling : unsigned int {
+  kGNULtoVisibilityPublic = 0,
+  kCXX11ClangLtoVisibilityPublic = 1,
+  kC2xClangLtoVisibilityPublic = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class LeafAttrSpelling : unsigned int {
+  kGNULeaf = 0,
+  kCXX11GnuLeaf = 1,
+  kC2xGnuLeaf = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class LifetimeBoundAttrSpelling : unsigned int {
+  kGNULifetimebound = 0,
+  kCXX11ClangLifetimebound = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class LikelyAttrSpelling : unsigned int {
+  kCXX11Likely = 0,
+  kC2xClangLikely = 1,
+  kSpellingNotCalculated = 15,
+};
+
 enum class LinkageSpecDeclLanguageIDs : unsigned int {
   kC = 1,
   kCxx = 2,
+};
+
+enum class LoaderUninitializedAttrSpelling : unsigned int {
+  kGNULoaderUninitialized = 0,
+  kCXX11ClangLoaderUninitialized = 1,
+  kC2xClangLoaderUninitialized = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class LoopHintAttrLoopHintState : unsigned int {
+  kEnable = 0,
+  kDisable = 1,
+  kNumeric = 2,
+  kFixedWidth = 3,
+  kScalableWidth = 4,
+  kAssumeSafety = 5,
+  kFull = 6,
+};
+
+enum class LoopHintAttrOptionType : unsigned int {
+  kVectorize = 0,
+  kVectorizeWidth = 1,
+  kInterleave = 2,
+  kInterleaveCount = 3,
+  kUnroll = 4,
+  kUnrollCount = 5,
+  kUnrollAndJam = 6,
+  kUnrollAndJamCount = 7,
+  kPipelineDisabled = 8,
+  kPipelineInitiationInterval = 9,
+  kDistribute = 10,
+  kVectorizePredicate = 11,
+};
+
+enum class LoopHintAttrSpelling : unsigned int {
+  kPragmaClangLoop = 0,
+  kPragmaUnroll = 1,
+  kPragmaNounroll = 2,
+  kPragmaUnrollAndJam = 3,
+  kPragmaNounrollAndJam = 4,
+  kSpellingNotCalculated = 15,
+};
+
+enum class MIGServerRoutineAttrSpelling : unsigned int {
+  kGNUMigServerRoutine = 0,
+  kCXX11ClangMigServerRoutine = 1,
+  kC2xClangMigServerRoutine = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class MSABIAttrSpelling : unsigned int {
+  kGNUMsAbi = 0,
+  kCXX11GnuMsAbi = 1,
+  kC2xGnuMsAbi = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class MSInheritanceAttrSpelling : unsigned int {
+  kKeywordSingleInheritance = 0,
+  kKeywordMultipleInheritance = 1,
+  kKeywordVirtualInheritance = 2,
+  kKeywordUnspecifiedInheritance = 3,
+  kSpellingNotCalculated = 15,
+};
+
+enum class MSP430InterruptAttrSpelling : unsigned int {
+  kGNUInterrupt = 0,
+  kCXX11GnuInterrupt = 1,
+  kC2xGnuInterrupt = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class MSStructAttrSpelling : unsigned int {
+  kGNUMsStruct = 0,
+  kCXX11GnuMsStruct = 1,
+  kC2xGnuMsStruct = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class MayAliasAttrSpelling : unsigned int {
+  kGNUMayAlias = 0,
+  kCXX11GnuMayAlias = 1,
+  kC2xGnuMayAlias = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class MicroMipsAttrSpelling : unsigned int {
+  kGNUMicromips = 0,
+  kCXX11GnuMicromips = 1,
+  kC2xGnuMicromips = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class MinSizeAttrSpelling : unsigned int {
+  kGNUMinsize = 0,
+  kCXX11ClangMinsize = 1,
+  kC2xClangMinsize = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class MinVectorWidthAttrSpelling : unsigned int {
+  kGNUMinVectorWidth = 0,
+  kCXX11ClangMinVectorWidth = 1,
+  kC2xClangMinVectorWidth = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class Mips16AttrSpelling : unsigned int {
+  kGNUMips16 = 0,
+  kCXX11GnuMips16 = 1,
+  kC2xGnuMips16 = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class MipsInterruptAttrInterruptType : unsigned int {
+  kSw0 = 0,
+  kSw1 = 1,
+  kHw0 = 2,
+  kHw1 = 3,
+  kHw2 = 4,
+  kHw3 = 5,
+  kHw4 = 6,
+  kHw5 = 7,
+  kEic = 8,
+};
+
+enum class MipsInterruptAttrSpelling : unsigned int {
+  kGNUInterrupt = 0,
+  kCXX11GnuInterrupt = 1,
+  kC2xGnuInterrupt = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class MipsLongCallAttrSpelling : unsigned int {
+  kGNULongCall = 0,
+  kCXX11GnuLongCall = 1,
+  kC2xGnuLongCall = 2,
+  kGNUFar = 3,
+  kCXX11GnuFar = 4,
+  kC2xGnuFar = 5,
+  kSpellingNotCalculated = 15,
+};
+
+enum class MipsShortCallAttrSpelling : unsigned int {
+  kGNUShortCall = 0,
+  kCXX11GnuShortCall = 1,
+  kC2xGnuShortCall = 2,
+  kGNUNear = 3,
+  kCXX11GnuNear = 4,
+  kC2xGnuNear = 5,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ModeAttrSpelling : unsigned int {
+  kGNUMode = 0,
+  kCXX11GnuMode = 1,
+  kC2xGnuMode = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class MustTailAttrSpelling : unsigned int {
+  kGNUMusttail = 0,
+  kCXX11ClangMusttail = 1,
+  kC2xClangMusttail = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NSConsumedAttrSpelling : unsigned int {
+  kGNUNsConsumed = 0,
+  kCXX11ClangNsConsumed = 1,
+  kC2xClangNsConsumed = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NSConsumesSelfAttrSpelling : unsigned int {
+  kGNUNsConsumesSelf = 0,
+  kCXX11ClangNsConsumesSelf = 1,
+  kC2xClangNsConsumesSelf = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NSReturnsAutoreleasedAttrSpelling : unsigned int {
+  kGNUNsReturnsAutoreleased = 0,
+  kCXX11ClangNsReturnsAutoreleased = 1,
+  kC2xClangNsReturnsAutoreleased = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NSReturnsNotRetainedAttrSpelling : unsigned int {
+  kGNUNsReturnsNotRetained = 0,
+  kCXX11ClangNsReturnsNotRetained = 1,
+  kC2xClangNsReturnsNotRetained = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NSReturnsRetainedAttrSpelling : unsigned int {
+  kGNUNsReturnsRetained = 0,
+  kCXX11ClangNsReturnsRetained = 1,
+  kC2xClangNsReturnsRetained = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NakedAttrSpelling : unsigned int {
+  kGNUNaked = 0,
+  kCXX11GnuNaked = 1,
+  kC2xGnuNaked = 2,
+  kDeclspecNaked = 3,
+  kSpellingNotCalculated = 15,
 };
 
 enum class NamedDeclExplicitVisibilityKind : unsigned int {
@@ -1319,10 +2648,335 @@ enum class NamedDeclExplicitVisibilityKind : unsigned int {
   kVisibilityForValue = 1,
 };
 
+enum class NoBuiltinAttrSpelling : unsigned int {
+  kGNUNoBuiltin = 0,
+  kCXX11ClangNoBuiltin = 1,
+  kC2xClangNoBuiltin = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NoCommonAttrSpelling : unsigned int {
+  kGNUNocommon = 0,
+  kCXX11GnuNocommon = 1,
+  kC2xGnuNocommon = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NoDebugAttrSpelling : unsigned int {
+  kGNUNodebug = 0,
+  kCXX11GnuNodebug = 1,
+  kC2xGnuNodebug = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NoDerefAttrSpelling : unsigned int {
+  kGNUNoderef = 0,
+  kCXX11ClangNoderef = 1,
+  kC2xClangNoderef = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NoDestroyAttrSpelling : unsigned int {
+  kGNUNoDestroy = 0,
+  kCXX11ClangNoDestroy = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NoDuplicateAttrSpelling : unsigned int {
+  kGNUNoduplicate = 0,
+  kCXX11ClangNoduplicate = 1,
+  kC2xClangNoduplicate = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NoEscapeAttrSpelling : unsigned int {
+  kGNUNoescape = 0,
+  kCXX11ClangNoescape = 1,
+  kC2xClangNoescape = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NoInlineAttrSpelling : unsigned int {
+  kGNUNoinline = 0,
+  kCXX11GnuNoinline = 1,
+  kC2xGnuNoinline = 2,
+  kDeclspecNoinline = 3,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NoInstrumentFunctionAttrSpelling : unsigned int {
+  kGNUNoInstrumentFunction = 0,
+  kCXX11GnuNoInstrumentFunction = 1,
+  kC2xGnuNoInstrumentFunction = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NoMergeAttrSpelling : unsigned int {
+  kGNUNomerge = 0,
+  kCXX11ClangNomerge = 1,
+  kC2xClangNomerge = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NoMicroMipsAttrSpelling : unsigned int {
+  kGNUNomicromips = 0,
+  kCXX11GnuNomicromips = 1,
+  kC2xGnuNomicromips = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NoMips16AttrSpelling : unsigned int {
+  kGNUNomips16 = 0,
+  kCXX11GnuNomips16 = 1,
+  kC2xGnuNomips16 = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NoProfileFunctionAttrSpelling : unsigned int {
+  kGNUNoProfileInstrumentFunction = 0,
+  kCXX11GnuNoProfileInstrumentFunction = 1,
+  kC2xGnuNoProfileInstrumentFunction = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NoReturnAttrSpelling : unsigned int {
+  kGNUNoreturn = 0,
+  kCXX11GnuNoreturn = 1,
+  kC2xGnuNoreturn = 2,
+  kDeclspecNoreturn = 3,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NoSanitizeAttrSpelling : unsigned int {
+  kGNUNoSanitize = 0,
+  kCXX11ClangNoSanitize = 1,
+  kC2xClangNoSanitize = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NoSpeculativeLoadHardeningAttrSpelling : unsigned int {
+  kGNUNoSpeculativeLoadHardening = 0,
+  kCXX11ClangNoSpeculativeLoadHardening = 1,
+  kC2xClangNoSpeculativeLoadHardening = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NoSplitStackAttrSpelling : unsigned int {
+  kGNUNoSplitStack = 0,
+  kCXX11GnuNoSplitStack = 1,
+  kC2xGnuNoSplitStack = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NoStackProtectorAttrSpelling : unsigned int {
+  kGNUNoStackProtector = 0,
+  kCXX11ClangNoStackProtector = 1,
+  kC2xClangNoStackProtector = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NoThreadSafetyAnalysisAttrSpelling : unsigned int {
+  kGNUNoThreadSafetyAnalysis = 0,
+  kCXX11ClangNoThreadSafetyAnalysis = 1,
+  kC2xClangNoThreadSafetyAnalysis = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NoThrowAttrSpelling : unsigned int {
+  kGNUNothrow = 0,
+  kCXX11GnuNothrow = 1,
+  kC2xGnuNothrow = 2,
+  kDeclspecNothrow = 3,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NonNullAttrSpelling : unsigned int {
+  kGNUNonnull = 0,
+  kCXX11GnuNonnull = 1,
+  kC2xGnuNonnull = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NotTailCalledAttrSpelling : unsigned int {
+  kGNUNotTailCalled = 0,
+  kCXX11ClangNotTailCalled = 1,
+  kC2xClangNotTailCalled = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class OMPAllocateDeclAttrAllocatorTypeTy : unsigned int {
+  kOMPNullMemoryAlloc = 0,
+  kOMPDefaultMemoryAlloc = 1,
+  kOMPLargeCapMemoryAlloc = 2,
+  kOMPConstMemoryAlloc = 3,
+  kOMPHighBWMemoryAlloc = 4,
+  kOMPLowLatMemoryAlloc = 5,
+  kOMPCGroupMemoryAlloc = 6,
+  kOMPPTeamMemoryAlloc = 7,
+  kOMPThreadMemoryAlloc = 8,
+  kOMPUserDefinedMemoryAlloc = 9,
+};
+
 enum class OMPDeclareReductionDeclInitKind : unsigned int {
   kCallInitializer = 0,
   kDirectInitializer = 1,
   kCopyInitializer = 2,
+};
+
+enum class OMPDeclareSimdDeclAttrBranchStateTy : unsigned int {
+  kUndefined = 0,
+  kInbranch = 1,
+  kNotinbranch = 2,
+};
+
+enum class OMPDeclareTargetDeclAttrDevTypeTy : unsigned int {
+  kHost = 0,
+  kNoHost = 1,
+  kAny = 2,
+};
+
+enum class OMPDeclareTargetDeclAttrMapTypeTy : unsigned int {
+  kTo = 0,
+  kLink = 1,
+};
+
+enum class OMPDeclareVariantAttrInteropType : unsigned int {
+  kTarget = 0,
+  kTargetSync = 1,
+  kTargetTargetSync = 2,
+};
+
+enum class OSConsumedAttrSpelling : unsigned int {
+  kGNUOsConsumed = 0,
+  kCXX11ClangOsConsumed = 1,
+  kC2xClangOsConsumed = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class OSConsumesThisAttrSpelling : unsigned int {
+  kGNUOsConsumesThis = 0,
+  kCXX11ClangOsConsumesThis = 1,
+  kC2xClangOsConsumesThis = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class OSReturnsNotRetainedAttrSpelling : unsigned int {
+  kGNUOsReturnsNotRetained = 0,
+  kCXX11ClangOsReturnsNotRetained = 1,
+  kC2xClangOsReturnsNotRetained = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class OSReturnsRetainedAttrSpelling : unsigned int {
+  kGNUOsReturnsRetained = 0,
+  kCXX11ClangOsReturnsRetained = 1,
+  kC2xClangOsReturnsRetained = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class OSReturnsRetainedOnNonZeroAttrSpelling : unsigned int {
+  kGNUOsReturnsRetainedOnNonZero = 0,
+  kCXX11ClangOsReturnsRetainedOnNonZero = 1,
+  kC2xClangOsReturnsRetainedOnNonZero = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class OSReturnsRetainedOnZeroAttrSpelling : unsigned int {
+  kGNUOsReturnsRetainedOnZero = 0,
+  kCXX11ClangOsReturnsRetainedOnZero = 1,
+  kC2xClangOsReturnsRetainedOnZero = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ObjCBoxableAttrSpelling : unsigned int {
+  kGNUObjcBoxable = 0,
+  kCXX11ClangObjcBoxable = 1,
+  kC2xClangObjcBoxable = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ObjCBridgeAttrSpelling : unsigned int {
+  kGNUObjcBridge = 0,
+  kCXX11ClangObjcBridge = 1,
+  kC2xClangObjcBridge = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ObjCBridgeMutableAttrSpelling : unsigned int {
+  kGNUObjcBridgeMutable = 0,
+  kCXX11ClangObjcBridgeMutable = 1,
+  kC2xClangObjcBridgeMutable = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ObjCBridgeRelatedAttrSpelling : unsigned int {
+  kGNUObjcBridgeRelated = 0,
+  kCXX11ClangObjcBridgeRelated = 1,
+  kC2xClangObjcBridgeRelated = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ObjCClassStubAttrSpelling : unsigned int {
+  kGNUObjcClassStub = 0,
+  kCXX11ClangObjcClassStub = 1,
+  kC2xClangObjcClassStub = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ObjCDesignatedInitializerAttrSpelling : unsigned int {
+  kGNUObjcDesignatedInitializer = 0,
+  kCXX11ClangObjcDesignatedInitializer = 1,
+  kC2xClangObjcDesignatedInitializer = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ObjCDirectAttrSpelling : unsigned int {
+  kGNUObjcDirect = 0,
+  kCXX11ClangObjcDirect = 1,
+  kC2xClangObjcDirect = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ObjCDirectMembersAttrSpelling : unsigned int {
+  kGNUObjcDirectMembers = 0,
+  kCXX11ClangObjcDirectMembers = 1,
+  kC2xClangObjcDirectMembers = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ObjCExceptionAttrSpelling : unsigned int {
+  kGNUObjcException = 0,
+  kCXX11ClangObjcException = 1,
+  kC2xClangObjcException = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ObjCExplicitProtocolImplAttrSpelling : unsigned int {
+  kGNUObjcProtocolRequiresExplicitImplementation = 0,
+  kCXX11ClangObjcProtocolRequiresExplicitImplementation = 1,
+  kC2xClangObjcProtocolRequiresExplicitImplementation = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ObjCExternallyRetainedAttrSpelling : unsigned int {
+  kGNUObjcExternallyRetained = 0,
+  kCXX11ClangObjcExternallyRetained = 1,
+  kC2xClangObjcExternallyRetained = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ObjCGCAttrSpelling : unsigned int {
+  kGNUObjcGc = 0,
+  kCXX11ClangObjcGc = 1,
+  kC2xClangObjcGc = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ObjCIndependentClassAttrSpelling : unsigned int {
+  kGNUObjcIndependentClass = 0,
+  kCXX11ClangObjcIndependentClass = 1,
+  kC2xClangObjcIndependentClass = 2,
+  kSpellingNotCalculated = 15,
 };
 
 enum class ObjCIvarDeclAccessControl : unsigned int {
@@ -1346,6 +3000,57 @@ enum class ObjCMethodDeclImplementationControl : unsigned int {
   kOptional = 2,
 };
 
+enum class ObjCMethodFamilyAttrFamilyKind : unsigned int {
+  kNone = 0,
+  kAlloc = 1,
+  kCopy = 2,
+  kInitializer = 3,
+  kMutableCopy = 4,
+  kNew = 5,
+};
+
+enum class ObjCMethodFamilyAttrSpelling : unsigned int {
+  kGNUObjcMethodFamily = 0,
+  kCXX11ClangObjcMethodFamily = 1,
+  kC2xClangObjcMethodFamily = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ObjCNSObjectAttrSpelling : unsigned int {
+  kGNUNSObject = 0,
+  kCXX11ClangNSObject = 1,
+  kC2xClangNSObject = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ObjCNonLazyClassAttrSpelling : unsigned int {
+  kGNUObjcNonlazyClass = 0,
+  kCXX11ClangObjcNonlazyClass = 1,
+  kC2xClangObjcNonlazyClass = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ObjCNonRuntimeProtocolAttrSpelling : unsigned int {
+  kGNUObjcNonRuntimeProtocol = 0,
+  kCXX11ClangObjcNonRuntimeProtocol = 1,
+  kC2xClangObjcNonRuntimeProtocol = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ObjCOwnershipAttrSpelling : unsigned int {
+  kGNUObjcOwnership = 0,
+  kCXX11ClangObjcOwnership = 1,
+  kC2xClangObjcOwnership = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ObjCPreciseLifetimeAttrSpelling : unsigned int {
+  kGNUObjcPreciseLifetime = 0,
+  kCXX11ClangObjcPreciseLifetime = 1,
+  kC2xClangObjcPreciseLifetime = 2,
+  kSpellingNotCalculated = 15,
+};
+
 enum class ObjCPropertyDeclPropertyControl : unsigned int {
   kNone = 0,
   kRequired = 1,
@@ -1364,6 +3069,210 @@ enum class ObjCPropertyImplDeclKind : unsigned int {
   kDynamic = 1,
 };
 
+enum class ObjCRequiresPropertyDefsAttrSpelling : unsigned int {
+  kGNUObjcRequiresPropertyDefinitions = 0,
+  kCXX11ClangObjcRequiresPropertyDefinitions = 1,
+  kC2xClangObjcRequiresPropertyDefinitions = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ObjCRequiresSuperAttrSpelling : unsigned int {
+  kGNUObjcRequiresSuper = 0,
+  kCXX11ClangObjcRequiresSuper = 1,
+  kC2xClangObjcRequiresSuper = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ObjCReturnsInnerPointerAttrSpelling : unsigned int {
+  kGNUObjcReturnsInnerPointer = 0,
+  kCXX11ClangObjcReturnsInnerPointer = 1,
+  kC2xClangObjcReturnsInnerPointer = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ObjCRootClassAttrSpelling : unsigned int {
+  kGNUObjcRootClass = 0,
+  kCXX11ClangObjcRootClass = 1,
+  kC2xClangObjcRootClass = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ObjCRuntimeNameAttrSpelling : unsigned int {
+  kGNUObjcRuntimeName = 0,
+  kCXX11ClangObjcRuntimeName = 1,
+  kC2xClangObjcRuntimeName = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ObjCRuntimeVisibleAttrSpelling : unsigned int {
+  kGNUObjcRuntimeVisible = 0,
+  kCXX11ClangObjcRuntimeVisible = 1,
+  kC2xClangObjcRuntimeVisible = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ObjCSubclassingRestrictedAttrSpelling : unsigned int {
+  kGNUObjcSubclassingRestricted = 0,
+  kCXX11ClangObjcSubclassingRestricted = 1,
+  kC2xClangObjcSubclassingRestricted = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class OpenCLAccessAttrSpelling : unsigned int {
+  kKeywordReadOnly = 0,
+  kKeywordWriteOnly = 2,
+  kKeywordReadWrite = 4,
+  kSpellingNotCalculated = 15,
+};
+
+enum class OpenCLConstantAddressSpaceAttrSpelling : unsigned int {
+  kKeywordConstant = 0,
+  kGNUOpenclConstant = 2,
+  kCXX11ClangOpenclConstant = 3,
+  kC2xClangOpenclConstant = 4,
+  kSpellingNotCalculated = 15,
+};
+
+enum class OpenCLGenericAddressSpaceAttrSpelling : unsigned int {
+  kKeywordGeneric = 0,
+  kGNUOpenclGeneric = 2,
+  kCXX11ClangOpenclGeneric = 3,
+  kC2xClangOpenclGeneric = 4,
+  kSpellingNotCalculated = 15,
+};
+
+enum class OpenCLGlobalAddressSpaceAttrSpelling : unsigned int {
+  kKeywordGlobal = 0,
+  kGNUOpenclGlobal = 2,
+  kCXX11ClangOpenclGlobal = 3,
+  kC2xClangOpenclGlobal = 4,
+  kSpellingNotCalculated = 15,
+};
+
+enum class OpenCLGlobalDeviceAddressSpaceAttrSpelling : unsigned int {
+  kGNUOpenclGlobalDevice = 0,
+  kCXX11ClangOpenclGlobalDevice = 1,
+  kC2xClangOpenclGlobalDevice = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class OpenCLGlobalHostAddressSpaceAttrSpelling : unsigned int {
+  kGNUOpenclGlobalHost = 0,
+  kCXX11ClangOpenclGlobalHost = 1,
+  kC2xClangOpenclGlobalHost = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class OpenCLKernelAttrSpelling : unsigned int {
+  kKeywordKernel = 0,
+  kSpellingNotCalculated = 15,
+};
+
+enum class OpenCLLocalAddressSpaceAttrSpelling : unsigned int {
+  kKeywordLocal = 0,
+  kGNUOpenclLocal = 2,
+  kCXX11ClangOpenclLocal = 3,
+  kC2xClangOpenclLocal = 4,
+  kSpellingNotCalculated = 15,
+};
+
+enum class OpenCLPrivateAddressSpaceAttrSpelling : unsigned int {
+  kKeywordPrivate = 0,
+  kGNUOpenclPrivate = 2,
+  kCXX11ClangOpenclPrivate = 3,
+  kC2xClangOpenclPrivate = 4,
+  kSpellingNotCalculated = 15,
+};
+
+enum class OptimizeNoneAttrSpelling : unsigned int {
+  kGNUOptnone = 0,
+  kCXX11ClangOptnone = 1,
+  kC2xClangOptnone = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class OverloadableAttrSpelling : unsigned int {
+  kGNUOverloadable = 0,
+  kCXX11ClangOverloadable = 1,
+  kC2xClangOverloadable = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class OwnershipAttrOwnershipKind : unsigned int {
+  kHolds = 0,
+  kReturns = 1,
+  kTakes = 2,
+};
+
+enum class OwnershipAttrSpelling : unsigned int {
+  kGNUOwnershipHolds = 0,
+  kCXX11ClangOwnershipHolds = 1,
+  kC2xClangOwnershipHolds = 2,
+  kGNUOwnershipReturns = 3,
+  kCXX11ClangOwnershipReturns = 4,
+  kC2xClangOwnershipReturns = 5,
+  kGNUOwnershipTakes = 6,
+  kCXX11ClangOwnershipTakes = 7,
+  kC2xClangOwnershipTakes = 8,
+  kSpellingNotCalculated = 15,
+};
+
+enum class PackedAttrSpelling : unsigned int {
+  kGNUPacked = 0,
+  kCXX11GnuPacked = 1,
+  kC2xGnuPacked = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ParamTypestateAttrConsumedState : unsigned int {
+  kUnknown = 0,
+  kConsumed = 1,
+  kUnconsumed = 2,
+};
+
+enum class ParamTypestateAttrSpelling : unsigned int {
+  kGNUParameterTypestate = 0,
+  kCXX11ClangParameterTypestate = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class PascalAttrSpelling : unsigned int {
+  kGNUPascal = 0,
+  kCXX11ClangPascal = 1,
+  kC2xClangPascal = 2,
+  kKeywordPascal = 3,
+  kSpellingNotCalculated = 15,
+};
+
+enum class PassObjectSizeAttrSpelling : unsigned int {
+  kGNUPassObjectSize = 0,
+  kCXX11ClangPassObjectSize = 1,
+  kC2xClangPassObjectSize = 2,
+  kGNUPassDynamicObjectSize = 3,
+  kCXX11ClangPassDynamicObjectSize = 4,
+  kC2xClangPassDynamicObjectSize = 5,
+  kSpellingNotCalculated = 15,
+};
+
+enum class PatchableFunctionEntryAttrSpelling : unsigned int {
+  kGNUPatchableFunctionEntry = 0,
+  kCXX11GnuPatchableFunctionEntry = 1,
+  kC2xGnuPatchableFunctionEntry = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class PcsAttrPCSType : unsigned int {
+  kAAPCS = 0,
+  kVFP = 1,
+};
+
+enum class PcsAttrSpelling : unsigned int {
+  kGNUPcs = 0,
+  kCXX11GnuPcs = 1,
+  kC2xGnuPcs = 2,
+  kSpellingNotCalculated = 15,
+};
+
 enum class PredefinedExprIdentKind : unsigned int {
   kFunc = 0,
   kFunction = 1,
@@ -1373,6 +3282,39 @@ enum class PredefinedExprIdentKind : unsigned int {
   kLFuncSig = 5,
   kPrettyFunction = 6,
   kPrettyFunctionNoVirtual = 7,
+};
+
+enum class PreferredNameAttrSpelling : unsigned int {
+  kGNUPreferredName = 0,
+  kCXX11ClangPreferredName = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class PreserveAllAttrSpelling : unsigned int {
+  kGNUPreserveAll = 0,
+  kCXX11ClangPreserveAll = 1,
+  kC2xClangPreserveAll = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class PreserveMostAttrSpelling : unsigned int {
+  kGNUPreserveMost = 0,
+  kCXX11ClangPreserveMost = 1,
+  kC2xClangPreserveMost = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class PtGuardedVarAttrSpelling : unsigned int {
+  kGNUPtGuardedVariable = 0,
+  kCXX11ClangPtGuardedVariable = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class PureAttrSpelling : unsigned int {
+  kGNUPure = 0,
+  kCXX11GnuPure = 1,
+  kC2xGnuPure = 2,
+  kSpellingNotCalculated = 15,
 };
 
 enum class QualTypeDestructionKind : unsigned int {
@@ -1398,10 +3340,164 @@ enum class QualTypePrimitiveDefaultInitializeKind : unsigned int {
   kStruct = 3,
 };
 
+enum class RISCVInterruptAttrInterruptType : unsigned int {
+  kUser = 0,
+  kSupervisor = 1,
+  kMachine = 2,
+};
+
+enum class RISCVInterruptAttrSpelling : unsigned int {
+  kGNUInterrupt = 0,
+  kCXX11GnuInterrupt = 1,
+  kC2xGnuInterrupt = 2,
+  kSpellingNotCalculated = 15,
+};
+
 enum class RecordDeclArgPassingKind : unsigned int {
   kCanPassInRegs = 0,
   kCannotPassInRegs = 1,
   kCanNeverPassInRegs = 2,
+};
+
+enum class RegCallAttrSpelling : unsigned int {
+  kGNURegcall = 0,
+  kCXX11GnuRegcall = 1,
+  kC2xGnuRegcall = 2,
+  kKeywordRegcall = 3,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ReinitializesAttrSpelling : unsigned int {
+  kGNUReinitializes = 0,
+  kCXX11ClangReinitializes = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ReleaseCapabilityAttrSpelling : unsigned int {
+  kGNUReleaseCapability = 0,
+  kCXX11ClangReleaseCapability = 1,
+  kGNUReleaseSharedCapability = 2,
+  kCXX11ClangReleaseSharedCapability = 3,
+  kGNUReleaseGenericCapability = 4,
+  kCXX11ClangReleaseGenericCapability = 5,
+  kGNUUnlockFunction = 6,
+  kCXX11ClangUnlockFunction = 7,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ReleaseHandleAttrSpelling : unsigned int {
+  kGNUReleaseHandle = 0,
+  kCXX11ClangReleaseHandle = 1,
+  kC2xClangReleaseHandle = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class RequiresCapabilityAttrSpelling : unsigned int {
+  kGNURequiresCapability = 0,
+  kCXX11ClangRequiresCapability = 1,
+  kGNUExclusiveLocksRequired = 2,
+  kCXX11ClangExclusiveLocksRequired = 3,
+  kGNURequiresSharedCapability = 4,
+  kCXX11ClangRequiresSharedCapability = 5,
+  kGNUSharedLocksRequired = 6,
+  kCXX11ClangSharedLocksRequired = 7,
+  kSpellingNotCalculated = 15,
+};
+
+enum class RestrictAttrSpelling : unsigned int {
+  kDeclspecRestrict = 0,
+  kGNUMalloc = 1,
+  kCXX11GnuMalloc = 2,
+  kC2xGnuMalloc = 3,
+  kSpellingNotCalculated = 15,
+};
+
+enum class RetainAttrSpelling : unsigned int {
+  kGNURetain = 0,
+  kCXX11GnuRetain = 1,
+  kC2xGnuRetain = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ReturnTypestateAttrConsumedState : unsigned int {
+  kUnknown = 0,
+  kConsumed = 1,
+  kUnconsumed = 2,
+};
+
+enum class ReturnTypestateAttrSpelling : unsigned int {
+  kGNUReturnTypestate = 0,
+  kCXX11ClangReturnTypestate = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ReturnsNonNullAttrSpelling : unsigned int {
+  kGNUReturnsNonnull = 0,
+  kCXX11GnuReturnsNonnull = 1,
+  kC2xGnuReturnsNonnull = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ReturnsTwiceAttrSpelling : unsigned int {
+  kGNUReturnsTwice = 0,
+  kCXX11GnuReturnsTwice = 1,
+  kC2xGnuReturnsTwice = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class SYCLKernelAttrSpelling : unsigned int {
+  kGNUSyclKernel = 0,
+  kCXX11ClangSyclKernel = 1,
+  kC2xClangSyclKernel = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class SYCLSpecialClassAttrSpelling : unsigned int {
+  kGNUSyclSpecialClass = 0,
+  kCXX11ClangSyclSpecialClass = 1,
+  kC2xClangSyclSpecialClass = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ScopedLockableAttrSpelling : unsigned int {
+  kGNUScopedLockable = 0,
+  kCXX11ClangScopedLockable = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class SectionAttrSpelling : unsigned int {
+  kGNUSection = 0,
+  kCXX11GnuSection = 1,
+  kC2xGnuSection = 2,
+  kDeclspecAllocate = 3,
+  kSpellingNotCalculated = 15,
+};
+
+enum class SelectAnyAttrSpelling : unsigned int {
+  kDeclspecSelectany = 0,
+  kGNUSelectany = 1,
+  kCXX11GnuSelectany = 2,
+  kC2xGnuSelectany = 3,
+  kSpellingNotCalculated = 15,
+};
+
+enum class SentinelAttrSpelling : unsigned int {
+  kGNUSentinel = 0,
+  kCXX11GnuSentinel = 1,
+  kC2xGnuSentinel = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class SetTypestateAttrConsumedState : unsigned int {
+  kUnknown = 0,
+  kConsumed = 1,
+  kUnconsumed = 2,
+};
+
+enum class SetTypestateAttrSpelling : unsigned int {
+  kGNUTypestate = 0,
+  kCXX11ClangTypestate = 1,
+  kSpellingNotCalculated = 15,
 };
 
 enum class SourceLocExprIdentKind : unsigned int {
@@ -1409,6 +3505,27 @@ enum class SourceLocExprIdentKind : unsigned int {
   kFile = 1,
   kLine = 2,
   kColumn = 3,
+};
+
+enum class SpeculativeLoadHardeningAttrSpelling : unsigned int {
+  kGNUSpeculativeLoadHardening = 0,
+  kCXX11ClangSpeculativeLoadHardening = 1,
+  kC2xClangSpeculativeLoadHardening = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class StandaloneDebugAttrSpelling : unsigned int {
+  kGNUStandaloneDebug = 0,
+  kCXX11ClangStandaloneDebug = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class StdCallAttrSpelling : unsigned int {
+  kGNUStdcall = 0,
+  kCXX11GnuStdcall = 1,
+  kC2xGnuStdcall = 2,
+  kKeywordStdcall = 3,
+  kSpellingNotCalculated = 15,
 };
 
 enum class StmtLikelihood : int {
@@ -1650,6 +3767,122 @@ enum class StringLiteralStringKind : unsigned int {
   kUTF32 = 4,
 };
 
+enum class SwiftAsyncAttrKind : unsigned int {
+  kNone = 0,
+  kSwiftPrivate = 1,
+  kNotSwiftPrivate = 2,
+};
+
+enum class SwiftAsyncAttrSpelling : unsigned int {
+  kGNUSwiftAsync = 0,
+  kCXX11ClangSwiftAsync = 1,
+  kC2xClangSwiftAsync = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class SwiftAsyncCallAttrSpelling : unsigned int {
+  kGNUSwiftasynccall = 0,
+  kCXX11ClangSwiftasynccall = 1,
+  kC2xClangSwiftasynccall = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class SwiftAsyncContextAttrSpelling : unsigned int {
+  kGNUSwiftAsyncContext = 0,
+  kCXX11ClangSwiftAsyncContext = 1,
+  kC2xClangSwiftAsyncContext = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class SwiftAsyncErrorAttrConventionKind : unsigned int {
+  kNone = 0,
+  kNonNullError = 1,
+  kZeroArgument = 2,
+  kNonZeroArgument = 3,
+};
+
+enum class SwiftAsyncErrorAttrSpelling : unsigned int {
+  kGNUSwiftAsyncError = 0,
+  kCXX11ClangSwiftAsyncError = 1,
+  kC2xClangSwiftAsyncError = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class SwiftCallAttrSpelling : unsigned int {
+  kGNUSwiftcall = 0,
+  kCXX11ClangSwiftcall = 1,
+  kC2xClangSwiftcall = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class SwiftContextAttrSpelling : unsigned int {
+  kGNUSwiftContext = 0,
+  kCXX11ClangSwiftContext = 1,
+  kC2xClangSwiftContext = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class SwiftErrorAttrConventionKind : unsigned int {
+  kNone = 0,
+  kNonNullError = 1,
+  kNullResult = 2,
+  kZeroResult = 3,
+  kNonZeroResult = 4,
+};
+
+enum class SwiftErrorResultAttrSpelling : unsigned int {
+  kGNUSwiftErrorResult = 0,
+  kCXX11ClangSwiftErrorResult = 1,
+  kC2xClangSwiftErrorResult = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class SwiftIndirectResultAttrSpelling : unsigned int {
+  kGNUSwiftIndirectResult = 0,
+  kCXX11ClangSwiftIndirectResult = 1,
+  kC2xClangSwiftIndirectResult = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class SwiftNewTypeAttrNewtypeKind : unsigned int {
+  kStruct = 0,
+  kEnum = 1,
+};
+
+enum class SwiftNewTypeAttrSpelling : unsigned int {
+  kGNUSwiftNewtype = 0,
+  kGNUSwiftWrapper = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class SysVABIAttrSpelling : unsigned int {
+  kGNUSysvAbi = 0,
+  kCXX11GnuSysvAbi = 1,
+  kC2xGnuSysvAbi = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class TLSModelAttrSpelling : unsigned int {
+  kGNUTlsModel = 0,
+  kCXX11GnuTlsModel = 1,
+  kC2xGnuTlsModel = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class TargetAttrSpelling : unsigned int {
+  kGNUTarget = 0,
+  kCXX11GnuTarget = 1,
+  kC2xGnuTarget = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class TargetClonesAttrSpelling : unsigned int {
+  kGNUTargetClones = 0,
+  kCXX11GnuTargetClones = 1,
+  kC2xGnuTargetClones = 2,
+  kSpellingNotCalculated = 15,
+};
+
 enum class TemplateArgumentKind : unsigned int {
   kEmpty = 0,
   kType = 1,
@@ -1660,6 +3893,46 @@ enum class TemplateArgumentKind : unsigned int {
   kTemplateExpansion = 6,
   kExpression = 7,
   kPack = 8,
+};
+
+enum class TestTypestateAttrConsumedState : unsigned int {
+  kConsumed = 0,
+  kUnconsumed = 1,
+};
+
+enum class TestTypestateAttrSpelling : unsigned int {
+  kGNUTestTypestate = 0,
+  kCXX11ClangTestTypestate = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class ThisCallAttrSpelling : unsigned int {
+  kGNUThiscall = 0,
+  kCXX11GnuThiscall = 1,
+  kC2xGnuThiscall = 2,
+  kKeywordThiscall = 3,
+  kSpellingNotCalculated = 15,
+};
+
+enum class TransparentUnionAttrSpelling : unsigned int {
+  kGNUTransparentUnion = 0,
+  kCXX11GnuTransparentUnion = 1,
+  kC2xGnuTransparentUnion = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class TrivialABIAttrSpelling : unsigned int {
+  kGNUTrivialAbi = 0,
+  kCXX11ClangTrivialAbi = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class TryAcquireCapabilityAttrSpelling : unsigned int {
+  kGNUTryAcquireCapability = 0,
+  kCXX11ClangTryAcquireCapability = 1,
+  kGNUTryAcquireSharedCapability = 2,
+  kCXX11ClangTryAcquireSharedCapability = 3,
+  kSpellingNotCalculated = 15,
 };
 
 enum class TypeScalarTypeKind : unsigned int {
@@ -1731,8 +4004,79 @@ enum class TypeKind : unsigned int {
   kExtVector = 52,
 };
 
+enum class TypeTagForDatatypeAttrSpelling : unsigned int {
+  kGNUTypeTagForDatatype = 0,
+  kCXX11ClangTypeTagForDatatype = 1,
+  kC2xClangTypeTagForDatatype = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class TypeVisibilityAttrSpelling : unsigned int {
+  kGNUTypeVisibility = 0,
+  kCXX11ClangTypeVisibility = 1,
+  kC2xClangTypeVisibility = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class TypeVisibilityAttrVisibilityType : unsigned int {
+  kDefault = 0,
+  kHidden = 1,
+  kProtected = 2,
+};
+
 enum class UnaryTransformTypeUTTKind : unsigned int {
   kEnumUnderlyingType = 0,
+};
+
+enum class UnavailableAttrImplicitReason : unsigned int {
+  kNone = 0,
+  kARCForbiddenType = 1,
+  kForbiddenWeak = 2,
+  kARCForbiddenConversion = 3,
+  kARCInitReturnsUnrelated = 4,
+  kARCFieldWithOwnership = 5,
+};
+
+enum class UnavailableAttrSpelling : unsigned int {
+  kGNUUnavailable = 0,
+  kCXX11ClangUnavailable = 1,
+  kC2xClangUnavailable = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class UninitializedAttrSpelling : unsigned int {
+  kGNUUninitialized = 0,
+  kCXX11ClangUninitialized = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class UnlikelyAttrSpelling : unsigned int {
+  kCXX11Unlikely = 0,
+  kC2xClangUnlikely = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class UnusedAttrSpelling : unsigned int {
+  kCXX11MaybeUnused = 0,
+  kGNUUnused = 1,
+  kCXX11GnuUnused = 2,
+  kC2xGnuUnused = 3,
+  kC2xMaybeUnused = 4,
+  kSpellingNotCalculated = 15,
+};
+
+enum class UseHandleAttrSpelling : unsigned int {
+  kGNUUseHandle = 0,
+  kCXX11ClangUseHandle = 1,
+  kC2xClangUseHandle = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class UsedAttrSpelling : unsigned int {
+  kGNUUsed = 0,
+  kCXX11GnuUsed = 1,
+  kC2xGnuUsed = 2,
+  kSpellingNotCalculated = 15,
 };
 
 enum class UserDefinedLiteralLiteralOperatorKind : unsigned int {
@@ -1742,6 +4086,18 @@ enum class UserDefinedLiteralLiteralOperatorKind : unsigned int {
   kFloating = 3,
   kString = 4,
   kCharacter = 5,
+};
+
+enum class UsingIfExistsAttrSpelling : unsigned int {
+  kGNUUsingIfExists = 0,
+  kCXX11ClangUsingIfExists = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class UuidAttrSpelling : unsigned int {
+  kDeclspecUuid = 0,
+  kMicrosoftUuid = 1,
+  kSpellingNotCalculated = 15,
 };
 
 enum class VarDeclDefinitionKind : unsigned int {
@@ -1762,6 +4118,20 @@ enum class VarDeclTLSKind : unsigned int {
   kDynamic = 2,
 };
 
+enum class VecReturnAttrSpelling : unsigned int {
+  kGNUVecreturn = 0,
+  kCXX11ClangVecreturn = 1,
+  kSpellingNotCalculated = 15,
+};
+
+enum class VectorCallAttrSpelling : unsigned int {
+  kGNUVectorcall = 0,
+  kCXX11ClangVectorcall = 1,
+  kC2xClangVectorcall = 2,
+  kKeywordVectorcall = 3,
+  kSpellingNotCalculated = 15,
+};
+
 enum class VectorTypeVectorKind : unsigned int {
   kGenericVector = 0,
   kAltiVecVector = 1,
@@ -1771,6 +4141,102 @@ enum class VectorTypeVectorKind : unsigned int {
   kNeonPolyVector = 5,
   kSveFixedLengthDataVector = 6,
   kSveFixedLengthPredicateVector = 7,
+};
+
+enum class VisibilityAttrSpelling : unsigned int {
+  kGNUVisibility = 0,
+  kCXX11GnuVisibility = 1,
+  kC2xGnuVisibility = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class VisibilityAttrVisibilityType : unsigned int {
+  kDefault = 0,
+  kHidden = 1,
+  kProtected = 2,
+};
+
+enum class WarnUnusedAttrSpelling : unsigned int {
+  kGNUWarnUnused = 0,
+  kCXX11GnuWarnUnused = 1,
+  kC2xGnuWarnUnused = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class WarnUnusedResultAttrSpelling : unsigned int {
+  kCXX11Nodiscard = 0,
+  kC2xNodiscard = 1,
+  kCXX11ClangWarnUnusedResult = 2,
+  kGNUWarnUnusedResult = 3,
+  kCXX11GnuWarnUnusedResult = 4,
+  kC2xGnuWarnUnusedResult = 5,
+  kSpellingNotCalculated = 15,
+};
+
+enum class WeakAttrSpelling : unsigned int {
+  kGNUWeak = 0,
+  kCXX11GnuWeak = 1,
+  kC2xGnuWeak = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class WeakImportAttrSpelling : unsigned int {
+  kGNUWeakImport = 0,
+  kCXX11ClangWeakImport = 1,
+  kC2xClangWeakImport = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class WeakRefAttrSpelling : unsigned int {
+  kGNUWeakref = 0,
+  kCXX11GnuWeakref = 1,
+  kC2xGnuWeakref = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class WebAssemblyExportNameAttrSpelling : unsigned int {
+  kGNUExportName = 0,
+  kCXX11ClangExportName = 1,
+  kC2xClangExportName = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class WebAssemblyImportModuleAttrSpelling : unsigned int {
+  kGNUImportModule = 0,
+  kCXX11ClangImportModule = 1,
+  kC2xClangImportModule = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class WebAssemblyImportNameAttrSpelling : unsigned int {
+  kGNUImportName = 0,
+  kCXX11ClangImportName = 1,
+  kC2xClangImportName = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class X86ForceAlignArgPointerAttrSpelling : unsigned int {
+  kGNUForceAlignArgumentPointer = 0,
+  kCXX11GnuForceAlignArgumentPointer = 1,
+  kC2xGnuForceAlignArgumentPointer = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class XRayInstrumentAttrSpelling : unsigned int {
+  kGNUXrayAlwaysInstrument = 0,
+  kCXX11ClangXrayAlwaysInstrument = 1,
+  kC2xClangXrayAlwaysInstrument = 2,
+  kGNUXrayNeverInstrument = 3,
+  kCXX11ClangXrayNeverInstrument = 4,
+  kC2xClangXrayNeverInstrument = 5,
+  kSpellingNotCalculated = 15,
+};
+
+enum class XRayLogArgsAttrSpelling : unsigned int {
+  kGNUXrayLogArguments = 0,
+  kCXX11ClangXrayLogArguments = 1,
+  kC2xClangXrayLogArguments = 2,
+  kSpellingNotCalculated = 15,
 };
 
 enum class ASTDumpOutputFormat : unsigned int {
@@ -1796,19 +4262,6 @@ enum class AlignRequirementKind : int {
   kRequiredByTypedef = 1,
   kRequiredByRecord = 2,
   kRequiredByEnum = 3,
-};
-
-enum class AllocatorTypeTy : unsigned int {
-  kOMPNullMemoryAlloc = 0,
-  kOMPDefaultMemoryAlloc = 1,
-  kOMPLargeCapMemoryAlloc = 2,
-  kOMPConstMemoryAlloc = 3,
-  kOMPHighBWMemoryAlloc = 4,
-  kOMPLowLatMemoryAlloc = 5,
-  kOMPCGroupMemoryAlloc = 6,
-  kOMPPTeamMemoryAlloc = 7,
-  kOMPThreadMemoryAlloc = 8,
-  kOMPUserDefinedMemoryAlloc = 9,
 };
 
 enum class AltivecSrcCompatKind : int {
@@ -2259,16 +4712,6 @@ enum class Bits : unsigned char {
   kSyntactic = 19,
 };
 
-enum class BlockType : unsigned int {
-  kByReference = 0,
-};
-
-enum class BranchStateTy : unsigned int {
-  kUndefined = 0,
-  kInbranch = 1,
-  kNotinbranch = 2,
-};
-
 enum class CallingConv : unsigned int {
   kC = 0,
   kX86StdCall = 1,
@@ -2421,19 +4864,6 @@ enum class ConstexprSpecKind : int {
   kConstinit = 3,
 };
 
-enum class ConsumedState : unsigned int {
-  kUnknown = 0,
-  kConsumed = 1,
-  kUnconsumed = 2,
-};
-
-enum class ConventionKind : unsigned int {
-  kNone = 0,
-  kNonNullError = 1,
-  kZeroArgument = 2,
-  kNonZeroArgument = 3,
-};
-
 enum class CoreFoundationABI : int {
   kUnspecified = 0,
   kStandalone = 1,
@@ -2467,12 +4897,6 @@ enum class DefaultCallingConvention : unsigned int {
   kRegCall = 5,
 };
 
-enum class DevTypeTy : unsigned int {
-  kHost = 0,
-  kNoHost = 1,
-  kAny = 2,
-};
-
 enum class DiagnosticLevelMask : unsigned int {
   kNone = 0,
   kNote = 1,
@@ -2480,11 +4904,6 @@ enum class DiagnosticLevelMask : unsigned int {
   kWarning = 4,
   kError = 8,
   kAll = 15,
-};
-
-enum class DiagnosticType : unsigned int {
-  kError = 0,
-  kWarning = 1,
 };
 
 enum class ElaboratedTypeKeyword : unsigned int {
@@ -2598,15 +5017,6 @@ enum class FPModeKind : unsigned int {
   kFastHonorPragmas = 3,
 };
 
-enum class FamilyKind : unsigned int {
-  kNone = 0,
-  kAlloc = 1,
-  kCopy = 2,
-  kInitializer = 3,
-  kMutableCopy = 4,
-  kNew = 5,
-};
-
 enum class FiniteLoopsKind : unsigned int {
   kLanguage = 0,
   kAlways = 1,
@@ -2647,10 +5057,6 @@ enum class GetBuiltinTypeError : unsigned int {
   kMissingUcontext = 4,
 };
 
-enum class GuardArg : unsigned int {
-  kNocf = 0,
-};
-
 enum class ID : unsigned int {
   kWorkGroup = 1,
   kDevice = 2,
@@ -2677,15 +5083,6 @@ enum class ImbueAttribute : int {
   kALWAYS = 1,
   kNEVER = 2,
   kALWAYSARG1 = 3,
-};
-
-enum class ImplicitReason : unsigned int {
-  kNone = 0,
-  kARCForbiddenType = 1,
-  kForbiddenWeak = 2,
-  kARCForbiddenConversion = 3,
-  kARCInitReturnsUnrelated = 4,
-  kARCFieldWithOwnership = 5,
 };
 
 enum class InClassInitStyle : unsigned int {
@@ -2723,21 +5120,6 @@ enum class InliningMethod : unsigned int {
   kNormalInlining = 0,
   kOnlyHintInlining = 1,
   kOnlyAlwaysInlining = 2,
-};
-
-enum class InteropType : unsigned int {
-  kTarget = 0,
-  kTargetSync = 1,
-  kTargetTargetSync = 2,
-};
-
-enum class InterruptType : unsigned int {
-  kIRQ = 0,
-  kFIQ = 1,
-  kSWI = 2,
-  kABORT = 3,
-  kUNDEF = 4,
-  kGeneric = 5,
 };
 
 enum class Kinds : unsigned int {
@@ -2856,16 +5238,6 @@ enum class Linkage : unsigned char {
   kExternalLinkage = 6,
 };
 
-enum class LoopHintState : unsigned int {
-  kEnable = 0,
-  kDisable = 1,
-  kNumeric = 2,
-  kFixedWidth = 3,
-  kScalableWidth = 4,
-  kAssumeSafety = 5,
-  kFull = 6,
-};
-
 enum class MSInheritanceModel : int {
   kSingle = 0,
   kMultiple = 1,
@@ -2890,11 +5262,6 @@ enum class MSVtorDispMode : int {
   kNever = 0,
   kForVirtualBaseOverride = 1,
   kForVFTable = 2,
-};
-
-enum class MapTypeTy : unsigned int {
-  kTo = 0,
-  kLink = 1,
 };
 
 enum class MethodRefFlags : unsigned int {
@@ -2947,11 +5314,6 @@ enum class NestedNameSpecifierDependence : unsigned char {
   kNone = 0,
   kDependentInstantiation = 6,
   kAll = 15,
-};
-
-enum class NewtypeKind : unsigned int {
-  kStruct = 0,
-  kEnum = 1,
 };
 
 enum class NonOdrUseReason : unsigned int {
@@ -3217,21 +5579,6 @@ enum class OpenMPScheduleClauseModifier : unsigned int {
   kSimd = 8,
 };
 
-enum class OptionType : unsigned int {
-  kVectorize = 0,
-  kVectorizeWidth = 1,
-  kInterleave = 2,
-  kInterleaveCount = 3,
-  kUnroll = 4,
-  kUnrollCount = 5,
-  kUnrollAndJam = 6,
-  kUnrollAndJamCount = 7,
-  kPipelineDisabled = 8,
-  kPipelineInitiationInterval = 9,
-  kDistribute = 10,
-  kVectorizePredicate = 11,
-};
-
 enum class OverloadedOperatorKind : int {
   kNone = 0,
   kNew = 1,
@@ -3284,17 +5631,6 @@ enum class OverloadedOperatorKind : int {
 enum class OverloadsShown : unsigned int {
   kAll = 0,
   kBest = 1,
-};
-
-enum class OwnershipKind : unsigned int {
-  kHolds = 0,
-  kReturns = 1,
-  kTakes = 2,
-};
-
-enum class PCSType : unsigned int {
-  kAAPCS = 0,
-  kVFP = 1,
 };
 
 enum class PPKeywordKind : unsigned int {
@@ -3556,13 +5892,6 @@ enum class SpecifierKind : unsigned int {
   kTypeSpecWithTemplate = 4,
   kGlobal = 5,
   kSuper = 6,
-};
-
-enum class Spelling : unsigned int {
-  kGNUAarch64VectorPcs = 0,
-  kCXX11ClangAarch64VectorPcs = 1,
-  kC2xClangAarch64VectorPcs = 2,
-  kSpellingNotCalculated = 15,
 };
 
 enum class StackProtectorMode : unsigned int {
@@ -4418,12 +6747,6 @@ enum class Visibility : unsigned int {
   kDefaultVisibility = 2,
 };
 
-enum class VisibilityType : unsigned int {
-  kDefault = 0,
-  kHidden = 1,
-  kProtected = 2,
-};
-
 #define PASTA_FOR_EACH_STMT_KIND(m) \
     m(GCCAsmStmt) \
     m(MSAsmStmt) \
@@ -4705,22 +7028,66 @@ enum class VisibilityType : unsigned int {
 
 class OMPDeclarativeDirectiveDecl;
 class OMPDeclarativeDirectiveValueDecl;
+class AArch64VectorPcsAttr;
+class AMDGPUFlatWorkGroupSizeAttr;
+class AMDGPUNumSGPRAttr;
+class AMDGPUNumVGPRAttr;
+class AMDGPUWavesPerEUAttr;
+class ARMInterruptAttr;
+class AVRInterruptAttr;
+class AVRSignalAttr;
+class AbiTagAttr;
 class AbstractConditionalOperator;
 class AccessSpecDecl;
+class AcquireCapabilityAttr;
+class AcquireHandleAttr;
+class AcquiredAfterAttr;
+class AcquiredBeforeAttr;
 class AddrLabelExpr;
+class AddressSpaceAttr;
 class AdjustedType;
+class AliasAttr;
+class AlignMac68kAttr;
+class AlignNaturalAttr;
+class AlignValueAttr;
+class AlignedAttr;
+class AllocAlignAttr;
+class AllocSizeAttr;
+class AlwaysDestroyAttr;
+class AlwaysInlineAttr;
+class AnalyzerNoReturnAttr;
+class AnnotateAttr;
+class AnyX86InterruptAttr;
+class AnyX86NoCallerSavedRegistersAttr;
+class AnyX86NoCfCheckAttr;
+class ArcWeakrefUnavailableAttr;
+class ArgumentWithTypeTagAttr;
+class ArmBuiltinAliasAttr;
+class ArmMveStrictPolymorphismAttr;
 class ArrayInitIndexExpr;
 class ArrayInitLoopExpr;
 class ArraySubscriptExpr;
 class ArrayType;
 class ArrayTypeTraitExpr;
+class ArtificialAttr;
 class AsTypeExpr;
+class AsmLabelAttr;
 class AsmStmt;
+class AssertCapabilityAttr;
+class AssertExclusiveLockAttr;
+class AssertSharedLockAttr;
+class AssumeAlignedAttr;
+class AssumptionAttr;
 class AtomicExpr;
 class AtomicType;
+class Attr;
 class AttributedStmt;
 class AttributedType;
 class AutoType;
+class AvailabilityAttr;
+class BPFPreserveAccessIndexAttr;
+class BTFDeclTagAttr;
+class BTFTypeTagAttr;
 class BaseUsingDecl;
 class BinaryConditionalOperator;
 class BinaryOperator;
@@ -4729,12 +7096,36 @@ class BitIntType;
 class BlockDecl;
 class BlockExpr;
 class BlockPointerType;
+class BlocksAttr;
 class BreakStmt;
+class BuiltinAliasAttr;
+class BuiltinAttr;
 class BuiltinBitCastExpr;
 class BuiltinTemplateDecl;
 class BuiltinType;
+class C11NoReturnAttr;
+class CDeclAttr;
+class CFAuditedTransferAttr;
+class CFConsumedAttr;
+class CFGuardAttr;
+class CFICanonicalJumpTableAttr;
+class CFReturnsNotRetainedAttr;
+class CFReturnsRetainedAttr;
+class CFUnknownTransferAttr;
+class CPUDispatchAttr;
+class CPUSpecificAttr;
 class CStyleCastExpr;
+class CUDAConstantAttr;
+class CUDADeviceAttr;
+class CUDADeviceBuiltinSurfaceTypeAttr;
+class CUDADeviceBuiltinTextureTypeAttr;
+class CUDAGlobalAttr;
+class CUDAHostAttr;
+class CUDAInvalidTargetAttr;
 class CUDAKernelCallExpr;
+class CUDALaunchBoundsAttr;
+class CUDASharedAttr;
+class CXX11NoReturnAttr;
 class CXXAddrspaceCastExpr;
 class CXXBindTemporaryExpr;
 class CXXBoolLiteralExpr;
@@ -4776,8 +7167,14 @@ class CXXTypeidExpr;
 class CXXUnresolvedConstructExpr;
 class CXXUuidofExpr;
 class CallExpr;
+class CallableWhenAttr;
+class CallbackAttr;
+class CalledOnceAttr;
+class CapabilityAttr;
 class CapturedDecl;
+class CapturedRecordAttr;
 class CapturedStmt;
+class CarriesDependencyAttr;
 class CaseStmt;
 class CastExpr;
 class CharacterLiteral;
@@ -4786,7 +7183,13 @@ class ClassScopeFunctionSpecializationDecl;
 class ClassTemplateDecl;
 class ClassTemplatePartialSpecializationDecl;
 class ClassTemplateSpecializationDecl;
+class CleanupAttr;
+class CmseNSCallAttr;
+class CmseNSEntryAttr;
 class CoawaitExpr;
+class CodeSegAttr;
+class ColdAttr;
+class CommonAttr;
 class ComplexType;
 class CompoundAssignOperator;
 class CompoundLiteralExpr;
@@ -4794,19 +7197,31 @@ class CompoundStmt;
 class ConceptDecl;
 class ConceptSpecializationExpr;
 class ConditionalOperator;
+class ConstAttr;
+class ConstInitAttr;
 class ConstantArrayType;
 class ConstantExpr;
 class ConstantMatrixType;
+class ConstructorAttr;
 class ConstructorUsingShadowDecl;
+class ConsumableAttr;
+class ConsumableAutoCastAttr;
+class ConsumableSetOnReadAttr;
 class ContinueStmt;
+class ConvergentAttr;
 class ConvertVectorExpr;
 class CoreturnStmt;
 class CoroutineBodyStmt;
 class CoroutineSuspendExpr;
 class CoyieldExpr;
+class DLLExportAttr;
+class DLLExportStaticLocalAttr;
+class DLLImportAttr;
+class DLLImportStaticLocalAttr;
 class DecayedType;
 class Decl;
 class DeclContext;
+class DeclOrStmtAttr;
 class DeclRefExpr;
 class DeclStmt;
 class DeclaratorDecl;
@@ -4825,14 +7240,28 @@ class DependentSizedExtVectorType;
 class DependentSizedMatrixType;
 class DependentTemplateSpecializationType;
 class DependentVectorType;
+class DeprecatedAttr;
 class DesignatedInitExpr;
 class DesignatedInitUpdateExpr;
+class DestructorAttr;
+class DiagnoseAsBuiltinAttr;
+class DiagnoseIfAttr;
+class DisableSanitizerInstrumentationAttr;
+class DisableTailCallsAttr;
 class DoStmt;
 class ElaboratedType;
+class EmptyBasesAttr;
 class EmptyDecl;
+class EnableIfAttr;
+class EnforceTCBAttr;
+class EnforceTCBLeafAttr;
 class EnumConstantDecl;
 class EnumDecl;
+class EnumExtensibilityAttr;
 class EnumType;
+class ErrorAttr;
+class ExcludeFromExplicitInstantiationAttr;
+class ExclusiveTrylockFunctionAttr;
 class ExplicitCastExpr;
 class ExportDecl;
 class Expr;
@@ -4841,11 +7270,19 @@ class ExpressionTraitExpr;
 class ExtVectorElementExpr;
 class ExtVectorType;
 class ExternCContextDecl;
+class ExternalSourceSymbolAttr;
+class FallThroughAttr;
+class FastCallAttr;
 class FieldDecl;
 class FileScopeAsmDecl;
+class FinalAttr;
 class FixedPointLiteral;
+class FlagEnumAttr;
+class FlattenAttr;
 class FloatingLiteral;
 class ForStmt;
+class FormatArgAttr;
+class FormatAttr;
 class FriendDecl;
 class FriendTemplateDecl;
 class FullExpr;
@@ -4857,9 +7294,18 @@ class FunctionTemplateDecl;
 class FunctionTemplateSpecializationInfo;
 class FunctionType;
 class GCCAsmStmt;
+class GNUInlineAttr;
 class GNUNullExpr;
 class GenericSelectionExpr;
 class GotoStmt;
+class GuardedByAttr;
+class GuardedVarAttr;
+class HIPManagedAttr;
+class HotAttr;
+class IBActionAttr;
+class IBOutletAttr;
+class IBOutletCollectionAttr;
+class IFuncAttr;
 class IfStmt;
 class ImaginaryLiteral;
 class ImplicitCastExpr;
@@ -4869,34 +7315,101 @@ class ImportDecl;
 class IncompleteArrayType;
 class IndirectFieldDecl;
 class IndirectGotoStmt;
+class InheritableAttr;
+class InheritableParamAttr;
 class InitListExpr;
+class InitPriorityAttr;
+class InitSegAttr;
 class InjectedClassNameType;
 class IntegerLiteral;
+class IntelOclBiccAttr;
+class InternalLinkageAttr;
+class LTOVisibilityPublicAttr;
 class LValueReferenceType;
 class LabelDecl;
 class LabelStmt;
 class LambdaExpr;
+class LayoutVersionAttr;
+class LeafAttr;
+class LifetimeBoundAttr;
 class LifetimeExtendedTemporaryDecl;
+class LikelyAttr;
 class LinkageSpecDecl;
+class LoaderUninitializedAttr;
+class LockReturnedAttr;
+class LocksExcludedAttr;
+class LoopHintAttr;
+class M68kInterruptAttr;
+class MIGServerRoutineAttr;
+class MSABIAttr;
+class MSAllocatorAttr;
 class MSAsmStmt;
 class MSDependentExistsStmt;
 class MSGuidDecl;
+class MSInheritanceAttr;
+class MSNoVTableAttr;
+class MSP430InterruptAttr;
 class MSPropertyDecl;
 class MSPropertyRefExpr;
 class MSPropertySubscriptExpr;
+class MSStructAttr;
+class MSVtorDispAttr;
 class MacroQualifiedType;
 class MaterializeTemporaryExpr;
 class MatrixSubscriptExpr;
 class MatrixType;
+class MaxFieldAlignmentAttr;
+class MayAliasAttr;
 class MemberExpr;
 class MemberPointerType;
+class MicroMipsAttr;
+class MinSizeAttr;
+class MinVectorWidthAttr;
+class Mips16Attr;
+class MipsInterruptAttr;
+class MipsLongCallAttr;
+class MipsShortCallAttr;
+class ModeAttr;
+class MustTailAttr;
+class NSConsumedAttr;
+class NSConsumesSelfAttr;
+class NSErrorDomainAttr;
+class NSReturnsAutoreleasedAttr;
+class NSReturnsNotRetainedAttr;
+class NSReturnsRetainedAttr;
+class NakedAttr;
 class NamedDecl;
 class NamespaceAliasDecl;
 class NamespaceDecl;
+class NoAliasAttr;
+class NoBuiltinAttr;
+class NoCommonAttr;
+class NoDebugAttr;
+class NoDerefAttr;
+class NoDestroyAttr;
+class NoDuplicateAttr;
+class NoEscapeAttr;
 class NoInitExpr;
+class NoInlineAttr;
+class NoInstrumentFunctionAttr;
+class NoMergeAttr;
+class NoMicroMipsAttr;
+class NoMips16Attr;
+class NoProfileFunctionAttr;
+class NoReturnAttr;
+class NoSanitizeAttr;
+class NoSpeculativeLoadHardeningAttr;
+class NoSplitStackAttr;
+class NoStackProtectorAttr;
+class NoThreadSafetyAnalysisAttr;
+class NoThrowAttr;
+class NoUniqueAddressAttr;
+class NonNullAttr;
 class NonTypeTemplateParmDecl;
+class NotTailCalledAttr;
 class NullStmt;
 class OMPAllocateDecl;
+class OMPAllocateDeclAttr;
 class OMPArraySectionExpr;
 class OMPArrayShapingExpr;
 class OMPAtomicDirective;
@@ -4904,10 +7417,15 @@ class OMPBarrierDirective;
 class OMPCancelDirective;
 class OMPCancellationPointDirective;
 class OMPCanonicalLoop;
+class OMPCaptureKindAttr;
+class OMPCaptureNoInitAttr;
 class OMPCapturedExprDecl;
 class OMPCriticalDirective;
 class OMPDeclareMapperDecl;
 class OMPDeclareReductionDecl;
+class OMPDeclareSimdDeclAttr;
+class OMPDeclareTargetDeclAttr;
+class OMPDeclareVariantAttr;
 class OMPDepobjDirective;
 class OMPDispatchDirective;
 class OMPDistributeDirective;
@@ -4937,6 +7455,7 @@ class OMPParallelMasterDirective;
 class OMPParallelMasterTaskLoopDirective;
 class OMPParallelMasterTaskLoopSimdDirective;
 class OMPParallelSectionsDirective;
+class OMPReferencedVarAttr;
 class OMPRequiresDecl;
 class OMPScanDirective;
 class OMPSectionDirective;
@@ -4969,8 +7488,15 @@ class OMPTeamsDistributeParallelForDirective;
 class OMPTeamsDistributeParallelForSimdDirective;
 class OMPTeamsDistributeSimdDirective;
 class OMPThreadPrivateDecl;
+class OMPThreadPrivateDeclAttr;
 class OMPTileDirective;
 class OMPUnrollDirective;
+class OSConsumedAttr;
+class OSConsumesThisAttr;
+class OSReturnsNotRetainedAttr;
+class OSReturnsRetainedAttr;
+class OSReturnsRetainedOnNonZeroAttr;
+class OSReturnsRetainedOnZeroAttr;
 class ObjCArrayLiteral;
 class ObjCAtCatchStmt;
 class ObjCAtDefsFieldDecl;
@@ -4981,82 +7507,196 @@ class ObjCAtTryStmt;
 class ObjCAutoreleasePoolStmt;
 class ObjCAvailabilityCheckExpr;
 class ObjCBoolLiteralExpr;
+class ObjCBoxableAttr;
 class ObjCBoxedExpr;
+class ObjCBridgeAttr;
+class ObjCBridgeMutableAttr;
+class ObjCBridgeRelatedAttr;
 class ObjCBridgedCastExpr;
 class ObjCCategoryDecl;
 class ObjCCategoryImplDecl;
+class ObjCClassStubAttr;
 class ObjCCompatibleAliasDecl;
 class ObjCContainerDecl;
+class ObjCDesignatedInitializerAttr;
 class ObjCDictionaryLiteral;
+class ObjCDirectAttr;
+class ObjCDirectMembersAttr;
 class ObjCEncodeExpr;
+class ObjCExceptionAttr;
+class ObjCExplicitProtocolImplAttr;
+class ObjCExternallyRetainedAttr;
 class ObjCForCollectionStmt;
+class ObjCGCAttr;
 class ObjCImplDecl;
 class ObjCImplementationDecl;
+class ObjCIndependentClassAttr;
 class ObjCIndirectCopyRestoreExpr;
+class ObjCInertUnsafeUnretainedAttr;
 class ObjCInterfaceDecl;
 class ObjCInterfaceType;
 class ObjCIsaExpr;
 class ObjCIvarDecl;
 class ObjCIvarRefExpr;
+class ObjCKindOfAttr;
 class ObjCMessageExpr;
 class ObjCMethodDecl;
+class ObjCMethodFamilyAttr;
+class ObjCNSObjectAttr;
+class ObjCNonLazyClassAttr;
+class ObjCNonRuntimeProtocolAttr;
 class ObjCObjectPointerType;
 class ObjCObjectType;
+class ObjCOwnershipAttr;
+class ObjCPreciseLifetimeAttr;
 class ObjCPropertyDecl;
 class ObjCPropertyImplDecl;
 class ObjCPropertyRefExpr;
 class ObjCProtocolDecl;
 class ObjCProtocolExpr;
+class ObjCRequiresPropertyDefsAttr;
+class ObjCRequiresSuperAttr;
+class ObjCReturnsInnerPointerAttr;
+class ObjCRootClassAttr;
+class ObjCRuntimeNameAttr;
+class ObjCRuntimeVisibleAttr;
 class ObjCSelectorExpr;
 class ObjCStringLiteral;
+class ObjCSubclassingRestrictedAttr;
 class ObjCSubscriptRefExpr;
 class ObjCTypeParamDecl;
 class ObjCTypeParamType;
 class OffsetOfExpr;
 class OpaqueValueExpr;
+class OpenCLAccessAttr;
+class OpenCLConstantAddressSpaceAttr;
+class OpenCLGenericAddressSpaceAttr;
+class OpenCLGlobalAddressSpaceAttr;
+class OpenCLGlobalDeviceAddressSpaceAttr;
+class OpenCLGlobalHostAddressSpaceAttr;
+class OpenCLIntelReqdSubGroupSizeAttr;
+class OpenCLKernelAttr;
+class OpenCLLocalAddressSpaceAttr;
+class OpenCLPrivateAddressSpaceAttr;
+class OpenCLUnrollHintAttr;
+class OptimizeNoneAttr;
 class OverloadExpr;
+class OverloadableAttr;
+class OverrideAttr;
+class OwnerAttr;
+class OwnershipAttr;
 class PackExpansionExpr;
 class PackExpansionType;
+class PackedAttr;
+class ParamTypestateAttr;
+class ParameterABIAttr;
 class ParenExpr;
 class ParenListExpr;
 class ParenType;
 class ParmVarDecl;
+class PascalAttr;
+class PassObjectSizeAttr;
+class PatchableFunctionEntryAttr;
+class PcsAttr;
 class PipeType;
+class PointerAttr;
 class PointerType;
+class PragmaClangBSSSectionAttr;
+class PragmaClangDataSectionAttr;
+class PragmaClangRelroSectionAttr;
+class PragmaClangRodataSectionAttr;
+class PragmaClangTextSectionAttr;
 class PragmaCommentDecl;
 class PragmaDetectMismatchDecl;
 class PredefinedExpr;
+class PreferredNameAttr;
+class PreserveAllAttr;
+class PreserveMostAttr;
 class PseudoObjectExpr;
+class PtGuardedByAttr;
+class PtGuardedVarAttr;
+class Ptr32Attr;
+class Ptr64Attr;
+class PureAttr;
 class QualType;
+class RISCVInterruptAttr;
 class RValueReferenceType;
 class RecordDecl;
 class RecordType;
 class RecoveryExpr;
 class RedeclarableTemplateDecl;
 class ReferenceType;
+class RegCallAttr;
+class ReinitializesAttr;
+class ReleaseCapabilityAttr;
+class ReleaseHandleAttr;
+class RenderScriptKernelAttr;
+class ReqdWorkGroupSizeAttr;
+class RequiresCapabilityAttr;
 class RequiresExpr;
 class RequiresExprBodyDecl;
+class RestrictAttr;
+class RetainAttr;
 class ReturnStmt;
+class ReturnTypestateAttr;
+class ReturnsNonNullAttr;
+class ReturnsTwiceAttr;
 class SEHExceptStmt;
 class SEHFinallyStmt;
 class SEHLeaveStmt;
 class SEHTryStmt;
+class SPtrAttr;
+class SYCLKernelAttr;
+class SYCLSpecialClassAttr;
 class SYCLUniqueStableNameExpr;
+class ScopedLockableAttr;
+class SectionAttr;
+class SelectAnyAttr;
+class SentinelAttr;
+class SetTypestateAttr;
+class SharedTrylockFunctionAttr;
 class ShuffleVectorExpr;
 class SizeOfPackExpr;
 class SourceLocExpr;
+class SpeculativeLoadHardeningAttr;
+class StandaloneDebugAttr;
 class StaticAssertDecl;
+class StdCallAttr;
 class Stmt;
+class StmtAttr;
 class StmtExpr;
+class StrictFPAttr;
 class StringLiteral;
 class SubstNonTypeTemplateParmExpr;
 class SubstNonTypeTemplateParmPackExpr;
 class SubstTemplateTypeParmPackType;
 class SubstTemplateTypeParmType;
+class SuppressAttr;
+class SwiftAsyncAttr;
+class SwiftAsyncCallAttr;
+class SwiftAsyncContextAttr;
+class SwiftAsyncErrorAttr;
+class SwiftAsyncNameAttr;
+class SwiftAttrAttr;
+class SwiftBridgeAttr;
+class SwiftBridgedTypedefAttr;
+class SwiftCallAttr;
+class SwiftContextAttr;
+class SwiftErrorAttr;
+class SwiftErrorResultAttr;
+class SwiftIndirectResultAttr;
+class SwiftNameAttr;
+class SwiftNewTypeAttr;
+class SwiftObjCMembersAttr;
+class SwiftPrivateAttr;
 class SwitchCase;
 class SwitchStmt;
+class SysVABIAttr;
+class TLSModelAttr;
 class TagDecl;
 class TagType;
+class TargetAttr;
+class TargetClonesAttr;
 class TemplateArgument;
 class TemplateDecl;
 class TemplateParamObjectDecl;
@@ -5064,36 +7704,58 @@ class TemplateSpecializationType;
 class TemplateTemplateParmDecl;
 class TemplateTypeParmDecl;
 class TemplateTypeParmType;
+class TestTypestateAttr;
+class ThisCallAttr;
+class ThreadAttr;
 class TranslationUnitDecl;
+class TransparentUnionAttr;
+class TrivialABIAttr;
+class TryAcquireCapabilityAttr;
 class Type;
 class TypeAliasDecl;
 class TypeAliasTemplateDecl;
+class TypeAttr;
 class TypeDecl;
+class TypeNonNullAttr;
+class TypeNullUnspecifiedAttr;
+class TypeNullableAttr;
+class TypeNullableResultAttr;
 class TypeOfExprType;
 class TypeOfType;
 class TypeSourceInfo;
+class TypeTagForDatatypeAttr;
 class TypeTraitExpr;
+class TypeVisibilityAttr;
 class TypeWithKeyword;
 class TypedefDecl;
 class TypedefNameDecl;
 class TypedefType;
 class TypoExpr;
+class UPtrAttr;
 class UnaryExprOrTypeTraitExpr;
 class UnaryOperator;
 class UnaryTransformType;
+class UnavailableAttr;
+class UninitializedAttr;
+class UnlikelyAttr;
 class UnresolvedLookupExpr;
 class UnresolvedMemberExpr;
 class UnresolvedUsingIfExistsDecl;
 class UnresolvedUsingType;
 class UnresolvedUsingTypenameDecl;
 class UnresolvedUsingValueDecl;
+class UnusedAttr;
+class UseHandleAttr;
+class UsedAttr;
 class UserDefinedLiteral;
 class UsingDecl;
 class UsingDirectiveDecl;
 class UsingEnumDecl;
+class UsingIfExistsAttr;
 class UsingPackDecl;
 class UsingShadowDecl;
 class UsingType;
+class UuidAttr;
 class VAArgExpr;
 class ValueDecl;
 class ValueStmt;
@@ -5102,8 +7764,24 @@ class VarTemplateDecl;
 class VarTemplatePartialSpecializationDecl;
 class VarTemplateSpecializationDecl;
 class VariableArrayType;
+class VecReturnAttr;
+class VecTypeHintAttr;
+class VectorCallAttr;
 class VectorType;
+class VisibilityAttr;
+class WarnUnusedAttr;
+class WarnUnusedResultAttr;
+class WeakAttr;
+class WeakImportAttr;
+class WeakRefAttr;
+class WebAssemblyExportNameAttr;
+class WebAssemblyImportModuleAttr;
+class WebAssemblyImportNameAttr;
 class WhileStmt;
+class WorkGroupSizeHintAttr;
+class X86ForceAlignArgPointerAttr;
+class XRayInstrumentAttr;
+class XRayLogArgsAttr;
 class OMPDeclarativeDirectiveDecl;
 class OMPDeclarativeDirectiveValueDecl;
 }  // namespace pasta

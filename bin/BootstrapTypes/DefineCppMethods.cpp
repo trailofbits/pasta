@@ -116,8 +116,7 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
       os
          << rt_val
          << "  assert(false && \"" << class_name << "::"
-         << meth_name << " can return nullptr!\");\n"
-         << "  __builtin_unreachable();\n";
+         << meth_name << " can return nullptr!\");\n";
     }
   } else {
     assert(!can_ret_null || handled_null_ret);

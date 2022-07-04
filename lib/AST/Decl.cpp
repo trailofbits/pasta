@@ -707,7 +707,6 @@ std::string_view DeclContext::DeclarationKindName(void) const noexcept {
   }
   assert(false && "DeclContext::DeclarationKindName can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 std::optional<::pasta::DeclContext> DeclContext::EnclosingNamespaceContext(void) const noexcept {
@@ -791,7 +790,6 @@ std::optional<::pasta::Decl> DeclContext::NonClosureAncestor(void) const noexcep
   }
   assert(false && "DeclContext::NonTransparentContext can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 std::optional<::pasta::RecordDecl> DeclContext::OuterLexicalRecordContext(void) const noexcept {
@@ -827,7 +825,6 @@ std::optional<::pasta::DeclContext> DeclContext::Parent(void) const noexcept {
   }
   assert(false && "DeclContext::PrimaryContext can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::DeclContext DeclContext::RedeclarationContext(void) const noexcept {
@@ -837,7 +834,6 @@ std::optional<::pasta::DeclContext> DeclContext::Parent(void) const noexcept {
     return ::pasta::DeclContext(ast, val);
   }
   assert(false && "DeclContext::RedeclarationContext can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -1086,7 +1082,19 @@ PASTA_DEFINE_DERIVED_OPERATORS(Decl, VarTemplatePartialSpecializationDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, VarTemplateSpecializationDecl)
 // 0: Decl::
 // 0: Decl::
-// 0: Decl::Attributes
+std::vector<::pasta::Attr> Decl::Attributes(void) const noexcept {
+  auto &self = *const_cast<clang::Decl *>(u.Decl);
+  decltype(auto) val = self.attrs();
+  std::vector<::pasta::Attr> ret;
+  for (auto attr_ptr : val) {
+    if (attr_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::Attr>(ast, attr_ptr));
+    }
+  }
+  return ret;
+  __builtin_unreachable();
+}
+
 // 1: Decl::CanBeWeakImported
 // 0: Decl::ASTContext
 enum AccessSpecifier Decl::Access(void) const noexcept {
@@ -1131,7 +1139,6 @@ enum AvailabilityResult Decl::Availability(void) const noexcept {
   }
   assert(false && "Decl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::DeclContext Decl::DeclarationContext(void) const noexcept {
@@ -1142,10 +1149,20 @@ enum AvailabilityResult Decl::Availability(void) const noexcept {
   }
   assert(false && "Decl::DeclarationContext can return nullptr!");
   __builtin_unreachable();
+}
+
+std::optional<::pasta::Attr> Decl::DefiningAttribute(void) const noexcept {
+  auto &self = *const_cast<clang::Decl *>(u.Decl);
+  decltype(auto) val = self.getDefiningAttr();
+  if (!val) {
+    return std::nullopt;
+  }
+  if (val) {
+    return ::pasta::Attr(ast, val);
+  }
   __builtin_unreachable();
 }
 
-// 0: Decl::DefiningAttribute
 std::optional<::pasta::TemplateDecl> Decl::DescribedTemplate(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.getDescribedTemplate();
@@ -1226,7 +1243,6 @@ uint32_t Decl::IdentifierNamespace(void) const noexcept {
   }
   assert(false && "Decl::LexicalDeclarationContext can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 // 0: Decl::LocalOwningModule
@@ -1251,7 +1267,6 @@ enum DeclModuleOwnershipKind Decl::ModuleOwnershipKind(void) const noexcept {
     return DeclBuilder::Create<::pasta::Decl>(ast, val);
   }
   assert(false && "Decl::MostRecentDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -1326,7 +1341,6 @@ uint32_t Decl::TemplateDepth(void) const noexcept {
     return DeclBuilder::Create<::pasta::TranslationUnitDecl>(ast, val);
   }
   assert(false && "Decl::TranslationUnitDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -1626,7 +1640,6 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, FileScopeAsmDecl)
   }
   assert(false && "FileScopeAsmDecl::AssemblyString can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token FileScopeAsmDecl::RParenToken(void) const noexcept {
@@ -1716,7 +1729,6 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, FriendTemplateDecl)
   }
   assert(false && "FriendTemplateDecl::FriendDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token FriendTemplateDecl::FriendToken(void) const noexcept {
@@ -1731,7 +1743,6 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, FriendTemplateDecl)
   decltype(auto) val = self.getFriendType();
   return TypeBuilder::Build(ast, val->getType());
   assert(false && "FriendTemplateDecl::FriendType can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -1801,7 +1812,6 @@ std::vector<::pasta::Stmt> LifetimeExtendedTemporaryDecl::ChildrenExpression(voi
   }
   assert(false && "LifetimeExtendedTemporaryDecl::ExtendingDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 uint32_t LifetimeExtendedTemporaryDecl::ManglingNumber(void) const noexcept {
@@ -1826,7 +1836,6 @@ enum StorageDuration LifetimeExtendedTemporaryDecl::StorageDuration(void) const 
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "LifetimeExtendedTemporaryDecl::TemporaryExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -1978,7 +1987,6 @@ enum Linkage NamedDecl::LinkageInternal(void) const noexcept {
   }
   assert(false && "NamedDecl::MostRecentDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 std::string NamedDecl::Name(void) const noexcept {
@@ -2012,7 +2020,6 @@ std::string NamedDecl::QualifiedNameAsString(void) const noexcept {
     return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
   }
   assert(false && "NamedDecl::UnderlyingDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2102,7 +2109,6 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, NamespaceAliasDecl)
   }
   assert(false && "NamespaceAliasDecl::AliasedNamespace can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::NamespaceAliasDecl NamespaceAliasDecl::CanonicalDeclaration(void) const noexcept {
@@ -2113,7 +2119,6 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, NamespaceAliasDecl)
   }
   assert(false && "NamespaceAliasDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::NamespaceDecl NamespaceAliasDecl::Namespace(void) const noexcept {
@@ -2123,7 +2128,6 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, NamespaceAliasDecl)
     return DeclBuilder::Create<::pasta::NamespaceDecl>(ast, val);
   }
   assert(false && "NamespaceAliasDecl::Namespace can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2159,7 +2163,6 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, NamespaceDecl)
   }
   assert(false && "NamespaceDecl::AnonymousNamespace can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token NamespaceDecl::BeginToken(void) const noexcept {
@@ -2177,7 +2180,6 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, NamespaceDecl)
   }
   assert(false && "NamespaceDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::NamespaceDecl NamespaceDecl::OriginalNamespace(void) const noexcept {
@@ -2187,7 +2189,6 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, NamespaceDecl)
     return DeclBuilder::Create<::pasta::NamespaceDecl>(ast, val);
   }
   assert(false && "NamespaceDecl::OriginalNamespace can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2234,7 +2235,6 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCCompatibleAliasDecl)
     return DeclBuilder::Create<::pasta::ObjCInterfaceDecl>(ast, val);
   }
   assert(false && "ObjCCompatibleAliasDecl::ClassInterface can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2384,7 +2384,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(ObjCImplDecl, ObjCImplementationDecl)
   }
   assert(false && "ObjCImplDecl::ClassInterface can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 std::vector<::pasta::ObjCPropertyImplDecl> ObjCImplDecl::PropertyImplementations(void) const noexcept {
@@ -2459,7 +2458,6 @@ std::string_view ObjCImplementationDecl::ObjCRuntimeNameAsString(void) const noe
     return DeclBuilder::Create<::pasta::ObjCInterfaceDecl>(ast, val);
   }
   assert(false && "ObjCImplementationDecl::SuperClass can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2546,7 +2544,6 @@ bool ObjCInterfaceDecl::DeclaresOrInheritsDesignatedInitializers(void) const noe
   }
   assert(false && "ObjCInterfaceDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 // 1: ObjCInterfaceDecl::CategoryClassMethod
@@ -2559,7 +2556,6 @@ bool ObjCInterfaceDecl::DeclaresOrInheritsDesignatedInitializers(void) const noe
   }
   assert(false && "ObjCInterfaceDecl::CategoryListRaw can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 // 2: CategoryMethod
@@ -2570,7 +2566,6 @@ bool ObjCInterfaceDecl::DeclaresOrInheritsDesignatedInitializers(void) const noe
     return DeclBuilder::Create<::pasta::ObjCInterfaceDecl>(ast, val);
   }
   assert(false && "ObjCInterfaceDecl::Definition can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2588,7 +2583,6 @@ bool ObjCInterfaceDecl::DeclaresOrInheritsDesignatedInitializers(void) const noe
     return DeclBuilder::Create<::pasta::ObjCImplementationDecl>(ast, val);
   }
   assert(false && "ObjCInterfaceDecl::Implementation can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2653,7 +2647,6 @@ std::optional<::pasta::ObjCObjectType> ObjCInterfaceDecl::SuperClassType(void) c
   }
   assert(false && "ObjCInterfaceDecl::TypeForDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 // 0: ObjCInterfaceDecl::TypeParameterList
@@ -2694,7 +2687,6 @@ bool ObjCInterfaceDecl::IsImplicitInterfaceDeclaration(void) const noexcept {
     return DeclBuilder::Create<::pasta::ObjCInterfaceDecl>(ast, val);
   }
   assert(false && "ObjCInterfaceDecl::IsObjCRequiresPropertyDefinitions can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2845,7 +2837,6 @@ bool ObjCMethodDecl::DefinedInNSObject(void) const noexcept {
   }
   assert(false && "ObjCMethodDecl::FindPropertyDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token ObjCMethodDecl::BeginToken(void) const noexcept {
@@ -2863,7 +2854,6 @@ bool ObjCMethodDecl::DefinedInNSObject(void) const noexcept {
   }
   assert(false && "ObjCMethodDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::ObjCCategoryDecl ObjCMethodDecl::Category(void) const noexcept {
@@ -2873,7 +2863,6 @@ bool ObjCMethodDecl::DefinedInNSObject(void) const noexcept {
     return DeclBuilder::Create<::pasta::ObjCCategoryDecl>(ast, val);
   }
   assert(false && "ObjCMethodDecl::Category can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2885,7 +2874,6 @@ bool ObjCMethodDecl::DefinedInNSObject(void) const noexcept {
   }
   assert(false && "ObjCMethodDecl::ClassInterface can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::ImplicitParamDecl ObjCMethodDecl::CommandDeclaration(void) const noexcept {
@@ -2895,7 +2883,6 @@ bool ObjCMethodDecl::DefinedInNSObject(void) const noexcept {
     return DeclBuilder::Create<::pasta::ImplicitParamDecl>(ast, val);
   }
   assert(false && "ObjCMethodDecl::CommandDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -2973,7 +2960,6 @@ enum DeclObjCDeclQualifier ObjCMethodDecl::ObjCDeclQualifier(void) const noexcep
     return DeclBuilder::Create<::pasta::ImplicitParamDecl>(ast, val);
   }
   assert(false && "ObjCMethodDecl::SelfDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3152,7 +3138,6 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, ObjCPropertyDecl)
   }
   assert(false && "ObjCPropertyDecl::GetterMethodDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 // 0: ObjCPropertyDecl::GetterName
@@ -3187,7 +3172,6 @@ enum ObjCPropertyDeclPropertyControl ObjCPropertyDecl::PropertyImplementation(vo
   }
   assert(false && "ObjCPropertyDecl::PropertyInstanceVariableDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 enum ObjCPropertyQueryKind ObjCPropertyDecl::QueryKind(void) const noexcept {
@@ -3211,7 +3195,6 @@ enum ObjCPropertyDeclSetterKind ObjCPropertyDecl::SetterKind(void) const noexcep
     return DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, val);
   }
   assert(false && "ObjCPropertyDecl::SetterMethodDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3303,7 +3286,6 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCPropertyImplDecl)
   }
   assert(false && "ObjCPropertyImplDecl::GetterCXXConstructor can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::ObjCMethodDecl ObjCPropertyImplDecl::GetterMethodDeclaration(void) const noexcept {
@@ -3314,7 +3296,6 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCPropertyImplDecl)
   }
   assert(false && "ObjCPropertyImplDecl::GetterMethodDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::ObjCPropertyDecl ObjCPropertyImplDecl::PropertyDeclaration(void) const noexcept {
@@ -3324,7 +3305,6 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, ObjCPropertyImplDecl)
     return DeclBuilder::Create<::pasta::ObjCPropertyDecl>(ast, val);
   }
   assert(false && "ObjCPropertyImplDecl::PropertyDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3343,7 +3323,6 @@ enum ObjCPropertyImplDeclKind ObjCPropertyImplDecl::PropertyImplementation(void)
   }
   assert(false && "ObjCPropertyImplDecl::PropertyInstanceVariableDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token ObjCPropertyImplDecl::PropertyInstanceVariableDeclarationToken(void) const noexcept {
@@ -3361,7 +3340,6 @@ enum ObjCPropertyImplDeclKind ObjCPropertyImplDecl::PropertyImplementation(void)
   }
   assert(false && "ObjCPropertyImplDecl::SetterCXXAssignment can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::ObjCMethodDecl ObjCPropertyImplDecl::SetterMethodDeclaration(void) const noexcept {
@@ -3371,7 +3349,6 @@ enum ObjCPropertyImplDeclKind ObjCPropertyImplDecl::PropertyImplementation(void)
     return DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, val);
   }
   assert(false && "ObjCPropertyImplDecl::SetterMethodDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3399,7 +3376,6 @@ PASTA_DEFINE_BASE_OPERATORS(ObjCContainerDecl, ObjCProtocolDecl)
   }
   assert(false && "ObjCProtocolDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::ObjCProtocolDecl ObjCProtocolDecl::Definition(void) const noexcept {
@@ -3409,7 +3385,6 @@ PASTA_DEFINE_BASE_OPERATORS(ObjCContainerDecl, ObjCProtocolDecl)
     return DeclBuilder::Create<::pasta::ObjCProtocolDecl>(ast, val);
   }
   assert(false && "ObjCProtocolDecl::Definition can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3553,7 +3528,6 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, StaticAssertDecl)
   }
   assert(false && "StaticAssertDecl::AssertExpression can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::StringLiteral StaticAssertDecl::Message(void) const noexcept {
@@ -3563,7 +3537,6 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, StaticAssertDecl)
     return StmtBuilder::Create<::pasta::StringLiteral>(ast, val);
   }
   assert(false && "StaticAssertDecl::Message can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3602,7 +3575,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(TemplateDecl, VarTemplateDecl)
   return ::pasta::TemplateParameterList(ast, val);
   assert(false && "TemplateDecl::TemplateParameters can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::NamedDecl TemplateDecl::TemplatedDeclaration(void) const noexcept {
@@ -3612,7 +3584,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(TemplateDecl, VarTemplateDecl)
     return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
   }
   assert(false && "TemplateDecl::TemplatedDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3699,7 +3670,6 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, TranslationUnitDecl)
   }
   assert(false && "TranslationUnitDecl::AnonymousNamespace can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 TypeDecl::TypeDecl(
@@ -3771,7 +3741,6 @@ std::optional<::pasta::TagDecl> TypedefNameDecl::AnonymousDeclarationWithTypedef
   }
   assert(false && "TypedefNameDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 // 0: TypedefNameDecl::
@@ -3819,7 +3788,6 @@ PASTA_DEFINE_BASE_OPERATORS(TypeDecl, UnresolvedUsingTypenameDecl)
     return DeclBuilder::Create<::pasta::UnresolvedUsingTypenameDecl>(ast, val);
   }
   assert(false && "UnresolvedUsingTypenameDecl::CanonicalDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3869,7 +3837,6 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingDirectiveDecl)
   }
   assert(false && "UsingDirectiveDecl::CommonAncestor can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token UsingDirectiveDecl::IdentifierToken(void) const noexcept {
@@ -3894,7 +3861,6 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingDirectiveDecl)
   }
   assert(false && "UsingDirectiveDecl::NominatedNamespace can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::NamedDecl UsingDirectiveDecl::NominatedNamespaceAsWritten(void) const noexcept {
@@ -3904,7 +3870,6 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingDirectiveDecl)
     return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
   }
   assert(false && "UsingDirectiveDecl::NominatedNamespaceAsWritten can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3945,7 +3910,6 @@ std::vector<::pasta::NamedDecl> UsingPackDecl::Expansions(void) const noexcept {
   }
   assert(false && "UsingPackDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::NamedDecl UsingPackDecl::InstantiatedFromUsingDeclaration(void) const noexcept {
@@ -3955,7 +3919,6 @@ std::vector<::pasta::NamedDecl> UsingPackDecl::Expansions(void) const noexcept {
     return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
   }
   assert(false && "UsingPackDecl::InstantiatedFromUsingDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -3975,7 +3938,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(UsingShadowDecl, ConstructorUsingShadowDecl)
   }
   assert(false && "UsingShadowDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::BaseUsingDecl UsingShadowDecl::Introducer(void) const noexcept {
@@ -3985,7 +3947,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(UsingShadowDecl, ConstructorUsingShadowDecl)
     return DeclBuilder::Create<::pasta::BaseUsingDecl>(ast, val);
   }
   assert(false && "UsingShadowDecl::Introducer can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -4008,7 +3969,6 @@ std::optional<::pasta::UsingShadowDecl> UsingShadowDecl::NextUsingShadowDeclarat
     return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
   }
   assert(false && "UsingShadowDecl::TargetDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -4181,7 +4141,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, BindingDecl)
   }
   assert(false && "BindingDecl::Binding can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::ValueDecl BindingDecl::DecomposedDeclaration(void) const noexcept {
@@ -4192,7 +4151,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, BindingDecl)
   }
   assert(false && "BindingDecl::DecomposedDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::VarDecl BindingDecl::HoldingVariable(void) const noexcept {
@@ -4202,7 +4160,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, BindingDecl)
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
   assert(false && "BindingDecl::HoldingVariable can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -4279,7 +4236,6 @@ uint32_t BlockDecl::BlockManglingNumber(void) const noexcept {
   }
   assert(false && "BlockDecl::CompoundBody can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 uint32_t BlockDecl::NumCaptures(void) const noexcept {
@@ -4302,7 +4258,6 @@ uint32_t BlockDecl::NumParameters(void) const noexcept {
   decltype(auto) val = self.getSignatureAsWritten();
   return TypeBuilder::Build(ast, val->getType());
   assert(false && "BlockDecl::SignatureAsWritten can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -4384,7 +4339,6 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, CapturedDecl)
   }
   assert(false && "CapturedDecl::ContextParameter can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 uint32_t CapturedDecl::ContextParameterPosition(void) const noexcept {
@@ -4438,7 +4392,6 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, ClassScopeFunctionSpecializationDecl)
   }
   assert(false && "ClassScopeFunctionSpecializationDecl::Specialization can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 // 0: ClassScopeFunctionSpecializationDecl::TemplateArgumentsAsWritten
@@ -4465,7 +4418,6 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, ConceptDecl)
   }
   assert(false && "ConceptDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr ConceptDecl::ConstraintExpression(void) const noexcept {
@@ -4475,7 +4427,6 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, ConceptDecl)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ConceptDecl::ConstraintExpression can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -4509,7 +4460,6 @@ bool ConstructorUsingShadowDecl::ConstructsVirtualBase(void) const noexcept {
   }
   assert(false && "ConstructorUsingShadowDecl::ConstructedBaseClass can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 std::optional<::pasta::ConstructorUsingShadowDecl> ConstructorUsingShadowDecl::ConstructedBaseClassShadowDeclaration(void) const noexcept {
@@ -4532,7 +4482,6 @@ std::optional<::pasta::ConstructorUsingShadowDecl> ConstructorUsingShadowDecl::C
   }
   assert(false && "ConstructorUsingShadowDecl::Introducer can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::CXXRecordDecl ConstructorUsingShadowDecl::NominatedBaseClass(void) const noexcept {
@@ -4542,7 +4491,6 @@ std::optional<::pasta::ConstructorUsingShadowDecl> ConstructorUsingShadowDecl::C
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
   assert(false && "ConstructorUsingShadowDecl::NominatedBaseClass can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -4565,7 +4513,6 @@ std::optional<::pasta::ConstructorUsingShadowDecl> ConstructorUsingShadowDecl::N
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
   assert(false && "ConstructorUsingShadowDecl::Parent can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -4682,7 +4629,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, EnumConstantDecl)
   }
   assert(false && "EnumConstantDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 std::optional<::pasta::Expr> EnumConstantDecl::InitializerExpression(void) const noexcept {
@@ -4745,7 +4691,6 @@ uint32_t FieldDecl::BitWidthValue(void) const noexcept {
   }
   assert(false && "FieldDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 std::optional<::pasta::VariableArrayType> FieldDecl::CapturedVLAType(void) const noexcept {
@@ -4793,7 +4738,6 @@ std::optional<::pasta::Expr> FieldDecl::InClassInitializer(void) const noexcept 
     return DeclBuilder::Create<::pasta::RecordDecl>(ast, val);
   }
   assert(false && "FieldDecl::Parent can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -4929,7 +4873,6 @@ uint32_t FunctionDecl::BuiltinID(void) const noexcept {
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
   }
   assert(false && "FunctionDecl::CanonicalDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -5644,7 +5587,6 @@ std::optional<::pasta::FieldDecl> IndirectFieldDecl::AnonymousField(void) const 
   }
   assert(false && "IndirectFieldDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 uint32_t IndirectFieldDecl::ChainingSize(void) const noexcept {
@@ -5694,7 +5636,6 @@ std::string_view LabelDecl::MSAssemblyLabel(void) const noexcept {
     return StmtBuilder::Create<::pasta::LabelStmt>(ast, val);
   }
   assert(false && "LabelDecl::Statement can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -5943,7 +5884,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPDeclareMapperDecl)
   }
   assert(false && "OMPDeclareMapperDecl::MapperVariableReference can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::OMPDeclareMapperDecl OMPDeclareMapperDecl::PrevDeclarationInScope(void) const noexcept {
@@ -5953,7 +5893,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPDeclareMapperDecl)
     return DeclBuilder::Create<::pasta::OMPDeclareMapperDecl>(ast, val);
   }
   assert(false && "OMPDeclareMapperDecl::PrevDeclarationInScope can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -5974,7 +5913,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPDeclareReductionDecl)
   }
   assert(false && "OMPDeclareReductionDecl::Combiner can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr OMPDeclareReductionDecl::CombinerIn(void) const noexcept {
@@ -5984,7 +5922,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPDeclareReductionDecl)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPDeclareReductionDecl::CombinerIn can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -5996,7 +5933,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPDeclareReductionDecl)
   }
   assert(false && "OMPDeclareReductionDecl::CombinerOut can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr OMPDeclareReductionDecl::InitializerOriginal(void) const noexcept {
@@ -6006,7 +5942,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPDeclareReductionDecl)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPDeclareReductionDecl::InitializerOriginal can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -6018,7 +5953,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPDeclareReductionDecl)
   }
   assert(false && "OMPDeclareReductionDecl::InitializerPrivate can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Expr OMPDeclareReductionDecl::Initializer(void) const noexcept {
@@ -6028,7 +5962,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, OMPDeclareReductionDecl)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPDeclareReductionDecl::Initializer can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -6046,7 +5979,6 @@ enum OMPDeclareReductionDeclInitKind OMPDeclareReductionDecl::InitializerKind(vo
     return DeclBuilder::Create<::pasta::OMPDeclareReductionDecl>(ast, val);
   }
   assert(false && "OMPDeclareReductionDecl::PrevDeclarationInScope can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -6140,7 +6072,6 @@ bool ObjCCategoryDecl::IsClassExtension(void) const noexcept {
   }
   assert(false && "ObjCCategoryDecl::ClassInterface can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::ObjCCategoryImplDecl ObjCCategoryDecl::Implementation(void) const noexcept {
@@ -6150,7 +6081,6 @@ bool ObjCCategoryDecl::IsClassExtension(void) const noexcept {
     return DeclBuilder::Create<::pasta::ObjCCategoryImplDecl>(ast, val);
   }
   assert(false && "ObjCCategoryDecl::Implementation can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -6176,7 +6106,6 @@ bool ObjCCategoryDecl::IsClassExtension(void) const noexcept {
   }
   assert(false && "ObjCCategoryDecl::NextClassCategory can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::ObjCCategoryDecl ObjCCategoryDecl::NextClassCategoryRaw(void) const noexcept {
@@ -6186,7 +6115,6 @@ bool ObjCCategoryDecl::IsClassExtension(void) const noexcept {
     return DeclBuilder::Create<::pasta::ObjCCategoryDecl>(ast, val);
   }
   assert(false && "ObjCCategoryDecl::NextClassCategoryRaw can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -6258,7 +6186,6 @@ PASTA_DEFINE_BASE_OPERATORS(ObjCImplDecl, ObjCCategoryImplDecl)
   }
   assert(false && "ObjCCategoryImplDecl::CategoryDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Token ObjCCategoryImplDecl::CategoryNameToken(void) const noexcept {
@@ -6300,7 +6227,6 @@ enum ObjCIvarDeclAccessControl ObjCIvarDecl::CanonicalAccessControl(void) const 
   }
   assert(false && "ObjCIvarDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::ObjCInterfaceDecl ObjCIvarDecl::ContainingInterface(void) const noexcept {
@@ -6311,7 +6237,6 @@ enum ObjCIvarDeclAccessControl ObjCIvarDecl::CanonicalAccessControl(void) const 
   }
   assert(false && "ObjCIvarDecl::ContainingInterface can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::ObjCIvarDecl ObjCIvarDecl::NextInstanceVariable(void) const noexcept {
@@ -6321,7 +6246,6 @@ enum ObjCIvarDeclAccessControl ObjCIvarDecl::CanonicalAccessControl(void) const 
     return DeclBuilder::Create<::pasta::ObjCIvarDecl>(ast, val);
   }
   assert(false && "ObjCIvarDecl::NextInstanceVariable can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -6410,7 +6334,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(RedeclarableTemplateDecl, VarTemplateDecl)
   }
   assert(false && "RedeclarableTemplateDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::RedeclarableTemplateDecl RedeclarableTemplateDecl::InstantiatedFromMemberTemplate(void) const noexcept {
@@ -6420,7 +6343,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(RedeclarableTemplateDecl, VarTemplateDecl)
     return DeclBuilder::Create<::pasta::RedeclarableTemplateDecl>(ast, val);
   }
   assert(false && "RedeclarableTemplateDecl::InstantiatedFromMemberTemplate can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -6459,7 +6381,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(TagDecl, RecordDecl)
     return DeclBuilder::Create<::pasta::TagDecl>(ast, val);
   }
   assert(false && "TagDecl::CanonicalDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -6656,7 +6577,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, TemplateParamObjectDecl)
   }
   assert(false && "TemplateParamObjectDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 // 0: TemplateParamObjectDecl::Value
@@ -6808,7 +6728,6 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, TypeAliasTemplateDecl)
   }
   assert(false && "TypeAliasTemplateDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 std::optional<::pasta::TypeAliasTemplateDecl> TypeAliasTemplateDecl::InstantiatedFromMemberTemplate(void) const noexcept {
@@ -6843,7 +6762,6 @@ std::optional<::pasta::TypeAliasTemplateDecl> TypeAliasTemplateDecl::PreviousDec
   }
   assert(false && "TypeAliasTemplateDecl::TemplatedDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 TypedefDecl::TypedefDecl(
@@ -6870,7 +6788,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, UnresolvedUsingValueDecl)
     return DeclBuilder::Create<::pasta::UnresolvedUsingValueDecl>(ast, val);
   }
   assert(false && "UnresolvedUsingValueDecl::CanonicalDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -6921,7 +6838,6 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingDecl)
   }
   assert(false && "UsingDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 // 0: UsingDecl::NameInfo
@@ -6964,7 +6880,6 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingEnumDecl)
   }
   assert(false && "UsingEnumDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::EnumDecl UsingEnumDecl::EnumDeclaration(void) const noexcept {
@@ -6974,7 +6889,6 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingEnumDecl)
     return DeclBuilder::Create<::pasta::EnumDecl>(ast, val);
   }
   assert(false && "UsingEnumDecl::EnumDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7030,7 +6944,6 @@ std::optional<::pasta::VarDecl> VarDecl::ActingDefinition(void) const noexcept {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
   assert(false && "VarDecl::CanonicalDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7445,7 +7358,6 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, VarTemplateDecl)
   }
   assert(false && "VarTemplateDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::VarTemplateDecl VarTemplateDecl::InstantiatedFromMemberTemplate(void) const noexcept {
@@ -7456,7 +7368,6 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, VarTemplateDecl)
   }
   assert(false && "VarTemplateDecl::InstantiatedFromMemberTemplate can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::VarTemplateDecl VarTemplateDecl::MostRecentDeclaration(void) const noexcept {
@@ -7466,7 +7377,6 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, VarTemplateDecl)
     return DeclBuilder::Create<::pasta::VarTemplateDecl>(ast, val);
   }
   assert(false && "VarTemplateDecl::MostRecentDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7489,7 +7399,6 @@ std::optional<::pasta::VarTemplateDecl> VarTemplateDecl::PreviousDeclaration(voi
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
   assert(false && "VarTemplateDecl::TemplatedDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7574,7 +7483,6 @@ enum TemplateSpecializationKind VarTemplateSpecializationDecl::SpecializationKin
   }
   assert(false && "VarTemplateSpecializationDecl::SpecializedTemplate can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 std::variant<std::monostate, ::pasta::VarTemplateDecl, ::pasta::VarTemplatePartialSpecializationDecl> VarTemplateSpecializationDecl::SpecializedTemplateOrPartial(void) const noexcept {
@@ -7634,7 +7542,6 @@ std::vector<::pasta::TemplateArgument> VarTemplateSpecializationDecl::TemplateIn
   return TypeBuilder::Build(ast, val->getType());
   assert(false && "VarTemplateSpecializationDecl::TypeAsWritten can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 bool VarTemplateSpecializationDecl::IsClassScopeExplicitSpecialization(void) const noexcept {
@@ -7690,7 +7597,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXDeductionGuideDecl)
   }
   assert(false && "CXXDeductionGuideDecl::CorrespondingConstructor can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::TemplateDecl CXXDeductionGuideDecl::DeducedTemplate(void) const noexcept {
@@ -7700,7 +7606,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXDeductionGuideDecl)
     return DeclBuilder::Create<::pasta::TemplateDecl>(ast, val);
   }
   assert(false && "CXXDeductionGuideDecl::DeducedTemplate can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7772,7 +7677,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(CXXMethodDecl, CXXDestructorDecl)
   }
   assert(false && "CXXMethodDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 // 1: CXXMethodDecl::CorrespondingMethodDeclaredInClass
@@ -7787,7 +7691,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(CXXMethodDecl, CXXDestructorDecl)
   }
   assert(false && "CXXMethodDecl::MostRecentDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::CXXRecordDecl CXXMethodDecl::Parent(void) const noexcept {
@@ -7797,7 +7700,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(CXXMethodDecl, CXXDestructorDecl)
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
   assert(false && "CXXMethodDecl::Parent can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -7964,7 +7866,6 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, ClassTemplateDecl)
   }
   assert(false && "ClassTemplateDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::ClassTemplateDecl ClassTemplateDecl::InstantiatedFromMemberTemplate(void) const noexcept {
@@ -7975,7 +7876,6 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, ClassTemplateDecl)
   }
   assert(false && "ClassTemplateDecl::InstantiatedFromMemberTemplate can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::ClassTemplateDecl ClassTemplateDecl::MostRecentDeclaration(void) const noexcept {
@@ -7985,7 +7885,6 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, ClassTemplateDecl)
     return DeclBuilder::Create<::pasta::ClassTemplateDecl>(ast, val);
   }
   assert(false && "ClassTemplateDecl::MostRecentDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -8008,7 +7907,6 @@ std::optional<::pasta::ClassTemplateDecl> ClassTemplateDecl::PreviousDeclaration
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
   assert(false && "ClassTemplateDecl::TemplatedDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -8103,7 +8001,6 @@ std::vector<::pasta::EnumConstantDecl> EnumDecl::Enumerators(void) const noexcep
   }
   assert(false && "EnumDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::EnumDecl EnumDecl::Definition(void) const noexcept {
@@ -8113,7 +8010,6 @@ std::vector<::pasta::EnumConstantDecl> EnumDecl::Enumerators(void) const noexcep
     return DeclBuilder::Create<::pasta::EnumDecl>(ast, val);
   }
   assert(false && "EnumDecl::Definition can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -8157,7 +8053,6 @@ std::optional<::pasta::Type> EnumDecl::IntegerType(void) const noexcept {
     return DeclBuilder::Create<::pasta::EnumDecl>(ast, val);
   }
   assert(false && "EnumDecl::MostRecentDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -8306,7 +8201,6 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, FunctionTemplateDecl)
   }
   assert(false && "FunctionTemplateDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::FunctionTemplateDecl FunctionTemplateDecl::InstantiatedFromMemberTemplate(void) const noexcept {
@@ -8317,7 +8211,6 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, FunctionTemplateDecl)
   }
   assert(false && "FunctionTemplateDecl::InstantiatedFromMemberTemplate can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::FunctionTemplateDecl FunctionTemplateDecl::MostRecentDeclaration(void) const noexcept {
@@ -8327,7 +8220,6 @@ PASTA_DEFINE_BASE_OPERATORS(TemplateDecl, FunctionTemplateDecl)
     return DeclBuilder::Create<::pasta::FunctionTemplateDecl>(ast, val);
   }
   assert(false && "FunctionTemplateDecl::MostRecentDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -8350,7 +8242,6 @@ std::optional<::pasta::FunctionTemplateDecl> FunctionTemplateDecl::PreviousDecla
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
   }
   assert(false && "FunctionTemplateDecl::TemplatedDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -8650,7 +8541,6 @@ std::optional<::pasta::RecordDecl> RecordDecl::Definition(void) const noexcept {
   }
   assert(false && "RecordDecl::MostRecentDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 std::optional<::pasta::RecordDecl> RecordDecl::PreviousDeclaration(void) const noexcept {
@@ -8823,7 +8713,6 @@ PASTA_DEFINE_BASE_OPERATORS(VarTemplateSpecializationDecl, VarTemplatePartialSpe
   }
   assert(false && "VarTemplatePartialSpecializationDecl::InstantiatedFromMember can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 // 0: VarTemplatePartialSpecializationDecl::TemplateArgumentsAsWritten
@@ -8832,7 +8721,6 @@ PASTA_DEFINE_BASE_OPERATORS(VarTemplateSpecializationDecl, VarTemplatePartialSpe
   decltype(auto) val = self.getTemplateParameters();
   return ::pasta::TemplateParameterList(ast, val);
   assert(false && "VarTemplatePartialSpecializationDecl::TemplateParameters can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -8875,7 +8763,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXConstructorDecl)
     return DeclBuilder::Create<::pasta::CXXConstructorDecl>(ast, val);
   }
   assert(false && "CXXConstructorDecl::CanonicalDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -8999,7 +8886,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXConversionDecl)
   }
   assert(false && "CXXConversionDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::Type CXXConversionDecl::ConversionType(void) const noexcept {
@@ -9073,7 +8959,6 @@ PASTA_DEFINE_BASE_OPERATORS(ValueDecl, CXXDestructorDecl)
     return DeclBuilder::Create<::pasta::CXXDestructorDecl>(ast, val);
   }
   assert(false && "CXXDestructorDecl::CanonicalDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -9277,7 +9162,6 @@ std::optional<std::vector<::pasta::FriendDecl>> CXXRecordDecl::Friends(void) con
   }
   assert(false && "CXXRecordDecl::CanonicalDeclaration can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 std::optional<::pasta::CXXRecordDecl> CXXRecordDecl::Definition(void) const noexcept {
@@ -9464,7 +9348,6 @@ enum MSVtorDispMode CXXRecordDecl::MSVtorDispMode(void) const noexcept {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
   assert(false && "CXXRecordDecl::MostRecentDeclaration can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -10594,7 +10477,6 @@ enum TemplateSpecializationKind ClassTemplateSpecializationDecl::SpecializationK
   }
   assert(false && "ClassTemplateSpecializationDecl::SpecializedTemplate can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 std::variant<std::monostate, ::pasta::ClassTemplateDecl, ::pasta::ClassTemplatePartialSpecializationDecl> ClassTemplateSpecializationDecl::SpecializedTemplateOrPartial(void) const noexcept {
@@ -10723,7 +10605,6 @@ PASTA_DEFINE_BASE_OPERATORS(TypeDecl, ClassTemplatePartialSpecializationDecl)
   }
   assert(false && "ClassTemplatePartialSpecializationDecl::InstantiatedFromMember can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 ::pasta::ClassTemplatePartialSpecializationDecl ClassTemplatePartialSpecializationDecl::InstantiatedFromMemberTemplate(void) const noexcept {
@@ -10734,7 +10615,6 @@ PASTA_DEFINE_BASE_OPERATORS(TypeDecl, ClassTemplatePartialSpecializationDecl)
   }
   assert(false && "ClassTemplatePartialSpecializationDecl::InstantiatedFromMemberTemplate can return nullptr!");
   __builtin_unreachable();
-  __builtin_unreachable();
 }
 
 // 0: ClassTemplatePartialSpecializationDecl::TemplateArgumentsAsWritten
@@ -10743,7 +10623,6 @@ PASTA_DEFINE_BASE_OPERATORS(TypeDecl, ClassTemplatePartialSpecializationDecl)
   decltype(auto) val = self.getTemplateParameters();
   return ::pasta::TemplateParameterList(ast, val);
   assert(false && "ClassTemplatePartialSpecializationDecl::TemplateParameters can return nullptr!");
-  __builtin_unreachable();
   __builtin_unreachable();
 }
 

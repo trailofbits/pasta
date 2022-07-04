@@ -64,6 +64,12 @@ void GenerateTypeH(void);
 // Generate `lib/pasta/AST/Type.cpp`.
 void GenerateTypeCpp(void);
 
+// Generate `include/pasta/AST/Attr.h`.
+void GenerateAttrH(void);
+
+// Generate `include/pasta/AST/Attr.cpp`.
+void GenerateAttrCpp(void);
+
 static void InitClassIDs(void) {
 #define PASTA_BEGIN_CLANG_WRAPPER(cls, id) \
     gClassIDs[kClassName_ ## id] = id;
@@ -96,6 +102,8 @@ int main(void) {
 
     } else if (class_name.endswith("Type") && class_name != "QualType") {
       gTypeNames.push_back(class_name.str());
+    } else if (class_name.endswith("Attr")) {
+      gAttrNames.push_back(class_name.str());
     }
   }
 
@@ -157,6 +165,7 @@ int main(void) {
   topo_sort(gDeclNames, gTopologicallyOrderedDecls);
   topo_sort(gStmtNames, gTopologicallyOrderedStmts);
   topo_sort(gTypeNames, gTopologicallyOrderedTypes);
+  topo_sort(gAttrNames, gTopologicallyOrderedAttrs);
 
   auto transitive_rels = [] (const std::vector<std::string> &names) {
 
@@ -190,6 +199,7 @@ int main(void) {
   transitive_rels(gTopologicallyOrderedDecls);
   transitive_rels(gTopologicallyOrderedStmts);
   transitive_rels(gTopologicallyOrderedTypes);
+  transitive_rels(gTopologicallyOrderedAttrs);
 
 //  MapEnumRetTypes();
   MapDeclRetTypes();
@@ -200,10 +210,12 @@ int main(void) {
   GenerateForwardH();
 
   // Generate headers first; they fill up `gIterators`.
+  GenerateAttrH();
   GenerateDeclH();
   GenerateStmtH();
   GenerateTypeH();
 
+  GenerateAttrCpp();
   GenerateDeclCpp();
   GenerateStmtCpp();
   GenerateTypeCpp();

@@ -43,6 +43,10 @@ void MapStmtRetTypes(void);
 // Type types.
 void MapTypeRetTypes(void);
 
+// Adds mappings that translate between pointers to clang Type types and PASTA
+// Type types.
+void MapAttrRetTypes(void);
+
 // Generate `include/pasta/AST/Forward.h`.
 void GenerateForwardH(void);
 
@@ -205,6 +209,7 @@ int main(void) {
   MapDeclRetTypes();
   MapStmtRetTypes();
   MapTypeRetTypes();
+  MapAttrRetTypes();
 
   // NOTE(pag): This also maps enum return types.
   GenerateForwardH();

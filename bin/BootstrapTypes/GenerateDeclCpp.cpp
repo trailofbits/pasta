@@ -167,19 +167,10 @@ void GenerateDeclCpp(void) {
       << "  }\n"
       << "  __builtin_unreachable();\n"
       << "}\n\n"
-      << "static const std::string_view kKindNames[] = {\n";
-
-  for (const auto &name_ : gDeclNames) {
-    llvm::StringRef name(name_);
-    if (name != "Decl" && name != "OMPDeclarativeDirectiveDecl" &&
-        name != "OMPDeclarativeDirectiveValueDecl") {
-      assert(name.endswith("Decl"));
-      name = name.substr(0, name.size() - 4);
-      os << "  \"" << name.str() << "\",\n";
-    }
-  }
-
-  os
+      << "static const std::string_view kKindNames[] = {\n"
+      << "#define PASTA_DECL_KIND_NAME(name) #name ,\n"
+      << "PASTA_FOR_EACH_DECL_IMPL(PASTA_DECL_KIND_NAME, PASTA_IGNORE_ABSTRACT)\n"
+      << "#undef PASTA_DECL_KIND_NAME\n"
       << "};\n"
       << "}  // namespace\n\n"
       << "std::string_view Decl::KindName(void) const noexcept {\n"
@@ -223,7 +214,7 @@ void GenerateDeclCpp(void) {
 
     // Dispatch to our hand-written constructor that takes the `DeclKind`.
     if (name == "Decl") {
-      os << "\n    : Decl(std::move(ast_), decl_, KindOfDecl(decl_)) {}\n";
+      os << "\n    : Decl(std::move(ast_), decl_, KindOfDecl(decl_)) {}\n\n";
 
     // Dispatch to the base class constructor(s).
     } else {

@@ -31,14 +31,12 @@ void GenerateAttrCpp(void) {
       << "#include <clang/AST/Attr.h>\n"
       << "#include <clang/Frontend/CompilerInstance.h>\n"
       << "#pragma clang diagnostic pop\n\n"
-      << "#include <pasta/AST/Decl.h>\n"
-      << "#include <pasta/AST/Stmt.h>\n"
-      << "#include <pasta/AST/Type.h>\n"
+      << "#include <pasta/AST/Attr.h>\n"
       << "#include \"AST.h\"\n"
       << "#include \"Builder.h\"\n\n"
       << "#define PASTA_DEFINE_BASE_OPERATORS(base, derived) \\\n"
       << "    std::optional<class derived> derived::From(const class base &that) { \\\n"
-      << "      if (auto attr_ptr = clang::dyn_cast_or_null<clang::derived>(that.u.Attr)) { \\\n"
+      << "      if (auto attr_ptr = clang::dyn_cast_or_null<clang::derived>(that.u.base)) { \\\n"
       << "        return AttrBuilder::Create<class derived>(that.ast, attr_ptr); \\\n"
       << "      } else { \\\n"
       << "        return std::nullopt; \\\n"
@@ -54,25 +52,37 @@ void GenerateAttrCpp(void) {
       << "        ast = that.ast; \\\n"
       << "      } \\\n"
       << "      u.Attr = that.u.Attr; \\\n"
+      << "      kind = that.kind; \\\n"
       << "      return *this; \\\n"
       << "    } \\\n"
       << "    base &base::operator=(class derived &&that) noexcept { \\\n"
       << "      class derived new_that(std::forward<class derived>(that)); \\\n"
       << "      ast = std::move(new_that.ast); \\\n"
       << "      u.Attr = new_that.u.Attr; \\\n"
+      << "      kind = new_that.kind; \\\n"
       << "      return *this; \\\n"
       << "    }\n\n"
       << "namespace pasta {\n\n"
-      << "\n"
-      << "// Return the KindName of the Clang's `Attr`\n"
-      << "std::string_view Attr::KindName(void) const noexcept {\n"
-      << "  switch (u.Attr->getKind()) {\n"
-      << "#define ATTR(X) \\\n"
-      << "    case clang::attr::Kind::X: \\\n"
-      << "      return #X;\n"
-      << "#include \"clang/Basic/AttrList.inc\"\n"
+      << "namespace {\n"
+      << "// Return the PASTA `AttrKind` for a Clang `Attr`.\n"
+      << "static AttrKind KindOfAttr(const clang::Attr *attr) {\n"
+      << "  switch (attr->getKind()) {\n"
+      << "#define ATTR_RANGE(...)\n"
+      << "#define ATTR(a) \\\n"
+      << "    case clang::attr::Kind::a: \\\n"
+      << "      return AttrKind::k ## a;\n"
+      << "#include <clang/Basic/AttrList.inc>\n"
       << "  }\n"
       << "  __builtin_unreachable();\n"
+      << "}\n\n"
+      << "static const std::string_view kAttrNames[] = {\n"
+      << "#define PASTA_ATTR_KIND_NAME(name) #name ,\n"
+      << "PASTA_FOR_EACH_ATTR_IMPL(PASTA_ATTR_KIND_NAME, PASTA_IGNORE_ABSTRACT)\n"
+      << "#undef PASTA_ATTR_KIND_NAME\n"
+      << "};\n"
+      << "}  // namespace\n\n"
+      << "std::string_view Attr::KindName(void) const noexcept {\n"
+      << "  return kAttrNames[static_cast<unsigned>(kind)];\n"
       << "}\n\n"
       // All Attributes will use the inherited function to get Tokens
       << "::pasta::TokenRange Attr::Tokens(void) const noexcept {\n"
@@ -99,6 +109,12 @@ void GenerateAttrCpp(void) {
         sep = ",\n      ";
       }
       os << " {}\n\n";
+    } else {
+      os
+          << "Attr::Attr(\n"
+          << "    std::shared_ptr<ASTImpl> ast_,\n"
+          << "    const ::clang::Attr *attr_)"
+          << "    : Attr(std::move(ast_), attr_, KindOfAttr(attr_)) {}\n\n";
     }
 
     // Constructors from derived class -> base class.
@@ -117,7 +133,4 @@ void GenerateAttrCpp(void) {
   os
       << "}  // namespace pasta\n"
       << "#endif  // PASTA_IN_BOOTSTRAP\n";
-
 }
-
-

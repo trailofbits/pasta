@@ -141,6 +141,9 @@ void GenerateForwardH(void) {
 
     // Abstract ones.
     if (name == "Attr" ||
+        name == "TypeAttr" ||
+        name == "StmtAttr" ||
+        name == "DeclOrStmtAttr" ||
         name == "InheritableAttr" ||
         name == "InheritableParamAttr" ||
         name == "ParameterABIAttr") {
@@ -158,6 +161,12 @@ void GenerateForwardH(void) {
       << "enum class DeclKind : unsigned int {\n"
       << "#define PASTA_DECLARE_DECL_KIND(name) k ## name ,\n"
       << "  PASTA_FOR_EACH_DECL_IMPL(PASTA_DECLARE_DECL_KIND, PASTA_IGNORE_ABSTRACT)\n"
+      << "#undef PASTA_DECLARE_DECL_KIND\n"
+      << "};\n\n"
+
+      << "enum class AttrKind : unsigned int {\n"
+      << "#define PASTA_DECLARE_ATTR_KIND(name) k ## name ,\n"
+      << "  PASTA_FOR_EACH_ATTR_IMPL(PASTA_DECLARE_ATTR_KIND, PASTA_IGNORE_ABSTRACT)\n"
       << "#undef PASTA_DECLARE_DECL_KIND\n"
       << "};\n\n";
 //      << "enum class TypeKind : unsigned {\n"
@@ -184,6 +193,16 @@ void GenerateForwardH(void) {
   sep = "";
   for (const std::string &type_kind : gEnumerators["TypeKind"]) {
     os << sep << "    m(" << type_kind << ")";
+    sep = " \\\n";
+  }
+
+  os << "\n\n";
+
+  os
+      << "#define PASTA_FOR_EACH_ATTR_KIND(m) \\\n";
+  sep = "";
+  for (const std::string &attr_kind : gEnumerators["AttrKind"]) {
+    os << sep << "    m(" << attr_kind << ")";
     sep = " \\\n";
   }
 

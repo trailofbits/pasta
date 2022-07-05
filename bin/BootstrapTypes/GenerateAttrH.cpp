@@ -33,6 +33,9 @@ void GenerateAttrH(void) {
       << "#define PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(base) \\\n"
       << "    friend class AST; \\\n"
       << "    friend class ASTImpl; \\\n"
+      << "    friend class Decl; \\\n"
+      << "    friend class Stmt; \\\n"
+      << "    friend class DeclBuilder; \\\n"
       << "    friend class AttrBuilder; \\\n"
       << "    friend class PrintedTokenRange; \\\n"
       << "    base(void) = delete; \\\n"
@@ -45,6 +48,13 @@ void GenerateAttrH(void) {
       << "    }\n\n";
 
   os  << "namespace pasta {\n\n"
+      << "class AST;\n"
+      << "class ASTImpl;\n"
+      << "class AttrBuilder;\n"
+      << "class Decl;\n"
+      << "class Decl;\n"
+      << "class PrintedTokenRange;\n"
+      << "class Stmt;\n\n"
       << "class Attr {\n"
       << " public:\n"
       << "  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(Attr)\n";
@@ -58,17 +68,15 @@ void GenerateAttrH(void) {
   DeclareCppMethods(os, attr_base_class, gClassIDs[attr_base_class]);
 
   os
+     << "  inline ::pasta::AttrKind Kind(void) const noexcept {\n"
+     << "    return kind;\n"
+     << "  }\n\n"
      << "  std::string_view KindName(void) const noexcept;\n\n"
      << "  ::pasta::TokenRange Tokens(void) const noexcept;\n\n"
      << "  inline bool operator==(const Attr &that) const noexcept {\n"
      << "    return u.opaque == that.u.opaque;\n"
      << "  }\n"
      << "  static std::optional<::pasta::Attr> From(const TokenContext &);\n\n"
-     << "  inline Attr(std::shared_ptr<ASTImpl> ast_, const clang::Attr *Attr_)\n"
-     << "      : ast(std::move(ast_)) {\n"
-     << "    assert(ast.get() != nullptr);\n"
-     << "    u.Attr = Attr_;\n"
-     << "  }\n\n"
      << " protected:\n"
      << "  friend class TokenContext;\n\n"
      << "  std::shared_ptr<ASTImpl> ast;\n"
@@ -81,6 +89,16 @@ void GenerateAttrH(void) {
   os
      << "    const void *opaque;\n"
      << "  } u;\n"
+     << "  AttrKind kind;\n\n"
+     << "  inline Attr(std::shared_ptr<ASTImpl> ast_, const clang::Attr *attr_,\n"
+     << "              AttrKind kind_)\n"
+     << "      : ast(std::move(ast_)),\n"
+     << "        kind(kind_) {\n"
+     << "    assert(ast.get() != nullptr);\n"
+     << "    u.Attr = attr_;\n"
+     << "  }\n\n"
+     << " protected:\n"
+     << "  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(Attr)\n"
      << "};\n\n";
 
   // Define them all.

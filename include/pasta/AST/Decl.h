@@ -176,7 +176,7 @@ class DeclContext {
   // ContainsDeclarationAndLoad: (bool)
   // Ddiags: (llvm::iterator_range<clang::DeclContext::ddiag_iterator>)
   std::vector<::pasta::Decl> Declarations(void) const noexcept;
-  ::pasta::DeclKind DeclarationKind(void) const noexcept;
+  enum ::pasta::DeclKind DeclarationKind(void) const noexcept;
   std::string_view DeclarationKindName(void) const noexcept;
   std::optional<::pasta::DeclContext> EnclosingNamespaceContext(void) const noexcept;
   std::optional<::pasta::LinkageSpecDecl> ExternCContext(void) const noexcept;
@@ -346,7 +346,7 @@ class Decl {
   std::optional<::pasta::TemplateDecl> DescribedTemplate(void) const noexcept;
   std::optional<::pasta::TemplateParameterList> DescribedTemplateParameters(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  // ExternalSourceSymbolAttribute: (clang::ExternalSourceSymbolAttr *)
+  ::pasta::ExternalSourceSymbolAttr ExternalSourceSymbolAttribute(void) const noexcept;
   enum DeclFriendObjectKind FriendObjectKind(void) const noexcept;
   std::optional<::pasta::FunctionType> FunctionType(void) const noexcept;
   uint32_t GlobalID(void) const noexcept;

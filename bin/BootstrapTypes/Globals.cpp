@@ -173,7 +173,8 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
 //  {"(clang::ObjCMethodDecl::ImplementationControl)", "::pasta::ImplementationControl"},
 //  {"(clang::ObjCPropertyDecl::PropertyControl)", "::pasta::PropertyControl"},
 //  {"(clang::ObjCPropertyDecl::SetterKind)", "::pasta::SetterKind"},
-  {"(clang::Decl::Kind)", "::pasta::DeclKind"},
+  {"(clang::Decl::Kind)", "enum ::pasta::DeclKind"},
+  {"(clang::attr::Kind)", "enum ::pasta::AttrKind"},
 //  {"(clang::ImplicitParamDecl::ImplicitParamKind)", "::pasta::ImplicitParamKind"},
 //  {"(clang::RecordDecl::ArgPassingKind)", "::pasta::ArgPassingKind"},
 //  {"(clang::UnaryTransformType::UTTKind)", "::pasta::UTTKind"},
@@ -186,7 +187,6 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
 //  {"(clang::Type::ScalarTypeKind)", "::pasta::ScalarTypeKind"},
 //  {"(clang::QualType::PrimitiveCopyKind)", "::pasta::PrimitiveCopyKind"},
 //  {"(clang::QualType::PrimitiveDefaultInitializeKind)", "::pasta::PrimitiveDefaultInitializeKind"},
-  {"(clang::attr::Kind)", "::pasta::AttrKind"},
 
   {"(llvm::Optional<const clang::Expr *>)", "std::optional<::pasta::Expr>"},
   {"(llvm::Optional<unsigned int>)", "std::optional<unsigned>"},
@@ -345,13 +345,13 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
    "  return TypeBuilder::Build(ast, val);\n"},
 
   {"(clang::Type::TypeClass)",
-   "  return static_cast<::pasta::TypeKind>(val);\n"},
+   "  return static_cast<enum ::pasta::TypeKind>(val);\n"},
 
   {"(clang::Stmt::StmtClass)",
-   "  return static_cast<::pasta::StmtKind>(val);\n"},
+   "  return static_cast<enum ::pasta::StmtKind>(val);\n"},
 
   {"(clang::attr::Kind)",
-   "  return static_cast<::pasta::AttrKind>(val);\n"},
+   "  return static_cast<enum ::pasta::AttrKind>(val);\n"},
 
   {"(llvm::StringRef)",
    "  if (auto size = val.size()) {\n"
@@ -427,7 +427,7 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
 //   "  return static_cast<::pasta::SetterKind>(val);\n"},
 //
   {"(clang::Decl::Kind)",
-   "  return static_cast<::pasta::DeclKind>(val);\n"},
+   "  return static_cast<enum ::pasta::DeclKind>(val);\n"},
 //
 //  {"(clang::ImplicitParamDecl::ImplicitParamKind)",
 //   "  return static_cast<::pasta::ImplicitParamKind>(val);\n"},
@@ -746,7 +746,7 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
         "  std::vector<::pasta::Attr> ret;\n"
         "  for (auto attr_ptr : val) {\n"
         "    if (attr_ptr) {\n"
-        "      ret.emplace_back(StmtBuilder::Create<::pasta::Attr>(ast, attr_ptr));\n"
+        "      ret.emplace_back(AttrBuilder::Create<::pasta::Attr>(ast, attr_ptr));\n"
         "    }\n"
         "  }\n"
         "  return ret;\n"},
@@ -755,7 +755,7 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
         "  std::vector<::pasta::Attr> ret;\n"
         "  for (auto attr_ptr : val) {\n"
         "    if (attr_ptr) {\n"
-        "      ret.emplace_back(DeclBuilder::Create<::pasta::Attr>(ast, attr_ptr));\n"
+        "      ret.emplace_back(AttrBuilder::Create<::pasta::Attr>(ast, attr_ptr));\n"
         "    }\n"
         "  }\n"
         "  return ret;\n"},

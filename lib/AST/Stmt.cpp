@@ -1323,7 +1323,7 @@ int64_t Stmt::ID(void) const noexcept {
 ::pasta::StmtKind Stmt::Kind(void) const noexcept {
   auto &self = *const_cast<clang::Stmt *>(u.Stmt);
   decltype(auto) val = self.getStmtClass();
-  return static_cast<::pasta::StmtKind>(val);
+  return static_cast<enum ::pasta::StmtKind>(val);
   __builtin_unreachable();
 }
 
@@ -2052,7 +2052,7 @@ std::vector<::pasta::Attr> AttributedStmt::Attributes(void) const noexcept {
   std::vector<::pasta::Attr> ret;
   for (auto attr_ptr : val) {
     if (attr_ptr) {
-      ret.emplace_back(StmtBuilder::Create<::pasta::Attr>(ast, attr_ptr));
+      ret.emplace_back(AttrBuilder::Create<::pasta::Attr>(ast, attr_ptr));
     }
   }
   return ret;
@@ -14981,7 +14981,7 @@ std::optional<::pasta::Attr> CallExpr::UnusedResultAttribute(void) const noexcep
     return std::nullopt;
   }
   if (val) {
-    return ::pasta::Attr(ast, val);
+    return AttrBuilder::Create<::pasta::Attr>(ast, val);
   }
   __builtin_unreachable();
 }

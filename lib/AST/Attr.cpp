@@ -14,15 +14,13 @@
 #include <clang/Frontend/CompilerInstance.h>
 #pragma clang diagnostic pop
 
-#include <pasta/AST/Decl.h>
-#include <pasta/AST/Stmt.h>
-#include <pasta/AST/Type.h>
+#include <pasta/AST/Attr.h>
 #include "AST.h"
 #include "Builder.h"
 
 #define PASTA_DEFINE_BASE_OPERATORS(base, derived) \
     std::optional<class derived> derived::From(const class base &that) { \
-      if (auto attr_ptr = clang::dyn_cast_or_null<clang::derived>(that.u.Attr)) { \
+      if (auto attr_ptr = clang::dyn_cast_or_null<clang::derived>(that.u.base)) { \
         return AttrBuilder::Create<class derived>(that.ast, attr_ptr); \
       } else { \
         return std::nullopt; \
@@ -39,32 +37,50 @@
         ast = that.ast; \
       } \
       u.Attr = that.u.Attr; \
+      kind = that.kind; \
       return *this; \
     } \
     base &base::operator=(class derived &&that) noexcept { \
       class derived new_that(std::forward<class derived>(that)); \
       ast = std::move(new_that.ast); \
       u.Attr = new_that.u.Attr; \
+      kind = new_that.kind; \
       return *this; \
     }
 
 namespace pasta {
 
-
-// Return the KindName of the Clang's `Attr`
-std::string_view Attr::KindName(void) const noexcept {
-  switch (u.Attr->getKind()) {
-#define ATTR(X) \
-    case clang::attr::Kind::X: \
-      return #X;
-#include "clang/Basic/AttrList.inc"
+namespace {
+// Return the PASTA `AttrKind` for a Clang `Attr`.
+static AttrKind KindOfAttr(const clang::Attr *attr) {
+  switch (attr->getKind()) {
+#define ATTR_RANGE(...)
+#define ATTR(a) \
+    case clang::attr::Kind::a: \
+      return AttrKind::k ## a;
+#include <clang/Basic/AttrList.inc>
   }
   __builtin_unreachable();
+}
+
+static const std::string_view kAttrNames[] = {
+#define PASTA_ATTR_KIND_NAME(name) #name ,
+PASTA_FOR_EACH_ATTR_IMPL(PASTA_ATTR_KIND_NAME, PASTA_IGNORE_ABSTRACT)
+#undef PASTA_ATTR_KIND_NAME
+};
+}  // namespace
+
+std::string_view Attr::KindName(void) const noexcept {
+  return kAttrNames[static_cast<unsigned>(kind)];
 }
 
 ::pasta::TokenRange Attr::Tokens(void) const noexcept {
   return ast->TokenRangeFrom(u.Attr->getRange());
 }
+
+Attr::Attr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)    : Attr(std::move(ast_), attr_, KindOfAttr(attr_)) {}
 
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, AArch64VectorPcsAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, AMDGPUFlatWorkGroupSizeAttr)
@@ -420,11 +436,14 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, WorkGroupSizeHintAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, X86ForceAlignArgPointerAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, XRayInstrumentAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, XRayLogArgsAttr)
-// 1: Attr::Clone
-::pasta::AttrKind Attr::Kind(void) const noexcept {
-  auto &self = *const_cast<clang::Attr *>(u.Attr);
-  decltype(auto) val = self.getKind();
-  return static_cast<::pasta::AttrKind>(val);
+::pasta::Attr Attr::Clone(void) const noexcept {
+  auto &self = *(u.Attr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::Attr>(ast, val);
+  }
+  assert(false && "Attr::Clone can return nullptr!");
+  __builtin_unreachable();
   __builtin_unreachable();
 }
 
@@ -488,7 +507,17 @@ BuiltinAliasAttr::BuiltinAliasAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, BuiltinAliasAttr)
-// 1: BuiltinAliasAttr::Clone
+::pasta::BuiltinAliasAttr BuiltinAliasAttr::Clone(void) const noexcept {
+  auto &self = *(u.BuiltinAliasAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::BuiltinAliasAttr>(ast, val);
+  }
+  assert(false && "BuiltinAliasAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: BuiltinAliasAttr::BuiltinName
 enum BuiltinAliasAttrSpelling BuiltinAliasAttr::SemanticSpelling(void) const noexcept {
   auto &self = *const_cast<clang::BuiltinAliasAttr *>(u.BuiltinAliasAttr);
@@ -515,7 +544,17 @@ CalledOnceAttr::CalledOnceAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CalledOnceAttr)
-// 1: CalledOnceAttr::Clone
+::pasta::CalledOnceAttr CalledOnceAttr::Clone(void) const noexcept {
+  auto &self = *(u.CalledOnceAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CalledOnceAttr>(ast, val);
+  }
+  assert(false && "CalledOnceAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CalledOnceAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::CalledOnceAttr *>(u.CalledOnceAttr);
   decltype(auto) val = self.getSpelling();
@@ -534,7 +573,17 @@ IFuncAttr::IFuncAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, IFuncAttr)
-// 1: IFuncAttr::Clone
+::pasta::IFuncAttr IFuncAttr::Clone(void) const noexcept {
+  auto &self = *(u.IFuncAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::IFuncAttr>(ast, val);
+  }
+  assert(false && "IFuncAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view IFuncAttr::Resolver(void) const noexcept {
   auto &self = *const_cast<clang::IFuncAttr *>(u.IFuncAttr);
   decltype(auto) val = self.getResolver();
@@ -899,7 +948,17 @@ InitPriorityAttr::InitPriorityAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, InitPriorityAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, InitPriorityAttr)
-// 1: InitPriorityAttr::Clone
+::pasta::InitPriorityAttr InitPriorityAttr::Clone(void) const noexcept {
+  auto &self = *(u.InitPriorityAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::InitPriorityAttr>(ast, val);
+  }
+  assert(false && "InitPriorityAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 uint32_t InitPriorityAttr::Priority(void) const noexcept {
   auto &self = *const_cast<clang::InitPriorityAttr *>(u.InitPriorityAttr);
   decltype(auto) val = self.getPriority();
@@ -925,7 +984,17 @@ InitSegAttr::InitSegAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, InitSegAttr)
-// 1: InitSegAttr::Clone
+::pasta::InitSegAttr InitSegAttr::Clone(void) const noexcept {
+  auto &self = *(u.InitSegAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::InitSegAttr>(ast, val);
+  }
+  assert(false && "InitSegAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view InitSegAttr::Section(void) const noexcept {
   auto &self = *const_cast<clang::InitSegAttr *>(u.InitSegAttr);
   decltype(auto) val = self.getSection();
@@ -963,7 +1032,17 @@ IntelOclBiccAttr::IntelOclBiccAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, IntelOclBiccAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, IntelOclBiccAttr)
-// 1: IntelOclBiccAttr::Clone
+::pasta::IntelOclBiccAttr IntelOclBiccAttr::Clone(void) const noexcept {
+  auto &self = *(u.IntelOclBiccAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::IntelOclBiccAttr>(ast, val);
+  }
+  assert(false && "IntelOclBiccAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view IntelOclBiccAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::IntelOclBiccAttr *>(u.IntelOclBiccAttr);
   decltype(auto) val = self.getSpelling();
@@ -983,7 +1062,17 @@ InternalLinkageAttr::InternalLinkageAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, InternalLinkageAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, InternalLinkageAttr)
-// 1: InternalLinkageAttr::Clone
+::pasta::InternalLinkageAttr InternalLinkageAttr::Clone(void) const noexcept {
+  auto &self = *(u.InternalLinkageAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::InternalLinkageAttr>(ast, val);
+  }
+  assert(false && "InternalLinkageAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view InternalLinkageAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::InternalLinkageAttr *>(u.InternalLinkageAttr);
   decltype(auto) val = self.getSpelling();
@@ -1003,7 +1092,17 @@ LTOVisibilityPublicAttr::LTOVisibilityPublicAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, LTOVisibilityPublicAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, LTOVisibilityPublicAttr)
-// 1: LTOVisibilityPublicAttr::Clone
+::pasta::LTOVisibilityPublicAttr LTOVisibilityPublicAttr::Clone(void) const noexcept {
+  auto &self = *(u.LTOVisibilityPublicAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::LTOVisibilityPublicAttr>(ast, val);
+  }
+  assert(false && "LTOVisibilityPublicAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view LTOVisibilityPublicAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::LTOVisibilityPublicAttr *>(u.LTOVisibilityPublicAttr);
   decltype(auto) val = self.getSpelling();
@@ -1023,7 +1122,17 @@ LayoutVersionAttr::LayoutVersionAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, LayoutVersionAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, LayoutVersionAttr)
-// 1: LayoutVersionAttr::Clone
+::pasta::LayoutVersionAttr LayoutVersionAttr::Clone(void) const noexcept {
+  auto &self = *(u.LayoutVersionAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::LayoutVersionAttr>(ast, val);
+  }
+  assert(false && "LayoutVersionAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view LayoutVersionAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::LayoutVersionAttr *>(u.LayoutVersionAttr);
   decltype(auto) val = self.getSpelling();
@@ -1050,7 +1159,17 @@ LeafAttr::LeafAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, LeafAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, LeafAttr)
-// 1: LeafAttr::Clone
+::pasta::LeafAttr LeafAttr::Clone(void) const noexcept {
+  auto &self = *(u.LeafAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::LeafAttr>(ast, val);
+  }
+  assert(false && "LeafAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view LeafAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::LeafAttr *>(u.LeafAttr);
   decltype(auto) val = self.getSpelling();
@@ -1070,7 +1189,17 @@ LifetimeBoundAttr::LifetimeBoundAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, LifetimeBoundAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, LifetimeBoundAttr)
-// 1: LifetimeBoundAttr::Clone
+::pasta::LifetimeBoundAttr LifetimeBoundAttr::Clone(void) const noexcept {
+  auto &self = *(u.LifetimeBoundAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::LifetimeBoundAttr>(ast, val);
+  }
+  assert(false && "LifetimeBoundAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view LifetimeBoundAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::LifetimeBoundAttr *>(u.LifetimeBoundAttr);
   decltype(auto) val = self.getSpelling();
@@ -1089,7 +1218,17 @@ LoaderUninitializedAttr::LoaderUninitializedAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, LoaderUninitializedAttr)
-// 1: LoaderUninitializedAttr::Clone
+::pasta::LoaderUninitializedAttr LoaderUninitializedAttr::Clone(void) const noexcept {
+  auto &self = *(u.LoaderUninitializedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::LoaderUninitializedAttr>(ast, val);
+  }
+  assert(false && "LoaderUninitializedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view LoaderUninitializedAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::LoaderUninitializedAttr *>(u.LoaderUninitializedAttr);
   decltype(auto) val = self.getSpelling();
@@ -1109,7 +1248,17 @@ LockReturnedAttr::LockReturnedAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, LockReturnedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, LockReturnedAttr)
-// 1: LockReturnedAttr::Clone
+::pasta::LockReturnedAttr LockReturnedAttr::Clone(void) const noexcept {
+  auto &self = *(u.LockReturnedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::LockReturnedAttr>(ast, val);
+  }
+  assert(false && "LockReturnedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 ::pasta::Expr LockReturnedAttr::Argument(void) const noexcept {
   auto &self = *const_cast<clang::LockReturnedAttr *>(u.LockReturnedAttr);
   decltype(auto) val = self.getArg();
@@ -1143,7 +1292,17 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, LocksExcludedAttr)
 // 0: LocksExcludedAttr::
 // 0: LocksExcludedAttr::
 // 0: LocksExcludedAttr::
-// 1: LocksExcludedAttr::Clone
+::pasta::LocksExcludedAttr LocksExcludedAttr::Clone(void) const noexcept {
+  auto &self = *(u.LocksExcludedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::LocksExcludedAttr>(ast, val);
+  }
+  assert(false && "LocksExcludedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view LocksExcludedAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::LocksExcludedAttr *>(u.LocksExcludedAttr);
   decltype(auto) val = self.getSpelling();
@@ -1162,7 +1321,17 @@ LoopHintAttr::LoopHintAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, LoopHintAttr)
-// 1: LoopHintAttr::Clone
+::pasta::LoopHintAttr LoopHintAttr::Clone(void) const noexcept {
+  auto &self = *(u.LoopHintAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::LoopHintAttr>(ast, val);
+  }
+  assert(false && "LoopHintAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 1: LoopHintAttr::DiagnosticName
 enum LoopHintAttrOptionType LoopHintAttr::Option(void) const noexcept {
   auto &self = *const_cast<clang::LoopHintAttr *>(u.LoopHintAttr);
@@ -1215,7 +1384,17 @@ M68kInterruptAttr::M68kInterruptAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, M68kInterruptAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, M68kInterruptAttr)
-// 1: M68kInterruptAttr::Clone
+::pasta::M68kInterruptAttr M68kInterruptAttr::Clone(void) const noexcept {
+  auto &self = *(u.M68kInterruptAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::M68kInterruptAttr>(ast, val);
+  }
+  assert(false && "M68kInterruptAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 uint32_t M68kInterruptAttr::Number(void) const noexcept {
   auto &self = *const_cast<clang::M68kInterruptAttr *>(u.M68kInterruptAttr);
   decltype(auto) val = self.getNumber();
@@ -1242,7 +1421,17 @@ MIGServerRoutineAttr::MIGServerRoutineAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, MIGServerRoutineAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, MIGServerRoutineAttr)
-// 1: MIGServerRoutineAttr::Clone
+::pasta::MIGServerRoutineAttr MIGServerRoutineAttr::Clone(void) const noexcept {
+  auto &self = *(u.MIGServerRoutineAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::MIGServerRoutineAttr>(ast, val);
+  }
+  assert(false && "MIGServerRoutineAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view MIGServerRoutineAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::MIGServerRoutineAttr *>(u.MIGServerRoutineAttr);
   decltype(auto) val = self.getSpelling();
@@ -1262,7 +1451,17 @@ MSABIAttr::MSABIAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, MSABIAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, MSABIAttr)
-// 1: MSABIAttr::Clone
+::pasta::MSABIAttr MSABIAttr::Clone(void) const noexcept {
+  auto &self = *(u.MSABIAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::MSABIAttr>(ast, val);
+  }
+  assert(false && "MSABIAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view MSABIAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::MSABIAttr *>(u.MSABIAttr);
   decltype(auto) val = self.getSpelling();
@@ -1282,7 +1481,17 @@ MSAllocatorAttr::MSAllocatorAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, MSAllocatorAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, MSAllocatorAttr)
-// 1: MSAllocatorAttr::Clone
+::pasta::MSAllocatorAttr MSAllocatorAttr::Clone(void) const noexcept {
+  auto &self = *(u.MSAllocatorAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::MSAllocatorAttr>(ast, val);
+  }
+  assert(false && "MSAllocatorAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view MSAllocatorAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::MSAllocatorAttr *>(u.MSAllocatorAttr);
   decltype(auto) val = self.getSpelling();
@@ -1302,7 +1511,17 @@ MSInheritanceAttr::MSInheritanceAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, MSInheritanceAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, MSInheritanceAttr)
-// 1: MSInheritanceAttr::Clone
+::pasta::MSInheritanceAttr MSInheritanceAttr::Clone(void) const noexcept {
+  auto &self = *(u.MSInheritanceAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::MSInheritanceAttr>(ast, val);
+  }
+  assert(false && "MSInheritanceAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 bool MSInheritanceAttr::BestCase(void) const noexcept {
   auto &self = *const_cast<clang::MSInheritanceAttr *>(u.MSInheritanceAttr);
   decltype(auto) val = self.getBestCase();
@@ -1343,7 +1562,17 @@ MSNoVTableAttr::MSNoVTableAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, MSNoVTableAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, MSNoVTableAttr)
-// 1: MSNoVTableAttr::Clone
+::pasta::MSNoVTableAttr MSNoVTableAttr::Clone(void) const noexcept {
+  auto &self = *(u.MSNoVTableAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::MSNoVTableAttr>(ast, val);
+  }
+  assert(false && "MSNoVTableAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view MSNoVTableAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::MSNoVTableAttr *>(u.MSNoVTableAttr);
   decltype(auto) val = self.getSpelling();
@@ -1363,7 +1592,17 @@ MSP430InterruptAttr::MSP430InterruptAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, MSP430InterruptAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, MSP430InterruptAttr)
-// 1: MSP430InterruptAttr::Clone
+::pasta::MSP430InterruptAttr MSP430InterruptAttr::Clone(void) const noexcept {
+  auto &self = *(u.MSP430InterruptAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::MSP430InterruptAttr>(ast, val);
+  }
+  assert(false && "MSP430InterruptAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 uint32_t MSP430InterruptAttr::Number(void) const noexcept {
   auto &self = *const_cast<clang::MSP430InterruptAttr *>(u.MSP430InterruptAttr);
   decltype(auto) val = self.getNumber();
@@ -1390,7 +1629,17 @@ MSStructAttr::MSStructAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, MSStructAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, MSStructAttr)
-// 1: MSStructAttr::Clone
+::pasta::MSStructAttr MSStructAttr::Clone(void) const noexcept {
+  auto &self = *(u.MSStructAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::MSStructAttr>(ast, val);
+  }
+  assert(false && "MSStructAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view MSStructAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::MSStructAttr *>(u.MSStructAttr);
   decltype(auto) val = self.getSpelling();
@@ -1410,7 +1659,17 @@ MSVtorDispAttr::MSVtorDispAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, MSVtorDispAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, MSVtorDispAttr)
-// 1: MSVtorDispAttr::Clone
+::pasta::MSVtorDispAttr MSVtorDispAttr::Clone(void) const noexcept {
+  auto &self = *(u.MSVtorDispAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::MSVtorDispAttr>(ast, val);
+  }
+  assert(false && "MSVtorDispAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view MSVtorDispAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::MSVtorDispAttr *>(u.MSVtorDispAttr);
   decltype(auto) val = self.getSpelling();
@@ -1444,7 +1703,17 @@ MaxFieldAlignmentAttr::MaxFieldAlignmentAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, MaxFieldAlignmentAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, MaxFieldAlignmentAttr)
-// 1: MaxFieldAlignmentAttr::Clone
+::pasta::MaxFieldAlignmentAttr MaxFieldAlignmentAttr::Clone(void) const noexcept {
+  auto &self = *(u.MaxFieldAlignmentAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::MaxFieldAlignmentAttr>(ast, val);
+  }
+  assert(false && "MaxFieldAlignmentAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 uint32_t MaxFieldAlignmentAttr::Alignment(void) const noexcept {
   auto &self = *const_cast<clang::MaxFieldAlignmentAttr *>(u.MaxFieldAlignmentAttr);
   decltype(auto) val = self.getAlignment();
@@ -1471,7 +1740,17 @@ MayAliasAttr::MayAliasAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, MayAliasAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, MayAliasAttr)
-// 1: MayAliasAttr::Clone
+::pasta::MayAliasAttr MayAliasAttr::Clone(void) const noexcept {
+  auto &self = *(u.MayAliasAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::MayAliasAttr>(ast, val);
+  }
+  assert(false && "MayAliasAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view MayAliasAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::MayAliasAttr *>(u.MayAliasAttr);
   decltype(auto) val = self.getSpelling();
@@ -1491,7 +1770,17 @@ MicroMipsAttr::MicroMipsAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, MicroMipsAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, MicroMipsAttr)
-// 1: MicroMipsAttr::Clone
+::pasta::MicroMipsAttr MicroMipsAttr::Clone(void) const noexcept {
+  auto &self = *(u.MicroMipsAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::MicroMipsAttr>(ast, val);
+  }
+  assert(false && "MicroMipsAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view MicroMipsAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::MicroMipsAttr *>(u.MicroMipsAttr);
   decltype(auto) val = self.getSpelling();
@@ -1511,7 +1800,17 @@ MinSizeAttr::MinSizeAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, MinSizeAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, MinSizeAttr)
-// 1: MinSizeAttr::Clone
+::pasta::MinSizeAttr MinSizeAttr::Clone(void) const noexcept {
+  auto &self = *(u.MinSizeAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::MinSizeAttr>(ast, val);
+  }
+  assert(false && "MinSizeAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view MinSizeAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::MinSizeAttr *>(u.MinSizeAttr);
   decltype(auto) val = self.getSpelling();
@@ -1531,7 +1830,17 @@ MinVectorWidthAttr::MinVectorWidthAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, MinVectorWidthAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, MinVectorWidthAttr)
-// 1: MinVectorWidthAttr::Clone
+::pasta::MinVectorWidthAttr MinVectorWidthAttr::Clone(void) const noexcept {
+  auto &self = *(u.MinVectorWidthAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::MinVectorWidthAttr>(ast, val);
+  }
+  assert(false && "MinVectorWidthAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view MinVectorWidthAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::MinVectorWidthAttr *>(u.MinVectorWidthAttr);
   decltype(auto) val = self.getSpelling();
@@ -1558,7 +1867,17 @@ Mips16Attr::Mips16Attr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, Mips16Attr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, Mips16Attr)
-// 1: Mips16Attr::Clone
+::pasta::Mips16Attr Mips16Attr::Clone(void) const noexcept {
+  auto &self = *(u.Mips16Attr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::Mips16Attr>(ast, val);
+  }
+  assert(false && "Mips16Attr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view Mips16Attr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::Mips16Attr *>(u.Mips16Attr);
   decltype(auto) val = self.getSpelling();
@@ -1578,7 +1897,17 @@ MipsInterruptAttr::MipsInterruptAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, MipsInterruptAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, MipsInterruptAttr)
-// 1: MipsInterruptAttr::Clone
+::pasta::MipsInterruptAttr MipsInterruptAttr::Clone(void) const noexcept {
+  auto &self = *(u.MipsInterruptAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::MipsInterruptAttr>(ast, val);
+  }
+  assert(false && "MipsInterruptAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum MipsInterruptAttrInterruptType MipsInterruptAttr::Interrupt(void) const noexcept {
   auto &self = *const_cast<clang::MipsInterruptAttr *>(u.MipsInterruptAttr);
   decltype(auto) val = self.getInterrupt();
@@ -1605,7 +1934,17 @@ MipsLongCallAttr::MipsLongCallAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, MipsLongCallAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, MipsLongCallAttr)
-// 1: MipsLongCallAttr::Clone
+::pasta::MipsLongCallAttr MipsLongCallAttr::Clone(void) const noexcept {
+  auto &self = *(u.MipsLongCallAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::MipsLongCallAttr>(ast, val);
+  }
+  assert(false && "MipsLongCallAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum MipsLongCallAttrSpelling MipsLongCallAttr::SemanticSpelling(void) const noexcept {
   auto &self = *const_cast<clang::MipsLongCallAttr *>(u.MipsLongCallAttr);
   decltype(auto) val = self.getSemanticSpelling();
@@ -1632,7 +1971,17 @@ MipsShortCallAttr::MipsShortCallAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, MipsShortCallAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, MipsShortCallAttr)
-// 1: MipsShortCallAttr::Clone
+::pasta::MipsShortCallAttr MipsShortCallAttr::Clone(void) const noexcept {
+  auto &self = *(u.MipsShortCallAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::MipsShortCallAttr>(ast, val);
+  }
+  assert(false && "MipsShortCallAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum MipsShortCallAttrSpelling MipsShortCallAttr::SemanticSpelling(void) const noexcept {
   auto &self = *const_cast<clang::MipsShortCallAttr *>(u.MipsShortCallAttr);
   decltype(auto) val = self.getSemanticSpelling();
@@ -1658,7 +2007,17 @@ ModeAttr::ModeAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ModeAttr)
-// 1: ModeAttr::Clone
+::pasta::ModeAttr ModeAttr::Clone(void) const noexcept {
+  auto &self = *(u.ModeAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ModeAttr>(ast, val);
+  }
+  assert(false && "ModeAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: ModeAttr::Mode
 std::string_view ModeAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ModeAttr *>(u.ModeAttr);
@@ -1680,7 +2039,17 @@ NSConsumedAttr::NSConsumedAttr(
 PASTA_DEFINE_BASE_OPERATORS(Attr, NSConsumedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NSConsumedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableParamAttr, NSConsumedAttr)
-// 1: NSConsumedAttr::Clone
+::pasta::NSConsumedAttr NSConsumedAttr::Clone(void) const noexcept {
+  auto &self = *(u.NSConsumedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NSConsumedAttr>(ast, val);
+  }
+  assert(false && "NSConsumedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NSConsumedAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NSConsumedAttr *>(u.NSConsumedAttr);
   decltype(auto) val = self.getSpelling();
@@ -1700,7 +2069,17 @@ NSConsumesSelfAttr::NSConsumesSelfAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NSConsumesSelfAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NSConsumesSelfAttr)
-// 1: NSConsumesSelfAttr::Clone
+::pasta::NSConsumesSelfAttr NSConsumesSelfAttr::Clone(void) const noexcept {
+  auto &self = *(u.NSConsumesSelfAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NSConsumesSelfAttr>(ast, val);
+  }
+  assert(false && "NSConsumesSelfAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NSConsumesSelfAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NSConsumesSelfAttr *>(u.NSConsumesSelfAttr);
   decltype(auto) val = self.getSpelling();
@@ -1720,7 +2099,17 @@ NSErrorDomainAttr::NSErrorDomainAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NSErrorDomainAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NSErrorDomainAttr)
-// 1: NSErrorDomainAttr::Clone
+::pasta::NSErrorDomainAttr NSErrorDomainAttr::Clone(void) const noexcept {
+  auto &self = *(u.NSErrorDomainAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NSErrorDomainAttr>(ast, val);
+  }
+  assert(false && "NSErrorDomainAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 ::pasta::VarDecl NSErrorDomainAttr::ErrorDomain(void) const noexcept {
   auto &self = *const_cast<clang::NSErrorDomainAttr *>(u.NSErrorDomainAttr);
   decltype(auto) val = self.getErrorDomain();
@@ -1750,7 +2139,17 @@ NSReturnsAutoreleasedAttr::NSReturnsAutoreleasedAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NSReturnsAutoreleasedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NSReturnsAutoreleasedAttr)
-// 1: NSReturnsAutoreleasedAttr::Clone
+::pasta::NSReturnsAutoreleasedAttr NSReturnsAutoreleasedAttr::Clone(void) const noexcept {
+  auto &self = *(u.NSReturnsAutoreleasedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NSReturnsAutoreleasedAttr>(ast, val);
+  }
+  assert(false && "NSReturnsAutoreleasedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NSReturnsAutoreleasedAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NSReturnsAutoreleasedAttr *>(u.NSReturnsAutoreleasedAttr);
   decltype(auto) val = self.getSpelling();
@@ -1770,7 +2169,17 @@ NSReturnsNotRetainedAttr::NSReturnsNotRetainedAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NSReturnsNotRetainedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NSReturnsNotRetainedAttr)
-// 1: NSReturnsNotRetainedAttr::Clone
+::pasta::NSReturnsNotRetainedAttr NSReturnsNotRetainedAttr::Clone(void) const noexcept {
+  auto &self = *(u.NSReturnsNotRetainedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NSReturnsNotRetainedAttr>(ast, val);
+  }
+  assert(false && "NSReturnsNotRetainedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NSReturnsNotRetainedAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NSReturnsNotRetainedAttr *>(u.NSReturnsNotRetainedAttr);
   decltype(auto) val = self.getSpelling();
@@ -1790,7 +2199,17 @@ NSReturnsRetainedAttr::NSReturnsRetainedAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NSReturnsRetainedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NSReturnsRetainedAttr)
-// 1: NSReturnsRetainedAttr::Clone
+::pasta::NSReturnsRetainedAttr NSReturnsRetainedAttr::Clone(void) const noexcept {
+  auto &self = *(u.NSReturnsRetainedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NSReturnsRetainedAttr>(ast, val);
+  }
+  assert(false && "NSReturnsRetainedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NSReturnsRetainedAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NSReturnsRetainedAttr *>(u.NSReturnsRetainedAttr);
   decltype(auto) val = self.getSpelling();
@@ -1810,7 +2229,17 @@ NakedAttr::NakedAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NakedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NakedAttr)
-// 1: NakedAttr::Clone
+::pasta::NakedAttr NakedAttr::Clone(void) const noexcept {
+  auto &self = *(u.NakedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NakedAttr>(ast, val);
+  }
+  assert(false && "NakedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NakedAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NakedAttr *>(u.NakedAttr);
   decltype(auto) val = self.getSpelling();
@@ -1830,7 +2259,17 @@ NoAliasAttr::NoAliasAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NoAliasAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NoAliasAttr)
-// 1: NoAliasAttr::Clone
+::pasta::NoAliasAttr NoAliasAttr::Clone(void) const noexcept {
+  auto &self = *(u.NoAliasAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NoAliasAttr>(ast, val);
+  }
+  assert(false && "NoAliasAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NoAliasAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NoAliasAttr *>(u.NoAliasAttr);
   decltype(auto) val = self.getSpelling();
@@ -1853,7 +2292,17 @@ PASTA_DEFINE_BASE_OPERATORS(Attr, NoBuiltinAttr)
 // 0: NoBuiltinAttr::
 // 0: NoBuiltinAttr::
 // 0: NoBuiltinAttr::
-// 1: NoBuiltinAttr::Clone
+::pasta::NoBuiltinAttr NoBuiltinAttr::Clone(void) const noexcept {
+  auto &self = *(u.NoBuiltinAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NoBuiltinAttr>(ast, val);
+  }
+  assert(false && "NoBuiltinAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NoBuiltinAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NoBuiltinAttr *>(u.NoBuiltinAttr);
   decltype(auto) val = self.getSpelling();
@@ -1873,7 +2322,17 @@ NoCommonAttr::NoCommonAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NoCommonAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NoCommonAttr)
-// 1: NoCommonAttr::Clone
+::pasta::NoCommonAttr NoCommonAttr::Clone(void) const noexcept {
+  auto &self = *(u.NoCommonAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NoCommonAttr>(ast, val);
+  }
+  assert(false && "NoCommonAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NoCommonAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NoCommonAttr *>(u.NoCommonAttr);
   decltype(auto) val = self.getSpelling();
@@ -1893,7 +2352,17 @@ NoDebugAttr::NoDebugAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NoDebugAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NoDebugAttr)
-// 1: NoDebugAttr::Clone
+::pasta::NoDebugAttr NoDebugAttr::Clone(void) const noexcept {
+  auto &self = *(u.NoDebugAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NoDebugAttr>(ast, val);
+  }
+  assert(false && "NoDebugAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NoDebugAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NoDebugAttr *>(u.NoDebugAttr);
   decltype(auto) val = self.getSpelling();
@@ -1913,7 +2382,17 @@ NoDestroyAttr::NoDestroyAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NoDestroyAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NoDestroyAttr)
-// 1: NoDestroyAttr::Clone
+::pasta::NoDestroyAttr NoDestroyAttr::Clone(void) const noexcept {
+  auto &self = *(u.NoDestroyAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NoDestroyAttr>(ast, val);
+  }
+  assert(false && "NoDestroyAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NoDestroyAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NoDestroyAttr *>(u.NoDestroyAttr);
   decltype(auto) val = self.getSpelling();
@@ -1933,7 +2412,17 @@ NoDuplicateAttr::NoDuplicateAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NoDuplicateAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NoDuplicateAttr)
-// 1: NoDuplicateAttr::Clone
+::pasta::NoDuplicateAttr NoDuplicateAttr::Clone(void) const noexcept {
+  auto &self = *(u.NoDuplicateAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NoDuplicateAttr>(ast, val);
+  }
+  assert(false && "NoDuplicateAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NoDuplicateAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NoDuplicateAttr *>(u.NoDuplicateAttr);
   decltype(auto) val = self.getSpelling();
@@ -1952,7 +2441,17 @@ NoEscapeAttr::NoEscapeAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NoEscapeAttr)
-// 1: NoEscapeAttr::Clone
+::pasta::NoEscapeAttr NoEscapeAttr::Clone(void) const noexcept {
+  auto &self = *(u.NoEscapeAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NoEscapeAttr>(ast, val);
+  }
+  assert(false && "NoEscapeAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NoEscapeAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NoEscapeAttr *>(u.NoEscapeAttr);
   decltype(auto) val = self.getSpelling();
@@ -1972,7 +2471,17 @@ NoInlineAttr::NoInlineAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NoInlineAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NoInlineAttr)
-// 1: NoInlineAttr::Clone
+::pasta::NoInlineAttr NoInlineAttr::Clone(void) const noexcept {
+  auto &self = *(u.NoInlineAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NoInlineAttr>(ast, val);
+  }
+  assert(false && "NoInlineAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NoInlineAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NoInlineAttr *>(u.NoInlineAttr);
   decltype(auto) val = self.getSpelling();
@@ -1992,7 +2501,17 @@ NoInstrumentFunctionAttr::NoInstrumentFunctionAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NoInstrumentFunctionAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NoInstrumentFunctionAttr)
-// 1: NoInstrumentFunctionAttr::Clone
+::pasta::NoInstrumentFunctionAttr NoInstrumentFunctionAttr::Clone(void) const noexcept {
+  auto &self = *(u.NoInstrumentFunctionAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NoInstrumentFunctionAttr>(ast, val);
+  }
+  assert(false && "NoInstrumentFunctionAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NoInstrumentFunctionAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NoInstrumentFunctionAttr *>(u.NoInstrumentFunctionAttr);
   decltype(auto) val = self.getSpelling();
@@ -2012,7 +2531,17 @@ NoMicroMipsAttr::NoMicroMipsAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NoMicroMipsAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NoMicroMipsAttr)
-// 1: NoMicroMipsAttr::Clone
+::pasta::NoMicroMipsAttr NoMicroMipsAttr::Clone(void) const noexcept {
+  auto &self = *(u.NoMicroMipsAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NoMicroMipsAttr>(ast, val);
+  }
+  assert(false && "NoMicroMipsAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NoMicroMipsAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NoMicroMipsAttr *>(u.NoMicroMipsAttr);
   decltype(auto) val = self.getSpelling();
@@ -2032,7 +2561,17 @@ NoMips16Attr::NoMips16Attr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NoMips16Attr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NoMips16Attr)
-// 1: NoMips16Attr::Clone
+::pasta::NoMips16Attr NoMips16Attr::Clone(void) const noexcept {
+  auto &self = *(u.NoMips16Attr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NoMips16Attr>(ast, val);
+  }
+  assert(false && "NoMips16Attr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NoMips16Attr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NoMips16Attr *>(u.NoMips16Attr);
   decltype(auto) val = self.getSpelling();
@@ -2052,7 +2591,17 @@ NoProfileFunctionAttr::NoProfileFunctionAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NoProfileFunctionAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NoProfileFunctionAttr)
-// 1: NoProfileFunctionAttr::Clone
+::pasta::NoProfileFunctionAttr NoProfileFunctionAttr::Clone(void) const noexcept {
+  auto &self = *(u.NoProfileFunctionAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NoProfileFunctionAttr>(ast, val);
+  }
+  assert(false && "NoProfileFunctionAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NoProfileFunctionAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NoProfileFunctionAttr *>(u.NoProfileFunctionAttr);
   decltype(auto) val = self.getSpelling();
@@ -2072,7 +2621,17 @@ NoReturnAttr::NoReturnAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NoReturnAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NoReturnAttr)
-// 1: NoReturnAttr::Clone
+::pasta::NoReturnAttr NoReturnAttr::Clone(void) const noexcept {
+  auto &self = *(u.NoReturnAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NoReturnAttr>(ast, val);
+  }
+  assert(false && "NoReturnAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NoReturnAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NoReturnAttr *>(u.NoReturnAttr);
   decltype(auto) val = self.getSpelling();
@@ -2092,7 +2651,17 @@ NoSanitizeAttr::NoSanitizeAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NoSanitizeAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NoSanitizeAttr)
-// 1: NoSanitizeAttr::Clone
+::pasta::NoSanitizeAttr NoSanitizeAttr::Clone(void) const noexcept {
+  auto &self = *(u.NoSanitizeAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NoSanitizeAttr>(ast, val);
+  }
+  assert(false && "NoSanitizeAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: NoSanitizeAttr::Mask
 std::string_view NoSanitizeAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NoSanitizeAttr *>(u.NoSanitizeAttr);
@@ -2124,7 +2693,17 @@ NoSpeculativeLoadHardeningAttr::NoSpeculativeLoadHardeningAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NoSpeculativeLoadHardeningAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NoSpeculativeLoadHardeningAttr)
-// 1: NoSpeculativeLoadHardeningAttr::Clone
+::pasta::NoSpeculativeLoadHardeningAttr NoSpeculativeLoadHardeningAttr::Clone(void) const noexcept {
+  auto &self = *(u.NoSpeculativeLoadHardeningAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NoSpeculativeLoadHardeningAttr>(ast, val);
+  }
+  assert(false && "NoSpeculativeLoadHardeningAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NoSpeculativeLoadHardeningAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NoSpeculativeLoadHardeningAttr *>(u.NoSpeculativeLoadHardeningAttr);
   decltype(auto) val = self.getSpelling();
@@ -2144,7 +2723,17 @@ NoSplitStackAttr::NoSplitStackAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NoSplitStackAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NoSplitStackAttr)
-// 1: NoSplitStackAttr::Clone
+::pasta::NoSplitStackAttr NoSplitStackAttr::Clone(void) const noexcept {
+  auto &self = *(u.NoSplitStackAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NoSplitStackAttr>(ast, val);
+  }
+  assert(false && "NoSplitStackAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NoSplitStackAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NoSplitStackAttr *>(u.NoSplitStackAttr);
   decltype(auto) val = self.getSpelling();
@@ -2164,7 +2753,17 @@ NoStackProtectorAttr::NoStackProtectorAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NoStackProtectorAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NoStackProtectorAttr)
-// 1: NoStackProtectorAttr::Clone
+::pasta::NoStackProtectorAttr NoStackProtectorAttr::Clone(void) const noexcept {
+  auto &self = *(u.NoStackProtectorAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NoStackProtectorAttr>(ast, val);
+  }
+  assert(false && "NoStackProtectorAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NoStackProtectorAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NoStackProtectorAttr *>(u.NoStackProtectorAttr);
   decltype(auto) val = self.getSpelling();
@@ -2184,7 +2783,17 @@ NoThreadSafetyAnalysisAttr::NoThreadSafetyAnalysisAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NoThreadSafetyAnalysisAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NoThreadSafetyAnalysisAttr)
-// 1: NoThreadSafetyAnalysisAttr::Clone
+::pasta::NoThreadSafetyAnalysisAttr NoThreadSafetyAnalysisAttr::Clone(void) const noexcept {
+  auto &self = *(u.NoThreadSafetyAnalysisAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NoThreadSafetyAnalysisAttr>(ast, val);
+  }
+  assert(false && "NoThreadSafetyAnalysisAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NoThreadSafetyAnalysisAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NoThreadSafetyAnalysisAttr *>(u.NoThreadSafetyAnalysisAttr);
   decltype(auto) val = self.getSpelling();
@@ -2204,7 +2813,17 @@ NoThrowAttr::NoThrowAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NoThrowAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NoThrowAttr)
-// 1: NoThrowAttr::Clone
+::pasta::NoThrowAttr NoThrowAttr::Clone(void) const noexcept {
+  auto &self = *(u.NoThrowAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NoThrowAttr>(ast, val);
+  }
+  assert(false && "NoThrowAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NoThrowAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NoThrowAttr *>(u.NoThrowAttr);
   decltype(auto) val = self.getSpelling();
@@ -2224,7 +2843,17 @@ NoUniqueAddressAttr::NoUniqueAddressAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NoUniqueAddressAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NoUniqueAddressAttr)
-// 1: NoUniqueAddressAttr::Clone
+::pasta::NoUniqueAddressAttr NoUniqueAddressAttr::Clone(void) const noexcept {
+  auto &self = *(u.NoUniqueAddressAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NoUniqueAddressAttr>(ast, val);
+  }
+  assert(false && "NoUniqueAddressAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NoUniqueAddressAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NoUniqueAddressAttr *>(u.NoUniqueAddressAttr);
   decltype(auto) val = self.getSpelling();
@@ -2249,7 +2878,17 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableParamAttr, NonNullAttr)
 // 0: NonNullAttr::
 // 0: NonNullAttr::
 // 0: NonNullAttr::
-// 1: NonNullAttr::Clone
+::pasta::NonNullAttr NonNullAttr::Clone(void) const noexcept {
+  auto &self = *(u.NonNullAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NonNullAttr>(ast, val);
+  }
+  assert(false && "NonNullAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NonNullAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NonNullAttr *>(u.NonNullAttr);
   decltype(auto) val = self.getSpelling();
@@ -2270,7 +2909,17 @@ NotTailCalledAttr::NotTailCalledAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NotTailCalledAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NotTailCalledAttr)
-// 1: NotTailCalledAttr::Clone
+::pasta::NotTailCalledAttr NotTailCalledAttr::Clone(void) const noexcept {
+  auto &self = *(u.NotTailCalledAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NotTailCalledAttr>(ast, val);
+  }
+  assert(false && "NotTailCalledAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NotTailCalledAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NotTailCalledAttr *>(u.NotTailCalledAttr);
   decltype(auto) val = self.getSpelling();
@@ -2290,7 +2939,17 @@ OMPAllocateDeclAttr::OMPAllocateDeclAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OMPAllocateDeclAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, OMPAllocateDeclAttr)
-// 1: OMPAllocateDeclAttr::Clone
+::pasta::OMPAllocateDeclAttr OMPAllocateDeclAttr::Clone(void) const noexcept {
+  auto &self = *(u.OMPAllocateDeclAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OMPAllocateDeclAttr>(ast, val);
+  }
+  assert(false && "OMPAllocateDeclAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 ::pasta::Expr OMPAllocateDeclAttr::Alignment(void) const noexcept {
   auto &self = *const_cast<clang::OMPAllocateDeclAttr *>(u.OMPAllocateDeclAttr);
   decltype(auto) val = self.getAlignment();
@@ -2336,7 +2995,17 @@ OMPCaptureKindAttr::OMPCaptureKindAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OMPCaptureKindAttr)
-// 1: OMPCaptureKindAttr::Clone
+::pasta::OMPCaptureKindAttr OMPCaptureKindAttr::Clone(void) const noexcept {
+  auto &self = *(u.OMPCaptureKindAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OMPCaptureKindAttr>(ast, val);
+  }
+  assert(false && "OMPCaptureKindAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: OMPCaptureKindAttr::CaptureKind
 uint32_t OMPCaptureKindAttr::CaptureKindValue(void) const noexcept {
   auto &self = *const_cast<clang::OMPCaptureKindAttr *>(u.OMPCaptureKindAttr);
@@ -2364,7 +3033,17 @@ OMPCaptureNoInitAttr::OMPCaptureNoInitAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OMPCaptureNoInitAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, OMPCaptureNoInitAttr)
-// 1: OMPCaptureNoInitAttr::Clone
+::pasta::OMPCaptureNoInitAttr OMPCaptureNoInitAttr::Clone(void) const noexcept {
+  auto &self = *(u.OMPCaptureNoInitAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OMPCaptureNoInitAttr>(ast, val);
+  }
+  assert(false && "OMPCaptureNoInitAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view OMPCaptureNoInitAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::OMPCaptureNoInitAttr *>(u.OMPCaptureNoInitAttr);
   decltype(auto) val = self.getSpelling();
@@ -2391,7 +3070,17 @@ PASTA_DEFINE_BASE_OPERATORS(Attr, OMPDeclareSimdDeclAttr)
 // 0: OMPDeclareSimdDeclAttr::
 // 0: OMPDeclareSimdDeclAttr::
 // 0: OMPDeclareSimdDeclAttr::
-// 1: OMPDeclareSimdDeclAttr::Clone
+::pasta::OMPDeclareSimdDeclAttr OMPDeclareSimdDeclAttr::Clone(void) const noexcept {
+  auto &self = *(u.OMPDeclareSimdDeclAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OMPDeclareSimdDeclAttr>(ast, val);
+  }
+  assert(false && "OMPDeclareSimdDeclAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum OMPDeclareSimdDeclAttrBranchStateTy OMPDeclareSimdDeclAttr::BranchState(void) const noexcept {
   auto &self = *const_cast<clang::OMPDeclareSimdDeclAttr *>(u.OMPDeclareSimdDeclAttr);
   decltype(auto) val = self.getBranchState();
@@ -2444,7 +3133,17 @@ OMPDeclareTargetDeclAttr::OMPDeclareTargetDeclAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OMPDeclareTargetDeclAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, OMPDeclareTargetDeclAttr)
-// 1: OMPDeclareTargetDeclAttr::Clone
+::pasta::OMPDeclareTargetDeclAttr OMPDeclareTargetDeclAttr::Clone(void) const noexcept {
+  auto &self = *(u.OMPDeclareTargetDeclAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OMPDeclareTargetDeclAttr>(ast, val);
+  }
+  assert(false && "OMPDeclareTargetDeclAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum OMPDeclareTargetDeclAttrDevTypeTy OMPDeclareTargetDeclAttr::DevType(void) const noexcept {
   auto &self = *const_cast<clang::OMPDeclareTargetDeclAttr *>(u.OMPDeclareTargetDeclAttr);
   decltype(auto) val = self.getDevType();
@@ -2514,7 +3213,17 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, OMPDeclareVariantAttr)
 // 0: OMPDeclareVariantAttr::
 // 0: OMPDeclareVariantAttr::
 // 0: OMPDeclareVariantAttr::
-// 1: OMPDeclareVariantAttr::Clone
+::pasta::OMPDeclareVariantAttr OMPDeclareVariantAttr::Clone(void) const noexcept {
+  auto &self = *(u.OMPDeclareVariantAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OMPDeclareVariantAttr>(ast, val);
+  }
+  assert(false && "OMPDeclareVariantAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view OMPDeclareVariantAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::OMPDeclareVariantAttr *>(u.OMPDeclareVariantAttr);
   decltype(auto) val = self.getSpelling();
@@ -2544,7 +3253,17 @@ OMPReferencedVarAttr::OMPReferencedVarAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OMPReferencedVarAttr)
-// 1: OMPReferencedVarAttr::Clone
+::pasta::OMPReferencedVarAttr OMPReferencedVarAttr::Clone(void) const noexcept {
+  auto &self = *(u.OMPReferencedVarAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OMPReferencedVarAttr>(ast, val);
+  }
+  assert(false && "OMPReferencedVarAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 ::pasta::Expr OMPReferencedVarAttr::Reference(void) const noexcept {
   auto &self = *const_cast<clang::OMPReferencedVarAttr *>(u.OMPReferencedVarAttr);
   decltype(auto) val = self.getRef();
@@ -2574,7 +3293,17 @@ OMPThreadPrivateDeclAttr::OMPThreadPrivateDeclAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OMPThreadPrivateDeclAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, OMPThreadPrivateDeclAttr)
-// 1: OMPThreadPrivateDeclAttr::Clone
+::pasta::OMPThreadPrivateDeclAttr OMPThreadPrivateDeclAttr::Clone(void) const noexcept {
+  auto &self = *(u.OMPThreadPrivateDeclAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OMPThreadPrivateDeclAttr>(ast, val);
+  }
+  assert(false && "OMPThreadPrivateDeclAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view OMPThreadPrivateDeclAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::OMPThreadPrivateDeclAttr *>(u.OMPThreadPrivateDeclAttr);
   decltype(auto) val = self.getSpelling();
@@ -2595,7 +3324,17 @@ OSConsumedAttr::OSConsumedAttr(
 PASTA_DEFINE_BASE_OPERATORS(Attr, OSConsumedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, OSConsumedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableParamAttr, OSConsumedAttr)
-// 1: OSConsumedAttr::Clone
+::pasta::OSConsumedAttr OSConsumedAttr::Clone(void) const noexcept {
+  auto &self = *(u.OSConsumedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OSConsumedAttr>(ast, val);
+  }
+  assert(false && "OSConsumedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view OSConsumedAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::OSConsumedAttr *>(u.OSConsumedAttr);
   decltype(auto) val = self.getSpelling();
@@ -2615,7 +3354,17 @@ OSConsumesThisAttr::OSConsumesThisAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OSConsumesThisAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, OSConsumesThisAttr)
-// 1: OSConsumesThisAttr::Clone
+::pasta::OSConsumesThisAttr OSConsumesThisAttr::Clone(void) const noexcept {
+  auto &self = *(u.OSConsumesThisAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OSConsumesThisAttr>(ast, val);
+  }
+  assert(false && "OSConsumesThisAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view OSConsumesThisAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::OSConsumesThisAttr *>(u.OSConsumesThisAttr);
   decltype(auto) val = self.getSpelling();
@@ -2635,7 +3384,17 @@ OSReturnsNotRetainedAttr::OSReturnsNotRetainedAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OSReturnsNotRetainedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, OSReturnsNotRetainedAttr)
-// 1: OSReturnsNotRetainedAttr::Clone
+::pasta::OSReturnsNotRetainedAttr OSReturnsNotRetainedAttr::Clone(void) const noexcept {
+  auto &self = *(u.OSReturnsNotRetainedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OSReturnsNotRetainedAttr>(ast, val);
+  }
+  assert(false && "OSReturnsNotRetainedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view OSReturnsNotRetainedAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::OSReturnsNotRetainedAttr *>(u.OSReturnsNotRetainedAttr);
   decltype(auto) val = self.getSpelling();
@@ -2655,7 +3414,17 @@ OSReturnsRetainedAttr::OSReturnsRetainedAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OSReturnsRetainedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, OSReturnsRetainedAttr)
-// 1: OSReturnsRetainedAttr::Clone
+::pasta::OSReturnsRetainedAttr OSReturnsRetainedAttr::Clone(void) const noexcept {
+  auto &self = *(u.OSReturnsRetainedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OSReturnsRetainedAttr>(ast, val);
+  }
+  assert(false && "OSReturnsRetainedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view OSReturnsRetainedAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::OSReturnsRetainedAttr *>(u.OSReturnsRetainedAttr);
   decltype(auto) val = self.getSpelling();
@@ -2675,7 +3444,17 @@ OSReturnsRetainedOnNonZeroAttr::OSReturnsRetainedOnNonZeroAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OSReturnsRetainedOnNonZeroAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, OSReturnsRetainedOnNonZeroAttr)
-// 1: OSReturnsRetainedOnNonZeroAttr::Clone
+::pasta::OSReturnsRetainedOnNonZeroAttr OSReturnsRetainedOnNonZeroAttr::Clone(void) const noexcept {
+  auto &self = *(u.OSReturnsRetainedOnNonZeroAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OSReturnsRetainedOnNonZeroAttr>(ast, val);
+  }
+  assert(false && "OSReturnsRetainedOnNonZeroAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view OSReturnsRetainedOnNonZeroAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::OSReturnsRetainedOnNonZeroAttr *>(u.OSReturnsRetainedOnNonZeroAttr);
   decltype(auto) val = self.getSpelling();
@@ -2695,7 +3474,17 @@ OSReturnsRetainedOnZeroAttr::OSReturnsRetainedOnZeroAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OSReturnsRetainedOnZeroAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, OSReturnsRetainedOnZeroAttr)
-// 1: OSReturnsRetainedOnZeroAttr::Clone
+::pasta::OSReturnsRetainedOnZeroAttr OSReturnsRetainedOnZeroAttr::Clone(void) const noexcept {
+  auto &self = *(u.OSReturnsRetainedOnZeroAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OSReturnsRetainedOnZeroAttr>(ast, val);
+  }
+  assert(false && "OSReturnsRetainedOnZeroAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view OSReturnsRetainedOnZeroAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::OSReturnsRetainedOnZeroAttr *>(u.OSReturnsRetainedOnZeroAttr);
   decltype(auto) val = self.getSpelling();
@@ -2714,7 +3503,17 @@ ObjCBoxableAttr::ObjCBoxableAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCBoxableAttr)
-// 1: ObjCBoxableAttr::Clone
+::pasta::ObjCBoxableAttr ObjCBoxableAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCBoxableAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCBoxableAttr>(ast, val);
+  }
+  assert(false && "ObjCBoxableAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ObjCBoxableAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCBoxableAttr *>(u.ObjCBoxableAttr);
   decltype(auto) val = self.getSpelling();
@@ -2734,7 +3533,17 @@ ObjCBridgeAttr::ObjCBridgeAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCBridgeAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ObjCBridgeAttr)
-// 1: ObjCBridgeAttr::Clone
+::pasta::ObjCBridgeAttr ObjCBridgeAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCBridgeAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCBridgeAttr>(ast, val);
+  }
+  assert(false && "ObjCBridgeAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: ObjCBridgeAttr::BridgedType
 std::string_view ObjCBridgeAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCBridgeAttr *>(u.ObjCBridgeAttr);
@@ -2755,7 +3564,17 @@ ObjCBridgeMutableAttr::ObjCBridgeMutableAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCBridgeMutableAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ObjCBridgeMutableAttr)
-// 1: ObjCBridgeMutableAttr::Clone
+::pasta::ObjCBridgeMutableAttr ObjCBridgeMutableAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCBridgeMutableAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCBridgeMutableAttr>(ast, val);
+  }
+  assert(false && "ObjCBridgeMutableAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: ObjCBridgeMutableAttr::BridgedType
 std::string_view ObjCBridgeMutableAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCBridgeMutableAttr *>(u.ObjCBridgeMutableAttr);
@@ -2776,7 +3595,17 @@ ObjCBridgeRelatedAttr::ObjCBridgeRelatedAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCBridgeRelatedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ObjCBridgeRelatedAttr)
-// 1: ObjCBridgeRelatedAttr::Clone
+::pasta::ObjCBridgeRelatedAttr ObjCBridgeRelatedAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCBridgeRelatedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCBridgeRelatedAttr>(ast, val);
+  }
+  assert(false && "ObjCBridgeRelatedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: ObjCBridgeRelatedAttr::ClassMethod
 // 0: ObjCBridgeRelatedAttr::InstanceMethod
 // 0: ObjCBridgeRelatedAttr::RelatedClass
@@ -2798,7 +3627,17 @@ ObjCClassStubAttr::ObjCClassStubAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCClassStubAttr)
-// 1: ObjCClassStubAttr::Clone
+::pasta::ObjCClassStubAttr ObjCClassStubAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCClassStubAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCClassStubAttr>(ast, val);
+  }
+  assert(false && "ObjCClassStubAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ObjCClassStubAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCClassStubAttr *>(u.ObjCClassStubAttr);
   decltype(auto) val = self.getSpelling();
@@ -2817,7 +3656,17 @@ ObjCDesignatedInitializerAttr::ObjCDesignatedInitializerAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCDesignatedInitializerAttr)
-// 1: ObjCDesignatedInitializerAttr::Clone
+::pasta::ObjCDesignatedInitializerAttr ObjCDesignatedInitializerAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCDesignatedInitializerAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCDesignatedInitializerAttr>(ast, val);
+  }
+  assert(false && "ObjCDesignatedInitializerAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ObjCDesignatedInitializerAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCDesignatedInitializerAttr *>(u.ObjCDesignatedInitializerAttr);
   decltype(auto) val = self.getSpelling();
@@ -2836,7 +3685,17 @@ ObjCDirectAttr::ObjCDirectAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCDirectAttr)
-// 1: ObjCDirectAttr::Clone
+::pasta::ObjCDirectAttr ObjCDirectAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCDirectAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCDirectAttr>(ast, val);
+  }
+  assert(false && "ObjCDirectAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ObjCDirectAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCDirectAttr *>(u.ObjCDirectAttr);
   decltype(auto) val = self.getSpelling();
@@ -2855,7 +3714,17 @@ ObjCDirectMembersAttr::ObjCDirectMembersAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCDirectMembersAttr)
-// 1: ObjCDirectMembersAttr::Clone
+::pasta::ObjCDirectMembersAttr ObjCDirectMembersAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCDirectMembersAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCDirectMembersAttr>(ast, val);
+  }
+  assert(false && "ObjCDirectMembersAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ObjCDirectMembersAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCDirectMembersAttr *>(u.ObjCDirectMembersAttr);
   decltype(auto) val = self.getSpelling();
@@ -2875,7 +3744,17 @@ ObjCExceptionAttr::ObjCExceptionAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCExceptionAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ObjCExceptionAttr)
-// 1: ObjCExceptionAttr::Clone
+::pasta::ObjCExceptionAttr ObjCExceptionAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCExceptionAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCExceptionAttr>(ast, val);
+  }
+  assert(false && "ObjCExceptionAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ObjCExceptionAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCExceptionAttr *>(u.ObjCExceptionAttr);
   decltype(auto) val = self.getSpelling();
@@ -2895,7 +3774,17 @@ ObjCExplicitProtocolImplAttr::ObjCExplicitProtocolImplAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCExplicitProtocolImplAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ObjCExplicitProtocolImplAttr)
-// 1: ObjCExplicitProtocolImplAttr::Clone
+::pasta::ObjCExplicitProtocolImplAttr ObjCExplicitProtocolImplAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCExplicitProtocolImplAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCExplicitProtocolImplAttr>(ast, val);
+  }
+  assert(false && "ObjCExplicitProtocolImplAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ObjCExplicitProtocolImplAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCExplicitProtocolImplAttr *>(u.ObjCExplicitProtocolImplAttr);
   decltype(auto) val = self.getSpelling();
@@ -2915,7 +3804,17 @@ ObjCExternallyRetainedAttr::ObjCExternallyRetainedAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCExternallyRetainedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ObjCExternallyRetainedAttr)
-// 1: ObjCExternallyRetainedAttr::Clone
+::pasta::ObjCExternallyRetainedAttr ObjCExternallyRetainedAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCExternallyRetainedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCExternallyRetainedAttr>(ast, val);
+  }
+  assert(false && "ObjCExternallyRetainedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ObjCExternallyRetainedAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCExternallyRetainedAttr *>(u.ObjCExternallyRetainedAttr);
   decltype(auto) val = self.getSpelling();
@@ -2935,7 +3834,17 @@ ObjCIndependentClassAttr::ObjCIndependentClassAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCIndependentClassAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ObjCIndependentClassAttr)
-// 1: ObjCIndependentClassAttr::Clone
+::pasta::ObjCIndependentClassAttr ObjCIndependentClassAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCIndependentClassAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCIndependentClassAttr>(ast, val);
+  }
+  assert(false && "ObjCIndependentClassAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ObjCIndependentClassAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCIndependentClassAttr *>(u.ObjCIndependentClassAttr);
   decltype(auto) val = self.getSpelling();
@@ -2955,7 +3864,17 @@ ObjCMethodFamilyAttr::ObjCMethodFamilyAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCMethodFamilyAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ObjCMethodFamilyAttr)
-// 1: ObjCMethodFamilyAttr::Clone
+::pasta::ObjCMethodFamilyAttr ObjCMethodFamilyAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCMethodFamilyAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCMethodFamilyAttr>(ast, val);
+  }
+  assert(false && "ObjCMethodFamilyAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum ObjCMethodFamilyAttrFamilyKind ObjCMethodFamilyAttr::Family(void) const noexcept {
   auto &self = *const_cast<clang::ObjCMethodFamilyAttr *>(u.ObjCMethodFamilyAttr);
   decltype(auto) val = self.getFamily();
@@ -2982,7 +3901,17 @@ ObjCNSObjectAttr::ObjCNSObjectAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCNSObjectAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ObjCNSObjectAttr)
-// 1: ObjCNSObjectAttr::Clone
+::pasta::ObjCNSObjectAttr ObjCNSObjectAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCNSObjectAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCNSObjectAttr>(ast, val);
+  }
+  assert(false && "ObjCNSObjectAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ObjCNSObjectAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCNSObjectAttr *>(u.ObjCNSObjectAttr);
   decltype(auto) val = self.getSpelling();
@@ -3001,7 +3930,17 @@ ObjCNonLazyClassAttr::ObjCNonLazyClassAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCNonLazyClassAttr)
-// 1: ObjCNonLazyClassAttr::Clone
+::pasta::ObjCNonLazyClassAttr ObjCNonLazyClassAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCNonLazyClassAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCNonLazyClassAttr>(ast, val);
+  }
+  assert(false && "ObjCNonLazyClassAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ObjCNonLazyClassAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCNonLazyClassAttr *>(u.ObjCNonLazyClassAttr);
   decltype(auto) val = self.getSpelling();
@@ -3020,7 +3959,17 @@ ObjCNonRuntimeProtocolAttr::ObjCNonRuntimeProtocolAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCNonRuntimeProtocolAttr)
-// 1: ObjCNonRuntimeProtocolAttr::Clone
+::pasta::ObjCNonRuntimeProtocolAttr ObjCNonRuntimeProtocolAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCNonRuntimeProtocolAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCNonRuntimeProtocolAttr>(ast, val);
+  }
+  assert(false && "ObjCNonRuntimeProtocolAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ObjCNonRuntimeProtocolAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCNonRuntimeProtocolAttr *>(u.ObjCNonRuntimeProtocolAttr);
   decltype(auto) val = self.getSpelling();
@@ -3040,7 +3989,17 @@ ObjCOwnershipAttr::ObjCOwnershipAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCOwnershipAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ObjCOwnershipAttr)
-// 1: ObjCOwnershipAttr::Clone
+::pasta::ObjCOwnershipAttr ObjCOwnershipAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCOwnershipAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCOwnershipAttr>(ast, val);
+  }
+  assert(false && "ObjCOwnershipAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: ObjCOwnershipAttr::Kind
 std::string_view ObjCOwnershipAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCOwnershipAttr *>(u.ObjCOwnershipAttr);
@@ -3061,7 +4020,17 @@ ObjCPreciseLifetimeAttr::ObjCPreciseLifetimeAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCPreciseLifetimeAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ObjCPreciseLifetimeAttr)
-// 1: ObjCPreciseLifetimeAttr::Clone
+::pasta::ObjCPreciseLifetimeAttr ObjCPreciseLifetimeAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCPreciseLifetimeAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCPreciseLifetimeAttr>(ast, val);
+  }
+  assert(false && "ObjCPreciseLifetimeAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ObjCPreciseLifetimeAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCPreciseLifetimeAttr *>(u.ObjCPreciseLifetimeAttr);
   decltype(auto) val = self.getSpelling();
@@ -3081,7 +4050,17 @@ ObjCRequiresPropertyDefsAttr::ObjCRequiresPropertyDefsAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCRequiresPropertyDefsAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ObjCRequiresPropertyDefsAttr)
-// 1: ObjCRequiresPropertyDefsAttr::Clone
+::pasta::ObjCRequiresPropertyDefsAttr ObjCRequiresPropertyDefsAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCRequiresPropertyDefsAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCRequiresPropertyDefsAttr>(ast, val);
+  }
+  assert(false && "ObjCRequiresPropertyDefsAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ObjCRequiresPropertyDefsAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCRequiresPropertyDefsAttr *>(u.ObjCRequiresPropertyDefsAttr);
   decltype(auto) val = self.getSpelling();
@@ -3101,7 +4080,17 @@ ObjCRequiresSuperAttr::ObjCRequiresSuperAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCRequiresSuperAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ObjCRequiresSuperAttr)
-// 1: ObjCRequiresSuperAttr::Clone
+::pasta::ObjCRequiresSuperAttr ObjCRequiresSuperAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCRequiresSuperAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCRequiresSuperAttr>(ast, val);
+  }
+  assert(false && "ObjCRequiresSuperAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ObjCRequiresSuperAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCRequiresSuperAttr *>(u.ObjCRequiresSuperAttr);
   decltype(auto) val = self.getSpelling();
@@ -3121,7 +4110,17 @@ ObjCReturnsInnerPointerAttr::ObjCReturnsInnerPointerAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCReturnsInnerPointerAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ObjCReturnsInnerPointerAttr)
-// 1: ObjCReturnsInnerPointerAttr::Clone
+::pasta::ObjCReturnsInnerPointerAttr ObjCReturnsInnerPointerAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCReturnsInnerPointerAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCReturnsInnerPointerAttr>(ast, val);
+  }
+  assert(false && "ObjCReturnsInnerPointerAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ObjCReturnsInnerPointerAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCReturnsInnerPointerAttr *>(u.ObjCReturnsInnerPointerAttr);
   decltype(auto) val = self.getSpelling();
@@ -3141,7 +4140,17 @@ ObjCRootClassAttr::ObjCRootClassAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCRootClassAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ObjCRootClassAttr)
-// 1: ObjCRootClassAttr::Clone
+::pasta::ObjCRootClassAttr ObjCRootClassAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCRootClassAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCRootClassAttr>(ast, val);
+  }
+  assert(false && "ObjCRootClassAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ObjCRootClassAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCRootClassAttr *>(u.ObjCRootClassAttr);
   decltype(auto) val = self.getSpelling();
@@ -3160,7 +4169,17 @@ ObjCRuntimeNameAttr::ObjCRuntimeNameAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCRuntimeNameAttr)
-// 1: ObjCRuntimeNameAttr::Clone
+::pasta::ObjCRuntimeNameAttr ObjCRuntimeNameAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCRuntimeNameAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCRuntimeNameAttr>(ast, val);
+  }
+  assert(false && "ObjCRuntimeNameAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ObjCRuntimeNameAttr::MetadataName(void) const noexcept {
   auto &self = *const_cast<clang::ObjCRuntimeNameAttr *>(u.ObjCRuntimeNameAttr);
   decltype(auto) val = self.getMetadataName();
@@ -3197,7 +4216,17 @@ ObjCRuntimeVisibleAttr::ObjCRuntimeVisibleAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCRuntimeVisibleAttr)
-// 1: ObjCRuntimeVisibleAttr::Clone
+::pasta::ObjCRuntimeVisibleAttr ObjCRuntimeVisibleAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCRuntimeVisibleAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCRuntimeVisibleAttr>(ast, val);
+  }
+  assert(false && "ObjCRuntimeVisibleAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ObjCRuntimeVisibleAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCRuntimeVisibleAttr *>(u.ObjCRuntimeVisibleAttr);
   decltype(auto) val = self.getSpelling();
@@ -3217,7 +4246,17 @@ ObjCSubclassingRestrictedAttr::ObjCSubclassingRestrictedAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCSubclassingRestrictedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ObjCSubclassingRestrictedAttr)
-// 1: ObjCSubclassingRestrictedAttr::Clone
+::pasta::ObjCSubclassingRestrictedAttr ObjCSubclassingRestrictedAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCSubclassingRestrictedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCSubclassingRestrictedAttr>(ast, val);
+  }
+  assert(false && "ObjCSubclassingRestrictedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ObjCSubclassingRestrictedAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCSubclassingRestrictedAttr *>(u.ObjCSubclassingRestrictedAttr);
   decltype(auto) val = self.getSpelling();
@@ -3236,7 +4275,17 @@ OpenCLAccessAttr::OpenCLAccessAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OpenCLAccessAttr)
-// 1: OpenCLAccessAttr::Clone
+::pasta::OpenCLAccessAttr OpenCLAccessAttr::Clone(void) const noexcept {
+  auto &self = *(u.OpenCLAccessAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OpenCLAccessAttr>(ast, val);
+  }
+  assert(false && "OpenCLAccessAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum OpenCLAccessAttrSpelling OpenCLAccessAttr::SemanticSpelling(void) const noexcept {
   auto &self = *const_cast<clang::OpenCLAccessAttr *>(u.OpenCLAccessAttr);
   decltype(auto) val = self.getSemanticSpelling();
@@ -3284,7 +4333,17 @@ OpenCLIntelReqdSubGroupSizeAttr::OpenCLIntelReqdSubGroupSizeAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OpenCLIntelReqdSubGroupSizeAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, OpenCLIntelReqdSubGroupSizeAttr)
-// 1: OpenCLIntelReqdSubGroupSizeAttr::Clone
+::pasta::OpenCLIntelReqdSubGroupSizeAttr OpenCLIntelReqdSubGroupSizeAttr::Clone(void) const noexcept {
+  auto &self = *(u.OpenCLIntelReqdSubGroupSizeAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OpenCLIntelReqdSubGroupSizeAttr>(ast, val);
+  }
+  assert(false && "OpenCLIntelReqdSubGroupSizeAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view OpenCLIntelReqdSubGroupSizeAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::OpenCLIntelReqdSubGroupSizeAttr *>(u.OpenCLIntelReqdSubGroupSizeAttr);
   decltype(auto) val = self.getSpelling();
@@ -3311,7 +4370,17 @@ OpenCLKernelAttr::OpenCLKernelAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OpenCLKernelAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, OpenCLKernelAttr)
-// 1: OpenCLKernelAttr::Clone
+::pasta::OpenCLKernelAttr OpenCLKernelAttr::Clone(void) const noexcept {
+  auto &self = *(u.OpenCLKernelAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OpenCLKernelAttr>(ast, val);
+  }
+  assert(false && "OpenCLKernelAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view OpenCLKernelAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::OpenCLKernelAttr *>(u.OpenCLKernelAttr);
   decltype(auto) val = self.getSpelling();
@@ -3331,7 +4400,17 @@ OptimizeNoneAttr::OptimizeNoneAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OptimizeNoneAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, OptimizeNoneAttr)
-// 1: OptimizeNoneAttr::Clone
+::pasta::OptimizeNoneAttr OptimizeNoneAttr::Clone(void) const noexcept {
+  auto &self = *(u.OptimizeNoneAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OptimizeNoneAttr>(ast, val);
+  }
+  assert(false && "OptimizeNoneAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view OptimizeNoneAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::OptimizeNoneAttr *>(u.OptimizeNoneAttr);
   decltype(auto) val = self.getSpelling();
@@ -3350,7 +4429,17 @@ OverloadableAttr::OverloadableAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OverloadableAttr)
-// 1: OverloadableAttr::Clone
+::pasta::OverloadableAttr OverloadableAttr::Clone(void) const noexcept {
+  auto &self = *(u.OverloadableAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OverloadableAttr>(ast, val);
+  }
+  assert(false && "OverloadableAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view OverloadableAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::OverloadableAttr *>(u.OverloadableAttr);
   decltype(auto) val = self.getSpelling();
@@ -3370,7 +4459,17 @@ OverrideAttr::OverrideAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OverrideAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, OverrideAttr)
-// 1: OverrideAttr::Clone
+::pasta::OverrideAttr OverrideAttr::Clone(void) const noexcept {
+  auto &self = *(u.OverrideAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OverrideAttr>(ast, val);
+  }
+  assert(false && "OverrideAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view OverrideAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::OverrideAttr *>(u.OverrideAttr);
   decltype(auto) val = self.getSpelling();
@@ -3390,7 +4489,17 @@ OwnerAttr::OwnerAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OwnerAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, OwnerAttr)
-// 1: OwnerAttr::Clone
+::pasta::OwnerAttr OwnerAttr::Clone(void) const noexcept {
+  auto &self = *(u.OwnerAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OwnerAttr>(ast, val);
+  }
+  assert(false && "OwnerAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 ::pasta::Type OwnerAttr::DerefType(void) const noexcept {
   auto &self = *const_cast<clang::OwnerAttr *>(u.OwnerAttr);
   decltype(auto) val = self.getDerefType();
@@ -3430,7 +4539,17 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, OwnershipAttr)
 // 0: OwnershipAttr::
 // 0: OwnershipAttr::
 // 0: OwnershipAttr::
-// 1: OwnershipAttr::Clone
+::pasta::OwnershipAttr OwnershipAttr::Clone(void) const noexcept {
+  auto &self = *(u.OwnershipAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OwnershipAttr>(ast, val);
+  }
+  assert(false && "OwnershipAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: OwnershipAttr::Module
 enum OwnershipAttrOwnershipKind OwnershipAttr::OwnKind(void) const noexcept {
   auto &self = *const_cast<clang::OwnershipAttr *>(u.OwnershipAttr);
@@ -3486,7 +4605,17 @@ PackedAttr::PackedAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, PackedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, PackedAttr)
-// 1: PackedAttr::Clone
+::pasta::PackedAttr PackedAttr::Clone(void) const noexcept {
+  auto &self = *(u.PackedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::PackedAttr>(ast, val);
+  }
+  assert(false && "PackedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view PackedAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::PackedAttr *>(u.PackedAttr);
   decltype(auto) val = self.getSpelling();
@@ -3506,7 +4635,17 @@ ParamTypestateAttr::ParamTypestateAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ParamTypestateAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ParamTypestateAttr)
-// 1: ParamTypestateAttr::Clone
+::pasta::ParamTypestateAttr ParamTypestateAttr::Clone(void) const noexcept {
+  auto &self = *(u.ParamTypestateAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ParamTypestateAttr>(ast, val);
+  }
+  assert(false && "ParamTypestateAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum ParamTypestateAttrConsumedState ParamTypestateAttr::ParameterState(void) const noexcept {
   auto &self = *const_cast<clang::ParamTypestateAttr *>(u.ParamTypestateAttr);
   decltype(auto) val = self.getParamState();
@@ -3552,7 +4691,17 @@ PascalAttr::PascalAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, PascalAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, PascalAttr)
-// 1: PascalAttr::Clone
+::pasta::PascalAttr PascalAttr::Clone(void) const noexcept {
+  auto &self = *(u.PascalAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::PascalAttr>(ast, val);
+  }
+  assert(false && "PascalAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view PascalAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::PascalAttr *>(u.PascalAttr);
   decltype(auto) val = self.getSpelling();
@@ -3573,7 +4722,17 @@ PassObjectSizeAttr::PassObjectSizeAttr(
 PASTA_DEFINE_BASE_OPERATORS(Attr, PassObjectSizeAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, PassObjectSizeAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableParamAttr, PassObjectSizeAttr)
-// 1: PassObjectSizeAttr::Clone
+::pasta::PassObjectSizeAttr PassObjectSizeAttr::Clone(void) const noexcept {
+  auto &self = *(u.PassObjectSizeAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::PassObjectSizeAttr>(ast, val);
+  }
+  assert(false && "PassObjectSizeAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum PassObjectSizeAttrSpelling PassObjectSizeAttr::SemanticSpelling(void) const noexcept {
   auto &self = *const_cast<clang::PassObjectSizeAttr *>(u.PassObjectSizeAttr);
   decltype(auto) val = self.getSemanticSpelling();
@@ -3608,7 +4767,17 @@ PatchableFunctionEntryAttr::PatchableFunctionEntryAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, PatchableFunctionEntryAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, PatchableFunctionEntryAttr)
-// 1: PatchableFunctionEntryAttr::Clone
+::pasta::PatchableFunctionEntryAttr PatchableFunctionEntryAttr::Clone(void) const noexcept {
+  auto &self = *(u.PatchableFunctionEntryAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::PatchableFunctionEntryAttr>(ast, val);
+  }
+  assert(false && "PatchableFunctionEntryAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 uint32_t PatchableFunctionEntryAttr::Count(void) const noexcept {
   auto &self = *const_cast<clang::PatchableFunctionEntryAttr *>(u.PatchableFunctionEntryAttr);
   decltype(auto) val = self.getCount();
@@ -3636,7 +4805,17 @@ PcsAttr::PcsAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, PcsAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, PcsAttr)
-// 1: PcsAttr::Clone
+::pasta::PcsAttr PcsAttr::Clone(void) const noexcept {
+  auto &self = *(u.PcsAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::PcsAttr>(ast, val);
+  }
+  assert(false && "PcsAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum PcsAttrPCSType PcsAttr::PCS(void) const noexcept {
   auto &self = *const_cast<clang::PcsAttr *>(u.PcsAttr);
   decltype(auto) val = self.getPCS();
@@ -3663,7 +4842,17 @@ PointerAttr::PointerAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, PointerAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, PointerAttr)
-// 1: PointerAttr::Clone
+::pasta::PointerAttr PointerAttr::Clone(void) const noexcept {
+  auto &self = *(u.PointerAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::PointerAttr>(ast, val);
+  }
+  assert(false && "PointerAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 ::pasta::Type PointerAttr::DerefType(void) const noexcept {
   auto &self = *const_cast<clang::PointerAttr *>(u.PointerAttr);
   decltype(auto) val = self.getDerefType();
@@ -3699,7 +4888,17 @@ PragmaClangBSSSectionAttr::PragmaClangBSSSectionAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, PragmaClangBSSSectionAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, PragmaClangBSSSectionAttr)
-// 1: PragmaClangBSSSectionAttr::Clone
+::pasta::PragmaClangBSSSectionAttr PragmaClangBSSSectionAttr::Clone(void) const noexcept {
+  auto &self = *(u.PragmaClangBSSSectionAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::PragmaClangBSSSectionAttr>(ast, val);
+  }
+  assert(false && "PragmaClangBSSSectionAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view PragmaClangBSSSectionAttr::Name(void) const noexcept {
   auto &self = *const_cast<clang::PragmaClangBSSSectionAttr *>(u.PragmaClangBSSSectionAttr);
   decltype(auto) val = self.getName();
@@ -3737,7 +4936,17 @@ PragmaClangDataSectionAttr::PragmaClangDataSectionAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, PragmaClangDataSectionAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, PragmaClangDataSectionAttr)
-// 1: PragmaClangDataSectionAttr::Clone
+::pasta::PragmaClangDataSectionAttr PragmaClangDataSectionAttr::Clone(void) const noexcept {
+  auto &self = *(u.PragmaClangDataSectionAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::PragmaClangDataSectionAttr>(ast, val);
+  }
+  assert(false && "PragmaClangDataSectionAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view PragmaClangDataSectionAttr::Name(void) const noexcept {
   auto &self = *const_cast<clang::PragmaClangDataSectionAttr *>(u.PragmaClangDataSectionAttr);
   decltype(auto) val = self.getName();
@@ -3775,7 +4984,17 @@ PragmaClangRelroSectionAttr::PragmaClangRelroSectionAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, PragmaClangRelroSectionAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, PragmaClangRelroSectionAttr)
-// 1: PragmaClangRelroSectionAttr::Clone
+::pasta::PragmaClangRelroSectionAttr PragmaClangRelroSectionAttr::Clone(void) const noexcept {
+  auto &self = *(u.PragmaClangRelroSectionAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::PragmaClangRelroSectionAttr>(ast, val);
+  }
+  assert(false && "PragmaClangRelroSectionAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view PragmaClangRelroSectionAttr::Name(void) const noexcept {
   auto &self = *const_cast<clang::PragmaClangRelroSectionAttr *>(u.PragmaClangRelroSectionAttr);
   decltype(auto) val = self.getName();
@@ -3813,7 +5032,17 @@ PragmaClangRodataSectionAttr::PragmaClangRodataSectionAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, PragmaClangRodataSectionAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, PragmaClangRodataSectionAttr)
-// 1: PragmaClangRodataSectionAttr::Clone
+::pasta::PragmaClangRodataSectionAttr PragmaClangRodataSectionAttr::Clone(void) const noexcept {
+  auto &self = *(u.PragmaClangRodataSectionAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::PragmaClangRodataSectionAttr>(ast, val);
+  }
+  assert(false && "PragmaClangRodataSectionAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view PragmaClangRodataSectionAttr::Name(void) const noexcept {
   auto &self = *const_cast<clang::PragmaClangRodataSectionAttr *>(u.PragmaClangRodataSectionAttr);
   decltype(auto) val = self.getName();
@@ -3851,7 +5080,17 @@ PragmaClangTextSectionAttr::PragmaClangTextSectionAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, PragmaClangTextSectionAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, PragmaClangTextSectionAttr)
-// 1: PragmaClangTextSectionAttr::Clone
+::pasta::PragmaClangTextSectionAttr PragmaClangTextSectionAttr::Clone(void) const noexcept {
+  auto &self = *(u.PragmaClangTextSectionAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::PragmaClangTextSectionAttr>(ast, val);
+  }
+  assert(false && "PragmaClangTextSectionAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view PragmaClangTextSectionAttr::Name(void) const noexcept {
   auto &self = *const_cast<clang::PragmaClangTextSectionAttr *>(u.PragmaClangTextSectionAttr);
   decltype(auto) val = self.getName();
@@ -3889,7 +5128,17 @@ PreferredNameAttr::PreferredNameAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, PreferredNameAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, PreferredNameAttr)
-// 1: PreferredNameAttr::Clone
+::pasta::PreferredNameAttr PreferredNameAttr::Clone(void) const noexcept {
+  auto &self = *(u.PreferredNameAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::PreferredNameAttr>(ast, val);
+  }
+  assert(false && "PreferredNameAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view PreferredNameAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::PreferredNameAttr *>(u.PreferredNameAttr);
   decltype(auto) val = self.getSpelling();
@@ -3925,7 +5174,17 @@ PreserveAllAttr::PreserveAllAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, PreserveAllAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, PreserveAllAttr)
-// 1: PreserveAllAttr::Clone
+::pasta::PreserveAllAttr PreserveAllAttr::Clone(void) const noexcept {
+  auto &self = *(u.PreserveAllAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::PreserveAllAttr>(ast, val);
+  }
+  assert(false && "PreserveAllAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view PreserveAllAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::PreserveAllAttr *>(u.PreserveAllAttr);
   decltype(auto) val = self.getSpelling();
@@ -3945,7 +5204,17 @@ PreserveMostAttr::PreserveMostAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, PreserveMostAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, PreserveMostAttr)
-// 1: PreserveMostAttr::Clone
+::pasta::PreserveMostAttr PreserveMostAttr::Clone(void) const noexcept {
+  auto &self = *(u.PreserveMostAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::PreserveMostAttr>(ast, val);
+  }
+  assert(false && "PreserveMostAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view PreserveMostAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::PreserveMostAttr *>(u.PreserveMostAttr);
   decltype(auto) val = self.getSpelling();
@@ -3965,7 +5234,17 @@ PtGuardedByAttr::PtGuardedByAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, PtGuardedByAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, PtGuardedByAttr)
-// 1: PtGuardedByAttr::Clone
+::pasta::PtGuardedByAttr PtGuardedByAttr::Clone(void) const noexcept {
+  auto &self = *(u.PtGuardedByAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::PtGuardedByAttr>(ast, val);
+  }
+  assert(false && "PtGuardedByAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 ::pasta::Expr PtGuardedByAttr::Argument(void) const noexcept {
   auto &self = *const_cast<clang::PtGuardedByAttr *>(u.PtGuardedByAttr);
   decltype(auto) val = self.getArg();
@@ -3995,7 +5274,17 @@ PtGuardedVarAttr::PtGuardedVarAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, PtGuardedVarAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, PtGuardedVarAttr)
-// 1: PtGuardedVarAttr::Clone
+::pasta::PtGuardedVarAttr PtGuardedVarAttr::Clone(void) const noexcept {
+  auto &self = *(u.PtGuardedVarAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::PtGuardedVarAttr>(ast, val);
+  }
+  assert(false && "PtGuardedVarAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view PtGuardedVarAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::PtGuardedVarAttr *>(u.PtGuardedVarAttr);
   decltype(auto) val = self.getSpelling();
@@ -4015,7 +5304,17 @@ PureAttr::PureAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, PureAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, PureAttr)
-// 1: PureAttr::Clone
+::pasta::PureAttr PureAttr::Clone(void) const noexcept {
+  auto &self = *(u.PureAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::PureAttr>(ast, val);
+  }
+  assert(false && "PureAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view PureAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::PureAttr *>(u.PureAttr);
   decltype(auto) val = self.getSpelling();
@@ -4035,7 +5334,17 @@ RISCVInterruptAttr::RISCVInterruptAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, RISCVInterruptAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, RISCVInterruptAttr)
-// 1: RISCVInterruptAttr::Clone
+::pasta::RISCVInterruptAttr RISCVInterruptAttr::Clone(void) const noexcept {
+  auto &self = *(u.RISCVInterruptAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::RISCVInterruptAttr>(ast, val);
+  }
+  assert(false && "RISCVInterruptAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum RISCVInterruptAttrInterruptType RISCVInterruptAttr::Interrupt(void) const noexcept {
   auto &self = *const_cast<clang::RISCVInterruptAttr *>(u.RISCVInterruptAttr);
   decltype(auto) val = self.getInterrupt();
@@ -4062,7 +5371,17 @@ RegCallAttr::RegCallAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, RegCallAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, RegCallAttr)
-// 1: RegCallAttr::Clone
+::pasta::RegCallAttr RegCallAttr::Clone(void) const noexcept {
+  auto &self = *(u.RegCallAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::RegCallAttr>(ast, val);
+  }
+  assert(false && "RegCallAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view RegCallAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::RegCallAttr *>(u.RegCallAttr);
   decltype(auto) val = self.getSpelling();
@@ -4082,7 +5401,17 @@ ReinitializesAttr::ReinitializesAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ReinitializesAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ReinitializesAttr)
-// 1: ReinitializesAttr::Clone
+::pasta::ReinitializesAttr ReinitializesAttr::Clone(void) const noexcept {
+  auto &self = *(u.ReinitializesAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ReinitializesAttr>(ast, val);
+  }
+  assert(false && "ReinitializesAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ReinitializesAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ReinitializesAttr *>(u.ReinitializesAttr);
   decltype(auto) val = self.getSpelling();
@@ -4106,7 +5435,17 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ReleaseCapabilityAttr)
 // 0: ReleaseCapabilityAttr::
 // 0: ReleaseCapabilityAttr::
 // 0: ReleaseCapabilityAttr::
-// 1: ReleaseCapabilityAttr::Clone
+::pasta::ReleaseCapabilityAttr ReleaseCapabilityAttr::Clone(void) const noexcept {
+  auto &self = *(u.ReleaseCapabilityAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ReleaseCapabilityAttr>(ast, val);
+  }
+  assert(false && "ReleaseCapabilityAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum ReleaseCapabilityAttrSpelling ReleaseCapabilityAttr::SemanticSpelling(void) const noexcept {
   auto &self = *const_cast<clang::ReleaseCapabilityAttr *>(u.ReleaseCapabilityAttr);
   decltype(auto) val = self.getSemanticSpelling();
@@ -4148,7 +5487,17 @@ ReleaseHandleAttr::ReleaseHandleAttr(
 PASTA_DEFINE_BASE_OPERATORS(Attr, ReleaseHandleAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ReleaseHandleAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableParamAttr, ReleaseHandleAttr)
-// 1: ReleaseHandleAttr::Clone
+::pasta::ReleaseHandleAttr ReleaseHandleAttr::Clone(void) const noexcept {
+  auto &self = *(u.ReleaseHandleAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ReleaseHandleAttr>(ast, val);
+  }
+  assert(false && "ReleaseHandleAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ReleaseHandleAttr::HandleType(void) const noexcept {
   auto &self = *const_cast<clang::ReleaseHandleAttr *>(u.ReleaseHandleAttr);
   decltype(auto) val = self.getHandleType();
@@ -4185,7 +5534,17 @@ RenderScriptKernelAttr::RenderScriptKernelAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, RenderScriptKernelAttr)
-// 1: RenderScriptKernelAttr::Clone
+::pasta::RenderScriptKernelAttr RenderScriptKernelAttr::Clone(void) const noexcept {
+  auto &self = *(u.RenderScriptKernelAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::RenderScriptKernelAttr>(ast, val);
+  }
+  assert(false && "RenderScriptKernelAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view RenderScriptKernelAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::RenderScriptKernelAttr *>(u.RenderScriptKernelAttr);
   decltype(auto) val = self.getSpelling();
@@ -4205,7 +5564,17 @@ ReqdWorkGroupSizeAttr::ReqdWorkGroupSizeAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ReqdWorkGroupSizeAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ReqdWorkGroupSizeAttr)
-// 1: ReqdWorkGroupSizeAttr::Clone
+::pasta::ReqdWorkGroupSizeAttr ReqdWorkGroupSizeAttr::Clone(void) const noexcept {
+  auto &self = *(u.ReqdWorkGroupSizeAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ReqdWorkGroupSizeAttr>(ast, val);
+  }
+  assert(false && "ReqdWorkGroupSizeAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ReqdWorkGroupSizeAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ReqdWorkGroupSizeAttr *>(u.ReqdWorkGroupSizeAttr);
   decltype(auto) val = self.getSpelling();
@@ -4250,7 +5619,17 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, RequiresCapabilityAttr)
 // 0: RequiresCapabilityAttr::
 // 0: RequiresCapabilityAttr::
 // 0: RequiresCapabilityAttr::
-// 1: RequiresCapabilityAttr::Clone
+::pasta::RequiresCapabilityAttr RequiresCapabilityAttr::Clone(void) const noexcept {
+  auto &self = *(u.RequiresCapabilityAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::RequiresCapabilityAttr>(ast, val);
+  }
+  assert(false && "RequiresCapabilityAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum RequiresCapabilityAttrSpelling RequiresCapabilityAttr::SemanticSpelling(void) const noexcept {
   auto &self = *const_cast<clang::RequiresCapabilityAttr *>(u.RequiresCapabilityAttr);
   decltype(auto) val = self.getSemanticSpelling();
@@ -4284,7 +5663,17 @@ RestrictAttr::RestrictAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, RestrictAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, RestrictAttr)
-// 1: RestrictAttr::Clone
+::pasta::RestrictAttr RestrictAttr::Clone(void) const noexcept {
+  auto &self = *(u.RestrictAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::RestrictAttr>(ast, val);
+  }
+  assert(false && "RestrictAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum RestrictAttrSpelling RestrictAttr::SemanticSpelling(void) const noexcept {
   auto &self = *const_cast<clang::RestrictAttr *>(u.RestrictAttr);
   decltype(auto) val = self.getSemanticSpelling();
@@ -4311,7 +5700,17 @@ RetainAttr::RetainAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, RetainAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, RetainAttr)
-// 1: RetainAttr::Clone
+::pasta::RetainAttr RetainAttr::Clone(void) const noexcept {
+  auto &self = *(u.RetainAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::RetainAttr>(ast, val);
+  }
+  assert(false && "RetainAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view RetainAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::RetainAttr *>(u.RetainAttr);
   decltype(auto) val = self.getSpelling();
@@ -4331,7 +5730,17 @@ ReturnTypestateAttr::ReturnTypestateAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ReturnTypestateAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ReturnTypestateAttr)
-// 1: ReturnTypestateAttr::Clone
+::pasta::ReturnTypestateAttr ReturnTypestateAttr::Clone(void) const noexcept {
+  auto &self = *(u.ReturnTypestateAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ReturnTypestateAttr>(ast, val);
+  }
+  assert(false && "ReturnTypestateAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ReturnTypestateAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ReturnTypestateAttr *>(u.ReturnTypestateAttr);
   decltype(auto) val = self.getSpelling();
@@ -4358,7 +5767,17 @@ ReturnsNonNullAttr::ReturnsNonNullAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ReturnsNonNullAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ReturnsNonNullAttr)
-// 1: ReturnsNonNullAttr::Clone
+::pasta::ReturnsNonNullAttr ReturnsNonNullAttr::Clone(void) const noexcept {
+  auto &self = *(u.ReturnsNonNullAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ReturnsNonNullAttr>(ast, val);
+  }
+  assert(false && "ReturnsNonNullAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ReturnsNonNullAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ReturnsNonNullAttr *>(u.ReturnsNonNullAttr);
   decltype(auto) val = self.getSpelling();
@@ -4378,7 +5797,17 @@ ReturnsTwiceAttr::ReturnsTwiceAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ReturnsTwiceAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ReturnsTwiceAttr)
-// 1: ReturnsTwiceAttr::Clone
+::pasta::ReturnsTwiceAttr ReturnsTwiceAttr::Clone(void) const noexcept {
+  auto &self = *(u.ReturnsTwiceAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ReturnsTwiceAttr>(ast, val);
+  }
+  assert(false && "ReturnsTwiceAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ReturnsTwiceAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ReturnsTwiceAttr *>(u.ReturnsTwiceAttr);
   decltype(auto) val = self.getSpelling();
@@ -4398,7 +5827,17 @@ SYCLKernelAttr::SYCLKernelAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, SYCLKernelAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SYCLKernelAttr)
-// 1: SYCLKernelAttr::Clone
+::pasta::SYCLKernelAttr SYCLKernelAttr::Clone(void) const noexcept {
+  auto &self = *(u.SYCLKernelAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SYCLKernelAttr>(ast, val);
+  }
+  assert(false && "SYCLKernelAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view SYCLKernelAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::SYCLKernelAttr *>(u.SYCLKernelAttr);
   decltype(auto) val = self.getSpelling();
@@ -4418,7 +5857,17 @@ SYCLSpecialClassAttr::SYCLSpecialClassAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, SYCLSpecialClassAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SYCLSpecialClassAttr)
-// 1: SYCLSpecialClassAttr::Clone
+::pasta::SYCLSpecialClassAttr SYCLSpecialClassAttr::Clone(void) const noexcept {
+  auto &self = *(u.SYCLSpecialClassAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SYCLSpecialClassAttr>(ast, val);
+  }
+  assert(false && "SYCLSpecialClassAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view SYCLSpecialClassAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::SYCLSpecialClassAttr *>(u.SYCLSpecialClassAttr);
   decltype(auto) val = self.getSpelling();
@@ -4438,7 +5887,17 @@ ScopedLockableAttr::ScopedLockableAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ScopedLockableAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ScopedLockableAttr)
-// 1: ScopedLockableAttr::Clone
+::pasta::ScopedLockableAttr ScopedLockableAttr::Clone(void) const noexcept {
+  auto &self = *(u.ScopedLockableAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ScopedLockableAttr>(ast, val);
+  }
+  assert(false && "ScopedLockableAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ScopedLockableAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ScopedLockableAttr *>(u.ScopedLockableAttr);
   decltype(auto) val = self.getSpelling();
@@ -4458,7 +5917,17 @@ SectionAttr::SectionAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, SectionAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SectionAttr)
-// 1: SectionAttr::Clone
+::pasta::SectionAttr SectionAttr::Clone(void) const noexcept {
+  auto &self = *(u.SectionAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SectionAttr>(ast, val);
+  }
+  assert(false && "SectionAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view SectionAttr::Name(void) const noexcept {
   auto &self = *const_cast<clang::SectionAttr *>(u.SectionAttr);
   decltype(auto) val = self.getName();
@@ -4503,7 +5972,17 @@ SelectAnyAttr::SelectAnyAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, SelectAnyAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SelectAnyAttr)
-// 1: SelectAnyAttr::Clone
+::pasta::SelectAnyAttr SelectAnyAttr::Clone(void) const noexcept {
+  auto &self = *(u.SelectAnyAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SelectAnyAttr>(ast, val);
+  }
+  assert(false && "SelectAnyAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view SelectAnyAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::SelectAnyAttr *>(u.SelectAnyAttr);
   decltype(auto) val = self.getSpelling();
@@ -4523,7 +6002,17 @@ SentinelAttr::SentinelAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, SentinelAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SentinelAttr)
-// 1: SentinelAttr::Clone
+::pasta::SentinelAttr SentinelAttr::Clone(void) const noexcept {
+  auto &self = *(u.SentinelAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SentinelAttr>(ast, val);
+  }
+  assert(false && "SentinelAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: SentinelAttr::NullPos
 // 0: SentinelAttr::Sentinel
 std::string_view SentinelAttr::Spelling(void) const noexcept {
@@ -4545,7 +6034,17 @@ SetTypestateAttr::SetTypestateAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, SetTypestateAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SetTypestateAttr)
-// 1: SetTypestateAttr::Clone
+::pasta::SetTypestateAttr SetTypestateAttr::Clone(void) const noexcept {
+  auto &self = *(u.SetTypestateAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SetTypestateAttr>(ast, val);
+  }
+  assert(false && "SetTypestateAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum SetTypestateAttrConsumedState SetTypestateAttr::NewState(void) const noexcept {
   auto &self = *const_cast<clang::SetTypestateAttr *>(u.SetTypestateAttr);
   decltype(auto) val = self.getNewState();
@@ -4576,7 +6075,17 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SharedTrylockFunctionAttr)
 // 0: SharedTrylockFunctionAttr::
 // 0: SharedTrylockFunctionAttr::
 // 0: SharedTrylockFunctionAttr::
-// 1: SharedTrylockFunctionAttr::Clone
+::pasta::SharedTrylockFunctionAttr SharedTrylockFunctionAttr::Clone(void) const noexcept {
+  auto &self = *(u.SharedTrylockFunctionAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SharedTrylockFunctionAttr>(ast, val);
+  }
+  assert(false && "SharedTrylockFunctionAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view SharedTrylockFunctionAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::SharedTrylockFunctionAttr *>(u.SharedTrylockFunctionAttr);
   decltype(auto) val = self.getSpelling();
@@ -4606,7 +6115,17 @@ SpeculativeLoadHardeningAttr::SpeculativeLoadHardeningAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, SpeculativeLoadHardeningAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SpeculativeLoadHardeningAttr)
-// 1: SpeculativeLoadHardeningAttr::Clone
+::pasta::SpeculativeLoadHardeningAttr SpeculativeLoadHardeningAttr::Clone(void) const noexcept {
+  auto &self = *(u.SpeculativeLoadHardeningAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SpeculativeLoadHardeningAttr>(ast, val);
+  }
+  assert(false && "SpeculativeLoadHardeningAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view SpeculativeLoadHardeningAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::SpeculativeLoadHardeningAttr *>(u.SpeculativeLoadHardeningAttr);
   decltype(auto) val = self.getSpelling();
@@ -4626,7 +6145,17 @@ StandaloneDebugAttr::StandaloneDebugAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, StandaloneDebugAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, StandaloneDebugAttr)
-// 1: StandaloneDebugAttr::Clone
+::pasta::StandaloneDebugAttr StandaloneDebugAttr::Clone(void) const noexcept {
+  auto &self = *(u.StandaloneDebugAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::StandaloneDebugAttr>(ast, val);
+  }
+  assert(false && "StandaloneDebugAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view StandaloneDebugAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::StandaloneDebugAttr *>(u.StandaloneDebugAttr);
   decltype(auto) val = self.getSpelling();
@@ -4646,7 +6175,17 @@ StdCallAttr::StdCallAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, StdCallAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, StdCallAttr)
-// 1: StdCallAttr::Clone
+::pasta::StdCallAttr StdCallAttr::Clone(void) const noexcept {
+  auto &self = *(u.StdCallAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::StdCallAttr>(ast, val);
+  }
+  assert(false && "StdCallAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view StdCallAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::StdCallAttr *>(u.StdCallAttr);
   decltype(auto) val = self.getSpelling();
@@ -4678,7 +6217,17 @@ StrictFPAttr::StrictFPAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, StrictFPAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, StrictFPAttr)
-// 1: StrictFPAttr::Clone
+::pasta::StrictFPAttr StrictFPAttr::Clone(void) const noexcept {
+  auto &self = *(u.StrictFPAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::StrictFPAttr>(ast, val);
+  }
+  assert(false && "StrictFPAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view StrictFPAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::StrictFPAttr *>(u.StrictFPAttr);
   decltype(auto) val = self.getSpelling();
@@ -4698,7 +6247,17 @@ SuppressAttr::SuppressAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, SuppressAttr)
 PASTA_DEFINE_BASE_OPERATORS(StmtAttr, SuppressAttr)
-// 1: SuppressAttr::Clone
+::pasta::SuppressAttr SuppressAttr::Clone(void) const noexcept {
+  auto &self = *(u.SuppressAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SuppressAttr>(ast, val);
+  }
+  assert(false && "SuppressAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: SuppressAttr::DiagnosticIdentifiers
 // 0: SuppressAttr::
 // 0: SuppressAttr::
@@ -4722,7 +6281,17 @@ SwiftAsyncAttr::SwiftAsyncAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, SwiftAsyncAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SwiftAsyncAttr)
-// 1: SwiftAsyncAttr::Clone
+::pasta::SwiftAsyncAttr SwiftAsyncAttr::Clone(void) const noexcept {
+  auto &self = *(u.SwiftAsyncAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SwiftAsyncAttr>(ast, val);
+  }
+  assert(false && "SwiftAsyncAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: SwiftAsyncAttr::CompletionHandlerIndex
 enum SwiftAsyncAttrKind SwiftAsyncAttr::Kind(void) const noexcept {
   auto &self = *const_cast<clang::SwiftAsyncAttr *>(u.SwiftAsyncAttr);
@@ -4750,7 +6319,17 @@ SwiftAsyncCallAttr::SwiftAsyncCallAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, SwiftAsyncCallAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SwiftAsyncCallAttr)
-// 1: SwiftAsyncCallAttr::Clone
+::pasta::SwiftAsyncCallAttr SwiftAsyncCallAttr::Clone(void) const noexcept {
+  auto &self = *(u.SwiftAsyncCallAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SwiftAsyncCallAttr>(ast, val);
+  }
+  assert(false && "SwiftAsyncCallAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view SwiftAsyncCallAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::SwiftAsyncCallAttr *>(u.SwiftAsyncCallAttr);
   decltype(auto) val = self.getSpelling();
@@ -4772,7 +6351,17 @@ PASTA_DEFINE_BASE_OPERATORS(Attr, SwiftAsyncContextAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SwiftAsyncContextAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableParamAttr, SwiftAsyncContextAttr)
 PASTA_DEFINE_BASE_OPERATORS(ParameterABIAttr, SwiftAsyncContextAttr)
-// 1: SwiftAsyncContextAttr::Clone
+::pasta::SwiftAsyncContextAttr SwiftAsyncContextAttr::Clone(void) const noexcept {
+  auto &self = *(u.SwiftAsyncContextAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SwiftAsyncContextAttr>(ast, val);
+  }
+  assert(false && "SwiftAsyncContextAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view SwiftAsyncContextAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::SwiftAsyncContextAttr *>(u.SwiftAsyncContextAttr);
   decltype(auto) val = self.getSpelling();
@@ -4792,7 +6381,17 @@ SwiftAsyncErrorAttr::SwiftAsyncErrorAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, SwiftAsyncErrorAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SwiftAsyncErrorAttr)
-// 1: SwiftAsyncErrorAttr::Clone
+::pasta::SwiftAsyncErrorAttr SwiftAsyncErrorAttr::Clone(void) const noexcept {
+  auto &self = *(u.SwiftAsyncErrorAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SwiftAsyncErrorAttr>(ast, val);
+  }
+  assert(false && "SwiftAsyncErrorAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum SwiftAsyncErrorAttrConventionKind SwiftAsyncErrorAttr::Convention(void) const noexcept {
   auto &self = *const_cast<clang::SwiftAsyncErrorAttr *>(u.SwiftAsyncErrorAttr);
   decltype(auto) val = self.getConvention();
@@ -4826,7 +6425,17 @@ SwiftAsyncNameAttr::SwiftAsyncNameAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, SwiftAsyncNameAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SwiftAsyncNameAttr)
-// 1: SwiftAsyncNameAttr::Clone
+::pasta::SwiftAsyncNameAttr SwiftAsyncNameAttr::Clone(void) const noexcept {
+  auto &self = *(u.SwiftAsyncNameAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SwiftAsyncNameAttr>(ast, val);
+  }
+  assert(false && "SwiftAsyncNameAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view SwiftAsyncNameAttr::Name(void) const noexcept {
   auto &self = *const_cast<clang::SwiftAsyncNameAttr *>(u.SwiftAsyncNameAttr);
   decltype(auto) val = self.getName();
@@ -4864,7 +6473,17 @@ SwiftAttrAttr::SwiftAttrAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, SwiftAttrAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SwiftAttrAttr)
-// 1: SwiftAttrAttr::Clone
+::pasta::SwiftAttrAttr SwiftAttrAttr::Clone(void) const noexcept {
+  auto &self = *(u.SwiftAttrAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SwiftAttrAttr>(ast, val);
+  }
+  assert(false && "SwiftAttrAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view SwiftAttrAttr::Attribute(void) const noexcept {
   auto &self = *const_cast<clang::SwiftAttrAttr *>(u.SwiftAttrAttr);
   decltype(auto) val = self.getAttribute();
@@ -4902,7 +6521,17 @@ SwiftBridgeAttr::SwiftBridgeAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, SwiftBridgeAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SwiftBridgeAttr)
-// 1: SwiftBridgeAttr::Clone
+::pasta::SwiftBridgeAttr SwiftBridgeAttr::Clone(void) const noexcept {
+  auto &self = *(u.SwiftBridgeAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SwiftBridgeAttr>(ast, val);
+  }
+  assert(false && "SwiftBridgeAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view SwiftBridgeAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::SwiftBridgeAttr *>(u.SwiftBridgeAttr);
   decltype(auto) val = self.getSpelling();
@@ -4940,7 +6569,17 @@ SwiftBridgedTypedefAttr::SwiftBridgedTypedefAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, SwiftBridgedTypedefAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SwiftBridgedTypedefAttr)
-// 1: SwiftBridgedTypedefAttr::Clone
+::pasta::SwiftBridgedTypedefAttr SwiftBridgedTypedefAttr::Clone(void) const noexcept {
+  auto &self = *(u.SwiftBridgedTypedefAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SwiftBridgedTypedefAttr>(ast, val);
+  }
+  assert(false && "SwiftBridgedTypedefAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view SwiftBridgedTypedefAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::SwiftBridgedTypedefAttr *>(u.SwiftBridgedTypedefAttr);
   decltype(auto) val = self.getSpelling();
@@ -4960,7 +6599,17 @@ SwiftCallAttr::SwiftCallAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, SwiftCallAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SwiftCallAttr)
-// 1: SwiftCallAttr::Clone
+::pasta::SwiftCallAttr SwiftCallAttr::Clone(void) const noexcept {
+  auto &self = *(u.SwiftCallAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SwiftCallAttr>(ast, val);
+  }
+  assert(false && "SwiftCallAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view SwiftCallAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::SwiftCallAttr *>(u.SwiftCallAttr);
   decltype(auto) val = self.getSpelling();
@@ -4982,7 +6631,17 @@ PASTA_DEFINE_BASE_OPERATORS(Attr, SwiftContextAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SwiftContextAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableParamAttr, SwiftContextAttr)
 PASTA_DEFINE_BASE_OPERATORS(ParameterABIAttr, SwiftContextAttr)
-// 1: SwiftContextAttr::Clone
+::pasta::SwiftContextAttr SwiftContextAttr::Clone(void) const noexcept {
+  auto &self = *(u.SwiftContextAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SwiftContextAttr>(ast, val);
+  }
+  assert(false && "SwiftContextAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view SwiftContextAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::SwiftContextAttr *>(u.SwiftContextAttr);
   decltype(auto) val = self.getSpelling();
@@ -5002,7 +6661,17 @@ SwiftErrorAttr::SwiftErrorAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, SwiftErrorAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SwiftErrorAttr)
-// 1: SwiftErrorAttr::Clone
+::pasta::SwiftErrorAttr SwiftErrorAttr::Clone(void) const noexcept {
+  auto &self = *(u.SwiftErrorAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SwiftErrorAttr>(ast, val);
+  }
+  assert(false && "SwiftErrorAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum SwiftErrorAttrConventionKind SwiftErrorAttr::Convention(void) const noexcept {
   auto &self = *const_cast<clang::SwiftErrorAttr *>(u.SwiftErrorAttr);
   decltype(auto) val = self.getConvention();
@@ -5031,7 +6700,17 @@ PASTA_DEFINE_BASE_OPERATORS(Attr, SwiftErrorResultAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SwiftErrorResultAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableParamAttr, SwiftErrorResultAttr)
 PASTA_DEFINE_BASE_OPERATORS(ParameterABIAttr, SwiftErrorResultAttr)
-// 1: SwiftErrorResultAttr::Clone
+::pasta::SwiftErrorResultAttr SwiftErrorResultAttr::Clone(void) const noexcept {
+  auto &self = *(u.SwiftErrorResultAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SwiftErrorResultAttr>(ast, val);
+  }
+  assert(false && "SwiftErrorResultAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view SwiftErrorResultAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::SwiftErrorResultAttr *>(u.SwiftErrorResultAttr);
   decltype(auto) val = self.getSpelling();
@@ -5053,7 +6732,17 @@ PASTA_DEFINE_BASE_OPERATORS(Attr, SwiftIndirectResultAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SwiftIndirectResultAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableParamAttr, SwiftIndirectResultAttr)
 PASTA_DEFINE_BASE_OPERATORS(ParameterABIAttr, SwiftIndirectResultAttr)
-// 1: SwiftIndirectResultAttr::Clone
+::pasta::SwiftIndirectResultAttr SwiftIndirectResultAttr::Clone(void) const noexcept {
+  auto &self = *(u.SwiftIndirectResultAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SwiftIndirectResultAttr>(ast, val);
+  }
+  assert(false && "SwiftIndirectResultAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view SwiftIndirectResultAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::SwiftIndirectResultAttr *>(u.SwiftIndirectResultAttr);
   decltype(auto) val = self.getSpelling();
@@ -5073,7 +6762,17 @@ SwiftNameAttr::SwiftNameAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, SwiftNameAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SwiftNameAttr)
-// 1: SwiftNameAttr::Clone
+::pasta::SwiftNameAttr SwiftNameAttr::Clone(void) const noexcept {
+  auto &self = *(u.SwiftNameAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SwiftNameAttr>(ast, val);
+  }
+  assert(false && "SwiftNameAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view SwiftNameAttr::Name(void) const noexcept {
   auto &self = *const_cast<clang::SwiftNameAttr *>(u.SwiftNameAttr);
   decltype(auto) val = self.getName();
@@ -5111,7 +6810,17 @@ SwiftNewTypeAttr::SwiftNewTypeAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, SwiftNewTypeAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SwiftNewTypeAttr)
-// 1: SwiftNewTypeAttr::Clone
+::pasta::SwiftNewTypeAttr SwiftNewTypeAttr::Clone(void) const noexcept {
+  auto &self = *(u.SwiftNewTypeAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SwiftNewTypeAttr>(ast, val);
+  }
+  assert(false && "SwiftNewTypeAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum SwiftNewTypeAttrNewtypeKind SwiftNewTypeAttr::NewtypeKind(void) const noexcept {
   auto &self = *const_cast<clang::SwiftNewTypeAttr *>(u.SwiftNewTypeAttr);
   decltype(auto) val = self.getNewtypeKind();
@@ -5144,7 +6853,17 @@ SwiftObjCMembersAttr::SwiftObjCMembersAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, SwiftObjCMembersAttr)
-// 1: SwiftObjCMembersAttr::Clone
+::pasta::SwiftObjCMembersAttr SwiftObjCMembersAttr::Clone(void) const noexcept {
+  auto &self = *(u.SwiftObjCMembersAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SwiftObjCMembersAttr>(ast, val);
+  }
+  assert(false && "SwiftObjCMembersAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view SwiftObjCMembersAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::SwiftObjCMembersAttr *>(u.SwiftObjCMembersAttr);
   decltype(auto) val = self.getSpelling();
@@ -5164,7 +6883,17 @@ SwiftPrivateAttr::SwiftPrivateAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, SwiftPrivateAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SwiftPrivateAttr)
-// 1: SwiftPrivateAttr::Clone
+::pasta::SwiftPrivateAttr SwiftPrivateAttr::Clone(void) const noexcept {
+  auto &self = *(u.SwiftPrivateAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SwiftPrivateAttr>(ast, val);
+  }
+  assert(false && "SwiftPrivateAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view SwiftPrivateAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::SwiftPrivateAttr *>(u.SwiftPrivateAttr);
   decltype(auto) val = self.getSpelling();
@@ -5184,7 +6913,17 @@ SysVABIAttr::SysVABIAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, SysVABIAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SysVABIAttr)
-// 1: SysVABIAttr::Clone
+::pasta::SysVABIAttr SysVABIAttr::Clone(void) const noexcept {
+  auto &self = *(u.SysVABIAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SysVABIAttr>(ast, val);
+  }
+  assert(false && "SysVABIAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view SysVABIAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::SysVABIAttr *>(u.SysVABIAttr);
   decltype(auto) val = self.getSpelling();
@@ -5204,7 +6943,17 @@ TLSModelAttr::TLSModelAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, TLSModelAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, TLSModelAttr)
-// 1: TLSModelAttr::Clone
+::pasta::TLSModelAttr TLSModelAttr::Clone(void) const noexcept {
+  auto &self = *(u.TLSModelAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::TLSModelAttr>(ast, val);
+  }
+  assert(false && "TLSModelAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view TLSModelAttr::Model(void) const noexcept {
   auto &self = *const_cast<clang::TLSModelAttr *>(u.TLSModelAttr);
   decltype(auto) val = self.getModel();
@@ -5242,7 +6991,17 @@ TargetAttr::TargetAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, TargetAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, TargetAttr)
-// 1: TargetAttr::Clone
+::pasta::TargetAttr TargetAttr::Clone(void) const noexcept {
+  auto &self = *(u.TargetAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::TargetAttr>(ast, val);
+  }
+  assert(false && "TargetAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view TargetAttr::Architecture(void) const noexcept {
   auto &self = *const_cast<clang::TargetAttr *>(u.TargetAttr);
   decltype(auto) val = self.getArchitecture();
@@ -5299,7 +7058,17 @@ TargetClonesAttr::TargetClonesAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, TargetClonesAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, TargetClonesAttr)
-// 1: TargetClonesAttr::Clone
+::pasta::TargetClonesAttr TargetClonesAttr::Clone(void) const noexcept {
+  auto &self = *(u.TargetClonesAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::TargetClonesAttr>(ast, val);
+  }
+  assert(false && "TargetClonesAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: TargetClonesAttr::FeaturesStrings
 // 0: TargetClonesAttr::
 // 0: TargetClonesAttr::
@@ -5326,7 +7095,17 @@ TestTypestateAttr::TestTypestateAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, TestTypestateAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, TestTypestateAttr)
-// 1: TestTypestateAttr::Clone
+::pasta::TestTypestateAttr TestTypestateAttr::Clone(void) const noexcept {
+  auto &self = *(u.TestTypestateAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::TestTypestateAttr>(ast, val);
+  }
+  assert(false && "TestTypestateAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view TestTypestateAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::TestTypestateAttr *>(u.TestTypestateAttr);
   decltype(auto) val = self.getSpelling();
@@ -5353,7 +7132,17 @@ ThisCallAttr::ThisCallAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ThisCallAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ThisCallAttr)
-// 1: ThisCallAttr::Clone
+::pasta::ThisCallAttr ThisCallAttr::Clone(void) const noexcept {
+  auto &self = *(u.ThisCallAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ThisCallAttr>(ast, val);
+  }
+  assert(false && "ThisCallAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ThisCallAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ThisCallAttr *>(u.ThisCallAttr);
   decltype(auto) val = self.getSpelling();
@@ -5372,7 +7161,17 @@ ThreadAttr::ThreadAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ThreadAttr)
-// 1: ThreadAttr::Clone
+::pasta::ThreadAttr ThreadAttr::Clone(void) const noexcept {
+  auto &self = *(u.ThreadAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ThreadAttr>(ast, val);
+  }
+  assert(false && "ThreadAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ThreadAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ThreadAttr *>(u.ThreadAttr);
   decltype(auto) val = self.getSpelling();
@@ -5392,7 +7191,17 @@ TransparentUnionAttr::TransparentUnionAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, TransparentUnionAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, TransparentUnionAttr)
-// 1: TransparentUnionAttr::Clone
+::pasta::TransparentUnionAttr TransparentUnionAttr::Clone(void) const noexcept {
+  auto &self = *(u.TransparentUnionAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::TransparentUnionAttr>(ast, val);
+  }
+  assert(false && "TransparentUnionAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view TransparentUnionAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::TransparentUnionAttr *>(u.TransparentUnionAttr);
   decltype(auto) val = self.getSpelling();
@@ -5412,7 +7221,17 @@ TrivialABIAttr::TrivialABIAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, TrivialABIAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, TrivialABIAttr)
-// 1: TrivialABIAttr::Clone
+::pasta::TrivialABIAttr TrivialABIAttr::Clone(void) const noexcept {
+  auto &self = *(u.TrivialABIAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::TrivialABIAttr>(ast, val);
+  }
+  assert(false && "TrivialABIAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view TrivialABIAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::TrivialABIAttr *>(u.TrivialABIAttr);
   decltype(auto) val = self.getSpelling();
@@ -5436,7 +7255,17 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, TryAcquireCapabilityAttr)
 // 0: TryAcquireCapabilityAttr::
 // 0: TryAcquireCapabilityAttr::
 // 0: TryAcquireCapabilityAttr::
-// 1: TryAcquireCapabilityAttr::Clone
+::pasta::TryAcquireCapabilityAttr TryAcquireCapabilityAttr::Clone(void) const noexcept {
+  auto &self = *(u.TryAcquireCapabilityAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::TryAcquireCapabilityAttr>(ast, val);
+  }
+  assert(false && "TryAcquireCapabilityAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum TryAcquireCapabilityAttrSpelling TryAcquireCapabilityAttr::SemanticSpelling(void) const noexcept {
   auto &self = *const_cast<clang::TryAcquireCapabilityAttr *>(u.TryAcquireCapabilityAttr);
   decltype(auto) val = self.getSemanticSpelling();
@@ -5509,7 +7338,17 @@ TypeNonNullAttr::TypeNonNullAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, TypeNonNullAttr)
 PASTA_DEFINE_BASE_OPERATORS(TypeAttr, TypeNonNullAttr)
-// 1: TypeNonNullAttr::Clone
+::pasta::TypeNonNullAttr TypeNonNullAttr::Clone(void) const noexcept {
+  auto &self = *(u.TypeNonNullAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::TypeNonNullAttr>(ast, val);
+  }
+  assert(false && "TypeNonNullAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view TypeNonNullAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::TypeNonNullAttr *>(u.TypeNonNullAttr);
   decltype(auto) val = self.getSpelling();
@@ -5529,7 +7368,17 @@ TypeNullUnspecifiedAttr::TypeNullUnspecifiedAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, TypeNullUnspecifiedAttr)
 PASTA_DEFINE_BASE_OPERATORS(TypeAttr, TypeNullUnspecifiedAttr)
-// 1: TypeNullUnspecifiedAttr::Clone
+::pasta::TypeNullUnspecifiedAttr TypeNullUnspecifiedAttr::Clone(void) const noexcept {
+  auto &self = *(u.TypeNullUnspecifiedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::TypeNullUnspecifiedAttr>(ast, val);
+  }
+  assert(false && "TypeNullUnspecifiedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view TypeNullUnspecifiedAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::TypeNullUnspecifiedAttr *>(u.TypeNullUnspecifiedAttr);
   decltype(auto) val = self.getSpelling();
@@ -5549,7 +7398,17 @@ TypeNullableAttr::TypeNullableAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, TypeNullableAttr)
 PASTA_DEFINE_BASE_OPERATORS(TypeAttr, TypeNullableAttr)
-// 1: TypeNullableAttr::Clone
+::pasta::TypeNullableAttr TypeNullableAttr::Clone(void) const noexcept {
+  auto &self = *(u.TypeNullableAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::TypeNullableAttr>(ast, val);
+  }
+  assert(false && "TypeNullableAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view TypeNullableAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::TypeNullableAttr *>(u.TypeNullableAttr);
   decltype(auto) val = self.getSpelling();
@@ -5569,7 +7428,17 @@ TypeNullableResultAttr::TypeNullableResultAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, TypeNullableResultAttr)
 PASTA_DEFINE_BASE_OPERATORS(TypeAttr, TypeNullableResultAttr)
-// 1: TypeNullableResultAttr::Clone
+::pasta::TypeNullableResultAttr TypeNullableResultAttr::Clone(void) const noexcept {
+  auto &self = *(u.TypeNullableResultAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::TypeNullableResultAttr>(ast, val);
+  }
+  assert(false && "TypeNullableResultAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view TypeNullableResultAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::TypeNullableResultAttr *>(u.TypeNullableResultAttr);
   decltype(auto) val = self.getSpelling();
@@ -5589,7 +7458,17 @@ TypeTagForDatatypeAttr::TypeTagForDatatypeAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, TypeTagForDatatypeAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, TypeTagForDatatypeAttr)
-// 1: TypeTagForDatatypeAttr::Clone
+::pasta::TypeTagForDatatypeAttr TypeTagForDatatypeAttr::Clone(void) const noexcept {
+  auto &self = *(u.TypeTagForDatatypeAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::TypeTagForDatatypeAttr>(ast, val);
+  }
+  assert(false && "TypeTagForDatatypeAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: TypeTagForDatatypeAttr::ArgumentKind
 bool TypeTagForDatatypeAttr::LayoutCompatible(void) const noexcept {
   auto &self = *const_cast<clang::TypeTagForDatatypeAttr *>(u.TypeTagForDatatypeAttr);
@@ -5640,7 +7519,17 @@ TypeVisibilityAttr::TypeVisibilityAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, TypeVisibilityAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, TypeVisibilityAttr)
-// 1: TypeVisibilityAttr::Clone
+::pasta::TypeVisibilityAttr TypeVisibilityAttr::Clone(void) const noexcept {
+  auto &self = *(u.TypeVisibilityAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::TypeVisibilityAttr>(ast, val);
+  }
+  assert(false && "TypeVisibilityAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view TypeVisibilityAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::TypeVisibilityAttr *>(u.TypeVisibilityAttr);
   decltype(auto) val = self.getSpelling();
@@ -5667,7 +7556,17 @@ UPtrAttr::UPtrAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, UPtrAttr)
 PASTA_DEFINE_BASE_OPERATORS(TypeAttr, UPtrAttr)
-// 1: UPtrAttr::Clone
+::pasta::UPtrAttr UPtrAttr::Clone(void) const noexcept {
+  auto &self = *(u.UPtrAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::UPtrAttr>(ast, val);
+  }
+  assert(false && "UPtrAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view UPtrAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::UPtrAttr *>(u.UPtrAttr);
   decltype(auto) val = self.getSpelling();
@@ -5687,7 +7586,17 @@ UnavailableAttr::UnavailableAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, UnavailableAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, UnavailableAttr)
-// 1: UnavailableAttr::Clone
+::pasta::UnavailableAttr UnavailableAttr::Clone(void) const noexcept {
+  auto &self = *(u.UnavailableAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::UnavailableAttr>(ast, val);
+  }
+  assert(false && "UnavailableAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum UnavailableAttrImplicitReason UnavailableAttr::ImplicitReason(void) const noexcept {
   auto &self = *const_cast<clang::UnavailableAttr *>(u.UnavailableAttr);
   decltype(auto) val = self.getImplicitReason();
@@ -5732,7 +7641,17 @@ UninitializedAttr::UninitializedAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, UninitializedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, UninitializedAttr)
-// 1: UninitializedAttr::Clone
+::pasta::UninitializedAttr UninitializedAttr::Clone(void) const noexcept {
+  auto &self = *(u.UninitializedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::UninitializedAttr>(ast, val);
+  }
+  assert(false && "UninitializedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view UninitializedAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::UninitializedAttr *>(u.UninitializedAttr);
   decltype(auto) val = self.getSpelling();
@@ -5752,7 +7671,17 @@ UnlikelyAttr::UnlikelyAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, UnlikelyAttr)
 PASTA_DEFINE_BASE_OPERATORS(StmtAttr, UnlikelyAttr)
-// 1: UnlikelyAttr::Clone
+::pasta::UnlikelyAttr UnlikelyAttr::Clone(void) const noexcept {
+  auto &self = *(u.UnlikelyAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::UnlikelyAttr>(ast, val);
+  }
+  assert(false && "UnlikelyAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view UnlikelyAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::UnlikelyAttr *>(u.UnlikelyAttr);
   decltype(auto) val = self.getSpelling();
@@ -5772,7 +7701,17 @@ UnusedAttr::UnusedAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, UnusedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, UnusedAttr)
-// 1: UnusedAttr::Clone
+::pasta::UnusedAttr UnusedAttr::Clone(void) const noexcept {
+  auto &self = *(u.UnusedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::UnusedAttr>(ast, val);
+  }
+  assert(false && "UnusedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum UnusedAttrSpelling UnusedAttr::SemanticSpelling(void) const noexcept {
   auto &self = *const_cast<clang::UnusedAttr *>(u.UnusedAttr);
   decltype(auto) val = self.getSemanticSpelling();
@@ -5800,7 +7739,17 @@ UseHandleAttr::UseHandleAttr(
 PASTA_DEFINE_BASE_OPERATORS(Attr, UseHandleAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, UseHandleAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableParamAttr, UseHandleAttr)
-// 1: UseHandleAttr::Clone
+::pasta::UseHandleAttr UseHandleAttr::Clone(void) const noexcept {
+  auto &self = *(u.UseHandleAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::UseHandleAttr>(ast, val);
+  }
+  assert(false && "UseHandleAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view UseHandleAttr::HandleType(void) const noexcept {
   auto &self = *const_cast<clang::UseHandleAttr *>(u.UseHandleAttr);
   decltype(auto) val = self.getHandleType();
@@ -5838,7 +7787,17 @@ UsedAttr::UsedAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, UsedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, UsedAttr)
-// 1: UsedAttr::Clone
+::pasta::UsedAttr UsedAttr::Clone(void) const noexcept {
+  auto &self = *(u.UsedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::UsedAttr>(ast, val);
+  }
+  assert(false && "UsedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view UsedAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::UsedAttr *>(u.UsedAttr);
   decltype(auto) val = self.getSpelling();
@@ -5858,7 +7817,17 @@ UsingIfExistsAttr::UsingIfExistsAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, UsingIfExistsAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, UsingIfExistsAttr)
-// 1: UsingIfExistsAttr::Clone
+::pasta::UsingIfExistsAttr UsingIfExistsAttr::Clone(void) const noexcept {
+  auto &self = *(u.UsingIfExistsAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::UsingIfExistsAttr>(ast, val);
+  }
+  assert(false && "UsingIfExistsAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view UsingIfExistsAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::UsingIfExistsAttr *>(u.UsingIfExistsAttr);
   decltype(auto) val = self.getSpelling();
@@ -5878,7 +7847,17 @@ UuidAttr::UuidAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, UuidAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, UuidAttr)
-// 1: UuidAttr::Clone
+::pasta::UuidAttr UuidAttr::Clone(void) const noexcept {
+  auto &self = *(u.UuidAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::UuidAttr>(ast, val);
+  }
+  assert(false && "UuidAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view UuidAttr::Guid(void) const noexcept {
   auto &self = *const_cast<clang::UuidAttr *>(u.UuidAttr);
   decltype(auto) val = self.getGuid();
@@ -5926,7 +7905,17 @@ VecReturnAttr::VecReturnAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, VecReturnAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, VecReturnAttr)
-// 1: VecReturnAttr::Clone
+::pasta::VecReturnAttr VecReturnAttr::Clone(void) const noexcept {
+  auto &self = *(u.VecReturnAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::VecReturnAttr>(ast, val);
+  }
+  assert(false && "VecReturnAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view VecReturnAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::VecReturnAttr *>(u.VecReturnAttr);
   decltype(auto) val = self.getSpelling();
@@ -5946,7 +7935,17 @@ VecTypeHintAttr::VecTypeHintAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, VecTypeHintAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, VecTypeHintAttr)
-// 1: VecTypeHintAttr::Clone
+::pasta::VecTypeHintAttr VecTypeHintAttr::Clone(void) const noexcept {
+  auto &self = *(u.VecTypeHintAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::VecTypeHintAttr>(ast, val);
+  }
+  assert(false && "VecTypeHintAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view VecTypeHintAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::VecTypeHintAttr *>(u.VecTypeHintAttr);
   decltype(auto) val = self.getSpelling();
@@ -5982,7 +7981,17 @@ VectorCallAttr::VectorCallAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, VectorCallAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, VectorCallAttr)
-// 1: VectorCallAttr::Clone
+::pasta::VectorCallAttr VectorCallAttr::Clone(void) const noexcept {
+  auto &self = *(u.VectorCallAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::VectorCallAttr>(ast, val);
+  }
+  assert(false && "VectorCallAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view VectorCallAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::VectorCallAttr *>(u.VectorCallAttr);
   decltype(auto) val = self.getSpelling();
@@ -6002,7 +8011,17 @@ VisibilityAttr::VisibilityAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, VisibilityAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, VisibilityAttr)
-// 1: VisibilityAttr::Clone
+::pasta::VisibilityAttr VisibilityAttr::Clone(void) const noexcept {
+  auto &self = *(u.VisibilityAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::VisibilityAttr>(ast, val);
+  }
+  assert(false && "VisibilityAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view VisibilityAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::VisibilityAttr *>(u.VisibilityAttr);
   decltype(auto) val = self.getSpelling();
@@ -6029,7 +8048,17 @@ WarnUnusedAttr::WarnUnusedAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, WarnUnusedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, WarnUnusedAttr)
-// 1: WarnUnusedAttr::Clone
+::pasta::WarnUnusedAttr WarnUnusedAttr::Clone(void) const noexcept {
+  auto &self = *(u.WarnUnusedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::WarnUnusedAttr>(ast, val);
+  }
+  assert(false && "WarnUnusedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view WarnUnusedAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::WarnUnusedAttr *>(u.WarnUnusedAttr);
   decltype(auto) val = self.getSpelling();
@@ -6056,7 +8085,17 @@ bool WarnUnusedResultAttr::IsCXX11NoDiscard(void) const noexcept {
   __builtin_unreachable();
 }
 
-// 1: WarnUnusedResultAttr::Clone
+::pasta::WarnUnusedResultAttr WarnUnusedResultAttr::Clone(void) const noexcept {
+  auto &self = *(u.WarnUnusedResultAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::WarnUnusedResultAttr>(ast, val);
+  }
+  assert(false && "WarnUnusedResultAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view WarnUnusedResultAttr::Message(void) const noexcept {
   auto &self = *const_cast<clang::WarnUnusedResultAttr *>(u.WarnUnusedResultAttr);
   decltype(auto) val = self.getMessage();
@@ -6101,7 +8140,17 @@ WeakAttr::WeakAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, WeakAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, WeakAttr)
-// 1: WeakAttr::Clone
+::pasta::WeakAttr WeakAttr::Clone(void) const noexcept {
+  auto &self = *(u.WeakAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::WeakAttr>(ast, val);
+  }
+  assert(false && "WeakAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view WeakAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::WeakAttr *>(u.WeakAttr);
   decltype(auto) val = self.getSpelling();
@@ -6121,7 +8170,17 @@ WeakImportAttr::WeakImportAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, WeakImportAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, WeakImportAttr)
-// 1: WeakImportAttr::Clone
+::pasta::WeakImportAttr WeakImportAttr::Clone(void) const noexcept {
+  auto &self = *(u.WeakImportAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::WeakImportAttr>(ast, val);
+  }
+  assert(false && "WeakImportAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view WeakImportAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::WeakImportAttr *>(u.WeakImportAttr);
   decltype(auto) val = self.getSpelling();
@@ -6141,7 +8200,17 @@ WeakRefAttr::WeakRefAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, WeakRefAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, WeakRefAttr)
-// 1: WeakRefAttr::Clone
+::pasta::WeakRefAttr WeakRefAttr::Clone(void) const noexcept {
+  auto &self = *(u.WeakRefAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::WeakRefAttr>(ast, val);
+  }
+  assert(false && "WeakRefAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view WeakRefAttr::Aliasee(void) const noexcept {
   auto &self = *const_cast<clang::WeakRefAttr *>(u.WeakRefAttr);
   decltype(auto) val = self.getAliasee();
@@ -6179,7 +8248,17 @@ WebAssemblyExportNameAttr::WebAssemblyExportNameAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, WebAssemblyExportNameAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, WebAssemblyExportNameAttr)
-// 1: WebAssemblyExportNameAttr::Clone
+::pasta::WebAssemblyExportNameAttr WebAssemblyExportNameAttr::Clone(void) const noexcept {
+  auto &self = *(u.WebAssemblyExportNameAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::WebAssemblyExportNameAttr>(ast, val);
+  }
+  assert(false && "WebAssemblyExportNameAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view WebAssemblyExportNameAttr::ExportName(void) const noexcept {
   auto &self = *const_cast<clang::WebAssemblyExportNameAttr *>(u.WebAssemblyExportNameAttr);
   decltype(auto) val = self.getExportName();
@@ -6217,7 +8296,17 @@ WebAssemblyImportModuleAttr::WebAssemblyImportModuleAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, WebAssemblyImportModuleAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, WebAssemblyImportModuleAttr)
-// 1: WebAssemblyImportModuleAttr::Clone
+::pasta::WebAssemblyImportModuleAttr WebAssemblyImportModuleAttr::Clone(void) const noexcept {
+  auto &self = *(u.WebAssemblyImportModuleAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::WebAssemblyImportModuleAttr>(ast, val);
+  }
+  assert(false && "WebAssemblyImportModuleAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view WebAssemblyImportModuleAttr::ImportModule(void) const noexcept {
   auto &self = *const_cast<clang::WebAssemblyImportModuleAttr *>(u.WebAssemblyImportModuleAttr);
   decltype(auto) val = self.getImportModule();
@@ -6255,7 +8344,17 @@ WebAssemblyImportNameAttr::WebAssemblyImportNameAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, WebAssemblyImportNameAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, WebAssemblyImportNameAttr)
-// 1: WebAssemblyImportNameAttr::Clone
+::pasta::WebAssemblyImportNameAttr WebAssemblyImportNameAttr::Clone(void) const noexcept {
+  auto &self = *(u.WebAssemblyImportNameAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::WebAssemblyImportNameAttr>(ast, val);
+  }
+  assert(false && "WebAssemblyImportNameAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view WebAssemblyImportNameAttr::ImportName(void) const noexcept {
   auto &self = *const_cast<clang::WebAssemblyImportNameAttr *>(u.WebAssemblyImportNameAttr);
   decltype(auto) val = self.getImportName();
@@ -6293,7 +8392,17 @@ WorkGroupSizeHintAttr::WorkGroupSizeHintAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, WorkGroupSizeHintAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, WorkGroupSizeHintAttr)
-// 1: WorkGroupSizeHintAttr::Clone
+::pasta::WorkGroupSizeHintAttr WorkGroupSizeHintAttr::Clone(void) const noexcept {
+  auto &self = *(u.WorkGroupSizeHintAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::WorkGroupSizeHintAttr>(ast, val);
+  }
+  assert(false && "WorkGroupSizeHintAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view WorkGroupSizeHintAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::WorkGroupSizeHintAttr *>(u.WorkGroupSizeHintAttr);
   decltype(auto) val = self.getSpelling();
@@ -6334,7 +8443,17 @@ X86ForceAlignArgPointerAttr::X86ForceAlignArgPointerAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, X86ForceAlignArgPointerAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, X86ForceAlignArgPointerAttr)
-// 1: X86ForceAlignArgPointerAttr::Clone
+::pasta::X86ForceAlignArgPointerAttr X86ForceAlignArgPointerAttr::Clone(void) const noexcept {
+  auto &self = *(u.X86ForceAlignArgPointerAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::X86ForceAlignArgPointerAttr>(ast, val);
+  }
+  assert(false && "X86ForceAlignArgPointerAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view X86ForceAlignArgPointerAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::X86ForceAlignArgPointerAttr *>(u.X86ForceAlignArgPointerAttr);
   decltype(auto) val = self.getSpelling();
@@ -6361,7 +8480,17 @@ bool XRayInstrumentAttr::AlwaysXRayInstrument(void) const noexcept {
   __builtin_unreachable();
 }
 
-// 1: XRayInstrumentAttr::Clone
+::pasta::XRayInstrumentAttr XRayInstrumentAttr::Clone(void) const noexcept {
+  auto &self = *(u.XRayInstrumentAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::XRayInstrumentAttr>(ast, val);
+  }
+  assert(false && "XRayInstrumentAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum XRayInstrumentAttrSpelling XRayInstrumentAttr::SemanticSpelling(void) const noexcept {
   auto &self = *const_cast<clang::XRayInstrumentAttr *>(u.XRayInstrumentAttr);
   decltype(auto) val = self.getSemanticSpelling();
@@ -6395,7 +8524,17 @@ XRayLogArgsAttr::XRayLogArgsAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, XRayLogArgsAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, XRayLogArgsAttr)
-// 1: XRayLogArgsAttr::Clone
+::pasta::XRayLogArgsAttr XRayLogArgsAttr::Clone(void) const noexcept {
+  auto &self = *(u.XRayLogArgsAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::XRayLogArgsAttr>(ast, val);
+  }
+  assert(false && "XRayLogArgsAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 uint32_t XRayLogArgsAttr::ArgumentCount(void) const noexcept {
   auto &self = *const_cast<clang::XRayLogArgsAttr *>(u.XRayLogArgsAttr);
   decltype(auto) val = self.getArgumentCount();
@@ -6422,7 +8561,17 @@ AArch64VectorPcsAttr::AArch64VectorPcsAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AArch64VectorPcsAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AArch64VectorPcsAttr)
-// 1: AArch64VectorPcsAttr::Clone
+::pasta::AArch64VectorPcsAttr AArch64VectorPcsAttr::Clone(void) const noexcept {
+  auto &self = *(u.AArch64VectorPcsAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AArch64VectorPcsAttr>(ast, val);
+  }
+  assert(false && "AArch64VectorPcsAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view AArch64VectorPcsAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::AArch64VectorPcsAttr *>(u.AArch64VectorPcsAttr);
   decltype(auto) val = self.getSpelling();
@@ -6442,7 +8591,17 @@ AMDGPUFlatWorkGroupSizeAttr::AMDGPUFlatWorkGroupSizeAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AMDGPUFlatWorkGroupSizeAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AMDGPUFlatWorkGroupSizeAttr)
-// 1: AMDGPUFlatWorkGroupSizeAttr::Clone
+::pasta::AMDGPUFlatWorkGroupSizeAttr AMDGPUFlatWorkGroupSizeAttr::Clone(void) const noexcept {
+  auto &self = *(u.AMDGPUFlatWorkGroupSizeAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AMDGPUFlatWorkGroupSizeAttr>(ast, val);
+  }
+  assert(false && "AMDGPUFlatWorkGroupSizeAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 ::pasta::Expr AMDGPUFlatWorkGroupSizeAttr::Max(void) const noexcept {
   auto &self = *const_cast<clang::AMDGPUFlatWorkGroupSizeAttr *>(u.AMDGPUFlatWorkGroupSizeAttr);
   decltype(auto) val = self.getMax();
@@ -6482,7 +8641,17 @@ AMDGPUNumSGPRAttr::AMDGPUNumSGPRAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AMDGPUNumSGPRAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AMDGPUNumSGPRAttr)
-// 1: AMDGPUNumSGPRAttr::Clone
+::pasta::AMDGPUNumSGPRAttr AMDGPUNumSGPRAttr::Clone(void) const noexcept {
+  auto &self = *(u.AMDGPUNumSGPRAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AMDGPUNumSGPRAttr>(ast, val);
+  }
+  assert(false && "AMDGPUNumSGPRAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 uint32_t AMDGPUNumSGPRAttr::NumSGPR(void) const noexcept {
   auto &self = *const_cast<clang::AMDGPUNumSGPRAttr *>(u.AMDGPUNumSGPRAttr);
   decltype(auto) val = self.getNumSGPR();
@@ -6509,7 +8678,17 @@ AMDGPUNumVGPRAttr::AMDGPUNumVGPRAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AMDGPUNumVGPRAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AMDGPUNumVGPRAttr)
-// 1: AMDGPUNumVGPRAttr::Clone
+::pasta::AMDGPUNumVGPRAttr AMDGPUNumVGPRAttr::Clone(void) const noexcept {
+  auto &self = *(u.AMDGPUNumVGPRAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AMDGPUNumVGPRAttr>(ast, val);
+  }
+  assert(false && "AMDGPUNumVGPRAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 uint32_t AMDGPUNumVGPRAttr::NumVGPR(void) const noexcept {
   auto &self = *const_cast<clang::AMDGPUNumVGPRAttr *>(u.AMDGPUNumVGPRAttr);
   decltype(auto) val = self.getNumVGPR();
@@ -6536,7 +8715,17 @@ AMDGPUWavesPerEUAttr::AMDGPUWavesPerEUAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AMDGPUWavesPerEUAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AMDGPUWavesPerEUAttr)
-// 1: AMDGPUWavesPerEUAttr::Clone
+::pasta::AMDGPUWavesPerEUAttr AMDGPUWavesPerEUAttr::Clone(void) const noexcept {
+  auto &self = *(u.AMDGPUWavesPerEUAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AMDGPUWavesPerEUAttr>(ast, val);
+  }
+  assert(false && "AMDGPUWavesPerEUAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 ::pasta::Expr AMDGPUWavesPerEUAttr::Max(void) const noexcept {
   auto &self = *const_cast<clang::AMDGPUWavesPerEUAttr *>(u.AMDGPUWavesPerEUAttr);
   decltype(auto) val = self.getMax();
@@ -6576,7 +8765,17 @@ ARMInterruptAttr::ARMInterruptAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ARMInterruptAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ARMInterruptAttr)
-// 1: ARMInterruptAttr::Clone
+::pasta::ARMInterruptAttr ARMInterruptAttr::Clone(void) const noexcept {
+  auto &self = *(u.ARMInterruptAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ARMInterruptAttr>(ast, val);
+  }
+  assert(false && "ARMInterruptAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum ARMInterruptAttrInterruptType ARMInterruptAttr::Interrupt(void) const noexcept {
   auto &self = *const_cast<clang::ARMInterruptAttr *>(u.ARMInterruptAttr);
   decltype(auto) val = self.getInterrupt();
@@ -6603,7 +8802,17 @@ AVRInterruptAttr::AVRInterruptAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AVRInterruptAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AVRInterruptAttr)
-// 1: AVRInterruptAttr::Clone
+::pasta::AVRInterruptAttr AVRInterruptAttr::Clone(void) const noexcept {
+  auto &self = *(u.AVRInterruptAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AVRInterruptAttr>(ast, val);
+  }
+  assert(false && "AVRInterruptAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view AVRInterruptAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::AVRInterruptAttr *>(u.AVRInterruptAttr);
   decltype(auto) val = self.getSpelling();
@@ -6623,7 +8832,17 @@ AVRSignalAttr::AVRSignalAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AVRSignalAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AVRSignalAttr)
-// 1: AVRSignalAttr::Clone
+::pasta::AVRSignalAttr AVRSignalAttr::Clone(void) const noexcept {
+  auto &self = *(u.AVRSignalAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AVRSignalAttr>(ast, val);
+  }
+  assert(false && "AVRSignalAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view AVRSignalAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::AVRSignalAttr *>(u.AVRSignalAttr);
   decltype(auto) val = self.getSpelling();
@@ -6642,7 +8861,17 @@ AbiTagAttr::AbiTagAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AbiTagAttr)
-// 1: AbiTagAttr::Clone
+::pasta::AbiTagAttr AbiTagAttr::Clone(void) const noexcept {
+  auto &self = *(u.AbiTagAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AbiTagAttr>(ast, val);
+  }
+  assert(false && "AbiTagAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view AbiTagAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::AbiTagAttr *>(u.AbiTagAttr);
   decltype(auto) val = self.getSpelling();
@@ -6670,7 +8899,17 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AcquireCapabilityAttr)
 // 0: AcquireCapabilityAttr::
 // 0: AcquireCapabilityAttr::
 // 0: AcquireCapabilityAttr::
-// 1: AcquireCapabilityAttr::Clone
+::pasta::AcquireCapabilityAttr AcquireCapabilityAttr::Clone(void) const noexcept {
+  auto &self = *(u.AcquireCapabilityAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AcquireCapabilityAttr>(ast, val);
+  }
+  assert(false && "AcquireCapabilityAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum AcquireCapabilityAttrSpelling AcquireCapabilityAttr::SemanticSpelling(void) const noexcept {
   auto &self = *const_cast<clang::AcquireCapabilityAttr *>(u.AcquireCapabilityAttr);
   decltype(auto) val = self.getSemanticSpelling();
@@ -6704,7 +8943,17 @@ AcquireHandleAttr::AcquireHandleAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AcquireHandleAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AcquireHandleAttr)
-// 1: AcquireHandleAttr::Clone
+::pasta::AcquireHandleAttr AcquireHandleAttr::Clone(void) const noexcept {
+  auto &self = *(u.AcquireHandleAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AcquireHandleAttr>(ast, val);
+  }
+  assert(false && "AcquireHandleAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view AcquireHandleAttr::HandleType(void) const noexcept {
   auto &self = *const_cast<clang::AcquireHandleAttr *>(u.AcquireHandleAttr);
   decltype(auto) val = self.getHandleType();
@@ -6746,7 +8995,17 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AcquiredAfterAttr)
 // 0: AcquiredAfterAttr::
 // 0: AcquiredAfterAttr::
 // 0: AcquiredAfterAttr::
-// 1: AcquiredAfterAttr::Clone
+::pasta::AcquiredAfterAttr AcquiredAfterAttr::Clone(void) const noexcept {
+  auto &self = *(u.AcquiredAfterAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AcquiredAfterAttr>(ast, val);
+  }
+  assert(false && "AcquiredAfterAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view AcquiredAfterAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::AcquiredAfterAttr *>(u.AcquiredAfterAttr);
   decltype(auto) val = self.getSpelling();
@@ -6770,7 +9029,17 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AcquiredBeforeAttr)
 // 0: AcquiredBeforeAttr::
 // 0: AcquiredBeforeAttr::
 // 0: AcquiredBeforeAttr::
-// 1: AcquiredBeforeAttr::Clone
+::pasta::AcquiredBeforeAttr AcquiredBeforeAttr::Clone(void) const noexcept {
+  auto &self = *(u.AcquiredBeforeAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AcquiredBeforeAttr>(ast, val);
+  }
+  assert(false && "AcquiredBeforeAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view AcquiredBeforeAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::AcquiredBeforeAttr *>(u.AcquiredBeforeAttr);
   decltype(auto) val = self.getSpelling();
@@ -6790,7 +9059,17 @@ AddressSpaceAttr::AddressSpaceAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AddressSpaceAttr)
 PASTA_DEFINE_BASE_OPERATORS(TypeAttr, AddressSpaceAttr)
-// 1: AddressSpaceAttr::Clone
+::pasta::AddressSpaceAttr AddressSpaceAttr::Clone(void) const noexcept {
+  auto &self = *(u.AddressSpaceAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AddressSpaceAttr>(ast, val);
+  }
+  assert(false && "AddressSpaceAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: AddressSpaceAttr::AddressSpace
 std::string_view AddressSpaceAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::AddressSpaceAttr *>(u.AddressSpaceAttr);
@@ -6810,7 +9089,17 @@ AliasAttr::AliasAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AliasAttr)
-// 1: AliasAttr::Clone
+::pasta::AliasAttr AliasAttr::Clone(void) const noexcept {
+  auto &self = *(u.AliasAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AliasAttr>(ast, val);
+  }
+  assert(false && "AliasAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view AliasAttr::Aliasee(void) const noexcept {
   auto &self = *const_cast<clang::AliasAttr *>(u.AliasAttr);
   decltype(auto) val = self.getAliasee();
@@ -6848,7 +9137,17 @@ AlignMac68kAttr::AlignMac68kAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AlignMac68kAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AlignMac68kAttr)
-// 1: AlignMac68kAttr::Clone
+::pasta::AlignMac68kAttr AlignMac68kAttr::Clone(void) const noexcept {
+  auto &self = *(u.AlignMac68kAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AlignMac68kAttr>(ast, val);
+  }
+  assert(false && "AlignMac68kAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view AlignMac68kAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::AlignMac68kAttr *>(u.AlignMac68kAttr);
   decltype(auto) val = self.getSpelling();
@@ -6868,7 +9167,17 @@ AlignNaturalAttr::AlignNaturalAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AlignNaturalAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AlignNaturalAttr)
-// 1: AlignNaturalAttr::Clone
+::pasta::AlignNaturalAttr AlignNaturalAttr::Clone(void) const noexcept {
+  auto &self = *(u.AlignNaturalAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AlignNaturalAttr>(ast, val);
+  }
+  assert(false && "AlignNaturalAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view AlignNaturalAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::AlignNaturalAttr *>(u.AlignNaturalAttr);
   decltype(auto) val = self.getSpelling();
@@ -6887,7 +9196,17 @@ AlignValueAttr::AlignValueAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AlignValueAttr)
-// 1: AlignValueAttr::Clone
+::pasta::AlignValueAttr AlignValueAttr::Clone(void) const noexcept {
+  auto &self = *(u.AlignValueAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AlignValueAttr>(ast, val);
+  }
+  assert(false && "AlignValueAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 ::pasta::Expr AlignValueAttr::Alignment(void) const noexcept {
   auto &self = *const_cast<clang::AlignValueAttr *>(u.AlignValueAttr);
   decltype(auto) val = self.getAlignment();
@@ -6917,7 +9236,17 @@ AlignedAttr::AlignedAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AlignedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AlignedAttr)
-// 1: AlignedAttr::Clone
+::pasta::AlignedAttr AlignedAttr::Clone(void) const noexcept {
+  auto &self = *(u.AlignedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AlignedAttr>(ast, val);
+  }
+  assert(false && "AlignedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 uint32_t AlignedAttr::Alignment(void) const noexcept {
   auto &self = *(u.AlignedAttr);
   decltype(auto) val = self.getAlignment(ast->ci->getASTContext());
@@ -7018,7 +9347,17 @@ AllocAlignAttr::AllocAlignAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AllocAlignAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AllocAlignAttr)
-// 1: AllocAlignAttr::Clone
+::pasta::AllocAlignAttr AllocAlignAttr::Clone(void) const noexcept {
+  auto &self = *(u.AllocAlignAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AllocAlignAttr>(ast, val);
+  }
+  assert(false && "AllocAlignAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: AllocAlignAttr::ParameterIndex
 std::string_view AllocAlignAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::AllocAlignAttr *>(u.AllocAlignAttr);
@@ -7039,7 +9378,17 @@ AllocSizeAttr::AllocSizeAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AllocSizeAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AllocSizeAttr)
-// 1: AllocSizeAttr::Clone
+::pasta::AllocSizeAttr AllocSizeAttr::Clone(void) const noexcept {
+  auto &self = *(u.AllocSizeAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AllocSizeAttr>(ast, val);
+  }
+  assert(false && "AllocSizeAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: AllocSizeAttr::ElemSizeParameter
 // 0: AllocSizeAttr::NumElemsParameter
 std::string_view AllocSizeAttr::Spelling(void) const noexcept {
@@ -7061,7 +9410,17 @@ AlwaysDestroyAttr::AlwaysDestroyAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AlwaysDestroyAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AlwaysDestroyAttr)
-// 1: AlwaysDestroyAttr::Clone
+::pasta::AlwaysDestroyAttr AlwaysDestroyAttr::Clone(void) const noexcept {
+  auto &self = *(u.AlwaysDestroyAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AlwaysDestroyAttr>(ast, val);
+  }
+  assert(false && "AlwaysDestroyAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view AlwaysDestroyAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::AlwaysDestroyAttr *>(u.AlwaysDestroyAttr);
   decltype(auto) val = self.getSpelling();
@@ -7081,7 +9440,17 @@ AlwaysInlineAttr::AlwaysInlineAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AlwaysInlineAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AlwaysInlineAttr)
-// 1: AlwaysInlineAttr::Clone
+::pasta::AlwaysInlineAttr AlwaysInlineAttr::Clone(void) const noexcept {
+  auto &self = *(u.AlwaysInlineAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AlwaysInlineAttr>(ast, val);
+  }
+  assert(false && "AlwaysInlineAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum AlwaysInlineAttrSpelling AlwaysInlineAttr::SemanticSpelling(void) const noexcept {
   auto &self = *const_cast<clang::AlwaysInlineAttr *>(u.AlwaysInlineAttr);
   decltype(auto) val = self.getSemanticSpelling();
@@ -7108,7 +9477,17 @@ AnalyzerNoReturnAttr::AnalyzerNoReturnAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AnalyzerNoReturnAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AnalyzerNoReturnAttr)
-// 1: AnalyzerNoReturnAttr::Clone
+::pasta::AnalyzerNoReturnAttr AnalyzerNoReturnAttr::Clone(void) const noexcept {
+  auto &self = *(u.AnalyzerNoReturnAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AnalyzerNoReturnAttr>(ast, val);
+  }
+  assert(false && "AnalyzerNoReturnAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view AnalyzerNoReturnAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::AnalyzerNoReturnAttr *>(u.AnalyzerNoReturnAttr);
   decltype(auto) val = self.getSpelling();
@@ -7133,7 +9512,17 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableParamAttr, AnnotateAttr)
 // 0: AnnotateAttr::
 // 0: AnnotateAttr::
 // 0: AnnotateAttr::
-// 1: AnnotateAttr::Clone
+::pasta::AnnotateAttr AnnotateAttr::Clone(void) const noexcept {
+  auto &self = *(u.AnnotateAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AnnotateAttr>(ast, val);
+  }
+  assert(false && "AnnotateAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view AnnotateAttr::Annotation(void) const noexcept {
   auto &self = *const_cast<clang::AnnotateAttr *>(u.AnnotateAttr);
   decltype(auto) val = self.getAnnotation();
@@ -7171,7 +9560,17 @@ AnyX86InterruptAttr::AnyX86InterruptAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AnyX86InterruptAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AnyX86InterruptAttr)
-// 1: AnyX86InterruptAttr::Clone
+::pasta::AnyX86InterruptAttr AnyX86InterruptAttr::Clone(void) const noexcept {
+  auto &self = *(u.AnyX86InterruptAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AnyX86InterruptAttr>(ast, val);
+  }
+  assert(false && "AnyX86InterruptAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view AnyX86InterruptAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::AnyX86InterruptAttr *>(u.AnyX86InterruptAttr);
   decltype(auto) val = self.getSpelling();
@@ -7191,7 +9590,17 @@ AnyX86NoCallerSavedRegistersAttr::AnyX86NoCallerSavedRegistersAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AnyX86NoCallerSavedRegistersAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AnyX86NoCallerSavedRegistersAttr)
-// 1: AnyX86NoCallerSavedRegistersAttr::Clone
+::pasta::AnyX86NoCallerSavedRegistersAttr AnyX86NoCallerSavedRegistersAttr::Clone(void) const noexcept {
+  auto &self = *(u.AnyX86NoCallerSavedRegistersAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AnyX86NoCallerSavedRegistersAttr>(ast, val);
+  }
+  assert(false && "AnyX86NoCallerSavedRegistersAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view AnyX86NoCallerSavedRegistersAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::AnyX86NoCallerSavedRegistersAttr *>(u.AnyX86NoCallerSavedRegistersAttr);
   decltype(auto) val = self.getSpelling();
@@ -7211,7 +9620,17 @@ AnyX86NoCfCheckAttr::AnyX86NoCfCheckAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AnyX86NoCfCheckAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AnyX86NoCfCheckAttr)
-// 1: AnyX86NoCfCheckAttr::Clone
+::pasta::AnyX86NoCfCheckAttr AnyX86NoCfCheckAttr::Clone(void) const noexcept {
+  auto &self = *(u.AnyX86NoCfCheckAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AnyX86NoCfCheckAttr>(ast, val);
+  }
+  assert(false && "AnyX86NoCfCheckAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view AnyX86NoCfCheckAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::AnyX86NoCfCheckAttr *>(u.AnyX86NoCfCheckAttr);
   decltype(auto) val = self.getSpelling();
@@ -7231,7 +9650,17 @@ ArcWeakrefUnavailableAttr::ArcWeakrefUnavailableAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ArcWeakrefUnavailableAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ArcWeakrefUnavailableAttr)
-// 1: ArcWeakrefUnavailableAttr::Clone
+::pasta::ArcWeakrefUnavailableAttr ArcWeakrefUnavailableAttr::Clone(void) const noexcept {
+  auto &self = *(u.ArcWeakrefUnavailableAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ArcWeakrefUnavailableAttr>(ast, val);
+  }
+  assert(false && "ArcWeakrefUnavailableAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ArcWeakrefUnavailableAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ArcWeakrefUnavailableAttr *>(u.ArcWeakrefUnavailableAttr);
   decltype(auto) val = self.getSpelling();
@@ -7251,7 +9680,17 @@ ArgumentWithTypeTagAttr::ArgumentWithTypeTagAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ArgumentWithTypeTagAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ArgumentWithTypeTagAttr)
-// 1: ArgumentWithTypeTagAttr::Clone
+::pasta::ArgumentWithTypeTagAttr ArgumentWithTypeTagAttr::Clone(void) const noexcept {
+  auto &self = *(u.ArgumentWithTypeTagAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ArgumentWithTypeTagAttr>(ast, val);
+  }
+  assert(false && "ArgumentWithTypeTagAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: ArgumentWithTypeTagAttr::ArgumentIndex
 // 0: ArgumentWithTypeTagAttr::ArgumentKind
 bool ArgumentWithTypeTagAttr::IsPointer(void) const noexcept {
@@ -7288,7 +9727,17 @@ ArmBuiltinAliasAttr::ArmBuiltinAliasAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ArmBuiltinAliasAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ArmBuiltinAliasAttr)
-// 1: ArmBuiltinAliasAttr::Clone
+::pasta::ArmBuiltinAliasAttr ArmBuiltinAliasAttr::Clone(void) const noexcept {
+  auto &self = *(u.ArmBuiltinAliasAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ArmBuiltinAliasAttr>(ast, val);
+  }
+  assert(false && "ArmBuiltinAliasAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: ArmBuiltinAliasAttr::BuiltinName
 std::string_view ArmBuiltinAliasAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ArmBuiltinAliasAttr *>(u.ArmBuiltinAliasAttr);
@@ -7309,7 +9758,17 @@ ArmMveStrictPolymorphismAttr::ArmMveStrictPolymorphismAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ArmMveStrictPolymorphismAttr)
 PASTA_DEFINE_BASE_OPERATORS(TypeAttr, ArmMveStrictPolymorphismAttr)
-// 1: ArmMveStrictPolymorphismAttr::Clone
+::pasta::ArmMveStrictPolymorphismAttr ArmMveStrictPolymorphismAttr::Clone(void) const noexcept {
+  auto &self = *(u.ArmMveStrictPolymorphismAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ArmMveStrictPolymorphismAttr>(ast, val);
+  }
+  assert(false && "ArmMveStrictPolymorphismAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ArmMveStrictPolymorphismAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ArmMveStrictPolymorphismAttr *>(u.ArmMveStrictPolymorphismAttr);
   decltype(auto) val = self.getSpelling();
@@ -7329,7 +9788,17 @@ ArtificialAttr::ArtificialAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ArtificialAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ArtificialAttr)
-// 1: ArtificialAttr::Clone
+::pasta::ArtificialAttr ArtificialAttr::Clone(void) const noexcept {
+  auto &self = *(u.ArtificialAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ArtificialAttr>(ast, val);
+  }
+  assert(false && "ArtificialAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ArtificialAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ArtificialAttr *>(u.ArtificialAttr);
   decltype(auto) val = self.getSpelling();
@@ -7349,7 +9818,17 @@ AsmLabelAttr::AsmLabelAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AsmLabelAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AsmLabelAttr)
-// 1: AsmLabelAttr::Clone
+::pasta::AsmLabelAttr AsmLabelAttr::Clone(void) const noexcept {
+  auto &self = *(u.AsmLabelAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AsmLabelAttr>(ast, val);
+  }
+  assert(false && "AsmLabelAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 bool AsmLabelAttr::IsLiteralLabel(void) const noexcept {
   auto &self = *const_cast<clang::AsmLabelAttr *>(u.AsmLabelAttr);
   decltype(auto) val = self.getIsLiteralLabel();
@@ -7399,7 +9878,17 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AssertCapabilityAttr)
 // 0: AssertCapabilityAttr::
 // 0: AssertCapabilityAttr::
 // 0: AssertCapabilityAttr::
-// 1: AssertCapabilityAttr::Clone
+::pasta::AssertCapabilityAttr AssertCapabilityAttr::Clone(void) const noexcept {
+  auto &self = *(u.AssertCapabilityAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AssertCapabilityAttr>(ast, val);
+  }
+  assert(false && "AssertCapabilityAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum AssertCapabilityAttrSpelling AssertCapabilityAttr::SemanticSpelling(void) const noexcept {
   auto &self = *const_cast<clang::AssertCapabilityAttr *>(u.AssertCapabilityAttr);
   decltype(auto) val = self.getSemanticSpelling();
@@ -7437,7 +9926,17 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AssertExclusiveLockAttr)
 // 0: AssertExclusiveLockAttr::
 // 0: AssertExclusiveLockAttr::
 // 0: AssertExclusiveLockAttr::
-// 1: AssertExclusiveLockAttr::Clone
+::pasta::AssertExclusiveLockAttr AssertExclusiveLockAttr::Clone(void) const noexcept {
+  auto &self = *(u.AssertExclusiveLockAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AssertExclusiveLockAttr>(ast, val);
+  }
+  assert(false && "AssertExclusiveLockAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view AssertExclusiveLockAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::AssertExclusiveLockAttr *>(u.AssertExclusiveLockAttr);
   decltype(auto) val = self.getSpelling();
@@ -7461,7 +9960,17 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AssertSharedLockAttr)
 // 0: AssertSharedLockAttr::
 // 0: AssertSharedLockAttr::
 // 0: AssertSharedLockAttr::
-// 1: AssertSharedLockAttr::Clone
+::pasta::AssertSharedLockAttr AssertSharedLockAttr::Clone(void) const noexcept {
+  auto &self = *(u.AssertSharedLockAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AssertSharedLockAttr>(ast, val);
+  }
+  assert(false && "AssertSharedLockAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view AssertSharedLockAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::AssertSharedLockAttr *>(u.AssertSharedLockAttr);
   decltype(auto) val = self.getSpelling();
@@ -7481,7 +9990,17 @@ AssumeAlignedAttr::AssumeAlignedAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AssumeAlignedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AssumeAlignedAttr)
-// 1: AssumeAlignedAttr::Clone
+::pasta::AssumeAlignedAttr AssumeAlignedAttr::Clone(void) const noexcept {
+  auto &self = *(u.AssumeAlignedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AssumeAlignedAttr>(ast, val);
+  }
+  assert(false && "AssumeAlignedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 ::pasta::Expr AssumeAlignedAttr::Alignment(void) const noexcept {
   auto &self = *const_cast<clang::AssumeAlignedAttr *>(u.AssumeAlignedAttr);
   decltype(auto) val = self.getAlignment();
@@ -7521,7 +10040,17 @@ AssumptionAttr::AssumptionAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AssumptionAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AssumptionAttr)
-// 1: AssumptionAttr::Clone
+::pasta::AssumptionAttr AssumptionAttr::Clone(void) const noexcept {
+  auto &self = *(u.AssumptionAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AssumptionAttr>(ast, val);
+  }
+  assert(false && "AssumptionAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view AssumptionAttr::Assumption(void) const noexcept {
   auto &self = *const_cast<clang::AssumptionAttr *>(u.AssumptionAttr);
   decltype(auto) val = self.getAssumption();
@@ -7559,7 +10088,17 @@ AvailabilityAttr::AvailabilityAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, AvailabilityAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AvailabilityAttr)
-// 1: AvailabilityAttr::Clone
+::pasta::AvailabilityAttr AvailabilityAttr::Clone(void) const noexcept {
+  auto &self = *(u.AvailabilityAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::AvailabilityAttr>(ast, val);
+  }
+  assert(false && "AvailabilityAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: AvailabilityAttr::Deprecated
 // 0: AvailabilityAttr::Introduced
 std::string_view AvailabilityAttr::Message(void) const noexcept {
@@ -7634,7 +10173,17 @@ BPFPreserveAccessIndexAttr::BPFPreserveAccessIndexAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, BPFPreserveAccessIndexAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, BPFPreserveAccessIndexAttr)
-// 1: BPFPreserveAccessIndexAttr::Clone
+::pasta::BPFPreserveAccessIndexAttr BPFPreserveAccessIndexAttr::Clone(void) const noexcept {
+  auto &self = *(u.BPFPreserveAccessIndexAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::BPFPreserveAccessIndexAttr>(ast, val);
+  }
+  assert(false && "BPFPreserveAccessIndexAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view BPFPreserveAccessIndexAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::BPFPreserveAccessIndexAttr *>(u.BPFPreserveAccessIndexAttr);
   decltype(auto) val = self.getSpelling();
@@ -7654,7 +10203,17 @@ BTFDeclTagAttr::BTFDeclTagAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, BTFDeclTagAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, BTFDeclTagAttr)
-// 1: BTFDeclTagAttr::Clone
+::pasta::BTFDeclTagAttr BTFDeclTagAttr::Clone(void) const noexcept {
+  auto &self = *(u.BTFDeclTagAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::BTFDeclTagAttr>(ast, val);
+  }
+  assert(false && "BTFDeclTagAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view BTFDeclTagAttr::BTFDeclTag(void) const noexcept {
   auto &self = *const_cast<clang::BTFDeclTagAttr *>(u.BTFDeclTagAttr);
   decltype(auto) val = self.getBTFDeclTag();
@@ -7692,7 +10251,17 @@ BTFTypeTagAttr::BTFTypeTagAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, BTFTypeTagAttr)
 PASTA_DEFINE_BASE_OPERATORS(TypeAttr, BTFTypeTagAttr)
-// 1: BTFTypeTagAttr::Clone
+::pasta::BTFTypeTagAttr BTFTypeTagAttr::Clone(void) const noexcept {
+  auto &self = *(u.BTFTypeTagAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::BTFTypeTagAttr>(ast, val);
+  }
+  assert(false && "BTFTypeTagAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view BTFTypeTagAttr::BTFTypeTag(void) const noexcept {
   auto &self = *const_cast<clang::BTFTypeTagAttr *>(u.BTFTypeTagAttr);
   decltype(auto) val = self.getBTFTypeTag();
@@ -7730,7 +10299,17 @@ BlocksAttr::BlocksAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, BlocksAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, BlocksAttr)
-// 1: BlocksAttr::Clone
+::pasta::BlocksAttr BlocksAttr::Clone(void) const noexcept {
+  auto &self = *(u.BlocksAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::BlocksAttr>(ast, val);
+  }
+  assert(false && "BlocksAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view BlocksAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::BlocksAttr *>(u.BlocksAttr);
   decltype(auto) val = self.getSpelling();
@@ -7757,7 +10336,17 @@ BuiltinAttr::BuiltinAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, BuiltinAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, BuiltinAttr)
-// 1: BuiltinAttr::Clone
+::pasta::BuiltinAttr BuiltinAttr::Clone(void) const noexcept {
+  auto &self = *(u.BuiltinAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::BuiltinAttr>(ast, val);
+  }
+  assert(false && "BuiltinAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 uint32_t BuiltinAttr::ID(void) const noexcept {
   auto &self = *const_cast<clang::BuiltinAttr *>(u.BuiltinAttr);
   decltype(auto) val = self.getID();
@@ -7784,7 +10373,17 @@ C11NoReturnAttr::C11NoReturnAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, C11NoReturnAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, C11NoReturnAttr)
-// 1: C11NoReturnAttr::Clone
+::pasta::C11NoReturnAttr C11NoReturnAttr::Clone(void) const noexcept {
+  auto &self = *(u.C11NoReturnAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::C11NoReturnAttr>(ast, val);
+  }
+  assert(false && "C11NoReturnAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view C11NoReturnAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::C11NoReturnAttr *>(u.C11NoReturnAttr);
   decltype(auto) val = self.getSpelling();
@@ -7804,7 +10403,17 @@ CDeclAttr::CDeclAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CDeclAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CDeclAttr)
-// 1: CDeclAttr::Clone
+::pasta::CDeclAttr CDeclAttr::Clone(void) const noexcept {
+  auto &self = *(u.CDeclAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CDeclAttr>(ast, val);
+  }
+  assert(false && "CDeclAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CDeclAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::CDeclAttr *>(u.CDeclAttr);
   decltype(auto) val = self.getSpelling();
@@ -7824,7 +10433,17 @@ CFAuditedTransferAttr::CFAuditedTransferAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CFAuditedTransferAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CFAuditedTransferAttr)
-// 1: CFAuditedTransferAttr::Clone
+::pasta::CFAuditedTransferAttr CFAuditedTransferAttr::Clone(void) const noexcept {
+  auto &self = *(u.CFAuditedTransferAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CFAuditedTransferAttr>(ast, val);
+  }
+  assert(false && "CFAuditedTransferAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CFAuditedTransferAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::CFAuditedTransferAttr *>(u.CFAuditedTransferAttr);
   decltype(auto) val = self.getSpelling();
@@ -7845,7 +10464,17 @@ CFConsumedAttr::CFConsumedAttr(
 PASTA_DEFINE_BASE_OPERATORS(Attr, CFConsumedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CFConsumedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableParamAttr, CFConsumedAttr)
-// 1: CFConsumedAttr::Clone
+::pasta::CFConsumedAttr CFConsumedAttr::Clone(void) const noexcept {
+  auto &self = *(u.CFConsumedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CFConsumedAttr>(ast, val);
+  }
+  assert(false && "CFConsumedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CFConsumedAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::CFConsumedAttr *>(u.CFConsumedAttr);
   decltype(auto) val = self.getSpelling();
@@ -7865,7 +10494,17 @@ CFGuardAttr::CFGuardAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CFGuardAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CFGuardAttr)
-// 1: CFGuardAttr::Clone
+::pasta::CFGuardAttr CFGuardAttr::Clone(void) const noexcept {
+  auto &self = *(u.CFGuardAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CFGuardAttr>(ast, val);
+  }
+  assert(false && "CFGuardAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum CFGuardAttrGuardArg CFGuardAttr::Guard(void) const noexcept {
   auto &self = *const_cast<clang::CFGuardAttr *>(u.CFGuardAttr);
   decltype(auto) val = self.getGuard();
@@ -7892,7 +10531,17 @@ CFICanonicalJumpTableAttr::CFICanonicalJumpTableAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CFICanonicalJumpTableAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CFICanonicalJumpTableAttr)
-// 1: CFICanonicalJumpTableAttr::Clone
+::pasta::CFICanonicalJumpTableAttr CFICanonicalJumpTableAttr::Clone(void) const noexcept {
+  auto &self = *(u.CFICanonicalJumpTableAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CFICanonicalJumpTableAttr>(ast, val);
+  }
+  assert(false && "CFICanonicalJumpTableAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CFICanonicalJumpTableAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::CFICanonicalJumpTableAttr *>(u.CFICanonicalJumpTableAttr);
   decltype(auto) val = self.getSpelling();
@@ -7912,7 +10561,17 @@ CFReturnsNotRetainedAttr::CFReturnsNotRetainedAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CFReturnsNotRetainedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CFReturnsNotRetainedAttr)
-// 1: CFReturnsNotRetainedAttr::Clone
+::pasta::CFReturnsNotRetainedAttr CFReturnsNotRetainedAttr::Clone(void) const noexcept {
+  auto &self = *(u.CFReturnsNotRetainedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CFReturnsNotRetainedAttr>(ast, val);
+  }
+  assert(false && "CFReturnsNotRetainedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CFReturnsNotRetainedAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::CFReturnsNotRetainedAttr *>(u.CFReturnsNotRetainedAttr);
   decltype(auto) val = self.getSpelling();
@@ -7932,7 +10591,17 @@ CFReturnsRetainedAttr::CFReturnsRetainedAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CFReturnsRetainedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CFReturnsRetainedAttr)
-// 1: CFReturnsRetainedAttr::Clone
+::pasta::CFReturnsRetainedAttr CFReturnsRetainedAttr::Clone(void) const noexcept {
+  auto &self = *(u.CFReturnsRetainedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CFReturnsRetainedAttr>(ast, val);
+  }
+  assert(false && "CFReturnsRetainedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CFReturnsRetainedAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::CFReturnsRetainedAttr *>(u.CFReturnsRetainedAttr);
   decltype(auto) val = self.getSpelling();
@@ -7952,7 +10621,17 @@ CFUnknownTransferAttr::CFUnknownTransferAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CFUnknownTransferAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CFUnknownTransferAttr)
-// 1: CFUnknownTransferAttr::Clone
+::pasta::CFUnknownTransferAttr CFUnknownTransferAttr::Clone(void) const noexcept {
+  auto &self = *(u.CFUnknownTransferAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CFUnknownTransferAttr>(ast, val);
+  }
+  assert(false && "CFUnknownTransferAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CFUnknownTransferAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::CFUnknownTransferAttr *>(u.CFUnknownTransferAttr);
   decltype(auto) val = self.getSpelling();
@@ -7972,7 +10651,17 @@ CPUDispatchAttr::CPUDispatchAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CPUDispatchAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CPUDispatchAttr)
-// 1: CPUDispatchAttr::Clone
+::pasta::CPUDispatchAttr CPUDispatchAttr::Clone(void) const noexcept {
+  auto &self = *(u.CPUDispatchAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CPUDispatchAttr>(ast, val);
+  }
+  assert(false && "CPUDispatchAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: CPUDispatchAttr::Cpus
 // 0: CPUDispatchAttr::
 // 0: CPUDispatchAttr::
@@ -7996,7 +10685,17 @@ CPUSpecificAttr::CPUSpecificAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CPUSpecificAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CPUSpecificAttr)
-// 1: CPUSpecificAttr::Clone
+::pasta::CPUSpecificAttr CPUSpecificAttr::Clone(void) const noexcept {
+  auto &self = *(u.CPUSpecificAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CPUSpecificAttr>(ast, val);
+  }
+  assert(false && "CPUSpecificAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: CPUSpecificAttr::Cpus
 // 0: CPUSpecificAttr::
 // 0: CPUSpecificAttr::
@@ -8021,7 +10720,17 @@ CUDAConstantAttr::CUDAConstantAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CUDAConstantAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CUDAConstantAttr)
-// 1: CUDAConstantAttr::Clone
+::pasta::CUDAConstantAttr CUDAConstantAttr::Clone(void) const noexcept {
+  auto &self = *(u.CUDAConstantAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CUDAConstantAttr>(ast, val);
+  }
+  assert(false && "CUDAConstantAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CUDAConstantAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::CUDAConstantAttr *>(u.CUDAConstantAttr);
   decltype(auto) val = self.getSpelling();
@@ -8041,7 +10750,17 @@ CUDADeviceAttr::CUDADeviceAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CUDADeviceAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CUDADeviceAttr)
-// 1: CUDADeviceAttr::Clone
+::pasta::CUDADeviceAttr CUDADeviceAttr::Clone(void) const noexcept {
+  auto &self = *(u.CUDADeviceAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CUDADeviceAttr>(ast, val);
+  }
+  assert(false && "CUDADeviceAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CUDADeviceAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::CUDADeviceAttr *>(u.CUDADeviceAttr);
   decltype(auto) val = self.getSpelling();
@@ -8061,7 +10780,17 @@ CUDADeviceBuiltinSurfaceTypeAttr::CUDADeviceBuiltinSurfaceTypeAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CUDADeviceBuiltinSurfaceTypeAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CUDADeviceBuiltinSurfaceTypeAttr)
-// 1: CUDADeviceBuiltinSurfaceTypeAttr::Clone
+::pasta::CUDADeviceBuiltinSurfaceTypeAttr CUDADeviceBuiltinSurfaceTypeAttr::Clone(void) const noexcept {
+  auto &self = *(u.CUDADeviceBuiltinSurfaceTypeAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CUDADeviceBuiltinSurfaceTypeAttr>(ast, val);
+  }
+  assert(false && "CUDADeviceBuiltinSurfaceTypeAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CUDADeviceBuiltinSurfaceTypeAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::CUDADeviceBuiltinSurfaceTypeAttr *>(u.CUDADeviceBuiltinSurfaceTypeAttr);
   decltype(auto) val = self.getSpelling();
@@ -8081,7 +10810,17 @@ CUDADeviceBuiltinTextureTypeAttr::CUDADeviceBuiltinTextureTypeAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CUDADeviceBuiltinTextureTypeAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CUDADeviceBuiltinTextureTypeAttr)
-// 1: CUDADeviceBuiltinTextureTypeAttr::Clone
+::pasta::CUDADeviceBuiltinTextureTypeAttr CUDADeviceBuiltinTextureTypeAttr::Clone(void) const noexcept {
+  auto &self = *(u.CUDADeviceBuiltinTextureTypeAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CUDADeviceBuiltinTextureTypeAttr>(ast, val);
+  }
+  assert(false && "CUDADeviceBuiltinTextureTypeAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CUDADeviceBuiltinTextureTypeAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::CUDADeviceBuiltinTextureTypeAttr *>(u.CUDADeviceBuiltinTextureTypeAttr);
   decltype(auto) val = self.getSpelling();
@@ -8101,7 +10840,17 @@ CUDAGlobalAttr::CUDAGlobalAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CUDAGlobalAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CUDAGlobalAttr)
-// 1: CUDAGlobalAttr::Clone
+::pasta::CUDAGlobalAttr CUDAGlobalAttr::Clone(void) const noexcept {
+  auto &self = *(u.CUDAGlobalAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CUDAGlobalAttr>(ast, val);
+  }
+  assert(false && "CUDAGlobalAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CUDAGlobalAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::CUDAGlobalAttr *>(u.CUDAGlobalAttr);
   decltype(auto) val = self.getSpelling();
@@ -8121,7 +10870,17 @@ CUDAHostAttr::CUDAHostAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CUDAHostAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CUDAHostAttr)
-// 1: CUDAHostAttr::Clone
+::pasta::CUDAHostAttr CUDAHostAttr::Clone(void) const noexcept {
+  auto &self = *(u.CUDAHostAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CUDAHostAttr>(ast, val);
+  }
+  assert(false && "CUDAHostAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CUDAHostAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::CUDAHostAttr *>(u.CUDAHostAttr);
   decltype(auto) val = self.getSpelling();
@@ -8141,7 +10900,17 @@ CUDAInvalidTargetAttr::CUDAInvalidTargetAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CUDAInvalidTargetAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CUDAInvalidTargetAttr)
-// 1: CUDAInvalidTargetAttr::Clone
+::pasta::CUDAInvalidTargetAttr CUDAInvalidTargetAttr::Clone(void) const noexcept {
+  auto &self = *(u.CUDAInvalidTargetAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CUDAInvalidTargetAttr>(ast, val);
+  }
+  assert(false && "CUDAInvalidTargetAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CUDAInvalidTargetAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::CUDAInvalidTargetAttr *>(u.CUDAInvalidTargetAttr);
   decltype(auto) val = self.getSpelling();
@@ -8161,7 +10930,17 @@ CUDALaunchBoundsAttr::CUDALaunchBoundsAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CUDALaunchBoundsAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CUDALaunchBoundsAttr)
-// 1: CUDALaunchBoundsAttr::Clone
+::pasta::CUDALaunchBoundsAttr CUDALaunchBoundsAttr::Clone(void) const noexcept {
+  auto &self = *(u.CUDALaunchBoundsAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CUDALaunchBoundsAttr>(ast, val);
+  }
+  assert(false && "CUDALaunchBoundsAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 ::pasta::Expr CUDALaunchBoundsAttr::MaxThreads(void) const noexcept {
   auto &self = *const_cast<clang::CUDALaunchBoundsAttr *>(u.CUDALaunchBoundsAttr);
   decltype(auto) val = self.getMaxThreads();
@@ -8201,7 +10980,17 @@ CUDASharedAttr::CUDASharedAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CUDASharedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CUDASharedAttr)
-// 1: CUDASharedAttr::Clone
+::pasta::CUDASharedAttr CUDASharedAttr::Clone(void) const noexcept {
+  auto &self = *(u.CUDASharedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CUDASharedAttr>(ast, val);
+  }
+  assert(false && "CUDASharedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CUDASharedAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::CUDASharedAttr *>(u.CUDASharedAttr);
   decltype(auto) val = self.getSpelling();
@@ -8221,7 +11010,17 @@ CXX11NoReturnAttr::CXX11NoReturnAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CXX11NoReturnAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CXX11NoReturnAttr)
-// 1: CXX11NoReturnAttr::Clone
+::pasta::CXX11NoReturnAttr CXX11NoReturnAttr::Clone(void) const noexcept {
+  auto &self = *(u.CXX11NoReturnAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CXX11NoReturnAttr>(ast, val);
+  }
+  assert(false && "CXX11NoReturnAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CXX11NoReturnAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::CXX11NoReturnAttr *>(u.CXX11NoReturnAttr);
   decltype(auto) val = self.getSpelling();
@@ -8245,7 +11044,17 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CallableWhenAttr)
 // 0: CallableWhenAttr::
 // 0: CallableWhenAttr::
 // 0: CallableWhenAttr::
-// 1: CallableWhenAttr::Clone
+::pasta::CallableWhenAttr CallableWhenAttr::Clone(void) const noexcept {
+  auto &self = *(u.CallableWhenAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CallableWhenAttr>(ast, val);
+  }
+  assert(false && "CallableWhenAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CallableWhenAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::CallableWhenAttr *>(u.CallableWhenAttr);
   decltype(auto) val = self.getSpelling();
@@ -8265,7 +11074,17 @@ CallbackAttr::CallbackAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CallbackAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CallbackAttr)
-// 1: CallbackAttr::Clone
+::pasta::CallbackAttr CallbackAttr::Clone(void) const noexcept {
+  auto &self = *(u.CallbackAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CallbackAttr>(ast, val);
+  }
+  assert(false && "CallbackAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: CallbackAttr::Encoding
 // 0: CallbackAttr::
 // 0: CallbackAttr::
@@ -8289,7 +11108,17 @@ CapabilityAttr::CapabilityAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CapabilityAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CapabilityAttr)
-// 1: CapabilityAttr::Clone
+::pasta::CapabilityAttr CapabilityAttr::Clone(void) const noexcept {
+  auto &self = *(u.CapabilityAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CapabilityAttr>(ast, val);
+  }
+  assert(false && "CapabilityAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CapabilityAttr::Name(void) const noexcept {
   auto &self = *const_cast<clang::CapabilityAttr *>(u.CapabilityAttr);
   decltype(auto) val = self.getName();
@@ -8341,7 +11170,17 @@ CapturedRecordAttr::CapturedRecordAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CapturedRecordAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CapturedRecordAttr)
-// 1: CapturedRecordAttr::Clone
+::pasta::CapturedRecordAttr CapturedRecordAttr::Clone(void) const noexcept {
+  auto &self = *(u.CapturedRecordAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CapturedRecordAttr>(ast, val);
+  }
+  assert(false && "CapturedRecordAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CapturedRecordAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::CapturedRecordAttr *>(u.CapturedRecordAttr);
   decltype(auto) val = self.getSpelling();
@@ -8362,7 +11201,17 @@ CarriesDependencyAttr::CarriesDependencyAttr(
 PASTA_DEFINE_BASE_OPERATORS(Attr, CarriesDependencyAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CarriesDependencyAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableParamAttr, CarriesDependencyAttr)
-// 1: CarriesDependencyAttr::Clone
+::pasta::CarriesDependencyAttr CarriesDependencyAttr::Clone(void) const noexcept {
+  auto &self = *(u.CarriesDependencyAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CarriesDependencyAttr>(ast, val);
+  }
+  assert(false && "CarriesDependencyAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CarriesDependencyAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::CarriesDependencyAttr *>(u.CarriesDependencyAttr);
   decltype(auto) val = self.getSpelling();
@@ -8382,7 +11231,17 @@ CleanupAttr::CleanupAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CleanupAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CleanupAttr)
-// 1: CleanupAttr::Clone
+::pasta::CleanupAttr CleanupAttr::Clone(void) const noexcept {
+  auto &self = *(u.CleanupAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CleanupAttr>(ast, val);
+  }
+  assert(false && "CleanupAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 ::pasta::FunctionDecl CleanupAttr::FunctionDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::CleanupAttr *>(u.CleanupAttr);
   decltype(auto) val = self.getFunctionDecl();
@@ -8412,7 +11271,17 @@ CmseNSCallAttr::CmseNSCallAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CmseNSCallAttr)
 PASTA_DEFINE_BASE_OPERATORS(TypeAttr, CmseNSCallAttr)
-// 1: CmseNSCallAttr::Clone
+::pasta::CmseNSCallAttr CmseNSCallAttr::Clone(void) const noexcept {
+  auto &self = *(u.CmseNSCallAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CmseNSCallAttr>(ast, val);
+  }
+  assert(false && "CmseNSCallAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CmseNSCallAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::CmseNSCallAttr *>(u.CmseNSCallAttr);
   decltype(auto) val = self.getSpelling();
@@ -8432,7 +11301,17 @@ CmseNSEntryAttr::CmseNSEntryAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CmseNSEntryAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CmseNSEntryAttr)
-// 1: CmseNSEntryAttr::Clone
+::pasta::CmseNSEntryAttr CmseNSEntryAttr::Clone(void) const noexcept {
+  auto &self = *(u.CmseNSEntryAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CmseNSEntryAttr>(ast, val);
+  }
+  assert(false && "CmseNSEntryAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CmseNSEntryAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::CmseNSEntryAttr *>(u.CmseNSEntryAttr);
   decltype(auto) val = self.getSpelling();
@@ -8452,7 +11331,17 @@ CodeSegAttr::CodeSegAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CodeSegAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CodeSegAttr)
-// 1: CodeSegAttr::Clone
+::pasta::CodeSegAttr CodeSegAttr::Clone(void) const noexcept {
+  auto &self = *(u.CodeSegAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CodeSegAttr>(ast, val);
+  }
+  assert(false && "CodeSegAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CodeSegAttr::Name(void) const noexcept {
   auto &self = *const_cast<clang::CodeSegAttr *>(u.CodeSegAttr);
   decltype(auto) val = self.getName();
@@ -8490,7 +11379,17 @@ ColdAttr::ColdAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ColdAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ColdAttr)
-// 1: ColdAttr::Clone
+::pasta::ColdAttr ColdAttr::Clone(void) const noexcept {
+  auto &self = *(u.ColdAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ColdAttr>(ast, val);
+  }
+  assert(false && "ColdAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ColdAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ColdAttr *>(u.ColdAttr);
   decltype(auto) val = self.getSpelling();
@@ -8510,7 +11409,17 @@ CommonAttr::CommonAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, CommonAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CommonAttr)
-// 1: CommonAttr::Clone
+::pasta::CommonAttr CommonAttr::Clone(void) const noexcept {
+  auto &self = *(u.CommonAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::CommonAttr>(ast, val);
+  }
+  assert(false && "CommonAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view CommonAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::CommonAttr *>(u.CommonAttr);
   decltype(auto) val = self.getSpelling();
@@ -8530,7 +11439,17 @@ ConstAttr::ConstAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ConstAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ConstAttr)
-// 1: ConstAttr::Clone
+::pasta::ConstAttr ConstAttr::Clone(void) const noexcept {
+  auto &self = *(u.ConstAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ConstAttr>(ast, val);
+  }
+  assert(false && "ConstAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ConstAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ConstAttr *>(u.ConstAttr);
   decltype(auto) val = self.getSpelling();
@@ -8550,7 +11469,17 @@ ConstInitAttr::ConstInitAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ConstInitAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ConstInitAttr)
-// 1: ConstInitAttr::Clone
+::pasta::ConstInitAttr ConstInitAttr::Clone(void) const noexcept {
+  auto &self = *(u.ConstInitAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ConstInitAttr>(ast, val);
+  }
+  assert(false && "ConstInitAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum ConstInitAttrSpelling ConstInitAttr::SemanticSpelling(void) const noexcept {
   auto &self = *const_cast<clang::ConstInitAttr *>(u.ConstInitAttr);
   decltype(auto) val = self.getSemanticSpelling();
@@ -8584,7 +11513,17 @@ ConstructorAttr::ConstructorAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ConstructorAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ConstructorAttr)
-// 1: ConstructorAttr::Clone
+::pasta::ConstructorAttr ConstructorAttr::Clone(void) const noexcept {
+  auto &self = *(u.ConstructorAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ConstructorAttr>(ast, val);
+  }
+  assert(false && "ConstructorAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: ConstructorAttr::Priority
 std::string_view ConstructorAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ConstructorAttr *>(u.ConstructorAttr);
@@ -8605,7 +11544,17 @@ ConsumableAttr::ConsumableAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ConsumableAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ConsumableAttr)
-// 1: ConsumableAttr::Clone
+::pasta::ConsumableAttr ConsumableAttr::Clone(void) const noexcept {
+  auto &self = *(u.ConsumableAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ConsumableAttr>(ast, val);
+  }
+  assert(false && "ConsumableAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum ConsumableAttrConsumedState ConsumableAttr::DefaultState(void) const noexcept {
   auto &self = *const_cast<clang::ConsumableAttr *>(u.ConsumableAttr);
   decltype(auto) val = self.getDefaultState();
@@ -8632,7 +11581,17 @@ ConsumableAutoCastAttr::ConsumableAutoCastAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ConsumableAutoCastAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ConsumableAutoCastAttr)
-// 1: ConsumableAutoCastAttr::Clone
+::pasta::ConsumableAutoCastAttr ConsumableAutoCastAttr::Clone(void) const noexcept {
+  auto &self = *(u.ConsumableAutoCastAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ConsumableAutoCastAttr>(ast, val);
+  }
+  assert(false && "ConsumableAutoCastAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ConsumableAutoCastAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ConsumableAutoCastAttr *>(u.ConsumableAutoCastAttr);
   decltype(auto) val = self.getSpelling();
@@ -8652,7 +11611,17 @@ ConsumableSetOnReadAttr::ConsumableSetOnReadAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ConsumableSetOnReadAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ConsumableSetOnReadAttr)
-// 1: ConsumableSetOnReadAttr::Clone
+::pasta::ConsumableSetOnReadAttr ConsumableSetOnReadAttr::Clone(void) const noexcept {
+  auto &self = *(u.ConsumableSetOnReadAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ConsumableSetOnReadAttr>(ast, val);
+  }
+  assert(false && "ConsumableSetOnReadAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ConsumableSetOnReadAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ConsumableSetOnReadAttr *>(u.ConsumableSetOnReadAttr);
   decltype(auto) val = self.getSpelling();
@@ -8672,7 +11641,17 @@ ConvergentAttr::ConvergentAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ConvergentAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ConvergentAttr)
-// 1: ConvergentAttr::Clone
+::pasta::ConvergentAttr ConvergentAttr::Clone(void) const noexcept {
+  auto &self = *(u.ConvergentAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ConvergentAttr>(ast, val);
+  }
+  assert(false && "ConvergentAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ConvergentAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ConvergentAttr *>(u.ConvergentAttr);
   decltype(auto) val = self.getSpelling();
@@ -8692,7 +11671,17 @@ DLLExportAttr::DLLExportAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, DLLExportAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, DLLExportAttr)
-// 1: DLLExportAttr::Clone
+::pasta::DLLExportAttr DLLExportAttr::Clone(void) const noexcept {
+  auto &self = *(u.DLLExportAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::DLLExportAttr>(ast, val);
+  }
+  assert(false && "DLLExportAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view DLLExportAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::DLLExportAttr *>(u.DLLExportAttr);
   decltype(auto) val = self.getSpelling();
@@ -8712,7 +11701,17 @@ DLLExportStaticLocalAttr::DLLExportStaticLocalAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, DLLExportStaticLocalAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, DLLExportStaticLocalAttr)
-// 1: DLLExportStaticLocalAttr::Clone
+::pasta::DLLExportStaticLocalAttr DLLExportStaticLocalAttr::Clone(void) const noexcept {
+  auto &self = *(u.DLLExportStaticLocalAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::DLLExportStaticLocalAttr>(ast, val);
+  }
+  assert(false && "DLLExportStaticLocalAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view DLLExportStaticLocalAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::DLLExportStaticLocalAttr *>(u.DLLExportStaticLocalAttr);
   decltype(auto) val = self.getSpelling();
@@ -8732,7 +11731,17 @@ DLLImportAttr::DLLImportAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, DLLImportAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, DLLImportAttr)
-// 1: DLLImportAttr::Clone
+::pasta::DLLImportAttr DLLImportAttr::Clone(void) const noexcept {
+  auto &self = *(u.DLLImportAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::DLLImportAttr>(ast, val);
+  }
+  assert(false && "DLLImportAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view DLLImportAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::DLLImportAttr *>(u.DLLImportAttr);
   decltype(auto) val = self.getSpelling();
@@ -8752,7 +11761,17 @@ DLLImportStaticLocalAttr::DLLImportStaticLocalAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, DLLImportStaticLocalAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, DLLImportStaticLocalAttr)
-// 1: DLLImportStaticLocalAttr::Clone
+::pasta::DLLImportStaticLocalAttr DLLImportStaticLocalAttr::Clone(void) const noexcept {
+  auto &self = *(u.DLLImportStaticLocalAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::DLLImportStaticLocalAttr>(ast, val);
+  }
+  assert(false && "DLLImportStaticLocalAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view DLLImportStaticLocalAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::DLLImportStaticLocalAttr *>(u.DLLImportStaticLocalAttr);
   decltype(auto) val = self.getSpelling();
@@ -8780,7 +11799,17 @@ DeprecatedAttr::DeprecatedAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, DeprecatedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, DeprecatedAttr)
-// 1: DeprecatedAttr::Clone
+::pasta::DeprecatedAttr DeprecatedAttr::Clone(void) const noexcept {
+  auto &self = *(u.DeprecatedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::DeprecatedAttr>(ast, val);
+  }
+  assert(false && "DeprecatedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view DeprecatedAttr::Message(void) const noexcept {
   auto &self = *const_cast<clang::DeprecatedAttr *>(u.DeprecatedAttr);
   decltype(auto) val = self.getMessage();
@@ -8836,7 +11865,17 @@ DestructorAttr::DestructorAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, DestructorAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, DestructorAttr)
-// 1: DestructorAttr::Clone
+::pasta::DestructorAttr DestructorAttr::Clone(void) const noexcept {
+  auto &self = *(u.DestructorAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::DestructorAttr>(ast, val);
+  }
+  assert(false && "DestructorAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: DestructorAttr::Priority
 std::string_view DestructorAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::DestructorAttr *>(u.DestructorAttr);
@@ -8861,7 +11900,17 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, DiagnoseAsBuiltinAttr)
 // 0: DiagnoseAsBuiltinAttr::
 // 0: DiagnoseAsBuiltinAttr::
 // 0: DiagnoseAsBuiltinAttr::
-// 1: DiagnoseAsBuiltinAttr::Clone
+::pasta::DiagnoseAsBuiltinAttr DiagnoseAsBuiltinAttr::Clone(void) const noexcept {
+  auto &self = *(u.DiagnoseAsBuiltinAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::DiagnoseAsBuiltinAttr>(ast, val);
+  }
+  assert(false && "DiagnoseAsBuiltinAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 ::pasta::FunctionDecl DiagnoseAsBuiltinAttr::Function(void) const noexcept {
   auto &self = *const_cast<clang::DiagnoseAsBuiltinAttr *>(u.DiagnoseAsBuiltinAttr);
   decltype(auto) val = self.getFunction();
@@ -8891,7 +11940,17 @@ DiagnoseIfAttr::DiagnoseIfAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, DiagnoseIfAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, DiagnoseIfAttr)
-// 1: DiagnoseIfAttr::Clone
+::pasta::DiagnoseIfAttr DiagnoseIfAttr::Clone(void) const noexcept {
+  auto &self = *(u.DiagnoseIfAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::DiagnoseIfAttr>(ast, val);
+  }
+  assert(false && "DiagnoseIfAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 bool DiagnoseIfAttr::ArgumentDependent(void) const noexcept {
   auto &self = *const_cast<clang::DiagnoseIfAttr *>(u.DiagnoseIfAttr);
   decltype(auto) val = self.getArgDependent();
@@ -8977,7 +12036,17 @@ DisableSanitizerInstrumentationAttr::DisableSanitizerInstrumentationAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, DisableSanitizerInstrumentationAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, DisableSanitizerInstrumentationAttr)
-// 1: DisableSanitizerInstrumentationAttr::Clone
+::pasta::DisableSanitizerInstrumentationAttr DisableSanitizerInstrumentationAttr::Clone(void) const noexcept {
+  auto &self = *(u.DisableSanitizerInstrumentationAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::DisableSanitizerInstrumentationAttr>(ast, val);
+  }
+  assert(false && "DisableSanitizerInstrumentationAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view DisableSanitizerInstrumentationAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::DisableSanitizerInstrumentationAttr *>(u.DisableSanitizerInstrumentationAttr);
   decltype(auto) val = self.getSpelling();
@@ -8997,7 +12066,17 @@ DisableTailCallsAttr::DisableTailCallsAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, DisableTailCallsAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, DisableTailCallsAttr)
-// 1: DisableTailCallsAttr::Clone
+::pasta::DisableTailCallsAttr DisableTailCallsAttr::Clone(void) const noexcept {
+  auto &self = *(u.DisableTailCallsAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::DisableTailCallsAttr>(ast, val);
+  }
+  assert(false && "DisableTailCallsAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view DisableTailCallsAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::DisableTailCallsAttr *>(u.DisableTailCallsAttr);
   decltype(auto) val = self.getSpelling();
@@ -9017,7 +12096,17 @@ EmptyBasesAttr::EmptyBasesAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, EmptyBasesAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, EmptyBasesAttr)
-// 1: EmptyBasesAttr::Clone
+::pasta::EmptyBasesAttr EmptyBasesAttr::Clone(void) const noexcept {
+  auto &self = *(u.EmptyBasesAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::EmptyBasesAttr>(ast, val);
+  }
+  assert(false && "EmptyBasesAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view EmptyBasesAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::EmptyBasesAttr *>(u.EmptyBasesAttr);
   decltype(auto) val = self.getSpelling();
@@ -9037,7 +12126,17 @@ EnableIfAttr::EnableIfAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, EnableIfAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, EnableIfAttr)
-// 1: EnableIfAttr::Clone
+::pasta::EnableIfAttr EnableIfAttr::Clone(void) const noexcept {
+  auto &self = *(u.EnableIfAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::EnableIfAttr>(ast, val);
+  }
+  assert(false && "EnableIfAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 ::pasta::Expr EnableIfAttr::Condition(void) const noexcept {
   auto &self = *const_cast<clang::EnableIfAttr *>(u.EnableIfAttr);
   decltype(auto) val = self.getCond();
@@ -9085,7 +12184,17 @@ EnforceTCBAttr::EnforceTCBAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, EnforceTCBAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, EnforceTCBAttr)
-// 1: EnforceTCBAttr::Clone
+::pasta::EnforceTCBAttr EnforceTCBAttr::Clone(void) const noexcept {
+  auto &self = *(u.EnforceTCBAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::EnforceTCBAttr>(ast, val);
+  }
+  assert(false && "EnforceTCBAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view EnforceTCBAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::EnforceTCBAttr *>(u.EnforceTCBAttr);
   decltype(auto) val = self.getSpelling();
@@ -9123,7 +12232,17 @@ EnforceTCBLeafAttr::EnforceTCBLeafAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, EnforceTCBLeafAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, EnforceTCBLeafAttr)
-// 1: EnforceTCBLeafAttr::Clone
+::pasta::EnforceTCBLeafAttr EnforceTCBLeafAttr::Clone(void) const noexcept {
+  auto &self = *(u.EnforceTCBLeafAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::EnforceTCBLeafAttr>(ast, val);
+  }
+  assert(false && "EnforceTCBLeafAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view EnforceTCBLeafAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::EnforceTCBLeafAttr *>(u.EnforceTCBLeafAttr);
   decltype(auto) val = self.getSpelling();
@@ -9161,7 +12280,17 @@ EnumExtensibilityAttr::EnumExtensibilityAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, EnumExtensibilityAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, EnumExtensibilityAttr)
-// 1: EnumExtensibilityAttr::Clone
+::pasta::EnumExtensibilityAttr EnumExtensibilityAttr::Clone(void) const noexcept {
+  auto &self = *(u.EnumExtensibilityAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::EnumExtensibilityAttr>(ast, val);
+  }
+  assert(false && "EnumExtensibilityAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum EnumExtensibilityAttrKind EnumExtensibilityAttr::Extensibility(void) const noexcept {
   auto &self = *const_cast<clang::EnumExtensibilityAttr *>(u.EnumExtensibilityAttr);
   decltype(auto) val = self.getExtensibility();
@@ -9188,7 +12317,17 @@ ErrorAttr::ErrorAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ErrorAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ErrorAttr)
-// 1: ErrorAttr::Clone
+::pasta::ErrorAttr ErrorAttr::Clone(void) const noexcept {
+  auto &self = *(u.ErrorAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ErrorAttr>(ast, val);
+  }
+  assert(false && "ErrorAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum ErrorAttrSpelling ErrorAttr::SemanticSpelling(void) const noexcept {
   auto &self = *const_cast<clang::ErrorAttr *>(u.ErrorAttr);
   decltype(auto) val = self.getSemanticSpelling();
@@ -9247,7 +12386,17 @@ ExcludeFromExplicitInstantiationAttr::ExcludeFromExplicitInstantiationAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ExcludeFromExplicitInstantiationAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ExcludeFromExplicitInstantiationAttr)
-// 1: ExcludeFromExplicitInstantiationAttr::Clone
+::pasta::ExcludeFromExplicitInstantiationAttr ExcludeFromExplicitInstantiationAttr::Clone(void) const noexcept {
+  auto &self = *(u.ExcludeFromExplicitInstantiationAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ExcludeFromExplicitInstantiationAttr>(ast, val);
+  }
+  assert(false && "ExcludeFromExplicitInstantiationAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ExcludeFromExplicitInstantiationAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ExcludeFromExplicitInstantiationAttr *>(u.ExcludeFromExplicitInstantiationAttr);
   decltype(auto) val = self.getSpelling();
@@ -9271,7 +12420,17 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ExclusiveTrylockFunctionAttr)
 // 0: ExclusiveTrylockFunctionAttr::
 // 0: ExclusiveTrylockFunctionAttr::
 // 0: ExclusiveTrylockFunctionAttr::
-// 1: ExclusiveTrylockFunctionAttr::Clone
+::pasta::ExclusiveTrylockFunctionAttr ExclusiveTrylockFunctionAttr::Clone(void) const noexcept {
+  auto &self = *(u.ExclusiveTrylockFunctionAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ExclusiveTrylockFunctionAttr>(ast, val);
+  }
+  assert(false && "ExclusiveTrylockFunctionAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ExclusiveTrylockFunctionAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ExclusiveTrylockFunctionAttr *>(u.ExclusiveTrylockFunctionAttr);
   decltype(auto) val = self.getSpelling();
@@ -9301,7 +12460,17 @@ ExternalSourceSymbolAttr::ExternalSourceSymbolAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ExternalSourceSymbolAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ExternalSourceSymbolAttr)
-// 1: ExternalSourceSymbolAttr::Clone
+::pasta::ExternalSourceSymbolAttr ExternalSourceSymbolAttr::Clone(void) const noexcept {
+  auto &self = *(u.ExternalSourceSymbolAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ExternalSourceSymbolAttr>(ast, val);
+  }
+  assert(false && "ExternalSourceSymbolAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ExternalSourceSymbolAttr::DefinedIn(void) const noexcept {
   auto &self = *const_cast<clang::ExternalSourceSymbolAttr *>(u.ExternalSourceSymbolAttr);
   decltype(auto) val = self.getDefinedIn();
@@ -9364,7 +12533,17 @@ FallThroughAttr::FallThroughAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, FallThroughAttr)
 PASTA_DEFINE_BASE_OPERATORS(StmtAttr, FallThroughAttr)
-// 1: FallThroughAttr::Clone
+::pasta::FallThroughAttr FallThroughAttr::Clone(void) const noexcept {
+  auto &self = *(u.FallThroughAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::FallThroughAttr>(ast, val);
+  }
+  assert(false && "FallThroughAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view FallThroughAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::FallThroughAttr *>(u.FallThroughAttr);
   decltype(auto) val = self.getSpelling();
@@ -9384,7 +12563,17 @@ FastCallAttr::FastCallAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, FastCallAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, FastCallAttr)
-// 1: FastCallAttr::Clone
+::pasta::FastCallAttr FastCallAttr::Clone(void) const noexcept {
+  auto &self = *(u.FastCallAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::FastCallAttr>(ast, val);
+  }
+  assert(false && "FastCallAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view FastCallAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::FastCallAttr *>(u.FastCallAttr);
   decltype(auto) val = self.getSpelling();
@@ -9404,7 +12593,17 @@ FinalAttr::FinalAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, FinalAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, FinalAttr)
-// 1: FinalAttr::Clone
+::pasta::FinalAttr FinalAttr::Clone(void) const noexcept {
+  auto &self = *(u.FinalAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::FinalAttr>(ast, val);
+  }
+  assert(false && "FinalAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum FinalAttrSpelling FinalAttr::SemanticSpelling(void) const noexcept {
   auto &self = *const_cast<clang::FinalAttr *>(u.FinalAttr);
   decltype(auto) val = self.getSemanticSpelling();
@@ -9438,7 +12637,17 @@ FlagEnumAttr::FlagEnumAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, FlagEnumAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, FlagEnumAttr)
-// 1: FlagEnumAttr::Clone
+::pasta::FlagEnumAttr FlagEnumAttr::Clone(void) const noexcept {
+  auto &self = *(u.FlagEnumAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::FlagEnumAttr>(ast, val);
+  }
+  assert(false && "FlagEnumAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view FlagEnumAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::FlagEnumAttr *>(u.FlagEnumAttr);
   decltype(auto) val = self.getSpelling();
@@ -9458,7 +12667,17 @@ FlattenAttr::FlattenAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, FlattenAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, FlattenAttr)
-// 1: FlattenAttr::Clone
+::pasta::FlattenAttr FlattenAttr::Clone(void) const noexcept {
+  auto &self = *(u.FlattenAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::FlattenAttr>(ast, val);
+  }
+  assert(false && "FlattenAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view FlattenAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::FlattenAttr *>(u.FlattenAttr);
   decltype(auto) val = self.getSpelling();
@@ -9478,7 +12697,17 @@ FormatArgAttr::FormatArgAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, FormatArgAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, FormatArgAttr)
-// 1: FormatArgAttr::Clone
+::pasta::FormatArgAttr FormatArgAttr::Clone(void) const noexcept {
+  auto &self = *(u.FormatArgAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::FormatArgAttr>(ast, val);
+  }
+  assert(false && "FormatArgAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: FormatArgAttr::FormatIndex
 std::string_view FormatArgAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::FormatArgAttr *>(u.FormatArgAttr);
@@ -9499,7 +12728,17 @@ FormatAttr::FormatAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, FormatAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, FormatAttr)
-// 1: FormatAttr::Clone
+::pasta::FormatAttr FormatAttr::Clone(void) const noexcept {
+  auto &self = *(u.FormatAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::FormatAttr>(ast, val);
+  }
+  assert(false && "FormatAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: FormatAttr::FirstArgument
 // 0: FormatAttr::FormatIndex
 std::string_view FormatAttr::Spelling(void) const noexcept {
@@ -9522,7 +12761,17 @@ GNUInlineAttr::GNUInlineAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, GNUInlineAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, GNUInlineAttr)
-// 1: GNUInlineAttr::Clone
+::pasta::GNUInlineAttr GNUInlineAttr::Clone(void) const noexcept {
+  auto &self = *(u.GNUInlineAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::GNUInlineAttr>(ast, val);
+  }
+  assert(false && "GNUInlineAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view GNUInlineAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::GNUInlineAttr *>(u.GNUInlineAttr);
   decltype(auto) val = self.getSpelling();
@@ -9542,7 +12791,17 @@ GuardedByAttr::GuardedByAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, GuardedByAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, GuardedByAttr)
-// 1: GuardedByAttr::Clone
+::pasta::GuardedByAttr GuardedByAttr::Clone(void) const noexcept {
+  auto &self = *(u.GuardedByAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::GuardedByAttr>(ast, val);
+  }
+  assert(false && "GuardedByAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 ::pasta::Expr GuardedByAttr::Argument(void) const noexcept {
   auto &self = *const_cast<clang::GuardedByAttr *>(u.GuardedByAttr);
   decltype(auto) val = self.getArg();
@@ -9572,7 +12831,17 @@ GuardedVarAttr::GuardedVarAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, GuardedVarAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, GuardedVarAttr)
-// 1: GuardedVarAttr::Clone
+::pasta::GuardedVarAttr GuardedVarAttr::Clone(void) const noexcept {
+  auto &self = *(u.GuardedVarAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::GuardedVarAttr>(ast, val);
+  }
+  assert(false && "GuardedVarAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view GuardedVarAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::GuardedVarAttr *>(u.GuardedVarAttr);
   decltype(auto) val = self.getSpelling();
@@ -9592,7 +12861,17 @@ HIPManagedAttr::HIPManagedAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, HIPManagedAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, HIPManagedAttr)
-// 1: HIPManagedAttr::Clone
+::pasta::HIPManagedAttr HIPManagedAttr::Clone(void) const noexcept {
+  auto &self = *(u.HIPManagedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::HIPManagedAttr>(ast, val);
+  }
+  assert(false && "HIPManagedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view HIPManagedAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::HIPManagedAttr *>(u.HIPManagedAttr);
   decltype(auto) val = self.getSpelling();
@@ -9612,7 +12891,17 @@ HotAttr::HotAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, HotAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, HotAttr)
-// 1: HotAttr::Clone
+::pasta::HotAttr HotAttr::Clone(void) const noexcept {
+  auto &self = *(u.HotAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::HotAttr>(ast, val);
+  }
+  assert(false && "HotAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view HotAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::HotAttr *>(u.HotAttr);
   decltype(auto) val = self.getSpelling();
@@ -9632,7 +12921,17 @@ IBActionAttr::IBActionAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, IBActionAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, IBActionAttr)
-// 1: IBActionAttr::Clone
+::pasta::IBActionAttr IBActionAttr::Clone(void) const noexcept {
+  auto &self = *(u.IBActionAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::IBActionAttr>(ast, val);
+  }
+  assert(false && "IBActionAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view IBActionAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::IBActionAttr *>(u.IBActionAttr);
   decltype(auto) val = self.getSpelling();
@@ -9652,7 +12951,17 @@ IBOutletAttr::IBOutletAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, IBOutletAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, IBOutletAttr)
-// 1: IBOutletAttr::Clone
+::pasta::IBOutletAttr IBOutletAttr::Clone(void) const noexcept {
+  auto &self = *(u.IBOutletAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::IBOutletAttr>(ast, val);
+  }
+  assert(false && "IBOutletAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view IBOutletAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::IBOutletAttr *>(u.IBOutletAttr);
   decltype(auto) val = self.getSpelling();
@@ -9672,7 +12981,17 @@ IBOutletCollectionAttr::IBOutletCollectionAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, IBOutletCollectionAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, IBOutletCollectionAttr)
-// 1: IBOutletCollectionAttr::Clone
+::pasta::IBOutletCollectionAttr IBOutletCollectionAttr::Clone(void) const noexcept {
+  auto &self = *(u.IBOutletCollectionAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::IBOutletCollectionAttr>(ast, val);
+  }
+  assert(false && "IBOutletCollectionAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 ::pasta::Type IBOutletCollectionAttr::Interface(void) const noexcept {
   auto &self = *const_cast<clang::IBOutletCollectionAttr *>(u.IBOutletCollectionAttr);
   decltype(auto) val = self.getInterface();
@@ -9708,7 +13027,17 @@ LikelyAttr::LikelyAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, LikelyAttr)
 PASTA_DEFINE_BASE_OPERATORS(StmtAttr, LikelyAttr)
-// 1: LikelyAttr::Clone
+::pasta::LikelyAttr LikelyAttr::Clone(void) const noexcept {
+  auto &self = *(u.LikelyAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::LikelyAttr>(ast, val);
+  }
+  assert(false && "LikelyAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view LikelyAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::LikelyAttr *>(u.LikelyAttr);
   decltype(auto) val = self.getSpelling();
@@ -9728,7 +13057,17 @@ MustTailAttr::MustTailAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, MustTailAttr)
 PASTA_DEFINE_BASE_OPERATORS(StmtAttr, MustTailAttr)
-// 1: MustTailAttr::Clone
+::pasta::MustTailAttr MustTailAttr::Clone(void) const noexcept {
+  auto &self = *(u.MustTailAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::MustTailAttr>(ast, val);
+  }
+  assert(false && "MustTailAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view MustTailAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::MustTailAttr *>(u.MustTailAttr);
   decltype(auto) val = self.getSpelling();
@@ -9748,7 +13087,17 @@ NoDerefAttr::NoDerefAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, NoDerefAttr)
 PASTA_DEFINE_BASE_OPERATORS(TypeAttr, NoDerefAttr)
-// 1: NoDerefAttr::Clone
+::pasta::NoDerefAttr NoDerefAttr::Clone(void) const noexcept {
+  auto &self = *(u.NoDerefAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NoDerefAttr>(ast, val);
+  }
+  assert(false && "NoDerefAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NoDerefAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NoDerefAttr *>(u.NoDerefAttr);
   decltype(auto) val = self.getSpelling();
@@ -9769,7 +13118,17 @@ NoMergeAttr::NoMergeAttr(
 PASTA_DEFINE_BASE_OPERATORS(Attr, NoMergeAttr)
 PASTA_DEFINE_BASE_OPERATORS(DeclOrStmtAttr, NoMergeAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NoMergeAttr)
-// 1: NoMergeAttr::Clone
+::pasta::NoMergeAttr NoMergeAttr::Clone(void) const noexcept {
+  auto &self = *(u.NoMergeAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::NoMergeAttr>(ast, val);
+  }
+  assert(false && "NoMergeAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view NoMergeAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NoMergeAttr *>(u.NoMergeAttr);
   decltype(auto) val = self.getSpelling();
@@ -9789,7 +13148,17 @@ ObjCGCAttr::ObjCGCAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCGCAttr)
 PASTA_DEFINE_BASE_OPERATORS(TypeAttr, ObjCGCAttr)
-// 1: ObjCGCAttr::Clone
+::pasta::ObjCGCAttr ObjCGCAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCGCAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCGCAttr>(ast, val);
+  }
+  assert(false && "ObjCGCAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 // 0: ObjCGCAttr::Kind
 std::string_view ObjCGCAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCGCAttr *>(u.ObjCGCAttr);
@@ -9810,7 +13179,17 @@ ObjCInertUnsafeUnretainedAttr::ObjCInertUnsafeUnretainedAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCInertUnsafeUnretainedAttr)
 PASTA_DEFINE_BASE_OPERATORS(TypeAttr, ObjCInertUnsafeUnretainedAttr)
-// 1: ObjCInertUnsafeUnretainedAttr::Clone
+::pasta::ObjCInertUnsafeUnretainedAttr ObjCInertUnsafeUnretainedAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCInertUnsafeUnretainedAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCInertUnsafeUnretainedAttr>(ast, val);
+  }
+  assert(false && "ObjCInertUnsafeUnretainedAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ObjCInertUnsafeUnretainedAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCInertUnsafeUnretainedAttr *>(u.ObjCInertUnsafeUnretainedAttr);
   decltype(auto) val = self.getSpelling();
@@ -9830,7 +13209,17 @@ ObjCKindOfAttr::ObjCKindOfAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, ObjCKindOfAttr)
 PASTA_DEFINE_BASE_OPERATORS(TypeAttr, ObjCKindOfAttr)
-// 1: ObjCKindOfAttr::Clone
+::pasta::ObjCKindOfAttr ObjCKindOfAttr::Clone(void) const noexcept {
+  auto &self = *(u.ObjCKindOfAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::ObjCKindOfAttr>(ast, val);
+  }
+  assert(false && "ObjCKindOfAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view ObjCKindOfAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::ObjCKindOfAttr *>(u.ObjCKindOfAttr);
   decltype(auto) val = self.getSpelling();
@@ -9850,7 +13239,17 @@ OpenCLConstantAddressSpaceAttr::OpenCLConstantAddressSpaceAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OpenCLConstantAddressSpaceAttr)
 PASTA_DEFINE_BASE_OPERATORS(TypeAttr, OpenCLConstantAddressSpaceAttr)
-// 1: OpenCLConstantAddressSpaceAttr::Clone
+::pasta::OpenCLConstantAddressSpaceAttr OpenCLConstantAddressSpaceAttr::Clone(void) const noexcept {
+  auto &self = *(u.OpenCLConstantAddressSpaceAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OpenCLConstantAddressSpaceAttr>(ast, val);
+  }
+  assert(false && "OpenCLConstantAddressSpaceAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum OpenCLConstantAddressSpaceAttrSpelling OpenCLConstantAddressSpaceAttr::SemanticSpelling(void) const noexcept {
   auto &self = *const_cast<clang::OpenCLConstantAddressSpaceAttr *>(u.OpenCLConstantAddressSpaceAttr);
   decltype(auto) val = self.getSemanticSpelling();
@@ -9877,7 +13276,17 @@ OpenCLGenericAddressSpaceAttr::OpenCLGenericAddressSpaceAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OpenCLGenericAddressSpaceAttr)
 PASTA_DEFINE_BASE_OPERATORS(TypeAttr, OpenCLGenericAddressSpaceAttr)
-// 1: OpenCLGenericAddressSpaceAttr::Clone
+::pasta::OpenCLGenericAddressSpaceAttr OpenCLGenericAddressSpaceAttr::Clone(void) const noexcept {
+  auto &self = *(u.OpenCLGenericAddressSpaceAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OpenCLGenericAddressSpaceAttr>(ast, val);
+  }
+  assert(false && "OpenCLGenericAddressSpaceAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum OpenCLGenericAddressSpaceAttrSpelling OpenCLGenericAddressSpaceAttr::SemanticSpelling(void) const noexcept {
   auto &self = *const_cast<clang::OpenCLGenericAddressSpaceAttr *>(u.OpenCLGenericAddressSpaceAttr);
   decltype(auto) val = self.getSemanticSpelling();
@@ -9904,7 +13313,17 @@ OpenCLGlobalAddressSpaceAttr::OpenCLGlobalAddressSpaceAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OpenCLGlobalAddressSpaceAttr)
 PASTA_DEFINE_BASE_OPERATORS(TypeAttr, OpenCLGlobalAddressSpaceAttr)
-// 1: OpenCLGlobalAddressSpaceAttr::Clone
+::pasta::OpenCLGlobalAddressSpaceAttr OpenCLGlobalAddressSpaceAttr::Clone(void) const noexcept {
+  auto &self = *(u.OpenCLGlobalAddressSpaceAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OpenCLGlobalAddressSpaceAttr>(ast, val);
+  }
+  assert(false && "OpenCLGlobalAddressSpaceAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum OpenCLGlobalAddressSpaceAttrSpelling OpenCLGlobalAddressSpaceAttr::SemanticSpelling(void) const noexcept {
   auto &self = *const_cast<clang::OpenCLGlobalAddressSpaceAttr *>(u.OpenCLGlobalAddressSpaceAttr);
   decltype(auto) val = self.getSemanticSpelling();
@@ -9931,7 +13350,17 @@ OpenCLGlobalDeviceAddressSpaceAttr::OpenCLGlobalDeviceAddressSpaceAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OpenCLGlobalDeviceAddressSpaceAttr)
 PASTA_DEFINE_BASE_OPERATORS(TypeAttr, OpenCLGlobalDeviceAddressSpaceAttr)
-// 1: OpenCLGlobalDeviceAddressSpaceAttr::Clone
+::pasta::OpenCLGlobalDeviceAddressSpaceAttr OpenCLGlobalDeviceAddressSpaceAttr::Clone(void) const noexcept {
+  auto &self = *(u.OpenCLGlobalDeviceAddressSpaceAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OpenCLGlobalDeviceAddressSpaceAttr>(ast, val);
+  }
+  assert(false && "OpenCLGlobalDeviceAddressSpaceAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view OpenCLGlobalDeviceAddressSpaceAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::OpenCLGlobalDeviceAddressSpaceAttr *>(u.OpenCLGlobalDeviceAddressSpaceAttr);
   decltype(auto) val = self.getSpelling();
@@ -9951,7 +13380,17 @@ OpenCLGlobalHostAddressSpaceAttr::OpenCLGlobalHostAddressSpaceAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OpenCLGlobalHostAddressSpaceAttr)
 PASTA_DEFINE_BASE_OPERATORS(TypeAttr, OpenCLGlobalHostAddressSpaceAttr)
-// 1: OpenCLGlobalHostAddressSpaceAttr::Clone
+::pasta::OpenCLGlobalHostAddressSpaceAttr OpenCLGlobalHostAddressSpaceAttr::Clone(void) const noexcept {
+  auto &self = *(u.OpenCLGlobalHostAddressSpaceAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OpenCLGlobalHostAddressSpaceAttr>(ast, val);
+  }
+  assert(false && "OpenCLGlobalHostAddressSpaceAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view OpenCLGlobalHostAddressSpaceAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::OpenCLGlobalHostAddressSpaceAttr *>(u.OpenCLGlobalHostAddressSpaceAttr);
   decltype(auto) val = self.getSpelling();
@@ -9971,7 +13410,17 @@ OpenCLLocalAddressSpaceAttr::OpenCLLocalAddressSpaceAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OpenCLLocalAddressSpaceAttr)
 PASTA_DEFINE_BASE_OPERATORS(TypeAttr, OpenCLLocalAddressSpaceAttr)
-// 1: OpenCLLocalAddressSpaceAttr::Clone
+::pasta::OpenCLLocalAddressSpaceAttr OpenCLLocalAddressSpaceAttr::Clone(void) const noexcept {
+  auto &self = *(u.OpenCLLocalAddressSpaceAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OpenCLLocalAddressSpaceAttr>(ast, val);
+  }
+  assert(false && "OpenCLLocalAddressSpaceAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum OpenCLLocalAddressSpaceAttrSpelling OpenCLLocalAddressSpaceAttr::SemanticSpelling(void) const noexcept {
   auto &self = *const_cast<clang::OpenCLLocalAddressSpaceAttr *>(u.OpenCLLocalAddressSpaceAttr);
   decltype(auto) val = self.getSemanticSpelling();
@@ -9998,7 +13447,17 @@ OpenCLPrivateAddressSpaceAttr::OpenCLPrivateAddressSpaceAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OpenCLPrivateAddressSpaceAttr)
 PASTA_DEFINE_BASE_OPERATORS(TypeAttr, OpenCLPrivateAddressSpaceAttr)
-// 1: OpenCLPrivateAddressSpaceAttr::Clone
+::pasta::OpenCLPrivateAddressSpaceAttr OpenCLPrivateAddressSpaceAttr::Clone(void) const noexcept {
+  auto &self = *(u.OpenCLPrivateAddressSpaceAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OpenCLPrivateAddressSpaceAttr>(ast, val);
+  }
+  assert(false && "OpenCLPrivateAddressSpaceAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 enum OpenCLPrivateAddressSpaceAttrSpelling OpenCLPrivateAddressSpaceAttr::SemanticSpelling(void) const noexcept {
   auto &self = *const_cast<clang::OpenCLPrivateAddressSpaceAttr *>(u.OpenCLPrivateAddressSpaceAttr);
   decltype(auto) val = self.getSemanticSpelling();
@@ -10025,7 +13484,17 @@ OpenCLUnrollHintAttr::OpenCLUnrollHintAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, OpenCLUnrollHintAttr)
 PASTA_DEFINE_BASE_OPERATORS(StmtAttr, OpenCLUnrollHintAttr)
-// 1: OpenCLUnrollHintAttr::Clone
+::pasta::OpenCLUnrollHintAttr OpenCLUnrollHintAttr::Clone(void) const noexcept {
+  auto &self = *(u.OpenCLUnrollHintAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::OpenCLUnrollHintAttr>(ast, val);
+  }
+  assert(false && "OpenCLUnrollHintAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view OpenCLUnrollHintAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::OpenCLUnrollHintAttr *>(u.OpenCLUnrollHintAttr);
   decltype(auto) val = self.getSpelling();
@@ -10052,7 +13521,17 @@ Ptr32Attr::Ptr32Attr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, Ptr32Attr)
 PASTA_DEFINE_BASE_OPERATORS(TypeAttr, Ptr32Attr)
-// 1: Ptr32Attr::Clone
+::pasta::Ptr32Attr Ptr32Attr::Clone(void) const noexcept {
+  auto &self = *(u.Ptr32Attr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::Ptr32Attr>(ast, val);
+  }
+  assert(false && "Ptr32Attr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view Ptr32Attr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::Ptr32Attr *>(u.Ptr32Attr);
   decltype(auto) val = self.getSpelling();
@@ -10072,7 +13551,17 @@ Ptr64Attr::Ptr64Attr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, Ptr64Attr)
 PASTA_DEFINE_BASE_OPERATORS(TypeAttr, Ptr64Attr)
-// 1: Ptr64Attr::Clone
+::pasta::Ptr64Attr Ptr64Attr::Clone(void) const noexcept {
+  auto &self = *(u.Ptr64Attr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::Ptr64Attr>(ast, val);
+  }
+  assert(false && "Ptr64Attr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view Ptr64Attr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::Ptr64Attr *>(u.Ptr64Attr);
   decltype(auto) val = self.getSpelling();
@@ -10092,7 +13581,17 @@ SPtrAttr::SPtrAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, SPtrAttr)
 PASTA_DEFINE_BASE_OPERATORS(TypeAttr, SPtrAttr)
-// 1: SPtrAttr::Clone
+::pasta::SPtrAttr SPtrAttr::Clone(void) const noexcept {
+  auto &self = *(u.SPtrAttr);
+  decltype(auto) val = self.clone(ast->ci->getASTContext());
+  if (val) {
+    return AttrBuilder::Create<::pasta::SPtrAttr>(ast, val);
+  }
+  assert(false && "SPtrAttr::Clone can return nullptr!");
+  __builtin_unreachable();
+  __builtin_unreachable();
+}
+
 std::string_view SPtrAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::SPtrAttr *>(u.SPtrAttr);
   decltype(auto) val = self.getSpelling();

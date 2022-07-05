@@ -760,7 +760,7 @@ class AttributedType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AttributedType)
   PASTA_DECLARE_BASE_OPERATORS(Type, AttributedType)
   ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::AttrKind AttributeKind(void) const noexcept;
+  enum ::pasta::AttrKind AttributeKind(void) const noexcept;
   ::pasta::Type EquivalentType(void) const noexcept;
   std::optional<::pasta::NullabilityKind> ImmediateNullability(void) const noexcept;
   ::pasta::Type ModifiedType(void) const noexcept;

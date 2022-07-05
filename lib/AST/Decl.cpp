@@ -550,100 +550,9 @@ static DeclKind KindOfDecl(const clang::Decl *decl) {
 }
 
 static const std::string_view kKindNames[] = {
-  "AccessSpec",
-  "BaseUsing",
-  "Binding",
-  "Block",
-  "BuiltinTemplate",
-  "CXXConstructor",
-  "CXXConversion",
-  "CXXDeductionGuide",
-  "CXXDestructor",
-  "CXXMethod",
-  "CXXRecord",
-  "Captured",
-  "ClassScopeFunctionSpecialization",
-  "ClassTemplate",
-  "ClassTemplatePartialSpecialization",
-  "ClassTemplateSpecialization",
-  "Concept",
-  "ConstructorUsingShadow",
-  "Declarator",
-  "Decomposition",
-  "Empty",
-  "EnumConstant",
-  "Enum",
-  "Export",
-  "ExternCContext",
-  "Field",
-  "FileScopeAsm",
-  "Friend",
-  "FriendTemplate",
-  "Function",
-  "FunctionTemplate",
-  "ImplicitParam",
-  "Import",
-  "IndirectField",
-  "Label",
-  "LifetimeExtendedTemporary",
-  "LinkageSpec",
-  "MSGuid",
-  "MSProperty",
-  "Named",
-  "NamespaceAlias",
-  "Namespace",
-  "NonTypeTemplateParm",
-  "OMPAllocate",
-  "OMPCapturedExpr",
-  "OMPDeclareMapper",
-  "OMPDeclareReduction",
-  "OMPRequires",
-  "OMPThreadPrivate",
-  "ObjCAtDefsField",
-  "ObjCCategory",
-  "ObjCCategoryImpl",
-  "ObjCCompatibleAlias",
-  "ObjCContainer",
-  "ObjCImpl",
-  "ObjCImplementation",
-  "ObjCInterface",
-  "ObjCIvar",
-  "ObjCMethod",
-  "ObjCProperty",
-  "ObjCPropertyImpl",
-  "ObjCProtocol",
-  "ObjCTypeParam",
-  "ParmVar",
-  "PragmaComment",
-  "PragmaDetectMismatch",
-  "Record",
-  "RedeclarableTemplate",
-  "RequiresExprBody",
-  "StaticAssert",
-  "Tag",
-  "Template",
-  "TemplateParamObject",
-  "TemplateTemplateParm",
-  "TemplateTypeParm",
-  "TranslationUnit",
-  "TypeAlias",
-  "TypeAliasTemplate",
-  "Type",
-  "Typedef",
-  "TypedefName",
-  "UnresolvedUsingIfExists",
-  "UnresolvedUsingTypename",
-  "UnresolvedUsingValue",
-  "Using",
-  "UsingDirective",
-  "UsingEnum",
-  "UsingPack",
-  "UsingShadow",
-  "Value",
-  "Var",
-  "VarTemplate",
-  "VarTemplatePartialSpecialization",
-  "VarTemplateSpecialization",
+#define PASTA_DECL_KIND_NAME(name) #name ,
+PASTA_FOR_EACH_DECL_IMPL(PASTA_DECL_KIND_NAME, PASTA_IGNORE_ABSTRACT)
+#undef PASTA_DECL_KIND_NAME
 };
 }  // namespace
 
@@ -690,10 +599,10 @@ std::vector<::pasta::Decl> DeclContext::Declarations(void) const noexcept {
 // 0: DeclContext::
 // 0: DeclContext::
 // 0: DeclContext::
-::pasta::DeclKind DeclContext::DeclarationKind(void) const noexcept {
+enum ::pasta::DeclKind DeclContext::DeclarationKind(void) const noexcept {
   auto &self = *const_cast<clang::DeclContext *>(u.DeclContext);
   decltype(auto) val = self.getDeclKind();
-  return static_cast<::pasta::DeclKind>(val);
+  return static_cast<enum ::pasta::DeclKind>(val);
   __builtin_unreachable();
 }
 
@@ -984,6 +893,7 @@ Decl::Decl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
     : Decl(std::move(ast_), decl_, KindOfDecl(decl_)) {}
+
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, AccessSpecDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, BaseUsingDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, BindingDecl)
@@ -1088,7 +998,7 @@ std::vector<::pasta::Attr> Decl::Attributes(void) const noexcept {
   std::vector<::pasta::Attr> ret;
   for (auto attr_ptr : val) {
     if (attr_ptr) {
-      ret.emplace_back(DeclBuilder::Create<::pasta::Attr>(ast, attr_ptr));
+      ret.emplace_back(AttrBuilder::Create<::pasta::Attr>(ast, attr_ptr));
     }
   }
   return ret;
@@ -1158,7 +1068,7 @@ std::optional<::pasta::Attr> Decl::DefiningAttribute(void) const noexcept {
     return std::nullopt;
   }
   if (val) {
-    return ::pasta::Attr(ast, val);
+    return AttrBuilder::Create<::pasta::Attr>(ast, val);
   }
   __builtin_unreachable();
 }
@@ -1192,7 +1102,16 @@ std::optional<::pasta::TemplateParameterList> Decl::DescribedTemplateParameters(
   __builtin_unreachable();
 }
 
-// 0: Decl::ExternalSourceSymbolAttribute
+::pasta::ExternalSourceSymbolAttr Decl::ExternalSourceSymbolAttribute(void) const noexcept {
+  auto &self = *const_cast<clang::Decl *>(u.Decl);
+  decltype(auto) val = self.getExternalSourceSymbolAttr();
+  if (val) {
+    return AttrBuilder::Create<::pasta::ExternalSourceSymbolAttr>(ast, val);
+  }
+  assert(false && "Decl::ExternalSourceSymbolAttribute can return nullptr!");
+  __builtin_unreachable();
+}
+
 enum DeclFriendObjectKind Decl::FriendObjectKind(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.getFriendObjectKind();

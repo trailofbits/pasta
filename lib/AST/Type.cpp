@@ -698,7 +698,7 @@ std::optional<::pasta::Type> Type::SveElementType(void) const noexcept {
 ::pasta::TypeKind Type::Kind(void) const noexcept {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.getTypeClass();
-  return static_cast<::pasta::TypeKind>(val);
+  return static_cast<enum ::pasta::TypeKind>(val);
   __builtin_unreachable();
 }
 
@@ -2994,10 +2994,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, AttributedType)
   __builtin_unreachable();
 }
 
-::pasta::AttrKind AttributedType::AttributeKind(void) const noexcept {
+enum ::pasta::AttrKind AttributedType::AttributeKind(void) const noexcept {
   auto &self = *const_cast<clang::AttributedType *>(u.AttributedType);
   decltype(auto) val = self.getAttrKind();
-  return static_cast<::pasta::AttrKind>(val);
+  return static_cast<enum ::pasta::AttrKind>(val);
   __builtin_unreachable();
 }
 

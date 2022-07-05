@@ -455,19 +455,20 @@ bool MacroGenerator::VisitEnumDecl(clang::EnumDecl *decl) {
       decl_enums.emplace(std::move(decl_name), decl_def);
     }
 
-  // Find top-level enums in the `clang::attr` namespace, and prefix them
-  // with `Attribute`.
-  } else if (ns->getName() == "attr") {
-    if (auto ns_ns_dc = ns->getParent(); ns_ns_dc && ns_ns_dc->isNamespace()) {
-      const auto ns_ns = clang::NamespaceDecl::castFromDeclContext(ns_ns_dc);
-      if (ns_ns->getName() == "clang") {
-
-        std::string decl_name = "Attr" + decl->getName().str();
-        if (!unacceptable_enum_names.count(decl_name)) {
-          decl_enums.emplace(std::move(decl_name), decl_def);
-        }
-      }
-    }
+  // NOTE(pag): We'll get attribute kinds in another way.
+//  // Find top-level enums in the `clang::attr` namespace, and prefix them
+//  // with `Attribute`.
+//  } else if (ns->getName() == "attr") {
+//    if (auto ns_ns_dc = ns->getParent(); ns_ns_dc && ns_ns_dc->isNamespace()) {
+//      const auto ns_ns = clang::NamespaceDecl::castFromDeclContext(ns_ns_dc);
+//      if (ns_ns->getName() == "clang") {
+//
+//        std::string decl_name = "Attr" + decl->getName().str();
+//        if (!unacceptable_enum_names.count(decl_name)) {
+//          decl_enums.emplace(std::move(decl_name), decl_def);
+//        }
+//      }
+//    }
 
   // Find top-level enums in the `clang::tok` namespace.
   } else if (ns->getName() == "tok") {

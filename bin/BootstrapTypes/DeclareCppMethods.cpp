@@ -122,9 +122,19 @@ static void DeclareCppMethod0(std::ostream &os, const std::string &class_name,
   CollectGetNumMethod(class_name, rt);
   if (const auto meth_name = CxxName(meth_name_ref);
       !meth_name.empty()) {
+
+    // NOTE(pag): We leave `Decl::isImplicit` here even though it's excluded
+    //            in `DefineCppMethods.cpp` because we imlement our own
+    //            `Decl::IsImplicit` in pasta.
     if (class_name == "Decl" &&
         (meth_name_ref == "getKind" || meth_name_ref == "getDeclKindName" ||
          meth_name_ref == "getBody" || meth_name_ref == "getBodyRBrace")) {
+      return;
+    }
+
+    if (class_name == "Attr" &&
+        (meth_name_ref == "getKind" ||
+         meth_name_ref == "getAttributeSpellingListIndex")) {
       return;
     }
 

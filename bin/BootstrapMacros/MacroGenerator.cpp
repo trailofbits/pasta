@@ -462,7 +462,7 @@ bool MacroGenerator::VisitEnumDecl(clang::EnumDecl *decl) {
       const auto ns_ns = clang::NamespaceDecl::castFromDeclContext(ns_ns_dc);
       if (ns_ns->getName() == "clang") {
 
-        std::string decl_name = "Attribute" + decl->getName().str();
+        std::string decl_name = "Attr" + decl->getName().str();
         if (!unacceptable_enum_names.count(decl_name)) {
           decl_enums.emplace(std::move(decl_name), decl_def);
         }

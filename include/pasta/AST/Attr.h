@@ -1,14 +1,12 @@
 /*
- * Copyright (c) 2021 Trail of Bits, Inc.
+ * Copyright (c) 2022 Trail of Bits, Inc.
  */
 
 // This file is auto-generated.
 
 #pragma once
 
-#ifdef PASTA_IN_BOOTSTRAP
-#  include "DeclBootstrap.h"
-#else
+#ifndef PASTA_IN_BOOTSTRAP
 #include <variant>
 #include <vector>
 #include <pasta/Util/Compiler.h>
@@ -390,7 +388,7 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, XRayInstrumentAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, XRayLogArgsAttr)
   // Clone: (clang::Attr *)
-  ::pasta::AttributeKind Kind(void) const noexcept;
+  ::pasta::AttrKind Kind(void) const noexcept;
   ::pasta::Token Token(void) const noexcept;
   std::string_view Spelling(void) const noexcept;
   uint32_t SpellingListIndex(void) const noexcept;
@@ -398,7 +396,7 @@ class Attr {
   bool IsInherited(void) const noexcept;
   bool IsLateParsed(void) const noexcept;
   bool IsPackExpansion(void) const noexcept;
-  std::string_view KindName(const clang::Attr *attr) const noexcept;
+  std::string_view KindName(void) const noexcept;
 
   ::pasta::TokenRange Tokens(void) const noexcept;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Trail of Bits, Inc.
+ * Copyright (c) 2022 Trail of Bits, Inc.
  */
 
 // This file is auto-generated.
@@ -52,11 +52,11 @@ namespace pasta {
 
 
 // Return the KindName of the Clang's `Attr`
-std::string_view Attr::KindName(const clang::Attr *attr) const noexcept {
-  switch (attr->getKind()) {
+std::string_view Attr::KindName(void) const noexcept {
+  switch (u.Attr->getKind()) {
 #define ATTR(X) \
     case clang::attr::Kind::X: \
-      return #X"Attr";
+      return #X;
 #include "clang/Basic/AttrList.inc"
   }
   __builtin_unreachable();
@@ -421,10 +421,10 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, X86ForceAlignArgPointerAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, XRayInstrumentAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, XRayLogArgsAttr)
 // 1: Attr::Clone
-::pasta::AttributeKind Attr::Kind(void) const noexcept {
+::pasta::AttrKind Attr::Kind(void) const noexcept {
   auto &self = *const_cast<clang::Attr *>(u.Attr);
   decltype(auto) val = self.getKind();
-  return static_cast<::pasta::AttributeKind>(val);
+  return static_cast<::pasta::AttrKind>(val);
   __builtin_unreachable();
 }
 

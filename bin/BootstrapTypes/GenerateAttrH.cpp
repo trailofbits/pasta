@@ -20,13 +20,11 @@ void GenerateAttrH(void) {
 
   os
       << "/*\n"
-      << " * Copyright (c) 2021 Trail of Bits, Inc.\n"
+      << " * Copyright (c) 2022 Trail of Bits, Inc.\n"
       << " */\n\n"
       << "// This file is auto-generated.\n\n"
       << "#pragma once\n\n"
-      << "#ifdef PASTA_IN_BOOTSTRAP\n"
-      << "#  include \"DeclBootstrap.h\"\n"
-      << "#else\n"
+      << "#ifndef PASTA_IN_BOOTSTRAP\n"
       << "#include <variant>\n"
       << "#include <vector>\n"
       << "#include <pasta/Util/Compiler.h>\n\n"
@@ -60,7 +58,7 @@ void GenerateAttrH(void) {
   DeclareCppMethods(os, attr_base_class, gClassIDs[attr_base_class]);
 
   os
-     << "  std::string_view KindName(const clang::Attr *attr) const noexcept;\n\n"
+     << "  std::string_view KindName(void) const noexcept;\n\n"
      << "  ::pasta::TokenRange Tokens(void) const noexcept;\n\n"
      << "  inline bool operator==(const Attr &that) const noexcept {\n"
      << "    return u.opaque == that.u.opaque;\n"

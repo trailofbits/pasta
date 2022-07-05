@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Trail of Bits, Inc.
+ * Copyright (c) 2022 Trail of Bits, Inc.
  */
 
 // This file is auto-generated.

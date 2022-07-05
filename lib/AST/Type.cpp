@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Trail of Bits, Inc.
+ * Copyright (c) 2022 Trail of Bits, Inc.
  */
 
 // This file is auto-generated.
@@ -2994,10 +2994,10 @@ PASTA_DEFINE_BASE_OPERATORS(Type, AttributedType)
   __builtin_unreachable();
 }
 
-::pasta::AttributeKind AttributedType::AttributeKind(void) const noexcept {
+::pasta::AttrKind AttributedType::AttributeKind(void) const noexcept {
   auto &self = *const_cast<clang::AttributedType *>(u.AttributedType);
   decltype(auto) val = self.getAttrKind();
-  return static_cast<::pasta::AttributeKind>(val);
+  return static_cast<::pasta::AttrKind>(val);
   __builtin_unreachable();
 }
 

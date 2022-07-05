@@ -19,7 +19,7 @@ void GenerateForwardH(void) {
 
   os
       << "/*\n"
-      << " * Copyright (c) 2021 Trail of Bits, Inc.\n"
+      << " * Copyright (c) 2022 Trail of Bits, Inc.\n"
       << " */\n\n"
       << "// This file is auto-generated.\n\n"
       << "#pragma once\n\n"
@@ -132,7 +132,30 @@ void GenerateForwardH(void) {
 
   os
       << "\n\n"
-      << "enum class DeclKind : unsigned {\n"
+      << "#define PASTA_FOR_EACH_ATTR_IMPL(m, a) \\\n";
+
+  sep = "";
+  static constexpr auto kAttrLen = 4u;
+  for (const auto &name_ : gAttrNames) {
+    llvm::StringRef name(name_);
+
+    // Abstract ones.
+    if (name == "Attr" ||
+        name == "InheritableAttr" ||
+        name == "InheritableParamAttr" ||
+        name == "ParameterABIAttr") {
+      os << sep << "    a(" << name_ << ")";
+
+    } else {
+      assert(name.endswith("Attr"));
+      os << sep << "    m(" << name.substr(0, name.size() - kAttrLen).str() << ")";
+    }
+    sep = " \\\n";
+  }
+
+  os
+      << "\n\n"
+      << "enum class DeclKind : unsigned int {\n"
       << "#define PASTA_DECLARE_DECL_KIND(name) k ## name ,\n"
       << "  PASTA_FOR_EACH_DECL_IMPL(PASTA_DECLARE_DECL_KIND, PASTA_IGNORE_ABSTRACT)\n"
       << "#undef PASTA_DECLARE_DECL_KIND\n"

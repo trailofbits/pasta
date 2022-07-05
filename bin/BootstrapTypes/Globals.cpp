@@ -186,7 +186,7 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
 //  {"(clang::Type::ScalarTypeKind)", "::pasta::ScalarTypeKind"},
 //  {"(clang::QualType::PrimitiveCopyKind)", "::pasta::PrimitiveCopyKind"},
 //  {"(clang::QualType::PrimitiveDefaultInitializeKind)", "::pasta::PrimitiveDefaultInitializeKind"},
-  {"(clang::attr::Kind)", "::pasta::AttributeKind"},
+  {"(clang::attr::Kind)", "::pasta::AttrKind"},
 
   {"(llvm::Optional<const clang::Expr *>)", "std::optional<::pasta::Expr>"},
   {"(llvm::Optional<unsigned int>)", "std::optional<unsigned>"},
@@ -351,7 +351,7 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
    "  return static_cast<::pasta::StmtKind>(val);\n"},
 
   {"(clang::attr::Kind)",
-   "  return static_cast<::pasta::AttributeKind>(val);\n"},
+   "  return static_cast<::pasta::AttrKind>(val);\n"},
 
   {"(llvm::StringRef)",
    "  if (auto size = val.size()) {\n"

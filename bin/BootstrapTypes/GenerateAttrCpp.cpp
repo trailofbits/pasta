@@ -19,7 +19,7 @@ void GenerateAttrCpp(void) {
 
   os
       << "/*\n"
-      << " * Copyright (c) 2021 Trail of Bits, Inc.\n"
+      << " * Copyright (c) 2022 Trail of Bits, Inc.\n"
       << " */\n\n"
       << "// This file is auto-generated.\n\n"
       << "#define PASTA_IN_ATTR_CPP\n"
@@ -65,11 +65,11 @@ void GenerateAttrCpp(void) {
       << "namespace pasta {\n\n"
       << "\n"
       << "// Return the KindName of the Clang's `Attr`\n"
-      << "std::string_view Attr::KindName(const clang::Attr *attr) const noexcept {\n"
-      << "  switch (attr->getKind()) {\n"
+      << "std::string_view Attr::KindName(void) const noexcept {\n"
+      << "  switch (u.Attr->getKind()) {\n"
       << "#define ATTR(X) \\\n"
       << "    case clang::attr::Kind::X: \\\n"
-      << "      return #X\"Attr\";\n"
+      << "      return #X;\n"
       << "#include \"clang/Basic/AttrList.inc\"\n"
       << "  }\n"
       << "  __builtin_unreachable();\n"

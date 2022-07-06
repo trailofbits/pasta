@@ -360,6 +360,34 @@ std::optional<Type> Type::From(const TokenContext &context) {
       reinterpret_cast<const clang::Type *>(context.Data()));
 }
 
+std::optional<Attr> Attr::From(const TokenContext &context) {
+  if (context.Kind() != TokenContextKind::kAttr) {
+    return std::nullopt;
+  }
+
+  auto &contexts = *(context.contexts);
+  if (contexts.empty()) {
+    return std::nullopt;
+  }
+
+  auto &first_context = contexts.front();
+  if (!first_context.data || first_context.kind != TokenContextKind::kAST ||
+      first_context.depth != 0u ||
+      first_context.parent_index != kInvalidTokenContextIndex) {
+    return std::nullopt;
+  }
+
+  auto ast = reinterpret_cast<ASTImpl *>(const_cast<void *>(first_context.data));
+  if (&(ast->contexts) != &contexts) {
+    assert(false);
+    return std::nullopt;
+  }
+
+  return AttrBuilder::Create<Attr, clang::Attr>(
+      ast->shared_from_this(),
+      reinterpret_cast<const clang::Attr *>(context.Data()));
+}
+
 std::optional<Designator> Designator::From(const TokenContext &context) {
   if (context.Kind() != TokenContextKind::kDesignator) {
     return std::nullopt;

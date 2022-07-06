@@ -15,12 +15,12 @@
 #define PASTA_FOR_EACH_TOKEN_CONTEXT_KIND(pp) \
     pp(Stmt) \
     pp(Decl) \
-    pp(Designator) \
     pp(Type) \
+    pp(Attr) \
+    pp(Designator) \
     pp(TemplateParameterList) \
     pp(TemplateArgument) \
-    pp(TypeConstraint) \
-    pp(Attr)
+    pp(TypeConstraint)
 
 namespace clang {
 
@@ -33,6 +33,7 @@ namespace pasta {
 
 class AST;
 class ASTImpl;
+class Attr;
 class CXXBaseSpecifier;
 class FileToken;
 class FileTokenRange;
@@ -122,6 +123,7 @@ class TokenContext {
   }
 
  private:
+  friend class Attr;
   friend class Decl;
   friend class Designator;
   friend class PrintedToken;

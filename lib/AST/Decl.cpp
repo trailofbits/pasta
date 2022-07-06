@@ -1102,13 +1102,15 @@ std::optional<::pasta::TemplateParameterList> Decl::DescribedTemplateParameters(
   __builtin_unreachable();
 }
 
-::pasta::ExternalSourceSymbolAttr Decl::ExternalSourceSymbolAttribute(void) const noexcept {
+std::optional<::pasta::ExternalSourceSymbolAttr> Decl::ExternalSourceSymbolAttribute(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.getExternalSourceSymbolAttr();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return AttrBuilder::Create<::pasta::ExternalSourceSymbolAttr>(ast, val);
   }
-  assert(false && "Decl::ExternalSourceSymbolAttribute can return nullptr!");
   __builtin_unreachable();
 }
 

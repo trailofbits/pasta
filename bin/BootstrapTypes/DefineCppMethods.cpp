@@ -34,7 +34,7 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
   const auto is_qual_type = class_name == "QualType";
   const auto &real_class_name = is_qual_type ? gTypeClassName : class_name;
   const std::string meth_name = CxxName(meth_name_ref);
-  if (meth_name.empty()) { \
+  if (meth_name.empty() || meth_name == "Clone") { \
     os << "// 0: " << real_class_name << "::" << meth_name << "\n";
     return;
   }
@@ -141,7 +141,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
   const auto is_qual_type = class_name == "QualType";
   const auto &real_class_name = is_qual_type ? gTypeClassName : class_name;
   const auto meth_name = CxxName(meth_name_ref); \
-  if (meth_name.empty()) {
+  if (meth_name.empty() || meth_name == "Clone") {
     os << "// 1: " << real_class_name << "::" << meth_name << "\n";
     return;
   }

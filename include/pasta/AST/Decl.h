@@ -346,7 +346,7 @@ class Decl {
   std::optional<::pasta::TemplateDecl> DescribedTemplate(void) const noexcept;
   std::optional<::pasta::TemplateParameterList> DescribedTemplateParameters(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  ::pasta::ExternalSourceSymbolAttr ExternalSourceSymbolAttribute(void) const noexcept;
+  std::optional<::pasta::ExternalSourceSymbolAttr> ExternalSourceSymbolAttribute(void) const noexcept;
   enum DeclFriendObjectKind FriendObjectKind(void) const noexcept;
   std::optional<::pasta::FunctionType> FunctionType(void) const noexcept;
   uint32_t GlobalID(void) const noexcept;

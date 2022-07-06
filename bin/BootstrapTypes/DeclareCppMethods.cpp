@@ -102,7 +102,6 @@ static void DeclareCppMethod0(std::ostream &os, const std::string &class_name,
   if (meth_name_ref.endswith("Unsafe")) {
     return;
   }
-
   // `NamedDecl::getName` has an assertion in it where `getNameAsString` does
   // not, and we introduce a method rename for `getNameAstString` to
   // `getName`.
@@ -121,7 +120,7 @@ static void DeclareCppMethod0(std::ostream &os, const std::string &class_name,
 
   CollectGetNumMethod(class_name, rt);
   if (const auto meth_name = CxxName(meth_name_ref);
-      !meth_name.empty()) {
+      !meth_name.empty() && meth_name != "Clone") {
 
     // NOTE(pag): We leave `Decl::isImplicit` here even though it's excluded
     //            in `DefineCppMethods.cpp` because we imlement our own
@@ -167,7 +166,7 @@ static void DeclareCppMethod1(
   meth_name_ref = meth;
   CollectGetNthMethod(class_name, p0, rt);
   if (const auto meth_name = CxxName(meth_name_ref);
-      !meth_name.empty()) {
+      !meth_name.empty() && meth_name != "Clone") {
     const auto null_key = std::make_pair(class_name, meth_name);
     const auto can_ret_null = kCanReturnNullptr.count(null_key) ||
                               kConditionalNullptr.count(null_key);

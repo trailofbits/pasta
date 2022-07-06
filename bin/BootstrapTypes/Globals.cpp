@@ -1085,6 +1085,7 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"NonTypeTemplateParmDecl", "NumExpansionTypes"},
   {"Decl","DefiningAttribute"},
   {"CallExpr","UnusedResultAttribute"},
+  {"Decl", "ExternalSourceSymbolAttribute"},
 
 //  {"FunctionProtoType", "EllipsisToken"},
 //  {"FunctionDecl", "EllipsisToken"},

@@ -6951,7 +6951,7 @@ std::optional<::pasta::Expr> AlignedAttr::AlignmentExpression(void) const noexce
 
 std::optional<::pasta::Type> AlignedAttr::AlignmentType(void) const noexcept {
   auto &self = *const_cast<clang::AlignedAttr *>(u.AlignedAttr);
-  if (!self.isAlignmentExpr()) {
+  if (self.isAlignmentExpr()) {
     return std::nullopt;
   }
   decltype(auto) val = self.getAlignmentType();

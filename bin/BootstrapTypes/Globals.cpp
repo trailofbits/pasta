@@ -1101,7 +1101,7 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
 
 std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
   {{"AlignedAttr", "AlignmentType"},
-   "  if (!self.isAlignmentExpr()) {\n"
+   "  if (self.isAlignmentExpr()) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
   {{"AlignedAttr", "AlignmentExpression"},

@@ -6934,21 +6934,31 @@ uint32_t AlignedAttr::Alignment(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Expr AlignedAttr::AlignmentExpression(void) const noexcept {
+std::optional<::pasta::Expr> AlignedAttr::AlignmentExpression(void) const noexcept {
   auto &self = *const_cast<clang::AlignedAttr *>(u.AlignedAttr);
+  if (!self.isAlignmentExpr()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getAlignmentExpr();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "AlignedAttr::AlignmentExpression can return nullptr!");
   __builtin_unreachable();
 }
 
-::pasta::Type AlignedAttr::AlignmentType(void) const noexcept {
+std::optional<::pasta::Type> AlignedAttr::AlignmentType(void) const noexcept {
   auto &self = *const_cast<clang::AlignedAttr *>(u.AlignedAttr);
+  if (!self.isAlignmentExpr()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getAlignmentType();
+  if (!val) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val->getType());
-  assert(false && "AlignedAttr::AlignmentType can return nullptr!");
   __builtin_unreachable();
 }
 

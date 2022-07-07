@@ -1086,6 +1086,8 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"Decl","DefiningAttribute"},
   {"CallExpr","UnusedResultAttribute"},
   {"Decl", "ExternalSourceSymbolAttribute"},
+  {"AlignedAttr", "AlignmentType"},
+  {"AlignedAttr", "AlignmentExpression"},
 
 //  {"FunctionProtoType", "EllipsisToken"},
 //  {"FunctionDecl", "EllipsisToken"},
@@ -1098,6 +1100,14 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
 };
 
 std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
+  {{"AlignedAttr", "AlignmentType"},
+   "  if (!self.isAlignmentExpr()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"AlignedAttr", "AlignmentExpression"},
+   "  if (!self.isAlignmentExpr()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
   {{"CXXPseudoDestructorExpr", "ScopeType"},
    "  if (!self.getScopeTypeInfo()) {\n"
    "    return std::nullopt;\n"

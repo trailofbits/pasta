@@ -4628,8 +4628,8 @@ class AlignedAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, AlignedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AlignedAttr)
   uint32_t Alignment(void) const noexcept;
-  ::pasta::Expr AlignmentExpression(void) const noexcept;
-  ::pasta::Type AlignmentType(void) const noexcept;
+  std::optional<::pasta::Expr> AlignmentExpression(void) const noexcept;
+  std::optional<::pasta::Type> AlignmentType(void) const noexcept;
   enum AlignedAttrSpelling SemanticSpelling(void) const noexcept;
   std::string_view Spelling(void) const noexcept;
   bool IsAlignas(void) const noexcept;

@@ -47,7 +47,9 @@ class FunctionABIPrinter final : public pasta::DeclVisitor {
   }
 
   void VisitFunctionDecl(const pasta::FunctionDecl &decl) final {
-    std::cout << "  (void *) &" << decl.Name() << ",\n";
+    if (!decl.IsImplicit()) {
+      std::cout << "  (void *) &" << decl.Name() << ",\n";
+    }
   }
 };
 

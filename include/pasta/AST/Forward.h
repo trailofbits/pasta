@@ -18,6 +18,7 @@
 #define PASTA_IGNORE_ABSTRACT(...)
 
 namespace clang {
+class ExceptionSpecification;
 class AArch64VectorPcsAttr;
 class AMDGPUFlatWorkGroupSizeAttr;
 class AMDGPUNumSGPRAttr;
@@ -2604,7 +2605,7 @@ enum class ExprisModifiableLvalueResult : unsigned int {
   kIncompleteType = 6,
   kConstQualified = 7,
   kConstQualifiedField = 8,
-  kConstAddrSpace = 9,
+  kConstAddressSpace = 9,
   kArrayType = 10,
   kNoSetterProperty = 11,
   kMemberFunction = 12,
@@ -5291,7 +5292,7 @@ enum class ModifiableType : unsigned int {
   kNoSetterProperty = 5,
   kConstQualified = 6,
   kConstQualifiedField = 7,
-  kConstAddrSpace = 8,
+  kConstAddressSpace = 8,
   kArrayType = 9,
   kIncompleteType = 10,
 };
@@ -6715,7 +6716,7 @@ enum class UnaryOperatorKind : unsigned int {
   kPostDec = 1,
   kPreIncrement = 2,
   kPreDec = 3,
-  kAddrOf = 4,
+  kAddressOf = 4,
   kDeref = 5,
   kPlus = 6,
   kMinus = 7,
@@ -6741,7 +6742,7 @@ enum class APValueKind : unsigned int {
   kStruct = 10,
   kUnion = 11,
   kMemberPointer = 12,
-  kAddrLabelDiff = 13,
+  kAddressLabelDiff = 13,
 };
 
 enum class VectorLibrary : unsigned int {
@@ -7043,6 +7044,7 @@ enum class Visibility : unsigned int {
 
 class OMPDeclarativeDirectiveDecl;
 class OMPDeclarativeDirectiveValueDecl;
+class ExceptionSpecification;
 class AArch64VectorPcsAttr;
 class AMDGPUFlatWorkGroupSizeAttr;
 class AMDGPUNumSGPRAttr;
@@ -7797,6 +7799,4 @@ class WorkGroupSizeHintAttr;
 class X86ForceAlignArgPointerAttr;
 class XRayInstrumentAttr;
 class XRayLogArgsAttr;
-class OMPDeclarativeDirectiveDecl;
-class OMPDeclarativeDirectiveValueDecl;
 }  // namespace pasta

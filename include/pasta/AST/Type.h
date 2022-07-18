@@ -12,7 +12,7 @@
 #include <variant>
 #include <vector>
 #include <pasta/Util/Compiler.h>
-#include "Forward.h"
+#include "TypeManual.h"
 
 #define PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(base) \
     friend class AST; \
@@ -910,7 +910,7 @@ class DependentAddressSpaceType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentAddressSpaceType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DependentAddressSpaceType)
   ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::Expr AddrSpaceExpression(void) const noexcept;
+  ::pasta::Expr AddressSpaceExpression(void) const noexcept;
   ::pasta::Token AttributeToken(void) const noexcept;
   ::pasta::Type PointeeType(void) const noexcept;
   bool IsSugared(void) const noexcept;
@@ -1193,8 +1193,8 @@ class ObjCObjectPointerType : public Type {
   bool IsSugared(void) const noexcept;
   bool IsUnspecialized(void) const noexcept;
   bool IsUnspecializedAsWritten(void) const noexcept;
-  std::vector<::pasta::ObjCProtocolDecl> Qualifieds(void) const noexcept;
-  ::pasta::ObjCObjectPointerType StripObjCKindOfTypeAndQualifieds(void) const noexcept;
+  std::vector<::pasta::ObjCProtocolDecl> Qualifiers(void) const noexcept;
+  ::pasta::ObjCObjectPointerType StripObjCKindOfTypeAndQualifiers(void) const noexcept;
   std::vector<::pasta::ObjCProtocolDecl> Protocols(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ObjCObjectPointerType)
@@ -1228,7 +1228,7 @@ class ObjCObjectType : public Type {
   bool IsSugared(void) const noexcept;
   bool IsUnspecialized(void) const noexcept;
   bool IsUnspecializedAsWritten(void) const noexcept;
-  ::pasta::Type StripObjCKindOfTypeAndQualifieds(void) const noexcept;
+  ::pasta::Type StripObjCKindOfTypeAndQualifiers(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ObjCObjectType)
 };
@@ -1530,6 +1530,7 @@ static_assert(sizeof(Type) == sizeof(FunctionNoProtoType));
 
 class FunctionProtoType : public FunctionType {
  private:
+  friend class ExceptionSpecification;
   using FunctionType::FunctionType;
   using FunctionType::From;
  public:
@@ -1549,7 +1550,7 @@ class FunctionProtoType : public FunctionType {
   // ExtParameterInfos: (llvm::ArrayRef<clang::FunctionType::ExtParameterInfo>)
   // ExtParameterInfosOrNull: (const clang::FunctionType::ExtParameterInfo *)
   // ExtProtoInfo: (clang::FunctionProtoType::ExtProtoInfo)
-  // MethodQualifieds: (clang::Qualifiers)
+  // MethodQualifiers: (clang::Qualifiers)
   std::optional<::pasta::Expr> NoexceptExpression(void) const noexcept;
   uint32_t NumExceptions(void) const noexcept;
   uint32_t NumParameters(void) const noexcept;

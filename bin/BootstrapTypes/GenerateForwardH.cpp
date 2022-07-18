@@ -213,8 +213,5 @@ void GenerateForwardH(void) {
     os << "class " << name.str() << ";\n";
   }
 
-  os
-      << "class OMPDeclarativeDirectiveDecl;\n"
-      << "class OMPDeclarativeDirectiveValueDecl;\n"
-      << "}  // namespace pasta\n";
+  os << "}  // namespace pasta\n";
 }

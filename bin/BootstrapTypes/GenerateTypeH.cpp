@@ -29,7 +29,7 @@ void GenerateTypeH(void) {
       << "#include <variant>\n"
       << "#include <vector>\n"
       << "#include <pasta/Util/Compiler.h>\n"
-      << "#include \"Forward.h\"\n\n"
+      << "#include \"TypeManual.h\"\n\n"
       << "#define PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(base) \\\n"
       << "    friend class AST; \\\n"
       << "    friend class ASTImpl; \\\n"
@@ -168,6 +168,11 @@ void GenerateTypeH(void) {
     // versions.
     os
         << " private:\n";
+
+    if (name == "FunctionProtoType") {
+      os << "  friend class ExceptionSpecification;\n";
+    }
+
     for (const auto &parent_class : gBaseClasses[name]) {
       os << "  using " << parent_class << "::" << parent_class << ";\n";
 

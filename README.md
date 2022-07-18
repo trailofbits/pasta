@@ -5,13 +5,11 @@ detailed access to compilation artifacts using APIs that mirror those available 
 tries to achieve the following goals:
 
   * Provide a baseline set of APIs that is relatively stable and does not require someone to
-    actually depend directly on Clang or LLVM headers/libraries, thus enabling a substantially
+    actually depend directly on Clang headers/libraries, thus enabling a substantially
     easier distribution model.
     
-  * Provide a nearly 1:1 correspondence between a C++ API and a Python API. The Python API should
-    not be a second class citizen. Instead, it should be natural to use, and if additional 
-    performance is needed, then a user should be able to fairly directly translate their Python
-    into C++ code.
+  * Properly manage memory for all objects provided through the API. One should not have to
+    worry about object lifetimes when using PASTA.
     
   * Provide additional information/access. Native Clang APIs do not provide detailed token information
     of any kind. One cannot ask for the tokens associated with an AST node, for example. PASTA attempts

@@ -12,6 +12,7 @@ std::unordered_map<std::string, std::vector<IteratorSpec>> gIterators;
 const std::vector<llvm::StringRef> kAllClassNames{
   "OMPDeclarativeDirectiveDecl",
   "OMPDeclarativeDirectiveValueDecl",
+  "ExceptionSpecification",
 #define PASTA_BEGIN_CLANG_WRAPPER(name, id) PASTA_STR(name) ,
 #include "Generated.h"
 };
@@ -113,7 +114,9 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   {"Mem", "Memory"},
   {"Parens", "Parentheses"},
   {"Paren", "Parenthesis"},
+  {"Quals", "Qualifiers"},
   {"Qual", "Qualified"},
+  {"Qualifieds", "Qualifiers"},
   {"Unqual", "Unqualified"},
   {"Elt", "Element"},
   {"SveEltType", "SveElementType"},
@@ -132,6 +135,7 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   {"Cmd", "Command"},
   {"TST", "TemplateSpecializationType"},
   {"KW", "Keyword"},
+  {"Addr", "Address"},
 
   {"ColonLocFirst", "FirstColonToken"},
   {"ColonLocSecond", "SecondColonToken"},
@@ -327,6 +331,7 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
   {"(llvm::ArrayRef<const clang::Attr *>)", "std::vector<::pasta::Attr>"},
   {"(llvm::iterator_range<clang::Attr *const *>)", "std::vector<::pasta::Attr>"},
   {"(const clang::Attr *)", "::pasta::Attr"},
+  {"(clang::ParameterABI)", "::pasta::ParameterABI"},
 };
 
 // Maps return types from the macros file to how they should be returned
@@ -428,7 +433,10 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
 //
   {"(clang::Decl::Kind)",
    "  return static_cast<enum ::pasta::DeclKind>(val);\n"},
-//
+
+  {"(clang::ParameterABI)",
+   "  return static_cast<enum ::pasta::ParameterABI>(val);\n"},
+
 //  {"(clang::ImplicitParamDecl::ImplicitParamKind)",
 //   "  return static_cast<::pasta::ImplicitParamKind>(val);\n"},
 //

@@ -22,10 +22,7 @@ if(PASTA_ENABLE_INSTALL)
     include("cmake/packaging.cmake")
 endif(PASTA_ENABLE_INSTALL)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # --------------------------------------------
 # toolchain-specific warning options ---------
@@ -48,9 +45,12 @@ endif()
 # `pasta_cxx_settings` for global build options ----
 # --------------------------------------------------
 add_library(pasta_cxx_settings INTERFACE)
+target_compile_features(pasta_cxx_settings INTERFACE cxx_std_20)
+set_target_properties(pasta_cxx_settings PROPERTIES CXX_EXTENSIONS OFF)
+set_target_properties(pasta_cxx_settings PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_include_directories(pasta_cxx_settings INTERFACE
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 target_compile_options(pasta_cxx_settings INTERFACE ${CXX_WARNING_OPTIONS})
@@ -68,32 +68,6 @@ if(Filesystem_FOUND)
     message(STATUS "Found filesystem: ${CXX_FILESYSTEM_HEADER}")
 endif()
 target_link_libraries(pasta_cxx_settings INTERFACE std::filesystem)
-
-# --------------------------------------------
-# Python dependencies ------------------------
-# --------------------------------------------
-
-if(PASTA_PYTHON_BINDINGS)
-    find_package(PythonInterp 3.8 REQUIRED)
-    if("x${PYTHON_LIBRARIES}x" STREQUAL "xx")
-        execute_process(
-            COMMAND "${PYTHON_EXECUTABLE}" -c "import distutils.sysconfig as sysconfig; print(sysconfig.get_config_var('LIBDIR'), end='')"
-            OUTPUT_VARIABLE PYTHON_LIBRARY)
-        message(STATUS "Found PYTHON_LIBRARY: ${PYTHON_LIBRARY}")
-    endif()
-    if("x${PYTHON_INCLUDE_DIRS}x" STREQUAL "xx")
-        execute_process(
-            COMMAND "${PYTHON_EXECUTABLE}" -c "from distutils.sysconfig import get_python_inc; print(get_python_inc(), end='')"
-            OUTPUT_VARIABLE PYTHON_INCLUDE_DIR)
-        message(STATUS "Found PYTHON_INCLUDE_DIR: ${PYTHON_INCLUDE_DIR}")
-    endif()
-    find_package(PythonLibs 3.8 REQUIRED)
-    
-    add_library(pasta_thirdparty_python INTERFACE)
-    target_include_directories(pasta_thirdparty_python INTERFACE
-        ${PYTHON_INCLUDE_DIRS}
-    )
-endif(PASTA_PYTHON_BINDINGS)
 
 # --------------------------------------------
 # Clang/LLVM dependencies --------------------
@@ -229,12 +203,12 @@ get_compiler_paths(
 get_compiler_paths(
     COMPILER "${CMAKE_CXX_COMPILER}"
     OUT_VAR CSTR_HOST_CXX_VERSION_INFO
-    ARGS -x c++ -std=c++17
+    ARGS -x c++ -std=c++20
 )
 get_compiler_paths(
     COMPILER "${CMAKE_CXX_COMPILER}"
     OUT_VAR CSTR_HOST_CXX_VERSION_INFO_FAKE_SYSROOT
-    ARGS -x c++ -std=c++17 -isysroot "${CMAKE_CURRENT_BINARY_DIR}/xyz" -Wno-missing-sysroot
+    ARGS -x c++ -std=c++20 -isysroot "${CMAKE_CURRENT_BINARY_DIR}/xyz" -Wno-missing-sysroot
 )
 
 configure_file("${HOST_H_IN_FILE}" "${HOST_H_FILE}" @ONLY)
@@ -284,6 +258,8 @@ set(ast_HEADERS
     "include/pasta/AST/Stmt.h"
     "include/pasta/AST/StmtManual.h"
     "include/pasta/AST/Token.h"
+    "include/pasta/AST/Type.h"
+    "include/pasta/AST/TypeManual.h"
     "include/pasta/Compile/Command.h"
     "include/pasta/Compile/Compiler.h"
     "include/pasta/Compile/Job.h"
@@ -306,6 +282,7 @@ add_library(pasta_compiler STATIC
     "lib/AST/Token.cpp"
     "lib/AST/Token.h"
     "lib/AST/Type.cpp"
+    "lib/AST/TypeManual.cpp"
     "lib/AST/Util.h"
     "lib/AST/Printer/DeclPrinter.cpp"
     "lib/AST/Printer/DeclStmtPrinter.h"
@@ -383,91 +360,6 @@ if(PASTA_BOOTSTRAP_MACROS OR PASTA_BOOTSTRAP_TYPES)
     target_link_libraries("pasta" INTERFACE
         pasta_bootstrap
     )
-
-elseif(PASTA_PYTHON_BINDINGS)
-
-    # --------------------------------------------
-    # Add Python bindings libraries --------------
-    # --------------------------------------------
-
-    add_library(pasta_python_bindings STATIC
-        "include/pasta/Python/Bindings.h"
-    
-        "lib/Python/Bindings.cpp"
-        
-        "lib/Python/AST/AST.cpp"
-        "lib/Python/AST/SourceLocation.cpp"
-        "lib/Python/AST/Token.cpp"
-        
-        "lib/Python/Compile/Command.cpp"
-        "lib/Python/Compile/Compile.h"
-        "lib/Python/Compile/Compiler.cpp"
-        "lib/Python/Compile/Job.cpp"
-        "lib/Python/Pasta.cpp"
-    )
-    
-    target_link_libraries(pasta_python_bindings PRIVATE
-        pasta_compiler
-        pasta_cxx_settings
-        pasta_thirdparty_llvm
-        pasta_thirdparty_python
-        pasta_util
-    )
-    
-    # --------------------------------------------
-    # Configure setup.py.in and __init__.py.in ---
-    # --------------------------------------------
-    
-    set(SETUP_PY_IN "${PROJECT_SOURCE_DIR}/setup.py.in")
-    set(SETUP_PY "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
-    
-    set(INIT_PY_IN "${PROJECT_SOURCE_DIR}/__init__.py.in")
-    set(INIT_PY "${CMAKE_CURRENT_BINARY_DIR}/pasta/__init__.py")
-    
-    set(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/timestamp")
-    
-    get_target_tree(DEPENDENT_LIBRARIES pasta_python_bindings)
-    get_public_include_folders(INCLUDE_DIRS ${DEPENDENT_LIBRARIES})
-    
-    # Create a list of generator expressions that will find us the absolute paths
-    # of all dependent libraries for setup.py to link against.
-    foreach(lib_target ${DEPENDENT_LIBRARIES})
-        if (TARGET ${lib_target})
-            get_target_property(target_type "${lib_target}" TYPE)
-            if("${target_type}" STREQUAL "STATIC_LIBRARY")
-                list(APPEND LIBRARY_PATHS "\$<TARGET_FILE:${lib_target}>")
-            elseif("${target_type}" STREQUAL "IMPORTED_LIBRARY")
-                get_target_property(target_imported_loc "${target}" IMPORTED_LOCATION)
-                if(NOT "${target_imported_loc}" STREQUAL "target_imported_loc-NOTFOUND")
-                    list(APPEND LIBRARY_PATHS "${target_imported_loc}")
-                endif()
-            endif()
-        endif()
-    endforeach()
-    
-    # Determine if we need to link anything to access the C++ filesystem API
-    get_property(CXX_FILESYSTEM_LIBS
-                 TARGET std::filesystem
-                 PROPERTY INTERFACE_LINK_LIBRARIES)
-    
-    configure_file("${SETUP_PY_IN}" "${SETUP_PY}.gen" @ONLY)
-    file(GENERATE OUTPUT "${SETUP_PY}" INPUT "${SETUP_PY}.gen")
-    configure_file("${INIT_PY_IN}" "${INIT_PY}" @ONLY)
-    
-    add_custom_command(
-        OUTPUT "${OUTPUT}"
-        COMMAND "${PYTHON_EXECUTABLE}" "${SETUP_PY}" build --force
-        COMMAND "${CMAKE_COMMAND}" -E touch "${OUTPUT}"
-        COMMENT "Building Pasta Python API"
-        DEPENDS pasta_python_bindings pasta_compiler
-        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-    )
-    
-    add_custom_target(pasta_build_python_ext ALL DEPENDS "${OUTPUT}")
-    if(PASTA_ENABLE_INSTALL)
-        install(CODE "execute_process(COMMAND \"${PYTHON_EXECUTABLE}\" \"${SETUP_PY}\" install --force)")
-    endif(PASTA_ENABLE_INSTALL)
-
 endif()
 
 # ---------------------------------------------------

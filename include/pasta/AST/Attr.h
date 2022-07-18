@@ -12,7 +12,6 @@
 #include <pasta/Util/Compiler.h>
 
 #include "AttrManual.h"
-#include "Forward.h"
 
 #define PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(base) \
     friend class AST; \
@@ -2771,7 +2770,7 @@ class ParameterABIAttr : public InheritableParamAttr {
   PASTA_DECLARE_DERIVED_OPERATORS(ParameterABIAttr, SwiftContextAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(ParameterABIAttr, SwiftErrorResultAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(ParameterABIAttr, SwiftIndirectResultAttr)
-  enum ParameterABI ABI(void) const noexcept;
+  ::pasta::ParameterABI ABI(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ParameterABIAttr)
 };

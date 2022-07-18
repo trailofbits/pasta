@@ -3547,10 +3547,10 @@ PASTA_DEFINE_DERIVED_OPERATORS(ParameterABIAttr, SwiftAsyncContextAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(ParameterABIAttr, SwiftContextAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(ParameterABIAttr, SwiftErrorResultAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(ParameterABIAttr, SwiftIndirectResultAttr)
-enum ParameterABI ParameterABIAttr::ABI(void) const noexcept {
+::pasta::ParameterABI ParameterABIAttr::ABI(void) const noexcept {
   auto &self = *const_cast<clang::ParameterABIAttr *>(u.ParameterABIAttr);
   decltype(auto) val = self.getABI();
-  return static_cast<::pasta::ParameterABI>(val);
+  return static_cast<enum ::pasta::ParameterABI>(val);
   __builtin_unreachable();
 }
 

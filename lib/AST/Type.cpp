@@ -3340,13 +3340,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, DependentAddressSpaceType)
   __builtin_unreachable();
 }
 
-::pasta::Expr DependentAddressSpaceType::AddrSpaceExpression(void) const noexcept {
+::pasta::Expr DependentAddressSpaceType::AddressSpaceExpression(void) const noexcept {
   auto &self = *const_cast<clang::DependentAddressSpaceType *>(u.DependentAddressSpaceType);
   decltype(auto) val = self.getAddrSpaceExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "DependentAddressSpaceType::AddrSpaceExpression can return nullptr!");
+  assert(false && "DependentAddressSpaceType::AddressSpaceExpression can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -4085,7 +4085,7 @@ bool ObjCObjectPointerType::IsUnspecializedAsWritten(void) const noexcept {
 // 0: ObjCObjectPointerType::
 // 0: ObjCObjectPointerType::
 // 0: ObjCObjectPointerType::
-std::vector<::pasta::ObjCProtocolDecl> ObjCObjectPointerType::Qualifieds(void) const noexcept {
+std::vector<::pasta::ObjCProtocolDecl> ObjCObjectPointerType::Qualifiers(void) const noexcept {
   auto &self = *const_cast<clang::ObjCObjectPointerType *>(u.ObjCObjectPointerType);
   decltype(auto) val = self.quals();
   std::vector<::pasta::ObjCProtocolDecl> ret;
@@ -4098,13 +4098,13 @@ std::vector<::pasta::ObjCProtocolDecl> ObjCObjectPointerType::Qualifieds(void) c
   __builtin_unreachable();
 }
 
-::pasta::ObjCObjectPointerType ObjCObjectPointerType::StripObjCKindOfTypeAndQualifieds(void) const noexcept {
+::pasta::ObjCObjectPointerType ObjCObjectPointerType::StripObjCKindOfTypeAndQualifiers(void) const noexcept {
   auto &self = *(u.ObjCObjectPointerType);
   decltype(auto) val = self.stripObjCKindOfTypeAndQuals(ast->ci->getASTContext());
   if (val) {
     return TypeBuilder::Create<::pasta::ObjCObjectPointerType>(ast, val);
   }
-  assert(false && "ObjCObjectPointerType::StripObjCKindOfTypeAndQualifieds can return nullptr!");
+  assert(false && "ObjCObjectPointerType::StripObjCKindOfTypeAndQualifiers can return nullptr!");
   __builtin_unreachable();
   __builtin_unreachable();
 }
@@ -4283,7 +4283,7 @@ bool ObjCObjectType::IsUnspecializedAsWritten(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Type ObjCObjectType::StripObjCKindOfTypeAndQualifieds(void) const noexcept {
+::pasta::Type ObjCObjectType::StripObjCKindOfTypeAndQualifiers(void) const noexcept {
   auto &self = *(u.ObjCObjectType);
   decltype(auto) val = self.stripObjCKindOfTypeAndQuals(ast->ci->getASTContext());
   assert(!val.isNull());
@@ -4952,7 +4952,7 @@ enum ExceptionSpecificationType FunctionProtoType::ExceptionSpecType(void) const
 // 0: FunctionProtoType::ExtParameterInfos
 // 0: FunctionProtoType::ExtParameterInfosOrNull
 // 0: FunctionProtoType::ExtProtoInfo
-// 0: FunctionProtoType::MethodQualifieds
+// 0: FunctionProtoType::MethodQualifiers
 std::optional<::pasta::Expr> FunctionProtoType::NoexceptExpression(void) const noexcept {
   auto &self = *const_cast<clang::FunctionProtoType *>(u.FunctionProtoType);
   decltype(auto) val = self.getNoexceptExpr();

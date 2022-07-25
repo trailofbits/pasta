@@ -4927,7 +4927,7 @@ class AssumeAlignedAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, AssumeAlignedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AssumeAlignedAttr)
   ::pasta::Expr Alignment(void) const noexcept;
-  ::pasta::Expr Offset(void) const noexcept;
+  std::optional<::pasta::Expr> Offset(void) const noexcept;
   std::string_view Spelling(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AssumeAlignedAttr)

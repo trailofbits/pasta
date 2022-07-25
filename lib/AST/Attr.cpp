@@ -7511,13 +7511,15 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AssumeAlignedAttr)
   __builtin_unreachable();
 }
 
-::pasta::Expr AssumeAlignedAttr::Offset(void) const noexcept {
+std::optional<::pasta::Expr> AssumeAlignedAttr::Offset(void) const noexcept {
   auto &self = *const_cast<clang::AssumeAlignedAttr *>(u.AssumeAlignedAttr);
   decltype(auto) val = self.getOffset();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "AssumeAlignedAttr::Offset can return nullptr!");
   __builtin_unreachable();
 }
 

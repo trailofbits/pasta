@@ -998,7 +998,9 @@ Result<AST, std::string> CompileJob::Run(void) const {
 
   const auto lang_opts = invocation.getLangOpts();
 
-  lang_opts->Bool = true;
+  // Disable cpp language option that enable true/false keyword. It
+  // can have conflict with C identifiers declaring true/false
+  // lang_opts->Bool = true;
   lang_opts->Half = had_legal_half_type;
   lang_opts->WChar = lang_opts->CPlusPlus;
   lang_opts->Char8 = true;

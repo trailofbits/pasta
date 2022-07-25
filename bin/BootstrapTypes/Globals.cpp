@@ -1096,6 +1096,8 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"Decl", "ExternalSourceSymbolAttribute"},
   {"AlignedAttr", "AlignmentType"},
   {"AlignedAttr", "AlignmentExpression"},
+  {"EnumDecl", "PromotionType"},
+  {"AssumeAlignedAttr", "Offset"},
 
 //  {"FunctionProtoType", "EllipsisToken"},
 //  {"FunctionDecl", "EllipsisToken"},

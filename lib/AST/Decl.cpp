@@ -8016,10 +8016,12 @@ std::optional<::pasta::EnumDecl> EnumDecl::PreviousDeclaration(void) const noexc
   __builtin_unreachable();
 }
 
-::pasta::Type EnumDecl::PromotionType(void) const noexcept {
+std::optional<::pasta::Type> EnumDecl::PromotionType(void) const noexcept {
   auto &self = *const_cast<clang::EnumDecl *>(u.EnumDecl);
   decltype(auto) val = self.getPromotionType();
-  assert(!val.isNull());
+  if (val.isNull()) {
+    return std::nullopt;
+  }
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }

@@ -2597,7 +2597,7 @@ class EnumDecl : public TagDecl {
   uint32_t NumPositiveBits(void) const noexcept;
   std::optional<uint32_t> ODRHash(void) const noexcept;
   std::optional<::pasta::EnumDecl> PreviousDeclaration(void) const noexcept;
-  ::pasta::Type PromotionType(void) const noexcept;
+  std::optional<::pasta::Type> PromotionType(void) const noexcept;
   std::optional<::pasta::EnumDecl> TemplateInstantiationPattern(void) const noexcept;
   enum TemplateSpecializationKind TemplateSpecializationKind(void) const noexcept;
   bool IsClosed(void) const noexcept;

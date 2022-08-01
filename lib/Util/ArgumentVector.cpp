@@ -26,29 +26,46 @@ void ArgumentVector::Reset(void) {
 
 namespace {
 
+// NOTE(kumarak) : Don't strip double quotes from the input data. There could
+//                 a case where string gets passed through the command line and
+//                 stripping double quotes can create problem
+//                 e.g: -DA="BA"        =>  -DA="BA"
+//                      -DA=""B'A""     =>  -DA=""BA""
+//                      -DA='"B"'       =>  -DA="B"
+//                      -DA='''"B"'     =>  -DA="B"
+//
+// TODO(kumarak) : Could there be a case where a compile command can have extra
+//                 double quotes that need to be stripped e.g: -DARG=""value""
+//
+
 // Try to strip a single level of quotes from some input data.
 static char *StripSlashesAndQuotes(char *data) {
   size_t len = strlen(data);
   size_t read_i = 0;
   char quote_ch = '\0';
-
   size_t write_i = 0;
-  for (; read_i < len; ++read_i) {
-    const auto ch = data[read_i];
+
+  while (read_i < len) {
+    auto ch = data[read_i++];
     if (ch == quote_ch) {
       quote_ch = '\0';
-    } else if (ch == '"') {
-      quote_ch = '"';
+      continue;
+
     } else if (ch == '\'') {
-      quote_ch = '\'';
-    } else if (ch == '\\') {
-      ++read_i;
-      if (read_i < len) {
-        data[write_i++] = data[read_i];
+      if (!quote_ch) {
+        quote_ch = '\'';
+        continue;
       }
-    } else {
-      data[write_i++] = ch;
+
+    } else if (ch == '\\') {
+      if (read_i < len) {
+        ch = data[read_i++];
+      } else {
+        ch = '\0';
+      }
     }
+
+    data[write_i++] = ch;
   }
   data[write_i] = '\0';
 

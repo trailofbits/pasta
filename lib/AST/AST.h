@@ -24,6 +24,7 @@
 #include <variant>
 #include <mutex>
 
+#include "Macro.h"
 #include "Token.h"
 
 namespace clang {
@@ -95,6 +96,9 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
 
   // Mapping of Clang source manager file IDs to offsets within `parsed_files`.
   std::unordered_map<unsigned  /* clang::FileID */, ::pasta::File> id_to_file;
+
+  // List of macro directives.
+  RootMacroNode root_macro_node;
 
   // List of parsed tokens. We run the pre-processor, and each lexed token is
   // added here. We also inject in some other tokens, such as whitespace and

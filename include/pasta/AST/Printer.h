@@ -11,12 +11,12 @@
 namespace clang {
 class ASTContext;
 class Decl;
-class PrintingPolicy;
 class QualType;
 class Stmt;
 class TemplateArgument;
 class TemplateParameterList;
 class Type;
+struct PrintingPolicy;
 }  // namespace clang
 namespace pasta {
 

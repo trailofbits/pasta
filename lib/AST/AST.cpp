@@ -193,6 +193,14 @@ TokenRange AST::Tokens(void) const {
   return TokenRange(impl, first, &(first[impl->tokens.size()]));
 }
 
+// Return all top-level macro nodes (expansions, directives, substitutions,
+// etc.).
+MacroNodeRange AST::Macros(void) const {
+  const auto first = impl->root_macro_node.nodes.data();
+  return MacroNodeRange(
+      impl, first, &(first[impl->root_macro_node.nodes.size()]));
+}
+
 // Try to return the token at the specified location.
 TokenImpl *ASTImpl::RawTokenAt(clang::SourceLocation loc) {
   if (loc.isInvalid()) {

@@ -4,7 +4,12 @@
 
 #include <pasta/AST/Printer.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
 #include <llvm/Support/raw_ostream.h>
+#pragma GCC diagnostic pop
 
 #include <cassert>
 #include <cstdint>

@@ -7,7 +7,12 @@
 #pragma once
 
 #include <cstdint>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
 #include <llvm/ADT/APSInt.h>
+#pragma GCC diagnostic pop
 #include <memory>
 #include <optional>
 #include <string>

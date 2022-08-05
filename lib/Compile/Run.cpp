@@ -14,10 +14,11 @@
 #include <iostream>
 #include <unordered_set>
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wbitfield-enum-conversion"
+#pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/AST/ASTConsumer.h>
 #include <clang/Basic/Builtins.h>
 #include <clang/Basic/Diagnostic.h>
@@ -34,12 +35,24 @@
 #include <clang/Sema/Sema.h>
 #include <llvm/Support/Host.h>
 #include <llvm/Support/raw_ostream.h>
-#pragma clang diagnostic pop
+#pragma GCC diagnostic pop
 
 #include <pasta/Util/ArgumentVector.h>
 #include <pasta/Util/Compiler.h>
 
+#include "ParsedFileTracker.h"
 #include "FileSystem.h"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-private-field"
+#if defined(LLVM_CLANG_HAS_PASTA_EVENTS)
+# include "PatchedMacroTracker.h"
+using MacroTracker = pasta::PatchedMacroTracker;
+#else
+# include "LegacyMacroTracker.h"
+using MacroTracker = pasta::LegacyMacroTracker;
+#endif
+#pragma GCC diagnostic pop
 
 #include "../AST/AST.h"
 #include "../AST/Token.h"
@@ -49,8 +62,6 @@
 
 namespace pasta {
 namespace detail {
-PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, Preprocessor, LexLevel, unsigned);
-PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, Preprocessor, CurTokenLexer, std::unique_ptr<clang::TokenLexer>);
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, TLSSupported, bool);
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, VLASupported, bool);
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasLegalHalfType, bool);
@@ -260,604 +271,6 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
 }
 
 }  // namespace
-
-
-// Tracks open files.
-class ParsedFileTracker : public clang::PPCallbacks {
- private:
-  clang::Preprocessor &pp;
-  clang::SourceManager &sm;
-  const clang::LangOptions &lang_opts;
-  const pasta::FileManager fm;
-  std::shared_ptr<pasta::FileSystem> fs;
-  const std::filesystem::path cwd;
-
-  ASTImpl * const ast;
-
-  // What is the current file being parsed. This roughly corresponds to the
-  // top of `file_id_stack` below.
-  clang::FileID current_file_id;
-  std::optional<File> current_file;
-
-  // Tracks whether or not we've tokenized a file.
-  std::unordered_set<pasta::FileImpl *> seen;
-//  std::unordered_map<std::string, clang::FileID> seen_file_ids;
-
-  // Stack of file IDs that we're parsing.
-  std::vector<clang::FileID> file_id_stack;
-
-  // This represents what the logical "zero" lexer level is. Clang's lexer
-  // is re-entrant, so there are recursive calls in it due to things like
-  // macro expansion and such. The lexer level tracks these things. It also
-  // might track things like the stack size, so we always want to be sure
-  // that we know what the logical baseline lexer level is for the current
-  // file, so that we can distinguish macro expansion tokens from the first
-  // place where they occur in a file, from macro expansion tokens from sub-
-  // expansions.
-  unsigned logical_level_0{0u};
-
-
-  // Try to inject an end-of-macro token.
-  void TryInjectEOM(clang::SourceLocation loc) {
-    ast->TryInjectEndOfMacroExpansion(loc);
-  }
-
-  void InjectToken(clang::SourceLocation loc, TokenRole role) {
-    assert(loc.isValid());
-    assert(loc.isFileID());
-    TryInjectEOM(loc);
-    ast->AppendMarker(loc, role);
-  }
-
-  clang::SourceLocation TryFindHash(clang::SourceLocation loc,
-                                    clang::SourceLocation backup_loc) {
-    if (loc.isInvalid() || !loc.isFileID()) {
-      return backup_loc;
-    }
-
-    bool invalid = false;
-    auto [file_id, file_offset] = sm.getDecomposedLoc(loc);
-    llvm::StringRef file_data = sm.getBufferData(file_id, &invalid);
-    if (invalid) {
-      return backup_loc;
-    }
-
-    // Scan backwards through the file buffer from the start of the macro token
-    // that was undefined, hoping to find the `#` of the directive. If we find
-    // it, then emit an injected token.
-    for (int loc_offset = 0; file_offset; --loc_offset) {
-      if (file_data[file_offset--] == '#') {
-        return loc.getLocWithOffset(loc_offset);
-      }
-    }
-
-    // TODO(pag): Use start of file location instead?
-    return backup_loc;
-  }
-
-  // Try to locate the end of a directive. This is typically the first newline
-  // that isn't preceded by a line continuation character.
-  clang::SourceLocation TryFindEOD(clang::SourceLocation loc) {
-    if (loc.isInvalid() || !loc.isFileID()) {
-      assert(false);
-      return clang::SourceLocation();
-    }
-
-    bool invalid = false;
-    auto [file_id, file_offset] = sm.getDecomposedLoc(loc);
-    llvm::StringRef file_data = sm.getBufferData(file_id, &invalid);
-    if (invalid) {
-      assert(false);
-      return clang::SourceLocation();
-    }
-
-    // Scan backwards through the file buffer from the start of the macro token
-    // that was undefined, hoping to find the `#` of the directive. If we find
-    // it, then emit an injected token.
-    auto seen_continuation = false;
-    auto max_offset = file_data.size();
-    int loc_offset = 0;
-    for (; file_offset < max_offset; ++loc_offset, ++file_offset) {
-
-      switch (file_data[file_offset]) {
-        case '\\':
-          seen_continuation = true;
-          break;
-        case '\n':
-          if (seen_continuation) {
-            seen_continuation = false;
-            continue;
-          } else {
-            return loc.getLocWithOffset(loc_offset);
-          }
-        default:
-          continue;
-      }
-    }
-
-    return sm.getLocForEndOfFile(file_id);
-  }
-
- public:
-
-  explicit ParsedFileTracker(clang::Preprocessor &pp_,
-                             clang::SourceManager &sm_,
-                             const clang::LangOptions &lang_opts_,
-                             const pasta::FileManager &fm_,
-                             std::filesystem::path cwd_,
-                             ASTImpl *ast_)
-      : pp(pp_),
-        sm(sm_),
-        lang_opts(lang_opts_),
-        fm(fm_),
-        fs(fm.FileSystem()),
-        cwd(std::move(cwd_)),
-        ast(ast_) {}
-
-  virtual ~ParsedFileTracker(void) {}
-
-  void Clear(void) {
-    current_file_id = {};
-    current_file.reset();
-    seen.clear();
-    fs.reset();
-  }
-
-  // Callback invoked whenever an inclusion directive of any kind (`#include`,
-  // `#import`, etc.) has been processed, regardless of whether the inclusion
-  // will actually result in an inclusion.
-  void InclusionDirective(
-      clang::SourceLocation hash_loc, const clang::Token & /* include_tok */,
-      llvm::StringRef /* file_name */, bool /* is_angled */,
-      clang::CharSourceRange /* file_name_range */,
-      const clang::FileEntry * /* file */, llvm::StringRef /* search_path */,
-      llvm::StringRef /* relative_path */, const clang::Module * /* imported */,
-      clang::SrcMgr::CharacteristicKind /* file_type */) final {
-
-    // Some macros might expand *just* before an `#include`, we want to
-    // inject this to act as an upper bound on where the macro expansion ends.
-    TryInjectEOM(hash_loc);
-  }
-
-//  // Callback invoked whenever a source file is skipped as the result
-//  // of header guard optimization.
-//  void FileSkipped(const clang::FileEntryRef &skipped_file,
-//                   const clang::Token &filename_tok,
-//                   clang::SrcMgr::CharacteristicKind) final {
-//    if (!skipped_file.isValid()) {
-//      return;
-//    }
-//
-//    auto it = seen_file_ids.find(skipped_file.getName().str());
-//    if (it == seen_file_ids.end()) {
-//      return;
-//    }
-//
-//    clang::FileID file_id = it->second;
-//
-//    // Inject dummy tokens representing the entry and exit of this file.
-//    InjectToken(sm.getLocForStartOfFile(file_id),
-//                TokenRole::kBeginOfFileMarker);
-//    InjectToken(sm.getLocForEndOfFile(file_id),
-//                TokenRole::kEndOfFileMarker);
-//  }
-
-  // Each time we enter a source file, try to keep track of it.
-  void FileChanged(clang::SourceLocation loc,
-                   clang::PPCallbacks::FileChangeReason reason,
-                   clang::SrcMgr::CharacteristicKind file_type,
-                   clang::FileID file_id = clang::FileID()) final {
-
-    auto level = pp.*PASTA_ACCESS_MEMBER(clang, Preprocessor, LexLevel);
-
-    if (clang::PPCallbacks::EnterFile == reason ||
-        clang::PPCallbacks::ExitFile == reason) {
-
-      // On entry, `level` is correct, on exit, we want to represent the new
-      // logical level as the level *after* exiting, so `level` is off by one.
-      if (clang::PPCallbacks::EnterFile == reason) {
-        logical_level_0 = level - static_cast<unsigned>(reason);
-
-      } else if (clang::PPCallbacks::ExitFile == reason) {
-        assert(level > 0u);
-        logical_level_0 = level - 1u;
-      }
-
-      switch (file_type) {
-        case clang::SrcMgr::CharacteristicKind::C_User:
-        case clang::SrcMgr::CharacteristicKind::C_System:
-        case clang::SrcMgr::CharacteristicKind::C_ExternCSystem:
-          break;
-        case clang::SrcMgr::CharacteristicKind::C_User_ModuleMap:
-        case clang::SrcMgr::CharacteristicKind::C_System_ModuleMap:
-          return;
-      }
-    } else {
-      return;
-    }
-
-    if (clang::PPCallbacks::EnterFile == reason) {
-      assert(loc.isValid());
-      assert(loc.isFileID());
-      file_id = sm.getFileID(loc);
-    }
-
-    const clang::FileEntry *fe = sm.getFileEntryForID(file_id);
-    if (!fe) {
-      return;
-    }
-
-    auto fs_path = fs->ParsePath(fe->getName().str(), cwd, fs->PathKind());
-    auto fs_stat = fs->Stat(fs_path, cwd);
-    if (!fs_stat.Succeeded()) {
-      assert(false);
-      return;
-    }
-
-    auto maybe_file = fm.OpenFile(fs_stat.TakeValue());
-    if (!maybe_file.Succeeded()) {
-      assert(false);
-      return;
-    }
-
-    auto file = maybe_file.TakeValue();
-//    std::cerr
-//        << "!!! reason=" << int(reason) << " file_type="
-//        << int(file_type) << " loc_valid=" << loc.isValid()
-//        << " loc_file=" << loc.isFileID() << " level=" << level
-//        << " path=" << file.Path().generic_string() << '\n';
-
-    // Keep track of the current file that we're in. This, along with the
-    // `logical_level_0`, helps us to identify uses of macros.
-    if (clang::PPCallbacks::EnterFile == reason) {
-      file_id_stack.push_back(file_id);
-      current_file_id = file_id;
-      current_file = file;
-
-      // Inject a dummy token representing the entry to this file.
-      InjectToken(sm.getLocForStartOfFile(file_id),
-                  TokenRole::kBeginOfFileMarker);
-
-    } else if (clang::PPCallbacks::ExitFile == reason) {
-      assert(!file_id_stack.empty());
-      assert(file_id_stack.back() == file_id);
-      file_id_stack.pop_back();
-      if (!file_id_stack.empty()) {
-        current_file_id = file_id_stack.back();
-        auto prev_file_it = ast->id_to_file.find(
-            current_file_id.getHashValue());
-        assert(prev_file_it != ast->id_to_file.end());
-        current_file = prev_file_it->second;
-      }
-
-      // Add a dummy token signifying the end of the file.
-      //
-      // TODO(pag): Make it an `eof` token?
-      InjectToken(sm.getLocForEndOfFile(file_id).getLocWithOffset(-1),
-                  TokenRole::kEndOfFileMarker);
-    }
-
-    // Keep a mapping of Clang file IDs to parsed files.
-    auto old_file_it = ast->id_to_file.find(file_id.getHashValue());
-    if (old_file_it == ast->id_to_file.end()) {
-      ast->id_to_file.emplace(file_id.getHashValue(), file);
-    } else {
-      assert(old_file_it->second.impl.get() == file.impl.get());
-    }
-
-    // If we've seen this file already, then don't tokenize it.
-    if (auto [seen_it, added] = seen.emplace(file.impl.get()); !added) {
-      return;
-    }
-
-//    seen_file_ids.emplace(fe->getName().str(), file_id);
-
-    auto maybe_data = file.Data();
-    if (!maybe_data.Succeeded()) {
-      return;
-    }
-
-    ast->parsed_files.emplace_back(std::move(file));
-
-    std::unique_lock<std::mutex> locker(file.impl->tokens_lock);
-    if (file.impl->has_tokens) {
-      return;
-    }
-
-    auto data = maybe_data.TakeValue();
-    file.impl->has_tokens = true;
-    if (data.empty()) {
-      return;
-    }
-
-    const char * const buff_begin = &(data.front());
-    const char * const buff_end = &(data[data.size()]);
-    clang::Lexer lexer(loc, lang_opts, buff_begin, buff_begin, buff_end);
-    lexer.SetKeepWhitespaceMode(true);  // Implies keep comments.
-
-    // Raw lex this file's tokens.
-    clang::Token tok;
-    while (!lexer.LexFromRawLexer(tok)) {
-      assert(!tok.hasLeadingEmptyMacro());
-      assert(!tok.isAnnotation());
-      if (tok.is(clang::tok::eof)) {
-        break;
-      }
-      const auto tok_loc = tok.getLocation();
-      auto offset = sm.getFileOffset(tok_loc);
-      assert(offset < data.size());
-      assert((offset + tok.getLength()) <= data.size());
-      auto tok_kind = tok.getKind();
-
-      uint16_t is_pp_keyword = 0;
-      uint16_t is_objc_keyword = 0;
-      uint16_t alt_keyword = 0;
-
-      if (clang::tok::isAnyIdentifier(tok_kind)) {
-        assert(tok_kind == clang::tok::raw_identifier);
-        tok_kind = clang::tok::identifier;
-
-        // Try to form a `pp_*` keyword, or an `objc_*` keyword.
-        if (!file.impl->tokens.empty()) {
-          const auto ident = tok.getRawIdentifier();
-          const auto num_file_toks = static_cast<uint32_t>(
-              file.impl->tokens.size());
-          for (auto i = 1u; i <= num_file_toks; ++i) {
-            auto p_tok = file.impl->tokens[num_file_toks - i];
-            switch (p_tok.Kind()) {
-              case clang::tok::unknown:
-                continue;
-              case clang::tok::at:
-                i = num_file_toks;
-                if (false) {}
-#define OBJC_AT_KEYWORD(x) else if (ident == #x) { is_objc_keyword = 1; alt_keyword = static_cast<uint16_t>(clang::tok::objc_##x); }
-#include <clang/Basic/TokenKinds.def>
-
-              case clang::tok::hash:
-                i = num_file_toks;
-                if (false) {}
-#define PPKEYWORD(x) else if (ident == #x) { is_pp_keyword = 1; alt_keyword = static_cast<uint16_t>(clang::tok::pp_##x); }
-#include <clang/Basic/TokenKinds.def>
-
-              default:
-                i = num_file_toks;
-                break;
-            }
-          }
-        }
-      }
-
-      auto &last_tok = file.impl->tokens.emplace_back(
-          offset,
-          tok.getLength(),
-          sm.getSpellingLineNumber(tok_loc),
-          sm.getSpellingColumnNumber(tok_loc),
-          tok_kind);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wconversion"
-      last_tok.kind.extended.is_pp_kw = is_pp_keyword;
-      last_tok.kind.extended.is_objc_kw = is_objc_keyword;
-      last_tok.kind.extended.alt_kind = alt_keyword;
-#pragma GCC diagnostic pop
-    }
-
-    const auto tok_loc = tok.getLocation();
-    file.impl->tokens.emplace_back(
-        file.impl->data.size(), 0u, sm.getSpellingLineNumber(tok_loc),
-        sm.getSpellingColumnNumber(tok_loc), clang::tok::eof);
-  }
-
-  // Callback invoked when a `#ident` or `#sccs` directive is read.
-  void Ident(clang::SourceLocation loc, clang::StringRef) final {
-    TryInjectEOM(TryFindHash(loc, loc));
-  }
-
-  // Callback invoked when start reading any pragma directive.
-  void PragmaDirective(clang::SourceLocation loc,
-                       clang::PragmaIntroducerKind introducer) final {
-    if (clang::PragmaIntroducerKind::PIK_HashPragma == introducer) {
-      TryInjectEOM(TryFindHash(loc, loc));
-    }
-  }
-
-  // Hook called when a source range is skipped.
-  void SourceRangeSkipped(clang::SourceRange range,
-                          clang::SourceLocation endif_loc) final {
-    TryInjectEOM(range.getBegin());
-    TryInjectEOM(range.getEnd());
-    TryInjectEOM(endif_loc);
-  }
-
-  // Hook called whenever an `#if` is seen.
-  //
-  // NOTE(pag): `condition_range` might point into file locations.
-  void If(clang::SourceLocation loc,
-          clang::SourceRange /* condition_range */,
-          ConditionValueKind cvk) final {
-
-    if (ConditionValueKind::CVK_NotEvaluated == cvk) {
-      TryInjectEOM(TryFindHash(loc, loc));
-
-    // If the condition has been evaluated, then that implies that possible
-    // macro expansion has also happened, and so we don't want to mark the
-    // location of the `#` of the directive because that would precede the
-    // location of the injected token with role `kBeginOfMacroExpansion`.
-    } else if (auto eod_loc = TryFindEOD(loc); eod_loc.isValid()) {
-      TryInjectEOM(eod_loc);
-    }
-  }
-
-  // Hook called whenever an `#elif` is seen.
-  //
-  // NOTE(pag): `condition_range` might point into file locations.
-  void Elif(clang::SourceLocation loc,
-            clang::SourceRange /* condition_range */,
-            ConditionValueKind cvk, clang::SourceLocation /* if_loc */) final {
-
-    if (ConditionValueKind::CVK_NotEvaluated == cvk) {
-      TryInjectEOM(TryFindHash(loc, loc));
-
-    // If the condition has been evaluated, then that implies that possible
-    // macro expansion has also happened, and so we don't want to mark the
-    // location of the `#` of the directive because that would precede the
-    // location of the injected token with role `kBeginOfMacroExpansion`.
-    } else if (auto eod_loc = TryFindEOD(loc); eod_loc.isValid()) {
-      TryInjectEOM(eod_loc);
-    }
-  }
-
-  // Hook called whenever an `#ifdef` is seen.
-  void Ifdef(clang::SourceLocation loc,
-             const clang::Token & /* macro_name_tested */,
-             const clang::MacroDefinition &) final {
-    TryInjectEOM(TryFindHash(loc, loc));
-  }
-
-  // Hook called whenever an `#ifndef` is seen.
-  void Ifndef(clang::SourceLocation loc,
-              const clang::Token & /* macro_name_tested */,
-              const clang::MacroDefinition &) final {
-    TryInjectEOM(TryFindHash(loc, loc));
-  }
-
-  /// Hook called whenever an `#else` is seen.
-  void Else(clang::SourceLocation loc,
-            clang::SourceLocation /* if_loc */) final {
-    TryInjectEOM(TryFindHash(loc, loc));
-  }
-
-  // Hook called whenever an `#endif` is seen.
-  void Endif(clang::SourceLocation loc,
-             clang::SourceLocation /* if_loc */) final {
-    TryInjectEOM(TryFindHash(loc, loc));
-  }
-
-  // Hook called whenever a macro definition is seen.
-  void MacroDefined(const clang::Token &macro_name,
-                    const clang::MacroDirective *directive) final {
-    auto loc = macro_name.getLocation();
-    if (directive) {
-      TryInjectEOM(TryFindHash(loc, directive->getLocation()));
-
-    } else if (loc.isValid() && loc.isFileID()) {
-      TryInjectEOM(TryFindHash(loc, loc));
-      return;
-    }
-  }
-
-  // Hook called whenever a macro `#undef` is seen.
-  //
-  // NOTE(pag): `directive` can't be trusted.
-  void MacroUndefined(const clang::Token &macro_name,
-                      const clang::MacroDefinition &,
-                      const clang::MacroDirective *directive) final {
-
-    auto loc = macro_name.getLocation();
-    if (directive) {
-      TryInjectEOM(TryFindHash(loc, directive->getLocation()));
-
-    } else if (loc.isValid() && loc.isFileID()) {
-      TryInjectEOM(TryFindHash(loc, loc));
-      return;
-    }
-  }
-
-  // Called by Preprocessor::HandleMacroExpandedIdentifier when a
-  // macro invocation is found. We want to inject placeholder tokens into
-  // the parsed range that relates to where the macro is in the original file.
-  // Thus, we are trying to narrow down on the set of expansions that happen
-  // at a file level, and not "sub-expansions" inside of other macro expansions.
-  void MacroExpands(const clang::Token &macro_name,
-                    const clang::MacroDefinition &def,
-                    clang::SourceRange use_range,
-                    const clang::MacroArgs *args) final {
-
-    // We're lexing some macro arguments.
-    auto &tok_lexer = pp.*PASTA_ACCESS_MEMBER(clang, Preprocessor, CurTokenLexer);
-    if (tok_lexer) {
-      return;
-    }
-
-    auto loc = macro_name.getLocation();
-    assert(loc == use_range.getBegin());
-
-    if (current_file_id.isInvalid()) {
-      return;
-    }
-
-//    // Macro expansion inside of a macro, or inside of a directive.
-//    auto level = pp.*PASTA_ACCESS_MEMBER(clang, Preprocessor, LexLevel);
-//    if ((logical_level_0 + 1u) < level) {
-//      assert(loc.isMacroID());
-//      return;
-//    }
-
-    // If the macro use isn't in the current file (e.g. it is a macro being
-    // expanded inside of another macro), then ignore it.
-    if (!loc.isFileID()) {
-      return;
-    }
-
-    assert(use_range.getEnd().isFileID());
-
-    auto [file_id, offset] = sm.getDecomposedLoc(loc);
-    if (file_id != current_file_id) {
-      assert(false);
-      return;
-    }
-
-    auto [end_fid, end_offset] = sm.getDecomposedLoc(use_range.getEnd());
-    assert(end_fid == file_id);
-
-    auto end_loc = use_range.getEnd();
-    assert(end_loc.isValid());
-    assert(end_loc.isFileID());
-    assert(current_file.has_value());
-
-#ifndef NDEBUG
-    std::optional<FileToken> file_tok = current_file->TokenAtOffset(offset);
-    if (!file_tok) {
-      assert(false);
-    } else {
-      auto file_tok_kind = static_cast<clang::tok::TokenKind>(file_tok->Kind());
-      assert(clang::tok::isAnyIdentifier(file_tok_kind) ||
-             clang::tok::getKeywordSpelling(file_tok_kind));
-      bool invalid = false;
-      auto ident_data = sm.getCharacterData(loc, &invalid);
-      assert(!invalid);
-      std::string_view ident_name(ident_data, macro_name.getLength());
-      assert(file_tok->Data() == ident_name);
-    }
-#endif
-
-    InjectToken(loc, TokenRole::kBeginOfMacroExpansionMarker);
-
-    if (offset == end_offset) {
-      assert(!args);
-      ast->macro_use_end_loc = loc.getLocWithOffset(
-          static_cast<int>(macro_name.getLength()));
-
-    } else if (args) {
-      assert(offset < end_offset);
-
-#ifndef NDEBUG
-      // Scan forward and find the closing parenthesis.
-      bool invalid = false;
-      auto end_data = sm.getCharacterData(end_loc, &invalid);
-      assert(!invalid);
-      assert(end_data[0] == ')');
-#endif
-
-      // TODO(pag): Handle the case where the ending parenthesis is the
-      //            result of a macro expansion.
-      ast->macro_use_end_loc = end_loc.getLocWithOffset(1);
-
-    } else {
-      assert(false);
-      ast->macro_use_end_loc = end_loc.getLocWithOffset(1);
-    }
-  }
-};
 
 // Run a command ans return the AST or the first error.
 Result<AST, std::string> CompileJob::Run(void) const {
@@ -1095,10 +508,16 @@ Result<AST, std::string> CompileJob::Run(void) const {
   // TODO(pag): Eventually add `PPCallbacks` so that we can capture macro
   //            definitions as tokens.
   auto file_tracker_ptr = new ParsedFileTracker(
-      pp, sm, *lang_opts, impl->file_manager, WorkingDirectory(), ast.get());
+      sm, *lang_opts, impl->file_manager, WorkingDirectory(), ast.get());
   {
     std::unique_ptr<clang::PPCallbacks> file_tracker(file_tracker_ptr);
     pp.addPPCallbacks(std::move(file_tracker));
+  }
+
+  auto macro_tracker_ptr = new MacroTracker(pp, sm, ast.get());
+  {
+    std::unique_ptr<clang::PPCallbacks> macro_tracker(macro_tracker_ptr);
+    pp.addPPCallbacks(std::move(macro_tracker));
   }
 
   pp.SetCommentRetentionState(false /* KeepComments */,
@@ -1115,6 +534,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
   assert(!ast->id_to_file.empty());
 
   file_tracker_ptr->Clear();
+  macro_tracker_ptr->Clear();
 
   // Replace the main source file with the preprocessed file.
   const auto main_file_name = input_files[0].getFile().str();

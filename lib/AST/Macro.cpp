@@ -62,7 +62,9 @@ const void *MacroNode::RawNode(void) const noexcept {
   if (std::holds_alternative<size_t>(node)) {
     return &(ast->tokens[std::get<size_t>(node)]);
   } else {
-    return std::get<MacroNodeImpl *>(node);
+    auto ret = std::get<MacroNodeImpl *>(node);
+    assert(ret != nullptr);
+    return ret;
   }
 }
 
@@ -172,11 +174,11 @@ std::optional<MacroToken> MacroDirective::DirectiveName(void) const noexcept {
 MacroNodeRange MacroDirective::Nodes(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
-  MacroArgumentImpl *arg_impl = dynamic_cast<MacroArgumentImpl *>(node_impl);
-  if (!arg_impl->nodes.empty()) {
-    const auto first = arg_impl->nodes.data();
+  MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
+  if (!dir_impl->nodes.empty()) {
+    const auto first = dir_impl->nodes.data();
     return MacroNodeRange(
-        ast, first, &(first[arg_impl->nodes.size()]));
+        ast, first, &(first[dir_impl->nodes.size()]));
   } else {
     return MacroNodeRange(ast);
   }

@@ -14,14 +14,14 @@ class MacroInfo;
 }  // namespace clang
 namespace pasta {
 
-using Node = std::variant<MacroNodeImpl *, size_t>;
+using Node = std::variant<std::nullptr_t, MacroNodeImpl *, size_t>;
 
 class MacroNodeImpl {
  public:
   virtual ~MacroNodeImpl(void) = default;
   virtual MacroNodeKind Kind(void) const = 0;
 
-  Node parent;
+  Node parent{nullptr};
   std::vector<Node> nodes;
 };
 

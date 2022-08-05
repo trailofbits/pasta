@@ -44,7 +44,7 @@ class PrintedTokenImpl : public TokenImpl {
                           unsigned num_leading_spaces_,
                           clang::tok::TokenKind kind_)
       : TokenImpl(TokenImpl::kInvalidSourceLocation, data_offset_,
-                  data_len_, kind_, TokenRole::kPrintedToken,
+                  data_len_, kind_, TokenRole::kInvalid,
                   token_context_index_),
         num_leading_new_lines(static_cast<uint16_t>(num_leading_new_lines_)),
         num_leading_spaces(static_cast<uint16_t>(num_leading_spaces_)) {

@@ -53,7 +53,8 @@ bool ASTImpl::TryInjectEndOfMacroExpansion(clang::SourceLocation loc) {
     // Prior token is a macro expansion token, or is the start of an empty
     // macro expansion.
     case TokenRole::kBeginOfMacroExpansionMarker:
-    case TokenRole::kMacroExpansionToken:
+    case TokenRole::kIntermediateMacroExpansionToken:
+    case TokenRole::kFinalMacroExpansionToken:
       break;
 
     default: {
@@ -127,7 +128,7 @@ void ASTImpl::AppendToken(const clang::Token &tok, size_t offset_,
     if (loc.isFileID()) {
       role = TokenRole::kFileToken;
     } else if (loc.isMacroID()) {
-      role = TokenRole::kMacroExpansionToken;
+      role = TokenRole::kFinalMacroExpansionToken;
     } else {
       assert(false);
     }
@@ -149,7 +150,7 @@ void ASTImpl::AppendBackupToken(const clang::Token &tok, size_t offset_,
     if (loc.isFileID()) {
       role = TokenRole::kFileToken;
     } else if (loc.isMacroID()) {
-      role = TokenRole::kMacroExpansionToken;
+      role = TokenRole::kFinalMacroExpansionToken;
     } else {
       assert(false);
     }

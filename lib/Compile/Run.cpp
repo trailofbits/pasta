@@ -120,6 +120,25 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
     tok_data.clear();
     (void) TryReadRawToken(source_manager, lang_opts, tok, &tok_data);
 
+    TokenRole role = TokenRole::kFileToken;
+
+    // Try to merge with the prior token, which was a macro expansion token.
+    // What this actually means is that we remove the old version of the token
+    // because we'll see it again.
+    if (num_lines) {
+      TokenImpl &prev_tok = impl.tokens.back();
+      if (prev_tok.Role() == TokenRole::kIntermediateMacroExpansionToken &&
+          prev_tok.Kind() == tok.getKind() &&
+          prev_tok.Location() == tok.getLocation() &&
+          prev_tok.Data(impl) == tok_data) {
+        assert(impl.preprocessed_code.back() == '\n');
+        impl.tokens.pop_back();
+        impl.preprocessed_code.pop_back();
+        --num_lines;
+        role = TokenRole::kFinalMacroExpansionToken;
+      }
+    }
+
     if (tok.isOneOf(clang::tok::eod, clang::tok::unknown, clang::tok::comment,
                     clang::tok::code_completion)) {
       if (tok_data.empty()) {
@@ -127,7 +146,7 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
         // Only retain these if they're contributing something in terms of
         // source locations.
         if (auto loc = tok.getLocation(); loc.isValid() && loc.isFileID()) {
-          impl.AppendMarker(loc, TokenRole::kFileToken);
+          impl.AppendMarker(loc, role);
         }
 
       // Comments and whitespace are stored "out-of-line" in the

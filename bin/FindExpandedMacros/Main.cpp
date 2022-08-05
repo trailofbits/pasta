@@ -159,7 +159,6 @@ static void DumpExpandedMacros(pasta::AST ast) {
 
     switch (token.Role()) {
       case pasta::TokenRole::kInvalid:
-      case pasta::TokenRole::kPrintedToken:
         assert(false);
         break;
 
@@ -217,7 +216,8 @@ static void DumpExpandedMacros(pasta::AST ast) {
         break;
       }
 
-      case pasta::TokenRole::kMacroExpansionToken:
+      case pasta::TokenRole::kIntermediateMacroExpansionToken:
+      case pasta::TokenRole::kFinalMacroExpansionToken:
         std::cerr
             << "??? Macro token " << token.KindName() << ": " << token.Data()
             << " not properly nested; top-level file is "

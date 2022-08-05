@@ -100,12 +100,6 @@ static bool ReadRawTokenData(clang::SourceManager &source_manager,
                              const clang::Token &tok,
                              const clang::SourceLocation begin_loc,
                              std::string *out) {
-
-  const auto begin = source_manager.getDecomposedLoc(begin_loc);
-  if (begin.first.isInvalid()) {
-    return false;
-  }
-
   auto invalid = false;
   const auto data = source_manager.getCharacterData(begin_loc, &invalid);
   if (invalid) {
@@ -138,22 +132,23 @@ static bool ReadRawTokenData(clang::SourceManager &source_manager,
     return !out->empty();
 
   } else {
-    len = clang::Lexer::MeasureTokenLength(begin_loc, source_manager,
-                                           lang_opts);
+    len = tok.getLength();
+//    len = clang::Lexer::MeasureTokenLength(begin_loc, source_manager,
+//                                           lang_opts);
   }
 
   if (!len) {
     return false;
   }
 
-  // We'll try to get only valid UTF-8 characters, and printable ASCII
-  // characters.
-  //
-  // TODO(pag): This may be overkill, but the lifetimes of the backing buffers
-  //            for things like macro expansions is not clear to me, so this
-  //            is a reasonable way to go about detecting unusual token data
-  //            that may have been corrupted/reused.
-  auto can_be_ident = true;
+//  // We'll try to get only valid UTF-8 characters, and printable ASCII
+//  // characters.
+//  //
+//  // TODO(pag): This may be overkill, but the lifetimes of the backing buffers
+//  //            for things like macro expansions is not clear to me, so this
+//  //            is a reasonable way to go about detecting unusual token data
+//  //            that may have been corrupted/reused.
+//  auto can_be_ident = true;
 
   // We can't allow `NUL` characters into our tokens as we'll be using them
   // to split tokens.
@@ -170,14 +165,14 @@ static bool ReadRawTokenData(clang::SourceManager &source_manager,
 
   out->assign(data, len);
 
-  // Also try to catch errors when reading out identifiers or keywords.
-  //
-  // TODO(pag): We can't apply this to keywords as it very frequently triggers
-  //            in macro definitions, where keyword tokens can contain line
-  //            continuations and whitespace.
-  if (!can_be_ident && tok.isAnyIdentifier()) {
-    // ...
-  }
+//  // Also try to catch errors when reading out identifiers or keywords.
+//  //
+//  // TODO(pag): We can't apply this to keywords as it very frequently triggers
+//  //            in macro definitions, where keyword tokens can contain line
+//  //            continuations and whitespace.
+//  if (!can_be_ident && tok.isAnyIdentifier()) {
+//    // ...
+//  }
 
   return true;
 }
@@ -472,7 +467,8 @@ FileTokenRange Token::MacroUseTokens(void) const noexcept {
     return FileTokenRange(ast->main_source_file.impl);
   }
 
-  assert((begin->Role() == TokenRole::kMacroExpansionToken) ||
+  assert((begin->Role() == TokenRole::kIntermediateMacroExpansionToken) ||
+         (begin->Role() == TokenRole::kFinalMacroExpansionToken) ||
          (begin->Role() == TokenRole::kEndOfMacroExpansionMarker));
   begin = &(begin[-1]);
   assert(begin->Role() == TokenRole::kBeginOfMacroExpansionMarker);
@@ -508,7 +504,8 @@ FileTokenRange Token::MacroUseTokens(void) const noexcept {
 TokenRange Token::MacroExpandedTokens(void) const noexcept {
   switch (Role()) {
     case TokenRole::kBeginOfMacroExpansionMarker:
-    case TokenRole::kMacroExpansionToken:
+    case TokenRole::kIntermediateMacroExpansionToken:
+    case TokenRole::kFinalMacroExpansionToken:
     case TokenRole::kEndOfMacroExpansionMarker:
       break;
     default:
@@ -525,7 +522,8 @@ TokenRange Token::MacroExpandedTokens(void) const noexcept {
     switch (begin->Role()) {
       case TokenRole::kBeginOfMacroExpansionMarker:
         goto found_begin;
-      case TokenRole::kMacroExpansionToken:
+      case TokenRole::kIntermediateMacroExpansionToken:
+      case TokenRole::kFinalMacroExpansionToken:
       case TokenRole::kEndOfMacroExpansionMarker:
         continue;
       default:
@@ -549,7 +547,8 @@ found_begin:
       case TokenRole::kEndOfMacroExpansionMarker:
         goto found_end;
       case TokenRole::kBeginOfMacroExpansionMarker:
-      case TokenRole::kMacroExpansionToken:
+      case TokenRole::kIntermediateMacroExpansionToken:
+      case TokenRole::kFinalMacroExpansionToken:
         continue;
       default:
         assert(false);
@@ -748,9 +747,12 @@ bool TryReadRawToken(clang::SourceManager &source_manager,
   }
 
   const auto orig_tok_begin = tok.getLocation();
-  const auto tok_begin = source_manager.getSpellingLoc(orig_tok_begin);
+  if (ReadRawTokenData(source_manager, lang_opts, tok, orig_tok_begin, out)) {
+    return true;
+  }
 
   // Try to find the token's representation using its location.
+  const auto tok_begin = source_manager.getSpellingLoc(orig_tok_begin);
   if (tok_begin.isValid()) {
     if (ReadRawTokenData(source_manager, lang_opts, tok, tok_begin, out)) {
       return true;

@@ -9,19 +9,21 @@
 #include <deque>
 #include <variant>
 
+#include <pasta/Util/File.h>
+
 namespace clang {
 class MacroInfo;
 }  // namespace clang
 namespace pasta {
 
-using Node = std::variant<std::nullptr_t, MacroNodeImpl *, size_t>;
+using Node = std::variant<std::monostate, MacroNodeImpl *, size_t>;
 
 class MacroNodeImpl {
  public:
   virtual ~MacroNodeImpl(void) = default;
   virtual MacroNodeKind Kind(void) const = 0;
 
-  Node parent{nullptr};
+  Node parent;
   std::vector<Node> nodes;
 };
 
@@ -31,13 +33,18 @@ class MacroDirectiveImpl final : public MacroNodeImpl {
   MacroNodeKind Kind(void) const final;
 
   // The uses of this macro.
-  std::vector<MacroExpansionImpl *> macro_uses{nullptr};
+  std::vector<Node> macro_uses;
 
-  // Offset of the token for the directive name.
-  Node name_offset;
+  // Token for the directive name.
+  Node directive_name;
+
+  // Token for the macro name.
+  Node macro_name;
 
   // The info for the macro that was defined by this directive.
   const clang::MacroInfo *defined_macro{nullptr};
+
+  std::optional<File> included_file;
 
   MacroDirectiveKind kind{MacroDirectiveKind::kOther};
 

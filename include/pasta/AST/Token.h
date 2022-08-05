@@ -53,11 +53,9 @@ enum class TokenRole : std::underlying_type_t<TokenKind> {
   kEndOfFileMarker,
 
   kBeginOfMacroExpansionMarker,
-  kMacroExpansionToken,
+  kIntermediateMacroExpansionToken,
+  kFinalMacroExpansionToken,
   kEndOfMacroExpansionMarker,
-
-  // An invented token from the pretty-printer.
-  kPrintedToken,
 };
 
 enum class TokenContextKind : unsigned char {

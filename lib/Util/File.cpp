@@ -201,6 +201,11 @@ std::string_view FileToken::Data(void) const noexcept {
   }
 }
 
+// The offset in the file of this token's data.
+unsigned FileToken::Offset(void) const noexcept {
+  return impl->data_offset;
+}
+
 // Index of this token within its file.
 //
 // NOTE(pag): In theory it should be safe to access `file->tokens` without

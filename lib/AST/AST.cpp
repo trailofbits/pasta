@@ -107,7 +107,7 @@ bool ASTImpl::TryInjectEndOfMacroExpansion(clang::SourceLocation loc) {
 void ASTImpl::AppendMarker(clang::SourceLocation loc, TokenRole role) {
 
   ++num_lines;
-  auto offset = preprocessed_code.size();
+  size_t offset = preprocessed_code.size();
   preprocessed_code.push_back('\n');
   tokens.emplace_back(loc.getRawEncoding(), offset, 0u, clang::tok::unknown,
                       role);
@@ -118,45 +118,25 @@ void ASTImpl::AppendMarker(clang::SourceLocation loc, TokenRole role) {
 // and negative if `-offset` can be found in `backup_code`. `len` is the
 // length in bytes of the token itself.
 void ASTImpl::AppendToken(const clang::Token &tok, size_t offset_,
-                          size_t len_) {
+                          size_t len_, TokenRole role_) {
   const auto len = static_cast<uint32_t>(len_ & TokenImpl::kTokenSizeMask);
   assert(0u <= static_cast<int32_t>(offset_));  // Make sure it fits in 31 bits.
   assert(len == len_);
-  auto loc = tok.getLocation();
-  TokenRole role = TokenRole::kInvalid;
-  if (loc.isValid()) {
-    if (loc.isFileID()) {
-      role = TokenRole::kFileToken;
-    } else if (loc.isMacroID()) {
-      role = TokenRole::kFinalMacroExpansionToken;
-    } else {
-      assert(false);
-    }
-  }
+  clang::SourceLocation loc = tok.getLocation();
   tokens.emplace_back(loc.getRawEncoding(), static_cast<int32_t>(offset_), len,
-                      tok.getKind(), role);
+                      tok.getKind(), role_);
 }
 
 // Append a token to the end of the AST. `offset` is the offset in
 // `backup_token_data`, and `len` is the length in bytes of the token itself.
 void ASTImpl::AppendBackupToken(const clang::Token &tok, size_t offset_,
-                                size_t len_) {
+                                size_t len_, TokenRole role_) {
   const auto len = static_cast<uint32_t>(len_ & TokenImpl::kTokenSizeMask);
   assert(0u < static_cast<int32_t>(offset_));
   assert(len == len_);
-  auto loc = tok.getLocation();
-  TokenRole role = TokenRole::kInvalid;
-  if (loc.isValid()) {
-    if (loc.isFileID()) {
-      role = TokenRole::kFileToken;
-    } else if (loc.isMacroID()) {
-      role = TokenRole::kFinalMacroExpansionToken;
-    } else {
-      assert(false);
-    }
-  }
+  clang::SourceLocation loc = tok.getLocation();
   tokens.emplace_back(loc.getRawEncoding(), -static_cast<int32_t>(offset_), len,
-                      tok.getKind(), role);
+                      tok.getKind(), role_);
 }
 
 // Return the AST containing a declaration.

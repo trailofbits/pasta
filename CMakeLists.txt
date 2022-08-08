@@ -300,7 +300,7 @@ add_library(pasta_compiler STATIC
     "lib/Compile/Compiler.h"
     "lib/Compile/FileSystem.h"
     "lib/Compile/Job.h"
-    "lib/Compile/LegacyMacroTracker.h"
+    "lib/Compile/PatchedMacroTracker.h"
     "lib/Compile/ParsedFileTracker.h"
     "lib/Compile/Version.h"
     
@@ -310,6 +310,7 @@ add_library(pasta_compiler STATIC
     "lib/Compile/Diagnostic.cpp"
     "lib/Compile/FileSystem.cpp"
     "lib/Compile/Job.cpp"
+    "lib/Compile/PatchedMacroTracker.cpp"
     "lib/Compile/Run.cpp"
 )
 

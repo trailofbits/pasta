@@ -143,11 +143,13 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
 
   // Append a token to the end of the AST. `offset` is the offset in
   // `preprocessed_code`, and `len` is the length in bytes of the token itself.
-  void AppendToken(const clang::Token &tok, size_t offset, size_t len);
+  void AppendToken(const clang::Token &tok, size_t offset, size_t len,
+                   TokenRole role);
 
   // Append a token to the end of the AST. `offset` is the offset in
   // `backup_token_data`, and `len` is the length in bytes of the token itself.
-  void AppendBackupToken(const clang::Token &tok, size_t offset, size_t len);
+  void AppendBackupToken(const clang::Token &tok, size_t offset, size_t len,
+                         TokenRole role);
 
   // Try to return the inclusive bounds of a given declaration in terms of
   // parsed tokens. This doesn't not try to expand the range to the ending
@@ -166,6 +168,10 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
 
   // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
   static Result<AST, std::string> AlignTokens(std::shared_ptr<ASTImpl> ast);
+
+  // After token alignment, we want to link in macro tokens to the token
+  // contexts of tokens with macro roles.
+  void LinkMacroTokenContexts(void);
 
  private:
   ASTImpl(void) = delete;

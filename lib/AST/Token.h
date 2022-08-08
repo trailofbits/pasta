@@ -160,12 +160,25 @@ class TokenImpl {
     return static_cast<TokenRole>(role);
   }
 
+  inline bool HasMacroRole(void) const noexcept {
+    switch (Role()) {
+      case TokenRole::kBeginOfMacroExpansionMarker:
+      case TokenRole::kIntermediateMacroExpansionToken:
+      case TokenRole::kFinalMacroExpansionToken:
+      case TokenRole::kEndOfMacroExpansionMarker:
+        return true;
+      default:
+        return false;
+    }
+  }
+
   inline clang::tok::TokenKind Kind(void) const noexcept {
     return static_cast<clang::tok::TokenKind>(kind);
   }
 
   // Return the context of this token, or `nullptr`.
   const TokenContextImpl *Context(
+      const ASTImpl &ast,
       const std::vector<TokenContextImpl> &contexts) const noexcept;
 
   // The raw encoding of the source location of the token.
@@ -173,6 +186,10 @@ class TokenImpl {
 
   // Index of the token context in either `ASTImpl::contexts` or
   // `PrintedTokenRangeImpl::contexts`.
+  //
+  // Is `HasMacroRole()` is `true`, then the real token context index is stored
+  // in `MacroTokenImpl::token_context` and this index references into
+  // `ASTImple::root_macro_node::tokens`.
   TokenContextIndex context_index{kInvalidTokenContextIndex};
 
   // Offset and length of this token's data. If `data_offset` is positive, then

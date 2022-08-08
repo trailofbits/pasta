@@ -16,7 +16,7 @@ class MacroInfo;
 }  // namespace clang
 namespace pasta {
 
-using Node = std::variant<std::monostate, MacroNodeImpl *, size_t>;
+using Node = std::variant<std::monostate, MacroNodeImpl *, MacroTokenImpl *>;
 
 class MacroNodeImpl {
  public:
@@ -25,6 +25,22 @@ class MacroNodeImpl {
 
   Node parent;
   std::vector<Node> nodes;
+};
+
+class MacroTokenImpl final {
+ public:
+  Node parent;
+
+  // Offset of `TokenImpl` in `ASTImpl::tokens`.
+  uint32_t token_offset;
+
+  union {
+    // The actual context of this token.
+    uint32_t token_context;
+
+    // The actual kind of this token.
+    TokenKind kind;
+  };
 };
 
 class MacroDirectiveImpl final : public MacroNodeImpl {
@@ -83,6 +99,8 @@ class MacroExpansionImpl final : public MacroSubstitutionImpl {
   bool is_cancelled{false};
 };
 
+// The `nodes` of a `RootMacroNode` are the top-level macro nodes, e.g. top-
+// level directives, and top-level expansions.
 class RootMacroNode final : public MacroNodeImpl {
  public:
   virtual ~RootMacroNode(void) = default;
@@ -93,6 +111,8 @@ class RootMacroNode final : public MacroNodeImpl {
   std::deque<MacroExpansionImpl> expansions;
   std::deque<MacroArgumentImpl> arguments;
   std::deque<MacroSubstitutionImpl> substitutions;
+  std::deque<MacroTokenImpl> tokens;
+  std::vector<Node> token_nodes;
 };
 
 }  // namespace pasta

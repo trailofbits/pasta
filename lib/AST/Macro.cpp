@@ -56,7 +56,7 @@ MacroNode::~MacroNode(void) {}
 
 MacroNodeKind MacroNode::Kind(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
-  if (std::holds_alternative<size_t>(node)) {
+  if (std::holds_alternative<MacroTokenImpl *>(node)) {
     return MacroNodeKind::kToken;
   } else {
     return std::get<MacroNodeImpl *>(node)->Kind();
@@ -65,8 +65,8 @@ MacroNodeKind MacroNode::Kind(void) const noexcept {
 
 const void *MacroNode::RawNode(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
-  if (std::holds_alternative<size_t>(node)) {
-    return &(ast->tokens[std::get<size_t>(node)]);
+  if (std::holds_alternative<MacroTokenImpl *>(node)) {
+    return &(ast->tokens[std::get<MacroTokenImpl *>(node)->token_offset]);
   } else {
     auto ret = std::get<MacroNodeImpl *>(node);
     assert(ret != nullptr);
@@ -76,8 +76,7 @@ const void *MacroNode::RawNode(void) const noexcept {
 
 MacroToken MacroNode::LeftCorner(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
-  if (std::holds_alternative<size_t>(node)) {
-    assert(ast->tokens[std::get<size_t>(node)].Location().isFileID());
+  if (std::holds_alternative<MacroTokenImpl *>(node)) {
     return MacroToken(ast, impl);
   } else {
     MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
@@ -93,7 +92,7 @@ MacroToken MacroNode::LeftCorner(void) const noexcept {
 
 MacroToken MacroNode::RightCorner(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
-  if (std::holds_alternative<size_t>(node)) {
+  if (std::holds_alternative<MacroTokenImpl *>(node)) {
     return MacroToken(ast, impl);
   } else {
     MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
@@ -107,23 +106,46 @@ MacroToken MacroNode::RightCorner(void) const noexcept {
   }
 }
 
+// Return the macro node containing this node.
+std::optional<MacroNode> MacroNode::Parent(void) const noexcept {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  if (std::holds_alternative<MacroTokenImpl *>(node)) {
+    return MacroNode(ast, &(std::get<MacroTokenImpl *>(node)->parent));
+  }
+
+  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
+  if (!std::holds_alternative<MacroNodeImpl *>(node_impl->parent)) {
+    return std::nullopt;
+  }
+
+  MacroNodeImpl *parent_node_impl = std::get<MacroNodeImpl *>(node_impl->parent);
+  if (dynamic_cast<RootMacroNode *>(parent_node_impl)) {
+    return std::nullopt;
+  }
+
+  return MacroNode(ast, &(node_impl->parent));
+}
+
 TokenKind MacroToken::Kind(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
-  TokenImpl &token = ast->tokens[std::get<size_t>(node)];
+  TokenImpl &token =
+      ast->tokens[std::get<MacroTokenImpl *>(node)->token_offset];
   return static_cast<TokenKind>(token.Kind());
 }
 
 // Return the data associated with this token.
 std::string_view MacroToken::Data(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
-  TokenImpl &token = ast->tokens[std::get<size_t>(node)];
+  TokenImpl &token =
+      ast->tokens[std::get<MacroTokenImpl *>(node)->token_offset];
   return token.Data(*ast);
 }
 
 // Location of the token in a file.
 std::optional<FileToken> MacroToken::FileLocation(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
-  clang::SourceLocation loc = ast->tokens[std::get<size_t>(node)].Location();
+  clang::SourceLocation loc =
+      ast->tokens[std::get<MacroTokenImpl *>(node)->token_offset].Location();
   if (loc.isInvalid() || loc.isMacroID()) {
     return std::nullopt;
   }
@@ -138,6 +160,18 @@ std::optional<FileToken> MacroToken::FileLocation(void) const noexcept {
   return file_it->second.TokenAtOffset(file_offset);
 }
 
+// Location of the token as parsed.
+std::optional<Token> MacroToken::ParsedLocation(void) const noexcept {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  const TokenImpl &tok =
+      ast->tokens[std::get<MacroTokenImpl *>(node)->token_offset];
+  if (tok.Role() == TokenRole::kFinalMacroExpansionToken) {
+    return Token(ast, &tok);
+  } else {
+    return std::nullopt;
+  }
+}
+
 // Return the hash token of the directive.
 MacroToken MacroDirective::HashToken(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
@@ -145,7 +179,7 @@ MacroToken MacroDirective::HashToken(void) const noexcept {
   MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
 
   assert(!dir_impl->nodes.empty());
-  assert(std::holds_alternative<size_t>(dir_impl->nodes.front()));
+  assert(std::holds_alternative<MacroTokenImpl *>(dir_impl->nodes.front()));
   return MacroToken(ast, &(dir_impl->nodes.front()));
 }
 
@@ -166,7 +200,7 @@ std::optional<MacroToken> MacroDirective::DirectiveToken(void) const noexcept {
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
 
-  if (!std::holds_alternative<size_t>(dir_impl->directive_name)) {
+  if (!std::holds_alternative<MacroTokenImpl *>(dir_impl->directive_name)) {
     return std::nullopt;
   }
 
@@ -190,7 +224,7 @@ MacroToken MacroDefinition::NameToken(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
-  assert(std::holds_alternative<size_t>(dir_impl->macro_name));
+  assert(std::holds_alternative<MacroTokenImpl *>(dir_impl->macro_name));
   return MacroToken(ast, &(dir_impl->macro_name));
 }
 

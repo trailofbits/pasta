@@ -96,14 +96,15 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
   // NOTE(pag): The `ParsedFileTracker` emits a token for entering files, so
   //            there will be one token already representing entering the main
   //            source file.
-  auto &num_lines = impl.num_lines;
+  unsigned &num_lines = impl.num_lines;
+  std::vector<TokenImpl> &tokens = impl.tokens;
 
   clang::Token tok;
   for (;;) {
 
     // Check that we're maintaining our key invariant, which is that tokens
     // match up with line numbers.
-    assert(num_lines == impl.tokens.size());
+    assert(num_lines == tokens.size());
 
     pp.Lex(tok);
 
@@ -121,18 +122,29 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
     (void) TryReadRawToken(source_manager, lang_opts, tok, &tok_data);
 
     TokenRole role = TokenRole::kFileToken;
+    if (auto tok_loc = tok.getLocation();
+        !tok_loc.isValid() || !tok_loc.isFileID()) {
+#ifndef NDEBUG
+      assert(0 < num_lines);
+      TokenImpl &prev_tok = tokens.back();
+      assert(prev_tok.Role() == TokenRole::kBeginOfMacroExpansionMarker ||
+             prev_tok.Role() == TokenRole::kIntermediateMacroExpansionToken ||
+             prev_tok.Role() == TokenRole::kFinalMacroExpansionToken);
+#endif
+      role = TokenRole::kFinalMacroExpansionToken;
+    }
 
     // Try to merge with the prior token, which was a macro expansion token.
     // What this actually means is that we remove the old version of the token
     // because we'll see it again.
     if (num_lines) {
-      TokenImpl &prev_tok = impl.tokens.back();
+      TokenImpl &prev_tok = tokens.back();
       if (prev_tok.Role() == TokenRole::kIntermediateMacroExpansionToken &&
           prev_tok.Kind() == tok.getKind() &&
           prev_tok.Location() == tok.getLocation() &&
           prev_tok.Data(impl) == tok_data) {
         assert(impl.preprocessed_code.back() == '\n');
-        impl.tokens.pop_back();
+        tokens.pop_back();
         impl.preprocessed_code.pop_back();
         --num_lines;
         role = TokenRole::kFinalMacroExpansionToken;
@@ -159,7 +171,7 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
       } else {
         backup_os.flush();
         impl.AppendBackupToken(tok, impl.backup_token_data.size(),
-                               tok_data.size());
+                               tok_data.size(), role);
         backup_os << tok_data;
         os << '\n';
         os.flush();
@@ -180,7 +192,8 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
     // The token data read has no new lines, great!
     if (!has_new_line) {
       os.flush();
-      impl.AppendToken(tok, impl.preprocessed_code.size(), tok_data.size());
+      impl.AppendToken(tok, impl.preprocessed_code.size(), tok_data.size(),
+                       role);
       os << tok_data << '\n';
       os.flush();
       ++num_lines;
@@ -189,7 +202,8 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
 
     // The token needs to be modified somehow, so add it to our backups.
     backup_os.flush();
-    impl.AppendBackupToken(tok, impl.backup_token_data.size(), tok_data.size());
+    impl.AppendBackupToken(tok, impl.backup_token_data.size(), tok_data.size(),
+                           role);
     backup_os << tok_data;
 
     // The token data read does have new lines; we need to fix it up.
@@ -263,10 +277,10 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
 
   // For some reason Clang doesn't invoke the `ExitFile` thing for the main
   // file.
-  if (impl.tokens.back().Kind() != clang::tok::eof) {
+  if (tokens.back().Kind() != clang::tok::eof) {
 
     // We didn't get an `ExitFile`.
-    if (impl.tokens.back().Role() != TokenRole::kEndOfFileMarker) {
+    if (tokens.back().Role() != TokenRole::kEndOfFileMarker) {
       if (tok.is(clang::tok::eof)) {
         impl.AppendMarker(tok.getLocation().getLocWithOffset(-1),
                           TokenRole::kEndOfFileMarker);
@@ -277,7 +291,7 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
                           TokenRole::kEndOfFileMarker);
       }
     }
-    impl.tokens.back().kind = static_cast<TokenKindBase>(clang::tok::eof);
+    tokens.back().kind = static_cast<TokenKindBase>(clang::tok::eof);
   }
 
 #if PASTA_DEBUG_RUN

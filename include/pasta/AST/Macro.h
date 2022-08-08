@@ -29,9 +29,11 @@ class MacroNodeImpl;
 class MacroNodeIterator;
 class MacroNodeRange;
 class MacroToken;
+class MacroTokenImpl;
 class PatchedMacroTracker;
 class SkippedTokenRange;
 class SkippedTokenRangeImpl;
+class Token;
 class TokenImpl;
 
 enum class MacroNodeKind : unsigned char {
@@ -71,6 +73,7 @@ class MacroNode {
   friend class MacroNodeIterator;
   friend class MacroNodeRange;
   friend class PatchedMacroTracker;
+  friend class Token;
 
   std::shared_ptr<ASTImpl> ast;
   const void *impl;
@@ -99,6 +102,9 @@ class MacroNode {
 
   // Return the rightmost pre-expansion macro token in this node.
   MacroToken RightCorner(void) const noexcept;
+
+  // Return the macro node containing this node.
+  std::optional<MacroNode> Parent(void) const noexcept;
 };
 
 // A token produced inside of a macro expansion.
@@ -108,6 +114,7 @@ class MacroToken final : public MacroNode {
   friend class MacroDefinition;
   friend class MacroFileInclusion;
   friend class PatchedMacroTracker;
+  friend class Token;
 
   using MacroNode::MacroNode;
 
@@ -132,6 +139,9 @@ class MacroToken final : public MacroNode {
 
   // Location of the token in a file.
   std::optional<FileToken> FileLocation(void) const noexcept;
+
+  // Location of the token as parsed.
+  std::optional<Token> ParsedLocation(void) const noexcept;
 };
 
 static_assert(sizeof(MacroToken) == sizeof(MacroNode));

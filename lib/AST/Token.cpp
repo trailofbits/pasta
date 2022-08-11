@@ -431,15 +431,21 @@ std::optional<FileToken> Token::FileLocation(void) const {
 
 // Location of the token in a macro expansion.
 std::optional<MacroToken> Token::MacroLocation(void) const {
-  if (!impl->HasMacroRole()) {
-    return std::nullopt;
-  } else if (impl->context_index == kInvalidTokenContextIndex) {
-    return std::nullopt;
-  } else if (impl->context_index >= ast->root_macro_node.token_nodes.size()) {
-    return std::nullopt;
-  } else {
-    return MacroToken(
-        ast, &(ast->root_macro_node.token_nodes[impl->context_index]));
+  switch (Role()) {
+    default:
+    case TokenRole::kBeginOfMacroExpansionMarker:
+    case TokenRole::kEndOfMacroExpansionMarker:
+      return std::nullopt;
+    case TokenRole::kIntermediateMacroExpansionToken:
+    case TokenRole::kFinalMacroExpansionToken:
+      if (impl->context_index == kInvalidTokenContextIndex) {
+        return std::nullopt;
+      } else if (impl->context_index >= ast->root_macro_node.token_nodes.size()) {
+        return std::nullopt;
+      } else {
+        return MacroToken(
+            ast, &(ast->root_macro_node.token_nodes[impl->context_index]));
+      }
   }
 }
 
@@ -474,9 +480,21 @@ const char *Token::KindName(void) const noexcept {
 const TokenContextImpl *TokenImpl::Context(
     const ASTImpl &ast,
     const std::vector<TokenContextImpl> &contexts) const noexcept {
-  auto ci = context_index;
-  if (HasMacroRole()) {
-    ci = ast.root_macro_node.tokens[ci].token_context;
+
+  TokenContextIndex ci = context_index;
+  switch (Role()) {
+    case TokenRole::kIntermediateMacroExpansionToken:
+    case TokenRole::kFinalMacroExpansionToken:
+      if (ci == kInvalidTokenContextIndex) {
+        return nullptr;
+      } else if (ci >= ast.root_macro_node.token_nodes.size()) {
+        return nullptr;
+      } else {
+        ci = ast.root_macro_node.tokens[ci].token_context;
+        break;
+      }
+    default:
+      break;
   }
 
   if (ci == kInvalidTokenContextIndex) {

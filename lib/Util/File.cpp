@@ -9,13 +9,6 @@
 
 #include "FileManager.h"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wshorten-64-to-32"
-#include <clang/Basic/TokenKinds.h>
-#pragma clang diagnostic pop
-
 namespace pasta {
 namespace {
 
@@ -206,6 +199,11 @@ std::string_view FileToken::Data(void) const noexcept {
   } else {
     return {};
   }
+}
+
+// The offset in the file of this token's data.
+unsigned FileToken::Offset(void) const noexcept {
+  return impl->data_offset;
 }
 
 // Index of this token within its file.

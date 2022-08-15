@@ -11,7 +11,14 @@
 #include <pasta/Util/FileSystem.h>
 #include <pasta/Util/Init.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wc++11-narrowing"
+#pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
+#pragma GCC diagnostic ignored "-Wfloat-conversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
 #include <llvm/Support/JSON.h>
+#pragma GCC diagnostic pop
 
 #include <cstdlib>
 #include <fstream>

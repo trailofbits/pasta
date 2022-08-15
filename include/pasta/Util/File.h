@@ -80,6 +80,9 @@ class FileToken {
   // Return the data associated with this token.
   std::string_view Data(void) const noexcept;
 
+  // The offset in the file of this token's data.
+  unsigned Offset(void) const noexcept;
+
   // Index of this token within its file.
   uint64_t Index(void) const noexcept;
 

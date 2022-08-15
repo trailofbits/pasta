@@ -1821,11 +1821,15 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
     context_map.clear();
     context_map.resize(range.contexts.size());
     for (TokenImpl *t = decl_bounds.first; t <= decl_bounds.second; ++t) {
-      t->context_index = MigrateContexts(
-          t->context_index, range.contexts, ast->contexts,
-          data_to_context, context_map);
+      if (!t->HasMacroRole()) {
+        t->context_index = MigrateContexts(
+            t->context_index, range.contexts, ast->contexts,
+            data_to_context, context_map);
+      }
     }
   }
+
+  ast->LinkMacroTokenContexts();
 
 //  for (auto decl : tlds) {
 //    auto &containing_decl = ast->lexically_containing_decl[decl];

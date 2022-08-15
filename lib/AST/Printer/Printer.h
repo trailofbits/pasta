@@ -4,7 +4,12 @@
 
 #include <pasta/AST/Printer.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
 #include <llvm/Support/raw_ostream.h>
+#pragma GCC diagnostic pop
 
 #include <cassert>
 #include <cstdint>
@@ -39,7 +44,7 @@ class PrintedTokenImpl : public TokenImpl {
                           unsigned num_leading_spaces_,
                           clang::tok::TokenKind kind_)
       : TokenImpl(TokenImpl::kInvalidSourceLocation, data_offset_,
-                  data_len_, kind_, TokenRole::kPrintedToken,
+                  data_len_, kind_, TokenRole::kInvalid,
                   token_context_index_),
         num_leading_new_lines(static_cast<uint16_t>(num_leading_new_lines_)),
         num_leading_spaces(static_cast<uint16_t>(num_leading_spaces_)) {

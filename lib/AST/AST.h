@@ -24,6 +24,7 @@
 #include <variant>
 #include <mutex>
 
+#include "Macro.h"
 #include "Token.h"
 
 namespace clang {
@@ -96,6 +97,9 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // Mapping of Clang source manager file IDs to offsets within `parsed_files`.
   std::unordered_map<unsigned  /* clang::FileID */, ::pasta::File> id_to_file;
 
+  // List of macro directives.
+  RootMacroNode root_macro_node;
+
   // List of parsed tokens. We run the pre-processor, and each lexed token is
   // added here. We also inject in some other tokens, such as whitespace and
   // comments.
@@ -139,11 +143,13 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
 
   // Append a token to the end of the AST. `offset` is the offset in
   // `preprocessed_code`, and `len` is the length in bytes of the token itself.
-  void AppendToken(const clang::Token &tok, size_t offset, size_t len);
+  void AppendToken(const clang::Token &tok, size_t offset, size_t len,
+                   TokenRole role);
 
   // Append a token to the end of the AST. `offset` is the offset in
   // `backup_token_data`, and `len` is the length in bytes of the token itself.
-  void AppendBackupToken(const clang::Token &tok, size_t offset, size_t len);
+  void AppendBackupToken(const clang::Token &tok, size_t offset, size_t len,
+                         TokenRole role);
 
   // Try to return the inclusive bounds of a given declaration in terms of
   // parsed tokens. This doesn't not try to expand the range to the ending
@@ -162,6 +168,10 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
 
   // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
   static Result<AST, std::string> AlignTokens(std::shared_ptr<ASTImpl> ast);
+
+  // After token alignment, we want to link in macro tokens to the token
+  // contexts of tokens with macro roles.
+  void LinkMacroTokenContexts(void);
 
  private:
   ASTImpl(void) = delete;

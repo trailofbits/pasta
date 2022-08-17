@@ -165,7 +165,7 @@ std::optional<Token> MacroToken::ParsedLocation(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   const TokenImpl &tok =
       ast->tokens[std::get<MacroTokenImpl *>(node)->token_offset];
-  if (tok.Role() == TokenRole::kFinalMacroExpansionToken) {
+  if (tok.HasMacroRole()) {
     return Token(ast, &tok);
   } else {
     return std::nullopt;

@@ -187,7 +187,7 @@ class TokenImpl {
   // Index of the token context in either `ASTImpl::contexts` or
   // `PrintedTokenRangeImpl::contexts`.
   //
-  // Is `HasMacroRole()` is `true`, then the real token context index is stored
+  // If `HasMacroRole()` is `true`, then the real token context index is stored
   // in `MacroTokenImpl::token_context` and this index references into
   // `ASTImple::root_macro_node::tokens`.
   TokenContextIndex context_index{kInvalidTokenContextIndex};

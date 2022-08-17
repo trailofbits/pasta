@@ -110,7 +110,7 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // printer. The `TokenImpl::context_index` fields of the `tokens` vector above
   // point into here.
   //
-  // NOTE(pag): The last context in this list holds a raw data pointer to the
+  // NOTE(pag): The first context in this list holds a raw data pointer to the
   //            `ASTImpl` containing `contexts`. This is so that we can get the
   //            `Decl`s, `Stmt`s, and `Type`s referenced by a token context.
   //            This is safe because a `TokenContext` has a shared pointer to
@@ -133,10 +133,6 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
 
   // Where we expect the next macro use end location to be.
   clang::SourceLocation macro_use_end_loc;
-
-  // Try to inject a token to represent the ending of a top-level macro
-  // expansion.
-  bool TryInjectEndOfMacroExpansion(clang::SourceLocation loc);
 
   // Append a marker token to the parsed token list.
   void AppendMarker(clang::SourceLocation loc, TokenRole role);

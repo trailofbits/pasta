@@ -441,6 +441,7 @@ std::optional<MacroToken> Token::MacroLocation(void) const {
       if (impl->context_index == kInvalidTokenContextIndex) {
         return std::nullopt;
       } else if (impl->context_index >= ast->root_macro_node.token_nodes.size()) {
+        assert(false);
         return std::nullopt;
       } else {
         return MacroToken(
@@ -488,6 +489,7 @@ const TokenContextImpl *TokenImpl::Context(
       if (ci == kInvalidTokenContextIndex) {
         return nullptr;
       } else if (ci >= ast.root_macro_node.token_nodes.size()) {
+        assert(false);
         return nullptr;
       } else {
         ci = ast.root_macro_node.tokens[ci].token_context;
@@ -500,6 +502,7 @@ const TokenContextImpl *TokenImpl::Context(
   if (ci == kInvalidTokenContextIndex) {
     return nullptr;
   } else if (ci >= contexts.size()) {
+    assert(false);
     return nullptr;
   } else {
     return &(contexts[ci]);

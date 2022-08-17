@@ -108,9 +108,6 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
 
     pp.Lex(tok);
 
-    // We might have just lexed the token following some macro expansion.
-    impl.TryInjectEndOfMacroExpansion(tok.getLocation());
-
     // NOTE(pag): We don't need to inject a token here because the
     //            `ParsedFileTracker` will inject the end of file token for
     //            us when the `FileChanged` callback happens.
@@ -140,7 +137,7 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
     if (num_lines) {
       TokenImpl &prev_tok = tokens.back();
       if (prev_tok.Role() == TokenRole::kIntermediateMacroExpansionToken &&
-          prev_tok.Kind() == tok.getKind() &&
+          prev_tok.Kind() == clang::tok::unknown &&
           prev_tok.Location() == tok.getLocation() &&
           prev_tok.Data(impl) == tok_data) {
         assert(impl.preprocessed_code.back() == '\n');

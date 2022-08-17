@@ -13,6 +13,8 @@
 #include <clang/Frontend/CompilerInstance.h>
 #pragma GCC diagnostic pop
 
+#define D(...)
+
 namespace pasta {
 
 PatchedMacroTracker::PatchedMacroTracker(clang::Preprocessor &pp_,
@@ -228,9 +230,22 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok, uintptr_t) {
 }
 
 void ASTImpl::LinkMacroTokenContexts(void) {
+  root_macro_node.token_nodes.reserve(root_macro_node.tokens.size());
+
   auto i = 0u;
   for (MacroTokenImpl &mt : root_macro_node.tokens) {
     TokenImpl &tok = tokens[mt.token_offset];
+
+#ifndef NDEBUG
+    switch (tok.Role()) {
+      case TokenRole::kIntermediateMacroExpansionToken:
+      case TokenRole::kFinalMacroExpansionToken:
+        break;
+      default:
+        assert(false);
+        continue;  // Skip it. `TokenImpl::Context` isn't expecting this.
+    }
+#endif
 
     root_macro_node.token_nodes.emplace_back(&mt);
     tok.kind = static_cast<TokenKindBase>(mt.kind);
@@ -558,79 +573,81 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
     case BeginSplitToken: break;
     case EndSplitToken: break;
   }
-  switch (kind) {
-    case EndSplitToken:
-    case EndDirective:
-    case EndNonDirective:
-    case EndMacroExpansion:
-    case EndMacroCallArgumentList:
-    case EndMacroCallArgument:
-    case EndVariadicCallArgumentList:
-    case EndSubstitution:
-      --depth;
-      indent.resize(indent.size() - 2);
-      break;
-    default:
-      break;
+
+  if constexpr (D(1 -) 0) {
+
+    switch (kind) {
+      case EndSplitToken:
+      case EndDirective:
+      case EndNonDirective:
+      case EndMacroExpansion:
+      case EndMacroCallArgumentList:
+      case EndMacroCallArgument:
+      case EndVariadicCallArgumentList:
+      case EndSubstitution:
+        --depth;
+        indent.resize(indent.size() - 2);
+        break;
+      default:
+        break;
+    }
+
+    switch (kind) {
+      case TokenFromLexer: std::cerr << "TokenFromLexer"; break;
+      case TokenFromTokenLexer: std::cerr << "TokenFromTokenLexer"; break;
+      case TokenFromCachingLexer: std::cerr << "TokenFromCachingLexer"; break;
+      case TokenFromAfterModuleImportLexer: std::cerr << "TokenFromAfterModuleImportLexer"; break;
+      case BeginSplitToken: std::cerr << "BeginSplitToken"; break;
+      case EndSplitToken: std::cerr << "EndSplitToken"; break;
+      case BeginDirective: std::cerr << "BeginDirective"; break;
+      case BeginSkippedArea: std::cerr << "BeginSkippedArea"; break;
+      case SetNamedDirective: std::cerr << "SetNamedDirective"; break;
+      case SetUnnamedDirective: std::cerr << "SetUnnamedDirective"; break;
+      case EndDirective: std::cerr << "EndDirective"; break;
+      case EndNonDirective: std::cerr << "EndNonDirective"; break;
+      case BeginMacroExpansion: std::cerr << "BeginMacroExpansion"; break;
+      case SwitchToExpansion: std::cerr << "SwitchToExpansion"; break;
+      case CancelExpansion: std::cerr << "CancelExpansion"; break;
+      case EndMacroExpansion: std::cerr << "EndMacroExpansion"; break;
+      case BeginMacroCallArgumentList: std::cerr << "BeginMacroCallArgumentList"; break;
+      case EndMacroCallArgumentList: std::cerr << "EndMacroCallArgumentList"; break;
+      case BeginMacroCallArgument: std::cerr << "BeginMacroCallArgument"; break;
+      case EndMacroCallArgument: std::cerr << "EndMacroCallArgument"; break;
+      case BeginVariadicCallArgumentList: std::cerr << "BeginVariadicCallArgumentList"; break;
+      case EndVariadicCallArgumentList: std::cerr << "EndVariadicCallArgumentList"; break;
+      case BeginSubstitution: std::cerr << "BeginSubstitution"; break;
+      case BeginDelayedSubstitution: std::cerr << "BeginDelayedSubstitution"; break;
+      case SwitchToSubstitution: std::cerr << "SwitchToSubstitution"; break;
+      case EndSubstitution: std::cerr << "EndSubstitution"; break;
+    }
+
+    std::cerr << ' ' << clang::tok::getTokenName(tok.getKind());
+
+    if (tok.is(clang::tok::identifier)) {
+      std::cerr << ' ' << tok.getIdentifierInfo()->getName().str();
+    } else if (tok.is(clang::tok::raw_identifier)) {
+      std::cerr << ' ' << tok.getRawIdentifier().str();
+    }
+
+    switch (kind) {
+      case BeginSplitToken:
+      case BeginDirective:
+      case BeginSkippedArea:
+      case BeginMacroExpansion:
+      case BeginMacroCallArgumentList:
+      case BeginMacroCallArgument:
+      case BeginVariadicCallArgumentList:
+      case BeginSubstitution:
+      case BeginDelayedSubstitution:
+        ++depth;
+        indent += "  ";
+        break;
+      default:
+        break;
+    }
+
+    std::cerr << '\n';
   }
-
-  std::cerr << indent;
-
-  switch (kind) {
-    case TokenFromLexer: std::cerr << "TokenFromLexer"; break;
-    case TokenFromTokenLexer: std::cerr << "TokenFromTokenLexer"; break;
-    case TokenFromCachingLexer: std::cerr << "TokenFromCachingLexer"; break;
-    case TokenFromAfterModuleImportLexer: std::cerr << "TokenFromAfterModuleImportLexer"; break;
-    case BeginSplitToken: std::cerr << "BeginSplitToken"; break;
-    case EndSplitToken: std::cerr << "EndSplitToken"; break;
-    case BeginDirective: std::cerr << "BeginDirective"; break;
-    case BeginSkippedArea: std::cerr << "BeginSkippedArea"; break;
-    case SetNamedDirective: std::cerr << "SetNamedDirective"; break;
-    case SetUnnamedDirective: std::cerr << "SetUnnamedDirective"; break;
-    case EndDirective: std::cerr << "EndDirective"; break;
-    case EndNonDirective: std::cerr << "EndNonDirective"; break;
-    case BeginMacroExpansion: std::cerr << "BeginMacroExpansion"; break;
-    case SwitchToExpansion: std::cerr << "SwitchToExpansion"; break;
-    case CancelExpansion: std::cerr << "CancelExpansion"; break;
-    case EndMacroExpansion: std::cerr << "EndMacroExpansion"; break;
-    case BeginMacroCallArgumentList: std::cerr << "BeginMacroCallArgumentList"; break;
-    case EndMacroCallArgumentList: std::cerr << "EndMacroCallArgumentList"; break;
-    case BeginMacroCallArgument: std::cerr << "BeginMacroCallArgument"; break;
-    case EndMacroCallArgument: std::cerr << "EndMacroCallArgument"; break;
-    case BeginVariadicCallArgumentList: std::cerr << "BeginVariadicCallArgumentList"; break;
-    case EndVariadicCallArgumentList: std::cerr << "EndVariadicCallArgumentList"; break;
-    case BeginSubstitution: std::cerr << "BeginSubstitution"; break;
-    case BeginDelayedSubstitution: std::cerr << "BeginDelayedSubstitution"; break;
-    case SwitchToSubstitution: std::cerr << "SwitchToSubstitution"; break;
-    case EndSubstitution: std::cerr << "EndSubstitution"; break;
-  }
-
-  std::cerr << ' ' << clang::tok::getTokenName(tok.getKind());
-
-  if (tok.is(clang::tok::identifier)) {
-    std::cerr << ' ' << tok.getIdentifierInfo()->getName().str();
-  } else if (tok.is(clang::tok::raw_identifier)) {
-    std::cerr << ' ' << tok.getRawIdentifier().str();
-  }
-
-  switch (kind) {
-    case BeginSplitToken:
-    case BeginDirective:
-    case BeginSkippedArea:
-    case BeginMacroExpansion:
-    case BeginMacroCallArgumentList:
-    case BeginMacroCallArgument:
-    case BeginVariadicCallArgumentList:
-    case BeginSubstitution:
-    case BeginDelayedSubstitution:
-      ++depth;
-      indent += "  ";
-      break;
-    default:
-      break;
-  }
-
-  std::cerr << '\n';
 }
 
 // Callback invoked whenever an inclusion directive of any kind (`#include`,
@@ -661,7 +678,8 @@ void PatchedMacroTracker::InclusionDirective(
       break;
     default: break;
   }
-  std::cerr << indent << "InclusionDirective\n";
+
+  D( std::cerr << indent << "InclusionDirective\n"; )
 }
 
 // Each time we enter a source file, try to keep track of it.
@@ -680,12 +698,13 @@ void PatchedMacroTracker::FileChanged(
       last_directive->included_file.emplace(it->second);
     }
   }
-  std::cerr << indent << "FileChanged\n";
+
+  D( std::cerr << indent << "FileChanged\n"; )
 }
 
 // Callback invoked when a `#ident` or `#sccs` directive is read.
-void PatchedMacroTracker::Ident(clang::SourceLocation loc, clang::StringRef) {
-  std::cerr << indent << "Ident\n";
+void PatchedMacroTracker::Ident(clang::SourceLocation, clang::StringRef) {
+  D( std::cerr << indent << "Ident\n"; )
 }
 
 // Callback invoked when start reading any pragma directive.
@@ -711,7 +730,7 @@ void PatchedMacroTracker::PragmaDirective(
 // Hook called when a source range is skipped.
 void PatchedMacroTracker::SourceRangeSkipped(
     clang::SourceRange, clang::SourceLocation /* endif_loc */) {
-  std::cerr << indent << "SourceRangeSkipped\n";
+  D( std::cerr << indent << "SourceRangeSkipped\n"; )
 }
 
 // Hook called whenever an `#if` is seen.
@@ -724,7 +743,7 @@ void PatchedMacroTracker::If(clang::SourceLocation,
     assert(last_directive->kind == MacroDirectiveKind::kOther);
     last_directive->kind = MacroDirectiveKind::kIf;
   }
-  std::cerr << indent << "If\n";
+  D( std::cerr << indent << "If\n"; )
 }
 
 // Hook called whenever an `#elif` is seen.
@@ -739,7 +758,7 @@ void PatchedMacroTracker::Elif(clang::SourceLocation,
     assert(last_directive->kind == MacroDirectiveKind::kOther);
     last_directive->kind = MacroDirectiveKind::kElseIf;
   }
-  std::cerr << indent << "Elif\n";
+  D( std::cerr << indent << "Elif\n"; )
 }
 
 // Hook called whenever an `#ifdef` is seen.
@@ -750,7 +769,7 @@ void PatchedMacroTracker::Ifdef(clang::SourceLocation,
     assert(last_directive->kind == MacroDirectiveKind::kOther);
     last_directive->kind = MacroDirectiveKind::kIfDefined;
   }
-  std::cerr << indent << "Ifdef\n";
+  D( std::cerr << indent << "Ifdef\n"; )
 }
 
 // Hook called whenever an `#ifndef` is seen.
@@ -761,7 +780,7 @@ void PatchedMacroTracker::Ifndef(clang::SourceLocation,
     assert(last_directive->kind == MacroDirectiveKind::kOther);
     last_directive->kind = MacroDirectiveKind::kIfNotDefined;
   }
-  std::cerr << indent << "Ifndef\n";
+  D( std::cerr << indent << "Ifndef\n"; )
 }
 
 /// Hook called whenever an `#else` is seen.
@@ -771,7 +790,7 @@ void PatchedMacroTracker::Else(clang::SourceLocation,
     assert(last_directive->kind == MacroDirectiveKind::kOther);
     last_directive->kind = MacroDirectiveKind::kElse;
   }
-  std::cerr << indent << "Else\n";
+  D( std::cerr << indent << "Else\n"; )
 }
 
 // Hook called whenever an `#endif` is seen.
@@ -781,7 +800,7 @@ void PatchedMacroTracker::Endif(clang::SourceLocation,
     assert(last_directive->kind == MacroDirectiveKind::kOther);
     last_directive->kind = MacroDirectiveKind::kEndIf;
   }
-  std::cerr << indent << "Endif\n";
+  D( std::cerr << indent << "Endif\n"; )
 }
 
 // Hook called whenever a macro definition is seen.
@@ -806,7 +825,7 @@ void PatchedMacroTracker::MacroDefined(const clang::Token &name_tok,
 
     assert(std::holds_alternative<MacroTokenImpl *>(last_directive->macro_name));
   }
-  std::cerr << indent << "MacroDefined\n";
+  D( std::cerr << indent << "MacroDefined\n"; )
 }
 
 // Hook called whenever a macro `#undef` is seen.
@@ -820,7 +839,7 @@ void PatchedMacroTracker::MacroUndefined(
     last_directive->kind = MacroDirectiveKind::kUndefine;
     defines.erase(directive->getMacroInfo());
   }
-  std::cerr << indent << "MacroUndefined\n";
+  D( std::cerr << indent << "MacroUndefined\n"; )
 }
 
 // Called by Preprocessor::HandleMacroExpandedIdentifier when a
@@ -832,7 +851,7 @@ void PatchedMacroTracker::MacroExpands(const clang::Token &,
                                        const clang::MacroDefinition &,
                                        clang::SourceRange /* use_range */,
                                        const clang::MacroArgs *) {
-  std::cerr << indent << "MacroExpands\n";
+  D( std::cerr << indent << "MacroExpands\n"; )
 }
 
 }  // namespace pasta

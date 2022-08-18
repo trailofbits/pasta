@@ -65,6 +65,10 @@ static void PrintMacroGraph(std::ostream &os,
     os << "<TD port=\"p" << (i++) << "\"> </TD>";
   }
 
+  if (!i) {
+    os << "<TD bgcolor=\"red\">?</TD>";
+  }
+
   os
       << "</TR></TABLE>>];\n";
 
@@ -142,6 +146,10 @@ static void PrintMacroGraph(std::ostream &os,
     os << "<TD port=\"p" << (i++) << "\"> </TD>";
   }
 
+  if (!i) {
+    os << "<TD bgcolor=\"red\">?</TD>";
+  }
+
   os
       << "</TR></TABLE>>];\n";
 
@@ -174,6 +182,10 @@ static void PrintMacroGraphSub(std::ostream &os,
     os << "<TD port=\"p" << (i++) << "\"> </TD>";
   }
 
+  if (!i) {
+    os << "<TD bgcolor=\"red\">?</TD>";
+  }
+
   os
       << "</TR></TABLE>>];\n";
 
@@ -192,6 +204,10 @@ static void PrintMacroGraphSub(std::ostream &os,
   for (const pasta::MacroNode &node : after_nodes) {
     (void) node;
     os << "<TD port=\"p" << (i++) << "\"> </TD>";
+  }
+
+  if (!i) {
+    os << "<TD bgcolor=\"red\">?</TD>";
   }
 
   os
@@ -348,4 +364,3 @@ int main(int argc, char *argv[]) {
 
   return EXIT_SUCCESS;
 }
-

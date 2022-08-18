@@ -11,9 +11,10 @@
 #pragma GCC diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/Basic/LangOptions.h>
 #include <clang/Frontend/CompilerInstance.h>
+#include <clang/Lex/Token.h>
 #pragma GCC diagnostic pop
 
-#define D(...)
+#define D(...) __VA_ARGS__
 
 namespace pasta {
 
@@ -166,6 +167,84 @@ bool PatchedMacroTracker::TryExtractHeaderName(const clang::Token &tok) {
   return true;
 }
 
+// If we're in macro argument pre-expansion, and if we actually see a token,
+// then we want to fake another expansion. To do so, that means copying in
+// a few extra tokens (the macro use and call). Later, we'll detect that we
+// did this, and then build out the expansion.
+void PatchedMacroTracker::TryDoPreExpansionSetup(void) {
+  if (expansions.empty()) {
+    return;
+  }
+
+  assert(!nodes.empty());
+  MacroExpansionImpl *exp = expansions.back();
+  if (exp != nodes.back() || !exp->in_prearg_expansion || !exp->nodes.empty()) {
+    return;
+  }
+
+  assert(!exp->use_nodes.empty());
+  MacroTokenImpl *ident = nullptr;
+  MacroTokenImpl *l_paren = nullptr;
+  for (Node &node : exp->use_nodes) {
+    if (std::holds_alternative<MacroTokenImpl *>(node)) {
+      MacroTokenImpl *use_tok = std::get<MacroTokenImpl *>(node);
+      if (!ident && use_tok->kind == TokenKind::kIdentifier) {
+        ident = use_tok;
+      } else if (ident && use_tok->kind == TokenKind::kLParenthesis) {
+        l_paren = use_tok;
+        break;
+      }
+    }
+  }
+  assert(ident != nullptr);
+  assert(l_paren != nullptr);
+
+  MacroExpansionImpl *new_exp =
+      &(ast->root_macro_node.expansions.emplace_back());
+
+  // Make this the active expansion.
+  expansions.pop_back();
+  nodes.pop_back();
+  expansions.push_back(new_exp);
+  nodes.push_back(new_exp);
+
+  if (std::holds_alternative<MacroNodeImpl *>(exp->definition)) {
+    MacroDirectiveImpl *def = reinterpret_cast<MacroDirectiveImpl *>(
+        std::get<MacroNodeImpl *>(exp->definition));
+    new_exp->definition = def;
+    def->macro_uses.emplace_back(new_exp);
+  }
+
+  exp->nodes.push_back(new_exp);
+  exp->in_prearg_expansion = false;
+  new_exp->is_prearg_expansion = true;
+  new_exp->in_prearg_expansion = false;
+  new_exp->parent = exp;
+
+  TokenImpl ident_tok = ast->tokens[ident->token_offset];
+  TokenImpl l_paren_tok = ast->tokens[l_paren->token_offset];
+
+  auto new_offset = ast->tokens.size();
+  ast->tokens.emplace_back(std::move(ident_tok));
+  ast->tokens.emplace_back(std::move(l_paren_tok));
+
+  MacroTokenImpl *new_ident = &(ast->root_macro_node.tokens.emplace_back());
+  new_ident->token_offset = static_cast<uint32_t>(new_offset);
+  new_ident->parent = new_exp;
+  new_ident->kind = ident->kind;
+  new_exp->nodes.push_back(new_ident);
+
+  MacroTokenImpl *new_l_paren = &(ast->root_macro_node.tokens.emplace_back());
+  new_l_paren->token_offset = static_cast<uint32_t>(new_offset + 1u);
+  new_l_paren->parent = new_exp;
+  new_l_paren->kind = l_paren->kind;
+  new_exp->nodes.push_back(new_l_paren);
+
+  token_data_stream << '\n' << '\n';
+  token_data_stream.flush();
+  ast->num_lines += 2u;
+}
+
 // Add a token in.
 void PatchedMacroTracker::DoToken(const clang::Token &tok, uintptr_t) {
   last_token = tok;
@@ -178,6 +257,9 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok, uintptr_t) {
     return;
   }
 
+  // NOTE(pag): This might change `nodes.back()`.
+  TryDoPreExpansionSetup();
+
   // With header names, we don't observe the lexing of the individual tokens.
   auto substituted_header_name = TryExtractHeaderName(tok);
 
@@ -187,13 +269,6 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok, uintptr_t) {
   tok_data.clear();
   auto offset = ast->backup_token_data.size();
   if (::pasta::TryReadRawToken(sm, lo, tok, &tok_data)) {
-
-    // In handling `_Pragma`, we use the `_Pragma` location as the `Hash`
-    // location for the expanded `#pragma`.
-    if (tok.is(clang::tok::hash)) {
-      tok_data = "#";
-    }
-
     backup_token_data_stream << tok_data;
     backup_token_data_stream.flush();
   }
@@ -279,10 +354,12 @@ void PatchedMacroTracker::DoSetNamedDirective(const clang::Token &, uintptr_t) {
   assert(!directives.empty());
   assert(nodes.back() == directives.back());
   MacroDirectiveImpl *directive = directives.back();
-  if (std::holds_alternative<MacroTokenImpl *>(directive->nodes.back())) {
-    directive->directive_name = directive->nodes.back();
-  } else {
-    assert(false);
+  if (!skip_count) {
+    if (std::holds_alternative<MacroTokenImpl *>(directive->nodes.back())) {
+      directive->directive_name = directive->nodes.back();
+    } else {
+      assert(false);
+    }
   }
 }
 
@@ -380,7 +457,10 @@ void PatchedMacroTracker::DoBeginMacroCallArgument(
   assert(!expansions.empty());
   assert(nodes.back() == expansions.back());
   MacroExpansionImpl *expansion = expansions.back();
-  assert(!expansion->is_cancelled);
+  if (expansion->is_cancelled) {
+    assert(0 < skip_count);
+    return;
+  }
 
   MacroArgumentImpl *argument =
       &(ast->root_macro_node.arguments.emplace_back());
@@ -400,6 +480,13 @@ void PatchedMacroTracker::DoBeginMacroCallArgument(
 void PatchedMacroTracker::DoEndMacroCallArgument(
     const clang::Token &, uintptr_t) {
   assert(!expansions.empty());
+  MacroExpansionImpl *expansion = expansions.back();
+  if (expansion->is_cancelled) {
+    assert(0 < skip_count);
+    assert(arguments.empty() || nodes.back() != arguments.back());
+    return;
+  }
+
   assert(!arguments.empty());
   assert(nodes.back() == arguments.back());
   MacroArgumentImpl *argument = arguments.back();
@@ -426,8 +513,87 @@ void PatchedMacroTracker::DoBeginVariadicCallArgumentList(
   assert(nodes.back() == expansions.back());
   MacroExpansionImpl *expansion = expansions.back();
   assert(!expansion->is_variadic);
-  assert(!expansion->is_cancelled);
   expansion->is_variadic = true;
+
+  if (expansion->is_cancelled) {
+    assert(0 < skip_count);
+  }
+}
+
+void PatchedMacroTracker::DoBeginPreArgumentExpansion(
+    const clang::Token &, uintptr_t) {
+  assert(!expansions.empty());
+  assert(nodes.back() == expansions.back());
+  MacroExpansionImpl *expansion = expansions.back();
+  assert(!expansion->in_prearg_expansion);
+  expansion->in_prearg_expansion = true;
+
+  if (expansion->is_cancelled) {
+    assert(0 < skip_count);
+    return;
+  }
+}
+
+void PatchedMacroTracker::DoEndPreArgumentExpansion(
+    const clang::Token &, uintptr_t) {
+  assert(!expansions.empty());
+  assert(nodes.back() == expansions.back());
+  MacroExpansionImpl *expansion = expansions.back();
+
+  if (expansion->is_cancelled) {
+    assert(0 < skip_count);
+    return;
+  }
+
+  // This node is a pre-argument expansion invented expansion, so we need to
+  // inject in a closing parenthesis to complete it.
+  if (expansion->is_prearg_expansion) {
+    assert(!expansion->nodes.empty());
+    expansion->nodes.swap(expansion->use_nodes);
+
+    MacroExpansionImpl *parent_exp = reinterpret_cast<MacroExpansionImpl *>(
+        std::get<MacroNodeImpl *>(expansion->parent));
+    assert(!parent_exp->use_nodes.empty());
+
+    MacroTokenImpl *r_paren = nullptr;
+    for (auto it = parent_exp->use_nodes.rbegin(),
+              it_end = parent_exp->use_nodes.rend();
+         it != it_end; ++it) {
+      Node &node = *it;
+      if (std::holds_alternative<MacroTokenImpl *>(node)) {
+        MacroTokenImpl *tok = std::get<MacroTokenImpl *>(node);
+        if (tok->kind == TokenKind::kRParenthesis) {
+          r_paren = tok;
+          break;
+        }
+      }
+    }
+
+    assert(r_paren != nullptr);
+    TokenImpl r_paren_tok = ast->tokens[r_paren->token_offset];
+
+    auto new_offset = ast->tokens.size();
+    ast->tokens.emplace_back(std::move(r_paren_tok));
+
+    MacroTokenImpl *new_r_paren = &(ast->root_macro_node.tokens.emplace_back());
+    new_r_paren->token_offset = static_cast<uint32_t>(new_offset);
+    new_r_paren->parent = expansion;
+    new_r_paren->kind = r_paren->kind;
+    expansion->use_nodes.push_back(new_r_paren);
+
+    token_data_stream << '\n';
+    token_data_stream.flush();
+    ast->num_lines += 1u;
+
+  // This node was marked for pre-argument expansion, but we're still in that
+  // state so it meant that nothing really happened.
+  } else if (expansion->in_prearg_expansion) {
+    assert(expansion->nodes.empty());
+    expansion->in_prearg_expansion = false;
+
+  } else {
+    assert(false);
+  }
 }
 
 void PatchedMacroTracker::DoSwitchToExpansion(const clang::Token &, uintptr_t) {
@@ -435,28 +601,71 @@ void PatchedMacroTracker::DoSwitchToExpansion(const clang::Token &, uintptr_t) {
   assert(nodes.back() == expansions.back());
   MacroExpansionImpl *expansion = expansions.back();
   assert(expansion->use_nodes.empty());
-  expansion->nodes.swap(expansion->use_nodes);
-  assert(!expansion->is_cancelled);
+
+  if (expansion->is_cancelled) {
+    assert(0 < skip_count);
+    expansion->nodes.clear();
+  } else {
+    expansion->nodes.swap(expansion->use_nodes);
+  }
 }
 
-void PatchedMacroTracker::DoCancelExpansion(const clang::Token &, uintptr_t) {
+void PatchedMacroTracker::DoPrepareToCancelExpansion(const clang::Token &, uintptr_t) {
   assert(!expansions.empty());
   assert(nodes.back() == expansions.back());
   MacroExpansionImpl *expansion = expansions.back();
   assert(expansion->use_nodes.empty());
   assert(!expansion->is_cancelled);
   expansion->is_cancelled = true;
+  ++skip_count;
 }
 
-void PatchedMacroTracker::DoEndMacroExpansion(
-    const clang::Token &tok, uintptr_t data) {
+void PatchedMacroTracker::DoCancelExpansion(const clang::Token &, uintptr_t) {
   assert(!expansions.empty());
   MacroExpansionImpl *expansion = expansions.back();
   Pop(expansion);
   assert(nodes.back() == expansion);
   nodes.pop_back();
   expansions.pop_back();
+
   MacroNodeImpl *parent_node = nodes.back();
+  if (expansion->is_prearg_expansion) {
+    parent_node = std::get<MacroNodeImpl *>(expansion->parent);
+  } else {
+    assert(parent_node == std::get<MacroNodeImpl *>(expansion->parent));
+  }
+
+  assert(std::holds_alternative<MacroNodeImpl *>(parent_node->nodes.back()));
+  assert(std::get<MacroNodeImpl *>(parent_node->nodes.back()) == expansion);
+  parent_node->nodes.pop_back();
+
+  assert(expansion->use_nodes.empty());
+  if (expansion->is_cancelled) {
+    assert(0 < skip_count);
+    --skip_count;
+  } else {
+    assert(!expansion->is_cancelled);
+    expansion->is_cancelled = true;
+  }
+}
+
+void PatchedMacroTracker::DoEndMacroExpansion(
+    const clang::Token &tok, uintptr_t data) {
+  assert(!expansions.empty());
+  MacroExpansionImpl *expansion = expansions.back();
+  assert(!expansion->is_cancelled);
+  Pop(expansion);
+  assert(nodes.back() == expansion);
+  nodes.pop_back();
+  expansions.pop_back();
+
+  MacroNodeImpl *parent_node = nodes.back();
+  if (expansion->is_prearg_expansion) {
+    parent_node = std::get<MacroNodeImpl *>(expansion->parent);
+  } else {
+    assert(parent_node == std::get<MacroNodeImpl *>(expansion->parent));
+  }
+
   assert(std::holds_alternative<MacroNodeImpl *>(parent_node->nodes.back()));
   assert(std::get<MacroNodeImpl *>(parent_node->nodes.back()) == expansion);
 
@@ -551,8 +760,11 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
     case EndNonDirective: DoEndNonDirective(tok, data); break;
     case EndDirective: DoEndDirective(tok, data); break;
     case BeginMacroExpansion: DoBeginMacroExpansion(tok, data); break;
+    case PrepareToCancelExpansion: DoPrepareToCancelExpansion(tok, data); break;
     case CancelExpansion: DoCancelExpansion(tok, data); break;
     case SwitchToExpansion: DoSwitchToExpansion(tok, data); break;
+    case BeginPreArgumentExpansion: DoBeginPreArgumentExpansion(tok, data); break;
+    case EndPreArgumentExpansion: DoEndPreArgumentExpansion(tok, data); break;
     case EndMacroExpansion: DoEndMacroExpansion(tok, data); break;
     case BeginMacroCallArgument: DoBeginMacroCallArgument(tok, data); break;
     case EndMacroCallArgument: DoEndMacroCallArgument(tok, data); break;
@@ -585,12 +797,16 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
       case EndMacroCallArgument:
       case EndVariadicCallArgumentList:
       case EndSubstitution:
-        --depth;
+      case EndPreArgumentExpansion:
+      case CancelExpansion:
+//        --depth;
         indent.resize(indent.size() - 2);
         break;
       default:
         break;
     }
+
+    std::cerr << indent;
 
     switch (kind) {
       case TokenFromLexer: std::cerr << "TokenFromLexer"; break;
@@ -607,6 +823,9 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
       case EndNonDirective: std::cerr << "EndNonDirective"; break;
       case BeginMacroExpansion: std::cerr << "BeginMacroExpansion"; break;
       case SwitchToExpansion: std::cerr << "SwitchToExpansion"; break;
+      case BeginPreArgumentExpansion: std::cerr << "BeginPreArgumentExpansion"; break;
+      case EndPreArgumentExpansion: std::cerr << "EndPreArgumentExpansion"; break;
+      case PrepareToCancelExpansion: std::cerr << "PrepareToCancelExpansion"; break;
       case CancelExpansion: std::cerr << "CancelExpansion"; break;
       case EndMacroExpansion: std::cerr << "EndMacroExpansion"; break;
       case BeginMacroCallArgumentList: std::cerr << "BeginMacroCallArgumentList"; break;
@@ -639,7 +858,8 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
       case BeginVariadicCallArgumentList:
       case BeginSubstitution:
       case BeginDelayedSubstitution:
-        ++depth;
+      case BeginPreArgumentExpansion:
+//        ++depth;
         indent += "  ";
         break;
       default:

@@ -97,6 +97,8 @@ class MacroExpansionImpl final : public MacroSubstitutionImpl {
   Node definition;
   bool is_variadic{false};
   bool is_cancelled{false};
+  bool in_prearg_expansion{false};
+  bool is_prearg_expansion{false};
 };
 
 // The `nodes` of a `RootMacroNode` are the top-level macro nodes, e.g. top-

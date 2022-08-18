@@ -98,6 +98,7 @@ class PatchedMacroTracker : public clang::PPCallbacks {
 
   // Add a token in.
   void DoToken(const clang::Token &tok, uintptr_t);
+  void TryDoPreExpansionSetup(void);
 
   void DoBeginSkippedArea(const clang::Token &tok, uintptr_t data);
 
@@ -111,7 +112,10 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   void DoBeginMacroCallArgument(const clang::Token &, uintptr_t);
   void DoEndMacroCallArgument(const clang::Token &, uintptr_t);
   void DoBeginVariadicCallArgumentList(const clang::Token &, uintptr_t);
+  void DoBeginPreArgumentExpansion(const clang::Token &, uintptr_t);
+  void DoEndPreArgumentExpansion(const clang::Token &, uintptr_t);
   void DoSwitchToExpansion(const clang::Token &, uintptr_t);
+  void DoPrepareToCancelExpansion(const clang::Token &, uintptr_t);
   void DoCancelExpansion(const clang::Token &, uintptr_t);
   void DoEndMacroExpansion(const clang::Token &tok, uintptr_t data);
   void DoBeginSubstitution(const clang::Token &tok, uintptr_t data);

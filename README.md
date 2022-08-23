@@ -29,7 +29,9 @@ up-to-date `cmake` and `ninja`.
 As for the dependencies, most of them are provided by [cxx-common](https://github.com/trailofbits/cxx-common). To get them you have two options:
   * Get the pre-built package for some available architectures
   * Build the yourself. (Can take around 40 minutes, since LLVM is being built)
-For more depth on each option consult `README` of the project.
+For more depth on each option consult [`README`](https://github.com/lifting-bits/cxx-common#readme) of the project.
+
+**Note:** PASTA relies upon Clang patches which are included in cxx-common. PASTA cannot build without the presence of these patches.
 
 If you choose to build it manually first get the sources:
 

@@ -57,12 +57,12 @@ if (NOT DEFINED VCPKG_TARGET_TRIPLET)
   # when vcpkg creates both debug and release builds.
   if (EXISTS "${VCPKG_ROOT_INSTALL_DIR}/${_project_vcpkg_triplet}")
     set(VCPKG_TARGET_TRIPLET "${_project_vcpkg_triplet}" CACHE STRING "")
-    message(STATUS "Setting default vcpkg triplet to release-only libraries: ${VCPKG_TARGET_TRIPLET}")
+    message(STATUS "Setting default vcpkg triplet to release and debug libraries: ${VCPKG_TARGET_TRIPLET}")
 
   # In a debug build, prefer the debug triple.
   elseif(CMAKE_BUILD_TYPE STREQUAL "Debug" AND EXISTS "${VCPKG_ROOT_INSTALL_DIR}/${_project_vcpkg_triplet}-dbg")
     set(VCPKG_TARGET_TRIPLET "${_project_vcpkg_triplet}-dbg" CACHE STRING "")
-    message(STATUS "Setting default vcpkg triplet to release-only libraries: ${VCPKG_TARGET_TRIPLET}-dbg")
+    message(STATUS "Setting default vcpkg triplet to debug-only libraries: ${VCPKG_TARGET_TRIPLET}-dbg")
   
   # Otherwise, prefer a release triple.
   elseif(EXISTS "${VCPKG_ROOT_INSTALL_DIR}/${_project_vcpkg_triplet}-rel")
@@ -72,7 +72,7 @@ if (NOT DEFINED VCPKG_TARGET_TRIPLET)
   # Fall back on a debug triple.
   elseif(EXISTS "${VCPKG_ROOT_INSTALL_DIR}/${_project_vcpkg_triplet}-dbg")
     set(VCPKG_TARGET_TRIPLET "${_project_vcpkg_triplet}-dbg" CACHE STRING "")
-    message(STATUS "Setting default vcpkg triplet to release-only libraries: ${VCPKG_TARGET_TRIPLET}-dbg")
+    message(STATUS "Setting default vcpkg triplet to debug-only libraries: ${VCPKG_TARGET_TRIPLET}-dbg")
   
   else()
     message(STATUS "Could not find installed project-default triplet '${_project_vcpkg_triplet}' using vcpkg-default for your system")    

@@ -66,7 +66,7 @@ if (NOT DEFINED VCPKG_TARGET_TRIPLET)
   
   # Otherwise, prefer a release triple.
   elseif(EXISTS "${VCPKG_ROOT_INSTALL_DIR}/${_project_vcpkg_triplet}-rel")
-    set(VCPKG_TARGET_TRIPLET "${_project_vcpkg_triplet}-dbg" CACHE STRING "")
+    set(VCPKG_TARGET_TRIPLET "${_project_vcpkg_triplet}-rel" CACHE STRING "")
     message(STATUS "Setting default vcpkg triplet to release-only libraries: ${VCPKG_TARGET_TRIPLET}-rel")
   
   # Fall back on a debug triple.

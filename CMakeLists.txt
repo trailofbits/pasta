@@ -1,6 +1,6 @@
 # Copyright (c) 2020 Trail of Bits, Inc., all rights reserved.
 
-cmake_minimum_required(VERSION 3.14.5)
+cmake_minimum_required(VERSION 3.21)
 
 # Takes care of some vcpkg automation so that we can use VCPKG_ROOT
 include("cmake/vcpkg_helper.cmake")
@@ -73,28 +73,30 @@ target_link_libraries(pasta_cxx_settings INTERFACE std::filesystem)
 # Clang/LLVM dependencies --------------------
 # --------------------------------------------
 
-find_package(Z3 4.8 CONFIG REQUIRED)
+find_package(Z3 4.9 CONFIG REQUIRED)
 find_package(LLVM CONFIG REQUIRED)
 find_package(Clang CONFIG REQUIRED)
 add_library(pasta_thirdparty_llvm INTERFACE)
 
 if(PASTA_ENABLE_TESTING)
-  if("x${LLVM_DIR}x" STREQUAL "xx")
-    message(FATAL_ERROR "LLVM_DIR is not set")
-  endif()
-  list(APPEND CMAKE_MODULE_PATH "${LLVM_DIR}")
-  include(AddLLVM)  # For LLVM lit test suite stuff.
+    list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
+    include(AddLLVM)  # For LLVM lit test suite stuff.
 endif(PASTA_ENABLE_TESTING)
 
-# These are out-of-order in `LLVM_AVAILABLE_LIBS` and should always be last.
-set(LLVM_LIBRARIES ${LLVM_AVAILABLE_LIBS})
-list(REMOVE_ITEM LLVM_LIBRARIES LLVMCore LLVMSupport)
-list(REMOVE_DUPLICATES LLVM_LIBRARIES)
-list(APPEND LLVM_LIBRARIES LLVMCore LLVMSupport)
+llvm_map_components_to_libnames(LLVM_LIBRARIES
+    support core
+    irreader
+    bitreader bitwriter
+    passes asmprinter
+    aarch64desc aarch64codegen aarch64asmparser
+    armdesc armcodegen armasmparser
+    interpreter mcjit
+    nvptxdesc nvptxcodegen
+    x86desc x86codegen x86asmparser
+    sparcdesc sparccodegen sparcasmparser
+    webassemblydesc webassemblycodegen webassemblyasmparser)
 
 target_link_libraries(pasta_thirdparty_llvm INTERFACE
-    ${Z3_LIBS}
-
     ${LLVM_LIBRARIES}
 
     clangSema

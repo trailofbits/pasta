@@ -30,7 +30,7 @@ jobs:
           ]
         image:
           - { name: 'ubuntu', tag: '20.04' }
-        cxx_common_version: [v0.2.9]
+        cxx_common_version: [v0.2.10]
         llvm_version: [14]
 
     runs-on: ubuntu-20.04
@@ -92,7 +92,7 @@ jobs:
         echo ::set-output name=CCACHE::$(realpath ${rel_ccache_path})
 
     - name: Update the cache (ccache)
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ${{ steps.build_paths.outputs.REL_CCACHE }}
 
@@ -103,7 +103,7 @@ jobs:
           gitmodules_${{ matrix.image.name }}-${{ matrix.image.tag }}_${{ matrix.build_type }}_${{ matrix.llvm_version }}_${{ matrix.cxx_common_version }}
 
     - name: Update the cache (downloads)
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ${{ steps.build_paths.outputs.REL_DOWNLOADS }}
 

@@ -62,6 +62,7 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   int skip_count{0};
   clang::Token last_token;
   bool last_token_was_added{false};
+  EventKind last_event{EventKind::TokenFromLexer};
   std::string tok_data;
   std::vector<MacroNodeImpl *> nodes;
   std::vector<MacroDirectiveImpl *> directives;
@@ -99,6 +100,8 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   // Add a token in.
   void DoToken(const clang::Token &tok, uintptr_t);
   void TryDoPreExpansionSetup(void);
+  std::pair<MacroExpansionImpl *, MacroArgumentImpl *>
+  DoPreExpansionSetup(MacroExpansionImpl *);
 
   void DoBeginSkippedArea(const clang::Token &tok, uintptr_t data);
 
@@ -117,6 +120,7 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   void DoSwitchToExpansion(const clang::Token &, uintptr_t);
   void DoPrepareToCancelExpansion(const clang::Token &, uintptr_t);
   void DoCancelExpansion(const clang::Token &, uintptr_t);
+  void RebalanceMacroExpansionTree(clang::MacroInfo *mi);
   void DoEndMacroExpansion(const clang::Token &tok, uintptr_t data);
   void DoBeginSubstitution(const clang::Token &tok, uintptr_t data);
   void DoBeginDelayedSubstitution(const clang::Token &tok, uintptr_t data);

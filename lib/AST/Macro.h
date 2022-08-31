@@ -75,6 +75,7 @@ class MacroArgumentImpl final : public MacroNodeImpl {
 
   unsigned index{0u};
   bool is_variadic{false};
+  bool is_prearg_expansion{false};
 };
 
 class MacroSubstitutionImpl : public MacroNodeImpl {
@@ -95,6 +96,14 @@ class MacroExpansionImpl final : public MacroSubstitutionImpl {
   std::vector<Node> arguments;
   std::vector<Node> variadic_arguments;
   Node definition;
+
+  // The info for the macro that was defined by this directive.
+  const clang::MacroInfo *defined_macro{nullptr};
+
+  MacroTokenImpl *ident{nullptr};
+  MacroTokenImpl *l_paren{nullptr};
+  MacroTokenImpl *r_paren{nullptr};
+
   bool is_variadic{false};
   bool is_cancelled{false};
   bool in_prearg_expansion{false};

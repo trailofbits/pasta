@@ -57,7 +57,11 @@ static void PrintMacroGraph(std::ostream &os,
   os
       << "n" << a
       << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" border=\"1\">"
-      << "<TR><TD colspan=\"" << nodes.Size() << "\">Argument</TD></TR><TR>";
+      << "<TR><TD";
+  if (nodes.Size()) {
+    os << " colspan=\"" << nodes.Size() << "\"";
+  }
+  os << ">Argument</TD></TR><TR>";
 
   auto i = 0u;
   for (const pasta::MacroNode &node : nodes) {

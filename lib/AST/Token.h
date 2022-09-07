@@ -35,7 +35,7 @@ class Token;
 class PrintedTokenImpl;
 class PrintedTokenRangeImpl;
 
-using OpaqueSourceLoc = uint32_t;
+using OpaqueSourceLoc = clang::SourceLocation::UIntTy;
 using TokenContextIndex = uint32_t;
 static constexpr TokenContextIndex kInvalidTokenContextIndex = ~0u;
 static constexpr TokenContextIndex kASTTokenContextIndex = 0u;
@@ -181,7 +181,11 @@ class TokenImpl {
       const ASTImpl &ast,
       const std::vector<TokenContextImpl> &contexts) const noexcept;
 
-  // The raw encoding of the source location of the token.
+  // If this number is positive, then it is the raw encoding of the source
+  // location of the token, which references a `FileToken`. If this number is
+  // negative, then this token was derived from a prior token in a macro
+  // expansion. That prior token is at `ast->tokens[-opaque_source_loc]`. This
+  // process is enacted by `PatchedMacroTracker::FixupDerivedLocations`.
   OpaqueSourceLoc opaque_source_loc{kInvalidSourceLocation};
 
   // Index of the token context in either `ASTImpl::contexts` or

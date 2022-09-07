@@ -14,7 +14,7 @@
 #include <clang/Lex/Token.h>
 #pragma GCC diagnostic pop
 
-#define D(...) __VA_ARGS__
+#define D(...)
 
 namespace pasta {
 
@@ -38,9 +38,8 @@ static void ReparentNodes(std::vector<Node> nodes, MacroNodeImpl *new_parent) {
   nodes.clear();
 }
 
-PatchedMacroTracker::PatchedMacroTracker(clang::Preprocessor &pp_,
-                                         clang::SourceManager &sm_,
-                                         ASTImpl *ast_)
+PatchedMacroTracker::PatchedMacroTracker(
+    clang::Preprocessor &pp_, clang::SourceManager &sm_, ASTImpl *ast_)
     : pp(pp_),
       sm(sm_),
       ci(*(ast_->ci)),
@@ -116,11 +115,14 @@ void PatchedMacroTracker::CloseUnclosedExpansion(const clang::Token &tok) {
     ast->AppendMarker(tok.getLocation(),
                       TokenRole::kEndOfMacroExpansionMarker);
   }
+
+  FixupDerivedLocations();
 }
 
 void PatchedMacroTracker::Push(const clang::Token &tok) {
   if (!depth) {
     CloseUnclosedExpansion(tok);
+    start_of_macro_index = ast->tokens.size();
     ast->AppendMarker(tok.getLocation(),
                       TokenRole::kBeginOfMacroExpansionMarker);
   }
@@ -319,6 +321,48 @@ static int ParenCount(MacroNodeImpl *arg) {
     }
   }
   return paren_count;
+}
+
+// Change the stored raw location if this is a macro token, so that it
+// points to where it originated from.
+void PatchedMacroTracker::FixupDerivedLocations(void) {
+
+  std::unordered_map<clang::SourceLocation::UIntTy, size_t> macro_token_refs;
+  for (auto tok_index = start_of_macro_index, max_i = ast->tokens.size();
+       tok_index < max_i; ++tok_index) {
+
+    TokenImpl &tok = ast->tokens[tok_index];
+    clang::SourceLocation loc = tok.Location();
+    if (!loc.isValid()) {
+      continue;
+    }
+
+    auto raw_loc = loc.getRawEncoding();
+    macro_token_refs.emplace(raw_loc, tok_index);
+
+    if (!loc.isMacroID()) {
+      continue;
+    }
+
+    auto next_loc = sm.getImmediateSpellingLoc(loc);
+    if (!next_loc.isValid()) {
+      continue;
+    }
+
+    auto raw_next_loc = next_loc.getRawEncoding();
+    if (auto it = macro_token_refs.find(raw_next_loc);
+        it != macro_token_refs.end()) {
+      tok.opaque_source_loc = static_cast<OpaqueSourceLoc>(
+          -static_cast<clang::SourceLocation::IntTy>(it->second));
+
+    } else if (next_loc.isFileID()) {
+      tok.opaque_source_loc = raw_next_loc;
+
+    } else {
+      assert(false);
+      tok.opaque_source_loc = TokenImpl::kInvalidSourceLocation;
+    }
+  }
 }
 
 // Add a token in.

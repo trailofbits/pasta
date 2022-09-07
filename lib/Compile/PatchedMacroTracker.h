@@ -72,6 +72,7 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   MacroDirectiveImpl *last_directive{nullptr};
   std::unordered_map<const clang::MacroInfo *, MacroDirectiveImpl *> defines;
   std::map<std::pair<clang::tok::TokenKind, unsigned>, size_t> expanded_toks;
+  size_t start_of_macro_index{0u};
 
  public:
 
@@ -82,6 +83,8 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   void Clear(void);
 
   virtual ~PatchedMacroTracker(void);
+
+  void FixupDerivedLocations(void);
 
  private:
   void MergeTokens(MacroArgumentImpl *node);

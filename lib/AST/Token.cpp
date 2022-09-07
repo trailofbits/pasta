@@ -408,12 +408,33 @@ bool TokenContext::TryUpdateToAliasee(void) {
   }
 }
 
+// Find the token from which this token was derived.
+std::optional<Token> Token::DerivedLocation(void) const {
+  if (!impl) {
+    return std::nullopt;
+  }
+
+  auto macro_loc = static_cast<clang::SourceLocation::IntTy>(
+      impl->opaque_source_loc);
+  if (0 <= macro_loc) {
+    return std::nullopt;
+  }
+
+  auto tok_index = static_cast<OpaqueSourceLoc>(-macro_loc);
+  if (tok_index >= ast->tokens.size()) {
+    return std::nullopt;
+  }
+
+  return Token(ast, &(ast->tokens[tok_index]));
+}
+
 // Location of the token in a file.
 std::optional<FileToken> Token::FileLocation(void) const {
   if (!impl) {
     return std::nullopt;
   }
 
+  // Negative values are indices of the
   clang::SourceLocation loc = impl->Location();
   if (loc.isInvalid() || loc.isMacroID()) {
     return std::nullopt;

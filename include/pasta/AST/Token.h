@@ -160,6 +160,9 @@ class Token {
     return impl;
   }
 
+  // Find the token from which this token was derived.
+  std::optional<Token> DerivedLocation(void) const;
+
   // Location of the token in a file.
   std::optional<FileToken> FileLocation(void) const;
 

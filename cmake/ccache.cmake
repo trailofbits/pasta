@@ -12,17 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-find_program(ccache_path ccache)
-if("${ccache_path}" STREQUAL "ccache_path-NOTFOUND")
-  message(STATUS "ccache: Not found")
-else()
-  set(CMAKE_C_COMPILER_LAUNCHER "${ccache_path}")
-  set(CMAKE_CXX_COMPILER_LAUNCHER "${ccache_path}")
+if(PLATFORM_LINUX OR PLATFORM_MACOS)
+  find_program(ccache_executable "ccache")
+  if(NOT ccache_executable STREQUAL "ccache_executable-NOTFOUND")
+    message(STATUS "${PROJECT_NAME}: Enabling ccache support (${ccache_executable})")
 
-  set(ccache_dir "$ENV{CCACHE_DIR}")
-  if("${ccache_dir}" STREQUAL "")
-    set(ccache_dir "$ENV{HOME}/.ccache")
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${ccache_executable}" CACHE FILEPATH "ccache")
+    set(CMAKE_C_COMPILER_LAUNCHER "${ccache_executable}" CACHE FILEPATH "ccache")
+
+  else()
+    message(STATUS "${PROJECT_NAME}: No ccache executable found")
   endif()
-
-  message(STATUS "ccache: enabled with '${ccache_path}'. The cache folder is located here: '${ccache_dir}'")
 endif()

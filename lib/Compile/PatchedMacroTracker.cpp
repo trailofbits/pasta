@@ -14,7 +14,7 @@
 #include <clang/Lex/Token.h>
 #pragma GCC diagnostic pop
 
-#define D(...)
+#define D(...) __VA_ARGS__
 
 namespace pasta {
 
@@ -58,7 +58,8 @@ void PatchedMacroTracker::Clear(void) {
   assert(expansions.empty());
   depth = 0;
   defines.clear();
-  expanded_toks.clear();
+  file_token_refs.clear();
+  macro_token_refs.clear();
 }
 
 PatchedMacroTracker::~PatchedMacroTracker(void) {}
@@ -115,6 +116,7 @@ void PatchedMacroTracker::CloseUnclosedExpansion(const clang::Token &tok) {
     ast->AppendMarker(tok.getLocation(),
                       TokenRole::kEndOfMacroExpansionMarker);
   }
+  D( std::cerr << indent << "EndOfMacroExpansionMarker\n"; )
 
   FixupDerivedLocations();
 }
@@ -123,15 +125,18 @@ void PatchedMacroTracker::Push(const clang::Token &tok) {
   if (!depth) {
     CloseUnclosedExpansion(tok);
     start_of_macro_index = ast->tokens.size();
+    D( std::cerr << indent << "BeginOfMacroExpansionMarker\n"; )
     ast->AppendMarker(tok.getLocation(),
                       TokenRole::kBeginOfMacroExpansionMarker);
   }
   ++depth;
 }
 
-void PatchedMacroTracker::Pop(MacroNodeImpl *node) {
+void PatchedMacroTracker::Pop(const clang::Token &tok) {
   assert(0 < depth);
-  --depth;
+  if (!--depth) {
+    CloseUnclosedExpansion(tok);
+  }
 }
 
 bool PatchedMacroTracker::TryExtractHeaderName(const clang::Token &tok) {
@@ -165,7 +170,7 @@ bool PatchedMacroTracker::TryExtractHeaderName(const clang::Token &tok) {
   parent_node->nodes.emplace_back(sub);
   nodes.push_back(sub);
 
-  auto end = file_token->Data() == "<" ? ">" : "\"";
+  auto end = file_token->Data()[0] == '<' ? '>' : '"';
 
   clang::Token nt;
   auto file_tokens = file.Tokens();
@@ -177,8 +182,9 @@ bool PatchedMacroTracker::TryExtractHeaderName(const clang::Token &tok) {
     nt.setLocation(sm.getComposedLoc(file_id, t.Offset()));
     nt.setLength(static_cast<unsigned>(t.Data().size()));
     DoToken(nt, 0);
+    D( std::cerr << indent << "HeaderNameToken " << clang::tok::getTokenName(nt.getKind()) << '\n'; )
 
-    if (t.Data() == end) {
+    if (t.Data().ends_with(end) || nt.is(clang::tok::string_literal)) {
       break;
     }
   }
@@ -256,7 +262,7 @@ PatchedMacroTracker::DoPreExpansionSetup(
 // then we want to fake another expansion. To do so, that means copying in
 // a few extra tokens (the macro use and call). Later, we'll detect that we
 // did this, and then build out the expansion.
-void PatchedMacroTracker::TryDoPreExpansionSetup(void) {
+void PatchedMacroTracker::TryDoPreExpansionSetup(const clang::Token &tok) {
   for (MacroExpansionImpl *exp : expansions) {
     if (exp->in_prearg_expansion) {
       goto fixup;
@@ -270,6 +276,9 @@ fixup:
   std::vector<MacroNodeImpl *> new_nodes;
   std::vector<MacroExpansionImpl *> new_expansions;
   std::vector<MacroArgumentImpl *> new_arguments;
+
+  MacroExpansionImpl *last_old_exp = nullptr;
+  MacroExpansionImpl *last_new_exp = nullptr;
 
   for (MacroNodeImpl *old_node : nodes) {
     if (auto old_arg = dynamic_cast<MacroArgumentImpl *>(old_node)) {
@@ -295,15 +304,47 @@ fixup:
 
         new_nodes.push_back(new_exp);
         new_nodes.push_back(new_arg);
+
+        last_old_exp = old_exp;
+        last_new_exp = new_exp;
       }
     } else {
       new_nodes.push_back(old_node);
     }
   }
 
+  // The pre-expansion may have been triggered part-way through the argument
+  // list of `last_old_exp`, so we may need to copy/clone some arguments over.
+  if (last_old_exp && last_new_exp) {
+    ClonePrefixArguments(last_old_exp, last_new_exp, tok);
+  }
+
   nodes = std::move(new_nodes);
   expansions = std::move(new_expansions);
   arguments = std::move(new_arguments);
+}
+
+void PatchedMacroTracker::ClonePrefixArguments(
+    MacroExpansionImpl *exp, MacroExpansionImpl *pre_exp,
+    const clang::Token &tok) {
+  assert(!exp->use_nodes.empty());
+  assert(pre_exp->use_nodes.empty());
+  assert(pre_exp->nodes.size() >= 2);  // name, (
+#if 0
+  clang::SourceLocation tok_loc = tok.getLocation();
+  assert(tok_loc.isValid());
+
+  std::vector<const Node *> nodes_to_clone;
+
+  for (const Node &node : exp->use_nodes) {
+    if (std::holds_alternative<MacroNodeImpl *>(node)) {
+
+    } else if (std::holds_alternative<MacroTokenImpl *>(node)) {
+      MacroTokenImpl *tok = std::get<MacroTokenImpl *>(node);
+      if (ast->tokens[tok->token_offset].Location() == )
+    }
+  }
+#endif
 }
 
 static int ParenCount(MacroNodeImpl *arg) {
@@ -327,40 +368,80 @@ static int ParenCount(MacroNodeImpl *arg) {
 // points to where it originated from.
 void PatchedMacroTracker::FixupDerivedLocations(void) {
 
-  std::unordered_map<clang::SourceLocation::UIntTy, size_t> macro_token_refs;
+  auto from_map = [=] (
+      const std::unordered_map<clang::SourceLocation::UIntTy, size_t> &map,
+      TokenImpl &tok, size_t tok_index, std::string_view tok_data,
+      OpaqueSourceLoc loc) {
+    auto it = map.find(loc);
+    if (it == map.end()) {
+      return false;
+    }
+
+    // Sanity check that we're mapping a derived token to the original token
+    // that shares the same data.
+    size_t orig_tok_index = it->second;
+    assert(orig_tok_index < tok_index);
+    const TokenImpl &orig_tok = ast->tokens[orig_tok_index];
+    if (orig_tok.Data(*ast) != tok_data) {
+      return false;
+    }
+
+    tok.opaque_source_loc = static_cast<OpaqueSourceLoc>(
+        -static_cast<clang::SourceLocation::IntTy>(orig_tok_index));
+    return true;
+  };
+
+  macro_token_refs.clear();
+
   for (auto tok_index = start_of_macro_index, max_i = ast->tokens.size();
        tok_index < max_i; ++tok_index) {
 
     TokenImpl &tok = ast->tokens[tok_index];
-    clang::SourceLocation loc = tok.Location();
+    const std::string_view data = tok.Data(*ast);
+    const clang::SourceLocation loc = tok.Location();
+    const OpaqueSourceLoc raw_loc = loc.getRawEncoding();
+
     if (!loc.isValid()) {
+      assert(false);
       continue;
     }
 
-    auto raw_loc = loc.getRawEncoding();
-    macro_token_refs.emplace(raw_loc, tok_index);
+    // If we have a file token, then we could be in a define or other directive,
+    // in the first tokens of a use of a macro, or in the pre-expansion phase
+    // of a macro.
+    if (loc.isFileID()) {
+      if (!from_map(file_token_refs, tok, tok_index, data, raw_loc)) {
+        file_token_refs[raw_loc] = tok_index;
+      }
+      continue;
+    }
 
+    // Negative source locations are interpreted as indices to other places
+    // in the AST tokens.
+    tok.opaque_source_loc = TokenImpl::kInvalidSourceLocation;
     if (!loc.isMacroID()) {
+      assert(false);  // Doesn't make sense.
       continue;
     }
 
-    auto next_loc = sm.getImmediateSpellingLoc(loc);
+    // For some pre-expansions, we need to copy the expanded tokens, so we want
+    // to link back to those.
+    if (from_map(macro_token_refs, tok, tok_index, data, raw_loc)) {
+      macro_token_refs[raw_loc] = tok_index;
+      continue;
+    }
+
+    // Try to go one level up in the macro expansion to find the token's
+    // ancestry.
+    const clang::SourceLocation next_loc = sm.getImmediateSpellingLoc(loc);
     if (!next_loc.isValid()) {
       continue;
     }
 
-    auto raw_next_loc = next_loc.getRawEncoding();
-    if (auto it = macro_token_refs.find(raw_next_loc);
-        it != macro_token_refs.end()) {
-      tok.opaque_source_loc = static_cast<OpaqueSourceLoc>(
-          -static_cast<clang::SourceLocation::IntTy>(it->second));
-
-    } else if (next_loc.isFileID()) {
-      tok.opaque_source_loc = raw_next_loc;
-
-    } else {
-      assert(false);
-      tok.opaque_source_loc = TokenImpl::kInvalidSourceLocation;
+    const OpaqueSourceLoc next_raw_loc = next_loc.getRawEncoding();
+    if (from_map(file_token_refs, tok, tok_index, data, next_raw_loc) ||
+        from_map(macro_token_refs, tok, tok_index, data, next_raw_loc)) {
+      macro_token_refs[raw_loc] = tok_index;
     }
   }
 }
@@ -380,7 +461,7 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok, uintptr_t) {
   }
 
   // NOTE(pag): This might change `nodes.back()`.
-  TryDoPreExpansionSetup();
+  TryDoPreExpansionSetup(tok);
 
   // With header names, we don't observe the lexing of the individual tokens.
   auto substituted_header_name = TryExtractHeaderName(tok);
@@ -534,7 +615,8 @@ void PatchedMacroTracker::DoSetNamedDirective(const clang::Token &, uintptr_t) {
   }
 }
 
-void PatchedMacroTracker::DoEndNonDirective(const clang::Token &, uintptr_t) {
+void PatchedMacroTracker::DoEndNonDirective(const clang::Token &tok,
+                                            uintptr_t) {
   assert(!directives.empty());
   assert(nodes.back() == directives.back());
   last_directive = directives.back();
@@ -549,7 +631,7 @@ void PatchedMacroTracker::DoEndNonDirective(const clang::Token &, uintptr_t) {
          last_directive);
   parent_node->nodes.pop_back();
   ReparentNodes(std::move(last_directive->nodes), parent_node);
-  Pop(parent_node);
+  Pop(tok);
   last_directive = nullptr;
 }
 
@@ -562,7 +644,7 @@ void PatchedMacroTracker::DoEndDirective(
   directives.pop_back();
   MacroNodeImpl *parent_node = nodes.back();
   if (!last_directive->is_skipped) {
-    Pop(last_directive);
+    Pop(tok);
     return;
   }
 
@@ -576,12 +658,13 @@ void PatchedMacroTracker::DoEndDirective(
          last_directive);
   parent_node->nodes.pop_back();
   last_directive = nullptr;
-  Pop(parent_node);
+  Pop(tok);
 }
 
 void PatchedMacroTracker::DoBeginMacroExpansion(
     const clang::Token &tok, uintptr_t data) {
   Push(tok);  // TODO(pag): Which token to pop?
+
   MacroExpansionImpl *expansion =
       &(ast->root_macro_node.expansions.emplace_back());
   nodes.back()->nodes.emplace_back(expansion);
@@ -794,10 +877,11 @@ void PatchedMacroTracker::DoPrepareToCancelExpansion(const clang::Token &, uintp
   ++skip_count;
 }
 
-void PatchedMacroTracker::DoCancelExpansion(const clang::Token &, uintptr_t) {
+void PatchedMacroTracker::DoCancelExpansion(const clang::Token &tok,
+                                            uintptr_t) {
   assert(!expansions.empty());
   MacroExpansionImpl *expansion = expansions.back();
-  Pop(expansion);
+  Pop(tok);
   assert(nodes.back() == expansion);
   nodes.pop_back();
   expansions.pop_back();
@@ -863,7 +947,7 @@ void PatchedMacroTracker::DoEndMacroExpansion(
     assert(!expansion->is_cancelled);
   }
 
-  Pop(expansion);
+  Pop(tok);
   assert(nodes.back() == expansion);
   nodes.pop_back();
   expansions.pop_back();
@@ -1019,10 +1103,11 @@ void PatchedMacroTracker::DoSwitchToSubstitution(
   expansion->nodes.swap(expansion->use_nodes);
 }
 
-void PatchedMacroTracker::DoEndSubstitution(const clang::Token &, uintptr_t) {
+void PatchedMacroTracker::DoEndSubstitution(
+    const clang::Token &tok, uintptr_t) {
   assert(!substitutions.empty());
   assert(nodes.back() == substitutions.back());
-  Pop(nodes.back());
+  Pop(tok);
   nodes.pop_back();
   substitutions.pop_back();
 }
@@ -1198,7 +1283,9 @@ void PatchedMacroTracker::InclusionDirective(
     case clang::tok::pp___include_macros:
       last_directive->kind = MacroDirectiveKind::kIncludeMacros;
       break;
-    default: break;
+    default:
+      D( std::cerr << " ???\n"; )
+      break;
   }
 
   D( std::cerr << indent << "InclusionDirective\n"; )
@@ -1208,17 +1295,39 @@ void PatchedMacroTracker::InclusionDirective(
 void PatchedMacroTracker::FileChanged(
     clang::SourceLocation loc, clang::PPCallbacks::FileChangeReason reason,
     clang::SrcMgr::CharacteristicKind file_type, clang::FileID file_id) {
+
   if (clang::PPCallbacks::FileChangeReason::EnterFile == reason &&
-      file_id.isValid() && last_directive &&
+      loc.isValid() && last_directive &&
       (last_directive->kind == MacroDirectiveKind::kInclude ||
        last_directive->kind == MacroDirectiveKind::kIncludeNext ||
        last_directive->kind == MacroDirectiveKind::kIncludeMacros ||
        last_directive->kind == MacroDirectiveKind::kImport)) {
-
+    unsigned offset = 0u;
+    std::tie(file_id, offset) = sm.getDecomposedLoc(loc);
     if (auto it = ast->id_to_file.find(file_id.getHashValue());
         it != ast->id_to_file.end()) {
       last_directive->included_file.emplace(it->second);
     }
+
+    includes.push_back(last_directive);
+    D( std::cerr << indent << "BeginOfFileMarker\n"; )
+
+    ast->AppendMarker(loc, TokenRole::kBeginOfFileMarker);
+
+  } else if (clang::PPCallbacks::FileChangeReason::ExitFile == reason &&
+             file_id.isValid() && !includes.empty()) {
+    D( std::cerr << indent << "EndOfFileMarker\n"; )
+    last_directive = includes.back();
+    includes.pop_back();
+    if (!last_directive->included_file) {
+      if (auto it = ast->id_to_file.find(file_id.getHashValue());
+          it != ast->id_to_file.end()) {
+        last_directive->included_file.emplace(it->second);
+      }
+    }
+    assert(last_directive->included_file.has_value());
+    ast->AppendMarker(sm.getLocForEndOfFile(file_id).getLocWithOffset(-1),
+                      TokenRole::kEndOfFileMarker);
   }
 
   D( std::cerr << indent << "FileChanged\n"; )

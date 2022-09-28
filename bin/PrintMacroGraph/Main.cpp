@@ -299,35 +299,35 @@ static void PrintMacroGraph(std::ostream &os, pasta::AST ast) {
 
   os << "}\n";
 
-//  for (const pasta::Token &tok : ast.Tokens()) {
-//    switch (tok.Role()) {
-//      case pasta::TokenRole::kInvalid:
-//        std::cerr << "    ";
-//        break;
-//      case pasta::TokenRole::kBeginOfFileMarker:
-//        std::cerr << "BOF ";
-//        break;
-//      case pasta::TokenRole::kEndOfFileMarker:
-//        std::cerr << "EOF ";
-//        break;
-//      case pasta::TokenRole::kFileToken:
-//        std::cerr << "FT  ";
-//        break;
-//      case pasta::TokenRole::kBeginOfMacroExpansionMarker:
-//        std::cerr << "BME ";
-//        break;
-//      case pasta::TokenRole::kEndOfMacroExpansionMarker:
-//        std::cerr << "EME ";
-//        break;
-//      case pasta::TokenRole::kIntermediateMacroExpansionToken:
-//        std::cerr << "IME ";
-//        break;
-//      case pasta::TokenRole::kFinalMacroExpansionToken:
-//        std::cerr << "FME ";
-//        break;
-//    }
-//    std::cerr << tok.KindName() << ' ' << tok.Data() << '\n';
-//  }
+  for (const pasta::Token &tok : ast.Tokens()) {
+    switch (tok.Role()) {
+      case pasta::TokenRole::kInvalid:
+        std::cerr << "    ";
+        break;
+      case pasta::TokenRole::kBeginOfFileMarker:
+        std::cerr << "BOF ";
+        break;
+      case pasta::TokenRole::kEndOfFileMarker:
+        std::cerr << "EOF ";
+        break;
+      case pasta::TokenRole::kFileToken:
+        std::cerr << "FT  ";
+        break;
+      case pasta::TokenRole::kBeginOfMacroExpansionMarker:
+        std::cerr << "BME ";
+        break;
+      case pasta::TokenRole::kEndOfMacroExpansionMarker:
+        std::cerr << "EME ";
+        break;
+      case pasta::TokenRole::kIntermediateMacroExpansionToken:
+        std::cerr << "IME ";
+        break;
+      case pasta::TokenRole::kFinalMacroExpansionToken:
+        std::cerr << "FME ";
+        break;
+    }
+    std::cerr << tok.KindName() << ' ' << tok.Data() << '\n';
+  }
 }
 
 int main(int argc, char *argv[]) {

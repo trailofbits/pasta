@@ -38,8 +38,13 @@ static bool TokenHasLocationAndContext(const TokenImpl *impl) {
 
 static bool TokenLocationsMatch(const TokenImpl *parsed,
                                 const PrintedTokenImpl *printed) {
-  return (parsed->opaque_source_loc == printed->opaque_source_loc) &&
-          parsed->opaque_source_loc != TokenImpl::kInvalidSourceLocation;
+  if (parsed->opaque_source_loc == TokenImpl::kInvalidSourceLocation) {
+    return false;
+  } else if (printed->opaque_source_loc == TokenImpl::kInvalidSourceLocation) {
+    return false;
+  } else {
+    return parsed->opaque_source_loc == printed->opaque_source_loc;
+  }
 }
 
 static bool TokenCanBeAssignedContext(const TokenImpl *token) {
@@ -1448,12 +1453,14 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
 
     for (auto region : parsed_balanced) {
       auto loc = region->begin->opaque_source_loc;
-      assert(loc != TokenImpl::kInvalidSourceLocation);
-      printed_loc_to_balanced.emplace(loc, region);
+      if (loc != TokenImpl::kInvalidSourceLocation) {
+        printed_loc_to_balanced.emplace(loc, region);
+      }
 
       loc = region->end->opaque_source_loc;
-      assert(loc != TokenImpl::kInvalidSourceLocation);
-      printed_loc_to_balanced.emplace(loc, region);
+      if (loc != TokenImpl::kInvalidSourceLocation) {
+        printed_loc_to_balanced.emplace(loc, region);
+      }
     }
 
     for (auto region : printed_balanced) {
@@ -1478,8 +1485,9 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
 
     for (auto region : parsed_statements) {
       auto loc = region->end->opaque_source_loc;
-      assert(loc != TokenImpl::kInvalidSourceLocation);
-      printed_end_loc_to_statement.emplace(loc, region);
+      if (loc != TokenImpl::kInvalidSourceLocation) {
+        printed_end_loc_to_statement.emplace(loc, region);
+      }
     }
 
     for (auto region : printed_statements) {

@@ -89,12 +89,9 @@ class MacroNode {
 
   const void *RawNode(void) const noexcept;
 
-  inline bool operator==(const MacroNode &that) const noexcept {
-    return RawNode() == that.RawNode();
-  }
-
-  inline bool operator!=(const MacroNode &that) const noexcept {
-    return RawNode() != that.RawNode();
+  inline auto operator<=>(const MacroNode &that) const noexcept
+      -> decltype(RawNode() <=> RawNode()) {
+    return RawNode() <=> that.RawNode();
   }
 
   // Return the leftmost pre-expansion macro token in this node.

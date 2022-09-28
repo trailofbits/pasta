@@ -60,6 +60,7 @@ class PatchedMacroTracker : public clang::PPCallbacks {
 
   int depth{0};
   int skip_count{0};
+  std::vector<MacroDirectiveImpl *> includes;
   clang::Token last_token;
   bool last_token_was_added{false};
   EventKind last_event{EventKind::TokenFromLexer};
@@ -71,7 +72,11 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   std::vector<MacroSubstitutionImpl *> substitutions;
   MacroDirectiveImpl *last_directive{nullptr};
   std::unordered_map<const clang::MacroInfo *, MacroDirectiveImpl *> defines;
-  std::map<std::pair<clang::tok::TokenKind, unsigned>, size_t> expanded_toks;
+  std::unordered_map<clang::SourceLocation::UIntTy, size_t> file_token_refs;
+  std::unordered_map<clang::SourceLocation::UIntTy, size_t> macro_token_refs;
+
+  // The index of the last token whose role marks the beginning of a macro
+  // expansion.
   size_t start_of_macro_index{0u};
 
  public:
@@ -96,13 +101,16 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   void CloseUnclosedExpansion(const clang::Token &tok);
 
   void Push(const clang::Token &tok);
-  void Pop(MacroNodeImpl *node);
+  void Pop(const clang::Token &tok);
 
   bool TryExtractHeaderName(const clang::Token &tok);
 
   // Add a token in.
   void DoToken(const clang::Token &tok, uintptr_t);
-  void TryDoPreExpansionSetup(void);
+  void TryDoPreExpansionSetup(const clang::Token &tok);
+  void ClonePrefixArguments(MacroExpansionImpl *exp,
+                            MacroExpansionImpl *pre_exp,
+                            const clang::Token &tok);
   std::pair<MacroExpansionImpl *, MacroArgumentImpl *>
   DoPreExpansionSetup(MacroExpansionImpl *);
 

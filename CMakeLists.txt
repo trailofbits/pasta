@@ -114,6 +114,11 @@ target_link_libraries(pasta_thirdparty_llvm INTERFACE
     clangIndex
 )
 
+target_include_directories(pasta_thirdparty_llvm INTERFACE
+    "$<BUILD_INTERFACE:${LLVM_INCLUDE_DIRS};${CLANG_INCLUDE_DIRS}>"
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
 # TODO(pag): Not sure if `Clang_DEFINITIONS` or `CLANG_DEFINITIONS`.
 target_compile_definitions(pasta_thirdparty_llvm INTERFACE
     ${LLVM_DEFINITIONS}

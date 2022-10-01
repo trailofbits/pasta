@@ -152,7 +152,9 @@ class ParsedFileTracker : public clang::PPCallbacks {
 
     // Raw lex this file's tokens.
     clang::Token tok;
-    while (!lexer.LexFromRawLexer(tok)) {
+    auto has_more_buffer = true;
+    do {
+      has_more_buffer = !lexer.LexFromRawLexer(tok);
       assert(!tok.hasLeadingEmptyMacro());
       assert(!tok.isAnnotation());
       if (tok.is(clang::tok::eof)) {
@@ -214,11 +216,17 @@ class ParsedFileTracker : public clang::PPCallbacks {
       last_tok.kind.extended.is_objc_kw = is_objc_keyword;
       last_tok.kind.extended.alt_kind = alt_keyword;
 #pragma GCC diagnostic pop
-    }
+    } while (has_more_buffer);
 
+    tok.startToken();
+    tok.setKind(clang::tok::eof);
+    tok.setLocation(sm.getLocForEndOfFile(file_id));
+
+    assert(!file.impl->data.empty());
+    assert(file.impl->data.back() == '\0');
     const auto tok_loc = tok.getLocation();
     file.impl->tokens.emplace_back(
-        file.impl->data.size(), 0u, sm.getSpellingLineNumber(tok_loc),
+        file.impl->data.size() - 1u, 0u, sm.getSpellingLineNumber(tok_loc),
         sm.getSpellingColumnNumber(tok_loc), clang::tok::eof);
   }
 };

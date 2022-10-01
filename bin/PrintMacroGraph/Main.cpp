@@ -326,7 +326,11 @@ static void PrintMacroGraph(std::ostream &os, pasta::AST ast) {
         std::cerr << "FME ";
         break;
     }
-    std::cerr << tok.KindName() << ' ' << tok.Data() << '\n';
+    std::cerr << tok.KindName() << ' ' << tok.Data();
+    if (auto ft = tok.FileLocation()) {
+      std::cerr << ' ' << ft->KindName() << ' ' << ft->Data();
+    }
+    std::cerr << '\n';
   }
 }
 

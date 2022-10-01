@@ -59,7 +59,9 @@ Result<std::string_view, std::error_code> File::Data(void) const noexcept {
     if (impl->data_ec) {
       return impl->data_ec;
     } else {
-      return std::string_view(impl->data.data(), impl->data.size());
+      assert(!impl->data.empty());
+      assert(impl->data.back() == '\0');
+      return std::string_view(impl->data.data(), impl->data.size() - 1u);
     }
   }
 
@@ -69,7 +71,12 @@ Result<std::string_view, std::error_code> File::Data(void) const noexcept {
   auto maybe_file = fm->file_system->ReadFile(impl->stat);
   if (maybe_file.Succeeded()) {
     maybe_file.TakeValue().swap(impl->data);
-    return std::string_view(impl->data.data(), impl->data.size());
+
+    // NOTE(pag): We use this extra trailing NUL to help us with location
+    //            offsets for EOF tokens.
+    impl->data.push_back('\0');
+
+    return std::string_view(impl->data.data(), impl->data.size() - 1u);
   } else {
     impl->data_ec = maybe_file.TakeError();
     return impl->data_ec;
@@ -120,6 +127,7 @@ std::optional<FileToken> File::TokenAtOffset(unsigned offset) const noexcept {
         });
 
     if (tokens <= ret && ret < end_tokens) {
+      assert(offset == ret->data_offset);
       return FileToken(impl, ret);
     }
   }

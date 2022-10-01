@@ -278,15 +278,10 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
 
     // We didn't get an `ExitFile`.
     if (tokens.back().Role() != TokenRole::kEndOfFileMarker) {
-      if (tok.is(clang::tok::eof)) {
-        impl.AppendMarker(tok.getLocation().getLocWithOffset(-1),
-                          TokenRole::kEndOfFileMarker);
-      } else {
-        auto loc = source_manager.getLocForEndOfFile(
-            source_manager.getMainFileID());
-        impl.AppendMarker(loc.getLocWithOffset(-1),
-                          TokenRole::kEndOfFileMarker);
-      }
+      auto loc = source_manager.getLocForEndOfFile(
+          source_manager.getMainFileID());
+      impl.AppendMarker(loc,
+                        TokenRole::kEndOfFileMarker);
     }
     tokens.back().kind = static_cast<TokenKindBase>(clang::tok::eof);
   }

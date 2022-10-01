@@ -388,6 +388,7 @@ void PatchedMacroTracker::FixupDerivedLocations(void) {
 
     tok.opaque_source_loc = static_cast<OpaqueSourceLoc>(
         -static_cast<clang::SourceLocation::IntTy>(orig_tok_index));
+    assert(0 > static_cast<clang::SourceLocation::IntTy>(tok.opaque_source_loc));
     return true;
   };
 
@@ -1326,7 +1327,7 @@ void PatchedMacroTracker::FileChanged(
       }
     }
     assert(last_directive->included_file.has_value());
-    ast->AppendMarker(sm.getLocForEndOfFile(file_id).getLocWithOffset(-1),
+    ast->AppendMarker(sm.getLocForEndOfFile(file_id),
                       TokenRole::kEndOfFileMarker);
   }
 

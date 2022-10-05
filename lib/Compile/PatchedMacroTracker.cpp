@@ -215,30 +215,12 @@ PatchedMacroTracker::DoPreExpansionSetup(
     def->macro_uses.emplace_back(new_exp);
   }
 
-  TokenImpl ident_tok = ast->tokens[exp->ident->token_offset];
-  TokenImpl l_paren_tok = ast->tokens[exp->l_paren->token_offset];
-
-  auto new_offset = ast->tokens.size();
-  ast->tokens.emplace_back(std::move(ident_tok));
-  ast->tokens.emplace_back(std::move(l_paren_tok));
-
-  MacroTokenImpl *new_ident = &(ast->root_macro_node.tokens.emplace_back());
-  new_ident->token_offset = static_cast<uint32_t>(new_offset);
-  new_ident->parent = new_exp;
-  new_ident->kind = exp->ident->kind;
+  MacroTokenImpl *new_ident = exp->ident->Clone(*ast, new_exp);
+  MacroTokenImpl *new_l_paren = exp->l_paren->Clone(*ast, new_exp);
   new_exp->nodes.push_back(new_ident);
-  new_exp->ident = new_ident;
-
-  MacroTokenImpl *new_l_paren = &(ast->root_macro_node.tokens.emplace_back());
-  new_l_paren->token_offset = static_cast<uint32_t>(new_offset + 1u);
-  new_l_paren->parent = new_exp;
-  new_l_paren->kind = exp->l_paren->kind;
   new_exp->nodes.push_back(new_l_paren);
+  new_exp->ident = new_ident;
   new_exp->l_paren = new_l_paren;
-
-  token_data_stream << '\n' << '\n';
-  token_data_stream.flush();
-  ast->num_lines += 2u;
 
   MacroArgumentImpl *first_arg =
       &(ast->root_macro_node.arguments.emplace_back());
@@ -254,6 +236,7 @@ PatchedMacroTracker::DoPreExpansionSetup(
   new_exp->is_prearg_expansion = true;
   new_exp->in_prearg_expansion = false;
   new_exp->parent = exp;
+  new_exp->parent_for_prearg = exp;
 
   return {new_exp, first_arg};
 }
@@ -276,9 +259,6 @@ fixup:
   std::vector<MacroNodeImpl *> new_nodes;
   std::vector<MacroExpansionImpl *> new_expansions;
   std::vector<MacroArgumentImpl *> new_arguments;
-
-  MacroExpansionImpl *last_old_exp = nullptr;
-  MacroExpansionImpl *last_new_exp = nullptr;
 
   for (MacroNodeImpl *old_node : nodes) {
     if (auto old_arg = dynamic_cast<MacroArgumentImpl *>(old_node)) {
@@ -304,19 +284,10 @@ fixup:
 
         new_nodes.push_back(new_exp);
         new_nodes.push_back(new_arg);
-
-        last_old_exp = old_exp;
-        last_new_exp = new_exp;
       }
     } else {
       new_nodes.push_back(old_node);
     }
-  }
-
-  // The pre-expansion may have been triggered part-way through the argument
-  // list of `last_old_exp`, so we may need to copy/clone some arguments over.
-  if (last_old_exp && last_new_exp) {
-    ClonePrefixArguments(last_old_exp, last_new_exp, tok);
   }
 
   nodes = std::move(new_nodes);
@@ -324,27 +295,84 @@ fixup:
   arguments = std::move(new_arguments);
 }
 
-void PatchedMacroTracker::ClonePrefixArguments(
-    MacroExpansionImpl *exp, MacroExpansionImpl *pre_exp,
+static MacroTokenImpl *FirstUseToken(const Node &node) {
+  if (std::holds_alternative<MacroTokenImpl *>(node)) {
+    return std::get<MacroTokenImpl *>(node);
+  } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
+    return std::get<MacroNodeImpl *>(node)->FirstUseToken();
+  } else {
+    return nullptr;
+  }
+}
+
+// Pre-argument expansion for macros is funny. I think it applies at an
+// argument granularity, rather than an "all arguments" granularity. For
+// example:
+//
+//      #define ONE ....
+//      #define FOO(a, b, c) ...
+//      FOO(1, ONE, 2)
+//
+// Will trigger pre-expansion on `ONE` in the call to `FOO`, but the arguments
+// `1` and `2` will not trigger any pre-expansion, and so they'll be invisible
+// to use. To mitigate this issue, we go and search for missing things and then
+// try to clone/inject them.
+bool PatchedMacroTracker::ClonePrefixArguments(
+    MacroExpansionImpl *pre_exp,
     const clang::Token &tok) {
+  MacroExpansionImpl *exp = pre_exp->parent_for_prearg;
+  if (!exp) {
+    std::cerr << indent << " not a pre-expansion\n";
+    return false;  // Not a pre-argument expansion.
+  }
+
+  // We've ended pre-argument expansion, and now are entering the macro
+  // expansion itself.
+  if (!pre_exp->use_nodes.empty()) {
+    std::cerr << indent << " after pre-expansion done\n";
+    return false;
+  }
+
+  assert(exp != pre_exp);
   assert(!exp->use_nodes.empty());
-  assert(pre_exp->use_nodes.empty());
   assert(pre_exp->nodes.size() >= 2);  // name, (
-#if 0
+
   clang::SourceLocation tok_loc = tok.getLocation();
   assert(tok_loc.isValid());
 
   std::vector<const Node *> nodes_to_clone;
 
+  auto num_skipped = 0u;
+  auto matched = false;
   for (const Node &node : exp->use_nodes) {
-    if (std::holds_alternative<MacroNodeImpl *>(node)) {
-
-    } else if (std::holds_alternative<MacroTokenImpl *>(node)) {
-      MacroTokenImpl *tok = std::get<MacroTokenImpl *>(node);
-      if (ast->tokens[tok->token_offset].Location() == )
+    MacroTokenImpl *use_tok = FirstUseToken(node);
+    if (!use_tok) {
+      std::cerr << indent << " no token at " << num_skipped << '\n';
+      ++num_skipped;
+      continue;
     }
+
+    const TokenImpl &parsed_tok = ast->tokens[use_tok->token_offset];
+    std::cerr
+        << indent
+        << "! PRE_EXP: " << num_skipped << ' ' << parsed_tok.Data(*ast) << " "
+        << parsed_tok.opaque_source_loc << " "
+        << tok.getLocation().getRawEncoding() << '\n';
+
+    if (tok.getLocation().getRawEncoding() == parsed_tok.opaque_source_loc) {
+      matched = true;
+      break;
+    }
+
+    ++num_skipped;
   }
-#endif
+
+  if (!matched) {
+    std::cerr << indent << " no matched\n";
+    return false;
+  }
+
+  return true;
 }
 
 static int ParenCount(MacroNodeImpl *arg) {
@@ -463,6 +491,16 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok, uintptr_t) {
 
   // NOTE(pag): This might change `nodes.back()`.
   TryDoPreExpansionSetup(tok);
+
+  // The pre-expansion may have been triggered part-way through the argument
+  // list of `last_old_exp`, so we may need to copy/clone some arguments over.
+  if (!expansions.empty() && nodes.back() == expansions.back()) {
+    for (auto i = expansions.size(); i >= 1u; ) {
+      if (ClonePrefixArguments(expansions[--i], tok)) {
+        break;
+      }
+    }
+  }
 
   // With header names, we don't observe the lexing of the individual tokens.
   auto substituted_header_name = TryExtractHeaderName(tok);
@@ -706,9 +744,6 @@ void PatchedMacroTracker::DoBeginMacroCallArgument(
 
   expansion->nodes.emplace_back(argument);
   expansion->arguments.emplace_back(argument);
-  if (argument->is_variadic) {
-    expansion->variadic_arguments.emplace_back(argument);
-  }
   nodes.push_back(argument);
   arguments.push_back(argument);
 }
@@ -807,13 +842,12 @@ void PatchedMacroTracker::DoEndPreArgumentExpansion(
     return;
   }
 
-  assert(!expansion->nodes.empty());
-  expansion->nodes.swap(expansion->use_nodes);
-
-  MacroExpansionImpl *parent_exp = dynamic_cast<MacroExpansionImpl *>(
-      std::get<MacroNodeImpl *>(expansion->parent));
+  // Get the original use, prior to pre-argument expansion.
+  assert(expansion->parent_for_prearg != nullptr);
+  MacroExpansionImpl *parent_exp = expansion->parent_for_prearg;
   assert(!parent_exp->use_nodes.empty());
 
+  // Go find the `r_paren` for the parent and record it.
   MacroTokenImpl *r_paren = nullptr;
   for (auto it = parent_exp->use_nodes.rbegin(),
             it_end = parent_exp->use_nodes.rend();
@@ -827,24 +861,31 @@ void PatchedMacroTracker::DoEndPreArgumentExpansion(
       }
     }
   }
+  assert(parent_exp->r_paren == nullptr);
   parent_exp->r_paren = r_paren;
 
   assert(r_paren != nullptr);
   TokenImpl r_paren_tok = ast->tokens[r_paren->token_offset];
 
-  auto new_offset = ast->tokens.size();
-  ast->tokens.emplace_back(std::move(r_paren_tok));
+  // Possibly add in any trailing missing tokens/nodes in before we inject
+  // the trailing `)`. This can happen, e.g. `FOO(1, ONE, 2)` where `ONE`
+  // will get pre-expanded, but `2` will not be seen, and so we add it in
+  // here as a prefix to the `)`.
+  clang::Token tok;
+  tok.startToken();
+  tok.setLength(clang::tok::r_paren);
+  tok.setLocation(clang::SourceLocation::getFromRawEncoding(
+      r_paren_tok.opaque_source_loc));
+  ClonePrefixArguments(expansion, tok);
 
-  MacroTokenImpl *new_r_paren = &(ast->root_macro_node.tokens.emplace_back());
-  new_r_paren->token_offset = static_cast<uint32_t>(new_offset);
-  new_r_paren->parent = expansion;
-  new_r_paren->kind = r_paren->kind;
-  expansion->r_paren = new_r_paren;
-  expansion->use_nodes.push_back(new_r_paren);
+  // Add the last node of the pre-argument expansion macro use, which is the
+  // cloned `r_paren`.
+  expansion->r_paren = r_paren->Clone(*ast, expansion);
+  expansion->nodes.emplace_back(expansion->r_paren);
 
-  token_data_stream << '\n';
-  token_data_stream.flush();
-  ast->num_lines += 1u;
+  // Swap the nodes to use nodes.
+  assert(!expansion->nodes.empty());
+  expansion->nodes.swap(expansion->use_nodes);
 }
 
 void PatchedMacroTracker::DoSwitchToExpansion(
@@ -967,22 +1008,6 @@ void PatchedMacroTracker::DoEndMacroExpansion(
     assert(expansion->use_nodes.empty());
     parent_node->nodes.pop_back();
     ReparentNodes(std::move(expansion->nodes), parent_node);
-  }
-
-  // If the variadic arguments are missing, then add them in.
-  if (expansion->defined_macro &&
-      expansion->variadic_arguments.empty()) {
-    auto num_params = expansion->defined_macro->getNumParams();
-    auto num_args = expansion->arguments.size();
-    if (num_args > num_params) {
-      for (size_t i = num_params; i < num_args; ++i) {
-        MacroArgumentImpl *arg = dynamic_cast<MacroArgumentImpl *>(
-            std::get<MacroNodeImpl *>(expansion->arguments[i]));
-        arg->is_variadic = true;
-        expansion->is_variadic = true;
-        expansion->variadic_arguments.emplace_back(arg);
-      }
-    }
   }
 
   // Expansion is `CAT`, deferred expansion is `FOO_2`. We want the uses nodes

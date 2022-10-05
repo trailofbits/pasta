@@ -294,10 +294,6 @@ class MacroExpansion final : public MacroSubstitution {
   // Returns the list of arguments in the expansion if this was a use of a
   // function-like macro.
   std::vector<MacroArgument> Arguments(void) const noexcept;
-
-  // Returns the list of variadic arguments in the expansion if this was
-  // a use of a variadic function-like macro. This is a subset of `Arguments()`.
-  std::vector<MacroArgument> VariadicArguments(void) const noexcept;
 };
 
 static_assert(sizeof(MacroExpansion) == sizeof(MacroNode));

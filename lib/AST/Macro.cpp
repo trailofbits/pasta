@@ -24,6 +24,45 @@
 #include "Token.h"
 
 namespace pasta {
+namespace {
+
+static MacroTokenImpl *FirstUseTokenImpl(const std::vector<Node> &nodes) {
+  if (nodes.empty()) {
+    return nullptr;
+  }
+
+  for (const Node &node : nodes) {
+    if (std::holds_alternative<MacroTokenImpl *>(node)) {
+      return std::get<MacroTokenImpl *>(node);
+    } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
+      MacroNodeImpl *sub_node = std::get<MacroNodeImpl *>(node);
+      if (auto ret = sub_node->FirstUseToken()) {
+        return ret;
+      }
+    }
+  }
+
+  return nullptr;
+}
+
+}  // namespace
+
+// Clone this token into the AST.
+MacroTokenImpl *MacroTokenImpl::Clone(ASTImpl &ast,
+                                      MacroNodeImpl *new_parent) const {
+  TokenImpl ast_tok = ast.tokens[token_offset];
+  size_t new_offset = ast.tokens.size();
+  ast.tokens.emplace_back(std::move(ast_tok));
+
+  MacroTokenImpl *clone = &(ast.root_macro_node.tokens.emplace_back());
+  clone->token_offset = static_cast<uint32_t>(new_offset);
+  clone->parent = new_parent;
+  clone->kind = kind;
+
+  ast.preprocessed_code.push_back('\n');
+  ast.num_lines += 1u;
+  return clone;
+}
 
 MacroNodeKind MacroDirectiveImpl::Kind(void) const {
   if (defined_macro) {
@@ -33,6 +72,173 @@ MacroNodeKind MacroDirectiveImpl::Kind(void) const {
   } else {
     return MacroNodeKind::kDirective;
   }
+}
+
+namespace {
+
+static void NoOnTokenCB(MacroTokenImpl *, MacroTokenImpl *) {}
+static void NoOnNodeCB(MacroNodeImpl *, MacroNodeImpl *) {}
+
+template <typename TokenCB, typename NodeCB>
+static void CloneNodeList(ASTImpl &ast,
+                          const MacroNodeImpl *old_parent,
+                          const std::vector<Node> &old_nodes,
+                          MacroNodeImpl *new_parent,
+                          std::vector<Node> &new_nodes,
+                          TokenCB on_token,
+                          NodeCB on_node) {
+  for (const Node &node : old_nodes) {
+    if (std::holds_alternative<MacroTokenImpl *>(node)) {
+      MacroTokenImpl *tok = std::get<MacroTokenImpl *>(node);
+      assert(std::holds_alternative<MacroNodeImpl *>(tok->parent));
+      assert(std::get<MacroNodeImpl *>(tok->parent) == old_parent);
+      MacroTokenImpl *cloned_tok = tok->Clone(ast, new_parent);
+      new_nodes.emplace_back(cloned_tok);
+
+      on_token(tok, cloned_tok);
+
+    } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
+      MacroNodeImpl *sub_node = std::get<MacroNodeImpl *>(node);
+      assert(std::holds_alternative<MacroNodeImpl *>(sub_node->parent));
+      assert(std::get<MacroNodeImpl *>(sub_node->parent) == old_parent);
+      auto cloned_node = sub_node->Clone(ast, new_parent);
+      new_nodes.emplace_back(cloned_node);
+
+      on_node(sub_node, cloned_node);
+    }
+  }
+}
+
+}  // namespace
+
+MacroNodeImpl *MacroDirectiveImpl::Clone(
+    ASTImpl &ast, MacroNodeImpl *new_parent) const {
+
+  MacroDirectiveImpl *clone = &(ast.root_macro_node.directives.emplace_back());
+  clone->defined_macro = defined_macro;
+  clone->included_file = included_file;
+  clone->kind = kind;
+  clone->is_skipped = is_skipped;
+  clone->parent = new_parent;
+
+  CloneNodeList(
+      ast, this, nodes, clone, clone->nodes,
+      [=] (MacroTokenImpl *tok, MacroTokenImpl *cloned_tok) {
+        if (std::holds_alternative<MacroTokenImpl *>(directive_name) &&
+            std::get<MacroTokenImpl *>(directive_name) == tok) {
+          clone->directive_name = cloned_tok;
+        }
+
+        if (std::holds_alternative<MacroTokenImpl *>(macro_name) &&
+            std::get<MacroTokenImpl *>(macro_name) == tok) {
+          clone->macro_name = cloned_tok;
+        }
+      },
+      NoOnNodeCB);
+
+  return clone;
+}
+
+MacroNodeImpl *MacroArgumentImpl::Clone(
+    ASTImpl &ast, MacroNodeImpl *new_parent) const {
+
+  MacroArgumentImpl *clone = &(ast.root_macro_node.arguments.emplace_back());
+  clone->index = index;
+  clone->is_variadic = is_variadic;
+  clone->is_prearg_expansion = is_prearg_expansion;
+  clone->parent = new_parent;
+
+  CloneNodeList(ast, this, nodes, clone, clone->nodes, NoOnTokenCB,
+                NoOnNodeCB);
+
+  return clone;
+}
+
+MacroNodeImpl *MacroSubstitutionImpl::Clone(
+    ASTImpl &ast, MacroNodeImpl *new_parent) const {
+
+  MacroSubstitutionImpl *clone =
+      &(ast.root_macro_node.substitutions.emplace_back());
+  clone->parent = new_parent;
+
+  CloneNodeList(ast, this, nodes, clone, clone->nodes, NoOnTokenCB, NoOnNodeCB);
+  CloneNodeList(ast, this, use_nodes, clone, clone->use_nodes, NoOnTokenCB,
+                NoOnNodeCB);
+
+  return clone;
+}
+
+MacroNodeImpl *MacroExpansionImpl::Clone(
+    ASTImpl &ast, MacroNodeImpl *new_parent) const {
+
+  MacroExpansionImpl *clone =
+      &(ast.root_macro_node.expansions.emplace_back());
+  clone->parent = new_parent;
+  clone->definition = definition;
+  clone->defined_macro = defined_macro;
+  if (auto new_parent_exp = dynamic_cast<MacroExpansionImpl *>(new_parent)) {
+    if (parent_for_prearg) {
+      clone->parent_for_prearg = new_parent_exp;
+    }
+  } else {
+    assert(!parent_for_prearg);
+  }
+
+  clone->is_variadic = is_variadic;
+  clone->is_cancelled = is_cancelled;
+  clone->in_prearg_expansion = in_prearg_expansion;
+  clone->is_prearg_expansion = is_prearg_expansion;
+
+  CloneNodeList(ast, this, nodes, clone, clone->nodes, NoOnTokenCB,
+                NoOnNodeCB);
+
+  unsigned arg_num = 0u;
+
+  CloneNodeList(
+      ast, this, use_nodes, clone, clone->use_nodes,
+      [=, &arg_num] (MacroTokenImpl *tok, MacroTokenImpl *cloned_tok) {
+        if (ident == tok) {
+          clone->ident = cloned_tok;
+        }
+
+        if (l_paren == tok) {
+          clone->l_paren = cloned_tok;
+        }
+
+        if (r_paren == tok) {
+          clone->r_paren = cloned_tok;
+        }
+
+        if (arg_num < arguments.size() &&
+            std::holds_alternative<MacroTokenImpl *>(arguments[arg_num]) &&
+            std::get<MacroTokenImpl *>(arguments[arg_num]) == tok) {
+          clone->arguments.emplace_back(cloned_tok);
+          ++arg_num;
+        }
+      },
+      [=, &arg_num] (MacroNodeImpl *node, MacroNodeImpl *cloned_node) {
+        if (arg_num < arguments.size() &&
+            std::holds_alternative<MacroNodeImpl *>(arguments[arg_num]) &&
+            std::get<MacroNodeImpl *>(arguments[arg_num]) == node) {
+          clone->arguments.emplace_back(cloned_node);
+          ++arg_num;
+        }
+      });
+
+  return clone;
+}
+
+MacroNodeImpl *RootMacroNode::Clone(ASTImpl &, MacroNodeImpl *) const {
+  abort();
+  __builtin_unreachable();
+}
+
+MacroTokenImpl *MacroNodeImpl::FirstUseToken(void) const {
+  return FirstUseTokenImpl(nodes);
+}
+
+MacroTokenImpl *MacroSubstitutionImpl::FirstUseToken(void) const {
+  return FirstUseTokenImpl(use_nodes);
 }
 
 MacroNodeKind MacroSubstitutionImpl::Kind(void) const {
@@ -345,22 +551,6 @@ MacroExpansion::Arguments(void) const noexcept {
 
   std::vector<MacroArgument> ret;
   for (Node &arg : exp_impl->arguments) {
-    ret.emplace_back(MacroArgument(ast, &arg));
-  }
-
-  return ret;
-}
-
-// Returns the list of variadic arguments in the expansion if this was
-// a use of a variadic function-like macro. This is a subset of `Arguments()`.
-std::vector<MacroArgument>
-MacroExpansion::VariadicArguments(void) const noexcept {
-  Node node = *reinterpret_cast<const Node *>(impl);
-  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
-  MacroExpansionImpl *exp_impl = dynamic_cast<MacroExpansionImpl *>(node_impl);
-
-  std::vector<MacroArgument> ret;
-  for (Node &arg : exp_impl->variadic_arguments) {
     ret.emplace_back(MacroArgument(ast, &arg));
   }
 

@@ -18,10 +18,15 @@ namespace pasta {
 
 using Node = std::variant<std::monostate, MacroNodeImpl *, MacroTokenImpl *>;
 
+class ASTImpl;
+class MacroTokenImpl;
+
 class MacroNodeImpl {
  public:
   virtual ~MacroNodeImpl(void) = default;
   virtual MacroNodeKind Kind(void) const = 0;
+  virtual MacroTokenImpl *FirstUseToken(void) const;
+  virtual MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const = 0;
 
   Node parent;
   std::vector<Node> nodes;
@@ -41,12 +46,16 @@ class MacroTokenImpl final {
     // The actual kind of this token.
     TokenKind kind;
   };
+
+  // Clone this token into the AST.
+  MacroTokenImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const;
 };
 
 class MacroDirectiveImpl final : public MacroNodeImpl {
  public:
   virtual ~MacroDirectiveImpl(void) = default;
   MacroNodeKind Kind(void) const final;
+  MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const final;
 
   // The uses of this macro.
   std::vector<Node> macro_uses;
@@ -72,6 +81,7 @@ class MacroArgumentImpl final : public MacroNodeImpl {
  public:
   virtual ~MacroArgumentImpl(void) = default;
   MacroNodeKind Kind(void) const final;
+  MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const final;
 
   unsigned index{0u};
   bool is_variadic{false};
@@ -81,8 +91,9 @@ class MacroArgumentImpl final : public MacroNodeImpl {
 class MacroSubstitutionImpl : public MacroNodeImpl {
  public:
   virtual ~MacroSubstitutionImpl(void) = default;
-
+  MacroTokenImpl *FirstUseToken(void) const final;
   MacroNodeKind Kind(void) const override;
+  MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const override;
 
   std::vector<Node> use_nodes;
 };
@@ -90,15 +101,19 @@ class MacroSubstitutionImpl : public MacroNodeImpl {
 class MacroExpansionImpl final : public MacroSubstitutionImpl {
  public:
   virtual ~MacroExpansionImpl(void) = default;
-
   MacroNodeKind Kind(void) const final;
+  MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const final;
 
   std::vector<Node> arguments;
-  std::vector<Node> variadic_arguments;
   Node definition;
 
   // The info for the macro that was defined by this directive.
   const clang::MacroInfo *defined_macro{nullptr};
+
+  // If `this` is a pre-argument expansion, then `parent_for_prearg` is the
+  // original expansion from which `ident`, `l_paren`, and `r_paren` are
+  // derived.
+  MacroExpansionImpl *parent_for_prearg{nullptr};
 
   MacroTokenImpl *ident{nullptr};
   MacroTokenImpl *l_paren{nullptr};
@@ -115,8 +130,8 @@ class MacroExpansionImpl final : public MacroSubstitutionImpl {
 class RootMacroNode final : public MacroNodeImpl {
  public:
   virtual ~RootMacroNode(void) = default;
-
   MacroNodeKind Kind(void) const final;
+  MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const final;
 
   std::deque<MacroDirectiveImpl> directives;
   std::deque<MacroExpansionImpl> expansions;

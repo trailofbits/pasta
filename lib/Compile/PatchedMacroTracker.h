@@ -108,8 +108,7 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   // Add a token in.
   void DoToken(const clang::Token &tok, uintptr_t);
   void TryDoPreExpansionSetup(const clang::Token &tok);
-  void ClonePrefixArguments(MacroExpansionImpl *exp,
-                            MacroExpansionImpl *pre_exp,
+  bool ClonePrefixArguments(MacroExpansionImpl *pre_exp,
                             const clang::Token &tok);
   std::pair<MacroExpansionImpl *, MacroArgumentImpl *>
   DoPreExpansionSetup(MacroExpansionImpl *);

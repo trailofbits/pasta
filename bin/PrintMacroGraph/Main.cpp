@@ -268,6 +268,8 @@ static void PrintMacroGraph(std::ostream &os,
 
 void RecPrintMacroGraph(std::ostream &os, const pasta::MacroNode &node) {
   switch (node.Kind()) {
+    case pasta::MacroNodeKind::kInvalid:
+      break;
     case pasta::MacroNodeKind::kToken:
       PrintMacroGraph(os, *pasta::MacroToken::From(node));
       break;

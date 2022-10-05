@@ -37,6 +37,7 @@ class Token;
 class TokenImpl;
 
 enum class MacroNodeKind : unsigned char {
+  kInvalid,
   kToken,
   kExpansion,
   kSubstitution,
@@ -129,7 +130,7 @@ class MacroToken final : public MacroNode {
     }
   }
 
-  TokenKind Kind(void) const noexcept;
+  enum TokenKind TokenKind(void) const noexcept;
 
   // Return the data associated with this token.
   std::string_view Data(void) const noexcept;
@@ -379,16 +380,25 @@ class MacroNodeIterator {
 class MacroNodeRange {
  private:
   friend class AST;
+  friend class ASTImpl;
   friend class MacroArgument;
   friend class MacroExpansion;
   friend class MacroSubstitution;
   friend class MacroDirective;
   friend class MacroDefinition;
   friend class MacroFileInclusion;
+  friend class MacroToken;
 
   std::shared_ptr<ASTImpl> ast;
   const void *first;
   const void *after_last;
+
+  MacroNodeRange(void) = delete;
+
+  inline explicit MacroNodeRange(std::shared_ptr<ASTImpl> ast_)
+      : ast(std::move(ast_)),
+        first(nullptr),
+        after_last(nullptr) {}
 
   inline MacroNodeRange(std::shared_ptr<ASTImpl> ast_, const void *first_,
                         const void *after_last_)
@@ -419,11 +429,7 @@ class MacroNodeRange {
   }
 
   // Number of nodes in this range.
-  inline size_t Size(void) const noexcept {
-    return (reinterpret_cast<uintptr_t>(after_last) -
-            reinterpret_cast<uintptr_t>(first)) /
-           sizeof(uintptr_t);
-  }
+  size_t Size(void) const noexcept;
 
   // Return the `index`th token in this range. If `index` is too big, then
   // return nothing.
@@ -436,25 +442,6 @@ class MacroNodeRange {
   inline operator bool(void) const noexcept {
     return first && after_last;
   }
-
- private:
-  friend class AST;
-  friend class ASTImpl;
-  friend class MacroToken;
-
-  MacroNodeRange(void) = delete;
-
-  inline explicit MacroNodeRange(std::shared_ptr<ASTImpl> ast_)
-      : ast(std::move(ast_)),
-        first(nullptr),
-        after_last(nullptr) {}
-
-  inline explicit MacroNodeRange(std::shared_ptr<ASTImpl> ast_,
-                                  const TokenImpl *begin_,
-                                  const TokenImpl *end_)
-      : ast(std::move(ast_)),
-        first(begin_),
-        after_last(end_) {}
 };
 
 }  // namespace pasta

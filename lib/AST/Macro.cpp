@@ -115,6 +115,7 @@ MacroNodeImpl *MacroDirectiveImpl::Clone(
     ASTImpl &ast, MacroNodeImpl *new_parent) const {
 
   MacroDirectiveImpl *clone = &(ast.root_macro_node.directives.emplace_back());
+  clone->cloned_from = this;
   clone->defined_macro = defined_macro;
   clone->included_file = included_file;
   clone->kind = kind;
@@ -143,6 +144,7 @@ MacroNodeImpl *MacroArgumentImpl::Clone(
     ASTImpl &ast, MacroNodeImpl *new_parent) const {
 
   MacroArgumentImpl *clone = &(ast.root_macro_node.arguments.emplace_back());
+  clone->cloned_from = this;
   clone->index = index;
   clone->is_variadic = is_variadic;
   clone->is_prearg_expansion = is_prearg_expansion;
@@ -159,6 +161,7 @@ MacroNodeImpl *MacroSubstitutionImpl::Clone(
 
   MacroSubstitutionImpl *clone =
       &(ast.root_macro_node.substitutions.emplace_back());
+  clone->cloned_from = this;
   clone->parent = new_parent;
 
   CloneNodeList(ast, this, nodes, clone, clone->nodes, NoOnTokenCB, NoOnNodeCB);
@@ -173,6 +176,7 @@ MacroNodeImpl *MacroExpansionImpl::Clone(
 
   MacroExpansionImpl *clone =
       &(ast.root_macro_node.expansions.emplace_back());
+  clone->cloned_from = this;
   clone->parent = new_parent;
   clone->definition = definition;
   clone->defined_macro = defined_macro;
@@ -264,8 +268,11 @@ MacroNodeKind MacroNode::Kind(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
     return MacroNodeKind::kToken;
-  } else {
+  } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
     return std::get<MacroNodeImpl *>(node)->Kind();
+  } else {
+    assert(false);
+    return MacroNodeKind::kInvalid;
   }
 }
 
@@ -332,11 +339,11 @@ std::optional<MacroNode> MacroNode::Parent(void) const noexcept {
   return MacroNode(ast, &(node_impl->parent));
 }
 
-TokenKind MacroToken::Kind(void) const noexcept {
+enum TokenKind MacroToken::TokenKind(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   TokenImpl &token =
       ast->tokens[std::get<MacroTokenImpl *>(node)->token_offset];
-  return static_cast<TokenKind>(token.Kind());
+  return static_cast<enum TokenKind>(token.Kind());
 }
 
 // Return the data associated with this token.
@@ -606,6 +613,11 @@ MacroNode MacroNodeIterator::operator[](size_t offset) const noexcept {
 ptrdiff_t MacroNodeIterator::operator-(const MacroNodeIterator &that) const noexcept {
   return reinterpret_cast<const Node *>(node.impl) -
          reinterpret_cast<const Node *>(that.node.impl);
+}
+
+size_t MacroNodeRange::Size(void) const noexcept {
+  return static_cast<size_t>(reinterpret_cast<const Node *>(after_last) -
+                             reinterpret_cast<const Node *>(first));
 }
 
 // Return the `index`th token in this range. If `index` is too big, then

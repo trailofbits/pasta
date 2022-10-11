@@ -57,7 +57,8 @@ MacroTokenImpl *MacroTokenImpl::Clone(ASTImpl &ast,
   MacroTokenImpl *clone = &(ast.root_macro_node.tokens.emplace_back());
   clone->token_offset = static_cast<uint32_t>(new_offset);
   clone->parent = new_parent;
-  clone->kind = kind;
+  clone->kind_flags.kind = kind_flags.kind;
+  clone->kind_flags.is_ignored_comma = kind_flags.is_ignored_comma;
 
   ast.preprocessed_code.push_back('\n');
   ast.num_lines += 1u;
@@ -242,7 +243,11 @@ MacroTokenImpl *MacroNodeImpl::FirstUseToken(void) const {
 }
 
 MacroTokenImpl *MacroSubstitutionImpl::FirstUseToken(void) const {
-  return FirstUseTokenImpl(use_nodes);
+  if (!use_nodes.empty()) {
+    return FirstUseTokenImpl(use_nodes);
+  } else {
+    return FirstUseTokenImpl(nodes);  // An in-progress node.
+  }
 }
 
 MacroNodeKind MacroSubstitutionImpl::Kind(void) const {

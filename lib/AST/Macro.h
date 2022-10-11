@@ -33,6 +33,11 @@ class MacroNodeImpl {
   const MacroNodeImpl *cloned_from{nullptr};
 };
 
+struct TokenKindAndFlags {
+  TokenKind kind;
+  bool is_ignored_comma;
+};
+
 class MacroTokenImpl final {
  public:
   Node parent;
@@ -42,10 +47,10 @@ class MacroTokenImpl final {
 
   union {
     // The actual context of this token.
-    uint32_t token_context;
+    uint32_t token_context{0};
 
     // The actual kind of this token.
-    TokenKind kind;
+    TokenKindAndFlags kind_flags;
   };
 
   // Clone this token into the AST.

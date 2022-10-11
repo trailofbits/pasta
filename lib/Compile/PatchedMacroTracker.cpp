@@ -38,6 +38,30 @@ static void ReparentNodes(std::vector<Node> nodes, MacroNodeImpl *new_parent) {
   nodes.clear();
 }
 
+// Inject `new_arg` after `exp` inside of `nodes` and `arguments`.
+static void InjectArgumentNode(std::vector<MacroNodeImpl *> &nodes,
+                               std::vector<MacroArgumentImpl *> &arguments,
+                               MacroNodeImpl *exp,
+                               MacroArgumentImpl *new_arg) {
+
+  std::vector<MacroNodeImpl *> new_nodes;
+  std::vector<MacroArgumentImpl *> new_arguments;
+
+  for (MacroNodeImpl *old_node : nodes) {
+    new_nodes.push_back(old_node);
+    if (auto old_arg = dynamic_cast<MacroArgumentImpl *>(old_node)) {
+      new_arguments.push_back(old_arg);
+
+    } else if (old_node == exp) {
+      new_nodes.push_back(new_arg);
+      new_arguments.push_back(new_arg);
+    }
+  }
+
+  nodes.swap(new_nodes);
+  arguments.swap(new_arguments);
+}
+
 PatchedMacroTracker::PatchedMacroTracker(
     clang::Preprocessor &pp_, clang::SourceManager &sm_, ASTImpl *ast_)
     : pp(pp_),
@@ -222,15 +246,15 @@ MacroExpansionImpl *PatchedMacroTracker::DoPreExpansionSetup(
   new_exp->ident = new_ident;
   new_exp->l_paren = new_l_paren;
 
-  MacroArgumentImpl *first_arg =
-      &(ast->root_macro_node.arguments.emplace_back());
-  first_arg->parent = new_exp;
-  first_arg->is_prearg_expansion = true;
-  new_exp->nodes.push_back(first_arg);
-  new_exp->arguments.push_back(first_arg);
-
-  ReparentNodes(std::move(exp->nodes), first_arg);
-//  ReparentNodes(std::move(exp->nodes), new_exp);
+//  MacroArgumentImpl *first_arg =
+//      &(ast->root_macro_node.arguments.emplace_back());
+//  first_arg->parent = new_exp;
+//  first_arg->is_prearg_expansion = true;
+//  new_exp->nodes.push_back(first_arg);
+//  new_exp->arguments.push_back(first_arg);
+//
+//  ReparentNodes(std::move(exp->nodes), first_arg);
+  ReparentNodes(std::move(exp->nodes), new_exp);
 
   exp->nodes.push_back(new_exp);
   exp->in_prearg_expansion = false;
@@ -259,14 +283,15 @@ fixup:
 
   std::vector<MacroNodeImpl *> new_nodes;
   std::vector<MacroExpansionImpl *> new_expansions;
-  std::vector<MacroArgumentImpl *> new_arguments;
+//  std::vector<MacroArgumentImpl *> new_arguments;
 
   for (MacroNodeImpl *old_node : nodes) {
-    if (auto old_arg = dynamic_cast<MacroArgumentImpl *>(old_node)) {
-      new_arguments.push_back(old_arg);
-      new_nodes.push_back(old_node);
-
-    } else if (auto old_exp = dynamic_cast<MacroExpansionImpl *>(old_node)) {
+//    if (auto old_arg = dynamic_cast<MacroArgumentImpl *>(old_node)) {
+//      new_arguments.push_back(old_arg);
+//      new_nodes.push_back(old_node);
+//
+//    } else
+    if (auto old_exp = dynamic_cast<MacroExpansionImpl *>(old_node)) {
       if (!old_exp->in_prearg_expansion) {
         new_expansions.push_back(old_exp);
         new_nodes.push_back(old_exp);
@@ -283,11 +308,11 @@ fixup:
         new_expansions.push_back(new_exp);
         new_nodes.push_back(new_exp);
 
-        assert(!new_exp->arguments.empty());
-        MacroArgumentImpl *new_arg = dynamic_cast<MacroArgumentImpl *>(
-            std::get<MacroNodeImpl *>(new_exp->arguments.front()));
-        new_arguments.push_back(new_arg);
-        new_nodes.push_back(new_arg);
+//        assert(!new_exp->arguments.empty());
+//        MacroArgumentImpl *new_arg = dynamic_cast<MacroArgumentImpl *>(
+//            std::get<MacroNodeImpl *>(new_exp->arguments.front()));
+//        new_arguments.push_back(new_arg);
+//        new_nodes.push_back(new_arg);
       }
     } else {
       new_nodes.push_back(old_node);
@@ -296,7 +321,7 @@ fixup:
 
   nodes = std::move(new_nodes);
   expansions = std::move(new_expansions);
-  arguments = std::move(new_arguments);
+//  arguments = std::move(new_arguments);
 }
 
 static MacroTokenImpl *FirstUseToken(const Node &node) {
@@ -341,6 +366,56 @@ bool PatchedMacroTracker::ClonePrefixArguments(
   assert(!exp->use_nodes.empty());
   assert(pre_exp->nodes.size() >= 2);  // name, (
 
+  // Inject a missing argument. This wraps `pre_exp->nodes.back()` in an
+  // argument node, then fixes up `nodes` and `arguments`.
+  auto inject_argument = [=] (void) {
+    MacroArgumentImpl *missing_arg =
+        &(ast->root_macro_node.arguments.emplace_back());
+
+    Node just_added_node = std::move(pre_exp->nodes.back());
+    pre_exp->nodes.pop_back();
+    ReparentNode(just_added_node, missing_arg);
+
+    missing_arg->parent = pre_exp;
+    missing_arg->is_prearg_expansion = true;
+    missing_arg->nodes.emplace_back(std::move(just_added_node));
+    pre_exp->arguments.push_back(missing_arg);
+    pre_exp->nodes.emplace_back(missing_arg);
+
+    InjectArgumentNode(nodes, arguments, pre_exp, missing_arg);
+  };
+
+  // Figure out if the last thing in this pre-expansion should actually be
+  // nested inside of an argument.
+  if (std::holds_alternative<MacroTokenImpl *>(pre_exp->nodes.back())) {
+    auto last_tok = std::get<MacroTokenImpl *>(pre_exp->nodes.back());
+    if (last_tok != pre_exp->ident &&
+        last_tok != pre_exp->l_paren &&
+        (last_tok->kind_flags.kind != TokenKind::kComma ||
+         last_tok->kind_flags.is_ignored_comma)) {
+      D( std::cerr << indent << "^ Adding missing argument for token\n"; )
+      inject_argument();
+    }
+
+  } else if (std::holds_alternative<MacroNodeImpl *>(pre_exp->nodes.back())) {
+    auto last_node = std::get<MacroNodeImpl *>(pre_exp->nodes.back());
+    auto last_arg = dynamic_cast<MacroArgumentImpl *>(last_node);
+    if (!last_arg) {
+      D( std::cerr << indent << "^ Adding missing argument for node\n"; )
+      inject_argument();
+
+    } else {
+      assert(last_arg->is_prearg_expansion);
+      assert(std::get<MacroNodeImpl *>(last_arg->parent) == pre_exp);
+    }
+  }
+
+
+//  D( std::cerr << indent << "* Starting Nth pre-arg expansion argument\n"; )
+//
+//  MacroExpansionImpl *exp = expansions.back();
+
+
   clang::SourceLocation tok_loc = tok.getLocation();
   assert(tok_loc.isValid());
 
@@ -377,6 +452,15 @@ bool PatchedMacroTracker::ClonePrefixArguments(
     return false;
   }
 
+  // Pull off the last thing on the pre-expansion node if it doesn't have any
+  // tokens in it.
+  std::optional<Node> trailing_empty_node;
+  if (!pre_exp->nodes.empty() && !FirstUseToken(pre_exp->nodes.back())) {
+    std::cerr << indent << "- has trailing empty\n";
+    trailing_empty_node.emplace(pre_exp->nodes.back());
+    pre_exp->nodes.pop_back();
+  }
+
   // Align on the left corners.
   auto max_i = std::min<size_t>(
       std::min(exp->use_nodes.size(), pre_exp->nodes.size()),
@@ -384,28 +468,16 @@ bool PatchedMacroTracker::ClonePrefixArguments(
 
   auto i = 0u;  // pre_exp
   auto j = 0u;  // exp
-  std::optional<Node> trailing_empty_node;
   for (; i < max_i && j < max_i; ) {
     MacroTokenImpl *curr_tok = FirstUseToken(pre_exp->nodes[i]);
     MacroTokenImpl *prev_tok = FirstUseToken(exp->use_nodes[j]);
 
     if (!curr_tok) {
-
-      // Pre-expansions can be triggered by a macro expansion. We'd end up
-      // with an empty expansion/argument on the back of the stack, so we
-      // don't want to inject stuff before it, so we need to save it off,
-      // then put it back.
-      if ((i + 1u) == pre_exp->nodes.size()) {
-        trailing_empty_node.emplace(pre_exp->nodes.back());
-        pre_exp->nodes.pop_back();
-        break;
-
-      } else {
-        assert(false);
-        ++i;
-        continue;
-      }
+      assert(false);
+      ++i;
+      continue;
     }
+
     if (!prev_tok) {
       assert(false);
       ++j;
@@ -423,15 +495,59 @@ bool PatchedMacroTracker::ClonePrefixArguments(
     break;
   }
 
-  // Close out the last argument before injecting anything.
+  // Close out the last argument before injecting anything. This might close
+  // out other things.
   if (!trailing_empty_node && !arguments.empty() &&
-      nodes.back() == arguments.back()) {
+      arguments.back()->is_prearg_expansion &&
+      std::get<MacroNodeImpl *>(arguments.back()->parent) == pre_exp) {
     std::cerr << indent << " closing last argument\n";
     MacroArgumentImpl *last_arg = arguments.back();
+    Node last_arg_node(last_arg);
     assert(std::holds_alternative<MacroNodeImpl *>(last_arg->parent));
     assert(pre_exp == std::get<MacroNodeImpl *>(last_arg->parent));
-    arguments.pop_back();
+
+    MacroNodeImpl *last_node = nullptr;
+    std::vector<MacroNodeImpl *> popped_nodes;
+
+    while (nodes.back() != last_arg) {
+      last_node = nodes.back();
+      assert(last_node != pre_exp);
+      assert(last_node != exp);
+      popped_nodes.emplace_back(last_node);
+      nodes.pop_back();
+    }
+
+    assert(nodes.back() == last_arg);
     nodes.pop_back();
+    arguments.pop_back();
+
+    // Something extra was added to the last argument; we need to take it
+    // out.
+    if (last_node) {
+      assert(!last_arg->nodes.empty());
+      assert(std::holds_alternative<MacroNodeImpl *>(last_arg->nodes.back()));
+      assert(std::get<MacroNodeImpl *>(last_arg->nodes.back()) == last_node);
+
+      D( std::cerr << indent << " - converting extra argument node for trailer\n"; );
+      Node node_for_next_arg = std::move(last_arg->nodes.back());
+      last_arg->nodes.pop_back();
+      ReparentNode(node_for_next_arg, pre_exp);
+
+      pre_exp->nodes.emplace_back(std::move(node_for_next_arg));
+
+      D( std::cerr << indent << "^ Adding missing argument for token\n"; )
+      inject_argument();
+
+      // Add any others back in.
+      for (MacroNodeImpl *popped_node : popped_nodes) {
+        nodes.push_back(popped_node);
+      }
+
+      // Now pop it off and let it get re-added later, because we need to
+      // possibly inject things before it.
+      trailing_empty_node.emplace(pre_exp->nodes.back());
+      pre_exp->nodes.pop_back();
+    }
   }
 
   // Fill what was missing.
@@ -458,6 +574,7 @@ bool PatchedMacroTracker::ClonePrefixArguments(
   }
 
   if (trailing_empty_node) {
+    std::cerr << indent << " re-adding empty argument/expansion\n";
     pre_exp->nodes.emplace_back(std::move(trailing_empty_node.value()));
   }
 
@@ -471,9 +588,9 @@ static int ParenCount(MacroNodeImpl *arg) {
       paren_count += ParenCount(std::get<MacroNodeImpl *>(node));
     } else if (std::holds_alternative<MacroTokenImpl *>(node)){
       MacroTokenImpl *tok = std::get<MacroTokenImpl *>(node);
-      if (tok->kind == TokenKind::kLParenthesis) {
+      if (tok->kind_flags.kind == TokenKind::kLParenthesis) {
         ++paren_count;
-      } else if (tok->kind == TokenKind::kRParenthesis) {
+      } else if (tok->kind_flags.kind == TokenKind::kRParenthesis) {
         --paren_count;
       }
     }
@@ -623,7 +740,9 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok, uintptr_t) {
   // Clear out the kind, so that it looks `unknown` from the perspective of
   // `ASTImpl::AlignTokens`. We add it back in later after token alignment
   // via `ASTImpl::LinkMacroTokenContexts`.
-  tok_node->kind = static_cast<TokenKind>(added_tok.Kind());
+  tok_node->kind_flags.kind = static_cast<TokenKind>(added_tok.Kind());
+  tok_node->kind_flags.is_ignored_comma =
+      tok.getFlag(clang::Token::IgnoredComma);
   added_tok.kind = 0;
 
   // Add the token to the node.
@@ -642,24 +761,27 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok, uintptr_t) {
   // of the macro call so we go and find the `ident(` of the original expansion.
   if (!expansions.empty() && nodes.back() == expansions.back()) {
     MacroExpansionImpl *exp = expansions.back();
-    if (tok_node->kind == TokenKind::kIdentifier && !exp->ident) {
+    if (tok_node->kind_flags.kind == TokenKind::kIdentifier && !exp->ident) {
       exp->ident = tok_node;
-    } else if (tok_node->kind == TokenKind::kLParenthesis && exp->ident &&
-        !exp->l_paren) {
+    } else if (tok_node->kind_flags.kind == TokenKind::kLParenthesis &&
+               exp->ident && !exp->l_paren) {
       exp->l_paren = tok_node;
     }
   }
 
   // If we're in a macro argument pre-expansion phase, then we need to manually
   // split the arguments by commas.
-  if (tok_node->kind == TokenKind::kComma && !arguments.empty() &&
+  if (tok_node->kind_flags.kind == TokenKind::kComma && !arguments.empty() &&
       !tok.getFlag(clang::Token::IgnoredComma)) {
+
     assert(!expansions.empty());
     MacroExpansionImpl *exp = expansions.back();
     MacroArgumentImpl *arg = arguments.back();
 
     if (nodes.back() == arg && arg->is_prearg_expansion &&
         !ParenCount(arg)) {
+
+      D( std::cerr << indent << "* Splitting pre-arg data at comma\n"; )
 
       // Move the comma out of the argument and into to the expansion.
       assert(!arg->nodes.empty());
@@ -703,7 +825,7 @@ void ASTImpl::LinkMacroTokenContexts(void) {
 #endif
 
     root_macro_node.token_nodes.emplace_back(&mt);
-    tok.kind = static_cast<TokenKindBase>(mt.kind);
+    tok.kind = static_cast<TokenKindBase>(mt.kind_flags.kind);
     mt.token_context = tok.context_index;
     tok.context_index = i;
     ++i;
@@ -917,10 +1039,11 @@ void PatchedMacroTracker::DoEndPreArgumentExpansion(
   // inject in a closing parenthesis to complete it.
   assert(expansion->is_prearg_expansion);
   assert(!expansion->arguments.empty());
-
-  // Take off the argument.
   assert(!arguments.empty());
   assert(nodes.back() == arguments.back());
+  assert(std::get<MacroNodeImpl *>(nodes.back()->parent) == expansion);
+
+  // Take off the argument.
   arguments.pop_back();
   nodes.pop_back();
 
@@ -944,7 +1067,7 @@ void PatchedMacroTracker::DoEndPreArgumentExpansion(
     Node &node = *it;
     if (std::holds_alternative<MacroTokenImpl *>(node)) {
       MacroTokenImpl *tok = std::get<MacroTokenImpl *>(node);
-      if (tok->kind == TokenKind::kRParenthesis) {
+      if (tok->kind_flags.kind == TokenKind::kRParenthesis) {
         r_paren = tok;
         break;
       }

@@ -695,12 +695,21 @@ void PatchedMacroTracker::FixupDerivedLocations(void) {
 //
 // NOTE(pag): This might change `nodes.back()`.
 void PatchedMacroTracker::DoToken(const clang::Token &tok, uintptr_t) {
+
+  if (tok.getLocation() == last_token.getLocation() &&
+      tok.getKind() == last_token.getKind() &&
+      tok.isAnnotation() == last_token.isAnnotation() &&
+      tok.isAnyIdentifier() == last_token.isAnyIdentifier() &&
+      tok.getFlags() == last_token.getFlags()) {
+    return;  // It's a repeat?
+  }
+
+  last_token_was_added = false;
   last_token = tok;
 
+  // NOTE(pag): `skip_count` tells us if we're inside of a cancelled macro.
   if (skip_count || 1u == nodes.size() || tok.is(clang::tok::eod) ||
       tok.is(clang::tok::eof)) {
-    last_token_was_added = false;
-
     CloseUnclosedExpansion(tok);
     return;
   }
@@ -1144,6 +1153,52 @@ void PatchedMacroTracker::DoPrepareToCancelExpansion(const clang::Token &, uintp
   assert(!expansion->is_cancelled);
   expansion->is_cancelled = true;
   ++skip_count;
+  auto removed = false;
+
+  // Go get rid of the tokens that were added as part of this expansion.
+  while (!expansion->nodes.empty()) {
+    Node to_remove = std::move(expansion->nodes.back());
+    expansion->nodes.pop_back();
+
+    // There's a sub-node. I don't know why, but go pop its tokens off too.
+    if (std::holds_alternative<MacroNodeImpl *>(to_remove)) {
+      MacroNodeImpl *node_to_remove = std::get<MacroNodeImpl *>(to_remove);
+
+      if (auto sub_exp = dynamic_cast<MacroSubstitutionImpl *>(node_to_remove)) {
+        for (Node &sub_node : sub_exp->use_nodes) {
+          expansion->nodes.emplace_back(std::move(sub_node));
+        }
+      }
+      for (Node &sub_node : node_to_remove->nodes) {
+        expansion->nodes.emplace_back(std::move(sub_node));
+      }
+
+      node_to_remove->nodes.clear();
+
+    // Pop this token off. We want to eliminate it from the end of the token
+    // list.
+    } else if (std::holds_alternative<MacroTokenImpl *>(to_remove)) {
+      MacroTokenImpl *tok_to_remove = std::get<MacroTokenImpl *>(to_remove);
+      if ((tok_to_remove->token_offset + 1u) == ast->tokens.size()) {
+        assert(ast->preprocessed_code.back() == '\n');
+        ast->preprocessed_code.pop_back();
+        ast->tokens.pop_back();
+        ast->num_lines -= 1u;
+        removed = true;
+
+        assert(tok_to_remove == &(ast->root_macro_node.tokens.back()));
+        ast->root_macro_node.tokens.pop_back();
+
+      } else {
+        assert(false);
+      }
+    }
+  }
+
+  if (removed) {
+    last_token.startToken();
+    last_token_was_added = false;
+  }
 }
 
 void PatchedMacroTracker::DoCancelExpansion(const clang::Token &tok,
@@ -1428,10 +1483,10 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
     std::cerr << indent;
 
     switch (kind) {
-      case TokenFromLexer: std::cerr << "TokenFromLexer"; break;
-      case TokenFromTokenLexer: std::cerr << "TokenFromTokenLexer"; break;
-      case TokenFromCachingLexer: std::cerr << "TokenFromCachingLexer"; break;
-      case TokenFromAfterModuleImportLexer: std::cerr << "TokenFromAfterModuleImportLexer"; break;
+      case TokenFromLexer: std::cerr << "TokenFromLexer(" << ast->tokens.size() << ")"; break;
+      case TokenFromTokenLexer: std::cerr << "TokenFromTokenLexer(" << ast->tokens.size() << ")"; break;
+      case TokenFromCachingLexer: std::cerr << "TokenFromCachingLexer(" << ast->tokens.size() << ")"; break;
+      case TokenFromAfterModuleImportLexer: std::cerr << "TokenFromAfterModuleImportLexer(" << ast->tokens.size() << ")"; break;
       case BeginSplitToken: std::cerr << "BeginSplitToken"; break;
       case EndSplitToken: std::cerr << "EndSplitToken"; break;
       case BeginDirective: std::cerr << "BeginDirective"; break;

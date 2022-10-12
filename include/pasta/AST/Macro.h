@@ -95,12 +95,6 @@ class MacroNode {
     return RawNode() <=> that.RawNode();
   }
 
-  // Return the leftmost pre-expansion macro token in this node.
-  MacroToken LeftCorner(void) const noexcept;
-
-  // Return the rightmost pre-expansion macro token in this node.
-  MacroToken RightCorner(void) const noexcept;
-
   // Return the macro node containing this node.
   std::optional<MacroNode> Parent(void) const noexcept;
 };

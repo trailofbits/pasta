@@ -285,42 +285,12 @@ const void *MacroNode::RawNode(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
     return &(ast->tokens[std::get<MacroTokenImpl *>(node)->token_offset]);
-  } else {
+  } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
     auto ret = std::get<MacroNodeImpl *>(node);
     assert(ret != nullptr);
     return ret;
-  }
-}
-
-MacroToken MacroNode::LeftCorner(void) const noexcept {
-  Node node = *reinterpret_cast<const Node *>(impl);
-  if (std::holds_alternative<MacroTokenImpl *>(node)) {
-    return MacroToken(ast, impl);
   } else {
-    MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
-    if (auto sub = dynamic_cast<MacroSubstitutionImpl *>(node_impl)) {
-      assert(!sub->use_nodes.empty());
-      return MacroNode(ast, &(sub->use_nodes.front())).LeftCorner();
-    } else {
-      assert(!node_impl->nodes.empty());
-      return MacroNode(ast, &(node_impl->nodes.front())).LeftCorner();
-    }
-  }
-}
-
-MacroToken MacroNode::RightCorner(void) const noexcept {
-  Node node = *reinterpret_cast<const Node *>(impl);
-  if (std::holds_alternative<MacroTokenImpl *>(node)) {
-    return MacroToken(ast, impl);
-  } else {
-    MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
-    if (auto sub = dynamic_cast<MacroSubstitutionImpl *>(node_impl)) {
-      assert(!sub->use_nodes.empty());
-      return MacroNode(ast, &(sub->use_nodes.back())).RightCorner();
-    } else {
-      assert(!node_impl->nodes.empty());
-      return MacroNode(ast, &(node_impl->nodes.back())).RightCorner();
-    }
+    return nullptr;
   }
 }
 
@@ -329,6 +299,10 @@ std::optional<MacroNode> MacroNode::Parent(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
     return MacroNode(ast, &(std::get<MacroTokenImpl *>(node)->parent));
+  }
+
+  if (!std::holds_alternative<MacroNodeImpl *>(node)) {
+    return std::nullopt;
   }
 
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);

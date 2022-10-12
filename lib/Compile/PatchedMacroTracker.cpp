@@ -334,6 +334,57 @@ static MacroTokenImpl *FirstUseToken(const Node &node) {
   }
 }
 
+// Inject a missing argument. This wraps `pre_exp->nodes.back()` in an
+// argument node, then fixes up `nodes` and `arguments`.
+static void InjectArgument(ASTImpl &ast, std::vector<MacroNodeImpl *> &nodes,
+                           std::vector<MacroArgumentImpl *> &arguments,
+                           MacroExpansionImpl *pre_exp) {
+  MacroArgumentImpl *missing_arg =
+      &(ast.root_macro_node.arguments.emplace_back());
+
+  Node just_added_node = std::move(pre_exp->nodes.back());
+  pre_exp->nodes.pop_back();
+  ReparentNode(just_added_node, missing_arg);
+
+  missing_arg->parent = pre_exp;
+  missing_arg->is_prearg_expansion = true;
+  missing_arg->nodes.emplace_back(std::move(just_added_node));
+  pre_exp->arguments.push_back(missing_arg);
+  pre_exp->nodes.emplace_back(missing_arg);
+
+  InjectArgumentNode(nodes, arguments, pre_exp, missing_arg);
+}
+
+// Inspect the last node in a pre-expanded macro, and try to wrap it in an
+// argument node.
+static void TryWrapLastNodeInArgument(
+    ASTImpl &ast, std::vector<MacroNodeImpl *> &nodes,
+    std::vector<MacroArgumentImpl *> &arguments,
+    MacroExpansionImpl *pre_exp, const std::string &indent) {
+  if (std::holds_alternative<MacroTokenImpl *>(pre_exp->nodes.back())) {
+    auto last_tok = std::get<MacroTokenImpl *>(pre_exp->nodes.back());
+    if (last_tok != pre_exp->ident &&
+        last_tok != pre_exp->l_paren &&
+        (last_tok->kind_flags.kind != TokenKind::kComma ||
+         last_tok->kind_flags.is_ignored_comma)) {
+      D( std::cerr << indent << "^ Adding missing argument for token\n"; )
+      InjectArgument(ast, nodes, arguments, pre_exp);
+    }
+
+  } else if (std::holds_alternative<MacroNodeImpl *>(pre_exp->nodes.back())) {
+    auto last_node = std::get<MacroNodeImpl *>(pre_exp->nodes.back());
+    auto last_arg = dynamic_cast<MacroArgumentImpl *>(last_node);
+    if (!last_arg) {
+      D( std::cerr << indent << "^ Adding missing argument for node\n"; )
+      InjectArgument(ast, nodes, arguments, pre_exp);
+
+    } else {
+      assert(last_arg->is_prearg_expansion);
+      assert(std::get<MacroNodeImpl *>(last_arg->parent) == pre_exp);
+    }
+  }
+}
+
 // Pre-argument expansion for macros is funny. I think it applies at an
 // argument granularity, rather than an "all arguments" granularity. For
 // example:
@@ -366,50 +417,9 @@ bool PatchedMacroTracker::ClonePrefixArguments(
   assert(!exp->use_nodes.empty());
   assert(pre_exp->nodes.size() >= 2);  // name, (
 
-  // Inject a missing argument. This wraps `pre_exp->nodes.back()` in an
-  // argument node, then fixes up `nodes` and `arguments`.
-  auto inject_argument = [=] (void) {
-    MacroArgumentImpl *missing_arg =
-        &(ast->root_macro_node.arguments.emplace_back());
-
-    Node just_added_node = std::move(pre_exp->nodes.back());
-    pre_exp->nodes.pop_back();
-    ReparentNode(just_added_node, missing_arg);
-
-    missing_arg->parent = pre_exp;
-    missing_arg->is_prearg_expansion = true;
-    missing_arg->nodes.emplace_back(std::move(just_added_node));
-    pre_exp->arguments.push_back(missing_arg);
-    pre_exp->nodes.emplace_back(missing_arg);
-
-    InjectArgumentNode(nodes, arguments, pre_exp, missing_arg);
-  };
-
   // Figure out if the last thing in this pre-expansion should actually be
   // nested inside of an argument.
-  if (std::holds_alternative<MacroTokenImpl *>(pre_exp->nodes.back())) {
-    auto last_tok = std::get<MacroTokenImpl *>(pre_exp->nodes.back());
-    if (last_tok != pre_exp->ident &&
-        last_tok != pre_exp->l_paren &&
-        (last_tok->kind_flags.kind != TokenKind::kComma ||
-         last_tok->kind_flags.is_ignored_comma)) {
-      D( std::cerr << indent << "^ Adding missing argument for token\n"; )
-      inject_argument();
-    }
-
-  } else if (std::holds_alternative<MacroNodeImpl *>(pre_exp->nodes.back())) {
-    auto last_node = std::get<MacroNodeImpl *>(pre_exp->nodes.back());
-    auto last_arg = dynamic_cast<MacroArgumentImpl *>(last_node);
-    if (!last_arg) {
-      D( std::cerr << indent << "^ Adding missing argument for node\n"; )
-      inject_argument();
-
-    } else {
-      assert(last_arg->is_prearg_expansion);
-      assert(std::get<MacroNodeImpl *>(last_arg->parent) == pre_exp);
-    }
-  }
-
+  TryWrapLastNodeInArgument(*ast, nodes, arguments, pre_exp, indent);
 
 //  D( std::cerr << indent << "* Starting Nth pre-arg expansion argument\n"; )
 //
@@ -536,7 +546,7 @@ bool PatchedMacroTracker::ClonePrefixArguments(
       pre_exp->nodes.emplace_back(std::move(node_for_next_arg));
 
       D( std::cerr << indent << "^ Adding missing argument for token\n"; )
-      inject_argument();
+      InjectArgument(*ast, nodes, arguments, pre_exp);
 
       // Add any others back in.
       for (MacroNodeImpl *popped_node : popped_nodes) {
@@ -1036,23 +1046,15 @@ void PatchedMacroTracker::DoEndPreArgumentExpansion(
   }
 
   // This node is a pre-argument expansion invented expansion, so we need to
-  // inject in a closing parenthesis to complete it.
+  // inject in a closing parenthesis to complete it. We may also need to inject
+  // any arguments that should have preceded the `)` but didn't trigger any
+  // pre-expansion.
   assert(expansion->is_prearg_expansion);
-  assert(!expansion->arguments.empty());
-  assert(!arguments.empty());
-  assert(nodes.back() == arguments.back());
-  assert(std::get<MacroNodeImpl *>(nodes.back()->parent) == expansion);
 
-  // Take off the argument.
-  arguments.pop_back();
-  nodes.pop_back();
-
-  // We should now be looking at the expansion.
-  assert(nodes.back() == expansion);
-  if (expansion->is_cancelled) {
-    assert(0 < skip_count);
-    return;
-  }
+  // Possibly add in any trailing missing tokens/nodes in before we inject
+  // the trailing `)`. This can happen, e.g. `FOO(1, ONE, 2)` where `ONE`
+  // will get pre-expanded, but `2` will not be seen, and so we add it in
+  // here as a prefix to the `)`.
 
   // Get the original use, prior to pre-argument expansion.
   assert(expansion->parent_for_prearg != nullptr);
@@ -1079,16 +1081,29 @@ void PatchedMacroTracker::DoEndPreArgumentExpansion(
   assert(r_paren != nullptr);
   TokenImpl r_paren_tok = ast->tokens[r_paren->token_offset];
 
-  // Possibly add in any trailing missing tokens/nodes in before we inject
-  // the trailing `)`. This can happen, e.g. `FOO(1, ONE, 2)` where `ONE`
-  // will get pre-expanded, but `2` will not be seen, and so we add it in
-  // here as a prefix to the `)`.
   clang::Token tok;
   tok.startToken();
   tok.setLength(clang::tok::r_paren);
   tok.setLocation(clang::SourceLocation::getFromRawEncoding(
       r_paren_tok.opaque_source_loc));
   ClonePrefixArguments(expansion, tok);
+
+  // At this point, we should always have at least one argument in the
+  // macro pre-expansion. It may or may not be on the stack, depending on
+  // `ClonePrefixArguments`.
+  assert(!expansion->arguments.empty());
+  if (!arguments.empty() && nodes.back() == arguments.back()) {
+    assert(std::get<MacroNodeImpl *>(nodes.back()->parent) == expansion);
+    arguments.pop_back();
+    nodes.pop_back();
+  }
+
+  // We should now be looking at the expansion.
+  assert(nodes.back() == expansion);
+  if (expansion->is_cancelled) {
+    assert(0 < skip_count);
+    return;
+  }
 
   // Add the last node of the pre-argument expansion macro use, which is the
   // cloned `r_paren`.

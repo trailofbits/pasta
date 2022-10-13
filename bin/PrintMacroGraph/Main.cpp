@@ -302,6 +302,7 @@ static void PrintMacroGraph(std::ostream &os, pasta::AST ast) {
   os << "}\n";
 
   for (const pasta::Token &tok : ast.Tokens()) {
+    std::cerr << std::setw(5) << std::setfill(' ') << tok.Index() << ' ';
     switch (tok.Role()) {
       case pasta::TokenRole::kInvalid:
         std::cerr << "    ";

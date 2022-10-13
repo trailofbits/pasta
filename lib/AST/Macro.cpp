@@ -17,6 +17,7 @@
 #include <clang/Basic/TokenKinds.h>
 #include <clang/Frontend/CompilerInstance.h>
 #include <clang/Lex/Lexer.h>
+#include <clang/Lex/MacroInfo.h>
 #include <clang/Lex/Token.h>
 #pragma GCC diagnostic pop
 
@@ -146,9 +147,14 @@ MacroNodeImpl *MacroArgumentImpl::Clone(
 
   MacroArgumentImpl *clone = &(ast.root_macro_node.arguments.emplace_back());
   clone->cloned_from = this;
-  clone->index = index;
-  clone->is_variadic = is_variadic;
-  clone->is_prearg_expansion = is_prearg_expansion;
+  if (auto expansion = dynamic_cast<MacroExpansionImpl *>(new_parent)) {
+    clone->index = static_cast<unsigned>(expansion->arguments.size());
+    clone->is_prearg_expansion = expansion->is_prearg_expansion;
+  } else {
+    assert(false);
+    clone->index = index;
+    clone->is_prearg_expansion = is_prearg_expansion;
+  }
   clone->parent = new_parent;
 
   CloneNodeList(ast, this, nodes, clone, clone->nodes, NoOnTokenCB,
@@ -189,7 +195,6 @@ MacroNodeImpl *MacroExpansionImpl::Clone(
     assert(!parent_for_prearg);
   }
 
-  clone->is_variadic = is_variadic;
   clone->is_cancelled = is_cancelled;
   clone->in_prearg_expansion = in_prearg_expansion;
   clone->is_prearg_expansion = is_prearg_expansion;
@@ -446,7 +451,12 @@ bool MacroArgument::IsVariadic(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroArgumentImpl *arg_impl = dynamic_cast<MacroArgumentImpl *>(node_impl);
-  return arg_impl->is_variadic;
+  MacroExpansionImpl *exp_impl = dynamic_cast<MacroExpansionImpl *>(
+      std::get<MacroNodeImpl *>(arg_impl->parent));
+  if (exp_impl->defined_macro) {
+    return exp_impl->defined_macro->getNumParams() <= arg_impl->index;
+  }
+  return false;
 }
 
 unsigned MacroArgument::Index(void) const noexcept {

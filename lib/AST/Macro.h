@@ -90,7 +90,6 @@ class MacroArgumentImpl final : public MacroNodeImpl {
   MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const final;
 
   unsigned index{0u};
-  bool is_variadic{false};
   bool is_prearg_expansion{false};
 };
 
@@ -125,7 +124,6 @@ class MacroExpansionImpl final : public MacroSubstitutionImpl {
   MacroTokenImpl *l_paren{nullptr};
   MacroTokenImpl *r_paren{nullptr};
 
-  bool is_variadic{false};
   bool is_cancelled{false};
   bool in_prearg_expansion{false};
   bool is_prearg_expansion{false};

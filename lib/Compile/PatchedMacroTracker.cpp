@@ -192,7 +192,7 @@ bool PatchedMacroTracker::TryExtractHeaderName(const clang::Token &tok) {
       &(ast->root_macro_node.substitutions.emplace_back());
   MacroNodeImpl *parent_node = nodes.back();
   sub->parent = parent_node;
-  parent_node->nodes.emplace_back(sub);
+  AddToParentNode(sub);  // Adds to `parent_node`.
   nodes.push_back(sub);
 
   auto end = file_token->Data()[0] == '<' ? '>' : '"';
@@ -347,7 +347,8 @@ static void InjectArgument(ASTImpl &ast, std::vector<MacroNodeImpl *> &nodes,
   ReparentNode(just_added_node, missing_arg);
 
   missing_arg->parent = pre_exp;
-  missing_arg->is_prearg_expansion = true;
+  missing_arg->is_prearg_expansion = pre_exp->is_prearg_expansion;
+  missing_arg->index = static_cast<unsigned>(pre_exp->arguments.size());
   missing_arg->nodes.emplace_back(std::move(just_added_node));
   pre_exp->arguments.push_back(missing_arg);
   pre_exp->nodes.emplace_back(missing_arg);
@@ -476,8 +477,11 @@ bool PatchedMacroTracker::ClonePrefixArguments(
       std::min(exp->use_nodes.size(), pre_exp->nodes.size()),
       num_skipped);
 
-  auto i = 0u;  // pre_exp
-  auto j = 0u;  // exp
+  // NOTE(pag): Start at `1` to skip over the macro name; it might itself
+  //            be an expansion, and fail a later heuristic against matching
+  //            against argument nodes.
+  auto i = 1u;  // pre_exp
+  auto j = 1u;  // exp
   for (; i < max_i && j < max_i; ) {
     MacroTokenImpl *curr_tok = FirstUseToken(pre_exp->nodes[i]);
     MacroTokenImpl *prev_tok = FirstUseToken(exp->use_nodes[j]);
@@ -530,6 +534,7 @@ bool PatchedMacroTracker::ClonePrefixArguments(
     assert(nodes.back() == last_arg);
     nodes.pop_back();
     arguments.pop_back();
+    assert(nodes.back() == pre_exp);
 
     // Something extra was added to the last argument; we need to take it
     // out.
@@ -543,7 +548,7 @@ bool PatchedMacroTracker::ClonePrefixArguments(
       last_arg->nodes.pop_back();
       ReparentNode(node_for_next_arg, pre_exp);
 
-      pre_exp->nodes.emplace_back(std::move(node_for_next_arg));
+      AddToParentNode(std::move(node_for_next_arg));  // Adds to `pre_exp`.
 
       D( std::cerr << indent << "^ Adding missing argument for token\n"; )
       InjectArgument(*ast, nodes, arguments, pre_exp);
@@ -687,6 +692,44 @@ void PatchedMacroTracker::FixupDerivedLocations(void) {
     if (from_map(file_token_refs, tok, tok_index, data, next_raw_loc) ||
         from_map(macro_token_refs, tok, tok_index, data, next_raw_loc)) {
       macro_token_refs[raw_loc] = tok_index;
+    }
+  }
+}
+
+// Add something to the end of `nodes.back()->nodes`.
+void PatchedMacroTracker::AddToParentNode(Node node) {
+  MacroExpansionImpl *exp = dynamic_cast<MacroExpansionImpl *>(nodes.back());
+
+  nodes.back()->nodes.push_back(node);
+
+  // Figure out if we need to wrap `node` in a `MacroArgumentImpl`.
+  if (exp && exp->use_nodes.empty() && !exp->is_cancelled) {
+    if (std::holds_alternative<MacroNodeImpl *>(node)) {
+      auto child = std::get<MacroNodeImpl *>(node);
+      if (!dynamic_cast<MacroArgumentImpl *>(child)) {
+        InjectArgument(*ast, nodes, arguments, exp);
+      }
+#ifndef NDEBUG
+    } else if (std::holds_alternative<MacroTokenImpl *>(node)) {
+      auto child = std::get<MacroTokenImpl *>(node);
+      TokenImpl tok = ast->tokens[child->token_offset];
+      switch (tok.Kind()) {
+        case clang::tok::identifier:
+        case clang::tok::raw_identifier:
+          assert(nodes.back()->nodes.empty());
+          break;
+        case clang::tok::l_paren:
+        case clang::tok::r_paren:
+        case clang::tok::comma:
+          break;
+        default:
+          assert(false);
+          InjectArgument(*ast, nodes, arguments, exp);
+          break;
+      }
+    } else {
+      assert(false);
+#endif
     }
   }
 }
@@ -863,7 +906,7 @@ void PatchedMacroTracker::DoBeginDirective(
   Push(tok);
   MacroDirectiveImpl *directive =
       &(ast->root_macro_node.directives.emplace_back());
-  nodes.back()->nodes.emplace_back(directive);
+  AddToParentNode(directive);
   directive->parent = nodes.back();
   nodes.push_back(directive);
   directives.push_back(directive);
@@ -936,7 +979,7 @@ void PatchedMacroTracker::DoBeginMacroExpansion(
 
   MacroExpansionImpl *expansion =
       &(ast->root_macro_node.expansions.emplace_back());
-  nodes.back()->nodes.emplace_back(expansion);
+  AddToParentNode(expansion);
   expansion->parent = nodes.back();
   nodes.push_back(expansion);
   expansions.push_back(expansion);
@@ -968,11 +1011,10 @@ void PatchedMacroTracker::DoBeginMacroCallArgument(
 
   MacroArgumentImpl *argument =
       &(ast->root_macro_node.arguments.emplace_back());
-  argument->is_variadic = expansion->is_variadic;
   argument->index = static_cast<unsigned>(expansion->arguments.size());
   argument->parent = expansion;
 
-  expansion->nodes.emplace_back(argument);
+  AddToParentNode(argument);  // Adds to `expansion`.
   expansion->arguments.emplace_back(argument);
   nodes.push_back(argument);
   arguments.push_back(argument);
@@ -1013,9 +1055,6 @@ void PatchedMacroTracker::DoBeginVariadicCallArgumentList(
   assert(!expansions.empty());
   assert(nodes.back() == expansions.back());
   MacroExpansionImpl *expansion = expansions.back();
-  assert(!expansion->is_variadic);
-  expansion->is_variadic = true;
-
   if (expansion->is_cancelled) {
     assert(0 < skip_count);
   }
@@ -1349,7 +1388,7 @@ void PatchedMacroTracker::DoBeginSubstitution(
   Push(tok);
   MacroSubstitutionImpl *expansion =
       &(ast->root_macro_node.substitutions.emplace_back());
-  nodes.back()->nodes.emplace_back(expansion);
+  AddToParentNode(expansion);
   expansion->parent = nodes.back();
   nodes.push_back(expansion);
   substitutions.push_back(expansion);
@@ -1387,7 +1426,7 @@ void PatchedMacroTracker::DoBeginDelayedSubstitution(
     parent_node->nodes.pop_back();
   }
 
-  parent_node->nodes.emplace_back(expansion);
+  AddToParentNode(expansion);  // Adds to `parent_node`.
 
   nodes.push_back(expansion);
   substitutions.push_back(expansion);

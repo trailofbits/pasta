@@ -105,6 +105,8 @@ class PatchedMacroTracker : public clang::PPCallbacks {
 
   bool TryExtractHeaderName(const clang::Token &tok);
 
+  void AddToParentNode(Node node);
+
   // Add a token in.
   void DoToken(const clang::Token &tok, uintptr_t);
   void TryDoPreExpansionSetup(const clang::Token &tok);

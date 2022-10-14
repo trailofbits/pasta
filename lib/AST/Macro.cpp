@@ -46,6 +46,26 @@ static MacroTokenImpl *FirstUseTokenImpl(const std::vector<Node> &nodes) {
   return nullptr;
 }
 
+
+static MacroTokenImpl *FirstExpansionTokenImpl(const std::vector<Node> &nodes) {
+  if (nodes.empty()) {
+    return nullptr;
+  }
+
+  for (const Node &node : nodes) {
+    if (std::holds_alternative<MacroTokenImpl *>(node)) {
+      return std::get<MacroTokenImpl *>(node);
+    } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
+      MacroNodeImpl *sub_node = std::get<MacroNodeImpl *>(node);
+      if (auto ret = sub_node->FirstExpansionToken()) {
+        return ret;
+      }
+    }
+  }
+
+  return nullptr;
+}
+
 }  // namespace
 
 // Clone this token into the AST.
@@ -78,8 +98,8 @@ MacroNodeKind MacroDirectiveImpl::Kind(void) const {
 
 namespace {
 
-static void NoOnTokenCB(MacroTokenImpl *, MacroTokenImpl *) {}
-static void NoOnNodeCB(MacroNodeImpl *, MacroNodeImpl *) {}
+static void NoOnTokenCB(unsigned, MacroTokenImpl *, MacroTokenImpl *) {}
+static void NoOnNodeCB(unsigned, MacroNodeImpl *, MacroNodeImpl *) {}
 
 template <typename TokenCB, typename NodeCB>
 static void CloneNodeList(ASTImpl &ast,
@@ -89,6 +109,7 @@ static void CloneNodeList(ASTImpl &ast,
                           std::vector<Node> &new_nodes,
                           TokenCB on_token,
                           NodeCB on_node) {
+  auto i = 0u;
   for (const Node &node : old_nodes) {
     if (std::holds_alternative<MacroTokenImpl *>(node)) {
       MacroTokenImpl *tok = std::get<MacroTokenImpl *>(node);
@@ -97,7 +118,7 @@ static void CloneNodeList(ASTImpl &ast,
       MacroTokenImpl *cloned_tok = tok->Clone(ast, new_parent);
       new_nodes.emplace_back(cloned_tok);
 
-      on_token(tok, cloned_tok);
+      on_token(i, tok, cloned_tok);
 
     } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
       MacroNodeImpl *sub_node = std::get<MacroNodeImpl *>(node);
@@ -106,8 +127,9 @@ static void CloneNodeList(ASTImpl &ast,
       auto cloned_node = sub_node->Clone(ast, new_parent);
       new_nodes.emplace_back(cloned_node);
 
-      on_node(sub_node, cloned_node);
+      on_node(i, sub_node, cloned_node);
     }
+    ++i;
   }
 }
 
@@ -126,7 +148,7 @@ MacroNodeImpl *MacroDirectiveImpl::Clone(
 
   CloneNodeList(
       ast, this, nodes, clone, clone->nodes,
-      [=] (MacroTokenImpl *tok, MacroTokenImpl *cloned_tok) {
+      [=] (unsigned i, MacroTokenImpl *tok, MacroTokenImpl *cloned_tok) {
         if (std::holds_alternative<MacroTokenImpl *>(directive_name) &&
             std::get<MacroTokenImpl *>(directive_name) == tok) {
           clone->directive_name = cloned_tok;
@@ -206,7 +228,8 @@ MacroNodeImpl *MacroExpansionImpl::Clone(
 
   CloneNodeList(
       ast, this, use_nodes, clone, clone->use_nodes,
-      [=, &arg_num] (MacroTokenImpl *tok, MacroTokenImpl *cloned_tok) {
+      [=, &arg_num] (unsigned i, MacroTokenImpl *tok,
+                     MacroTokenImpl *cloned_tok) {
         if (ident == tok) {
           clone->ident = cloned_tok;
         }
@@ -217,6 +240,7 @@ MacroNodeImpl *MacroExpansionImpl::Clone(
 
         if (r_paren == tok) {
           clone->r_paren = cloned_tok;
+          clone->r_paren_index = i;
         }
 
         if (arg_num < arguments.size() &&
@@ -226,7 +250,22 @@ MacroNodeImpl *MacroExpansionImpl::Clone(
           ++arg_num;
         }
       },
-      [=, &arg_num] (MacroNodeImpl *node, MacroNodeImpl *cloned_node) {
+      [=, &arg_num] (unsigned i, MacroNodeImpl *node,
+          MacroNodeImpl *cloned_node) {
+
+        if (ident == node->FirstExpansionToken()) {
+          clone->ident = cloned_node->FirstExpansionToken();
+        }
+
+        if (l_paren == node->FirstExpansionToken()) {
+          clone->l_paren = cloned_node->FirstExpansionToken();
+        }
+
+        if (r_paren == node->FirstExpansionToken()) {
+          clone->r_paren = cloned_node->FirstExpansionToken();
+          clone->r_paren_index = i;
+        }
+
         if (arg_num < arguments.size() &&
             std::holds_alternative<MacroNodeImpl *>(arguments[arg_num]) &&
             std::get<MacroNodeImpl *>(arguments[arg_num]) == node) {
@@ -252,6 +291,19 @@ MacroTokenImpl *MacroSubstitutionImpl::FirstUseToken(void) const {
     return FirstUseTokenImpl(use_nodes);
   } else {
     return FirstUseTokenImpl(nodes);  // An in-progress node.
+  }
+}
+
+
+MacroTokenImpl *MacroNodeImpl::FirstExpansionToken(void) const {
+  return FirstExpansionTokenImpl(nodes);
+}
+
+MacroTokenImpl *MacroSubstitutionImpl::FirstExpansionToken(void) const {
+  if (!nodes.empty()) {
+    return FirstExpansionTokenImpl(nodes);
+  } else {
+    return FirstExpansionTokenImpl(use_nodes);
   }
 }
 

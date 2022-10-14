@@ -744,6 +744,7 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok, uintptr_t) {
       tok.isAnnotation() == last_token.isAnnotation() &&
       tok.isAnyIdentifier() == last_token.isAnyIdentifier() &&
       tok.getFlags() == last_token.getFlags()) {
+    D( std::cerr << indent << "(not adding repeat token " << clang::tok::getTokenName(tok.getKind()) << ")\n"; )
     return;  // It's a repeat?
   }
 
@@ -753,6 +754,7 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok, uintptr_t) {
   // NOTE(pag): `skip_count` tells us if we're inside of a cancelled macro.
   if (skip_count || 1u == nodes.size() || tok.is(clang::tok::eod) ||
       tok.is(clang::tok::eof)) {
+    D( std::cerr << indent << "(not adding skipped/top-level/eod/eof token " << clang::tok::getTokenName(tok.getKind()) << ")\n"; )
     CloseUnclosedExpansion(tok);
     return;
   }
@@ -825,6 +827,7 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok, uintptr_t) {
     MacroExpansionImpl *exp = expansions.back();
     if (tok_node->kind_flags.kind == TokenKind::kIdentifier && !exp->ident) {
       exp->ident = tok_node;
+
     } else if (tok_node->kind_flags.kind == TokenKind::kLParenthesis &&
                exp->ident && !exp->l_paren) {
       exp->l_paren = tok_node;
@@ -1109,24 +1112,38 @@ void PatchedMacroTracker::DoEndPreArgumentExpansion(
   MacroExpansionImpl *parent_exp = expansion->parent_for_prearg;
   assert(!parent_exp->use_nodes.empty());
 
-  // Go find the `r_paren` for the parent and record it.
+  // Go find the `r_paren` for the parent and record it, as well at the index
+  // at which it occurs.
   MacroTokenImpl *r_paren = nullptr;
-  for (auto it = parent_exp->use_nodes.rbegin(),
-            it_end = parent_exp->use_nodes.rend();
-       it != it_end; ++it) {
-    Node &node = *it;
+  unsigned r_paren_index = 0u;
+  const size_t num_parent_exp_nodes = parent_exp->use_nodes.size();
+  int paren_count = 0;
+  for (; r_paren_index < num_parent_exp_nodes; ++r_paren_index) {
+    const Node &node = parent_exp->use_nodes[r_paren_index];
+    MacroTokenImpl *tok = nullptr;
     if (std::holds_alternative<MacroTokenImpl *>(node)) {
-      MacroTokenImpl *tok = std::get<MacroTokenImpl *>(node);
-      if (tok->kind_flags.kind == TokenKind::kRParenthesis) {
+      tok = std::get<MacroTokenImpl *>(node);
+    } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
+      tok = std::get<MacroNodeImpl *>(node)->FirstExpansionToken();
+    } else {
+      assert(false);
+      continue;
+    }
+
+    if (tok->kind_flags.kind == TokenKind::kLParenthesis) {
+      ++paren_count;
+    } else if (tok->kind_flags.kind == TokenKind::kRParenthesis) {
+      if (!--paren_count) {
         r_paren = tok;
         break;
       }
     }
   }
   assert(parent_exp->r_paren == nullptr);
-  parent_exp->r_paren = r_paren;
-
   assert(r_paren != nullptr);
+  parent_exp->r_paren = r_paren;
+  parent_exp->r_paren_index = r_paren_index;
+
   TokenImpl r_paren_tok = ast->tokens[r_paren->token_offset];
 
   clang::Token tok;
@@ -1156,7 +1173,29 @@ void PatchedMacroTracker::DoEndPreArgumentExpansion(
   // Add the last node of the pre-argument expansion macro use, which is the
   // cloned `r_paren`.
   expansion->r_paren = r_paren->Clone(*ast, expansion);
+  expansion->r_paren_index = static_cast<unsigned>(expansion->nodes.size());
   expansion->nodes.emplace_back(expansion->r_paren);
+
+  // Add everything after the `r_paren`. If we have an expansion like
+  // `FOO(A, B, C)(X, Y, Z)`, then we technically don't know if `FOO(A, B, C)`
+  // will actually expand to a macro or not, but it ends up being very confusing
+  // in the graph to have an expansion of `FOO(A, B, C)(X, Y, Z)` lead to an
+  // isolated pre-expansion of `FOO(A, B, C)` to `BAR`, and then that turn into
+  // an expansion like `BAR(X, Y, Z)`. The `(X, Y, Z)` tokens "disappear" then
+  // suddenly "re-appear" in a later sub-tree.
+  for (++r_paren_index; r_paren_index < num_parent_exp_nodes;
+       ++r_paren_index) {
+    D( std::cerr << indent << " > adding post-r_paren trailing token\n"; )
+    const Node &trailing_node = parent_exp->nodes[r_paren_index];
+    if (std::holds_alternative<MacroTokenImpl *>(trailing_node)) {
+      expansion->nodes.emplace_back(
+          std::get<MacroTokenImpl *>(trailing_node)->Clone(*ast, expansion));
+
+    } else if (std::holds_alternative<MacroNodeImpl *>(trailing_node)) {
+      expansion->nodes.emplace_back(
+          std::get<MacroNodeImpl *>(trailing_node)->Clone(*ast, expansion));
+    }
+  }
 
   // Swap the nodes to use nodes.
   assert(!expansion->nodes.empty());
@@ -1280,8 +1319,9 @@ void PatchedMacroTracker::DoEndMacroExpansion(
 
   // It may be the case that we see an end of expansion, but that we're
   // inside of, e.g. an argument list. This can happen because reading the
-  // `(` token for the beginning of the argument list triggered the end of
-  // expansion of what expanded to the macro name before the `(`. E.g.
+  // `(` token (by `LexUnexpandedToken` in Clang) for the beginning of the
+  // argument list triggered the end of expansion of what expanded to the
+  // macro name before the `(`. E.g.
   //
   //      CAT(FOO_, 2)(a, b)
   //
@@ -1293,16 +1333,20 @@ void PatchedMacroTracker::DoEndMacroExpansion(
   // `CAT` as happening just after the begin argument list event, and just
   // before the token event for `(`.
   auto mi = reinterpret_cast<clang::MacroInfo *>(data);
-  if (mi && expansion->defined_macro != mi) {
-    assert(2u <= num_expansions);
-    deferred_expansion = expansions[num_expansions - 2];
+  if (mi && expansion->defined_macro != mi && 2u <= num_expansions) {
+    deferred_expansion = expansions[num_expansions - 2u];
     assert(deferred_expansion->defined_macro == mi);
     assert(nodes.back() == expansion);
     expansions.pop_back();
     nodes.pop_back();
 
+    deferred_expansion->defferal_status = MacroExpansionImpl::kDeferredParent;
+    expansion->defferal_status = MacroExpansionImpl::kDeferredChild;
+
     std::swap(expansion, deferred_expansion);
     assert(!expansion->is_cancelled);
+
+    D( std::cerr << indent << "!!! deferred expansion\n"; )
   }
 
   Pop(tok);
@@ -1310,13 +1354,10 @@ void PatchedMacroTracker::DoEndMacroExpansion(
   nodes.pop_back();
   expansions.pop_back();
 
-  MacroNodeImpl *parent_node = nodes.back();
-  if (expansion->is_prearg_expansion) {
-    parent_node = std::get<MacroNodeImpl *>(expansion->parent);
-  } else {
-    assert(parent_node == std::get<MacroNodeImpl *>(expansion->parent));
-  }
-
+  // Go get the parent. In the case of pre-argument expansions, and in the
+  // case of deferred expansions, `nodes.back()` isn't guaranteed to be equal to
+  // `expansion->parent`.
+  MacroNodeImpl *parent_node = std::get<MacroNodeImpl *>(expansion->parent);
   assert(std::holds_alternative<MacroNodeImpl *>(parent_node->nodes.back()));
   assert(std::get<MacroNodeImpl *>(parent_node->nodes.back()) == expansion);
 

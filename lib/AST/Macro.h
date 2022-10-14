@@ -26,6 +26,7 @@ class MacroNodeImpl {
   virtual ~MacroNodeImpl(void) = default;
   virtual MacroNodeKind Kind(void) const = 0;
   virtual MacroTokenImpl *FirstUseToken(void) const;
+  virtual MacroTokenImpl *FirstExpansionToken(void) const;
   virtual MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const = 0;
 
   Node parent;
@@ -97,6 +98,7 @@ class MacroSubstitutionImpl : public MacroNodeImpl {
  public:
   virtual ~MacroSubstitutionImpl(void) = default;
   MacroTokenImpl *FirstUseToken(void) const final;
+  MacroTokenImpl *FirstExpansionToken(void) const final;
   MacroNodeKind Kind(void) const override;
   MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const override;
 
@@ -124,9 +126,23 @@ class MacroExpansionImpl final : public MacroSubstitutionImpl {
   MacroTokenImpl *l_paren{nullptr};
   MacroTokenImpl *r_paren{nullptr};
 
+  // We need to know the `r_paren` index so that we can possibly clone stuff
+  // following the `r_paren` into a pre-argument expansion. This will happen
+  // in cases like `FOO(...)(...)`, where we want to copy the `(...)` into the
+  // pre-argument expansion.
+  unsigned r_paren_index{0u};
+
   bool is_cancelled{false};
   bool in_prearg_expansion{false};
   bool is_prearg_expansion{false};
+
+#ifndef NDEBUG
+  enum {
+    kNotDeferred,
+    kDeferredParent,
+    kDeferredChild
+  } defferal_status{kNotDeferred};
+#endif
 };
 
 // The `nodes` of a `RootMacroNode` are the top-level macro nodes, e.g. top-

@@ -14,7 +14,8 @@
 #include <clang/Lex/Token.h>
 #pragma GCC diagnostic pop
 
-#define D(...) __VA_ARGS__
+//#define D(...) __VA_ARGS__
+#define D(...)
 
 namespace pasta {
 
@@ -403,14 +404,14 @@ bool PatchedMacroTracker::ClonePrefixArguments(
     const clang::Token &tok) {
   MacroExpansionImpl *exp = pre_exp->parent_for_prearg;
   if (!exp) {
-    std::cerr << indent << " not a pre-expansion\n";
+    D( std::cerr << indent << " not a pre-expansion\n"; )
     return false;  // Not a pre-argument expansion.
   }
 
   // We've ended pre-argument expansion, and now are entering the macro
   // expansion itself.
   if (!pre_exp->use_nodes.empty()) {
-    std::cerr << indent << " after pre-expansion done\n";
+    D( std::cerr << indent << " after pre-expansion done\n"; )
     return false;
   }
 
@@ -438,17 +439,17 @@ bool PatchedMacroTracker::ClonePrefixArguments(
   for (const Node &node : exp->use_nodes) {
     MacroTokenImpl *use_tok = FirstUseToken(node);
     if (!use_tok) {
-      std::cerr << indent << " no token at " << num_skipped << '\n';
+      D( std::cerr << indent << " no token at " << num_skipped << '\n'; )
       ++num_skipped;
       continue;
     }
 
     const TokenImpl &parsed_tok = ast->tokens[use_tok->token_offset];
-    std::cerr
-        << indent
-        << "! PRE_EXP: " << num_skipped << ' ' << parsed_tok.Data(*ast) << " "
-        << parsed_tok.opaque_source_loc << " "
-        << tok.getLocation().getRawEncoding() << '\n';
+    D( std::cerr
+          << indent
+          << "! PRE_EXP: " << num_skipped << ' ' << parsed_tok.Data(*ast) << " "
+          << parsed_tok.opaque_source_loc << " "
+          << tok.getLocation().getRawEncoding() << '\n'; )
 
     if (tok.getLocation().getRawEncoding() == parsed_tok.opaque_source_loc) {
       matched = true;
@@ -459,7 +460,7 @@ bool PatchedMacroTracker::ClonePrefixArguments(
   }
 
   if (!matched) {
-    std::cerr << indent << " no matched\n";
+    D( std::cerr << indent << " no matched\n"; )
     return false;
   }
 
@@ -467,7 +468,7 @@ bool PatchedMacroTracker::ClonePrefixArguments(
   // tokens in it.
   std::optional<Node> trailing_empty_node;
   if (!pre_exp->nodes.empty() && !FirstUseToken(pre_exp->nodes.back())) {
-    std::cerr << indent << "- has trailing empty\n";
+    D( std::cerr << indent << "- has trailing empty\n"; )
     trailing_empty_node.emplace(pre_exp->nodes.back());
     pre_exp->nodes.pop_back();
   }
@@ -505,7 +506,9 @@ bool PatchedMacroTracker::ClonePrefixArguments(
       ++j;
       continue;
     }
-    std::cerr << indent << "* i=" << i << " j=" << j << " num_skipped=" << num_skipped << '\n';
+
+    D( std::cerr << indent << "* i=" << i << " j="
+                 << j << " num_skipped=" << num_skipped << '\n'; )
     break;
   }
 
@@ -514,7 +517,7 @@ bool PatchedMacroTracker::ClonePrefixArguments(
   if (!trailing_empty_node && !arguments.empty() &&
       arguments.back()->is_prearg_expansion &&
       std::get<MacroNodeImpl *>(arguments.back()->parent) == pre_exp) {
-    std::cerr << indent << " closing last argument\n";
+    D( std::cerr << indent << " closing last argument\n"; )
     MacroArgumentImpl *last_arg = arguments.back();
     Node last_arg_node(last_arg);
     assert(std::holds_alternative<MacroNodeImpl *>(last_arg->parent));
@@ -543,7 +546,8 @@ bool PatchedMacroTracker::ClonePrefixArguments(
       assert(std::holds_alternative<MacroNodeImpl *>(last_arg->nodes.back()));
       assert(std::get<MacroNodeImpl *>(last_arg->nodes.back()) == last_node);
 
-      D( std::cerr << indent << " - converting extra argument node for trailer\n"; );
+      D( std::cerr << indent
+                   << " - converting extra argument node for trailer\n"; );
       Node node_for_next_arg = std::move(last_arg->nodes.back());
       last_arg->nodes.pop_back();
       ReparentNode(node_for_next_arg, pre_exp);
@@ -571,15 +575,16 @@ bool PatchedMacroTracker::ClonePrefixArguments(
     if (std::holds_alternative<MacroTokenImpl *>(node)) {
       MacroTokenImpl *tok = std::get<MacroTokenImpl *>(node);
 
-      TokenImpl &ast_tok = ast->tokens[tok->token_offset];
-      std::cerr << indent << " adding missing token " << ast_tok.Data(*ast) << '\n';
+      D( TokenImpl &ast_tok = ast->tokens[tok->token_offset]; )
+      D( std::cerr << indent << " adding missing token "
+                   << ast_tok.Data(*ast) << '\n'; )
       pre_exp->nodes.emplace_back(tok->Clone(*ast, pre_exp));
 
     } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
       MacroNodeImpl *cloned_node =
           std::get<MacroNodeImpl *>(node)->Clone(*ast, pre_exp);
       assert(dynamic_cast<MacroArgumentImpl *>(cloned_node));
-      std::cerr << indent << " adding missing argument\n";
+      D( std::cerr << indent << " adding missing argument\n"; )
       pre_exp->arguments.emplace_back(cloned_node);
       pre_exp->nodes.emplace_back(cloned_node);
 
@@ -589,7 +594,7 @@ bool PatchedMacroTracker::ClonePrefixArguments(
   }
 
   if (trailing_empty_node) {
-    std::cerr << indent << " re-adding empty argument/expansion\n";
+    D( std::cerr << indent << " re-adding empty argument/expansion\n"; )
     pre_exp->nodes.emplace_back(std::move(trailing_empty_node.value()));
   }
 
@@ -1367,50 +1372,96 @@ void PatchedMacroTracker::DoEndMacroExpansion(
     ReparentNodes(std::move(expansion->nodes), parent_node);
   }
 
+  if (!deferred_expansion) {
+    return;
+  }
+
+
   // Expansion is `CAT`, deferred expansion is `FOO_2`. We want the uses nodes
   // of `FOO_2` to be the `CAT`, and the expansion of `CAT` to be the use nodes
   // of `FOO_2`.
-  if (deferred_expansion) {
 
-    // The only node in `deferred_expansion` is the macro name.
-    assert(deferred_expansion->use_nodes.empty());
-    assert(deferred_expansion->nodes.size() == 1u);
+  // The only node in `deferred_expansion` is the macro name.
+  assert(deferred_expansion->use_nodes.empty());
+  assert(deferred_expansion->nodes.size() == 1u);
 
-    // The only node in `expansion->nodes` is `deferred_expansion`.
+  // The only node in `expansion->nodes` is `deferred_expansion`.
+  assert(std::holds_alternative<MacroNodeImpl *>(expansion->nodes.back()));
+  assert(std::get<MacroNodeImpl *>(expansion->nodes.back()) ==
+      deferred_expansion);
+
+  assert(parent_node != expansion);
+  assert(parent_node != deferred_expansion);
+  assert(!parent_node->nodes.empty());
+  assert(std::holds_alternative<MacroNodeImpl *>(parent_node->nodes.back()));
+  assert(std::get<MacroNodeImpl *>(parent_node->nodes.back()) ==
+         expansion);
+
+  // What we have:
+  //
+  //        NP
+  //       /  \
+  //     {B}   E      <-- actually being closed
+  //         /  \
+  //       {A}  DE    <-- previous `expansions.back()`
+  //           /  \
+  //         {}    ident(FOO_2)
+
+
+
+  // In this case, NP has to be moved along with E, because E was NP's pre-
+  // argument expansion, we want:
+  //
+  //        DE
+  //       /  \
+  //     {}   NP
+  //         /  \
+  //        {B}  E
+  //            / \
+  //          {A}  ident(FOO_2)
+  if (expansion->is_prearg_expansion) {
+    assert(expansion->parent_for_prearg == parent_node);
+    assert(std::get<MacroNodeImpl *>(expansion->parent) ==
+           expansion->parent_for_prearg);
+
+    assert(!expansion->nodes.empty());
     assert(std::holds_alternative<MacroNodeImpl *>(expansion->nodes.back()));
     assert(std::get<MacroNodeImpl *>(expansion->nodes.back()) ==
-        deferred_expansion);
+           deferred_expansion);
 
-    assert(parent_node != expansion);
-    assert(parent_node != deferred_expansion);
-    assert(!parent_node->nodes.empty());
-    assert(std::holds_alternative<MacroNodeImpl *>(parent_node->nodes.back()));
-    assert(std::get<MacroNodeImpl *>(parent_node->nodes.back()) ==
-           expansion);
+    MacroNodeImpl *grand_parent_node = std::get<MacroNodeImpl *>(
+        parent_node->parent);
+    assert(!grand_parent_node->nodes.empty());
+    assert(std::holds_alternative<MacroNodeImpl *>(grand_parent_node->nodes.back()));
+    assert(std::get<MacroNodeImpl *>(grand_parent_node->nodes.back()) ==
+           parent_node);
 
-    // What we have:
-    //
-    //         NP
-    //          \
-    //           E  <-- being closed
-    //         /  \
-    //       {A}  DE
-    //           /  \
-    //         {}  ident(FOO_2)
+    expansion->nodes.pop_back();  // Remove `DE` from `E`.
+    grand_parent_node->nodes.pop_back();  // Remove `NP`.
 
-    // What we want:
-    //
-    //        NP
-    //         \
-    //         DE
-    //        /  \
-    //      {}    E
-    //           /  \
-    //          {A} ident(FOO_2)
-    //
-    // * NOTE: the `E` will be swapped into `use_nodes` later.
-    parent_node->nodes.pop_back();
-    parent_node->nodes.push_back(deferred_expansion);
+    grand_parent_node->nodes.push_back(deferred_expansion);  // Add `DE`.
+    deferred_expansion->parent = grand_parent_node;
+    parent_node->parent = deferred_expansion;
+
+    expansion->nodes.clear();
+    ReparentNodes(std::move(deferred_expansion->nodes), expansion);
+
+    deferred_expansion->nodes.push_back(parent_node);
+
+  // Othwerwise, in the normal case, what we want is:
+  //
+  //       NP
+  //      /  \
+  //    {B}  DE
+  //        /  \
+  //      {}    E
+  //           / \
+  //         {A}  ident(FOO_2)
+  //
+  // * NOTE: the `E` will be swapped into `use_nodes` later.
+  } else {
+    parent_node->nodes.pop_back();  // Remove `E`
+    parent_node->nodes.push_back(deferred_expansion);  // Add `DE`.
     deferred_expansion->parent = parent_node;
     expansion->parent = deferred_expansion;
 
@@ -1418,10 +1469,10 @@ void PatchedMacroTracker::DoEndMacroExpansion(
     ReparentNodes(std::move(deferred_expansion->nodes), expansion);
 
     deferred_expansion->nodes.push_back(expansion);
-
-    nodes.push_back(deferred_expansion);
-    expansions.push_back(deferred_expansion);
   }
+
+  nodes.push_back(deferred_expansion);
+  expansions.push_back(deferred_expansion);
 }
 
 void PatchedMacroTracker::DoBeginSubstitution(
@@ -1540,62 +1591,61 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
 
   last_event = kind;
 
-  if constexpr (D(1 -) 0) {
-
-    switch (kind) {
-      case EndSplitToken:
-      case EndDirective:
-      case EndNonDirective:
-      case EndMacroExpansion:
-      case EndMacroCallArgumentList:
-      case EndMacroCallArgument:
-      case EndVariadicCallArgumentList:
-      case EndSubstitution:
-      case EndPreArgumentExpansion:
-      case CancelExpansion:
+#if D(1 -) 0
+  switch (kind) {
+    case EndSplitToken:
+    case EndDirective:
+    case EndNonDirective:
+    case EndMacroExpansion:
+    case EndMacroCallArgumentList:
+    case EndMacroCallArgument:
+    case EndVariadicCallArgumentList:
+    case EndSubstitution:
+    case EndPreArgumentExpansion:
+    case CancelExpansion:
 //        --depth;
-        indent.resize(indent.size() - 2);
-        break;
-      default:
-        break;
-    }
+      indent.resize(indent.size() - 2);
+      break;
+    default:
+      break;
+  }
 
-    std::cerr << indent;
+  std::cerr << indent;
 
-    switch (kind) {
-      case TokenFromLexer: std::cerr << "TokenFromLexer(" << ast->tokens.size() << ")"; break;
-      case TokenFromTokenLexer: std::cerr << "TokenFromTokenLexer(" << ast->tokens.size() << ")"; break;
-      case TokenFromCachingLexer: std::cerr << "TokenFromCachingLexer(" << ast->tokens.size() << ")"; break;
-      case TokenFromAfterModuleImportLexer: std::cerr << "TokenFromAfterModuleImportLexer(" << ast->tokens.size() << ")"; break;
-      case BeginSplitToken: std::cerr << "BeginSplitToken"; break;
-      case EndSplitToken: std::cerr << "EndSplitToken"; break;
-      case BeginDirective: std::cerr << "BeginDirective"; break;
-      case BeginSkippedArea: std::cerr << "BeginSkippedArea"; break;
-      case SetNamedDirective: std::cerr << "SetNamedDirective"; break;
-      case SetUnnamedDirective: std::cerr << "SetUnnamedDirective"; break;
-      case EndDirective: std::cerr << "EndDirective"; break;
-      case EndNonDirective: std::cerr << "EndNonDirective"; break;
-      case BeginMacroExpansion: std::cerr << "BeginMacroExpansion"; break;
-      case SwitchToExpansion: std::cerr << "SwitchToExpansion"; break;
-      case BeginPreArgumentExpansion: std::cerr << "BeginPreArgumentExpansion"; break;
-      case EndPreArgumentExpansion: std::cerr << "EndPreArgumentExpansion"; break;
-      case PrepareToCancelExpansion: std::cerr << "PrepareToCancelExpansion"; break;
-      case CancelExpansion: std::cerr << "CancelExpansion"; break;
-      case EndMacroExpansion: std::cerr << "EndMacroExpansion"; break;
-      case BeginMacroCallArgumentList: std::cerr << "BeginMacroCallArgumentList"; break;
-      case EndMacroCallArgumentList: std::cerr << "EndMacroCallArgumentList"; break;
-      case BeginMacroCallArgument: std::cerr << "BeginMacroCallArgument"; break;
-      case EndMacroCallArgument: std::cerr << "EndMacroCallArgument"; break;
-      case BeginVariadicCallArgumentList: std::cerr << "BeginVariadicCallArgumentList"; break;
-      case EndVariadicCallArgumentList: std::cerr << "EndVariadicCallArgumentList"; break;
-      case BeginSubstitution: std::cerr << "BeginSubstitution"; break;
-      case BeginDelayedSubstitution: std::cerr << "BeginDelayedSubstitution"; break;
-      case SwitchToSubstitution: std::cerr << "SwitchToSubstitution"; break;
-      case EndSubstitution: std::cerr << "EndSubstitution"; break;
-    }
+  switch (kind) {
+    case TokenFromLexer: std::cerr << "TokenFromLexer(" << ast->tokens.size() << ")"; break;
+    case TokenFromTokenLexer: std::cerr << "TokenFromTokenLexer(" << ast->tokens.size() << ")"; break;
+    case TokenFromCachingLexer: std::cerr << "TokenFromCachingLexer(" << ast->tokens.size() << ")"; break;
+    case TokenFromAfterModuleImportLexer: std::cerr << "TokenFromAfterModuleImportLexer(" << ast->tokens.size() << ")"; break;
+    case BeginSplitToken: std::cerr << "BeginSplitToken"; break;
+    case EndSplitToken: std::cerr << "EndSplitToken"; break;
+    case BeginDirective: std::cerr << "BeginDirective"; break;
+    case BeginSkippedArea: std::cerr << "BeginSkippedArea"; break;
+    case SetNamedDirective: std::cerr << "SetNamedDirective"; break;
+    case SetUnnamedDirective: std::cerr << "SetUnnamedDirective"; break;
+    case EndDirective: std::cerr << "EndDirective"; break;
+    case EndNonDirective: std::cerr << "EndNonDirective"; break;
+    case BeginMacroExpansion: std::cerr << "BeginMacroExpansion"; break;
+    case SwitchToExpansion: std::cerr << "SwitchToExpansion"; break;
+    case BeginPreArgumentExpansion: std::cerr << "BeginPreArgumentExpansion"; break;
+    case EndPreArgumentExpansion: std::cerr << "EndPreArgumentExpansion"; break;
+    case PrepareToCancelExpansion: std::cerr << "PrepareToCancelExpansion"; break;
+    case CancelExpansion: std::cerr << "CancelExpansion"; break;
+    case EndMacroExpansion: std::cerr << "EndMacroExpansion"; break;
+    case BeginMacroCallArgumentList: std::cerr << "BeginMacroCallArgumentList"; break;
+    case EndMacroCallArgumentList: std::cerr << "EndMacroCallArgumentList"; break;
+    case BeginMacroCallArgument: std::cerr << "BeginMacroCallArgument"; break;
+    case EndMacroCallArgument: std::cerr << "EndMacroCallArgument"; break;
+    case BeginVariadicCallArgumentList: std::cerr << "BeginVariadicCallArgumentList"; break;
+    case EndVariadicCallArgumentList: std::cerr << "EndVariadicCallArgumentList"; break;
+    case BeginSubstitution: std::cerr << "BeginSubstitution"; break;
+    case BeginDelayedSubstitution: std::cerr << "BeginDelayedSubstitution"; break;
+    case SwitchToSubstitution: std::cerr << "SwitchToSubstitution"; break;
+    case EndSubstitution: std::cerr << "EndSubstitution"; break;
+  }
 
-    std::cerr
-        << ' ' << clang::tok::getTokenName(tok.getKind());
+  std::cerr
+      << ' ' << clang::tok::getTokenName(tok.getKind());
 //    if (tok.is(clang::tok::comma)) {
 //      std::cerr
 //          << " StartOfLine=" << tok.getFlag(clang::Token::StartOfLine)
@@ -1612,32 +1662,32 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
 //          << " IsReinjected=" << tok.getFlag(clang::Token::IsReinjected);
 //    }
 
-    if (tok.is(clang::tok::identifier)) {
-      std::cerr << ' ' << tok.getIdentifierInfo()->getName().str();
-    } else if (tok.is(clang::tok::raw_identifier)) {
-      std::cerr << ' ' << tok.getRawIdentifier().str();
-    }
-
-    switch (kind) {
-      case BeginSplitToken:
-      case BeginDirective:
-      case BeginSkippedArea:
-      case BeginMacroExpansion:
-      case BeginMacroCallArgumentList:
-      case BeginMacroCallArgument:
-      case BeginVariadicCallArgumentList:
-      case BeginSubstitution:
-      case BeginDelayedSubstitution:
-      case BeginPreArgumentExpansion:
-//        ++depth;
-        indent += "  ";
-        break;
-      default:
-        break;
-    }
-
-    std::cerr << '\n';
+  if (tok.is(clang::tok::identifier)) {
+    std::cerr << ' ' << tok.getIdentifierInfo()->getName().str();
+  } else if (tok.is(clang::tok::raw_identifier)) {
+    std::cerr << ' ' << tok.getRawIdentifier().str();
   }
+
+  switch (kind) {
+    case BeginSplitToken:
+    case BeginDirective:
+    case BeginSkippedArea:
+    case BeginMacroExpansion:
+    case BeginMacroCallArgumentList:
+    case BeginMacroCallArgument:
+    case BeginVariadicCallArgumentList:
+    case BeginSubstitution:
+    case BeginDelayedSubstitution:
+    case BeginPreArgumentExpansion:
+//        ++depth;
+      indent += "  ";
+      break;
+    default:
+      break;
+  }
+
+  std::cerr << '\n';
+#endif
 }
 
 // Callback invoked whenever an inclusion directive of any kind (`#include`,

@@ -175,7 +175,7 @@ void DeclPrinter::printDeclType(clang::QualType T, std::function<void(void)> Nam
     T = PET->getPattern();
   }
 
-  printQualType(T, Out, Policy, [=, NameFn = std::move(NameFn)] () {
+  printQualType(T, Out, Policy, [=, NameFn = std::move(NameFn), this] () {
     if (Pack) {
       Out << "...";
     }
@@ -639,7 +639,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
     };
   }
   if (D->isFunctionTemplateSpecialization()) {
-    ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
+    ProtoFn = [=, ProtoFn = std::move(ProtoFn), this] (void) {
       ProtoFn();
       DeclPrinter TArgPrinter(Out, SubPolicy, Context, tokens, Indentation);
 
@@ -657,7 +657,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
 
   clang::QualType Ty = D->getType();
   while (const clang::ParenType *PT = clang::dyn_cast<clang::ParenType>(Ty)) {
-    ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
+    ProtoFn = [=, ProtoFn = std::move(ProtoFn), this] (void) {
       TokenPrinterContext ctx(Out, PT, this->tokens);
       Out << '(';
       ProtoFn();

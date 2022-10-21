@@ -54,7 +54,7 @@ void ASTImpl::AppendMarker(clang::SourceLocation loc, TokenRole role) {
 void ASTImpl::AppendToken(const clang::Token &tok, size_t offset_,
                           size_t len_, TokenRole role_) {
   const auto len = static_cast<uint32_t>(len_ & TokenImpl::kTokenSizeMask);
-  assert(0u <= static_cast<int32_t>(offset_));  // Make sure it fits in 31 bits.
+  assert(0 <= static_cast<int32_t>(offset_));  // Make sure it fits in 31 bits.
   assert(len == len_);
   clang::SourceLocation loc = tok.getLocation();
   tokens.emplace_back(loc.getRawEncoding(), static_cast<int32_t>(offset_), len,
@@ -66,7 +66,7 @@ void ASTImpl::AppendToken(const clang::Token &tok, size_t offset_,
 void ASTImpl::AppendBackupToken(const clang::Token &tok, size_t offset_,
                                 size_t len_, TokenRole role_) {
   const auto len = static_cast<uint32_t>(len_ & TokenImpl::kTokenSizeMask);
-  assert(0u < static_cast<int32_t>(offset_));
+  assert(0 < static_cast<int32_t>(offset_));
   assert(len == len_);
   clang::SourceLocation loc = tok.getLocation();
   tokens.emplace_back(loc.getRawEncoding(), -static_cast<int32_t>(offset_), len,

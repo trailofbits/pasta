@@ -382,6 +382,11 @@ enum TokenKind MacroToken::TokenKind(void) const noexcept {
   return static_cast<enum TokenKind>(token.Kind());
 }
 
+std::string_view MacroToken::TokenKindName(void) const noexcept {
+  return clang::tok::getTokenName(
+      static_cast<clang::tok::TokenKind>(TokenKind()));
+}
+
 // Return the data associated with this token.
 std::string_view MacroToken::Data(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
@@ -475,6 +480,46 @@ MacroToken MacroDefinition::NameToken(void) const noexcept {
   MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
   assert(std::holds_alternative<MacroTokenImpl *>(dir_impl->macro_name));
   return MacroToken(ast, &(dir_impl->macro_name));
+}
+
+// Number of explicit, i.e. not variadic, parameters.
+unsigned MacroDefinition::NumExplicitParameters(void) const noexcept {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
+  MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
+  if (dir_impl->defined_macro) {
+    return dir_impl->defined_macro->getNumParams();
+  } else {
+    assert(false);
+    return 0u;
+  }
+}
+
+// Is this a function-like macro? If so, then it could take zero-or-more
+// arguments when used.
+bool MacroDefinition::IsFunctionLike(void) const noexcept {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
+  MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
+  if (dir_impl->defined_macro) {
+    return dir_impl->defined_macro->isFunctionLike();
+  } else {
+    assert(false);
+    return 0u;
+  }
+}
+
+// Does this definition accept a variable number of arguments?
+bool MacroDefinition::IsVariadic(void) const noexcept {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
+  MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
+  if (dir_impl->defined_macro) {
+    return dir_impl->defined_macro->isVariadic();
+  } else {
+    assert(false);
+    return false;
+  }
 }
 
 // Uses of this macro.

@@ -125,6 +125,7 @@ class MacroToken final : public MacroNode {
   }
 
   enum TokenKind TokenKind(void) const noexcept;
+  std::string_view TokenKindName(void) const noexcept;
 
   // Return the data associated with this token.
   std::string_view Data(void) const noexcept;
@@ -196,6 +197,16 @@ class MacroDefinition final : public MacroDirective {
 
   // Uses of this macro.
   MacroNodeRange Uses(void) const noexcept;
+
+  // Number of explicit, i.e. not variadic, parameters.
+  unsigned NumExplicitParameters(void) const noexcept;
+
+  // Does this definition accept a variable number of arguments?
+  bool IsVariadic(void) const noexcept;
+
+  // Is this a function-like macro? If so, then it could take zero-or-more
+  // arguments when used.
+  bool IsFunctionLike(void) const noexcept;
 };
 
 static_assert(sizeof(MacroDefinition) == sizeof(MacroNode));

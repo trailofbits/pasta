@@ -77,6 +77,7 @@ MacroTokenImpl *MacroTokenImpl::Clone(ASTImpl &ast,
 
   MacroTokenImpl *clone = &(ast.root_macro_node.tokens.emplace_back());
   clone->token_offset = static_cast<uint32_t>(new_offset);
+  assert(clone->token_offset == new_offset);
   clone->parent = new_parent;
   clone->kind_flags.kind = kind_flags.kind;
   clone->kind_flags.is_ignored_comma = kind_flags.is_ignored_comma;
@@ -116,6 +117,7 @@ static void CloneNodeList(ASTImpl &ast,
       assert(std::holds_alternative<MacroNodeImpl *>(tok->parent));
       assert(std::get<MacroNodeImpl *>(tok->parent) == old_parent);
       MacroTokenImpl *cloned_tok = tok->Clone(ast, new_parent);
+      assert(tok->token_offset < cloned_tok->token_offset);
       new_nodes.emplace_back(cloned_tok);
 
       on_token(i, tok, cloned_tok);

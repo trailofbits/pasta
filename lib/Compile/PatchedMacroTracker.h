@@ -75,6 +75,14 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   std::unordered_map<clang::SourceLocation::UIntTy, size_t> file_token_refs;
   std::unordered_map<clang::SourceLocation::UIntTy, size_t> macro_token_refs;
 
+  // In evil scenarios where pre-expansion is cancelled (e.g. due to a nested
+  // _Pragma()), Clang may presend us with an EOD/EOF that is really
+  // meant to be a comma or closing parenthesis. This trips up our pre-
+  // expansion argument prefix injection logic. So to handle this, we try
+  // to recover the intended token from its location.
+  std::unordered_map<clang::SourceLocation::UIntTy, clang::Token>
+      end_of_arg_toks;
+
   // The index of the last token whose role marks the beginning of a macro
   // expansion.
   size_t start_of_macro_index{0u};

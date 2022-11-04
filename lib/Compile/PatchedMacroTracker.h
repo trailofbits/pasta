@@ -117,6 +117,7 @@ class PatchedMacroTracker : public clang::PPCallbacks {
 
   // Add a token in.
   void DoToken(const clang::Token &tok, uintptr_t);
+  void TryAddDirectiveHash(const clang::Token &tok, uintptr_t);
   void TryDoPreExpansionSetup(const clang::Token &tok);
   bool ClonePrefixArguments(MacroExpansionImpl *pre_exp,
                             const clang::Token &tok);

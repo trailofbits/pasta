@@ -31,6 +31,7 @@ class MacroNodeImpl {
 
   Node parent;
   std::vector<Node> nodes;
+  std::vector<Node> skipped_nodes;
   const MacroNodeImpl *cloned_from{nullptr};
 };
 

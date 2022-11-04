@@ -763,6 +763,53 @@ void PatchedMacroTracker::AddToParentNode(Node node) {
   }
 }
 
+void PatchedMacroTracker::TryAddDirectiveHash(const clang::Token &tok,
+                                              uintptr_t data) {
+  if (directives.empty() || nodes.back() != directives.back() ||
+      tok.getKind() == clang::tok::hash) {
+    return;
+  }
+
+  MacroDirectiveImpl *last_directive = directives.back();
+  if (!last_directive->nodes.empty()) {
+    return;
+  }
+
+  clang::SourceLocation directive_loc = tok.getLocation();
+  if (directive_loc.isInvalid() || !directive_loc.isFileID()) {
+    return;
+  }
+
+  bool invalid = false;
+  clang::SourceManager &sm = ast->ci->getSourceManager();
+  auto [file_id, file_offset] = sm.getDecomposedLoc(directive_loc);
+  llvm::StringRef file_data = sm.getBufferData(file_id, &invalid);
+  if (invalid) {
+    return;
+  }
+
+  // Scan backwards through the file buffer from the start of the macro token
+  // that was undefined, hoping to find the `#` of the directive. If we find
+  // it, then emit an injected token.
+  clang::SourceLocation hash_loc;
+  for (int loc_offset = 0; file_offset; --loc_offset) {
+    if (file_data[file_offset--] == '#') {
+      hash_loc = directive_loc.getLocWithOffset(loc_offset);
+      break;
+    }
+  }
+
+  if (hash_loc.isInvalid()) {
+    return;
+  }
+
+  clang::Token hash_tok;
+  hash_tok.startToken();
+  hash_tok.setKind(clang::tok::hash);
+  hash_tok.setLocation(hash_loc);
+  DoToken(hash_tok, data);
+}
+
 // Add a token in.
 //
 // NOTE(pag): This might change `nodes.back()`.
@@ -779,9 +826,16 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok, uintptr_t data) {
     return;  // It's a repeat?
   }
 
+  auto skip = skip_count || 1u == nodes.size() || tok.is(clang::tok::eod) ||
+              tok.is(clang::tok::eof);
+  if (skip_count && !directives.empty() && nodes.back() == directives.back() &&
+      directives.back()->is_skipped) {
+    skip = false;
+    TryAddDirectiveHash(tok, data);
+  }
+
   // NOTE(pag): `skip_count` tells us if we're inside of a cancelled macro.
-  if (skip_count || 1u == nodes.size() || tok.is(clang::tok::eod) ||
-      tok.is(clang::tok::eof)) {
+  if (skip) {
 
     auto real_tok_it = end_of_arg_toks.find(tok.getLocation().getRawEncoding());
     if (real_tok_it != end_of_arg_toks.end()) {
@@ -960,6 +1014,7 @@ void PatchedMacroTracker::DoBeginDirective(
   directive->parent = nodes.back();
   nodes.push_back(directive);
   directives.push_back(directive);
+
   DoToken(tok, data);
 }
 
@@ -1005,22 +1060,29 @@ void PatchedMacroTracker::DoEndDirective(
   nodes.pop_back();
   directives.pop_back();
   MacroNodeImpl *parent_node = nodes.back();
-  if (!last_directive->is_skipped) {
-    Pop(tok);
-    return;
+
+  if (last_directive->is_skipped) {
+    --skip_count;
   }
 
-  --skip_count;
-
-  // If it was skipped, then remove it from the parent. Don't copy any of the
-  // tokens in. Inside of skipped regions, we end up seeing partial tokens
-  // that we don't want to include, like `#define` but nothing after.
-  assert(std::holds_alternative<MacroNodeImpl *>(parent_node->nodes.back()));
-  assert(std::get<MacroNodeImpl *>(parent_node->nodes.back()) ==
-         last_directive);
-  parent_node->nodes.pop_back();
-  last_directive = nullptr;
   Pop(tok);
+
+//  if (!last_directive->is_skipped) {
+//    Pop(tok);
+//    return;
+//  }
+//
+//  --skip_count;
+//
+//  // If it was skipped, then remove it from the parent. Don't copy any of the
+//  // tokens in. Inside of skipped regions, we end up seeing partial tokens
+//  // that we don't want to include, like `#define` but nothing after.
+//  assert(std::holds_alternative<MacroNodeImpl *>(parent_node->nodes.back()));
+//  assert(std::get<MacroNodeImpl *>(parent_node->nodes.back()) ==
+//         last_directive);
+//  parent_node->nodes.pop_back();
+//  last_directive = nullptr;
+//  Pop(tok);
 }
 
 void PatchedMacroTracker::DoBeginMacroExpansion(

@@ -53,6 +53,8 @@ enum class MacroDirectiveKind : unsigned char {
   kIfDefined,
   kIfNotDefined,
   kElseIf,
+  kElseIfDefined,
+  kElseIfNotDefined,
   kElse,
   kEndIf,
   kDefine,

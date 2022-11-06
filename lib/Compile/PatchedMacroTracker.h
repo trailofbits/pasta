@@ -51,15 +51,18 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   clang::SourceManager &sm;
   clang::CompilerInstance &ci;
   clang::LangOptions &lo;
+  clang::Token skipped_hash;
 
   ASTImpl * const ast;
   llvm::raw_string_ostream token_data_stream;
   llvm::raw_string_ostream backup_token_data_stream;
 
   std::string indent;
+  bool suppress_indent{false};
 
   int depth{0};
-  int skip_count{0};
+  int cond_skip_depth{0};
+  int macro_skip_count{0};
   std::vector<MacroDirectiveImpl *> includes;
   clang::Token last_token;
   bool last_token_was_added{false};
@@ -70,7 +73,13 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   std::vector<MacroExpansionImpl *> expansions;
   std::vector<MacroArgumentImpl *> arguments;
   std::vector<MacroSubstitutionImpl *> substitutions;
+
+  // Normally this is the most recent directive; however, in the case of
+  // conditional directives, this is the last top-level one. In this latter
+  // case, there may be more recent directives, but they are all inside of
+  // a skipped code area.
   MacroDirectiveImpl *last_directive{nullptr};
+
   std::unordered_map<const clang::MacroInfo *, MacroDirectiveImpl *> defines;
   std::unordered_map<clang::SourceLocation::UIntTy, size_t> file_token_refs;
   std::unordered_map<clang::SourceLocation::UIntTy, size_t> macro_token_refs;
@@ -117,7 +126,7 @@ class PatchedMacroTracker : public clang::PPCallbacks {
 
   // Add a token in.
   void DoToken(const clang::Token &tok, uintptr_t);
-  void TryAddDirectiveHash(const clang::Token &tok, uintptr_t);
+  std::optional<clang::Token> FindDirectiveHash(const clang::Token &tok);
   void TryDoPreExpansionSetup(const clang::Token &tok);
   bool ClonePrefixArguments(MacroExpansionImpl *pre_exp,
                             const clang::Token &tok);
@@ -201,6 +210,22 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   void Ifndef(clang::SourceLocation,
               const clang::Token & /* macro_name_tested */,
               const clang::MacroDefinition &) final;
+
+  // Hook called whenever an `#elifdef` branch is taken.
+  void Elifdef(clang::SourceLocation, const clang::Token &,
+               const clang::MacroDefinition &) final;
+
+  // Hook called whenever an `#elifdef` is skipped.
+  void Elifdef(clang::SourceLocation, clang::SourceRange,
+               clang::SourceLocation) final;
+
+  // Hook called whenever an `#elifndef` branch is taken.
+  void Elifndef(clang::SourceLocation, const clang::Token &,
+                const clang::MacroDefinition &) final;
+
+  // Hook called whenever an `#elifndef` is skipped.
+  void Elifndef(clang::SourceLocation, clang::SourceRange,
+                clang::SourceLocation) final;
 
   /// Hook called whenever an `#else` is seen.
   void Else(clang::SourceLocation,

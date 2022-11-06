@@ -119,6 +119,12 @@ static void PrintMacroGraph(std::ostream &os,
     case pasta::MacroDirectiveKind::kElseIf:
       os << "ElseIf";
       break;
+    case pasta::MacroDirectiveKind::kElseIfDefined:
+      os << "ElseIfDefined";
+      break;
+    case pasta::MacroDirectiveKind::kElseIfNotDefined:
+      os << "ElseIfNotDefined";
+      break;
     case pasta::MacroDirectiveKind::kElse:
       os << "Else";
       break;

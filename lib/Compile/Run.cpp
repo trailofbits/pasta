@@ -135,6 +135,7 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
 
     tok_data.clear();
     (void) TryReadRawToken(source_manager, lang_opts, tok, &tok_data);
+    SkipLeadingWhitspace(tok, tok_loc, tok_data);
 
     // It's a macro expansion token. We will already have a copy of this token
     // as the most recently added token, so we need to transfer its data to

@@ -82,6 +82,7 @@ PatchedMacroTracker::PatchedMacroTracker(
   (void) suppress_indent;
   (void) indent;
   nodes.push_back(&(ast->root_macro_node));
+  tok_data_vec.resize(16);
 }
 
 void PatchedMacroTracker::Clear(void) {
@@ -705,7 +706,7 @@ void PatchedMacroTracker::FixupDerivedLocations(void) {
     const clang::SourceLocation loc = tok.Location();
     const OpaqueSourceLoc raw_loc = loc.getRawEncoding();
 
-    std::cerr << "role=" << int(tok.Role()) << " file=" << loc.isFileID() << " raw_loc=" << raw_loc << " -> tok_index=" << tok_index << '\n';
+    // std::cerr << "role=" << int(tok.Role()) << " file=" << loc.isFileID() << " raw_loc=" << raw_loc << " -> tok_index=" << tok_index << '\n';
 
     if (!loc.isValid()) {
       assert(false);
@@ -871,7 +872,18 @@ std::optional<clang::Token> PatchedMacroTracker::FindDirectiveHash(
 // Add a token in.
 //
 // NOTE(pag): This might change `nodes.back()`.
-void PatchedMacroTracker::DoToken(const clang::Token &tok, uintptr_t data) {
+void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
+
+  // Get the token data, and add the data to the AST's backup region, and a
+  // empty newline to the normal token data, so that the 1:1 mapping between
+  // line numbers in parsed source locations and tokens recorded matches up.
+  clang::Token tok = tok_;
+  clang::SourceLocation tok_loc = tok.getLocation();
+  std::string &tok_data = tok_data_vec[next_tok_data++ % tok_data_vec.size()];
+  tok_data.clear();
+  if (TryReadRawToken(sm, lo, tok, &tok_data)) {
+    SkipLeadingWhitspace(tok, tok_loc, tok_data);
+  }
 
   // When we're skipping tokens, we still want to record stuff for
   // conditional directives.
@@ -890,7 +902,7 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok, uintptr_t data) {
   last_token_was_added = false;
 
   skipped_hash.startToken();
-  if (tok.getLocation() == last_token.getLocation() &&
+  if (tok_loc == last_token.getLocation() &&
       tok.getKind() == last_token.getKind() &&
       tok.isAnnotation() == last_token.isAnnotation() &&
       tok.isAnyIdentifier() == last_token.isAnyIdentifier() &&
@@ -906,15 +918,14 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok, uintptr_t data) {
 
   // NOTE(pag): `skip_count` tells us if we're inside of a cancelled macro.
   if (skip) {
-
-    auto tok_loc = tok.getLocation().getRawEncoding();
-    auto real_tok_it = end_of_arg_toks.find(tok_loc);
+    auto raw_tok_loc = tok_loc.getRawEncoding();
+    auto real_tok_it = end_of_arg_toks.find(raw_tok_loc);
     if (real_tok_it != end_of_arg_toks.end()) {
       D( std::cerr << indent << "(recovering real token " << clang::tok::getTokenName(real_tok_it->second.getKind()) << ")\n"; )
       clang::Token real_tok = real_tok_it->second;
-      end_of_arg_toks.erase(tok_loc);  // Prevent infinite recursion.
+      end_of_arg_toks.erase(raw_tok_loc);  // Prevent infinite recursion.
       DoToken(real_tok, data);
-      end_of_arg_toks[tok_loc] = real_tok;
+      end_of_arg_toks[raw_tok_loc] = real_tok;
       return;
     }
 
@@ -939,16 +950,9 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok, uintptr_t data) {
   // With header names, we don't observe the lexing of the individual tokens.
   auto substituted_header_name = TryExtractHeaderName(tok);
 
-  // Get the token data, and add the data to the AST's backup region, and a
-  // empty newline to the normal token data, so that the 1:1 mapping between
-  // line numbers in parsed source locations and tokens recorded matches up.
-  tok_data.clear();
-  auto offset = ast->backup_token_data.size();
-  if (::pasta::TryReadRawToken(sm, lo, tok, &tok_data)) {
-    backup_token_data_stream << tok_data;
-    backup_token_data_stream.flush();
-  }
-
+  const auto offset = ast->backup_token_data.size();
+  backup_token_data_stream << tok_data;
+  backup_token_data_stream.flush();
   token_data_stream << '\n';
   token_data_stream.flush();
   ast->num_lines++;

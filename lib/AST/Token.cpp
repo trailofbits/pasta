@@ -672,6 +672,29 @@ Token TokenRange::operator[](size_t index) const {
   return Token(ast, &(first[index]));
 }
 
+// Strip off leading whitespace from a token that has been read.
+void SkipLeadingWhitspace(clang::Token &tok, clang::SourceLocation &tok_loc,
+                          std::string &tok_data) {
+  std::reverse(tok_data.begin(), tok_data.end());
+  while (!tok_data.empty()) {
+    switch (tok_data.back()) {
+      case '\\':
+      case ' ':
+      case '\t':
+      case '\r':
+      case '\n':
+        tok_data.pop_back();
+        tok_loc = tok_loc.getLocWithOffset(1);
+        break;
+      default:
+        goto done;
+    }
+  }
+done:
+  tok.setLocation(tok_loc);
+  std::reverse(tok_data.begin(), tok_data.end());
+}
+
 bool TryReadRawToken(clang::SourceManager &source_manager,
                      const clang::LangOptions &lang_opts,
                      const clang::Token &tok, std::string *out) {

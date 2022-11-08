@@ -67,7 +67,10 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   clang::Token last_token;
   bool last_token_was_added{false};
   EventKind last_event{EventKind::TokenFromLexer};
-  std::string tok_data;
+
+  std::vector<std::string> tok_data_vec;
+  size_t next_tok_data{0};
+
   std::vector<MacroNodeImpl *> nodes;
   std::vector<MacroDirectiveImpl *> directives;
   std::vector<MacroExpansionImpl *> expansions;

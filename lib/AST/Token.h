@@ -224,6 +224,10 @@ class TokenImpl {
 
 static_assert(sizeof(TokenImpl) == 16u);
 
+// Strip off leading whitespace from a token that has been read.
+void SkipLeadingWhitspace(clang::Token &tok, clang::SourceLocation &tok_loc,
+                          std::string &tok_data);
+
 // Read the data of the token into the passed in string pointer
 bool TryReadRawToken(clang::SourceManager &source_manager,
                      const clang::LangOptions &lang_opts,

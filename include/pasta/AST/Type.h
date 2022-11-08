@@ -52,6 +52,7 @@ class TypeVisitor {
   virtual void VisitArrayType(const ArrayType &);
   virtual void VisitAtomicType(const AtomicType &);
   virtual void VisitAttributedType(const AttributedType &);
+  virtual void VisitBTFTagAttributedType(const BTFTagAttributedType &);
   virtual void VisitBitIntType(const BitIntType &);
   virtual void VisitBlockPointerType(const BlockPointerType &);
   virtual void VisitBuiltinType(const BuiltinType &);
@@ -124,6 +125,7 @@ class Type {
     const ::clang::ArrayType *ArrayType;
     const ::clang::AtomicType *AtomicType;
     const ::clang::AttributedType *AttributedType;
+    const ::clang::BTFTagAttributedType *BTFTagAttributedType;
     const ::clang::BitIntType *BitIntType;
     const ::clang::BlockPointerType *BlockPointerType;
     const ::clang::BuiltinType *BuiltinType;
@@ -202,6 +204,7 @@ class Type {
   PASTA_DECLARE_DERIVED_OPERATORS(Type, AtomicType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, AttributedType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, AutoType)
+  PASTA_DECLARE_DERIVED_OPERATORS(Type, BTFTagAttributedType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, BitIntType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, BlockPointerType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, BuiltinType)
@@ -356,6 +359,7 @@ class Type {
   bool IsElaboratedTypeSpecifier(void) const noexcept;
   bool IsEnumeralType(void) const noexcept;
   bool IsEventT(void) const noexcept;
+  bool IsExtVectorBooleanType(void) const noexcept;
   bool IsExtVectorType(void) const noexcept;
   bool IsFixedPointOrIntegerType(void) const noexcept;
   bool IsFixedPointType(void) const noexcept;
@@ -568,6 +572,7 @@ class Type {
   bool IsRestrictQualified(void) const noexcept;
   bool IsTrivialType(void) const noexcept;
   bool IsTriviallyCopyableType(void) const noexcept;
+  bool IsTriviallyRelocatableType(void) const noexcept;
   bool IsVolatileQualified(void) const noexcept;
   bool MayBeDynamicClass(void) const noexcept;
   bool MayBeNotDynamicClass(void) const noexcept;
@@ -773,6 +778,21 @@ class AttributedType : public Type {
 };
 static_assert(sizeof(Type) == sizeof(AttributedType));
 
+class BTFTagAttributedType : public Type {
+ private:
+  using Type::Type;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(BTFTagAttributedType)
+  PASTA_DECLARE_BASE_OPERATORS(Type, BTFTagAttributedType)
+  ::pasta::Type Desugar(void) const noexcept;
+  ::pasta::BTFTypeTagAttr Attribute(void) const noexcept;
+  ::pasta::Type WrappedType(void) const noexcept;
+  bool IsSugared(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(BTFTagAttributedType)
+};
+static_assert(sizeof(Type) == sizeof(BTFTagAttributedType));
+
 class BitIntType : public Type {
  private:
   using Type::Type;
@@ -817,6 +837,7 @@ class BuiltinType : public Type {
   bool IsInteger(void) const noexcept;
   bool IsNonOverloadPlaceholderType(void) const noexcept;
   bool IsPlaceholderType(void) const noexcept;
+  bool IsSVEBool(void) const noexcept;
   bool IsSignedInteger(void) const noexcept;
   bool IsSugared(void) const noexcept;
   bool IsUnsignedInteger(void) const noexcept;
@@ -1445,6 +1466,7 @@ class AutoType : public DeducedType {
   std::optional<::pasta::ConceptDecl> TypeConstraintConcept(void) const noexcept;
   bool IsConstrained(void) const noexcept;
   bool IsDecltypeAuto(void) const noexcept;
+  bool IsGNUAutoType(void) const noexcept;
   // !!! Arg getNumArgs getArg (empty ret type = (const clang::TemplateArgument &))
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(AutoType)

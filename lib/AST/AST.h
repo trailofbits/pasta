@@ -10,6 +10,7 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/AST/Attr.h>
 #include <clang/AST/Type.h>
 #include <clang/AST/PrettyPrinter.h>
 #include <clang/Basic/FileManager.h>

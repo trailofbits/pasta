@@ -82,8 +82,10 @@ Attr::Attr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)    : Attr(std::move(ast_), attr_, KindOfAttr(attr_)) {}
 
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, AArch64SVEPcsAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, AArch64VectorPcsAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, AMDGPUFlatWorkGroupSizeAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, AMDGPUKernelCallAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, AMDGPUNumSGPRAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, AMDGPUNumVGPRAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, AMDGPUWavesPerEUAttr)
@@ -107,6 +109,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, AlwaysDestroyAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, AlwaysInlineAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, AnalyzerNoReturnAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, AnnotateAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, AnnotateTypeAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, AnyX86InterruptAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, AnyX86NoCallerSavedRegistersAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, AnyX86NoCfCheckAttr)
@@ -195,10 +198,14 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, FlagEnumAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, FlattenAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, FormatArgAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, FormatAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, FunctionReturnThunksAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, GNUInlineAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, GuardedByAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, GuardedVarAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, HIPManagedAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, HLSLNumThreadsAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, HLSLSV_GroupIndexAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, HLSLShaderAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, HotAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, IBActionAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, IBOutletAttr)
@@ -260,6 +267,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, NoMergeAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, NoMicroMipsAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, NoMips16Attr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, NoProfileFunctionAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, NoRandomizeLayoutAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, NoReturnAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, NoSanitizeAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, NoSpeculativeLoadHardeningAttr)
@@ -350,6 +358,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, Ptr32Attr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, Ptr64Attr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, PureAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, RISCVInterruptAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, RandomizeLayoutAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, RegCallAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ReinitializesAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ReleaseCapabilityAttr)
@@ -436,6 +445,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, WorkGroupSizeHintAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, X86ForceAlignArgPointerAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, XRayInstrumentAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, XRayLogArgsAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, ZeroCallUsedRegsAttr)
 // 1: Attr::Clone
 ::pasta::Token Attr::Token(void) const noexcept {
   auto &self = *const_cast<clang::Attr *>(u.Attr);
@@ -580,8 +590,10 @@ InheritableAttr::InheritableAttr(
     : Attr(std::move(ast_), attr_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, InheritableAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, AArch64SVEPcsAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, AArch64VectorPcsAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, AMDGPUFlatWorkGroupSizeAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, AMDGPUKernelCallAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, AMDGPUNumSGPRAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, AMDGPUNumVGPRAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, AMDGPUWavesPerEUAttr)
@@ -683,10 +695,14 @@ PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, FlagEnumAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, FlattenAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, FormatArgAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, FormatAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, FunctionReturnThunksAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, GNUInlineAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, GuardedByAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, GuardedVarAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, HIPManagedAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, HLSLNumThreadsAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, HLSLSV_GroupIndexAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, HLSLShaderAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, HotAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, IBActionAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, IBOutletAttr)
@@ -737,6 +753,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, NoMergeAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, NoMicroMipsAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, NoMips16Attr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, NoProfileFunctionAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, NoRandomizeLayoutAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, NoReturnAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, NoSanitizeAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, NoSpeculativeLoadHardeningAttr)
@@ -800,6 +817,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, PtGuardedByAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, PtGuardedVarAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, PureAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, RISCVInterruptAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, RandomizeLayoutAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, RegCallAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ReinitializesAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ReleaseCapabilityAttr)
@@ -873,6 +891,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, WorkGroupSizeHintAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, X86ForceAlignArgPointerAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, XRayInstrumentAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, XRayLogArgsAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ZeroCallUsedRegsAttr)
 bool InheritableAttr::ShouldInheritEvenIfAlreadyPresent(void) const noexcept {
   auto &self = *const_cast<clang::InheritableAttr *>(u.InheritableAttr);
   decltype(auto) val = self.shouldInheritEvenIfAlreadyPresent();
@@ -1974,26 +1993,6 @@ std::string_view NoEscapeAttr::Spelling(void) const noexcept {
   __builtin_unreachable();
 }
 
-NoInlineAttr::NoInlineAttr(
-    std::shared_ptr<ASTImpl> ast_,
-    const ::clang::Attr *attr_)
-    : InheritableAttr(std::move(ast_), attr_) {}
-
-PASTA_DEFINE_BASE_OPERATORS(Attr, NoInlineAttr)
-PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NoInlineAttr)
-// 1: NoInlineAttr::Clone
-std::string_view NoInlineAttr::Spelling(void) const noexcept {
-  auto &self = *const_cast<clang::NoInlineAttr *>(u.NoInlineAttr);
-  decltype(auto) val = self.getSpelling();
-  if (val) {
-    return std::string_view(val);
-  } else {
-    return std::string_view();
-  }
-  assert(false && "NoInlineAttr::Spelling can return nullptr!");
-  __builtin_unreachable();
-}
-
 NoInstrumentFunctionAttr::NoInstrumentFunctionAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -2071,6 +2070,26 @@ std::string_view NoProfileFunctionAttr::Spelling(void) const noexcept {
     return std::string_view();
   }
   assert(false && "NoProfileFunctionAttr::Spelling can return nullptr!");
+  __builtin_unreachable();
+}
+
+NoRandomizeLayoutAttr::NoRandomizeLayoutAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, NoRandomizeLayoutAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NoRandomizeLayoutAttr)
+// 1: NoRandomizeLayoutAttr::Clone
+std::string_view NoRandomizeLayoutAttr::Spelling(void) const noexcept {
+  auto &self = *const_cast<clang::NoRandomizeLayoutAttr *>(u.NoRandomizeLayoutAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  assert(false && "NoRandomizeLayoutAttr::Spelling can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -4064,6 +4083,26 @@ std::string_view RISCVInterruptAttr::Spelling(void) const noexcept {
   __builtin_unreachable();
 }
 
+RandomizeLayoutAttr::RandomizeLayoutAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, RandomizeLayoutAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, RandomizeLayoutAttr)
+// 1: RandomizeLayoutAttr::Clone
+std::string_view RandomizeLayoutAttr::Spelling(void) const noexcept {
+  auto &self = *const_cast<clang::RandomizeLayoutAttr *>(u.RandomizeLayoutAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  assert(false && "RandomizeLayoutAttr::Spelling can return nullptr!");
+  __builtin_unreachable();
+}
+
 RegCallAttr::RegCallAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -5489,6 +5528,7 @@ TypeAttr::TypeAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, TypeAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, AddressSpaceAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, AnnotateTypeAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, ArmMveStrictPolymorphismAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, BTFTypeTagAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, CmseNSCallAttr)
@@ -6424,6 +6464,53 @@ std::string_view XRayLogArgsAttr::Spelling(void) const noexcept {
   __builtin_unreachable();
 }
 
+ZeroCallUsedRegsAttr::ZeroCallUsedRegsAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, ZeroCallUsedRegsAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ZeroCallUsedRegsAttr)
+// 1: ZeroCallUsedRegsAttr::Clone
+std::string_view ZeroCallUsedRegsAttr::Spelling(void) const noexcept {
+  auto &self = *const_cast<clang::ZeroCallUsedRegsAttr *>(u.ZeroCallUsedRegsAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  assert(false && "ZeroCallUsedRegsAttr::Spelling can return nullptr!");
+  __builtin_unreachable();
+}
+
+enum ZeroCallUsedRegsAttrZeroCallUsedRegsKind ZeroCallUsedRegsAttr::ZeroCallUsedRegs(void) const noexcept {
+  auto &self = *const_cast<clang::ZeroCallUsedRegsAttr *>(u.ZeroCallUsedRegsAttr);
+  decltype(auto) val = self.getZeroCallUsedRegs();
+  return static_cast<::pasta::ZeroCallUsedRegsAttrZeroCallUsedRegsKind>(val);
+  __builtin_unreachable();
+}
+
+AArch64SVEPcsAttr::AArch64SVEPcsAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, AArch64SVEPcsAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AArch64SVEPcsAttr)
+// 1: AArch64SVEPcsAttr::Clone
+std::string_view AArch64SVEPcsAttr::Spelling(void) const noexcept {
+  auto &self = *const_cast<clang::AArch64SVEPcsAttr *>(u.AArch64SVEPcsAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  assert(false && "AArch64SVEPcsAttr::Spelling can return nullptr!");
+  __builtin_unreachable();
+}
+
 AArch64VectorPcsAttr::AArch64VectorPcsAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -6481,6 +6568,26 @@ std::string_view AMDGPUFlatWorkGroupSizeAttr::Spelling(void) const noexcept {
     return std::string_view();
   }
   assert(false && "AMDGPUFlatWorkGroupSizeAttr::Spelling can return nullptr!");
+  __builtin_unreachable();
+}
+
+AMDGPUKernelCallAttr::AMDGPUKernelCallAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, AMDGPUKernelCallAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AMDGPUKernelCallAttr)
+// 1: AMDGPUKernelCallAttr::Clone
+std::string_view AMDGPUKernelCallAttr::Spelling(void) const noexcept {
+  auto &self = *const_cast<clang::AMDGPUKernelCallAttr *>(u.AMDGPUKernelCallAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  assert(false && "AMDGPUKernelCallAttr::Spelling can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -7093,33 +7200,6 @@ std::string_view AlwaysDestroyAttr::Spelling(void) const noexcept {
   __builtin_unreachable();
 }
 
-AlwaysInlineAttr::AlwaysInlineAttr(
-    std::shared_ptr<ASTImpl> ast_,
-    const ::clang::Attr *attr_)
-    : InheritableAttr(std::move(ast_), attr_) {}
-
-PASTA_DEFINE_BASE_OPERATORS(Attr, AlwaysInlineAttr)
-PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AlwaysInlineAttr)
-// 1: AlwaysInlineAttr::Clone
-enum AlwaysInlineAttrSpelling AlwaysInlineAttr::SemanticSpelling(void) const noexcept {
-  auto &self = *const_cast<clang::AlwaysInlineAttr *>(u.AlwaysInlineAttr);
-  decltype(auto) val = self.getSemanticSpelling();
-  return static_cast<::pasta::AlwaysInlineAttrSpelling>(val);
-  __builtin_unreachable();
-}
-
-std::string_view AlwaysInlineAttr::Spelling(void) const noexcept {
-  auto &self = *const_cast<clang::AlwaysInlineAttr *>(u.AlwaysInlineAttr);
-  decltype(auto) val = self.getSpelling();
-  if (val) {
-    return std::string_view(val);
-  } else {
-    return std::string_view();
-  }
-  assert(false && "AlwaysInlineAttr::Spelling can return nullptr!");
-  __builtin_unreachable();
-}
-
 AnalyzerNoReturnAttr::AnalyzerNoReturnAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -7153,6 +7233,10 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableParamAttr, AnnotateAttr)
 // 0: AnnotateAttr::
 // 0: AnnotateAttr::
 // 1: AnnotateAttr::Clone
+// 0: AnnotateAttr::DelayedArguments
+// 0: AnnotateAttr::
+// 0: AnnotateAttr::
+// 0: AnnotateAttr::
 std::string_view AnnotateAttr::Annotation(void) const noexcept {
   auto &self = *const_cast<clang::AnnotateAttr *>(u.AnnotateAttr);
   decltype(auto) val = self.getAnnotation();
@@ -7180,6 +7264,52 @@ std::string_view AnnotateAttr::Spelling(void) const noexcept {
     return std::string_view();
   }
   assert(false && "AnnotateAttr::Spelling can return nullptr!");
+  __builtin_unreachable();
+}
+
+AnnotateTypeAttr::AnnotateTypeAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : TypeAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, AnnotateTypeAttr)
+PASTA_DEFINE_BASE_OPERATORS(TypeAttr, AnnotateTypeAttr)
+// 0: AnnotateTypeAttr::Arguments
+// 0: AnnotateTypeAttr::
+// 0: AnnotateTypeAttr::
+// 0: AnnotateTypeAttr::
+// 1: AnnotateTypeAttr::Clone
+// 0: AnnotateTypeAttr::DelayedArguments
+// 0: AnnotateTypeAttr::
+// 0: AnnotateTypeAttr::
+// 0: AnnotateTypeAttr::
+std::string_view AnnotateTypeAttr::Annotation(void) const noexcept {
+  auto &self = *const_cast<clang::AnnotateTypeAttr *>(u.AnnotateTypeAttr);
+  decltype(auto) val = self.getAnnotation();
+  if (auto size = val.size()) {
+    return std::string_view(val.data(), size);
+  } else {
+    return std::string_view();
+  }
+  __builtin_unreachable();
+}
+
+uint32_t AnnotateTypeAttr::AnnotationLength(void) const noexcept {
+  auto &self = *const_cast<clang::AnnotateTypeAttr *>(u.AnnotateTypeAttr);
+  decltype(auto) val = self.getAnnotationLength();
+  return val;
+  __builtin_unreachable();
+}
+
+std::string_view AnnotateTypeAttr::Spelling(void) const noexcept {
+  auto &self = *const_cast<clang::AnnotateTypeAttr *>(u.AnnotateTypeAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  assert(false && "AnnotateTypeAttr::Spelling can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -8243,6 +8373,13 @@ CXX11NoReturnAttr::CXX11NoReturnAttr(
 PASTA_DEFINE_BASE_OPERATORS(Attr, CXX11NoReturnAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CXX11NoReturnAttr)
 // 1: CXX11NoReturnAttr::Clone
+enum CXX11NoReturnAttrSpelling CXX11NoReturnAttr::SemanticSpelling(void) const noexcept {
+  auto &self = *const_cast<clang::CXX11NoReturnAttr *>(u.CXX11NoReturnAttr);
+  decltype(auto) val = self.getSemanticSpelling();
+  return static_cast<::pasta::CXX11NoReturnAttrSpelling>(val);
+  __builtin_unreachable();
+}
+
 std::string_view CXX11NoReturnAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::CXX11NoReturnAttr *>(u.CXX11NoReturnAttr);
   decltype(auto) val = self.getSpelling();
@@ -8793,6 +8930,8 @@ DeclOrStmtAttr::DeclOrStmtAttr(
 
 PASTA_DEFINE_BASE_OPERATORS(Attr, DeclOrStmtAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, DeclOrStmtAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(DeclOrStmtAttr, AlwaysInlineAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(DeclOrStmtAttr, NoInlineAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(DeclOrStmtAttr, NoMergeAttr)
 DeprecatedAttr::DeprecatedAttr(
     std::shared_ptr<ASTImpl> ast_,
@@ -9536,6 +9675,33 @@ std::string_view FormatAttr::Spelling(void) const noexcept {
 }
 
 // 0: FormatAttr::Type
+FunctionReturnThunksAttr::FunctionReturnThunksAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, FunctionReturnThunksAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, FunctionReturnThunksAttr)
+// 1: FunctionReturnThunksAttr::Clone
+std::string_view FunctionReturnThunksAttr::Spelling(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionReturnThunksAttr *>(u.FunctionReturnThunksAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  assert(false && "FunctionReturnThunksAttr::Spelling can return nullptr!");
+  __builtin_unreachable();
+}
+
+enum FunctionReturnThunksAttrKind FunctionReturnThunksAttr::ThunkType(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionReturnThunksAttr *>(u.FunctionReturnThunksAttr);
+  decltype(auto) val = self.getThunkType();
+  return static_cast<::pasta::FunctionReturnThunksAttrKind>(val);
+  __builtin_unreachable();
+}
+
 GNUInlineAttr::GNUInlineAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -9623,6 +9789,76 @@ std::string_view HIPManagedAttr::Spelling(void) const noexcept {
     return std::string_view();
   }
   assert(false && "HIPManagedAttr::Spelling can return nullptr!");
+  __builtin_unreachable();
+}
+
+HLSLNumThreadsAttr::HLSLNumThreadsAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, HLSLNumThreadsAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, HLSLNumThreadsAttr)
+// 1: HLSLNumThreadsAttr::Clone
+std::string_view HLSLNumThreadsAttr::Spelling(void) const noexcept {
+  auto &self = *const_cast<clang::HLSLNumThreadsAttr *>(u.HLSLNumThreadsAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  assert(false && "HLSLNumThreadsAttr::Spelling can return nullptr!");
+  __builtin_unreachable();
+}
+
+// 0: HLSLNumThreadsAttr::X
+// 0: HLSLNumThreadsAttr::Y
+// 0: HLSLNumThreadsAttr::Z
+HLSLSV_GroupIndexAttr::HLSLSV_GroupIndexAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, HLSLSV_GroupIndexAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, HLSLSV_GroupIndexAttr)
+// 1: HLSLSV_GroupIndexAttr::Clone
+std::string_view HLSLSV_GroupIndexAttr::Spelling(void) const noexcept {
+  auto &self = *const_cast<clang::HLSLSV_GroupIndexAttr *>(u.HLSLSV_GroupIndexAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  assert(false && "HLSLSV_GroupIndexAttr::Spelling can return nullptr!");
+  __builtin_unreachable();
+}
+
+HLSLShaderAttr::HLSLShaderAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, HLSLShaderAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, HLSLShaderAttr)
+// 1: HLSLShaderAttr::Clone
+std::string_view HLSLShaderAttr::Spelling(void) const noexcept {
+  auto &self = *const_cast<clang::HLSLShaderAttr *>(u.HLSLShaderAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  assert(false && "HLSLShaderAttr::Spelling can return nullptr!");
+  __builtin_unreachable();
+}
+
+enum HLSLShaderAttrShaderType HLSLShaderAttr::Type(void) const noexcept {
+  auto &self = *const_cast<clang::HLSLShaderAttr *>(u.HLSLShaderAttr);
+  decltype(auto) val = self.getType();
+  return static_cast<::pasta::HLSLShaderAttrShaderType>(val);
   __builtin_unreachable();
 }
 
@@ -9779,6 +10015,34 @@ std::string_view NoDerefAttr::Spelling(void) const noexcept {
     return std::string_view();
   }
   assert(false && "NoDerefAttr::Spelling can return nullptr!");
+  __builtin_unreachable();
+}
+
+NoInlineAttr::NoInlineAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : DeclOrStmtAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, NoInlineAttr)
+PASTA_DEFINE_BASE_OPERATORS(DeclOrStmtAttr, NoInlineAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NoInlineAttr)
+// 1: NoInlineAttr::Clone
+std::string_view NoInlineAttr::Spelling(void) const noexcept {
+  auto &self = *const_cast<clang::NoInlineAttr *>(u.NoInlineAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  assert(false && "NoInlineAttr::Spelling can return nullptr!");
+  __builtin_unreachable();
+}
+
+bool NoInlineAttr::IsClangNoInline(void) const noexcept {
+  auto &self = *const_cast<clang::NoInlineAttr *>(u.NoInlineAttr);
+  decltype(auto) val = self.isClangNoInline();
+  return val;
   __builtin_unreachable();
 }
 
@@ -10123,6 +10387,41 @@ std::string_view SPtrAttr::Spelling(void) const noexcept {
     return std::string_view();
   }
   assert(false && "SPtrAttr::Spelling can return nullptr!");
+  __builtin_unreachable();
+}
+
+AlwaysInlineAttr::AlwaysInlineAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : DeclOrStmtAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, AlwaysInlineAttr)
+PASTA_DEFINE_BASE_OPERATORS(DeclOrStmtAttr, AlwaysInlineAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AlwaysInlineAttr)
+// 1: AlwaysInlineAttr::Clone
+enum AlwaysInlineAttrSpelling AlwaysInlineAttr::SemanticSpelling(void) const noexcept {
+  auto &self = *const_cast<clang::AlwaysInlineAttr *>(u.AlwaysInlineAttr);
+  decltype(auto) val = self.getSemanticSpelling();
+  return static_cast<::pasta::AlwaysInlineAttrSpelling>(val);
+  __builtin_unreachable();
+}
+
+std::string_view AlwaysInlineAttr::Spelling(void) const noexcept {
+  auto &self = *const_cast<clang::AlwaysInlineAttr *>(u.AlwaysInlineAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  assert(false && "AlwaysInlineAttr::Spelling can return nullptr!");
+  __builtin_unreachable();
+}
+
+bool AlwaysInlineAttr::IsClangAlwaysInline(void) const noexcept {
+  auto &self = *const_cast<clang::AlwaysInlineAttr *>(u.AlwaysInlineAttr);
+  decltype(auto) val = self.isClangAlwaysInline();
+  return val;
   __builtin_unreachable();
 }
 

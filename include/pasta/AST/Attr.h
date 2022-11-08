@@ -43,8 +43,10 @@ class Stmt;
 class Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(Attr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, AArch64SVEPcsAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, AArch64VectorPcsAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, AMDGPUFlatWorkGroupSizeAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, AMDGPUKernelCallAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, AMDGPUNumSGPRAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, AMDGPUNumVGPRAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, AMDGPUWavesPerEUAttr)
@@ -68,6 +70,7 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, AlwaysInlineAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, AnalyzerNoReturnAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, AnnotateAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, AnnotateTypeAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, AnyX86InterruptAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, AnyX86NoCallerSavedRegistersAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, AnyX86NoCfCheckAttr)
@@ -156,10 +159,14 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, FlattenAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, FormatArgAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, FormatAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, FunctionReturnThunksAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, GNUInlineAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, GuardedByAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, GuardedVarAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, HIPManagedAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, HLSLNumThreadsAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, HLSLSV_GroupIndexAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, HLSLShaderAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, HotAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, IBActionAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, IBOutletAttr)
@@ -221,6 +228,7 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, NoMicroMipsAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, NoMips16Attr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, NoProfileFunctionAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, NoRandomizeLayoutAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, NoReturnAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, NoSanitizeAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, NoSpeculativeLoadHardeningAttr)
@@ -311,6 +319,7 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, Ptr64Attr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, PureAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, RISCVInterruptAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, RandomizeLayoutAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, RegCallAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ReinitializesAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ReleaseCapabilityAttr)
@@ -397,6 +406,7 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, X86ForceAlignArgPointerAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, XRayInstrumentAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, XRayLogArgsAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, ZeroCallUsedRegsAttr)
   ::pasta::Token Token(void) const noexcept;
   std::string_view Spelling(void) const noexcept;
   uint32_t SpellingListIndex(void) const noexcept;
@@ -422,8 +432,10 @@ class Attr {
 
   std::shared_ptr<ASTImpl> ast;
   union {
+    const ::clang::AArch64SVEPcsAttr *AArch64SVEPcsAttr;
     const ::clang::AArch64VectorPcsAttr *AArch64VectorPcsAttr;
     const ::clang::AMDGPUFlatWorkGroupSizeAttr *AMDGPUFlatWorkGroupSizeAttr;
+    const ::clang::AMDGPUKernelCallAttr *AMDGPUKernelCallAttr;
     const ::clang::AMDGPUNumSGPRAttr *AMDGPUNumSGPRAttr;
     const ::clang::AMDGPUNumVGPRAttr *AMDGPUNumVGPRAttr;
     const ::clang::AMDGPUWavesPerEUAttr *AMDGPUWavesPerEUAttr;
@@ -447,6 +459,7 @@ class Attr {
     const ::clang::AlwaysInlineAttr *AlwaysInlineAttr;
     const ::clang::AnalyzerNoReturnAttr *AnalyzerNoReturnAttr;
     const ::clang::AnnotateAttr *AnnotateAttr;
+    const ::clang::AnnotateTypeAttr *AnnotateTypeAttr;
     const ::clang::AnyX86InterruptAttr *AnyX86InterruptAttr;
     const ::clang::AnyX86NoCallerSavedRegistersAttr *AnyX86NoCallerSavedRegistersAttr;
     const ::clang::AnyX86NoCfCheckAttr *AnyX86NoCfCheckAttr;
@@ -536,10 +549,14 @@ class Attr {
     const ::clang::FlattenAttr *FlattenAttr;
     const ::clang::FormatArgAttr *FormatArgAttr;
     const ::clang::FormatAttr *FormatAttr;
+    const ::clang::FunctionReturnThunksAttr *FunctionReturnThunksAttr;
     const ::clang::GNUInlineAttr *GNUInlineAttr;
     const ::clang::GuardedByAttr *GuardedByAttr;
     const ::clang::GuardedVarAttr *GuardedVarAttr;
     const ::clang::HIPManagedAttr *HIPManagedAttr;
+    const ::clang::HLSLNumThreadsAttr *HLSLNumThreadsAttr;
+    const ::clang::HLSLSV_GroupIndexAttr *HLSLSV_GroupIndexAttr;
+    const ::clang::HLSLShaderAttr *HLSLShaderAttr;
     const ::clang::HotAttr *HotAttr;
     const ::clang::IBActionAttr *IBActionAttr;
     const ::clang::IBOutletAttr *IBOutletAttr;
@@ -601,6 +618,7 @@ class Attr {
     const ::clang::NoMicroMipsAttr *NoMicroMipsAttr;
     const ::clang::NoMips16Attr *NoMips16Attr;
     const ::clang::NoProfileFunctionAttr *NoProfileFunctionAttr;
+    const ::clang::NoRandomizeLayoutAttr *NoRandomizeLayoutAttr;
     const ::clang::NoReturnAttr *NoReturnAttr;
     const ::clang::NoSanitizeAttr *NoSanitizeAttr;
     const ::clang::NoSpeculativeLoadHardeningAttr *NoSpeculativeLoadHardeningAttr;
@@ -691,6 +709,7 @@ class Attr {
     const ::clang::Ptr64Attr *Ptr64Attr;
     const ::clang::PureAttr *PureAttr;
     const ::clang::RISCVInterruptAttr *RISCVInterruptAttr;
+    const ::clang::RandomizeLayoutAttr *RandomizeLayoutAttr;
     const ::clang::RegCallAttr *RegCallAttr;
     const ::clang::ReinitializesAttr *ReinitializesAttr;
     const ::clang::ReleaseCapabilityAttr *ReleaseCapabilityAttr;
@@ -777,6 +796,7 @@ class Attr {
     const ::clang::X86ForceAlignArgPointerAttr *X86ForceAlignArgPointerAttr;
     const ::clang::XRayInstrumentAttr *XRayInstrumentAttr;
     const ::clang::XRayLogArgsAttr *XRayLogArgsAttr;
+    const ::clang::ZeroCallUsedRegsAttr *ZeroCallUsedRegsAttr;
     const void *opaque;
   } u;
   AttrKind kind;
@@ -842,8 +862,10 @@ class InheritableAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(InheritableAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, InheritableAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, AArch64SVEPcsAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, AArch64VectorPcsAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, AMDGPUFlatWorkGroupSizeAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, AMDGPUKernelCallAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, AMDGPUNumSGPRAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, AMDGPUNumVGPRAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, AMDGPUWavesPerEUAttr)
@@ -945,10 +967,14 @@ class InheritableAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, FlattenAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, FormatArgAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, FormatAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, FunctionReturnThunksAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, GNUInlineAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, GuardedByAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, GuardedVarAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, HIPManagedAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, HLSLNumThreadsAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, HLSLSV_GroupIndexAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, HLSLShaderAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, HotAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, IBActionAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, IBOutletAttr)
@@ -999,6 +1025,7 @@ class InheritableAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, NoMicroMipsAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, NoMips16Attr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, NoProfileFunctionAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, NoRandomizeLayoutAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, NoReturnAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, NoSanitizeAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, NoSpeculativeLoadHardeningAttr)
@@ -1062,6 +1089,7 @@ class InheritableAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, PtGuardedVarAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, PureAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, RISCVInterruptAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, RandomizeLayoutAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, RegCallAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ReinitializesAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ReleaseCapabilityAttr)
@@ -1135,6 +1163,7 @@ class InheritableAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, X86ForceAlignArgPointerAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, XRayInstrumentAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, XRayLogArgsAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ZeroCallUsedRegsAttr)
   bool ShouldInheritEvenIfAlreadyPresent(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(InheritableAttr)
@@ -1821,20 +1850,6 @@ class NoEscapeAttr : public Attr {
 
 static_assert(sizeof(Attr) == sizeof(NoEscapeAttr));
 
-class NoInlineAttr : public InheritableAttr {
- private:
-  using InheritableAttr::From;
- public:
-  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoInlineAttr)
-  PASTA_DECLARE_BASE_OPERATORS(Attr, NoInlineAttr)
-  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoInlineAttr)
-  std::string_view Spelling(void) const noexcept;
- protected:
-  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoInlineAttr)
-};
-
-static_assert(sizeof(Attr) == sizeof(NoInlineAttr));
-
 class NoInstrumentFunctionAttr : public InheritableAttr {
  private:
   using InheritableAttr::From;
@@ -1890,6 +1905,20 @@ class NoProfileFunctionAttr : public InheritableAttr {
 };
 
 static_assert(sizeof(Attr) == sizeof(NoProfileFunctionAttr));
+
+class NoRandomizeLayoutAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoRandomizeLayoutAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, NoRandomizeLayoutAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoRandomizeLayoutAttr)
+  std::string_view Spelling(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoRandomizeLayoutAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(NoRandomizeLayoutAttr));
 
 class NoReturnAttr : public InheritableAttr {
  private:
@@ -3038,6 +3067,20 @@ class RISCVInterruptAttr : public InheritableAttr {
 
 static_assert(sizeof(Attr) == sizeof(RISCVInterruptAttr));
 
+class RandomizeLayoutAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(RandomizeLayoutAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, RandomizeLayoutAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, RandomizeLayoutAttr)
+  std::string_view Spelling(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(RandomizeLayoutAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(RandomizeLayoutAttr));
+
 class RegCallAttr : public InheritableAttr {
  private:
   using InheritableAttr::From;
@@ -3851,6 +3894,7 @@ class TypeAttr : public Attr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TypeAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, TypeAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, AddressSpaceAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, AnnotateTypeAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, ArmMveStrictPolymorphismAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, BTFTypeTagAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, CmseNSCallAttr)
@@ -4351,6 +4395,35 @@ class XRayLogArgsAttr : public InheritableAttr {
 
 static_assert(sizeof(Attr) == sizeof(XRayLogArgsAttr));
 
+class ZeroCallUsedRegsAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ZeroCallUsedRegsAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, ZeroCallUsedRegsAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ZeroCallUsedRegsAttr)
+  std::string_view Spelling(void) const noexcept;
+  enum ZeroCallUsedRegsAttrZeroCallUsedRegsKind ZeroCallUsedRegs(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ZeroCallUsedRegsAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(ZeroCallUsedRegsAttr));
+
+class AArch64SVEPcsAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AArch64SVEPcsAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, AArch64SVEPcsAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AArch64SVEPcsAttr)
+  std::string_view Spelling(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AArch64SVEPcsAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(AArch64SVEPcsAttr));
+
 class AArch64VectorPcsAttr : public InheritableAttr {
  private:
   using InheritableAttr::From;
@@ -4380,6 +4453,20 @@ class AMDGPUFlatWorkGroupSizeAttr : public InheritableAttr {
 };
 
 static_assert(sizeof(Attr) == sizeof(AMDGPUFlatWorkGroupSizeAttr));
+
+class AMDGPUKernelCallAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AMDGPUKernelCallAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, AMDGPUKernelCallAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AMDGPUKernelCallAttr)
+  std::string_view Spelling(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AMDGPUKernelCallAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(AMDGPUKernelCallAttr));
 
 class AMDGPUNumSGPRAttr : public InheritableAttr {
  private:
@@ -4689,21 +4776,6 @@ class AlwaysDestroyAttr : public InheritableAttr {
 
 static_assert(sizeof(Attr) == sizeof(AlwaysDestroyAttr));
 
-class AlwaysInlineAttr : public InheritableAttr {
- private:
-  using InheritableAttr::From;
- public:
-  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AlwaysInlineAttr)
-  PASTA_DECLARE_BASE_OPERATORS(Attr, AlwaysInlineAttr)
-  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AlwaysInlineAttr)
-  enum AlwaysInlineAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
- protected:
-  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AlwaysInlineAttr)
-};
-
-static_assert(sizeof(Attr) == sizeof(AlwaysInlineAttr));
-
 class AnalyzerNoReturnAttr : public InheritableAttr {
  private:
   using InheritableAttr::From;
@@ -4727,6 +4799,7 @@ class AnnotateAttr : public InheritableParamAttr {
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AnnotateAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableParamAttr, AnnotateAttr)
   // Arguments: (llvm::iterator_range<clang::Expr **>)
+  // DelayedArguments: (llvm::iterator_range<clang::Expr **>)
   std::string_view Annotation(void) const noexcept;
   uint32_t AnnotationLength(void) const noexcept;
   std::string_view Spelling(void) const noexcept;
@@ -4735,6 +4808,24 @@ class AnnotateAttr : public InheritableParamAttr {
 };
 
 static_assert(sizeof(Attr) == sizeof(AnnotateAttr));
+
+class AnnotateTypeAttr : public TypeAttr {
+ private:
+  using TypeAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AnnotateTypeAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, AnnotateTypeAttr)
+  PASTA_DECLARE_BASE_OPERATORS(TypeAttr, AnnotateTypeAttr)
+  // Arguments: (llvm::iterator_range<clang::Expr **>)
+  // DelayedArguments: (llvm::iterator_range<clang::Expr **>)
+  std::string_view Annotation(void) const noexcept;
+  uint32_t AnnotationLength(void) const noexcept;
+  std::string_view Spelling(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AnnotateTypeAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(AnnotateTypeAttr));
 
 class AnyX86InterruptAttr : public InheritableAttr {
  private:
@@ -5346,6 +5437,7 @@ class CXX11NoReturnAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CXX11NoReturnAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CXX11NoReturnAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CXX11NoReturnAttr)
+  enum CXX11NoReturnAttrSpelling SemanticSpelling(void) const noexcept;
   std::string_view Spelling(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CXX11NoReturnAttr)
@@ -5682,6 +5774,8 @@ class DeclOrStmtAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DeclOrStmtAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, DeclOrStmtAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, DeclOrStmtAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(DeclOrStmtAttr, AlwaysInlineAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(DeclOrStmtAttr, NoInlineAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(DeclOrStmtAttr, NoMergeAttr)
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(DeclOrStmtAttr)
@@ -6038,6 +6132,21 @@ class FormatAttr : public InheritableAttr {
 
 static_assert(sizeof(Attr) == sizeof(FormatAttr));
 
+class FunctionReturnThunksAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(FunctionReturnThunksAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, FunctionReturnThunksAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, FunctionReturnThunksAttr)
+  std::string_view Spelling(void) const noexcept;
+  enum FunctionReturnThunksAttrKind ThunkType(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(FunctionReturnThunksAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(FunctionReturnThunksAttr));
+
 class GNUInlineAttr : public InheritableAttr {
  private:
   using InheritableAttr::From;
@@ -6094,6 +6203,52 @@ class HIPManagedAttr : public InheritableAttr {
 };
 
 static_assert(sizeof(Attr) == sizeof(HIPManagedAttr));
+
+class HLSLNumThreadsAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(HLSLNumThreadsAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, HLSLNumThreadsAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, HLSLNumThreadsAttr)
+  std::string_view Spelling(void) const noexcept;
+  // X: (int)
+  // Y: (int)
+  // Z: (int)
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(HLSLNumThreadsAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(HLSLNumThreadsAttr));
+
+class HLSLSV_GroupIndexAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(HLSLSV_GroupIndexAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, HLSLSV_GroupIndexAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, HLSLSV_GroupIndexAttr)
+  std::string_view Spelling(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(HLSLSV_GroupIndexAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(HLSLSV_GroupIndexAttr));
+
+class HLSLShaderAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(HLSLShaderAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, HLSLShaderAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, HLSLShaderAttr)
+  std::string_view Spelling(void) const noexcept;
+  enum HLSLShaderAttrShaderType Type(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(HLSLShaderAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(HLSLShaderAttr));
 
 class HotAttr : public InheritableAttr {
  private:
@@ -6194,6 +6349,22 @@ class NoDerefAttr : public TypeAttr {
 };
 
 static_assert(sizeof(Attr) == sizeof(NoDerefAttr));
+
+class NoInlineAttr : public DeclOrStmtAttr {
+ private:
+  using DeclOrStmtAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoInlineAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, NoInlineAttr)
+  PASTA_DECLARE_BASE_OPERATORS(DeclOrStmtAttr, NoInlineAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoInlineAttr)
+  std::string_view Spelling(void) const noexcept;
+  bool IsClangNoInline(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoInlineAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(NoInlineAttr));
 
 class NoMergeAttr : public DeclOrStmtAttr {
  private:
@@ -6412,6 +6583,23 @@ class SPtrAttr : public TypeAttr {
 };
 
 static_assert(sizeof(Attr) == sizeof(SPtrAttr));
+
+class AlwaysInlineAttr : public DeclOrStmtAttr {
+ private:
+  using DeclOrStmtAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AlwaysInlineAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, AlwaysInlineAttr)
+  PASTA_DECLARE_BASE_OPERATORS(DeclOrStmtAttr, AlwaysInlineAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AlwaysInlineAttr)
+  enum AlwaysInlineAttrSpelling SemanticSpelling(void) const noexcept;
+  std::string_view Spelling(void) const noexcept;
+  bool IsClangAlwaysInline(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AlwaysInlineAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(AlwaysInlineAttr));
 
 }  // namespace pasta
 #undef PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR

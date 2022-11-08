@@ -119,7 +119,7 @@ static std::string CxxNameImpl(llvm::StringRef name) {
 std::string CxxName(llvm::StringRef name_) {
   if (name_ == "C2x_noreturn") {
     return "C2xnoreturn";
-  } else if (name == "C2x_Noreturn") {
+  } else if (name_ == "C2x_Noreturn") {
     return "C2xNoreturn";
   }
 

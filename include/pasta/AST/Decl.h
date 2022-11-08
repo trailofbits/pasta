@@ -111,6 +111,7 @@ class DeclVisitor {
   virtual void VisitTypeAliasDecl(const TypeAliasDecl &);
   virtual void VisitTypeAliasTemplateDecl(const TypeAliasTemplateDecl &);
   virtual void VisitTypedefDecl(const TypedefDecl &);
+  virtual void VisitUnnamedGlobalConstantDecl(const UnnamedGlobalConstantDecl &);
   virtual void VisitUnresolvedUsingValueDecl(const UnresolvedUsingValueDecl &);
   virtual void VisitUsingDecl(const UsingDecl &);
   virtual void VisitUsingEnumDecl(const UsingEnumDecl &);
@@ -319,6 +320,7 @@ class Decl {
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, TypeDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, TypedefDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, TypedefNameDecl)
+  PASTA_DECLARE_DERIVED_OPERATORS(Decl, UnnamedGlobalConstantDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, UnresolvedUsingIfExistsDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, UnresolvedUsingTypenameDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, UnresolvedUsingValueDecl)
@@ -377,6 +379,7 @@ class Decl {
   bool IsCanonicalDeclaration(void) const noexcept;
   bool IsDefinedOutsideFunctionOrMethod(void) const noexcept;
   bool IsDeprecated(void) const noexcept;
+  bool IsDiscardedInGlobalModuleFragment(void) const noexcept;
   bool IsFirstDeclaration(void) const noexcept;
   bool IsFromASTFile(void) const noexcept;
   bool IsFunctionOrFunctionTemplate(void) const noexcept;
@@ -387,9 +390,11 @@ class Decl {
   bool IsInLocalScopeForInstantiation(void) const noexcept;
   bool IsInStdNamespace(void) const noexcept;
   bool IsInvalidDeclaration(void) const noexcept;
+  bool IsInvisibleOutsideTheOwningModule(void) const noexcept;
   bool IsModulePrivate(void) const noexcept;
   bool IsOutOfLine(void) const noexcept;
   bool IsParameterPack(void) const noexcept;
+  bool IsReachable(void) const noexcept;
   bool IsReferenced(void) const noexcept;
   bool IsTemplateDeclaration(void) const noexcept;
   bool IsTemplateParameter(void) const noexcept;
@@ -506,6 +511,7 @@ class Decl {
     const ::clang::TypeDecl *TypeDecl;
     const ::clang::TypedefDecl *TypedefDecl;
     const ::clang::TypedefNameDecl *TypedefNameDecl;
+    const ::clang::UnnamedGlobalConstantDecl *UnnamedGlobalConstantDecl;
     const ::clang::UnresolvedUsingIfExistsDecl *UnresolvedUsingIfExistsDecl;
     const ::clang::UnresolvedUsingTypenameDecl *UnresolvedUsingTypenameDecl;
     const ::clang::UnresolvedUsingValueDecl *UnresolvedUsingValueDecl;
@@ -642,7 +648,7 @@ class LifetimeExtendedTemporaryDecl : public Decl {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(LifetimeExtendedTemporaryDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, LifetimeExtendedTemporaryDecl)
-  std::vector<::pasta::Stmt> ChildrenExpression(void) const noexcept;
+  std::vector<::pasta::Stmt> Children(void) const noexcept;
   ::pasta::ValueDecl ExtendingDeclaration(void) const noexcept;
   uint32_t ManglingNumber(void) const noexcept;
   // OrCreateValue: (clang::APValue *)
@@ -736,6 +742,7 @@ class NamedDecl : public Decl {
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, TypeDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, TypedefDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, TypedefNameDecl)
+  PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, UnnamedGlobalConstantDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, UnresolvedUsingIfExistsDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, UnresolvedUsingTypenameDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, UnresolvedUsingValueDecl)
@@ -1399,6 +1406,7 @@ class ValueDecl : public NamedDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(ValueDecl, ObjCIvarDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueDecl, ParmVarDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueDecl, TemplateParamObjectDecl)
+  PASTA_DECLARE_DERIVED_OPERATORS(ValueDecl, UnnamedGlobalConstantDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueDecl, UnresolvedUsingValueDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueDecl, VarDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueDecl, VarTemplatePartialSpecializationDecl)
@@ -1727,6 +1735,7 @@ class FunctionDecl : public DeclaratorDecl {
   ::pasta::TokenRange ExceptionSpecSourceRange(void) const noexcept;
   enum ExceptionSpecificationType ExceptionSpecType(void) const noexcept;
   // FunctionTypeToken: (clang::FunctionTypeLoc)
+  ::pasta::FunctionDecl InstantiatedFromDeclaration(void) const noexcept;
   std::optional<::pasta::FunctionDecl> InstantiatedFromMemberFunction(void) const noexcept;
   enum LanguageLinkage LanguageLinkage(void) const noexcept;
   // LiteralIdentifier: (const clang::IdentifierInfo *)
@@ -1776,6 +1785,7 @@ class FunctionDecl : public DeclaratorDecl {
   bool IsImplicitlyInstantiable(void) const noexcept;
   bool IsInExternCContext(void) const noexcept;
   bool IsInExternCXXContext(void) const noexcept;
+  bool IsIneligibleOrNotSelected(void) const noexcept;
   bool IsInlineBuiltinDeclaration(void) const noexcept;
   std::optional<bool> IsInlineDefinitionExternallyVisible(void) const noexcept;
   bool IsInlineSpecified(void) const noexcept;
@@ -2167,6 +2177,7 @@ class TagDecl : public TypeDecl {
   bool IsInterface(void) const noexcept;
   bool IsStruct(void) const noexcept;
   bool IsThisDeclarationADefinition(void) const noexcept;
+  bool IsThisDeclarationADemotedDefinition(void) const noexcept;
   bool IsUnion(void) const noexcept;
   bool MayHaveOutOfDateDefinition(void) const noexcept;
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
@@ -2271,6 +2282,21 @@ class TypedefDecl : public TypedefNameDecl {
 
 static_assert(sizeof(Decl) == sizeof(TypedefDecl));
 
+class UnnamedGlobalConstantDecl : public ValueDecl {
+ private:
+  using ValueDecl::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UnnamedGlobalConstantDecl)
+  PASTA_DECLARE_BASE_OPERATORS(Decl, UnnamedGlobalConstantDecl)
+  PASTA_DECLARE_BASE_OPERATORS(NamedDecl, UnnamedGlobalConstantDecl)
+  PASTA_DECLARE_BASE_OPERATORS(ValueDecl, UnnamedGlobalConstantDecl)
+  // Value: (const clang::APValue &)
+ protected:
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(UnnamedGlobalConstantDecl)
+};
+
+static_assert(sizeof(Decl) == sizeof(UnnamedGlobalConstantDecl));
+
 class UnresolvedUsingValueDecl : public ValueDecl {
  private:
   using ValueDecl::From;
@@ -2356,6 +2382,7 @@ class VarDecl : public DeclaratorDecl {
   std::optional<::pasta::VarTemplateDecl> DescribedVariableTemplate(void) const noexcept;
   // EvaluatedStatement: (clang::EvaluatedStmt *)
   // EvaluatedValue: (clang::APValue *)
+  // FlexibleArrayInitializerCharacters: (clang::CharUnits)
   std::optional<::pasta::Expr> Initializer(void) const noexcept;
   enum VarDeclInitializationStyle InitializerStyle(void) const noexcept;
   std::optional<::pasta::VarDecl> InitializingDeclaration(void) const noexcept;
@@ -2373,6 +2400,7 @@ class VarDecl : public DeclaratorDecl {
   bool HasConstantInitialization(void) const noexcept;
   bool HasDependentAlignment(void) const noexcept;
   bool HasExternalStorage(void) const noexcept;
+  bool HasFlexibleArrayInitializer(void) const noexcept;
   bool HasGlobalStorage(void) const noexcept;
   std::optional<bool> HasICEInitializer(void) const noexcept;
   bool HasInitializer(void) const noexcept;
@@ -2453,7 +2481,7 @@ class VarTemplateSpecializationDecl : public VarDecl {
   ::pasta::VarTemplateDecl SpecializedTemplate(void) const noexcept;
   std::variant<std::monostate, ::pasta::VarTemplateDecl, ::pasta::VarTemplatePartialSpecializationDecl> SpecializedTemplateOrPartial(void) const noexcept;
   std::vector<::pasta::TemplateArgument> TemplateArguments(void) const noexcept;
-  // TemplateArgumentsInfo: (const clang::TemplateArgumentListInfo &)
+  // TemplateArgumentsInfo: (const clang::ASTTemplateArgumentListInfo *)
   std::vector<::pasta::TemplateArgument> TemplateInstantiationArguments(void) const noexcept;
   ::pasta::Token TemplateKeywordToken(void) const noexcept;
   ::pasta::Type TypeAsWritten(void) const noexcept;
@@ -2740,6 +2768,7 @@ class RecordDecl : public TagDecl {
   bool IsNonTrivialToPrimitiveDestroy(void) const noexcept;
   bool IsOrContainsUnion(void) const noexcept;
   bool IsParameterDestroyedInCallee(void) const noexcept;
+  bool IsRandomized(void) const noexcept;
   bool MayInsertExtraPadding(void) const noexcept;
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
  protected:
@@ -2886,6 +2915,7 @@ class CXXRecordDecl : public RecordDecl {
   std::optional<::pasta::CXXMethodDecl> LambdaCallOperator(void) const noexcept;
   std::optional<enum LambdaCaptureDefault> LambdaCaptureDefault(void) const noexcept;
   std::optional<::pasta::Decl> LambdaContextDeclaration(void) const noexcept;
+  uint32_t LambdaDependencyKind(void) const noexcept;
   std::optional<std::vector<::pasta::NamedDecl>> LambdaExplicitTemplateParameters(void) const noexcept;
   std::optional<uint32_t> LambdaManglingNumber(void) const noexcept;
   std::optional<::pasta::Type> LambdaType(void) const noexcept;
@@ -2974,6 +3004,7 @@ class CXXRecordDecl : public RecordDecl {
   bool IsLambda(void) const noexcept;
   std::optional<bool> IsLiteral(void) const noexcept;
   std::optional<::pasta::FunctionDecl> IsLocalClass(void) const noexcept;
+  bool IsNeverDependentLambda(void) const noexcept;
   std::optional<bool> IsPOD(void) const noexcept;
   std::optional<bool> IsParsingBaseSpecifiers(void) const noexcept;
   std::optional<bool> IsPolymorphic(void) const noexcept;

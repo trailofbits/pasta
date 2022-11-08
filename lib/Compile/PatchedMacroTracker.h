@@ -122,7 +122,9 @@ class PatchedMacroTracker : public clang::PPCallbacks {
 
   bool TryExtractHeaderName(const clang::Token &tok);
 
-  void AddToParentNode(Node node);
+  // Returns `true` if adding to the parent node ended up wrapping this thing
+  // in an argument.
+  bool AddToParentNode(Node node);
 
   // Add a token in.
   void DoToken(const clang::Token &tok, uintptr_t);
@@ -163,11 +165,15 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   // `#import`, etc.) has been processed, regardless of whether the inclusion
   // will actually result in an inclusion.
   void InclusionDirective(
-      clang::SourceLocation /* hash_loc */, const clang::Token &include_tok,
-      llvm::StringRef /* file_name */, bool /* is_angled */,
+      clang::SourceLocation /* hash_loc */,
+      const clang::Token &include_tok,
+      llvm::StringRef /* file_name */,
+      bool /* is_angled */,
       clang::CharSourceRange /* file_name_range */,
-      const clang::FileEntry * /* file */, llvm::StringRef /* search_path */,
-      llvm::StringRef /* relative_path */, const clang::Module * /* imported */,
+      llvm::Optional<clang::FileEntryRef> /* file */,
+      llvm::StringRef /* search_path */,
+      llvm::StringRef /* relative_path */,
+      const clang::Module * /* imported */,
       clang::SrcMgr::CharacteristicKind /* file_type */) final;
 
   // Each time we enter a source file, try to keep track of it.

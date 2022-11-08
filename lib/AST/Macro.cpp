@@ -46,7 +46,6 @@ static MacroTokenImpl *FirstUseTokenImpl(const std::vector<Node> &nodes) {
   return nullptr;
 }
 
-
 static MacroTokenImpl *FirstExpansionTokenImpl(const std::vector<Node> &nodes) {
   if (nodes.empty()) {
     return nullptr;
@@ -65,6 +64,38 @@ static MacroTokenImpl *FirstExpansionTokenImpl(const std::vector<Node> &nodes) {
 
   return nullptr;
 }
+
+//static MacroTokenImpl *FindRParen(const std::vector<Node> &nodes,
+//                                  int &count) {
+//  if (nodes.empty()) {
+//    return nullptr;
+//  }
+//
+//  for (const Node &node : nodes) {
+//    if (std::holds_alternative<MacroTokenImpl *>(node)) {
+//      auto tok = std::get<MacroTokenImpl *>(node);
+//      if (tok->kind_flags.kind == TokenKind::kLParenthesis) {
+//        ++count;
+//      } else if (tok->kind_flags.kind == TokenKind::kRParenthesis) {
+//        if (!--count) {
+//          return tok;
+//        }
+//      }
+//    } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
+//      MacroNodeImpl *sub_node = std::get<MacroNodeImpl *>(node);
+//      if (auto r_paren = FindRParen(sub_node->nodes, count)) {
+//        return r_paren;
+//      }
+//    }
+//  }
+//
+//  return nullptr;
+//}
+//
+//static MacroTokenImpl *FindRParen(const std::vector<Node> &nodes) {
+//  int count = 0;
+//  return FindRParen(nodes, count);
+//}
 
 }  // namespace
 

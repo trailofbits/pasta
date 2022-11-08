@@ -38,6 +38,8 @@
 #include <clang/AST/StmtOpenMP.h>
 #include <clang/AST/StmtVisitor.h>
 #include <clang/AST/TemplateBase.h>
+#include <clang/AST/TemplateName.h>
+#include <clang/AST/TextNodeDumper.h>
 #include <clang/AST/Type.h>
 #include <clang/Basic/CharInfo.h>
 #include <clang/Basic/ExpressionTraits.h>
@@ -51,6 +53,7 @@
 #include <clang/Basic/TypeTraits.h>
 #include <clang/Lex/Lexer.h>
 #include <llvm/ADT/ArrayRef.h>
+#include <llvm/ADT/DenseMap.h>
 #include <llvm/ADT/SmallString.h>
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/ADT/StringRef.h>
@@ -178,6 +181,7 @@ class DeclPrinter : public clang::DeclVisitor<DeclPrinter> {
    void VisitOMPCapturedExprDecl(clang::OMPCapturedExprDecl *D);
    void VisitTemplateTypeParmDecl(const clang::TemplateTypeParmDecl *TTP);
    void VisitNonTypeTemplateParmDecl(const clang::NonTypeTemplateParmDecl *NTTP);
+//   void VisitHLSLBufferDecl(clang::HLSLBufferDecl *D);
    void printTemplateParameters(const clang::TemplateParameterList *Params,
                                 bool OmitTemplateKW = false);
    void printTemplateArguments(llvm::ArrayRef<clang::TemplateArgument> Args,
@@ -291,6 +295,7 @@ class StmtPrinter : public clang::StmtVisitor<StmtPrinter> {
     void PrintRawSEHFinallyStmt(clang::SEHFinallyStmt *S);
     void PrintOMPExecutableDirective(clang::OMPExecutableDirective *S,
                                      bool ForceNoStmt = false);
+    void PrintFPPragmas(clang::CompoundStmt *S);
 
     void PrintExpr(clang::Expr *E) {
       if (E) {

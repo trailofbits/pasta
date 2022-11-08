@@ -625,10 +625,10 @@ Result<AST, std::string> CompileJob::Run(void) const {
   pp2.setPragmasEnabled(true);
   pp2.EnterMainSourceFile();
   parser->Initialize();
-
+  clang::Sema::ModuleImportState import_state;
   clang::Parser::DeclGroupPtrTy a_decl;
-  for (auto at_eof = parser->ParseFirstTopLevelDecl(a_decl); !at_eof;
-       at_eof = parser->ParseTopLevelDecl(a_decl)) {
+  for (auto at_eof = parser->ParseFirstTopLevelDecl(a_decl, import_state);
+       !at_eof; at_eof = parser->ParseTopLevelDecl(a_decl, import_state)) {
 
     // Parsing a dangling top-level semicolon will result in a null declaration.
     if (a_decl && !ast_consumer.HandleTopLevelDecl(a_decl.get())) {

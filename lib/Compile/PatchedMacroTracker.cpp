@@ -26,7 +26,11 @@ static void ReparentNode(Node &node, MacroNodeImpl *new_parent) {
     std::get<MacroTokenImpl *>(node)->parent = new_parent;
 
   } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
-    std::get<MacroNodeImpl *>(node)->parent = new_parent;
+    auto impl = std::get<MacroNodeImpl *>(node);
+    if (auto arg = dynamic_cast<MacroArgumentImpl *>(impl)) {
+      assert(!dynamic_cast<MacroArgumentImpl *>(new_parent));
+    }
+    impl->parent = new_parent;
   }
 }
 
@@ -549,6 +553,7 @@ bool PatchedMacroTracker::ClonePrefixArguments(
       nodes.pop_back();
     }
 
+    // Pop off the argument.
     assert(nodes.back() == last_arg);
     nodes.pop_back();
     arguments.pop_back();
@@ -567,10 +572,14 @@ bool PatchedMacroTracker::ClonePrefixArguments(
       last_arg->nodes.pop_back();
       ReparentNode(node_for_next_arg, pre_exp);
 
-      AddToParentNode(std::move(node_for_next_arg));  // Adds to `pre_exp`.
+      assert(nodes.back() == pre_exp);
 
-      D( std::cerr << indent << "^ Adding missing argument for token\n"; )
-      InjectArgument(*ast, nodes, arguments, pre_exp);
+      // Add to the pre-expansion. If it isn't wrapped in an argument, then
+      // call `InjectArgument` to wrap it.
+      if (!AddToParentNode(std::move(node_for_next_arg))) {
+        D( std::cerr << indent << "^ Adding missing argument for token\n"; )
+        InjectArgument(*ast, nodes, arguments, pre_exp);
+      }
 
       // Add any others back in.
       for (MacroNodeImpl *popped_node : popped_nodes) {
@@ -732,7 +741,10 @@ void PatchedMacroTracker::FixupDerivedLocations(void) {
 }
 
 // Add something to the end of `nodes.back()->nodes`.
-void PatchedMacroTracker::AddToParentNode(Node node) {
+//
+// Returns `true` if adding to the parent node ended up wrapping this thing
+// in an argument.
+bool PatchedMacroTracker::AddToParentNode(Node node) {
   MacroExpansionImpl *exp = dynamic_cast<MacroExpansionImpl *>(nodes.back());
 
   nodes.back()->nodes.push_back(node);
@@ -743,6 +755,7 @@ void PatchedMacroTracker::AddToParentNode(Node node) {
       auto child = std::get<MacroNodeImpl *>(node);
       if (!dynamic_cast<MacroArgumentImpl *>(child)) {
         InjectArgument(*ast, nodes, arguments, exp);
+        return true;
       }
 #ifndef NDEBUG
     } else if (std::holds_alternative<MacroTokenImpl *>(node)) {
@@ -760,13 +773,14 @@ void PatchedMacroTracker::AddToParentNode(Node node) {
         default:
           assert(false);
           InjectArgument(*ast, nodes, arguments, exp);
-          break;
+          return true;
       }
     } else {
       assert(false);
 #endif
     }
   }
+  return false;
 }
 
 std::optional<clang::Token> PatchedMacroTracker::FindDirectiveHash(
@@ -874,7 +888,7 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok, uintptr_t data) {
       D( std::cerr << indent << "(recovering real token " << clang::tok::getTokenName(real_tok_it->second.getKind()) << ")\n"; )
       clang::Token real_tok = real_tok_it->second;
       end_of_arg_toks.erase(tok_loc);  // Prevent infinite recursion.
-      DoToken(real_tok_it->second, data);
+      DoToken(real_tok, data);
       end_of_arg_toks[tok_loc] = real_tok;
       return;
     }
@@ -1061,15 +1075,23 @@ void PatchedMacroTracker::DoBeginSkippedArea(
       }
     }
 
+    if (!cond_skip_depth) {
+      cond_skip_depth = 1;
+    }
     suppress_indent = true;
-    ++cond_skip_depth;
 
   // We're nested inside of a skipped region, and this is logically a
   // conditional macro directive that we need to record.
   } else if (tok.is(clang::tok::raw_identifier)) {
+
+    assert(cond_skip_depth >= 0);
+    if (!cond_skip_depth) {
+      cond_skip_depth = 1;
+    }
+
     MacroDirectiveKind kind = MacroDirectiveKind::kOther;
     llvm::StringRef ident = tok.getRawIdentifier();
-    bool can_reset = false;
+
     if (ident == "if") {
       ++cond_skip_depth;
       kind = MacroDirectiveKind::kIf;
@@ -1104,15 +1126,16 @@ void PatchedMacroTracker::DoBeginSkippedArea(
       --cond_skip_depth;
       kind = MacroDirectiveKind::kEndIf;
     } else {
-      assert(false);
+      suppress_indent = true;
+      D( std::cerr << "Ignoring directive '"
+                   << std::string_view(ident.data(), ident.size()) << "'\n"; )
       return;
     }
-
-
 
     auto hash_tok = FindDirectiveHash(tok);
     if (!hash_tok) {
       assert(false);
+      suppress_indent = true;
       return;
     }
 
@@ -1123,96 +1146,6 @@ void PatchedMacroTracker::DoBeginSkippedArea(
     directives.back()->kind = kind;
     directives.back()->is_skipped = true;
   }
-
-////  if (!cond_skip_depth) {
-////    assert(tok.getKind() == clang::tok::hash);
-////    ++cond_skip_depth;
-////    return;
-////  }
-//
-////  if (tok.getKind() == clang::tok::hash) {
-////    switch (last_directive->kind) {
-////      case MacroDirectiveKind::kIf:
-////      case MacroDirectiveKind::kIfDefined:
-////      case MacroDirectiveKind::kIfNotDefined:
-//////        ++cond_skip_depth;
-////        return;
-////      default:
-////        return;  // Skip things like `#define` inside of a disabled region.
-////      case MacroDirectiveKind::kElseIf:
-////      case MacroDirectiveKind::kElseIfDefined:
-////      case MacroDirectiveKind::kElseIfNotDefined:
-////      case MacroDirectiveKind::kElse:
-////      case MacroDirectiveKind::kEndIf:
-////        return;
-////    }
-////  }
-////
-////  assert(tok.getKind() == clang::tok::raw_identifier);
-//  if (tok.getKind() == clang::tok::raw_identifier) {
-//    MacroDirectiveKind kind = MacroDirectiveKind::kOther;
-//    llvm::StringRef ident = tok.getRawIdentifier();
-//    if (ident == "if") {
-////      ++cond_ski/p_depth;
-//      kind = MacroDirectiveKind::kIf;
-//    } else if (ident == "ifdef") {
-////      ++cond_skip_depth;
-//      kind = MacroDirectiveKind::kIfDefined;
-//    } else if (ident == "ifndef") {
-////      ++cond_skip_depth;
-//      kind = MacroDirectiveKind::kIfNotDefined;
-//    } else if (ident == "elif") {
-//      kind = MacroDirectiveKind::kElseIf;
-//    } else if (ident == "elifdef") {
-//      kind = MacroDirectiveKind::kElseIfDefined;
-//    } else if (ident == "elifndef") {
-//      kind = MacroDirectiveKind::kElseIfNotDefined;
-//    } else if (ident == "else") {
-//      kind = MacroDirectiveKind::kElse;
-//    } else if (ident == "endif") {
-//      kind = MacroDirectiveKind::kEndIf;
-////      --cond_skip_depth;
-//    }
-//
-//    if (kind != MacroDirectiveKind::kOther) {
-//      D( std::cerr << indent << "Introducing missing directive\n"; )
-//      Push(tok);
-//      MacroDirectiveImpl *directive =
-//          &(ast->root_macro_node.directives.emplace_back());
-//      AddToParentNode(directive);
-//      directive->parent = nodes.back();
-//      directive->kind = kind;
-//      directive->is_skipped = true;
-//      nodes.push_back(directive);
-//      directives.push_back(directive);
-//
-//      DoToken(tok, data);
-//    }
-//
-//  } else if (tok.getKind() == clang::tok::hash) {
-//    if (last_directive) {
-//      switch (last_directive->kind) {
-//        case MacroDirectiveKind::kIf:
-//        case MacroDirectiveKind::kIfDefined:
-//        case MacroDirectiveKind::kIfNotDefined:
-//        case MacroDirectiveKind::kElseIf:
-//        case MacroDirectiveKind::kElseIfDefined:
-//        case MacroDirectiveKind::kElseIfNotDefined:
-//        case MacroDirectiveKind::kElse:
-//        case MacroDirectiveKind::kEndIf:
-//          last_directive->is_skipped = true;
-//          suppress_indent = true;
-//          D( std::cerr << indent << "Not the start of a directive\n"; )
-//          return;
-//        default:
-//          break;
-//      }
-//    }
-//    DoBeginDirective(tok, data);
-//
-//  } else {
-//    assert(false);
-//  }
 }
 
 void PatchedMacroTracker::DoBeginDirective(
@@ -1422,13 +1355,23 @@ void PatchedMacroTracker::DoEndPreArgumentExpansion(
   unsigned r_paren_index = 0u;
   const size_t num_parent_exp_nodes = parent_exp->use_nodes.size();
   int paren_count = 0;
+
   for (; r_paren_index < num_parent_exp_nodes; ++r_paren_index) {
     const Node &node = parent_exp->use_nodes[r_paren_index];
     MacroTokenImpl *tok = nullptr;
     if (std::holds_alternative<MacroTokenImpl *>(node)) {
       tok = std::get<MacroTokenImpl *>(node);
     } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
-      tok = std::get<MacroNodeImpl *>(node)->FirstExpansionToken();
+      auto impl = std::get<MacroNodeImpl *>(node);
+      auto sub_count = ParenCount(impl);
+      if (!sub_count) {
+        continue;
+
+      // TODO(pag): Probably not quite right.
+      } else {
+        assert(1 == sub_count);
+        tok = impl->FirstExpansionToken();
+      }
     } else {
       assert(false);
       continue;
@@ -2005,12 +1948,16 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
 // `#import`, etc.) has been processed, regardless of whether the inclusion
 // will actually result in an inclusion.
 void PatchedMacroTracker::InclusionDirective(
-    clang::SourceLocation /* hash_loc */, const clang::Token &include_tok,
-    llvm::StringRef /* file_name */, bool /* is_angled */,
-    clang::CharSourceRange /* file_name_range */,
-    const clang::FileEntry * /* file */, llvm::StringRef /* search_path */,
-    llvm::StringRef /* relative_path */, const clang::Module * /* imported */,
-    clang::SrcMgr::CharacteristicKind /* file_type */) {
+      clang::SourceLocation /* hash_loc */,
+      const clang::Token &include_tok,
+      llvm::StringRef /* file_name */,
+      bool /* is_angled */,
+      clang::CharSourceRange /* file_name_range */,
+      llvm::Optional<clang::FileEntryRef> /* file */,
+      llvm::StringRef /* search_path */,
+      llvm::StringRef /* relative_path */,
+      const clang::Module * /* imported */,
+      clang::SrcMgr::CharacteristicKind /* file_type */) {
 
   assert(last_directive != nullptr);
   assert(last_directive->kind == MacroDirectiveKind::kOther);
@@ -2110,6 +2057,10 @@ void PatchedMacroTracker::SourceRangeSkipped(
     assert(last_directive->kind != MacroDirectiveKind::kOther);
     last_directive->is_skipped = true;
   }
+  if (cond_skip_depth) {
+    assert(0 < cond_skip_depth);
+    --cond_skip_depth;
+  }
 }
 
 // Hook called whenever an `#if` is seen.
@@ -2122,8 +2073,17 @@ void PatchedMacroTracker::If(clang::SourceLocation,
     assert(last_directive->kind == MacroDirectiveKind::kOther ||
            last_directive->kind == MacroDirectiveKind::kIf);
     last_directive->kind = MacroDirectiveKind::kIf;
+
+    // Clang doesn't really do this.
+    assert(ConditionValueKind::CVK_NotEvaluated != cvk);
+
     last_directive->is_skipped = ConditionValueKind::CVK_NotEvaluated == cvk ||
                                  ConditionValueKind::CVK_False == cvk;
+    if (last_directive->is_skipped) {
+      assert(!cond_skip_depth);
+      cond_skip_depth = 1;
+      D( std::cerr << indent << "Incrementing skip count\n"; )
+    }
   }
   D( std::cerr << indent << "If\n"; )
 }
@@ -2142,6 +2102,12 @@ void PatchedMacroTracker::Elif(clang::SourceLocation,
     last_directive->kind = MacroDirectiveKind::kElseIf;
     last_directive->is_skipped = ConditionValueKind::CVK_NotEvaluated == cvk ||
                                  ConditionValueKind::CVK_False == cvk;
+
+    if (last_directive->is_skipped) {
+      assert(1 >= cond_skip_depth);
+      cond_skip_depth = 1;
+      D( std::cerr << indent << "Setting skip count\n"; )
+    }
   }
   D( std::cerr << indent << "Elif\n"; )
 }
@@ -2178,8 +2144,8 @@ void PatchedMacroTracker::Elifdef(clang::SourceLocation, const clang::Token &,
            last_directive->kind == MacroDirectiveKind::kElseIfDefined);
     last_directive->kind = MacroDirectiveKind::kElseIfDefined;
     last_directive->is_skipped = false;
-//    assert(1 >= cond_skip_depth);
-//    cond_skip_depth = 0;
+    assert(1 >= cond_skip_depth);
+    cond_skip_depth = 0;
   }
   D( std::cerr << indent << "Elifdef\n"; )
 }
@@ -2206,8 +2172,8 @@ void PatchedMacroTracker::Elifndef(clang::SourceLocation, const clang::Token &,
            last_directive->kind == MacroDirectiveKind::kElseIfNotDefined);
     last_directive->kind = MacroDirectiveKind::kElseIfNotDefined;
     last_directive->is_skipped = false;
-//    assert(1 >= cond_skip_depth);
-//    cond_skip_depth = 0;
+    assert(1 >= cond_skip_depth);
+    cond_skip_depth = 0;
   }
   D( std::cerr << indent << "Elifndef\n"; )
 }
@@ -2242,6 +2208,7 @@ void PatchedMacroTracker::Endif(clang::SourceLocation,
                                 clang::SourceLocation /* if_loc */) {
   if (cond_skip_depth) {
     --cond_skip_depth;
+    assert(0 <= cond_skip_depth);
   }
 
   if (last_directive && !last_directive->is_skipped) {

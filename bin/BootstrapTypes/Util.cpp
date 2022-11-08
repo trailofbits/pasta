@@ -117,6 +117,12 @@ static std::string CxxNameImpl(llvm::StringRef name) {
 }
 
 std::string CxxName(llvm::StringRef name_) {
+  if (name_ == "C2x_noreturn") {
+    return "C2xnoreturn";
+  } else if (name == "C2x_Noreturn") {
+    return "C2xNoreturn";
+  }
+
   auto name = CxxNameImpl(name_);
 
   if (name == "LParen") {
@@ -131,6 +137,8 @@ std::string CxxName(llvm::StringRef name_) {
     return "LBraceToken";
   } else if (name == "RBrace") {
     return "RBraceToken";
+  } else if (name == "ChildrenExpression") {
+    return "Children";
 
   } else if (name_.endswith("TypeSourceInfo")) {
     name.pop_back();  // `o`

@@ -4,6 +4,8 @@
 
 #include "Printer.h"
 
+#include <cassert>
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wbitfield-enum-conversion"
 #pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
@@ -276,13 +278,13 @@ void TokenPrinterContext::Tokenize(void) {
   unsigned i = 0u;
 
   for (auto size = token_data.size(); i < size; ) {
-    auto last_i = i;
+    unsigned last_i = i;
     std::tie(num_nl, num_sp, i) = SkipWhitespace(token_data, i);
     if (i >= size) {
       break;
     }
 
-    lexer.skipOver(last_i - i);
+    lexer.seek(last_i, false);
     last_i = i;
 
     const auto at_end = lexer.LexFromRawLexer(tok);

@@ -49,6 +49,21 @@ class ParamPolicyRAII {
   }
 };
 
+class DefaultTemplateArgsPolicyRAII {
+  clang::PrintingPolicy &Policy;
+  bool Old;
+
+public:
+  explicit DefaultTemplateArgsPolicyRAII(clang::PrintingPolicy &Policy)
+      : Policy(Policy), Old(Policy.SuppressDefaultTemplateArgs) {
+    Policy.SuppressDefaultTemplateArgs = false;
+  }
+
+  ~DefaultTemplateArgsPolicyRAII() {
+    Policy.SuppressDefaultTemplateArgs = Old;
+  }
+};
+
 class ElaboratedTypePolicyRAII {
   clang::PrintingPolicy &Policy;
   bool SuppressTagKeyword;
@@ -211,6 +226,7 @@ bool TypePrinter::canPrefixQualifiers(const clang::Type *T,
     case clang::Type::Pipe:
     case clang::Type::BitInt:
     case clang::Type::DependentBitInt:
+    case clang::Type::BTFTagAttributed:
       CanPrefixQualifiers = true;
       break;
 
@@ -258,6 +274,7 @@ bool TypePrinter::canPrefixQualifiers(const clang::Type *T,
       // address_space attribute.
       const auto *AttrTy = clang::cast<clang::AttributedType>(UnderlyingType);
       CanPrefixQualifiers = AttrTy->getAttrKind() == clang::attr::AddressSpace;
+      break;
     }
   }
 
@@ -1630,6 +1647,12 @@ void TypePrinter::printFunctionAfter(const clang::FunctionType::ExtInfo &Info,
     case clang::CC_AArch64VectorCall:
       OS << "__attribute__((aarch64_vector_pcs))";
       break;
+    case clang::CC_AArch64SVEPCS:
+      OS << "__attribute__((aarch64_sve_pcs))";
+      break;
+    case clang::CC_AMDGPUKernelCall:
+      OS << "__attribute__((amdgpu_kernel))";
+      break;
     case clang::CC_IntelOclBicc:
       OS << " __attribute__((intel_ocl_bicc))";
       break;
@@ -1843,6 +1866,11 @@ void TypePrinter::printTypeOfExpr(const clang::TypeOfExprType *T,
                                   raw_string_ostream &OS,
                                   std::function<void(void)> IdentFn) {
   TokenPrinterContext ctx(OS, T, tokens);
+
+// NOTE(pag): This will be in llvm16 I think.
+//  OS << (T->getKind() == clang::TypeOfKind::Unqualified ? "typeof_unqual "
+//                                                        : "typeof ");
+
   OS << "typeof ";
   if (T->getUnderlyingExpr()) {
     StmtPrinter stmtPrinter(OS, nullptr, tokens, Policy, 0, "\n",
@@ -1872,6 +1900,9 @@ void TypePrinter::printTypeOf(const clang::TypeOfType *T,
                               raw_string_ostream &OS,
                               std::function<void(void)> IdentFn) {
   TokenPrinterContext ctx(OS, T, tokens);
+// NOTE(pag): This will be in llvm16 I think.
+//  OS << (T->getKind() == clang::TypeOfKind::Unqualified ? "typeof_unqual("
+//                                                        : "typeof(");
   OS << "typeof(";
   print(T->getUnderlyingType(), OS, clang::StringRef());
   OS << ')';
@@ -1924,14 +1955,29 @@ void TypePrinter::printUnaryTransform(const clang::UnaryTransformType *T,
                                       raw_string_ostream &OS,
                                       std::function<void(void)> IdentFn) {
   TokenPrinterContext ctx(OS, T, tokens);
+
+// NOTE(pag): llvm16 probably:
+//  static llvm::DenseMap<int, const char *> Transformation = {{
+//#define TRANSFORM_TYPE_TRAIT_DEF(Enum, Trait)                                  \
+//  {clang::UnaryTransformType::Enum, "__" #Trait},
+//#include <clang/Basic/TransformTypeTraits.def>
+//  }};
+//  OS << Transformation[T->getUTTKind()] << '(';
+//  print(T->getBaseType(), OS, llvm::StringRef());
+//  OS << ')';
+
+  IncludeStrongLifetimeRAII Strong(Policy);
   switch (T->getUTTKind()) {
     case clang::UnaryTransformType::EnumUnderlyingType:
       OS << "__underlying_type(";
-      print(T->getBaseType(), OS, clang::StringRef());
+      print(T->getBaseType(), OS, llvm::StringRef());
       OS << ')';
       spaceBeforePlaceHolder(OS);
       break;
+    default:
+      break;
   }
+
   IdentFn();
 }
 
@@ -2472,10 +2518,26 @@ void TypePrinter::printSubstTemplateTypeParm(
 void TypePrinter::printSubstTemplateTypeParmPack(
     const clang::SubstTemplateTypeParmPackType *T,
     raw_string_ostream &OS, std::function<void(void)> IdentFn) {
-
   TokenPrinterContext ctx(OS, T, tokens);
   IncludeStrongLifetimeRAII Strong(Policy);
   printTemplateTypeParm(T->getReplacedParameter(), OS, std::move(IdentFn));
+
+//  if (const clang::TemplateTypeParmDecl *D = T->getReplacedParameter()) {
+//    if (D && D->isImplicit()) {
+//      if (auto *TC = D->getTypeConstraint()) {
+//        TC->print(OS, Policy);
+//        OS << ' ';
+//      }
+//      OS << "auto";
+//    } else if (clang::IdentifierInfo *Id = D->getIdentifier())
+//      OS << (Policy.CleanUglifiedParameters ? Id->deuglifiedName()
+//                                            : Id->getName());
+//    else
+//      OS << "type-parameter-" << D->getDepth() << '-' << D->getIndex();
+//
+//    spaceBeforePlaceHolder(OS);
+//    printTemplateTypeParm(D, OS, std::move(IdentFn));
+//  }
 }
 
 //void TypePrinter::printSubstTemplateTypeParmPackBefore(
@@ -2502,17 +2564,21 @@ void TypePrinter::printTemplateId(const clang::TemplateSpecializationType *T,
   TagDefinitionPolicyRAII tag_raii(Policy);
 
   clang::TemplateDecl *TD = T->getTemplateName().getAsTemplateDecl();
+  // FIXME: Null TD never excercised in test suite.
+
   if (FullyQualify && TD) {
     if (!Policy.SuppressScope)
       AppendScope(TD->getDeclContext(), OS, TD->getDeclName());
 
-    clang::IdentifierInfo *II = TD->getIdentifier();
-    OS << II->getName();
+    OS << TD->getName();
   } else {
     T->getTemplateName().print(OS, Policy);
   }
 
-  printTemplateArgumentList(OS, T->template_arguments(), Policy);
+
+  DefaultTemplateArgsPolicyRAII TemplateArgs(Policy);
+  const clang::TemplateParameterList *TPL = TD ? TD->getTemplateParameters() : nullptr;
+  printTemplateArgumentList(OS, T->template_arguments(), Policy, TPL);
   spaceBeforePlaceHolder(OS);
 }
 
@@ -2828,7 +2894,18 @@ void TypePrinter::printAttributed(const clang::AttributedType *T,
       break;
 
     case clang::attr::AddressSpace:
+      // The printing of the address_space attribute is handled by the qualifier
+      // since it is still stored in the qualifier. Return early to prevent printing
+      // this twice.
       printBeforeAfter(T->getModifiedType(), OS, std::move(IdentFn));
+      return;
+
+    case clang::attr::AnnotateType:
+      // FIXME: Print the attribute arguments once we have a way to retrieve these
+      // here. For the meantime, we just print `[[clang::annotate_type(...)]]`
+      // without the arguments so that we know at least that we had _some_
+      // annotation on the type.
+      OS << " [[clang::annotate_type(...)]]";
       return;
 
     default:
@@ -2855,6 +2932,9 @@ void TypePrinter::printAttributed(const clang::AttributedType *T,
 #include "clang/Basic/AttrList.inc"
           llvm_unreachable("non-type attribute attached to type");
 
+        case clang::attr::BTFTypeTag:
+          llvm_unreachable("BTFTypeTag attribute handled separately");
+
         case clang::attr::OpenCLPrivateAddressSpace:
         case clang::attr::OpenCLGlobalAddressSpace:
         case clang::attr::OpenCLGlobalDeviceAddressSpace:
@@ -2862,6 +2942,8 @@ void TypePrinter::printAttributed(const clang::AttributedType *T,
         case clang::attr::OpenCLLocalAddressSpace:
         case clang::attr::OpenCLConstantAddressSpace:
         case clang::attr::OpenCLGenericAddressSpace:
+// NOTE(pag): This will probably be in llvm16.
+//        case clang::attr::HLSLGroupSharedAddressSpace:
           // FIXME: Update printAttributedBefore to print these once we generate
           // AttributedType nodes for them.
           break;
@@ -2881,6 +2963,7 @@ void TypePrinter::printAttributed(const clang::AttributedType *T,
         case clang::attr::UPtr:
         case clang::attr::AddressSpace:
         case clang::attr::CmseNSCall:
+        case clang::attr::AnnotateType:
           llvm_unreachable("This attribute should have been handled already");
 
         case clang::attr::NSReturnsRetained:
@@ -2912,6 +2995,8 @@ void TypePrinter::printAttributed(const clang::AttributedType *T,
          break;
         }
         case clang::attr::AArch64VectorPcs: OS << "aarch64_vector_pcs"; break;
+        case clang::attr::AArch64SVEPcs: OS << "aarch64_sve_pcs"; break;
+        case clang::attr::AMDGPUKernelCall: OS << "amdgpu_kernel"; break;
         case clang::attr::IntelOclBicc: OS << "inteloclbicc"; break;
         case clang::attr::PreserveMost:
           OS << "preserve_most";
@@ -2928,9 +3013,6 @@ void TypePrinter::printAttributed(const clang::AttributedType *T,
           break;
         case clang::attr::ArmMveStrictPolymorphism:
           OS << "__clang_arm_mve_strict_polymorphism";
-          break;
-        case clang::attr::BTFTypeTag:
-          OS << "btf_type_tag";
           break;
         }
         OS << "))";
@@ -3109,6 +3191,29 @@ void TypePrinter::printAttributed(const clang::AttributedType *T,
 //    break;
 //  }
 //  OS << "))";
+//}
+
+void TypePrinter::printBTFTagAttributed(const clang::BTFTagAttributedType *T,
+                                        raw_string_ostream &OS,
+                                        std::function<void(void)> IdentFn) {
+  TokenPrinterContext ctx(OS, T, tokens);
+  printBeforeAfter(T->getWrappedType(), OS,
+                   [&, IdentFn = std::move(IdentFn)] (void) {
+    TokenPrinterContext jump_up_stack(ctx);
+    OS << " btf_type_tag(" << T->getAttr()->getBTFTypeTag() << ")";
+    IdentFn();
+  });
+}
+
+//void TypePrinter::printBTFTagAttributedBefore(const BTFTagAttributedType *T,
+//                                              raw_ostream &OS) {
+//  printBefore(T->getWrappedType(), OS);
+//  OS << " btf_type_tag(" << T->getAttr()->getBTFTypeTag() << ")";
+//}
+//
+//void TypePrinter::printBTFTagAttributedAfter(const BTFTagAttributedType *T,
+//                                             raw_ostream &OS) {
+//  printAfter(T->getWrappedType(), OS);
 //}
 
 void TypePrinter::printObjCInterface(const clang::ObjCInterfaceType *T,

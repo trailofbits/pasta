@@ -65,7 +65,7 @@ enum class MacroDirectiveKind : unsigned char {
   kInclude,
   kIncludeNext,
   kIncludeMacros,
-  kImport
+  kImport,
 };
 
 enum class TokenKind : unsigned short;

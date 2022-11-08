@@ -160,6 +160,7 @@ void PatchedMacroTracker::Push(const clang::Token &tok) {
     CloseUnclosedExpansion(tok);
     start_of_macro_index = ast->tokens.size();
     D( std::cerr << indent << "BeginOfMacroExpansionMarker\n"; )
+    assert(tok.getLocation().isValid() && tok.getLocation().isFileID());
     ast->AppendMarker(tok.getLocation(),
                       TokenRole::kBeginOfMacroExpansionMarker);
   }
@@ -673,12 +674,17 @@ void PatchedMacroTracker::FixupDerivedLocations(void) {
     // Sanity check that we're mapping a derived token to the original token
     // that shares the same data.
     size_t orig_tok_index = it->second;
+    if (orig_tok_index == it->second) {
+      return true;
+    }
+
     assert(orig_tok_index < tok_index);
     const TokenImpl &orig_tok = ast->tokens[orig_tok_index];
     if (orig_tok.Data(*ast) != tok_data) {
       return false;
     }
 
+    assert(!!orig_tok_index);
     tok.opaque_source_loc = static_cast<OpaqueSourceLoc>(
         -static_cast<clang::SourceLocation::IntTy>(orig_tok_index));
     assert(0 > static_cast<clang::SourceLocation::IntTy>(tok.opaque_source_loc));
@@ -690,10 +696,16 @@ void PatchedMacroTracker::FixupDerivedLocations(void) {
   for (auto tok_index = start_of_macro_index, max_i = ast->tokens.size();
        tok_index < max_i; ++tok_index) {
 
+    last_fixed_index = tok_index;
+
     TokenImpl &tok = ast->tokens[tok_index];
+    assert(tok.HasMacroRole());
+
     const std::string_view data = tok.Data(*ast);
     const clang::SourceLocation loc = tok.Location();
     const OpaqueSourceLoc raw_loc = loc.getRawEncoding();
+
+    std::cerr << "role=" << int(tok.Role()) << " file=" << loc.isFileID() << " raw_loc=" << raw_loc << " -> tok_index=" << tok_index << '\n';
 
     if (!loc.isValid()) {
       assert(false);
@@ -704,19 +716,32 @@ void PatchedMacroTracker::FixupDerivedLocations(void) {
     // in the first tokens of a use of a macro, or in the pre-expansion phase
     // of a macro.
     if (loc.isFileID()) {
-      if (!from_map(file_token_refs, tok, tok_index, data, raw_loc)) {
-        file_token_refs[raw_loc] = tok_index;
+      switch (tok.Role()) {
+        case TokenRole::kBeginOfMacroExpansionMarker:
+        case TokenRole::kEndOfMacroExpansionMarker:
+          continue;
+        default:
+          if (!from_map(file_token_refs, tok, tok_index, data, raw_loc)) {
+            file_token_refs[raw_loc] = tok_index;
+          }
+          assert(tok.Location().isFileID());
+          continue;
       }
-      continue;
     }
 
-    // Negative source locations are interpreted as indices to other places
-    // in the AST tokens.
     tok.opaque_source_loc = TokenImpl::kInvalidSourceLocation;
     if (!loc.isMacroID()) {
       assert(false);  // Doesn't make sense.
       continue;
     }
+
+    // Negative source locations are interpreted as indices to other places
+    // in the AST tokens. If the index points to itself, then it's a macro
+    // token that makes it into the final parse (and is thus relevant to token
+    // alignment), but that also doesn't have any associated source location,
+    // e.g. how __FILE__ expands to a provenanceless string.
+    tok.opaque_source_loc = static_cast<OpaqueSourceLoc>(
+        -static_cast<clang::SourceLocation::IntTy>(tok_index));
 
     // For some pre-expansions, we need to copy the expanded tokens, so we want
     // to link back to those.
@@ -1519,6 +1544,7 @@ void PatchedMacroTracker::DoPrepareToCancelExpansion(
         ast->tokens.pop_back();
         ast->num_lines -= 1u;
         removed = true;
+        assert(start_of_macro_index < ast->tokens.size());
 
         assert(tok_to_remove == &(ast->root_macro_node.tokens.back()));
         ast->root_macro_node.tokens.pop_back();
@@ -1567,6 +1593,9 @@ void PatchedMacroTracker::DoCancelExpansion(const clang::Token &tok,
 
 void PatchedMacroTracker::DoEndMacroExpansion(
     const clang::Token &tok, uintptr_t data) {
+
+  assert(start_of_macro_index < ast->tokens.size());
+
   auto num_expansions = expansions.size();
   assert(1u <= num_expansions);
   MacroExpansionImpl *expansion = expansions.back();
@@ -1626,7 +1655,6 @@ void PatchedMacroTracker::DoEndMacroExpansion(
   if (!deferred_expansion) {
     return;
   }
-
 
   // Expansion is `CAT`, deferred expansion is `FOO_2`. We want the uses nodes
   // of `FOO_2` to be the `CAT`, and the expansion of `CAT` to be the use nodes
@@ -1745,12 +1773,25 @@ void PatchedMacroTracker::DoBeginDelayedSubstitution(
     const clang::Token &tok, uintptr_t data) {
 
   if (!depth) {
-    Push(last_token);  // Will add a marker token.
 
     // Swap the marker and this token.
     if (last_token_was_added) {
-      auto num_tokens = ast->tokens.size();
-      std::swap(ast->tokens[num_tokens - 2u], ast->tokens[num_tokens - 1u]);
+      TokenImpl popped_tok = std::move(ast->tokens.back());
+      ast->tokens.pop_back();
+
+      // TODO(pag): This might break with:
+      //
+      //    #define FOO BAR
+      //    #define BAR(a) int a
+      //    FOO(x);
+      assert(!popped_tok.HasMacroRole());
+      Push(last_token);  // Will add a marker token.
+      ast->tokens.push_back(std::move(popped_tok));
+
+      assert(ast->tokens.back().Role() ==
+             TokenRole::kBeginOfMacroExpansionMarker);
+    } else {
+      Push(last_token);
     }
   } else {
     Push(last_token);
@@ -1864,10 +1905,10 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
   std::cerr << indent;
 
   switch (kind) {
-    case TokenFromLexer: std::cerr << "TokenFromLexer(" << ast->tokens.size() << "; macro_skip_count=" << macro_skip_count << "; cond_skip_depth=" << cond_skip_depth << "; loc=" << tok.getLocation().getRawEncoding() << ")"; break;
-    case TokenFromTokenLexer: std::cerr << "TokenFromTokenLexer(" << ast->tokens.size() << "; macro_skip_count=" << macro_skip_count << "; cond_skip_depth=" << cond_skip_depth << "; loc=" << tok.getLocation().getRawEncoding() << ")"; break;
-    case TokenFromCachingLexer: std::cerr << "TokenFromCachingLexer(" << ast->tokens.size() << "; macro_skip_count=" << macro_skip_count << "; cond_skip_depth=" << cond_skip_depth << "; loc=" << tok.getLocation().getRawEncoding() << ")"; break;
-    case TokenFromAfterModuleImportLexer: std::cerr << "TokenFromAfterModuleImportLexer(" << ast->tokens.size() << "; macro_skip_count=" << macro_skip_count << "; cond_skip_depth=" << cond_skip_depth << "; loc=" << tok.getLocation().getRawEncoding() << ")"; break;
+    case TokenFromLexer: std::cerr << "TokenFromLexer(" << ast->tokens.size() << "; depth=" << depth << "; macro_skip_count=" << macro_skip_count << "; cond_skip_depth=" << cond_skip_depth << "; loc=" << tok.getLocation().getRawEncoding() << ")"; break;
+    case TokenFromTokenLexer: std::cerr << "TokenFromTokenLexer(" << ast->tokens.size() << "; depth=" << depth << "; macro_skip_count=" << macro_skip_count << "; cond_skip_depth=" << cond_skip_depth << "; loc=" << tok.getLocation().getRawEncoding() << ")"; break;
+    case TokenFromCachingLexer: std::cerr << "TokenFromCachingLexer(" << ast->tokens.size() << "; depth=" << depth << "; macro_skip_count=" << macro_skip_count << "; cond_skip_depth=" << cond_skip_depth << "; loc=" << tok.getLocation().getRawEncoding() << ")"; break;
+    case TokenFromAfterModuleImportLexer: std::cerr << "TokenFromAfterModuleImportLexer(" << ast->tokens.size() << "; depth=" << depth << "; macro_skip_count=" << macro_skip_count << "; cond_skip_depth=" << cond_skip_depth << "; loc=" << tok.getLocation().getRawEncoding() << ")"; break;
     case BeginSplitToken: std::cerr << "BeginSplitToken"; break;
     case EndSplitToken: std::cerr << "EndSplitToken"; break;
     case BeginDirective: std::cerr << "BeginDirective"; break;

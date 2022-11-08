@@ -100,6 +100,7 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
   std::vector<TokenImpl> &tokens = impl.tokens;
 
   clang::Token tok;
+  std::optional<TokenImpl> end_of_macro_tok;
   for (;;) {
 
     // Check that we're maintaining our key invariant, which is that tokens
@@ -115,38 +116,106 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
       break;
     }
 
+    // The end of an expansion is tracked by the patched macro tracker, but the
+    // last outputted token really comes before the end marker, so we always
+    // want to remove it.
+    if (tokens.back().Role() == TokenRole::kEndOfMacroExpansionMarker) {
+      end_of_macro_tok = std::move(tokens.back());
+      assert(impl.preprocessed_code.back() == '\n');
+      tokens.pop_back();
+      impl.preprocessed_code.pop_back();
+      --num_lines;
+      assert(tokens.back().HasMacroRole());
+    } else {
+      end_of_macro_tok.reset();
+    }
+
+    clang::SourceLocation tok_loc = tok.getLocation();
+    assert(tok_loc.isValid());
+
     tok_data.clear();
     (void) TryReadRawToken(source_manager, lang_opts, tok, &tok_data);
 
-    TokenRole role = TokenRole::kFileToken;
-    if (auto tok_loc = tok.getLocation();
-        !tok_loc.isValid() || !tok_loc.isFileID()) {
-#ifndef NDEBUG
-      assert(0 < num_lines);
+    // It's a macro expansion token. We will already have a copy of this token
+    // as the most recently added token, so we need to transfer its data to
+    // the code to be parsed, rather than the backup data area.
+    if (tok_loc.isMacroID()) {
       TokenImpl &prev_tok = tokens.back();
-      assert(prev_tok.Role() == TokenRole::kBeginOfMacroExpansionMarker ||
-             prev_tok.Role() == TokenRole::kIntermediateMacroExpansionToken ||
-             prev_tok.Role() == TokenRole::kFinalMacroExpansionToken);
+
+#ifndef NDEBUG
+      assert(prev_tok.Role() == TokenRole::kIntermediateMacroExpansionToken);
+      assert(impl.preprocessed_code.back() == '\n');
+
+      // NOTE(pag): The `prev_tok.Location()` isn't really sensibly comparable
+      //            to `tok_loc` because of how `PatchedMacroTracker`s
+      //            `FixupDerivedLocations` method overloads too many meanings
+      //            into `TokenImpl::opaque_source_loc`.
+      assert(prev_tok.Kind() == clang::tok::unknown);
+      assert(tok_data == prev_tok.Data(impl));
+      for (auto ch : tok_data) {
+        assert('\n' != ch && '\r' != ch);
+      }
 #endif
-      role = TokenRole::kFinalMacroExpansionToken;
+
+      // Remove the `\n` that was in place for the macro expansion token, then
+      // add in the proper data in place of it.
+      impl.preprocessed_code.pop_back();
+
+      prev_tok.kind = static_cast<TokenKindBase>(tok.getKind());
+      prev_tok.role = static_cast<TokenKindBase>(
+          TokenRole::kFinalMacroExpansionToken);
+      prev_tok.data_len = static_cast<uint32_t>(tok_data.size());
+      prev_tok.data_offset =
+          static_cast<int32_t>(impl.preprocessed_code.size());
+
+      os << tok_data << '\n';
+
+      // Put the macro ending marker back on. If we don't put it back on, then
+      // `PatchedMacroTracker::CloseUnclosedExpansion` will go and re-inject it,
+      // which will re-run `PatchedMacroTracker::FixupDerivedLocations` on
+      // already fixed-up locations.
+      if (end_of_macro_tok) {
+        ++num_lines;
+        os << '\n';
+        tokens.push_back(std::move(end_of_macro_tok.value()));
+      }
+
+      continue;
     }
 
-    // Try to merge with the prior token, which was a macro expansion token.
-    // What this actually means is that we remove the old version of the token
-    // because we'll see it again.
-    if (num_lines) {
-      TokenImpl &prev_tok = tokens.back();
-      if (prev_tok.Role() == TokenRole::kIntermediateMacroExpansionToken &&
-          prev_tok.Kind() == clang::tok::unknown &&
-          prev_tok.Location() == tok.getLocation() &&
-          prev_tok.Data(impl) == tok_data) {
-        assert(impl.preprocessed_code.back() == '\n');
-        tokens.pop_back();
-        impl.preprocessed_code.pop_back();
-        --num_lines;
-        role = TokenRole::kFinalMacroExpansionToken;
-      }
-    }
+    // It's a file token, we need to parse it.
+    assert(tok_loc.isFileID());
+
+//    if (auto tok_loc = tok.getLocation();
+//        !tok_loc.isValid() || !tok_loc.isFileID()) {
+//
+//
+//
+//#ifndef NDEBUG
+//      assert(0 < num_lines);
+//      TokenImpl &prev_tok = tokens.back();
+//      assert(prev_tok.Role() == TokenRole::kBeginOfMacroExpansionMarker ||
+//             prev_tok.Role() == TokenRole::kIntermediateMacroExpansionToken ||
+//             prev_tok.Role() == TokenRole::kFinalMacroExpansionToken);
+//#endif
+//      role = TokenRole::kFinalMacroExpansionToken;
+//    }
+//
+//    // Try to merge with the prior token, which was a macro expansion token.
+//    // What this actually means is that we remove the old version of the token
+//    // because we'll see it again.
+//    if (num_lines) {
+//      TokenImpl &prev_tok = tokens.back();
+//      if (prev_tok.Role() == TokenRole::kIntermediateMacroExpansionToken &&
+//          prev_tok.Kind() == clang::tok::unknown &&
+//          prev_tok.Location() == tok.getLocation() &&
+//          prev_tok.Data(impl) == tok_data) {
+//
+//        tokens.pop_back();
+//        --num_lines;
+//        role = TokenRole::kFinalMacroExpansionToken;
+//      }
+//    }
 
     if (tok.isOneOf(clang::tok::eod, clang::tok::unknown, clang::tok::comment,
                     clang::tok::code_completion)) {
@@ -155,7 +224,7 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
         // Only retain these if they're contributing something in terms of
         // source locations.
         if (auto loc = tok.getLocation(); loc.isValid() && loc.isFileID()) {
-          impl.AppendMarker(loc, role);
+          impl.AppendMarker(loc, TokenRole::kFileToken);
         }
 
       // Comments and whitespace are stored "out-of-line" in the
@@ -168,7 +237,7 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
       } else {
         backup_os.flush();
         impl.AppendBackupToken(tok, impl.backup_token_data.size(),
-                               tok_data.size(), role);
+                               tok_data.size(), TokenRole::kFileToken);
         backup_os << tok_data;
         os << '\n';
         os.flush();
@@ -190,7 +259,7 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
     if (!has_new_line) {
       os.flush();
       impl.AppendToken(tok, impl.preprocessed_code.size(), tok_data.size(),
-                       role);
+                       TokenRole::kFileToken);
       os << tok_data << '\n';
       os.flush();
       ++num_lines;
@@ -200,7 +269,7 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
     // The token needs to be modified somehow, so add it to our backups.
     backup_os.flush();
     impl.AppendBackupToken(tok, impl.backup_token_data.size(), tok_data.size(),
-                           role);
+                           TokenRole::kFileToken);
     backup_os << tok_data;
 
     // The token data read does have new lines; we need to fix it up.

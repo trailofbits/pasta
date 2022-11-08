@@ -1882,13 +1882,6 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
       t->context_index = kInvalidTokenContextIndex;
     }
 
-    for (TokenImpl *t = decl_bounds.first; t <= decl_bounds.second; ++t) {
-      if (t->opaque_source_loc == 0x8000473au && t->Kind() == clang::tok::identifier) {
-
-        asm("");
-      }
-    }
-
     auto res = AlignTokens(ast, decl_bounds.first, &(decl_bounds.second[1]),
                            range, decl_context_id, log);
     if (!res.Succeeded()) {

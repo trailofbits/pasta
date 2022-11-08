@@ -420,12 +420,13 @@ std::optional<Token> Token::DerivedLocation(void) const {
     return std::nullopt;
   }
 
-  auto tok_index = static_cast<OpaqueSourceLoc>(-macro_loc);
-  if (tok_index >= ast->tokens.size()) {
+  auto curr_index = Index();
+  auto source_index = static_cast<OpaqueSourceLoc>(-macro_loc);
+  if (curr_index == source_index || source_index >= ast->tokens.size()) {
     return std::nullopt;
   }
 
-  return Token(ast, &(ast->tokens[tok_index]));
+  return Token(ast, &(ast->tokens[source_index]));
 }
 
 // Location of the token in a file.
@@ -436,8 +437,25 @@ std::optional<FileToken> Token::FileLocation(void) const {
 
   // Negative values are indices of the
   clang::SourceLocation loc = impl->Location();
-  if (loc.isInvalid() || loc.isMacroID()) {
+  if (loc.isInvalid()) {
     return std::nullopt;
+
+  // Locations that look like macro tokens are actually ind
+  } else if (loc.isMacroID()) {
+    assert(impl->HasMacroRole());
+    auto old_index = Index();
+    auto new_index = static_cast<size_t>(
+        -static_cast<clang::SourceLocation::IntTy>(impl->opaque_source_loc));
+
+    // It's a final macro expansion token, e.g. the string expanded from
+    // `__FILE__`, but it can't be associated with anywhere, so we associate
+    // it with
+    if (old_index == new_index) {
+      return std::nullopt;
+    } else {
+      assert(new_index < old_index);
+      return Token(ast, &(ast->tokens[new_index])).FileLocation();
+    }
   }
 
   const clang::SourceManager &sm = ast->ci->getSourceManager();

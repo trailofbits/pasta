@@ -349,9 +349,10 @@ void TokenPrinterContext::MarkLocation(clang::SourceLocation loc) {
         tokens.tokens.back().opaque_source_loc = raw_tok->opaque_source_loc;
       }
 
-    // We don't has an `ASTImpl`, so we'll assume that `loc` is a "real" source
+    // We don't have an `ASTImpl`, so we'll assume that `loc` is a "real" source
     // location and not our weird indirect kind.
     } else {
+      assert(loc.isValid());
       tokens.tokens.back().opaque_source_loc = loc.getRawEncoding();
     }
   }

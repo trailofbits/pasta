@@ -95,6 +95,7 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   // The index of the last token whose role marks the beginning of a macro
   // expansion.
   size_t start_of_macro_index{0u};
+  size_t last_fixed_index{0u};
 
  public:
 

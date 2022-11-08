@@ -185,7 +185,17 @@ class TokenImpl {
   // location of the token, which references a `FileToken`. If this number is
   // negative, then this token was derived from a prior token in a macro
   // expansion. That prior token is at `ast->tokens[-opaque_source_loc]`. This
-  // process is enacted by `PatchedMacroTracker::FixupDerivedLocations`.
+  // process is enacted by `PatchedMacroTracker::FixupDerivedLocations`. If the
+  // index points to itself, then it's a macro token that makes it into the
+  // final parse (and is thus relevant to token alignment), but that also
+  // doesn't have any associated source location, e.g. how `__FILE__` expands to
+  // a provenanceless string.
+  //
+  // TODO(pag): This is pretty terrible. There are at least three or four
+  //            possible interpretations of this value, depending on the context
+  //            (macro, not macro), timing (during expansion, after expansion),
+  //            etc. This is a format error, where I should just store more data
+  //            but stubbornly just leave things according to the old design.
   OpaqueSourceLoc opaque_source_loc{kInvalidSourceLocation};
 
   // Index of the token context in either `ASTImpl::contexts` or

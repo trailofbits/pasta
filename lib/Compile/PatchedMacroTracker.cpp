@@ -14,7 +14,7 @@
 #include <clang/Lex/Token.h>
 #pragma GCC diagnostic pop
 
-//#define D(...) __VA_ARGS__
+#define D(...)
 #ifndef D
 # define D(...)
 #endif
@@ -1962,6 +1962,8 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
     std::cerr << ' ' << tok.getIdentifierInfo()->getName().str();
   } else if (tok.is(clang::tok::raw_identifier)) {
     std::cerr << ' ' << tok.getRawIdentifier().str();
+  } else if (tok.is(clang::tok::string_literal)) {
+    std::cerr << ' ' << std::string_view(tok.getLiteralData(), tok.getLength());
   }
 
   switch (kind) {

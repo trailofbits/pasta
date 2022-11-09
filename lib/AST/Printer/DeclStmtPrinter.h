@@ -79,6 +79,10 @@
 
 namespace pasta {
 
+void PrintAttribute(raw_string_ostream &Out, const clang::Attr *A,
+                    PrintedTokenRangeImpl &tokens,
+                    const clang::PrintingPolicy &Policy);
+
 class PrintedTokenRangeImpl;
 
 class TagDefinitionPolicyRAII {

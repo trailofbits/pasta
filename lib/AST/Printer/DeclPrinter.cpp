@@ -130,10 +130,7 @@ void DeclPrinter::prettyPrintAttributes(clang::Decl *D) {
 #include "clang/Basic/AttrList.inc"
         break;
       default:
-        {
-          TokenPrinterContext ctx(Out, A, tokens);
-          A->printPretty(Out, Policy);
-        }
+        PrintAttribute(Out, A, tokens, Policy);
         break;
       }
     }
@@ -153,10 +150,7 @@ void DeclPrinter::prettyPrintPragmas(clang::Decl *D) {
 #define ATTR(X)
 #define PRAGMA_SPELLING_ATTR(X) case clang::attr::X:
 #include "clang/Basic/AttrList.inc"
-        {
-          TokenPrinterContext ctx(Out, A, tokens);
-          A->printPretty(Out, Policy);
-        }
+        PrintAttribute(Out, A, tokens, Policy);
         Indent();
         break;
       default:

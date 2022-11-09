@@ -188,9 +188,8 @@ void StmtPrinter::VisitLabelStmt(clang::LabelStmt *Node) {
 void StmtPrinter::VisitAttributedStmt(clang::AttributedStmt *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   for (const auto *Attr : Node->getAttrs()) {
-    TokenPrinterContext ctx(OS, Attr, tokens);
     TagDefinitionPolicyRAII disable_tags(Policy);
-    Attr->printPretty(OS, Policy);
+    PrintAttribute(OS, Attr, tokens, Policy);
   }
 
   PrintStmt(Node->getSubStmt(), 0);

@@ -27,6 +27,55 @@
 
 namespace pasta {
 
+// Clang's code for printing attributes doesn't escape nested double quotes in
+// attributes that contain strings, so we need to figure that out.
+void PrintAttribute(raw_string_ostream &Out, const clang::Attr *A,
+                    PrintedTokenRangeImpl &tokens,
+                    const clang::PrintingPolicy &Policy) {
+  std::string a;
+  std::string new_a;
+  {
+    llvm::raw_string_ostream os(a);
+    A->printPretty(os, Policy);
+    os.flush();
+  }
+
+  // Fast path: no embedded strings.
+  const char *start = a.c_str();
+  const char *first_quote = strchr(start, '"');
+  if (!first_quote || first_quote[0] != '"') {
+    TokenPrinterContext ctx(Out, A, tokens);
+    Out << a;
+    return;
+  }
+
+  auto end = &(start[a.size()]);
+  auto second_quote = strchr(&(first_quote[1]), '"');
+  assert(second_quote && second_quote[0] == '"');
+
+  // NOTE(pag): This won't handle doubly/triply nested quotes. Just single
+  //            nested quotes.
+  new_a.reserve(a.size());
+  while (second_quote && strchr(&(second_quote[1]), '"')) {
+    new_a.insert(new_a.end(), start, second_quote);
+    new_a.push_back('\\');
+    new_a.push_back('"');
+    start = &(second_quote[1]);
+    second_quote = strchr(&(start[1]), '"');
+  }
+
+  if (second_quote) {
+    new_a.insert(new_a.end(), second_quote, end);
+
+  } else if (start) {
+    new_a.insert(new_a.end(), start, end);
+  }
+
+  TokenPrinterContext ctx(Out, A, tokens);
+  Out << new_a;
+}
+
+
 PrintedToken::~PrintedToken(void) {}
 
 // Return the data associated with this token.

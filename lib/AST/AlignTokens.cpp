@@ -1302,17 +1302,13 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
       reinterpret_cast<uint8_t *>(printed_end), sizeof(*printed_begin),
       "printed");
   if (!printed_tree) {
-//
+
 //    std::ofstream parsed_os("/tmp/tree.parsed");
-//    parsed_tree->Print(parsed_os, "", *ast);
+//    parsed_tree->Print(parsed_os, "", *ast, range);
 //
 //    std::ofstream printed_os("/tmp/tree.printed");
 //    for (auto t = printed_begin; t < printed_end; ++t) {
-//      if (t->Kind() == clang::tok::string_literal) {
-//        printed_os << "\"str\"";
-//      } else {
-//        printed_os << t->Data(range);
-//      }
+//      printed_os << t->Data(range);
 ////      if (t->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
 ////        printed_os << " l:" << std::hex << t->opaque_source_loc << std::dec;
 ////      }
@@ -1320,9 +1316,9 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
 ////        printed_os << " c:" << std::hex << t->context_index << std::dec;
 ////      }
 //
-//      if ((t - printed_begin) == 18025) {
-//        printed_os << "  /* HERE */";
-//      }
+////      if ((t - printed_begin) == 18025) {
+////        printed_os << "  /* HERE */";
+////      }
 //
 //      printed_os << '\n';
 //    }
@@ -1330,9 +1326,9 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
 //    parsed_os.flush();
 //    printed_os.flush();
 //    assert(false);
-
-//    std::ofstream printed_os("/tmp/tree.printed");
-//    printed_tree->Print(printed_os, "", range);
+//
+////    std::ofstream printed_os("/tmp/tree.printed");
+////    printed_tree->Print(printed_os, "", range);
 
     return err.str();
   }

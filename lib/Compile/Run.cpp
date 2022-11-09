@@ -179,9 +179,18 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
         ++num_lines;
         os << '\n';
         tokens.push_back(std::move(end_of_macro_tok.value()));
+        end_of_macro_tok.reset();
       }
 
       continue;
+    }
+
+    // The last token was the "true" ending of the macro token, put it back in.
+    if (end_of_macro_tok) {
+      ++num_lines;
+      os << '\n';
+      tokens.push_back(std::move(end_of_macro_tok.value()));
+      end_of_macro_tok.reset();
     }
 
     // It's a file token, we need to parse it.

@@ -48,8 +48,7 @@ The repository uses [vcpkg](https://github.com/microsoft/vcpkg) which makes enti
 ```
 
 If you do not plan to tinker with or work on PASTA, then we recommend adding in
-`--release` so that you get a release build of LLVM. If you only want to tinker,
-then maybe you want to use `--debug` to only build a debug build.
+`--release` so that you get a release build of LLVM.
 
 It is important *do not forget the `llvm-15[pasta]`* option, otherwise it will not build
 and subsequently the projects built in next step will try to link system libraries

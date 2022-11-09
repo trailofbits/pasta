@@ -463,7 +463,7 @@ bool PatchedMacroTracker::ClonePrefixArguments(
           << parsed_tok.opaque_source_loc << " "
           << tok.getLocation().getRawEncoding() << '\n'; )
 
-    if (tok.getLocation().getRawEncoding() == parsed_tok.opaque_source_loc) {
+    if (tok_loc.getRawEncoding() == parsed_tok.opaque_source_loc) {
       matched = true;
       break;
     }
@@ -1629,8 +1629,10 @@ void PatchedMacroTracker::DoEndMacroExpansion(
     expansions.pop_back();
     nodes.pop_back();
 
+#ifndef NDEBUG
     deferred_expansion->defferal_status = MacroExpansionImpl::kDeferredParent;
     expansion->defferal_status = MacroExpansionImpl::kDeferredChild;
+#endif
 
     std::swap(expansion, deferred_expansion);
     assert(!expansion->is_cancelled);

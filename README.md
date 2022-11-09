@@ -19,7 +19,7 @@ tries to achieve the following goals:
 
 First, update aptitude and get install the baseline dependencies such is for
 example `git`, `cmake`, `ninja` and your compiler of choice (remember it needs to support
-C++17). It is useful to use the same compiler at every subset to avoid some
+C++20). It is useful to use the same compiler at every subset to avoid some
 name mangling problems. If you're using macOS then we recommend installing
 Homebrew, and ensuring that you have Python 3.9 installed, along with an
 up-to-date `cmake` and `ninja`.
@@ -44,13 +44,14 @@ cd cxx-common
 The repository uses [vcpkg](https://github.com/microsoft/vcpkg) which makes entire process rather easy.
 
 ```shell
-./build_dependencies.sh llvm-14
+./build_dependencies.sh llvm-15[pasta]
 ```
 
 If you do not plan to tinker with or work on PASTA, then we recommend adding in
-`--release` so that you get a release build of LLVM.
+`--release` so that you get a release build of LLVM. If you only want to tinker,
+then maybe you want to use `--debug` to only build a debug build.
 
-It is important *do not forget the llvm-14* option, otherwise it will not build
+It is important *do not forget the `llvm-15[pasta]`* option, otherwise it will not build
 and subsequently the projects built in next step will try to link system libraries
 and that is highly unstable and not
 tested (at least for now).
@@ -86,7 +87,7 @@ cd pasta
 mkdir build
 cd build
 cmake \
-    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+    -DCMAKE_BUILD_TYPE=Release \
     -DVCPKG_ROOT=/path/to/cxx-common/vcpkg \
     -DVCPKG_TARGET_TRIPLET=x64-osx-rel \
     -DCMAKE_C_COMPILER=`which clang` \

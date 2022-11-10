@@ -163,6 +163,7 @@ class ParsedFileTracker : public clang::PPCallbacks {
       }
       const clang::SourceLocation tok_loc = tok.getLocation();
       const auto offset = sm.getFileOffset(tok_loc);
+      const auto len = tok.getLength();
       assert(offset < buff_size);
       assert((offset + tok.getLength()) <= buff_size);
       auto tok_kind = tok.getKind();
@@ -171,10 +172,13 @@ class ParsedFileTracker : public clang::PPCallbacks {
       uint16_t is_objc_keyword = 0;
       uint16_t alt_keyword = 0;
 
-      // Skip over leading whitespace.
       clang::SourceLocation fixed_loc = tok_loc;
       auto fixed_offset = offset;
-      for (auto skip = true; skip && fixed_offset < buff_size; ) {
+      auto fixed_len = len;
+
+      // Skip over leading whitespace if this isn't a whitespace token.
+      for (auto skip = clang::tok::unknown != tok_kind;
+           skip && fixed_len && fixed_offset < buff_size; ) {
         skip = false;
         switch (buff_begin[fixed_offset]) {
           case '\\':
@@ -183,6 +187,7 @@ class ParsedFileTracker : public clang::PPCallbacks {
           case '\r':
           case '\n':
             ++fixed_offset;
+            --fixed_len;
             fixed_loc = fixed_loc.getLocWithOffset(1);
             skip = true;
             break;
@@ -191,7 +196,9 @@ class ParsedFileTracker : public clang::PPCallbacks {
         }
       }
 
+      // There was leading whitespace, go and form a token for it.
       if (auto diff = fixed_offset - offset) {
+        assert(diff < len);
 
         // Add in a whitespace token.
         file.impl->tokens.emplace_back(
@@ -242,7 +249,7 @@ class ParsedFileTracker : public clang::PPCallbacks {
 
       auto &last_tok = file.impl->tokens.emplace_back(
           fixed_offset,
-          tok.getLength(),
+          fixed_len,
           sm.getSpellingLineNumber(fixed_loc),
           sm.getSpellingColumnNumber(fixed_loc),
           tok_kind);

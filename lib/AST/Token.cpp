@@ -437,25 +437,28 @@ std::optional<FileToken> Token::FileLocation(void) const {
 
   // Negative values are indices of the
   clang::SourceLocation loc = impl->Location();
-  if (loc.isInvalid()) {
+  if (loc.isInvalid() || !loc.isFileID()) {
     return std::nullopt;
 
-  // Locations that look like macro tokens are actually ind
-  } else if (loc.isMacroID()) {
-    assert(impl->HasMacroRole());
-    auto old_index = Index();
-    auto new_index = static_cast<size_t>(
-        -static_cast<clang::SourceLocation::IntTy>(impl->opaque_source_loc));
+// NOTE(pag): The below works, but it's makes it hard to distinguish macro use
+//            from expansion tokens.
 
-    // It's a final macro expansion token, e.g. the string expanded from
-    // `__FILE__`, but it can't be associated with anywhere, so we associate
-    // it with
-    if (old_index == new_index) {
-      return std::nullopt;
-    } else {
-      assert(new_index < old_index);
-      return Token(ast, &(ast->tokens[new_index])).FileLocation();
-    }
+//  // Locations that look like macro tokens are actually ind
+//  } else if (loc.isMacroID()) {
+//    assert(impl->HasMacroRole());
+//    auto old_index = Index();
+//    auto new_index = static_cast<size_t>(
+//        -static_cast<clang::SourceLocation::IntTy>(impl->opaque_source_loc));
+//
+//    // It's a final macro expansion token, e.g. the string expanded from
+//    // `__FILE__`, but it can't be associated with anywhere, so we associate
+//    // it with
+//    if (old_index == new_index) {
+//      return std::nullopt;
+//    } else {
+//      assert(new_index < old_index);
+//      return Token(ast, &(ast->tokens[new_index])).FileLocation();
+//    }
   }
 
   const clang::SourceManager &sm = ast->ci->getSourceManager();

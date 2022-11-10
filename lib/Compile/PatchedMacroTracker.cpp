@@ -14,7 +14,7 @@
 #include <clang/Lex/Token.h>
 #pragma GCC diagnostic pop
 
-#define D(...)
+//#define D(...) __VA_ARGS__
 #ifndef D
 # define D(...)
 #endif
@@ -143,14 +143,7 @@ void PatchedMacroTracker::CloseUnclosedExpansion(const clang::Token &tok) {
     return;
   }
 
-  clang::SourceLocation prev_tok_loc = prev_tok.Location();
-  if (prev_tok_loc.isFileID()) {
-    ast->AppendMarker(prev_tok_loc.getLocWithOffset(prev_tok.data_len),
-                      TokenRole::kEndOfMacroExpansionMarker);
-  } else {
-    ast->AppendMarker(tok.getLocation(),
-                      TokenRole::kEndOfMacroExpansionMarker);
-  }
+  ast->AppendMarker({}, TokenRole::kEndOfMacroExpansionMarker);
   D( std::cerr << indent << "EndOfMacroExpansionMarker\n"; )
 
   FixupDerivedLocations();
@@ -496,8 +489,23 @@ bool PatchedMacroTracker::ClonePrefixArguments(
   auto i = 1u;  // pre_exp
   auto j = 1u;  // exp
   for (; i < max_i && j < max_i; ) {
-    MacroTokenImpl *curr_tok = FirstUseToken(pre_exp->nodes[i]);
-    MacroTokenImpl *prev_tok = FirstUseToken(exp->use_nodes[j]);
+    Node i_node = pre_exp->nodes[i];
+    Node j_node = exp->use_nodes[j];
+
+    // E.g. an argument already cloned from the pre-expansion.
+    if (std::holds_alternative<MacroNodeImpl *>(j_node) &&
+        std::holds_alternative<MacroNodeImpl *>(i_node)) {
+      auto curr_impl = std::get<MacroNodeImpl *>(i_node);
+      auto prev_impl = std::get<MacroNodeImpl *>(j_node);
+      if (curr_impl->cloned_from == prev_impl) {
+        ++i;
+        ++j;
+        continue;
+      }
+    }
+
+    MacroTokenImpl *curr_tok = FirstUseToken(i_node);
+    MacroTokenImpl *prev_tok = FirstUseToken(j_node);
 
     if (!curr_tok) {
       assert(false);
@@ -709,7 +717,7 @@ void PatchedMacroTracker::FixupDerivedLocations(void) {
     // std::cerr << "role=" << int(tok.Role()) << " file=" << loc.isFileID() << " raw_loc=" << raw_loc << " -> tok_index=" << tok_index << '\n';
 
     if (!loc.isValid()) {
-      assert(false);
+      assert(tok.Role() == TokenRole::kEndOfMacroExpansionMarker);
       continue;
     }
 

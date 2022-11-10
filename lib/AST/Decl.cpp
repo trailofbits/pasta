@@ -4888,13 +4888,15 @@ enum ExceptionSpecificationType FunctionDecl::ExceptionSpecType(void) const noex
 }
 
 // 0: FunctionDecl::FunctionTypeToken
-::pasta::FunctionDecl FunctionDecl::InstantiatedFromDeclaration(void) const noexcept {
+std::optional<::pasta::FunctionDecl> FunctionDecl::InstantiatedFromDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.getInstantiatedFromDecl();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
   }
-  assert(false && "FunctionDecl::InstantiatedFromDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -7077,8 +7079,11 @@ bool VarDecl::HasExternalStorage(void) const noexcept {
   __builtin_unreachable();
 }
 
-bool VarDecl::HasFlexibleArrayInitializer(void) const noexcept {
+std::optional<bool> VarDecl::HasFlexibleArrayInitializer(void) const noexcept {
   auto &self = *(u.VarDecl);
+  if (!self.hasInit()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.hasFlexibleArrayInit(ast->ci->getASTContext());
   return val;
   __builtin_unreachable();

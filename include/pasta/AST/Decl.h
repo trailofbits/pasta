@@ -1735,7 +1735,7 @@ class FunctionDecl : public DeclaratorDecl {
   ::pasta::TokenRange ExceptionSpecSourceRange(void) const noexcept;
   enum ExceptionSpecificationType ExceptionSpecType(void) const noexcept;
   // FunctionTypeToken: (clang::FunctionTypeLoc)
-  ::pasta::FunctionDecl InstantiatedFromDeclaration(void) const noexcept;
+  std::optional<::pasta::FunctionDecl> InstantiatedFromDeclaration(void) const noexcept;
   std::optional<::pasta::FunctionDecl> InstantiatedFromMemberFunction(void) const noexcept;
   enum LanguageLinkage LanguageLinkage(void) const noexcept;
   // LiteralIdentifier: (const clang::IdentifierInfo *)
@@ -2400,7 +2400,7 @@ class VarDecl : public DeclaratorDecl {
   bool HasConstantInitialization(void) const noexcept;
   bool HasDependentAlignment(void) const noexcept;
   bool HasExternalStorage(void) const noexcept;
-  bool HasFlexibleArrayInitializer(void) const noexcept;
+  std::optional<bool> HasFlexibleArrayInitializer(void) const noexcept;
   bool HasGlobalStorage(void) const noexcept;
   std::optional<bool> HasICEInitializer(void) const noexcept;
   bool HasInitializer(void) const noexcept;

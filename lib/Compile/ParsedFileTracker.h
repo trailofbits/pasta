@@ -145,8 +145,9 @@ class ParsedFileTracker : public clang::PPCallbacks {
       return;
     }
 
+    const size_t buff_size = data.size();
     const char * const buff_begin = &(data.front());
-    const char * const buff_end = &(data[data.size()]);
+    const char * const buff_end = &(data[buff_size]);
     clang::Lexer lexer(loc, lang_opts, buff_begin, buff_begin, buff_end);
     lexer.SetKeepWhitespaceMode(true);  // Implies keep comments.
 
@@ -160,15 +161,50 @@ class ParsedFileTracker : public clang::PPCallbacks {
       if (tok.is(clang::tok::eof)) {
         break;
       }
-      const auto tok_loc = tok.getLocation();
-      auto offset = sm.getFileOffset(tok_loc);
-      assert(offset < data.size());
-      assert((offset + tok.getLength()) <= data.size());
+      const clang::SourceLocation tok_loc = tok.getLocation();
+      const auto offset = sm.getFileOffset(tok_loc);
+      assert(offset < buff_size);
+      assert((offset + tok.getLength()) <= buff_size);
       auto tok_kind = tok.getKind();
 
       uint16_t is_pp_keyword = 0;
       uint16_t is_objc_keyword = 0;
       uint16_t alt_keyword = 0;
+
+      // Skip over leading whitespace.
+      clang::SourceLocation fixed_loc = tok_loc;
+      auto fixed_offset = offset;
+      for (auto skip = true; skip && fixed_offset < buff_size; ) {
+        skip = false;
+        switch (buff_begin[fixed_offset]) {
+          case '\\':
+          case ' ':
+          case '\t':
+          case '\r':
+          case '\n':
+            ++fixed_offset;
+            fixed_loc = fixed_loc.getLocWithOffset(1);
+            skip = true;
+            break;
+          default:
+            skip = false;
+        }
+      }
+
+      if (auto diff = fixed_offset - offset) {
+
+        // Add in a whitespace token.
+        file.impl->tokens.emplace_back(
+            offset,
+            diff,
+            sm.getSpellingLineNumber(tok_loc),
+            sm.getSpellingColumnNumber(tok_loc),
+            clang::tok::unknown);
+
+        // Fixup the token to no longer include the leading whitespace.
+        tok.setLocation(fixed_loc);
+        tok.setLength(tok.getLength() - diff);
+      }
 
       if (clang::tok::isAnyIdentifier(tok_kind)) {
         assert(tok_kind == clang::tok::raw_identifier);
@@ -205,10 +241,10 @@ class ParsedFileTracker : public clang::PPCallbacks {
       }
 
       auto &last_tok = file.impl->tokens.emplace_back(
-          offset,
+          fixed_offset,
           tok.getLength(),
-          sm.getSpellingLineNumber(tok_loc),
-          sm.getSpellingColumnNumber(tok_loc),
+          sm.getSpellingLineNumber(fixed_loc),
+          sm.getSpellingColumnNumber(fixed_loc),
           tok_kind);
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"

@@ -136,6 +136,7 @@ class MacroExpansionImpl final : public MacroSubstitutionImpl {
   bool is_cancelled{false};
   bool in_prearg_expansion{false};
   bool is_prearg_expansion{false};
+  bool done_prearg_expansion{false};
 
 #ifndef NDEBUG
   enum {

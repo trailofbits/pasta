@@ -440,6 +440,7 @@ bool PatchedMacroTracker::ClonePrefixArguments(
 
   // Find the index of the last matched thing.
   auto num_skipped = 0u;
+  std::optional<unsigned> last_sep;
   auto matched = false;
   for (const Node &node : exp->use_nodes) {
     MacroTokenImpl *use_tok = FirstUseToken(node);
@@ -462,6 +463,21 @@ bool PatchedMacroTracker::ClonePrefixArguments(
     }
 
     ++num_skipped;
+
+    switch (use_tok->kind_flags.kind) {
+      case pasta::TokenKind::kLParenthesis:
+        if (num_skipped == 2) {
+          last_sep = num_skipped;
+        }
+        break;
+      case pasta::TokenKind::kComma:
+        if (2 < num_skipped && !use_tok->kind_flags.is_ignored_comma) {
+          last_sep = num_skipped;
+        }
+        break;
+      default:
+        break;
+    }
   }
 
   if (!matched) {
@@ -488,6 +504,14 @@ bool PatchedMacroTracker::ClonePrefixArguments(
   //            against argument nodes.
   auto i = 1u;  // pre_exp
   auto j = 1u;  // exp
+
+  D(
+      std::cerr << indent << "Scanning: max_i=" << max_i;
+      if (last_sep) {
+        std::cerr << " last_sep=" << last_sep.value();
+      }
+      std::cerr << '\n';
+  )
   for (; i < max_i && j < max_i; ) {
     Node i_node = pre_exp->nodes[i];
     Node j_node = exp->use_nodes[j];
@@ -1001,7 +1025,7 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
   // lexed, but before the macro is entered. So it's a token lexer that operates
   // "independent" of the macro call context. We want to simulate the appearance
   // of the macro call so we go and find the `ident(` of the original expansion.
-  if (!expansions.empty() && nodes.back() == expansions.back()) {
+  if (!expansions.empty() && parent_node == expansions.back()) {
     MacroExpansionImpl *exp = expansions.back();
     if (tok_node->kind_flags.kind == TokenKind::kIdentifier && !exp->ident) {
       exp->ident = tok_node;
@@ -1010,26 +1034,38 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
                exp->ident && !exp->l_paren) {
       exp->l_paren = tok_node;
     }
+
+    // If we're in a pre-expansion, and we just added a token, but not into an
+    // argument, then we need to add the argument for this node.
+    if (exp->is_prearg_expansion && !exp->done_prearg_expansion &&
+        (!tok.is(clang::tok::comma) ||
+         tok.getFlag(clang::Token::IgnoredComma))) {
+
+      D( std::cerr << indent << " * Reparenting token into missing argument\n"; )
+      InjectArgument(*ast, nodes, arguments, exp);
+
+      parent_node = nodes.back();
+    }
   }
 
   // If we're in a macro argument pre-expansion phase, then we need to manually
   // split the arguments by commas.
-  if (tok_node->kind_flags.kind == TokenKind::kComma && !arguments.empty() &&
-      !tok.getFlag(clang::Token::IgnoredComma)) {
+  if (tok.is(clang::tok::comma) && !tok.getFlag(clang::Token::IgnoredComma) &&
+      !arguments.empty()) {
 
     assert(!expansions.empty());
     MacroExpansionImpl *exp = expansions.back();
     MacroArgumentImpl *arg = arguments.back();
 
-    if (nodes.back() == arg && arg->is_prearg_expansion &&
-        !ParenCount(arg)) {
+    if (parent_node == arg && arg->is_prearg_expansion &&
+        !exp->done_prearg_expansion && !ParenCount(arg)) {
 
       // Move the comma out of the argument and into to the expansion.
       assert(!arg->nodes.empty());
       Node comma = std::move(arg->nodes.back());
 
       // Keep track of argument separators.
-      end_of_arg_toks.emplace(tok.getLocation().getRawEncoding(), tok);
+      end_of_arg_toks.emplace(tok_loc.getRawEncoding(), tok);
 
       D( std::cerr
              << indent << "* Splitting pre-arg data at comma "
@@ -1375,6 +1411,7 @@ void PatchedMacroTracker::DoEndPreArgumentExpansion(
   // any arguments that should have preceded the `)` but didn't trigger any
   // pre-expansion.
   assert(expansion->is_prearg_expansion);
+  expansion->done_prearg_expansion = true;
 
   // Possibly add in any trailing missing tokens/nodes in before we inject
   // the trailing `)`. This can happen, e.g. `FOO(1, ONE, 2)` where `ONE`

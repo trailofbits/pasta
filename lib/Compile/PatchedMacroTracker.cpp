@@ -1044,9 +1044,11 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
          tok.getFlag(clang::Token::IgnoredComma))) {
 
       D( std::cerr << indent << " * Reparenting token into missing argument\n"; )
+      assert(nodes.back() == exp);
       InjectArgument(*ast, nodes, arguments, exp);
 
       parent_node = nodes.back();
+      assert(parent_node == arguments.back());
     }
   }
 
@@ -1078,18 +1080,8 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
       ReparentNode(comma, exp);
       exp->nodes.emplace_back(std::move(comma));
 
-      MacroArgumentImpl *new_arg =
-          &(ast->root_macro_node.arguments.emplace_back());
-      new_arg->is_prearg_expansion = true;
-      new_arg->index = arg->index + 1u;
-      new_arg->parent = exp;
-      exp->arguments.push_back(new_arg);
-
-      // Add the new argument into the expansion, and change the active node
-      // and argument.
-      exp->nodes.push_back(new_arg);
-      arguments.back() = new_arg;
-      nodes.back() = new_arg;
+      arguments.pop_back();
+      nodes.pop_back();
 
       ClonePrefixArguments(exp, tok);
     }

@@ -167,7 +167,7 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
           TokenRole::kFinalMacroExpansionToken);
       prev_tok.data_len = static_cast<uint32_t>(tok_data.size());
       prev_tok.data_offset =
-          static_cast<int32_t>(impl.preprocessed_code.size());
+          static_cast<TokenDataOffset>(impl.preprocessed_code.size());
 
       os << tok_data << '\n';
 

@@ -38,8 +38,8 @@ class PrintedTokenImpl : public TokenImpl {
   uint16_t num_leading_new_lines;
   uint16_t num_leading_spaces;
 
-  inline PrintedTokenImpl(int32_t data_offset_, uint32_t data_len_,
-                          uint32_t token_context_index_,
+  inline PrintedTokenImpl(TokenDataOffset data_offset_, uint32_t data_len_,
+                          TokenContextIndex token_context_index_,
                           unsigned num_leading_new_lines_,
                           unsigned num_leading_spaces_,
                           clang::tok::TokenKind kind_)

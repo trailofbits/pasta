@@ -344,8 +344,8 @@ void TokenPrinterContext::Tokenize(void) {
       num_sp = 0;
     }
 
-    const auto data_offset = static_cast<uint32_t>(tokens.data.size());
-    assert(0ll <= static_cast<int32_t>(data_offset));
+    const auto data_offset = static_cast<TokenDataIndex>(tokens.data.size());
+    assert(0ll <= static_cast<TokenDataOffset>(data_offset));
     uint32_t data_len = 0u;
     tokens.data.reserve(data_offset + tok.getLength());
     for (last_i = i, i += tok.getLength(); last_i < i && token_data[last_i];
@@ -358,7 +358,8 @@ void TokenPrinterContext::Tokenize(void) {
 
     // Add the token in.
     tokens.tokens.emplace_back(
-        static_cast<int32_t>(data_offset), static_cast<uint32_t>(data_len),
+        static_cast<TokenDataOffset>(data_offset),
+        static_cast<uint32_t>(data_len),
         context_index, num_nl, num_sp, tok.getKind());
 
     // Reset so that if there is no whitespace afte the last token, then we

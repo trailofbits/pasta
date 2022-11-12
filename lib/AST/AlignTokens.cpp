@@ -62,6 +62,7 @@ static bool TokenCanBeAssignedContext(const TokenImpl *token) {
     case TokenRole::kEndOfFileMarker:
     case TokenRole::kBeginOfMacroExpansionMarker:
     case TokenRole::kEndOfMacroExpansionMarker:
+    case TokenRole::kInitialMacroUseToken:
     case TokenRole::kIntermediateMacroExpansionToken:
       return false;
     case TokenRole::kFinalMacroExpansionToken:
@@ -1341,8 +1342,9 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
 
   std::unordered_map<OpaqueSourceLoc, TokenImpl *> loc_to_toks;
   for (auto tok = parsed_begin; tok < parsed_end; ++tok) {
-    auto loc = tok->opaque_source_loc;  // NOTE(pag): Packed struct.
-    loc_to_toks.emplace(loc, tok);
+    if (TokenCanBeAssignedContext(tok)) {
+      loc_to_toks.emplace(tok->opaque_source_loc, tok);
+    }
   }
 
   // Join on the shared source locations, and linearly "spread"

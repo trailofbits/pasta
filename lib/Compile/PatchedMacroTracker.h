@@ -84,8 +84,8 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   MacroDirectiveImpl *last_directive{nullptr};
 
   std::unordered_map<const clang::MacroInfo *, MacroDirectiveImpl *> defines;
-  std::unordered_map<clang::SourceLocation::UIntTy, size_t> file_token_refs;
-  std::unordered_map<clang::SourceLocation::UIntTy, size_t> macro_token_refs;
+  std::unordered_map<OpaqueSourceLoc, DerivedTokenIndex> file_token_refs;
+  std::unordered_map<OpaqueSourceLoc, DerivedTokenIndex> macro_token_refs;
 
   // In evil scenarios where pre-expansion is cancelled (e.g. due to a nested
   // _Pragma()), Clang may presend us with an EOD/EOF that is really
@@ -97,8 +97,8 @@ class PatchedMacroTracker : public clang::PPCallbacks {
 
   // The index of the last token whose role marks the beginning of a macro
   // expansion.
-  size_t start_of_macro_index{0u};
-  size_t last_fixed_index{0u};
+  DerivedTokenIndex start_of_macro_index{0u};
+  DerivedTokenIndex last_fixed_index{0u};
 
  public:
 

@@ -431,20 +431,13 @@ std::string_view MacroToken::Data(void) const noexcept {
 // Location of the token in a file.
 std::optional<FileToken> MacroToken::FileLocation(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
-  clang::SourceLocation loc =
-      ast->tokens[std::get<MacroTokenImpl *>(node)->token_offset].Location();
-  if (loc.isInvalid() || loc.isMacroID()) {
+  size_t tok_index = std::get<MacroTokenImpl *>(node)->token_offset;
+  size_t max_index = ast->tokens.size();
+  if (tok_index < max_index) {
+    return Token(ast, &(ast->tokens[tok_index])).FileLocation();
+  } else {
     return std::nullopt;
   }
-
-  const clang::SourceManager &sm = ast->ci->getSourceManager();
-  const auto [file_id, file_offset] = sm.getDecomposedLoc(loc);
-  auto file_it = ast->id_to_file.find(file_id.getHashValue());
-  if (file_it == ast->id_to_file.end()) {
-    return std::nullopt;
-  }
-
-  return file_it->second.TokenAtOffset(file_offset);
 }
 
 // Location of the token as parsed.
@@ -455,6 +448,7 @@ std::optional<Token> MacroToken::ParsedLocation(void) const noexcept {
   if (tok.HasMacroRole()) {
     return Token(ast, &tok);
   } else {
+    assert(false);  // Not sure what's going on here.
     return std::nullopt;
   }
 }

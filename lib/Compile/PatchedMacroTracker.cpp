@@ -138,6 +138,7 @@ void PatchedMacroTracker::CloseUnclosedExpansion(const clang::Token &tok) {
   TokenRole prev_role = prev_tok.Role();
 
   if (prev_role != TokenRole::kBeginOfMacroExpansionMarker &&
+      prev_role != TokenRole::kInitialMacroUseToken &&
       prev_role != TokenRole::kIntermediateMacroExpansionToken &&
       prev_role != TokenRole::kFinalMacroExpansionToken) {
     return;
@@ -152,7 +153,8 @@ void PatchedMacroTracker::CloseUnclosedExpansion(const clang::Token &tok) {
 void PatchedMacroTracker::Push(const clang::Token &tok) {
   if (!depth) {
     CloseUnclosedExpansion(tok);
-    start_of_macro_index = ast->tokens.size();
+    start_of_macro_index = static_cast<DerivedTokenIndex>(ast->tokens.size());
+    assert(start_of_macro_index == ast->tokens.size());
     D( std::cerr << indent << "BeginOfMacroExpansionMarker\n"; )
     assert(tok.getLocation().isValid() && tok.getLocation().isFileID());
     ast->AppendMarker(tok.getLocation(),
@@ -457,7 +459,7 @@ bool PatchedMacroTracker::ClonePrefixArguments(
           << parsed_tok.opaque_source_loc << " "
           << tok.getLocation().getRawEncoding() << '\n'; )
 
-    if (tok_loc.getRawEncoding() == parsed_tok.opaque_source_loc) {
+    if (tok_loc == parsed_tok.Location()) {
       matched = true;
       break;
     }
@@ -696,8 +698,8 @@ static int ParenCount(MacroNodeImpl *arg) {
 void PatchedMacroTracker::FixupDerivedLocations(void) {
 
   auto from_map = [=] (
-      const std::unordered_map<clang::SourceLocation::UIntTy, size_t> &map,
-      TokenImpl &tok, size_t tok_index, std::string_view tok_data,
+      const std::unordered_map<OpaqueSourceLoc, DerivedTokenIndex> &map,
+      TokenImpl &tok, DerivedTokenIndex tok_index, std::string_view tok_data,
       OpaqueSourceLoc loc) {
     auto it = map.find(loc);
     if (it == map.end()) {
@@ -706,11 +708,7 @@ void PatchedMacroTracker::FixupDerivedLocations(void) {
 
     // Sanity check that we're mapping a derived token to the original token
     // that shares the same data.
-    size_t orig_tok_index = it->second;
-    if (orig_tok_index == it->second) {
-      return true;
-    }
-
+    DerivedTokenIndex orig_tok_index = it->second;
     assert(orig_tok_index < tok_index);
     const TokenImpl &orig_tok = ast->tokens[orig_tok_index];
     if (orig_tok.Data(*ast) != tok_data) {
@@ -718,15 +716,14 @@ void PatchedMacroTracker::FixupDerivedLocations(void) {
     }
 
     assert(!!orig_tok_index);
-    tok.opaque_source_loc = static_cast<OpaqueSourceLoc>(
-        -static_cast<clang::SourceLocation::IntTy>(orig_tok_index));
-    assert(0 > static_cast<clang::SourceLocation::IntTy>(tok.opaque_source_loc));
+    tok.derived_index = orig_tok_index;
     return true;
   };
 
   macro_token_refs.clear();
 
-  for (auto tok_index = start_of_macro_index, max_i = ast->tokens.size();
+  DerivedTokenIndex max_i = static_cast<DerivedTokenIndex>(ast->tokens.size());
+  for (DerivedTokenIndex tok_index = start_of_macro_index;
        tok_index < max_i; ++tok_index) {
 
     last_fixed_index = tok_index;
@@ -738,7 +735,7 @@ void PatchedMacroTracker::FixupDerivedLocations(void) {
     const clang::SourceLocation loc = tok.Location();
     const OpaqueSourceLoc raw_loc = loc.getRawEncoding();
 
-    // std::cerr << "role=" << int(tok.Role()) << " file=" << loc.isFileID() << " raw_loc=" << raw_loc << " -> tok_index=" << tok_index << '\n';
+//     std::cerr << "role=" << int(tok.Role()) << " file=" << loc.isFileID() << " raw_loc=" << raw_loc << " -> tok_index=" << tok_index << '\n';
 
     if (!loc.isValid()) {
       assert(tok.Role() == TokenRole::kEndOfMacroExpansionMarker);
@@ -755,31 +752,26 @@ void PatchedMacroTracker::FixupDerivedLocations(void) {
           continue;
         default:
           if (!from_map(file_token_refs, tok, tok_index, data, raw_loc)) {
+//            std::cerr << "  A mapping raw_loc=" << raw_loc << " to index=" << tok_index << " -> " << tok.derived_index  << '\n';
             file_token_refs[raw_loc] = tok_index;
+          } else {
+//            std::cerr << "  B Didn't map index=" << tok_index << " -> " << tok.derived_index  << "; not sure\n";
           }
           assert(tok.Location().isFileID());
           continue;
       }
     }
 
-    tok.opaque_source_loc = TokenImpl::kInvalidSourceLocation;
     if (!loc.isMacroID()) {
       assert(false);  // Doesn't make sense.
       continue;
     }
 
-    // Negative source locations are interpreted as indices to other places
-    // in the AST tokens. If the index points to itself, then it's a macro
-    // token that makes it into the final parse (and is thus relevant to token
-    // alignment), but that also doesn't have any associated source location,
-    // e.g. how __FILE__ expands to a provenanceless string.
-    tok.opaque_source_loc = static_cast<OpaqueSourceLoc>(
-        -static_cast<clang::SourceLocation::IntTy>(tok_index));
-
     // For some pre-expansions, we need to copy the expanded tokens, so we want
     // to link back to those.
     if (from_map(macro_token_refs, tok, tok_index, data, raw_loc)) {
       macro_token_refs[raw_loc] = tok_index;
+//      std::cerr << "  C mapping raw_loc=" << raw_loc << " to index=" << tok_index << " -> " << tok.derived_index << '\n';
       continue;
     }
 
@@ -787,6 +779,7 @@ void PatchedMacroTracker::FixupDerivedLocations(void) {
     // ancestry.
     const clang::SourceLocation next_loc = sm.getImmediateSpellingLoc(loc);
     if (!next_loc.isValid()) {
+//      std::cerr << "  D Didn't map index=" << tok_index<< " -> " << tok.derived_index  << "; invalid next loc\n";
       continue;
     }
 
@@ -794,7 +787,12 @@ void PatchedMacroTracker::FixupDerivedLocations(void) {
     if (from_map(file_token_refs, tok, tok_index, data, next_raw_loc) ||
         from_map(macro_token_refs, tok, tok_index, data, next_raw_loc)) {
       macro_token_refs[raw_loc] = tok_index;
+//      std::cerr << "  E mapping raw_loc=" << raw_loc << " to index=" << tok_index<< " -> " << tok.derived_index  << '\n';
+      continue;
     }
+
+
+//    std::cerr << "  F Didn't map index=" << tok_index << " -> " << tok.derived_index  << '\n';
   }
 }
 
@@ -993,8 +991,12 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
 
   // Add the token to the AST.
   size_t tok_index = ast->tokens.size();
-  ast->AppendBackupToken(tok, offset, tok_data.size(),
-                         TokenRole::kIntermediateMacroExpansionToken);
+
+  auto role = TokenRole::kIntermediateMacroExpansionToken;
+  if (tok_loc.isValid() && tok_loc.isFileID()) {
+    role = TokenRole::kInitialMacroUseToken;
+  }
+  ast->AppendBackupToken(tok, offset, tok_data.size(), role);
 
   TokenImpl &added_tok = ast->tokens.back();
   MacroTokenImpl *tok_node = &(ast->root_macro_node.tokens.emplace_back());
@@ -1103,6 +1105,7 @@ void ASTImpl::LinkMacroTokenContexts(void) {
 
 #ifndef NDEBUG
     switch (tok.Role()) {
+      case TokenRole::kInitialMacroUseToken:
       case TokenRole::kIntermediateMacroExpansionToken:
       case TokenRole::kFinalMacroExpansionToken:
         break;
@@ -1474,8 +1477,7 @@ void PatchedMacroTracker::DoEndPreArgumentExpansion(
   clang::Token tok;
   tok.startToken();
   tok.setLength(clang::tok::r_paren);
-  tok.setLocation(clang::SourceLocation::getFromRawEncoding(
-      r_paren_tok.opaque_source_loc));
+  tok.setLocation(r_paren_tok.Location());
   ClonePrefixArguments(expansion, tok);
 
   // At this point, we should always have at least one argument in the

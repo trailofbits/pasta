@@ -54,6 +54,7 @@ enum class TokenRole : std::underlying_type_t<TokenKind> {
   kEndOfFileMarker,
 
   kBeginOfMacroExpansionMarker,
+  kInitialMacroUseToken,
   kIntermediateMacroExpansionToken,
   kFinalMacroExpansionToken,
   kEndOfMacroExpansionMarker,

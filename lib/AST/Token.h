@@ -37,6 +37,10 @@ class PrintedTokenRangeImpl;
 
 using OpaqueSourceLoc = clang::SourceLocation::UIntTy;
 using TokenContextIndex = uint32_t;
+using DerivedTokenIndex = uint32_t;
+using TokenDataOffset = int32_t;
+using TokenDataIndex = uint32_t;
+static constexpr DerivedTokenIndex kInvalidDerivedTokenIndex = ~0u;
 static constexpr TokenContextIndex kInvalidTokenContextIndex = ~0u;
 static constexpr TokenContextIndex kASTTokenContextIndex = 0u;
 static constexpr TokenContextIndex kTranslationUnitTokenContextIndex = 1u;
@@ -163,6 +167,7 @@ class TokenImpl {
   inline bool HasMacroRole(void) const noexcept {
     switch (Role()) {
       case TokenRole::kBeginOfMacroExpansionMarker:
+      case TokenRole::kInitialMacroUseToken:
       case TokenRole::kIntermediateMacroExpansionToken:
       case TokenRole::kFinalMacroExpansionToken:
       case TokenRole::kEndOfMacroExpansionMarker:
@@ -198,6 +203,8 @@ class TokenImpl {
   //            but stubbornly just leave things according to the old design.
   OpaqueSourceLoc opaque_source_loc{kInvalidSourceLocation};
 
+  DerivedTokenIndex derived_index{kInvalidDerivedTokenIndex};
+
   // Index of the token context in either `ASTImpl::contexts` or
   // `PrintedTokenRangeImpl::contexts`.
   //
@@ -209,20 +216,18 @@ class TokenImpl {
   // Offset and length of this token's data. If `data_offset` is positive, then
   // the data is located in `ast->preprocessed_code`, otherwise it's located in
   // `ast->backup_code`.
-  int32_t data_offset{0u};
+  TokenDataOffset data_offset{0u};
 
   // The Linux kernel has some *massive* comments, e.g. comments in
   // `tools/include/uapi/linux/bpf.h`.
-  uint32_t data_len:20;
+  uint32_t data_len;
 
   // The original token kind.
-  TokenKindBase kind:9;
+  TokenKindBase kind;
 
   // The role of this token, e.g. parsed, printed, macro expansion, etc.
-  TokenKindBase role:3;
-} __attribute__((packed));
-
-static_assert(sizeof(TokenImpl) == 16u);
+  TokenKindBase role;
+};
 
 // Strip off leading whitespace from a token that has been read.
 void SkipLeadingWhitspace(clang::Token &tok, clang::SourceLocation &tok_loc,

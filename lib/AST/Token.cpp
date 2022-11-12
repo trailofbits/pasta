@@ -410,23 +410,16 @@ bool TokenContext::TryUpdateToAliasee(void) {
 
 // Find the token from which this token was derived.
 std::optional<Token> Token::DerivedLocation(void) const {
-  if (!impl) {
+  if (!impl || impl->derived_index == kInvalidDerivedTokenIndex) {
+    return std::nullopt;
+
+  } else if (impl->derived_index < Index()) {
+    return Token(ast, &(ast->tokens[impl->derived_index]));
+
+  } else {
+    assert(false);
     return std::nullopt;
   }
-
-  auto macro_loc = static_cast<clang::SourceLocation::IntTy>(
-      impl->opaque_source_loc);
-  if (0 <= macro_loc) {
-    return std::nullopt;
-  }
-
-  auto curr_index = Index();
-  auto source_index = static_cast<OpaqueSourceLoc>(-macro_loc);
-  if (curr_index == source_index || source_index >= ast->tokens.size()) {
-    return std::nullopt;
-  }
-
-  return Token(ast, &(ast->tokens[source_index]));
 }
 
 // Location of the token in a file.
@@ -435,40 +428,38 @@ std::optional<FileToken> Token::FileLocation(void) const {
     return std::nullopt;
   }
 
-  // Negative values are indices of the
-  clang::SourceLocation loc = impl->Location();
-  if (loc.isInvalid() || !loc.isFileID()) {
-    return std::nullopt;
+  size_t tok_index = Index();
+  size_t max_index = ast->tokens.size();
 
-// NOTE(pag): The below works, but it's makes it hard to distinguish macro use
-//            from expansion tokens.
+  clang::SourceLocation loc;
+  while (tok_index < max_index) {
+    const TokenImpl &tok = ast->tokens[tok_index];
+    loc = tok.Location();
+    if (loc.isInvalid()) {
+      return std::nullopt;
 
-//  // Locations that look like macro tokens are actually ind
-//  } else if (loc.isMacroID()) {
-//    assert(impl->HasMacroRole());
-//    auto old_index = Index();
-//    auto new_index = static_cast<size_t>(
-//        -static_cast<clang::SourceLocation::IntTy>(impl->opaque_source_loc));
-//
-//    // It's a final macro expansion token, e.g. the string expanded from
-//    // `__FILE__`, but it can't be associated with anywhere, so we associate
-//    // it with
-//    if (old_index == new_index) {
-//      return std::nullopt;
-//    } else {
-//      assert(new_index < old_index);
-//      return Token(ast, &(ast->tokens[new_index])).FileLocation();
-//    }
+    } else if (loc.isFileID()) {
+      break;
+
+    } else {
+      max_index = tok_index;
+      tok_index = tok.derived_index;
+    }
   }
 
-  const clang::SourceManager &sm = ast->ci->getSourceManager();
-  const auto [file_id, file_offset] = sm.getDecomposedLoc(loc);
-  auto file_it = ast->id_to_file.find(file_id.getHashValue());
-  if (file_it == ast->id_to_file.end()) {
+  if (loc.isValid() && loc.isFileID()) {
+    const clang::SourceManager &sm = ast->ci->getSourceManager();
+    const auto [file_id, file_offset] = sm.getDecomposedLoc(loc);
+    auto file_it = ast->id_to_file.find(file_id.getHashValue());
+    if (file_it == ast->id_to_file.end()) {
+      return std::nullopt;
+    }
+
+    return file_it->second.TokenAtOffset(file_offset);
+
+  } else {
     return std::nullopt;
   }
-
-  return file_it->second.TokenAtOffset(file_offset);
 }
 
 // Location of the token in a macro expansion.
@@ -478,6 +469,7 @@ std::optional<MacroToken> Token::MacroLocation(void) const {
     case TokenRole::kBeginOfMacroExpansionMarker:
     case TokenRole::kEndOfMacroExpansionMarker:
       return std::nullopt;
+    case TokenRole::kInitialMacroUseToken:
     case TokenRole::kIntermediateMacroExpansionToken:
     case TokenRole::kFinalMacroExpansionToken:
       if (impl->context_index == kInvalidTokenContextIndex) {
@@ -526,6 +518,7 @@ const TokenContextImpl *TokenImpl::Context(
 
   TokenContextIndex ci = context_index;
   switch (Role()) {
+    case TokenRole::kInitialMacroUseToken:
     case TokenRole::kIntermediateMacroExpansionToken:
     case TokenRole::kFinalMacroExpansionToken:
       if (ci == kInvalidTokenContextIndex) {

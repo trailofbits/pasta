@@ -328,6 +328,9 @@ static void PrintMacroGraph(std::ostream &os, pasta::AST ast) {
       case pasta::TokenRole::kEndOfMacroExpansionMarker:
         std::cerr << "EME ";
         break;
+      case pasta::TokenRole::kInitialMacroUseToken:
+        std::cerr << "IMU ";
+        break;
       case pasta::TokenRole::kIntermediateMacroExpansionToken:
         std::cerr << "IME ";
         break;
@@ -337,7 +340,20 @@ static void PrintMacroGraph(std::ostream &os, pasta::AST ast) {
     }
     std::cerr << tok.KindName() << ' ' << tok.Data();
     if (auto ft = tok.FileLocation()) {
-      std::cerr << ' ' << ft->KindName() << ' ' << ft->Data();
+      std::cerr << " PFI=" << ft->Index();
+
+    }
+
+    if (auto mt = tok.MacroLocation()) {
+      if (auto mft = mt->FileLocation()) {
+        std::cerr << " MFI=" << mft->Index();
+      }
+    }
+
+    if (auto dl = tok.DerivedLocation()) {
+      if (auto dft = dl->FileLocation()) {
+        std::cerr << " DFI=" << dft->Index();
+      }
     }
     std::cerr << '\n';
   }

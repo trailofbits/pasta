@@ -80,7 +80,7 @@ void SaveFirstErrorDiagConsumer::HandleDiagnostic(
       return true;
     };
 
-    if (!try_get_loc_info(source_location)) {
+    if (!try_get_loc_info(source_location) || presumed_loc.isInvalid()) {
       goto bail;
     }
 

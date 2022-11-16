@@ -80,7 +80,7 @@ void SaveFirstErrorDiagConsumer::HandleDiagnostic(
       return true;
     };
 
-    if (!try_get_loc_info(source_location) || presumed_loc.isInvalid()) {
+    if (!try_get_loc_info(source_location)) {
       goto bail;
     }
 
@@ -95,9 +95,11 @@ void SaveFirstErrorDiagConsumer::HandleDiagnostic(
       }
     }
 
-    ss << presumed_loc.getFilename()
-       << ':' << static_cast<int>(presumed_loc.getLine()) << ':'
-       << static_cast<int>(presumed_loc.getColumn()) << ' ';
+    if (presumed_loc.isValid()) {
+      ss << presumed_loc.getFilename()
+         << ':' << static_cast<int>(presumed_loc.getLine()) << ':'
+         << static_cast<int>(presumed_loc.getColumn()) << ' ';
+    }
   }
 
 bail:

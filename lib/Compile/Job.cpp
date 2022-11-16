@@ -4,10 +4,11 @@
 
 #include "Job.h"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wbitfield-enum-conversion"
+#pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/Basic/FileManager.h>
 #include <clang/Basic/SourceLocation.h>
 #include <clang/Driver/Compilation.h>
@@ -26,7 +27,7 @@
 #include <llvm/Option/Option.h>
 #include <llvm/Support/CommandLine.h>
 #include <llvm/Support/Host.h>
-#pragma clang diagnostic pop
+#pragma GCC diagnostic pop
 
 #include <pasta/Compile/Command.h>
 #include <pasta/Util/FileSystem.h>

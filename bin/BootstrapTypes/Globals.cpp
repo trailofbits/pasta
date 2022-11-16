@@ -136,6 +136,7 @@ const std::unordered_map<std::string, std::string> kCxxMethodRenames{
   {"TST", "TemplateSpecializationType"},
   {"KW", "Keyword"},
   {"Addr", "Address"},
+  {"Imp", "Implicit"},
 
   {"ColonLocFirst", "FirstColonToken"},
   {"ColonLocSecond", "SecondColonToken"},
@@ -900,11 +901,13 @@ std::vector<llvm::StringRef> kEnumPrefixesToStrip{
     "BI_",
     "AO__",
     "OOS_",
+    "LDK_",
 };
 
 // Set of ClassName::MethodName pairs such that the class can return a nullptr,
 // and thus `std::optional` probably needs to be used.
 std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
+  {"FunctionDecl", "InstantiatedFromDeclaration"},
   {"DeclContext", "Parent"},
   {"DeclContext", "LexicalParent"},
   {"DeclContext", "LookupParent"},
@@ -1110,6 +1113,10 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
 };
 
 std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
+  {{"VarDecl", "HasFlexibleArrayInitializer"},
+   "  if (!self.hasInit()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
   {{"AlignedAttr", "AlignmentType"},
    "  if (self.isAlignmentExpr()) {\n"
    "    return std::nullopt;\n"

@@ -314,6 +314,14 @@ void StmtVisitor::VisitOMPMaskedDirective(const OMPMaskedDirective &stmt) {
   VisitOMPExecutableDirective(stmt);
 }
 
+void StmtVisitor::VisitOMPMaskedTaskLoopDirective(const OMPMaskedTaskLoopDirective &stmt) {
+  VisitOMPLoopDirective(stmt);
+}
+
+void StmtVisitor::VisitOMPMaskedTaskLoopSimdDirective(const OMPMaskedTaskLoopSimdDirective &stmt) {
+  VisitOMPLoopDirective(stmt);
+}
+
 void StmtVisitor::VisitOMPMasterDirective(const OMPMasterDirective &stmt) {
   VisitOMPExecutableDirective(stmt);
 }
@@ -343,6 +351,22 @@ void StmtVisitor::VisitOMPParallelForDirective(const OMPParallelForDirective &st
 }
 
 void StmtVisitor::VisitOMPParallelForSimdDirective(const OMPParallelForSimdDirective &stmt) {
+  VisitOMPLoopDirective(stmt);
+}
+
+void StmtVisitor::VisitOMPParallelGenericLoopDirective(const OMPParallelGenericLoopDirective &stmt) {
+  VisitOMPLoopDirective(stmt);
+}
+
+void StmtVisitor::VisitOMPParallelMaskedDirective(const OMPParallelMaskedDirective &stmt) {
+  VisitOMPExecutableDirective(stmt);
+}
+
+void StmtVisitor::VisitOMPParallelMaskedTaskLoopDirective(const OMPParallelMaskedTaskLoopDirective &stmt) {
+  VisitOMPLoopDirective(stmt);
+}
+
+void StmtVisitor::VisitOMPParallelMaskedTaskLoopSimdDirective(const OMPParallelMaskedTaskLoopSimdDirective &stmt) {
   VisitOMPLoopDirective(stmt);
 }
 
@@ -410,6 +434,10 @@ void StmtVisitor::VisitOMPTargetParallelForSimdDirective(const OMPTargetParallel
   VisitOMPLoopDirective(stmt);
 }
 
+void StmtVisitor::VisitOMPTargetParallelGenericLoopDirective(const OMPTargetParallelGenericLoopDirective &stmt) {
+  VisitOMPLoopDirective(stmt);
+}
+
 void StmtVisitor::VisitOMPTargetSimdDirective(const OMPTargetSimdDirective &stmt) {
   VisitOMPLoopDirective(stmt);
 }
@@ -431,6 +459,10 @@ void StmtVisitor::VisitOMPTargetTeamsDistributeParallelForSimdDirective(const OM
 }
 
 void StmtVisitor::VisitOMPTargetTeamsDistributeSimdDirective(const OMPTargetTeamsDistributeSimdDirective &stmt) {
+  VisitOMPLoopDirective(stmt);
+}
+
+void StmtVisitor::VisitOMPTargetTeamsGenericLoopDirective(const OMPTargetTeamsGenericLoopDirective &stmt) {
   VisitOMPLoopDirective(stmt);
 }
 
@@ -479,6 +511,10 @@ void StmtVisitor::VisitOMPTeamsDistributeParallelForSimdDirective(const OMPTeams
 }
 
 void StmtVisitor::VisitOMPTeamsDistributeSimdDirective(const OMPTeamsDistributeSimdDirective &stmt) {
+  VisitOMPLoopDirective(stmt);
+}
+
+void StmtVisitor::VisitOMPTeamsGenericLoopDirective(const OMPTeamsGenericLoopDirective &stmt) {
   VisitOMPLoopDirective(stmt);
 }
 
@@ -1165,6 +1201,8 @@ PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPLoopBasedDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPLoopTransformationDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPMaskedDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPMaskedTaskLoopDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPMaskedTaskLoopSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPMasterDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPMasterTaskLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPMasterTaskLoopSimdDirective)
@@ -1173,6 +1211,10 @@ PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPOrderedDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPParallelDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPParallelForDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPParallelForSimdDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPParallelGenericLoopDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPParallelMaskedDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPParallelMaskedTaskLoopDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPParallelMaskedTaskLoopSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPParallelMasterDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPParallelMasterTaskLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPParallelMasterTaskLoopSimdDirective)
@@ -1189,12 +1231,14 @@ PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPTargetExitDataDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPTargetParallelDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPTargetParallelForDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPTargetParallelForSimdDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPTargetParallelGenericLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPTargetSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPTargetTeamsDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPTargetTeamsDistributeDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPTargetTeamsDistributeParallelForDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPTargetTeamsDistributeParallelForSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPTargetTeamsDistributeSimdDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPTargetTeamsGenericLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPTargetUpdateDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPTaskDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPTaskLoopDirective)
@@ -1207,6 +1251,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPTeamsDistributeDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPTeamsDistributeParallelForDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPTeamsDistributeParallelForSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPTeamsDistributeSimdDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPTeamsGenericLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPTileDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, OMPUnrollDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, ObjCArrayLiteral)
@@ -2669,6 +2714,14 @@ std::optional<::pasta::Stmt> CompoundStmt::StatementExpressionResult(void) const
   __builtin_unreachable();
 }
 
+// 0: CompoundStmt::StoredFPFeatures
+bool CompoundStmt::HasStoredFPFeatures(void) const noexcept {
+  auto &self = *const_cast<clang::CompoundStmt *>(u.CompoundStmt);
+  decltype(auto) val = self.hasStoredFPFeatures();
+  return val;
+  __builtin_unreachable();
+}
+
 uint32_t CompoundStmt::Size(void) const noexcept {
   auto &self = *const_cast<clang::CompoundStmt *>(u.CompoundStmt);
   decltype(auto) val = self.size();
@@ -2919,16 +2972,6 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::ParameterMoves(void) const noexcep
   __builtin_unreachable();
 }
 
-::pasta::Stmt CoroutineBodyStmt::ResultDeclaration(void) const noexcept {
-  auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
-  decltype(auto) val = self.getResultDecl();
-  if (val) {
-    return StmtBuilder::Create<::pasta::Stmt>(ast, val);
-  }
-  assert(false && "CoroutineBodyStmt::ResultDeclaration can return nullptr!");
-  __builtin_unreachable();
-}
-
 ::pasta::Stmt CoroutineBodyStmt::ReturnStatement(void) const noexcept {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.getReturnStmt();
@@ -2946,6 +2989,16 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::ParameterMoves(void) const noexcep
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "CoroutineBodyStmt::ReturnStatementOnAllocFailure can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::Expr CoroutineBodyStmt::ReturnValue(void) const noexcept {
+  auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
+  decltype(auto) val = self.getReturnValue();
+  if (val) {
+    return StmtBuilder::Create<::pasta::Expr>(ast, val);
+  }
+  assert(false && "CoroutineBodyStmt::ReturnValue can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -3370,13 +3423,13 @@ bool Expr::HasSideEffects(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Expr Expr::IgnoreImpCasts(void) const noexcept {
+::pasta::Expr Expr::IgnoreImplicitCasts(void) const noexcept {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.IgnoreImpCasts();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "Expr::IgnoreImpCasts can return nullptr!");
+  assert(false && "Expr::IgnoreImplicitCasts can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -3420,13 +3473,13 @@ bool Expr::HasSideEffects(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Expr Expr::IgnoreParenthesisImpCasts(void) const noexcept {
+::pasta::Expr Expr::IgnoreParenthesisImplicitCasts(void) const noexcept {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.IgnoreParenImpCasts();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "Expr::IgnoreParenthesisImpCasts can return nullptr!");
+  assert(false && "Expr::IgnoreParenthesisImplicitCasts can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -6700,6 +6753,8 @@ PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPLoopBasedDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPLoopTransformationDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPMaskedDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPMaskedTaskLoopDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPMaskedTaskLoopSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPMasterDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPMasterTaskLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPMasterTaskLoopSimdDirective)
@@ -6708,6 +6763,10 @@ PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPOrderedDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelForDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelForSimdDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelGenericLoopDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelMaskedDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelMaskedTaskLoopDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelMaskedTaskLoopSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelMasterDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelMasterTaskLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPParallelMasterTaskLoopSimdDirective)
@@ -6724,12 +6783,14 @@ PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetExitDataDirectiv
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetParallelDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetParallelForDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetParallelForSimdDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetParallelGenericLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetTeamsDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetTeamsDistributeDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetTeamsDistributeParallelForDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetTeamsDistributeParallelForSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetTeamsDistributeSimdDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetTeamsGenericLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTargetUpdateDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTaskDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTaskLoopDirective)
@@ -6742,6 +6803,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTeamsDistributeDirecti
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTeamsDistributeParallelForDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTeamsDistributeParallelForSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTeamsDistributeSimdDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTeamsGenericLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTileDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPUnrollDirective)
 std::vector<::pasta::Stmt> OMPExecutableDirective::Children(void) const noexcept {
@@ -6935,26 +6997,34 @@ PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPForSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPGenericLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPLoopTransformationDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPMaskedTaskLoopDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPMaskedTaskLoopSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPMasterTaskLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPMasterTaskLoopSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPParallelForDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPParallelForSimdDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPParallelGenericLoopDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPParallelMaskedTaskLoopDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPParallelMaskedTaskLoopSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPParallelMasterTaskLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPParallelMasterTaskLoopSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPTargetParallelForDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPTargetParallelForSimdDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPTargetParallelGenericLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPTargetSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPTargetTeamsDistributeDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPTargetTeamsDistributeParallelForDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPTargetTeamsDistributeParallelForSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPTargetTeamsDistributeSimdDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPTargetTeamsGenericLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPTaskLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPTaskLoopSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPTeamsDistributeDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPTeamsDistributeParallelForDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPTeamsDistributeParallelForSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPTeamsDistributeSimdDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPTeamsGenericLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPTileDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPUnrollDirective)
 uint32_t OMPLoopBasedDirective::LoopsNumber(void) const noexcept {
@@ -6979,26 +7049,34 @@ PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPDistributeSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPForDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPForSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPGenericLoopDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPMaskedTaskLoopDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPMaskedTaskLoopSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPMasterTaskLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPMasterTaskLoopSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPParallelForDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPParallelForSimdDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPParallelGenericLoopDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPParallelMaskedTaskLoopDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPParallelMaskedTaskLoopSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPParallelMasterTaskLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPParallelMasterTaskLoopSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPTargetParallelForDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPTargetParallelForSimdDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPTargetParallelGenericLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPTargetSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPTargetTeamsDistributeDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPTargetTeamsDistributeParallelForDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPTargetTeamsDistributeParallelForSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPTargetTeamsDistributeSimdDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPTargetTeamsGenericLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPTaskLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPTaskLoopSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPTeamsDistributeDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPTeamsDistributeParallelForDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPTeamsDistributeParallelForSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPTeamsDistributeSimdDirective)
+PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPTeamsGenericLoopDirective)
 std::vector<::pasta::Expr> OMPLoopDirective::Counters(void) const noexcept {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.counters();
@@ -7447,6 +7525,31 @@ OMPMaskedDirective::OMPMaskedDirective(
 
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPMaskedDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPMaskedDirective)
+OMPMaskedTaskLoopDirective::OMPMaskedTaskLoopDirective(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Stmt *stmt_)
+    : OMPLoopDirective(std::move(ast_), stmt_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPMaskedTaskLoopDirective)
+PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPMaskedTaskLoopDirective)
+PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPMaskedTaskLoopDirective)
+PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPMaskedTaskLoopDirective)
+bool OMPMaskedTaskLoopDirective::HasCancel(void) const noexcept {
+  auto &self = *const_cast<clang::OMPMaskedTaskLoopDirective *>(u.OMPMaskedTaskLoopDirective);
+  decltype(auto) val = self.hasCancel();
+  return val;
+  __builtin_unreachable();
+}
+
+OMPMaskedTaskLoopSimdDirective::OMPMaskedTaskLoopSimdDirective(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Stmt *stmt_)
+    : OMPLoopDirective(std::move(ast_), stmt_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPMaskedTaskLoopSimdDirective)
+PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPMaskedTaskLoopSimdDirective)
+PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPMaskedTaskLoopSimdDirective)
+PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPMaskedTaskLoopSimdDirective)
 OMPMasterDirective::OMPMasterDirective(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -7562,6 +7665,57 @@ PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelForSimdDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPParallelForSimdDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPParallelForSimdDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPParallelForSimdDirective)
+OMPParallelGenericLoopDirective::OMPParallelGenericLoopDirective(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Stmt *stmt_)
+    : OMPLoopDirective(std::move(ast_), stmt_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelGenericLoopDirective)
+PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPParallelGenericLoopDirective)
+PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPParallelGenericLoopDirective)
+PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPParallelGenericLoopDirective)
+OMPParallelMaskedDirective::OMPParallelMaskedDirective(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Stmt *stmt_)
+    : OMPExecutableDirective(std::move(ast_), stmt_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelMaskedDirective)
+PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPParallelMaskedDirective)
+::pasta::Expr OMPParallelMaskedDirective::TaskReductionReferenceExpression(void) const noexcept {
+  auto &self = *const_cast<clang::OMPParallelMaskedDirective *>(u.OMPParallelMaskedDirective);
+  decltype(auto) val = self.getTaskReductionRefExpr();
+  if (val) {
+    return StmtBuilder::Create<::pasta::Expr>(ast, val);
+  }
+  assert(false && "OMPParallelMaskedDirective::TaskReductionReferenceExpression can return nullptr!");
+  __builtin_unreachable();
+}
+
+OMPParallelMaskedTaskLoopDirective::OMPParallelMaskedTaskLoopDirective(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Stmt *stmt_)
+    : OMPLoopDirective(std::move(ast_), stmt_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelMaskedTaskLoopDirective)
+PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPParallelMaskedTaskLoopDirective)
+PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPParallelMaskedTaskLoopDirective)
+PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPParallelMaskedTaskLoopDirective)
+bool OMPParallelMaskedTaskLoopDirective::HasCancel(void) const noexcept {
+  auto &self = *const_cast<clang::OMPParallelMaskedTaskLoopDirective *>(u.OMPParallelMaskedTaskLoopDirective);
+  decltype(auto) val = self.hasCancel();
+  return val;
+  __builtin_unreachable();
+}
+
+OMPParallelMaskedTaskLoopSimdDirective::OMPParallelMaskedTaskLoopSimdDirective(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Stmt *stmt_)
+    : OMPLoopDirective(std::move(ast_), stmt_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelMaskedTaskLoopSimdDirective)
+PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPParallelMaskedTaskLoopSimdDirective)
+PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPParallelMaskedTaskLoopSimdDirective)
+PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPParallelMaskedTaskLoopSimdDirective)
 OMPParallelMasterDirective::OMPParallelMasterDirective(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -7776,6 +7930,15 @@ PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetParallelForSimdDire
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPTargetParallelForSimdDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPTargetParallelForSimdDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTargetParallelForSimdDirective)
+OMPTargetParallelGenericLoopDirective::OMPTargetParallelGenericLoopDirective(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Stmt *stmt_)
+    : OMPLoopDirective(std::move(ast_), stmt_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetParallelGenericLoopDirective)
+PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPTargetParallelGenericLoopDirective)
+PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPTargetParallelGenericLoopDirective)
+PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTargetParallelGenericLoopDirective)
 OMPTargetSimdDirective::OMPTargetSimdDirective(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -7845,6 +8008,15 @@ PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetTeamsDistributeSimd
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPTargetTeamsDistributeSimdDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPTargetTeamsDistributeSimdDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTargetTeamsDistributeSimdDirective)
+OMPTargetTeamsGenericLoopDirective::OMPTargetTeamsGenericLoopDirective(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Stmt *stmt_)
+    : OMPLoopDirective(std::move(ast_), stmt_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetTeamsGenericLoopDirective)
+PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPTargetTeamsGenericLoopDirective)
+PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPTargetTeamsGenericLoopDirective)
+PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTargetTeamsGenericLoopDirective)
 OMPTargetUpdateDirective::OMPTargetUpdateDirective(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -7982,6 +8154,15 @@ PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPTeamsDistributeSimdDirect
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPTeamsDistributeSimdDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPTeamsDistributeSimdDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTeamsDistributeSimdDirective)
+OMPTeamsGenericLoopDirective::OMPTeamsGenericLoopDirective(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Stmt *stmt_)
+    : OMPLoopDirective(std::move(ast_), stmt_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPTeamsGenericLoopDirective)
+PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPTeamsGenericLoopDirective)
+PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPTeamsGenericLoopDirective)
+PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTeamsGenericLoopDirective)
 OMPTileDirective::OMPTileDirective(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -11034,13 +11215,6 @@ bool SourceLocExpr::IsIntType(void) const noexcept {
   __builtin_unreachable();
 }
 
-bool SourceLocExpr::IsStringType(void) const noexcept {
-  auto &self = *const_cast<clang::SourceLocExpr *>(u.SourceLocExpr);
-  decltype(auto) val = self.isStringType();
-  return val;
-  __builtin_unreachable();
-}
-
 StmtExpr::StmtExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -11225,9 +11399,9 @@ std::optional<std::string_view> StringLiteral::String(void) const noexcept {
   __builtin_unreachable();
 }
 
-bool StringLiteral::IsAscii(void) const noexcept {
+bool StringLiteral::IsOrdinary(void) const noexcept {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
-  decltype(auto) val = self.isAscii();
+  decltype(auto) val = self.isOrdinary();
   return val;
   __builtin_unreachable();
 }
@@ -15717,6 +15891,16 @@ std::vector<::pasta::Stmt> CoroutineSuspendExpr::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
+::pasta::Expr CoroutineSuspendExpr::Operand(void) const noexcept {
+  auto &self = *const_cast<clang::CoroutineSuspendExpr *>(u.CoroutineSuspendExpr);
+  decltype(auto) val = self.getOperand();
+  if (val) {
+    return StmtBuilder::Create<::pasta::Expr>(ast, val);
+  }
+  assert(false && "CoroutineSuspendExpr::Operand can return nullptr!");
+  __builtin_unreachable();
+}
+
 ::pasta::Expr CoroutineSuspendExpr::ReadyExpression(void) const noexcept {
   auto &self = *const_cast<clang::CoroutineSuspendExpr *>(u.CoroutineSuspendExpr);
   decltype(auto) val = self.getReadyExpr();
@@ -15756,16 +15940,6 @@ PASTA_DEFINE_BASE_OPERATORS(CoroutineSuspendExpr, CoyieldExpr)
 PASTA_DEFINE_BASE_OPERATORS(Expr, CoyieldExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CoyieldExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CoyieldExpr)
-::pasta::Expr CoyieldExpr::Operand(void) const noexcept {
-  auto &self = *const_cast<clang::CoyieldExpr *>(u.CoyieldExpr);
-  decltype(auto) val = self.getOperand();
-  if (val) {
-    return StmtBuilder::Create<::pasta::Expr>(ast, val);
-  }
-  assert(false && "CoyieldExpr::Operand can return nullptr!");
-  __builtin_unreachable();
-}
-
 DeclRefExpr::DeclRefExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -16385,6 +16559,26 @@ OMPAtomicDirective::OMPAtomicDirective(
 
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPAtomicDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPAtomicDirective)
+::pasta::Expr OMPAtomicDirective::ConditionExpression(void) const noexcept {
+  auto &self = *const_cast<clang::OMPAtomicDirective *>(u.OMPAtomicDirective);
+  decltype(auto) val = self.getCondExpr();
+  if (val) {
+    return StmtBuilder::Create<::pasta::Expr>(ast, val);
+  }
+  assert(false && "OMPAtomicDirective::ConditionExpression can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::Expr OMPAtomicDirective::D(void) const noexcept {
+  auto &self = *const_cast<clang::OMPAtomicDirective *>(u.OMPAtomicDirective);
+  decltype(auto) val = self.getD();
+  if (val) {
+    return StmtBuilder::Create<::pasta::Expr>(ast, val);
+  }
+  assert(false && "OMPAtomicDirective::D can return nullptr!");
+  __builtin_unreachable();
+}
+
 ::pasta::Expr OMPAtomicDirective::Expression(void) const noexcept {
   auto &self = *const_cast<clang::OMPAtomicDirective *>(u.OMPAtomicDirective);
   decltype(auto) val = self.getExpr();
@@ -16392,6 +16586,16 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPAtomicDirective)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPAtomicDirective::Expression can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::Expr OMPAtomicDirective::R(void) const noexcept {
+  auto &self = *const_cast<clang::OMPAtomicDirective *>(u.OMPAtomicDirective);
+  decltype(auto) val = self.getR();
+  if (val) {
+    return StmtBuilder::Create<::pasta::Expr>(ast, val);
+  }
+  assert(false && "OMPAtomicDirective::R can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -16422,6 +16626,13 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPAtomicDirective)
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPAtomicDirective::X can return nullptr!");
+  __builtin_unreachable();
+}
+
+bool OMPAtomicDirective::IsFailOnly(void) const noexcept {
+  auto &self = *const_cast<clang::OMPAtomicDirective *>(u.OMPAtomicDirective);
+  decltype(auto) val = self.isFailOnly();
+  return val;
   __builtin_unreachable();
 }
 
@@ -17103,16 +17314,6 @@ PASTA_DEFINE_BASE_OPERATORS(CoroutineSuspendExpr, CoawaitExpr)
 PASTA_DEFINE_BASE_OPERATORS(Expr, CoawaitExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CoawaitExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CoawaitExpr)
-::pasta::Expr CoawaitExpr::Operand(void) const noexcept {
-  auto &self = *const_cast<clang::CoawaitExpr *>(u.CoawaitExpr);
-  decltype(auto) val = self.getOperand();
-  if (val) {
-    return StmtBuilder::Create<::pasta::Expr>(ast, val);
-  }
-  assert(false && "CoawaitExpr::Operand can return nullptr!");
-  __builtin_unreachable();
-}
-
 bool CoawaitExpr::IsImplicit(void) const noexcept {
   auto &self = *const_cast<clang::CoawaitExpr *>(u.CoawaitExpr);
   decltype(auto) val = self.isImplicit();

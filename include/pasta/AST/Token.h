@@ -37,6 +37,7 @@ class Attr;
 class CXXBaseSpecifier;
 class FileToken;
 class FileTokenRange;
+class MacroToken;
 class PrintedTokenRangeImpl;
 class TokenContextImpl;
 class TokenIterator;
@@ -53,11 +54,10 @@ enum class TokenRole : std::underlying_type_t<TokenKind> {
   kEndOfFileMarker,
 
   kBeginOfMacroExpansionMarker,
-  kMacroExpansionToken,
+  kInitialMacroUseToken,
+  kIntermediateMacroExpansionToken,
+  kFinalMacroExpansionToken,
   kEndOfMacroExpansionMarker,
-
-  // An invented token from the pretty-printer.
-  kPrintedToken,
 };
 
 enum class TokenContextKind : unsigned char {
@@ -161,8 +161,14 @@ class Token {
     return impl;
   }
 
+  // Find the token from which this token was derived.
+  std::optional<Token> DerivedLocation(void) const;
+
   // Location of the token in a file.
   std::optional<FileToken> FileLocation(void) const;
+
+  // Location of the token in a macro expansion.
+  std::optional<MacroToken> MacroLocation(void) const;
 
   // Return the data associated with this token.
   std::string_view Data(void) const;
@@ -183,16 +189,6 @@ class Token {
     return !!impl;
   }
 
-  // If this token is a macro expansion token, or is the beginning or ending of
-  // a macro expansion range, then return the entire range of file tokens which
-  // led to this macro expansion. Otherwise, return an empty range.
-  FileTokenRange MacroUseTokens(void) const noexcept;
-
-  // If this token is a macro expansion token, or is the beginning or ending of
-  // a macro expansion range, then return the entire range. Otherwise, this will
-  // return an empty range.
-  TokenRange MacroExpandedTokens(void) const noexcept;
-
   // Return this token's context, or a null context.
   std::optional<TokenContext> Context(void) const noexcept;
 
@@ -212,6 +208,7 @@ class Token {
   friend class AST;
   friend class ASTImpl;
   friend class CXXBaseSpecifier;
+  friend class MacroToken;
   friend class TokenContext;
   friend class TokenIterator;
   friend class TokenPrinterContext;
@@ -247,13 +244,13 @@ class TokenIterator {
 
   // NOTE(pag): This is a bit sketchy; make sure not to let the reference to
   //            the token escape beyond a single iteration of the loop.
-  inline const Token &operator*(void) const noexcept {
+  inline const Token &operator*(void) const & noexcept {
     return token;
   }
 
   // NOTE(pag): This is a bit sketchy; make sure not to let the reference to
   //            the token escape beyond a single iteration of the loop.
-  inline const Token *operator->(void) const noexcept {
+  inline const Token *operator->(void) const & noexcept {
     return &token;
   }
 

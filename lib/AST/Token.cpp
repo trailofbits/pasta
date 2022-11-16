@@ -7,10 +7,11 @@
 #include <cassert>
 #include <limits>
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wbitfield-enum-conversion"
+#pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/AST/ASTContext.h>
 #include <clang/Basic/IdentifierTable.h>
 #include <clang/Basic/SourceManager.h>
@@ -18,7 +19,7 @@
 #include <clang/Frontend/CompilerInstance.h>
 #include <clang/Lex/Lexer.h>
 #include <clang/Lex/Token.h>
-#pragma clang diagnostic pop
+#pragma GCC diagnostic pop
 
 #include "AST.h"
 #include "Printer/Printer.h"
@@ -99,12 +100,6 @@ static bool ReadRawTokenData(clang::SourceManager &source_manager,
                              const clang::Token &tok,
                              const clang::SourceLocation begin_loc,
                              std::string *out) {
-
-  const auto begin = source_manager.getDecomposedLoc(begin_loc);
-  if (begin.first.isInvalid()) {
-    return false;
-  }
-
   auto invalid = false;
   const auto data = source_manager.getCharacterData(begin_loc, &invalid);
   if (invalid) {
@@ -137,22 +132,23 @@ static bool ReadRawTokenData(clang::SourceManager &source_manager,
     return !out->empty();
 
   } else {
-    len = clang::Lexer::MeasureTokenLength(begin_loc, source_manager,
-                                           lang_opts);
+    len = tok.getLength();
+//    len = clang::Lexer::MeasureTokenLength(begin_loc, source_manager,
+//                                           lang_opts);
   }
 
   if (!len) {
     return false;
   }
 
-  // We'll try to get only valid UTF-8 characters, and printable ASCII
-  // characters.
-  //
-  // TODO(pag): This may be overkill, but the lifetimes of the backing buffers
-  //            for things like macro expansions is not clear to me, so this
-  //            is a reasonable way to go about detecting unusual token data
-  //            that may have been corrupted/reused.
-  auto can_be_ident = true;
+//  // We'll try to get only valid UTF-8 characters, and printable ASCII
+//  // characters.
+//  //
+//  // TODO(pag): This may be overkill, but the lifetimes of the backing buffers
+//  //            for things like macro expansions is not clear to me, so this
+//  //            is a reasonable way to go about detecting unusual token data
+//  //            that may have been corrupted/reused.
+//  auto can_be_ident = true;
 
   // We can't allow `NUL` characters into our tokens as we'll be using them
   // to split tokens.
@@ -169,14 +165,14 @@ static bool ReadRawTokenData(clang::SourceManager &source_manager,
 
   out->assign(data, len);
 
-  // Also try to catch errors when reading out identifiers or keywords.
-  //
-  // TODO(pag): We can't apply this to keywords as it very frequently triggers
-  //            in macro definitions, where keyword tokens can contain line
-  //            continuations and whitespace.
-  if (!can_be_ident && tok.isAnyIdentifier()) {
-    // ...
-  }
+//  // Also try to catch errors when reading out identifiers or keywords.
+//  //
+//  // TODO(pag): We can't apply this to keywords as it very frequently triggers
+//  //            in macro definitions, where keyword tokens can contain line
+//  //            continuations and whitespace.
+//  if (!can_be_ident && tok.isAnyIdentifier()) {
+//    // ...
+//  }
 
   return true;
 }
@@ -412,25 +408,80 @@ bool TokenContext::TryUpdateToAliasee(void) {
   }
 }
 
+// Find the token from which this token was derived.
+std::optional<Token> Token::DerivedLocation(void) const {
+  if (!impl || impl->derived_index == kInvalidDerivedTokenIndex) {
+    return std::nullopt;
+
+  } else if (impl->derived_index < Index()) {
+    return Token(ast, &(ast->tokens[impl->derived_index]));
+
+  } else {
+    assert(false);
+    return std::nullopt;
+  }
+}
+
 // Location of the token in a file.
 std::optional<FileToken> Token::FileLocation(void) const {
   if (!impl) {
     return std::nullopt;
   }
 
-  clang::SourceLocation loc = impl->Location();
-  if (loc.isInvalid() || loc.isMacroID()) {
-    return std::nullopt;
+  size_t tok_index = Index();
+  size_t max_index = ast->tokens.size();
+
+  clang::SourceLocation loc;
+  while (tok_index < max_index) {
+    const TokenImpl &tok = ast->tokens[tok_index];
+    loc = tok.Location();
+    if (loc.isInvalid()) {
+      return std::nullopt;
+
+    } else if (loc.isFileID()) {
+      break;
+
+    } else {
+      max_index = tok_index;
+      tok_index = tok.derived_index;
+    }
   }
 
-  const clang::SourceManager &sm = ast->ci->getSourceManager();
-  const auto [file_id, file_offset] = sm.getDecomposedLoc(loc);
-  auto file_it = ast->id_to_file.find(file_id.getHashValue());
-  if (file_it == ast->id_to_file.end()) {
+  if (loc.isValid() && loc.isFileID()) {
+    const clang::SourceManager &sm = ast->ci->getSourceManager();
+    const auto [file_id, file_offset] = sm.getDecomposedLoc(loc);
+    auto file_it = ast->id_to_file.find(file_id.getHashValue());
+    if (file_it == ast->id_to_file.end()) {
+      return std::nullopt;
+    }
+
+    return file_it->second.TokenAtOffset(file_offset);
+
+  } else {
     return std::nullopt;
   }
+}
 
-  return file_it->second.TokenAtOffset(file_offset);
+// Location of the token in a macro expansion.
+std::optional<MacroToken> Token::MacroLocation(void) const {
+  switch (Role()) {
+    default:
+    case TokenRole::kBeginOfMacroExpansionMarker:
+    case TokenRole::kEndOfMacroExpansionMarker:
+      return std::nullopt;
+    case TokenRole::kInitialMacroUseToken:
+    case TokenRole::kIntermediateMacroExpansionToken:
+    case TokenRole::kFinalMacroExpansionToken:
+      if (impl->context_index == kInvalidTokenContextIndex) {
+        return std::nullopt;
+      } else if (impl->context_index >= ast->root_macro_node.token_nodes.size()) {
+        assert(false);
+        return std::nullopt;
+      } else {
+        return MacroToken(
+            ast, &(ast->root_macro_node.token_nodes[impl->context_index]));
+      }
+  }
 }
 
 // Kind of this token.
@@ -460,122 +511,36 @@ const char *Token::KindName(void) const noexcept {
   }
 }
 
-// If this token is a macro expansion token, or is the beginning or ending of
-// a macro expansion range, then return the entire range of file tokens which
-// led to this macro expansion. Otherwise, return an empty range.
-FileTokenRange Token::MacroUseTokens(void) const noexcept {
-  auto expansion_range = MacroExpandedTokens();
-  auto begin = expansion_range.first;
-  auto end = expansion_range.after_last;
-  if (!begin) {
-    return FileTokenRange(ast->main_source_file.impl);
-  }
-
-  assert((begin->Role() == TokenRole::kMacroExpansionToken) ||
-         (begin->Role() == TokenRole::kEndOfMacroExpansionMarker));
-  begin = &(begin[-1]);
-  assert(begin->Role() == TokenRole::kBeginOfMacroExpansionMarker);
-  assert(end->Role() == TokenRole::kEndOfMacroExpansionMarker);
-
-  auto begin_loc = begin->Location();
-  auto end_loc = end->Location();
-  assert(begin_loc.isValid() && begin_loc.isFileID());
-  assert(end_loc.isValid() && end_loc.isFileID());
-  (void) begin_loc;
-  (void) end_loc;
-
-  auto begin_ft = Token(ast, begin).FileLocation();
-  auto end_ft = Token(ast, end).FileLocation();
-
-  // If we can't find file locations for the expansion markers, or if they
-  // look like they're from different files, or if they aren't ordered properly
-  // then bail out.
-  if (!begin_ft ||
-      !end_ft ||
-      begin_ft->file != end_ft->file ||
-      begin_ft->Index() >= end_ft->Index()) {
-    return FileTokenRange(ast->main_source_file.impl);
-  }
-
-  assert(begin_ft->impl < end_ft->impl);
-  return FileTokenRange(begin_ft->file, begin_ft->impl, end_ft->impl);
-}
-
-// If this token is a macro expansion token, or is the beginning or ending of
-// a macro expansion range, then return the entire range. Otherwise, this will
-// return an empty range.
-TokenRange Token::MacroExpandedTokens(void) const noexcept {
-  switch (Role()) {
-    case TokenRole::kBeginOfMacroExpansionMarker:
-    case TokenRole::kMacroExpansionToken:
-    case TokenRole::kEndOfMacroExpansionMarker:
-      break;
-    default:
-      return TokenRange(ast);
-  }
-
-  auto min = &(ast->tokens.front());
-  auto max = &(ast->tokens.back());
-
-  // Scan backwards. There should always be /some/ tokens before the beginning
-  // of a macro expansion marker, e.g. a file entry marker.
-  auto begin = impl;
-  for (; begin > min; --begin) {
-    switch (begin->Role()) {
-      case TokenRole::kBeginOfMacroExpansionMarker:
-        goto found_begin;
-      case TokenRole::kMacroExpansionToken:
-      case TokenRole::kEndOfMacroExpansionMarker:
-        continue;
-      default:
-        assert(false);
-        return TokenRange(ast);
-    }
-  }
-found_begin:
-
-  // If we failed to find the beginning then bail out. Shouldn't happen.
-  if (begin->Role() != TokenRole::kBeginOfMacroExpansionMarker) {
-    assert(false);
-    return TokenRange(ast);
-  }
-
-  // Scan forwards. There should always be /some/ tokens after the end
-  // of a macro expansion marker, e.g. a file exit marker.
-  auto end = impl;
-  for (; end < max; ++end) {
-    switch (end->Role()) {
-      case TokenRole::kEndOfMacroExpansionMarker:
-        goto found_end;
-      case TokenRole::kBeginOfMacroExpansionMarker:
-      case TokenRole::kMacroExpansionToken:
-        continue;
-      default:
-        assert(false);
-        return TokenRange(ast);
-    }
-  }
-found_end:
-
-  // If we failed to find the end then bail out. Shouldn't happen.
-  if (end->Role() != TokenRole::kEndOfMacroExpansionMarker) {
-    assert(false);
-    return TokenRange(ast);
-  }
-
-  // Return the range of tokens *inside* the two markers.
-  return TokenRange(ast, &(begin[1]), end);
-}
-
 // Return the context of this token, or `nullptr`.
 const TokenContextImpl *TokenImpl::Context(
+    const ASTImpl &ast,
     const std::vector<TokenContextImpl> &contexts) const noexcept {
-  if (context_index == kInvalidTokenContextIndex) {
+
+  TokenContextIndex ci = context_index;
+  switch (Role()) {
+    case TokenRole::kInitialMacroUseToken:
+    case TokenRole::kIntermediateMacroExpansionToken:
+    case TokenRole::kFinalMacroExpansionToken:
+      if (ci == kInvalidTokenContextIndex) {
+        return nullptr;
+      } else if (ci >= ast.root_macro_node.token_nodes.size()) {
+        assert(false);
+        return nullptr;
+      } else {
+        ci = ast.root_macro_node.tokens[ci].token_context;
+        break;
+      }
+    default:
+      break;
+  }
+
+  if (ci == kInvalidTokenContextIndex) {
     return nullptr;
-  } else if (context_index >= contexts.size()) {
+  } else if (ci >= contexts.size()) {
+    assert(false);
     return nullptr;
   } else {
-    return &(contexts[context_index]);
+    return &(contexts[ci]);
   }
 }
 
@@ -583,7 +548,7 @@ const TokenContextImpl *TokenImpl::Context(
 std::optional<TokenContext> Token::Context(void) const noexcept {
   if (!impl) {
     return std::nullopt;
-  } else if (auto context = impl->Context(ast->contexts)) {
+  } else if (auto context = impl->Context(*ast, ast->contexts)) {
     std::shared_ptr<const std::vector<TokenContextImpl>> contexts(
         ast, &(ast->contexts));
     return TokenContext(context, std::move(contexts));
@@ -679,7 +644,7 @@ Token TokenIterator::operator[](size_t offset) const noexcept {
 }
 
 ptrdiff_t TokenIterator::operator-(const TokenIterator &that) const noexcept {
-  return token.impl - token.impl;
+  return token.impl - that.token.impl;
 }
 
 // Number of tokens in this range.
@@ -701,6 +666,29 @@ std::optional<Token> TokenRange::At(size_t index) const noexcept {
 // Unsafe indexed access into the token range.
 Token TokenRange::operator[](size_t index) const {
   return Token(ast, &(first[index]));
+}
+
+// Strip off leading whitespace from a token that has been read.
+void SkipLeadingWhitspace(clang::Token &tok, clang::SourceLocation &tok_loc,
+                          std::string &tok_data) {
+  std::reverse(tok_data.begin(), tok_data.end());
+  while (!tok_data.empty()) {
+    switch (tok_data.back()) {
+      case '\\':
+      case ' ':
+      case '\t':
+      case '\r':
+      case '\n':
+        tok_data.pop_back();
+        tok_loc = tok_loc.getLocWithOffset(1);
+        break;
+      default:
+        goto done;
+    }
+  }
+done:
+  tok.setLocation(tok_loc);
+  std::reverse(tok_data.begin(), tok_data.end());
 }
 
 bool TryReadRawToken(clang::SourceManager &source_manager,
@@ -747,9 +735,12 @@ bool TryReadRawToken(clang::SourceManager &source_manager,
   }
 
   const auto orig_tok_begin = tok.getLocation();
-  const auto tok_begin = source_manager.getSpellingLoc(orig_tok_begin);
+  if (ReadRawTokenData(source_manager, lang_opts, tok, orig_tok_begin, out)) {
+    return true;
+  }
 
   // Try to find the token's representation using its location.
+  const auto tok_begin = source_manager.getSpellingLoc(orig_tok_begin);
   if (tok_begin.isValid()) {
     if (ReadRawTokenData(source_manager, lang_opts, tok, tok_begin, out)) {
       return true;

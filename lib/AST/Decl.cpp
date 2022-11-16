@@ -391,6 +391,10 @@ void DeclVisitor::VisitTypedefDecl(const TypedefDecl &decl) {
   VisitTypedefNameDecl(decl);
 }
 
+void DeclVisitor::VisitUnnamedGlobalConstantDecl(const UnnamedGlobalConstantDecl &decl) {
+  VisitValueDecl(decl);
+}
+
 void DeclVisitor::VisitUnresolvedUsingValueDecl(const UnresolvedUsingValueDecl &decl) {
   VisitValueDecl(decl);
 }
@@ -977,6 +981,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Decl, TypeAliasTemplateDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, TypeDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, TypedefDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, TypedefNameDecl)
+PASTA_DEFINE_DERIVED_OPERATORS(Decl, UnnamedGlobalConstantDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, UnresolvedUsingIfExistsDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, UnresolvedUsingTypenameDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, UnresolvedUsingValueDecl)
@@ -1322,6 +1327,13 @@ bool Decl::IsDeprecated(void) const noexcept {
   __builtin_unreachable();
 }
 
+bool Decl::IsDiscardedInGlobalModuleFragment(void) const noexcept {
+  auto &self = *const_cast<clang::Decl *>(u.Decl);
+  decltype(auto) val = self.isDiscardedInGlobalModuleFragment();
+  return val;
+  __builtin_unreachable();
+}
+
 bool Decl::IsFirstDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.isFirstDecl();
@@ -1379,6 +1391,13 @@ bool Decl::IsInvalidDeclaration(void) const noexcept {
   __builtin_unreachable();
 }
 
+bool Decl::IsInvisibleOutsideTheOwningModule(void) const noexcept {
+  auto &self = *const_cast<clang::Decl *>(u.Decl);
+  decltype(auto) val = self.isInvisibleOutsideTheOwningModule();
+  return val;
+  __builtin_unreachable();
+}
+
 bool Decl::IsModulePrivate(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.isModulePrivate();
@@ -1396,6 +1415,13 @@ bool Decl::IsOutOfLine(void) const noexcept {
 bool Decl::IsParameterPack(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.isParameterPack();
+  return val;
+  __builtin_unreachable();
+}
+
+bool Decl::IsReachable(void) const noexcept {
+  auto &self = *const_cast<clang::Decl *>(u.Decl);
+  decltype(auto) val = self.isReachable();
   return val;
   __builtin_unreachable();
 }
@@ -1712,7 +1738,7 @@ LifetimeExtendedTemporaryDecl::LifetimeExtendedTemporaryDecl(
     : Decl(std::move(ast_), decl_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Decl, LifetimeExtendedTemporaryDecl)
-std::vector<::pasta::Stmt> LifetimeExtendedTemporaryDecl::ChildrenExpression(void) const noexcept {
+std::vector<::pasta::Stmt> LifetimeExtendedTemporaryDecl::Children(void) const noexcept {
   auto &self = *const_cast<clang::LifetimeExtendedTemporaryDecl *>(u.LifetimeExtendedTemporaryDecl);
   decltype(auto) val = self.childrenExpr();
   std::vector<::pasta::Stmt> ret;
@@ -1868,6 +1894,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, TypeAliasTemplateDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, TypeDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, TypedefDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, TypedefNameDecl)
+PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, UnnamedGlobalConstantDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, UnresolvedUsingIfExistsDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, UnresolvedUsingTypenameDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, UnresolvedUsingValueDecl)
@@ -3924,6 +3951,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, ObjCAtDefsFieldDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, ObjCIvarDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, ParmVarDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, TemplateParamObjectDecl)
+PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, UnnamedGlobalConstantDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, UnresolvedUsingValueDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, VarDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, VarTemplatePartialSpecializationDecl)
@@ -4860,6 +4888,18 @@ enum ExceptionSpecificationType FunctionDecl::ExceptionSpecType(void) const noex
 }
 
 // 0: FunctionDecl::FunctionTypeToken
+std::optional<::pasta::FunctionDecl> FunctionDecl::InstantiatedFromDeclaration(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  decltype(auto) val = self.getInstantiatedFromDecl();
+  if (!val) {
+    return std::nullopt;
+  }
+  if (val) {
+    return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
+  }
+  __builtin_unreachable();
+}
+
 std::optional<::pasta::FunctionDecl> FunctionDecl::InstantiatedFromMemberFunction(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.getInstantiatedFromMemberFunction();
@@ -5179,6 +5219,13 @@ bool FunctionDecl::IsInExternCContext(void) const noexcept {
 bool FunctionDecl::IsInExternCXXContext(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.isInExternCXXContext();
+  return val;
+  __builtin_unreachable();
+}
+
+bool FunctionDecl::IsIneligibleOrNotSelected(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  decltype(auto) val = self.isIneligibleOrNotSelected();
   return val;
   __builtin_unreachable();
 }
@@ -6455,6 +6502,13 @@ bool TagDecl::IsThisDeclarationADefinition(void) const noexcept {
   __builtin_unreachable();
 }
 
+bool TagDecl::IsThisDeclarationADemotedDefinition(void) const noexcept {
+  auto &self = *const_cast<clang::TagDecl *>(u.TagDecl);
+  decltype(auto) val = self.isThisDeclarationADemotedDefinition();
+  return val;
+  __builtin_unreachable();
+}
+
 bool TagDecl::IsUnion(void) const noexcept {
   auto &self = *const_cast<clang::TagDecl *>(u.TagDecl);
   decltype(auto) val = self.isUnion();
@@ -6694,6 +6748,15 @@ PASTA_DEFINE_BASE_OPERATORS(Decl, TypedefDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, TypedefDecl)
 PASTA_DEFINE_BASE_OPERATORS(TypeDecl, TypedefDecl)
 PASTA_DEFINE_BASE_OPERATORS(TypedefNameDecl, TypedefDecl)
+UnnamedGlobalConstantDecl::UnnamedGlobalConstantDecl(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Decl *decl_)
+    : ValueDecl(std::move(ast_), decl_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Decl, UnnamedGlobalConstantDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UnnamedGlobalConstantDecl)
+PASTA_DEFINE_BASE_OPERATORS(ValueDecl, UnnamedGlobalConstantDecl)
+// 0: UnnamedGlobalConstantDecl::Value
 UnresolvedUsingValueDecl::UnresolvedUsingValueDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
@@ -6882,6 +6945,7 @@ std::optional<::pasta::VarTemplateDecl> VarDecl::DescribedVariableTemplate(void)
 
 // 0: VarDecl::EvaluatedStatement
 // 0: VarDecl::EvaluatedValue
+// 1: VarDecl::FlexibleArrayInitializerCharacters
 std::optional<::pasta::Expr> VarDecl::Initializer(void) const noexcept {
   auto &self = *const_cast<clang::VarDecl *>(u.VarDecl);
   decltype(auto) val = self.getInit();
@@ -7011,6 +7075,16 @@ bool VarDecl::HasDependentAlignment(void) const noexcept {
 bool VarDecl::HasExternalStorage(void) const noexcept {
   auto &self = *const_cast<clang::VarDecl *>(u.VarDecl);
   decltype(auto) val = self.hasExternalStorage();
+  return val;
+  __builtin_unreachable();
+}
+
+std::optional<bool> VarDecl::HasFlexibleArrayInitializer(void) const noexcept {
+  auto &self = *(u.VarDecl);
+  if (!self.hasInit()) {
+    return std::nullopt;
+  }
+  decltype(auto) val = self.hasFlexibleArrayInit(ast->ci->getASTContext());
   return val;
   __builtin_unreachable();
 }
@@ -8597,6 +8671,13 @@ bool RecordDecl::IsParameterDestroyedInCallee(void) const noexcept {
   __builtin_unreachable();
 }
 
+bool RecordDecl::IsRandomized(void) const noexcept {
+  auto &self = *const_cast<clang::RecordDecl *>(u.RecordDecl);
+  decltype(auto) val = self.isRandomized();
+  return val;
+  __builtin_unreachable();
+}
+
 bool RecordDecl::MayInsertExtraPadding(void) const noexcept {
   auto &self = *const_cast<clang::RecordDecl *>(u.RecordDecl);
   decltype(auto) val = self.mayInsertExtraPadding();
@@ -9204,6 +9285,13 @@ std::optional<::pasta::Decl> CXXRecordDecl::LambdaContextDeclaration(void) const
   if (val) {
     return DeclBuilder::Create<::pasta::Decl>(ast, val);
   }
+  __builtin_unreachable();
+}
+
+uint32_t CXXRecordDecl::LambdaDependencyKind(void) const noexcept {
+  auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  decltype(auto) val = self.getLambdaDependencyKind();
+  return val;
   __builtin_unreachable();
 }
 
@@ -10056,6 +10144,13 @@ std::optional<::pasta::FunctionDecl> CXXRecordDecl::IsLocalClass(void) const noe
   if (val) {
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
   }
+  __builtin_unreachable();
+}
+
+bool CXXRecordDecl::IsNeverDependentLambda(void) const noexcept {
+  auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
+  decltype(auto) val = self.isNeverDependentLambda();
+  return val;
   __builtin_unreachable();
 }
 

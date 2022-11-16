@@ -130,10 +130,7 @@ void DeclPrinter::prettyPrintAttributes(clang::Decl *D) {
 #include "clang/Basic/AttrList.inc"
         break;
       default:
-        {
-          TokenPrinterContext ctx(Out, A, tokens);
-          A->printPretty(Out, Policy);
-        }
+        PrintAttribute(Out, A, tokens, Policy);
         break;
       }
     }
@@ -153,10 +150,7 @@ void DeclPrinter::prettyPrintPragmas(clang::Decl *D) {
 #define ATTR(X)
 #define PRAGMA_SPELLING_ATTR(X) case clang::attr::X:
 #include "clang/Basic/AttrList.inc"
-        {
-          TokenPrinterContext ctx(Out, A, tokens);
-          A->printPretty(Out, Policy);
-        }
+        PrintAttribute(Out, A, tokens, Policy);
         Indent();
         break;
       default:
@@ -175,7 +169,7 @@ void DeclPrinter::printDeclType(clang::QualType T, std::function<void(void)> Nam
     T = PET->getPattern();
   }
 
-  printQualType(T, Out, Policy, [=, NameFn = std::move(NameFn)] () {
+  printQualType(T, Out, Policy, [=, NameFn = std::move(NameFn), this] () {
     if (Pack) {
       Out << "...";
     }
@@ -381,12 +375,9 @@ void DeclPrinter::VisitDeclContext(clang::DeclContext *DC, bool Indent) {
         Terminator = nullptr;
       else
         Terminator = ";";
-    } else if (clang::isa<clang::NamespaceDecl>(*D) || clang::isa<clang::LinkageSpecDecl>(*D) ||
-             clang::isa<clang::ObjCImplementationDecl>(*D) ||
-             clang::isa<clang::ObjCInterfaceDecl>(*D) ||
-             clang::isa<clang::ObjCProtocolDecl>(*D) ||
-             clang::isa<clang::ObjCCategoryImplDecl>(*D) ||
-             clang::isa<clang::ObjCCategoryDecl>(*D))
+    } else if (isa<clang::NamespaceDecl, clang::LinkageSpecDecl, clang::ObjCImplementationDecl,
+                   clang::ObjCInterfaceDecl, clang::ObjCProtocolDecl, clang::ObjCCategoryImplDecl,
+                   clang::ObjCCategoryDecl>(*D))
       Terminator = nullptr;
     else if (clang::isa<clang::EnumConstantDecl>(*D)) {
       clang::DeclContext::decl_iterator Next = D;
@@ -461,9 +452,9 @@ void DeclPrinter::VisitTypeAliasDecl(clang::TypeAliasDecl *D) {
 }
 
 void DeclPrinter::VisitEnumDecl(clang::EnumDecl *D) {
+  TokenPrinterContext ctx(Out, D, tokens);
   auto printed_tag = (Policy.IncludeTagDefinition || !D->getIdentifier()) &&
                      Out.printed_defs.emplace(D).second;
-  TokenPrinterContext ctx(Out, D, tokens);
   if (!Policy.SuppressSpecifiers && D->isModulePrivate())
     Out << "__module_private__ ";
   Out << "enum";
@@ -494,10 +485,10 @@ void DeclPrinter::VisitEnumDecl(clang::EnumDecl *D) {
 }
 
 void DeclPrinter::VisitRecordDecl(clang::RecordDecl *D) {
+  TokenPrinterContext ctx(Out, D, tokens);
   auto printed_tag = (Policy.IncludeTagDefinition || !D->getIdentifier()) &&
                      Out.printed_defs.emplace(D).second;
 
-  TokenPrinterContext ctx(Out, D, tokens);
   if (!Policy.SuppressSpecifiers && D->isModulePrivate())
     Out << "__module_private__ ";
   Out << D->getKindName();
@@ -639,7 +630,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
     };
   }
   if (D->isFunctionTemplateSpecialization()) {
-    ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
+    ProtoFn = [=, ProtoFn = std::move(ProtoFn), this] (void) {
       ProtoFn();
       DeclPrinter TArgPrinter(Out, SubPolicy, Context, tokens, Indentation);
 
@@ -657,7 +648,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
 
   clang::QualType Ty = D->getType();
   while (const clang::ParenType *PT = clang::dyn_cast<clang::ParenType>(Ty)) {
-    ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
+    ProtoFn = [=, ProtoFn = std::move(ProtoFn), this] (void) {
       TokenPrinterContext ctx(Out, PT, this->tokens);
       Out << '(';
       ProtoFn();
@@ -968,8 +959,9 @@ void DeclPrinter::VisitFriendDecl(clang::FriendDecl *D) {
 }
 
 void DeclPrinter::VisitFieldDecl(clang::FieldDecl *D) {
-  // FIXME: add printing of pragma attributes if required.
   TokenPrinterContext ctx(Out, D, tokens);
+
+  // FIXME: add printing of pragma attributes if required.
   if (!Policy.SuppressSpecifiers && D->isMutable())
     Out << "mutable ";
   if (!Policy.SuppressSpecifiers && D->isModulePrivate())
@@ -1052,12 +1044,15 @@ void DeclPrinter::VisitVarDecl(clang::VarDecl *D) {
   clang::Expr *Init = D->getInit();
   if (!Policy.SuppressInitializers && Init) {
     bool ImplicitInit = false;
-    if (clang::CXXConstructExpr *Construct =
-            clang::dyn_cast<clang::CXXConstructExpr>(Init->IgnoreImplicit())) {
+    if (D->isCXXForRangeDecl()) {
+      // FIXME: We should print the range expression instead.
+      ImplicitInit = true;
+    } else if (clang::CXXConstructExpr *Construct =
+                  clang::dyn_cast<clang::CXXConstructExpr>(Init->IgnoreImplicit())) {
       if (D->getInitStyle() == clang::VarDecl::CallInit &&
           !Construct->isListInitialization()) {
         ImplicitInit = Construct->getNumArgs() == 0 ||
-          Construct->getArg(0)->isDefaultArgument();
+                       Construct->getArg(0)->isDefaultArgument();
       }
     }
     if (!ImplicitInit) {
@@ -1158,11 +1153,11 @@ void DeclPrinter::VisitEmptyDecl(clang::EmptyDecl *D) {
 }
 
 void DeclPrinter::VisitCXXRecordDecl(clang::CXXRecordDecl *D) {
-  auto printed_tag = (Policy.IncludeTagDefinition || !D->getIdentifier()) &&
-                     Out.printed_defs.emplace(D).second;
-
   // FIXME: add printing of pragma attributes if required.
   TokenPrinterContext ctx(Out, D, tokens);
+
+  auto printed_tag = (Policy.IncludeTagDefinition || !D->getIdentifier()) &&
+                     Out.printed_defs.emplace(D).second;
 
   if (!Policy.SuppressSpecifiers && D->isModulePrivate())
     Out << "__module_private__ ";
@@ -1182,6 +1177,12 @@ void DeclPrinter::VisitCXXRecordDecl(clang::CXXRecordDecl *D) {
                   clang::dyn_cast<clang::TemplateSpecializationType>(TSI->getType()))
             Args = TST->template_arguments();
       printTemplateArguments(Args, S->getSpecializedTemplate()->getTemplateParameters(), false);
+    }
+  }
+
+  if (D->hasDefinition()) {
+    if (D->hasAttr<clang::FinalAttr>()) {
+      Out << " final";
     }
   }
 
@@ -1259,9 +1260,9 @@ void DeclPrinter::VisitLinkageSpecDecl(clang::LinkageSpecDecl *D) {
 
 void DeclPrinter::printTemplateParameters(const clang::TemplateParameterList *Params,
                                           bool OmitTemplateKW) {
-  assert(Params);
-
   TokenPrinterContext ctx(Out, Params, tokens);
+
+  assert(Params);
 
   if (!OmitTemplateKW) {
     Out << "template ";
@@ -2067,6 +2068,23 @@ void DeclPrinter::VisitNonTypeTemplateParmDecl(
     printPrettyStmt(NTTP->getDefaultArgument(), Out, nullptr, Policy, Indentation);
   }
 }
+
+// NOTE(pag): This will be in llvm16 I think.
+//void DeclPrinter::VisitHLSLBufferDecl(clang::HLSLBufferDecl *D) {
+//  TokenPrinterContext ctx(Out, D, tokens);
+//  if (D->isCBuffer())
+//    Out << "cbuffer ";
+//  else
+//    Out << "tbuffer ";
+//
+//  Out << *D;
+//
+//  prettyPrintAttributes(D);
+//
+//  Out << " {\n";
+//  VisitDeclContext(D);
+//  Indent() << "}";
+//}
 
 PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
                                             const clang::PrintingPolicy &policy,

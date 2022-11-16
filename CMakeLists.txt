@@ -2,9 +2,6 @@
 
 cmake_minimum_required(VERSION 3.21)
 
-# Takes care of some vcpkg automation so that we can use VCPKG_ROOT
-include("cmake/vcpkg_helper.cmake")
-
 project(pasta LANGUAGES C CXX)
 
 include(GNUInstallDirs)
@@ -128,7 +125,7 @@ target_compile_definitions(pasta_thirdparty_llvm INTERFACE
 if(PASTA_ENABLE_INSTALL)
   export(PACKAGE "${PROJECT_NAME}")
   
-  set(cmake_install_dir "lib/cmake/${PROJECT_NAME}")
+  set(cmake_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
   
   include(CMakePackageConfigHelpers)
   configure_package_config_file("${PROJECT_NAME}Config.cmake.in"
@@ -256,6 +253,7 @@ set(ast_HEADERS
     "include/pasta/AST/DeclHead.h"
     "include/pasta/AST/DeclTail.h"
     "include/pasta/AST/Forward.h"
+    "include/pasta/AST/Macro.h"
     "include/pasta/AST/Printer.h"
     "include/pasta/AST/Stmt.h"
     "include/pasta/AST/StmtManual.h"
@@ -279,6 +277,8 @@ add_library(pasta_compiler STATIC
     "lib/AST/Builder.h"
     "lib/AST/Decl.cpp"
     "lib/AST/DeclHead.cpp"
+    "lib/AST/Macro.h"
+    "lib/AST/Macro.cpp"
     "lib/AST/Stmt.cpp"
     "lib/AST/StmtManual.cpp"
     "lib/AST/Token.cpp"
@@ -299,7 +299,8 @@ add_library(pasta_compiler STATIC
     "lib/Compile/Compiler.h"
     "lib/Compile/FileSystem.h"
     "lib/Compile/Job.h"
-    
+    "lib/Compile/PatchedMacroTracker.h"
+    "lib/Compile/ParsedFileTracker.h"
     "lib/Compile/Version.h"
     
     "lib/Compile/Command.cpp"
@@ -308,6 +309,7 @@ add_library(pasta_compiler STATIC
     "lib/Compile/Diagnostic.cpp"
     "lib/Compile/FileSystem.cpp"
     "lib/Compile/Job.cpp"
+    "lib/Compile/PatchedMacroTracker.cpp"
     "lib/Compile/Run.cpp"
 )
 

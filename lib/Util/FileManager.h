@@ -11,7 +11,13 @@
 #include <unordered_map>
 
 #include <pasta/Util/File.h>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/Basic/TokenKinds.h>
+#pragma GCC diagnostic pop
 
 namespace pasta {
 

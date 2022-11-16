@@ -10,15 +10,16 @@
 #include <cstdint>
 #include <string>
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wbitfield-enum-conversion"
+#pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/AST/Decl.h>
 #include <clang/AST/Expr.h>
 #include <clang/Basic/SourceLocation.h>
 #include <clang/Basic/TokenKinds.h>
-#pragma clang diagnostic pop
+#pragma GCC diagnostic pop
 
 namespace clang {
 class ASTContext;
@@ -34,8 +35,12 @@ class Token;
 class PrintedTokenImpl;
 class PrintedTokenRangeImpl;
 
-using OpaqueSourceLoc = uint32_t;
+using OpaqueSourceLoc = clang::SourceLocation::UIntTy;
 using TokenContextIndex = uint32_t;
+using DerivedTokenIndex = uint32_t;
+using TokenDataOffset = int32_t;
+using TokenDataIndex = uint32_t;
+static constexpr DerivedTokenIndex kInvalidDerivedTokenIndex = ~0u;
 static constexpr TokenContextIndex kInvalidTokenContextIndex = ~0u;
 static constexpr TokenContextIndex kASTTokenContextIndex = 0u;
 static constexpr TokenContextIndex kTranslationUnitTokenContextIndex = 1u;
@@ -159,38 +164,74 @@ class TokenImpl {
     return static_cast<TokenRole>(role);
   }
 
+  inline bool HasMacroRole(void) const noexcept {
+    switch (Role()) {
+      case TokenRole::kBeginOfMacroExpansionMarker:
+      case TokenRole::kInitialMacroUseToken:
+      case TokenRole::kIntermediateMacroExpansionToken:
+      case TokenRole::kFinalMacroExpansionToken:
+      case TokenRole::kEndOfMacroExpansionMarker:
+        return true;
+      default:
+        return false;
+    }
+  }
+
   inline clang::tok::TokenKind Kind(void) const noexcept {
     return static_cast<clang::tok::TokenKind>(kind);
   }
 
   // Return the context of this token, or `nullptr`.
   const TokenContextImpl *Context(
+      const ASTImpl &ast,
       const std::vector<TokenContextImpl> &contexts) const noexcept;
 
-  // The raw encoding of the source location of the token.
+  // If this number is positive, then it is the raw encoding of the source
+  // location of the token, which references a `FileToken`. If this number is
+  // negative, then this token was derived from a prior token in a macro
+  // expansion. That prior token is at `ast->tokens[-opaque_source_loc]`. This
+  // process is enacted by `PatchedMacroTracker::FixupDerivedLocations`. If the
+  // index points to itself, then it's a macro token that makes it into the
+  // final parse (and is thus relevant to token alignment), but that also
+  // doesn't have any associated source location, e.g. how `__FILE__` expands to
+  // a provenanceless string.
+  //
+  // TODO(pag): This is pretty terrible. There are at least three or four
+  //            possible interpretations of this value, depending on the context
+  //            (macro, not macro), timing (during expansion, after expansion),
+  //            etc. This is a format error, where I should just store more data
+  //            but stubbornly just leave things according to the old design.
   OpaqueSourceLoc opaque_source_loc{kInvalidSourceLocation};
+
+  DerivedTokenIndex derived_index{kInvalidDerivedTokenIndex};
 
   // Index of the token context in either `ASTImpl::contexts` or
   // `PrintedTokenRangeImpl::contexts`.
+  //
+  // If `HasMacroRole()` is `true`, then the real token context index is stored
+  // in `MacroTokenImpl::token_context` and this index references into
+  // `ASTImple::root_macro_node::tokens`.
   TokenContextIndex context_index{kInvalidTokenContextIndex};
 
   // Offset and length of this token's data. If `data_offset` is positive, then
   // the data is located in `ast->preprocessed_code`, otherwise it's located in
   // `ast->backup_code`.
-  int32_t data_offset{0u};
+  TokenDataOffset data_offset{0u};
 
   // The Linux kernel has some *massive* comments, e.g. comments in
   // `tools/include/uapi/linux/bpf.h`.
-  uint32_t data_len:20;
+  uint32_t data_len;
 
   // The original token kind.
-  TokenKindBase kind:9;
+  TokenKindBase kind;
 
   // The role of this token, e.g. parsed, printed, macro expansion, etc.
-  TokenKindBase role:3;
-} __attribute__((packed));
+  TokenKindBase role;
+};
 
-static_assert(sizeof(TokenImpl) == 16u);
+// Strip off leading whitespace from a token that has been read.
+void SkipLeadingWhitspace(clang::Token &tok, clang::SourceLocation &tok_loc,
+                          std::string &tok_data);
 
 // Read the data of the token into the passed in string pointer
 bool TryReadRawToken(clang::SourceManager &source_manager,

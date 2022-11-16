@@ -37,76 +37,11 @@ ASTImpl::ASTImpl(File main_source_file_)
 
 ASTImpl::~ASTImpl(void) {}
 
-// Try to inject a token to represent the ending of a top-level macro
-// expansion.
-bool ASTImpl::TryInjectEndOfMacroExpansion(clang::SourceLocation loc) {
-  if (tokens.empty() || !loc.isValid() || !loc.isFileID()) {
-    return false;
-  }
-  if (macro_use_end_loc.isValid()) {
-    assert(macro_use_end_loc.isFileID());
-    loc = std::move(macro_use_end_loc);
-  }
-
-  switch (tokens.back().Role()) {
-
-    // Prior token is a macro expansion token, or is the start of an empty
-    // macro expansion.
-    case TokenRole::kBeginOfMacroExpansionMarker:
-    case TokenRole::kMacroExpansionToken:
-      break;
-
-    default: {
-#ifndef NDEBUG
-      auto last_loc = clang::SourceLocation::getFromRawEncoding(
-          tokens.back().opaque_source_loc);
-      assert(last_loc.isValid());
-      assert(!last_loc.isMacroID());
-#endif
-      return false;
-    }
-  }
-
-  bool invalid = false;
-  auto &sm = ci->getSourceManager();
-  auto [file_id, file_offset] = sm.getDecomposedLoc(loc);
-  llvm::StringRef file_data = sm.getBufferData(file_id, &invalid);
-  if (invalid) {
-    assert(false);
-    AppendMarker(loc, TokenRole::kEndOfMacroExpansionMarker);
-    return true;
-  }
-
-  // Try to scan backwards and suck up whitespace that preceded this token
-  // so that we can more accurately capture the ending location of the macro
-  // expansion.
-  int loc_offset = 0;
-  for (; file_offset--; ) {
-    switch (file_data[file_offset]) {
-      case ' ': case '\t':  case '\n':case '\r':
-        --loc_offset;
-        continue;
-
-      case '\\':
-        loc_offset = 0;
-        [[clang::fallthrough]];
-
-      default:
-        AppendMarker(loc.getLocWithOffset(loc_offset),
-                     TokenRole::kEndOfMacroExpansionMarker);
-        return true;
-    }
-  }
-
-  AppendMarker(loc, TokenRole::kEndOfMacroExpansionMarker);
-  return true;
-}
-
 // Append a marker token to the parsed token list.
 void ASTImpl::AppendMarker(clang::SourceLocation loc, TokenRole role) {
 
   ++num_lines;
-  auto offset = preprocessed_code.size();
+  size_t offset = preprocessed_code.size();
   preprocessed_code.push_back('\n');
   tokens.emplace_back(loc.getRawEncoding(), offset, 0u, clang::tok::unknown,
                       role);
@@ -117,45 +52,30 @@ void ASTImpl::AppendMarker(clang::SourceLocation loc, TokenRole role) {
 // and negative if `-offset` can be found in `backup_code`. `len` is the
 // length in bytes of the token itself.
 void ASTImpl::AppendToken(const clang::Token &tok, size_t offset_,
-                          size_t len_) {
+                          size_t len_, TokenRole role_) {
   const auto len = static_cast<uint32_t>(len_ & TokenImpl::kTokenSizeMask);
-  assert(0u <= static_cast<int32_t>(offset_));  // Make sure it fits in 31 bits.
+  // Make sure it fits in 31 bits.
+  assert(0 <= static_cast<TokenDataOffset>(offset_));
   assert(len == len_);
-  auto loc = tok.getLocation();
-  TokenRole role = TokenRole::kInvalid;
-  if (loc.isValid()) {
-    if (loc.isFileID()) {
-      role = TokenRole::kFileToken;
-    } else if (loc.isMacroID()) {
-      role = TokenRole::kMacroExpansionToken;
-    } else {
-      assert(false);
-    }
-  }
-  tokens.emplace_back(loc.getRawEncoding(), static_cast<int32_t>(offset_), len,
-                      tok.getKind(), role);
+  clang::SourceLocation loc = tok.getLocation();
+  tokens.emplace_back(
+      loc.getRawEncoding(),
+      static_cast<TokenDataOffset>(offset_), len,
+      tok.getKind(), role_);
 }
 
 // Append a token to the end of the AST. `offset` is the offset in
 // `backup_token_data`, and `len` is the length in bytes of the token itself.
 void ASTImpl::AppendBackupToken(const clang::Token &tok, size_t offset_,
-                                size_t len_) {
+                                size_t len_, TokenRole role_) {
   const auto len = static_cast<uint32_t>(len_ & TokenImpl::kTokenSizeMask);
-  assert(0u < static_cast<int32_t>(offset_));
+  assert(0 < static_cast<TokenDataOffset>(offset_));
   assert(len == len_);
-  auto loc = tok.getLocation();
-  TokenRole role = TokenRole::kInvalid;
-  if (loc.isValid()) {
-    if (loc.isFileID()) {
-      role = TokenRole::kFileToken;
-    } else if (loc.isMacroID()) {
-      role = TokenRole::kMacroExpansionToken;
-    } else {
-      assert(false);
-    }
-  }
-  tokens.emplace_back(loc.getRawEncoding(), -static_cast<int32_t>(offset_), len,
-                      tok.getKind(), role);
+  clang::SourceLocation loc = tok.getLocation();
+  tokens.emplace_back(
+      loc.getRawEncoding(),
+      -static_cast<TokenDataOffset>(offset_), len,
+      tok.getKind(), role_);
 }
 
 // Return the AST containing a declaration.
@@ -191,6 +111,14 @@ std::string_view AST::PreprocessedCode(void) const {
 TokenRange AST::Tokens(void) const {
   const auto first = impl->tokens.data();
   return TokenRange(impl, first, &(first[impl->tokens.size()]));
+}
+
+// Return all top-level macro nodes (expansions, directives, substitutions,
+// etc.).
+MacroNodeRange AST::Macros(void) const {
+  const auto first = impl->root_macro_node.nodes.data();
+  return MacroNodeRange(
+      impl, first, &(first[impl->root_macro_node.nodes.size()]));
 }
 
 // Try to return the token at the specified location.

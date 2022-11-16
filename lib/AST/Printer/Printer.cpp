@@ -4,10 +4,13 @@
 
 #include "Printer.h"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#include <cassert>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wbitfield-enum-conversion"
+#pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/AST/ASTContext.h>
 #include <clang/AST/Attr.h>
 #include <clang/AST/Decl.h>
@@ -16,13 +19,62 @@
 #include <clang/Frontend/CompilerInstance.h>
 #include <clang/Lex/Lexer.h>
 #include <clang/Lex/Preprocessor.h>
-#pragma clang diagnostic pop
+#pragma GCC diagnostic pop
 
 #include "raw_ostream.h"
 
 #include "../AST.h"  // For `ASTImpl`.
 
 namespace pasta {
+
+// Clang's code for printing attributes doesn't escape nested double quotes in
+// attributes that contain strings, so we need to figure that out.
+void PrintAttribute(raw_string_ostream &Out, const clang::Attr *A,
+                    PrintedTokenRangeImpl &tokens,
+                    const clang::PrintingPolicy &Policy) {
+  std::string a;
+  std::string new_a;
+  {
+    llvm::raw_string_ostream os(a);
+    A->printPretty(os, Policy);
+    os.flush();
+  }
+
+  // Fast path: no embedded strings.
+  const char *start = a.c_str();
+  const char *first_quote = strchr(start, '"');
+  if (!first_quote || first_quote[0] != '"') {
+    TokenPrinterContext ctx(Out, A, tokens);
+    Out << a;
+    return;
+  }
+
+  auto end = &(start[a.size()]);
+  auto second_quote = strchr(&(first_quote[1]), '"');
+  assert(second_quote && second_quote[0] == '"');
+
+  // NOTE(pag): This won't handle doubly/triply nested quotes. Just single
+  //            nested quotes.
+  new_a.reserve(a.size());
+  while (second_quote && strchr(&(second_quote[1]), '"')) {
+    new_a.insert(new_a.end(), start, second_quote);
+    new_a.push_back('\\');
+    new_a.push_back('"');
+    start = &(second_quote[1]);
+    second_quote = strchr(&(start[1]), '"');
+  }
+
+  if (second_quote) {
+    new_a.insert(new_a.end(), second_quote, end);
+
+  } else if (start) {
+    new_a.insert(new_a.end(), start, end);
+  }
+
+  TokenPrinterContext ctx(Out, A, tokens);
+  Out << new_a;
+}
+
 
 PrintedToken::~PrintedToken(void) {}
 
@@ -275,13 +327,13 @@ void TokenPrinterContext::Tokenize(void) {
   unsigned i = 0u;
 
   for (auto size = token_data.size(); i < size; ) {
-    auto last_i = i;
+    unsigned last_i = i;
     std::tie(num_nl, num_sp, i) = SkipWhitespace(token_data, i);
     if (i >= size) {
       break;
     }
 
-    lexer.skipOver(last_i - i);
+    lexer.seek(last_i, false);
     last_i = i;
 
     const auto at_end = lexer.LexFromRawLexer(tok);
@@ -292,8 +344,8 @@ void TokenPrinterContext::Tokenize(void) {
       num_sp = 0;
     }
 
-    const auto data_offset = static_cast<uint32_t>(tokens.data.size());
-    assert(0ll <= static_cast<int32_t>(data_offset));
+    const auto data_offset = static_cast<TokenDataIndex>(tokens.data.size());
+    assert(0ll <= static_cast<TokenDataOffset>(data_offset));
     uint32_t data_len = 0u;
     tokens.data.reserve(data_offset + tok.getLength());
     for (last_i = i, i += tok.getLength(); last_i < i && token_data[last_i];
@@ -306,7 +358,8 @@ void TokenPrinterContext::Tokenize(void) {
 
     // Add the token in.
     tokens.tokens.emplace_back(
-        static_cast<int32_t>(data_offset), static_cast<uint32_t>(data_len),
+        static_cast<TokenDataOffset>(data_offset),
+        static_cast<uint32_t>(data_len),
         context_index, num_nl, num_sp, tok.getKind());
 
     // Reset so that if there is no whitespace afte the last token, then we
@@ -346,9 +399,10 @@ void TokenPrinterContext::MarkLocation(clang::SourceLocation loc) {
         tokens.tokens.back().opaque_source_loc = raw_tok->opaque_source_loc;
       }
 
-    // We don't has an `ASTImpl`, so we'll assume that `loc` is a "real" source
+    // We don't have an `ASTImpl`, so we'll assume that `loc` is a "real" source
     // location and not our weird indirect kind.
     } else {
+      assert(loc.isValid());
       tokens.tokens.back().opaque_source_loc = loc.getRawEncoding();
     }
   }

@@ -10,8 +10,9 @@
 #include <vector>
 
 #include "Decl.h"
-#include "Token.h"
+#include "Macro.h"
 #include "Stmt.h"
+#include "Token.h"
 #include "Type.h"
 
 #include <pasta/Util/File.h>
@@ -53,6 +54,10 @@ class AST {
 
   // Return all lexed tokens.
   TokenRange Tokens(void) const;
+
+  // Return all top-level macro nodes (expansions, directives, substitutions,
+  // etc.).
+  MacroNodeRange Macros(void) const;
 
   // Return a reference to the underlying Clang AST context. This is needed for
   // bootstrapping.

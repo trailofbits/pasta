@@ -10,6 +10,7 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/AST/Attr.h>
 #include <clang/AST/Type.h>
 #include <clang/AST/PrettyPrinter.h>
 #include <clang/Basic/FileManager.h>
@@ -24,6 +25,7 @@
 #include <variant>
 #include <mutex>
 
+#include "Macro.h"
 #include "Token.h"
 
 namespace clang {
@@ -96,6 +98,9 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // Mapping of Clang source manager file IDs to offsets within `parsed_files`.
   std::unordered_map<unsigned  /* clang::FileID */, ::pasta::File> id_to_file;
 
+  // List of macro directives.
+  RootMacroNode root_macro_node;
+
   // List of parsed tokens. We run the pre-processor, and each lexed token is
   // added here. We also inject in some other tokens, such as whitespace and
   // comments.
@@ -106,7 +111,7 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // printer. The `TokenImpl::context_index` fields of the `tokens` vector above
   // point into here.
   //
-  // NOTE(pag): The last context in this list holds a raw data pointer to the
+  // NOTE(pag): The first context in this list holds a raw data pointer to the
   //            `ASTImpl` containing `contexts`. This is so that we can get the
   //            `Decl`s, `Stmt`s, and `Type`s referenced by a token context.
   //            This is safe because a `TokenContext` has a shared pointer to
@@ -130,20 +135,18 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // Where we expect the next macro use end location to be.
   clang::SourceLocation macro_use_end_loc;
 
-  // Try to inject a token to represent the ending of a top-level macro
-  // expansion.
-  bool TryInjectEndOfMacroExpansion(clang::SourceLocation loc);
-
   // Append a marker token to the parsed token list.
   void AppendMarker(clang::SourceLocation loc, TokenRole role);
 
   // Append a token to the end of the AST. `offset` is the offset in
   // `preprocessed_code`, and `len` is the length in bytes of the token itself.
-  void AppendToken(const clang::Token &tok, size_t offset, size_t len);
+  void AppendToken(const clang::Token &tok, size_t offset, size_t len,
+                   TokenRole role);
 
   // Append a token to the end of the AST. `offset` is the offset in
   // `backup_token_data`, and `len` is the length in bytes of the token itself.
-  void AppendBackupToken(const clang::Token &tok, size_t offset, size_t len);
+  void AppendBackupToken(const clang::Token &tok, size_t offset, size_t len,
+                         TokenRole role);
 
   // Try to return the inclusive bounds of a given declaration in terms of
   // parsed tokens. This doesn't not try to expand the range to the ending
@@ -162,6 +165,10 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
 
   // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
   static Result<AST, std::string> AlignTokens(std::shared_ptr<ASTImpl> ast);
+
+  // After token alignment, we want to link in macro tokens to the token
+  // contexts of tokens with macro roles.
+  void LinkMacroTokenContexts(void);
 
  private:
   ASTImpl(void) = delete;

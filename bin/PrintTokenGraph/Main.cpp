@@ -88,8 +88,9 @@ static void PrintTokenGraph(pasta::Decl tld) {
 
   std::unordered_set<pasta::TokenContext> contexts;
 
-  for (auto tok : tokens) {
-    for (auto context = tok.Context(); context; context = context->Parent()) {
+  for (pasta::Token tok : tokens) {
+    for (std::optional<pasta::TokenContext> context = tok.Context();
+         context; context = context->Parent()) {
       contexts.insert(context.value());
     }
 
@@ -99,7 +100,7 @@ static void PrintTokenGraph(pasta::Decl tld) {
 
   os << "</TR></TABLE>>];\n";
 
-  for (const auto &context : contexts) {
+  for (const pasta::TokenContext &context : contexts) {
     auto bgcolor = "";
     auto kind_name = context.KindName();
     switch (context.Kind()) {
@@ -165,7 +166,7 @@ static void PrintTokenGraph(pasta::Decl tld) {
     os
         << "</TD></TR></TABLE>>];\n";
 
-    if (auto parent_context = context.Parent()) {
+    if (std::optional<pasta::TokenContext> parent_context = context.Parent()) {
       os
           << "c" << a << '_' << context.Index()
           << " -> c" << a << '_' << parent_context->Index()
@@ -173,7 +174,7 @@ static void PrintTokenGraph(pasta::Decl tld) {
     }
 
 
-    if (auto alias_context = context.Aliasee()) {
+    if (std::optional<pasta::TokenContext> alias_context = context.Aliasee()) {
       os
           << "c" << a << '_' << context.Index()
           << " -> c" << a << '_' << alias_context->Index()
@@ -181,8 +182,8 @@ static void PrintTokenGraph(pasta::Decl tld) {
     }
   }
 
-  for (auto tok : tokens) {
-    if (auto context = tok.Context()) {
+  for (pasta::Token tok : tokens) {
+    if (std::optional<pasta::TokenContext> context = tok.Context()) {
       os
           << "tokens" << a
           << ":t" << tok.Index() << " -> c" << a << '_' << context->Index()

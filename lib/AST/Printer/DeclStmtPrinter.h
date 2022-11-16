@@ -11,10 +11,11 @@
 //
 //===----------------------------------------------------------------------===//
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
-#pragma clang diagnostic ignored "-Wsign-conversion"
-#pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wbitfield-enum-conversion"
+#pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/AST/ASTContext.h>
 #include <clang/AST/Attr.h>
 #include <clang/AST/Decl.h>
@@ -37,6 +38,8 @@
 #include <clang/AST/StmtOpenMP.h>
 #include <clang/AST/StmtVisitor.h>
 #include <clang/AST/TemplateBase.h>
+#include <clang/AST/TemplateName.h>
+#include <clang/AST/TextNodeDumper.h>
 #include <clang/AST/Type.h>
 #include <clang/Basic/CharInfo.h>
 #include <clang/Basic/ExpressionTraits.h>
@@ -50,6 +53,7 @@
 #include <clang/Basic/TypeTraits.h>
 #include <clang/Lex/Lexer.h>
 #include <llvm/ADT/ArrayRef.h>
+#include <llvm/ADT/DenseMap.h>
 #include <llvm/ADT/SmallString.h>
 #include <llvm/ADT/SmallVector.h>
 #include <llvm/ADT/StringRef.h>
@@ -63,7 +67,7 @@
 #include <clang/Lex/Preprocessor.h>
 
 #include <clang/Frontend/CompilerInstance.h>
-#pragma clang diagnostic pop
+#pragma GCC diagnostic pop
 
 #include <cassert>
 #include <string>
@@ -74,6 +78,10 @@
 #include "../Token.h"
 
 namespace pasta {
+
+void PrintAttribute(raw_string_ostream &Out, const clang::Attr *A,
+                    PrintedTokenRangeImpl &tokens,
+                    const clang::PrintingPolicy &Policy);
 
 class PrintedTokenRangeImpl;
 
@@ -177,6 +185,7 @@ class DeclPrinter : public clang::DeclVisitor<DeclPrinter> {
    void VisitOMPCapturedExprDecl(clang::OMPCapturedExprDecl *D);
    void VisitTemplateTypeParmDecl(const clang::TemplateTypeParmDecl *TTP);
    void VisitNonTypeTemplateParmDecl(const clang::NonTypeTemplateParmDecl *NTTP);
+//   void VisitHLSLBufferDecl(clang::HLSLBufferDecl *D);
    void printTemplateParameters(const clang::TemplateParameterList *Params,
                                 bool OmitTemplateKW = false);
    void printTemplateArguments(llvm::ArrayRef<clang::TemplateArgument> Args,
@@ -290,6 +299,7 @@ class StmtPrinter : public clang::StmtVisitor<StmtPrinter> {
     void PrintRawSEHFinallyStmt(clang::SEHFinallyStmt *S);
     void PrintOMPExecutableDirective(clang::OMPExecutableDirective *S,
                                      bool ForceNoStmt = false);
+    void PrintFPPragmas(clang::CompoundStmt *S);
 
     void PrintExpr(clang::Expr *E) {
       if (E) {

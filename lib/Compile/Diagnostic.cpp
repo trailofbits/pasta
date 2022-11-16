@@ -70,8 +70,9 @@ void SaveFirstErrorDiagConsumer::HandleDiagnostic(
       auto file_id = source_manager.getFileID(source_location);
 
       if (presumed_loc.isInvalid() && file_id.isValid()) {
-        auto file_entry = source_manager.getFileEntryForID(file_id);
-        if (file_entry && file_entry->isValid()) {
+        const clang::FileEntry *file_entry =
+            source_manager.getFileEntryForID(file_id);
+        if (file_entry) {
           ss << file_entry->getName().str() << ": ";
         }
         return false;

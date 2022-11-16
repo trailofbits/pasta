@@ -125,6 +125,10 @@ void TypeVisitor::VisitAttributedType(const AttributedType &type) {
   VisitType(type);
 }
 
+void TypeVisitor::VisitBTFTagAttributedType(const BTFTagAttributedType &type) {
+  VisitType(type);
+}
+
 void TypeVisitor::VisitBitIntType(const BitIntType &type) {
   VisitType(type);
 }
@@ -322,6 +326,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Type, ArrayType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, AtomicType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, AttributedType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, AutoType)
+PASTA_DEFINE_DERIVED_OPERATORS(Type, BTFTagAttributedType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, BitIntType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, BlockPointerType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, BuiltinType)
@@ -1058,6 +1063,13 @@ bool Type::IsEnumeralType(void) const noexcept {
 bool Type::IsEventT(void) const noexcept {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.isEventT();
+  return val;
+  __builtin_unreachable();
+}
+
+bool Type::IsExtVectorBooleanType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
+  decltype(auto) val = self.isExtVectorBoolType();
   return val;
   __builtin_unreachable();
 }
@@ -2580,6 +2592,15 @@ bool Type::IsTriviallyCopyableType(void) const noexcept {
   __builtin_unreachable();
 }
 
+bool Type::IsTriviallyRelocatableType(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.isTriviallyRelocatableType(ast->ci->getASTContext());
+  return val;
+  __builtin_unreachable();
+}
+
 bool Type::IsVolatileQualified(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
@@ -3056,6 +3077,40 @@ bool AttributedType::IsSugared(void) const noexcept {
   __builtin_unreachable();
 }
 
+PASTA_DEFINE_BASE_OPERATORS(Type, BTFTagAttributedType)
+::pasta::Type BTFTagAttributedType::Desugar(void) const noexcept {
+  auto &self = *const_cast<clang::BTFTagAttributedType *>(u.BTFTagAttributedType);
+  decltype(auto) val = self.desugar();
+  assert(!val.isNull());
+  return TypeBuilder::Build(ast, val);
+  __builtin_unreachable();
+}
+
+::pasta::BTFTypeTagAttr BTFTagAttributedType::Attribute(void) const noexcept {
+  auto &self = *const_cast<clang::BTFTagAttributedType *>(u.BTFTagAttributedType);
+  decltype(auto) val = self.getAttr();
+  if (val) {
+    return AttrBuilder::Create<::pasta::BTFTypeTagAttr>(ast, val);
+  }
+  assert(false && "BTFTagAttributedType::Attribute can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::Type BTFTagAttributedType::WrappedType(void) const noexcept {
+  auto &self = *const_cast<clang::BTFTagAttributedType *>(u.BTFTagAttributedType);
+  decltype(auto) val = self.getWrappedType();
+  assert(!val.isNull());
+  return TypeBuilder::Build(ast, val);
+  __builtin_unreachable();
+}
+
+bool BTFTagAttributedType::IsSugared(void) const noexcept {
+  auto &self = *const_cast<clang::BTFTagAttributedType *>(u.BTFTagAttributedType);
+  decltype(auto) val = self.isSugared();
+  return val;
+  __builtin_unreachable();
+}
+
 PASTA_DEFINE_BASE_OPERATORS(Type, BitIntType)
 ::pasta::Type BitIntType::Desugar(void) const noexcept {
   auto &self = *const_cast<clang::BitIntType *>(u.BitIntType);
@@ -3159,6 +3214,13 @@ bool BuiltinType::IsNonOverloadPlaceholderType(void) const noexcept {
 bool BuiltinType::IsPlaceholderType(void) const noexcept {
   auto &self = *const_cast<clang::BuiltinType *>(u.BuiltinType);
   decltype(auto) val = self.isPlaceholderType();
+  return val;
+  __builtin_unreachable();
+}
+
+bool BuiltinType::IsSVEBool(void) const noexcept {
+  auto &self = *const_cast<clang::BuiltinType *>(u.BuiltinType);
+  decltype(auto) val = self.isSVEBool();
   return val;
   __builtin_unreachable();
 }
@@ -4768,6 +4830,13 @@ bool AutoType::IsConstrained(void) const noexcept {
 bool AutoType::IsDecltypeAuto(void) const noexcept {
   auto &self = *const_cast<clang::AutoType *>(u.AutoType);
   decltype(auto) val = self.isDecltypeAuto();
+  return val;
+  __builtin_unreachable();
+}
+
+bool AutoType::IsGNUAutoType(void) const noexcept {
+  auto &self = *const_cast<clang::AutoType *>(u.AutoType);
+  decltype(auto) val = self.isGNUAutoType();
   return val;
   __builtin_unreachable();
 }

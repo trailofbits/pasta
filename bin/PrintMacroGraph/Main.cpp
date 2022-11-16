@@ -20,6 +20,9 @@
 #include <string>
 #include <unordered_set>
 
+#define PRINT_DEFINITIONS 0
+#define PRINT_DERIVED 0
+
 template <typename TokT>
 static std::string TokData(const TokT &tok) {
   std::stringstream ss;
@@ -48,6 +51,7 @@ static void PrintMacroGraph(std::ostream &os,
       << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" border=\"1\"><TR>"
       << "<TD>" << TokData(tok) << "</TD></TR></TABLE>>];\n";
 
+#if PRINT_DERIVED
   if (auto pt = tok.ParsedLocation()) {
     if (auto dt = pt->DerivedLocation()) {
       assert(tok.Data() == dt->Data());
@@ -58,6 +62,7 @@ static void PrintMacroGraph(std::ostream &os,
       }
     }
   }
+#endif
 }
 
 static void PrintMacroGraph(std::ostream &os,
@@ -97,6 +102,11 @@ static void PrintMacroGraph(std::ostream &os,
 
 static void PrintMacroGraph(std::ostream &os,
                             const pasta::MacroDirective &dir) {
+  if (!PRINT_DEFINITIONS &&
+      dir.DirectiveKind() == pasta::MacroDirectiveKind::kDefine) {
+    return;
+  }
+
   const auto a = reinterpret_cast<uintptr_t>(dir.RawNode());
   auto nodes = dir.Nodes();
   os
@@ -251,12 +261,13 @@ static void PrintMacroGraph(std::ostream &os,
       << "<TR><TD colspan=\"2\" port=\"m\">Expansion</TD></TR><TR>"
       << "<TD port=\"b\">Before</TD><TD port=\"a\">After</TD></TR></TABLE>>];\n";
 
+#if PRINT_DEFINITIONS
   if (auto def = exp.Definition()) {
     os
         << "n" << a << ":m -> n" << reinterpret_cast<uintptr_t>(def->RawNode())
         << " [style=dashed];\n";
   }
-
+#endif
   PrintMacroGraphSub(os, exp);
 }
 

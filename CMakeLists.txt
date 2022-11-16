@@ -2,9 +2,6 @@
 
 cmake_minimum_required(VERSION 3.21)
 
-# Takes care of some vcpkg automation so that we can use VCPKG_ROOT
-include("cmake/vcpkg_helper.cmake")
-
 project(pasta LANGUAGES C CXX)
 
 include(GNUInstallDirs)

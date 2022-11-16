@@ -44,13 +44,13 @@ cd cxx-common
 The repository uses [vcpkg](https://github.com/microsoft/vcpkg) which makes entire process rather easy.
 
 ```shell
-./build_dependencies.sh llvm-14
+./build_dependencies.sh --export-dir /path/to/export/vcpkg-15 "llvm-15[pasta]"
 ```
 
 If you do not plan to tinker with or work on PASTA, then we recommend adding in
 `--release` so that you get a release build of LLVM.
 
-It is important *do not forget the llvm-14* option, otherwise it will not build
+It is important *do not forget the `llvm-15[pasta]`* option, otherwise it will not build
 and subsequently the projects built in next step will try to link system libraries
 and that is highly unstable and not
 tested (at least for now).
@@ -68,8 +68,9 @@ mkdir build
 cd build
 cmake \
     -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-    -DVCPKG_ROOT=/path/to/cxx-common/vcpkg \
-    -DVCPKG_TARGET_TRIPLET=x64-linux-rel \
+    -DCMAKE_TOOLCHAIN_FILE="/path/to/export/vcpkg-15/scripts/buildsystems/vcpkg.cmake" \
+    -DVCPKG_TARGET_TRIPLET=x64-osx \
+    -DVCPKG_HOST_TRIPLET=x64-osx-rel \
     ..
 make install
 ```

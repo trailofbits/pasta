@@ -200,11 +200,15 @@ MacroNodeImpl *MacroDirectiveImpl::Clone(
 MacroNodeImpl *MacroArgumentImpl::Clone(
     ASTImpl &ast, MacroNodeImpl *new_parent) const {
 
+  assert(!has_been_cloned);
+  has_been_cloned = true;
+
   MacroArgumentImpl *clone = &(ast.root_macro_node.arguments.emplace_back());
   clone->cloned_from = this;
   if (auto expansion = dynamic_cast<MacroExpansionImpl *>(new_parent)) {
     clone->index = static_cast<unsigned>(expansion->arguments.size());
     clone->is_prearg_expansion = expansion->is_prearg_expansion;
+    expansion->arguments.emplace_back(clone);
   } else {
     assert(false);
     clone->index = index;

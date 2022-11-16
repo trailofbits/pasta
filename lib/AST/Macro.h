@@ -33,6 +33,9 @@ class MacroNodeImpl {
   std::vector<Node> nodes;
   std::vector<Node> skipped_nodes;
   const MacroNodeImpl *cloned_from{nullptr};
+#ifndef NDEBUG
+  unsigned line_added{0u};
+#endif
 };
 
 struct TokenKindAndFlags {
@@ -93,6 +96,11 @@ class MacroArgumentImpl final : public MacroNodeImpl {
 
   unsigned index{0u};
   bool is_prearg_expansion{false};
+
+  // Don't allow us to clone an argument more than once. If this happens then
+  // that suggests a bug in the pre-argument expansion code related to
+  // injecting prefixes.
+  mutable bool has_been_cloned{false};
 };
 
 class MacroSubstitutionImpl : public MacroNodeImpl {
@@ -132,6 +140,9 @@ class MacroExpansionImpl final : public MacroSubstitutionImpl {
   // in cases like `FOO(...)(...)`, where we want to copy the `(...)` into the
   // pre-argument expansion.
   unsigned r_paren_index{0u};
+
+//  // Start at `1` to skip over the macro name and opening parenthesis.
+//  unsigned merge_start{2u};
 
   bool is_cancelled{false};
   bool in_prearg_expansion{false};

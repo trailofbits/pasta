@@ -19,7 +19,7 @@ tries to achieve the following goals:
 
 First, update aptitude and get install the baseline dependencies such is for
 example `git`, `cmake`, `ninja` and your compiler of choice (remember it needs to support
-C++17). It is useful to use the same compiler at every subset to avoid some
+C++20). It is useful to use the same compiler at every subset to avoid some
 name mangling problems. If you're using macOS then we recommend installing
 Homebrew, and ensuring that you have Python 3.9 installed, along with an
 up-to-date `cmake` and `ninja`.
@@ -87,7 +87,7 @@ cd pasta
 mkdir build
 cd build
 cmake \
-    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+    -DCMAKE_BUILD_TYPE=Release \
     -DVCPKG_ROOT=/path/to/cxx-common/vcpkg \
     -DVCPKG_TARGET_TRIPLET=x64-osx-rel \
     -DCMAKE_C_COMPILER=`which clang` \

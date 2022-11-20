@@ -89,6 +89,13 @@ static void PrintTokenGraph(pasta::Decl tld) {
   std::unordered_set<pasta::TokenContext> contexts;
 
   for (pasta::Token tok : tokens) {
+    switch (tok.Role()) {
+      case pasta::TokenRole::kFileToken:
+      case pasta::TokenRole::kFinalMacroExpansionToken:
+        break;
+      default:
+        continue;
+    }
     for (std::optional<pasta::TokenContext> context = tok.Context();
          context; context = context->Parent()) {
       contexts.insert(context.value());
@@ -183,6 +190,13 @@ static void PrintTokenGraph(pasta::Decl tld) {
   }
 
   for (pasta::Token tok : tokens) {
+    switch (tok.Role()) {
+      case pasta::TokenRole::kFileToken:
+      case pasta::TokenRole::kFinalMacroExpansionToken:
+        break;
+      default:
+        continue;
+    }
     if (std::optional<pasta::TokenContext> context = tok.Context()) {
       os
           << "tokens" << a

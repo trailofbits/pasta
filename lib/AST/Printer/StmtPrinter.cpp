@@ -1504,11 +1504,13 @@ void StmtPrinter::VisitUnaryOperator(clang::UnaryOperator *Node) {
 void StmtPrinter::VisitOffsetOfExpr(clang::OffsetOfExpr *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
   OS << "__builtin_offsetof";
+
   ctx.MarkLocation(Node->getOperatorLoc());
   OS << "(";
   printQualType(Node->getTypeSourceInfo()->getType(), OS, Policy);
   OS << ", ";
   bool PrintedSomething = false;
+  std::vector<TokenPrinterContext> contexts;
   for (unsigned i = 0, n = Node->getNumComponents(); i < n; ++i) {
     clang::OffsetOfNode ON = Node->getComponent(i);
     if (ON.getKind() == clang::OffsetOfNode::Array) {
@@ -1531,11 +1533,28 @@ void StmtPrinter::VisitOffsetOfExpr(clang::OffsetOfExpr *Node) {
     if (!Id)
       continue;
 
-    if (PrintedSomething)
+    if (PrintedSomething) {
       OS << ".";
-    else
+      if (ON.getKind() == clang::OffsetOfNode::Field) {
+        ctx.MarkLocation(ON.getBeginLoc());
+      }
+    } else
       PrintedSomething = true;
+
+    // Make sure we track field names.
+    if (ON.getKind() == clang::OffsetOfNode::Field) {
+      if (auto FD = ON.getField()) {
+        TokenPrinterContext ctx(OS, FD, tokens);
+        OS << Id->getName();
+        ctx.MarkLocation(ON.getEndLoc());
+        continue;
+      }
+    }
+
     OS << Id->getName();
+    if (ON.getBeginLoc() == ON.getEndLoc()) {
+      ctx.MarkLocation(ON.getEndLoc());
+    }
   }
   OS << ")";
   ctx.MarkLocation(Node->getRParenLoc());

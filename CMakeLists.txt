@@ -70,7 +70,7 @@ target_link_libraries(pasta_cxx_settings INTERFACE std::filesystem)
 # Clang/LLVM dependencies --------------------
 # --------------------------------------------
 
-find_package(Z3 4.9 CONFIG REQUIRED)
+find_package(Z3 CONFIG REQUIRED)
 find_package(LLVM CONFIG REQUIRED)
 find_package(Clang CONFIG REQUIRED)
 add_library(pasta_thirdparty_llvm INTERFACE)

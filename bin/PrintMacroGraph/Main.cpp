@@ -348,6 +348,9 @@ static void PrintMacroGraph(std::ostream &os, pasta::AST ast) {
       case pasta::TokenRole::kFinalMacroExpansionToken:
         std::cerr << "FME ";
         break;
+      case pasta::TokenRole::kEndOfInternalMacroEventMarker:
+        std::cerr << "IEM ";
+        break;
     }
     std::cerr << tok.KindName() << ' ' << tok.Data();
     if (auto ft = tok.FileLocation()) {

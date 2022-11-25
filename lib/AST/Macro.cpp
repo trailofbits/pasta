@@ -65,38 +65,6 @@ static MacroTokenImpl *FirstExpansionTokenImpl(const std::vector<Node> &nodes) {
   return nullptr;
 }
 
-//static MacroTokenImpl *FindRParen(const std::vector<Node> &nodes,
-//                                  int &count) {
-//  if (nodes.empty()) {
-//    return nullptr;
-//  }
-//
-//  for (const Node &node : nodes) {
-//    if (std::holds_alternative<MacroTokenImpl *>(node)) {
-//      auto tok = std::get<MacroTokenImpl *>(node);
-//      if (tok->kind_flags.kind == TokenKind::kLParenthesis) {
-//        ++count;
-//      } else if (tok->kind_flags.kind == TokenKind::kRParenthesis) {
-//        if (!--count) {
-//          return tok;
-//        }
-//      }
-//    } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
-//      MacroNodeImpl *sub_node = std::get<MacroNodeImpl *>(node);
-//      if (auto r_paren = FindRParen(sub_node->nodes, count)) {
-//        return r_paren;
-//      }
-//    }
-//  }
-//
-//  return nullptr;
-//}
-//
-//static MacroTokenImpl *FindRParen(const std::vector<Node> &nodes) {
-//  int count = 0;
-//  return FindRParen(nodes, count);
-//}
-
 }  // namespace
 
 // Clone this token into the AST.
@@ -207,11 +175,13 @@ MacroNodeImpl *MacroArgumentImpl::Clone(
   clone->cloned_from = this;
   if (auto expansion = dynamic_cast<MacroExpansionImpl *>(new_parent)) {
     clone->index = static_cast<unsigned>(expansion->arguments.size());
+    clone->offset = static_cast<unsigned>(expansion->nodes.size());
     clone->is_prearg_expansion = expansion->is_prearg_expansion;
     expansion->arguments.emplace_back(clone);
   } else {
     assert(false);
     clone->index = index;
+    clone->offset = offset;
     clone->is_prearg_expansion = is_prearg_expansion;
   }
   clone->parent = new_parent;
@@ -255,7 +225,7 @@ MacroNodeImpl *MacroExpansionImpl::Clone(
   }
 
   clone->is_cancelled = is_cancelled;
-  clone->in_prearg_expansion = in_prearg_expansion;
+//  clone->in_prearg_expansion = in_prearg_expansion;
   clone->is_prearg_expansion = is_prearg_expansion;
 
   CloneNodeList(ast, this, nodes, clone, clone->nodes, NoOnTokenCB,
@@ -519,7 +489,9 @@ unsigned MacroDefinition::NumExplicitParameters(void) const noexcept {
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
   if (dir_impl->defined_macro) {
-    return dir_impl->defined_macro->getNumParams();
+
+    // NOTE(pag): Clang includes the variadic parameter in `getNumParams()`.
+    return dir_impl->defined_macro->getNumParams() - 1u;
   } else {
     assert(false);
     return 0u;

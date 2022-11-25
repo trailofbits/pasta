@@ -171,6 +171,7 @@ class TokenImpl {
       case TokenRole::kIntermediateMacroExpansionToken:
       case TokenRole::kFinalMacroExpansionToken:
       case TokenRole::kEndOfMacroExpansionMarker:
+      case TokenRole::kEndOfInternalMacroEventMarker:
         return true;
       default:
         return false;

@@ -95,6 +95,7 @@ class MacroArgumentImpl final : public MacroNodeImpl {
   MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const final;
 
   unsigned index{0u};
+  unsigned offset{0u};
   bool is_prearg_expansion{false};
 
   // Don't allow us to clone an argument more than once. If this happens then
@@ -145,7 +146,8 @@ class MacroExpansionImpl final : public MacroSubstitutionImpl {
 //  unsigned merge_start{2u};
 
   bool is_cancelled{false};
-  bool in_prearg_expansion{false};
+  bool was_cancelled{false};
+//  bool in_prearg_expansion{false};
   bool is_prearg_expansion{false};
   bool done_prearg_expansion{false};
 

@@ -14,7 +14,7 @@
 #include <clang/Lex/Token.h>
 #pragma GCC diagnostic pop
 
-#define D(...) __VA_ARGS__
+//#define D(...) __VA_ARGS__
 #ifndef D
 # define D(...)
 #endif
@@ -1718,19 +1718,19 @@ void PatchedMacroTracker::DoSwitchToExpansion(
 void PatchedMacroTracker::DoPrepareToCancelExpansion(
     const clang::Token &, uintptr_t) {
 
-  assert(!expansions.empty());
-  assert(nodes.back() == expansions.back());
-  MacroExpansionImpl *expansion = expansions.back();
-  assert(expansion->use_nodes.empty());
-  assert(!expansion->is_cancelled);
-  expansion->was_cancelled = true;
-
 //  assert(!expansions.empty());
 //  assert(nodes.back() == expansions.back());
 //  MacroExpansionImpl *expansion = expansions.back();
 //  assert(expansion->use_nodes.empty());
 //  assert(!expansion->is_cancelled);
-//  expansion->is_cancelled = true;
+//  expansion->was_cancelled = true;
+
+  assert(!expansions.empty());
+  assert(nodes.back() == expansions.back());
+  MacroExpansionImpl *expansion = expansions.back();
+  assert(expansion->use_nodes.empty());
+  assert(!expansion->is_cancelled);
+  expansion->is_cancelled = true;
 //  ++macro_skip_count;
 //  auto removed = false;
 //
@@ -1856,7 +1856,7 @@ void PatchedMacroTracker::DoEndMacroExpansion(
     D( std::cerr << indent << "!!! deferred expansion\n"; )
   }
 
-  assert(!expansion->is_cancelled);
+//  assert(!expansion->is_cancelled);
 
   Pop(tok);
   assert(nodes.back() == expansion);
@@ -1870,17 +1870,11 @@ void PatchedMacroTracker::DoEndMacroExpansion(
   assert(std::holds_alternative<MacroNodeImpl *>(parent_node->nodes.back()));
   assert(std::get<MacroNodeImpl *>(parent_node->nodes.back()) == expansion);
 
-  if (expansion->was_cancelled) {
+  if (expansion->is_cancelled) {
     assert(expansion->use_nodes.empty());
     parent_node->nodes.pop_back();
     ReparentNodes(std::move(expansion->nodes), parent_node);
   }
-
-//  if (expansion->is_cancelled) {
-//    assert(expansion->use_nodes.empty());
-//    parent_node->nodes.pop_back();
-//    ReparentNodes(std::move(expansion->nodes), parent_node);
-//  }
 
   if (!deferred_expansion) {
     return;
@@ -2078,12 +2072,36 @@ void PatchedMacroTracker::DoEndSubstitution(
   substitutions.pop_back();
 }
 
+namespace detail {
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, Preprocessor, CurTokenLexer, std::unique_ptr<clang::TokenLexer>);
+#define REF_CurTokenLexer(pp) (pp.*PASTA_ACCESS_MEMBER(clang, Preprocessor, CurTokenLexer))
+
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TokenLexer, IsReinject, bool);
+#define PTR_IsReinject(ctl) (ctl->*PASTA_ACCESS_MEMBER(clang, TokenLexer, IsReinject))
+
+}  // namespace detail
+
 // PASTA PATCH:
 void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
                                 uintptr_t data) {
   switch (kind) {
-    case TokenFromLexer:
     case TokenFromTokenLexer:
+      // NOTE(pag): We observe these with tokens expanded from `_Pragma`s during
+      //            macro argument pre-expansion. If we have deferred expansion
+      //            during this time, e.g. `PRAGMA -> _Pragma` or something like
+      //            `_Pragma(MACRO)` then the re-injected tokens will be the
+      //            `_Pragma`, `(`, `"expansion of MACRO"`, and `)`. We will see
+      //            those tokens so we don't want to get the repeats.
+      //
+      // TODO(pag): I don't know where else re-injection happens.
+      if (clang::TokenLexer *ctl = REF_CurTokenLexer(pp).get()) {
+        if (PTR_IsReinject(ctl)) {
+          D( std::cerr << indent << "TokenLexer in reinject; ignoring.\n"; )
+          return;
+        }
+      }
+      [[clang::fallthrough]];
+    case TokenFromLexer:
     case TokenFromCachingLexer:
     case TokenFromAfterModuleImportLexer:
       DoToken(tok, data);
@@ -2224,6 +2242,7 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
   }
 
   std::cerr << '\n';
+
 #endif
 }
 

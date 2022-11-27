@@ -146,7 +146,7 @@ class MacroExpansionImpl final : public MacroSubstitutionImpl {
 //  unsigned merge_start{2u};
 
   bool is_cancelled{false};
-  bool was_cancelled{false};
+//  bool was_cancelled{false};
 //  bool in_prearg_expansion{false};
   bool is_prearg_expansion{false};
   bool done_prearg_expansion{false};

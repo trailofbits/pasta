@@ -393,6 +393,7 @@ static void InjectArgument(ASTImpl &ast, std::vector<MacroNodeImpl *> &nodes,
   missing_arg->parent = pre_exp;
   missing_arg->is_prearg_expansion = pre_exp->is_prearg_expansion;
   missing_arg->index = static_cast<unsigned>(pre_exp->arguments.size());
+  missing_arg->offset = static_cast<unsigned>(pre_exp->nodes.size());
   missing_arg->nodes.emplace_back(std::move(just_added_node));
   pre_exp->arguments.push_back(missing_arg);
   pre_exp->nodes.emplace_back(missing_arg);
@@ -870,13 +871,13 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
 
   // Pre-argument expansion of macro arguments will show the comma separators
   // and closing parens as `eof` tokens, so want to fix that up here.
-//  auto force_arg_split = false;
+  auto force_arg_split = false;
   if (tok.isOneOf(clang::tok::eod, clang::tok::eof)) {
     auto raw_tok_loc = tok_loc.getRawEncoding();
     if (auto real_tok_it = end_of_arg_toks.find(raw_tok_loc);
         real_tok_it != end_of_arg_toks.end()) {
       tok = real_tok_it->second;
-//      force_arg_split = true;
+      force_arg_split = true;
       D( std::cerr << indent << "(recovering real token "
                    << clang::tok::getTokenName(real_tok_it->second.getKind())
                    << ")\n"; )
@@ -898,9 +899,13 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
     skip = false;
   }
 
-  if (nodes.size() == 1u && tok.isOneOf(clang::tok::eod, clang::tok::eof)) {
+  if (tok.isOneOf(clang::tok::eod, clang::tok::eof)) {
     skip = true;
   }
+
+//  if (nodes.size() == 1u && tok.isOneOf(clang::tok::eod, clang::tok::eof)) {
+//    skip = true;
+//  }
 
   last_token_was_added = false;
 
@@ -1040,43 +1045,73 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
 //    }
   }
 
-//  // If we're in a macro argument pre-expansion phase, then we need to manually
-//  // split the arguments by commas.
-//  if (!arguments.empty() &&
-//      (force_arg_split ||
-//       (tok.is(clang::tok::comma) &&
-//        !tok.getFlag(clang::Token::IgnoredComma)))) {
+  // If we're in a macro argument pre-expansion phase, then we need to manually
+  // split the arguments inside of the variadic argument section by commas.
+  // Clang groups together all of the tokens associated with `...` together
+  // into a single argument, even if they are logically many arguments.
+  if (!arguments.empty() &&
+      (force_arg_split ||
+       (tok.is(clang::tok::comma) &&
+        !tok.getFlag(clang::Token::IgnoredComma)))) {
+
+    assert(!expansions.empty());
+    MacroExpansionImpl *exp = expansions.back();
+    MacroArgumentImpl *arg = arguments.back();
+
+    if (parent_node == arg && arg->is_prearg_expansion &&
+        exp->defined_macro && exp->defined_macro->isFunctionLike() &&
+        exp->defined_macro->isVariadic() &&
+        exp->arguments.size() >= exp->defined_macro->getNumParams() &&
+        !exp->done_prearg_expansion && 0 >= ParenCount(arg)) {
+
+      if (tok.is(clang::tok::comma)) {
+        D( std::cerr << indent << "Injecting EndMacroCallArgument\n"; )
+        DoEndMacroCallArgument(tok, 0);
+        D( std::cerr << indent << "Injecting BeginMacroCallArgument\n"; )
+        DoBeginMacroCallArgument(tok, 0);
+      }
+    }
 //
-//    end_of_arg_toks.emplace(tok.getLocation().getRawEncoding(), tok);
-//
-//    assert(!expansions.empty());
-//    MacroExpansionImpl *exp = expansions.back();
-//    MacroArgumentImpl *arg = arguments.back();
-//
-//    if (parent_node == arg && arg->is_prearg_expansion &&
-//        !exp->done_prearg_expansion && 0 >= ParenCount(arg)) {
-//
-//      // Move the comma out of the argument and into to the expansion.
+//      // Move the comma/r_paren out of the argument and into to the expansion.
 //      assert(!arg->nodes.empty());
-//      Node comma = std::move(arg->nodes.back());
+//      Node sep = std::move(arg->nodes.back());
 //
-//      // Keep track of argument separators.
+//      // Keep track of argument separators. In the initial pre-expansion phase
+//      // of a variadic macro, this is the code that will discover the
+//      // separators.
 //      end_of_arg_toks.emplace(tok_loc.getRawEncoding(), tok);
 //
 //      D( std::cerr
 //             << indent << "* Splitting pre-arg data at comma/r_paren "
-//             << ast->tokens[std::get<MacroTokenImpl *>(comma)->token_offset].opaque_source_loc
+//             << ast->tokens[std::get<MacroTokenImpl *>(sep)->token_offset].opaque_source_loc
 //             << '\n'; )
 //
 //      arg->nodes.pop_back();
-//      arguments.pop_back();
-//      nodes.pop_back();
 //
-//      // NOTE(pag): Might also be an r_paren.
-//      ReparentNode(comma, exp);
-//      exp->nodes.emplace_back(std::move(comma));
+//      ReparentNode(sep, exp);
+//      exp->nodes.emplace_back(std::move(sep));
+//
+//      // Prepare for the next argument.
+//      if (tok.is(clang::tok::comma)) {
+//        MacroArgumentImpl *next_arg =
+//            &(ast->root_macro_node.arguments.emplace_back());
+//        D( next_arg->line_added = __LINE__; )
+//        next_arg->parent = exp;
+//        next_arg->is_prearg_expansion = exp->is_prearg_expansion;
+//        next_arg->index = static_cast<unsigned>(exp->arguments.size());
+//        next_arg->offset = static_cast<unsigned>(exp->nodes.size());
+//        exp->arguments.push_back(next_arg);
+//        exp->nodes.emplace_back(next_arg);
+//
+//        arguments.back() = next_arg;
+//        nodes.back() = next_arg;
+//
+//      } else {
+//        arguments.pop_back();
+//        nodes.pop_back();
+//      }
 //    }
-//  }
+  }
 }
 
 void ASTImpl::LinkMacroTokenContexts(void) {

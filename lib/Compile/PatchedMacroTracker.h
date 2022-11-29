@@ -133,9 +133,7 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   // Add a token in.
   void DoToken(const clang::Token &tok, uintptr_t);
   std::optional<clang::Token> FindDirectiveHash(const clang::Token &tok);
-//  bool TryDoPreExpansionSetup(const clang::Token &tok);
-//  bool ClonePrefixArguments(MacroExpansionImpl *pre_exp,
-//                            const clang::Token &tok);
+
   MacroExpansionImpl *DoPreExpansionSetup(MacroExpansionImpl *);
 
   void DoBeginSkippedArea(const clang::Token &tok, uintptr_t data);

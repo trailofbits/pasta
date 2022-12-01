@@ -27,6 +27,8 @@ class MacroNodeImpl {
   virtual MacroNodeKind Kind(void) const = 0;
   virtual MacroTokenImpl *FirstUseToken(void) const;
   virtual MacroTokenImpl *FirstExpansionToken(void) const;
+  virtual const Node *FirstToken(void) const;
+  virtual const Node *LastToken(void) const;
   virtual MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const = 0;
 
   Node parent;
@@ -109,6 +111,8 @@ class MacroSubstitutionImpl : public MacroNodeImpl {
   virtual ~MacroSubstitutionImpl(void) = default;
   MacroTokenImpl *FirstUseToken(void) const final;
   MacroTokenImpl *FirstExpansionToken(void) const final;
+  const Node *FirstToken(void) const final;
+  const Node *LastToken(void) const final;
   MacroNodeKind Kind(void) const override;
   MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const override;
 

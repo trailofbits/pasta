@@ -65,6 +65,48 @@ static MacroTokenImpl *FirstExpansionTokenImpl(const std::vector<Node> &nodes) {
   return nullptr;
 }
 
+
+static const Node *FirstTokenImpl(const std::vector<Node> &nodes) {
+  if (nodes.empty()) {
+    return nullptr;
+  }
+
+  for (const Node &node : nodes) {
+    if (std::holds_alternative<MacroTokenImpl *>(node)) {
+      return &node;
+
+    } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
+      MacroNodeImpl *sub_node = std::get<MacroNodeImpl *>(node);
+      if (auto ret = sub_node->FirstToken()) {
+        return ret;
+      }
+    }
+  }
+
+  return nullptr;
+}
+
+static const Node *LastTokenImpl(const std::vector<Node> &nodes) {
+  if (nodes.empty()) {
+    return nullptr;
+  }
+
+  for (auto it = nodes.rbegin(), end = nodes.rend(); it != end; ++it) {
+    const Node &node = *it;
+    if (std::holds_alternative<MacroTokenImpl *>(node)) {
+      return &node;
+
+    } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
+      MacroNodeImpl *sub_node = std::get<MacroNodeImpl *>(node);
+      if (auto ret = sub_node->LastToken()) {
+        return ret;
+      }
+    }
+  }
+
+  return nullptr;
+}
+
 }  // namespace
 
 // Clone this token into the AST.
@@ -289,6 +331,30 @@ MacroNodeImpl *RootMacroNode::Clone(ASTImpl &, MacroNodeImpl *) const {
   __builtin_unreachable();
 }
 
+const Node *MacroNodeImpl::FirstToken(void) const {
+  return FirstTokenImpl(nodes);
+}
+
+const Node *MacroSubstitutionImpl::FirstToken(void) const {
+  if (auto tok = FirstTokenImpl(use_nodes)) {
+    return tok;
+  } else {
+    return FirstTokenImpl(nodes);
+  }
+}
+
+const Node *MacroNodeImpl::LastToken(void) const {
+  return LastTokenImpl(nodes);
+}
+
+const Node *MacroSubstitutionImpl::LastToken(void) const {
+  if (auto tok = LastTokenImpl(nodes)) {
+    return tok;
+  } else {
+    return LastTokenImpl(use_nodes);
+  }
+}
+
 MacroTokenImpl *MacroNodeImpl::FirstUseToken(void) const {
   return FirstUseTokenImpl(nodes);
 }
@@ -380,6 +446,32 @@ std::optional<MacroNode> MacroNode::Parent(void) const noexcept {
   }
 
   return MacroNode(ast, &(node_impl->parent));
+}
+
+MacroToken MacroNode::BeginToken(void) const noexcept {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  if (std::holds_alternative<MacroTokenImpl *>(node)) {
+    return reinterpret_cast<const MacroToken &>(*this);
+  } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
+    const Node *tok = std::get<MacroNodeImpl *>(node)->FirstToken();
+    return MacroToken(ast, tok);
+  } else {
+    assert(false);
+    __builtin_unreachable();
+  }
+}
+
+MacroToken MacroNode::EndToken(void) const noexcept {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  if (std::holds_alternative<MacroTokenImpl *>(node)) {
+    return reinterpret_cast<const MacroToken &>(*this);
+  } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
+    const Node *tok = std::get<MacroNodeImpl *>(node)->LastToken();
+    return MacroToken(ast, tok);
+  } else {
+    assert(false);
+    __builtin_unreachable();
+  }
 }
 
 enum TokenKind MacroToken::TokenKind(void) const noexcept {

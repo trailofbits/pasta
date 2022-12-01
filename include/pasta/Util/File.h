@@ -64,6 +64,10 @@ class FileToken {
     return impl;
   }
 
+  inline const void *RawFile(void) const noexcept {
+    return file.get();
+  }
+
   TokenKind Kind(void) const noexcept;
   PPKeywordKind PreProcessorKeywordKind(void) const noexcept;
   ObjCKeywordKind ObjectiveCAtKeywordKind(void) const noexcept;
@@ -262,6 +266,10 @@ class File {
 
  public:
   ~File(void);
+
+  inline const void *RawFile(void) const noexcept {
+    return impl.get();
+  }
 
   // Return the file containing a given file token.
   static File Containing(const FileToken &tok);

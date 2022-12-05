@@ -30,8 +30,8 @@ jobs:
           ]
         image:
           - { name: 'ubuntu', tag: '20.04' }
-        cxx_common_version: [v0.2.10]
-        llvm_version: [14]
+        cxx_common_version: [v0.2.18]
+        llvm_version: [15]
 
     runs-on: ubuntu-20.04
     container:

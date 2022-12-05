@@ -99,6 +99,9 @@ class MacroNode {
 
   // Return the macro node containing this node.
   std::optional<MacroNode> Parent(void) const noexcept;
+
+  MacroToken BeginToken(void) const noexcept;
+  MacroToken EndToken(void) const noexcept;
 };
 
 // A token produced inside of a macro expansion.

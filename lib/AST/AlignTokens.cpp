@@ -64,6 +64,7 @@ static bool TokenCanBeAssignedContext(const TokenImpl *token) {
     case TokenRole::kEndOfMacroExpansionMarker:
     case TokenRole::kInitialMacroUseToken:
     case TokenRole::kIntermediateMacroExpansionToken:
+    case TokenRole::kEndOfInternalMacroEventMarker:
       return false;
     case TokenRole::kFinalMacroExpansionToken:
     case TokenRole::kFileToken:

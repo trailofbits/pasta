@@ -27,6 +27,8 @@ class MacroNodeImpl {
   virtual MacroNodeKind Kind(void) const = 0;
   virtual MacroTokenImpl *FirstUseToken(void) const;
   virtual MacroTokenImpl *FirstExpansionToken(void) const;
+  virtual const Node *FirstToken(void) const;
+  virtual const Node *LastToken(void) const;
   virtual MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const = 0;
 
   Node parent;
@@ -95,6 +97,7 @@ class MacroArgumentImpl final : public MacroNodeImpl {
   MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const final;
 
   unsigned index{0u};
+  unsigned offset{0u};
   bool is_prearg_expansion{false};
 
   // Don't allow us to clone an argument more than once. If this happens then
@@ -108,6 +111,8 @@ class MacroSubstitutionImpl : public MacroNodeImpl {
   virtual ~MacroSubstitutionImpl(void) = default;
   MacroTokenImpl *FirstUseToken(void) const final;
   MacroTokenImpl *FirstExpansionToken(void) const final;
+  const Node *FirstToken(void) const final;
+  const Node *LastToken(void) const final;
   MacroNodeKind Kind(void) const override;
   MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const override;
 
@@ -145,7 +150,8 @@ class MacroExpansionImpl final : public MacroSubstitutionImpl {
 //  unsigned merge_start{2u};
 
   bool is_cancelled{false};
-  bool in_prearg_expansion{false};
+//  bool was_cancelled{false};
+//  bool in_prearg_expansion{false};
   bool is_prearg_expansion{false};
   bool done_prearg_expansion{false};
 

@@ -468,6 +468,7 @@ std::optional<MacroToken> Token::MacroLocation(void) const {
     default:
     case TokenRole::kBeginOfMacroExpansionMarker:
     case TokenRole::kEndOfMacroExpansionMarker:
+    case TokenRole::kEndOfInternalMacroEventMarker:
       return std::nullopt;
     case TokenRole::kInitialMacroUseToken:
     case TokenRole::kIntermediateMacroExpansionToken:
@@ -521,6 +522,7 @@ const TokenContextImpl *TokenImpl::Context(
     case TokenRole::kInitialMacroUseToken:
     case TokenRole::kIntermediateMacroExpansionToken:
     case TokenRole::kFinalMacroExpansionToken:
+    case TokenRole::kEndOfInternalMacroEventMarker:
       if (ci == kInvalidTokenContextIndex) {
         return nullptr;
       } else if (ci >= ast.root_macro_node.token_nodes.size()) {

@@ -80,7 +80,11 @@ if(PASTA_ENABLE_TESTING)
     include(AddLLVM)  # For LLVM lit test suite stuff.
 endif(PASTA_ENABLE_TESTING)
 
-llvm_map_components_to_libnames(LLVM_LIBRARIES
+# https://github.com/JonathanSalwan/Triton/issues/1082#issuecomment-1030826696
+if(LLVM_LINK_LLVM_DYLIB)
+  set(llvm_libs LLVM)
+else()
+  llvm_map_components_to_libnames(llvm_libs
     support core
     irreader
     bitreader bitwriter
@@ -92,11 +96,11 @@ llvm_map_components_to_libnames(LLVM_LIBRARIES
     x86desc x86codegen x86asmparser
     sparcdesc sparccodegen sparcasmparser
     webassemblydesc webassemblycodegen webassemblyasmparser)
+endif()
 
 target_link_libraries(pasta_thirdparty_llvm INTERFACE
-    ${LLVM_LIBRARIES}
-
-    clangSema
+    ${llvm_libs}
+    
     clang
     clangFrontend
     clangDriver
@@ -112,7 +116,7 @@ target_link_libraries(pasta_thirdparty_llvm INTERFACE
 )
 
 target_include_directories(pasta_thirdparty_llvm INTERFACE
-    "$<BUILD_INTERFACE:${LLVM_INCLUDE_DIRS};${CLANG_INCLUDE_DIRS}>"
+    "$<BUILD_INTERFACE:${LLVM_INCLUDE_DIRS};${LLVM_INCLUDE_DIR};${CLANG_INCLUDE_DIRS}>"
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 

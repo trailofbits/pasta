@@ -58,6 +58,8 @@ enum class TokenRole : std::underlying_type_t<TokenKind> {
   kIntermediateMacroExpansionToken,
   kFinalMacroExpansionToken,
   kEndOfMacroExpansionMarker,
+
+  kEndOfInternalMacroEventMarker,
 };
 
 enum class TokenContextKind : unsigned char {

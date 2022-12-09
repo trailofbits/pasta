@@ -1,5 +1,7 @@
 # Copyright (c) 2020 Trail of Bits, Inc., all rights reserved.
 
+include(CMakeDependentOption)
+
 # --------------------------------------------
 # build-time options -------------------------
 # --------------------------------------------

@@ -24,7 +24,6 @@ class MacroTokenImpl;
 class MacroNodeImpl {
  public:
   virtual ~MacroNodeImpl(void) = default;
-  virtual MacroNodeKind Kind(void) const = 0;
   virtual MacroTokenImpl *FirstUseToken(void) const;
   virtual MacroTokenImpl *FirstExpansionToken(void) const;
   virtual const Node *FirstToken(void) const;
@@ -33,7 +32,10 @@ class MacroNodeImpl {
 
   Node parent;
   std::vector<Node> nodes;
-  std::vector<Node> skipped_nodes;
+
+  // Kind of this Node.
+  MacroNodeKind kind{MacroNodeKind::kInvalid};
+
   const MacroNodeImpl *cloned_from{nullptr};
 #ifndef NDEBUG
   unsigned line_added{0u};
@@ -66,25 +68,39 @@ class MacroTokenImpl final {
 
 class MacroDirectiveImpl final : public MacroNodeImpl {
  public:
+  inline MacroDirectiveImpl(void) {
+    kind = MacroNodeKind::kOtherDirective;
+  }
+
   virtual ~MacroDirectiveImpl(void) = default;
-  MacroNodeKind Kind(void) const final;
   MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const final;
-
-  // The uses of this macro.
-  std::vector<Node> macro_uses;
-
-  // Token for the directive name.
-  Node directive_name;
-
-  // Token for the macro name.
-  Node macro_name;
 
   // The info for the macro that was defined by this directive.
   const clang::MacroInfo *defined_macro{nullptr};
 
+  // Token for the name of the defined macro, assuming this directive is a
+  // `#define`.
+  Node macro_name;
+
+  // The uses of this macro definition, assuming this directive is a
+  // `#define`.
+  std::vector<Node> macro_uses;
+
+  // Parameters of this macro definition, assuming this directive is a
+  // `#define`.
+  std::vector<Node> parameters;
+
+  // Token for the directive name. E.g. `define` in a `#define`, or `pragma`
+  // in `#pragma`.
+  Node directive_name;
+
+  // File that was included by this directive, assuming this was a
+  // `#include`-like directive.
   std::optional<File> included_file;
 
-  MacroDirectiveKind kind{MacroDirectiveKind::kOther};
+  // Offset/index of the first body token if the defined macro, assuming this
+  // directive is a `#define`.
+  unsigned body_offset{0u};
 
   // Whether or not this represents a skipped region of code, e.g. `#if 0`.
   bool is_skipped{false};
@@ -92,12 +108,23 @@ class MacroDirectiveImpl final : public MacroNodeImpl {
 
 class MacroArgumentImpl final : public MacroNodeImpl {
  public:
+  inline MacroArgumentImpl(void) {
+    kind = MacroNodeKind::kArgument;
+  }
+
   virtual ~MacroArgumentImpl(void) = default;
-  MacroNodeKind Kind(void) const final;
   MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const final;
 
+  // Index of this argument in the macro call argument list. If there are five
+  // arguments, then the first index is 0, second is 1, etc.
   unsigned index{0u};
+
+  // Offset of this argument in the (parent) macro call `use_nodes`s list. This
+  // is like a self-pointer, telling us where to find this node in the parent's
+  // node list.
   unsigned offset{0u};
+
+  // Was this argument part of a macro argument pre-expansion phase?
   bool is_prearg_expansion{false};
 
   // Don't allow us to clone an argument more than once. If this happens then
@@ -106,14 +133,33 @@ class MacroArgumentImpl final : public MacroNodeImpl {
   mutable bool has_been_cloned{false};
 };
 
+class MacroParameterImpl final : public MacroNodeImpl {
+ public:
+  inline MacroParameterImpl(void) {
+    kind = MacroNodeKind::kParameter;
+  }
+
+  virtual ~MacroParameterImpl(void) = default;
+  MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const final;
+
+  std::vector<Node> uses;
+
+  unsigned index{0u};
+  bool has_name{false};
+  bool is_variadic{false};
+};
+
 class MacroSubstitutionImpl : public MacroNodeImpl {
  public:
+  inline MacroSubstitutionImpl(void) {
+    kind = MacroNodeKind::kSubstitution;
+  }
+
   virtual ~MacroSubstitutionImpl(void) = default;
   MacroTokenImpl *FirstUseToken(void) const final;
   MacroTokenImpl *FirstExpansionToken(void) const final;
   const Node *FirstToken(void) const final;
   const Node *LastToken(void) const final;
-  MacroNodeKind Kind(void) const override;
   MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const override;
 
   std::vector<Node> use_nodes;
@@ -121,8 +167,11 @@ class MacroSubstitutionImpl : public MacroNodeImpl {
 
 class MacroExpansionImpl final : public MacroSubstitutionImpl {
  public:
+  inline MacroExpansionImpl(void) {
+    kind = MacroNodeKind::kExpansion;
+  }
+
   virtual ~MacroExpansionImpl(void) = default;
-  MacroNodeKind Kind(void) const final;
   MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const final;
 
   std::vector<Node> arguments;
@@ -169,12 +218,12 @@ class MacroExpansionImpl final : public MacroSubstitutionImpl {
 class RootMacroNode final : public MacroNodeImpl {
  public:
   virtual ~RootMacroNode(void) = default;
-  MacroNodeKind Kind(void) const final;
   MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const final;
 
   std::deque<MacroDirectiveImpl> directives;
   std::deque<MacroExpansionImpl> expansions;
   std::deque<MacroArgumentImpl> arguments;
+  std::deque<MacroParameterImpl> parameters;
   std::deque<MacroSubstitutionImpl> substitutions;
   std::deque<MacroTokenImpl> tokens;
   std::vector<Node> token_nodes;

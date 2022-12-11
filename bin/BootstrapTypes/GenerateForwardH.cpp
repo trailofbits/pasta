@@ -26,6 +26,7 @@ void GenerateForwardH(void) {
       << "#include <cstdint>\n"
       << "#pragma GCC diagnostic push\n"
       << "#pragma GCC diagnostic ignored \"-Wsign-conversion\"\n"
+      << "#pragma GCC diagnostic ignored \"-Wshorten-64-to-32\"\n"
       << "#include <llvm/ADT/APSInt.h>\n"
       << "#pragma GCC diagnostic pop\n"
       << "#include <memory>\n"

@@ -2056,11 +2056,15 @@ void StmtPrinter::VisitAtomicExpr(clang::AtomicExpr *Node) {
 #define BUILTIN(ID, TYPE, ATTRS)
 #define ATOMIC_BUILTIN(ID, TYPE, ATTRS) \
   case clang::AtomicExpr::AO ## ID: \
-    Name = #ID "("; \
+    Name = #ID ; \
     break;
 #include "clang/Basic/Builtins.def"
   }
   OS << Name;
+  ctx.MarkLocation(Node->getBuiltinLoc());
+  if (Name) {
+    OS << '(';
+  }
 
   // AtomicExpr stores its subexpressions in a permuted order.
   PrintExpr(Node->getPtr());

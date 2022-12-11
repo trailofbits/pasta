@@ -113,12 +113,6 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   void FixupDerivedLocations(void);
 
  private:
-  void MergeTokens(MacroArgumentImpl *node);
-  void MergeTokens(MacroDirectiveImpl *node);
-  void MergeTokens(MacroExpansionImpl *node);
-  void MergeTokens(MacroSubstitutionImpl *node);
-  void MergeTokens(MacroNodeImpl *node);
-
   void CloseUnclosedExpansion(const clang::Token &tok);
 
   void Push(const clang::Token &tok);

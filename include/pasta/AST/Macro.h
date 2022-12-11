@@ -16,7 +16,7 @@ class ASTImpl;
 class File;
 class FileToken;
 class FileTokenRange;
-class MacroArgument;
+class MacroExpansionArgument;
 class MacroArgumentImpl;
 class MacroArgumentList;
 class MacroArgumentListImpl;
@@ -36,36 +36,37 @@ class SkippedTokenRangeImpl;
 class Token;
 class TokenImpl;
 
-enum class MacroNodeKind : unsigned char {
-  kInvalid,
-  kToken,
-  kExpansion,
-  kSubstitution,
-  kDirective,
-  kDefine,
-  kInclude,
-  kArgument,
-};
+#define PASTA_FOR_EACH_MACRO_DIRECTIVE_KIND(pp) \
+    pp(OtherDirective) \
+    pp(IfDirective) \
+    pp(IfDefinedDirective) \
+    pp(IfNotDefinedDirective) \
+    pp(ElseIfDirective) \
+    pp(ElseIfDefinedDirective) \
+    pp(ElseIfNotDefinedDirective) \
+    pp(ElseDirective) \
+    pp(EndIfDirective) \
+    pp(DefineDirective) \
+    pp(UndefineDirective) \
+    pp(PragmaDirective) \
+    pp(IncludeDirective) \
+    pp(IncludeNextDirective) \
+    pp(IncludeMacrosDirective) \
+    pp(ImportDirective)
 
-enum class MacroDirectiveKind : unsigned char {
-  kOther,
-  kIf,
-  kIfDefined,
-  kIfNotDefined,
-  kElseIf,
-  kElseIfDefined,
-  kElseIfNotDefined,
-  kElse,
-  kEndIf,
-  kDefine,
-  kUndefine,
-  kHashPragma,
-  kC99Pragma,
-  kMicrosoftPragma,
-  kInclude,
-  kIncludeNext,
-  kIncludeMacros,
-  kImport,
+#define PASTA_FOR_EACH_MACRO_NODE_KIND(pp) \
+    pp(Invalid) \
+    pp(Token) \
+    pp(Expansion) \
+    pp(Substitution) \
+    PASTA_FOR_EACH_MACRO_DIRECTIVE_KIND(pp) \
+    pp(Argument) \
+    pp(Parameter)
+
+enum class MacroNodeKind : unsigned char {
+#define PASTA_DECLARE_MACRO_NODE_KIND(kind) k ## kind ,
+  PASTA_FOR_EACH_MACRO_NODE_KIND(PASTA_DECLARE_MACRO_NODE_KIND)
+#undef PASTA_DECLARE_MACRO_NODE_KIND
 };
 
 enum class TokenKind : unsigned short;
@@ -100,17 +101,19 @@ class MacroNode {
   // Return the macro node containing this node.
   std::optional<MacroNode> Parent(void) const noexcept;
 
-  MacroToken BeginToken(void) const noexcept;
-  MacroToken EndToken(void) const noexcept;
+  // Begin and ending usage tokens.
+  std::optional<MacroToken> BeginToken(void) const noexcept;
+  std::optional<MacroToken> EndToken(void) const noexcept;
 };
 
 // A token produced inside of a macro expansion.
 class MacroToken final : public MacroNode {
  protected:
   friend class MacroDirective;
-  friend class MacroDefinition;
-  friend class MacroFileInclusion;
+  friend class DefineMacroDirective;
+  friend class IncludeMacroDirective;
   friend class PatchedMacroTracker;
+  friend class MacroDefinitionParameter;
   friend class Token;
 
   using MacroNode::MacroNode;
@@ -152,56 +155,68 @@ class MacroDirective : public MacroNode {
   using MacroNode::MacroNode;
 
  public:
-
-  inline static std::optional<MacroDirective> From(const MacroNode &node) {
-    switch (node.Kind()) {
-      case MacroNodeKind::kDirective:
-      case MacroNodeKind::kDefine:
-      case MacroNodeKind::kInclude:
-        return reinterpret_cast<const MacroDirective &>(node);
-      default:
-        return std::nullopt;
-    }
-  }
+  static std::optional<MacroDirective> From(const MacroNode &node) noexcept;
 
   // Return the hash token of the directive.
-  MacroToken HashToken(void) const noexcept;
-
-  // Return the kind of this directive.
-  MacroDirectiveKind DirectiveKind(void) const noexcept;
+  MacroToken Hash(void) const noexcept;
 
   // The name of this directive, if any. Some GCC-specific macros don't have
   // names. Directive names are macro tokens because the name may be a result
   // of some other expansion, e.g. `_Pragma("...")` expanding into
   // `#pragma ...`.
-  std::optional<MacroToken> DirectiveToken(void) const noexcept;
+  std::optional<MacroToken> Name(void) const noexcept;
 
   MacroNodeRange Nodes(void) const noexcept;
 };
 
 static_assert(sizeof(MacroDirective) == sizeof(MacroNode));
 
+// An parameter in a macro.
+class MacroDefinitionParameter final : public MacroNode {
+ protected:
+  friend class DefineMacroDirective;
+
+  using MacroNode::MacroNode;
+
+ public:
+  inline static std::optional<MacroDefinitionParameter> From(const MacroNode &node) {
+    if (node.Kind() == MacroNodeKind::kParameter) {
+      return reinterpret_cast<const MacroDefinitionParameter &>(node);
+    } else {
+      return std::nullopt;
+    }
+  }
+
+  // E.g. `...` in `args...`, or just `...`.
+  std::optional<MacroToken> VariadicDots(void) const noexcept;
+
+  // The name of the macro parameter, if any.
+  std::optional<MacroToken> Name(void) const noexcept;
+
+  // The index of this parameter.
+  unsigned Index(void) const noexcept;
+
+  MacroNodeRange Nodes(void) const noexcept;
+};
+
 // A macro definition directive.
-class MacroDefinition final : public MacroDirective {
+class DefineMacroDirective final : public MacroDirective {
  protected:
   friend class MacroExpansion;
 
   using MacroDirective::MacroDirective;
 
  public:
-  inline static std::optional<MacroDefinition> From(const MacroNode &node) {
-    if (node.Kind() == MacroNodeKind::kDefine) {
-      return reinterpret_cast<const MacroDefinition &>(node);
-    } else {
-      return std::nullopt;
-    }
-  }
+  static std::optional<DefineMacroDirective> From(const MacroNode &node);
 
   // The name of this macro.
-  MacroToken NameToken(void) const noexcept;
+  MacroToken Name(void) const noexcept;
 
   // Uses of this macro.
   MacroNodeRange Uses(void) const noexcept;
+
+  // Body of the defined macro.
+  MacroNodeRange Body(void) const noexcept;
 
   // Number of explicit, i.e. not variadic, parameters.
   unsigned NumExplicitParameters(void) const noexcept;
@@ -212,41 +227,40 @@ class MacroDefinition final : public MacroDirective {
   // Is this a function-like macro? If so, then it could take zero-or-more
   // arguments when used.
   bool IsFunctionLike(void) const noexcept;
+
+  // Parameters of this macro definition.
+  MacroNodeRange Parameters(void) const noexcept;
 };
 
-static_assert(sizeof(MacroDefinition) == sizeof(MacroNode));
+static_assert(sizeof(MacroDefinitionParameter) == sizeof(MacroNode));
+
+static_assert(sizeof(DefineMacroDirective) == sizeof(MacroNode));
 
 // Represents the inclusion of a file.
-class MacroFileInclusion final : public MacroDirective {
+class IncludeMacroDirective final : public MacroDirective {
  protected:
   friend class MacroExpansion;
 
   using MacroDirective::MacroDirective;
 
  public:
-  inline static std::optional<MacroFileInclusion> From(const MacroNode &node) {
-    if (node.Kind() == MacroNodeKind::kInclude) {
-      return reinterpret_cast<const MacroFileInclusion &>(node);
-    } else {
-      return std::nullopt;
-    }
-  }
+  static std::optional<IncludeMacroDirective> From(const MacroNode &node);
 
   File IncludedFile(void) const noexcept;
 };
 
 // An argument in a macro. This may be one token, or multiple tokens, as macro
 // arguments are subject to pre-expansion.
-class MacroArgument final : public MacroNode {
+class MacroExpansionArgument final : public MacroNode {
  protected:
   friend class MacroExpansion;
 
   using MacroNode::MacroNode;
 
  public:
-  inline static std::optional<MacroArgument> From(const MacroNode &node) {
+  inline static std::optional<MacroExpansionArgument> From(const MacroNode &node) {
     if (node.Kind() == MacroNodeKind::kArgument) {
-      return reinterpret_cast<const MacroArgument &>(node);
+      return reinterpret_cast<const MacroExpansionArgument &>(node);
     } else {
       return std::nullopt;
     }
@@ -259,7 +273,7 @@ class MacroArgument final : public MacroNode {
   MacroNodeRange Nodes(void) const noexcept;
 };
 
-static_assert(sizeof(MacroArgument) == sizeof(MacroNode));
+static_assert(sizeof(MacroExpansionArgument) == sizeof(MacroNode));
 
 // A substitution.
 class MacroSubstitution : public MacroNode {
@@ -297,14 +311,14 @@ class MacroExpansion final : public MacroSubstitution {
     }
   }
 
-  static MacroExpansion Containing(const MacroArgument &) noexcept;
+  static MacroExpansion Containing(const MacroExpansionArgument &) noexcept;
 
   // Returns the directive that led to the definition of this expansion.
-  std::optional<MacroDefinition> Definition(void) const noexcept;
+  std::optional<DefineMacroDirective> Definition(void) const noexcept;
 
   // Returns the list of arguments in the expansion if this was a use of a
   // function-like macro.
-  std::vector<MacroArgument> Arguments(void) const noexcept;
+  std::vector<MacroExpansionArgument> Arguments(void) const noexcept;
 };
 
 static_assert(sizeof(MacroExpansion) == sizeof(MacroNode));
@@ -391,12 +405,13 @@ class MacroNodeRange {
  private:
   friend class AST;
   friend class ASTImpl;
-  friend class MacroArgument;
+  friend class MacroDefinitionParameter;
+  friend class MacroExpansionArgument;
   friend class MacroExpansion;
   friend class MacroSubstitution;
   friend class MacroDirective;
-  friend class MacroDefinition;
-  friend class MacroFileInclusion;
+  friend class DefineMacroDirective;
+  friend class IncludeMacroDirective;
   friend class MacroToken;
 
   std::shared_ptr<ASTImpl> ast;

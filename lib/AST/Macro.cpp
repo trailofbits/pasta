@@ -128,16 +128,6 @@ MacroTokenImpl *MacroTokenImpl::Clone(ASTImpl &ast,
   return clone;
 }
 
-MacroNodeKind MacroDirectiveImpl::Kind(void) const {
-  if (defined_macro) {
-    return MacroNodeKind::kDefine;
-  } else if (included_file) {
-    return MacroNodeKind::kInclude;
-  } else {
-    return MacroNodeKind::kDirective;
-  }
-}
-
 namespace {
 
 static void NoOnTokenCB(unsigned, MacroTokenImpl *, MacroTokenImpl *) {}
@@ -232,6 +222,11 @@ MacroNodeImpl *MacroArgumentImpl::Clone(
                 NoOnNodeCB);
 
   return clone;
+}
+
+MacroNodeImpl *MacroParameterImpl::Clone(ASTImpl &, MacroNodeImpl *) const {
+  assert(false);
+  return nullptr;
 }
 
 MacroNodeImpl *MacroSubstitutionImpl::Clone(
@@ -348,10 +343,10 @@ const Node *MacroNodeImpl::LastToken(void) const {
 }
 
 const Node *MacroSubstitutionImpl::LastToken(void) const {
-  if (auto tok = LastTokenImpl(nodes)) {
+  if (auto tok = LastTokenImpl(use_nodes)) {
     return tok;
   } else {
-    return LastTokenImpl(use_nodes);
+    return LastTokenImpl(nodes);
   }
 }
 
@@ -380,23 +375,6 @@ MacroTokenImpl *MacroSubstitutionImpl::FirstExpansionToken(void) const {
   }
 }
 
-MacroNodeKind MacroSubstitutionImpl::Kind(void) const {
-  return MacroNodeKind::kSubstitution;
-}
-
-MacroNodeKind MacroExpansionImpl::Kind(void) const {
-  return MacroNodeKind::kExpansion;
-}
-
-MacroNodeKind MacroArgumentImpl::Kind(void) const {
-  return MacroNodeKind::kArgument;
-}
-
-MacroNodeKind RootMacroNode::Kind(void) const {
-  abort();
-  __builtin_unreachable();
-}
-
 MacroNode::~MacroNode(void) {}
 
 MacroNodeKind MacroNode::Kind(void) const noexcept {
@@ -404,7 +382,7 @@ MacroNodeKind MacroNode::Kind(void) const noexcept {
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
     return MacroNodeKind::kToken;
   } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
-    return std::get<MacroNodeImpl *>(node)->Kind();
+    return std::get<MacroNodeImpl *>(node)->kind;
   } else {
     assert(false);
     return MacroNodeKind::kInvalid;
@@ -448,30 +426,28 @@ std::optional<MacroNode> MacroNode::Parent(void) const noexcept {
   return MacroNode(ast, &(node_impl->parent));
 }
 
-MacroToken MacroNode::BeginToken(void) const noexcept {
+std::optional<MacroToken> MacroNode::BeginToken(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
     return reinterpret_cast<const MacroToken &>(*this);
   } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
-    const Node *tok = std::get<MacroNodeImpl *>(node)->FirstToken();
-    return MacroToken(ast, tok);
-  } else {
-    assert(false);
-    __builtin_unreachable();
+    if (const Node *tok = std::get<MacroNodeImpl *>(node)->FirstToken()) {
+      return MacroToken(ast, tok);
+    }
   }
+  return std::nullopt;
 }
 
-MacroToken MacroNode::EndToken(void) const noexcept {
+std::optional<MacroToken> MacroNode::EndToken(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
     return reinterpret_cast<const MacroToken &>(*this);
   } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
-    const Node *tok = std::get<MacroNodeImpl *>(node)->LastToken();
-    return MacroToken(ast, tok);
-  } else {
-    assert(false);
-    __builtin_unreachable();
+    if (const Node *tok = std::get<MacroNodeImpl *>(node)->LastToken()) {
+      return MacroToken(ast, tok);
+    }
   }
+  return std::nullopt;
 }
 
 enum TokenKind MacroToken::TokenKind(void) const noexcept {
@@ -519,8 +495,19 @@ std::optional<Token> MacroToken::ParsedLocation(void) const noexcept {
   }
 }
 
+std::optional<MacroDirective> MacroDirective::From(const MacroNode &node) noexcept {
+  switch (node.Kind()) {
+#define PASTA_MACRO_DIRECTIVE_CASE(kind) case MacroNodeKind::k ## kind:
+    PASTA_FOR_EACH_MACRO_DIRECTIVE_KIND(PASTA_MACRO_DIRECTIVE_CASE)
+#undef PASTA_MACRO_DIRECTIVE_CASE
+      return reinterpret_cast<const MacroDirective &>(node);
+    default:
+      return std::nullopt;
+  }
+}
+
 // Return the hash token of the directive.
-MacroToken MacroDirective::HashToken(void) const noexcept {
+MacroToken MacroDirective::Hash(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
@@ -530,19 +517,11 @@ MacroToken MacroDirective::HashToken(void) const noexcept {
   return MacroToken(ast, &(dir_impl->nodes.front()));
 }
 
-// Return the kind of this directive.
-MacroDirectiveKind MacroDirective::DirectiveKind(void) const noexcept {
-  Node node = *reinterpret_cast<const Node *>(impl);
-  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
-  MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
-  return dir_impl->kind;
-}
-
 // The name of this directive, if any. Some GCC-specific macros don't have
 // names. Directive names are macro tokens because the name may be a result
 // of some other expansion, e.g. `_Pragma("...")` expanding into
 // `#pragma ...`.
-std::optional<MacroToken> MacroDirective::DirectiveToken(void) const noexcept {
+std::optional<MacroToken> MacroDirective::Name(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
@@ -567,7 +546,61 @@ MacroNodeRange MacroDirective::Nodes(void) const noexcept {
   }
 }
 
-MacroToken MacroDefinition::NameToken(void) const noexcept {
+MacroNodeRange MacroDefinitionParameter::Nodes(void) const noexcept {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
+  MacroParameterImpl *param_impl = dynamic_cast<MacroParameterImpl *>(node_impl);
+  if (!param_impl->nodes.empty()) {
+    const auto first = param_impl->nodes.data();
+    return MacroNodeRange(
+        ast, first, &(first[param_impl->nodes.size()]));
+  } else {
+    return MacroNodeRange(ast);
+  }
+}
+
+// E.g. `...` in `args...`, or just `...`.
+std::optional<MacroToken>
+MacroDefinitionParameter::VariadicDots(void) const noexcept {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
+  MacroParameterImpl *param_impl = dynamic_cast<MacroParameterImpl *>(node_impl);
+  if (param_impl->is_variadic) {
+    return MacroToken(ast, &(param_impl->nodes.back()));
+  } else {
+    return std::nullopt;
+  }
+}
+
+// The name of the macro parameter, if any.
+std::optional<MacroToken> MacroDefinitionParameter::Name(void) const noexcept {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
+  MacroParameterImpl *param_impl = dynamic_cast<MacroParameterImpl *>(node_impl);
+  if (param_impl->is_variadic) {
+    return MacroToken(ast, &(param_impl->nodes.front()));
+  } else {
+    return std::nullopt;
+  }
+}
+
+unsigned MacroDefinitionParameter::Index(void) const noexcept {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
+  MacroParameterImpl *param_impl = dynamic_cast<MacroParameterImpl *>(node_impl);
+  return param_impl->index;
+}
+
+std::optional<DefineMacroDirective>
+DefineMacroDirective::From(const MacroNode &node) {
+  if (node.Kind() == MacroNodeKind::kDefineDirective) {
+    return reinterpret_cast<const DefineMacroDirective &>(node);
+  } else {
+    return std::nullopt;
+  }
+}
+
+MacroToken DefineMacroDirective::Name(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
@@ -576,7 +609,7 @@ MacroToken MacroDefinition::NameToken(void) const noexcept {
 }
 
 // Number of explicit, i.e. not variadic, parameters.
-unsigned MacroDefinition::NumExplicitParameters(void) const noexcept {
+unsigned DefineMacroDirective::NumExplicitParameters(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
@@ -592,7 +625,7 @@ unsigned MacroDefinition::NumExplicitParameters(void) const noexcept {
 
 // Is this a function-like macro? If so, then it could take zero-or-more
 // arguments when used.
-bool MacroDefinition::IsFunctionLike(void) const noexcept {
+bool DefineMacroDirective::IsFunctionLike(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
@@ -605,7 +638,7 @@ bool MacroDefinition::IsFunctionLike(void) const noexcept {
 }
 
 // Does this definition accept a variable number of arguments?
-bool MacroDefinition::IsVariadic(void) const noexcept {
+bool DefineMacroDirective::IsVariadic(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
@@ -618,7 +651,7 @@ bool MacroDefinition::IsVariadic(void) const noexcept {
 }
 
 // Uses of this macro.
-MacroNodeRange MacroDefinition::Uses(void) const noexcept {
+MacroNodeRange DefineMacroDirective::Uses(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
@@ -631,7 +664,47 @@ MacroNodeRange MacroDefinition::Uses(void) const noexcept {
   }
 }
 
-File MacroFileInclusion::IncludedFile(void) const noexcept {
+// Body of the defined macro.
+MacroNodeRange DefineMacroDirective::Body(void) const noexcept {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
+  MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
+  if (!dir_impl->nodes.empty()) {
+    const auto first = dir_impl->nodes.data();
+    return MacroNodeRange(
+        ast, &(first[dir_impl->body_offset]), &(first[dir_impl->nodes.size()]));
+  } else {
+    return MacroNodeRange(ast);
+  }
+}
+
+// Parameters of this macro definition.
+MacroNodeRange DefineMacroDirective::Parameters(void) const noexcept {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
+  MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
+  if (!dir_impl->parameters.empty()) {
+    const auto first = dir_impl->parameters.data();
+    return MacroNodeRange(
+        ast, first, &(first[dir_impl->parameters.size()]));
+  } else {
+    return MacroNodeRange(ast);
+  }
+}
+
+std::optional<IncludeMacroDirective>
+IncludeMacroDirective::From(const MacroNode &node) {
+  switch (node.Kind()) {
+    case MacroNodeKind::kIncludeDirective:
+    case MacroNodeKind::kIncludeNextDirective:
+    case MacroNodeKind::kIncludeMacrosDirective:
+      return reinterpret_cast<const IncludeMacroDirective &>(node);
+    default:
+      return std::nullopt;
+  }
+}
+
+File IncludeMacroDirective::IncludedFile(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
@@ -639,7 +712,7 @@ File MacroFileInclusion::IncludedFile(void) const noexcept {
   return dir_impl->included_file.value();
 }
 
-bool MacroArgument::IsVariadic(void) const noexcept {
+bool MacroExpansionArgument::IsVariadic(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroArgumentImpl *arg_impl = dynamic_cast<MacroArgumentImpl *>(node_impl);
@@ -651,7 +724,7 @@ bool MacroArgument::IsVariadic(void) const noexcept {
   return false;
 }
 
-unsigned MacroArgument::Index(void) const noexcept {
+unsigned MacroExpansionArgument::Index(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroArgumentImpl *arg_impl = dynamic_cast<MacroArgumentImpl *>(node_impl);
@@ -668,7 +741,7 @@ unsigned MacroArgument::Index(void) const noexcept {
   return ~0u;
 }
 
-MacroNodeRange MacroArgument::Nodes(void) const noexcept {
+MacroNodeRange MacroExpansionArgument::Nodes(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroArgumentImpl *arg_impl = dynamic_cast<MacroArgumentImpl *>(node_impl);
@@ -710,7 +783,7 @@ MacroNodeRange MacroSubstitution::SubstitutionNodes(void) const noexcept {
 }
 
 MacroExpansion MacroExpansion::Containing(
-    const MacroArgument &arg) noexcept {
+    const MacroExpansionArgument &arg) noexcept {
   Node node = *reinterpret_cast<const Node *>(arg.impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroArgumentImpl *arg_impl = dynamic_cast<MacroArgumentImpl *>(node_impl);
@@ -718,12 +791,12 @@ MacroExpansion MacroExpansion::Containing(
 }
 
 // Returns the directive that led to the definition of this expansion.
-std::optional<MacroDefinition> MacroExpansion::Definition(void) const noexcept {
+std::optional<DefineMacroDirective> MacroExpansion::Definition(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroExpansionImpl *exp_impl = dynamic_cast<MacroExpansionImpl *>(node_impl);
   if (std::holds_alternative<MacroNodeImpl *>(exp_impl->definition)) {
-    return MacroDefinition(ast, &(exp_impl->definition));
+    return DefineMacroDirective(ast, &(exp_impl->definition));
   } else {
     return std::nullopt;
   }
@@ -731,15 +804,15 @@ std::optional<MacroDefinition> MacroExpansion::Definition(void) const noexcept {
 
 // Returns the list of arguments in the expansion if this was a use of a
 // function-like macro.
-std::vector<MacroArgument>
+std::vector<MacroExpansionArgument>
 MacroExpansion::Arguments(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroExpansionImpl *exp_impl = dynamic_cast<MacroExpansionImpl *>(node_impl);
 
-  std::vector<MacroArgument> ret;
+  std::vector<MacroExpansionArgument> ret;
   for (Node &arg : exp_impl->arguments) {
-    ret.emplace_back(MacroArgument(ast, &arg));
+    ret.emplace_back(MacroExpansionArgument(ast, &arg));
   }
 
   return ret;

@@ -66,7 +66,42 @@ static void PrintMacroGraph(std::ostream &os,
 }
 
 static void PrintMacroGraph(std::ostream &os,
-                            const pasta::MacroArgument &arg) {
+                            const pasta::MacroDefinitionParameter &param) {
+
+  const auto a = reinterpret_cast<uintptr_t>(param.RawNode());
+  pasta::MacroNodeRange nodes = param.Nodes();
+  os
+      << "n" << a
+      << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" border=\"1\">"
+      << "<TR><TD";
+  if (nodes.Size()) {
+    os << " colspan=\"" << nodes.Size() << "\"";
+  }
+  os << ">Parameter</TD></TR><TR>";
+
+  auto i = 0u;
+  for (const pasta::MacroNode &node : nodes) {
+    (void) node;
+    os << "<TD port=\"p" << (i++) << "\"> </TD>";
+  }
+
+  if (!i) {
+    os << "<TD bgcolor=\"red\">?</TD>";
+  }
+
+  os
+      << "</TR></TABLE>>];\n";
+
+  i = 0u;
+  for (const pasta::MacroNode &node : nodes) {
+    RecPrintMacroGraph(os, node);
+    os << "n" << a << ":p" << (i++) << " -> n"
+       << reinterpret_cast<uintptr_t>(node.RawNode()) << ";\n";
+  }
+}
+
+static void PrintMacroGraph(std::ostream &os,
+                            const pasta::MacroExpansionArgument &arg) {
 
   const auto a = reinterpret_cast<uintptr_t>(arg.RawNode());
   auto nodes = arg.Nodes();
@@ -103,7 +138,7 @@ static void PrintMacroGraph(std::ostream &os,
 static void PrintMacroGraph(std::ostream &os,
                             const pasta::MacroDirective &dir) {
   if (!PRINT_DEFINITIONS &&
-      dir.DirectiveKind() == pasta::MacroDirectiveKind::kDefine) {
+      dir.Kind() == pasta::MacroNodeKind::kDefineDirective) {
     return;
   }
 
@@ -113,59 +148,56 @@ static void PrintMacroGraph(std::ostream &os,
       << "n" << a
       << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" border=\"1\">"
       << "<TR><TD colspan=\"" << nodes.Size() << "\">";
-  switch (dir.DirectiveKind()) {
-    case pasta::MacroDirectiveKind::kOther:
+  switch (dir.Kind()) {
+    default:
+      os << "Not a directive";
+      break;
+    case pasta::MacroNodeKind::kOtherDirective:
       os << "Other Directive";
       break;
-    case pasta::MacroDirectiveKind::kIf:
+    case pasta::MacroNodeKind::kIfDirective:
       os << "If";
       break;
-    case pasta::MacroDirectiveKind::kIfDefined:
+    case pasta::MacroNodeKind::kIfDefinedDirective:
       os << "IfDefined";
       break;
-    case pasta::MacroDirectiveKind::kIfNotDefined:
+    case pasta::MacroNodeKind::kIfNotDefinedDirective:
       os << "IfNotDefined";
       break;
-    case pasta::MacroDirectiveKind::kElseIf:
+    case pasta::MacroNodeKind::kElseIfDirective:
       os << "ElseIf";
       break;
-    case pasta::MacroDirectiveKind::kElseIfDefined:
+    case pasta::MacroNodeKind::kElseIfDefinedDirective:
       os << "ElseIfDefined";
       break;
-    case pasta::MacroDirectiveKind::kElseIfNotDefined:
+    case pasta::MacroNodeKind::kElseIfNotDefinedDirective:
       os << "ElseIfNotDefined";
       break;
-    case pasta::MacroDirectiveKind::kElse:
+    case pasta::MacroNodeKind::kElseDirective:
       os << "Else";
       break;
-    case pasta::MacroDirectiveKind::kEndIf:
+    case pasta::MacroNodeKind::kEndIfDirective:
       os << "EndIf";
       break;
-    case pasta::MacroDirectiveKind::kDefine:
+    case pasta::MacroNodeKind::kDefineDirective:
       os << "Define";
       break;
-    case pasta::MacroDirectiveKind::kUndefine:
+    case pasta::MacroNodeKind::kUndefineDirective:
       os << "Undefine";
       break;
-    case pasta::MacroDirectiveKind::kHashPragma:
-      os << "HashPragma";
+    case pasta::MacroNodeKind::kPragmaDirective:
+      os << "Pragma";
       break;
-    case pasta::MacroDirectiveKind::kC99Pragma:
-      os << "C99Pragma";
-      break;
-    case pasta::MacroDirectiveKind::kMicrosoftPragma:
-      os << "MicrosoftPragma";
-      break;
-    case pasta::MacroDirectiveKind::kInclude:
+    case pasta::MacroNodeKind::kIncludeDirective:
       os << "Include";
       break;
-    case pasta::MacroDirectiveKind::kIncludeNext:
+    case pasta::MacroNodeKind::kIncludeNextDirective:
       os << "IncludeNext";
       break;
-    case pasta::MacroDirectiveKind::kIncludeMacros:
+    case pasta::MacroNodeKind::kIncludeMacrosDirective:
       os << "IncludeMacros";
       break;
-    case pasta::MacroDirectiveKind::kImport:
+    case pasta::MacroNodeKind::kImportDirective:
       os << "Import";
       break;
   }
@@ -290,13 +322,16 @@ void RecPrintMacroGraph(std::ostream &os, const pasta::MacroNode &node) {
     case pasta::MacroNodeKind::kToken:
       PrintMacroGraph(os, *pasta::MacroToken::From(node));
       break;
-    case pasta::MacroNodeKind::kDirective:
-    case pasta::MacroNodeKind::kDefine:
-    case pasta::MacroNodeKind::kInclude:
+#define DIR_CASE(kind) case pasta::MacroNodeKind::k ## kind :
+    PASTA_FOR_EACH_MACRO_DIRECTIVE_KIND(DIR_CASE)
+#undef DIR_CASE
       PrintMacroGraph(os, *pasta::MacroDirective::From(node));
       break;
+    case pasta::MacroNodeKind::kParameter:
+      PrintMacroGraph(os, *pasta::MacroDefinitionParameter::From(node));
+      break;
     case pasta::MacroNodeKind::kArgument:
-      PrintMacroGraph(os, *pasta::MacroArgument::From(node));
+      PrintMacroGraph(os, *pasta::MacroExpansionArgument::From(node));
       break;
     case pasta::MacroNodeKind::kSubstitution:
       PrintMacroGraph(os, *pasta::MacroSubstitution::From(node));

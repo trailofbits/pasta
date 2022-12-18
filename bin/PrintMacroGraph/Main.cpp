@@ -21,7 +21,7 @@
 #include <unordered_set>
 
 #define PRINT_DEFINITIONS 0
-#define PRINT_DERIVED 0
+#define PRINT_DERIVED 1
 
 template <typename TokT>
 static std::string TokData(const TokT &tok) {
@@ -40,36 +40,35 @@ static std::string TokData(const TokT &tok) {
   return ss.str();
 }
 
-static void RecPrintMacroGraph(std::ostream &os, const pasta::MacroNode &node);
+static void RecPrintMacroGraph(std::ostream &os, const pasta::Macro &node);
 
 static void PrintMacroGraph(std::ostream &os,
                             const pasta::MacroToken &tok) {
 
-  const auto a = reinterpret_cast<uintptr_t>(tok.RawNode());
+  const auto a = reinterpret_cast<uintptr_t>(tok.RawMacro());
   os
       << "n" << a
       << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" border=\"1\"><TR>"
       << "<TD>" << TokData(tok) << "</TD></TR></TABLE>>];\n";
 
 #if PRINT_DERIVED
-  if (auto pt = tok.ParsedLocation()) {
-    if (auto dt = pt->DerivedLocation()) {
-      assert(tok.Data() == dt->Data());
-      if (auto mt = dt->MacroLocation()) {
-        assert(tok.Data() == mt->Data());
-        os << "n" << a << " -> n" << reinterpret_cast<uintptr_t>(mt->RawNode())
-           << " [style=dotted];\n";
-      }
+  auto pt = tok.ParsedLocation();
+  if (auto dt = pt.DerivedLocation()) {
+    assert(tok.Data() == dt->Data());
+    if (auto mt = dt->MacroLocation()) {
+      assert(tok.Data() == mt->Data());
+      os << "n" << a << " -> n" << reinterpret_cast<uintptr_t>(mt->RawMacro())
+         << " [style=dotted];\n";
     }
   }
 #endif
 }
 
 static void PrintMacroGraph(std::ostream &os,
-                            const pasta::MacroDefinitionParameter &param) {
+                            const pasta::MacroParameter &param) {
 
-  const auto a = reinterpret_cast<uintptr_t>(param.RawNode());
-  pasta::MacroNodeRange nodes = param.Nodes();
+  const auto a = reinterpret_cast<uintptr_t>(param.RawMacro());
+  pasta::MacroRange nodes = param.Children();
   os
       << "n" << a
       << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" border=\"1\">"
@@ -80,7 +79,7 @@ static void PrintMacroGraph(std::ostream &os,
   os << ">Parameter</TD></TR><TR>";
 
   auto i = 0u;
-  for (const pasta::MacroNode &node : nodes) {
+  for (const pasta::Macro &node : nodes) {
     (void) node;
     os << "<TD port=\"p" << (i++) << "\"> </TD>";
   }
@@ -93,18 +92,18 @@ static void PrintMacroGraph(std::ostream &os,
       << "</TR></TABLE>>];\n";
 
   i = 0u;
-  for (const pasta::MacroNode &node : nodes) {
+  for (const pasta::Macro &node : nodes) {
     RecPrintMacroGraph(os, node);
     os << "n" << a << ":p" << (i++) << " -> n"
-       << reinterpret_cast<uintptr_t>(node.RawNode()) << ";\n";
+       << reinterpret_cast<uintptr_t>(node.RawMacro()) << ";\n";
   }
 }
 
 static void PrintMacroGraph(std::ostream &os,
-                            const pasta::MacroExpansionArgument &arg) {
+                            const pasta::MacroArgument &arg) {
 
-  const auto a = reinterpret_cast<uintptr_t>(arg.RawNode());
-  auto nodes = arg.Nodes();
+  const auto a = reinterpret_cast<uintptr_t>(arg.RawMacro());
+  auto nodes = arg.Children();
   os
       << "n" << a
       << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" border=\"1\">"
@@ -115,7 +114,7 @@ static void PrintMacroGraph(std::ostream &os,
   os << ">Argument</TD></TR><TR>";
 
   auto i = 0u;
-  for (const pasta::MacroNode &node : nodes) {
+  for (const pasta::Macro &node : nodes) {
     (void) node;
     os << "<TD port=\"p" << (i++) << "\"> </TD>";
   }
@@ -128,22 +127,22 @@ static void PrintMacroGraph(std::ostream &os,
       << "</TR></TABLE>>];\n";
 
   i = 0u;
-  for (const pasta::MacroNode &node : nodes) {
+  for (const pasta::Macro &node : nodes) {
     RecPrintMacroGraph(os, node);
     os << "n" << a << ":p" << (i++) << " -> n"
-       << reinterpret_cast<uintptr_t>(node.RawNode()) << ";\n";
+       << reinterpret_cast<uintptr_t>(node.RawMacro()) << ";\n";
   }
 }
 
 static void PrintMacroGraph(std::ostream &os,
                             const pasta::MacroDirective &dir) {
   if (!PRINT_DEFINITIONS &&
-      dir.Kind() == pasta::MacroNodeKind::kDefineDirective) {
+      dir.Kind() == pasta::MacroKind::kDefineDirective) {
     return;
   }
 
-  const auto a = reinterpret_cast<uintptr_t>(dir.RawNode());
-  auto nodes = dir.Nodes();
+  const auto a = reinterpret_cast<uintptr_t>(dir.RawMacro());
+  auto nodes = dir.Children();
   os
       << "n" << a
       << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" border=\"1\">"
@@ -152,59 +151,59 @@ static void PrintMacroGraph(std::ostream &os,
     default:
       os << "Not a directive";
       break;
-    case pasta::MacroNodeKind::kOtherDirective:
+    case pasta::MacroKind::kOtherDirective:
       os << "Other Directive";
       break;
-    case pasta::MacroNodeKind::kIfDirective:
+    case pasta::MacroKind::kIfDirective:
       os << "If";
       break;
-    case pasta::MacroNodeKind::kIfDefinedDirective:
+    case pasta::MacroKind::kIfDefinedDirective:
       os << "IfDefined";
       break;
-    case pasta::MacroNodeKind::kIfNotDefinedDirective:
+    case pasta::MacroKind::kIfNotDefinedDirective:
       os << "IfNotDefined";
       break;
-    case pasta::MacroNodeKind::kElseIfDirective:
+    case pasta::MacroKind::kElseIfDirective:
       os << "ElseIf";
       break;
-    case pasta::MacroNodeKind::kElseIfDefinedDirective:
+    case pasta::MacroKind::kElseIfDefinedDirective:
       os << "ElseIfDefined";
       break;
-    case pasta::MacroNodeKind::kElseIfNotDefinedDirective:
+    case pasta::MacroKind::kElseIfNotDefinedDirective:
       os << "ElseIfNotDefined";
       break;
-    case pasta::MacroNodeKind::kElseDirective:
+    case pasta::MacroKind::kElseDirective:
       os << "Else";
       break;
-    case pasta::MacroNodeKind::kEndIfDirective:
+    case pasta::MacroKind::kEndIfDirective:
       os << "EndIf";
       break;
-    case pasta::MacroNodeKind::kDefineDirective:
+    case pasta::MacroKind::kDefineDirective:
       os << "Define";
       break;
-    case pasta::MacroNodeKind::kUndefineDirective:
+    case pasta::MacroKind::kUndefineDirective:
       os << "Undefine";
       break;
-    case pasta::MacroNodeKind::kPragmaDirective:
+    case pasta::MacroKind::kPragmaDirective:
       os << "Pragma";
       break;
-    case pasta::MacroNodeKind::kIncludeDirective:
+    case pasta::MacroKind::kIncludeDirective:
       os << "Include";
       break;
-    case pasta::MacroNodeKind::kIncludeNextDirective:
+    case pasta::MacroKind::kIncludeNextDirective:
       os << "IncludeNext";
       break;
-    case pasta::MacroNodeKind::kIncludeMacrosDirective:
+    case pasta::MacroKind::kIncludeMacrosDirective:
       os << "IncludeMacros";
       break;
-    case pasta::MacroNodeKind::kImportDirective:
+    case pasta::MacroKind::kImportDirective:
       os << "Import";
       break;
   }
   os << "</TD></TR><TR>";
 
   auto i = 0u;
-  for (const pasta::MacroNode &node : nodes) {
+  for (const pasta::Macro &node : nodes) {
     (void) node;
     os << "<TD port=\"p" << (i++) << "\"> </TD>";
   }
@@ -217,10 +216,10 @@ static void PrintMacroGraph(std::ostream &os,
       << "</TR></TABLE>>];\n";
 
   i = 0u;
-  for (const pasta::MacroNode &node : nodes) {
+  for (const pasta::Macro &node : nodes) {
     RecPrintMacroGraph(os, node);
     os << "n" << a << ":p" << (i++) << " -> n"
-       << reinterpret_cast<uintptr_t>(node.RawNode()) << ";\n";
+       << reinterpret_cast<uintptr_t>(node.RawMacro()) << ";\n";
   }
 }
 
@@ -228,19 +227,19 @@ static void PrintMacroGraph(std::ostream &os,
 static void PrintMacroGraphSub(std::ostream &os,
                                const pasta::MacroSubstitution &sub) {
 
-  const auto a = reinterpret_cast<uintptr_t>(sub.RawNode());
+  const auto a = reinterpret_cast<uintptr_t>(sub.RawMacro());
   os << "n" << a << ":b -> b" << a << ";\n"
      << "n" << a << ":a -> a" << a << ";\n";
 
-  auto before_nodes = sub.UsageNodes();
-  auto after_nodes = sub.SubstitutionNodes();
+  auto before_nodes = sub.Children();
+  auto after_nodes = sub.ReplacementChildren();
 
   os
       << "b" << a
       << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" border=\"1\"><TR>";
 
   auto i = 0u;
-  for (const pasta::MacroNode &node : before_nodes) {
+  for (const pasta::Macro &node : before_nodes) {
     (void) node;
     os << "<TD port=\"p" << (i++) << "\"> </TD>";
   }
@@ -253,10 +252,10 @@ static void PrintMacroGraphSub(std::ostream &os,
       << "</TR></TABLE>>];\n";
 
   i = 0u;
-  for (const pasta::MacroNode &node : before_nodes) {
+  for (const pasta::Macro &node : before_nodes) {
     RecPrintMacroGraph(os, node);
     os << "b" << a << ":p" << (i++) << " -> n"
-       << reinterpret_cast<uintptr_t>(node.RawNode()) << ";\n";
+       << reinterpret_cast<uintptr_t>(node.RawMacro()) << ";\n";
   }
 
   os
@@ -264,7 +263,7 @@ static void PrintMacroGraphSub(std::ostream &os,
       << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" border=\"1\"><TR>";
 
   i = 0u;
-  for (const pasta::MacroNode &node : after_nodes) {
+  for (const pasta::Macro &node : after_nodes) {
     (void) node;
     os << "<TD port=\"p" << (i++) << "\"> </TD>";
   }
@@ -277,16 +276,16 @@ static void PrintMacroGraphSub(std::ostream &os,
       << "</TR></TABLE>>];\n";
 
   i = 0u;
-  for (const pasta::MacroNode &node : after_nodes) {
+  for (const pasta::Macro &node : after_nodes) {
     RecPrintMacroGraph(os, node);
     os << "a" << a << ":p" << (i++) << " -> n"
-       << reinterpret_cast<uintptr_t>(node.RawNode()) << ";\n";
+       << reinterpret_cast<uintptr_t>(node.RawMacro()) << ";\n";
   }
 }
 
 static void PrintMacroGraph(std::ostream &os,
                             const pasta::MacroExpansion &exp) {
-  const auto a = reinterpret_cast<uintptr_t>(exp.RawNode());
+  const auto a = reinterpret_cast<uintptr_t>(exp.RawMacro());
   os
       << "n" << a
       << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" border=\"1\">"
@@ -296,7 +295,7 @@ static void PrintMacroGraph(std::ostream &os,
 #if PRINT_DEFINITIONS
   if (auto def = exp.Definition()) {
     os
-        << "n" << a << ":m -> n" << reinterpret_cast<uintptr_t>(def->RawNode())
+        << "n" << a << ":m -> n" << reinterpret_cast<uintptr_t>(def->RawMacro())
         << " [style=dashed];\n";
   }
 #endif
@@ -305,7 +304,7 @@ static void PrintMacroGraph(std::ostream &os,
 
 static void PrintMacroGraph(std::ostream &os,
                             const pasta::MacroSubstitution &sub) {
-  const auto a = reinterpret_cast<uintptr_t>(sub.RawNode());
+  const auto a = reinterpret_cast<uintptr_t>(sub.RawMacro());
   os
       << "n" << a
       << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" border=\"1\">"
@@ -315,28 +314,36 @@ static void PrintMacroGraph(std::ostream &os,
   PrintMacroGraphSub(os, sub);
 }
 
-void RecPrintMacroGraph(std::ostream &os, const pasta::MacroNode &node) {
+void RecPrintMacroGraph(std::ostream &os, const pasta::Macro &node) {
   switch (node.Kind()) {
-    case pasta::MacroNodeKind::kInvalid:
-      break;
-    case pasta::MacroNodeKind::kToken:
+    case pasta::MacroKind::kToken:
       PrintMacroGraph(os, *pasta::MacroToken::From(node));
       break;
-#define DIR_CASE(kind) case pasta::MacroNodeKind::k ## kind :
-    PASTA_FOR_EACH_MACRO_DIRECTIVE_KIND(DIR_CASE)
-#undef DIR_CASE
+#define PASTA_IGNORE(...)
+#define PASTA_MAKE_DIRECTIVE(kind) \
+    case pasta::MacroKind::k ## kind ## Directive:
+
+PASTA_FOR_EACH_MACRO_IMPL(PASTA_IGNORE,
+                          PASTA_IGNORE,
+                          PASTA_MAKE_DIRECTIVE,
+                          PASTA_MAKE_DIRECTIVE,
+                          PASTA_MAKE_DIRECTIVE,
+                          PASTA_MAKE_DIRECTIVE,
+                          PASTA_IGNORE)
+#undef PASTA_IGNORE
+#undef PASTA_MAKE_DIRECTIVE
       PrintMacroGraph(os, *pasta::MacroDirective::From(node));
       break;
-    case pasta::MacroNodeKind::kParameter:
-      PrintMacroGraph(os, *pasta::MacroDefinitionParameter::From(node));
+    case pasta::MacroKind::kParameter:
+      PrintMacroGraph(os, *pasta::MacroParameter::From(node));
       break;
-    case pasta::MacroNodeKind::kArgument:
-      PrintMacroGraph(os, *pasta::MacroExpansionArgument::From(node));
+    case pasta::MacroKind::kArgument:
+      PrintMacroGraph(os, *pasta::MacroArgument::From(node));
       break;
-    case pasta::MacroNodeKind::kSubstitution:
+    case pasta::MacroKind::kSubstitution:
       PrintMacroGraph(os, *pasta::MacroSubstitution::From(node));
       break;
-    case pasta::MacroNodeKind::kExpansion:
+    case pasta::MacroKind::kExpansion:
       PrintMacroGraph(os, *pasta::MacroExpansion::From(node));
       break;
   }
@@ -347,7 +354,7 @@ static void PrintMacroGraph(std::ostream &os, pasta::AST ast) {
       << "digraph {\n"
       << "node [shape=none margin=0 nojustify=false labeljust=l font=courier];\n";
 
-  for (const pasta::MacroNode &node : ast.Macros()) {
+  for (const pasta::Macro &node : ast.Macros()) {
     RecPrintMacroGraph(os, node);
   }
 

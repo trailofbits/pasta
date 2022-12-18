@@ -16,7 +16,7 @@ class ASTImpl;
 class File;
 class FileToken;
 class FileTokenRange;
-class MacroExpansionArgument;
+class MacroArgument;
 class MacroArgumentImpl;
 class MacroArgumentList;
 class MacroArgumentListImpl;
@@ -24,10 +24,10 @@ class MacroDirective;
 class MacroDirectiveImpl;
 class MacroExpansion;
 class MacroExpansionImpl;
-class MacroNode;
+class Macro;
 class MacroNodeImpl;
-class MacroNodeIterator;
-class MacroNodeRange;
+class MacroIterator;
+class MacroRange;
 class MacroToken;
 class MacroTokenImpl;
 class PatchedMacroTracker;
@@ -36,70 +36,83 @@ class SkippedTokenRangeImpl;
 class Token;
 class TokenImpl;
 
-#define PASTA_FOR_EACH_MACRO_DIRECTIVE_KIND(pp) \
-    pp(OtherDirective) \
-    pp(IfDirective) \
-    pp(IfDefinedDirective) \
-    pp(IfNotDefinedDirective) \
-    pp(ElseIfDirective) \
-    pp(ElseIfDefinedDirective) \
-    pp(ElseIfNotDefinedDirective) \
-    pp(ElseDirective) \
-    pp(EndIfDirective) \
-    pp(DefineDirective) \
-    pp(UndefineDirective) \
-    pp(PragmaDirective) \
-    pp(IncludeDirective) \
-    pp(IncludeNextDirective) \
-    pp(IncludeMacrosDirective) \
-    pp(ImportDirective)
+#define PASTA_FOR_EACH_MACRO_IMPL(m, t, d, cd, dd, id, a) \
+    a(Macro) \
+    t(Token) \
+    m(Substitution) \
+    m(Expansion) \
+    m(Argument) \
+    m(Parameter) \
+    a(MacroDirective) \
+    d(Other) \
+    a(ConditionalMacroDirective) \
+    cd(If) \
+    cd(IfDefined) \
+    cd(IfNotDefined) \
+    cd(ElseIf) \
+    cd(ElseIfDefined) \
+    cd(ElseIfNotDefined) \
+    cd(Else) \
+    cd(EndIf) \
+    dd(Define) \
+    d(Undefine) \
+    d(Pragma) \
+    a(IncludeLikeMacroDirective) \
+    id(Include) \
+    id(IncludeNext) \
+    id(IncludeMacros) \
+    id(Import)
 
-#define PASTA_FOR_EACH_MACRO_NODE_KIND(pp) \
-    pp(Invalid) \
-    pp(Token) \
-    pp(Expansion) \
-    pp(Substitution) \
-    PASTA_FOR_EACH_MACRO_DIRECTIVE_KIND(pp) \
-    pp(Argument) \
-    pp(Parameter)
-
-enum class MacroNodeKind : unsigned char {
-#define PASTA_DECLARE_MACRO_NODE_KIND(kind) k ## kind ,
-  PASTA_FOR_EACH_MACRO_NODE_KIND(PASTA_DECLARE_MACRO_NODE_KIND)
-#undef PASTA_DECLARE_MACRO_NODE_KIND
+enum class MacroKind : unsigned char {
+#define PASTA_IGNORE(...)
+#define PASTA_DECLARE_MACRO_KIND(kind) k ## kind ,
+#define PASTA_DECLARE_DIRECTIVE_KIND(kind) k ## kind ## Directive,
+  PASTA_FOR_EACH_MACRO_IMPL(PASTA_DECLARE_MACRO_KIND,
+                            PASTA_DECLARE_MACRO_KIND,
+                            PASTA_DECLARE_DIRECTIVE_KIND,
+                            PASTA_DECLARE_DIRECTIVE_KIND,
+                            PASTA_DECLARE_DIRECTIVE_KIND,
+                            PASTA_DECLARE_DIRECTIVE_KIND,
+                            PASTA_IGNORE)
+#undef PASTA_DECLARE_MACRO_KIND
+#undef PASTA_DECLARE_DIRECTIVE_KIND
+#undef PASTA_IGNORE
 };
 
 enum class TokenKind : unsigned short;
 
 // Base for all macro nodes.
-class MacroNode {
+class Macro {
  protected:
-  friend class MacroNodeIterator;
-  friend class MacroNodeRange;
+  friend class MacroIterator;
+  friend class MacroRange;
   friend class PatchedMacroTracker;
   friend class Token;
 
   std::shared_ptr<ASTImpl> ast;
   const void *impl;
 
-  inline MacroNode(std::shared_ptr<ASTImpl> ast_, const void *impl_)
+  inline Macro(std::shared_ptr<ASTImpl> ast_, const void *impl_)
       : ast(std::move(ast_)),
         impl(impl_) {}
 
  public:
-  ~MacroNode(void);
+  ~Macro(void);
 
-  MacroNodeKind Kind(void) const noexcept;
+  MacroKind Kind(void) const noexcept;
 
-  const void *RawNode(void) const noexcept;
+  const void *RawMacro(void) const noexcept;
 
-  inline auto operator<=>(const MacroNode &that) const noexcept
-      -> decltype(RawNode() <=> RawNode()) {
-    return RawNode() <=> that.RawNode();
+  inline auto operator<=>(const Macro &that) const noexcept
+      -> decltype(RawMacro() <=> RawMacro()) {
+    return RawMacro() <=> that.RawMacro();
   }
 
   // Return the macro node containing this node.
-  std::optional<MacroNode> Parent(void) const noexcept;
+  std::optional<Macro> Parent(void) const noexcept;
+
+  // Children of this macro. If this is a MacroToken then this is empty.
+  MacroRange Children(void) const noexcept;
 
   // Begin and ending usage tokens.
   std::optional<MacroToken> BeginToken(void) const noexcept;
@@ -107,16 +120,16 @@ class MacroNode {
 };
 
 // A token produced inside of a macro expansion.
-class MacroToken final : public MacroNode {
+class MacroToken final : public Macro {
  protected:
   friend class MacroDirective;
   friend class DefineMacroDirective;
-  friend class IncludeMacroDirective;
+  friend class IncludeLikeMacroDirective;
   friend class PatchedMacroTracker;
-  friend class MacroDefinitionParameter;
+  friend class MacroParameter;
   friend class Token;
 
-  using MacroNode::MacroNode;
+  using Macro::Macro;
 
  public:
   MacroToken(const MacroToken &) = default;
@@ -124,8 +137,8 @@ class MacroToken final : public MacroNode {
   MacroToken &operator=(const MacroToken &) = default;
   MacroToken &operator=(MacroToken &&) noexcept = default;
 
-  inline static std::optional<MacroToken> From(const MacroNode &node) {
-    if (node.Kind() == MacroNodeKind::kToken) {
+  inline static std::optional<MacroToken> From(const Macro &node) {
+    if (node.Kind() == MacroKind::kToken) {
       return reinterpret_cast<const MacroToken &>(node);
     } else {
       return std::nullopt;
@@ -142,20 +155,20 @@ class MacroToken final : public MacroNode {
   std::optional<FileToken> FileLocation(void) const noexcept;
 
   // Location of the token as parsed.
-  std::optional<Token> ParsedLocation(void) const noexcept;
+  Token ParsedLocation(void) const noexcept;
 };
 
-static_assert(sizeof(MacroToken) == sizeof(MacroNode));
+static_assert(sizeof(MacroToken) == sizeof(Macro));
 
 // A directive.
-class MacroDirective : public MacroNode {
+class MacroDirective : public Macro {
  protected:
   friend class MacroExpansion;
 
-  using MacroNode::MacroNode;
+  using Macro::Macro;
 
  public:
-  static std::optional<MacroDirective> From(const MacroNode &node) noexcept;
+  static std::optional<MacroDirective> From(const Macro &node) noexcept;
 
   // Return the hash token of the directive.
   MacroToken Hash(void) const noexcept;
@@ -165,23 +178,83 @@ class MacroDirective : public MacroNode {
   // of some other expansion, e.g. `_Pragma("...")` expanding into
   // `#pragma ...`.
   std::optional<MacroToken> Name(void) const noexcept;
-
-  MacroNodeRange Nodes(void) const noexcept;
 };
 
-static_assert(sizeof(MacroDirective) == sizeof(MacroNode));
+static_assert(sizeof(MacroDirective) == sizeof(Macro));
+
+// Represents the inclusion of a file.
+class IncludeLikeMacroDirective : public MacroDirective {
+ protected:
+  friend class MacroExpansion;
+
+  using MacroDirective::MacroDirective;
+
+ public:
+  static std::optional<IncludeLikeMacroDirective> From(const Macro &node);
+
+  std::optional<File> IncludedFile(void) const noexcept;
+};
+
+// Represents a conditional directive.
+class ConditionalMacroDirective : public MacroDirective {
+ protected:
+  friend class MacroExpansion;
+
+  using MacroDirective::MacroDirective;
+
+ public:
+  // TODO(pag):
+  //    1) Add `std::optional<bool>` for condition evaluation.
+  //    2) Add Previous and Next conditions at the same level.
+};
+
+#define PASTA_IGNORE(...)
+#define PASTA_MAKE_DIRECTIVE(kind) \
+    PASTA_MAKE_DIRECTIVE_BASE(kind, MacroDirective)
+
+#define PASTA_MAKE_INCLUDE_DIRECTIVE(kind) \
+    PASTA_MAKE_DIRECTIVE_BASE(kind, ConditionalMacroDirective)
+
+#define PASTA_MAKE_COND_DIRECTIVE(kind) \
+    PASTA_MAKE_DIRECTIVE_BASE(kind, IncludeLikeMacroDirective)
+
+#define PASTA_MAKE_DIRECTIVE_BASE(kind, base) \
+    class kind ## MacroDirective : public base { \
+      friend class MacroExpansion; \
+      using base::base; \
+      inline static std::optional<kind ## MacroDirective> \
+      From(const Macro &node) noexcept { \
+        if (node.Kind() != MacroKind::k ## kind ## Directive) { \
+          return std::nullopt; \
+        } \
+        return reinterpret_cast<const kind ## MacroDirective &>(node); \
+      } \
+    }; \
+    static_assert(sizeof(kind ## MacroDirective) == sizeof(Macro));
+
+PASTA_FOR_EACH_MACRO_IMPL(PASTA_IGNORE,
+                          PASTA_IGNORE,
+                          PASTA_MAKE_DIRECTIVE,
+                          PASTA_MAKE_COND_DIRECTIVE,
+                          PASTA_IGNORE,
+                          PASTA_MAKE_INCLUDE_DIRECTIVE,
+                          PASTA_IGNORE)
+#undef PASTA_IGNORE
+#undef PASTA_MAKE_DIRECTIVE
+#undef PASTA_MAKE_INCLUDE_DIRECTIVE
+#undef PASTA_MAKE_DIRECTIVE_BASE
 
 // An parameter in a macro.
-class MacroDefinitionParameter final : public MacroNode {
+class MacroParameter final : public Macro {
  protected:
   friend class DefineMacroDirective;
 
-  using MacroNode::MacroNode;
+  using Macro::Macro;
 
  public:
-  inline static std::optional<MacroDefinitionParameter> From(const MacroNode &node) {
-    if (node.Kind() == MacroNodeKind::kParameter) {
-      return reinterpret_cast<const MacroDefinitionParameter &>(node);
+  inline static std::optional<MacroParameter> From(const Macro &node) {
+    if (node.Kind() == MacroKind::kParameter) {
+      return reinterpret_cast<const MacroParameter &>(node);
     } else {
       return std::nullopt;
     }
@@ -195,8 +268,6 @@ class MacroDefinitionParameter final : public MacroNode {
 
   // The index of this parameter.
   unsigned Index(void) const noexcept;
-
-  MacroNodeRange Nodes(void) const noexcept;
 };
 
 // A macro definition directive.
@@ -207,16 +278,16 @@ class DefineMacroDirective final : public MacroDirective {
   using MacroDirective::MacroDirective;
 
  public:
-  static std::optional<DefineMacroDirective> From(const MacroNode &node);
+  static std::optional<DefineMacroDirective> From(const Macro &node);
 
   // The name of this macro.
   MacroToken Name(void) const noexcept;
 
   // Uses of this macro.
-  MacroNodeRange Uses(void) const noexcept;
+  MacroRange Uses(void) const noexcept;
 
   // Body of the defined macro.
-  MacroNodeRange Body(void) const noexcept;
+  MacroRange Body(void) const noexcept;
 
   // Number of explicit, i.e. not variadic, parameters.
   unsigned NumExplicitParameters(void) const noexcept;
@@ -229,38 +300,25 @@ class DefineMacroDirective final : public MacroDirective {
   bool IsFunctionLike(void) const noexcept;
 
   // Parameters of this macro definition.
-  MacroNodeRange Parameters(void) const noexcept;
+  MacroRange Parameters(void) const noexcept;
 };
 
-static_assert(sizeof(MacroDefinitionParameter) == sizeof(MacroNode));
+static_assert(sizeof(MacroParameter) == sizeof(Macro));
 
-static_assert(sizeof(DefineMacroDirective) == sizeof(MacroNode));
-
-// Represents the inclusion of a file.
-class IncludeMacroDirective final : public MacroDirective {
- protected:
-  friend class MacroExpansion;
-
-  using MacroDirective::MacroDirective;
-
- public:
-  static std::optional<IncludeMacroDirective> From(const MacroNode &node);
-
-  File IncludedFile(void) const noexcept;
-};
+static_assert(sizeof(DefineMacroDirective) == sizeof(Macro));
 
 // An argument in a macro. This may be one token, or multiple tokens, as macro
 // arguments are subject to pre-expansion.
-class MacroExpansionArgument final : public MacroNode {
+class MacroArgument final : public Macro {
  protected:
   friend class MacroExpansion;
 
-  using MacroNode::MacroNode;
+  using Macro::Macro;
 
  public:
-  inline static std::optional<MacroExpansionArgument> From(const MacroNode &node) {
-    if (node.Kind() == MacroNodeKind::kArgument) {
-      return reinterpret_cast<const MacroExpansionArgument &>(node);
+  inline static std::optional<MacroArgument> From(const Macro &node) {
+    if (node.Kind() == MacroKind::kArgument) {
+      return reinterpret_cast<const MacroArgument &>(node);
     } else {
       return std::nullopt;
     }
@@ -269,33 +327,30 @@ class MacroExpansionArgument final : public MacroNode {
   bool IsVariadic(void) const noexcept;
 
   unsigned Index(void) const noexcept;
-
-  MacroNodeRange Nodes(void) const noexcept;
 };
 
-static_assert(sizeof(MacroExpansionArgument) == sizeof(MacroNode));
+static_assert(sizeof(MacroArgument) == sizeof(Macro));
 
 // A substitution.
-class MacroSubstitution : public MacroNode {
+class MacroSubstitution : public Macro {
  protected:
-  using MacroNode::MacroNode;
+  using Macro::Macro;
 
  public:
-  inline static std::optional<MacroSubstitution> From(const MacroNode &node) {
+  inline static std::optional<MacroSubstitution> From(const Macro &node) {
     switch (node.Kind()) {
-      case MacroNodeKind::kSubstitution:
-      case MacroNodeKind::kExpansion:
+      case MacroKind::kSubstitution:
+      case MacroKind::kExpansion:
         return reinterpret_cast<const MacroSubstitution &>(node);
       default:
         return std::nullopt;
     }
   }
 
-  MacroNodeRange UsageNodes(void) const noexcept;
-  MacroNodeRange SubstitutionNodes(void) const noexcept;
+  MacroRange ReplacementChildren(void) const noexcept;
 };
 
-static_assert(sizeof(MacroSubstitution) == sizeof(MacroNode));
+static_assert(sizeof(MacroSubstitution) == sizeof(Macro));
 
 // The expansion of a macro.
 class MacroExpansion final : public MacroSubstitution {
@@ -303,146 +358,155 @@ class MacroExpansion final : public MacroSubstitution {
   using MacroSubstitution::MacroSubstitution;
 
  public:
-  inline static std::optional<MacroExpansion> From(const MacroNode &node) {
-    if (node.Kind() == MacroNodeKind::kExpansion) {
+  inline static std::optional<MacroExpansion> From(const Macro &node) {
+    if (node.Kind() == MacroKind::kExpansion) {
       return reinterpret_cast<const MacroExpansion &>(node);
     } else {
       return std::nullopt;
     }
   }
 
-  static MacroExpansion Containing(const MacroExpansionArgument &) noexcept;
+  static MacroExpansion Containing(const MacroArgument &) noexcept;
 
   // Returns the directive that led to the definition of this expansion.
   std::optional<DefineMacroDirective> Definition(void) const noexcept;
 
   // Returns the list of arguments in the expansion if this was a use of a
   // function-like macro.
-  std::vector<MacroExpansionArgument> Arguments(void) const noexcept;
+  std::vector<MacroArgument> Arguments(void) const noexcept;
+
+  // Is this the argument pre-expansion phase of this expansion?
+  bool IsArgumentPreExpansion(void) const noexcept;
+
+  // Return the "second" (if any) version of this expansion, where the
+  // arguments to this macro are subjected to pre-expansion prior to
+  // substituting the use of the macro with its body.
+  std::optional<MacroExpansion> ArgumentPreExpansion(void) const noexcept;
 };
 
-static_assert(sizeof(MacroExpansion) == sizeof(MacroNode));
+static_assert(sizeof(MacroExpansion) == sizeof(Macro));
 
 // A bi-directional, random-access iterator over macro nodes.
-class MacroNodeIterator {
+class MacroIterator {
  private:
-  friend class MacroNodeRange;
+  friend class MacroRange;
 
-  MacroNode node;
+  Macro node;
 
-  MacroNodeIterator(void) = delete;
+  MacroIterator(void) = delete;
 
-  inline explicit MacroNodeIterator(const std::shared_ptr<ASTImpl> &ast_,
+  inline explicit MacroIterator(const std::shared_ptr<ASTImpl> &ast_,
                                      const void *it_)
       : node(ast_, it_) {}
 
  public:
-  typedef MacroNode value_type;
+  typedef Macro value_type;
   typedef ptrdiff_t difference_type;
-  typedef const MacroNode *pointer;
-  typedef const MacroNode &reference;
+  typedef const Macro *pointer;
+  typedef const Macro &reference;
   typedef std::random_access_iterator_tag iterator_category;
 
-  MacroNodeIterator(const MacroNodeIterator &) = default;
-  MacroNodeIterator(MacroNodeIterator &&) noexcept = default;
-  MacroNodeIterator &operator=(const MacroNodeIterator &) = default;
-  MacroNodeIterator &operator=(MacroNodeIterator &&) noexcept = default;
+  MacroIterator(const MacroIterator &) = default;
+  MacroIterator(MacroIterator &&) noexcept = default;
+  MacroIterator &operator=(const MacroIterator &) = default;
+  MacroIterator &operator=(MacroIterator &&) noexcept = default;
 
   // NOTE(pag): This is a bit sketchy; make sure not to let the reference to
   //            the token escape beyond a single iteration of the loop.
-  inline const MacroNode &operator*(void) const & noexcept {
+  inline const Macro &operator*(void) const & noexcept {
     return node;
   }
 
   // NOTE(pag): This is a bit sketchy; make sure not to let the reference to
   //            the token escape beyond a single iteration of the loop.
-  inline const MacroNode *operator->(void) const & noexcept {
+  inline const Macro *operator->(void) const & noexcept {
     return &node;
   }
 
-  MacroNodeIterator &operator++(void) noexcept;
-  MacroNodeIterator operator++(int) noexcept;
-  MacroNodeIterator &operator--(void) noexcept;
-  MacroNodeIterator operator--(int) noexcept;
-  MacroNodeIterator operator+(size_t offset) const noexcept;
-  MacroNodeIterator operator-(size_t offset) const noexcept;
-  MacroNodeIterator &operator+=(size_t offset) noexcept;
-  MacroNodeIterator &operator-=(size_t offset) noexcept;
-  MacroNode operator[](size_t offset) const noexcept;
-  ptrdiff_t operator-(const MacroNodeIterator &that) const noexcept;
+  MacroIterator &operator++(void) noexcept;
+  MacroIterator operator++(int) noexcept;
+  MacroIterator &operator--(void) noexcept;
+  MacroIterator operator--(int) noexcept;
+  MacroIterator operator+(size_t offset) const noexcept;
+  MacroIterator operator-(size_t offset) const noexcept;
+  MacroIterator &operator+=(size_t offset) noexcept;
+  MacroIterator &operator-=(size_t offset) noexcept;
+  Macro operator[](size_t offset) const noexcept;
+  ptrdiff_t operator-(const MacroIterator &that) const noexcept;
 
-  inline bool operator!=(const MacroNodeIterator &that) const noexcept {
+  inline bool operator!=(const MacroIterator &that) const noexcept {
     return node.impl != that.node.impl;
   }
 
-  inline bool operator==(const MacroNodeIterator &that) const noexcept {
+  inline bool operator==(const MacroIterator &that) const noexcept {
     return node.impl == that.node.impl;
   }
 
-  inline bool operator<=(const MacroNodeIterator &that) const noexcept {
+  inline bool operator<=(const MacroIterator &that) const noexcept {
     return reinterpret_cast<uintptr_t>(node.impl) <=
            reinterpret_cast<uintptr_t>(that.node.impl);
   }
 
-  inline bool operator>=(const MacroNodeIterator &that) const noexcept {
+  inline bool operator>=(const MacroIterator &that) const noexcept {
     return reinterpret_cast<uintptr_t>(node.impl) >=
            reinterpret_cast<uintptr_t>(that.node.impl);
   }
 
-  inline bool operator<(const MacroNodeIterator &that) const noexcept {
+  inline bool operator<(const MacroIterator &that) const noexcept {
     return reinterpret_cast<uintptr_t>(node.impl) <
            reinterpret_cast<uintptr_t>(that.node.impl);
   }
 
-  inline bool operator>(const MacroNodeIterator &that) const noexcept {
+  inline bool operator>(const MacroIterator &that) const noexcept {
     return reinterpret_cast<uintptr_t>(node.impl) >
            reinterpret_cast<uintptr_t>(that.node.impl);
   }
 };
 
 // Range of macro tokens.
-class MacroNodeRange {
+class MacroRange {
  private:
   friend class AST;
   friend class ASTImpl;
-  friend class MacroDefinitionParameter;
-  friend class MacroExpansionArgument;
+  friend class Macro;
+  friend class MacroParameter;
+  friend class MacroArgument;
   friend class MacroExpansion;
   friend class MacroSubstitution;
   friend class MacroDirective;
   friend class DefineMacroDirective;
-  friend class IncludeMacroDirective;
+  friend class IncludeLikeMacroDirective;
   friend class MacroToken;
 
   std::shared_ptr<ASTImpl> ast;
   const void *first;
   const void *after_last;
 
-  MacroNodeRange(void) = delete;
+  MacroRange(void) = delete;
 
-  inline explicit MacroNodeRange(std::shared_ptr<ASTImpl> ast_)
+  inline explicit MacroRange(std::shared_ptr<ASTImpl> ast_)
       : ast(std::move(ast_)),
         first(nullptr),
         after_last(nullptr) {}
 
-  inline MacroNodeRange(std::shared_ptr<ASTImpl> ast_, const void *first_,
+  inline MacroRange(std::shared_ptr<ASTImpl> ast_, const void *first_,
                         const void *after_last_)
       : ast(std::move(ast_)),
         first(first_),
         after_last(after_last_) {}
 
  public:
-  MacroNodeRange(const MacroNodeRange &) = default;
-  MacroNodeRange(MacroNodeRange &&) noexcept = default;
-  MacroNodeRange &operator=(const MacroNodeRange &) = default;
-  MacroNodeRange &operator=(MacroNodeRange &&) noexcept = default;
+  MacroRange(const MacroRange &) = default;
+  MacroRange(MacroRange &&) noexcept = default;
+  MacroRange &operator=(const MacroRange &) = default;
+  MacroRange &operator=(MacroRange &&) noexcept = default;
 
-  inline MacroNodeIterator begin(void) const noexcept {
-    return MacroNodeIterator(ast, first);
+  inline MacroIterator begin(void) const noexcept {
+    return MacroIterator(ast, first);
   }
 
-  inline MacroNodeIterator end(void) const noexcept {
-    return MacroNodeIterator(ast, after_last);
+  inline MacroIterator end(void) const noexcept {
+    return MacroIterator(ast, after_last);
   }
 
   inline size_t size(void) const noexcept {
@@ -458,10 +522,10 @@ class MacroNodeRange {
 
   // Return the `index`th token in this range. If `index` is too big, then
   // return nothing.
-  std::optional<MacroNode> At(size_t index) const noexcept;
+  std::optional<Macro> At(size_t index) const noexcept;
 
   // Unsafe indexed access into the token range.
-  MacroNode operator[](size_t index) const;
+  Macro operator[](size_t index) const;
 
   // Is this token range valid?
   inline operator bool(void) const noexcept {

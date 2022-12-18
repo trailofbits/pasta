@@ -42,6 +42,8 @@ class OverlayFileSystem;
 }  // namespace llvm
 namespace pasta {
 
+class RootMacroNode;
+
 class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
  public:
   explicit ASTImpl(File main_source_file_);
@@ -104,7 +106,18 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // List of parsed tokens. We run the pre-processor, and each lexed token is
   // added here. We also inject in some other tokens, such as whitespace and
   // comments.
+  //
+  // NOTE(pag): If this is modified, then so should `num_lines`, and
+  //            `preprocessed_code`.
+  // TODO(pag): Better abstraction for these types of modifications.
   std::vector<TokenImpl> tokens;
+
+  // Number of lines in `preprocessed_code`, which should match up with
+  // `tokens.size()`.
+  //
+  // NOTE(pag): If this is modified, then so should `preprocessed_code`, and
+  //            `tokens`.
+  // TODO(pag): Better abstraction for these types of modifications.
   unsigned num_lines{0u};
 
   // List of token contexts from trying to print the entire AST using the token
@@ -122,6 +135,9 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // Huge "file" containing one token per line. Sometimes some lines are empty.
   // This represents all code after pre-processing, and the relationship is that
   // there is one line per token in `tokens` above.
+  //
+  // NOTE(pag): If this is modified, then so should `num_lines`, and `tokens`.
+  // TODO(pag): Better abstraction for these types of modifications.
   std::string preprocessed_code;
 
   // This is a backup store of data for token data, so that we don't need to

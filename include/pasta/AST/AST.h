@@ -57,7 +57,7 @@ class AST {
 
   // Return all top-level macro nodes (expansions, directives, substitutions,
   // etc.).
-  MacroNodeRange Macros(void) const;
+  MacroRange Macros(void) const;
 
   // Return a reference to the underlying Clang AST context. This is needed for
   // bootstrapping.

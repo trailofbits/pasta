@@ -262,7 +262,6 @@ MacroNodeImpl *MacroExpansionImpl::Clone(
   }
 
   clone->is_cancelled = is_cancelled;
-//  clone->in_prearg_expansion = in_prearg_expansion;
   clone->is_prearg_expansion = is_prearg_expansion;
 
   CloneNodeList(ast, this, nodes, clone, clone->nodes, NoOnTokenCB,
@@ -375,21 +374,22 @@ MacroTokenImpl *MacroSubstitutionImpl::FirstExpansionToken(void) const {
   }
 }
 
-MacroNode::~MacroNode(void) {}
+Macro::~Macro(void) {}
 
-MacroNodeKind MacroNode::Kind(void) const noexcept {
+MacroKind Macro::Kind(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
-    return MacroNodeKind::kToken;
+    return MacroKind::kToken;
   } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
     return std::get<MacroNodeImpl *>(node)->kind;
   } else {
     assert(false);
-    return MacroNodeKind::kInvalid;
+    abort();
+    __builtin_unreachable();
   }
 }
 
-const void *MacroNode::RawNode(void) const noexcept {
+const void *Macro::RawMacro(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
     return &(ast->tokens[std::get<MacroTokenImpl *>(node)->token_offset]);
@@ -403,10 +403,10 @@ const void *MacroNode::RawNode(void) const noexcept {
 }
 
 // Return the macro node containing this node.
-std::optional<MacroNode> MacroNode::Parent(void) const noexcept {
+std::optional<Macro> Macro::Parent(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
-    return MacroNode(ast, &(std::get<MacroTokenImpl *>(node)->parent));
+    return Macro(ast, &(std::get<MacroTokenImpl *>(node)->parent));
   }
 
   if (!std::holds_alternative<MacroNodeImpl *>(node)) {
@@ -423,10 +423,28 @@ std::optional<MacroNode> MacroNode::Parent(void) const noexcept {
     return std::nullopt;
   }
 
-  return MacroNode(ast, &(node_impl->parent));
+  return Macro(ast, &(node_impl->parent));
 }
 
-std::optional<MacroToken> MacroNode::BeginToken(void) const noexcept {
+// Children of this macro. If this is a MacroToken then this is empty.
+MacroRange Macro::Children(void) const noexcept {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  if (std::holds_alternative<MacroNodeImpl *>(node)) {
+    MacroNodeImpl *impl = std::get<MacroNodeImpl *>(node);
+    MacroSubstitutionImpl *sub_impl =
+        dynamic_cast<MacroSubstitutionImpl *>(impl);
+    if (sub_impl) {
+      const auto first = sub_impl->use_nodes.data();
+      return MacroRange(ast, first, &(first[sub_impl->use_nodes.size()]));
+    } else {
+      const auto first = impl->nodes.data();
+      return MacroRange(ast, first, &(first[impl->nodes.size()]));
+    }
+  }
+  return MacroRange(ast);
+}
+
+std::optional<MacroToken> Macro::BeginToken(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
     return reinterpret_cast<const MacroToken &>(*this);
@@ -438,7 +456,7 @@ std::optional<MacroToken> MacroNode::BeginToken(void) const noexcept {
   return std::nullopt;
 }
 
-std::optional<MacroToken> MacroNode::EndToken(void) const noexcept {
+std::optional<MacroToken> Macro::EndToken(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
     return reinterpret_cast<const MacroToken &>(*this);
@@ -451,10 +469,7 @@ std::optional<MacroToken> MacroNode::EndToken(void) const noexcept {
 }
 
 enum TokenKind MacroToken::TokenKind(void) const noexcept {
-  Node node = *reinterpret_cast<const Node *>(impl);
-  TokenImpl &token =
-      ast->tokens[std::get<MacroTokenImpl *>(node)->token_offset];
-  return static_cast<enum TokenKind>(token.Kind());
+  return ParsedLocation().Kind();
 }
 
 std::string_view MacroToken::TokenKindName(void) const noexcept {
@@ -464,42 +479,47 @@ std::string_view MacroToken::TokenKindName(void) const noexcept {
 
 // Return the data associated with this token.
 std::string_view MacroToken::Data(void) const noexcept {
-  Node node = *reinterpret_cast<const Node *>(impl);
-  TokenImpl &token =
-      ast->tokens[std::get<MacroTokenImpl *>(node)->token_offset];
-  return token.Data(*ast);
+  return ParsedLocation().Data();
 }
 
 // Location of the token in a file.
 std::optional<FileToken> MacroToken::FileLocation(void) const noexcept {
-  Node node = *reinterpret_cast<const Node *>(impl);
-  size_t tok_index = std::get<MacroTokenImpl *>(node)->token_offset;
-  size_t max_index = ast->tokens.size();
-  if (tok_index < max_index) {
-    return Token(ast, &(ast->tokens[tok_index])).FileLocation();
-  } else {
-    return std::nullopt;
-  }
+  return ParsedLocation().FileLocation();
 }
 
 // Location of the token as parsed.
-std::optional<Token> MacroToken::ParsedLocation(void) const noexcept {
+Token MacroToken::ParsedLocation(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
-  const TokenImpl &tok =
-      ast->tokens[std::get<MacroTokenImpl *>(node)->token_offset];
-  if (tok.HasMacroRole()) {
-    return Token(ast, &tok);
-  } else {
+  auto offset = std::get<MacroTokenImpl *>(node)->token_offset;
+  if (offset >= ast->tokens.size()) {
     assert(false);  // Not sure what's going on here.
-    return std::nullopt;
+    return Token(ast);
   }
+
+  const TokenImpl &tok = ast->tokens[offset];
+  if (!tok.HasMacroRole()) {
+    assert(false);  // Not sure what's going on here.
+    return Token(ast);
+  }
+
+  return Token(ast, &tok);
 }
 
-std::optional<MacroDirective> MacroDirective::From(const MacroNode &node) noexcept {
+std::optional<MacroDirective> MacroDirective::From(const Macro &node) noexcept {
   switch (node.Kind()) {
-#define PASTA_MACRO_DIRECTIVE_CASE(kind) case MacroNodeKind::k ## kind:
-    PASTA_FOR_EACH_MACRO_DIRECTIVE_KIND(PASTA_MACRO_DIRECTIVE_CASE)
-#undef PASTA_MACRO_DIRECTIVE_CASE
+#define PASTA_IGNORE(...)
+#define PASTA_MAKE_DIRECTIVE(kind) \
+    case MacroKind::k ## kind ## Directive:
+
+PASTA_FOR_EACH_MACRO_IMPL(PASTA_IGNORE,
+                          PASTA_IGNORE,
+                          PASTA_MAKE_DIRECTIVE,
+                          PASTA_MAKE_DIRECTIVE,
+                          PASTA_MAKE_DIRECTIVE,
+                          PASTA_MAKE_DIRECTIVE,
+                          PASTA_IGNORE)
+#undef PASTA_IGNORE
+#undef PASTA_MAKE_DIRECTIVE
       return reinterpret_cast<const MacroDirective &>(node);
     default:
       return std::nullopt;
@@ -533,35 +553,9 @@ std::optional<MacroToken> MacroDirective::Name(void) const noexcept {
   return MacroToken(ast, &(dir_impl->directive_name));
 }
 
-MacroNodeRange MacroDirective::Nodes(void) const noexcept {
-  Node node = *reinterpret_cast<const Node *>(impl);
-  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
-  MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
-  if (!dir_impl->nodes.empty()) {
-    const auto first = dir_impl->nodes.data();
-    return MacroNodeRange(
-        ast, first, &(first[dir_impl->nodes.size()]));
-  } else {
-    return MacroNodeRange(ast);
-  }
-}
-
-MacroNodeRange MacroDefinitionParameter::Nodes(void) const noexcept {
-  Node node = *reinterpret_cast<const Node *>(impl);
-  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
-  MacroParameterImpl *param_impl = dynamic_cast<MacroParameterImpl *>(node_impl);
-  if (!param_impl->nodes.empty()) {
-    const auto first = param_impl->nodes.data();
-    return MacroNodeRange(
-        ast, first, &(first[param_impl->nodes.size()]));
-  } else {
-    return MacroNodeRange(ast);
-  }
-}
-
 // E.g. `...` in `args...`, or just `...`.
 std::optional<MacroToken>
-MacroDefinitionParameter::VariadicDots(void) const noexcept {
+MacroParameter::VariadicDots(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroParameterImpl *param_impl = dynamic_cast<MacroParameterImpl *>(node_impl);
@@ -573,7 +567,7 @@ MacroDefinitionParameter::VariadicDots(void) const noexcept {
 }
 
 // The name of the macro parameter, if any.
-std::optional<MacroToken> MacroDefinitionParameter::Name(void) const noexcept {
+std::optional<MacroToken> MacroParameter::Name(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroParameterImpl *param_impl = dynamic_cast<MacroParameterImpl *>(node_impl);
@@ -584,7 +578,7 @@ std::optional<MacroToken> MacroDefinitionParameter::Name(void) const noexcept {
   }
 }
 
-unsigned MacroDefinitionParameter::Index(void) const noexcept {
+unsigned MacroParameter::Index(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroParameterImpl *param_impl = dynamic_cast<MacroParameterImpl *>(node_impl);
@@ -592,8 +586,8 @@ unsigned MacroDefinitionParameter::Index(void) const noexcept {
 }
 
 std::optional<DefineMacroDirective>
-DefineMacroDirective::From(const MacroNode &node) {
-  if (node.Kind() == MacroNodeKind::kDefineDirective) {
+DefineMacroDirective::From(const Macro &node) {
+  if (node.Kind() == MacroKind::kDefineDirective) {
     return reinterpret_cast<const DefineMacroDirective &>(node);
   } else {
     return std::nullopt;
@@ -651,68 +645,67 @@ bool DefineMacroDirective::IsVariadic(void) const noexcept {
 }
 
 // Uses of this macro.
-MacroNodeRange DefineMacroDirective::Uses(void) const noexcept {
+MacroRange DefineMacroDirective::Uses(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
   if (!dir_impl->macro_uses.empty()) {
     const auto first = dir_impl->macro_uses.data();
-    return MacroNodeRange(
+    return MacroRange(
         ast, first, &(first[dir_impl->macro_uses.size()]));
   } else {
-    return MacroNodeRange(ast);
+    return MacroRange(ast);
   }
 }
 
 // Body of the defined macro.
-MacroNodeRange DefineMacroDirective::Body(void) const noexcept {
+MacroRange DefineMacroDirective::Body(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
   if (!dir_impl->nodes.empty()) {
     const auto first = dir_impl->nodes.data();
-    return MacroNodeRange(
+    return MacroRange(
         ast, &(first[dir_impl->body_offset]), &(first[dir_impl->nodes.size()]));
   } else {
-    return MacroNodeRange(ast);
+    return MacroRange(ast);
   }
 }
 
 // Parameters of this macro definition.
-MacroNodeRange DefineMacroDirective::Parameters(void) const noexcept {
+MacroRange DefineMacroDirective::Parameters(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
   if (!dir_impl->parameters.empty()) {
     const auto first = dir_impl->parameters.data();
-    return MacroNodeRange(
+    return MacroRange(
         ast, first, &(first[dir_impl->parameters.size()]));
   } else {
-    return MacroNodeRange(ast);
+    return MacroRange(ast);
   }
 }
 
-std::optional<IncludeMacroDirective>
-IncludeMacroDirective::From(const MacroNode &node) {
+std::optional<IncludeLikeMacroDirective>
+IncludeLikeMacroDirective::From(const Macro &node) {
   switch (node.Kind()) {
-    case MacroNodeKind::kIncludeDirective:
-    case MacroNodeKind::kIncludeNextDirective:
-    case MacroNodeKind::kIncludeMacrosDirective:
-      return reinterpret_cast<const IncludeMacroDirective &>(node);
+    case MacroKind::kIncludeDirective:
+    case MacroKind::kIncludeNextDirective:
+    case MacroKind::kIncludeMacrosDirective:
+      return reinterpret_cast<const IncludeLikeMacroDirective &>(node);
     default:
       return std::nullopt;
   }
 }
 
-File IncludeMacroDirective::IncludedFile(void) const noexcept {
+std::optional<File> IncludeLikeMacroDirective::IncludedFile(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
-  assert(dir_impl->included_file.has_value());
-  return dir_impl->included_file.value();
+  return dir_impl->included_file;
 }
 
-bool MacroExpansionArgument::IsVariadic(void) const noexcept {
+bool MacroArgument::IsVariadic(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroArgumentImpl *arg_impl = dynamic_cast<MacroArgumentImpl *>(node_impl);
@@ -724,7 +717,7 @@ bool MacroExpansionArgument::IsVariadic(void) const noexcept {
   return false;
 }
 
-unsigned MacroExpansionArgument::Index(void) const noexcept {
+unsigned MacroArgument::Index(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroArgumentImpl *arg_impl = dynamic_cast<MacroArgumentImpl *>(node_impl);
@@ -741,49 +734,22 @@ unsigned MacroExpansionArgument::Index(void) const noexcept {
   return ~0u;
 }
 
-MacroNodeRange MacroExpansionArgument::Nodes(void) const noexcept {
-  Node node = *reinterpret_cast<const Node *>(impl);
-  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
-  MacroArgumentImpl *arg_impl = dynamic_cast<MacroArgumentImpl *>(node_impl);
-  if (!arg_impl->nodes.empty()) {
-    const auto first = arg_impl->nodes.data();
-    return MacroNodeRange(
-        ast, first, &(first[arg_impl->nodes.size()]));
-  } else {
-    return MacroNodeRange(ast);
-  }
-}
-
-MacroNodeRange MacroSubstitution::UsageNodes(void) const noexcept {
-  Node node = *reinterpret_cast<const Node *>(impl);
-  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
-  MacroSubstitutionImpl *sub_impl =
-      dynamic_cast<MacroSubstitutionImpl *>(node_impl);
-  if (!sub_impl->use_nodes.empty()) {
-    const auto first = sub_impl->use_nodes.data();
-    return MacroNodeRange(
-        ast, first, &(first[sub_impl->use_nodes.size()]));
-  } else {
-    return MacroNodeRange(ast);
-  }
-}
-
-MacroNodeRange MacroSubstitution::SubstitutionNodes(void) const noexcept {
+MacroRange MacroSubstitution::ReplacementChildren(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroSubstitutionImpl *sub_impl =
       dynamic_cast<MacroSubstitutionImpl *>(node_impl);
   if (!sub_impl->nodes.empty()) {
     const auto first = sub_impl->nodes.data();
-    return MacroNodeRange(
+    return MacroRange(
         ast, first, &(first[sub_impl->nodes.size()]));
   } else {
-    return MacroNodeRange(ast);
+    return MacroRange(ast);
   }
 }
 
 MacroExpansion MacroExpansion::Containing(
-    const MacroExpansionArgument &arg) noexcept {
+    const MacroArgument &arg) noexcept {
   Node node = *reinterpret_cast<const Node *>(arg.impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroArgumentImpl *arg_impl = dynamic_cast<MacroArgumentImpl *>(node_impl);
@@ -804,92 +770,129 @@ std::optional<DefineMacroDirective> MacroExpansion::Definition(void) const noexc
 
 // Returns the list of arguments in the expansion if this was a use of a
 // function-like macro.
-std::vector<MacroExpansionArgument>
+std::vector<MacroArgument>
 MacroExpansion::Arguments(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroExpansionImpl *exp_impl = dynamic_cast<MacroExpansionImpl *>(node_impl);
 
-  std::vector<MacroExpansionArgument> ret;
+  std::vector<MacroArgument> ret;
   for (Node &arg : exp_impl->arguments) {
-    ret.emplace_back(MacroExpansionArgument(ast, &arg));
+    ret.emplace_back(MacroArgument(ast, &arg));
   }
 
   return ret;
 }
 
+// Is this the argument pre-expansion phase of this expansion?
+bool MacroExpansion::IsArgumentPreExpansion(void) const noexcept {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
+  MacroExpansionImpl *exp_impl = dynamic_cast<MacroExpansionImpl *>(node_impl);
+  return exp_impl->is_prearg_expansion;
+}
+
+// Return the "second" (if any) version of this expansion, where the
+// arguments to this macro are subjected to pre-expansion prior to
+// substituting the use of the macro with its body.
+std::optional<MacroExpansion>
+MacroExpansion::ArgumentPreExpansion(void) const noexcept {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
+  MacroExpansionImpl *exp_impl = dynamic_cast<MacroExpansionImpl *>(node_impl);
+
+  if (exp_impl->nodes.empty()) {
+    return std::nullopt;
+  }
+
+  Node &pa_node = exp_impl->nodes.front();
+  if (!std::holds_alternative<MacroNodeImpl *>(pa_node)) {
+    return std::nullopt;
+  }
+
+  MacroNodeImpl *pa_node_impl = std::get<MacroNodeImpl *>(pa_node);
+  MacroExpansionImpl *pa_exp_impl =
+      dynamic_cast<MacroExpansionImpl *>(pa_node_impl);
+
+  if (!pa_exp_impl || pa_exp_impl->parent_for_prearg != exp_impl) {
+    return std::nullopt;
+  }
+
+  return MacroExpansion(ast, &pa_node);
+}
+
 // Prefix increment operator.
-MacroNodeIterator &MacroNodeIterator::operator++(void) noexcept {
+MacroIterator &MacroIterator::operator++(void) noexcept {
   node.impl = reinterpret_cast<const Node *>(node.impl) + 1;
   return *this;
 }
 
 // Postfix increment operator.
-MacroNodeIterator MacroNodeIterator::operator++(int) noexcept {
+MacroIterator MacroIterator::operator++(int) noexcept {
   auto ret = *this;
   node.impl = reinterpret_cast<const Node *>(node.impl) + 1;
   return ret;
 }
 
 // Prefix decrement operator.
-MacroNodeIterator &MacroNodeIterator::operator--(void) noexcept {
+MacroIterator &MacroIterator::operator--(void) noexcept {
   node.impl = reinterpret_cast<const Node *>(node.impl) - 1;
   return *this;
 }
 
 // Postfix decrement operator.
-MacroNodeIterator MacroNodeIterator::operator--(int) noexcept {
+MacroIterator MacroIterator::operator--(int) noexcept {
   auto ret = *this;
   node.impl = reinterpret_cast<const Node *>(node.impl) - 1;
   return ret;
 }
 
-MacroNodeIterator MacroNodeIterator::operator-(size_t offset) const noexcept {
-  return MacroNodeIterator(
+MacroIterator MacroIterator::operator-(size_t offset) const noexcept {
+  return MacroIterator(
       node.ast, reinterpret_cast<const Node *>(node.impl) - offset);
 }
 
-MacroNodeIterator &MacroNodeIterator::operator+=(size_t offset) noexcept {
+MacroIterator &MacroIterator::operator+=(size_t offset) noexcept {
   node.impl = reinterpret_cast<const Node *>(node.impl) + offset;
   return *this;
 }
 
-MacroNodeIterator &MacroNodeIterator::operator-=(size_t offset) noexcept {
+MacroIterator &MacroIterator::operator-=(size_t offset) noexcept {
   node.impl = reinterpret_cast<const Node *>(node.impl) - offset;
   return *this;
 }
 
-MacroNode MacroNodeIterator::operator[](size_t offset) const noexcept {
+Macro MacroIterator::operator[](size_t offset) const noexcept {
   auto begin = reinterpret_cast<const Node *>(node.impl);
-  return MacroNode(node.ast, &(begin[offset]));
+  return Macro(node.ast, &(begin[offset]));
 }
 
-ptrdiff_t MacroNodeIterator::operator-(const MacroNodeIterator &that) const noexcept {
+ptrdiff_t MacroIterator::operator-(const MacroIterator &that) const noexcept {
   return reinterpret_cast<const Node *>(node.impl) -
          reinterpret_cast<const Node *>(that.node.impl);
 }
 
-size_t MacroNodeRange::Size(void) const noexcept {
+size_t MacroRange::Size(void) const noexcept {
   return static_cast<size_t>(reinterpret_cast<const Node *>(after_last) -
                              reinterpret_cast<const Node *>(first));
 }
 
 // Return the `index`th token in this range. If `index` is too big, then
 // return nothing.
-std::optional<MacroNode> MacroNodeRange::At(size_t index) const noexcept {
+std::optional<Macro> MacroRange::At(size_t index) const noexcept {
   auto begin = reinterpret_cast<const Node *>(first);
   auto end = reinterpret_cast<const Node *>(after_last);
   if (auto it = &(begin[index]); it < end) {
-    return MacroNode(ast, it);
+    return Macro(ast, it);
   } else {
     return std::nullopt;
   }
 }
 
 // Unsafe indexed access into the token range.
-MacroNode MacroNodeRange::operator[](size_t index) const {
+Macro MacroRange::operator[](size_t index) const {
   auto begin = reinterpret_cast<const Node *>(first);
-  return MacroNode(ast, &(begin[index]));
+  return Macro(ast, &(begin[index]));
 }
 
 }  // namespace pasta

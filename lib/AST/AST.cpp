@@ -115,9 +115,9 @@ TokenRange AST::Tokens(void) const {
 
 // Return all top-level macro nodes (expansions, directives, substitutions,
 // etc.).
-MacroNodeRange AST::Macros(void) const {
+MacroRange AST::Macros(void) const {
   const auto first = impl->root_macro_node.nodes.data();
-  return MacroNodeRange(
+  return MacroRange(
       impl, first, &(first[impl->root_macro_node.nodes.size()]));
 }
 

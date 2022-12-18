@@ -23,6 +23,10 @@ class MacroTokenImpl;
 
 class MacroNodeImpl {
  public:
+  MacroNodeImpl(void) = delete;
+  inline explicit MacroNodeImpl(MacroKind kind_)
+      : kind(kind_) {}
+
   virtual ~MacroNodeImpl(void) = default;
   virtual MacroTokenImpl *FirstUseToken(void) const;
   virtual MacroTokenImpl *FirstExpansionToken(void) const;
@@ -34,7 +38,7 @@ class MacroNodeImpl {
   std::vector<Node> nodes;
 
   // Kind of this Node.
-  MacroNodeKind kind{MacroNodeKind::kInvalid};
+  MacroKind kind;
 
   const MacroNodeImpl *cloned_from{nullptr};
 #ifndef NDEBUG
@@ -68,9 +72,8 @@ class MacroTokenImpl final {
 
 class MacroDirectiveImpl final : public MacroNodeImpl {
  public:
-  inline MacroDirectiveImpl(void) {
-    kind = MacroNodeKind::kOtherDirective;
-  }
+  inline MacroDirectiveImpl(void)
+      : MacroNodeImpl(MacroKind::kOtherDirective) {}
 
   virtual ~MacroDirectiveImpl(void) = default;
   MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const final;
@@ -108,9 +111,8 @@ class MacroDirectiveImpl final : public MacroNodeImpl {
 
 class MacroArgumentImpl final : public MacroNodeImpl {
  public:
-  inline MacroArgumentImpl(void) {
-    kind = MacroNodeKind::kArgument;
-  }
+  inline MacroArgumentImpl(void)
+      : MacroNodeImpl(MacroKind::kArgument) {}
 
   virtual ~MacroArgumentImpl(void) = default;
   MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const final;
@@ -135,9 +137,8 @@ class MacroArgumentImpl final : public MacroNodeImpl {
 
 class MacroParameterImpl final : public MacroNodeImpl {
  public:
-  inline MacroParameterImpl(void) {
-    kind = MacroNodeKind::kParameter;
-  }
+  inline MacroParameterImpl(void)
+      : MacroNodeImpl(MacroKind::kParameter) {}
 
   virtual ~MacroParameterImpl(void) = default;
   MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const final;
@@ -151,9 +152,8 @@ class MacroParameterImpl final : public MacroNodeImpl {
 
 class MacroSubstitutionImpl : public MacroNodeImpl {
  public:
-  inline MacroSubstitutionImpl(void) {
-    kind = MacroNodeKind::kSubstitution;
-  }
+  inline MacroSubstitutionImpl(void)
+      : MacroNodeImpl(MacroKind::kSubstitution) {}
 
   virtual ~MacroSubstitutionImpl(void) = default;
   MacroTokenImpl *FirstUseToken(void) const final;
@@ -168,7 +168,7 @@ class MacroSubstitutionImpl : public MacroNodeImpl {
 class MacroExpansionImpl final : public MacroSubstitutionImpl {
  public:
   inline MacroExpansionImpl(void) {
-    kind = MacroNodeKind::kExpansion;
+    kind = MacroKind::kExpansion;
   }
 
   virtual ~MacroExpansionImpl(void) = default;
@@ -195,12 +195,7 @@ class MacroExpansionImpl final : public MacroSubstitutionImpl {
   // pre-argument expansion.
   unsigned r_paren_index{0u};
 
-//  // Start at `1` to skip over the macro name and opening parenthesis.
-//  unsigned merge_start{2u};
-
   bool is_cancelled{false};
-//  bool was_cancelled{false};
-//  bool in_prearg_expansion{false};
   bool is_prearg_expansion{false};
   bool done_prearg_expansion{false};
 
@@ -217,6 +212,9 @@ class MacroExpansionImpl final : public MacroSubstitutionImpl {
 // level directives, and top-level expansions.
 class RootMacroNode final : public MacroNodeImpl {
  public:
+  RootMacroNode(void)
+      : MacroNodeImpl(MacroKind::kOtherDirective) {}
+
   virtual ~RootMacroNode(void) = default;
   MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const final;
 

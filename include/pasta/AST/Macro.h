@@ -177,7 +177,7 @@ class MacroDirective : public Macro {
   // names. Directive names are macro tokens because the name may be a result
   // of some other expansion, e.g. `_Pragma("...")` expanding into
   // `#pragma ...`.
-  std::optional<MacroToken> Name(void) const noexcept;
+  std::optional<MacroToken> DirectiveName(void) const noexcept;
 };
 
 static_assert(sizeof(MacroDirective) == sizeof(Macro));

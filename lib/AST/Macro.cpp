@@ -541,7 +541,7 @@ MacroToken MacroDirective::Hash(void) const noexcept {
 // names. Directive names are macro tokens because the name may be a result
 // of some other expansion, e.g. `_Pragma("...")` expanding into
 // `#pragma ...`.
-std::optional<MacroToken> MacroDirective::Name(void) const noexcept {
+std::optional<MacroToken> MacroDirective::DirectiveName(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);

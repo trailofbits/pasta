@@ -213,10 +213,10 @@ class ConditionalMacroDirective : public MacroDirective {
     PASTA_MAKE_DIRECTIVE_BASE(kind, MacroDirective)
 
 #define PASTA_MAKE_INCLUDE_DIRECTIVE(kind) \
-    PASTA_MAKE_DIRECTIVE_BASE(kind, ConditionalMacroDirective)
+    PASTA_MAKE_DIRECTIVE_BASE(kind, IncludeLikeMacroDirective)
 
 #define PASTA_MAKE_COND_DIRECTIVE(kind) \
-    PASTA_MAKE_DIRECTIVE_BASE(kind, IncludeLikeMacroDirective)
+    PASTA_MAKE_DIRECTIVE_BASE(kind, ConditionalMacroDirective)
 
 #define PASTA_MAKE_DIRECTIVE_BASE(kind, base) \
     class kind ## MacroDirective : public base { \

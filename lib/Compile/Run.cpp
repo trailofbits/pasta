@@ -82,8 +82,8 @@ namespace {
 //        of the updated token.
 static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
                            clang::Preprocessor &pp) {
-  auto &source_manager = ci.getSourceManager();
-  auto &lang_opts = ci.getLangOpts();
+  clang::SourceManager &source_manager = ci.getSourceManager();
+  clang::LangOptions &lang_opts = ci.getLangOpts();
 
   llvm::raw_string_ostream os(impl.preprocessed_code);
   llvm::raw_string_ostream backup_os(impl.backup_token_data);
@@ -537,6 +537,10 @@ Result<AST, std::string> CompileJob::Run(void) const {
   lang_opts->AllowEditorPlaceholders = false;
   lang_opts->CommentOpts.ParseAllComments = false;
   lang_opts->ForceEmitVTables = true;
+
+  // Don't try to produce recovery expressions or types.
+  lang_opts->RecoveryAST = false;
+  lang_opts->RecoveryASTType = false;
 
   // Affects `PPCallbacks`, and also does additional parsing of things in
   // Objective-C mode, e.g. parsing module imports.

@@ -474,8 +474,9 @@ bool PatchedMacroTracker::AddToParentNode(Node node) {
   return false;
 }
 
+// TODO(pag): This might accidentally find the hash inside of a comment.
 std::optional<clang::Token> PatchedMacroTracker::FindDirectiveHash(
-    const clang::Token &tok) {
+    const clang::Token &tok, bool check_tok_is_pp_kw) {
 
   clang::SourceLocation directive_loc = tok.getLocation();
   if (directive_loc.isInvalid() || !directive_loc.isFileID()) {
@@ -492,27 +493,32 @@ std::optional<clang::Token> PatchedMacroTracker::FindDirectiveHash(
     return std::nullopt;
   }
 
-  llvm::StringRef kw = file_data.substr(file_offset);
-  auto is_pp_keyword = false;
-  for (auto i = 1u; i < clang::tok::NUM_PP_KEYWORDS; ++i) {
-    auto pp = static_cast<clang::tok::PPKeywordKind>(i);
-    if (kw.startswith_insensitive(clang::tok::getPPKeywordSpelling(pp))) {
-      is_pp_keyword = true;
-      break;
+  if (check_tok_is_pp_kw) {
+    llvm::StringRef kw = file_data.substr(file_offset);
+    auto is_pp_keyword = false;
+    for (auto i = 1u; i < clang::tok::NUM_PP_KEYWORDS; ++i) {
+      auto pp = static_cast<clang::tok::PPKeywordKind>(i);
+      if (kw.startswith_insensitive(clang::tok::getPPKeywordSpelling(pp))) {
+        is_pp_keyword = true;
+        break;
+      }
     }
-  }
 
-  if (!is_pp_keyword) {
-    D( std::cerr << indent << "Not adding hash; wrong keyword\n"; )
-    return std::nullopt;
+    if (!is_pp_keyword) {
+      D( std::cerr << indent << "Not adding hash; wrong keyword\n"; )
+      return std::nullopt;
+    }
   }
 
   // Scan backwards through the file buffer from the start of the macro token
   // that was undefined, hoping to find the `#` of the directive. If we find
   // it, then emit an injected token.
   clang::SourceLocation hash_loc;
-  for (int loc_offset = 0; file_offset; --loc_offset) {
-    if (file_data[file_offset--] == '#') {
+  for (int loc_offset = 0; 0 <= file_offset; --loc_offset, --file_offset) {
+
+    // TODO(pag): Make this avoid `#`s inside of block comments, e.g.
+    //            # blah /* # hahahah */ ...
+    if (file_data[file_offset] == '#') {
       hash_loc = directive_loc.getLocWithOffset(loc_offset);
       break;
     }
@@ -807,6 +813,7 @@ void PatchedMacroTracker::DoBeginSkippedArea(
     }
 
     if (!cond_skip_depth) {
+      D( std::cerr << indent << "Initializing skip depth = 1 (case 2)\n"; )
       cond_skip_depth = 1;
     }
     suppress_indent = true;
@@ -817,6 +824,7 @@ void PatchedMacroTracker::DoBeginSkippedArea(
 
     assert(cond_skip_depth >= 0);
     if (!cond_skip_depth) {
+      D( std::cerr << indent << "Initializing skip depth = 1 (case 3)\n"; )
       cond_skip_depth = 1;
     }
 
@@ -826,6 +834,7 @@ void PatchedMacroTracker::DoBeginSkippedArea(
       case MacroKind::kIfDirective:
       case MacroKind::kIfDefinedDirective:
       case MacroKind::kIfNotDefinedDirective:
+        D( std::cerr << indent << "Incrementing skip depth (if-like directive)\n"; )
         ++cond_skip_depth;
         break;
       case MacroKind::kElseIfDirective:
@@ -837,11 +846,12 @@ void PatchedMacroTracker::DoBeginSkippedArea(
         // evaluation, that makes us not want to alter the skip depth here.
         if (1 == cond_skip_depth && last_directive &&
             last_directive->is_skipped) {
-          D( std::cerr << indent << "Resetting skip depth\n"; )
+          D( std::cerr << indent << "Resetting skip depth for top-level elif\n"; )
           cond_skip_depth = 0;
         }
         break;
       case MacroKind::kEndIfDirective:
+        D( std::cerr << indent << "Decrementing skip depth\n"; )
         --cond_skip_depth;
         break;
       case MacroKind::kElseIfDefinedDirective:
@@ -860,7 +870,8 @@ void PatchedMacroTracker::DoBeginSkippedArea(
       return;
     }
 
-    D( std::cerr << indent << "Adding skipped directive\n"; )
+    D( std::cerr << indent << "Adding skipped directive cond_skip_depth="
+                 << cond_skip_depth << '\n'; )
     DoBeginDirective(*hash_tok, data);
     DoToken(tok, 0);
     DoSetNamedDirective(*hash_tok, 0);
@@ -935,41 +946,31 @@ void PatchedMacroTracker::DoEndNonDirective(const clang::Token &tok,
 
 void PatchedMacroTracker::DoEndDirective(
     const clang::Token &tok, uintptr_t data) {
+
+  // It can be the case that there's an empty `#` directive, or something like
+  // `# /* comment */`. We observe this in the SQLite codebase near the
+  // `utf8_to_utf16` function in `shell.c`. We'll try to recover by scanning
+  // backwards, and look for the `#` at the beginning of the line, then
+  // fake a directive for that.
+  if (directives.empty()) {
+    suppress_indent = true;
+    auto hash_tok = FindDirectiveHash(tok, false  /* check_tok_is_pp_kw */);
+    if (!hash_tok) {
+      assert(false);
+      return;
+    }
+
+    D( std::cerr << indent << "Adding empty directive in DoEndDirective\n"; )
+    DoBeginDirective(*hash_tok, data);
+    DoToken(tok, 0);
+    directives.back()->kind = MacroKind::kOtherDirective;
+    directives.back()->is_skipped = 0 < cond_skip_depth;
+  }
+
   assert(!directives.empty());
   assert(nodes.back() == directives.back());
   assert(!directives.back()->nodes.empty());
 
-//  if (!last_directive) {
-//    last_directive = directives.back();
-//  } else {
-//    switch (directives.back()->kind) {
-//      case MacroNodeKind::kOtherDirective:
-//      case MacroNodeKind::kDefineDirective:
-//      case MacroNodeKind::kUndefineDirective:
-//      case MacroNodeKind::kPragmaDirective:
-//      case MacroNodeKind::kIncludeDirective:
-//      case MacroNodeKind::kIncludeNextDirective:
-//      case MacroNodeKind::kIncludeMacrosDirective:
-//      case MacroNodeKind::kImportDirective:
-//        last_directive = directives.back();
-//        break;
-//      case MacroNodeKind::kIfDirective:
-//      case MacroNodeKind::kIfDefinedDirective:
-//      case MacroNodeKind::kIfNotDefinedDirective:
-//      case MacroNodeKind::kElseIfDirective:
-//      case MacroNodeKind::kElseIfDefinedDirective:
-//      case MacroNodeKind::kElseIfNotDefinedDirective:
-//      case MacroNodeKind::kElseDirective:
-//      case MacroNodeKind::kEndIfDirective:
-//        if (!last_directive->is_skipped) {
-//          last_directive = directives.back();
-//        }
-//        break;
-//      default:
-//        assert(false);
-//        break;
-//    }
-//  }
   last_directive = directives.back();
 
   nodes.pop_back();
@@ -1649,7 +1650,10 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
     case EndPreArgumentExpansion:
     case CancelExpansion:
 //        --depth;
-      indent.resize(indent.size() - 2);
+      if (!suppress_indent) {
+        indent.resize(indent.size() - 2);
+      }
+      suppress_indent = false;
       break;
     default:
       break;
@@ -1884,7 +1888,7 @@ void PatchedMacroTracker::If(clang::SourceLocation,
     if (last_directive->is_skipped) {
       assert(!cond_skip_depth);
       cond_skip_depth = 1;
-      D( std::cerr << indent << "Incrementing skip count\n"; )
+      D( std::cerr << indent << "Initializing skip depth = 1 (case 1)\n"; )
     }
   }
   D( std::cerr << indent << "If\n"; )

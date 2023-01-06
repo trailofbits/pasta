@@ -27,7 +27,7 @@ static void ReparentNode(Node &node, MacroNodeImpl *new_parent) {
 
   } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
     auto impl = std::get<MacroNodeImpl *>(node);
-    if (auto arg = dynamic_cast<MacroArgumentImpl *>(impl)) {
+    if (dynamic_cast<MacroArgumentImpl *>(impl)) {
       assert(!dynamic_cast<MacroArgumentImpl *>(new_parent));
       assert(dynamic_cast<MacroExpansionImpl *>(new_parent));
     }
@@ -240,6 +240,7 @@ MacroExpansionImpl *PatchedMacroTracker::DoPreExpansionSetup(
   return new_exp;
 }
 
+#ifndef NDEBUG
 static MacroTokenImpl *FirstExpansionToken(const Node &node) {
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
     return std::get<MacroTokenImpl *>(node);
@@ -250,7 +251,6 @@ static MacroTokenImpl *FirstExpansionToken(const Node &node) {
   }
 }
 
-#ifndef NDEBUG
 static bool LastIsNotArgument(MacroExpansionImpl *exp) {
   if (exp->nodes.empty()) {
     return false;
@@ -364,7 +364,7 @@ static int ParenCount(MacroNodeImpl *arg) {
 // points to where it originated from.
 void PatchedMacroTracker::FixupDerivedLocations(void) {
 
-  auto from_map = [=] (
+  auto from_map = [=, this] (
       const std::unordered_map<OpaqueSourceLoc, DerivedTokenIndex> &map,
       TokenImpl &tok, DerivedTokenIndex tok_index, std::string_view tok_data,
       OpaqueSourceLoc loc) {
@@ -1269,6 +1269,7 @@ void PatchedMacroTracker::DoSwitchToExpansion(
 
   if (auto mi = reinterpret_cast<clang::MacroInfo *>(data)) {
     assert(mi == expansion->defined_macro);
+    (void) mi;
   }
 
   // Opportunistically mark as done so that we can mark it as false when we
@@ -1457,22 +1458,22 @@ void PatchedMacroTracker::DoEndMacroExpansion(
   // What we have:
   //
   //        NP
-  //       /  \
+  //       /  \                                         .
   //     {B}   E      <-- actually being closed
-  //         /  \
+  //         /  \                                       .
   //       {A}  DE    <-- previous `expansions.back()`
-  //           /  \
+  //           /  \                                     .
   //         {}    ident(FOO_2)
   //
   // In this case, NP has to be moved along with E, because E was NP's pre-
   // argument expansion, we want:
   //
   //        DE
-  //       /  \
+  //       /  \                                         .
   //     {}   NP
-  //         /  \
+  //         /  \                                       .
   //        {B}  E
-  //            / \
+  //            / \                                     .
   //          {A}  ident(FOO_2)
   if (expansion->is_prearg_expansion) {
     assert(expansion->parent_for_prearg == parent_node);
@@ -1506,11 +1507,11 @@ void PatchedMacroTracker::DoEndMacroExpansion(
   // Othwerwise, in the normal case, what we want is:
   //
   //       NP
-  //      /  \
+  //      /  \                                .
   //    {B}  DE
-  //        /  \
+  //        /  \                              .
   //      {}    E
-  //           / \
+  //           / \                            .
   //         {A}  ident(FOO_2)
   //
   // * NOTE: the `E` will be swapped into `use_nodes` later.

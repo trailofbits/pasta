@@ -1113,10 +1113,13 @@ void PatchedMacroTracker::DoBeginPreArgumentExpansion(
 
   assert(!expansions.empty());
   assert(nodes.back() == expansions.back());
-  clang::MacroInfo *macro_info = reinterpret_cast<clang::MacroInfo *>(data);
   MacroExpansionImpl *expansion = expansions.back();
   assert(!expansion->is_prearg_expansion);
+
+#ifndef NDEBUG
+  clang::MacroInfo *macro_info = reinterpret_cast<clang::MacroInfo *>(data);
   assert(expansion->defined_macro == macro_info);
+#endif
 
   if (expansion->is_cancelled) {
     assert(0 < macro_skip_count);
@@ -1155,15 +1158,60 @@ void PatchedMacroTracker::DoEndPreArgumentExpansion(
 
   assert(!expansion->nodes.empty());
   Node r_paren_node = expansion->nodes.back();
-  assert(!expansion->arguments.empty());
   assert(arguments.empty() || nodes.back() != arguments.back());
 
+  // Go get the `r_paren` at the end of the expansion nodes list.
   if (std::holds_alternative<MacroTokenImpl *>(r_paren_node) &&
       (std::get<MacroTokenImpl *>(r_paren_node)->kind_flags.kind ==
           TokenKind::kRParenthesis)) {
     expansion->r_paren = std::get<MacroTokenImpl *>(r_paren_node);
     expansion->r_paren_index = static_cast<unsigned>(
         expansion->nodes.size() - 1u);
+  }
+
+  // If there were no arguments in the argument pre-expansion phase, e.g.
+  // a call like `VARIADIC()` to a macro like `#define VARIADIC(args...)`
+  // then we need to clone the original `r_paren`, because we won't have seen
+  // it as the `eof` token at the end of the last argument token.
+  if (!expansion->r_paren) {
+
+    assert(expansion->arguments.empty());
+
+    if (!parent_exp->arguments.empty()) {
+      assert(parent_exp->arguments.size() == 1u);
+      auto parent_arg = dynamic_cast<MacroArgumentImpl *>(
+          std::get<MacroNodeImpl *>(parent_exp->arguments.back()));
+
+      // Eliminate the empty argument in the initial expansion.
+      if (parent_arg && parent_arg->nodes.empty() &&
+          (parent_exp->r_paren_index + 1u) == parent_exp->nodes.size()) {
+        parent_exp->arguments.pop_back();
+        parent_exp->nodes[parent_exp->r_paren_index - 1u] =
+            std::move(parent_exp->nodes[parent_exp->r_paren_index]);
+        parent_exp->nodes.pop_back();
+        --parent_exp->r_paren_index;
+
+      // Make an empty dummy argument.
+      } else {
+        MacroArgumentImpl *missing_arg =
+            &(ast->root_macro_node.arguments.emplace_back());
+        D( missing_arg->line_added = __LINE__; )
+
+        assert(!LastIsNotArgument(expansion));
+        assert(HasArgumentSeparator(expansion));
+
+        missing_arg->parent = expansion;
+        missing_arg->is_prearg_expansion = true;
+        missing_arg->index = static_cast<unsigned>(expansion->arguments.size());
+        missing_arg->offset = static_cast<unsigned>(expansion->nodes.size());
+        expansion->arguments.push_back(missing_arg);
+        expansion->nodes.emplace_back(missing_arg);
+      }
+    }
+
+    expansion->r_paren_index = static_cast<unsigned>(expansion->nodes.size());
+    expansion->r_paren = parent_exp->r_paren->Clone(*ast, expansion);
+    expansion->nodes.emplace_back(expansion->r_paren);
   }
 
   // We should now be looking at the expansion.

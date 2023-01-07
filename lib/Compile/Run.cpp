@@ -45,13 +45,11 @@
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-private-field"
-#if defined(LLVM_CLANG_HAS_PASTA_EVENTS)
-# include "PatchedMacroTracker.h"
-using MacroTracker = pasta::PatchedMacroTracker;
-#else
-# include "LegacyMacroTracker.h"
-using MacroTracker = pasta::LegacyMacroTracker;
+#if !defined(LLVM_CLANG_HAS_PASTA_EVENTS)
+# error "Missing PASTA patches to Clang for tracking macro events"
 #endif
+#include "PatchedMacroTracker.h"
+using MacroTracker = pasta::PatchedMacroTracker;
 #pragma GCC diagnostic pop
 
 #include "../AST/AST.h"

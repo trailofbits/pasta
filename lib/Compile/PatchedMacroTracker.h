@@ -61,8 +61,15 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   bool suppress_indent{false};
 
   int depth{0};
+
+  // NOTE(pag): `macro_skip_count` tells us if we're inside of a cancelled
+  //            macro. `cond_skip_depth` tells us if we're inside of section
+  //            of code disabled by a conditional directive.
   int cond_skip_depth{0};
   int macro_skip_count{0};
+
+  bool skipped_area_recurisive_lock{false};
+
   std::vector<MacroDirectiveImpl *> includes;
   clang::Token last_token;
   bool last_token_was_added{false};

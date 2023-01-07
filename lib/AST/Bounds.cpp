@@ -271,18 +271,64 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   // Scans forward starting from `tok`, assumed to be the beginning of
   // a `TagDecl`, and then looks for a closing `}`, a closing `;`, or the
   // last token before an unbalanced paren/bracket/brace.
-  TokenImpl *FindEndOfTag(TokenImpl *tok) {
+  TokenImpl *FindEndOfTag(clang::TagDecl *decl, TokenImpl *tok) {
+//    std::cerr
+//        << "0) decl="
+//        << reinterpret_cast<void *>(decl) << " lower_bound="
+//        << reinterpret_cast<void *>(lower_bound) << " upper_bound="
+//        << reinterpret_cast<void *>(upper_bound) << '\n' ;
+//
+//    auto T = [=] (const TokenImpl * t) {
+//      std::cerr << ' ' << t->Data(ast);
+//    };
+//
+//    for (auto t = lower_bound; t && t <= upper_bound; ++t) {
+//      T(t);
+//    }
+//    std::cerr << "\n\n";
+
+    auto can_have_l_brace = decl->isCompleteDefinition();
+
     auto first_tok = &(ast.tokens.front());
     auto last_tok = &(ast.tokens.back());
     TokenImpl *r_brace = nullptr;
     TokenImpl *prev_tok = nullptr;
     int64_t nesting = 0;
+    bool seen_colon = false;
     for (; first_tok <= tok && tok <= last_tok;
          prev_tok = tok, tok = &(tok[1])) {
+//      std::cerr << "nesting=" << nesting;
+//      T(tok);
+//      std::cerr << '\n';
       const auto tok_kind = tok->Kind();
       switch (tok_kind) {
-        case clang::tok::l_paren:
+        // If we get to another keyword like these without being nested then
+        // we're probably in an elaborated type that is a forward declaration,
+        // e.g. `struct foo` in `struct foo *x; struct bar { ... } ;` is trying
+        // to walk into `struct bar`.
+        case clang::tok::kw_struct:
+        case clang::tok::kw_union:
+        case clang::tok::kw_class:
+        case clang::tok::kw_enum:
+        case clang::tok::kw_const:
+        case clang::tok::kw_volatile:
+        case clang::tok::kw_restrict:
+        case clang::tok::kw_friend:
+        case clang::tok::comma:
+        case clang::tok::period:
+        case clang::tok::amp:
+        case clang::tok::ampamp:
+        case clang::tok::star:
+          if (!nesting && !seen_colon) {
+            return nullptr;
+          }
+          break;
         case clang::tok::l_brace:
+          if (!can_have_l_brace) {
+            return nullptr;
+          }
+          [[clang::fallthrough]];
+        case clang::tok::l_paren:
         case clang::tok::l_square:
           if (auto matching_tok = GetMatching(tok).second) {
             tok = matching_tok;
@@ -290,15 +336,27 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
             nesting += 1;
           }
           break;
-        case clang::tok::r_paren:
         case clang::tok::r_brace:
+          if (!can_have_l_brace) {
+            return nullptr;
+          }
+          [[clang::fallthrough]];
+        case clang::tok::r_paren:
         case clang::tok::r_square:
-          nesting -= 1;
-          break;
+          if (!nesting) {
+            return nullptr;
+          } else {
+            nesting -= 1;
+            break;
+          }
         case clang::tok::semi:
           if (!nesting) {
             return tok;
           }
+          break;
+
+        case clang::tok::colon:
+          seen_colon = true;
           break;
         default:
           break;
@@ -779,6 +837,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   }
 
   void VisitTagDecl(clang::TagDecl *decl) {
+
     // Implicit classes are for things like C++ lambdas.
     if (!decl->isImplicit()) {
       TokenImpl *name_loc = ast.RawTokenAt(decl->getLocation());
@@ -802,8 +861,13 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       }
 
       if (introducer_loc) {
-        if (auto tag_end = FindEndOfTag(introducer_loc)) {
+        if (auto tag_end = FindEndOfTag(decl, name_loc)) {
           upper_bound = tag_end;
+
+//          std::cerr
+//              << "1) lower_bound="
+//              << reinterpret_cast<void *>(lower_bound) << " upper_bound="
+//              << reinterpret_cast<void *>(upper_bound) << '\n' ;
           return;
         }
       }
@@ -813,9 +877,17 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 //    //            a parameter list, or as the return type of a function, or
 //    //            inside of a `sizeof`.
 //    FindNextOrUnbalanced(name_loc, clang::tok::semi, 1);
-
+//
+//    std::cerr
+//        << "2) lower_bound="
+//        << reinterpret_cast<void *>(lower_bound) << " upper_bound="
+//        << reinterpret_cast<void *>(upper_bound) << '\n' ;
     //    VisitTypeDecl(decl);
     Expand(decl->getSourceRange());
+//    std::cerr
+//        << "3) lower_bound="
+//        << reinterpret_cast<void *>(lower_bound) << " upper_bound="
+//        << reinterpret_cast<void *>(upper_bound) << '\n' ;
 //    if (auto outer_typedef = decl->getTypedefNameForAnonDecl()) {
 //      Visit(outer_typedef);
 //    }
@@ -1148,6 +1220,12 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       return {};  // Probably a builtin.
     }
 
+//    std::cerr
+//        << "--------------------------- " << " decl="
+//        << reinterpret_cast<void *>(decl) << " lower_bound="
+//        << reinterpret_cast<void *>(lower_bound) << " upper_bound="
+//        << reinterpret_cast<void *>(upper_bound) << '\n' ;
+
     Visit(decl);
 
 //    for (auto t = lower_bound; t <= upper_bound; ++t) {
@@ -1176,6 +1254,12 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         t = new_end;
       }
     }
+
+//    std::cerr
+//        << "x) decl="
+//        << reinterpret_cast<void *>(decl) << " lower_bound="
+//        << reinterpret_cast<void *>(lower_bound) << " upper_bound="
+//        << reinterpret_cast<void *>(upper_bound) << '\n' ;
 
     assert(lower_bound <= orig_lower_bound);
     assert(orig_upper_bound <= upper_bound);

@@ -364,7 +364,10 @@ class Matcher {
   ASTImpl &ast;
   PrintedTokenRangeImpl &range;
   TokenImpl * const first_parsed;
+
+  // Exclusive upper bound.
   TokenImpl * const last_parsed;
+
   std::vector<std::unique_ptr<Region>> parsed_regions;
   std::vector<std::unique_ptr<Region>> printed_regions;
 
@@ -640,7 +643,7 @@ bool Matcher::MergeForward(TokenImpl *parsed, PrintedTokenImpl *printed,
   std::vector<TokenImpl *> backtrack_locs;
 
   const auto last_printed = &(range.tokens.back());
-  while (parsed <= last_parsed && printed <= last_printed) {
+  while (parsed < last_parsed && printed <= last_printed) {
     if (!TokenCanBeAssignedContext(parsed)) {
       ++parsed;
       continue;

@@ -686,8 +686,12 @@ MacroRange DefineMacroDirective::Body(void) const noexcept {
   MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
   if (!dir_impl->nodes.empty()) {
     const auto first = dir_impl->nodes.data();
-    return MacroRange(
-        ast, &(first[dir_impl->body_offset]), &(first[dir_impl->nodes.size()]));
+    const auto num_nodes = dir_impl->nodes.size();
+    const auto body_offset = dir_impl->body_offset;
+    if (body_offset >= num_nodes) {
+      return MacroRange(ast);
+    }
+    return MacroRange(ast, &(first[body_offset]), &(first[num_nodes]));
   } else {
     return MacroRange(ast);
   }

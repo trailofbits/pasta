@@ -288,6 +288,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 //    std::cerr << "\n\n";
 
     auto can_have_l_brace = decl->isCompleteDefinition();
+    auto can_have_semi = !decl->isEmbeddedInDeclarator();
 
     auto first_tok = &(ast.tokens.front());
     auto last_tok = &(ast.tokens.back());
@@ -347,6 +348,9 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
             return nullptr;
           } else {
             nesting -= 1;
+            if (!nesting && !can_have_semi) {
+              return tok;
+            }
             break;
           }
         case clang::tok::semi:

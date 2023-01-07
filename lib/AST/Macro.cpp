@@ -24,9 +24,9 @@
 #if 1
 #include <pasta/Util/File.h>
 #include <iostream>
-#define D(...) __VA_ARGS__
+#define DEBUG(...) __VA_ARGS__
 #else
-#define D(...)
+#define DEBUG(...)
 #endif
 
 #include "AST.h"
@@ -392,8 +392,8 @@ MacroKind Macro::Kind(void) const noexcept {
     return std::get<MacroNodeImpl *>(node)->kind;
   } else {
     assert(false);
-    D( std::cerr << "Bad macro kind on main file: "
-                 << ast->main_source_file.Path().generic_string() << '\n'; )
+    DEBUG( std::cerr << "Bad macro kind on main file: "
+                     << ast->main_source_file.Path().generic_string() << '\n'; )
     abort();
     __builtin_unreachable();
   }
@@ -409,7 +409,7 @@ const void *Macro::RawMacro(void) const noexcept {
     return ret;
   } else {
     assert(false);
-    D( std::cerr << "Bad macro kind on main file: "
+    DEBUG( std::cerr << "Bad macro kind on main file: "
                  << ast->main_source_file.Path().generic_string() << '\n'; )
     return nullptr;
   }
@@ -467,7 +467,7 @@ std::optional<MacroToken> Macro::BeginToken(void) const noexcept {
     }
   } else {
     assert(false);
-    D( std::cerr << "Bad macro kind on main file: "
+    DEBUG( std::cerr << "Bad macro kind on main file: "
                  << ast->main_source_file.Path().generic_string() << '\n'; )
   }
   return std::nullopt;
@@ -483,7 +483,7 @@ std::optional<MacroToken> Macro::EndToken(void) const noexcept {
     }
   } else {
     assert(false);
-    D( std::cerr << "Bad macro kind on main file: "
+    DEBUG( std::cerr << "Bad macro kind on main file: "
                  << ast->main_source_file.Path().generic_string() << '\n'; )
   }
   return std::nullopt;

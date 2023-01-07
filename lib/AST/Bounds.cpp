@@ -354,7 +354,9 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
             break;
           }
         case clang::tok::semi:
-          if (!nesting) {
+          if (!can_have_semi) {
+            return nullptr;
+          } else if (!nesting) {
             return tok;
           }
           break;

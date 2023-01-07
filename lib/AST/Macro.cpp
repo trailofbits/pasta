@@ -21,6 +21,14 @@
 #include <clang/Lex/Token.h>
 #pragma GCC diagnostic pop
 
+#if 1
+#include <pasta/Util/File.h>
+#include <iostream>
+#define D(...) __VA_ARGS__
+#else
+#define D(...)
+#endif
+
 #include "AST.h"
 #include "Token.h"
 
@@ -384,6 +392,8 @@ MacroKind Macro::Kind(void) const noexcept {
     return std::get<MacroNodeImpl *>(node)->kind;
   } else {
     assert(false);
+    D( std::cerr << "Bad macro kind on main file: "
+                 << ast->main_source_file.Path().generic_string() << '\n'; )
     abort();
     __builtin_unreachable();
   }
@@ -398,6 +408,9 @@ const void *Macro::RawMacro(void) const noexcept {
     assert(ret != nullptr);
     return ret;
   } else {
+    assert(false);
+    D( std::cerr << "Bad macro kind on main file: "
+                 << ast->main_source_file.Path().generic_string() << '\n'; )
     return nullptr;
   }
 }
@@ -452,6 +465,10 @@ std::optional<MacroToken> Macro::BeginToken(void) const noexcept {
     if (const Node *tok = std::get<MacroNodeImpl *>(node)->FirstToken()) {
       return MacroToken(ast, tok);
     }
+  } else {
+    assert(false);
+    D( std::cerr << "Bad macro kind on main file: "
+                 << ast->main_source_file.Path().generic_string() << '\n'; )
   }
   return std::nullopt;
 }
@@ -464,6 +481,10 @@ std::optional<MacroToken> Macro::EndToken(void) const noexcept {
     if (const Node *tok = std::get<MacroNodeImpl *>(node)->LastToken()) {
       return MacroToken(ast, tok);
     }
+  } else {
+    assert(false);
+    D( std::cerr << "Bad macro kind on main file: "
+                 << ast->main_source_file.Path().generic_string() << '\n'; )
   }
   return std::nullopt;
 }

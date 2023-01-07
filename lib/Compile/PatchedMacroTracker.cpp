@@ -1285,7 +1285,9 @@ void PatchedMacroTracker::DoEndPreArgumentExpansion(
 
       // Eliminate the empty argument in the initial expansion.
       if (parent_arg && parent_arg->nodes.empty() &&
+          parent_exp->r_paren_index &&
           (parent_exp->r_paren_index + 1u) == parent_exp->nodes.size()) {
+
         parent_exp->arguments.pop_back();
         parent_exp->nodes[parent_exp->r_paren_index - 1u] =
             std::move(parent_exp->nodes[parent_exp->r_paren_index]);

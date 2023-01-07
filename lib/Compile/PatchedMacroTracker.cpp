@@ -477,13 +477,14 @@ bool PatchedMacroTracker::AddToParentNode(Node node) {
 // TODO(pag): This might accidentally find the hash inside of a comment.
 // TODO(pag): In some cases we can use the last observed hash
 std::optional<clang::Token> PatchedMacroTracker::FindDirectiveHash(
-    const clang::Token &tok, bool check_tok_is_pp_kw) {
+    const clang::Token &tok) {
 
   if (last_token.is(clang::tok::hash)) {
     auto ret = last_token;
     last_token.startToken();
     return ret;
   }
+
 
   clang::SourceLocation directive_loc = tok.getLocation();
   if (directive_loc.isInvalid() || !directive_loc.isFileID()) {
@@ -498,23 +499,6 @@ std::optional<clang::Token> PatchedMacroTracker::FindDirectiveHash(
   llvm::StringRef file_data = sm.getBufferData(file_id, &invalid);
   if (invalid) {
     return std::nullopt;
-  }
-
-  if (check_tok_is_pp_kw) {
-    llvm::StringRef kw = file_data.substr(file_offset);
-    auto is_pp_keyword = false;
-    for (auto i = 1u; i < clang::tok::NUM_PP_KEYWORDS; ++i) {
-      auto pp = static_cast<clang::tok::PPKeywordKind>(i);
-      if (kw.startswith_insensitive(clang::tok::getPPKeywordSpelling(pp))) {
-        is_pp_keyword = true;
-        break;
-      }
-    }
-
-    if (!is_pp_keyword) {
-      D( std::cerr << indent << "Not adding hash; wrong keyword\n"; )
-      return std::nullopt;
-    }
   }
 
   // Scan backwards through the file buffer from the start of the macro token
@@ -549,6 +533,105 @@ std::optional<clang::Token> PatchedMacroTracker::FindDirectiveHash(
   return hash_tok;
 }
 
+// TODO(pag): Probably should just invoke a raw lexer here?
+static bool FixupEofEodToken(const clang::SourceManager &sm,
+                             clang::Token &tok_inout) {
+  auto invalid = false;
+  clang::SourceLocation loc = tok_inout.getLocation();
+  const char *data = sm.getCharacterData(loc, &invalid);
+  if (invalid || !data || !data[0]) {
+    return false;
+  }
+
+  bool seen_escape = false;
+  bool seen_slash = false;
+  bool seen_star = false;
+  bool in_comment = false;
+  for (int i = 0; ; ++data, ++i) {
+    switch (data[0]) {
+      case '\0':
+        return false;
+      case ' ':
+      case '\t':
+      case '\r':
+        seen_star = false;
+        seen_slash = false;
+        if (in_comment || seen_escape) {
+          continue;
+        } else {
+          return false;
+        }
+      case '\n':
+        seen_star = false;
+        seen_slash = false;
+        if (in_comment) {
+          continue;
+        } else if (seen_escape) {
+          seen_escape = false;
+          continue;
+        } else {
+          return false;
+        }
+      case '\\':
+        seen_star = false;
+        seen_slash = false;
+        seen_escape = true;
+        continue;
+      case ',':
+        if (in_comment) {
+          seen_star = false;
+          continue;
+        } else if (seen_slash) {
+          return false;
+        } else {
+          tok_inout.setLocation(loc.getLocWithOffset(i));
+          tok_inout.setKind(clang::tok::comma);
+          return true;
+        }
+      case ')':
+        if (in_comment) {
+          seen_star = false;
+          continue;
+        } else if (seen_slash) {
+          return false;
+        } else {
+          tok_inout.setLocation(loc.getLocWithOffset(i));
+          tok_inout.setKind(clang::tok::r_paren);
+          return true;
+        }
+      case '/':
+        if (!in_comment) {
+          seen_slash = true;
+        } else if (seen_star) {
+          seen_star = false;
+          in_comment = false;
+        }
+        continue;
+      case '*':
+        if (seen_slash) {
+          seen_slash = false;
+          in_comment = true;
+          continue;
+
+        } else if (in_comment) {
+          seen_star = true;
+          continue;
+
+        } else {
+          return false;
+        }
+      default:
+        if (in_comment) {
+          continue;
+        } else {
+          return false;
+        }
+    }
+  }
+
+  return false;
+}
+
 // Add a token in.
 //
 // NOTE(pag): This might change `nodes.back()`.
@@ -575,8 +658,21 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
       tok = real_tok_it->second;
       force_arg_split = true;
       D( std::cerr << indent << "(recovering real token "
-                   << clang::tok::getTokenName(real_tok_it->second.getKind())
-                   << ")\n"; )
+                   << clang::tok::getTokenName(tok.getKind())
+                   << " from map)\n"; )
+
+      // NOTE(pag): Location may be different.
+      tok_loc = tok.getLocation();
+
+    } else if (FixupEofEodToken(sm, tok)) {
+      D( std::cerr << indent << "(recovering real token "
+                   << clang::tok::getTokenName(tok.getKind())
+                   << " from data)\n"; )
+      end_of_arg_toks.emplace(raw_tok_loc, tok);
+
+      // NOTE(pag): Location may be different.
+      tok_loc = tok.getLocation();
+      end_of_arg_toks.emplace(tok_loc.getRawEncoding(), tok);
     }
   }
 
@@ -912,7 +1008,7 @@ void PatchedMacroTracker::DoBeginSkippedArea(
         return;
     }
 
-    auto hash_tok = FindDirectiveHash(tok);
+    std::optional<clang::Token> hash_tok = FindDirectiveHash(tok);
     if (!hash_tok) {
       assert(false);
       suppress_indent = true;
@@ -956,7 +1052,7 @@ void PatchedMacroTracker::DoBeginSkippedArea(
   // Something like `# 1` inside of a disabled region.
   } else if (tok.isOneOf(clang::tok::numeric_constant,
                          clang::tok::string_literal)) {
-    auto hash_tok = FindDirectiveHash(tok);
+    std::optional<clang::Token> hash_tok = FindDirectiveHash(tok);
     if (!hash_tok) {
       assert(false);
       suppress_indent = true;
@@ -1051,7 +1147,7 @@ void PatchedMacroTracker::DoEndDirective(
   // fake a directive for that.
   if (directives.empty()) {
     suppress_indent = true;
-    auto hash_tok = FindDirectiveHash(tok, false  /* check_tok_is_pp_kw */);
+    std::optional<clang::Token> hash_tok = FindDirectiveHash(tok);
     if (!hash_tok) {
       assert(false);
       return;

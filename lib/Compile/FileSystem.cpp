@@ -98,8 +98,7 @@ LLVMFile::getBuffer(const llvm::Twine &name, int64_t file_size,
         data.TakeValue(), name.str(), false);
     return ret;
   } else {
-    auto ec = data.TakeError();
-    return ec;
+    return data.TakeError();
   }
 }
 

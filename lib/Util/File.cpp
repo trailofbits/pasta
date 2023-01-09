@@ -7,6 +7,9 @@
 #include <algorithm>
 #include <pasta/AST/Forward.h>
 
+#include <llvm/Support/JSON.h>
+#include <llvm/Support/xxhash.h>
+
 #include "FileManager.h"
 
 namespace pasta {
@@ -72,14 +75,34 @@ Result<std::string_view, std::error_code> File::Data(void) const noexcept {
   if (maybe_file.Succeeded()) {
     maybe_file.TakeValue().swap(impl->data);
 
+    // A lot of code in PASTA relies on the file being formatted as UTF-8.
+    if (!llvm::json::isUTF8(impl->data)) {
+      impl->data = llvm::json::fixUTF8(impl->data);
+    }
+
     // NOTE(pag): We use this extra trailing NUL to help us with location
     //            offsets for EOF tokens.
     impl->data.push_back('\0');
 
+    // NOTE(pag): We use the data hash to help us maintain semi-determinstic
+    //            `__COUNTER__` values across files.
+    impl->data_hash = llvm::xxHash64(impl->data);
+
     return std::string_view(impl->data.data(), impl->data.size() - 1u);
+
   } else {
     impl->data_ec = maybe_file.TakeError();
     return impl->data_ec;
+  }
+}
+
+// Return a hash of the data.
+std::optional<uint64_t> File::DataHash(void) const noexcept {
+  std::unique_lock<std::mutex> locker(impl->data_lock);
+  if (impl->data_ec) {
+    return std::nullopt;
+  } else {
+    return impl->data_hash;
   }
 }
 

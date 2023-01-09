@@ -283,6 +283,9 @@ class File {
   // Return the contents of this file.
   Result<std::string_view, std::error_code> Data(void) const noexcept;
 
+  // Return a hash of the data.
+  std::optional<uint64_t> DataHash(void) const noexcept;
+
   // Did we parse this file as part of trying to make an AST?
   bool WasParsed(void) const noexcept;
 

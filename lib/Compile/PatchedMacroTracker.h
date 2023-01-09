@@ -107,6 +107,13 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   DerivedTokenIndex start_of_macro_index{0u};
   DerivedTokenIndex last_fixed_index{0u};
 
+  // Values to substitute for `__COUNTER__`. We need to try to maintain a
+  // semblance of uniqueness, but also we want to try to have better
+  // reproducibility across translation units, where the same macro in the
+  // same header using a `__COUNTER__` ends up expanding to the same value.
+  std::unordered_map<uint16_t, unsigned> next_counter_value;
+  uint16_t last_counter_id{0};
+
  public:
 
   explicit PatchedMacroTracker(clang::Preprocessor &pp_,

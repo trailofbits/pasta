@@ -73,6 +73,7 @@ class FileImpl final {
 
   // All data read for the file.
   std::string data;
+  uint64_t data_hash{0u};
 
   // Lock on mutating `data`.
   std::mutex data_lock;

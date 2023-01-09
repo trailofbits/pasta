@@ -55,13 +55,27 @@ const char* AttributeKindName(const clang::Attr *attr) {
   return "Attr";
 }
 
+inline static bool SkipToken(const pasta::PrintedToken &) {
+  return false;
+}
+
+inline static bool SkipToken(const pasta::Token &tok) {
+  switch (tok.Role()) {
+    case pasta::TokenRole::kFileToken:
+    case pasta::TokenRole::kFinalMacroExpansionToken:
+      return false;
+    default:
+      return true;
+  }
+}
+
 static void PrintTokenGraph(pasta::Decl tld) {
-//  auto tokens = pasta::PrintedTokenRange::Create(tld);
-  auto tokens = tld.Tokens();
+  auto tokens = pasta::PrintedTokenRange::Create(tld);
+//  auto tokens = tld.Tokens();
   if (tokens.empty()) {
     std::cerr
         << "Empty tokens for " << tld.KindName();
-    if (pasta::Token loc = tld.Token()) {
+    if (auto loc = tld.Token()) {
       if (std::optional<pasta::FileToken> floc = loc.FileLocation()) {
         std::cerr
             << " at " << pasta::File::Containing(*floc).Path()
@@ -88,13 +102,9 @@ static void PrintTokenGraph(pasta::Decl tld) {
 
   std::unordered_set<pasta::TokenContext> contexts;
 
-  for (pasta::Token tok : tokens) {
-    switch (tok.Role()) {
-      case pasta::TokenRole::kFileToken:
-      case pasta::TokenRole::kFinalMacroExpansionToken:
-        break;
-      default:
-        continue;
+  for (auto tok : tokens) {
+    if (SkipToken(tok)) {
+      continue;
     }
     for (std::optional<pasta::TokenContext> context = tok.Context();
          context; context = context->Parent()) {
@@ -189,13 +199,9 @@ static void PrintTokenGraph(pasta::Decl tld) {
     }
   }
 
-  for (pasta::Token tok : tokens) {
-    switch (tok.Role()) {
-      case pasta::TokenRole::kFileToken:
-      case pasta::TokenRole::kFinalMacroExpansionToken:
-        break;
-      default:
-        continue;
+  for (auto tok : tokens) {
+    if (SkipToken(tok)) {
+      continue;
     }
     if (std::optional<pasta::TokenContext> context = tok.Context()) {
       os

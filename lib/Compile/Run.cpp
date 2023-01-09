@@ -611,19 +611,20 @@ Result<AST, std::string> CompileJob::Run(void) const {
 
   ast->orig_source_pp = ci.getPreprocessorPtr();
 
-  // TODO(pag): Eventually add `PPCallbacks` so that we can capture macro
-  //            definitions as tokens.
+  // NOTE(pag): Add the macro tracker first so that it can observe changes to
+  //            `ASTImpl::id_to_file` enacted by
+  //            `ParsedFileTracker::FileChanged`.
+  auto macro_tracker_ptr = new MacroTracker(pp, sm, ast.get());
+  {
+    std::unique_ptr<clang::PPCallbacks> macro_tracker(macro_tracker_ptr);
+    pp.addPPCallbacks(std::move(macro_tracker));
+  }
+
   auto file_tracker_ptr = new ParsedFileTracker(
       sm, *lang_opts, impl->file_manager, WorkingDirectory(), ast.get());
   {
     std::unique_ptr<clang::PPCallbacks> file_tracker(file_tracker_ptr);
     pp.addPPCallbacks(std::move(file_tracker));
-  }
-
-  auto macro_tracker_ptr = new MacroTracker(pp, sm, ast.get());
-  {
-    std::unique_ptr<clang::PPCallbacks> macro_tracker(macro_tracker_ptr);
-    pp.addPPCallbacks(std::move(macro_tracker));
   }
 
   pp.SetCommentRetentionState(false /* KeepComments */,

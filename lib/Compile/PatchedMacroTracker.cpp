@@ -2048,19 +2048,46 @@ void PatchedMacroTracker::FileChanged(
     clang::SourceLocation loc, clang::PPCallbacks::FileChangeReason reason,
     clang::SrcMgr::CharacteristicKind file_type, clang::FileID file_id) {
 
+  // Save off the Clang's current state of the `__COUNTER__` macro back to
+  // be associated with the last `__COUNTER__` value associated with that
+  // file hash.
+  next_counter_value[last_counter_id] = pp.getCounterValue();
+
+  D( std::cerr << "last_counter_id=" << last_counter_id << " last __COUNTER__="
+               << pp.getCounterValue() << '\n';)
+  last_counter_id = 0;
+
+  // Figure out the next value for `__COUNTER__` to use for the current file.
+  std::optional<File> file;
+  unsigned offset = 0u;
+  if (loc.isValid() && loc.isFileID()) {
+    std::tie(file_id, offset) = sm.getDecomposedLoc(loc);
+    if (auto it = ast->id_to_file.find(file_id.getHashValue());
+        it != ast->id_to_file.end()) {
+      file.emplace(it->second);
+      if (auto maybe_hash = file->DataHash()) {
+        last_counter_id = static_cast<uint16_t>(maybe_hash.value());
+        next_counter_value.emplace(
+            last_counter_id,
+            static_cast<unsigned>(last_counter_id) << 16u);
+      }
+    }
+  }
+
+  // Tell Clang where to resume with `__COUNTER__`.
+  pp.setCounterValue(next_counter_value[last_counter_id]);
+
+  D( std::cerr << "NEXT last_counter_id=" << last_counter_id
+               << " last __COUNTER__=" << pp.getCounterValue() << '\n';)
+
   if (clang::PPCallbacks::FileChangeReason::EnterFile == reason &&
       loc.isValid() && last_directive &&
       (last_directive->kind == MacroKind::kIncludeDirective ||
        last_directive->kind == MacroKind::kIncludeNextDirective ||
        last_directive->kind == MacroKind::kIncludeMacrosDirective ||
        last_directive->kind == MacroKind::kImportDirective)) {
-    unsigned offset = 0u;
-    std::tie(file_id, offset) = sm.getDecomposedLoc(loc);
-    if (auto it = ast->id_to_file.find(file_id.getHashValue());
-        it != ast->id_to_file.end()) {
-      last_directive->included_file.emplace(it->second);
-    }
 
+    last_directive->included_file = std::move(file);
     includes.push_back(last_directive);
     D( std::cerr << indent << "BeginOfFileMarker\n"; )
 
@@ -2082,7 +2109,9 @@ void PatchedMacroTracker::FileChanged(
                       TokenRole::kEndOfFileMarker);
   }
 
-  D( std::cerr << indent << "FileChanged\n"; )
+  D( std::cerr << indent << "FileChanged reason=" << int(reason)
+               << " file_type=" << int(file_type)
+               << " file_id=" << file_id.getHashValue() << '\n'; )
 }
 
 // Callback invoked when a `#ident` or `#sccs` directive is read. These are

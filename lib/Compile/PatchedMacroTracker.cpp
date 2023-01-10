@@ -2066,10 +2066,10 @@ void PatchedMacroTracker::FileChanged(
         it != ast->id_to_file.end()) {
       file.emplace(it->second);
       if (auto maybe_hash = file->DataHash()) {
-        last_counter_id = static_cast<uint16_t>(maybe_hash.value());
+        last_counter_id = static_cast<unsigned>(maybe_hash.value());
         next_counter_value.emplace(
             last_counter_id,
-            static_cast<unsigned>(last_counter_id) << 16u);
+            last_counter_id << 9u);
       }
     }
   }

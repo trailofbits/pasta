@@ -111,7 +111,7 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   // semblance of uniqueness, but also we want to try to have better
   // reproducibility across translation units, where the same macro in the
   // same header using a `__COUNTER__` ends up expanding to the same value.
-  std::unordered_map<uint16_t, unsigned> next_counter_value;
+  std::unordered_map<unsigned, unsigned> next_counter_value;
   uint16_t last_counter_id{0};
 
  public:

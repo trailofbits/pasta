@@ -421,7 +421,7 @@ void TypePrinter::printPointer(const clang::PointerType *T, raw_string_ostream &
 
   IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
     {
-      TokenPrinterContext jump_up_stack(ctx);
+      TokenPrinterContext jump_up_stack(ctx, no_alias_tag{});
       OS << '*';
     }
     IdentFn();
@@ -475,7 +475,7 @@ void TypePrinter::printBlockPointer(const clang::BlockPointerType *T,
 
   IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
     {
-      TokenPrinterContext jump_up_stack(ctx);
+      TokenPrinterContext jump_up_stack(ctx, no_alias_tag{});
       OS << '^';
     }
     IdentFn();
@@ -515,7 +515,7 @@ void TypePrinter::printLValueReference(const clang::LValueReferenceType *T,
 
   IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
     {
-      TokenPrinterContext jump_up_stack(ctx);
+      TokenPrinterContext jump_up_stack(ctx, no_alias_tag{});
       OS << '&';
     }
     IdentFn();
@@ -576,7 +576,7 @@ void TypePrinter::printRValueReference(const clang::RValueReferenceType *T,
   clang::QualType Inner = skipTopLevelReferences(T->getPointeeTypeAsWritten());
   IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
     {
-      TokenPrinterContext jump_up_stack(ctx);
+      TokenPrinterContext jump_up_stack(ctx, no_alias_tag{});
       OS << "&&";
     }
     IdentFn();
@@ -3384,9 +3384,13 @@ void TypePrinter::printObjCObjectPointer(const clang::ObjCObjectPointerType *T,
       !T->isObjCClassType() && !T->isObjCQualifiedClassType()) {
     IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
       // If we need to print the pointer, print it now.
-      if (HasEmptyPlaceHolder)
-        OS << ' ';
-      OS << '*';
+      {
+        if (HasEmptyPlaceHolder)
+          OS << ' ';
+
+        TokenPrinterContext jump_up_stack(ctx, no_alias_tag{});
+        OS << '*';
+      }
       IdentFn();
     };
   }

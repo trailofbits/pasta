@@ -56,7 +56,7 @@ using MacroTracker = pasta::PatchedMacroTracker;
 #include "../AST/Token.h"
 #include "../Util/FileManager.h"
 
-#define PASTA_DEBUG_RUN 0
+#define PASTA_DEBUG_RUN 1
 
 namespace pasta {
 namespace detail {

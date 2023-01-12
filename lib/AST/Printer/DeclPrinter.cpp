@@ -137,6 +137,9 @@ void DeclPrinter::prettyPrintAttributes(clang::Decl *D) {
   }
 }
 
+// TODO(pag): This seems to overlap with `prettyPrintAttributes` and is
+//            sometimes called in similar contexts, e.g. `VisitFunctionDecl`;
+//            investigate this.
 void DeclPrinter::prettyPrintPragmas(clang::Decl *D) {
   if (Policy.PolishForDeclaration)
     return;
@@ -431,9 +434,11 @@ void DeclPrinter::VisitTypedefDecl(clang::TypedefDecl *D) {
   printQualType(
       Ty, Out, Policy,
       [&] () {
-        TokenPrinterContext jump_up_stack(ctx);
-        Out << D->getName();
-        ctx.MarkLocation(D->getLocation());
+        if (auto name = D->getName(); !name.empty()) {
+          TokenPrinterContext jump_up_stack(ctx);
+          Out << name;
+          ctx.MarkLocation(D->getLocation());
+        }
       },
       Indentation);
   prettyPrintAttributes(D);
@@ -458,6 +463,17 @@ void DeclPrinter::VisitEnumDecl(clang::EnumDecl *D) {
   if (!Policy.SuppressSpecifiers && D->isModulePrivate())
     Out << "__module_private__ ";
   Out << "enum";
+
+
+  if (tokens.ast) {
+    auto tag_loc = D->getInnerLocStart();
+    if (auto tag_tok = tokens.ast->RawTokenAt(tag_loc)) {
+      if (tag_tok->Kind() == clang::tok::kw_enum) {
+        ctx.MarkLocation(tag_loc);
+      }
+    }
+  }
+
   if (D->isScoped()) {
     if (D->isScopedUsingClassTag())
       Out << " class";
@@ -470,17 +486,37 @@ void DeclPrinter::VisitEnumDecl(clang::EnumDecl *D) {
   if (D->getDeclName())
     Out << ' ' << D->getDeclName();
 
-  if (D->isFixed())
-    Out << " : " << D->getIntegerType().stream(Policy);
+  if (D->isFixed()) {
+    Out << " :";
+
+    if (tokens.ast) {
+      const TokenImpl *tok =
+          tokens.ast->RawTokenAt(D->getIntegerTypeRange().getBegin());
+      for (auto i = 0; tok && i < 4; ++i) {
+        const TokenImpl &t = tok[-i];
+        if (t.Kind() == clang::tok::colon) {
+          ctx.MarkLocation(t);
+          break;
+        }
+      }
+    }
+
+    Out << " " <<  D->getIntegerType().stream(Policy);
+  }
+
 
   if (D->isCompleteDefinition() && printed_tag) {
     for (auto R : D->redecls()) {
       Out.printed_defs.emplace(R);
     }
 
-    Out << " {\n";
+    auto braces = D->getBraceRange();
+    Out << " {";
+    ctx.MarkLocation(braces.getBegin());
+    Out << '\n';
     VisitDeclContext(D);
     Indent() << "}";
+    ctx.MarkLocation(braces.getEnd());
   }
 }
 
@@ -493,6 +529,20 @@ void DeclPrinter::VisitRecordDecl(clang::RecordDecl *D) {
     Out << "__module_private__ ";
   Out << D->getKindName();
 
+  if (tokens.ast) {
+    auto tag_loc = D->getInnerLocStart();
+    if (auto tag_tok = tokens.ast->RawTokenAt(tag_loc)) {
+      switch (tag_tok->Kind()) {
+        case clang::tok::kw_struct:
+        case clang::tok::kw_union:
+          ctx.MarkLocation(tag_loc);
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
   prettyPrintAttributes(D);
 
   if (D->getIdentifier())
@@ -503,9 +553,13 @@ void DeclPrinter::VisitRecordDecl(clang::RecordDecl *D) {
       Out.printed_defs.emplace(R);
     }
 
-    Out << " {\n";
+    auto braces = D->getBraceRange();
+    Out << " {";
+    ctx.MarkLocation(braces.getBegin());
+    Out << '\n';
     VisitDeclContext(D);
     Indent() << "}";
+    ctx.MarkLocation(braces.getEnd());
   }
 }
 
@@ -972,9 +1026,11 @@ void DeclPrinter::VisitFieldDecl(clang::FieldDecl *D) {
       Out,
       Policy,
       [&] () {
-        TokenPrinterContext jump_up_stack(ctx);
-        Out << D->getName();
-        ctx.MarkLocation(D->getLocation());
+        if (auto name = D->getName(); !name.empty()) {
+          TokenPrinterContext jump_up_stack(ctx);
+          Out << name;
+          ctx.MarkLocation(D->getLocation());
+        }
       },
       Indentation);
 
@@ -1036,9 +1092,11 @@ void DeclPrinter::VisitVarDecl(clang::VarDecl *D) {
   }
 
   printDeclType(T, [&] () {
-    TokenPrinterContext jump_up_stack(ctx);
-    Out << D->getName();
-    ctx.MarkLocation(D->getLocation());
+    if (auto name = D->getName(); !name.empty()) {
+      TokenPrinterContext jump_up_stack(ctx);
+      Out << name;
+      ctx.MarkLocation(D->getLocation());
+    }
   });
 
   clang::Expr *Init = D->getInit();
@@ -2055,9 +2113,9 @@ void DeclPrinter::VisitNonTypeTemplateParmDecl(
   printDeclType(
       NTTP->getType(),
       [&, Name = std::move(Name)] () {
-        TokenPrinterContext jump_up_stack(ctx);
-        Out << Name;
         if (!Name.empty()) {
+          TokenPrinterContext jump_up_stack(ctx);
+          Out << Name;
           ctx.MarkLocation(NTTP->getLocation());
         }
       },

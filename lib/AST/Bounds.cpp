@@ -644,6 +644,27 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         }
         break;
       }
+      // `__ptr32`, ...
+      case clang::AttributeCommonInfo::AS_Keyword: {
+        auto kw_kind = clang::tok::TokenKind::kw___attribute;
+        switch (attr->getKind()) {
+          case clang::attr::AsmLabel:
+            kw_kind = clang::tok::TokenKind::kw_asm;
+            break;
+          case clang::attr::Ptr32:
+            kw_kind = clang::tok::TokenKind::kw___ptr32;
+            break;
+          case clang::attr::Ptr64:
+            kw_kind = clang::tok::TokenKind::kw___ptr64;
+            break;
+          default:
+            break;
+        }
+        if (auto kw = FindNext(attr->getLocation(), kw_kind, -1)) {
+          Expand(kw);
+        }
+        break;
+      }
       default:
         break;
     }

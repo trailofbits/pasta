@@ -27,6 +27,111 @@
 
 namespace pasta {
 
+static void TryLocateAttribute(const clang::Attr *A,
+                               PrintedTokenRangeImpl &tokens,
+                               size_t old_num_toks) {
+  clang::tok::TokenKind kind_to_find = clang::tok::unknown;
+  unsigned num_to_find = 0u;
+  unsigned num_found = 0u;
+  switch (A->getSyntax()) {
+    case clang::AttributeCommonInfo::AS_CXX11:
+    case clang::AttributeCommonInfo::AS_C2x:
+      kind_to_find = clang::tok::l_square;
+      num_to_find = 2u;
+      break;
+
+    case clang::AttributeCommonInfo::AS_GNU:
+      kind_to_find = clang::tok::l_paren;
+      num_to_find = 2u;
+      break;
+    case clang::AttributeCommonInfo::AS_Declspec:
+    case clang::AttributeCommonInfo::AS_Microsoft:
+      kind_to_find = clang::tok::l_paren;
+      num_to_find = 1u;
+      break;
+
+    case clang::AttributeCommonInfo::AS_Keyword:
+    case clang::AttributeCommonInfo::AS_Pragma:
+    case clang::AttributeCommonInfo::AS_ContextSensitiveKeyword:
+    case clang::AttributeCommonInfo::AS_HLSLSemantic:
+      num_to_find = 0u;
+      break;
+  }
+
+  size_t max_i = tokens.tokens.size();
+  if (old_num_toks >= max_i) {
+    return;
+  }
+
+  clang::SourceLocation loc = A->getLocation();
+  PrintedTokenImpl *attr_tok = nullptr;
+
+  for (size_t i = old_num_toks; i < max_i; ++i) {
+    PrintedTokenImpl &tok = tokens.tokens[i];
+    clang::tok::TokenKind kind = tok.Kind();
+
+    switch (kind) {
+      case clang::tok::kw___attribute:
+      case clang::tok::kw___declspec:
+      case clang::tok::kw_asm:
+      case clang::tok::kw___ptr32:
+      case clang::tok::kw___ptr64:
+      case clang::tok::kw___fastcall:
+      case clang::tok::kw___stdcall:
+      case clang::tok::kw___thiscall:
+      case clang::tok::kw___vectorcall:
+      case clang::tok::kw___cdecl:
+      case clang::tok::kw___uuidof:
+      case clang::tok::kw___forceinline:  // Maybe.
+        attr_tok = &tok;
+        break;
+      default:
+        break;
+    }
+
+    if (num_found >= num_to_find) {
+      if (!tok.opaque_source_loc &&
+          (kind == clang::tok::identifier ||
+           kind == clang::tok::raw_identifier)) {
+        llvm::StringRef data(tok.Data(tokens));
+
+        // TODO(pag): uuid, guid?
+        if (data != "__attribute__" &&
+            data != "__declspec") {
+          loc = A->getLoc();
+          tokens.MarkLocation(i, loc);
+          break;
+        }
+      }
+    } else {
+      if (kind == kind_to_find) {
+        ++num_found;
+      }
+    }
+  }
+
+  if (!attr_tok || !tokens.ast) {
+    return;
+  }
+
+  const TokenImpl *parsed_tok = tokens.ast->RawTokenAt(loc);
+  if (!parsed_tok) {
+    return;
+  }
+
+  const TokenImpl *first_parsed_tok = tokens.ast->tokens.data();
+  const TokenImpl *min_parsed_tok =
+      std::max(first_parsed_tok, &(parsed_tok[-32]));
+
+  // Try to find the location of `__attribute__`, `__asm`, etc.
+  for (; min_parsed_tok < parsed_tok; --parsed_tok) {
+    if (parsed_tok->Kind() == attr_tok->Kind()) {
+      attr_tok->opaque_source_loc = parsed_tok->opaque_source_loc;
+      break;
+    }
+  }
+}
+
 // Clang's code for printing attributes doesn't escape nested double quotes in
 // attributes that contain strings, so we need to figure that out.
 void PrintAttribute(raw_string_ostream &Out, const clang::Attr *A,
@@ -40,20 +145,40 @@ void PrintAttribute(raw_string_ostream &Out, const clang::Attr *A,
     os.flush();
   }
 
+  tokens.curr_printer_context->Tokenize();
+  const size_t old_num_toks = tokens.tokens.size();
+
   // Fast path: no embedded strings.
   const char *start = a.c_str();
   const char *first_quote = strchr(start, '"');
   if (!first_quote || first_quote[0] != '"') {
     TokenPrinterContext ctx(Out, A, tokens);
     Out << a;
+    Out.flush();
+
+    tokens.curr_printer_context->Tokenize();
+    TryLocateAttribute(A, tokens, old_num_toks);
     return;
   }
 
   auto end = &(start[a.size()]);
   auto second_quote = strchr(&(first_quote[1]), '"');
   assert(second_quote && second_quote[0] == '"');
+  auto third_quote = strchr(&(second_quote[1]), '"');
 
-  // NOTE(pag): This won't handle doubly/triply nested quotes. Just single
+  // If there is no third quote, then assume no nesting. This is a dumb
+  // hack to handle things like `asm("label")`.
+  if (!third_quote || third_quote[0] != '"') {
+    TokenPrinterContext ctx(Out, A, tokens);
+    Out << a;
+    Out.flush();
+
+    tokens.curr_printer_context->Tokenize();
+    TryLocateAttribute(A, tokens, old_num_toks);
+    return;
+  }
+
+  // TODO(pag): This won't handle doubly/triply nested quotes. Just single
   //            nested quotes.
   new_a.reserve(a.size());
   while (second_quote && strchr(&(second_quote[1]), '"')) {
@@ -73,6 +198,10 @@ void PrintAttribute(raw_string_ostream &Out, const clang::Attr *A,
 
   TokenPrinterContext ctx(Out, A, tokens);
   Out << new_a;
+  Out.flush();
+
+  tokens.curr_printer_context->Tokenize();
+  TryLocateAttribute(A, tokens, old_num_toks);
 }
 
 
@@ -344,6 +473,15 @@ void TokenPrinterContext::Tokenize(void) {
       num_sp = 0;
     }
 
+    // Try to identify keywords where possible.
+    if (tokens.ast && tok.is(clang::tok::raw_identifier)) {
+      clang::Token saved_tok = tok;
+      tokens.ast->orig_source_pp->LookUpIdentifierInfo(tok);
+      if (!clang::tok::getKeywordSpelling(tok.getKind())) {
+        tok = saved_tok;
+      }
+    }
+
     const auto data_offset = static_cast<TokenDataIndex>(tokens.data.size());
     assert(0ll <= static_cast<TokenDataOffset>(data_offset));
     uint32_t data_len = 0u;
@@ -387,24 +525,44 @@ void TokenPrinterContext::Tokenize(void) {
   }
 }
 
+void PrintedTokenRangeImpl::MarkLocation(
+    size_t tok_index, const TokenImpl &tok) {
+  tokens[tok_index].opaque_source_loc = tok.opaque_source_loc;
+}
+
+void PrintedTokenRangeImpl::MarkLocation(size_t tok_index,
+                                         const clang::SourceLocation &loc) {
+  if (!loc.isValid()) {
+    return;
+  }
+
+  // Go figure it out from the AST. We need to go through a lot of indirection
+  // because the source locations inside of the parsed AST relate to a huge
+  // in-memory file where each post-preprocessed token is on its own line.
+  if (ast) {
+    if (const TokenImpl *raw_tok = ast->RawTokenAt(loc)) {
+      MarkLocation(tok_index, *raw_tok);
+    }
+
+  // We don't have an `ASTImpl`, so we'll assume that `loc` is a "real" source
+  // location and not our weird indirect kind.
+  } else {
+    tokens[tok_index].opaque_source_loc = loc.getRawEncoding();
+  }
+}
+
 void TokenPrinterContext::MarkLocation(clang::SourceLocation loc) {
   Tokenize();
-  if (!tokens.tokens.empty() && loc.isValid()) {
+  if (auto num_tokens = tokens.tokens.size()) {
+    tokens.MarkLocation(num_tokens - 1u, loc);
+  }
+}
 
-    // Go figure it out from the AST. We need to go through a lot of indirection
-    // because the source locations inside of the parsed AST relate to a huge
-    // in-memory file where each post-preprocessed token is on its own line.
-    if (tokens.ast) {
-      if (auto raw_tok = tokens.ast->RawTokenAt(loc)) {
-        tokens.tokens.back().opaque_source_loc = raw_tok->opaque_source_loc;
-      }
-
-    // We don't have an `ASTImpl`, so we'll assume that `loc` is a "real" source
-    // location and not our weird indirect kind.
-    } else {
-      assert(loc.isValid());
-      tokens.tokens.back().opaque_source_loc = loc.getRawEncoding();
-    }
+// Mark the last printed token as having the same location as `tok`.
+void TokenPrinterContext::MarkLocation(const TokenImpl &tok) {
+  Tokenize();
+  if (auto num_tokens = tokens.tokens.size()) {
+    tokens.MarkLocation(num_tokens - 1u, tok);
   }
 }
 

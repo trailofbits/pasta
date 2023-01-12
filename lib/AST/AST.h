@@ -176,8 +176,7 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   static Result<std::monostate, std::string> AlignTokens(
       const std::shared_ptr<ASTImpl> &ast_,
       TokenImpl *parsed_begin, TokenImpl *parsed_end,
-      PrintedTokenRangeImpl &range, TokenContextIndex decl_context_id,
-      bool log=false);
+      PrintedTokenRangeImpl &range, TokenContextIndex decl_context_id);
 
   // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
   static Result<AST, std::string> AlignTokens(std::shared_ptr<ASTImpl> ast);

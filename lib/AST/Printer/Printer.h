@@ -8,6 +8,7 @@
 #pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/AST/TypeLoc.h>
 #include <llvm/Support/raw_ostream.h>
 #pragma GCC diagnostic pop
 
@@ -82,6 +83,9 @@ class PrintedTokenRangeImpl {
   // the rest are aliasing ones.
   std::unordered_map<const void *, unsigned> data_to_index;
 
+  // Maps types to type locations.
+  std::unordered_map<const clang::Type *, clang::TypeLoc> type_to_type_loc;
+
   // The current top of the token printer context stack. The structure of the
   // token printing context stack is induced via the call stack, which happens
   // when we recursively print different AST entities.
@@ -99,6 +103,8 @@ class PrintedTokenRangeImpl {
   const TokenContextIndex CreateAlias(
       TokenPrinterContext *tokenizer, TokenContextIndex aliasee);
 
+  void MarkLocation(size_t tok_index, const TokenImpl &tok);
+  void MarkLocation(size_t tok_index, const clang::SourceLocation &loc);
 //  void PopContext(void);
 };
 
@@ -128,6 +134,9 @@ class TokenPrinterContext {
   // Mark the last printed token as having location `loc`. This helps to
   // correlate things in the actual parsed tokens with printed tokens.
   void MarkLocation(clang::SourceLocation loc);
+
+  // Mark the last printed token as having the same location as `tok`.
+  void MarkLocation(const TokenImpl &tok);
 
   ~TokenPrinterContext(void);
 

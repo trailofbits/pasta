@@ -33,6 +33,9 @@ static ::pasta::DeclCategory ClassifyDecl(const clang::Decl *decl) {
       clang::isa<clang::UsingDirectiveDecl>(decl)) {
     return ::pasta::DeclCategory::kNamespace;
 
+  } else if (clang::isa<clang::ConceptDecl>(decl)) {
+    return ::pasta::DeclCategory::kConcept;
+
   } else if (auto tpl_decl = clang::dyn_cast<clang::TemplateDecl>(decl)) {
     if (clang::isa<clang::TemplateTemplateParmDecl>(decl)) {
       return ::pasta::DeclCategory::kTemplateTypeParameter;

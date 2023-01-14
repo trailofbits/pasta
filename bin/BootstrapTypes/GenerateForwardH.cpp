@@ -5,10 +5,38 @@
 #include <fstream>
 #include <ostream>
 #include <string>
+#include <unordered_set>
 
 #include "BootstrapConfig.h"
 #include "Globals.h"
 #include "Util.h"
+
+#define DECL_STR1(d) #d
+#define DECL_STR2(d) DECL_STR1(d)
+#define DECL_STR3(d) DECL_STR2(d)
+
+static const std::unordered_set<std::string> kConcreteDecls{
+#define DECL(d, ...) DECL_STR3(d) "Decl",
+#define ABSTRACT_DECL(...)
+#include <clang/AST/DeclNodes.inc>
+};
+
+static const std::unordered_set<std::string> kConcreteStmts{
+#define STMT(d, ...) DECL_STR3(d),
+#define ABSTRACT_STMT(...)
+#include <clang/AST/StmtNodes.inc>
+};
+
+static const std::unordered_set<std::string> kConcreteTypes{
+#define TYPE(d, base) DECL_STR3(d) "Type",
+#define ABSTRACT_TYPE(...)
+#include <clang/AST/TypeNodes.inc>
+};
+
+static const std::unordered_set<std::string> kConcreteAttrs{
+#define ATTR(d, ...) DECL_STR3(d) "Attr",
+#include <clang/Basic/AttrList.inc>
+};
 
 // Declare PASTA versions of every clang enumeration type from our macro file.
 extern void DeclareEnums(std::ostream &os);
@@ -65,7 +93,9 @@ void GenerateForwardH(void) {
     // Abstract ones.
     if (name == "Decl" ||
         name == "OMPDeclarativeDirectiveDecl" ||
-        name == "OMPDeclarativeDirectiveValueDecl") {
+        name == "OMPDeclarativeDirectiveValueDecl" ||
+        name == "RedeclarableTemplateDecl" ||
+        !kConcreteDecls.count(name_)) {
       os << sep << "    a(" << name_ << ")";
 
     } else {
@@ -97,7 +127,8 @@ void GenerateForwardH(void) {
         name == "OMPExecutableDirective" ||
         name == "OMPLoopDirective" ||
         name == "OMPLoopBasedDirective" ||
-        name == "OMPLoopTransformationDirective") {
+        name == "OMPLoopTransformationDirective" ||
+        !kConcreteStmts.count(name_)) {
       os << sep << "    a(" << name.str() << ")";  // Abstract.
     } else if (name.endswith("Stmt") || name == "OMPCanonicalLoop") {
       os << sep << "    s(" << name.str() << ")";
@@ -126,7 +157,7 @@ void GenerateForwardH(void) {
     if (name == "Type" || name == "TagType" || name == "ReferenceType" ||
         name == "MatrixType" || name == "FunctionType" ||
         name == "DeducedType" || name == "ArrayType" ||
-        name == "TypeWithKeyword") {
+        name == "TypeWithKeyword" || !kConcreteTypes.count(name_)) {
       os << sep << "    a(" << name_ << ")";
     } else {
       os << sep << "    m(" << name.substr(0, name.size() - kTypeLen).str() << ")";
@@ -150,7 +181,8 @@ void GenerateForwardH(void) {
         name == "DeclOrStmtAttr" ||
         name == "InheritableAttr" ||
         name == "InheritableParamAttr" ||
-        name == "ParameterABIAttr") {
+        name == "ParameterABIAttr" ||
+        !kConcreteAttrs.count(name_)) {
       os << sep << "    a(" << name_ << ")";
 
     } else {

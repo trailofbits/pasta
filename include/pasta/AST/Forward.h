@@ -813,7 +813,7 @@ class TypeBuilder;
     a(OMPDeclarativeDirectiveDecl) \
     a(OMPDeclarativeDirectiveValueDecl) \
     m(AccessSpec) \
-    m(BaseUsing) \
+    a(BaseUsingDecl) \
     m(Binding) \
     m(Block) \
     m(BuiltinTemplate) \
@@ -831,7 +831,7 @@ class TypeBuilder;
     m(Concept) \
     m(ConstructorUsingShadow) \
     a(Decl) \
-    m(Declarator) \
+    a(DeclaratorDecl) \
     m(Decomposition) \
     m(Empty) \
     m(EnumConstant) \
@@ -852,7 +852,7 @@ class TypeBuilder;
     m(LinkageSpec) \
     m(MSGuid) \
     m(MSProperty) \
-    m(Named) \
+    a(NamedDecl) \
     m(NamespaceAlias) \
     m(Namespace) \
     m(NonTypeTemplateParm) \
@@ -866,8 +866,8 @@ class TypeBuilder;
     m(ObjCCategory) \
     m(ObjCCategoryImpl) \
     m(ObjCCompatibleAlias) \
-    m(ObjCContainer) \
-    m(ObjCImpl) \
+    a(ObjCContainerDecl) \
+    a(ObjCImplDecl) \
     m(ObjCImplementation) \
     m(ObjCInterface) \
     m(ObjCIvar) \
@@ -880,20 +880,20 @@ class TypeBuilder;
     m(PragmaComment) \
     m(PragmaDetectMismatch) \
     m(Record) \
-    m(RedeclarableTemplate) \
+    a(RedeclarableTemplateDecl) \
     m(RequiresExprBody) \
     m(StaticAssert) \
-    m(Tag) \
-    m(Template) \
+    a(TagDecl) \
+    a(TemplateDecl) \
     m(TemplateParamObject) \
     m(TemplateTemplateParm) \
     m(TemplateTypeParm) \
     m(TranslationUnit) \
     m(TypeAlias) \
     m(TypeAliasTemplate) \
-    m(Type) \
+    a(TypeDecl) \
     m(Typedef) \
-    m(TypedefName) \
+    a(TypedefNameDecl) \
     m(UnnamedGlobalConstant) \
     m(UnresolvedUsingIfExists) \
     m(UnresolvedUsingTypename) \
@@ -903,7 +903,7 @@ class TypeBuilder;
     m(UsingEnum) \
     m(UsingPack) \
     m(UsingShadow) \
-    m(Value) \
+    a(ValueDecl) \
     m(Var) \
     m(VarTemplate) \
     m(VarTemplatePartialSpecialization) \

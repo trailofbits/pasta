@@ -55,6 +55,7 @@ enum class DeclCategory : unsigned int {
   kClass,
   kStructure,
   kUnion,
+  kConcept,
   kInterface,
   kEnumeration,
   kEnumerator,

@@ -280,8 +280,9 @@ class DefineMacroDirective final : public MacroDirective {
  public:
   static std::optional<DefineMacroDirective> From(const Macro &node);
 
-  // The name of this macro.
-  MacroToken Name(void) const noexcept;
+  // The name of this macro. This is optional because the define itself may
+  // be in a conditionally disabled region.
+  std::optional<MacroToken> Name(void) const noexcept;
 
   // Uses of this macro.
   MacroRange Uses(void) const noexcept;

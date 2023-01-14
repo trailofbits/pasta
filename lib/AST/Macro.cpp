@@ -615,12 +615,16 @@ DefineMacroDirective::From(const Macro &node) {
   }
 }
 
-MacroToken DefineMacroDirective::Name(void) const noexcept {
+std::optional<MacroToken> DefineMacroDirective::Name(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroDirectiveImpl *dir_impl = dynamic_cast<MacroDirectiveImpl *>(node_impl);
-  assert(std::holds_alternative<MacroTokenImpl *>(dir_impl->macro_name));
-  return MacroToken(ast, &(dir_impl->macro_name));
+  if (std::holds_alternative<MacroTokenImpl *>(dir_impl->macro_name)) {
+    return MacroToken(ast, &(dir_impl->macro_name));
+  } else {
+    assert(std::holds_alternative<std::monostate>(dir_impl->macro_name));
+    return std::nullopt;
+  }
 }
 
 // Number of explicit, i.e. not variadic, parameters.

@@ -1116,6 +1116,11 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
   {{"VarDecl", "HasFlexibleArrayInitializer"},
    "  if (!self.hasInit()) {\n"
    "    return std::nullopt;\n"
+   "  }\n"
+   "  auto *init_list = clang::dyn_cast<clang::InitListExpr>(\n"
+   "      self.getInit()->IgnoreParens());\n"
+   "  if (!init_list || !init_list->getNumInits()) {\n"
+   "    return false;\n"
    "  }\n"},
   {{"AlignedAttr", "AlignmentType"},
    "  if (self.isAlignmentExpr()) {\n"

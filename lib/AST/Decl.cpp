@@ -7084,6 +7084,11 @@ std::optional<bool> VarDecl::HasFlexibleArrayInitializer(void) const noexcept {
   if (!self.hasInit()) {
     return std::nullopt;
   }
+  auto *init_list = clang::dyn_cast<clang::InitListExpr>(
+      self.getInit()->IgnoreParens());
+  if (!init_list || !init_list->getNumInits()) {
+    return false;
+  }
   decltype(auto) val = self.hasFlexibleArrayInit(ast->ci->getASTContext());
   return val;
   __builtin_unreachable();

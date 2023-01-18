@@ -164,6 +164,24 @@ class TokenImpl {
     return static_cast<TokenRole>(role);
   }
 
+  inline bool IsParsed(void) const noexcept {
+    switch (Role()) {
+      case TokenRole::kInvalid:
+      case TokenRole::kBeginOfFileMarker:
+      case TokenRole::kEndOfFileMarker:
+      case TokenRole::kBeginOfMacroExpansionMarker:
+      case TokenRole::kEndOfMacroExpansionMarker:
+      case TokenRole::kInitialMacroUseToken:
+      case TokenRole::kIntermediateMacroExpansionToken:
+      case TokenRole::kEndOfInternalMacroEventMarker:
+        return false;
+
+      case TokenRole::kFinalMacroExpansionToken:
+      case TokenRole::kFileToken:
+        return true;
+    }
+  }
+
   inline bool HasMacroRole(void) const noexcept {
     switch (Role()) {
       case TokenRole::kBeginOfMacroExpansionMarker:

@@ -18,8 +18,11 @@
 #include <pasta/Util/File.h>
 
 namespace clang {
-class Preprocessor;
 class ASTContext;
+class Decl;
+class Stmt;
+class Preprocessor;
+class SourceLocation;
 }  // namespace clang
 
 namespace pasta {
@@ -28,6 +31,8 @@ class ASTImpl;
 class CompileJob;
 class Compiler;
 class Decl;
+class Stmt;
+class Token;
 class TokenContext;
 class Type;
 
@@ -74,6 +79,10 @@ class AST {
   // Return the list of all source files which were parsed as part of the
   // construction of this AST.
   const std::vector<::pasta::File> &ParsedFiles(void) const;
+
+  Token Adopt(const clang::SourceLocation &loc) const;
+  Decl Adopt(const clang::Decl *decl) const;
+  Stmt Adopt(const clang::Stmt *stmt) const;
 
  private:
   friend class ASTImpl;

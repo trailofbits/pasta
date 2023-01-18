@@ -19,6 +19,7 @@
 #include <clang/AST/TypeLoc.h>
 #include <clang/AST/TypeLocVisitor.h>
 #include <clang/Lex/Token.h>
+#include <llvm/Support/raw_ostream.h>
 #pragma clang diagnostic pop
 
 #include <algorithm>
@@ -137,12 +138,14 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
  public:
 
-  // Scans forward or backward, starting at `tok` and tries to identify the
-  // next balanced paren, brace, or square.
-  TokenImpl *ScanForMatching(TokenImpl *tok, int64_t increment) {
+  TokenImpl *ScanForwardForMatching(TokenImpl *tok,
+                                    clang::tok::TokenKind close_tok) {
     auto count = 0;
 
-    for (; first_tok <= tok && tok <= last_tok; tok = &(tok[increment])) {
+    for (; first_tok <= tok && tok <= last_tok; ++tok) {
+      if (!tok->IsParsed()) {
+        continue;
+      }
       switch (auto tok_kind = tok->Kind()) {
         case clang::tok::l_paren:
         case clang::tok::l_brace:
@@ -152,119 +155,131 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         case clang::tok::r_paren:
         case clang::tok::r_brace:
         case clang::tok::r_square:
-          --count;
+          if (count) {
+            --count;
+          }
+          if (!count) {
+            if (tok_kind == close_tok) {
+              return tok;
+            }
+          }
           break;
         default:
-
-          // NOTE(pag): This is a heuristic for detecting when things go
-          //            "too far."
-          if (tok_kind == clang::tok::kw_namespace) {
-            assert(tok[-1].Kind() == clang::tok::kw_using);
-          }
-          continue;
-      }
-
-      if (!count) {
-        return tok;
+          break;
       }
     }
 
     return nullptr;
   }
 
+  TokenImpl *ScanBackwardForMatching(TokenImpl *tok,
+                                      clang::tok::TokenKind open_tok) {
+    auto count = 0;
+
+    for (; first_tok <= tok && tok <= last_tok; --tok) {
+      if (!tok->IsParsed()) {
+        continue;
+      }
+      switch (auto tok_kind = tok->Kind()) {
+        case clang::tok::r_paren:
+        case clang::tok::r_brace:
+        case clang::tok::r_square:
+          ++count;
+          break;
+        case clang::tok::l_paren:
+        case clang::tok::l_brace:
+        case clang::tok::l_square:
+          if (count) {
+            --count;
+          }
+          if (!count) {
+            if (tok_kind == open_tok) {
+              return tok;
+            }
+          }
+          break;
+        default:
+          break;
+      }
+    }
+
+    return nullptr;
+  }
+
+//  // Scans forward or backward, starting at `tok` and tries to identify the
+//  // next balanced paren, brace, or square.
+//  TokenImpl *ScanForMatching(TokenImpl *tok, int64_t increment) {
+//    auto count = 0;
+//
+//    for (; first_tok <= tok && tok <= last_tok; tok = &(tok[increment])) {
+//      if (!tok->IsParsed()) {
+//        continue;
+//      }
+//      switch (auto tok_kind = tok->Kind()) {
+//        case clang::tok::l_paren:
+//        case clang::tok::l_brace:
+//        case clang::tok::l_square:
+//          ++count;
+//          break;
+//        case clang::tok::r_paren:
+//        case clang::tok::r_brace:
+//        case clang::tok::r_square:
+//          --count;
+//          break;
+//        default:
+//
+//          // NOTE(pag): This is a heuristic for detecting when things go
+//          //            "too far."
+//          if (tok_kind == clang::tok::kw_namespace) {
+//            assert(tok[-1].Kind() == clang::tok::kw_using);
+//          }
+//          continue;
+//      }
+//
+//      if (!count) {
+//        return tok;
+//      }
+//    }
+//
+//    return nullptr;
+//  }
+
   // Scans forward or backward, starting at `tok` and tries to identify the
   // next balanced paren, brace, or square.
   std::pair<TokenImpl *, TokenImpl *> GetMatching(TokenImpl *tok) {
-    if (tok) {
-      switch (auto tok_kind = tok->Kind()) {
-        case clang::tok::l_paren:
-        case clang::tok::l_brace:
-        case clang::tok::l_square: {
-          auto &matching_tok = ast.matching[tok];
-          if (!matching_tok) {
-            matching_tok = ScanForMatching(tok, 1);
-            assert(matching_tok->Kind() ==
-                   static_cast<clang::tok::TokenKind>(tok_kind + 1));
-            ast.matching.emplace(matching_tok, tok);
-          }
-          return {tok, matching_tok};
-        }
-        case clang::tok::r_paren:
-        case clang::tok::r_brace:
-        case clang::tok::r_square: {
-          auto &matching_tok = ast.matching[tok];
-          if (!matching_tok) {
-            matching_tok = ScanForMatching(tok, -1);
-            assert(matching_tok->Kind() ==
-                   static_cast<clang::tok::TokenKind>(tok_kind - 1));
-            ast.matching.emplace(matching_tok, tok);
-          }
-          return {matching_tok, tok};
-        }
-        default:
-          (void) tok_kind;
-          return {};
-      }
-    } else {
+    if (!tok || !tok->IsParsed()) {
       return {};
     }
-  }
-
-  std::pair<TokenImpl *, TokenImpl *> GetMatching(clang::SourceRange range) {
-    TokenImpl *begin = ast.RawTokenAt(range.getBegin());
-    TokenImpl *end = ast.RawTokenAt(range.getEnd());
-
-    clang::tok::TokenKind open_kind = clang::tok::unknown;
-    clang::tok::TokenKind close_kind = clang::tok::unknown;
-
-    if (begin) {
-      const auto begin_kind = begin->Kind();
-      if (begin_kind == clang::tok::l_paren) {
-        close_kind = clang::tok::r_paren;
-      } else if (begin_kind == clang::tok::l_brace) {
-        close_kind = clang::tok::r_brace;
-      } else if (begin_kind == clang::tok::l_square) {
-        close_kind = clang::tok::r_square;
-      } else {
-        begin = nullptr;
+    switch (auto tok_kind = tok->Kind()) {
+      case clang::tok::l_paren:
+      case clang::tok::l_brace:
+      case clang::tok::l_square: {
+        auto &matching_tok = ast.matching[tok];
+        if (!matching_tok) {
+          matching_tok = ScanForwardForMatching(
+              tok, static_cast<clang::tok::TokenKind>(tok_kind + 1));
+          assert(matching_tok->Kind() ==
+                 static_cast<clang::tok::TokenKind>(tok_kind + 1));
+          ast.matching.emplace(matching_tok, tok);
+        }
+        return {tok, matching_tok};
       }
-    }
-
-    if (end) {
-      const auto end_kind = end->Kind();
-      if (end_kind == clang::tok::r_paren) {
-        open_kind = clang::tok::l_paren;
-      } else if (end_kind == clang::tok::r_brace) {
-        open_kind = clang::tok::l_brace;
-      } else if (end_kind == clang::tok::r_square) {
-        open_kind = clang::tok::l_square;
-      } else {
-        end = nullptr;
+      case clang::tok::r_paren:
+      case clang::tok::r_brace:
+      case clang::tok::r_square: {
+        auto &matching_tok = ast.matching[tok];
+        if (!matching_tok) {
+          matching_tok = ScanBackwardForMatching(
+              tok, static_cast<clang::tok::TokenKind>(tok_kind - 1));
+          assert(matching_tok->Kind() ==
+                 static_cast<clang::tok::TokenKind>(tok_kind - 1));
+          ast.matching.emplace(matching_tok, tok);
+        }
+        return {matching_tok, tok};
       }
-    }
-
-    if (begin && !end) {
-      end = GetMatching(begin).second;
-    } else if (end && !begin) {
-      begin = GetMatching(end).first;
-    }
-
-    if (begin && end && begin->Kind() == open_kind && end->Kind() == close_kind) {
-      assert(GetMatching(begin).second == end);
-      assert(GetMatching(end).first == begin);
-      return {begin, end};
-    }
-
-    return {};
-  }
-
-  // Scans forward or backward, starting at `loc` and tries to identify the
-  // next balanced paren, brace, or square.
-  TokenImpl *ScanForMatching(clang::SourceLocation loc, int64_t increment) {
-    if (auto tok = ast.RawTokenAt(loc)) {
-      return ScanForMatching(tok, increment);
-    } else {
-      return nullptr;
+      default:
+        (void) tok_kind;
+        return {};
     }
   }
 
@@ -272,20 +287,6 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   // a `TagDecl`, and then looks for a closing `}`, a closing `;`, or the
   // last token before an unbalanced paren/bracket/brace.
   TokenImpl *FindEndOfTag(clang::TagDecl *decl, TokenImpl *tok) {
-//    std::cerr
-//        << "0) decl="
-//        << reinterpret_cast<void *>(decl) << " lower_bound="
-//        << reinterpret_cast<void *>(lower_bound) << " upper_bound="
-//        << reinterpret_cast<void *>(upper_bound) << '\n' ;
-//
-//    auto T = [=] (const TokenImpl * t) {
-//      std::cerr << ' ' << t->Data(ast);
-//    };
-//
-//    for (auto t = lower_bound; t && t <= upper_bound; ++t) {
-//      T(t);
-//    }
-//    std::cerr << "\n\n";
 
     auto can_have_l_brace = decl->isCompleteDefinition();
     auto can_have_semi = !decl->isEmbeddedInDeclarator();
@@ -301,6 +302,9 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 //      std::cerr << "nesting=" << nesting;
 //      T(tok);
 //      std::cerr << '\n';
+      if (!tok->IsParsed()) {
+        continue;
+      }
       const auto tok_kind = tok->Kind();
       switch (tok_kind) {
         // If we get to another keyword like these without being nested then
@@ -331,28 +335,40 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
           [[clang::fallthrough]];
         case clang::tok::l_paren:
         case clang::tok::l_square:
-          if (auto matching_tok = GetMatching(tok).second) {
-            tok = matching_tok;
-          } else {
-            nesting += 1;
-          }
+//          if (auto matching_tok = GetMatching(tok).second) {
+//            tok = matching_tok;
+//          } else {
+          nesting += 1;
+//          }
           break;
         case clang::tok::r_brace:
           if (!can_have_l_brace) {
             return nullptr;
           }
-          [[clang::fallthrough]];
-        case clang::tok::r_paren:
-        case clang::tok::r_square:
-          if (!nesting) {
-            return nullptr;
-          } else {
+
+          if (nesting) {
             nesting -= 1;
-            if (!nesting && !can_have_semi) {
+          }
+
+          if (!nesting) {
+            if (can_have_semi) {
+              r_brace = tok;
+            } else {
               return tok;
             }
-            break;
           }
+          break;
+
+        case clang::tok::r_paren:
+        case clang::tok::r_square:
+          if (nesting) {
+            nesting -= 1;
+          }
+
+          if (!nesting && !can_have_semi) {
+            return tok;
+          }
+          break;
         case clang::tok::semi:
           if (!can_have_semi) {
             return nullptr;
@@ -387,34 +403,41 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   // Scans forward starting from `tok`, assumed to be the beginning of
   // a `FunctionDecl`, and then looks for a closing `}`, a closing `;`, or the
   // last token before an unbalanced paren/bracket/brace.
-  TokenImpl *FindEndOfFunction(TokenImpl *tok) {
+  TokenImpl *FindEndOfFunction(clang::FunctionDecl *decl, TokenImpl *tok) {
+
     auto first_tok = &(ast.tokens.front());
     auto last_tok = &(ast.tokens.back());
     TokenImpl *prev_tok = nullptr;
     int64_t nesting = 0;
     for (; first_tok <= tok && tok <= last_tok;
          prev_tok = tok, tok = &(tok[1])) {
+      if (!tok->IsParsed()) {
+        continue;
+      }
       const auto tok_kind = tok->Kind();
       switch (tok_kind) {
         case clang::tok::l_paren:
         case clang::tok::l_brace:
         case clang::tok::l_square:
-          if (auto matching_tok = GetMatching(tok).second) {
-            tok = matching_tok;
-            if (!nesting && tok->Kind() == clang::tok::r_brace) {
-              return tok;
-            }
-          } else {
+//          if (auto matching_tok = GetMatching(tok).second) {
+//            tok = matching_tok;
+//            if (!nesting && tok_kind == clang::tok::r_brace) {
+//              return tok;
+//            }
+//          } else {
             nesting += 1;
-          }
+//          }
           break;
         case clang::tok::r_paren:
         case clang::tok::r_square:
-          nesting -= 1;
+          if (nesting) {
+            nesting -= 1;
+          }
           break;
-
         case clang::tok::r_brace:
-          nesting -= 1;
+          if (nesting) {
+            nesting -= 1;
+          }
           if (!nesting) {
             return tok;
           }
@@ -477,6 +500,9 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     auto last_tok = &(ast.tokens.back());
     int64_t nesting = 0;
     for (; first_tok <= tok && tok <= last_tok; tok = &(tok[increment])) {
+      if (!tok->IsParsed()) {
+        continue;
+      }
       const auto tok_kind = tok->Kind();
       switch (tok_kind) {
         case clang::tok::l_paren:
@@ -646,7 +672,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       }
       // `__ptr32`, ...
       case clang::AttributeCommonInfo::AS_Keyword: {
-        auto kw_kind = clang::tok::TokenKind::kw___attribute;
+        auto kw_kind = clang::tok::TokenKind::unknown;
         switch (attr->getKind()) {
           case clang::attr::AsmLabel:
             kw_kind = clang::tok::TokenKind::kw_asm;
@@ -656,6 +682,33 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
             break;
           case clang::attr::Ptr64:
             kw_kind = clang::tok::TokenKind::kw___ptr64;
+            break;
+          case clang::attr::FastCall:
+            kw_kind = clang::tok::TokenKind::kw___fastcall;
+            break;
+          case clang::attr::StdCall:
+            kw_kind = clang::tok::TokenKind::kw___stdcall;
+            break;
+          case clang::attr::ThisCall:
+            kw_kind = clang::tok::TokenKind::kw___thiscall;
+            break;
+          case clang::attr::VectorCall:
+            kw_kind = clang::tok::TokenKind::kw___vectorcall;
+            break;
+          case clang::attr::CDecl:
+            kw_kind = clang::tok::TokenKind::kw___cdecl;
+            break;
+          case clang::attr::TypeNonNull:
+            kw_kind = clang::tok::TokenKind::kw__Nonnull;
+            break;
+          case clang::attr::TypeNullable:
+            kw_kind = clang::tok::TokenKind::kw__Nullable;
+            break;
+          case clang::attr::TypeNullUnspecified:
+            kw_kind = clang::tok::TokenKind::kw__Null_unspecified;
+            break;
+          case clang::attr::TypeNullableResult:
+            kw_kind = clang::tok::TokenKind::kw__Nullable_result;
             break;
           default:
             break;
@@ -673,10 +726,30 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   }
 
   void VisitCommonFunctionDecl(clang::FunctionDecl *decl) {
+//    auto X = decl->getNameAsString() == "bsd_signal";
+    auto D = [=] (const char * d) {
+      (void) d;
+//      if (X) {
+//        std::cerr
+//            << "--------------------------- " << d << " decl="
+//            << reinterpret_cast<void *>(decl) << " lower_bound="
+//            << reinterpret_cast<void *>(lower_bound) << " upper_bound="
+//            << reinterpret_cast<void *>(upper_bound) << '\n' ;
+//        for (auto t = lower_bound; t && t <= upper_bound; ++t) {
+//          if (t->IsParsed()) {
+//            std::cerr << ' ' << t->Data(ast);
+//          }
+//        }
+//        std::cerr << "\n\n";
+//      }
+    };
+
+    D("a");
     if (auto ftl = decl->getFunctionTypeLoc()) {
       this->TypeLocVisitor::Visit(ftl);
     }
 
+    D("b");
     // Expand to handle things like: `static const char *` or
     // `inline static constexpr`.
     for (auto changed = true; changed; ) {
@@ -692,11 +765,13 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       changed = ExpandLeadingKeyword(clang::tok::kw_const) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw_constexpr) || changed;
     }
+    D("c");
 
     TokenImpl *tok_loc = ast.RawTokenAt(decl->getLocation());
     if (tok_loc) {
-      if (auto end_tok = FindEndOfFunction(tok_loc)) {
+      if (auto end_tok = FindEndOfFunction(decl, tok_loc)) {
         upper_bound = end_tok;
+        D("d");
         return;
       }
     }
@@ -705,16 +780,19 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     auto body = decl->getBody(def);
     if (def == decl) {
       Expand(body->getSourceRange());
+      D("e");
 
     } else if (decl->isExplicitlyDefaulted() || decl->isDeletedAsWritten() ||
                decl->isPure() || decl->hasDefiningAttr()) {
 
       ExpandToTrailingToken(tok_loc, clang::tok::semi);
+      D("f");
 
     } else if (decl->hasSkippedBody() || decl->willHaveBody()) {
 
     } else if (!decl->doesThisDeclarationHaveABody()) {
       ExpandToTrailingToken(tok_loc, clang::tok::semi);
+      D("g");
     }
   }
 
@@ -951,23 +1029,6 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
   void VisitClassTemplateSpecializationDecl(
       clang::ClassTemplateSpecializationDecl *decl) {
-//    auto X = decl->getNameAsString() == "basic_streambuf";
-//    auto D = [=] (const char * d) {
-//      if (X) {
-//        std::cerr
-//            << "--------------------------- " << d << " decl="
-//            << reinterpret_cast<void *>(decl) << " lower_bound="
-//            << reinterpret_cast<void *>(lower_bound) << " upper_bound="
-//            << reinterpret_cast<void *>(upper_bound) << '\n' ;
-//        for (auto t = lower_bound; t && t <= upper_bound; ++t) {
-//          std::cerr << ' ' << t->Data(ast);
-//        }
-//        std::cerr << "\n\n";
-//      }
-//    };
-
-//    D("a");
-//    D("b");
 //    Expand(decl->getSourceRange());
 
     if (decl->getSpecializationKind() == clang::TSK_ExplicitSpecialization) {
@@ -1270,17 +1331,50 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 //      }
 //    }
 
+//    if (auto debug_decl = decl) {
+//      std::cerr
+//          << "-----------------------------------------------------\n"
+//          << "decl="
+//          << reinterpret_cast<void *>(decl);
+//
+//      if (auto nd = clang::dyn_cast<clang::NamedDecl>(decl)) {
+//        std::string name;
+//        llvm::raw_string_ostream name_os(name);
+//        nd->getDeclName().print(name_os, *ast.printing_policy);
+//        std::cerr << " name=" << name;
+//      }
+//
+//      std::cerr
+//          << " lower_bound="
+//          << reinterpret_cast<void *>(lower_bound) << " upper_bound="
+//          << reinterpret_cast<void *>(upper_bound) << '\n' ;
+//
+//      auto T = [=] (const TokenImpl * t) {
+//        if (t->IsParsed()) {
+//          std::cerr << ' ' << t->Data(ast);
+//        }
+//      };
+//
+//      for (auto t = lower_bound; debug_decl && t && t <= upper_bound; ++t) {
+//        T(t);
+//      }
+//      std::cerr << "\n\n";
+//    }
+
+    assert(lower_bound->IsParsed());
+    assert(upper_bound->IsParsed());
+
     const auto orig_lower_bound = lower_bound;
     const auto orig_upper_bound = upper_bound;
 
-    // Make sure that we capture matching parens/brackets/braces.
-    for (auto t = lower_bound; t <= upper_bound; ++t) {
-      if (auto [new_begin, new_end] = GetMatching(t); new_begin && new_end) {
-        lower_bound = std::min(new_begin, lower_bound);
-        upper_bound = std::max(new_end, upper_bound);
-        t = new_end;
-      }
-    }
+//    // Make sure that we capture matching parens/brackets/braces.
+//    for (auto t = lower_bound; t <= upper_bound; ++t) {
+//      if (auto [new_begin, new_end] = GetMatching(t); new_begin && new_end) {
+//        lower_bound = std::min(new_begin, lower_bound);
+//        upper_bound = std::max(new_end, upper_bound);
+//        t = new_end;
+//      }
+//    }
 
 //    std::cerr
 //        << "x) decl="

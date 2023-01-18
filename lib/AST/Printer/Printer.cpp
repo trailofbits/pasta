@@ -81,8 +81,11 @@ static void TryLocateAttribute(const clang::Attr *A,
       case clang::tok::kw___thiscall:
       case clang::tok::kw___vectorcall:
       case clang::tok::kw___cdecl:
-      case clang::tok::kw___uuidof:
       case clang::tok::kw___forceinline:  // Maybe.
+      case clang::tok::kw__Nonnull:
+      case clang::tok::kw__Nullable:
+      case clang::tok::kw__Null_unspecified:
+      case clang::tok::kw__Nullable_result:
         attr_tok = &tok;
         break;
       default:

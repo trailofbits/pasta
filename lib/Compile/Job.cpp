@@ -103,9 +103,13 @@ static bool OmitOption(unsigned id) {
     case clang::driver::options::OPT_fcoverage_mapping:
     case clang::driver::options::OPT_fcoverage_prefix_map_EQ:
     case clang::driver::options::OPT_fcrash_diagnostics_dir:
+
+    // Randomization.
     case clang::driver::options::OPT_frandom_seed_EQ:
     case clang::driver::options::OPT_frandomize_layout_seed_EQ:
     case clang::driver::options::OPT_frandomize_layout_seed_file_EQ:
+
+    // File references.
     case clang::driver::options::OPT_frewrite_map_file_EQ:
     case clang::driver::options::OPT_fprofile_remapping_file_EQ:
     case clang::driver::options::OPT_fmodules_embed_file_EQ:
@@ -114,6 +118,14 @@ static bool OmitOption(unsigned id) {
     case clang::driver::options::OPT_coverage_notes_file_EQ:
     case clang::driver::options::OPT_coverage_notes_file:
     case clang::driver::options::OPT_foptimization_record_file_EQ:
+
+    // Warning/error settings.
+    case clang::driver::options::OPT_Wall:
+    case clang::driver::options::OPT__SLASH_Wall:
+    case clang::driver::options::OPT__SLASH_W1:
+    case clang::driver::options::OPT__SLASH_W2:
+    case clang::driver::options::OPT__SLASH_W3:
+    case clang::driver::options::OPT__SLASH_W4:
       return true;
     default:
       return false;

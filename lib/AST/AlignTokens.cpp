@@ -58,7 +58,13 @@ static bool TokenCanBeAssignedContext(const TokenImpl *token) {
     case clang::tok::comment:
       return false;
     default:
-      return token->IsParsed() && token->data_len != 0;
+      if (token->IsParsed()) {
+        return token->data_len != 0;
+
+      // Probably a printed token.
+      } else {
+        return token->Role() == TokenRole::kInvalid;
+      }
   }
 }
 

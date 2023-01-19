@@ -103,6 +103,17 @@ static bool OmitOption(unsigned id) {
     case clang::driver::options::OPT_fcoverage_mapping:
     case clang::driver::options::OPT_fcoverage_prefix_map_EQ:
     case clang::driver::options::OPT_fcrash_diagnostics_dir:
+    case clang::driver::options::OPT_frandom_seed_EQ:
+    case clang::driver::options::OPT_frandomize_layout_seed_EQ:
+    case clang::driver::options::OPT_frandomize_layout_seed_file_EQ:
+    case clang::driver::options::OPT_frewrite_map_file_EQ:
+    case clang::driver::options::OPT_fprofile_remapping_file_EQ:
+    case clang::driver::options::OPT_fmodules_embed_file_EQ:
+    case clang::driver::options::OPT_coverage_data_file_EQ:
+    case clang::driver::options::OPT_coverage_data_file:
+    case clang::driver::options::OPT_coverage_notes_file_EQ:
+    case clang::driver::options::OPT_coverage_notes_file:
+    case clang::driver::options::OPT_foptimization_record_file_EQ:
       return true;
     default:
       return false;

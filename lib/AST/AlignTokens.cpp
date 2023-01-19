@@ -52,27 +52,14 @@ static bool TokenLocationsMatch(const TokenImpl *parsed,
 static bool TokenCanBeAssignedContext(const TokenImpl *token) {
   switch (token->Kind()) {
     case clang::tok::unknown:
+    case clang::tok::eod:
+    case clang::tok::eof:
+    case clang::tok::code_completion:
     case clang::tok::comment:
       return false;
     default:
-      break;
+      return token->IsParsed() && token->data_len != 0;
   }
-  switch (token->Role()) {
-    case TokenRole::kInvalid:
-      return true;
-    case TokenRole::kBeginOfFileMarker:
-    case TokenRole::kEndOfFileMarker:
-    case TokenRole::kBeginOfMacroExpansionMarker:
-    case TokenRole::kEndOfMacroExpansionMarker:
-    case TokenRole::kInitialMacroUseToken:
-    case TokenRole::kIntermediateMacroExpansionToken:
-    case TokenRole::kEndOfInternalMacroEventMarker:
-      return false;
-    case TokenRole::kFinalMacroExpansionToken:
-    case TokenRole::kFileToken:
-      return true;
-  }
-  return token->data_len != 0;
 }
 
 enum class RegionKind {

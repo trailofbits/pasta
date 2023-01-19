@@ -11,6 +11,8 @@
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wfloat-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/Basic/DiagnosticIDs.h>
+#include <clang/Basic/DiagnosticSema.h>
 #include <clang/Basic/FileManager.h>
 #include <clang/Basic/SourceManager.h>
 #include <clang/Driver/DriverDiagnostic.h>

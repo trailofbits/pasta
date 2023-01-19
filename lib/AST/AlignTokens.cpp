@@ -645,14 +645,25 @@ SequenceRegion *Matcher::BuildRegions(
   // braces, and parentheses with what is in the pre-processed code. We go
   // backward because the printed token ranges might start with declarations
   // for builtins, which are not present in the preprocessed code.
-  for (auto it = after_last, end = first; it != end; ) {
+  auto prev_it = after_last;
+  for (auto it = after_last, end = first; it != end; prev_it = it) {
 
     TokenImpl *next_tok_ptr = reinterpret_cast<TokenImpl *>(it);
 
     // Decrement by `sizeof(TokenImpl)` or `sizeof(PrintedTokenImpl)`.
     it = &(it[-tok_size]);
 
+    assert(it < prev_it);
+    (void) prev_it;
+
     TokenImpl &tok = *reinterpret_cast<TokenImpl *>(it);
+
+//    if (auto hl_tok = ast.TokenAt(&tok)) {
+//      for (auto i = 0u; i < match_stack.size(); ++i) {
+//        std::cerr << ' ';
+//      }
+//      std::cerr << hl_tok.Index() << ' ' << hl_tok.KindName() << ' ' << hl_tok.Data() << '\n';
+//    }
 
     // This is a macro expansion token; ignore it.
     if (!TokenCanBeAssignedContext(&tok)) {
@@ -662,7 +673,7 @@ SequenceRegion *Matcher::BuildRegions(
       continue;  // Skip.
     }
 
-    const auto tok_kind = tok.Kind();
+    const clang::tok::TokenKind tok_kind = tok.Kind();
 
     // If we just saw a balanced region, and now we're seeing an identifier,
     // then we want to use that identifier as part of our matching criteria.
@@ -712,10 +723,21 @@ SequenceRegion *Matcher::BuildRegions(
       case clang::tok::l_square:
       case clang::tok::l_brace:
         add_uncollected_stmt(next_tok_ptr);
+
+        // If this happens, it's likely a bug in `Bounds.cpp`.
         if (match_stack.empty()) {
           err << "Unable to match opening "
               << clang::tok::getTokenName(tok_kind)
               << "; match stack is empty for " << list_kind << " tokens";
+
+          if (Token hl_tok = ast.TokenAt(&tok)) {
+            err << " (index " << hl_tok.Index() << ')';
+            if (auto ft = hl_tok.FileLocation()) {
+              auto file = File::Containing(ft.value());
+              err << " at " << file.Path().generic_string()
+                  << ':' << ft->Line() << ':' << ft->Column();
+            }
+          }
           return nullptr;
         } else {
           auto [opening_kind, r_tok] = match_stack.back();
@@ -733,6 +755,21 @@ SequenceRegion *Matcher::BuildRegions(
                 << ((reinterpret_cast<uint8_t *>(r_tok) - first) / tok_size)
                 << ") in " << list_kind << " tokens";
 
+            if (Token hl_tok_begin = ast.TokenAt(&tok)) {
+              if (auto ft = hl_tok_begin.FileLocation()) {
+                auto file = File::Containing(ft.value());
+                err << " starting at " << file.Path().generic_string()
+                    << ':' << ft->Line() << ':' << ft->Column();
+              }
+            }
+
+            if (Token hl_tok_end = ast.TokenAt(r_tok)) {
+              if (auto ft = hl_tok_end.FileLocation()) {
+                auto file = File::Containing(ft.value());
+                err << " ending at " << file.Path().generic_string()
+                    << ':' << ft->Line() << ':' << ft->Column();
+              }
+            }
             return nullptr;
 
           } else {
@@ -1548,6 +1585,18 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
       loc_to_toks.emplace(tok->opaque_source_loc, tok);
     }
   }
+
+//  std::cerr << "\n\n----------------------------------------- "
+//            << ast->TokenAt(parsed_begin).Index() << ' '
+//            << ast->TokenAt(&(parsed_end[-1])).Index() << "\n";
+//  auto sep = "";
+//  for (auto t = parsed_begin; t < parsed_end; ++t) {
+//    if (TokenCanBeAssignedContext(t)) {
+//      std::cerr << sep << t->Data(*ast);
+//      sep = " ";
+//    }
+//  }
+//  std::cerr << '\n';
 
   // Join on the shared source locations, and linearly "spread"
   // outward from there. This should generally cover a bunch.

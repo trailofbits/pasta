@@ -1316,20 +1316,22 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
     Visit(decl);
 
-//    for (auto t = lower_bound; t <= upper_bound; ++t) {
-//      switch (t->Kind()) {
-//        case clang::tok::l_paren:
-//        case clang::tok::l_square:
-//        case clang::tok::l_brace:
-//          if (auto [_, new_end] = GetMatching(t);new_end) {
-//            upper_bound = std::max(upper_bound, new_end);
-//            t = new_end;
-//          }
-//          break;
-//        default:
-//          break;
-//      }
-//    }
+    for (auto t = lower_bound; t <= upper_bound; ++t) {
+      switch (t->Kind()) {
+        case clang::tok::l_paren:
+        case clang::tok::l_square:
+        case clang::tok::l_brace:
+          if (auto [new_begin, new_end] = GetMatching(t);
+             new_begin && new_end) {
+            lower_bound = std::min(lower_bound, new_begin);
+            upper_bound = std::max(upper_bound, new_end);
+            t = new_end;
+          }
+          break;
+        default:
+          break;
+      }
+    }
 
 //    if (auto debug_decl = decl) {
 //      std::cerr

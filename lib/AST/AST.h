@@ -55,6 +55,9 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // Try to return the token at the specified location.
   Token TokenAt(clang::SourceLocation loc);
 
+  // Try to return the token at the specified location.
+  Token TokenAt(const TokenImpl *tok);
+
   // Try to return the token range from the specified source range.
   TokenRange TokenRangeFrom(clang::SourceRange range);
 

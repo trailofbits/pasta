@@ -154,6 +154,18 @@ Token ASTImpl::TokenAt(clang::SourceLocation loc) {
   }
 }
 
+// Try to return the token at the specified location.
+Token ASTImpl::TokenAt(const TokenImpl *tok) {
+  auto self = shared_from_this();
+  auto begin = tokens.data();
+  auto end = &(begin[tokens.size()]);
+  if (begin <= tok && tok < end) {
+    return Token(std::move(self), tok);
+  } else {
+    return Token(std::move(self));
+  }
+}
+
 // Try to return the token range from the specified source range.
 TokenRange ASTImpl::TokenRangeFrom(clang::SourceRange range) {
   auto self = shared_from_this();

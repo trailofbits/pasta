@@ -69,6 +69,68 @@ PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, FileEntry, File, std::unique_ptr<llvm::
 }  // namespace detail
 namespace {
 
+static void FixupTokData(std::string_view tok_data,
+                         std::string &fixed_tok_data) {
+  fixed_tok_data.clear();
+  auto in_string = false;
+  auto in_escape = false;
+
+  for (const auto ch : tok_data) {
+    if ('\n' == ch || '\r' == ch) {
+
+      if (fixed_tok_data.empty()) {
+        in_escape = false;
+        continue;
+
+      // Replace with an escaped character.
+      } else if (in_string) {
+        in_escape = false;
+
+        fixed_tok_data.push_back('\\');
+        if ('\n' == ch) {
+          fixed_tok_data.push_back('n');
+        } else {
+          fixed_tok_data.push_back('r');
+        }
+      } else {
+        in_escape = false;
+        fixed_tok_data.push_back(' ');
+      }
+
+    } else if ('"' == ch) {
+      if (in_escape) {
+        fixed_tok_data.push_back('\\');
+        fixed_tok_data.push_back('"');
+        in_escape = false;
+
+      } else if (!in_string) {
+        fixed_tok_data.push_back('"');
+        in_string = true;
+
+      } else {
+        fixed_tok_data.push_back('"');
+        in_string = false;
+      }
+
+    } else if ('\\' == ch) {
+      if (in_escape) {
+        fixed_tok_data.push_back('\\');
+        fixed_tok_data.push_back('\\');
+        in_escape = false;
+      } else {
+        in_escape = true;
+      }
+
+    } else {
+      if (in_escape) {
+        fixed_tok_data.push_back('\\');
+        in_escape = false;
+      }
+      fixed_tok_data.push_back(ch);
+    }
+  }
+}
+
 // Pre-process the code. This does a few things:
 //
 //    1)  Record all tokens produced as outputs from the preprocessor.
@@ -141,9 +203,12 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
     if (tok_loc.isMacroID()) {
       TokenImpl &prev_tok = tokens.back();
 
-#ifndef NDEBUG
       assert(prev_tok.Role() == TokenRole::kIntermediateMacroExpansionToken);
+
+      // Remove the `\n` that was in place for the macro expansion token, then
+      // add in the proper data in place of it.
       assert(impl.preprocessed_code.back() == '\n');
+      impl.preprocessed_code.pop_back();
 
       // NOTE(pag): The `prev_tok.Location()` isn't really sensibly comparable
       //            to `tok_loc` because of how `PatchedMacroTracker`s
@@ -151,23 +216,44 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
       //            into `TokenImpl::opaque_source_loc`.
       assert(prev_tok.Kind() == clang::tok::unknown);
       assert(tok_data == prev_tok.Data(impl));
-      for (auto ch : tok_data) {
-        assert('\n' != ch && '\r' != ch);
-      }
-#endif
 
-      // Remove the `\n` that was in place for the macro expansion token, then
-      // add in the proper data in place of it.
-      impl.preprocessed_code.pop_back();
+      // We want to convert the intermediate macro expansion token into a
+      // final macro expansion token, which means migrating its data to
+      // `impl.preprocessed_code`. As an intermediate macro expansion token,
+      // it is represented as a blank newline in `impl.preprocessed_code`, but
+      // now we want to represent it as the whole code. But that means that if
+      // the token has any embedded newlines, e.g. a string literal using line
+      // continuations (`\`) to span multiple lines (this happens in the Linux
+      // kernel) then we'll need to fixup the token.
+      auto needs_newline_fixup = false;
+      for (auto ch : tok_data) {
+        if (ch == '\n' || ch == '\r') {
+          needs_newline_fixup = true;
+          break;
+        }
+      }
 
       prev_tok.kind = static_cast<TokenKindBase>(tok.getKind());
       prev_tok.role = static_cast<TokenKindBase>(
           TokenRole::kFinalMacroExpansionToken);
       prev_tok.data_len = static_cast<uint32_t>(tok_data.size());
-      prev_tok.data_offset =
-          static_cast<TokenDataOffset>(impl.preprocessed_code.size());
 
-      os << tok_data << '\n';
+      if (needs_newline_fixup) {
+        backup_os.flush();
+
+        prev_tok.data_offset = static_cast<TokenDataOffset>(
+            -static_cast<ssize_t>(impl.backup_token_data.size()));
+
+        backup_os << tok_data;
+        FixupTokData(tok_data, fixed_tok_data);
+        os << fixed_tok_data << '\n';
+
+      } else {
+        prev_tok.data_offset = static_cast<TokenDataOffset>(
+            impl.preprocessed_code.size());
+        os << tok_data << '\n';
+      }
+
 
       // Put the macro ending marker back on. If we don't put it back on, then
       // `PatchedMacroTracker::CloseUnclosedExpansion` will go and re-inject it,
@@ -274,72 +360,13 @@ static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
       continue;
     }
 
+    // The token data read does have new lines; we need to fix it up.
     // The token needs to be modified somehow, so add it to our backups.
     backup_os.flush();
     impl.AppendBackupToken(tok, impl.backup_token_data.size(), tok_data.size(),
                            TokenRole::kFileToken);
     backup_os << tok_data;
-
-    // The token data read does have new lines; we need to fix it up.
-    fixed_tok_data.clear();
-    auto in_string = false;
-    auto in_escape = false;
-
-    for (const auto ch : tok_data) {
-      if ('\n' == ch || '\r' == ch) {
-
-        if (fixed_tok_data.empty()) {
-          in_escape = false;
-          continue;
-
-        // Replace with an escaped character.
-        } else if (in_string) {
-          in_escape = false;
-
-          fixed_tok_data.push_back('\\');
-          if ('\n' == ch) {
-            fixed_tok_data.push_back('n');
-          } else {
-            fixed_tok_data.push_back('r');
-          }
-        } else {
-          in_escape = false;
-          fixed_tok_data.push_back(' ');
-        }
-
-      } else if ('"' == ch) {
-        if (in_escape) {
-          fixed_tok_data.push_back('\\');
-          fixed_tok_data.push_back('"');
-          in_escape = false;
-
-        } else if (!in_string) {
-          fixed_tok_data.push_back('"');
-          in_string = true;
-
-        } else {
-          fixed_tok_data.push_back('"');
-          in_string = false;
-        }
-
-      } else if ('\\' == ch) {
-        if (in_escape) {
-          fixed_tok_data.push_back('\\');
-          fixed_tok_data.push_back('\\');
-          in_escape = false;
-        } else {
-          in_escape = true;
-        }
-
-      } else {
-        if (in_escape) {
-          fixed_tok_data.push_back('\\');
-          in_escape = false;
-        }
-        fixed_tok_data.push_back(ch);
-      }
-    }
-
+    FixupTokData(tok_data, fixed_tok_data);
     os << fixed_tok_data << '\n';
     os.flush();
     ++num_lines;

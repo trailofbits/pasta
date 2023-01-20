@@ -6,6 +6,7 @@
 
 #include <pasta/AST/Macro.h>
 
+#include <cassert>
 #include <deque>
 #include <variant>
 

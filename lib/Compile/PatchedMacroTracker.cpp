@@ -35,7 +35,7 @@ static void ReparentNode(Node &node, MacroNodeImpl *new_parent) {
   }
 }
 
-static void ReparentNodes(std::vector<Node> nodes, MacroNodeImpl *new_parent) {
+static void ReparentNodes(NodeList nodes, MacroNodeImpl *new_parent) {
   for (Node &node : nodes) {
     ReparentNode(node, new_parent);
   }
@@ -1691,6 +1691,15 @@ void PatchedMacroTracker::DoEndMacroExpansion(
     assert(std::get<MacroNodeImpl *>(grand_parent_node->nodes.back()) ==
            parent_node);
 
+    // TODO(pag): In the normal case, we have a `dprintk`-like situation, e.g.
+    //
+    //      #define printf(fmt, ...) /* something */
+    //      #define dprintk if (debug) printk
+    //
+    // We handle this situation below with the check
+    // `expansion->nodes.size() == 1`.
+    assert(expansion->nodes.size() == 1);
+
     expansion->nodes.pop_back();  // Remove `DE` from `E`.
     grand_parent_node->nodes.pop_back();  // Remove `NP`.
 
@@ -1698,7 +1707,7 @@ void PatchedMacroTracker::DoEndMacroExpansion(
     deferred_expansion->parent = grand_parent_node;
     parent_node->parent = deferred_expansion;
 
-    expansion->nodes.clear();
+    expansion->nodes.pop_back();
     ReparentNodes(std::move(deferred_expansion->nodes), expansion);
 
     deferred_expansion->nodes.push_back(parent_node);
@@ -1714,15 +1723,14 @@ void PatchedMacroTracker::DoEndMacroExpansion(
   //         {A}  ident(FOO_2)
   //
   // * NOTE: the `E` will be swapped into `use_nodes` later.
-  } else {
+  } else if (expansion->nodes.size() == 1) {
     parent_node->nodes.pop_back();  // Remove `E`
     parent_node->nodes.push_back(deferred_expansion);  // Add `DE`.
     deferred_expansion->parent = parent_node;
     expansion->parent = deferred_expansion;
 
-    expansion->nodes.clear();
+    expansion->nodes.pop_back();
     ReparentNodes(std::move(deferred_expansion->nodes), expansion);
-
     deferred_expansion->nodes.push_back(expansion);
   }
 
@@ -2355,7 +2363,7 @@ void PatchedMacroTracker::MacroDefined(const clang::Token &name_tok,
   last_directive->defined_macro = directive->getMacroInfo();
   defines[last_directive->defined_macro] = last_directive;
 
-  std::vector<Node> new_nodes;
+  NodeList new_nodes;
 
   // Go find the macro name.
   auto i = 0u;  // Skip past `#`, and possibly past the `define`.

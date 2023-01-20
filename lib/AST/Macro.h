@@ -17,6 +17,10 @@ class MacroInfo;
 namespace pasta {
 
 using Node = std::variant<std::monostate, MacroNodeImpl *, MacroTokenImpl *>;
+using NodeList = std::vector<Node>;
+
+inline static void NoOnTokenCB(unsigned, MacroTokenImpl *, MacroTokenImpl *) {}
+inline static void NoOnNodeCB(unsigned, MacroNodeImpl *, MacroNodeImpl *) {}
 
 class ASTImpl;
 class MacroTokenImpl;
@@ -35,7 +39,7 @@ class MacroNodeImpl {
   virtual MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const = 0;
 
   Node parent;
-  std::vector<Node> nodes;
+  NodeList nodes;
 
   // Kind of this Node.
   MacroKind kind;
@@ -87,11 +91,11 @@ class MacroDirectiveImpl final : public MacroNodeImpl {
 
   // The uses of this macro definition, assuming this directive is a
   // `#define`.
-  std::vector<Node> macro_uses;
+  NodeList macro_uses;
 
   // Parameters of this macro definition, assuming this directive is a
   // `#define`.
-  std::vector<Node> parameters;
+  NodeList parameters;
 
   // Token for the directive name. E.g. `define` in a `#define`, or `pragma`
   // in `#pragma`.
@@ -143,7 +147,7 @@ class MacroParameterImpl final : public MacroNodeImpl {
   virtual ~MacroParameterImpl(void) = default;
   MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const final;
 
-  std::vector<Node> uses;
+  NodeList uses;
 
   unsigned index{0u};
   bool has_name{false};
@@ -162,7 +166,7 @@ class MacroSubstitutionImpl : public MacroNodeImpl {
   const Node *LastToken(void) const final;
   MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const override;
 
-  std::vector<Node> use_nodes;
+  NodeList use_nodes;
 };
 
 class MacroExpansionImpl final : public MacroSubstitutionImpl {
@@ -174,7 +178,7 @@ class MacroExpansionImpl final : public MacroSubstitutionImpl {
   virtual ~MacroExpansionImpl(void) = default;
   MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const final;
 
-  std::vector<Node> arguments;
+  NodeList arguments;
   Node definition;
 
   // The info for the macro that was defined by this directive.
@@ -224,7 +228,40 @@ class RootMacroNode final : public MacroNodeImpl {
   std::deque<MacroParameterImpl> parameters;
   std::deque<MacroSubstitutionImpl> substitutions;
   std::deque<MacroTokenImpl> tokens;
-  std::vector<Node> token_nodes;
+  NodeList token_nodes;
 };
+
+template <typename TokenCB, typename NodeCB>
+static void CloneNodeList(ASTImpl &ast,
+                          const MacroNodeImpl *old_parent,
+                          const NodeList &old_nodes,
+                          MacroNodeImpl *new_parent,
+                          NodeList &new_nodes,
+                          TokenCB on_token,
+                          NodeCB on_node) {
+  auto i = 0u;
+  for (const Node &node : old_nodes) {
+    if (std::holds_alternative<MacroTokenImpl *>(node)) {
+      MacroTokenImpl *tok = std::get<MacroTokenImpl *>(node);
+      assert(std::holds_alternative<MacroNodeImpl *>(tok->parent));
+      assert(std::get<MacroNodeImpl *>(tok->parent) == old_parent);
+      MacroTokenImpl *cloned_tok = tok->Clone(ast, new_parent);
+      assert(tok->token_offset < cloned_tok->token_offset);
+      new_nodes.emplace_back(cloned_tok);
+
+      on_token(i, tok, cloned_tok);
+
+    } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
+      MacroNodeImpl *sub_node = std::get<MacroNodeImpl *>(node);
+      assert(std::holds_alternative<MacroNodeImpl *>(sub_node->parent));
+      assert(std::get<MacroNodeImpl *>(sub_node->parent) == old_parent);
+      auto cloned_node = sub_node->Clone(ast, new_parent);
+      new_nodes.emplace_back(cloned_node);
+
+      on_node(i, sub_node, cloned_node);
+    }
+    ++i;
+  }
+}
 
 }  // namespace pasta

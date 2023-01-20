@@ -136,46 +136,6 @@ MacroTokenImpl *MacroTokenImpl::Clone(ASTImpl &ast,
   return clone;
 }
 
-namespace {
-
-static void NoOnTokenCB(unsigned, MacroTokenImpl *, MacroTokenImpl *) {}
-static void NoOnNodeCB(unsigned, MacroNodeImpl *, MacroNodeImpl *) {}
-
-template <typename TokenCB, typename NodeCB>
-static void CloneNodeList(ASTImpl &ast,
-                          const MacroNodeImpl *old_parent,
-                          const std::vector<Node> &old_nodes,
-                          MacroNodeImpl *new_parent,
-                          std::vector<Node> &new_nodes,
-                          TokenCB on_token,
-                          NodeCB on_node) {
-  auto i = 0u;
-  for (const Node &node : old_nodes) {
-    if (std::holds_alternative<MacroTokenImpl *>(node)) {
-      MacroTokenImpl *tok = std::get<MacroTokenImpl *>(node);
-      assert(std::holds_alternative<MacroNodeImpl *>(tok->parent));
-      assert(std::get<MacroNodeImpl *>(tok->parent) == old_parent);
-      MacroTokenImpl *cloned_tok = tok->Clone(ast, new_parent);
-      assert(tok->token_offset < cloned_tok->token_offset);
-      new_nodes.emplace_back(cloned_tok);
-
-      on_token(i, tok, cloned_tok);
-
-    } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
-      MacroNodeImpl *sub_node = std::get<MacroNodeImpl *>(node);
-      assert(std::holds_alternative<MacroNodeImpl *>(sub_node->parent));
-      assert(std::get<MacroNodeImpl *>(sub_node->parent) == old_parent);
-      auto cloned_node = sub_node->Clone(ast, new_parent);
-      new_nodes.emplace_back(cloned_node);
-
-      on_node(i, sub_node, cloned_node);
-    }
-    ++i;
-  }
-}
-
-}  // namespace
-
 MacroNodeImpl *MacroDirectiveImpl::Clone(
     ASTImpl &ast, MacroNodeImpl *new_parent) const {
 

@@ -1675,6 +1675,7 @@ void PatchedMacroTracker::DoEndMacroExpansion(
   //            / \                                     .
   //          {A}  ident(FOO_2)
   if (expansion->is_prearg_expansion) {
+    D( std::cerr << indent << "Deferral in argument pre-expansion\n"; )
     assert(expansion->parent_for_prearg == parent_node);
     assert(std::get<MacroNodeImpl *>(expansion->parent) ==
            expansion->parent_for_prearg);
@@ -1707,7 +1708,6 @@ void PatchedMacroTracker::DoEndMacroExpansion(
     deferred_expansion->parent = grand_parent_node;
     parent_node->parent = deferred_expansion;
 
-    expansion->nodes.pop_back();
     ReparentNodes(std::move(deferred_expansion->nodes), expansion);
 
     deferred_expansion->nodes.push_back(parent_node);
@@ -1724,6 +1724,8 @@ void PatchedMacroTracker::DoEndMacroExpansion(
   //
   // * NOTE: the `E` will be swapped into `use_nodes` later.
   } else if (expansion->nodes.size() == 1) {
+    D( std::cerr << indent << "Normal deferral\n"; )
+
     parent_node->nodes.pop_back();  // Remove `E`
     parent_node->nodes.push_back(deferred_expansion);  // Add `DE`.
     deferred_expansion->parent = parent_node;
@@ -1732,6 +1734,9 @@ void PatchedMacroTracker::DoEndMacroExpansion(
     expansion->nodes.pop_back();
     ReparentNodes(std::move(deferred_expansion->nodes), expansion);
     deferred_expansion->nodes.push_back(expansion);
+
+  } else {
+    D( std::cerr << indent << "Deferral with other nodes!\n"; )
   }
 
   nodes.push_back(deferred_expansion);

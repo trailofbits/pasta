@@ -179,30 +179,34 @@ ArgumentVector::ArgumentVector(const std::vector<std::string> &vec) {
 // Initialize an argument vector, given another argument vector where the
 // vector entries are copied from a vector of strings.
 void ArgumentVector::Reset(const std::vector<std::string> &vec) {
+
   size_t data_size = 0;
-  for (const auto &entry : vec) {
+  for (const std::string &entry : vec) {
     if (!entry.empty()) {
-      data_size += entry.size() + 1;
+      data_size += entry.size() + 1u;
     }
   }
 
+  std::vector<const char *> new_argv;
   std::unique_ptr<char[]> backup(new char[data_size]);
-  data.swap(backup);
 
-  auto arg_data_ptr = &(data[0]);
+  auto arg_data_ptr = &(backup[0]);
   memset(arg_data_ptr, 0, data_size);
 
-  for (const auto &entry : vec) {
+  for (const std::string &entry : vec) {
     if (!entry.empty()) {
       memcpy(arg_data_ptr, entry.data(), entry.size());
       arg_data_ptr[entry.size()] = '\0';
-      argv.push_back(arg_data_ptr);
-      arg_data_ptr += entry.size() + 1;
+      new_argv.push_back(arg_data_ptr);
+      arg_data_ptr += entry.size() + 1u;
     }
   }
 
-  argv.push_back(nullptr);
-  argv.pop_back();
+  new_argv.push_back(nullptr);
+  new_argv.pop_back();
+
+  argv.swap(new_argv);
+  data.swap(backup);
 }
 
 // Initialize an argument vector, given the `argc` and `argv` from a
@@ -221,31 +225,34 @@ ArgumentVector::ArgumentVector(const std::vector<const char *> &vec) {
 // vector entries are copied from a vector of C strings.
 void ArgumentVector::Reset(const std::vector<const char *> &vec) {
   size_t data_size = 0;
-  for (auto str : vec) {
+  for (const char *str : vec) {
     auto str_size = strlen(str);
     if (str_size) {
-      data_size += str_size + 1;
+      data_size += str_size + 1u;
     }
   }
 
   std::unique_ptr<char[]> backup(new char[data_size]);
-  data.swap(backup);
+  std::vector<const char *> new_argv;
 
-  auto arg_data_ptr = &(data[0]);
+  auto arg_data_ptr = &(backup[0]);
   memset(arg_data_ptr, 0, data_size);
 
-  for (auto str : vec) {
-    auto str_size = strlen(str);
+  for (const char *str : vec) {
+    size_t str_size = strlen(str);
     if (str_size) {
       memcpy(arg_data_ptr, str, str_size);
       arg_data_ptr[str_size] = '\0';
-      argv.push_back(arg_data_ptr);
-      arg_data_ptr += str_size + 1;
+      new_argv.push_back(arg_data_ptr);
+      arg_data_ptr += str_size + 1u;
     }
   }
 
-  argv.push_back(nullptr);
-  argv.pop_back();
+  new_argv.push_back(nullptr);
+  new_argv.pop_back();
+
+  data.swap(backup);
+  argv.swap(new_argv);
 }
 
 ArgumentVector::~ArgumentVector(void) {}

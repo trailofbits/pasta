@@ -118,6 +118,19 @@ static bool OmitOption(unsigned id) {
     case clang::driver::options::OPT_coverage_notes_file_EQ:
     case clang::driver::options::OPT_coverage_notes_file:
     case clang::driver::options::OPT_foptimization_record_file_EQ:
+    case clang::driver::options::OPT_dependency_file:
+    case clang::driver::options::OPT_dependent_lib:
+    case clang::driver::options::OPT_fprofile_list_EQ:
+    case clang::driver::options::OPT_fxray_always_instrument:
+    case clang::driver::options::OPT_fxray_never_instrument:
+    case clang::driver::options::OPT_fxray_attr_list:
+
+    // Output.
+    case clang::driver::options::OPT_dependency_dot:
+    case clang::driver::options::OPT_stats_file:
+    case clang::driver::options::OPT_diagnostic_log_file:
+    case clang::driver::options::OPT_header_include_file:
+    case clang::driver::options::OPT_stack_usage_file:
 
     // Warning/error settings.
     case clang::driver::options::OPT_Wall:

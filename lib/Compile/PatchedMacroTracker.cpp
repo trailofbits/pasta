@@ -2365,8 +2365,11 @@ void PatchedMacroTracker::MacroDefined(const clang::Token &name_tok,
   assert(last_directive->kind == MacroKind::kOtherDirective ||
          last_directive->kind == MacroKind::kDefineDirective);
   last_directive->kind = MacroKind::kDefineDirective;
-  last_directive->defined_macro = directive->getMacroInfo();
-  defines[last_directive->defined_macro] = last_directive;
+
+  if (directive) {
+    last_directive->defined_macro = directive->getMacroInfo();
+    defines[last_directive->defined_macro] = last_directive;
+  }
 
   NodeList new_nodes;
 
@@ -2393,7 +2396,8 @@ void PatchedMacroTracker::MacroDefined(const clang::Token &name_tok,
   ++i;  // Skip over the name;
 
   // Go look for parameters and retroactively introduce them.
-  if (last_directive->defined_macro->isFunctionLike()) {
+  if (last_directive->defined_macro &&
+      last_directive->defined_macro->isFunctionLike()) {
     bool found_l_paren = false;
     for (; i < max_i && name_found; ++i) {
       Node &node = last_directive->nodes[i];
@@ -2501,7 +2505,9 @@ void PatchedMacroTracker::MacroUndefined(
     assert(last_directive->kind == MacroKind::kOtherDirective ||
            last_directive->kind == MacroKind::kUndefineDirective);
     last_directive->kind = MacroKind::kUndefineDirective;
-    defines.erase(directive->getMacroInfo());
+    if (directive) {
+      defines.erase(directive->getMacroInfo());
+    }
   }
   D( std::cerr << indent << "MacroUndefined\n"; )
 }

@@ -651,12 +651,26 @@ Compiler::CreateJobsForCommand(const CompileCommand &command) const {
 
   // Strip out `-Xclang`, etc. because our `CreateAdjustedCompilerCommand`
   // function will do a proper job at re-introducing them.
-  for (auto arg : command.Arguments().Arguments()) {
+  const ArgumentVector &orig_arg_vec = command.Arguments();
+  const std::vector<const char *> &orig_args = orig_arg_vec.Arguments();
+  auto may_need_skip = false;
+  for (const char *arg : orig_args) {
+
+    // We've observed in Bear-recorded compile commands from the Linux kernel
+    // that `-main-file-name` will sometimes be followed by another option, not
+    // a file path.
+    if (may_need_skip && arg[0] == '-' && 1u < strlen(arg) &&
+        !all_args.empty()) {
+      all_args.pop_back();
+    }
+
     if (strcmp("-Xclang", arg) &&
         strcmp("-Xlinker", arg) &&
         strcmp("-Xassembler", arg)) {
       all_args.push_back(arg);
     }
+
+    may_need_skip = !strcmp("-main-file-name", arg);
   }
 
   llvm::ArrayRef<const char *> command_args(all_args);

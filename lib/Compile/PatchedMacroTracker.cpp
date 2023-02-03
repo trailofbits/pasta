@@ -485,7 +485,6 @@ std::optional<clang::Token> PatchedMacroTracker::FindDirectiveHash(
     return ret;
   }
 
-
   clang::SourceLocation directive_loc = tok.getLocation();
   if (directive_loc.isInvalid() || !directive_loc.isFileID()) {
     return std::nullopt;
@@ -790,8 +789,8 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
   // of the macro call so we go and find the `ident(` of the original expansion.
   if (!expansions.empty() && parent_node == expansions.back()) {
     MacroExpansionImpl *exp = expansions.back();
-    if (tok_node->kind_flags.kind == TokenKind::kIdentifier && !exp->ident &&
-        tok_.getIdentifierInfo() &&
+    if (tok_node->kind_flags.kind != TokenKind::kRawIdentifier &&
+        !tok_.isAnnotation() && !exp->ident && tok_.getIdentifierInfo() &&
         tok_.getIdentifierInfo()->hasMacroDefinition()) {
       exp->ident = tok_node;
 
@@ -1193,6 +1192,8 @@ void PatchedMacroTracker::DoBeginMacroExpansion(
   expansions.push_back(expansion);
   DoToken(tok, data);
 
+  assert(expansion->ident != nullptr);
+
   // Link up the expansion with the definition. `data` might be zero in the
   // case of `_Pragma`.
   clang::MacroInfo *mi = reinterpret_cast<clang::MacroInfo *>(data);
@@ -1490,53 +1491,59 @@ void PatchedMacroTracker::DoSwitchToExpansion(
 
   // Go find the `r_paren` for the expansion and record it, as well at the index
   // at which it occurs.
-  MacroTokenImpl *r_paren = nullptr;
-  unsigned r_paren_index = 0u;
-  const size_t num_use_nodes = expansion->use_nodes.size();
-  int paren_count = 0;
+  auto &use_nodes = expansion->use_nodes;
+  assert(3u <= use_nodes.size());
+  assert(std::holds_alternative<MacroTokenImpl *>(use_nodes.back()));
+  assert(std::get<MacroTokenImpl *>(use_nodes.back())->kind_flags.kind ==
+         TokenKind::kRParenthesis);
 
-  for (; r_paren_index < num_use_nodes; ++r_paren_index) {
-    const Node &node = expansion->use_nodes[r_paren_index];
-    MacroTokenImpl *tok = nullptr;
-    if (std::holds_alternative<MacroTokenImpl *>(node)) {
-      tok = std::get<MacroTokenImpl *>(node);
-    } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
-      auto impl = std::get<MacroNodeImpl *>(node);
-      auto sub_count = ParenCount(impl);
-      if (!sub_count) {
-        continue;
+//  MacroTokenImpl *r_paren = nullptr;
+//  unsigned r_paren_index = 0u;
+//  const size_t num_use_nodes = expansion->use_nodes.size();
+//  int paren_count = 0;
 
-      // TODO(pag): Probably not quite right.
-      } else {
-        assert(1 == sub_count);
-        tok = impl->FirstExpansionToken();
-      }
-    } else {
-      assert(false);
-      continue;
-    }
+//  for (; r_paren_index < num_use_nodes; ++r_paren_index) {
+//    const Node &node = expansion->use_nodes[r_paren_index];
+//    MacroTokenImpl *tok = nullptr;
+//    if (std::holds_alternative<MacroTokenImpl *>(node)) {
+//      tok = std::get<MacroTokenImpl *>(node);
+//    } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
+//      auto impl = std::get<MacroNodeImpl *>(node);
+//      auto sub_count = ParenCount(impl);
+//      if (!sub_count) {
+//        continue;
+//
+//      // TODO(pag): Probably not quite right.
+//      } else {
+//        assert(1 == sub_count);
+//        tok = impl->FirstExpansionToken();
+//      }
+//    } else {
+//      assert(false);
+//      continue;
+//    }
+//
+//    if (!tok) {
+//      continue;
+//    }
+//
+//    if (tok->kind_flags.kind == TokenKind::kLParenthesis) {
+//      ++paren_count;
+//    } else if (tok->kind_flags.kind == TokenKind::kRParenthesis) {
+//      if (!--paren_count) {
+//        r_paren = tok;
+//        break;
+//      }
+//    }
+//  }
 
-    if (!tok) {
-      continue;
-    }
-
-    if (tok->kind_flags.kind == TokenKind::kLParenthesis) {
-      ++paren_count;
-    } else if (tok->kind_flags.kind == TokenKind::kRParenthesis) {
-      if (!--paren_count) {
-        r_paren = tok;
-        break;
-      }
-    }
-  }
-
-  assert(expansion->r_paren == nullptr);
-  assert(r_paren != nullptr);
-  expansion->r_paren = r_paren;
-  expansion->r_paren_index = r_paren_index;
+//  assert(expansion->r_paren == nullptr);
+//  assert(r_paren != nullptr);
+  expansion->r_paren = std::get<MacroTokenImpl *>(use_nodes.back());
+  expansion->r_paren_index = static_cast<unsigned>(use_nodes.size() - 1u);
 
   // Keep track of argument separators.
-  TokenImpl r_paren_tok = ast->tokens[r_paren->token_offset];
+  TokenImpl r_paren_tok = ast->tokens[expansion->r_paren->token_offset];
   clang::Token tok;
   tok.startToken();
   tok.setKind(clang::tok::r_paren);
@@ -1590,7 +1597,41 @@ void PatchedMacroTracker::DoEndMacroExpansion(
   if (mi && expansion->defined_macro != mi && 2u <= num_expansions) {
     deferred_expansion = expansions[num_expansions - 2u];
     assert(deferred_expansion->defined_macro == mi);
-    assert(nodes.back() == expansion);
+
+    // It's possible that we're inside of an argument. This can happen in the
+    // following evil case:
+    //
+    //      #define PP_EAT(...)
+    //      #define L_PAREN (
+    //      #define EVIL(l_paren) PP_EAT l_paren
+    //      EVIL(L_PAREN) whatever_here )
+    //
+    // In this case, the nesting isn't actually a tree, which is problematic.
+    // We see the event that should be closing `EVIL`, while simultaneously
+    // being inside of the argument expandion of `PP_EAT`.
+    if (nodes.back() != expansion) {
+      D( std::cerr
+           << indent << "!! Non-tree nested macro expansion of "
+           << ast->tokens[expansion->ident->token_offset].Data(*ast)
+           << " inside of "
+           << ast->tokens[deferred_expansion->ident->token_offset].Data(*ast)
+           << '\n'; )
+      std::vector<MacroNodeImpl *> new_nodes;
+      for (auto node : nodes) {
+        if (node != deferred_expansion) {
+          new_nodes.emplace_back(node);
+        }
+      }
+
+      nodes.swap(new_nodes);
+      expansions.pop_back();
+      expansions.pop_back();
+      expansions.push_back(expansion);
+
+      Pop(tok);
+      return;
+    }
+
     expansions.pop_back();
     nodes.pop_back();
 
@@ -1645,7 +1686,7 @@ void PatchedMacroTracker::DoEndMacroExpansion(
   // The only node in `expansion->nodes` is `deferred_expansion`.
   assert(std::holds_alternative<MacroNodeImpl *>(expansion->nodes.back()));
   assert(std::get<MacroNodeImpl *>(expansion->nodes.back()) ==
-      deferred_expansion);
+         deferred_expansion);
 
   assert(parent_node != expansion);
   assert(parent_node != deferred_expansion);
@@ -1692,15 +1733,6 @@ void PatchedMacroTracker::DoEndMacroExpansion(
     assert(std::get<MacroNodeImpl *>(grand_parent_node->nodes.back()) ==
            parent_node);
 
-    // TODO(pag): In the normal case, we have a `dprintk`-like situation, e.g.
-    //
-    //      #define printf(fmt, ...) /* something */
-    //      #define dprintk if (debug) printk
-    //
-    // We handle this situation below with the check
-    // `expansion->nodes.size() == 1`.
-    assert(expansion->nodes.size() == 1);
-
     expansion->nodes.pop_back();  // Remove `DE` from `E`.
     grand_parent_node->nodes.pop_back();  // Remove `NP`.
 
@@ -1711,6 +1743,7 @@ void PatchedMacroTracker::DoEndMacroExpansion(
     ReparentNodes(std::move(deferred_expansion->nodes), expansion);
 
     deferred_expansion->nodes.push_back(parent_node);
+
 
   // Othwerwise, in the normal case, what we want is:
   //
@@ -1735,8 +1768,16 @@ void PatchedMacroTracker::DoEndMacroExpansion(
     ReparentNodes(std::move(deferred_expansion->nodes), expansion);
     deferred_expansion->nodes.push_back(expansion);
 
+  // We have a `dprintk`-like situation. We have come across a macro close
+  // for `dprintk`, but the expansion of `printk` has already begun, so we
+  // want to leave the expansion of `printk`, which is `deffered_expansion`
+  // where it is, with no reorganization, but pretend that it is at the top
+  // of our expansions stack.
+  //
+  //      #define printk(fmt, ...) /* something */
+  //      #define dprintk if (debug) printk
   } else {
-    D( std::cerr << indent << "Deferral with other nodes!\n"; )
+    D( std::cerr << indent << "!! Deferral with other nodes!\n"; )
   }
 
   nodes.push_back(deferred_expansion);

@@ -13,6 +13,7 @@
 #include <clang/AST/Attr.h>
 #include <clang/AST/Type.h>
 #include <clang/AST/PrettyPrinter.h>
+#include <clang/Basic/Builtins.h>
 #include <clang/Basic/FileManager.h>
 #include <clang/Lex/Token.h>
 #pragma clang diagnostic pop
@@ -153,6 +154,10 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
 
   // Where we expect the next macro use end location to be.
   clang::SourceLocation macro_use_end_loc;
+
+  // We swap in our own builtins, derived from the target-specific ones.
+  std::vector<clang::Builtin::Info> target_specific_records;
+  std::vector<clang::Builtin::Info> aux_target_specific_records;
 
   // Append a marker token to the parsed token list.
   void AppendMarker(clang::SourceLocation loc, TokenRole role);

@@ -139,16 +139,20 @@ LLVMFileSystem::status(const llvm::Twine &path) {
 llvm::ErrorOr<std::unique_ptr<llvm::vfs::File>>
 LLVMFileSystem::openFileForRead(const llvm::Twine &path) {
   auto fs_path = file_system.ParsePath(path.str());
-  auto stat = file_system.Stat(std::move(fs_path));
-  if (stat.Succeeded()) {
-    auto file = file_manager.OpenFile(stat.TakeValue());
+  auto maybe_stat = file_system.Stat(std::move(fs_path));
+  if (maybe_stat.Succeeded()) {
+    auto stat = maybe_stat.TakeValue();
+    if (stat.IsDirectory()) {
+      return std::make_error_code(std::errc::is_a_directory);
+    }
+    auto file = file_manager.OpenFile(std::move(stat));
     if (file.Succeeded()) {
       return std::unique_ptr<llvm::vfs::File>(new LLVMFile(file.TakeValue()));
     } else {
       return file.TakeError();
     }
   } else {
-    return stat.TakeError();
+    return maybe_stat.TakeError();
   }
 }
 

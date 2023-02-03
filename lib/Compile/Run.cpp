@@ -12,6 +12,7 @@
 #include <cassert>
 #include <sstream>
 #include <iostream>
+#include <memory>
 #include <unordered_set>
 
 #pragma GCC diagnostic push
@@ -65,347 +66,26 @@ PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, VLASupported, bool);
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasLegalHalfType, bool);
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasFloat128, bool);
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasFloat16, bool);
-PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, FileEntry, File, std::unique_ptr<llvm::vfs::File>);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasBFloat16, bool);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasIbm128, bool);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasLongDouble, bool);
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, HasFPReturn, bool);
+
+PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, FileEntry, File,
+                                  std::unique_ptr<llvm::vfs::File>);
 }  // namespace detail
-namespace {
 
-static void FixupTokData(std::string_view tok_data,
-                         std::string &fixed_tok_data) {
-  fixed_tok_data.clear();
-  auto in_string = false;
-  auto in_escape = false;
+extern void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
+                           clang::Preprocessor &pp);
 
-  for (const auto ch : tok_data) {
-    if ('\n' == ch || '\r' == ch) {
-
-      if (fixed_tok_data.empty()) {
-        in_escape = false;
-        continue;
-
-      // Replace with an escaped character.
-      } else if (in_string) {
-        in_escape = false;
-
-        fixed_tok_data.push_back('\\');
-        if ('\n' == ch) {
-          fixed_tok_data.push_back('n');
-        } else {
-          fixed_tok_data.push_back('r');
-        }
-      } else {
-        in_escape = false;
-        fixed_tok_data.push_back(' ');
-      }
-
-    } else if ('"' == ch) {
-      if (in_escape) {
-        fixed_tok_data.push_back('\\');
-        fixed_tok_data.push_back('"');
-        in_escape = false;
-
-      } else if (!in_string) {
-        fixed_tok_data.push_back('"');
-        in_string = true;
-
-      } else {
-        fixed_tok_data.push_back('"');
-        in_string = false;
-      }
-
-    } else if ('\\' == ch) {
-      if (in_escape) {
-        fixed_tok_data.push_back('\\');
-        fixed_tok_data.push_back('\\');
-        in_escape = false;
-      } else {
-        in_escape = true;
-      }
-
-    } else {
-      if (in_escape) {
-        fixed_tok_data.push_back('\\');
-        in_escape = false;
-      }
-      fixed_tok_data.push_back(ch);
-    }
-  }
-}
-
-// Pre-process the code. This does a few things:
-//
-//    1)  Record all tokens produced as outputs from the preprocessor.
-//    2)  Read out the data of each of the non-empty, non-whitespace, non-
-//        comment tokens, and dump them into a buffer, `impl.preprocessed_code`.
-//        This buffer will have one line for each origin preprocessed token.
-//        Thus, we will have Clang re-preprocess this new buffer, and then we'll
-//        be able to associated back to original tokens by using the line number
-//        of the updated token.
-static void PreprocessCode(ASTImpl &impl, clang::CompilerInstance &ci,
-                           clang::Preprocessor &pp) {
-  clang::SourceManager &source_manager = ci.getSourceManager();
-  clang::LangOptions &lang_opts = ci.getLangOpts();
-
-  llvm::raw_string_ostream os(impl.preprocessed_code);
-  llvm::raw_string_ostream backup_os(impl.backup_token_data);
-
-  std::string tok_data;
-  std::string fixed_tok_data;
-
-  pp.EnterMainSourceFile();
-
-  // NOTE(pag): The `ParsedFileTracker` emits a token for entering files, so
-  //            there will be one token already representing entering the main
-  //            source file.
-  unsigned &num_lines = impl.num_lines;
-  std::vector<TokenImpl> &tokens = impl.tokens;
-
-  clang::Token tok;
-  std::optional<TokenImpl> end_of_macro_tok;
-  for (;;) {
-
-    // Check that we're maintaining our key invariant, which is that tokens
-    // match up with line numbers.
-    assert(num_lines == tokens.size());
-
-    pp.Lex(tok);
-
-    // NOTE(pag): We don't need to inject a token here because the
-    //            `ParsedFileTracker` will inject the end of file token for
-    //            us when the `FileChanged` callback happens.
-    if (tok.is(clang::tok::eof)) {
-      break;
-    }
-
-    // The end of an expansion is tracked by the patched macro tracker, but the
-    // last outputted token really comes before the end marker, so we always
-    // want to remove it.
-    if (tokens.back().Role() == TokenRole::kEndOfMacroExpansionMarker) {
-      end_of_macro_tok = std::move(tokens.back());
-      assert(impl.preprocessed_code.back() == '\n');
-      tokens.pop_back();
-      impl.preprocessed_code.pop_back();
-      --num_lines;
-      assert(tokens.back().HasMacroRole());
-    } else {
-      end_of_macro_tok.reset();
-    }
-
-    clang::SourceLocation tok_loc = tok.getLocation();
-    assert(tok_loc.isValid());
-
-    tok_data.clear();
-    (void) TryReadRawToken(source_manager, lang_opts, tok, &tok_data);
-    SkipLeadingWhitspace(tok, tok_loc, tok_data);
-
-    // It's a macro expansion token. We will already have a copy of this token
-    // as the most recently added token, so we need to transfer its data to
-    // the code to be parsed, rather than the backup data area.
-    if (tok_loc.isMacroID()) {
-      TokenImpl &prev_tok = tokens.back();
-
-      assert(prev_tok.Role() == TokenRole::kIntermediateMacroExpansionToken);
-
-      // Remove the `\n` that was in place for the macro expansion token, then
-      // add in the proper data in place of it.
-      assert(impl.preprocessed_code.back() == '\n');
-      impl.preprocessed_code.pop_back();
-
-      // NOTE(pag): The `prev_tok.Location()` isn't really sensibly comparable
-      //            to `tok_loc` because of how `PatchedMacroTracker`s
-      //            `FixupDerivedLocations` method overloads too many meanings
-      //            into `TokenImpl::opaque_source_loc`.
-      assert(prev_tok.Kind() == clang::tok::unknown);
-      assert(tok_data == prev_tok.Data(impl));
-
-      // We want to convert the intermediate macro expansion token into a
-      // final macro expansion token, which means migrating its data to
-      // `impl.preprocessed_code`. As an intermediate macro expansion token,
-      // it is represented as a blank newline in `impl.preprocessed_code`, but
-      // now we want to represent it as the whole code. But that means that if
-      // the token has any embedded newlines, e.g. a string literal using line
-      // continuations (`\`) to span multiple lines (this happens in the Linux
-      // kernel) then we'll need to fixup the token.
-      auto needs_newline_fixup = false;
-      for (auto ch : tok_data) {
-        if (ch == '\n' || ch == '\r') {
-          needs_newline_fixup = true;
-          break;
-        }
-      }
-
-      prev_tok.kind = static_cast<TokenKindBase>(tok.getKind());
-      prev_tok.role = static_cast<TokenKindBase>(
-          TokenRole::kFinalMacroExpansionToken);
-      prev_tok.data_len = static_cast<uint32_t>(tok_data.size());
-
-      if (needs_newline_fixup) {
-        backup_os.flush();
-
-        prev_tok.data_offset = static_cast<TokenDataOffset>(
-            -static_cast<ssize_t>(impl.backup_token_data.size()));
-
-        backup_os << tok_data;
-        FixupTokData(tok_data, fixed_tok_data);
-        os << fixed_tok_data << '\n';
-
-      } else {
-        prev_tok.data_offset = static_cast<TokenDataOffset>(
-            impl.preprocessed_code.size());
-        os << tok_data << '\n';
-      }
-
-
-      // Put the macro ending marker back on. If we don't put it back on, then
-      // `PatchedMacroTracker::CloseUnclosedExpansion` will go and re-inject it,
-      // which will re-run `PatchedMacroTracker::FixupDerivedLocations` on
-      // already fixed-up locations.
-      if (end_of_macro_tok) {
-        ++num_lines;
-        os << '\n';
-        tokens.push_back(std::move(end_of_macro_tok.value()));
-        end_of_macro_tok.reset();
-      }
-
-      continue;
-    }
-
-    // The last token was the "true" ending of the macro token, put it back in.
-    if (end_of_macro_tok) {
-      ++num_lines;
-      os << '\n';
-      tokens.push_back(std::move(end_of_macro_tok.value()));
-      end_of_macro_tok.reset();
-    }
-
-    // It's a file token, we need to parse it.
-    assert(tok_loc.isFileID());
-
-//    if (auto tok_loc = tok.getLocation();
-//        !tok_loc.isValid() || !tok_loc.isFileID()) {
-//
-//
-//
-//#ifndef NDEBUG
-//      assert(0 < num_lines);
-//      TokenImpl &prev_tok = tokens.back();
-//      assert(prev_tok.Role() == TokenRole::kBeginOfMacroExpansionMarker ||
-//             prev_tok.Role() == TokenRole::kIntermediateMacroExpansionToken ||
-//             prev_tok.Role() == TokenRole::kFinalMacroExpansionToken);
-//#endif
-//      role = TokenRole::kFinalMacroExpansionToken;
-//    }
-//
-//    // Try to merge with the prior token, which was a macro expansion token.
-//    // What this actually means is that we remove the old version of the token
-//    // because we'll see it again.
-//    if (num_lines) {
-//      TokenImpl &prev_tok = tokens.back();
-//      if (prev_tok.Role() == TokenRole::kIntermediateMacroExpansionToken &&
-//          prev_tok.Kind() == clang::tok::unknown &&
-//          prev_tok.Location() == tok.getLocation() &&
-//          prev_tok.Data(impl) == tok_data) {
-//
-//        tokens.pop_back();
-//        --num_lines;
-//        role = TokenRole::kFinalMacroExpansionToken;
-//      }
-//    }
-
-    if (tok.isOneOf(clang::tok::eod, clang::tok::unknown, clang::tok::comment,
-                    clang::tok::code_completion)) {
-      if (tok_data.empty()) {
-
-        // Only retain these if they're contributing something in terms of
-        // source locations.
-        if (auto loc = tok.getLocation(); loc.isValid() && loc.isFileID()) {
-          impl.AppendMarker(loc, TokenRole::kFileToken);
-        }
-
-      // Comments and whitespace are stored "out-of-line" in the
-      // `backup_token_data` so that they aren't part of our huge
-      // fake file that has one token per line (comments/whitespace
-      // might have multiple lines, so we don't want to risk them
-      // spanning multiple lines in the fake file, which would break
-      // our invariant of line:token, so that we can use a token's
-      // line number as an index.
-      } else {
-        backup_os.flush();
-        impl.AppendBackupToken(tok, impl.backup_token_data.size(),
-                               tok_data.size(), TokenRole::kFileToken);
-        backup_os << tok_data;
-        os << '\n';
-        os.flush();
-        ++num_lines;
-      }
-      continue;
-    }
-
-    // Figure out of the token introduces new lines. If so, we'll need
-    // to "mute" them.
-    auto has_new_line = false;
-    for (auto ch : tok_data) {
-      if ('\n' == ch || '\r' == ch) {
-        has_new_line = true;
-      }
-    }
-
-    // The token data read has no new lines, great!
-    if (!has_new_line) {
-      os.flush();
-      impl.AppendToken(tok, impl.preprocessed_code.size(), tok_data.size(),
-                       TokenRole::kFileToken);
-      os << tok_data << '\n';
-      os.flush();
-      ++num_lines;
-      continue;
-    }
-
-    // The token data read does have new lines; we need to fix it up.
-    // The token needs to be modified somehow, so add it to our backups.
-    backup_os.flush();
-    impl.AppendBackupToken(tok, impl.backup_token_data.size(), tok_data.size(),
-                           TokenRole::kFileToken);
-    backup_os << tok_data;
-    FixupTokData(tok_data, fixed_tok_data);
-    os << fixed_tok_data << '\n';
-    os.flush();
-    ++num_lines;
-  }
-
-  pp.EndSourceFile();
-
-  os.flush();
-
-  // For some reason Clang doesn't invoke the `ExitFile` thing for the main
-  // file.
-  if (tokens.back().Kind() != clang::tok::eof) {
-
-    // We didn't get an `ExitFile`.
-    if (tokens.back().Role() != TokenRole::kEndOfFileMarker) {
-      auto loc = source_manager.getLocForEndOfFile(
-          source_manager.getMainFileID());
-      impl.AppendMarker(loc,
-                        TokenRole::kEndOfFileMarker);
-    }
-    tokens.back().kind = static_cast<TokenKindBase>(clang::tok::eof);
-  }
-
-#if PASTA_DEBUG_RUN
-  // NOTE(pag): If there's a compiler error that "shouldn't happen," then
-  //            enabling the below code can help diagnose it.
-  auto fd = open("/tmp/source.cpp", O_TRUNC | O_CREAT | O_WRONLY, 0666);
-  write(fd, impl.preprocessed_code.data(), impl.preprocessed_code.size());
-  close(fd);
-#endif  // PASTA_DEBUG_RUN
-}
-
-}  // namespace
+extern void AddCustomBuiltinsToPreprocessor(ASTImpl &ast,
+                                            clang::Preprocessor &pp);
 
 // Run a command ans return the AST or the first error.
 Result<AST, std::string> CompileJob::Run(void) const {
   std::stringstream err;
 
-  auto ast = std::make_shared<ASTImpl>(SourceFile());
+  std::shared_ptr<ASTImpl> ast = std::make_shared<ASTImpl>(SourceFile());
   llvm::IntrusiveRefCntPtr<llvm::vfs::FileSystem> real_vfs(
       new LLVMFileSystem(impl->file_manager));
   llvm::IntrusiveRefCntPtr<llvm::vfs::OverlayFileSystem> overlay_vfs(
@@ -416,7 +96,8 @@ Result<AST, std::string> CompileJob::Run(void) const {
   overlay_vfs->setCurrentWorkingDirectory(
       WorkingDirectory().generic_string());
 
-  auto diag = std::make_unique<SaveFirstErrorDiagConsumer>(ast);
+  std::unique_ptr<SaveFirstErrorDiagConsumer> diag(
+      new SaveFirstErrorDiagConsumer(ast));
   llvm::IntrusiveRefCntPtr<clang::DiagnosticsEngine> diagnostics_engine(
       new clang::DiagnosticsEngine(new clang::DiagnosticIDs,
                                    new clang::DiagnosticOptions, diag.get(),
@@ -427,12 +108,12 @@ Result<AST, std::string> CompileJob::Run(void) const {
   diagnostics_engine->setWarningsAsErrors(false);
 
   ast->ci = std::make_shared<clang::CompilerInstance>();
-  auto &ci = *(ast->ci);
+  clang::CompilerInstance &ci = *(ast->ci);
   ci.setDiagnostics(diagnostics_engine.get());
   ci.setASTConsumer(std::make_unique<clang::ASTConsumer>());
 
-  auto &invocation = ci.getInvocation();
-  auto &fs_options = invocation.getFileSystemOpts();
+  clang::CompilerInvocation &invocation = ci.getInvocation();
+  clang::FileSystemOptions &fs_options = invocation.getFileSystemOpts();
   WorkingDirectory().generic_string().swap(fs_options.WorkingDir);
 
   llvm::IntrusiveRefCntPtr<clang::FileManager> fm(
@@ -443,13 +124,13 @@ Result<AST, std::string> CompileJob::Run(void) const {
 
   // Make sure the compiler instance is starting with the approximately
   // the right cross-compilation target info.
-  auto &target_opts = invocation.getTargetOpts();
+  clang::TargetOptions &target_opts = invocation.getTargetOpts();
   target_opts.HostTriple = llvm::sys::getDefaultTargetTriple();
   target_opts.Triple = TargetTriple();
   target_opts.ForceEnableInt128 = true;
 
-  auto target_info = clang::TargetInfo::CreateTargetInfo(ci.getDiagnostics(),
-                                                         invocation.TargetOpts);
+  clang::TargetInfo *target_info = clang::TargetInfo::CreateTargetInfo(
+      ci.getDiagnostics(), invocation.TargetOpts);
 
   // Some systems/targets declare/include these types, though the current target
   // may not. Nonetheless, we want to parse them.
@@ -457,13 +138,18 @@ Result<AST, std::string> CompileJob::Run(void) const {
   target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, VLASupported) = true;
   target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasFloat128) = true;
   target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasFloat16) = true;
+  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasBFloat16) = true;
+  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasIbm128) = true;
+  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasLongDouble) = true;
+  target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasFPReturn) = true;
 
-  const bool had_legal_half_type = target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasLegalHalfType);
+  const bool had_legal_half_type =
+      target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasLegalHalfType);
   target_info->*PASTA_ACCESS_MEMBER(clang, TargetInfo, HasLegalHalfType) = true;
   
   ci.setTarget(target_info);
 
-  const auto &argv = Arguments();
+  const ArgumentVector &argv = Arguments();
   llvm::ArrayRef<const char *> argv_arr(argv.Argv(), argv.Size());
 
 //  // NOTE(pag): `CreateFromArgs` below requires that we not pass in a
@@ -522,16 +208,17 @@ Result<AST, std::string> CompileJob::Run(void) const {
   //            and typedefs (via pretty printing) to this file, and also
   //            disable their generation. This will then hopefully mean
   //            fewer implicit decls in the indexer.
-  auto &pp_options = invocation.getPreprocessorOpts();
+  clang::PreprocessorOptions &pp_options = invocation.getPreprocessorOpts();
   pp_options.DetailedRecord = true;
   pp_options.SingleFileParseMode = false;
   pp_options.LexEditorPlaceholders = false;
   pp_options.RetainRemappedFileBuffers = true;
 
-  auto &ppo_options = invocation.getPreprocessorOutputOpts();
+  clang::PreprocessorOutputOptions &ppo_options =
+      invocation.getPreprocessorOutputOpts();
   ppo_options = {};  // Reset to defaults.
 
-  const auto lang_opts = invocation.getLangOpts();
+  clang::LangOptions * const lang_opts = invocation.getLangOpts();
 
   // Disable cpp language option that enable true/false keyword. It
   // can have conflict with C identifiers declaring true/false
@@ -574,7 +261,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
   // Don't get whitespace.
   lang_opts->TraditionalCPP = false;
 
-  auto &frontend_opts = invocation.getFrontendOpts();
+  clang::FrontendOptions &frontend_opts = invocation.getFrontendOpts();
   frontend_opts.StatsFile.clear();
   frontend_opts.OverrideRecordLayoutsFile.clear();
   frontend_opts.ASTDumpFilter.clear();
@@ -588,7 +275,8 @@ Result<AST, std::string> CompileJob::Run(void) const {
 
   // Go check that we've got an input file, them initialize the source manager
   // with the first input file.
-  auto &input_files = frontend_opts.Inputs;
+  llvm::SmallVector<clang::FrontendInputFile, 0> &input_files =
+      frontend_opts.Inputs;
   if (input_files.empty()) {
     err << "No input file in compilation command: " << argv.Join();
     return err.str();
@@ -600,7 +288,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
     return err.str();
   }
 
-  auto &invocation_target = ci.getTarget();
+  clang::TargetInfo &invocation_target = ci.getTarget();
 
   // Create TargetInfo for the other side of CUDA and OpenMP compilation.
   if ((lang_opts->CUDA || lang_opts->OpenMPIsDevice) &&
@@ -622,25 +310,25 @@ Result<AST, std::string> CompileJob::Run(void) const {
 
   // Clear out any dependency file stuff. Sometimes the paths for the dependency
   // files are incorrect, and that shouldn't hold up a build.
-  auto &dep_opts = ci.getDependencyOutputOpts();
+  clang::DependencyOutputOptions &dep_opts = ci.getDependencyOutputOpts();
   dep_opts = clang::DependencyOutputOptions();
 
   ci.createPreprocessor(clang::TU_Complete);
-  auto &pp = ci.getPreprocessor();
-  auto &sm = ci.getSourceManager();
+  clang::Preprocessor &pp = ci.getPreprocessor();
+  clang::SourceManager &sm = ci.getSourceManager();
 
   ast->orig_source_pp = ci.getPreprocessorPtr();
 
   // NOTE(pag): Add the macro tracker first so that it can observe changes to
   //            `ASTImpl::id_to_file` enacted by
   //            `ParsedFileTracker::FileChanged`.
-  auto macro_tracker_ptr = new MacroTracker(pp, sm, ast.get());
+  MacroTracker *macro_tracker_ptr = new MacroTracker(pp, sm, ast.get());
   {
     std::unique_ptr<clang::PPCallbacks> macro_tracker(macro_tracker_ptr);
     pp.addPPCallbacks(std::move(macro_tracker));
   }
 
-  auto file_tracker_ptr = new ParsedFileTracker(
+  ParsedFileTracker *file_tracker_ptr = new ParsedFileTracker(
       sm, *lang_opts, impl->file_manager, WorkingDirectory(), ast.get());
   {
     std::unique_ptr<clang::PPCallbacks> file_tracker(file_tracker_ptr);
@@ -650,7 +338,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
   pp.SetCommentRetentionState(false /* KeepComments */,
                               false /* KeepMacroComments */);
 
-  pp.getBuiltinInfo().initializeBuiltins(pp.getIdentifierTable(), *lang_opts);
+  AddCustomBuiltinsToPreprocessor(*ast, pp);
   pp.setPragmasEnabled(true);
 
   // Picks up on the pre-processor and stuff.
@@ -664,8 +352,8 @@ Result<AST, std::string> CompileJob::Run(void) const {
   macro_tracker_ptr->Clear();
 
   // Replace the main source file with the preprocessed file.
-  const auto main_file_name = input_files[0].getFile().str();
-  auto added_file = mem_vfs->addFile(
+  const std::string main_file_name = input_files[0].getFile().str();
+  bool added_file = mem_vfs->addFile(
       "<pasta-input>", std::numeric_limits<time_t>::max(),
       llvm::MemoryBuffer::getMemBuffer(ast->preprocessed_code,
                                        "<pasta-input>", false),
@@ -710,10 +398,10 @@ Result<AST, std::string> CompileJob::Run(void) const {
   ci.createSema(clang::TU_Complete, nullptr);
 
   //auto &source_manager = ci.getSourceManager();
-  auto &ast_context = ci.getASTContext();
-  auto &ast_consumer = ci.getASTConsumer();
-  auto &sema = ci.getSema();
-  auto &pp2 = ci.getPreprocessor();
+  clang::ASTContext &ast_context = ci.getASTContext();
+  clang::ASTConsumer &ast_consumer = ci.getASTConsumer();
+  clang::Sema &sema = ci.getSema();
+  clang::Preprocessor &pp2 = ci.getPreprocessor();
   ast->token_per_line_pp = ci.getPreprocessorPtr();
 
   assert(pp2.getLangOpts().EmitAllDecls);
@@ -722,7 +410,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
   std::unique_ptr<clang::Parser> parser(
       new clang::Parser(pp2, sema, false /* SkipFunctionBodies */));
 
-  pp2.getBuiltinInfo().initializeBuiltins(pp2.getIdentifierTable(), *lang_opts);
+  AddCustomBuiltinsToPreprocessor(*ast, pp2);
   pp2.setPreprocessedOutput(false);
   pp2.setPragmasEnabled(true);
   pp2.EnterMainSourceFile();
@@ -775,7 +463,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
 
   // Initialize the policy to print tokens as closely as possible to what is
   // written in the original code.
-  if (auto policy = ast->printing_policy.get()) {
+  if (clang::PrintingPolicy *policy = ast->printing_policy.get()) {
     policy->ConstantArraySizeAsWritten = true;
     policy->ConstantsAsWritten = true;
     policy->PrintCanonicalTypes = false;

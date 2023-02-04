@@ -34,6 +34,7 @@ class PatchedMacroTracker;
 class SkippedTokenRange;
 class SkippedTokenRangeImpl;
 class Token;
+class TokenContext;
 class TokenImpl;
 
 #define PASTA_FOR_EACH_MACRO_IMPL(m, t, d, cd, dd, id, a) \
@@ -98,6 +99,10 @@ class Macro {
 
  public:
   ~Macro(void);
+
+  inline static std::optional<Macro> From(const TokenContext &) {
+    return std::nullopt;
+  }
 
   MacroKind Kind(void) const noexcept;
 

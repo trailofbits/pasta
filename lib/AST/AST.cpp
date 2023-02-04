@@ -366,5 +366,92 @@ std::optional<Designator> Designator::From(const TokenContext &context) {
   return Designator(ast->shared_from_this(), context.Data());
 }
 
+std::optional<CXXBaseSpecifier> CXXBaseSpecifier::From(
+    const TokenContext &context) noexcept {
+  if (context.Kind() != TokenContextKind::kCXXBaseSpecifier) {
+    return std::nullopt;
+  }
+
+  auto &contexts = *(context.contexts);
+  if (contexts.empty()) {
+    return std::nullopt;
+  }
+
+  auto &first_context = contexts.front();
+  if (!first_context.data || first_context.kind != TokenContextKind::kAST ||
+      first_context.depth != 0u ||
+      first_context.parent_index != kInvalidTokenContextIndex) {
+    return std::nullopt;
+  }
+
+  auto ast = reinterpret_cast<ASTImpl *>(const_cast<void *>(first_context.data));
+  if (&(ast->contexts) != &contexts) {
+    assert(false);
+    return std::nullopt;
+  }
+
+  return CXXBaseSpecifier(
+      ast->shared_from_this(),
+      reinterpret_cast<const clang::CXXBaseSpecifier *>(context.Data()));
+}
+
+std::optional<TemplateArgument> TemplateArgument::From(
+    const TokenContext &context) noexcept {
+  if (context.Kind() != TokenContextKind::kTemplateArgument) {
+    return std::nullopt;
+  }
+
+  auto &contexts = *(context.contexts);
+  if (contexts.empty()) {
+    return std::nullopt;
+  }
+
+  auto &first_context = contexts.front();
+  if (!first_context.data || first_context.kind != TokenContextKind::kAST ||
+      first_context.depth != 0u ||
+      first_context.parent_index != kInvalidTokenContextIndex) {
+    return std::nullopt;
+  }
+
+  auto ast = reinterpret_cast<ASTImpl *>(const_cast<void *>(first_context.data));
+  if (&(ast->contexts) != &contexts) {
+    assert(false);
+    return std::nullopt;
+  }
+
+  return TemplateArgument(
+      ast->shared_from_this(),
+      reinterpret_cast<const clang::TemplateArgument *>(context.Data()));
+}
+
+std::optional<TemplateParameterList> TemplateParameterList::From(
+    const TokenContext &context) noexcept {
+  if (context.Kind() != TokenContextKind::kTemplateArgument) {
+    return std::nullopt;
+  }
+
+  auto &contexts = *(context.contexts);
+  if (contexts.empty()) {
+    return std::nullopt;
+  }
+
+  auto &first_context = contexts.front();
+  if (!first_context.data || first_context.kind != TokenContextKind::kAST ||
+      first_context.depth != 0u ||
+      first_context.parent_index != kInvalidTokenContextIndex) {
+    return std::nullopt;
+  }
+
+  auto ast = reinterpret_cast<ASTImpl *>(const_cast<void *>(first_context.data));
+  if (&(ast->contexts) != &contexts) {
+    assert(false);
+    return std::nullopt;
+  }
+
+  return TemplateParameterList(
+      ast->shared_from_this(),
+      reinterpret_cast<const clang::TemplateParameterList *>(context.Data()));
+}
+
 #endif  // PASTA_IN_BOOTSTRAP
 }  // namespace pasta

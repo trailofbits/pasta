@@ -17,6 +17,7 @@
     pp(Decl) \
     pp(Type) \
     pp(Attr) \
+    pp(CXXBaseSpecifier) \
     pp(Designator) \
     pp(TemplateParameterList) \
     pp(TemplateArgument) \
@@ -35,10 +36,13 @@ class AST;
 class ASTImpl;
 class Attr;
 class CXXBaseSpecifier;
+class Designator;
 class FileToken;
 class FileTokenRange;
 class MacroToken;
 class PrintedTokenRangeImpl;
+class TemplateArgument;
+class TemplateParameterList;
 class TokenContextImpl;
 class TokenIterator;
 class TokenPrinterContext;
@@ -127,9 +131,12 @@ class TokenContext {
  private:
   friend class Attr;
   friend class Decl;
+  friend class CXXBaseSpecifier;
   friend class Designator;
   friend class PrintedToken;
   friend class Stmt;
+  friend class TemplateArgument;
+  friend class TemplateParameterList;
   friend class Token;
   friend class Type;
 

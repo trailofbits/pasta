@@ -692,6 +692,8 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
       const clang::TemplateParameterList *TPL = D->getTemplateSpecializationInfo()
                                                 ->getTemplate()
                                                 ->getTemplateParameters();
+
+      TokenPrinterContext ctx(Out, TPL, this->tokens);
       if (TArgAsWritten && !Policy.PrintCanonicalTypes)
         TArgPrinter.printTemplateArguments(TArgAsWritten->arguments(), TPL, true);
       else if (const clang::TemplateArgumentList *TArgs =
@@ -1257,6 +1259,7 @@ void DeclPrinter::VisitCXXRecordDecl(clang::CXXRecordDecl *D) {
         if (Base != D->bases_begin())
           Out << ", ";
 
+        TokenPrinterContext ctx(Out, &*Base, tokens);
         if (Base->isVirtual())
           Out << "virtual ";
 
@@ -1316,8 +1319,8 @@ void DeclPrinter::VisitLinkageSpecDecl(clang::LinkageSpecDecl *D) {
     Visit(*D->decls_begin());
 }
 
-void DeclPrinter::printTemplateParameters(const clang::TemplateParameterList *Params,
-                                          bool OmitTemplateKW) {
+void DeclPrinter::printTemplateParameters(
+    const clang::TemplateParameterList *Params, bool OmitTemplateKW) {
   TokenPrinterContext ctx(Out, Params, tokens);
 
   assert(Params);

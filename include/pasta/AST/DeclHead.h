@@ -85,6 +85,8 @@ class CXXBaseSpecifier {
         spec(spec_) {}
 
 #ifndef PASTA_IN_BOOTSTRAP
+  static std::optional<CXXBaseSpecifier> From(const TokenContext &) noexcept;
+
   inline const void *RawCXXBaseSpecifier(void) const noexcept {
     return spec;
   }
@@ -153,6 +155,8 @@ class TemplateArgument {
         arg(arg_) {}
 
 #ifndef PASTA_IN_BOOTSTRAP
+  static std::optional<TemplateArgument> From(const TokenContext &) noexcept;
+
   inline const void *RawTemplateArgument(void) const noexcept {
     return arg;
   }
@@ -228,6 +232,9 @@ class TemplateParameterList {
         params(params_) {}
 
 #ifndef PASTA_IN_BOOTSTRAP
+  static std::optional<TemplateParameterList> From(
+      const TokenContext &) noexcept;
+
   inline const void *RawTemplateParameterList(void) const noexcept {
     return params;
   }

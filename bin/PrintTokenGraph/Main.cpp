@@ -154,6 +154,10 @@ static void PrintTokenGraph(pasta::Decl tld) {
         bgcolor = " bgcolor=\"deepskyblue2\"";
         kind_name = "TypeConstraint";
         break;
+      case pasta::TokenContextKind::kCXXBaseSpecifier:
+        bgcolor = " bgcolor=\"deepskyblue3\"";
+        kind_name = "BaseSpecifier";
+        break;
       case pasta::TokenContextKind::kAttr:
         bgcolor = " bgcolor=\"goldenrod1\"";
         kind_name = AttributeKindName(reinterpret_cast<const clang::Attr *>(context.Data()));

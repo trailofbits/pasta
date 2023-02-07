@@ -21,6 +21,8 @@
 #include <llvm/Support/VirtualFileSystem.h>
 #pragma clang diagnostic pop
 
+#include <iostream>
+
 namespace pasta {
 
 ASTImpl::ASTImpl(File main_source_file_)

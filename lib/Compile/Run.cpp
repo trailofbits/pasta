@@ -228,9 +228,11 @@ Result<AST, std::string> CompileJob::Run(void) const {
   lang_opts->Char8 = true;
   lang_opts->IEEE128 = true;
   lang_opts->EmitAllDecls = true;
-  lang_opts->CXXExceptions = true;
-  lang_opts->Coroutines = true;
-  lang_opts->Blocks = true;
+  lang_opts->CXXExceptions = lang_opts->CPlusPlus;
+  lang_opts->Coroutines = lang_opts->CPlusPlus;
+  lang_opts->ModulesTS = lang_opts->CPlusPlus;
+  lang_opts->CPlusPlusModules = lang_opts->CPlusPlus;
+  lang_opts->Blocks = lang_opts->ObjC;
   lang_opts->POSIXThreads = true;
   lang_opts->HeinousExtensions = true;
   lang_opts->DoubleSquareBracketAttributes = true;
@@ -241,7 +243,13 @@ Result<AST, std::string> CompileJob::Run(void) const {
   lang_opts->RetainCommentsFromSystemHeaders = false;
   lang_opts->AllowEditorPlaceholders = false;
   lang_opts->CommentOpts.ParseAllComments = false;
-  lang_opts->ForceEmitVTables = true;
+  lang_opts->ForceEmitVTables = lang_opts->CPlusPlus;
+
+  // This is a patch that introduces transparent support for unknown attributes,
+  // converting them into annotation attributes.
+  //
+  // TODO(pag): Enable this eventually.
+  // lang_opts->UnknownAttrAnnotate = true;
 
   // Don't try to produce recovery expressions or types.
   lang_opts->RecoveryAST = false;

@@ -1694,6 +1694,7 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
       ++num_tlds;
     }
 
+    (void) num_tlds;
 //    // NOTE(pag): This is a bit of a heuristic check.
 //    if (num_tlds > 5 && !clang::isa<clang::TemplateDecl>(tld_decl)) {
 ////      std::cerr << "---------------------------\n";

@@ -14,7 +14,7 @@
 #include <clang/Lex/Token.h>
 #pragma GCC diagnostic pop
 
-#define D(...)
+//#define D(...) __VA_ARGS__
 #ifndef D
 # define D(...)
 #endif
@@ -1297,8 +1297,8 @@ void PatchedMacroTracker::DoEndMacroCallArgument(
 
 void PatchedMacroTracker::DoEndMacroCallArgumentList(
     const clang::Token &tok, uintptr_t data) {
-  assert(tok.isOneOf(clang::tok::eof, clang::tok::r_paren));
   if (!arguments.empty() && nodes.back() == arguments.back()) {
+    assert(tok.isOneOf(clang::tok::eof, clang::tok::r_paren));
     D( std::cerr << indent << "?? Missing DoEndMacroCallArgument\n"; )
     DoEndMacroCallArgument(tok, data);
   }

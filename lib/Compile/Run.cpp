@@ -57,8 +57,6 @@ using MacroTracker = pasta::PatchedMacroTracker;
 #include "../AST/Token.h"
 #include "../Util/FileManager.h"
 
-#define PASTA_DEBUG_RUN 0
-
 namespace pasta {
 namespace detail {
 PASTA_BYPASS_MEMBER_OBJECT_ACCESS(clang, TargetInfo, TLSSupported, bool);

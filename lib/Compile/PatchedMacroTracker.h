@@ -155,6 +155,7 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   void DoBeginMacroExpansion(const clang::Token &tok, uintptr_t data);
   void DoBeginMacroCallArgument(const clang::Token &, uintptr_t);
   void DoEndMacroCallArgument(const clang::Token &, uintptr_t);
+  void DoEndMacroCallArgumentList(const clang::Token &tok, uintptr_t);
   void DoBeginVariadicCallArgumentList(const clang::Token &, uintptr_t);
   void DoBeginPreArgumentExpansion(const clang::Token &, uintptr_t);
   void DoEndPreArgumentExpansion(const clang::Token &, uintptr_t);

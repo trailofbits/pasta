@@ -20,6 +20,13 @@
 
 #include "../AST/AST.h"
 
+#define PASTA_DEBUG_RUN 0
+
+#if PASTA_DEBUG_RUN
+# include <fcntl.h>
+# include <unistd.h>
+#endif
+
 namespace pasta {
 namespace {
 

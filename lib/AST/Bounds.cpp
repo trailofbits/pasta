@@ -807,11 +807,125 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   //            out-of-line methods on class templates.
   void VisitParmVarDecl(clang::ParmVarDecl *decl) {
     Expand(decl->getSourceRange());
-    if (!decl->hasInheritedDefaultArg()) {
+    if (!decl->hasInheritedDefaultArg() && decl->hasDefaultArg()) {
       Expand(decl->getDefaultArgRange());
     }
-  }
 
+    if (decl->getName().empty()) {
+      Expand(decl->getOuterLocStart());
+    }
+
+    if (clang::TypeSourceInfo *tsi = decl->getTypeSourceInfo()) {
+      if (auto tl = tsi->getTypeLoc()) {
+        this->TypeLocVisitor::Visit(tl);
+      }
+    }
+
+    TokenImpl *tok = ast.RawTokenAt(decl->getLocation());
+    if (tok) {
+      Expand(tok);
+    }
+
+    clang::FunctionDecl *func =
+        clang::dyn_cast<clang::FunctionDecl>(decl->getDeclContext());
+    if (!func) {
+      return;
+    }
+
+    clang::SourceRange param_range = func->getParametersSourceRange();
+    TokenImpl *params_begin = ast.RawTokenAt(param_range.getBegin());
+    TokenImpl *params_end = ast.RawTokenAt(param_range.getEnd());
+
+    // Get the range of the parameter list. We might need to convert these to be
+    // sane.
+    if (params_begin && params_begin->Kind() != clang::tok::l_paren) {
+      if (params_begin[-1].Kind() == clang::tok::l_paren) {
+        params_begin = &(params_begin[-1]);
+      } else {
+        params_begin = nullptr;
+      }
+    }
+
+    if (params_end && params_end->Kind() != clang::tok::r_paren) {
+      if (params_end[1].Kind() == clang::tok::r_paren) {
+        params_end = &(params_end[1]);
+      } else {
+        params_end = nullptr;
+      }
+    }
+
+    if (params_begin && !params_end) {
+      std::tie(params_begin, params_end) = GetMatching(params_begin);
+    } else if (params_end && !params_begin) {
+      std::tie(params_begin, params_end) = GetMatching(params_end);
+    }
+
+    assert(!params_begin == !params_end);
+
+    // Force us in-range of the parens, hopefully.
+    if (params_begin && lower_bound <= params_begin) {
+      lower_bound = &(params_begin[1]);
+    }
+    if (params_end && upper_bound >= params_end) {
+      upper_bound = &(params_end[-1]);
+    }
+
+    // Unreasonable backup, clear it.
+    if (!(params_begin <= tok && tok <= params_end)) {
+      tok = nullptr;
+    }
+
+    // Out-of-range; go to backup.
+    if (!(params_begin < lower_bound && upper_bound < params_end &&
+          lower_bound < upper_bound)) {
+      lower_bound = tok;
+      upper_bound = tok;
+    }
+
+    // Try to hop through one parameter at a time, finding the ranges of the
+    // parameters, until we get to the parameter we care about.
+    if (!params_begin || !params_end || decl->isImplicit()) {
+      return;
+    }
+
+//    std::cerr << decl->getName().str() << '\n';
+//
+//    for (auto t = params_begin; t <= params_end; ++t) {
+//      std::cerr << t->Data(ast) << ' ';
+//    }
+//    std::cerr << '\n';
+
+    unsigned param_index = decl->getFunctionScopeIndex();
+    unsigned num_params = func->getNumParams();
+    assert(param_index < num_params);
+
+    auto i = 0u;
+    auto begin_tok = params_begin;
+    auto end_tok = params_begin;
+    for (; i <= param_index; ++i) {
+      begin_tok = &(end_tok[1]);  // Skip the `(` or the `,`.
+      if ((i + 1) == num_params) {
+        end_tok = params_end;
+      } else {
+        end_tok = FindNext(begin_tok, clang::tok::comma, 1);
+      }
+      if (!end_tok) {
+        return;
+      }
+    }
+
+    if (!lower_bound || begin_tok < lower_bound) {
+      lower_bound = begin_tok;
+    }
+    if (!upper_bound || end_tok >= upper_bound) {
+      upper_bound = &(end_tok[-1]);
+    }
+
+//    for (auto t = lower_bound; t <= upper_bound; ++t) {
+//      std::cerr << t->Data(ast) << ' ';
+//    }
+//    std::cerr << "\n\n";
+  }
 
   TokenImpl *ExpandToLeadingToken(TokenImpl *name_tok,
                                   clang::tok::TokenKind kind) {
@@ -831,7 +945,8 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     return nullptr;
   }
 
-  void ExpandToLeadingToken(clang::SourceLocation loc, clang::tok::TokenKind kind) {
+  void ExpandToLeadingToken(clang::SourceLocation loc,
+                            clang::tok::TokenKind kind) {
     ExpandToLeadingToken(ast.RawTokenAt(loc), kind);
   }
 
@@ -1363,11 +1478,16 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 //      std::cerr << "\n\n";
 //    }
 
+    while (!lower_bound->IsParsed() && lower_bound < upper_bound) {
+      lower_bound = &(lower_bound[1]);
+    }
+
+    while (!upper_bound->IsParsed() && lower_bound < upper_bound) {
+      upper_bound = &(upper_bound[-1]);
+    }
+
     assert(lower_bound->IsParsed());
     assert(upper_bound->IsParsed());
-
-    const auto orig_lower_bound = lower_bound;
-    const auto orig_upper_bound = upper_bound;
 
 //    // Make sure that we capture matching parens/brackets/braces.
 //    for (auto t = lower_bound; t <= upper_bound; ++t) {
@@ -1384,55 +1504,40 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 //        << reinterpret_cast<void *>(lower_bound) << " upper_bound="
 //        << reinterpret_cast<void *>(upper_bound) << '\n' ;
 
-    assert(lower_bound <= orig_lower_bound);
-    assert(orig_upper_bound <= upper_bound);
-    (void) orig_lower_bound;
-    (void) orig_upper_bound;
     return {lower_bound, upper_bound};
   }
 };
 
 }  // namespace
 
-// Try to return the inclusive bounds of a given declaration in terms of
-// parsed tokens. This doesn't not try to expand the range to the ending
-// of macro expansions.
-std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
-  auto &ret = bounds[decl];
-  if (ret.first || decl->isImplicit()) {
+std::pair<TokenImpl *, TokenImpl *> ASTImpl::PartitionDeclContext(
+    clang::DeclContext *dc) {
+  if (!dc) {
+    return {&(tokens.front()), &((&(tokens.back()))[-1])};
+  }
+
+  // Already figured out this decl context's bounds.
+  auto &ret = bounds[dc];
+  if (ret.first) {
     return ret;
   }
 
-  TokenImpl *first_tok = &(tokens.front());
-  TokenImpl *last_tok = &((&(tokens.back()))[-1]);  // `.back()` is `eof`.
-
-  // Handle this off-the-bat; it doesn't really conform to any other thing.
-  if (clang::isa<clang::TranslationUnitDecl>(decl)) {
-    ret.first = first_tok;
-    ret.second = last_tok;
-    return ret;
-  }
-
-  // Go from specializations back to templates.
-  if (auto remap_it = remapped_decls.find(decl);
-      remap_it != remapped_decls.end() &&
-      decl != remap_it->second) {
-    ret = DeclBounds(remap_it->second);
-    return ret;
-  }
+  ret.first = &(tokens.front());
+  ret.second = &((&(tokens.back()))[-1]);  // `.back()` is `eof`.
 
   // Ask our lexical parent for their bounds.
-  clang::DeclContext *dc = decl->getLexicalDeclContext();
-  if (auto dc_decl = clang::dyn_cast<clang::Decl>(dc)) {
+  auto dc_decl = clang::dyn_cast<clang::Decl>(dc);
+  if (dc_decl) {
 
     // E.g. structure fields inside of `__va_list_tag`.
     if (dc_decl->isImplicit()) {
       return ret;
     }
 
-    std::tie(first_tok, last_tok) = DeclBounds(dc_decl);
+    std::tie(ret.first, ret.second) = DeclBounds(dc_decl);
   }
 
+  DeclBoundsFinder finder(*this);
 //  std::set<TokenImpl *> lower_bounds;
 //  std::set<TokenImpl *> upper_bounds;
 
@@ -1541,10 +1646,9 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
     }
   }
 
-  DeclBoundsFinder finder(*this);
-
   for (auto &[tld_decl, tld_begin, tld_end] : tlds) {
     clang::Decl *remapped_decl = tld_decl;
+
     if (auto remap_it = remapped_decls.find(tld_decl);
         remap_it != remapped_decls.end()) {
       remapped_decl = remap_it->second;
@@ -1711,10 +1815,50 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
 
     // TODO(pag): Integrate upper/lower bounds.
   }
+
+  return ret;
 //
 //  assert(ret.first <= old_bounds.first);
 //  assert(old_bounds.second <= ret.second);
 //  (void) old_bounds;
+}
+
+// Try to return the inclusive bounds of a given declaration in terms of
+// parsed tokens. This doesn't not try to expand the range to the ending
+// of macro expansions.
+std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
+  auto &ret = bounds[decl];
+  if (ret.first || decl->isImplicit()) {
+    return ret;
+  }
+
+  // Handle this off-the-bat; it doesn't really conform to any other thing.
+  if (clang::isa<clang::TranslationUnitDecl>(decl)) {
+    ret.first = &(tokens.front());
+    ret.second = &((&(tokens.back()))[-1]);  // `.back()` is `eof`.
+    return ret;
+  }
+
+  auto parent_bounds = PartitionDeclContext(decl->getLexicalDeclContext());
+
+  // Go from specializations back to templates.
+  if (auto remap_it = remapped_decls.find(decl);
+      remap_it != remapped_decls.end() &&
+      decl != remap_it->second) {
+    ret = DeclBounds(remap_it->second);
+    return ret;
+  }
+
+  DeclBoundsFinder finder(*this);
+
+  ret = finder.GetBounds(decl);
+
+  if (ret.first && parent_bounds.first && ret.first < parent_bounds.first) {
+    ret.first = parent_bounds.first;
+  }
+  if (ret.second && parent_bounds.second && ret.second > parent_bounds.second) {
+    ret.second = parent_bounds.second;
+  }
 
   return ret;
 }

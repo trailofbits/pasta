@@ -82,7 +82,7 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   std::unordered_map<clang::Decl *, clang::Decl *> lexically_containing_decl;
 
   std::mutex bounds_mutex;
-  std::unordered_map<clang::Decl *, std::pair<TokenImpl *, TokenImpl *>> bounds;
+  std::unordered_map<void *, std::pair<TokenImpl *, TokenImpl *>> bounds;
 
   // Remapped declarations (for the sake of bounds checks).
   std::unordered_map<clang::Decl *, clang::Decl *> remapped_decls;
@@ -176,6 +176,9 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // parsed tokens. This doesn't not try to expand the range to the ending
   // of macro expansions.
   std::pair<TokenImpl *, TokenImpl *> DeclBounds(clang::Decl *decl);
+
+  std::pair<TokenImpl *, TokenImpl *> PartitionDeclContext(
+      clang::DeclContext *dc);
 
   // Return a token range for the bounds of a declaration.
   TokenRange DeclTokenRange(const clang::Decl *decl);

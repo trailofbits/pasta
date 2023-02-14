@@ -479,39 +479,50 @@ bool PatchedMacroTracker::AddToParentNode(Node node) {
 std::optional<clang::Token> PatchedMacroTracker::FindDirectiveHash(
     const clang::Token &tok) {
 
-  if (last_token.is(clang::tok::hash)) {
-    auto ret = last_token;
-    last_token.startToken();
-    return ret;
-  }
-
-  clang::SourceLocation directive_loc = tok.getLocation();
-  if (directive_loc.isInvalid() || !directive_loc.isFileID()) {
-    return std::nullopt;
-  }
-
   D( std::cerr << indent << "Trying to add missing directive hash\n"; )
 
-  bool invalid = false;
-  clang::SourceManager &sm = ast->ci->getSourceManager();
-  auto [file_id, file_offset] = sm.getDecomposedLoc(directive_loc);
-  llvm::StringRef file_data = sm.getBufferData(file_id, &invalid);
-  if (invalid) {
-    return std::nullopt;
+  clang::SourceLocation hash_loc;
+  clang::SourceLocation directive_loc = tok.getLocation();
+  if (directive_loc.isValid() && directive_loc.isFileID()) {
+    bool invalid = false;
+    clang::SourceManager &sm = ast->ci->getSourceManager();
+    auto [file_id, file_offset] = sm.getDecomposedLoc(directive_loc);
+    llvm::StringRef file_data = sm.getBufferData(file_id, &invalid);
+    if (invalid) {
+      goto backup;
+    }
+
+    // Scan backwards through the file buffer from the start of the macro token
+    // that was undefined, hoping to find the `#` of the directive. If we find
+    // it, then emit an injected token.
+    for (int loc_offset = 0; 0 <= file_offset; --loc_offset, --file_offset) {
+
+      // TODO(pag): Make this avoid `#`s inside of block comments, e.g.
+      //            # blah /* # hahahah */ ...
+      if (file_data[file_offset] == '#') {
+        hash_loc = directive_loc.getLocWithOffset(loc_offset);
+        break;
+      }
+    }
   }
 
-  // Scan backwards through the file buffer from the start of the macro token
-  // that was undefined, hoping to find the `#` of the directive. If we find
-  // it, then emit an injected token.
-  clang::SourceLocation hash_loc;
-  for (int loc_offset = 0; 0 <= file_offset; --loc_offset, --file_offset) {
+backup:
 
-    // TODO(pag): Make this avoid `#`s inside of block comments, e.g.
-    //            # blah /* # hahahah */ ...
-    if (file_data[file_offset] == '#') {
-      hash_loc = directive_loc.getLocWithOffset(loc_offset);
-      break;
-    }
+  if (hash_loc.isInvalid()) {
+    hash_loc = skipped_hash.getLocation();
+    skipped_hash.startToken();
+  }
+
+  // Not quite right, as it might be cause us to re-add another hash. But we
+  // really need a `#`.
+  if (hash_loc.isInvalid() && last_token.is(clang::tok::hash)) {
+    hash_loc = last_token.getLocation();
+    last_token.startToken();
+  }
+
+  if (hash_loc.isInvalid()) {
+    D( std::cerr << indent << "Didn't find directive hash\n"; )
+    return std::nullopt;
   }
 
   clang::Token hash_tok;
@@ -519,15 +530,9 @@ std::optional<clang::Token> PatchedMacroTracker::FindDirectiveHash(
   hash_tok.setKind(clang::tok::hash);
   hash_tok.setLocation(hash_loc);
 
-  if (hash_loc.isInvalid()) {
-    if (skipped_hash.getLocation().isValid()) {
-      hash_tok = std::move(skipped_hash);
-      skipped_hash.startToken();
-    } else {
-      D( std::cerr << indent << "Didn't find directive hash\n"; )
-      return std::nullopt;
-    }
-  }
+  // We want the token to be added, so this prevents it from being dropped by
+  // `DoToken` called from `DoBeginDirective`.
+  last_token.startToken();
 
   return hash_tok;
 }
@@ -1017,7 +1022,9 @@ void PatchedMacroTracker::DoBeginSkippedArea(
     }
 
     D( std::cerr << indent << "Adding skipped directive '"
-                 << ident << "' depth=" << depth << " cond_skip_depth="
+                 << ident << "' hash_loc="
+                 << hash_tok->getLocation().getRawEncoding()
+                 << " depth=" << depth << " cond_skip_depth="
                  << cond_skip_depth << '\n'; )
     DoBeginDirective(*hash_tok, data);
     DoToken(tok, 0);
@@ -2012,7 +2019,8 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
   }
 
   std::cerr
-      << ' ' << clang::tok::getTokenName(tok.getKind());
+      << ' ' << clang::tok::getTokenName(tok.getKind())
+      << " loc=" << tok.getLocation().getRawEncoding();
 //    if (tok.is(clang::tok::comma)) {
 //      std::cerr
 //          << " StartOfLine=" << tok.getFlag(clang::Token::StartOfLine)

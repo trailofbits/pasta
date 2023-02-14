@@ -862,46 +862,64 @@ void ASTImpl::LinkMacroTokenContexts(void) {
   }
 }
 
-MacroKind KindFromName(llvm::StringRef ident) {
+MacroKind KindFromName(llvm::StringRef ident,
+                       clang::tok::PPKeywordKind &out_kind) {
   if (ident == "if") {
+    out_kind = clang::tok::pp_if;
     return MacroKind::kIfDirective;
   } else if (ident == "ifdef") {
+    out_kind = clang::tok::pp_ifdef;
     return MacroKind::kIfDefinedDirective;
   } else if (ident == "ifndef") {
+    out_kind = clang::tok::pp_ifndef;
     return MacroKind::kIfNotDefinedDirective;
   } else if (ident == "elif") {
+    out_kind = clang::tok::pp_elif;
     return MacroKind::kElseIfDirective;
   } else if (ident == "elifdef") {
+    out_kind = clang::tok::pp_elifdef;
     return MacroKind::kElseIfDefinedDirective;
   } else if (ident == "elifndef") {
+    out_kind = clang::tok::pp_elifndef;
     return MacroKind::kElseIfNotDefinedDirective;
   } else if (ident == "else") {
+    out_kind = clang::tok::pp_else;
     return MacroKind::kElseDirective;
   } else if (ident == "endif") {
+    out_kind = clang::tok::pp_endif;
     return MacroKind::kEndIfDirective;
   } else if (ident == "import") {
+    out_kind = clang::tok::pp_import;
     return MacroKind::kImportDirective;
   } else if (ident == "include") {
+    out_kind = clang::tok::pp_include;
     return MacroKind::kIncludeDirective;
   } else if (ident == "include_next") {
+    out_kind = clang::tok::pp_include_next;
     return MacroKind::kIncludeNextDirective;
   } else if (ident == "__include_macros") {
+    out_kind = clang::tok::pp___include_macros;
     return MacroKind::kIncludeMacrosDirective;
   } else if (ident == "define") {
+    out_kind = clang::tok::pp_define;
     return MacroKind::kDefineDirective;
   } else if (ident == "undef") {
+    out_kind = clang::tok::pp_undef;
     return MacroKind::kUndefineDirective;
   } else if (ident == "pragma") {
+    out_kind = clang::tok::pp_pragma;
     return MacroKind::kPragmaDirective;
   } else {
     for (auto i = 1; i < clang::tok::NUM_PP_KEYWORDS; ++i) {
-      auto kw = clang::tok::getPPKeywordSpelling(
-          static_cast<clang::tok::PPKeywordKind>(i));
+      auto kw_kind = static_cast<clang::tok::PPKeywordKind>(i);
+      auto kw = clang::tok::getPPKeywordSpelling(kw_kind);
       if (ident == kw) {
+        out_kind = kw_kind;
         return MacroKind::kOtherDirective;
       }
     }
 
+    out_kind = clang::tok::pp_not_keyword;
     return MacroKind::kToken;
   }
 }
@@ -917,11 +935,31 @@ struct BoolRAII {
   }
 };
 
+// Try to upgrade the file token associated with `loc` to have the preprocessor
+// keyword kind `kw_kind`. This is generally kind of sketchy.
+static void TryUpgradeFileTokenKind(ASTImpl &ast, clang::SourceLocation loc,
+                                    clang::tok::PPKeywordKind kw_kind) {
+  if (auto ftok = ast.FileTokenAt(loc)) {
+    if (ftok->PreProcessorKeywordKind() !=
+        static_cast<PPKeywordKind>(kw_kind)) {
+      auto raw_file = const_cast<FileImpl *>(
+          reinterpret_cast<const FileImpl *>(ftok->RawFile()));
+      auto raw_ftok = const_cast<FileTokenImpl *>(
+          reinterpret_cast<const FileTokenImpl *>(ftok->RawFileToken()));
+
+      std::unique_lock<std::mutex> locker(raw_file->tokens_lock);
+      raw_ftok->kind.extended.alt_kind = static_cast<uint16_t>(kw_kind);
+      raw_ftok->kind.extended.is_pp_kw = static_cast<uint16_t>(true);
+    }
+  }
+}
+
 // This is a strange event, because it starts in one place, and where it ends
 // could be the signalling of an unskipped area.
 void PatchedMacroTracker::DoBeginSkippedArea(
-    const clang::Token &tok, uintptr_t data) {
+    const clang::Token &tok_, uintptr_t data) {
 
+  clang::Token tok = tok_;
   if (skipped_area_recurisive_lock) {
     return;
   }
@@ -975,7 +1013,8 @@ void PatchedMacroTracker::DoBeginSkippedArea(
     ident.clear();
     (void) TryReadRawToken(sm, lo, tok, &ident);
 
-    MacroKind kind = KindFromName(ident);
+    clang::tok::PPKeywordKind kw_kind = clang::tok::pp_not_keyword;
+    MacroKind kind = KindFromName(ident, kw_kind);
     switch (kind) {
       case MacroKind::kIfDirective:
       case MacroKind::kIfDefinedDirective:
@@ -1012,6 +1051,9 @@ void PatchedMacroTracker::DoBeginSkippedArea(
         return;
     }
 
+    // Upgrade the file token in-place.
+    TryUpgradeFileTokenKind(*ast, tok.getLocation(), kw_kind);
+
     std::optional<clang::Token> hash_tok = FindDirectiveHash(tok);
     if (!hash_tok) {
       assert(false);
@@ -1021,6 +1063,7 @@ void PatchedMacroTracker::DoBeginSkippedArea(
       return;
     }
 
+    tok.setKind(clang::tok::raw_identifier);
     D( std::cerr << indent << "Adding skipped directive '"
                  << ident << "' hash_loc="
                  << hash_tok->getLocation().getRawEncoding()
@@ -1114,11 +1157,18 @@ void PatchedMacroTracker::DoSetNamedDirective(const clang::Token &, uintptr_t) {
     return;
   }
 
-  std::string_view data = ast->tokens[name_tok->token_offset].Data(*ast);
-  directive->kind = KindFromName(data);
+  clang::tok::PPKeywordKind kw_kind = clang::tok::pp_not_keyword;
+  TokenImpl &kw_name_tok = ast->tokens[name_tok->token_offset];
+  std::string_view data = kw_name_tok.Data(*ast);
+  directive->kind = KindFromName(data, kw_kind);
   if (directive->kind != MacroKind::kToken) {
     directive->directive_name = directive->nodes.back();
     D( std::cerr << indent << "DirectiveName=" << data << '\n'; )
+
+    // Upgrade the file token in-place.
+    name_tok->kind_flags.kind = TokenKind::kRawIdentifier;
+    kw_name_tok.kind = static_cast<TokenKindBase>(clang::tok::raw_identifier);
+    TryUpgradeFileTokenKind(*ast, kw_name_tok.Location(), kw_kind);
   }
 }
 

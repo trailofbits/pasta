@@ -447,19 +447,7 @@ std::optional<FileToken> Token::FileLocation(void) const {
     }
   }
 
-  if (loc.isValid() && loc.isFileID()) {
-    const clang::SourceManager &sm = ast->ci->getSourceManager();
-    const auto [file_id, file_offset] = sm.getDecomposedLoc(loc);
-    auto file_it = ast->id_to_file.find(file_id.getHashValue());
-    if (file_it == ast->id_to_file.end()) {
-      return std::nullopt;
-    }
-
-    return file_it->second.TokenAtOffset(file_offset);
-
-  } else {
-    return std::nullopt;
-  }
+  return ast->FileTokenAt(loc);
 }
 
 // Location of the token in a macro expansion.

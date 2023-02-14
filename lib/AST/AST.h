@@ -50,6 +50,9 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   explicit ASTImpl(File main_source_file_);
   ~ASTImpl(void);
 
+  // Try to return the file token at the specified location.
+  std::optional<FileToken> FileTokenAt(clang::SourceLocation loc);
+
   // Try to return the token at the specified location.
   TokenImpl *RawTokenAt(clang::SourceLocation loc);
 

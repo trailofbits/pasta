@@ -123,6 +123,23 @@ MacroRange AST::Macros(void) const {
       impl, first, &(first[impl->root_macro_node.nodes.size()]));
 }
 
+// Try to return the file token at the specified location.
+std::optional<FileToken> ASTImpl::FileTokenAt(clang::SourceLocation loc) {
+  if (loc.isValid() && loc.isFileID()) {
+    const clang::SourceManager &sm = ci->getSourceManager();
+    const auto [file_id, file_offset] = sm.getDecomposedLoc(loc);
+    auto file_it = id_to_file.find(file_id.getHashValue());
+    if (file_it == id_to_file.end()) {
+      return std::nullopt;
+    }
+
+    return file_it->second.TokenAtOffset(file_offset);
+
+  } else {
+    return std::nullopt;
+  }
+}
+
 // Try to return the token at the specified location.
 TokenImpl *ASTImpl::RawTokenAt(clang::SourceLocation loc) {
   if (loc.isInvalid()) {

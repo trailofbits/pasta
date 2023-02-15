@@ -376,6 +376,10 @@ void PatchedMacroTracker::FixupDerivedLocations(void) {
     // Sanity check that we're mapping a derived token to the original token
     // that shares the same data.
     DerivedTokenIndex orig_tok_index = it->second;
+    if (orig_tok_index == tok_index) {
+      return false;
+    }
+
     assert(orig_tok_index < tok_index);
     const TokenImpl &orig_tok = ast->tokens[orig_tok_index];
     if (orig_tok.Data(*ast) != tok_data) {
@@ -1193,6 +1197,28 @@ void PatchedMacroTracker::DoEndNonDirective(const clang::Token &tok,
   last_token.startToken();
 }
 
+static void Expand(std::ostream &os, const ASTImpl &ast,
+                   Node node, const char *&sep,
+                   clang::SourceLocation &last_loc) {
+  if (std::holds_alternative<MacroTokenImpl *>(node)) {
+    auto tok = std::get<MacroTokenImpl *>(node);
+    const TokenImpl &real_tok = ast.tokens[tok->token_offset];
+    last_loc = real_tok.Location();
+    auto data = real_tok.Data(ast);
+    if (!data.empty()) {
+      last_loc = last_loc.getLocWithOffset(static_cast<int>(data.size()));
+      os << sep << data;
+      sep = " ";
+    }
+
+  } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
+    auto sub = std::get<MacroNodeImpl *>(node);
+    for (const Node &sub_node : sub->nodes) {
+      Expand(os, ast, sub_node, sep, last_loc);
+    }
+  }
+}
+
 void PatchedMacroTracker::DoEndDirective(
     const clang::Token &tok, uintptr_t data) {
 
@@ -1227,8 +1253,21 @@ void PatchedMacroTracker::DoEndDirective(
   Pop(tok);
   last_token.startToken();
 
-  // We need to emit the pragma tokens as a line in the parsed tokens.
+  // We need to emit the pragma tokens as a line in the parsed tokens. Pragmas
+  // are important for things like adjusting structure packing.
   if (last_directive->kind == MacroKind::kPragmaDirective) {
+    std::stringstream ss;
+    const char *sep = "";
+    clang::SourceLocation last_loc;
+    Expand(ss, *ast, last_directive, sep, last_loc);
+    D( std::cerr << indent << "Got pragma: " << ss.str() << '\n'; )
+
+    ast->preprocessed_code.append(ss.str());
+    ast->preprocessed_code.push_back('\n');
+    ast->num_lines += 1;
+    ast->tokens.emplace_back(
+        last_loc.getRawEncoding(), 0u, 0u,
+        clang::tok::eod, TokenRole::kEndOfInternalMacroEventMarker);
 
   }
 

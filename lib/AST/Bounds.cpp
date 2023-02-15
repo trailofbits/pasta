@@ -546,8 +546,8 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
   void Expand(TokenImpl *tok) {
     if (tok) {
-      lower_bound = std::min(tok, lower_bound);
-      upper_bound = std::max(tok, upper_bound);
+      lower_bound = lower_bound ? std::min(tok, lower_bound) : tok;
+      upper_bound = upper_bound ? std::max(tok, upper_bound) : tok;
     }
   }
 
@@ -822,9 +822,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     }
 
     TokenImpl *tok = ast.RawTokenAt(decl->getLocation());
-    if (tok) {
-      Expand(tok);
-    }
+    Expand(tok);
 
     clang::FunctionDecl *func =
         clang::dyn_cast<clang::FunctionDecl>(decl->getDeclContext());
@@ -870,16 +868,17 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       upper_bound = &(params_end[-1]);
     }
 
-    // Unreasonable backup, clear it.
-    if (!(params_begin <= tok && tok <= params_end)) {
-      tok = nullptr;
-    }
-
     // Out-of-range; go to backup.
     if (!(params_begin < lower_bound && upper_bound < params_end &&
           lower_bound < upper_bound)) {
       lower_bound = tok;
       upper_bound = tok;
+    }
+
+    // Unreasonable backup, clear it. Leave `lower_bound` in place from above
+    // check, even if wrong. We'll hopefully fix it up below.
+    if (!(params_begin <= tok && tok <= params_end)) {
+      tok = nullptr;
     }
 
     // Try to hop through one parameter at a time, finding the ranges of the
@@ -914,11 +913,19 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       }
     }
 
-    if (!lower_bound || begin_tok < lower_bound) {
+    // These should be right.
+    if (begin_tok && end_tok) {
       lower_bound = begin_tok;
-    }
-    if (!upper_bound || end_tok >= upper_bound) {
       upper_bound = &(end_tok[-1]);
+
+    // If we don't have both, then try to widen the range for whichever we have.
+    } else {
+      if (!lower_bound || begin_tok < lower_bound) {
+        lower_bound = begin_tok;
+      }
+      if (!upper_bound || end_tok >= upper_bound) {
+        upper_bound = &(end_tok[-1]);
+      }
     }
 
 //    for (auto t = lower_bound; t <= upper_bound; ++t) {
@@ -1430,16 +1437,15 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 //        << reinterpret_cast<void *>(upper_bound) << '\n' ;
 
     Visit(decl);
-
-    for (auto t = lower_bound; t <= upper_bound; ++t) {
+    for (auto t = lower_bound; t && t <= upper_bound; ++t) {
       switch (t->Kind()) {
         case clang::tok::l_paren:
         case clang::tok::l_square:
         case clang::tok::l_brace:
           if (auto [new_begin, new_end] = GetMatching(t);
              new_begin && new_end) {
-            lower_bound = std::min(lower_bound, new_begin);
-            upper_bound = std::max(upper_bound, new_end);
+            lower_bound = lower_bound ? std::min(lower_bound, new_begin) : new_begin;
+            upper_bound = upper_bound ? std::max(upper_bound, new_end) : new_end;
             t = new_end;
           }
           break;

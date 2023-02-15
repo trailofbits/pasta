@@ -1227,6 +1227,11 @@ void PatchedMacroTracker::DoEndDirective(
   Pop(tok);
   last_token.startToken();
 
+  // We need to emit the pragma tokens as a line in the parsed tokens.
+  if (last_directive->kind == MacroKind::kPragmaDirective) {
+
+  }
+
 //  assert(!depth || last_directive->kind == MacroKind::kPragmaDirective);
 }
 
@@ -2244,6 +2249,9 @@ void PatchedMacroTracker::Ident(clang::SourceLocation, clang::StringRef) {
 // Callback invoked when start reading any pragma directive.
 void PatchedMacroTracker::PragmaDirective(
     clang::SourceLocation loc, clang::PragmaIntroducerKind introducer) {
+
+  D( std::cerr << indent << "Pragma\n"; )
+
   assert(!directives.empty());
   MacroDirectiveImpl *directive = directives.back();
   assert(directive->kind == MacroKind::kOtherDirective ||

@@ -1225,13 +1225,15 @@ enum LoopHintAttrLoopHintState LoopHintAttr::State(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::Expr LoopHintAttr::Value(void) const noexcept {
+std::optional<::pasta::Expr> LoopHintAttr::Value(void) const noexcept {
   auto &self = *const_cast<clang::LoopHintAttr *>(u.LoopHintAttr);
   decltype(auto) val = self.getValue();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "LoopHintAttr::Value can return nullptr!");
   __builtin_unreachable();
 }
 

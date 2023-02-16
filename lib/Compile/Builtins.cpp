@@ -2,6 +2,7 @@
  * Copyright (c) 2023 Trail of Bits, Inc.
  */
 
+#include <pasta/Util/Compiler.h>
 #include <string>
 #include <string_view>
 

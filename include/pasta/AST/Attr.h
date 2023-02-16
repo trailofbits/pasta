@@ -1367,7 +1367,7 @@ class LoopHintAttr : public Attr {
   enum LoopHintAttrSpelling SemanticSpelling(void) const noexcept;
   std::string_view Spelling(void) const noexcept;
   enum LoopHintAttrLoopHintState State(void) const noexcept;
-  ::pasta::Expr Value(void) const noexcept;
+  std::optional<::pasta::Expr> Value(void) const noexcept;
   // ValueString: (std::string)
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(LoopHintAttr)

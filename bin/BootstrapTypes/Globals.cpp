@@ -907,6 +907,7 @@ std::vector<llvm::StringRef> kEnumPrefixesToStrip{
 // Set of ClassName::MethodName pairs such that the class can return a nullptr,
 // and thus `std::optional` probably needs to be used.
 std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
+  {"LoopHintAttr", "Value"},
   {"FunctionDecl", "InstantiatedFromDeclaration"},
   {"DeclContext", "Parent"},
   {"DeclContext", "LexicalParent"},

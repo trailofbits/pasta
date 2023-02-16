@@ -1250,27 +1250,44 @@ void PatchedMacroTracker::DoEndDirective(
 
   nodes.pop_back();
   directives.pop_back();
+  last_token.startToken();
 
-  // We need to emit the pragma tokens as a line in the parsed tokens. Pragmas
-  // are important for things like adjusting structure packing.
-  if (last_directive->kind == MacroKind::kPragmaDirective) {
-    std::stringstream ss;
-    const char *sep = "";
-    clang::SourceLocation last_loc;
-    Expand(ss, *ast, last_directive, sep, last_loc);
-    D( std::cerr << indent << "Got pragma: " << ss.str() << '\n'; )
-
-    ast->preprocessed_code.append(ss.str());
-    ast->preprocessed_code.push_back('\n');
-    ast->num_lines += 1;
-    ast->tokens.emplace_back(
-        last_loc.getRawEncoding(), 0u, 0u,
-        clang::tok::eod, TokenRole::kEndOfInternalMacroEventMarker);
-
+  if (last_directive->kind != MacroKind::kPragmaDirective) {
+    Pop(tok);
+    return;
   }
 
+  // We need to emit the pragma tokens as a line in the parsed tokens. Pragmas
+  // are important for things like adjusting structure packing
+  std::stringstream ss;
+  const char *sep = "";
+  clang::SourceLocation last_loc;
+  Expand(ss, *ast, last_directive, sep, last_loc);
+  D( std::cerr << indent << "Got pragma: " << ss.str() << '\n'; )
+
+  auto tok_index = static_cast<unsigned>(ast->tokens.size());
+  ast->preprocessed_code.append(ss.str());
+  ast->preprocessed_code.push_back('\n');
+  ast->num_lines += 1;
+  (void) ast->tokens.emplace_back(
+      last_loc.getRawEncoding(), 0u, 0u,
+      clang::tok::unknown, TokenRole::kEndOfInternalMacroEventMarker);
+
+  MacroTokenImpl *macro_tok = &(ast->root_macro_node.tokens.emplace_back());
+  macro_tok->token_offset = static_cast<uint32_t>(tok_index);
+  assert(macro_tok->token_offset == tok_index);
+  macro_tok->parent = last_directive;
+
+  // Clear out the kind, so that it looks `unknown` from the perspective of
+  // `ASTImpl::AlignTokens`. We add it back in later after token alignment
+  // via `ASTImpl::LinkMacroTokenContexts`.
+  macro_tok->kind_flags.kind = static_cast<TokenKind>(clang::tok::eod);
+  macro_tok->kind_flags.is_ignored_comma = false;
+
+  // Add the token to the end of the pragma directive node.
+  last_directive->nodes.push_back(macro_tok);
+
   Pop(tok);
-  last_token.startToken();
 }
 
 void PatchedMacroTracker::DoBeginMacroExpansion(

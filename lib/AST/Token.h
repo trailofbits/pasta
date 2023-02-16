@@ -149,7 +149,9 @@ class TokenImpl {
         data_offset(data_offset_),
         data_len(static_cast<uint32_t>(data_len_ & kTokenSizeMask)),
         kind(static_cast<TokenKindBase>(kind_)),
-        role(static_cast<TokenKindBase>(role_)) {}
+        role(static_cast<TokenKindBase>(role_)),
+        is_in_macro(0),
+        is_in_macro_directive(0) {}
 #pragma GCC diagnostic pop
 
   // Return the source location of this token.
@@ -245,7 +247,13 @@ class TokenImpl {
   TokenKindBase kind;
 
   // The role of this token, e.g. parsed, printed, macro expansion, etc.
-  TokenKindBase role;
+  TokenKindBase role:14;
+
+  // Is this token part of a macro expansion region?
+  TokenKindBase is_in_macro:1;
+
+  // Is this token part of a macro directive region?
+  TokenKindBase is_in_macro_directive:1;
 };
 
 // Strip off leading whitespace from a token that has been read.

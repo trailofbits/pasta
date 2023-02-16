@@ -838,6 +838,37 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
   }
 }
 
+// Mark tokens as being part of macros.
+void ASTImpl::MarkMacroTokens(void) {
+  for (const MacroTokenImpl &mt : root_macro_node.tokens) {
+    TokenImpl &tok = tokens[mt.token_offset];
+    tok.is_in_macro = 1;
+
+    Node parent = mt.parent;
+    while (std::holds_alternative<MacroNodeImpl *>(parent)) {
+      auto parent_node = std::get<MacroNodeImpl *>(parent);
+      switch (parent_node->kind) {
+#define PASTA_IGNORE(...)
+#define DIRECTIVE_KIND_CASE(kind) case MacroKind::k ## kind ## Directive:
+  PASTA_FOR_EACH_MACRO_IMPL(PASTA_IGNORE,
+                            PASTA_IGNORE,
+                            DIRECTIVE_KIND_CASE,
+                            DIRECTIVE_KIND_CASE,
+                            DIRECTIVE_KIND_CASE,
+                            DIRECTIVE_KIND_CASE,
+                            PASTA_IGNORE)
+#undef DIRECTIVE_KIND_CASE
+#undef PASTA_IGNORE
+          tok.is_in_macro_directive = 1;
+          continue;
+        default:
+          break;
+      }
+      parent = parent_node->parent;
+    }
+  }
+}
+
 void ASTImpl::LinkMacroTokenContexts(void) {
   root_macro_node.token_nodes.reserve(root_macro_node.tokens.size());
 

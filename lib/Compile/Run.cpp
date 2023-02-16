@@ -475,6 +475,8 @@ Result<AST, std::string> CompileJob::Run(void) const {
     policy->IncludeTagDefinition = true;
   }
 
+  ast->MarkMacroTokens();
+
 #ifdef PASTA_IN_BOOTSTRAP
   return AST(std::move(ast));
 #else

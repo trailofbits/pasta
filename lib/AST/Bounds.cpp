@@ -626,6 +626,24 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 //    attr->printPretty(llvm::errs(), *ast.printing_policy);
 //    llvm::errs() << '\n';
 
+    TokenImpl *tok = ast.RawTokenAt(attr->getLocation());
+    TokenImpl *scope_tok = ast.RawTokenAt(attr->getScopeLoc());
+
+    // Clang supports the following:
+    //
+    //    #pragma attribute push(__attribute__((....)), apply_to = (...))
+    //    ...
+    //
+    // In this case, we don't want to let the locations of any of these
+    // attributes influence the locations of the declarations enclosed by
+    // this pragma.
+    if (tok && tok->is_in_macro_directive) {
+      return;
+    }
+    if (scope_tok && scope_tok->is_in_macro_directive) {
+      return;
+    }
+
     switch (attr->getSyntax()) {
       // __attribute__((...)).
       case clang::AttributeCommonInfo::AS_GNU: {
@@ -637,7 +655,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
           default:
             break;
         }
-        if (auto kw = FindNext(attr->getLocation(), kw_kind, -1)) {
+        if (auto kw = FindNext(tok, kw_kind, -1)) {
           Expand(kw);
         }
         break;
@@ -645,8 +663,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       // [[...]]
       case clang::AttributeCommonInfo::AS_CXX11:
       case clang::AttributeCommonInfo::AS_C2x: {
-        if (auto punc = FindNext(attr->getLocation(),
-                                 clang::tok::TokenKind::l_square, -1)) {
+        if (auto punc = FindNext(tok, clang::tok::TokenKind::l_square, -1)) {
           Expand(punc);
           if (punc[-1].Kind() == clang::tok::TokenKind::l_square) {
             Expand(&(punc[-1]));
@@ -656,16 +673,14 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       }
       // __declspec(...).
       case clang::AttributeCommonInfo::AS_Declspec: {
-        if (auto kw = FindNext(attr->getLocation(),
-                               clang::tok::TokenKind::kw___declspec, -1)) {
+        if (auto kw = FindNext(tok, clang::tok::TokenKind::kw___declspec, -1)) {
           Expand(kw);
         }
         break;
       }
       // [uuid("...")] class Foo
       case clang::AttributeCommonInfo::AS_Microsoft: {
-        if (auto punc = FindNext(attr->getLocation(),
-                                 clang::tok::TokenKind::l_square, -1)) {
+        if (auto punc = FindNext(tok, clang::tok::TokenKind::l_square, -1)) {
           Expand(punc);
         }
         break;
@@ -713,7 +728,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
           default:
             break;
         }
-        if (auto kw = FindNext(attr->getLocation(), kw_kind, -1)) {
+        if (auto kw = FindNext(tok, kw_kind, -1)) {
           Expand(kw);
         }
         break;
@@ -722,7 +737,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         break;
     }
 
-    Expand(attr->getScopeLoc());
+    Expand(scope_tok);
   }
 
   void VisitCommonFunctionDecl(clang::FunctionDecl *decl) {

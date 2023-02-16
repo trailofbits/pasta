@@ -456,8 +456,8 @@ std::optional<MacroToken> Token::MacroLocation(void) const {
     default:
     case TokenRole::kBeginOfMacroExpansionMarker:
     case TokenRole::kEndOfMacroExpansionMarker:
-    case TokenRole::kEndOfInternalMacroEventMarker:
       return std::nullopt;
+    case TokenRole::kEndOfInternalMacroEventMarker:
     case TokenRole::kInitialMacroUseToken:
     case TokenRole::kIntermediateMacroExpansionToken:
     case TokenRole::kFinalMacroExpansionToken:

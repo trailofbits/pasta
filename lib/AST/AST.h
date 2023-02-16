@@ -195,6 +195,9 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
   static Result<AST, std::string> AlignTokens(std::shared_ptr<ASTImpl> ast);
 
+  // Mark tokens as being part of macros.
+  void MarkMacroTokens(void);
+
   // After token alignment, we want to link in macro tokens to the token
   // contexts of tokens with macro roles.
   void LinkMacroTokenContexts(void);

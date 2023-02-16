@@ -1250,8 +1250,6 @@ void PatchedMacroTracker::DoEndDirective(
 
   nodes.pop_back();
   directives.pop_back();
-  Pop(tok);
-  last_token.startToken();
 
   // We need to emit the pragma tokens as a line in the parsed tokens. Pragmas
   // are important for things like adjusting structure packing.
@@ -1271,7 +1269,8 @@ void PatchedMacroTracker::DoEndDirective(
 
   }
 
-//  assert(!depth || last_directive->kind == MacroKind::kPragmaDirective);
+  Pop(tok);
+  last_token.startToken();
 }
 
 void PatchedMacroTracker::DoBeginMacroExpansion(

@@ -858,6 +858,11 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       std::tie(params_begin, params_end) = GetMatching(params_end);
     }
 
+    if (params_begin && params_end && params_end < params_begin) {
+      params_begin = nullptr;
+      params_end = nullptr;
+    }
+
     assert(!params_begin == !params_end);
 
     // Force us in-range of the parens, hopefully.
@@ -1510,6 +1515,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 //        << reinterpret_cast<void *>(lower_bound) << " upper_bound="
 //        << reinterpret_cast<void *>(upper_bound) << '\n' ;
 
+    assert(lower_bound <= upper_bound);
     return {lower_bound, upper_bound};
   }
 };

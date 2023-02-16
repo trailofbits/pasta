@@ -860,11 +860,12 @@ void ASTImpl::MarkMacroTokens(void) {
 #undef DIRECTIVE_KIND_CASE
 #undef PASTA_IGNORE
           tok.is_in_macro_directive = 1;
-          continue;
+          parent = std::monostate{};
+          break;
         default:
+          parent = parent_node->parent;
           break;
       }
-      parent = parent_node->parent;
     }
   }
 }

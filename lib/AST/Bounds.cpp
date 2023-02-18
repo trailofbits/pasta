@@ -744,7 +744,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 //    auto X = decl->getNameAsString() == "bsd_signal";
     auto D = [=] (const char * d) {
       (void) d;
-//      if (X) {
+//      if (true) {
 //        std::cerr
 //            << "--------------------------- " << d << " decl="
 //            << reinterpret_cast<void *>(decl) << " lower_bound="
@@ -779,6 +779,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       changed = ExpandLeadingKeyword(clang::tok::kw_inline) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw_const) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw_constexpr) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw__Noreturn) || changed;
     }
     D("c");
 

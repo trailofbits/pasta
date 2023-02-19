@@ -148,9 +148,6 @@ static void ReEscapeOutput(raw_string_ostream &Out, std::string a) {
       case '\t':
         Out << "\\t";
         break;
-      case '\\':
-        Out << "\\\\";
-        break;
       default:
         Out << c;
         break;

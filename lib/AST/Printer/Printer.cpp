@@ -135,6 +135,29 @@ static void TryLocateAttribute(const clang::Attr *A,
   }
 }
 
+// Undo raw newlines and other things in strings.
+static void ReEscapeOutput(raw_string_ostream &Out, std::string a) {
+  for (char c : a) {
+    switch (c) {
+      case '\n':
+        Out << "\\n";
+        break;
+      case '\r':
+        Out << "\\r";
+        break;
+      case '\t':
+        Out << "\\t";
+        break;
+      case '\\':
+        Out << "\\\\";
+        break;
+      default:
+        Out << c;
+        break;
+    }
+  }
+}
+
 // Clang's code for printing attributes doesn't escape nested double quotes in
 // attributes that contain strings, so we need to figure that out.
 void PrintAttribute(raw_string_ostream &Out, const clang::Attr *A,
@@ -156,7 +179,7 @@ void PrintAttribute(raw_string_ostream &Out, const clang::Attr *A,
   const char *first_quote = strchr(start, '"');
   if (!first_quote || first_quote[0] != '"') {
     TokenPrinterContext ctx(Out, A, tokens);
-    Out << a;
+    ReEscapeOutput(Out, std::move(a));
     Out.flush();
 
     tokens.curr_printer_context->Tokenize();
@@ -173,7 +196,7 @@ void PrintAttribute(raw_string_ostream &Out, const clang::Attr *A,
   // hack to handle things like `asm("label")`.
   if (!third_quote || third_quote[0] != '"') {
     TokenPrinterContext ctx(Out, A, tokens);
-    Out << a;
+    ReEscapeOutput(Out, std::move(a));
     Out.flush();
 
     tokens.curr_printer_context->Tokenize();
@@ -200,7 +223,7 @@ void PrintAttribute(raw_string_ostream &Out, const clang::Attr *A,
   }
 
   TokenPrinterContext ctx(Out, A, tokens);
-  Out << new_a;
+  ReEscapeOutput(Out, std::move(new_a));
   Out.flush();
 
   tokens.curr_printer_context->Tokenize();

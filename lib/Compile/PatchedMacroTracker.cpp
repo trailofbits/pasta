@@ -848,21 +848,12 @@ void ASTImpl::MarkMacroTokens(void) {
     while (std::holds_alternative<MacroNodeImpl *>(parent)) {
       auto parent_node = std::get<MacroNodeImpl *>(parent);
       switch (parent_node->kind) {
-#define PASTA_IGNORE(...)
-#define DIRECTIVE_KIND_CASE(kind) case MacroKind::k ## kind ## Directive:
-  PASTA_FOR_EACH_MACRO_IMPL(PASTA_IGNORE,
-                            PASTA_IGNORE,
-                            DIRECTIVE_KIND_CASE,
-                            DIRECTIVE_KIND_CASE,
-                            DIRECTIVE_KIND_CASE,
-                            DIRECTIVE_KIND_CASE,
-                            PASTA_IGNORE)
-#undef DIRECTIVE_KIND_CASE
-#undef PASTA_IGNORE
-          tok.is_in_macro_directive = 1;
+        case MacroKind::kPragmaDirective:
+          tok.is_in_pragma_directive = 1;
           parent = std::monostate{};
           break;
         default:
+          tok.is_in_pragma_directive = 0;
           parent = parent_node->parent;
           break;
       }

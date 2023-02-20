@@ -471,6 +471,12 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     }
 
     for (auto tok = &(lower_bound[-1]); first_tok <= tok && i < 2; --tok) {
+
+      // Skip past unparsed tokens, without modifying our budget, `i`.
+      if (!tok->IsParsed()) {
+        continue;
+      }
+
       const auto tok_kind = tok->Kind();
       if (tok_kind == kind) {
         lower_bound = tok;
@@ -545,7 +551,15 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   }
 
   void Expand(TokenImpl *tok) {
-    if (tok) {
+    // Clang supports the following:
+    //
+    //    #pragma attribute push(__attribute__((....)), apply_to = (...))
+    //    ...
+    //
+    // In this case, we don't want to let the locations of any of these
+    // attributes influence the locations of the declarations enclosed by
+    // this pragma.
+    if (tok && !tok->is_in_pragma_directive) {
       lower_bound = lower_bound ? std::min(tok, lower_bound) : tok;
       upper_bound = upper_bound ? std::max(tok, upper_bound) : tok;
     }
@@ -637,10 +651,10 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     // In this case, we don't want to let the locations of any of these
     // attributes influence the locations of the declarations enclosed by
     // this pragma.
-    if (tok && tok->is_in_macro_directive) {
+    if (tok && tok->is_in_pragma_directive) {
       return;
     }
-    if (scope_tok && scope_tok->is_in_macro_directive) {
+    if (scope_tok && scope_tok->is_in_pragma_directive) {
       return;
     }
 
@@ -741,15 +755,37 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   }
 
   void VisitCommonFunctionDecl(clang::FunctionDecl *decl) {
-//    auto X = decl->getNameAsString() == "bsd_signal";
+//    auto X = false; // decl->getNameAsString() == "kvm_kick_many_cpus";
+//    if (X) {
+//      decl->dumpColor();
+//    }
     auto D = [=] (const char * d) {
       (void) d;
-//      if (true) {
+//      if (X) {
 //        std::cerr
-//            << "--------------------------- " << d << " decl="
+//            << "--------- " << d << " decl="
 //            << reinterpret_cast<void *>(decl) << " lower_bound="
 //            << reinterpret_cast<void *>(lower_bound) << " upper_bound="
-//            << reinterpret_cast<void *>(upper_bound) << '\n' ;
+//            << reinterpret_cast<void *>(upper_bound) << " prev_kind="
+//            << clang::tok::getTokenName(lower_bound[-1].Kind())
+//            << " prev_role=" << int(lower_bound[-1].Role())
+//            << " next_kind="
+//            << clang::tok::getTokenName(upper_bound[1].Kind())
+//            << " next_role=" << int(upper_bound[1].Role())
+//            << '\n';
+//
+//        auto first_tok = &(ast.tokens.front());
+//        for (auto t = &(lower_bound[-1]); first_tok <= t; --t) {
+//          if (t->IsParsed()) {
+//            std::cerr
+//                << "--------- last_parsed: "
+//                << clang::tok::getTokenName(t->Kind())
+//                << " role=" << int(t->Role())
+//                << ' ' << t->Data(ast) << '\n';
+//            break;
+//          }
+//        }
+//
 //        for (auto t = lower_bound; t && t <= upper_bound; ++t) {
 //          if (t->IsParsed()) {
 //            std::cerr << ' ' << t->Data(ast);
@@ -767,10 +803,13 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     D("b");
     // Expand to handle things like: `static const char *` or
     // `inline static constexpr`.
-    for (auto changed = true; changed; ) {
+    for (auto changed = true; lower_bound && changed; ) {
       changed = false;
+      changed = ExpandLeadingKeyword(clang::tok::kw_auto) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw_static) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw_extern, true) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw__ExtInt) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw__BitInt) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw_unsigned) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw_signed) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw_short) || changed;
@@ -780,6 +819,15 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       changed = ExpandLeadingKeyword(clang::tok::kw_const) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw_constexpr) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw__Noreturn) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___cdecl) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___stdcall) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___fastcall) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___thiscall) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___regcall) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___vectorcall) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___forceinline) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___kernel) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___noinline__) || changed;
     }
     D("c");
 

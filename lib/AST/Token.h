@@ -151,7 +151,7 @@ class TokenImpl {
         kind(static_cast<TokenKindBase>(kind_)),
         role(static_cast<TokenKindBase>(role_)),
         is_in_macro(0),
-        is_in_macro_directive(0) {}
+        is_in_pragma_directive(0) {}
 #pragma GCC diagnostic pop
 
   // Return the source location of this token.
@@ -180,7 +180,22 @@ class TokenImpl {
 
       case TokenRole::kFinalMacroExpansionToken:
       case TokenRole::kFileToken:
-        return true;
+        // Clang supports the following:
+        //
+        //    #pragma attribute push(__attribute__((....)), apply_to = (...))
+        //    ...
+        //
+        // In this case, we don't want to let the locations of any of these
+        // attributes influence the locations of the declarations enclosed by
+        // this pragma.
+        //
+        // Although pragmas are indeed parsed, we "hide" their tokens from the
+        // ASTs via some the `PatchedMacroTracker`: when a pragma directive is
+        // finished, we inject a zero-length marker token, and also render the
+        // full, macro-expanded directive into `ASTImpl::preprocessed_code`.
+        // These pragmas are visible to Clang's Sema, but not to our parsed
+        // token list.
+        return !is_in_pragma_directive && data_len;
     }
   }
 
@@ -252,8 +267,17 @@ class TokenImpl {
   // Is this token part of a macro expansion region?
   TokenKindBase is_in_macro:1;
 
-  // Is this token part of a macro directive region?
-  TokenKindBase is_in_macro_directive:1;
+  // Is this token part of a `#pragma` macro directive region?
+  //
+  // Clang supports the following:
+  //
+  //    #pragma attribute push(__attribute__((....)), apply_to = (...))
+  //    ...
+  //
+  // In this case, we don't want to let the locations of any of these
+  // attributes influence the locations of the declarations enclosed by
+  // this `#pragma`.
+  TokenKindBase is_in_pragma_directive:1;
 };
 
 // Strip off leading whitespace from a token that has been read.

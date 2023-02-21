@@ -422,9 +422,8 @@ void PatchedMacroTracker::FixupDerivedLocations(void) {
         case TokenRole::kEndOfInternalMacroEventMarker:
           continue;
         default:
-          if (!from_map(file_token_refs, tok, tok_index, data, raw_loc)) {
-            file_token_refs[raw_loc] = tok_index;
-          }
+          (void) from_map(file_token_refs, tok, tok_index, data, raw_loc);
+          file_token_refs[raw_loc] = tok_index;
           assert(tok.Location().isFileID());
           continue;
       }

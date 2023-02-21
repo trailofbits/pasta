@@ -150,7 +150,7 @@ class TokenImpl {
         data_len(static_cast<uint32_t>(data_len_ & kTokenSizeMask)),
         kind(static_cast<TokenKindBase>(kind_)),
         role(static_cast<TokenKindBase>(role_)),
-        is_in_macro(0),
+        is_macro_name(0),
         is_in_pragma_directive(0) {}
 #pragma GCC diagnostic pop
 
@@ -264,8 +264,10 @@ class TokenImpl {
   // The role of this token, e.g. parsed, printed, macro expansion, etc.
   TokenKindBase role:14;
 
-  // Is this token part of a macro expansion region?
-  TokenKindBase is_in_macro:1;
+  // Is this token associated with a macro definition? If so, then we have a
+  // lookup mechanism in `ASTImpl` to go from the token index to the macro
+  // definition.
+  TokenKindBase is_macro_name:1;
 
   // Is this token part of a `#pragma` macro directive region?
   //

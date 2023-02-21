@@ -119,6 +119,10 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // TODO(pag): Better abstraction for these types of modifications.
   std::vector<TokenImpl> tokens;
 
+  // Maps from tokens with `TokenImpl::is_macro_name` set to the macro node
+  // associated with the define macro directive.
+  std::unordered_map<uint32_t, Node> tokens_to_macro_definitions;
+
   // Number of lines in `preprocessed_code`, which should match up with
   // `tokens.size()`.
   //

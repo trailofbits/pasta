@@ -786,6 +786,22 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
   last_token_was_added = true;
   last_token = tok;
 
+  if (tok.is(clang::tok::identifier) ||
+      clang::tok::getKeywordSpelling(tok.getKind())) {
+    if (clang::IdentifierInfo *ii = tok.getIdentifierInfo()) {
+      if (ii->hasMacroDefinition()) {
+        clang::MacroDefinition def = pp.getMacroDefinition(ii);
+        if (clang::MacroInfo *mi = def.getMacroInfo()) {
+          if (auto dir_it = defines.find(mi); dir_it != defines.end()) {
+            added_tok.is_macro_name = 1;
+            ast->tokens_to_macro_definitions.emplace(
+                tok_index, dir_it->second);
+          }
+        }
+      }
+    }
+  }
+
   // Close the substitution.
   if (substituted_header_name) {
     nodes.pop_back();
@@ -842,8 +858,6 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
 void ASTImpl::MarkMacroTokens(void) {
   for (const MacroTokenImpl &mt : root_macro_node.tokens) {
     TokenImpl &tok = tokens[mt.token_offset];
-    tok.is_in_macro = 1;
-
     Node parent = mt.parent;
     while (std::holds_alternative<MacroNodeImpl *>(parent)) {
       auto parent_node = std::get<MacroNodeImpl *>(parent);

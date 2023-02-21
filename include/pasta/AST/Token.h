@@ -36,6 +36,7 @@ class AST;
 class ASTImpl;
 class Attr;
 class CXXBaseSpecifier;
+class DefineMacroDirective;
 class Designator;
 class FileToken;
 class FileTokenRange;
@@ -178,6 +179,22 @@ class Token {
 
   // Location of the token in a macro expansion.
   std::optional<MacroToken> MacroLocation(void) const;
+
+  // `#define` associated with the name of this token. This doesn't
+  // necessarily mean that this token is actually expanded as the macro,
+  // just that it could be referring to it at the point of use. An example
+  // of where this can seem misleading is:
+  //
+  //      #define FOO() ...
+  //      #define not_FOO
+  //      #define BAR(x) not_ ## x
+  //
+  //      BAR(FOO)
+  //
+  // Here, `FOO` in the parameter to `BAR` refers to the macro `FOO`, but it
+  // actually ends up being concatenated with `not_`, becoming a different
+  // macro, `not_FOO`, which expands to nothing.
+  std::optional<DefineMacroDirective> AssociatedMacro(void) const;
 
   // Return the data associated with this token.
   std::string_view Data(void) const;

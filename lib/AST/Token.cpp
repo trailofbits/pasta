@@ -473,6 +473,34 @@ std::optional<MacroToken> Token::MacroLocation(void) const {
   }
 }
 
+// `#define` associated with the name of this token. This doesn't
+// necessarily mean that this token is actually expanded as the macro,
+// just that it could be referring to it at the point of use. An example
+// of where this can seem misleading is:
+//
+//      #define FOO() ...
+//      #define not_FOO
+//      #define BAR(x) not_ ## x
+//
+//      BAR(FOO)
+//
+// Here, `FOO` in the parameter to `BAR` refers to the macro `FOO`, but it
+// actually ends up being concatenated with `not_`, becoming a different
+// macro, `not_FOO`, which expands to nothing.
+std::optional<DefineMacroDirective> Token::AssociatedMacro(void) const {
+  if (!impl->is_macro_name) {
+    return std::nullopt;
+  }
+
+  auto node_it = ast->tokens_to_macro_definitions.find(
+      static_cast<unsigned>(Index()));
+  if (node_it == ast->tokens_to_macro_definitions.end()) {
+    return std::nullopt;
+  }
+
+  return DefineMacroDirective(ast, &(node_it->second));
+}
+
 // Kind of this token.
 TokenKind Token::Kind(void) const noexcept {
   if (impl) {

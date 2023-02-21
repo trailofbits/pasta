@@ -20,7 +20,7 @@
 #include <string>
 #include <unordered_set>
 
-#define PRINT_DEFINITIONS 0
+#define PRINT_DEFINITIONS 1
 #define PRINT_DERIVED 0
 
 template <typename TokT>
@@ -50,6 +50,13 @@ static void PrintMacroGraph(std::ostream &os,
       << "n" << a
       << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" border=\"1\"><TR>"
       << "<TD>" << TokData(tok) << "</TD></TR></TABLE>>];\n";
+
+#if PRINT_DEFINITIONS
+  if (auto def = tok.ParsedLocation().AssociatedMacro()) {
+    os << "n" << a << " -> n" << reinterpret_cast<uintptr_t>(def->RawMacro())
+       << " [style=dashed];\n";
+  }
+#endif
 
 #if PRINT_DERIVED
   auto pt = tok.ParsedLocation();
@@ -141,6 +148,16 @@ static void PrintMacroGraph(std::ostream &os,
     return;
   }
 
+  if (PRINT_DEFINITIONS) {
+    if (auto def = pasta::DefineMacroDirective::From(dir)) {
+      for (auto use : def->Uses()) {
+        goto has_uses;
+      }
+      return;
+    }
+  }
+
+has_uses:
   const auto a = reinterpret_cast<uintptr_t>(dir.RawMacro());
   auto nodes = dir.Children();
   os

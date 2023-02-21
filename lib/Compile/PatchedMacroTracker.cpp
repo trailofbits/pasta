@@ -786,7 +786,7 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
   last_token_was_added = true;
   last_token = tok;
 
-  if (tok.is(clang::tok::identifier) ||
+  if (tok_.is(clang::tok::identifier) ||
       clang::tok::getKeywordSpelling(tok.getKind())) {
     if (clang::IdentifierInfo *ii = tok.getIdentifierInfo()) {
       if (ii->hasMacroDefinition()) {
@@ -1289,40 +1289,38 @@ void PatchedMacroTracker::DoEndDirective(
   directives.pop_back();
   last_token.startToken();
 
-  if (last_directive->kind != MacroKind::kPragmaDirective) {
-    Pop(tok);
-    return;
+  if (last_directive->kind == MacroKind::kPragmaDirective) {
+
+    // We need to emit the pragma tokens as a line in the parsed tokens.
+    // Pragmas are important for things like adjusting structure packing
+    std::stringstream ss;
+    const char *sep = "";
+    clang::SourceLocation last_loc;
+    Expand(ss, *ast, last_directive, sep, last_loc);
+    D( std::cerr << indent << "Got pragma: " << ss.str() << '\n'; )
+
+    auto tok_index = static_cast<unsigned>(ast->tokens.size());
+    ast->preprocessed_code.append(ss.str());
+    ast->preprocessed_code.push_back('\n');
+    ast->num_lines += 1;
+    (void) ast->tokens.emplace_back(
+        last_loc.getRawEncoding(), 0u, 0u,
+        clang::tok::unknown, TokenRole::kEndOfInternalMacroEventMarker);
+
+    MacroTokenImpl *macro_tok = &(ast->root_macro_node.tokens.emplace_back());
+    macro_tok->token_offset = static_cast<uint32_t>(tok_index);
+    assert(macro_tok->token_offset == tok_index);
+    macro_tok->parent = last_directive;
+
+    // Clear out the kind, so that it looks `unknown` from the perspective of
+    // `ASTImpl::AlignTokens`. We add it back in later after token alignment
+    // via `ASTImpl::LinkMacroTokenContexts`.
+    macro_tok->kind_flags.kind = static_cast<TokenKind>(clang::tok::eod);
+    macro_tok->kind_flags.is_ignored_comma = false;
+
+    // Add the token to the end of the pragma directive node.
+    last_directive->nodes.push_back(macro_tok);
   }
-
-  // We need to emit the pragma tokens as a line in the parsed tokens. Pragmas
-  // are important for things like adjusting structure packing
-  std::stringstream ss;
-  const char *sep = "";
-  clang::SourceLocation last_loc;
-  Expand(ss, *ast, last_directive, sep, last_loc);
-  D( std::cerr << indent << "Got pragma: " << ss.str() << '\n'; )
-
-  auto tok_index = static_cast<unsigned>(ast->tokens.size());
-  ast->preprocessed_code.append(ss.str());
-  ast->preprocessed_code.push_back('\n');
-  ast->num_lines += 1;
-  (void) ast->tokens.emplace_back(
-      last_loc.getRawEncoding(), 0u, 0u,
-      clang::tok::unknown, TokenRole::kEndOfInternalMacroEventMarker);
-
-  MacroTokenImpl *macro_tok = &(ast->root_macro_node.tokens.emplace_back());
-  macro_tok->token_offset = static_cast<uint32_t>(tok_index);
-  assert(macro_tok->token_offset == tok_index);
-  macro_tok->parent = last_directive;
-
-  // Clear out the kind, so that it looks `unknown` from the perspective of
-  // `ASTImpl::AlignTokens`. We add it back in later after token alignment
-  // via `ASTImpl::LinkMacroTokenContexts`.
-  macro_tok->kind_flags.kind = static_cast<TokenKind>(clang::tok::eod);
-  macro_tok->kind_flags.is_ignored_comma = false;
-
-  // Add the token to the end of the pragma directive node.
-  last_directive->nodes.push_back(macro_tok);
 
   Pop(tok);
 }
@@ -1344,6 +1342,8 @@ void PatchedMacroTracker::DoBeginMacroExpansion(
   expansion->parent = nodes.back();
   nodes.push_back(expansion);
   expansions.push_back(expansion);
+
+  auto tok_index = static_cast<unsigned>(ast->tokens.size());
   DoToken(tok, data);
 
   assert(expansion->ident != nullptr);
@@ -1358,6 +1358,9 @@ void PatchedMacroTracker::DoBeginMacroExpansion(
       assert(def->defined_macro == mi);
       def->macro_uses.push_back(expansion);
       expansion->definition = def;
+
+      ast->tokens.back().is_macro_name = 1;
+      ast->tokens_to_macro_definitions.emplace(tok_index, def);
     }
   }
 }
@@ -2602,6 +2605,16 @@ void PatchedMacroTracker::MacroDefined(const clang::Token &name_tok,
   }
 
   assert(name_found);
+
+  if (directive && name_found) {
+    last_directive->defined_macro = directive->getMacroInfo();
+    defines[last_directive->defined_macro] = last_directive;
+    uint32_t to = std::get<MacroTokenImpl *>(
+        last_directive->macro_name)->token_offset;
+
+    ast->tokens[to].is_macro_name = 1;
+    ast->tokens_to_macro_definitions[to] = last_directive;
+  }
 
   ++i;  // Skip over the name;
 

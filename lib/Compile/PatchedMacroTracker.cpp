@@ -2229,7 +2229,7 @@ void PatchedMacroTracker::InclusionDirective(
       llvm::StringRef /* file_name */,
       bool /* is_angled */,
       clang::CharSourceRange /* file_name_range */,
-      llvm::Optional<clang::FileEntryRef> /* file */,
+      llvm::Optional<clang::FileEntryRef> file_ref,
       llvm::StringRef /* search_path */,
       llvm::StringRef /* relative_path */,
       const clang::Module * /* imported */,
@@ -2259,7 +2259,27 @@ void PatchedMacroTracker::InclusionDirective(
       break;
     default:
       D( std::cerr << " ???\n"; )
-      break;
+      return;
+  }
+
+  // Get the file associated with the include. We need to do a bit of work to
+  // get it when the file is actually ignored. Experimentation shows that using
+  // `getOrCreateFileID` with `file_type` does the wrong thing.
+  if (file_ref.hasValue() && !last_directive->included_file) {
+    const clang::FileEntry &fe = file_ref.value().getFileEntry();
+    clang::SourceLocation loc = sm.translateFileLineCol(&fe, 1, 1);
+    if (loc.isValid() && loc.isFileID()) {
+      auto [fid, offset] = sm.getDecomposedLoc(loc);
+      D( std::cerr << indent << "Including file id " << fid.getHashValue()
+                   << '\n'; )
+      if (auto it = ast->id_to_file.find(fid.getHashValue());
+          it != ast->id_to_file.end()) {
+        last_directive->included_file.emplace(it->second);
+        D( std::cerr << indent << "Including file "
+                     << last_directive->included_file->Path().generic_string()
+                     << '\n'; )
+      }
+    }
   }
 
   D( std::cerr << indent << "InclusionDirective\n"; )

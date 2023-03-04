@@ -115,12 +115,9 @@ class ParsedFileTracker : public clang::PPCallbacks {
     File file = maybe_file.TakeValue();
 
     // Keep a mapping of Clang file IDs to parsed files.
-    auto old_file_it = ast->id_to_file.find(file_id.getHashValue());
-    if (old_file_it == ast->id_to_file.end()) {
-      ast->id_to_file.emplace(file_id.getHashValue(), file);
-    } else {
-      assert(old_file_it->second.impl.get() == file.impl.get());
-    }
+    auto [file_it, just_added] = ast->id_to_file.emplace(
+        file_id.getHashValue(), file);
+    assert(file_it->second.impl.get() == file.impl.get());
 
     // If we've seen this file already, then don't tokenize it.
     if (auto [seen_it, added] = seen.emplace(file.impl.get()); !added) {

@@ -249,6 +249,10 @@ void TypeVisitor::VisitPointerType(const PointerType &type) {
   VisitType(type);
 }
 
+void TypeVisitor::VisitQualifiedType(const QualifiedType &type) {
+  VisitType(type);
+}
+
 void TypeVisitor::VisitReferenceType(const ReferenceType &type) {
   VisitType(type);
 }
@@ -365,6 +369,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Type, PackExpansionType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, ParenType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, PipeType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, PointerType)
+PASTA_DEFINE_DERIVED_OPERATORS(Type, QualifiedType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, RValueReferenceType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, RecordType)
 PASTA_DEFINE_DERIVED_OPERATORS(Type, ReferenceType)
@@ -697,25 +702,6 @@ std::optional<::pasta::Type> Type::SveElementType(void) const noexcept {
     return std::nullopt;
   }
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
-}
-
-::pasta::TypeKind Type::Kind(void) const noexcept {
-  auto &self = *const_cast<clang::Type *>(u.Type);
-  decltype(auto) val = self.getTypeClass();
-  return static_cast<enum ::pasta::TypeKind>(val);
-  __builtin_unreachable();
-}
-
-std::string_view Type::KindName(void) const noexcept {
-  auto &self = *const_cast<clang::Type *>(u.Type);
-  decltype(auto) val = self.getTypeClassName();
-  if (val) {
-    return std::string_view(val);
-  } else {
-    return std::string_view();
-  }
-  assert(false && "Type::KindName can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2170,518 +2156,6 @@ bool Type::IsWideCharacterType(void) const noexcept {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.isWideCharType();
   return val;
-  __builtin_unreachable();
-}
-
-::pasta::Type Type::IgnoreParentheses(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.IgnoreParens();
-  assert(!val.isNull());
-  return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
-}
-
-enum LangAS Type::AddressSpace(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.getAddressSpace();
-  return static_cast<::pasta::LangAS>(val);
-  __builtin_unreachable();
-}
-
-// 0: Type::
-::pasta::Type Type::AtomicUnqualifiedType(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.getAtomicUnqualifiedType();
-  assert(!val.isNull());
-  return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
-}
-
-// 0: Type::BaseTypeIdentifier
-uint32_t Type::CVRQualifiers(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.getCVRQualifiers();
-  return val;
-  __builtin_unreachable();
-}
-
-::pasta::Type Type::CanonicalType(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.getCanonicalType();
-  assert(!val.isNull());
-  return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
-}
-
-::pasta::Type Type::DesugaredType(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.getDesugaredType(ast->ci->getASTContext());
-  assert(!val.isNull());
-  return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
-}
-
-uint32_t Type::LocalCVRQualifiers(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.getLocalCVRQualifiers();
-  return val;
-  __builtin_unreachable();
-}
-
-uint32_t Type::LocalFastQualifiers(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.getLocalFastQualifiers();
-  return val;
-  __builtin_unreachable();
-}
-
-// 0: Type::LocalQualifiers
-::pasta::Type Type::LocalUnqualifiedType(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.getLocalUnqualifiedType();
-  assert(!val.isNull());
-  return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
-}
-
-::pasta::Type Type::NonLValueExpressionType(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.getNonLValueExprType(ast->ci->getASTContext());
-  assert(!val.isNull());
-  return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
-}
-
-::pasta::Type Type::NonPackExpansionType(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.getNonPackExpansionType();
-  assert(!val.isNull());
-  return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
-}
-
-::pasta::Type Type::NonReferenceType(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.getNonReferenceType();
-  assert(!val.isNull());
-  return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
-}
-
-// 0: Type::ObjCGCAttr
-// 0: Type::ObjCLifetime
-// 0: Type::Qualifiers
-::pasta::Type Type::SingleStepDesugaredType(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.getSingleStepDesugaredType(ast->ci->getASTContext());
-  assert(!val.isNull());
-  return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
-}
-
-// 0: Type::SplitDesugaredType
-// 0: Type::SplitUnqualifiedType
-// 0: Type::
-// 0: Type::
-// 0: Type::
-bool Type::HasAddressSpace(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.hasAddressSpace();
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::HasLocalNonFastQualifiers(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.hasLocalNonFastQualifiers();
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::HasLocalQualifiers(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.hasLocalQualifiers();
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::HasNonTrivialObjCLifetime(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.hasNonTrivialObjCLifetime();
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::HasNonTrivialToPrimitiveCopyCUnion(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.hasNonTrivialToPrimitiveCopyCUnion();
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::HasNonTrivialToPrimitiveDefaultInitializeCUnion(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.hasNonTrivialToPrimitiveDefaultInitializeCUnion();
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::HasNonTrivialToPrimitiveDestructCUnion(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.hasNonTrivialToPrimitiveDestructCUnion();
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::HasQualifiers(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.hasQualifiers();
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::HasStrongOrWeakObjCLifetime(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.hasStrongOrWeakObjCLifetime();
-  return val;
-  __builtin_unreachable();
-}
-
-// 1: Type::IsAddressSpaceOverlapping
-// 1: Type::IsAtLeastAsQualifiedAs
-bool Type::IsCForbiddenLValueType(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.isCForbiddenLValueType();
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::IsCXX11PODType(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.isCXX11PODType(ast->ci->getASTContext());
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::IsCXX98PODType(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.isCXX98PODType(ast->ci->getASTContext());
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::IsCanonical(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.isCanonical();
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::IsCanonicalAsParameter(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.isCanonicalAsParam();
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::IsConstQualified(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.isConstQualified();
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::IsConstant(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.isConstant(ast->ci->getASTContext());
-  return val;
-  __builtin_unreachable();
-}
-
-enum QualTypeDestructionKind Type::IsDestructedType(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.isDestructedType();
-  return static_cast<::pasta::QualTypeDestructionKind>(val);
-  __builtin_unreachable();
-}
-
-bool Type::IsLocalConstQualified(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.isLocalConstQualified();
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::IsLocalRestrictQualified(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.isLocalRestrictQualified();
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::IsLocalVolatileQualified(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.isLocalVolatileQualified();
-  return val;
-  __builtin_unreachable();
-}
-
-// 1: Type::IsMoreQualifiedThan
-enum QualTypePrimitiveCopyKind Type::IsNonTrivialToPrimitiveCopy(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.isNonTrivialToPrimitiveCopy();
-  return static_cast<::pasta::QualTypePrimitiveCopyKind>(val);
-  __builtin_unreachable();
-}
-
-enum QualTypePrimitiveDefaultInitializeKind Type::IsNonTrivialToPrimitiveDefaultInitialize(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.isNonTrivialToPrimitiveDefaultInitialize();
-  return static_cast<::pasta::QualTypePrimitiveDefaultInitializeKind>(val);
-  __builtin_unreachable();
-}
-
-enum QualTypePrimitiveCopyKind Type::IsNonTrivialToPrimitiveDestructiveMove(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.isNonTrivialToPrimitiveDestructiveMove();
-  return static_cast<::pasta::QualTypePrimitiveCopyKind>(val);
-  __builtin_unreachable();
-}
-
-bool Type::IsNonWeakInMRRWithObjCWeak(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.isNonWeakInMRRWithObjCWeak(ast->ci->getASTContext());
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::IsNull(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.isNull();
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::IsObjCGCStrong(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.isObjCGCStrong();
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::IsObjCGCWeak(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.isObjCGCWeak();
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::IsPODType(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.isPODType(ast->ci->getASTContext());
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::IsRestrictQualified(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.isRestrictQualified();
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::IsTrivialType(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.isTrivialType(ast->ci->getASTContext());
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::IsTriviallyCopyableType(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.isTriviallyCopyableType(ast->ci->getASTContext());
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::IsTriviallyRelocatableType(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.isTriviallyRelocatableType(ast->ci->getASTContext());
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::IsVolatileQualified(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.isVolatileQualified();
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::MayBeDynamicClass(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.mayBeDynamicClass();
-  return val;
-  __builtin_unreachable();
-}
-
-bool Type::MayBeNotDynamicClass(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.mayBeNotDynamicClass();
-  return val;
-  __builtin_unreachable();
-}
-
-// 0: Type::Split
-// 1: Type::Stream
-::pasta::Type Type::StripObjCKindOfType(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.stripObjCKindOfType(ast->ci->getASTContext());
-  assert(!val.isNull());
-  return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
-}
-
-// 3: QualType::SubstObjCMemberType
-// 3: QualType::SubstObjCTypeArguments
-// 1: Type::WithCVRQualifiers
-::pasta::Type Type::WithConst(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.withConst();
-  assert(!val.isNull());
-  return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
-}
-
-// 1: Type::WithExactLocalFastQualifiers
-// 1: Type::WithFastQualifiers
-::pasta::Type Type::WithRestrict(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.withRestrict();
-  assert(!val.isNull());
-  return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
-}
-
-::pasta::Type Type::WithVolatile(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.withVolatile();
-  assert(!val.isNull());
-  return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
-}
-
-::pasta::Type Type::WithoutLocalFastQualifiers(void) const noexcept {
-  auto &ast_ctx = ast->ci->getASTContext();
-  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
-  decltype(auto) val = self.withoutLocalFastQualifiers();
-  assert(!val.isNull());
-  return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
 
@@ -4490,6 +3964,487 @@ bool PointerType::IsSugared(void) const noexcept {
   auto &self = *const_cast<clang::PointerType *>(u.PointerType);
   decltype(auto) val = self.isSugared();
   return val;
+  __builtin_unreachable();
+}
+
+PASTA_DEFINE_BASE_OPERATORS(Type, QualifiedType)
+::pasta::Type QualifiedType::IgnoreParentheses(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.IgnoreParens();
+  assert(!val.isNull());
+  return TypeBuilder::Build(ast, val);
+  __builtin_unreachable();
+}
+
+enum LangAS QualifiedType::AddressSpace(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.getAddressSpace();
+  return static_cast<::pasta::LangAS>(val);
+  __builtin_unreachable();
+}
+
+// 0: QualifiedType::
+::pasta::Type QualifiedType::AtomicUnqualifiedType(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.getAtomicUnqualifiedType();
+  assert(!val.isNull());
+  return TypeBuilder::Build(ast, val);
+  __builtin_unreachable();
+}
+
+// 0: QualifiedType::BaseTypeIdentifier
+uint32_t QualifiedType::CVRQualifiers(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.getCVRQualifiers();
+  return val;
+  __builtin_unreachable();
+}
+
+::pasta::Type QualifiedType::CanonicalType(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.getCanonicalType();
+  assert(!val.isNull());
+  return TypeBuilder::Build(ast, val);
+  __builtin_unreachable();
+}
+
+::pasta::Type QualifiedType::DesugaredType(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.getDesugaredType(ast->ci->getASTContext());
+  assert(!val.isNull());
+  return TypeBuilder::Build(ast, val);
+  __builtin_unreachable();
+}
+
+uint32_t QualifiedType::LocalCVRQualifiers(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.getLocalCVRQualifiers();
+  return val;
+  __builtin_unreachable();
+}
+
+uint32_t QualifiedType::LocalFastQualifiers(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.getLocalFastQualifiers();
+  return val;
+  __builtin_unreachable();
+}
+
+// 0: QualifiedType::LocalQualifiers
+::pasta::Type QualifiedType::LocalUnqualifiedType(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.getLocalUnqualifiedType();
+  assert(!val.isNull());
+  return TypeBuilder::Build(ast, val);
+  __builtin_unreachable();
+}
+
+::pasta::Type QualifiedType::NonLValueExpressionType(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.getNonLValueExprType(ast->ci->getASTContext());
+  assert(!val.isNull());
+  return TypeBuilder::Build(ast, val);
+  __builtin_unreachable();
+}
+
+::pasta::Type QualifiedType::NonPackExpansionType(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.getNonPackExpansionType();
+  assert(!val.isNull());
+  return TypeBuilder::Build(ast, val);
+  __builtin_unreachable();
+}
+
+::pasta::Type QualifiedType::NonReferenceType(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.getNonReferenceType();
+  assert(!val.isNull());
+  return TypeBuilder::Build(ast, val);
+  __builtin_unreachable();
+}
+
+// 0: QualifiedType::ObjCGCAttr
+// 0: QualifiedType::ObjCLifetime
+// 0: QualifiedType::Qualifiers
+::pasta::Type QualifiedType::SingleStepDesugaredType(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.getSingleStepDesugaredType(ast->ci->getASTContext());
+  assert(!val.isNull());
+  return TypeBuilder::Build(ast, val);
+  __builtin_unreachable();
+}
+
+// 0: QualifiedType::SplitDesugaredType
+// 0: QualifiedType::SplitUnqualifiedType
+// 0: QualifiedType::
+// 0: QualifiedType::
+// 0: QualifiedType::
+bool QualifiedType::HasAddressSpace(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.hasAddressSpace();
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::HasLocalNonFastQualifiers(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.hasLocalNonFastQualifiers();
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::HasLocalQualifiers(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.hasLocalQualifiers();
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::HasNonTrivialObjCLifetime(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.hasNonTrivialObjCLifetime();
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::HasNonTrivialToPrimitiveCopyCUnion(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.hasNonTrivialToPrimitiveCopyCUnion();
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::HasNonTrivialToPrimitiveDefaultInitializeCUnion(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.hasNonTrivialToPrimitiveDefaultInitializeCUnion();
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::HasNonTrivialToPrimitiveDestructCUnion(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.hasNonTrivialToPrimitiveDestructCUnion();
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::HasQualifiers(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.hasQualifiers();
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::HasStrongOrWeakObjCLifetime(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.hasStrongOrWeakObjCLifetime();
+  return val;
+  __builtin_unreachable();
+}
+
+// 1: QualifiedType::IsAddressSpaceOverlapping
+// 1: QualifiedType::IsAtLeastAsQualifiedAs
+bool QualifiedType::IsCForbiddenLValueType(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.isCForbiddenLValueType();
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::IsCXX11PODType(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.isCXX11PODType(ast->ci->getASTContext());
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::IsCXX98PODType(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.isCXX98PODType(ast->ci->getASTContext());
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::IsCanonical(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.isCanonical();
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::IsCanonicalAsParameter(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.isCanonicalAsParam();
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::IsConstQualified(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.isConstQualified();
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::IsConstant(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.isConstant(ast->ci->getASTContext());
+  return val;
+  __builtin_unreachable();
+}
+
+// 0: QualifiedType::IsDestructedType
+bool QualifiedType::IsLocalConstQualified(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.isLocalConstQualified();
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::IsLocalRestrictQualified(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.isLocalRestrictQualified();
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::IsLocalVolatileQualified(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.isLocalVolatileQualified();
+  return val;
+  __builtin_unreachable();
+}
+
+// 1: QualifiedType::IsMoreQualifiedThan
+// 0: QualifiedType::IsNonTrivialToPrimitiveCopy
+// 0: QualifiedType::IsNonTrivialToPrimitiveDefaultInitialize
+// 0: QualifiedType::IsNonTrivialToPrimitiveDestructiveMove
+bool QualifiedType::IsNonWeakInMRRWithObjCWeak(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.isNonWeakInMRRWithObjCWeak(ast->ci->getASTContext());
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::IsNull(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.isNull();
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::IsObjCGCStrong(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.isObjCGCStrong();
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::IsObjCGCWeak(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.isObjCGCWeak();
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::IsPODType(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.isPODType(ast->ci->getASTContext());
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::IsRestrictQualified(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.isRestrictQualified();
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::IsTrivialType(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.isTrivialType(ast->ci->getASTContext());
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::IsTriviallyCopyableType(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.isTriviallyCopyableType(ast->ci->getASTContext());
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::IsTriviallyRelocatableType(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.isTriviallyRelocatableType(ast->ci->getASTContext());
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::IsVolatileQualified(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.isVolatileQualified();
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::MayBeDynamicClass(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.mayBeDynamicClass();
+  return val;
+  __builtin_unreachable();
+}
+
+bool QualifiedType::MayBeNotDynamicClass(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.mayBeNotDynamicClass();
+  return val;
+  __builtin_unreachable();
+}
+
+// 0: QualifiedType::Split
+// 1: QualifiedType::Stream
+::pasta::Type QualifiedType::StripObjCKindOfType(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.stripObjCKindOfType(ast->ci->getASTContext());
+  assert(!val.isNull());
+  return TypeBuilder::Build(ast, val);
+  __builtin_unreachable();
+}
+
+// 3: QualifiedType::SubstObjCMemberType
+// 3: QualifiedType::SubstObjCTypeArguments
+// 1: QualifiedType::WithCVRQualifiers
+::pasta::Type QualifiedType::WithConst(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.withConst();
+  assert(!val.isNull());
+  return TypeBuilder::Build(ast, val);
+  __builtin_unreachable();
+}
+
+// 1: QualifiedType::WithExactLocalFastQualifiers
+// 1: QualifiedType::WithFastQualifiers
+::pasta::Type QualifiedType::WithRestrict(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.withRestrict();
+  assert(!val.isNull());
+  return TypeBuilder::Build(ast, val);
+  __builtin_unreachable();
+}
+
+::pasta::Type QualifiedType::WithVolatile(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.withVolatile();
+  assert(!val.isNull());
+  return TypeBuilder::Build(ast, val);
+  __builtin_unreachable();
+}
+
+::pasta::Type QualifiedType::WithoutLocalFastQualifiers(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.withoutLocalFastQualifiers();
+  assert(!val.isNull());
+  return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
 }
 

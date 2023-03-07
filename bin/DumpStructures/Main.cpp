@@ -37,7 +37,7 @@ class TypeDumper final : public pasta::TypeVisitor {
     indent.resize(indent.size() - 2);
   }
 
-  void AcceptQualified(const pasta::Type &type) {
+  void VisitQualifiedType(const pasta::QualifiedType &type) {
     auto sep = "";
     if (type.IsConstQualified()) {
       os << sep << "const";
@@ -67,11 +67,7 @@ class TypeDumper final : public pasta::TypeVisitor {
     for (pasta::FieldDecl field : record.Fields()) {
       pasta::Type field_type = field.Type();
       os << indent;
-      if (field_type.IsQualified()) {
-        AcceptQualified(field_type);
-      } else {
-        Accept(field_type);
-      }
+      Accept(field_type);
       os << " " << field.Name() << ";\n";
     }
     PopIndent();

@@ -67,7 +67,8 @@ void GenerateForwardH(void) {
 
   for (const auto &name : kAllClassNames) {
     if (name != "OMPDeclarativeDirectiveDecl" &&
-        name != "OMPDeclarativeDirectiveValueDecl") {
+        name != "OMPDeclarativeDirectiveValueDecl" &&
+        name != "QualifiedType") {
       os << "class " << name.str() << ";\n";
     }
   }
@@ -164,8 +165,8 @@ void GenerateForwardH(void) {
     }
     sep = " \\\n";
   }
-
-  os
+  os   
+      << sep << "    m(Qualified)"  // Our custom version of `QualType`.
       << "\n\n"
       << "#define PASTA_FOR_EACH_ATTR_IMPL(m, a) \\\n";
 
@@ -222,27 +223,14 @@ void GenerateForwardH(void) {
     sep = " \\\n";
   }
 
-  os << "\n\n";
-
   os
-      << "#define PASTA_FOR_EACH_TYPE_KIND(m) \\\n";
-  sep = "";
-  for (const std::string &type_kind : gEnumerators["TypeKind"]) {
-    os << sep << "    m(" << type_kind << ")";
-    sep = " \\\n";
-  }
-
-  os << "\n\n";
-
-  os
-      << "#define PASTA_FOR_EACH_ATTR_KIND(m) \\\n";
-  sep = "";
-  for (const std::string &attr_kind : gEnumerators["AttrKind"]) {
-    os << sep << "    m(" << attr_kind << ")";
-    sep = " \\\n";
-  }
-
-  os << "\n\n";
+      << "\n\n"
+      << "#define PASTA_FOR_EACH_TYPE_KIND(m) \\\n"
+      << "    PASTA_FOR_EACH_TYPE_IMPL(m, PASTA_IGNORE_ABSTRACT)\n"
+      << "\n"
+      << "#define PASTA_FOR_EACH_ATTR_KIND(m) \\\n"
+      << "    PASTA_FOR_EACH_ATTR_IMPL(m, PASTA_IGNORE_ABSTRACT)\n"
+      << "\n";
 
   // Forward declare them all.
   for (const auto &name : kAllClassNames) {

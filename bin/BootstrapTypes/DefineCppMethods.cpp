@@ -10,7 +10,7 @@
 
 namespace {
 
-static const std::string gTypeClassName{"Type"};
+static const std::string gTypeClassName{"QualifiedType"};
 static std::set<std::pair<std::string, std::string>> existing_methods;
 
 static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
@@ -31,11 +31,9 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
     }
   }
 
-  const auto is_qual_type = class_name == "QualType";
-  const auto &real_class_name = is_qual_type ? gTypeClassName : class_name;
   const std::string meth_name = CxxName(meth_name_ref);
   if (meth_name.empty() || meth_name == "Clone") { \
-    os << "// 0: " << real_class_name << "::" << meth_name << "\n";
+    os << "// 0: " << class_name << "::" << meth_name << "\n";
     return;
   }
 
@@ -54,6 +52,11 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
     return;
   }
 
+  if (class_name == "Type" &&
+      (meth_name_ref == "getTypeClass" || meth_name_ref == "getTypeClassName")) {
+    return;  // Manually implemented.
+  }
+
   if (class_name.find("Decl") != std::string::npos) {
     if (meth_name_ref == "getLocation" || meth_name_ref == "getSourceRange") {
       return;
@@ -65,7 +68,7 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
   auto &rt_val = gRetTypeToValMap[rt_str];
 
   if (rt_type.empty() || rt_val.empty()) {
-    os << "// 0: " << real_class_name << "::" << meth_name << "\n";
+    os << "// 0: " << class_name << "::" << meth_name << "\n";
     return;
   }
 
@@ -84,8 +87,9 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
     os << rt_type;
   }
 
-  os << " " << real_class_name << "::" << meth_name << "(void) const noexcept {\n";
+  os << " " << class_name << "::" << meth_name << "(void) const noexcept {\n";
 
+  const auto is_qual_type = class_name == "QualifiedType";
   if (is_qual_type) {
     os << "  auto &ast_ctx = ast->ci->getASTContext();\n"
        << "  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);\n"
@@ -138,11 +142,10 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
 static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
                              llvm::StringRef meth_name_ref,
                              llvm::StringRef rt_ref, llvm::StringRef p0_ref) {
-  const auto is_qual_type = class_name == "QualType";
-  const auto &real_class_name = is_qual_type ? gTypeClassName : class_name;
+  const auto is_qual_type = class_name == "QualifiedType";
   const auto meth_name = CxxName(meth_name_ref); \
   if (meth_name.empty() || meth_name == "Clone") {
-    os << "// 1: " << real_class_name << "::" << meth_name << "\n";
+    os << "// 1: " << class_name << "::" << meth_name << "\n";
     return;
   }
 
@@ -151,7 +154,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
   auto &rt_val = gRetTypeToValMap[rt_str];
 
   if (rt_type.empty() || rt_val.empty()) {
-    os << "// 1: " << real_class_name << "::" << meth_name << "\n";
+    os << "// 1: " << class_name << "::" << meth_name << "\n";
     return;
   }
 
@@ -165,7 +168,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
     } else {
       os << rt_type;
     }
-    os << " " << real_class_name << "::" << meth_name << "(void) const noexcept {\n";
+    os << " " << class_name << "::" << meth_name << "(void) const noexcept {\n";
     if (is_qual_type) {
       os << "  auto &ast_ctx = ast->ci->getASTContext();\n"
          << "  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);\n"
@@ -219,7 +222,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
     } else {
       os << rt_type;
     }
-    os << " " << real_class_name << "::" << meth_name << "(bool b) const noexcept {\n";
+    os << " " << class_name << "::" << meth_name << "(bool b) const noexcept {\n";
     if (is_qual_type) {
       os << "  auto &ast_ctx = ast->ci->getASTContext();\n"
          << "  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);\n"
@@ -259,10 +262,10 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
     os << "  __builtin_unreachable();\n"
        << "}\n\n";
 
-  } else if (!strcmp(real_class_name.c_str(), "DesignatedInitExpr") &&
+  } else if (!strcmp(class_name.c_str(), "DesignatedInitExpr") &&
       !strcmp(meth_name.c_str(), "Designator")) {
-    os << rt_type << " " << real_class_name << "::" << meth_name << "(unsigned int idx) const noexcept {\n"
-       << "  auto &self = *const_cast<clang::"<< real_class_name << " *>(u." << real_class_name  <<");\n"
+    os << rt_type << " " << class_name << "::" << meth_name << "(unsigned int idx) const noexcept {\n"
+       << "  auto &self = *const_cast<clang::"<< class_name << " *>(u." << class_name  <<");\n"
        << "  if (idx >= self.designators().size()) {\n"
        << "    return std::nullopt;\n"
        << "  }\n"
@@ -274,7 +277,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
        << "  __builtin_unreachable();\n"
        << "}\n\n";
   } else { \
-    os << "// 1: " << real_class_name << "::" << meth_name << "\n";
+    os << "// 1: " << class_name << "::" << meth_name << "\n";
     return;
   }
 }

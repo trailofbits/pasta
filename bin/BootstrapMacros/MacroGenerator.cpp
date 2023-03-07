@@ -172,14 +172,26 @@ MacroGenerator::~MacroGenerator(void) {
 
   os << "#include \"DefineDefaultMacros.h\"\n\n";
 
-  for (const auto &[decl_name, decl] : decl_classes) {
+  for (const auto &entry : decl_classes) {
+    std::string decl_name = entry.first;
+    const clang::CXXRecordDecl *decl = entry.second;
     const auto decl_id = decl_ids[decl_name];
+
+    bool is_qual_type = decl_name == "QualType";
+    if (is_qual_type) {
+      decl_name = "QualifiedType";
+    }
 
     os << "PASTA_BEGIN_CLANG_WRAPPER(" << decl_name << ", "
        << decl_id << ")\n";
 
     os << "  PASTA_BEGIN_BASE_CLASSES(" << decl_name << ", " << decl_id
        << ")\n";
+
+    if (is_qual_type) {
+      os << "    PASTA_PUBLIC_BASE_CLASS(" << decl_name << ", " << decl_id
+         << ", Type, " << decl_ids["Type"] << ")\n";
+    }
 
     // We want to be able to mirror the clang class hierarchy directly, so we
     // need to go find the (public) base classes and expose them.

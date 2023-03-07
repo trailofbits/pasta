@@ -7321,13 +7321,7 @@ bool VarDecl::MightBeUsableInConstantExpressions(void) const noexcept {
   __builtin_unreachable();
 }
 
-enum QualTypeDestructionKind VarDecl::NeedsDestruction(void) const noexcept {
-  auto &self = *(u.VarDecl);
-  decltype(auto) val = self.needsDestruction(ast->ci->getASTContext());
-  return static_cast<::pasta::QualTypeDestructionKind>(val);
-  __builtin_unreachable();
-}
-
+// 1: VarDecl::NeedsDestruction
 std::vector<::pasta::TemplateParameterList> VarDecl::TemplateParameterLists(void) const noexcept {
   std::vector<::pasta::TemplateParameterList> ret;
   auto convert_elem = [&] (clang::TemplateParameterList * val) {

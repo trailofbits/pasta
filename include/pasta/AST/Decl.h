@@ -2433,7 +2433,7 @@ class VarDecl : public DeclaratorDecl {
   bool IsThisDeclarationADemotedDefinition(void) const noexcept;
   bool IsUsableInConstantExpressions(void) const noexcept;
   bool MightBeUsableInConstantExpressions(void) const noexcept;
-  enum QualTypeDestructionKind NeedsDestruction(void) const noexcept;
+  // NeedsDestruction: (clang::QualType::DestructionKind)
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(VarDecl)

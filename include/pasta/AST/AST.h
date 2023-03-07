@@ -80,9 +80,11 @@ class AST {
   // construction of this AST.
   const std::vector<::pasta::File> &ParsedFiles(void) const;
 
+#ifndef PASTA_IN_BOOTSTRAP
   Token Adopt(const clang::SourceLocation &loc) const;
   Decl Adopt(const clang::Decl *decl) const;
   Stmt Adopt(const clang::Stmt *stmt) const;
+#endif
 
  private:
   friend class ASTImpl;

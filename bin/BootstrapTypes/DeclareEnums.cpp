@@ -212,6 +212,9 @@ static std::string RenameEnumerator(const std::string &name) {
 #define PASTA_CLASS_ENUMERATOR PASTA_NAMED_ENUMERATOR
 
 #define PASTA_END_NAMED_ENUM(enum_name) \
+      if (enum_name_str == "TypeKind") { \
+        os << "  kQualified  // Manually added.\n"; \
+      } \
       os << "};\n\n"; \
     }
 

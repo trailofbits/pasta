@@ -133,8 +133,8 @@ void GenerateTypeCpp(void) {
     }
     DefineCppMethods(os, name, gClassIDs[name]);
 
-    // Put the `QualType` methods after the `Type` ones.
-    if (name == "Type") {
+    // Put the `QualType` methods after the fake `QualifiedType` ones.
+    if (name == "QualifiedType") {
       DefineCppMethods(os, qual_type, gClassIDs[qual_type]);
     }
   }

@@ -118,6 +118,8 @@ class ParsedFileTracker : public clang::PPCallbacks {
     auto [file_it, just_added] = ast->id_to_file.emplace(
         file_id.getHashValue(), file);
     assert(file_it->second.impl.get() == file.impl.get());
+    (void) file_it;
+    (void) just_added;
 
     // If we've seen this file already, then don't tokenize it.
     if (auto [seen_it, added] = seen.emplace(file.impl.get()); !added) {

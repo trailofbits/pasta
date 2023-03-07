@@ -9,6 +9,11 @@
 
 #include "Forward.h"
 
+namespace clang {
+class Type;
+class QualType;
+using QualifiedType = Type;
+}  // namespace clang
 #ifndef PASTA_IN_BOOTSTRAP
 namespace pasta {
 

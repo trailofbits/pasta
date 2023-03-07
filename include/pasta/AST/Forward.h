@@ -631,7 +631,6 @@ class PtGuardedVarAttr;
 class Ptr32Attr;
 class Ptr64Attr;
 class PureAttr;
-class QualType;
 class RISCVInterruptAttr;
 class RValueReferenceType;
 class RandomizeLayoutAttr;
@@ -1203,6 +1202,7 @@ class TypeBuilder;
     m(Paren) \
     m(Pipe) \
     m(Pointer) \
+    a(QualifiedType) \
     m(RValueReference) \
     m(Record) \
     a(ReferenceType) \
@@ -1220,7 +1220,8 @@ class TypeBuilder;
     m(Using) \
     m(VariableArray) \
     m(Vector) \
-    a(TypeWithKeyword)
+    a(TypeWithKeyword) \
+    m(Qualified)
 
 #define PASTA_FOR_EACH_ATTR_IMPL(m, a) \
     m(AArch64SVEPcs) \
@@ -3804,7 +3805,7 @@ enum class PureAttrSpelling : unsigned int {
   kSpellingNotCalculated = 15,
 };
 
-enum class QualTypeDestructionKind : unsigned int {
+enum class QualifiedTypeDestructionKind : unsigned int {
   kNone = 0,
   kCxxDestructor = 1,
   kObjcStrongLifetime = 2,
@@ -3812,7 +3813,7 @@ enum class QualTypeDestructionKind : unsigned int {
   kNontrivialCStruct = 4,
 };
 
-enum class QualTypePrimitiveCopyKind : unsigned int {
+enum class QualifiedTypePrimitiveCopyKind : unsigned int {
   kTrivial = 0,
   kVolatileTrivial = 1,
   kARCStrong = 2,
@@ -3820,7 +3821,7 @@ enum class QualTypePrimitiveCopyKind : unsigned int {
   kStruct = 4,
 };
 
-enum class QualTypePrimitiveDefaultInitializeKind : unsigned int {
+enum class QualifiedTypePrimitiveDefaultInitializeKind : unsigned int {
   kTrivial = 0,
   kARCStrong = 1,
   kARCWeak = 2,
@@ -4507,6 +4508,7 @@ enum class TypeKind : unsigned int {
   kUsing = 51,
   kVector = 52,
   kExtVector = 53,
+  kQualified  // Manually added.
 };
 
 enum class TypeTagForDatatypeAttrSpelling : unsigned int {
@@ -7232,63 +7234,10 @@ enum class Visibility : unsigned int {
     m(WhileStmt)
 
 #define PASTA_FOR_EACH_TYPE_KIND(m) \
-    m(Adjusted) \
-    m(Decayed) \
-    m(ConstantArray) \
-    m(DependentSizedArray) \
-    m(IncompleteArray) \
-    m(VariableArray) \
-    m(Atomic) \
-    m(Attributed) \
-    m(BTFTagAttributed) \
-    m(BitInt) \
-    m(BlockPointer) \
-    m(Builtin) \
-    m(Complex) \
-    m(Decltype) \
-    m(Auto) \
-    m(DeducedTemplateSpecialization) \
-    m(DependentAddressSpace) \
-    m(DependentBitInt) \
-    m(DependentName) \
-    m(DependentSizedExtVector) \
-    m(DependentTemplateSpecialization) \
-    m(DependentVector) \
-    m(Elaborated) \
-    m(FunctionNoProto) \
-    m(FunctionProto) \
-    m(InjectedClassName) \
-    m(MacroQualified) \
-    m(ConstantMatrix) \
-    m(DependentSizedMatrix) \
-    m(MemberPointer) \
-    m(ObjCObjectPointer) \
-    m(ObjCObject) \
-    m(ObjCInterface) \
-    m(ObjCTypeParam) \
-    m(PackExpansion) \
-    m(Paren) \
-    m(Pipe) \
-    m(Pointer) \
-    m(LValueReference) \
-    m(RValueReference) \
-    m(SubstTemplateTypeParmPack) \
-    m(SubstTemplateTypeParm) \
-    m(Enum) \
-    m(Record) \
-    m(TemplateSpecialization) \
-    m(TemplateTypeParm) \
-    m(TypeOfExpr) \
-    m(TypeOf) \
-    m(Typedef) \
-    m(UnaryTransform) \
-    m(UnresolvedUsing) \
-    m(Using) \
-    m(Vector) \
-    m(ExtVector)
+    PASTA_FOR_EACH_TYPE_IMPL(m, PASTA_IGNORE_ABSTRACT)
 
 #define PASTA_FOR_EACH_ATTR_KIND(m) \
-
+    PASTA_FOR_EACH_ATTR_IMPL(m, PASTA_IGNORE_ABSTRACT)
 
 class OMPDeclarativeDirectiveDecl;
 class OMPDeclarativeDirectiveValueDecl;
@@ -7901,7 +7850,7 @@ class PtGuardedVarAttr;
 class Ptr32Attr;
 class Ptr64Attr;
 class PureAttr;
-class QualType;
+class QualifiedType;
 class RISCVInterruptAttr;
 class RValueReferenceType;
 class RandomizeLayoutAttr;

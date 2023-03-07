@@ -83,6 +83,7 @@ class TypeVisitor {
   virtual void VisitParenType(const ParenType &);
   virtual void VisitPipeType(const PipeType &);
   virtual void VisitPointerType(const PointerType &);
+  virtual void VisitQualifiedType(const QualifiedType &);
   virtual void VisitReferenceType(const ReferenceType &);
   virtual void VisitSubstTemplateTypeParmPackType(const SubstTemplateTypeParmPackType &);
   virtual void VisitSubstTemplateTypeParmType(const SubstTemplateTypeParmType &);
@@ -156,6 +157,7 @@ class Type {
     const ::clang::ParenType *ParenType;
     const ::clang::PipeType *PipeType;
     const ::clang::PointerType *PointerType;
+    const ::clang::QualifiedType *QualifiedType;
     const ::clang::ReferenceType *ReferenceType;
     const ::clang::SubstTemplateTypeParmPackType *SubstTemplateTypeParmPackType;
     const ::clang::SubstTemplateTypeParmType *SubstTemplateTypeParmType;
@@ -198,6 +200,10 @@ class Type {
   inline uint32_t RawQualifiers(void) const noexcept {
     return qualifiers;
   }
+  
+  ::pasta::Type DesugaredType(void) const noexcept;
+  ::pasta::Type CanonicalType(void) const noexcept;
+
   static std::optional<::pasta::Type> From(const TokenContext &);
   PASTA_DECLARE_DERIVED_OPERATORS(Type, AdjustedType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, ArrayType)
@@ -243,6 +249,7 @@ class Type {
   PASTA_DECLARE_DERIVED_OPERATORS(Type, ParenType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, PipeType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, PointerType)
+  PASTA_DECLARE_DERIVED_OPERATORS(Type, QualifiedType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, RValueReferenceType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, RecordType)
   PASTA_DECLARE_DERIVED_OPERATORS(Type, ReferenceType)
@@ -516,78 +523,6 @@ class Type {
   bool IsVoidPointerType(void) const noexcept;
   bool IsVoidType(void) const noexcept;
   bool IsWideCharacterType(void) const noexcept;
-
-  /* QualType methods */
-  ::pasta::Type IgnoreParentheses(void) const noexcept;
-  enum LangAS AddressSpace(void) const noexcept;
-  ::pasta::Type AtomicUnqualifiedType(void) const noexcept;
-  // BaseTypeIdentifier: (const clang::IdentifierInfo *)
-  uint32_t CVRQualifiers(void) const noexcept;
-  ::pasta::Type CanonicalType(void) const noexcept;
-  ::pasta::Type DesugaredType(void) const noexcept;
-  uint32_t LocalCVRQualifiers(void) const noexcept;
-  uint32_t LocalFastQualifiers(void) const noexcept;
-  // LocalQualifiers: (clang::Qualifiers)
-  ::pasta::Type LocalUnqualifiedType(void) const noexcept;
-  ::pasta::Type NonLValueExpressionType(void) const noexcept;
-  ::pasta::Type NonPackExpansionType(void) const noexcept;
-  ::pasta::Type NonReferenceType(void) const noexcept;
-  // ObjCGCAttr: (clang::Qualifiers::GC)
-  // ObjCLifetime: (clang::Qualifiers::ObjCLifetime)
-  // Qualifiers: (clang::Qualifiers)
-  ::pasta::Type SingleStepDesugaredType(void) const noexcept;
-  // SplitDesugaredType: (clang::SplitQualType)
-  // SplitUnqualifiedType: (clang::SplitQualType)
-  bool HasAddressSpace(void) const noexcept;
-  bool HasLocalNonFastQualifiers(void) const noexcept;
-  bool HasLocalQualifiers(void) const noexcept;
-  bool HasNonTrivialObjCLifetime(void) const noexcept;
-  bool HasNonTrivialToPrimitiveCopyCUnion(void) const noexcept;
-  bool HasNonTrivialToPrimitiveDefaultInitializeCUnion(void) const noexcept;
-  bool HasNonTrivialToPrimitiveDestructCUnion(void) const noexcept;
-  bool HasQualifiers(void) const noexcept;
-  bool HasStrongOrWeakObjCLifetime(void) const noexcept;
-  // IsAddressSpaceOverlapping: (bool)
-  // IsAtLeastAsQualifiedAs: (bool)
-  bool IsCForbiddenLValueType(void) const noexcept;
-  bool IsCXX11PODType(void) const noexcept;
-  bool IsCXX98PODType(void) const noexcept;
-  bool IsCanonical(void) const noexcept;
-  bool IsCanonicalAsParameter(void) const noexcept;
-  bool IsConstQualified(void) const noexcept;
-  bool IsConstant(void) const noexcept;
-  enum QualTypeDestructionKind IsDestructedType(void) const noexcept;
-  bool IsLocalConstQualified(void) const noexcept;
-  bool IsLocalRestrictQualified(void) const noexcept;
-  bool IsLocalVolatileQualified(void) const noexcept;
-  // IsMoreQualifiedThan: (bool)
-  enum QualTypePrimitiveCopyKind IsNonTrivialToPrimitiveCopy(void) const noexcept;
-  enum QualTypePrimitiveDefaultInitializeKind IsNonTrivialToPrimitiveDefaultInitialize(void) const noexcept;
-  enum QualTypePrimitiveCopyKind IsNonTrivialToPrimitiveDestructiveMove(void) const noexcept;
-  bool IsNonWeakInMRRWithObjCWeak(void) const noexcept;
-  bool IsNull(void) const noexcept;
-  bool IsObjCGCStrong(void) const noexcept;
-  bool IsObjCGCWeak(void) const noexcept;
-  bool IsPODType(void) const noexcept;
-  bool IsRestrictQualified(void) const noexcept;
-  bool IsTrivialType(void) const noexcept;
-  bool IsTriviallyCopyableType(void) const noexcept;
-  bool IsTriviallyRelocatableType(void) const noexcept;
-  bool IsVolatileQualified(void) const noexcept;
-  bool MayBeDynamicClass(void) const noexcept;
-  bool MayBeNotDynamicClass(void) const noexcept;
-  // Split: (clang::SplitQualType)
-  // Stream: (clang::QualType::StreamedQualTypeHelper)
-  ::pasta::Type StripObjCKindOfType(void) const noexcept;
-  // SubstObjCMemberType: (clang::QualType)
-  // SubstObjCTypeArguments: (clang::QualType)
-  // WithCVRQualifiers: (clang::QualType)
-  ::pasta::Type WithConst(void) const noexcept;
-  // WithExactLocalFastQualifiers: (clang::QualType)
-  // WithFastQualifiers: (clang::QualType)
-  ::pasta::Type WithRestrict(void) const noexcept;
-  ::pasta::Type WithVolatile(void) const noexcept;
-  ::pasta::Type WithoutLocalFastQualifiers(void) const noexcept;
 };
 
 class TypeOfExprType : public Type {
@@ -1326,6 +1261,89 @@ class PointerType : public Type {
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(PointerType)
 };
 static_assert(sizeof(Type) == sizeof(PointerType));
+
+class QualifiedType : public Type {
+ private:
+  using Type::Type;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(QualifiedType)
+  PASTA_DECLARE_BASE_OPERATORS(Type, QualifiedType)
+  ::pasta::Type IgnoreParentheses(void) const noexcept;
+  enum LangAS AddressSpace(void) const noexcept;
+  ::pasta::Type AtomicUnqualifiedType(void) const noexcept;
+  // BaseTypeIdentifier: (const clang::IdentifierInfo *)
+  uint32_t CVRQualifiers(void) const noexcept;
+  ::pasta::Type CanonicalType(void) const noexcept;
+  ::pasta::Type DesugaredType(void) const noexcept;
+  uint32_t LocalCVRQualifiers(void) const noexcept;
+  uint32_t LocalFastQualifiers(void) const noexcept;
+  // LocalQualifiers: (clang::Qualifiers)
+  ::pasta::Type LocalUnqualifiedType(void) const noexcept;
+  ::pasta::Type NonLValueExpressionType(void) const noexcept;
+  ::pasta::Type NonPackExpansionType(void) const noexcept;
+  ::pasta::Type NonReferenceType(void) const noexcept;
+  // ObjCGCAttr: (clang::Qualifiers::GC)
+  // ObjCLifetime: (clang::Qualifiers::ObjCLifetime)
+  // Qualifiers: (clang::Qualifiers)
+  ::pasta::Type SingleStepDesugaredType(void) const noexcept;
+  // SplitDesugaredType: (clang::SplitQualType)
+  // SplitUnqualifiedType: (clang::SplitQualType)
+  bool HasAddressSpace(void) const noexcept;
+  bool HasLocalNonFastQualifiers(void) const noexcept;
+  bool HasLocalQualifiers(void) const noexcept;
+  bool HasNonTrivialObjCLifetime(void) const noexcept;
+  bool HasNonTrivialToPrimitiveCopyCUnion(void) const noexcept;
+  bool HasNonTrivialToPrimitiveDefaultInitializeCUnion(void) const noexcept;
+  bool HasNonTrivialToPrimitiveDestructCUnion(void) const noexcept;
+  bool HasQualifiers(void) const noexcept;
+  bool HasStrongOrWeakObjCLifetime(void) const noexcept;
+  // IsAddressSpaceOverlapping: (bool)
+  // IsAtLeastAsQualifiedAs: (bool)
+  bool IsCForbiddenLValueType(void) const noexcept;
+  bool IsCXX11PODType(void) const noexcept;
+  bool IsCXX98PODType(void) const noexcept;
+  bool IsCanonical(void) const noexcept;
+  bool IsCanonicalAsParameter(void) const noexcept;
+  bool IsConstQualified(void) const noexcept;
+  bool IsConstant(void) const noexcept;
+  // IsDestructedType: (clang::QualType::DestructionKind)
+  bool IsLocalConstQualified(void) const noexcept;
+  bool IsLocalRestrictQualified(void) const noexcept;
+  bool IsLocalVolatileQualified(void) const noexcept;
+  // IsMoreQualifiedThan: (bool)
+  // IsNonTrivialToPrimitiveCopy: (clang::QualType::PrimitiveCopyKind)
+  // IsNonTrivialToPrimitiveDefaultInitialize: (clang::QualType::PrimitiveDefaultInitializeKind)
+  // IsNonTrivialToPrimitiveDestructiveMove: (clang::QualType::PrimitiveCopyKind)
+  bool IsNonWeakInMRRWithObjCWeak(void) const noexcept;
+  bool IsNull(void) const noexcept;
+  bool IsObjCGCStrong(void) const noexcept;
+  bool IsObjCGCWeak(void) const noexcept;
+  bool IsPODType(void) const noexcept;
+  bool IsRestrictQualified(void) const noexcept;
+  bool IsTrivialType(void) const noexcept;
+  bool IsTriviallyCopyableType(void) const noexcept;
+  bool IsTriviallyRelocatableType(void) const noexcept;
+  bool IsVolatileQualified(void) const noexcept;
+  bool MayBeDynamicClass(void) const noexcept;
+  bool MayBeNotDynamicClass(void) const noexcept;
+  // Split: (clang::SplitQualType)
+  // Stream: (clang::QualType::StreamedQualTypeHelper)
+  ::pasta::Type StripObjCKindOfType(void) const noexcept;
+  // SubstObjCMemberType: (clang::QualType)
+  // SubstObjCTypeArguments: (clang::QualType)
+  // WithCVRQualifiers: (clang::QualType)
+  ::pasta::Type WithConst(void) const noexcept;
+  // WithExactLocalFastQualifiers: (clang::QualType)
+  // WithFastQualifiers: (clang::QualType)
+  ::pasta::Type WithRestrict(void) const noexcept;
+  ::pasta::Type WithVolatile(void) const noexcept;
+  ::pasta::Type WithoutLocalFastQualifiers(void) const noexcept;
+
+  /* QualType methods */
+ protected:
+  PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(QualifiedType)
+};
+static_assert(sizeof(Type) == sizeof(QualifiedType));
 
 class ReferenceType : public Type {
  private:

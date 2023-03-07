@@ -98,7 +98,9 @@ void GenerateTypeH(void) {
       << "  }\n"
       << "  inline uint32_t RawQualifiers(void) const noexcept {\n"
       << "    return qualifiers;\n"
-      << "  }\n"
+      << "  }\n\n"
+      << "  ::pasta::Type DesugaredType(void) const noexcept;\n"
+      << "  ::pasta::Type CanonicalType(void) const noexcept;\n\n"
       << "  static std::optional<::pasta::Type> From(const TokenContext &);\n";
 
   const auto &derived_from_type =
@@ -137,10 +139,6 @@ void GenerateTypeH(void) {
       << "  /* Type methods */\n";
 
   DeclareCppMethods(os, type, gClassIDs[type]);
-
-  os  << "\n  /* QualType methods */\n";
-
-  DeclareCppMethods(os, qual_type, gClassIDs[qual_type]);
 
   os << "};";
 
@@ -196,6 +194,11 @@ void GenerateTypeH(void) {
     }
 
     DeclareCppMethods(os, name, gClassIDs[name]);
+
+    if (name == "QualifiedType") {
+      os  << "\n  /* QualType methods */\n";
+      DeclareCppMethods(os, qual_type, gClassIDs[qual_type]);
+    }
 
     os
         << " protected:\n"

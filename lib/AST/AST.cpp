@@ -234,6 +234,7 @@ const std::vector<::pasta::File> &AST::ParsedFiles(void) const {
   return impl->parsed_files;
 }
 
+#ifndef PASTA_IN_BOOTSTRAP
 Token AST::Adopt(const clang::SourceLocation &loc) const {
   return impl->TokenAt(loc);
 }
@@ -246,7 +247,6 @@ Stmt AST::Adopt(const clang::Stmt *stmt) const {
   return Stmt(impl, stmt);
 }
 
-#ifndef PASTA_IN_BOOTSTRAP
 std::optional<Decl> Decl::From(const TokenContext &context) {
   if (context.Kind() != TokenContextKind::kDecl) {
     return std::nullopt;

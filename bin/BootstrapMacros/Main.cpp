@@ -35,7 +35,7 @@ int main(void) {
       "-x", "c++",
       "-c", kMacroGeneratorPath,
       "-o", "/dev/null",
-      "-std=c++17",
+      "-std=c++20",
       "-isystem", kPastaBinaryPath,
       "-isystem", kPastaIncludeSourcePath,
       "-isystem", kVcpkgIncludePath
@@ -58,6 +58,7 @@ int main(void) {
   }
 
   const pasta::ArgumentVector args(clang_command);
+  std::cerr << "Running command: " << args.Join() << '\n';
   auto maybe_command = pasta::CompileCommand::CreateFromArguments(
       args, maybe_cwd.TakeValue());
   if (!maybe_command.Succeeded()) {

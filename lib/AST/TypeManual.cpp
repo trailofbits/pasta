@@ -9,6 +9,7 @@
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/AST/Type.h>
+#include <clang/Frontend/CompilerInstance.h>
 #pragma clang diagnostic pop
 
 #include <pasta/AST/Decl.h>
@@ -29,7 +30,54 @@ std::shared_ptr<void> GetExcSpec(const clang::FunctionProtoType *type) {
       type->getExceptionSpecInfo());
 }
 
-}  // namnespace
+}  // namespace
+
+::pasta::TypeKind Type::Kind(void) const noexcept {
+  if (qualifiers) {
+    return TypeKind::kQualified;
+  } else {
+#ifndef NDEBUG
+    auto &self = *const_cast<clang::Type *>(u.Type);
+    decltype(auto) val = self.getTypeClass();
+    assert(kind == static_cast<enum ::pasta::TypeKind>(val));
+#endif
+    return kind;
+  }
+}
+
+std::string_view Type::KindName(void) const noexcept {
+  if (qualifiers) {
+    return "QualifiedType";
+  }
+
+  auto &self = *const_cast<clang::Type *>(u.Type);
+  decltype(auto) val = self.getTypeClassName();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  assert(false && "Type::KindName can return nullptr!");
+  __builtin_unreachable();
+}
+
+::pasta::Type Type::DesugaredType(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.getDesugaredType(ast->ci->getASTContext());
+  assert(!val.isNull());
+  return TypeBuilder::Build(ast, val);
+}
+
+::pasta::Type Type::CanonicalType(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.getCanonicalType();
+  assert(!val.isNull());
+  return TypeBuilder::Build(ast, val);
+}
 
 ExceptionSpecification::~ExceptionSpecification(void) {}
 

@@ -713,7 +713,8 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
     Ty = PT->getInnerType();
   }
 
-  if (const clang::FunctionType *AFT = Ty->getAs<clang::FunctionType>()) {
+  if (const clang::FunctionType *AFT = Ty->getAs<clang::FunctionType>();
+      AFT && !Ty.getTypePtr()->isTypedefNameType()) {
     const clang::FunctionProtoType *FT = nullptr;
     if (D->hasWrittenPrototype())
       FT = clang::dyn_cast<clang::FunctionProtoType>(AFT);

@@ -759,9 +759,23 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 //    if (X) {
 //      decl->dumpColor();
 //    }
+    auto X = false;
+//    auto all_implicit = true;
+//    for (clang::ParmVarDecl *param : decl->parameters()) {
+//      if (!param->isImplicit()) {
+//        all_implicit = false;
+//        break;
+//      }
+//    }
+//
+//    // We can declare a function like `func_t func_name;`, where `func_t` is
+//    // a typedef.
+//    if (all_implicit && decl->getType().getTypePtr()->isTypedefNameType()) {
+//      X = true;
+//    }
     auto D = [=] (const char * d) {
       (void) d;
-//      if (X) {
+      if (X) {
 //        std::cerr
 //            << "--------- " << d << " decl="
 //            << reinterpret_cast<void *>(decl) << " lower_bound="
@@ -792,12 +806,17 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 //          }
 //        }
 //        std::cerr << "\n\n";
-//      }
+      }
     };
 
     D("a");
-    if (auto ftl = decl->getFunctionTypeLoc()) {
+    if (clang::FunctionTypeLoc ftl = decl->getFunctionTypeLoc()) {
       this->TypeLocVisitor::Visit(ftl);
+
+    } else if (clang::TypeSourceInfo *tsi = decl->getTypeSourceInfo()) {
+      if (auto tl = tsi->getTypeLoc()) {
+        this->TypeLocVisitor::Visit(tl);
+      }
     }
 
     D("b");

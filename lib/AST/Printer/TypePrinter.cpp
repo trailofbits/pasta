@@ -863,9 +863,9 @@ void TypePrinter::printAdjusted(const clang::AdjustedType *T,
     IdentFn();
   };
 
-  // Print the adjusted representation, otherwise the adjustment will be
-  // invisible.
-  printBeforeAfter(T->getAdjustedType(), OS, std::move(IdentFn));
+  // Print the original type, as that is more reflective of what is actually
+  // in the code.
+  printBeforeAfter(T->getOriginalType(), OS, std::move(IdentFn));
 }
 
 //void TypePrinter::printAdjustedBefore(const clang::AdjustedType *T, raw_string_ostream &OS) {

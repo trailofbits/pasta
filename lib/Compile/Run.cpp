@@ -226,7 +226,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
   lang_opts->Char8 = true;
   lang_opts->IEEE128 = true;
   lang_opts->EmitAllDecls = true;
-  lang_opts->Blocks = lang_opts->ObjC;
+//  lang_opts->Blocks = lang_opts->ObjC;
   lang_opts->POSIXThreads = true;
   lang_opts->HeinousExtensions = true;
   lang_opts->DoubleSquareBracketAttributes = true;

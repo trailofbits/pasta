@@ -291,8 +291,6 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     auto can_have_l_brace = decl->isCompleteDefinition();
     auto can_have_semi = !decl->isEmbeddedInDeclarator();
 
-    auto first_tok = &(ast.tokens.front());
-    auto last_tok = &(ast.tokens.back());
     TokenImpl *r_brace = nullptr;
     TokenImpl *prev_tok = nullptr;
     int64_t nesting = 0;
@@ -405,8 +403,6 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   // last token before an unbalanced paren/bracket/brace.
   TokenImpl *FindEndOfFunction(clang::FunctionDecl *decl, TokenImpl *tok) {
 
-    auto first_tok = &(ast.tokens.front());
-    auto last_tok = &(ast.tokens.back());
     TokenImpl *prev_tok = nullptr;
     int64_t nesting = 0;
     for (; first_tok <= tok && tok <= last_tok;
@@ -462,7 +458,6 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
   bool ExpandLeadingKeyword(clang::tok::TokenKind kind,
                             bool allow_string_literal=false) {
-    auto first_tok = &(ast.tokens.front());
     auto i = 0;
     if (!lower_bound) {
       return false;
@@ -502,8 +497,6 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   TokenImpl *FindNext(
       TokenImpl *tok, clang::tok::TokenKind kind, int64_t increment) {
 
-    auto first_tok = &(ast.tokens.front());
-    auto last_tok = &(ast.tokens.back());
     int64_t nesting = 0;
     for (; first_tok <= tok && tok <= last_tok; tok = &(tok[increment])) {
       if (!tok->IsParsed()) {
@@ -788,7 +781,6 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 //            << " next_role=" << int(upper_bound[1].Role())
 //            << '\n';
 //
-//        auto first_tok = &(ast.tokens.front());
 //        for (auto t = &(lower_bound[-1]); first_tok <= t; --t) {
 //          if (t->IsParsed()) {
 //            std::cerr
@@ -919,20 +911,19 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
     // Get the range of the parameter list. We might need to convert these to be
     // sane.
+    //
+    // NOTE(pag): We use `ExpandToLeadingToken` instead of `params_begin[-1]`
+    //            because we might have a macro there, e.g. `__unused` in
+    //
+    //                  __unused const char *msg
+    //
+    //            in `_os_log_verify_format_str` from XNU.
     if (params_begin && params_begin->Kind() != clang::tok::l_paren) {
-      if (params_begin[-1].Kind() == clang::tok::l_paren) {
-        params_begin = &(params_begin[-1]);
-      } else {
-        params_begin = nullptr;
-      }
+      params_begin = FindNext(params_begin, clang::tok::l_paren, -1);
     }
 
     if (params_end && params_end->Kind() != clang::tok::r_paren) {
-      if (params_end[1].Kind() == clang::tok::r_paren) {
-        params_end = &(params_end[1]);
-      } else {
-        params_end = nullptr;
-      }
+      params_end = FindNext(params_end, clang::tok::r_paren, 1);
     }
 
     if (params_begin && !params_end) {
@@ -944,6 +935,16 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     if (params_begin && params_end && params_end < params_begin) {
       params_begin = nullptr;
       params_end = nullptr;
+    }
+
+    // NOTE(pag): In the XNU kernel, we've observed cases where the parameter
+    //            source range is completely crazy, where the closing paren
+    //            for `_os_log_verify_format_str` ends up being the closing
+    //            paren for `panic`.
+    TokenImpl *nearer_params_end = nullptr;
+    std::tie(params_begin, nearer_params_end) = GetMatching(params_begin);
+    if (nearer_params_end < params_end) {
+      params_end = nearer_params_end;
     }
 
     assert(!params_begin == !params_end);
@@ -1512,8 +1513,12 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         last_tok(&(ast.tokens.back())) {}
 
   std::pair<TokenImpl *, TokenImpl *> GetBounds(clang::Decl *decl) {
+
+    // Reset state.
     seen_decls.clear();
+    attr_decl = nullptr;
     lower_bound = upper_bound = ast.RawTokenAt(decl->getLocation());
+
     if (!lower_bound) {
       return {};  // Probably a builtin.
     }
@@ -1744,6 +1749,9 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::PartitionDeclContext(
   for (auto &[tld_decl, tld_begin, tld_end] : tlds) {
     clang::Decl *remapped_decl = tld_decl;
 
+    auto old_tld_begin = tld_begin;
+    auto old_tld_end = tld_end;
+
     if (auto remap_it = remapped_decls.find(tld_decl);
         remap_it != remapped_decls.end()) {
       remapped_decl = remap_it->second;
@@ -1798,6 +1806,9 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::PartitionDeclContext(
     auto tok = RawTokenAt(tld_decl->getLocation());
     assert(tld_begin <= tok && tok <= tld_end);
 #endif
+
+    (void) old_tld_begin;
+    (void) old_tld_end;
   }
 
   // It's possible that we have two-or-more things that appear to be top-level

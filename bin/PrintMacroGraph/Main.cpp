@@ -20,7 +20,7 @@
 #include <string>
 #include <unordered_set>
 
-#define PRINT_DEFINITIONS 0
+#define PRINT_DEFINITIONS 1
 #define PRINT_DERIVED 1
 
 template <typename TokT>

@@ -200,7 +200,7 @@ class Type {
   inline uint32_t RawQualifiers(void) const noexcept {
     return qualifiers;
   }
-  
+
   ::pasta::Type DesugaredType(void) const noexcept;
   ::pasta::Type CanonicalType(void) const noexcept;
 

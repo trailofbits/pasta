@@ -671,6 +671,22 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
       // NOTE(pag): Location may be different.
       tok_loc = tok.getLocation();
 
+      // It's possible that the pre-argument expansion did nothing. In that
+      // case, we don't want the closing parenthesis, recovered from the EOF,
+      // to be injected as a token in the expansion.
+      if (!expansions.empty() && nodes.back() == expansions.back() &&
+          expansions.back()->done_prearg_expansion &&
+          tok.is(clang::tok::r_paren) && expansions.back()->nodes.empty() &&
+          expansions.back()->r_paren &&
+          (ast->tokens[expansions.back()->r_paren->token_offset].Location() ==
+              tok_loc)) {
+
+        D( std::cerr << indent << "(ignoring recovered r_paren; it's the end "
+                                  "of an argument pre-expansion)\n"; )
+        skip = true;
+        tok.setKind(clang::tok::eof);
+      }
+
     } else if (FixupEofEodToken(sm, tok)) {
       D( std::cerr << indent << "(recovering real token "
                    << clang::tok::getTokenName(tok.getKind())

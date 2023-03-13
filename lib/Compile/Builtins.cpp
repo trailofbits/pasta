@@ -46,6 +46,14 @@ PASTA_BYPASS_MEMBER_OBJECT_ACCESS(Builtin, Context, AuxTSRecords, llvm::ArrayRef
 namespace {
 
 static constexpr const char *kNoHeaderName = nullptr;
+static constexpr clang::Builtin::Info kXNUBuiltins[] = {
+  {"__builtin_tmo_type_get_alignment", "zv*", "nU", kNoHeaderName,
+   clang::LanguageID::ALL_LANGUAGES, ""},
+
+  {"__builtin_tmo_type_get_size", "zv*", "nU", kNoHeaderName,
+   clang::LanguageID::ALL_LANGUAGES, ""},
+};
+
 static constexpr clang::Builtin::Info kX86Builtins[] = {
 
 #define TARGET_BUILTIN(id, type, attrs, features) \
@@ -53,6 +61,16 @@ static constexpr clang::Builtin::Info kX86Builtins[] = {
    clang::LanguageID::ALL_LANGUAGES, features},
 
 #include "BuiltinsX86.h"
+};
+
+
+static constexpr clang::Builtin::Info kPPCBuiltins[] = {
+
+#define TARGET_BUILTIN(id, type, attrs, features) \
+  {#id, type, attrs, kNoHeaderName, \
+   clang::LanguageID::ALL_LANGUAGES, features},
+
+#include "BuiltinsPPC.h"
 };
 
 }  // namespace
@@ -65,6 +83,7 @@ void AddCustomBuiltinsToPreprocessor(ASTImpl &ast, clang::Preprocessor &pp) {
   orig_context.initializeBuiltins(pp.getIdentifierTable(), pp.getLangOpts());
 
   const clang::TargetInfo &target = pp.getTargetInfo();
+  const llvm::Triple &triple = target.getTriple();
   clang::IdentifierTable &table = pp.getIdentifierTable();
 
   auto &ts_records =
@@ -85,8 +104,23 @@ void AddCustomBuiltinsToPreprocessor(ASTImpl &ast, clang::Preprocessor &pp) {
 
     // Extend the target-specific records with missing architecture-specific
     // records
-    if (target.getTriple().isX86()) {
+    if (triple.isX86()) {
       for (const clang::Builtin::Info &info : kX86Builtins) {
+        if (table.find(info.Name) == table.end()) {
+          ast.target_specific_records.emplace_back(info);
+        }
+      }
+    } else if (triple.isPPC()) {
+      for (const clang::Builtin::Info &info : kPPCBuiltins) {
+        if (table.find(info.Name) == table.end()) {
+          ast.target_specific_records.emplace_back(info);
+        }
+      }
+    }
+
+    // Add in AppleClang-specific XNU builtins.
+    if (triple.isOSDarwin()) {
+      for (const clang::Builtin::Info &info : kXNUBuiltins) {
         if (table.find(info.Name) == table.end()) {
           ast.target_specific_records.emplace_back(info);
         }

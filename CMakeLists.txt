@@ -300,6 +300,7 @@ add_library(pasta_compiler STATIC
     
     "${HOST_H_FILE}"
     "lib/Compile/Builtins.cpp"
+    "lib/Compile/BuiltinsPPC.h"
     "lib/Compile/BuiltinsX86.h"
     "lib/Compile/Command.h"
     "lib/Compile/Compiler.h"

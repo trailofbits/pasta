@@ -495,10 +495,21 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   // Scans forward or backward, starting at `tok` and tries to identify the
   // next token with kind `kind`.
   TokenImpl *FindNext(
-      TokenImpl *tok, clang::tok::TokenKind kind, int64_t increment) {
+      TokenImpl *tok, clang::tok::TokenKind kind, int64_t increment,
+      int64_t limit=-1) {
+
+    uint64_t real_limit = ~0u;
+    if (0 < limit) {
+      real_limit = static_cast<unsigned>(limit);
+    }
 
     int64_t nesting = 0;
     for (; first_tok <= tok && tok <= last_tok; tok = &(tok[increment])) {
+      if (!real_limit) {
+        return nullptr;
+      }
+      --real_limit;
+
       if (!tok->IsParsed()) {
         continue;
       }
@@ -735,7 +746,33 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
           default:
             break;
         }
-        if (auto kw = FindNext(tok, kw_kind, -1)) {
+
+        // Clang supports the following:
+        //
+        //    _Pragma("clang assume_nonnull begin")
+        //
+        // It can be enabled or disabled with a feature. Keeping it enabled is
+        // desirable from a static analysis perspective, because then we can
+        // observe what pointers shouldn't be null. But it's a big pain from the
+        // perspective of figuring out if we've found the attribute.
+        int64_t find_limit = -1;
+        if (kw_kind == clang::tok::TokenKind::kw__Nonnull &&
+            tok && !scope_tok) {
+
+          // We've observed that the token location at this point for parameters
+          // tends to be the `*` of the pointer, so detect that.
+          if (tok->Kind() == clang::tok::star) {
+            break;
+
+          // For return values, e.g. typedef `pthread_t`, we don't have much to
+          // go on so we invent this fudge factor of `16` as a limit for
+          // finding `_Nonnull`.
+          } else {
+            find_limit = 16;
+          }
+        }
+
+        if (auto kw = FindNext(tok, kw_kind, -1, find_limit)) {
           Expand(kw);
         }
         break;

@@ -809,6 +809,17 @@ SequenceRegion *Matcher::BuildRegions(
     }
   }
 
+  // Flush out empty regions. This seems to happen in the following case from
+  // the XNU kernel:
+  //
+  //        _Atomic(struct thread_group *) *
+  //        kqr_preadopt_thread_group_addr(workq_threadreq_t req);
+  while (1u < region_stack.size()) {
+    if (region_stack.back()->regions.empty()) {
+      region_stack.pop_back();
+    }
+  }
+
   if (region_stack.size() != 1u) {
     err
         << "Region stack for " << list_kind << " tokens has "
@@ -1875,10 +1886,10 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
   matcher.FixContexts(parsed_tree, context_stack);
 
 #if PASTA_DEBUG_ALIGN
-  std::ofstream parsed_os("/tmp/tree.parsed", std::ios_base::app | std::ios_base::out);
+  std::ofstream parsed_os("/tmp/tree.parsed", std::ios_base::trunc | std::ios_base::out);
   parsed_tree->Print(parsed_os, "", *ast, range);
 
-  std::ofstream printed_os("/tmp/tree.printed", std::ios_base::app | std::ios_base::out);
+  std::ofstream printed_os("/tmp/tree.printed", std::ios_base::trunc | std::ios_base::out);
   printed_tree->Print(printed_os, "", range);
 
   parsed_os.flush();

@@ -46,12 +46,47 @@ PASTA_BYPASS_MEMBER_OBJECT_ACCESS(Builtin, Context, AuxTSRecords, llvm::ArrayRef
 namespace {
 
 static constexpr const char *kNoHeaderName = nullptr;
+static constexpr const char *kNoFeatures = nullptr;
+
 static constexpr clang::Builtin::Info kXNUBuiltins[] = {
   {"__builtin_tmo_type_get_alignment", "zv*", "nU", kNoHeaderName,
-   clang::LanguageID::ALL_LANGUAGES, ""},
+   clang::LanguageID::ALL_LANGUAGES, kNoFeatures},
 
   {"__builtin_tmo_type_get_size", "zv*", "nU", kNoHeaderName,
-   clang::LanguageID::ALL_LANGUAGES, ""},
+   clang::LanguageID::ALL_LANGUAGES, kNoFeatures},
+
+  {"__builtin_ptrauth_strip", "v*v*i", "tnc", kNoHeaderName,
+   clang::LanguageID::ALL_LANGUAGES, kNoFeatures},
+
+  {"__builtin_ptrauth_blend_discriminator", "zv*i", "tnc", kNoHeaderName,
+   clang::LanguageID::ALL_LANGUAGES, kNoFeatures},
+
+  {"__builtin_ptrauth_sign_constant", "v*v*iv*", "tnc", kNoHeaderName,
+   clang::LanguageID::ALL_LANGUAGES, kNoFeatures},
+
+  {"__builtin_ptrauth_sign_unauthenticated", "v*v*iv*", "tnc", kNoHeaderName,
+   clang::LanguageID::ALL_LANGUAGES, kNoFeatures},
+
+  {"__builtin_ptrauth_sign_generic_data", "zv*v*", "tnc", kNoHeaderName,
+   clang::LanguageID::ALL_LANGUAGES, kNoFeatures},
+
+  {"__builtin_ptrauth_auth_and_resign", "v*v*iv*iv*", "tn", kNoHeaderName,
+   clang::LanguageID::ALL_LANGUAGES, kNoFeatures},
+
+  {"__builtin_ptrauth_auth", "v*v*iv*", "tn", kNoHeaderName,
+   clang::LanguageID::ALL_LANGUAGES, kNoFeatures},
+
+  {"__builtin_ptrauth_string_discriminator", "zcC*", "nc", kNoHeaderName,
+   clang::LanguageID::ALL_LANGUAGES, kNoFeatures},
+
+  {"__builtin_virtual_member_address", "v*v*v*", "tnc", kNoHeaderName,
+   clang::LanguageID::ALL_LANGUAGES, kNoFeatures},
+
+  {"__builtin_load_member_function_pointer", "v*v*v*", "tnc", kNoHeaderName,
+   clang::LanguageID::ALL_LANGUAGES, kNoFeatures},
+
+  {"__builtin_coro_param", "bv*v*", "n", kNoHeaderName,
+   clang::LanguageID::OCL_PIPE, kNoFeatures},
 };
 
 static constexpr clang::Builtin::Info kX86Builtins[] = {

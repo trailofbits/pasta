@@ -208,6 +208,8 @@ class ConditionalMacroDirective : public MacroDirective {
   using MacroDirective::MacroDirective;
 
  public:
+  static std::optional<ConditionalMacroDirective> From(
+      const Macro &node) noexcept;
   // TODO(pag):
   //    1) Add `std::optional<bool>` for condition evaluation.
   //    2) Add Previous and Next conditions at the same level.

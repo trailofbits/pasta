@@ -696,6 +696,25 @@ IncludeLikeMacroDirective::From(const Macro &node) {
   }
 }
 
+std::optional<ConditionalMacroDirective> ConditionalMacroDirective::From(
+    const Macro &node) noexcept {
+  switch (node.Kind()) {
+    default: return std::nullopt;
+#define PASTA_IGNORE(...)
+#define PASTA_CMD_CAST(kind) case MacroKind::k ## kind ## Directive:
+  PASTA_FOR_EACH_MACRO_IMPL(PASTA_IGNORE,
+                            PASTA_IGNORE,
+                            PASTA_IGNORE,
+                            PASTA_CMD_CAST,
+                            PASTA_IGNORE,
+                            PASTA_IGNORE,
+                            PASTA_IGNORE)
+#undef PASTA_CMD_CAST
+#undef PASTA_IGNORE
+    return reinterpret_cast<const ConditionalMacroDirective &>(node);
+  }
+}
+
 std::optional<File> IncludeLikeMacroDirective::IncludedFile(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);

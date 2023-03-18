@@ -148,7 +148,7 @@ jobs:
 
       run: |
         cmake -G "Ninja" \
-          -DCMAKE_TOOLCHAIN_FILE=${{ steps.cxx_common_installer.outputs.PATH }}/scripts/buildsystems/vcpkg.cmake" \
+          -DCMAKE_TOOLCHAIN_FILE="${{ steps.cxx_common_installer.outputs.PATH }}/scripts/buildsystems/vcpkg.cmake" \
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
           -DCMAKE_C_COMPILER="$(which clang-15)" \
           -DCMAKE_CXX_COMPILER="$(which clang++-15)" \

@@ -149,6 +149,7 @@ jobs:
       run: |
         cmake -G "Ninja" \
           -DCMAKE_TOOLCHAIN_FILE="${{ steps.cxx_common_installer.outputs.PATH }}/scripts/buildsystems/vcpkg.cmake" \
+          -DVCPKG_ROOT="${{ steps.cxx_common_installer.outputs.PATH }}" \
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
           -DCMAKE_C_COMPILER="$(which clang-15)" \
           -DCMAKE_CXX_COMPILER="$(which clang++-15)" \
@@ -156,6 +157,8 @@ jobs:
           -DPASTA_BOOTSTRAP_TYPES=OFF \
           -DPASTA_ENABLE_TESTING=OFF \
           -DPASTA_ENABLE_INSTALL=ON \
+          -DLLVM_DIR="${{ steps.cxx_common_installer.outputs.PATH }}/installed/x64-linux-rel/share/llvm" \
+          -DClang_DIR="${{ steps.cxx_common_installer.outputs.PATH }}/installed/x64-linux-rel/share/clang" \
           "${{ steps.build_paths.outputs.SOURCE }}"
 
     - name: Build the project

@@ -29,11 +29,11 @@ jobs:
           'Debug'
           ]
         image:
-          - { name: 'ubuntu', tag: '20.04' }
+          - { name: 'ubuntu', tag: '22.04' }
         cxx_common_version: [v0.2.24]
         llvm_version: [15]
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     container:
       # Image is built with https://github.com/lifting-bits/cxx-common/blob/master/docker/Dockerfile.ubuntu.vcpkg
       # Look at that file for the full set of dependencies that may be required for building
@@ -63,7 +63,8 @@ jobs:
                        curl \
                        ccache \
                        python3-dev \
-                       libncurses-dev
+                       libncurses-dev \
+                       clang-15
 
     - name: Setup the build paths
       shell: bash
@@ -146,12 +147,15 @@ jobs:
         CCACHE_DIR: ${{ steps.build_paths.outputs.CCACHE }}
 
       run: |
-        cxx_common_bin_path="${{ steps.cxx_common_installer.outputs.PATH }}/installed/x64-linux-rel/bin"
-
         cmake -G "Ninja" \
-          -DVCPKG_ROOT=${{ steps.cxx_common_installer.outputs.PATH }} \
+          -DCMAKE_TOOLCHAIN_FILE=${{ steps.cxx_common_installer.outputs.PATH }}/scripts/buildsystems/vcpkg.cmake" \
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+          -DCMAKE_C_COMPILER="$(which clang-15)" \
+          -DCMAKE_CXX_COMPILER="$(which clang++-15)" \
+          -DPASTA_BOOTSTRAP_MACROS=OFF \
+          -DPASTA_BOOTSTRAP_TYPES=OFF \
           -DPASTA_ENABLE_TESTING=OFF \
+          -DPASTA_ENABLE_INSTALL=ON \
           "${{ steps.build_paths.outputs.SOURCE }}"
 
     - name: Build the project

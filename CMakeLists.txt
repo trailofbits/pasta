@@ -73,6 +73,7 @@ target_link_libraries(pasta_cxx_settings INTERFACE std::filesystem)
 find_package(Z3 CONFIG REQUIRED)
 find_package(LLVM CONFIG REQUIRED)
 find_package(Clang CONFIG REQUIRED)
+find_package(zstd CONFIG REQUIRED)
 add_library(pasta_thirdparty_llvm INTERFACE)
 
 if(PASTA_ENABLE_TESTING)

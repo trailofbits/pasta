@@ -119,7 +119,7 @@ jobs:
       id: cxx_common_installer
       working-directory: ${{ steps.build_paths.outputs.DOWNLOADS }}
       run: |
-        folder_name="vcpkg_${{ matrix.image.name }}-${{ matrix.image.tag }}_llvm-${{ matrix.llvm_version }}_amd64"
+        folder_name="vcpkg_${{ matrix.image.name }}-${{ matrix.image.tag }}_llvm-${{ matrix.llvm_version }}-pasta_amd64"
         file_name="${folder_name}.tar.xz"
         url="https://github.com/lifting-bits/cxx-common/releases/download/${{ matrix.cxx_common_version }}/${file_name}"
 

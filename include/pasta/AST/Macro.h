@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <compare>
 #include <memory>
 #include <optional>
 #include <string_view>
@@ -108,10 +109,12 @@ class Macro {
 
   const void *RawMacro(void) const noexcept;
 
-  inline auto operator<=>(const Macro &that) const noexcept
-      -> decltype(RawMacro() <=> RawMacro()) {
+  inline std::strong_ordering operator<=>(const Macro &that) const noexcept {
     return RawMacro() <=> that.RawMacro();
   }
+
+  bool operator==(const Macro &) const noexcept = default;
+  bool operator!=(const Macro &) const noexcept = default;
 
   // Return the macro node containing this node.
   std::optional<Macro> Parent(void) const noexcept;

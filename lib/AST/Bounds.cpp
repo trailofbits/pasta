@@ -876,6 +876,8 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       changed = ExpandLeadingKeyword(clang::tok::kw___forceinline) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw___kernel) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw___noinline__) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___private_extern__, true) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___module_private__, true) || changed;
     }
     D("c");
 

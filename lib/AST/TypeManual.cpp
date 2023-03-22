@@ -8,6 +8,7 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#pragma clang diagnostic ignored "-Wbitfield-enum-conversion"
 #include <clang/AST/Type.h>
 #include <clang/Frontend/CompilerInstance.h>
 #pragma clang diagnostic pop

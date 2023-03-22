@@ -53,6 +53,7 @@ void GenerateForwardH(void) {
       << "#pragma once\n\n"
       << "#include <cstdint>\n"
       << "#pragma GCC diagnostic push\n"
+      << "#pragma GCC diagnostic ignored \"-Wimplicit-int-conversion\"\n"
       << "#pragma GCC diagnostic ignored \"-Wsign-conversion\"\n"
       << "#pragma GCC diagnostic ignored \"-Wshorten-64-to-32\"\n"
       << "#include <llvm/ADT/APSInt.h>\n"

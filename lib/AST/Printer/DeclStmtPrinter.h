@@ -12,6 +12,7 @@
 //===----------------------------------------------------------------------===//
 
 #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-anon-enum-enum-conversion"
 #pragma GCC diagnostic ignored "-Wbitfield-enum-conversion"
 #pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"

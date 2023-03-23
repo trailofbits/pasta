@@ -3586,7 +3586,13 @@ std::optional<::pasta::CXXRecordDecl> Expr::BestDynamicClassType(void) const noe
   __builtin_unreachable();
 }
 
-// 0: Expr::Dependence
+::pasta::ExprDependence Expr::Dependence(void) const noexcept {
+  auto &self = *const_cast<clang::Expr *>(u.Expr);
+  decltype(auto) val = self.getDependence();
+  return static_cast<::pasta::ExprDependence>(val);
+  __builtin_unreachable();
+}
+
 ::pasta::Token Expr::ExpressionToken(void) const noexcept {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.getExprLoc();
@@ -4096,7 +4102,13 @@ std::vector<::pasta::Stmt> FloatingLiteral::Children(void) const noexcept {
 // 0: FloatingLiteral::RawSemantics
 // 0: FloatingLiteral::Semantics
 // 0: FloatingLiteral::Value
-// 0: FloatingLiteral::ValueAsApproximateDouble
+double FloatingLiteral::ValueAsApproximateDouble(void) const noexcept {
+  auto &self = *const_cast<clang::FloatingLiteral *>(u.FloatingLiteral);
+  decltype(auto) val = self.getValueAsApproximateDouble();
+  return val;
+  __builtin_unreachable();
+}
+
 bool FloatingLiteral::IsExact(void) const noexcept {
   auto &self = *const_cast<clang::FloatingLiteral *>(u.FloatingLiteral);
   decltype(auto) val = self.isExact();
@@ -4945,7 +4957,17 @@ std::optional<::pasta::Stmt> IfStmt::Initializer(void) const noexcept {
   __builtin_unreachable();
 }
 
-// 1: IfStmt::NondiscardedCase
+std::optional<::pasta::Stmt> IfStmt::NondiscardedCase(void) const noexcept {
+  auto &self = *(u.IfStmt);
+  decltype(auto) val = self.getNondiscardedCase(ast->ci->getASTContext());
+  if (val.has_value()) {
+    return StmtBuilder::Create<::pasta::Stmt>(ast, val.value());
+  } else {
+    return std::nullopt;
+  }
+  __builtin_unreachable();
+}
+
 ::pasta::Token IfStmt::RParenToken(void) const noexcept {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.getRParenLoc();
@@ -10187,7 +10209,17 @@ std::vector<::pasta::Stmt> PackExpansionExpr::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-// 0: PackExpansionExpr::NumExpansions
+std::optional<unsigned> PackExpansionExpr::NumExpansions(void) const noexcept {
+  auto &self = *const_cast<clang::PackExpansionExpr *>(u.PackExpansionExpr);
+  decltype(auto) val = self.getNumExpansions();
+  if (val.has_value()) {
+    return val.value();
+  } else {
+    return std::nullopt;
+  }
+  __builtin_unreachable();
+}
+
 ::pasta::Expr PackExpansionExpr::Pattern(void) const noexcept {
   auto &self = *const_cast<clang::PackExpansionExpr *>(u.PackExpansionExpr);
   decltype(auto) val = self.getPattern();
@@ -11508,7 +11540,17 @@ uint32_t SubstNonTypeTemplateParmExpr::Index(void) const noexcept {
   __builtin_unreachable();
 }
 
-// 0: SubstNonTypeTemplateParmExpr::PackIndex
+std::optional<unsigned> SubstNonTypeTemplateParmExpr::PackIndex(void) const noexcept {
+  auto &self = *const_cast<clang::SubstNonTypeTemplateParmExpr *>(u.SubstNonTypeTemplateParmExpr);
+  decltype(auto) val = self.getPackIndex();
+  if (val.has_value()) {
+    return val.value();
+  } else {
+    return std::nullopt;
+  }
+  __builtin_unreachable();
+}
+
 ::pasta::NonTypeTemplateParmDecl SubstNonTypeTemplateParmExpr::Parameter(void) const noexcept {
   auto &self = *const_cast<clang::SubstNonTypeTemplateParmExpr *>(u.SubstNonTypeTemplateParmExpr);
   decltype(auto) val = self.getParameter();
@@ -13913,7 +13955,17 @@ std::vector<::pasta::Stmt> CXXFoldExpr::Children(void) const noexcept {
   __builtin_unreachable();
 }
 
-// 0: CXXFoldExpr::NumExpansions
+std::optional<unsigned> CXXFoldExpr::NumExpansions(void) const noexcept {
+  auto &self = *const_cast<clang::CXXFoldExpr *>(u.CXXFoldExpr);
+  decltype(auto) val = self.getNumExpansions();
+  if (val.has_value()) {
+    return val.value();
+  } else {
+    return std::nullopt;
+  }
+  __builtin_unreachable();
+}
+
 enum BinaryOperatorKind CXXFoldExpr::Operator(void) const noexcept {
   auto &self = *const_cast<clang::CXXFoldExpr *>(u.CXXFoldExpr);
   decltype(auto) val = self.getOperator();
@@ -14071,7 +14123,17 @@ bool CXXNewExpr::DoesUsualArrayDeleteWantSize(void) const noexcept {
   __builtin_unreachable();
 }
 
-// 0: CXXNewExpr::ArraySize
+std::optional<::pasta::Expr> CXXNewExpr::ArraySize(void) const noexcept {
+  auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
+  decltype(auto) val = self.getArraySize();
+  if (val.has_value()) {
+    return StmtBuilder::Create<::pasta::Expr>(ast, val.value());
+  } else {
+    return std::nullopt;
+  }
+  __builtin_unreachable();
+}
+
 ::pasta::Token CXXNewExpr::BeginToken(void) const noexcept {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getBeginLoc();

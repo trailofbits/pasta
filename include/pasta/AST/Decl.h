@@ -347,7 +347,6 @@ class Decl {
   // ASTContext: (clang::ASTContext &)
   enum AccessSpecifier Access(void) const noexcept;
   std::optional<::pasta::FunctionDecl> AsFunction(void) const noexcept;
-  // Attributes: (const llvm::SmallVector<clang::Attr *, 4> &)
   enum AvailabilityResult Availability(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Decl CanonicalDeclaration(void) const noexcept;

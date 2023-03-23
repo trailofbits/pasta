@@ -307,7 +307,7 @@ class Type {
   enum Linkage Linkage(void) const noexcept;
   // LinkageAndVisibility: (clang::LinkageInfo)
   ::pasta::Type LocallyUnqualifiedSingleStepDesugaredType(void) const noexcept;
-  // Nullability: (std::optional<clang::NullabilityKind>)
+  std::optional<::pasta::NullabilityKind> Nullability(void) const noexcept;
   // ObjCARCImplicitLifetime: (clang::Qualifiers::ObjCLifetime)
   // ObjCSubstitutions: (std::optional<llvm::ArrayRef<clang::QualType>>)
   std::optional<::pasta::CXXRecordDecl> PointeeCXXRecordDeclaration(void) const noexcept;
@@ -707,7 +707,7 @@ class AttributedType : public Type {
   ::pasta::Type Desugar(void) const noexcept;
   enum ::pasta::AttrKind AttributeKind(void) const noexcept;
   ::pasta::Type EquivalentType(void) const noexcept;
-  // ImmediateNullability: (std::optional<clang::NullabilityKind>)
+  std::optional<::pasta::NullabilityKind> ImmediateNullability(void) const noexcept;
   ::pasta::Type ModifiedType(void) const noexcept;
   bool IsCallingConv(void) const noexcept;
   bool IsMSTypeSpec(void) const noexcept;
@@ -1212,7 +1212,7 @@ class PackExpansionType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PackExpansionType)
   PASTA_DECLARE_BASE_OPERATORS(Type, PackExpansionType)
   ::pasta::Type Desugar(void) const noexcept;
-  // NumExpansions: (std::optional<unsigned int>)
+  std::optional<unsigned> NumExpansions(void) const noexcept;
   ::pasta::Type Pattern(void) const noexcept;
   bool IsSugared(void) const noexcept;
  protected:
@@ -1393,7 +1393,7 @@ class SubstTemplateTypeParmType : public Type {
   ::pasta::Type Desugar(void) const noexcept;
   ::pasta::Decl AssociatedDeclaration(void) const noexcept;
   uint32_t Index(void) const noexcept;
-  // PackIndex: (std::optional<unsigned int>)
+  std::optional<unsigned> PackIndex(void) const noexcept;
   ::pasta::TemplateTypeParmDecl ReplacedParameter(void) const noexcept;
   ::pasta::Type ReplacementType(void) const noexcept;
   bool IsSugared(void) const noexcept;

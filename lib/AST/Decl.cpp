@@ -1055,7 +1055,6 @@ std::optional<::pasta::FunctionDecl> Decl::AsFunction(void) const noexcept {
   __builtin_unreachable();
 }
 
-// 0: Decl::Attributes
 enum AvailabilityResult Decl::Availability(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.getAvailability();

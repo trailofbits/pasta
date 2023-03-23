@@ -1523,7 +1523,7 @@ class Expr : public ValueStmt {
   std::optional<::pasta::ValueDecl> AsBuiltinConstantDeclarationReference(void) const noexcept;
   std::optional<::pasta::CXXRecordDecl> BestDynamicClassType(void) const noexcept;
   ::pasta::Expr BestDynamicClassTypeExpression(void) const noexcept;
-  // Dependence: (clang::ExprDependenceScope::ExprDependence)
+  ::pasta::ExprDependence Dependence(void) const noexcept;
   ::pasta::Token ExpressionToken(void) const noexcept;
   // FPFeaturesInEffect: (clang::FPOptions)
   // IntegerConstantExpression: (std::optional<llvm::APSInt>)
@@ -1649,7 +1649,7 @@ class FloatingLiteral : public Expr {
   // RawSemantics: (llvm::APFloatBase::Semantics)
   // Semantics: (const llvm::fltSemantics &)
   // Value: (llvm::APFloat)
-  // ValueAsApproximateDouble: (double)
+  double ValueAsApproximateDouble(void) const noexcept;
   bool IsExact(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(FloatingLiteral)
@@ -1852,7 +1852,7 @@ class IfStmt : public Stmt {
   ::pasta::Token IfToken(void) const noexcept;
   std::optional<::pasta::Stmt> Initializer(void) const noexcept;
   ::pasta::Token LParenToken(void) const noexcept;
-  // NondiscardedCase: (std::optional<const clang::Stmt *>)
+  std::optional<::pasta::Stmt> NondiscardedCase(void) const noexcept;
   ::pasta::Token RParenToken(void) const noexcept;
   enum IfStatementKind StatementKind(void) const noexcept;
   ::pasta::Stmt Then(void) const noexcept;
@@ -4047,7 +4047,7 @@ class PackExpansionExpr : public Expr {
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EllipsisToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  // NumExpansions: (std::optional<unsigned int>)
+  std::optional<unsigned> NumExpansions(void) const noexcept;
   ::pasta::Expr Pattern(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(PackExpansionExpr)
@@ -4428,7 +4428,7 @@ class SubstNonTypeTemplateParmExpr : public Expr {
   ::pasta::Token EndToken(void) const noexcept;
   uint32_t Index(void) const noexcept;
   ::pasta::Token NameToken(void) const noexcept;
-  // PackIndex: (std::optional<unsigned int>)
+  std::optional<unsigned> PackIndex(void) const noexcept;
   ::pasta::NonTypeTemplateParmDecl Parameter(void) const noexcept;
   ::pasta::Type ParameterType(void) const noexcept;
   ::pasta::Expr Replacement(void) const noexcept;
@@ -5088,7 +5088,7 @@ class CXXFoldExpr : public Expr {
   ::pasta::Expr Initializer(void) const noexcept;
   ::pasta::Expr LHS(void) const noexcept;
   ::pasta::Token LParenToken(void) const noexcept;
-  // NumExpansions: (std::optional<unsigned int>)
+  std::optional<unsigned> NumExpansions(void) const noexcept;
   enum BinaryOperatorKind Operator(void) const noexcept;
   ::pasta::Expr Pattern(void) const noexcept;
   ::pasta::Expr RHS(void) const noexcept;
@@ -5134,7 +5134,7 @@ class CXXNewExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   bool DoesUsualArrayDeleteWantSize(void) const noexcept;
   ::pasta::Type AllocatedType(void) const noexcept;
-  // ArraySize: (std::optional<const clang::Expr *>)
+  std::optional<::pasta::Expr> ArraySize(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   std::optional<::pasta::CXXConstructExpr> ConstructExpression(void) const noexcept;
   ::pasta::TokenRange DirectInitializerRange(void) const noexcept;

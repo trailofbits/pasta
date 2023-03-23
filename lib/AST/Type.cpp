@@ -629,7 +629,17 @@ enum Linkage Type::Linkage(void) const noexcept {
   __builtin_unreachable();
 }
 
-// 0: Type::Nullability
+std::optional<::pasta::NullabilityKind> Type::Nullability(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
+  decltype(auto) val = self.getNullability();
+  if (val.has_value()) {
+    return static_cast<::pasta::NullabilityKind>(val.value());
+  } else {
+    return std::nullopt;
+  }
+  __builtin_unreachable();
+}
+
 // 0: Type::ObjCARCImplicitLifetime
 // 1: Type::ObjCSubstitutions
 std::optional<::pasta::CXXRecordDecl> Type::PointeeCXXRecordDeclaration(void) const noexcept {
@@ -2530,7 +2540,17 @@ enum ::pasta::AttrKind AttributedType::AttributeKind(void) const noexcept {
   __builtin_unreachable();
 }
 
-// 0: AttributedType::ImmediateNullability
+std::optional<::pasta::NullabilityKind> AttributedType::ImmediateNullability(void) const noexcept {
+  auto &self = *const_cast<clang::AttributedType *>(u.AttributedType);
+  decltype(auto) val = self.getImmediateNullability();
+  if (val.has_value()) {
+    return static_cast<::pasta::NullabilityKind>(val.value());
+  } else {
+    return std::nullopt;
+  }
+  __builtin_unreachable();
+}
+
 ::pasta::Type AttributedType::ModifiedType(void) const noexcept {
   auto &self = *const_cast<clang::AttributedType *>(u.AttributedType);
   decltype(auto) val = self.getModifiedType();
@@ -3867,7 +3887,17 @@ PASTA_DEFINE_BASE_OPERATORS(Type, PackExpansionType)
   __builtin_unreachable();
 }
 
-// 0: PackExpansionType::NumExpansions
+std::optional<unsigned> PackExpansionType::NumExpansions(void) const noexcept {
+  auto &self = *const_cast<clang::PackExpansionType *>(u.PackExpansionType);
+  decltype(auto) val = self.getNumExpansions();
+  if (val.has_value()) {
+    return val.value();
+  } else {
+    return std::nullopt;
+  }
+  __builtin_unreachable();
+}
+
 ::pasta::Type PackExpansionType::Pattern(void) const noexcept {
   auto &self = *const_cast<clang::PackExpansionType *>(u.PackExpansionType);
   decltype(auto) val = self.getPattern();
@@ -4570,7 +4600,17 @@ uint32_t SubstTemplateTypeParmType::Index(void) const noexcept {
   __builtin_unreachable();
 }
 
-// 0: SubstTemplateTypeParmType::PackIndex
+std::optional<unsigned> SubstTemplateTypeParmType::PackIndex(void) const noexcept {
+  auto &self = *const_cast<clang::SubstTemplateTypeParmType *>(u.SubstTemplateTypeParmType);
+  decltype(auto) val = self.getPackIndex();
+  if (val.has_value()) {
+    return val.value();
+  } else {
+    return std::nullopt;
+  }
+  __builtin_unreachable();
+}
+
 ::pasta::TemplateTypeParmDecl SubstTemplateTypeParmType::ReplacedParameter(void) const noexcept {
   auto &self = *const_cast<clang::SubstTemplateTypeParmType *>(u.SubstTemplateTypeParmType);
   decltype(auto) val = self.getReplacedParameter();

@@ -168,7 +168,11 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
   {"(unsigned long)", "uint64_t"},
   {"(long long)", "int64_t"},
   {"(unsigned long long)", "uint64_t"},
+  {"(float)", "float"},
+  {"(double)", "double"},
+  {"(clang::ExprDependenceScope::ExprDependence)", "::pasta::ExprDependence"},
   {"(const clang::DeclContext *)", "::pasta::DeclContext"},
+  {"(const clang::StringLiteral *)", "::pasta::StringLiteral"},
 //  {"(clang::Decl::FriendObjectKind)", "::pasta::FriendObjectKind"},
 //  {"(clang::Decl::ModuleOwnershipKind)", "::pasta::ModuleOwnershipKind"},
 //  {"(clang::CallExpr::ADLCallKind)", "::pasta::ADLCallKind"},
@@ -196,9 +200,18 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
   {"(llvm::Optional<const clang::Expr *>)", "std::optional<::pasta::Expr>"},
   {"(llvm::Optional<unsigned int>)", "std::optional<unsigned>"},
   {"(llvm::Optional<clang::NullabilityKind>)", "std::optional<::pasta::NullabilityKind>"},
+  {"(llvm::Optional<llvm::ArrayRef<clang::QualType>>)", "std::optional<std::vector<::pasta::Type>>"},
+  {"(std::optional<const clang::Stmt *>)", "std::optional<::pasta::Stmt>"},
+  {"(std::optional<const clang::Expr *>)", "std::optional<::pasta::Expr>"},
+  {"(std::optional<unsigned int>)", "std::optional<unsigned>"},
+  {"(std::optional<clang::NullabilityKind>)", "std::optional<::pasta::NullabilityKind>"},
+  {"(std::optional<llvm::ArrayRef<clang::QualType>>)", "std::optional<std::vector<::pasta::Type>>"},
+  {"(std::optional<clang::Visibility>)", "std::optional<::pasta::Visibility>"},
 
   {"(llvm::ArrayRef<clang::QualType>)", "std::vector<::pasta::Type>"},
-  {"(llvm::Optional<llvm::ArrayRef<clang::QualType>>)", "std::optional<std::vector<::pasta::Type>>"},
+
+  // TODO(pag): Better C++ support.
+  // {"(llvm::iterator_range<clang::CXXCtorInitializer *const *>)", "std::vector<pasta::CXXCtorInitializer>"},
 
   {"(llvm::iterator_range<clang::DeclContext::decl_iterator>)", "std::vector<::pasta::Decl>"},
   {"(llvm::iterator_range<clang::Decl::redecl_iterator>)", "std::vector<::pasta::Decl>"},
@@ -267,6 +280,9 @@ std::unordered_map<std::string, std::string> gRetTypeMap{
 
   {"(llvm::iterator_range<const clang::SourceLocation *>)",
    "std::vector<::pasta::Token>"},
+
+  {"(const llvm::SmallVector<clang::Attr *, 4> &)",
+   "std::vector<::pasta::Attr>"},
 
 #define DECL_VARIANT(a, b) \
     {"(llvm::PointerUnion<clang::" #a " *, clang::" #b " *>)", \
@@ -397,8 +413,17 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
   {"(unsigned long long)",
    "  return val;\n"},
 
-  {"(bool)",
+  {"(float)",
    "  return val;\n"},
+
+  {"(double)",
+   "  return val;\n"},
+
+  {"(clang::ExprDependenceScope::ExprDependence)",
+   "  return static_cast<::pasta::ExprDependence>(val);\n"},
+
+  {"(const clang::StringLiteral *)",
+   "  return StmtBuilder::Create<::pasta::StringLiteral>(ast, val.getValue());\n"},
 
   {"(const clang::DeclContext *)",
    "  if (val) {\n"
@@ -492,19 +517,64 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
    "    return std::nullopt;\n"
    "  }\n"},
 
-  {"(llvm::ArrayRef<clang::QualType>)",
-    "  std::vector<::pasta::Type> ret;\n"
-    "  for (auto qual_type : val) {\n"
-    "    ret.emplace_back(TypeBuilder::Create<::pasta::Type>(ast, qual_type));\n"
-    "  }\n" \
-    "  return ret;\n"},
-
   {"(llvm::Optional<llvm::ArrayRef<clang::QualType>>)",
    "  if (!val.hasValue()) {\n"
    "    return std::nullopt;\n"
    "  }\n"
    "  std::vector<::pasta::Type> ret;\n"
    "  for (auto qual_type : val.getValue()) {\n"
+   "    ret.emplace_back(TypeBuilder::Create<::pasta::Type>(ast, qual_type));\n"
+   "  }\n" \
+   "  return ret;\n"},
+
+  {"(std::optional<const clang::Stmt *>)",
+   "  if (val.has_value()) {\n"
+   "    return StmtBuilder::Create<::pasta::Stmt>(ast, val.value());\n"
+   "  } else {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+
+  {"(std::optional<const clang::Expr *>)",
+   "  if (val.has_value()) {\n"
+   "    return StmtBuilder::Create<::pasta::Expr>(ast, val.value());\n"
+   "  } else {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+
+  {"(std::optional<unsigned int>)",
+   "  if (val.has_value()) {\n"
+   "    return val.value();\n"
+   "  } else {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+
+  {"(std::optional<clang::NullabilityKind>)",
+   "  if (val.has_value()) {\n"
+   "    return static_cast<::pasta::NullabilityKind>(val.value());\n"
+   "  } else {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+
+  {"(std::optional<llvm::ArrayRef<clang::QualType>>)",
+   "  if (!val.has_value()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"
+   "  std::vector<::pasta::Type> ret;\n"
+   "  for (auto qual_type : val.value()) {\n"
+   "    ret.emplace_back(TypeBuilder::Create<::pasta::Type>(ast, qual_type));\n"
+   "  }\n" \
+   "  return ret;\n"},
+
+  {"(std::optional<clang::Visibility>)",
+   "  if (!val) {\n"
+   "    return std::nullopt;\n"
+   "  } else {\n"
+   "    return static_cast<::pasta::Visibility>(val.value());\n"
+   "  }\n"},
+
+  {"(llvm::ArrayRef<clang::QualType>)",
+   "  std::vector<::pasta::Type> ret;\n"
+   "  for (auto qual_type : val) {\n"
    "    ret.emplace_back(TypeBuilder::Create<::pasta::Type>(ast, qual_type));\n"
    "  }\n" \
    "  return ret;\n"},
@@ -731,47 +801,57 @@ std::unordered_map<std::string, std::string> gRetTypeToValMap{
   {"(const clang::TypeSourceInfo *)",
    "  return TypeBuilder::Build(ast, val->getType());\n"},
 
-   {"(llvm::ArrayRef<clang::TemplateArgument>)",
-    "  std::vector<::pasta::TemplateArgument> ret;\n"
-    "  for (const auto &arg : val) {\n"
-    "    ret.emplace_back(ast, arg);\n"
-    "  }\n"
-    "  return ret;\n"},
+  {"(llvm::ArrayRef<clang::TemplateArgument>)",
+   "  std::vector<::pasta::TemplateArgument> ret;\n"
+   "  for (const auto &arg : val) {\n"
+   "    ret.emplace_back(ast, arg);\n"
+   "  }\n"
+   "  return ret;\n"},
 
-   {"(const clang::TemplateArgumentList &)",
-    "  std::vector<::pasta::TemplateArgument> ret;\n"
-    "  for (auto i = 0u, max_i = val.size(); i < max_i; ++i) {\n"
-    "    const auto &arg = val[i];\n"
-    "    ret.emplace_back(ast, arg);\n"
-    "  }\n"
-    "  return ret;\n"},
+  {"(const clang::TemplateArgumentList &)",
+   "  std::vector<::pasta::TemplateArgument> ret;\n"
+   "  for (auto i = 0u, max_i = val.size(); i < max_i; ++i) {\n"
+   "    const auto &arg = val[i];\n"
+   "    ret.emplace_back(ast, arg);\n"
+   "  }\n"
+   "  return ret;\n"},
 
-    {"(const clang::DesignatedInitExpr::Designator *)",
-        "  if (val) {\n"
-        "    return DeclBuilder::Create<::pasta::Designator>(ast, val);\n"
-        "  }\n"},
+  {"(const clang::DesignatedInitExpr::Designator *)",
+   "  if (val) {\n"
+   "    return DeclBuilder::Create<::pasta::Designator>(ast, val);\n"
+   "  }\n"},
 
-    {"(llvm::ArrayRef<const clang::Attr *>)",
-        "  std::vector<::pasta::Attr> ret;\n"
-        "  for (auto attr_ptr : val) {\n"
-        "    if (attr_ptr) {\n"
-        "      ret.emplace_back(AttrBuilder::Create<::pasta::Attr>(ast, attr_ptr));\n"
-        "    }\n"
-        "  }\n"
-        "  return ret;\n"},
+  {"(llvm::ArrayRef<const clang::Attr *>)",
+   "  std::vector<::pasta::Attr> ret;\n"
+   "  for (auto attr_ptr : val) {\n"
+   "    if (attr_ptr) {\n"
+   "      ret.emplace_back(AttrBuilder::Create<::pasta::Attr>(ast, attr_ptr));\n"
+   "    }\n"
+   "  }\n"
+   "  return ret;\n"},
 
-    {"(llvm::iterator_range<clang::Attr *const *>)",
-        "  std::vector<::pasta::Attr> ret;\n"
-        "  for (auto attr_ptr : val) {\n"
-        "    if (attr_ptr) {\n"
-        "      ret.emplace_back(AttrBuilder::Create<::pasta::Attr>(ast, attr_ptr));\n"
-        "    }\n"
-        "  }\n"
-        "  return ret;\n"},
-    {"(const clang::Attr *)",
-         "  if (val) {\n"
-         "    return ::pasta::Attr(ast, val);\n"
-         "  }\n"},
+  {"(llvm::iterator_range<clang::Attr *const *>)",
+   "  std::vector<::pasta::Attr> ret;\n"
+   "  for (auto attr_ptr : val) {\n"
+   "    if (attr_ptr) {\n"
+   "      ret.emplace_back(AttrBuilder::Create<::pasta::Attr>(ast, attr_ptr));\n"
+   "    }\n"
+   "  }\n"
+   "  return ret;\n"},
+
+  {"(const clang::Attr *)",
+   "  if (val) {\n"
+   "    return ::pasta::Attr(ast, val);\n"
+   "  }\n"},
+
+  {"(const llvm::SmallVector<clang::Attr *, 4> &)",
+   "  std::vector<::pasta::Attr> ret;\n"
+   "  for (auto attr_ptr : val) {\n"
+   "    if (attr_ptr) {\n"
+   "      ret.emplace_back(AttrBuilder::Create<::pasta::Attr>(ast, attr_ptr));\n"
+   "    }\n"
+   "  }\n"
+   "  return ret;\n"},
 };
 
 // Prefixes on enumerators to strip.
@@ -1102,6 +1182,12 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"AlignedAttr", "AlignmentExpression"},
   {"EnumDecl", "PromotionType"},
   {"AssumeAlignedAttr", "Offset"},
+  {"GCCAsmStmt", "ClobberStringLiteral"},
+  {"GCCAsmStmt", "InputConstraintLiteral"},
+  {"GCCAsmStmt", "OutputConstraintLiteral"},
+  {"GCCAsmStmt", "InputExpression"},
+  {"GCCAsmStmt", "OutputExpression"},
+  {"GCCAsmStmt", "LabelExpression"},
 
 //  {"FunctionProtoType", "EllipsisToken"},
 //  {"FunctionDecl", "EllipsisToken"},

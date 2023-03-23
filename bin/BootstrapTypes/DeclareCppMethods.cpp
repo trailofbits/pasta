@@ -7,7 +7,13 @@
 #include <string>
 #include <sstream>
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wbitfield-enum-conversion"
+#pragma clang diagnostic ignored "-Wimplicit-int-conversion"
+#pragma clang diagnostic ignored "-Wsign-conversion"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include <llvm/ADT/StringRef.h>
+#pragma clang diagnostic pop
 
 #include "Globals.h"
 #include "Util.h"

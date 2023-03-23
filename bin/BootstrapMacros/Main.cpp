@@ -38,7 +38,7 @@ int main(void) {
       "-std=c++20",
       "-isystem", kPastaBinaryPath,
       "-isystem", kPastaIncludeSourcePath,
-      "-isystem", kVcpkgIncludePath
+      "-isystem", "/Users/pag/Install/llvm-16/Release/include/"
   };
 
   pasta::InitPasta initializer;

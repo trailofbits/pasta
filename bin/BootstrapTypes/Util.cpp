@@ -5,6 +5,101 @@
 #include "Util.h"
 #include "Globals.h"
 
+
+#define DECL_STR1(d) #d
+#define DECL_STR2(d) DECL_STR1(d)
+#define DECL_STR3(d) DECL_STR2(d)
+
+const std::unordered_set<std::string> kConcreteDecls{
+#define DECL(d, ...) DECL_STR3(d) "Decl",
+#define ABSTRACT_DECL(...)
+#include TARGET_CLANG_HEADER(clang/AST/DeclNodes.inc)
+};
+
+const std::unordered_set<std::string> kConcreteStmts{
+#define STMT(d, ...) DECL_STR3(d),
+#define ABSTRACT_STMT(...)
+#include TARGET_CLANG_HEADER(clang/AST/StmtNodes.inc)
+};
+
+const std::unordered_set<std::string> kConcreteTypes{
+#define TYPE(d, base) DECL_STR3(d) "Type",
+#define ABSTRACT_TYPE(...)
+#include TARGET_CLANG_HEADER(clang/AST/TypeNodes.inc)
+};
+
+const std::unordered_set<std::string> kConcreteAttrs{
+#define ATTR(d, ...) DECL_STR3(d) "Attr",
+#include TARGET_CLANG_HEADER(clang/Basic/AttrList.inc)
+};
+
+bool IsConcreteDecl(const std::string &name) {
+  return name != "Decl" &&
+         name != "OMPDeclarativeDirectiveDecl" &&
+         name != "OMPDeclarativeDirectiveValueDecl" &&
+         name != "RedeclarableTemplateDecl" &&
+         kConcreteDecls.count(name);
+}
+
+bool IsConcreteType(const std::string &name) {
+  return name != "Type" &&
+         name != "TagType" &&
+         name != "ReferenceType" &&
+         name != "MatrixType" &&
+         name != "FunctionType" &&
+         name != "DeducedType" &&
+         name != "ArrayType" &&
+         name != "TypeWithKeyword" &&
+         kConcreteTypes.count(name);
+}
+
+bool IsConcreteAttr(const std::string &name) {
+  return name != "Attr" &&
+         name != "TypeAttr" &&
+         name != "StmtAttr" &&
+         name != "DeclOrStmtAttr" &&
+         name != "InheritableAttr" &&
+         name != "InheritableParamAttr" &&
+         name != "ParameterABIAttr" &&
+         name != "HLSLAnnotationAttr" &&
+         kConcreteAttrs.count(name);
+}
+
+StmtClassification ClassifyStmt(const std::string &name) {
+  if (name == "Stmt" ||
+      name == "AbstractConditionalOperator" ||
+      name == "AsmStmt" ||
+      name == "SwitchCase" ||
+      name == "ValueStmt" ||
+      name == "Expr" ||
+      name == "CoroutineSuspendExpr" ||
+      name == "ExplicitCastExpr" ||
+      name == "FullExpr" ||
+      name == "OverloadExpr" ||
+      name == "CastExpr" ||
+      name == "CXXNamedCastExpr" ||
+      name == "OMPExecutableDirective" ||
+      name == "OMPLoopDirective" ||
+      name == "OMPLoopBasedDirective" ||
+      name == "OMPLoopTransformationDirective" ||
+      !kConcreteStmts.count(name)) {
+    return StmtClassification::kAbstract;
+  } else if (name.ends_with("Stmt") || name == "OMPCanonicalLoop") {
+    return StmtClassification::kStmt;
+  } else if (name.ends_with("Directive")) {
+    return StmtClassification::kDirective;
+  } else if (name.ends_with("Expr") || name == "ExprWithCleanups") {
+    return StmtClassification::kExpr;
+  } else if (name.ends_with("Operator")) {
+    return StmtClassification::kOperator;
+  } else if (name.ends_with("Literal")) {
+    return StmtClassification::kLiteral;
+  } else {
+    assert(false);
+    return StmtClassification::kStmt;
+  }
+}
+
 std::string Capitalize(llvm::StringRef name) {
   return name.substr(0, 1).upper() + name.substr(1).str();
 }

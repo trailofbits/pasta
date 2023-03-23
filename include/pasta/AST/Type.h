@@ -307,9 +307,9 @@ class Type {
   enum Linkage Linkage(void) const noexcept;
   // LinkageAndVisibility: (clang::LinkageInfo)
   ::pasta::Type LocallyUnqualifiedSingleStepDesugaredType(void) const noexcept;
-  std::optional<::pasta::NullabilityKind> Nullability(void) const noexcept;
+  // Nullability: (std::optional<clang::NullabilityKind>)
   // ObjCARCImplicitLifetime: (clang::Qualifiers::ObjCLifetime)
-  // ObjCSubstitutions: (llvm::Optional<llvm::ArrayRef<clang::QualType>>)
+  // ObjCSubstitutions: (std::optional<llvm::ArrayRef<clang::QualType>>)
   std::optional<::pasta::CXXRecordDecl> PointeeCXXRecordDeclaration(void) const noexcept;
   std::optional<::pasta::Type> PointeeOrArrayElementType(void) const noexcept;
   std::optional<::pasta::Type> PointeeType(void) const noexcept;
@@ -480,14 +480,15 @@ class Type {
   bool IsPipeType(void) const noexcept;
   bool IsPlaceholderType(void) const noexcept;
   bool IsPointerType(void) const noexcept;
-  bool IsPromotableIntegerType(void) const noexcept;
   bool IsQueueT(void) const noexcept;
+  bool IsRVVType(void) const noexcept;
   bool IsRValueReferenceType(void) const noexcept;
   bool IsRealFloatingType(void) const noexcept;
   bool IsRealType(void) const noexcept;
   bool IsRecordType(void) const noexcept;
   bool IsReferenceType(void) const noexcept;
   bool IsReserveIDT(void) const noexcept;
+  bool IsSVESizelessBuiltinType(void) const noexcept;
   bool IsSamplerT(void) const noexcept;
   bool IsSaturatedFixedPointType(void) const noexcept;
   bool IsScalarType(void) const noexcept;
@@ -532,6 +533,7 @@ class TypeOfExprType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TypeOfExprType)
   PASTA_DECLARE_BASE_OPERATORS(Type, TypeOfExprType)
   ::pasta::Type Desugar(void) const noexcept;
+  enum TypeOfKind Kind(void) const noexcept;
   ::pasta::Expr UnderlyingExpression(void) const noexcept;
   bool IsSugared(void) const noexcept;
  protected:
@@ -546,7 +548,8 @@ class TypeOfType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TypeOfType)
   PASTA_DECLARE_BASE_OPERATORS(Type, TypeOfType)
   ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::Type UnderlyingType(void) const noexcept;
+  enum TypeOfKind Kind(void) const noexcept;
+  ::pasta::Type UnmodifiedType(void) const noexcept;
   bool IsSugared(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(TypeOfType)
@@ -562,6 +565,7 @@ class TypedefType : public Type {
   ::pasta::Type Desugar(void) const noexcept;
   ::pasta::TypedefNameDecl Declaration(void) const noexcept;
   bool IsSugared(void) const noexcept;
+  bool TypeMatchesDeclaration(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(TypedefType)
 };
@@ -607,6 +611,7 @@ class UsingType : public Type {
   ::pasta::UsingShadowDecl FoundDeclaration(void) const noexcept;
   ::pasta::Type UnderlyingType(void) const noexcept;
   bool IsSugared(void) const noexcept;
+  bool TypeMatchesDeclaration(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(UsingType)
 };
@@ -702,7 +707,7 @@ class AttributedType : public Type {
   ::pasta::Type Desugar(void) const noexcept;
   enum ::pasta::AttrKind AttributeKind(void) const noexcept;
   ::pasta::Type EquivalentType(void) const noexcept;
-  std::optional<::pasta::NullabilityKind> ImmediateNullability(void) const noexcept;
+  // ImmediateNullability: (std::optional<clang::NullabilityKind>)
   ::pasta::Type ModifiedType(void) const noexcept;
   bool IsCallingConv(void) const noexcept;
   bool IsMSTypeSpec(void) const noexcept;
@@ -952,14 +957,10 @@ class DependentTemplateSpecializationType : public TypeWithKeyword {
   PASTA_DECLARE_BASE_OPERATORS(Type, DependentTemplateSpecializationType)
   PASTA_DECLARE_BASE_OPERATORS(TypeWithKeyword, DependentTemplateSpecializationType)
   ::pasta::Type Desugar(void) const noexcept;
-  // Argument: (const clang::TemplateArgument &)
-  // Arguments: (const clang::TemplateArgument *)
   // Identifier: (const clang::IdentifierInfo *)
-  uint32_t NumArguments(void) const noexcept;
   // Qualifier: (clang::NestedNameSpecifier *)
   bool IsSugared(void) const noexcept;
   std::vector<::pasta::TemplateArgument> TemplateArguments(void) const noexcept;
-  // !!! Arg getNumArgs getArg (empty ret type = (const clang::TemplateArgument &))
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentTemplateSpecializationType)
 };
@@ -1211,7 +1212,7 @@ class PackExpansionType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PackExpansionType)
   PASTA_DECLARE_BASE_OPERATORS(Type, PackExpansionType)
   ::pasta::Type Desugar(void) const noexcept;
-  std::optional<unsigned> NumExpansions(void) const noexcept;
+  // NumExpansions: (std::optional<unsigned int>)
   ::pasta::Type Pattern(void) const noexcept;
   bool IsSugared(void) const noexcept;
  protected:
@@ -1319,6 +1320,7 @@ class QualifiedType : public Type {
   bool IsObjCGCStrong(void) const noexcept;
   bool IsObjCGCWeak(void) const noexcept;
   bool IsPODType(void) const noexcept;
+  bool IsReferenceable(void) const noexcept;
   bool IsRestrictQualified(void) const noexcept;
   bool IsTrivialType(void) const noexcept;
   bool IsTriviallyCopyableType(void) const noexcept;
@@ -1370,9 +1372,12 @@ class SubstTemplateTypeParmPackType : public Type {
   PASTA_DECLARE_BASE_OPERATORS(Type, SubstTemplateTypeParmPackType)
   ::pasta::Type Desugar(void) const noexcept;
   // ArgumentPack: (clang::TemplateArgument)
+  ::pasta::Decl AssociatedDeclaration(void) const noexcept;
+  bool Final(void) const noexcept;
   // Identifier: (clang::IdentifierInfo *)
+  uint32_t Index(void) const noexcept;
   uint32_t NumArguments(void) const noexcept;
-  ::pasta::TemplateTypeParmType ReplacedParameter(void) const noexcept;
+  ::pasta::TemplateTypeParmDecl ReplacedParameter(void) const noexcept;
   bool IsSugared(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(SubstTemplateTypeParmPackType)
@@ -1386,7 +1391,10 @@ class SubstTemplateTypeParmType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SubstTemplateTypeParmType)
   PASTA_DECLARE_BASE_OPERATORS(Type, SubstTemplateTypeParmType)
   ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::TemplateTypeParmType ReplacedParameter(void) const noexcept;
+  ::pasta::Decl AssociatedDeclaration(void) const noexcept;
+  uint32_t Index(void) const noexcept;
+  // PackIndex: (std::optional<unsigned int>)
+  ::pasta::TemplateTypeParmDecl ReplacedParameter(void) const noexcept;
   ::pasta::Type ReplacementType(void) const noexcept;
   bool IsSugared(void) const noexcept;
  protected:
@@ -1417,15 +1425,11 @@ class TemplateSpecializationType : public Type {
   PASTA_DECLARE_BASE_OPERATORS(Type, TemplateSpecializationType)
   ::pasta::Type Desugar(void) const noexcept;
   std::optional<::pasta::Type> AliasedType(void) const noexcept;
-  // Argument: (const clang::TemplateArgument &)
-  // Arguments: (const clang::TemplateArgument *)
-  uint32_t NumArguments(void) const noexcept;
   // TemplateName: (clang::TemplateName)
   bool IsCurrentInstantiation(void) const noexcept;
   bool IsSugared(void) const noexcept;
   bool IsTypeAlias(void) const noexcept;
   std::vector<::pasta::TemplateArgument> TemplateArguments(void) const noexcept;
-  // !!! Arg getNumArgs getArg (empty ret type = (const clang::TemplateArgument &))
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(TemplateSpecializationType)
 };
@@ -1476,16 +1480,12 @@ class AutoType : public DeducedType {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AutoType)
   PASTA_DECLARE_BASE_OPERATORS(DeducedType, AutoType)
   PASTA_DECLARE_BASE_OPERATORS(Type, AutoType)
-  // Argument: (const clang::TemplateArgument &)
-  // Arguments: (const clang::TemplateArgument *)
   enum AutoTypeKeyword Keyword(void) const noexcept;
-  uint32_t NumArguments(void) const noexcept;
   std::vector<::pasta::TemplateArgument> TypeConstraintArguments(void) const noexcept;
   std::optional<::pasta::ConceptDecl> TypeConstraintConcept(void) const noexcept;
   bool IsConstrained(void) const noexcept;
   bool IsDecltypeAuto(void) const noexcept;
   bool IsGNUAutoType(void) const noexcept;
-  // !!! Arg getNumArgs getArg (empty ret type = (const clang::TemplateArgument &))
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(AutoType)
 };
@@ -1610,7 +1610,6 @@ class FunctionProtoType : public FunctionType {
   bool IsSugared(void) const noexcept;
   bool IsTemplateVariadic(void) const noexcept;
   bool IsVariadic(void) const noexcept;
-  // ParameterTypes: (llvm::iterator_range<const clang::QualType *>)
   std::vector<::pasta::Type> ExceptionTypes(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(FunctionProtoType)

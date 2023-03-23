@@ -67,7 +67,7 @@ void GenerateAttrCpp(void) {
       << "namespace {\n"
       << "// Return the PASTA `AttrKind` for a Clang `Attr`.\n"
       << "static AttrKind KindOfAttr(const clang::Attr *attr) {\n"
-      << "  switch (attr->getKind()) {\n";
+      << "  switch (attr->getKind()) {\n"
       << "#define PASTA_ATTR_CASE(a) \\\n"
       << "    case clang::attr::Kind::a: \\\n"
       << "      return AttrKind::k ## a;\n\n"

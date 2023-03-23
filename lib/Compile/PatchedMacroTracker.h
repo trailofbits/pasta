@@ -24,9 +24,11 @@
 #pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/Basic/FileEntry.h>
 #include <clang/Basic/SourceManager.h>
 #include <clang/Basic/TokenKinds.h>
 #include <clang/Lex/PPCallbacks.h>
+#include <clang/Lex/PPCallbacksEventKind.h>
 #include <clang/Lex/Preprocessor.h>
 #include <clang/Lex/PreprocessorOptions.h>
 #include <llvm/Support/raw_ostream.h>
@@ -181,7 +183,7 @@ class PatchedMacroTracker : public clang::PPCallbacks {
       llvm::StringRef /* file_name */,
       bool /* is_angled */,
       clang::CharSourceRange /* file_name_range */,
-      llvm::Optional<clang::FileEntryRef> /* file */,
+      clang::OptionalFileEntryRef /* file */,
       llvm::StringRef /* search_path */,
       llvm::StringRef /* relative_path */,
       const clang::Module * /* imported */,

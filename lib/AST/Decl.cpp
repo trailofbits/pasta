@@ -10,6 +10,7 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#pragma clang diagnostic ignored "-Wbitfield-enum-conversion"
 #include <clang/AST/Attr.h>
 #include <clang/AST/Decl.h>
 #include <clang/AST/DeclCXX.h>
@@ -80,6 +81,26 @@ using OMPDeclarativeDirectiveValueDecl = OMPDeclarativeDirective<ValueDecl>;
     }
 
 namespace pasta {
+namespace {
+// Return the PASTA `DeclKind` for a Clang `Decl`.
+static DeclKind KindOfDecl(const clang::Decl *decl) {
+  switch (decl->getKind()) {
+#define PASTA_DECL_CASE(name) \
+    case clang::Decl::name: return DeclKind::k ## name;
+
+PASTA_FOR_EACH_DECL_IMPL(PASTA_DECL_CASE, PASTA_IGNORE_ABSTRACT)
+#undef PASTA_DECL_CASE
+    default: break;
+  }
+  __builtin_unreachable();
+}
+
+static const std::string_view kKindNames[] = {
+#define PASTA_DECL_KIND_NAME(name) #name ,
+PASTA_FOR_EACH_DECL_IMPL(PASTA_DECL_KIND_NAME, PASTA_IGNORE_ABSTRACT)
+#undef PASTA_DECL_KIND_NAME
+};
+}  // namespace
 
 DeclVisitor::~DeclVisitor(void) {}
 
@@ -120,6 +141,10 @@ void DeclVisitor::VisitFriendDecl(const FriendDecl &decl) {
 }
 
 void DeclVisitor::VisitFriendTemplateDecl(const FriendTemplateDecl &decl) {
+  VisitDecl(decl);
+}
+
+void DeclVisitor::VisitImplicitConceptSpecializationDecl(const ImplicitConceptSpecializationDecl &decl) {
   VisitDecl(decl);
 }
 
@@ -205,6 +230,10 @@ void DeclVisitor::VisitTemplateDecl(const TemplateDecl &decl) {
 
 void DeclVisitor::VisitTemplateTemplateParmDecl(const TemplateTemplateParmDecl &decl) {
   VisitTemplateDecl(decl);
+}
+
+void DeclVisitor::VisitTopLevelStmtDecl(const TopLevelStmtDecl &decl) {
+  VisitDecl(decl);
 }
 
 void DeclVisitor::VisitTranslationUnitDecl(const TranslationUnitDecl &decl) {
@@ -301,6 +330,10 @@ void DeclVisitor::VisitFieldDecl(const FieldDecl &decl) {
 
 void DeclVisitor::VisitFunctionDecl(const FunctionDecl &decl) {
   VisitDeclaratorDecl(decl);
+}
+
+void DeclVisitor::VisitHLSLBufferDecl(const HLSLBufferDecl &decl) {
+  VisitNamedDecl(decl);
 }
 
 void DeclVisitor::VisitIndirectFieldDecl(const IndirectFieldDecl &decl) {
@@ -523,6 +556,7 @@ PASTA_DEFINE_DECLCONTEXT_OPERATORS(DeclContext, EnumDecl)
 PASTA_DEFINE_DECLCONTEXT_OPERATORS(DeclContext, ExportDecl)
 PASTA_DEFINE_DECLCONTEXT_OPERATORS(DeclContext, ExternCContextDecl)
 PASTA_DEFINE_DECLCONTEXT_OPERATORS(DeclContext, FunctionDecl)
+PASTA_DEFINE_DECLCONTEXT_OPERATORS(DeclContext, HLSLBufferDecl)
 PASTA_DEFINE_DECLCONTEXT_OPERATORS(DeclContext, LinkageSpecDecl)
 PASTA_DEFINE_DECLCONTEXT_OPERATORS(DeclContext, NamespaceDecl)
 PASTA_DEFINE_DECLCONTEXT_OPERATORS(DeclContext, OMPDeclareMapperDecl)
@@ -539,26 +573,6 @@ PASTA_DEFINE_DECLCONTEXT_OPERATORS(DeclContext, RecordDecl)
 PASTA_DEFINE_DECLCONTEXT_OPERATORS(DeclContext, RequiresExprBodyDecl)
 PASTA_DEFINE_DECLCONTEXT_OPERATORS(DeclContext, TagDecl)
 PASTA_DEFINE_DECLCONTEXT_OPERATORS(DeclContext, TranslationUnitDecl)
-
-namespace {
-// Return the PASTA `DeclKind` for a Clang `Decl`.
-static DeclKind KindOfDecl(const clang::Decl *decl) {
-  switch (decl->getKind()) {
-#define ABSTRACT_DECL(DECL)
-#define DECL(DERIVED, BASE) \
-    case clang::Decl::DERIVED: \
-      return DeclKind::k ## DERIVED;
-#include <clang/AST/DeclNodes.inc>
-  }
-  __builtin_unreachable();
-}
-
-static const std::string_view kKindNames[] = {
-#define PASTA_DECL_KIND_NAME(name) #name ,
-PASTA_FOR_EACH_DECL_IMPL(PASTA_DECL_KIND_NAME, PASTA_IGNORE_ABSTRACT)
-#undef PASTA_DECL_KIND_NAME
-};
-}  // namespace
 
 std::string_view Decl::KindName(void) const noexcept {
   return kKindNames[static_cast<unsigned>(kind)];
@@ -764,6 +778,13 @@ bool DeclContext::HasExternalVisibleStorage(void) const noexcept {
   __builtin_unreachable();
 }
 
+bool DeclContext::HasValidDeclarationKind(void) const noexcept {
+  auto &self = *const_cast<clang::DeclContext *>(u.DeclContext);
+  decltype(auto) val = self.hasValidDeclKind();
+  return val;
+  __builtin_unreachable();
+}
+
 bool DeclContext::IsClosure(void) const noexcept {
   auto &self = *const_cast<clang::DeclContext *>(u.DeclContext);
   decltype(auto) val = self.isClosure();
@@ -929,6 +950,8 @@ PASTA_DEFINE_DERIVED_OPERATORS(Decl, FriendDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, FriendTemplateDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, FunctionDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, FunctionTemplateDecl)
+PASTA_DEFINE_DERIVED_OPERATORS(Decl, HLSLBufferDecl)
+PASTA_DEFINE_DERIVED_OPERATORS(Decl, ImplicitConceptSpecializationDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, ImplicitParamDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, ImportDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, IndirectFieldDecl)
@@ -975,6 +998,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Decl, TemplateDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, TemplateParamObjectDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, TemplateTemplateParmDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, TemplateTypeParmDecl)
+PASTA_DEFINE_DERIVED_OPERATORS(Decl, TopLevelStmtDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, TranslationUnitDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, TypeAliasDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(Decl, TypeAliasTemplateDecl)
@@ -1220,6 +1244,16 @@ std::optional<::pasta::Decl> Decl::NonClosureContext(void) const noexcept {
   __builtin_unreachable();
 }
 
+::pasta::DeclContext Decl::NonTransparentDeclarationContext(void) const noexcept {
+  auto &self = *const_cast<clang::Decl *>(u.Decl);
+  decltype(auto) val = self.getNonTransparentDeclContext();
+  if (val) {
+    return ::pasta::DeclContext(ast, val);
+  }
+  assert(false && "Decl::NonTransparentDeclarationContext can return nullptr!");
+  __builtin_unreachable();
+}
+
 // 0: Decl::OwningModule
 // 0: Decl::OwningModuleForLinkage
 uint32_t Decl::OwningModuleID(void) const noexcept {
@@ -1334,6 +1368,13 @@ bool Decl::IsDiscardedInGlobalModuleFragment(void) const noexcept {
   __builtin_unreachable();
 }
 
+bool Decl::IsFileContextDeclaration(void) const noexcept {
+  auto &self = *const_cast<clang::Decl *>(u.Decl);
+  decltype(auto) val = self.isFileContextDecl();
+  return val;
+  __builtin_unreachable();
+}
+
 bool Decl::IsFirstDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.isFirstDecl();
@@ -1394,6 +1435,13 @@ bool Decl::IsInvalidDeclaration(void) const noexcept {
 bool Decl::IsInvisibleOutsideTheOwningModule(void) const noexcept {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.isInvisibleOutsideTheOwningModule();
+  return val;
+  __builtin_unreachable();
+}
+
+bool Decl::IsLocalExternDeclaration(void) const noexcept {
+  auto &self = *const_cast<clang::Decl *>(u.Decl);
+  decltype(auto) val = self.isLocalExternDecl();
   return val;
   __builtin_unreachable();
 }
@@ -1714,6 +1762,23 @@ std::vector<::pasta::TemplateParameterList> FriendTemplateDecl::TemplateParamete
   return ret;
 }
 
+ImplicitConceptSpecializationDecl::ImplicitConceptSpecializationDecl(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Decl *decl_)
+    : Decl(std::move(ast_), decl_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Decl, ImplicitConceptSpecializationDecl)
+std::vector<::pasta::TemplateArgument> ImplicitConceptSpecializationDecl::TemplateArguments(void) const noexcept {
+  auto &self = *const_cast<clang::ImplicitConceptSpecializationDecl *>(u.ImplicitConceptSpecializationDecl);
+  decltype(auto) val = self.getTemplateArguments();
+  std::vector<::pasta::TemplateArgument> ret;
+  for (const auto &arg : val) {
+    ret.emplace_back(ast, arg);
+  }
+  return ret;
+  __builtin_unreachable();
+}
+
 ImportDecl::ImportDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
@@ -1856,6 +1921,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, EnumDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, FieldDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, FunctionDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, FunctionTemplateDecl)
+PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, HLSLBufferDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, ImplicitParamDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, IndirectFieldDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(NamedDecl, LabelDecl)
@@ -2157,6 +2223,13 @@ bool NamespaceDecl::IsAnonymousNamespace(void) const noexcept {
 bool NamespaceDecl::IsInline(void) const noexcept {
   auto &self = *const_cast<clang::NamespaceDecl *>(u.NamespaceDecl);
   decltype(auto) val = self.isInline();
+  return val;
+  __builtin_unreachable();
+}
+
+bool NamespaceDecl::IsNested(void) const noexcept {
+  auto &self = *const_cast<clang::NamespaceDecl *>(u.NamespaceDecl);
+  decltype(auto) val = self.isNested();
   return val;
   __builtin_unreachable();
 }
@@ -3542,6 +3615,13 @@ bool TemplateDecl::HasAssociatedConstraints(void) const noexcept {
   __builtin_unreachable();
 }
 
+bool TemplateDecl::IsTypeAlias(void) const noexcept {
+  auto &self = *const_cast<clang::TemplateDecl *>(u.TemplateDecl);
+  decltype(auto) val = self.isTypeAlias();
+  return val;
+  __builtin_unreachable();
+}
+
 TemplateTemplateParmDecl::TemplateTemplateParmDecl(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Decl *decl_)
@@ -3599,6 +3679,22 @@ bool TemplateTemplateParmDecl::IsParameterPack(void) const noexcept {
   auto &self = *const_cast<clang::TemplateTemplateParmDecl *>(u.TemplateTemplateParmDecl);
   decltype(auto) val = self.isParameterPack();
   return val;
+  __builtin_unreachable();
+}
+
+TopLevelStmtDecl::TopLevelStmtDecl(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Decl *decl_)
+    : Decl(std::move(ast_), decl_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Decl, TopLevelStmtDecl)
+::pasta::Stmt TopLevelStmtDecl::Statement(void) const noexcept {
+  auto &self = *const_cast<clang::TopLevelStmtDecl *>(u.TopLevelStmtDecl);
+  decltype(auto) val = self.getStmt();
+  if (val) {
+    return StmtBuilder::Create<::pasta::Stmt>(ast, val);
+  }
+  assert(false && "TopLevelStmtDecl::Statement can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -3956,11 +4052,28 @@ PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, UnresolvedUsingValueDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, VarDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, VarTemplatePartialSpecializationDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, VarTemplateSpecializationDecl)
+::pasta::VarDecl ValueDecl::PotentiallyDecomposedVariableDeclaration(void) const noexcept {
+  auto &self = *const_cast<clang::ValueDecl *>(u.ValueDecl);
+  decltype(auto) val = self.getPotentiallyDecomposedVarDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
+  }
+  assert(false && "ValueDecl::PotentiallyDecomposedVariableDeclaration can return nullptr!");
+  __builtin_unreachable();
+}
+
 ::pasta::Type ValueDecl::Type(void) const noexcept {
   auto &self = *const_cast<clang::ValueDecl *>(u.ValueDecl);
   decltype(auto) val = self.getType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
+  __builtin_unreachable();
+}
+
+bool ValueDecl::IsInitializerCapture(void) const noexcept {
+  auto &self = *const_cast<clang::ValueDecl *>(u.ValueDecl);
+  decltype(auto) val = self.isInitCapture();
+  return val;
   __builtin_unreachable();
 }
 
@@ -4774,6 +4887,13 @@ PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXConversionDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXDeductionGuideDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXDestructorDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(FunctionDecl, CXXMethodDecl)
+bool FunctionDecl::FriendConstraintRefersToEnclosingTemplate(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  decltype(auto) val = self.FriendConstraintRefersToEnclosingTemplate();
+  return val;
+  __builtin_unreachable();
+}
+
 bool FunctionDecl::UsesFPIntrin(void) const noexcept {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.UsesFPIntrin();
@@ -4837,6 +4957,13 @@ enum ConstexprSpecKind FunctionDecl::ConstexprKind(void) const noexcept {
   decltype(auto) val = self.getDeclaredReturnType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
+  __builtin_unreachable();
+}
+
+::pasta::Token FunctionDecl::DefaultToken(void) const noexcept {
+  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  decltype(auto) val = self.getDefaultLoc();
+  return ast->TokenAt(val);
   __builtin_unreachable();
 }
 
@@ -5507,6 +5634,42 @@ std::optional<::pasta::Stmt> FunctionDecl::Body(void) const noexcept {
   } else {
     return std::nullopt;
   }
+}
+
+HLSLBufferDecl::HLSLBufferDecl(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Decl *decl_)
+    : NamedDecl(ast_, decl_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(DeclContext, HLSLBufferDecl)
+PASTA_DEFINE_BASE_OPERATORS(Decl, HLSLBufferDecl)
+PASTA_DEFINE_BASE_OPERATORS(NamedDecl, HLSLBufferDecl)
+::pasta::Token HLSLBufferDecl::LBraceToken(void) const noexcept {
+  auto &self = *const_cast<clang::HLSLBufferDecl *>(u.HLSLBufferDecl);
+  decltype(auto) val = self.getLBraceLoc();
+  return ast->TokenAt(val);
+  __builtin_unreachable();
+}
+
+::pasta::Token HLSLBufferDecl::TokenStart(void) const noexcept {
+  auto &self = *const_cast<clang::HLSLBufferDecl *>(u.HLSLBufferDecl);
+  decltype(auto) val = self.getLocStart();
+  return ast->TokenAt(val);
+  __builtin_unreachable();
+}
+
+::pasta::Token HLSLBufferDecl::RBraceToken(void) const noexcept {
+  auto &self = *const_cast<clang::HLSLBufferDecl *>(u.HLSLBufferDecl);
+  decltype(auto) val = self.getRBraceLoc();
+  return ast->TokenAt(val);
+  __builtin_unreachable();
+}
+
+bool HLSLBufferDecl::IsCBuffer(void) const noexcept {
+  auto &self = *const_cast<clang::HLSLBufferDecl *>(u.HLSLBufferDecl);
+  decltype(auto) val = self.isCBuffer();
+  return val;
+  __builtin_unreachable();
 }
 
 IndirectFieldDecl::IndirectFieldDecl(
@@ -6883,6 +7046,17 @@ PASTA_DEFINE_BASE_OPERATORS(NamedDecl, UsingEnumDecl)
   __builtin_unreachable();
 }
 
+::pasta::Type UsingEnumDecl::EnumType(void) const noexcept {
+  auto &self = *const_cast<clang::UsingEnumDecl *>(u.UsingEnumDecl);
+  decltype(auto) val = self.getEnumType();
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "UsingEnumDecl::EnumType can return nullptr!");
+  __builtin_unreachable();
+}
+
+// 0: UsingEnumDecl::EnumTypeToken
+// 0: UsingEnumDecl::Qualifier
+// 0: UsingEnumDecl::QualifierToken
 ::pasta::Token UsingEnumDecl::UsingToken(void) const noexcept {
   auto &self = *const_cast<clang::UsingEnumDecl *>(u.UsingEnumDecl);
   decltype(auto) val = self.getUsingLoc();

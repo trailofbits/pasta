@@ -10,6 +10,7 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#pragma clang diagnostic ignored "-Wbitfield-enum-conversion"
 #include <clang/AST/Attr.h>
 #include <clang/Frontend/CompilerInstance.h>
 #pragma clang diagnostic pop
@@ -54,11 +55,13 @@ namespace {
 // Return the PASTA `AttrKind` for a Clang `Attr`.
 static AttrKind KindOfAttr(const clang::Attr *attr) {
   switch (attr->getKind()) {
-#define ATTR_RANGE(...)
-#define ATTR(a) \
+#define PASTA_ATTR_CASE(a) \
     case clang::attr::Kind::a: \
       return AttrKind::k ## a;
-#include <clang/Basic/AttrList.inc>
+
+    PASTA_FOR_EACH_ATTR_IMPL(PASTA_ATTR_CASE, PASTA_IGNORE_ABSTRACT)
+#undef PASTA_ATTR_CASE
+    default: break;
   }
   __builtin_unreachable();
 }
@@ -203,7 +206,12 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, GNUInlineAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, GuardedByAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, GuardedVarAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, HIPManagedAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, HLSLAnnotationAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, HLSLGroupSharedAddressSpaceAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, HLSLNumThreadsAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, HLSLResourceAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, HLSLResourceBindingAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, HLSLSV_DispatchThreadIDAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, HLSLSV_GroupIndexAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, HLSLShaderAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, HotAttr)
@@ -237,6 +245,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, MSStructAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, MSVtorDispAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, MaxFieldAlignmentAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, MayAliasAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, MaybeUndefAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, MicroMipsAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, MinSizeAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, MinVectorWidthAttr)
@@ -276,6 +285,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, NoStackProtectorAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, NoThreadSafetyAnalysisAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, NoThrowAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, NoUniqueAddressAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, NoUwtableAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, NonNullAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, NotTailCalledAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, OMPAllocateDeclAttr)
@@ -359,6 +369,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, Ptr64Attr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, PureAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, RISCVInterruptAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, RandomizeLayoutAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, ReadOnlyPlacementAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, RegCallAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ReinitializesAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ReleaseCapabilityAttr)
@@ -385,6 +396,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, StandaloneDebugAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, StdCallAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, StmtAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, StrictFPAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, StrictGuardStackCheckAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, SuppressAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, SwiftAsyncAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, SwiftAsyncCallAttr)
@@ -407,6 +419,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, SysVABIAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, TLSModelAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, TargetAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, TargetClonesAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(Attr, TargetVersionAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, TestTypestateAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ThisCallAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(Attr, ThreadAttr)
@@ -700,7 +713,11 @@ PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, GNUInlineAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, GuardedByAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, GuardedVarAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, HIPManagedAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, HLSLAnnotationAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, HLSLNumThreadsAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, HLSLResourceAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, HLSLResourceBindingAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, HLSLSV_DispatchThreadIDAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, HLSLSV_GroupIndexAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, HLSLShaderAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, HotAttr)
@@ -728,6 +745,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, MSStructAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, MSVtorDispAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, MaxFieldAlignmentAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, MayAliasAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, MaybeUndefAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, MicroMipsAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, MinSizeAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, MinVectorWidthAttr)
@@ -762,6 +780,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, NoStackProtectorAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, NoThreadSafetyAnalysisAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, NoThrowAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, NoUniqueAddressAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, NoUwtableAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, NonNullAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, NotTailCalledAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, OMPAllocateDeclAttr)
@@ -818,6 +837,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, PtGuardedVarAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, PureAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, RISCVInterruptAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, RandomizeLayoutAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ReadOnlyPlacementAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, RegCallAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ReinitializesAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ReleaseCapabilityAttr)
@@ -841,6 +861,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, SpeculativeLoadHardeningAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, StandaloneDebugAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, StdCallAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, StrictFPAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, StrictGuardStackCheckAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, SwiftAsyncAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, SwiftAsyncCallAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, SwiftAsyncContextAttr)
@@ -861,6 +882,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, SysVABIAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, TLSModelAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, TargetAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, TargetClonesAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, TargetVersionAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, TestTypestateAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, ThisCallAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(InheritableAttr, TransparentUnionAttr)
@@ -1511,6 +1533,26 @@ std::string_view MayAliasAttr::Spelling(void) const noexcept {
     return std::string_view();
   }
   assert(false && "MayAliasAttr::Spelling can return nullptr!");
+  __builtin_unreachable();
+}
+
+MaybeUndefAttr::MaybeUndefAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, MaybeUndefAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, MaybeUndefAttr)
+// 1: MaybeUndefAttr::Clone
+std::string_view MaybeUndefAttr::Spelling(void) const noexcept {
+  auto &self = *const_cast<clang::MaybeUndefAttr *>(u.MaybeUndefAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  assert(false && "MaybeUndefAttr::Spelling can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -2195,6 +2237,13 @@ NoStackProtectorAttr::NoStackProtectorAttr(
 PASTA_DEFINE_BASE_OPERATORS(Attr, NoStackProtectorAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NoStackProtectorAttr)
 // 1: NoStackProtectorAttr::Clone
+enum NoStackProtectorAttrSpelling NoStackProtectorAttr::SemanticSpelling(void) const noexcept {
+  auto &self = *const_cast<clang::NoStackProtectorAttr *>(u.NoStackProtectorAttr);
+  decltype(auto) val = self.getSemanticSpelling();
+  return static_cast<::pasta::NoStackProtectorAttrSpelling>(val);
+  __builtin_unreachable();
+}
+
 std::string_view NoStackProtectorAttr::Spelling(void) const noexcept {
   auto &self = *const_cast<clang::NoStackProtectorAttr *>(u.NoStackProtectorAttr);
   decltype(auto) val = self.getSpelling();
@@ -2264,6 +2313,26 @@ std::string_view NoUniqueAddressAttr::Spelling(void) const noexcept {
     return std::string_view();
   }
   assert(false && "NoUniqueAddressAttr::Spelling can return nullptr!");
+  __builtin_unreachable();
+}
+
+NoUwtableAttr::NoUwtableAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, NoUwtableAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NoUwtableAttr)
+// 1: NoUwtableAttr::Clone
+std::string_view NoUwtableAttr::Spelling(void) const noexcept {
+  auto &self = *const_cast<clang::NoUwtableAttr *>(u.NoUwtableAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  assert(false && "NoUwtableAttr::Spelling can return nullptr!");
   __builtin_unreachable();
 }
 
@@ -4105,6 +4174,26 @@ std::string_view RandomizeLayoutAttr::Spelling(void) const noexcept {
   __builtin_unreachable();
 }
 
+ReadOnlyPlacementAttr::ReadOnlyPlacementAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, ReadOnlyPlacementAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, ReadOnlyPlacementAttr)
+// 1: ReadOnlyPlacementAttr::Clone
+std::string_view ReadOnlyPlacementAttr::Spelling(void) const noexcept {
+  auto &self = *const_cast<clang::ReadOnlyPlacementAttr *>(u.ReadOnlyPlacementAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  assert(false && "ReadOnlyPlacementAttr::Spelling can return nullptr!");
+  __builtin_unreachable();
+}
+
 RegCallAttr::RegCallAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -4741,6 +4830,26 @@ std::string_view StrictFPAttr::Spelling(void) const noexcept {
   __builtin_unreachable();
 }
 
+StrictGuardStackCheckAttr::StrictGuardStackCheckAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, StrictGuardStackCheckAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, StrictGuardStackCheckAttr)
+// 1: StrictGuardStackCheckAttr::Clone
+std::string_view StrictGuardStackCheckAttr::Spelling(void) const noexcept {
+  auto &self = *const_cast<clang::StrictGuardStackCheckAttr *>(u.StrictGuardStackCheckAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  assert(false && "StrictGuardStackCheckAttr::Spelling can return nullptr!");
+  __builtin_unreachable();
+}
+
 SuppressAttr::SuppressAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -5341,7 +5450,6 @@ bool TargetAttr::IsDefaultVersion(void) const noexcept {
   __builtin_unreachable();
 }
 
-// 0: TargetAttr::Parse
 TargetClonesAttr::TargetClonesAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -5369,6 +5477,62 @@ std::string_view TargetClonesAttr::Spelling(void) const noexcept {
 }
 
 // 1: TargetClonesAttr::IsFirstOfVersion
+TargetVersionAttr::TargetVersionAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, TargetVersionAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, TargetVersionAttr)
+// 1: TargetVersionAttr::Clone
+std::string_view TargetVersionAttr::Name(void) const noexcept {
+  auto &self = *const_cast<clang::TargetVersionAttr *>(u.TargetVersionAttr);
+  decltype(auto) val = self.getName();
+  if (auto size = val.size()) {
+    return std::string_view(val.data(), size);
+  } else {
+    return std::string_view();
+  }
+  __builtin_unreachable();
+}
+
+std::string_view TargetVersionAttr::NamesString(void) const noexcept {
+  auto &self = *const_cast<clang::TargetVersionAttr *>(u.TargetVersionAttr);
+  decltype(auto) val = self.getNamesStr();
+  if (auto size = val.size()) {
+    return std::string_view(val.data(), size);
+  } else {
+    return std::string_view();
+  }
+  __builtin_unreachable();
+}
+
+uint32_t TargetVersionAttr::NamesStringLength(void) const noexcept {
+  auto &self = *const_cast<clang::TargetVersionAttr *>(u.TargetVersionAttr);
+  decltype(auto) val = self.getNamesStrLength();
+  return val;
+  __builtin_unreachable();
+}
+
+std::string_view TargetVersionAttr::Spelling(void) const noexcept {
+  auto &self = *const_cast<clang::TargetVersionAttr *>(u.TargetVersionAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  assert(false && "TargetVersionAttr::Spelling can return nullptr!");
+  __builtin_unreachable();
+}
+
+bool TargetVersionAttr::IsDefaultVersion(void) const noexcept {
+  auto &self = *const_cast<clang::TargetVersionAttr *>(u.TargetVersionAttr);
+  decltype(auto) val = self.isDefaultVersion();
+  return val;
+  __builtin_unreachable();
+}
+
 TestTypestateAttr::TestTypestateAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -5534,6 +5698,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, AnnotateTypeAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, ArmMveStrictPolymorphismAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, BTFTypeTagAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, CmseNSCallAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, HLSLGroupSharedAddressSpaceAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, NoDerefAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, ObjCGCAttr)
 PASTA_DEFINE_DERIVED_OPERATORS(TypeAttr, ObjCInertUnsafeUnretainedAttr)
@@ -9794,6 +9959,35 @@ std::string_view HIPManagedAttr::Spelling(void) const noexcept {
   __builtin_unreachable();
 }
 
+HLSLAnnotationAttr::HLSLAnnotationAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, HLSLAnnotationAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, HLSLAnnotationAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(HLSLAnnotationAttr, HLSLSV_DispatchThreadIDAttr)
+PASTA_DEFINE_DERIVED_OPERATORS(HLSLAnnotationAttr, HLSLSV_GroupIndexAttr)
+HLSLGroupSharedAddressSpaceAttr::HLSLGroupSharedAddressSpaceAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : TypeAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, HLSLGroupSharedAddressSpaceAttr)
+PASTA_DEFINE_BASE_OPERATORS(TypeAttr, HLSLGroupSharedAddressSpaceAttr)
+// 1: HLSLGroupSharedAddressSpaceAttr::Clone
+std::string_view HLSLGroupSharedAddressSpaceAttr::Spelling(void) const noexcept {
+  auto &self = *const_cast<clang::HLSLGroupSharedAddressSpaceAttr *>(u.HLSLGroupSharedAddressSpaceAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  assert(false && "HLSLGroupSharedAddressSpaceAttr::Spelling can return nullptr!");
+  __builtin_unreachable();
+}
+
 HLSLNumThreadsAttr::HLSLNumThreadsAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
@@ -9817,12 +10011,124 @@ std::string_view HLSLNumThreadsAttr::Spelling(void) const noexcept {
 // 0: HLSLNumThreadsAttr::X
 // 0: HLSLNumThreadsAttr::Y
 // 0: HLSLNumThreadsAttr::Z
-HLSLSV_GroupIndexAttr::HLSLSV_GroupIndexAttr(
+HLSLResourceAttr::HLSLResourceAttr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Attr *attr_)
     : InheritableAttr(std::move(ast_), attr_) {}
 
+PASTA_DEFINE_BASE_OPERATORS(Attr, HLSLResourceAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, HLSLResourceAttr)
+// 1: HLSLResourceAttr::Clone
+enum HLSLResourceAttrResourceKind HLSLResourceAttr::ResourceShape(void) const noexcept {
+  auto &self = *const_cast<clang::HLSLResourceAttr *>(u.HLSLResourceAttr);
+  decltype(auto) val = self.getResourceShape();
+  return static_cast<::pasta::HLSLResourceAttrResourceKind>(val);
+  __builtin_unreachable();
+}
+
+enum HLSLResourceAttrResourceClass HLSLResourceAttr::ResourceType(void) const noexcept {
+  auto &self = *const_cast<clang::HLSLResourceAttr *>(u.HLSLResourceAttr);
+  decltype(auto) val = self.getResourceType();
+  return static_cast<::pasta::HLSLResourceAttrResourceClass>(val);
+  __builtin_unreachable();
+}
+
+std::string_view HLSLResourceAttr::Spelling(void) const noexcept {
+  auto &self = *const_cast<clang::HLSLResourceAttr *>(u.HLSLResourceAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  assert(false && "HLSLResourceAttr::Spelling can return nullptr!");
+  __builtin_unreachable();
+}
+
+HLSLResourceBindingAttr::HLSLResourceBindingAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : InheritableAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, HLSLResourceBindingAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, HLSLResourceBindingAttr)
+// 1: HLSLResourceBindingAttr::Clone
+std::string_view HLSLResourceBindingAttr::Slot(void) const noexcept {
+  auto &self = *const_cast<clang::HLSLResourceBindingAttr *>(u.HLSLResourceBindingAttr);
+  decltype(auto) val = self.getSlot();
+  if (auto size = val.size()) {
+    return std::string_view(val.data(), size);
+  } else {
+    return std::string_view();
+  }
+  __builtin_unreachable();
+}
+
+uint32_t HLSLResourceBindingAttr::SlotLength(void) const noexcept {
+  auto &self = *const_cast<clang::HLSLResourceBindingAttr *>(u.HLSLResourceBindingAttr);
+  decltype(auto) val = self.getSlotLength();
+  return val;
+  __builtin_unreachable();
+}
+
+std::string_view HLSLResourceBindingAttr::Space(void) const noexcept {
+  auto &self = *const_cast<clang::HLSLResourceBindingAttr *>(u.HLSLResourceBindingAttr);
+  decltype(auto) val = self.getSpace();
+  if (auto size = val.size()) {
+    return std::string_view(val.data(), size);
+  } else {
+    return std::string_view();
+  }
+  __builtin_unreachable();
+}
+
+uint32_t HLSLResourceBindingAttr::SpaceLength(void) const noexcept {
+  auto &self = *const_cast<clang::HLSLResourceBindingAttr *>(u.HLSLResourceBindingAttr);
+  decltype(auto) val = self.getSpaceLength();
+  return val;
+  __builtin_unreachable();
+}
+
+std::string_view HLSLResourceBindingAttr::Spelling(void) const noexcept {
+  auto &self = *const_cast<clang::HLSLResourceBindingAttr *>(u.HLSLResourceBindingAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  assert(false && "HLSLResourceBindingAttr::Spelling can return nullptr!");
+  __builtin_unreachable();
+}
+
+HLSLSV_DispatchThreadIDAttr::HLSLSV_DispatchThreadIDAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : HLSLAnnotationAttr(std::move(ast_), attr_) {}
+
+PASTA_DEFINE_BASE_OPERATORS(Attr, HLSLSV_DispatchThreadIDAttr)
+PASTA_DEFINE_BASE_OPERATORS(HLSLAnnotationAttr, HLSLSV_DispatchThreadIDAttr)
+PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, HLSLSV_DispatchThreadIDAttr)
+// 1: HLSLSV_DispatchThreadIDAttr::Clone
+std::string_view HLSLSV_DispatchThreadIDAttr::Spelling(void) const noexcept {
+  auto &self = *const_cast<clang::HLSLSV_DispatchThreadIDAttr *>(u.HLSLSV_DispatchThreadIDAttr);
+  decltype(auto) val = self.getSpelling();
+  if (val) {
+    return std::string_view(val);
+  } else {
+    return std::string_view();
+  }
+  assert(false && "HLSLSV_DispatchThreadIDAttr::Spelling can return nullptr!");
+  __builtin_unreachable();
+}
+
+HLSLSV_GroupIndexAttr::HLSLSV_GroupIndexAttr(
+    std::shared_ptr<ASTImpl> ast_,
+    const ::clang::Attr *attr_)
+    : HLSLAnnotationAttr(std::move(ast_), attr_) {}
+
 PASTA_DEFINE_BASE_OPERATORS(Attr, HLSLSV_GroupIndexAttr)
+PASTA_DEFINE_BASE_OPERATORS(HLSLAnnotationAttr, HLSLSV_GroupIndexAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, HLSLSV_GroupIndexAttr)
 // 1: HLSLSV_GroupIndexAttr::Clone
 std::string_view HLSLSV_GroupIndexAttr::Spelling(void) const noexcept {

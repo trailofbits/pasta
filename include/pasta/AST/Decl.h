@@ -44,6 +44,7 @@ class DeclVisitor {
   virtual void VisitFileScopeAsmDecl(const FileScopeAsmDecl &);
   virtual void VisitFriendDecl(const FriendDecl &);
   virtual void VisitFriendTemplateDecl(const FriendTemplateDecl &);
+  virtual void VisitImplicitConceptSpecializationDecl(const ImplicitConceptSpecializationDecl &);
   virtual void VisitImportDecl(const ImportDecl &);
   virtual void VisitLifetimeExtendedTemporaryDecl(const LifetimeExtendedTemporaryDecl &);
   virtual void VisitLinkageSpecDecl(const LinkageSpecDecl &);
@@ -65,6 +66,7 @@ class DeclVisitor {
   virtual void VisitStaticAssertDecl(const StaticAssertDecl &);
   virtual void VisitTemplateDecl(const TemplateDecl &);
   virtual void VisitTemplateTemplateParmDecl(const TemplateTemplateParmDecl &);
+  virtual void VisitTopLevelStmtDecl(const TopLevelStmtDecl &);
   virtual void VisitTranslationUnitDecl(const TranslationUnitDecl &);
   virtual void VisitTypeDecl(const TypeDecl &);
   virtual void VisitTypedefNameDecl(const TypedefNameDecl &);
@@ -89,6 +91,7 @@ class DeclVisitor {
   virtual void VisitEnumConstantDecl(const EnumConstantDecl &);
   virtual void VisitFieldDecl(const FieldDecl &);
   virtual void VisitFunctionDecl(const FunctionDecl &);
+  virtual void VisitHLSLBufferDecl(const HLSLBufferDecl &);
   virtual void VisitIndirectFieldDecl(const IndirectFieldDecl &);
   virtual void VisitLabelDecl(const LabelDecl &);
   virtual void VisitMSGuidDecl(const MSGuidDecl &);
@@ -154,6 +157,7 @@ class DeclContext {
   PASTA_DECLARE_DERIVED_OPERATORS(DeclContext, ExportDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(DeclContext, ExternCContextDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(DeclContext, FunctionDecl)
+  PASTA_DECLARE_DERIVED_OPERATORS(DeclContext, HLSLBufferDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(DeclContext, LinkageSpecDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(DeclContext, NamespaceDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(DeclContext, OMPDeclareMapperDecl)
@@ -194,6 +198,7 @@ class DeclContext {
   ::pasta::DeclContext RedeclarationContext(void) const noexcept;
   bool HasExternalLexicalStorage(void) const noexcept;
   bool HasExternalVisibleStorage(void) const noexcept;
+  bool HasValidDeclarationKind(void) const noexcept;
   bool IsClosure(void) const noexcept;
   // IsDeclarationInLexicalTraversal: (bool)
   bool IsDependentContext(void) const noexcept;
@@ -268,6 +273,8 @@ class Decl {
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, FriendTemplateDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, FunctionDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, FunctionTemplateDecl)
+  PASTA_DECLARE_DERIVED_OPERATORS(Decl, HLSLBufferDecl)
+  PASTA_DECLARE_DERIVED_OPERATORS(Decl, ImplicitConceptSpecializationDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, ImplicitParamDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, ImportDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, IndirectFieldDecl)
@@ -314,6 +321,7 @@ class Decl {
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, TemplateParamObjectDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, TemplateTemplateParmDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, TemplateTypeParmDecl)
+  PASTA_DECLARE_DERIVED_OPERATORS(Decl, TopLevelStmtDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, TranslationUnitDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, TypeAliasDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(Decl, TypeAliasTemplateDecl)
@@ -363,6 +371,7 @@ class Decl {
   ::pasta::Decl MostRecentDeclaration(void) const noexcept;
   std::optional<::pasta::Decl> NextDeclarationInContext(void) const noexcept;
   std::optional<::pasta::Decl> NonClosureContext(void) const noexcept;
+  ::pasta::DeclContext NonTransparentDeclarationContext(void) const noexcept;
   // OwningModule: (clang::Module *)
   // OwningModuleForLinkage: (clang::Module *)
   uint32_t OwningModuleID(void) const noexcept;
@@ -380,6 +389,7 @@ class Decl {
   bool IsDefinedOutsideFunctionOrMethod(void) const noexcept;
   bool IsDeprecated(void) const noexcept;
   bool IsDiscardedInGlobalModuleFragment(void) const noexcept;
+  bool IsFileContextDeclaration(void) const noexcept;
   bool IsFirstDeclaration(void) const noexcept;
   bool IsFromASTFile(void) const noexcept;
   bool IsFunctionOrFunctionTemplate(void) const noexcept;
@@ -391,6 +401,7 @@ class Decl {
   bool IsInStdNamespace(void) const noexcept;
   bool IsInvalidDeclaration(void) const noexcept;
   bool IsInvisibleOutsideTheOwningModule(void) const noexcept;
+  bool IsLocalExternDeclaration(void) const noexcept;
   bool IsModulePrivate(void) const noexcept;
   bool IsOutOfLine(void) const noexcept;
   bool IsParameterPack(void) const noexcept;
@@ -461,6 +472,8 @@ class Decl {
     const ::clang::FriendTemplateDecl *FriendTemplateDecl;
     const ::clang::FunctionDecl *FunctionDecl;
     const ::clang::FunctionTemplateDecl *FunctionTemplateDecl;
+    const ::clang::HLSLBufferDecl *HLSLBufferDecl;
+    const ::clang::ImplicitConceptSpecializationDecl *ImplicitConceptSpecializationDecl;
     const ::clang::ImplicitParamDecl *ImplicitParamDecl;
     const ::clang::ImportDecl *ImportDecl;
     const ::clang::IndirectFieldDecl *IndirectFieldDecl;
@@ -505,6 +518,7 @@ class Decl {
     const ::clang::TemplateParamObjectDecl *TemplateParamObjectDecl;
     const ::clang::TemplateTemplateParmDecl *TemplateTemplateParmDecl;
     const ::clang::TemplateTypeParmDecl *TemplateTypeParmDecl;
+    const ::clang::TopLevelStmtDecl *TopLevelStmtDecl;
     const ::clang::TranslationUnitDecl *TranslationUnitDecl;
     const ::clang::TypeAliasDecl *TypeAliasDecl;
     const ::clang::TypeAliasTemplateDecl *TypeAliasTemplateDecl;
@@ -630,6 +644,18 @@ class FriendTemplateDecl : public Decl {
 
 static_assert(sizeof(Decl) == sizeof(FriendTemplateDecl));
 
+class ImplicitConceptSpecializationDecl : public Decl {
+ private:
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ImplicitConceptSpecializationDecl)
+  PASTA_DECLARE_BASE_OPERATORS(Decl, ImplicitConceptSpecializationDecl)
+  std::vector<::pasta::TemplateArgument> TemplateArguments(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ImplicitConceptSpecializationDecl)
+};
+
+static_assert(sizeof(Decl) == sizeof(ImplicitConceptSpecializationDecl));
+
 class ImportDecl : public Decl {
  private:
  public:
@@ -704,6 +730,7 @@ class NamedDecl : public Decl {
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, FieldDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, FunctionDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, FunctionTemplateDecl)
+  PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, HLSLBufferDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, ImplicitParamDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, IndirectFieldDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, LabelDecl)
@@ -758,7 +785,7 @@ class NamedDecl : public Decl {
   PASTA_DECLARE_DERIVED_OPERATORS(NamedDecl, VarTemplateSpecializationDecl)
   // DeclarationReplaces: (bool)
   // DeclarationName: (clang::DeclarationName)
-  // ExplicitVisibility: (llvm::Optional<clang::Visibility>)
+  // ExplicitVisibility: (std::optional<clang::Visibility>)
   enum Linkage FormalLinkage(void) const noexcept;
   // Identifier: (clang::IdentifierInfo *)
   // LinkageAndVisibility: (clang::LinkageInfo)
@@ -820,6 +847,7 @@ class NamespaceDecl : public NamedDecl {
   ::pasta::Token RBraceToken(void) const noexcept;
   bool IsAnonymousNamespace(void) const noexcept;
   bool IsInline(void) const noexcept;
+  bool IsNested(void) const noexcept;
   bool IsOriginalNamespace(void) const noexcept;
   // IsRedundantInlineQualifierFor: (bool)
  protected:
@@ -1192,6 +1220,7 @@ class TemplateDecl : public NamedDecl {
   ::pasta::TemplateParameterList TemplateParameters(void) const noexcept;
   ::pasta::NamedDecl TemplatedDeclaration(void) const noexcept;
   bool HasAssociatedConstraints(void) const noexcept;
+  bool IsTypeAlias(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TemplateDecl)
 };
@@ -1221,6 +1250,18 @@ class TemplateTemplateParmDecl : public TemplateDecl {
 };
 
 static_assert(sizeof(Decl) == sizeof(TemplateTemplateParmDecl));
+
+class TopLevelStmtDecl : public Decl {
+ private:
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TopLevelStmtDecl)
+  PASTA_DECLARE_BASE_OPERATORS(Decl, TopLevelStmtDecl)
+  ::pasta::Stmt Statement(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TopLevelStmtDecl)
+};
+
+static_assert(sizeof(Decl) == sizeof(TopLevelStmtDecl));
 
 class TranslationUnitDecl : public Decl {
  private:
@@ -1411,7 +1452,9 @@ class ValueDecl : public NamedDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(ValueDecl, VarDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueDecl, VarTemplatePartialSpecializationDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueDecl, VarTemplateSpecializationDecl)
+  ::pasta::VarDecl PotentiallyDecomposedVariableDeclaration(void) const noexcept;
   ::pasta::Type Type(void) const noexcept;
+  bool IsInitializerCapture(void) const noexcept;
   bool IsWeak(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(ValueDecl)
@@ -1719,6 +1762,7 @@ class FunctionDecl : public DeclaratorDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(FunctionDecl, CXXDeductionGuideDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(FunctionDecl, CXXDestructorDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(FunctionDecl, CXXMethodDecl)
+  bool FriendConstraintRefersToEnclosingTemplate(void) const noexcept;
   bool UsesFPIntrin(void) const noexcept;
   std::optional<bool> DoesDeclarationForceExternallyVisibleDefinition(void) const noexcept;
   bool DoesThisDeclarationHaveABody(void) const noexcept;
@@ -1727,6 +1771,7 @@ class FunctionDecl : public DeclaratorDecl {
   ::pasta::FunctionDecl CanonicalDeclaration(void) const noexcept;
   enum ConstexprSpecKind ConstexprKind(void) const noexcept;
   ::pasta::Type DeclaredReturnType(void) const noexcept;
+  ::pasta::Token DefaultToken(void) const noexcept;
   // DefaultedFunctionInfo: (clang::FunctionDecl::DefaultedFunctionInfo *)
   std::optional<::pasta::FunctionDecl> Definition(void) const noexcept;
   // DependentSpecializationInfo: (clang::DependentFunctionTemplateSpecializationInfo *)
@@ -1822,6 +1867,24 @@ class FunctionDecl : public DeclaratorDecl {
 };
 
 static_assert(sizeof(Decl) == sizeof(FunctionDecl));
+
+class HLSLBufferDecl : public NamedDecl {
+ private:
+  using NamedDecl::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(HLSLBufferDecl)
+  PASTA_DECLARE_BASE_OPERATORS(DeclContext, HLSLBufferDecl)
+  PASTA_DECLARE_BASE_OPERATORS(Decl, HLSLBufferDecl)
+  PASTA_DECLARE_BASE_OPERATORS(NamedDecl, HLSLBufferDecl)
+  ::pasta::Token LBraceToken(void) const noexcept;
+  ::pasta::Token TokenStart(void) const noexcept;
+  ::pasta::Token RBraceToken(void) const noexcept;
+  bool IsCBuffer(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(HLSLBufferDecl)
+};
+
+static_assert(sizeof(Decl) == sizeof(HLSLBufferDecl));
 
 class IndirectFieldDecl : public ValueDecl {
  private:
@@ -2351,6 +2414,10 @@ class UsingEnumDecl : public BaseUsingDecl {
   ::pasta::UsingEnumDecl CanonicalDeclaration(void) const noexcept;
   ::pasta::EnumDecl EnumDeclaration(void) const noexcept;
   ::pasta::Token EnumToken(void) const noexcept;
+  ::pasta::Type EnumType(void) const noexcept;
+  // EnumTypeToken: (clang::TypeLoc)
+  // Qualifier: (clang::NestedNameSpecifier *)
+  // QualifierToken: (clang::NestedNameSpecifierLoc)
   ::pasta::Token UsingToken(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(UsingEnumDecl)

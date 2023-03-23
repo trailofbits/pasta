@@ -8,6 +8,7 @@
 
 #include <cstdint>
 #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wshorten-64-to-32"
 #include <llvm/ADT/APSInt.h>
@@ -151,6 +152,7 @@ class CXXNewExpr;
 class CXXNoexceptExpr;
 class CXXNullPtrLiteralExpr;
 class CXXOperatorCallExpr;
+class CXXParenListInitExpr;
 class CXXPseudoDestructorExpr;
 class CXXRecordDecl;
 class CXXReinterpretCastExpr;
@@ -188,6 +190,7 @@ class CmseNSEntryAttr;
 class CoawaitExpr;
 class CodeSegAttr;
 class ColdAttr;
+class Common;
 class CommonAttr;
 class ComplexType;
 class CompoundAssignOperator;
@@ -301,7 +304,13 @@ class GotoStmt;
 class GuardedByAttr;
 class GuardedVarAttr;
 class HIPManagedAttr;
+class HLSLAnnotationAttr;
+class HLSLBufferDecl;
+class HLSLGroupSharedAddressSpaceAttr;
 class HLSLNumThreadsAttr;
+class HLSLResourceAttr;
+class HLSLResourceBindingAttr;
+class HLSLSV_DispatchThreadIDAttr;
 class HLSLSV_GroupIndexAttr;
 class HLSLShaderAttr;
 class HotAttr;
@@ -312,6 +321,7 @@ class IFuncAttr;
 class IfStmt;
 class ImaginaryLiteral;
 class ImplicitCastExpr;
+class ImplicitConceptSpecializationDecl;
 class ImplicitParamDecl;
 class ImplicitValueInitExpr;
 class ImportDecl;
@@ -363,6 +373,7 @@ class MatrixSubscriptExpr;
 class MatrixType;
 class MaxFieldAlignmentAttr;
 class MayAliasAttr;
+class MaybeUndefAttr;
 class MemberExpr;
 class MemberPointerType;
 class MicroMipsAttr;
@@ -408,6 +419,7 @@ class NoStackProtectorAttr;
 class NoThreadSafetyAnalysisAttr;
 class NoThrowAttr;
 class NoUniqueAddressAttr;
+class NoUwtableAttr;
 class NonNullAttr;
 class NonTypeTemplateParmDecl;
 class NotTailCalledAttr;
@@ -436,6 +448,7 @@ class OMPDistributeDirective;
 class OMPDistributeParallelForDirective;
 class OMPDistributeParallelForSimdDirective;
 class OMPDistributeSimdDirective;
+class OMPErrorDirective;
 class OMPExecutableDirective;
 class OMPFlushDirective;
 class OMPForDirective;
@@ -634,6 +647,7 @@ class PureAttr;
 class RISCVInterruptAttr;
 class RValueReferenceType;
 class RandomizeLayoutAttr;
+class ReadOnlyPlacementAttr;
 class RecordDecl;
 class RecordType;
 class RecoveryExpr;
@@ -679,6 +693,7 @@ class Stmt;
 class StmtAttr;
 class StmtExpr;
 class StrictFPAttr;
+class StrictGuardStackCheckAttr;
 class StringLiteral;
 class SubstNonTypeTemplateParmExpr;
 class SubstNonTypeTemplateParmPackExpr;
@@ -710,6 +725,7 @@ class TagDecl;
 class TagType;
 class TargetAttr;
 class TargetClonesAttr;
+class TargetVersionAttr;
 class TemplateArgument;
 class TemplateDecl;
 class TemplateParamObjectDecl;
@@ -720,6 +736,7 @@ class TemplateTypeParmType;
 class TestTypestateAttr;
 class ThisCallAttr;
 class ThreadAttr;
+class TopLevelStmtDecl;
 class TranslationUnitDecl;
 class TransparentUnionAttr;
 class TrivialABIAttr;
@@ -843,6 +860,8 @@ class TypeBuilder;
     m(FriendTemplate) \
     m(Function) \
     m(FunctionTemplate) \
+    m(HLSLBuffer) \
+    m(ImplicitConceptSpecialization) \
     m(ImplicitParam) \
     m(Import) \
     m(IndirectField) \
@@ -887,6 +906,7 @@ class TypeBuilder;
     m(TemplateParamObject) \
     m(TemplateTemplateParm) \
     m(TemplateTypeParm) \
+    m(TopLevelStmt) \
     m(TranslationUnit) \
     m(TypeAlias) \
     m(TypeAliasTemplate) \
@@ -947,6 +967,7 @@ class TypeBuilder;
     e(CXXNoexceptExpr) \
     e(CXXNullPtrLiteralExpr) \
     e(CXXOperatorCallExpr) \
+    e(CXXParenListInitExpr) \
     e(CXXPseudoDestructorExpr) \
     e(CXXReinterpretCastExpr) \
     o(CXXRewrittenBinaryOperator) \
@@ -1033,6 +1054,7 @@ class TypeBuilder;
     d(OMPDistributeParallelForDirective) \
     d(OMPDistributeParallelForSimdDirective) \
     d(OMPDistributeSimdDirective) \
+    d(OMPErrorDirective) \
     a(OMPExecutableDirective) \
     d(OMPFlushDirective) \
     d(OMPForDirective) \
@@ -1346,7 +1368,12 @@ class TypeBuilder;
     m(GuardedBy) \
     m(GuardedVar) \
     m(HIPManaged) \
+    a(HLSLAnnotationAttr) \
+    m(HLSLGroupSharedAddressSpace) \
     m(HLSLNumThreads) \
+    m(HLSLResource) \
+    m(HLSLResourceBinding) \
+    m(HLSLSV_DispatchThreadID) \
     m(HLSLSV_GroupIndex) \
     m(HLSLShader) \
     m(Hot) \
@@ -1380,6 +1407,7 @@ class TypeBuilder;
     m(MSVtorDisp) \
     m(MaxFieldAlignment) \
     m(MayAlias) \
+    m(MaybeUndef) \
     m(MicroMips) \
     m(MinSize) \
     m(MinVectorWidth) \
@@ -1419,6 +1447,7 @@ class TypeBuilder;
     m(NoThreadSafetyAnalysis) \
     m(NoThrow) \
     m(NoUniqueAddress) \
+    m(NoUwtable) \
     m(NonNull) \
     m(NotTailCalled) \
     m(OMPAllocateDecl) \
@@ -1502,6 +1531,7 @@ class TypeBuilder;
     m(Pure) \
     m(RISCVInterrupt) \
     m(RandomizeLayout) \
+    m(ReadOnlyPlacement) \
     m(RegCall) \
     m(Reinitializes) \
     m(ReleaseCapability) \
@@ -1528,6 +1558,7 @@ class TypeBuilder;
     m(StdCall) \
     a(StmtAttr) \
     m(StrictFP) \
+    m(StrictGuardStackCheck) \
     m(Suppress) \
     m(SwiftAsync) \
     m(SwiftAsyncCall) \
@@ -1550,6 +1581,7 @@ class TypeBuilder;
     m(TLSModel) \
     m(Target) \
     m(TargetClones) \
+    m(TargetVersion) \
     m(TestTypestate) \
     m(ThisCall) \
     m(Thread) \
@@ -2237,6 +2269,14 @@ enum class CFGuardAttrGuardArg : unsigned int {
   kNocf = 0,
 };
 
+enum class CFGuardAttrSpelling : unsigned int {
+  kDeclspecGuard = 0,
+  kGNUGuard = 1,
+  kCXX11ClangGuard = 2,
+  kC2xClangGuard = 3,
+  kSpellingNotCalculated = 15,
+};
+
 enum class CFICanonicalJumpTableAttrSpelling : unsigned int {
   kGNUCfiCanonicalJumpTable = 0,
   kCXX11ClangCfiCanonicalJumpTable = 1,
@@ -2797,6 +2837,34 @@ enum class HIPManagedAttrSpelling : unsigned int {
   kSpellingNotCalculated = 15,
 };
 
+enum class HLSLResourceAttrResourceClass : unsigned int {
+  kSRV = 0,
+  kUAV = 1,
+  kCBuffer = 2,
+  kSampler = 3,
+};
+
+enum class HLSLResourceAttrResourceKind : unsigned int {
+  kTexture1D = 0,
+  kTexture2D = 1,
+  kTexture2DMS = 2,
+  kTexture3D = 3,
+  kTextureCube = 4,
+  kTexture1DArray = 5,
+  kTexture2DArray = 6,
+  kTexture2DMSArray = 7,
+  kTextureCubeArray = 8,
+  kTypedBuffer = 9,
+  kRawBuffer = 10,
+  kStructuredBuffer = 11,
+  kCBufferKind = 12,
+  kSamplerKind = 13,
+  kTBuffer = 14,
+  kRTAccelerationStructure = 15,
+  kFeedbackTexture2D = 16,
+  kFeedbackTexture2DArray = 17,
+};
+
 enum class HLSLShaderAttrShaderType : unsigned int {
   kPixel = 0,
   kVertex = 1,
@@ -2804,14 +2872,15 @@ enum class HLSLShaderAttrShaderType : unsigned int {
   kHull = 3,
   kDomain = 4,
   kCompute = 5,
-  kRayGeneration = 6,
-  kIntersection = 7,
-  kAnyHit = 8,
-  kClosestHit = 9,
-  kMiss = 10,
-  kCallable = 11,
-  kMesh = 12,
-  kAmplification = 13,
+  kLibrary = 6,
+  kRayGeneration = 7,
+  kIntersection = 8,
+  kAnyHit = 9,
+  kClosestHit = 10,
+  kMiss = 11,
+  kCallable = 12,
+  kMesh = 13,
+  kAmplification = 14,
 };
 
 enum class HotAttrSpelling : unsigned int {
@@ -2994,6 +3063,13 @@ enum class MayAliasAttrSpelling : unsigned int {
   kGNUMayAlias = 0,
   kCXX11GnuMayAlias = 1,
   kC2xGnuMayAlias = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class MaybeUndefAttrSpelling : unsigned int {
+  kGNUMaybeUndef = 0,
+  kCXX11ClangMaybeUndef = 1,
+  kC2xClangMaybeUndef = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -3260,6 +3336,7 @@ enum class NoStackProtectorAttrSpelling : unsigned int {
   kGNUNoStackProtector = 0,
   kCXX11ClangNoStackProtector = 1,
   kC2xClangNoStackProtector = 2,
+  kDeclspecSafebuffers = 3,
   kSpellingNotCalculated = 15,
 };
 
@@ -3275,6 +3352,13 @@ enum class NoThrowAttrSpelling : unsigned int {
   kCXX11GnuNothrow = 1,
   kC2xGnuNothrow = 2,
   kDeclspecNothrow = 3,
+  kSpellingNotCalculated = 15,
+};
+
+enum class NoUwtableAttrSpelling : unsigned int {
+  kGNUNouwtable = 0,
+  kCXX11ClangNouwtable = 1,
+  kC2xClangNouwtable = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -3325,13 +3409,8 @@ enum class OMPDeclareTargetDeclAttrDevTypeTy : unsigned int {
 
 enum class OMPDeclareTargetDeclAttrMapTypeTy : unsigned int {
   kTo = 0,
-  kLink = 1,
-};
-
-enum class OMPDeclareVariantAttrInteropType : unsigned int {
-  kTarget = 0,
-  kTargetSync = 1,
-  kTargetTargetSync = 2,
+  kEnter = 1,
+  kLink = 2,
 };
 
 enum class OSConsumedAttrSpelling : unsigned int {
@@ -3848,6 +3927,13 @@ enum class RandomizeLayoutAttrSpelling : unsigned int {
   kSpellingNotCalculated = 15,
 };
 
+enum class ReadOnlyPlacementAttrSpelling : unsigned int {
+  kGNUEnforceReadOnlyPlacement = 0,
+  kCXX11ClangEnforceReadOnlyPlacement = 1,
+  kC2xClangEnforceReadOnlyPlacement = 2,
+  kSpellingNotCalculated = 15,
+};
+
 enum class RecordDeclArgPassingKind : unsigned int {
   kCanPassInRegs = 0,
   kCannotPassInRegs = 1,
@@ -4058,210 +4144,212 @@ enum class StmtKind : unsigned int {
   kOMPCriticalDirective = 25,
   kOMPDepobjDirective = 26,
   kOMPDispatchDirective = 27,
-  kOMPFlushDirective = 28,
-  kOMPInteropDirective = 29,
-  kOMPDistributeDirective = 30,
-  kOMPDistributeParallelForDirective = 31,
-  kOMPDistributeParallelForSimdDirective = 32,
-  kOMPDistributeSimdDirective = 33,
-  kOMPForDirective = 34,
-  kOMPForSimdDirective = 35,
-  kOMPGenericLoopDirective = 36,
-  kOMPMaskedTaskLoopDirective = 37,
-  kOMPMaskedTaskLoopSimdDirective = 38,
-  kOMPMasterTaskLoopDirective = 39,
-  kOMPMasterTaskLoopSimdDirective = 40,
-  kOMPParallelForDirective = 41,
-  kOMPParallelForSimdDirective = 42,
-  kOMPParallelGenericLoopDirective = 43,
-  kOMPParallelMaskedTaskLoopDirective = 44,
-  kOMPParallelMaskedTaskLoopSimdDirective = 45,
-  kOMPParallelMasterTaskLoopDirective = 46,
-  kOMPParallelMasterTaskLoopSimdDirective = 47,
-  kOMPSimdDirective = 48,
-  kOMPTargetParallelForSimdDirective = 49,
-  kOMPTargetParallelGenericLoopDirective = 50,
-  kOMPTargetSimdDirective = 51,
-  kOMPTargetTeamsDistributeDirective = 52,
-  kOMPTargetTeamsDistributeParallelForDirective = 53,
-  kOMPTargetTeamsDistributeParallelForSimdDirective = 54,
-  kOMPTargetTeamsDistributeSimdDirective = 55,
-  kOMPTargetTeamsGenericLoopDirective = 56,
-  kOMPTaskLoopDirective = 57,
-  kOMPTaskLoopSimdDirective = 58,
-  kOMPTeamsDistributeDirective = 59,
-  kOMPTeamsDistributeParallelForDirective = 60,
-  kOMPTeamsDistributeParallelForSimdDirective = 61,
-  kOMPTeamsDistributeSimdDirective = 62,
-  kOMPTeamsGenericLoopDirective = 63,
-  kOMPTileDirective = 64,
-  kOMPUnrollDirective = 65,
-  kOMPMaskedDirective = 66,
-  kOMPMasterDirective = 67,
-  kOMPMetaDirective = 68,
-  kOMPOrderedDirective = 69,
-  kOMPParallelDirective = 70,
-  kOMPParallelMaskedDirective = 71,
-  kOMPParallelMasterDirective = 72,
-  kOMPParallelSectionsDirective = 73,
-  kOMPScanDirective = 74,
-  kOMPSectionDirective = 75,
-  kOMPSectionsDirective = 76,
-  kOMPSingleDirective = 77,
-  kOMPTargetDataDirective = 78,
-  kOMPTargetDirective = 79,
-  kOMPTargetEnterDataDirective = 80,
-  kOMPTargetExitDataDirective = 81,
-  kOMPTargetParallelDirective = 82,
-  kOMPTargetParallelForDirective = 83,
-  kOMPTargetTeamsDirective = 84,
-  kOMPTargetUpdateDirective = 85,
-  kOMPTaskDirective = 86,
-  kOMPTaskgroupDirective = 87,
-  kOMPTaskwaitDirective = 88,
-  kOMPTaskyieldDirective = 89,
-  kOMPTeamsDirective = 90,
-  kObjCAtCatchStmt = 91,
-  kObjCAtFinallyStmt = 92,
-  kObjCAtSynchronizedStmt = 93,
-  kObjCAtThrowStmt = 94,
-  kObjCAtTryStmt = 95,
-  kObjCAutoreleasePoolStmt = 96,
-  kObjCForCollectionStmt = 97,
-  kReturnStmt = 98,
-  kSEHExceptStmt = 99,
-  kSEHFinallyStmt = 100,
-  kSEHLeaveStmt = 101,
-  kSEHTryStmt = 102,
-  kCaseStmt = 103,
-  kDefaultStmt = 104,
-  kSwitchStmt = 105,
-  kAttributedStmt = 106,
-  kBinaryConditionalOperator = 107,
-  kConditionalOperator = 108,
-  kAddrLabelExpr = 109,
-  kArrayInitIndexExpr = 110,
-  kArrayInitLoopExpr = 111,
-  kArraySubscriptExpr = 112,
-  kArrayTypeTraitExpr = 113,
-  kAsTypeExpr = 114,
-  kAtomicExpr = 115,
-  kBinaryOperator = 116,
-  kCompoundAssignOperator = 117,
-  kBlockExpr = 118,
-  kCXXBindTemporaryExpr = 119,
-  kCXXBoolLiteralExpr = 120,
-  kCXXConstructExpr = 121,
-  kCXXTemporaryObjectExpr = 122,
-  kCXXDefaultArgExpr = 123,
-  kCXXDefaultInitExpr = 124,
-  kCXXDeleteExpr = 125,
-  kCXXDependentScopeMemberExpr = 126,
-  kCXXFoldExpr = 127,
-  kCXXInheritedCtorInitExpr = 128,
-  kCXXNewExpr = 129,
-  kCXXNoexceptExpr = 130,
-  kCXXNullPtrLiteralExpr = 131,
-  kCXXPseudoDestructorExpr = 132,
-  kCXXRewrittenBinaryOperator = 133,
-  kCXXScalarValueInitExpr = 134,
-  kCXXStdInitializerListExpr = 135,
-  kCXXThisExpr = 136,
-  kCXXThrowExpr = 137,
-  kCXXTypeidExpr = 138,
-  kCXXUnresolvedConstructExpr = 139,
-  kCXXUuidofExpr = 140,
-  kCallExpr = 141,
-  kCUDAKernelCallExpr = 142,
-  kCXXMemberCallExpr = 143,
-  kCXXOperatorCallExpr = 144,
-  kUserDefinedLiteral = 145,
-  kBuiltinBitCastExpr = 146,
-  kCStyleCastExpr = 147,
-  kCXXFunctionalCastExpr = 148,
-  kCXXAddrspaceCastExpr = 149,
-  kCXXConstCastExpr = 150,
-  kCXXDynamicCastExpr = 151,
-  kCXXReinterpretCastExpr = 152,
-  kCXXStaticCastExpr = 153,
-  kObjCBridgedCastExpr = 154,
-  kImplicitCastExpr = 155,
-  kCharacterLiteral = 156,
-  kChooseExpr = 157,
-  kCompoundLiteralExpr = 158,
-  kConceptSpecializationExpr = 159,
-  kConvertVectorExpr = 160,
-  kCoawaitExpr = 161,
-  kCoyieldExpr = 162,
-  kDeclRefExpr = 163,
-  kDependentCoawaitExpr = 164,
-  kDependentScopeDeclRefExpr = 165,
-  kDesignatedInitExpr = 166,
-  kDesignatedInitUpdateExpr = 167,
-  kExpressionTraitExpr = 168,
-  kExtVectorElementExpr = 169,
-  kFixedPointLiteral = 170,
-  kFloatingLiteral = 171,
-  kConstantExpr = 172,
-  kExprWithCleanups = 173,
-  kFunctionParmPackExpr = 174,
-  kGNUNullExpr = 175,
-  kGenericSelectionExpr = 176,
-  kImaginaryLiteral = 177,
-  kImplicitValueInitExpr = 178,
-  kInitListExpr = 179,
-  kIntegerLiteral = 180,
-  kLambdaExpr = 181,
-  kMSPropertyRefExpr = 182,
-  kMSPropertySubscriptExpr = 183,
-  kMaterializeTemporaryExpr = 184,
-  kMatrixSubscriptExpr = 185,
-  kMemberExpr = 186,
-  kNoInitExpr = 187,
-  kOMPArraySectionExpr = 188,
-  kOMPArrayShapingExpr = 189,
-  kOMPIteratorExpr = 190,
-  kObjCArrayLiteral = 191,
-  kObjCAvailabilityCheckExpr = 192,
-  kObjCBoolLiteralExpr = 193,
-  kObjCBoxedExpr = 194,
-  kObjCDictionaryLiteral = 195,
-  kObjCEncodeExpr = 196,
-  kObjCIndirectCopyRestoreExpr = 197,
-  kObjCIsaExpr = 198,
-  kObjCIvarRefExpr = 199,
-  kObjCMessageExpr = 200,
-  kObjCPropertyRefExpr = 201,
-  kObjCProtocolExpr = 202,
-  kObjCSelectorExpr = 203,
-  kObjCStringLiteral = 204,
-  kObjCSubscriptRefExpr = 205,
-  kOffsetOfExpr = 206,
-  kOpaqueValueExpr = 207,
-  kUnresolvedLookupExpr = 208,
-  kUnresolvedMemberExpr = 209,
-  kPackExpansionExpr = 210,
-  kParenExpr = 211,
-  kParenListExpr = 212,
-  kPredefinedExpr = 213,
-  kPseudoObjectExpr = 214,
-  kRecoveryExpr = 215,
-  kRequiresExpr = 216,
-  kSYCLUniqueStableNameExpr = 217,
-  kShuffleVectorExpr = 218,
-  kSizeOfPackExpr = 219,
-  kSourceLocExpr = 220,
-  kStmtExpr = 221,
-  kStringLiteral = 222,
-  kSubstNonTypeTemplateParmExpr = 223,
-  kSubstNonTypeTemplateParmPackExpr = 224,
-  kTypeTraitExpr = 225,
-  kTypoExpr = 226,
-  kUnaryExprOrTypeTraitExpr = 227,
-  kUnaryOperator = 228,
-  kVAArgExpr = 229,
-  kLabelStmt = 230,
-  kWhileStmt = 231,
+  kOMPErrorDirective = 28,
+  kOMPFlushDirective = 29,
+  kOMPInteropDirective = 30,
+  kOMPDistributeDirective = 31,
+  kOMPDistributeParallelForDirective = 32,
+  kOMPDistributeParallelForSimdDirective = 33,
+  kOMPDistributeSimdDirective = 34,
+  kOMPForDirective = 35,
+  kOMPForSimdDirective = 36,
+  kOMPGenericLoopDirective = 37,
+  kOMPMaskedTaskLoopDirective = 38,
+  kOMPMaskedTaskLoopSimdDirective = 39,
+  kOMPMasterTaskLoopDirective = 40,
+  kOMPMasterTaskLoopSimdDirective = 41,
+  kOMPParallelForDirective = 42,
+  kOMPParallelForSimdDirective = 43,
+  kOMPParallelGenericLoopDirective = 44,
+  kOMPParallelMaskedTaskLoopDirective = 45,
+  kOMPParallelMaskedTaskLoopSimdDirective = 46,
+  kOMPParallelMasterTaskLoopDirective = 47,
+  kOMPParallelMasterTaskLoopSimdDirective = 48,
+  kOMPSimdDirective = 49,
+  kOMPTargetParallelForSimdDirective = 50,
+  kOMPTargetParallelGenericLoopDirective = 51,
+  kOMPTargetSimdDirective = 52,
+  kOMPTargetTeamsDistributeDirective = 53,
+  kOMPTargetTeamsDistributeParallelForDirective = 54,
+  kOMPTargetTeamsDistributeParallelForSimdDirective = 55,
+  kOMPTargetTeamsDistributeSimdDirective = 56,
+  kOMPTargetTeamsGenericLoopDirective = 57,
+  kOMPTaskLoopDirective = 58,
+  kOMPTaskLoopSimdDirective = 59,
+  kOMPTeamsDistributeDirective = 60,
+  kOMPTeamsDistributeParallelForDirective = 61,
+  kOMPTeamsDistributeParallelForSimdDirective = 62,
+  kOMPTeamsDistributeSimdDirective = 63,
+  kOMPTeamsGenericLoopDirective = 64,
+  kOMPTileDirective = 65,
+  kOMPUnrollDirective = 66,
+  kOMPMaskedDirective = 67,
+  kOMPMasterDirective = 68,
+  kOMPMetaDirective = 69,
+  kOMPOrderedDirective = 70,
+  kOMPParallelDirective = 71,
+  kOMPParallelMaskedDirective = 72,
+  kOMPParallelMasterDirective = 73,
+  kOMPParallelSectionsDirective = 74,
+  kOMPScanDirective = 75,
+  kOMPSectionDirective = 76,
+  kOMPSectionsDirective = 77,
+  kOMPSingleDirective = 78,
+  kOMPTargetDataDirective = 79,
+  kOMPTargetDirective = 80,
+  kOMPTargetEnterDataDirective = 81,
+  kOMPTargetExitDataDirective = 82,
+  kOMPTargetParallelDirective = 83,
+  kOMPTargetParallelForDirective = 84,
+  kOMPTargetTeamsDirective = 85,
+  kOMPTargetUpdateDirective = 86,
+  kOMPTaskDirective = 87,
+  kOMPTaskgroupDirective = 88,
+  kOMPTaskwaitDirective = 89,
+  kOMPTaskyieldDirective = 90,
+  kOMPTeamsDirective = 91,
+  kObjCAtCatchStmt = 92,
+  kObjCAtFinallyStmt = 93,
+  kObjCAtSynchronizedStmt = 94,
+  kObjCAtThrowStmt = 95,
+  kObjCAtTryStmt = 96,
+  kObjCAutoreleasePoolStmt = 97,
+  kObjCForCollectionStmt = 98,
+  kReturnStmt = 99,
+  kSEHExceptStmt = 100,
+  kSEHFinallyStmt = 101,
+  kSEHLeaveStmt = 102,
+  kSEHTryStmt = 103,
+  kCaseStmt = 104,
+  kDefaultStmt = 105,
+  kSwitchStmt = 106,
+  kAttributedStmt = 107,
+  kBinaryConditionalOperator = 108,
+  kConditionalOperator = 109,
+  kAddrLabelExpr = 110,
+  kArrayInitIndexExpr = 111,
+  kArrayInitLoopExpr = 112,
+  kArraySubscriptExpr = 113,
+  kArrayTypeTraitExpr = 114,
+  kAsTypeExpr = 115,
+  kAtomicExpr = 116,
+  kBinaryOperator = 117,
+  kCompoundAssignOperator = 118,
+  kBlockExpr = 119,
+  kCXXBindTemporaryExpr = 120,
+  kCXXBoolLiteralExpr = 121,
+  kCXXConstructExpr = 122,
+  kCXXTemporaryObjectExpr = 123,
+  kCXXDefaultArgExpr = 124,
+  kCXXDefaultInitExpr = 125,
+  kCXXDeleteExpr = 126,
+  kCXXDependentScopeMemberExpr = 127,
+  kCXXFoldExpr = 128,
+  kCXXInheritedCtorInitExpr = 129,
+  kCXXNewExpr = 130,
+  kCXXNoexceptExpr = 131,
+  kCXXNullPtrLiteralExpr = 132,
+  kCXXParenListInitExpr = 133,
+  kCXXPseudoDestructorExpr = 134,
+  kCXXRewrittenBinaryOperator = 135,
+  kCXXScalarValueInitExpr = 136,
+  kCXXStdInitializerListExpr = 137,
+  kCXXThisExpr = 138,
+  kCXXThrowExpr = 139,
+  kCXXTypeidExpr = 140,
+  kCXXUnresolvedConstructExpr = 141,
+  kCXXUuidofExpr = 142,
+  kCallExpr = 143,
+  kCUDAKernelCallExpr = 144,
+  kCXXMemberCallExpr = 145,
+  kCXXOperatorCallExpr = 146,
+  kUserDefinedLiteral = 147,
+  kBuiltinBitCastExpr = 148,
+  kCStyleCastExpr = 149,
+  kCXXFunctionalCastExpr = 150,
+  kCXXAddrspaceCastExpr = 151,
+  kCXXConstCastExpr = 152,
+  kCXXDynamicCastExpr = 153,
+  kCXXReinterpretCastExpr = 154,
+  kCXXStaticCastExpr = 155,
+  kObjCBridgedCastExpr = 156,
+  kImplicitCastExpr = 157,
+  kCharacterLiteral = 158,
+  kChooseExpr = 159,
+  kCompoundLiteralExpr = 160,
+  kConceptSpecializationExpr = 161,
+  kConvertVectorExpr = 162,
+  kCoawaitExpr = 163,
+  kCoyieldExpr = 164,
+  kDeclRefExpr = 165,
+  kDependentCoawaitExpr = 166,
+  kDependentScopeDeclRefExpr = 167,
+  kDesignatedInitExpr = 168,
+  kDesignatedInitUpdateExpr = 169,
+  kExpressionTraitExpr = 170,
+  kExtVectorElementExpr = 171,
+  kFixedPointLiteral = 172,
+  kFloatingLiteral = 173,
+  kConstantExpr = 174,
+  kExprWithCleanups = 175,
+  kFunctionParmPackExpr = 176,
+  kGNUNullExpr = 177,
+  kGenericSelectionExpr = 178,
+  kImaginaryLiteral = 179,
+  kImplicitValueInitExpr = 180,
+  kInitListExpr = 181,
+  kIntegerLiteral = 182,
+  kLambdaExpr = 183,
+  kMSPropertyRefExpr = 184,
+  kMSPropertySubscriptExpr = 185,
+  kMaterializeTemporaryExpr = 186,
+  kMatrixSubscriptExpr = 187,
+  kMemberExpr = 188,
+  kNoInitExpr = 189,
+  kOMPArraySectionExpr = 190,
+  kOMPArrayShapingExpr = 191,
+  kOMPIteratorExpr = 192,
+  kObjCArrayLiteral = 193,
+  kObjCAvailabilityCheckExpr = 194,
+  kObjCBoolLiteralExpr = 195,
+  kObjCBoxedExpr = 196,
+  kObjCDictionaryLiteral = 197,
+  kObjCEncodeExpr = 198,
+  kObjCIndirectCopyRestoreExpr = 199,
+  kObjCIsaExpr = 200,
+  kObjCIvarRefExpr = 201,
+  kObjCMessageExpr = 202,
+  kObjCPropertyRefExpr = 203,
+  kObjCProtocolExpr = 204,
+  kObjCSelectorExpr = 205,
+  kObjCStringLiteral = 206,
+  kObjCSubscriptRefExpr = 207,
+  kOffsetOfExpr = 208,
+  kOpaqueValueExpr = 209,
+  kUnresolvedLookupExpr = 210,
+  kUnresolvedMemberExpr = 211,
+  kPackExpansionExpr = 212,
+  kParenExpr = 213,
+  kParenListExpr = 214,
+  kPredefinedExpr = 215,
+  kPseudoObjectExpr = 216,
+  kRecoveryExpr = 217,
+  kRequiresExpr = 218,
+  kSYCLUniqueStableNameExpr = 219,
+  kShuffleVectorExpr = 220,
+  kSizeOfPackExpr = 221,
+  kSourceLocExpr = 222,
+  kStmtExpr = 223,
+  kStringLiteral = 224,
+  kSubstNonTypeTemplateParmExpr = 225,
+  kSubstNonTypeTemplateParmPackExpr = 226,
+  kTypeTraitExpr = 227,
+  kTypoExpr = 228,
+  kUnaryExprOrTypeTraitExpr = 229,
+  kUnaryOperator = 230,
+  kVAArgExpr = 231,
+  kLabelStmt = 232,
+  kWhileStmt = 233,
 };
 
 enum class StringLiteralStringKind : unsigned int {
@@ -4385,6 +4473,13 @@ enum class TargetClonesAttrSpelling : unsigned int {
   kGNUTargetClones = 0,
   kCXX11GnuTargetClones = 1,
   kC2xGnuTargetClones = 2,
+  kSpellingNotCalculated = 15,
+};
+
+enum class TargetVersionAttrSpelling : unsigned int {
+  kGNUTargetVersion = 0,
+  kCXX11GnuTargetVersion = 1,
+  kC2xGnuTargetVersion = 2,
   kSpellingNotCalculated = 15,
 };
 
@@ -4532,7 +4627,22 @@ enum class TypeVisibilityAttrVisibilityType : unsigned int {
 };
 
 enum class UnaryTransformTypeUTTKind : unsigned int {
-  kEnumUnderlyingType = 0,
+  kAddLvalueReference = 0,
+  kAddPointer = 1,
+  kAddRvalueReference = 2,
+  kDecay = 3,
+  kMakeSigned = 4,
+  kMakeUnsigned = 5,
+  kRemoveAllExtents = 6,
+  kRemoveConst = 7,
+  kRemoveCV = 8,
+  kRemoveCVReference = 9,
+  kRemoveExtent = 10,
+  kRemovePointer = 11,
+  kRemoveReference = 12,
+  kRemoveRestrict = 13,
+  kRemoveVolatile = 14,
+  kEnumUnderlyingType = 15,
 };
 
 enum class UnavailableAttrImplicitReason : unsigned int {
@@ -4617,6 +4727,7 @@ enum class VarDeclInitializationStyle : unsigned int {
   kCInit = 0,
   kCallInitializer = 1,
   kListInitializer = 2,
+  kParenthesisListInitializer = 3,
 };
 
 enum class VarDeclTLSKind : unsigned int {
@@ -5001,7 +5112,8 @@ enum class ClangABI : int {
   kVer11 = 5,
   kVer12 = 6,
   kVer14 = 7,
-  kLatest = 8,
+  kVer15 = 8,
+  kLatest = 9,
 };
 
 enum class CommentKind : unsigned int {
@@ -5032,9 +5144,8 @@ enum class ComparisonCategoryType : unsigned char {
 enum class CompilingModuleKind : unsigned int {
   kNone = 0,
   kModuleMap = 1,
-  kHeaderModule = 2,
-  kHeaderUnit = 3,
-  kModuleInterface = 4,
+  kHeaderUnit = 2,
+  kModuleInterface = 3,
 };
 
 enum class ConstexprSpecKind : int {
@@ -5062,6 +5173,12 @@ enum class DataPositionTy : unsigned long {
   kPOSD = 4,
   kPOSCondition = 5,
   kPOSR = 6,
+};
+
+enum class DebugSrcHashKind : unsigned int {
+  kDSHMD5 = 0,
+  kDSHSHA1 = 1,
+  kDSHSHA256 = 2,
 };
 
 enum class DefaultArgKind : unsigned int {
@@ -5139,6 +5256,18 @@ enum class ExceptionSpecificationType : unsigned int {
   kUnevaluated = 9,
   kUninstantiated = 10,
   kUnparsed = 11,
+};
+
+enum class ExcessPrecisionKind : unsigned int {
+  kFPPStandard = 0,
+  kFPPFast = 1,
+  kFPPNone = 2,
+};
+
+enum class ExclusionType : unsigned int {
+  kAllow = 0,
+  kSkip = 1,
+  kForbid = 2,
 };
 
 enum class ExplicitSpecKind : unsigned int {
@@ -5225,6 +5354,11 @@ enum class FiniteLoopsKind : unsigned int {
   kLanguage = 0,
   kAlways = 1,
   kNever = 2,
+};
+
+enum class Flags : unsigned int {
+  kFInline = 1,
+  kFNested = 2,
 };
 
 enum class FramePointerKind : int {
@@ -5390,6 +5524,7 @@ enum class LangAS : unsigned int {
   kPtr32Sptr = 16,
   kPtr32Uptr = 17,
   kPtr64 = 18,
+  kHlslGroupshared = 19,
 };
 
 enum class LangFeatures : unsigned int {
@@ -5510,6 +5645,7 @@ enum class MultiVersionKind : int {
   kCPUSpecific = 2,
   kCPUDispatch = 3,
   kTargetClones = 4,
+  kTargetVersion = 5,
 };
 
 enum class NameKind : unsigned int {
@@ -5674,6 +5810,12 @@ enum class OpenMPAdjustArgsOpKind : unsigned int {
   kADJUSTARGSUnknown = 2,
 };
 
+enum class OpenMPAtClauseKind : unsigned int {
+  kATCompilation = 0,
+  kATExecution = 1,
+  kATUnknown = 2,
+};
+
 enum class OpenMPAtomicDefaultMemOrderClauseKind : unsigned int {
   kSeqCst = 0,
   kAcqRel = 1,
@@ -5738,6 +5880,11 @@ enum class OpenMPDistScheduleClauseKind : unsigned int {
   kUnknown = 1,
 };
 
+enum class OpenMPGrainsizeClauseModifier : unsigned int {
+  kGRAINSIZEStrict = 0,
+  kGRAINSIZEUnknown = 1,
+};
+
 enum class OpenMPLastprivateModifier : unsigned int {
   kConditional = 0,
   kUnknown = 1,
@@ -5765,8 +5912,9 @@ enum class OpenMPMapModifierKind : unsigned int {
   kAlways = 7,
   kClose = 8,
   kMapper = 9,
-  kPresent = 10,
-  kOmpxHold = 11,
+  kIterator = 10,
+  kPresent = 11,
+  kOmpxHold = 12,
 };
 
 enum class OpenMPMotionModifierKind : unsigned int {
@@ -5775,9 +5923,21 @@ enum class OpenMPMotionModifierKind : unsigned int {
   kMOTIONMODIFIERUnknown = 2,
 };
 
+enum class OpenMPNumTasksClauseModifier : unsigned int {
+  kNUMTASKSStrict = 0,
+  kNUMTASKSUnknown = 1,
+};
+
 enum class OpenMPOrderClauseKind : unsigned int {
   kConcurrent = 0,
   kUnknown = 1,
+};
+
+enum class OpenMPOrderClauseModifier : unsigned int {
+  kMODIFIERUnknown = 1,
+  kMODIFIERReproducible = 2,
+  kMODIFIERUnconstrained = 3,
+  kMODIFIERLast = 4,
 };
 
 enum class OpenMPReductionClauseModifier : unsigned int {
@@ -5801,6 +5961,12 @@ enum class OpenMPScheduleClauseModifier : unsigned int {
   kMonotonic = 6,
   kNonmonotonic = 7,
   kSimd = 8,
+};
+
+enum class OpenMPSeverityClauseKind : unsigned int {
+  kSEVERITYFatal = 0,
+  kSEVERITYWarning = 1,
+  kSEVERITYUnknown = 2,
 };
 
 enum class OverloadedOperatorKind : int {
@@ -6059,23 +6225,24 @@ enum class SanitizerOrdinal : unsigned long long {
   kCFINVCall = 50,
   kCFIVCall = 51,
   kCFIGroup = 52,
-  kSafeStack = 53,
-  kShadowCallStack = 54,
-  kUndefinedGroup = 55,
-  kUndefinedTrapGroup = 56,
-  kImplicitUnsignedIntegerTruncation = 57,
-  kImplicitSignedIntegerTruncation = 58,
-  kImplicitIntegerTruncationGroup = 59,
-  kImplicitIntegerSignChange = 60,
-  kImplicitIntegerArithmeticValueChangeGroup = 61,
-  kObjCCast = 62,
-  kImplicitConversionGroup = 63,
-  kIntegerGroup = 64,
-  kLocalBounds = 65,
-  kBoundsGroup = 66,
-  kScudo = 67,
-  kAllGroup = 68,
-  kCount = 69,
+  kKCFI = 53,
+  kSafeStack = 54,
+  kShadowCallStack = 55,
+  kUndefinedGroup = 56,
+  kUndefinedTrapGroup = 57,
+  kImplicitUnsignedIntegerTruncation = 58,
+  kImplicitSignedIntegerTruncation = 59,
+  kImplicitIntegerTruncationGroup = 60,
+  kImplicitIntegerSignChange = 61,
+  kImplicitIntegerArithmeticValueChangeGroup = 62,
+  kObjCCast = 63,
+  kImplicitConversionGroup = 64,
+  kIntegerGroup = 65,
+  kLocalBounds = 66,
+  kBoundsGroup = 67,
+  kScudo = 68,
+  kAllGroup = 69,
+  kCount = 70,
 };
 
 enum class SelectorLocationsKind : unsigned int {
@@ -6182,6 +6349,13 @@ enum class StoredSpecifierKind : unsigned int {
   kStoredDeclaration = 1,
   kStoredTypeSpec = 2,
   kStoredTypeSpecWithTemplate = 3,
+};
+
+enum class StrictFlexArraysLevelKind : int {
+  kDefault = 0,
+  kOneZeroOrIncomplete = 1,
+  kZeroOrIncomplete = 2,
+  kIncompleteOnly = 3,
 };
 
 enum class StructReturnConventionKind : unsigned int {
@@ -6410,69 +6584,69 @@ enum class TokenKind : unsigned short {
   kKeywordFor = 89,
   kKeywordGoto = 90,
   kKeywordIf = 91,
-  kKeywordInline = 92,
-  kKeywordInt = 93,
-  kKeyword_ExtInt = 94,
-  kKeyword_BitInt = 95,
-  kKeywordLong = 96,
-  kKeywordRegister = 97,
-  kKeywordRestrict = 98,
-  kKeywordReturn = 99,
-  kKeywordShort = 100,
-  kKeywordSigned = 101,
-  kKeywordSizeof = 102,
-  kKeywordStatic = 103,
-  kKeywordStruct = 104,
-  kKeywordSwitch = 105,
-  kKeywordTypedef = 106,
-  kKeywordUnion = 107,
-  kKeywordUnsigned = 108,
-  kKeywordVoid = 109,
-  kKeywordVolatile = 110,
-  kKeywordWhile = 111,
-  kKeyword_Alignas = 112,
-  kKeyword_Alignof = 113,
-  kKeyword_Atomic = 114,
-  kKeyword_Boolean = 115,
-  kKeyword_Complex = 116,
-  kKeyword_Generic = 117,
-  kKeyword_Imaginary = 118,
-  kKeyword_Noreturn = 119,
-  kKeyword_StaticAssert = 120,
-  kKeyword_ThreadLocal = 121,
-  kKeyword__Func__ = 122,
-  kKeyword__ObjcYes = 123,
-  kKeyword__ObjcNo = 124,
-  kKeywordAssembly = 125,
-  kKeywordBoolean = 126,
-  kKeywordCatch = 127,
-  kKeywordClass = 128,
-  kKeywordConstCast = 129,
-  kKeywordDelete = 130,
-  kKeywordDynamicCast = 131,
-  kKeywordExplicit = 132,
-  kKeywordExport = 133,
-  kKeywordFalse = 134,
-  kKeywordFriend = 135,
-  kKeywordMutable = 136,
-  kKeywordNamespace = 137,
-  kKeywordNew = 138,
-  kKeywordOperator = 139,
-  kKeywordPrivate = 140,
-  kKeywordProtected = 141,
-  kKeywordPublic = 142,
-  kKeywordReinterpretCast = 143,
-  kKeywordStaticCast = 144,
-  kKeywordTemplate = 145,
-  kKeywordThis = 146,
-  kKeywordThrow = 147,
-  kKeywordTrue = 148,
-  kKeywordTry = 149,
-  kKeywordTypename = 150,
-  kKeywordTypeid = 151,
-  kKeywordUsing = 152,
-  kKeywordVirtual = 153,
-  kKeywordWcharT = 154,
+  kKeywordInt = 92,
+  kKeyword_ExtInt = 93,
+  kKeyword_BitInt = 94,
+  kKeywordLong = 95,
+  kKeywordRegister = 96,
+  kKeywordReturn = 97,
+  kKeywordShort = 98,
+  kKeywordSigned = 99,
+  kKeywordSizeof = 100,
+  kKeywordStatic = 101,
+  kKeywordStruct = 102,
+  kKeywordSwitch = 103,
+  kKeywordTypedef = 104,
+  kKeywordUnion = 105,
+  kKeywordUnsigned = 106,
+  kKeywordVoid = 107,
+  kKeywordVolatile = 108,
+  kKeywordWhile = 109,
+  kKeyword_Alignas = 110,
+  kKeyword_Alignof = 111,
+  kKeyword_Atomic = 112,
+  kKeyword_Boolean = 113,
+  kKeyword_Complex = 114,
+  kKeyword_Generic = 115,
+  kKeyword_Imaginary = 116,
+  kKeyword_Noreturn = 117,
+  kKeyword_StaticAssert = 118,
+  kKeyword_ThreadLocal = 119,
+  kKeyword__Func__ = 120,
+  kKeyword__ObjcYes = 121,
+  kKeyword__ObjcNo = 122,
+  kKeywordAssembly = 123,
+  kKeywordBoolean = 124,
+  kKeywordCatch = 125,
+  kKeywordClass = 126,
+  kKeywordConstCast = 127,
+  kKeywordDelete = 128,
+  kKeywordDynamicCast = 129,
+  kKeywordExplicit = 130,
+  kKeywordExport = 131,
+  kKeywordFalse = 132,
+  kKeywordFriend = 133,
+  kKeywordMutable = 134,
+  kKeywordNamespace = 135,
+  kKeywordNew = 136,
+  kKeywordOperator = 137,
+  kKeywordPrivate = 138,
+  kKeywordProtected = 139,
+  kKeywordPublic = 140,
+  kKeywordReinterpretCast = 141,
+  kKeywordStaticCast = 142,
+  kKeywordTemplate = 143,
+  kKeywordThis = 144,
+  kKeywordThrow = 145,
+  kKeywordTrue = 146,
+  kKeywordTry = 147,
+  kKeywordTypename = 148,
+  kKeywordTypeid = 149,
+  kKeywordUsing = 150,
+  kKeywordVirtual = 151,
+  kKeywordWcharT = 152,
+  kKeywordRestrict = 153,
+  kKeywordInline = 154,
   kKeywordAlignas = 155,
   kKeywordAlignof = 156,
   kKeywordChar16T = 157,
@@ -6483,242 +6657,266 @@ enum class TokenKind : unsigned short {
   kKeywordNullptr = 162,
   kKeywordStaticAssert = 163,
   kKeywordThreadLocal = 164,
-  kKeywordConcept = 165,
-  kKeywordRequires = 166,
-  kKeywordCoAwait = 167,
-  kKeywordCoReturn = 168,
-  kKeywordCoYield = 169,
-  kKeywordModule = 170,
-  kKeywordImport = 171,
-  kKeywordConsteval = 172,
-  kKeywordConstinit = 173,
+  kKeywordCoAwait = 165,
+  kKeywordCoReturn = 166,
+  kKeywordCoYield = 167,
+  kKeywordModule = 168,
+  kKeywordImport = 169,
+  kKeywordConsteval = 170,
+  kKeywordConstinit = 171,
+  kKeywordConcept = 172,
+  kKeywordRequires = 173,
   kKeywordChar8T = 174,
   kKeyword_Float16 = 175,
-  kKeyword_Accum = 176,
-  kKeyword_Fract = 177,
-  kKeyword_Sat = 178,
-  kKeyword_Decimal32 = 179,
-  kKeyword_Decimal64 = 180,
-  kKeyword_Decimal128 = 181,
-  kKeyword__Null = 182,
-  kKeyword__Alignof = 183,
-  kKeyword__Attribute = 184,
-  kKeyword__BuiltinChooseExpression = 185,
-  kKeyword__BuiltinOffsetof = 186,
-  kKeyword__BuiltinFILE = 187,
-  kKeyword__BuiltinFUNCTION = 188,
-  kKeyword__BuiltinLINE = 189,
-  kKeyword__BuiltinCOLUMN = 190,
-  kKeyword__BuiltinSourceToken = 191,
-  kKeyword__BuiltinTypesCompatibleP = 192,
-  kKeyword__BuiltinVaArgument = 193,
-  kKeyword__Extension__ = 194,
-  kKeyword__Float128 = 195,
-  kKeyword__Ibm128 = 196,
-  kKeyword__Imag = 197,
-  kKeyword__Int128 = 198,
-  kKeyword__Label__ = 199,
-  kKeyword__Real = 200,
-  kKeyword__Thread = 201,
-  kKeyword__FUNCTION__ = 202,
-  kKeyword__PRETTYFUNCTION__ = 203,
-  kKeyword__AutoType = 204,
-  kKeywordTypeof = 205,
-  kKeyword__FUNCDNAME__ = 206,
-  kKeyword__FUNCSIG__ = 207,
-  kKeywordLFUNCTION__ = 208,
-  kKeywordLFUNCSIG__ = 209,
-  kKeyword__IsInterfaceClass = 210,
-  kKeyword__IsSealed = 211,
-  kKeyword__IsDestructible = 212,
-  kKeyword__IsTriviallyDestructible = 213,
-  kKeyword__IsNothrowDestructible = 214,
-  kKeyword__IsNothrowAssignable = 215,
-  kKeyword__IsConstructible = 216,
-  kKeyword__IsNothrowConstructible = 217,
-  kKeyword__IsAssignable = 218,
-  kKeyword__HasNothrowMoveAssign = 219,
-  kKeyword__HasTrivialMoveAssign = 220,
-  kKeyword__HasTrivialMoveConstructor = 221,
-  kKeyword__HasNothrowAssign = 222,
-  kKeyword__HasNothrowCopy = 223,
-  kKeyword__HasNothrowConstructor = 224,
-  kKeyword__HasTrivialAssign = 225,
-  kKeyword__HasTrivialCopy = 226,
-  kKeyword__HasTrivialConstructor = 227,
-  kKeyword__HasTrivialDestructor = 228,
-  kKeyword__HasVirtualDestructor = 229,
-  kKeyword__IsAbstract = 230,
-  kKeyword__IsAggregate = 231,
-  kKeyword__IsBaseOf = 232,
-  kKeyword__IsClass = 233,
-  kKeyword__IsConvertibleTo = 234,
-  kKeyword__IsEmpty = 235,
-  kKeyword__IsEnum = 236,
-  kKeyword__IsFinal = 237,
-  kKeyword__IsLiteral = 238,
-  kKeyword__IsPod = 239,
-  kKeyword__IsPolymorphic = 240,
-  kKeyword__IsStandardLayout = 241,
-  kKeyword__IsTrivial = 242,
-  kKeyword__IsTriviallyAssignable = 243,
-  kKeyword__IsTriviallyConstructible = 244,
-  kKeyword__IsTriviallyCopyable = 245,
-  kKeyword__IsUnion = 246,
-  kKeyword__HasUniqueObjectRepresentations = 247,
-  kKeyword__UnderlyingType = 248,
-  kKeyword__IsTriviallyRelocatable = 249,
-  kKeyword__ReferenceBindsToTemporary = 250,
-  kKeyword__IsLvalueExpression = 251,
-  kKeyword__IsRvalueExpression = 252,
-  kKeyword__IsArithmetic = 253,
-  kKeyword__IsFloatingPoint = 254,
-  kKeyword__IsIntegral = 255,
-  kKeyword__IsCompleteType = 256,
-  kKeyword__IsVoid = 257,
-  kKeyword__IsArray = 258,
-  kKeyword__IsFunction = 259,
-  kKeyword__IsReference = 260,
-  kKeyword__IsLvalueReference = 261,
-  kKeyword__IsRvalueReference = 262,
-  kKeyword__IsFundamental = 263,
-  kKeyword__IsObject = 264,
-  kKeyword__IsScalar = 265,
-  kKeyword__IsCompound = 266,
-  kKeyword__IsPointer = 267,
-  kKeyword__IsMemberObjectPointer = 268,
-  kKeyword__IsMemberFunctionPointer = 269,
-  kKeyword__IsMemberPointer = 270,
-  kKeyword__IsConst = 271,
-  kKeyword__IsVolatile = 272,
-  kKeyword__IsSigned = 273,
-  kKeyword__IsUnsigned = 274,
-  kKeyword__IsSame = 275,
-  kKeyword__IsConvertible = 276,
-  kKeyword__ArrayRank = 277,
-  kKeyword__ArrayExtent = 278,
-  kKeyword__PrivateExtern__ = 279,
-  kKeyword__ModulePrivate__ = 280,
-  kKeyword__BuiltinPtrauthTypeDiscriminator = 281,
-  kKeyword__BuiltinXnuTypeSignature = 282,
-  kKeyword__BuiltinXnuTypeSummary = 283,
-  kKeyword__BuiltinTmoTypeMetadata = 284,
-  kKeyword__BuiltinXnuTypesCompatible = 285,
-  kKeyword__Declspec = 286,
-  kKeyword__Cdecl = 287,
-  kKeyword__Stdcall = 288,
-  kKeyword__Fastcall = 289,
-  kKeyword__Thiscall = 290,
-  kKeyword__Regcall = 291,
-  kKeyword__Vectorcall = 292,
-  kKeyword__Forceinline = 293,
-  kKeyword__Unaligned = 294,
-  kKeyword__Super = 295,
-  kKeyword__Global = 296,
-  kKeyword__Local = 297,
-  kKeyword__Constant = 298,
-  kKeyword__Private = 299,
-  kKeyword__Generic = 300,
-  kKeyword__Kernel = 301,
-  kKeyword__ReadOnly = 302,
-  kKeyword__WriteOnly = 303,
-  kKeyword__ReadWrite = 304,
-  kKeyword__BuiltinAstype = 305,
-  kKeywordVecStep = 306,
-  kKeywordImage1dT = 307,
-  kKeywordImage1dArrayT = 308,
-  kKeywordImage1dBufferT = 309,
-  kKeywordImage2dT = 310,
-  kKeywordImage2dArrayT = 311,
-  kKeywordImage2dDepthT = 312,
-  kKeywordImage2dArrayDepthT = 313,
-  kKeywordImage2dMsaaT = 314,
-  kKeywordImage2dArrayMsaaT = 315,
-  kKeywordImage2dMsaaDepthT = 316,
-  kKeywordImage2dArrayMsaaDepthT = 317,
-  kKeywordImage3dT = 318,
-  kKeywordPipe = 319,
-  kKeywordAddrspaceCast = 320,
-  kKeyword__Noinline__ = 321,
-  kKeyword__BuiltinOmpRequiredSimdAlign = 322,
-  kKeyword__Pascal = 323,
-  kKeyword__Vector = 324,
-  kKeyword__Pixel = 325,
-  kKeyword__Boolean = 326,
-  kKeyword__Bf16 = 327,
-  kKeywordHalf = 328,
-  kKeyword__Bridge = 329,
-  kKeyword__BridgeTransfer = 330,
-  kKeyword__BridgeRetained = 331,
-  kKeyword__BridgeRetain = 332,
-  kKeyword__Covariant = 333,
-  kKeyword__Contravariant = 334,
-  kKeyword__Kindof = 335,
-  kKeyword_Nonnull = 336,
-  kKeyword_Nullable = 337,
-  kKeyword_NullableResult = 338,
-  kKeyword_NullUnspecified = 339,
-  kKeyword__Ptr64 = 340,
-  kKeyword__Ptr32 = 341,
-  kKeyword__Sptr = 342,
-  kKeyword__Uptr = 343,
-  kKeyword__W64 = 344,
-  kKeyword__Uuidof = 345,
-  kKeyword__Try = 346,
-  kKeyword__Finally = 347,
-  kKeyword__Leave = 348,
-  kKeyword__Int64 = 349,
-  kKeyword__IfExists = 350,
-  kKeyword__IfNotExists = 351,
-  kKeyword__SingleInheritance = 352,
-  kKeyword__MultipleInheritance = 353,
-  kKeyword__VirtualInheritance = 354,
-  kKeyword__Interface = 355,
-  kKeyword__BuiltinConvertvector = 356,
-  kKeyword__BuiltinBitCast = 357,
-  kKeyword__BuiltinAvailable = 358,
-  kKeyword__BuiltinSyclUniqueStableName = 359,
-  kKeyword__UnknownAnytype = 360,
-  kAnnotCxxscope = 361,
-  kAnnotTypename = 362,
-  kAnnotTemplateId = 363,
-  kAnnotNonType = 364,
-  kAnnotNonTypeUndeclared = 365,
-  kAnnotNonTypeDependent = 366,
-  kAnnotOverload = 367,
-  kAnnotPrimaryExpression = 368,
-  kAnnotDecltype = 369,
-  kAnnotPragmaUnused = 370,
-  kAnnotPragmaVis = 371,
-  kAnnotPragmaPack = 372,
-  kAnnotPragmaParserCrash = 373,
-  kAnnotPragmaCaptured = 374,
-  kAnnotPragmaDump = 375,
-  kAnnotPragmaMsstruct = 376,
-  kAnnotPragmaAlign = 377,
-  kAnnotPragmaWeak = 378,
-  kAnnotPragmaWeakalias = 379,
-  kAnnotPragmaRedefineExtname = 380,
-  kAnnotPragmaFpContract = 381,
-  kAnnotPragmaFenvAccess = 382,
-  kAnnotPragmaFenvAccessMs = 383,
-  kAnnotPragmaFenvRound = 384,
-  kAnnotPragmaFloatControl = 385,
-  kAnnotPragmaMsPointersToMembers = 386,
-  kAnnotPragmaMsVtordisp = 387,
-  kAnnotPragmaMsPragma = 388,
-  kAnnotPragmaOpenclExtension = 389,
-  kAnnotAttributeOpenmp = 390,
-  kAnnotPragmaOpenmp = 391,
-  kAnnotPragmaOpenmpEnd = 392,
-  kAnnotPragmaLoopHint = 393,
-  kAnnotPragmaFp = 394,
-  kAnnotPragmaAttribute = 395,
-  kAnnotPragmaRiscv = 396,
-  kAnnotModuleInclude = 397,
-  kAnnotModuleBegin = 398,
-  kAnnotModuleEnd = 399,
-  kAnnotHeaderUnit = 400,
+  kKeywordTypeof = 176,
+  kKeywordTypeofUnqualified = 177,
+  kKeyword_Accum = 178,
+  kKeyword_Fract = 179,
+  kKeyword_Sat = 180,
+  kKeyword_Decimal32 = 181,
+  kKeyword_Decimal64 = 182,
+  kKeyword_Decimal128 = 183,
+  kKeyword__Null = 184,
+  kKeyword__Alignof = 185,
+  kKeyword__Attribute = 186,
+  kKeyword__BuiltinChooseExpression = 187,
+  kKeyword__BuiltinOffsetof = 188,
+  kKeyword__BuiltinFILE = 189,
+  kKeyword__BuiltinFUNCTION = 190,
+  kKeyword__BuiltinLINE = 191,
+  kKeyword__BuiltinCOLUMN = 192,
+  kKeyword__BuiltinSourceToken = 193,
+  kKeyword__BuiltinTypesCompatibleP = 194,
+  kKeyword__BuiltinVaArgument = 195,
+  kKeyword__Extension__ = 196,
+  kKeyword__Float128 = 197,
+  kKeyword__Ibm128 = 198,
+  kKeyword__Imag = 199,
+  kKeyword__Int128 = 200,
+  kKeyword__Label__ = 201,
+  kKeyword__Real = 202,
+  kKeyword__Thread = 203,
+  kKeyword__FUNCTION__ = 204,
+  kKeyword__PRETTYFUNCTION__ = 205,
+  kKeyword__AutoType = 206,
+  kKeyword__FUNCDNAME__ = 207,
+  kKeyword__FUNCSIG__ = 208,
+  kKeywordLFUNCTION__ = 209,
+  kKeywordLFUNCSIG__ = 210,
+  kKeyword__IsInterfaceClass = 211,
+  kKeyword__IsSealed = 212,
+  kKeyword__IsDestructible = 213,
+  kKeyword__IsTriviallyDestructible = 214,
+  kKeyword__IsNothrowDestructible = 215,
+  kKeyword__IsNothrowAssignable = 216,
+  kKeyword__IsConstructible = 217,
+  kKeyword__IsNothrowConstructible = 218,
+  kKeyword__IsAssignable = 219,
+  kKeyword__HasNothrowMoveAssign = 220,
+  kKeyword__HasTrivialMoveAssign = 221,
+  kKeyword__HasTrivialMoveConstructor = 222,
+  kKeyword__HasNothrowAssign = 223,
+  kKeyword__HasNothrowCopy = 224,
+  kKeyword__HasNothrowConstructor = 225,
+  kKeyword__HasTrivialAssign = 226,
+  kKeyword__HasTrivialCopy = 227,
+  kKeyword__HasTrivialConstructor = 228,
+  kKeyword__HasTrivialDestructor = 229,
+  kKeyword__HasVirtualDestructor = 230,
+  kKeyword__IsAbstract = 231,
+  kKeyword__IsAggregate = 232,
+  kKeyword__IsBaseOf = 233,
+  kKeyword__IsClass = 234,
+  kKeyword__IsConvertibleTo = 235,
+  kKeyword__IsEmpty = 236,
+  kKeyword__IsEnum = 237,
+  kKeyword__IsFinal = 238,
+  kKeyword__IsLiteral = 239,
+  kKeyword__IsPod = 240,
+  kKeyword__IsPolymorphic = 241,
+  kKeyword__IsStandardLayout = 242,
+  kKeyword__IsTrivial = 243,
+  kKeyword__IsTriviallyAssignable = 244,
+  kKeyword__IsTriviallyConstructible = 245,
+  kKeyword__IsTriviallyCopyable = 246,
+  kKeyword__IsUnion = 247,
+  kKeyword__HasUniqueObjectRepresentations = 248,
+  kKeyword__AddLvalueReference = 249,
+  kKeyword__AddPointer = 250,
+  kKeyword__AddRvalueReference = 251,
+  kKeyword__Decay = 252,
+  kKeyword__MakeSigned = 253,
+  kKeyword__MakeUnsigned = 254,
+  kKeyword__RemoveAllExtents = 255,
+  kKeyword__RemoveConst = 256,
+  kKeyword__RemoveCv = 257,
+  kKeyword__RemoveCvref = 258,
+  kKeyword__RemoveExtent = 259,
+  kKeyword__RemovePointer = 260,
+  kKeyword__RemoveReferenceT = 261,
+  kKeyword__RemoveRestrict = 262,
+  kKeyword__RemoveVolatile = 263,
+  kKeyword__UnderlyingType = 264,
+  kKeyword__IsTriviallyRelocatable = 265,
+  kKeyword__IsBoundedArray = 266,
+  kKeyword__IsUnboundedArray = 267,
+  kKeyword__IsNullptr = 268,
+  kKeyword__IsScopedEnum = 269,
+  kKeyword__IsReferenceable = 270,
+  kKeyword__ReferenceBindsToTemporary = 271,
+  kKeyword__IsLvalueExpression = 272,
+  kKeyword__IsRvalueExpression = 273,
+  kKeyword__IsArithmetic = 274,
+  kKeyword__IsFloatingPoint = 275,
+  kKeyword__IsIntegral = 276,
+  kKeyword__IsCompleteType = 277,
+  kKeyword__IsVoid = 278,
+  kKeyword__IsArray = 279,
+  kKeyword__IsFunction = 280,
+  kKeyword__IsReference = 281,
+  kKeyword__IsLvalueReference = 282,
+  kKeyword__IsRvalueReference = 283,
+  kKeyword__IsFundamental = 284,
+  kKeyword__IsObject = 285,
+  kKeyword__IsScalar = 286,
+  kKeyword__IsCompound = 287,
+  kKeyword__IsPointer = 288,
+  kKeyword__IsMemberObjectPointer = 289,
+  kKeyword__IsMemberFunctionPointer = 290,
+  kKeyword__IsMemberPointer = 291,
+  kKeyword__IsConst = 292,
+  kKeyword__IsVolatile = 293,
+  kKeyword__IsSigned = 294,
+  kKeyword__IsUnsigned = 295,
+  kKeyword__IsSame = 296,
+  kKeyword__IsConvertible = 297,
+  kKeyword__ArrayRank = 298,
+  kKeyword__ArrayExtent = 299,
+  kKeyword__PrivateExtern__ = 300,
+  kKeyword__ModulePrivate__ = 301,
+  kKeyword__BuiltinPtrauthTypeDiscriminator = 302,
+  kKeyword__BuiltinXnuTypeSignature = 303,
+  kKeyword__BuiltinXnuTypeSummary = 304,
+  kKeyword__BuiltinTmoTypeMetadata = 305,
+  kKeyword__BuiltinXnuTypesCompatible = 306,
+  kKeyword__Declspec = 307,
+  kKeyword__Cdecl = 308,
+  kKeyword__Stdcall = 309,
+  kKeyword__Fastcall = 310,
+  kKeyword__Thiscall = 311,
+  kKeyword__Regcall = 312,
+  kKeyword__Vectorcall = 313,
+  kKeyword__Forceinline = 314,
+  kKeyword__Unaligned = 315,
+  kKeyword__Super = 316,
+  kKeyword__Global = 317,
+  kKeyword__Local = 318,
+  kKeyword__Constant = 319,
+  kKeyword__Private = 320,
+  kKeyword__Generic = 321,
+  kKeyword__Kernel = 322,
+  kKeyword__ReadOnly = 323,
+  kKeyword__WriteOnly = 324,
+  kKeyword__ReadWrite = 325,
+  kKeyword__BuiltinAstype = 326,
+  kKeywordVecStep = 327,
+  kKeywordImage1dT = 328,
+  kKeywordImage1dArrayT = 329,
+  kKeywordImage1dBufferT = 330,
+  kKeywordImage2dT = 331,
+  kKeywordImage2dArrayT = 332,
+  kKeywordImage2dDepthT = 333,
+  kKeywordImage2dArrayDepthT = 334,
+  kKeywordImage2dMsaaT = 335,
+  kKeywordImage2dArrayMsaaT = 336,
+  kKeywordImage2dMsaaDepthT = 337,
+  kKeywordImage2dArrayMsaaDepthT = 338,
+  kKeywordImage3dT = 339,
+  kKeywordPipe = 340,
+  kKeywordAddrspaceCast = 341,
+  kKeyword__Noinline__ = 342,
+  kKeywordCbuffer = 343,
+  kKeywordTbuffer = 344,
+  kKeywordGroupshared = 345,
+  kKeyword__BuiltinOmpRequiredSimdAlign = 346,
+  kKeyword__Pascal = 347,
+  kKeyword__Vector = 348,
+  kKeyword__Pixel = 349,
+  kKeyword__Boolean = 350,
+  kKeyword__Bf16 = 351,
+  kKeywordHalf = 352,
+  kKeyword__Bridge = 353,
+  kKeyword__BridgeTransfer = 354,
+  kKeyword__BridgeRetained = 355,
+  kKeyword__BridgeRetain = 356,
+  kKeyword__Covariant = 357,
+  kKeyword__Contravariant = 358,
+  kKeyword__Kindof = 359,
+  kKeyword_Nonnull = 360,
+  kKeyword_Nullable = 361,
+  kKeyword_NullableResult = 362,
+  kKeyword_NullUnspecified = 363,
+  kKeyword__Ptr64 = 364,
+  kKeyword__Ptr32 = 365,
+  kKeyword__Sptr = 366,
+  kKeyword__Uptr = 367,
+  kKeyword__W64 = 368,
+  kKeyword__Uuidof = 369,
+  kKeyword__Try = 370,
+  kKeyword__Finally = 371,
+  kKeyword__Leave = 372,
+  kKeyword__Int64 = 373,
+  kKeyword__IfExists = 374,
+  kKeyword__IfNotExists = 375,
+  kKeyword__SingleInheritance = 376,
+  kKeyword__MultipleInheritance = 377,
+  kKeyword__VirtualInheritance = 378,
+  kKeyword__Interface = 379,
+  kKeyword__BuiltinConvertvector = 380,
+  kKeyword__BuiltinBitCast = 381,
+  kKeyword__BuiltinAvailable = 382,
+  kKeyword__BuiltinSyclUniqueStableName = 383,
+  kKeyword__UnknownAnytype = 384,
+  kAnnotCxxscope = 385,
+  kAnnotTypename = 386,
+  kAnnotTemplateId = 387,
+  kAnnotNonType = 388,
+  kAnnotNonTypeUndeclared = 389,
+  kAnnotNonTypeDependent = 390,
+  kAnnotOverload = 391,
+  kAnnotPrimaryExpression = 392,
+  kAnnotDecltype = 393,
+  kAnnotPragmaUnused = 394,
+  kAnnotPragmaVis = 395,
+  kAnnotPragmaPack = 396,
+  kAnnotPragmaParserCrash = 397,
+  kAnnotPragmaCaptured = 398,
+  kAnnotPragmaDump = 399,
+  kAnnotPragmaMsstruct = 400,
+  kAnnotPragmaAlign = 401,
+  kAnnotPragmaWeak = 402,
+  kAnnotPragmaWeakalias = 403,
+  kAnnotPragmaRedefineExtname = 404,
+  kAnnotPragmaFpContract = 405,
+  kAnnotPragmaFenvAccess = 406,
+  kAnnotPragmaFenvAccessMs = 407,
+  kAnnotPragmaFenvRound = 408,
+  kAnnotPragmaFloatControl = 409,
+  kAnnotPragmaMsPointersToMembers = 410,
+  kAnnotPragmaMsVtordisp = 411,
+  kAnnotPragmaMsPragma = 412,
+  kAnnotPragmaOpenclExtension = 413,
+  kAnnotAttributeOpenmp = 414,
+  kAnnotPragmaOpenmp = 415,
+  kAnnotPragmaOpenmpEnd = 416,
+  kAnnotPragmaLoopHint = 417,
+  kAnnotPragmaFp = 418,
+  kAnnotPragmaAttribute = 419,
+  kAnnotPragmaRiscv = 420,
+  kAnnotModuleInclude = 421,
+  kAnnotModuleBegin = 422,
+  kAnnotModuleEnd = 423,
+  kAnnotHeaderUnit = 424,
 };
 
 enum class TrailingAllocKind : unsigned int {
@@ -6808,6 +7006,11 @@ enum class TypeLocClass : unsigned int {
   kQualified = 54,
 };
 
+enum class TypeOfKind : unsigned char {
+  kQualified = 0,
+  kUnqualified = 1,
+};
+
 enum class TypeSpecifierSign : int {
   kUnspecified = 0,
   kSigned = 1,
@@ -6846,26 +7049,43 @@ enum class TypeSpecifierType : unsigned int {
   kTypename = 28,
   kTypeofType = 29,
   kTypeofExpression = 30,
-  kDecltype = 31,
-  kUnderlyingType = 32,
-  kAuto = 33,
-  kDecltypeAuto = 34,
-  kAutoType = 35,
-  kUnknownAnytype = 36,
-  kAtomic = 37,
-  kImage1dT = 38,
-  kImage1dArrayT = 39,
-  kImage1dBufferT = 40,
-  kImage2dT = 41,
-  kImage2dArrayT = 42,
-  kImage2dDepthT = 43,
-  kImage2dArrayDepthT = 44,
-  kImage2dMsaaT = 45,
-  kImage2dArrayMsaaT = 46,
-  kImage2dMsaaDepthT = 47,
-  kImage2dArrayMsaaDepthT = 48,
-  kImage3dT = 49,
-  kError = 50,
+  kTypeofUnqualifiedType = 31,
+  kTypeofUnqualifiedExpression = 32,
+  kDecltype = 33,
+  kAddLvalueReference = 34,
+  kAddPointer = 35,
+  kAddRvalueReference = 36,
+  kDecay = 37,
+  kMakeSigned = 38,
+  kMakeUnsigned = 39,
+  kRemoveAllExtents = 40,
+  kRemoveConst = 41,
+  kRemoveCv = 42,
+  kRemoveCvref = 43,
+  kRemoveExtent = 44,
+  kRemovePointer = 45,
+  kRemoveReferenceT = 46,
+  kRemoveRestrict = 47,
+  kRemoveVolatile = 48,
+  kUnderlyingType = 49,
+  kAuto = 50,
+  kDecltypeAuto = 51,
+  kAutoType = 52,
+  kUnknownAnytype = 53,
+  kAtomic = 54,
+  kImage1dT = 55,
+  kImage1dArrayT = 56,
+  kImage1dBufferT = 57,
+  kImage2dT = 58,
+  kImage2dArrayT = 59,
+  kImage2dDepthT = 60,
+  kImage2dArrayDepthT = 61,
+  kImage2dMsaaT = 62,
+  kImage2dArrayMsaaT = 63,
+  kImage2dMsaaDepthT = 64,
+  kImage2dArrayMsaaDepthT = 65,
+  kImage3dT = 66,
+  kError = 67,
 };
 
 enum class TypeSpecifierWidth : int {
@@ -6912,41 +7132,46 @@ enum class TypeTrait : unsigned int {
   kIsUnion = 28,
   kHasUniqueObjectRepresentations = 29,
   kIsTriviallyRelocatable = 30,
-  kIsArithmetic = 31,
-  kIsFloatingPoint = 32,
-  kIsIntegral = 33,
-  kIsCompleteType = 34,
-  kIsVoid = 35,
-  kIsArray = 36,
-  kIsFunction = 37,
-  kIsReference = 38,
-  kIsLvalueReference = 39,
-  kIsRvalueReference = 40,
-  kIsFundamental = 41,
-  kIsObject = 42,
-  kIsScalar = 43,
-  kIsCompound = 44,
-  kIsPointer = 45,
-  kIsMemberObjectPointer = 46,
-  kIsMemberFunctionPointer = 47,
-  kIsMemberPointer = 48,
-  kIsConst = 49,
-  kIsVolatile = 50,
-  kIsSigned = 51,
-  kIsUnsigned = 52,
-  kTypeCompatible = 53,
-  kIsNothrowAssignable = 54,
-  kIsAssignable = 55,
-  kIsBaseOf = 56,
-  kIsConvertibleTo = 57,
-  kIsTriviallyAssignable = 58,
-  kReferenceBindsToTemporary = 59,
-  kIsSame = 60,
-  kIsConvertible = 61,
-  kXNUTypeCompatible = 62,
-  kIsConstructible = 63,
-  kIsNothrowConstructible = 64,
-  kIsTriviallyConstructible = 65,
+  kIsBoundedArray = 31,
+  kIsUnboundedArray = 32,
+  kIsNullPointer = 33,
+  kIsScopedEnum = 34,
+  kIsReferenceable = 35,
+  kIsArithmetic = 36,
+  kIsFloatingPoint = 37,
+  kIsIntegral = 38,
+  kIsCompleteType = 39,
+  kIsVoid = 40,
+  kIsArray = 41,
+  kIsFunction = 42,
+  kIsReference = 43,
+  kIsLvalueReference = 44,
+  kIsRvalueReference = 45,
+  kIsFundamental = 46,
+  kIsObject = 47,
+  kIsScalar = 48,
+  kIsCompound = 49,
+  kIsPointer = 50,
+  kIsMemberObjectPointer = 51,
+  kIsMemberFunctionPointer = 52,
+  kIsMemberPointer = 53,
+  kIsConst = 54,
+  kIsVolatile = 55,
+  kIsSigned = 56,
+  kIsUnsigned = 57,
+  kTypeCompatible = 58,
+  kIsNothrowAssignable = 59,
+  kIsAssignable = 60,
+  kIsBaseOf = 61,
+  kIsConvertibleTo = 62,
+  kIsTriviallyAssignable = 63,
+  kReferenceBindsToTemporary = 64,
+  kIsSame = 65,
+  kIsConvertible = 66,
+  kXNUTypeCompatible = 67,
+  kIsConstructible = 68,
+  kIsNothrowConstructible = 69,
+  kIsTriviallyConstructible = 70,
 };
 
 enum class UnaryExprOrTypeTrait : unsigned int {
@@ -7001,7 +7226,8 @@ enum class VectorLibrary : unsigned int {
   kLIBMVEC = 2,
   kMASSV = 3,
   kSVML = 4,
-  kDarwinLibsystemM = 5,
+  kSLEEF = 5,
+  kDarwinLibsystemM = 6,
 };
 
 enum class Visibility : unsigned int {
@@ -7038,6 +7264,7 @@ enum class Visibility : unsigned int {
     m(OMPCriticalDirective) \
     m(OMPDepobjDirective) \
     m(OMPDispatchDirective) \
+    m(OMPErrorDirective) \
     m(OMPFlushDirective) \
     m(OMPInteropDirective) \
     m(OMPDistributeDirective) \
@@ -7142,6 +7369,7 @@ enum class Visibility : unsigned int {
     m(CXXNewExpr) \
     m(CXXNoexceptExpr) \
     m(CXXNullPtrLiteralExpr) \
+    m(CXXParenListInitExpr) \
     m(CXXPseudoDestructorExpr) \
     m(CXXRewrittenBinaryOperator) \
     m(CXXScalarValueInitExpr) \
@@ -7380,6 +7608,7 @@ class CXXNewExpr;
 class CXXNoexceptExpr;
 class CXXNullPtrLiteralExpr;
 class CXXOperatorCallExpr;
+class CXXParenListInitExpr;
 class CXXPseudoDestructorExpr;
 class CXXRecordDecl;
 class CXXReinterpretCastExpr;
@@ -7417,6 +7646,7 @@ class CmseNSEntryAttr;
 class CoawaitExpr;
 class CodeSegAttr;
 class ColdAttr;
+class Common;
 class CommonAttr;
 class ComplexType;
 class CompoundAssignOperator;
@@ -7530,7 +7760,13 @@ class GotoStmt;
 class GuardedByAttr;
 class GuardedVarAttr;
 class HIPManagedAttr;
+class HLSLAnnotationAttr;
+class HLSLBufferDecl;
+class HLSLGroupSharedAddressSpaceAttr;
 class HLSLNumThreadsAttr;
+class HLSLResourceAttr;
+class HLSLResourceBindingAttr;
+class HLSLSV_DispatchThreadIDAttr;
 class HLSLSV_GroupIndexAttr;
 class HLSLShaderAttr;
 class HotAttr;
@@ -7541,6 +7777,7 @@ class IFuncAttr;
 class IfStmt;
 class ImaginaryLiteral;
 class ImplicitCastExpr;
+class ImplicitConceptSpecializationDecl;
 class ImplicitParamDecl;
 class ImplicitValueInitExpr;
 class ImportDecl;
@@ -7592,6 +7829,7 @@ class MatrixSubscriptExpr;
 class MatrixType;
 class MaxFieldAlignmentAttr;
 class MayAliasAttr;
+class MaybeUndefAttr;
 class MemberExpr;
 class MemberPointerType;
 class MicroMipsAttr;
@@ -7637,6 +7875,7 @@ class NoStackProtectorAttr;
 class NoThreadSafetyAnalysisAttr;
 class NoThrowAttr;
 class NoUniqueAddressAttr;
+class NoUwtableAttr;
 class NonNullAttr;
 class NonTypeTemplateParmDecl;
 class NotTailCalledAttr;
@@ -7665,6 +7904,7 @@ class OMPDistributeDirective;
 class OMPDistributeParallelForDirective;
 class OMPDistributeParallelForSimdDirective;
 class OMPDistributeSimdDirective;
+class OMPErrorDirective;
 class OMPExecutableDirective;
 class OMPFlushDirective;
 class OMPForDirective;
@@ -7864,6 +8104,7 @@ class QualifiedType;
 class RISCVInterruptAttr;
 class RValueReferenceType;
 class RandomizeLayoutAttr;
+class ReadOnlyPlacementAttr;
 class RecordDecl;
 class RecordType;
 class RecoveryExpr;
@@ -7909,6 +8150,7 @@ class Stmt;
 class StmtAttr;
 class StmtExpr;
 class StrictFPAttr;
+class StrictGuardStackCheckAttr;
 class StringLiteral;
 class SubstNonTypeTemplateParmExpr;
 class SubstNonTypeTemplateParmPackExpr;
@@ -7940,6 +8182,7 @@ class TagDecl;
 class TagType;
 class TargetAttr;
 class TargetClonesAttr;
+class TargetVersionAttr;
 class TemplateArgument;
 class TemplateDecl;
 class TemplateParamObjectDecl;
@@ -7950,6 +8193,7 @@ class TemplateTypeParmType;
 class TestTypestateAttr;
 class ThisCallAttr;
 class ThreadAttr;
+class TopLevelStmtDecl;
 class TranslationUnitDecl;
 class TransparentUnionAttr;
 class TrivialABIAttr;

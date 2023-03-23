@@ -2245,7 +2245,7 @@ void PatchedMacroTracker::InclusionDirective(
       llvm::StringRef /* file_name */,
       bool /* is_angled */,
       clang::CharSourceRange /* file_name_range */,
-      llvm::Optional<clang::FileEntryRef> file_ref,
+      clang::OptionalFileEntryRef file_ref,
       llvm::StringRef /* search_path */,
       llvm::StringRef /* relative_path */,
       const clang::Module * /* imported */,
@@ -2281,8 +2281,8 @@ void PatchedMacroTracker::InclusionDirective(
   // Get the file associated with the include. We need to do a bit of work to
   // get it when the file is actually ignored. Experimentation shows that using
   // `getOrCreateFileID` with `file_type` does the wrong thing.
-  if (file_ref.hasValue() && !last_directive->included_file) {
-    const clang::FileEntry &fe = file_ref.value().getFileEntry();
+  if (file_ref.has_value() && !last_directive->included_file) {
+    const clang::FileEntry &fe = file_ref->getFileEntry();
     clang::SourceLocation loc = sm.translateFileLineCol(&fe, 1, 1);
     if (loc.isValid() && loc.isFileID()) {
       auto [fid, offset] = sm.getDecomposedLoc(loc);

@@ -73,21 +73,7 @@ void GenerateStmtCpp(void) {
       << "      kind = new_that.kind; \\\n"
       << "      return *this; \\\n"
       << "    }\n\n"
-      << "namespace pasta {\n"
-      << "namespace {\n"
-      << "// Return the PASTA `StmtKind` for a Clang `Stmt`.\n"
-      << "static StmtKind KindOfStmt(const clang::Stmt *stmt) {\n"
-      << "  switch (stmt->getStmtClass()) {\n";
-      << "#define PASTA_STMT_CASE(s) \\\n"
-      << "    case clang::Stmt::StmtClass::s: \\\n"
-      << "      return StmtKind::k ## s;\n\n"
-      << "    PASTA_FOR_EACH_STMT_IMPL(PASTA_STMT_CASE, PASTA_STMT_CASE, PASTA_STMT_CASE, PASTA_STMT_CASE, PASTA_STMT_CASE, PASTA_IGNORE_ABSTRACT)\n"
-      << "#undef PASTA_STMT_CASE\n"
-      << "    default: break;\n"
-      << "  }\n"
-      << "  __builtin_unreachable();\n"
-      << "}\n\n"
-      << "}  // namespace\n\n";
+      << "namespace pasta {\n\n";
 
   os  << "StmtVisitor::~StmtVisitor(void) {}\n\n"
       << "void StmtVisitor::Accept(const Stmt &stmt) {\n"
@@ -125,7 +111,7 @@ void GenerateStmtCpp(void) {
 
     // Dispatch to our hand-written constructor that takes the `StmtKind`.
     if (name == "Stmt") {
-      os << "\n    : Stmt(std::move(ast_), stmt_, KindOfStmt(stmt_)) {}\n\n";
+      os << "\n    : Stmt(std::move(ast_), stmt_, static_cast<::pasta::StmtKind>(stmt_->getStmtClass())) {}\n\n";
 
     // Dispatch to the base class constructor(s).
     } else {

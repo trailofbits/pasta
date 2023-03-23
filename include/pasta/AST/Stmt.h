@@ -225,6 +225,7 @@ class StmtVisitor {
   virtual void VisitCXXNewExpr(const CXXNewExpr &);
   virtual void VisitCXXNoexceptExpr(const CXXNoexceptExpr &);
   virtual void VisitCXXNullPtrLiteralExpr(const CXXNullPtrLiteralExpr &);
+  virtual void VisitCXXParenListInitExpr(const CXXParenListInitExpr &);
   virtual void VisitCXXPseudoDestructorExpr(const CXXPseudoDestructorExpr &);
   virtual void VisitCXXRewrittenBinaryOperator(const CXXRewrittenBinaryOperator &);
   virtual void VisitCXXScalarValueInitExpr(const CXXScalarValueInitExpr &);
@@ -266,6 +267,7 @@ class StmtVisitor {
   virtual void VisitOMPDistributeParallelForDirective(const OMPDistributeParallelForDirective &);
   virtual void VisitOMPDistributeParallelForSimdDirective(const OMPDistributeParallelForSimdDirective &);
   virtual void VisitOMPDistributeSimdDirective(const OMPDistributeSimdDirective &);
+  virtual void VisitOMPErrorDirective(const OMPErrorDirective &);
   virtual void VisitOMPForDirective(const OMPForDirective &);
   virtual void VisitOMPForSimdDirective(const OMPForSimdDirective &);
   virtual void VisitOMPGenericLoopDirective(const OMPGenericLoopDirective &);
@@ -329,6 +331,7 @@ class Stmt {
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXNoexceptExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXNullPtrLiteralExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXOperatorCallExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXParenListInitExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXPseudoDestructorExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXReinterpretCastExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, CXXRewrittenBinaryOperator)
@@ -415,6 +418,7 @@ class Stmt {
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPDistributeParallelForDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPDistributeParallelForSimdDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPDistributeSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPErrorDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPExecutableDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPFlushDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, OMPForDirective)
@@ -590,6 +594,7 @@ class Stmt {
     const ::clang::CXXNoexceptExpr *CXXNoexceptExpr;
     const ::clang::CXXNullPtrLiteralExpr *CXXNullPtrLiteralExpr;
     const ::clang::CXXOperatorCallExpr *CXXOperatorCallExpr;
+    const ::clang::CXXParenListInitExpr *CXXParenListInitExpr;
     const ::clang::CXXPseudoDestructorExpr *CXXPseudoDestructorExpr;
     const ::clang::CXXReinterpretCastExpr *CXXReinterpretCastExpr;
     const ::clang::CXXRewrittenBinaryOperator *CXXRewrittenBinaryOperator;
@@ -676,6 +681,7 @@ class Stmt {
     const ::clang::OMPDistributeParallelForDirective *OMPDistributeParallelForDirective;
     const ::clang::OMPDistributeParallelForSimdDirective *OMPDistributeParallelForSimdDirective;
     const ::clang::OMPDistributeSimdDirective *OMPDistributeSimdDirective;
+    const ::clang::OMPErrorDirective *OMPErrorDirective;
     const ::clang::OMPExecutableDirective *OMPExecutableDirective;
     const ::clang::OMPFlushDirective *OMPFlushDirective;
     const ::clang::OMPForDirective *OMPForDirective;
@@ -900,6 +906,7 @@ class ValueStmt : public Stmt {
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, CXXNoexceptExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, CXXNullPtrLiteralExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, CXXOperatorCallExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, CXXParenListInitExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, CXXPseudoDestructorExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, CXXReinterpretCastExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueStmt, CXXRewrittenBinaryOperator)
@@ -1386,6 +1393,7 @@ class Expr : public ValueStmt {
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, CXXNoexceptExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, CXXNullPtrLiteralExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, CXXOperatorCallExpr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Expr, CXXParenListInitExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, CXXPseudoDestructorExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, CXXReinterpretCastExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Expr, CXXRewrittenBinaryOperator)
@@ -1518,7 +1526,7 @@ class Expr : public ValueStmt {
   // Dependence: (clang::ExprDependenceScope::ExprDependence)
   ::pasta::Token ExpressionToken(void) const noexcept;
   // FPFeaturesInEffect: (clang::FPOptions)
-  // IntegerConstantExpression: (llvm::Optional<llvm::APSInt>)
+  // IntegerConstantExpression: (std::optional<llvm::APSInt>)
   std::optional<::pasta::ObjCPropertyRefExpr> ObjCProperty(void) const noexcept;
   enum ExprObjectKind ObjectKind(void) const noexcept;
   std::optional<::pasta::Decl> ReferencedDeclarationOfCallee(void) const noexcept;
@@ -1532,6 +1540,7 @@ class Expr : public ValueStmt {
   // IsConstantInitializer: (bool)
   bool IsDefaultArgument(void) const noexcept;
   std::optional<bool> IsEvaluatable(void) const noexcept;
+  // IsFlexibleArrayMemberLike: (bool)
   bool IsGLValue(void) const noexcept;
   bool IsImplicitCXXThis(void) const noexcept;
   bool IsInstantiationDependent(void) const noexcept;
@@ -1843,7 +1852,7 @@ class IfStmt : public Stmt {
   ::pasta::Token IfToken(void) const noexcept;
   std::optional<::pasta::Stmt> Initializer(void) const noexcept;
   ::pasta::Token LParenToken(void) const noexcept;
-  // NondiscardedCase: (llvm::Optional<const clang::Stmt *>)
+  // NondiscardedCase: (std::optional<const clang::Stmt *>)
   ::pasta::Token RParenToken(void) const noexcept;
   enum IfStatementKind StatementKind(void) const noexcept;
   ::pasta::Stmt Then(void) const noexcept;
@@ -2324,6 +2333,7 @@ class OMPExecutableDirective : public Stmt {
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPDistributeParallelForDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPDistributeParallelForSimdDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPDistributeSimdDirective)
+  PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPErrorDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPFlushDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPForDirective)
   PASTA_DECLARE_DERIVED_OPERATORS(OMPExecutableDirective, OMPForSimdDirective)
@@ -4037,7 +4047,7 @@ class PackExpansionExpr : public Expr {
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EllipsisToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
-  std::optional<unsigned> NumExpansions(void) const noexcept;
+  // NumExpansions: (std::optional<unsigned int>)
   ::pasta::Expr Pattern(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(PackExpansionExpr)
@@ -4413,9 +4423,12 @@ class SubstNonTypeTemplateParmExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(Stmt, SubstNonTypeTemplateParmExpr)
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, SubstNonTypeTemplateParmExpr)
   std::vector<::pasta::Stmt> Children(void) const noexcept;
+  ::pasta::Decl AssociatedDeclaration(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
+  uint32_t Index(void) const noexcept;
   ::pasta::Token NameToken(void) const noexcept;
+  // PackIndex: (std::optional<unsigned int>)
   ::pasta::NonTypeTemplateParmDecl Parameter(void) const noexcept;
   ::pasta::Type ParameterType(void) const noexcept;
   ::pasta::Expr Replacement(void) const noexcept;
@@ -4436,8 +4449,10 @@ class SubstNonTypeTemplateParmPackExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, SubstNonTypeTemplateParmPackExpr)
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   // ArgumentPack: (clang::TemplateArgument)
+  ::pasta::Decl AssociatedDeclaration(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
+  uint32_t Index(void) const noexcept;
   ::pasta::NonTypeTemplateParmDecl ParameterPack(void) const noexcept;
   ::pasta::Token ParameterPackToken(void) const noexcept;
  protected:
@@ -4958,13 +4973,16 @@ class CXXDefaultArgExpr : public Expr {
   PASTA_DECLARE_BASE_OPERATORS(Stmt, CXXDefaultArgExpr)
   PASTA_DECLARE_BASE_OPERATORS(ValueStmt, CXXDefaultArgExpr)
   std::vector<::pasta::Stmt> Children(void) const noexcept;
+  ::pasta::Expr AdjustedRewrittenExpression(void) const noexcept;
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   ::pasta::Expr Expression(void) const noexcept;
   ::pasta::Token ExpressionToken(void) const noexcept;
   ::pasta::ParmVarDecl Parameter(void) const noexcept;
+  ::pasta::Expr RewrittenExpression(void) const noexcept;
   ::pasta::DeclContext UsedContext(void) const noexcept;
   ::pasta::Token UsedToken(void) const noexcept;
+  bool HasRewrittenInitializer(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXDefaultArgExpr)
 };
@@ -4984,8 +5002,10 @@ class CXXDefaultInitExpr : public Expr {
   ::pasta::Token EndToken(void) const noexcept;
   std::optional<::pasta::Expr> Expression(void) const noexcept;
   ::pasta::FieldDecl Field(void) const noexcept;
+  ::pasta::Expr RewrittenExpression(void) const noexcept;
   ::pasta::DeclContext UsedContext(void) const noexcept;
   ::pasta::Token UsedToken(void) const noexcept;
+  bool HasRewrittenInitializer(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXDefaultInitExpr)
 };
@@ -5068,7 +5088,7 @@ class CXXFoldExpr : public Expr {
   ::pasta::Expr Initializer(void) const noexcept;
   ::pasta::Expr LHS(void) const noexcept;
   ::pasta::Token LParenToken(void) const noexcept;
-  std::optional<unsigned> NumExpansions(void) const noexcept;
+  // NumExpansions: (std::optional<unsigned int>)
   enum BinaryOperatorKind Operator(void) const noexcept;
   ::pasta::Expr Pattern(void) const noexcept;
   ::pasta::Expr RHS(void) const noexcept;
@@ -5114,7 +5134,7 @@ class CXXNewExpr : public Expr {
   std::vector<::pasta::Stmt> Children(void) const noexcept;
   bool DoesUsualArrayDeleteWantSize(void) const noexcept;
   ::pasta::Type AllocatedType(void) const noexcept;
-  std::optional<::pasta::Expr> ArraySize(void) const noexcept;
+  // ArraySize: (std::optional<const clang::Expr *>)
   ::pasta::Token BeginToken(void) const noexcept;
   std::optional<::pasta::CXXConstructExpr> ConstructExpression(void) const noexcept;
   ::pasta::TokenRange DirectInitializerRange(void) const noexcept;
@@ -5177,6 +5197,29 @@ class CXXNullPtrLiteralExpr : public Expr {
 };
 
 static_assert(sizeof(Stmt) == sizeof(CXXNullPtrLiteralExpr));
+
+class CXXParenListInitExpr : public Expr {
+ private:
+  using Expr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CXXParenListInitExpr)
+  PASTA_DECLARE_BASE_OPERATORS(Expr, CXXParenListInitExpr)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, CXXParenListInitExpr)
+  PASTA_DECLARE_BASE_OPERATORS(ValueStmt, CXXParenListInitExpr)
+  std::vector<::pasta::Stmt> Children(void) const noexcept;
+  ::pasta::Expr ArrayFiller(void) const noexcept;
+  ::pasta::Token BeginToken(void) const noexcept;
+  ::pasta::Token EndToken(void) const noexcept;
+  // InitializerExpressions: (const llvm::ArrayRef<clang::Expr *>)
+  ::pasta::Token InitializerToken(void) const noexcept;
+  ::pasta::FieldDecl InitializedFieldInUnion(void) const noexcept;
+  ::pasta::TokenRange Tokens(void) const noexcept;
+  // UserSpecifiedInitializerExpressions: (const llvm::ArrayRef<clang::Expr *>)
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(CXXParenListInitExpr)
+};
+
+static_assert(sizeof(Stmt) == sizeof(CXXParenListInitExpr));
 
 class CXXPseudoDestructorExpr : public Expr {
  private:
@@ -5428,7 +5471,6 @@ class CallExpr : public Expr {
   // FPFeatures: (clang::FPOptionsOverride)
   // FPFeaturesInEffect: (clang::FPOptions)
   uint32_t NumArguments(void) const noexcept;
-  uint32_t NumCommas(void) const noexcept;
   ::pasta::Token RParenToken(void) const noexcept;
   // StoredFPFeatures: (clang::FPOptionsOverride)
   std::optional<::pasta::Attr> UnusedResultAttribute(void) const noexcept;
@@ -5576,6 +5618,7 @@ class ConceptSpecializationExpr : public Expr {
   ::pasta::Token BeginToken(void) const noexcept;
   ::pasta::Token EndToken(void) const noexcept;
   // Satisfaction: (const clang::ASTConstraintSatisfaction &)
+  ::pasta::ImplicitConceptSpecializationDecl SpecializationDeclaration(void) const noexcept;
   std::vector<::pasta::TemplateArgument> TemplateArguments(void) const noexcept;
   bool IsSatisfied(void) const noexcept;
  protected:
@@ -6072,6 +6115,20 @@ class OMPDistributeSimdDirective : public OMPLoopDirective {
 };
 
 static_assert(sizeof(Stmt) == sizeof(OMPDistributeSimdDirective));
+
+class OMPErrorDirective : public OMPExecutableDirective {
+ private:
+  using OMPExecutableDirective::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPErrorDirective)
+  PASTA_DECLARE_BASE_OPERATORS(OMPExecutableDirective, OMPErrorDirective)
+  PASTA_DECLARE_BASE_OPERATORS(Stmt, OMPErrorDirective)
+  // !!! Clause getNumClauses getClause (empty ret type = (clang::OMPClause *))
+ protected:
+  PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(OMPErrorDirective)
+};
+
+static_assert(sizeof(Stmt) == sizeof(OMPErrorDirective));
 
 class OMPForDirective : public OMPLoopDirective {
  private:

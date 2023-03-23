@@ -856,12 +856,11 @@ void StmtPrinter::VisitOMPTaskwaitDirective(clang::OMPTaskwaitDirective *Node) {
   PrintOMPExecutableDirective(Node);
 }
 
-// NOTE(pag): This will be in llvm16 I think.
-//void StmtPrinter::VisitOMPErrorDirective(clang::OMPErrorDirective *Node) {
-//  TokenPrinterContext ctx(OS, Node, tokens);
-//  Indent() << "#pragma omp error";
-//  PrintOMPExecutableDirective(Node);
-//}
+void StmtPrinter::VisitOMPErrorDirective(clang::OMPErrorDirective *Node) {
+ TokenPrinterContext ctx(OS, Node, tokens);
+ Indent() << "#pragma omp error";
+ PrintOMPExecutableDirective(Node);
+}
 
 void StmtPrinter::VisitOMPTaskgroupDirective(clang::OMPTaskgroupDirective *Node) {
   TokenPrinterContext ctx(OS, Node, tokens);
@@ -1372,6 +1371,7 @@ void StmtPrinter::VisitIntegerLiteral(clang::IntegerLiteral *Node) {
   case clang::BuiltinType::Char_S:
   case clang::BuiltinType::Char_U:    OS << "i8"; break;
   case clang::BuiltinType::UChar:     OS << "Ui8"; break;
+  case clang::BuiltinType::SChar:     OS << "i8"; break;
   case clang::BuiltinType::Short:     OS << "i16"; break;
   case clang::BuiltinType::UShort:    OS << "Ui16"; break;
   case clang::BuiltinType::Int:       break; // no suffix.
@@ -2837,6 +2837,18 @@ void StmtPrinter::VisitCXXFoldExpr(clang::CXXFoldExpr *E) {
   ctx.MarkLocation(E->getRParenLoc());
 }
 
+void StmtPrinter::VisitCXXParenListInitExpr(clang::CXXParenListInitExpr *Node) {
+  TokenPrinterContext ctx(OS, Node, tokens);
+  OS << "(";
+  auto sep = "";
+  for (clang::Expr *E : Node->getInitExprs()) {
+    OS << sep;
+    PrintExpr(E);
+    sep = ", ";
+  }
+  OS << ")";
+}
+
 void StmtPrinter::VisitConceptSpecializationExpr(clang::ConceptSpecializationExpr *E) {
   TokenPrinterContext ctx(OS, E, tokens);
   clang::NestedNameSpecifierLoc NNS = E->getNestedNameSpecifierLoc();
@@ -2898,7 +2910,7 @@ void StmtPrinter::VisitRequiresExpr(clang::RequiresExpr *E) {
     } else {
       auto *NestedReq = clang::cast<clang::concepts::NestedRequirement>(Req);
       OS << "requires ";
-      if (NestedReq->isSubstitutionFailure())
+      if (NestedReq->hasInvalidConstraint())
         OS << "<<error-expression>>";
       else
         PrintExpr(NestedReq->getConstraintExpr());

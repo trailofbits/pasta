@@ -359,7 +359,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
       "<pasta-input>", std::numeric_limits<time_t>::max(),
       llvm::MemoryBuffer::getMemBuffer(ast->preprocessed_code,
                                        "<pasta-input>", false),
-      llvm::None, llvm::None, llvm::sys::fs::file_type::regular_file,
+      std::nullopt, std::nullopt, llvm::sys::fs::file_type::regular_file,
       llvm::sys::fs::perms::all_read);
 
   if (!added_file) {

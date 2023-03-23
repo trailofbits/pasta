@@ -2123,6 +2123,8 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
     // TODO(pag): Handle these:
     case BeginSplitToken: break;
     case EndSplitToken: break;
+    case MacroParameterUse: break;
+    case ElidedTokenInDefinitionBody: break;
   }
 
   last_event = kind;

@@ -4051,13 +4051,15 @@ PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, UnresolvedUsingValueDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, VarDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, VarTemplatePartialSpecializationDecl)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueDecl, VarTemplateSpecializationDecl)
-::pasta::VarDecl ValueDecl::PotentiallyDecomposedVariableDeclaration(void) const noexcept {
+std::optional<::pasta::VarDecl> ValueDecl::PotentiallyDecomposedVariableDeclaration(void) const noexcept {
   auto &self = *const_cast<clang::ValueDecl *>(u.ValueDecl);
   decltype(auto) val = self.getPotentiallyDecomposedVarDecl();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
-  assert(false && "ValueDecl::PotentiallyDecomposedVariableDeclaration can return nullptr!");
   __builtin_unreachable();
 }
 

@@ -1188,6 +1188,7 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"GCCAsmStmt", "InputExpression"},
   {"GCCAsmStmt", "OutputExpression"},
   {"GCCAsmStmt", "LabelExpression"},
+  {"ValueDecl", "PotentiallyDecomposedVariableDeclaration"},
 
 //  {"FunctionProtoType", "EllipsisToken"},
 //  {"FunctionDecl", "EllipsisToken"},

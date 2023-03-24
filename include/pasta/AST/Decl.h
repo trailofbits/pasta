@@ -1451,7 +1451,7 @@ class ValueDecl : public NamedDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(ValueDecl, VarDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueDecl, VarTemplatePartialSpecializationDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(ValueDecl, VarTemplateSpecializationDecl)
-  ::pasta::VarDecl PotentiallyDecomposedVariableDeclaration(void) const noexcept;
+  std::optional<::pasta::VarDecl> PotentiallyDecomposedVariableDeclaration(void) const noexcept;
   ::pasta::Type Type(void) const noexcept;
   bool IsInitializerCapture(void) const noexcept;
   bool IsWeak(void) const noexcept;

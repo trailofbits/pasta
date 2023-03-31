@@ -12,6 +12,8 @@
 
 #include <pasta/Util/File.h>
 
+#include "Token.h"
+
 namespace clang {
 class MacroInfo;
 }  // namespace clang
@@ -170,6 +172,42 @@ class MacroSubstitutionImpl : public MacroNodeImpl {
   NodeList use_nodes;
 };
 
+class MacroParameterSubstitutionImpl final : public MacroSubstitutionImpl {
+ public:
+  OpaqueSourceLoc prev_tok_loc{0u};
+  int prev_tok_index{-2};
+  bool failed{false};
+  int number{-1};
+  Node param_in_definition;
+
+  inline MacroParameterSubstitutionImpl(void) {
+    kind = MacroKind::kParameterSubstitution;
+  }
+
+  MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const final;
+};
+
+class MacroVAOptImpl final : public MacroSubstitutionImpl {
+ public:
+  bool is_elided{true};
+
+  inline MacroVAOptImpl(void) {
+    kind = MacroKind::kVAOpt;
+  }
+
+  MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const final;
+};
+
+class MacroVAOptArgumentImpl final : public MacroNodeImpl {
+ public:
+  inline MacroVAOptArgumentImpl(void)
+      : MacroNodeImpl(MacroKind::kVAOptArgument) {}
+
+  virtual ~MacroVAOptArgumentImpl(void) = default;
+
+  MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const final;
+};
+
 class MacroExpansionImpl final : public MacroSubstitutionImpl {
  public:
   inline MacroExpansionImpl(void) {
@@ -179,8 +217,23 @@ class MacroExpansionImpl final : public MacroSubstitutionImpl {
   virtual ~MacroExpansionImpl(void) = default;
   MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const final;
 
+  // Copy tokens from the body of the macro that come before the token with
+  // location `loc`.
+  void CopyFromBody(ASTImpl &ast, MacroNodeImpl *curr, OpaqueSourceLoc loc);
+
   NodeList arguments;
   Node definition;
+  MacroDirectiveImpl *definition_impl{nullptr};
+
+  // Substitutions of the macro body.
+  NodeList body;
+
+  bool has_body{false};
+  bool done_processing_body{false};
+  bool has_interesting_body{false};
+
+  // Index of the next body token to copy.
+  unsigned next_body_token_to_copy{0u};
 
   // The info for the macro that was defined by this directive.
   const clang::MacroInfo *defined_macro{nullptr};
@@ -228,9 +281,42 @@ class RootMacroNode final : public MacroNodeImpl {
   std::deque<MacroArgumentImpl> arguments;
   std::deque<MacroParameterImpl> parameters;
   std::deque<MacroSubstitutionImpl> substitutions;
+  std::deque<MacroVAOptImpl> vaopts;
+  std::deque<MacroVAOptArgumentImpl> vaopt_arguments;
+  std::deque<MacroParameterSubstitutionImpl> parameter_substitutions;
   std::deque<MacroTokenImpl> tokens;
   NodeList token_nodes;
 };
+
+
+template <typename TokenCB, typename NodeCB>
+static void CloneNode(ASTImpl &ast,
+                      const MacroNodeImpl *old_parent,
+                      const Node &node, unsigned node_index,
+                      MacroNodeImpl *new_parent,
+                      NodeList &new_nodes,
+                      TokenCB on_token,
+                      NodeCB on_node) {
+  if (std::holds_alternative<MacroTokenImpl *>(node)) {
+    MacroTokenImpl *tok = std::get<MacroTokenImpl *>(node);
+    assert(std::holds_alternative<MacroNodeImpl *>(tok->parent));
+    assert(std::get<MacroNodeImpl *>(tok->parent) == old_parent);
+    MacroTokenImpl *cloned_tok = tok->Clone(ast, new_parent);
+    assert(tok->token_offset < cloned_tok->token_offset);
+    new_nodes.emplace_back(cloned_tok);
+
+    on_token(node_index, tok, cloned_tok);
+
+  } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
+    MacroNodeImpl *sub_node = std::get<MacroNodeImpl *>(node);
+    assert(std::holds_alternative<MacroNodeImpl *>(sub_node->parent));
+    assert(std::get<MacroNodeImpl *>(sub_node->parent) == old_parent);
+    auto cloned_node = sub_node->Clone(ast, new_parent);
+    new_nodes.emplace_back(cloned_node);
+
+    on_node(node_index, sub_node, cloned_node);
+  }
+}
 
 template <typename TokenCB, typename NodeCB>
 static void CloneNodeList(ASTImpl &ast,
@@ -242,25 +328,8 @@ static void CloneNodeList(ASTImpl &ast,
                           NodeCB on_node) {
   auto i = 0u;
   for (const Node &node : old_nodes) {
-    if (std::holds_alternative<MacroTokenImpl *>(node)) {
-      MacroTokenImpl *tok = std::get<MacroTokenImpl *>(node);
-      assert(std::holds_alternative<MacroNodeImpl *>(tok->parent));
-      assert(std::get<MacroNodeImpl *>(tok->parent) == old_parent);
-      MacroTokenImpl *cloned_tok = tok->Clone(ast, new_parent);
-      assert(tok->token_offset < cloned_tok->token_offset);
-      new_nodes.emplace_back(cloned_tok);
-
-      on_token(i, tok, cloned_tok);
-
-    } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
-      MacroNodeImpl *sub_node = std::get<MacroNodeImpl *>(node);
-      assert(std::holds_alternative<MacroNodeImpl *>(sub_node->parent));
-      assert(std::get<MacroNodeImpl *>(sub_node->parent) == old_parent);
-      auto cloned_node = sub_node->Clone(ast, new_parent);
-      new_nodes.emplace_back(cloned_node);
-
-      on_node(i, sub_node, cloned_node);
-    }
+    CloneNode(ast, old_parent, node, i, new_parent, new_nodes,
+              on_token, on_node);
     ++i;
   }
 }

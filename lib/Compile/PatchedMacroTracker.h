@@ -85,6 +85,15 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   std::vector<MacroExpansionImpl *> expansions;
   std::vector<MacroArgumentImpl *> arguments;
   std::vector<MacroSubstitutionImpl *> substitutions;
+  std::vector<MacroSubstitutionImpl *> stringifies;
+  std::vector<MacroParameterSubstitutionImpl *> params;
+
+  MacroVAOptArgumentImpl *vaopt_arg{nullptr};
+
+  // The last concatenation. If we read a token after doing a concatenation,
+  // then we want to re-parent the concatenation into the place where the
+  // token was used.
+  MacroSubstitutionImpl *last_concatenation{nullptr};
 
   // Normally this is the most recent directive; however, in the case of
   // conditional directives, this is the last top-level one. In this latter
@@ -95,6 +104,7 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   std::unordered_map<const clang::MacroInfo *, MacroDirectiveImpl *> defines;
   std::unordered_map<OpaqueSourceLoc, DerivedTokenIndex> file_token_refs;
   std::unordered_map<OpaqueSourceLoc, DerivedTokenIndex> macro_token_refs;
+  std::unordered_map<OpaqueSourceLoc, DerivedTokenIndex> concat_token_refs;
 
   // In evil scenarios where pre-expansion is cancelled (e.g. due to a nested
   // _Pragma()), Clang may presend us with an EOD/EOF that is really
@@ -169,6 +179,23 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   void DoBeginDelayedSubstitution(const clang::Token &tok, uintptr_t data);
   void DoSwitchToSubstitution(const clang::Token &, uintptr_t);
   void DoEndSubstitution(const clang::Token &tok, uintptr_t data);
+
+  void DoBeginConcatenation(const clang::Token &tok, uintptr_t data);
+  void DoConcatenationOperatorToken(const clang::Token &tok, uintptr_t data);
+  void DoConcatenationAccumulationToken(const clang::Token &tok, uintptr_t data);
+  void DoEndConcatenation(const clang::Token &tok, uintptr_t data);
+
+  void DoBeforeParameterSubstitutions(const clang::Token &tok, uintptr_t data);
+  void DoAfterParameterSubstitutions(const clang::Token &tok, uintptr_t data);
+
+  void DoBeforeMacroParameterUse(const clang::Token &tok, uintptr_t data);
+  void DoAfterMacroParameterUse(const clang::Token &tok, uintptr_t data);
+
+  void DoBeforeVAOpt(const clang::Token &tok, uintptr_t data);
+  void DoAfterVAOpt(const clang::Token &tok, uintptr_t data);
+
+  void DoBeforeStringify(const clang::Token &tok, uintptr_t data);
+  void DoAfterStringify(const clang::Token &tok, uintptr_t data);
 
  public:
   // PASTA PATCH:

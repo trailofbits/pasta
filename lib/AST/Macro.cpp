@@ -94,21 +94,28 @@ static const Node *FirstTokenImpl(const std::vector<Node> &nodes) {
   return nullptr;
 }
 
+static const Node *LastTokenImpl(const Node &node) {
+  if (std::holds_alternative<MacroTokenImpl *>(node)) {
+    return &node;
+
+  } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
+    MacroNodeImpl *sub_node = std::get<MacroNodeImpl *>(node);
+    if (auto ret = sub_node->LastToken()) {
+      return ret;
+    }
+  }
+
+  return nullptr;
+}
+
 static const Node *LastTokenImpl(const std::vector<Node> &nodes) {
   if (nodes.empty()) {
     return nullptr;
   }
 
   for (auto it = nodes.rbegin(), end = nodes.rend(); it != end; ++it) {
-    const Node &node = *it;
-    if (std::holds_alternative<MacroTokenImpl *>(node)) {
-      return &node;
-
-    } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
-      MacroNodeImpl *sub_node = std::get<MacroNodeImpl *>(node);
-      if (auto ret = sub_node->LastToken()) {
-        return ret;
-      }
+    if (auto node = LastTokenImpl(*it)) {
+      return node;
     }
   }
 
@@ -221,6 +228,110 @@ MacroNodeImpl *MacroSubstitutionImpl::Clone(
   return clone;
 }
 
+MacroNodeImpl *MacroParameterSubstitutionImpl::Clone(
+    ASTImpl &, MacroNodeImpl *) const {
+  abort();
+  return nullptr;
+}
+
+MacroNodeImpl *MacroVAOptImpl::Clone(ASTImpl &, MacroNodeImpl *) const {
+  abort();
+  return nullptr;
+}
+
+MacroNodeImpl *MacroVAOptArgumentImpl::Clone(ASTImpl &, MacroNodeImpl *) const {
+  abort();
+  return nullptr;
+}
+
+// Copy tokens from the body of the macro that come before the token with
+// location `loc`.
+void MacroExpansionImpl::CopyFromBody(
+    ASTImpl &ast, MacroNodeImpl *curr, OpaqueSourceLoc loc) {
+  if (!definition_impl || !has_body) {
+    return;
+  }
+
+  auto max = definition_impl->nodes.size();
+  auto orig_next_body_token_to_copy = next_body_token_to_copy;
+
+  // First, make sure we're aligned to the right place to start copying
+  // from.
+  if (const Node *last_node = LastTokenImpl(body)) {
+    MacroTokenImpl *last_tok = std::get<MacroTokenImpl *>(*last_node);
+    TokenImpl last_atok = ast.tokens[last_tok->token_offset];
+
+//    std::cerr << "Last added to body: " << last_atok.Data(ast) << '\n';
+
+    while (next_body_token_to_copy < max) {
+//      std::cerr << next_body_token_to_copy << '\t';
+      const Node &node = definition_impl->nodes[next_body_token_to_copy++];
+      const Node *last_def_node = LastTokenImpl(node);
+      if (!last_def_node) {
+//        std::cerr << "Skipping:\n";
+        continue;
+      }
+
+      MacroTokenImpl *last_def_tok = std::get<MacroTokenImpl *>(*last_def_node);
+      TokenImpl last_def_atok = ast.tokens[last_def_tok->token_offset];
+//      std::cerr << "Attempting 1: " << last_def_atok.Data(ast) << ' '
+//                << last_def_atok.opaque_source_loc << " ?= "
+//                << last_atok.opaque_source_loc << '\n';
+
+      if (last_def_atok.opaque_source_loc == loc) {
+//        std::cerr << "Early exit: " << last_def_atok.Data(ast) << '\n';
+        next_body_token_to_copy -= 1u;
+        break;
+      }
+
+      if (last_atok.opaque_source_loc == last_def_atok.opaque_source_loc) {
+//        std::cerr << "Aligned at 1: " << last_def_atok.Data(ast) << '\n';
+        break;   // Aligned to the end of the last added thing.
+      }
+    }
+  }
+
+  NodeList &curr_nodes = curr == this ? body : curr->nodes;
+
+  // Now that we're aligned, start copying the missing things.
+  while (next_body_token_to_copy < max) {
+//    std::cerr << next_body_token_to_copy << '\t';
+
+    const Node &node = definition_impl->nodes[next_body_token_to_copy++];
+    const Node *last_def_node = LastTokenImpl(node);
+    if (!last_def_node) {
+//      std::cerr << "Injecting 1: (unknown)\n";
+      CloneNode(ast, definition_impl, node, 0u, curr,
+                curr_nodes, NoOnTokenCB, NoOnNodeCB);
+      has_interesting_body = true;
+      continue;
+    }
+
+    MacroTokenImpl *last_def_tok = std::get<MacroTokenImpl *>(*last_def_node);
+    TokenImpl last_def_atok = ast.tokens[last_def_tok->token_offset];
+//    std::cerr << "Attempting 2: " << last_def_atok.Data(ast) << '\n';
+
+    if (last_def_atok.opaque_source_loc != loc) {
+//      std::cerr << "Injecting 2: " << last_def_atok.Data(ast) << '\n';
+
+      CloneNode(ast, definition_impl, node, 0u, curr,
+                curr_nodes, NoOnTokenCB, NoOnNodeCB);
+      has_interesting_body = true;
+      continue;
+    }
+
+
+//    std::cerr << "Aligned at 2: " << last_def_atok.Data(ast) << '\n';
+    break;  // Aligned.
+  }
+
+  // If a change was made, then leave off a token so that next time we
+  // can align again.
+  if (orig_next_body_token_to_copy < next_body_token_to_copy) {
+    next_body_token_to_copy -= 1u;
+  }
+}
+
 MacroNodeImpl *MacroExpansionImpl::Clone(
     ASTImpl &ast, MacroNodeImpl *new_parent) const {
 
@@ -229,6 +340,7 @@ MacroNodeImpl *MacroExpansionImpl::Clone(
   clone->cloned_from = this;
   clone->parent = new_parent;
   clone->definition = definition;
+  clone->definition_impl = definition_impl;
   clone->defined_macro = defined_macro;
   if (auto new_parent_exp = dynamic_cast<MacroExpansionImpl *>(new_parent)) {
     if (parent_for_prearg) {
@@ -240,6 +352,9 @@ MacroNodeImpl *MacroExpansionImpl::Clone(
 
   clone->is_cancelled = is_cancelled;
   clone->is_prearg_expansion = is_prearg_expansion;
+
+  CloneNodeList(ast, this, body, clone, clone->body, NoOnTokenCB,
+                NoOnNodeCB);
 
   CloneNodeList(ast, this, nodes, clone, clone->nodes, NoOnTokenCB,
                 NoOnNodeCB);
@@ -763,6 +878,73 @@ MacroRange MacroSubstitution::ReplacementChildren(void) const noexcept {
   } else {
     return MacroRange(ast);
   }
+}
+
+MacroParameter MacroParameterSubstitution::Parameter(void) const noexcept {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
+  MacroParameterSubstitutionImpl *sub_impl =
+      dynamic_cast<MacroParameterSubstitutionImpl *>(node_impl);
+  return MacroParameter(ast, &(sub_impl->param_in_definition));
+}
+
+MacroToken MacroParameterSubstitution::ParameterUse(void) const noexcept {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
+  MacroParameterSubstitutionImpl *sub_impl =
+      dynamic_cast<MacroParameterSubstitutionImpl *>(node_impl);
+  return MacroToken(ast, &(sub_impl->use_nodes.front()));
+}
+
+MacroToken MacroStringify::StringifiedToken(void) const noexcept {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
+  MacroSubstitutionImpl *sub_impl =
+      dynamic_cast<MacroSubstitutionImpl *>(node_impl);
+  assert(sub_impl->nodes.size() == 1u);
+  assert(std::holds_alternative<MacroTokenImpl *>(sub_impl->nodes.front()));
+  return MacroToken(ast, &(sub_impl->nodes.front()));
+}
+
+MacroToken MacroConcatenate::PastedToken(void) const noexcept {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
+  MacroSubstitutionImpl *sub_impl =
+      dynamic_cast<MacroSubstitutionImpl *>(node_impl);
+  assert(sub_impl->nodes.size() == 1u);
+  assert(std::holds_alternative<MacroTokenImpl *>(sub_impl->nodes.front()));
+  return MacroToken(ast, &(sub_impl->nodes.front()));
+}
+
+// Were the contents elided? This is basically asking if there were variadic
+// arguments to the macro.
+bool MacroVAOpt::ContentsAreElided(void) const noexcept {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
+  MacroVAOptImpl *va_impl = dynamic_cast<MacroVAOptImpl *>(node_impl);
+  return va_impl->is_elided;
+}
+
+// The body of the macro, prior to expansion.
+MacroRange MacroExpansion::ReplacementBody(void) const noexcept {
+  Node node = *reinterpret_cast<const Node *>(impl);
+  MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
+  MacroExpansionImpl *exp_impl = dynamic_cast<MacroExpansionImpl *>(node_impl);
+  if (exp_impl->has_body && exp_impl->has_interesting_body &&
+      !exp_impl->body.empty()) {
+    const auto first = exp_impl->body.data();
+    return MacroRange(ast, first, &(first[exp_impl->body.size()]));
+
+  } else if (exp_impl->definition_impl &&
+             !exp_impl->definition_impl->nodes.empty()) {
+    const auto first = exp_impl->definition_impl->nodes.data();
+    const auto num_nodes = exp_impl->definition_impl->nodes.size();
+    const auto body_offset = exp_impl->definition_impl->body_offset;
+    if (body_offset < num_nodes) {
+      return MacroRange(ast, &(first[body_offset]), &(first[num_nodes]));
+    }
+  }
+  return MacroRange(ast);
 }
 
 MacroExpansion MacroExpansion::Containing(

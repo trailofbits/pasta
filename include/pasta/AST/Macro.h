@@ -414,7 +414,7 @@ class MacroExpansion final : public MacroSubstitution {
   // had to happen in the body, e.g. parameter substitution, token pasting,
   // then that will
   // be present here.
-  MacroRange ReplacementBody(void) const noexcept;
+  MacroRange IntermediateChildren(void) const noexcept;
 
   static MacroExpansion Containing(const MacroArgument &) noexcept;
 

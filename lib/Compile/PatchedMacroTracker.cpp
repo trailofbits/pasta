@@ -2193,11 +2193,13 @@ void PatchedMacroTracker::DoBeforeMacroParameterUse(
   MacroNodeImpl *parent = nodes.back();
 
   const clang::Token *tok = &tok_;
-  assert(tok[num_tokens - 1u].is(clang::tok::identifier));
+  const clang::Token &ident = tok[num_tokens - 1u];
+  assert(ident.isAnyIdentifier() ||
+         clang::tok::getKeywordSpelling(ident.getKind()));
 
   // Fill the preceding tokens.
   expansion->CopyFromBody(
-      *ast, parent, tok[num_tokens - 1u].getLocation().getRawEncoding());
+      *ast, parent, ident.getLocation().getRawEncoding());
 
   // Then put our new node in.
   param->parent = parent;
@@ -2207,7 +2209,7 @@ void PatchedMacroTracker::DoBeforeMacroParameterUse(
     nodes.back()->nodes.emplace_back(param);
   }
 
-  if (clang::IdentifierInfo *ii = tok[num_tokens - 1u].getIdentifierInfo();
+  if (clang::IdentifierInfo *ii = ident.getIdentifierInfo();
       ii && expansion->defined_macro) {
     param->number = expansion->defined_macro->getParameterNum(ii);
   }
@@ -2254,7 +2256,6 @@ void PatchedMacroTracker::DoAfterMacroParameterUse(
   assert(-1 <= param->prev_tok_index);
 
   const clang::Token *tok = &tok_;
-  assert(tok[num_tokens - 1u].is(clang::tok::identifier));
 
   if (0 <= param->prev_tok_index) {
 
@@ -2263,24 +2264,26 @@ void PatchedMacroTracker::DoAfterMacroParameterUse(
     if (param->prev_tok_index > static_cast<int>(num_tokens)) {
       D( std::cerr << indent << "! failed to align parameter (1)\n"; )
       param->failed = true;
-      return;
-    }
+      assert(false);
 
     // Some kind of alignment failure, e.g. elision of a comma.
-    if (tok[param->prev_tok_index].getLocation().getRawEncoding() !=
-        param->prev_tok_loc) {
+    } else if (tok[param->prev_tok_index].getLocation().getRawEncoding() !=
+               param->prev_tok_loc) {
       D( std::cerr << indent << "! failed to align parameter (2)\n"; )
       param->failed = true;
-      return;
+      assert(false);
     }
   }
 
-  // Collect the argument tokens, and then map the locations of the parameters
-  // to the parameter and the location in the `Parameter::argument_toks` of the
-  // token.
-  for (auto i = static_cast<unsigned>(param->prev_tok_index + 1);
-       i < num_tokens && !tok[i].is(clang::tok::eof); ++i) {
-    DoToken(tok[i], 0);
+  if (!param->failed) {
+
+    // Collect the argument tokens, and then map the locations of the parameters
+    // to the parameter and the location in the `Parameter::argument_toks` of the
+    // token.
+    for (auto i = static_cast<unsigned>(param->prev_tok_index + 1);
+         i < num_tokens && !tok[i].is(clang::tok::eof); ++i) {
+      DoToken(tok[i], 0);
+    }
   }
 
   params.pop_back();

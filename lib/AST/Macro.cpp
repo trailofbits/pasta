@@ -926,7 +926,7 @@ bool MacroVAOpt::ContentsAreElided(void) const noexcept {
 }
 
 // The body of the macro, prior to expansion.
-MacroRange MacroExpansion::ReplacementBody(void) const noexcept {
+MacroRange MacroExpansion::IntermediateChildren(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroExpansionImpl *exp_impl = dynamic_cast<MacroExpansionImpl *>(node_impl);

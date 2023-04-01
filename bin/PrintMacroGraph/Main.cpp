@@ -308,7 +308,7 @@ static void PrintMacroGraphSub(std::ostream &os,
 static void PrintMacroGraph(std::ostream &os,
                             const pasta::MacroExpansion &exp) {
   const auto a = reinterpret_cast<uintptr_t>(exp.RawMacro());
-  pasta::MacroRange body = exp.ReplacementBody();
+  pasta::MacroRange body = exp.IntermediateChildren();
   os
       << "n" << a
       << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" border=\"1\">"

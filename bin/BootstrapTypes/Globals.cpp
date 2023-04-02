@@ -1765,37 +1765,43 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "      return std::nullopt;\n"
    "    }\n"
    "  }\n"},
-   {{"Type", "IsStandardLayoutType"},
-    "  if (self.isDependentType()) {\n"
-    "    return false;\n"
-    "  } else if (!self.getBaseElementTypeUnsafe()) {\n"
-    "    return std::nullopt;\n"
-    "  }\n"},
-   {{"Type", "IsCXX11PODType"},
-    "  const clang::Type *t = self.getTypePtr();\n"
-    "  if (t->isDependentType()) {\n"
-    "    return false;\n"
-    "  } else if (self.hasNonTrivialObjCLifetime()) {\n"
-    "    return false;\n"
-    "  } else if (!t->getBaseElementTypeUnsafe()) {\n"
-    "    return std::nullopt;\n"
-    "  }\n"},
-   {{"UnaryExprOrTypeTraitExpr", "ArgumentTypeInfo"},
-    "  if (!self.isArgumentType()) {\n"
-    "    return std::nullopt;\n"
-    "  }\n"},
-   {{"UnaryExprOrTypeTraitExpr", "ArgumentType"},
-    "  if (!self.isArgumentType()) {\n"
-    "    return std::nullopt;\n"
-    "  }\n"},
-   {{"EnumDecl", "IntegerTypeSourceInfo"},
-    "  if (!self.getIntegerTypeSourceInfo()) {\n"
-    "    return std::nullopt;\n"
-    "  }\n"},
-   {{"EnumDecl", "IntegerType"},
-    "  if (self.getIntegerType().isNull()) {\n"
-    "    return std::nullopt;\n"
-    "  }\n"},
+  {{"Type", "IsStandardLayoutType"},
+   "  if (self.isDependentType()) {\n"
+   "    return false;\n"
+   "  } else if (!self.getBaseElementTypeUnsafe()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"Type", "IsCXX11PODType"},
+   "  const clang::Type *t = self.getTypePtr();\n"
+   "  if (t->isDependentType()) {\n"
+   "    return false;\n"
+   "  } else if (self.hasNonTrivialObjCLifetime()) {\n"
+   "    return false;\n"
+   "  } else if (!t->getBaseElementTypeUnsafe()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"UnaryExprOrTypeTraitExpr", "ArgumentTypeInfo"},
+   "  if (!self.isArgumentType()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"UnaryExprOrTypeTraitExpr", "ArgumentType"},
+   "  if (!self.isArgumentType()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"EnumDecl", "IntegerTypeSourceInfo"},
+   "  if (!self.getIntegerTypeSourceInfo()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"EnumDecl", "IntegerType"},
+   "  if (self.getIntegerType().isNull()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"ValueDecl", "PotentiallyDecomposedVariableDeclaration"},
+   "  if (!clang::isa<clang::VarDecl>(&self) &&\n"
+   "      !clang::isa<clang::BindingDecl>(&self)) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+
 //  {{"CXXRecordDecl", "DefaultedMoveConstructorIsDeleted"},
 //   "  if (self.needsOverloadResolutionForMoveConstructor() ||\n"
 //   "      self.needsImplicitMoveConstructor()) {\n"

@@ -11,7 +11,7 @@
 // e.g. `/Users/pag/Install/llvm-16/Release/include/__VA_ARGS__`.
 #define TARGET_CLANG_HEADER_STR(...) #__VA_ARGS__
 #define TARGET_CLANG_HEADER(...) \
-  TARGET_CLANG_HEADER_STR(/Users/pag/Install/llvm-16/Release/include/__VA_ARGS__)
+  TARGET_CLANG_HEADER_STR(__VA_ARGS__)
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wbitfield-enum-conversion"

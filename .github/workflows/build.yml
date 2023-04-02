@@ -30,8 +30,8 @@ jobs:
           ]
         image:
           - { name: 'ubuntu', tag: '22.04' }
-        cxx_common_version: [v0.2.24]
-        llvm_version: [15]
+        cxx_common_version: [v0.3.0]
+        llvm_version: [16]
 
     runs-on: ubuntu-22.04
     container:

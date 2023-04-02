@@ -20,7 +20,7 @@
 
 #include "../AST/AST.h"
 
-#define PASTA_DEBUG_RUN 1
+#define PASTA_DEBUG_RUN 0
 
 #if PASTA_DEBUG_RUN
 # include <fcntl.h>

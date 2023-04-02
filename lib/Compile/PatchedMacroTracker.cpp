@@ -660,8 +660,16 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
 
   // Pre-argument expansion of macro arguments will show the comma separators
   // and closing parens as `eof` tokens, so want to fix that up here.
+  //
+  // NOTE(pag): We check `params.empty()` because the parameter substitution
+  //            phase comes after the argument pre-expansion phase, which caches
+  //            the expansions. The parameter substitution phase reads the
+  //            cached pre-expanded arguments, but Clang's mechanism for
+  //            distinguishing a cache hit/miss is that the expansion is non-
+  //            empty. So, when there is a false-miss due to an empty argument
+  //            pre-expansion, we end up seeing EOF tokens peek through.
   auto force_arg_split = false;
-  if (tok.isOneOf(clang::tok::eod, clang::tok::eof)) {
+  if (tok.isOneOf(clang::tok::eod, clang::tok::eof) && params.empty()) {
     auto raw_tok_loc = tok_loc.getRawEncoding();
     if (auto real_tok_it = end_of_arg_toks.find(raw_tok_loc);
         real_tok_it != end_of_arg_toks.end()) {
@@ -2148,6 +2156,7 @@ void PatchedMacroTracker::DoEndConcatenation(
 
 void PatchedMacroTracker::DoBeforeParameterSubstitutions(
     const clang::Token &tok, uintptr_t data) {
+  assert(0 < depth);
   assert(!expansions.empty());
   MacroExpansionImpl *expansion = expansions.back();
   expansion->has_body = true;
@@ -2158,10 +2167,15 @@ void PatchedMacroTracker::DoBeforeParameterSubstitutions(
     expansion->next_body_token_to_copy =
         expansion->definition_impl->body_offset;
   }
+
+  // Reset because this phase shouldn't be influenced by repeat tokens coming
+  // from the argument pre-expansion phase.
+  last_token.startToken();
 }
 
 void PatchedMacroTracker::DoAfterParameterSubstitutions(
     const clang::Token &, uintptr_t) {
+  assert(0 < depth);
   assert(!expansions.empty());
   assert(expansions.back()->has_body);
 
@@ -2170,6 +2184,10 @@ void PatchedMacroTracker::DoAfterParameterSubstitutions(
 
   // Fill the trailing tokens.
   expansion->CopyFromBody(*ast, expansion, ~OpaqueSourceLoc());
+
+  // Reset because this phase shouldn't influence repeat tokens coming
+  // from the final expansion phase.
+  last_token.startToken();
 }
 
 // This is an out-of-band signal. The way Clang does parameter substitution
@@ -2179,6 +2197,7 @@ void PatchedMacroTracker::DoAfterParameterSubstitutions(
 // parameters, it instead injects in the corresponding argument tokens.
 void PatchedMacroTracker::DoBeforeMacroParameterUse(
     const clang::Token &tok_, uintptr_t num_tokens) {
+  assert(0 < depth);
   assert(0u < num_tokens);  // There should always be an `EOF`.
   assert(!expansions.empty());
   assert(params.empty());
@@ -2245,6 +2264,7 @@ void PatchedMacroTracker::DoBeforeMacroParameterUse(
 
 void PatchedMacroTracker::DoAfterMacroParameterUse(
     const clang::Token &tok_, uintptr_t num_tokens) {
+  assert(0 < depth);
   assert(!expansions.empty());
   assert(!params.empty());
   assert(nodes.back() == params.back());
@@ -2295,7 +2315,7 @@ void PatchedMacroTracker::DoAfterMacroParameterUse(
 
 void PatchedMacroTracker::DoBeforeVAOpt(
     const clang::Token &tok_, uintptr_t num_tokens) {
-
+  assert(0 < depth);
   assert(!vaopt_arg);
   assert(2u <= num_tokens);  // There should always be an `EOF`.
   assert(!expansions.empty());
@@ -2349,6 +2369,7 @@ void PatchedMacroTracker::DoBeforeVAOpt(
 
 void PatchedMacroTracker::DoAfterVAOpt(
     const clang::Token &tok_, uintptr_t num_tokens) {
+  assert(0 < depth);
   assert(vaopt_arg != nullptr);
   assert(1u <= num_tokens);
   assert(!substitutions.empty());
@@ -2385,6 +2406,7 @@ void PatchedMacroTracker::DoAfterVAOpt(
 
 void PatchedMacroTracker::DoBeforeStringify(
     const clang::Token &tok_, uintptr_t num_tokens) {
+  assert(0 < depth);
   assert(1u <= num_tokens);  // There should always be an `EOF`.
   assert(!expansions.empty());
 
@@ -2422,6 +2444,7 @@ void PatchedMacroTracker::DoBeforeStringify(
 
 void PatchedMacroTracker::DoAfterStringify(
     const clang::Token &tok_, uintptr_t num_tokens) {
+  assert(0 < depth);
   assert(0 < num_tokens);  // There should always be an `EOF`.
   assert(!expansions.empty());
   assert(!stringifies.empty());
@@ -2565,7 +2588,7 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
     case AfterStringify:
     case AfterMacroParameterUse:
     case AfterRemoveCommas:
-    case AfterConcatenation:
+//    case AfterConcatenation:
 //        --depth;
       if (!suppress_indent) {
         indent.resize(indent.size() - 2);
@@ -2630,7 +2653,8 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
   // NOTE(pag): For the `Before*` and `After*` events, the token argument
   //            represents the first thing in a possibly empty list, so it
   //            might not be valid.
-  if (tok.getKind() < clang::tok::NUM_TOKENS) {
+  if (reinterpret_cast<uintptr_t>(&tok) &&
+      tok.getKind() < clang::tok::NUM_TOKENS) {
     std::cerr
         << ' ' << clang::tok::getTokenName(tok.getKind())
         << " loc=" << tok.getLocation().getRawEncoding();
@@ -2659,6 +2683,9 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
     }
   }
 
+  // TODO(pag): `BeforeConcatenation` and `AfterConcatenation` don't properly
+  //            balance in all cases.
+
   switch (kind) {
     case BeginSplitToken:
     case BeginDirective:
@@ -2676,7 +2703,7 @@ void PatchedMacroTracker::Event(const clang::Token &tok, EventKind kind,
     case BeforeStringify:
     case BeforeMacroParameterUse:
     case BeforeRemoveCommas:
-    case BeforeConcatenation:
+//    case BeforeConcatenation:
 //        ++depth;
       if (!suppress_indent) {
         indent += "  ";

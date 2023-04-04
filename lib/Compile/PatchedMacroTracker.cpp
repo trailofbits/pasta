@@ -2478,6 +2478,9 @@ void PatchedMacroTracker::DoAfterStringify(
                                    clang::tok::utf16_string_literal,
                                    clang::tok::utf32_string_literal)) {
     DoToken(tok[num_tokens - 1u], 0);
+    concat_token_refs.emplace(
+        ast->tokens.back().opaque_source_loc,
+        static_cast<DerivedTokenIndex>(ast->tokens.size() - 1u));
   }
 
   stringifies.pop_back();

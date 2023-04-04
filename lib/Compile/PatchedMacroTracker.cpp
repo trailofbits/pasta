@@ -3176,7 +3176,7 @@ void PatchedMacroTracker::MacroDefined(const clang::Token &name_tok,
       }
 
       MacroTokenImpl *tok = std::get<MacroTokenImpl *>(node);
-      switch (tok->kind_flags.kind) {
+      switch (auto tk = tok->kind_flags.kind) {
         case TokenKind::kRParenthesis:
           last_param = nullptr;
           found_r_paren = true;
@@ -3203,7 +3203,10 @@ void PatchedMacroTracker::MacroDefined(const clang::Token &name_tok,
             new_nodes.push_back(last_param);
           }
           break;
-        case TokenKind::kIdentifier: {
+
+        identifier_like:
+        case TokenKind::kIdentifier:
+        case TokenKind::kRawIdentifier: {
           assert(!last_param);
           new_nodes.pop_back();
           last_param = &(ast->root_macro_node.parameters.emplace_back());
@@ -3218,6 +3221,13 @@ void PatchedMacroTracker::MacroDefined(const clang::Token &name_tok,
           break;
         }
         default:
+
+          // E.g. in the XNU kernel, there is a macro parameter named `default`.
+          if (clang::tok::getKeywordSpelling(
+                  static_cast<clang::tok::TokenKind>(tk))) {
+            goto identifier_like;
+          }
+
           // E.g. could have comment like `args/*comment*/...` perhaps?
           if (last_param) {
             new_nodes.pop_back();

@@ -11,7 +11,6 @@
 #pragma GCC diagnostic ignored "-Wshorten-64-to-32"
 #include <clang/Basic/LangOptions.h>
 #include <clang/Frontend/CompilerInstance.h>
-#include <clang/Lex/Token.h>
 #pragma GCC diagnostic pop
 
 //#define D(...) __VA_ARGS__
@@ -2257,8 +2256,8 @@ void PatchedMacroTracker::DoBeforeMacroParameterUse(
   assert(-1 <= param->prev_tok_index);
 
   if (0 <= param->prev_tok_index) {
-    param->prev_tok_loc =
-        tok[param->prev_tok_index].getLocation().getRawEncoding();
+    param->prev_tok = tok[param->prev_tok_index];
+    param->prev_tok_loc = param->prev_tok.getLocation().getRawEncoding();
   }
 }
 
@@ -2286,12 +2285,22 @@ void PatchedMacroTracker::DoAfterMacroParameterUse(
       param->failed = true;
       assert(false);
 
-    // Some kind of alignment failure, e.g. elision of a comma.
+    // A possible alignment failure.
     } else if (tok[param->prev_tok_index].getLocation().getRawEncoding() !=
                param->prev_tok_loc) {
-      D( std::cerr << indent << "! failed to align parameter (2)\n"; )
-      param->failed = true;
-      assert(false);
+
+      // In the case of `..., ##__VA_ARGS__`, the `##` is removed, and so we
+      // need to adjust out index so that we don't accidentally go and skip
+      // the first substituted in for the argument.
+      if (param->prev_tok.is(clang::tok::hashhash) &&
+          0 < param->prev_tok_index) {
+        param->prev_tok_index -= 1;
+
+      } else {
+        D( std::cerr << indent << "! failed to align parameter (2)\n"; )
+        param->failed = true;
+        assert(false);
+      }
     }
   }
 

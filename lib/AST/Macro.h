@@ -12,6 +12,14 @@
 
 #include <pasta/Util/File.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wbitfield-enum-conversion"
+#pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/Lex/Token.h>
+#pragma GCC diagnostic pop
+
 #include "Token.h"
 
 namespace clang {
@@ -175,6 +183,7 @@ class MacroSubstitutionImpl : public MacroNodeImpl {
 class MacroParameterSubstitutionImpl final : public MacroSubstitutionImpl {
  public:
   OpaqueSourceLoc prev_tok_loc{0u};
+  clang::Token prev_tok;
   int prev_tok_index{-2};
   bool failed{false};
   int number{-1};

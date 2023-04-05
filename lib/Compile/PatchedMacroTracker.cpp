@@ -127,8 +127,15 @@ void PatchedMacroTracker::CloseUnclosedExpansion(const clang::Token &tok) {
 void PatchedMacroTracker::Push(const clang::Token &tok) {
   if (!depth) {
     CloseUnclosedExpansion(tok);
-    start_of_macro_index = static_cast<DerivedTokenIndex>(ast->tokens.size());
-    assert(start_of_macro_index == ast->tokens.size());
+
+    parsed_start_of_macro_index =
+        static_cast<DerivedTokenIndex>(ast->tokens.size());
+    assert(parsed_start_of_macro_index == ast->tokens.size());
+
+    macro_start_of_macro_index =
+        static_cast<DerivedTokenIndex>(ast->root_macro_node.tokens.size());
+    assert(macro_start_of_macro_index == ast->root_macro_node.tokens.size());
+
     D( std::cerr << indent << "BeginOfMacroExpansionMarker\n"; )
     assert(tok.getLocation().isValid() && tok.getLocation().isFileID());
     ast->AppendMarker(tok.getLocation(),
@@ -188,7 +195,8 @@ bool PatchedMacroTracker::TryExtractHeaderName(const clang::Token &tok) {
     nt.setLocation(sm.getComposedLoc(file_id, t.Offset()));
     nt.setLength(static_cast<unsigned>(t.Data().size()));
     DoToken(nt, 0);
-    D( std::cerr << indent << "HeaderNameToken " << clang::tok::getTokenName(nt.getKind()) << '\n'; )
+    D( std::cerr << indent << "HeaderNameToken "
+                 << clang::tok::getTokenName(nt.getKind()) << '\n'; )
 
     if (t.Data().ends_with(end) || nt.is(clang::tok::string_literal)) {
       break;
@@ -359,104 +367,201 @@ static int ParenCount(MacroNodeImpl *arg) {
   return paren_count;
 }
 
-// Change the stored raw location if this is a macro token, so that it
-// points to where it originated from.
-void PatchedMacroTracker::FixupDerivedLocations(void) {
+// TODO: Make recursive. Handle macro case before file. Split out the can be
+//       derived case.
+void PatchedMacroTracker::FixupTokenProvenance(
+    TokenImpl &tok, DerivedTokenIndex tok_index, bool can_be_derived, int depth,
+    clang::SourceLocation loc) {
 
-  auto from_map = [=, this] (
-      const std::unordered_map<OpaqueSourceLoc, DerivedTokenIndex> &map,
-      TokenImpl &tok, DerivedTokenIndex tok_index, std::string_view tok_data,
-      OpaqueSourceLoc loc) {
-    auto it = map.find(loc);
-    if (it == map.end()) {
-      return false;
+  if (!loc.isValid()) {
+    return;
+  }
+
+  auto raw_loc = loc.getRawEncoding();
+  auto it = macro_token_refs.find(raw_loc);
+  auto has_tok_for_loc = it != macro_token_refs.end();
+  auto has_derived = tok.derived_index != kInvalidDerivedTokenIndex;
+  if (has_tok_for_loc) {
+    if (!has_derived) {
+      if (tok.Data(*ast) != ast->tokens[it->second].Data(*ast)) {
+        return;  // Token data doesn't match.
+      }
+
+      tok.derived_index = it->second;
+      has_derived = true;
+    }
+  }
+
+  if (can_be_derived) {
+    if (has_tok_for_loc) {
+      it->second = tok_index;
+    } else {
+      macro_token_refs.emplace(raw_loc, tok_index);
+    }
+  }
+
+  if (loc.isMacroID()) {
+    if (!has_derived) {
+      FixupTokenProvenance(tok, tok_index, can_be_derived, depth + 1,
+                           sm.getImmediateSpellingLoc(loc));
     }
 
-    // Sanity check that we're mapping a derived token to the original token
-    // that shares the same data.
-    DerivedTokenIndex orig_tok_index = it->second;
-    if (orig_tok_index == tok_index) {
-      return false;
-    }
+  } else if (loc.isFileID()) {
+    it = file_token_refs.find(raw_loc);
+    has_tok_for_loc = it != file_token_refs.end();
+    if (has_tok_for_loc) {
+      if (tok.Data(*ast) != ast->tokens[it->second].Data(*ast)) {
+        return;  // Token data doesn't match.
+      }
 
-    assert(orig_tok_index < tok_index);
-    const TokenImpl &orig_tok = ast->tokens[orig_tok_index];
-    if (orig_tok.Data(*ast) != tok_data) {
-      return false;
-    }
-
-    assert(!!orig_tok_index);
-    tok.derived_index = orig_tok_index;
-    return true;
-  };
-
-  macro_token_refs = concat_token_refs;
-
-  DerivedTokenIndex max_i = static_cast<DerivedTokenIndex>(ast->tokens.size());
-  for (DerivedTokenIndex tok_index = start_of_macro_index;
-       tok_index < max_i; ++tok_index) {
-
-    last_fixed_index = tok_index;
-
-    TokenImpl &tok = ast->tokens[tok_index];
-    assert(tok.HasMacroRole());
-
-    const std::string_view data = tok.Data(*ast);
-    const clang::SourceLocation loc = tok.Location();
-    const OpaqueSourceLoc raw_loc = loc.getRawEncoding();
-
-    if (!loc.isValid()) {
-      assert(tok.Role() == TokenRole::kEndOfMacroExpansionMarker ||
-             tok.Role() == TokenRole::kEndOfInternalMacroEventMarker);
-      continue;
-    }
-
-    // If we have a file token, then we could be in a define or other directive,
-    // in the first tokens of a use of a macro, or in the pre-expansion phase
-    // of a macro.
-    if (loc.isFileID()) {
-      switch (tok.Role()) {
-        case TokenRole::kBeginOfMacroExpansionMarker:
-        case TokenRole::kEndOfMacroExpansionMarker:
-        case TokenRole::kEndOfInternalMacroEventMarker:
-          continue;
-        default:
-          (void) from_map(file_token_refs, tok, tok_index, data, raw_loc);
-          file_token_refs[raw_loc] = tok_index;
-          assert(tok.Location().isFileID());
-          continue;
+      if (!has_derived) {
+        tok.derived_index = it->second;
       }
     }
 
-    if (!loc.isMacroID()) {
-      assert(false);  // Doesn't make sense.
-      continue;
-    }
-
-    // For some pre-expansions, we need to copy the expanded tokens, so we want
-    // to link back to those.
-    if (from_map(macro_token_refs, tok, tok_index, data, raw_loc)) {
-      macro_token_refs[raw_loc] = tok_index;
-      continue;
-    }
-
-    // Try to go one level up in the macro expansion to find the token's
-    // ancestry.
-    const clang::SourceLocation next_loc = sm.getImmediateSpellingLoc(loc);
-    if (!next_loc.isValid()) {
-
-      // Helps us connect concatenations in pre-argument expansions back.
-      macro_token_refs[raw_loc] = tok_index;
-      continue;
-    }
-
-    const OpaqueSourceLoc next_raw_loc = next_loc.getRawEncoding();
-    if (from_map(file_token_refs, tok, tok_index, data, next_raw_loc) ||
-        from_map(macro_token_refs, tok, tok_index, data, next_raw_loc)) {
-      macro_token_refs[raw_loc] = tok_index;
-      continue;
+    if (can_be_derived) {
+      if (has_tok_for_loc) {
+        it->second = tok_index;
+      } else if (!depth) {
+        assert(!has_derived);
+        file_token_refs.emplace(raw_loc, tok_index);
+      }
     }
   }
+}
+
+void PatchedMacroTracker::FixupTokenProvenance(const MacroTokenImpl *mtok) {
+  auto tok_index = mtok->token_offset;
+  TokenImpl &tok = ast->tokens[tok_index];
+  assert(tok.HasMacroRole());
+  assert(last_fixed_index < tok_index);
+  last_fixed_index = tok_index;
+
+  switch (TokenRole tok_role = tok.Role()) {
+    case TokenRole::kBeginOfMacroExpansionMarker:
+    case TokenRole::kEndOfMacroExpansionMarker:
+    case TokenRole::kEndOfInternalMacroEventMarker:
+      return;
+    default: {
+      auto can_be_derived =
+          tok_role == TokenRole::kInitialMacroUseToken ||
+          tok_role == TokenRole::kIntermediateMacroExpansionToken;
+      FixupTokenProvenance(tok, tok_index, can_be_derived, 0, tok.Location());
+      break;
+    }
+  }
+}
+
+void PatchedMacroTracker::FixupTokenProvenance(const MacroNodeImpl *parent) {
+
+  auto do_node = [=] (const Node &node) {
+    if (std::holds_alternative<MacroTokenImpl *>(node)) {
+      FixupTokenProvenance(std::get<MacroTokenImpl *>(node));
+
+    } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
+      FixupTokenProvenance(std::get<MacroNodeImpl *>(node));
+
+    } else {
+      assert(false);
+    }
+  };
+
+  if (auto sub = dynamic_cast<const MacroSubstitutionImpl *>(parent)) {
+
+    // Now visit the use nodes of the macro.
+    for (const Node &node : sub->use_nodes) {
+      do_node(node);
+    }
+
+    if (auto exp = dynamic_cast<const MacroExpansionImpl *>(sub)) {
+      for (const Node &node : exp->body) {
+        do_node(node);
+      }
+    }
+  }
+  for (const Node &node : parent->nodes) {
+    do_node(node);
+  }
+}
+
+// Change the stored raw location if this is a macro token, so that it
+// points to where it originated from.
+void PatchedMacroTracker::FixupDerivedLocations(void) {
+  assert(!depth);
+  assert(!nodes.front()->nodes.empty());
+
+  if (nodes.front()->nodes.empty()) {
+    return;
+  }
+
+  assert(std::holds_alternative<MacroNodeImpl *>(nodes.front()->nodes.back()));
+
+  // All macro nodes are added into a not-publicly-exposed root macro node. This
+  // node is the root of all other nodes, but not the "logical" root node of
+  // the most recently completed expansion.
+  MacroNodeImpl *fake_root = nodes.front();
+
+  // This is the root node of the most recently completed expansion. Its parent
+  // should be `fake_root`.
+  MacroNodeImpl *root = std::get<MacroNodeImpl *>(nodes.front()->nodes.back());
+
+  DerivedTokenIndex num_macro_toks = static_cast<DerivedTokenIndex>(
+      ast->root_macro_node.tokens.size());
+
+  DerivedTokenIndex num_parsed_toks = static_cast<DerivedTokenIndex>(
+      ast->tokens.size());
+
+#ifndef NDEBUG
+  std::unordered_map<DerivedTokenIndex, const MacroTokenImpl *> seen;
+  bool strict_checks = true;
+#else
+  bool strict_checks = !root;
+#endif
+
+  // Go find out root. We need to find the root so that we can can make sure
+  // to visit the nodes in the order that logically represents the expansion
+  // order from a token provenance perspective, and this order nearly but
+  // doesn't quite match the actual order of tokens.
+  //
+  // NOTE(pag): This entire loop isn't actually needed. We have it only in
+  //            a debug build to double check that all macro tokens can reach
+  //            to the same root macro not that we think they should belong
+  //            to.
+  for (DerivedTokenIndex i = macro_start_of_macro_index;
+       i < num_macro_toks && strict_checks; ++i) {
+    const MacroTokenImpl &mtok = ast->root_macro_node.tokens[i];
+    assert(mtok.token_offset < num_parsed_toks);
+    assert(mtok.token_offset >= parsed_start_of_macro_index);
+    assert(seen.emplace(mtok.token_offset, &mtok).second);
+
+    const TokenImpl &tok = ast->tokens[mtok.token_offset];
+    assert(tok.HasMacroRole());
+
+    Node parent = mtok.parent;
+    MacroNodeImpl *temp_root = nullptr;
+    while (std::holds_alternative<MacroNodeImpl *>(parent)) {
+      auto next_root = std::get<MacroNodeImpl *>(parent);
+      if (next_root == fake_root) {
+        break;
+      }
+      temp_root = next_root;
+      parent = temp_root->parent;
+    }
+
+    if (!root) {
+      root = temp_root;
+    }
+
+    assert(root == temp_root);
+  }
+
+  assert(root);
+  if (!root) {
+    return;
+  }
+
+  macro_token_refs.clear();
+  FixupTokenProvenance(root);
 }
 
 // Add something to the end of `nodes.back()->nodes`.
@@ -1794,7 +1899,7 @@ void PatchedMacroTracker::DoCancelExpansion(const clang::Token &tok,
 void PatchedMacroTracker::DoEndMacroExpansion(
     const clang::Token &tok, uintptr_t data) {
 
-  assert(start_of_macro_index < ast->tokens.size());
+  assert(parsed_start_of_macro_index < ast->tokens.size());
 
   auto num_expansions = expansions.size();
   assert(1u <= num_expansions);
@@ -2328,13 +2433,14 @@ void PatchedMacroTracker::DoBeforeVAOpt(
   assert(!vaopt_arg);
   assert(2u <= num_tokens);  // There should always be an `EOF`.
   assert(!expansions.empty());
+  assert(!vaopt);
 
   MacroExpansionImpl *expansion = expansions.back();
   assert(expansion->has_body);
 
   expansion->has_interesting_body = true;
 
-  MacroVAOptImpl *vaopt = &(ast->root_macro_node.vaopts.emplace_back());
+  vaopt = &(ast->root_macro_node.vaopts.emplace_back());
 
   MacroNodeImpl *parent = nodes.back();
   const clang::Token *tok = &tok_;
@@ -2361,7 +2467,6 @@ void PatchedMacroTracker::DoBeforeVAOpt(
   }
 
   nodes.push_back(vaopt);
-  substitutions.push_back(vaopt);
 
   DoToken(tok[num_tokens - 2u], 0);
   DoToken(tok[num_tokens - 1u], 0);
@@ -2379,9 +2484,9 @@ void PatchedMacroTracker::DoBeforeVAOpt(
 void PatchedMacroTracker::DoAfterVAOpt(
     const clang::Token &tok_, uintptr_t num_tokens) {
   assert(0 < depth);
+  assert(vaopt != nullptr);
   assert(vaopt_arg != nullptr);
   assert(1u <= num_tokens);
-  assert(!substitutions.empty());
   assert(nodes.back() == vaopt_arg);
   assert(!expansions.empty());
 
@@ -2400,17 +2505,12 @@ void PatchedMacroTracker::DoAfterVAOpt(
   vaopt_arg = nullptr;
 
   assert(!nodes.empty());
-  assert(nodes.back() == substitutions.back());
-
-  MacroVAOptImpl *vaopt = dynamic_cast<MacroVAOptImpl *>(substitutions.back());
-  assert(vaopt != nullptr);
-  assert(vaopt->kind == MacroKind::kVAOpt);
+  assert(nodes.back() == vaopt);
 
   DoToken(tok[num_tokens - 1u], 0);
 
-  vaopt->nodes.swap(vaopt->use_nodes);
   nodes.pop_back();
-  substitutions.pop_back();
+  vaopt = nullptr;
 }
 
 void PatchedMacroTracker::DoBeforeStringify(

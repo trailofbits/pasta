@@ -88,6 +88,7 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   std::vector<MacroSubstitutionImpl *> stringifies;
   std::vector<MacroParameterSubstitutionImpl *> params;
 
+  MacroVAOptImpl *vaopt{nullptr};
   MacroVAOptArgumentImpl *vaopt_arg{nullptr};
 
   // The last concatenation. If we read a token after doing a concatenation,
@@ -116,7 +117,13 @@ class PatchedMacroTracker : public clang::PPCallbacks {
 
   // The index of the last token whose role marks the beginning of a macro
   // expansion.
-  DerivedTokenIndex start_of_macro_index{0u};
+  //
+  // NOTE(pag): Points into `ASTImpl::tokens`.
+  DerivedTokenIndex parsed_start_of_macro_index{0u};
+
+  // Similar to above, but points into `ASTImpl::root_macro_node::tokens`.
+  DerivedTokenIndex macro_start_of_macro_index{0u};
+
   DerivedTokenIndex last_fixed_index{0u};
 
   // Values to substitute for `__COUNTER__`. We need to try to maintain a
@@ -139,6 +146,14 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   void FixupDerivedLocations(void);
 
  private:
+  void FixupTokenProvenance(TokenImpl &tok, DerivedTokenIndex tok_index,
+                            bool can_be_derived, int depth,
+                            clang::SourceLocation loc);
+
+  void FixupTokenProvenance(const MacroTokenImpl *tok);
+
+  void FixupTokenProvenance(const MacroNodeImpl *node);
+
   void CloseUnclosedExpansion(const clang::Token &tok);
 
   void Push(const clang::Token &tok);

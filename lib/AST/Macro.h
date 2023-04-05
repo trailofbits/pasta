@@ -193,16 +193,19 @@ class MacroParameterSubstitutionImpl final : public MacroSubstitutionImpl {
     kind = MacroKind::kParameterSubstitution;
   }
 
+  virtual ~MacroParameterSubstitutionImpl(void) = default;
+
   MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const final;
 };
 
-class MacroVAOptImpl final : public MacroSubstitutionImpl {
+class MacroVAOptImpl final : public MacroNodeImpl {
  public:
   bool is_elided{true};
 
-  inline MacroVAOptImpl(void) {
-    kind = MacroKind::kVAOpt;
-  }
+  inline MacroVAOptImpl(void)
+      : MacroNodeImpl(MacroKind::kVAOpt) {}
+
+  virtual ~MacroVAOptImpl(void) = default;
 
   MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const final;
 };

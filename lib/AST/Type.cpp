@@ -10,6 +10,7 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#pragma clang diagnostic ignored "-Wbitfield-enum-conversion"
 #include <clang/AST/Decl.h>
 #include <clang/AST/DeclCXX.h>
 #include <clang/AST/DeclFriend.h>
@@ -629,10 +630,10 @@ enum Linkage Type::Linkage(void) const noexcept {
 }
 
 std::optional<::pasta::NullabilityKind> Type::Nullability(void) const noexcept {
-  auto &self = *(u.Type);
-  decltype(auto) val = self.getNullability(ast->ci->getASTContext());
-  if (val.hasValue()) {
-    return static_cast<::pasta::NullabilityKind>(val.getValue());
+  auto &self = *const_cast<clang::Type *>(u.Type);
+  decltype(auto) val = self.getNullability();
+  if (val.has_value()) {
+    return static_cast<::pasta::NullabilityKind>(val.value());
   } else {
     return std::nullopt;
   }
@@ -1860,16 +1861,16 @@ bool Type::IsPointerType(void) const noexcept {
   __builtin_unreachable();
 }
 
-bool Type::IsPromotableIntegerType(void) const noexcept {
+bool Type::IsQueueT(void) const noexcept {
   auto &self = *const_cast<clang::Type *>(u.Type);
-  decltype(auto) val = self.isPromotableIntegerType();
+  decltype(auto) val = self.isQueueT();
   return val;
   __builtin_unreachable();
 }
 
-bool Type::IsQueueT(void) const noexcept {
+bool Type::IsRVVType(void) const noexcept {
   auto &self = *const_cast<clang::Type *>(u.Type);
-  decltype(auto) val = self.isQueueT();
+  decltype(auto) val = self.isRVVType();
   return val;
   __builtin_unreachable();
 }
@@ -1912,6 +1913,13 @@ bool Type::IsReferenceType(void) const noexcept {
 bool Type::IsReserveIDT(void) const noexcept {
   auto &self = *const_cast<clang::Type *>(u.Type);
   decltype(auto) val = self.isReserveIDT();
+  return val;
+  __builtin_unreachable();
+}
+
+bool Type::IsSVESizelessBuiltinType(void) const noexcept {
+  auto &self = *const_cast<clang::Type *>(u.Type);
+  decltype(auto) val = self.isSVESizelessBuiltinType();
   return val;
   __builtin_unreachable();
 }
@@ -2168,6 +2176,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, TypeOfExprType)
   __builtin_unreachable();
 }
 
+enum TypeOfKind TypeOfExprType::Kind(void) const noexcept {
+  auto &self = *const_cast<clang::TypeOfExprType *>(u.TypeOfExprType);
+  decltype(auto) val = self.getKind();
+  return static_cast<::pasta::TypeOfKind>(val);
+  __builtin_unreachable();
+}
+
 ::pasta::Expr TypeOfExprType::UnderlyingExpression(void) const noexcept {
   auto &self = *const_cast<clang::TypeOfExprType *>(u.TypeOfExprType);
   decltype(auto) val = self.getUnderlyingExpr();
@@ -2194,9 +2209,16 @@ PASTA_DEFINE_BASE_OPERATORS(Type, TypeOfType)
   __builtin_unreachable();
 }
 
-::pasta::Type TypeOfType::UnderlyingType(void) const noexcept {
+enum TypeOfKind TypeOfType::Kind(void) const noexcept {
   auto &self = *const_cast<clang::TypeOfType *>(u.TypeOfType);
-  decltype(auto) val = self.getUnderlyingType();
+  decltype(auto) val = self.getKind();
+  return static_cast<::pasta::TypeOfKind>(val);
+  __builtin_unreachable();
+}
+
+::pasta::Type TypeOfType::UnmodifiedType(void) const noexcept {
+  auto &self = *const_cast<clang::TypeOfType *>(u.TypeOfType);
+  decltype(auto) val = self.getUnmodifiedType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
   __builtin_unreachable();
@@ -2231,6 +2253,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, TypedefType)
 bool TypedefType::IsSugared(void) const noexcept {
   auto &self = *const_cast<clang::TypedefType *>(u.TypedefType);
   decltype(auto) val = self.isSugared();
+  return val;
+  __builtin_unreachable();
+}
+
+bool TypedefType::TypeMatchesDeclaration(void) const noexcept {
+  auto &self = *const_cast<clang::TypedefType *>(u.TypedefType);
+  decltype(auto) val = self.typeMatchesDecl();
   return val;
   __builtin_unreachable();
 }
@@ -2330,6 +2359,13 @@ PASTA_DEFINE_BASE_OPERATORS(Type, UsingType)
 bool UsingType::IsSugared(void) const noexcept {
   auto &self = *const_cast<clang::UsingType *>(u.UsingType);
   decltype(auto) val = self.isSugared();
+  return val;
+  __builtin_unreachable();
+}
+
+bool UsingType::TypeMatchesDeclaration(void) const noexcept {
+  auto &self = *const_cast<clang::UsingType *>(u.UsingType);
+  decltype(auto) val = self.typeMatchesDecl();
   return val;
   __builtin_unreachable();
 }
@@ -2507,8 +2543,8 @@ enum ::pasta::AttrKind AttributedType::AttributeKind(void) const noexcept {
 std::optional<::pasta::NullabilityKind> AttributedType::ImmediateNullability(void) const noexcept {
   auto &self = *const_cast<clang::AttributedType *>(u.AttributedType);
   decltype(auto) val = self.getImmediateNullability();
-  if (val.hasValue()) {
-    return static_cast<::pasta::NullabilityKind>(val.getValue());
+  if (val.has_value()) {
+    return static_cast<::pasta::NullabilityKind>(val.value());
   } else {
     return std::nullopt;
   }
@@ -3058,7 +3094,6 @@ bool DependentSizedExtVectorType::IsSugared(void) const noexcept {
 
 PASTA_DEFINE_BASE_OPERATORS(Type, DependentTemplateSpecializationType)
 PASTA_DEFINE_BASE_OPERATORS(TypeWithKeyword, DependentTemplateSpecializationType)
-// 0: DependentTemplateSpecializationType::
 ::pasta::Type DependentTemplateSpecializationType::Desugar(void) const noexcept {
   auto &self = *const_cast<clang::DependentTemplateSpecializationType *>(u.DependentTemplateSpecializationType);
   decltype(auto) val = self.desugar();
@@ -3067,17 +3102,7 @@ PASTA_DEFINE_BASE_OPERATORS(TypeWithKeyword, DependentTemplateSpecializationType
   __builtin_unreachable();
 }
 
-// 0: DependentTemplateSpecializationType::
-// 1: DependentTemplateSpecializationType::Argument
-// 0: DependentTemplateSpecializationType::Arguments
 // 0: DependentTemplateSpecializationType::Identifier
-uint32_t DependentTemplateSpecializationType::NumArguments(void) const noexcept {
-  auto &self = *const_cast<clang::DependentTemplateSpecializationType *>(u.DependentTemplateSpecializationType);
-  decltype(auto) val = self.getNumArgs();
-  return val;
-  __builtin_unreachable();
-}
-
 // 0: DependentTemplateSpecializationType::Qualifier
 bool DependentTemplateSpecializationType::IsSugared(void) const noexcept {
   auto &self = *const_cast<clang::DependentTemplateSpecializationType *>(u.DependentTemplateSpecializationType);
@@ -3865,8 +3890,8 @@ PASTA_DEFINE_BASE_OPERATORS(Type, PackExpansionType)
 std::optional<unsigned> PackExpansionType::NumExpansions(void) const noexcept {
   auto &self = *const_cast<clang::PackExpansionType *>(u.PackExpansionType);
   decltype(auto) val = self.getNumExpansions();
-  if (val.hasValue()) {
-    return val.getValue();
+  if (val.has_value()) {
+    return val.value();
   } else {
     return std::nullopt;
   }
@@ -4328,6 +4353,15 @@ bool QualifiedType::IsPODType(void) const noexcept {
   __builtin_unreachable();
 }
 
+bool QualifiedType::IsReferenceable(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  decltype(auto) val = self.isReferenceable();
+  return val;
+  __builtin_unreachable();
+}
+
 bool QualifiedType::IsRestrictQualified(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
@@ -4491,7 +4525,31 @@ PASTA_DEFINE_BASE_OPERATORS(Type, SubstTemplateTypeParmPackType)
 }
 
 // 0: SubstTemplateTypeParmPackType::ArgumentPack
+::pasta::Decl SubstTemplateTypeParmPackType::AssociatedDeclaration(void) const noexcept {
+  auto &self = *const_cast<clang::SubstTemplateTypeParmPackType *>(u.SubstTemplateTypeParmPackType);
+  decltype(auto) val = self.getAssociatedDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::Decl>(ast, val);
+  }
+  assert(false && "SubstTemplateTypeParmPackType::AssociatedDeclaration can return nullptr!");
+  __builtin_unreachable();
+}
+
+bool SubstTemplateTypeParmPackType::Final(void) const noexcept {
+  auto &self = *const_cast<clang::SubstTemplateTypeParmPackType *>(u.SubstTemplateTypeParmPackType);
+  decltype(auto) val = self.getFinal();
+  return val;
+  __builtin_unreachable();
+}
+
 // 0: SubstTemplateTypeParmPackType::Identifier
+uint32_t SubstTemplateTypeParmPackType::Index(void) const noexcept {
+  auto &self = *const_cast<clang::SubstTemplateTypeParmPackType *>(u.SubstTemplateTypeParmPackType);
+  decltype(auto) val = self.getIndex();
+  return val;
+  __builtin_unreachable();
+}
+
 uint32_t SubstTemplateTypeParmPackType::NumArguments(void) const noexcept {
   auto &self = *const_cast<clang::SubstTemplateTypeParmPackType *>(u.SubstTemplateTypeParmPackType);
   decltype(auto) val = self.getNumArgs();
@@ -4499,11 +4557,11 @@ uint32_t SubstTemplateTypeParmPackType::NumArguments(void) const noexcept {
   __builtin_unreachable();
 }
 
-::pasta::TemplateTypeParmType SubstTemplateTypeParmPackType::ReplacedParameter(void) const noexcept {
+::pasta::TemplateTypeParmDecl SubstTemplateTypeParmPackType::ReplacedParameter(void) const noexcept {
   auto &self = *const_cast<clang::SubstTemplateTypeParmPackType *>(u.SubstTemplateTypeParmPackType);
   decltype(auto) val = self.getReplacedParameter();
   if (val) {
-    return TypeBuilder::Create<::pasta::TemplateTypeParmType>(ast, val);
+    return DeclBuilder::Create<::pasta::TemplateTypeParmDecl>(ast, val);
   }
   assert(false && "SubstTemplateTypeParmPackType::ReplacedParameter can return nullptr!");
   __builtin_unreachable();
@@ -4525,11 +4583,39 @@ PASTA_DEFINE_BASE_OPERATORS(Type, SubstTemplateTypeParmType)
   __builtin_unreachable();
 }
 
-::pasta::TemplateTypeParmType SubstTemplateTypeParmType::ReplacedParameter(void) const noexcept {
+::pasta::Decl SubstTemplateTypeParmType::AssociatedDeclaration(void) const noexcept {
+  auto &self = *const_cast<clang::SubstTemplateTypeParmType *>(u.SubstTemplateTypeParmType);
+  decltype(auto) val = self.getAssociatedDecl();
+  if (val) {
+    return DeclBuilder::Create<::pasta::Decl>(ast, val);
+  }
+  assert(false && "SubstTemplateTypeParmType::AssociatedDeclaration can return nullptr!");
+  __builtin_unreachable();
+}
+
+uint32_t SubstTemplateTypeParmType::Index(void) const noexcept {
+  auto &self = *const_cast<clang::SubstTemplateTypeParmType *>(u.SubstTemplateTypeParmType);
+  decltype(auto) val = self.getIndex();
+  return val;
+  __builtin_unreachable();
+}
+
+std::optional<unsigned> SubstTemplateTypeParmType::PackIndex(void) const noexcept {
+  auto &self = *const_cast<clang::SubstTemplateTypeParmType *>(u.SubstTemplateTypeParmType);
+  decltype(auto) val = self.getPackIndex();
+  if (val.has_value()) {
+    return val.value();
+  } else {
+    return std::nullopt;
+  }
+  __builtin_unreachable();
+}
+
+::pasta::TemplateTypeParmDecl SubstTemplateTypeParmType::ReplacedParameter(void) const noexcept {
   auto &self = *const_cast<clang::SubstTemplateTypeParmType *>(u.SubstTemplateTypeParmType);
   decltype(auto) val = self.getReplacedParameter();
   if (val) {
-    return TypeBuilder::Create<::pasta::TemplateTypeParmType>(ast, val);
+    return DeclBuilder::Create<::pasta::TemplateTypeParmDecl>(ast, val);
   }
   assert(false && "SubstTemplateTypeParmType::ReplacedParameter can return nullptr!");
   __builtin_unreachable();
@@ -4571,7 +4657,6 @@ bool TagType::IsBeingDefined(void) const noexcept {
 }
 
 PASTA_DEFINE_BASE_OPERATORS(Type, TemplateSpecializationType)
-// 0: TemplateSpecializationType::
 ::pasta::Type TemplateSpecializationType::Desugar(void) const noexcept {
   auto &self = *const_cast<clang::TemplateSpecializationType *>(u.TemplateSpecializationType);
   decltype(auto) val = self.desugar();
@@ -4580,7 +4665,6 @@ PASTA_DEFINE_BASE_OPERATORS(Type, TemplateSpecializationType)
   __builtin_unreachable();
 }
 
-// 0: TemplateSpecializationType::
 std::optional<::pasta::Type> TemplateSpecializationType::AliasedType(void) const noexcept {
   auto &self = *const_cast<clang::TemplateSpecializationType *>(u.TemplateSpecializationType);
   if (!self.isTypeAlias()) {
@@ -4591,15 +4675,6 @@ std::optional<::pasta::Type> TemplateSpecializationType::AliasedType(void) const
     return std::nullopt;
   }
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
-}
-
-// 1: TemplateSpecializationType::Argument
-// 0: TemplateSpecializationType::Arguments
-uint32_t TemplateSpecializationType::NumArguments(void) const noexcept {
-  auto &self = *const_cast<clang::TemplateSpecializationType *>(u.TemplateSpecializationType);
-  decltype(auto) val = self.getNumArgs();
-  return val;
   __builtin_unreachable();
 }
 
@@ -4736,19 +4811,10 @@ bool VariableArrayType::IsSugared(void) const noexcept {
 
 PASTA_DEFINE_BASE_OPERATORS(DeducedType, AutoType)
 PASTA_DEFINE_BASE_OPERATORS(Type, AutoType)
-// 1: AutoType::Argument
-// 0: AutoType::Arguments
 enum AutoTypeKeyword AutoType::Keyword(void) const noexcept {
   auto &self = *const_cast<clang::AutoType *>(u.AutoType);
   decltype(auto) val = self.getKeyword();
   return static_cast<::pasta::AutoTypeKeyword>(val);
-  __builtin_unreachable();
-}
-
-uint32_t AutoType::NumArguments(void) const noexcept {
-  auto &self = *const_cast<clang::AutoType *>(u.AutoType);
-  decltype(auto) val = self.getNumArgs();
-  return val;
   __builtin_unreachable();
 }
 
@@ -5110,7 +5176,6 @@ bool FunctionProtoType::IsVariadic(void) const noexcept {
 
 // 0: FunctionProtoType::
 // 0: FunctionProtoType::
-// 0: FunctionProtoType::ParameterTypes
 std::vector<::pasta::Type> FunctionProtoType::ExceptionTypes(void) const noexcept {
   std::vector<::pasta::Type> ret;
   auto convert_elem = [&] (clang::QualType val) {

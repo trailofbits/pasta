@@ -17,18 +17,21 @@ class ASTImpl;
 class File;
 class FileToken;
 class FileTokenRange;
+class Macro;
 class MacroArgument;
 class MacroArgumentImpl;
 class MacroArgumentList;
 class MacroArgumentListImpl;
+class MacroConcatenate;
 class MacroDirective;
 class MacroDirectiveImpl;
 class MacroExpansion;
 class MacroExpansionImpl;
-class Macro;
-class MacroNodeImpl;
 class MacroIterator;
+class MacroNodeImpl;
+class MacroParameterSubstitution;
 class MacroRange;
+class MacroStringify;
 class MacroToken;
 class MacroTokenImpl;
 class PatchedMacroTracker;
@@ -63,7 +66,12 @@ class TokenImpl;
     id(Include) \
     id(IncludeNext) \
     id(IncludeMacros) \
-    id(Import)
+    id(Import) \
+    m(ParameterSubstitution) \
+    m(Stringify) \
+    m(Concatenate) \
+    m(VAOpt) \
+    m(VAOptArgument)
 
 enum class MacroKind : unsigned char {
 #define PASTA_IGNORE(...)
@@ -134,7 +142,10 @@ class MacroToken final : public Macro {
   friend class DefineMacroDirective;
   friend class IncludeLikeMacroDirective;
   friend class PatchedMacroTracker;
+  friend class MacroConcatenate;
   friend class MacroParameter;
+  friend class MacroParameterSubstitution;
+  friend class MacroStringify;
   friend class Token;
 
   using Macro::Macro;
@@ -258,6 +269,7 @@ PASTA_FOR_EACH_MACRO_IMPL(PASTA_IGNORE,
 class MacroParameter final : public Macro {
  protected:
   friend class DefineMacroDirective;
+  friend class MacroParameterSubstitution;
 
   using Macro::Macro;
 
@@ -352,6 +364,9 @@ class MacroSubstitution : public Macro {
     switch (node.Kind()) {
       case MacroKind::kSubstitution:
       case MacroKind::kExpansion:
+      case MacroKind::kParameterSubstitution:
+      case MacroKind::kStringify:
+      case MacroKind::kConcatenate:
         return reinterpret_cast<const MacroSubstitution &>(node);
       default:
         return std::nullopt;
@@ -362,6 +377,24 @@ class MacroSubstitution : public Macro {
 };
 
 static_assert(sizeof(MacroSubstitution) == sizeof(Macro));
+
+class MacroParameterSubstitution final : public MacroSubstitution {
+ protected:
+  using MacroSubstitution::MacroSubstitution;
+
+ public:
+  inline static std::optional<MacroParameterSubstitution> From(const Macro &node) {
+    if (node.Kind() == MacroKind::kParameterSubstitution) {
+      return reinterpret_cast<const MacroParameterSubstitution &>(node);
+    } else {
+      return std::nullopt;
+    }
+  }
+
+  MacroParameter Parameter(void) const noexcept;
+
+  MacroToken ParameterUse(void) const noexcept;
+};
 
 // The expansion of a macro.
 class MacroExpansion final : public MacroSubstitution {
@@ -376,6 +409,12 @@ class MacroExpansion final : public MacroSubstitution {
       return std::nullopt;
     }
   }
+
+  // The body of the macro, prior to expansion. If anything interesting
+  // had to happen in the body, e.g. parameter substitution, token pasting,
+  // then that will
+  // be present here.
+  MacroRange IntermediateChildren(void) const noexcept;
 
   static MacroExpansion Containing(const MacroArgument &) noexcept;
 
@@ -396,6 +435,82 @@ class MacroExpansion final : public MacroSubstitution {
 };
 
 static_assert(sizeof(MacroExpansion) == sizeof(Macro));
+
+class MacroStringify final : public MacroSubstitution {
+ protected:
+  using MacroSubstitution::MacroSubstitution;
+
+ public:
+  inline static std::optional<MacroStringify> From(const Macro &node) {
+    switch (node.Kind()) {
+      case MacroKind::kStringify:
+        return reinterpret_cast<const MacroStringify &>(node);
+      default:
+        return std::nullopt;
+    }
+  }
+
+  MacroToken StringifiedToken(void) const noexcept;
+};
+
+static_assert(sizeof(MacroStringify) == sizeof(Macro));
+
+class MacroConcatenate final : public MacroSubstitution {
+ protected:
+  using MacroSubstitution::MacroSubstitution;
+
+ public:
+  inline static std::optional<MacroConcatenate> From(const Macro &node) {
+    switch (node.Kind()) {
+      case MacroKind::kConcatenate:
+        return reinterpret_cast<const MacroConcatenate &>(node);
+      default:
+        return std::nullopt;
+    }
+  }
+
+  MacroToken PastedToken(void) const noexcept;
+};
+
+static_assert(sizeof(MacroConcatenate) == sizeof(Macro));
+
+class MacroVAOpt final : public Macro {
+ protected:
+  using Macro::Macro;
+
+ public:
+  inline static std::optional<MacroVAOpt> From(const Macro &node) {
+    switch (node.Kind()) {
+      case MacroKind::kVAOpt:
+        return reinterpret_cast<const MacroVAOpt &>(node);
+      default:
+        return std::nullopt;
+    }
+  }
+
+  // Were the contents elided? This is basically asking if there were variadic
+  // arguments to the macro.
+  bool ContentsAreElided(void) const noexcept;
+};
+
+static_assert(sizeof(MacroVAOpt) == sizeof(Macro));
+
+class MacroVAOptArgument final : public Macro {
+ protected:
+  using Macro::Macro;
+
+ public:
+  inline static std::optional<MacroVAOptArgument> From(const Macro &node) {
+    switch (node.Kind()) {
+      case MacroKind::kVAOptArgument:
+        return reinterpret_cast<const MacroVAOptArgument &>(node);
+      default:
+        return std::nullopt;
+    }
+  }
+};
+
+static_assert(sizeof(MacroVAOptArgument) == sizeof(Macro));
 
 // A bi-directional, random-access iterator over macro nodes.
 class MacroIterator {

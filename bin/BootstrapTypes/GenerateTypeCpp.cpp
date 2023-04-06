@@ -28,6 +28,7 @@ void GenerateTypeCpp(void) {
       << "#pragma clang diagnostic ignored \"-Wimplicit-int-conversion\"\n"
       << "#pragma clang diagnostic ignored \"-Wsign-conversion\"\n"
       << "#pragma clang diagnostic ignored \"-Wshorten-64-to-32\"\n"
+      << "#pragma clang diagnostic ignored \"-Wbitfield-enum-conversion\"\n"
       << "#include <clang/AST/Decl.h>\n"
       << "#include <clang/AST/DeclCXX.h>\n"
       << "#include <clang/AST/DeclFriend.h>\n"

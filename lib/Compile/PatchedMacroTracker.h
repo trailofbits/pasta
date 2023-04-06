@@ -24,9 +24,11 @@
 #pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/Basic/FileEntry.h>
 #include <clang/Basic/SourceManager.h>
 #include <clang/Basic/TokenKinds.h>
 #include <clang/Lex/PPCallbacks.h>
+#include <clang/Lex/PPCallbacksEventKind.h>
 #include <clang/Lex/Preprocessor.h>
 #include <clang/Lex/PreprocessorOptions.h>
 #include <llvm/Support/raw_ostream.h>
@@ -83,6 +85,16 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   std::vector<MacroExpansionImpl *> expansions;
   std::vector<MacroArgumentImpl *> arguments;
   std::vector<MacroSubstitutionImpl *> substitutions;
+  std::vector<MacroSubstitutionImpl *> stringifies;
+  std::vector<MacroParameterSubstitutionImpl *> params;
+
+  MacroVAOptImpl *vaopt{nullptr};
+  MacroVAOptArgumentImpl *vaopt_arg{nullptr};
+
+  // The last concatenation. If we read a token after doing a concatenation,
+  // then we want to re-parent the concatenation into the place where the
+  // token was used.
+  MacroSubstitutionImpl *last_concatenation{nullptr};
 
   // Normally this is the most recent directive; however, in the case of
   // conditional directives, this is the last top-level one. In this latter
@@ -93,6 +105,7 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   std::unordered_map<const clang::MacroInfo *, MacroDirectiveImpl *> defines;
   std::unordered_map<OpaqueSourceLoc, DerivedTokenIndex> file_token_refs;
   std::unordered_map<OpaqueSourceLoc, DerivedTokenIndex> macro_token_refs;
+  std::unordered_map<OpaqueSourceLoc, DerivedTokenIndex> concat_token_refs;
 
   // In evil scenarios where pre-expansion is cancelled (e.g. due to a nested
   // _Pragma()), Clang may presend us with an EOD/EOF that is really
@@ -104,7 +117,13 @@ class PatchedMacroTracker : public clang::PPCallbacks {
 
   // The index of the last token whose role marks the beginning of a macro
   // expansion.
-  DerivedTokenIndex start_of_macro_index{0u};
+  //
+  // NOTE(pag): Points into `ASTImpl::tokens`.
+  DerivedTokenIndex parsed_start_of_macro_index{0u};
+
+  // Similar to above, but points into `ASTImpl::root_macro_node::tokens`.
+  DerivedTokenIndex macro_start_of_macro_index{0u};
+
   DerivedTokenIndex last_fixed_index{0u};
 
   // Values to substitute for `__COUNTER__`. We need to try to maintain a
@@ -127,6 +146,14 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   void FixupDerivedLocations(void);
 
  private:
+  void FixupTokenProvenance(TokenImpl &tok, DerivedTokenIndex tok_index,
+                            bool can_be_derived, int depth,
+                            clang::SourceLocation loc);
+
+  void FixupTokenProvenance(const MacroTokenImpl *tok);
+
+  void FixupTokenProvenance(const MacroNodeImpl *node);
+
   void CloseUnclosedExpansion(const clang::Token &tok);
 
   void Push(const clang::Token &tok);
@@ -168,6 +195,23 @@ class PatchedMacroTracker : public clang::PPCallbacks {
   void DoSwitchToSubstitution(const clang::Token &, uintptr_t);
   void DoEndSubstitution(const clang::Token &tok, uintptr_t data);
 
+  void DoBeginConcatenation(const clang::Token &tok, uintptr_t data);
+  void DoConcatenationOperatorToken(const clang::Token &tok, uintptr_t data);
+  void DoConcatenationAccumulationToken(const clang::Token &tok, uintptr_t data);
+  void DoEndConcatenation(const clang::Token &tok, uintptr_t data);
+
+  void DoBeforeParameterSubstitutions(const clang::Token &tok, uintptr_t data);
+  void DoAfterParameterSubstitutions(const clang::Token &tok, uintptr_t data);
+
+  void DoBeforeMacroParameterUse(const clang::Token &tok, uintptr_t data);
+  void DoAfterMacroParameterUse(const clang::Token &tok, uintptr_t data);
+
+  void DoBeforeVAOpt(const clang::Token &tok, uintptr_t data);
+  void DoAfterVAOpt(const clang::Token &tok, uintptr_t data);
+
+  void DoBeforeStringify(const clang::Token &tok, uintptr_t data);
+  void DoAfterStringify(const clang::Token &tok, uintptr_t data);
+
  public:
   // PASTA PATCH:
   void Event(const clang::Token &tok, EventKind kind, uintptr_t data) final;
@@ -181,7 +225,7 @@ class PatchedMacroTracker : public clang::PPCallbacks {
       llvm::StringRef /* file_name */,
       bool /* is_angled */,
       clang::CharSourceRange /* file_name_range */,
-      llvm::Optional<clang::FileEntryRef> /* file */,
+      clang::OptionalFileEntryRef /* file */,
       llvm::StringRef /* search_path */,
       llvm::StringRef /* relative_path */,
       const clang::Module * /* imported */,

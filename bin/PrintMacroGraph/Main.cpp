@@ -20,7 +20,11 @@
 #include <string>
 #include <unordered_set>
 
-#define PRINT_DEFINITIONS 1
+#include <csignal>
+#include <fcntl.h>
+#include <unistd.h>
+
+#define PRINT_DEFINITIONS 0
 #define PRINT_DERIVED 1
 
 template <typename TokT>
@@ -34,6 +38,7 @@ static std::string TokData(const TokT &tok) {
       case '\'': ss << "&apos;"; break;
       case '\n': ss << " "; break;
       case '&': ss << "&amp;"; break;
+      case '\\': ss << '|'; break;
       default: ss << ch; break;
     }
   }
@@ -106,8 +111,8 @@ static void PrintMacroGraph(std::ostream &os,
   }
 }
 
-static void PrintMacroGraph(std::ostream &os,
-                            const pasta::MacroArgument &arg) {
+static void PrintArgGraph(std::ostream &os, const char *name,
+                          const pasta::Macro &arg) {
 
   const auto a = reinterpret_cast<uintptr_t>(arg.RawMacro());
   auto nodes = arg.Children();
@@ -118,7 +123,7 @@ static void PrintMacroGraph(std::ostream &os,
   if (nodes.Size()) {
     os << " colspan=\"" << nodes.Size() << "\"";
   }
-  os << ">Argument</TD></TR><TR>";
+  os << ">" << name << "</TD></TR><TR>";
 
   auto i = 0u;
   for (const pasta::Macro &node : nodes) {
@@ -303,10 +308,15 @@ static void PrintMacroGraphSub(std::ostream &os,
 static void PrintMacroGraph(std::ostream &os,
                             const pasta::MacroExpansion &exp) {
   const auto a = reinterpret_cast<uintptr_t>(exp.RawMacro());
+  pasta::MacroRange body = exp.IntermediateChildren();
   os
       << "n" << a
       << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" border=\"1\">"
-      << "<TR><TD colspan=\"2\" port=\"m\">Expansion</TD></TR><TR>"
+      << "<TR><TD colspan=\"2\" port=\"m\">Expansion</TD></TR><TR>";
+  if (body) {
+    os << "<TD port=\"d\">Body</TD>";
+  }
+  os
       << "<TD port=\"b\">Before</TD><TD port=\"a\">After</TD></TR></TABLE>>];\n";
 
 #if PRINT_DEFINITIONS
@@ -316,16 +326,45 @@ static void PrintMacroGraph(std::ostream &os,
         << " [style=dashed];\n";
   }
 #endif
+
+  if (body) {
+    os
+        << "d" << a
+        << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" border=\"1\">"
+        << "<TR><TD colspan=\"" << body.Size() << "\">Macro body</TD></TR><TR>";
+
+    auto i = 0u;
+    for (const pasta::Macro &node : body) {
+      (void) node;
+      os << "<TD port=\"p" << (i++) << "\"> </TD>";
+    }
+
+    if (!i) {
+      os << "<TD bgcolor=\"red\">?</TD>";
+    }
+
+    os
+        << "</TR></TABLE>>];\n"
+        << "n" << a << ":d -> d" << a << ";\n";
+
+    i = 0u;
+    for (const pasta::Macro &node : body) {
+      RecPrintMacroGraph(os, node);
+      os << "d" << a << ":p" << (i++) << " -> n"
+         << reinterpret_cast<uintptr_t>(node.RawMacro()) << ";\n";
+    }
+  }
+
   PrintMacroGraphSub(os, exp);
 }
 
-static void PrintMacroGraph(std::ostream &os,
-                            const pasta::MacroSubstitution &sub) {
+static void PrintSubstitutionGraph(std::ostream &os, const char *name,
+                                   const pasta::MacroSubstitution &sub) {
   const auto a = reinterpret_cast<uintptr_t>(sub.RawMacro());
   os
       << "n" << a
       << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" border=\"1\">"
-      << "<TR><TD colspan=\"2\" port=\"m\">Substitution</TD></TR><TR>"
+      << "<TR><TD colspan=\"2\" port=\"m\">" << name << "</TD></TR><TR>"
       << "<TD port=\"b\">Before</TD><TD port=\"a\">After</TD></TR></TABLE>>];\n";
 
   PrintMacroGraphSub(os, sub);
@@ -355,10 +394,25 @@ PASTA_FOR_EACH_MACRO_IMPL(PASTA_IGNORE,
       PrintMacroGraph(os, *pasta::MacroParameter::From(node));
       break;
     case pasta::MacroKind::kArgument:
-      PrintMacroGraph(os, *pasta::MacroArgument::From(node));
+      PrintArgGraph(os, "Macro Argument", node);
+      break;
+    case pasta::MacroKind::kVAOptArgument:
+      PrintArgGraph(os, "VAOpt Argument", node);
       break;
     case pasta::MacroKind::kSubstitution:
-      PrintMacroGraph(os, *pasta::MacroSubstitution::From(node));
+      PrintSubstitutionGraph(os, "Substitution", *pasta::MacroSubstitution::From(node));
+      break;
+    case pasta::MacroKind::kParameterSubstitution:
+      PrintSubstitutionGraph(os, "Parameter Use", *pasta::MacroSubstitution::From(node));
+      break;
+    case pasta::MacroKind::kConcatenate:
+      PrintSubstitutionGraph(os, "Concatenation", *pasta::MacroSubstitution::From(node));
+      break;
+    case pasta::MacroKind::kStringify:
+      PrintSubstitutionGraph(os, "Stringify", *pasta::MacroSubstitution::From(node));
+      break;
+    case pasta::MacroKind::kVAOpt:
+      PrintArgGraph(os, "VAOpt", node);
       break;
     case pasta::MacroKind::kExpansion:
       PrintMacroGraph(os, *pasta::MacroExpansion::From(node));
@@ -376,6 +430,8 @@ static void PrintMacroGraph(std::ostream &os, pasta::AST ast) {
   }
 
   os << "}\n";
+
+  return;
 
   for (const pasta::Token &tok : ast.Tokens()) {
     std::cerr << std::setw(5) << std::setfill(' ') << tok.Index() << ' ';
@@ -432,12 +488,22 @@ static void PrintMacroGraph(std::ostream &os, pasta::AST ast) {
   }
 }
 
+static void OnSigsegv(int) {
+
+  std::cerr << "Process ID: " << getpid() << "\nPress enter: \n";
+  std::cerr.flush();
+  char x;
+  (void) read(0, &x, 1);
+}
+
 int main(int argc, char *argv[]) {
   if (2 > argc) {
     std::cerr << "Usage: " << argv[0] << " COMPILE_COMMAND..."
               << std::endl;
     return EXIT_FAILURE;
   }
+
+  signal(SIGSEGV, OnSigsegv);
 
   pasta::InitPasta initializer;
   pasta::FileManager fm(pasta::FileSystem::CreateNative());

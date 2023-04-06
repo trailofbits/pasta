@@ -11,33 +11,6 @@
 #include "Globals.h"
 #include "Util.h"
 
-#define DECL_STR1(d) #d
-#define DECL_STR2(d) DECL_STR1(d)
-#define DECL_STR3(d) DECL_STR2(d)
-
-static const std::unordered_set<std::string> kConcreteDecls{
-#define DECL(d, ...) DECL_STR3(d) "Decl",
-#define ABSTRACT_DECL(...)
-#include <clang/AST/DeclNodes.inc>
-};
-
-static const std::unordered_set<std::string> kConcreteStmts{
-#define STMT(d, ...) DECL_STR3(d),
-#define ABSTRACT_STMT(...)
-#include <clang/AST/StmtNodes.inc>
-};
-
-static const std::unordered_set<std::string> kConcreteTypes{
-#define TYPE(d, base) DECL_STR3(d) "Type",
-#define ABSTRACT_TYPE(...)
-#include <clang/AST/TypeNodes.inc>
-};
-
-static const std::unordered_set<std::string> kConcreteAttrs{
-#define ATTR(d, ...) DECL_STR3(d) "Attr",
-#include <clang/Basic/AttrList.inc>
-};
-
 // Declare PASTA versions of every clang enumeration type from our macro file.
 extern void DeclareEnums(std::ostream &os);
 
@@ -53,6 +26,7 @@ void GenerateForwardH(void) {
       << "#pragma once\n\n"
       << "#include <cstdint>\n"
       << "#pragma GCC diagnostic push\n"
+      << "#pragma GCC diagnostic ignored \"-Wimplicit-int-conversion\"\n"
       << "#pragma GCC diagnostic ignored \"-Wsign-conversion\"\n"
       << "#pragma GCC diagnostic ignored \"-Wshorten-64-to-32\"\n"
       << "#include <llvm/ADT/APSInt.h>\n"
@@ -88,15 +62,11 @@ void GenerateForwardH(void) {
 
   auto sep = "";
   static constexpr auto kDeclLen = 4u;
-  for (const auto &name_ : gDeclNames) {
+  for (const std::string &name_ : gDeclNames) {
     llvm::StringRef name(name_);
 
     // Abstract ones.
-    if (name == "Decl" ||
-        name == "OMPDeclarativeDirectiveDecl" ||
-        name == "OMPDeclarativeDirectiveValueDecl" ||
-        name == "RedeclarableTemplateDecl" ||
-        !kConcreteDecls.count(name_)) {
+    if (!IsConcreteDecl(name_)) {
       os << sep << "    a(" << name_ << ")";
 
     } else {
@@ -111,38 +81,26 @@ void GenerateForwardH(void) {
       << "#define PASTA_FOR_EACH_STMT_IMPL(s, d, e, o, l, a) \\\n";
 
   sep = "";
-  for (const auto &name_ : gStmtNames) {
-    llvm::StringRef name(name_);
-    if (name == "Stmt" ||
-        name == "AbstractConditionalOperator" ||
-        name == "AsmStmt" ||
-        name == "SwitchCase" ||
-        name == "ValueStmt" ||
-        name == "Expr" ||
-        name == "CoroutineSuspendExpr" ||
-        name == "ExplicitCastExpr" ||
-        name == "FullExpr" ||
-        name == "OverloadExpr" ||
-        name == "CastExpr" ||
-        name == "CXXNamedCastExpr" ||
-        name == "OMPExecutableDirective" ||
-        name == "OMPLoopDirective" ||
-        name == "OMPLoopBasedDirective" ||
-        name == "OMPLoopTransformationDirective" ||
-        !kConcreteStmts.count(name_)) {
-      os << sep << "    a(" << name.str() << ")";  // Abstract.
-    } else if (name.endswith("Stmt") || name == "OMPCanonicalLoop") {
-      os << sep << "    s(" << name.str() << ")";
-    } else if (name.endswith("Directive")) {
-      os << sep << "    d(" << name.str() << ")";
-    } else if (name.endswith("Expr") || name == "ExprWithCleanups") {
-      os << sep << "    e(" << name.str() << ")";
-    } else if (name.endswith("Operator")) {
-      os << sep << "    o(" << name.str() << ")";
-    } else if (name.endswith("Literal")) {
-      os << sep << "    l(" << name.str() << ")";
-    } else {
-      assert(false);
+  for (const std::string &name : gStmtNames) {
+    switch (ClassifyStmt(name)) {
+      case StmtClassification::kStmt:
+        os << sep << "    s(" << name << ")";
+        break;
+      case StmtClassification::kDirective:
+        os << sep << "    d(" << name << ")";
+        break;
+      case StmtClassification::kExpr:
+        os << sep << "    e(" << name << ")";
+        break;
+      case StmtClassification::kOperator:
+        os << sep << "    o(" << name << ")";
+        break;
+      case StmtClassification::kLiteral:
+        os << sep << "    l(" << name << ")";
+        break;
+      case StmtClassification::kAbstract:
+        os << sep << "    a(" << name << ")";
+        break;
     }
     sep = " \\\n";
   }
@@ -153,15 +111,13 @@ void GenerateForwardH(void) {
 
   sep = "";
   static constexpr auto kTypeLen = 4u;
-  for (const auto &name_ : gTypeNames) {
+  for (const std::string &name_ : gTypeNames) {
     llvm::StringRef name(name_);
-    if (name == "Type" || name == "TagType" || name == "ReferenceType" ||
-        name == "MatrixType" || name == "FunctionType" ||
-        name == "DeducedType" || name == "ArrayType" ||
-        name == "TypeWithKeyword" || !kConcreteTypes.count(name_)) {
+    if (!IsConcreteType(name_)) {
       os << sep << "    a(" << name_ << ")";
     } else {
-      os << sep << "    m(" << name.substr(0, name.size() - kTypeLen).str() << ")";
+      os << sep << "    m("
+         << name.substr(0, name.size() - kTypeLen).str() << ")";
     }
     sep = " \\\n";
   }
@@ -172,18 +128,11 @@ void GenerateForwardH(void) {
 
   sep = "";
   static constexpr auto kAttrLen = 4u;
-  for (const auto &name_ : gAttrNames) {
+  for (const std::string &name_ : gAttrNames) {
     llvm::StringRef name(name_);
 
     // Abstract ones.
-    if (name == "Attr" ||
-        name == "TypeAttr" ||
-        name == "StmtAttr" ||
-        name == "DeclOrStmtAttr" ||
-        name == "InheritableAttr" ||
-        name == "InheritableParamAttr" ||
-        name == "ParameterABIAttr" ||
-        !kConcreteAttrs.count(name_)) {
+    if (!IsConcreteAttr(name_)) {
       os << sep << "    a(" << name_ << ")";
 
     } else {

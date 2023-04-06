@@ -28,6 +28,7 @@ void GenerateStmtCpp(void) {
       << "#pragma clang diagnostic ignored \"-Wimplicit-int-conversion\"\n"
       << "#pragma clang diagnostic ignored \"-Wsign-conversion\"\n"
       << "#pragma clang diagnostic ignored \"-Wshorten-64-to-32\"\n"
+      << "#pragma clang diagnostic ignored \"-Wbitfield-enum-conversion\"\n"
       << "#include <clang/AST/Stmt.h>\n"
       << "#include <clang/AST/StmtCXX.h>\n"
       << "#include <clang/AST/StmtObjC.h>\n"
@@ -110,7 +111,7 @@ void GenerateStmtCpp(void) {
 
     // Dispatch to our hand-written constructor that takes the `StmtKind`.
     if (name == "Stmt") {
-      os << "\n    : Stmt(std::move(ast_), stmt_, static_cast<::pasta::StmtKind>(stmt_->getStmtClass())) {}\n";
+      os << "\n    : Stmt(std::move(ast_), stmt_, static_cast<::pasta::StmtKind>(stmt_->getStmtClass())) {}\n\n";
 
     // Dispatch to the base class constructor(s).
     } else {

@@ -164,7 +164,12 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, GuardedByAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, GuardedVarAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, HIPManagedAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, HLSLAnnotationAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, HLSLGroupSharedAddressSpaceAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, HLSLNumThreadsAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, HLSLResourceAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, HLSLResourceBindingAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, HLSLSV_DispatchThreadIDAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, HLSLSV_GroupIndexAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, HLSLShaderAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, HotAttr)
@@ -198,6 +203,7 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, MSVtorDispAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, MaxFieldAlignmentAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, MayAliasAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, MaybeUndefAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, MicroMipsAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, MinSizeAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, MinVectorWidthAttr)
@@ -237,6 +243,7 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, NoThreadSafetyAnalysisAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, NoThrowAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, NoUniqueAddressAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, NoUwtableAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, NonNullAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, NotTailCalledAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, OMPAllocateDeclAttr)
@@ -320,6 +327,7 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, PureAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, RISCVInterruptAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, RandomizeLayoutAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, ReadOnlyPlacementAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, RegCallAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ReinitializesAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ReleaseCapabilityAttr)
@@ -346,6 +354,7 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, StdCallAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, StmtAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, StrictFPAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, StrictGuardStackCheckAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, SuppressAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, SwiftAsyncAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, SwiftAsyncCallAttr)
@@ -368,6 +377,7 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, TLSModelAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, TargetAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, TargetClonesAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(Attr, TargetVersionAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, TestTypestateAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ThisCallAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ThreadAttr)
@@ -554,7 +564,12 @@ class Attr {
     const ::clang::GuardedByAttr *GuardedByAttr;
     const ::clang::GuardedVarAttr *GuardedVarAttr;
     const ::clang::HIPManagedAttr *HIPManagedAttr;
+    const ::clang::HLSLAnnotationAttr *HLSLAnnotationAttr;
+    const ::clang::HLSLGroupSharedAddressSpaceAttr *HLSLGroupSharedAddressSpaceAttr;
     const ::clang::HLSLNumThreadsAttr *HLSLNumThreadsAttr;
+    const ::clang::HLSLResourceAttr *HLSLResourceAttr;
+    const ::clang::HLSLResourceBindingAttr *HLSLResourceBindingAttr;
+    const ::clang::HLSLSV_DispatchThreadIDAttr *HLSLSV_DispatchThreadIDAttr;
     const ::clang::HLSLSV_GroupIndexAttr *HLSLSV_GroupIndexAttr;
     const ::clang::HLSLShaderAttr *HLSLShaderAttr;
     const ::clang::HotAttr *HotAttr;
@@ -588,6 +603,7 @@ class Attr {
     const ::clang::MSVtorDispAttr *MSVtorDispAttr;
     const ::clang::MaxFieldAlignmentAttr *MaxFieldAlignmentAttr;
     const ::clang::MayAliasAttr *MayAliasAttr;
+    const ::clang::MaybeUndefAttr *MaybeUndefAttr;
     const ::clang::MicroMipsAttr *MicroMipsAttr;
     const ::clang::MinSizeAttr *MinSizeAttr;
     const ::clang::MinVectorWidthAttr *MinVectorWidthAttr;
@@ -627,6 +643,7 @@ class Attr {
     const ::clang::NoThreadSafetyAnalysisAttr *NoThreadSafetyAnalysisAttr;
     const ::clang::NoThrowAttr *NoThrowAttr;
     const ::clang::NoUniqueAddressAttr *NoUniqueAddressAttr;
+    const ::clang::NoUwtableAttr *NoUwtableAttr;
     const ::clang::NonNullAttr *NonNullAttr;
     const ::clang::NotTailCalledAttr *NotTailCalledAttr;
     const ::clang::OMPAllocateDeclAttr *OMPAllocateDeclAttr;
@@ -710,6 +727,7 @@ class Attr {
     const ::clang::PureAttr *PureAttr;
     const ::clang::RISCVInterruptAttr *RISCVInterruptAttr;
     const ::clang::RandomizeLayoutAttr *RandomizeLayoutAttr;
+    const ::clang::ReadOnlyPlacementAttr *ReadOnlyPlacementAttr;
     const ::clang::RegCallAttr *RegCallAttr;
     const ::clang::ReinitializesAttr *ReinitializesAttr;
     const ::clang::ReleaseCapabilityAttr *ReleaseCapabilityAttr;
@@ -736,6 +754,7 @@ class Attr {
     const ::clang::StdCallAttr *StdCallAttr;
     const ::clang::StmtAttr *StmtAttr;
     const ::clang::StrictFPAttr *StrictFPAttr;
+    const ::clang::StrictGuardStackCheckAttr *StrictGuardStackCheckAttr;
     const ::clang::SuppressAttr *SuppressAttr;
     const ::clang::SwiftAsyncAttr *SwiftAsyncAttr;
     const ::clang::SwiftAsyncCallAttr *SwiftAsyncCallAttr;
@@ -758,6 +777,7 @@ class Attr {
     const ::clang::TLSModelAttr *TLSModelAttr;
     const ::clang::TargetAttr *TargetAttr;
     const ::clang::TargetClonesAttr *TargetClonesAttr;
+    const ::clang::TargetVersionAttr *TargetVersionAttr;
     const ::clang::TestTypestateAttr *TestTypestateAttr;
     const ::clang::ThisCallAttr *ThisCallAttr;
     const ::clang::ThreadAttr *ThreadAttr;
@@ -972,7 +992,11 @@ class InheritableAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, GuardedByAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, GuardedVarAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, HIPManagedAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, HLSLAnnotationAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, HLSLNumThreadsAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, HLSLResourceAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, HLSLResourceBindingAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, HLSLSV_DispatchThreadIDAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, HLSLSV_GroupIndexAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, HLSLShaderAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, HotAttr)
@@ -1000,6 +1024,7 @@ class InheritableAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, MSVtorDispAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, MaxFieldAlignmentAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, MayAliasAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, MaybeUndefAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, MicroMipsAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, MinSizeAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, MinVectorWidthAttr)
@@ -1034,6 +1059,7 @@ class InheritableAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, NoThreadSafetyAnalysisAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, NoThrowAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, NoUniqueAddressAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, NoUwtableAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, NonNullAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, NotTailCalledAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, OMPAllocateDeclAttr)
@@ -1090,6 +1116,7 @@ class InheritableAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, PureAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, RISCVInterruptAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, RandomizeLayoutAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ReadOnlyPlacementAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, RegCallAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ReinitializesAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ReleaseCapabilityAttr)
@@ -1113,6 +1140,7 @@ class InheritableAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, StandaloneDebugAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, StdCallAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, StrictFPAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, StrictGuardStackCheckAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, SwiftAsyncAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, SwiftAsyncCallAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, SwiftAsyncContextAttr)
@@ -1133,6 +1161,7 @@ class InheritableAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, TLSModelAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, TargetAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, TargetClonesAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, TargetVersionAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, TestTypestateAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ThisCallAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, TransparentUnionAttr)
@@ -1536,6 +1565,20 @@ class MayAliasAttr : public InheritableAttr {
 };
 
 static_assert(sizeof(Attr) == sizeof(MayAliasAttr));
+
+class MaybeUndefAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MaybeUndefAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, MaybeUndefAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, MaybeUndefAttr)
+  std::string_view Spelling(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(MaybeUndefAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(MaybeUndefAttr));
 
 class MicroMipsAttr : public InheritableAttr {
  private:
@@ -1986,6 +2029,7 @@ class NoStackProtectorAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoStackProtectorAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoStackProtectorAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoStackProtectorAttr)
+  enum NoStackProtectorAttrSpelling SemanticSpelling(void) const noexcept;
   std::string_view Spelling(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoStackProtectorAttr)
@@ -2034,6 +2078,20 @@ class NoUniqueAddressAttr : public InheritableAttr {
 };
 
 static_assert(sizeof(Attr) == sizeof(NoUniqueAddressAttr));
+
+class NoUwtableAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoUwtableAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, NoUwtableAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoUwtableAttr)
+  std::string_view Spelling(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoUwtableAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(NoUwtableAttr));
 
 class NonNullAttr : public InheritableParamAttr {
  private:
@@ -2161,7 +2219,7 @@ class OMPDeclareVariantAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, OMPDeclareVariantAttr)
   // AdjustArgumentsNeedDevicePointer: (llvm::iterator_range<clang::Expr **>)
   // AdjustArgumentsNothing: (llvm::iterator_range<clang::Expr **>)
-  // AppendArguments: (llvm::iterator_range<clang::OMPDeclareVariantAttr::InteropType *>)
+  // AppendArguments: (llvm::iterator_range<clang::OMPInteropInfo *>)
   std::string_view Spelling(void) const noexcept;
   // TraitInfos: (clang::OMPTraitInfo *)
   ::pasta::Expr VariantFuncReference(void) const noexcept;
@@ -3081,6 +3139,20 @@ class RandomizeLayoutAttr : public InheritableAttr {
 
 static_assert(sizeof(Attr) == sizeof(RandomizeLayoutAttr));
 
+class ReadOnlyPlacementAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ReadOnlyPlacementAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, ReadOnlyPlacementAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ReadOnlyPlacementAttr)
+  std::string_view Spelling(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ReadOnlyPlacementAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(ReadOnlyPlacementAttr));
+
 class RegCallAttr : public InheritableAttr {
  private:
   using InheritableAttr::From;
@@ -3457,6 +3529,20 @@ class StrictFPAttr : public InheritableAttr {
 
 static_assert(sizeof(Attr) == sizeof(StrictFPAttr));
 
+class StrictGuardStackCheckAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(StrictGuardStackCheckAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, StrictGuardStackCheckAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, StrictGuardStackCheckAttr)
+  std::string_view Spelling(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(StrictGuardStackCheckAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(StrictGuardStackCheckAttr));
+
 class SuppressAttr : public StmtAttr {
  private:
   using StmtAttr::From;
@@ -3774,7 +3860,6 @@ class TargetAttr : public InheritableAttr {
   uint32_t FeaturesStringLength(void) const noexcept;
   std::string_view Spelling(void) const noexcept;
   bool IsDefaultVersion(void) const noexcept;
-  // Parse: (clang::ParsedTargetAttr)
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(TargetAttr)
 };
@@ -3798,6 +3883,24 @@ class TargetClonesAttr : public InheritableAttr {
 };
 
 static_assert(sizeof(Attr) == sizeof(TargetClonesAttr));
+
+class TargetVersionAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TargetVersionAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, TargetVersionAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, TargetVersionAttr)
+  std::string_view Name(void) const noexcept;
+  std::string_view NamesString(void) const noexcept;
+  uint32_t NamesStringLength(void) const noexcept;
+  std::string_view Spelling(void) const noexcept;
+  bool IsDefaultVersion(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(TargetVersionAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(TargetVersionAttr));
 
 class TestTypestateAttr : public InheritableAttr {
  private:
@@ -3898,6 +4001,7 @@ class TypeAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, ArmMveStrictPolymorphismAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, BTFTypeTagAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, CmseNSCallAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, HLSLGroupSharedAddressSpaceAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, NoDerefAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, ObjCGCAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeAttr, ObjCInertUnsafeUnretainedAttr)
@@ -6204,6 +6308,35 @@ class HIPManagedAttr : public InheritableAttr {
 
 static_assert(sizeof(Attr) == sizeof(HIPManagedAttr));
 
+class HLSLAnnotationAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(HLSLAnnotationAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, HLSLAnnotationAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, HLSLAnnotationAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(HLSLAnnotationAttr, HLSLSV_DispatchThreadIDAttr)
+  PASTA_DECLARE_DERIVED_OPERATORS(HLSLAnnotationAttr, HLSLSV_GroupIndexAttr)
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(HLSLAnnotationAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(HLSLAnnotationAttr));
+
+class HLSLGroupSharedAddressSpaceAttr : public TypeAttr {
+ private:
+  using TypeAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(HLSLGroupSharedAddressSpaceAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, HLSLGroupSharedAddressSpaceAttr)
+  PASTA_DECLARE_BASE_OPERATORS(TypeAttr, HLSLGroupSharedAddressSpaceAttr)
+  std::string_view Spelling(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(HLSLGroupSharedAddressSpaceAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(HLSLGroupSharedAddressSpaceAttr));
+
 class HLSLNumThreadsAttr : public InheritableAttr {
  private:
   using InheritableAttr::From;
@@ -6221,12 +6354,62 @@ class HLSLNumThreadsAttr : public InheritableAttr {
 
 static_assert(sizeof(Attr) == sizeof(HLSLNumThreadsAttr));
 
-class HLSLSV_GroupIndexAttr : public InheritableAttr {
+class HLSLResourceAttr : public InheritableAttr {
  private:
   using InheritableAttr::From;
  public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(HLSLResourceAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, HLSLResourceAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, HLSLResourceAttr)
+  enum HLSLResourceAttrResourceKind ResourceShape(void) const noexcept;
+  enum HLSLResourceAttrResourceClass ResourceType(void) const noexcept;
+  std::string_view Spelling(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(HLSLResourceAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(HLSLResourceAttr));
+
+class HLSLResourceBindingAttr : public InheritableAttr {
+ private:
+  using InheritableAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(HLSLResourceBindingAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, HLSLResourceBindingAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, HLSLResourceBindingAttr)
+  std::string_view Slot(void) const noexcept;
+  uint32_t SlotLength(void) const noexcept;
+  std::string_view Space(void) const noexcept;
+  uint32_t SpaceLength(void) const noexcept;
+  std::string_view Spelling(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(HLSLResourceBindingAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(HLSLResourceBindingAttr));
+
+class HLSLSV_DispatchThreadIDAttr : public HLSLAnnotationAttr {
+ private:
+  using HLSLAnnotationAttr::From;
+ public:
+  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(HLSLSV_DispatchThreadIDAttr)
+  PASTA_DECLARE_BASE_OPERATORS(Attr, HLSLSV_DispatchThreadIDAttr)
+  PASTA_DECLARE_BASE_OPERATORS(HLSLAnnotationAttr, HLSLSV_DispatchThreadIDAttr)
+  PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, HLSLSV_DispatchThreadIDAttr)
+  std::string_view Spelling(void) const noexcept;
+ protected:
+  PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(HLSLSV_DispatchThreadIDAttr)
+};
+
+static_assert(sizeof(Attr) == sizeof(HLSLSV_DispatchThreadIDAttr));
+
+class HLSLSV_GroupIndexAttr : public HLSLAnnotationAttr {
+ private:
+  using HLSLAnnotationAttr::From;
+ public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(HLSLSV_GroupIndexAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, HLSLSV_GroupIndexAttr)
+  PASTA_DECLARE_BASE_OPERATORS(HLSLAnnotationAttr, HLSLSV_GroupIndexAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, HLSLSV_GroupIndexAttr)
   std::string_view Spelling(void) const noexcept;
  protected:

@@ -10,6 +10,7 @@
 #pragma GCC diagnostic ignored "-Wimplicit-int-conversion"
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/AST/Attr.h>
 #include <clang/AST/Decl.h>
 #include <clang/AST/DeclCXX.h>
 #include <clang/AST/DeclFriend.h>
@@ -31,6 +32,12 @@
 #pragma GCC diagnostic pop
 
 #include "BootstrapConfig.h"
+
+// When bootstrapping, prefix `__VA_ARGS__` with a specific Clang installation,
+// e.g. `/Users/pag/Install/llvm-16/Release/include/__VA_ARGS__`.
+#define TARGET_CLANG_HEADER_STR(...) #__VA_ARGS__
+#define TARGET_CLANG_HEADER(...) \
+  TARGET_CLANG_HEADER_STR(/Users/pag/Install/llvm-16/Release/include/__VA_ARGS__)
 
 // Here we can fake some clases for convenience.
 namespace clang {
@@ -100,11 +107,11 @@ MacroGenerator::MacroGenerator(const clang::ASTContext *ctx)
   unacceptable_enum_names.insert("NotUpdatedTag");
 
 #define TYPE(Class, Base) acceptable_class_names.insert(#Class "Type");
-#include "clang/AST/TypeNodes.inc"
+#include TARGET_CLANG_HEADER(clang/AST/TypeNodes.inc)
 #undef TYPE
 
 #define DECL(Type, Base) acceptable_class_names.insert(#Type "Decl");
-#include "clang/AST/DeclNodes.inc"
+#include TARGET_CLANG_HEADER(clang/AST/DeclNodes.inc)
 #undef DECL
 
 #define STMT(Type, Base) \
@@ -113,7 +120,7 @@ MacroGenerator::MacroGenerator(const clang::ASTContext *ctx)
     acceptable_class_names.insert(#Type "Expr"); \
     acceptable_class_names.insert(#Type "Stmt"); \
     acceptable_class_names.insert(#Type "Directive");
-#include "clang/AST/StmtNodes.inc"
+#include TARGET_CLANG_HEADER(clang/AST/StmtNodes.inc)
 #undef STMT
 
   acceptable_class_names.insert("Attr");
@@ -121,13 +128,17 @@ MacroGenerator::MacroGenerator(const clang::ASTContext *ctx)
   acceptable_class_names.insert("StmtAttr");
   acceptable_class_names.insert("DeclOrStmtAttr");
   acceptable_class_names.insert("InheritableAttr");
+  acceptable_class_names.insert("HLSLAnnotationAttr");
   acceptable_class_names.insert("InheritableParamAttr");
+  acceptable_class_names.insert("HLSLGroupSharedAddressSpaceAttr");
   acceptable_class_names.insert("ParameterABIAttr");
+  acceptable_class_names.insert("HLSLSV_DispatchThreadIDAttr");
 
 #define ATTR(x) \
+    acceptable_class_names.insert(#x); \
     acceptable_class_names.insert(#x "Attr");
 
-#include "clang/Basic/AttrList.inc"
+#include TARGET_CLANG_HEADER(clang/Basic/AttrList.inc)
 #undef ATTR
 }
 

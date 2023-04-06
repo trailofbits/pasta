@@ -9,4 +9,4 @@ usage is as follows:
 
 Outcome:
 
- - The `bin/BootstrapTypes/Generated/Decl.h` is modified in place.
+ - The `bin/BootstrapTypes/Generated/Generated.h` is modified in place.

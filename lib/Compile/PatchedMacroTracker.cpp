@@ -511,6 +511,8 @@ void PatchedMacroTracker::FixupDerivedLocations(void) {
   DerivedTokenIndex num_parsed_toks = static_cast<DerivedTokenIndex>(
       ast->tokens.size());
 
+  (void) num_parsed_toks;
+
 #ifndef NDEBUG
   std::unordered_map<DerivedTokenIndex, const MacroTokenImpl *> seen;
   bool strict_checks = true;
@@ -536,6 +538,7 @@ void PatchedMacroTracker::FixupDerivedLocations(void) {
 
     const TokenImpl &tok = ast->tokens[mtok.token_offset];
     assert(tok.HasMacroRole());
+    (void) tok;
 
     Node parent = mtok.parent;
     MacroNodeImpl *temp_root = nullptr;

@@ -241,9 +241,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
 
   // This is a patch that introduces transparent support for unknown attributes,
   // converting them into annotation attributes.
-  //
-  // TODO(pag): Enable this eventually.
-  // lang_opts->UnknownAttrAnnotate = true;
+  lang_opts->UnknownAttrAnnotate = true;
 
   // Don't try to produce recovery expressions or types.
   lang_opts->RecoveryAST = false;

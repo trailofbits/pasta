@@ -1331,9 +1331,8 @@ void TypePrinter::printAtomic(const clang::AtomicType *T,
   TokenPrinterContext ctx(OS, T, tokens);
 
   IncludeStrongLifetimeRAII Strong(Policy);
-  OS << "_Atomic(";
+  OS << "_Atomic ";
   print(T->getValueType(), OS, clang::StringRef());
-  OS << ')';
   spaceBeforePlaceHolder(OS);
   IdentFn();
 }
@@ -1695,7 +1694,8 @@ void TypePrinter::printElaborated(const clang::ElaboratedType *T,
                                   std::function<void(void)> IdentFn) {
   TokenPrinterContext ctx(OS, T, tokens);
 
-  if (clang::TagDecl *OwnedTagDecl = T->getOwnedTagDecl()) {
+  if (clang::TagDecl *OwnedTagDecl = T->getOwnedTagDecl();
+      OwnedTagDecl && OwnedTagDecl->isThisDeclarationADefinition()) {
 
     TagDefinitionPolicyRAII enable_tags(Policy, true);
 

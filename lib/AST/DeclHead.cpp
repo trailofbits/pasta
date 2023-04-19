@@ -158,7 +158,11 @@ static ::pasta::DeclCategory ClassifyDecl(const clang::Decl *decl) {
       }
 
       if (var_decl->isLocalVarDecl()) {
-        return ::pasta::DeclCategory::kLocalVariable;
+        if (var_decl->hasGlobalStorage()) {
+          return ::pasta::DeclCategory::kGlobalVariable;
+        } else {
+          return ::pasta::DeclCategory::kLocalVariable;
+        }
       } else {
         auto dc = var_decl->getDeclContext();
         if (dc->isFileContext() || dc->isExternCContext() ||

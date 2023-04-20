@@ -167,9 +167,11 @@ const TokenContextIndex PrintedTokenRangeImpl::CreateContext(
   }
 
   if (tokenizer->prev_printer_context) {
-    auto &prev = contexts[tokenizer->prev_printer_context->context_index];
-    if (prev.data == data) {
-      return tokenizer->prev_printer_context->context_index;
+    TokenPrinterContext *prev_printer = tokenizer->prev_printer_context;
+    TokenContextIndex prev_index = prev_printer->context_index;
+    TokenContextImpl &prev_context = contexts[prev_index];
+    if (prev_context.data == data) {
+      return prev_index;
     }
   }
 
@@ -210,6 +212,14 @@ const TokenContextIndex PrintedTokenRangeImpl::CreateContext(
   tokenizer->owns_data = data;
   if (dedup) {
     data_to_index.emplace(data, index);
+
+    // We want AlignTokens to be able to observe the original decl, if the root
+    // decl that we're printing isn't the canonical decl.
+    if constexpr (std::is_same_v<T, clang::Decl>) {
+      for (clang::Decl *redecl : data->redecls()) {
+        data_to_index.emplace(redecl, index);
+      }
+    }
   }
 
   return index;

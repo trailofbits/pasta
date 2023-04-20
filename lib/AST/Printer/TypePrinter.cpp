@@ -1694,8 +1694,8 @@ void TypePrinter::printElaborated(const clang::ElaboratedType *T,
                                   std::function<void(void)> IdentFn) {
   TokenPrinterContext ctx(OS, T, tokens);
 
-  if (clang::TagDecl *OwnedTagDecl = T->getOwnedTagDecl();
-      OwnedTagDecl && OwnedTagDecl->isThisDeclarationADefinition()) {
+  clang::TagDecl *OwnedTagDecl = T->getOwnedTagDecl();
+  if (OwnedTagDecl && OwnedTagDecl->isThisDeclarationADefinition()) {
 
     TagDefinitionPolicyRAII enable_tags(Policy, true);
 
@@ -1710,6 +1710,12 @@ void TypePrinter::printElaborated(const clang::ElaboratedType *T,
     IdentFn();
   } else {
     TagDefinitionPolicyRAII disable_tags(Policy);
+
+    // Inject in the decl, so that we have some "balance" with the owned case.
+    std::optional<TokenPrinterContext> tag_context;
+    if (clang::TagDecl *D = OwnedTagDecl ? OwnedTagDecl : T->getAsTagDecl()) {
+      tag_context.emplace(OS, D, tokens);
+    }
 
     // The tag definition will take care of these.
     OS << clang::TypeWithKeyword::getKeywordName(T->getKeyword());

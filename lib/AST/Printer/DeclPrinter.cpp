@@ -486,12 +486,12 @@ void DeclPrinter::VisitEnumDecl(clang::EnumDecl *D) {
   if (D->getDeclName())
     Out << ' ' << D->getDeclName();
 
-  if (D->isFixed()) {
+  if (auto ITR = D->getIntegerTypeRange(); ITR.isValid() || D->isFixed()) {
     Out << " :";
 
     if (tokens.ast) {
       const TokenImpl *tok =
-          tokens.ast->RawTokenAt(D->getIntegerTypeRange().getBegin());
+          tokens.ast->RawTokenAt(ITR.getBegin());
       for (auto i = 0; tok && i < 4; ++i) {
         const TokenImpl &t = tok[-i];
         if (t.Kind() == clang::tok::colon) {
@@ -501,7 +501,9 @@ void DeclPrinter::VisitEnumDecl(clang::EnumDecl *D) {
       }
     }
 
-    Out << " " <<  D->getIntegerType().stream(Policy);
+    Out << " ";
+    TypePrinter TP(Policy, this->tokens);
+    TP.print(D->getIntegerType(), Out, "", nullptr);
   }
 
 

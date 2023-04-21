@@ -344,7 +344,7 @@ void TypePrinter::printPointer(const clang::PointerType *T, raw_string_ostream &
                                std::function<void(void)> IdentFn) {
   TokenPrinterContext ctx(OS, T, tokens);
 
-  IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+  IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
     {
       TokenPrinterContext jump_up_stack(ctx, no_alias_tag{});
       OS << '*';
@@ -355,7 +355,7 @@ void TypePrinter::printPointer(const clang::PointerType *T, raw_string_ostream &
   // Handle things like 'int (*A)[4];' correctly.
   // FIXME: this should include vectors, but vectors use attributes I guess.
   if (clang::isa<clang::ArrayType>(T->getPointeeType())) {
-    IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+    IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
       {
         TokenPrinterContext jump_up_stack(ctx);
         OS << '(';
@@ -377,7 +377,7 @@ void TypePrinter::printBlockPointer(const clang::BlockPointerType *T,
                                     std::function<void(void)> IdentFn) {
   TokenPrinterContext ctx(OS, T, tokens);
 
-  IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+  IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
     {
       TokenPrinterContext jump_up_stack(ctx, no_alias_tag{});
       OS << '^';
@@ -404,7 +404,7 @@ void TypePrinter::printLValueReference(const clang::LValueReferenceType *T,
   TokenPrinterContext ctx(OS, T, tokens);
   clang::QualType Inner = skipTopLevelReferences(T->getPointeeTypeAsWritten());
 
-  IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+  IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
     {
       TokenPrinterContext jump_up_stack(ctx, no_alias_tag{});
       OS << '&';
@@ -415,7 +415,7 @@ void TypePrinter::printLValueReference(const clang::LValueReferenceType *T,
   // Handle things like 'int (&A)[4];' correctly.
   // FIXME: this should include vectors, but vectors use attributes I guess.
   if (clang::isa<clang::ArrayType>(Inner)) {
-    IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+    IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
       {
         TokenPrinterContext jump_up_stack(ctx);
         OS << '(';
@@ -438,7 +438,7 @@ void TypePrinter::printRValueReference(const clang::RValueReferenceType *T,
   TokenPrinterContext ctx(OS, T, tokens);
 
   clang::QualType Inner = skipTopLevelReferences(T->getPointeeTypeAsWritten());
-  IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+  IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
     {
       TokenPrinterContext jump_up_stack(ctx, no_alias_tag{});
       OS << "&&";
@@ -449,7 +449,7 @@ void TypePrinter::printRValueReference(const clang::RValueReferenceType *T,
   // Handle things like 'int (&A)[4];' correctly.
   // FIXME: this should include vectors, but vectors use attributes I guess.
   if (clang::isa<clang::ArrayType>(Inner)) {
-    IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+    IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
       {
         TokenPrinterContext jump_up_stack(ctx);
         OS << '(';
@@ -471,7 +471,7 @@ void TypePrinter::printMemberPointer(const clang::MemberPointerType *T,
                                      std::function<void(void)> IdentFn) {
   TokenPrinterContext ctx(OS, T, tokens);
 
-  IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+  IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
     {
       TokenPrinterContext jump_up_stack(ctx);
       TagDefinitionPolicyRAII tag_raii(Policy);
@@ -485,7 +485,7 @@ void TypePrinter::printMemberPointer(const clang::MemberPointerType *T,
   // Handle things like 'int (Cls::*A)[4];' correctly.
   // FIXME: this should include vectors, but vectors use attributes I guess.
   if (clang::isa<clang::ArrayType>(T->getPointeeType())) {
-    IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+    IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
       {
         TokenPrinterContext jump_up_stack(ctx);
         OS << "(";
@@ -507,7 +507,7 @@ void TypePrinter::printConstantArray(const clang::ConstantArrayType *T,
                                      std::function<void(void)> IdentFn) {
   TokenPrinterContext ctx(OS, T, tokens);
 
-  IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+  IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
     IdentFn();
 
     TokenPrinterContext jump_up_stack(ctx);
@@ -542,7 +542,7 @@ void TypePrinter::printIncompleteArray(const clang::IncompleteArrayType *T,
                                        raw_string_ostream &OS,
                                        std::function<void(void)> IdentFn) {
   TokenPrinterContext ctx(OS, T, tokens);
-  IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+  IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
     IdentFn();
 
     TokenPrinterContext jump_up_stack(ctx);
@@ -559,7 +559,7 @@ void TypePrinter::printVariableArray(const clang::VariableArrayType *T,
                                      std::function<void(void)> IdentFn) {
   TokenPrinterContext ctx(OS, T, tokens);
 
-  IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+  IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
     IdentFn();
     TokenPrinterContext jump_up_stack(ctx);
     OS << '[';
@@ -593,10 +593,6 @@ void TypePrinter::printAdjusted(const clang::AdjustedType *T,
                                 std::function<void(void)> IdentFn) {
   TokenPrinterContext ctx(OS, T, tokens);
 
-  IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
-    IdentFn();
-  };
-
   // Print the original type, as that is more reflective of what is actually
   // in the code.
   printBeforeAfter(T->getOriginalType(), OS, std::move(IdentFn));
@@ -606,10 +602,6 @@ void TypePrinter::printDecayed(const clang::DecayedType *T,
                                raw_string_ostream &OS,
                                std::function<void(void)> IdentFn) {
   TokenPrinterContext ctx(OS, T, tokens);
-
-  IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
-    IdentFn();
-  };
 
   // Print the decayed representation, otherwise the adjustment will be
   // invisible.
@@ -622,7 +614,7 @@ void TypePrinter::printDependentSizedArray(
 
   TokenPrinterContext ctx(OS, T, tokens);
 
-  IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+  IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
     IdentFn();
     TokenPrinterContext jump_up_stack(ctx);
     OS << '[';
@@ -645,7 +637,7 @@ void TypePrinter::printDependentAddressSpace(
 
   TokenPrinterContext ctx(OS, T, tokens);
 
-  IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+  IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
     IdentFn();
     TokenPrinterContext jump_up_stack(ctx);
     OS << " __attribute__((address_space(";
@@ -666,7 +658,7 @@ void TypePrinter::printDependentSizedExtVector(
 
   TokenPrinterContext ctx(OS, T, tokens);
 
-  IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+  IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
     IdentFn();
     TokenPrinterContext jump_up_stack(ctx);
     OS << " __attribute__((ext_vector_type(";
@@ -820,7 +812,7 @@ void TypePrinter::printExtVector(
 
   TokenPrinterContext ctx(OS, T, tokens);
 
-  IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+  IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
     IdentFn();
 
     TokenPrinterContext jump_up_stack(ctx);
@@ -838,7 +830,7 @@ void TypePrinter::printConstantMatrix(
 
   TokenPrinterContext ctx(OS, T, tokens);
 
-  IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+  IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
     IdentFn();
     TokenPrinterContext jump_up_stack(ctx);
     OS << " __attribute__((matrix_type("
@@ -855,7 +847,7 @@ void TypePrinter::printDependentSizedMatrix(
 
   TokenPrinterContext ctx(OS, T, tokens);
 
-  IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+  IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
     IdentFn();
     TokenPrinterContext jump_up_stack(ctx);
     OS << " __attribute__((matrix_type(";
@@ -919,7 +911,7 @@ void TypePrinter::printFunctionProto(const clang::FunctionProtoType *T,
 
   if (T->hasTrailingReturn()) {
     if (!HasEmptyPlaceHolder) {
-      IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+      IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
         {
           TokenPrinterContext jump_up_stack(ctx);
           OS << '(';
@@ -931,7 +923,7 @@ void TypePrinter::printFunctionProto(const clang::FunctionProtoType *T,
       };
     }
 
-    IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+    IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
       {
         TokenPrinterContext jump_up_stack(ctx);
         OS << "auto ";
@@ -942,7 +934,7 @@ void TypePrinter::printFunctionProto(const clang::FunctionProtoType *T,
   } else {
     // If needed for precedence reasons, wrap the inner part in grouping parens.
     if (!HasEmptyPlaceHolder) {
-      IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+      IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
         {
           TokenPrinterContext jump_up_stack(ctx);
           OS << '(';
@@ -954,7 +946,7 @@ void TypePrinter::printFunctionProto(const clang::FunctionProtoType *T,
     }
   }
 
-  IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+  IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
     SaveAndRestore<bool> NonEmptyPH(HasEmptyPlaceHolder, false);
     IdentFn();
     TokenPrinterContext jump_up_stack(ctx);
@@ -1129,7 +1121,7 @@ void TypePrinter::printFunctionNoProto(const clang::FunctionNoProtoType *T,
   // If needed for precedence reasons, wrap the inner part in grouping parens.
   SaveAndRestore<bool> PrevPHIsEmpty(HasEmptyPlaceHolder, false);
   if (!HasEmptyPlaceHolder) {
-    IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+    IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
       {
         TokenPrinterContext jump_up_stack(ctx);
         OS << '(';
@@ -1140,7 +1132,7 @@ void TypePrinter::printFunctionNoProto(const clang::FunctionNoProtoType *T,
     };
   }
 
-  IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+  IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
     IdentFn();
     TokenPrinterContext jump_up_stack(ctx);
     OS << "()";
@@ -1281,7 +1273,7 @@ void TypePrinter::printAuto(const clang::AutoType *T, raw_string_ostream &OS,
 
 //  // If the type has been deduced, do not print 'auto'.
 //  if (!T->getDeducedType().isNull()) {
-//    IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+//    IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
 //
 //    };
 //    printBefore(T->getDeducedType(), OS);
@@ -1716,7 +1708,7 @@ void TypePrinter::printElaborated(const clang::ElaboratedType *T,
   } else {
     TagDefinitionPolicyRAII disable_tags(Policy);
 
-    IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+    IdentFn = [=, &OS, IdentFn = std::move(IdentFn)] (void) {
       // The tag definition will take care of these.
       OS << clang::TypeWithKeyword::getKeywordName(T->getKeyword());
       if (T->getKeyword() != clang::ETK_None)
@@ -1730,7 +1722,7 @@ void TypePrinter::printElaborated(const clang::ElaboratedType *T,
 
     // Inject in the decl, so that we have some "balance" with the owned case.
     if (clang::TagDecl *D = T->getAsTagDecl()) {
-      IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+      IdentFn = [=, &OS, IdentFn = std::move(IdentFn)] (void) {
         TokenPrinterContext ctx(OS, D, tokens);
         IdentFn();
       };
@@ -1745,7 +1737,7 @@ void TypePrinter::printParen(const clang::ParenType *T, raw_string_ostream &OS,
                              std::function<void(void)> IdentFn) {
 
   if (!HasEmptyPlaceHolder && !clang::isa<clang::FunctionType>(T->getInnerType())) {
-    IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+    IdentFn = [=, &OS, IdentFn = std::move(IdentFn)] (void) {
       TokenPrinterContext ctx(OS, T, tokens);
       OS << '(';
       IdentFn();
@@ -1810,7 +1802,7 @@ void TypePrinter::printAttributed(const clang::AttributedType *T,
 
   // Print nullability type specifiers.
   if (T->getImmediateNullability()) {
-    IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+    IdentFn = [=, &OS, IdentFn = std::move(IdentFn)] (void) {
       if (T->getAttrKind() == clang::attr::TypeNonNull)
         OS << " _Nonnull";
       else if (T->getAttrKind() == clang::attr::TypeNullable)
@@ -1827,7 +1819,7 @@ void TypePrinter::printAttributed(const clang::AttributedType *T,
   }
 
   if (T->isMSTypeSpec()) {
-    IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+    IdentFn = [=, &OS, IdentFn = std::move(IdentFn)] (void) {
       switch (T->getAttrKind()) {
       default: return;
       case clang::attr::Ptr32: OS << " __ptr32"; break;
@@ -1995,7 +1987,7 @@ void TypePrinter::printBTFTagAttributed(const clang::BTFTagAttributedType *T,
                                         std::function<void(void)> IdentFn) {
   TokenPrinterContext ctx(OS, T, tokens);
   printBeforeAfter(T->getWrappedType(), OS,
-                   [&, IdentFn = std::move(IdentFn)] (void) {
+                   [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
     TokenPrinterContext jump_up_stack(ctx);
     OS << " btf_type_tag(" << T->getAttr()->getBTFTypeTag() << ")";
     IdentFn();
@@ -2085,7 +2077,7 @@ void TypePrinter::printObjCObjectPointer(const clang::ObjCObjectPointerType *T,
 
   if (!T->isObjCIdType() && !T->isObjCQualifiedIdType() &&
       !T->isObjCClassType() && !T->isObjCQualifiedClassType()) {
-    IdentFn = [&, IdentFn = std::move(IdentFn)] (void) {
+    IdentFn = [=, &OS, &ctx, IdentFn = std::move(IdentFn)] (void) {
       // If we need to print the pointer, print it now.
       {
         if (HasEmptyPlaceHolder)

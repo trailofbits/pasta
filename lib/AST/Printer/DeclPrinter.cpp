@@ -433,7 +433,7 @@ void DeclPrinter::VisitTypedefDecl(clang::TypedefDecl *D) {
   clang::QualType Ty = D->getTypeSourceInfo()->getType();
   printQualType(
       Ty, Out, Policy,
-      [&] () {
+      [=, &ctx] () {
         if (auto name = D->getName(); !name.empty()) {
           TokenPrinterContext jump_up_stack(ctx);
           Out << name;

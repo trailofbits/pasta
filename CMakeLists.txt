@@ -443,3 +443,5 @@ if(PASTA_ENABLE_TESTING)
   enable_testing()
   add_subdirectory(test)
 endif(PASTA_ENABLE_TESTING)
+
+add_subdirectory(bindings)

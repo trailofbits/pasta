@@ -912,6 +912,15 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
   void VisitVarDecl(clang::VarDecl *decl) {
     Expand(decl->getSourceRange());
+
+    // If it's an array then we need to expand to include the `[]`, but those
+    // are only known in the `TypeLoc`.
+    if (clang::TypeSourceInfo *tsi = decl->getTypeSourceInfo()) {
+      if (auto tl = tsi->getTypeLoc()) {
+        this->TypeLocVisitor::Visit(tl);
+      }
+    }
+
     if (decl->hasInit()) {
       Expand(decl->getInit()->getSourceRange());
     }

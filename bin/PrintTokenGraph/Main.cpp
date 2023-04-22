@@ -194,7 +194,6 @@ static void PrintTokenGraph(pasta::Decl tld) {
           << ";\n";
     }
 
-
     if (std::optional<pasta::TokenContext> alias_context = context.Aliasee()) {
       os
           << "c" << a << '_' << context.Index()

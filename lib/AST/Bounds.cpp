@@ -913,17 +913,28 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   void VisitVarDecl(clang::VarDecl *decl) {
     Expand(decl->getSourceRange());
 
-    // If it's an array then we need to expand to include the `[]`, but those
-    // are only known in the `TypeLoc`.
-    if (clang::TypeSourceInfo *tsi = decl->getTypeSourceInfo()) {
-      if (auto tl = tsi->getTypeLoc()) {
-        this->TypeLocVisitor::Visit(tl);
-      }
-    }
-
     if (decl->hasInit()) {
       Expand(decl->getInit()->getSourceRange());
     }
+
+    // If this is an actual variable decl and not a derived type then go
+    // searching for a semicolon.
+    TokenImpl *tok_loc = ast.RawTokenAt(decl->getLocation());
+    if (tok_loc && !decl->isImplicit()) {
+      Expand(tok_loc);
+      if (decl->getKind() == clang::Decl::Kind::Var) {
+        ExpandToTrailingToken(tok_loc, clang::tok::semi);
+      }
+    }
+
+    // TODO(pag): The following introduces issues.
+//    // If it's an array then we need to expand to include the `[]`, but those
+//    // are only known in the `TypeLoc`.
+//    if (clang::TypeSourceInfo *tsi = decl->getTypeSourceInfo()) {
+//      if (auto tl = tsi->getTypeLoc()) {
+//        this->TypeLocVisitor::Visit(tl);
+//      }
+//    }
   }
 
   // TODO(pag): Handle parameters from the canonical decl being injected into

@@ -492,27 +492,25 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     return false;
   }
 
+  static constexpr int64_t kDefaultFindNextLimit = -1;
+
   // Scans forward or backward, starting at `tok` and tries to identify the
   // next token with kind `kind`.
-  TokenImpl *FindNext(
+  TokenImpl *Find(
       TokenImpl *tok, clang::tok::TokenKind kind, int64_t increment,
-      int64_t limit=-1) {
+      int64_t limit=kDefaultFindNextLimit) {
 
+    int64_t nesting = 0;
     uint64_t real_limit = ~0u;
     if (0 < limit) {
       real_limit = static_cast<unsigned>(limit);
     }
 
-    int64_t nesting = 0;
     for (; first_tok <= tok && tok <= last_tok; tok = &(tok[increment])) {
-      if (!real_limit) {
-        return nullptr;
-      }
-      --real_limit;
-
       if (!tok->IsParsed()) {
         continue;
       }
+
       const auto tok_kind = tok->Kind();
       switch (tok_kind) {
         case clang::tok::l_paren:
@@ -537,21 +535,53 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       if (tok_kind == kind && 0 >= nesting) {
         return tok;
       }
+
+      if (!real_limit) {
+        return nullptr;
+      }
+      --real_limit;
     }
 
     return nullptr;
   }
 
-  // Scans forward or backward, starting at `loc` and tries to identify the
+  // Scans backward, starting at `loc` and tries to identify the
   // next token with kind `kind`.
-  TokenImpl *FindNext(clang::SourceLocation loc,
-                      clang::tok::TokenKind kind, int64_t increment) {
-
-    if (auto tok = ast.RawTokenAt(loc)) {
-      return FindNext(tok, kind, increment);
+  TokenImpl *FindPrev(TokenImpl *tok,
+                      clang::tok::TokenKind kind,
+                      int64_t limit=kDefaultFindNextLimit) {
+    if (tok) {
+      return Find(tok, kind, -1, limit);
     } else {
       return nullptr;
     }
+  }
+
+  // Scans backward, starting at `loc` and tries to identify the
+  // next token with kind `kind`.
+  TokenImpl *FindPrev(clang::SourceLocation loc,
+                      clang::tok::TokenKind kind,
+                      int64_t limit=kDefaultFindNextLimit) {
+    return FindPrev(ast.RawTokenAt(loc), kind, limit);
+  }
+
+  // Scans forward, starting at `loc` and tries to identify the
+  // next token with kind `kind`.
+  TokenImpl *FindNext(TokenImpl *tok, clang::tok::TokenKind kind,
+                      int64_t limit=kDefaultFindNextLimit) {
+    if (tok) {
+      return Find(tok, kind, 1, limit);
+    } else {
+      return nullptr;
+    }
+  }
+
+  // Scans forward, starting at `loc` and tries to identify the
+  // next token with kind `kind`.
+  TokenImpl *FindNext(clang::SourceLocation loc,
+                      clang::tok::TokenKind kind,
+                      int64_t limit=kDefaultFindNextLimit) {
+    return FindNext(ast.RawTokenAt(loc), kind, limit);
   }
 
   void Expand(TokenImpl *tok) {
@@ -673,7 +703,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
           default:
             break;
         }
-        if (auto kw = FindNext(tok, kw_kind, -1)) {
+        if (auto kw = FindPrev(tok, kw_kind)) {
           Expand(kw);
         }
         break;
@@ -681,7 +711,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       // [[...]]
       case clang::AttributeCommonInfo::AS_CXX11:
       case clang::AttributeCommonInfo::AS_C2x: {
-        if (auto punc = FindNext(tok, clang::tok::TokenKind::l_square, -1)) {
+        if (auto punc = FindPrev(tok, clang::tok::TokenKind::l_square)) {
           Expand(punc);
           if (punc[-1].Kind() == clang::tok::TokenKind::l_square) {
             Expand(&(punc[-1]));
@@ -691,14 +721,14 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       }
       // __declspec(...).
       case clang::AttributeCommonInfo::AS_Declspec: {
-        if (auto kw = FindNext(tok, clang::tok::TokenKind::kw___declspec, -1)) {
+        if (auto kw = FindPrev(tok, clang::tok::TokenKind::kw___declspec)) {
           Expand(kw);
         }
         break;
       }
       // [uuid("...")] class Foo
       case clang::AttributeCommonInfo::AS_Microsoft: {
-        if (auto punc = FindNext(tok, clang::tok::TokenKind::l_square, -1)) {
+        if (auto punc = FindPrev(tok, clang::tok::TokenKind::l_square)) {
           Expand(punc);
         }
         break;
@@ -772,7 +802,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
           }
         }
 
-        if (auto kw = FindNext(tok, kw_kind, -1, find_limit)) {
+        if (auto kw = FindPrev(tok, kw_kind, find_limit)) {
           Expand(kw);
         }
         break;
@@ -917,24 +947,22 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       Expand(decl->getInit()->getSourceRange());
     }
 
-    // If this is an actual variable decl and not a derived type then go
-    // searching for a semicolon.
-    TokenImpl *tok_loc = ast.RawTokenAt(decl->getLocation());
-    if (tok_loc && !decl->isImplicit()) {
-      Expand(tok_loc);
-      if (decl->getKind() == clang::Decl::Kind::Var) {
-        ExpandToTrailingToken(tok_loc, clang::tok::semi);
-      }
-    }
-
-    // TODO(pag): The following introduces issues.
-//    // If it's an array then we need to expand to include the `[]`, but those
-//    // are only known in the `TypeLoc`.
-//    if (clang::TypeSourceInfo *tsi = decl->getTypeSourceInfo()) {
-//      if (auto tl = tsi->getTypeLoc()) {
-//        this->TypeLocVisitor::Visit(tl);
+//    // If this is an actual variable decl and not a derived type then go
+//    // searching for a semicolon.
+//    TokenImpl *tok_loc = ast.RawTokenAt(decl->getLocation());
+//    if (tok_loc && !decl->isImplicit()) {
+//      if (decl->getKind() == clang::Decl::Kind::Var) {
+//        ExpandToTrailingToken(tok_loc, clang::tok::semi);
 //      }
 //    }
+
+    // If it's an array then we need to expand to include the `[]`, but those
+    // are only known in the `TypeLoc`.
+    if (clang::TypeSourceInfo *tsi = decl->getTypeSourceInfo()) {
+      if (auto tl = tsi->getTypeLoc()) {
+        Expand(tl.getSourceRange());
+      }
+    }
   }
 
   // TODO(pag): Handle parameters from the canonical decl being injected into
@@ -978,11 +1006,11 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     //
     //            in `_os_log_verify_format_str` from XNU.
     if (params_begin && params_begin->Kind() != clang::tok::l_paren) {
-      params_begin = FindNext(params_begin, clang::tok::l_paren, -1);
+      params_begin = FindPrev(params_begin, clang::tok::l_paren);
     }
 
     if (params_end && params_end->Kind() != clang::tok::r_paren) {
-      params_end = FindNext(params_end, clang::tok::r_paren, 1);
+      params_end = FindNext(params_end, clang::tok::r_paren);
     }
 
     if (params_begin && !params_end) {
@@ -1054,7 +1082,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       if ((i + 1) == num_params) {
         end_tok = params_end;
       } else {
-        end_tok = FindNext(begin_tok, clang::tok::comma, 1);
+        end_tok = FindNext(begin_tok, clang::tok::comma);
       }
       if (!end_tok) {
         return;
@@ -1086,7 +1114,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
                                   clang::tok::TokenKind kind) {
     if (name_tok) {
       Expand(name_tok);
-      auto semi_tok = FindNext(name_tok, kind, -1);
+      auto semi_tok = FindPrev(name_tok, kind);
       if (semi_tok) {
         assert(semi_tok <= name_tok);
         Expand(semi_tok);
@@ -1108,7 +1136,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   void ExpandToTrailingToken(TokenImpl *name_tok, clang::tok::TokenKind kind) {
     if (name_tok) {
       Expand(name_tok);
-      auto semi_tok = FindNext(name_tok, kind, 1);
+      auto semi_tok = FindNext(name_tok, kind);
       if (semi_tok) {
         assert(semi_tok >= name_tok);
         Expand(semi_tok);

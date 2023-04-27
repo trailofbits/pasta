@@ -1439,6 +1439,8 @@ void TypePrinter::printTag(clang::TagDecl *D, raw_string_ostream &OS) {
     return;
   }
 
+  TokenPrinterContext ctx(OS, D, tokens);
+
   bool HasKindDecoration = false;
 
   // We don't print tags unless this is an elaborated type.
@@ -1531,16 +1533,22 @@ void TypePrinter::printRecord(const clang::RecordType *T,
       // Find the outermost typedef or alias template.
       clang::QualType T = PNA->getTypedefType();
       while (true) {
-        if (auto *TT = clang::dyn_cast<clang::TypedefType>(T))
-          return printTypeSpec(TT->getDecl(), OS);
-        if (auto *TST = clang::dyn_cast<clang::TemplateSpecializationType>(T))
-          return printTemplateId(TST, OS, /*FullyQualify=*/true);
+        if (auto *TT = clang::dyn_cast<clang::TypedefType>(T)) {
+          printTypeSpec(TT->getDecl(), OS);
+          goto print_ident;
+        }
+        if (auto *TST = clang::dyn_cast<clang::TemplateSpecializationType>(T)) {
+          printTemplateId(TST, OS, /*FullyQualify=*/true);
+          goto print_ident;
+        }
         T = T->getLocallyUnqualifiedSingleStepDesugaredType();
       }
     }
   }
 
   printTag(T->getDecl(), OS);
+
+print_ident:
   IdentFn();
 }
 
@@ -1686,13 +1694,17 @@ void TypePrinter::printElaborated(const clang::ElaboratedType *T,
                                   std::function<void(void)> IdentFn) {
   TokenPrinterContext ctx(OS, T, tokens);
 
-  if (clang::TagDecl *OwnedTagDecl = T->getOwnedTagDecl()) {
+  std::optional<TokenPrinterContext> tag_context;
 
-    // Inject in the decl, so that we have some "balance" with the owned case.
-    std::optional<TokenPrinterContext> tag_context;
-    if (const clang::RecordType *RT = T->getAsStructureType()) {
-      tag_context.emplace(OS, RT, tokens);
-    }
+  clang::QualType NT = T->getNamedType();
+  const clang::TagType *TT = NT->getAs<clang::TagType>();
+
+  // Inject in the decl, so that we have some "balance" with the owned case.
+  if (TT) {
+    tag_context.emplace(OS, TT, tokens);
+  }
+
+  if (clang::TagDecl *OwnedTagDecl = T->getOwnedTagDecl()) {
 
     TagDefinitionPolicyRAII enable_tags(Policy, true);
 
@@ -1708,28 +1720,27 @@ void TypePrinter::printElaborated(const clang::ElaboratedType *T,
   } else {
     TagDefinitionPolicyRAII disable_tags(Policy);
 
-    IdentFn = [=, &OS, IdentFn = std::move(IdentFn)] (void) {
-      // The tag definition will take care of these.
-      OS << clang::TypeWithKeyword::getKeywordName(T->getKeyword());
-      if (T->getKeyword() != clang::ETK_None)
-        OS << " ";
-      clang::NestedNameSpecifier *Qualifier = T->getQualifier();
-      if (Qualifier)
-        Qualifier->print(OS, Policy);
-
-      IdentFn();
-    };
+    std::optional<TokenPrinterContext> decl_context;
 
     // Inject in the decl, so that we have some "balance" with the owned case.
     if (clang::TagDecl *D = T->getAsTagDecl()) {
-      IdentFn = [=, &OS, IdentFn = std::move(IdentFn)] (void) {
-        TokenPrinterContext ctx(OS, D, tokens);
-        IdentFn();
-      };
+      decl_context.emplace(OS, D, tokens);
     }
 
+    // The tag definition will take care of these.
+    OS << clang::TypeWithKeyword::getKeywordName(T->getKeyword());
+    if (T->getKeyword() != clang::ETK_None)
+      OS << " ";
+
+    clang::NestedNameSpecifier *Qualifier = T->getQualifier();
+    if (Qualifier)
+      Qualifier->print(OS, Policy);
+
+    decl_context.reset();
+    tag_context.reset();
+
     ElaboratedTypePolicyRAII PolicyRAII(Policy);
-    printBeforeAfter(T->getNamedType(), OS, std::move(IdentFn));
+    printBeforeAfter(NT, OS, std::move(IdentFn));
   }
 }
 

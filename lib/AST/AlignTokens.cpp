@@ -174,6 +174,9 @@ struct StatementRegion final : public Region {
        << (common_context ? common_context.value() : kInvalidTokenContextIndex)
        << std::dec << "------\n";
     for (TokenImpl *it = begin; it <= end; ++it) {
+      if (!TokenCanBeAssignedContext(it)) {
+        continue;
+      }
       if (it->Kind() == clang::tok::string_literal) {
         os << indent << "<str>";
       } else {
@@ -212,6 +215,9 @@ struct StatementRegion final : public Region {
     auto begin_ = reinterpret_cast<PrintedTokenImpl *>(begin);
     auto end_ = reinterpret_cast<PrintedTokenImpl *>(end);
     for (PrintedTokenImpl *it = begin_; it <= end_; ++it) {
+      if (!TokenCanBeAssignedContext(it)) {
+        continue;
+      }
       if (it->Kind() == clang::tok::string_literal) {
         os << indent << "<str>";
       } else {
@@ -1842,6 +1848,33 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
   join_based_region_merge(changed);
 
 #if PASTA_DEBUG_ALIGN
+  std::ofstream parsed_os("/tmp/tree.parsed", std::ios_base::trunc | std::ios_base::out);
+  parsed_tree->Print(parsed_os, "", *ast, range);
+
+  std::ofstream printed_os("/tmp/tree.printed", std::ios_base::trunc | std::ios_base::out);
+  printed_tree->Print(printed_os, "", range);
+
+  parsed_os.flush();
+  printed_os.flush();
+//    assert(false);
+//
+//  if (log) {
+//    auto t = &(parsed_end[-1]);
+//    for (auto c = t->Context(ast->contexts); c; c = c->Parent(ast->contexts)) {
+//      auto c_id = static_cast<uint64_t>(c - &(ast->contexts[0]));
+//      std::cerr << std::hex << c_id << std::dec << '\t' << c->KindName(ast->contexts) << ' ';
+//      if (c->kind == TokenContextKind::kDecl) {
+//        std::cerr << reinterpret_cast<const clang::Decl *>(c->data)->getDeclKindName();
+//      }
+//      std::cerr << '\n';
+//    }
+//
+//    assert(false);
+//  }
+
+#endif   // PASTA_DEBUG_ALIGN
+
+#if PASTA_DEBUG_ALIGN
   auto i = 0u;
   for (PrintedTokenImpl *tok = printed_begin; tok < printed_end; ++tok) {
     std::cerr
@@ -1884,33 +1917,6 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
   std::vector<TokenContextIndex> context_stack;
   context_stack.push_back(decl_context_id);
   matcher.FixContexts(parsed_tree, context_stack);
-
-#if PASTA_DEBUG_ALIGN
-  std::ofstream parsed_os("/tmp/tree.parsed", std::ios_base::trunc | std::ios_base::out);
-  parsed_tree->Print(parsed_os, "", *ast, range);
-
-  std::ofstream printed_os("/tmp/tree.printed", std::ios_base::trunc | std::ios_base::out);
-  printed_tree->Print(printed_os, "", range);
-
-  parsed_os.flush();
-  printed_os.flush();
-//    assert(false);
-//
-//  if (log) {
-//    auto t = &(parsed_end[-1]);
-//    for (auto c = t->Context(ast->contexts); c; c = c->Parent(ast->contexts)) {
-//      auto c_id = static_cast<uint64_t>(c - &(ast->contexts[0]));
-//      std::cerr << std::hex << c_id << std::dec << '\t' << c->KindName(ast->contexts) << ' ';
-//      if (c->kind == TokenContextKind::kDecl) {
-//        std::cerr << reinterpret_cast<const clang::Decl *>(c->data)->getDeclKindName();
-//      }
-//      std::cerr << '\n';
-//    }
-//
-//    assert(false);
-//  }
-
-#endif   // PASTA_DEBUG_ALIGN
 
 //  for (const auto &parsed_region : parsed_regions) {
 //    auto balanced = dynamic_cast<BalancedRegion *>(parsed_region.get());

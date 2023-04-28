@@ -8,4 +8,6 @@ PYBIND11_MODULE(pasta, m) {
     pasta::RegisterCompileCommand(m);
     pasta::RegisterFileSystem(m);
     pasta::RegisterFileManager(m);
+    pasta::RegisterCompileJob(m);
+    pasta::RegisterCompiler(m);
 }

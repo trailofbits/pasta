@@ -26,4 +26,6 @@ void RegisterArgumentVector(pybind11::module_&);
 void RegisterCompileCommand(pybind11::module_&);
 void RegisterFileSystem(pybind11::module_&);
 void RegisterFileManager(pybind11::module_&);
+void RegisterCompileJob(pybind11::module_&);
+void RegisterCompiler(pybind11::module_&);
 } // namespace pasta

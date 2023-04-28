@@ -296,6 +296,7 @@ class MacroParameter final : public Macro {
 class DefineMacroDirective final : public MacroDirective {
  protected:
   friend class MacroExpansion;
+  friend class Token;
 
   using MacroDirective::MacroDirective;
 

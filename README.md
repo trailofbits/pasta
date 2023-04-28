@@ -44,13 +44,13 @@ cd cxx-common
 The repository uses [vcpkg](https://github.com/microsoft/vcpkg) which makes entire process rather easy.
 
 ```shell
-./build_dependencies.sh --export-dir /path/to/export/vcpkg-15 "llvm-15[pasta]"
+./build_dependencies.sh --export-dir /path/to/export/vcpkg-16 "llvm-16[pasta]"
 ```
 
 If you do not plan to tinker with or work on PASTA, then we recommend adding in
 `--release` so that you get a release build of LLVM.
 
-It is important *do not forget the `llvm-15[pasta]`* option, otherwise it will not build
+It is important *do not forget the `llvm-16[pasta]`* option, otherwise it will not build
 and subsequently the projects built in next step will try to link system libraries
 and that is highly unstable and not
 tested (at least for now).
@@ -67,13 +67,17 @@ cd pasta
 mkdir build
 cd build
 cmake \
-    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-    -DCMAKE_TOOLCHAIN_FILE="/path/to/export/vcpkg-15/scripts/buildsystems/vcpkg.cmake" \
-    -DVCPKG_TARGET_TRIPLET=x64-osx \
-    -DVCPKG_HOST_TRIPLET=x64-osx-rel \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_TOOLCHAIN_FILE="/path/to/export/vcpkg-16/scripts/buildsystems/vcpkg.cmake" \
+    -DVCPKG_TARGET_TRIPLET=x64-linux \
+    -DVCPKG_HOST_TRIPLET=x64-linux-rel \
     ..
 make install
 ```
+
+You might need to add `-rel` to `-DVCPKG_TARGET_TRIPLET=x64-linux`; this depends on whether
+or not you're using a downloaded cxx-common release. If you experience issues then try
+excluding teh HOST and TARGET triplets altogether.
 
 #### On macOS
 

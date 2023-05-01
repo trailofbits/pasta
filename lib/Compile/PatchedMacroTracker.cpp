@@ -896,7 +896,10 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
     D( std::cerr << indent << "EndOfInternalMacroEventMarker\n"; )
 
   } else if (tok_loc.isValid() && tok_loc.isFileID()) {
-    role = TokenRole::kInitialMacroUseToken;
+    auto [file_id, file_offset] = sm.getDecomposedLoc(tok_loc);
+    if (ast->id_to_file.count(file_id.getHashValue())) {
+      role = TokenRole::kInitialMacroUseToken;
+    }
   }
   ast->AppendBackupToken(tok, offset, tok_data.size(), role);
 

@@ -814,6 +814,40 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     Expand(scope_tok);
   }
 
+  void VisitCommonDeclaratorDecl(clang::DeclaratorDecl *) {
+    // Expand to handle things like: `static const char *` or
+    // `inline static constexpr`.
+    for (auto changed = true; lower_bound && changed; ) {
+      changed = false;
+      changed = ExpandLeadingKeyword(clang::tok::kw_auto) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw_static) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw_extern, true) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw__ExtInt) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw__BitInt) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw_unsigned) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw_signed) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw_short) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw_long) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw_volatile) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw_inline) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw_const) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw_constexpr) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw__Noreturn) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___cdecl) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___stdcall) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___fastcall) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___thiscall) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___regcall) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___vectorcall) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___forceinline) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___kernel) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___noinline__) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___private_extern__, true) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___module_private__, true) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___extension__, true) || changed;
+    }
+  }
+
   void VisitCommonFunctionDecl(clang::FunctionDecl *decl) {
 //    auto X = false; // decl->getNameAsString() == "kvm_kick_many_cpus";
 //    if (X) {
@@ -879,36 +913,8 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     }
 
     D("b");
-    // Expand to handle things like: `static const char *` or
-    // `inline static constexpr`.
-    for (auto changed = true; lower_bound && changed; ) {
-      changed = false;
-      changed = ExpandLeadingKeyword(clang::tok::kw_auto) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw_static) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw_extern, true) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw__ExtInt) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw__BitInt) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw_unsigned) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw_signed) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw_short) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw_long) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw_volatile) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw_inline) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw_const) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw_constexpr) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw__Noreturn) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw___cdecl) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw___stdcall) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw___fastcall) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw___thiscall) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw___regcall) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw___vectorcall) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw___forceinline) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw___kernel) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw___noinline__) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw___private_extern__, true) || changed;
-      changed = ExpandLeadingKeyword(clang::tok::kw___module_private__, true) || changed;
-    }
+    VisitCommonDeclaratorDecl(decl);
+
     D("c");
 
     TokenImpl *tok_loc = ast.RawTokenAt(decl->getLocation());
@@ -963,6 +969,8 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         Expand(tl.getSourceRange());
       }
     }
+
+    VisitCommonDeclaratorDecl(decl);
   }
 
   // TODO(pag): Handle parameters from the canonical decl being injected into
@@ -1231,12 +1239,20 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     VisitTypedefNameDecl(decl);
     ExpandToLeadingToken(decl->getLocation(), clang::tok::kw_using);
     ExpandToTrailingToken(decl->getLocation(), clang::tok::semi);
+
+    // Happens in `int-ll64.h` in Linux kernel. This is used to suppress
+    // the `-ansi` flag with things like `unsigned long long`.
+    ExpandLeadingKeyword(clang::tok::kw___extension__);
   }
 
   void VisitTypedefDecl(clang::TypedefDecl *decl) {
     VisitTypedefNameDecl(decl);
     ExpandToLeadingToken(decl->getLocation(), clang::tok::kw_typedef);
     ExpandToTrailingToken(decl->getLocation(), clang::tok::semi);
+
+    // Happens in `int-ll64.h` in Linux kernel. This is used to suppress
+    // the `-ansi` flag with things like `unsigned long long`.
+    ExpandLeadingKeyword(clang::tok::kw___extension__);
   }
 
   void VisitTagDecl(clang::TagDecl *decl) {
@@ -1378,6 +1394,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       }
     }
     ExpandToTrailingToken(decl->getLocation(), clang::tok::semi);
+    VisitCommonDeclaratorDecl(decl);
   }
 
 //  void VisitTemplateDecl(clang::TemplateDecl *decl);

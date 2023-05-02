@@ -209,7 +209,7 @@ static bool IsImplicitImpl(clang::Decl *decl) {
 
 // Manually implemented to handle things like field declarations inside of
 // implicitly-defined record declarations.
-bool Decl::IsImplicit(void) const noexcept {
+bool Decl::IsImplicit(void) const {
   return IsImplicitImpl(const_cast<clang::Decl *>(u.Decl));
 }
 

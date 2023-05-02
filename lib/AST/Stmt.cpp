@@ -1324,19 +1324,19 @@ PASTA_DEFINE_DERIVED_OPERATORS(Stmt, UserDefinedLiteral)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, VAArgExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, ValueStmt)
 PASTA_DEFINE_DERIVED_OPERATORS(Stmt, WhileStmt)
-::pasta::Stmt Stmt::IgnoreContainers(void) const noexcept {
+::pasta::Stmt Stmt::IgnoreContainers(void) const {
   auto &self = *const_cast<clang::Stmt *>(u.Stmt);
   decltype(auto) val = self.IgnoreContainers();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "Stmt::IgnoreContainers can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: Stmt::
 // 0: Stmt::
-std::vector<::pasta::Stmt> Stmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> Stmt::Children(void) const {
   auto &self = *const_cast<clang::Stmt *>(u.Stmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -1346,45 +1346,45 @@ std::vector<::pasta::Stmt> Stmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token Stmt::BeginToken(void) const noexcept {
+::pasta::Token Stmt::BeginToken(void) const {
   auto &self = *const_cast<clang::Stmt *>(u.Stmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token Stmt::EndToken(void) const noexcept {
+::pasta::Token Stmt::EndToken(void) const {
   auto &self = *const_cast<clang::Stmt *>(u.Stmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-int64_t Stmt::ID(void) const noexcept {
+int64_t Stmt::ID(void) const {
   auto &self = *(u.Stmt);
   decltype(auto) val = self.getID(ast->ci->getASTContext());
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::TokenRange Stmt::Tokens(void) const noexcept {
+::pasta::TokenRange Stmt::Tokens(void) const {
   auto &self = *const_cast<clang::Stmt *>(u.Stmt);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::StmtKind Stmt::Kind(void) const noexcept {
+::pasta::StmtKind Stmt::Kind(void) const {
   auto &self = *const_cast<clang::Stmt *>(u.Stmt);
   decltype(auto) val = self.getStmtClass();
   return static_cast<enum ::pasta::StmtKind>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::string_view Stmt::KindName(void) const noexcept {
+std::string_view Stmt::KindName(void) const {
   auto &self = *const_cast<clang::Stmt *>(u.Stmt);
   decltype(auto) val = self.getStmtClassName();
   if (val) {
@@ -1393,17 +1393,17 @@ std::string_view Stmt::KindName(void) const noexcept {
     return std::string_view();
   }
   assert(false && "Stmt::KindName can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt Stmt::StripLabelLikeStatements(void) const noexcept {
+::pasta::Stmt Stmt::StripLabelLikeStatements(void) const {
   auto &self = *const_cast<clang::Stmt *>(u.Stmt);
   decltype(auto) val = self.stripLabelLikeStatements();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "Stmt::StripLabelLikeStatements can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 SwitchCase::SwitchCase(
@@ -1414,35 +1414,35 @@ SwitchCase::SwitchCase(
 PASTA_DEFINE_BASE_OPERATORS(Stmt, SwitchCase)
 PASTA_DEFINE_DERIVED_OPERATORS(SwitchCase, CaseStmt)
 PASTA_DEFINE_DERIVED_OPERATORS(SwitchCase, DefaultStmt)
-::pasta::Token SwitchCase::BeginToken(void) const noexcept {
+::pasta::Token SwitchCase::BeginToken(void) const {
   auto &self = *const_cast<clang::SwitchCase *>(u.SwitchCase);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SwitchCase::ColonToken(void) const noexcept {
+::pasta::Token SwitchCase::ColonToken(void) const {
   auto &self = *const_cast<clang::SwitchCase *>(u.SwitchCase);
   decltype(auto) val = self.getColonLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SwitchCase::EndToken(void) const noexcept {
+::pasta::Token SwitchCase::EndToken(void) const {
   auto &self = *const_cast<clang::SwitchCase *>(u.SwitchCase);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SwitchCase::KeywordToken(void) const noexcept {
+::pasta::Token SwitchCase::KeywordToken(void) const {
   auto &self = *const_cast<clang::SwitchCase *>(u.SwitchCase);
   decltype(auto) val = self.getKeywordLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::SwitchCase> SwitchCase::NextSwitchCase(void) const noexcept {
+std::optional<::pasta::SwitchCase> SwitchCase::NextSwitchCase(void) const {
   auto &self = *const_cast<clang::SwitchCase *>(u.SwitchCase);
   decltype(auto) val = self.getNextSwitchCase();
   if (!val) {
@@ -1451,17 +1451,17 @@ std::optional<::pasta::SwitchCase> SwitchCase::NextSwitchCase(void) const noexce
   if (val) {
     return StmtBuilder::Create<::pasta::SwitchCase>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt SwitchCase::SubStatement(void) const noexcept {
+::pasta::Stmt SwitchCase::SubStatement(void) const {
   auto &self = *const_cast<clang::SwitchCase *>(u.SwitchCase);
   decltype(auto) val = self.getSubStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "SwitchCase::SubStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 SwitchStmt::SwitchStmt(
@@ -1470,7 +1470,7 @@ SwitchStmt::SwitchStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, SwitchStmt)
-std::vector<::pasta::Stmt> SwitchStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> SwitchStmt::Children(void) const {
   auto &self = *const_cast<clang::SwitchStmt *>(u.SwitchStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -1480,37 +1480,37 @@ std::vector<::pasta::Stmt> SwitchStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SwitchStmt::BeginToken(void) const noexcept {
+::pasta::Token SwitchStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::SwitchStmt *>(u.SwitchStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt SwitchStmt::Body(void) const noexcept {
+::pasta::Stmt SwitchStmt::Body(void) const {
   auto &self = *const_cast<clang::SwitchStmt *>(u.SwitchStmt);
   decltype(auto) val = self.getBody();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "SwitchStmt::Body can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr SwitchStmt::Condition(void) const noexcept {
+::pasta::Expr SwitchStmt::Condition(void) const {
   auto &self = *const_cast<clang::SwitchStmt *>(u.SwitchStmt);
   decltype(auto) val = self.getCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "SwitchStmt::Condition can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::VarDecl> SwitchStmt::ConditionVariable(void) const noexcept {
+std::optional<::pasta::VarDecl> SwitchStmt::ConditionVariable(void) const {
   auto &self = *const_cast<clang::SwitchStmt *>(u.SwitchStmt);
   decltype(auto) val = self.getConditionVariable();
   if (!val) {
@@ -1519,10 +1519,10 @@ std::optional<::pasta::VarDecl> SwitchStmt::ConditionVariable(void) const noexce
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::DeclStmt> SwitchStmt::ConditionVariableDeclarationStatement(void) const noexcept {
+std::optional<::pasta::DeclStmt> SwitchStmt::ConditionVariableDeclarationStatement(void) const {
   auto &self = *const_cast<clang::SwitchStmt *>(u.SwitchStmt);
   decltype(auto) val = self.getConditionVariableDeclStmt();
   if (!val) {
@@ -1531,17 +1531,17 @@ std::optional<::pasta::DeclStmt> SwitchStmt::ConditionVariableDeclarationStateme
   if (val) {
     return StmtBuilder::Create<::pasta::DeclStmt>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SwitchStmt::EndToken(void) const noexcept {
+::pasta::Token SwitchStmt::EndToken(void) const {
   auto &self = *const_cast<clang::SwitchStmt *>(u.SwitchStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Stmt> SwitchStmt::Initializer(void) const noexcept {
+std::optional<::pasta::Stmt> SwitchStmt::Initializer(void) const {
   auto &self = *const_cast<clang::SwitchStmt *>(u.SwitchStmt);
   decltype(auto) val = self.getInit();
   if (!val) {
@@ -1550,24 +1550,24 @@ std::optional<::pasta::Stmt> SwitchStmt::Initializer(void) const noexcept {
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SwitchStmt::LParenToken(void) const noexcept {
+::pasta::Token SwitchStmt::LParenToken(void) const {
   auto &self = *const_cast<clang::SwitchStmt *>(u.SwitchStmt);
   decltype(auto) val = self.getLParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SwitchStmt::RParenToken(void) const noexcept {
+::pasta::Token SwitchStmt::RParenToken(void) const {
   auto &self = *const_cast<clang::SwitchStmt *>(u.SwitchStmt);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::SwitchCase> SwitchStmt::FirstSwitchCase(void) const noexcept {
+std::optional<::pasta::SwitchCase> SwitchStmt::FirstSwitchCase(void) const {
   auto &self = *const_cast<clang::SwitchStmt *>(u.SwitchStmt);
   decltype(auto) val = self.getSwitchCaseList();
   if (!val) {
@@ -1576,35 +1576,35 @@ std::optional<::pasta::SwitchCase> SwitchStmt::FirstSwitchCase(void) const noexc
   if (val) {
     return StmtBuilder::Create<::pasta::SwitchCase>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SwitchStmt::SwitchToken(void) const noexcept {
+::pasta::Token SwitchStmt::SwitchToken(void) const {
   auto &self = *const_cast<clang::SwitchStmt *>(u.SwitchStmt);
   decltype(auto) val = self.getSwitchLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool SwitchStmt::HasInitializerStorage(void) const noexcept {
+bool SwitchStmt::HasInitializerStorage(void) const {
   auto &self = *const_cast<clang::SwitchStmt *>(u.SwitchStmt);
   decltype(auto) val = self.hasInitStorage();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool SwitchStmt::HasVariableStorage(void) const noexcept {
+bool SwitchStmt::HasVariableStorage(void) const {
   auto &self = *const_cast<clang::SwitchStmt *>(u.SwitchStmt);
   decltype(auto) val = self.hasVarStorage();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool SwitchStmt::IsAllEnumCasesCovered(void) const noexcept {
+bool SwitchStmt::IsAllEnumCasesCovered(void) const {
   auto &self = *const_cast<clang::SwitchStmt *>(u.SwitchStmt);
   decltype(auto) val = self.isAllEnumCasesCovered();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ValueStmt::ValueStmt(
@@ -1747,7 +1747,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(ValueStmt, UnresolvedLookupExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueStmt, UnresolvedMemberExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueStmt, UserDefinedLiteral)
 PASTA_DEFINE_DERIVED_OPERATORS(ValueStmt, VAArgExpr)
-std::optional<::pasta::Expr> ValueStmt::ExpressionStatement(void) const noexcept {
+std::optional<::pasta::Expr> ValueStmt::ExpressionStatement(void) const {
   auto &self = *const_cast<clang::ValueStmt *>(u.ValueStmt);
   decltype(auto) val = self.getExprStmt();
   if (!val) {
@@ -1756,7 +1756,7 @@ std::optional<::pasta::Expr> ValueStmt::ExpressionStatement(void) const noexcept
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 WhileStmt::WhileStmt(
@@ -1765,7 +1765,7 @@ WhileStmt::WhileStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, WhileStmt)
-std::vector<::pasta::Stmt> WhileStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> WhileStmt::Children(void) const {
   auto &self = *const_cast<clang::WhileStmt *>(u.WhileStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -1775,37 +1775,37 @@ std::vector<::pasta::Stmt> WhileStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token WhileStmt::BeginToken(void) const noexcept {
+::pasta::Token WhileStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::WhileStmt *>(u.WhileStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt WhileStmt::Body(void) const noexcept {
+::pasta::Stmt WhileStmt::Body(void) const {
   auto &self = *const_cast<clang::WhileStmt *>(u.WhileStmt);
   decltype(auto) val = self.getBody();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "WhileStmt::Body can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr WhileStmt::Condition(void) const noexcept {
+::pasta::Expr WhileStmt::Condition(void) const {
   auto &self = *const_cast<clang::WhileStmt *>(u.WhileStmt);
   decltype(auto) val = self.getCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "WhileStmt::Condition can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::VarDecl> WhileStmt::ConditionVariable(void) const noexcept {
+std::optional<::pasta::VarDecl> WhileStmt::ConditionVariable(void) const {
   auto &self = *const_cast<clang::WhileStmt *>(u.WhileStmt);
   decltype(auto) val = self.getConditionVariable();
   if (!val) {
@@ -1814,10 +1814,10 @@ std::optional<::pasta::VarDecl> WhileStmt::ConditionVariable(void) const noexcep
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::DeclStmt> WhileStmt::ConditionVariableDeclarationStatement(void) const noexcept {
+std::optional<::pasta::DeclStmt> WhileStmt::ConditionVariableDeclarationStatement(void) const {
   auto &self = *const_cast<clang::WhileStmt *>(u.WhileStmt);
   decltype(auto) val = self.getConditionVariableDeclStmt();
   if (!val) {
@@ -1826,42 +1826,42 @@ std::optional<::pasta::DeclStmt> WhileStmt::ConditionVariableDeclarationStatemen
   if (val) {
     return StmtBuilder::Create<::pasta::DeclStmt>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token WhileStmt::EndToken(void) const noexcept {
+::pasta::Token WhileStmt::EndToken(void) const {
   auto &self = *const_cast<clang::WhileStmt *>(u.WhileStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token WhileStmt::LParenToken(void) const noexcept {
+::pasta::Token WhileStmt::LParenToken(void) const {
   auto &self = *const_cast<clang::WhileStmt *>(u.WhileStmt);
   decltype(auto) val = self.getLParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token WhileStmt::RParenToken(void) const noexcept {
+::pasta::Token WhileStmt::RParenToken(void) const {
   auto &self = *const_cast<clang::WhileStmt *>(u.WhileStmt);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token WhileStmt::WhileToken(void) const noexcept {
+::pasta::Token WhileStmt::WhileToken(void) const {
   auto &self = *const_cast<clang::WhileStmt *>(u.WhileStmt);
   decltype(auto) val = self.getWhileLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool WhileStmt::HasVariableStorage(void) const noexcept {
+bool WhileStmt::HasVariableStorage(void) const {
   auto &self = *const_cast<clang::WhileStmt *>(u.WhileStmt);
   decltype(auto) val = self.hasVarStorage();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 AsmStmt::AsmStmt(
@@ -1874,7 +1874,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(AsmStmt, GCCAsmStmt)
 PASTA_DEFINE_DERIVED_OPERATORS(AsmStmt, MSAsmStmt)
 // 0: AsmStmt::
 // 0: AsmStmt::
-std::vector<::pasta::Stmt> AsmStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> AsmStmt::Children(void) const {
   auto &self = *const_cast<clang::AsmStmt *>(u.AsmStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -1884,73 +1884,73 @@ std::vector<::pasta::Stmt> AsmStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: AsmStmt::
 // 0: AsmStmt::
-std::string AsmStmt::GenerateAssemblyString(void) const noexcept {
+std::string AsmStmt::GenerateAssemblyString(void) const {
   auto &self = *(u.AsmStmt);
   decltype(auto) val = self.generateAsmString(ast->ci->getASTContext());
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token AsmStmt::AssemblyToken(void) const noexcept {
+::pasta::Token AsmStmt::AssemblyToken(void) const {
   auto &self = *const_cast<clang::AsmStmt *>(u.AsmStmt);
   decltype(auto) val = self.getAsmLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token AsmStmt::BeginToken(void) const noexcept {
+::pasta::Token AsmStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::AsmStmt *>(u.AsmStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: AsmStmt::Clobber
-::pasta::Token AsmStmt::EndToken(void) const noexcept {
+::pasta::Token AsmStmt::EndToken(void) const {
   auto &self = *const_cast<clang::AsmStmt *>(u.AsmStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: AsmStmt::InputConstraint
 // 1: AsmStmt::InputExpression
-uint32_t AsmStmt::NumClobbers(void) const noexcept {
+uint32_t AsmStmt::NumClobbers(void) const {
   auto &self = *const_cast<clang::AsmStmt *>(u.AsmStmt);
   decltype(auto) val = self.getNumClobbers();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t AsmStmt::NumInputs(void) const noexcept {
+uint32_t AsmStmt::NumInputs(void) const {
   auto &self = *const_cast<clang::AsmStmt *>(u.AsmStmt);
   decltype(auto) val = self.getNumInputs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t AsmStmt::NumOutputs(void) const noexcept {
+uint32_t AsmStmt::NumOutputs(void) const {
   auto &self = *const_cast<clang::AsmStmt *>(u.AsmStmt);
   decltype(auto) val = self.getNumOutputs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t AsmStmt::NumPlusOperands(void) const noexcept {
+uint32_t AsmStmt::NumPlusOperands(void) const {
   auto &self = *const_cast<clang::AsmStmt *>(u.AsmStmt);
   decltype(auto) val = self.getNumPlusOperands();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: AsmStmt::OutputConstraint
 // 1: AsmStmt::OutputExpression
-std::vector<::pasta::Expr> AsmStmt::Inputs(void) const noexcept {
+std::vector<::pasta::Expr> AsmStmt::Inputs(void) const {
   auto &self = *const_cast<clang::AsmStmt *>(u.AsmStmt);
   decltype(auto) val = self.inputs();
   std::vector<::pasta::Expr> ret;
@@ -1960,25 +1960,25 @@ std::vector<::pasta::Expr> AsmStmt::Inputs(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: AsmStmt::IsOutputPlusConstraint
-bool AsmStmt::IsSimple(void) const noexcept {
+bool AsmStmt::IsSimple(void) const {
   auto &self = *const_cast<clang::AsmStmt *>(u.AsmStmt);
   decltype(auto) val = self.isSimple();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool AsmStmt::IsVolatile(void) const noexcept {
+bool AsmStmt::IsVolatile(void) const {
   auto &self = *const_cast<clang::AsmStmt *>(u.AsmStmt);
   decltype(auto) val = self.isVolatile();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Expr> AsmStmt::Outputs(void) const noexcept {
+std::vector<::pasta::Expr> AsmStmt::Outputs(void) const {
   auto &self = *const_cast<clang::AsmStmt *>(u.AsmStmt);
   decltype(auto) val = self.outputs();
   std::vector<::pasta::Expr> ret;
@@ -1988,10 +1988,10 @@ std::vector<::pasta::Expr> AsmStmt::Outputs(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<std::string_view> AsmStmt::OutputConstraints(void) const noexcept {
+std::vector<std::string_view> AsmStmt::OutputConstraints(void) const {
   std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
     if (auto size = val.size()) {
@@ -1999,7 +1999,7 @@ std::vector<std::string_view> AsmStmt::OutputConstraints(void) const noexcept {
     } else {
       return std::string_view();
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.AsmStmt->getNumOutputs();
   decltype(count) i = 0;
@@ -2009,13 +2009,13 @@ std::vector<std::string_view> AsmStmt::OutputConstraints(void) const noexcept {
   return ret;
 }
 
-std::vector<::pasta::Expr> AsmStmt::OutputExpressions(void) const noexcept {
+std::vector<::pasta::Expr> AsmStmt::OutputExpressions(void) const {
   std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.AsmStmt->getNumOutputs();
   decltype(count) i = 0;
@@ -2025,7 +2025,7 @@ std::vector<::pasta::Expr> AsmStmt::OutputExpressions(void) const noexcept {
   return ret;
 }
 
-std::vector<std::string_view> AsmStmt::InputConstraints(void) const noexcept {
+std::vector<std::string_view> AsmStmt::InputConstraints(void) const {
   std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
     if (auto size = val.size()) {
@@ -2033,7 +2033,7 @@ std::vector<std::string_view> AsmStmt::InputConstraints(void) const noexcept {
     } else {
       return std::string_view();
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.AsmStmt->getNumInputs();
   decltype(count) i = 0;
@@ -2043,13 +2043,13 @@ std::vector<std::string_view> AsmStmt::InputConstraints(void) const noexcept {
   return ret;
 }
 
-std::vector<::pasta::Expr> AsmStmt::InputExpressions(void) const noexcept {
+std::vector<::pasta::Expr> AsmStmt::InputExpressions(void) const {
   std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.AsmStmt->getNumInputs();
   decltype(count) i = 0;
@@ -2059,7 +2059,7 @@ std::vector<::pasta::Expr> AsmStmt::InputExpressions(void) const noexcept {
   return ret;
 }
 
-std::vector<std::string_view> AsmStmt::Clobbers(void) const noexcept {
+std::vector<std::string_view> AsmStmt::Clobbers(void) const {
   std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
     if (auto size = val.size()) {
@@ -2067,7 +2067,7 @@ std::vector<std::string_view> AsmStmt::Clobbers(void) const noexcept {
     } else {
       return std::string_view();
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.AsmStmt->getNumClobbers();
   decltype(count) i = 0;
@@ -2084,7 +2084,7 @@ AttributedStmt::AttributedStmt(
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, AttributedStmt)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, AttributedStmt)
-std::vector<::pasta::Stmt> AttributedStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> AttributedStmt::Children(void) const {
   auto &self = *const_cast<clang::AttributedStmt *>(u.AttributedStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -2094,17 +2094,17 @@ std::vector<::pasta::Stmt> AttributedStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token AttributedStmt::AttributeToken(void) const noexcept {
+::pasta::Token AttributedStmt::AttributeToken(void) const {
   auto &self = *const_cast<clang::AttributedStmt *>(u.AttributedStmt);
   decltype(auto) val = self.getAttrLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Attr> AttributedStmt::Attributes(void) const noexcept {
+std::vector<::pasta::Attr> AttributedStmt::Attributes(void) const {
   auto &self = *const_cast<clang::AttributedStmt *>(u.AttributedStmt);
   decltype(auto) val = self.getAttrs();
   std::vector<::pasta::Attr> ret;
@@ -2114,31 +2114,31 @@ std::vector<::pasta::Attr> AttributedStmt::Attributes(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token AttributedStmt::BeginToken(void) const noexcept {
+::pasta::Token AttributedStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::AttributedStmt *>(u.AttributedStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token AttributedStmt::EndToken(void) const noexcept {
+::pasta::Token AttributedStmt::EndToken(void) const {
   auto &self = *const_cast<clang::AttributedStmt *>(u.AttributedStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt AttributedStmt::SubStatement(void) const noexcept {
+::pasta::Stmt AttributedStmt::SubStatement(void) const {
   auto &self = *const_cast<clang::AttributedStmt *>(u.AttributedStmt);
   decltype(auto) val = self.getSubStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "AttributedStmt::SubStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 BreakStmt::BreakStmt(
@@ -2147,7 +2147,7 @@ BreakStmt::BreakStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, BreakStmt)
-std::vector<::pasta::Stmt> BreakStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> BreakStmt::Children(void) const {
   auto &self = *const_cast<clang::BreakStmt *>(u.BreakStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -2157,28 +2157,28 @@ std::vector<::pasta::Stmt> BreakStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token BreakStmt::BeginToken(void) const noexcept {
+::pasta::Token BreakStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::BreakStmt *>(u.BreakStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token BreakStmt::BreakToken(void) const noexcept {
+::pasta::Token BreakStmt::BreakToken(void) const {
   auto &self = *const_cast<clang::BreakStmt *>(u.BreakStmt);
   decltype(auto) val = self.getBreakLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token BreakStmt::EndToken(void) const noexcept {
+::pasta::Token BreakStmt::EndToken(void) const {
   auto &self = *const_cast<clang::BreakStmt *>(u.BreakStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CXXCatchStmt::CXXCatchStmt(
@@ -2187,7 +2187,7 @@ CXXCatchStmt::CXXCatchStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXCatchStmt)
-std::vector<::pasta::Stmt> CXXCatchStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CXXCatchStmt::Children(void) const {
   auto &self = *const_cast<clang::CXXCatchStmt *>(u.CXXCatchStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -2197,39 +2197,39 @@ std::vector<::pasta::Stmt> CXXCatchStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXCatchStmt::BeginToken(void) const noexcept {
+::pasta::Token CXXCatchStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXCatchStmt *>(u.CXXCatchStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXCatchStmt::CatchToken(void) const noexcept {
+::pasta::Token CXXCatchStmt::CatchToken(void) const {
   auto &self = *const_cast<clang::CXXCatchStmt *>(u.CXXCatchStmt);
   decltype(auto) val = self.getCatchLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type CXXCatchStmt::CaughtType(void) const noexcept {
+::pasta::Type CXXCatchStmt::CaughtType(void) const {
   auto &self = *const_cast<clang::CXXCatchStmt *>(u.CXXCatchStmt);
   decltype(auto) val = self.getCaughtType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXCatchStmt::EndToken(void) const noexcept {
+::pasta::Token CXXCatchStmt::EndToken(void) const {
   auto &self = *const_cast<clang::CXXCatchStmt *>(u.CXXCatchStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::VarDecl> CXXCatchStmt::ExceptionDeclaration(void) const noexcept {
+std::optional<::pasta::VarDecl> CXXCatchStmt::ExceptionDeclaration(void) const {
   auto &self = *const_cast<clang::CXXCatchStmt *>(u.CXXCatchStmt);
   decltype(auto) val = self.getExceptionDecl();
   if (!val) {
@@ -2238,17 +2238,17 @@ std::optional<::pasta::VarDecl> CXXCatchStmt::ExceptionDeclaration(void) const n
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt CXXCatchStmt::HandlerBlock(void) const noexcept {
+::pasta::Stmt CXXCatchStmt::HandlerBlock(void) const {
   auto &self = *const_cast<clang::CXXCatchStmt *>(u.CXXCatchStmt);
   decltype(auto) val = self.getHandlerBlock();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "CXXCatchStmt::HandlerBlock can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CXXForRangeStmt::CXXForRangeStmt(
@@ -2257,7 +2257,7 @@ CXXForRangeStmt::CXXForRangeStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXForRangeStmt)
-std::vector<::pasta::Stmt> CXXForRangeStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CXXForRangeStmt::Children(void) const {
   auto &self = *const_cast<clang::CXXForRangeStmt *>(u.CXXForRangeStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -2267,95 +2267,95 @@ std::vector<::pasta::Stmt> CXXForRangeStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXForRangeStmt::BeginToken(void) const noexcept {
+::pasta::Token CXXForRangeStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXForRangeStmt *>(u.CXXForRangeStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::DeclStmt CXXForRangeStmt::BeginStatement(void) const noexcept {
+::pasta::DeclStmt CXXForRangeStmt::BeginStatement(void) const {
   auto &self = *const_cast<clang::CXXForRangeStmt *>(u.CXXForRangeStmt);
   decltype(auto) val = self.getBeginStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::DeclStmt>(ast, val);
   }
   assert(false && "CXXForRangeStmt::BeginStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt CXXForRangeStmt::Body(void) const noexcept {
+::pasta::Stmt CXXForRangeStmt::Body(void) const {
   auto &self = *const_cast<clang::CXXForRangeStmt *>(u.CXXForRangeStmt);
   decltype(auto) val = self.getBody();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "CXXForRangeStmt::Body can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXForRangeStmt::CoawaitToken(void) const noexcept {
+::pasta::Token CXXForRangeStmt::CoawaitToken(void) const {
   auto &self = *const_cast<clang::CXXForRangeStmt *>(u.CXXForRangeStmt);
   decltype(auto) val = self.getCoawaitLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXForRangeStmt::ColonToken(void) const noexcept {
+::pasta::Token CXXForRangeStmt::ColonToken(void) const {
   auto &self = *const_cast<clang::CXXForRangeStmt *>(u.CXXForRangeStmt);
   decltype(auto) val = self.getColonLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CXXForRangeStmt::Condition(void) const noexcept {
+::pasta::Expr CXXForRangeStmt::Condition(void) const {
   auto &self = *const_cast<clang::CXXForRangeStmt *>(u.CXXForRangeStmt);
   decltype(auto) val = self.getCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXForRangeStmt::Condition can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXForRangeStmt::EndToken(void) const noexcept {
+::pasta::Token CXXForRangeStmt::EndToken(void) const {
   auto &self = *const_cast<clang::CXXForRangeStmt *>(u.CXXForRangeStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::DeclStmt CXXForRangeStmt::EndStatement(void) const noexcept {
+::pasta::DeclStmt CXXForRangeStmt::EndStatement(void) const {
   auto &self = *const_cast<clang::CXXForRangeStmt *>(u.CXXForRangeStmt);
   decltype(auto) val = self.getEndStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::DeclStmt>(ast, val);
   }
   assert(false && "CXXForRangeStmt::EndStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXForRangeStmt::ForToken(void) const noexcept {
+::pasta::Token CXXForRangeStmt::ForToken(void) const {
   auto &self = *const_cast<clang::CXXForRangeStmt *>(u.CXXForRangeStmt);
   decltype(auto) val = self.getForLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CXXForRangeStmt::Increment(void) const noexcept {
+::pasta::Expr CXXForRangeStmt::Increment(void) const {
   auto &self = *const_cast<clang::CXXForRangeStmt *>(u.CXXForRangeStmt);
   decltype(auto) val = self.getInc();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXForRangeStmt::Increment can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Stmt> CXXForRangeStmt::Initializer(void) const noexcept {
+std::optional<::pasta::Stmt> CXXForRangeStmt::Initializer(void) const {
   auto &self = *const_cast<clang::CXXForRangeStmt *>(u.CXXForRangeStmt);
   decltype(auto) val = self.getInit();
   if (!val) {
@@ -2364,54 +2364,54 @@ std::optional<::pasta::Stmt> CXXForRangeStmt::Initializer(void) const noexcept {
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::DeclStmt CXXForRangeStmt::LoopVariableStatement(void) const noexcept {
+::pasta::DeclStmt CXXForRangeStmt::LoopVariableStatement(void) const {
   auto &self = *const_cast<clang::CXXForRangeStmt *>(u.CXXForRangeStmt);
   decltype(auto) val = self.getLoopVarStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::DeclStmt>(ast, val);
   }
   assert(false && "CXXForRangeStmt::LoopVariableStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::VarDecl CXXForRangeStmt::LoopVariable(void) const noexcept {
+::pasta::VarDecl CXXForRangeStmt::LoopVariable(void) const {
   auto &self = *const_cast<clang::CXXForRangeStmt *>(u.CXXForRangeStmt);
   decltype(auto) val = self.getLoopVariable();
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
   assert(false && "CXXForRangeStmt::LoopVariable can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXForRangeStmt::RParenToken(void) const noexcept {
+::pasta::Token CXXForRangeStmt::RParenToken(void) const {
   auto &self = *const_cast<clang::CXXForRangeStmt *>(u.CXXForRangeStmt);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CXXForRangeStmt::RangeInitializer(void) const noexcept {
+::pasta::Expr CXXForRangeStmt::RangeInitializer(void) const {
   auto &self = *const_cast<clang::CXXForRangeStmt *>(u.CXXForRangeStmt);
   decltype(auto) val = self.getRangeInit();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXForRangeStmt::RangeInitializer can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::DeclStmt CXXForRangeStmt::RangeStatement(void) const noexcept {
+::pasta::DeclStmt CXXForRangeStmt::RangeStatement(void) const {
   auto &self = *const_cast<clang::CXXForRangeStmt *>(u.CXXForRangeStmt);
   decltype(auto) val = self.getRangeStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::DeclStmt>(ast, val);
   }
   assert(false && "CXXForRangeStmt::RangeStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CXXTryStmt::CXXTryStmt(
@@ -2420,7 +2420,7 @@ CXXTryStmt::CXXTryStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXTryStmt)
-std::vector<::pasta::Stmt> CXXTryStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CXXTryStmt::Children(void) const {
   auto &self = *const_cast<clang::CXXTryStmt *>(u.CXXTryStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -2430,55 +2430,55 @@ std::vector<::pasta::Stmt> CXXTryStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXTryStmt::BeginToken(void) const noexcept {
+::pasta::Token CXXTryStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXTryStmt *>(u.CXXTryStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXTryStmt::EndToken(void) const noexcept {
+::pasta::Token CXXTryStmt::EndToken(void) const {
   auto &self = *const_cast<clang::CXXTryStmt *>(u.CXXTryStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: CXXTryStmt::Handler
-uint32_t CXXTryStmt::NumHandlers(void) const noexcept {
+uint32_t CXXTryStmt::NumHandlers(void) const {
   auto &self = *const_cast<clang::CXXTryStmt *>(u.CXXTryStmt);
   decltype(auto) val = self.getNumHandlers();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::CompoundStmt CXXTryStmt::TryBlock(void) const noexcept {
+::pasta::CompoundStmt CXXTryStmt::TryBlock(void) const {
   auto &self = *const_cast<clang::CXXTryStmt *>(u.CXXTryStmt);
   decltype(auto) val = self.getTryBlock();
   if (val) {
     return StmtBuilder::Create<::pasta::CompoundStmt>(ast, val);
   }
   assert(false && "CXXTryStmt::TryBlock can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXTryStmt::TryToken(void) const noexcept {
+::pasta::Token CXXTryStmt::TryToken(void) const {
   auto &self = *const_cast<clang::CXXTryStmt *>(u.CXXTryStmt);
   decltype(auto) val = self.getTryLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::CXXCatchStmt> CXXTryStmt::Handlers(void) const noexcept {
+std::vector<::pasta::CXXCatchStmt> CXXTryStmt::Handlers(void) const {
   std::vector<::pasta::CXXCatchStmt> ret;
   auto convert_elem = [&] (const clang::CXXCatchStmt * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::CXXCatchStmt>(ast, val);
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.CXXTryStmt->getNumHandlers();
   decltype(count) i = 0;
@@ -2502,7 +2502,7 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, CapturedStmt)
 // 0: CapturedStmt::
 // 0: CapturedStmt::Captures
 // 1: CapturedStmt::CapturesVariable
-std::vector<::pasta::Stmt> CapturedStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CapturedStmt::Children(void) const {
   auto &self = *const_cast<clang::CapturedStmt *>(u.CapturedStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -2512,65 +2512,65 @@ std::vector<::pasta::Stmt> CapturedStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CapturedStmt::BeginToken(void) const noexcept {
+::pasta::Token CapturedStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::CapturedStmt *>(u.CapturedStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::CapturedDecl CapturedStmt::CapturedDeclaration(void) const noexcept {
+::pasta::CapturedDecl CapturedStmt::CapturedDeclaration(void) const {
   auto &self = *const_cast<clang::CapturedStmt *>(u.CapturedStmt);
   decltype(auto) val = self.getCapturedDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::CapturedDecl>(ast, val);
   }
   assert(false && "CapturedStmt::CapturedDeclaration can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::RecordDecl CapturedStmt::CapturedRecordDeclaration(void) const noexcept {
+::pasta::RecordDecl CapturedStmt::CapturedRecordDeclaration(void) const {
   auto &self = *const_cast<clang::CapturedStmt *>(u.CapturedStmt);
   decltype(auto) val = self.getCapturedRecordDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::RecordDecl>(ast, val);
   }
   assert(false && "CapturedStmt::CapturedRecordDeclaration can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum CapturedRegionKind CapturedStmt::CapturedRegionKind(void) const noexcept {
+enum CapturedRegionKind CapturedStmt::CapturedRegionKind(void) const {
   auto &self = *const_cast<clang::CapturedStmt *>(u.CapturedStmt);
   decltype(auto) val = self.getCapturedRegionKind();
   return static_cast<::pasta::CapturedRegionKind>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt CapturedStmt::CapturedStatement(void) const noexcept {
+::pasta::Stmt CapturedStmt::CapturedStatement(void) const {
   auto &self = *const_cast<clang::CapturedStmt *>(u.CapturedStmt);
   decltype(auto) val = self.getCapturedStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "CapturedStmt::CapturedStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CapturedStmt::EndToken(void) const noexcept {
+::pasta::Token CapturedStmt::EndToken(void) const {
   auto &self = *const_cast<clang::CapturedStmt *>(u.CapturedStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::TokenRange CapturedStmt::Tokens(void) const noexcept {
+::pasta::TokenRange CapturedStmt::Tokens(void) const {
   auto &self = *const_cast<clang::CapturedStmt *>(u.CapturedStmt);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CaseStmt::CaseStmt(
@@ -2580,14 +2580,14 @@ CaseStmt::CaseStmt(
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CaseStmt)
 PASTA_DEFINE_BASE_OPERATORS(SwitchCase, CaseStmt)
-bool CaseStmt::CaseStatementIsGNURange(void) const noexcept {
+bool CaseStmt::CaseStatementIsGNURange(void) const {
   auto &self = *const_cast<clang::CaseStmt *>(u.CaseStmt);
   decltype(auto) val = self.caseStmtIsGNURange();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Stmt> CaseStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CaseStmt::Children(void) const {
   auto &self = *const_cast<clang::CaseStmt *>(u.CaseStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -2597,48 +2597,48 @@ std::vector<::pasta::Stmt> CaseStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CaseStmt::BeginToken(void) const noexcept {
+::pasta::Token CaseStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::CaseStmt *>(u.CaseStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CaseStmt::CaseToken(void) const noexcept {
+::pasta::Token CaseStmt::CaseToken(void) const {
   auto &self = *const_cast<clang::CaseStmt *>(u.CaseStmt);
   decltype(auto) val = self.getCaseLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CaseStmt::EllipsisToken(void) const noexcept {
+::pasta::Token CaseStmt::EllipsisToken(void) const {
   auto &self = *const_cast<clang::CaseStmt *>(u.CaseStmt);
   decltype(auto) val = self.getEllipsisLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CaseStmt::EndToken(void) const noexcept {
+::pasta::Token CaseStmt::EndToken(void) const {
   auto &self = *const_cast<clang::CaseStmt *>(u.CaseStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CaseStmt::LHS(void) const noexcept {
+::pasta::Expr CaseStmt::LHS(void) const {
   auto &self = *const_cast<clang::CaseStmt *>(u.CaseStmt);
   decltype(auto) val = self.getLHS();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CaseStmt::LHS can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Expr> CaseStmt::RHS(void) const noexcept {
+std::optional<::pasta::Expr> CaseStmt::RHS(void) const {
   auto &self = *const_cast<clang::CaseStmt *>(u.CaseStmt);
   decltype(auto) val = self.getRHS();
   if (!val) {
@@ -2647,17 +2647,17 @@ std::optional<::pasta::Expr> CaseStmt::RHS(void) const noexcept {
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt CaseStmt::SubStatement(void) const noexcept {
+::pasta::Stmt CaseStmt::SubStatement(void) const {
   auto &self = *const_cast<clang::CaseStmt *>(u.CaseStmt);
   decltype(auto) val = self.getSubStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "CaseStmt::SubStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CompoundStmt::CompoundStmt(
@@ -2674,7 +2674,7 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, CompoundStmt)
 // 0: CompoundStmt::
 // 0: CompoundStmt::
 // 0: CompoundStmt::
-std::vector<::pasta::Stmt> CompoundStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CompoundStmt::Children(void) const {
   auto &self = *const_cast<clang::CompoundStmt *>(u.CompoundStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -2684,38 +2684,38 @@ std::vector<::pasta::Stmt> CompoundStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CompoundStmt::BeginToken(void) const noexcept {
+::pasta::Token CompoundStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::CompoundStmt *>(u.CompoundStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CompoundStmt::EndToken(void) const noexcept {
+::pasta::Token CompoundStmt::EndToken(void) const {
   auto &self = *const_cast<clang::CompoundStmt *>(u.CompoundStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CompoundStmt::LeftBraceToken(void) const noexcept {
+::pasta::Token CompoundStmt::LeftBraceToken(void) const {
   auto &self = *const_cast<clang::CompoundStmt *>(u.CompoundStmt);
   decltype(auto) val = self.getLBracLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CompoundStmt::RightBraceToken(void) const noexcept {
+::pasta::Token CompoundStmt::RightBraceToken(void) const {
   auto &self = *const_cast<clang::CompoundStmt *>(u.CompoundStmt);
   decltype(auto) val = self.getRBracLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Stmt> CompoundStmt::StatementExpressionResult(void) const noexcept {
+std::optional<::pasta::Stmt> CompoundStmt::StatementExpressionResult(void) const {
   auto &self = *const_cast<clang::CompoundStmt *>(u.CompoundStmt);
   decltype(auto) val = self.getStmtExprResult();
   if (!val) {
@@ -2724,22 +2724,22 @@ std::optional<::pasta::Stmt> CompoundStmt::StatementExpressionResult(void) const
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: CompoundStmt::StoredFPFeatures
-bool CompoundStmt::HasStoredFPFeatures(void) const noexcept {
+bool CompoundStmt::HasStoredFPFeatures(void) const {
   auto &self = *const_cast<clang::CompoundStmt *>(u.CompoundStmt);
   decltype(auto) val = self.hasStoredFPFeatures();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t CompoundStmt::Size(void) const noexcept {
+uint32_t CompoundStmt::Size(void) const {
   auto &self = *const_cast<clang::CompoundStmt *>(u.CompoundStmt);
   decltype(auto) val = self.size();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ContinueStmt::ContinueStmt(
@@ -2748,7 +2748,7 @@ ContinueStmt::ContinueStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ContinueStmt)
-std::vector<::pasta::Stmt> ContinueStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ContinueStmt::Children(void) const {
   auto &self = *const_cast<clang::ContinueStmt *>(u.ContinueStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -2758,28 +2758,28 @@ std::vector<::pasta::Stmt> ContinueStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ContinueStmt::BeginToken(void) const noexcept {
+::pasta::Token ContinueStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::ContinueStmt *>(u.ContinueStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ContinueStmt::ContinueToken(void) const noexcept {
+::pasta::Token ContinueStmt::ContinueToken(void) const {
   auto &self = *const_cast<clang::ContinueStmt *>(u.ContinueStmt);
   decltype(auto) val = self.getContinueLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ContinueStmt::EndToken(void) const noexcept {
+::pasta::Token ContinueStmt::EndToken(void) const {
   auto &self = *const_cast<clang::ContinueStmt *>(u.ContinueStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CoreturnStmt::CoreturnStmt(
@@ -2788,7 +2788,7 @@ CoreturnStmt::CoreturnStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CoreturnStmt)
-std::vector<::pasta::Stmt> CoreturnStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CoreturnStmt::Children(void) const {
   auto &self = *const_cast<clang::CoreturnStmt *>(u.CoreturnStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -2798,55 +2798,55 @@ std::vector<::pasta::Stmt> CoreturnStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CoreturnStmt::BeginToken(void) const noexcept {
+::pasta::Token CoreturnStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::CoreturnStmt *>(u.CoreturnStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CoreturnStmt::EndToken(void) const noexcept {
+::pasta::Token CoreturnStmt::EndToken(void) const {
   auto &self = *const_cast<clang::CoreturnStmt *>(u.CoreturnStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CoreturnStmt::KeywordToken(void) const noexcept {
+::pasta::Token CoreturnStmt::KeywordToken(void) const {
   auto &self = *const_cast<clang::CoreturnStmt *>(u.CoreturnStmt);
   decltype(auto) val = self.getKeywordLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CoreturnStmt::Operand(void) const noexcept {
+::pasta::Expr CoreturnStmt::Operand(void) const {
   auto &self = *const_cast<clang::CoreturnStmt *>(u.CoreturnStmt);
   decltype(auto) val = self.getOperand();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CoreturnStmt::Operand can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CoreturnStmt::PromiseCall(void) const noexcept {
+::pasta::Expr CoreturnStmt::PromiseCall(void) const {
   auto &self = *const_cast<clang::CoreturnStmt *>(u.CoreturnStmt);
   decltype(auto) val = self.getPromiseCall();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CoreturnStmt::PromiseCall can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CoreturnStmt::IsImplicit(void) const noexcept {
+bool CoreturnStmt::IsImplicit(void) const {
   auto &self = *const_cast<clang::CoreturnStmt *>(u.CoreturnStmt);
   decltype(auto) val = self.isImplicit();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CoroutineBodyStmt::CoroutineBodyStmt(
@@ -2855,7 +2855,7 @@ CoroutineBodyStmt::CoroutineBodyStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CoroutineBodyStmt)
-std::vector<::pasta::Stmt> CoroutineBodyStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CoroutineBodyStmt::Children(void) const {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -2865,94 +2865,94 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CoroutineBodyStmt::Allocate(void) const noexcept {
+::pasta::Expr CoroutineBodyStmt::Allocate(void) const {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.getAllocate();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CoroutineBodyStmt::Allocate can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CoroutineBodyStmt::BeginToken(void) const noexcept {
+::pasta::Token CoroutineBodyStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt CoroutineBodyStmt::Body(void) const noexcept {
+::pasta::Stmt CoroutineBodyStmt::Body(void) const {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.getBody();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "CoroutineBodyStmt::Body can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CoroutineBodyStmt::Deallocate(void) const noexcept {
+::pasta::Expr CoroutineBodyStmt::Deallocate(void) const {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.getDeallocate();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CoroutineBodyStmt::Deallocate can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CoroutineBodyStmt::EndToken(void) const noexcept {
+::pasta::Token CoroutineBodyStmt::EndToken(void) const {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt CoroutineBodyStmt::ExceptionHandler(void) const noexcept {
+::pasta::Stmt CoroutineBodyStmt::ExceptionHandler(void) const {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.getExceptionHandler();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "CoroutineBodyStmt::ExceptionHandler can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt CoroutineBodyStmt::FallthroughHandler(void) const noexcept {
+::pasta::Stmt CoroutineBodyStmt::FallthroughHandler(void) const {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.getFallthroughHandler();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "CoroutineBodyStmt::FallthroughHandler can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt CoroutineBodyStmt::FinalSuspendStatement(void) const noexcept {
+::pasta::Stmt CoroutineBodyStmt::FinalSuspendStatement(void) const {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.getFinalSuspendStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "CoroutineBodyStmt::FinalSuspendStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt CoroutineBodyStmt::InitializerSuspendStatement(void) const noexcept {
+::pasta::Stmt CoroutineBodyStmt::InitializerSuspendStatement(void) const {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.getInitSuspendStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "CoroutineBodyStmt::InitializerSuspendStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Stmt> CoroutineBodyStmt::ParameterMoves(void) const noexcept {
+std::vector<::pasta::Stmt> CoroutineBodyStmt::ParameterMoves(void) const {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.getParamMoves();
   std::vector<::pasta::Stmt> ret;
@@ -2962,74 +2962,74 @@ std::vector<::pasta::Stmt> CoroutineBodyStmt::ParameterMoves(void) const noexcep
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::VarDecl CoroutineBodyStmt::PromiseDeclaration(void) const noexcept {
+::pasta::VarDecl CoroutineBodyStmt::PromiseDeclaration(void) const {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.getPromiseDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
   assert(false && "CoroutineBodyStmt::PromiseDeclaration can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt CoroutineBodyStmt::PromiseDeclarationStatement(void) const noexcept {
+::pasta::Stmt CoroutineBodyStmt::PromiseDeclarationStatement(void) const {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.getPromiseDeclStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "CoroutineBodyStmt::PromiseDeclarationStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt CoroutineBodyStmt::ReturnStatement(void) const noexcept {
+::pasta::Stmt CoroutineBodyStmt::ReturnStatement(void) const {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.getReturnStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "CoroutineBodyStmt::ReturnStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt CoroutineBodyStmt::ReturnStatementOnAllocFailure(void) const noexcept {
+::pasta::Stmt CoroutineBodyStmt::ReturnStatementOnAllocFailure(void) const {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.getReturnStmtOnAllocFailure();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "CoroutineBodyStmt::ReturnStatementOnAllocFailure can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CoroutineBodyStmt::ReturnValue(void) const noexcept {
+::pasta::Expr CoroutineBodyStmt::ReturnValue(void) const {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.getReturnValue();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CoroutineBodyStmt::ReturnValue can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CoroutineBodyStmt::ReturnValueInitializer(void) const noexcept {
+::pasta::Expr CoroutineBodyStmt::ReturnValueInitializer(void) const {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.getReturnValueInit();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CoroutineBodyStmt::ReturnValueInitializer can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CoroutineBodyStmt::HasDependentPromiseType(void) const noexcept {
+bool CoroutineBodyStmt::HasDependentPromiseType(void) const {
   auto &self = *const_cast<clang::CoroutineBodyStmt *>(u.CoroutineBodyStmt);
   decltype(auto) val = self.hasDependentPromiseType();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 DeclStmt::DeclStmt(
@@ -3038,7 +3038,7 @@ DeclStmt::DeclStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, DeclStmt)
-std::vector<::pasta::Stmt> DeclStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> DeclStmt::Children(void) const {
   auto &self = *const_cast<clang::DeclStmt *>(u.DeclStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -3048,12 +3048,12 @@ std::vector<::pasta::Stmt> DeclStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: DeclStmt::
 // 0: DeclStmt::
-std::vector<::pasta::Decl> DeclStmt::Declarations(void) const noexcept {
+std::vector<::pasta::Decl> DeclStmt::Declarations(void) const {
   auto &self = *const_cast<clang::DeclStmt *>(u.DeclStmt);
   decltype(auto) val = self.decls();
   std::vector<::pasta::Decl> ret;
@@ -3063,25 +3063,25 @@ std::vector<::pasta::Decl> DeclStmt::Declarations(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token DeclStmt::BeginToken(void) const noexcept {
+::pasta::Token DeclStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::DeclStmt *>(u.DeclStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: DeclStmt::DeclarationGroup
-::pasta::Token DeclStmt::EndToken(void) const noexcept {
+::pasta::Token DeclStmt::EndToken(void) const {
   auto &self = *const_cast<clang::DeclStmt *>(u.DeclStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Decl> DeclStmt::SingleDeclaration(void) const noexcept {
+std::optional<::pasta::Decl> DeclStmt::SingleDeclaration(void) const {
   auto &self = *const_cast<clang::DeclStmt *>(u.DeclStmt);
   if (!IsSingleDeclaration()) {
     return std::nullopt;
@@ -3093,14 +3093,14 @@ std::optional<::pasta::Decl> DeclStmt::SingleDeclaration(void) const noexcept {
   if (val) {
     return DeclBuilder::Create<::pasta::Decl>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool DeclStmt::IsSingleDeclaration(void) const noexcept {
+bool DeclStmt::IsSingleDeclaration(void) const {
   auto &self = *const_cast<clang::DeclStmt *>(u.DeclStmt);
   decltype(auto) val = self.isSingleDecl();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 DefaultStmt::DefaultStmt(
@@ -3110,7 +3110,7 @@ DefaultStmt::DefaultStmt(
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, DefaultStmt)
 PASTA_DEFINE_BASE_OPERATORS(SwitchCase, DefaultStmt)
-std::vector<::pasta::Stmt> DefaultStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> DefaultStmt::Children(void) const {
   auto &self = *const_cast<clang::DefaultStmt *>(u.DefaultStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -3120,38 +3120,38 @@ std::vector<::pasta::Stmt> DefaultStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token DefaultStmt::BeginToken(void) const noexcept {
+::pasta::Token DefaultStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::DefaultStmt *>(u.DefaultStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token DefaultStmt::DefaultToken(void) const noexcept {
+::pasta::Token DefaultStmt::DefaultToken(void) const {
   auto &self = *const_cast<clang::DefaultStmt *>(u.DefaultStmt);
   decltype(auto) val = self.getDefaultLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token DefaultStmt::EndToken(void) const noexcept {
+::pasta::Token DefaultStmt::EndToken(void) const {
   auto &self = *const_cast<clang::DefaultStmt *>(u.DefaultStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt DefaultStmt::SubStatement(void) const noexcept {
+::pasta::Stmt DefaultStmt::SubStatement(void) const {
   auto &self = *const_cast<clang::DefaultStmt *>(u.DefaultStmt);
   decltype(auto) val = self.getSubStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "DefaultStmt::SubStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 DoStmt::DoStmt(
@@ -3160,7 +3160,7 @@ DoStmt::DoStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, DoStmt)
-std::vector<::pasta::Stmt> DoStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> DoStmt::Children(void) const {
   auto &self = *const_cast<clang::DoStmt *>(u.DoStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -3170,62 +3170,62 @@ std::vector<::pasta::Stmt> DoStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token DoStmt::BeginToken(void) const noexcept {
+::pasta::Token DoStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::DoStmt *>(u.DoStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt DoStmt::Body(void) const noexcept {
+::pasta::Stmt DoStmt::Body(void) const {
   auto &self = *const_cast<clang::DoStmt *>(u.DoStmt);
   decltype(auto) val = self.getBody();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "DoStmt::Body can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr DoStmt::Condition(void) const noexcept {
+::pasta::Expr DoStmt::Condition(void) const {
   auto &self = *const_cast<clang::DoStmt *>(u.DoStmt);
   decltype(auto) val = self.getCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "DoStmt::Condition can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token DoStmt::DoToken(void) const noexcept {
+::pasta::Token DoStmt::DoToken(void) const {
   auto &self = *const_cast<clang::DoStmt *>(u.DoStmt);
   decltype(auto) val = self.getDoLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token DoStmt::EndToken(void) const noexcept {
+::pasta::Token DoStmt::EndToken(void) const {
   auto &self = *const_cast<clang::DoStmt *>(u.DoStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token DoStmt::RParenToken(void) const noexcept {
+::pasta::Token DoStmt::RParenToken(void) const {
   auto &self = *const_cast<clang::DoStmt *>(u.DoStmt);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token DoStmt::WhileToken(void) const noexcept {
+::pasta::Token DoStmt::WhileToken(void) const {
   auto &self = *const_cast<clang::DoStmt *>(u.DoStmt);
   decltype(auto) val = self.getWhileLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 Expr::Expr(
@@ -3367,11 +3367,11 @@ PASTA_DEFINE_DERIVED_OPERATORS(Expr, UnresolvedMemberExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(Expr, UserDefinedLiteral)
 PASTA_DEFINE_DERIVED_OPERATORS(Expr, VAArgExpr)
 // 1: Expr::Classify
-enum ExprLValueClassification Expr::ClassifyLValue(void) const noexcept {
+enum ExprLValueClassification Expr::ClassifyLValue(void) const {
   auto &self = *(u.Expr);
   decltype(auto) val = self.ClassifyLValue(ast->ci->getASTContext());
   return static_cast<::pasta::ExprLValueClassification>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 2: ClassifyModifiable
@@ -3383,7 +3383,7 @@ enum ExprLValueClassification Expr::ClassifyLValue(void) const noexcept {
 // 2: EvaluateAsInt
 // 2: EvaluateAsLValue
 // 2: EvaluateAsRValue
-std::optional<llvm::APSInt> Expr::EvaluateKnownConstInt(void) const noexcept {
+std::optional<llvm::APSInt> Expr::EvaluateKnownConstInt(void) const {
   auto &self = *(u.Expr);
   if (self.isValueDependent()) {
     return std::nullopt;
@@ -3393,10 +3393,10 @@ std::optional<llvm::APSInt> Expr::EvaluateKnownConstInt(void) const noexcept {
   }
   decltype(auto) val = self.EvaluateKnownConstInt(ast->ci->getASTContext());
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<llvm::APSInt> Expr::EvaluateKnownConstIntCheckOverflow(void) const noexcept {
+std::optional<llvm::APSInt> Expr::EvaluateKnownConstIntCheckOverflow(void) const {
   auto &self = *(u.Expr);
   if (self.isValueDependent()) {
     return std::nullopt;
@@ -3406,153 +3406,153 @@ std::optional<llvm::APSInt> Expr::EvaluateKnownConstIntCheckOverflow(void) const
   }
   decltype(auto) val = self.EvaluateKnownConstIntCheckOverflow(ast->ci->getASTContext());
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 4: Expr::EvaluateWithSubstitution
-bool Expr::HasSideEffects(void) const noexcept {
+bool Expr::HasSideEffects(void) const {
   auto &self = *(u.Expr);
   decltype(auto) val = self.HasSideEffects(ast->ci->getASTContext());
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr Expr::IgnoreCasts(void) const noexcept {
+::pasta::Expr Expr::IgnoreCasts(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.IgnoreCasts();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "Expr::IgnoreCasts can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr Expr::IgnoreConversionOperatorSingleStep(void) const noexcept {
+::pasta::Expr Expr::IgnoreConversionOperatorSingleStep(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.IgnoreConversionOperatorSingleStep();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "Expr::IgnoreConversionOperatorSingleStep can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr Expr::IgnoreImplicitCasts(void) const noexcept {
+::pasta::Expr Expr::IgnoreImplicitCasts(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.IgnoreImpCasts();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "Expr::IgnoreImplicitCasts can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr Expr::IgnoreImplicit(void) const noexcept {
+::pasta::Expr Expr::IgnoreImplicit(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.IgnoreImplicit();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "Expr::IgnoreImplicit can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr Expr::IgnoreImplicitAsWritten(void) const noexcept {
+::pasta::Expr Expr::IgnoreImplicitAsWritten(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.IgnoreImplicitAsWritten();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "Expr::IgnoreImplicitAsWritten can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr Expr::IgnoreParenthesisBaseCasts(void) const noexcept {
+::pasta::Expr Expr::IgnoreParenthesisBaseCasts(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.IgnoreParenBaseCasts();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "Expr::IgnoreParenthesisBaseCasts can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr Expr::IgnoreParenthesisCasts(void) const noexcept {
+::pasta::Expr Expr::IgnoreParenthesisCasts(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.IgnoreParenCasts();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "Expr::IgnoreParenthesisCasts can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr Expr::IgnoreParenthesisImplicitCasts(void) const noexcept {
+::pasta::Expr Expr::IgnoreParenthesisImplicitCasts(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.IgnoreParenImpCasts();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "Expr::IgnoreParenthesisImplicitCasts can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr Expr::IgnoreParenthesisLValueCasts(void) const noexcept {
+::pasta::Expr Expr::IgnoreParenthesisLValueCasts(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.IgnoreParenLValueCasts();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "Expr::IgnoreParenthesisLValueCasts can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr Expr::IgnoreParenthesisNoopCasts(void) const noexcept {
+::pasta::Expr Expr::IgnoreParenthesisNoopCasts(void) const {
   auto &self = *(u.Expr);
   decltype(auto) val = self.IgnoreParenNoopCasts(ast->ci->getASTContext());
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "Expr::IgnoreParenthesisNoopCasts can return nullptr!");
-  __builtin_unreachable();
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr Expr::IgnoreParentheses(void) const noexcept {
+::pasta::Expr Expr::IgnoreParentheses(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.IgnoreParens();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "Expr::IgnoreParentheses can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr Expr::IgnoreUnlessSpelledInSource(void) const noexcept {
+::pasta::Expr Expr::IgnoreUnlessSpelledInSource(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.IgnoreUnlessSpelledInSource();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "Expr::IgnoreUnlessSpelledInSource can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool Expr::ContainsErrors(void) const noexcept {
+bool Expr::ContainsErrors(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.containsErrors();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool Expr::ContainsUnexpandedParameterPack(void) const noexcept {
+bool Expr::ContainsUnexpandedParameterPack(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.containsUnexpandedParameterPack();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::ValueDecl> Expr::AsBuiltinConstantDeclarationReference(void) const noexcept {
+std::optional<::pasta::ValueDecl> Expr::AsBuiltinConstantDeclarationReference(void) const {
   auto &self = *(u.Expr);
   decltype(auto) val = self.getAsBuiltinConstantDeclRef(ast->ci->getASTContext());
   if (!val) {
@@ -3561,10 +3561,10 @@ std::optional<::pasta::ValueDecl> Expr::AsBuiltinConstantDeclarationReference(vo
   if (val) {
     return DeclBuilder::Create<::pasta::ValueDecl>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::CXXRecordDecl> Expr::BestDynamicClassType(void) const noexcept {
+std::optional<::pasta::CXXRecordDecl> Expr::BestDynamicClassType(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.getBestDynamicClassType();
   if (!val) {
@@ -3573,36 +3573,36 @@ std::optional<::pasta::CXXRecordDecl> Expr::BestDynamicClassType(void) const noe
   if (val) {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr Expr::BestDynamicClassTypeExpression(void) const noexcept {
+::pasta::Expr Expr::BestDynamicClassTypeExpression(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.getBestDynamicClassTypeExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "Expr::BestDynamicClassTypeExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::ExprDependence Expr::Dependence(void) const noexcept {
+::pasta::ExprDependence Expr::Dependence(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.getDependence();
   return static_cast<::pasta::ExprDependence>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token Expr::ExpressionToken(void) const noexcept {
+::pasta::Token Expr::ExpressionToken(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.getExprLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: Expr::FPFeaturesInEffect
 // 1: Expr::IntegerConstantExpression
-std::optional<::pasta::ObjCPropertyRefExpr> Expr::ObjCProperty(void) const noexcept {
+std::optional<::pasta::ObjCPropertyRefExpr> Expr::ObjCProperty(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   if (!self.isLValue() || self.getObjectKind() != clang::OK_ObjCProperty) {
     return std::nullopt;
@@ -3614,17 +3614,17 @@ std::optional<::pasta::ObjCPropertyRefExpr> Expr::ObjCProperty(void) const noexc
   if (val) {
     return StmtBuilder::Create<::pasta::ObjCPropertyRefExpr>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum ExprObjectKind Expr::ObjectKind(void) const noexcept {
+enum ExprObjectKind Expr::ObjectKind(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.getObjectKind();
   return static_cast<::pasta::ExprObjectKind>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Decl> Expr::ReferencedDeclarationOfCallee(void) const noexcept {
+std::optional<::pasta::Decl> Expr::ReferencedDeclarationOfCallee(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.getReferencedDeclOfCallee();
   if (!val) {
@@ -3633,10 +3633,10 @@ std::optional<::pasta::Decl> Expr::ReferencedDeclarationOfCallee(void) const noe
   if (val) {
     return DeclBuilder::Create<::pasta::Decl>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::FieldDecl> Expr::SourceBitField(void) const noexcept {
+std::optional<::pasta::FieldDecl> Expr::SourceBitField(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.getSourceBitField();
   if (!val) {
@@ -3645,41 +3645,41 @@ std::optional<::pasta::FieldDecl> Expr::SourceBitField(void) const noexcept {
   if (val) {
     return DeclBuilder::Create<::pasta::FieldDecl>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Type> Expr::Type(void) const noexcept {
+std::optional<::pasta::Type> Expr::Type(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.getType();
   if (val.isNull()) {
     return std::nullopt;
   }
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum ExprValueKind Expr::ValueKind(void) const noexcept {
+enum ExprValueKind Expr::ValueKind(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.getValueKind();
   return static_cast<::pasta::ExprValueKind>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool Expr::HasNonTrivialCall(void) const noexcept {
+bool Expr::HasNonTrivialCall(void) const {
   auto &self = *(u.Expr);
   decltype(auto) val = self.hasNonTrivialCall(ast->ci->getASTContext());
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool Expr::IsBoundMemberFunction(void) const noexcept {
+bool Expr::IsBoundMemberFunction(void) const {
   auto &self = *(u.Expr);
   decltype(auto) val = self.isBoundMemberFunction(ast->ci->getASTContext());
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<bool> Expr::IsCXX11ConstantExpression(void) const noexcept {
+std::optional<bool> Expr::IsCXX11ConstantExpression(void) const {
   auto &self = *(u.Expr);
   if (self.isValueDependent()) {
     return std::nullopt;
@@ -3692,10 +3692,10 @@ std::optional<bool> Expr::IsCXX11ConstantExpression(void) const noexcept {
   }
   decltype(auto) val = self.isCXX11ConstantExpr(ast->ci->getASTContext());
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<bool> Expr::IsCXX98IntegralConstantExpression(void) const noexcept {
+std::optional<bool> Expr::IsCXX98IntegralConstantExpression(void) const {
   auto &self = *(u.Expr);
   if (self.isValueDependent()) {
     return std::nullopt;
@@ -3705,18 +3705,18 @@ std::optional<bool> Expr::IsCXX98IntegralConstantExpression(void) const noexcept
   }
   decltype(auto) val = self.isCXX98IntegralConstantExpr(ast->ci->getASTContext());
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 2: IsConstantInitializer
-bool Expr::IsDefaultArgument(void) const noexcept {
+bool Expr::IsDefaultArgument(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.isDefaultArgument();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<bool> Expr::IsEvaluatable(void) const noexcept {
+std::optional<bool> Expr::IsEvaluatable(void) const {
   auto &self = *(u.Expr);
   if (self.isValueDependent()) {
     return std::nullopt;
@@ -3726,32 +3726,32 @@ std::optional<bool> Expr::IsEvaluatable(void) const noexcept {
   }
   decltype(auto) val = self.isEvaluatable(ast->ci->getASTContext());
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 2: IsFlexibleArrayMemberLike
-bool Expr::IsGLValue(void) const noexcept {
+bool Expr::IsGLValue(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.isGLValue();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool Expr::IsImplicitCXXThis(void) const noexcept {
+bool Expr::IsImplicitCXXThis(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.isImplicitCXXThis();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool Expr::IsInstantiationDependent(void) const noexcept {
+bool Expr::IsInstantiationDependent(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.isInstantiationDependent();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<bool> Expr::IsIntegerConstantExpression(void) const noexcept {
+std::optional<bool> Expr::IsIntegerConstantExpression(void) const {
   auto &self = *(u.Expr);
   if (self.isValueDependent()) {
     return std::nullopt;
@@ -3761,115 +3761,115 @@ std::optional<bool> Expr::IsIntegerConstantExpression(void) const noexcept {
   }
   decltype(auto) val = self.isIntegerConstantExpr(ast->ci->getASTContext());
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool Expr::IsKnownToHaveBooleanValue(void) const noexcept {
+bool Expr::IsKnownToHaveBooleanValue(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.isKnownToHaveBooleanValue();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool Expr::IsLValue(void) const noexcept {
+bool Expr::IsLValue(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.isLValue();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum ExprisModifiableLvalueResult Expr::IsModifiableLvalue(void) const noexcept {
+enum ExprisModifiableLvalueResult Expr::IsModifiableLvalue(void) const {
   auto &self = *(u.Expr);
   decltype(auto) val = self.isModifiableLvalue(ast->ci->getASTContext());
   return static_cast<::pasta::ExprisModifiableLvalueResult>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 2: IsNullPointerConstant
-bool Expr::IsOBJCGCCandidate(void) const noexcept {
+bool Expr::IsOBJCGCCandidate(void) const {
   auto &self = *(u.Expr);
   decltype(auto) val = self.isOBJCGCCandidate(ast->ci->getASTContext());
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool Expr::IsObjCSelfExpression(void) const noexcept {
+bool Expr::IsObjCSelfExpression(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.isObjCSelfExpr();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool Expr::IsOrdinaryOrBitFieldObject(void) const noexcept {
+bool Expr::IsOrdinaryOrBitFieldObject(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.isOrdinaryOrBitFieldObject();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool Expr::IsPRValue(void) const noexcept {
+bool Expr::IsPRValue(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.isPRValue();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool Expr::IsReadIfDiscardedInCPlusPlus11(void) const noexcept {
+bool Expr::IsReadIfDiscardedInCPlusPlus11(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.isReadIfDiscardedInCPlusPlus11();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 2: IsTemporaryObject
-bool Expr::IsTypeDependent(void) const noexcept {
+bool Expr::IsTypeDependent(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.isTypeDependent();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 5: Expr::IsUnusedResultAWarning
-bool Expr::IsValueDependent(void) const noexcept {
+bool Expr::IsValueDependent(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.isValueDependent();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool Expr::IsXValue(void) const noexcept {
+bool Expr::IsXValue(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.isXValue();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool Expr::RefersToBitField(void) const noexcept {
+bool Expr::RefersToBitField(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.refersToBitField();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool Expr::RefersToGlobalRegisterVariable(void) const noexcept {
+bool Expr::RefersToGlobalRegisterVariable(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.refersToGlobalRegisterVar();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool Expr::RefersToMatrixElement(void) const noexcept {
+bool Expr::RefersToMatrixElement(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.refersToMatrixElement();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool Expr::RefersToVectorElement(void) const noexcept {
+bool Expr::RefersToVectorElement(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.refersToVectorElement();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 3: Expr::TryEvaluateObjectSize
@@ -3882,7 +3882,7 @@ ExpressionTraitExpr::ExpressionTraitExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ExpressionTraitExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ExpressionTraitExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ExpressionTraitExpr)
-std::vector<::pasta::Stmt> ExpressionTraitExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ExpressionTraitExpr::Children(void) const {
   auto &self = *const_cast<clang::ExpressionTraitExpr *>(u.ExpressionTraitExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -3892,45 +3892,45 @@ std::vector<::pasta::Stmt> ExpressionTraitExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ExpressionTraitExpr::BeginToken(void) const noexcept {
+::pasta::Token ExpressionTraitExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ExpressionTraitExpr *>(u.ExpressionTraitExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ExpressionTraitExpr::EndToken(void) const noexcept {
+::pasta::Token ExpressionTraitExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ExpressionTraitExpr *>(u.ExpressionTraitExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ExpressionTraitExpr::QueriedExpression(void) const noexcept {
+::pasta::Expr ExpressionTraitExpr::QueriedExpression(void) const {
   auto &self = *const_cast<clang::ExpressionTraitExpr *>(u.ExpressionTraitExpr);
   decltype(auto) val = self.getQueriedExpression();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ExpressionTraitExpr::QueriedExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum ExpressionTrait ExpressionTraitExpr::Trait(void) const noexcept {
+enum ExpressionTrait ExpressionTraitExpr::Trait(void) const {
   auto &self = *const_cast<clang::ExpressionTraitExpr *>(u.ExpressionTraitExpr);
   decltype(auto) val = self.getTrait();
   return static_cast<::pasta::ExpressionTrait>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ExpressionTraitExpr::Value(void) const noexcept {
+bool ExpressionTraitExpr::Value(void) const {
   auto &self = *const_cast<clang::ExpressionTraitExpr *>(u.ExpressionTraitExpr);
   decltype(auto) val = self.getValue();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ExtVectorElementExpr::ExtVectorElementExpr(
@@ -3941,7 +3941,7 @@ ExtVectorElementExpr::ExtVectorElementExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ExtVectorElementExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ExtVectorElementExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ExtVectorElementExpr)
-std::vector<::pasta::Stmt> ExtVectorElementExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ExtVectorElementExpr::Children(void) const {
   auto &self = *const_cast<clang::ExtVectorElementExpr *>(u.ExtVectorElementExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -3951,60 +3951,60 @@ std::vector<::pasta::Stmt> ExtVectorElementExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ExtVectorElementExpr::ContainsDuplicateElements(void) const noexcept {
+bool ExtVectorElementExpr::ContainsDuplicateElements(void) const {
   auto &self = *const_cast<clang::ExtVectorElementExpr *>(u.ExtVectorElementExpr);
   decltype(auto) val = self.containsDuplicateElements();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: ExtVectorElementExpr::Accessor
-::pasta::Token ExtVectorElementExpr::AccessorToken(void) const noexcept {
+::pasta::Token ExtVectorElementExpr::AccessorToken(void) const {
   auto &self = *const_cast<clang::ExtVectorElementExpr *>(u.ExtVectorElementExpr);
   decltype(auto) val = self.getAccessorLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ExtVectorElementExpr::Base(void) const noexcept {
+::pasta::Expr ExtVectorElementExpr::Base(void) const {
   auto &self = *const_cast<clang::ExtVectorElementExpr *>(u.ExtVectorElementExpr);
   decltype(auto) val = self.getBase();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ExtVectorElementExpr::Base can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ExtVectorElementExpr::BeginToken(void) const noexcept {
+::pasta::Token ExtVectorElementExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ExtVectorElementExpr *>(u.ExtVectorElementExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ExtVectorElementExpr::EndToken(void) const noexcept {
+::pasta::Token ExtVectorElementExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ExtVectorElementExpr *>(u.ExtVectorElementExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t ExtVectorElementExpr::NumElements(void) const noexcept {
+uint32_t ExtVectorElementExpr::NumElements(void) const {
   auto &self = *const_cast<clang::ExtVectorElementExpr *>(u.ExtVectorElementExpr);
   decltype(auto) val = self.getNumElements();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ExtVectorElementExpr::IsArrow(void) const noexcept {
+bool ExtVectorElementExpr::IsArrow(void) const {
   auto &self = *const_cast<clang::ExtVectorElementExpr *>(u.ExtVectorElementExpr);
   decltype(auto) val = self.isArrow();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 FixedPointLiteral::FixedPointLiteral(
@@ -4015,7 +4015,7 @@ FixedPointLiteral::FixedPointLiteral(
 PASTA_DEFINE_BASE_OPERATORS(Expr, FixedPointLiteral)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, FixedPointLiteral)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, FixedPointLiteral)
-std::vector<::pasta::Stmt> FixedPointLiteral::Children(void) const noexcept {
+std::vector<::pasta::Stmt> FixedPointLiteral::Children(void) const {
   auto &self = *const_cast<clang::FixedPointLiteral *>(u.FixedPointLiteral);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -4025,35 +4025,35 @@ std::vector<::pasta::Stmt> FixedPointLiteral::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token FixedPointLiteral::BeginToken(void) const noexcept {
+::pasta::Token FixedPointLiteral::BeginToken(void) const {
   auto &self = *const_cast<clang::FixedPointLiteral *>(u.FixedPointLiteral);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token FixedPointLiteral::EndToken(void) const noexcept {
+::pasta::Token FixedPointLiteral::EndToken(void) const {
   auto &self = *const_cast<clang::FixedPointLiteral *>(u.FixedPointLiteral);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token FixedPointLiteral::Token(void) const noexcept {
+::pasta::Token FixedPointLiteral::Token(void) const {
   auto &self = *const_cast<clang::FixedPointLiteral *>(u.FixedPointLiteral);
   decltype(auto) val = self.getLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t FixedPointLiteral::Scale(void) const noexcept {
+uint32_t FixedPointLiteral::Scale(void) const {
   auto &self = *const_cast<clang::FixedPointLiteral *>(u.FixedPointLiteral);
   decltype(auto) val = self.getScale();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: FixedPointLiteral::ValueAsString
@@ -4065,7 +4065,7 @@ FloatingLiteral::FloatingLiteral(
 PASTA_DEFINE_BASE_OPERATORS(Expr, FloatingLiteral)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, FloatingLiteral)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, FloatingLiteral)
-std::vector<::pasta::Stmt> FloatingLiteral::Children(void) const noexcept {
+std::vector<::pasta::Stmt> FloatingLiteral::Children(void) const {
   auto &self = *const_cast<clang::FloatingLiteral *>(u.FloatingLiteral);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -4075,45 +4075,45 @@ std::vector<::pasta::Stmt> FloatingLiteral::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token FloatingLiteral::BeginToken(void) const noexcept {
+::pasta::Token FloatingLiteral::BeginToken(void) const {
   auto &self = *const_cast<clang::FloatingLiteral *>(u.FloatingLiteral);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token FloatingLiteral::EndToken(void) const noexcept {
+::pasta::Token FloatingLiteral::EndToken(void) const {
   auto &self = *const_cast<clang::FloatingLiteral *>(u.FloatingLiteral);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token FloatingLiteral::Token(void) const noexcept {
+::pasta::Token FloatingLiteral::Token(void) const {
   auto &self = *const_cast<clang::FloatingLiteral *>(u.FloatingLiteral);
   decltype(auto) val = self.getLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: FloatingLiteral::RawSemantics
 // 0: FloatingLiteral::Semantics
 // 0: FloatingLiteral::Value
-double FloatingLiteral::ValueAsApproximateDouble(void) const noexcept {
+double FloatingLiteral::ValueAsApproximateDouble(void) const {
   auto &self = *const_cast<clang::FloatingLiteral *>(u.FloatingLiteral);
   decltype(auto) val = self.getValueAsApproximateDouble();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool FloatingLiteral::IsExact(void) const noexcept {
+bool FloatingLiteral::IsExact(void) const {
   auto &self = *const_cast<clang::FloatingLiteral *>(u.FloatingLiteral);
   decltype(auto) val = self.isExact();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ForStmt::ForStmt(
@@ -4122,7 +4122,7 @@ ForStmt::ForStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ForStmt)
-std::vector<::pasta::Stmt> ForStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ForStmt::Children(void) const {
   auto &self = *const_cast<clang::ForStmt *>(u.ForStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -4132,27 +4132,27 @@ std::vector<::pasta::Stmt> ForStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ForStmt::BeginToken(void) const noexcept {
+::pasta::Token ForStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::ForStmt *>(u.ForStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt ForStmt::Body(void) const noexcept {
+::pasta::Stmt ForStmt::Body(void) const {
   auto &self = *const_cast<clang::ForStmt *>(u.ForStmt);
   decltype(auto) val = self.getBody();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "ForStmt::Body can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Expr> ForStmt::Condition(void) const noexcept {
+std::optional<::pasta::Expr> ForStmt::Condition(void) const {
   auto &self = *const_cast<clang::ForStmt *>(u.ForStmt);
   decltype(auto) val = self.getCond();
   if (!val) {
@@ -4161,10 +4161,10 @@ std::optional<::pasta::Expr> ForStmt::Condition(void) const noexcept {
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::VarDecl> ForStmt::ConditionVariable(void) const noexcept {
+std::optional<::pasta::VarDecl> ForStmt::ConditionVariable(void) const {
   auto &self = *const_cast<clang::ForStmt *>(u.ForStmt);
   decltype(auto) val = self.getConditionVariable();
   if (!val) {
@@ -4173,10 +4173,10 @@ std::optional<::pasta::VarDecl> ForStmt::ConditionVariable(void) const noexcept 
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::DeclStmt> ForStmt::ConditionVariableDeclarationStatement(void) const noexcept {
+std::optional<::pasta::DeclStmt> ForStmt::ConditionVariableDeclarationStatement(void) const {
   auto &self = *const_cast<clang::ForStmt *>(u.ForStmt);
   decltype(auto) val = self.getConditionVariableDeclStmt();
   if (!val) {
@@ -4185,24 +4185,24 @@ std::optional<::pasta::DeclStmt> ForStmt::ConditionVariableDeclarationStatement(
   if (val) {
     return StmtBuilder::Create<::pasta::DeclStmt>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ForStmt::EndToken(void) const noexcept {
+::pasta::Token ForStmt::EndToken(void) const {
   auto &self = *const_cast<clang::ForStmt *>(u.ForStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ForStmt::ForToken(void) const noexcept {
+::pasta::Token ForStmt::ForToken(void) const {
   auto &self = *const_cast<clang::ForStmt *>(u.ForStmt);
   decltype(auto) val = self.getForLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Expr> ForStmt::Increment(void) const noexcept {
+std::optional<::pasta::Expr> ForStmt::Increment(void) const {
   auto &self = *const_cast<clang::ForStmt *>(u.ForStmt);
   decltype(auto) val = self.getInc();
   if (!val) {
@@ -4211,10 +4211,10 @@ std::optional<::pasta::Expr> ForStmt::Increment(void) const noexcept {
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Stmt> ForStmt::Initializer(void) const noexcept {
+std::optional<::pasta::Stmt> ForStmt::Initializer(void) const {
   auto &self = *const_cast<clang::ForStmt *>(u.ForStmt);
   decltype(auto) val = self.getInit();
   if (!val) {
@@ -4223,21 +4223,21 @@ std::optional<::pasta::Stmt> ForStmt::Initializer(void) const noexcept {
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ForStmt::LParenToken(void) const noexcept {
+::pasta::Token ForStmt::LParenToken(void) const {
   auto &self = *const_cast<clang::ForStmt *>(u.ForStmt);
   decltype(auto) val = self.getLParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ForStmt::RParenToken(void) const noexcept {
+::pasta::Token ForStmt::RParenToken(void) const {
   auto &self = *const_cast<clang::ForStmt *>(u.ForStmt);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 FullExpr::FullExpr(
@@ -4250,14 +4250,14 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, FullExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, FullExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(FullExpr, ConstantExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(FullExpr, ExprWithCleanups)
-::pasta::Expr FullExpr::SubExpression(void) const noexcept {
+::pasta::Expr FullExpr::SubExpression(void) const {
   auto &self = *const_cast<clang::FullExpr *>(u.FullExpr);
   decltype(auto) val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "FullExpr::SubExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 FunctionParmPackExpr::FunctionParmPackExpr(
@@ -4269,7 +4269,7 @@ PASTA_DEFINE_BASE_OPERATORS(Expr, FunctionParmPackExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, FunctionParmPackExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, FunctionParmPackExpr)
 // 0: FunctionParmPackExpr::
-std::vector<::pasta::Stmt> FunctionParmPackExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> FunctionParmPackExpr::Children(void) const {
   auto &self = *const_cast<clang::FunctionParmPackExpr *>(u.FunctionParmPackExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -4279,56 +4279,56 @@ std::vector<::pasta::Stmt> FunctionParmPackExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: FunctionParmPackExpr::
-::pasta::Token FunctionParmPackExpr::BeginToken(void) const noexcept {
+::pasta::Token FunctionParmPackExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::FunctionParmPackExpr *>(u.FunctionParmPackExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token FunctionParmPackExpr::EndToken(void) const noexcept {
+::pasta::Token FunctionParmPackExpr::EndToken(void) const {
   auto &self = *const_cast<clang::FunctionParmPackExpr *>(u.FunctionParmPackExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: FunctionParmPackExpr::Expansion
-uint32_t FunctionParmPackExpr::NumExpansions(void) const noexcept {
+uint32_t FunctionParmPackExpr::NumExpansions(void) const {
   auto &self = *const_cast<clang::FunctionParmPackExpr *>(u.FunctionParmPackExpr);
   decltype(auto) val = self.getNumExpansions();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::VarDecl FunctionParmPackExpr::ParameterPack(void) const noexcept {
+::pasta::VarDecl FunctionParmPackExpr::ParameterPack(void) const {
   auto &self = *const_cast<clang::FunctionParmPackExpr *>(u.FunctionParmPackExpr);
   decltype(auto) val = self.getParameterPack();
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
   assert(false && "FunctionParmPackExpr::ParameterPack can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token FunctionParmPackExpr::ParameterPackToken(void) const noexcept {
+::pasta::Token FunctionParmPackExpr::ParameterPackToken(void) const {
   auto &self = *const_cast<clang::FunctionParmPackExpr *>(u.FunctionParmPackExpr);
   decltype(auto) val = self.getParameterPackLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::VarDecl> FunctionParmPackExpr::Expansions(void) const noexcept {
+std::vector<::pasta::VarDecl> FunctionParmPackExpr::Expansions(void) const {
   std::vector<::pasta::VarDecl> ret;
   auto convert_elem = [&] (clang::VarDecl * val) {
     if (val) {
       return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.FunctionParmPackExpr->getNumExpansions();
   decltype(count) i = 0;
@@ -4348,37 +4348,37 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, GCCAsmStmt)
 // 3: GCCAsmStmt::AnalyzeAssemblyString
 // 0: GCCAsmStmt::
 // 0: GCCAsmStmt::
-std::string GCCAsmStmt::GenerateAssemblyString(void) const noexcept {
+std::string GCCAsmStmt::GenerateAssemblyString(void) const {
   auto &self = *(u.GCCAsmStmt);
   decltype(auto) val = self.generateAsmString(ast->ci->getASTContext());
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::StringLiteral GCCAsmStmt::AssemblyString(void) const noexcept {
+::pasta::StringLiteral GCCAsmStmt::AssemblyString(void) const {
   auto &self = *const_cast<clang::GCCAsmStmt *>(u.GCCAsmStmt);
   decltype(auto) val = self.getAsmString();
   if (val) {
     return StmtBuilder::Create<::pasta::StringLiteral>(ast, val);
   }
   assert(false && "GCCAsmStmt::AssemblyString can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token GCCAsmStmt::BeginToken(void) const noexcept {
+::pasta::Token GCCAsmStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::GCCAsmStmt *>(u.GCCAsmStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: GCCAsmStmt::Clobber
 // 1: GCCAsmStmt::ClobberStringLiteral
-::pasta::Token GCCAsmStmt::EndToken(void) const noexcept {
+::pasta::Token GCCAsmStmt::EndToken(void) const {
   auto &self = *const_cast<clang::GCCAsmStmt *>(u.GCCAsmStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: GCCAsmStmt::InputConstraint
@@ -4390,11 +4390,11 @@ std::string GCCAsmStmt::GenerateAssemblyString(void) const noexcept {
 // 1: GCCAsmStmt::LabelIdentifier
 // 1: GCCAsmStmt::LabelName
 // 1: GCCAsmStmt::NamedOperand
-uint32_t GCCAsmStmt::NumLabels(void) const noexcept {
+uint32_t GCCAsmStmt::NumLabels(void) const {
   auto &self = *const_cast<clang::GCCAsmStmt *>(u.GCCAsmStmt);
   decltype(auto) val = self.getNumLabels();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: GCCAsmStmt::OutputConstraint
@@ -4402,21 +4402,21 @@ uint32_t GCCAsmStmt::NumLabels(void) const noexcept {
 // 1: GCCAsmStmt::OutputExpression
 // 1: GCCAsmStmt::OutputIdentifier
 // 1: GCCAsmStmt::OutputName
-::pasta::Token GCCAsmStmt::RParenToken(void) const noexcept {
+::pasta::Token GCCAsmStmt::RParenToken(void) const {
   auto &self = *const_cast<clang::GCCAsmStmt *>(u.GCCAsmStmt);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool GCCAsmStmt::IsAssemblyGoto(void) const noexcept {
+bool GCCAsmStmt::IsAssemblyGoto(void) const {
   auto &self = *const_cast<clang::GCCAsmStmt *>(u.GCCAsmStmt);
   decltype(auto) val = self.isAsmGoto();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::AddrLabelExpr> GCCAsmStmt::Labels(void) const noexcept {
+std::vector<::pasta::AddrLabelExpr> GCCAsmStmt::Labels(void) const {
   auto &self = *const_cast<clang::GCCAsmStmt *>(u.GCCAsmStmt);
   decltype(auto) val = self.labels();
   std::vector<::pasta::AddrLabelExpr> ret;
@@ -4426,10 +4426,10 @@ std::vector<::pasta::AddrLabelExpr> GCCAsmStmt::Labels(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<std::string_view> GCCAsmStmt::OutputConstraints(void) const noexcept {
+std::vector<std::string_view> GCCAsmStmt::OutputConstraints(void) const {
   std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
     if (auto size = val.size()) {
@@ -4437,7 +4437,7 @@ std::vector<std::string_view> GCCAsmStmt::OutputConstraints(void) const noexcept
     } else {
       return std::string_view();
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.GCCAsmStmt->getNumOutputs();
   decltype(count) i = 0;
@@ -4447,13 +4447,13 @@ std::vector<std::string_view> GCCAsmStmt::OutputConstraints(void) const noexcept
   return ret;
 }
 
-std::vector<::pasta::StringLiteral> GCCAsmStmt::OutputConstraintLiterals(void) const noexcept {
+std::vector<::pasta::StringLiteral> GCCAsmStmt::OutputConstraintLiterals(void) const {
   std::vector<::pasta::StringLiteral> ret;
   auto convert_elem = [&] (const clang::StringLiteral * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::StringLiteral>(ast, val);
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.GCCAsmStmt->getNumOutputs();
   decltype(count) i = 0;
@@ -4463,13 +4463,13 @@ std::vector<::pasta::StringLiteral> GCCAsmStmt::OutputConstraintLiterals(void) c
   return ret;
 }
 
-std::vector<::pasta::Expr> GCCAsmStmt::OutputExpressions(void) const noexcept {
+std::vector<::pasta::Expr> GCCAsmStmt::OutputExpressions(void) const {
   std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.GCCAsmStmt->getNumOutputs();
   decltype(count) i = 0;
@@ -4479,7 +4479,7 @@ std::vector<::pasta::Expr> GCCAsmStmt::OutputExpressions(void) const noexcept {
   return ret;
 }
 
-std::vector<std::string_view> GCCAsmStmt::OutputNames(void) const noexcept {
+std::vector<std::string_view> GCCAsmStmt::OutputNames(void) const {
   std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
     if (auto size = val.size()) {
@@ -4487,7 +4487,7 @@ std::vector<std::string_view> GCCAsmStmt::OutputNames(void) const noexcept {
     } else {
       return std::string_view();
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.GCCAsmStmt->getNumOutputs();
   decltype(count) i = 0;
@@ -4497,7 +4497,7 @@ std::vector<std::string_view> GCCAsmStmt::OutputNames(void) const noexcept {
   return ret;
 }
 
-std::vector<std::string_view> GCCAsmStmt::InputConstraints(void) const noexcept {
+std::vector<std::string_view> GCCAsmStmt::InputConstraints(void) const {
   std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
     if (auto size = val.size()) {
@@ -4505,7 +4505,7 @@ std::vector<std::string_view> GCCAsmStmt::InputConstraints(void) const noexcept 
     } else {
       return std::string_view();
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.GCCAsmStmt->getNumInputs();
   decltype(count) i = 0;
@@ -4515,13 +4515,13 @@ std::vector<std::string_view> GCCAsmStmt::InputConstraints(void) const noexcept 
   return ret;
 }
 
-std::vector<::pasta::StringLiteral> GCCAsmStmt::InputConstraintLiterals(void) const noexcept {
+std::vector<::pasta::StringLiteral> GCCAsmStmt::InputConstraintLiterals(void) const {
   std::vector<::pasta::StringLiteral> ret;
   auto convert_elem = [&] (const clang::StringLiteral * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::StringLiteral>(ast, val);
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.GCCAsmStmt->getNumInputs();
   decltype(count) i = 0;
@@ -4531,13 +4531,13 @@ std::vector<::pasta::StringLiteral> GCCAsmStmt::InputConstraintLiterals(void) co
   return ret;
 }
 
-std::vector<::pasta::Expr> GCCAsmStmt::InputExpressions(void) const noexcept {
+std::vector<::pasta::Expr> GCCAsmStmt::InputExpressions(void) const {
   std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.GCCAsmStmt->getNumInputs();
   decltype(count) i = 0;
@@ -4547,7 +4547,7 @@ std::vector<::pasta::Expr> GCCAsmStmt::InputExpressions(void) const noexcept {
   return ret;
 }
 
-std::vector<std::string_view> GCCAsmStmt::InputNames(void) const noexcept {
+std::vector<std::string_view> GCCAsmStmt::InputNames(void) const {
   std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
     if (auto size = val.size()) {
@@ -4555,7 +4555,7 @@ std::vector<std::string_view> GCCAsmStmt::InputNames(void) const noexcept {
     } else {
       return std::string_view();
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.GCCAsmStmt->getNumInputs();
   decltype(count) i = 0;
@@ -4565,7 +4565,7 @@ std::vector<std::string_view> GCCAsmStmt::InputNames(void) const noexcept {
   return ret;
 }
 
-std::vector<std::string_view> GCCAsmStmt::Clobbers(void) const noexcept {
+std::vector<std::string_view> GCCAsmStmt::Clobbers(void) const {
   std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
     if (auto size = val.size()) {
@@ -4573,7 +4573,7 @@ std::vector<std::string_view> GCCAsmStmt::Clobbers(void) const noexcept {
     } else {
       return std::string_view();
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.GCCAsmStmt->getNumClobbers();
   decltype(count) i = 0;
@@ -4583,13 +4583,13 @@ std::vector<std::string_view> GCCAsmStmt::Clobbers(void) const noexcept {
   return ret;
 }
 
-std::vector<::pasta::StringLiteral> GCCAsmStmt::ClobberStringLiterals(void) const noexcept {
+std::vector<::pasta::StringLiteral> GCCAsmStmt::ClobberStringLiterals(void) const {
   std::vector<::pasta::StringLiteral> ret;
   auto convert_elem = [&] (const clang::StringLiteral * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::StringLiteral>(ast, val);
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.GCCAsmStmt->getNumClobbers();
   decltype(count) i = 0;
@@ -4599,13 +4599,13 @@ std::vector<::pasta::StringLiteral> GCCAsmStmt::ClobberStringLiterals(void) cons
   return ret;
 }
 
-std::vector<::pasta::AddrLabelExpr> GCCAsmStmt::LabelExpressions(void) const noexcept {
+std::vector<::pasta::AddrLabelExpr> GCCAsmStmt::LabelExpressions(void) const {
   std::vector<::pasta::AddrLabelExpr> ret;
   auto convert_elem = [&] (clang::AddrLabelExpr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::AddrLabelExpr>(ast, val);
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.GCCAsmStmt->getNumLabels();
   decltype(count) i = 0;
@@ -4615,7 +4615,7 @@ std::vector<::pasta::AddrLabelExpr> GCCAsmStmt::LabelExpressions(void) const noe
   return ret;
 }
 
-std::vector<std::string_view> GCCAsmStmt::LabelNames(void) const noexcept {
+std::vector<std::string_view> GCCAsmStmt::LabelNames(void) const {
   std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
     if (auto size = val.size()) {
@@ -4623,7 +4623,7 @@ std::vector<std::string_view> GCCAsmStmt::LabelNames(void) const noexcept {
     } else {
       return std::string_view();
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.GCCAsmStmt->getNumLabels();
   decltype(count) i = 0;
@@ -4641,7 +4641,7 @@ GNUNullExpr::GNUNullExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, GNUNullExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, GNUNullExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, GNUNullExpr)
-std::vector<::pasta::Stmt> GNUNullExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> GNUNullExpr::Children(void) const {
   auto &self = *const_cast<clang::GNUNullExpr *>(u.GNUNullExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -4651,28 +4651,28 @@ std::vector<::pasta::Stmt> GNUNullExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token GNUNullExpr::BeginToken(void) const noexcept {
+::pasta::Token GNUNullExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::GNUNullExpr *>(u.GNUNullExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token GNUNullExpr::EndToken(void) const noexcept {
+::pasta::Token GNUNullExpr::EndToken(void) const {
   auto &self = *const_cast<clang::GNUNullExpr *>(u.GNUNullExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token GNUNullExpr::TokenToken(void) const noexcept {
+::pasta::Token GNUNullExpr::TokenToken(void) const {
   auto &self = *const_cast<clang::GNUNullExpr *>(u.GNUNullExpr);
   decltype(auto) val = self.getTokenLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 GenericSelectionExpr::GenericSelectionExpr(
@@ -4684,7 +4684,7 @@ PASTA_DEFINE_BASE_OPERATORS(Expr, GenericSelectionExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, GenericSelectionExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, GenericSelectionExpr)
 // 0: GenericSelectionExpr::Associations
-std::vector<::pasta::Stmt> GenericSelectionExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> GenericSelectionExpr::Children(void) const {
   auto &self = *const_cast<clang::GenericSelectionExpr *>(u.GenericSelectionExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -4694,10 +4694,10 @@ std::vector<::pasta::Stmt> GenericSelectionExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Expr> GenericSelectionExpr::AssociationExpressions(void) const noexcept {
+std::vector<::pasta::Expr> GenericSelectionExpr::AssociationExpressions(void) const {
   auto &self = *const_cast<clang::GenericSelectionExpr *>(u.GenericSelectionExpr);
   decltype(auto) val = self.getAssocExprs();
   std::vector<::pasta::Expr> ret;
@@ -4707,85 +4707,85 @@ std::vector<::pasta::Expr> GenericSelectionExpr::AssociationExpressions(void) co
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: GenericSelectionExpr::AssociationTypes
 // 1: GenericSelectionExpr::Association
-::pasta::Token GenericSelectionExpr::BeginToken(void) const noexcept {
+::pasta::Token GenericSelectionExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::GenericSelectionExpr *>(u.GenericSelectionExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr GenericSelectionExpr::ControllingExpression(void) const noexcept {
+::pasta::Expr GenericSelectionExpr::ControllingExpression(void) const {
   auto &self = *const_cast<clang::GenericSelectionExpr *>(u.GenericSelectionExpr);
   decltype(auto) val = self.getControllingExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "GenericSelectionExpr::ControllingExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token GenericSelectionExpr::DefaultToken(void) const noexcept {
+::pasta::Token GenericSelectionExpr::DefaultToken(void) const {
   auto &self = *const_cast<clang::GenericSelectionExpr *>(u.GenericSelectionExpr);
   decltype(auto) val = self.getDefaultLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token GenericSelectionExpr::EndToken(void) const noexcept {
+::pasta::Token GenericSelectionExpr::EndToken(void) const {
   auto &self = *const_cast<clang::GenericSelectionExpr *>(u.GenericSelectionExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token GenericSelectionExpr::GenericToken(void) const noexcept {
+::pasta::Token GenericSelectionExpr::GenericToken(void) const {
   auto &self = *const_cast<clang::GenericSelectionExpr *>(u.GenericSelectionExpr);
   decltype(auto) val = self.getGenericLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t GenericSelectionExpr::NumAssociations(void) const noexcept {
+uint32_t GenericSelectionExpr::NumAssociations(void) const {
   auto &self = *const_cast<clang::GenericSelectionExpr *>(u.GenericSelectionExpr);
   decltype(auto) val = self.getNumAssocs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token GenericSelectionExpr::RParenToken(void) const noexcept {
+::pasta::Token GenericSelectionExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::GenericSelectionExpr *>(u.GenericSelectionExpr);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr GenericSelectionExpr::ResultExpression(void) const noexcept {
+::pasta::Expr GenericSelectionExpr::ResultExpression(void) const {
   auto &self = *const_cast<clang::GenericSelectionExpr *>(u.GenericSelectionExpr);
   decltype(auto) val = self.getResultExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "GenericSelectionExpr::ResultExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t GenericSelectionExpr::ResultIndex(void) const noexcept {
+uint32_t GenericSelectionExpr::ResultIndex(void) const {
   auto &self = *const_cast<clang::GenericSelectionExpr *>(u.GenericSelectionExpr);
   decltype(auto) val = self.getResultIndex();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool GenericSelectionExpr::IsResultDependent(void) const noexcept {
+bool GenericSelectionExpr::IsResultDependent(void) const {
   auto &self = *const_cast<clang::GenericSelectionExpr *>(u.GenericSelectionExpr);
   decltype(auto) val = self.isResultDependent();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 GotoStmt::GotoStmt(
@@ -4794,7 +4794,7 @@ GotoStmt::GotoStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, GotoStmt)
-std::vector<::pasta::Stmt> GotoStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> GotoStmt::Children(void) const {
   auto &self = *const_cast<clang::GotoStmt *>(u.GotoStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -4804,45 +4804,45 @@ std::vector<::pasta::Stmt> GotoStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token GotoStmt::BeginToken(void) const noexcept {
+::pasta::Token GotoStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::GotoStmt *>(u.GotoStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token GotoStmt::EndToken(void) const noexcept {
+::pasta::Token GotoStmt::EndToken(void) const {
   auto &self = *const_cast<clang::GotoStmt *>(u.GotoStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token GotoStmt::GotoToken(void) const noexcept {
+::pasta::Token GotoStmt::GotoToken(void) const {
   auto &self = *const_cast<clang::GotoStmt *>(u.GotoStmt);
   decltype(auto) val = self.getGotoLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::LabelDecl GotoStmt::Label(void) const noexcept {
+::pasta::LabelDecl GotoStmt::Label(void) const {
   auto &self = *const_cast<clang::GotoStmt *>(u.GotoStmt);
   decltype(auto) val = self.getLabel();
   if (val) {
     return DeclBuilder::Create<::pasta::LabelDecl>(ast, val);
   }
   assert(false && "GotoStmt::Label can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token GotoStmt::LabelToken(void) const noexcept {
+::pasta::Token GotoStmt::LabelToken(void) const {
   auto &self = *const_cast<clang::GotoStmt *>(u.GotoStmt);
   decltype(auto) val = self.getLabelLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 IfStmt::IfStmt(
@@ -4851,7 +4851,7 @@ IfStmt::IfStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, IfStmt)
-std::vector<::pasta::Stmt> IfStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> IfStmt::Children(void) const {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -4861,27 +4861,27 @@ std::vector<::pasta::Stmt> IfStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token IfStmt::BeginToken(void) const noexcept {
+::pasta::Token IfStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr IfStmt::Condition(void) const noexcept {
+::pasta::Expr IfStmt::Condition(void) const {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.getCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "IfStmt::Condition can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::VarDecl> IfStmt::ConditionVariable(void) const noexcept {
+std::optional<::pasta::VarDecl> IfStmt::ConditionVariable(void) const {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.getConditionVariable();
   if (!val) {
@@ -4890,10 +4890,10 @@ std::optional<::pasta::VarDecl> IfStmt::ConditionVariable(void) const noexcept {
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::DeclStmt> IfStmt::ConditionVariableDeclarationStatement(void) const noexcept {
+std::optional<::pasta::DeclStmt> IfStmt::ConditionVariableDeclarationStatement(void) const {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.getConditionVariableDeclStmt();
   if (!val) {
@@ -4902,10 +4902,10 @@ std::optional<::pasta::DeclStmt> IfStmt::ConditionVariableDeclarationStatement(v
   if (val) {
     return StmtBuilder::Create<::pasta::DeclStmt>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Stmt> IfStmt::Else(void) const noexcept {
+std::optional<::pasta::Stmt> IfStmt::Else(void) const {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.getElse();
   if (!val) {
@@ -4914,31 +4914,31 @@ std::optional<::pasta::Stmt> IfStmt::Else(void) const noexcept {
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token IfStmt::ElseToken(void) const noexcept {
+::pasta::Token IfStmt::ElseToken(void) const {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.getElseLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token IfStmt::EndToken(void) const noexcept {
+::pasta::Token IfStmt::EndToken(void) const {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token IfStmt::IfToken(void) const noexcept {
+::pasta::Token IfStmt::IfToken(void) const {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.getIfLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Stmt> IfStmt::Initializer(void) const noexcept {
+std::optional<::pasta::Stmt> IfStmt::Initializer(void) const {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.getInit();
   if (!val) {
@@ -4947,17 +4947,17 @@ std::optional<::pasta::Stmt> IfStmt::Initializer(void) const noexcept {
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token IfStmt::LParenToken(void) const noexcept {
+::pasta::Token IfStmt::LParenToken(void) const {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.getLParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Stmt> IfStmt::NondiscardedCase(void) const noexcept {
+std::optional<::pasta::Stmt> IfStmt::NondiscardedCase(void) const {
   auto &self = *(u.IfStmt);
   decltype(auto) val = self.getNondiscardedCase(ast->ci->getASTContext());
   if (val.has_value()) {
@@ -4965,87 +4965,87 @@ std::optional<::pasta::Stmt> IfStmt::NondiscardedCase(void) const noexcept {
   } else {
     return std::nullopt;
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token IfStmt::RParenToken(void) const noexcept {
+::pasta::Token IfStmt::RParenToken(void) const {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum IfStatementKind IfStmt::StatementKind(void) const noexcept {
+enum IfStatementKind IfStmt::StatementKind(void) const {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.getStatementKind();
   return static_cast<::pasta::IfStatementKind>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt IfStmt::Then(void) const noexcept {
+::pasta::Stmt IfStmt::Then(void) const {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.getThen();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "IfStmt::Then can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool IfStmt::HasElseStorage(void) const noexcept {
+bool IfStmt::HasElseStorage(void) const {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.hasElseStorage();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool IfStmt::HasInitializerStorage(void) const noexcept {
+bool IfStmt::HasInitializerStorage(void) const {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.hasInitStorage();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool IfStmt::HasVariableStorage(void) const noexcept {
+bool IfStmt::HasVariableStorage(void) const {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.hasVarStorage();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool IfStmt::IsConsteval(void) const noexcept {
+bool IfStmt::IsConsteval(void) const {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.isConsteval();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool IfStmt::IsConstexpr(void) const noexcept {
+bool IfStmt::IsConstexpr(void) const {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.isConstexpr();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool IfStmt::IsNegatedConsteval(void) const noexcept {
+bool IfStmt::IsNegatedConsteval(void) const {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.isNegatedConsteval();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool IfStmt::IsNonNegatedConsteval(void) const noexcept {
+bool IfStmt::IsNonNegatedConsteval(void) const {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.isNonNegatedConsteval();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool IfStmt::IsObjCAvailabilityCheck(void) const noexcept {
+bool IfStmt::IsObjCAvailabilityCheck(void) const {
   auto &self = *const_cast<clang::IfStmt *>(u.IfStmt);
   decltype(auto) val = self.isObjCAvailabilityCheck();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ImaginaryLiteral::ImaginaryLiteral(
@@ -5056,7 +5056,7 @@ ImaginaryLiteral::ImaginaryLiteral(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ImaginaryLiteral)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ImaginaryLiteral)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ImaginaryLiteral)
-std::vector<::pasta::Stmt> ImaginaryLiteral::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ImaginaryLiteral::Children(void) const {
   auto &self = *const_cast<clang::ImaginaryLiteral *>(u.ImaginaryLiteral);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -5066,31 +5066,31 @@ std::vector<::pasta::Stmt> ImaginaryLiteral::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ImaginaryLiteral::BeginToken(void) const noexcept {
+::pasta::Token ImaginaryLiteral::BeginToken(void) const {
   auto &self = *const_cast<clang::ImaginaryLiteral *>(u.ImaginaryLiteral);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ImaginaryLiteral::EndToken(void) const noexcept {
+::pasta::Token ImaginaryLiteral::EndToken(void) const {
   auto &self = *const_cast<clang::ImaginaryLiteral *>(u.ImaginaryLiteral);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ImaginaryLiteral::SubExpression(void) const noexcept {
+::pasta::Expr ImaginaryLiteral::SubExpression(void) const {
   auto &self = *const_cast<clang::ImaginaryLiteral *>(u.ImaginaryLiteral);
   decltype(auto) val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ImaginaryLiteral::SubExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ImplicitValueInitExpr::ImplicitValueInitExpr(
@@ -5101,7 +5101,7 @@ ImplicitValueInitExpr::ImplicitValueInitExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ImplicitValueInitExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ImplicitValueInitExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ImplicitValueInitExpr)
-std::vector<::pasta::Stmt> ImplicitValueInitExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ImplicitValueInitExpr::Children(void) const {
   auto &self = *const_cast<clang::ImplicitValueInitExpr *>(u.ImplicitValueInitExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -5111,21 +5111,21 @@ std::vector<::pasta::Stmt> ImplicitValueInitExpr::Children(void) const noexcept 
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ImplicitValueInitExpr::BeginToken(void) const noexcept {
+::pasta::Token ImplicitValueInitExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ImplicitValueInitExpr *>(u.ImplicitValueInitExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ImplicitValueInitExpr::EndToken(void) const noexcept {
+::pasta::Token ImplicitValueInitExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ImplicitValueInitExpr *>(u.ImplicitValueInitExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 IndirectGotoStmt::IndirectGotoStmt(
@@ -5134,7 +5134,7 @@ IndirectGotoStmt::IndirectGotoStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, IndirectGotoStmt)
-std::vector<::pasta::Stmt> IndirectGotoStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> IndirectGotoStmt::Children(void) const {
   auto &self = *const_cast<clang::IndirectGotoStmt *>(u.IndirectGotoStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -5144,17 +5144,17 @@ std::vector<::pasta::Stmt> IndirectGotoStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token IndirectGotoStmt::BeginToken(void) const noexcept {
+::pasta::Token IndirectGotoStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::IndirectGotoStmt *>(u.IndirectGotoStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::LabelDecl> IndirectGotoStmt::ConstantTarget(void) const noexcept {
+std::optional<::pasta::LabelDecl> IndirectGotoStmt::ConstantTarget(void) const {
   auto &self = *const_cast<clang::IndirectGotoStmt *>(u.IndirectGotoStmt);
   decltype(auto) val = self.getConstantTarget();
   if (!val) {
@@ -5163,38 +5163,38 @@ std::optional<::pasta::LabelDecl> IndirectGotoStmt::ConstantTarget(void) const n
   if (val) {
     return DeclBuilder::Create<::pasta::LabelDecl>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token IndirectGotoStmt::EndToken(void) const noexcept {
+::pasta::Token IndirectGotoStmt::EndToken(void) const {
   auto &self = *const_cast<clang::IndirectGotoStmt *>(u.IndirectGotoStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token IndirectGotoStmt::GotoToken(void) const noexcept {
+::pasta::Token IndirectGotoStmt::GotoToken(void) const {
   auto &self = *const_cast<clang::IndirectGotoStmt *>(u.IndirectGotoStmt);
   decltype(auto) val = self.getGotoLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token IndirectGotoStmt::StarToken(void) const noexcept {
+::pasta::Token IndirectGotoStmt::StarToken(void) const {
   auto &self = *const_cast<clang::IndirectGotoStmt *>(u.IndirectGotoStmt);
   decltype(auto) val = self.getStarLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr IndirectGotoStmt::Target(void) const noexcept {
+::pasta::Expr IndirectGotoStmt::Target(void) const {
   auto &self = *const_cast<clang::IndirectGotoStmt *>(u.IndirectGotoStmt);
   decltype(auto) val = self.getTarget();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "IndirectGotoStmt::Target can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 InitListExpr::InitListExpr(
@@ -5206,7 +5206,7 @@ PASTA_DEFINE_BASE_OPERATORS(Expr, InitListExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, InitListExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, InitListExpr)
 // 0: InitListExpr::
-std::vector<::pasta::Stmt> InitListExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> InitListExpr::Children(void) const {
   auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -5216,11 +5216,11 @@ std::vector<::pasta::Stmt> InitListExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: InitListExpr::
-std::optional<::pasta::Expr> InitListExpr::ArrayFiller(void) const noexcept {
+std::optional<::pasta::Expr> InitListExpr::ArrayFiller(void) const {
   auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
   decltype(auto) val = self.getArrayFiller();
   if (!val) {
@@ -5229,25 +5229,25 @@ std::optional<::pasta::Expr> InitListExpr::ArrayFiller(void) const noexcept {
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token InitListExpr::BeginToken(void) const noexcept {
+::pasta::Token InitListExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token InitListExpr::EndToken(void) const noexcept {
+::pasta::Token InitListExpr::EndToken(void) const {
   auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: InitListExpr::Initializer
-std::optional<::pasta::FieldDecl> InitListExpr::InitializedFieldInUnion(void) const noexcept {
+std::optional<::pasta::FieldDecl> InitListExpr::InitializedFieldInUnion(void) const {
   auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
   decltype(auto) val = self.getInitializedFieldInUnion();
   if (!val) {
@@ -5256,32 +5256,32 @@ std::optional<::pasta::FieldDecl> InitListExpr::InitializedFieldInUnion(void) co
   if (val) {
     return DeclBuilder::Create<::pasta::FieldDecl>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: InitListExpr::Initializers
-::pasta::Token InitListExpr::LBraceToken(void) const noexcept {
+::pasta::Token InitListExpr::LBraceToken(void) const {
   auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
   decltype(auto) val = self.getLBraceLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t InitListExpr::NumInitializers(void) const noexcept {
+uint32_t InitListExpr::NumInitializers(void) const {
   auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
   decltype(auto) val = self.getNumInits();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token InitListExpr::RBraceToken(void) const noexcept {
+::pasta::Token InitListExpr::RBraceToken(void) const {
   auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
   decltype(auto) val = self.getRBraceLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::InitListExpr> InitListExpr::SemanticForm(void) const noexcept {
+std::optional<::pasta::InitListExpr> InitListExpr::SemanticForm(void) const {
   auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
   decltype(auto) val = self.getSemanticForm();
   if (!val) {
@@ -5290,10 +5290,10 @@ std::optional<::pasta::InitListExpr> InitListExpr::SemanticForm(void) const noex
   if (val) {
     return StmtBuilder::Create<::pasta::InitListExpr>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::InitListExpr> InitListExpr::SyntacticForm(void) const noexcept {
+std::optional<::pasta::InitListExpr> InitListExpr::SyntacticForm(void) const {
   auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
   decltype(auto) val = self.getSyntacticForm();
   if (!val) {
@@ -5302,24 +5302,24 @@ std::optional<::pasta::InitListExpr> InitListExpr::SyntacticForm(void) const noe
   if (val) {
     return StmtBuilder::Create<::pasta::InitListExpr>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool InitListExpr::HadArrayRangeDesignator(void) const noexcept {
+bool InitListExpr::HadArrayRangeDesignator(void) const {
   auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
   decltype(auto) val = self.hadArrayRangeDesignator();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool InitListExpr::HasArrayFiller(void) const noexcept {
+bool InitListExpr::HasArrayFiller(void) const {
   auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
   decltype(auto) val = self.hasArrayFiller();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Expr> InitListExpr::Initializers(void) const noexcept {
+std::vector<::pasta::Expr> InitListExpr::Initializers(void) const {
   auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
   decltype(auto) val = self.inits();
   std::vector<::pasta::Expr> ret;
@@ -5329,39 +5329,39 @@ std::vector<::pasta::Expr> InitListExpr::Initializers(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool InitListExpr::IsExplicit(void) const noexcept {
+bool InitListExpr::IsExplicit(void) const {
   auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
   decltype(auto) val = self.isExplicit();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: InitListExpr::IsIdiomaticZeroInitializer
-bool InitListExpr::IsSemanticForm(void) const noexcept {
+bool InitListExpr::IsSemanticForm(void) const {
   auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
   decltype(auto) val = self.isSemanticForm();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool InitListExpr::IsStringLiteralInitializer(void) const noexcept {
+bool InitListExpr::IsStringLiteralInitializer(void) const {
   auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
   decltype(auto) val = self.isStringLiteralInit();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool InitListExpr::IsSyntacticForm(void) const noexcept {
+bool InitListExpr::IsSyntacticForm(void) const {
   auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
   decltype(auto) val = self.isSyntacticForm();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<bool> InitListExpr::IsTransparent(void) const noexcept {
+std::optional<bool> InitListExpr::IsTransparent(void) const {
   auto &self = *const_cast<clang::InitListExpr *>(u.InitListExpr);
   if (!self.isSemanticForm()) {
     return std::nullopt;
@@ -5372,7 +5372,7 @@ std::optional<bool> InitListExpr::IsTransparent(void) const noexcept {
   }
   decltype(auto) val = self.isTransparent();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: InitListExpr::
@@ -5385,7 +5385,7 @@ IntegerLiteral::IntegerLiteral(
 PASTA_DEFINE_BASE_OPERATORS(Expr, IntegerLiteral)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, IntegerLiteral)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, IntegerLiteral)
-std::vector<::pasta::Stmt> IntegerLiteral::Children(void) const noexcept {
+std::vector<::pasta::Stmt> IntegerLiteral::Children(void) const {
   auto &self = *const_cast<clang::IntegerLiteral *>(u.IntegerLiteral);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -5395,28 +5395,28 @@ std::vector<::pasta::Stmt> IntegerLiteral::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token IntegerLiteral::BeginToken(void) const noexcept {
+::pasta::Token IntegerLiteral::BeginToken(void) const {
   auto &self = *const_cast<clang::IntegerLiteral *>(u.IntegerLiteral);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token IntegerLiteral::EndToken(void) const noexcept {
+::pasta::Token IntegerLiteral::EndToken(void) const {
   auto &self = *const_cast<clang::IntegerLiteral *>(u.IntegerLiteral);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token IntegerLiteral::Token(void) const noexcept {
+::pasta::Token IntegerLiteral::Token(void) const {
   auto &self = *const_cast<clang::IntegerLiteral *>(u.IntegerLiteral);
   decltype(auto) val = self.getLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 LabelStmt::LabelStmt(
@@ -5426,7 +5426,7 @@ LabelStmt::LabelStmt(
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, LabelStmt)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, LabelStmt)
-std::vector<::pasta::Stmt> LabelStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> LabelStmt::Children(void) const {
   auto &self = *const_cast<clang::LabelStmt *>(u.LabelStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -5436,41 +5436,41 @@ std::vector<::pasta::Stmt> LabelStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token LabelStmt::BeginToken(void) const noexcept {
+::pasta::Token LabelStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::LabelStmt *>(u.LabelStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::LabelDecl LabelStmt::Declaration(void) const noexcept {
+::pasta::LabelDecl LabelStmt::Declaration(void) const {
   auto &self = *const_cast<clang::LabelStmt *>(u.LabelStmt);
   decltype(auto) val = self.getDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::LabelDecl>(ast, val);
   }
   assert(false && "LabelStmt::Declaration can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token LabelStmt::EndToken(void) const noexcept {
+::pasta::Token LabelStmt::EndToken(void) const {
   auto &self = *const_cast<clang::LabelStmt *>(u.LabelStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token LabelStmt::IdentifierToken(void) const noexcept {
+::pasta::Token LabelStmt::IdentifierToken(void) const {
   auto &self = *const_cast<clang::LabelStmt *>(u.LabelStmt);
   decltype(auto) val = self.getIdentLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::string_view LabelStmt::Name(void) const noexcept {
+std::string_view LabelStmt::Name(void) const {
   auto &self = *const_cast<clang::LabelStmt *>(u.LabelStmt);
   decltype(auto) val = self.getName();
   if (val) {
@@ -5479,24 +5479,24 @@ std::string_view LabelStmt::Name(void) const noexcept {
     return std::string_view();
   }
   assert(false && "LabelStmt::Name can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt LabelStmt::SubStatement(void) const noexcept {
+::pasta::Stmt LabelStmt::SubStatement(void) const {
   auto &self = *const_cast<clang::LabelStmt *>(u.LabelStmt);
   decltype(auto) val = self.getSubStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "LabelStmt::SubStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool LabelStmt::IsSideEntry(void) const noexcept {
+bool LabelStmt::IsSideEntry(void) const {
   auto &self = *const_cast<clang::LabelStmt *>(u.LabelStmt);
   decltype(auto) val = self.isSideEntry();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 LambdaExpr::LambdaExpr(
@@ -5514,7 +5514,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, LambdaExpr)
 // 0: LambdaExpr::CaptureInitializers
 // 0: LambdaExpr::
 // 0: LambdaExpr::Captures
-std::vector<::pasta::Stmt> LambdaExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> LambdaExpr::Children(void) const {
   auto &self = *const_cast<clang::LambdaExpr *>(u.LambdaExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -5524,64 +5524,64 @@ std::vector<::pasta::Stmt> LambdaExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: LambdaExpr::
 // 0: LambdaExpr::
 // 0: LambdaExpr::ExplicitCaptures
-::pasta::Token LambdaExpr::BeginToken(void) const noexcept {
+::pasta::Token LambdaExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::LambdaExpr *>(u.LambdaExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt LambdaExpr::Body(void) const noexcept {
+::pasta::Stmt LambdaExpr::Body(void) const {
   auto &self = *const_cast<clang::LambdaExpr *>(u.LambdaExpr);
   decltype(auto) val = self.getBody();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "LambdaExpr::Body can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::CXXMethodDecl LambdaExpr::CallOperator(void) const noexcept {
+::pasta::CXXMethodDecl LambdaExpr::CallOperator(void) const {
   auto &self = *const_cast<clang::LambdaExpr *>(u.LambdaExpr);
   decltype(auto) val = self.getCallOperator();
   if (val) {
     return DeclBuilder::Create<::pasta::CXXMethodDecl>(ast, val);
   }
   assert(false && "LambdaExpr::CallOperator can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum LambdaCaptureDefault LambdaExpr::CaptureDefault(void) const noexcept {
+enum LambdaCaptureDefault LambdaExpr::CaptureDefault(void) const {
   auto &self = *const_cast<clang::LambdaExpr *>(u.LambdaExpr);
   decltype(auto) val = self.getCaptureDefault();
   return static_cast<::pasta::LambdaCaptureDefault>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token LambdaExpr::CaptureDefaultToken(void) const noexcept {
+::pasta::Token LambdaExpr::CaptureDefaultToken(void) const {
   auto &self = *const_cast<clang::LambdaExpr *>(u.LambdaExpr);
   decltype(auto) val = self.getCaptureDefaultLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::CompoundStmt LambdaExpr::CompoundStatementBody(void) const noexcept {
+::pasta::CompoundStmt LambdaExpr::CompoundStatementBody(void) const {
   auto &self = *const_cast<clang::LambdaExpr *>(u.LambdaExpr);
   decltype(auto) val = self.getCompoundStmtBody();
   if (val) {
     return StmtBuilder::Create<::pasta::CompoundStmt>(ast, val);
   }
   assert(false && "LambdaExpr::CompoundStatementBody can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::FunctionTemplateDecl> LambdaExpr::DependentCallOperator(void) const noexcept {
+std::optional<::pasta::FunctionTemplateDecl> LambdaExpr::DependentCallOperator(void) const {
   auto &self = *const_cast<clang::LambdaExpr *>(u.LambdaExpr);
   decltype(auto) val = self.getDependentCallOperator();
   if (!val) {
@@ -5590,17 +5590,17 @@ std::optional<::pasta::FunctionTemplateDecl> LambdaExpr::DependentCallOperator(v
   if (val) {
     return DeclBuilder::Create<::pasta::FunctionTemplateDecl>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token LambdaExpr::EndToken(void) const noexcept {
+::pasta::Token LambdaExpr::EndToken(void) const {
   auto &self = *const_cast<clang::LambdaExpr *>(u.LambdaExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::NamedDecl> LambdaExpr::ExplicitTemplateParameters(void) const noexcept {
+std::vector<::pasta::NamedDecl> LambdaExpr::ExplicitTemplateParameters(void) const {
   auto &self = *const_cast<clang::LambdaExpr *>(u.LambdaExpr);
   decltype(auto) val = self.getExplicitTemplateParameters();
   std::vector<::pasta::NamedDecl> ret;
@@ -5610,37 +5610,37 @@ std::vector<::pasta::NamedDecl> LambdaExpr::ExplicitTemplateParameters(void) con
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::TokenRange LambdaExpr::IntroducerRange(void) const noexcept {
+::pasta::TokenRange LambdaExpr::IntroducerRange(void) const {
   auto &self = *const_cast<clang::LambdaExpr *>(u.LambdaExpr);
   decltype(auto) val = self.getIntroducerRange();
   return ast->TokenRangeFrom(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::CXXRecordDecl LambdaExpr::LambdaClass(void) const noexcept {
+::pasta::CXXRecordDecl LambdaExpr::LambdaClass(void) const {
   auto &self = *const_cast<clang::LambdaExpr *>(u.LambdaExpr);
   decltype(auto) val = self.getLambdaClass();
   if (val) {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
   assert(false && "LambdaExpr::LambdaClass can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::TemplateParameterList> LambdaExpr::TemplateParameterList(void) const noexcept {
+std::optional<::pasta::TemplateParameterList> LambdaExpr::TemplateParameterList(void) const {
   auto &self = *const_cast<clang::LambdaExpr *>(u.LambdaExpr);
   decltype(auto) val = self.getTemplateParameterList();
   if (!val) {
     return std::nullopt;
   }
   return ::pasta::TemplateParameterList(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Expr> LambdaExpr::TrailingRequiresClause(void) const noexcept {
+std::optional<::pasta::Expr> LambdaExpr::TrailingRequiresClause(void) const {
   auto &self = *const_cast<clang::LambdaExpr *>(u.LambdaExpr);
   decltype(auto) val = self.getTrailingRequiresClause();
   if (!val) {
@@ -5649,39 +5649,39 @@ std::optional<::pasta::Expr> LambdaExpr::TrailingRequiresClause(void) const noex
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool LambdaExpr::HasExplicitParameters(void) const noexcept {
+bool LambdaExpr::HasExplicitParameters(void) const {
   auto &self = *const_cast<clang::LambdaExpr *>(u.LambdaExpr);
   decltype(auto) val = self.hasExplicitParameters();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool LambdaExpr::HasExplicitResultType(void) const noexcept {
+bool LambdaExpr::HasExplicitResultType(void) const {
   auto &self = *const_cast<clang::LambdaExpr *>(u.LambdaExpr);
   decltype(auto) val = self.hasExplicitResultType();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: LambdaExpr::
 // 0: LambdaExpr::
 // 0: LambdaExpr::ImplicitCaptures
-bool LambdaExpr::IsGenericLambda(void) const noexcept {
+bool LambdaExpr::IsGenericLambda(void) const {
   auto &self = *const_cast<clang::LambdaExpr *>(u.LambdaExpr);
   decltype(auto) val = self.isGenericLambda();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: LambdaExpr::IsInitializerCapture
-bool LambdaExpr::IsMutable(void) const noexcept {
+bool LambdaExpr::IsMutable(void) const {
   auto &self = *const_cast<clang::LambdaExpr *>(u.LambdaExpr);
   decltype(auto) val = self.isMutable();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 MSAsmStmt::MSAsmStmt(
@@ -5691,7 +5691,7 @@ MSAsmStmt::MSAsmStmt(
 
 PASTA_DEFINE_BASE_OPERATORS(AsmStmt, MSAsmStmt)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, MSAsmStmt)
-std::vector<::pasta::Stmt> MSAsmStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> MSAsmStmt::Children(void) const {
   auto &self = *const_cast<clang::MSAsmStmt *>(u.MSAsmStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -5701,17 +5701,17 @@ std::vector<::pasta::Stmt> MSAsmStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::string MSAsmStmt::GenerateAssemblyString(void) const noexcept {
+std::string MSAsmStmt::GenerateAssemblyString(void) const {
   auto &self = *(u.MSAsmStmt);
   decltype(auto) val = self.generateAsmString(ast->ci->getASTContext());
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<std::string_view> MSAsmStmt::AllConstraints(void) const noexcept {
+std::vector<std::string_view> MSAsmStmt::AllConstraints(void) const {
   auto &self = *const_cast<clang::MSAsmStmt *>(u.MSAsmStmt);
   decltype(auto) val = self.getAllConstraints();
   std::vector<std::string_view> ret;
@@ -5720,10 +5720,10 @@ std::vector<std::string_view> MSAsmStmt::AllConstraints(void) const noexcept {
     ret.emplace_back(std::move(sv));
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Expr> MSAsmStmt::AllExpressions(void) const noexcept {
+std::vector<::pasta::Expr> MSAsmStmt::AllExpressions(void) const {
   auto &self = *const_cast<clang::MSAsmStmt *>(u.MSAsmStmt);
   decltype(auto) val = self.getAllExprs();
   std::vector<::pasta::Expr> ret;
@@ -5733,10 +5733,10 @@ std::vector<::pasta::Expr> MSAsmStmt::AllExpressions(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::string_view MSAsmStmt::AssemblyString(void) const noexcept {
+std::string_view MSAsmStmt::AssemblyString(void) const {
   auto &self = *const_cast<clang::MSAsmStmt *>(u.MSAsmStmt);
   decltype(auto) val = self.getAsmString();
   if (auto size = val.size()) {
@@ -5744,18 +5744,18 @@ std::string_view MSAsmStmt::AssemblyString(void) const noexcept {
   } else {
     return std::string_view();
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token MSAsmStmt::BeginToken(void) const noexcept {
+::pasta::Token MSAsmStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::MSAsmStmt *>(u.MSAsmStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: MSAsmStmt::Clobber
-std::vector<std::string_view> MSAsmStmt::Clobbers(void) const noexcept {
+std::vector<std::string_view> MSAsmStmt::Clobbers(void) const {
   auto &self = *const_cast<clang::MSAsmStmt *>(u.MSAsmStmt);
   decltype(auto) val = self.getClobbers();
   std::vector<std::string_view> ret;
@@ -5764,35 +5764,35 @@ std::vector<std::string_view> MSAsmStmt::Clobbers(void) const noexcept {
     ret.emplace_back(std::move(sv));
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token MSAsmStmt::EndToken(void) const noexcept {
+::pasta::Token MSAsmStmt::EndToken(void) const {
   auto &self = *const_cast<clang::MSAsmStmt *>(u.MSAsmStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: MSAsmStmt::InputConstraint
 // 1: MSAsmStmt::InputExpression
-::pasta::Token MSAsmStmt::LBraceToken(void) const noexcept {
+::pasta::Token MSAsmStmt::LBraceToken(void) const {
   auto &self = *const_cast<clang::MSAsmStmt *>(u.MSAsmStmt);
   decltype(auto) val = self.getLBraceLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: MSAsmStmt::OutputConstraint
 // 1: MSAsmStmt::OutputExpression
-bool MSAsmStmt::HasBraces(void) const noexcept {
+bool MSAsmStmt::HasBraces(void) const {
   auto &self = *const_cast<clang::MSAsmStmt *>(u.MSAsmStmt);
   decltype(auto) val = self.hasBraces();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<std::string_view> MSAsmStmt::OutputConstraints(void) const noexcept {
+std::vector<std::string_view> MSAsmStmt::OutputConstraints(void) const {
   std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
     if (auto size = val.size()) {
@@ -5800,7 +5800,7 @@ std::vector<std::string_view> MSAsmStmt::OutputConstraints(void) const noexcept 
     } else {
       return std::string_view();
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.MSAsmStmt->getNumOutputs();
   decltype(count) i = 0;
@@ -5810,13 +5810,13 @@ std::vector<std::string_view> MSAsmStmt::OutputConstraints(void) const noexcept 
   return ret;
 }
 
-std::vector<::pasta::Expr> MSAsmStmt::OutputExpressions(void) const noexcept {
+std::vector<::pasta::Expr> MSAsmStmt::OutputExpressions(void) const {
   std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.MSAsmStmt->getNumOutputs();
   decltype(count) i = 0;
@@ -5826,7 +5826,7 @@ std::vector<::pasta::Expr> MSAsmStmt::OutputExpressions(void) const noexcept {
   return ret;
 }
 
-std::vector<std::string_view> MSAsmStmt::InputConstraints(void) const noexcept {
+std::vector<std::string_view> MSAsmStmt::InputConstraints(void) const {
   std::vector<std::string_view> ret;
   auto convert_elem = [&] (llvm::StringRef val) {
     if (auto size = val.size()) {
@@ -5834,7 +5834,7 @@ std::vector<std::string_view> MSAsmStmt::InputConstraints(void) const noexcept {
     } else {
       return std::string_view();
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.MSAsmStmt->getNumInputs();
   decltype(count) i = 0;
@@ -5844,13 +5844,13 @@ std::vector<std::string_view> MSAsmStmt::InputConstraints(void) const noexcept {
   return ret;
 }
 
-std::vector<::pasta::Expr> MSAsmStmt::InputExpressions(void) const noexcept {
+std::vector<::pasta::Expr> MSAsmStmt::InputExpressions(void) const {
   std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.MSAsmStmt->getNumInputs();
   decltype(count) i = 0;
@@ -5866,7 +5866,7 @@ MSDependentExistsStmt::MSDependentExistsStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, MSDependentExistsStmt)
-std::vector<::pasta::Stmt> MSDependentExistsStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> MSDependentExistsStmt::Children(void) const {
   auto &self = *const_cast<clang::MSDependentExistsStmt *>(u.MSDependentExistsStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -5876,54 +5876,54 @@ std::vector<::pasta::Stmt> MSDependentExistsStmt::Children(void) const noexcept 
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token MSDependentExistsStmt::BeginToken(void) const noexcept {
+::pasta::Token MSDependentExistsStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::MSDependentExistsStmt *>(u.MSDependentExistsStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token MSDependentExistsStmt::EndToken(void) const noexcept {
+::pasta::Token MSDependentExistsStmt::EndToken(void) const {
   auto &self = *const_cast<clang::MSDependentExistsStmt *>(u.MSDependentExistsStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token MSDependentExistsStmt::KeywordToken(void) const noexcept {
+::pasta::Token MSDependentExistsStmt::KeywordToken(void) const {
   auto &self = *const_cast<clang::MSDependentExistsStmt *>(u.MSDependentExistsStmt);
   decltype(auto) val = self.getKeywordLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: MSDependentExistsStmt::NameInfo
 // 0: MSDependentExistsStmt::QualifierToken
-::pasta::CompoundStmt MSDependentExistsStmt::SubStatement(void) const noexcept {
+::pasta::CompoundStmt MSDependentExistsStmt::SubStatement(void) const {
   auto &self = *const_cast<clang::MSDependentExistsStmt *>(u.MSDependentExistsStmt);
   decltype(auto) val = self.getSubStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::CompoundStmt>(ast, val);
   }
   assert(false && "MSDependentExistsStmt::SubStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool MSDependentExistsStmt::IsIfExists(void) const noexcept {
+bool MSDependentExistsStmt::IsIfExists(void) const {
   auto &self = *const_cast<clang::MSDependentExistsStmt *>(u.MSDependentExistsStmt);
   decltype(auto) val = self.isIfExists();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool MSDependentExistsStmt::IsIfNotExists(void) const noexcept {
+bool MSDependentExistsStmt::IsIfNotExists(void) const {
   auto &self = *const_cast<clang::MSDependentExistsStmt *>(u.MSDependentExistsStmt);
   decltype(auto) val = self.isIfNotExists();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 MSPropertyRefExpr::MSPropertyRefExpr(
@@ -5934,7 +5934,7 @@ MSPropertyRefExpr::MSPropertyRefExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, MSPropertyRefExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, MSPropertyRefExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, MSPropertyRefExpr)
-std::vector<::pasta::Stmt> MSPropertyRefExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> MSPropertyRefExpr::Children(void) const {
   auto &self = *const_cast<clang::MSPropertyRefExpr *>(u.MSPropertyRefExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -5944,70 +5944,70 @@ std::vector<::pasta::Stmt> MSPropertyRefExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr MSPropertyRefExpr::BaseExpression(void) const noexcept {
+::pasta::Expr MSPropertyRefExpr::BaseExpression(void) const {
   auto &self = *const_cast<clang::MSPropertyRefExpr *>(u.MSPropertyRefExpr);
   decltype(auto) val = self.getBaseExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "MSPropertyRefExpr::BaseExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token MSPropertyRefExpr::BeginToken(void) const noexcept {
+::pasta::Token MSPropertyRefExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::MSPropertyRefExpr *>(u.MSPropertyRefExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token MSPropertyRefExpr::EndToken(void) const noexcept {
+::pasta::Token MSPropertyRefExpr::EndToken(void) const {
   auto &self = *const_cast<clang::MSPropertyRefExpr *>(u.MSPropertyRefExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token MSPropertyRefExpr::MemberToken(void) const noexcept {
+::pasta::Token MSPropertyRefExpr::MemberToken(void) const {
   auto &self = *const_cast<clang::MSPropertyRefExpr *>(u.MSPropertyRefExpr);
   decltype(auto) val = self.getMemberLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::MSPropertyDecl MSPropertyRefExpr::PropertyDeclaration(void) const noexcept {
+::pasta::MSPropertyDecl MSPropertyRefExpr::PropertyDeclaration(void) const {
   auto &self = *const_cast<clang::MSPropertyRefExpr *>(u.MSPropertyRefExpr);
   decltype(auto) val = self.getPropertyDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::MSPropertyDecl>(ast, val);
   }
   assert(false && "MSPropertyRefExpr::PropertyDeclaration can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: MSPropertyRefExpr::QualifierToken
-::pasta::TokenRange MSPropertyRefExpr::Tokens(void) const noexcept {
+::pasta::TokenRange MSPropertyRefExpr::Tokens(void) const {
   auto &self = *const_cast<clang::MSPropertyRefExpr *>(u.MSPropertyRefExpr);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool MSPropertyRefExpr::IsArrow(void) const noexcept {
+bool MSPropertyRefExpr::IsArrow(void) const {
   auto &self = *const_cast<clang::MSPropertyRefExpr *>(u.MSPropertyRefExpr);
   decltype(auto) val = self.isArrow();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool MSPropertyRefExpr::IsImplicitAccess(void) const noexcept {
+bool MSPropertyRefExpr::IsImplicitAccess(void) const {
   auto &self = *const_cast<clang::MSPropertyRefExpr *>(u.MSPropertyRefExpr);
   decltype(auto) val = self.isImplicitAccess();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 MSPropertySubscriptExpr::MSPropertySubscriptExpr(
@@ -6018,7 +6018,7 @@ MSPropertySubscriptExpr::MSPropertySubscriptExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, MSPropertySubscriptExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, MSPropertySubscriptExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, MSPropertySubscriptExpr)
-std::vector<::pasta::Stmt> MSPropertySubscriptExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> MSPropertySubscriptExpr::Children(void) const {
   auto &self = *const_cast<clang::MSPropertySubscriptExpr *>(u.MSPropertySubscriptExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -6028,55 +6028,55 @@ std::vector<::pasta::Stmt> MSPropertySubscriptExpr::Children(void) const noexcep
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr MSPropertySubscriptExpr::Base(void) const noexcept {
+::pasta::Expr MSPropertySubscriptExpr::Base(void) const {
   auto &self = *const_cast<clang::MSPropertySubscriptExpr *>(u.MSPropertySubscriptExpr);
   decltype(auto) val = self.getBase();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "MSPropertySubscriptExpr::Base can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token MSPropertySubscriptExpr::BeginToken(void) const noexcept {
+::pasta::Token MSPropertySubscriptExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::MSPropertySubscriptExpr *>(u.MSPropertySubscriptExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token MSPropertySubscriptExpr::EndToken(void) const noexcept {
+::pasta::Token MSPropertySubscriptExpr::EndToken(void) const {
   auto &self = *const_cast<clang::MSPropertySubscriptExpr *>(u.MSPropertySubscriptExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token MSPropertySubscriptExpr::ExpressionToken(void) const noexcept {
+::pasta::Token MSPropertySubscriptExpr::ExpressionToken(void) const {
   auto &self = *const_cast<clang::MSPropertySubscriptExpr *>(u.MSPropertySubscriptExpr);
   decltype(auto) val = self.getExprLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr MSPropertySubscriptExpr::Index(void) const noexcept {
+::pasta::Expr MSPropertySubscriptExpr::Index(void) const {
   auto &self = *const_cast<clang::MSPropertySubscriptExpr *>(u.MSPropertySubscriptExpr);
   decltype(auto) val = self.getIdx();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "MSPropertySubscriptExpr::Index can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token MSPropertySubscriptExpr::RBracketToken(void) const noexcept {
+::pasta::Token MSPropertySubscriptExpr::RBracketToken(void) const {
   auto &self = *const_cast<clang::MSPropertySubscriptExpr *>(u.MSPropertySubscriptExpr);
   decltype(auto) val = self.getRBracketLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 MaterializeTemporaryExpr::MaterializeTemporaryExpr(
@@ -6087,7 +6087,7 @@ MaterializeTemporaryExpr::MaterializeTemporaryExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, MaterializeTemporaryExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, MaterializeTemporaryExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, MaterializeTemporaryExpr)
-std::vector<::pasta::Stmt> MaterializeTemporaryExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> MaterializeTemporaryExpr::Children(void) const {
   auto &self = *const_cast<clang::MaterializeTemporaryExpr *>(u.MaterializeTemporaryExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -6097,24 +6097,24 @@ std::vector<::pasta::Stmt> MaterializeTemporaryExpr::Children(void) const noexce
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token MaterializeTemporaryExpr::BeginToken(void) const noexcept {
+::pasta::Token MaterializeTemporaryExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::MaterializeTemporaryExpr *>(u.MaterializeTemporaryExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token MaterializeTemporaryExpr::EndToken(void) const noexcept {
+::pasta::Token MaterializeTemporaryExpr::EndToken(void) const {
   auto &self = *const_cast<clang::MaterializeTemporaryExpr *>(u.MaterializeTemporaryExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::ValueDecl> MaterializeTemporaryExpr::ExtendingDeclaration(void) const noexcept {
+std::optional<::pasta::ValueDecl> MaterializeTemporaryExpr::ExtendingDeclaration(void) const {
   auto &self = *const_cast<clang::MaterializeTemporaryExpr *>(u.MaterializeTemporaryExpr);
   decltype(auto) val = self.getExtendingDecl();
   if (!val) {
@@ -6123,10 +6123,10 @@ std::optional<::pasta::ValueDecl> MaterializeTemporaryExpr::ExtendingDeclaration
   if (val) {
     return DeclBuilder::Create<::pasta::ValueDecl>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::LifetimeExtendedTemporaryDecl> MaterializeTemporaryExpr::LifetimeExtendedTemporaryDeclaration(void) const noexcept {
+std::optional<::pasta::LifetimeExtendedTemporaryDecl> MaterializeTemporaryExpr::LifetimeExtendedTemporaryDeclaration(void) const {
   auto &self = *const_cast<clang::MaterializeTemporaryExpr *>(u.MaterializeTemporaryExpr);
   decltype(auto) val = self.getLifetimeExtendedTemporaryDecl();
   if (!val) {
@@ -6135,46 +6135,46 @@ std::optional<::pasta::LifetimeExtendedTemporaryDecl> MaterializeTemporaryExpr::
   if (val) {
     return DeclBuilder::Create<::pasta::LifetimeExtendedTemporaryDecl>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t MaterializeTemporaryExpr::ManglingNumber(void) const noexcept {
+uint32_t MaterializeTemporaryExpr::ManglingNumber(void) const {
   auto &self = *const_cast<clang::MaterializeTemporaryExpr *>(u.MaterializeTemporaryExpr);
   decltype(auto) val = self.getManglingNumber();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: MaterializeTemporaryExpr::OrCreateValue
-enum StorageDuration MaterializeTemporaryExpr::StorageDuration(void) const noexcept {
+enum StorageDuration MaterializeTemporaryExpr::StorageDuration(void) const {
   auto &self = *const_cast<clang::MaterializeTemporaryExpr *>(u.MaterializeTemporaryExpr);
   decltype(auto) val = self.getStorageDuration();
   return static_cast<::pasta::StorageDuration>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr MaterializeTemporaryExpr::SubExpression(void) const noexcept {
+::pasta::Expr MaterializeTemporaryExpr::SubExpression(void) const {
   auto &self = *const_cast<clang::MaterializeTemporaryExpr *>(u.MaterializeTemporaryExpr);
   decltype(auto) val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "MaterializeTemporaryExpr::SubExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool MaterializeTemporaryExpr::IsBoundToLvalueReference(void) const noexcept {
+bool MaterializeTemporaryExpr::IsBoundToLvalueReference(void) const {
   auto &self = *const_cast<clang::MaterializeTemporaryExpr *>(u.MaterializeTemporaryExpr);
   decltype(auto) val = self.isBoundToLvalueReference();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool MaterializeTemporaryExpr::IsUsableInConstantExpressions(void) const noexcept {
+bool MaterializeTemporaryExpr::IsUsableInConstantExpressions(void) const {
   auto &self = *(u.MaterializeTemporaryExpr);
   decltype(auto) val = self.isUsableInConstantExpressions(ast->ci->getASTContext());
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 MatrixSubscriptExpr::MatrixSubscriptExpr(
@@ -6185,7 +6185,7 @@ MatrixSubscriptExpr::MatrixSubscriptExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, MatrixSubscriptExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, MatrixSubscriptExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, MatrixSubscriptExpr)
-std::vector<::pasta::Stmt> MatrixSubscriptExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> MatrixSubscriptExpr::Children(void) const {
   auto &self = *const_cast<clang::MatrixSubscriptExpr *>(u.MatrixSubscriptExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -6195,72 +6195,72 @@ std::vector<::pasta::Stmt> MatrixSubscriptExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr MatrixSubscriptExpr::Base(void) const noexcept {
+::pasta::Expr MatrixSubscriptExpr::Base(void) const {
   auto &self = *const_cast<clang::MatrixSubscriptExpr *>(u.MatrixSubscriptExpr);
   decltype(auto) val = self.getBase();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "MatrixSubscriptExpr::Base can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token MatrixSubscriptExpr::BeginToken(void) const noexcept {
+::pasta::Token MatrixSubscriptExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::MatrixSubscriptExpr *>(u.MatrixSubscriptExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr MatrixSubscriptExpr::ColumnIndex(void) const noexcept {
+::pasta::Expr MatrixSubscriptExpr::ColumnIndex(void) const {
   auto &self = *const_cast<clang::MatrixSubscriptExpr *>(u.MatrixSubscriptExpr);
   decltype(auto) val = self.getColumnIdx();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "MatrixSubscriptExpr::ColumnIndex can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token MatrixSubscriptExpr::EndToken(void) const noexcept {
+::pasta::Token MatrixSubscriptExpr::EndToken(void) const {
   auto &self = *const_cast<clang::MatrixSubscriptExpr *>(u.MatrixSubscriptExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token MatrixSubscriptExpr::ExpressionToken(void) const noexcept {
+::pasta::Token MatrixSubscriptExpr::ExpressionToken(void) const {
   auto &self = *const_cast<clang::MatrixSubscriptExpr *>(u.MatrixSubscriptExpr);
   decltype(auto) val = self.getExprLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token MatrixSubscriptExpr::RBracketToken(void) const noexcept {
+::pasta::Token MatrixSubscriptExpr::RBracketToken(void) const {
   auto &self = *const_cast<clang::MatrixSubscriptExpr *>(u.MatrixSubscriptExpr);
   decltype(auto) val = self.getRBracketLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr MatrixSubscriptExpr::RowIndex(void) const noexcept {
+::pasta::Expr MatrixSubscriptExpr::RowIndex(void) const {
   auto &self = *const_cast<clang::MatrixSubscriptExpr *>(u.MatrixSubscriptExpr);
   decltype(auto) val = self.getRowIdx();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "MatrixSubscriptExpr::RowIndex can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool MatrixSubscriptExpr::IsIncomplete(void) const noexcept {
+bool MatrixSubscriptExpr::IsIncomplete(void) const {
   auto &self = *const_cast<clang::MatrixSubscriptExpr *>(u.MatrixSubscriptExpr);
   decltype(auto) val = self.isIncomplete();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 MemberExpr::MemberExpr(
@@ -6271,7 +6271,7 @@ MemberExpr::MemberExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, MemberExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, MemberExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, MemberExpr)
-std::vector<::pasta::Stmt> MemberExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> MemberExpr::Children(void) const {
   auto &self = *const_cast<clang::MemberExpr *>(u.MemberExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -6281,144 +6281,144 @@ std::vector<::pasta::Stmt> MemberExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr MemberExpr::Base(void) const noexcept {
+::pasta::Expr MemberExpr::Base(void) const {
   auto &self = *const_cast<clang::MemberExpr *>(u.MemberExpr);
   decltype(auto) val = self.getBase();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "MemberExpr::Base can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token MemberExpr::BeginToken(void) const noexcept {
+::pasta::Token MemberExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::MemberExpr *>(u.MemberExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token MemberExpr::EndToken(void) const noexcept {
+::pasta::Token MemberExpr::EndToken(void) const {
   auto &self = *const_cast<clang::MemberExpr *>(u.MemberExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token MemberExpr::ExpressionToken(void) const noexcept {
+::pasta::Token MemberExpr::ExpressionToken(void) const {
   auto &self = *const_cast<clang::MemberExpr *>(u.MemberExpr);
   decltype(auto) val = self.getExprLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: MemberExpr::FoundDeclaration
-::pasta::Token MemberExpr::LAngleToken(void) const noexcept {
+::pasta::Token MemberExpr::LAngleToken(void) const {
   auto &self = *const_cast<clang::MemberExpr *>(u.MemberExpr);
   decltype(auto) val = self.getLAngleLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::ValueDecl MemberExpr::MemberDeclaration(void) const noexcept {
+::pasta::ValueDecl MemberExpr::MemberDeclaration(void) const {
   auto &self = *const_cast<clang::MemberExpr *>(u.MemberExpr);
   decltype(auto) val = self.getMemberDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::ValueDecl>(ast, val);
   }
   assert(false && "MemberExpr::MemberDeclaration can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token MemberExpr::MemberToken(void) const noexcept {
+::pasta::Token MemberExpr::MemberToken(void) const {
   auto &self = *const_cast<clang::MemberExpr *>(u.MemberExpr);
   decltype(auto) val = self.getMemberLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: MemberExpr::MemberNameInfo
-uint32_t MemberExpr::NumTemplateArguments(void) const noexcept {
+uint32_t MemberExpr::NumTemplateArguments(void) const {
   auto &self = *const_cast<clang::MemberExpr *>(u.MemberExpr);
   decltype(auto) val = self.getNumTemplateArgs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token MemberExpr::OperatorToken(void) const noexcept {
+::pasta::Token MemberExpr::OperatorToken(void) const {
   auto &self = *const_cast<clang::MemberExpr *>(u.MemberExpr);
   decltype(auto) val = self.getOperatorLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: MemberExpr::Qualifier
 // 0: MemberExpr::QualifierToken
-::pasta::Token MemberExpr::RAngleToken(void) const noexcept {
+::pasta::Token MemberExpr::RAngleToken(void) const {
   auto &self = *const_cast<clang::MemberExpr *>(u.MemberExpr);
   decltype(auto) val = self.getRAngleLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: MemberExpr::TemplateArguments
-::pasta::Token MemberExpr::TemplateKeywordToken(void) const noexcept {
+::pasta::Token MemberExpr::TemplateKeywordToken(void) const {
   auto &self = *const_cast<clang::MemberExpr *>(u.MemberExpr);
   decltype(auto) val = self.getTemplateKeywordLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool MemberExpr::HadMultipleCandidates(void) const noexcept {
+bool MemberExpr::HadMultipleCandidates(void) const {
   auto &self = *const_cast<clang::MemberExpr *>(u.MemberExpr);
   decltype(auto) val = self.hadMultipleCandidates();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool MemberExpr::HasExplicitTemplateArguments(void) const noexcept {
+bool MemberExpr::HasExplicitTemplateArguments(void) const {
   auto &self = *const_cast<clang::MemberExpr *>(u.MemberExpr);
   decltype(auto) val = self.hasExplicitTemplateArgs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool MemberExpr::HasQualifier(void) const noexcept {
+bool MemberExpr::HasQualifier(void) const {
   auto &self = *const_cast<clang::MemberExpr *>(u.MemberExpr);
   decltype(auto) val = self.hasQualifier();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool MemberExpr::HasTemplateKeyword(void) const noexcept {
+bool MemberExpr::HasTemplateKeyword(void) const {
   auto &self = *const_cast<clang::MemberExpr *>(u.MemberExpr);
   decltype(auto) val = self.hasTemplateKeyword();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool MemberExpr::IsArrow(void) const noexcept {
+bool MemberExpr::IsArrow(void) const {
   auto &self = *const_cast<clang::MemberExpr *>(u.MemberExpr);
   decltype(auto) val = self.isArrow();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool MemberExpr::IsImplicitAccess(void) const noexcept {
+bool MemberExpr::IsImplicitAccess(void) const {
   auto &self = *const_cast<clang::MemberExpr *>(u.MemberExpr);
   decltype(auto) val = self.isImplicitAccess();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum NonOdrUseReason MemberExpr::IsNonOdrUse(void) const noexcept {
+enum NonOdrUseReason MemberExpr::IsNonOdrUse(void) const {
   auto &self = *const_cast<clang::MemberExpr *>(u.MemberExpr);
   decltype(auto) val = self.isNonOdrUse();
   return static_cast<::pasta::NonOdrUseReason>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: MemberExpr::PerformsVirtualDispatch
@@ -6431,7 +6431,7 @@ NoInitExpr::NoInitExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, NoInitExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, NoInitExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, NoInitExpr)
-std::vector<::pasta::Stmt> NoInitExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> NoInitExpr::Children(void) const {
   auto &self = *const_cast<clang::NoInitExpr *>(u.NoInitExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -6441,21 +6441,21 @@ std::vector<::pasta::Stmt> NoInitExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token NoInitExpr::BeginToken(void) const noexcept {
+::pasta::Token NoInitExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::NoInitExpr *>(u.NoInitExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token NoInitExpr::EndToken(void) const noexcept {
+::pasta::Token NoInitExpr::EndToken(void) const {
   auto &self = *const_cast<clang::NoInitExpr *>(u.NoInitExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 NullStmt::NullStmt(
@@ -6464,7 +6464,7 @@ NullStmt::NullStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, NullStmt)
-std::vector<::pasta::Stmt> NullStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> NullStmt::Children(void) const {
   auto &self = *const_cast<clang::NullStmt *>(u.NullStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -6474,35 +6474,35 @@ std::vector<::pasta::Stmt> NullStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token NullStmt::BeginToken(void) const noexcept {
+::pasta::Token NullStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::NullStmt *>(u.NullStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token NullStmt::EndToken(void) const noexcept {
+::pasta::Token NullStmt::EndToken(void) const {
   auto &self = *const_cast<clang::NullStmt *>(u.NullStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token NullStmt::SemiToken(void) const noexcept {
+::pasta::Token NullStmt::SemiToken(void) const {
   auto &self = *const_cast<clang::NullStmt *>(u.NullStmt);
   decltype(auto) val = self.getSemiLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool NullStmt::HasLeadingEmptyMacro(void) const noexcept {
+bool NullStmt::HasLeadingEmptyMacro(void) const {
   auto &self = *const_cast<clang::NullStmt *>(u.NullStmt);
   decltype(auto) val = self.hasLeadingEmptyMacro();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPArraySectionExpr::OMPArraySectionExpr(
@@ -6513,7 +6513,7 @@ OMPArraySectionExpr::OMPArraySectionExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, OMPArraySectionExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPArraySectionExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, OMPArraySectionExpr)
-std::vector<::pasta::Stmt> OMPArraySectionExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> OMPArraySectionExpr::Children(void) const {
   auto &self = *const_cast<clang::OMPArraySectionExpr *>(u.OMPArraySectionExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -6523,89 +6523,89 @@ std::vector<::pasta::Stmt> OMPArraySectionExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPArraySectionExpr::Base(void) const noexcept {
+::pasta::Expr OMPArraySectionExpr::Base(void) const {
   auto &self = *const_cast<clang::OMPArraySectionExpr *>(u.OMPArraySectionExpr);
   decltype(auto) val = self.getBase();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPArraySectionExpr::Base can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token OMPArraySectionExpr::BeginToken(void) const noexcept {
+::pasta::Token OMPArraySectionExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::OMPArraySectionExpr *>(u.OMPArraySectionExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token OMPArraySectionExpr::FirstColonToken(void) const noexcept {
+::pasta::Token OMPArraySectionExpr::FirstColonToken(void) const {
   auto &self = *const_cast<clang::OMPArraySectionExpr *>(u.OMPArraySectionExpr);
   decltype(auto) val = self.getColonLocFirst();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token OMPArraySectionExpr::SecondColonToken(void) const noexcept {
+::pasta::Token OMPArraySectionExpr::SecondColonToken(void) const {
   auto &self = *const_cast<clang::OMPArraySectionExpr *>(u.OMPArraySectionExpr);
   decltype(auto) val = self.getColonLocSecond();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token OMPArraySectionExpr::EndToken(void) const noexcept {
+::pasta::Token OMPArraySectionExpr::EndToken(void) const {
   auto &self = *const_cast<clang::OMPArraySectionExpr *>(u.OMPArraySectionExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token OMPArraySectionExpr::ExpressionToken(void) const noexcept {
+::pasta::Token OMPArraySectionExpr::ExpressionToken(void) const {
   auto &self = *const_cast<clang::OMPArraySectionExpr *>(u.OMPArraySectionExpr);
   decltype(auto) val = self.getExprLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPArraySectionExpr::Length(void) const noexcept {
+::pasta::Expr OMPArraySectionExpr::Length(void) const {
   auto &self = *const_cast<clang::OMPArraySectionExpr *>(u.OMPArraySectionExpr);
   decltype(auto) val = self.getLength();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPArraySectionExpr::Length can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPArraySectionExpr::LowerBound(void) const noexcept {
+::pasta::Expr OMPArraySectionExpr::LowerBound(void) const {
   auto &self = *const_cast<clang::OMPArraySectionExpr *>(u.OMPArraySectionExpr);
   decltype(auto) val = self.getLowerBound();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPArraySectionExpr::LowerBound can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token OMPArraySectionExpr::RBracketToken(void) const noexcept {
+::pasta::Token OMPArraySectionExpr::RBracketToken(void) const {
   auto &self = *const_cast<clang::OMPArraySectionExpr *>(u.OMPArraySectionExpr);
   decltype(auto) val = self.getRBracketLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPArraySectionExpr::Stride(void) const noexcept {
+::pasta::Expr OMPArraySectionExpr::Stride(void) const {
   auto &self = *const_cast<clang::OMPArraySectionExpr *>(u.OMPArraySectionExpr);
   decltype(auto) val = self.getStride();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPArraySectionExpr::Stride can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPArrayShapingExpr::OMPArrayShapingExpr(
@@ -6616,7 +6616,7 @@ OMPArrayShapingExpr::OMPArrayShapingExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, OMPArrayShapingExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPArrayShapingExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, OMPArrayShapingExpr)
-std::vector<::pasta::Stmt> OMPArrayShapingExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> OMPArrayShapingExpr::Children(void) const {
   auto &self = *const_cast<clang::OMPArrayShapingExpr *>(u.OMPArrayShapingExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -6626,27 +6626,27 @@ std::vector<::pasta::Stmt> OMPArrayShapingExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPArrayShapingExpr::Base(void) const noexcept {
+::pasta::Expr OMPArrayShapingExpr::Base(void) const {
   auto &self = *const_cast<clang::OMPArrayShapingExpr *>(u.OMPArrayShapingExpr);
   decltype(auto) val = self.getBase();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPArrayShapingExpr::Base can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token OMPArrayShapingExpr::BeginToken(void) const noexcept {
+::pasta::Token OMPArrayShapingExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::OMPArrayShapingExpr *>(u.OMPArrayShapingExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::TokenRange> OMPArrayShapingExpr::BracketsRanges(void) const noexcept {
+std::vector<::pasta::TokenRange> OMPArrayShapingExpr::BracketsRanges(void) const {
   auto &self = *const_cast<clang::OMPArrayShapingExpr *>(u.OMPArrayShapingExpr);
   decltype(auto) val = self.getBracketsRanges();
   std::vector<::pasta::TokenRange> ret;
@@ -6654,10 +6654,10 @@ std::vector<::pasta::TokenRange> OMPArrayShapingExpr::BracketsRanges(void) const
     ret.emplace_back(ast->TokenRangeFrom(sr));
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Expr> OMPArrayShapingExpr::Dimensions(void) const noexcept {
+std::vector<::pasta::Expr> OMPArrayShapingExpr::Dimensions(void) const {
   auto &self = *const_cast<clang::OMPArrayShapingExpr *>(u.OMPArrayShapingExpr);
   decltype(auto) val = self.getDimensions();
   std::vector<::pasta::Expr> ret;
@@ -6667,28 +6667,28 @@ std::vector<::pasta::Expr> OMPArrayShapingExpr::Dimensions(void) const noexcept 
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token OMPArrayShapingExpr::EndToken(void) const noexcept {
+::pasta::Token OMPArrayShapingExpr::EndToken(void) const {
   auto &self = *const_cast<clang::OMPArrayShapingExpr *>(u.OMPArrayShapingExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token OMPArrayShapingExpr::LParenToken(void) const noexcept {
+::pasta::Token OMPArrayShapingExpr::LParenToken(void) const {
   auto &self = *const_cast<clang::OMPArrayShapingExpr *>(u.OMPArrayShapingExpr);
   decltype(auto) val = self.getLParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token OMPArrayShapingExpr::RParenToken(void) const noexcept {
+::pasta::Token OMPArrayShapingExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::OMPArrayShapingExpr *>(u.OMPArrayShapingExpr);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPCanonicalLoop::OMPCanonicalLoop(
@@ -6697,7 +6697,7 @@ OMPCanonicalLoop::OMPCanonicalLoop(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPCanonicalLoop)
-std::vector<::pasta::Stmt> OMPCanonicalLoop::Children(void) const noexcept {
+std::vector<::pasta::Stmt> OMPCanonicalLoop::Children(void) const {
   auto &self = *const_cast<clang::OMPCanonicalLoop *>(u.OMPCanonicalLoop);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -6707,61 +6707,61 @@ std::vector<::pasta::Stmt> OMPCanonicalLoop::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token OMPCanonicalLoop::BeginToken(void) const noexcept {
+::pasta::Token OMPCanonicalLoop::BeginToken(void) const {
   auto &self = *const_cast<clang::OMPCanonicalLoop *>(u.OMPCanonicalLoop);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::CapturedStmt OMPCanonicalLoop::DistanceFunc(void) const noexcept {
+::pasta::CapturedStmt OMPCanonicalLoop::DistanceFunc(void) const {
   auto &self = *const_cast<clang::OMPCanonicalLoop *>(u.OMPCanonicalLoop);
   decltype(auto) val = self.getDistanceFunc();
   if (val) {
     return StmtBuilder::Create<::pasta::CapturedStmt>(ast, val);
   }
   assert(false && "OMPCanonicalLoop::DistanceFunc can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token OMPCanonicalLoop::EndToken(void) const noexcept {
+::pasta::Token OMPCanonicalLoop::EndToken(void) const {
   auto &self = *const_cast<clang::OMPCanonicalLoop *>(u.OMPCanonicalLoop);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt OMPCanonicalLoop::LoopStatement(void) const noexcept {
+::pasta::Stmt OMPCanonicalLoop::LoopStatement(void) const {
   auto &self = *const_cast<clang::OMPCanonicalLoop *>(u.OMPCanonicalLoop);
   decltype(auto) val = self.getLoopStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "OMPCanonicalLoop::LoopStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::CapturedStmt OMPCanonicalLoop::LoopVariableFunc(void) const noexcept {
+::pasta::CapturedStmt OMPCanonicalLoop::LoopVariableFunc(void) const {
   auto &self = *const_cast<clang::OMPCanonicalLoop *>(u.OMPCanonicalLoop);
   decltype(auto) val = self.getLoopVarFunc();
   if (val) {
     return StmtBuilder::Create<::pasta::CapturedStmt>(ast, val);
   }
   assert(false && "OMPCanonicalLoop::LoopVariableFunc can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::DeclRefExpr OMPCanonicalLoop::LoopVariableReference(void) const noexcept {
+::pasta::DeclRefExpr OMPCanonicalLoop::LoopVariableReference(void) const {
   auto &self = *const_cast<clang::OMPCanonicalLoop *>(u.OMPCanonicalLoop);
   decltype(auto) val = self.getLoopVarRef();
   if (val) {
     return StmtBuilder::Create<::pasta::DeclRefExpr>(ast, val);
   }
   assert(false && "OMPCanonicalLoop::LoopVariableReference can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPExecutableDirective::OMPExecutableDirective(
@@ -6844,7 +6844,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTeamsDistributeSimdDir
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTeamsGenericLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPTileDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPExecutableDirective, OMPUnrollDirective)
-std::vector<::pasta::Stmt> OMPExecutableDirective::Children(void) const noexcept {
+std::vector<::pasta::Stmt> OMPExecutableDirective::Children(void) const {
   auto &self = *const_cast<clang::OMPExecutableDirective *>(u.OMPExecutableDirective);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -6854,86 +6854,86 @@ std::vector<::pasta::Stmt> OMPExecutableDirective::Children(void) const noexcept
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: OMPExecutableDirective::Clauses
-::pasta::Stmt OMPExecutableDirective::AssociatedStatement(void) const noexcept {
+::pasta::Stmt OMPExecutableDirective::AssociatedStatement(void) const {
   auto &self = *const_cast<clang::OMPExecutableDirective *>(u.OMPExecutableDirective);
   decltype(auto) val = self.getAssociatedStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "OMPExecutableDirective::AssociatedStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token OMPExecutableDirective::BeginToken(void) const noexcept {
+::pasta::Token OMPExecutableDirective::BeginToken(void) const {
   auto &self = *const_cast<clang::OMPExecutableDirective *>(u.OMPExecutableDirective);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: OMPExecutableDirective::CapturedStatement
 // 1: OMPExecutableDirective::Clause
 // 0: OMPExecutableDirective::DirectiveKind
-::pasta::Token OMPExecutableDirective::EndToken(void) const noexcept {
+::pasta::Token OMPExecutableDirective::EndToken(void) const {
   auto &self = *const_cast<clang::OMPExecutableDirective *>(u.OMPExecutableDirective);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::CapturedStmt OMPExecutableDirective::InnermostCapturedStatement(void) const noexcept {
+::pasta::CapturedStmt OMPExecutableDirective::InnermostCapturedStatement(void) const {
   auto &self = *const_cast<clang::OMPExecutableDirective *>(u.OMPExecutableDirective);
   decltype(auto) val = self.getInnermostCapturedStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::CapturedStmt>(ast, val);
   }
   assert(false && "OMPExecutableDirective::InnermostCapturedStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t OMPExecutableDirective::NumClauses(void) const noexcept {
+uint32_t OMPExecutableDirective::NumClauses(void) const {
   auto &self = *const_cast<clang::OMPExecutableDirective *>(u.OMPExecutableDirective);
   decltype(auto) val = self.getNumClauses();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt OMPExecutableDirective::RawStatement(void) const noexcept {
+::pasta::Stmt OMPExecutableDirective::RawStatement(void) const {
   auto &self = *const_cast<clang::OMPExecutableDirective *>(u.OMPExecutableDirective);
   decltype(auto) val = self.getRawStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "OMPExecutableDirective::RawStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt OMPExecutableDirective::StructuredBlock(void) const noexcept {
+::pasta::Stmt OMPExecutableDirective::StructuredBlock(void) const {
   auto &self = *const_cast<clang::OMPExecutableDirective *>(u.OMPExecutableDirective);
   decltype(auto) val = self.getStructuredBlock();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "OMPExecutableDirective::StructuredBlock can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool OMPExecutableDirective::HasAssociatedStatement(void) const noexcept {
+bool OMPExecutableDirective::HasAssociatedStatement(void) const {
   auto &self = *const_cast<clang::OMPExecutableDirective *>(u.OMPExecutableDirective);
   decltype(auto) val = self.hasAssociatedStmt();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool OMPExecutableDirective::IsStandaloneDirective(void) const noexcept {
+bool OMPExecutableDirective::IsStandaloneDirective(void) const {
   auto &self = *const_cast<clang::OMPExecutableDirective *>(u.OMPExecutableDirective);
   decltype(auto) val = self.isStandaloneDirective();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPFlushDirective::OMPFlushDirective(
@@ -6958,7 +6958,7 @@ OMPIteratorExpr::OMPIteratorExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, OMPIteratorExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPIteratorExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, OMPIteratorExpr)
-std::vector<::pasta::Stmt> OMPIteratorExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> OMPIteratorExpr::Children(void) const {
   auto &self = *const_cast<clang::OMPIteratorExpr *>(u.OMPIteratorExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -6968,55 +6968,55 @@ std::vector<::pasta::Stmt> OMPIteratorExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: OMPIteratorExpr::AssignToken
-::pasta::Token OMPIteratorExpr::BeginToken(void) const noexcept {
+::pasta::Token OMPIteratorExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::OMPIteratorExpr *>(u.OMPIteratorExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: OMPIteratorExpr::ColonToken
-::pasta::Token OMPIteratorExpr::EndToken(void) const noexcept {
+::pasta::Token OMPIteratorExpr::EndToken(void) const {
   auto &self = *const_cast<clang::OMPIteratorExpr *>(u.OMPIteratorExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: OMPIteratorExpr::Helper
 // 1: OMPIteratorExpr::IteratorDeclaration
-::pasta::Token OMPIteratorExpr::IteratorKwToken(void) const noexcept {
+::pasta::Token OMPIteratorExpr::IteratorKwToken(void) const {
   auto &self = *const_cast<clang::OMPIteratorExpr *>(u.OMPIteratorExpr);
   decltype(auto) val = self.getIteratorKwLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: OMPIteratorExpr::IteratorRange
-::pasta::Token OMPIteratorExpr::LParenToken(void) const noexcept {
+::pasta::Token OMPIteratorExpr::LParenToken(void) const {
   auto &self = *const_cast<clang::OMPIteratorExpr *>(u.OMPIteratorExpr);
   decltype(auto) val = self.getLParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token OMPIteratorExpr::RParenToken(void) const noexcept {
+::pasta::Token OMPIteratorExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::OMPIteratorExpr *>(u.OMPIteratorExpr);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: OMPIteratorExpr::SecondColonToken
-uint32_t OMPIteratorExpr::NumOfIterators(void) const noexcept {
+uint32_t OMPIteratorExpr::NumOfIterators(void) const {
   auto &self = *const_cast<clang::OMPIteratorExpr *>(u.OMPIteratorExpr);
   decltype(auto) val = self.numOfIterators();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPLoopBasedDirective::OMPLoopBasedDirective(
@@ -7065,11 +7065,11 @@ PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPTeamsDistributeSimdDire
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPTeamsGenericLoopDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPTileDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopBasedDirective, OMPUnrollDirective)
-uint32_t OMPLoopBasedDirective::LoopsNumber(void) const noexcept {
+uint32_t OMPLoopBasedDirective::LoopsNumber(void) const {
   auto &self = *const_cast<clang::OMPLoopBasedDirective *>(u.OMPLoopBasedDirective);
   decltype(auto) val = self.getLoopsNumber();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPLoopDirective::OMPLoopDirective(
@@ -7115,7 +7115,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPTeamsDistributeParallelForDi
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPTeamsDistributeParallelForSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPTeamsDistributeSimdDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopDirective, OMPTeamsGenericLoopDirective)
-std::vector<::pasta::Expr> OMPLoopDirective::Counters(void) const noexcept {
+std::vector<::pasta::Expr> OMPLoopDirective::Counters(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.counters();
   std::vector<::pasta::Expr> ret;
@@ -7125,10 +7125,10 @@ std::vector<::pasta::Expr> OMPLoopDirective::Counters(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Expr> OMPLoopDirective::DependentCounters(void) const noexcept {
+std::vector<::pasta::Expr> OMPLoopDirective::DependentCounters(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.dependent_counters();
   std::vector<::pasta::Expr> ret;
@@ -7138,10 +7138,10 @@ std::vector<::pasta::Expr> OMPLoopDirective::DependentCounters(void) const noexc
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Expr> OMPLoopDirective::DependentInitializers(void) const noexcept {
+std::vector<::pasta::Expr> OMPLoopDirective::DependentInitializers(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.dependent_inits();
   std::vector<::pasta::Expr> ret;
@@ -7151,10 +7151,10 @@ std::vector<::pasta::Expr> OMPLoopDirective::DependentInitializers(void) const n
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Expr> OMPLoopDirective::Finals(void) const noexcept {
+std::vector<::pasta::Expr> OMPLoopDirective::Finals(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.finals();
   std::vector<::pasta::Expr> ret;
@@ -7164,10 +7164,10 @@ std::vector<::pasta::Expr> OMPLoopDirective::Finals(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexcept {
+std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.finals_conditions();
   std::vector<::pasta::Expr> ret;
@@ -7177,310 +7177,310 @@ std::vector<::pasta::Expr> OMPLoopDirective::FinalsConditions(void) const noexce
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt OMPLoopDirective::Body(void) const noexcept {
+::pasta::Stmt OMPLoopDirective::Body(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getBody();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "OMPLoopDirective::Body can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::CalculateLastIteration(void) const noexcept {
+::pasta::Expr OMPLoopDirective::CalculateLastIteration(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getCalcLastIteration();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::CalculateLastIteration can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::CombinedCondition(void) const noexcept {
+::pasta::Expr OMPLoopDirective::CombinedCondition(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getCombinedCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::CombinedCondition can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::CombinedDistanceCondition(void) const noexcept {
+::pasta::Expr OMPLoopDirective::CombinedDistanceCondition(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getCombinedDistCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::CombinedDistanceCondition can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::CombinedEnsureUpperBound(void) const noexcept {
+::pasta::Expr OMPLoopDirective::CombinedEnsureUpperBound(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getCombinedEnsureUpperBound();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::CombinedEnsureUpperBound can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::CombinedInitializer(void) const noexcept {
+::pasta::Expr OMPLoopDirective::CombinedInitializer(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getCombinedInit();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::CombinedInitializer can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::CombinedLowerBoundVariable(void) const noexcept {
+::pasta::Expr OMPLoopDirective::CombinedLowerBoundVariable(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getCombinedLowerBoundVariable();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::CombinedLowerBoundVariable can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::CombinedNextLowerBound(void) const noexcept {
+::pasta::Expr OMPLoopDirective::CombinedNextLowerBound(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getCombinedNextLowerBound();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::CombinedNextLowerBound can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::CombinedNextUpperBound(void) const noexcept {
+::pasta::Expr OMPLoopDirective::CombinedNextUpperBound(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getCombinedNextUpperBound();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::CombinedNextUpperBound can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::CombinedParallelForInDistanceCondition(void) const noexcept {
+::pasta::Expr OMPLoopDirective::CombinedParallelForInDistanceCondition(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getCombinedParForInDistCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::CombinedParallelForInDistanceCondition can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::CombinedUpperBoundVariable(void) const noexcept {
+::pasta::Expr OMPLoopDirective::CombinedUpperBoundVariable(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getCombinedUpperBoundVariable();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::CombinedUpperBoundVariable can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::Condition(void) const noexcept {
+::pasta::Expr OMPLoopDirective::Condition(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::Condition can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::DistanceIncrement(void) const noexcept {
+::pasta::Expr OMPLoopDirective::DistanceIncrement(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getDistInc();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::DistanceIncrement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::EnsureUpperBound(void) const noexcept {
+::pasta::Expr OMPLoopDirective::EnsureUpperBound(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getEnsureUpperBound();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::EnsureUpperBound can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::Increment(void) const noexcept {
+::pasta::Expr OMPLoopDirective::Increment(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getInc();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::Increment can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::Initializer(void) const noexcept {
+::pasta::Expr OMPLoopDirective::Initializer(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getInit();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::Initializer can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::IsLastIterationVariable(void) const noexcept {
+::pasta::Expr OMPLoopDirective::IsLastIterationVariable(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getIsLastIterVariable();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::IsLastIterationVariable can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::IterationVariable(void) const noexcept {
+::pasta::Expr OMPLoopDirective::IterationVariable(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getIterationVariable();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::IterationVariable can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::LastIteration(void) const noexcept {
+::pasta::Expr OMPLoopDirective::LastIteration(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getLastIteration();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::LastIteration can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::LowerBoundVariable(void) const noexcept {
+::pasta::Expr OMPLoopDirective::LowerBoundVariable(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getLowerBoundVariable();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::LowerBoundVariable can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::NextLowerBound(void) const noexcept {
+::pasta::Expr OMPLoopDirective::NextLowerBound(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getNextLowerBound();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::NextLowerBound can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::NextUpperBound(void) const noexcept {
+::pasta::Expr OMPLoopDirective::NextUpperBound(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getNextUpperBound();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::NextUpperBound can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::NumIterations(void) const noexcept {
+::pasta::Expr OMPLoopDirective::NumIterations(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getNumIterations();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::NumIterations can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::PreCondition(void) const noexcept {
+::pasta::Expr OMPLoopDirective::PreCondition(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getPreCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::PreCondition can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt OMPLoopDirective::PreInitializers(void) const noexcept {
+::pasta::Stmt OMPLoopDirective::PreInitializers(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getPreInits();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "OMPLoopDirective::PreInitializers can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::PrevEnsureUpperBound(void) const noexcept {
+::pasta::Expr OMPLoopDirective::PrevEnsureUpperBound(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getPrevEnsureUpperBound();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::PrevEnsureUpperBound can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::PrevLowerBoundVariable(void) const noexcept {
+::pasta::Expr OMPLoopDirective::PrevLowerBoundVariable(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getPrevLowerBoundVariable();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::PrevLowerBoundVariable can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::PrevUpperBoundVariable(void) const noexcept {
+::pasta::Expr OMPLoopDirective::PrevUpperBoundVariable(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getPrevUpperBoundVariable();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::PrevUpperBoundVariable can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::StrideVariable(void) const noexcept {
+::pasta::Expr OMPLoopDirective::StrideVariable(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getStrideVariable();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::StrideVariable can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPLoopDirective::UpperBoundVariable(void) const noexcept {
+::pasta::Expr OMPLoopDirective::UpperBoundVariable(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.getUpperBoundVariable();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPLoopDirective::UpperBoundVariable can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Expr> OMPLoopDirective::Initializers(void) const noexcept {
+std::vector<::pasta::Expr> OMPLoopDirective::Initializers(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.inits();
   std::vector<::pasta::Expr> ret;
@@ -7490,10 +7490,10 @@ std::vector<::pasta::Expr> OMPLoopDirective::Initializers(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Expr> OMPLoopDirective::PrivateCounters(void) const noexcept {
+std::vector<::pasta::Expr> OMPLoopDirective::PrivateCounters(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.private_counters();
   std::vector<::pasta::Expr> ret;
@@ -7503,10 +7503,10 @@ std::vector<::pasta::Expr> OMPLoopDirective::PrivateCounters(void) const noexcep
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Expr> OMPLoopDirective::Updates(void) const noexcept {
+std::vector<::pasta::Expr> OMPLoopDirective::Updates(void) const {
   auto &self = *const_cast<clang::OMPLoopDirective *>(u.OMPLoopDirective);
   decltype(auto) val = self.updates();
   std::vector<::pasta::Expr> ret;
@@ -7516,7 +7516,7 @@ std::vector<::pasta::Expr> OMPLoopDirective::Updates(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPLoopTransformationDirective::OMPLoopTransformationDirective(
@@ -7529,31 +7529,31 @@ PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPLoopTransformationDirectiv
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPLoopTransformationDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopTransformationDirective, OMPTileDirective)
 PASTA_DEFINE_DERIVED_OPERATORS(OMPLoopTransformationDirective, OMPUnrollDirective)
-uint32_t OMPLoopTransformationDirective::NumAssociatedLoops(void) const noexcept {
+uint32_t OMPLoopTransformationDirective::NumAssociatedLoops(void) const {
   auto &self = *const_cast<clang::OMPLoopTransformationDirective *>(u.OMPLoopTransformationDirective);
   decltype(auto) val = self.getNumAssociatedLoops();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt OMPLoopTransformationDirective::PreInitializers(void) const noexcept {
+::pasta::Stmt OMPLoopTransformationDirective::PreInitializers(void) const {
   auto &self = *const_cast<clang::OMPLoopTransformationDirective *>(u.OMPLoopTransformationDirective);
   decltype(auto) val = self.getPreInits();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "OMPLoopTransformationDirective::PreInitializers can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt OMPLoopTransformationDirective::TransformedStatement(void) const noexcept {
+::pasta::Stmt OMPLoopTransformationDirective::TransformedStatement(void) const {
   auto &self = *const_cast<clang::OMPLoopTransformationDirective *>(u.OMPLoopTransformationDirective);
   decltype(auto) val = self.getTransformedStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "OMPLoopTransformationDirective::TransformedStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPMaskedDirective::OMPMaskedDirective(
@@ -7572,11 +7572,11 @@ PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPMaskedTaskLoopDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPMaskedTaskLoopDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPMaskedTaskLoopDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPMaskedTaskLoopDirective)
-bool OMPMaskedTaskLoopDirective::HasCancel(void) const noexcept {
+bool OMPMaskedTaskLoopDirective::HasCancel(void) const {
   auto &self = *const_cast<clang::OMPMaskedTaskLoopDirective *>(u.OMPMaskedTaskLoopDirective);
   decltype(auto) val = self.hasCancel();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPMaskedTaskLoopSimdDirective::OMPMaskedTaskLoopSimdDirective(
@@ -7604,11 +7604,11 @@ PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPMasterTaskLoopDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPMasterTaskLoopDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPMasterTaskLoopDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPMasterTaskLoopDirective)
-bool OMPMasterTaskLoopDirective::HasCancel(void) const noexcept {
+bool OMPMasterTaskLoopDirective::HasCancel(void) const {
   auto &self = *const_cast<clang::OMPMasterTaskLoopDirective *>(u.OMPMasterTaskLoopDirective);
   decltype(auto) val = self.hasCancel();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPMasterTaskLoopSimdDirective::OMPMasterTaskLoopSimdDirective(
@@ -7627,14 +7627,14 @@ OMPMetaDirective::OMPMetaDirective(
 
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPMetaDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPMetaDirective)
-::pasta::Stmt OMPMetaDirective::IfStatement(void) const noexcept {
+::pasta::Stmt OMPMetaDirective::IfStatement(void) const {
   auto &self = *const_cast<clang::OMPMetaDirective *>(u.OMPMetaDirective);
   decltype(auto) val = self.getIfStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "OMPMetaDirective::IfStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPOrderedDirective::OMPOrderedDirective(
@@ -7651,21 +7651,21 @@ OMPParallelDirective::OMPParallelDirective(
 
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPParallelDirective)
-::pasta::Expr OMPParallelDirective::TaskReductionReferenceExpression(void) const noexcept {
+::pasta::Expr OMPParallelDirective::TaskReductionReferenceExpression(void) const {
   auto &self = *const_cast<clang::OMPParallelDirective *>(u.OMPParallelDirective);
   decltype(auto) val = self.getTaskReductionRefExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPParallelDirective::TaskReductionReferenceExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool OMPParallelDirective::HasCancel(void) const noexcept {
+bool OMPParallelDirective::HasCancel(void) const {
   auto &self = *const_cast<clang::OMPParallelDirective *>(u.OMPParallelDirective);
   decltype(auto) val = self.hasCancel();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPParallelForDirective::OMPParallelForDirective(
@@ -7677,21 +7677,21 @@ PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelForDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPParallelForDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPParallelForDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPParallelForDirective)
-::pasta::Expr OMPParallelForDirective::TaskReductionReferenceExpression(void) const noexcept {
+::pasta::Expr OMPParallelForDirective::TaskReductionReferenceExpression(void) const {
   auto &self = *const_cast<clang::OMPParallelForDirective *>(u.OMPParallelForDirective);
   decltype(auto) val = self.getTaskReductionRefExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPParallelForDirective::TaskReductionReferenceExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool OMPParallelForDirective::HasCancel(void) const noexcept {
+bool OMPParallelForDirective::HasCancel(void) const {
   auto &self = *const_cast<clang::OMPParallelForDirective *>(u.OMPParallelForDirective);
   decltype(auto) val = self.hasCancel();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPParallelForSimdDirective::OMPParallelForSimdDirective(
@@ -7719,14 +7719,14 @@ OMPParallelMaskedDirective::OMPParallelMaskedDirective(
 
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelMaskedDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPParallelMaskedDirective)
-::pasta::Expr OMPParallelMaskedDirective::TaskReductionReferenceExpression(void) const noexcept {
+::pasta::Expr OMPParallelMaskedDirective::TaskReductionReferenceExpression(void) const {
   auto &self = *const_cast<clang::OMPParallelMaskedDirective *>(u.OMPParallelMaskedDirective);
   decltype(auto) val = self.getTaskReductionRefExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPParallelMaskedDirective::TaskReductionReferenceExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPParallelMaskedTaskLoopDirective::OMPParallelMaskedTaskLoopDirective(
@@ -7738,11 +7738,11 @@ PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelMaskedTaskLoopDir
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPParallelMaskedTaskLoopDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPParallelMaskedTaskLoopDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPParallelMaskedTaskLoopDirective)
-bool OMPParallelMaskedTaskLoopDirective::HasCancel(void) const noexcept {
+bool OMPParallelMaskedTaskLoopDirective::HasCancel(void) const {
   auto &self = *const_cast<clang::OMPParallelMaskedTaskLoopDirective *>(u.OMPParallelMaskedTaskLoopDirective);
   decltype(auto) val = self.hasCancel();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPParallelMaskedTaskLoopSimdDirective::OMPParallelMaskedTaskLoopSimdDirective(
@@ -7761,14 +7761,14 @@ OMPParallelMasterDirective::OMPParallelMasterDirective(
 
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelMasterDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPParallelMasterDirective)
-::pasta::Expr OMPParallelMasterDirective::TaskReductionReferenceExpression(void) const noexcept {
+::pasta::Expr OMPParallelMasterDirective::TaskReductionReferenceExpression(void) const {
   auto &self = *const_cast<clang::OMPParallelMasterDirective *>(u.OMPParallelMasterDirective);
   decltype(auto) val = self.getTaskReductionRefExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPParallelMasterDirective::TaskReductionReferenceExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPParallelMasterTaskLoopDirective::OMPParallelMasterTaskLoopDirective(
@@ -7780,11 +7780,11 @@ PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelMasterTaskLoopDir
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPParallelMasterTaskLoopDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPParallelMasterTaskLoopDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPParallelMasterTaskLoopDirective)
-bool OMPParallelMasterTaskLoopDirective::HasCancel(void) const noexcept {
+bool OMPParallelMasterTaskLoopDirective::HasCancel(void) const {
   auto &self = *const_cast<clang::OMPParallelMasterTaskLoopDirective *>(u.OMPParallelMasterTaskLoopDirective);
   decltype(auto) val = self.hasCancel();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPParallelMasterTaskLoopSimdDirective::OMPParallelMasterTaskLoopSimdDirective(
@@ -7803,21 +7803,21 @@ OMPParallelSectionsDirective::OMPParallelSectionsDirective(
 
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPParallelSectionsDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPParallelSectionsDirective)
-::pasta::Expr OMPParallelSectionsDirective::TaskReductionReferenceExpression(void) const noexcept {
+::pasta::Expr OMPParallelSectionsDirective::TaskReductionReferenceExpression(void) const {
   auto &self = *const_cast<clang::OMPParallelSectionsDirective *>(u.OMPParallelSectionsDirective);
   decltype(auto) val = self.getTaskReductionRefExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPParallelSectionsDirective::TaskReductionReferenceExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool OMPParallelSectionsDirective::HasCancel(void) const noexcept {
+bool OMPParallelSectionsDirective::HasCancel(void) const {
   auto &self = *const_cast<clang::OMPParallelSectionsDirective *>(u.OMPParallelSectionsDirective);
   decltype(auto) val = self.hasCancel();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPScanDirective::OMPScanDirective(
@@ -7834,11 +7834,11 @@ OMPSectionDirective::OMPSectionDirective(
 
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPSectionDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPSectionDirective)
-bool OMPSectionDirective::HasCancel(void) const noexcept {
+bool OMPSectionDirective::HasCancel(void) const {
   auto &self = *const_cast<clang::OMPSectionDirective *>(u.OMPSectionDirective);
   decltype(auto) val = self.hasCancel();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPSectionsDirective::OMPSectionsDirective(
@@ -7848,21 +7848,21 @@ OMPSectionsDirective::OMPSectionsDirective(
 
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPSectionsDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPSectionsDirective)
-::pasta::Expr OMPSectionsDirective::TaskReductionReferenceExpression(void) const noexcept {
+::pasta::Expr OMPSectionsDirective::TaskReductionReferenceExpression(void) const {
   auto &self = *const_cast<clang::OMPSectionsDirective *>(u.OMPSectionsDirective);
   decltype(auto) val = self.getTaskReductionRefExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPSectionsDirective::TaskReductionReferenceExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool OMPSectionsDirective::HasCancel(void) const noexcept {
+bool OMPSectionsDirective::HasCancel(void) const {
   auto &self = *const_cast<clang::OMPSectionsDirective *>(u.OMPSectionsDirective);
   decltype(auto) val = self.hasCancel();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPSimdDirective::OMPSimdDirective(
@@ -7916,21 +7916,21 @@ OMPTargetParallelDirective::OMPTargetParallelDirective(
 
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetParallelDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTargetParallelDirective)
-::pasta::Expr OMPTargetParallelDirective::TaskReductionReferenceExpression(void) const noexcept {
+::pasta::Expr OMPTargetParallelDirective::TaskReductionReferenceExpression(void) const {
   auto &self = *const_cast<clang::OMPTargetParallelDirective *>(u.OMPTargetParallelDirective);
   decltype(auto) val = self.getTaskReductionRefExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPTargetParallelDirective::TaskReductionReferenceExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool OMPTargetParallelDirective::HasCancel(void) const noexcept {
+bool OMPTargetParallelDirective::HasCancel(void) const {
   auto &self = *const_cast<clang::OMPTargetParallelDirective *>(u.OMPTargetParallelDirective);
   decltype(auto) val = self.hasCancel();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPTargetParallelForDirective::OMPTargetParallelForDirective(
@@ -7942,21 +7942,21 @@ PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetParallelForDirectiv
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPTargetParallelForDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPTargetParallelForDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTargetParallelForDirective)
-::pasta::Expr OMPTargetParallelForDirective::TaskReductionReferenceExpression(void) const noexcept {
+::pasta::Expr OMPTargetParallelForDirective::TaskReductionReferenceExpression(void) const {
   auto &self = *const_cast<clang::OMPTargetParallelForDirective *>(u.OMPTargetParallelForDirective);
   decltype(auto) val = self.getTaskReductionRefExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPTargetParallelForDirective::TaskReductionReferenceExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool OMPTargetParallelForDirective::HasCancel(void) const noexcept {
+bool OMPTargetParallelForDirective::HasCancel(void) const {
   auto &self = *const_cast<clang::OMPTargetParallelForDirective *>(u.OMPTargetParallelForDirective);
   decltype(auto) val = self.hasCancel();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPTargetParallelForSimdDirective::OMPTargetParallelForSimdDirective(
@@ -8011,21 +8011,21 @@ PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPTargetTeamsDistributePara
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPTargetTeamsDistributeParallelForDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPTargetTeamsDistributeParallelForDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTargetTeamsDistributeParallelForDirective)
-::pasta::Expr OMPTargetTeamsDistributeParallelForDirective::TaskReductionReferenceExpression(void) const noexcept {
+::pasta::Expr OMPTargetTeamsDistributeParallelForDirective::TaskReductionReferenceExpression(void) const {
   auto &self = *const_cast<clang::OMPTargetTeamsDistributeParallelForDirective *>(u.OMPTargetTeamsDistributeParallelForDirective);
   decltype(auto) val = self.getTaskReductionRefExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPTargetTeamsDistributeParallelForDirective::TaskReductionReferenceExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool OMPTargetTeamsDistributeParallelForDirective::HasCancel(void) const noexcept {
+bool OMPTargetTeamsDistributeParallelForDirective::HasCancel(void) const {
   auto &self = *const_cast<clang::OMPTargetTeamsDistributeParallelForDirective *>(u.OMPTargetTeamsDistributeParallelForDirective);
   decltype(auto) val = self.hasCancel();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPTargetTeamsDistributeParallelForSimdDirective::OMPTargetTeamsDistributeParallelForSimdDirective(
@@ -8069,11 +8069,11 @@ OMPTaskDirective::OMPTaskDirective(
 
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPTaskDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTaskDirective)
-bool OMPTaskDirective::HasCancel(void) const noexcept {
+bool OMPTaskDirective::HasCancel(void) const {
   auto &self = *const_cast<clang::OMPTaskDirective *>(u.OMPTaskDirective);
   decltype(auto) val = self.hasCancel();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPTaskLoopDirective::OMPTaskLoopDirective(
@@ -8085,11 +8085,11 @@ PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPTaskLoopDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPTaskLoopDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPTaskLoopDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTaskLoopDirective)
-bool OMPTaskLoopDirective::HasCancel(void) const noexcept {
+bool OMPTaskLoopDirective::HasCancel(void) const {
   auto &self = *const_cast<clang::OMPTaskLoopDirective *>(u.OMPTaskLoopDirective);
   decltype(auto) val = self.hasCancel();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPTaskLoopSimdDirective::OMPTaskLoopSimdDirective(
@@ -8108,14 +8108,14 @@ OMPTaskgroupDirective::OMPTaskgroupDirective(
 
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPTaskgroupDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTaskgroupDirective)
-::pasta::Expr OMPTaskgroupDirective::ReductionReference(void) const noexcept {
+::pasta::Expr OMPTaskgroupDirective::ReductionReference(void) const {
   auto &self = *const_cast<clang::OMPTaskgroupDirective *>(u.OMPTaskgroupDirective);
   decltype(auto) val = self.getReductionRef();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPTaskgroupDirective::ReductionReference can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPTaskwaitDirective::OMPTaskwaitDirective(
@@ -8157,21 +8157,21 @@ PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPTeamsDistributeParallelFo
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPTeamsDistributeParallelForDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPTeamsDistributeParallelForDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTeamsDistributeParallelForDirective)
-::pasta::Expr OMPTeamsDistributeParallelForDirective::TaskReductionReferenceExpression(void) const noexcept {
+::pasta::Expr OMPTeamsDistributeParallelForDirective::TaskReductionReferenceExpression(void) const {
   auto &self = *const_cast<clang::OMPTeamsDistributeParallelForDirective *>(u.OMPTeamsDistributeParallelForDirective);
   decltype(auto) val = self.getTaskReductionRefExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPTeamsDistributeParallelForDirective::TaskReductionReferenceExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool OMPTeamsDistributeParallelForDirective::HasCancel(void) const noexcept {
+bool OMPTeamsDistributeParallelForDirective::HasCancel(void) const {
   auto &self = *const_cast<clang::OMPTeamsDistributeParallelForDirective *>(u.OMPTeamsDistributeParallelForDirective);
   decltype(auto) val = self.hasCancel();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPTeamsDistributeParallelForSimdDirective::OMPTeamsDistributeParallelForSimdDirective(
@@ -8210,24 +8210,24 @@ PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPTileDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPTileDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopTransformationDirective, OMPTileDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPTileDirective)
-::pasta::Stmt OMPTileDirective::PreInitializers(void) const noexcept {
+::pasta::Stmt OMPTileDirective::PreInitializers(void) const {
   auto &self = *const_cast<clang::OMPTileDirective *>(u.OMPTileDirective);
   decltype(auto) val = self.getPreInits();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "OMPTileDirective::PreInitializers can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt OMPTileDirective::TransformedStatement(void) const noexcept {
+::pasta::Stmt OMPTileDirective::TransformedStatement(void) const {
   auto &self = *const_cast<clang::OMPTileDirective *>(u.OMPTileDirective);
   decltype(auto) val = self.getTransformedStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "OMPTileDirective::TransformedStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPUnrollDirective::OMPUnrollDirective(
@@ -8239,24 +8239,24 @@ PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPUnrollDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPUnrollDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopTransformationDirective, OMPUnrollDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPUnrollDirective)
-::pasta::Stmt OMPUnrollDirective::PreInitializers(void) const noexcept {
+::pasta::Stmt OMPUnrollDirective::PreInitializers(void) const {
   auto &self = *const_cast<clang::OMPUnrollDirective *>(u.OMPUnrollDirective);
   decltype(auto) val = self.getPreInits();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "OMPUnrollDirective::PreInitializers can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt OMPUnrollDirective::TransformedStatement(void) const noexcept {
+::pasta::Stmt OMPUnrollDirective::TransformedStatement(void) const {
   auto &self = *const_cast<clang::OMPUnrollDirective *>(u.OMPUnrollDirective);
   decltype(auto) val = self.getTransformedStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "OMPUnrollDirective::TransformedStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ObjCArrayLiteral::ObjCArrayLiteral(
@@ -8267,7 +8267,7 @@ ObjCArrayLiteral::ObjCArrayLiteral(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ObjCArrayLiteral)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ObjCArrayLiteral)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ObjCArrayLiteral)
-std::vector<::pasta::Stmt> ObjCArrayLiteral::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ObjCArrayLiteral::Children(void) const {
   auto &self = *const_cast<clang::ObjCArrayLiteral *>(u.ObjCArrayLiteral);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -8277,56 +8277,56 @@ std::vector<::pasta::Stmt> ObjCArrayLiteral::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::ObjCMethodDecl ObjCArrayLiteral::ArrayWithObjectsMethod(void) const noexcept {
+::pasta::ObjCMethodDecl ObjCArrayLiteral::ArrayWithObjectsMethod(void) const {
   auto &self = *const_cast<clang::ObjCArrayLiteral *>(u.ObjCArrayLiteral);
   decltype(auto) val = self.getArrayWithObjectsMethod();
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, val);
   }
   assert(false && "ObjCArrayLiteral::ArrayWithObjectsMethod can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCArrayLiteral::BeginToken(void) const noexcept {
+::pasta::Token ObjCArrayLiteral::BeginToken(void) const {
   auto &self = *const_cast<clang::ObjCArrayLiteral *>(u.ObjCArrayLiteral);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: ObjCArrayLiteral::Element
 // 0: ObjCArrayLiteral::Elements
-::pasta::Token ObjCArrayLiteral::EndToken(void) const noexcept {
+::pasta::Token ObjCArrayLiteral::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCArrayLiteral *>(u.ObjCArrayLiteral);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t ObjCArrayLiteral::NumElements(void) const noexcept {
+uint32_t ObjCArrayLiteral::NumElements(void) const {
   auto &self = *const_cast<clang::ObjCArrayLiteral *>(u.ObjCArrayLiteral);
   decltype(auto) val = self.getNumElements();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::TokenRange ObjCArrayLiteral::Tokens(void) const noexcept {
+::pasta::TokenRange ObjCArrayLiteral::Tokens(void) const {
   auto &self = *const_cast<clang::ObjCArrayLiteral *>(u.ObjCArrayLiteral);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Expr> ObjCArrayLiteral::Elements(void) const noexcept {
+std::vector<::pasta::Expr> ObjCArrayLiteral::Elements(void) const {
   std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.ObjCArrayLiteral->getNumElements();
   decltype(count) i = 0;
@@ -8342,7 +8342,7 @@ ObjCAtCatchStmt::ObjCAtCatchStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ObjCAtCatchStmt)
-std::vector<::pasta::Stmt> ObjCAtCatchStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ObjCAtCatchStmt::Children(void) const {
   auto &self = *const_cast<clang::ObjCAtCatchStmt *>(u.ObjCAtCatchStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -8352,62 +8352,62 @@ std::vector<::pasta::Stmt> ObjCAtCatchStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCAtCatchStmt::AtCatchToken(void) const noexcept {
+::pasta::Token ObjCAtCatchStmt::AtCatchToken(void) const {
   auto &self = *const_cast<clang::ObjCAtCatchStmt *>(u.ObjCAtCatchStmt);
   decltype(auto) val = self.getAtCatchLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCAtCatchStmt::BeginToken(void) const noexcept {
+::pasta::Token ObjCAtCatchStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::ObjCAtCatchStmt *>(u.ObjCAtCatchStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt ObjCAtCatchStmt::CatchBody(void) const noexcept {
+::pasta::Stmt ObjCAtCatchStmt::CatchBody(void) const {
   auto &self = *const_cast<clang::ObjCAtCatchStmt *>(u.ObjCAtCatchStmt);
   decltype(auto) val = self.getCatchBody();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "ObjCAtCatchStmt::CatchBody can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::VarDecl ObjCAtCatchStmt::CatchParameterDeclaration(void) const noexcept {
+::pasta::VarDecl ObjCAtCatchStmt::CatchParameterDeclaration(void) const {
   auto &self = *const_cast<clang::ObjCAtCatchStmt *>(u.ObjCAtCatchStmt);
   decltype(auto) val = self.getCatchParamDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
   assert(false && "ObjCAtCatchStmt::CatchParameterDeclaration can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCAtCatchStmt::EndToken(void) const noexcept {
+::pasta::Token ObjCAtCatchStmt::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCAtCatchStmt *>(u.ObjCAtCatchStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCAtCatchStmt::RParenToken(void) const noexcept {
+::pasta::Token ObjCAtCatchStmt::RParenToken(void) const {
   auto &self = *const_cast<clang::ObjCAtCatchStmt *>(u.ObjCAtCatchStmt);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ObjCAtCatchStmt::HasEllipsis(void) const noexcept {
+bool ObjCAtCatchStmt::HasEllipsis(void) const {
   auto &self = *const_cast<clang::ObjCAtCatchStmt *>(u.ObjCAtCatchStmt);
   decltype(auto) val = self.hasEllipsis();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ObjCAtFinallyStmt::ObjCAtFinallyStmt(
@@ -8416,7 +8416,7 @@ ObjCAtFinallyStmt::ObjCAtFinallyStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ObjCAtFinallyStmt)
-std::vector<::pasta::Stmt> ObjCAtFinallyStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ObjCAtFinallyStmt::Children(void) const {
   auto &self = *const_cast<clang::ObjCAtFinallyStmt *>(u.ObjCAtFinallyStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -8426,38 +8426,38 @@ std::vector<::pasta::Stmt> ObjCAtFinallyStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCAtFinallyStmt::AtFinallyToken(void) const noexcept {
+::pasta::Token ObjCAtFinallyStmt::AtFinallyToken(void) const {
   auto &self = *const_cast<clang::ObjCAtFinallyStmt *>(u.ObjCAtFinallyStmt);
   decltype(auto) val = self.getAtFinallyLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCAtFinallyStmt::BeginToken(void) const noexcept {
+::pasta::Token ObjCAtFinallyStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::ObjCAtFinallyStmt *>(u.ObjCAtFinallyStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCAtFinallyStmt::EndToken(void) const noexcept {
+::pasta::Token ObjCAtFinallyStmt::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCAtFinallyStmt *>(u.ObjCAtFinallyStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt ObjCAtFinallyStmt::FinallyBody(void) const noexcept {
+::pasta::Stmt ObjCAtFinallyStmt::FinallyBody(void) const {
   auto &self = *const_cast<clang::ObjCAtFinallyStmt *>(u.ObjCAtFinallyStmt);
   decltype(auto) val = self.getFinallyBody();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "ObjCAtFinallyStmt::FinallyBody can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ObjCAtSynchronizedStmt::ObjCAtSynchronizedStmt(
@@ -8466,7 +8466,7 @@ ObjCAtSynchronizedStmt::ObjCAtSynchronizedStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ObjCAtSynchronizedStmt)
-std::vector<::pasta::Stmt> ObjCAtSynchronizedStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ObjCAtSynchronizedStmt::Children(void) const {
   auto &self = *const_cast<clang::ObjCAtSynchronizedStmt *>(u.ObjCAtSynchronizedStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -8476,48 +8476,48 @@ std::vector<::pasta::Stmt> ObjCAtSynchronizedStmt::Children(void) const noexcept
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCAtSynchronizedStmt::AtSynchronizedToken(void) const noexcept {
+::pasta::Token ObjCAtSynchronizedStmt::AtSynchronizedToken(void) const {
   auto &self = *const_cast<clang::ObjCAtSynchronizedStmt *>(u.ObjCAtSynchronizedStmt);
   decltype(auto) val = self.getAtSynchronizedLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCAtSynchronizedStmt::BeginToken(void) const noexcept {
+::pasta::Token ObjCAtSynchronizedStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::ObjCAtSynchronizedStmt *>(u.ObjCAtSynchronizedStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCAtSynchronizedStmt::EndToken(void) const noexcept {
+::pasta::Token ObjCAtSynchronizedStmt::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCAtSynchronizedStmt *>(u.ObjCAtSynchronizedStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::CompoundStmt ObjCAtSynchronizedStmt::SynchBody(void) const noexcept {
+::pasta::CompoundStmt ObjCAtSynchronizedStmt::SynchBody(void) const {
   auto &self = *const_cast<clang::ObjCAtSynchronizedStmt *>(u.ObjCAtSynchronizedStmt);
   decltype(auto) val = self.getSynchBody();
   if (val) {
     return StmtBuilder::Create<::pasta::CompoundStmt>(ast, val);
   }
   assert(false && "ObjCAtSynchronizedStmt::SynchBody can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ObjCAtSynchronizedStmt::SynchExpression(void) const noexcept {
+::pasta::Expr ObjCAtSynchronizedStmt::SynchExpression(void) const {
   auto &self = *const_cast<clang::ObjCAtSynchronizedStmt *>(u.ObjCAtSynchronizedStmt);
   decltype(auto) val = self.getSynchExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ObjCAtSynchronizedStmt::SynchExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ObjCAtThrowStmt::ObjCAtThrowStmt(
@@ -8526,7 +8526,7 @@ ObjCAtThrowStmt::ObjCAtThrowStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ObjCAtThrowStmt)
-std::vector<::pasta::Stmt> ObjCAtThrowStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ObjCAtThrowStmt::Children(void) const {
   auto &self = *const_cast<clang::ObjCAtThrowStmt *>(u.ObjCAtThrowStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -8536,38 +8536,38 @@ std::vector<::pasta::Stmt> ObjCAtThrowStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCAtThrowStmt::BeginToken(void) const noexcept {
+::pasta::Token ObjCAtThrowStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::ObjCAtThrowStmt *>(u.ObjCAtThrowStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCAtThrowStmt::EndToken(void) const noexcept {
+::pasta::Token ObjCAtThrowStmt::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCAtThrowStmt *>(u.ObjCAtThrowStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ObjCAtThrowStmt::ThrowExpression(void) const noexcept {
+::pasta::Expr ObjCAtThrowStmt::ThrowExpression(void) const {
   auto &self = *const_cast<clang::ObjCAtThrowStmt *>(u.ObjCAtThrowStmt);
   decltype(auto) val = self.getThrowExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ObjCAtThrowStmt::ThrowExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCAtThrowStmt::ThrowToken(void) const noexcept {
+::pasta::Token ObjCAtThrowStmt::ThrowToken(void) const {
   auto &self = *const_cast<clang::ObjCAtThrowStmt *>(u.ObjCAtThrowStmt);
   decltype(auto) val = self.getThrowLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ObjCAtTryStmt::ObjCAtTryStmt(
@@ -8579,7 +8579,7 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, ObjCAtTryStmt)
 // 0: ObjCAtTryStmt::CatchStatements
 // 0: ObjCAtTryStmt::
 // 0: ObjCAtTryStmt::
-std::vector<::pasta::Stmt> ObjCAtTryStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ObjCAtTryStmt::Children(void) const {
   auto &self = *const_cast<clang::ObjCAtTryStmt *>(u.ObjCAtTryStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -8589,65 +8589,65 @@ std::vector<::pasta::Stmt> ObjCAtTryStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCAtTryStmt::AtTryToken(void) const noexcept {
+::pasta::Token ObjCAtTryStmt::AtTryToken(void) const {
   auto &self = *const_cast<clang::ObjCAtTryStmt *>(u.ObjCAtTryStmt);
   decltype(auto) val = self.getAtTryLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCAtTryStmt::BeginToken(void) const noexcept {
+::pasta::Token ObjCAtTryStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::ObjCAtTryStmt *>(u.ObjCAtTryStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: ObjCAtTryStmt::CatchStatement
-::pasta::Token ObjCAtTryStmt::EndToken(void) const noexcept {
+::pasta::Token ObjCAtTryStmt::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCAtTryStmt *>(u.ObjCAtTryStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::ObjCAtFinallyStmt ObjCAtTryStmt::FinallyStatement(void) const noexcept {
+::pasta::ObjCAtFinallyStmt ObjCAtTryStmt::FinallyStatement(void) const {
   auto &self = *const_cast<clang::ObjCAtTryStmt *>(u.ObjCAtTryStmt);
   decltype(auto) val = self.getFinallyStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::ObjCAtFinallyStmt>(ast, val);
   }
   assert(false && "ObjCAtTryStmt::FinallyStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t ObjCAtTryStmt::NumCatchStatements(void) const noexcept {
+uint32_t ObjCAtTryStmt::NumCatchStatements(void) const {
   auto &self = *const_cast<clang::ObjCAtTryStmt *>(u.ObjCAtTryStmt);
   decltype(auto) val = self.getNumCatchStmts();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt ObjCAtTryStmt::TryBody(void) const noexcept {
+::pasta::Stmt ObjCAtTryStmt::TryBody(void) const {
   auto &self = *const_cast<clang::ObjCAtTryStmt *>(u.ObjCAtTryStmt);
   decltype(auto) val = self.getTryBody();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "ObjCAtTryStmt::TryBody can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::ObjCAtCatchStmt> ObjCAtTryStmt::CatchStatements(void) const noexcept {
+std::vector<::pasta::ObjCAtCatchStmt> ObjCAtTryStmt::CatchStatements(void) const {
   std::vector<::pasta::ObjCAtCatchStmt> ret;
   auto convert_elem = [&] (const clang::ObjCAtCatchStmt * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::ObjCAtCatchStmt>(ast, val);
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.ObjCAtTryStmt->getNumCatchStmts();
   decltype(count) i = 0;
@@ -8663,7 +8663,7 @@ ObjCAutoreleasePoolStmt::ObjCAutoreleasePoolStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ObjCAutoreleasePoolStmt)
-std::vector<::pasta::Stmt> ObjCAutoreleasePoolStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ObjCAutoreleasePoolStmt::Children(void) const {
   auto &self = *const_cast<clang::ObjCAutoreleasePoolStmt *>(u.ObjCAutoreleasePoolStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -8673,38 +8673,38 @@ std::vector<::pasta::Stmt> ObjCAutoreleasePoolStmt::Children(void) const noexcep
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCAutoreleasePoolStmt::AtToken(void) const noexcept {
+::pasta::Token ObjCAutoreleasePoolStmt::AtToken(void) const {
   auto &self = *const_cast<clang::ObjCAutoreleasePoolStmt *>(u.ObjCAutoreleasePoolStmt);
   decltype(auto) val = self.getAtLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCAutoreleasePoolStmt::BeginToken(void) const noexcept {
+::pasta::Token ObjCAutoreleasePoolStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::ObjCAutoreleasePoolStmt *>(u.ObjCAutoreleasePoolStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCAutoreleasePoolStmt::EndToken(void) const noexcept {
+::pasta::Token ObjCAutoreleasePoolStmt::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCAutoreleasePoolStmt *>(u.ObjCAutoreleasePoolStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt ObjCAutoreleasePoolStmt::SubStatement(void) const noexcept {
+::pasta::Stmt ObjCAutoreleasePoolStmt::SubStatement(void) const {
   auto &self = *const_cast<clang::ObjCAutoreleasePoolStmt *>(u.ObjCAutoreleasePoolStmt);
   decltype(auto) val = self.getSubStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "ObjCAutoreleasePoolStmt::SubStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ObjCAvailabilityCheckExpr::ObjCAvailabilityCheckExpr(
@@ -8715,7 +8715,7 @@ ObjCAvailabilityCheckExpr::ObjCAvailabilityCheckExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ObjCAvailabilityCheckExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ObjCAvailabilityCheckExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ObjCAvailabilityCheckExpr)
-std::vector<::pasta::Stmt> ObjCAvailabilityCheckExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ObjCAvailabilityCheckExpr::Children(void) const {
   auto &self = *const_cast<clang::ObjCAvailabilityCheckExpr *>(u.ObjCAvailabilityCheckExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -8725,36 +8725,36 @@ std::vector<::pasta::Stmt> ObjCAvailabilityCheckExpr::Children(void) const noexc
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCAvailabilityCheckExpr::BeginToken(void) const noexcept {
+::pasta::Token ObjCAvailabilityCheckExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ObjCAvailabilityCheckExpr *>(u.ObjCAvailabilityCheckExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCAvailabilityCheckExpr::EndToken(void) const noexcept {
+::pasta::Token ObjCAvailabilityCheckExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCAvailabilityCheckExpr *>(u.ObjCAvailabilityCheckExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::TokenRange ObjCAvailabilityCheckExpr::Tokens(void) const noexcept {
+::pasta::TokenRange ObjCAvailabilityCheckExpr::Tokens(void) const {
   auto &self = *const_cast<clang::ObjCAvailabilityCheckExpr *>(u.ObjCAvailabilityCheckExpr);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: ObjCAvailabilityCheckExpr::Version
-bool ObjCAvailabilityCheckExpr::HasVersion(void) const noexcept {
+bool ObjCAvailabilityCheckExpr::HasVersion(void) const {
   auto &self = *const_cast<clang::ObjCAvailabilityCheckExpr *>(u.ObjCAvailabilityCheckExpr);
   decltype(auto) val = self.hasVersion();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ObjCBoolLiteralExpr::ObjCBoolLiteralExpr(
@@ -8765,7 +8765,7 @@ ObjCBoolLiteralExpr::ObjCBoolLiteralExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ObjCBoolLiteralExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ObjCBoolLiteralExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ObjCBoolLiteralExpr)
-std::vector<::pasta::Stmt> ObjCBoolLiteralExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ObjCBoolLiteralExpr::Children(void) const {
   auto &self = *const_cast<clang::ObjCBoolLiteralExpr *>(u.ObjCBoolLiteralExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -8775,35 +8775,35 @@ std::vector<::pasta::Stmt> ObjCBoolLiteralExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCBoolLiteralExpr::BeginToken(void) const noexcept {
+::pasta::Token ObjCBoolLiteralExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ObjCBoolLiteralExpr *>(u.ObjCBoolLiteralExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCBoolLiteralExpr::EndToken(void) const noexcept {
+::pasta::Token ObjCBoolLiteralExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCBoolLiteralExpr *>(u.ObjCBoolLiteralExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCBoolLiteralExpr::Token(void) const noexcept {
+::pasta::Token ObjCBoolLiteralExpr::Token(void) const {
   auto &self = *const_cast<clang::ObjCBoolLiteralExpr *>(u.ObjCBoolLiteralExpr);
   decltype(auto) val = self.getLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ObjCBoolLiteralExpr::Value(void) const noexcept {
+bool ObjCBoolLiteralExpr::Value(void) const {
   auto &self = *const_cast<clang::ObjCBoolLiteralExpr *>(u.ObjCBoolLiteralExpr);
   decltype(auto) val = self.getValue();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ObjCBoxedExpr::ObjCBoxedExpr(
@@ -8816,7 +8816,7 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, ObjCBoxedExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ObjCBoxedExpr)
 // 0: ObjCBoxedExpr::
 // 0: ObjCBoxedExpr::
-std::vector<::pasta::Stmt> ObjCBoxedExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ObjCBoxedExpr::Children(void) const {
   auto &self = *const_cast<clang::ObjCBoxedExpr *>(u.ObjCBoxedExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -8826,62 +8826,62 @@ std::vector<::pasta::Stmt> ObjCBoxedExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCBoxedExpr::AtToken(void) const noexcept {
+::pasta::Token ObjCBoxedExpr::AtToken(void) const {
   auto &self = *const_cast<clang::ObjCBoxedExpr *>(u.ObjCBoxedExpr);
   decltype(auto) val = self.getAtLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCBoxedExpr::BeginToken(void) const noexcept {
+::pasta::Token ObjCBoxedExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ObjCBoxedExpr *>(u.ObjCBoxedExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::ObjCMethodDecl ObjCBoxedExpr::BoxingMethod(void) const noexcept {
+::pasta::ObjCMethodDecl ObjCBoxedExpr::BoxingMethod(void) const {
   auto &self = *const_cast<clang::ObjCBoxedExpr *>(u.ObjCBoxedExpr);
   decltype(auto) val = self.getBoxingMethod();
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, val);
   }
   assert(false && "ObjCBoxedExpr::BoxingMethod can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCBoxedExpr::EndToken(void) const noexcept {
+::pasta::Token ObjCBoxedExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCBoxedExpr *>(u.ObjCBoxedExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::TokenRange ObjCBoxedExpr::Tokens(void) const noexcept {
+::pasta::TokenRange ObjCBoxedExpr::Tokens(void) const {
   auto &self = *const_cast<clang::ObjCBoxedExpr *>(u.ObjCBoxedExpr);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ObjCBoxedExpr::SubExpression(void) const noexcept {
+::pasta::Expr ObjCBoxedExpr::SubExpression(void) const {
   auto &self = *const_cast<clang::ObjCBoxedExpr *>(u.ObjCBoxedExpr);
   decltype(auto) val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ObjCBoxedExpr::SubExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ObjCBoxedExpr::IsExpressibleAsConstantInitializer(void) const noexcept {
+bool ObjCBoxedExpr::IsExpressibleAsConstantInitializer(void) const {
   auto &self = *const_cast<clang::ObjCBoxedExpr *>(u.ObjCBoxedExpr);
   decltype(auto) val = self.isExpressibleAsConstantInitializer();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ObjCDictionaryLiteral::ObjCDictionaryLiteral(
@@ -8892,7 +8892,7 @@ ObjCDictionaryLiteral::ObjCDictionaryLiteral(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ObjCDictionaryLiteral)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ObjCDictionaryLiteral)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ObjCDictionaryLiteral)
-std::vector<::pasta::Stmt> ObjCDictionaryLiteral::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ObjCDictionaryLiteral::Children(void) const {
   auto &self = *const_cast<clang::ObjCDictionaryLiteral *>(u.ObjCDictionaryLiteral);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -8902,46 +8902,46 @@ std::vector<::pasta::Stmt> ObjCDictionaryLiteral::Children(void) const noexcept 
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCDictionaryLiteral::BeginToken(void) const noexcept {
+::pasta::Token ObjCDictionaryLiteral::BeginToken(void) const {
   auto &self = *const_cast<clang::ObjCDictionaryLiteral *>(u.ObjCDictionaryLiteral);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::ObjCMethodDecl ObjCDictionaryLiteral::DictionaryWithObjectsMethod(void) const noexcept {
+::pasta::ObjCMethodDecl ObjCDictionaryLiteral::DictionaryWithObjectsMethod(void) const {
   auto &self = *const_cast<clang::ObjCDictionaryLiteral *>(u.ObjCDictionaryLiteral);
   decltype(auto) val = self.getDictWithObjectsMethod();
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, val);
   }
   assert(false && "ObjCDictionaryLiteral::DictionaryWithObjectsMethod can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCDictionaryLiteral::EndToken(void) const noexcept {
+::pasta::Token ObjCDictionaryLiteral::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCDictionaryLiteral *>(u.ObjCDictionaryLiteral);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: ObjCDictionaryLiteral::KeyValueElement
-uint32_t ObjCDictionaryLiteral::NumElements(void) const noexcept {
+uint32_t ObjCDictionaryLiteral::NumElements(void) const {
   auto &self = *const_cast<clang::ObjCDictionaryLiteral *>(u.ObjCDictionaryLiteral);
   decltype(auto) val = self.getNumElements();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::TokenRange ObjCDictionaryLiteral::Tokens(void) const noexcept {
+::pasta::TokenRange ObjCDictionaryLiteral::Tokens(void) const {
   auto &self = *const_cast<clang::ObjCDictionaryLiteral *>(u.ObjCDictionaryLiteral);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ObjCEncodeExpr::ObjCEncodeExpr(
@@ -8952,7 +8952,7 @@ ObjCEncodeExpr::ObjCEncodeExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ObjCEncodeExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ObjCEncodeExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ObjCEncodeExpr)
-std::vector<::pasta::Stmt> ObjCEncodeExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ObjCEncodeExpr::Children(void) const {
   auto &self = *const_cast<clang::ObjCEncodeExpr *>(u.ObjCEncodeExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -8962,43 +8962,43 @@ std::vector<::pasta::Stmt> ObjCEncodeExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCEncodeExpr::AtToken(void) const noexcept {
+::pasta::Token ObjCEncodeExpr::AtToken(void) const {
   auto &self = *const_cast<clang::ObjCEncodeExpr *>(u.ObjCEncodeExpr);
   decltype(auto) val = self.getAtLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCEncodeExpr::BeginToken(void) const noexcept {
+::pasta::Token ObjCEncodeExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ObjCEncodeExpr *>(u.ObjCEncodeExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type ObjCEncodeExpr::EncodedType(void) const noexcept {
+::pasta::Type ObjCEncodeExpr::EncodedType(void) const {
   auto &self = *const_cast<clang::ObjCEncodeExpr *>(u.ObjCEncodeExpr);
   decltype(auto) val = self.getEncodedType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCEncodeExpr::EndToken(void) const noexcept {
+::pasta::Token ObjCEncodeExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCEncodeExpr *>(u.ObjCEncodeExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCEncodeExpr::RParenToken(void) const noexcept {
+::pasta::Token ObjCEncodeExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::ObjCEncodeExpr *>(u.ObjCEncodeExpr);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ObjCForCollectionStmt::ObjCForCollectionStmt(
@@ -9007,7 +9007,7 @@ ObjCForCollectionStmt::ObjCForCollectionStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ObjCForCollectionStmt)
-std::vector<::pasta::Stmt> ObjCForCollectionStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ObjCForCollectionStmt::Children(void) const {
   auto &self = *const_cast<clang::ObjCForCollectionStmt *>(u.ObjCForCollectionStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -9017,65 +9017,65 @@ std::vector<::pasta::Stmt> ObjCForCollectionStmt::Children(void) const noexcept 
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCForCollectionStmt::BeginToken(void) const noexcept {
+::pasta::Token ObjCForCollectionStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::ObjCForCollectionStmt *>(u.ObjCForCollectionStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt ObjCForCollectionStmt::Body(void) const noexcept {
+::pasta::Stmt ObjCForCollectionStmt::Body(void) const {
   auto &self = *const_cast<clang::ObjCForCollectionStmt *>(u.ObjCForCollectionStmt);
   decltype(auto) val = self.getBody();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "ObjCForCollectionStmt::Body can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ObjCForCollectionStmt::Collection(void) const noexcept {
+::pasta::Expr ObjCForCollectionStmt::Collection(void) const {
   auto &self = *const_cast<clang::ObjCForCollectionStmt *>(u.ObjCForCollectionStmt);
   decltype(auto) val = self.getCollection();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ObjCForCollectionStmt::Collection can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt ObjCForCollectionStmt::Element(void) const noexcept {
+::pasta::Stmt ObjCForCollectionStmt::Element(void) const {
   auto &self = *const_cast<clang::ObjCForCollectionStmt *>(u.ObjCForCollectionStmt);
   decltype(auto) val = self.getElement();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "ObjCForCollectionStmt::Element can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCForCollectionStmt::EndToken(void) const noexcept {
+::pasta::Token ObjCForCollectionStmt::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCForCollectionStmt *>(u.ObjCForCollectionStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCForCollectionStmt::ForToken(void) const noexcept {
+::pasta::Token ObjCForCollectionStmt::ForToken(void) const {
   auto &self = *const_cast<clang::ObjCForCollectionStmt *>(u.ObjCForCollectionStmt);
   decltype(auto) val = self.getForLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCForCollectionStmt::RParenToken(void) const noexcept {
+::pasta::Token ObjCForCollectionStmt::RParenToken(void) const {
   auto &self = *const_cast<clang::ObjCForCollectionStmt *>(u.ObjCForCollectionStmt);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ObjCIndirectCopyRestoreExpr::ObjCIndirectCopyRestoreExpr(
@@ -9086,7 +9086,7 @@ ObjCIndirectCopyRestoreExpr::ObjCIndirectCopyRestoreExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ObjCIndirectCopyRestoreExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ObjCIndirectCopyRestoreExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ObjCIndirectCopyRestoreExpr)
-std::vector<::pasta::Stmt> ObjCIndirectCopyRestoreExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ObjCIndirectCopyRestoreExpr::Children(void) const {
   auto &self = *const_cast<clang::ObjCIndirectCopyRestoreExpr *>(u.ObjCIndirectCopyRestoreExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -9096,45 +9096,45 @@ std::vector<::pasta::Stmt> ObjCIndirectCopyRestoreExpr::Children(void) const noe
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCIndirectCopyRestoreExpr::BeginToken(void) const noexcept {
+::pasta::Token ObjCIndirectCopyRestoreExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ObjCIndirectCopyRestoreExpr *>(u.ObjCIndirectCopyRestoreExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCIndirectCopyRestoreExpr::EndToken(void) const noexcept {
+::pasta::Token ObjCIndirectCopyRestoreExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCIndirectCopyRestoreExpr *>(u.ObjCIndirectCopyRestoreExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCIndirectCopyRestoreExpr::ExpressionToken(void) const noexcept {
+::pasta::Token ObjCIndirectCopyRestoreExpr::ExpressionToken(void) const {
   auto &self = *const_cast<clang::ObjCIndirectCopyRestoreExpr *>(u.ObjCIndirectCopyRestoreExpr);
   decltype(auto) val = self.getExprLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ObjCIndirectCopyRestoreExpr::SubExpression(void) const noexcept {
+::pasta::Expr ObjCIndirectCopyRestoreExpr::SubExpression(void) const {
   auto &self = *const_cast<clang::ObjCIndirectCopyRestoreExpr *>(u.ObjCIndirectCopyRestoreExpr);
   decltype(auto) val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ObjCIndirectCopyRestoreExpr::SubExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ObjCIndirectCopyRestoreExpr::ShouldCopy(void) const noexcept {
+bool ObjCIndirectCopyRestoreExpr::ShouldCopy(void) const {
   auto &self = *const_cast<clang::ObjCIndirectCopyRestoreExpr *>(u.ObjCIndirectCopyRestoreExpr);
   decltype(auto) val = self.shouldCopy();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ObjCIsaExpr::ObjCIsaExpr(
@@ -9145,7 +9145,7 @@ ObjCIsaExpr::ObjCIsaExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ObjCIsaExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ObjCIsaExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ObjCIsaExpr)
-std::vector<::pasta::Stmt> ObjCIsaExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ObjCIsaExpr::Children(void) const {
   auto &self = *const_cast<clang::ObjCIsaExpr *>(u.ObjCIsaExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -9155,66 +9155,66 @@ std::vector<::pasta::Stmt> ObjCIsaExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ObjCIsaExpr::Base(void) const noexcept {
+::pasta::Expr ObjCIsaExpr::Base(void) const {
   auto &self = *const_cast<clang::ObjCIsaExpr *>(u.ObjCIsaExpr);
   decltype(auto) val = self.getBase();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ObjCIsaExpr::Base can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCIsaExpr::BaseTokenEnd(void) const noexcept {
+::pasta::Token ObjCIsaExpr::BaseTokenEnd(void) const {
   auto &self = *const_cast<clang::ObjCIsaExpr *>(u.ObjCIsaExpr);
   decltype(auto) val = self.getBaseLocEnd();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCIsaExpr::BeginToken(void) const noexcept {
+::pasta::Token ObjCIsaExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ObjCIsaExpr *>(u.ObjCIsaExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCIsaExpr::EndToken(void) const noexcept {
+::pasta::Token ObjCIsaExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCIsaExpr *>(u.ObjCIsaExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCIsaExpr::ExpressionToken(void) const noexcept {
+::pasta::Token ObjCIsaExpr::ExpressionToken(void) const {
   auto &self = *const_cast<clang::ObjCIsaExpr *>(u.ObjCIsaExpr);
   decltype(auto) val = self.getExprLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCIsaExpr::IsaMemberToken(void) const noexcept {
+::pasta::Token ObjCIsaExpr::IsaMemberToken(void) const {
   auto &self = *const_cast<clang::ObjCIsaExpr *>(u.ObjCIsaExpr);
   decltype(auto) val = self.getIsaMemberLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCIsaExpr::OperationToken(void) const noexcept {
+::pasta::Token ObjCIsaExpr::OperationToken(void) const {
   auto &self = *const_cast<clang::ObjCIsaExpr *>(u.ObjCIsaExpr);
   decltype(auto) val = self.getOpLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ObjCIsaExpr::IsArrow(void) const noexcept {
+bool ObjCIsaExpr::IsArrow(void) const {
   auto &self = *const_cast<clang::ObjCIsaExpr *>(u.ObjCIsaExpr);
   decltype(auto) val = self.isArrow();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ObjCIvarRefExpr::ObjCIvarRefExpr(
@@ -9225,7 +9225,7 @@ ObjCIvarRefExpr::ObjCIvarRefExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ObjCIvarRefExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ObjCIvarRefExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ObjCIvarRefExpr)
-std::vector<::pasta::Stmt> ObjCIvarRefExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ObjCIvarRefExpr::Children(void) const {
   auto &self = *const_cast<clang::ObjCIvarRefExpr *>(u.ObjCIvarRefExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -9235,69 +9235,69 @@ std::vector<::pasta::Stmt> ObjCIvarRefExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ObjCIvarRefExpr::Base(void) const noexcept {
+::pasta::Expr ObjCIvarRefExpr::Base(void) const {
   auto &self = *const_cast<clang::ObjCIvarRefExpr *>(u.ObjCIvarRefExpr);
   decltype(auto) val = self.getBase();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ObjCIvarRefExpr::Base can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCIvarRefExpr::BeginToken(void) const noexcept {
+::pasta::Token ObjCIvarRefExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ObjCIvarRefExpr *>(u.ObjCIvarRefExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::ObjCIvarDecl ObjCIvarRefExpr::Declaration(void) const noexcept {
+::pasta::ObjCIvarDecl ObjCIvarRefExpr::Declaration(void) const {
   auto &self = *const_cast<clang::ObjCIvarRefExpr *>(u.ObjCIvarRefExpr);
   decltype(auto) val = self.getDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCIvarDecl>(ast, val);
   }
   assert(false && "ObjCIvarRefExpr::Declaration can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCIvarRefExpr::EndToken(void) const noexcept {
+::pasta::Token ObjCIvarRefExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCIvarRefExpr *>(u.ObjCIvarRefExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCIvarRefExpr::Token(void) const noexcept {
+::pasta::Token ObjCIvarRefExpr::Token(void) const {
   auto &self = *const_cast<clang::ObjCIvarRefExpr *>(u.ObjCIvarRefExpr);
   decltype(auto) val = self.getLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCIvarRefExpr::OperationToken(void) const noexcept {
+::pasta::Token ObjCIvarRefExpr::OperationToken(void) const {
   auto &self = *const_cast<clang::ObjCIvarRefExpr *>(u.ObjCIvarRefExpr);
   decltype(auto) val = self.getOpLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ObjCIvarRefExpr::IsArrow(void) const noexcept {
+bool ObjCIvarRefExpr::IsArrow(void) const {
   auto &self = *const_cast<clang::ObjCIvarRefExpr *>(u.ObjCIvarRefExpr);
   decltype(auto) val = self.isArrow();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ObjCIvarRefExpr::IsFreeInstanceVariable(void) const noexcept {
+bool ObjCIvarRefExpr::IsFreeInstanceVariable(void) const {
   auto &self = *const_cast<clang::ObjCIvarRefExpr *>(u.ObjCIvarRefExpr);
   decltype(auto) val = self.isFreeIvar();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ObjCMessageExpr::ObjCMessageExpr(
@@ -9310,7 +9310,7 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, ObjCMessageExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ObjCMessageExpr)
 // 0: ObjCMessageExpr::
 // 0: ObjCMessageExpr::
-std::vector<::pasta::Expr> ObjCMessageExpr::Arguments(void) const noexcept {
+std::vector<::pasta::Expr> ObjCMessageExpr::Arguments(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.arguments();
   std::vector<::pasta::Expr> ret;
@@ -9320,10 +9320,10 @@ std::vector<::pasta::Expr> ObjCMessageExpr::Arguments(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Stmt> ObjCMessageExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ObjCMessageExpr::Children(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -9333,189 +9333,189 @@ std::vector<::pasta::Stmt> ObjCMessageExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: ObjCMessageExpr::Argument
 // 0: ObjCMessageExpr::Arguments
-::pasta::Token ObjCMessageExpr::BeginToken(void) const noexcept {
+::pasta::Token ObjCMessageExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type ObjCMessageExpr::CallReturnType(void) const noexcept {
+::pasta::Type ObjCMessageExpr::CallReturnType(void) const {
   auto &self = *(u.ObjCMessageExpr);
   decltype(auto) val = self.getCallReturnType(ast->ci->getASTContext());
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type ObjCMessageExpr::ClassReceiver(void) const noexcept {
+::pasta::Type ObjCMessageExpr::ClassReceiver(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getClassReceiver();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type ObjCMessageExpr::ClassReceiverType(void) const noexcept {
+::pasta::Type ObjCMessageExpr::ClassReceiverType(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getClassReceiverTypeInfo();
   return TypeBuilder::Build(ast, val->getType());
   assert(false && "ObjCMessageExpr::ClassReceiverType can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCMessageExpr::EndToken(void) const noexcept {
+::pasta::Token ObjCMessageExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ObjCMessageExpr::InstanceReceiver(void) const noexcept {
+::pasta::Expr ObjCMessageExpr::InstanceReceiver(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getInstanceReceiver();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ObjCMessageExpr::InstanceReceiver can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCMessageExpr::LeftToken(void) const noexcept {
+::pasta::Token ObjCMessageExpr::LeftToken(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getLeftLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::ObjCMethodDecl ObjCMessageExpr::MethodDeclaration(void) const noexcept {
+::pasta::ObjCMethodDecl ObjCMessageExpr::MethodDeclaration(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getMethodDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, val);
   }
   assert(false && "ObjCMessageExpr::MethodDeclaration can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum ObjCMethodFamily ObjCMessageExpr::MethodFamily(void) const noexcept {
+enum ObjCMethodFamily ObjCMessageExpr::MethodFamily(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getMethodFamily();
   return static_cast<::pasta::ObjCMethodFamily>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t ObjCMessageExpr::NumArguments(void) const noexcept {
+uint32_t ObjCMessageExpr::NumArguments(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getNumArgs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t ObjCMessageExpr::NumSelectorTokens(void) const noexcept {
+uint32_t ObjCMessageExpr::NumSelectorTokens(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getNumSelectorLocs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::ObjCInterfaceDecl ObjCMessageExpr::ReceiverInterface(void) const noexcept {
+::pasta::ObjCInterfaceDecl ObjCMessageExpr::ReceiverInterface(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getReceiverInterface();
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCInterfaceDecl>(ast, val);
   }
   assert(false && "ObjCMessageExpr::ReceiverInterface can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum ObjCMessageExprReceiverKind ObjCMessageExpr::ReceiverKind(void) const noexcept {
+enum ObjCMessageExprReceiverKind ObjCMessageExpr::ReceiverKind(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getReceiverKind();
   return static_cast<::pasta::ObjCMessageExprReceiverKind>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::TokenRange ObjCMessageExpr::ReceiverRange(void) const noexcept {
+::pasta::TokenRange ObjCMessageExpr::ReceiverRange(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getReceiverRange();
   return ast->TokenRangeFrom(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type ObjCMessageExpr::ReceiverType(void) const noexcept {
+::pasta::Type ObjCMessageExpr::ReceiverType(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getReceiverType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCMessageExpr::RightToken(void) const noexcept {
+::pasta::Token ObjCMessageExpr::RightToken(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getRightLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: ObjCMessageExpr::Selector
 // 1: ObjCMessageExpr::SelectorToken
-::pasta::Token ObjCMessageExpr::SelectorStartToken(void) const noexcept {
+::pasta::Token ObjCMessageExpr::SelectorStartToken(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getSelectorStartLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCMessageExpr::SuperToken(void) const noexcept {
+::pasta::Token ObjCMessageExpr::SuperToken(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getSuperLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type ObjCMessageExpr::SuperType(void) const noexcept {
+::pasta::Type ObjCMessageExpr::SuperType(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.getSuperType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ObjCMessageExpr::IsClassMessage(void) const noexcept {
+bool ObjCMessageExpr::IsClassMessage(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.isClassMessage();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ObjCMessageExpr::IsDelegateInitializerCall(void) const noexcept {
+bool ObjCMessageExpr::IsDelegateInitializerCall(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.isDelegateInitCall();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ObjCMessageExpr::IsImplicit(void) const noexcept {
+bool ObjCMessageExpr::IsImplicit(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.isImplicit();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ObjCMessageExpr::IsInstanceMessage(void) const noexcept {
+bool ObjCMessageExpr::IsInstanceMessage(void) const {
   auto &self = *const_cast<clang::ObjCMessageExpr *>(u.ObjCMessageExpr);
   decltype(auto) val = self.isInstanceMessage();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Token> ObjCMessageExpr::SelectorTokens(void) const noexcept {
+std::vector<::pasta::Token> ObjCMessageExpr::SelectorTokens(void) const {
   std::vector<::pasta::Token> ret;
   auto convert_elem = [&] (clang::SourceLocation val) {
     return ast->TokenAt(val);
@@ -9536,7 +9536,7 @@ ObjCPropertyRefExpr::ObjCPropertyRefExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ObjCPropertyRefExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ObjCPropertyRefExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ObjCPropertyRefExpr)
-std::vector<::pasta::Stmt> ObjCPropertyRefExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ObjCPropertyRefExpr::Children(void) const {
   auto &self = *const_cast<clang::ObjCPropertyRefExpr *>(u.ObjCPropertyRefExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -9546,152 +9546,152 @@ std::vector<::pasta::Stmt> ObjCPropertyRefExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ObjCPropertyRefExpr::Base(void) const noexcept {
+::pasta::Expr ObjCPropertyRefExpr::Base(void) const {
   auto &self = *const_cast<clang::ObjCPropertyRefExpr *>(u.ObjCPropertyRefExpr);
   decltype(auto) val = self.getBase();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ObjCPropertyRefExpr::Base can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCPropertyRefExpr::BeginToken(void) const noexcept {
+::pasta::Token ObjCPropertyRefExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ObjCPropertyRefExpr *>(u.ObjCPropertyRefExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::ObjCInterfaceDecl ObjCPropertyRefExpr::ClassReceiver(void) const noexcept {
+::pasta::ObjCInterfaceDecl ObjCPropertyRefExpr::ClassReceiver(void) const {
   auto &self = *const_cast<clang::ObjCPropertyRefExpr *>(u.ObjCPropertyRefExpr);
   decltype(auto) val = self.getClassReceiver();
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCInterfaceDecl>(ast, val);
   }
   assert(false && "ObjCPropertyRefExpr::ClassReceiver can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCPropertyRefExpr::EndToken(void) const noexcept {
+::pasta::Token ObjCPropertyRefExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCPropertyRefExpr *>(u.ObjCPropertyRefExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::ObjCPropertyDecl ObjCPropertyRefExpr::ExplicitProperty(void) const noexcept {
+::pasta::ObjCPropertyDecl ObjCPropertyRefExpr::ExplicitProperty(void) const {
   auto &self = *const_cast<clang::ObjCPropertyRefExpr *>(u.ObjCPropertyRefExpr);
   decltype(auto) val = self.getExplicitProperty();
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCPropertyDecl>(ast, val);
   }
   assert(false && "ObjCPropertyRefExpr::ExplicitProperty can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: ObjCPropertyRefExpr::GetterSelector
-::pasta::ObjCMethodDecl ObjCPropertyRefExpr::ImplicitPropertyGetter(void) const noexcept {
+::pasta::ObjCMethodDecl ObjCPropertyRefExpr::ImplicitPropertyGetter(void) const {
   auto &self = *const_cast<clang::ObjCPropertyRefExpr *>(u.ObjCPropertyRefExpr);
   decltype(auto) val = self.getImplicitPropertyGetter();
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, val);
   }
   assert(false && "ObjCPropertyRefExpr::ImplicitPropertyGetter can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::ObjCMethodDecl ObjCPropertyRefExpr::ImplicitPropertySetter(void) const noexcept {
+::pasta::ObjCMethodDecl ObjCPropertyRefExpr::ImplicitPropertySetter(void) const {
   auto &self = *const_cast<clang::ObjCPropertyRefExpr *>(u.ObjCPropertyRefExpr);
   decltype(auto) val = self.getImplicitPropertySetter();
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, val);
   }
   assert(false && "ObjCPropertyRefExpr::ImplicitPropertySetter can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCPropertyRefExpr::Token(void) const noexcept {
+::pasta::Token ObjCPropertyRefExpr::Token(void) const {
   auto &self = *const_cast<clang::ObjCPropertyRefExpr *>(u.ObjCPropertyRefExpr);
   decltype(auto) val = self.getLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCPropertyRefExpr::ReceiverToken(void) const noexcept {
+::pasta::Token ObjCPropertyRefExpr::ReceiverToken(void) const {
   auto &self = *const_cast<clang::ObjCPropertyRefExpr *>(u.ObjCPropertyRefExpr);
   decltype(auto) val = self.getReceiverLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type ObjCPropertyRefExpr::ReceiverType(void) const noexcept {
+::pasta::Type ObjCPropertyRefExpr::ReceiverType(void) const {
   auto &self = *(u.ObjCPropertyRefExpr);
   decltype(auto) val = self.getReceiverType(ast->ci->getASTContext());
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: ObjCPropertyRefExpr::SetterSelector
-::pasta::Type ObjCPropertyRefExpr::SuperReceiverType(void) const noexcept {
+::pasta::Type ObjCPropertyRefExpr::SuperReceiverType(void) const {
   auto &self = *const_cast<clang::ObjCPropertyRefExpr *>(u.ObjCPropertyRefExpr);
   decltype(auto) val = self.getSuperReceiverType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ObjCPropertyRefExpr::IsClassReceiver(void) const noexcept {
+bool ObjCPropertyRefExpr::IsClassReceiver(void) const {
   auto &self = *const_cast<clang::ObjCPropertyRefExpr *>(u.ObjCPropertyRefExpr);
   decltype(auto) val = self.isClassReceiver();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ObjCPropertyRefExpr::IsExplicitProperty(void) const noexcept {
+bool ObjCPropertyRefExpr::IsExplicitProperty(void) const {
   auto &self = *const_cast<clang::ObjCPropertyRefExpr *>(u.ObjCPropertyRefExpr);
   decltype(auto) val = self.isExplicitProperty();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ObjCPropertyRefExpr::IsImplicitProperty(void) const noexcept {
+bool ObjCPropertyRefExpr::IsImplicitProperty(void) const {
   auto &self = *const_cast<clang::ObjCPropertyRefExpr *>(u.ObjCPropertyRefExpr);
   decltype(auto) val = self.isImplicitProperty();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ObjCPropertyRefExpr::IsMessagingGetter(void) const noexcept {
+bool ObjCPropertyRefExpr::IsMessagingGetter(void) const {
   auto &self = *const_cast<clang::ObjCPropertyRefExpr *>(u.ObjCPropertyRefExpr);
   decltype(auto) val = self.isMessagingGetter();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ObjCPropertyRefExpr::IsMessagingSetter(void) const noexcept {
+bool ObjCPropertyRefExpr::IsMessagingSetter(void) const {
   auto &self = *const_cast<clang::ObjCPropertyRefExpr *>(u.ObjCPropertyRefExpr);
   decltype(auto) val = self.isMessagingSetter();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ObjCPropertyRefExpr::IsObjectReceiver(void) const noexcept {
+bool ObjCPropertyRefExpr::IsObjectReceiver(void) const {
   auto &self = *const_cast<clang::ObjCPropertyRefExpr *>(u.ObjCPropertyRefExpr);
   decltype(auto) val = self.isObjectReceiver();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ObjCPropertyRefExpr::IsSuperReceiver(void) const noexcept {
+bool ObjCPropertyRefExpr::IsSuperReceiver(void) const {
   auto &self = *const_cast<clang::ObjCPropertyRefExpr *>(u.ObjCPropertyRefExpr);
   decltype(auto) val = self.isSuperReceiver();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ObjCProtocolExpr::ObjCProtocolExpr(
@@ -9702,7 +9702,7 @@ ObjCProtocolExpr::ObjCProtocolExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ObjCProtocolExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ObjCProtocolExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ObjCProtocolExpr)
-std::vector<::pasta::Stmt> ObjCProtocolExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ObjCProtocolExpr::Children(void) const {
   auto &self = *const_cast<clang::ObjCProtocolExpr *>(u.ObjCProtocolExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -9712,52 +9712,52 @@ std::vector<::pasta::Stmt> ObjCProtocolExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCProtocolExpr::AtToken(void) const noexcept {
+::pasta::Token ObjCProtocolExpr::AtToken(void) const {
   auto &self = *const_cast<clang::ObjCProtocolExpr *>(u.ObjCProtocolExpr);
   decltype(auto) val = self.getAtLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCProtocolExpr::BeginToken(void) const noexcept {
+::pasta::Token ObjCProtocolExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ObjCProtocolExpr *>(u.ObjCProtocolExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCProtocolExpr::EndToken(void) const noexcept {
+::pasta::Token ObjCProtocolExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCProtocolExpr *>(u.ObjCProtocolExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::ObjCProtocolDecl ObjCProtocolExpr::Protocol(void) const noexcept {
+::pasta::ObjCProtocolDecl ObjCProtocolExpr::Protocol(void) const {
   auto &self = *const_cast<clang::ObjCProtocolExpr *>(u.ObjCProtocolExpr);
   decltype(auto) val = self.getProtocol();
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCProtocolDecl>(ast, val);
   }
   assert(false && "ObjCProtocolExpr::Protocol can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCProtocolExpr::ProtocolIdToken(void) const noexcept {
+::pasta::Token ObjCProtocolExpr::ProtocolIdToken(void) const {
   auto &self = *const_cast<clang::ObjCProtocolExpr *>(u.ObjCProtocolExpr);
   decltype(auto) val = self.getProtocolIdLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCProtocolExpr::RParenToken(void) const noexcept {
+::pasta::Token ObjCProtocolExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::ObjCProtocolExpr *>(u.ObjCProtocolExpr);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ObjCSelectorExpr::ObjCSelectorExpr(
@@ -9768,7 +9768,7 @@ ObjCSelectorExpr::ObjCSelectorExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ObjCSelectorExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ObjCSelectorExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ObjCSelectorExpr)
-std::vector<::pasta::Stmt> ObjCSelectorExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ObjCSelectorExpr::Children(void) const {
   auto &self = *const_cast<clang::ObjCSelectorExpr *>(u.ObjCSelectorExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -9778,42 +9778,42 @@ std::vector<::pasta::Stmt> ObjCSelectorExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCSelectorExpr::AtToken(void) const noexcept {
+::pasta::Token ObjCSelectorExpr::AtToken(void) const {
   auto &self = *const_cast<clang::ObjCSelectorExpr *>(u.ObjCSelectorExpr);
   decltype(auto) val = self.getAtLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCSelectorExpr::BeginToken(void) const noexcept {
+::pasta::Token ObjCSelectorExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ObjCSelectorExpr *>(u.ObjCSelectorExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCSelectorExpr::EndToken(void) const noexcept {
+::pasta::Token ObjCSelectorExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCSelectorExpr *>(u.ObjCSelectorExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t ObjCSelectorExpr::NumArguments(void) const noexcept {
+uint32_t ObjCSelectorExpr::NumArguments(void) const {
   auto &self = *const_cast<clang::ObjCSelectorExpr *>(u.ObjCSelectorExpr);
   decltype(auto) val = self.getNumArgs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCSelectorExpr::RParenToken(void) const noexcept {
+::pasta::Token ObjCSelectorExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::ObjCSelectorExpr *>(u.ObjCSelectorExpr);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: ObjCSelectorExpr::Selector
@@ -9825,7 +9825,7 @@ ObjCStringLiteral::ObjCStringLiteral(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ObjCStringLiteral)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ObjCStringLiteral)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ObjCStringLiteral)
-std::vector<::pasta::Stmt> ObjCStringLiteral::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ObjCStringLiteral::Children(void) const {
   auto &self = *const_cast<clang::ObjCStringLiteral *>(u.ObjCStringLiteral);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -9835,38 +9835,38 @@ std::vector<::pasta::Stmt> ObjCStringLiteral::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCStringLiteral::AtToken(void) const noexcept {
+::pasta::Token ObjCStringLiteral::AtToken(void) const {
   auto &self = *const_cast<clang::ObjCStringLiteral *>(u.ObjCStringLiteral);
   decltype(auto) val = self.getAtLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCStringLiteral::BeginToken(void) const noexcept {
+::pasta::Token ObjCStringLiteral::BeginToken(void) const {
   auto &self = *const_cast<clang::ObjCStringLiteral *>(u.ObjCStringLiteral);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCStringLiteral::EndToken(void) const noexcept {
+::pasta::Token ObjCStringLiteral::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCStringLiteral *>(u.ObjCStringLiteral);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::StringLiteral ObjCStringLiteral::String(void) const noexcept {
+::pasta::StringLiteral ObjCStringLiteral::String(void) const {
   auto &self = *const_cast<clang::ObjCStringLiteral *>(u.ObjCStringLiteral);
   decltype(auto) val = self.getString();
   if (val) {
     return StmtBuilder::Create<::pasta::StringLiteral>(ast, val);
   }
   assert(false && "ObjCStringLiteral::String can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ObjCSubscriptRefExpr::ObjCSubscriptRefExpr(
@@ -9877,7 +9877,7 @@ ObjCSubscriptRefExpr::ObjCSubscriptRefExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ObjCSubscriptRefExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ObjCSubscriptRefExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ObjCSubscriptRefExpr)
-std::vector<::pasta::Stmt> ObjCSubscriptRefExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ObjCSubscriptRefExpr::Children(void) const {
   auto &self = *const_cast<clang::ObjCSubscriptRefExpr *>(u.ObjCSubscriptRefExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -9887,65 +9887,65 @@ std::vector<::pasta::Stmt> ObjCSubscriptRefExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::ObjCMethodDecl ObjCSubscriptRefExpr::AtIndexMethodDeclaration(void) const noexcept {
+::pasta::ObjCMethodDecl ObjCSubscriptRefExpr::AtIndexMethodDeclaration(void) const {
   auto &self = *const_cast<clang::ObjCSubscriptRefExpr *>(u.ObjCSubscriptRefExpr);
   decltype(auto) val = self.getAtIndexMethodDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::ObjCMethodDecl>(ast, val);
   }
   assert(false && "ObjCSubscriptRefExpr::AtIndexMethodDeclaration can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ObjCSubscriptRefExpr::BaseExpression(void) const noexcept {
+::pasta::Expr ObjCSubscriptRefExpr::BaseExpression(void) const {
   auto &self = *const_cast<clang::ObjCSubscriptRefExpr *>(u.ObjCSubscriptRefExpr);
   decltype(auto) val = self.getBaseExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ObjCSubscriptRefExpr::BaseExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCSubscriptRefExpr::BeginToken(void) const noexcept {
+::pasta::Token ObjCSubscriptRefExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ObjCSubscriptRefExpr *>(u.ObjCSubscriptRefExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCSubscriptRefExpr::EndToken(void) const noexcept {
+::pasta::Token ObjCSubscriptRefExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCSubscriptRefExpr *>(u.ObjCSubscriptRefExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ObjCSubscriptRefExpr::KeyExpression(void) const noexcept {
+::pasta::Expr ObjCSubscriptRefExpr::KeyExpression(void) const {
   auto &self = *const_cast<clang::ObjCSubscriptRefExpr *>(u.ObjCSubscriptRefExpr);
   decltype(auto) val = self.getKeyExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ObjCSubscriptRefExpr::KeyExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCSubscriptRefExpr::RBracketToken(void) const noexcept {
+::pasta::Token ObjCSubscriptRefExpr::RBracketToken(void) const {
   auto &self = *const_cast<clang::ObjCSubscriptRefExpr *>(u.ObjCSubscriptRefExpr);
   decltype(auto) val = self.getRBracket();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ObjCSubscriptRefExpr::IsArraySubscriptReferenceExpression(void) const noexcept {
+bool ObjCSubscriptRefExpr::IsArraySubscriptReferenceExpression(void) const {
   auto &self = *const_cast<clang::ObjCSubscriptRefExpr *>(u.ObjCSubscriptRefExpr);
   decltype(auto) val = self.isArraySubscriptRefExpr();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OffsetOfExpr::OffsetOfExpr(
@@ -9956,7 +9956,7 @@ OffsetOfExpr::OffsetOfExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, OffsetOfExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OffsetOfExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, OffsetOfExpr)
-std::vector<::pasta::Stmt> OffsetOfExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> OffsetOfExpr::Children(void) const {
   auto &self = *const_cast<clang::OffsetOfExpr *>(u.OffsetOfExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -9966,54 +9966,53 @@ std::vector<::pasta::Stmt> OffsetOfExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token OffsetOfExpr::BeginToken(void) const noexcept {
+::pasta::Token OffsetOfExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::OffsetOfExpr *>(u.OffsetOfExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: OffsetOfExpr::Component
-::pasta::Token OffsetOfExpr::EndToken(void) const noexcept {
+::pasta::Token OffsetOfExpr::EndToken(void) const {
   auto &self = *const_cast<clang::OffsetOfExpr *>(u.OffsetOfExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: OffsetOfExpr::IndexExpression
-uint32_t OffsetOfExpr::NumComponents(void) const noexcept {
+uint32_t OffsetOfExpr::NumComponents(void) const {
   auto &self = *const_cast<clang::OffsetOfExpr *>(u.OffsetOfExpr);
   decltype(auto) val = self.getNumComponents();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t OffsetOfExpr::NumExpressions(void) const noexcept {
+uint32_t OffsetOfExpr::NumExpressions(void) const {
   auto &self = *const_cast<clang::OffsetOfExpr *>(u.OffsetOfExpr);
   decltype(auto) val = self.getNumExpressions();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token OffsetOfExpr::OperatorToken(void) const noexcept {
+::pasta::Token OffsetOfExpr::OperatorToken(void) const {
   auto &self = *const_cast<clang::OffsetOfExpr *>(u.OffsetOfExpr);
   decltype(auto) val = self.getOperatorLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token OffsetOfExpr::RParenToken(void) const noexcept {
+::pasta::Token OffsetOfExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::OffsetOfExpr *>(u.OffsetOfExpr);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-// 0: OffsetOfExpr::
 OpaqueValueExpr::OpaqueValueExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -10022,7 +10021,7 @@ OpaqueValueExpr::OpaqueValueExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, OpaqueValueExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OpaqueValueExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, OpaqueValueExpr)
-std::vector<::pasta::Stmt> OpaqueValueExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> OpaqueValueExpr::Children(void) const {
   auto &self = *const_cast<clang::OpaqueValueExpr *>(u.OpaqueValueExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -10032,52 +10031,52 @@ std::vector<::pasta::Stmt> OpaqueValueExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token OpaqueValueExpr::BeginToken(void) const noexcept {
+::pasta::Token OpaqueValueExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::OpaqueValueExpr *>(u.OpaqueValueExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token OpaqueValueExpr::EndToken(void) const noexcept {
+::pasta::Token OpaqueValueExpr::EndToken(void) const {
   auto &self = *const_cast<clang::OpaqueValueExpr *>(u.OpaqueValueExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token OpaqueValueExpr::ExpressionToken(void) const noexcept {
+::pasta::Token OpaqueValueExpr::ExpressionToken(void) const {
   auto &self = *const_cast<clang::OpaqueValueExpr *>(u.OpaqueValueExpr);
   decltype(auto) val = self.getExprLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token OpaqueValueExpr::Token(void) const noexcept {
+::pasta::Token OpaqueValueExpr::Token(void) const {
   auto &self = *const_cast<clang::OpaqueValueExpr *>(u.OpaqueValueExpr);
   decltype(auto) val = self.getLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OpaqueValueExpr::SourceExpression(void) const noexcept {
+::pasta::Expr OpaqueValueExpr::SourceExpression(void) const {
   auto &self = *const_cast<clang::OpaqueValueExpr *>(u.OpaqueValueExpr);
   decltype(auto) val = self.getSourceExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OpaqueValueExpr::SourceExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool OpaqueValueExpr::IsUnique(void) const noexcept {
+bool OpaqueValueExpr::IsUnique(void) const {
   auto &self = *const_cast<clang::OpaqueValueExpr *>(u.OpaqueValueExpr);
   decltype(auto) val = self.isUnique();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OverloadExpr::OverloadExpr(
@@ -10093,23 +10092,23 @@ PASTA_DEFINE_DERIVED_OPERATORS(OverloadExpr, UnresolvedMemberExpr)
 // 0: OverloadExpr::Declarations
 // 0: OverloadExpr::
 // 0: OverloadExpr::
-::pasta::Token OverloadExpr::LAngleToken(void) const noexcept {
+::pasta::Token OverloadExpr::LAngleToken(void) const {
   auto &self = *const_cast<clang::OverloadExpr *>(u.OverloadExpr);
   decltype(auto) val = self.getLAngleLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: OverloadExpr::Name
 // 0: OverloadExpr::NameInfo
-::pasta::Token OverloadExpr::NameToken(void) const noexcept {
+::pasta::Token OverloadExpr::NameToken(void) const {
   auto &self = *const_cast<clang::OverloadExpr *>(u.OverloadExpr);
   decltype(auto) val = self.getNameLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::CXXRecordDecl> OverloadExpr::NamingClass(void) const noexcept {
+std::optional<::pasta::CXXRecordDecl> OverloadExpr::NamingClass(void) const {
   auto &self = *const_cast<clang::OverloadExpr *>(u.OverloadExpr);
   decltype(auto) val = self.getNamingClass();
   if (!val) {
@@ -10118,52 +10117,52 @@ std::optional<::pasta::CXXRecordDecl> OverloadExpr::NamingClass(void) const noex
   if (val) {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t OverloadExpr::NumDeclarations(void) const noexcept {
+uint32_t OverloadExpr::NumDeclarations(void) const {
   auto &self = *const_cast<clang::OverloadExpr *>(u.OverloadExpr);
   decltype(auto) val = self.getNumDecls();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t OverloadExpr::NumTemplateArguments(void) const noexcept {
+uint32_t OverloadExpr::NumTemplateArguments(void) const {
   auto &self = *const_cast<clang::OverloadExpr *>(u.OverloadExpr);
   decltype(auto) val = self.getNumTemplateArgs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: OverloadExpr::Qualifier
 // 0: OverloadExpr::QualifierToken
-::pasta::Token OverloadExpr::RAngleToken(void) const noexcept {
+::pasta::Token OverloadExpr::RAngleToken(void) const {
   auto &self = *const_cast<clang::OverloadExpr *>(u.OverloadExpr);
   decltype(auto) val = self.getRAngleLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: OverloadExpr::TemplateArguments
-::pasta::Token OverloadExpr::TemplateKeywordToken(void) const noexcept {
+::pasta::Token OverloadExpr::TemplateKeywordToken(void) const {
   auto &self = *const_cast<clang::OverloadExpr *>(u.OverloadExpr);
   decltype(auto) val = self.getTemplateKeywordLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool OverloadExpr::HasExplicitTemplateArguments(void) const noexcept {
+bool OverloadExpr::HasExplicitTemplateArguments(void) const {
   auto &self = *const_cast<clang::OverloadExpr *>(u.OverloadExpr);
   decltype(auto) val = self.hasExplicitTemplateArgs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool OverloadExpr::HasTemplateKeyword(void) const noexcept {
+bool OverloadExpr::HasTemplateKeyword(void) const {
   auto &self = *const_cast<clang::OverloadExpr *>(u.OverloadExpr);
   decltype(auto) val = self.hasTemplateKeyword();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: OverloadExpr::TemplateArguments
@@ -10175,7 +10174,7 @@ PackExpansionExpr::PackExpansionExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, PackExpansionExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, PackExpansionExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, PackExpansionExpr)
-std::vector<::pasta::Stmt> PackExpansionExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> PackExpansionExpr::Children(void) const {
   auto &self = *const_cast<clang::PackExpansionExpr *>(u.PackExpansionExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -10185,31 +10184,31 @@ std::vector<::pasta::Stmt> PackExpansionExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token PackExpansionExpr::BeginToken(void) const noexcept {
+::pasta::Token PackExpansionExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::PackExpansionExpr *>(u.PackExpansionExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token PackExpansionExpr::EllipsisToken(void) const noexcept {
+::pasta::Token PackExpansionExpr::EllipsisToken(void) const {
   auto &self = *const_cast<clang::PackExpansionExpr *>(u.PackExpansionExpr);
   decltype(auto) val = self.getEllipsisLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token PackExpansionExpr::EndToken(void) const noexcept {
+::pasta::Token PackExpansionExpr::EndToken(void) const {
   auto &self = *const_cast<clang::PackExpansionExpr *>(u.PackExpansionExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<unsigned> PackExpansionExpr::NumExpansions(void) const noexcept {
+std::optional<unsigned> PackExpansionExpr::NumExpansions(void) const {
   auto &self = *const_cast<clang::PackExpansionExpr *>(u.PackExpansionExpr);
   decltype(auto) val = self.getNumExpansions();
   if (val.has_value()) {
@@ -10217,17 +10216,17 @@ std::optional<unsigned> PackExpansionExpr::NumExpansions(void) const noexcept {
   } else {
     return std::nullopt;
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr PackExpansionExpr::Pattern(void) const noexcept {
+::pasta::Expr PackExpansionExpr::Pattern(void) const {
   auto &self = *const_cast<clang::PackExpansionExpr *>(u.PackExpansionExpr);
   decltype(auto) val = self.getPattern();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "PackExpansionExpr::Pattern can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ParenExpr::ParenExpr(
@@ -10238,7 +10237,7 @@ ParenExpr::ParenExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ParenExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ParenExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ParenExpr)
-std::vector<::pasta::Stmt> ParenExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ParenExpr::Children(void) const {
   auto &self = *const_cast<clang::ParenExpr *>(u.ParenExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -10248,45 +10247,45 @@ std::vector<::pasta::Stmt> ParenExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ParenExpr::BeginToken(void) const noexcept {
+::pasta::Token ParenExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ParenExpr *>(u.ParenExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ParenExpr::EndToken(void) const noexcept {
+::pasta::Token ParenExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ParenExpr *>(u.ParenExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ParenExpr::LParenToken(void) const noexcept {
+::pasta::Token ParenExpr::LParenToken(void) const {
   auto &self = *const_cast<clang::ParenExpr *>(u.ParenExpr);
   decltype(auto) val = self.getLParen();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ParenExpr::RParenToken(void) const noexcept {
+::pasta::Token ParenExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::ParenExpr *>(u.ParenExpr);
   decltype(auto) val = self.getRParen();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ParenExpr::SubExpression(void) const noexcept {
+::pasta::Expr ParenExpr::SubExpression(void) const {
   auto &self = *const_cast<clang::ParenExpr *>(u.ParenExpr);
   decltype(auto) val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ParenExpr::SubExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ParenListExpr::ParenListExpr(
@@ -10297,7 +10296,7 @@ ParenListExpr::ParenListExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ParenListExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ParenListExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ParenListExpr)
-std::vector<::pasta::Stmt> ParenListExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ParenListExpr::Children(void) const {
   auto &self = *const_cast<clang::ParenListExpr *>(u.ParenListExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -10307,52 +10306,52 @@ std::vector<::pasta::Stmt> ParenListExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ParenListExpr::BeginToken(void) const noexcept {
+::pasta::Token ParenListExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ParenListExpr *>(u.ParenListExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ParenListExpr::EndToken(void) const noexcept {
+::pasta::Token ParenListExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ParenListExpr *>(u.ParenListExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: ParenListExpr::Expression
-::pasta::Token ParenListExpr::LParenToken(void) const noexcept {
+::pasta::Token ParenListExpr::LParenToken(void) const {
   auto &self = *const_cast<clang::ParenListExpr *>(u.ParenListExpr);
   decltype(auto) val = self.getLParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t ParenListExpr::NumExpressions(void) const noexcept {
+uint32_t ParenListExpr::NumExpressions(void) const {
   auto &self = *const_cast<clang::ParenListExpr *>(u.ParenListExpr);
   decltype(auto) val = self.getNumExprs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ParenListExpr::RParenToken(void) const noexcept {
+::pasta::Token ParenListExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::ParenListExpr *>(u.ParenListExpr);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Expr> ParenListExpr::Expressions(void) const noexcept {
+std::vector<::pasta::Expr> ParenListExpr::Expressions(void) const {
   std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.ParenListExpr->getNumExprs();
   decltype(count) i = 0;
@@ -10370,7 +10369,7 @@ PredefinedExpr::PredefinedExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, PredefinedExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, PredefinedExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, PredefinedExpr)
-std::vector<::pasta::Stmt> PredefinedExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> PredefinedExpr::Children(void) const {
   auto &self = *const_cast<clang::PredefinedExpr *>(u.PredefinedExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -10380,41 +10379,41 @@ std::vector<::pasta::Stmt> PredefinedExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token PredefinedExpr::BeginToken(void) const noexcept {
+::pasta::Token PredefinedExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::PredefinedExpr *>(u.PredefinedExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token PredefinedExpr::EndToken(void) const noexcept {
+::pasta::Token PredefinedExpr::EndToken(void) const {
   auto &self = *const_cast<clang::PredefinedExpr *>(u.PredefinedExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::StringLiteral PredefinedExpr::FunctionName(void) const noexcept {
+::pasta::StringLiteral PredefinedExpr::FunctionName(void) const {
   auto &self = *const_cast<clang::PredefinedExpr *>(u.PredefinedExpr);
   decltype(auto) val = self.getFunctionName();
   if (val) {
     return StmtBuilder::Create<::pasta::StringLiteral>(ast, val);
   }
   assert(false && "PredefinedExpr::FunctionName can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum PredefinedExprIdentKind PredefinedExpr::IdentifierKind(void) const noexcept {
+enum PredefinedExprIdentKind PredefinedExpr::IdentifierKind(void) const {
   auto &self = *const_cast<clang::PredefinedExpr *>(u.PredefinedExpr);
   decltype(auto) val = self.getIdentKind();
   return static_cast<::pasta::PredefinedExprIdentKind>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::string_view PredefinedExpr::IdentifierKindName(void) const noexcept {
+std::string_view PredefinedExpr::IdentifierKindName(void) const {
   auto &self = *const_cast<clang::PredefinedExpr *>(u.PredefinedExpr);
   decltype(auto) val = self.getIdentKindName();
   if (auto size = val.size()) {
@@ -10422,14 +10421,14 @@ std::string_view PredefinedExpr::IdentifierKindName(void) const noexcept {
   } else {
     return std::string_view();
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token PredefinedExpr::Token(void) const noexcept {
+::pasta::Token PredefinedExpr::Token(void) const {
   auto &self = *const_cast<clang::PredefinedExpr *>(u.PredefinedExpr);
   decltype(auto) val = self.getLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 PseudoObjectExpr::PseudoObjectExpr(
@@ -10440,7 +10439,7 @@ PseudoObjectExpr::PseudoObjectExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, PseudoObjectExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, PseudoObjectExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, PseudoObjectExpr)
-std::vector<::pasta::Stmt> PseudoObjectExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> PseudoObjectExpr::Children(void) const {
   auto &self = *const_cast<clang::PseudoObjectExpr *>(u.PseudoObjectExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -10450,66 +10449,66 @@ std::vector<::pasta::Stmt> PseudoObjectExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token PseudoObjectExpr::BeginToken(void) const noexcept {
+::pasta::Token PseudoObjectExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::PseudoObjectExpr *>(u.PseudoObjectExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token PseudoObjectExpr::EndToken(void) const noexcept {
+::pasta::Token PseudoObjectExpr::EndToken(void) const {
   auto &self = *const_cast<clang::PseudoObjectExpr *>(u.PseudoObjectExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token PseudoObjectExpr::ExpressionToken(void) const noexcept {
+::pasta::Token PseudoObjectExpr::ExpressionToken(void) const {
   auto &self = *const_cast<clang::PseudoObjectExpr *>(u.PseudoObjectExpr);
   decltype(auto) val = self.getExprLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t PseudoObjectExpr::NumSemanticExpressions(void) const noexcept {
+uint32_t PseudoObjectExpr::NumSemanticExpressions(void) const {
   auto &self = *const_cast<clang::PseudoObjectExpr *>(u.PseudoObjectExpr);
   decltype(auto) val = self.getNumSemanticExprs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr PseudoObjectExpr::ResultExpression(void) const noexcept {
+::pasta::Expr PseudoObjectExpr::ResultExpression(void) const {
   auto &self = *const_cast<clang::PseudoObjectExpr *>(u.PseudoObjectExpr);
   decltype(auto) val = self.getResultExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "PseudoObjectExpr::ResultExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t PseudoObjectExpr::ResultExpressionIndex(void) const noexcept {
+uint32_t PseudoObjectExpr::ResultExpressionIndex(void) const {
   auto &self = *const_cast<clang::PseudoObjectExpr *>(u.PseudoObjectExpr);
   decltype(auto) val = self.getResultExprIndex();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: PseudoObjectExpr::SemanticExpression
-::pasta::Expr PseudoObjectExpr::SyntacticForm(void) const noexcept {
+::pasta::Expr PseudoObjectExpr::SyntacticForm(void) const {
   auto &self = *const_cast<clang::PseudoObjectExpr *>(u.PseudoObjectExpr);
   decltype(auto) val = self.getSyntacticForm();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "PseudoObjectExpr::SyntacticForm can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Expr> PseudoObjectExpr::Semantics(void) const noexcept {
+std::vector<::pasta::Expr> PseudoObjectExpr::Semantics(void) const {
   auto &self = *const_cast<clang::PseudoObjectExpr *>(u.PseudoObjectExpr);
   decltype(auto) val = self.semantics();
   std::vector<::pasta::Expr> ret;
@@ -10519,18 +10518,18 @@ std::vector<::pasta::Expr> PseudoObjectExpr::Semantics(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: PseudoObjectExpr::
 // 0: PseudoObjectExpr::
-std::vector<::pasta::Expr> PseudoObjectExpr::SemanticExpressions(void) const noexcept {
+std::vector<::pasta::Expr> PseudoObjectExpr::SemanticExpressions(void) const {
   std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.PseudoObjectExpr->getNumSemanticExprs();
   decltype(count) i = 0;
@@ -10548,21 +10547,21 @@ RecoveryExpr::RecoveryExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, RecoveryExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, RecoveryExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, RecoveryExpr)
-::pasta::Token RecoveryExpr::BeginToken(void) const noexcept {
+::pasta::Token RecoveryExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::RecoveryExpr *>(u.RecoveryExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token RecoveryExpr::EndToken(void) const noexcept {
+::pasta::Token RecoveryExpr::EndToken(void) const {
   auto &self = *const_cast<clang::RecoveryExpr *>(u.RecoveryExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Expr> RecoveryExpr::SubExpressions(void) const noexcept {
+std::vector<::pasta::Expr> RecoveryExpr::SubExpressions(void) const {
   auto &self = *const_cast<clang::RecoveryExpr *>(u.RecoveryExpr);
   decltype(auto) val = self.subExpressions();
   std::vector<::pasta::Expr> ret;
@@ -10572,7 +10571,7 @@ std::vector<::pasta::Expr> RecoveryExpr::SubExpressions(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 RequiresExpr::RequiresExpr(
@@ -10583,7 +10582,7 @@ RequiresExpr::RequiresExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, RequiresExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, RequiresExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, RequiresExpr)
-std::vector<::pasta::Stmt> RequiresExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> RequiresExpr::Children(void) const {
   auto &self = *const_cast<clang::RequiresExpr *>(u.RequiresExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -10593,34 +10592,34 @@ std::vector<::pasta::Stmt> RequiresExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token RequiresExpr::BeginToken(void) const noexcept {
+::pasta::Token RequiresExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::RequiresExpr *>(u.RequiresExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::RequiresExprBodyDecl RequiresExpr::Body(void) const noexcept {
+::pasta::RequiresExprBodyDecl RequiresExpr::Body(void) const {
   auto &self = *const_cast<clang::RequiresExpr *>(u.RequiresExpr);
   decltype(auto) val = self.getBody();
   if (val) {
     return DeclBuilder::Create<::pasta::RequiresExprBodyDecl>(ast, val);
   }
   assert(false && "RequiresExpr::Body can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token RequiresExpr::EndToken(void) const noexcept {
+::pasta::Token RequiresExpr::EndToken(void) const {
   auto &self = *const_cast<clang::RequiresExpr *>(u.RequiresExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::ParmVarDecl> RequiresExpr::LocalParameters(void) const noexcept {
+std::vector<::pasta::ParmVarDecl> RequiresExpr::LocalParameters(void) const {
   auto &self = *const_cast<clang::RequiresExpr *>(u.RequiresExpr);
   decltype(auto) val = self.getLocalParameters();
   std::vector<::pasta::ParmVarDecl> ret;
@@ -10630,29 +10629,29 @@ std::vector<::pasta::ParmVarDecl> RequiresExpr::LocalParameters(void) const noex
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token RequiresExpr::RBraceToken(void) const noexcept {
+::pasta::Token RequiresExpr::RBraceToken(void) const {
   auto &self = *const_cast<clang::RequiresExpr *>(u.RequiresExpr);
   decltype(auto) val = self.getRBraceLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: RequiresExpr::Requirements
-::pasta::Token RequiresExpr::RequiresKeywordToken(void) const noexcept {
+::pasta::Token RequiresExpr::RequiresKeywordToken(void) const {
   auto &self = *const_cast<clang::RequiresExpr *>(u.RequiresExpr);
   decltype(auto) val = self.getRequiresKWLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool RequiresExpr::IsSatisfied(void) const noexcept {
+bool RequiresExpr::IsSatisfied(void) const {
   auto &self = *const_cast<clang::RequiresExpr *>(u.RequiresExpr);
   decltype(auto) val = self.isSatisfied();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ReturnStmt::ReturnStmt(
@@ -10661,7 +10660,7 @@ ReturnStmt::ReturnStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ReturnStmt)
-std::vector<::pasta::Stmt> ReturnStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ReturnStmt::Children(void) const {
   auto &self = *const_cast<clang::ReturnStmt *>(u.ReturnStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -10671,24 +10670,24 @@ std::vector<::pasta::Stmt> ReturnStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ReturnStmt::BeginToken(void) const noexcept {
+::pasta::Token ReturnStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::ReturnStmt *>(u.ReturnStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ReturnStmt::EndToken(void) const noexcept {
+::pasta::Token ReturnStmt::EndToken(void) const {
   auto &self = *const_cast<clang::ReturnStmt *>(u.ReturnStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::VarDecl> ReturnStmt::NRVOCandidate(void) const noexcept {
+std::optional<::pasta::VarDecl> ReturnStmt::NRVOCandidate(void) const {
   auto &self = *const_cast<clang::ReturnStmt *>(u.ReturnStmt);
   decltype(auto) val = self.getNRVOCandidate();
   if (!val) {
@@ -10697,10 +10696,10 @@ std::optional<::pasta::VarDecl> ReturnStmt::NRVOCandidate(void) const noexcept {
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Expr> ReturnStmt::ReturnValue(void) const noexcept {
+std::optional<::pasta::Expr> ReturnStmt::ReturnValue(void) const {
   auto &self = *const_cast<clang::ReturnStmt *>(u.ReturnStmt);
   decltype(auto) val = self.getRetValue();
   if (!val) {
@@ -10709,14 +10708,14 @@ std::optional<::pasta::Expr> ReturnStmt::ReturnValue(void) const noexcept {
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ReturnStmt::ReturnToken(void) const noexcept {
+::pasta::Token ReturnStmt::ReturnToken(void) const {
   auto &self = *const_cast<clang::ReturnStmt *>(u.ReturnStmt);
   decltype(auto) val = self.getReturnLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 SEHExceptStmt::SEHExceptStmt(
@@ -10725,7 +10724,7 @@ SEHExceptStmt::SEHExceptStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, SEHExceptStmt)
-std::vector<::pasta::Stmt> SEHExceptStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> SEHExceptStmt::Children(void) const {
   auto &self = *const_cast<clang::SEHExceptStmt *>(u.SEHExceptStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -10735,48 +10734,48 @@ std::vector<::pasta::Stmt> SEHExceptStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SEHExceptStmt::BeginToken(void) const noexcept {
+::pasta::Token SEHExceptStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::SEHExceptStmt *>(u.SEHExceptStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::CompoundStmt SEHExceptStmt::Block(void) const noexcept {
+::pasta::CompoundStmt SEHExceptStmt::Block(void) const {
   auto &self = *const_cast<clang::SEHExceptStmt *>(u.SEHExceptStmt);
   decltype(auto) val = self.getBlock();
   if (val) {
     return StmtBuilder::Create<::pasta::CompoundStmt>(ast, val);
   }
   assert(false && "SEHExceptStmt::Block can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SEHExceptStmt::EndToken(void) const noexcept {
+::pasta::Token SEHExceptStmt::EndToken(void) const {
   auto &self = *const_cast<clang::SEHExceptStmt *>(u.SEHExceptStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SEHExceptStmt::ExceptToken(void) const noexcept {
+::pasta::Token SEHExceptStmt::ExceptToken(void) const {
   auto &self = *const_cast<clang::SEHExceptStmt *>(u.SEHExceptStmt);
   decltype(auto) val = self.getExceptLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr SEHExceptStmt::FilterExpression(void) const noexcept {
+::pasta::Expr SEHExceptStmt::FilterExpression(void) const {
   auto &self = *const_cast<clang::SEHExceptStmt *>(u.SEHExceptStmt);
   decltype(auto) val = self.getFilterExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "SEHExceptStmt::FilterExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 SEHFinallyStmt::SEHFinallyStmt(
@@ -10785,7 +10784,7 @@ SEHFinallyStmt::SEHFinallyStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, SEHFinallyStmt)
-std::vector<::pasta::Stmt> SEHFinallyStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> SEHFinallyStmt::Children(void) const {
   auto &self = *const_cast<clang::SEHFinallyStmt *>(u.SEHFinallyStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -10795,38 +10794,38 @@ std::vector<::pasta::Stmt> SEHFinallyStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SEHFinallyStmt::BeginToken(void) const noexcept {
+::pasta::Token SEHFinallyStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::SEHFinallyStmt *>(u.SEHFinallyStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::CompoundStmt SEHFinallyStmt::Block(void) const noexcept {
+::pasta::CompoundStmt SEHFinallyStmt::Block(void) const {
   auto &self = *const_cast<clang::SEHFinallyStmt *>(u.SEHFinallyStmt);
   decltype(auto) val = self.getBlock();
   if (val) {
     return StmtBuilder::Create<::pasta::CompoundStmt>(ast, val);
   }
   assert(false && "SEHFinallyStmt::Block can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SEHFinallyStmt::EndToken(void) const noexcept {
+::pasta::Token SEHFinallyStmt::EndToken(void) const {
   auto &self = *const_cast<clang::SEHFinallyStmt *>(u.SEHFinallyStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SEHFinallyStmt::FinallyToken(void) const noexcept {
+::pasta::Token SEHFinallyStmt::FinallyToken(void) const {
   auto &self = *const_cast<clang::SEHFinallyStmt *>(u.SEHFinallyStmt);
   decltype(auto) val = self.getFinallyLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 SEHLeaveStmt::SEHLeaveStmt(
@@ -10835,7 +10834,7 @@ SEHLeaveStmt::SEHLeaveStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, SEHLeaveStmt)
-std::vector<::pasta::Stmt> SEHLeaveStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> SEHLeaveStmt::Children(void) const {
   auto &self = *const_cast<clang::SEHLeaveStmt *>(u.SEHLeaveStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -10845,28 +10844,28 @@ std::vector<::pasta::Stmt> SEHLeaveStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SEHLeaveStmt::BeginToken(void) const noexcept {
+::pasta::Token SEHLeaveStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::SEHLeaveStmt *>(u.SEHLeaveStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SEHLeaveStmt::EndToken(void) const noexcept {
+::pasta::Token SEHLeaveStmt::EndToken(void) const {
   auto &self = *const_cast<clang::SEHLeaveStmt *>(u.SEHLeaveStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SEHLeaveStmt::LeaveToken(void) const noexcept {
+::pasta::Token SEHLeaveStmt::LeaveToken(void) const {
   auto &self = *const_cast<clang::SEHLeaveStmt *>(u.SEHLeaveStmt);
   decltype(auto) val = self.getLeaveLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 SEHTryStmt::SEHTryStmt(
@@ -10875,7 +10874,7 @@ SEHTryStmt::SEHTryStmt(
     : Stmt(std::move(ast_), stmt_) {}
 
 PASTA_DEFINE_BASE_OPERATORS(Stmt, SEHTryStmt)
-std::vector<::pasta::Stmt> SEHTryStmt::Children(void) const noexcept {
+std::vector<::pasta::Stmt> SEHTryStmt::Children(void) const {
   auto &self = *const_cast<clang::SEHTryStmt *>(u.SEHTryStmt);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -10885,75 +10884,75 @@ std::vector<::pasta::Stmt> SEHTryStmt::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SEHTryStmt::BeginToken(void) const noexcept {
+::pasta::Token SEHTryStmt::BeginToken(void) const {
   auto &self = *const_cast<clang::SEHTryStmt *>(u.SEHTryStmt);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SEHTryStmt::EndToken(void) const noexcept {
+::pasta::Token SEHTryStmt::EndToken(void) const {
   auto &self = *const_cast<clang::SEHTryStmt *>(u.SEHTryStmt);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::SEHExceptStmt SEHTryStmt::ExceptHandler(void) const noexcept {
+::pasta::SEHExceptStmt SEHTryStmt::ExceptHandler(void) const {
   auto &self = *const_cast<clang::SEHTryStmt *>(u.SEHTryStmt);
   decltype(auto) val = self.getExceptHandler();
   if (val) {
     return StmtBuilder::Create<::pasta::SEHExceptStmt>(ast, val);
   }
   assert(false && "SEHTryStmt::ExceptHandler can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::SEHFinallyStmt SEHTryStmt::FinallyHandler(void) const noexcept {
+::pasta::SEHFinallyStmt SEHTryStmt::FinallyHandler(void) const {
   auto &self = *const_cast<clang::SEHTryStmt *>(u.SEHTryStmt);
   decltype(auto) val = self.getFinallyHandler();
   if (val) {
     return StmtBuilder::Create<::pasta::SEHFinallyStmt>(ast, val);
   }
   assert(false && "SEHTryStmt::FinallyHandler can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt SEHTryStmt::Handler(void) const noexcept {
+::pasta::Stmt SEHTryStmt::Handler(void) const {
   auto &self = *const_cast<clang::SEHTryStmt *>(u.SEHTryStmt);
   decltype(auto) val = self.getHandler();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "SEHTryStmt::Handler can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool SEHTryStmt::IsCXXTry(void) const noexcept {
+bool SEHTryStmt::IsCXXTry(void) const {
   auto &self = *const_cast<clang::SEHTryStmt *>(u.SEHTryStmt);
   decltype(auto) val = self.getIsCXXTry();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::CompoundStmt SEHTryStmt::TryBlock(void) const noexcept {
+::pasta::CompoundStmt SEHTryStmt::TryBlock(void) const {
   auto &self = *const_cast<clang::SEHTryStmt *>(u.SEHTryStmt);
   decltype(auto) val = self.getTryBlock();
   if (val) {
     return StmtBuilder::Create<::pasta::CompoundStmt>(ast, val);
   }
   assert(false && "SEHTryStmt::TryBlock can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SEHTryStmt::TryToken(void) const noexcept {
+::pasta::Token SEHTryStmt::TryToken(void) const {
   auto &self = *const_cast<clang::SEHTryStmt *>(u.SEHTryStmt);
   decltype(auto) val = self.getTryLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 SYCLUniqueStableNameExpr::SYCLUniqueStableNameExpr(
@@ -10964,14 +10963,14 @@ SYCLUniqueStableNameExpr::SYCLUniqueStableNameExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, SYCLUniqueStableNameExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, SYCLUniqueStableNameExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, SYCLUniqueStableNameExpr)
-std::string SYCLUniqueStableNameExpr::ComputeName(void) const noexcept {
+std::string SYCLUniqueStableNameExpr::ComputeName(void) const {
   auto &self = *(u.SYCLUniqueStableNameExpr);
   decltype(auto) val = self.ComputeName(ast->ci->getASTContext());
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Stmt> SYCLUniqueStableNameExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> SYCLUniqueStableNameExpr::Children(void) const {
   auto &self = *const_cast<clang::SYCLUniqueStableNameExpr *>(u.SYCLUniqueStableNameExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -10981,45 +10980,44 @@ std::vector<::pasta::Stmt> SYCLUniqueStableNameExpr::Children(void) const noexce
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SYCLUniqueStableNameExpr::BeginToken(void) const noexcept {
+::pasta::Token SYCLUniqueStableNameExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::SYCLUniqueStableNameExpr *>(u.SYCLUniqueStableNameExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SYCLUniqueStableNameExpr::EndToken(void) const noexcept {
+::pasta::Token SYCLUniqueStableNameExpr::EndToken(void) const {
   auto &self = *const_cast<clang::SYCLUniqueStableNameExpr *>(u.SYCLUniqueStableNameExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SYCLUniqueStableNameExpr::LParenToken(void) const noexcept {
+::pasta::Token SYCLUniqueStableNameExpr::LParenToken(void) const {
   auto &self = *const_cast<clang::SYCLUniqueStableNameExpr *>(u.SYCLUniqueStableNameExpr);
   decltype(auto) val = self.getLParenLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SYCLUniqueStableNameExpr::Token(void) const noexcept {
+::pasta::Token SYCLUniqueStableNameExpr::Token(void) const {
   auto &self = *const_cast<clang::SYCLUniqueStableNameExpr *>(u.SYCLUniqueStableNameExpr);
   decltype(auto) val = self.getLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SYCLUniqueStableNameExpr::RParenToken(void) const noexcept {
+::pasta::Token SYCLUniqueStableNameExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::SYCLUniqueStableNameExpr *>(u.SYCLUniqueStableNameExpr);
   decltype(auto) val = self.getRParenLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-// 0: SYCLUniqueStableNameExpr::
 ShuffleVectorExpr::ShuffleVectorExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -11028,7 +11026,7 @@ ShuffleVectorExpr::ShuffleVectorExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ShuffleVectorExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ShuffleVectorExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ShuffleVectorExpr)
-std::vector<::pasta::Stmt> ShuffleVectorExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ShuffleVectorExpr::Children(void) const {
   auto &self = *const_cast<clang::ShuffleVectorExpr *>(u.ShuffleVectorExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -11038,43 +11036,43 @@ std::vector<::pasta::Stmt> ShuffleVectorExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ShuffleVectorExpr::BeginToken(void) const noexcept {
+::pasta::Token ShuffleVectorExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ShuffleVectorExpr *>(u.ShuffleVectorExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ShuffleVectorExpr::BuiltinToken(void) const noexcept {
+::pasta::Token ShuffleVectorExpr::BuiltinToken(void) const {
   auto &self = *const_cast<clang::ShuffleVectorExpr *>(u.ShuffleVectorExpr);
   decltype(auto) val = self.getBuiltinLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ShuffleVectorExpr::EndToken(void) const noexcept {
+::pasta::Token ShuffleVectorExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ShuffleVectorExpr *>(u.ShuffleVectorExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: ShuffleVectorExpr::Expression
-uint32_t ShuffleVectorExpr::NumSubExpressions(void) const noexcept {
+uint32_t ShuffleVectorExpr::NumSubExpressions(void) const {
   auto &self = *const_cast<clang::ShuffleVectorExpr *>(u.ShuffleVectorExpr);
   decltype(auto) val = self.getNumSubExprs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ShuffleVectorExpr::RParenToken(void) const noexcept {
+::pasta::Token ShuffleVectorExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::ShuffleVectorExpr *>(u.ShuffleVectorExpr);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 2: ShuffleMaskIndex
@@ -11086,7 +11084,7 @@ SizeOfPackExpr::SizeOfPackExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, SizeOfPackExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, SizeOfPackExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, SizeOfPackExpr)
-std::vector<::pasta::Stmt> SizeOfPackExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> SizeOfPackExpr::Children(void) const {
   auto &self = *const_cast<clang::SizeOfPackExpr *>(u.SizeOfPackExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -11096,58 +11094,58 @@ std::vector<::pasta::Stmt> SizeOfPackExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SizeOfPackExpr::BeginToken(void) const noexcept {
+::pasta::Token SizeOfPackExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::SizeOfPackExpr *>(u.SizeOfPackExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SizeOfPackExpr::EndToken(void) const noexcept {
+::pasta::Token SizeOfPackExpr::EndToken(void) const {
   auto &self = *const_cast<clang::SizeOfPackExpr *>(u.SizeOfPackExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SizeOfPackExpr::OperatorToken(void) const noexcept {
+::pasta::Token SizeOfPackExpr::OperatorToken(void) const {
   auto &self = *const_cast<clang::SizeOfPackExpr *>(u.SizeOfPackExpr);
   decltype(auto) val = self.getOperatorLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::NamedDecl SizeOfPackExpr::Pack(void) const noexcept {
+::pasta::NamedDecl SizeOfPackExpr::Pack(void) const {
   auto &self = *const_cast<clang::SizeOfPackExpr *>(u.SizeOfPackExpr);
   decltype(auto) val = self.getPack();
   if (val) {
     return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
   }
   assert(false && "SizeOfPackExpr::Pack can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<uint32_t> SizeOfPackExpr::PackLength(void) const noexcept {
+std::optional<uint32_t> SizeOfPackExpr::PackLength(void) const {
   auto &self = *const_cast<clang::SizeOfPackExpr *>(u.SizeOfPackExpr);
   if (self.isValueDependent()) {
     return std::nullopt;
   }
   decltype(auto) val = self.getPackLength();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SizeOfPackExpr::PackToken(void) const noexcept {
+::pasta::Token SizeOfPackExpr::PackToken(void) const {
   auto &self = *const_cast<clang::SizeOfPackExpr *>(u.SizeOfPackExpr);
   decltype(auto) val = self.getPackLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<std::vector<::pasta::TemplateArgument>> SizeOfPackExpr::PartialArguments(void) const noexcept {
+std::optional<std::vector<::pasta::TemplateArgument>> SizeOfPackExpr::PartialArguments(void) const {
   auto &self = *const_cast<clang::SizeOfPackExpr *>(u.SizeOfPackExpr);
   if (!self.isPartiallySubstituted()) {
     return std::nullopt;
@@ -11158,21 +11156,21 @@ std::optional<std::vector<::pasta::TemplateArgument>> SizeOfPackExpr::PartialArg
     ret.emplace_back(ast, arg);
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SizeOfPackExpr::RParenToken(void) const noexcept {
+::pasta::Token SizeOfPackExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::SizeOfPackExpr *>(u.SizeOfPackExpr);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool SizeOfPackExpr::IsPartiallySubstituted(void) const noexcept {
+bool SizeOfPackExpr::IsPartiallySubstituted(void) const {
   auto &self = *const_cast<clang::SizeOfPackExpr *>(u.SizeOfPackExpr);
   decltype(auto) val = self.isPartiallySubstituted();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 SourceLocExpr::SourceLocExpr(
@@ -11184,7 +11182,7 @@ PASTA_DEFINE_BASE_OPERATORS(Expr, SourceLocExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, SourceLocExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, SourceLocExpr)
 // 2: EvaluateInContext
-std::vector<::pasta::Stmt> SourceLocExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> SourceLocExpr::Children(void) const {
   auto &self = *const_cast<clang::SourceLocExpr *>(u.SourceLocExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -11194,17 +11192,17 @@ std::vector<::pasta::Stmt> SourceLocExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SourceLocExpr::BeginToken(void) const noexcept {
+::pasta::Token SourceLocExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::SourceLocExpr *>(u.SourceLocExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::string_view SourceLocExpr::BuiltinString(void) const noexcept {
+std::string_view SourceLocExpr::BuiltinString(void) const {
   auto &self = *const_cast<clang::SourceLocExpr *>(u.SourceLocExpr);
   decltype(auto) val = self.getBuiltinStr();
   if (auto size = val.size()) {
@@ -11212,45 +11210,45 @@ std::string_view SourceLocExpr::BuiltinString(void) const noexcept {
   } else {
     return std::string_view();
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SourceLocExpr::EndToken(void) const noexcept {
+::pasta::Token SourceLocExpr::EndToken(void) const {
   auto &self = *const_cast<clang::SourceLocExpr *>(u.SourceLocExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum SourceLocExprIdentKind SourceLocExpr::IdentifierKind(void) const noexcept {
+enum SourceLocExprIdentKind SourceLocExpr::IdentifierKind(void) const {
   auto &self = *const_cast<clang::SourceLocExpr *>(u.SourceLocExpr);
   decltype(auto) val = self.getIdentKind();
   return static_cast<::pasta::SourceLocExprIdentKind>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SourceLocExpr::Token(void) const noexcept {
+::pasta::Token SourceLocExpr::Token(void) const {
   auto &self = *const_cast<clang::SourceLocExpr *>(u.SourceLocExpr);
   decltype(auto) val = self.getLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::DeclContext SourceLocExpr::ParentContext(void) const noexcept {
+::pasta::DeclContext SourceLocExpr::ParentContext(void) const {
   auto &self = *const_cast<clang::SourceLocExpr *>(u.SourceLocExpr);
   decltype(auto) val = self.getParentContext();
   if (val) {
     return ::pasta::DeclContext(ast, val);
   }
   assert(false && "SourceLocExpr::ParentContext can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool SourceLocExpr::IsIntType(void) const noexcept {
+bool SourceLocExpr::IsIntType(void) const {
   auto &self = *const_cast<clang::SourceLocExpr *>(u.SourceLocExpr);
   decltype(auto) val = self.isIntType();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 StmtExpr::StmtExpr(
@@ -11261,7 +11259,7 @@ StmtExpr::StmtExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, StmtExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, StmtExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, StmtExpr)
-std::vector<::pasta::Stmt> StmtExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> StmtExpr::Children(void) const {
   auto &self = *const_cast<clang::StmtExpr *>(u.StmtExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -11271,52 +11269,52 @@ std::vector<::pasta::Stmt> StmtExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token StmtExpr::BeginToken(void) const noexcept {
+::pasta::Token StmtExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::StmtExpr *>(u.StmtExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token StmtExpr::EndToken(void) const noexcept {
+::pasta::Token StmtExpr::EndToken(void) const {
   auto &self = *const_cast<clang::StmtExpr *>(u.StmtExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token StmtExpr::LParenToken(void) const noexcept {
+::pasta::Token StmtExpr::LParenToken(void) const {
   auto &self = *const_cast<clang::StmtExpr *>(u.StmtExpr);
   decltype(auto) val = self.getLParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token StmtExpr::RParenToken(void) const noexcept {
+::pasta::Token StmtExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::StmtExpr *>(u.StmtExpr);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::CompoundStmt StmtExpr::SubStatement(void) const noexcept {
+::pasta::CompoundStmt StmtExpr::SubStatement(void) const {
   auto &self = *const_cast<clang::StmtExpr *>(u.StmtExpr);
   decltype(auto) val = self.getSubStmt();
   if (val) {
     return StmtBuilder::Create<::pasta::CompoundStmt>(ast, val);
   }
   assert(false && "StmtExpr::SubStatement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t StmtExpr::TemplateDepth(void) const noexcept {
+uint32_t StmtExpr::TemplateDepth(void) const {
   auto &self = *const_cast<clang::StmtExpr *>(u.StmtExpr);
   decltype(auto) val = self.getTemplateDepth();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 StringLiteral::StringLiteral(
@@ -11327,7 +11325,7 @@ StringLiteral::StringLiteral(
 PASTA_DEFINE_BASE_OPERATORS(Expr, StringLiteral)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, StringLiteral)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, StringLiteral)
-std::vector<::pasta::Stmt> StringLiteral::Children(void) const noexcept {
+std::vector<::pasta::Stmt> StringLiteral::Children(void) const {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -11337,44 +11335,44 @@ std::vector<::pasta::Stmt> StringLiteral::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<bool> StringLiteral::ContainsNonAscii(void) const noexcept {
+std::optional<bool> StringLiteral::ContainsNonAscii(void) const {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
   if (self.getCharByteWidth() > 1) {
      return std::nullopt;
   }
   decltype(auto) val = self.containsNonAscii();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<bool> StringLiteral::ContainsNonAsciiOrNull(void) const noexcept {
+std::optional<bool> StringLiteral::ContainsNonAsciiOrNull(void) const {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
   if (self.getCharByteWidth() > 1) {
      return std::nullopt;
   }
   decltype(auto) val = self.containsNonAsciiOrNull();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token StringLiteral::BeginToken(void) const noexcept {
+::pasta::Token StringLiteral::BeginToken(void) const {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t StringLiteral::ByteLength(void) const noexcept {
+uint32_t StringLiteral::ByteLength(void) const {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
   decltype(auto) val = self.getByteLength();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::string_view StringLiteral::Bytes(void) const noexcept {
+std::string_view StringLiteral::Bytes(void) const {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
   decltype(auto) val = self.getBytes();
   if (auto size = val.size()) {
@@ -11382,48 +11380,48 @@ std::string_view StringLiteral::Bytes(void) const noexcept {
   } else {
     return std::string_view();
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t StringLiteral::CharacterByteWidth(void) const noexcept {
+uint32_t StringLiteral::CharacterByteWidth(void) const {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
   decltype(auto) val = self.getCharByteWidth();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: StringLiteral::CodeUnit
-::pasta::Token StringLiteral::EndToken(void) const noexcept {
+::pasta::Token StringLiteral::EndToken(void) const {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum StringLiteralStringKind StringLiteral::Kind(void) const noexcept {
+enum StringLiteralStringKind StringLiteral::Kind(void) const {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
   decltype(auto) val = self.getKind();
   return static_cast<::pasta::StringLiteralStringKind>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t StringLiteral::Length(void) const noexcept {
+uint32_t StringLiteral::Length(void) const {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
   decltype(auto) val = self.getLength();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 4: StringLiteral::TokenOfByte
-uint32_t StringLiteral::NumConcatenated(void) const noexcept {
+uint32_t StringLiteral::NumConcatenated(void) const {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
   decltype(auto) val = self.getNumConcatenated();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: StringLiteral::StringTokenToken
-std::optional<std::string_view> StringLiteral::String(void) const noexcept {
+std::optional<std::string_view> StringLiteral::String(void) const {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
   if (self.getCharByteWidth() > 1) {
      return std::nullopt;
@@ -11434,49 +11432,49 @@ std::optional<std::string_view> StringLiteral::String(void) const noexcept {
   } else {
     return std::string_view();
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool StringLiteral::IsOrdinary(void) const noexcept {
+bool StringLiteral::IsOrdinary(void) const {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
   decltype(auto) val = self.isOrdinary();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool StringLiteral::IsPascal(void) const noexcept {
+bool StringLiteral::IsPascal(void) const {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
   decltype(auto) val = self.isPascal();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool StringLiteral::IsUTF16(void) const noexcept {
+bool StringLiteral::IsUTF16(void) const {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
   decltype(auto) val = self.isUTF16();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool StringLiteral::IsUTF32(void) const noexcept {
+bool StringLiteral::IsUTF32(void) const {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
   decltype(auto) val = self.isUTF32();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool StringLiteral::IsUTF8(void) const noexcept {
+bool StringLiteral::IsUTF8(void) const {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
   decltype(auto) val = self.isUTF8();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool StringLiteral::IsWide(void) const noexcept {
+bool StringLiteral::IsWide(void) const {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
   decltype(auto) val = self.isWide();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: StringLiteral::
@@ -11489,7 +11487,7 @@ SubstNonTypeTemplateParmExpr::SubstNonTypeTemplateParmExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, SubstNonTypeTemplateParmExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, SubstNonTypeTemplateParmExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, SubstNonTypeTemplateParmExpr)
-std::vector<::pasta::Stmt> SubstNonTypeTemplateParmExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> SubstNonTypeTemplateParmExpr::Children(void) const {
   auto &self = *const_cast<clang::SubstNonTypeTemplateParmExpr *>(u.SubstNonTypeTemplateParmExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -11499,48 +11497,48 @@ std::vector<::pasta::Stmt> SubstNonTypeTemplateParmExpr::Children(void) const no
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Decl SubstNonTypeTemplateParmExpr::AssociatedDeclaration(void) const noexcept {
+::pasta::Decl SubstNonTypeTemplateParmExpr::AssociatedDeclaration(void) const {
   auto &self = *const_cast<clang::SubstNonTypeTemplateParmExpr *>(u.SubstNonTypeTemplateParmExpr);
   decltype(auto) val = self.getAssociatedDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::Decl>(ast, val);
   }
   assert(false && "SubstNonTypeTemplateParmExpr::AssociatedDeclaration can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SubstNonTypeTemplateParmExpr::BeginToken(void) const noexcept {
+::pasta::Token SubstNonTypeTemplateParmExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::SubstNonTypeTemplateParmExpr *>(u.SubstNonTypeTemplateParmExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SubstNonTypeTemplateParmExpr::EndToken(void) const noexcept {
+::pasta::Token SubstNonTypeTemplateParmExpr::EndToken(void) const {
   auto &self = *const_cast<clang::SubstNonTypeTemplateParmExpr *>(u.SubstNonTypeTemplateParmExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t SubstNonTypeTemplateParmExpr::Index(void) const noexcept {
+uint32_t SubstNonTypeTemplateParmExpr::Index(void) const {
   auto &self = *const_cast<clang::SubstNonTypeTemplateParmExpr *>(u.SubstNonTypeTemplateParmExpr);
   decltype(auto) val = self.getIndex();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SubstNonTypeTemplateParmExpr::NameToken(void) const noexcept {
+::pasta::Token SubstNonTypeTemplateParmExpr::NameToken(void) const {
   auto &self = *const_cast<clang::SubstNonTypeTemplateParmExpr *>(u.SubstNonTypeTemplateParmExpr);
   decltype(auto) val = self.getNameLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<unsigned> SubstNonTypeTemplateParmExpr::PackIndex(void) const noexcept {
+std::optional<unsigned> SubstNonTypeTemplateParmExpr::PackIndex(void) const {
   auto &self = *const_cast<clang::SubstNonTypeTemplateParmExpr *>(u.SubstNonTypeTemplateParmExpr);
   decltype(auto) val = self.getPackIndex();
   if (val.has_value()) {
@@ -11548,42 +11546,42 @@ std::optional<unsigned> SubstNonTypeTemplateParmExpr::PackIndex(void) const noex
   } else {
     return std::nullopt;
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::NonTypeTemplateParmDecl SubstNonTypeTemplateParmExpr::Parameter(void) const noexcept {
+::pasta::NonTypeTemplateParmDecl SubstNonTypeTemplateParmExpr::Parameter(void) const {
   auto &self = *const_cast<clang::SubstNonTypeTemplateParmExpr *>(u.SubstNonTypeTemplateParmExpr);
   decltype(auto) val = self.getParameter();
   if (val) {
     return DeclBuilder::Create<::pasta::NonTypeTemplateParmDecl>(ast, val);
   }
   assert(false && "SubstNonTypeTemplateParmExpr::Parameter can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type SubstNonTypeTemplateParmExpr::ParameterType(void) const noexcept {
+::pasta::Type SubstNonTypeTemplateParmExpr::ParameterType(void) const {
   auto &self = *(u.SubstNonTypeTemplateParmExpr);
   decltype(auto) val = self.getParameterType(ast->ci->getASTContext());
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr SubstNonTypeTemplateParmExpr::Replacement(void) const noexcept {
+::pasta::Expr SubstNonTypeTemplateParmExpr::Replacement(void) const {
   auto &self = *const_cast<clang::SubstNonTypeTemplateParmExpr *>(u.SubstNonTypeTemplateParmExpr);
   decltype(auto) val = self.getReplacement();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "SubstNonTypeTemplateParmExpr::Replacement can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool SubstNonTypeTemplateParmExpr::IsReferenceParameter(void) const noexcept {
+bool SubstNonTypeTemplateParmExpr::IsReferenceParameter(void) const {
   auto &self = *const_cast<clang::SubstNonTypeTemplateParmExpr *>(u.SubstNonTypeTemplateParmExpr);
   decltype(auto) val = self.isReferenceParameter();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 SubstNonTypeTemplateParmPackExpr::SubstNonTypeTemplateParmPackExpr(
@@ -11594,7 +11592,7 @@ SubstNonTypeTemplateParmPackExpr::SubstNonTypeTemplateParmPackExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, SubstNonTypeTemplateParmPackExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, SubstNonTypeTemplateParmPackExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, SubstNonTypeTemplateParmPackExpr)
-std::vector<::pasta::Stmt> SubstNonTypeTemplateParmPackExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> SubstNonTypeTemplateParmPackExpr::Children(void) const {
   auto &self = *const_cast<clang::SubstNonTypeTemplateParmPackExpr *>(u.SubstNonTypeTemplateParmPackExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -11604,56 +11602,56 @@ std::vector<::pasta::Stmt> SubstNonTypeTemplateParmPackExpr::Children(void) cons
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: SubstNonTypeTemplateParmPackExpr::ArgumentPack
-::pasta::Decl SubstNonTypeTemplateParmPackExpr::AssociatedDeclaration(void) const noexcept {
+::pasta::Decl SubstNonTypeTemplateParmPackExpr::AssociatedDeclaration(void) const {
   auto &self = *const_cast<clang::SubstNonTypeTemplateParmPackExpr *>(u.SubstNonTypeTemplateParmPackExpr);
   decltype(auto) val = self.getAssociatedDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::Decl>(ast, val);
   }
   assert(false && "SubstNonTypeTemplateParmPackExpr::AssociatedDeclaration can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SubstNonTypeTemplateParmPackExpr::BeginToken(void) const noexcept {
+::pasta::Token SubstNonTypeTemplateParmPackExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::SubstNonTypeTemplateParmPackExpr *>(u.SubstNonTypeTemplateParmPackExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SubstNonTypeTemplateParmPackExpr::EndToken(void) const noexcept {
+::pasta::Token SubstNonTypeTemplateParmPackExpr::EndToken(void) const {
   auto &self = *const_cast<clang::SubstNonTypeTemplateParmPackExpr *>(u.SubstNonTypeTemplateParmPackExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t SubstNonTypeTemplateParmPackExpr::Index(void) const noexcept {
+uint32_t SubstNonTypeTemplateParmPackExpr::Index(void) const {
   auto &self = *const_cast<clang::SubstNonTypeTemplateParmPackExpr *>(u.SubstNonTypeTemplateParmPackExpr);
   decltype(auto) val = self.getIndex();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::NonTypeTemplateParmDecl SubstNonTypeTemplateParmPackExpr::ParameterPack(void) const noexcept {
+::pasta::NonTypeTemplateParmDecl SubstNonTypeTemplateParmPackExpr::ParameterPack(void) const {
   auto &self = *const_cast<clang::SubstNonTypeTemplateParmPackExpr *>(u.SubstNonTypeTemplateParmPackExpr);
   decltype(auto) val = self.getParameterPack();
   if (val) {
     return DeclBuilder::Create<::pasta::NonTypeTemplateParmDecl>(ast, val);
   }
   assert(false && "SubstNonTypeTemplateParmPackExpr::ParameterPack can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token SubstNonTypeTemplateParmPackExpr::ParameterPackToken(void) const noexcept {
+::pasta::Token SubstNonTypeTemplateParmPackExpr::ParameterPackToken(void) const {
   auto &self = *const_cast<clang::SubstNonTypeTemplateParmPackExpr *>(u.SubstNonTypeTemplateParmPackExpr);
   decltype(auto) val = self.getParameterPackLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 TypeTraitExpr::TypeTraitExpr(
@@ -11664,7 +11662,7 @@ TypeTraitExpr::TypeTraitExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, TypeTraitExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, TypeTraitExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, TypeTraitExpr)
-std::vector<::pasta::Stmt> TypeTraitExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> TypeTraitExpr::Children(void) const {
   auto &self = *const_cast<clang::TypeTraitExpr *>(u.TypeTraitExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -11674,50 +11672,50 @@ std::vector<::pasta::Stmt> TypeTraitExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: TypeTraitExpr::Argument
 // 0: TypeTraitExpr::Arguments
-::pasta::Token TypeTraitExpr::BeginToken(void) const noexcept {
+::pasta::Token TypeTraitExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::TypeTraitExpr *>(u.TypeTraitExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token TypeTraitExpr::EndToken(void) const noexcept {
+::pasta::Token TypeTraitExpr::EndToken(void) const {
   auto &self = *const_cast<clang::TypeTraitExpr *>(u.TypeTraitExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t TypeTraitExpr::NumArguments(void) const noexcept {
+uint32_t TypeTraitExpr::NumArguments(void) const {
   auto &self = *const_cast<clang::TypeTraitExpr *>(u.TypeTraitExpr);
   decltype(auto) val = self.getNumArgs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum TypeTrait TypeTraitExpr::Trait(void) const noexcept {
+enum TypeTrait TypeTraitExpr::Trait(void) const {
   auto &self = *const_cast<clang::TypeTraitExpr *>(u.TypeTraitExpr);
   decltype(auto) val = self.getTrait();
   return static_cast<::pasta::TypeTrait>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<bool> TypeTraitExpr::Value(void) const noexcept {
+std::optional<bool> TypeTraitExpr::Value(void) const {
   auto &self = *const_cast<clang::TypeTraitExpr *>(u.TypeTraitExpr);
   if (self.isValueDependent()) {
     return std::nullopt;
   }
   decltype(auto) val = self.getValue();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Type> TypeTraitExpr::Arguments(void) const noexcept {
+std::vector<::pasta::Type> TypeTraitExpr::Arguments(void) const {
   std::vector<::pasta::Type> ret;
   auto convert_elem = [&] (clang::TypeSourceInfo * val) {
     return TypeBuilder::Build(ast, val->getType());
@@ -11738,7 +11736,7 @@ TypoExpr::TypoExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, TypoExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, TypoExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, TypoExpr)
-std::vector<::pasta::Stmt> TypoExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> TypoExpr::Children(void) const {
   auto &self = *const_cast<clang::TypoExpr *>(u.TypoExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -11748,21 +11746,21 @@ std::vector<::pasta::Stmt> TypoExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token TypoExpr::BeginToken(void) const noexcept {
+::pasta::Token TypoExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::TypoExpr *>(u.TypoExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token TypoExpr::EndToken(void) const noexcept {
+::pasta::Token TypoExpr::EndToken(void) const {
   auto &self = *const_cast<clang::TypoExpr *>(u.TypoExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 UnaryExprOrTypeTraitExpr::UnaryExprOrTypeTraitExpr(
@@ -11773,7 +11771,7 @@ UnaryExprOrTypeTraitExpr::UnaryExprOrTypeTraitExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, UnaryExprOrTypeTraitExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, UnaryExprOrTypeTraitExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, UnaryExprOrTypeTraitExpr)
-std::vector<::pasta::Stmt> UnaryExprOrTypeTraitExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> UnaryExprOrTypeTraitExpr::Children(void) const {
   auto &self = *const_cast<clang::UnaryExprOrTypeTraitExpr *>(u.UnaryExprOrTypeTraitExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -11783,10 +11781,10 @@ std::vector<::pasta::Stmt> UnaryExprOrTypeTraitExpr::Children(void) const noexce
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Expr> UnaryExprOrTypeTraitExpr::ArgumentExpression(void) const noexcept {
+std::optional<::pasta::Expr> UnaryExprOrTypeTraitExpr::ArgumentExpression(void) const {
   auto &self = *const_cast<clang::UnaryExprOrTypeTraitExpr *>(u.UnaryExprOrTypeTraitExpr);
   if (self.isArgumentType()) {
     return std::nullopt;
@@ -11798,10 +11796,10 @@ std::optional<::pasta::Expr> UnaryExprOrTypeTraitExpr::ArgumentExpression(void) 
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Type> UnaryExprOrTypeTraitExpr::ArgumentType(void) const noexcept {
+std::optional<::pasta::Type> UnaryExprOrTypeTraitExpr::ArgumentType(void) const {
   auto &self = *const_cast<clang::UnaryExprOrTypeTraitExpr *>(u.UnaryExprOrTypeTraitExpr);
   if (!self.isArgumentType()) {
     return std::nullopt;
@@ -11811,57 +11809,57 @@ std::optional<::pasta::Type> UnaryExprOrTypeTraitExpr::ArgumentType(void) const 
     return std::nullopt;
   }
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token UnaryExprOrTypeTraitExpr::BeginToken(void) const noexcept {
+::pasta::Token UnaryExprOrTypeTraitExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::UnaryExprOrTypeTraitExpr *>(u.UnaryExprOrTypeTraitExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token UnaryExprOrTypeTraitExpr::EndToken(void) const noexcept {
+::pasta::Token UnaryExprOrTypeTraitExpr::EndToken(void) const {
   auto &self = *const_cast<clang::UnaryExprOrTypeTraitExpr *>(u.UnaryExprOrTypeTraitExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum UnaryExprOrTypeTrait UnaryExprOrTypeTraitExpr::Kind(void) const noexcept {
+enum UnaryExprOrTypeTrait UnaryExprOrTypeTraitExpr::Kind(void) const {
   auto &self = *const_cast<clang::UnaryExprOrTypeTraitExpr *>(u.UnaryExprOrTypeTraitExpr);
   decltype(auto) val = self.getKind();
   return static_cast<::pasta::UnaryExprOrTypeTrait>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token UnaryExprOrTypeTraitExpr::OperatorToken(void) const noexcept {
+::pasta::Token UnaryExprOrTypeTraitExpr::OperatorToken(void) const {
   auto &self = *const_cast<clang::UnaryExprOrTypeTraitExpr *>(u.UnaryExprOrTypeTraitExpr);
   decltype(auto) val = self.getOperatorLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token UnaryExprOrTypeTraitExpr::RParenToken(void) const noexcept {
+::pasta::Token UnaryExprOrTypeTraitExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::UnaryExprOrTypeTraitExpr *>(u.UnaryExprOrTypeTraitExpr);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type UnaryExprOrTypeTraitExpr::TypeOfArgument(void) const noexcept {
+::pasta::Type UnaryExprOrTypeTraitExpr::TypeOfArgument(void) const {
   auto &self = *const_cast<clang::UnaryExprOrTypeTraitExpr *>(u.UnaryExprOrTypeTraitExpr);
   decltype(auto) val = self.getTypeOfArgument();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool UnaryExprOrTypeTraitExpr::IsArgumentType(void) const noexcept {
+bool UnaryExprOrTypeTraitExpr::IsArgumentType(void) const {
   auto &self = *const_cast<clang::UnaryExprOrTypeTraitExpr *>(u.UnaryExprOrTypeTraitExpr);
   decltype(auto) val = self.isArgumentType();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 UnaryOperator::UnaryOperator(
@@ -11872,14 +11870,14 @@ UnaryOperator::UnaryOperator(
 PASTA_DEFINE_BASE_OPERATORS(Expr, UnaryOperator)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, UnaryOperator)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, UnaryOperator)
-bool UnaryOperator::CanOverflow(void) const noexcept {
+bool UnaryOperator::CanOverflow(void) const {
   auto &self = *const_cast<clang::UnaryOperator *>(u.UnaryOperator);
   decltype(auto) val = self.canOverflow();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Stmt> UnaryOperator::Children(void) const noexcept {
+std::vector<::pasta::Stmt> UnaryOperator::Children(void) const {
   auto &self = *const_cast<clang::UnaryOperator *>(u.UnaryOperator);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -11889,106 +11887,106 @@ std::vector<::pasta::Stmt> UnaryOperator::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token UnaryOperator::BeginToken(void) const noexcept {
+::pasta::Token UnaryOperator::BeginToken(void) const {
   auto &self = *const_cast<clang::UnaryOperator *>(u.UnaryOperator);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token UnaryOperator::EndToken(void) const noexcept {
+::pasta::Token UnaryOperator::EndToken(void) const {
   auto &self = *const_cast<clang::UnaryOperator *>(u.UnaryOperator);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token UnaryOperator::ExpressionToken(void) const noexcept {
+::pasta::Token UnaryOperator::ExpressionToken(void) const {
   auto &self = *const_cast<clang::UnaryOperator *>(u.UnaryOperator);
   decltype(auto) val = self.getExprLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: UnaryOperator::FPFeaturesInEffect
 // 0: UnaryOperator::FPOptionsOverride
-enum UnaryOperatorKind UnaryOperator::Opcode(void) const noexcept {
+enum UnaryOperatorKind UnaryOperator::Opcode(void) const {
   auto &self = *const_cast<clang::UnaryOperator *>(u.UnaryOperator);
   decltype(auto) val = self.getOpcode();
   return static_cast<::pasta::UnaryOperatorKind>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token UnaryOperator::OperatorToken(void) const noexcept {
+::pasta::Token UnaryOperator::OperatorToken(void) const {
   auto &self = *const_cast<clang::UnaryOperator *>(u.UnaryOperator);
   decltype(auto) val = self.getOperatorLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: UnaryOperator::StoredFPFeatures
-::pasta::Expr UnaryOperator::SubExpression(void) const noexcept {
+::pasta::Expr UnaryOperator::SubExpression(void) const {
   auto &self = *const_cast<clang::UnaryOperator *>(u.UnaryOperator);
   decltype(auto) val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "UnaryOperator::SubExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool UnaryOperator::HasStoredFPFeatures(void) const noexcept {
+bool UnaryOperator::HasStoredFPFeatures(void) const {
   auto &self = *const_cast<clang::UnaryOperator *>(u.UnaryOperator);
   decltype(auto) val = self.hasStoredFPFeatures();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool UnaryOperator::IsArithmeticOperation(void) const noexcept {
+bool UnaryOperator::IsArithmeticOperation(void) const {
   auto &self = *const_cast<clang::UnaryOperator *>(u.UnaryOperator);
   decltype(auto) val = self.isArithmeticOp();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool UnaryOperator::IsDecrementOperation(void) const noexcept {
+bool UnaryOperator::IsDecrementOperation(void) const {
   auto &self = *const_cast<clang::UnaryOperator *>(u.UnaryOperator);
   decltype(auto) val = self.isDecrementOp();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: UnaryOperator::IsFEnvAccessOn
 // 1: UnaryOperator::IsFPContractableWithinStatement
-bool UnaryOperator::IsIncrementDecrementOperation(void) const noexcept {
+bool UnaryOperator::IsIncrementDecrementOperation(void) const {
   auto &self = *const_cast<clang::UnaryOperator *>(u.UnaryOperator);
   decltype(auto) val = self.isIncrementDecrementOp();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool UnaryOperator::IsIncrementOperation(void) const noexcept {
+bool UnaryOperator::IsIncrementOperation(void) const {
   auto &self = *const_cast<clang::UnaryOperator *>(u.UnaryOperator);
   decltype(auto) val = self.isIncrementOp();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool UnaryOperator::IsPostfix(void) const noexcept {
+bool UnaryOperator::IsPostfix(void) const {
   auto &self = *const_cast<clang::UnaryOperator *>(u.UnaryOperator);
   decltype(auto) val = self.isPostfix();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool UnaryOperator::IsPrefix(void) const noexcept {
+bool UnaryOperator::IsPrefix(void) const {
   auto &self = *const_cast<clang::UnaryOperator *>(u.UnaryOperator);
   decltype(auto) val = self.isPrefix();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 UnresolvedLookupExpr::UnresolvedLookupExpr(
@@ -12000,7 +11998,7 @@ PASTA_DEFINE_BASE_OPERATORS(Expr, UnresolvedLookupExpr)
 PASTA_DEFINE_BASE_OPERATORS(OverloadExpr, UnresolvedLookupExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, UnresolvedLookupExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, UnresolvedLookupExpr)
-std::vector<::pasta::Stmt> UnresolvedLookupExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> UnresolvedLookupExpr::Children(void) const {
   auto &self = *const_cast<clang::UnresolvedLookupExpr *>(u.UnresolvedLookupExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -12010,24 +12008,24 @@ std::vector<::pasta::Stmt> UnresolvedLookupExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token UnresolvedLookupExpr::BeginToken(void) const noexcept {
+::pasta::Token UnresolvedLookupExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::UnresolvedLookupExpr *>(u.UnresolvedLookupExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token UnresolvedLookupExpr::EndToken(void) const noexcept {
+::pasta::Token UnresolvedLookupExpr::EndToken(void) const {
   auto &self = *const_cast<clang::UnresolvedLookupExpr *>(u.UnresolvedLookupExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::CXXRecordDecl> UnresolvedLookupExpr::NamingClass(void) const noexcept {
+std::optional<::pasta::CXXRecordDecl> UnresolvedLookupExpr::NamingClass(void) const {
   auto &self = *const_cast<clang::UnresolvedLookupExpr *>(u.UnresolvedLookupExpr);
   decltype(auto) val = self.getNamingClass();
   if (!val) {
@@ -12036,21 +12034,21 @@ std::optional<::pasta::CXXRecordDecl> UnresolvedLookupExpr::NamingClass(void) co
   if (val) {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool UnresolvedLookupExpr::IsOverloaded(void) const noexcept {
+bool UnresolvedLookupExpr::IsOverloaded(void) const {
   auto &self = *const_cast<clang::UnresolvedLookupExpr *>(u.UnresolvedLookupExpr);
   decltype(auto) val = self.isOverloaded();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool UnresolvedLookupExpr::RequiresADL(void) const noexcept {
+bool UnresolvedLookupExpr::RequiresADL(void) const {
   auto &self = *const_cast<clang::UnresolvedLookupExpr *>(u.UnresolvedLookupExpr);
   decltype(auto) val = self.requiresADL();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 UnresolvedMemberExpr::UnresolvedMemberExpr(
@@ -12062,7 +12060,7 @@ PASTA_DEFINE_BASE_OPERATORS(Expr, UnresolvedMemberExpr)
 PASTA_DEFINE_BASE_OPERATORS(OverloadExpr, UnresolvedMemberExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, UnresolvedMemberExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, UnresolvedMemberExpr)
-std::vector<::pasta::Stmt> UnresolvedMemberExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> UnresolvedMemberExpr::Children(void) const {
   auto &self = *const_cast<clang::UnresolvedMemberExpr *>(u.UnresolvedMemberExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -12072,93 +12070,93 @@ std::vector<::pasta::Stmt> UnresolvedMemberExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr UnresolvedMemberExpr::Base(void) const noexcept {
+::pasta::Expr UnresolvedMemberExpr::Base(void) const {
   auto &self = *const_cast<clang::UnresolvedMemberExpr *>(u.UnresolvedMemberExpr);
   decltype(auto) val = self.getBase();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "UnresolvedMemberExpr::Base can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type UnresolvedMemberExpr::BaseType(void) const noexcept {
+::pasta::Type UnresolvedMemberExpr::BaseType(void) const {
   auto &self = *const_cast<clang::UnresolvedMemberExpr *>(u.UnresolvedMemberExpr);
   decltype(auto) val = self.getBaseType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token UnresolvedMemberExpr::BeginToken(void) const noexcept {
+::pasta::Token UnresolvedMemberExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::UnresolvedMemberExpr *>(u.UnresolvedMemberExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token UnresolvedMemberExpr::EndToken(void) const noexcept {
+::pasta::Token UnresolvedMemberExpr::EndToken(void) const {
   auto &self = *const_cast<clang::UnresolvedMemberExpr *>(u.UnresolvedMemberExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token UnresolvedMemberExpr::ExpressionToken(void) const noexcept {
+::pasta::Token UnresolvedMemberExpr::ExpressionToken(void) const {
   auto &self = *const_cast<clang::UnresolvedMemberExpr *>(u.UnresolvedMemberExpr);
   decltype(auto) val = self.getExprLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token UnresolvedMemberExpr::MemberToken(void) const noexcept {
+::pasta::Token UnresolvedMemberExpr::MemberToken(void) const {
   auto &self = *const_cast<clang::UnresolvedMemberExpr *>(u.UnresolvedMemberExpr);
   decltype(auto) val = self.getMemberLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: UnresolvedMemberExpr::MemberName
 // 0: UnresolvedMemberExpr::MemberNameInfo
-::pasta::CXXRecordDecl UnresolvedMemberExpr::NamingClass(void) const noexcept {
+::pasta::CXXRecordDecl UnresolvedMemberExpr::NamingClass(void) const {
   auto &self = *const_cast<clang::UnresolvedMemberExpr *>(u.UnresolvedMemberExpr);
   decltype(auto) val = self.getNamingClass();
   if (val) {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
   assert(false && "UnresolvedMemberExpr::NamingClass can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token UnresolvedMemberExpr::OperatorToken(void) const noexcept {
+::pasta::Token UnresolvedMemberExpr::OperatorToken(void) const {
   auto &self = *const_cast<clang::UnresolvedMemberExpr *>(u.UnresolvedMemberExpr);
   decltype(auto) val = self.getOperatorLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool UnresolvedMemberExpr::HasUnresolvedUsing(void) const noexcept {
+bool UnresolvedMemberExpr::HasUnresolvedUsing(void) const {
   auto &self = *const_cast<clang::UnresolvedMemberExpr *>(u.UnresolvedMemberExpr);
   decltype(auto) val = self.hasUnresolvedUsing();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool UnresolvedMemberExpr::IsArrow(void) const noexcept {
+bool UnresolvedMemberExpr::IsArrow(void) const {
   auto &self = *const_cast<clang::UnresolvedMemberExpr *>(u.UnresolvedMemberExpr);
   decltype(auto) val = self.isArrow();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool UnresolvedMemberExpr::IsImplicitAccess(void) const noexcept {
+bool UnresolvedMemberExpr::IsImplicitAccess(void) const {
   auto &self = *const_cast<clang::UnresolvedMemberExpr *>(u.UnresolvedMemberExpr);
   decltype(auto) val = self.isImplicitAccess();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 VAArgExpr::VAArgExpr(
@@ -12169,7 +12167,7 @@ VAArgExpr::VAArgExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, VAArgExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, VAArgExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, VAArgExpr)
-std::vector<::pasta::Stmt> VAArgExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> VAArgExpr::Children(void) const {
   auto &self = *const_cast<clang::VAArgExpr *>(u.VAArgExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -12179,60 +12177,60 @@ std::vector<::pasta::Stmt> VAArgExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token VAArgExpr::BeginToken(void) const noexcept {
+::pasta::Token VAArgExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::VAArgExpr *>(u.VAArgExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token VAArgExpr::BuiltinToken(void) const noexcept {
+::pasta::Token VAArgExpr::BuiltinToken(void) const {
   auto &self = *const_cast<clang::VAArgExpr *>(u.VAArgExpr);
   decltype(auto) val = self.getBuiltinLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token VAArgExpr::EndToken(void) const noexcept {
+::pasta::Token VAArgExpr::EndToken(void) const {
   auto &self = *const_cast<clang::VAArgExpr *>(u.VAArgExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token VAArgExpr::RParenToken(void) const noexcept {
+::pasta::Token VAArgExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::VAArgExpr *>(u.VAArgExpr);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr VAArgExpr::SubExpression(void) const noexcept {
+::pasta::Expr VAArgExpr::SubExpression(void) const {
   auto &self = *const_cast<clang::VAArgExpr *>(u.VAArgExpr);
   decltype(auto) val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "VAArgExpr::SubExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type VAArgExpr::WrittenType(void) const noexcept {
+::pasta::Type VAArgExpr::WrittenType(void) const {
   auto &self = *const_cast<clang::VAArgExpr *>(u.VAArgExpr);
   decltype(auto) val = self.getWrittenTypeInfo();
   return TypeBuilder::Build(ast, val->getType());
   assert(false && "VAArgExpr::WrittenType can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool VAArgExpr::IsMicrosoftABI(void) const noexcept {
+bool VAArgExpr::IsMicrosoftABI(void) const {
   auto &self = *const_cast<clang::VAArgExpr *>(u.VAArgExpr);
   decltype(auto) val = self.isMicrosoftABI();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 AbstractConditionalOperator::AbstractConditionalOperator(
@@ -12245,48 +12243,48 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, AbstractConditionalOperator)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, AbstractConditionalOperator)
 PASTA_DEFINE_DERIVED_OPERATORS(AbstractConditionalOperator, BinaryConditionalOperator)
 PASTA_DEFINE_DERIVED_OPERATORS(AbstractConditionalOperator, ConditionalOperator)
-::pasta::Token AbstractConditionalOperator::ColonToken(void) const noexcept {
+::pasta::Token AbstractConditionalOperator::ColonToken(void) const {
   auto &self = *const_cast<clang::AbstractConditionalOperator *>(u.AbstractConditionalOperator);
   decltype(auto) val = self.getColonLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr AbstractConditionalOperator::Condition(void) const noexcept {
+::pasta::Expr AbstractConditionalOperator::Condition(void) const {
   auto &self = *const_cast<clang::AbstractConditionalOperator *>(u.AbstractConditionalOperator);
   decltype(auto) val = self.getCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "AbstractConditionalOperator::Condition can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr AbstractConditionalOperator::FalseExpression(void) const noexcept {
+::pasta::Expr AbstractConditionalOperator::FalseExpression(void) const {
   auto &self = *const_cast<clang::AbstractConditionalOperator *>(u.AbstractConditionalOperator);
   decltype(auto) val = self.getFalseExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "AbstractConditionalOperator::FalseExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token AbstractConditionalOperator::QuestionToken(void) const noexcept {
+::pasta::Token AbstractConditionalOperator::QuestionToken(void) const {
   auto &self = *const_cast<clang::AbstractConditionalOperator *>(u.AbstractConditionalOperator);
   decltype(auto) val = self.getQuestionLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr AbstractConditionalOperator::TrueExpression(void) const noexcept {
+::pasta::Expr AbstractConditionalOperator::TrueExpression(void) const {
   auto &self = *const_cast<clang::AbstractConditionalOperator *>(u.AbstractConditionalOperator);
   decltype(auto) val = self.getTrueExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "AbstractConditionalOperator::TrueExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 AddrLabelExpr::AddrLabelExpr(
@@ -12297,7 +12295,7 @@ AddrLabelExpr::AddrLabelExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, AddrLabelExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, AddrLabelExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, AddrLabelExpr)
-std::vector<::pasta::Stmt> AddrLabelExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> AddrLabelExpr::Children(void) const {
   auto &self = *const_cast<clang::AddrLabelExpr *>(u.AddrLabelExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -12307,45 +12305,45 @@ std::vector<::pasta::Stmt> AddrLabelExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token AddrLabelExpr::AmpAmpToken(void) const noexcept {
+::pasta::Token AddrLabelExpr::AmpAmpToken(void) const {
   auto &self = *const_cast<clang::AddrLabelExpr *>(u.AddrLabelExpr);
   decltype(auto) val = self.getAmpAmpLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token AddrLabelExpr::BeginToken(void) const noexcept {
+::pasta::Token AddrLabelExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::AddrLabelExpr *>(u.AddrLabelExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token AddrLabelExpr::EndToken(void) const noexcept {
+::pasta::Token AddrLabelExpr::EndToken(void) const {
   auto &self = *const_cast<clang::AddrLabelExpr *>(u.AddrLabelExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::LabelDecl AddrLabelExpr::Label(void) const noexcept {
+::pasta::LabelDecl AddrLabelExpr::Label(void) const {
   auto &self = *const_cast<clang::AddrLabelExpr *>(u.AddrLabelExpr);
   decltype(auto) val = self.getLabel();
   if (val) {
     return DeclBuilder::Create<::pasta::LabelDecl>(ast, val);
   }
   assert(false && "AddrLabelExpr::Label can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token AddrLabelExpr::LabelToken(void) const noexcept {
+::pasta::Token AddrLabelExpr::LabelToken(void) const {
   auto &self = *const_cast<clang::AddrLabelExpr *>(u.AddrLabelExpr);
   decltype(auto) val = self.getLabelLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ArrayInitIndexExpr::ArrayInitIndexExpr(
@@ -12356,7 +12354,7 @@ ArrayInitIndexExpr::ArrayInitIndexExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ArrayInitIndexExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ArrayInitIndexExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ArrayInitIndexExpr)
-std::vector<::pasta::Stmt> ArrayInitIndexExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ArrayInitIndexExpr::Children(void) const {
   auto &self = *const_cast<clang::ArrayInitIndexExpr *>(u.ArrayInitIndexExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -12366,21 +12364,21 @@ std::vector<::pasta::Stmt> ArrayInitIndexExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ArrayInitIndexExpr::BeginToken(void) const noexcept {
+::pasta::Token ArrayInitIndexExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ArrayInitIndexExpr *>(u.ArrayInitIndexExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ArrayInitIndexExpr::EndToken(void) const noexcept {
+::pasta::Token ArrayInitIndexExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ArrayInitIndexExpr *>(u.ArrayInitIndexExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ArrayInitLoopExpr::ArrayInitLoopExpr(
@@ -12391,7 +12389,7 @@ ArrayInitLoopExpr::ArrayInitLoopExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ArrayInitLoopExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ArrayInitLoopExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ArrayInitLoopExpr)
-std::vector<::pasta::Stmt> ArrayInitLoopExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ArrayInitLoopExpr::Children(void) const {
   auto &self = *const_cast<clang::ArrayInitLoopExpr *>(u.ArrayInitLoopExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -12401,48 +12399,48 @@ std::vector<::pasta::Stmt> ArrayInitLoopExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-llvm::APInt ArrayInitLoopExpr::ArraySize(void) const noexcept {
+llvm::APInt ArrayInitLoopExpr::ArraySize(void) const {
   auto &self = *const_cast<clang::ArrayInitLoopExpr *>(u.ArrayInitLoopExpr);
   decltype(auto) val = self.getArraySize();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ArrayInitLoopExpr::BeginToken(void) const noexcept {
+::pasta::Token ArrayInitLoopExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ArrayInitLoopExpr *>(u.ArrayInitLoopExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::OpaqueValueExpr ArrayInitLoopExpr::CommonExpression(void) const noexcept {
+::pasta::OpaqueValueExpr ArrayInitLoopExpr::CommonExpression(void) const {
   auto &self = *const_cast<clang::ArrayInitLoopExpr *>(u.ArrayInitLoopExpr);
   decltype(auto) val = self.getCommonExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::OpaqueValueExpr>(ast, val);
   }
   assert(false && "ArrayInitLoopExpr::CommonExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ArrayInitLoopExpr::EndToken(void) const noexcept {
+::pasta::Token ArrayInitLoopExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ArrayInitLoopExpr *>(u.ArrayInitLoopExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ArrayInitLoopExpr::SubExpression(void) const noexcept {
+::pasta::Expr ArrayInitLoopExpr::SubExpression(void) const {
   auto &self = *const_cast<clang::ArrayInitLoopExpr *>(u.ArrayInitLoopExpr);
   decltype(auto) val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ArrayInitLoopExpr::SubExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ArraySubscriptExpr::ArraySubscriptExpr(
@@ -12453,7 +12451,7 @@ ArraySubscriptExpr::ArraySubscriptExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ArraySubscriptExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ArraySubscriptExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ArraySubscriptExpr)
-std::vector<::pasta::Stmt> ArraySubscriptExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ArraySubscriptExpr::Children(void) const {
   auto &self = *const_cast<clang::ArraySubscriptExpr *>(u.ArraySubscriptExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -12463,75 +12461,75 @@ std::vector<::pasta::Stmt> ArraySubscriptExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ArraySubscriptExpr::Base(void) const noexcept {
+::pasta::Expr ArraySubscriptExpr::Base(void) const {
   auto &self = *const_cast<clang::ArraySubscriptExpr *>(u.ArraySubscriptExpr);
   decltype(auto) val = self.getBase();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ArraySubscriptExpr::Base can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ArraySubscriptExpr::BeginToken(void) const noexcept {
+::pasta::Token ArraySubscriptExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ArraySubscriptExpr *>(u.ArraySubscriptExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ArraySubscriptExpr::EndToken(void) const noexcept {
+::pasta::Token ArraySubscriptExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ArraySubscriptExpr *>(u.ArraySubscriptExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ArraySubscriptExpr::ExpressionToken(void) const noexcept {
+::pasta::Token ArraySubscriptExpr::ExpressionToken(void) const {
   auto &self = *const_cast<clang::ArraySubscriptExpr *>(u.ArraySubscriptExpr);
   decltype(auto) val = self.getExprLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ArraySubscriptExpr::Index(void) const noexcept {
+::pasta::Expr ArraySubscriptExpr::Index(void) const {
   auto &self = *const_cast<clang::ArraySubscriptExpr *>(u.ArraySubscriptExpr);
   decltype(auto) val = self.getIdx();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ArraySubscriptExpr::Index can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ArraySubscriptExpr::LHS(void) const noexcept {
+::pasta::Expr ArraySubscriptExpr::LHS(void) const {
   auto &self = *const_cast<clang::ArraySubscriptExpr *>(u.ArraySubscriptExpr);
   decltype(auto) val = self.getLHS();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ArraySubscriptExpr::LHS can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ArraySubscriptExpr::RBracketToken(void) const noexcept {
+::pasta::Token ArraySubscriptExpr::RBracketToken(void) const {
   auto &self = *const_cast<clang::ArraySubscriptExpr *>(u.ArraySubscriptExpr);
   decltype(auto) val = self.getRBracketLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ArraySubscriptExpr::RHS(void) const noexcept {
+::pasta::Expr ArraySubscriptExpr::RHS(void) const {
   auto &self = *const_cast<clang::ArraySubscriptExpr *>(u.ArraySubscriptExpr);
   decltype(auto) val = self.getRHS();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ArraySubscriptExpr::RHS can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ArrayTypeTraitExpr::ArrayTypeTraitExpr(
@@ -12542,7 +12540,7 @@ ArrayTypeTraitExpr::ArrayTypeTraitExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ArrayTypeTraitExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ArrayTypeTraitExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ArrayTypeTraitExpr)
-std::vector<::pasta::Stmt> ArrayTypeTraitExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ArrayTypeTraitExpr::Children(void) const {
   auto &self = *const_cast<clang::ArrayTypeTraitExpr *>(u.ArrayTypeTraitExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -12552,53 +12550,53 @@ std::vector<::pasta::Stmt> ArrayTypeTraitExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ArrayTypeTraitExpr::BeginToken(void) const noexcept {
+::pasta::Token ArrayTypeTraitExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ArrayTypeTraitExpr *>(u.ArrayTypeTraitExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ArrayTypeTraitExpr::DimensionExpression(void) const noexcept {
+::pasta::Expr ArrayTypeTraitExpr::DimensionExpression(void) const {
   auto &self = *const_cast<clang::ArrayTypeTraitExpr *>(u.ArrayTypeTraitExpr);
   decltype(auto) val = self.getDimensionExpression();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ArrayTypeTraitExpr::DimensionExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ArrayTypeTraitExpr::EndToken(void) const noexcept {
+::pasta::Token ArrayTypeTraitExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ArrayTypeTraitExpr *>(u.ArrayTypeTraitExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type ArrayTypeTraitExpr::QueriedType(void) const noexcept {
+::pasta::Type ArrayTypeTraitExpr::QueriedType(void) const {
   auto &self = *const_cast<clang::ArrayTypeTraitExpr *>(u.ArrayTypeTraitExpr);
   decltype(auto) val = self.getQueriedType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum ArrayTypeTrait ArrayTypeTraitExpr::Trait(void) const noexcept {
+enum ArrayTypeTrait ArrayTypeTraitExpr::Trait(void) const {
   auto &self = *const_cast<clang::ArrayTypeTraitExpr *>(u.ArrayTypeTraitExpr);
   decltype(auto) val = self.getTrait();
   return static_cast<::pasta::ArrayTypeTrait>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint64_t ArrayTypeTraitExpr::Value(void) const noexcept {
+uint64_t ArrayTypeTraitExpr::Value(void) const {
   auto &self = *const_cast<clang::ArrayTypeTraitExpr *>(u.ArrayTypeTraitExpr);
   decltype(auto) val = self.getValue();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 AsTypeExpr::AsTypeExpr(
@@ -12609,7 +12607,7 @@ AsTypeExpr::AsTypeExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, AsTypeExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, AsTypeExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, AsTypeExpr)
-std::vector<::pasta::Stmt> AsTypeExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> AsTypeExpr::Children(void) const {
   auto &self = *const_cast<clang::AsTypeExpr *>(u.AsTypeExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -12619,45 +12617,45 @@ std::vector<::pasta::Stmt> AsTypeExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token AsTypeExpr::BeginToken(void) const noexcept {
+::pasta::Token AsTypeExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::AsTypeExpr *>(u.AsTypeExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token AsTypeExpr::BuiltinToken(void) const noexcept {
+::pasta::Token AsTypeExpr::BuiltinToken(void) const {
   auto &self = *const_cast<clang::AsTypeExpr *>(u.AsTypeExpr);
   decltype(auto) val = self.getBuiltinLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token AsTypeExpr::EndToken(void) const noexcept {
+::pasta::Token AsTypeExpr::EndToken(void) const {
   auto &self = *const_cast<clang::AsTypeExpr *>(u.AsTypeExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token AsTypeExpr::RParenToken(void) const noexcept {
+::pasta::Token AsTypeExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::AsTypeExpr *>(u.AsTypeExpr);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr AsTypeExpr::SrcExpression(void) const noexcept {
+::pasta::Expr AsTypeExpr::SrcExpression(void) const {
   auto &self = *const_cast<clang::AsTypeExpr *>(u.AsTypeExpr);
   decltype(auto) val = self.getSrcExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "AsTypeExpr::SrcExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 AtomicExpr::AtomicExpr(
@@ -12668,7 +12666,7 @@ AtomicExpr::AtomicExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, AtomicExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, AtomicExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, AtomicExpr)
-std::vector<::pasta::Stmt> AtomicExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> AtomicExpr::Children(void) const {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -12678,55 +12676,55 @@ std::vector<::pasta::Stmt> AtomicExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token AtomicExpr::BeginToken(void) const noexcept {
+::pasta::Token AtomicExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token AtomicExpr::BuiltinToken(void) const noexcept {
+::pasta::Token AtomicExpr::BuiltinToken(void) const {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
   decltype(auto) val = self.getBuiltinLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token AtomicExpr::EndToken(void) const noexcept {
+::pasta::Token AtomicExpr::EndToken(void) const {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t AtomicExpr::NumSubExpressions(void) const noexcept {
+uint32_t AtomicExpr::NumSubExpressions(void) const {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
   decltype(auto) val = self.getNumSubExprs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum AtomicExprAtomicOp AtomicExpr::Operation(void) const noexcept {
+enum AtomicExprAtomicOp AtomicExpr::Operation(void) const {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
   decltype(auto) val = self.getOp();
   return static_cast<::pasta::AtomicExprAtomicOp>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr AtomicExpr::Order(void) const noexcept {
+::pasta::Expr AtomicExpr::Order(void) const {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
   decltype(auto) val = self.getOrder();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "AtomicExpr::Order can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Expr> AtomicExpr::OrderFail(void) const noexcept {
+std::optional<::pasta::Expr> AtomicExpr::OrderFail(void) const {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
   if (self.getNumSubExprs() <= 3 /* ORDER_FAIL */) {
     return std::nullopt;
@@ -12738,27 +12736,27 @@ std::optional<::pasta::Expr> AtomicExpr::OrderFail(void) const noexcept {
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr AtomicExpr::Pointer(void) const noexcept {
+::pasta::Expr AtomicExpr::Pointer(void) const {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
   decltype(auto) val = self.getPtr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "AtomicExpr::Pointer can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token AtomicExpr::RParenToken(void) const noexcept {
+::pasta::Token AtomicExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Expr> AtomicExpr::Scope(void) const noexcept {
+std::optional<::pasta::Expr> AtomicExpr::Scope(void) const {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
   if (self.getOp() < clang::AtomicExpr::AO__opencl_atomic_load ||
       self.getOp() > clang::AtomicExpr::AO__opencl_atomic_fetch_max) {
@@ -12771,12 +12769,12 @@ std::optional<::pasta::Expr> AtomicExpr::Scope(void) const noexcept {
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: AtomicExpr::ScopeModel
 // 0: AtomicExpr::SubExpressions
-std::optional<::pasta::Expr> AtomicExpr::Value1(void) const noexcept {
+std::optional<::pasta::Expr> AtomicExpr::Value1(void) const {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
   if (self.getOp() != clang::AtomicExpr::AO__c11_atomic_init &&
       self.getOp() != clang::AtomicExpr::AO__opencl_atomic_init &&
@@ -12790,10 +12788,10 @@ std::optional<::pasta::Expr> AtomicExpr::Value1(void) const noexcept {
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Expr> AtomicExpr::Value2(void) const noexcept {
+std::optional<::pasta::Expr> AtomicExpr::Value2(void) const {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
   if (self.getOp() != clang::AtomicExpr::AO__atomic_exchange &&
       self.getNumSubExprs() <= 4 /* VAL2 */) {
@@ -12806,18 +12804,18 @@ std::optional<::pasta::Expr> AtomicExpr::Value2(void) const noexcept {
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type AtomicExpr::ValueType(void) const noexcept {
+::pasta::Type AtomicExpr::ValueType(void) const {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
   decltype(auto) val = self.getValueType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Expr> AtomicExpr::Weak(void) const noexcept {
+std::optional<::pasta::Expr> AtomicExpr::Weak(void) const {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
   if (self.getNumSubExprs() <= 5 /* WEAK */) {
     return std::nullopt;
@@ -12829,37 +12827,37 @@ std::optional<::pasta::Expr> AtomicExpr::Weak(void) const noexcept {
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool AtomicExpr::IsCmpXChg(void) const noexcept {
+bool AtomicExpr::IsCmpXChg(void) const {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
   decltype(auto) val = self.isCmpXChg();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool AtomicExpr::IsOpenCL(void) const noexcept {
+bool AtomicExpr::IsOpenCL(void) const {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
   decltype(auto) val = self.isOpenCL();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool AtomicExpr::IsVolatile(void) const noexcept {
+bool AtomicExpr::IsVolatile(void) const {
   auto &self = *const_cast<clang::AtomicExpr *>(u.AtomicExpr);
   decltype(auto) val = self.isVolatile();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Expr> AtomicExpr::SubExpressions(void) const noexcept {
+std::vector<::pasta::Expr> AtomicExpr::SubExpressions(void) const {
   std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.AtomicExpr->getNumSubExprs();
   decltype(count) i = 0;
@@ -12878,7 +12876,7 @@ PASTA_DEFINE_BASE_OPERATORS(AbstractConditionalOperator, BinaryConditionalOperat
 PASTA_DEFINE_BASE_OPERATORS(Expr, BinaryConditionalOperator)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, BinaryConditionalOperator)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, BinaryConditionalOperator)
-std::vector<::pasta::Stmt> BinaryConditionalOperator::Children(void) const noexcept {
+std::vector<::pasta::Stmt> BinaryConditionalOperator::Children(void) const {
   auto &self = *const_cast<clang::BinaryConditionalOperator *>(u.BinaryConditionalOperator);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -12888,71 +12886,71 @@ std::vector<::pasta::Stmt> BinaryConditionalOperator::Children(void) const noexc
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token BinaryConditionalOperator::BeginToken(void) const noexcept {
+::pasta::Token BinaryConditionalOperator::BeginToken(void) const {
   auto &self = *const_cast<clang::BinaryConditionalOperator *>(u.BinaryConditionalOperator);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr BinaryConditionalOperator::Common(void) const noexcept {
+::pasta::Expr BinaryConditionalOperator::Common(void) const {
   auto &self = *const_cast<clang::BinaryConditionalOperator *>(u.BinaryConditionalOperator);
   decltype(auto) val = self.getCommon();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "BinaryConditionalOperator::Common can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr BinaryConditionalOperator::Condition(void) const noexcept {
+::pasta::Expr BinaryConditionalOperator::Condition(void) const {
   auto &self = *const_cast<clang::BinaryConditionalOperator *>(u.BinaryConditionalOperator);
   decltype(auto) val = self.getCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "BinaryConditionalOperator::Condition can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token BinaryConditionalOperator::EndToken(void) const noexcept {
+::pasta::Token BinaryConditionalOperator::EndToken(void) const {
   auto &self = *const_cast<clang::BinaryConditionalOperator *>(u.BinaryConditionalOperator);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr BinaryConditionalOperator::FalseExpression(void) const noexcept {
+::pasta::Expr BinaryConditionalOperator::FalseExpression(void) const {
   auto &self = *const_cast<clang::BinaryConditionalOperator *>(u.BinaryConditionalOperator);
   decltype(auto) val = self.getFalseExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "BinaryConditionalOperator::FalseExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::OpaqueValueExpr BinaryConditionalOperator::OpaqueValue(void) const noexcept {
+::pasta::OpaqueValueExpr BinaryConditionalOperator::OpaqueValue(void) const {
   auto &self = *const_cast<clang::BinaryConditionalOperator *>(u.BinaryConditionalOperator);
   decltype(auto) val = self.getOpaqueValue();
   if (val) {
     return StmtBuilder::Create<::pasta::OpaqueValueExpr>(ast, val);
   }
   assert(false && "BinaryConditionalOperator::OpaqueValue can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr BinaryConditionalOperator::TrueExpression(void) const noexcept {
+::pasta::Expr BinaryConditionalOperator::TrueExpression(void) const {
   auto &self = *const_cast<clang::BinaryConditionalOperator *>(u.BinaryConditionalOperator);
   decltype(auto) val = self.getTrueExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "BinaryConditionalOperator::TrueExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 BinaryOperator::BinaryOperator(
@@ -12964,7 +12962,7 @@ PASTA_DEFINE_BASE_OPERATORS(Expr, BinaryOperator)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, BinaryOperator)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, BinaryOperator)
 PASTA_DEFINE_DERIVED_OPERATORS(BinaryOperator, CompoundAssignOperator)
-std::vector<::pasta::Stmt> BinaryOperator::Children(void) const noexcept {
+std::vector<::pasta::Stmt> BinaryOperator::Children(void) const {
   auto &self = *const_cast<clang::BinaryOperator *>(u.BinaryOperator);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -12974,50 +12972,50 @@ std::vector<::pasta::Stmt> BinaryOperator::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token BinaryOperator::BeginToken(void) const noexcept {
+::pasta::Token BinaryOperator::BeginToken(void) const {
   auto &self = *const_cast<clang::BinaryOperator *>(u.BinaryOperator);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token BinaryOperator::EndToken(void) const noexcept {
+::pasta::Token BinaryOperator::EndToken(void) const {
   auto &self = *const_cast<clang::BinaryOperator *>(u.BinaryOperator);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token BinaryOperator::ExpressionToken(void) const noexcept {
+::pasta::Token BinaryOperator::ExpressionToken(void) const {
   auto &self = *const_cast<clang::BinaryOperator *>(u.BinaryOperator);
   decltype(auto) val = self.getExprLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: BinaryOperator::FPFeatures
 // 1: BinaryOperator::FPFeaturesInEffect
-::pasta::Expr BinaryOperator::LHS(void) const noexcept {
+::pasta::Expr BinaryOperator::LHS(void) const {
   auto &self = *const_cast<clang::BinaryOperator *>(u.BinaryOperator);
   decltype(auto) val = self.getLHS();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "BinaryOperator::LHS can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum BinaryOperatorKind BinaryOperator::Opcode(void) const noexcept {
+enum BinaryOperatorKind BinaryOperator::Opcode(void) const {
   auto &self = *const_cast<clang::BinaryOperator *>(u.BinaryOperator);
   decltype(auto) val = self.getOpcode();
   return static_cast<::pasta::BinaryOperatorKind>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::string_view BinaryOperator::OpcodeString(void) const noexcept {
+std::string_view BinaryOperator::OpcodeString(void) const {
   auto &self = *const_cast<clang::BinaryOperator *>(u.BinaryOperator);
   decltype(auto) val = self.getOpcodeStr();
   if (auto size = val.size()) {
@@ -13025,125 +13023,125 @@ std::string_view BinaryOperator::OpcodeString(void) const noexcept {
   } else {
     return std::string_view();
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token BinaryOperator::OperatorToken(void) const noexcept {
+::pasta::Token BinaryOperator::OperatorToken(void) const {
   auto &self = *const_cast<clang::BinaryOperator *>(u.BinaryOperator);
   decltype(auto) val = self.getOperatorLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr BinaryOperator::RHS(void) const noexcept {
+::pasta::Expr BinaryOperator::RHS(void) const {
   auto &self = *const_cast<clang::BinaryOperator *>(u.BinaryOperator);
   decltype(auto) val = self.getRHS();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "BinaryOperator::RHS can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: BinaryOperator::StoredFPFeatures
-bool BinaryOperator::HasStoredFPFeatures(void) const noexcept {
+bool BinaryOperator::HasStoredFPFeatures(void) const {
   auto &self = *const_cast<clang::BinaryOperator *>(u.BinaryOperator);
   decltype(auto) val = self.hasStoredFPFeatures();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool BinaryOperator::IsAdditiveOperation(void) const noexcept {
+bool BinaryOperator::IsAdditiveOperation(void) const {
   auto &self = *const_cast<clang::BinaryOperator *>(u.BinaryOperator);
   decltype(auto) val = self.isAdditiveOp();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool BinaryOperator::IsAssignmentOperation(void) const noexcept {
+bool BinaryOperator::IsAssignmentOperation(void) const {
   auto &self = *const_cast<clang::BinaryOperator *>(u.BinaryOperator);
   decltype(auto) val = self.isAssignmentOp();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool BinaryOperator::IsBitwiseOperation(void) const noexcept {
+bool BinaryOperator::IsBitwiseOperation(void) const {
   auto &self = *const_cast<clang::BinaryOperator *>(u.BinaryOperator);
   decltype(auto) val = self.isBitwiseOp();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool BinaryOperator::IsCommaOperation(void) const noexcept {
+bool BinaryOperator::IsCommaOperation(void) const {
   auto &self = *const_cast<clang::BinaryOperator *>(u.BinaryOperator);
   decltype(auto) val = self.isCommaOp();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool BinaryOperator::IsComparisonOperation(void) const noexcept {
+bool BinaryOperator::IsComparisonOperation(void) const {
   auto &self = *const_cast<clang::BinaryOperator *>(u.BinaryOperator);
   decltype(auto) val = self.isComparisonOp();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool BinaryOperator::IsCompoundAssignmentOperation(void) const noexcept {
+bool BinaryOperator::IsCompoundAssignmentOperation(void) const {
   auto &self = *const_cast<clang::BinaryOperator *>(u.BinaryOperator);
   decltype(auto) val = self.isCompoundAssignmentOp();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool BinaryOperator::IsEqualityOperation(void) const noexcept {
+bool BinaryOperator::IsEqualityOperation(void) const {
   auto &self = *const_cast<clang::BinaryOperator *>(u.BinaryOperator);
   decltype(auto) val = self.isEqualityOp();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: BinaryOperator::IsFEnvAccessOn
 // 1: BinaryOperator::IsFPContractableWithinStatement
-bool BinaryOperator::IsLogicalOperation(void) const noexcept {
+bool BinaryOperator::IsLogicalOperation(void) const {
   auto &self = *const_cast<clang::BinaryOperator *>(u.BinaryOperator);
   decltype(auto) val = self.isLogicalOp();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool BinaryOperator::IsMultiplicativeOperation(void) const noexcept {
+bool BinaryOperator::IsMultiplicativeOperation(void) const {
   auto &self = *const_cast<clang::BinaryOperator *>(u.BinaryOperator);
   decltype(auto) val = self.isMultiplicativeOp();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool BinaryOperator::IsPointerMemoryOperation(void) const noexcept {
+bool BinaryOperator::IsPointerMemoryOperation(void) const {
   auto &self = *const_cast<clang::BinaryOperator *>(u.BinaryOperator);
   decltype(auto) val = self.isPtrMemOp();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool BinaryOperator::IsRelationalOperation(void) const noexcept {
+bool BinaryOperator::IsRelationalOperation(void) const {
   auto &self = *const_cast<clang::BinaryOperator *>(u.BinaryOperator);
   decltype(auto) val = self.isRelationalOp();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool BinaryOperator::IsShiftAssignOperation(void) const noexcept {
+bool BinaryOperator::IsShiftAssignOperation(void) const {
   auto &self = *const_cast<clang::BinaryOperator *>(u.BinaryOperator);
   decltype(auto) val = self.isShiftAssignOp();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool BinaryOperator::IsShiftOperation(void) const noexcept {
+bool BinaryOperator::IsShiftOperation(void) const {
   auto &self = *const_cast<clang::BinaryOperator *>(u.BinaryOperator);
   decltype(auto) val = self.isShiftOp();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 BlockExpr::BlockExpr(
@@ -13154,7 +13152,7 @@ BlockExpr::BlockExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, BlockExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, BlockExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, BlockExpr)
-std::vector<::pasta::Stmt> BlockExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> BlockExpr::Children(void) const {
   auto &self = *const_cast<clang::BlockExpr *>(u.BlockExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -13164,58 +13162,58 @@ std::vector<::pasta::Stmt> BlockExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token BlockExpr::BeginToken(void) const noexcept {
+::pasta::Token BlockExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::BlockExpr *>(u.BlockExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::BlockDecl BlockExpr::BlockDeclaration(void) const noexcept {
+::pasta::BlockDecl BlockExpr::BlockDeclaration(void) const {
   auto &self = *const_cast<clang::BlockExpr *>(u.BlockExpr);
   decltype(auto) val = self.getBlockDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::BlockDecl>(ast, val);
   }
   assert(false && "BlockExpr::BlockDeclaration can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Stmt BlockExpr::Body(void) const noexcept {
+::pasta::Stmt BlockExpr::Body(void) const {
   auto &self = *const_cast<clang::BlockExpr *>(u.BlockExpr);
   decltype(auto) val = self.getBody();
   if (val) {
     return StmtBuilder::Create<::pasta::Stmt>(ast, val);
   }
   assert(false && "BlockExpr::Body can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token BlockExpr::CaretToken(void) const noexcept {
+::pasta::Token BlockExpr::CaretToken(void) const {
   auto &self = *const_cast<clang::BlockExpr *>(u.BlockExpr);
   decltype(auto) val = self.getCaretLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token BlockExpr::EndToken(void) const noexcept {
+::pasta::Token BlockExpr::EndToken(void) const {
   auto &self = *const_cast<clang::BlockExpr *>(u.BlockExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::FunctionProtoType BlockExpr::FunctionType(void) const noexcept {
+::pasta::FunctionProtoType BlockExpr::FunctionType(void) const {
   auto &self = *const_cast<clang::BlockExpr *>(u.BlockExpr);
   decltype(auto) val = self.getFunctionType();
   if (val) {
     return TypeBuilder::Create<::pasta::FunctionProtoType>(ast, val);
   }
   assert(false && "BlockExpr::FunctionType can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CXXBindTemporaryExpr::CXXBindTemporaryExpr(
@@ -13226,7 +13224,7 @@ CXXBindTemporaryExpr::CXXBindTemporaryExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXBindTemporaryExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXBindTemporaryExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXBindTemporaryExpr)
-std::vector<::pasta::Stmt> CXXBindTemporaryExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CXXBindTemporaryExpr::Children(void) const {
   auto &self = *const_cast<clang::CXXBindTemporaryExpr *>(u.CXXBindTemporaryExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -13236,31 +13234,31 @@ std::vector<::pasta::Stmt> CXXBindTemporaryExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXBindTemporaryExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXBindTemporaryExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXBindTemporaryExpr *>(u.CXXBindTemporaryExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXBindTemporaryExpr::EndToken(void) const noexcept {
+::pasta::Token CXXBindTemporaryExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXBindTemporaryExpr *>(u.CXXBindTemporaryExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CXXBindTemporaryExpr::SubExpression(void) const noexcept {
+::pasta::Expr CXXBindTemporaryExpr::SubExpression(void) const {
   auto &self = *const_cast<clang::CXXBindTemporaryExpr *>(u.CXXBindTemporaryExpr);
   decltype(auto) val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXBindTemporaryExpr::SubExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: CXXBindTemporaryExpr::Temporary
@@ -13272,7 +13270,7 @@ CXXBoolLiteralExpr::CXXBoolLiteralExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXBoolLiteralExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXBoolLiteralExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXBoolLiteralExpr)
-std::vector<::pasta::Stmt> CXXBoolLiteralExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CXXBoolLiteralExpr::Children(void) const {
   auto &self = *const_cast<clang::CXXBoolLiteralExpr *>(u.CXXBoolLiteralExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -13282,35 +13280,35 @@ std::vector<::pasta::Stmt> CXXBoolLiteralExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXBoolLiteralExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXBoolLiteralExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXBoolLiteralExpr *>(u.CXXBoolLiteralExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXBoolLiteralExpr::EndToken(void) const noexcept {
+::pasta::Token CXXBoolLiteralExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXBoolLiteralExpr *>(u.CXXBoolLiteralExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXBoolLiteralExpr::Token(void) const noexcept {
+::pasta::Token CXXBoolLiteralExpr::Token(void) const {
   auto &self = *const_cast<clang::CXXBoolLiteralExpr *>(u.CXXBoolLiteralExpr);
   decltype(auto) val = self.getLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXBoolLiteralExpr::Value(void) const noexcept {
+bool CXXBoolLiteralExpr::Value(void) const {
   auto &self = *const_cast<clang::CXXBoolLiteralExpr *>(u.CXXBoolLiteralExpr);
   decltype(auto) val = self.getValue();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CXXConstructExpr::CXXConstructExpr(
@@ -13324,7 +13322,7 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXConstructExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(CXXConstructExpr, CXXTemporaryObjectExpr)
 // 0: CXXConstructExpr::
 // 0: CXXConstructExpr::
-std::vector<::pasta::Expr> CXXConstructExpr::Arguments(void) const noexcept {
+std::vector<::pasta::Expr> CXXConstructExpr::Arguments(void) const {
   auto &self = *const_cast<clang::CXXConstructExpr *>(u.CXXConstructExpr);
   decltype(auto) val = self.arguments();
   std::vector<::pasta::Expr> ret;
@@ -13334,10 +13332,10 @@ std::vector<::pasta::Expr> CXXConstructExpr::Arguments(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Stmt> CXXConstructExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CXXConstructExpr::Children(void) const {
   auto &self = *const_cast<clang::CXXConstructExpr *>(u.CXXConstructExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -13347,96 +13345,96 @@ std::vector<::pasta::Stmt> CXXConstructExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: CXXConstructExpr::Argument
 // 0: CXXConstructExpr::Arguments
-::pasta::Token CXXConstructExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXConstructExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXConstructExpr *>(u.CXXConstructExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum CXXConstructExprConstructionKind CXXConstructExpr::ConstructionKind(void) const noexcept {
+enum CXXConstructExprConstructionKind CXXConstructExpr::ConstructionKind(void) const {
   auto &self = *const_cast<clang::CXXConstructExpr *>(u.CXXConstructExpr);
   decltype(auto) val = self.getConstructionKind();
   return static_cast<::pasta::CXXConstructExprConstructionKind>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::CXXConstructorDecl CXXConstructExpr::Constructor(void) const noexcept {
+::pasta::CXXConstructorDecl CXXConstructExpr::Constructor(void) const {
   auto &self = *const_cast<clang::CXXConstructExpr *>(u.CXXConstructExpr);
   decltype(auto) val = self.getConstructor();
   if (val) {
     return DeclBuilder::Create<::pasta::CXXConstructorDecl>(ast, val);
   }
   assert(false && "CXXConstructExpr::Constructor can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXConstructExpr::EndToken(void) const noexcept {
+::pasta::Token CXXConstructExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXConstructExpr *>(u.CXXConstructExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXConstructExpr::Token(void) const noexcept {
+::pasta::Token CXXConstructExpr::Token(void) const {
   auto &self = *const_cast<clang::CXXConstructExpr *>(u.CXXConstructExpr);
   decltype(auto) val = self.getLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t CXXConstructExpr::NumArguments(void) const noexcept {
+uint32_t CXXConstructExpr::NumArguments(void) const {
   auto &self = *const_cast<clang::CXXConstructExpr *>(u.CXXConstructExpr);
   decltype(auto) val = self.getNumArgs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::TokenRange CXXConstructExpr::ParenthesisOrBraceRange(void) const noexcept {
+::pasta::TokenRange CXXConstructExpr::ParenthesisOrBraceRange(void) const {
   auto &self = *const_cast<clang::CXXConstructExpr *>(u.CXXConstructExpr);
   decltype(auto) val = self.getParenOrBraceRange();
   return ast->TokenRangeFrom(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXConstructExpr::HadMultipleCandidates(void) const noexcept {
+bool CXXConstructExpr::HadMultipleCandidates(void) const {
   auto &self = *const_cast<clang::CXXConstructExpr *>(u.CXXConstructExpr);
   decltype(auto) val = self.hadMultipleCandidates();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXConstructExpr::IsElidable(void) const noexcept {
+bool CXXConstructExpr::IsElidable(void) const {
   auto &self = *const_cast<clang::CXXConstructExpr *>(u.CXXConstructExpr);
   decltype(auto) val = self.isElidable();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXConstructExpr::IsListInitialization(void) const noexcept {
+bool CXXConstructExpr::IsListInitialization(void) const {
   auto &self = *const_cast<clang::CXXConstructExpr *>(u.CXXConstructExpr);
   decltype(auto) val = self.isListInitialization();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXConstructExpr::IsStdInitializerListInitialization(void) const noexcept {
+bool CXXConstructExpr::IsStdInitializerListInitialization(void) const {
   auto &self = *const_cast<clang::CXXConstructExpr *>(u.CXXConstructExpr);
   decltype(auto) val = self.isStdInitListInitialization();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXConstructExpr::RequiresZeroInitialization(void) const noexcept {
+bool CXXConstructExpr::RequiresZeroInitialization(void) const {
   auto &self = *const_cast<clang::CXXConstructExpr *>(u.CXXConstructExpr);
   decltype(auto) val = self.requiresZeroInitialization();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CXXDefaultArgExpr::CXXDefaultArgExpr(
@@ -13447,7 +13445,7 @@ CXXDefaultArgExpr::CXXDefaultArgExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXDefaultArgExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXDefaultArgExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXDefaultArgExpr)
-std::vector<::pasta::Stmt> CXXDefaultArgExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CXXDefaultArgExpr::Children(void) const {
   auto &self = *const_cast<clang::CXXDefaultArgExpr *>(u.CXXDefaultArgExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -13457,92 +13455,92 @@ std::vector<::pasta::Stmt> CXXDefaultArgExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CXXDefaultArgExpr::AdjustedRewrittenExpression(void) const noexcept {
+::pasta::Expr CXXDefaultArgExpr::AdjustedRewrittenExpression(void) const {
   auto &self = *const_cast<clang::CXXDefaultArgExpr *>(u.CXXDefaultArgExpr);
   decltype(auto) val = self.getAdjustedRewrittenExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXDefaultArgExpr::AdjustedRewrittenExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXDefaultArgExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXDefaultArgExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXDefaultArgExpr *>(u.CXXDefaultArgExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXDefaultArgExpr::EndToken(void) const noexcept {
+::pasta::Token CXXDefaultArgExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXDefaultArgExpr *>(u.CXXDefaultArgExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CXXDefaultArgExpr::Expression(void) const noexcept {
+::pasta::Expr CXXDefaultArgExpr::Expression(void) const {
   auto &self = *const_cast<clang::CXXDefaultArgExpr *>(u.CXXDefaultArgExpr);
   decltype(auto) val = self.getExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXDefaultArgExpr::Expression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXDefaultArgExpr::ExpressionToken(void) const noexcept {
+::pasta::Token CXXDefaultArgExpr::ExpressionToken(void) const {
   auto &self = *const_cast<clang::CXXDefaultArgExpr *>(u.CXXDefaultArgExpr);
   decltype(auto) val = self.getExprLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::ParmVarDecl CXXDefaultArgExpr::Parameter(void) const noexcept {
+::pasta::ParmVarDecl CXXDefaultArgExpr::Parameter(void) const {
   auto &self = *const_cast<clang::CXXDefaultArgExpr *>(u.CXXDefaultArgExpr);
   decltype(auto) val = self.getParam();
   if (val) {
     return DeclBuilder::Create<::pasta::ParmVarDecl>(ast, val);
   }
   assert(false && "CXXDefaultArgExpr::Parameter can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CXXDefaultArgExpr::RewrittenExpression(void) const noexcept {
+::pasta::Expr CXXDefaultArgExpr::RewrittenExpression(void) const {
   auto &self = *const_cast<clang::CXXDefaultArgExpr *>(u.CXXDefaultArgExpr);
   decltype(auto) val = self.getRewrittenExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXDefaultArgExpr::RewrittenExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::DeclContext CXXDefaultArgExpr::UsedContext(void) const noexcept {
+::pasta::DeclContext CXXDefaultArgExpr::UsedContext(void) const {
   auto &self = *const_cast<clang::CXXDefaultArgExpr *>(u.CXXDefaultArgExpr);
   decltype(auto) val = self.getUsedContext();
   if (val) {
     return ::pasta::DeclContext(ast, val);
   }
   assert(false && "CXXDefaultArgExpr::UsedContext can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXDefaultArgExpr::UsedToken(void) const noexcept {
+::pasta::Token CXXDefaultArgExpr::UsedToken(void) const {
   auto &self = *const_cast<clang::CXXDefaultArgExpr *>(u.CXXDefaultArgExpr);
   decltype(auto) val = self.getUsedLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXDefaultArgExpr::HasRewrittenInitializer(void) const noexcept {
+bool CXXDefaultArgExpr::HasRewrittenInitializer(void) const {
   auto &self = *const_cast<clang::CXXDefaultArgExpr *>(u.CXXDefaultArgExpr);
   decltype(auto) val = self.hasRewrittenInit();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CXXDefaultInitExpr::CXXDefaultInitExpr(
@@ -13553,7 +13551,7 @@ CXXDefaultInitExpr::CXXDefaultInitExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXDefaultInitExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXDefaultInitExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXDefaultInitExpr)
-std::vector<::pasta::Stmt> CXXDefaultInitExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CXXDefaultInitExpr::Children(void) const {
   auto &self = *const_cast<clang::CXXDefaultInitExpr *>(u.CXXDefaultInitExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -13563,24 +13561,24 @@ std::vector<::pasta::Stmt> CXXDefaultInitExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXDefaultInitExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXDefaultInitExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXDefaultInitExpr *>(u.CXXDefaultInitExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXDefaultInitExpr::EndToken(void) const noexcept {
+::pasta::Token CXXDefaultInitExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXDefaultInitExpr *>(u.CXXDefaultInitExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Expr> CXXDefaultInitExpr::Expression(void) const noexcept {
+std::optional<::pasta::Expr> CXXDefaultInitExpr::Expression(void) const {
   auto &self = *const_cast<clang::CXXDefaultInitExpr *>(u.CXXDefaultInitExpr);
   if (!self.getField()->getInClassInitializer()) {
     return std::nullopt;
@@ -13592,51 +13590,51 @@ std::optional<::pasta::Expr> CXXDefaultInitExpr::Expression(void) const noexcept
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::FieldDecl CXXDefaultInitExpr::Field(void) const noexcept {
+::pasta::FieldDecl CXXDefaultInitExpr::Field(void) const {
   auto &self = *const_cast<clang::CXXDefaultInitExpr *>(u.CXXDefaultInitExpr);
   decltype(auto) val = self.getField();
   if (val) {
     return DeclBuilder::Create<::pasta::FieldDecl>(ast, val);
   }
   assert(false && "CXXDefaultInitExpr::Field can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CXXDefaultInitExpr::RewrittenExpression(void) const noexcept {
+::pasta::Expr CXXDefaultInitExpr::RewrittenExpression(void) const {
   auto &self = *const_cast<clang::CXXDefaultInitExpr *>(u.CXXDefaultInitExpr);
   decltype(auto) val = self.getRewrittenExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXDefaultInitExpr::RewrittenExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::DeclContext CXXDefaultInitExpr::UsedContext(void) const noexcept {
+::pasta::DeclContext CXXDefaultInitExpr::UsedContext(void) const {
   auto &self = *const_cast<clang::CXXDefaultInitExpr *>(u.CXXDefaultInitExpr);
   decltype(auto) val = self.getUsedContext();
   if (val) {
     return ::pasta::DeclContext(ast, val);
   }
   assert(false && "CXXDefaultInitExpr::UsedContext can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXDefaultInitExpr::UsedToken(void) const noexcept {
+::pasta::Token CXXDefaultInitExpr::UsedToken(void) const {
   auto &self = *const_cast<clang::CXXDefaultInitExpr *>(u.CXXDefaultInitExpr);
   decltype(auto) val = self.getUsedLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXDefaultInitExpr::HasRewrittenInitializer(void) const noexcept {
+bool CXXDefaultInitExpr::HasRewrittenInitializer(void) const {
   auto &self = *const_cast<clang::CXXDefaultInitExpr *>(u.CXXDefaultInitExpr);
   decltype(auto) val = self.hasRewrittenInit();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CXXDeleteExpr::CXXDeleteExpr(
@@ -13647,7 +13645,7 @@ CXXDeleteExpr::CXXDeleteExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXDeleteExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXDeleteExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXDeleteExpr)
-std::vector<::pasta::Stmt> CXXDeleteExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CXXDeleteExpr::Children(void) const {
   auto &self = *const_cast<clang::CXXDeleteExpr *>(u.CXXDeleteExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -13657,77 +13655,77 @@ std::vector<::pasta::Stmt> CXXDeleteExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXDeleteExpr::DoesUsualArrayDeleteWantSize(void) const noexcept {
+bool CXXDeleteExpr::DoesUsualArrayDeleteWantSize(void) const {
   auto &self = *const_cast<clang::CXXDeleteExpr *>(u.CXXDeleteExpr);
   decltype(auto) val = self.doesUsualArrayDeleteWantSize();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CXXDeleteExpr::Argument(void) const noexcept {
+::pasta::Expr CXXDeleteExpr::Argument(void) const {
   auto &self = *const_cast<clang::CXXDeleteExpr *>(u.CXXDeleteExpr);
   decltype(auto) val = self.getArgument();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXDeleteExpr::Argument can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXDeleteExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXDeleteExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXDeleteExpr *>(u.CXXDeleteExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type CXXDeleteExpr::DestroyedType(void) const noexcept {
+::pasta::Type CXXDeleteExpr::DestroyedType(void) const {
   auto &self = *const_cast<clang::CXXDeleteExpr *>(u.CXXDeleteExpr);
   decltype(auto) val = self.getDestroyedType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXDeleteExpr::EndToken(void) const noexcept {
+::pasta::Token CXXDeleteExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXDeleteExpr *>(u.CXXDeleteExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::FunctionDecl CXXDeleteExpr::OperatorDelete(void) const noexcept {
+::pasta::FunctionDecl CXXDeleteExpr::OperatorDelete(void) const {
   auto &self = *const_cast<clang::CXXDeleteExpr *>(u.CXXDeleteExpr);
   decltype(auto) val = self.getOperatorDelete();
   if (val) {
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
   }
   assert(false && "CXXDeleteExpr::OperatorDelete can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXDeleteExpr::IsArrayForm(void) const noexcept {
+bool CXXDeleteExpr::IsArrayForm(void) const {
   auto &self = *const_cast<clang::CXXDeleteExpr *>(u.CXXDeleteExpr);
   decltype(auto) val = self.isArrayForm();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXDeleteExpr::IsArrayFormAsWritten(void) const noexcept {
+bool CXXDeleteExpr::IsArrayFormAsWritten(void) const {
   auto &self = *const_cast<clang::CXXDeleteExpr *>(u.CXXDeleteExpr);
   decltype(auto) val = self.isArrayFormAsWritten();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXDeleteExpr::IsGlobalDelete(void) const noexcept {
+bool CXXDeleteExpr::IsGlobalDelete(void) const {
   auto &self = *const_cast<clang::CXXDeleteExpr *>(u.CXXDeleteExpr);
   decltype(auto) val = self.isGlobalDelete();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CXXDependentScopeMemberExpr::CXXDependentScopeMemberExpr(
@@ -13738,7 +13736,7 @@ CXXDependentScopeMemberExpr::CXXDependentScopeMemberExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXDependentScopeMemberExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXDependentScopeMemberExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXDependentScopeMemberExpr)
-std::vector<::pasta::Stmt> CXXDependentScopeMemberExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CXXDependentScopeMemberExpr::Children(void) const {
   auto &self = *const_cast<clang::CXXDependentScopeMemberExpr *>(u.CXXDependentScopeMemberExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -13748,10 +13746,10 @@ std::vector<::pasta::Stmt> CXXDependentScopeMemberExpr::Children(void) const noe
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Expr> CXXDependentScopeMemberExpr::Base(void) const noexcept {
+std::optional<::pasta::Expr> CXXDependentScopeMemberExpr::Base(void) const {
   auto &self = *const_cast<clang::CXXDependentScopeMemberExpr *>(u.CXXDependentScopeMemberExpr);
   if (self.isImplicitAccess()) {
     return std::nullopt;
@@ -13763,32 +13761,32 @@ std::optional<::pasta::Expr> CXXDependentScopeMemberExpr::Base(void) const noexc
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type CXXDependentScopeMemberExpr::BaseType(void) const noexcept {
+::pasta::Type CXXDependentScopeMemberExpr::BaseType(void) const {
   auto &self = *const_cast<clang::CXXDependentScopeMemberExpr *>(u.CXXDependentScopeMemberExpr);
   decltype(auto) val = self.getBaseType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXDependentScopeMemberExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXDependentScopeMemberExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXDependentScopeMemberExpr *>(u.CXXDependentScopeMemberExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXDependentScopeMemberExpr::EndToken(void) const noexcept {
+::pasta::Token CXXDependentScopeMemberExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXDependentScopeMemberExpr *>(u.CXXDependentScopeMemberExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::NamedDecl> CXXDependentScopeMemberExpr::FirstQualifierFoundInScope(void) const noexcept {
+std::optional<::pasta::NamedDecl> CXXDependentScopeMemberExpr::FirstQualifierFoundInScope(void) const {
   auto &self = *const_cast<clang::CXXDependentScopeMemberExpr *>(u.CXXDependentScopeMemberExpr);
   decltype(auto) val = self.getFirstQualifierFoundInScope();
   if (!val) {
@@ -13797,82 +13795,82 @@ std::optional<::pasta::NamedDecl> CXXDependentScopeMemberExpr::FirstQualifierFou
   if (val) {
     return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXDependentScopeMemberExpr::LAngleToken(void) const noexcept {
+::pasta::Token CXXDependentScopeMemberExpr::LAngleToken(void) const {
   auto &self = *const_cast<clang::CXXDependentScopeMemberExpr *>(u.CXXDependentScopeMemberExpr);
   decltype(auto) val = self.getLAngleLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: CXXDependentScopeMemberExpr::Member
-::pasta::Token CXXDependentScopeMemberExpr::MemberToken(void) const noexcept {
+::pasta::Token CXXDependentScopeMemberExpr::MemberToken(void) const {
   auto &self = *const_cast<clang::CXXDependentScopeMemberExpr *>(u.CXXDependentScopeMemberExpr);
   decltype(auto) val = self.getMemberLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: CXXDependentScopeMemberExpr::MemberNameInfo
-uint32_t CXXDependentScopeMemberExpr::NumTemplateArguments(void) const noexcept {
+uint32_t CXXDependentScopeMemberExpr::NumTemplateArguments(void) const {
   auto &self = *const_cast<clang::CXXDependentScopeMemberExpr *>(u.CXXDependentScopeMemberExpr);
   decltype(auto) val = self.getNumTemplateArgs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXDependentScopeMemberExpr::OperatorToken(void) const noexcept {
+::pasta::Token CXXDependentScopeMemberExpr::OperatorToken(void) const {
   auto &self = *const_cast<clang::CXXDependentScopeMemberExpr *>(u.CXXDependentScopeMemberExpr);
   decltype(auto) val = self.getOperatorLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: CXXDependentScopeMemberExpr::Qualifier
 // 0: CXXDependentScopeMemberExpr::QualifierToken
-::pasta::Token CXXDependentScopeMemberExpr::RAngleToken(void) const noexcept {
+::pasta::Token CXXDependentScopeMemberExpr::RAngleToken(void) const {
   auto &self = *const_cast<clang::CXXDependentScopeMemberExpr *>(u.CXXDependentScopeMemberExpr);
   decltype(auto) val = self.getRAngleLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: CXXDependentScopeMemberExpr::TemplateArguments
-::pasta::Token CXXDependentScopeMemberExpr::TemplateKeywordToken(void) const noexcept {
+::pasta::Token CXXDependentScopeMemberExpr::TemplateKeywordToken(void) const {
   auto &self = *const_cast<clang::CXXDependentScopeMemberExpr *>(u.CXXDependentScopeMemberExpr);
   decltype(auto) val = self.getTemplateKeywordLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXDependentScopeMemberExpr::HasExplicitTemplateArguments(void) const noexcept {
+bool CXXDependentScopeMemberExpr::HasExplicitTemplateArguments(void) const {
   auto &self = *const_cast<clang::CXXDependentScopeMemberExpr *>(u.CXXDependentScopeMemberExpr);
   decltype(auto) val = self.hasExplicitTemplateArgs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXDependentScopeMemberExpr::HasTemplateKeyword(void) const noexcept {
+bool CXXDependentScopeMemberExpr::HasTemplateKeyword(void) const {
   auto &self = *const_cast<clang::CXXDependentScopeMemberExpr *>(u.CXXDependentScopeMemberExpr);
   decltype(auto) val = self.hasTemplateKeyword();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXDependentScopeMemberExpr::IsArrow(void) const noexcept {
+bool CXXDependentScopeMemberExpr::IsArrow(void) const {
   auto &self = *const_cast<clang::CXXDependentScopeMemberExpr *>(u.CXXDependentScopeMemberExpr);
   decltype(auto) val = self.isArrow();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXDependentScopeMemberExpr::IsImplicitAccess(void) const noexcept {
+bool CXXDependentScopeMemberExpr::IsImplicitAccess(void) const {
   auto &self = *const_cast<clang::CXXDependentScopeMemberExpr *>(u.CXXDependentScopeMemberExpr);
   decltype(auto) val = self.isImplicitAccess();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: CXXDependentScopeMemberExpr::TemplateArguments
@@ -13884,7 +13882,7 @@ CXXFoldExpr::CXXFoldExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXFoldExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXFoldExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXFoldExpr)
-std::vector<::pasta::Stmt> CXXFoldExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CXXFoldExpr::Children(void) const {
   auto &self = *const_cast<clang::CXXFoldExpr *>(u.CXXFoldExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -13894,68 +13892,68 @@ std::vector<::pasta::Stmt> CXXFoldExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXFoldExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXFoldExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXFoldExpr *>(u.CXXFoldExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::UnresolvedLookupExpr CXXFoldExpr::Callee(void) const noexcept {
+::pasta::UnresolvedLookupExpr CXXFoldExpr::Callee(void) const {
   auto &self = *const_cast<clang::CXXFoldExpr *>(u.CXXFoldExpr);
   decltype(auto) val = self.getCallee();
   if (val) {
     return StmtBuilder::Create<::pasta::UnresolvedLookupExpr>(ast, val);
   }
   assert(false && "CXXFoldExpr::Callee can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXFoldExpr::EllipsisToken(void) const noexcept {
+::pasta::Token CXXFoldExpr::EllipsisToken(void) const {
   auto &self = *const_cast<clang::CXXFoldExpr *>(u.CXXFoldExpr);
   decltype(auto) val = self.getEllipsisLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXFoldExpr::EndToken(void) const noexcept {
+::pasta::Token CXXFoldExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXFoldExpr *>(u.CXXFoldExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CXXFoldExpr::Initializer(void) const noexcept {
+::pasta::Expr CXXFoldExpr::Initializer(void) const {
   auto &self = *const_cast<clang::CXXFoldExpr *>(u.CXXFoldExpr);
   decltype(auto) val = self.getInit();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXFoldExpr::Initializer can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CXXFoldExpr::LHS(void) const noexcept {
+::pasta::Expr CXXFoldExpr::LHS(void) const {
   auto &self = *const_cast<clang::CXXFoldExpr *>(u.CXXFoldExpr);
   decltype(auto) val = self.getLHS();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXFoldExpr::LHS can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXFoldExpr::LParenToken(void) const noexcept {
+::pasta::Token CXXFoldExpr::LParenToken(void) const {
   auto &self = *const_cast<clang::CXXFoldExpr *>(u.CXXFoldExpr);
   decltype(auto) val = self.getLParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<unsigned> CXXFoldExpr::NumExpansions(void) const noexcept {
+std::optional<unsigned> CXXFoldExpr::NumExpansions(void) const {
   auto &self = *const_cast<clang::CXXFoldExpr *>(u.CXXFoldExpr);
   decltype(auto) val = self.getNumExpansions();
   if (val.has_value()) {
@@ -13963,55 +13961,55 @@ std::optional<unsigned> CXXFoldExpr::NumExpansions(void) const noexcept {
   } else {
     return std::nullopt;
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum BinaryOperatorKind CXXFoldExpr::Operator(void) const noexcept {
+enum BinaryOperatorKind CXXFoldExpr::Operator(void) const {
   auto &self = *const_cast<clang::CXXFoldExpr *>(u.CXXFoldExpr);
   decltype(auto) val = self.getOperator();
   return static_cast<::pasta::BinaryOperatorKind>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CXXFoldExpr::Pattern(void) const noexcept {
+::pasta::Expr CXXFoldExpr::Pattern(void) const {
   auto &self = *const_cast<clang::CXXFoldExpr *>(u.CXXFoldExpr);
   decltype(auto) val = self.getPattern();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXFoldExpr::Pattern can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CXXFoldExpr::RHS(void) const noexcept {
+::pasta::Expr CXXFoldExpr::RHS(void) const {
   auto &self = *const_cast<clang::CXXFoldExpr *>(u.CXXFoldExpr);
   decltype(auto) val = self.getRHS();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXFoldExpr::RHS can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXFoldExpr::RParenToken(void) const noexcept {
+::pasta::Token CXXFoldExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::CXXFoldExpr *>(u.CXXFoldExpr);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXFoldExpr::IsLeftFold(void) const noexcept {
+bool CXXFoldExpr::IsLeftFold(void) const {
   auto &self = *const_cast<clang::CXXFoldExpr *>(u.CXXFoldExpr);
   decltype(auto) val = self.isLeftFold();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXFoldExpr::IsRightFold(void) const noexcept {
+bool CXXFoldExpr::IsRightFold(void) const {
   auto &self = *const_cast<clang::CXXFoldExpr *>(u.CXXFoldExpr);
   decltype(auto) val = self.isRightFold();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CXXInheritedCtorInitExpr::CXXInheritedCtorInitExpr(
@@ -14022,7 +14020,7 @@ CXXInheritedCtorInitExpr::CXXInheritedCtorInitExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXInheritedCtorInitExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXInheritedCtorInitExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXInheritedCtorInitExpr)
-std::vector<::pasta::Stmt> CXXInheritedCtorInitExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CXXInheritedCtorInitExpr::Children(void) const {
   auto &self = *const_cast<clang::CXXInheritedCtorInitExpr *>(u.CXXInheritedCtorInitExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -14032,59 +14030,59 @@ std::vector<::pasta::Stmt> CXXInheritedCtorInitExpr::Children(void) const noexce
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXInheritedCtorInitExpr::ConstructsVirtualBase(void) const noexcept {
+bool CXXInheritedCtorInitExpr::ConstructsVirtualBase(void) const {
   auto &self = *const_cast<clang::CXXInheritedCtorInitExpr *>(u.CXXInheritedCtorInitExpr);
   decltype(auto) val = self.constructsVBase();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXInheritedCtorInitExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXInheritedCtorInitExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXInheritedCtorInitExpr *>(u.CXXInheritedCtorInitExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum CXXConstructExprConstructionKind CXXInheritedCtorInitExpr::ConstructionKind(void) const noexcept {
+enum CXXConstructExprConstructionKind CXXInheritedCtorInitExpr::ConstructionKind(void) const {
   auto &self = *const_cast<clang::CXXInheritedCtorInitExpr *>(u.CXXInheritedCtorInitExpr);
   decltype(auto) val = self.getConstructionKind();
   return static_cast<::pasta::CXXConstructExprConstructionKind>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::CXXConstructorDecl CXXInheritedCtorInitExpr::Constructor(void) const noexcept {
+::pasta::CXXConstructorDecl CXXInheritedCtorInitExpr::Constructor(void) const {
   auto &self = *const_cast<clang::CXXInheritedCtorInitExpr *>(u.CXXInheritedCtorInitExpr);
   decltype(auto) val = self.getConstructor();
   if (val) {
     return DeclBuilder::Create<::pasta::CXXConstructorDecl>(ast, val);
   }
   assert(false && "CXXInheritedCtorInitExpr::Constructor can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXInheritedCtorInitExpr::EndToken(void) const noexcept {
+::pasta::Token CXXInheritedCtorInitExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXInheritedCtorInitExpr *>(u.CXXInheritedCtorInitExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXInheritedCtorInitExpr::Token(void) const noexcept {
+::pasta::Token CXXInheritedCtorInitExpr::Token(void) const {
   auto &self = *const_cast<clang::CXXInheritedCtorInitExpr *>(u.CXXInheritedCtorInitExpr);
   decltype(auto) val = self.getLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXInheritedCtorInitExpr::InheritedFromVirtualBase(void) const noexcept {
+bool CXXInheritedCtorInitExpr::InheritedFromVirtualBase(void) const {
   auto &self = *const_cast<clang::CXXInheritedCtorInitExpr *>(u.CXXInheritedCtorInitExpr);
   decltype(auto) val = self.inheritedFromVBase();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CXXNewExpr::CXXNewExpr(
@@ -14095,7 +14093,7 @@ CXXNewExpr::CXXNewExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXNewExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXNewExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXNewExpr)
-std::vector<::pasta::Stmt> CXXNewExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CXXNewExpr::Children(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -14105,25 +14103,25 @@ std::vector<::pasta::Stmt> CXXNewExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXNewExpr::DoesUsualArrayDeleteWantSize(void) const noexcept {
+bool CXXNewExpr::DoesUsualArrayDeleteWantSize(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.doesUsualArrayDeleteWantSize();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type CXXNewExpr::AllocatedType(void) const noexcept {
+::pasta::Type CXXNewExpr::AllocatedType(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getAllocatedType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Expr> CXXNewExpr::ArraySize(void) const noexcept {
+std::optional<::pasta::Expr> CXXNewExpr::ArraySize(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getArraySize();
   if (val.has_value()) {
@@ -14131,17 +14129,17 @@ std::optional<::pasta::Expr> CXXNewExpr::ArraySize(void) const noexcept {
   } else {
     return std::nullopt;
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXNewExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXNewExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::CXXConstructExpr> CXXNewExpr::ConstructExpression(void) const noexcept {
+std::optional<::pasta::CXXConstructExpr> CXXNewExpr::ConstructExpression(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getConstructExpr();
   if (!val) {
@@ -14150,31 +14148,31 @@ std::optional<::pasta::CXXConstructExpr> CXXNewExpr::ConstructExpression(void) c
   if (val) {
     return StmtBuilder::Create<::pasta::CXXConstructExpr>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::TokenRange CXXNewExpr::DirectInitializerRange(void) const noexcept {
+::pasta::TokenRange CXXNewExpr::DirectInitializerRange(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getDirectInitRange();
   return ast->TokenRangeFrom(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXNewExpr::EndToken(void) const noexcept {
+::pasta::Token CXXNewExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum CXXNewExprInitializationStyle CXXNewExpr::InitializationStyle(void) const noexcept {
+enum CXXNewExprInitializationStyle CXXNewExpr::InitializationStyle(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getInitializationStyle();
   return static_cast<::pasta::CXXNewExprInitializationStyle>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Expr> CXXNewExpr::Initializer(void) const noexcept {
+std::optional<::pasta::Expr> CXXNewExpr::Initializer(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getInitializer();
   if (!val) {
@@ -14183,89 +14181,89 @@ std::optional<::pasta::Expr> CXXNewExpr::Initializer(void) const noexcept {
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t CXXNewExpr::NumPlacementArguments(void) const noexcept {
+uint32_t CXXNewExpr::NumPlacementArguments(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getNumPlacementArgs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::FunctionDecl CXXNewExpr::OperatorDelete(void) const noexcept {
+::pasta::FunctionDecl CXXNewExpr::OperatorDelete(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getOperatorDelete();
   if (val) {
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
   }
   assert(false && "CXXNewExpr::OperatorDelete can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::FunctionDecl CXXNewExpr::OperatorNew(void) const noexcept {
+::pasta::FunctionDecl CXXNewExpr::OperatorNew(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getOperatorNew();
   if (val) {
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
   }
   assert(false && "CXXNewExpr::OperatorNew can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: CXXNewExpr::PlacementArgument
-::pasta::TokenRange CXXNewExpr::Tokens(void) const noexcept {
+::pasta::TokenRange CXXNewExpr::Tokens(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::TokenRange CXXNewExpr::TypeIdParentheses(void) const noexcept {
+::pasta::TokenRange CXXNewExpr::TypeIdParentheses(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.getTypeIdParens();
   return ast->TokenRangeFrom(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXNewExpr::HasInitializer(void) const noexcept {
+bool CXXNewExpr::HasInitializer(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.hasInitializer();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXNewExpr::IsArray(void) const noexcept {
+bool CXXNewExpr::IsArray(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.isArray();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXNewExpr::IsGlobalNew(void) const noexcept {
+bool CXXNewExpr::IsGlobalNew(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.isGlobalNew();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXNewExpr::IsParenthesisTypeId(void) const noexcept {
+bool CXXNewExpr::IsParenthesisTypeId(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.isParenTypeId();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXNewExpr::PassAlignment(void) const noexcept {
+bool CXXNewExpr::PassAlignment(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.passAlignment();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: CXXNewExpr::
 // 0: CXXNewExpr::
-std::vector<::pasta::Expr> CXXNewExpr::PlacementArguments(void) const noexcept {
+std::vector<::pasta::Expr> CXXNewExpr::PlacementArguments(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.placement_arguments();
   std::vector<::pasta::Expr> ret;
@@ -14275,16 +14273,16 @@ std::vector<::pasta::Expr> CXXNewExpr::PlacementArguments(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: CXXNewExpr::
 // 0: CXXNewExpr::
-bool CXXNewExpr::ShouldNullCheckAllocation(void) const noexcept {
+bool CXXNewExpr::ShouldNullCheckAllocation(void) const {
   auto &self = *const_cast<clang::CXXNewExpr *>(u.CXXNewExpr);
   decltype(auto) val = self.shouldNullCheckAllocation();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CXXNoexceptExpr::CXXNoexceptExpr(
@@ -14295,7 +14293,7 @@ CXXNoexceptExpr::CXXNoexceptExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXNoexceptExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXNoexceptExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXNoexceptExpr)
-std::vector<::pasta::Stmt> CXXNoexceptExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CXXNoexceptExpr::Children(void) const {
   auto &self = *const_cast<clang::CXXNoexceptExpr *>(u.CXXNoexceptExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -14305,45 +14303,45 @@ std::vector<::pasta::Stmt> CXXNoexceptExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXNoexceptExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXNoexceptExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXNoexceptExpr *>(u.CXXNoexceptExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXNoexceptExpr::EndToken(void) const noexcept {
+::pasta::Token CXXNoexceptExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXNoexceptExpr *>(u.CXXNoexceptExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CXXNoexceptExpr::Operand(void) const noexcept {
+::pasta::Expr CXXNoexceptExpr::Operand(void) const {
   auto &self = *const_cast<clang::CXXNoexceptExpr *>(u.CXXNoexceptExpr);
   decltype(auto) val = self.getOperand();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXNoexceptExpr::Operand can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::TokenRange CXXNoexceptExpr::Tokens(void) const noexcept {
+::pasta::TokenRange CXXNoexceptExpr::Tokens(void) const {
   auto &self = *const_cast<clang::CXXNoexceptExpr *>(u.CXXNoexceptExpr);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXNoexceptExpr::Value(void) const noexcept {
+bool CXXNoexceptExpr::Value(void) const {
   auto &self = *const_cast<clang::CXXNoexceptExpr *>(u.CXXNoexceptExpr);
   decltype(auto) val = self.getValue();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CXXNullPtrLiteralExpr::CXXNullPtrLiteralExpr(
@@ -14354,7 +14352,7 @@ CXXNullPtrLiteralExpr::CXXNullPtrLiteralExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXNullPtrLiteralExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXNullPtrLiteralExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXNullPtrLiteralExpr)
-std::vector<::pasta::Stmt> CXXNullPtrLiteralExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CXXNullPtrLiteralExpr::Children(void) const {
   auto &self = *const_cast<clang::CXXNullPtrLiteralExpr *>(u.CXXNullPtrLiteralExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -14364,28 +14362,28 @@ std::vector<::pasta::Stmt> CXXNullPtrLiteralExpr::Children(void) const noexcept 
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXNullPtrLiteralExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXNullPtrLiteralExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXNullPtrLiteralExpr *>(u.CXXNullPtrLiteralExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXNullPtrLiteralExpr::EndToken(void) const noexcept {
+::pasta::Token CXXNullPtrLiteralExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXNullPtrLiteralExpr *>(u.CXXNullPtrLiteralExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXNullPtrLiteralExpr::Token(void) const noexcept {
+::pasta::Token CXXNullPtrLiteralExpr::Token(void) const {
   auto &self = *const_cast<clang::CXXNullPtrLiteralExpr *>(u.CXXNullPtrLiteralExpr);
   decltype(auto) val = self.getLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CXXParenListInitExpr::CXXParenListInitExpr(
@@ -14396,7 +14394,7 @@ CXXParenListInitExpr::CXXParenListInitExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXParenListInitExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXParenListInitExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXParenListInitExpr)
-std::vector<::pasta::Stmt> CXXParenListInitExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CXXParenListInitExpr::Children(void) const {
   auto &self = *const_cast<clang::CXXParenListInitExpr *>(u.CXXParenListInitExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -14406,56 +14404,56 @@ std::vector<::pasta::Stmt> CXXParenListInitExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CXXParenListInitExpr::ArrayFiller(void) const noexcept {
+::pasta::Expr CXXParenListInitExpr::ArrayFiller(void) const {
   auto &self = *const_cast<clang::CXXParenListInitExpr *>(u.CXXParenListInitExpr);
   decltype(auto) val = self.getArrayFiller();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXParenListInitExpr::ArrayFiller can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXParenListInitExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXParenListInitExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXParenListInitExpr *>(u.CXXParenListInitExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXParenListInitExpr::EndToken(void) const noexcept {
+::pasta::Token CXXParenListInitExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXParenListInitExpr *>(u.CXXParenListInitExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: CXXParenListInitExpr::InitializerExpressions
-::pasta::Token CXXParenListInitExpr::InitializerToken(void) const noexcept {
+::pasta::Token CXXParenListInitExpr::InitializerToken(void) const {
   auto &self = *const_cast<clang::CXXParenListInitExpr *>(u.CXXParenListInitExpr);
   decltype(auto) val = self.getInitLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::FieldDecl CXXParenListInitExpr::InitializedFieldInUnion(void) const noexcept {
+::pasta::FieldDecl CXXParenListInitExpr::InitializedFieldInUnion(void) const {
   auto &self = *const_cast<clang::CXXParenListInitExpr *>(u.CXXParenListInitExpr);
   decltype(auto) val = self.getInitializedFieldInUnion();
   if (val) {
     return DeclBuilder::Create<::pasta::FieldDecl>(ast, val);
   }
   assert(false && "CXXParenListInitExpr::InitializedFieldInUnion can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::TokenRange CXXParenListInitExpr::Tokens(void) const noexcept {
+::pasta::TokenRange CXXParenListInitExpr::Tokens(void) const {
   auto &self = *const_cast<clang::CXXParenListInitExpr *>(u.CXXParenListInitExpr);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: CXXParenListInitExpr::UserSpecifiedInitializerExpressions
@@ -14467,7 +14465,7 @@ CXXPseudoDestructorExpr::CXXPseudoDestructorExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXPseudoDestructorExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXPseudoDestructorExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXPseudoDestructorExpr)
-std::vector<::pasta::Stmt> CXXPseudoDestructorExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CXXPseudoDestructorExpr::Children(void) const {
   auto &self = *const_cast<clang::CXXPseudoDestructorExpr *>(u.CXXPseudoDestructorExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -14477,66 +14475,66 @@ std::vector<::pasta::Stmt> CXXPseudoDestructorExpr::Children(void) const noexcep
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CXXPseudoDestructorExpr::Base(void) const noexcept {
+::pasta::Expr CXXPseudoDestructorExpr::Base(void) const {
   auto &self = *const_cast<clang::CXXPseudoDestructorExpr *>(u.CXXPseudoDestructorExpr);
   decltype(auto) val = self.getBase();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXPseudoDestructorExpr::Base can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXPseudoDestructorExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXPseudoDestructorExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXPseudoDestructorExpr *>(u.CXXPseudoDestructorExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXPseudoDestructorExpr::ColonColonToken(void) const noexcept {
+::pasta::Token CXXPseudoDestructorExpr::ColonColonToken(void) const {
   auto &self = *const_cast<clang::CXXPseudoDestructorExpr *>(u.CXXPseudoDestructorExpr);
   decltype(auto) val = self.getColonColonLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type CXXPseudoDestructorExpr::DestroyedType(void) const noexcept {
+::pasta::Type CXXPseudoDestructorExpr::DestroyedType(void) const {
   auto &self = *const_cast<clang::CXXPseudoDestructorExpr *>(u.CXXPseudoDestructorExpr);
   decltype(auto) val = self.getDestroyedType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: CXXPseudoDestructorExpr::DestroyedTypeIdentifier
-::pasta::Token CXXPseudoDestructorExpr::DestroyedTypeToken(void) const noexcept {
+::pasta::Token CXXPseudoDestructorExpr::DestroyedTypeToken(void) const {
   auto &self = *const_cast<clang::CXXPseudoDestructorExpr *>(u.CXXPseudoDestructorExpr);
   decltype(auto) val = self.getDestroyedTypeLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXPseudoDestructorExpr::EndToken(void) const noexcept {
+::pasta::Token CXXPseudoDestructorExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXPseudoDestructorExpr *>(u.CXXPseudoDestructorExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXPseudoDestructorExpr::OperatorToken(void) const noexcept {
+::pasta::Token CXXPseudoDestructorExpr::OperatorToken(void) const {
   auto &self = *const_cast<clang::CXXPseudoDestructorExpr *>(u.CXXPseudoDestructorExpr);
   decltype(auto) val = self.getOperatorLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: CXXPseudoDestructorExpr::Qualifier
 // 0: CXXPseudoDestructorExpr::QualifierToken
-std::optional<::pasta::Type> CXXPseudoDestructorExpr::ScopeType(void) const noexcept {
+std::optional<::pasta::Type> CXXPseudoDestructorExpr::ScopeType(void) const {
   auto &self = *const_cast<clang::CXXPseudoDestructorExpr *>(u.CXXPseudoDestructorExpr);
   if (!self.getScopeTypeInfo()) {
     return std::nullopt;
@@ -14546,28 +14544,28 @@ std::optional<::pasta::Type> CXXPseudoDestructorExpr::ScopeType(void) const noex
     return std::nullopt;
   }
   return TypeBuilder::Build(ast, val->getType());
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXPseudoDestructorExpr::TildeToken(void) const noexcept {
+::pasta::Token CXXPseudoDestructorExpr::TildeToken(void) const {
   auto &self = *const_cast<clang::CXXPseudoDestructorExpr *>(u.CXXPseudoDestructorExpr);
   decltype(auto) val = self.getTildeLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXPseudoDestructorExpr::HasQualifier(void) const noexcept {
+bool CXXPseudoDestructorExpr::HasQualifier(void) const {
   auto &self = *const_cast<clang::CXXPseudoDestructorExpr *>(u.CXXPseudoDestructorExpr);
   decltype(auto) val = self.hasQualifier();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXPseudoDestructorExpr::IsArrow(void) const noexcept {
+bool CXXPseudoDestructorExpr::IsArrow(void) const {
   auto &self = *const_cast<clang::CXXPseudoDestructorExpr *>(u.CXXPseudoDestructorExpr);
   decltype(auto) val = self.isArrow();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CXXRewrittenBinaryOperator::CXXRewrittenBinaryOperator(
@@ -14578,46 +14576,46 @@ CXXRewrittenBinaryOperator::CXXRewrittenBinaryOperator(
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXRewrittenBinaryOperator)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXRewrittenBinaryOperator)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXRewrittenBinaryOperator)
-::pasta::Token CXXRewrittenBinaryOperator::BeginToken(void) const noexcept {
+::pasta::Token CXXRewrittenBinaryOperator::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXRewrittenBinaryOperator *>(u.CXXRewrittenBinaryOperator);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: CXXRewrittenBinaryOperator::DecomposedForm
-::pasta::Token CXXRewrittenBinaryOperator::EndToken(void) const noexcept {
+::pasta::Token CXXRewrittenBinaryOperator::EndToken(void) const {
   auto &self = *const_cast<clang::CXXRewrittenBinaryOperator *>(u.CXXRewrittenBinaryOperator);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXRewrittenBinaryOperator::ExpressionToken(void) const noexcept {
+::pasta::Token CXXRewrittenBinaryOperator::ExpressionToken(void) const {
   auto &self = *const_cast<clang::CXXRewrittenBinaryOperator *>(u.CXXRewrittenBinaryOperator);
   decltype(auto) val = self.getExprLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CXXRewrittenBinaryOperator::LHS(void) const noexcept {
+::pasta::Expr CXXRewrittenBinaryOperator::LHS(void) const {
   auto &self = *const_cast<clang::CXXRewrittenBinaryOperator *>(u.CXXRewrittenBinaryOperator);
   decltype(auto) val = self.getLHS();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXRewrittenBinaryOperator::LHS can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum BinaryOperatorKind CXXRewrittenBinaryOperator::Opcode(void) const noexcept {
+enum BinaryOperatorKind CXXRewrittenBinaryOperator::Opcode(void) const {
   auto &self = *const_cast<clang::CXXRewrittenBinaryOperator *>(u.CXXRewrittenBinaryOperator);
   decltype(auto) val = self.getOpcode();
   return static_cast<::pasta::BinaryOperatorKind>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::string_view CXXRewrittenBinaryOperator::OpcodeString(void) const noexcept {
+std::string_view CXXRewrittenBinaryOperator::OpcodeString(void) const {
   auto &self = *const_cast<clang::CXXRewrittenBinaryOperator *>(u.CXXRewrittenBinaryOperator);
   decltype(auto) val = self.getOpcodeStr();
   if (auto size = val.size()) {
@@ -14625,69 +14623,69 @@ std::string_view CXXRewrittenBinaryOperator::OpcodeString(void) const noexcept {
   } else {
     return std::string_view();
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum BinaryOperatorKind CXXRewrittenBinaryOperator::Operator(void) const noexcept {
+enum BinaryOperatorKind CXXRewrittenBinaryOperator::Operator(void) const {
   auto &self = *const_cast<clang::CXXRewrittenBinaryOperator *>(u.CXXRewrittenBinaryOperator);
   decltype(auto) val = self.getOperator();
   return static_cast<::pasta::BinaryOperatorKind>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXRewrittenBinaryOperator::OperatorToken(void) const noexcept {
+::pasta::Token CXXRewrittenBinaryOperator::OperatorToken(void) const {
   auto &self = *const_cast<clang::CXXRewrittenBinaryOperator *>(u.CXXRewrittenBinaryOperator);
   decltype(auto) val = self.getOperatorLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CXXRewrittenBinaryOperator::RHS(void) const noexcept {
+::pasta::Expr CXXRewrittenBinaryOperator::RHS(void) const {
   auto &self = *const_cast<clang::CXXRewrittenBinaryOperator *>(u.CXXRewrittenBinaryOperator);
   decltype(auto) val = self.getRHS();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXRewrittenBinaryOperator::RHS can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CXXRewrittenBinaryOperator::SemanticForm(void) const noexcept {
+::pasta::Expr CXXRewrittenBinaryOperator::SemanticForm(void) const {
   auto &self = *const_cast<clang::CXXRewrittenBinaryOperator *>(u.CXXRewrittenBinaryOperator);
   decltype(auto) val = self.getSemanticForm();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXRewrittenBinaryOperator::SemanticForm can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::TokenRange CXXRewrittenBinaryOperator::Tokens(void) const noexcept {
+::pasta::TokenRange CXXRewrittenBinaryOperator::Tokens(void) const {
   auto &self = *const_cast<clang::CXXRewrittenBinaryOperator *>(u.CXXRewrittenBinaryOperator);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXRewrittenBinaryOperator::IsAssignmentOperation(void) const noexcept {
+bool CXXRewrittenBinaryOperator::IsAssignmentOperation(void) const {
   auto &self = *const_cast<clang::CXXRewrittenBinaryOperator *>(u.CXXRewrittenBinaryOperator);
   decltype(auto) val = self.isAssignmentOp();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXRewrittenBinaryOperator::IsComparisonOperation(void) const noexcept {
+bool CXXRewrittenBinaryOperator::IsComparisonOperation(void) const {
   auto &self = *const_cast<clang::CXXRewrittenBinaryOperator *>(u.CXXRewrittenBinaryOperator);
   decltype(auto) val = self.isComparisonOp();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXRewrittenBinaryOperator::IsReversed(void) const noexcept {
+bool CXXRewrittenBinaryOperator::IsReversed(void) const {
   auto &self = *const_cast<clang::CXXRewrittenBinaryOperator *>(u.CXXRewrittenBinaryOperator);
   decltype(auto) val = self.isReversed();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CXXScalarValueInitExpr::CXXScalarValueInitExpr(
@@ -14698,7 +14696,7 @@ CXXScalarValueInitExpr::CXXScalarValueInitExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXScalarValueInitExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXScalarValueInitExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXScalarValueInitExpr)
-std::vector<::pasta::Stmt> CXXScalarValueInitExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CXXScalarValueInitExpr::Children(void) const {
   auto &self = *const_cast<clang::CXXScalarValueInitExpr *>(u.CXXScalarValueInitExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -14708,31 +14706,30 @@ std::vector<::pasta::Stmt> CXXScalarValueInitExpr::Children(void) const noexcept
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXScalarValueInitExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXScalarValueInitExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXScalarValueInitExpr *>(u.CXXScalarValueInitExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXScalarValueInitExpr::EndToken(void) const noexcept {
+::pasta::Token CXXScalarValueInitExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXScalarValueInitExpr *>(u.CXXScalarValueInitExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXScalarValueInitExpr::RParenToken(void) const noexcept {
+::pasta::Token CXXScalarValueInitExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::CXXScalarValueInitExpr *>(u.CXXScalarValueInitExpr);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-// 0: CXXScalarValueInitExpr::
 CXXStdInitializerListExpr::CXXStdInitializerListExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -14741,7 +14738,7 @@ CXXStdInitializerListExpr::CXXStdInitializerListExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXStdInitializerListExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXStdInitializerListExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXStdInitializerListExpr)
-std::vector<::pasta::Stmt> CXXStdInitializerListExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CXXStdInitializerListExpr::Children(void) const {
   auto &self = *const_cast<clang::CXXStdInitializerListExpr *>(u.CXXStdInitializerListExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -14751,38 +14748,38 @@ std::vector<::pasta::Stmt> CXXStdInitializerListExpr::Children(void) const noexc
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXStdInitializerListExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXStdInitializerListExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXStdInitializerListExpr *>(u.CXXStdInitializerListExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXStdInitializerListExpr::EndToken(void) const noexcept {
+::pasta::Token CXXStdInitializerListExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXStdInitializerListExpr *>(u.CXXStdInitializerListExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::TokenRange CXXStdInitializerListExpr::Tokens(void) const noexcept {
+::pasta::TokenRange CXXStdInitializerListExpr::Tokens(void) const {
   auto &self = *const_cast<clang::CXXStdInitializerListExpr *>(u.CXXStdInitializerListExpr);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CXXStdInitializerListExpr::SubExpression(void) const noexcept {
+::pasta::Expr CXXStdInitializerListExpr::SubExpression(void) const {
   auto &self = *const_cast<clang::CXXStdInitializerListExpr *>(u.CXXStdInitializerListExpr);
   decltype(auto) val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXStdInitializerListExpr::SubExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CXXTemporaryObjectExpr::CXXTemporaryObjectExpr(
@@ -14794,28 +14791,27 @@ PASTA_DEFINE_BASE_OPERATORS(CXXConstructExpr, CXXTemporaryObjectExpr)
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXTemporaryObjectExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXTemporaryObjectExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXTemporaryObjectExpr)
-::pasta::Token CXXTemporaryObjectExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXTemporaryObjectExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXTemporaryObjectExpr *>(u.CXXTemporaryObjectExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXTemporaryObjectExpr::EndToken(void) const noexcept {
+::pasta::Token CXXTemporaryObjectExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXTemporaryObjectExpr *>(u.CXXTemporaryObjectExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-// 0: CXXTemporaryObjectExpr::
-std::vector<::pasta::Expr> CXXTemporaryObjectExpr::Arguments(void) const noexcept {
+std::vector<::pasta::Expr> CXXTemporaryObjectExpr::Arguments(void) const {
   std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.CXXTemporaryObjectExpr->getNumArgs();
   decltype(count) i = 0;
@@ -14833,7 +14829,7 @@ CXXThisExpr::CXXThisExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXThisExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXThisExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXThisExpr)
-std::vector<::pasta::Stmt> CXXThisExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CXXThisExpr::Children(void) const {
   auto &self = *const_cast<clang::CXXThisExpr *>(u.CXXThisExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -14843,35 +14839,35 @@ std::vector<::pasta::Stmt> CXXThisExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXThisExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXThisExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXThisExpr *>(u.CXXThisExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXThisExpr::EndToken(void) const noexcept {
+::pasta::Token CXXThisExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXThisExpr *>(u.CXXThisExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXThisExpr::Token(void) const noexcept {
+::pasta::Token CXXThisExpr::Token(void) const {
   auto &self = *const_cast<clang::CXXThisExpr *>(u.CXXThisExpr);
   decltype(auto) val = self.getLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXThisExpr::IsImplicit(void) const noexcept {
+bool CXXThisExpr::IsImplicit(void) const {
   auto &self = *const_cast<clang::CXXThisExpr *>(u.CXXThisExpr);
   decltype(auto) val = self.isImplicit();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CXXThrowExpr::CXXThrowExpr(
@@ -14882,7 +14878,7 @@ CXXThrowExpr::CXXThrowExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXThrowExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXThrowExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXThrowExpr)
-std::vector<::pasta::Stmt> CXXThrowExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CXXThrowExpr::Children(void) const {
   auto &self = *const_cast<clang::CXXThrowExpr *>(u.CXXThrowExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -14892,24 +14888,24 @@ std::vector<::pasta::Stmt> CXXThrowExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXThrowExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXThrowExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXThrowExpr *>(u.CXXThrowExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXThrowExpr::EndToken(void) const noexcept {
+::pasta::Token CXXThrowExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXThrowExpr *>(u.CXXThrowExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Expr> CXXThrowExpr::SubExpression(void) const noexcept {
+std::optional<::pasta::Expr> CXXThrowExpr::SubExpression(void) const {
   auto &self = *const_cast<clang::CXXThrowExpr *>(u.CXXThrowExpr);
   decltype(auto) val = self.getSubExpr();
   if (!val) {
@@ -14918,21 +14914,21 @@ std::optional<::pasta::Expr> CXXThrowExpr::SubExpression(void) const noexcept {
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXThrowExpr::ThrowToken(void) const noexcept {
+::pasta::Token CXXThrowExpr::ThrowToken(void) const {
   auto &self = *const_cast<clang::CXXThrowExpr *>(u.CXXThrowExpr);
   decltype(auto) val = self.getThrowLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXThrowExpr::IsThrownVariableInScope(void) const noexcept {
+bool CXXThrowExpr::IsThrownVariableInScope(void) const {
   auto &self = *const_cast<clang::CXXThrowExpr *>(u.CXXThrowExpr);
   decltype(auto) val = self.isThrownVariableInScope();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CXXTypeidExpr::CXXTypeidExpr(
@@ -14943,7 +14939,7 @@ CXXTypeidExpr::CXXTypeidExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXTypeidExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXTypeidExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXTypeidExpr)
-std::vector<::pasta::Stmt> CXXTypeidExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CXXTypeidExpr::Children(void) const {
   auto &self = *const_cast<clang::CXXTypeidExpr *>(u.CXXTypeidExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -14953,24 +14949,24 @@ std::vector<::pasta::Stmt> CXXTypeidExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXTypeidExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXTypeidExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXTypeidExpr *>(u.CXXTypeidExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXTypeidExpr::EndToken(void) const noexcept {
+::pasta::Token CXXTypeidExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXTypeidExpr *>(u.CXXTypeidExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Expr> CXXTypeidExpr::ExpressionOperand(void) const noexcept {
+std::optional<::pasta::Expr> CXXTypeidExpr::ExpressionOperand(void) const {
   auto &self = *const_cast<clang::CXXTypeidExpr *>(u.CXXTypeidExpr);
   if (self.isTypeOperand()) {
     return std::nullopt;
@@ -14982,54 +14978,54 @@ std::optional<::pasta::Expr> CXXTypeidExpr::ExpressionOperand(void) const noexce
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::TokenRange CXXTypeidExpr::Tokens(void) const noexcept {
+::pasta::TokenRange CXXTypeidExpr::Tokens(void) const {
   auto &self = *const_cast<clang::CXXTypeidExpr *>(u.CXXTypeidExpr);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type CXXTypeidExpr::TypeOperand(void) const noexcept {
+::pasta::Type CXXTypeidExpr::TypeOperand(void) const {
   auto &self = *(u.CXXTypeidExpr);
   decltype(auto) val = self.getTypeOperand(ast->ci->getASTContext());
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type CXXTypeidExpr::TypeOperandSourceInfo(void) const noexcept {
+::pasta::Type CXXTypeidExpr::TypeOperandSourceInfo(void) const {
   auto &self = *const_cast<clang::CXXTypeidExpr *>(u.CXXTypeidExpr);
   decltype(auto) val = self.getTypeOperandSourceInfo();
   return TypeBuilder::Build(ast, val->getType());
   assert(false && "CXXTypeidExpr::TypeOperandSourceInfo can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<bool> CXXTypeidExpr::IsMostDerived(void) const noexcept {
+std::optional<bool> CXXTypeidExpr::IsMostDerived(void) const {
   auto &self = *(u.CXXTypeidExpr);
   if (self.isTypeOperand()) {
     return std::nullopt;
   }
   decltype(auto) val = self.isMostDerived(ast->ci->getASTContext());
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXTypeidExpr::IsPotentiallyEvaluated(void) const noexcept {
+bool CXXTypeidExpr::IsPotentiallyEvaluated(void) const {
   auto &self = *const_cast<clang::CXXTypeidExpr *>(u.CXXTypeidExpr);
   decltype(auto) val = self.isPotentiallyEvaluated();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXTypeidExpr::IsTypeOperand(void) const noexcept {
+bool CXXTypeidExpr::IsTypeOperand(void) const {
   auto &self = *const_cast<clang::CXXTypeidExpr *>(u.CXXTypeidExpr);
   decltype(auto) val = self.isTypeOperand();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CXXUnresolvedConstructExpr::CXXUnresolvedConstructExpr(
@@ -15042,7 +15038,7 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXUnresolvedConstructExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXUnresolvedConstructExpr)
 // 0: CXXUnresolvedConstructExpr::
 // 0: CXXUnresolvedConstructExpr::
-std::vector<::pasta::Expr> CXXUnresolvedConstructExpr::Arguments(void) const noexcept {
+std::vector<::pasta::Expr> CXXUnresolvedConstructExpr::Arguments(void) const {
   auto &self = *const_cast<clang::CXXUnresolvedConstructExpr *>(u.CXXUnresolvedConstructExpr);
   decltype(auto) val = self.arguments();
   std::vector<::pasta::Expr> ret;
@@ -15052,10 +15048,10 @@ std::vector<::pasta::Expr> CXXUnresolvedConstructExpr::Arguments(void) const noe
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Stmt> CXXUnresolvedConstructExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CXXUnresolvedConstructExpr::Children(void) const {
   auto &self = *const_cast<clang::CXXUnresolvedConstructExpr *>(u.CXXUnresolvedConstructExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -15065,59 +15061,58 @@ std::vector<::pasta::Stmt> CXXUnresolvedConstructExpr::Children(void) const noex
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: CXXUnresolvedConstructExpr::Argument
-::pasta::Token CXXUnresolvedConstructExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXUnresolvedConstructExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXUnresolvedConstructExpr *>(u.CXXUnresolvedConstructExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXUnresolvedConstructExpr::EndToken(void) const noexcept {
+::pasta::Token CXXUnresolvedConstructExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXUnresolvedConstructExpr *>(u.CXXUnresolvedConstructExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXUnresolvedConstructExpr::LParenToken(void) const noexcept {
+::pasta::Token CXXUnresolvedConstructExpr::LParenToken(void) const {
   auto &self = *const_cast<clang::CXXUnresolvedConstructExpr *>(u.CXXUnresolvedConstructExpr);
   decltype(auto) val = self.getLParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t CXXUnresolvedConstructExpr::NumArguments(void) const noexcept {
+uint32_t CXXUnresolvedConstructExpr::NumArguments(void) const {
   auto &self = *const_cast<clang::CXXUnresolvedConstructExpr *>(u.CXXUnresolvedConstructExpr);
   decltype(auto) val = self.getNumArgs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXUnresolvedConstructExpr::RParenToken(void) const noexcept {
+::pasta::Token CXXUnresolvedConstructExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::CXXUnresolvedConstructExpr *>(u.CXXUnresolvedConstructExpr);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type CXXUnresolvedConstructExpr::TypeAsWritten(void) const noexcept {
+::pasta::Type CXXUnresolvedConstructExpr::TypeAsWritten(void) const {
   auto &self = *const_cast<clang::CXXUnresolvedConstructExpr *>(u.CXXUnresolvedConstructExpr);
   decltype(auto) val = self.getTypeAsWritten();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-// 0: CXXUnresolvedConstructExpr::
-bool CXXUnresolvedConstructExpr::IsListInitialization(void) const noexcept {
+bool CXXUnresolvedConstructExpr::IsListInitialization(void) const {
   auto &self = *const_cast<clang::CXXUnresolvedConstructExpr *>(u.CXXUnresolvedConstructExpr);
   decltype(auto) val = self.isListInitialization();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CXXUuidofExpr::CXXUuidofExpr(
@@ -15128,7 +15123,7 @@ CXXUuidofExpr::CXXUuidofExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXUuidofExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXUuidofExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXUuidofExpr)
-std::vector<::pasta::Stmt> CXXUuidofExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CXXUuidofExpr::Children(void) const {
   auto &self = *const_cast<clang::CXXUuidofExpr *>(u.CXXUuidofExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -15138,24 +15133,24 @@ std::vector<::pasta::Stmt> CXXUuidofExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXUuidofExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXUuidofExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXUuidofExpr *>(u.CXXUuidofExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXUuidofExpr::EndToken(void) const noexcept {
+::pasta::Token CXXUuidofExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXUuidofExpr *>(u.CXXUuidofExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Expr> CXXUuidofExpr::ExpressionOperand(void) const noexcept {
+std::optional<::pasta::Expr> CXXUuidofExpr::ExpressionOperand(void) const {
   auto &self = *const_cast<clang::CXXUuidofExpr *>(u.CXXUuidofExpr);
   if (self.isTypeOperand()) {
     return std::nullopt;
@@ -15167,47 +15162,47 @@ std::optional<::pasta::Expr> CXXUuidofExpr::ExpressionOperand(void) const noexce
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::MSGuidDecl CXXUuidofExpr::GuidDeclaration(void) const noexcept {
+::pasta::MSGuidDecl CXXUuidofExpr::GuidDeclaration(void) const {
   auto &self = *const_cast<clang::CXXUuidofExpr *>(u.CXXUuidofExpr);
   decltype(auto) val = self.getGuidDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::MSGuidDecl>(ast, val);
   }
   assert(false && "CXXUuidofExpr::GuidDeclaration can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::TokenRange CXXUuidofExpr::Tokens(void) const noexcept {
+::pasta::TokenRange CXXUuidofExpr::Tokens(void) const {
   auto &self = *const_cast<clang::CXXUuidofExpr *>(u.CXXUuidofExpr);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type CXXUuidofExpr::TypeOperand(void) const noexcept {
+::pasta::Type CXXUuidofExpr::TypeOperand(void) const {
   auto &self = *(u.CXXUuidofExpr);
   decltype(auto) val = self.getTypeOperand(ast->ci->getASTContext());
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type CXXUuidofExpr::TypeOperandSourceInfo(void) const noexcept {
+::pasta::Type CXXUuidofExpr::TypeOperandSourceInfo(void) const {
   auto &self = *const_cast<clang::CXXUuidofExpr *>(u.CXXUuidofExpr);
   decltype(auto) val = self.getTypeOperandSourceInfo();
   return TypeBuilder::Build(ast, val->getType());
   assert(false && "CXXUuidofExpr::TypeOperandSourceInfo can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXUuidofExpr::IsTypeOperand(void) const noexcept {
+bool CXXUuidofExpr::IsTypeOperand(void) const {
   auto &self = *const_cast<clang::CXXUuidofExpr *>(u.CXXUuidofExpr);
   decltype(auto) val = self.isTypeOperand();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CallExpr::CallExpr(
@@ -15224,7 +15219,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(CallExpr, CXXOperatorCallExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(CallExpr, UserDefinedLiteral)
 // 0: CallExpr::
 // 0: CallExpr::
-std::vector<::pasta::Expr> CallExpr::Arguments(void) const noexcept {
+std::vector<::pasta::Expr> CallExpr::Arguments(void) const {
   auto &self = *const_cast<clang::CallExpr *>(u.CallExpr);
   decltype(auto) val = self.arguments();
   std::vector<::pasta::Expr> ret;
@@ -15234,10 +15229,10 @@ std::vector<::pasta::Expr> CallExpr::Arguments(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Stmt> CallExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CallExpr::Children(void) const {
   auto &self = *const_cast<clang::CallExpr *>(u.CallExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -15247,51 +15242,51 @@ std::vector<::pasta::Stmt> CallExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum CallExprADLCallKind CallExpr::ADLCallKind(void) const noexcept {
+enum CallExprADLCallKind CallExpr::ADLCallKind(void) const {
   auto &self = *const_cast<clang::CallExpr *>(u.CallExpr);
   decltype(auto) val = self.getADLCallKind();
   return static_cast<::pasta::CallExprADLCallKind>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: CallExpr::Argument
 // 0: CallExpr::Arguments
-::pasta::Token CallExpr::BeginToken(void) const noexcept {
+::pasta::Token CallExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CallExpr *>(u.CallExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t CallExpr::BuiltinCallee(void) const noexcept {
+uint32_t CallExpr::BuiltinCallee(void) const {
   auto &self = *const_cast<clang::CallExpr *>(u.CallExpr);
   decltype(auto) val = self.getBuiltinCallee();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type CallExpr::CallReturnType(void) const noexcept {
+::pasta::Type CallExpr::CallReturnType(void) const {
   auto &self = *(u.CallExpr);
   decltype(auto) val = self.getCallReturnType(ast->ci->getASTContext());
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CallExpr::Callee(void) const noexcept {
+::pasta::Expr CallExpr::Callee(void) const {
   auto &self = *const_cast<clang::CallExpr *>(u.CallExpr);
   decltype(auto) val = self.getCallee();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CallExpr::Callee can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Decl> CallExpr::CalleeDeclaration(void) const noexcept {
+std::optional<::pasta::Decl> CallExpr::CalleeDeclaration(void) const {
   auto &self = *const_cast<clang::CallExpr *>(u.CallExpr);
   decltype(auto) val = self.getCalleeDecl();
   if (!val) {
@@ -15300,10 +15295,10 @@ std::optional<::pasta::Decl> CallExpr::CalleeDeclaration(void) const noexcept {
   if (val) {
     return DeclBuilder::Create<::pasta::Decl>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::FunctionDecl> CallExpr::DirectCallee(void) const noexcept {
+std::optional<::pasta::FunctionDecl> CallExpr::DirectCallee(void) const {
   auto &self = *const_cast<clang::CallExpr *>(u.CallExpr);
   decltype(auto) val = self.getDirectCallee();
   if (!val) {
@@ -15312,34 +15307,34 @@ std::optional<::pasta::FunctionDecl> CallExpr::DirectCallee(void) const noexcept
   if (val) {
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CallExpr::EndToken(void) const noexcept {
+::pasta::Token CallExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CallExpr *>(u.CallExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: CallExpr::FPFeatures
 // 1: CallExpr::FPFeaturesInEffect
-uint32_t CallExpr::NumArguments(void) const noexcept {
+uint32_t CallExpr::NumArguments(void) const {
   auto &self = *const_cast<clang::CallExpr *>(u.CallExpr);
   decltype(auto) val = self.getNumArgs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CallExpr::RParenToken(void) const noexcept {
+::pasta::Token CallExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::CallExpr *>(u.CallExpr);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: CallExpr::StoredFPFeatures
-std::optional<::pasta::Attr> CallExpr::UnusedResultAttribute(void) const noexcept {
+std::optional<::pasta::Attr> CallExpr::UnusedResultAttribute(void) const {
   auto &self = *(u.CallExpr);
   decltype(auto) val = self.getUnusedResultAttr(ast->ci->getASTContext());
   if (!val) {
@@ -15348,49 +15343,49 @@ std::optional<::pasta::Attr> CallExpr::UnusedResultAttribute(void) const noexcep
   if (val) {
     return AttrBuilder::Create<::pasta::Attr>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CallExpr::HasStoredFPFeatures(void) const noexcept {
+bool CallExpr::HasStoredFPFeatures(void) const {
   auto &self = *const_cast<clang::CallExpr *>(u.CallExpr);
   decltype(auto) val = self.hasStoredFPFeatures();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CallExpr::HasUnusedResultAttribute(void) const noexcept {
+bool CallExpr::HasUnusedResultAttribute(void) const {
   auto &self = *(u.CallExpr);
   decltype(auto) val = self.hasUnusedResultAttr(ast->ci->getASTContext());
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CallExpr::IsBuiltinAssumeFalse(void) const noexcept {
+bool CallExpr::IsBuiltinAssumeFalse(void) const {
   auto &self = *(u.CallExpr);
   decltype(auto) val = self.isBuiltinAssumeFalse(ast->ci->getASTContext());
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CallExpr::IsCallToStdMove(void) const noexcept {
+bool CallExpr::IsCallToStdMove(void) const {
   auto &self = *const_cast<clang::CallExpr *>(u.CallExpr);
   decltype(auto) val = self.isCallToStdMove();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CallExpr::IsUnevaluatedBuiltinCall(void) const noexcept {
+bool CallExpr::IsUnevaluatedBuiltinCall(void) const {
   auto &self = *(u.CallExpr);
   decltype(auto) val = self.isUnevaluatedBuiltinCall(ast->ci->getASTContext());
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CallExpr::UsesADL(void) const noexcept {
+bool CallExpr::UsesADL(void) const {
   auto &self = *const_cast<clang::CallExpr *>(u.CallExpr);
   decltype(auto) val = self.usesADL();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CastExpr::CastExpr(
@@ -15413,7 +15408,7 @@ PASTA_DEFINE_DERIVED_OPERATORS(CastExpr, CXXStaticCastExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(CastExpr, ExplicitCastExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(CastExpr, ImplicitCastExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(CastExpr, ObjCBridgedCastExpr)
-std::vector<::pasta::Stmt> CastExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CastExpr::Children(void) const {
   auto &self = *const_cast<clang::CastExpr *>(u.CastExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -15423,17 +15418,17 @@ std::vector<::pasta::Stmt> CastExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum CastKind CastExpr::CastKind(void) const noexcept {
+enum CastKind CastExpr::CastKind(void) const {
   auto &self = *const_cast<clang::CastExpr *>(u.CastExpr);
   decltype(auto) val = self.getCastKind();
   return static_cast<::pasta::CastKind>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::string_view CastExpr::CastKindName(void) const noexcept {
+std::string_view CastExpr::CastKindName(void) const {
   auto &self = *const_cast<clang::CastExpr *>(u.CastExpr);
   decltype(auto) val = self.getCastKindName();
   if (val) {
@@ -15442,10 +15437,10 @@ std::string_view CastExpr::CastKindName(void) const noexcept {
     return std::string_view();
   }
   assert(false && "CastExpr::CastKindName can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::NamedDecl> CastExpr::ConversionFunction(void) const noexcept {
+std::optional<::pasta::NamedDecl> CastExpr::ConversionFunction(void) const {
   auto &self = *const_cast<clang::CastExpr *>(u.CastExpr);
   decltype(auto) val = self.getConversionFunction();
   if (!val) {
@@ -15454,33 +15449,33 @@ std::optional<::pasta::NamedDecl> CastExpr::ConversionFunction(void) const noexc
   if (val) {
     return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: CastExpr::FPFeatures
 // 1: CastExpr::FPFeaturesInEffect
 // 0: CastExpr::StoredFPFeatures
-::pasta::Expr CastExpr::SubExpression(void) const noexcept {
+::pasta::Expr CastExpr::SubExpression(void) const {
   auto &self = *const_cast<clang::CastExpr *>(u.CastExpr);
   decltype(auto) val = self.getSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CastExpr::SubExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CastExpr::SubExpressionAsWritten(void) const noexcept {
+::pasta::Expr CastExpr::SubExpressionAsWritten(void) const {
   auto &self = *const_cast<clang::CastExpr *>(u.CastExpr);
   decltype(auto) val = self.getSubExprAsWritten();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CastExpr::SubExpressionAsWritten can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::FieldDecl> CastExpr::TargetUnionField(void) const noexcept {
+std::optional<::pasta::FieldDecl> CastExpr::TargetUnionField(void) const {
   auto &self = *const_cast<clang::CastExpr *>(u.CastExpr);
   if (self.getCastKind() != clang::CK_ToUnion) {
     return std::nullopt;
@@ -15492,14 +15487,14 @@ std::optional<::pasta::FieldDecl> CastExpr::TargetUnionField(void) const noexcep
   if (val) {
     return DeclBuilder::Create<::pasta::FieldDecl>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CastExpr::HasStoredFPFeatures(void) const noexcept {
+bool CastExpr::HasStoredFPFeatures(void) const {
   auto &self = *const_cast<clang::CastExpr *>(u.CastExpr);
   decltype(auto) val = self.hasStoredFPFeatures();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: CastExpr::Path
@@ -15515,7 +15510,7 @@ CharacterLiteral::CharacterLiteral(
 PASTA_DEFINE_BASE_OPERATORS(Expr, CharacterLiteral)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CharacterLiteral)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CharacterLiteral)
-std::vector<::pasta::Stmt> CharacterLiteral::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CharacterLiteral::Children(void) const {
   auto &self = *const_cast<clang::CharacterLiteral *>(u.CharacterLiteral);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -15525,42 +15520,42 @@ std::vector<::pasta::Stmt> CharacterLiteral::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CharacterLiteral::BeginToken(void) const noexcept {
+::pasta::Token CharacterLiteral::BeginToken(void) const {
   auto &self = *const_cast<clang::CharacterLiteral *>(u.CharacterLiteral);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CharacterLiteral::EndToken(void) const noexcept {
+::pasta::Token CharacterLiteral::EndToken(void) const {
   auto &self = *const_cast<clang::CharacterLiteral *>(u.CharacterLiteral);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum CharacterLiteralCharacterKind CharacterLiteral::Kind(void) const noexcept {
+enum CharacterLiteralCharacterKind CharacterLiteral::Kind(void) const {
   auto &self = *const_cast<clang::CharacterLiteral *>(u.CharacterLiteral);
   decltype(auto) val = self.getKind();
   return static_cast<::pasta::CharacterLiteralCharacterKind>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CharacterLiteral::Token(void) const noexcept {
+::pasta::Token CharacterLiteral::Token(void) const {
   auto &self = *const_cast<clang::CharacterLiteral *>(u.CharacterLiteral);
   decltype(auto) val = self.getLocation();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t CharacterLiteral::Value(void) const noexcept {
+uint32_t CharacterLiteral::Value(void) const {
   auto &self = *const_cast<clang::CharacterLiteral *>(u.CharacterLiteral);
   decltype(auto) val = self.getValue();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ChooseExpr::ChooseExpr(
@@ -15571,7 +15566,7 @@ ChooseExpr::ChooseExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ChooseExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ChooseExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ChooseExpr)
-std::vector<::pasta::Stmt> ChooseExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ChooseExpr::Children(void) const {
   auto &self = *const_cast<clang::ChooseExpr *>(u.ChooseExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -15581,89 +15576,89 @@ std::vector<::pasta::Stmt> ChooseExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ChooseExpr::BeginToken(void) const noexcept {
+::pasta::Token ChooseExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ChooseExpr *>(u.ChooseExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ChooseExpr::BuiltinToken(void) const noexcept {
+::pasta::Token ChooseExpr::BuiltinToken(void) const {
   auto &self = *const_cast<clang::ChooseExpr *>(u.ChooseExpr);
   decltype(auto) val = self.getBuiltinLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ChooseExpr::ChosenSubExpression(void) const noexcept {
+::pasta::Expr ChooseExpr::ChosenSubExpression(void) const {
   auto &self = *const_cast<clang::ChooseExpr *>(u.ChooseExpr);
   decltype(auto) val = self.getChosenSubExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ChooseExpr::ChosenSubExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ChooseExpr::Condition(void) const noexcept {
+::pasta::Expr ChooseExpr::Condition(void) const {
   auto &self = *const_cast<clang::ChooseExpr *>(u.ChooseExpr);
   decltype(auto) val = self.getCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ChooseExpr::Condition can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ChooseExpr::EndToken(void) const noexcept {
+::pasta::Token ChooseExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ChooseExpr *>(u.ChooseExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ChooseExpr::LHS(void) const noexcept {
+::pasta::Expr ChooseExpr::LHS(void) const {
   auto &self = *const_cast<clang::ChooseExpr *>(u.ChooseExpr);
   decltype(auto) val = self.getLHS();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ChooseExpr::LHS can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ChooseExpr::RHS(void) const noexcept {
+::pasta::Expr ChooseExpr::RHS(void) const {
   auto &self = *const_cast<clang::ChooseExpr *>(u.ChooseExpr);
   decltype(auto) val = self.getRHS();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ChooseExpr::RHS can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ChooseExpr::RParenToken(void) const noexcept {
+::pasta::Token ChooseExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::ChooseExpr *>(u.ChooseExpr);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ChooseExpr::IsConditionDependent(void) const noexcept {
+bool ChooseExpr::IsConditionDependent(void) const {
   auto &self = *const_cast<clang::ChooseExpr *>(u.ChooseExpr);
   decltype(auto) val = self.isConditionDependent();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ChooseExpr::IsConditionTrue(void) const noexcept {
+bool ChooseExpr::IsConditionTrue(void) const {
   auto &self = *const_cast<clang::ChooseExpr *>(u.ChooseExpr);
   decltype(auto) val = self.isConditionTrue();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CompoundAssignOperator::CompoundAssignOperator(
@@ -15675,20 +15670,20 @@ PASTA_DEFINE_BASE_OPERATORS(BinaryOperator, CompoundAssignOperator)
 PASTA_DEFINE_BASE_OPERATORS(Expr, CompoundAssignOperator)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CompoundAssignOperator)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CompoundAssignOperator)
-::pasta::Type CompoundAssignOperator::ComputationLHSType(void) const noexcept {
+::pasta::Type CompoundAssignOperator::ComputationLHSType(void) const {
   auto &self = *const_cast<clang::CompoundAssignOperator *>(u.CompoundAssignOperator);
   decltype(auto) val = self.getComputationLHSType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type CompoundAssignOperator::ComputationResultType(void) const noexcept {
+::pasta::Type CompoundAssignOperator::ComputationResultType(void) const {
   auto &self = *const_cast<clang::CompoundAssignOperator *>(u.CompoundAssignOperator);
   decltype(auto) val = self.getComputationResultType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CompoundLiteralExpr::CompoundLiteralExpr(
@@ -15699,7 +15694,7 @@ CompoundLiteralExpr::CompoundLiteralExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, CompoundLiteralExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CompoundLiteralExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CompoundLiteralExpr)
-std::vector<::pasta::Stmt> CompoundLiteralExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CompoundLiteralExpr::Children(void) const {
   auto &self = *const_cast<clang::CompoundLiteralExpr *>(u.CompoundLiteralExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -15709,46 +15704,45 @@ std::vector<::pasta::Stmt> CompoundLiteralExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CompoundLiteralExpr::BeginToken(void) const noexcept {
+::pasta::Token CompoundLiteralExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CompoundLiteralExpr *>(u.CompoundLiteralExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CompoundLiteralExpr::EndToken(void) const noexcept {
+::pasta::Token CompoundLiteralExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CompoundLiteralExpr *>(u.CompoundLiteralExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CompoundLiteralExpr::Initializer(void) const noexcept {
+::pasta::Expr CompoundLiteralExpr::Initializer(void) const {
   auto &self = *const_cast<clang::CompoundLiteralExpr *>(u.CompoundLiteralExpr);
   decltype(auto) val = self.getInitializer();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CompoundLiteralExpr::Initializer can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CompoundLiteralExpr::LParenToken(void) const noexcept {
+::pasta::Token CompoundLiteralExpr::LParenToken(void) const {
   auto &self = *const_cast<clang::CompoundLiteralExpr *>(u.CompoundLiteralExpr);
   decltype(auto) val = self.getLParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-// 0: CompoundLiteralExpr::
-bool CompoundLiteralExpr::IsFileScope(void) const noexcept {
+bool CompoundLiteralExpr::IsFileScope(void) const {
   auto &self = *const_cast<clang::CompoundLiteralExpr *>(u.CompoundLiteralExpr);
   decltype(auto) val = self.isFileScope();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ConceptSpecializationExpr::ConceptSpecializationExpr(
@@ -15759,7 +15753,7 @@ ConceptSpecializationExpr::ConceptSpecializationExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ConceptSpecializationExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ConceptSpecializationExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ConceptSpecializationExpr)
-std::vector<::pasta::Stmt> ConceptSpecializationExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ConceptSpecializationExpr::Children(void) const {
   auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -15769,35 +15763,35 @@ std::vector<::pasta::Stmt> ConceptSpecializationExpr::Children(void) const noexc
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ConceptSpecializationExpr::BeginToken(void) const noexcept {
+::pasta::Token ConceptSpecializationExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ConceptSpecializationExpr::EndToken(void) const noexcept {
+::pasta::Token ConceptSpecializationExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: ConceptSpecializationExpr::Satisfaction
-::pasta::ImplicitConceptSpecializationDecl ConceptSpecializationExpr::SpecializationDeclaration(void) const noexcept {
+::pasta::ImplicitConceptSpecializationDecl ConceptSpecializationExpr::SpecializationDeclaration(void) const {
   auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
   decltype(auto) val = self.getSpecializationDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::ImplicitConceptSpecializationDecl>(ast, val);
   }
   assert(false && "ConceptSpecializationExpr::SpecializationDeclaration can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::TemplateArgument> ConceptSpecializationExpr::TemplateArguments(void) const noexcept {
+std::vector<::pasta::TemplateArgument> ConceptSpecializationExpr::TemplateArguments(void) const {
   auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
   decltype(auto) val = self.getTemplateArguments();
   std::vector<::pasta::TemplateArgument> ret;
@@ -15805,14 +15799,14 @@ std::vector<::pasta::TemplateArgument> ConceptSpecializationExpr::TemplateArgume
     ret.emplace_back(ast, arg);
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ConceptSpecializationExpr::IsSatisfied(void) const noexcept {
+bool ConceptSpecializationExpr::IsSatisfied(void) const {
   auto &self = *const_cast<clang::ConceptSpecializationExpr *>(u.ConceptSpecializationExpr);
   decltype(auto) val = self.isSatisfied();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ConditionalOperator::ConditionalOperator(
@@ -15824,7 +15818,7 @@ PASTA_DEFINE_BASE_OPERATORS(AbstractConditionalOperator, ConditionalOperator)
 PASTA_DEFINE_BASE_OPERATORS(Expr, ConditionalOperator)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ConditionalOperator)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ConditionalOperator)
-std::vector<::pasta::Stmt> ConditionalOperator::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ConditionalOperator::Children(void) const {
   auto &self = *const_cast<clang::ConditionalOperator *>(u.ConditionalOperator);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -15834,71 +15828,71 @@ std::vector<::pasta::Stmt> ConditionalOperator::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ConditionalOperator::BeginToken(void) const noexcept {
+::pasta::Token ConditionalOperator::BeginToken(void) const {
   auto &self = *const_cast<clang::ConditionalOperator *>(u.ConditionalOperator);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ConditionalOperator::Condition(void) const noexcept {
+::pasta::Expr ConditionalOperator::Condition(void) const {
   auto &self = *const_cast<clang::ConditionalOperator *>(u.ConditionalOperator);
   decltype(auto) val = self.getCond();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ConditionalOperator::Condition can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ConditionalOperator::EndToken(void) const noexcept {
+::pasta::Token ConditionalOperator::EndToken(void) const {
   auto &self = *const_cast<clang::ConditionalOperator *>(u.ConditionalOperator);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ConditionalOperator::FalseExpression(void) const noexcept {
+::pasta::Expr ConditionalOperator::FalseExpression(void) const {
   auto &self = *const_cast<clang::ConditionalOperator *>(u.ConditionalOperator);
   decltype(auto) val = self.getFalseExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ConditionalOperator::FalseExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ConditionalOperator::LHS(void) const noexcept {
+::pasta::Expr ConditionalOperator::LHS(void) const {
   auto &self = *const_cast<clang::ConditionalOperator *>(u.ConditionalOperator);
   decltype(auto) val = self.getLHS();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ConditionalOperator::LHS can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ConditionalOperator::RHS(void) const noexcept {
+::pasta::Expr ConditionalOperator::RHS(void) const {
   auto &self = *const_cast<clang::ConditionalOperator *>(u.ConditionalOperator);
   decltype(auto) val = self.getRHS();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ConditionalOperator::RHS can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ConditionalOperator::TrueExpression(void) const noexcept {
+::pasta::Expr ConditionalOperator::TrueExpression(void) const {
   auto &self = *const_cast<clang::ConditionalOperator *>(u.ConditionalOperator);
   decltype(auto) val = self.getTrueExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ConditionalOperator::TrueExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ConstantExpr::ConstantExpr(
@@ -15910,7 +15904,7 @@ PASTA_DEFINE_BASE_OPERATORS(Expr, ConstantExpr)
 PASTA_DEFINE_BASE_OPERATORS(FullExpr, ConstantExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ConstantExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ConstantExpr)
-std::vector<::pasta::Stmt> ConstantExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ConstantExpr::Children(void) const {
   auto &self = *const_cast<clang::ConstantExpr *>(u.ConstantExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -15920,52 +15914,52 @@ std::vector<::pasta::Stmt> ConstantExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: ConstantExpr::APValueResult
-::pasta::Token ConstantExpr::BeginToken(void) const noexcept {
+::pasta::Token ConstantExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ConstantExpr *>(u.ConstantExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ConstantExpr::EndToken(void) const noexcept {
+::pasta::Token ConstantExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ConstantExpr *>(u.ConstantExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: ConstantExpr::ResultAPValueKind
-llvm::APSInt ConstantExpr::ResultAsAPSInt(void) const noexcept {
+llvm::APSInt ConstantExpr::ResultAsAPSInt(void) const {
   auto &self = *const_cast<clang::ConstantExpr *>(u.ConstantExpr);
   decltype(auto) val = self.getResultAsAPSInt();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: ConstantExpr::ResultAsAPValue
-enum ConstantExprResultStorageKind ConstantExpr::ResultStorageKind(void) const noexcept {
+enum ConstantExprResultStorageKind ConstantExpr::ResultStorageKind(void) const {
   auto &self = *const_cast<clang::ConstantExpr *>(u.ConstantExpr);
   decltype(auto) val = self.getResultStorageKind();
   return static_cast<::pasta::ConstantExprResultStorageKind>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ConstantExpr::HasAPValueResult(void) const noexcept {
+bool ConstantExpr::HasAPValueResult(void) const {
   auto &self = *const_cast<clang::ConstantExpr *>(u.ConstantExpr);
   decltype(auto) val = self.hasAPValueResult();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ConstantExpr::IsImmediateInvocation(void) const noexcept {
+bool ConstantExpr::IsImmediateInvocation(void) const {
   auto &self = *const_cast<clang::ConstantExpr *>(u.ConstantExpr);
   decltype(auto) val = self.isImmediateInvocation();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ConvertVectorExpr::ConvertVectorExpr(
@@ -15976,7 +15970,7 @@ ConvertVectorExpr::ConvertVectorExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, ConvertVectorExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ConvertVectorExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ConvertVectorExpr)
-std::vector<::pasta::Stmt> ConvertVectorExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ConvertVectorExpr::Children(void) const {
   auto &self = *const_cast<clang::ConvertVectorExpr *>(u.ConvertVectorExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -15986,48 +15980,47 @@ std::vector<::pasta::Stmt> ConvertVectorExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ConvertVectorExpr::BeginToken(void) const noexcept {
+::pasta::Token ConvertVectorExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ConvertVectorExpr *>(u.ConvertVectorExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ConvertVectorExpr::BuiltinToken(void) const noexcept {
+::pasta::Token ConvertVectorExpr::BuiltinToken(void) const {
   auto &self = *const_cast<clang::ConvertVectorExpr *>(u.ConvertVectorExpr);
   decltype(auto) val = self.getBuiltinLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ConvertVectorExpr::EndToken(void) const noexcept {
+::pasta::Token ConvertVectorExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ConvertVectorExpr *>(u.ConvertVectorExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ConvertVectorExpr::RParenToken(void) const noexcept {
+::pasta::Token ConvertVectorExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::ConvertVectorExpr *>(u.ConvertVectorExpr);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr ConvertVectorExpr::SrcExpression(void) const noexcept {
+::pasta::Expr ConvertVectorExpr::SrcExpression(void) const {
   auto &self = *const_cast<clang::ConvertVectorExpr *>(u.ConvertVectorExpr);
   decltype(auto) val = self.getSrcExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ConvertVectorExpr::SrcExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-// 0: ConvertVectorExpr::
 CoroutineSuspendExpr::CoroutineSuspendExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -16038,7 +16031,7 @@ PASTA_DEFINE_BASE_OPERATORS(Stmt, CoroutineSuspendExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CoroutineSuspendExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(CoroutineSuspendExpr, CoawaitExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(CoroutineSuspendExpr, CoyieldExpr)
-std::vector<::pasta::Stmt> CoroutineSuspendExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> CoroutineSuspendExpr::Children(void) const {
   auto &self = *const_cast<clang::CoroutineSuspendExpr *>(u.CoroutineSuspendExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -16048,88 +16041,88 @@ std::vector<::pasta::Stmt> CoroutineSuspendExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CoroutineSuspendExpr::BeginToken(void) const noexcept {
+::pasta::Token CoroutineSuspendExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CoroutineSuspendExpr *>(u.CoroutineSuspendExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CoroutineSuspendExpr::CommonExpression(void) const noexcept {
+::pasta::Expr CoroutineSuspendExpr::CommonExpression(void) const {
   auto &self = *const_cast<clang::CoroutineSuspendExpr *>(u.CoroutineSuspendExpr);
   decltype(auto) val = self.getCommonExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CoroutineSuspendExpr::CommonExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CoroutineSuspendExpr::EndToken(void) const noexcept {
+::pasta::Token CoroutineSuspendExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CoroutineSuspendExpr *>(u.CoroutineSuspendExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CoroutineSuspendExpr::KeywordToken(void) const noexcept {
+::pasta::Token CoroutineSuspendExpr::KeywordToken(void) const {
   auto &self = *const_cast<clang::CoroutineSuspendExpr *>(u.CoroutineSuspendExpr);
   decltype(auto) val = self.getKeywordLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::OpaqueValueExpr CoroutineSuspendExpr::OpaqueValue(void) const noexcept {
+::pasta::OpaqueValueExpr CoroutineSuspendExpr::OpaqueValue(void) const {
   auto &self = *const_cast<clang::CoroutineSuspendExpr *>(u.CoroutineSuspendExpr);
   decltype(auto) val = self.getOpaqueValue();
   if (val) {
     return StmtBuilder::Create<::pasta::OpaqueValueExpr>(ast, val);
   }
   assert(false && "CoroutineSuspendExpr::OpaqueValue can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CoroutineSuspendExpr::Operand(void) const noexcept {
+::pasta::Expr CoroutineSuspendExpr::Operand(void) const {
   auto &self = *const_cast<clang::CoroutineSuspendExpr *>(u.CoroutineSuspendExpr);
   decltype(auto) val = self.getOperand();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CoroutineSuspendExpr::Operand can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CoroutineSuspendExpr::ReadyExpression(void) const noexcept {
+::pasta::Expr CoroutineSuspendExpr::ReadyExpression(void) const {
   auto &self = *const_cast<clang::CoroutineSuspendExpr *>(u.CoroutineSuspendExpr);
   decltype(auto) val = self.getReadyExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CoroutineSuspendExpr::ReadyExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CoroutineSuspendExpr::ResumeExpression(void) const noexcept {
+::pasta::Expr CoroutineSuspendExpr::ResumeExpression(void) const {
   auto &self = *const_cast<clang::CoroutineSuspendExpr *>(u.CoroutineSuspendExpr);
   decltype(auto) val = self.getResumeExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CoroutineSuspendExpr::ResumeExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CoroutineSuspendExpr::SuspendExpression(void) const noexcept {
+::pasta::Expr CoroutineSuspendExpr::SuspendExpression(void) const {
   auto &self = *const_cast<clang::CoroutineSuspendExpr *>(u.CoroutineSuspendExpr);
   decltype(auto) val = self.getSuspendExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CoroutineSuspendExpr::SuspendExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CoyieldExpr::CoyieldExpr(
@@ -16149,7 +16142,7 @@ DeclRefExpr::DeclRefExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, DeclRefExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, DeclRefExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, DeclRefExpr)
-std::vector<::pasta::Stmt> DeclRefExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> DeclRefExpr::Children(void) const {
   auto &self = *const_cast<clang::DeclRefExpr *>(u.DeclRefExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -16159,122 +16152,122 @@ std::vector<::pasta::Stmt> DeclRefExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token DeclRefExpr::BeginToken(void) const noexcept {
+::pasta::Token DeclRefExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::DeclRefExpr *>(u.DeclRefExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::ValueDecl DeclRefExpr::Declaration(void) const noexcept {
+::pasta::ValueDecl DeclRefExpr::Declaration(void) const {
   auto &self = *const_cast<clang::DeclRefExpr *>(u.DeclRefExpr);
   decltype(auto) val = self.getDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::ValueDecl>(ast, val);
   }
   assert(false && "DeclRefExpr::Declaration can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token DeclRefExpr::EndToken(void) const noexcept {
+::pasta::Token DeclRefExpr::EndToken(void) const {
   auto &self = *const_cast<clang::DeclRefExpr *>(u.DeclRefExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::NamedDecl DeclRefExpr::FoundDeclaration(void) const noexcept {
+::pasta::NamedDecl DeclRefExpr::FoundDeclaration(void) const {
   auto &self = *const_cast<clang::DeclRefExpr *>(u.DeclRefExpr);
   decltype(auto) val = self.getFoundDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
   }
   assert(false && "DeclRefExpr::FoundDeclaration can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token DeclRefExpr::LAngleToken(void) const noexcept {
+::pasta::Token DeclRefExpr::LAngleToken(void) const {
   auto &self = *const_cast<clang::DeclRefExpr *>(u.DeclRefExpr);
   decltype(auto) val = self.getLAngleLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: DeclRefExpr::NameInfo
-uint32_t DeclRefExpr::NumTemplateArguments(void) const noexcept {
+uint32_t DeclRefExpr::NumTemplateArguments(void) const {
   auto &self = *const_cast<clang::DeclRefExpr *>(u.DeclRefExpr);
   decltype(auto) val = self.getNumTemplateArgs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: DeclRefExpr::Qualifier
 // 0: DeclRefExpr::QualifierToken
-::pasta::Token DeclRefExpr::RAngleToken(void) const noexcept {
+::pasta::Token DeclRefExpr::RAngleToken(void) const {
   auto &self = *const_cast<clang::DeclRefExpr *>(u.DeclRefExpr);
   decltype(auto) val = self.getRAngleLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: DeclRefExpr::TemplateArguments
-::pasta::Token DeclRefExpr::TemplateKeywordToken(void) const noexcept {
+::pasta::Token DeclRefExpr::TemplateKeywordToken(void) const {
   auto &self = *const_cast<clang::DeclRefExpr *>(u.DeclRefExpr);
   decltype(auto) val = self.getTemplateKeywordLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool DeclRefExpr::HadMultipleCandidates(void) const noexcept {
+bool DeclRefExpr::HadMultipleCandidates(void) const {
   auto &self = *const_cast<clang::DeclRefExpr *>(u.DeclRefExpr);
   decltype(auto) val = self.hadMultipleCandidates();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool DeclRefExpr::HasExplicitTemplateArguments(void) const noexcept {
+bool DeclRefExpr::HasExplicitTemplateArguments(void) const {
   auto &self = *const_cast<clang::DeclRefExpr *>(u.DeclRefExpr);
   decltype(auto) val = self.hasExplicitTemplateArgs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool DeclRefExpr::HasQualifier(void) const noexcept {
+bool DeclRefExpr::HasQualifier(void) const {
   auto &self = *const_cast<clang::DeclRefExpr *>(u.DeclRefExpr);
   decltype(auto) val = self.hasQualifier();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool DeclRefExpr::HasTemplateKeywordAndArgumentsInfo(void) const noexcept {
+bool DeclRefExpr::HasTemplateKeywordAndArgumentsInfo(void) const {
   auto &self = *const_cast<clang::DeclRefExpr *>(u.DeclRefExpr);
   decltype(auto) val = self.hasTemplateKWAndArgsInfo();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool DeclRefExpr::HasTemplateKeyword(void) const noexcept {
+bool DeclRefExpr::HasTemplateKeyword(void) const {
   auto &self = *const_cast<clang::DeclRefExpr *>(u.DeclRefExpr);
   decltype(auto) val = self.hasTemplateKeyword();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum NonOdrUseReason DeclRefExpr::IsNonOdrUse(void) const noexcept {
+enum NonOdrUseReason DeclRefExpr::IsNonOdrUse(void) const {
   auto &self = *const_cast<clang::DeclRefExpr *>(u.DeclRefExpr);
   decltype(auto) val = self.isNonOdrUse();
   return static_cast<::pasta::NonOdrUseReason>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool DeclRefExpr::RefersToEnclosingVariableOrCapture(void) const noexcept {
+bool DeclRefExpr::RefersToEnclosingVariableOrCapture(void) const {
   auto &self = *const_cast<clang::DeclRefExpr *>(u.DeclRefExpr);
   decltype(auto) val = self.refersToEnclosingVariableOrCapture();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: DeclRefExpr::TemplateArguments
@@ -16286,7 +16279,7 @@ DependentCoawaitExpr::DependentCoawaitExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, DependentCoawaitExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, DependentCoawaitExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, DependentCoawaitExpr)
-std::vector<::pasta::Stmt> DependentCoawaitExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> DependentCoawaitExpr::Children(void) const {
   auto &self = *const_cast<clang::DependentCoawaitExpr *>(u.DependentCoawaitExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -16296,48 +16289,48 @@ std::vector<::pasta::Stmt> DependentCoawaitExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token DependentCoawaitExpr::BeginToken(void) const noexcept {
+::pasta::Token DependentCoawaitExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::DependentCoawaitExpr *>(u.DependentCoawaitExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token DependentCoawaitExpr::EndToken(void) const noexcept {
+::pasta::Token DependentCoawaitExpr::EndToken(void) const {
   auto &self = *const_cast<clang::DependentCoawaitExpr *>(u.DependentCoawaitExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token DependentCoawaitExpr::KeywordToken(void) const noexcept {
+::pasta::Token DependentCoawaitExpr::KeywordToken(void) const {
   auto &self = *const_cast<clang::DependentCoawaitExpr *>(u.DependentCoawaitExpr);
   decltype(auto) val = self.getKeywordLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr DependentCoawaitExpr::Operand(void) const noexcept {
+::pasta::Expr DependentCoawaitExpr::Operand(void) const {
   auto &self = *const_cast<clang::DependentCoawaitExpr *>(u.DependentCoawaitExpr);
   decltype(auto) val = self.getOperand();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "DependentCoawaitExpr::Operand can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::UnresolvedLookupExpr DependentCoawaitExpr::OperatorCoawaitLookup(void) const noexcept {
+::pasta::UnresolvedLookupExpr DependentCoawaitExpr::OperatorCoawaitLookup(void) const {
   auto &self = *const_cast<clang::DependentCoawaitExpr *>(u.DependentCoawaitExpr);
   decltype(auto) val = self.getOperatorCoawaitLookup();
   if (val) {
     return StmtBuilder::Create<::pasta::UnresolvedLookupExpr>(ast, val);
   }
   assert(false && "DependentCoawaitExpr::OperatorCoawaitLookup can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 DependentScopeDeclRefExpr::DependentScopeDeclRefExpr(
@@ -16348,7 +16341,7 @@ DependentScopeDeclRefExpr::DependentScopeDeclRefExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, DependentScopeDeclRefExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, DependentScopeDeclRefExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, DependentScopeDeclRefExpr)
-std::vector<::pasta::Stmt> DependentScopeDeclRefExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> DependentScopeDeclRefExpr::Children(void) const {
   auto &self = *const_cast<clang::DependentScopeDeclRefExpr *>(u.DependentScopeDeclRefExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -16358,68 +16351,68 @@ std::vector<::pasta::Stmt> DependentScopeDeclRefExpr::Children(void) const noexc
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token DependentScopeDeclRefExpr::BeginToken(void) const noexcept {
+::pasta::Token DependentScopeDeclRefExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::DependentScopeDeclRefExpr *>(u.DependentScopeDeclRefExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: DependentScopeDeclRefExpr::DeclarationName
-::pasta::Token DependentScopeDeclRefExpr::EndToken(void) const noexcept {
+::pasta::Token DependentScopeDeclRefExpr::EndToken(void) const {
   auto &self = *const_cast<clang::DependentScopeDeclRefExpr *>(u.DependentScopeDeclRefExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token DependentScopeDeclRefExpr::LAngleToken(void) const noexcept {
+::pasta::Token DependentScopeDeclRefExpr::LAngleToken(void) const {
   auto &self = *const_cast<clang::DependentScopeDeclRefExpr *>(u.DependentScopeDeclRefExpr);
   decltype(auto) val = self.getLAngleLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: DependentScopeDeclRefExpr::NameInfo
-uint32_t DependentScopeDeclRefExpr::NumTemplateArguments(void) const noexcept {
+uint32_t DependentScopeDeclRefExpr::NumTemplateArguments(void) const {
   auto &self = *const_cast<clang::DependentScopeDeclRefExpr *>(u.DependentScopeDeclRefExpr);
   decltype(auto) val = self.getNumTemplateArgs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: DependentScopeDeclRefExpr::Qualifier
 // 0: DependentScopeDeclRefExpr::QualifierToken
-::pasta::Token DependentScopeDeclRefExpr::RAngleToken(void) const noexcept {
+::pasta::Token DependentScopeDeclRefExpr::RAngleToken(void) const {
   auto &self = *const_cast<clang::DependentScopeDeclRefExpr *>(u.DependentScopeDeclRefExpr);
   decltype(auto) val = self.getRAngleLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: DependentScopeDeclRefExpr::TemplateArguments
-::pasta::Token DependentScopeDeclRefExpr::TemplateKeywordToken(void) const noexcept {
+::pasta::Token DependentScopeDeclRefExpr::TemplateKeywordToken(void) const {
   auto &self = *const_cast<clang::DependentScopeDeclRefExpr *>(u.DependentScopeDeclRefExpr);
   decltype(auto) val = self.getTemplateKeywordLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool DependentScopeDeclRefExpr::HasExplicitTemplateArguments(void) const noexcept {
+bool DependentScopeDeclRefExpr::HasExplicitTemplateArguments(void) const {
   auto &self = *const_cast<clang::DependentScopeDeclRefExpr *>(u.DependentScopeDeclRefExpr);
   decltype(auto) val = self.hasExplicitTemplateArgs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool DependentScopeDeclRefExpr::HasTemplateKeyword(void) const noexcept {
+bool DependentScopeDeclRefExpr::HasTemplateKeyword(void) const {
   auto &self = *const_cast<clang::DependentScopeDeclRefExpr *>(u.DependentScopeDeclRefExpr);
   decltype(auto) val = self.hasTemplateKeyword();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: DependentScopeDeclRefExpr::TemplateArguments
@@ -16431,7 +16424,7 @@ DesignatedInitExpr::DesignatedInitExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, DesignatedInitExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, DesignatedInitExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, DesignatedInitExpr)
-std::vector<::pasta::Stmt> DesignatedInitExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> DesignatedInitExpr::Children(void) const {
   auto &self = *const_cast<clang::DesignatedInitExpr *>(u.DesignatedInitExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -16441,10 +16434,10 @@ std::vector<::pasta::Stmt> DesignatedInitExpr::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Designator> DesignatedInitExpr::Designators(void) const noexcept {
+std::vector<::pasta::Designator> DesignatedInitExpr::Designators(void) const {
   auto &self = *const_cast<clang::DesignatedInitExpr *>(u.DesignatedInitExpr);
   decltype(auto) val = self.designators();
   std::vector<::pasta::Designator> ret;
@@ -16452,20 +16445,20 @@ std::vector<::pasta::Designator> DesignatedInitExpr::Designators(void) const noe
     ret.emplace_back(ast, &d);
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: DesignatedInitExpr::ArrayIndex
 // 1: DesignatedInitExpr::ArrayRangeEnd
 // 1: DesignatedInitExpr::ArrayRangeStart
-::pasta::Token DesignatedInitExpr::BeginToken(void) const noexcept {
+::pasta::Token DesignatedInitExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::DesignatedInitExpr *>(u.DesignatedInitExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::Designator> DesignatedInitExpr::Designator(unsigned int idx) const noexcept {
+std::optional<::pasta::Designator> DesignatedInitExpr::Designator(unsigned int idx) const {
   auto &self = *const_cast<clang::DesignatedInitExpr *>(u.DesignatedInitExpr);
   if (idx >= self.designators().size()) {
     return std::nullopt;
@@ -16477,76 +16470,76 @@ std::optional<::pasta::Designator> DesignatedInitExpr::Designator(unsigned int i
   if (val) {
     return DeclBuilder::Create<::pasta::Designator>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::TokenRange DesignatedInitExpr::DesignatorsSourceRange(void) const noexcept {
+::pasta::TokenRange DesignatedInitExpr::DesignatorsSourceRange(void) const {
   auto &self = *const_cast<clang::DesignatedInitExpr *>(u.DesignatedInitExpr);
   decltype(auto) val = self.getDesignatorsSourceRange();
   return ast->TokenRangeFrom(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token DesignatedInitExpr::EndToken(void) const noexcept {
+::pasta::Token DesignatedInitExpr::EndToken(void) const {
   auto &self = *const_cast<clang::DesignatedInitExpr *>(u.DesignatedInitExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token DesignatedInitExpr::EqualOrColonToken(void) const noexcept {
+::pasta::Token DesignatedInitExpr::EqualOrColonToken(void) const {
   auto &self = *const_cast<clang::DesignatedInitExpr *>(u.DesignatedInitExpr);
   decltype(auto) val = self.getEqualOrColonLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr DesignatedInitExpr::Initializer(void) const noexcept {
+::pasta::Expr DesignatedInitExpr::Initializer(void) const {
   auto &self = *const_cast<clang::DesignatedInitExpr *>(u.DesignatedInitExpr);
   decltype(auto) val = self.getInit();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "DesignatedInitExpr::Initializer can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t DesignatedInitExpr::NumSubExpressions(void) const noexcept {
+uint32_t DesignatedInitExpr::NumSubExpressions(void) const {
   auto &self = *const_cast<clang::DesignatedInitExpr *>(u.DesignatedInitExpr);
   decltype(auto) val = self.getNumSubExprs();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: DesignatedInitExpr::SubExpression
-bool DesignatedInitExpr::IsDirectInitializer(void) const noexcept {
+bool DesignatedInitExpr::IsDirectInitializer(void) const {
   auto &self = *const_cast<clang::DesignatedInitExpr *>(u.DesignatedInitExpr);
   decltype(auto) val = self.isDirectInit();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t DesignatedInitExpr::Size(void) const noexcept {
+uint32_t DesignatedInitExpr::Size(void) const {
   auto &self = *const_cast<clang::DesignatedInitExpr *>(u.DesignatedInitExpr);
   decltype(auto) val = self.size();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool DesignatedInitExpr::UsesGNUSyntax(void) const noexcept {
+bool DesignatedInitExpr::UsesGNUSyntax(void) const {
   auto &self = *const_cast<clang::DesignatedInitExpr *>(u.DesignatedInitExpr);
   decltype(auto) val = self.usesGNUSyntax();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Expr> DesignatedInitExpr::SubExpressions(void) const noexcept {
+std::vector<::pasta::Expr> DesignatedInitExpr::SubExpressions(void) const {
   std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.DesignatedInitExpr->getNumSubExprs();
   decltype(count) i = 0;
@@ -16564,7 +16557,7 @@ DesignatedInitUpdateExpr::DesignatedInitUpdateExpr(
 PASTA_DEFINE_BASE_OPERATORS(Expr, DesignatedInitUpdateExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, DesignatedInitUpdateExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, DesignatedInitUpdateExpr)
-std::vector<::pasta::Stmt> DesignatedInitUpdateExpr::Children(void) const noexcept {
+std::vector<::pasta::Stmt> DesignatedInitUpdateExpr::Children(void) const {
   auto &self = *const_cast<clang::DesignatedInitUpdateExpr *>(u.DesignatedInitUpdateExpr);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -16574,41 +16567,41 @@ std::vector<::pasta::Stmt> DesignatedInitUpdateExpr::Children(void) const noexce
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr DesignatedInitUpdateExpr::Base(void) const noexcept {
+::pasta::Expr DesignatedInitUpdateExpr::Base(void) const {
   auto &self = *const_cast<clang::DesignatedInitUpdateExpr *>(u.DesignatedInitUpdateExpr);
   decltype(auto) val = self.getBase();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "DesignatedInitUpdateExpr::Base can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token DesignatedInitUpdateExpr::BeginToken(void) const noexcept {
+::pasta::Token DesignatedInitUpdateExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::DesignatedInitUpdateExpr *>(u.DesignatedInitUpdateExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token DesignatedInitUpdateExpr::EndToken(void) const noexcept {
+::pasta::Token DesignatedInitUpdateExpr::EndToken(void) const {
   auto &self = *const_cast<clang::DesignatedInitUpdateExpr *>(u.DesignatedInitUpdateExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::InitListExpr DesignatedInitUpdateExpr::Updater(void) const noexcept {
+::pasta::InitListExpr DesignatedInitUpdateExpr::Updater(void) const {
   auto &self = *const_cast<clang::DesignatedInitUpdateExpr *>(u.DesignatedInitUpdateExpr);
   decltype(auto) val = self.getUpdater();
   if (val) {
     return StmtBuilder::Create<::pasta::InitListExpr>(ast, val);
   }
   assert(false && "DesignatedInitUpdateExpr::Updater can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ExplicitCastExpr::ExplicitCastExpr(
@@ -16630,20 +16623,20 @@ PASTA_DEFINE_DERIVED_OPERATORS(ExplicitCastExpr, CXXNamedCastExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(ExplicitCastExpr, CXXReinterpretCastExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(ExplicitCastExpr, CXXStaticCastExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(ExplicitCastExpr, ObjCBridgedCastExpr)
-::pasta::Type ExplicitCastExpr::TypeAsWritten(void) const noexcept {
+::pasta::Type ExplicitCastExpr::TypeAsWritten(void) const {
   auto &self = *const_cast<clang::ExplicitCastExpr *>(u.ExplicitCastExpr);
   decltype(auto) val = self.getTypeAsWritten();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type ExplicitCastExpr::TypeInfoAsWritten(void) const noexcept {
+::pasta::Type ExplicitCastExpr::TypeInfoAsWritten(void) const {
   auto &self = *const_cast<clang::ExplicitCastExpr *>(u.ExplicitCastExpr);
   decltype(auto) val = self.getTypeInfoAsWritten();
   return TypeBuilder::Build(ast, val->getType());
   assert(false && "ExplicitCastExpr::TypeInfoAsWritten can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 ExprWithCleanups::ExprWithCleanups(
@@ -16655,7 +16648,7 @@ PASTA_DEFINE_BASE_OPERATORS(Expr, ExprWithCleanups)
 PASTA_DEFINE_BASE_OPERATORS(FullExpr, ExprWithCleanups)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ExprWithCleanups)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ExprWithCleanups)
-std::vector<::pasta::Stmt> ExprWithCleanups::Children(void) const noexcept {
+std::vector<::pasta::Stmt> ExprWithCleanups::Children(void) const {
   auto &self = *const_cast<clang::ExprWithCleanups *>(u.ExprWithCleanups);
   decltype(auto) val = self.children();
   std::vector<::pasta::Stmt> ret;
@@ -16665,40 +16658,40 @@ std::vector<::pasta::Stmt> ExprWithCleanups::Children(void) const noexcept {
     }
   }
   return ret;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ExprWithCleanups::CleanupsHaveSideEffects(void) const noexcept {
+bool ExprWithCleanups::CleanupsHaveSideEffects(void) const {
   auto &self = *const_cast<clang::ExprWithCleanups *>(u.ExprWithCleanups);
   decltype(auto) val = self.cleanupsHaveSideEffects();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ExprWithCleanups::BeginToken(void) const noexcept {
+::pasta::Token ExprWithCleanups::BeginToken(void) const {
   auto &self = *const_cast<clang::ExprWithCleanups *>(u.ExprWithCleanups);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ExprWithCleanups::EndToken(void) const noexcept {
+::pasta::Token ExprWithCleanups::EndToken(void) const {
   auto &self = *const_cast<clang::ExprWithCleanups *>(u.ExprWithCleanups);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-uint32_t ExprWithCleanups::NumObjects(void) const noexcept {
+uint32_t ExprWithCleanups::NumObjects(void) const {
   auto &self = *const_cast<clang::ExprWithCleanups *>(u.ExprWithCleanups);
   decltype(auto) val = self.getNumObjects();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: ExprWithCleanups::Object
 // 0: ExprWithCleanups::Objects
-std::vector<std::variant<std::monostate, ::pasta::BlockDecl, ::pasta::CompoundLiteralExpr>> ExprWithCleanups::Objects(void) const noexcept {
+std::vector<std::variant<std::monostate, ::pasta::BlockDecl, ::pasta::CompoundLiteralExpr>> ExprWithCleanups::Objects(void) const {
   std::vector<std::variant<std::monostate, ::pasta::BlockDecl, ::pasta::CompoundLiteralExpr>> ret;
   auto convert_elem = [&] (llvm::PointerUnion<clang::BlockDecl *, clang::CompoundLiteralExpr *> val) {
     std::variant<std::monostate, ::pasta::BlockDecl, ::pasta::CompoundLiteralExpr> ret;
@@ -16732,25 +16725,25 @@ PASTA_DEFINE_BASE_OPERATORS(CastExpr, ImplicitCastExpr)
 PASTA_DEFINE_BASE_OPERATORS(Expr, ImplicitCastExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ImplicitCastExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ImplicitCastExpr)
-::pasta::Token ImplicitCastExpr::BeginToken(void) const noexcept {
+::pasta::Token ImplicitCastExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ImplicitCastExpr *>(u.ImplicitCastExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ImplicitCastExpr::EndToken(void) const noexcept {
+::pasta::Token ImplicitCastExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ImplicitCastExpr *>(u.ImplicitCastExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool ImplicitCastExpr::IsPartOfExplicitCast(void) const noexcept {
+bool ImplicitCastExpr::IsPartOfExplicitCast(void) const {
   auto &self = *const_cast<clang::ImplicitCastExpr *>(u.ImplicitCastExpr);
   decltype(auto) val = self.isPartOfExplicitCast();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPAtomicDirective::OMPAtomicDirective(
@@ -16760,95 +16753,95 @@ OMPAtomicDirective::OMPAtomicDirective(
 
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPAtomicDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPAtomicDirective)
-::pasta::Expr OMPAtomicDirective::ConditionExpression(void) const noexcept {
+::pasta::Expr OMPAtomicDirective::ConditionExpression(void) const {
   auto &self = *const_cast<clang::OMPAtomicDirective *>(u.OMPAtomicDirective);
   decltype(auto) val = self.getCondExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPAtomicDirective::ConditionExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPAtomicDirective::D(void) const noexcept {
+::pasta::Expr OMPAtomicDirective::D(void) const {
   auto &self = *const_cast<clang::OMPAtomicDirective *>(u.OMPAtomicDirective);
   decltype(auto) val = self.getD();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPAtomicDirective::D can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPAtomicDirective::Expression(void) const noexcept {
+::pasta::Expr OMPAtomicDirective::Expression(void) const {
   auto &self = *const_cast<clang::OMPAtomicDirective *>(u.OMPAtomicDirective);
   decltype(auto) val = self.getExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPAtomicDirective::Expression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPAtomicDirective::R(void) const noexcept {
+::pasta::Expr OMPAtomicDirective::R(void) const {
   auto &self = *const_cast<clang::OMPAtomicDirective *>(u.OMPAtomicDirective);
   decltype(auto) val = self.getR();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPAtomicDirective::R can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPAtomicDirective::UpdateExpression(void) const noexcept {
+::pasta::Expr OMPAtomicDirective::UpdateExpression(void) const {
   auto &self = *const_cast<clang::OMPAtomicDirective *>(u.OMPAtomicDirective);
   decltype(auto) val = self.getUpdateExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPAtomicDirective::UpdateExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPAtomicDirective::V(void) const noexcept {
+::pasta::Expr OMPAtomicDirective::V(void) const {
   auto &self = *const_cast<clang::OMPAtomicDirective *>(u.OMPAtomicDirective);
   decltype(auto) val = self.getV();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPAtomicDirective::V can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr OMPAtomicDirective::X(void) const noexcept {
+::pasta::Expr OMPAtomicDirective::X(void) const {
   auto &self = *const_cast<clang::OMPAtomicDirective *>(u.OMPAtomicDirective);
   decltype(auto) val = self.getX();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPAtomicDirective::X can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool OMPAtomicDirective::IsFailOnly(void) const noexcept {
+bool OMPAtomicDirective::IsFailOnly(void) const {
   auto &self = *const_cast<clang::OMPAtomicDirective *>(u.OMPAtomicDirective);
   decltype(auto) val = self.isFailOnly();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool OMPAtomicDirective::IsPostfixUpdate(void) const noexcept {
+bool OMPAtomicDirective::IsPostfixUpdate(void) const {
   auto &self = *const_cast<clang::OMPAtomicDirective *>(u.OMPAtomicDirective);
   decltype(auto) val = self.isPostfixUpdate();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool OMPAtomicDirective::IsXLHSInRHSPart(void) const noexcept {
+bool OMPAtomicDirective::IsXLHSInRHSPart(void) const {
   auto &self = *const_cast<clang::OMPAtomicDirective *>(u.OMPAtomicDirective);
   decltype(auto) val = self.isXLHSInRHSPart();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPBarrierDirective::OMPBarrierDirective(
@@ -16896,11 +16889,11 @@ OMPDispatchDirective::OMPDispatchDirective(
 
 PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPDispatchDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPDispatchDirective)
-::pasta::Token OMPDispatchDirective::TargetCallToken(void) const noexcept {
+::pasta::Token OMPDispatchDirective::TargetCallToken(void) const {
   auto &self = *const_cast<clang::OMPDispatchDirective *>(u.OMPDispatchDirective);
   decltype(auto) val = self.getTargetCallLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPDistributeDirective::OMPDistributeDirective(
@@ -16921,21 +16914,21 @@ PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPDistributeParallelForDire
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPDistributeParallelForDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPDistributeParallelForDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPDistributeParallelForDirective)
-::pasta::Expr OMPDistributeParallelForDirective::TaskReductionReferenceExpression(void) const noexcept {
+::pasta::Expr OMPDistributeParallelForDirective::TaskReductionReferenceExpression(void) const {
   auto &self = *const_cast<clang::OMPDistributeParallelForDirective *>(u.OMPDistributeParallelForDirective);
   decltype(auto) val = self.getTaskReductionRefExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPDistributeParallelForDirective::TaskReductionReferenceExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool OMPDistributeParallelForDirective::HasCancel(void) const noexcept {
+bool OMPDistributeParallelForDirective::HasCancel(void) const {
   auto &self = *const_cast<clang::OMPDistributeParallelForDirective *>(u.OMPDistributeParallelForDirective);
   decltype(auto) val = self.hasCancel();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPDistributeParallelForSimdDirective::OMPDistributeParallelForSimdDirective(
@@ -16972,21 +16965,21 @@ PASTA_DEFINE_BASE_OPERATORS(OMPExecutableDirective, OMPForDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopBasedDirective, OMPForDirective)
 PASTA_DEFINE_BASE_OPERATORS(OMPLoopDirective, OMPForDirective)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, OMPForDirective)
-::pasta::Expr OMPForDirective::TaskReductionReferenceExpression(void) const noexcept {
+::pasta::Expr OMPForDirective::TaskReductionReferenceExpression(void) const {
   auto &self = *const_cast<clang::OMPForDirective *>(u.OMPForDirective);
   decltype(auto) val = self.getTaskReductionRefExpr();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "OMPForDirective::TaskReductionReferenceExpression can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool OMPForDirective::HasCancel(void) const noexcept {
+bool OMPForDirective::HasCancel(void) const {
   auto &self = *const_cast<clang::OMPForDirective *>(u.OMPForDirective);
   decltype(auto) val = self.hasCancel();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 OMPForSimdDirective::OMPForSimdDirective(
@@ -17017,28 +17010,28 @@ PASTA_DEFINE_BASE_OPERATORS(ExplicitCastExpr, ObjCBridgedCastExpr)
 PASTA_DEFINE_BASE_OPERATORS(Expr, ObjCBridgedCastExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, ObjCBridgedCastExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, ObjCBridgedCastExpr)
-::pasta::Token ObjCBridgedCastExpr::BeginToken(void) const noexcept {
+::pasta::Token ObjCBridgedCastExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::ObjCBridgedCastExpr *>(u.ObjCBridgedCastExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCBridgedCastExpr::BridgeKeywordToken(void) const noexcept {
+::pasta::Token ObjCBridgedCastExpr::BridgeKeywordToken(void) const {
   auto &self = *const_cast<clang::ObjCBridgedCastExpr *>(u.ObjCBridgedCastExpr);
   decltype(auto) val = self.getBridgeKeywordLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum ObjCBridgeCastKind ObjCBridgedCastExpr::BridgeKind(void) const noexcept {
+enum ObjCBridgeCastKind ObjCBridgedCastExpr::BridgeKind(void) const {
   auto &self = *const_cast<clang::ObjCBridgedCastExpr *>(u.ObjCBridgedCastExpr);
   decltype(auto) val = self.getBridgeKind();
   return static_cast<::pasta::ObjCBridgeCastKind>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::string_view ObjCBridgedCastExpr::BridgeKindName(void) const noexcept {
+std::string_view ObjCBridgedCastExpr::BridgeKindName(void) const {
   auto &self = *const_cast<clang::ObjCBridgedCastExpr *>(u.ObjCBridgedCastExpr);
   decltype(auto) val = self.getBridgeKindName();
   if (auto size = val.size()) {
@@ -17046,21 +17039,21 @@ std::string_view ObjCBridgedCastExpr::BridgeKindName(void) const noexcept {
   } else {
     return std::string_view();
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCBridgedCastExpr::EndToken(void) const noexcept {
+::pasta::Token ObjCBridgedCastExpr::EndToken(void) const {
   auto &self = *const_cast<clang::ObjCBridgedCastExpr *>(u.ObjCBridgedCastExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token ObjCBridgedCastExpr::LParenToken(void) const noexcept {
+::pasta::Token ObjCBridgedCastExpr::LParenToken(void) const {
   auto &self = *const_cast<clang::ObjCBridgedCastExpr *>(u.ObjCBridgedCastExpr);
   decltype(auto) val = self.getLParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 UserDefinedLiteral::UserDefinedLiteral(
@@ -17072,52 +17065,52 @@ PASTA_DEFINE_BASE_OPERATORS(CallExpr, UserDefinedLiteral)
 PASTA_DEFINE_BASE_OPERATORS(Expr, UserDefinedLiteral)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, UserDefinedLiteral)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, UserDefinedLiteral)
-::pasta::Token UserDefinedLiteral::BeginToken(void) const noexcept {
+::pasta::Token UserDefinedLiteral::BeginToken(void) const {
   auto &self = *const_cast<clang::UserDefinedLiteral *>(u.UserDefinedLiteral);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr UserDefinedLiteral::CookedLiteral(void) const noexcept {
+::pasta::Expr UserDefinedLiteral::CookedLiteral(void) const {
   auto &self = *const_cast<clang::UserDefinedLiteral *>(u.UserDefinedLiteral);
   decltype(auto) val = self.getCookedLiteral();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "UserDefinedLiteral::CookedLiteral can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token UserDefinedLiteral::EndToken(void) const noexcept {
+::pasta::Token UserDefinedLiteral::EndToken(void) const {
   auto &self = *const_cast<clang::UserDefinedLiteral *>(u.UserDefinedLiteral);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum UserDefinedLiteralLiteralOperatorKind UserDefinedLiteral::LiteralOperatorKind(void) const noexcept {
+enum UserDefinedLiteralLiteralOperatorKind UserDefinedLiteral::LiteralOperatorKind(void) const {
   auto &self = *const_cast<clang::UserDefinedLiteral *>(u.UserDefinedLiteral);
   decltype(auto) val = self.getLiteralOperatorKind();
   return static_cast<::pasta::UserDefinedLiteralLiteralOperatorKind>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: UserDefinedLiteral::UDSuffix
-::pasta::Token UserDefinedLiteral::UDSuffixToken(void) const noexcept {
+::pasta::Token UserDefinedLiteral::UDSuffixToken(void) const {
   auto &self = *const_cast<clang::UserDefinedLiteral *>(u.UserDefinedLiteral);
   decltype(auto) val = self.getUDSuffixLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Expr> UserDefinedLiteral::Arguments(void) const noexcept {
+std::vector<::pasta::Expr> UserDefinedLiteral::Arguments(void) const {
   std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.UserDefinedLiteral->getNumArgs();
   decltype(count) i = 0;
@@ -17137,18 +17130,18 @@ PASTA_DEFINE_BASE_OPERATORS(ExplicitCastExpr, BuiltinBitCastExpr)
 PASTA_DEFINE_BASE_OPERATORS(Expr, BuiltinBitCastExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, BuiltinBitCastExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, BuiltinBitCastExpr)
-::pasta::Token BuiltinBitCastExpr::BeginToken(void) const noexcept {
+::pasta::Token BuiltinBitCastExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::BuiltinBitCastExpr *>(u.BuiltinBitCastExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token BuiltinBitCastExpr::EndToken(void) const noexcept {
+::pasta::Token BuiltinBitCastExpr::EndToken(void) const {
   auto &self = *const_cast<clang::BuiltinBitCastExpr *>(u.BuiltinBitCastExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CStyleCastExpr::CStyleCastExpr(
@@ -17161,32 +17154,32 @@ PASTA_DEFINE_BASE_OPERATORS(ExplicitCastExpr, CStyleCastExpr)
 PASTA_DEFINE_BASE_OPERATORS(Expr, CStyleCastExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CStyleCastExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CStyleCastExpr)
-::pasta::Token CStyleCastExpr::BeginToken(void) const noexcept {
+::pasta::Token CStyleCastExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CStyleCastExpr *>(u.CStyleCastExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CStyleCastExpr::EndToken(void) const noexcept {
+::pasta::Token CStyleCastExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CStyleCastExpr *>(u.CStyleCastExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CStyleCastExpr::LParenToken(void) const noexcept {
+::pasta::Token CStyleCastExpr::LParenToken(void) const {
   auto &self = *const_cast<clang::CStyleCastExpr *>(u.CStyleCastExpr);
   decltype(auto) val = self.getLParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CStyleCastExpr::RParenToken(void) const noexcept {
+::pasta::Token CStyleCastExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::CStyleCastExpr *>(u.CStyleCastExpr);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CUDAKernelCallExpr::CUDAKernelCallExpr(
@@ -17198,23 +17191,23 @@ PASTA_DEFINE_BASE_OPERATORS(CallExpr, CUDAKernelCallExpr)
 PASTA_DEFINE_BASE_OPERATORS(Expr, CUDAKernelCallExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CUDAKernelCallExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CUDAKernelCallExpr)
-::pasta::CallExpr CUDAKernelCallExpr::Config(void) const noexcept {
+::pasta::CallExpr CUDAKernelCallExpr::Config(void) const {
   auto &self = *const_cast<clang::CUDAKernelCallExpr *>(u.CUDAKernelCallExpr);
   decltype(auto) val = self.getConfig();
   if (val) {
     return StmtBuilder::Create<::pasta::CallExpr>(ast, val);
   }
   assert(false && "CUDAKernelCallExpr::Config can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Expr> CUDAKernelCallExpr::Arguments(void) const noexcept {
+std::vector<::pasta::Expr> CUDAKernelCallExpr::Arguments(void) const {
   std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.CUDAKernelCallExpr->getNumArgs();
   decltype(count) i = 0;
@@ -17234,39 +17227,39 @@ PASTA_DEFINE_BASE_OPERATORS(ExplicitCastExpr, CXXFunctionalCastExpr)
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXFunctionalCastExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXFunctionalCastExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXFunctionalCastExpr)
-::pasta::Token CXXFunctionalCastExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXFunctionalCastExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXFunctionalCastExpr *>(u.CXXFunctionalCastExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXFunctionalCastExpr::EndToken(void) const noexcept {
+::pasta::Token CXXFunctionalCastExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXFunctionalCastExpr *>(u.CXXFunctionalCastExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXFunctionalCastExpr::LParenToken(void) const noexcept {
+::pasta::Token CXXFunctionalCastExpr::LParenToken(void) const {
   auto &self = *const_cast<clang::CXXFunctionalCastExpr *>(u.CXXFunctionalCastExpr);
   decltype(auto) val = self.getLParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXFunctionalCastExpr::RParenToken(void) const noexcept {
+::pasta::Token CXXFunctionalCastExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::CXXFunctionalCastExpr *>(u.CXXFunctionalCastExpr);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXFunctionalCastExpr::IsListInitialization(void) const noexcept {
+bool CXXFunctionalCastExpr::IsListInitialization(void) const {
   auto &self = *const_cast<clang::CXXFunctionalCastExpr *>(u.CXXFunctionalCastExpr);
   decltype(auto) val = self.isListInitialization();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CXXMemberCallExpr::CXXMemberCallExpr(
@@ -17278,24 +17271,24 @@ PASTA_DEFINE_BASE_OPERATORS(CallExpr, CXXMemberCallExpr)
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXMemberCallExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXMemberCallExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXMemberCallExpr)
-::pasta::Token CXXMemberCallExpr::ExpressionToken(void) const noexcept {
+::pasta::Token CXXMemberCallExpr::ExpressionToken(void) const {
   auto &self = *const_cast<clang::CXXMemberCallExpr *>(u.CXXMemberCallExpr);
   decltype(auto) val = self.getExprLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Expr CXXMemberCallExpr::ImplicitObjectArgument(void) const noexcept {
+::pasta::Expr CXXMemberCallExpr::ImplicitObjectArgument(void) const {
   auto &self = *const_cast<clang::CXXMemberCallExpr *>(u.CXXMemberCallExpr);
   decltype(auto) val = self.getImplicitObjectArgument();
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "CXXMemberCallExpr::ImplicitObjectArgument can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::optional<::pasta::CXXMethodDecl> CXXMemberCallExpr::MethodDeclaration(void) const noexcept {
+std::optional<::pasta::CXXMethodDecl> CXXMemberCallExpr::MethodDeclaration(void) const {
   auto &self = *const_cast<clang::CXXMemberCallExpr *>(u.CXXMemberCallExpr);
   decltype(auto) val = self.getMethodDecl();
   if (!val) {
@@ -17304,34 +17297,34 @@ std::optional<::pasta::CXXMethodDecl> CXXMemberCallExpr::MethodDeclaration(void)
   if (val) {
     return DeclBuilder::Create<::pasta::CXXMethodDecl>(ast, val);
   }
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Type CXXMemberCallExpr::ObjectType(void) const noexcept {
+::pasta::Type CXXMemberCallExpr::ObjectType(void) const {
   auto &self = *const_cast<clang::CXXMemberCallExpr *>(u.CXXMemberCallExpr);
   decltype(auto) val = self.getObjectType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::CXXRecordDecl CXXMemberCallExpr::RecordDeclaration(void) const noexcept {
+::pasta::CXXRecordDecl CXXMemberCallExpr::RecordDeclaration(void) const {
   auto &self = *const_cast<clang::CXXMemberCallExpr *>(u.CXXMemberCallExpr);
   decltype(auto) val = self.getRecordDecl();
   if (val) {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
   assert(false && "CXXMemberCallExpr::RecordDeclaration can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Expr> CXXMemberCallExpr::Arguments(void) const noexcept {
+std::vector<::pasta::Expr> CXXMemberCallExpr::Arguments(void) const {
   std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.CXXMemberCallExpr->getNumArgs();
   decltype(count) i = 0;
@@ -17356,21 +17349,21 @@ PASTA_DEFINE_DERIVED_OPERATORS(CXXNamedCastExpr, CXXConstCastExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(CXXNamedCastExpr, CXXDynamicCastExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(CXXNamedCastExpr, CXXReinterpretCastExpr)
 PASTA_DEFINE_DERIVED_OPERATORS(CXXNamedCastExpr, CXXStaticCastExpr)
-::pasta::TokenRange CXXNamedCastExpr::AngleBrackets(void) const noexcept {
+::pasta::TokenRange CXXNamedCastExpr::AngleBrackets(void) const {
   auto &self = *const_cast<clang::CXXNamedCastExpr *>(u.CXXNamedCastExpr);
   decltype(auto) val = self.getAngleBrackets();
   return ast->TokenRangeFrom(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXNamedCastExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXNamedCastExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXNamedCastExpr *>(u.CXXNamedCastExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::string_view CXXNamedCastExpr::CastName(void) const noexcept {
+std::string_view CXXNamedCastExpr::CastName(void) const {
   auto &self = *const_cast<clang::CXXNamedCastExpr *>(u.CXXNamedCastExpr);
   decltype(auto) val = self.getCastName();
   if (val) {
@@ -17379,28 +17372,28 @@ std::string_view CXXNamedCastExpr::CastName(void) const noexcept {
     return std::string_view();
   }
   assert(false && "CXXNamedCastExpr::CastName can return nullptr!");
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXNamedCastExpr::EndToken(void) const noexcept {
+::pasta::Token CXXNamedCastExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXNamedCastExpr *>(u.CXXNamedCastExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXNamedCastExpr::OperatorToken(void) const noexcept {
+::pasta::Token CXXNamedCastExpr::OperatorToken(void) const {
   auto &self = *const_cast<clang::CXXNamedCastExpr *>(u.CXXNamedCastExpr);
   decltype(auto) val = self.getOperatorLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXNamedCastExpr::RParenToken(void) const noexcept {
+::pasta::Token CXXNamedCastExpr::RParenToken(void) const {
   auto &self = *const_cast<clang::CXXNamedCastExpr *>(u.CXXNamedCastExpr);
   decltype(auto) val = self.getRParenLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CXXOperatorCallExpr::CXXOperatorCallExpr(
@@ -17412,76 +17405,76 @@ PASTA_DEFINE_BASE_OPERATORS(CallExpr, CXXOperatorCallExpr)
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXOperatorCallExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXOperatorCallExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXOperatorCallExpr)
-::pasta::Token CXXOperatorCallExpr::BeginToken(void) const noexcept {
+::pasta::Token CXXOperatorCallExpr::BeginToken(void) const {
   auto &self = *const_cast<clang::CXXOperatorCallExpr *>(u.CXXOperatorCallExpr);
   decltype(auto) val = self.getBeginLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXOperatorCallExpr::EndToken(void) const noexcept {
+::pasta::Token CXXOperatorCallExpr::EndToken(void) const {
   auto &self = *const_cast<clang::CXXOperatorCallExpr *>(u.CXXOperatorCallExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXOperatorCallExpr::ExpressionToken(void) const noexcept {
+::pasta::Token CXXOperatorCallExpr::ExpressionToken(void) const {
   auto &self = *const_cast<clang::CXXOperatorCallExpr *>(u.CXXOperatorCallExpr);
   decltype(auto) val = self.getExprLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-enum OverloadedOperatorKind CXXOperatorCallExpr::Operator(void) const noexcept {
+enum OverloadedOperatorKind CXXOperatorCallExpr::Operator(void) const {
   auto &self = *const_cast<clang::CXXOperatorCallExpr *>(u.CXXOperatorCallExpr);
   decltype(auto) val = self.getOperator();
   return static_cast<::pasta::OverloadedOperatorKind>(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::Token CXXOperatorCallExpr::OperatorToken(void) const noexcept {
+::pasta::Token CXXOperatorCallExpr::OperatorToken(void) const {
   auto &self = *const_cast<clang::CXXOperatorCallExpr *>(u.CXXOperatorCallExpr);
   decltype(auto) val = self.getOperatorLoc();
   return ast->TokenAt(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::TokenRange CXXOperatorCallExpr::Tokens(void) const noexcept {
+::pasta::TokenRange CXXOperatorCallExpr::Tokens(void) const {
   auto &self = *const_cast<clang::CXXOperatorCallExpr *>(u.CXXOperatorCallExpr);
   decltype(auto) val = self.getSourceRange();
   return ast->TokenRangeFrom(val);
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXOperatorCallExpr::IsAssignmentOperation(void) const noexcept {
+bool CXXOperatorCallExpr::IsAssignmentOperation(void) const {
   auto &self = *const_cast<clang::CXXOperatorCallExpr *>(u.CXXOperatorCallExpr);
   decltype(auto) val = self.isAssignmentOp();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXOperatorCallExpr::IsComparisonOperation(void) const noexcept {
+bool CXXOperatorCallExpr::IsComparisonOperation(void) const {
   auto &self = *const_cast<clang::CXXOperatorCallExpr *>(u.CXXOperatorCallExpr);
   decltype(auto) val = self.isComparisonOp();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-bool CXXOperatorCallExpr::IsInfixBinaryOperation(void) const noexcept {
+bool CXXOperatorCallExpr::IsInfixBinaryOperation(void) const {
   auto &self = *const_cast<clang::CXXOperatorCallExpr *>(u.CXXOperatorCallExpr);
   decltype(auto) val = self.isInfixBinaryOp();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
-std::vector<::pasta::Expr> CXXOperatorCallExpr::Arguments(void) const noexcept {
+std::vector<::pasta::Expr> CXXOperatorCallExpr::Arguments(void) const {
   std::vector<::pasta::Expr> ret;
   auto convert_elem = [&] (const clang::Expr * val) {
     if (val) {
       return StmtBuilder::Create<::pasta::Expr>(ast, val);
     }
-    __builtin_unreachable();
+    throw std::runtime_error("The unreachable has been reached");
   };
   auto count = u.CXXOperatorCallExpr->getNumArgs();
   decltype(count) i = 0;
@@ -17522,11 +17515,11 @@ PASTA_DEFINE_BASE_OPERATORS(CoroutineSuspendExpr, CoawaitExpr)
 PASTA_DEFINE_BASE_OPERATORS(Expr, CoawaitExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CoawaitExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CoawaitExpr)
-bool CoawaitExpr::IsImplicit(void) const noexcept {
+bool CoawaitExpr::IsImplicit(void) const {
   auto &self = *const_cast<clang::CoawaitExpr *>(u.CoawaitExpr);
   decltype(auto) val = self.isImplicit();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 CXXAddrspaceCastExpr::CXXAddrspaceCastExpr(
@@ -17562,11 +17555,11 @@ PASTA_DEFINE_BASE_OPERATORS(ExplicitCastExpr, CXXDynamicCastExpr)
 PASTA_DEFINE_BASE_OPERATORS(Expr, CXXDynamicCastExpr)
 PASTA_DEFINE_BASE_OPERATORS(Stmt, CXXDynamicCastExpr)
 PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXDynamicCastExpr)
-bool CXXDynamicCastExpr::IsAlwaysNull(void) const noexcept {
+bool CXXDynamicCastExpr::IsAlwaysNull(void) const {
   auto &self = *const_cast<clang::CXXDynamicCastExpr *>(u.CXXDynamicCastExpr);
   decltype(auto) val = self.isAlwaysNull();
   return val;
-  __builtin_unreachable();
+  throw std::runtime_error("The unreachable has been reached");
 }
 
 }  // namespace pasta

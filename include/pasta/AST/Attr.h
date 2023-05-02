@@ -417,13 +417,13 @@ class Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, XRayInstrumentAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, XRayLogArgsAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(Attr, ZeroCallUsedRegsAttr)
-  ::pasta::Token Token(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
-  uint32_t SpellingListIndex(void) const noexcept;
-  bool IsImplicit(void) const noexcept;
-  bool IsInherited(void) const noexcept;
-  bool IsLateParsed(void) const noexcept;
-  bool IsPackExpansion(void) const noexcept;
+  ::pasta::Token Token(void) const;
+  std::string_view Spelling(void) const;
+  uint32_t SpellingListIndex(void) const;
+  bool IsImplicit(void) const;
+  bool IsInherited(void) const;
+  bool IsLateParsed(void) const;
+  bool IsPackExpansion(void) const;
   inline ::pasta::AttrKind Kind(void) const noexcept {
     return kind;
   }
@@ -840,8 +840,8 @@ class BuiltinAliasAttr : public Attr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(BuiltinAliasAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, BuiltinAliasAttr)
   // BuiltinName: (clang::IdentifierInfo *)
-  enum BuiltinAliasAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum BuiltinAliasAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(BuiltinAliasAttr)
 };
@@ -854,7 +854,7 @@ class CalledOnceAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CalledOnceAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CalledOnceAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CalledOnceAttr)
 };
@@ -867,9 +867,9 @@ class IFuncAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(IFuncAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, IFuncAttr)
-  std::string_view Resolver(void) const noexcept;
-  uint32_t ResolverLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Resolver(void) const;
+  uint32_t ResolverLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(IFuncAttr)
 };
@@ -1193,7 +1193,7 @@ class InheritableAttr : public Attr {
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, XRayInstrumentAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, XRayLogArgsAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(InheritableAttr, ZeroCallUsedRegsAttr)
-  bool ShouldInheritEvenIfAlreadyPresent(void) const noexcept;
+  bool ShouldInheritEvenIfAlreadyPresent(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(InheritableAttr)
 };
@@ -1234,8 +1234,8 @@ class InitPriorityAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(InitPriorityAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, InitPriorityAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, InitPriorityAttr)
-  uint32_t Priority(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  uint32_t Priority(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(InitPriorityAttr)
 };
@@ -1248,9 +1248,9 @@ class InitSegAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(InitSegAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, InitSegAttr)
-  std::string_view Section(void) const noexcept;
-  uint32_t SectionLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Section(void) const;
+  uint32_t SectionLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(InitSegAttr)
 };
@@ -1264,7 +1264,7 @@ class IntelOclBiccAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(IntelOclBiccAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, IntelOclBiccAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, IntelOclBiccAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(IntelOclBiccAttr)
 };
@@ -1278,7 +1278,7 @@ class InternalLinkageAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(InternalLinkageAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, InternalLinkageAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, InternalLinkageAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(InternalLinkageAttr)
 };
@@ -1292,7 +1292,7 @@ class LTOVisibilityPublicAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(LTOVisibilityPublicAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, LTOVisibilityPublicAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, LTOVisibilityPublicAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(LTOVisibilityPublicAttr)
 };
@@ -1306,8 +1306,8 @@ class LayoutVersionAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(LayoutVersionAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, LayoutVersionAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, LayoutVersionAttr)
-  std::string_view Spelling(void) const noexcept;
-  uint32_t Version(void) const noexcept;
+  std::string_view Spelling(void) const;
+  uint32_t Version(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(LayoutVersionAttr)
 };
@@ -1321,7 +1321,7 @@ class LeafAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(LeafAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, LeafAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, LeafAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(LeafAttr)
 };
@@ -1335,7 +1335,7 @@ class LifetimeBoundAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(LifetimeBoundAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, LifetimeBoundAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, LifetimeBoundAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(LifetimeBoundAttr)
 };
@@ -1348,7 +1348,7 @@ class LoaderUninitializedAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(LoaderUninitializedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, LoaderUninitializedAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(LoaderUninitializedAttr)
 };
@@ -1362,8 +1362,8 @@ class LockReturnedAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(LockReturnedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, LockReturnedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, LockReturnedAttr)
-  ::pasta::Expr Argument(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  ::pasta::Expr Argument(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(LockReturnedAttr)
 };
@@ -1378,7 +1378,7 @@ class LocksExcludedAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, LocksExcludedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, LocksExcludedAttr)
   // Arguments: (llvm::iterator_range<clang::Expr **>)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(LocksExcludedAttr)
 };
@@ -1392,11 +1392,11 @@ class LoopHintAttr : public Attr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(LoopHintAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, LoopHintAttr)
   // DiagnosticName: (std::string)
-  enum LoopHintAttrOptionType Option(void) const noexcept;
-  enum LoopHintAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
-  enum LoopHintAttrLoopHintState State(void) const noexcept;
-  std::optional<::pasta::Expr> Value(void) const noexcept;
+  enum LoopHintAttrOptionType Option(void) const;
+  enum LoopHintAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
+  enum LoopHintAttrLoopHintState State(void) const;
+  std::optional<::pasta::Expr> Value(void) const;
   // ValueString: (std::string)
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(LoopHintAttr)
@@ -1411,8 +1411,8 @@ class M68kInterruptAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(M68kInterruptAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, M68kInterruptAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, M68kInterruptAttr)
-  uint32_t Number(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  uint32_t Number(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(M68kInterruptAttr)
 };
@@ -1426,7 +1426,7 @@ class MIGServerRoutineAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MIGServerRoutineAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, MIGServerRoutineAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, MIGServerRoutineAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(MIGServerRoutineAttr)
 };
@@ -1440,7 +1440,7 @@ class MSABIAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MSABIAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, MSABIAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, MSABIAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(MSABIAttr)
 };
@@ -1454,7 +1454,7 @@ class MSAllocatorAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MSAllocatorAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, MSAllocatorAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, MSAllocatorAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(MSAllocatorAttr)
 };
@@ -1468,10 +1468,10 @@ class MSInheritanceAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MSInheritanceAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, MSInheritanceAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, MSInheritanceAttr)
-  bool BestCase(void) const noexcept;
-  enum MSInheritanceModel InheritanceModel(void) const noexcept;
-  enum MSInheritanceAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  bool BestCase(void) const;
+  enum MSInheritanceModel InheritanceModel(void) const;
+  enum MSInheritanceAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(MSInheritanceAttr)
 };
@@ -1485,7 +1485,7 @@ class MSNoVTableAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MSNoVTableAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, MSNoVTableAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, MSNoVTableAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(MSNoVTableAttr)
 };
@@ -1499,8 +1499,8 @@ class MSP430InterruptAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MSP430InterruptAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, MSP430InterruptAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, MSP430InterruptAttr)
-  uint32_t Number(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  uint32_t Number(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(MSP430InterruptAttr)
 };
@@ -1514,7 +1514,7 @@ class MSStructAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MSStructAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, MSStructAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, MSStructAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(MSStructAttr)
 };
@@ -1528,9 +1528,9 @@ class MSVtorDispAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MSVtorDispAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, MSVtorDispAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, MSVtorDispAttr)
-  std::string_view Spelling(void) const noexcept;
-  uint32_t Vdm(void) const noexcept;
-  enum MSVtorDispMode VtorDispMode(void) const noexcept;
+  std::string_view Spelling(void) const;
+  uint32_t Vdm(void) const;
+  enum MSVtorDispMode VtorDispMode(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(MSVtorDispAttr)
 };
@@ -1544,8 +1544,8 @@ class MaxFieldAlignmentAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MaxFieldAlignmentAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, MaxFieldAlignmentAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, MaxFieldAlignmentAttr)
-  uint32_t Alignment(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  uint32_t Alignment(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(MaxFieldAlignmentAttr)
 };
@@ -1559,7 +1559,7 @@ class MayAliasAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MayAliasAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, MayAliasAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, MayAliasAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(MayAliasAttr)
 };
@@ -1573,7 +1573,7 @@ class MaybeUndefAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MaybeUndefAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, MaybeUndefAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, MaybeUndefAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(MaybeUndefAttr)
 };
@@ -1587,7 +1587,7 @@ class MicroMipsAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MicroMipsAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, MicroMipsAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, MicroMipsAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(MicroMipsAttr)
 };
@@ -1601,7 +1601,7 @@ class MinSizeAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MinSizeAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, MinSizeAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, MinSizeAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(MinSizeAttr)
 };
@@ -1615,8 +1615,8 @@ class MinVectorWidthAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MinVectorWidthAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, MinVectorWidthAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, MinVectorWidthAttr)
-  std::string_view Spelling(void) const noexcept;
-  uint32_t VectorWidth(void) const noexcept;
+  std::string_view Spelling(void) const;
+  uint32_t VectorWidth(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(MinVectorWidthAttr)
 };
@@ -1630,7 +1630,7 @@ class Mips16Attr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(Mips16Attr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, Mips16Attr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, Mips16Attr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(Mips16Attr)
 };
@@ -1644,8 +1644,8 @@ class MipsInterruptAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MipsInterruptAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, MipsInterruptAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, MipsInterruptAttr)
-  enum MipsInterruptAttrInterruptType Interrupt(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum MipsInterruptAttrInterruptType Interrupt(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(MipsInterruptAttr)
 };
@@ -1659,8 +1659,8 @@ class MipsLongCallAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MipsLongCallAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, MipsLongCallAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, MipsLongCallAttr)
-  enum MipsLongCallAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum MipsLongCallAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(MipsLongCallAttr)
 };
@@ -1674,8 +1674,8 @@ class MipsShortCallAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MipsShortCallAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, MipsShortCallAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, MipsShortCallAttr)
-  enum MipsShortCallAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum MipsShortCallAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(MipsShortCallAttr)
 };
@@ -1689,7 +1689,7 @@ class ModeAttr : public Attr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ModeAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ModeAttr)
   // Mode: (clang::IdentifierInfo *)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ModeAttr)
 };
@@ -1704,7 +1704,7 @@ class NSConsumedAttr : public InheritableParamAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, NSConsumedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NSConsumedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableParamAttr, NSConsumedAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NSConsumedAttr)
 };
@@ -1718,7 +1718,7 @@ class NSConsumesSelfAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NSConsumesSelfAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NSConsumesSelfAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NSConsumesSelfAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NSConsumesSelfAttr)
 };
@@ -1732,8 +1732,8 @@ class NSErrorDomainAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NSErrorDomainAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NSErrorDomainAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NSErrorDomainAttr)
-  ::pasta::VarDecl ErrorDomain(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  ::pasta::VarDecl ErrorDomain(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NSErrorDomainAttr)
 };
@@ -1747,7 +1747,7 @@ class NSReturnsAutoreleasedAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NSReturnsAutoreleasedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NSReturnsAutoreleasedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NSReturnsAutoreleasedAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NSReturnsAutoreleasedAttr)
 };
@@ -1761,7 +1761,7 @@ class NSReturnsNotRetainedAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NSReturnsNotRetainedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NSReturnsNotRetainedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NSReturnsNotRetainedAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NSReturnsNotRetainedAttr)
 };
@@ -1775,7 +1775,7 @@ class NSReturnsRetainedAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NSReturnsRetainedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NSReturnsRetainedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NSReturnsRetainedAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NSReturnsRetainedAttr)
 };
@@ -1789,7 +1789,7 @@ class NakedAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NakedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NakedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NakedAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NakedAttr)
 };
@@ -1803,7 +1803,7 @@ class NoAliasAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoAliasAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoAliasAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoAliasAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoAliasAttr)
 };
@@ -1817,7 +1817,7 @@ class NoBuiltinAttr : public Attr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoBuiltinAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoBuiltinAttr)
   // BuiltinNames: (llvm::iterator_range<llvm::StringRef *>)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoBuiltinAttr)
 };
@@ -1831,7 +1831,7 @@ class NoCommonAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoCommonAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoCommonAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoCommonAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoCommonAttr)
 };
@@ -1845,7 +1845,7 @@ class NoDebugAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoDebugAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoDebugAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoDebugAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoDebugAttr)
 };
@@ -1859,7 +1859,7 @@ class NoDestroyAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoDestroyAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoDestroyAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoDestroyAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoDestroyAttr)
 };
@@ -1873,7 +1873,7 @@ class NoDuplicateAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoDuplicateAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoDuplicateAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoDuplicateAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoDuplicateAttr)
 };
@@ -1886,7 +1886,7 @@ class NoEscapeAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoEscapeAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoEscapeAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoEscapeAttr)
 };
@@ -1900,7 +1900,7 @@ class NoInstrumentFunctionAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoInstrumentFunctionAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoInstrumentFunctionAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoInstrumentFunctionAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoInstrumentFunctionAttr)
 };
@@ -1914,7 +1914,7 @@ class NoMicroMipsAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoMicroMipsAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoMicroMipsAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoMicroMipsAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoMicroMipsAttr)
 };
@@ -1928,7 +1928,7 @@ class NoMips16Attr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoMips16Attr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoMips16Attr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoMips16Attr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoMips16Attr)
 };
@@ -1942,7 +1942,7 @@ class NoProfileFunctionAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoProfileFunctionAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoProfileFunctionAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoProfileFunctionAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoProfileFunctionAttr)
 };
@@ -1956,7 +1956,7 @@ class NoRandomizeLayoutAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoRandomizeLayoutAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoRandomizeLayoutAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoRandomizeLayoutAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoRandomizeLayoutAttr)
 };
@@ -1970,7 +1970,7 @@ class NoReturnAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoReturnAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoReturnAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoReturnAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoReturnAttr)
 };
@@ -1985,8 +1985,8 @@ class NoSanitizeAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoSanitizeAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoSanitizeAttr)
   // Mask: (clang::SanitizerMask)
-  std::string_view Spelling(void) const noexcept;
-  bool HasCoverage(void) const noexcept;
+  std::string_view Spelling(void) const;
+  bool HasCoverage(void) const;
   // Sanitizers: (llvm::iterator_range<llvm::StringRef *>)
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoSanitizeAttr)
@@ -2001,7 +2001,7 @@ class NoSpeculativeLoadHardeningAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoSpeculativeLoadHardeningAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoSpeculativeLoadHardeningAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoSpeculativeLoadHardeningAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoSpeculativeLoadHardeningAttr)
 };
@@ -2015,7 +2015,7 @@ class NoSplitStackAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoSplitStackAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoSplitStackAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoSplitStackAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoSplitStackAttr)
 };
@@ -2029,8 +2029,8 @@ class NoStackProtectorAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoStackProtectorAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoStackProtectorAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoStackProtectorAttr)
-  enum NoStackProtectorAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum NoStackProtectorAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoStackProtectorAttr)
 };
@@ -2044,7 +2044,7 @@ class NoThreadSafetyAnalysisAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoThreadSafetyAnalysisAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoThreadSafetyAnalysisAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoThreadSafetyAnalysisAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoThreadSafetyAnalysisAttr)
 };
@@ -2058,7 +2058,7 @@ class NoThrowAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoThrowAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoThrowAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoThrowAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoThrowAttr)
 };
@@ -2072,7 +2072,7 @@ class NoUniqueAddressAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoUniqueAddressAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoUniqueAddressAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoUniqueAddressAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoUniqueAddressAttr)
 };
@@ -2086,7 +2086,7 @@ class NoUwtableAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoUwtableAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoUwtableAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoUwtableAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoUwtableAttr)
 };
@@ -2102,7 +2102,7 @@ class NonNullAttr : public InheritableParamAttr {
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NonNullAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableParamAttr, NonNullAttr)
   // Arguments: (llvm::iterator_range<clang::ParamIdx *>)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
   // IsNonNull: (bool)
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NonNullAttr)
@@ -2117,7 +2117,7 @@ class NotTailCalledAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NotTailCalledAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NotTailCalledAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NotTailCalledAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NotTailCalledAttr)
 };
@@ -2131,10 +2131,10 @@ class OMPAllocateDeclAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPAllocateDeclAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OMPAllocateDeclAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, OMPAllocateDeclAttr)
-  ::pasta::Expr Alignment(void) const noexcept;
-  ::pasta::Expr Allocator(void) const noexcept;
-  enum OMPAllocateDeclAttrAllocatorTypeTy AllocatorType(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  ::pasta::Expr Alignment(void) const;
+  ::pasta::Expr Allocator(void) const;
+  enum OMPAllocateDeclAttrAllocatorTypeTy AllocatorType(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OMPAllocateDeclAttr)
 };
@@ -2148,8 +2148,8 @@ class OMPCaptureKindAttr : public Attr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPCaptureKindAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OMPCaptureKindAttr)
   // CaptureKind: (llvm::omp::Clause)
-  uint32_t CaptureKindValue(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  uint32_t CaptureKindValue(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OMPCaptureKindAttr)
 };
@@ -2163,7 +2163,7 @@ class OMPCaptureNoInitAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPCaptureNoInitAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OMPCaptureNoInitAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, OMPCaptureNoInitAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OMPCaptureNoInitAttr)
 };
@@ -2178,9 +2178,9 @@ class OMPDeclareSimdDeclAttr : public Attr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, OMPDeclareSimdDeclAttr)
   // Aligneds: (llvm::iterator_range<clang::Expr **>)
   // Alignments: (llvm::iterator_range<clang::Expr **>)
-  enum OMPDeclareSimdDeclAttrBranchStateTy BranchState(void) const noexcept;
-  ::pasta::Expr Simdlen(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum OMPDeclareSimdDeclAttrBranchStateTy BranchState(void) const;
+  ::pasta::Expr Simdlen(void) const;
+  std::string_view Spelling(void) const;
   // Linears: (llvm::iterator_range<clang::Expr **>)
   // Modifiers: (llvm::iterator_range<unsigned int *>)
   // Steps: (llvm::iterator_range<clang::Expr **>)
@@ -2198,12 +2198,12 @@ class OMPDeclareTargetDeclAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPDeclareTargetDeclAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OMPDeclareTargetDeclAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, OMPDeclareTargetDeclAttr)
-  enum OMPDeclareTargetDeclAttrDevTypeTy DevType(void) const noexcept;
-  bool Indirect(void) const noexcept;
-  ::pasta::Expr IndirectExpression(void) const noexcept;
-  uint32_t Level(void) const noexcept;
-  enum OMPDeclareTargetDeclAttrMapTypeTy MapType(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum OMPDeclareTargetDeclAttrDevTypeTy DevType(void) const;
+  bool Indirect(void) const;
+  ::pasta::Expr IndirectExpression(void) const;
+  uint32_t Level(void) const;
+  enum OMPDeclareTargetDeclAttrMapTypeTy MapType(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OMPDeclareTargetDeclAttr)
 };
@@ -2220,9 +2220,9 @@ class OMPDeclareVariantAttr : public InheritableAttr {
   // AdjustArgumentsNeedDevicePointer: (llvm::iterator_range<clang::Expr **>)
   // AdjustArgumentsNothing: (llvm::iterator_range<clang::Expr **>)
   // AppendArguments: (llvm::iterator_range<clang::OMPInteropInfo *>)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
   // TraitInfos: (clang::OMPTraitInfo *)
-  ::pasta::Expr VariantFuncReference(void) const noexcept;
+  ::pasta::Expr VariantFuncReference(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OMPDeclareVariantAttr)
 };
@@ -2235,8 +2235,8 @@ class OMPReferencedVarAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPReferencedVarAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OMPReferencedVarAttr)
-  ::pasta::Expr Reference(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  ::pasta::Expr Reference(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OMPReferencedVarAttr)
 };
@@ -2250,7 +2250,7 @@ class OMPThreadPrivateDeclAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OMPThreadPrivateDeclAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OMPThreadPrivateDeclAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, OMPThreadPrivateDeclAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OMPThreadPrivateDeclAttr)
 };
@@ -2265,7 +2265,7 @@ class OSConsumedAttr : public InheritableParamAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, OSConsumedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, OSConsumedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableParamAttr, OSConsumedAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OSConsumedAttr)
 };
@@ -2279,7 +2279,7 @@ class OSConsumesThisAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OSConsumesThisAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OSConsumesThisAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, OSConsumesThisAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OSConsumesThisAttr)
 };
@@ -2293,7 +2293,7 @@ class OSReturnsNotRetainedAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OSReturnsNotRetainedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OSReturnsNotRetainedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, OSReturnsNotRetainedAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OSReturnsNotRetainedAttr)
 };
@@ -2307,7 +2307,7 @@ class OSReturnsRetainedAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OSReturnsRetainedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OSReturnsRetainedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, OSReturnsRetainedAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OSReturnsRetainedAttr)
 };
@@ -2321,7 +2321,7 @@ class OSReturnsRetainedOnNonZeroAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OSReturnsRetainedOnNonZeroAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OSReturnsRetainedOnNonZeroAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, OSReturnsRetainedOnNonZeroAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OSReturnsRetainedOnNonZeroAttr)
 };
@@ -2335,7 +2335,7 @@ class OSReturnsRetainedOnZeroAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OSReturnsRetainedOnZeroAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OSReturnsRetainedOnZeroAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, OSReturnsRetainedOnZeroAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OSReturnsRetainedOnZeroAttr)
 };
@@ -2348,7 +2348,7 @@ class ObjCBoxableAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCBoxableAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCBoxableAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCBoxableAttr)
 };
@@ -2363,7 +2363,7 @@ class ObjCBridgeAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCBridgeAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ObjCBridgeAttr)
   // BridgedType: (clang::IdentifierInfo *)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCBridgeAttr)
 };
@@ -2378,7 +2378,7 @@ class ObjCBridgeMutableAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCBridgeMutableAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ObjCBridgeMutableAttr)
   // BridgedType: (clang::IdentifierInfo *)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCBridgeMutableAttr)
 };
@@ -2395,7 +2395,7 @@ class ObjCBridgeRelatedAttr : public InheritableAttr {
   // ClassMethod: (clang::IdentifierInfo *)
   // InstanceMethod: (clang::IdentifierInfo *)
   // RelatedClass: (clang::IdentifierInfo *)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCBridgeRelatedAttr)
 };
@@ -2408,7 +2408,7 @@ class ObjCClassStubAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCClassStubAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCClassStubAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCClassStubAttr)
 };
@@ -2421,7 +2421,7 @@ class ObjCDesignatedInitializerAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCDesignatedInitializerAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCDesignatedInitializerAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCDesignatedInitializerAttr)
 };
@@ -2434,7 +2434,7 @@ class ObjCDirectAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCDirectAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCDirectAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCDirectAttr)
 };
@@ -2447,7 +2447,7 @@ class ObjCDirectMembersAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCDirectMembersAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCDirectMembersAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCDirectMembersAttr)
 };
@@ -2461,7 +2461,7 @@ class ObjCExceptionAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCExceptionAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCExceptionAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ObjCExceptionAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCExceptionAttr)
 };
@@ -2475,7 +2475,7 @@ class ObjCExplicitProtocolImplAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCExplicitProtocolImplAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCExplicitProtocolImplAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ObjCExplicitProtocolImplAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCExplicitProtocolImplAttr)
 };
@@ -2489,7 +2489,7 @@ class ObjCExternallyRetainedAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCExternallyRetainedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCExternallyRetainedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ObjCExternallyRetainedAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCExternallyRetainedAttr)
 };
@@ -2503,7 +2503,7 @@ class ObjCIndependentClassAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCIndependentClassAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCIndependentClassAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ObjCIndependentClassAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCIndependentClassAttr)
 };
@@ -2517,8 +2517,8 @@ class ObjCMethodFamilyAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCMethodFamilyAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCMethodFamilyAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ObjCMethodFamilyAttr)
-  enum ObjCMethodFamilyAttrFamilyKind Family(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum ObjCMethodFamilyAttrFamilyKind Family(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCMethodFamilyAttr)
 };
@@ -2532,7 +2532,7 @@ class ObjCNSObjectAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCNSObjectAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCNSObjectAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ObjCNSObjectAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCNSObjectAttr)
 };
@@ -2545,7 +2545,7 @@ class ObjCNonLazyClassAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCNonLazyClassAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCNonLazyClassAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCNonLazyClassAttr)
 };
@@ -2558,7 +2558,7 @@ class ObjCNonRuntimeProtocolAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCNonRuntimeProtocolAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCNonRuntimeProtocolAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCNonRuntimeProtocolAttr)
 };
@@ -2573,7 +2573,7 @@ class ObjCOwnershipAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCOwnershipAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ObjCOwnershipAttr)
   // Kind: (clang::IdentifierInfo *)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCOwnershipAttr)
 };
@@ -2587,7 +2587,7 @@ class ObjCPreciseLifetimeAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCPreciseLifetimeAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCPreciseLifetimeAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ObjCPreciseLifetimeAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCPreciseLifetimeAttr)
 };
@@ -2601,7 +2601,7 @@ class ObjCRequiresPropertyDefsAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCRequiresPropertyDefsAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCRequiresPropertyDefsAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ObjCRequiresPropertyDefsAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCRequiresPropertyDefsAttr)
 };
@@ -2615,7 +2615,7 @@ class ObjCRequiresSuperAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCRequiresSuperAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCRequiresSuperAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ObjCRequiresSuperAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCRequiresSuperAttr)
 };
@@ -2629,7 +2629,7 @@ class ObjCReturnsInnerPointerAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCReturnsInnerPointerAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCReturnsInnerPointerAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ObjCReturnsInnerPointerAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCReturnsInnerPointerAttr)
 };
@@ -2643,7 +2643,7 @@ class ObjCRootClassAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCRootClassAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCRootClassAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ObjCRootClassAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCRootClassAttr)
 };
@@ -2656,9 +2656,9 @@ class ObjCRuntimeNameAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCRuntimeNameAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCRuntimeNameAttr)
-  std::string_view MetadataName(void) const noexcept;
-  uint32_t MetadataNameLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view MetadataName(void) const;
+  uint32_t MetadataNameLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCRuntimeNameAttr)
 };
@@ -2671,7 +2671,7 @@ class ObjCRuntimeVisibleAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCRuntimeVisibleAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCRuntimeVisibleAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCRuntimeVisibleAttr)
 };
@@ -2685,7 +2685,7 @@ class ObjCSubclassingRestrictedAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCSubclassingRestrictedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCSubclassingRestrictedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ObjCSubclassingRestrictedAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCSubclassingRestrictedAttr)
 };
@@ -2698,11 +2698,11 @@ class OpenCLAccessAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OpenCLAccessAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OpenCLAccessAttr)
-  enum OpenCLAccessAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
-  bool IsReadOnly(void) const noexcept;
-  bool IsReadWrite(void) const noexcept;
-  bool IsWriteOnly(void) const noexcept;
+  enum OpenCLAccessAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
+  bool IsReadOnly(void) const;
+  bool IsReadWrite(void) const;
+  bool IsWriteOnly(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OpenCLAccessAttr)
 };
@@ -2716,8 +2716,8 @@ class OpenCLIntelReqdSubGroupSizeAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OpenCLIntelReqdSubGroupSizeAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OpenCLIntelReqdSubGroupSizeAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, OpenCLIntelReqdSubGroupSizeAttr)
-  std::string_view Spelling(void) const noexcept;
-  uint32_t SubGroupSize(void) const noexcept;
+  std::string_view Spelling(void) const;
+  uint32_t SubGroupSize(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OpenCLIntelReqdSubGroupSizeAttr)
 };
@@ -2731,7 +2731,7 @@ class OpenCLKernelAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OpenCLKernelAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OpenCLKernelAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, OpenCLKernelAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OpenCLKernelAttr)
 };
@@ -2745,7 +2745,7 @@ class OptimizeNoneAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OptimizeNoneAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OptimizeNoneAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, OptimizeNoneAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OptimizeNoneAttr)
 };
@@ -2758,7 +2758,7 @@ class OverloadableAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OverloadableAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OverloadableAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OverloadableAttr)
 };
@@ -2772,7 +2772,7 @@ class OverrideAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OverrideAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OverrideAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, OverrideAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OverrideAttr)
 };
@@ -2786,9 +2786,9 @@ class OwnerAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OwnerAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OwnerAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, OwnerAttr)
-  ::pasta::Type DerefType(void) const noexcept;
-  ::pasta::Type DerefTypeToken(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  ::pasta::Type DerefType(void) const;
+  ::pasta::Type DerefTypeToken(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OwnerAttr)
 };
@@ -2804,12 +2804,12 @@ class OwnershipAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, OwnershipAttr)
   // Arguments: (llvm::iterator_range<clang::ParamIdx *>)
   // Module: (clang::IdentifierInfo *)
-  enum OwnershipAttrOwnershipKind OwnKind(void) const noexcept;
-  enum OwnershipAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
-  bool IsHolds(void) const noexcept;
-  bool IsReturns(void) const noexcept;
-  bool IsTakes(void) const noexcept;
+  enum OwnershipAttrOwnershipKind OwnKind(void) const;
+  enum OwnershipAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
+  bool IsHolds(void) const;
+  bool IsReturns(void) const;
+  bool IsTakes(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OwnershipAttr)
 };
@@ -2823,7 +2823,7 @@ class PackedAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PackedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, PackedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, PackedAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(PackedAttr)
 };
@@ -2837,8 +2837,8 @@ class ParamTypestateAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ParamTypestateAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ParamTypestateAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ParamTypestateAttr)
-  enum ParamTypestateAttrConsumedState ParameterState(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum ParamTypestateAttrConsumedState ParameterState(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ParamTypestateAttr)
 };
@@ -2857,7 +2857,7 @@ class ParameterABIAttr : public InheritableParamAttr {
   PASTA_DECLARE_DERIVED_OPERATORS(ParameterABIAttr, SwiftContextAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(ParameterABIAttr, SwiftErrorResultAttr)
   PASTA_DECLARE_DERIVED_OPERATORS(ParameterABIAttr, SwiftIndirectResultAttr)
-  ::pasta::ParameterABI ABI(void) const noexcept;
+  ::pasta::ParameterABI ABI(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ParameterABIAttr)
 };
@@ -2871,7 +2871,7 @@ class PascalAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PascalAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, PascalAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, PascalAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(PascalAttr)
 };
@@ -2886,10 +2886,10 @@ class PassObjectSizeAttr : public InheritableParamAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, PassObjectSizeAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, PassObjectSizeAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableParamAttr, PassObjectSizeAttr)
-  enum PassObjectSizeAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum PassObjectSizeAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
   // Type: (int)
-  bool IsDynamic(void) const noexcept;
+  bool IsDynamic(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(PassObjectSizeAttr)
 };
@@ -2903,9 +2903,9 @@ class PatchableFunctionEntryAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PatchableFunctionEntryAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, PatchableFunctionEntryAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, PatchableFunctionEntryAttr)
-  uint32_t Count(void) const noexcept;
+  uint32_t Count(void) const;
   // Offset: (int)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(PatchableFunctionEntryAttr)
 };
@@ -2919,8 +2919,8 @@ class PcsAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PcsAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, PcsAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, PcsAttr)
-  enum PcsAttrPCSType PCS(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum PcsAttrPCSType PCS(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(PcsAttr)
 };
@@ -2934,9 +2934,9 @@ class PointerAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PointerAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, PointerAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, PointerAttr)
-  ::pasta::Type DerefType(void) const noexcept;
-  ::pasta::Type DerefTypeToken(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  ::pasta::Type DerefType(void) const;
+  ::pasta::Type DerefTypeToken(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(PointerAttr)
 };
@@ -2950,9 +2950,9 @@ class PragmaClangBSSSectionAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PragmaClangBSSSectionAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, PragmaClangBSSSectionAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, PragmaClangBSSSectionAttr)
-  std::string_view Name(void) const noexcept;
-  uint32_t NameLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Name(void) const;
+  uint32_t NameLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(PragmaClangBSSSectionAttr)
 };
@@ -2966,9 +2966,9 @@ class PragmaClangDataSectionAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PragmaClangDataSectionAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, PragmaClangDataSectionAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, PragmaClangDataSectionAttr)
-  std::string_view Name(void) const noexcept;
-  uint32_t NameLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Name(void) const;
+  uint32_t NameLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(PragmaClangDataSectionAttr)
 };
@@ -2982,9 +2982,9 @@ class PragmaClangRelroSectionAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PragmaClangRelroSectionAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, PragmaClangRelroSectionAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, PragmaClangRelroSectionAttr)
-  std::string_view Name(void) const noexcept;
-  uint32_t NameLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Name(void) const;
+  uint32_t NameLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(PragmaClangRelroSectionAttr)
 };
@@ -2998,9 +2998,9 @@ class PragmaClangRodataSectionAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PragmaClangRodataSectionAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, PragmaClangRodataSectionAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, PragmaClangRodataSectionAttr)
-  std::string_view Name(void) const noexcept;
-  uint32_t NameLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Name(void) const;
+  uint32_t NameLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(PragmaClangRodataSectionAttr)
 };
@@ -3014,9 +3014,9 @@ class PragmaClangTextSectionAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PragmaClangTextSectionAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, PragmaClangTextSectionAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, PragmaClangTextSectionAttr)
-  std::string_view Name(void) const noexcept;
-  uint32_t NameLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Name(void) const;
+  uint32_t NameLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(PragmaClangTextSectionAttr)
 };
@@ -3030,9 +3030,9 @@ class PreferredNameAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PreferredNameAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, PreferredNameAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, PreferredNameAttr)
-  std::string_view Spelling(void) const noexcept;
-  ::pasta::Type TypedefType(void) const noexcept;
-  ::pasta::Type TypedefTypeToken(void) const noexcept;
+  std::string_view Spelling(void) const;
+  ::pasta::Type TypedefType(void) const;
+  ::pasta::Type TypedefTypeToken(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(PreferredNameAttr)
 };
@@ -3046,7 +3046,7 @@ class PreserveAllAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PreserveAllAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, PreserveAllAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, PreserveAllAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(PreserveAllAttr)
 };
@@ -3060,7 +3060,7 @@ class PreserveMostAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PreserveMostAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, PreserveMostAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, PreserveMostAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(PreserveMostAttr)
 };
@@ -3074,8 +3074,8 @@ class PtGuardedByAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PtGuardedByAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, PtGuardedByAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, PtGuardedByAttr)
-  ::pasta::Expr Argument(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  ::pasta::Expr Argument(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(PtGuardedByAttr)
 };
@@ -3089,7 +3089,7 @@ class PtGuardedVarAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PtGuardedVarAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, PtGuardedVarAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, PtGuardedVarAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(PtGuardedVarAttr)
 };
@@ -3103,7 +3103,7 @@ class PureAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PureAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, PureAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, PureAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(PureAttr)
 };
@@ -3117,8 +3117,8 @@ class RISCVInterruptAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(RISCVInterruptAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, RISCVInterruptAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, RISCVInterruptAttr)
-  enum RISCVInterruptAttrInterruptType Interrupt(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum RISCVInterruptAttrInterruptType Interrupt(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(RISCVInterruptAttr)
 };
@@ -3132,7 +3132,7 @@ class RandomizeLayoutAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(RandomizeLayoutAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, RandomizeLayoutAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, RandomizeLayoutAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(RandomizeLayoutAttr)
 };
@@ -3146,7 +3146,7 @@ class ReadOnlyPlacementAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ReadOnlyPlacementAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ReadOnlyPlacementAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ReadOnlyPlacementAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ReadOnlyPlacementAttr)
 };
@@ -3160,7 +3160,7 @@ class RegCallAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(RegCallAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, RegCallAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, RegCallAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(RegCallAttr)
 };
@@ -3174,7 +3174,7 @@ class ReinitializesAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ReinitializesAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ReinitializesAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ReinitializesAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ReinitializesAttr)
 };
@@ -3189,10 +3189,10 @@ class ReleaseCapabilityAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, ReleaseCapabilityAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ReleaseCapabilityAttr)
   // Arguments: (llvm::iterator_range<clang::Expr **>)
-  enum ReleaseCapabilityAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
-  bool IsGeneric(void) const noexcept;
-  bool IsShared(void) const noexcept;
+  enum ReleaseCapabilityAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
+  bool IsGeneric(void) const;
+  bool IsShared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ReleaseCapabilityAttr)
 };
@@ -3207,9 +3207,9 @@ class ReleaseHandleAttr : public InheritableParamAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, ReleaseHandleAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ReleaseHandleAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableParamAttr, ReleaseHandleAttr)
-  std::string_view HandleType(void) const noexcept;
-  uint32_t HandleTypeLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view HandleType(void) const;
+  uint32_t HandleTypeLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ReleaseHandleAttr)
 };
@@ -3222,7 +3222,7 @@ class RenderScriptKernelAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(RenderScriptKernelAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, RenderScriptKernelAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(RenderScriptKernelAttr)
 };
@@ -3236,10 +3236,10 @@ class ReqdWorkGroupSizeAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ReqdWorkGroupSizeAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ReqdWorkGroupSizeAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ReqdWorkGroupSizeAttr)
-  std::string_view Spelling(void) const noexcept;
-  uint32_t XDim(void) const noexcept;
-  uint32_t YDim(void) const noexcept;
-  uint32_t ZDim(void) const noexcept;
+  std::string_view Spelling(void) const;
+  uint32_t XDim(void) const;
+  uint32_t YDim(void) const;
+  uint32_t ZDim(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ReqdWorkGroupSizeAttr)
 };
@@ -3254,9 +3254,9 @@ class RequiresCapabilityAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, RequiresCapabilityAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, RequiresCapabilityAttr)
   // Arguments: (llvm::iterator_range<clang::Expr **>)
-  enum RequiresCapabilityAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
-  bool IsShared(void) const noexcept;
+  enum RequiresCapabilityAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
+  bool IsShared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(RequiresCapabilityAttr)
 };
@@ -3270,8 +3270,8 @@ class RestrictAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(RestrictAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, RestrictAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, RestrictAttr)
-  enum RestrictAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum RestrictAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(RestrictAttr)
 };
@@ -3285,7 +3285,7 @@ class RetainAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(RetainAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, RetainAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, RetainAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(RetainAttr)
 };
@@ -3299,8 +3299,8 @@ class ReturnTypestateAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ReturnTypestateAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ReturnTypestateAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ReturnTypestateAttr)
-  std::string_view Spelling(void) const noexcept;
-  enum ReturnTypestateAttrConsumedState State(void) const noexcept;
+  std::string_view Spelling(void) const;
+  enum ReturnTypestateAttrConsumedState State(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ReturnTypestateAttr)
 };
@@ -3314,7 +3314,7 @@ class ReturnsNonNullAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ReturnsNonNullAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ReturnsNonNullAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ReturnsNonNullAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ReturnsNonNullAttr)
 };
@@ -3328,7 +3328,7 @@ class ReturnsTwiceAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ReturnsTwiceAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ReturnsTwiceAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ReturnsTwiceAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ReturnsTwiceAttr)
 };
@@ -3342,7 +3342,7 @@ class SYCLKernelAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SYCLKernelAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, SYCLKernelAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SYCLKernelAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SYCLKernelAttr)
 };
@@ -3356,7 +3356,7 @@ class SYCLSpecialClassAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SYCLSpecialClassAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, SYCLSpecialClassAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SYCLSpecialClassAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SYCLSpecialClassAttr)
 };
@@ -3370,7 +3370,7 @@ class ScopedLockableAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ScopedLockableAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ScopedLockableAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ScopedLockableAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ScopedLockableAttr)
 };
@@ -3384,10 +3384,10 @@ class SectionAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SectionAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, SectionAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SectionAttr)
-  std::string_view Name(void) const noexcept;
-  uint32_t NameLength(void) const noexcept;
-  enum SectionAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Name(void) const;
+  uint32_t NameLength(void) const;
+  enum SectionAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SectionAttr)
 };
@@ -3401,7 +3401,7 @@ class SelectAnyAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SelectAnyAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, SelectAnyAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SelectAnyAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SelectAnyAttr)
 };
@@ -3417,7 +3417,7 @@ class SentinelAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SentinelAttr)
   // NullPos: (int)
   // Sentinel: (int)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SentinelAttr)
 };
@@ -3431,8 +3431,8 @@ class SetTypestateAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SetTypestateAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, SetTypestateAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SetTypestateAttr)
-  enum SetTypestateAttrConsumedState NewState(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum SetTypestateAttrConsumedState NewState(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SetTypestateAttr)
 };
@@ -3447,8 +3447,8 @@ class SharedTrylockFunctionAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, SharedTrylockFunctionAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SharedTrylockFunctionAttr)
   // Arguments: (llvm::iterator_range<clang::Expr **>)
-  std::string_view Spelling(void) const noexcept;
-  ::pasta::Expr SuccessValue(void) const noexcept;
+  std::string_view Spelling(void) const;
+  ::pasta::Expr SuccessValue(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SharedTrylockFunctionAttr)
 };
@@ -3462,7 +3462,7 @@ class SpeculativeLoadHardeningAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SpeculativeLoadHardeningAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, SpeculativeLoadHardeningAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SpeculativeLoadHardeningAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SpeculativeLoadHardeningAttr)
 };
@@ -3476,7 +3476,7 @@ class StandaloneDebugAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(StandaloneDebugAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, StandaloneDebugAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, StandaloneDebugAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(StandaloneDebugAttr)
 };
@@ -3490,7 +3490,7 @@ class StdCallAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(StdCallAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, StdCallAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, StdCallAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(StdCallAttr)
 };
@@ -3522,7 +3522,7 @@ class StrictFPAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(StrictFPAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, StrictFPAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, StrictFPAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(StrictFPAttr)
 };
@@ -3536,7 +3536,7 @@ class StrictGuardStackCheckAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(StrictGuardStackCheckAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, StrictGuardStackCheckAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, StrictGuardStackCheckAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(StrictGuardStackCheckAttr)
 };
@@ -3551,7 +3551,7 @@ class SuppressAttr : public StmtAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, SuppressAttr)
   PASTA_DECLARE_BASE_OPERATORS(StmtAttr, SuppressAttr)
   // DiagnosticIdentifiers: (llvm::iterator_range<llvm::StringRef *>)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SuppressAttr)
 };
@@ -3566,8 +3566,8 @@ class SwiftAsyncAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, SwiftAsyncAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SwiftAsyncAttr)
   // CompletionHandlerIndex: (clang::ParamIdx)
-  enum SwiftAsyncAttrKind Kind(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum SwiftAsyncAttrKind Kind(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SwiftAsyncAttr)
 };
@@ -3581,7 +3581,7 @@ class SwiftAsyncCallAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SwiftAsyncCallAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, SwiftAsyncCallAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SwiftAsyncCallAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SwiftAsyncCallAttr)
 };
@@ -3597,7 +3597,7 @@ class SwiftAsyncContextAttr : public ParameterABIAttr {
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SwiftAsyncContextAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableParamAttr, SwiftAsyncContextAttr)
   PASTA_DECLARE_BASE_OPERATORS(ParameterABIAttr, SwiftAsyncContextAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SwiftAsyncContextAttr)
 };
@@ -3611,9 +3611,9 @@ class SwiftAsyncErrorAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SwiftAsyncErrorAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, SwiftAsyncErrorAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SwiftAsyncErrorAttr)
-  enum SwiftAsyncErrorAttrConventionKind Convention(void) const noexcept;
-  uint32_t HandlerParameterIndex(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum SwiftAsyncErrorAttrConventionKind Convention(void) const;
+  uint32_t HandlerParameterIndex(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SwiftAsyncErrorAttr)
 };
@@ -3627,9 +3627,9 @@ class SwiftAsyncNameAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SwiftAsyncNameAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, SwiftAsyncNameAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SwiftAsyncNameAttr)
-  std::string_view Name(void) const noexcept;
-  uint32_t NameLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Name(void) const;
+  uint32_t NameLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SwiftAsyncNameAttr)
 };
@@ -3643,9 +3643,9 @@ class SwiftAttrAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SwiftAttrAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, SwiftAttrAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SwiftAttrAttr)
-  std::string_view Attribute(void) const noexcept;
-  uint32_t AttributeLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Attribute(void) const;
+  uint32_t AttributeLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SwiftAttrAttr)
 };
@@ -3659,9 +3659,9 @@ class SwiftBridgeAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SwiftBridgeAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, SwiftBridgeAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SwiftBridgeAttr)
-  std::string_view Spelling(void) const noexcept;
-  std::string_view SwiftType(void) const noexcept;
-  uint32_t SwiftTypeLength(void) const noexcept;
+  std::string_view Spelling(void) const;
+  std::string_view SwiftType(void) const;
+  uint32_t SwiftTypeLength(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SwiftBridgeAttr)
 };
@@ -3675,7 +3675,7 @@ class SwiftBridgedTypedefAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SwiftBridgedTypedefAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, SwiftBridgedTypedefAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SwiftBridgedTypedefAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SwiftBridgedTypedefAttr)
 };
@@ -3689,7 +3689,7 @@ class SwiftCallAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SwiftCallAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, SwiftCallAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SwiftCallAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SwiftCallAttr)
 };
@@ -3705,7 +3705,7 @@ class SwiftContextAttr : public ParameterABIAttr {
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SwiftContextAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableParamAttr, SwiftContextAttr)
   PASTA_DECLARE_BASE_OPERATORS(ParameterABIAttr, SwiftContextAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SwiftContextAttr)
 };
@@ -3719,8 +3719,8 @@ class SwiftErrorAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SwiftErrorAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, SwiftErrorAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SwiftErrorAttr)
-  enum SwiftErrorAttrConventionKind Convention(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum SwiftErrorAttrConventionKind Convention(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SwiftErrorAttr)
 };
@@ -3736,7 +3736,7 @@ class SwiftErrorResultAttr : public ParameterABIAttr {
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SwiftErrorResultAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableParamAttr, SwiftErrorResultAttr)
   PASTA_DECLARE_BASE_OPERATORS(ParameterABIAttr, SwiftErrorResultAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SwiftErrorResultAttr)
 };
@@ -3752,7 +3752,7 @@ class SwiftIndirectResultAttr : public ParameterABIAttr {
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SwiftIndirectResultAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableParamAttr, SwiftIndirectResultAttr)
   PASTA_DECLARE_BASE_OPERATORS(ParameterABIAttr, SwiftIndirectResultAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SwiftIndirectResultAttr)
 };
@@ -3766,9 +3766,9 @@ class SwiftNameAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SwiftNameAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, SwiftNameAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SwiftNameAttr)
-  std::string_view Name(void) const noexcept;
-  uint32_t NameLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Name(void) const;
+  uint32_t NameLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SwiftNameAttr)
 };
@@ -3782,9 +3782,9 @@ class SwiftNewTypeAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SwiftNewTypeAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, SwiftNewTypeAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SwiftNewTypeAttr)
-  enum SwiftNewTypeAttrNewtypeKind NewtypeKind(void) const noexcept;
-  enum SwiftNewTypeAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum SwiftNewTypeAttrNewtypeKind NewtypeKind(void) const;
+  enum SwiftNewTypeAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SwiftNewTypeAttr)
 };
@@ -3797,7 +3797,7 @@ class SwiftObjCMembersAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SwiftObjCMembersAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, SwiftObjCMembersAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SwiftObjCMembersAttr)
 };
@@ -3811,7 +3811,7 @@ class SwiftPrivateAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SwiftPrivateAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, SwiftPrivateAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SwiftPrivateAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SwiftPrivateAttr)
 };
@@ -3825,7 +3825,7 @@ class SysVABIAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SysVABIAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, SysVABIAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SysVABIAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SysVABIAttr)
 };
@@ -3839,9 +3839,9 @@ class TLSModelAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TLSModelAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, TLSModelAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, TLSModelAttr)
-  std::string_view Model(void) const noexcept;
-  uint32_t ModelLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Model(void) const;
+  uint32_t ModelLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(TLSModelAttr)
 };
@@ -3855,11 +3855,11 @@ class TargetAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TargetAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, TargetAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, TargetAttr)
-  std::string_view Architecture(void) const noexcept;
-  std::string_view FeaturesString(void) const noexcept;
-  uint32_t FeaturesStringLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
-  bool IsDefaultVersion(void) const noexcept;
+  std::string_view Architecture(void) const;
+  std::string_view FeaturesString(void) const;
+  uint32_t FeaturesStringLength(void) const;
+  std::string_view Spelling(void) const;
+  bool IsDefaultVersion(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(TargetAttr)
 };
@@ -3876,7 +3876,7 @@ class TargetClonesAttr : public InheritableAttr {
   // FeaturesStrings: (llvm::iterator_range<llvm::StringRef *>)
   // FeatureString: (llvm::StringRef)
   // MangledIndex: (unsigned int)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
   // IsFirstOfVersion: (bool)
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(TargetClonesAttr)
@@ -3891,11 +3891,11 @@ class TargetVersionAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TargetVersionAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, TargetVersionAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, TargetVersionAttr)
-  std::string_view Name(void) const noexcept;
-  std::string_view NamesString(void) const noexcept;
-  uint32_t NamesStringLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
-  bool IsDefaultVersion(void) const noexcept;
+  std::string_view Name(void) const;
+  std::string_view NamesString(void) const;
+  uint32_t NamesStringLength(void) const;
+  std::string_view Spelling(void) const;
+  bool IsDefaultVersion(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(TargetVersionAttr)
 };
@@ -3909,8 +3909,8 @@ class TestTypestateAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TestTypestateAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, TestTypestateAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, TestTypestateAttr)
-  std::string_view Spelling(void) const noexcept;
-  enum TestTypestateAttrConsumedState TestState(void) const noexcept;
+  std::string_view Spelling(void) const;
+  enum TestTypestateAttrConsumedState TestState(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(TestTypestateAttr)
 };
@@ -3924,7 +3924,7 @@ class ThisCallAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ThisCallAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ThisCallAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ThisCallAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ThisCallAttr)
 };
@@ -3937,7 +3937,7 @@ class ThreadAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ThreadAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ThreadAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ThreadAttr)
 };
@@ -3951,7 +3951,7 @@ class TransparentUnionAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TransparentUnionAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, TransparentUnionAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, TransparentUnionAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(TransparentUnionAttr)
 };
@@ -3965,7 +3965,7 @@ class TrivialABIAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TrivialABIAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, TrivialABIAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, TrivialABIAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(TrivialABIAttr)
 };
@@ -3980,10 +3980,10 @@ class TryAcquireCapabilityAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, TryAcquireCapabilityAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, TryAcquireCapabilityAttr)
   // Arguments: (llvm::iterator_range<clang::Expr **>)
-  enum TryAcquireCapabilityAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
-  ::pasta::Expr SuccessValue(void) const noexcept;
-  bool IsShared(void) const noexcept;
+  enum TryAcquireCapabilityAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
+  ::pasta::Expr SuccessValue(void) const;
+  bool IsShared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(TryAcquireCapabilityAttr)
 };
@@ -4034,7 +4034,7 @@ class TypeNonNullAttr : public TypeAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TypeNonNullAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, TypeNonNullAttr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, TypeNonNullAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(TypeNonNullAttr)
 };
@@ -4048,7 +4048,7 @@ class TypeNullUnspecifiedAttr : public TypeAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TypeNullUnspecifiedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, TypeNullUnspecifiedAttr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, TypeNullUnspecifiedAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(TypeNullUnspecifiedAttr)
 };
@@ -4062,7 +4062,7 @@ class TypeNullableAttr : public TypeAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TypeNullableAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, TypeNullableAttr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, TypeNullableAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(TypeNullableAttr)
 };
@@ -4076,7 +4076,7 @@ class TypeNullableResultAttr : public TypeAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TypeNullableResultAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, TypeNullableResultAttr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, TypeNullableResultAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(TypeNullableResultAttr)
 };
@@ -4091,11 +4091,11 @@ class TypeTagForDatatypeAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, TypeTagForDatatypeAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, TypeTagForDatatypeAttr)
   // ArgumentKind: (clang::IdentifierInfo *)
-  bool LayoutCompatible(void) const noexcept;
-  ::pasta::Type MatchingCType(void) const noexcept;
-  ::pasta::Type MatchingCTypeToken(void) const noexcept;
-  bool MustBeNull(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  bool LayoutCompatible(void) const;
+  ::pasta::Type MatchingCType(void) const;
+  ::pasta::Type MatchingCTypeToken(void) const;
+  bool MustBeNull(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(TypeTagForDatatypeAttr)
 };
@@ -4109,8 +4109,8 @@ class TypeVisibilityAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TypeVisibilityAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, TypeVisibilityAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, TypeVisibilityAttr)
-  std::string_view Spelling(void) const noexcept;
-  enum TypeVisibilityAttrVisibilityType Visibility(void) const noexcept;
+  std::string_view Spelling(void) const;
+  enum TypeVisibilityAttrVisibilityType Visibility(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(TypeVisibilityAttr)
 };
@@ -4124,7 +4124,7 @@ class UPtrAttr : public TypeAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UPtrAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, UPtrAttr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, UPtrAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(UPtrAttr)
 };
@@ -4138,10 +4138,10 @@ class UnavailableAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UnavailableAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, UnavailableAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, UnavailableAttr)
-  enum UnavailableAttrImplicitReason ImplicitReason(void) const noexcept;
-  std::string_view Message(void) const noexcept;
-  uint32_t MessageLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum UnavailableAttrImplicitReason ImplicitReason(void) const;
+  std::string_view Message(void) const;
+  uint32_t MessageLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(UnavailableAttr)
 };
@@ -4155,7 +4155,7 @@ class UninitializedAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UninitializedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, UninitializedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, UninitializedAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(UninitializedAttr)
 };
@@ -4169,7 +4169,7 @@ class UnlikelyAttr : public StmtAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UnlikelyAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, UnlikelyAttr)
   PASTA_DECLARE_BASE_OPERATORS(StmtAttr, UnlikelyAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(UnlikelyAttr)
 };
@@ -4183,8 +4183,8 @@ class UnusedAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UnusedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, UnusedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, UnusedAttr)
-  enum UnusedAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum UnusedAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(UnusedAttr)
 };
@@ -4199,9 +4199,9 @@ class UseHandleAttr : public InheritableParamAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, UseHandleAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, UseHandleAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableParamAttr, UseHandleAttr)
-  std::string_view HandleType(void) const noexcept;
-  uint32_t HandleTypeLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view HandleType(void) const;
+  uint32_t HandleTypeLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(UseHandleAttr)
 };
@@ -4215,7 +4215,7 @@ class UsedAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UsedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, UsedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, UsedAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(UsedAttr)
 };
@@ -4229,7 +4229,7 @@ class UsingIfExistsAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UsingIfExistsAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, UsingIfExistsAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, UsingIfExistsAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(UsingIfExistsAttr)
 };
@@ -4243,10 +4243,10 @@ class UuidAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UuidAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, UuidAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, UuidAttr)
-  std::string_view Guid(void) const noexcept;
-  ::pasta::MSGuidDecl GuidDeclaration(void) const noexcept;
-  uint32_t GuidLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Guid(void) const;
+  ::pasta::MSGuidDecl GuidDeclaration(void) const;
+  uint32_t GuidLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(UuidAttr)
 };
@@ -4260,7 +4260,7 @@ class VecReturnAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(VecReturnAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, VecReturnAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, VecReturnAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(VecReturnAttr)
 };
@@ -4274,9 +4274,9 @@ class VecTypeHintAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(VecTypeHintAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, VecTypeHintAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, VecTypeHintAttr)
-  std::string_view Spelling(void) const noexcept;
-  ::pasta::Type TypeHint(void) const noexcept;
-  ::pasta::Type TypeHintToken(void) const noexcept;
+  std::string_view Spelling(void) const;
+  ::pasta::Type TypeHint(void) const;
+  ::pasta::Type TypeHintToken(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(VecTypeHintAttr)
 };
@@ -4290,7 +4290,7 @@ class VectorCallAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(VectorCallAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, VectorCallAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, VectorCallAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(VectorCallAttr)
 };
@@ -4304,8 +4304,8 @@ class VisibilityAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(VisibilityAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, VisibilityAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, VisibilityAttr)
-  std::string_view Spelling(void) const noexcept;
-  enum VisibilityAttrVisibilityType Visibility(void) const noexcept;
+  std::string_view Spelling(void) const;
+  enum VisibilityAttrVisibilityType Visibility(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(VisibilityAttr)
 };
@@ -4319,7 +4319,7 @@ class WarnUnusedAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(WarnUnusedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, WarnUnusedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, WarnUnusedAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(WarnUnusedAttr)
 };
@@ -4333,11 +4333,11 @@ class WarnUnusedResultAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(WarnUnusedResultAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, WarnUnusedResultAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, WarnUnusedResultAttr)
-  bool IsCXX11NoDiscard(void) const noexcept;
-  std::string_view Message(void) const noexcept;
-  uint32_t MessageLength(void) const noexcept;
-  enum WarnUnusedResultAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  bool IsCXX11NoDiscard(void) const;
+  std::string_view Message(void) const;
+  uint32_t MessageLength(void) const;
+  enum WarnUnusedResultAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(WarnUnusedResultAttr)
 };
@@ -4351,7 +4351,7 @@ class WeakAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(WeakAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, WeakAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, WeakAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(WeakAttr)
 };
@@ -4365,7 +4365,7 @@ class WeakImportAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(WeakImportAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, WeakImportAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, WeakImportAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(WeakImportAttr)
 };
@@ -4379,9 +4379,9 @@ class WeakRefAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(WeakRefAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, WeakRefAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, WeakRefAttr)
-  std::string_view Aliasee(void) const noexcept;
-  uint32_t AliaseeLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Aliasee(void) const;
+  uint32_t AliaseeLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(WeakRefAttr)
 };
@@ -4395,9 +4395,9 @@ class WebAssemblyExportNameAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(WebAssemblyExportNameAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, WebAssemblyExportNameAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, WebAssemblyExportNameAttr)
-  std::string_view ExportName(void) const noexcept;
-  uint32_t ExportNameLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view ExportName(void) const;
+  uint32_t ExportNameLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(WebAssemblyExportNameAttr)
 };
@@ -4411,9 +4411,9 @@ class WebAssemblyImportModuleAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(WebAssemblyImportModuleAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, WebAssemblyImportModuleAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, WebAssemblyImportModuleAttr)
-  std::string_view ImportModule(void) const noexcept;
-  uint32_t ImportModuleLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view ImportModule(void) const;
+  uint32_t ImportModuleLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(WebAssemblyImportModuleAttr)
 };
@@ -4427,9 +4427,9 @@ class WebAssemblyImportNameAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(WebAssemblyImportNameAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, WebAssemblyImportNameAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, WebAssemblyImportNameAttr)
-  std::string_view ImportName(void) const noexcept;
-  uint32_t ImportNameLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view ImportName(void) const;
+  uint32_t ImportNameLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(WebAssemblyImportNameAttr)
 };
@@ -4443,10 +4443,10 @@ class WorkGroupSizeHintAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(WorkGroupSizeHintAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, WorkGroupSizeHintAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, WorkGroupSizeHintAttr)
-  std::string_view Spelling(void) const noexcept;
-  uint32_t XDim(void) const noexcept;
-  uint32_t YDim(void) const noexcept;
-  uint32_t ZDim(void) const noexcept;
+  std::string_view Spelling(void) const;
+  uint32_t XDim(void) const;
+  uint32_t YDim(void) const;
+  uint32_t ZDim(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(WorkGroupSizeHintAttr)
 };
@@ -4460,7 +4460,7 @@ class X86ForceAlignArgPointerAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(X86ForceAlignArgPointerAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, X86ForceAlignArgPointerAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, X86ForceAlignArgPointerAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(X86ForceAlignArgPointerAttr)
 };
@@ -4474,10 +4474,10 @@ class XRayInstrumentAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(XRayInstrumentAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, XRayInstrumentAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, XRayInstrumentAttr)
-  bool AlwaysXRayInstrument(void) const noexcept;
-  enum XRayInstrumentAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
-  bool NeverXRayInstrument(void) const noexcept;
+  bool AlwaysXRayInstrument(void) const;
+  enum XRayInstrumentAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
+  bool NeverXRayInstrument(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(XRayInstrumentAttr)
 };
@@ -4491,8 +4491,8 @@ class XRayLogArgsAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(XRayLogArgsAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, XRayLogArgsAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, XRayLogArgsAttr)
-  uint32_t ArgumentCount(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  uint32_t ArgumentCount(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(XRayLogArgsAttr)
 };
@@ -4506,8 +4506,8 @@ class ZeroCallUsedRegsAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ZeroCallUsedRegsAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ZeroCallUsedRegsAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ZeroCallUsedRegsAttr)
-  std::string_view Spelling(void) const noexcept;
-  enum ZeroCallUsedRegsAttrZeroCallUsedRegsKind ZeroCallUsedRegs(void) const noexcept;
+  std::string_view Spelling(void) const;
+  enum ZeroCallUsedRegsAttrZeroCallUsedRegsKind ZeroCallUsedRegs(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ZeroCallUsedRegsAttr)
 };
@@ -4521,7 +4521,7 @@ class AArch64SVEPcsAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AArch64SVEPcsAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AArch64SVEPcsAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AArch64SVEPcsAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AArch64SVEPcsAttr)
 };
@@ -4535,7 +4535,7 @@ class AArch64VectorPcsAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AArch64VectorPcsAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AArch64VectorPcsAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AArch64VectorPcsAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AArch64VectorPcsAttr)
 };
@@ -4549,9 +4549,9 @@ class AMDGPUFlatWorkGroupSizeAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AMDGPUFlatWorkGroupSizeAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AMDGPUFlatWorkGroupSizeAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AMDGPUFlatWorkGroupSizeAttr)
-  ::pasta::Expr Max(void) const noexcept;
-  ::pasta::Expr Min(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  ::pasta::Expr Max(void) const;
+  ::pasta::Expr Min(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AMDGPUFlatWorkGroupSizeAttr)
 };
@@ -4565,7 +4565,7 @@ class AMDGPUKernelCallAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AMDGPUKernelCallAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AMDGPUKernelCallAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AMDGPUKernelCallAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AMDGPUKernelCallAttr)
 };
@@ -4579,8 +4579,8 @@ class AMDGPUNumSGPRAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AMDGPUNumSGPRAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AMDGPUNumSGPRAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AMDGPUNumSGPRAttr)
-  uint32_t NumSGPR(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  uint32_t NumSGPR(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AMDGPUNumSGPRAttr)
 };
@@ -4594,8 +4594,8 @@ class AMDGPUNumVGPRAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AMDGPUNumVGPRAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AMDGPUNumVGPRAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AMDGPUNumVGPRAttr)
-  uint32_t NumVGPR(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  uint32_t NumVGPR(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AMDGPUNumVGPRAttr)
 };
@@ -4609,9 +4609,9 @@ class AMDGPUWavesPerEUAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AMDGPUWavesPerEUAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AMDGPUWavesPerEUAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AMDGPUWavesPerEUAttr)
-  ::pasta::Expr Max(void) const noexcept;
-  ::pasta::Expr Min(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  ::pasta::Expr Max(void) const;
+  ::pasta::Expr Min(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AMDGPUWavesPerEUAttr)
 };
@@ -4625,8 +4625,8 @@ class ARMInterruptAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ARMInterruptAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ARMInterruptAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ARMInterruptAttr)
-  enum ARMInterruptAttrInterruptType Interrupt(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum ARMInterruptAttrInterruptType Interrupt(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ARMInterruptAttr)
 };
@@ -4640,7 +4640,7 @@ class AVRInterruptAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AVRInterruptAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AVRInterruptAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AVRInterruptAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AVRInterruptAttr)
 };
@@ -4654,7 +4654,7 @@ class AVRSignalAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AVRSignalAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AVRSignalAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AVRSignalAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AVRSignalAttr)
 };
@@ -4667,7 +4667,7 @@ class AbiTagAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AbiTagAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AbiTagAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
   // Tags: (llvm::iterator_range<llvm::StringRef *>)
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AbiTagAttr)
@@ -4683,9 +4683,9 @@ class AcquireCapabilityAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, AcquireCapabilityAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AcquireCapabilityAttr)
   // Arguments: (llvm::iterator_range<clang::Expr **>)
-  enum AcquireCapabilityAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
-  bool IsShared(void) const noexcept;
+  enum AcquireCapabilityAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
+  bool IsShared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AcquireCapabilityAttr)
 };
@@ -4699,9 +4699,9 @@ class AcquireHandleAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AcquireHandleAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AcquireHandleAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AcquireHandleAttr)
-  std::string_view HandleType(void) const noexcept;
-  uint32_t HandleTypeLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view HandleType(void) const;
+  uint32_t HandleTypeLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AcquireHandleAttr)
 };
@@ -4716,7 +4716,7 @@ class AcquiredAfterAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, AcquiredAfterAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AcquiredAfterAttr)
   // Arguments: (llvm::iterator_range<clang::Expr **>)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AcquiredAfterAttr)
 };
@@ -4731,7 +4731,7 @@ class AcquiredBeforeAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, AcquiredBeforeAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AcquiredBeforeAttr)
   // Arguments: (llvm::iterator_range<clang::Expr **>)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AcquiredBeforeAttr)
 };
@@ -4746,7 +4746,7 @@ class AddressSpaceAttr : public TypeAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, AddressSpaceAttr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, AddressSpaceAttr)
   // AddressSpace: (int)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AddressSpaceAttr)
 };
@@ -4759,9 +4759,9 @@ class AliasAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AliasAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AliasAttr)
-  std::string_view Aliasee(void) const noexcept;
-  uint32_t AliaseeLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Aliasee(void) const;
+  uint32_t AliaseeLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AliasAttr)
 };
@@ -4775,7 +4775,7 @@ class AlignMac68kAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AlignMac68kAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AlignMac68kAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AlignMac68kAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AlignMac68kAttr)
 };
@@ -4789,7 +4789,7 @@ class AlignNaturalAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AlignNaturalAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AlignNaturalAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AlignNaturalAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AlignNaturalAttr)
 };
@@ -4802,8 +4802,8 @@ class AlignValueAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AlignValueAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AlignValueAttr)
-  ::pasta::Expr Alignment(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  ::pasta::Expr Alignment(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AlignValueAttr)
 };
@@ -4817,18 +4817,18 @@ class AlignedAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AlignedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AlignedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AlignedAttr)
-  uint32_t Alignment(void) const noexcept;
-  std::optional<::pasta::Expr> AlignmentExpression(void) const noexcept;
-  std::optional<::pasta::Type> AlignmentType(void) const noexcept;
-  enum AlignedAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
-  bool IsAlignas(void) const noexcept;
-  bool IsAlignmentDependent(void) const noexcept;
-  bool IsAlignmentErrorDependent(void) const noexcept;
-  bool IsAlignmentExpression(void) const noexcept;
-  bool IsC11(void) const noexcept;
-  bool IsDeclspec(void) const noexcept;
-  bool IsGNU(void) const noexcept;
+  uint32_t Alignment(void) const;
+  std::optional<::pasta::Expr> AlignmentExpression(void) const;
+  std::optional<::pasta::Type> AlignmentType(void) const;
+  enum AlignedAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
+  bool IsAlignas(void) const;
+  bool IsAlignmentDependent(void) const;
+  bool IsAlignmentErrorDependent(void) const;
+  bool IsAlignmentExpression(void) const;
+  bool IsC11(void) const;
+  bool IsDeclspec(void) const;
+  bool IsGNU(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AlignedAttr)
 };
@@ -4843,7 +4843,7 @@ class AllocAlignAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, AllocAlignAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AllocAlignAttr)
   // ParameterIndex: (clang::ParamIdx)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AllocAlignAttr)
 };
@@ -4859,7 +4859,7 @@ class AllocSizeAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AllocSizeAttr)
   // ElemSizeParameter: (clang::ParamIdx)
   // NumElemsParameter: (clang::ParamIdx)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AllocSizeAttr)
 };
@@ -4873,7 +4873,7 @@ class AlwaysDestroyAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AlwaysDestroyAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AlwaysDestroyAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AlwaysDestroyAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AlwaysDestroyAttr)
 };
@@ -4887,7 +4887,7 @@ class AnalyzerNoReturnAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AnalyzerNoReturnAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AnalyzerNoReturnAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AnalyzerNoReturnAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AnalyzerNoReturnAttr)
 };
@@ -4904,9 +4904,9 @@ class AnnotateAttr : public InheritableParamAttr {
   PASTA_DECLARE_BASE_OPERATORS(InheritableParamAttr, AnnotateAttr)
   // Arguments: (llvm::iterator_range<clang::Expr **>)
   // DelayedArguments: (llvm::iterator_range<clang::Expr **>)
-  std::string_view Annotation(void) const noexcept;
-  uint32_t AnnotationLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Annotation(void) const;
+  uint32_t AnnotationLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AnnotateAttr)
 };
@@ -4922,9 +4922,9 @@ class AnnotateTypeAttr : public TypeAttr {
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, AnnotateTypeAttr)
   // Arguments: (llvm::iterator_range<clang::Expr **>)
   // DelayedArguments: (llvm::iterator_range<clang::Expr **>)
-  std::string_view Annotation(void) const noexcept;
-  uint32_t AnnotationLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Annotation(void) const;
+  uint32_t AnnotationLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AnnotateTypeAttr)
 };
@@ -4938,7 +4938,7 @@ class AnyX86InterruptAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AnyX86InterruptAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AnyX86InterruptAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AnyX86InterruptAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AnyX86InterruptAttr)
 };
@@ -4952,7 +4952,7 @@ class AnyX86NoCallerSavedRegistersAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AnyX86NoCallerSavedRegistersAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AnyX86NoCallerSavedRegistersAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AnyX86NoCallerSavedRegistersAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AnyX86NoCallerSavedRegistersAttr)
 };
@@ -4966,7 +4966,7 @@ class AnyX86NoCfCheckAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AnyX86NoCfCheckAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AnyX86NoCfCheckAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AnyX86NoCfCheckAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AnyX86NoCfCheckAttr)
 };
@@ -4980,7 +4980,7 @@ class ArcWeakrefUnavailableAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ArcWeakrefUnavailableAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ArcWeakrefUnavailableAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ArcWeakrefUnavailableAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ArcWeakrefUnavailableAttr)
 };
@@ -4996,9 +4996,9 @@ class ArgumentWithTypeTagAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ArgumentWithTypeTagAttr)
   // ArgumentIndex: (clang::ParamIdx)
   // ArgumentKind: (clang::IdentifierInfo *)
-  bool IsPointer(void) const noexcept;
-  enum ArgumentWithTypeTagAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  bool IsPointer(void) const;
+  enum ArgumentWithTypeTagAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
   // TypeTagIndex: (clang::ParamIdx)
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ArgumentWithTypeTagAttr)
@@ -5014,7 +5014,7 @@ class ArmBuiltinAliasAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, ArmBuiltinAliasAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ArmBuiltinAliasAttr)
   // BuiltinName: (clang::IdentifierInfo *)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ArmBuiltinAliasAttr)
 };
@@ -5028,7 +5028,7 @@ class ArmMveStrictPolymorphismAttr : public TypeAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ArmMveStrictPolymorphismAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ArmMveStrictPolymorphismAttr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, ArmMveStrictPolymorphismAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ArmMveStrictPolymorphismAttr)
 };
@@ -5042,7 +5042,7 @@ class ArtificialAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ArtificialAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ArtificialAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ArtificialAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ArtificialAttr)
 };
@@ -5056,10 +5056,10 @@ class AsmLabelAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AsmLabelAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AsmLabelAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AsmLabelAttr)
-  bool IsLiteralLabel(void) const noexcept;
-  std::string_view Label(void) const noexcept;
-  uint32_t LabelLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  bool IsLiteralLabel(void) const;
+  std::string_view Label(void) const;
+  uint32_t LabelLength(void) const;
+  std::string_view Spelling(void) const;
   // IsEquivalent: (bool)
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AsmLabelAttr)
@@ -5075,9 +5075,9 @@ class AssertCapabilityAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, AssertCapabilityAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AssertCapabilityAttr)
   // Arguments: (llvm::iterator_range<clang::Expr **>)
-  enum AssertCapabilityAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
-  bool IsShared(void) const noexcept;
+  enum AssertCapabilityAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
+  bool IsShared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AssertCapabilityAttr)
 };
@@ -5092,7 +5092,7 @@ class AssertExclusiveLockAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, AssertExclusiveLockAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AssertExclusiveLockAttr)
   // Arguments: (llvm::iterator_range<clang::Expr **>)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AssertExclusiveLockAttr)
 };
@@ -5107,7 +5107,7 @@ class AssertSharedLockAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, AssertSharedLockAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AssertSharedLockAttr)
   // Arguments: (llvm::iterator_range<clang::Expr **>)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AssertSharedLockAttr)
 };
@@ -5121,9 +5121,9 @@ class AssumeAlignedAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AssumeAlignedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AssumeAlignedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AssumeAlignedAttr)
-  ::pasta::Expr Alignment(void) const noexcept;
-  std::optional<::pasta::Expr> Offset(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  ::pasta::Expr Alignment(void) const;
+  std::optional<::pasta::Expr> Offset(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AssumeAlignedAttr)
 };
@@ -5137,9 +5137,9 @@ class AssumptionAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AssumptionAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, AssumptionAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AssumptionAttr)
-  std::string_view Assumption(void) const noexcept;
-  uint32_t AssumptionLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Assumption(void) const;
+  uint32_t AssumptionLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AssumptionAttr)
 };
@@ -5155,16 +5155,16 @@ class AvailabilityAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AvailabilityAttr)
   // Deprecated: (llvm::VersionTuple)
   // Introduced: (llvm::VersionTuple)
-  std::string_view Message(void) const noexcept;
-  uint32_t MessageLength(void) const noexcept;
+  std::string_view Message(void) const;
+  uint32_t MessageLength(void) const;
   // Obsoleted: (llvm::VersionTuple)
   // Platform: (clang::IdentifierInfo *)
   // Priority: (int)
-  std::string_view Replacement(void) const noexcept;
-  uint32_t ReplacementLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
-  bool Strict(void) const noexcept;
-  bool Unavailable(void) const noexcept;
+  std::string_view Replacement(void) const;
+  uint32_t ReplacementLength(void) const;
+  std::string_view Spelling(void) const;
+  bool Strict(void) const;
+  bool Unavailable(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AvailabilityAttr)
 };
@@ -5178,7 +5178,7 @@ class BPFPreserveAccessIndexAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(BPFPreserveAccessIndexAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, BPFPreserveAccessIndexAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, BPFPreserveAccessIndexAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(BPFPreserveAccessIndexAttr)
 };
@@ -5192,9 +5192,9 @@ class BTFDeclTagAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(BTFDeclTagAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, BTFDeclTagAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, BTFDeclTagAttr)
-  std::string_view BTFDeclTag(void) const noexcept;
-  uint32_t BTFDeclTagLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view BTFDeclTag(void) const;
+  uint32_t BTFDeclTagLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(BTFDeclTagAttr)
 };
@@ -5208,9 +5208,9 @@ class BTFTypeTagAttr : public TypeAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(BTFTypeTagAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, BTFTypeTagAttr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, BTFTypeTagAttr)
-  std::string_view BTFTypeTag(void) const noexcept;
-  uint32_t BTFTypeTagLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view BTFTypeTag(void) const;
+  uint32_t BTFTypeTagLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(BTFTypeTagAttr)
 };
@@ -5224,8 +5224,8 @@ class BlocksAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(BlocksAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, BlocksAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, BlocksAttr)
-  std::string_view Spelling(void) const noexcept;
-  enum BlocksAttrBlockType Type(void) const noexcept;
+  std::string_view Spelling(void) const;
+  enum BlocksAttrBlockType Type(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(BlocksAttr)
 };
@@ -5239,8 +5239,8 @@ class BuiltinAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(BuiltinAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, BuiltinAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, BuiltinAttr)
-  uint32_t ID(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  uint32_t ID(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(BuiltinAttr)
 };
@@ -5254,7 +5254,7 @@ class C11NoReturnAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(C11NoReturnAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, C11NoReturnAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, C11NoReturnAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(C11NoReturnAttr)
 };
@@ -5268,7 +5268,7 @@ class CDeclAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CDeclAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CDeclAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CDeclAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CDeclAttr)
 };
@@ -5282,7 +5282,7 @@ class CFAuditedTransferAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CFAuditedTransferAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CFAuditedTransferAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CFAuditedTransferAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CFAuditedTransferAttr)
 };
@@ -5297,7 +5297,7 @@ class CFConsumedAttr : public InheritableParamAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, CFConsumedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CFConsumedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableParamAttr, CFConsumedAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CFConsumedAttr)
 };
@@ -5311,8 +5311,8 @@ class CFGuardAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CFGuardAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CFGuardAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CFGuardAttr)
-  enum CFGuardAttrGuardArg Guard(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum CFGuardAttrGuardArg Guard(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CFGuardAttr)
 };
@@ -5326,7 +5326,7 @@ class CFICanonicalJumpTableAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CFICanonicalJumpTableAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CFICanonicalJumpTableAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CFICanonicalJumpTableAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CFICanonicalJumpTableAttr)
 };
@@ -5340,7 +5340,7 @@ class CFReturnsNotRetainedAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CFReturnsNotRetainedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CFReturnsNotRetainedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CFReturnsNotRetainedAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CFReturnsNotRetainedAttr)
 };
@@ -5354,7 +5354,7 @@ class CFReturnsRetainedAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CFReturnsRetainedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CFReturnsRetainedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CFReturnsRetainedAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CFReturnsRetainedAttr)
 };
@@ -5368,7 +5368,7 @@ class CFUnknownTransferAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CFUnknownTransferAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CFUnknownTransferAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CFUnknownTransferAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CFUnknownTransferAttr)
 };
@@ -5383,7 +5383,7 @@ class CPUDispatchAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, CPUDispatchAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CPUDispatchAttr)
   // Cpus: (llvm::iterator_range<clang::IdentifierInfo **>)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CPUDispatchAttr)
 };
@@ -5399,7 +5399,7 @@ class CPUSpecificAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CPUSpecificAttr)
   // Cpus: (llvm::iterator_range<clang::IdentifierInfo **>)
   // CPUName: (clang::IdentifierInfo *)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CPUSpecificAttr)
 };
@@ -5413,7 +5413,7 @@ class CUDAConstantAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CUDAConstantAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CUDAConstantAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CUDAConstantAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CUDAConstantAttr)
 };
@@ -5427,7 +5427,7 @@ class CUDADeviceAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CUDADeviceAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CUDADeviceAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CUDADeviceAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CUDADeviceAttr)
 };
@@ -5441,7 +5441,7 @@ class CUDADeviceBuiltinSurfaceTypeAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CUDADeviceBuiltinSurfaceTypeAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CUDADeviceBuiltinSurfaceTypeAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CUDADeviceBuiltinSurfaceTypeAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CUDADeviceBuiltinSurfaceTypeAttr)
 };
@@ -5455,7 +5455,7 @@ class CUDADeviceBuiltinTextureTypeAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CUDADeviceBuiltinTextureTypeAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CUDADeviceBuiltinTextureTypeAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CUDADeviceBuiltinTextureTypeAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CUDADeviceBuiltinTextureTypeAttr)
 };
@@ -5469,7 +5469,7 @@ class CUDAGlobalAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CUDAGlobalAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CUDAGlobalAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CUDAGlobalAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CUDAGlobalAttr)
 };
@@ -5483,7 +5483,7 @@ class CUDAHostAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CUDAHostAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CUDAHostAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CUDAHostAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CUDAHostAttr)
 };
@@ -5497,7 +5497,7 @@ class CUDAInvalidTargetAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CUDAInvalidTargetAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CUDAInvalidTargetAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CUDAInvalidTargetAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CUDAInvalidTargetAttr)
 };
@@ -5511,9 +5511,9 @@ class CUDALaunchBoundsAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CUDALaunchBoundsAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CUDALaunchBoundsAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CUDALaunchBoundsAttr)
-  ::pasta::Expr MaxThreads(void) const noexcept;
-  ::pasta::Expr MinBlocks(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  ::pasta::Expr MaxThreads(void) const;
+  ::pasta::Expr MinBlocks(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CUDALaunchBoundsAttr)
 };
@@ -5527,7 +5527,7 @@ class CUDASharedAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CUDASharedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CUDASharedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CUDASharedAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CUDASharedAttr)
 };
@@ -5541,8 +5541,8 @@ class CXX11NoReturnAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CXX11NoReturnAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CXX11NoReturnAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CXX11NoReturnAttr)
-  enum CXX11NoReturnAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum CXX11NoReturnAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CXX11NoReturnAttr)
 };
@@ -5557,7 +5557,7 @@ class CallableWhenAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, CallableWhenAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CallableWhenAttr)
   // CallableStates: (llvm::iterator_range<clang::CallableWhenAttr::ConsumedState *>)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CallableWhenAttr)
 };
@@ -5572,7 +5572,7 @@ class CallbackAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, CallbackAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CallbackAttr)
   // Encoding: (llvm::iterator_range<int *>)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CallbackAttr)
 };
@@ -5586,11 +5586,11 @@ class CapabilityAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CapabilityAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CapabilityAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CapabilityAttr)
-  std::string_view Name(void) const noexcept;
-  uint32_t NameLength(void) const noexcept;
-  enum CapabilityAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
-  bool IsShared(void) const noexcept;
+  std::string_view Name(void) const;
+  uint32_t NameLength(void) const;
+  enum CapabilityAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
+  bool IsShared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CapabilityAttr)
 };
@@ -5604,7 +5604,7 @@ class CapturedRecordAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CapturedRecordAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CapturedRecordAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CapturedRecordAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CapturedRecordAttr)
 };
@@ -5619,7 +5619,7 @@ class CarriesDependencyAttr : public InheritableParamAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, CarriesDependencyAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CarriesDependencyAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableParamAttr, CarriesDependencyAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CarriesDependencyAttr)
 };
@@ -5633,8 +5633,8 @@ class CleanupAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CleanupAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CleanupAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CleanupAttr)
-  ::pasta::FunctionDecl FunctionDeclaration(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  ::pasta::FunctionDecl FunctionDeclaration(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CleanupAttr)
 };
@@ -5648,7 +5648,7 @@ class CmseNSCallAttr : public TypeAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CmseNSCallAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CmseNSCallAttr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, CmseNSCallAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CmseNSCallAttr)
 };
@@ -5662,7 +5662,7 @@ class CmseNSEntryAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CmseNSEntryAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CmseNSEntryAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CmseNSEntryAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CmseNSEntryAttr)
 };
@@ -5676,9 +5676,9 @@ class CodeSegAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CodeSegAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CodeSegAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CodeSegAttr)
-  std::string_view Name(void) const noexcept;
-  uint32_t NameLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Name(void) const;
+  uint32_t NameLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CodeSegAttr)
 };
@@ -5692,7 +5692,7 @@ class ColdAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ColdAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ColdAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ColdAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ColdAttr)
 };
@@ -5706,7 +5706,7 @@ class CommonAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(CommonAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, CommonAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, CommonAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(CommonAttr)
 };
@@ -5720,7 +5720,7 @@ class ConstAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ConstAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ConstAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ConstAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ConstAttr)
 };
@@ -5734,9 +5734,9 @@ class ConstInitAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ConstInitAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ConstInitAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ConstInitAttr)
-  enum ConstInitAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
-  bool IsConstinit(void) const noexcept;
+  enum ConstInitAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
+  bool IsConstinit(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ConstInitAttr)
 };
@@ -5751,7 +5751,7 @@ class ConstructorAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, ConstructorAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ConstructorAttr)
   // Priority: (int)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ConstructorAttr)
 };
@@ -5765,8 +5765,8 @@ class ConsumableAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ConsumableAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ConsumableAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ConsumableAttr)
-  enum ConsumableAttrConsumedState DefaultState(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum ConsumableAttrConsumedState DefaultState(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ConsumableAttr)
 };
@@ -5780,7 +5780,7 @@ class ConsumableAutoCastAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ConsumableAutoCastAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ConsumableAutoCastAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ConsumableAutoCastAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ConsumableAutoCastAttr)
 };
@@ -5794,7 +5794,7 @@ class ConsumableSetOnReadAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ConsumableSetOnReadAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ConsumableSetOnReadAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ConsumableSetOnReadAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ConsumableSetOnReadAttr)
 };
@@ -5808,7 +5808,7 @@ class ConvergentAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ConvergentAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ConvergentAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ConvergentAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ConvergentAttr)
 };
@@ -5822,7 +5822,7 @@ class DLLExportAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DLLExportAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, DLLExportAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, DLLExportAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(DLLExportAttr)
 };
@@ -5836,7 +5836,7 @@ class DLLExportStaticLocalAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DLLExportStaticLocalAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, DLLExportStaticLocalAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, DLLExportStaticLocalAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(DLLExportStaticLocalAttr)
 };
@@ -5850,7 +5850,7 @@ class DLLImportAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DLLImportAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, DLLImportAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, DLLImportAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(DLLImportAttr)
 };
@@ -5864,7 +5864,7 @@ class DLLImportStaticLocalAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DLLImportStaticLocalAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, DLLImportStaticLocalAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, DLLImportStaticLocalAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(DLLImportStaticLocalAttr)
 };
@@ -5894,11 +5894,11 @@ class DeprecatedAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DeprecatedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, DeprecatedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, DeprecatedAttr)
-  std::string_view Message(void) const noexcept;
-  uint32_t MessageLength(void) const noexcept;
-  std::string_view Replacement(void) const noexcept;
-  uint32_t ReplacementLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Message(void) const;
+  uint32_t MessageLength(void) const;
+  std::string_view Replacement(void) const;
+  uint32_t ReplacementLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(DeprecatedAttr)
 };
@@ -5913,7 +5913,7 @@ class DestructorAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, DestructorAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, DestructorAttr)
   // Priority: (int)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(DestructorAttr)
 };
@@ -5928,8 +5928,8 @@ class DiagnoseAsBuiltinAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, DiagnoseAsBuiltinAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, DiagnoseAsBuiltinAttr)
   // ArgumentIndices: (llvm::iterator_range<unsigned int *>)
-  ::pasta::FunctionDecl Function(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  ::pasta::FunctionDecl Function(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(DiagnoseAsBuiltinAttr)
 };
@@ -5943,15 +5943,15 @@ class DiagnoseIfAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DiagnoseIfAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, DiagnoseIfAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, DiagnoseIfAttr)
-  bool ArgumentDependent(void) const noexcept;
-  ::pasta::Expr Condition(void) const noexcept;
-  enum DiagnoseIfAttrDiagnosticType DiagnosticType(void) const noexcept;
-  std::string_view Message(void) const noexcept;
-  uint32_t MessageLength(void) const noexcept;
-  ::pasta::NamedDecl Parent(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
-  bool IsError(void) const noexcept;
-  bool IsWarning(void) const noexcept;
+  bool ArgumentDependent(void) const;
+  ::pasta::Expr Condition(void) const;
+  enum DiagnoseIfAttrDiagnosticType DiagnosticType(void) const;
+  std::string_view Message(void) const;
+  uint32_t MessageLength(void) const;
+  ::pasta::NamedDecl Parent(void) const;
+  std::string_view Spelling(void) const;
+  bool IsError(void) const;
+  bool IsWarning(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(DiagnoseIfAttr)
 };
@@ -5965,7 +5965,7 @@ class DisableSanitizerInstrumentationAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DisableSanitizerInstrumentationAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, DisableSanitizerInstrumentationAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, DisableSanitizerInstrumentationAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(DisableSanitizerInstrumentationAttr)
 };
@@ -5979,7 +5979,7 @@ class DisableTailCallsAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DisableTailCallsAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, DisableTailCallsAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, DisableTailCallsAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(DisableTailCallsAttr)
 };
@@ -5993,7 +5993,7 @@ class EmptyBasesAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(EmptyBasesAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, EmptyBasesAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, EmptyBasesAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(EmptyBasesAttr)
 };
@@ -6007,10 +6007,10 @@ class EnableIfAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(EnableIfAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, EnableIfAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, EnableIfAttr)
-  ::pasta::Expr Condition(void) const noexcept;
-  std::string_view Message(void) const noexcept;
-  uint32_t MessageLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  ::pasta::Expr Condition(void) const;
+  std::string_view Message(void) const;
+  uint32_t MessageLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(EnableIfAttr)
 };
@@ -6024,9 +6024,9 @@ class EnforceTCBAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(EnforceTCBAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, EnforceTCBAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, EnforceTCBAttr)
-  std::string_view Spelling(void) const noexcept;
-  std::string_view TCBName(void) const noexcept;
-  uint32_t TCBNameLength(void) const noexcept;
+  std::string_view Spelling(void) const;
+  std::string_view TCBName(void) const;
+  uint32_t TCBNameLength(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(EnforceTCBAttr)
 };
@@ -6040,9 +6040,9 @@ class EnforceTCBLeafAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(EnforceTCBLeafAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, EnforceTCBLeafAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, EnforceTCBLeafAttr)
-  std::string_view Spelling(void) const noexcept;
-  std::string_view TCBName(void) const noexcept;
-  uint32_t TCBNameLength(void) const noexcept;
+  std::string_view Spelling(void) const;
+  std::string_view TCBName(void) const;
+  uint32_t TCBNameLength(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(EnforceTCBLeafAttr)
 };
@@ -6056,8 +6056,8 @@ class EnumExtensibilityAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(EnumExtensibilityAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, EnumExtensibilityAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, EnumExtensibilityAttr)
-  enum EnumExtensibilityAttrKind Extensibility(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum EnumExtensibilityAttrKind Extensibility(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(EnumExtensibilityAttr)
 };
@@ -6071,12 +6071,12 @@ class ErrorAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ErrorAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ErrorAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ErrorAttr)
-  enum ErrorAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
-  std::string_view UserDiagnostic(void) const noexcept;
-  uint32_t UserDiagnosticLength(void) const noexcept;
-  bool IsError(void) const noexcept;
-  bool IsWarning(void) const noexcept;
+  enum ErrorAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
+  std::string_view UserDiagnostic(void) const;
+  uint32_t UserDiagnosticLength(void) const;
+  bool IsError(void) const;
+  bool IsWarning(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ErrorAttr)
 };
@@ -6090,7 +6090,7 @@ class ExcludeFromExplicitInstantiationAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ExcludeFromExplicitInstantiationAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ExcludeFromExplicitInstantiationAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ExcludeFromExplicitInstantiationAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ExcludeFromExplicitInstantiationAttr)
 };
@@ -6105,8 +6105,8 @@ class ExclusiveTrylockFunctionAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, ExclusiveTrylockFunctionAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ExclusiveTrylockFunctionAttr)
   // Arguments: (llvm::iterator_range<clang::Expr **>)
-  std::string_view Spelling(void) const noexcept;
-  ::pasta::Expr SuccessValue(void) const noexcept;
+  std::string_view Spelling(void) const;
+  ::pasta::Expr SuccessValue(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ExclusiveTrylockFunctionAttr)
 };
@@ -6120,12 +6120,12 @@ class ExternalSourceSymbolAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ExternalSourceSymbolAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ExternalSourceSymbolAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, ExternalSourceSymbolAttr)
-  std::string_view DefinedIn(void) const noexcept;
-  uint32_t DefinedInLength(void) const noexcept;
-  bool GeneratedDeclaration(void) const noexcept;
-  std::string_view Language(void) const noexcept;
-  uint32_t LanguageLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view DefinedIn(void) const;
+  uint32_t DefinedInLength(void) const;
+  bool GeneratedDeclaration(void) const;
+  std::string_view Language(void) const;
+  uint32_t LanguageLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ExternalSourceSymbolAttr)
 };
@@ -6139,7 +6139,7 @@ class FallThroughAttr : public StmtAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(FallThroughAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, FallThroughAttr)
   PASTA_DECLARE_BASE_OPERATORS(StmtAttr, FallThroughAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(FallThroughAttr)
 };
@@ -6153,7 +6153,7 @@ class FastCallAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(FastCallAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, FastCallAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, FastCallAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(FastCallAttr)
 };
@@ -6167,9 +6167,9 @@ class FinalAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(FinalAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, FinalAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, FinalAttr)
-  enum FinalAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
-  bool IsSpelledAsSealed(void) const noexcept;
+  enum FinalAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
+  bool IsSpelledAsSealed(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(FinalAttr)
 };
@@ -6183,7 +6183,7 @@ class FlagEnumAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(FlagEnumAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, FlagEnumAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, FlagEnumAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(FlagEnumAttr)
 };
@@ -6197,7 +6197,7 @@ class FlattenAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(FlattenAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, FlattenAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, FlattenAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(FlattenAttr)
 };
@@ -6212,7 +6212,7 @@ class FormatArgAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, FormatArgAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, FormatArgAttr)
   // FormatIndex: (clang::ParamIdx)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(FormatArgAttr)
 };
@@ -6228,7 +6228,7 @@ class FormatAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, FormatAttr)
   // FirstArgument: (int)
   // FormatIndex: (int)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
   // Type: (clang::IdentifierInfo *)
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(FormatAttr)
@@ -6243,8 +6243,8 @@ class FunctionReturnThunksAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(FunctionReturnThunksAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, FunctionReturnThunksAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, FunctionReturnThunksAttr)
-  std::string_view Spelling(void) const noexcept;
-  enum FunctionReturnThunksAttrKind ThunkType(void) const noexcept;
+  std::string_view Spelling(void) const;
+  enum FunctionReturnThunksAttrKind ThunkType(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(FunctionReturnThunksAttr)
 };
@@ -6258,7 +6258,7 @@ class GNUInlineAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(GNUInlineAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, GNUInlineAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, GNUInlineAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(GNUInlineAttr)
 };
@@ -6272,8 +6272,8 @@ class GuardedByAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(GuardedByAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, GuardedByAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, GuardedByAttr)
-  ::pasta::Expr Argument(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  ::pasta::Expr Argument(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(GuardedByAttr)
 };
@@ -6287,7 +6287,7 @@ class GuardedVarAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(GuardedVarAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, GuardedVarAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, GuardedVarAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(GuardedVarAttr)
 };
@@ -6301,7 +6301,7 @@ class HIPManagedAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(HIPManagedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, HIPManagedAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, HIPManagedAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(HIPManagedAttr)
 };
@@ -6330,7 +6330,7 @@ class HLSLGroupSharedAddressSpaceAttr : public TypeAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(HLSLGroupSharedAddressSpaceAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, HLSLGroupSharedAddressSpaceAttr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, HLSLGroupSharedAddressSpaceAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(HLSLGroupSharedAddressSpaceAttr)
 };
@@ -6344,7 +6344,7 @@ class HLSLNumThreadsAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(HLSLNumThreadsAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, HLSLNumThreadsAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, HLSLNumThreadsAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
   // X: (int)
   // Y: (int)
   // Z: (int)
@@ -6361,9 +6361,9 @@ class HLSLResourceAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(HLSLResourceAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, HLSLResourceAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, HLSLResourceAttr)
-  enum HLSLResourceAttrResourceKind ResourceShape(void) const noexcept;
-  enum HLSLResourceAttrResourceClass ResourceType(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum HLSLResourceAttrResourceKind ResourceShape(void) const;
+  enum HLSLResourceAttrResourceClass ResourceType(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(HLSLResourceAttr)
 };
@@ -6377,11 +6377,11 @@ class HLSLResourceBindingAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(HLSLResourceBindingAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, HLSLResourceBindingAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, HLSLResourceBindingAttr)
-  std::string_view Slot(void) const noexcept;
-  uint32_t SlotLength(void) const noexcept;
-  std::string_view Space(void) const noexcept;
-  uint32_t SpaceLength(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Slot(void) const;
+  uint32_t SlotLength(void) const;
+  std::string_view Space(void) const;
+  uint32_t SpaceLength(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(HLSLResourceBindingAttr)
 };
@@ -6396,7 +6396,7 @@ class HLSLSV_DispatchThreadIDAttr : public HLSLAnnotationAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, HLSLSV_DispatchThreadIDAttr)
   PASTA_DECLARE_BASE_OPERATORS(HLSLAnnotationAttr, HLSLSV_DispatchThreadIDAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, HLSLSV_DispatchThreadIDAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(HLSLSV_DispatchThreadIDAttr)
 };
@@ -6411,7 +6411,7 @@ class HLSLSV_GroupIndexAttr : public HLSLAnnotationAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, HLSLSV_GroupIndexAttr)
   PASTA_DECLARE_BASE_OPERATORS(HLSLAnnotationAttr, HLSLSV_GroupIndexAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, HLSLSV_GroupIndexAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(HLSLSV_GroupIndexAttr)
 };
@@ -6425,8 +6425,8 @@ class HLSLShaderAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(HLSLShaderAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, HLSLShaderAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, HLSLShaderAttr)
-  std::string_view Spelling(void) const noexcept;
-  enum HLSLShaderAttrShaderType Type(void) const noexcept;
+  std::string_view Spelling(void) const;
+  enum HLSLShaderAttrShaderType Type(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(HLSLShaderAttr)
 };
@@ -6440,7 +6440,7 @@ class HotAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(HotAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, HotAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, HotAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(HotAttr)
 };
@@ -6454,7 +6454,7 @@ class IBActionAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(IBActionAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, IBActionAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, IBActionAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(IBActionAttr)
 };
@@ -6468,7 +6468,7 @@ class IBOutletAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(IBOutletAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, IBOutletAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, IBOutletAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(IBOutletAttr)
 };
@@ -6482,9 +6482,9 @@ class IBOutletCollectionAttr : public InheritableAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(IBOutletCollectionAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, IBOutletCollectionAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, IBOutletCollectionAttr)
-  ::pasta::Type Interface(void) const noexcept;
-  ::pasta::Type InterfaceToken(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  ::pasta::Type Interface(void) const;
+  ::pasta::Type InterfaceToken(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(IBOutletCollectionAttr)
 };
@@ -6498,7 +6498,7 @@ class LikelyAttr : public StmtAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(LikelyAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, LikelyAttr)
   PASTA_DECLARE_BASE_OPERATORS(StmtAttr, LikelyAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(LikelyAttr)
 };
@@ -6512,7 +6512,7 @@ class MustTailAttr : public StmtAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MustTailAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, MustTailAttr)
   PASTA_DECLARE_BASE_OPERATORS(StmtAttr, MustTailAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(MustTailAttr)
 };
@@ -6526,7 +6526,7 @@ class NoDerefAttr : public TypeAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(NoDerefAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoDerefAttr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, NoDerefAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoDerefAttr)
 };
@@ -6541,8 +6541,8 @@ class NoInlineAttr : public DeclOrStmtAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoInlineAttr)
   PASTA_DECLARE_BASE_OPERATORS(DeclOrStmtAttr, NoInlineAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoInlineAttr)
-  std::string_view Spelling(void) const noexcept;
-  bool IsClangNoInline(void) const noexcept;
+  std::string_view Spelling(void) const;
+  bool IsClangNoInline(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoInlineAttr)
 };
@@ -6557,7 +6557,7 @@ class NoMergeAttr : public DeclOrStmtAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, NoMergeAttr)
   PASTA_DECLARE_BASE_OPERATORS(DeclOrStmtAttr, NoMergeAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, NoMergeAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(NoMergeAttr)
 };
@@ -6572,7 +6572,7 @@ class ObjCGCAttr : public TypeAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCGCAttr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, ObjCGCAttr)
   // Kind: (clang::IdentifierInfo *)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCGCAttr)
 };
@@ -6586,7 +6586,7 @@ class ObjCInertUnsafeUnretainedAttr : public TypeAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCInertUnsafeUnretainedAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCInertUnsafeUnretainedAttr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, ObjCInertUnsafeUnretainedAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCInertUnsafeUnretainedAttr)
 };
@@ -6600,7 +6600,7 @@ class ObjCKindOfAttr : public TypeAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCKindOfAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, ObjCKindOfAttr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, ObjCKindOfAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(ObjCKindOfAttr)
 };
@@ -6614,8 +6614,8 @@ class OpenCLConstantAddressSpaceAttr : public TypeAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OpenCLConstantAddressSpaceAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OpenCLConstantAddressSpaceAttr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, OpenCLConstantAddressSpaceAttr)
-  enum OpenCLConstantAddressSpaceAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum OpenCLConstantAddressSpaceAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OpenCLConstantAddressSpaceAttr)
 };
@@ -6629,8 +6629,8 @@ class OpenCLGenericAddressSpaceAttr : public TypeAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OpenCLGenericAddressSpaceAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OpenCLGenericAddressSpaceAttr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, OpenCLGenericAddressSpaceAttr)
-  enum OpenCLGenericAddressSpaceAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum OpenCLGenericAddressSpaceAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OpenCLGenericAddressSpaceAttr)
 };
@@ -6644,8 +6644,8 @@ class OpenCLGlobalAddressSpaceAttr : public TypeAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OpenCLGlobalAddressSpaceAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OpenCLGlobalAddressSpaceAttr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, OpenCLGlobalAddressSpaceAttr)
-  enum OpenCLGlobalAddressSpaceAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum OpenCLGlobalAddressSpaceAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OpenCLGlobalAddressSpaceAttr)
 };
@@ -6659,7 +6659,7 @@ class OpenCLGlobalDeviceAddressSpaceAttr : public TypeAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OpenCLGlobalDeviceAddressSpaceAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OpenCLGlobalDeviceAddressSpaceAttr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, OpenCLGlobalDeviceAddressSpaceAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OpenCLGlobalDeviceAddressSpaceAttr)
 };
@@ -6673,7 +6673,7 @@ class OpenCLGlobalHostAddressSpaceAttr : public TypeAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OpenCLGlobalHostAddressSpaceAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OpenCLGlobalHostAddressSpaceAttr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, OpenCLGlobalHostAddressSpaceAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OpenCLGlobalHostAddressSpaceAttr)
 };
@@ -6687,8 +6687,8 @@ class OpenCLLocalAddressSpaceAttr : public TypeAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OpenCLLocalAddressSpaceAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OpenCLLocalAddressSpaceAttr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, OpenCLLocalAddressSpaceAttr)
-  enum OpenCLLocalAddressSpaceAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum OpenCLLocalAddressSpaceAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OpenCLLocalAddressSpaceAttr)
 };
@@ -6702,8 +6702,8 @@ class OpenCLPrivateAddressSpaceAttr : public TypeAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OpenCLPrivateAddressSpaceAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OpenCLPrivateAddressSpaceAttr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, OpenCLPrivateAddressSpaceAttr)
-  enum OpenCLPrivateAddressSpaceAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
+  enum OpenCLPrivateAddressSpaceAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OpenCLPrivateAddressSpaceAttr)
 };
@@ -6717,8 +6717,8 @@ class OpenCLUnrollHintAttr : public StmtAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(OpenCLUnrollHintAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, OpenCLUnrollHintAttr)
   PASTA_DECLARE_BASE_OPERATORS(StmtAttr, OpenCLUnrollHintAttr)
-  std::string_view Spelling(void) const noexcept;
-  uint32_t UnrollHint(void) const noexcept;
+  std::string_view Spelling(void) const;
+  uint32_t UnrollHint(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(OpenCLUnrollHintAttr)
 };
@@ -6732,7 +6732,7 @@ class Ptr32Attr : public TypeAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(Ptr32Attr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, Ptr32Attr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, Ptr32Attr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(Ptr32Attr)
 };
@@ -6746,7 +6746,7 @@ class Ptr64Attr : public TypeAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(Ptr64Attr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, Ptr64Attr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, Ptr64Attr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(Ptr64Attr)
 };
@@ -6760,7 +6760,7 @@ class SPtrAttr : public TypeAttr {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SPtrAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, SPtrAttr)
   PASTA_DECLARE_BASE_OPERATORS(TypeAttr, SPtrAttr)
-  std::string_view Spelling(void) const noexcept;
+  std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SPtrAttr)
 };
@@ -6775,9 +6775,9 @@ class AlwaysInlineAttr : public DeclOrStmtAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, AlwaysInlineAttr)
   PASTA_DECLARE_BASE_OPERATORS(DeclOrStmtAttr, AlwaysInlineAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, AlwaysInlineAttr)
-  enum AlwaysInlineAttrSpelling SemanticSpelling(void) const noexcept;
-  std::string_view Spelling(void) const noexcept;
-  bool IsClangAlwaysInline(void) const noexcept;
+  enum AlwaysInlineAttrSpelling SemanticSpelling(void) const;
+  std::string_view Spelling(void) const;
+  bool IsClangAlwaysInline(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(AlwaysInlineAttr)
 };

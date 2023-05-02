@@ -87,7 +87,7 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
     os << rt_type;
   }
 
-  os << " " << class_name << "::" << meth_name << "(void) const noexcept {\n";
+  os << " " << class_name << "::" << meth_name << "(void) const {\n";
 
   const auto is_qual_type = class_name == "QualifiedType";
   if (is_qual_type) {
@@ -134,7 +134,7 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
     (void) handled_null_ret;
   }
 
-  os << "  __builtin_unreachable();\n"
+  os << "  throw std::runtime_error(\"The unreachable has been reached\");\n"
      << "}\n\n";
 }
 
@@ -168,7 +168,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
     } else {
       os << rt_type;
     }
-    os << " " << class_name << "::" << meth_name << "(void) const noexcept {\n";
+    os << " " << class_name << "::" << meth_name << "(void) const {\n";
     if (is_qual_type) {
       os << "  auto &ast_ctx = ast->ci->getASTContext();\n"
          << "  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);\n"
@@ -204,14 +204,14 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
         os << rt_val
            << "  assert(false && \"" << class_name << "::"
            << meth_name << " can return nullptr!\");\n"
-           << "  __builtin_unreachable();\n";
+           << "  throw std::runtime_error(\"The unreachable has been reached\");\n";
       }
     } else {
       assert(!can_ret_null || handled_null_ret);
       os << rt_val;
       (void) handled_null_ret;
     }
-    os << "  __builtin_unreachable();\n"
+    os << "  throw std::runtime_error(\"The unreachable has been reached\");\n"
        << "}\n\n";
 
   } else if (p0_ref == "(bool)") {
@@ -222,7 +222,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
     } else {
       os << rt_type;
     }
-    os << " " << class_name << "::" << meth_name << "(bool b) const noexcept {\n";
+    os << " " << class_name << "::" << meth_name << "(bool b) const {\n";
     if (is_qual_type) {
       os << "  auto &ast_ctx = ast->ci->getASTContext();\n"
          << "  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);\n"
@@ -253,18 +253,18 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
         os << rt_val
            << "  assert(false && \"" << class_name << "::"
            << meth_name << " can return nullptr!\");\n"
-           << "  __builtin_unreachable();\n";
+           << "  throw std::runtime_error(\"The unreachable has been reached\");\n";
       }
     } else {
       assert(!can_ret_null);
       os << rt_val;
     }
-    os << "  __builtin_unreachable();\n"
+    os << "  throw std::runtime_error(\"The unreachable has been reached\");\n"
        << "}\n\n";
 
   } else if (!strcmp(class_name.c_str(), "DesignatedInitExpr") &&
       !strcmp(meth_name.c_str(), "Designator")) {
-    os << rt_type << " " << class_name << "::" << meth_name << "(unsigned int idx) const noexcept {\n"
+    os << rt_type << " " << class_name << "::" << meth_name << "(unsigned int idx) const {\n"
        << "  auto &self = *const_cast<clang::"<< class_name << " *>(u." << class_name  <<");\n"
        << "  if (idx >= self.designators().size()) {\n"
        << "    return std::nullopt;\n"
@@ -274,7 +274,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
        << "    return std::nullopt;\n"
        << "  }\n"
        << rt_val
-       << "  __builtin_unreachable();\n"
+       << "  throw std::runtime_error(\"The unreachable has been reached\");\n"
        << "}\n\n";
   } else { \
     os << "// 1: " << class_name << "::" << meth_name << "\n";
@@ -287,7 +287,7 @@ static void DefineIterators(std::ostream &os, const std::string &class_name) {
     auto &rt_type = gRetTypeMap[iterator.elem_type];
     auto &rt_val = gRetTypeToValMap[iterator.elem_type];
     os << "std::vector<" << rt_type << "> " << class_name << "::"
-       << iterator.cxx_method << "(void) const noexcept {\n"
+       << iterator.cxx_method << "(void) const {\n"
        << "  std::vector<" << rt_type << "> ret;\n";
 
     std::pair<std::string, std::string> null_key(class_name, iterator.cxx_method);
@@ -309,7 +309,7 @@ static void DefineIterators(std::ostream &os, const std::string &class_name) {
     }
 
     if (last_is_rbrace) {
-      os << "    __builtin_unreachable();\n";
+      os << "    throw std::runtime_error(\"The unreachable has been reached\");\n";
     }
 
     os << "  };\n"

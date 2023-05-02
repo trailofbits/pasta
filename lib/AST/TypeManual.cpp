@@ -33,7 +33,7 @@ std::shared_ptr<void> GetExcSpec(const clang::FunctionProtoType *type) {
 
 }  // namespace
 
-::pasta::TypeKind Type::Kind(void) const noexcept {
+::pasta::TypeKind Type::Kind(void) const {
   if (qualifiers) {
     return TypeKind::kQualified;
   } else {
@@ -46,7 +46,7 @@ std::shared_ptr<void> GetExcSpec(const clang::FunctionProtoType *type) {
   }
 }
 
-std::string_view Type::KindName(void) const noexcept {
+std::string_view Type::KindName(void) const {
   if (qualifiers) {
     return "QualifiedType";
   }

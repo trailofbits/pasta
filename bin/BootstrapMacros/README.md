@@ -1,6 +1,6 @@
 # Macro Bootstrap
 
-This binary parses a file and prints out a massive "macro file." The indended
+This binary parses a file and prints out a massive "macro file." The intended
 usage is as follows:
 
 ```shell

@@ -60,25 +60,25 @@ void GenerateForwardH(void);
 void GenerateDeclH(void);
 
 // Generate `lib/AST/Decl.cpp`.
-void GenerateDeclCpp(void);
+void GenerateDeclCpp(std::ostream& py_cmake, std::ostream &py_ast);
 
 // Generate `include/pasta/AST/Stmt.h`.
 void GenerateStmtH(void);
 
 // Generate `lib/AST/Stmt.cpp`.
-void GenerateStmtCpp(void);
+void GenerateStmtCpp(std::ostream& py_cmake, std::ostream &py_ast);
 
 // Generate `include/pasta/AST/Type.h`.
 void GenerateTypeH(void);
 
 // Generate `lib/pasta/AST/Type.cpp`.
-void GenerateTypeCpp(void);
+void GenerateTypeCpp(std::ostream& py_cmake, std::ostream &py_ast);
 
 // Generate `include/pasta/AST/Attr.h`.
 void GenerateAttrH(void);
 
 // Generate `include/pasta/AST/Attr.cpp`.
-void GenerateAttrCpp(void);
+void GenerateAttrCpp(std::ostream& py_cmake, std::ostream &py_ast);
 
 static void InitClassIDs(void) {
 #define PASTA_BEGIN_CLANG_WRAPPER(cls, id) \
@@ -226,10 +226,41 @@ int main(void) {
   GenerateStmtH();
   GenerateTypeH();
 
-  GenerateAttrCpp();
-  GenerateDeclCpp();
-  GenerateStmtCpp();
-  GenerateTypeCpp();
+  std::string python_bindings_path = kPythonBindingsPath;
+  std::ofstream py_cmake(python_bindings_path + "/CMakeLists.txt");
+  std::ofstream py_ast(python_bindings_path + "/AST.cpp");
+
+  py_cmake << R"(#
+# Copyright (c) 2023 Trail of Bits, Inc.
+#
+
+# This file is auto-generated.
+
+set(PASTA_PYTHON_AST_SOURCES
+)";
+  py_ast << R"(/*
+ * Copyright (c) 2023 Trail of Bits, Inc.
+ */
+
+// This file is auto-generated.
+
+#include <pybind11/pybind11.h>
+
+namespace pasta {
+namespace py = pybind11;
+
+void RegisterAllAST(py::module_ &m) {
+)";
+
+  GenerateAttrCpp(py_cmake, py_ast);
+  GenerateDeclCpp(py_cmake, py_ast);
+  GenerateStmtCpp(py_cmake, py_ast);
+  GenerateTypeCpp(py_cmake, py_ast);
+
+  py_cmake << "    PARENT_SCOPE)\n";
+
+  py_ast << "}\n"
+         << "} // namespace pasta\n";
   return EXIT_SUCCESS;
 }
 

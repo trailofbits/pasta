@@ -11,10 +11,10 @@
 #include "Util.h"
 
 extern void DefineCppMethods(std::ostream &os, const std::string &class_name,
-                              uint32_t class_id);
+                              uint32_t class_id, std::ostream &os_py);
 
 // Generate `lib/AST/Attr.cpp`.
-void GenerateAttrCpp(void) {
+void GenerateAttrCpp(std::ostream& py_cmake, std::ostream& py_ast) {
   std::ofstream os(kASTAttrCpp);
 
   os
@@ -94,6 +94,31 @@ void GenerateAttrCpp(void) {
 
   // Define them all.
   for (const auto &name : gTopologicallyOrderedAttrs) {
+    py_cmake << "    \"" << kPythonBindingsPath << "/" << name << ".cpp\"\n";
+    py_ast << "void Register" << name << "(py::module_ &m);\n"
+           << "  Register" << name << "(m);\n";
+
+    std::ofstream os_py(std::string(kPythonBindingsPath) + "/" + name + ".cpp");
+    os_py << R"(/*
+ * Copyright (c) 2023 Trail of Bits, Inc.
+ */
+
+// This file is auto-generated.
+
+#include <pasta/AST/AST.h>
+#include <pasta/AST/Attr.h>
+#include <pasta/AST/Decl.h>
+#include <pasta/AST/Stmt.h>
+#include <pasta/AST/Type.h>
+
+#include <pybind11/pybind11.h>
+
+namespace pasta {
+namespace py = pybind11;
+
+void Register)" << name << "(py::module_ &m) {\n"
+      << "  py::class_<" << name;
+
     llvm::StringRef name_ref(name);
 
     if (name != "Attr") {
@@ -124,13 +149,19 @@ void GenerateAttrCpp(void) {
     for (const auto &base_class : gTransitiveBaseClasses[name]) {
       os << "PASTA_DEFINE_BASE_OPERATORS(" << base_class << ", "
          << name << ")\n";
+      os_py << ", " << base_class;
     }
+    os_py << ">(m, \"" << name << "\")";
 
     for (const auto &derived_class : gTransitiveDerivedClasses[name]) {
       os << "PASTA_DEFINE_DERIVED_OPERATORS("
          << name << ", " << derived_class << ")\n";
     }
-    DefineCppMethods(os, name, gClassIDs[name]);
+    DefineCppMethods(os, name, gClassIDs[name], os_py);
+
+    os_py << ";\n"
+          << "}\n"
+          << "} // namespace pasta\n";
   }
 
   os

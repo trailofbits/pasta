@@ -394,6 +394,7 @@ set(PASTA_INCLUDE_AST_STMT_H_PATH "${PROJECT_SOURCE_DIR}/include/pasta/AST/Stmt.
 set(PASTA_SRC_AST_STMT_CPP_PATH "${PROJECT_SOURCE_DIR}/lib/AST/Stmt.cpp")
 set(PASTA_INCLUDE_AST_ATTR_H_PATH "${PROJECT_SOURCE_DIR}/include/pasta/AST/Attr.h")
 set(PASTA_SRC_AST_ATTR_CPP_PATH "${PROJECT_SOURCE_DIR}/lib/AST/Attr.cpp")
+set(PASTA_PYTHON_BINDINGS_PATH "${PROJECT_SOURCE_DIR}/bindings/python/src/AST")
 
 set(BOOTSTRAP_CONFIG_H_IN "${PROJECT_SOURCE_DIR}/BootstrapConfig.h.in")
 set(BOOTSTRAP_CONFIG_H "${CMAKE_CURRENT_BINARY_DIR}/BootstrapConfig.h")
@@ -444,4 +445,6 @@ if(PASTA_ENABLE_TESTING)
   add_subdirectory(test)
 endif(PASTA_ENABLE_TESTING)
 
-add_subdirectory(bindings)
+if(NOT (PASTA_BOOTSTRAP_MACROS OR PASTA_BOOTSTRAP_TYPES))
+  add_subdirectory(bindings)
+endif()

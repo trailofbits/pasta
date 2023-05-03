@@ -11,10 +11,10 @@
 #include "Util.h"
 
 extern void DefineCppMethods(std::ostream &os, const std::string &class_name,
-                             uint32_t class_id);
+                             uint32_t class_id, std::ostream &os_py);
 
 // Generate `lib/AST/Stmt.cpp`.
-void GenerateStmtCpp(void) {
+void GenerateStmtCpp(std::ostream& py_cmake, std::ostream& py_ast) {
   std::ofstream os(kASTStmtCpp);
 
   os
@@ -137,7 +137,7 @@ void GenerateStmtCpp(void) {
       os << "PASTA_DEFINE_DERIVED_OPERATORS("
          << name << ", " << derived_class << ")\n";
     }
-    DefineCppMethods(os, name, gClassIDs[name]);
+    DefineCppMethods(os, name, gClassIDs[name], std::cerr);
   }
 
   os

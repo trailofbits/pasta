@@ -15,7 +15,7 @@ static std::set<std::pair<std::string, std::string>> existing_methods;
 
 static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
                              llvm::StringRef meth_name_ref,
-                             llvm::StringRef rt_ref) {
+                             llvm::StringRef rt_ref, std::ostream &os_py) {
 
   if (meth_name_ref.endswith("Unsafe")) {
     return;
@@ -136,12 +136,15 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
 
   os << "  throw std::runtime_error(\"The unreachable has been reached\");\n"
      << "}\n\n";
+
+  os_py << "\n    .def_property_readonly(\"" << meth_name << "\", &" << class_name << "::" << meth_name << ")";
 }
 
 
 static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
                              llvm::StringRef meth_name_ref,
-                             llvm::StringRef rt_ref, llvm::StringRef p0_ref) {
+                             llvm::StringRef rt_ref, llvm::StringRef p0_ref,
+                             std::ostream &os_py) {
   const auto is_qual_type = class_name == "QualifiedType";
   const auto meth_name = CxxName(meth_name_ref); \
   if (meth_name.empty() || meth_name == "Clone") {
@@ -280,6 +283,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
     os << "// 1: " << class_name << "::" << meth_name << "\n";
     return;
   }
+  os_py << "\n    .def(\"" << meth_name << "\", &" << class_name << "::" << meth_name << ")";
 }
 
 static void DefineIterators(std::ostream &os, const std::string &class_name) {
@@ -340,22 +344,22 @@ static void DefineIterators(std::ostream &os, const std::string &class_name) {
 #define PASTA_INSTANCE_METHOD_0(cls, id, meth_id, meth, rt) \
     [[gnu::noinline]] \
     static void DefineCppMethod_ ## id ## _ ## meth_id( \
-        std::ostream &os, const std::string &class_name) { \
-      DefineCppMethod0(os, class_name, PASTA_STR(meth), PASTA_STR(rt)); \
+        std::ostream &os, const std::string &class_name, std::ostream &os_py) { \
+      DefineCppMethod0(os, class_name, PASTA_STR(meth), PASTA_STR(rt), os_py); \
     }
 
 #define PASTA_INSTANCE_METHOD_1(cls, id, meth_id, meth, rt, p0) \
     [[gnu::noinline]] \
     static void DefineCppMethod_ ## id ## _ ## meth_id( \
-        std::ostream &os, const std::string &class_name) { \
+        std::ostream &os, const std::string &class_name, std::ostream &os_py) { \
       DefineCppMethod1(os, class_name, PASTA_STR(meth), PASTA_STR(rt), \
-                       PASTA_STR(p0)); \
+                       PASTA_STR(p0), os_py); \
     }
 
 #define PASTA_INSTANCE_METHOD_2(cls, id, meth_id, meth, rt, p0, p1) \
     [[gnu::noinline]] \
     static void DefineCppMethod_ ## id ## _ ## meth_id( \
-        std::ostream &os, const std::string &class_name) { \
+        std::ostream &os, const std::string &class_name, std::ostream &os_py) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); \
           !meth_name.empty()) { \
         os << "// 2: " << meth_name << "\n"; \
@@ -365,7 +369,7 @@ static void DefineIterators(std::ostream &os, const std::string &class_name) {
 #define PASTA_INSTANCE_METHOD_3(cls, id, meth_id, meth, rt, p0, p1, p2) \
     [[gnu::noinline]] \
     static void DefineCppMethod_ ## id ## _ ## meth_id( \
-        std::ostream &os, const std::string &class_name) { \
+        std::ostream &os, const std::string &class_name, std::ostream &os_py) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); \
           !meth_name.empty()) { \
         os << "// 3: " << class_name << "::" << meth_name << "\n"; \
@@ -375,7 +379,7 @@ static void DefineIterators(std::ostream &os, const std::string &class_name) {
 #define PASTA_INSTANCE_METHOD_4(cls, id, meth_id, meth, rt, p0, p1, p2, p3) \
     [[gnu::noinline]] \
     static void DefineCppMethod_ ## id ## _ ## meth_id( \
-        std::ostream &os, const std::string &class_name) { \
+        std::ostream &os, const std::string &class_name, std::ostream &os_py) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); \
           !meth_name.empty()) { \
         os << "// 4: " << class_name << "::" << meth_name << "\n"; \
@@ -385,7 +389,7 @@ static void DefineIterators(std::ostream &os, const std::string &class_name) {
 #define PASTA_INSTANCE_METHOD_5(cls, id, meth_id, meth, rt, p0, p1, p2, p3, p4) \
     [[gnu::noinline]] \
     static void DefineCppMethod_ ## id ## _ ## meth_id( \
-        std::ostream &os, const std::string &class_name) { \
+        std::ostream &os, const std::string &class_name, std::ostream &os_py) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); \
           !meth_name.empty()) { \
         os << "// 5: " << class_name << "::" << meth_name << "\n"; \
@@ -395,7 +399,7 @@ static void DefineIterators(std::ostream &os, const std::string &class_name) {
 #define PASTA_INSTANCE_METHOD_6(cls, id, meth_id, meth, rt, p0, p1, p2, p3, p4, p5) \
     [[gnu::noinline]] \
     static void DefineCppMethod_ ## id ## _ ## meth_id( \
-        std::ostream &os, const std::string &class_name) { \
+        std::ostream &os, const std::string &class_name, std::ostream &os_py) { \
       if (const auto meth_name = CxxName(PASTA_STR(meth)); \
           !meth_name.empty()) { \
         os << "// 6: " << class_name << "::" << meth_name << "\n"; \
@@ -404,41 +408,41 @@ static void DefineIterators(std::ostream &os, const std::string &class_name) {
 #include "Generated.h"
 
 void DefineCppMethods(std::ostream &os, const std::string &class_name,
-                      uint32_t class_id) {
+                      uint32_t class_id, std::ostream &os_py) {
 
 #define PASTA_INSTANCE_METHOD_0(cls, id, meth_id, meth, rt) \
     if (class_id == id) { \
-      DefineCppMethod_ ## id ## _ ## meth_id(os, class_name); \
+      DefineCppMethod_ ## id ## _ ## meth_id(os, class_name, os_py); \
     }
 
 #define PASTA_INSTANCE_METHOD_1(cls, id, meth_id, meth, rt, p0) \
     if (class_id == id) { \
-      DefineCppMethod_ ## id ## _ ## meth_id(os, class_name); \
+      DefineCppMethod_ ## id ## _ ## meth_id(os, class_name, os_py); \
     }
 
 #define PASTA_INSTANCE_METHOD_2(cls, id, meth_id, meth, rt, p0, p1) \
     if (class_id == id) { \
-      DefineCppMethod_ ## id ## _ ## meth_id(os, class_name); \
+      DefineCppMethod_ ## id ## _ ## meth_id(os, class_name, os_py); \
     }
 
 #define PASTA_INSTANCE_METHOD_3(cls, id, meth_id, meth, rt, p0, p1, p2) \
     if (class_id == id) { \
-      DefineCppMethod_ ## id ## _ ## meth_id(os, class_name); \
+      DefineCppMethod_ ## id ## _ ## meth_id(os, class_name, os_py); \
     }
 
 #define PASTA_INSTANCE_METHOD_4(cls, id, meth_id, meth, rt, p0, p1, p2, p3) \
     if (class_id == id) { \
-      DefineCppMethod_ ## id ## _ ## meth_id(os, class_name); \
+      DefineCppMethod_ ## id ## _ ## meth_id(os, class_name, os_py); \
     }
 
 #define PASTA_INSTANCE_METHOD_5(cls, id, meth_id, meth, rt, p0, p1, p2, p3, p4) \
     if (class_id == id) { \
-      DefineCppMethod_ ## id ## _ ## meth_id(os, class_name); \
+      DefineCppMethod_ ## id ## _ ## meth_id(os, class_name, os_py); \
     }
 
 #define PASTA_INSTANCE_METHOD_6(cls, id, meth_id, meth, rt, p0, p1, p2, p3, p4, p5) \
     if (class_id == id) { \
-      DefineCppMethod_ ## id ## _ ## meth_id(os, class_name); \
+      DefineCppMethod_ ## id ## _ ## meth_id(os, class_name, os_py); \
     }
 
 #include "Generated.h"

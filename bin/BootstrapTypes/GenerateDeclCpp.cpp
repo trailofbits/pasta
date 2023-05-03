@@ -11,10 +11,10 @@
 #include "Util.h"
 
 extern void DefineCppMethods(std::ostream &os, const std::string &class_name,
-                             uint32_t class_id);
+                             uint32_t class_id, std::ostream &os_py);
 
 // Generate `lib/AST/Decl.cpp`.
-void GenerateDeclCpp(void) {
+void GenerateDeclCpp(std::ostream& py_cmake, std::ostream& py_ast) {
   std::ofstream os(kASTDeclCpp);
   const std::string decl_context{"DeclContext"};
   const auto &derived_from_decl_context =
@@ -200,7 +200,7 @@ void GenerateDeclCpp(void) {
       << "}\n\n";
 
 
-  DefineCppMethods(os, decl_context, gClassIDs[decl_context]);
+  DefineCppMethods(os, decl_context, gClassIDs[decl_context], std::cerr);
 
   // Define them all.
   for (const auto &name : gTopologicallyOrderedDecls) {
@@ -278,7 +278,7 @@ void GenerateDeclCpp(void) {
            << name << ", " << derived_class << ")\n";
       }
     }
-    DefineCppMethods(os, name, gClassIDs[name]);
+    DefineCppMethods(os, name, gClassIDs[name], std::cerr);
 
     // We need to manually inject our own `Body` method. Normally there would
     // be `Decl::Body`, but we explicitly remove that. We make is so that

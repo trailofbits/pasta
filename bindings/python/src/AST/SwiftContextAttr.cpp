@@ -19,4 +19,4 @@ void RegisterSwiftContextAttr(py::module_ &m) {
   py::class_<SwiftContextAttr, Attr, InheritableAttr, InheritableParamAttr, ParameterABIAttr>(m, "SwiftContextAttr")
     .def_property_readonly("Spelling", &SwiftContextAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

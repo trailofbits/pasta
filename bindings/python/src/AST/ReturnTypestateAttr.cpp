@@ -20,4 +20,4 @@ void RegisterReturnTypestateAttr(py::module_ &m) {
     .def_property_readonly("Spelling", &ReturnTypestateAttr::Spelling)
     .def_property_readonly("State", &ReturnTypestateAttr::State);
 }
-} // namespace ogler
+} // namespace pasta

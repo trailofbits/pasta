@@ -19,4 +19,4 @@ void RegisterAnyX86InterruptAttr(py::module_ &m) {
   py::class_<AnyX86InterruptAttr, Attr, InheritableAttr>(m, "AnyX86InterruptAttr")
     .def_property_readonly("Spelling", &AnyX86InterruptAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

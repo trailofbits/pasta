@@ -19,4 +19,4 @@ void RegisterEmptyBasesAttr(py::module_ &m) {
   py::class_<EmptyBasesAttr, Attr, InheritableAttr>(m, "EmptyBasesAttr")
     .def_property_readonly("Spelling", &EmptyBasesAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterObjCKindOfAttr(py::module_ &m) {
   py::class_<ObjCKindOfAttr, Attr, TypeAttr>(m, "ObjCKindOfAttr")
     .def_property_readonly("Spelling", &ObjCKindOfAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

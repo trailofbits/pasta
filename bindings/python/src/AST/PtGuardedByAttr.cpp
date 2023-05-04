@@ -20,4 +20,4 @@ void RegisterPtGuardedByAttr(py::module_ &m) {
     .def_property_readonly("Argument", &PtGuardedByAttr::Argument)
     .def_property_readonly("Spelling", &PtGuardedByAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

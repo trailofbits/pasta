@@ -19,4 +19,4 @@ void RegisterCFAuditedTransferAttr(py::module_ &m) {
   py::class_<CFAuditedTransferAttr, Attr, InheritableAttr>(m, "CFAuditedTransferAttr")
     .def_property_readonly("Spelling", &CFAuditedTransferAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

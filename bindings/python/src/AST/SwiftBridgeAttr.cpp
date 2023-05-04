@@ -21,4 +21,4 @@ void RegisterSwiftBridgeAttr(py::module_ &m) {
     .def_property_readonly("SwiftType", &SwiftBridgeAttr::SwiftType)
     .def_property_readonly("SwiftTypeLength", &SwiftBridgeAttr::SwiftTypeLength);
 }
-} // namespace ogler
+} // namespace pasta

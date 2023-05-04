@@ -19,4 +19,4 @@ void RegisterCommonAttr(py::module_ &m) {
   py::class_<CommonAttr, Attr, InheritableAttr>(m, "CommonAttr")
     .def_property_readonly("Spelling", &CommonAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

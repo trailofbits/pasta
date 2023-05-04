@@ -23,4 +23,4 @@ void RegisterHLSLResourceBindingAttr(py::module_ &m) {
     .def_property_readonly("SpaceLength", &HLSLResourceBindingAttr::SpaceLength)
     .def_property_readonly("Spelling", &HLSLResourceBindingAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

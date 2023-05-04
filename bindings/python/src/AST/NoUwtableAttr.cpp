@@ -19,4 +19,4 @@ void RegisterNoUwtableAttr(py::module_ &m) {
   py::class_<NoUwtableAttr, Attr, InheritableAttr>(m, "NoUwtableAttr")
     .def_property_readonly("Spelling", &NoUwtableAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

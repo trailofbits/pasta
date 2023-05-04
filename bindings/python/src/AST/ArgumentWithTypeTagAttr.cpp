@@ -21,4 +21,4 @@ void RegisterArgumentWithTypeTagAttr(py::module_ &m) {
     .def_property_readonly("SemanticSpelling", &ArgumentWithTypeTagAttr::SemanticSpelling)
     .def_property_readonly("Spelling", &ArgumentWithTypeTagAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

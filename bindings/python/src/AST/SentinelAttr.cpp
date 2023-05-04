@@ -19,4 +19,4 @@ void RegisterSentinelAttr(py::module_ &m) {
   py::class_<SentinelAttr, Attr, InheritableAttr>(m, "SentinelAttr")
     .def_property_readonly("Spelling", &SentinelAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

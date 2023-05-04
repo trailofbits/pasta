@@ -19,4 +19,4 @@ void RegisterWarnUnusedAttr(py::module_ &m) {
   py::class_<WarnUnusedAttr, Attr, InheritableAttr>(m, "WarnUnusedAttr")
     .def_property_readonly("Spelling", &WarnUnusedAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

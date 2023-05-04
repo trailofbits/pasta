@@ -20,4 +20,4 @@ void RegisterOpenCLUnrollHintAttr(py::module_ &m) {
     .def_property_readonly("Spelling", &OpenCLUnrollHintAttr::Spelling)
     .def_property_readonly("UnrollHint", &OpenCLUnrollHintAttr::UnrollHint);
 }
-} // namespace ogler
+} // namespace pasta

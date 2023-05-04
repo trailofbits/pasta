@@ -19,4 +19,4 @@ void RegisterConsumableAutoCastAttr(py::module_ &m) {
   py::class_<ConsumableAutoCastAttr, Attr, InheritableAttr>(m, "ConsumableAutoCastAttr")
     .def_property_readonly("Spelling", &ConsumableAutoCastAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

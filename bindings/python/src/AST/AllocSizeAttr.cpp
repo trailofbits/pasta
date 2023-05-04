@@ -19,4 +19,4 @@ void RegisterAllocSizeAttr(py::module_ &m) {
   py::class_<AllocSizeAttr, Attr, InheritableAttr>(m, "AllocSizeAttr")
     .def_property_readonly("Spelling", &AllocSizeAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -20,4 +20,4 @@ void RegisterConsumableAttr(py::module_ &m) {
     .def_property_readonly("DefaultState", &ConsumableAttr::DefaultState)
     .def_property_readonly("Spelling", &ConsumableAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

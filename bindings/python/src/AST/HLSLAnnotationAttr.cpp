@@ -18,4 +18,4 @@ namespace py = pybind11;
 void RegisterHLSLAnnotationAttr(py::module_ &m) {
   py::class_<HLSLAnnotationAttr, Attr, InheritableAttr>(m, "HLSLAnnotationAttr");
 }
-} // namespace ogler
+} // namespace pasta

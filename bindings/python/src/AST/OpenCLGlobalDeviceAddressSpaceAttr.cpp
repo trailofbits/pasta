@@ -19,4 +19,4 @@ void RegisterOpenCLGlobalDeviceAddressSpaceAttr(py::module_ &m) {
   py::class_<OpenCLGlobalDeviceAddressSpaceAttr, Attr, TypeAttr>(m, "OpenCLGlobalDeviceAddressSpaceAttr")
     .def_property_readonly("Spelling", &OpenCLGlobalDeviceAddressSpaceAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

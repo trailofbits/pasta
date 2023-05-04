@@ -19,4 +19,4 @@ void RegisterCFICanonicalJumpTableAttr(py::module_ &m) {
   py::class_<CFICanonicalJumpTableAttr, Attr, InheritableAttr>(m, "CFICanonicalJumpTableAttr")
     .def_property_readonly("Spelling", &CFICanonicalJumpTableAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

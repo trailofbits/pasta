@@ -19,4 +19,4 @@ void RegisterObjCOwnershipAttr(py::module_ &m) {
   py::class_<ObjCOwnershipAttr, Attr, InheritableAttr>(m, "ObjCOwnershipAttr")
     .def_property_readonly("Spelling", &ObjCOwnershipAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

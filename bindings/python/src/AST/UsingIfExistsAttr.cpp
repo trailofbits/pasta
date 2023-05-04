@@ -19,4 +19,4 @@ void RegisterUsingIfExistsAttr(py::module_ &m) {
   py::class_<UsingIfExistsAttr, Attr, InheritableAttr>(m, "UsingIfExistsAttr")
     .def_property_readonly("Spelling", &UsingIfExistsAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

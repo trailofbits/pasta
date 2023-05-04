@@ -19,4 +19,4 @@ void RegisterNoAliasAttr(py::module_ &m) {
   py::class_<NoAliasAttr, Attr, InheritableAttr>(m, "NoAliasAttr")
     .def_property_readonly("Spelling", &NoAliasAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

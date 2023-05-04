@@ -19,4 +19,4 @@ void RegisterOptimizeNoneAttr(py::module_ &m) {
   py::class_<OptimizeNoneAttr, Attr, InheritableAttr>(m, "OptimizeNoneAttr")
     .def_property_readonly("Spelling", &OptimizeNoneAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

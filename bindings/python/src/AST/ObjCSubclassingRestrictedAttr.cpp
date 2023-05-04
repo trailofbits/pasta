@@ -19,4 +19,4 @@ void RegisterObjCSubclassingRestrictedAttr(py::module_ &m) {
   py::class_<ObjCSubclassingRestrictedAttr, Attr, InheritableAttr>(m, "ObjCSubclassingRestrictedAttr")
     .def_property_readonly("Spelling", &ObjCSubclassingRestrictedAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

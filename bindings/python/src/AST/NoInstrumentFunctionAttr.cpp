@@ -19,4 +19,4 @@ void RegisterNoInstrumentFunctionAttr(py::module_ &m) {
   py::class_<NoInstrumentFunctionAttr, Attr, InheritableAttr>(m, "NoInstrumentFunctionAttr")
     .def_property_readonly("Spelling", &NoInstrumentFunctionAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

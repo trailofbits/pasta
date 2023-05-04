@@ -18,4 +18,4 @@ namespace py = pybind11;
 void RegisterDeclOrStmtAttr(py::module_ &m) {
   py::class_<DeclOrStmtAttr, Attr, InheritableAttr>(m, "DeclOrStmtAttr");
 }
-} // namespace ogler
+} // namespace pasta

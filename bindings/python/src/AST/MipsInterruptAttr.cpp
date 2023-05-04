@@ -20,4 +20,4 @@ void RegisterMipsInterruptAttr(py::module_ &m) {
     .def_property_readonly("Interrupt", &MipsInterruptAttr::Interrupt)
     .def_property_readonly("Spelling", &MipsInterruptAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

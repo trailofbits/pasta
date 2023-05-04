@@ -19,4 +19,4 @@ void RegisterObjCInertUnsafeUnretainedAttr(py::module_ &m) {
   py::class_<ObjCInertUnsafeUnretainedAttr, Attr, TypeAttr>(m, "ObjCInertUnsafeUnretainedAttr")
     .def_property_readonly("Spelling", &ObjCInertUnsafeUnretainedAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterColdAttr(py::module_ &m) {
   py::class_<ColdAttr, Attr, InheritableAttr>(m, "ColdAttr")
     .def_property_readonly("Spelling", &ColdAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

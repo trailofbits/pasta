@@ -19,4 +19,4 @@ void RegisterTransparentUnionAttr(py::module_ &m) {
   py::class_<TransparentUnionAttr, Attr, InheritableAttr>(m, "TransparentUnionAttr")
     .def_property_readonly("Spelling", &TransparentUnionAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

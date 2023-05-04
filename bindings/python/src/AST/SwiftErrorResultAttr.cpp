@@ -19,4 +19,4 @@ void RegisterSwiftErrorResultAttr(py::module_ &m) {
   py::class_<SwiftErrorResultAttr, Attr, InheritableAttr, InheritableParamAttr, ParameterABIAttr>(m, "SwiftErrorResultAttr")
     .def_property_readonly("Spelling", &SwiftErrorResultAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterLTOVisibilityPublicAttr(py::module_ &m) {
   py::class_<LTOVisibilityPublicAttr, Attr, InheritableAttr>(m, "LTOVisibilityPublicAttr")
     .def_property_readonly("Spelling", &LTOVisibilityPublicAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

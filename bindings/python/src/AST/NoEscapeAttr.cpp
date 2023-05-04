@@ -19,4 +19,4 @@ void RegisterNoEscapeAttr(py::module_ &m) {
   py::class_<NoEscapeAttr, Attr>(m, "NoEscapeAttr")
     .def_property_readonly("Spelling", &NoEscapeAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

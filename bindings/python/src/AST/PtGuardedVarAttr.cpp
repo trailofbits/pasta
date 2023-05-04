@@ -19,4 +19,4 @@ void RegisterPtGuardedVarAttr(py::module_ &m) {
   py::class_<PtGuardedVarAttr, Attr, InheritableAttr>(m, "PtGuardedVarAttr")
     .def_property_readonly("Spelling", &PtGuardedVarAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

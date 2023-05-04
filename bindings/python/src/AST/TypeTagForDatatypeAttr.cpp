@@ -23,4 +23,4 @@ void RegisterTypeTagForDatatypeAttr(py::module_ &m) {
     .def_property_readonly("MustBeNull", &TypeTagForDatatypeAttr::MustBeNull)
     .def_property_readonly("Spelling", &TypeTagForDatatypeAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

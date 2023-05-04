@@ -19,4 +19,4 @@ void RegisterAcquiredBeforeAttr(py::module_ &m) {
   py::class_<AcquiredBeforeAttr, Attr, InheritableAttr>(m, "AcquiredBeforeAttr")
     .def_property_readonly("Spelling", &AcquiredBeforeAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

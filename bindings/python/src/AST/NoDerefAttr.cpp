@@ -19,4 +19,4 @@ void RegisterNoDerefAttr(py::module_ &m) {
   py::class_<NoDerefAttr, Attr, TypeAttr>(m, "NoDerefAttr")
     .def_property_readonly("Spelling", &NoDerefAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

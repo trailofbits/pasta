@@ -20,4 +20,4 @@ void RegisterTestTypestateAttr(py::module_ &m) {
     .def_property_readonly("Spelling", &TestTypestateAttr::Spelling)
     .def_property_readonly("TestState", &TestTypestateAttr::TestState);
 }
-} // namespace ogler
+} // namespace pasta

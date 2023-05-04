@@ -21,4 +21,4 @@ void RegisterAliasAttr(py::module_ &m) {
     .def_property_readonly("AliaseeLength", &AliasAttr::AliaseeLength)
     .def_property_readonly("Spelling", &AliasAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

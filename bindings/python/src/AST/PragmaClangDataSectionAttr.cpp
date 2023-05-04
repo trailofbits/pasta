@@ -21,4 +21,4 @@ void RegisterPragmaClangDataSectionAttr(py::module_ &m) {
     .def_property_readonly("NameLength", &PragmaClangDataSectionAttr::NameLength)
     .def_property_readonly("Spelling", &PragmaClangDataSectionAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

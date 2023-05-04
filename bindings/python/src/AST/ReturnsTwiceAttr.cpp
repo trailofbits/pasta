@@ -19,4 +19,4 @@ void RegisterReturnsTwiceAttr(py::module_ &m) {
   py::class_<ReturnsTwiceAttr, Attr, InheritableAttr>(m, "ReturnsTwiceAttr")
     .def_property_readonly("Spelling", &ReturnsTwiceAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

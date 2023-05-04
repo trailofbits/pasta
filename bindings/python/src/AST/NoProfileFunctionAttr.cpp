@@ -19,4 +19,4 @@ void RegisterNoProfileFunctionAttr(py::module_ &m) {
   py::class_<NoProfileFunctionAttr, Attr, InheritableAttr>(m, "NoProfileFunctionAttr")
     .def_property_readonly("Spelling", &NoProfileFunctionAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

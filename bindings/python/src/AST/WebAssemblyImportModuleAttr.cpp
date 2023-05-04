@@ -21,4 +21,4 @@ void RegisterWebAssemblyImportModuleAttr(py::module_ &m) {
     .def_property_readonly("ImportModuleLength", &WebAssemblyImportModuleAttr::ImportModuleLength)
     .def_property_readonly("Spelling", &WebAssemblyImportModuleAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

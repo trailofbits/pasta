@@ -19,4 +19,4 @@ void RegisterMinSizeAttr(py::module_ &m) {
   py::class_<MinSizeAttr, Attr, InheritableAttr>(m, "MinSizeAttr")
     .def_property_readonly("Spelling", &MinSizeAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

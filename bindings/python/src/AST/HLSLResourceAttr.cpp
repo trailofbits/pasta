@@ -21,4 +21,4 @@ void RegisterHLSLResourceAttr(py::module_ &m) {
     .def_property_readonly("ResourceType", &HLSLResourceAttr::ResourceType)
     .def_property_readonly("Spelling", &HLSLResourceAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

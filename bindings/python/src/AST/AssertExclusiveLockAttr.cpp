@@ -19,4 +19,4 @@ void RegisterAssertExclusiveLockAttr(py::module_ &m) {
   py::class_<AssertExclusiveLockAttr, Attr, InheritableAttr>(m, "AssertExclusiveLockAttr")
     .def_property_readonly("Spelling", &AssertExclusiveLockAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -20,4 +20,4 @@ void RegisterEnumExtensibilityAttr(py::module_ &m) {
     .def_property_readonly("Extensibility", &EnumExtensibilityAttr::Extensibility)
     .def_property_readonly("Spelling", &EnumExtensibilityAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

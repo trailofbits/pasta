@@ -20,4 +20,4 @@ void RegisterNoSanitizeAttr(py::module_ &m) {
     .def_property_readonly("Spelling", &NoSanitizeAttr::Spelling)
     .def_property_readonly("HasCoverage", &NoSanitizeAttr::HasCoverage);
 }
-} // namespace ogler
+} // namespace pasta

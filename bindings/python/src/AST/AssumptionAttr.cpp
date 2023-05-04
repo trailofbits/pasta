@@ -21,4 +21,4 @@ void RegisterAssumptionAttr(py::module_ &m) {
     .def_property_readonly("AssumptionLength", &AssumptionAttr::AssumptionLength)
     .def_property_readonly("Spelling", &AssumptionAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

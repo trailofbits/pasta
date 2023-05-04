@@ -19,4 +19,4 @@ void RegisterExcludeFromExplicitInstantiationAttr(py::module_ &m) {
   py::class_<ExcludeFromExplicitInstantiationAttr, Attr, InheritableAttr>(m, "ExcludeFromExplicitInstantiationAttr")
     .def_property_readonly("Spelling", &ExcludeFromExplicitInstantiationAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

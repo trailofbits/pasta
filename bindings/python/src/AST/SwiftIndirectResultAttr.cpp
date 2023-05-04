@@ -19,4 +19,4 @@ void RegisterSwiftIndirectResultAttr(py::module_ &m) {
   py::class_<SwiftIndirectResultAttr, Attr, InheritableAttr, InheritableParamAttr, ParameterABIAttr>(m, "SwiftIndirectResultAttr")
     .def_property_readonly("Spelling", &SwiftIndirectResultAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

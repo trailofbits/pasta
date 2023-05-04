@@ -19,4 +19,4 @@ void RegisterCPUDispatchAttr(py::module_ &m) {
   py::class_<CPUDispatchAttr, Attr, InheritableAttr>(m, "CPUDispatchAttr")
     .def_property_readonly("Spelling", &CPUDispatchAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

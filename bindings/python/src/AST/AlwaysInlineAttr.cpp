@@ -21,4 +21,4 @@ void RegisterAlwaysInlineAttr(py::module_ &m) {
     .def_property_readonly("Spelling", &AlwaysInlineAttr::Spelling)
     .def_property_readonly("IsClangAlwaysInline", &AlwaysInlineAttr::IsClangAlwaysInline);
 }
-} // namespace ogler
+} // namespace pasta

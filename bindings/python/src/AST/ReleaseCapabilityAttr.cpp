@@ -22,4 +22,4 @@ void RegisterReleaseCapabilityAttr(py::module_ &m) {
     .def_property_readonly("IsGeneric", &ReleaseCapabilityAttr::IsGeneric)
     .def_property_readonly("IsShared", &ReleaseCapabilityAttr::IsShared);
 }
-} // namespace ogler
+} // namespace pasta

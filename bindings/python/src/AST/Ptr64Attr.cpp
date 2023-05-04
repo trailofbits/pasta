@@ -19,4 +19,4 @@ void RegisterPtr64Attr(py::module_ &m) {
   py::class_<Ptr64Attr, Attr, TypeAttr>(m, "Ptr64Attr")
     .def_property_readonly("Spelling", &Ptr64Attr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

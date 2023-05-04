@@ -19,4 +19,4 @@ void RegisterStdCallAttr(py::module_ &m) {
   py::class_<StdCallAttr, Attr, InheritableAttr>(m, "StdCallAttr")
     .def_property_readonly("Spelling", &StdCallAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

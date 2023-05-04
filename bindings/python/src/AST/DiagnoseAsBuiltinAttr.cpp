@@ -20,4 +20,4 @@ void RegisterDiagnoseAsBuiltinAttr(py::module_ &m) {
     .def_property_readonly("Function", &DiagnoseAsBuiltinAttr::Function)
     .def_property_readonly("Spelling", &DiagnoseAsBuiltinAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

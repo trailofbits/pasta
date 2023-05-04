@@ -19,4 +19,4 @@ void RegisterNoThreadSafetyAnalysisAttr(py::module_ &m) {
   py::class_<NoThreadSafetyAnalysisAttr, Attr, InheritableAttr>(m, "NoThreadSafetyAnalysisAttr")
     .def_property_readonly("Spelling", &NoThreadSafetyAnalysisAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

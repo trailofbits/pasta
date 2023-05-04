@@ -19,4 +19,4 @@ void RegisterNoCommonAttr(py::module_ &m) {
   py::class_<NoCommonAttr, Attr, InheritableAttr>(m, "NoCommonAttr")
     .def_property_readonly("Spelling", &NoCommonAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

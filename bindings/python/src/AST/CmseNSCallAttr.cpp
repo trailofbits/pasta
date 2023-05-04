@@ -19,4 +19,4 @@ void RegisterCmseNSCallAttr(py::module_ &m) {
   py::class_<CmseNSCallAttr, Attr, TypeAttr>(m, "CmseNSCallAttr")
     .def_property_readonly("Spelling", &CmseNSCallAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

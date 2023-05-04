@@ -19,4 +19,4 @@ void RegisterCUDADeviceBuiltinTextureTypeAttr(py::module_ &m) {
   py::class_<CUDADeviceBuiltinTextureTypeAttr, Attr, InheritableAttr>(m, "CUDADeviceBuiltinTextureTypeAttr")
     .def_property_readonly("Spelling", &CUDADeviceBuiltinTextureTypeAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

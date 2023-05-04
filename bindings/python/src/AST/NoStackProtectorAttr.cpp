@@ -20,4 +20,4 @@ void RegisterNoStackProtectorAttr(py::module_ &m) {
     .def_property_readonly("SemanticSpelling", &NoStackProtectorAttr::SemanticSpelling)
     .def_property_readonly("Spelling", &NoStackProtectorAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterTargetClonesAttr(py::module_ &m) {
   py::class_<TargetClonesAttr, Attr, InheritableAttr>(m, "TargetClonesAttr")
     .def_property_readonly("Spelling", &TargetClonesAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

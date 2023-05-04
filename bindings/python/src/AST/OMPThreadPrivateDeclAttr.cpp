@@ -19,4 +19,4 @@ void RegisterOMPThreadPrivateDeclAttr(py::module_ &m) {
   py::class_<OMPThreadPrivateDeclAttr, Attr, InheritableAttr>(m, "OMPThreadPrivateDeclAttr")
     .def_property_readonly("Spelling", &OMPThreadPrivateDeclAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

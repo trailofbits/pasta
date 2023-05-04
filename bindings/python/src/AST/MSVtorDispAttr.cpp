@@ -21,4 +21,4 @@ void RegisterMSVtorDispAttr(py::module_ &m) {
     .def_property_readonly("Vdm", &MSVtorDispAttr::Vdm)
     .def_property_readonly("VtorDispMode", &MSVtorDispAttr::VtorDispMode);
 }
-} // namespace ogler
+} // namespace pasta

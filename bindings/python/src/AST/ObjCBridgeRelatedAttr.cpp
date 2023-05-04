@@ -19,4 +19,4 @@ void RegisterObjCBridgeRelatedAttr(py::module_ &m) {
   py::class_<ObjCBridgeRelatedAttr, Attr, InheritableAttr>(m, "ObjCBridgeRelatedAttr")
     .def_property_readonly("Spelling", &ObjCBridgeRelatedAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

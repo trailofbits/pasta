@@ -20,4 +20,4 @@ void RegisterHLSLShaderAttr(py::module_ &m) {
     .def_property_readonly("Spelling", &HLSLShaderAttr::Spelling)
     .def_property_readonly("Type", &HLSLShaderAttr::Type);
 }
-} // namespace ogler
+} // namespace pasta

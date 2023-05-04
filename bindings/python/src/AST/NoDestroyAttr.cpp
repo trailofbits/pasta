@@ -19,4 +19,4 @@ void RegisterNoDestroyAttr(py::module_ &m) {
   py::class_<NoDestroyAttr, Attr, InheritableAttr>(m, "NoDestroyAttr")
     .def_property_readonly("Spelling", &NoDestroyAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

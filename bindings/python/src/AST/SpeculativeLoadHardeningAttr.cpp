@@ -19,4 +19,4 @@ void RegisterSpeculativeLoadHardeningAttr(py::module_ &m) {
   py::class_<SpeculativeLoadHardeningAttr, Attr, InheritableAttr>(m, "SpeculativeLoadHardeningAttr")
     .def_property_readonly("Spelling", &SpeculativeLoadHardeningAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

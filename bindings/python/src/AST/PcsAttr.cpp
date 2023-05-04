@@ -20,4 +20,4 @@ void RegisterPcsAttr(py::module_ &m) {
     .def_property_readonly("PCS", &PcsAttr::PCS)
     .def_property_readonly("Spelling", &PcsAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

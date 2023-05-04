@@ -19,4 +19,4 @@ void RegisterAnyX86NoCallerSavedRegistersAttr(py::module_ &m) {
   py::class_<AnyX86NoCallerSavedRegistersAttr, Attr, InheritableAttr>(m, "AnyX86NoCallerSavedRegistersAttr")
     .def_property_readonly("Spelling", &AnyX86NoCallerSavedRegistersAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

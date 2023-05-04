@@ -20,4 +20,4 @@ void RegisterRISCVInterruptAttr(py::module_ &m) {
     .def_property_readonly("Interrupt", &RISCVInterruptAttr::Interrupt)
     .def_property_readonly("Spelling", &RISCVInterruptAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

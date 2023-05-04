@@ -19,4 +19,4 @@ void RegisterOpenCLGlobalHostAddressSpaceAttr(py::module_ &m) {
   py::class_<OpenCLGlobalHostAddressSpaceAttr, Attr, TypeAttr>(m, "OpenCLGlobalHostAddressSpaceAttr")
     .def_property_readonly("Spelling", &OpenCLGlobalHostAddressSpaceAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -21,4 +21,4 @@ void RegisterTLSModelAttr(py::module_ &m) {
     .def_property_readonly("ModelLength", &TLSModelAttr::ModelLength)
     .def_property_readonly("Spelling", &TLSModelAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

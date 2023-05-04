@@ -19,4 +19,4 @@ void RegisterCalledOnceAttr(py::module_ &m) {
   py::class_<CalledOnceAttr, Attr>(m, "CalledOnceAttr")
     .def_property_readonly("Spelling", &CalledOnceAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

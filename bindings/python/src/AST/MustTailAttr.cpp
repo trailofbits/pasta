@@ -19,4 +19,4 @@ void RegisterMustTailAttr(py::module_ &m) {
   py::class_<MustTailAttr, Attr, StmtAttr>(m, "MustTailAttr")
     .def_property_readonly("Spelling", &MustTailAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

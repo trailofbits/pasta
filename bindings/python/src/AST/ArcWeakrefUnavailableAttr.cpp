@@ -19,4 +19,4 @@ void RegisterArcWeakrefUnavailableAttr(py::module_ &m) {
   py::class_<ArcWeakrefUnavailableAttr, Attr, InheritableAttr>(m, "ArcWeakrefUnavailableAttr")
     .def_property_readonly("Spelling", &ArcWeakrefUnavailableAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

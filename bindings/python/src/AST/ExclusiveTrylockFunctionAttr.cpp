@@ -20,4 +20,4 @@ void RegisterExclusiveTrylockFunctionAttr(py::module_ &m) {
     .def_property_readonly("Spelling", &ExclusiveTrylockFunctionAttr::Spelling)
     .def_property_readonly("SuccessValue", &ExclusiveTrylockFunctionAttr::SuccessValue);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterAlwaysDestroyAttr(py::module_ &m) {
   py::class_<AlwaysDestroyAttr, Attr, InheritableAttr>(m, "AlwaysDestroyAttr")
     .def_property_readonly("Spelling", &AlwaysDestroyAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

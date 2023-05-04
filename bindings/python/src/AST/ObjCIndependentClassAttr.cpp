@@ -19,4 +19,4 @@ void RegisterObjCIndependentClassAttr(py::module_ &m) {
   py::class_<ObjCIndependentClassAttr, Attr, InheritableAttr>(m, "ObjCIndependentClassAttr")
     .def_property_readonly("Spelling", &ObjCIndependentClassAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

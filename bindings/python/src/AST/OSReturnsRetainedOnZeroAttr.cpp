@@ -19,4 +19,4 @@ void RegisterOSReturnsRetainedOnZeroAttr(py::module_ &m) {
   py::class_<OSReturnsRetainedOnZeroAttr, Attr, InheritableAttr>(m, "OSReturnsRetainedOnZeroAttr")
     .def_property_readonly("Spelling", &OSReturnsRetainedOnZeroAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

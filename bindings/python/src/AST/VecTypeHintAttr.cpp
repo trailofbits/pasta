@@ -21,4 +21,4 @@ void RegisterVecTypeHintAttr(py::module_ &m) {
     .def_property_readonly("TypeHint", &VecTypeHintAttr::TypeHint)
     .def_property_readonly("TypeHintToken", &VecTypeHintAttr::TypeHintToken);
 }
-} // namespace ogler
+} // namespace pasta

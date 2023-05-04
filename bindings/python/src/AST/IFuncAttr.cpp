@@ -21,4 +21,4 @@ void RegisterIFuncAttr(py::module_ &m) {
     .def_property_readonly("ResolverLength", &IFuncAttr::ResolverLength)
     .def_property_readonly("Spelling", &IFuncAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

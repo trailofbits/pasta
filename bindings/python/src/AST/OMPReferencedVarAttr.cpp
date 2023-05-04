@@ -20,4 +20,4 @@ void RegisterOMPReferencedVarAttr(py::module_ &m) {
     .def_property_readonly("Reference", &OMPReferencedVarAttr::Reference)
     .def_property_readonly("Spelling", &OMPReferencedVarAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

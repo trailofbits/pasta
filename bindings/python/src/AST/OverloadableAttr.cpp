@@ -19,4 +19,4 @@ void RegisterOverloadableAttr(py::module_ &m) {
   py::class_<OverloadableAttr, Attr>(m, "OverloadableAttr")
     .def_property_readonly("Spelling", &OverloadableAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

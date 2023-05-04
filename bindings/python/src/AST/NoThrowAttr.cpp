@@ -19,4 +19,4 @@ void RegisterNoThrowAttr(py::module_ &m) {
   py::class_<NoThrowAttr, Attr, InheritableAttr>(m, "NoThrowAttr")
     .def_property_readonly("Spelling", &NoThrowAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterAVRSignalAttr(py::module_ &m) {
   py::class_<AVRSignalAttr, Attr, InheritableAttr>(m, "AVRSignalAttr")
     .def_property_readonly("Spelling", &AVRSignalAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

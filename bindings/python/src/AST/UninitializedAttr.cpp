@@ -19,4 +19,4 @@ void RegisterUninitializedAttr(py::module_ &m) {
   py::class_<UninitializedAttr, Attr, InheritableAttr>(m, "UninitializedAttr")
     .def_property_readonly("Spelling", &UninitializedAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

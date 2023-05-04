@@ -20,4 +20,4 @@ void RegisterMSP430InterruptAttr(py::module_ &m) {
     .def_property_readonly("Number", &MSP430InterruptAttr::Number)
     .def_property_readonly("Spelling", &MSP430InterruptAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

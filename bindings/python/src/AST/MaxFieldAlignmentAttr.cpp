@@ -20,4 +20,4 @@ void RegisterMaxFieldAlignmentAttr(py::module_ &m) {
     .def_property_readonly("Alignment", &MaxFieldAlignmentAttr::Alignment)
     .def_property_readonly("Spelling", &MaxFieldAlignmentAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

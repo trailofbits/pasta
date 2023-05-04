@@ -19,4 +19,4 @@ void RegisterPascalAttr(py::module_ &m) {
   py::class_<PascalAttr, Attr, InheritableAttr>(m, "PascalAttr")
     .def_property_readonly("Spelling", &PascalAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterObjCClassStubAttr(py::module_ &m) {
   py::class_<ObjCClassStubAttr, Attr>(m, "ObjCClassStubAttr")
     .def_property_readonly("Spelling", &ObjCClassStubAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

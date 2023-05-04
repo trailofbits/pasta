@@ -19,4 +19,4 @@ void RegisterReinitializesAttr(py::module_ &m) {
   py::class_<ReinitializesAttr, Attr, InheritableAttr>(m, "ReinitializesAttr")
     .def_property_readonly("Spelling", &ReinitializesAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

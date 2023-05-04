@@ -20,4 +20,4 @@ void RegisterXRayLogArgsAttr(py::module_ &m) {
     .def_property_readonly("ArgumentCount", &XRayLogArgsAttr::ArgumentCount)
     .def_property_readonly("Spelling", &XRayLogArgsAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterNoUniqueAddressAttr(py::module_ &m) {
   py::class_<NoUniqueAddressAttr, Attr, InheritableAttr>(m, "NoUniqueAddressAttr")
     .def_property_readonly("Spelling", &NoUniqueAddressAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

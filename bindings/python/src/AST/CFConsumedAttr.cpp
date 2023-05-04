@@ -19,4 +19,4 @@ void RegisterCFConsumedAttr(py::module_ &m) {
   py::class_<CFConsumedAttr, Attr, InheritableAttr, InheritableParamAttr>(m, "CFConsumedAttr")
     .def_property_readonly("Spelling", &CFConsumedAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

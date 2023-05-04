@@ -19,4 +19,4 @@ void RegisterHLSLSV_DispatchThreadIDAttr(py::module_ &m) {
   py::class_<HLSLSV_DispatchThreadIDAttr, Attr, HLSLAnnotationAttr, InheritableAttr>(m, "HLSLSV_DispatchThreadIDAttr")
     .def_property_readonly("Spelling", &HLSLSV_DispatchThreadIDAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

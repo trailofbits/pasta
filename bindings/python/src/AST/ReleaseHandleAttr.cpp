@@ -21,4 +21,4 @@ void RegisterReleaseHandleAttr(py::module_ &m) {
     .def_property_readonly("HandleTypeLength", &ReleaseHandleAttr::HandleTypeLength)
     .def_property_readonly("Spelling", &ReleaseHandleAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

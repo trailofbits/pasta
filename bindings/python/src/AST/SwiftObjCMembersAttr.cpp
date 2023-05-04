@@ -19,4 +19,4 @@ void RegisterSwiftObjCMembersAttr(py::module_ &m) {
   py::class_<SwiftObjCMembersAttr, Attr>(m, "SwiftObjCMembersAttr")
     .def_property_readonly("Spelling", &SwiftObjCMembersAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -21,4 +21,4 @@ void RegisterObjCRuntimeNameAttr(py::module_ &m) {
     .def_property_readonly("MetadataNameLength", &ObjCRuntimeNameAttr::MetadataNameLength)
     .def_property_readonly("Spelling", &ObjCRuntimeNameAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

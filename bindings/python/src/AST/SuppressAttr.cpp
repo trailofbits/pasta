@@ -19,4 +19,4 @@ void RegisterSuppressAttr(py::module_ &m) {
   py::class_<SuppressAttr, Attr, StmtAttr>(m, "SuppressAttr")
     .def_property_readonly("Spelling", &SuppressAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

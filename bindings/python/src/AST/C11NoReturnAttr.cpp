@@ -19,4 +19,4 @@ void RegisterC11NoReturnAttr(py::module_ &m) {
   py::class_<C11NoReturnAttr, Attr, InheritableAttr>(m, "C11NoReturnAttr")
     .def_property_readonly("Spelling", &C11NoReturnAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

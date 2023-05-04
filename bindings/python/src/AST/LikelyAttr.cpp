@@ -19,4 +19,4 @@ void RegisterLikelyAttr(py::module_ &m) {
   py::class_<LikelyAttr, Attr, StmtAttr>(m, "LikelyAttr")
     .def_property_readonly("Spelling", &LikelyAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

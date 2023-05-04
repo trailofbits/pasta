@@ -19,4 +19,4 @@ void RegisterReadOnlyPlacementAttr(py::module_ &m) {
   py::class_<ReadOnlyPlacementAttr, Attr, InheritableAttr>(m, "ReadOnlyPlacementAttr")
     .def_property_readonly("Spelling", &ReadOnlyPlacementAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -22,4 +22,4 @@ void RegisterXRayInstrumentAttr(py::module_ &m) {
     .def_property_readonly("Spelling", &XRayInstrumentAttr::Spelling)
     .def_property_readonly("NeverXRayInstrument", &XRayInstrumentAttr::NeverXRayInstrument);
 }
-} // namespace ogler
+} // namespace pasta

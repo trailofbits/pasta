@@ -20,4 +20,4 @@ void RegisterMipsShortCallAttr(py::module_ &m) {
     .def_property_readonly("SemanticSpelling", &MipsShortCallAttr::SemanticSpelling)
     .def_property_readonly("Spelling", &MipsShortCallAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

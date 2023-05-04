@@ -22,4 +22,4 @@ void RegisterWorkGroupSizeHintAttr(py::module_ &m) {
     .def_property_readonly("YDim", &WorkGroupSizeHintAttr::YDim)
     .def_property_readonly("ZDim", &WorkGroupSizeHintAttr::ZDim);
 }
-} // namespace ogler
+} // namespace pasta

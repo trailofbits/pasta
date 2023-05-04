@@ -23,4 +23,4 @@ void RegisterWarnUnusedResultAttr(py::module_ &m) {
     .def_property_readonly("SemanticSpelling", &WarnUnusedResultAttr::SemanticSpelling)
     .def_property_readonly("Spelling", &WarnUnusedResultAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

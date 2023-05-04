@@ -20,4 +20,4 @@ void RegisterCFGuardAttr(py::module_ &m) {
     .def_property_readonly("Guard", &CFGuardAttr::Guard)
     .def_property_readonly("Spelling", &CFGuardAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

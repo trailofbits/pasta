@@ -21,4 +21,4 @@ void RegisterAssumeAlignedAttr(py::module_ &m) {
     .def_property_readonly("Offset", &AssumeAlignedAttr::Offset)
     .def_property_readonly("Spelling", &AssumeAlignedAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

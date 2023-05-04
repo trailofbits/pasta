@@ -20,4 +20,4 @@ void RegisterPatchableFunctionEntryAttr(py::module_ &m) {
     .def_property_readonly("Count", &PatchableFunctionEntryAttr::Count)
     .def_property_readonly("Spelling", &PatchableFunctionEntryAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

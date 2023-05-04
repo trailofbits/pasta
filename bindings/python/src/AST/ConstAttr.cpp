@@ -19,4 +19,4 @@ void RegisterConstAttr(py::module_ &m) {
   py::class_<ConstAttr, Attr, InheritableAttr>(m, "ConstAttr")
     .def_property_readonly("Spelling", &ConstAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterUPtrAttr(py::module_ &m) {
   py::class_<UPtrAttr, Attr, TypeAttr>(m, "UPtrAttr")
     .def_property_readonly("Spelling", &UPtrAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

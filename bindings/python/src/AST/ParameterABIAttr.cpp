@@ -19,4 +19,4 @@ void RegisterParameterABIAttr(py::module_ &m) {
   py::class_<ParameterABIAttr, Attr, InheritableAttr, InheritableParamAttr>(m, "ParameterABIAttr")
     .def_property_readonly("ABI", &ParameterABIAttr::ABI);
 }
-} // namespace ogler
+} // namespace pasta

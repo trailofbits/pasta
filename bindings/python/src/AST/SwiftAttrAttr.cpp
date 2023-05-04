@@ -21,4 +21,4 @@ void RegisterSwiftAttrAttr(py::module_ &m) {
     .def_property_readonly("AttributeLength", &SwiftAttrAttr::AttributeLength)
     .def_property_readonly("Spelling", &SwiftAttrAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

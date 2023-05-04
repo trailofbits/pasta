@@ -19,4 +19,4 @@ void RegisterAssertSharedLockAttr(py::module_ &m) {
   py::class_<AssertSharedLockAttr, Attr, InheritableAttr>(m, "AssertSharedLockAttr")
     .def_property_readonly("Spelling", &AssertSharedLockAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

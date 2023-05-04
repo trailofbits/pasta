@@ -20,4 +20,4 @@ void RegisterOpenCLIntelReqdSubGroupSizeAttr(py::module_ &m) {
     .def_property_readonly("Spelling", &OpenCLIntelReqdSubGroupSizeAttr::Spelling)
     .def_property_readonly("SubGroupSize", &OpenCLIntelReqdSubGroupSizeAttr::SubGroupSize);
 }
-} // namespace ogler
+} // namespace pasta

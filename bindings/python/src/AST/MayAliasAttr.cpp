@@ -19,4 +19,4 @@ void RegisterMayAliasAttr(py::module_ &m) {
   py::class_<MayAliasAttr, Attr, InheritableAttr>(m, "MayAliasAttr")
     .def_property_readonly("Spelling", &MayAliasAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

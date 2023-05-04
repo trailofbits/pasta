@@ -20,4 +20,4 @@ void RegisterSharedTrylockFunctionAttr(py::module_ &m) {
     .def_property_readonly("Spelling", &SharedTrylockFunctionAttr::Spelling)
     .def_property_readonly("SuccessValue", &SharedTrylockFunctionAttr::SuccessValue);
 }
-} // namespace ogler
+} // namespace pasta

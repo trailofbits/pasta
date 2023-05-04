@@ -19,4 +19,4 @@ void RegisterNoRandomizeLayoutAttr(py::module_ &m) {
   py::class_<NoRandomizeLayoutAttr, Attr, InheritableAttr>(m, "NoRandomizeLayoutAttr")
     .def_property_readonly("Spelling", &NoRandomizeLayoutAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterObjCRootClassAttr(py::module_ &m) {
   py::class_<ObjCRootClassAttr, Attr, InheritableAttr>(m, "ObjCRootClassAttr")
     .def_property_readonly("Spelling", &ObjCRootClassAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

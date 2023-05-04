@@ -19,4 +19,4 @@ void RegisterAddressSpaceAttr(py::module_ &m) {
   py::class_<AddressSpaceAttr, Attr, TypeAttr>(m, "AddressSpaceAttr")
     .def_property_readonly("Spelling", &AddressSpaceAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

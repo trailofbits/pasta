@@ -19,4 +19,4 @@ void RegisterCFReturnsRetainedAttr(py::module_ &m) {
   py::class_<CFReturnsRetainedAttr, Attr, InheritableAttr>(m, "CFReturnsRetainedAttr")
     .def_property_readonly("Spelling", &CFReturnsRetainedAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -22,4 +22,4 @@ void RegisterOMPAllocateDeclAttr(py::module_ &m) {
     .def_property_readonly("AllocatorType", &OMPAllocateDeclAttr::AllocatorType)
     .def_property_readonly("Spelling", &OMPAllocateDeclAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

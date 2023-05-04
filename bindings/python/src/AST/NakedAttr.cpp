@@ -19,4 +19,4 @@ void RegisterNakedAttr(py::module_ &m) {
   py::class_<NakedAttr, Attr, InheritableAttr>(m, "NakedAttr")
     .def_property_readonly("Spelling", &NakedAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterFlagEnumAttr(py::module_ &m) {
   py::class_<FlagEnumAttr, Attr, InheritableAttr>(m, "FlagEnumAttr")
     .def_property_readonly("Spelling", &FlagEnumAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

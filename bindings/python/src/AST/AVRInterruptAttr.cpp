@@ -19,4 +19,4 @@ void RegisterAVRInterruptAttr(py::module_ &m) {
   py::class_<AVRInterruptAttr, Attr, InheritableAttr>(m, "AVRInterruptAttr")
     .def_property_readonly("Spelling", &AVRInterruptAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

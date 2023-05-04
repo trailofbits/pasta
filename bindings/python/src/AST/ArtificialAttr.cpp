@@ -19,4 +19,4 @@ void RegisterArtificialAttr(py::module_ &m) {
   py::class_<ArtificialAttr, Attr, InheritableAttr>(m, "ArtificialAttr")
     .def_property_readonly("Spelling", &ArtificialAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

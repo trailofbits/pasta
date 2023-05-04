@@ -19,4 +19,4 @@ void RegisterVecReturnAttr(py::module_ &m) {
   py::class_<VecReturnAttr, Attr, InheritableAttr>(m, "VecReturnAttr")
     .def_property_readonly("Spelling", &VecReturnAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

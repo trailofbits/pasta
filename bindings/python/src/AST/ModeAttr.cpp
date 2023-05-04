@@ -19,4 +19,4 @@ void RegisterModeAttr(py::module_ &m) {
   py::class_<ModeAttr, Attr>(m, "ModeAttr")
     .def_property_readonly("Spelling", &ModeAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

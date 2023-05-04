@@ -19,4 +19,4 @@ void RegisterNoMicroMipsAttr(py::module_ &m) {
   py::class_<NoMicroMipsAttr, Attr, InheritableAttr>(m, "NoMicroMipsAttr")
     .def_property_readonly("Spelling", &NoMicroMipsAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

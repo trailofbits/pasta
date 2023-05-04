@@ -21,4 +21,4 @@ void RegisterWebAssemblyExportNameAttr(py::module_ &m) {
     .def_property_readonly("ExportNameLength", &WebAssemblyExportNameAttr::ExportNameLength)
     .def_property_readonly("Spelling", &WebAssemblyExportNameAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

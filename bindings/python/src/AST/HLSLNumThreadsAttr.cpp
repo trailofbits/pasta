@@ -19,4 +19,4 @@ void RegisterHLSLNumThreadsAttr(py::module_ &m) {
   py::class_<HLSLNumThreadsAttr, Attr, InheritableAttr>(m, "HLSLNumThreadsAttr")
     .def_property_readonly("Spelling", &HLSLNumThreadsAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

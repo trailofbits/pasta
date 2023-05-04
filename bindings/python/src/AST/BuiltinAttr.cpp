@@ -20,4 +20,4 @@ void RegisterBuiltinAttr(py::module_ &m) {
     .def_property_readonly("ID", &BuiltinAttr::ID)
     .def_property_readonly("Spelling", &BuiltinAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterAlignMac68kAttr(py::module_ &m) {
   py::class_<AlignMac68kAttr, Attr, InheritableAttr>(m, "AlignMac68kAttr")
     .def_property_readonly("Spelling", &AlignMac68kAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

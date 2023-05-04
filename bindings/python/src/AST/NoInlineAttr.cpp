@@ -20,4 +20,4 @@ void RegisterNoInlineAttr(py::module_ &m) {
     .def_property_readonly("Spelling", &NoInlineAttr::Spelling)
     .def_property_readonly("IsClangNoInline", &NoInlineAttr::IsClangNoInline);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterObjCDirectAttr(py::module_ &m) {
   py::class_<ObjCDirectAttr, Attr>(m, "ObjCDirectAttr")
     .def_property_readonly("Spelling", &ObjCDirectAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

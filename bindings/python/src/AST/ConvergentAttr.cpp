@@ -19,4 +19,4 @@ void RegisterConvergentAttr(py::module_ &m) {
   py::class_<ConvergentAttr, Attr, InheritableAttr>(m, "ConvergentAttr")
     .def_property_readonly("Spelling", &ConvergentAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

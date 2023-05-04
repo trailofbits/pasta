@@ -19,4 +19,4 @@ void RegisterObjCPreciseLifetimeAttr(py::module_ &m) {
   py::class_<ObjCPreciseLifetimeAttr, Attr, InheritableAttr>(m, "ObjCPreciseLifetimeAttr")
     .def_property_readonly("Spelling", &ObjCPreciseLifetimeAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

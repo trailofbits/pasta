@@ -19,4 +19,4 @@ void RegisterObjCExplicitProtocolImplAttr(py::module_ &m) {
   py::class_<ObjCExplicitProtocolImplAttr, Attr, InheritableAttr>(m, "ObjCExplicitProtocolImplAttr")
     .def_property_readonly("Spelling", &ObjCExplicitProtocolImplAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterConstructorAttr(py::module_ &m) {
   py::class_<ConstructorAttr, Attr, InheritableAttr>(m, "ConstructorAttr")
     .def_property_readonly("Spelling", &ConstructorAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

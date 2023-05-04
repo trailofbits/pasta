@@ -21,4 +21,4 @@ void RegisterAMDGPUWavesPerEUAttr(py::module_ &m) {
     .def_property_readonly("Min", &AMDGPUWavesPerEUAttr::Min)
     .def_property_readonly("Spelling", &AMDGPUWavesPerEUAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

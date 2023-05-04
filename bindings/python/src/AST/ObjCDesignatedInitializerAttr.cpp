@@ -19,4 +19,4 @@ void RegisterObjCDesignatedInitializerAttr(py::module_ &m) {
   py::class_<ObjCDesignatedInitializerAttr, Attr>(m, "ObjCDesignatedInitializerAttr")
     .def_property_readonly("Spelling", &ObjCDesignatedInitializerAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

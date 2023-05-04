@@ -21,4 +21,4 @@ void RegisterAMDGPUFlatWorkGroupSizeAttr(py::module_ &m) {
     .def_property_readonly("Min", &AMDGPUFlatWorkGroupSizeAttr::Min)
     .def_property_readonly("Spelling", &AMDGPUFlatWorkGroupSizeAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

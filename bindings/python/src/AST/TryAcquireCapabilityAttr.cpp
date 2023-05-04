@@ -22,4 +22,4 @@ void RegisterTryAcquireCapabilityAttr(py::module_ &m) {
     .def_property_readonly("SuccessValue", &TryAcquireCapabilityAttr::SuccessValue)
     .def_property_readonly("IsShared", &TryAcquireCapabilityAttr::IsShared);
 }
-} // namespace ogler
+} // namespace pasta

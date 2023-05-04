@@ -30,4 +30,4 @@ void RegisterAlignedAttr(py::module_ &m) {
     .def_property_readonly("IsDeclspec", &AlignedAttr::IsDeclspec)
     .def_property_readonly("IsGNU", &AlignedAttr::IsGNU);
 }
-} // namespace ogler
+} // namespace pasta

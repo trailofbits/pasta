@@ -19,4 +19,4 @@ void RegisterCUDAHostAttr(py::module_ &m) {
   py::class_<CUDAHostAttr, Attr, InheritableAttr>(m, "CUDAHostAttr")
     .def_property_readonly("Spelling", &CUDAHostAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

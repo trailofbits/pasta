@@ -18,4 +18,4 @@ namespace py = pybind11;
 void RegisterInheritableParamAttr(py::module_ &m) {
   py::class_<InheritableParamAttr, Attr, InheritableAttr>(m, "InheritableParamAttr");
 }
-} // namespace ogler
+} // namespace pasta

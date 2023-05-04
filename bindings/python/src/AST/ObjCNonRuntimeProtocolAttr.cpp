@@ -19,4 +19,4 @@ void RegisterObjCNonRuntimeProtocolAttr(py::module_ &m) {
   py::class_<ObjCNonRuntimeProtocolAttr, Attr>(m, "ObjCNonRuntimeProtocolAttr")
     .def_property_readonly("Spelling", &ObjCNonRuntimeProtocolAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

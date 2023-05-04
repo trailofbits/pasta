@@ -19,4 +19,4 @@ void RegisterTypeNullableAttr(py::module_ &m) {
   py::class_<TypeNullableAttr, Attr, TypeAttr>(m, "TypeNullableAttr")
     .def_property_readonly("Spelling", &TypeNullableAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

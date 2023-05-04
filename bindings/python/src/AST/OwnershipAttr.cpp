@@ -24,4 +24,4 @@ void RegisterOwnershipAttr(py::module_ &m) {
     .def_property_readonly("IsReturns", &OwnershipAttr::IsReturns)
     .def_property_readonly("IsTakes", &OwnershipAttr::IsTakes);
 }
-} // namespace ogler
+} // namespace pasta

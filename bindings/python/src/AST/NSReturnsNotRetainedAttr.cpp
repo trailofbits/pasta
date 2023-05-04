@@ -19,4 +19,4 @@ void RegisterNSReturnsNotRetainedAttr(py::module_ &m) {
   py::class_<NSReturnsNotRetainedAttr, Attr, InheritableAttr>(m, "NSReturnsNotRetainedAttr")
     .def_property_readonly("Spelling", &NSReturnsNotRetainedAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

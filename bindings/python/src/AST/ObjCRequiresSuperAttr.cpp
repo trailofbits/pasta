@@ -19,4 +19,4 @@ void RegisterObjCRequiresSuperAttr(py::module_ &m) {
   py::class_<ObjCRequiresSuperAttr, Attr, InheritableAttr>(m, "ObjCRequiresSuperAttr")
     .def_property_readonly("Spelling", &ObjCRequiresSuperAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

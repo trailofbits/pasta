@@ -19,4 +19,4 @@ void RegisterCUDAConstantAttr(py::module_ &m) {
   py::class_<CUDAConstantAttr, Attr, InheritableAttr>(m, "CUDAConstantAttr")
     .def_property_readonly("Spelling", &CUDAConstantAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

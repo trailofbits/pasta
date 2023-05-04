@@ -20,4 +20,4 @@ void RegisterOpenCLConstantAddressSpaceAttr(py::module_ &m) {
     .def_property_readonly("SemanticSpelling", &OpenCLConstantAddressSpaceAttr::SemanticSpelling)
     .def_property_readonly("Spelling", &OpenCLConstantAddressSpaceAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

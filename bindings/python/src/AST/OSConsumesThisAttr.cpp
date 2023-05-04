@@ -19,4 +19,4 @@ void RegisterOSConsumesThisAttr(py::module_ &m) {
   py::class_<OSConsumesThisAttr, Attr, InheritableAttr>(m, "OSConsumesThisAttr")
     .def_property_readonly("Spelling", &OSConsumesThisAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

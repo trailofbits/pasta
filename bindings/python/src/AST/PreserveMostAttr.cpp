@@ -19,4 +19,4 @@ void RegisterPreserveMostAttr(py::module_ &m) {
   py::class_<PreserveMostAttr, Attr, InheritableAttr>(m, "PreserveMostAttr")
     .def_property_readonly("Spelling", &PreserveMostAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

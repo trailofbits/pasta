@@ -20,4 +20,4 @@ void RegisterARMInterruptAttr(py::module_ &m) {
     .def_property_readonly("Interrupt", &ARMInterruptAttr::Interrupt)
     .def_property_readonly("Spelling", &ARMInterruptAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

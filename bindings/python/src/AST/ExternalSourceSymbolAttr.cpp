@@ -24,4 +24,4 @@ void RegisterExternalSourceSymbolAttr(py::module_ &m) {
     .def_property_readonly("LanguageLength", &ExternalSourceSymbolAttr::LanguageLength)
     .def_property_readonly("Spelling", &ExternalSourceSymbolAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

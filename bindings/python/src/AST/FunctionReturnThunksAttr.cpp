@@ -20,4 +20,4 @@ void RegisterFunctionReturnThunksAttr(py::module_ &m) {
     .def_property_readonly("Spelling", &FunctionReturnThunksAttr::Spelling)
     .def_property_readonly("ThunkType", &FunctionReturnThunksAttr::ThunkType);
 }
-} // namespace ogler
+} // namespace pasta

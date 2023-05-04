@@ -20,4 +20,4 @@ void RegisterUnusedAttr(py::module_ &m) {
     .def_property_readonly("SemanticSpelling", &UnusedAttr::SemanticSpelling)
     .def_property_readonly("Spelling", &UnusedAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterCUDAInvalidTargetAttr(py::module_ &m) {
   py::class_<CUDAInvalidTargetAttr, Attr, InheritableAttr>(m, "CUDAInvalidTargetAttr")
     .def_property_readonly("Spelling", &CUDAInvalidTargetAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

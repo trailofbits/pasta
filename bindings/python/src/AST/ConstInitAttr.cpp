@@ -21,4 +21,4 @@ void RegisterConstInitAttr(py::module_ &m) {
     .def_property_readonly("Spelling", &ConstInitAttr::Spelling)
     .def_property_readonly("IsConstinit", &ConstInitAttr::IsConstinit);
 }
-} // namespace ogler
+} // namespace pasta

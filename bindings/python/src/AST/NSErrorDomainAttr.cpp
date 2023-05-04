@@ -20,4 +20,4 @@ void RegisterNSErrorDomainAttr(py::module_ &m) {
     .def_property_readonly("ErrorDomain", &NSErrorDomainAttr::ErrorDomain)
     .def_property_readonly("Spelling", &NSErrorDomainAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

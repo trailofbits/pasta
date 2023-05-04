@@ -19,4 +19,4 @@ void RegisterMSABIAttr(py::module_ &m) {
   py::class_<MSABIAttr, Attr, InheritableAttr>(m, "MSABIAttr")
     .def_property_readonly("Spelling", &MSABIAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

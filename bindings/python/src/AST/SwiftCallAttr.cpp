@@ -19,4 +19,4 @@ void RegisterSwiftCallAttr(py::module_ &m) {
   py::class_<SwiftCallAttr, Attr, InheritableAttr>(m, "SwiftCallAttr")
     .def_property_readonly("Spelling", &SwiftCallAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

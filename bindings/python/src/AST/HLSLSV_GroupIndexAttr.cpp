@@ -19,4 +19,4 @@ void RegisterHLSLSV_GroupIndexAttr(py::module_ &m) {
   py::class_<HLSLSV_GroupIndexAttr, Attr, HLSLAnnotationAttr, InheritableAttr>(m, "HLSLSV_GroupIndexAttr")
     .def_property_readonly("Spelling", &HLSLSV_GroupIndexAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterLocksExcludedAttr(py::module_ &m) {
   py::class_<LocksExcludedAttr, Attr, InheritableAttr>(m, "LocksExcludedAttr")
     .def_property_readonly("Spelling", &LocksExcludedAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

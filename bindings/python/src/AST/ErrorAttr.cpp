@@ -24,4 +24,4 @@ void RegisterErrorAttr(py::module_ &m) {
     .def_property_readonly("IsError", &ErrorAttr::IsError)
     .def_property_readonly("IsWarning", &ErrorAttr::IsWarning);
 }
-} // namespace ogler
+} // namespace pasta

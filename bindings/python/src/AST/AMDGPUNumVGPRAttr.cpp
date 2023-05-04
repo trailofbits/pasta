@@ -20,4 +20,4 @@ void RegisterAMDGPUNumVGPRAttr(py::module_ &m) {
     .def_property_readonly("NumVGPR", &AMDGPUNumVGPRAttr::NumVGPR)
     .def_property_readonly("Spelling", &AMDGPUNumVGPRAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

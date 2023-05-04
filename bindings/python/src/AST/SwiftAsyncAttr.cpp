@@ -20,4 +20,4 @@ void RegisterSwiftAsyncAttr(py::module_ &m) {
     .def_property_readonly("Kind", &SwiftAsyncAttr::Kind)
     .def_property_readonly("Spelling", &SwiftAsyncAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

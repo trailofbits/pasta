@@ -19,4 +19,4 @@ void RegisterSwiftPrivateAttr(py::module_ &m) {
   py::class_<SwiftPrivateAttr, Attr, InheritableAttr>(m, "SwiftPrivateAttr")
     .def_property_readonly("Spelling", &SwiftPrivateAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

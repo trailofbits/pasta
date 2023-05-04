@@ -19,4 +19,4 @@ void RegisterMSAllocatorAttr(py::module_ &m) {
   py::class_<MSAllocatorAttr, Attr, InheritableAttr>(m, "MSAllocatorAttr")
     .def_property_readonly("Spelling", &MSAllocatorAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

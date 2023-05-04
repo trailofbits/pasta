@@ -19,4 +19,4 @@ void RegisterObjCDirectMembersAttr(py::module_ &m) {
   py::class_<ObjCDirectMembersAttr, Attr>(m, "ObjCDirectMembersAttr")
     .def_property_readonly("Spelling", &ObjCDirectMembersAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

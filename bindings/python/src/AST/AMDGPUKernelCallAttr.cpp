@@ -19,4 +19,4 @@ void RegisterAMDGPUKernelCallAttr(py::module_ &m) {
   py::class_<AMDGPUKernelCallAttr, Attr, InheritableAttr>(m, "AMDGPUKernelCallAttr")
     .def_property_readonly("Spelling", &AMDGPUKernelCallAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterObjCBoxableAttr(py::module_ &m) {
   py::class_<ObjCBoxableAttr, Attr>(m, "ObjCBoxableAttr")
     .def_property_readonly("Spelling", &ObjCBoxableAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

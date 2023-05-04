@@ -19,4 +19,4 @@ void RegisterScopedLockableAttr(py::module_ &m) {
   py::class_<ScopedLockableAttr, Attr, InheritableAttr>(m, "ScopedLockableAttr")
     .def_property_readonly("Spelling", &ScopedLockableAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

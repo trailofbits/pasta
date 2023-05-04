@@ -19,4 +19,4 @@ void RegisterArmMveStrictPolymorphismAttr(py::module_ &m) {
   py::class_<ArmMveStrictPolymorphismAttr, Attr, TypeAttr>(m, "ArmMveStrictPolymorphismAttr")
     .def_property_readonly("Spelling", &ArmMveStrictPolymorphismAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

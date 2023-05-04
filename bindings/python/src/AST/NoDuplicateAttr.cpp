@@ -19,4 +19,4 @@ void RegisterNoDuplicateAttr(py::module_ &m) {
   py::class_<NoDuplicateAttr, Attr, InheritableAttr>(m, "NoDuplicateAttr")
     .def_property_readonly("Spelling", &NoDuplicateAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

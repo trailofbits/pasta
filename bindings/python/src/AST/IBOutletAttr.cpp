@@ -19,4 +19,4 @@ void RegisterIBOutletAttr(py::module_ &m) {
   py::class_<IBOutletAttr, Attr, InheritableAttr>(m, "IBOutletAttr")
     .def_property_readonly("Spelling", &IBOutletAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

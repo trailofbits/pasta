@@ -19,4 +19,4 @@ void RegisterObjCGCAttr(py::module_ &m) {
   py::class_<ObjCGCAttr, Attr, TypeAttr>(m, "ObjCGCAttr")
     .def_property_readonly("Spelling", &ObjCGCAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

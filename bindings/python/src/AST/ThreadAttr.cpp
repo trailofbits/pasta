@@ -19,4 +19,4 @@ void RegisterThreadAttr(py::module_ &m) {
   py::class_<ThreadAttr, Attr>(m, "ThreadAttr")
     .def_property_readonly("Spelling", &ThreadAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

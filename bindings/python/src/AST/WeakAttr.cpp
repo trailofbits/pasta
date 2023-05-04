@@ -19,4 +19,4 @@ void RegisterWeakAttr(py::module_ &m) {
   py::class_<WeakAttr, Attr, InheritableAttr>(m, "WeakAttr")
     .def_property_readonly("Spelling", &WeakAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

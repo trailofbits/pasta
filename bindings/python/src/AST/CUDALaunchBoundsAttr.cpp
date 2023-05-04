@@ -21,4 +21,4 @@ void RegisterCUDALaunchBoundsAttr(py::module_ &m) {
     .def_property_readonly("MinBlocks", &CUDALaunchBoundsAttr::MinBlocks)
     .def_property_readonly("Spelling", &CUDALaunchBoundsAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

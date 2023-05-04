@@ -19,4 +19,4 @@ void RegisterOverrideAttr(py::module_ &m) {
   py::class_<OverrideAttr, Attr, InheritableAttr>(m, "OverrideAttr")
     .def_property_readonly("Spelling", &OverrideAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

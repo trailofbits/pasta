@@ -19,4 +19,4 @@ void RegisterSYCLSpecialClassAttr(py::module_ &m) {
   py::class_<SYCLSpecialClassAttr, Attr, InheritableAttr>(m, "SYCLSpecialClassAttr")
     .def_property_readonly("Spelling", &SYCLSpecialClassAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

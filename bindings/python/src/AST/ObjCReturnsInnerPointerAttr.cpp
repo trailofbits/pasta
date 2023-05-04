@@ -19,4 +19,4 @@ void RegisterObjCReturnsInnerPointerAttr(py::module_ &m) {
   py::class_<ObjCReturnsInnerPointerAttr, Attr, InheritableAttr>(m, "ObjCReturnsInnerPointerAttr")
     .def_property_readonly("Spelling", &ObjCReturnsInnerPointerAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

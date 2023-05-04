@@ -19,4 +19,4 @@ void RegisterAlignNaturalAttr(py::module_ &m) {
   py::class_<AlignNaturalAttr, Attr, InheritableAttr>(m, "AlignNaturalAttr")
     .def_property_readonly("Spelling", &AlignNaturalAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

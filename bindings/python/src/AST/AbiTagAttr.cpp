@@ -19,4 +19,4 @@ void RegisterAbiTagAttr(py::module_ &m) {
   py::class_<AbiTagAttr, Attr>(m, "AbiTagAttr")
     .def_property_readonly("Spelling", &AbiTagAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

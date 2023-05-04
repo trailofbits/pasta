@@ -21,4 +21,4 @@ void RegisterOMPDeclareSimdDeclAttr(py::module_ &m) {
     .def_property_readonly("Simdlen", &OMPDeclareSimdDeclAttr::Simdlen)
     .def_property_readonly("Spelling", &OMPDeclareSimdDeclAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

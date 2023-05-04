@@ -19,4 +19,4 @@ void RegisterCPUSpecificAttr(py::module_ &m) {
   py::class_<CPUSpecificAttr, Attr, InheritableAttr>(m, "CPUSpecificAttr")
     .def_property_readonly("Spelling", &CPUSpecificAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -21,4 +21,4 @@ void RegisterEnforceTCBLeafAttr(py::module_ &m) {
     .def_property_readonly("TCBName", &EnforceTCBLeafAttr::TCBName)
     .def_property_readonly("TCBNameLength", &EnforceTCBLeafAttr::TCBNameLength);
 }
-} // namespace ogler
+} // namespace pasta

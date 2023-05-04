@@ -22,4 +22,4 @@ void RegisterUuidAttr(py::module_ &m) {
     .def_property_readonly("GuidLength", &UuidAttr::GuidLength)
     .def_property_readonly("Spelling", &UuidAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

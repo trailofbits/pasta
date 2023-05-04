@@ -19,4 +19,4 @@ void RegisterMaybeUndefAttr(py::module_ &m) {
   py::class_<MaybeUndefAttr, Attr, InheritableAttr>(m, "MaybeUndefAttr")
     .def_property_readonly("Spelling", &MaybeUndefAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

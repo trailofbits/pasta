@@ -19,4 +19,4 @@ void RegisterNSReturnsAutoreleasedAttr(py::module_ &m) {
   py::class_<NSReturnsAutoreleasedAttr, Attr, InheritableAttr>(m, "NSReturnsAutoreleasedAttr")
     .def_property_readonly("Spelling", &NSReturnsAutoreleasedAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

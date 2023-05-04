@@ -19,4 +19,4 @@ void RegisterObjCNSObjectAttr(py::module_ &m) {
   py::class_<ObjCNSObjectAttr, Attr, InheritableAttr>(m, "ObjCNSObjectAttr")
     .def_property_readonly("Spelling", &ObjCNSObjectAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

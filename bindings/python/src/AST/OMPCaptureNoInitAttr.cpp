@@ -19,4 +19,4 @@ void RegisterOMPCaptureNoInitAttr(py::module_ &m) {
   py::class_<OMPCaptureNoInitAttr, Attr, InheritableAttr>(m, "OMPCaptureNoInitAttr")
     .def_property_readonly("Spelling", &OMPCaptureNoInitAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

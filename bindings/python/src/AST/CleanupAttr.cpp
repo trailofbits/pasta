@@ -20,4 +20,4 @@ void RegisterCleanupAttr(py::module_ &m) {
     .def_property_readonly("FunctionDeclaration", &CleanupAttr::FunctionDeclaration)
     .def_property_readonly("Spelling", &CleanupAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

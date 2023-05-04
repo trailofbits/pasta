@@ -19,4 +19,4 @@ void RegisterObjCRequiresPropertyDefsAttr(py::module_ &m) {
   py::class_<ObjCRequiresPropertyDefsAttr, Attr, InheritableAttr>(m, "ObjCRequiresPropertyDefsAttr")
     .def_property_readonly("Spelling", &ObjCRequiresPropertyDefsAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

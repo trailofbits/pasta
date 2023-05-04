@@ -20,4 +20,4 @@ void RegisterTypeVisibilityAttr(py::module_ &m) {
     .def_property_readonly("Spelling", &TypeVisibilityAttr::Spelling)
     .def_property_readonly("Visibility", &TypeVisibilityAttr::Visibility);
 }
-} // namespace ogler
+} // namespace pasta

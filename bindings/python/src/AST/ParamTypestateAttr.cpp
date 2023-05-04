@@ -20,4 +20,4 @@ void RegisterParamTypestateAttr(py::module_ &m) {
     .def_property_readonly("ParameterState", &ParamTypestateAttr::ParameterState)
     .def_property_readonly("Spelling", &ParamTypestateAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

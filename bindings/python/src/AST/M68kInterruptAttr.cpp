@@ -20,4 +20,4 @@ void RegisterM68kInterruptAttr(py::module_ &m) {
     .def_property_readonly("Number", &M68kInterruptAttr::Number)
     .def_property_readonly("Spelling", &M68kInterruptAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

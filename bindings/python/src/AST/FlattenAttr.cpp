@@ -19,4 +19,4 @@ void RegisterFlattenAttr(py::module_ &m) {
   py::class_<FlattenAttr, Attr, InheritableAttr>(m, "FlattenAttr")
     .def_property_readonly("Spelling", &FlattenAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

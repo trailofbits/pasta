@@ -19,4 +19,4 @@ void RegisterCDeclAttr(py::module_ &m) {
   py::class_<CDeclAttr, Attr, InheritableAttr>(m, "CDeclAttr")
     .def_property_readonly("Spelling", &CDeclAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

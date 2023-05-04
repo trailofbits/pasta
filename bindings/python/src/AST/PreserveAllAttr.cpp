@@ -19,4 +19,4 @@ void RegisterPreserveAllAttr(py::module_ &m) {
   py::class_<PreserveAllAttr, Attr, InheritableAttr>(m, "PreserveAllAttr")
     .def_property_readonly("Spelling", &PreserveAllAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

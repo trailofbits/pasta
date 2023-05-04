@@ -20,4 +20,4 @@ void RegisterOMPDeclareVariantAttr(py::module_ &m) {
     .def_property_readonly("Spelling", &OMPDeclareVariantAttr::Spelling)
     .def_property_readonly("VariantFuncReference", &OMPDeclareVariantAttr::VariantFuncReference);
 }
-} // namespace ogler
+} // namespace pasta

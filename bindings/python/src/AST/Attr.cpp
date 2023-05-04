@@ -25,4 +25,4 @@ void RegisterAttr(py::module_ &m) {
     .def_property_readonly("IsLateParsed", &Attr::IsLateParsed)
     .def_property_readonly("IsPackExpansion", &Attr::IsPackExpansion);
 }
-} // namespace ogler
+} // namespace pasta

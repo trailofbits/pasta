@@ -19,4 +19,4 @@ void RegisterFastCallAttr(py::module_ &m) {
   py::class_<FastCallAttr, Attr, InheritableAttr>(m, "FastCallAttr")
     .def_property_readonly("Spelling", &FastCallAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

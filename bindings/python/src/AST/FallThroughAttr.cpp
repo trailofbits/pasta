@@ -19,4 +19,4 @@ void RegisterFallThroughAttr(py::module_ &m) {
   py::class_<FallThroughAttr, Attr, StmtAttr>(m, "FallThroughAttr")
     .def_property_readonly("Spelling", &FallThroughAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterNoBuiltinAttr(py::module_ &m) {
   py::class_<NoBuiltinAttr, Attr>(m, "NoBuiltinAttr")
     .def_property_readonly("Spelling", &NoBuiltinAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

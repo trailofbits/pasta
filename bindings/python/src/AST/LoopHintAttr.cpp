@@ -23,4 +23,4 @@ void RegisterLoopHintAttr(py::module_ &m) {
     .def_property_readonly("State", &LoopHintAttr::State)
     .def_property_readonly("Value", &LoopHintAttr::Value);
 }
-} // namespace ogler
+} // namespace pasta

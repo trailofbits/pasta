@@ -19,4 +19,4 @@ void RegisterDLLImportAttr(py::module_ &m) {
   py::class_<DLLImportAttr, Attr, InheritableAttr>(m, "DLLImportAttr")
     .def_property_readonly("Spelling", &DLLImportAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

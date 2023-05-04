@@ -20,4 +20,4 @@ void RegisterSwiftErrorAttr(py::module_ &m) {
     .def_property_readonly("Convention", &SwiftErrorAttr::Convention)
     .def_property_readonly("Spelling", &SwiftErrorAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

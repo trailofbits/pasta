@@ -19,4 +19,4 @@ void RegisterSwiftAsyncContextAttr(py::module_ &m) {
   py::class_<SwiftAsyncContextAttr, Attr, InheritableAttr, InheritableParamAttr, ParameterABIAttr>(m, "SwiftAsyncContextAttr")
     .def_property_readonly("Spelling", &SwiftAsyncContextAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

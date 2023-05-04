@@ -19,4 +19,4 @@ void RegisterObjCExternallyRetainedAttr(py::module_ &m) {
   py::class_<ObjCExternallyRetainedAttr, Attr, InheritableAttr>(m, "ObjCExternallyRetainedAttr")
     .def_property_readonly("Spelling", &ObjCExternallyRetainedAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

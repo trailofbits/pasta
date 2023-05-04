@@ -21,4 +21,4 @@ void RegisterPreferredNameAttr(py::module_ &m) {
     .def_property_readonly("TypedefType", &PreferredNameAttr::TypedefType)
     .def_property_readonly("TypedefTypeToken", &PreferredNameAttr::TypedefTypeToken);
 }
-} // namespace ogler
+} // namespace pasta

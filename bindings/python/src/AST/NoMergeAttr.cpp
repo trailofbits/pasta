@@ -19,4 +19,4 @@ void RegisterNoMergeAttr(py::module_ &m) {
   py::class_<NoMergeAttr, Attr, DeclOrStmtAttr, InheritableAttr>(m, "NoMergeAttr")
     .def_property_readonly("Spelling", &NoMergeAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

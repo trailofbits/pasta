@@ -21,4 +21,4 @@ void RegisterRequiresCapabilityAttr(py::module_ &m) {
     .def_property_readonly("Spelling", &RequiresCapabilityAttr::Spelling)
     .def_property_readonly("IsShared", &RequiresCapabilityAttr::IsShared);
 }
-} // namespace ogler
+} // namespace pasta

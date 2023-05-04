@@ -19,4 +19,4 @@ void RegisterLifetimeBoundAttr(py::module_ &m) {
   py::class_<LifetimeBoundAttr, Attr, InheritableAttr>(m, "LifetimeBoundAttr")
     .def_property_readonly("Spelling", &LifetimeBoundAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

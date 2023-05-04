@@ -19,4 +19,4 @@ void RegisterNonNullAttr(py::module_ &m) {
   py::class_<NonNullAttr, Attr, InheritableAttr, InheritableParamAttr>(m, "NonNullAttr")
     .def_property_readonly("Spelling", &NonNullAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

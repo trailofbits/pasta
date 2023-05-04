@@ -18,4 +18,4 @@ namespace py = pybind11;
 void RegisterTypeAttr(py::module_ &m) {
   py::class_<TypeAttr, Attr>(m, "TypeAttr");
 }
-} // namespace ogler
+} // namespace pasta

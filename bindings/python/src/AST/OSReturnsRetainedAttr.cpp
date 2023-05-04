@@ -19,4 +19,4 @@ void RegisterOSReturnsRetainedAttr(py::module_ &m) {
   py::class_<OSReturnsRetainedAttr, Attr, InheritableAttr>(m, "OSReturnsRetainedAttr")
     .def_property_readonly("Spelling", &OSReturnsRetainedAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

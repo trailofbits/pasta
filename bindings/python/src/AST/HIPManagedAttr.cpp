@@ -19,4 +19,4 @@ void RegisterHIPManagedAttr(py::module_ &m) {
   py::class_<HIPManagedAttr, Attr, InheritableAttr>(m, "HIPManagedAttr")
     .def_property_readonly("Spelling", &HIPManagedAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

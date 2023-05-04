@@ -19,4 +19,4 @@ void RegisterAArch64VectorPcsAttr(py::module_ &m) {
   py::class_<AArch64VectorPcsAttr, Attr, InheritableAttr>(m, "AArch64VectorPcsAttr")
     .def_property_readonly("Spelling", &AArch64VectorPcsAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

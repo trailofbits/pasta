@@ -20,4 +20,4 @@ void RegisterBlocksAttr(py::module_ &m) {
     .def_property_readonly("Spelling", &BlocksAttr::Spelling)
     .def_property_readonly("Type", &BlocksAttr::Type);
 }
-} // namespace ogler
+} // namespace pasta

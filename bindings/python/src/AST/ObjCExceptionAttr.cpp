@@ -19,4 +19,4 @@ void RegisterObjCExceptionAttr(py::module_ &m) {
   py::class_<ObjCExceptionAttr, Attr, InheritableAttr>(m, "ObjCExceptionAttr")
     .def_property_readonly("Spelling", &ObjCExceptionAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterInheritableAttr(py::module_ &m) {
   py::class_<InheritableAttr, Attr>(m, "InheritableAttr")
     .def_property_readonly("ShouldInheritEvenIfAlreadyPresent", &InheritableAttr::ShouldInheritEvenIfAlreadyPresent);
 }
-} // namespace ogler
+} // namespace pasta

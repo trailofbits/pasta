@@ -19,4 +19,4 @@ void RegisterPureAttr(py::module_ &m) {
   py::class_<PureAttr, Attr, InheritableAttr>(m, "PureAttr")
     .def_property_readonly("Spelling", &PureAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

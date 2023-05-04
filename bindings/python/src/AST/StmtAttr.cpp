@@ -18,4 +18,4 @@ namespace py = pybind11;
 void RegisterStmtAttr(py::module_ &m) {
   py::class_<StmtAttr, Attr>(m, "StmtAttr");
 }
-} // namespace ogler
+} // namespace pasta

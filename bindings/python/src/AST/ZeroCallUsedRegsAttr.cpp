@@ -20,4 +20,4 @@ void RegisterZeroCallUsedRegsAttr(py::module_ &m) {
     .def_property_readonly("Spelling", &ZeroCallUsedRegsAttr::Spelling)
     .def_property_readonly("ZeroCallUsedRegs", &ZeroCallUsedRegsAttr::ZeroCallUsedRegs);
 }
-} // namespace ogler
+} // namespace pasta

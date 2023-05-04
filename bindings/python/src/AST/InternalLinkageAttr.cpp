@@ -19,4 +19,4 @@ void RegisterInternalLinkageAttr(py::module_ &m) {
   py::class_<InternalLinkageAttr, Attr, InheritableAttr>(m, "InternalLinkageAttr")
     .def_property_readonly("Spelling", &InternalLinkageAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -22,4 +22,4 @@ void RegisterAsmLabelAttr(py::module_ &m) {
     .def_property_readonly("LabelLength", &AsmLabelAttr::LabelLength)
     .def_property_readonly("Spelling", &AsmLabelAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

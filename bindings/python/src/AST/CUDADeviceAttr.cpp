@@ -19,4 +19,4 @@ void RegisterCUDADeviceAttr(py::module_ &m) {
   py::class_<CUDADeviceAttr, Attr, InheritableAttr>(m, "CUDADeviceAttr")
     .def_property_readonly("Spelling", &CUDADeviceAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

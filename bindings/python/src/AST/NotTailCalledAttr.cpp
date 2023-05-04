@@ -19,4 +19,4 @@ void RegisterNotTailCalledAttr(py::module_ &m) {
   py::class_<NotTailCalledAttr, Attr, InheritableAttr>(m, "NotTailCalledAttr")
     .def_property_readonly("Spelling", &NotTailCalledAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

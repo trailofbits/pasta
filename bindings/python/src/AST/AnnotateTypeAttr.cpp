@@ -21,4 +21,4 @@ void RegisterAnnotateTypeAttr(py::module_ &m) {
     .def_property_readonly("AnnotationLength", &AnnotateTypeAttr::AnnotationLength)
     .def_property_readonly("Spelling", &AnnotateTypeAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterFormatArgAttr(py::module_ &m) {
   py::class_<FormatArgAttr, Attr, InheritableAttr>(m, "FormatArgAttr")
     .def_property_readonly("Spelling", &FormatArgAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

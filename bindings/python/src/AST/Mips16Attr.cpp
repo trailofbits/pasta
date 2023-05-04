@@ -19,4 +19,4 @@ void RegisterMips16Attr(py::module_ &m) {
   py::class_<Mips16Attr, Attr, InheritableAttr>(m, "Mips16Attr")
     .def_property_readonly("Spelling", &Mips16Attr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

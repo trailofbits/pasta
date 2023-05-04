@@ -19,4 +19,4 @@ void RegisterVectorCallAttr(py::module_ &m) {
   py::class_<VectorCallAttr, Attr, InheritableAttr>(m, "VectorCallAttr")
     .def_property_readonly("Spelling", &VectorCallAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -23,4 +23,4 @@ void RegisterOpenCLAccessAttr(py::module_ &m) {
     .def_property_readonly("IsReadWrite", &OpenCLAccessAttr::IsReadWrite)
     .def_property_readonly("IsWriteOnly", &OpenCLAccessAttr::IsWriteOnly);
 }
-} // namespace ogler
+} // namespace pasta

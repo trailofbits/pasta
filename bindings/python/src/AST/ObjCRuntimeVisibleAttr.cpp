@@ -19,4 +19,4 @@ void RegisterObjCRuntimeVisibleAttr(py::module_ &m) {
   py::class_<ObjCRuntimeVisibleAttr, Attr>(m, "ObjCRuntimeVisibleAttr")
     .def_property_readonly("Spelling", &ObjCRuntimeVisibleAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

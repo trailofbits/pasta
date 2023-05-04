@@ -20,4 +20,4 @@ void RegisterMinVectorWidthAttr(py::module_ &m) {
     .def_property_readonly("Spelling", &MinVectorWidthAttr::Spelling)
     .def_property_readonly("VectorWidth", &MinVectorWidthAttr::VectorWidth);
 }
-} // namespace ogler
+} // namespace pasta

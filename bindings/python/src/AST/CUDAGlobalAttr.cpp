@@ -19,4 +19,4 @@ void RegisterCUDAGlobalAttr(py::module_ &m) {
   py::class_<CUDAGlobalAttr, Attr, InheritableAttr>(m, "CUDAGlobalAttr")
     .def_property_readonly("Spelling", &CUDAGlobalAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

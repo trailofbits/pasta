@@ -19,4 +19,4 @@ void RegisterRandomizeLayoutAttr(py::module_ &m) {
   py::class_<RandomizeLayoutAttr, Attr, InheritableAttr>(m, "RandomizeLayoutAttr")
     .def_property_readonly("Spelling", &RandomizeLayoutAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

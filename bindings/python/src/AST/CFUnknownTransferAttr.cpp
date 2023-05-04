@@ -19,4 +19,4 @@ void RegisterCFUnknownTransferAttr(py::module_ &m) {
   py::class_<CFUnknownTransferAttr, Attr, InheritableAttr>(m, "CFUnknownTransferAttr")
     .def_property_readonly("Spelling", &CFUnknownTransferAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

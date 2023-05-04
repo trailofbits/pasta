@@ -21,4 +21,4 @@ void RegisterIBOutletCollectionAttr(py::module_ &m) {
     .def_property_readonly("InterfaceToken", &IBOutletCollectionAttr::InterfaceToken)
     .def_property_readonly("Spelling", &IBOutletCollectionAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterNoDebugAttr(py::module_ &m) {
   py::class_<NoDebugAttr, Attr, InheritableAttr>(m, "NoDebugAttr")
     .def_property_readonly("Spelling", &NoDebugAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

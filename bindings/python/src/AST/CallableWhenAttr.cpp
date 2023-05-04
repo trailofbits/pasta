@@ -19,4 +19,4 @@ void RegisterCallableWhenAttr(py::module_ &m) {
   py::class_<CallableWhenAttr, Attr, InheritableAttr>(m, "CallableWhenAttr")
     .def_property_readonly("Spelling", &CallableWhenAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

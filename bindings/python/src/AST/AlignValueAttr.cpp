@@ -20,4 +20,4 @@ void RegisterAlignValueAttr(py::module_ &m) {
     .def_property_readonly("Alignment", &AlignValueAttr::Alignment)
     .def_property_readonly("Spelling", &AlignValueAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

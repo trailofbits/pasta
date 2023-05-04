@@ -19,4 +19,4 @@ void RegisterTypeNonNullAttr(py::module_ &m) {
   py::class_<TypeNonNullAttr, Attr, TypeAttr>(m, "TypeNonNullAttr")
     .def_property_readonly("Spelling", &TypeNonNullAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

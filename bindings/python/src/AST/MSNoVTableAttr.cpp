@@ -19,4 +19,4 @@ void RegisterMSNoVTableAttr(py::module_ &m) {
   py::class_<MSNoVTableAttr, Attr, InheritableAttr>(m, "MSNoVTableAttr")
     .def_property_readonly("Spelling", &MSNoVTableAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

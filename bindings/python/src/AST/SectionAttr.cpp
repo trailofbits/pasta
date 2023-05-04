@@ -22,4 +22,4 @@ void RegisterSectionAttr(py::module_ &m) {
     .def_property_readonly("SemanticSpelling", &SectionAttr::SemanticSpelling)
     .def_property_readonly("Spelling", &SectionAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

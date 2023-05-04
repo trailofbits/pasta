@@ -19,4 +19,4 @@ void RegisterHotAttr(py::module_ &m) {
   py::class_<HotAttr, Attr, InheritableAttr>(m, "HotAttr")
     .def_property_readonly("Spelling", &HotAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

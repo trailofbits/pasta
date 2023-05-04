@@ -21,4 +21,4 @@ void RegisterInitSegAttr(py::module_ &m) {
     .def_property_readonly("SectionLength", &InitSegAttr::SectionLength)
     .def_property_readonly("Spelling", &InitSegAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

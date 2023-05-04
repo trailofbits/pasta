@@ -20,4 +20,4 @@ void RegisterMipsLongCallAttr(py::module_ &m) {
     .def_property_readonly("SemanticSpelling", &MipsLongCallAttr::SemanticSpelling)
     .def_property_readonly("Spelling", &MipsLongCallAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

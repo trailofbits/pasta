@@ -19,4 +19,4 @@ void RegisterCarriesDependencyAttr(py::module_ &m) {
   py::class_<CarriesDependencyAttr, Attr, InheritableAttr, InheritableParamAttr>(m, "CarriesDependencyAttr")
     .def_property_readonly("Spelling", &CarriesDependencyAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

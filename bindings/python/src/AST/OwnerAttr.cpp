@@ -21,4 +21,4 @@ void RegisterOwnerAttr(py::module_ &m) {
     .def_property_readonly("DerefTypeToken", &OwnerAttr::DerefTypeToken)
     .def_property_readonly("Spelling", &OwnerAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

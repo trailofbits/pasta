@@ -21,4 +21,4 @@ void RegisterAssertCapabilityAttr(py::module_ &m) {
     .def_property_readonly("Spelling", &AssertCapabilityAttr::Spelling)
     .def_property_readonly("IsShared", &AssertCapabilityAttr::IsShared);
 }
-} // namespace ogler
+} // namespace pasta

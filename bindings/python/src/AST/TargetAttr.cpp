@@ -23,4 +23,4 @@ void RegisterTargetAttr(py::module_ &m) {
     .def_property_readonly("Spelling", &TargetAttr::Spelling)
     .def_property_readonly("IsDefaultVersion", &TargetAttr::IsDefaultVersion);
 }
-} // namespace ogler
+} // namespace pasta

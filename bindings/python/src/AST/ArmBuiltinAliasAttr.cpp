@@ -19,4 +19,4 @@ void RegisterArmBuiltinAliasAttr(py::module_ &m) {
   py::class_<ArmBuiltinAliasAttr, Attr, InheritableAttr>(m, "ArmBuiltinAliasAttr")
     .def_property_readonly("Spelling", &ArmBuiltinAliasAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

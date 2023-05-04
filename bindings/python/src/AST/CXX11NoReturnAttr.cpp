@@ -20,4 +20,4 @@ void RegisterCXX11NoReturnAttr(py::module_ &m) {
     .def_property_readonly("SemanticSpelling", &CXX11NoReturnAttr::SemanticSpelling)
     .def_property_readonly("Spelling", &CXX11NoReturnAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

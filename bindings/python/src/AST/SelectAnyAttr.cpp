@@ -19,4 +19,4 @@ void RegisterSelectAnyAttr(py::module_ &m) {
   py::class_<SelectAnyAttr, Attr, InheritableAttr>(m, "SelectAnyAttr")
     .def_property_readonly("Spelling", &SelectAnyAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

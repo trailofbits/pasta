@@ -22,4 +22,4 @@ void RegisterMSInheritanceAttr(py::module_ &m) {
     .def_property_readonly("SemanticSpelling", &MSInheritanceAttr::SemanticSpelling)
     .def_property_readonly("Spelling", &MSInheritanceAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

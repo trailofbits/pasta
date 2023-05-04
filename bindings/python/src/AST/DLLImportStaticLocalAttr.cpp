@@ -19,4 +19,4 @@ void RegisterDLLImportStaticLocalAttr(py::module_ &m) {
   py::class_<DLLImportStaticLocalAttr, Attr, InheritableAttr>(m, "DLLImportStaticLocalAttr")
     .def_property_readonly("Spelling", &DLLImportStaticLocalAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

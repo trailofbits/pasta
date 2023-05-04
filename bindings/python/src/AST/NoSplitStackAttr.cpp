@@ -19,4 +19,4 @@ void RegisterNoSplitStackAttr(py::module_ &m) {
   py::class_<NoSplitStackAttr, Attr, InheritableAttr>(m, "NoSplitStackAttr")
     .def_property_readonly("Spelling", &NoSplitStackAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

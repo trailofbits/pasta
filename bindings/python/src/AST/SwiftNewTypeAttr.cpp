@@ -21,4 +21,4 @@ void RegisterSwiftNewTypeAttr(py::module_ &m) {
     .def_property_readonly("SemanticSpelling", &SwiftNewTypeAttr::SemanticSpelling)
     .def_property_readonly("Spelling", &SwiftNewTypeAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterDisableTailCallsAttr(py::module_ &m) {
   py::class_<DisableTailCallsAttr, Attr, InheritableAttr>(m, "DisableTailCallsAttr")
     .def_property_readonly("Spelling", &DisableTailCallsAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

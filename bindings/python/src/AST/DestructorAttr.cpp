@@ -19,4 +19,4 @@ void RegisterDestructorAttr(py::module_ &m) {
   py::class_<DestructorAttr, Attr, InheritableAttr>(m, "DestructorAttr")
     .def_property_readonly("Spelling", &DestructorAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

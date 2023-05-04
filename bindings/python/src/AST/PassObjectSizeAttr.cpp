@@ -21,4 +21,4 @@ void RegisterPassObjectSizeAttr(py::module_ &m) {
     .def_property_readonly("Spelling", &PassObjectSizeAttr::Spelling)
     .def_property_readonly("IsDynamic", &PassObjectSizeAttr::IsDynamic);
 }
-} // namespace ogler
+} // namespace pasta

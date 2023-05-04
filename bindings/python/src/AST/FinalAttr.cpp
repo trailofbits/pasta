@@ -21,4 +21,4 @@ void RegisterFinalAttr(py::module_ &m) {
     .def_property_readonly("Spelling", &FinalAttr::Spelling)
     .def_property_readonly("IsSpelledAsSealed", &FinalAttr::IsSpelledAsSealed);
 }
-} // namespace ogler
+} // namespace pasta

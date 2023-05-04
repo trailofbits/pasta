@@ -19,4 +19,4 @@ void RegisterBPFPreserveAccessIndexAttr(py::module_ &m) {
   py::class_<BPFPreserveAccessIndexAttr, Attr, InheritableAttr>(m, "BPFPreserveAccessIndexAttr")
     .def_property_readonly("Spelling", &BPFPreserveAccessIndexAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterGNUInlineAttr(py::module_ &m) {
   py::class_<GNUInlineAttr, Attr, InheritableAttr>(m, "GNUInlineAttr")
     .def_property_readonly("Spelling", &GNUInlineAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterPackedAttr(py::module_ &m) {
   py::class_<PackedAttr, Attr, InheritableAttr>(m, "PackedAttr")
     .def_property_readonly("Spelling", &PackedAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterCUDASharedAttr(py::module_ &m) {
   py::class_<CUDASharedAttr, Attr, InheritableAttr>(m, "CUDASharedAttr")
     .def_property_readonly("Spelling", &CUDASharedAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

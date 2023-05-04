@@ -19,4 +19,4 @@ void RegisterSYCLKernelAttr(py::module_ &m) {
   py::class_<SYCLKernelAttr, Attr, InheritableAttr>(m, "SYCLKernelAttr")
     .def_property_readonly("Spelling", &SYCLKernelAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

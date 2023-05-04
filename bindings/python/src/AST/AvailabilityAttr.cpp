@@ -25,4 +25,4 @@ void RegisterAvailabilityAttr(py::module_ &m) {
     .def_property_readonly("Strict", &AvailabilityAttr::Strict)
     .def_property_readonly("Unavailable", &AvailabilityAttr::Unavailable);
 }
-} // namespace ogler
+} // namespace pasta

@@ -21,4 +21,4 @@ void RegisterBTFDeclTagAttr(py::module_ &m) {
     .def_property_readonly("BTFDeclTagLength", &BTFDeclTagAttr::BTFDeclTagLength)
     .def_property_readonly("Spelling", &BTFDeclTagAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

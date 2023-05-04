@@ -19,4 +19,4 @@ void RegisterRetainAttr(py::module_ &m) {
   py::class_<RetainAttr, Attr, InheritableAttr>(m, "RetainAttr")
     .def_property_readonly("Spelling", &RetainAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

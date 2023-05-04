@@ -19,4 +19,4 @@ void RegisterCmseNSEntryAttr(py::module_ &m) {
   py::class_<CmseNSEntryAttr, Attr, InheritableAttr>(m, "CmseNSEntryAttr")
     .def_property_readonly("Spelling", &CmseNSEntryAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -20,4 +20,4 @@ void RegisterBuiltinAliasAttr(py::module_ &m) {
     .def_property_readonly("SemanticSpelling", &BuiltinAliasAttr::SemanticSpelling)
     .def_property_readonly("Spelling", &BuiltinAliasAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

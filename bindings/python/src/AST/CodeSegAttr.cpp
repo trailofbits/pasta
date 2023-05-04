@@ -21,4 +21,4 @@ void RegisterCodeSegAttr(py::module_ &m) {
     .def_property_readonly("NameLength", &CodeSegAttr::NameLength)
     .def_property_readonly("Spelling", &CodeSegAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

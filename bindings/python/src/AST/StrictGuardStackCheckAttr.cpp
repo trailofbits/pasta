@@ -19,4 +19,4 @@ void RegisterStrictGuardStackCheckAttr(py::module_ &m) {
   py::class_<StrictGuardStackCheckAttr, Attr, InheritableAttr>(m, "StrictGuardStackCheckAttr")
     .def_property_readonly("Spelling", &StrictGuardStackCheckAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

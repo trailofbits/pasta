@@ -19,4 +19,4 @@ void RegisterOpenCLKernelAttr(py::module_ &m) {
   py::class_<OpenCLKernelAttr, Attr, InheritableAttr>(m, "OpenCLKernelAttr")
     .def_property_readonly("Spelling", &OpenCLKernelAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

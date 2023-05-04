@@ -19,4 +19,4 @@ void RegisterAnyX86NoCfCheckAttr(py::module_ &m) {
   py::class_<AnyX86NoCfCheckAttr, Attr, InheritableAttr>(m, "AnyX86NoCfCheckAttr")
     .def_property_readonly("Spelling", &AnyX86NoCfCheckAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

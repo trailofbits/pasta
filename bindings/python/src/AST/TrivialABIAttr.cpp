@@ -19,4 +19,4 @@ void RegisterTrivialABIAttr(py::module_ &m) {
   py::class_<TrivialABIAttr, Attr, InheritableAttr>(m, "TrivialABIAttr")
     .def_property_readonly("Spelling", &TrivialABIAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

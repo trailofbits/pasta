@@ -19,4 +19,4 @@ void RegisterDisableSanitizerInstrumentationAttr(py::module_ &m) {
   py::class_<DisableSanitizerInstrumentationAttr, Attr, InheritableAttr>(m, "DisableSanitizerInstrumentationAttr")
     .def_property_readonly("Spelling", &DisableSanitizerInstrumentationAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

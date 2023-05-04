@@ -21,4 +21,4 @@ void RegisterPointerAttr(py::module_ &m) {
     .def_property_readonly("DerefTypeToken", &PointerAttr::DerefTypeToken)
     .def_property_readonly("Spelling", &PointerAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

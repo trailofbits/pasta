@@ -19,4 +19,4 @@ void RegisterLoaderUninitializedAttr(py::module_ &m) {
   py::class_<LoaderUninitializedAttr, Attr>(m, "LoaderUninitializedAttr")
     .def_property_readonly("Spelling", &LoaderUninitializedAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

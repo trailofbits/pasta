@@ -20,4 +20,4 @@ void RegisterOpenCLPrivateAddressSpaceAttr(py::module_ &m) {
     .def_property_readonly("SemanticSpelling", &OpenCLPrivateAddressSpaceAttr::SemanticSpelling)
     .def_property_readonly("Spelling", &OpenCLPrivateAddressSpaceAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

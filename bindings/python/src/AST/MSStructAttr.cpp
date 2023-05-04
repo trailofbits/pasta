@@ -19,4 +19,4 @@ void RegisterMSStructAttr(py::module_ &m) {
   py::class_<MSStructAttr, Attr, InheritableAttr>(m, "MSStructAttr")
     .def_property_readonly("Spelling", &MSStructAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

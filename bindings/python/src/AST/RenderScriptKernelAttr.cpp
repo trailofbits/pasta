@@ -19,4 +19,4 @@ void RegisterRenderScriptKernelAttr(py::module_ &m) {
   py::class_<RenderScriptKernelAttr, Attr>(m, "RenderScriptKernelAttr")
     .def_property_readonly("Spelling", &RenderScriptKernelAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

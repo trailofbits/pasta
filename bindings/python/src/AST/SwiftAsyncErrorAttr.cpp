@@ -21,4 +21,4 @@ void RegisterSwiftAsyncErrorAttr(py::module_ &m) {
     .def_property_readonly("HandlerParameterIndex", &SwiftAsyncErrorAttr::HandlerParameterIndex)
     .def_property_readonly("Spelling", &SwiftAsyncErrorAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

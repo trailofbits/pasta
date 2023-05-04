@@ -19,4 +19,4 @@ void RegisterHLSLGroupSharedAddressSpaceAttr(py::module_ &m) {
   py::class_<HLSLGroupSharedAddressSpaceAttr, Attr, TypeAttr>(m, "HLSLGroupSharedAddressSpaceAttr")
     .def_property_readonly("Spelling", &HLSLGroupSharedAddressSpaceAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterUsedAttr(py::module_ &m) {
   py::class_<UsedAttr, Attr, InheritableAttr>(m, "UsedAttr")
     .def_property_readonly("Spelling", &UsedAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

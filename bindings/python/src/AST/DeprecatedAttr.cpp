@@ -23,4 +23,4 @@ void RegisterDeprecatedAttr(py::module_ &m) {
     .def_property_readonly("ReplacementLength", &DeprecatedAttr::ReplacementLength)
     .def_property_readonly("Spelling", &DeprecatedAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

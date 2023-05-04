@@ -19,4 +19,4 @@ void RegisterLeafAttr(py::module_ &m) {
   py::class_<LeafAttr, Attr, InheritableAttr>(m, "LeafAttr")
     .def_property_readonly("Spelling", &LeafAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

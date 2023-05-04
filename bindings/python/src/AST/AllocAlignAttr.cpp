@@ -19,4 +19,4 @@ void RegisterAllocAlignAttr(py::module_ &m) {
   py::class_<AllocAlignAttr, Attr, InheritableAttr>(m, "AllocAlignAttr")
     .def_property_readonly("Spelling", &AllocAlignAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

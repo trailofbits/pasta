@@ -19,4 +19,4 @@ void RegisterStandaloneDebugAttr(py::module_ &m) {
   py::class_<StandaloneDebugAttr, Attr, InheritableAttr>(m, "StandaloneDebugAttr")
     .def_property_readonly("Spelling", &StandaloneDebugAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

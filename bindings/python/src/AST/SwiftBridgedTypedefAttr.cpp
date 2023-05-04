@@ -19,4 +19,4 @@ void RegisterSwiftBridgedTypedefAttr(py::module_ &m) {
   py::class_<SwiftBridgedTypedefAttr, Attr, InheritableAttr>(m, "SwiftBridgedTypedefAttr")
     .def_property_readonly("Spelling", &SwiftBridgedTypedefAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

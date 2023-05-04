@@ -20,4 +20,4 @@ void RegisterInitPriorityAttr(py::module_ &m) {
     .def_property_readonly("Priority", &InitPriorityAttr::Priority)
     .def_property_readonly("Spelling", &InitPriorityAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

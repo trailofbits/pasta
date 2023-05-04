@@ -19,4 +19,4 @@ void RegisterStrictFPAttr(py::module_ &m) {
   py::class_<StrictFPAttr, Attr, InheritableAttr>(m, "StrictFPAttr")
     .def_property_readonly("Spelling", &StrictFPAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

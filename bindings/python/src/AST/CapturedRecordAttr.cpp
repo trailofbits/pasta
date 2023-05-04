@@ -19,4 +19,4 @@ void RegisterCapturedRecordAttr(py::module_ &m) {
   py::class_<CapturedRecordAttr, Attr, InheritableAttr>(m, "CapturedRecordAttr")
     .def_property_readonly("Spelling", &CapturedRecordAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterMIGServerRoutineAttr(py::module_ &m) {
   py::class_<MIGServerRoutineAttr, Attr, InheritableAttr>(m, "MIGServerRoutineAttr")
     .def_property_readonly("Spelling", &MIGServerRoutineAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

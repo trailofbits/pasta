@@ -20,4 +20,4 @@ void RegisterOMPCaptureKindAttr(py::module_ &m) {
     .def_property_readonly("CaptureKindValue", &OMPCaptureKindAttr::CaptureKindValue)
     .def_property_readonly("Spelling", &OMPCaptureKindAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

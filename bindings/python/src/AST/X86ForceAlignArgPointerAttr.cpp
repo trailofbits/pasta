@@ -19,4 +19,4 @@ void RegisterX86ForceAlignArgPointerAttr(py::module_ &m) {
   py::class_<X86ForceAlignArgPointerAttr, Attr, InheritableAttr>(m, "X86ForceAlignArgPointerAttr")
     .def_property_readonly("Spelling", &X86ForceAlignArgPointerAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

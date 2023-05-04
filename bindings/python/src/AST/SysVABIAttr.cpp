@@ -19,4 +19,4 @@ void RegisterSysVABIAttr(py::module_ &m) {
   py::class_<SysVABIAttr, Attr, InheritableAttr>(m, "SysVABIAttr")
     .def_property_readonly("Spelling", &SysVABIAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

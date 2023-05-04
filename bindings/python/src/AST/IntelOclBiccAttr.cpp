@@ -19,4 +19,4 @@ void RegisterIntelOclBiccAttr(py::module_ &m) {
   py::class_<IntelOclBiccAttr, Attr, InheritableAttr>(m, "IntelOclBiccAttr")
     .def_property_readonly("Spelling", &IntelOclBiccAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

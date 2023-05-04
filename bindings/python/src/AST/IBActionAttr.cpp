@@ -19,4 +19,4 @@ void RegisterIBActionAttr(py::module_ &m) {
   py::class_<IBActionAttr, Attr, InheritableAttr>(m, "IBActionAttr")
     .def_property_readonly("Spelling", &IBActionAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

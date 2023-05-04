@@ -21,4 +21,4 @@ void RegisterWeakRefAttr(py::module_ &m) {
     .def_property_readonly("AliaseeLength", &WeakRefAttr::AliaseeLength)
     .def_property_readonly("Spelling", &WeakRefAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

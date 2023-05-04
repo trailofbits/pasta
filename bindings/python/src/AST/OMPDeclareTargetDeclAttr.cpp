@@ -24,4 +24,4 @@ void RegisterOMPDeclareTargetDeclAttr(py::module_ &m) {
     .def_property_readonly("MapType", &OMPDeclareTargetDeclAttr::MapType)
     .def_property_readonly("Spelling", &OMPDeclareTargetDeclAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

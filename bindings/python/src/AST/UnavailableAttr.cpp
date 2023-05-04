@@ -22,4 +22,4 @@ void RegisterUnavailableAttr(py::module_ &m) {
     .def_property_readonly("MessageLength", &UnavailableAttr::MessageLength)
     .def_property_readonly("Spelling", &UnavailableAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

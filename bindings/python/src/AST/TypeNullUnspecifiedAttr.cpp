@@ -19,4 +19,4 @@ void RegisterTypeNullUnspecifiedAttr(py::module_ &m) {
   py::class_<TypeNullUnspecifiedAttr, Attr, TypeAttr>(m, "TypeNullUnspecifiedAttr")
     .def_property_readonly("Spelling", &TypeNullUnspecifiedAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -19,4 +19,4 @@ void RegisterConsumableSetOnReadAttr(py::module_ &m) {
   py::class_<ConsumableSetOnReadAttr, Attr, InheritableAttr>(m, "ConsumableSetOnReadAttr")
     .def_property_readonly("Spelling", &ConsumableSetOnReadAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

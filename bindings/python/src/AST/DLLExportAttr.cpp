@@ -19,4 +19,4 @@ void RegisterDLLExportAttr(py::module_ &m) {
   py::class_<DLLExportAttr, Attr, InheritableAttr>(m, "DLLExportAttr")
     .def_property_readonly("Spelling", &DLLExportAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

@@ -21,4 +21,4 @@ void RegisterSwiftAsyncNameAttr(py::module_ &m) {
     .def_property_readonly("NameLength", &SwiftAsyncNameAttr::NameLength)
     .def_property_readonly("Spelling", &SwiftAsyncNameAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

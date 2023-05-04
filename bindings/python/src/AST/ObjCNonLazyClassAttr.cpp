@@ -19,4 +19,4 @@ void RegisterObjCNonLazyClassAttr(py::module_ &m) {
   py::class_<ObjCNonLazyClassAttr, Attr>(m, "ObjCNonLazyClassAttr")
     .def_property_readonly("Spelling", &ObjCNonLazyClassAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

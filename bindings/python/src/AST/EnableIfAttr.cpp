@@ -22,4 +22,4 @@ void RegisterEnableIfAttr(py::module_ &m) {
     .def_property_readonly("MessageLength", &EnableIfAttr::MessageLength)
     .def_property_readonly("Spelling", &EnableIfAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

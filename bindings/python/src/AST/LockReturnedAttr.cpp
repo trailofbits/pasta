@@ -20,4 +20,4 @@ void RegisterLockReturnedAttr(py::module_ &m) {
     .def_property_readonly("Argument", &LockReturnedAttr::Argument)
     .def_property_readonly("Spelling", &LockReturnedAttr::Spelling);
 }
-} // namespace ogler
+} // namespace pasta

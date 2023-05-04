@@ -247,6 +247,10 @@ Stmt AST::Adopt(const clang::Stmt *stmt) const {
   return Stmt(impl, stmt);
 }
 
+Type AST::Adopt(const clang::Type *type, uint32_t quals) const {
+  return TypeBuilder::Create<Type, clang::Type>(impl, type, quals);
+}
+
 std::optional<Decl> Decl::From(const TokenContext &context) {
   if (context.Kind() != TokenContextKind::kDecl) {
     return std::nullopt;

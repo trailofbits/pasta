@@ -105,6 +105,31 @@ void GenerateTypeCpp(std::ostream& py_cmake, std::ostream& py_ast) {
 
   // Define them all.
   for (const auto &name : gTopologicallyOrderedTypes) {
+    py_cmake << "    \"" << kPythonBindingsPath << "/" << name << ".cpp\"\n";
+    py_ast << "void Register" << name << "(py::module_ &m);\n"
+           << "  Register" << name << "(m);\n";
+
+    std::ofstream os_py(std::string(kPythonBindingsPath) + "/" + name + ".cpp");
+    os_py << R"(/*
+ * Copyright (c) 2023 Trail of Bits, Inc.
+ */
+
+// This file is auto-generated.
+
+#include <pasta/AST/AST.h>
+#include <pasta/AST/Attr.h>
+#include <pasta/AST/Decl.h>
+#include <pasta/AST/Stmt.h>
+#include <pasta/AST/Type.h>
+
+#include <pybind11/pybind11.h>
+
+namespace pasta {
+namespace py = pybind11;
+
+void Register)" << name << "(py::module_ &m) {\n"
+      << "  py::class_<" << name;
+
     llvm::StringRef name_ref(name);
 
     for (const auto &base_class : gTransitiveBaseClasses[name]) {
@@ -126,18 +151,25 @@ void GenerateTypeCpp(std::ostream& py_cmake, std::ostream& py_ast) {
       } else {
         os << "PASTA_DEFINE_BASE_OPERATORS(" << base_class << ", "
            << name << ")\n";
+        os_py << ", " << base_class;
       }
     }
+    os_py << ">(m, \"" << name << "\")";
+
     for (const auto &derived_class : gTransitiveDerivedClasses[name]) {
       os << "PASTA_DEFINE_DERIVED_OPERATORS("
          << name << ", " << derived_class << ")\n";
     }
-    DefineCppMethods(os, name, gClassIDs[name], std::cerr);
+    DefineCppMethods(os, name, gClassIDs[name], os_py);
 
     // Put the `QualType` methods after the fake `QualifiedType` ones.
     if (name == "QualifiedType") {
-      DefineCppMethods(os, qual_type, gClassIDs[qual_type], std::cerr);
+      DefineCppMethods(os, qual_type, gClassIDs[qual_type], os_py);
     }
+
+    os_py << ";\n"
+          << "}\n"
+          << "} // namespace pasta\n";
   }
 
   os

@@ -200,7 +200,38 @@ void GenerateDeclCpp(std::ostream& py_cmake, std::ostream& py_ast) {
       << "}\n\n";
 
 
-  DefineCppMethods(os, decl_context, gClassIDs[decl_context], std::cerr);
+  {
+    py_cmake << "    \"" << kPythonBindingsPath << "/DeclContext.cpp\"\n";
+    py_ast << "void RegisterDeclContext(py::module_ &m);\n"
+           << "  RegisterDeclContext(m);\n";
+  
+    std::ofstream decl_context_os(std::string(kPythonBindingsPath) + "/DeclContext.cpp");
+    decl_context_os << R"(/*
+ * Copyright (c) 2023 Trail of Bits, Inc.
+ */
+
+// This file is auto-generated.
+
+#include <pasta/AST/AST.h>
+#include <pasta/AST/Attr.h>
+#include <pasta/AST/Decl.h>
+#include <pasta/AST/Stmt.h>
+#include <pasta/AST/Type.h>
+
+#include <pybind11/pybind11.h>
+
+namespace pasta {
+namespace py = pybind11;
+
+void RegisterDeclContext(py::module_ &m) {
+  py::class_<DeclContext>(m, "DeclContext"))";
+
+    DefineCppMethods(os, decl_context, gClassIDs[decl_context], decl_context_os);
+
+    decl_context_os << ";\n"
+          << "}\n"
+          << "} // namespace pasta\n";
+  }
 
   // Define them all.
   for (const auto &name : gTopologicallyOrderedDecls) {
@@ -208,6 +239,32 @@ void GenerateDeclCpp(std::ostream& py_cmake, std::ostream& py_ast) {
     if (name == "DeclContext") {
       continue;
     }
+
+
+    py_cmake << "    \"" << kPythonBindingsPath << "/" << name << ".cpp\"\n";
+    py_ast << "void Register" << name << "(py::module_ &m);\n"
+           << "  Register" << name << "(m);\n";
+
+    std::ofstream os_py(std::string(kPythonBindingsPath) + "/" + name + ".cpp");
+    os_py << R"(/*
+ * Copyright (c) 2023 Trail of Bits, Inc.
+ */
+
+// This file is auto-generated.
+
+#include <pasta/AST/AST.h>
+#include <pasta/AST/Attr.h>
+#include <pasta/AST/Decl.h>
+#include <pasta/AST/Stmt.h>
+#include <pasta/AST/Type.h>
+
+#include <pybind11/pybind11.h>
+
+namespace pasta {
+namespace py = pybind11;
+
+void Register)" << name << "(py::module_ &m) {\n"
+      << "  py::class_<" << name;
 
     os
         << name << "::" << name << "(\n"
@@ -263,6 +320,8 @@ void GenerateDeclCpp(std::ostream& py_cmake, std::ostream& py_ast) {
              << "    return std::nullopt;\n"
              << "  }\n"
              << "}\n\n";
+
+          os_py << ", " << base_class;
         }
 
       // Normal case.
@@ -270,6 +329,8 @@ void GenerateDeclCpp(std::ostream& py_cmake, std::ostream& py_ast) {
         for (const auto &base_class : gTransitiveBaseClasses[name]) {
           os << "PASTA_DEFINE_BASE_OPERATORS(" << base_class << ", "
              << name << ")\n";
+
+          os_py << ", " << base_class;
         }
       }
 
@@ -278,7 +339,9 @@ void GenerateDeclCpp(std::ostream& py_cmake, std::ostream& py_ast) {
            << name << ", " << derived_class << ")\n";
       }
     }
-    DefineCppMethods(os, name, gClassIDs[name], std::cerr);
+
+    os_py << ">(m, \"" << name << "\")";
+    DefineCppMethods(os, name, gClassIDs[name], os_py);
 
     // We need to manually inject our own `Body` method. Normally there would
     // be `Decl::Body`, but we explicitly remove that. We make is so that
@@ -299,7 +362,12 @@ void GenerateDeclCpp(std::ostream& py_cmake, std::ostream& py_ast) {
       << "    return std::nullopt;\n"
       << "  }\n"
       << "}\n\n";
+
+      os_py << "\n    .def_property_readonly(\"Body\", &" << name << "::Body)";
     }
+    os_py << ";\n"
+          << "}\n"
+          << "} // namespace pasta\n";
   }
 
   os

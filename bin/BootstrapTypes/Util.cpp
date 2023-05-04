@@ -236,36 +236,13 @@ std::string CxxName(llvm::StringRef name_) {
     return "Children";
 
   } else if (name_.endswith("TypeSourceInfo")) {
-    name.pop_back();  // `o`
-    name.pop_back();  // `f`
-    name.pop_back();  // `n`
-    name.pop_back();  // `I`
-    name.pop_back();  // `e`
-    name.pop_back();  // `c`
-    name.pop_back();  // `r`
-    name.pop_back();  // `u`
-    name.pop_back();  // `o`
-    name.pop_back();  // `S`
+    return name.substr(0, name.size() - sizeof("SourceInfo") + 1);
 
   } else if (name_.endswith("TypeSourceInfos")) {
-    name.pop_back();  // `s`
-    name.pop_back();  // `o`
-    name.pop_back();  // `f`
-    name.pop_back();  // `n`
-    name.pop_back();  // `I`
-    name.pop_back();  // `e`
-    name.pop_back();  // `c`
-    name.pop_back();  // `r`
-    name.pop_back();  // `u`
-    name.pop_back();  // `o`
-    name.pop_back();  // `S`
-    name.push_back('s');
+    return name.substr(0, name.size() - sizeof("SourceInfos") + 1) + "s";
 
   } else if (name_.endswith("TypeInfo")) {
-    name.pop_back();  // `o`
-    name.pop_back();  // `f`
-    name.pop_back();  // `n`
-    name.pop_back();  // `I`
+    return name.substr(0, name.size() - sizeof("Info") + 1);
   }
   return name;
 }

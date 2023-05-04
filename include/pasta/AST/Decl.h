@@ -1316,6 +1316,7 @@ class TypedefNameDecl : public TypeDecl {
   PASTA_DECLARE_DERIVED_OPERATORS(TypedefNameDecl, TypedefDecl)
   std::optional<::pasta::TagDecl> AnonymousDeclarationWithTypedefName(void) const;
   ::pasta::TypedefNameDecl CanonicalDeclaration(void) const;
+  ::pasta::Type Type(void) const;
   ::pasta::Type UnderlyingType(void) const;
   bool IsModed(void) const;
   bool IsTransparentTag(void) const;
@@ -1686,6 +1687,7 @@ class DeclaratorDecl : public ValueDecl {
   // QualifierToken: (clang::NestedNameSpecifierLoc)
   // TemplateParameterList: (clang::TemplateParameterList *)
   std::optional<::pasta::Expr> TrailingRequiresClause(void) const;
+  std::optional<::pasta::Type> Type(void) const;
   ::pasta::Token TypeSpecEndToken(void) const;
   ::pasta::Token TypeSpecStartToken(void) const;
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;

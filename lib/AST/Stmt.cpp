@@ -10013,6 +10013,14 @@ uint32_t OffsetOfExpr::NumExpressions(void) const {
   throw std::runtime_error("The unreachable has been reached");
 }
 
+::pasta::Type OffsetOfExpr::Type(void) const {
+  auto &self = *const_cast<clang::OffsetOfExpr *>(u.OffsetOfExpr);
+  decltype(auto) val = self.getTypeSourceInfo();
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "OffsetOfExpr::Type can return nullptr!");
+  throw std::runtime_error("The unreachable has been reached");
+}
+
 OpaqueValueExpr::OpaqueValueExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -11015,6 +11023,14 @@ std::vector<::pasta::Stmt> SYCLUniqueStableNameExpr::Children(void) const {
   auto &self = *const_cast<clang::SYCLUniqueStableNameExpr *>(u.SYCLUniqueStableNameExpr);
   decltype(auto) val = self.getRParenLocation();
   return ast->TokenAt(val);
+  throw std::runtime_error("The unreachable has been reached");
+}
+
+::pasta::Type SYCLUniqueStableNameExpr::Type(void) const {
+  auto &self = *const_cast<clang::SYCLUniqueStableNameExpr *>(u.SYCLUniqueStableNameExpr);
+  decltype(auto) val = self.getTypeSourceInfo();
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "SYCLUniqueStableNameExpr::Type can return nullptr!");
   throw std::runtime_error("The unreachable has been reached");
 }
 
@@ -14730,6 +14746,14 @@ std::vector<::pasta::Stmt> CXXScalarValueInitExpr::Children(void) const {
   throw std::runtime_error("The unreachable has been reached");
 }
 
+::pasta::Type CXXScalarValueInitExpr::Type(void) const {
+  auto &self = *const_cast<clang::CXXScalarValueInitExpr *>(u.CXXScalarValueInitExpr);
+  decltype(auto) val = self.getTypeSourceInfo();
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "CXXScalarValueInitExpr::Type can return nullptr!");
+  throw std::runtime_error("The unreachable has been reached");
+}
+
 CXXStdInitializerListExpr::CXXStdInitializerListExpr(
     std::shared_ptr<ASTImpl> ast_,
     const ::clang::Stmt *stmt_)
@@ -14802,6 +14826,14 @@ PASTA_DEFINE_BASE_OPERATORS(ValueStmt, CXXTemporaryObjectExpr)
   auto &self = *const_cast<clang::CXXTemporaryObjectExpr *>(u.CXXTemporaryObjectExpr);
   decltype(auto) val = self.getEndLoc();
   return ast->TokenAt(val);
+  throw std::runtime_error("The unreachable has been reached");
+}
+
+::pasta::Type CXXTemporaryObjectExpr::Type(void) const {
+  auto &self = *const_cast<clang::CXXTemporaryObjectExpr *>(u.CXXTemporaryObjectExpr);
+  decltype(auto) val = self.getTypeSourceInfo();
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "CXXTemporaryObjectExpr::Type can return nullptr!");
   throw std::runtime_error("The unreachable has been reached");
 }
 
@@ -15105,6 +15137,14 @@ uint32_t CXXUnresolvedConstructExpr::NumArguments(void) const {
   decltype(auto) val = self.getTypeAsWritten();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
+  throw std::runtime_error("The unreachable has been reached");
+}
+
+::pasta::Type CXXUnresolvedConstructExpr::Type(void) const {
+  auto &self = *const_cast<clang::CXXUnresolvedConstructExpr *>(u.CXXUnresolvedConstructExpr);
+  decltype(auto) val = self.getTypeSourceInfo();
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "CXXUnresolvedConstructExpr::Type can return nullptr!");
   throw std::runtime_error("The unreachable has been reached");
 }
 
@@ -15738,6 +15778,14 @@ std::vector<::pasta::Stmt> CompoundLiteralExpr::Children(void) const {
   throw std::runtime_error("The unreachable has been reached");
 }
 
+::pasta::Type CompoundLiteralExpr::Type(void) const {
+  auto &self = *const_cast<clang::CompoundLiteralExpr *>(u.CompoundLiteralExpr);
+  decltype(auto) val = self.getTypeSourceInfo();
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "CompoundLiteralExpr::Type can return nullptr!");
+  throw std::runtime_error("The unreachable has been reached");
+}
+
 bool CompoundLiteralExpr::IsFileScope(void) const {
   auto &self = *const_cast<clang::CompoundLiteralExpr *>(u.CompoundLiteralExpr);
   decltype(auto) val = self.isFileScope();
@@ -16018,6 +16066,14 @@ std::vector<::pasta::Stmt> ConvertVectorExpr::Children(void) const {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
   assert(false && "ConvertVectorExpr::SrcExpression can return nullptr!");
+  throw std::runtime_error("The unreachable has been reached");
+}
+
+::pasta::Type ConvertVectorExpr::Type(void) const {
+  auto &self = *const_cast<clang::ConvertVectorExpr *>(u.ConvertVectorExpr);
+  decltype(auto) val = self.getTypeSourceInfo();
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "ConvertVectorExpr::Type can return nullptr!");
   throw std::runtime_error("The unreachable has been reached");
 }
 

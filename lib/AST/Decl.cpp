@@ -3235,7 +3235,6 @@ enum ObjCPropertyDeclSetterKind ObjCPropertyDecl::SetterKind(void) const {
   throw std::runtime_error("The unreachable has been reached");
 }
 
-// 0: ObjCPropertyDecl::
 // 1: ObjCPropertyDecl::UsageType
 bool ObjCPropertyDecl::IsAtomic(void) const {
   auto &self = *const_cast<clang::ObjCPropertyDecl *>(u.ObjCPropertyDecl);
@@ -3787,7 +3786,14 @@ std::optional<::pasta::TagDecl> TypedefNameDecl::AnonymousDeclarationWithTypedef
   throw std::runtime_error("The unreachable has been reached");
 }
 
-// 0: TypedefNameDecl::
+::pasta::Type TypedefNameDecl::Type(void) const {
+  auto &self = *const_cast<clang::TypedefNameDecl *>(u.TypedefNameDecl);
+  decltype(auto) val = self.getTypeSourceInfo();
+  return TypeBuilder::Build(ast, val->getType());
+  assert(false && "TypedefNameDecl::Type can return nullptr!");
+  throw std::runtime_error("The unreachable has been reached");
+}
+
 ::pasta::Type TypedefNameDecl::UnderlyingType(void) const {
   auto &self = *const_cast<clang::TypedefNameDecl *>(u.TypedefNameDecl);
   decltype(auto) val = self.getUnderlyingType();
@@ -4653,7 +4659,16 @@ std::optional<::pasta::Expr> DeclaratorDecl::TrailingRequiresClause(void) const 
   throw std::runtime_error("The unreachable has been reached");
 }
 
-// 0: DeclaratorDecl::
+std::optional<::pasta::Type> DeclaratorDecl::Type(void) const {
+  auto &self = *const_cast<clang::DeclaratorDecl *>(u.DeclaratorDecl);
+  decltype(auto) val = self.getTypeSourceInfo();
+  if (!val) {
+    return std::nullopt;
+  }
+  return TypeBuilder::Build(ast, val->getType());
+  throw std::runtime_error("The unreachable has been reached");
+}
+
 ::pasta::Token DeclaratorDecl::TypeSpecEndToken(void) const {
   auto &self = *const_cast<clang::DeclaratorDecl *>(u.DeclaratorDecl);
   decltype(auto) val = self.getTypeSpecEndLoc();

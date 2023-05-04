@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterCastExpr(py::module_ &m) {
   py::class_<CastExpr, Expr, Stmt, ValueStmt>(m, "CastExpr")
+    .def("__hash__", [](const CastExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const CastExpr& a, const CastExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &CastExpr::Children)
     .def_property_readonly("CastKind", &CastExpr::CastKind)
     .def_property_readonly("CastKindName", &CastExpr::CastKindName)

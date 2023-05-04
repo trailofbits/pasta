@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterStaticAssertDecl(py::module_ &m) {
   py::class_<StaticAssertDecl, Decl>(m, "StaticAssertDecl")
+    .def("__hash__", [](const StaticAssertDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const StaticAssertDecl& a, const StaticAssertDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("AssertExpression", &StaticAssertDecl::AssertExpression)
     .def_property_readonly("Message", &StaticAssertDecl::Message)
     .def_property_readonly("RParenToken", &StaticAssertDecl::RParenToken)

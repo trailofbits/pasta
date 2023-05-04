@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterInitSegAttr(py::module_ &m) {
   py::class_<InitSegAttr, Attr>(m, "InitSegAttr")
+    .def("__hash__", [](const InitSegAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const InitSegAttr& a, const InitSegAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Section", &InitSegAttr::Section)
     .def_property_readonly("SectionLength", &InitSegAttr::SectionLength)
     .def_property_readonly("Spelling", &InitSegAttr::Spelling);

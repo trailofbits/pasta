@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterComplexType(py::module_ &m) {
   py::class_<ComplexType, Type>(m, "ComplexType")
+    .def("__hash__", [](const ComplexType& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const ComplexType& a, const ComplexType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &ComplexType::Desugar)
     .def_property_readonly("ElementType", &ComplexType::ElementType)
     .def_property_readonly("IsSugared", &ComplexType::IsSugared);

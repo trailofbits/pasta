@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterStandaloneDebugAttr(py::module_ &m) {
   py::class_<StandaloneDebugAttr, Attr, InheritableAttr>(m, "StandaloneDebugAttr")
+    .def("__hash__", [](const StandaloneDebugAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const StandaloneDebugAttr& a, const StandaloneDebugAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &StandaloneDebugAttr::Spelling);
 }
 } // namespace pasta

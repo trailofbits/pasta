@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterReleaseHandleAttr(py::module_ &m) {
   py::class_<ReleaseHandleAttr, Attr, InheritableAttr, InheritableParamAttr>(m, "ReleaseHandleAttr")
+    .def("__hash__", [](const ReleaseHandleAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const ReleaseHandleAttr& a, const ReleaseHandleAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("HandleType", &ReleaseHandleAttr::HandleType)
     .def_property_readonly("HandleTypeLength", &ReleaseHandleAttr::HandleTypeLength)
     .def_property_readonly("Spelling", &ReleaseHandleAttr::Spelling);

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterFunctionReturnThunksAttr(py::module_ &m) {
   py::class_<FunctionReturnThunksAttr, Attr, InheritableAttr>(m, "FunctionReturnThunksAttr")
+    .def("__hash__", [](const FunctionReturnThunksAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const FunctionReturnThunksAttr& a, const FunctionReturnThunksAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &FunctionReturnThunksAttr::Spelling)
     .def_property_readonly("ThunkType", &FunctionReturnThunksAttr::ThunkType);
 }

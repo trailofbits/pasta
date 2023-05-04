@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterCoawaitExpr(py::module_ &m) {
   py::class_<CoawaitExpr, CoroutineSuspendExpr, Expr, Stmt, ValueStmt>(m, "CoawaitExpr")
+    .def("__hash__", [](const CoawaitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const CoawaitExpr& a, const CoawaitExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("IsImplicit", &CoawaitExpr::IsImplicit);
 }
 } // namespace pasta

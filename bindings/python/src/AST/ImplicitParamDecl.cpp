@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterImplicitParamDecl(py::module_ &m) {
   py::class_<ImplicitParamDecl, Decl, DeclaratorDecl, NamedDecl, ValueDecl, VarDecl>(m, "ImplicitParamDecl")
+    .def("__hash__", [](const ImplicitParamDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const ImplicitParamDecl& a, const ImplicitParamDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("ParameterKind", &ImplicitParamDecl::ParameterKind);
 }
 } // namespace pasta

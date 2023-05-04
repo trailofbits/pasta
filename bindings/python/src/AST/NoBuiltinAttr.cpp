@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterNoBuiltinAttr(py::module_ &m) {
   py::class_<NoBuiltinAttr, Attr>(m, "NoBuiltinAttr")
+    .def("__hash__", [](const NoBuiltinAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const NoBuiltinAttr& a, const NoBuiltinAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &NoBuiltinAttr::Spelling);
 }
 } // namespace pasta

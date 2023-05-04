@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterDeprecatedAttr(py::module_ &m) {
   py::class_<DeprecatedAttr, Attr, InheritableAttr>(m, "DeprecatedAttr")
+    .def("__hash__", [](const DeprecatedAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const DeprecatedAttr& a, const DeprecatedAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Message", &DeprecatedAttr::Message)
     .def_property_readonly("MessageLength", &DeprecatedAttr::MessageLength)
     .def_property_readonly("Replacement", &DeprecatedAttr::Replacement)

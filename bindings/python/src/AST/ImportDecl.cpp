@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterImportDecl(py::module_ &m) {
   py::class_<ImportDecl, Decl>(m, "ImportDecl")
+    .def("__hash__", [](const ImportDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const ImportDecl& a, const ImportDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("IdentifierTokens", &ImportDecl::IdentifierTokens);
 }
 } // namespace pasta

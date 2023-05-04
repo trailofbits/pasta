@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterCXXDependentScopeMemberExpr(py::module_ &m) {
   py::class_<CXXDependentScopeMemberExpr, Expr, Stmt, ValueStmt>(m, "CXXDependentScopeMemberExpr")
+    .def("__hash__", [](const CXXDependentScopeMemberExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const CXXDependentScopeMemberExpr& a, const CXXDependentScopeMemberExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &CXXDependentScopeMemberExpr::Children)
     .def_property_readonly("Base", &CXXDependentScopeMemberExpr::Base)
     .def_property_readonly("BaseType", &CXXDependentScopeMemberExpr::BaseType)

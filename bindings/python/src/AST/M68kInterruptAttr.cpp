@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterM68kInterruptAttr(py::module_ &m) {
   py::class_<M68kInterruptAttr, Attr, InheritableAttr>(m, "M68kInterruptAttr")
+    .def("__hash__", [](const M68kInterruptAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const M68kInterruptAttr& a, const M68kInterruptAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Number", &M68kInterruptAttr::Number)
     .def_property_readonly("Spelling", &M68kInterruptAttr::Spelling);
 }

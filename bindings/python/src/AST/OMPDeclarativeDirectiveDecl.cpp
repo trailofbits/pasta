@@ -16,6 +16,8 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterOMPDeclarativeDirectiveDecl(py::module_ &m) {
-  py::class_<OMPDeclarativeDirectiveDecl, Decl>(m, "OMPDeclarativeDirectiveDecl");
+  py::class_<OMPDeclarativeDirectiveDecl, Decl>(m, "OMPDeclarativeDirectiveDecl")
+    .def("__hash__", [](const OMPDeclarativeDirectiveDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const OMPDeclarativeDirectiveDecl& a, const OMPDeclarativeDirectiveDecl& b) { return a.RawDecl() == b.RawDecl(); });
 }
 } // namespace pasta

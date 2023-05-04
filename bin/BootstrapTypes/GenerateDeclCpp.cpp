@@ -340,7 +340,9 @@ void Register)" << name << "(py::module_ &m) {\n"
       }
     }
 
-    os_py << ">(m, \"" << name << "\")";
+    os_py << ">(m, \"" << name << "\")"
+          << "\n    .def(\"__hash__\", [](const " << name << "& decl) { return (intptr_t)decl.RawDecl(); })"
+          << "\n    .def(\"__eq__\", [](const " << name << "& a, const " << name << "& b) { return a.RawDecl() == b.RawDecl(); })";
     DefineCppMethods(os, name, gClassIDs[name], os_py);
 
     // We need to manually inject our own `Body` method. Normally there would

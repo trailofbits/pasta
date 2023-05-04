@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterNamedDecl(py::module_ &m) {
   py::class_<NamedDecl, Decl>(m, "NamedDecl")
+    .def("__hash__", [](const NamedDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const NamedDecl& a, const NamedDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("FormalLinkage", &NamedDecl::FormalLinkage)
     .def_property_readonly("LinkageInternal", &NamedDecl::LinkageInternal)
     .def_property_readonly("MostRecentDeclaration", &NamedDecl::MostRecentDeclaration)

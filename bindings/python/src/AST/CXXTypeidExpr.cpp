@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterCXXTypeidExpr(py::module_ &m) {
   py::class_<CXXTypeidExpr, Expr, Stmt, ValueStmt>(m, "CXXTypeidExpr")
+    .def("__hash__", [](const CXXTypeidExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const CXXTypeidExpr& a, const CXXTypeidExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &CXXTypeidExpr::Children)
     .def_property_readonly("BeginToken", &CXXTypeidExpr::BeginToken)
     .def_property_readonly("EndToken", &CXXTypeidExpr::EndToken)

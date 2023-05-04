@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterCXXNamedCastExpr(py::module_ &m) {
   py::class_<CXXNamedCastExpr, CastExpr, ExplicitCastExpr, Expr, Stmt, ValueStmt>(m, "CXXNamedCastExpr")
+    .def("__hash__", [](const CXXNamedCastExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const CXXNamedCastExpr& a, const CXXNamedCastExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("AngleBrackets", &CXXNamedCastExpr::AngleBrackets)
     .def_property_readonly("BeginToken", &CXXNamedCastExpr::BeginToken)
     .def_property_readonly("CastName", &CXXNamedCastExpr::CastName)

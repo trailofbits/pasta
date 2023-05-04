@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterPragmaClangRelroSectionAttr(py::module_ &m) {
   py::class_<PragmaClangRelroSectionAttr, Attr, InheritableAttr>(m, "PragmaClangRelroSectionAttr")
+    .def("__hash__", [](const PragmaClangRelroSectionAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const PragmaClangRelroSectionAttr& a, const PragmaClangRelroSectionAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Name", &PragmaClangRelroSectionAttr::Name)
     .def_property_readonly("NameLength", &PragmaClangRelroSectionAttr::NameLength)
     .def_property_readonly("Spelling", &PragmaClangRelroSectionAttr::Spelling);

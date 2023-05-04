@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterObjCBridgeMutableAttr(py::module_ &m) {
   py::class_<ObjCBridgeMutableAttr, Attr, InheritableAttr>(m, "ObjCBridgeMutableAttr")
+    .def("__hash__", [](const ObjCBridgeMutableAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const ObjCBridgeMutableAttr& a, const ObjCBridgeMutableAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &ObjCBridgeMutableAttr::Spelling);
 }
 } // namespace pasta

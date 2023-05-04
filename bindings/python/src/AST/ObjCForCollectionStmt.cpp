@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterObjCForCollectionStmt(py::module_ &m) {
   py::class_<ObjCForCollectionStmt, Stmt>(m, "ObjCForCollectionStmt")
+    .def("__hash__", [](const ObjCForCollectionStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const ObjCForCollectionStmt& a, const ObjCForCollectionStmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ObjCForCollectionStmt::Children)
     .def_property_readonly("BeginToken", &ObjCForCollectionStmt::BeginToken)
     .def_property_readonly("Body", &ObjCForCollectionStmt::Body)

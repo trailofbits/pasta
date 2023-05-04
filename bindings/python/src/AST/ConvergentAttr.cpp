@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterConvergentAttr(py::module_ &m) {
   py::class_<ConvergentAttr, Attr, InheritableAttr>(m, "ConvergentAttr")
+    .def("__hash__", [](const ConvergentAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const ConvergentAttr& a, const ConvergentAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &ConvergentAttr::Spelling);
 }
 } // namespace pasta

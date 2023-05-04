@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterDependentSizedExtVectorType(py::module_ &m) {
   py::class_<DependentSizedExtVectorType, Type>(m, "DependentSizedExtVectorType")
+    .def("__hash__", [](const DependentSizedExtVectorType& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const DependentSizedExtVectorType& a, const DependentSizedExtVectorType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &DependentSizedExtVectorType::Desugar)
     .def_property_readonly("AttributeToken", &DependentSizedExtVectorType::AttributeToken)
     .def_property_readonly("ElementType", &DependentSizedExtVectorType::ElementType)

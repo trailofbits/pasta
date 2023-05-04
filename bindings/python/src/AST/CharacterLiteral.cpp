@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterCharacterLiteral(py::module_ &m) {
   py::class_<CharacterLiteral, Expr, Stmt, ValueStmt>(m, "CharacterLiteral")
+    .def("__hash__", [](const CharacterLiteral& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const CharacterLiteral& a, const CharacterLiteral& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &CharacterLiteral::Children)
     .def_property_readonly("BeginToken", &CharacterLiteral::BeginToken)
     .def_property_readonly("EndToken", &CharacterLiteral::EndToken)

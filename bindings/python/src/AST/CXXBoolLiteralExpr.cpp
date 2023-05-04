@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterCXXBoolLiteralExpr(py::module_ &m) {
   py::class_<CXXBoolLiteralExpr, Expr, Stmt, ValueStmt>(m, "CXXBoolLiteralExpr")
+    .def("__hash__", [](const CXXBoolLiteralExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const CXXBoolLiteralExpr& a, const CXXBoolLiteralExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &CXXBoolLiteralExpr::Children)
     .def_property_readonly("BeginToken", &CXXBoolLiteralExpr::BeginToken)
     .def_property_readonly("EndToken", &CXXBoolLiteralExpr::EndToken)

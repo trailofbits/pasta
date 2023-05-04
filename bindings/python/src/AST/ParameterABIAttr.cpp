@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterParameterABIAttr(py::module_ &m) {
   py::class_<ParameterABIAttr, Attr, InheritableAttr, InheritableParamAttr>(m, "ParameterABIAttr")
+    .def("__hash__", [](const ParameterABIAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const ParameterABIAttr& a, const ParameterABIAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("ABI", &ParameterABIAttr::ABI);
 }
 } // namespace pasta

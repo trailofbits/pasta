@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterFriendDecl(py::module_ &m) {
   py::class_<FriendDecl, Decl>(m, "FriendDecl")
+    .def("__hash__", [](const FriendDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const FriendDecl& a, const FriendDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("FriendDeclaration", &FriendDecl::FriendDeclaration)
     .def_property_readonly("FriendToken", &FriendDecl::FriendToken)
     .def_property_readonly("FriendType", &FriendDecl::FriendType)

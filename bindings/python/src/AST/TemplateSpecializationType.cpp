@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterTemplateSpecializationType(py::module_ &m) {
   py::class_<TemplateSpecializationType, Type>(m, "TemplateSpecializationType")
+    .def("__hash__", [](const TemplateSpecializationType& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const TemplateSpecializationType& a, const TemplateSpecializationType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &TemplateSpecializationType::Desugar)
     .def_property_readonly("AliasedType", &TemplateSpecializationType::AliasedType)
     .def_property_readonly("IsCurrentInstantiation", &TemplateSpecializationType::IsCurrentInstantiation)

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterOverrideAttr(py::module_ &m) {
   py::class_<OverrideAttr, Attr, InheritableAttr>(m, "OverrideAttr")
+    .def("__hash__", [](const OverrideAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const OverrideAttr& a, const OverrideAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &OverrideAttr::Spelling);
 }
 } // namespace pasta

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterLinkageSpecDecl(py::module_ &m) {
   py::class_<LinkageSpecDecl, Decl>(m, "LinkageSpecDecl")
+    .def("__hash__", [](const LinkageSpecDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const LinkageSpecDecl& a, const LinkageSpecDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("EndToken", &LinkageSpecDecl::EndToken)
     .def_property_readonly("ExternToken", &LinkageSpecDecl::ExternToken)
     .def_property_readonly("Language", &LinkageSpecDecl::Language)

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterImaginaryLiteral(py::module_ &m) {
   py::class_<ImaginaryLiteral, Expr, Stmt, ValueStmt>(m, "ImaginaryLiteral")
+    .def("__hash__", [](const ImaginaryLiteral& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const ImaginaryLiteral& a, const ImaginaryLiteral& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ImaginaryLiteral::Children)
     .def_property_readonly("BeginToken", &ImaginaryLiteral::BeginToken)
     .def_property_readonly("EndToken", &ImaginaryLiteral::EndToken)

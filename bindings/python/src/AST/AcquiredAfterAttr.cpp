@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterAcquiredAfterAttr(py::module_ &m) {
   py::class_<AcquiredAfterAttr, Attr, InheritableAttr>(m, "AcquiredAfterAttr")
+    .def("__hash__", [](const AcquiredAfterAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const AcquiredAfterAttr& a, const AcquiredAfterAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &AcquiredAfterAttr::Spelling);
 }
 } // namespace pasta

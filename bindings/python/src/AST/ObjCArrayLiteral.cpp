@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterObjCArrayLiteral(py::module_ &m) {
   py::class_<ObjCArrayLiteral, Expr, Stmt, ValueStmt>(m, "ObjCArrayLiteral")
+    .def("__hash__", [](const ObjCArrayLiteral& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const ObjCArrayLiteral& a, const ObjCArrayLiteral& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ObjCArrayLiteral::Children)
     .def_property_readonly("ArrayWithObjectsMethod", &ObjCArrayLiteral::ArrayWithObjectsMethod)
     .def_property_readonly("BeginToken", &ObjCArrayLiteral::BeginToken)

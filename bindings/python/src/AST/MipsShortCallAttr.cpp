@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterMipsShortCallAttr(py::module_ &m) {
   py::class_<MipsShortCallAttr, Attr, InheritableAttr>(m, "MipsShortCallAttr")
+    .def("__hash__", [](const MipsShortCallAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const MipsShortCallAttr& a, const MipsShortCallAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("SemanticSpelling", &MipsShortCallAttr::SemanticSpelling)
     .def_property_readonly("Spelling", &MipsShortCallAttr::Spelling);
 }

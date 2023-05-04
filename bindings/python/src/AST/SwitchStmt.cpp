@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterSwitchStmt(py::module_ &m) {
   py::class_<SwitchStmt, Stmt>(m, "SwitchStmt")
+    .def("__hash__", [](const SwitchStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const SwitchStmt& a, const SwitchStmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &SwitchStmt::Children)
     .def_property_readonly("BeginToken", &SwitchStmt::BeginToken)
     .def_property_readonly("Body", &SwitchStmt::Body)

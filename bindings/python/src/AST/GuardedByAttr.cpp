@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterGuardedByAttr(py::module_ &m) {
   py::class_<GuardedByAttr, Attr, InheritableAttr>(m, "GuardedByAttr")
+    .def("__hash__", [](const GuardedByAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const GuardedByAttr& a, const GuardedByAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Argument", &GuardedByAttr::Argument)
     .def_property_readonly("Spelling", &GuardedByAttr::Spelling);
 }

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterEnumType(py::module_ &m) {
   py::class_<EnumType, TagType, Type>(m, "EnumType")
+    .def("__hash__", [](const EnumType& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const EnumType& a, const EnumType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &EnumType::Desugar)
     .def_property_readonly("Declaration", &EnumType::Declaration)
     .def_property_readonly("IsSugared", &EnumType::IsSugared);

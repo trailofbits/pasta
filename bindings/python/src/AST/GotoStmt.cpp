@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterGotoStmt(py::module_ &m) {
   py::class_<GotoStmt, Stmt>(m, "GotoStmt")
+    .def("__hash__", [](const GotoStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const GotoStmt& a, const GotoStmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &GotoStmt::Children)
     .def_property_readonly("BeginToken", &GotoStmt::BeginToken)
     .def_property_readonly("EndToken", &GotoStmt::EndToken)

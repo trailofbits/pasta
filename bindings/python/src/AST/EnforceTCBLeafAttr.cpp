@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterEnforceTCBLeafAttr(py::module_ &m) {
   py::class_<EnforceTCBLeafAttr, Attr, InheritableAttr>(m, "EnforceTCBLeafAttr")
+    .def("__hash__", [](const EnforceTCBLeafAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const EnforceTCBLeafAttr& a, const EnforceTCBLeafAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &EnforceTCBLeafAttr::Spelling)
     .def_property_readonly("TCBName", &EnforceTCBLeafAttr::TCBName)
     .def_property_readonly("TCBNameLength", &EnforceTCBLeafAttr::TCBNameLength);

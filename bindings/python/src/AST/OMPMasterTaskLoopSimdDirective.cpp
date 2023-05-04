@@ -16,6 +16,8 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterOMPMasterTaskLoopSimdDirective(py::module_ &m) {
-  py::class_<OMPMasterTaskLoopSimdDirective, OMPExecutableDirective, OMPLoopBasedDirective, OMPLoopDirective, Stmt>(m, "OMPMasterTaskLoopSimdDirective");
+  py::class_<OMPMasterTaskLoopSimdDirective, OMPExecutableDirective, OMPLoopBasedDirective, OMPLoopDirective, Stmt>(m, "OMPMasterTaskLoopSimdDirective")
+    .def("__hash__", [](const OMPMasterTaskLoopSimdDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const OMPMasterTaskLoopSimdDirective& a, const OMPMasterTaskLoopSimdDirective& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

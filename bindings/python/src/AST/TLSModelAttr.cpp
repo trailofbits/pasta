@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterTLSModelAttr(py::module_ &m) {
   py::class_<TLSModelAttr, Attr, InheritableAttr>(m, "TLSModelAttr")
+    .def("__hash__", [](const TLSModelAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const TLSModelAttr& a, const TLSModelAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Model", &TLSModelAttr::Model)
     .def_property_readonly("ModelLength", &TLSModelAttr::ModelLength)
     .def_property_readonly("Spelling", &TLSModelAttr::Spelling);

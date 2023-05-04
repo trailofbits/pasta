@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterOMPParallelMaskedDirective(py::module_ &m) {
   py::class_<OMPParallelMaskedDirective, OMPExecutableDirective, Stmt>(m, "OMPParallelMaskedDirective")
+    .def("__hash__", [](const OMPParallelMaskedDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const OMPParallelMaskedDirective& a, const OMPParallelMaskedDirective& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("TaskReductionReferenceExpression", &OMPParallelMaskedDirective::TaskReductionReferenceExpression);
 }
 } // namespace pasta

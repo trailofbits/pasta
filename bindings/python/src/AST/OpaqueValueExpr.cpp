@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterOpaqueValueExpr(py::module_ &m) {
   py::class_<OpaqueValueExpr, Expr, Stmt, ValueStmt>(m, "OpaqueValueExpr")
+    .def("__hash__", [](const OpaqueValueExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const OpaqueValueExpr& a, const OpaqueValueExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &OpaqueValueExpr::Children)
     .def_property_readonly("BeginToken", &OpaqueValueExpr::BeginToken)
     .def_property_readonly("EndToken", &OpaqueValueExpr::EndToken)

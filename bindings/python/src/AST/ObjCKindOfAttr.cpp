@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterObjCKindOfAttr(py::module_ &m) {
   py::class_<ObjCKindOfAttr, Attr, TypeAttr>(m, "ObjCKindOfAttr")
+    .def("__hash__", [](const ObjCKindOfAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const ObjCKindOfAttr& a, const ObjCKindOfAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &ObjCKindOfAttr::Spelling);
 }
 } // namespace pasta

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterAcquireHandleAttr(py::module_ &m) {
   py::class_<AcquireHandleAttr, Attr, InheritableAttr>(m, "AcquireHandleAttr")
+    .def("__hash__", [](const AcquireHandleAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const AcquireHandleAttr& a, const AcquireHandleAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("HandleType", &AcquireHandleAttr::HandleType)
     .def_property_readonly("HandleTypeLength", &AcquireHandleAttr::HandleTypeLength)
     .def_property_readonly("Spelling", &AcquireHandleAttr::Spelling);

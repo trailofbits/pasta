@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterPragmaClangTextSectionAttr(py::module_ &m) {
   py::class_<PragmaClangTextSectionAttr, Attr, InheritableAttr>(m, "PragmaClangTextSectionAttr")
+    .def("__hash__", [](const PragmaClangTextSectionAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const PragmaClangTextSectionAttr& a, const PragmaClangTextSectionAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Name", &PragmaClangTextSectionAttr::Name)
     .def_property_readonly("NameLength", &PragmaClangTextSectionAttr::NameLength)
     .def_property_readonly("Spelling", &PragmaClangTextSectionAttr::Spelling);

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterOwnershipAttr(py::module_ &m) {
   py::class_<OwnershipAttr, Attr, InheritableAttr>(m, "OwnershipAttr")
+    .def("__hash__", [](const OwnershipAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const OwnershipAttr& a, const OwnershipAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("OwnKind", &OwnershipAttr::OwnKind)
     .def_property_readonly("SemanticSpelling", &OwnershipAttr::SemanticSpelling)
     .def_property_readonly("Spelling", &OwnershipAttr::Spelling)

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterTestTypestateAttr(py::module_ &m) {
   py::class_<TestTypestateAttr, Attr, InheritableAttr>(m, "TestTypestateAttr")
+    .def("__hash__", [](const TestTypestateAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const TestTypestateAttr& a, const TestTypestateAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &TestTypestateAttr::Spelling)
     .def_property_readonly("TestState", &TestTypestateAttr::TestState);
 }

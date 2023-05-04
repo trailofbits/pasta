@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterNoDebugAttr(py::module_ &m) {
   py::class_<NoDebugAttr, Attr, InheritableAttr>(m, "NoDebugAttr")
+    .def("__hash__", [](const NoDebugAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const NoDebugAttr& a, const NoDebugAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &NoDebugAttr::Spelling);
 }
 } // namespace pasta

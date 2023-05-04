@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterCXXBindTemporaryExpr(py::module_ &m) {
   py::class_<CXXBindTemporaryExpr, Expr, Stmt, ValueStmt>(m, "CXXBindTemporaryExpr")
+    .def("__hash__", [](const CXXBindTemporaryExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const CXXBindTemporaryExpr& a, const CXXBindTemporaryExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &CXXBindTemporaryExpr::Children)
     .def_property_readonly("BeginToken", &CXXBindTemporaryExpr::BeginToken)
     .def_property_readonly("EndToken", &CXXBindTemporaryExpr::EndToken)

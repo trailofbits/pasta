@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterLoopHintAttr(py::module_ &m) {
   py::class_<LoopHintAttr, Attr>(m, "LoopHintAttr")
+    .def("__hash__", [](const LoopHintAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const LoopHintAttr& a, const LoopHintAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Option", &LoopHintAttr::Option)
     .def_property_readonly("SemanticSpelling", &LoopHintAttr::SemanticSpelling)
     .def_property_readonly("Spelling", &LoopHintAttr::Spelling)

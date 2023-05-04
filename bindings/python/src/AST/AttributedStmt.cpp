@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterAttributedStmt(py::module_ &m) {
   py::class_<AttributedStmt, Stmt, ValueStmt>(m, "AttributedStmt")
+    .def("__hash__", [](const AttributedStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const AttributedStmt& a, const AttributedStmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &AttributedStmt::Children)
     .def_property_readonly("AttributeToken", &AttributedStmt::AttributeToken)
     .def_property_readonly("Attributes", &AttributedStmt::Attributes)

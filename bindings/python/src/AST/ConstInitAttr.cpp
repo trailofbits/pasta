@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterConstInitAttr(py::module_ &m) {
   py::class_<ConstInitAttr, Attr, InheritableAttr>(m, "ConstInitAttr")
+    .def("__hash__", [](const ConstInitAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const ConstInitAttr& a, const ConstInitAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("SemanticSpelling", &ConstInitAttr::SemanticSpelling)
     .def_property_readonly("Spelling", &ConstInitAttr::Spelling)
     .def_property_readonly("IsConstinit", &ConstInitAttr::IsConstinit);

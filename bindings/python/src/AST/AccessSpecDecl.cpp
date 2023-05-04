@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterAccessSpecDecl(py::module_ &m) {
   py::class_<AccessSpecDecl, Decl>(m, "AccessSpecDecl")
+    .def("__hash__", [](const AccessSpecDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const AccessSpecDecl& a, const AccessSpecDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("AccessSpecifierToken", &AccessSpecDecl::AccessSpecifierToken)
     .def_property_readonly("ColonToken", &AccessSpecDecl::ColonToken);
 }

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterFlagEnumAttr(py::module_ &m) {
   py::class_<FlagEnumAttr, Attr, InheritableAttr>(m, "FlagEnumAttr")
+    .def("__hash__", [](const FlagEnumAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const FlagEnumAttr& a, const FlagEnumAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &FlagEnumAttr::Spelling);
 }
 } // namespace pasta

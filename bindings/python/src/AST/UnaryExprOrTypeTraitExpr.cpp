@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterUnaryExprOrTypeTraitExpr(py::module_ &m) {
   py::class_<UnaryExprOrTypeTraitExpr, Expr, Stmt, ValueStmt>(m, "UnaryExprOrTypeTraitExpr")
+    .def("__hash__", [](const UnaryExprOrTypeTraitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const UnaryExprOrTypeTraitExpr& a, const UnaryExprOrTypeTraitExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &UnaryExprOrTypeTraitExpr::Children)
     .def_property_readonly("ArgumentExpression", &UnaryExprOrTypeTraitExpr::ArgumentExpression)
     .def_property_readonly("ArgumentType", &UnaryExprOrTypeTraitExpr::ArgumentType)

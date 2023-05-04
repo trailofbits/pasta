@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterDependentBitIntType(py::module_ &m) {
   py::class_<DependentBitIntType, Type>(m, "DependentBitIntType")
+    .def("__hash__", [](const DependentBitIntType& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const DependentBitIntType& a, const DependentBitIntType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &DependentBitIntType::Desugar)
     .def_property_readonly("NumBitsExpression", &DependentBitIntType::NumBitsExpression)
     .def_property_readonly("IsSigned", &DependentBitIntType::IsSigned)

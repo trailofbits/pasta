@@ -16,6 +16,8 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterExternCContextDecl(py::module_ &m) {
-  py::class_<ExternCContextDecl, Decl>(m, "ExternCContextDecl");
+  py::class_<ExternCContextDecl, Decl>(m, "ExternCContextDecl")
+    .def("__hash__", [](const ExternCContextDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const ExternCContextDecl& a, const ExternCContextDecl& b) { return a.RawDecl() == b.RawDecl(); });
 }
 } // namespace pasta

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterParenType(py::module_ &m) {
   py::class_<ParenType, Type>(m, "ParenType")
+    .def("__hash__", [](const ParenType& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const ParenType& a, const ParenType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &ParenType::Desugar)
     .def_property_readonly("InnerType", &ParenType::InnerType)
     .def_property_readonly("IsSugared", &ParenType::IsSugared);

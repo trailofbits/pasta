@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterOMPTaskgroupDirective(py::module_ &m) {
   py::class_<OMPTaskgroupDirective, OMPExecutableDirective, Stmt>(m, "OMPTaskgroupDirective")
+    .def("__hash__", [](const OMPTaskgroupDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const OMPTaskgroupDirective& a, const OMPTaskgroupDirective& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("ReductionReference", &OMPTaskgroupDirective::ReductionReference);
 }
 } // namespace pasta

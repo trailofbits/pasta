@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterConstantMatrixType(py::module_ &m) {
   py::class_<ConstantMatrixType, MatrixType, Type>(m, "ConstantMatrixType")
+    .def("__hash__", [](const ConstantMatrixType& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const ConstantMatrixType& a, const ConstantMatrixType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("NumColumns", &ConstantMatrixType::NumColumns)
     .def_property_readonly("NumElementsFlattened", &ConstantMatrixType::NumElementsFlattened)
     .def_property_readonly("NumRows", &ConstantMatrixType::NumRows);

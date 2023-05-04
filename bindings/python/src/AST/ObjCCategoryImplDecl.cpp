@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterObjCCategoryImplDecl(py::module_ &m) {
   py::class_<ObjCCategoryImplDecl, Decl, NamedDecl, ObjCContainerDecl, ObjCImplDecl>(m, "ObjCCategoryImplDecl")
+    .def("__hash__", [](const ObjCCategoryImplDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const ObjCCategoryImplDecl& a, const ObjCCategoryImplDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("CategoryDeclaration", &ObjCCategoryImplDecl::CategoryDeclaration)
     .def_property_readonly("CategoryNameToken", &ObjCCategoryImplDecl::CategoryNameToken);
 }

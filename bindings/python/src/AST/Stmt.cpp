@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterStmt(py::module_ &m) {
   py::class_<Stmt>(m, "Stmt")
+    .def("__hash__", [](const Stmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("IgnoreContainers", &Stmt::IgnoreContainers)
     .def_property_readonly("Children", &Stmt::Children)
     .def_property_readonly("BeginToken", &Stmt::BeginToken)

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterImplicitConceptSpecializationDecl(py::module_ &m) {
   py::class_<ImplicitConceptSpecializationDecl, Decl>(m, "ImplicitConceptSpecializationDecl")
+    .def("__hash__", [](const ImplicitConceptSpecializationDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const ImplicitConceptSpecializationDecl& a, const ImplicitConceptSpecializationDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("TemplateArguments", &ImplicitConceptSpecializationDecl::TemplateArguments);
 }
 } // namespace pasta

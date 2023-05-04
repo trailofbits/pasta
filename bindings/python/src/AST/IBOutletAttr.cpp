@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterIBOutletAttr(py::module_ &m) {
   py::class_<IBOutletAttr, Attr, InheritableAttr>(m, "IBOutletAttr")
+    .def("__hash__", [](const IBOutletAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const IBOutletAttr& a, const IBOutletAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &IBOutletAttr::Spelling);
 }
 } // namespace pasta

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterAMDGPUNumSGPRAttr(py::module_ &m) {
   py::class_<AMDGPUNumSGPRAttr, Attr, InheritableAttr>(m, "AMDGPUNumSGPRAttr")
+    .def("__hash__", [](const AMDGPUNumSGPRAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const AMDGPUNumSGPRAttr& a, const AMDGPUNumSGPRAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("NumSGPR", &AMDGPUNumSGPRAttr::NumSGPR)
     .def_property_readonly("Spelling", &AMDGPUNumSGPRAttr::Spelling);
 }

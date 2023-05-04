@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterCommonAttr(py::module_ &m) {
   py::class_<CommonAttr, Attr, InheritableAttr>(m, "CommonAttr")
+    .def("__hash__", [](const CommonAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const CommonAttr& a, const CommonAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &CommonAttr::Spelling);
 }
 } // namespace pasta

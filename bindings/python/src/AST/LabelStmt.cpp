@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterLabelStmt(py::module_ &m) {
   py::class_<LabelStmt, Stmt, ValueStmt>(m, "LabelStmt")
+    .def("__hash__", [](const LabelStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const LabelStmt& a, const LabelStmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &LabelStmt::Children)
     .def_property_readonly("BeginToken", &LabelStmt::BeginToken)
     .def_property_readonly("Declaration", &LabelStmt::Declaration)

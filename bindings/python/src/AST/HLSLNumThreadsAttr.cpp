@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterHLSLNumThreadsAttr(py::module_ &m) {
   py::class_<HLSLNumThreadsAttr, Attr, InheritableAttr>(m, "HLSLNumThreadsAttr")
+    .def("__hash__", [](const HLSLNumThreadsAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const HLSLNumThreadsAttr& a, const HLSLNumThreadsAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &HLSLNumThreadsAttr::Spelling);
 }
 } // namespace pasta

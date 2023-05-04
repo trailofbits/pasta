@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterObjCPreciseLifetimeAttr(py::module_ &m) {
   py::class_<ObjCPreciseLifetimeAttr, Attr, InheritableAttr>(m, "ObjCPreciseLifetimeAttr")
+    .def("__hash__", [](const ObjCPreciseLifetimeAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const ObjCPreciseLifetimeAttr& a, const ObjCPreciseLifetimeAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &ObjCPreciseLifetimeAttr::Spelling);
 }
 } // namespace pasta

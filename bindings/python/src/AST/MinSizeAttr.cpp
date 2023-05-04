@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterMinSizeAttr(py::module_ &m) {
   py::class_<MinSizeAttr, Attr, InheritableAttr>(m, "MinSizeAttr")
+    .def("__hash__", [](const MinSizeAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const MinSizeAttr& a, const MinSizeAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &MinSizeAttr::Spelling);
 }
 } // namespace pasta

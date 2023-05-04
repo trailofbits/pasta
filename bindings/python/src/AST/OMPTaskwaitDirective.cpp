@@ -16,6 +16,8 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterOMPTaskwaitDirective(py::module_ &m) {
-  py::class_<OMPTaskwaitDirective, OMPExecutableDirective, Stmt>(m, "OMPTaskwaitDirective");
+  py::class_<OMPTaskwaitDirective, OMPExecutableDirective, Stmt>(m, "OMPTaskwaitDirective")
+    .def("__hash__", [](const OMPTaskwaitDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const OMPTaskwaitDirective& a, const OMPTaskwaitDirective& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

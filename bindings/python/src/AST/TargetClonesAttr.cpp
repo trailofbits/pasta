@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterTargetClonesAttr(py::module_ &m) {
   py::class_<TargetClonesAttr, Attr, InheritableAttr>(m, "TargetClonesAttr")
+    .def("__hash__", [](const TargetClonesAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const TargetClonesAttr& a, const TargetClonesAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &TargetClonesAttr::Spelling);
 }
 } // namespace pasta

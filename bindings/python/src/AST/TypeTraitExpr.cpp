@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterTypeTraitExpr(py::module_ &m) {
   py::class_<TypeTraitExpr, Expr, Stmt, ValueStmt>(m, "TypeTraitExpr")
+    .def("__hash__", [](const TypeTraitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const TypeTraitExpr& a, const TypeTraitExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &TypeTraitExpr::Children)
     .def_property_readonly("BeginToken", &TypeTraitExpr::BeginToken)
     .def_property_readonly("EndToken", &TypeTraitExpr::EndToken)

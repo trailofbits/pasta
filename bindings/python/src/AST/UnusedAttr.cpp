@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterUnusedAttr(py::module_ &m) {
   py::class_<UnusedAttr, Attr, InheritableAttr>(m, "UnusedAttr")
+    .def("__hash__", [](const UnusedAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const UnusedAttr& a, const UnusedAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("SemanticSpelling", &UnusedAttr::SemanticSpelling)
     .def_property_readonly("Spelling", &UnusedAttr::Spelling);
 }

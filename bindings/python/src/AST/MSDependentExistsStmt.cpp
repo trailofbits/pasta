@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterMSDependentExistsStmt(py::module_ &m) {
   py::class_<MSDependentExistsStmt, Stmt>(m, "MSDependentExistsStmt")
+    .def("__hash__", [](const MSDependentExistsStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const MSDependentExistsStmt& a, const MSDependentExistsStmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &MSDependentExistsStmt::Children)
     .def_property_readonly("BeginToken", &MSDependentExistsStmt::BeginToken)
     .def_property_readonly("EndToken", &MSDependentExistsStmt::EndToken)

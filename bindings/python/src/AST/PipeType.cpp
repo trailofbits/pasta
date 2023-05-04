@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterPipeType(py::module_ &m) {
   py::class_<PipeType, Type>(m, "PipeType")
+    .def("__hash__", [](const PipeType& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const PipeType& a, const PipeType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &PipeType::Desugar)
     .def_property_readonly("ElementType", &PipeType::ElementType)
     .def_property_readonly("IsReadOnly", &PipeType::IsReadOnly)

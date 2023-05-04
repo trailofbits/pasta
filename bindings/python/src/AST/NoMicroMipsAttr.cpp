@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterNoMicroMipsAttr(py::module_ &m) {
   py::class_<NoMicroMipsAttr, Attr, InheritableAttr>(m, "NoMicroMipsAttr")
+    .def("__hash__", [](const NoMicroMipsAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const NoMicroMipsAttr& a, const NoMicroMipsAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &NoMicroMipsAttr::Spelling);
 }
 } // namespace pasta

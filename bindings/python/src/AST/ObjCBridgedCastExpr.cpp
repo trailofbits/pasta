@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterObjCBridgedCastExpr(py::module_ &m) {
   py::class_<ObjCBridgedCastExpr, CastExpr, ExplicitCastExpr, Expr, Stmt, ValueStmt>(m, "ObjCBridgedCastExpr")
+    .def("__hash__", [](const ObjCBridgedCastExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const ObjCBridgedCastExpr& a, const ObjCBridgedCastExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("BeginToken", &ObjCBridgedCastExpr::BeginToken)
     .def_property_readonly("BridgeKeywordToken", &ObjCBridgedCastExpr::BridgeKeywordToken)
     .def_property_readonly("BridgeKind", &ObjCBridgedCastExpr::BridgeKind)

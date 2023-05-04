@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterUnresolvedLookupExpr(py::module_ &m) {
   py::class_<UnresolvedLookupExpr, Expr, OverloadExpr, Stmt, ValueStmt>(m, "UnresolvedLookupExpr")
+    .def("__hash__", [](const UnresolvedLookupExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const UnresolvedLookupExpr& a, const UnresolvedLookupExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &UnresolvedLookupExpr::Children)
     .def_property_readonly("BeginToken", &UnresolvedLookupExpr::BeginToken)
     .def_property_readonly("EndToken", &UnresolvedLookupExpr::EndToken)

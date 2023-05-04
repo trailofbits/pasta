@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterQualifiedType(py::module_ &m) {
   py::class_<QualifiedType, Type>(m, "QualifiedType")
+    .def("__hash__", [](const QualifiedType& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const QualifiedType& a, const QualifiedType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("IgnoreParentheses", &QualifiedType::IgnoreParentheses)
     .def_property_readonly("AddressSpace", &QualifiedType::AddressSpace)
     .def_property_readonly("AtomicUnqualifiedType", &QualifiedType::AtomicUnqualifiedType)

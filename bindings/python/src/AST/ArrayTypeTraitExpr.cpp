@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterArrayTypeTraitExpr(py::module_ &m) {
   py::class_<ArrayTypeTraitExpr, Expr, Stmt, ValueStmt>(m, "ArrayTypeTraitExpr")
+    .def("__hash__", [](const ArrayTypeTraitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const ArrayTypeTraitExpr& a, const ArrayTypeTraitExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ArrayTypeTraitExpr::Children)
     .def_property_readonly("BeginToken", &ArrayTypeTraitExpr::BeginToken)
     .def_property_readonly("DimensionExpression", &ArrayTypeTraitExpr::DimensionExpression)

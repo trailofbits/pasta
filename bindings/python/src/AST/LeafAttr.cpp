@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterLeafAttr(py::module_ &m) {
   py::class_<LeafAttr, Attr, InheritableAttr>(m, "LeafAttr")
+    .def("__hash__", [](const LeafAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const LeafAttr& a, const LeafAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &LeafAttr::Spelling);
 }
 } // namespace pasta

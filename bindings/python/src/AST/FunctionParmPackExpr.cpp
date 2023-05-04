@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterFunctionParmPackExpr(py::module_ &m) {
   py::class_<FunctionParmPackExpr, Expr, Stmt, ValueStmt>(m, "FunctionParmPackExpr")
+    .def("__hash__", [](const FunctionParmPackExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const FunctionParmPackExpr& a, const FunctionParmPackExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &FunctionParmPackExpr::Children)
     .def_property_readonly("BeginToken", &FunctionParmPackExpr::BeginToken)
     .def_property_readonly("EndToken", &FunctionParmPackExpr::EndToken)

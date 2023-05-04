@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterSubstTemplateTypeParmPackType(py::module_ &m) {
   py::class_<SubstTemplateTypeParmPackType, Type>(m, "SubstTemplateTypeParmPackType")
+    .def("__hash__", [](const SubstTemplateTypeParmPackType& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const SubstTemplateTypeParmPackType& a, const SubstTemplateTypeParmPackType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &SubstTemplateTypeParmPackType::Desugar)
     .def_property_readonly("AssociatedDeclaration", &SubstTemplateTypeParmPackType::AssociatedDeclaration)
     .def_property_readonly("Final", &SubstTemplateTypeParmPackType::Final)

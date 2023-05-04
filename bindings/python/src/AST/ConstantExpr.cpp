@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterConstantExpr(py::module_ &m) {
   py::class_<ConstantExpr, Expr, FullExpr, Stmt, ValueStmt>(m, "ConstantExpr")
+    .def("__hash__", [](const ConstantExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const ConstantExpr& a, const ConstantExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ConstantExpr::Children)
     .def_property_readonly("BeginToken", &ConstantExpr::BeginToken)
     .def_property_readonly("EndToken", &ConstantExpr::EndToken)

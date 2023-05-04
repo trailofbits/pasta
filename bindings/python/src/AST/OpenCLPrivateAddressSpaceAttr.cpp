@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterOpenCLPrivateAddressSpaceAttr(py::module_ &m) {
   py::class_<OpenCLPrivateAddressSpaceAttr, Attr, TypeAttr>(m, "OpenCLPrivateAddressSpaceAttr")
+    .def("__hash__", [](const OpenCLPrivateAddressSpaceAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const OpenCLPrivateAddressSpaceAttr& a, const OpenCLPrivateAddressSpaceAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("SemanticSpelling", &OpenCLPrivateAddressSpaceAttr::SemanticSpelling)
     .def_property_readonly("Spelling", &OpenCLPrivateAddressSpaceAttr::Spelling);
 }

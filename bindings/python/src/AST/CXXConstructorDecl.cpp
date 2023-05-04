@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterCXXConstructorDecl(py::module_ &m) {
   py::class_<CXXConstructorDecl, CXXMethodDecl, Decl, DeclaratorDecl, FunctionDecl, NamedDecl, ValueDecl>(m, "CXXConstructorDecl")
+    .def("__hash__", [](const CXXConstructorDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const CXXConstructorDecl& a, const CXXConstructorDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("CanonicalDeclaration", &CXXConstructorDecl::CanonicalDeclaration)
     .def_property_readonly("NumConstructorInitializers", &CXXConstructorDecl::NumConstructorInitializers)
     .def_property_readonly("TargetConstructor", &CXXConstructorDecl::TargetConstructor)

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterX86ForceAlignArgPointerAttr(py::module_ &m) {
   py::class_<X86ForceAlignArgPointerAttr, Attr, InheritableAttr>(m, "X86ForceAlignArgPointerAttr")
+    .def("__hash__", [](const X86ForceAlignArgPointerAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const X86ForceAlignArgPointerAttr& a, const X86ForceAlignArgPointerAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &X86ForceAlignArgPointerAttr::Spelling);
 }
 } // namespace pasta

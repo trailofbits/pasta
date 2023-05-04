@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterNoMergeAttr(py::module_ &m) {
   py::class_<NoMergeAttr, Attr, DeclOrStmtAttr, InheritableAttr>(m, "NoMergeAttr")
+    .def("__hash__", [](const NoMergeAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const NoMergeAttr& a, const NoMergeAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &NoMergeAttr::Spelling);
 }
 } // namespace pasta

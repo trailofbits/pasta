@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterMemberPointerType(py::module_ &m) {
   py::class_<MemberPointerType, Type>(m, "MemberPointerType")
+    .def("__hash__", [](const MemberPointerType& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const MemberPointerType& a, const MemberPointerType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &MemberPointerType::Desugar)
     .def_property_readonly("Class", &MemberPointerType::Class)
     .def_property_readonly("MostRecentCXXRecordDeclaration", &MemberPointerType::MostRecentCXXRecordDeclaration)

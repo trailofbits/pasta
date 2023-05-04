@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterAMDGPUFlatWorkGroupSizeAttr(py::module_ &m) {
   py::class_<AMDGPUFlatWorkGroupSizeAttr, Attr, InheritableAttr>(m, "AMDGPUFlatWorkGroupSizeAttr")
+    .def("__hash__", [](const AMDGPUFlatWorkGroupSizeAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const AMDGPUFlatWorkGroupSizeAttr& a, const AMDGPUFlatWorkGroupSizeAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Max", &AMDGPUFlatWorkGroupSizeAttr::Max)
     .def_property_readonly("Min", &AMDGPUFlatWorkGroupSizeAttr::Min)
     .def_property_readonly("Spelling", &AMDGPUFlatWorkGroupSizeAttr::Spelling);

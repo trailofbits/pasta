@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterSharedTrylockFunctionAttr(py::module_ &m) {
   py::class_<SharedTrylockFunctionAttr, Attr, InheritableAttr>(m, "SharedTrylockFunctionAttr")
+    .def("__hash__", [](const SharedTrylockFunctionAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const SharedTrylockFunctionAttr& a, const SharedTrylockFunctionAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &SharedTrylockFunctionAttr::Spelling)
     .def_property_readonly("SuccessValue", &SharedTrylockFunctionAttr::SuccessValue);
 }

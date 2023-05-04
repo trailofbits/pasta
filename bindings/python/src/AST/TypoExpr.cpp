@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterTypoExpr(py::module_ &m) {
   py::class_<TypoExpr, Expr, Stmt, ValueStmt>(m, "TypoExpr")
+    .def("__hash__", [](const TypoExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const TypoExpr& a, const TypoExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &TypoExpr::Children)
     .def_property_readonly("BeginToken", &TypoExpr::BeginToken)
     .def_property_readonly("EndToken", &TypoExpr::EndToken);

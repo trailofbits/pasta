@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterStmtExpr(py::module_ &m) {
   py::class_<StmtExpr, Expr, Stmt, ValueStmt>(m, "StmtExpr")
+    .def("__hash__", [](const StmtExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const StmtExpr& a, const StmtExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &StmtExpr::Children)
     .def_property_readonly("BeginToken", &StmtExpr::BeginToken)
     .def_property_readonly("EndToken", &StmtExpr::EndToken)

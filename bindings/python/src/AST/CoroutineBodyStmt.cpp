@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterCoroutineBodyStmt(py::module_ &m) {
   py::class_<CoroutineBodyStmt, Stmt>(m, "CoroutineBodyStmt")
+    .def("__hash__", [](const CoroutineBodyStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const CoroutineBodyStmt& a, const CoroutineBodyStmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &CoroutineBodyStmt::Children)
     .def_property_readonly("Allocate", &CoroutineBodyStmt::Allocate)
     .def_property_readonly("BeginToken", &CoroutineBodyStmt::BeginToken)

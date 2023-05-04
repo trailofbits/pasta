@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterBlockDecl(py::module_ &m) {
   py::class_<BlockDecl, Decl>(m, "BlockDecl")
+    .def("__hash__", [](const BlockDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const BlockDecl& a, const BlockDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("BlockMissingReturnType", &BlockDecl::BlockMissingReturnType)
     .def_property_readonly("CanAvoidCopyToHeap", &BlockDecl::CanAvoidCopyToHeap)
     .def_property_readonly("CapturesCXXThis", &BlockDecl::CapturesCXXThis)

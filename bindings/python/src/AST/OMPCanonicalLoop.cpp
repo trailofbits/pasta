@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterOMPCanonicalLoop(py::module_ &m) {
   py::class_<OMPCanonicalLoop, Stmt>(m, "OMPCanonicalLoop")
+    .def("__hash__", [](const OMPCanonicalLoop& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const OMPCanonicalLoop& a, const OMPCanonicalLoop& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &OMPCanonicalLoop::Children)
     .def_property_readonly("BeginToken", &OMPCanonicalLoop::BeginToken)
     .def_property_readonly("DistanceFunc", &OMPCanonicalLoop::DistanceFunc)

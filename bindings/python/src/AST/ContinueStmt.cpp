@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterContinueStmt(py::module_ &m) {
   py::class_<ContinueStmt, Stmt>(m, "ContinueStmt")
+    .def("__hash__", [](const ContinueStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const ContinueStmt& a, const ContinueStmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ContinueStmt::Children)
     .def_property_readonly("BeginToken", &ContinueStmt::BeginToken)
     .def_property_readonly("ContinueToken", &ContinueStmt::ContinueToken)

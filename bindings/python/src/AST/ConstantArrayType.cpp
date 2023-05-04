@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterConstantArrayType(py::module_ &m) {
   py::class_<ConstantArrayType, ArrayType, Type>(m, "ConstantArrayType")
+    .def("__hash__", [](const ConstantArrayType& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const ConstantArrayType& a, const ConstantArrayType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &ConstantArrayType::Desugar)
     .def_property_readonly("Size", &ConstantArrayType::Size)
     .def_property_readonly("SizeExpression", &ConstantArrayType::SizeExpression)

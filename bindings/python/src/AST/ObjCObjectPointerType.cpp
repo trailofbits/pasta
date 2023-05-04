@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterObjCObjectPointerType(py::module_ &m) {
   py::class_<ObjCObjectPointerType, Type>(m, "ObjCObjectPointerType")
+    .def("__hash__", [](const ObjCObjectPointerType& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const ObjCObjectPointerType& a, const ObjCObjectPointerType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &ObjCObjectPointerType::Desugar)
     .def_property_readonly("InterfaceDeclaration", &ObjCObjectPointerType::InterfaceDeclaration)
     .def_property_readonly("InterfaceType", &ObjCObjectPointerType::InterfaceType)

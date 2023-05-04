@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterDependentVectorType(py::module_ &m) {
   py::class_<DependentVectorType, Type>(m, "DependentVectorType")
+    .def("__hash__", [](const DependentVectorType& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const DependentVectorType& a, const DependentVectorType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &DependentVectorType::Desugar)
     .def_property_readonly("AttributeToken", &DependentVectorType::AttributeToken)
     .def_property_readonly("ElementType", &DependentVectorType::ElementType)

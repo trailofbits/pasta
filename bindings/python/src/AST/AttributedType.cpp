@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterAttributedType(py::module_ &m) {
   py::class_<AttributedType, Type>(m, "AttributedType")
+    .def("__hash__", [](const AttributedType& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const AttributedType& a, const AttributedType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &AttributedType::Desugar)
     .def_property_readonly("AttributeKind", &AttributedType::AttributeKind)
     .def_property_readonly("EquivalentType", &AttributedType::EquivalentType)

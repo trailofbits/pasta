@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterNoSpeculativeLoadHardeningAttr(py::module_ &m) {
   py::class_<NoSpeculativeLoadHardeningAttr, Attr, InheritableAttr>(m, "NoSpeculativeLoadHardeningAttr")
+    .def("__hash__", [](const NoSpeculativeLoadHardeningAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const NoSpeculativeLoadHardeningAttr& a, const NoSpeculativeLoadHardeningAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &NoSpeculativeLoadHardeningAttr::Spelling);
 }
 } // namespace pasta

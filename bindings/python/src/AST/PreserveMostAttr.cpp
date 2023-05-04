@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterPreserveMostAttr(py::module_ &m) {
   py::class_<PreserveMostAttr, Attr, InheritableAttr>(m, "PreserveMostAttr")
+    .def("__hash__", [](const PreserveMostAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const PreserveMostAttr& a, const PreserveMostAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &PreserveMostAttr::Spelling);
 }
 } // namespace pasta

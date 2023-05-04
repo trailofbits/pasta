@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterAVRSignalAttr(py::module_ &m) {
   py::class_<AVRSignalAttr, Attr, InheritableAttr>(m, "AVRSignalAttr")
+    .def("__hash__", [](const AVRSignalAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const AVRSignalAttr& a, const AVRSignalAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &AVRSignalAttr::Spelling);
 }
 } // namespace pasta

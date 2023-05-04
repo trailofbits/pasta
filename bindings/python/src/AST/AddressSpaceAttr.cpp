@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterAddressSpaceAttr(py::module_ &m) {
   py::class_<AddressSpaceAttr, Attr, TypeAttr>(m, "AddressSpaceAttr")
+    .def("__hash__", [](const AddressSpaceAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const AddressSpaceAttr& a, const AddressSpaceAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &AddressSpaceAttr::Spelling);
 }
 } // namespace pasta

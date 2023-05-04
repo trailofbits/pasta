@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterOMPDeclareVariantAttr(py::module_ &m) {
   py::class_<OMPDeclareVariantAttr, Attr, InheritableAttr>(m, "OMPDeclareVariantAttr")
+    .def("__hash__", [](const OMPDeclareVariantAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const OMPDeclareVariantAttr& a, const OMPDeclareVariantAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &OMPDeclareVariantAttr::Spelling)
     .def_property_readonly("VariantFuncReference", &OMPDeclareVariantAttr::VariantFuncReference);
 }

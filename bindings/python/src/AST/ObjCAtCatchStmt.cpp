@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterObjCAtCatchStmt(py::module_ &m) {
   py::class_<ObjCAtCatchStmt, Stmt>(m, "ObjCAtCatchStmt")
+    .def("__hash__", [](const ObjCAtCatchStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const ObjCAtCatchStmt& a, const ObjCAtCatchStmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ObjCAtCatchStmt::Children)
     .def_property_readonly("AtCatchToken", &ObjCAtCatchStmt::AtCatchToken)
     .def_property_readonly("BeginToken", &ObjCAtCatchStmt::BeginToken)

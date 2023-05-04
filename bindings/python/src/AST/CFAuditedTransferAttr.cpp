@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterCFAuditedTransferAttr(py::module_ &m) {
   py::class_<CFAuditedTransferAttr, Attr, InheritableAttr>(m, "CFAuditedTransferAttr")
+    .def("__hash__", [](const CFAuditedTransferAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const CFAuditedTransferAttr& a, const CFAuditedTransferAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &CFAuditedTransferAttr::Spelling);
 }
 } // namespace pasta

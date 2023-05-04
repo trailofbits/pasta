@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterValueDecl(py::module_ &m) {
   py::class_<ValueDecl, Decl, NamedDecl>(m, "ValueDecl")
+    .def("__hash__", [](const ValueDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const ValueDecl& a, const ValueDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("PotentiallyDecomposedVariableDeclaration", &ValueDecl::PotentiallyDecomposedVariableDeclaration)
     .def_property_readonly("Type", &ValueDecl::Type)
     .def_property_readonly("IsInitializerCapture", &ValueDecl::IsInitializerCapture)

@@ -16,6 +16,8 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterOMPTargetDataDirective(py::module_ &m) {
-  py::class_<OMPTargetDataDirective, OMPExecutableDirective, Stmt>(m, "OMPTargetDataDirective");
+  py::class_<OMPTargetDataDirective, OMPExecutableDirective, Stmt>(m, "OMPTargetDataDirective")
+    .def("__hash__", [](const OMPTargetDataDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const OMPTargetDataDirective& a, const OMPTargetDataDirective& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

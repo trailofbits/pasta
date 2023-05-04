@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterCFICanonicalJumpTableAttr(py::module_ &m) {
   py::class_<CFICanonicalJumpTableAttr, Attr, InheritableAttr>(m, "CFICanonicalJumpTableAttr")
+    .def("__hash__", [](const CFICanonicalJumpTableAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const CFICanonicalJumpTableAttr& a, const CFICanonicalJumpTableAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &CFICanonicalJumpTableAttr::Spelling);
 }
 } // namespace pasta

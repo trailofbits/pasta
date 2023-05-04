@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterCapturedRecordAttr(py::module_ &m) {
   py::class_<CapturedRecordAttr, Attr, InheritableAttr>(m, "CapturedRecordAttr")
+    .def("__hash__", [](const CapturedRecordAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const CapturedRecordAttr& a, const CapturedRecordAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &CapturedRecordAttr::Spelling);
 }
 } // namespace pasta

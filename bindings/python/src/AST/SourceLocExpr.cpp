@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterSourceLocExpr(py::module_ &m) {
   py::class_<SourceLocExpr, Expr, Stmt, ValueStmt>(m, "SourceLocExpr")
+    .def("__hash__", [](const SourceLocExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const SourceLocExpr& a, const SourceLocExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &SourceLocExpr::Children)
     .def_property_readonly("BeginToken", &SourceLocExpr::BeginToken)
     .def_property_readonly("BuiltinString", &SourceLocExpr::BuiltinString)

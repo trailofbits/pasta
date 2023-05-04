@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterDiagnoseIfAttr(py::module_ &m) {
   py::class_<DiagnoseIfAttr, Attr, InheritableAttr>(m, "DiagnoseIfAttr")
+    .def("__hash__", [](const DiagnoseIfAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const DiagnoseIfAttr& a, const DiagnoseIfAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("ArgumentDependent", &DiagnoseIfAttr::ArgumentDependent)
     .def_property_readonly("Condition", &DiagnoseIfAttr::Condition)
     .def_property_readonly("DiagnosticType", &DiagnoseIfAttr::DiagnosticType)

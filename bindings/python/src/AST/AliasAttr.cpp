@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterAliasAttr(py::module_ &m) {
   py::class_<AliasAttr, Attr>(m, "AliasAttr")
+    .def("__hash__", [](const AliasAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const AliasAttr& a, const AliasAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Aliasee", &AliasAttr::Aliasee)
     .def_property_readonly("AliaseeLength", &AliasAttr::AliaseeLength)
     .def_property_readonly("Spelling", &AliasAttr::Spelling);

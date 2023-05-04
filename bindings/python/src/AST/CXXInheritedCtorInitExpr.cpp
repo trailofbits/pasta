@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterCXXInheritedCtorInitExpr(py::module_ &m) {
   py::class_<CXXInheritedCtorInitExpr, Expr, Stmt, ValueStmt>(m, "CXXInheritedCtorInitExpr")
+    .def("__hash__", [](const CXXInheritedCtorInitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const CXXInheritedCtorInitExpr& a, const CXXInheritedCtorInitExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &CXXInheritedCtorInitExpr::Children)
     .def_property_readonly("ConstructsVirtualBase", &CXXInheritedCtorInitExpr::ConstructsVirtualBase)
     .def_property_readonly("BeginToken", &CXXInheritedCtorInitExpr::BeginToken)

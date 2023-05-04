@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterSwiftNewTypeAttr(py::module_ &m) {
   py::class_<SwiftNewTypeAttr, Attr, InheritableAttr>(m, "SwiftNewTypeAttr")
+    .def("__hash__", [](const SwiftNewTypeAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const SwiftNewTypeAttr& a, const SwiftNewTypeAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("NewtypeKind", &SwiftNewTypeAttr::NewtypeKind)
     .def_property_readonly("SemanticSpelling", &SwiftNewTypeAttr::SemanticSpelling)
     .def_property_readonly("Spelling", &SwiftNewTypeAttr::Spelling);

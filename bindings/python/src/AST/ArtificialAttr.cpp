@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterArtificialAttr(py::module_ &m) {
   py::class_<ArtificialAttr, Attr, InheritableAttr>(m, "ArtificialAttr")
+    .def("__hash__", [](const ArtificialAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const ArtificialAttr& a, const ArtificialAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &ArtificialAttr::Spelling);
 }
 } // namespace pasta

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterObjCNonRuntimeProtocolAttr(py::module_ &m) {
   py::class_<ObjCNonRuntimeProtocolAttr, Attr>(m, "ObjCNonRuntimeProtocolAttr")
+    .def("__hash__", [](const ObjCNonRuntimeProtocolAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const ObjCNonRuntimeProtocolAttr& a, const ObjCNonRuntimeProtocolAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &ObjCNonRuntimeProtocolAttr::Spelling);
 }
 } // namespace pasta

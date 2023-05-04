@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterFallThroughAttr(py::module_ &m) {
   py::class_<FallThroughAttr, Attr, StmtAttr>(m, "FallThroughAttr")
+    .def("__hash__", [](const FallThroughAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const FallThroughAttr& a, const FallThroughAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &FallThroughAttr::Spelling);
 }
 } // namespace pasta

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterSelectAnyAttr(py::module_ &m) {
   py::class_<SelectAnyAttr, Attr, InheritableAttr>(m, "SelectAnyAttr")
+    .def("__hash__", [](const SelectAnyAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const SelectAnyAttr& a, const SelectAnyAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &SelectAnyAttr::Spelling);
 }
 } // namespace pasta

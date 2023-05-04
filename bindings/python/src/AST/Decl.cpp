@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterDecl(py::module_ &m) {
   py::class_<Decl>(m, "Decl")
+    .def("__hash__", [](const Decl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("Attributes", &Decl::Attributes)
     .def_property_readonly("Access", &Decl::Access)
     .def_property_readonly("AsFunction", &Decl::AsFunction)

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterTopLevelStmtDecl(py::module_ &m) {
   py::class_<TopLevelStmtDecl, Decl>(m, "TopLevelStmtDecl")
+    .def("__hash__", [](const TopLevelStmtDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const TopLevelStmtDecl& a, const TopLevelStmtDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("Statement", &TopLevelStmtDecl::Statement);
 }
 } // namespace pasta

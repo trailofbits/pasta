@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterIndirectFieldDecl(py::module_ &m) {
   py::class_<IndirectFieldDecl, Decl, NamedDecl, ValueDecl>(m, "IndirectFieldDecl")
+    .def("__hash__", [](const IndirectFieldDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const IndirectFieldDecl& a, const IndirectFieldDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("Chain", &IndirectFieldDecl::Chain)
     .def_property_readonly("AnonymousField", &IndirectFieldDecl::AnonymousField)
     .def_property_readonly("CanonicalDeclaration", &IndirectFieldDecl::CanonicalDeclaration)

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterSectionAttr(py::module_ &m) {
   py::class_<SectionAttr, Attr, InheritableAttr>(m, "SectionAttr")
+    .def("__hash__", [](const SectionAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const SectionAttr& a, const SectionAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Name", &SectionAttr::Name)
     .def_property_readonly("NameLength", &SectionAttr::NameLength)
     .def_property_readonly("SemanticSpelling", &SectionAttr::SemanticSpelling)

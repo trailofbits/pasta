@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterCoreturnStmt(py::module_ &m) {
   py::class_<CoreturnStmt, Stmt>(m, "CoreturnStmt")
+    .def("__hash__", [](const CoreturnStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const CoreturnStmt& a, const CoreturnStmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &CoreturnStmt::Children)
     .def_property_readonly("BeginToken", &CoreturnStmt::BeginToken)
     .def_property_readonly("EndToken", &CoreturnStmt::EndToken)

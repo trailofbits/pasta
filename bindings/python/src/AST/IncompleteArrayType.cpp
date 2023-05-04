@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterIncompleteArrayType(py::module_ &m) {
   py::class_<IncompleteArrayType, ArrayType, Type>(m, "IncompleteArrayType")
+    .def("__hash__", [](const IncompleteArrayType& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const IncompleteArrayType& a, const IncompleteArrayType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &IncompleteArrayType::Desugar)
     .def_property_readonly("IsSugared", &IncompleteArrayType::IsSugared);
 }

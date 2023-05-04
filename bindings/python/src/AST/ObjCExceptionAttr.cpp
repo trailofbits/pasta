@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterObjCExceptionAttr(py::module_ &m) {
   py::class_<ObjCExceptionAttr, Attr, InheritableAttr>(m, "ObjCExceptionAttr")
+    .def("__hash__", [](const ObjCExceptionAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const ObjCExceptionAttr& a, const ObjCExceptionAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &ObjCExceptionAttr::Spelling);
 }
 } // namespace pasta

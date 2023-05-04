@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterTypeOfExprType(py::module_ &m) {
   py::class_<TypeOfExprType, Type>(m, "TypeOfExprType")
+    .def("__hash__", [](const TypeOfExprType& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const TypeOfExprType& a, const TypeOfExprType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &TypeOfExprType::Desugar)
     .def_property_readonly("Kind", &TypeOfExprType::Kind)
     .def_property_readonly("UnderlyingExpression", &TypeOfExprType::UnderlyingExpression)

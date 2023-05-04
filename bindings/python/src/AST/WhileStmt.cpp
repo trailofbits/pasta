@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterWhileStmt(py::module_ &m) {
   py::class_<WhileStmt, Stmt>(m, "WhileStmt")
+    .def("__hash__", [](const WhileStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const WhileStmt& a, const WhileStmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &WhileStmt::Children)
     .def_property_readonly("BeginToken", &WhileStmt::BeginToken)
     .def_property_readonly("Body", &WhileStmt::Body)

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterOMPCaptureKindAttr(py::module_ &m) {
   py::class_<OMPCaptureKindAttr, Attr>(m, "OMPCaptureKindAttr")
+    .def("__hash__", [](const OMPCaptureKindAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const OMPCaptureKindAttr& a, const OMPCaptureKindAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("CaptureKindValue", &OMPCaptureKindAttr::CaptureKindValue)
     .def_property_readonly("Spelling", &OMPCaptureKindAttr::Spelling);
 }

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterUPtrAttr(py::module_ &m) {
   py::class_<UPtrAttr, Attr, TypeAttr>(m, "UPtrAttr")
+    .def("__hash__", [](const UPtrAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const UPtrAttr& a, const UPtrAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &UPtrAttr::Spelling);
 }
 } // namespace pasta

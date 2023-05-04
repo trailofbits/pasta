@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterSwiftObjCMembersAttr(py::module_ &m) {
   py::class_<SwiftObjCMembersAttr, Attr>(m, "SwiftObjCMembersAttr")
+    .def("__hash__", [](const SwiftObjCMembersAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const SwiftObjCMembersAttr& a, const SwiftObjCMembersAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &SwiftObjCMembersAttr::Spelling);
 }
 } // namespace pasta

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterConstructorUsingShadowDecl(py::module_ &m) {
   py::class_<ConstructorUsingShadowDecl, Decl, NamedDecl, UsingShadowDecl>(m, "ConstructorUsingShadowDecl")
+    .def("__hash__", [](const ConstructorUsingShadowDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const ConstructorUsingShadowDecl& a, const ConstructorUsingShadowDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("ConstructsVirtualBase", &ConstructorUsingShadowDecl::ConstructsVirtualBase)
     .def_property_readonly("ConstructedBaseClass", &ConstructorUsingShadowDecl::ConstructedBaseClass)
     .def_property_readonly("ConstructedBaseClassShadowDeclaration", &ConstructorUsingShadowDecl::ConstructedBaseClassShadowDeclaration)

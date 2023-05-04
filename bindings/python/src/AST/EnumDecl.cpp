@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterEnumDecl(py::module_ &m) {
   py::class_<EnumDecl, Decl, NamedDecl, TagDecl, TypeDecl>(m, "EnumDecl")
+    .def("__hash__", [](const EnumDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const EnumDecl& a, const EnumDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("Enumerators", &EnumDecl::Enumerators)
     .def_property_readonly("CanonicalDeclaration", &EnumDecl::CanonicalDeclaration)
     .def_property_readonly("Definition", &EnumDecl::Definition)

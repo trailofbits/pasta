@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterAbiTagAttr(py::module_ &m) {
   py::class_<AbiTagAttr, Attr>(m, "AbiTagAttr")
+    .def("__hash__", [](const AbiTagAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const AbiTagAttr& a, const AbiTagAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &AbiTagAttr::Spelling);
 }
 } // namespace pasta

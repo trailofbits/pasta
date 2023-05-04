@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterObjCAtThrowStmt(py::module_ &m) {
   py::class_<ObjCAtThrowStmt, Stmt>(m, "ObjCAtThrowStmt")
+    .def("__hash__", [](const ObjCAtThrowStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const ObjCAtThrowStmt& a, const ObjCAtThrowStmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ObjCAtThrowStmt::Children)
     .def_property_readonly("BeginToken", &ObjCAtThrowStmt::BeginToken)
     .def_property_readonly("EndToken", &ObjCAtThrowStmt::EndToken)

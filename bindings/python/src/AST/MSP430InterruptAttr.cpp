@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterMSP430InterruptAttr(py::module_ &m) {
   py::class_<MSP430InterruptAttr, Attr, InheritableAttr>(m, "MSP430InterruptAttr")
+    .def("__hash__", [](const MSP430InterruptAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const MSP430InterruptAttr& a, const MSP430InterruptAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Number", &MSP430InterruptAttr::Number)
     .def_property_readonly("Spelling", &MSP430InterruptAttr::Spelling);
 }

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterObjCAtFinallyStmt(py::module_ &m) {
   py::class_<ObjCAtFinallyStmt, Stmt>(m, "ObjCAtFinallyStmt")
+    .def("__hash__", [](const ObjCAtFinallyStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const ObjCAtFinallyStmt& a, const ObjCAtFinallyStmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ObjCAtFinallyStmt::Children)
     .def_property_readonly("AtFinallyToken", &ObjCAtFinallyStmt::AtFinallyToken)
     .def_property_readonly("BeginToken", &ObjCAtFinallyStmt::BeginToken)

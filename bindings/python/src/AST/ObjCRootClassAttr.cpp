@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterObjCRootClassAttr(py::module_ &m) {
   py::class_<ObjCRootClassAttr, Attr, InheritableAttr>(m, "ObjCRootClassAttr")
+    .def("__hash__", [](const ObjCRootClassAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const ObjCRootClassAttr& a, const ObjCRootClassAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &ObjCRootClassAttr::Spelling);
 }
 } // namespace pasta

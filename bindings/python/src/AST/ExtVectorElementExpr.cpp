@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterExtVectorElementExpr(py::module_ &m) {
   py::class_<ExtVectorElementExpr, Expr, Stmt, ValueStmt>(m, "ExtVectorElementExpr")
+    .def("__hash__", [](const ExtVectorElementExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const ExtVectorElementExpr& a, const ExtVectorElementExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ExtVectorElementExpr::Children)
     .def_property_readonly("ContainsDuplicateElements", &ExtVectorElementExpr::ContainsDuplicateElements)
     .def_property_readonly("AccessorToken", &ExtVectorElementExpr::AccessorToken)

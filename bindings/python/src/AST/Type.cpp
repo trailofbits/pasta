@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterType(py::module_ &m) {
   py::class_<Type>(m, "Type")
+    .def("__hash__", [](const Type& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("AcceptsObjCTypeParameters", &Type::AcceptsObjCTypeParameters)
     .def_property_readonly("CanDecayToPointerType", &Type::CanDecayToPointerType)
     .def_property_readonly("CanHaveNullability", &Type::CanHaveNullability)

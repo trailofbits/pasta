@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterOMPForDirective(py::module_ &m) {
   py::class_<OMPForDirective, OMPExecutableDirective, OMPLoopBasedDirective, OMPLoopDirective, Stmt>(m, "OMPForDirective")
+    .def("__hash__", [](const OMPForDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const OMPForDirective& a, const OMPForDirective& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("TaskReductionReferenceExpression", &OMPForDirective::TaskReductionReferenceExpression)
     .def_property_readonly("HasCancel", &OMPForDirective::HasCancel);
 }

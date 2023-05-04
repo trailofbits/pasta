@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterFunctionType(py::module_ &m) {
   py::class_<FunctionType, Type>(m, "FunctionType")
+    .def("__hash__", [](const FunctionType& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const FunctionType& a, const FunctionType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("CallConv", &FunctionType::CallConv)
     .def("CallResultType", &FunctionType::CallResultType)
     .def_property_readonly("CmseNSCallAttribute", &FunctionType::CmseNSCallAttribute)

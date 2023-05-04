@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterFunctionDecl(py::module_ &m) {
   py::class_<FunctionDecl, Decl, DeclaratorDecl, NamedDecl, ValueDecl>(m, "FunctionDecl")
+    .def("__hash__", [](const FunctionDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const FunctionDecl& a, const FunctionDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("FriendConstraintRefersToEnclosingTemplate", &FunctionDecl::FriendConstraintRefersToEnclosingTemplate)
     .def_property_readonly("UsesFPIntrin", &FunctionDecl::UsesFPIntrin)
     .def_property_readonly("DoesDeclarationForceExternallyVisibleDefinition", &FunctionDecl::DoesDeclarationForceExternallyVisibleDefinition)

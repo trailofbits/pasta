@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterObjCDictionaryLiteral(py::module_ &m) {
   py::class_<ObjCDictionaryLiteral, Expr, Stmt, ValueStmt>(m, "ObjCDictionaryLiteral")
+    .def("__hash__", [](const ObjCDictionaryLiteral& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const ObjCDictionaryLiteral& a, const ObjCDictionaryLiteral& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ObjCDictionaryLiteral::Children)
     .def_property_readonly("BeginToken", &ObjCDictionaryLiteral::BeginToken)
     .def_property_readonly("DictionaryWithObjectsMethod", &ObjCDictionaryLiteral::DictionaryWithObjectsMethod)

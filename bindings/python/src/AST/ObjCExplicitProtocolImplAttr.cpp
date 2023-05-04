@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterObjCExplicitProtocolImplAttr(py::module_ &m) {
   py::class_<ObjCExplicitProtocolImplAttr, Attr, InheritableAttr>(m, "ObjCExplicitProtocolImplAttr")
+    .def("__hash__", [](const ObjCExplicitProtocolImplAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const ObjCExplicitProtocolImplAttr& a, const ObjCExplicitProtocolImplAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &ObjCExplicitProtocolImplAttr::Spelling);
 }
 } // namespace pasta

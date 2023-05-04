@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterOffsetOfExpr(py::module_ &m) {
   py::class_<OffsetOfExpr, Expr, Stmt, ValueStmt>(m, "OffsetOfExpr")
+    .def("__hash__", [](const OffsetOfExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const OffsetOfExpr& a, const OffsetOfExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &OffsetOfExpr::Children)
     .def_property_readonly("BeginToken", &OffsetOfExpr::BeginToken)
     .def_property_readonly("EndToken", &OffsetOfExpr::EndToken)

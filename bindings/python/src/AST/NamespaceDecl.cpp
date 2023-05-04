@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterNamespaceDecl(py::module_ &m) {
   py::class_<NamespaceDecl, Decl, NamedDecl>(m, "NamespaceDecl")
+    .def("__hash__", [](const NamespaceDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const NamespaceDecl& a, const NamespaceDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("AnonymousNamespace", &NamespaceDecl::AnonymousNamespace)
     .def_property_readonly("BeginToken", &NamespaceDecl::BeginToken)
     .def_property_readonly("CanonicalDeclaration", &NamespaceDecl::CanonicalDeclaration)

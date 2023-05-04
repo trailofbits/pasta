@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterBreakStmt(py::module_ &m) {
   py::class_<BreakStmt, Stmt>(m, "BreakStmt")
+    .def("__hash__", [](const BreakStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const BreakStmt& a, const BreakStmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &BreakStmt::Children)
     .def_property_readonly("BeginToken", &BreakStmt::BeginToken)
     .def_property_readonly("BreakToken", &BreakStmt::BreakToken)

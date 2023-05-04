@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterCXXRewrittenBinaryOperator(py::module_ &m) {
   py::class_<CXXRewrittenBinaryOperator, Expr, Stmt, ValueStmt>(m, "CXXRewrittenBinaryOperator")
+    .def("__hash__", [](const CXXRewrittenBinaryOperator& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const CXXRewrittenBinaryOperator& a, const CXXRewrittenBinaryOperator& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("BeginToken", &CXXRewrittenBinaryOperator::BeginToken)
     .def_property_readonly("EndToken", &CXXRewrittenBinaryOperator::EndToken)
     .def_property_readonly("ExpressionToken", &CXXRewrittenBinaryOperator::ExpressionToken)

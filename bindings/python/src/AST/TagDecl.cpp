@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterTagDecl(py::module_ &m) {
   py::class_<TagDecl, Decl, NamedDecl, TypeDecl>(m, "TagDecl")
+    .def("__hash__", [](const TagDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const TagDecl& a, const TagDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("BraceRange", &TagDecl::BraceRange)
     .def_property_readonly("CanonicalDeclaration", &TagDecl::CanonicalDeclaration)
     .def_property_readonly("Definition", &TagDecl::Definition)

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterConditionalOperator(py::module_ &m) {
   py::class_<ConditionalOperator, AbstractConditionalOperator, Expr, Stmt, ValueStmt>(m, "ConditionalOperator")
+    .def("__hash__", [](const ConditionalOperator& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const ConditionalOperator& a, const ConditionalOperator& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ConditionalOperator::Children)
     .def_property_readonly("BeginToken", &ConditionalOperator::BeginToken)
     .def_property_readonly("Condition", &ConditionalOperator::Condition)

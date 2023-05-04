@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterNSReturnsAutoreleasedAttr(py::module_ &m) {
   py::class_<NSReturnsAutoreleasedAttr, Attr, InheritableAttr>(m, "NSReturnsAutoreleasedAttr")
+    .def("__hash__", [](const NSReturnsAutoreleasedAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const NSReturnsAutoreleasedAttr& a, const NSReturnsAutoreleasedAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &NSReturnsAutoreleasedAttr::Spelling);
 }
 } // namespace pasta

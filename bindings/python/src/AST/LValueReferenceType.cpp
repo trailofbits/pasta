@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterLValueReferenceType(py::module_ &m) {
   py::class_<LValueReferenceType, ReferenceType, Type>(m, "LValueReferenceType")
+    .def("__hash__", [](const LValueReferenceType& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const LValueReferenceType& a, const LValueReferenceType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &LValueReferenceType::Desugar)
     .def_property_readonly("IsSugared", &LValueReferenceType::IsSugared);
 }

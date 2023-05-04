@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterOpenCLAccessAttr(py::module_ &m) {
   py::class_<OpenCLAccessAttr, Attr>(m, "OpenCLAccessAttr")
+    .def("__hash__", [](const OpenCLAccessAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const OpenCLAccessAttr& a, const OpenCLAccessAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("SemanticSpelling", &OpenCLAccessAttr::SemanticSpelling)
     .def_property_readonly("Spelling", &OpenCLAccessAttr::Spelling)
     .def_property_readonly("IsReadOnly", &OpenCLAccessAttr::IsReadOnly)

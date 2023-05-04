@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterAnyX86NoCallerSavedRegistersAttr(py::module_ &m) {
   py::class_<AnyX86NoCallerSavedRegistersAttr, Attr, InheritableAttr>(m, "AnyX86NoCallerSavedRegistersAttr")
+    .def("__hash__", [](const AnyX86NoCallerSavedRegistersAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const AnyX86NoCallerSavedRegistersAttr& a, const AnyX86NoCallerSavedRegistersAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &AnyX86NoCallerSavedRegistersAttr::Spelling);
 }
 } // namespace pasta

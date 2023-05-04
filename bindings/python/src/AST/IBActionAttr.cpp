@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterIBActionAttr(py::module_ &m) {
   py::class_<IBActionAttr, Attr, InheritableAttr>(m, "IBActionAttr")
+    .def("__hash__", [](const IBActionAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const IBActionAttr& a, const IBActionAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &IBActionAttr::Spelling);
 }
 } // namespace pasta

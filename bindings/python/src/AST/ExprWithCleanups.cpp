@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterExprWithCleanups(py::module_ &m) {
   py::class_<ExprWithCleanups, Expr, FullExpr, Stmt, ValueStmt>(m, "ExprWithCleanups")
+    .def("__hash__", [](const ExprWithCleanups& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const ExprWithCleanups& a, const ExprWithCleanups& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ExprWithCleanups::Children)
     .def_property_readonly("CleanupsHaveSideEffects", &ExprWithCleanups::CleanupsHaveSideEffects)
     .def_property_readonly("BeginToken", &ExprWithCleanups::BeginToken)

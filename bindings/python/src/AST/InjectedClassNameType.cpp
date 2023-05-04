@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterInjectedClassNameType(py::module_ &m) {
   py::class_<InjectedClassNameType, Type>(m, "InjectedClassNameType")
+    .def("__hash__", [](const InjectedClassNameType& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const InjectedClassNameType& a, const InjectedClassNameType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &InjectedClassNameType::Desugar)
     .def_property_readonly("Declaration", &InjectedClassNameType::Declaration)
     .def_property_readonly("InjectedSpecializationType", &InjectedClassNameType::InjectedSpecializationType)

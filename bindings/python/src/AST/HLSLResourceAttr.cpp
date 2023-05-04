@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterHLSLResourceAttr(py::module_ &m) {
   py::class_<HLSLResourceAttr, Attr, InheritableAttr>(m, "HLSLResourceAttr")
+    .def("__hash__", [](const HLSLResourceAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const HLSLResourceAttr& a, const HLSLResourceAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("ResourceShape", &HLSLResourceAttr::ResourceShape)
     .def_property_readonly("ResourceType", &HLSLResourceAttr::ResourceType)
     .def_property_readonly("Spelling", &HLSLResourceAttr::Spelling);

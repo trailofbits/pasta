@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterFunctionTemplateDecl(py::module_ &m) {
   py::class_<FunctionTemplateDecl, Decl, NamedDecl, RedeclarableTemplateDecl, TemplateDecl>(m, "FunctionTemplateDecl")
+    .def("__hash__", [](const FunctionTemplateDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const FunctionTemplateDecl& a, const FunctionTemplateDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("CanonicalDeclaration", &FunctionTemplateDecl::CanonicalDeclaration)
     .def_property_readonly("InstantiatedFromMemberTemplate", &FunctionTemplateDecl::InstantiatedFromMemberTemplate)
     .def_property_readonly("MostRecentDeclaration", &FunctionTemplateDecl::MostRecentDeclaration)

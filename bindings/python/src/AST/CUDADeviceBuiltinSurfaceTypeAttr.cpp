@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterCUDADeviceBuiltinSurfaceTypeAttr(py::module_ &m) {
   py::class_<CUDADeviceBuiltinSurfaceTypeAttr, Attr, InheritableAttr>(m, "CUDADeviceBuiltinSurfaceTypeAttr")
+    .def("__hash__", [](const CUDADeviceBuiltinSurfaceTypeAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const CUDADeviceBuiltinSurfaceTypeAttr& a, const CUDADeviceBuiltinSurfaceTypeAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &CUDADeviceBuiltinSurfaceTypeAttr::Spelling);
 }
 } // namespace pasta

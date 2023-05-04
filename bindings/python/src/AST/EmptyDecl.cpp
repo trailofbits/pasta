@@ -16,6 +16,8 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterEmptyDecl(py::module_ &m) {
-  py::class_<EmptyDecl, Decl>(m, "EmptyDecl");
+  py::class_<EmptyDecl, Decl>(m, "EmptyDecl")
+    .def("__hash__", [](const EmptyDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const EmptyDecl& a, const EmptyDecl& b) { return a.RawDecl() == b.RawDecl(); });
 }
 } // namespace pasta

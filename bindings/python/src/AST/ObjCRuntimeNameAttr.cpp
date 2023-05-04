@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterObjCRuntimeNameAttr(py::module_ &m) {
   py::class_<ObjCRuntimeNameAttr, Attr>(m, "ObjCRuntimeNameAttr")
+    .def("__hash__", [](const ObjCRuntimeNameAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const ObjCRuntimeNameAttr& a, const ObjCRuntimeNameAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("MetadataName", &ObjCRuntimeNameAttr::MetadataName)
     .def_property_readonly("MetadataNameLength", &ObjCRuntimeNameAttr::MetadataNameLength)
     .def_property_readonly("Spelling", &ObjCRuntimeNameAttr::Spelling);

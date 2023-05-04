@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterObjCAutoreleasePoolStmt(py::module_ &m) {
   py::class_<ObjCAutoreleasePoolStmt, Stmt>(m, "ObjCAutoreleasePoolStmt")
+    .def("__hash__", [](const ObjCAutoreleasePoolStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const ObjCAutoreleasePoolStmt& a, const ObjCAutoreleasePoolStmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ObjCAutoreleasePoolStmt::Children)
     .def_property_readonly("AtToken", &ObjCAutoreleasePoolStmt::AtToken)
     .def_property_readonly("BeginToken", &ObjCAutoreleasePoolStmt::BeginToken)

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterUsingDirectiveDecl(py::module_ &m) {
   py::class_<UsingDirectiveDecl, Decl, NamedDecl>(m, "UsingDirectiveDecl")
+    .def("__hash__", [](const UsingDirectiveDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const UsingDirectiveDecl& a, const UsingDirectiveDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("CommonAncestor", &UsingDirectiveDecl::CommonAncestor)
     .def_property_readonly("IdentifierToken", &UsingDirectiveDecl::IdentifierToken)
     .def_property_readonly("NamespaceKeyToken", &UsingDirectiveDecl::NamespaceKeyToken)

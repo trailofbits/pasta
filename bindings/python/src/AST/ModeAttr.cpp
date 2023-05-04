@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterModeAttr(py::module_ &m) {
   py::class_<ModeAttr, Attr>(m, "ModeAttr")
+    .def("__hash__", [](const ModeAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const ModeAttr& a, const ModeAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &ModeAttr::Spelling);
 }
 } // namespace pasta

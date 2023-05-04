@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterParmVarDecl(py::module_ &m) {
   py::class_<ParmVarDecl, Decl, DeclaratorDecl, NamedDecl, ValueDecl, VarDecl>(m, "ParmVarDecl")
+    .def("__hash__", [](const ParmVarDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const ParmVarDecl& a, const ParmVarDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("DefaultArgument", &ParmVarDecl::DefaultArgument)
     .def_property_readonly("DefaultArgumentRange", &ParmVarDecl::DefaultArgumentRange)
     .def_property_readonly("FunctionScopeDepth", &ParmVarDecl::FunctionScopeDepth)

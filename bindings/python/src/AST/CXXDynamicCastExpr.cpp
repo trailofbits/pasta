@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterCXXDynamicCastExpr(py::module_ &m) {
   py::class_<CXXDynamicCastExpr, CXXNamedCastExpr, CastExpr, ExplicitCastExpr, Expr, Stmt, ValueStmt>(m, "CXXDynamicCastExpr")
+    .def("__hash__", [](const CXXDynamicCastExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const CXXDynamicCastExpr& a, const CXXDynamicCastExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("IsAlwaysNull", &CXXDynamicCastExpr::IsAlwaysNull);
 }
 } // namespace pasta

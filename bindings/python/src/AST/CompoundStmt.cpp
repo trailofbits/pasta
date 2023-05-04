@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterCompoundStmt(py::module_ &m) {
   py::class_<CompoundStmt, Stmt>(m, "CompoundStmt")
+    .def("__hash__", [](const CompoundStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const CompoundStmt& a, const CompoundStmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &CompoundStmt::Children)
     .def_property_readonly("BeginToken", &CompoundStmt::BeginToken)
     .def_property_readonly("EndToken", &CompoundStmt::EndToken)

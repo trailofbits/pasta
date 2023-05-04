@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterCXXPseudoDestructorExpr(py::module_ &m) {
   py::class_<CXXPseudoDestructorExpr, Expr, Stmt, ValueStmt>(m, "CXXPseudoDestructorExpr")
+    .def("__hash__", [](const CXXPseudoDestructorExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const CXXPseudoDestructorExpr& a, const CXXPseudoDestructorExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &CXXPseudoDestructorExpr::Children)
     .def_property_readonly("Base", &CXXPseudoDestructorExpr::Base)
     .def_property_readonly("BeginToken", &CXXPseudoDestructorExpr::BeginToken)

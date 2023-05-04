@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterVAArgExpr(py::module_ &m) {
   py::class_<VAArgExpr, Expr, Stmt, ValueStmt>(m, "VAArgExpr")
+    .def("__hash__", [](const VAArgExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const VAArgExpr& a, const VAArgExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &VAArgExpr::Children)
     .def_property_readonly("BeginToken", &VAArgExpr::BeginToken)
     .def_property_readonly("BuiltinToken", &VAArgExpr::BuiltinToken)

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterSwiftBridgedTypedefAttr(py::module_ &m) {
   py::class_<SwiftBridgedTypedefAttr, Attr, InheritableAttr>(m, "SwiftBridgedTypedefAttr")
+    .def("__hash__", [](const SwiftBridgedTypedefAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const SwiftBridgedTypedefAttr& a, const SwiftBridgedTypedefAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &SwiftBridgedTypedefAttr::Spelling);
 }
 } // namespace pasta

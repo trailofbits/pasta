@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterLifetimeExtendedTemporaryDecl(py::module_ &m) {
   py::class_<LifetimeExtendedTemporaryDecl, Decl>(m, "LifetimeExtendedTemporaryDecl")
+    .def("__hash__", [](const LifetimeExtendedTemporaryDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const LifetimeExtendedTemporaryDecl& a, const LifetimeExtendedTemporaryDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("Children", &LifetimeExtendedTemporaryDecl::Children)
     .def_property_readonly("ExtendingDeclaration", &LifetimeExtendedTemporaryDecl::ExtendingDeclaration)
     .def_property_readonly("ManglingNumber", &LifetimeExtendedTemporaryDecl::ManglingNumber)

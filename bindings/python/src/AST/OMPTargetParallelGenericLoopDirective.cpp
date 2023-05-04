@@ -16,6 +16,8 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterOMPTargetParallelGenericLoopDirective(py::module_ &m) {
-  py::class_<OMPTargetParallelGenericLoopDirective, OMPExecutableDirective, OMPLoopBasedDirective, OMPLoopDirective, Stmt>(m, "OMPTargetParallelGenericLoopDirective");
+  py::class_<OMPTargetParallelGenericLoopDirective, OMPExecutableDirective, OMPLoopBasedDirective, OMPLoopDirective, Stmt>(m, "OMPTargetParallelGenericLoopDirective")
+    .def("__hash__", [](const OMPTargetParallelGenericLoopDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const OMPTargetParallelGenericLoopDirective& a, const OMPTargetParallelGenericLoopDirective& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

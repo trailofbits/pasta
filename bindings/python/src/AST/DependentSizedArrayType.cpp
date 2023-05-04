@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterDependentSizedArrayType(py::module_ &m) {
   py::class_<DependentSizedArrayType, ArrayType, Type>(m, "DependentSizedArrayType")
+    .def("__hash__", [](const DependentSizedArrayType& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const DependentSizedArrayType& a, const DependentSizedArrayType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &DependentSizedArrayType::Desugar)
     .def_property_readonly("BracketsRange", &DependentSizedArrayType::BracketsRange)
     .def_property_readonly("LBracketToken", &DependentSizedArrayType::LBracketToken)

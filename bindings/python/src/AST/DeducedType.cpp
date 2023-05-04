@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterDeducedType(py::module_ &m) {
   py::class_<DeducedType, Type>(m, "DeducedType")
+    .def("__hash__", [](const DeducedType& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const DeducedType& a, const DeducedType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &DeducedType::Desugar)
     .def_property_readonly("ResolvedType", &DeducedType::ResolvedType)
     .def_property_readonly("IsDeduced", &DeducedType::IsDeduced)

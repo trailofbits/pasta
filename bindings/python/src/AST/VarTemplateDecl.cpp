@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterVarTemplateDecl(py::module_ &m) {
   py::class_<VarTemplateDecl, Decl, NamedDecl, RedeclarableTemplateDecl, TemplateDecl>(m, "VarTemplateDecl")
+    .def("__hash__", [](const VarTemplateDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const VarTemplateDecl& a, const VarTemplateDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("CanonicalDeclaration", &VarTemplateDecl::CanonicalDeclaration)
     .def_property_readonly("InstantiatedFromMemberTemplate", &VarTemplateDecl::InstantiatedFromMemberTemplate)
     .def_property_readonly("MostRecentDeclaration", &VarTemplateDecl::MostRecentDeclaration)

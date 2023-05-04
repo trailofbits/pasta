@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterIFuncAttr(py::module_ &m) {
   py::class_<IFuncAttr, Attr>(m, "IFuncAttr")
+    .def("__hash__", [](const IFuncAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const IFuncAttr& a, const IFuncAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Resolver", &IFuncAttr::Resolver)
     .def_property_readonly("ResolverLength", &IFuncAttr::ResolverLength)
     .def_property_readonly("Spelling", &IFuncAttr::Spelling);

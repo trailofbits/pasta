@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterNullStmt(py::module_ &m) {
   py::class_<NullStmt, Stmt>(m, "NullStmt")
+    .def("__hash__", [](const NullStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const NullStmt& a, const NullStmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &NullStmt::Children)
     .def_property_readonly("BeginToken", &NullStmt::BeginToken)
     .def_property_readonly("EndToken", &NullStmt::EndToken)

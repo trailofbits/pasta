@@ -16,6 +16,8 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterObjCAtDefsFieldDecl(py::module_ &m) {
-  py::class_<ObjCAtDefsFieldDecl, Decl, DeclaratorDecl, FieldDecl, NamedDecl, ValueDecl>(m, "ObjCAtDefsFieldDecl");
+  py::class_<ObjCAtDefsFieldDecl, Decl, DeclaratorDecl, FieldDecl, NamedDecl, ValueDecl>(m, "ObjCAtDefsFieldDecl")
+    .def("__hash__", [](const ObjCAtDefsFieldDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const ObjCAtDefsFieldDecl& a, const ObjCAtDefsFieldDecl& b) { return a.RawDecl() == b.RawDecl(); });
 }
 } // namespace pasta

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterOMPAllocateDecl(py::module_ &m) {
   py::class_<OMPAllocateDecl, Decl, OMPDeclarativeDirectiveDecl>(m, "OMPAllocateDecl")
+    .def("__hash__", [](const OMPAllocateDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const OMPAllocateDecl& a, const OMPAllocateDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("Varlists", &OMPAllocateDecl::Varlists);
 }
 } // namespace pasta

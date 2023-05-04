@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterObjCAtSynchronizedStmt(py::module_ &m) {
   py::class_<ObjCAtSynchronizedStmt, Stmt>(m, "ObjCAtSynchronizedStmt")
+    .def("__hash__", [](const ObjCAtSynchronizedStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const ObjCAtSynchronizedStmt& a, const ObjCAtSynchronizedStmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ObjCAtSynchronizedStmt::Children)
     .def_property_readonly("AtSynchronizedToken", &ObjCAtSynchronizedStmt::AtSynchronizedToken)
     .def_property_readonly("BeginToken", &ObjCAtSynchronizedStmt::BeginToken)

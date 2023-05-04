@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterMatrixType(py::module_ &m) {
   py::class_<MatrixType, Type>(m, "MatrixType")
+    .def("__hash__", [](const MatrixType& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const MatrixType& a, const MatrixType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &MatrixType::Desugar)
     .def_property_readonly("ElementType", &MatrixType::ElementType)
     .def_property_readonly("IsSugared", &MatrixType::IsSugared);

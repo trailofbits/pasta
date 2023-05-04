@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterMSVtorDispAttr(py::module_ &m) {
   py::class_<MSVtorDispAttr, Attr, InheritableAttr>(m, "MSVtorDispAttr")
+    .def("__hash__", [](const MSVtorDispAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const MSVtorDispAttr& a, const MSVtorDispAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &MSVtorDispAttr::Spelling)
     .def_property_readonly("Vdm", &MSVtorDispAttr::Vdm)
     .def_property_readonly("VtorDispMode", &MSVtorDispAttr::VtorDispMode);

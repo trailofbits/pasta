@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterAlignMac68kAttr(py::module_ &m) {
   py::class_<AlignMac68kAttr, Attr, InheritableAttr>(m, "AlignMac68kAttr")
+    .def("__hash__", [](const AlignMac68kAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const AlignMac68kAttr& a, const AlignMac68kAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &AlignMac68kAttr::Spelling);
 }
 } // namespace pasta

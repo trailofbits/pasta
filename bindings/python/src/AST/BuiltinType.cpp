@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterBuiltinType(py::module_ &m) {
   py::class_<BuiltinType, Type>(m, "BuiltinType")
+    .def("__hash__", [](const BuiltinType& type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const BuiltinType& a, const BuiltinType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &BuiltinType::Desugar)
     .def_property_readonly("Kind", &BuiltinType::Kind)
     .def_property_readonly("IsFloatingPoint", &BuiltinType::IsFloatingPoint)

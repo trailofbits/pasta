@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterMemberExpr(py::module_ &m) {
   py::class_<MemberExpr, Expr, Stmt, ValueStmt>(m, "MemberExpr")
+    .def("__hash__", [](const MemberExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const MemberExpr& a, const MemberExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &MemberExpr::Children)
     .def_property_readonly("Base", &MemberExpr::Base)
     .def_property_readonly("BeginToken", &MemberExpr::BeginToken)

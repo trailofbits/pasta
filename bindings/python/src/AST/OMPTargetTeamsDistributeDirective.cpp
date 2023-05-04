@@ -16,6 +16,8 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterOMPTargetTeamsDistributeDirective(py::module_ &m) {
-  py::class_<OMPTargetTeamsDistributeDirective, OMPExecutableDirective, OMPLoopBasedDirective, OMPLoopDirective, Stmt>(m, "OMPTargetTeamsDistributeDirective");
+  py::class_<OMPTargetTeamsDistributeDirective, OMPExecutableDirective, OMPLoopBasedDirective, OMPLoopDirective, Stmt>(m, "OMPTargetTeamsDistributeDirective")
+    .def("__hash__", [](const OMPTargetTeamsDistributeDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const OMPTargetTeamsDistributeDirective& a, const OMPTargetTeamsDistributeDirective& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

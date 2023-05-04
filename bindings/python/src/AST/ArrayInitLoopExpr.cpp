@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterArrayInitLoopExpr(py::module_ &m) {
   py::class_<ArrayInitLoopExpr, Expr, Stmt, ValueStmt>(m, "ArrayInitLoopExpr")
+    .def("__hash__", [](const ArrayInitLoopExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const ArrayInitLoopExpr& a, const ArrayInitLoopExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ArrayInitLoopExpr::Children)
     .def_property_readonly("ArraySize", &ArrayInitLoopExpr::ArraySize)
     .def_property_readonly("BeginToken", &ArrayInitLoopExpr::BeginToken)

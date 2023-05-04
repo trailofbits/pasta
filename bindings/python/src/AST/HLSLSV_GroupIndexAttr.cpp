@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterHLSLSV_GroupIndexAttr(py::module_ &m) {
   py::class_<HLSLSV_GroupIndexAttr, Attr, HLSLAnnotationAttr, InheritableAttr>(m, "HLSLSV_GroupIndexAttr")
+    .def("__hash__", [](const HLSLSV_GroupIndexAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const HLSLSV_GroupIndexAttr& a, const HLSLSV_GroupIndexAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &HLSLSV_GroupIndexAttr::Spelling);
 }
 } // namespace pasta

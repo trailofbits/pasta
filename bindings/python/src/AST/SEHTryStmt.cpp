@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterSEHTryStmt(py::module_ &m) {
   py::class_<SEHTryStmt, Stmt>(m, "SEHTryStmt")
+    .def("__hash__", [](const SEHTryStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const SEHTryStmt& a, const SEHTryStmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &SEHTryStmt::Children)
     .def_property_readonly("BeginToken", &SEHTryStmt::BeginToken)
     .def_property_readonly("EndToken", &SEHTryStmt::EndToken)

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterTypeAliasTemplateDecl(py::module_ &m) {
   py::class_<TypeAliasTemplateDecl, Decl, NamedDecl, RedeclarableTemplateDecl, TemplateDecl>(m, "TypeAliasTemplateDecl")
+    .def("__hash__", [](const TypeAliasTemplateDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const TypeAliasTemplateDecl& a, const TypeAliasTemplateDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("CanonicalDeclaration", &TypeAliasTemplateDecl::CanonicalDeclaration)
     .def_property_readonly("InstantiatedFromMemberTemplate", &TypeAliasTemplateDecl::InstantiatedFromMemberTemplate)
     .def_property_readonly("PreviousDeclaration", &TypeAliasTemplateDecl::PreviousDeclaration)

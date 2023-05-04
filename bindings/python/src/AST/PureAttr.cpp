@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterPureAttr(py::module_ &m) {
   py::class_<PureAttr, Attr, InheritableAttr>(m, "PureAttr")
+    .def("__hash__", [](const PureAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const PureAttr& a, const PureAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &PureAttr::Spelling);
 }
 } // namespace pasta

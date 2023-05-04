@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterCapabilityAttr(py::module_ &m) {
   py::class_<CapabilityAttr, Attr, InheritableAttr>(m, "CapabilityAttr")
+    .def("__hash__", [](const CapabilityAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const CapabilityAttr& a, const CapabilityAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Name", &CapabilityAttr::Name)
     .def_property_readonly("NameLength", &CapabilityAttr::NameLength)
     .def_property_readonly("SemanticSpelling", &CapabilityAttr::SemanticSpelling)

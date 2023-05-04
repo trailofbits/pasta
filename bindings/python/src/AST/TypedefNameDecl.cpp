@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterTypedefNameDecl(py::module_ &m) {
   py::class_<TypedefNameDecl, Decl, NamedDecl, TypeDecl>(m, "TypedefNameDecl")
+    .def("__hash__", [](const TypedefNameDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const TypedefNameDecl& a, const TypedefNameDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("AnonymousDeclarationWithTypedefName", &TypedefNameDecl::AnonymousDeclarationWithTypedefName)
     .def_property_readonly("CanonicalDeclaration", &TypedefNameDecl::CanonicalDeclaration)
     .def_property_readonly("Type", &TypedefNameDecl::Type)

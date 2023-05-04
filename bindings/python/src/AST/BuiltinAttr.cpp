@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterBuiltinAttr(py::module_ &m) {
   py::class_<BuiltinAttr, Attr, InheritableAttr>(m, "BuiltinAttr")
+    .def("__hash__", [](const BuiltinAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const BuiltinAttr& a, const BuiltinAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("ID", &BuiltinAttr::ID)
     .def_property_readonly("Spelling", &BuiltinAttr::Spelling);
 }

@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterOMPThreadPrivateDeclAttr(py::module_ &m) {
   py::class_<OMPThreadPrivateDeclAttr, Attr, InheritableAttr>(m, "OMPThreadPrivateDeclAttr")
+    .def("__hash__", [](const OMPThreadPrivateDeclAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const OMPThreadPrivateDeclAttr& a, const OMPThreadPrivateDeclAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &OMPThreadPrivateDeclAttr::Spelling);
 }
 } // namespace pasta

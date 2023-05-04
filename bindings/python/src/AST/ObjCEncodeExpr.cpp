@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterObjCEncodeExpr(py::module_ &m) {
   py::class_<ObjCEncodeExpr, Expr, Stmt, ValueStmt>(m, "ObjCEncodeExpr")
+    .def("__hash__", [](const ObjCEncodeExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const ObjCEncodeExpr& a, const ObjCEncodeExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ObjCEncodeExpr::Children)
     .def_property_readonly("AtToken", &ObjCEncodeExpr::AtToken)
     .def_property_readonly("BeginToken", &ObjCEncodeExpr::BeginToken)

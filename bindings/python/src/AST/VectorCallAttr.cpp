@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterVectorCallAttr(py::module_ &m) {
   py::class_<VectorCallAttr, Attr, InheritableAttr>(m, "VectorCallAttr")
+    .def("__hash__", [](const VectorCallAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const VectorCallAttr& a, const VectorCallAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &VectorCallAttr::Spelling);
 }
 } // namespace pasta

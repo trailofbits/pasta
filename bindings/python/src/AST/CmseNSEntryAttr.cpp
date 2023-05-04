@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterCmseNSEntryAttr(py::module_ &m) {
   py::class_<CmseNSEntryAttr, Attr, InheritableAttr>(m, "CmseNSEntryAttr")
+    .def("__hash__", [](const CmseNSEntryAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const CmseNSEntryAttr& a, const CmseNSEntryAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &CmseNSEntryAttr::Spelling);
 }
 } // namespace pasta

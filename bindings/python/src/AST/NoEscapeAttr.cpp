@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterNoEscapeAttr(py::module_ &m) {
   py::class_<NoEscapeAttr, Attr>(m, "NoEscapeAttr")
+    .def("__hash__", [](const NoEscapeAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const NoEscapeAttr& a, const NoEscapeAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &NoEscapeAttr::Spelling);
 }
 } // namespace pasta

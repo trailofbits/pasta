@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterVarDecl(py::module_ &m) {
   py::class_<VarDecl, Decl, DeclaratorDecl, NamedDecl, ValueDecl>(m, "VarDecl")
+    .def("__hash__", [](const VarDecl& decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const VarDecl& a, const VarDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("ActingDefinition", &VarDecl::ActingDefinition)
     .def_property_readonly("CanonicalDeclaration", &VarDecl::CanonicalDeclaration)
     .def_property_readonly("DescribedVariableTemplate", &VarDecl::DescribedVariableTemplate)

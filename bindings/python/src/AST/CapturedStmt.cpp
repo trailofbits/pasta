@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterCapturedStmt(py::module_ &m) {
   py::class_<CapturedStmt, Stmt>(m, "CapturedStmt")
+    .def("__hash__", [](const CapturedStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const CapturedStmt& a, const CapturedStmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &CapturedStmt::Children)
     .def_property_readonly("BeginToken", &CapturedStmt::BeginToken)
     .def_property_readonly("CapturedDeclaration", &CapturedStmt::CapturedDeclaration)

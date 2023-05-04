@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterOMPArrayShapingExpr(py::module_ &m) {
   py::class_<OMPArrayShapingExpr, Expr, Stmt, ValueStmt>(m, "OMPArrayShapingExpr")
+    .def("__hash__", [](const OMPArrayShapingExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const OMPArrayShapingExpr& a, const OMPArrayShapingExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &OMPArrayShapingExpr::Children)
     .def_property_readonly("Base", &OMPArrayShapingExpr::Base)
     .def_property_readonly("BeginToken", &OMPArrayShapingExpr::BeginToken)

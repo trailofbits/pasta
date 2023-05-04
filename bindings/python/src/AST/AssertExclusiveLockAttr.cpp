@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterAssertExclusiveLockAttr(py::module_ &m) {
   py::class_<AssertExclusiveLockAttr, Attr, InheritableAttr>(m, "AssertExclusiveLockAttr")
+    .def("__hash__", [](const AssertExclusiveLockAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const AssertExclusiveLockAttr& a, const AssertExclusiveLockAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &AssertExclusiveLockAttr::Spelling);
 }
 } // namespace pasta

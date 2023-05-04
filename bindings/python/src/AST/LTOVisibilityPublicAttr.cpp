@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterLTOVisibilityPublicAttr(py::module_ &m) {
   py::class_<LTOVisibilityPublicAttr, Attr, InheritableAttr>(m, "LTOVisibilityPublicAttr")
+    .def("__hash__", [](const LTOVisibilityPublicAttr& attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const LTOVisibilityPublicAttr& a, const LTOVisibilityPublicAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &LTOVisibilityPublicAttr::Spelling);
 }
 } // namespace pasta

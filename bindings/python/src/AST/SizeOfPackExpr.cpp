@@ -17,6 +17,8 @@ namespace py = pybind11;
 
 void RegisterSizeOfPackExpr(py::module_ &m) {
   py::class_<SizeOfPackExpr, Expr, Stmt, ValueStmt>(m, "SizeOfPackExpr")
+    .def("__hash__", [](const SizeOfPackExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
+    .def("__eq__", [](const SizeOfPackExpr& a, const SizeOfPackExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &SizeOfPackExpr::Children)
     .def_property_readonly("BeginToken", &SizeOfPackExpr::BeginToken)
     .def_property_readonly("EndToken", &SizeOfPackExpr::EndToken)

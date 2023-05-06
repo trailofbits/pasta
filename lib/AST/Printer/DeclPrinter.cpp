@@ -21,16 +21,27 @@ class PrintedTokenRangeImpl;
 void Decl_printGroup(clang::Decl** Begin, size_t NumDecls,
                      raw_string_ostream &Out, const clang::PrintingPolicy &Policy,
                      unsigned Indentation, PrintedTokenRangeImpl &tokens) {
+  if (!NumDecls) {
+    return;
+  }
+
+  clang::Decl** End = Begin + NumDecls;
+  clang::TagDecl* TD = clang::dyn_cast<clang::TagDecl>(*Begin);
+  clang::PrintingPolicy SubPolicy(Policy);
+
   if (NumDecls == 1) {
-    DeclPrinter Printer(Out, Policy,  (*Begin)->getASTContext(), tokens, Indentation);
+    if(TD)
+      SubPolicy.IncludeTagDefinition = true;
+
+    DeclPrinter Printer(Out, SubPolicy,  (*Begin)->getASTContext(), tokens,
+                        Indentation);
     Printer.Visit((*Begin));
     return;
   }
-  clang::Decl** End = Begin + NumDecls;
-  clang::TagDecl* TD = clang::dyn_cast<clang::TagDecl>(*Begin);
+
   if (TD)
     ++Begin;
-  clang::PrintingPolicy SubPolicy(Policy);
+
   bool isFirst = true;
   for ( ; Begin != End; ++Begin) {
     if (isFirst) {
@@ -43,7 +54,8 @@ void Decl_printGroup(clang::Decl** Begin, size_t NumDecls,
       SubPolicy.IncludeTagDefinition = false;
       SubPolicy.SuppressSpecifiers = true;
     }
-    DeclPrinter Printer(Out, SubPolicy,  (*Begin)->getASTContext(), tokens, Indentation);
+    DeclPrinter Printer(Out, SubPolicy,  (*Begin)->getASTContext(), tokens,
+                        Indentation);
     Printer.Visit((*Begin));
   }
 }

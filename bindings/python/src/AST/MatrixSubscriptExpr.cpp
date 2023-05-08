@@ -19,14 +19,14 @@ void RegisterMatrixSubscriptExpr(py::module_ &m) {
   py::class_<MatrixSubscriptExpr, Expr>(m, "MatrixSubscriptExpr")
     .def("__hash__", [](const MatrixSubscriptExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const MatrixSubscriptExpr& a, const MatrixSubscriptExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &MatrixSubscriptExpr::Children)
-    .def_property_readonly("Base", &MatrixSubscriptExpr::Base)
-    .def_property_readonly("BeginToken", &MatrixSubscriptExpr::BeginToken)
-    .def_property_readonly("ColumnIndex", &MatrixSubscriptExpr::ColumnIndex)
-    .def_property_readonly("EndToken", &MatrixSubscriptExpr::EndToken)
-    .def_property_readonly("ExpressionToken", &MatrixSubscriptExpr::ExpressionToken)
-    .def_property_readonly("RBracketToken", &MatrixSubscriptExpr::RBracketToken)
-    .def_property_readonly("RowIndex", &MatrixSubscriptExpr::RowIndex)
-    .def_property_readonly("IsIncomplete", &MatrixSubscriptExpr::IsIncomplete);
+    .def_property_readonly("children", &MatrixSubscriptExpr::Children)
+    .def_property_readonly("base", &MatrixSubscriptExpr::Base)
+    .def_property_readonly("begin_token", &MatrixSubscriptExpr::BeginToken)
+    .def_property_readonly("column_index", &MatrixSubscriptExpr::ColumnIndex)
+    .def_property_readonly("end_token", &MatrixSubscriptExpr::EndToken)
+    .def_property_readonly("expression_token", &MatrixSubscriptExpr::ExpressionToken)
+    .def_property_readonly("r_bracket_token", &MatrixSubscriptExpr::RBracketToken)
+    .def_property_readonly("row_index", &MatrixSubscriptExpr::RowIndex)
+    .def_property_readonly("is_incomplete", &MatrixSubscriptExpr::IsIncomplete);
 }
 } // namespace pasta

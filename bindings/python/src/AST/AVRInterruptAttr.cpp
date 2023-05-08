@@ -19,6 +19,6 @@ void RegisterAVRInterruptAttr(py::module_ &m) {
   py::class_<AVRInterruptAttr, InheritableAttr>(m, "AVRInterruptAttr")
     .def("__hash__", [](const AVRInterruptAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const AVRInterruptAttr& a, const AVRInterruptAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &AVRInterruptAttr::Spelling);
+    .def_property_readonly("spelling", &AVRInterruptAttr::Spelling);
 }
 } // namespace pasta

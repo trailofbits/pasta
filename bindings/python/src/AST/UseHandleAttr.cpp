@@ -19,8 +19,8 @@ void RegisterUseHandleAttr(py::module_ &m) {
   py::class_<UseHandleAttr, InheritableParamAttr>(m, "UseHandleAttr")
     .def("__hash__", [](const UseHandleAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const UseHandleAttr& a, const UseHandleAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("HandleType", &UseHandleAttr::HandleType)
-    .def_property_readonly("HandleTypeLength", &UseHandleAttr::HandleTypeLength)
-    .def_property_readonly("Spelling", &UseHandleAttr::Spelling);
+    .def_property_readonly("handle_type", &UseHandleAttr::HandleType)
+    .def_property_readonly("handle_type_length", &UseHandleAttr::HandleTypeLength)
+    .def_property_readonly("spelling", &UseHandleAttr::Spelling);
 }
 } // namespace pasta

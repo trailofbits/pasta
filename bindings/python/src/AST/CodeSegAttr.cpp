@@ -19,8 +19,8 @@ void RegisterCodeSegAttr(py::module_ &m) {
   py::class_<CodeSegAttr, InheritableAttr>(m, "CodeSegAttr")
     .def("__hash__", [](const CodeSegAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const CodeSegAttr& a, const CodeSegAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Name", &CodeSegAttr::Name)
-    .def_property_readonly("NameLength", &CodeSegAttr::NameLength)
-    .def_property_readonly("Spelling", &CodeSegAttr::Spelling);
+    .def_property_readonly("name", &CodeSegAttr::Name)
+    .def_property_readonly("name_length", &CodeSegAttr::NameLength)
+    .def_property_readonly("spelling", &CodeSegAttr::Spelling);
 }
 } // namespace pasta

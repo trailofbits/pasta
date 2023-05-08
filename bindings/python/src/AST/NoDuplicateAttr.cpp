@@ -19,6 +19,6 @@ void RegisterNoDuplicateAttr(py::module_ &m) {
   py::class_<NoDuplicateAttr, InheritableAttr>(m, "NoDuplicateAttr")
     .def("__hash__", [](const NoDuplicateAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const NoDuplicateAttr& a, const NoDuplicateAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &NoDuplicateAttr::Spelling);
+    .def_property_readonly("spelling", &NoDuplicateAttr::Spelling);
 }
 } // namespace pasta

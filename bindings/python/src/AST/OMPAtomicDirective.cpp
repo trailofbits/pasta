@@ -19,15 +19,15 @@ void RegisterOMPAtomicDirective(py::module_ &m) {
   py::class_<OMPAtomicDirective, OMPExecutableDirective>(m, "OMPAtomicDirective")
     .def("__hash__", [](const OMPAtomicDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OMPAtomicDirective& a, const OMPAtomicDirective& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("ConditionExpression", &OMPAtomicDirective::ConditionExpression)
-    .def_property_readonly("D", &OMPAtomicDirective::D)
-    .def_property_readonly("Expression", &OMPAtomicDirective::Expression)
-    .def_property_readonly("R", &OMPAtomicDirective::R)
-    .def_property_readonly("UpdateExpression", &OMPAtomicDirective::UpdateExpression)
-    .def_property_readonly("V", &OMPAtomicDirective::V)
-    .def_property_readonly("X", &OMPAtomicDirective::X)
-    .def_property_readonly("IsFailOnly", &OMPAtomicDirective::IsFailOnly)
-    .def_property_readonly("IsPostfixUpdate", &OMPAtomicDirective::IsPostfixUpdate)
-    .def_property_readonly("IsXLHSInRHSPart", &OMPAtomicDirective::IsXLHSInRHSPart);
+    .def_property_readonly("condition_expression", &OMPAtomicDirective::ConditionExpression)
+    .def_property_readonly("d", &OMPAtomicDirective::D)
+    .def_property_readonly("expression", &OMPAtomicDirective::Expression)
+    .def_property_readonly("r", &OMPAtomicDirective::R)
+    .def_property_readonly("update_expression", &OMPAtomicDirective::UpdateExpression)
+    .def_property_readonly("v", &OMPAtomicDirective::V)
+    .def_property_readonly("x", &OMPAtomicDirective::X)
+    .def_property_readonly("is_fail_only", &OMPAtomicDirective::IsFailOnly)
+    .def_property_readonly("is_postfix_update", &OMPAtomicDirective::IsPostfixUpdate)
+    .def_property_readonly("is_xlhs_in_rhs_part", &OMPAtomicDirective::IsXLHSInRHSPart);
 }
 } // namespace pasta

@@ -19,6 +19,6 @@ void RegisterNSReturnsNotRetainedAttr(py::module_ &m) {
   py::class_<NSReturnsNotRetainedAttr, InheritableAttr>(m, "NSReturnsNotRetainedAttr")
     .def("__hash__", [](const NSReturnsNotRetainedAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const NSReturnsNotRetainedAttr& a, const NSReturnsNotRetainedAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &NSReturnsNotRetainedAttr::Spelling);
+    .def_property_readonly("spelling", &NSReturnsNotRetainedAttr::Spelling);
 }
 } // namespace pasta

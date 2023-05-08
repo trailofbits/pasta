@@ -19,6 +19,6 @@ void RegisterObjCRequiresSuperAttr(py::module_ &m) {
   py::class_<ObjCRequiresSuperAttr, InheritableAttr>(m, "ObjCRequiresSuperAttr")
     .def("__hash__", [](const ObjCRequiresSuperAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ObjCRequiresSuperAttr& a, const ObjCRequiresSuperAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &ObjCRequiresSuperAttr::Spelling);
+    .def_property_readonly("spelling", &ObjCRequiresSuperAttr::Spelling);
 }
 } // namespace pasta

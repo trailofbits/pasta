@@ -19,10 +19,10 @@ void RegisterObjCAtThrowStmt(py::module_ &m) {
   py::class_<ObjCAtThrowStmt, Stmt>(m, "ObjCAtThrowStmt")
     .def("__hash__", [](const ObjCAtThrowStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ObjCAtThrowStmt& a, const ObjCAtThrowStmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &ObjCAtThrowStmt::Children)
-    .def_property_readonly("BeginToken", &ObjCAtThrowStmt::BeginToken)
-    .def_property_readonly("EndToken", &ObjCAtThrowStmt::EndToken)
-    .def_property_readonly("ThrowExpression", &ObjCAtThrowStmt::ThrowExpression)
-    .def_property_readonly("ThrowToken", &ObjCAtThrowStmt::ThrowToken);
+    .def_property_readonly("children", &ObjCAtThrowStmt::Children)
+    .def_property_readonly("begin_token", &ObjCAtThrowStmt::BeginToken)
+    .def_property_readonly("end_token", &ObjCAtThrowStmt::EndToken)
+    .def_property_readonly("throw_expression", &ObjCAtThrowStmt::ThrowExpression)
+    .def_property_readonly("throw_token", &ObjCAtThrowStmt::ThrowToken);
 }
 } // namespace pasta

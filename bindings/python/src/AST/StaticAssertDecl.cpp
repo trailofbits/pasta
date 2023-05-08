@@ -19,9 +19,9 @@ void RegisterStaticAssertDecl(py::module_ &m) {
   py::class_<StaticAssertDecl, Decl>(m, "StaticAssertDecl")
     .def("__hash__", [](const StaticAssertDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const StaticAssertDecl& a, const StaticAssertDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("AssertExpression", &StaticAssertDecl::AssertExpression)
-    .def_property_readonly("Message", &StaticAssertDecl::Message)
-    .def_property_readonly("RParenToken", &StaticAssertDecl::RParenToken)
-    .def_property_readonly("IsFailed", &StaticAssertDecl::IsFailed);
+    .def_property_readonly("assert_expression", &StaticAssertDecl::AssertExpression)
+    .def_property_readonly("message", &StaticAssertDecl::Message)
+    .def_property_readonly("r_paren_token", &StaticAssertDecl::RParenToken)
+    .def_property_readonly("is_failed", &StaticAssertDecl::IsFailed);
 }
 } // namespace pasta

@@ -19,15 +19,15 @@ void RegisterMSAsmStmt(py::module_ &m) {
   py::class_<MSAsmStmt, AsmStmt>(m, "MSAsmStmt")
     .def("__hash__", [](const MSAsmStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const MSAsmStmt& a, const MSAsmStmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &MSAsmStmt::Children)
-    .def("GenerateAssemblyString", &MSAsmStmt::GenerateAssemblyString)
-    .def_property_readonly("AllConstraints", &MSAsmStmt::AllConstraints)
-    .def_property_readonly("AllExpressions", &MSAsmStmt::AllExpressions)
-    .def_property_readonly("AssemblyString", &MSAsmStmt::AssemblyString)
-    .def_property_readonly("BeginToken", &MSAsmStmt::BeginToken)
-    .def_property_readonly("Clobbers", &MSAsmStmt::Clobbers)
-    .def_property_readonly("EndToken", &MSAsmStmt::EndToken)
-    .def_property_readonly("LBraceToken", &MSAsmStmt::LBraceToken)
-    .def_property_readonly("HasBraces", &MSAsmStmt::HasBraces);
+    .def_property_readonly("children", &MSAsmStmt::Children)
+    .def("generate_assembly_string", &MSAsmStmt::GenerateAssemblyString)
+    .def_property_readonly("all_constraints", &MSAsmStmt::AllConstraints)
+    .def_property_readonly("all_expressions", &MSAsmStmt::AllExpressions)
+    .def_property_readonly("assembly_string", &MSAsmStmt::AssemblyString)
+    .def_property_readonly("begin_token", &MSAsmStmt::BeginToken)
+    .def_property_readonly("clobbers", &MSAsmStmt::Clobbers)
+    .def_property_readonly("end_token", &MSAsmStmt::EndToken)
+    .def_property_readonly("l_brace_token", &MSAsmStmt::LBraceToken)
+    .def_property_readonly("has_braces", &MSAsmStmt::HasBraces);
 }
 } // namespace pasta

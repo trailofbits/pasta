@@ -19,6 +19,6 @@ void RegisterHLSLGroupSharedAddressSpaceAttr(py::module_ &m) {
   py::class_<HLSLGroupSharedAddressSpaceAttr, TypeAttr>(m, "HLSLGroupSharedAddressSpaceAttr")
     .def("__hash__", [](const HLSLGroupSharedAddressSpaceAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const HLSLGroupSharedAddressSpaceAttr& a, const HLSLGroupSharedAddressSpaceAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &HLSLGroupSharedAddressSpaceAttr::Spelling);
+    .def_property_readonly("spelling", &HLSLGroupSharedAddressSpaceAttr::Spelling);
 }
 } // namespace pasta

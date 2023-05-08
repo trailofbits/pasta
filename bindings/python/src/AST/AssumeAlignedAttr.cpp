@@ -19,8 +19,8 @@ void RegisterAssumeAlignedAttr(py::module_ &m) {
   py::class_<AssumeAlignedAttr, InheritableAttr>(m, "AssumeAlignedAttr")
     .def("__hash__", [](const AssumeAlignedAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const AssumeAlignedAttr& a, const AssumeAlignedAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Alignment", &AssumeAlignedAttr::Alignment)
-    .def_property_readonly("Offset", &AssumeAlignedAttr::Offset)
-    .def_property_readonly("Spelling", &AssumeAlignedAttr::Spelling);
+    .def_property_readonly("alignment", &AssumeAlignedAttr::Alignment)
+    .def_property_readonly("offset", &AssumeAlignedAttr::Offset)
+    .def_property_readonly("spelling", &AssumeAlignedAttr::Spelling);
 }
 } // namespace pasta

@@ -19,7 +19,7 @@ void RegisterNoInlineAttr(py::module_ &m) {
   py::class_<NoInlineAttr, DeclOrStmtAttr>(m, "NoInlineAttr")
     .def("__hash__", [](const NoInlineAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const NoInlineAttr& a, const NoInlineAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &NoInlineAttr::Spelling)
-    .def_property_readonly("IsClangNoInline", &NoInlineAttr::IsClangNoInline);
+    .def_property_readonly("spelling", &NoInlineAttr::Spelling)
+    .def_property_readonly("is_clang_no_inline", &NoInlineAttr::IsClangNoInline);
 }
 } // namespace pasta

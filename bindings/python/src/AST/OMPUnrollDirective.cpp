@@ -19,7 +19,7 @@ void RegisterOMPUnrollDirective(py::module_ &m) {
   py::class_<OMPUnrollDirective, OMPLoopTransformationDirective>(m, "OMPUnrollDirective")
     .def("__hash__", [](const OMPUnrollDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OMPUnrollDirective& a, const OMPUnrollDirective& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("PreInitializers", &OMPUnrollDirective::PreInitializers)
-    .def_property_readonly("TransformedStatement", &OMPUnrollDirective::TransformedStatement);
+    .def_property_readonly("pre_initializers", &OMPUnrollDirective::PreInitializers)
+    .def_property_readonly("transformed_statement", &OMPUnrollDirective::TransformedStatement);
 }
 } // namespace pasta

@@ -19,9 +19,9 @@ void RegisterMacroQualifiedType(py::module_ &m) {
   py::class_<MacroQualifiedType, Type>(m, "MacroQualifiedType")
     .def("__hash__", [](const MacroQualifiedType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const MacroQualifiedType& a, const MacroQualifiedType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &MacroQualifiedType::Desugar)
-    .def_property_readonly("ModifiedType", &MacroQualifiedType::ModifiedType)
-    .def_property_readonly("UnderlyingType", &MacroQualifiedType::UnderlyingType)
-    .def_property_readonly("IsSugared", &MacroQualifiedType::IsSugared);
+    .def_property_readonly("desugar", &MacroQualifiedType::Desugar)
+    .def_property_readonly("modified_type", &MacroQualifiedType::ModifiedType)
+    .def_property_readonly("underlying_type", &MacroQualifiedType::UnderlyingType)
+    .def_property_readonly("is_sugared", &MacroQualifiedType::IsSugared);
 }
 } // namespace pasta

@@ -19,8 +19,8 @@ void RegisterPreferredNameAttr(py::module_ &m) {
   py::class_<PreferredNameAttr, InheritableAttr>(m, "PreferredNameAttr")
     .def("__hash__", [](const PreferredNameAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const PreferredNameAttr& a, const PreferredNameAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &PreferredNameAttr::Spelling)
-    .def_property_readonly("TypedefType", &PreferredNameAttr::TypedefType)
-    .def_property_readonly("TypedefTypeToken", &PreferredNameAttr::TypedefTypeToken);
+    .def_property_readonly("spelling", &PreferredNameAttr::Spelling)
+    .def_property_readonly("typedef_type", &PreferredNameAttr::TypedefType)
+    .def_property_readonly("typedef_type_token", &PreferredNameAttr::TypedefTypeToken);
 }
 } // namespace pasta

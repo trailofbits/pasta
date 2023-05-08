@@ -19,14 +19,14 @@ void RegisterNamespaceDecl(py::module_ &m) {
   py::class_<NamespaceDecl, NamedDecl>(m, "NamespaceDecl")
     .def("__hash__", [](const NamespaceDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const NamespaceDecl& a, const NamespaceDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("AnonymousNamespace", &NamespaceDecl::AnonymousNamespace)
-    .def_property_readonly("BeginToken", &NamespaceDecl::BeginToken)
-    .def_property_readonly("CanonicalDeclaration", &NamespaceDecl::CanonicalDeclaration)
-    .def_property_readonly("OriginalNamespace", &NamespaceDecl::OriginalNamespace)
-    .def_property_readonly("RBraceToken", &NamespaceDecl::RBraceToken)
-    .def_property_readonly("IsAnonymousNamespace", &NamespaceDecl::IsAnonymousNamespace)
-    .def_property_readonly("IsInline", &NamespaceDecl::IsInline)
-    .def_property_readonly("IsNested", &NamespaceDecl::IsNested)
-    .def_property_readonly("IsOriginalNamespace", &NamespaceDecl::IsOriginalNamespace);
+    .def_property_readonly("anonymous_namespace", &NamespaceDecl::AnonymousNamespace)
+    .def_property_readonly("begin_token", &NamespaceDecl::BeginToken)
+    .def_property_readonly("canonical_declaration", &NamespaceDecl::CanonicalDeclaration)
+    .def_property_readonly("original_namespace", &NamespaceDecl::OriginalNamespace)
+    .def_property_readonly("r_brace_token", &NamespaceDecl::RBraceToken)
+    .def_property_readonly("is_anonymous_namespace", &NamespaceDecl::IsAnonymousNamespace)
+    .def_property_readonly("is_inline", &NamespaceDecl::IsInline)
+    .def_property_readonly("is_nested", &NamespaceDecl::IsNested)
+    .def_property_readonly("is_original_namespace", &NamespaceDecl::IsOriginalNamespace);
 }
 } // namespace pasta

@@ -19,14 +19,14 @@ void RegisterObjCIsaExpr(py::module_ &m) {
   py::class_<ObjCIsaExpr, Expr>(m, "ObjCIsaExpr")
     .def("__hash__", [](const ObjCIsaExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ObjCIsaExpr& a, const ObjCIsaExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &ObjCIsaExpr::Children)
-    .def_property_readonly("Base", &ObjCIsaExpr::Base)
-    .def_property_readonly("BaseTokenEnd", &ObjCIsaExpr::BaseTokenEnd)
-    .def_property_readonly("BeginToken", &ObjCIsaExpr::BeginToken)
-    .def_property_readonly("EndToken", &ObjCIsaExpr::EndToken)
-    .def_property_readonly("ExpressionToken", &ObjCIsaExpr::ExpressionToken)
-    .def_property_readonly("IsaMemberToken", &ObjCIsaExpr::IsaMemberToken)
-    .def_property_readonly("OperationToken", &ObjCIsaExpr::OperationToken)
-    .def_property_readonly("IsArrow", &ObjCIsaExpr::IsArrow);
+    .def_property_readonly("children", &ObjCIsaExpr::Children)
+    .def_property_readonly("base", &ObjCIsaExpr::Base)
+    .def_property_readonly("base_token_end", &ObjCIsaExpr::BaseTokenEnd)
+    .def_property_readonly("begin_token", &ObjCIsaExpr::BeginToken)
+    .def_property_readonly("end_token", &ObjCIsaExpr::EndToken)
+    .def_property_readonly("expression_token", &ObjCIsaExpr::ExpressionToken)
+    .def_property_readonly("isa_member_token", &ObjCIsaExpr::IsaMemberToken)
+    .def_property_readonly("operation_token", &ObjCIsaExpr::OperationToken)
+    .def_property_readonly("is_arrow", &ObjCIsaExpr::IsArrow);
 }
 } // namespace pasta

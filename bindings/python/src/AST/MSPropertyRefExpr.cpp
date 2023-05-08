@@ -19,14 +19,14 @@ void RegisterMSPropertyRefExpr(py::module_ &m) {
   py::class_<MSPropertyRefExpr, Expr>(m, "MSPropertyRefExpr")
     .def("__hash__", [](const MSPropertyRefExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const MSPropertyRefExpr& a, const MSPropertyRefExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &MSPropertyRefExpr::Children)
-    .def_property_readonly("BaseExpression", &MSPropertyRefExpr::BaseExpression)
-    .def_property_readonly("BeginToken", &MSPropertyRefExpr::BeginToken)
-    .def_property_readonly("EndToken", &MSPropertyRefExpr::EndToken)
-    .def_property_readonly("MemberToken", &MSPropertyRefExpr::MemberToken)
-    .def_property_readonly("PropertyDeclaration", &MSPropertyRefExpr::PropertyDeclaration)
-    .def_property_readonly("Tokens", &MSPropertyRefExpr::Tokens)
-    .def_property_readonly("IsArrow", &MSPropertyRefExpr::IsArrow)
-    .def_property_readonly("IsImplicitAccess", &MSPropertyRefExpr::IsImplicitAccess);
+    .def_property_readonly("children", &MSPropertyRefExpr::Children)
+    .def_property_readonly("base_expression", &MSPropertyRefExpr::BaseExpression)
+    .def_property_readonly("begin_token", &MSPropertyRefExpr::BeginToken)
+    .def_property_readonly("end_token", &MSPropertyRefExpr::EndToken)
+    .def_property_readonly("member_token", &MSPropertyRefExpr::MemberToken)
+    .def_property_readonly("property_declaration", &MSPropertyRefExpr::PropertyDeclaration)
+    .def_property_readonly("tokens", &MSPropertyRefExpr::Tokens)
+    .def_property_readonly("is_arrow", &MSPropertyRefExpr::IsArrow)
+    .def_property_readonly("is_implicit_access", &MSPropertyRefExpr::IsImplicitAccess);
 }
 } // namespace pasta

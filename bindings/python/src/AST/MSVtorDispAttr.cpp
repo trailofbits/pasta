@@ -19,8 +19,8 @@ void RegisterMSVtorDispAttr(py::module_ &m) {
   py::class_<MSVtorDispAttr, InheritableAttr>(m, "MSVtorDispAttr")
     .def("__hash__", [](const MSVtorDispAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const MSVtorDispAttr& a, const MSVtorDispAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &MSVtorDispAttr::Spelling)
-    .def_property_readonly("Vdm", &MSVtorDispAttr::Vdm)
-    .def_property_readonly("VtorDispMode", &MSVtorDispAttr::VtorDispMode);
+    .def_property_readonly("spelling", &MSVtorDispAttr::Spelling)
+    .def_property_readonly("vdm", &MSVtorDispAttr::Vdm)
+    .def_property_readonly("vtor_disp_mode", &MSVtorDispAttr::VtorDispMode);
 }
 } // namespace pasta

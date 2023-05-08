@@ -19,6 +19,6 @@ void RegisterOSConsumesThisAttr(py::module_ &m) {
   py::class_<OSConsumesThisAttr, InheritableAttr>(m, "OSConsumesThisAttr")
     .def("__hash__", [](const OSConsumesThisAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const OSConsumesThisAttr& a, const OSConsumesThisAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &OSConsumesThisAttr::Spelling);
+    .def_property_readonly("spelling", &OSConsumesThisAttr::Spelling);
 }
 } // namespace pasta

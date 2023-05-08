@@ -19,7 +19,7 @@ void RegisterLValueReferenceType(py::module_ &m) {
   py::class_<LValueReferenceType, ReferenceType>(m, "LValueReferenceType")
     .def("__hash__", [](const LValueReferenceType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const LValueReferenceType& a, const LValueReferenceType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &LValueReferenceType::Desugar)
-    .def_property_readonly("IsSugared", &LValueReferenceType::IsSugared);
+    .def_property_readonly("desugar", &LValueReferenceType::Desugar)
+    .def_property_readonly("is_sugared", &LValueReferenceType::IsSugared);
 }
 } // namespace pasta

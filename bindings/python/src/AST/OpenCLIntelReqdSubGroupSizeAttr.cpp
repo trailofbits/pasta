@@ -19,7 +19,7 @@ void RegisterOpenCLIntelReqdSubGroupSizeAttr(py::module_ &m) {
   py::class_<OpenCLIntelReqdSubGroupSizeAttr, InheritableAttr>(m, "OpenCLIntelReqdSubGroupSizeAttr")
     .def("__hash__", [](const OpenCLIntelReqdSubGroupSizeAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const OpenCLIntelReqdSubGroupSizeAttr& a, const OpenCLIntelReqdSubGroupSizeAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &OpenCLIntelReqdSubGroupSizeAttr::Spelling)
-    .def_property_readonly("SubGroupSize", &OpenCLIntelReqdSubGroupSizeAttr::SubGroupSize);
+    .def_property_readonly("spelling", &OpenCLIntelReqdSubGroupSizeAttr::Spelling)
+    .def_property_readonly("sub_group_size", &OpenCLIntelReqdSubGroupSizeAttr::SubGroupSize);
 }
 } // namespace pasta

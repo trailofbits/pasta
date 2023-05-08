@@ -19,6 +19,6 @@ void RegisterAlwaysDestroyAttr(py::module_ &m) {
   py::class_<AlwaysDestroyAttr, InheritableAttr>(m, "AlwaysDestroyAttr")
     .def("__hash__", [](const AlwaysDestroyAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const AlwaysDestroyAttr& a, const AlwaysDestroyAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &AlwaysDestroyAttr::Spelling);
+    .def_property_readonly("spelling", &AlwaysDestroyAttr::Spelling);
 }
 } // namespace pasta

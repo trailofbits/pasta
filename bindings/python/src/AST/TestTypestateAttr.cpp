@@ -19,7 +19,7 @@ void RegisterTestTypestateAttr(py::module_ &m) {
   py::class_<TestTypestateAttr, InheritableAttr>(m, "TestTypestateAttr")
     .def("__hash__", [](const TestTypestateAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const TestTypestateAttr& a, const TestTypestateAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &TestTypestateAttr::Spelling)
-    .def_property_readonly("TestState", &TestTypestateAttr::TestState);
+    .def_property_readonly("spelling", &TestTypestateAttr::Spelling)
+    .def_property_readonly("test_state", &TestTypestateAttr::TestState);
 }
 } // namespace pasta

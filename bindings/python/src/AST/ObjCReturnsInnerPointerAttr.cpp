@@ -19,6 +19,6 @@ void RegisterObjCReturnsInnerPointerAttr(py::module_ &m) {
   py::class_<ObjCReturnsInnerPointerAttr, InheritableAttr>(m, "ObjCReturnsInnerPointerAttr")
     .def("__hash__", [](const ObjCReturnsInnerPointerAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ObjCReturnsInnerPointerAttr& a, const ObjCReturnsInnerPointerAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &ObjCReturnsInnerPointerAttr::Spelling);
+    .def_property_readonly("spelling", &ObjCReturnsInnerPointerAttr::Spelling);
 }
 } // namespace pasta

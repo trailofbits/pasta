@@ -19,13 +19,13 @@ void RegisterObjCContainerDecl(py::module_ &m) {
   py::class_<ObjCContainerDecl, NamedDecl>(m, "ObjCContainerDecl")
     .def("__hash__", [](const ObjCContainerDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const ObjCContainerDecl& a, const ObjCContainerDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("ClassMethods", &ObjCContainerDecl::ClassMethods)
-    .def_property_readonly("ClassProperties", &ObjCContainerDecl::ClassProperties)
-    .def_property_readonly("AtEndRange", &ObjCContainerDecl::AtEndRange)
-    .def_property_readonly("AtStartToken", &ObjCContainerDecl::AtStartToken)
-    .def_property_readonly("InstanceMethods", &ObjCContainerDecl::InstanceMethods)
-    .def_property_readonly("InstanceProperties", &ObjCContainerDecl::InstanceProperties)
-    .def_property_readonly("Methods", &ObjCContainerDecl::Methods)
-    .def_property_readonly("Properties", &ObjCContainerDecl::Properties);
+    .def_property_readonly("class_methods", &ObjCContainerDecl::ClassMethods)
+    .def_property_readonly("class_properties", &ObjCContainerDecl::ClassProperties)
+    .def_property_readonly("at_end_range", &ObjCContainerDecl::AtEndRange)
+    .def_property_readonly("at_start_token", &ObjCContainerDecl::AtStartToken)
+    .def_property_readonly("instance_methods", &ObjCContainerDecl::InstanceMethods)
+    .def_property_readonly("instance_properties", &ObjCContainerDecl::InstanceProperties)
+    .def_property_readonly("methods", &ObjCContainerDecl::Methods)
+    .def_property_readonly("properties", &ObjCContainerDecl::Properties);
 }
 } // namespace pasta

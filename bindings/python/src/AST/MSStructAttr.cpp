@@ -19,6 +19,6 @@ void RegisterMSStructAttr(py::module_ &m) {
   py::class_<MSStructAttr, InheritableAttr>(m, "MSStructAttr")
     .def("__hash__", [](const MSStructAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const MSStructAttr& a, const MSStructAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &MSStructAttr::Spelling);
+    .def_property_readonly("spelling", &MSStructAttr::Spelling);
 }
 } // namespace pasta

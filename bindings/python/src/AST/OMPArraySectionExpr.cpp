@@ -19,16 +19,16 @@ void RegisterOMPArraySectionExpr(py::module_ &m) {
   py::class_<OMPArraySectionExpr, Expr>(m, "OMPArraySectionExpr")
     .def("__hash__", [](const OMPArraySectionExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OMPArraySectionExpr& a, const OMPArraySectionExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &OMPArraySectionExpr::Children)
-    .def_property_readonly("Base", &OMPArraySectionExpr::Base)
-    .def_property_readonly("BeginToken", &OMPArraySectionExpr::BeginToken)
-    .def_property_readonly("FirstColonToken", &OMPArraySectionExpr::FirstColonToken)
-    .def_property_readonly("SecondColonToken", &OMPArraySectionExpr::SecondColonToken)
-    .def_property_readonly("EndToken", &OMPArraySectionExpr::EndToken)
-    .def_property_readonly("ExpressionToken", &OMPArraySectionExpr::ExpressionToken)
-    .def_property_readonly("Length", &OMPArraySectionExpr::Length)
-    .def_property_readonly("LowerBound", &OMPArraySectionExpr::LowerBound)
-    .def_property_readonly("RBracketToken", &OMPArraySectionExpr::RBracketToken)
-    .def_property_readonly("Stride", &OMPArraySectionExpr::Stride);
+    .def_property_readonly("children", &OMPArraySectionExpr::Children)
+    .def_property_readonly("base", &OMPArraySectionExpr::Base)
+    .def_property_readonly("begin_token", &OMPArraySectionExpr::BeginToken)
+    .def_property_readonly("first_colon_token", &OMPArraySectionExpr::FirstColonToken)
+    .def_property_readonly("second_colon_token", &OMPArraySectionExpr::SecondColonToken)
+    .def_property_readonly("end_token", &OMPArraySectionExpr::EndToken)
+    .def_property_readonly("expression_token", &OMPArraySectionExpr::ExpressionToken)
+    .def_property_readonly("length", &OMPArraySectionExpr::Length)
+    .def_property_readonly("lower_bound", &OMPArraySectionExpr::LowerBound)
+    .def_property_readonly("r_bracket_token", &OMPArraySectionExpr::RBracketToken)
+    .def_property_readonly("stride", &OMPArraySectionExpr::Stride);
 }
 } // namespace pasta

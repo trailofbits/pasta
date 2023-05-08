@@ -19,6 +19,6 @@ void RegisterHIPManagedAttr(py::module_ &m) {
   py::class_<HIPManagedAttr, InheritableAttr>(m, "HIPManagedAttr")
     .def("__hash__", [](const HIPManagedAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const HIPManagedAttr& a, const HIPManagedAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &HIPManagedAttr::Spelling);
+    .def_property_readonly("spelling", &HIPManagedAttr::Spelling);
 }
 } // namespace pasta

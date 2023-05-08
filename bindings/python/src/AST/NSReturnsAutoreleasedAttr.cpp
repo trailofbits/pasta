@@ -19,6 +19,6 @@ void RegisterNSReturnsAutoreleasedAttr(py::module_ &m) {
   py::class_<NSReturnsAutoreleasedAttr, InheritableAttr>(m, "NSReturnsAutoreleasedAttr")
     .def("__hash__", [](const NSReturnsAutoreleasedAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const NSReturnsAutoreleasedAttr& a, const NSReturnsAutoreleasedAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &NSReturnsAutoreleasedAttr::Spelling);
+    .def_property_readonly("spelling", &NSReturnsAutoreleasedAttr::Spelling);
 }
 } // namespace pasta

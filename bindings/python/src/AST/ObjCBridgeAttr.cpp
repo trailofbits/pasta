@@ -19,6 +19,6 @@ void RegisterObjCBridgeAttr(py::module_ &m) {
   py::class_<ObjCBridgeAttr, InheritableAttr>(m, "ObjCBridgeAttr")
     .def("__hash__", [](const ObjCBridgeAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ObjCBridgeAttr& a, const ObjCBridgeAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &ObjCBridgeAttr::Spelling);
+    .def_property_readonly("spelling", &ObjCBridgeAttr::Spelling);
 }
 } // namespace pasta

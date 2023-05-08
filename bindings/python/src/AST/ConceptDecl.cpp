@@ -19,8 +19,8 @@ void RegisterConceptDecl(py::module_ &m) {
   py::class_<ConceptDecl, TemplateDecl>(m, "ConceptDecl")
     .def("__hash__", [](const ConceptDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const ConceptDecl& a, const ConceptDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("CanonicalDeclaration", &ConceptDecl::CanonicalDeclaration)
-    .def_property_readonly("ConstraintExpression", &ConceptDecl::ConstraintExpression)
-    .def_property_readonly("IsTypeConcept", &ConceptDecl::IsTypeConcept);
+    .def_property_readonly("canonical_declaration", &ConceptDecl::CanonicalDeclaration)
+    .def_property_readonly("constraint_expression", &ConceptDecl::ConstraintExpression)
+    .def_property_readonly("is_type_concept", &ConceptDecl::IsTypeConcept);
 }
 } // namespace pasta

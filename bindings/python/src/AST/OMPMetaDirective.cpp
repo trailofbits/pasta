@@ -19,6 +19,6 @@ void RegisterOMPMetaDirective(py::module_ &m) {
   py::class_<OMPMetaDirective, OMPExecutableDirective>(m, "OMPMetaDirective")
     .def("__hash__", [](const OMPMetaDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OMPMetaDirective& a, const OMPMetaDirective& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("IfStatement", &OMPMetaDirective::IfStatement);
+    .def_property_readonly("if_statement", &OMPMetaDirective::IfStatement);
 }
 } // namespace pasta

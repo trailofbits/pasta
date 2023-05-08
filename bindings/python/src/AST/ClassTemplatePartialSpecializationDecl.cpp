@@ -19,10 +19,10 @@ void RegisterClassTemplatePartialSpecializationDecl(py::module_ &m) {
   py::class_<ClassTemplatePartialSpecializationDecl, ClassTemplateSpecializationDecl>(m, "ClassTemplatePartialSpecializationDecl")
     .def("__hash__", [](const ClassTemplatePartialSpecializationDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const ClassTemplatePartialSpecializationDecl& a, const ClassTemplatePartialSpecializationDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("InjectedSpecializationType", &ClassTemplatePartialSpecializationDecl::InjectedSpecializationType)
-    .def_property_readonly("InstantiatedFromMember", &ClassTemplatePartialSpecializationDecl::InstantiatedFromMember)
-    .def_property_readonly("InstantiatedFromMemberTemplate", &ClassTemplatePartialSpecializationDecl::InstantiatedFromMemberTemplate)
-    .def_property_readonly("TemplateParameters", &ClassTemplatePartialSpecializationDecl::TemplateParameters)
-    .def_property_readonly("HasAssociatedConstraints", &ClassTemplatePartialSpecializationDecl::HasAssociatedConstraints);
+    .def_property_readonly("injected_specialization_type", &ClassTemplatePartialSpecializationDecl::InjectedSpecializationType)
+    .def_property_readonly("instantiated_from_member", &ClassTemplatePartialSpecializationDecl::InstantiatedFromMember)
+    .def_property_readonly("instantiated_from_member_template", &ClassTemplatePartialSpecializationDecl::InstantiatedFromMemberTemplate)
+    .def_property_readonly("template_parameters", &ClassTemplatePartialSpecializationDecl::TemplateParameters)
+    .def_property_readonly("has_associated_constraints", &ClassTemplatePartialSpecializationDecl::HasAssociatedConstraints);
 }
 } // namespace pasta

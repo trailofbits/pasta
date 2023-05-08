@@ -19,10 +19,10 @@ void RegisterObjCTypeParamDecl(py::module_ &m) {
   py::class_<ObjCTypeParamDecl, TypedefNameDecl>(m, "ObjCTypeParamDecl")
     .def("__hash__", [](const ObjCTypeParamDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const ObjCTypeParamDecl& a, const ObjCTypeParamDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("ColonToken", &ObjCTypeParamDecl::ColonToken)
-    .def_property_readonly("Index", &ObjCTypeParamDecl::Index)
-    .def_property_readonly("Variance", &ObjCTypeParamDecl::Variance)
-    .def_property_readonly("VarianceToken", &ObjCTypeParamDecl::VarianceToken)
-    .def_property_readonly("HasExplicitBound", &ObjCTypeParamDecl::HasExplicitBound);
+    .def_property_readonly("colon_token", &ObjCTypeParamDecl::ColonToken)
+    .def_property_readonly("index", &ObjCTypeParamDecl::Index)
+    .def_property_readonly("variance", &ObjCTypeParamDecl::Variance)
+    .def_property_readonly("variance_token", &ObjCTypeParamDecl::VarianceToken)
+    .def_property_readonly("has_explicit_bound", &ObjCTypeParamDecl::HasExplicitBound);
 }
 } // namespace pasta

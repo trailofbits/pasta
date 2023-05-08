@@ -19,9 +19,9 @@ void RegisterBTFTagAttributedType(py::module_ &m) {
   py::class_<BTFTagAttributedType, Type>(m, "BTFTagAttributedType")
     .def("__hash__", [](const BTFTagAttributedType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const BTFTagAttributedType& a, const BTFTagAttributedType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &BTFTagAttributedType::Desugar)
-    .def_property_readonly("Attribute", &BTFTagAttributedType::Attribute)
-    .def_property_readonly("WrappedType", &BTFTagAttributedType::WrappedType)
-    .def_property_readonly("IsSugared", &BTFTagAttributedType::IsSugared);
+    .def_property_readonly("desugar", &BTFTagAttributedType::Desugar)
+    .def_property_readonly("attribute", &BTFTagAttributedType::Attribute)
+    .def_property_readonly("wrapped_type", &BTFTagAttributedType::WrappedType)
+    .def_property_readonly("is_sugared", &BTFTagAttributedType::IsSugared);
 }
 } // namespace pasta

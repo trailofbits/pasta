@@ -19,13 +19,13 @@ void RegisterCXXInheritedCtorInitExpr(py::module_ &m) {
   py::class_<CXXInheritedCtorInitExpr, Expr>(m, "CXXInheritedCtorInitExpr")
     .def("__hash__", [](const CXXInheritedCtorInitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CXXInheritedCtorInitExpr& a, const CXXInheritedCtorInitExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &CXXInheritedCtorInitExpr::Children)
-    .def_property_readonly("ConstructsVirtualBase", &CXXInheritedCtorInitExpr::ConstructsVirtualBase)
-    .def_property_readonly("BeginToken", &CXXInheritedCtorInitExpr::BeginToken)
-    .def_property_readonly("ConstructionKind", &CXXInheritedCtorInitExpr::ConstructionKind)
-    .def_property_readonly("Constructor", &CXXInheritedCtorInitExpr::Constructor)
-    .def_property_readonly("EndToken", &CXXInheritedCtorInitExpr::EndToken)
-    .def_property_readonly("Token", &CXXInheritedCtorInitExpr::Token)
-    .def_property_readonly("InheritedFromVirtualBase", &CXXInheritedCtorInitExpr::InheritedFromVirtualBase);
+    .def_property_readonly("children", &CXXInheritedCtorInitExpr::Children)
+    .def_property_readonly("constructs_virtual_base", &CXXInheritedCtorInitExpr::ConstructsVirtualBase)
+    .def_property_readonly("begin_token", &CXXInheritedCtorInitExpr::BeginToken)
+    .def_property_readonly("construction_kind", &CXXInheritedCtorInitExpr::ConstructionKind)
+    .def_property_readonly("constructor", &CXXInheritedCtorInitExpr::Constructor)
+    .def_property_readonly("end_token", &CXXInheritedCtorInitExpr::EndToken)
+    .def_property_readonly("token", &CXXInheritedCtorInitExpr::Token)
+    .def_property_readonly("inherited_from_virtual_base", &CXXInheritedCtorInitExpr::InheritedFromVirtualBase);
 }
 } // namespace pasta

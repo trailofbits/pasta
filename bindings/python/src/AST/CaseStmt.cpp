@@ -19,14 +19,14 @@ void RegisterCaseStmt(py::module_ &m) {
   py::class_<CaseStmt, SwitchCase>(m, "CaseStmt")
     .def("__hash__", [](const CaseStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CaseStmt& a, const CaseStmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("CaseStatementIsGNURange", &CaseStmt::CaseStatementIsGNURange)
-    .def_property_readonly("Children", &CaseStmt::Children)
-    .def_property_readonly("BeginToken", &CaseStmt::BeginToken)
-    .def_property_readonly("CaseToken", &CaseStmt::CaseToken)
-    .def_property_readonly("EllipsisToken", &CaseStmt::EllipsisToken)
-    .def_property_readonly("EndToken", &CaseStmt::EndToken)
-    .def_property_readonly("LHS", &CaseStmt::LHS)
-    .def_property_readonly("RHS", &CaseStmt::RHS)
-    .def_property_readonly("SubStatement", &CaseStmt::SubStatement);
+    .def_property_readonly("case_statement_is_gnu_range", &CaseStmt::CaseStatementIsGNURange)
+    .def_property_readonly("children", &CaseStmt::Children)
+    .def_property_readonly("begin_token", &CaseStmt::BeginToken)
+    .def_property_readonly("case_token", &CaseStmt::CaseToken)
+    .def_property_readonly("ellipsis_token", &CaseStmt::EllipsisToken)
+    .def_property_readonly("end_token", &CaseStmt::EndToken)
+    .def_property_readonly("lhs", &CaseStmt::LHS)
+    .def_property_readonly("rhs", &CaseStmt::RHS)
+    .def_property_readonly("sub_statement", &CaseStmt::SubStatement);
 }
 } // namespace pasta

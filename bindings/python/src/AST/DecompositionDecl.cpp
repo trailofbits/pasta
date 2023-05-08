@@ -19,6 +19,6 @@ void RegisterDecompositionDecl(py::module_ &m) {
   py::class_<DecompositionDecl, VarDecl>(m, "DecompositionDecl")
     .def("__hash__", [](const DecompositionDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const DecompositionDecl& a, const DecompositionDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("Bindings", &DecompositionDecl::Bindings);
+    .def_property_readonly("bindings", &DecompositionDecl::Bindings);
 }
 } // namespace pasta

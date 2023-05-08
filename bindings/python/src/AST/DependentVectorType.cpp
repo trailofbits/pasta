@@ -19,11 +19,11 @@ void RegisterDependentVectorType(py::module_ &m) {
   py::class_<DependentVectorType, Type>(m, "DependentVectorType")
     .def("__hash__", [](const DependentVectorType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const DependentVectorType& a, const DependentVectorType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &DependentVectorType::Desugar)
-    .def_property_readonly("AttributeToken", &DependentVectorType::AttributeToken)
-    .def_property_readonly("ElementType", &DependentVectorType::ElementType)
-    .def_property_readonly("SizeExpression", &DependentVectorType::SizeExpression)
-    .def_property_readonly("VectorKind", &DependentVectorType::VectorKind)
-    .def_property_readonly("IsSugared", &DependentVectorType::IsSugared);
+    .def_property_readonly("desugar", &DependentVectorType::Desugar)
+    .def_property_readonly("attribute_token", &DependentVectorType::AttributeToken)
+    .def_property_readonly("element_type", &DependentVectorType::ElementType)
+    .def_property_readonly("size_expression", &DependentVectorType::SizeExpression)
+    .def_property_readonly("vector_kind", &DependentVectorType::VectorKind)
+    .def_property_readonly("is_sugared", &DependentVectorType::IsSugared);
 }
 } // namespace pasta

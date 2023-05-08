@@ -19,6 +19,6 @@ void RegisterOSReturnsNotRetainedAttr(py::module_ &m) {
   py::class_<OSReturnsNotRetainedAttr, InheritableAttr>(m, "OSReturnsNotRetainedAttr")
     .def("__hash__", [](const OSReturnsNotRetainedAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const OSReturnsNotRetainedAttr& a, const OSReturnsNotRetainedAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &OSReturnsNotRetainedAttr::Spelling);
+    .def_property_readonly("spelling", &OSReturnsNotRetainedAttr::Spelling);
 }
 } // namespace pasta

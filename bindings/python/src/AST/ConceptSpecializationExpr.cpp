@@ -19,11 +19,11 @@ void RegisterConceptSpecializationExpr(py::module_ &m) {
   py::class_<ConceptSpecializationExpr, Expr>(m, "ConceptSpecializationExpr")
     .def("__hash__", [](const ConceptSpecializationExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ConceptSpecializationExpr& a, const ConceptSpecializationExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &ConceptSpecializationExpr::Children)
-    .def_property_readonly("BeginToken", &ConceptSpecializationExpr::BeginToken)
-    .def_property_readonly("EndToken", &ConceptSpecializationExpr::EndToken)
-    .def_property_readonly("SpecializationDeclaration", &ConceptSpecializationExpr::SpecializationDeclaration)
-    .def_property_readonly("TemplateArguments", &ConceptSpecializationExpr::TemplateArguments)
-    .def_property_readonly("IsSatisfied", &ConceptSpecializationExpr::IsSatisfied);
+    .def_property_readonly("children", &ConceptSpecializationExpr::Children)
+    .def_property_readonly("begin_token", &ConceptSpecializationExpr::BeginToken)
+    .def_property_readonly("end_token", &ConceptSpecializationExpr::EndToken)
+    .def_property_readonly("specialization_declaration", &ConceptSpecializationExpr::SpecializationDeclaration)
+    .def_property_readonly("template_arguments", &ConceptSpecializationExpr::TemplateArguments)
+    .def_property_readonly("is_satisfied", &ConceptSpecializationExpr::IsSatisfied);
 }
 } // namespace pasta

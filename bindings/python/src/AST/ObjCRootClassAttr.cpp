@@ -19,6 +19,6 @@ void RegisterObjCRootClassAttr(py::module_ &m) {
   py::class_<ObjCRootClassAttr, InheritableAttr>(m, "ObjCRootClassAttr")
     .def("__hash__", [](const ObjCRootClassAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ObjCRootClassAttr& a, const ObjCRootClassAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &ObjCRootClassAttr::Spelling);
+    .def_property_readonly("spelling", &ObjCRootClassAttr::Spelling);
 }
 } // namespace pasta

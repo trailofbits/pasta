@@ -19,10 +19,10 @@ void RegisterFixedPointLiteral(py::module_ &m) {
   py::class_<FixedPointLiteral, Expr>(m, "FixedPointLiteral")
     .def("__hash__", [](const FixedPointLiteral& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const FixedPointLiteral& a, const FixedPointLiteral& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &FixedPointLiteral::Children)
-    .def_property_readonly("BeginToken", &FixedPointLiteral::BeginToken)
-    .def_property_readonly("EndToken", &FixedPointLiteral::EndToken)
-    .def_property_readonly("Token", &FixedPointLiteral::Token)
-    .def_property_readonly("Scale", &FixedPointLiteral::Scale);
+    .def_property_readonly("children", &FixedPointLiteral::Children)
+    .def_property_readonly("begin_token", &FixedPointLiteral::BeginToken)
+    .def_property_readonly("end_token", &FixedPointLiteral::EndToken)
+    .def_property_readonly("token", &FixedPointLiteral::Token)
+    .def_property_readonly("scale", &FixedPointLiteral::Scale);
 }
 } // namespace pasta

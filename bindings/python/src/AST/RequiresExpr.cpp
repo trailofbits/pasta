@@ -19,13 +19,13 @@ void RegisterRequiresExpr(py::module_ &m) {
   py::class_<RequiresExpr, Expr>(m, "RequiresExpr")
     .def("__hash__", [](const RequiresExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const RequiresExpr& a, const RequiresExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &RequiresExpr::Children)
-    .def_property_readonly("BeginToken", &RequiresExpr::BeginToken)
-    .def_property_readonly("Body", &RequiresExpr::Body)
-    .def_property_readonly("EndToken", &RequiresExpr::EndToken)
-    .def_property_readonly("LocalParameters", &RequiresExpr::LocalParameters)
-    .def_property_readonly("RBraceToken", &RequiresExpr::RBraceToken)
-    .def_property_readonly("RequiresKeywordToken", &RequiresExpr::RequiresKeywordToken)
-    .def_property_readonly("IsSatisfied", &RequiresExpr::IsSatisfied);
+    .def_property_readonly("children", &RequiresExpr::Children)
+    .def_property_readonly("begin_token", &RequiresExpr::BeginToken)
+    .def_property_readonly("body", &RequiresExpr::Body)
+    .def_property_readonly("end_token", &RequiresExpr::EndToken)
+    .def_property_readonly("local_parameters", &RequiresExpr::LocalParameters)
+    .def_property_readonly("r_brace_token", &RequiresExpr::RBraceToken)
+    .def_property_readonly("requires_keyword_token", &RequiresExpr::RequiresKeywordToken)
+    .def_property_readonly("is_satisfied", &RequiresExpr::IsSatisfied);
 }
 } // namespace pasta

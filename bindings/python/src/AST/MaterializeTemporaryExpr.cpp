@@ -19,15 +19,15 @@ void RegisterMaterializeTemporaryExpr(py::module_ &m) {
   py::class_<MaterializeTemporaryExpr, Expr>(m, "MaterializeTemporaryExpr")
     .def("__hash__", [](const MaterializeTemporaryExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const MaterializeTemporaryExpr& a, const MaterializeTemporaryExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &MaterializeTemporaryExpr::Children)
-    .def_property_readonly("BeginToken", &MaterializeTemporaryExpr::BeginToken)
-    .def_property_readonly("EndToken", &MaterializeTemporaryExpr::EndToken)
-    .def_property_readonly("ExtendingDeclaration", &MaterializeTemporaryExpr::ExtendingDeclaration)
-    .def_property_readonly("LifetimeExtendedTemporaryDeclaration", &MaterializeTemporaryExpr::LifetimeExtendedTemporaryDeclaration)
-    .def_property_readonly("ManglingNumber", &MaterializeTemporaryExpr::ManglingNumber)
-    .def_property_readonly("StorageDuration", &MaterializeTemporaryExpr::StorageDuration)
-    .def_property_readonly("SubExpression", &MaterializeTemporaryExpr::SubExpression)
-    .def_property_readonly("IsBoundToLvalueReference", &MaterializeTemporaryExpr::IsBoundToLvalueReference)
-    .def("IsUsableInConstantExpressions", &MaterializeTemporaryExpr::IsUsableInConstantExpressions);
+    .def_property_readonly("children", &MaterializeTemporaryExpr::Children)
+    .def_property_readonly("begin_token", &MaterializeTemporaryExpr::BeginToken)
+    .def_property_readonly("end_token", &MaterializeTemporaryExpr::EndToken)
+    .def_property_readonly("extending_declaration", &MaterializeTemporaryExpr::ExtendingDeclaration)
+    .def_property_readonly("lifetime_extended_temporary_declaration", &MaterializeTemporaryExpr::LifetimeExtendedTemporaryDeclaration)
+    .def_property_readonly("mangling_number", &MaterializeTemporaryExpr::ManglingNumber)
+    .def_property_readonly("storage_duration", &MaterializeTemporaryExpr::StorageDuration)
+    .def_property_readonly("sub_expression", &MaterializeTemporaryExpr::SubExpression)
+    .def_property_readonly("is_bound_to_lvalue_reference", &MaterializeTemporaryExpr::IsBoundToLvalueReference)
+    .def("is_usable_in_constant_expressions", &MaterializeTemporaryExpr::IsUsableInConstantExpressions);
 }
 } // namespace pasta

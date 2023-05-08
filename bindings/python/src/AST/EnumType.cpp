@@ -19,8 +19,8 @@ void RegisterEnumType(py::module_ &m) {
   py::class_<EnumType, TagType>(m, "EnumType")
     .def("__hash__", [](const EnumType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const EnumType& a, const EnumType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &EnumType::Desugar)
-    .def_property_readonly("Declaration", &EnumType::Declaration)
-    .def_property_readonly("IsSugared", &EnumType::IsSugared);
+    .def_property_readonly("desugar", &EnumType::Desugar)
+    .def_property_readonly("declaration", &EnumType::Declaration)
+    .def_property_readonly("is_sugared", &EnumType::IsSugared);
 }
 } // namespace pasta

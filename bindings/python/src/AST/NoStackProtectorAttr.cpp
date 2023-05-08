@@ -19,7 +19,7 @@ void RegisterNoStackProtectorAttr(py::module_ &m) {
   py::class_<NoStackProtectorAttr, InheritableAttr>(m, "NoStackProtectorAttr")
     .def("__hash__", [](const NoStackProtectorAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const NoStackProtectorAttr& a, const NoStackProtectorAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("SemanticSpelling", &NoStackProtectorAttr::SemanticSpelling)
-    .def_property_readonly("Spelling", &NoStackProtectorAttr::Spelling);
+    .def_property_readonly("semantic_spelling", &NoStackProtectorAttr::SemanticSpelling)
+    .def_property_readonly("spelling", &NoStackProtectorAttr::Spelling);
 }
 } // namespace pasta

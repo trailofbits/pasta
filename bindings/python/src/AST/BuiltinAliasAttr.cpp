@@ -19,7 +19,7 @@ void RegisterBuiltinAliasAttr(py::module_ &m) {
   py::class_<BuiltinAliasAttr, Attr>(m, "BuiltinAliasAttr")
     .def("__hash__", [](const BuiltinAliasAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const BuiltinAliasAttr& a, const BuiltinAliasAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("SemanticSpelling", &BuiltinAliasAttr::SemanticSpelling)
-    .def_property_readonly("Spelling", &BuiltinAliasAttr::Spelling);
+    .def_property_readonly("semantic_spelling", &BuiltinAliasAttr::SemanticSpelling)
+    .def_property_readonly("spelling", &BuiltinAliasAttr::Spelling);
 }
 } // namespace pasta

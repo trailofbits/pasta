@@ -19,8 +19,8 @@ void RegisterSwiftBridgeAttr(py::module_ &m) {
   py::class_<SwiftBridgeAttr, InheritableAttr>(m, "SwiftBridgeAttr")
     .def("__hash__", [](const SwiftBridgeAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const SwiftBridgeAttr& a, const SwiftBridgeAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &SwiftBridgeAttr::Spelling)
-    .def_property_readonly("SwiftType", &SwiftBridgeAttr::SwiftType)
-    .def_property_readonly("SwiftTypeLength", &SwiftBridgeAttr::SwiftTypeLength);
+    .def_property_readonly("spelling", &SwiftBridgeAttr::Spelling)
+    .def_property_readonly("swift_type", &SwiftBridgeAttr::SwiftType)
+    .def_property_readonly("swift_type_length", &SwiftBridgeAttr::SwiftTypeLength);
 }
 } // namespace pasta

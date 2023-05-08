@@ -19,6 +19,6 @@ void RegisterTypeAliasDecl(py::module_ &m) {
   py::class_<TypeAliasDecl, TypedefNameDecl>(m, "TypeAliasDecl")
     .def("__hash__", [](const TypeAliasDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const TypeAliasDecl& a, const TypeAliasDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("DescribedAliasTemplate", &TypeAliasDecl::DescribedAliasTemplate);
+    .def_property_readonly("described_alias_template", &TypeAliasDecl::DescribedAliasTemplate);
 }
 } // namespace pasta

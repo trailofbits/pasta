@@ -19,13 +19,13 @@ void RegisterExtVectorElementExpr(py::module_ &m) {
   py::class_<ExtVectorElementExpr, Expr>(m, "ExtVectorElementExpr")
     .def("__hash__", [](const ExtVectorElementExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ExtVectorElementExpr& a, const ExtVectorElementExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &ExtVectorElementExpr::Children)
-    .def_property_readonly("ContainsDuplicateElements", &ExtVectorElementExpr::ContainsDuplicateElements)
-    .def_property_readonly("AccessorToken", &ExtVectorElementExpr::AccessorToken)
-    .def_property_readonly("Base", &ExtVectorElementExpr::Base)
-    .def_property_readonly("BeginToken", &ExtVectorElementExpr::BeginToken)
-    .def_property_readonly("EndToken", &ExtVectorElementExpr::EndToken)
-    .def_property_readonly("NumElements", &ExtVectorElementExpr::NumElements)
-    .def_property_readonly("IsArrow", &ExtVectorElementExpr::IsArrow);
+    .def_property_readonly("children", &ExtVectorElementExpr::Children)
+    .def_property_readonly("contains_duplicate_elements", &ExtVectorElementExpr::ContainsDuplicateElements)
+    .def_property_readonly("accessor_token", &ExtVectorElementExpr::AccessorToken)
+    .def_property_readonly("base", &ExtVectorElementExpr::Base)
+    .def_property_readonly("begin_token", &ExtVectorElementExpr::BeginToken)
+    .def_property_readonly("end_token", &ExtVectorElementExpr::EndToken)
+    .def_property_readonly("num_elements", &ExtVectorElementExpr::NumElements)
+    .def_property_readonly("is_arrow", &ExtVectorElementExpr::IsArrow);
 }
 } // namespace pasta

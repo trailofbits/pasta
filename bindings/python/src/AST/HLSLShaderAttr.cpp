@@ -19,7 +19,7 @@ void RegisterHLSLShaderAttr(py::module_ &m) {
   py::class_<HLSLShaderAttr, InheritableAttr>(m, "HLSLShaderAttr")
     .def("__hash__", [](const HLSLShaderAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const HLSLShaderAttr& a, const HLSLShaderAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &HLSLShaderAttr::Spelling)
-    .def_property_readonly("Type", &HLSLShaderAttr::Type);
+    .def_property_readonly("spelling", &HLSLShaderAttr::Spelling)
+    .def_property_readonly("type", &HLSLShaderAttr::Type);
 }
 } // namespace pasta

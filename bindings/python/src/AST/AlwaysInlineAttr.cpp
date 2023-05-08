@@ -19,8 +19,8 @@ void RegisterAlwaysInlineAttr(py::module_ &m) {
   py::class_<AlwaysInlineAttr, DeclOrStmtAttr>(m, "AlwaysInlineAttr")
     .def("__hash__", [](const AlwaysInlineAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const AlwaysInlineAttr& a, const AlwaysInlineAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("SemanticSpelling", &AlwaysInlineAttr::SemanticSpelling)
-    .def_property_readonly("Spelling", &AlwaysInlineAttr::Spelling)
-    .def_property_readonly("IsClangAlwaysInline", &AlwaysInlineAttr::IsClangAlwaysInline);
+    .def_property_readonly("semantic_spelling", &AlwaysInlineAttr::SemanticSpelling)
+    .def_property_readonly("spelling", &AlwaysInlineAttr::Spelling)
+    .def_property_readonly("is_clang_always_inline", &AlwaysInlineAttr::IsClangAlwaysInline);
 }
 } // namespace pasta

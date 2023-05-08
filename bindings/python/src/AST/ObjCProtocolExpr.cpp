@@ -19,12 +19,12 @@ void RegisterObjCProtocolExpr(py::module_ &m) {
   py::class_<ObjCProtocolExpr, Expr>(m, "ObjCProtocolExpr")
     .def("__hash__", [](const ObjCProtocolExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ObjCProtocolExpr& a, const ObjCProtocolExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &ObjCProtocolExpr::Children)
-    .def_property_readonly("AtToken", &ObjCProtocolExpr::AtToken)
-    .def_property_readonly("BeginToken", &ObjCProtocolExpr::BeginToken)
-    .def_property_readonly("EndToken", &ObjCProtocolExpr::EndToken)
-    .def_property_readonly("Protocol", &ObjCProtocolExpr::Protocol)
-    .def_property_readonly("ProtocolIdToken", &ObjCProtocolExpr::ProtocolIdToken)
-    .def_property_readonly("RParenToken", &ObjCProtocolExpr::RParenToken);
+    .def_property_readonly("children", &ObjCProtocolExpr::Children)
+    .def_property_readonly("at_token", &ObjCProtocolExpr::AtToken)
+    .def_property_readonly("begin_token", &ObjCProtocolExpr::BeginToken)
+    .def_property_readonly("end_token", &ObjCProtocolExpr::EndToken)
+    .def_property_readonly("protocol", &ObjCProtocolExpr::Protocol)
+    .def_property_readonly("protocol_id_token", &ObjCProtocolExpr::ProtocolIdToken)
+    .def_property_readonly("r_paren_token", &ObjCProtocolExpr::RParenToken);
 }
 } // namespace pasta

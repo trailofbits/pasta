@@ -19,8 +19,8 @@ void RegisterVarTemplatePartialSpecializationDecl(py::module_ &m) {
   py::class_<VarTemplatePartialSpecializationDecl, VarTemplateSpecializationDecl>(m, "VarTemplatePartialSpecializationDecl")
     .def("__hash__", [](const VarTemplatePartialSpecializationDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const VarTemplatePartialSpecializationDecl& a, const VarTemplatePartialSpecializationDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("InstantiatedFromMember", &VarTemplatePartialSpecializationDecl::InstantiatedFromMember)
-    .def_property_readonly("TemplateParameters", &VarTemplatePartialSpecializationDecl::TemplateParameters)
-    .def_property_readonly("HasAssociatedConstraints", &VarTemplatePartialSpecializationDecl::HasAssociatedConstraints);
+    .def_property_readonly("instantiated_from_member", &VarTemplatePartialSpecializationDecl::InstantiatedFromMember)
+    .def_property_readonly("template_parameters", &VarTemplatePartialSpecializationDecl::TemplateParameters)
+    .def_property_readonly("has_associated_constraints", &VarTemplatePartialSpecializationDecl::HasAssociatedConstraints);
 }
 } // namespace pasta

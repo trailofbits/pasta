@@ -19,12 +19,12 @@ void RegisterMSPropertySubscriptExpr(py::module_ &m) {
   py::class_<MSPropertySubscriptExpr, Expr>(m, "MSPropertySubscriptExpr")
     .def("__hash__", [](const MSPropertySubscriptExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const MSPropertySubscriptExpr& a, const MSPropertySubscriptExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &MSPropertySubscriptExpr::Children)
-    .def_property_readonly("Base", &MSPropertySubscriptExpr::Base)
-    .def_property_readonly("BeginToken", &MSPropertySubscriptExpr::BeginToken)
-    .def_property_readonly("EndToken", &MSPropertySubscriptExpr::EndToken)
-    .def_property_readonly("ExpressionToken", &MSPropertySubscriptExpr::ExpressionToken)
-    .def_property_readonly("Index", &MSPropertySubscriptExpr::Index)
-    .def_property_readonly("RBracketToken", &MSPropertySubscriptExpr::RBracketToken);
+    .def_property_readonly("children", &MSPropertySubscriptExpr::Children)
+    .def_property_readonly("base", &MSPropertySubscriptExpr::Base)
+    .def_property_readonly("begin_token", &MSPropertySubscriptExpr::BeginToken)
+    .def_property_readonly("end_token", &MSPropertySubscriptExpr::EndToken)
+    .def_property_readonly("expression_token", &MSPropertySubscriptExpr::ExpressionToken)
+    .def_property_readonly("index", &MSPropertySubscriptExpr::Index)
+    .def_property_readonly("r_bracket_token", &MSPropertySubscriptExpr::RBracketToken);
 }
 } // namespace pasta

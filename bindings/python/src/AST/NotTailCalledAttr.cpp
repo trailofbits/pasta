@@ -19,6 +19,6 @@ void RegisterNotTailCalledAttr(py::module_ &m) {
   py::class_<NotTailCalledAttr, InheritableAttr>(m, "NotTailCalledAttr")
     .def("__hash__", [](const NotTailCalledAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const NotTailCalledAttr& a, const NotTailCalledAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &NotTailCalledAttr::Spelling);
+    .def_property_readonly("spelling", &NotTailCalledAttr::Spelling);
 }
 } // namespace pasta

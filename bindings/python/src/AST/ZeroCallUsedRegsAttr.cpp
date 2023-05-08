@@ -19,7 +19,7 @@ void RegisterZeroCallUsedRegsAttr(py::module_ &m) {
   py::class_<ZeroCallUsedRegsAttr, InheritableAttr>(m, "ZeroCallUsedRegsAttr")
     .def("__hash__", [](const ZeroCallUsedRegsAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ZeroCallUsedRegsAttr& a, const ZeroCallUsedRegsAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &ZeroCallUsedRegsAttr::Spelling)
-    .def_property_readonly("ZeroCallUsedRegs", &ZeroCallUsedRegsAttr::ZeroCallUsedRegs);
+    .def_property_readonly("spelling", &ZeroCallUsedRegsAttr::Spelling)
+    .def_property_readonly("zero_call_used_regs", &ZeroCallUsedRegsAttr::ZeroCallUsedRegs);
 }
 } // namespace pasta

@@ -19,6 +19,6 @@ void RegisterDLLExportAttr(py::module_ &m) {
   py::class_<DLLExportAttr, InheritableAttr>(m, "DLLExportAttr")
     .def("__hash__", [](const DLLExportAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const DLLExportAttr& a, const DLLExportAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &DLLExportAttr::Spelling);
+    .def_property_readonly("spelling", &DLLExportAttr::Spelling);
 }
 } // namespace pasta

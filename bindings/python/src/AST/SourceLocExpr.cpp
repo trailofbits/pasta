@@ -19,13 +19,13 @@ void RegisterSourceLocExpr(py::module_ &m) {
   py::class_<SourceLocExpr, Expr>(m, "SourceLocExpr")
     .def("__hash__", [](const SourceLocExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const SourceLocExpr& a, const SourceLocExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &SourceLocExpr::Children)
-    .def_property_readonly("BeginToken", &SourceLocExpr::BeginToken)
-    .def_property_readonly("BuiltinString", &SourceLocExpr::BuiltinString)
-    .def_property_readonly("EndToken", &SourceLocExpr::EndToken)
-    .def_property_readonly("IdentifierKind", &SourceLocExpr::IdentifierKind)
-    .def_property_readonly("Token", &SourceLocExpr::Token)
-    .def_property_readonly("ParentContext", &SourceLocExpr::ParentContext)
-    .def_property_readonly("IsIntType", &SourceLocExpr::IsIntType);
+    .def_property_readonly("children", &SourceLocExpr::Children)
+    .def_property_readonly("begin_token", &SourceLocExpr::BeginToken)
+    .def_property_readonly("builtin_string", &SourceLocExpr::BuiltinString)
+    .def_property_readonly("end_token", &SourceLocExpr::EndToken)
+    .def_property_readonly("identifier_kind", &SourceLocExpr::IdentifierKind)
+    .def_property_readonly("token", &SourceLocExpr::Token)
+    .def_property_readonly("parent_context", &SourceLocExpr::ParentContext)
+    .def_property_readonly("is_int_type", &SourceLocExpr::IsIntType);
 }
 } // namespace pasta

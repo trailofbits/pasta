@@ -19,10 +19,10 @@ void RegisterTargetAttr(py::module_ &m) {
   py::class_<TargetAttr, InheritableAttr>(m, "TargetAttr")
     .def("__hash__", [](const TargetAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const TargetAttr& a, const TargetAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Architecture", &TargetAttr::Architecture)
-    .def_property_readonly("FeaturesString", &TargetAttr::FeaturesString)
-    .def_property_readonly("FeaturesStringLength", &TargetAttr::FeaturesStringLength)
-    .def_property_readonly("Spelling", &TargetAttr::Spelling)
-    .def_property_readonly("IsDefaultVersion", &TargetAttr::IsDefaultVersion);
+    .def_property_readonly("architecture", &TargetAttr::Architecture)
+    .def_property_readonly("features_string", &TargetAttr::FeaturesString)
+    .def_property_readonly("features_string_length", &TargetAttr::FeaturesStringLength)
+    .def_property_readonly("spelling", &TargetAttr::Spelling)
+    .def_property_readonly("is_default_version", &TargetAttr::IsDefaultVersion);
 }
 } // namespace pasta

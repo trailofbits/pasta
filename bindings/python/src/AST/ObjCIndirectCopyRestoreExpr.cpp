@@ -19,11 +19,11 @@ void RegisterObjCIndirectCopyRestoreExpr(py::module_ &m) {
   py::class_<ObjCIndirectCopyRestoreExpr, Expr>(m, "ObjCIndirectCopyRestoreExpr")
     .def("__hash__", [](const ObjCIndirectCopyRestoreExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ObjCIndirectCopyRestoreExpr& a, const ObjCIndirectCopyRestoreExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &ObjCIndirectCopyRestoreExpr::Children)
-    .def_property_readonly("BeginToken", &ObjCIndirectCopyRestoreExpr::BeginToken)
-    .def_property_readonly("EndToken", &ObjCIndirectCopyRestoreExpr::EndToken)
-    .def_property_readonly("ExpressionToken", &ObjCIndirectCopyRestoreExpr::ExpressionToken)
-    .def_property_readonly("SubExpression", &ObjCIndirectCopyRestoreExpr::SubExpression)
-    .def_property_readonly("ShouldCopy", &ObjCIndirectCopyRestoreExpr::ShouldCopy);
+    .def_property_readonly("children", &ObjCIndirectCopyRestoreExpr::Children)
+    .def_property_readonly("begin_token", &ObjCIndirectCopyRestoreExpr::BeginToken)
+    .def_property_readonly("end_token", &ObjCIndirectCopyRestoreExpr::EndToken)
+    .def_property_readonly("expression_token", &ObjCIndirectCopyRestoreExpr::ExpressionToken)
+    .def_property_readonly("sub_expression", &ObjCIndirectCopyRestoreExpr::SubExpression)
+    .def_property_readonly("should_copy", &ObjCIndirectCopyRestoreExpr::ShouldCopy);
 }
 } // namespace pasta

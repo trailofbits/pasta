@@ -19,6 +19,6 @@ void RegisterTranslationUnitDecl(py::module_ &m) {
   py::class_<TranslationUnitDecl, Decl>(m, "TranslationUnitDecl")
     .def("__hash__", [](const TranslationUnitDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const TranslationUnitDecl& a, const TranslationUnitDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("AnonymousNamespace", &TranslationUnitDecl::AnonymousNamespace);
+    .def_property_readonly("anonymous_namespace", &TranslationUnitDecl::AnonymousNamespace);
 }
 } // namespace pasta

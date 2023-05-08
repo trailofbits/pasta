@@ -19,8 +19,8 @@ void RegisterSwiftAttrAttr(py::module_ &m) {
   py::class_<SwiftAttrAttr, InheritableAttr>(m, "SwiftAttrAttr")
     .def("__hash__", [](const SwiftAttrAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const SwiftAttrAttr& a, const SwiftAttrAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Attribute", &SwiftAttrAttr::Attribute)
-    .def_property_readonly("AttributeLength", &SwiftAttrAttr::AttributeLength)
-    .def_property_readonly("Spelling", &SwiftAttrAttr::Spelling);
+    .def_property_readonly("attribute", &SwiftAttrAttr::Attribute)
+    .def_property_readonly("attribute_length", &SwiftAttrAttr::AttributeLength)
+    .def_property_readonly("spelling", &SwiftAttrAttr::Spelling);
 }
 } // namespace pasta

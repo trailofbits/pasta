@@ -19,8 +19,8 @@ void RegisterArrayInitIndexExpr(py::module_ &m) {
   py::class_<ArrayInitIndexExpr, Expr>(m, "ArrayInitIndexExpr")
     .def("__hash__", [](const ArrayInitIndexExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ArrayInitIndexExpr& a, const ArrayInitIndexExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &ArrayInitIndexExpr::Children)
-    .def_property_readonly("BeginToken", &ArrayInitIndexExpr::BeginToken)
-    .def_property_readonly("EndToken", &ArrayInitIndexExpr::EndToken);
+    .def_property_readonly("children", &ArrayInitIndexExpr::Children)
+    .def_property_readonly("begin_token", &ArrayInitIndexExpr::BeginToken)
+    .def_property_readonly("end_token", &ArrayInitIndexExpr::EndToken);
 }
 } // namespace pasta

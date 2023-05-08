@@ -19,7 +19,7 @@ void RegisterOMPForDirective(py::module_ &m) {
   py::class_<OMPForDirective, OMPLoopDirective>(m, "OMPForDirective")
     .def("__hash__", [](const OMPForDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OMPForDirective& a, const OMPForDirective& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("TaskReductionReferenceExpression", &OMPForDirective::TaskReductionReferenceExpression)
-    .def_property_readonly("HasCancel", &OMPForDirective::HasCancel);
+    .def_property_readonly("task_reduction_reference_expression", &OMPForDirective::TaskReductionReferenceExpression)
+    .def_property_readonly("has_cancel", &OMPForDirective::HasCancel);
 }
 } // namespace pasta

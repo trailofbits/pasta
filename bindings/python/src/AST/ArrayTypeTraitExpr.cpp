@@ -19,12 +19,12 @@ void RegisterArrayTypeTraitExpr(py::module_ &m) {
   py::class_<ArrayTypeTraitExpr, Expr>(m, "ArrayTypeTraitExpr")
     .def("__hash__", [](const ArrayTypeTraitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ArrayTypeTraitExpr& a, const ArrayTypeTraitExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &ArrayTypeTraitExpr::Children)
-    .def_property_readonly("BeginToken", &ArrayTypeTraitExpr::BeginToken)
-    .def_property_readonly("DimensionExpression", &ArrayTypeTraitExpr::DimensionExpression)
-    .def_property_readonly("EndToken", &ArrayTypeTraitExpr::EndToken)
-    .def_property_readonly("QueriedType", &ArrayTypeTraitExpr::QueriedType)
-    .def_property_readonly("Trait", &ArrayTypeTraitExpr::Trait)
-    .def_property_readonly("Value", &ArrayTypeTraitExpr::Value);
+    .def_property_readonly("children", &ArrayTypeTraitExpr::Children)
+    .def_property_readonly("begin_token", &ArrayTypeTraitExpr::BeginToken)
+    .def_property_readonly("dimension_expression", &ArrayTypeTraitExpr::DimensionExpression)
+    .def_property_readonly("end_token", &ArrayTypeTraitExpr::EndToken)
+    .def_property_readonly("queried_type", &ArrayTypeTraitExpr::QueriedType)
+    .def_property_readonly("trait", &ArrayTypeTraitExpr::Trait)
+    .def_property_readonly("value", &ArrayTypeTraitExpr::Value);
 }
 } // namespace pasta

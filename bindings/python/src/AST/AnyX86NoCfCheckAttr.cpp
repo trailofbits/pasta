@@ -19,6 +19,6 @@ void RegisterAnyX86NoCfCheckAttr(py::module_ &m) {
   py::class_<AnyX86NoCfCheckAttr, InheritableAttr>(m, "AnyX86NoCfCheckAttr")
     .def("__hash__", [](const AnyX86NoCfCheckAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const AnyX86NoCfCheckAttr& a, const AnyX86NoCfCheckAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &AnyX86NoCfCheckAttr::Spelling);
+    .def_property_readonly("spelling", &AnyX86NoCfCheckAttr::Spelling);
 }
 } // namespace pasta

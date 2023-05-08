@@ -19,11 +19,11 @@ void RegisterDeclStmt(py::module_ &m) {
   py::class_<DeclStmt, Stmt>(m, "DeclStmt")
     .def("__hash__", [](const DeclStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const DeclStmt& a, const DeclStmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &DeclStmt::Children)
-    .def_property_readonly("Declarations", &DeclStmt::Declarations)
-    .def_property_readonly("BeginToken", &DeclStmt::BeginToken)
-    .def_property_readonly("EndToken", &DeclStmt::EndToken)
-    .def_property_readonly("SingleDeclaration", &DeclStmt::SingleDeclaration)
-    .def_property_readonly("IsSingleDeclaration", &DeclStmt::IsSingleDeclaration);
+    .def_property_readonly("children", &DeclStmt::Children)
+    .def_property_readonly("declarations", &DeclStmt::Declarations)
+    .def_property_readonly("begin_token", &DeclStmt::BeginToken)
+    .def_property_readonly("end_token", &DeclStmt::EndToken)
+    .def_property_readonly("single_declaration", &DeclStmt::SingleDeclaration)
+    .def_property_readonly("is_single_declaration", &DeclStmt::IsSingleDeclaration);
 }
 } // namespace pasta

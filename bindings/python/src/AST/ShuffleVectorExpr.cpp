@@ -19,11 +19,11 @@ void RegisterShuffleVectorExpr(py::module_ &m) {
   py::class_<ShuffleVectorExpr, Expr>(m, "ShuffleVectorExpr")
     .def("__hash__", [](const ShuffleVectorExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ShuffleVectorExpr& a, const ShuffleVectorExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &ShuffleVectorExpr::Children)
-    .def_property_readonly("BeginToken", &ShuffleVectorExpr::BeginToken)
-    .def_property_readonly("BuiltinToken", &ShuffleVectorExpr::BuiltinToken)
-    .def_property_readonly("EndToken", &ShuffleVectorExpr::EndToken)
-    .def_property_readonly("NumSubExpressions", &ShuffleVectorExpr::NumSubExpressions)
-    .def_property_readonly("RParenToken", &ShuffleVectorExpr::RParenToken);
+    .def_property_readonly("children", &ShuffleVectorExpr::Children)
+    .def_property_readonly("begin_token", &ShuffleVectorExpr::BeginToken)
+    .def_property_readonly("builtin_token", &ShuffleVectorExpr::BuiltinToken)
+    .def_property_readonly("end_token", &ShuffleVectorExpr::EndToken)
+    .def_property_readonly("num_sub_expressions", &ShuffleVectorExpr::NumSubExpressions)
+    .def_property_readonly("r_paren_token", &ShuffleVectorExpr::RParenToken);
 }
 } // namespace pasta

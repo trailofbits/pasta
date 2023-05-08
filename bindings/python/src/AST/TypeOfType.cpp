@@ -19,9 +19,9 @@ void RegisterTypeOfType(py::module_ &m) {
   py::class_<TypeOfType, Type>(m, "TypeOfType")
     .def("__hash__", [](const TypeOfType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const TypeOfType& a, const TypeOfType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &TypeOfType::Desugar)
-    .def_property_readonly("Kind", &TypeOfType::Kind)
-    .def_property_readonly("UnmodifiedType", &TypeOfType::UnmodifiedType)
-    .def_property_readonly("IsSugared", &TypeOfType::IsSugared);
+    .def_property_readonly("desugar", &TypeOfType::Desugar)
+    .def_property_readonly("kind", &TypeOfType::Kind)
+    .def_property_readonly("unmodified_type", &TypeOfType::UnmodifiedType)
+    .def_property_readonly("is_sugared", &TypeOfType::IsSugared);
 }
 } // namespace pasta

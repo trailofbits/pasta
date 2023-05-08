@@ -19,9 +19,9 @@ void RegisterUnavailableAttr(py::module_ &m) {
   py::class_<UnavailableAttr, InheritableAttr>(m, "UnavailableAttr")
     .def("__hash__", [](const UnavailableAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const UnavailableAttr& a, const UnavailableAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("ImplicitReason", &UnavailableAttr::ImplicitReason)
-    .def_property_readonly("Message", &UnavailableAttr::Message)
-    .def_property_readonly("MessageLength", &UnavailableAttr::MessageLength)
-    .def_property_readonly("Spelling", &UnavailableAttr::Spelling);
+    .def_property_readonly("implicit_reason", &UnavailableAttr::ImplicitReason)
+    .def_property_readonly("message", &UnavailableAttr::Message)
+    .def_property_readonly("message_length", &UnavailableAttr::MessageLength)
+    .def_property_readonly("spelling", &UnavailableAttr::Spelling);
 }
 } // namespace pasta

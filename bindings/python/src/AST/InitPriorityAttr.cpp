@@ -19,7 +19,7 @@ void RegisterInitPriorityAttr(py::module_ &m) {
   py::class_<InitPriorityAttr, InheritableAttr>(m, "InitPriorityAttr")
     .def("__hash__", [](const InitPriorityAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const InitPriorityAttr& a, const InitPriorityAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Priority", &InitPriorityAttr::Priority)
-    .def_property_readonly("Spelling", &InitPriorityAttr::Spelling);
+    .def_property_readonly("priority", &InitPriorityAttr::Priority)
+    .def_property_readonly("spelling", &InitPriorityAttr::Spelling);
 }
 } // namespace pasta

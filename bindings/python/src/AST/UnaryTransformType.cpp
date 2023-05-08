@@ -19,10 +19,10 @@ void RegisterUnaryTransformType(py::module_ &m) {
   py::class_<UnaryTransformType, Type>(m, "UnaryTransformType")
     .def("__hash__", [](const UnaryTransformType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const UnaryTransformType& a, const UnaryTransformType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &UnaryTransformType::Desugar)
-    .def_property_readonly("BaseType", &UnaryTransformType::BaseType)
-    .def_property_readonly("UTTKind", &UnaryTransformType::UTTKind)
-    .def_property_readonly("UnderlyingType", &UnaryTransformType::UnderlyingType)
-    .def_property_readonly("IsSugared", &UnaryTransformType::IsSugared);
+    .def_property_readonly("desugar", &UnaryTransformType::Desugar)
+    .def_property_readonly("base_type", &UnaryTransformType::BaseType)
+    .def_property_readonly("utt_kind", &UnaryTransformType::UTTKind)
+    .def_property_readonly("underlying_type", &UnaryTransformType::UnderlyingType)
+    .def_property_readonly("is_sugared", &UnaryTransformType::IsSugared);
 }
 } // namespace pasta

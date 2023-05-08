@@ -19,8 +19,8 @@ void RegisterAtomicType(py::module_ &m) {
   py::class_<AtomicType, Type>(m, "AtomicType")
     .def("__hash__", [](const AtomicType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const AtomicType& a, const AtomicType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &AtomicType::Desugar)
-    .def_property_readonly("ValueType", &AtomicType::ValueType)
-    .def_property_readonly("IsSugared", &AtomicType::IsSugared);
+    .def_property_readonly("desugar", &AtomicType::Desugar)
+    .def_property_readonly("value_type", &AtomicType::ValueType)
+    .def_property_readonly("is_sugared", &AtomicType::IsSugared);
 }
 } // namespace pasta

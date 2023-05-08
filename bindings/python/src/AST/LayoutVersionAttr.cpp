@@ -19,7 +19,7 @@ void RegisterLayoutVersionAttr(py::module_ &m) {
   py::class_<LayoutVersionAttr, InheritableAttr>(m, "LayoutVersionAttr")
     .def("__hash__", [](const LayoutVersionAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const LayoutVersionAttr& a, const LayoutVersionAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &LayoutVersionAttr::Spelling)
-    .def_property_readonly("Version", &LayoutVersionAttr::Version);
+    .def_property_readonly("spelling", &LayoutVersionAttr::Spelling)
+    .def_property_readonly("version", &LayoutVersionAttr::Version);
 }
 } // namespace pasta

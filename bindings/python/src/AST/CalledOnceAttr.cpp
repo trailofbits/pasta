@@ -19,6 +19,6 @@ void RegisterCalledOnceAttr(py::module_ &m) {
   py::class_<CalledOnceAttr, Attr>(m, "CalledOnceAttr")
     .def("__hash__", [](const CalledOnceAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const CalledOnceAttr& a, const CalledOnceAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &CalledOnceAttr::Spelling);
+    .def_property_readonly("spelling", &CalledOnceAttr::Spelling);
 }
 } // namespace pasta

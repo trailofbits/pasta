@@ -19,8 +19,8 @@ void RegisterSwiftNewTypeAttr(py::module_ &m) {
   py::class_<SwiftNewTypeAttr, InheritableAttr>(m, "SwiftNewTypeAttr")
     .def("__hash__", [](const SwiftNewTypeAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const SwiftNewTypeAttr& a, const SwiftNewTypeAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("NewtypeKind", &SwiftNewTypeAttr::NewtypeKind)
-    .def_property_readonly("SemanticSpelling", &SwiftNewTypeAttr::SemanticSpelling)
-    .def_property_readonly("Spelling", &SwiftNewTypeAttr::Spelling);
+    .def_property_readonly("newtype_kind", &SwiftNewTypeAttr::NewtypeKind)
+    .def_property_readonly("semantic_spelling", &SwiftNewTypeAttr::SemanticSpelling)
+    .def_property_readonly("spelling", &SwiftNewTypeAttr::Spelling);
 }
 } // namespace pasta

@@ -19,6 +19,6 @@ void RegisterTypeNullUnspecifiedAttr(py::module_ &m) {
   py::class_<TypeNullUnspecifiedAttr, TypeAttr>(m, "TypeNullUnspecifiedAttr")
     .def("__hash__", [](const TypeNullUnspecifiedAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const TypeNullUnspecifiedAttr& a, const TypeNullUnspecifiedAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &TypeNullUnspecifiedAttr::Spelling);
+    .def_property_readonly("spelling", &TypeNullUnspecifiedAttr::Spelling);
 }
 } // namespace pasta

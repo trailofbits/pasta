@@ -19,10 +19,10 @@ void RegisterTypeTagForDatatypeAttr(py::module_ &m) {
   py::class_<TypeTagForDatatypeAttr, InheritableAttr>(m, "TypeTagForDatatypeAttr")
     .def("__hash__", [](const TypeTagForDatatypeAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const TypeTagForDatatypeAttr& a, const TypeTagForDatatypeAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("LayoutCompatible", &TypeTagForDatatypeAttr::LayoutCompatible)
-    .def_property_readonly("MatchingCType", &TypeTagForDatatypeAttr::MatchingCType)
-    .def_property_readonly("MatchingCTypeToken", &TypeTagForDatatypeAttr::MatchingCTypeToken)
-    .def_property_readonly("MustBeNull", &TypeTagForDatatypeAttr::MustBeNull)
-    .def_property_readonly("Spelling", &TypeTagForDatatypeAttr::Spelling);
+    .def_property_readonly("layout_compatible", &TypeTagForDatatypeAttr::LayoutCompatible)
+    .def_property_readonly("matching_c_type", &TypeTagForDatatypeAttr::MatchingCType)
+    .def_property_readonly("matching_c_type_token", &TypeTagForDatatypeAttr::MatchingCTypeToken)
+    .def_property_readonly("must_be_null", &TypeTagForDatatypeAttr::MustBeNull)
+    .def_property_readonly("spelling", &TypeTagForDatatypeAttr::Spelling);
 }
 } // namespace pasta

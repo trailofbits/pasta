@@ -19,8 +19,8 @@ void RegisterWeakRefAttr(py::module_ &m) {
   py::class_<WeakRefAttr, InheritableAttr>(m, "WeakRefAttr")
     .def("__hash__", [](const WeakRefAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const WeakRefAttr& a, const WeakRefAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Aliasee", &WeakRefAttr::Aliasee)
-    .def_property_readonly("AliaseeLength", &WeakRefAttr::AliaseeLength)
-    .def_property_readonly("Spelling", &WeakRefAttr::Spelling);
+    .def_property_readonly("aliasee", &WeakRefAttr::Aliasee)
+    .def_property_readonly("aliasee_length", &WeakRefAttr::AliaseeLength)
+    .def_property_readonly("spelling", &WeakRefAttr::Spelling);
 }
 } // namespace pasta

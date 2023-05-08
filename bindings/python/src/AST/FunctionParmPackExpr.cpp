@@ -19,11 +19,11 @@ void RegisterFunctionParmPackExpr(py::module_ &m) {
   py::class_<FunctionParmPackExpr, Expr>(m, "FunctionParmPackExpr")
     .def("__hash__", [](const FunctionParmPackExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const FunctionParmPackExpr& a, const FunctionParmPackExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &FunctionParmPackExpr::Children)
-    .def_property_readonly("BeginToken", &FunctionParmPackExpr::BeginToken)
-    .def_property_readonly("EndToken", &FunctionParmPackExpr::EndToken)
-    .def_property_readonly("NumExpansions", &FunctionParmPackExpr::NumExpansions)
-    .def_property_readonly("ParameterPack", &FunctionParmPackExpr::ParameterPack)
-    .def_property_readonly("ParameterPackToken", &FunctionParmPackExpr::ParameterPackToken);
+    .def_property_readonly("children", &FunctionParmPackExpr::Children)
+    .def_property_readonly("begin_token", &FunctionParmPackExpr::BeginToken)
+    .def_property_readonly("end_token", &FunctionParmPackExpr::EndToken)
+    .def_property_readonly("num_expansions", &FunctionParmPackExpr::NumExpansions)
+    .def_property_readonly("parameter_pack", &FunctionParmPackExpr::ParameterPack)
+    .def_property_readonly("parameter_pack_token", &FunctionParmPackExpr::ParameterPackToken);
 }
 } // namespace pasta

@@ -19,15 +19,15 @@ void RegisterNonTypeTemplateParmDecl(py::module_ &m) {
   py::class_<NonTypeTemplateParmDecl, DeclaratorDecl>(m, "NonTypeTemplateParmDecl")
     .def("__hash__", [](const NonTypeTemplateParmDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const NonTypeTemplateParmDecl& a, const NonTypeTemplateParmDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("DefaultArgumentWasInherited", &NonTypeTemplateParmDecl::DefaultArgumentWasInherited)
-    .def_property_readonly("DefaultArgument", &NonTypeTemplateParmDecl::DefaultArgument)
-    .def_property_readonly("DefaultArgumentToken", &NonTypeTemplateParmDecl::DefaultArgumentToken)
-    .def_property_readonly("NumExpansionTypes", &NonTypeTemplateParmDecl::NumExpansionTypes)
-    .def_property_readonly("PlaceholderTypeConstraint", &NonTypeTemplateParmDecl::PlaceholderTypeConstraint)
-    .def_property_readonly("HasDefaultArgument", &NonTypeTemplateParmDecl::HasDefaultArgument)
-    .def_property_readonly("HasPlaceholderTypeConstraint", &NonTypeTemplateParmDecl::HasPlaceholderTypeConstraint)
-    .def_property_readonly("IsExpandedParameterPack", &NonTypeTemplateParmDecl::IsExpandedParameterPack)
-    .def_property_readonly("IsPackExpansion", &NonTypeTemplateParmDecl::IsPackExpansion)
-    .def_property_readonly("IsParameterPack", &NonTypeTemplateParmDecl::IsParameterPack);
+    .def_property_readonly("default_argument_was_inherited", &NonTypeTemplateParmDecl::DefaultArgumentWasInherited)
+    .def_property_readonly("default_argument", &NonTypeTemplateParmDecl::DefaultArgument)
+    .def_property_readonly("default_argument_token", &NonTypeTemplateParmDecl::DefaultArgumentToken)
+    .def_property_readonly("num_expansion_types", &NonTypeTemplateParmDecl::NumExpansionTypes)
+    .def_property_readonly("placeholder_type_constraint", &NonTypeTemplateParmDecl::PlaceholderTypeConstraint)
+    .def_property_readonly("has_default_argument", &NonTypeTemplateParmDecl::HasDefaultArgument)
+    .def_property_readonly("has_placeholder_type_constraint", &NonTypeTemplateParmDecl::HasPlaceholderTypeConstraint)
+    .def_property_readonly("is_expanded_parameter_pack", &NonTypeTemplateParmDecl::IsExpandedParameterPack)
+    .def_property_readonly("is_pack_expansion", &NonTypeTemplateParmDecl::IsPackExpansion)
+    .def_property_readonly("is_parameter_pack", &NonTypeTemplateParmDecl::IsParameterPack);
 }
 } // namespace pasta

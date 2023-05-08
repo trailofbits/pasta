@@ -19,10 +19,10 @@ void RegisterAbstractConditionalOperator(py::module_ &m) {
   py::class_<AbstractConditionalOperator, Expr>(m, "AbstractConditionalOperator")
     .def("__hash__", [](const AbstractConditionalOperator& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const AbstractConditionalOperator& a, const AbstractConditionalOperator& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("ColonToken", &AbstractConditionalOperator::ColonToken)
-    .def_property_readonly("Condition", &AbstractConditionalOperator::Condition)
-    .def_property_readonly("FalseExpression", &AbstractConditionalOperator::FalseExpression)
-    .def_property_readonly("QuestionToken", &AbstractConditionalOperator::QuestionToken)
-    .def_property_readonly("TrueExpression", &AbstractConditionalOperator::TrueExpression);
+    .def_property_readonly("colon_token", &AbstractConditionalOperator::ColonToken)
+    .def_property_readonly("condition", &AbstractConditionalOperator::Condition)
+    .def_property_readonly("false_expression", &AbstractConditionalOperator::FalseExpression)
+    .def_property_readonly("question_token", &AbstractConditionalOperator::QuestionToken)
+    .def_property_readonly("true_expression", &AbstractConditionalOperator::TrueExpression);
 }
 } // namespace pasta

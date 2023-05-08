@@ -19,12 +19,12 @@ void RegisterIndirectGotoStmt(py::module_ &m) {
   py::class_<IndirectGotoStmt, Stmt>(m, "IndirectGotoStmt")
     .def("__hash__", [](const IndirectGotoStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const IndirectGotoStmt& a, const IndirectGotoStmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &IndirectGotoStmt::Children)
-    .def_property_readonly("BeginToken", &IndirectGotoStmt::BeginToken)
-    .def_property_readonly("ConstantTarget", &IndirectGotoStmt::ConstantTarget)
-    .def_property_readonly("EndToken", &IndirectGotoStmt::EndToken)
-    .def_property_readonly("GotoToken", &IndirectGotoStmt::GotoToken)
-    .def_property_readonly("StarToken", &IndirectGotoStmt::StarToken)
-    .def_property_readonly("Target", &IndirectGotoStmt::Target);
+    .def_property_readonly("children", &IndirectGotoStmt::Children)
+    .def_property_readonly("begin_token", &IndirectGotoStmt::BeginToken)
+    .def_property_readonly("constant_target", &IndirectGotoStmt::ConstantTarget)
+    .def_property_readonly("end_token", &IndirectGotoStmt::EndToken)
+    .def_property_readonly("goto_token", &IndirectGotoStmt::GotoToken)
+    .def_property_readonly("star_token", &IndirectGotoStmt::StarToken)
+    .def_property_readonly("target", &IndirectGotoStmt::Target);
 }
 } // namespace pasta

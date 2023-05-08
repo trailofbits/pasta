@@ -19,6 +19,6 @@ void RegisterObjCSubclassingRestrictedAttr(py::module_ &m) {
   py::class_<ObjCSubclassingRestrictedAttr, InheritableAttr>(m, "ObjCSubclassingRestrictedAttr")
     .def("__hash__", [](const ObjCSubclassingRestrictedAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ObjCSubclassingRestrictedAttr& a, const ObjCSubclassingRestrictedAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &ObjCSubclassingRestrictedAttr::Spelling);
+    .def_property_readonly("spelling", &ObjCSubclassingRestrictedAttr::Spelling);
 }
 } // namespace pasta

@@ -19,7 +19,7 @@ void RegisterOMPTargetParallelDirective(py::module_ &m) {
   py::class_<OMPTargetParallelDirective, OMPExecutableDirective>(m, "OMPTargetParallelDirective")
     .def("__hash__", [](const OMPTargetParallelDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OMPTargetParallelDirective& a, const OMPTargetParallelDirective& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("TaskReductionReferenceExpression", &OMPTargetParallelDirective::TaskReductionReferenceExpression)
-    .def_property_readonly("HasCancel", &OMPTargetParallelDirective::HasCancel);
+    .def_property_readonly("task_reduction_reference_expression", &OMPTargetParallelDirective::TaskReductionReferenceExpression)
+    .def_property_readonly("has_cancel", &OMPTargetParallelDirective::HasCancel);
 }
 } // namespace pasta

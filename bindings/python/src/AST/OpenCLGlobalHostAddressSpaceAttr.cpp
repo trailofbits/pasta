@@ -19,6 +19,6 @@ void RegisterOpenCLGlobalHostAddressSpaceAttr(py::module_ &m) {
   py::class_<OpenCLGlobalHostAddressSpaceAttr, TypeAttr>(m, "OpenCLGlobalHostAddressSpaceAttr")
     .def("__hash__", [](const OpenCLGlobalHostAddressSpaceAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const OpenCLGlobalHostAddressSpaceAttr& a, const OpenCLGlobalHostAddressSpaceAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &OpenCLGlobalHostAddressSpaceAttr::Spelling);
+    .def_property_readonly("spelling", &OpenCLGlobalHostAddressSpaceAttr::Spelling);
 }
 } // namespace pasta

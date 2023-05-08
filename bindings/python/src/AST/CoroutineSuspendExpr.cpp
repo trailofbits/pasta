@@ -19,15 +19,15 @@ void RegisterCoroutineSuspendExpr(py::module_ &m) {
   py::class_<CoroutineSuspendExpr, Expr>(m, "CoroutineSuspendExpr")
     .def("__hash__", [](const CoroutineSuspendExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CoroutineSuspendExpr& a, const CoroutineSuspendExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &CoroutineSuspendExpr::Children)
-    .def_property_readonly("BeginToken", &CoroutineSuspendExpr::BeginToken)
-    .def_property_readonly("CommonExpression", &CoroutineSuspendExpr::CommonExpression)
-    .def_property_readonly("EndToken", &CoroutineSuspendExpr::EndToken)
-    .def_property_readonly("KeywordToken", &CoroutineSuspendExpr::KeywordToken)
-    .def_property_readonly("OpaqueValue", &CoroutineSuspendExpr::OpaqueValue)
-    .def_property_readonly("Operand", &CoroutineSuspendExpr::Operand)
-    .def_property_readonly("ReadyExpression", &CoroutineSuspendExpr::ReadyExpression)
-    .def_property_readonly("ResumeExpression", &CoroutineSuspendExpr::ResumeExpression)
-    .def_property_readonly("SuspendExpression", &CoroutineSuspendExpr::SuspendExpression);
+    .def_property_readonly("children", &CoroutineSuspendExpr::Children)
+    .def_property_readonly("begin_token", &CoroutineSuspendExpr::BeginToken)
+    .def_property_readonly("common_expression", &CoroutineSuspendExpr::CommonExpression)
+    .def_property_readonly("end_token", &CoroutineSuspendExpr::EndToken)
+    .def_property_readonly("keyword_token", &CoroutineSuspendExpr::KeywordToken)
+    .def_property_readonly("opaque_value", &CoroutineSuspendExpr::OpaqueValue)
+    .def_property_readonly("operand", &CoroutineSuspendExpr::Operand)
+    .def_property_readonly("ready_expression", &CoroutineSuspendExpr::ReadyExpression)
+    .def_property_readonly("resume_expression", &CoroutineSuspendExpr::ResumeExpression)
+    .def_property_readonly("suspend_expression", &CoroutineSuspendExpr::SuspendExpression);
 }
 } // namespace pasta

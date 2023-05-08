@@ -19,13 +19,13 @@ void RegisterDoStmt(py::module_ &m) {
   py::class_<DoStmt, Stmt>(m, "DoStmt")
     .def("__hash__", [](const DoStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const DoStmt& a, const DoStmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &DoStmt::Children)
-    .def_property_readonly("BeginToken", &DoStmt::BeginToken)
-    .def_property_readonly("Body", &DoStmt::Body)
-    .def_property_readonly("Condition", &DoStmt::Condition)
-    .def_property_readonly("DoToken", &DoStmt::DoToken)
-    .def_property_readonly("EndToken", &DoStmt::EndToken)
-    .def_property_readonly("RParenToken", &DoStmt::RParenToken)
-    .def_property_readonly("WhileToken", &DoStmt::WhileToken);
+    .def_property_readonly("children", &DoStmt::Children)
+    .def_property_readonly("begin_token", &DoStmt::BeginToken)
+    .def_property_readonly("body", &DoStmt::Body)
+    .def_property_readonly("condition", &DoStmt::Condition)
+    .def_property_readonly("do_token", &DoStmt::DoToken)
+    .def_property_readonly("end_token", &DoStmt::EndToken)
+    .def_property_readonly("r_paren_token", &DoStmt::RParenToken)
+    .def_property_readonly("while_token", &DoStmt::WhileToken);
 }
 } // namespace pasta

@@ -19,7 +19,7 @@ void RegisterFunctionNoProtoType(py::module_ &m) {
   py::class_<FunctionNoProtoType, FunctionType>(m, "FunctionNoProtoType")
     .def("__hash__", [](const FunctionNoProtoType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const FunctionNoProtoType& a, const FunctionNoProtoType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &FunctionNoProtoType::Desugar)
-    .def_property_readonly("IsSugared", &FunctionNoProtoType::IsSugared);
+    .def_property_readonly("desugar", &FunctionNoProtoType::Desugar)
+    .def_property_readonly("is_sugared", &FunctionNoProtoType::IsSugared);
 }
 } // namespace pasta

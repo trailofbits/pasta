@@ -19,11 +19,11 @@ void RegisterParenExpr(py::module_ &m) {
   py::class_<ParenExpr, Expr>(m, "ParenExpr")
     .def("__hash__", [](const ParenExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ParenExpr& a, const ParenExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &ParenExpr::Children)
-    .def_property_readonly("BeginToken", &ParenExpr::BeginToken)
-    .def_property_readonly("EndToken", &ParenExpr::EndToken)
-    .def_property_readonly("LParenToken", &ParenExpr::LParenToken)
-    .def_property_readonly("RParenToken", &ParenExpr::RParenToken)
-    .def_property_readonly("SubExpression", &ParenExpr::SubExpression);
+    .def_property_readonly("children", &ParenExpr::Children)
+    .def_property_readonly("begin_token", &ParenExpr::BeginToken)
+    .def_property_readonly("end_token", &ParenExpr::EndToken)
+    .def_property_readonly("l_paren_token", &ParenExpr::LParenToken)
+    .def_property_readonly("r_paren_token", &ParenExpr::RParenToken)
+    .def_property_readonly("sub_expression", &ParenExpr::SubExpression);
 }
 } // namespace pasta

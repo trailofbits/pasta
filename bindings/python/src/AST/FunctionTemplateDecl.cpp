@@ -19,13 +19,13 @@ void RegisterFunctionTemplateDecl(py::module_ &m) {
   py::class_<FunctionTemplateDecl, RedeclarableTemplateDecl>(m, "FunctionTemplateDecl")
     .def("__hash__", [](const FunctionTemplateDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const FunctionTemplateDecl& a, const FunctionTemplateDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("CanonicalDeclaration", &FunctionTemplateDecl::CanonicalDeclaration)
-    .def_property_readonly("InstantiatedFromMemberTemplate", &FunctionTemplateDecl::InstantiatedFromMemberTemplate)
-    .def_property_readonly("MostRecentDeclaration", &FunctionTemplateDecl::MostRecentDeclaration)
-    .def_property_readonly("PreviousDeclaration", &FunctionTemplateDecl::PreviousDeclaration)
-    .def_property_readonly("TemplatedDeclaration", &FunctionTemplateDecl::TemplatedDeclaration)
-    .def_property_readonly("IsAbbreviated", &FunctionTemplateDecl::IsAbbreviated)
-    .def_property_readonly("IsThisDeclarationADefinition", &FunctionTemplateDecl::IsThisDeclarationADefinition)
-    .def_property_readonly("Specializations", &FunctionTemplateDecl::Specializations);
+    .def_property_readonly("canonical_declaration", &FunctionTemplateDecl::CanonicalDeclaration)
+    .def_property_readonly("instantiated_from_member_template", &FunctionTemplateDecl::InstantiatedFromMemberTemplate)
+    .def_property_readonly("most_recent_declaration", &FunctionTemplateDecl::MostRecentDeclaration)
+    .def_property_readonly("previous_declaration", &FunctionTemplateDecl::PreviousDeclaration)
+    .def_property_readonly("templated_declaration", &FunctionTemplateDecl::TemplatedDeclaration)
+    .def_property_readonly("is_abbreviated", &FunctionTemplateDecl::IsAbbreviated)
+    .def_property_readonly("is_this_declaration_a_definition", &FunctionTemplateDecl::IsThisDeclarationADefinition)
+    .def_property_readonly("specializations", &FunctionTemplateDecl::Specializations);
 }
 } // namespace pasta

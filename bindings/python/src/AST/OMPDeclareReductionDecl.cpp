@@ -19,13 +19,13 @@ void RegisterOMPDeclareReductionDecl(py::module_ &m) {
   py::class_<OMPDeclareReductionDecl, ValueDecl>(m, "OMPDeclareReductionDecl")
     .def("__hash__", [](const OMPDeclareReductionDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const OMPDeclareReductionDecl& a, const OMPDeclareReductionDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("Combiner", &OMPDeclareReductionDecl::Combiner)
-    .def_property_readonly("CombinerIn", &OMPDeclareReductionDecl::CombinerIn)
-    .def_property_readonly("CombinerOut", &OMPDeclareReductionDecl::CombinerOut)
-    .def_property_readonly("InitializerOriginal", &OMPDeclareReductionDecl::InitializerOriginal)
-    .def_property_readonly("InitializerPrivate", &OMPDeclareReductionDecl::InitializerPrivate)
-    .def_property_readonly("Initializer", &OMPDeclareReductionDecl::Initializer)
-    .def_property_readonly("InitializerKind", &OMPDeclareReductionDecl::InitializerKind)
-    .def_property_readonly("PrevDeclarationInScope", &OMPDeclareReductionDecl::PrevDeclarationInScope);
+    .def_property_readonly("combiner", &OMPDeclareReductionDecl::Combiner)
+    .def_property_readonly("combiner_in", &OMPDeclareReductionDecl::CombinerIn)
+    .def_property_readonly("combiner_out", &OMPDeclareReductionDecl::CombinerOut)
+    .def_property_readonly("initializer_original", &OMPDeclareReductionDecl::InitializerOriginal)
+    .def_property_readonly("initializer_private", &OMPDeclareReductionDecl::InitializerPrivate)
+    .def_property_readonly("initializer", &OMPDeclareReductionDecl::Initializer)
+    .def_property_readonly("initializer_kind", &OMPDeclareReductionDecl::InitializerKind)
+    .def_property_readonly("prev_declaration_in_scope", &OMPDeclareReductionDecl::PrevDeclarationInScope);
 }
 } // namespace pasta

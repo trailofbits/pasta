@@ -19,6 +19,6 @@ void RegisterRandomizeLayoutAttr(py::module_ &m) {
   py::class_<RandomizeLayoutAttr, InheritableAttr>(m, "RandomizeLayoutAttr")
     .def("__hash__", [](const RandomizeLayoutAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const RandomizeLayoutAttr& a, const RandomizeLayoutAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &RandomizeLayoutAttr::Spelling);
+    .def_property_readonly("spelling", &RandomizeLayoutAttr::Spelling);
 }
 } // namespace pasta

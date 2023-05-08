@@ -19,8 +19,8 @@ void RegisterAMDGPUFlatWorkGroupSizeAttr(py::module_ &m) {
   py::class_<AMDGPUFlatWorkGroupSizeAttr, InheritableAttr>(m, "AMDGPUFlatWorkGroupSizeAttr")
     .def("__hash__", [](const AMDGPUFlatWorkGroupSizeAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const AMDGPUFlatWorkGroupSizeAttr& a, const AMDGPUFlatWorkGroupSizeAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Max", &AMDGPUFlatWorkGroupSizeAttr::Max)
-    .def_property_readonly("Min", &AMDGPUFlatWorkGroupSizeAttr::Min)
-    .def_property_readonly("Spelling", &AMDGPUFlatWorkGroupSizeAttr::Spelling);
+    .def_property_readonly("max", &AMDGPUFlatWorkGroupSizeAttr::Max)
+    .def_property_readonly("min", &AMDGPUFlatWorkGroupSizeAttr::Min)
+    .def_property_readonly("spelling", &AMDGPUFlatWorkGroupSizeAttr::Spelling);
 }
 } // namespace pasta

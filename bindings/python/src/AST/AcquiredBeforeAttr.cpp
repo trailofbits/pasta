@@ -19,6 +19,6 @@ void RegisterAcquiredBeforeAttr(py::module_ &m) {
   py::class_<AcquiredBeforeAttr, InheritableAttr>(m, "AcquiredBeforeAttr")
     .def("__hash__", [](const AcquiredBeforeAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const AcquiredBeforeAttr& a, const AcquiredBeforeAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &AcquiredBeforeAttr::Spelling);
+    .def_property_readonly("spelling", &AcquiredBeforeAttr::Spelling);
 }
 } // namespace pasta

@@ -19,15 +19,15 @@ void RegisterUnaryExprOrTypeTraitExpr(py::module_ &m) {
   py::class_<UnaryExprOrTypeTraitExpr, Expr>(m, "UnaryExprOrTypeTraitExpr")
     .def("__hash__", [](const UnaryExprOrTypeTraitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const UnaryExprOrTypeTraitExpr& a, const UnaryExprOrTypeTraitExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &UnaryExprOrTypeTraitExpr::Children)
-    .def_property_readonly("ArgumentExpression", &UnaryExprOrTypeTraitExpr::ArgumentExpression)
-    .def_property_readonly("ArgumentType", &UnaryExprOrTypeTraitExpr::ArgumentType)
-    .def_property_readonly("BeginToken", &UnaryExprOrTypeTraitExpr::BeginToken)
-    .def_property_readonly("EndToken", &UnaryExprOrTypeTraitExpr::EndToken)
-    .def_property_readonly("Kind", &UnaryExprOrTypeTraitExpr::Kind)
-    .def_property_readonly("OperatorToken", &UnaryExprOrTypeTraitExpr::OperatorToken)
-    .def_property_readonly("RParenToken", &UnaryExprOrTypeTraitExpr::RParenToken)
-    .def_property_readonly("TypeOfArgument", &UnaryExprOrTypeTraitExpr::TypeOfArgument)
-    .def_property_readonly("IsArgumentType", &UnaryExprOrTypeTraitExpr::IsArgumentType);
+    .def_property_readonly("children", &UnaryExprOrTypeTraitExpr::Children)
+    .def_property_readonly("argument_expression", &UnaryExprOrTypeTraitExpr::ArgumentExpression)
+    .def_property_readonly("argument_type", &UnaryExprOrTypeTraitExpr::ArgumentType)
+    .def_property_readonly("begin_token", &UnaryExprOrTypeTraitExpr::BeginToken)
+    .def_property_readonly("end_token", &UnaryExprOrTypeTraitExpr::EndToken)
+    .def_property_readonly("kind", &UnaryExprOrTypeTraitExpr::Kind)
+    .def_property_readonly("operator_token", &UnaryExprOrTypeTraitExpr::OperatorToken)
+    .def_property_readonly("r_paren_token", &UnaryExprOrTypeTraitExpr::RParenToken)
+    .def_property_readonly("type_of_argument", &UnaryExprOrTypeTraitExpr::TypeOfArgument)
+    .def_property_readonly("is_argument_type", &UnaryExprOrTypeTraitExpr::IsArgumentType);
 }
 } // namespace pasta

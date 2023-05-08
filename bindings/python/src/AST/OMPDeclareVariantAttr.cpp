@@ -19,7 +19,7 @@ void RegisterOMPDeclareVariantAttr(py::module_ &m) {
   py::class_<OMPDeclareVariantAttr, InheritableAttr>(m, "OMPDeclareVariantAttr")
     .def("__hash__", [](const OMPDeclareVariantAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const OMPDeclareVariantAttr& a, const OMPDeclareVariantAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &OMPDeclareVariantAttr::Spelling)
-    .def_property_readonly("VariantFuncReference", &OMPDeclareVariantAttr::VariantFuncReference);
+    .def_property_readonly("spelling", &OMPDeclareVariantAttr::Spelling)
+    .def_property_readonly("variant_func_reference", &OMPDeclareVariantAttr::VariantFuncReference);
 }
 } // namespace pasta

@@ -19,10 +19,10 @@ void RegisterCXXMemberCallExpr(py::module_ &m) {
   py::class_<CXXMemberCallExpr, CallExpr>(m, "CXXMemberCallExpr")
     .def("__hash__", [](const CXXMemberCallExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CXXMemberCallExpr& a, const CXXMemberCallExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("ExpressionToken", &CXXMemberCallExpr::ExpressionToken)
-    .def_property_readonly("ImplicitObjectArgument", &CXXMemberCallExpr::ImplicitObjectArgument)
-    .def_property_readonly("MethodDeclaration", &CXXMemberCallExpr::MethodDeclaration)
-    .def_property_readonly("ObjectType", &CXXMemberCallExpr::ObjectType)
-    .def_property_readonly("RecordDeclaration", &CXXMemberCallExpr::RecordDeclaration);
+    .def_property_readonly("expression_token", &CXXMemberCallExpr::ExpressionToken)
+    .def_property_readonly("implicit_object_argument", &CXXMemberCallExpr::ImplicitObjectArgument)
+    .def_property_readonly("method_declaration", &CXXMemberCallExpr::MethodDeclaration)
+    .def_property_readonly("object_type", &CXXMemberCallExpr::ObjectType)
+    .def_property_readonly("record_declaration", &CXXMemberCallExpr::RecordDeclaration);
 }
 } // namespace pasta

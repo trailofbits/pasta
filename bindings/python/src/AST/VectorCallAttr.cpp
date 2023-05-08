@@ -19,6 +19,6 @@ void RegisterVectorCallAttr(py::module_ &m) {
   py::class_<VectorCallAttr, InheritableAttr>(m, "VectorCallAttr")
     .def("__hash__", [](const VectorCallAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const VectorCallAttr& a, const VectorCallAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &VectorCallAttr::Spelling);
+    .def_property_readonly("spelling", &VectorCallAttr::Spelling);
 }
 } // namespace pasta

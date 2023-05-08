@@ -19,8 +19,8 @@ void RegisterRecoveryExpr(py::module_ &m) {
   py::class_<RecoveryExpr, Expr>(m, "RecoveryExpr")
     .def("__hash__", [](const RecoveryExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const RecoveryExpr& a, const RecoveryExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("BeginToken", &RecoveryExpr::BeginToken)
-    .def_property_readonly("EndToken", &RecoveryExpr::EndToken)
-    .def_property_readonly("SubExpressions", &RecoveryExpr::SubExpressions);
+    .def_property_readonly("begin_token", &RecoveryExpr::BeginToken)
+    .def_property_readonly("end_token", &RecoveryExpr::EndToken)
+    .def_property_readonly("sub_expressions", &RecoveryExpr::SubExpressions);
 }
 } // namespace pasta

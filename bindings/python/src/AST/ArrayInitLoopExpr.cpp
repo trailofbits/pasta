@@ -19,11 +19,11 @@ void RegisterArrayInitLoopExpr(py::module_ &m) {
   py::class_<ArrayInitLoopExpr, Expr>(m, "ArrayInitLoopExpr")
     .def("__hash__", [](const ArrayInitLoopExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ArrayInitLoopExpr& a, const ArrayInitLoopExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &ArrayInitLoopExpr::Children)
-    .def_property_readonly("ArraySize", &ArrayInitLoopExpr::ArraySize)
-    .def_property_readonly("BeginToken", &ArrayInitLoopExpr::BeginToken)
-    .def_property_readonly("CommonExpression", &ArrayInitLoopExpr::CommonExpression)
-    .def_property_readonly("EndToken", &ArrayInitLoopExpr::EndToken)
-    .def_property_readonly("SubExpression", &ArrayInitLoopExpr::SubExpression);
+    .def_property_readonly("children", &ArrayInitLoopExpr::Children)
+    .def_property_readonly("array_size", &ArrayInitLoopExpr::ArraySize)
+    .def_property_readonly("begin_token", &ArrayInitLoopExpr::BeginToken)
+    .def_property_readonly("common_expression", &ArrayInitLoopExpr::CommonExpression)
+    .def_property_readonly("end_token", &ArrayInitLoopExpr::EndToken)
+    .def_property_readonly("sub_expression", &ArrayInitLoopExpr::SubExpression);
 }
 } // namespace pasta

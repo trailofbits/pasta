@@ -19,6 +19,6 @@ void RegisterOMPParallelMaskedDirective(py::module_ &m) {
   py::class_<OMPParallelMaskedDirective, OMPExecutableDirective>(m, "OMPParallelMaskedDirective")
     .def("__hash__", [](const OMPParallelMaskedDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OMPParallelMaskedDirective& a, const OMPParallelMaskedDirective& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("TaskReductionReferenceExpression", &OMPParallelMaskedDirective::TaskReductionReferenceExpression);
+    .def_property_readonly("task_reduction_reference_expression", &OMPParallelMaskedDirective::TaskReductionReferenceExpression);
 }
 } // namespace pasta

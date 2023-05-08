@@ -19,6 +19,6 @@ void RegisterNoRandomizeLayoutAttr(py::module_ &m) {
   py::class_<NoRandomizeLayoutAttr, InheritableAttr>(m, "NoRandomizeLayoutAttr")
     .def("__hash__", [](const NoRandomizeLayoutAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const NoRandomizeLayoutAttr& a, const NoRandomizeLayoutAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &NoRandomizeLayoutAttr::Spelling);
+    .def_property_readonly("spelling", &NoRandomizeLayoutAttr::Spelling);
 }
 } // namespace pasta

@@ -19,8 +19,8 @@ void RegisterPointerType(py::module_ &m) {
   py::class_<PointerType, Type>(m, "PointerType")
     .def("__hash__", [](const PointerType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const PointerType& a, const PointerType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &PointerType::Desugar)
-    .def_property_readonly("PointeeType", &PointerType::PointeeType)
-    .def_property_readonly("IsSugared", &PointerType::IsSugared);
+    .def_property_readonly("desugar", &PointerType::Desugar)
+    .def_property_readonly("pointee_type", &PointerType::PointeeType)
+    .def_property_readonly("is_sugared", &PointerType::IsSugared);
 }
 } // namespace pasta

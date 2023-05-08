@@ -19,11 +19,11 @@ void RegisterCXXNamedCastExpr(py::module_ &m) {
   py::class_<CXXNamedCastExpr, ExplicitCastExpr>(m, "CXXNamedCastExpr")
     .def("__hash__", [](const CXXNamedCastExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CXXNamedCastExpr& a, const CXXNamedCastExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("AngleBrackets", &CXXNamedCastExpr::AngleBrackets)
-    .def_property_readonly("BeginToken", &CXXNamedCastExpr::BeginToken)
-    .def_property_readonly("CastName", &CXXNamedCastExpr::CastName)
-    .def_property_readonly("EndToken", &CXXNamedCastExpr::EndToken)
-    .def_property_readonly("OperatorToken", &CXXNamedCastExpr::OperatorToken)
-    .def_property_readonly("RParenToken", &CXXNamedCastExpr::RParenToken);
+    .def_property_readonly("angle_brackets", &CXXNamedCastExpr::AngleBrackets)
+    .def_property_readonly("begin_token", &CXXNamedCastExpr::BeginToken)
+    .def_property_readonly("cast_name", &CXXNamedCastExpr::CastName)
+    .def_property_readonly("end_token", &CXXNamedCastExpr::EndToken)
+    .def_property_readonly("operator_token", &CXXNamedCastExpr::OperatorToken)
+    .def_property_readonly("r_paren_token", &CXXNamedCastExpr::RParenToken);
 }
 } // namespace pasta

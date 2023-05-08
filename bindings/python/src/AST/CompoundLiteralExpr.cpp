@@ -19,12 +19,12 @@ void RegisterCompoundLiteralExpr(py::module_ &m) {
   py::class_<CompoundLiteralExpr, Expr>(m, "CompoundLiteralExpr")
     .def("__hash__", [](const CompoundLiteralExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CompoundLiteralExpr& a, const CompoundLiteralExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &CompoundLiteralExpr::Children)
-    .def_property_readonly("BeginToken", &CompoundLiteralExpr::BeginToken)
-    .def_property_readonly("EndToken", &CompoundLiteralExpr::EndToken)
-    .def_property_readonly("Initializer", &CompoundLiteralExpr::Initializer)
-    .def_property_readonly("LParenToken", &CompoundLiteralExpr::LParenToken)
-    .def_property_readonly("Type", &CompoundLiteralExpr::Type)
-    .def_property_readonly("IsFileScope", &CompoundLiteralExpr::IsFileScope);
+    .def_property_readonly("children", &CompoundLiteralExpr::Children)
+    .def_property_readonly("begin_token", &CompoundLiteralExpr::BeginToken)
+    .def_property_readonly("end_token", &CompoundLiteralExpr::EndToken)
+    .def_property_readonly("initializer", &CompoundLiteralExpr::Initializer)
+    .def_property_readonly("l_paren_token", &CompoundLiteralExpr::LParenToken)
+    .def_property_readonly("type", &CompoundLiteralExpr::Type)
+    .def_property_readonly("is_file_scope", &CompoundLiteralExpr::IsFileScope);
 }
 } // namespace pasta

@@ -19,11 +19,11 @@ void RegisterExpressionTraitExpr(py::module_ &m) {
   py::class_<ExpressionTraitExpr, Expr>(m, "ExpressionTraitExpr")
     .def("__hash__", [](const ExpressionTraitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ExpressionTraitExpr& a, const ExpressionTraitExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &ExpressionTraitExpr::Children)
-    .def_property_readonly("BeginToken", &ExpressionTraitExpr::BeginToken)
-    .def_property_readonly("EndToken", &ExpressionTraitExpr::EndToken)
-    .def_property_readonly("QueriedExpression", &ExpressionTraitExpr::QueriedExpression)
-    .def_property_readonly("Trait", &ExpressionTraitExpr::Trait)
-    .def_property_readonly("Value", &ExpressionTraitExpr::Value);
+    .def_property_readonly("children", &ExpressionTraitExpr::Children)
+    .def_property_readonly("begin_token", &ExpressionTraitExpr::BeginToken)
+    .def_property_readonly("end_token", &ExpressionTraitExpr::EndToken)
+    .def_property_readonly("queried_expression", &ExpressionTraitExpr::QueriedExpression)
+    .def_property_readonly("trait", &ExpressionTraitExpr::Trait)
+    .def_property_readonly("value", &ExpressionTraitExpr::Value);
 }
 } // namespace pasta

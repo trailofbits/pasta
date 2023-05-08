@@ -19,14 +19,14 @@ void RegisterAttributedType(py::module_ &m) {
   py::class_<AttributedType, Type>(m, "AttributedType")
     .def("__hash__", [](const AttributedType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const AttributedType& a, const AttributedType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &AttributedType::Desugar)
-    .def_property_readonly("AttributeKind", &AttributedType::AttributeKind)
-    .def_property_readonly("EquivalentType", &AttributedType::EquivalentType)
-    .def_property_readonly("ImmediateNullability", &AttributedType::ImmediateNullability)
-    .def_property_readonly("ModifiedType", &AttributedType::ModifiedType)
-    .def_property_readonly("IsCallingConv", &AttributedType::IsCallingConv)
-    .def_property_readonly("IsMSTypeSpec", &AttributedType::IsMSTypeSpec)
-    .def_property_readonly("IsQualifier", &AttributedType::IsQualifier)
-    .def_property_readonly("IsSugared", &AttributedType::IsSugared);
+    .def_property_readonly("desugar", &AttributedType::Desugar)
+    .def_property_readonly("attribute_kind", &AttributedType::AttributeKind)
+    .def_property_readonly("equivalent_type", &AttributedType::EquivalentType)
+    .def_property_readonly("immediate_nullability", &AttributedType::ImmediateNullability)
+    .def_property_readonly("modified_type", &AttributedType::ModifiedType)
+    .def_property_readonly("is_calling_conv", &AttributedType::IsCallingConv)
+    .def_property_readonly("is_ms_type_spec", &AttributedType::IsMSTypeSpec)
+    .def_property_readonly("is_qualifier", &AttributedType::IsQualifier)
+    .def_property_readonly("is_sugared", &AttributedType::IsSugared);
 }
 } // namespace pasta

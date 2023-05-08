@@ -19,6 +19,6 @@ void RegisterArmBuiltinAliasAttr(py::module_ &m) {
   py::class_<ArmBuiltinAliasAttr, InheritableAttr>(m, "ArmBuiltinAliasAttr")
     .def("__hash__", [](const ArmBuiltinAliasAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ArmBuiltinAliasAttr& a, const ArmBuiltinAliasAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &ArmBuiltinAliasAttr::Spelling);
+    .def_property_readonly("spelling", &ArmBuiltinAliasAttr::Spelling);
 }
 } // namespace pasta

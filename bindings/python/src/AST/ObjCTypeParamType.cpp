@@ -19,8 +19,8 @@ void RegisterObjCTypeParamType(py::module_ &m) {
   py::class_<ObjCTypeParamType, Type>(m, "ObjCTypeParamType")
     .def("__hash__", [](const ObjCTypeParamType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const ObjCTypeParamType& a, const ObjCTypeParamType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &ObjCTypeParamType::Desugar)
-    .def_property_readonly("Declaration", &ObjCTypeParamType::Declaration)
-    .def_property_readonly("IsSugared", &ObjCTypeParamType::IsSugared);
+    .def_property_readonly("desugar", &ObjCTypeParamType::Desugar)
+    .def_property_readonly("declaration", &ObjCTypeParamType::Declaration)
+    .def_property_readonly("is_sugared", &ObjCTypeParamType::IsSugared);
 }
 } // namespace pasta

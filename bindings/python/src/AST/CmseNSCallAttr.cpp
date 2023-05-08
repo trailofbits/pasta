@@ -19,6 +19,6 @@ void RegisterCmseNSCallAttr(py::module_ &m) {
   py::class_<CmseNSCallAttr, TypeAttr>(m, "CmseNSCallAttr")
     .def("__hash__", [](const CmseNSCallAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const CmseNSCallAttr& a, const CmseNSCallAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &CmseNSCallAttr::Spelling);
+    .def_property_readonly("spelling", &CmseNSCallAttr::Spelling);
 }
 } // namespace pasta

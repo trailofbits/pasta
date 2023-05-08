@@ -19,11 +19,11 @@ void RegisterCXXTryStmt(py::module_ &m) {
   py::class_<CXXTryStmt, Stmt>(m, "CXXTryStmt")
     .def("__hash__", [](const CXXTryStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CXXTryStmt& a, const CXXTryStmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &CXXTryStmt::Children)
-    .def_property_readonly("BeginToken", &CXXTryStmt::BeginToken)
-    .def_property_readonly("EndToken", &CXXTryStmt::EndToken)
-    .def_property_readonly("NumHandlers", &CXXTryStmt::NumHandlers)
-    .def_property_readonly("TryBlock", &CXXTryStmt::TryBlock)
-    .def_property_readonly("TryToken", &CXXTryStmt::TryToken);
+    .def_property_readonly("children", &CXXTryStmt::Children)
+    .def_property_readonly("begin_token", &CXXTryStmt::BeginToken)
+    .def_property_readonly("end_token", &CXXTryStmt::EndToken)
+    .def_property_readonly("num_handlers", &CXXTryStmt::NumHandlers)
+    .def_property_readonly("try_block", &CXXTryStmt::TryBlock)
+    .def_property_readonly("try_token", &CXXTryStmt::TryToken);
 }
 } // namespace pasta

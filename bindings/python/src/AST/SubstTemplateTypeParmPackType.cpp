@@ -19,12 +19,12 @@ void RegisterSubstTemplateTypeParmPackType(py::module_ &m) {
   py::class_<SubstTemplateTypeParmPackType, Type>(m, "SubstTemplateTypeParmPackType")
     .def("__hash__", [](const SubstTemplateTypeParmPackType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const SubstTemplateTypeParmPackType& a, const SubstTemplateTypeParmPackType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &SubstTemplateTypeParmPackType::Desugar)
-    .def_property_readonly("AssociatedDeclaration", &SubstTemplateTypeParmPackType::AssociatedDeclaration)
-    .def_property_readonly("Final", &SubstTemplateTypeParmPackType::Final)
-    .def_property_readonly("Index", &SubstTemplateTypeParmPackType::Index)
-    .def_property_readonly("NumArguments", &SubstTemplateTypeParmPackType::NumArguments)
-    .def_property_readonly("ReplacedParameter", &SubstTemplateTypeParmPackType::ReplacedParameter)
-    .def_property_readonly("IsSugared", &SubstTemplateTypeParmPackType::IsSugared);
+    .def_property_readonly("desugar", &SubstTemplateTypeParmPackType::Desugar)
+    .def_property_readonly("associated_declaration", &SubstTemplateTypeParmPackType::AssociatedDeclaration)
+    .def_property_readonly("final", &SubstTemplateTypeParmPackType::Final)
+    .def_property_readonly("index", &SubstTemplateTypeParmPackType::Index)
+    .def_property_readonly("num_arguments", &SubstTemplateTypeParmPackType::NumArguments)
+    .def_property_readonly("replaced_parameter", &SubstTemplateTypeParmPackType::ReplacedParameter)
+    .def_property_readonly("is_sugared", &SubstTemplateTypeParmPackType::IsSugared);
 }
 } // namespace pasta

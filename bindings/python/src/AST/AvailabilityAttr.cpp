@@ -19,12 +19,12 @@ void RegisterAvailabilityAttr(py::module_ &m) {
   py::class_<AvailabilityAttr, InheritableAttr>(m, "AvailabilityAttr")
     .def("__hash__", [](const AvailabilityAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const AvailabilityAttr& a, const AvailabilityAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Message", &AvailabilityAttr::Message)
-    .def_property_readonly("MessageLength", &AvailabilityAttr::MessageLength)
-    .def_property_readonly("Replacement", &AvailabilityAttr::Replacement)
-    .def_property_readonly("ReplacementLength", &AvailabilityAttr::ReplacementLength)
-    .def_property_readonly("Spelling", &AvailabilityAttr::Spelling)
-    .def_property_readonly("Strict", &AvailabilityAttr::Strict)
-    .def_property_readonly("Unavailable", &AvailabilityAttr::Unavailable);
+    .def_property_readonly("message", &AvailabilityAttr::Message)
+    .def_property_readonly("message_length", &AvailabilityAttr::MessageLength)
+    .def_property_readonly("replacement", &AvailabilityAttr::Replacement)
+    .def_property_readonly("replacement_length", &AvailabilityAttr::ReplacementLength)
+    .def_property_readonly("spelling", &AvailabilityAttr::Spelling)
+    .def_property_readonly("strict", &AvailabilityAttr::Strict)
+    .def_property_readonly("unavailable", &AvailabilityAttr::Unavailable);
 }
 } // namespace pasta

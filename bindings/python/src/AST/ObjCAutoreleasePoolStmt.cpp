@@ -19,10 +19,10 @@ void RegisterObjCAutoreleasePoolStmt(py::module_ &m) {
   py::class_<ObjCAutoreleasePoolStmt, Stmt>(m, "ObjCAutoreleasePoolStmt")
     .def("__hash__", [](const ObjCAutoreleasePoolStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ObjCAutoreleasePoolStmt& a, const ObjCAutoreleasePoolStmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &ObjCAutoreleasePoolStmt::Children)
-    .def_property_readonly("AtToken", &ObjCAutoreleasePoolStmt::AtToken)
-    .def_property_readonly("BeginToken", &ObjCAutoreleasePoolStmt::BeginToken)
-    .def_property_readonly("EndToken", &ObjCAutoreleasePoolStmt::EndToken)
-    .def_property_readonly("SubStatement", &ObjCAutoreleasePoolStmt::SubStatement);
+    .def_property_readonly("children", &ObjCAutoreleasePoolStmt::Children)
+    .def_property_readonly("at_token", &ObjCAutoreleasePoolStmt::AtToken)
+    .def_property_readonly("begin_token", &ObjCAutoreleasePoolStmt::BeginToken)
+    .def_property_readonly("end_token", &ObjCAutoreleasePoolStmt::EndToken)
+    .def_property_readonly("sub_statement", &ObjCAutoreleasePoolStmt::SubStatement);
 }
 } // namespace pasta

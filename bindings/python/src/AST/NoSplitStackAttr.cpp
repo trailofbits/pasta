@@ -19,6 +19,6 @@ void RegisterNoSplitStackAttr(py::module_ &m) {
   py::class_<NoSplitStackAttr, InheritableAttr>(m, "NoSplitStackAttr")
     .def("__hash__", [](const NoSplitStackAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const NoSplitStackAttr& a, const NoSplitStackAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &NoSplitStackAttr::Spelling);
+    .def_property_readonly("spelling", &NoSplitStackAttr::Spelling);
 }
 } // namespace pasta

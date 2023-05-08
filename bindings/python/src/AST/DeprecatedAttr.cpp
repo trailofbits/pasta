@@ -19,10 +19,10 @@ void RegisterDeprecatedAttr(py::module_ &m) {
   py::class_<DeprecatedAttr, InheritableAttr>(m, "DeprecatedAttr")
     .def("__hash__", [](const DeprecatedAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const DeprecatedAttr& a, const DeprecatedAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Message", &DeprecatedAttr::Message)
-    .def_property_readonly("MessageLength", &DeprecatedAttr::MessageLength)
-    .def_property_readonly("Replacement", &DeprecatedAttr::Replacement)
-    .def_property_readonly("ReplacementLength", &DeprecatedAttr::ReplacementLength)
-    .def_property_readonly("Spelling", &DeprecatedAttr::Spelling);
+    .def_property_readonly("message", &DeprecatedAttr::Message)
+    .def_property_readonly("message_length", &DeprecatedAttr::MessageLength)
+    .def_property_readonly("replacement", &DeprecatedAttr::Replacement)
+    .def_property_readonly("replacement_length", &DeprecatedAttr::ReplacementLength)
+    .def_property_readonly("spelling", &DeprecatedAttr::Spelling);
 }
 } // namespace pasta

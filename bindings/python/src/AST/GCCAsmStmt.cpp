@@ -19,13 +19,13 @@ void RegisterGCCAsmStmt(py::module_ &m) {
   py::class_<GCCAsmStmt, AsmStmt>(m, "GCCAsmStmt")
     .def("__hash__", [](const GCCAsmStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const GCCAsmStmt& a, const GCCAsmStmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def("GenerateAssemblyString", &GCCAsmStmt::GenerateAssemblyString)
-    .def_property_readonly("AssemblyString", &GCCAsmStmt::AssemblyString)
-    .def_property_readonly("BeginToken", &GCCAsmStmt::BeginToken)
-    .def_property_readonly("EndToken", &GCCAsmStmt::EndToken)
-    .def_property_readonly("NumLabels", &GCCAsmStmt::NumLabels)
-    .def_property_readonly("RParenToken", &GCCAsmStmt::RParenToken)
-    .def_property_readonly("IsAssemblyGoto", &GCCAsmStmt::IsAssemblyGoto)
-    .def_property_readonly("Labels", &GCCAsmStmt::Labels);
+    .def("generate_assembly_string", &GCCAsmStmt::GenerateAssemblyString)
+    .def_property_readonly("assembly_string", &GCCAsmStmt::AssemblyString)
+    .def_property_readonly("begin_token", &GCCAsmStmt::BeginToken)
+    .def_property_readonly("end_token", &GCCAsmStmt::EndToken)
+    .def_property_readonly("num_labels", &GCCAsmStmt::NumLabels)
+    .def_property_readonly("r_paren_token", &GCCAsmStmt::RParenToken)
+    .def_property_readonly("is_assembly_goto", &GCCAsmStmt::IsAssemblyGoto)
+    .def_property_readonly("labels", &GCCAsmStmt::Labels);
 }
 } // namespace pasta

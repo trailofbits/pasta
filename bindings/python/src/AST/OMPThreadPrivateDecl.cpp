@@ -19,6 +19,6 @@ void RegisterOMPThreadPrivateDecl(py::module_ &m) {
   py::class_<OMPThreadPrivateDecl, OMPDeclarativeDirectiveDecl>(m, "OMPThreadPrivateDecl")
     .def("__hash__", [](const OMPThreadPrivateDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const OMPThreadPrivateDecl& a, const OMPThreadPrivateDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("Varlists", &OMPThreadPrivateDecl::Varlists);
+    .def_property_readonly("varlists", &OMPThreadPrivateDecl::Varlists);
 }
 } // namespace pasta

@@ -19,14 +19,14 @@ void RegisterDiagnoseIfAttr(py::module_ &m) {
   py::class_<DiagnoseIfAttr, InheritableAttr>(m, "DiagnoseIfAttr")
     .def("__hash__", [](const DiagnoseIfAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const DiagnoseIfAttr& a, const DiagnoseIfAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("ArgumentDependent", &DiagnoseIfAttr::ArgumentDependent)
-    .def_property_readonly("Condition", &DiagnoseIfAttr::Condition)
-    .def_property_readonly("DiagnosticType", &DiagnoseIfAttr::DiagnosticType)
-    .def_property_readonly("Message", &DiagnoseIfAttr::Message)
-    .def_property_readonly("MessageLength", &DiagnoseIfAttr::MessageLength)
-    .def_property_readonly("Parent", &DiagnoseIfAttr::Parent)
-    .def_property_readonly("Spelling", &DiagnoseIfAttr::Spelling)
-    .def_property_readonly("IsError", &DiagnoseIfAttr::IsError)
-    .def_property_readonly("IsWarning", &DiagnoseIfAttr::IsWarning);
+    .def_property_readonly("argument_dependent", &DiagnoseIfAttr::ArgumentDependent)
+    .def_property_readonly("condition", &DiagnoseIfAttr::Condition)
+    .def_property_readonly("diagnostic_type", &DiagnoseIfAttr::DiagnosticType)
+    .def_property_readonly("message", &DiagnoseIfAttr::Message)
+    .def_property_readonly("message_length", &DiagnoseIfAttr::MessageLength)
+    .def_property_readonly("parent", &DiagnoseIfAttr::Parent)
+    .def_property_readonly("spelling", &DiagnoseIfAttr::Spelling)
+    .def_property_readonly("is_error", &DiagnoseIfAttr::IsError)
+    .def_property_readonly("is_warning", &DiagnoseIfAttr::IsWarning);
 }
 } // namespace pasta

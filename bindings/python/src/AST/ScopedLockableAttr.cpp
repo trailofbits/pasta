@@ -19,6 +19,6 @@ void RegisterScopedLockableAttr(py::module_ &m) {
   py::class_<ScopedLockableAttr, InheritableAttr>(m, "ScopedLockableAttr")
     .def("__hash__", [](const ScopedLockableAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ScopedLockableAttr& a, const ScopedLockableAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &ScopedLockableAttr::Spelling);
+    .def_property_readonly("spelling", &ScopedLockableAttr::Spelling);
 }
 } // namespace pasta

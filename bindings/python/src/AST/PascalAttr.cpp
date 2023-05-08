@@ -19,6 +19,6 @@ void RegisterPascalAttr(py::module_ &m) {
   py::class_<PascalAttr, InheritableAttr>(m, "PascalAttr")
     .def("__hash__", [](const PascalAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const PascalAttr& a, const PascalAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &PascalAttr::Spelling);
+    .def_property_readonly("spelling", &PascalAttr::Spelling);
 }
 } // namespace pasta

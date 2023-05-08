@@ -19,8 +19,8 @@ void RegisterObjCInterfaceType(py::module_ &m) {
   py::class_<ObjCInterfaceType, ObjCObjectType>(m, "ObjCInterfaceType")
     .def("__hash__", [](const ObjCInterfaceType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const ObjCInterfaceType& a, const ObjCInterfaceType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &ObjCInterfaceType::Desugar)
-    .def_property_readonly("Declaration", &ObjCInterfaceType::Declaration)
-    .def_property_readonly("IsSugared", &ObjCInterfaceType::IsSugared);
+    .def_property_readonly("desugar", &ObjCInterfaceType::Desugar)
+    .def_property_readonly("declaration", &ObjCInterfaceType::Declaration)
+    .def_property_readonly("is_sugared", &ObjCInterfaceType::IsSugared);
 }
 } // namespace pasta

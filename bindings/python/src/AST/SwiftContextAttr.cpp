@@ -19,6 +19,6 @@ void RegisterSwiftContextAttr(py::module_ &m) {
   py::class_<SwiftContextAttr, ParameterABIAttr>(m, "SwiftContextAttr")
     .def("__hash__", [](const SwiftContextAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const SwiftContextAttr& a, const SwiftContextAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &SwiftContextAttr::Spelling);
+    .def_property_readonly("spelling", &SwiftContextAttr::Spelling);
 }
 } // namespace pasta

@@ -19,14 +19,14 @@ void RegisterDependentScopeDeclRefExpr(py::module_ &m) {
   py::class_<DependentScopeDeclRefExpr, Expr>(m, "DependentScopeDeclRefExpr")
     .def("__hash__", [](const DependentScopeDeclRefExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const DependentScopeDeclRefExpr& a, const DependentScopeDeclRefExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &DependentScopeDeclRefExpr::Children)
-    .def_property_readonly("BeginToken", &DependentScopeDeclRefExpr::BeginToken)
-    .def_property_readonly("EndToken", &DependentScopeDeclRefExpr::EndToken)
-    .def_property_readonly("LAngleToken", &DependentScopeDeclRefExpr::LAngleToken)
-    .def_property_readonly("NumTemplateArguments", &DependentScopeDeclRefExpr::NumTemplateArguments)
-    .def_property_readonly("RAngleToken", &DependentScopeDeclRefExpr::RAngleToken)
-    .def_property_readonly("TemplateKeywordToken", &DependentScopeDeclRefExpr::TemplateKeywordToken)
-    .def_property_readonly("HasExplicitTemplateArguments", &DependentScopeDeclRefExpr::HasExplicitTemplateArguments)
-    .def_property_readonly("HasTemplateKeyword", &DependentScopeDeclRefExpr::HasTemplateKeyword);
+    .def_property_readonly("children", &DependentScopeDeclRefExpr::Children)
+    .def_property_readonly("begin_token", &DependentScopeDeclRefExpr::BeginToken)
+    .def_property_readonly("end_token", &DependentScopeDeclRefExpr::EndToken)
+    .def_property_readonly("l_angle_token", &DependentScopeDeclRefExpr::LAngleToken)
+    .def_property_readonly("num_template_arguments", &DependentScopeDeclRefExpr::NumTemplateArguments)
+    .def_property_readonly("r_angle_token", &DependentScopeDeclRefExpr::RAngleToken)
+    .def_property_readonly("template_keyword_token", &DependentScopeDeclRefExpr::TemplateKeywordToken)
+    .def_property_readonly("has_explicit_template_arguments", &DependentScopeDeclRefExpr::HasExplicitTemplateArguments)
+    .def_property_readonly("has_template_keyword", &DependentScopeDeclRefExpr::HasTemplateKeyword);
 }
 } // namespace pasta

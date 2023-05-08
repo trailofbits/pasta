@@ -19,14 +19,14 @@ void RegisterCXXConstructorDecl(py::module_ &m) {
   py::class_<CXXConstructorDecl, CXXMethodDecl>(m, "CXXConstructorDecl")
     .def("__hash__", [](const CXXConstructorDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const CXXConstructorDecl& a, const CXXConstructorDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("CanonicalDeclaration", &CXXConstructorDecl::CanonicalDeclaration)
-    .def_property_readonly("NumConstructorInitializers", &CXXConstructorDecl::NumConstructorInitializers)
-    .def_property_readonly("TargetConstructor", &CXXConstructorDecl::TargetConstructor)
-    .def("IsConvertingConstructor", &CXXConstructorDecl::IsConvertingConstructor)
-    .def_property_readonly("IsDefaultConstructor", &CXXConstructorDecl::IsDefaultConstructor)
-    .def_property_readonly("IsDelegatingConstructor", &CXXConstructorDecl::IsDelegatingConstructor)
-    .def_property_readonly("IsExplicit", &CXXConstructorDecl::IsExplicit)
-    .def_property_readonly("IsInheritingConstructor", &CXXConstructorDecl::IsInheritingConstructor)
-    .def_property_readonly("IsSpecializationCopyingObject", &CXXConstructorDecl::IsSpecializationCopyingObject);
+    .def_property_readonly("canonical_declaration", &CXXConstructorDecl::CanonicalDeclaration)
+    .def_property_readonly("num_constructor_initializers", &CXXConstructorDecl::NumConstructorInitializers)
+    .def_property_readonly("target_constructor", &CXXConstructorDecl::TargetConstructor)
+    .def("is_converting_constructor", &CXXConstructorDecl::IsConvertingConstructor)
+    .def_property_readonly("is_default_constructor", &CXXConstructorDecl::IsDefaultConstructor)
+    .def_property_readonly("is_delegating_constructor", &CXXConstructorDecl::IsDelegatingConstructor)
+    .def_property_readonly("is_explicit", &CXXConstructorDecl::IsExplicit)
+    .def_property_readonly("is_inheriting_constructor", &CXXConstructorDecl::IsInheritingConstructor)
+    .def_property_readonly("is_specialization_copying_object", &CXXConstructorDecl::IsSpecializationCopyingObject);
 }
 } // namespace pasta

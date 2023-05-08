@@ -19,6 +19,6 @@ void RegisterOpenCLGlobalDeviceAddressSpaceAttr(py::module_ &m) {
   py::class_<OpenCLGlobalDeviceAddressSpaceAttr, TypeAttr>(m, "OpenCLGlobalDeviceAddressSpaceAttr")
     .def("__hash__", [](const OpenCLGlobalDeviceAddressSpaceAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const OpenCLGlobalDeviceAddressSpaceAttr& a, const OpenCLGlobalDeviceAddressSpaceAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &OpenCLGlobalDeviceAddressSpaceAttr::Spelling);
+    .def_property_readonly("spelling", &OpenCLGlobalDeviceAddressSpaceAttr::Spelling);
 }
 } // namespace pasta

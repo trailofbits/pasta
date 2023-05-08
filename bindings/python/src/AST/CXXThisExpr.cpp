@@ -19,10 +19,10 @@ void RegisterCXXThisExpr(py::module_ &m) {
   py::class_<CXXThisExpr, Expr>(m, "CXXThisExpr")
     .def("__hash__", [](const CXXThisExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CXXThisExpr& a, const CXXThisExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &CXXThisExpr::Children)
-    .def_property_readonly("BeginToken", &CXXThisExpr::BeginToken)
-    .def_property_readonly("EndToken", &CXXThisExpr::EndToken)
-    .def_property_readonly("Token", &CXXThisExpr::Token)
-    .def_property_readonly("IsImplicit", &CXXThisExpr::IsImplicit);
+    .def_property_readonly("children", &CXXThisExpr::Children)
+    .def_property_readonly("begin_token", &CXXThisExpr::BeginToken)
+    .def_property_readonly("end_token", &CXXThisExpr::EndToken)
+    .def_property_readonly("token", &CXXThisExpr::Token)
+    .def_property_readonly("is_implicit", &CXXThisExpr::IsImplicit);
 }
 } // namespace pasta

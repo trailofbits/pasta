@@ -19,8 +19,8 @@ void RegisterDependentTemplateSpecializationType(py::module_ &m) {
   py::class_<DependentTemplateSpecializationType, TypeWithKeyword>(m, "DependentTemplateSpecializationType")
     .def("__hash__", [](const DependentTemplateSpecializationType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const DependentTemplateSpecializationType& a, const DependentTemplateSpecializationType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &DependentTemplateSpecializationType::Desugar)
-    .def_property_readonly("IsSugared", &DependentTemplateSpecializationType::IsSugared)
-    .def_property_readonly("TemplateArguments", &DependentTemplateSpecializationType::TemplateArguments);
+    .def_property_readonly("desugar", &DependentTemplateSpecializationType::Desugar)
+    .def_property_readonly("is_sugared", &DependentTemplateSpecializationType::IsSugared)
+    .def_property_readonly("template_arguments", &DependentTemplateSpecializationType::TemplateArguments);
 }
 } // namespace pasta

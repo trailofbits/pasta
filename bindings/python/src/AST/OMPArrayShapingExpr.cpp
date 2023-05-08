@@ -19,13 +19,13 @@ void RegisterOMPArrayShapingExpr(py::module_ &m) {
   py::class_<OMPArrayShapingExpr, Expr>(m, "OMPArrayShapingExpr")
     .def("__hash__", [](const OMPArrayShapingExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OMPArrayShapingExpr& a, const OMPArrayShapingExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &OMPArrayShapingExpr::Children)
-    .def_property_readonly("Base", &OMPArrayShapingExpr::Base)
-    .def_property_readonly("BeginToken", &OMPArrayShapingExpr::BeginToken)
-    .def_property_readonly("BracketsRanges", &OMPArrayShapingExpr::BracketsRanges)
-    .def_property_readonly("Dimensions", &OMPArrayShapingExpr::Dimensions)
-    .def_property_readonly("EndToken", &OMPArrayShapingExpr::EndToken)
-    .def_property_readonly("LParenToken", &OMPArrayShapingExpr::LParenToken)
-    .def_property_readonly("RParenToken", &OMPArrayShapingExpr::RParenToken);
+    .def_property_readonly("children", &OMPArrayShapingExpr::Children)
+    .def_property_readonly("base", &OMPArrayShapingExpr::Base)
+    .def_property_readonly("begin_token", &OMPArrayShapingExpr::BeginToken)
+    .def_property_readonly("brackets_ranges", &OMPArrayShapingExpr::BracketsRanges)
+    .def_property_readonly("dimensions", &OMPArrayShapingExpr::Dimensions)
+    .def_property_readonly("end_token", &OMPArrayShapingExpr::EndToken)
+    .def_property_readonly("l_paren_token", &OMPArrayShapingExpr::LParenToken)
+    .def_property_readonly("r_paren_token", &OMPArrayShapingExpr::RParenToken);
 }
 } // namespace pasta

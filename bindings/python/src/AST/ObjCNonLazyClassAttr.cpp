@@ -19,6 +19,6 @@ void RegisterObjCNonLazyClassAttr(py::module_ &m) {
   py::class_<ObjCNonLazyClassAttr, Attr>(m, "ObjCNonLazyClassAttr")
     .def("__hash__", [](const ObjCNonLazyClassAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ObjCNonLazyClassAttr& a, const ObjCNonLazyClassAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &ObjCNonLazyClassAttr::Spelling);
+    .def_property_readonly("spelling", &ObjCNonLazyClassAttr::Spelling);
 }
 } // namespace pasta

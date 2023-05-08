@@ -19,9 +19,9 @@ void RegisterMSInheritanceAttr(py::module_ &m) {
   py::class_<MSInheritanceAttr, InheritableAttr>(m, "MSInheritanceAttr")
     .def("__hash__", [](const MSInheritanceAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const MSInheritanceAttr& a, const MSInheritanceAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("BestCase", &MSInheritanceAttr::BestCase)
-    .def_property_readonly("InheritanceModel", &MSInheritanceAttr::InheritanceModel)
-    .def_property_readonly("SemanticSpelling", &MSInheritanceAttr::SemanticSpelling)
-    .def_property_readonly("Spelling", &MSInheritanceAttr::Spelling);
+    .def_property_readonly("best_case", &MSInheritanceAttr::BestCase)
+    .def_property_readonly("inheritance_model", &MSInheritanceAttr::InheritanceModel)
+    .def_property_readonly("semantic_spelling", &MSInheritanceAttr::SemanticSpelling)
+    .def_property_readonly("spelling", &MSInheritanceAttr::Spelling);
 }
 } // namespace pasta

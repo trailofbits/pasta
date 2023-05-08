@@ -19,13 +19,13 @@ void RegisterObjCSubscriptRefExpr(py::module_ &m) {
   py::class_<ObjCSubscriptRefExpr, Expr>(m, "ObjCSubscriptRefExpr")
     .def("__hash__", [](const ObjCSubscriptRefExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ObjCSubscriptRefExpr& a, const ObjCSubscriptRefExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &ObjCSubscriptRefExpr::Children)
-    .def_property_readonly("AtIndexMethodDeclaration", &ObjCSubscriptRefExpr::AtIndexMethodDeclaration)
-    .def_property_readonly("BaseExpression", &ObjCSubscriptRefExpr::BaseExpression)
-    .def_property_readonly("BeginToken", &ObjCSubscriptRefExpr::BeginToken)
-    .def_property_readonly("EndToken", &ObjCSubscriptRefExpr::EndToken)
-    .def_property_readonly("KeyExpression", &ObjCSubscriptRefExpr::KeyExpression)
-    .def_property_readonly("RBracketToken", &ObjCSubscriptRefExpr::RBracketToken)
-    .def_property_readonly("IsArraySubscriptReferenceExpression", &ObjCSubscriptRefExpr::IsArraySubscriptReferenceExpression);
+    .def_property_readonly("children", &ObjCSubscriptRefExpr::Children)
+    .def_property_readonly("at_index_method_declaration", &ObjCSubscriptRefExpr::AtIndexMethodDeclaration)
+    .def_property_readonly("base_expression", &ObjCSubscriptRefExpr::BaseExpression)
+    .def_property_readonly("begin_token", &ObjCSubscriptRefExpr::BeginToken)
+    .def_property_readonly("end_token", &ObjCSubscriptRefExpr::EndToken)
+    .def_property_readonly("key_expression", &ObjCSubscriptRefExpr::KeyExpression)
+    .def_property_readonly("r_bracket_token", &ObjCSubscriptRefExpr::RBracketToken)
+    .def_property_readonly("is_array_subscript_reference_expression", &ObjCSubscriptRefExpr::IsArraySubscriptReferenceExpression);
 }
 } // namespace pasta

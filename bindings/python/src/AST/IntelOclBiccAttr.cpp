@@ -19,6 +19,6 @@ void RegisterIntelOclBiccAttr(py::module_ &m) {
   py::class_<IntelOclBiccAttr, InheritableAttr>(m, "IntelOclBiccAttr")
     .def("__hash__", [](const IntelOclBiccAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const IntelOclBiccAttr& a, const IntelOclBiccAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &IntelOclBiccAttr::Spelling);
+    .def_property_readonly("spelling", &IntelOclBiccAttr::Spelling);
 }
 } // namespace pasta

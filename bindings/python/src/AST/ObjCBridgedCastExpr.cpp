@@ -19,11 +19,11 @@ void RegisterObjCBridgedCastExpr(py::module_ &m) {
   py::class_<ObjCBridgedCastExpr, ExplicitCastExpr>(m, "ObjCBridgedCastExpr")
     .def("__hash__", [](const ObjCBridgedCastExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ObjCBridgedCastExpr& a, const ObjCBridgedCastExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("BeginToken", &ObjCBridgedCastExpr::BeginToken)
-    .def_property_readonly("BridgeKeywordToken", &ObjCBridgedCastExpr::BridgeKeywordToken)
-    .def_property_readonly("BridgeKind", &ObjCBridgedCastExpr::BridgeKind)
-    .def_property_readonly("BridgeKindName", &ObjCBridgedCastExpr::BridgeKindName)
-    .def_property_readonly("EndToken", &ObjCBridgedCastExpr::EndToken)
-    .def_property_readonly("LParenToken", &ObjCBridgedCastExpr::LParenToken);
+    .def_property_readonly("begin_token", &ObjCBridgedCastExpr::BeginToken)
+    .def_property_readonly("bridge_keyword_token", &ObjCBridgedCastExpr::BridgeKeywordToken)
+    .def_property_readonly("bridge_kind", &ObjCBridgedCastExpr::BridgeKind)
+    .def_property_readonly("bridge_kind_name", &ObjCBridgedCastExpr::BridgeKindName)
+    .def_property_readonly("end_token", &ObjCBridgedCastExpr::EndToken)
+    .def_property_readonly("l_paren_token", &ObjCBridgedCastExpr::LParenToken);
 }
 } // namespace pasta

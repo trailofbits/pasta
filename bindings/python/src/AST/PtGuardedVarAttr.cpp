@@ -19,6 +19,6 @@ void RegisterPtGuardedVarAttr(py::module_ &m) {
   py::class_<PtGuardedVarAttr, InheritableAttr>(m, "PtGuardedVarAttr")
     .def("__hash__", [](const PtGuardedVarAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const PtGuardedVarAttr& a, const PtGuardedVarAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &PtGuardedVarAttr::Spelling);
+    .def_property_readonly("spelling", &PtGuardedVarAttr::Spelling);
 }
 } // namespace pasta

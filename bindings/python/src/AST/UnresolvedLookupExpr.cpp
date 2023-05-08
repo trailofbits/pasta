@@ -19,11 +19,11 @@ void RegisterUnresolvedLookupExpr(py::module_ &m) {
   py::class_<UnresolvedLookupExpr, OverloadExpr>(m, "UnresolvedLookupExpr")
     .def("__hash__", [](const UnresolvedLookupExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const UnresolvedLookupExpr& a, const UnresolvedLookupExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &UnresolvedLookupExpr::Children)
-    .def_property_readonly("BeginToken", &UnresolvedLookupExpr::BeginToken)
-    .def_property_readonly("EndToken", &UnresolvedLookupExpr::EndToken)
-    .def_property_readonly("NamingClass", &UnresolvedLookupExpr::NamingClass)
-    .def_property_readonly("IsOverloaded", &UnresolvedLookupExpr::IsOverloaded)
-    .def_property_readonly("RequiresADL", &UnresolvedLookupExpr::RequiresADL);
+    .def_property_readonly("children", &UnresolvedLookupExpr::Children)
+    .def_property_readonly("begin_token", &UnresolvedLookupExpr::BeginToken)
+    .def_property_readonly("end_token", &UnresolvedLookupExpr::EndToken)
+    .def_property_readonly("naming_class", &UnresolvedLookupExpr::NamingClass)
+    .def_property_readonly("is_overloaded", &UnresolvedLookupExpr::IsOverloaded)
+    .def_property_readonly("requires_adl", &UnresolvedLookupExpr::RequiresADL);
 }
 } // namespace pasta

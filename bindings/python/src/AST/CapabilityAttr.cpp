@@ -19,10 +19,10 @@ void RegisterCapabilityAttr(py::module_ &m) {
   py::class_<CapabilityAttr, InheritableAttr>(m, "CapabilityAttr")
     .def("__hash__", [](const CapabilityAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const CapabilityAttr& a, const CapabilityAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Name", &CapabilityAttr::Name)
-    .def_property_readonly("NameLength", &CapabilityAttr::NameLength)
-    .def_property_readonly("SemanticSpelling", &CapabilityAttr::SemanticSpelling)
-    .def_property_readonly("Spelling", &CapabilityAttr::Spelling)
-    .def_property_readonly("IsShared", &CapabilityAttr::IsShared);
+    .def_property_readonly("name", &CapabilityAttr::Name)
+    .def_property_readonly("name_length", &CapabilityAttr::NameLength)
+    .def_property_readonly("semantic_spelling", &CapabilityAttr::SemanticSpelling)
+    .def_property_readonly("spelling", &CapabilityAttr::Spelling)
+    .def_property_readonly("is_shared", &CapabilityAttr::IsShared);
 }
 } // namespace pasta

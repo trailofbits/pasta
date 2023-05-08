@@ -19,10 +19,10 @@ void RegisterUserDefinedLiteral(py::module_ &m) {
   py::class_<UserDefinedLiteral, CallExpr>(m, "UserDefinedLiteral")
     .def("__hash__", [](const UserDefinedLiteral& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const UserDefinedLiteral& a, const UserDefinedLiteral& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("BeginToken", &UserDefinedLiteral::BeginToken)
-    .def_property_readonly("CookedLiteral", &UserDefinedLiteral::CookedLiteral)
-    .def_property_readonly("EndToken", &UserDefinedLiteral::EndToken)
-    .def_property_readonly("LiteralOperatorKind", &UserDefinedLiteral::LiteralOperatorKind)
-    .def_property_readonly("UDSuffixToken", &UserDefinedLiteral::UDSuffixToken);
+    .def_property_readonly("begin_token", &UserDefinedLiteral::BeginToken)
+    .def_property_readonly("cooked_literal", &UserDefinedLiteral::CookedLiteral)
+    .def_property_readonly("end_token", &UserDefinedLiteral::EndToken)
+    .def_property_readonly("literal_operator_kind", &UserDefinedLiteral::LiteralOperatorKind)
+    .def_property_readonly("ud_suffix_token", &UserDefinedLiteral::UDSuffixToken);
 }
 } // namespace pasta

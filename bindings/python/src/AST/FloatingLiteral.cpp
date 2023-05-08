@@ -19,11 +19,11 @@ void RegisterFloatingLiteral(py::module_ &m) {
   py::class_<FloatingLiteral, Expr>(m, "FloatingLiteral")
     .def("__hash__", [](const FloatingLiteral& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const FloatingLiteral& a, const FloatingLiteral& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &FloatingLiteral::Children)
-    .def_property_readonly("BeginToken", &FloatingLiteral::BeginToken)
-    .def_property_readonly("EndToken", &FloatingLiteral::EndToken)
-    .def_property_readonly("Token", &FloatingLiteral::Token)
-    .def_property_readonly("ValueAsApproximateDouble", &FloatingLiteral::ValueAsApproximateDouble)
-    .def_property_readonly("IsExact", &FloatingLiteral::IsExact);
+    .def_property_readonly("children", &FloatingLiteral::Children)
+    .def_property_readonly("begin_token", &FloatingLiteral::BeginToken)
+    .def_property_readonly("end_token", &FloatingLiteral::EndToken)
+    .def_property_readonly("token", &FloatingLiteral::Token)
+    .def_property_readonly("value_as_approximate_double", &FloatingLiteral::ValueAsApproximateDouble)
+    .def_property_readonly("is_exact", &FloatingLiteral::IsExact);
 }
 } // namespace pasta

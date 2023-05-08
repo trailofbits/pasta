@@ -19,10 +19,10 @@ void RegisterHLSLResourceBindingAttr(py::module_ &m) {
   py::class_<HLSLResourceBindingAttr, InheritableAttr>(m, "HLSLResourceBindingAttr")
     .def("__hash__", [](const HLSLResourceBindingAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const HLSLResourceBindingAttr& a, const HLSLResourceBindingAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Slot", &HLSLResourceBindingAttr::Slot)
-    .def_property_readonly("SlotLength", &HLSLResourceBindingAttr::SlotLength)
-    .def_property_readonly("Space", &HLSLResourceBindingAttr::Space)
-    .def_property_readonly("SpaceLength", &HLSLResourceBindingAttr::SpaceLength)
-    .def_property_readonly("Spelling", &HLSLResourceBindingAttr::Spelling);
+    .def_property_readonly("slot", &HLSLResourceBindingAttr::Slot)
+    .def_property_readonly("slot_length", &HLSLResourceBindingAttr::SlotLength)
+    .def_property_readonly("space", &HLSLResourceBindingAttr::Space)
+    .def_property_readonly("space_length", &HLSLResourceBindingAttr::SpaceLength)
+    .def_property_readonly("spelling", &HLSLResourceBindingAttr::Spelling);
 }
 } // namespace pasta

@@ -19,6 +19,6 @@ void RegisterAVRSignalAttr(py::module_ &m) {
   py::class_<AVRSignalAttr, InheritableAttr>(m, "AVRSignalAttr")
     .def("__hash__", [](const AVRSignalAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const AVRSignalAttr& a, const AVRSignalAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &AVRSignalAttr::Spelling);
+    .def_property_readonly("spelling", &AVRSignalAttr::Spelling);
 }
 } // namespace pasta

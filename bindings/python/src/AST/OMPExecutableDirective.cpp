@@ -19,15 +19,15 @@ void RegisterOMPExecutableDirective(py::module_ &m) {
   py::class_<OMPExecutableDirective, Stmt>(m, "OMPExecutableDirective")
     .def("__hash__", [](const OMPExecutableDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OMPExecutableDirective& a, const OMPExecutableDirective& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &OMPExecutableDirective::Children)
-    .def_property_readonly("AssociatedStatement", &OMPExecutableDirective::AssociatedStatement)
-    .def_property_readonly("BeginToken", &OMPExecutableDirective::BeginToken)
-    .def_property_readonly("EndToken", &OMPExecutableDirective::EndToken)
-    .def_property_readonly("InnermostCapturedStatement", &OMPExecutableDirective::InnermostCapturedStatement)
-    .def_property_readonly("NumClauses", &OMPExecutableDirective::NumClauses)
-    .def_property_readonly("RawStatement", &OMPExecutableDirective::RawStatement)
-    .def_property_readonly("StructuredBlock", &OMPExecutableDirective::StructuredBlock)
-    .def_property_readonly("HasAssociatedStatement", &OMPExecutableDirective::HasAssociatedStatement)
-    .def_property_readonly("IsStandaloneDirective", &OMPExecutableDirective::IsStandaloneDirective);
+    .def_property_readonly("children", &OMPExecutableDirective::Children)
+    .def_property_readonly("associated_statement", &OMPExecutableDirective::AssociatedStatement)
+    .def_property_readonly("begin_token", &OMPExecutableDirective::BeginToken)
+    .def_property_readonly("end_token", &OMPExecutableDirective::EndToken)
+    .def_property_readonly("innermost_captured_statement", &OMPExecutableDirective::InnermostCapturedStatement)
+    .def_property_readonly("num_clauses", &OMPExecutableDirective::NumClauses)
+    .def_property_readonly("raw_statement", &OMPExecutableDirective::RawStatement)
+    .def_property_readonly("structured_block", &OMPExecutableDirective::StructuredBlock)
+    .def_property_readonly("has_associated_statement", &OMPExecutableDirective::HasAssociatedStatement)
+    .def_property_readonly("is_standalone_directive", &OMPExecutableDirective::IsStandaloneDirective);
 }
 } // namespace pasta

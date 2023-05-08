@@ -19,6 +19,6 @@ void RegisterCallbackAttr(py::module_ &m) {
   py::class_<CallbackAttr, InheritableAttr>(m, "CallbackAttr")
     .def("__hash__", [](const CallbackAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const CallbackAttr& a, const CallbackAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &CallbackAttr::Spelling);
+    .def_property_readonly("spelling", &CallbackAttr::Spelling);
 }
 } // namespace pasta

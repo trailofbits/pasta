@@ -19,13 +19,13 @@ void RegisterCastExpr(py::module_ &m) {
   py::class_<CastExpr, Expr>(m, "CastExpr")
     .def("__hash__", [](const CastExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CastExpr& a, const CastExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &CastExpr::Children)
-    .def_property_readonly("CastKind", &CastExpr::CastKind)
-    .def_property_readonly("CastKindName", &CastExpr::CastKindName)
-    .def_property_readonly("ConversionFunction", &CastExpr::ConversionFunction)
-    .def_property_readonly("SubExpression", &CastExpr::SubExpression)
-    .def_property_readonly("SubExpressionAsWritten", &CastExpr::SubExpressionAsWritten)
-    .def_property_readonly("TargetUnionField", &CastExpr::TargetUnionField)
-    .def_property_readonly("HasStoredFPFeatures", &CastExpr::HasStoredFPFeatures);
+    .def_property_readonly("children", &CastExpr::Children)
+    .def_property_readonly("cast_kind", &CastExpr::CastKind)
+    .def_property_readonly("cast_kind_name", &CastExpr::CastKindName)
+    .def_property_readonly("conversion_function", &CastExpr::ConversionFunction)
+    .def_property_readonly("sub_expression", &CastExpr::SubExpression)
+    .def_property_readonly("sub_expression_as_written", &CastExpr::SubExpressionAsWritten)
+    .def_property_readonly("target_union_field", &CastExpr::TargetUnionField)
+    .def_property_readonly("has_stored_fp_features", &CastExpr::HasStoredFPFeatures);
 }
 } // namespace pasta

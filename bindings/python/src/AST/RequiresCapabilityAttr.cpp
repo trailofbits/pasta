@@ -19,8 +19,8 @@ void RegisterRequiresCapabilityAttr(py::module_ &m) {
   py::class_<RequiresCapabilityAttr, InheritableAttr>(m, "RequiresCapabilityAttr")
     .def("__hash__", [](const RequiresCapabilityAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const RequiresCapabilityAttr& a, const RequiresCapabilityAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("SemanticSpelling", &RequiresCapabilityAttr::SemanticSpelling)
-    .def_property_readonly("Spelling", &RequiresCapabilityAttr::Spelling)
-    .def_property_readonly("IsShared", &RequiresCapabilityAttr::IsShared);
+    .def_property_readonly("semantic_spelling", &RequiresCapabilityAttr::SemanticSpelling)
+    .def_property_readonly("spelling", &RequiresCapabilityAttr::Spelling)
+    .def_property_readonly("is_shared", &RequiresCapabilityAttr::IsShared);
 }
 } // namespace pasta

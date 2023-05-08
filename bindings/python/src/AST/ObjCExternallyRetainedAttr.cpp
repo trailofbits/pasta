@@ -19,6 +19,6 @@ void RegisterObjCExternallyRetainedAttr(py::module_ &m) {
   py::class_<ObjCExternallyRetainedAttr, InheritableAttr>(m, "ObjCExternallyRetainedAttr")
     .def("__hash__", [](const ObjCExternallyRetainedAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ObjCExternallyRetainedAttr& a, const ObjCExternallyRetainedAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &ObjCExternallyRetainedAttr::Spelling);
+    .def_property_readonly("spelling", &ObjCExternallyRetainedAttr::Spelling);
 }
 } // namespace pasta

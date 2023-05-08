@@ -19,6 +19,6 @@ void RegisterCFUnknownTransferAttr(py::module_ &m) {
   py::class_<CFUnknownTransferAttr, InheritableAttr>(m, "CFUnknownTransferAttr")
     .def("__hash__", [](const CFUnknownTransferAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const CFUnknownTransferAttr& a, const CFUnknownTransferAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &CFUnknownTransferAttr::Spelling);
+    .def_property_readonly("spelling", &CFUnknownTransferAttr::Spelling);
 }
 } // namespace pasta

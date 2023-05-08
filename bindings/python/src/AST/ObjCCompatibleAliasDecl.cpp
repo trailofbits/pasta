@@ -19,6 +19,6 @@ void RegisterObjCCompatibleAliasDecl(py::module_ &m) {
   py::class_<ObjCCompatibleAliasDecl, NamedDecl>(m, "ObjCCompatibleAliasDecl")
     .def("__hash__", [](const ObjCCompatibleAliasDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const ObjCCompatibleAliasDecl& a, const ObjCCompatibleAliasDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("ClassInterface", &ObjCCompatibleAliasDecl::ClassInterface);
+    .def_property_readonly("class_interface", &ObjCCompatibleAliasDecl::ClassInterface);
 }
 } // namespace pasta

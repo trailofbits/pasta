@@ -19,10 +19,10 @@ void RegisterOpenCLAccessAttr(py::module_ &m) {
   py::class_<OpenCLAccessAttr, Attr>(m, "OpenCLAccessAttr")
     .def("__hash__", [](const OpenCLAccessAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const OpenCLAccessAttr& a, const OpenCLAccessAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("SemanticSpelling", &OpenCLAccessAttr::SemanticSpelling)
-    .def_property_readonly("Spelling", &OpenCLAccessAttr::Spelling)
-    .def_property_readonly("IsReadOnly", &OpenCLAccessAttr::IsReadOnly)
-    .def_property_readonly("IsReadWrite", &OpenCLAccessAttr::IsReadWrite)
-    .def_property_readonly("IsWriteOnly", &OpenCLAccessAttr::IsWriteOnly);
+    .def_property_readonly("semantic_spelling", &OpenCLAccessAttr::SemanticSpelling)
+    .def_property_readonly("spelling", &OpenCLAccessAttr::Spelling)
+    .def_property_readonly("is_read_only", &OpenCLAccessAttr::IsReadOnly)
+    .def_property_readonly("is_read_write", &OpenCLAccessAttr::IsReadWrite)
+    .def_property_readonly("is_write_only", &OpenCLAccessAttr::IsWriteOnly);
 }
 } // namespace pasta

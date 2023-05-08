@@ -19,6 +19,6 @@ void RegisterRegCallAttr(py::module_ &m) {
   py::class_<RegCallAttr, InheritableAttr>(m, "RegCallAttr")
     .def("__hash__", [](const RegCallAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const RegCallAttr& a, const RegCallAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &RegCallAttr::Spelling);
+    .def_property_readonly("spelling", &RegCallAttr::Spelling);
 }
 } // namespace pasta

@@ -19,15 +19,15 @@ void RegisterBuiltinType(py::module_ &m) {
   py::class_<BuiltinType, Type>(m, "BuiltinType")
     .def("__hash__", [](const BuiltinType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const BuiltinType& a, const BuiltinType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &BuiltinType::Desugar)
-    .def_property_readonly("Kind", &BuiltinType::Kind)
-    .def_property_readonly("IsFloatingPoint", &BuiltinType::IsFloatingPoint)
-    .def_property_readonly("IsInteger", &BuiltinType::IsInteger)
-    .def_property_readonly("IsNonOverloadPlaceholderType", &BuiltinType::IsNonOverloadPlaceholderType)
-    .def_property_readonly("IsPlaceholderType", &BuiltinType::IsPlaceholderType)
-    .def_property_readonly("IsSVEBool", &BuiltinType::IsSVEBool)
-    .def_property_readonly("IsSignedInteger", &BuiltinType::IsSignedInteger)
-    .def_property_readonly("IsSugared", &BuiltinType::IsSugared)
-    .def_property_readonly("IsUnsignedInteger", &BuiltinType::IsUnsignedInteger);
+    .def_property_readonly("desugar", &BuiltinType::Desugar)
+    .def_property_readonly("kind", &BuiltinType::Kind)
+    .def_property_readonly("is_floating_point", &BuiltinType::IsFloatingPoint)
+    .def_property_readonly("is_integer", &BuiltinType::IsInteger)
+    .def_property_readonly("is_non_overload_placeholder_type", &BuiltinType::IsNonOverloadPlaceholderType)
+    .def_property_readonly("is_placeholder_type", &BuiltinType::IsPlaceholderType)
+    .def_property_readonly("is_sve_bool", &BuiltinType::IsSVEBool)
+    .def_property_readonly("is_signed_integer", &BuiltinType::IsSignedInteger)
+    .def_property_readonly("is_sugared", &BuiltinType::IsSugared)
+    .def_property_readonly("is_unsigned_integer", &BuiltinType::IsUnsignedInteger);
 }
 } // namespace pasta

@@ -19,9 +19,9 @@ void RegisterReleaseCapabilityAttr(py::module_ &m) {
   py::class_<ReleaseCapabilityAttr, InheritableAttr>(m, "ReleaseCapabilityAttr")
     .def("__hash__", [](const ReleaseCapabilityAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ReleaseCapabilityAttr& a, const ReleaseCapabilityAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("SemanticSpelling", &ReleaseCapabilityAttr::SemanticSpelling)
-    .def_property_readonly("Spelling", &ReleaseCapabilityAttr::Spelling)
-    .def_property_readonly("IsGeneric", &ReleaseCapabilityAttr::IsGeneric)
-    .def_property_readonly("IsShared", &ReleaseCapabilityAttr::IsShared);
+    .def_property_readonly("semantic_spelling", &ReleaseCapabilityAttr::SemanticSpelling)
+    .def_property_readonly("spelling", &ReleaseCapabilityAttr::Spelling)
+    .def_property_readonly("is_generic", &ReleaseCapabilityAttr::IsGeneric)
+    .def_property_readonly("is_shared", &ReleaseCapabilityAttr::IsShared);
 }
 } // namespace pasta

@@ -19,9 +19,9 @@ void RegisterTypedefType(py::module_ &m) {
   py::class_<TypedefType, Type>(m, "TypedefType")
     .def("__hash__", [](const TypedefType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const TypedefType& a, const TypedefType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &TypedefType::Desugar)
-    .def_property_readonly("Declaration", &TypedefType::Declaration)
-    .def_property_readonly("IsSugared", &TypedefType::IsSugared)
-    .def_property_readonly("TypeMatchesDeclaration", &TypedefType::TypeMatchesDeclaration);
+    .def_property_readonly("desugar", &TypedefType::Desugar)
+    .def_property_readonly("declaration", &TypedefType::Declaration)
+    .def_property_readonly("is_sugared", &TypedefType::IsSugared)
+    .def_property_readonly("type_matches_declaration", &TypedefType::TypeMatchesDeclaration);
 }
 } // namespace pasta

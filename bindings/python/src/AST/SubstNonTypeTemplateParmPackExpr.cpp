@@ -19,12 +19,12 @@ void RegisterSubstNonTypeTemplateParmPackExpr(py::module_ &m) {
   py::class_<SubstNonTypeTemplateParmPackExpr, Expr>(m, "SubstNonTypeTemplateParmPackExpr")
     .def("__hash__", [](const SubstNonTypeTemplateParmPackExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const SubstNonTypeTemplateParmPackExpr& a, const SubstNonTypeTemplateParmPackExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &SubstNonTypeTemplateParmPackExpr::Children)
-    .def_property_readonly("AssociatedDeclaration", &SubstNonTypeTemplateParmPackExpr::AssociatedDeclaration)
-    .def_property_readonly("BeginToken", &SubstNonTypeTemplateParmPackExpr::BeginToken)
-    .def_property_readonly("EndToken", &SubstNonTypeTemplateParmPackExpr::EndToken)
-    .def_property_readonly("Index", &SubstNonTypeTemplateParmPackExpr::Index)
-    .def_property_readonly("ParameterPack", &SubstNonTypeTemplateParmPackExpr::ParameterPack)
-    .def_property_readonly("ParameterPackToken", &SubstNonTypeTemplateParmPackExpr::ParameterPackToken);
+    .def_property_readonly("children", &SubstNonTypeTemplateParmPackExpr::Children)
+    .def_property_readonly("associated_declaration", &SubstNonTypeTemplateParmPackExpr::AssociatedDeclaration)
+    .def_property_readonly("begin_token", &SubstNonTypeTemplateParmPackExpr::BeginToken)
+    .def_property_readonly("end_token", &SubstNonTypeTemplateParmPackExpr::EndToken)
+    .def_property_readonly("index", &SubstNonTypeTemplateParmPackExpr::Index)
+    .def_property_readonly("parameter_pack", &SubstNonTypeTemplateParmPackExpr::ParameterPack)
+    .def_property_readonly("parameter_pack_token", &SubstNonTypeTemplateParmPackExpr::ParameterPackToken);
 }
 } // namespace pasta

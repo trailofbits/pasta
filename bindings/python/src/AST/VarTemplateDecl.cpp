@@ -19,12 +19,12 @@ void RegisterVarTemplateDecl(py::module_ &m) {
   py::class_<VarTemplateDecl, RedeclarableTemplateDecl>(m, "VarTemplateDecl")
     .def("__hash__", [](const VarTemplateDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const VarTemplateDecl& a, const VarTemplateDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("CanonicalDeclaration", &VarTemplateDecl::CanonicalDeclaration)
-    .def_property_readonly("InstantiatedFromMemberTemplate", &VarTemplateDecl::InstantiatedFromMemberTemplate)
-    .def_property_readonly("MostRecentDeclaration", &VarTemplateDecl::MostRecentDeclaration)
-    .def_property_readonly("PreviousDeclaration", &VarTemplateDecl::PreviousDeclaration)
-    .def_property_readonly("TemplatedDeclaration", &VarTemplateDecl::TemplatedDeclaration)
-    .def_property_readonly("IsThisDeclarationADefinition", &VarTemplateDecl::IsThisDeclarationADefinition)
-    .def_property_readonly("Specializations", &VarTemplateDecl::Specializations);
+    .def_property_readonly("canonical_declaration", &VarTemplateDecl::CanonicalDeclaration)
+    .def_property_readonly("instantiated_from_member_template", &VarTemplateDecl::InstantiatedFromMemberTemplate)
+    .def_property_readonly("most_recent_declaration", &VarTemplateDecl::MostRecentDeclaration)
+    .def_property_readonly("previous_declaration", &VarTemplateDecl::PreviousDeclaration)
+    .def_property_readonly("templated_declaration", &VarTemplateDecl::TemplatedDeclaration)
+    .def_property_readonly("is_this_declaration_a_definition", &VarTemplateDecl::IsThisDeclarationADefinition)
+    .def_property_readonly("specializations", &VarTemplateDecl::Specializations);
 }
 } // namespace pasta

@@ -19,8 +19,8 @@ void RegisterOMPLoopTransformationDirective(py::module_ &m) {
   py::class_<OMPLoopTransformationDirective, OMPLoopBasedDirective>(m, "OMPLoopTransformationDirective")
     .def("__hash__", [](const OMPLoopTransformationDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OMPLoopTransformationDirective& a, const OMPLoopTransformationDirective& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("NumAssociatedLoops", &OMPLoopTransformationDirective::NumAssociatedLoops)
-    .def_property_readonly("PreInitializers", &OMPLoopTransformationDirective::PreInitializers)
-    .def_property_readonly("TransformedStatement", &OMPLoopTransformationDirective::TransformedStatement);
+    .def_property_readonly("num_associated_loops", &OMPLoopTransformationDirective::NumAssociatedLoops)
+    .def_property_readonly("pre_initializers", &OMPLoopTransformationDirective::PreInitializers)
+    .def_property_readonly("transformed_statement", &OMPLoopTransformationDirective::TransformedStatement);
 }
 } // namespace pasta

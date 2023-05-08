@@ -19,8 +19,8 @@ void RegisterCXXTemporaryObjectExpr(py::module_ &m) {
   py::class_<CXXTemporaryObjectExpr, CXXConstructExpr>(m, "CXXTemporaryObjectExpr")
     .def("__hash__", [](const CXXTemporaryObjectExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CXXTemporaryObjectExpr& a, const CXXTemporaryObjectExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("BeginToken", &CXXTemporaryObjectExpr::BeginToken)
-    .def_property_readonly("EndToken", &CXXTemporaryObjectExpr::EndToken)
-    .def_property_readonly("Type", &CXXTemporaryObjectExpr::Type);
+    .def_property_readonly("begin_token", &CXXTemporaryObjectExpr::BeginToken)
+    .def_property_readonly("end_token", &CXXTemporaryObjectExpr::EndToken)
+    .def_property_readonly("type", &CXXTemporaryObjectExpr::Type);
 }
 } // namespace pasta

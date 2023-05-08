@@ -19,7 +19,7 @@ void RegisterNoSanitizeAttr(py::module_ &m) {
   py::class_<NoSanitizeAttr, InheritableAttr>(m, "NoSanitizeAttr")
     .def("__hash__", [](const NoSanitizeAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const NoSanitizeAttr& a, const NoSanitizeAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &NoSanitizeAttr::Spelling)
-    .def_property_readonly("HasCoverage", &NoSanitizeAttr::HasCoverage);
+    .def_property_readonly("spelling", &NoSanitizeAttr::Spelling)
+    .def_property_readonly("has_coverage", &NoSanitizeAttr::HasCoverage);
 }
 } // namespace pasta

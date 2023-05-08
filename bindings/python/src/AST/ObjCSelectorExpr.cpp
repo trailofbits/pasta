@@ -19,11 +19,11 @@ void RegisterObjCSelectorExpr(py::module_ &m) {
   py::class_<ObjCSelectorExpr, Expr>(m, "ObjCSelectorExpr")
     .def("__hash__", [](const ObjCSelectorExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ObjCSelectorExpr& a, const ObjCSelectorExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &ObjCSelectorExpr::Children)
-    .def_property_readonly("AtToken", &ObjCSelectorExpr::AtToken)
-    .def_property_readonly("BeginToken", &ObjCSelectorExpr::BeginToken)
-    .def_property_readonly("EndToken", &ObjCSelectorExpr::EndToken)
-    .def_property_readonly("NumArguments", &ObjCSelectorExpr::NumArguments)
-    .def_property_readonly("RParenToken", &ObjCSelectorExpr::RParenToken);
+    .def_property_readonly("children", &ObjCSelectorExpr::Children)
+    .def_property_readonly("at_token", &ObjCSelectorExpr::AtToken)
+    .def_property_readonly("begin_token", &ObjCSelectorExpr::BeginToken)
+    .def_property_readonly("end_token", &ObjCSelectorExpr::EndToken)
+    .def_property_readonly("num_arguments", &ObjCSelectorExpr::NumArguments)
+    .def_property_readonly("r_paren_token", &ObjCSelectorExpr::RParenToken);
 }
 } // namespace pasta

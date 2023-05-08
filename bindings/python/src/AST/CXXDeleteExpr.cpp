@@ -19,15 +19,15 @@ void RegisterCXXDeleteExpr(py::module_ &m) {
   py::class_<CXXDeleteExpr, Expr>(m, "CXXDeleteExpr")
     .def("__hash__", [](const CXXDeleteExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CXXDeleteExpr& a, const CXXDeleteExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &CXXDeleteExpr::Children)
-    .def_property_readonly("DoesUsualArrayDeleteWantSize", &CXXDeleteExpr::DoesUsualArrayDeleteWantSize)
-    .def_property_readonly("Argument", &CXXDeleteExpr::Argument)
-    .def_property_readonly("BeginToken", &CXXDeleteExpr::BeginToken)
-    .def_property_readonly("DestroyedType", &CXXDeleteExpr::DestroyedType)
-    .def_property_readonly("EndToken", &CXXDeleteExpr::EndToken)
-    .def_property_readonly("OperatorDelete", &CXXDeleteExpr::OperatorDelete)
-    .def_property_readonly("IsArrayForm", &CXXDeleteExpr::IsArrayForm)
-    .def_property_readonly("IsArrayFormAsWritten", &CXXDeleteExpr::IsArrayFormAsWritten)
-    .def_property_readonly("IsGlobalDelete", &CXXDeleteExpr::IsGlobalDelete);
+    .def_property_readonly("children", &CXXDeleteExpr::Children)
+    .def_property_readonly("does_usual_array_delete_want_size", &CXXDeleteExpr::DoesUsualArrayDeleteWantSize)
+    .def_property_readonly("argument", &CXXDeleteExpr::Argument)
+    .def_property_readonly("begin_token", &CXXDeleteExpr::BeginToken)
+    .def_property_readonly("destroyed_type", &CXXDeleteExpr::DestroyedType)
+    .def_property_readonly("end_token", &CXXDeleteExpr::EndToken)
+    .def_property_readonly("operator_delete", &CXXDeleteExpr::OperatorDelete)
+    .def_property_readonly("is_array_form", &CXXDeleteExpr::IsArrayForm)
+    .def_property_readonly("is_array_form_as_written", &CXXDeleteExpr::IsArrayFormAsWritten)
+    .def_property_readonly("is_global_delete", &CXXDeleteExpr::IsGlobalDelete);
 }
 } // namespace pasta

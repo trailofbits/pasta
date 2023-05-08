@@ -19,9 +19,9 @@ void RegisterEnableIfAttr(py::module_ &m) {
   py::class_<EnableIfAttr, InheritableAttr>(m, "EnableIfAttr")
     .def("__hash__", [](const EnableIfAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const EnableIfAttr& a, const EnableIfAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Condition", &EnableIfAttr::Condition)
-    .def_property_readonly("Message", &EnableIfAttr::Message)
-    .def_property_readonly("MessageLength", &EnableIfAttr::MessageLength)
-    .def_property_readonly("Spelling", &EnableIfAttr::Spelling);
+    .def_property_readonly("condition", &EnableIfAttr::Condition)
+    .def_property_readonly("message", &EnableIfAttr::Message)
+    .def_property_readonly("message_length", &EnableIfAttr::MessageLength)
+    .def_property_readonly("spelling", &EnableIfAttr::Spelling);
 }
 } // namespace pasta

@@ -19,9 +19,9 @@ void RegisterCXXDeductionGuideDecl(py::module_ &m) {
   py::class_<CXXDeductionGuideDecl, FunctionDecl>(m, "CXXDeductionGuideDecl")
     .def("__hash__", [](const CXXDeductionGuideDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const CXXDeductionGuideDecl& a, const CXXDeductionGuideDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("CorrespondingConstructor", &CXXDeductionGuideDecl::CorrespondingConstructor)
-    .def_property_readonly("DeducedTemplate", &CXXDeductionGuideDecl::DeducedTemplate)
-    .def_property_readonly("IsCopyDeductionCandidate", &CXXDeductionGuideDecl::IsCopyDeductionCandidate)
-    .def_property_readonly("IsExplicit", &CXXDeductionGuideDecl::IsExplicit);
+    .def_property_readonly("corresponding_constructor", &CXXDeductionGuideDecl::CorrespondingConstructor)
+    .def_property_readonly("deduced_template", &CXXDeductionGuideDecl::DeducedTemplate)
+    .def_property_readonly("is_copy_deduction_candidate", &CXXDeductionGuideDecl::IsCopyDeductionCandidate)
+    .def_property_readonly("is_explicit", &CXXDeductionGuideDecl::IsExplicit);
 }
 } // namespace pasta

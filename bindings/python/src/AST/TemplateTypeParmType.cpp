@@ -19,11 +19,11 @@ void RegisterTemplateTypeParmType(py::module_ &m) {
   py::class_<TemplateTypeParmType, Type>(m, "TemplateTypeParmType")
     .def("__hash__", [](const TemplateTypeParmType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const TemplateTypeParmType& a, const TemplateTypeParmType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &TemplateTypeParmType::Desugar)
-    .def_property_readonly("Declaration", &TemplateTypeParmType::Declaration)
-    .def_property_readonly("Depth", &TemplateTypeParmType::Depth)
-    .def_property_readonly("Index", &TemplateTypeParmType::Index)
-    .def_property_readonly("IsParameterPack", &TemplateTypeParmType::IsParameterPack)
-    .def_property_readonly("IsSugared", &TemplateTypeParmType::IsSugared);
+    .def_property_readonly("desugar", &TemplateTypeParmType::Desugar)
+    .def_property_readonly("declaration", &TemplateTypeParmType::Declaration)
+    .def_property_readonly("depth", &TemplateTypeParmType::Depth)
+    .def_property_readonly("index", &TemplateTypeParmType::Index)
+    .def_property_readonly("is_parameter_pack", &TemplateTypeParmType::IsParameterPack)
+    .def_property_readonly("is_sugared", &TemplateTypeParmType::IsSugared);
 }
 } // namespace pasta

@@ -19,14 +19,14 @@ void RegisterOverloadExpr(py::module_ &m) {
   py::class_<OverloadExpr, Expr>(m, "OverloadExpr")
     .def("__hash__", [](const OverloadExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OverloadExpr& a, const OverloadExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("LAngleToken", &OverloadExpr::LAngleToken)
-    .def_property_readonly("NameToken", &OverloadExpr::NameToken)
-    .def_property_readonly("NamingClass", &OverloadExpr::NamingClass)
-    .def_property_readonly("NumDeclarations", &OverloadExpr::NumDeclarations)
-    .def_property_readonly("NumTemplateArguments", &OverloadExpr::NumTemplateArguments)
-    .def_property_readonly("RAngleToken", &OverloadExpr::RAngleToken)
-    .def_property_readonly("TemplateKeywordToken", &OverloadExpr::TemplateKeywordToken)
-    .def_property_readonly("HasExplicitTemplateArguments", &OverloadExpr::HasExplicitTemplateArguments)
-    .def_property_readonly("HasTemplateKeyword", &OverloadExpr::HasTemplateKeyword);
+    .def_property_readonly("l_angle_token", &OverloadExpr::LAngleToken)
+    .def_property_readonly("name_token", &OverloadExpr::NameToken)
+    .def_property_readonly("naming_class", &OverloadExpr::NamingClass)
+    .def_property_readonly("num_declarations", &OverloadExpr::NumDeclarations)
+    .def_property_readonly("num_template_arguments", &OverloadExpr::NumTemplateArguments)
+    .def_property_readonly("r_angle_token", &OverloadExpr::RAngleToken)
+    .def_property_readonly("template_keyword_token", &OverloadExpr::TemplateKeywordToken)
+    .def_property_readonly("has_explicit_template_arguments", &OverloadExpr::HasExplicitTemplateArguments)
+    .def_property_readonly("has_template_keyword", &OverloadExpr::HasTemplateKeyword);
 }
 } // namespace pasta

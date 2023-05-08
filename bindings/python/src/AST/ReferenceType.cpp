@@ -19,9 +19,9 @@ void RegisterReferenceType(py::module_ &m) {
   py::class_<ReferenceType, Type>(m, "ReferenceType")
     .def("__hash__", [](const ReferenceType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const ReferenceType& a, const ReferenceType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("PointeeType", &ReferenceType::PointeeType)
-    .def_property_readonly("PointeeTypeAsWritten", &ReferenceType::PointeeTypeAsWritten)
-    .def_property_readonly("IsInnerReference", &ReferenceType::IsInnerReference)
-    .def_property_readonly("IsSpelledAsLValue", &ReferenceType::IsSpelledAsLValue);
+    .def_property_readonly("pointee_type", &ReferenceType::PointeeType)
+    .def_property_readonly("pointee_type_as_written", &ReferenceType::PointeeTypeAsWritten)
+    .def_property_readonly("is_inner_reference", &ReferenceType::IsInnerReference)
+    .def_property_readonly("is_spelled_as_l_value", &ReferenceType::IsSpelledAsLValue);
 }
 } // namespace pasta

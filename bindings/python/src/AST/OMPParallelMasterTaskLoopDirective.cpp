@@ -19,6 +19,6 @@ void RegisterOMPParallelMasterTaskLoopDirective(py::module_ &m) {
   py::class_<OMPParallelMasterTaskLoopDirective, OMPLoopDirective>(m, "OMPParallelMasterTaskLoopDirective")
     .def("__hash__", [](const OMPParallelMasterTaskLoopDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OMPParallelMasterTaskLoopDirective& a, const OMPParallelMasterTaskLoopDirective& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("HasCancel", &OMPParallelMasterTaskLoopDirective::HasCancel);
+    .def_property_readonly("has_cancel", &OMPParallelMasterTaskLoopDirective::HasCancel);
 }
 } // namespace pasta

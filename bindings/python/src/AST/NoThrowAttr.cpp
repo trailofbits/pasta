@@ -19,6 +19,6 @@ void RegisterNoThrowAttr(py::module_ &m) {
   py::class_<NoThrowAttr, InheritableAttr>(m, "NoThrowAttr")
     .def("__hash__", [](const NoThrowAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const NoThrowAttr& a, const NoThrowAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &NoThrowAttr::Spelling);
+    .def_property_readonly("spelling", &NoThrowAttr::Spelling);
 }
 } // namespace pasta

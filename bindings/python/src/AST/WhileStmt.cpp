@@ -19,16 +19,16 @@ void RegisterWhileStmt(py::module_ &m) {
   py::class_<WhileStmt, Stmt>(m, "WhileStmt")
     .def("__hash__", [](const WhileStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const WhileStmt& a, const WhileStmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &WhileStmt::Children)
-    .def_property_readonly("BeginToken", &WhileStmt::BeginToken)
-    .def_property_readonly("Body", &WhileStmt::Body)
-    .def_property_readonly("Condition", &WhileStmt::Condition)
-    .def_property_readonly("ConditionVariable", &WhileStmt::ConditionVariable)
-    .def_property_readonly("ConditionVariableDeclarationStatement", &WhileStmt::ConditionVariableDeclarationStatement)
-    .def_property_readonly("EndToken", &WhileStmt::EndToken)
-    .def_property_readonly("LParenToken", &WhileStmt::LParenToken)
-    .def_property_readonly("RParenToken", &WhileStmt::RParenToken)
-    .def_property_readonly("WhileToken", &WhileStmt::WhileToken)
-    .def_property_readonly("HasVariableStorage", &WhileStmt::HasVariableStorage);
+    .def_property_readonly("children", &WhileStmt::Children)
+    .def_property_readonly("begin_token", &WhileStmt::BeginToken)
+    .def_property_readonly("body", &WhileStmt::Body)
+    .def_property_readonly("condition", &WhileStmt::Condition)
+    .def_property_readonly("condition_variable", &WhileStmt::ConditionVariable)
+    .def_property_readonly("condition_variable_declaration_statement", &WhileStmt::ConditionVariableDeclarationStatement)
+    .def_property_readonly("end_token", &WhileStmt::EndToken)
+    .def_property_readonly("l_paren_token", &WhileStmt::LParenToken)
+    .def_property_readonly("r_paren_token", &WhileStmt::RParenToken)
+    .def_property_readonly("while_token", &WhileStmt::WhileToken)
+    .def_property_readonly("has_variable_storage", &WhileStmt::HasVariableStorage);
 }
 } // namespace pasta

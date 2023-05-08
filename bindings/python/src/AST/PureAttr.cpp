@@ -19,6 +19,6 @@ void RegisterPureAttr(py::module_ &m) {
   py::class_<PureAttr, InheritableAttr>(m, "PureAttr")
     .def("__hash__", [](const PureAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const PureAttr& a, const PureAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &PureAttr::Spelling);
+    .def_property_readonly("spelling", &PureAttr::Spelling);
 }
 } // namespace pasta

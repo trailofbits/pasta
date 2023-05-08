@@ -19,6 +19,6 @@ void RegisterMicroMipsAttr(py::module_ &m) {
   py::class_<MicroMipsAttr, InheritableAttr>(m, "MicroMipsAttr")
     .def("__hash__", [](const MicroMipsAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const MicroMipsAttr& a, const MicroMipsAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &MicroMipsAttr::Spelling);
+    .def_property_readonly("spelling", &MicroMipsAttr::Spelling);
 }
 } // namespace pasta

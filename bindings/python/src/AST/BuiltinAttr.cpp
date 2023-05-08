@@ -19,7 +19,7 @@ void RegisterBuiltinAttr(py::module_ &m) {
   py::class_<BuiltinAttr, InheritableAttr>(m, "BuiltinAttr")
     .def("__hash__", [](const BuiltinAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const BuiltinAttr& a, const BuiltinAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("ID", &BuiltinAttr::ID)
-    .def_property_readonly("Spelling", &BuiltinAttr::Spelling);
+    .def_property_readonly("id", &BuiltinAttr::ID)
+    .def_property_readonly("spelling", &BuiltinAttr::Spelling);
 }
 } // namespace pasta

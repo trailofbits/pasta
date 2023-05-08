@@ -19,8 +19,8 @@ void RegisterAMDGPUWavesPerEUAttr(py::module_ &m) {
   py::class_<AMDGPUWavesPerEUAttr, InheritableAttr>(m, "AMDGPUWavesPerEUAttr")
     .def("__hash__", [](const AMDGPUWavesPerEUAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const AMDGPUWavesPerEUAttr& a, const AMDGPUWavesPerEUAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Max", &AMDGPUWavesPerEUAttr::Max)
-    .def_property_readonly("Min", &AMDGPUWavesPerEUAttr::Min)
-    .def_property_readonly("Spelling", &AMDGPUWavesPerEUAttr::Spelling);
+    .def_property_readonly("max", &AMDGPUWavesPerEUAttr::Max)
+    .def_property_readonly("min", &AMDGPUWavesPerEUAttr::Min)
+    .def_property_readonly("spelling", &AMDGPUWavesPerEUAttr::Spelling);
 }
 } // namespace pasta

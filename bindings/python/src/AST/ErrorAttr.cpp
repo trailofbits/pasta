@@ -19,11 +19,11 @@ void RegisterErrorAttr(py::module_ &m) {
   py::class_<ErrorAttr, InheritableAttr>(m, "ErrorAttr")
     .def("__hash__", [](const ErrorAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ErrorAttr& a, const ErrorAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("SemanticSpelling", &ErrorAttr::SemanticSpelling)
-    .def_property_readonly("Spelling", &ErrorAttr::Spelling)
-    .def_property_readonly("UserDiagnostic", &ErrorAttr::UserDiagnostic)
-    .def_property_readonly("UserDiagnosticLength", &ErrorAttr::UserDiagnosticLength)
-    .def_property_readonly("IsError", &ErrorAttr::IsError)
-    .def_property_readonly("IsWarning", &ErrorAttr::IsWarning);
+    .def_property_readonly("semantic_spelling", &ErrorAttr::SemanticSpelling)
+    .def_property_readonly("spelling", &ErrorAttr::Spelling)
+    .def_property_readonly("user_diagnostic", &ErrorAttr::UserDiagnostic)
+    .def_property_readonly("user_diagnostic_length", &ErrorAttr::UserDiagnosticLength)
+    .def_property_readonly("is_error", &ErrorAttr::IsError)
+    .def_property_readonly("is_warning", &ErrorAttr::IsWarning);
 }
 } // namespace pasta

@@ -19,9 +19,9 @@ void RegisterSectionAttr(py::module_ &m) {
   py::class_<SectionAttr, InheritableAttr>(m, "SectionAttr")
     .def("__hash__", [](const SectionAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const SectionAttr& a, const SectionAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Name", &SectionAttr::Name)
-    .def_property_readonly("NameLength", &SectionAttr::NameLength)
-    .def_property_readonly("SemanticSpelling", &SectionAttr::SemanticSpelling)
-    .def_property_readonly("Spelling", &SectionAttr::Spelling);
+    .def_property_readonly("name", &SectionAttr::Name)
+    .def_property_readonly("name_length", &SectionAttr::NameLength)
+    .def_property_readonly("semantic_spelling", &SectionAttr::SemanticSpelling)
+    .def_property_readonly("spelling", &SectionAttr::Spelling);
 }
 } // namespace pasta

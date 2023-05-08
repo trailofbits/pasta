@@ -19,7 +19,7 @@ void RegisterCFGuardAttr(py::module_ &m) {
   py::class_<CFGuardAttr, InheritableAttr>(m, "CFGuardAttr")
     .def("__hash__", [](const CFGuardAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const CFGuardAttr& a, const CFGuardAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Guard", &CFGuardAttr::Guard)
-    .def_property_readonly("Spelling", &CFGuardAttr::Spelling);
+    .def_property_readonly("guard", &CFGuardAttr::Guard)
+    .def_property_readonly("spelling", &CFGuardAttr::Spelling);
 }
 } // namespace pasta

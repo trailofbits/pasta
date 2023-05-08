@@ -19,13 +19,13 @@ void RegisterSYCLUniqueStableNameExpr(py::module_ &m) {
   py::class_<SYCLUniqueStableNameExpr, Expr>(m, "SYCLUniqueStableNameExpr")
     .def("__hash__", [](const SYCLUniqueStableNameExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const SYCLUniqueStableNameExpr& a, const SYCLUniqueStableNameExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def("ComputeName", &SYCLUniqueStableNameExpr::ComputeName)
-    .def_property_readonly("Children", &SYCLUniqueStableNameExpr::Children)
-    .def_property_readonly("BeginToken", &SYCLUniqueStableNameExpr::BeginToken)
-    .def_property_readonly("EndToken", &SYCLUniqueStableNameExpr::EndToken)
-    .def_property_readonly("LParenToken", &SYCLUniqueStableNameExpr::LParenToken)
-    .def_property_readonly("Token", &SYCLUniqueStableNameExpr::Token)
-    .def_property_readonly("RParenToken", &SYCLUniqueStableNameExpr::RParenToken)
-    .def_property_readonly("Type", &SYCLUniqueStableNameExpr::Type);
+    .def("compute_name", &SYCLUniqueStableNameExpr::ComputeName)
+    .def_property_readonly("children", &SYCLUniqueStableNameExpr::Children)
+    .def_property_readonly("begin_token", &SYCLUniqueStableNameExpr::BeginToken)
+    .def_property_readonly("end_token", &SYCLUniqueStableNameExpr::EndToken)
+    .def_property_readonly("l_paren_token", &SYCLUniqueStableNameExpr::LParenToken)
+    .def_property_readonly("token", &SYCLUniqueStableNameExpr::Token)
+    .def_property_readonly("r_paren_token", &SYCLUniqueStableNameExpr::RParenToken)
+    .def_property_readonly("type", &SYCLUniqueStableNameExpr::Type);
 }
 } // namespace pasta

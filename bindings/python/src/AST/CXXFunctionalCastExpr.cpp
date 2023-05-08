@@ -19,10 +19,10 @@ void RegisterCXXFunctionalCastExpr(py::module_ &m) {
   py::class_<CXXFunctionalCastExpr, ExplicitCastExpr>(m, "CXXFunctionalCastExpr")
     .def("__hash__", [](const CXXFunctionalCastExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CXXFunctionalCastExpr& a, const CXXFunctionalCastExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("BeginToken", &CXXFunctionalCastExpr::BeginToken)
-    .def_property_readonly("EndToken", &CXXFunctionalCastExpr::EndToken)
-    .def_property_readonly("LParenToken", &CXXFunctionalCastExpr::LParenToken)
-    .def_property_readonly("RParenToken", &CXXFunctionalCastExpr::RParenToken)
-    .def_property_readonly("IsListInitialization", &CXXFunctionalCastExpr::IsListInitialization);
+    .def_property_readonly("begin_token", &CXXFunctionalCastExpr::BeginToken)
+    .def_property_readonly("end_token", &CXXFunctionalCastExpr::EndToken)
+    .def_property_readonly("l_paren_token", &CXXFunctionalCastExpr::LParenToken)
+    .def_property_readonly("r_paren_token", &CXXFunctionalCastExpr::RParenToken)
+    .def_property_readonly("is_list_initialization", &CXXFunctionalCastExpr::IsListInitialization);
 }
 } // namespace pasta

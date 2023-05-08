@@ -19,11 +19,11 @@ void RegisterCharacterLiteral(py::module_ &m) {
   py::class_<CharacterLiteral, Expr>(m, "CharacterLiteral")
     .def("__hash__", [](const CharacterLiteral& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CharacterLiteral& a, const CharacterLiteral& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &CharacterLiteral::Children)
-    .def_property_readonly("BeginToken", &CharacterLiteral::BeginToken)
-    .def_property_readonly("EndToken", &CharacterLiteral::EndToken)
-    .def_property_readonly("Kind", &CharacterLiteral::Kind)
-    .def_property_readonly("Token", &CharacterLiteral::Token)
-    .def_property_readonly("Value", &CharacterLiteral::Value);
+    .def_property_readonly("children", &CharacterLiteral::Children)
+    .def_property_readonly("begin_token", &CharacterLiteral::BeginToken)
+    .def_property_readonly("end_token", &CharacterLiteral::EndToken)
+    .def_property_readonly("kind", &CharacterLiteral::Kind)
+    .def_property_readonly("token", &CharacterLiteral::Token)
+    .def_property_readonly("value", &CharacterLiteral::Value);
 }
 } // namespace pasta

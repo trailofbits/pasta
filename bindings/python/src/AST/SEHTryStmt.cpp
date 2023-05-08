@@ -19,14 +19,14 @@ void RegisterSEHTryStmt(py::module_ &m) {
   py::class_<SEHTryStmt, Stmt>(m, "SEHTryStmt")
     .def("__hash__", [](const SEHTryStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const SEHTryStmt& a, const SEHTryStmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &SEHTryStmt::Children)
-    .def_property_readonly("BeginToken", &SEHTryStmt::BeginToken)
-    .def_property_readonly("EndToken", &SEHTryStmt::EndToken)
-    .def_property_readonly("ExceptHandler", &SEHTryStmt::ExceptHandler)
-    .def_property_readonly("FinallyHandler", &SEHTryStmt::FinallyHandler)
-    .def_property_readonly("Handler", &SEHTryStmt::Handler)
-    .def_property_readonly("IsCXXTry", &SEHTryStmt::IsCXXTry)
-    .def_property_readonly("TryBlock", &SEHTryStmt::TryBlock)
-    .def_property_readonly("TryToken", &SEHTryStmt::TryToken);
+    .def_property_readonly("children", &SEHTryStmt::Children)
+    .def_property_readonly("begin_token", &SEHTryStmt::BeginToken)
+    .def_property_readonly("end_token", &SEHTryStmt::EndToken)
+    .def_property_readonly("except_handler", &SEHTryStmt::ExceptHandler)
+    .def_property_readonly("finally_handler", &SEHTryStmt::FinallyHandler)
+    .def_property_readonly("handler", &SEHTryStmt::Handler)
+    .def_property_readonly("is_cxx_try", &SEHTryStmt::IsCXXTry)
+    .def_property_readonly("try_block", &SEHTryStmt::TryBlock)
+    .def_property_readonly("try_token", &SEHTryStmt::TryToken);
 }
 } // namespace pasta

@@ -19,9 +19,9 @@ void RegisterUsingDecl(py::module_ &m) {
   py::class_<UsingDecl, BaseUsingDecl>(m, "UsingDecl")
     .def("__hash__", [](const UsingDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const UsingDecl& a, const UsingDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("CanonicalDeclaration", &UsingDecl::CanonicalDeclaration)
-    .def_property_readonly("UsingToken", &UsingDecl::UsingToken)
-    .def_property_readonly("HasTypename", &UsingDecl::HasTypename)
-    .def_property_readonly("IsAccessDeclaration", &UsingDecl::IsAccessDeclaration);
+    .def_property_readonly("canonical_declaration", &UsingDecl::CanonicalDeclaration)
+    .def_property_readonly("using_token", &UsingDecl::UsingToken)
+    .def_property_readonly("has_typename", &UsingDecl::HasTypename)
+    .def_property_readonly("is_access_declaration", &UsingDecl::IsAccessDeclaration);
 }
 } // namespace pasta

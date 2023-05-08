@@ -19,7 +19,7 @@ void RegisterConsumableAttr(py::module_ &m) {
   py::class_<ConsumableAttr, InheritableAttr>(m, "ConsumableAttr")
     .def("__hash__", [](const ConsumableAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ConsumableAttr& a, const ConsumableAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("DefaultState", &ConsumableAttr::DefaultState)
-    .def_property_readonly("Spelling", &ConsumableAttr::Spelling);
+    .def_property_readonly("default_state", &ConsumableAttr::DefaultState)
+    .def_property_readonly("spelling", &ConsumableAttr::Spelling);
 }
 } // namespace pasta

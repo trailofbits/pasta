@@ -19,10 +19,10 @@ void RegisterDependentBitIntType(py::module_ &m) {
   py::class_<DependentBitIntType, Type>(m, "DependentBitIntType")
     .def("__hash__", [](const DependentBitIntType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const DependentBitIntType& a, const DependentBitIntType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &DependentBitIntType::Desugar)
-    .def_property_readonly("NumBitsExpression", &DependentBitIntType::NumBitsExpression)
-    .def_property_readonly("IsSigned", &DependentBitIntType::IsSigned)
-    .def_property_readonly("IsSugared", &DependentBitIntType::IsSugared)
-    .def_property_readonly("IsUnsigned", &DependentBitIntType::IsUnsigned);
+    .def_property_readonly("desugar", &DependentBitIntType::Desugar)
+    .def_property_readonly("num_bits_expression", &DependentBitIntType::NumBitsExpression)
+    .def_property_readonly("is_signed", &DependentBitIntType::IsSigned)
+    .def_property_readonly("is_sugared", &DependentBitIntType::IsSugared)
+    .def_property_readonly("is_unsigned", &DependentBitIntType::IsUnsigned);
 }
 } // namespace pasta

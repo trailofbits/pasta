@@ -19,14 +19,14 @@ void RegisterCXXUuidofExpr(py::module_ &m) {
   py::class_<CXXUuidofExpr, Expr>(m, "CXXUuidofExpr")
     .def("__hash__", [](const CXXUuidofExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CXXUuidofExpr& a, const CXXUuidofExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &CXXUuidofExpr::Children)
-    .def_property_readonly("BeginToken", &CXXUuidofExpr::BeginToken)
-    .def_property_readonly("EndToken", &CXXUuidofExpr::EndToken)
-    .def_property_readonly("ExpressionOperand", &CXXUuidofExpr::ExpressionOperand)
-    .def_property_readonly("GuidDeclaration", &CXXUuidofExpr::GuidDeclaration)
-    .def_property_readonly("Tokens", &CXXUuidofExpr::Tokens)
-    .def("TypeOperand", &CXXUuidofExpr::TypeOperand)
-    .def_property_readonly("TypeOperandSourceInfo", &CXXUuidofExpr::TypeOperandSourceInfo)
-    .def_property_readonly("IsTypeOperand", &CXXUuidofExpr::IsTypeOperand);
+    .def_property_readonly("children", &CXXUuidofExpr::Children)
+    .def_property_readonly("begin_token", &CXXUuidofExpr::BeginToken)
+    .def_property_readonly("end_token", &CXXUuidofExpr::EndToken)
+    .def_property_readonly("expression_operand", &CXXUuidofExpr::ExpressionOperand)
+    .def_property_readonly("guid_declaration", &CXXUuidofExpr::GuidDeclaration)
+    .def_property_readonly("tokens", &CXXUuidofExpr::Tokens)
+    .def("type_operand", &CXXUuidofExpr::TypeOperand)
+    .def_property_readonly("type_operand_source_info", &CXXUuidofExpr::TypeOperandSourceInfo)
+    .def_property_readonly("is_type_operand", &CXXUuidofExpr::IsTypeOperand);
 }
 } // namespace pasta

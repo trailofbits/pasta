@@ -19,6 +19,6 @@ void RegisterObjCBoxableAttr(py::module_ &m) {
   py::class_<ObjCBoxableAttr, Attr>(m, "ObjCBoxableAttr")
     .def("__hash__", [](const ObjCBoxableAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ObjCBoxableAttr& a, const ObjCBoxableAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &ObjCBoxableAttr::Spelling);
+    .def_property_readonly("spelling", &ObjCBoxableAttr::Spelling);
 }
 } // namespace pasta

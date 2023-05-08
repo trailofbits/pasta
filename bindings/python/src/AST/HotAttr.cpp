@@ -19,6 +19,6 @@ void RegisterHotAttr(py::module_ &m) {
   py::class_<HotAttr, InheritableAttr>(m, "HotAttr")
     .def("__hash__", [](const HotAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const HotAttr& a, const HotAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &HotAttr::Spelling);
+    .def_property_readonly("spelling", &HotAttr::Spelling);
 }
 } // namespace pasta

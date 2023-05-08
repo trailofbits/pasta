@@ -19,6 +19,6 @@ void RegisterHLSLSV_GroupIndexAttr(py::module_ &m) {
   py::class_<HLSLSV_GroupIndexAttr, HLSLAnnotationAttr>(m, "HLSLSV_GroupIndexAttr")
     .def("__hash__", [](const HLSLSV_GroupIndexAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const HLSLSV_GroupIndexAttr& a, const HLSLSV_GroupIndexAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &HLSLSV_GroupIndexAttr::Spelling);
+    .def_property_readonly("spelling", &HLSLSV_GroupIndexAttr::Spelling);
 }
 } // namespace pasta

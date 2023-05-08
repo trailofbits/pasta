@@ -19,11 +19,11 @@ void RegisterGotoStmt(py::module_ &m) {
   py::class_<GotoStmt, Stmt>(m, "GotoStmt")
     .def("__hash__", [](const GotoStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const GotoStmt& a, const GotoStmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &GotoStmt::Children)
-    .def_property_readonly("BeginToken", &GotoStmt::BeginToken)
-    .def_property_readonly("EndToken", &GotoStmt::EndToken)
-    .def_property_readonly("GotoToken", &GotoStmt::GotoToken)
-    .def_property_readonly("Label", &GotoStmt::Label)
-    .def_property_readonly("LabelToken", &GotoStmt::LabelToken);
+    .def_property_readonly("children", &GotoStmt::Children)
+    .def_property_readonly("begin_token", &GotoStmt::BeginToken)
+    .def_property_readonly("end_token", &GotoStmt::EndToken)
+    .def_property_readonly("goto_token", &GotoStmt::GotoToken)
+    .def_property_readonly("label", &GotoStmt::Label)
+    .def_property_readonly("label_token", &GotoStmt::LabelToken);
 }
 } // namespace pasta

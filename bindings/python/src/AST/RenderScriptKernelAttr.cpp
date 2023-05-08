@@ -19,6 +19,6 @@ void RegisterRenderScriptKernelAttr(py::module_ &m) {
   py::class_<RenderScriptKernelAttr, Attr>(m, "RenderScriptKernelAttr")
     .def("__hash__", [](const RenderScriptKernelAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const RenderScriptKernelAttr& a, const RenderScriptKernelAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &RenderScriptKernelAttr::Spelling);
+    .def_property_readonly("spelling", &RenderScriptKernelAttr::Spelling);
 }
 } // namespace pasta

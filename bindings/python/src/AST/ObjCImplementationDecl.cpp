@@ -19,15 +19,15 @@ void RegisterObjCImplementationDecl(py::module_ &m) {
   py::class_<ObjCImplementationDecl, ObjCImplDecl>(m, "ObjCImplementationDecl")
     .def("__hash__", [](const ObjCImplementationDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const ObjCImplementationDecl& a, const ObjCImplementationDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("InstanceVariableLBraceToken", &ObjCImplementationDecl::InstanceVariableLBraceToken)
-    .def_property_readonly("InstanceVariableRBraceToken", &ObjCImplementationDecl::InstanceVariableRBraceToken)
-    .def_property_readonly("Name", &ObjCImplementationDecl::Name)
-    .def_property_readonly("NumInstanceVariableInitializers", &ObjCImplementationDecl::NumInstanceVariableInitializers)
-    .def_property_readonly("ObjCRuntimeNameAsString", &ObjCImplementationDecl::ObjCRuntimeNameAsString)
-    .def_property_readonly("SuperClass", &ObjCImplementationDecl::SuperClass)
-    .def_property_readonly("SuperClassToken", &ObjCImplementationDecl::SuperClassToken)
-    .def_property_readonly("HasDestructors", &ObjCImplementationDecl::HasDestructors)
-    .def_property_readonly("HasNonZeroConstructors", &ObjCImplementationDecl::HasNonZeroConstructors)
-    .def_property_readonly("InstanceVariables", &ObjCImplementationDecl::InstanceVariables);
+    .def_property_readonly("instance_variable_l_brace_token", &ObjCImplementationDecl::InstanceVariableLBraceToken)
+    .def_property_readonly("instance_variable_r_brace_token", &ObjCImplementationDecl::InstanceVariableRBraceToken)
+    .def_property_readonly("name", &ObjCImplementationDecl::Name)
+    .def_property_readonly("num_instance_variable_initializers", &ObjCImplementationDecl::NumInstanceVariableInitializers)
+    .def_property_readonly("obj_c_runtime_name_as_string", &ObjCImplementationDecl::ObjCRuntimeNameAsString)
+    .def_property_readonly("super_class", &ObjCImplementationDecl::SuperClass)
+    .def_property_readonly("super_class_token", &ObjCImplementationDecl::SuperClassToken)
+    .def_property_readonly("has_destructors", &ObjCImplementationDecl::HasDestructors)
+    .def_property_readonly("has_non_zero_constructors", &ObjCImplementationDecl::HasNonZeroConstructors)
+    .def_property_readonly("instance_variables", &ObjCImplementationDecl::InstanceVariables);
 }
 } // namespace pasta

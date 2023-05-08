@@ -19,7 +19,7 @@ void RegisterExclusiveTrylockFunctionAttr(py::module_ &m) {
   py::class_<ExclusiveTrylockFunctionAttr, InheritableAttr>(m, "ExclusiveTrylockFunctionAttr")
     .def("__hash__", [](const ExclusiveTrylockFunctionAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ExclusiveTrylockFunctionAttr& a, const ExclusiveTrylockFunctionAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &ExclusiveTrylockFunctionAttr::Spelling)
-    .def_property_readonly("SuccessValue", &ExclusiveTrylockFunctionAttr::SuccessValue);
+    .def_property_readonly("spelling", &ExclusiveTrylockFunctionAttr::Spelling)
+    .def_property_readonly("success_value", &ExclusiveTrylockFunctionAttr::SuccessValue);
 }
 } // namespace pasta

@@ -19,7 +19,7 @@ void RegisterEnumExtensibilityAttr(py::module_ &m) {
   py::class_<EnumExtensibilityAttr, InheritableAttr>(m, "EnumExtensibilityAttr")
     .def("__hash__", [](const EnumExtensibilityAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const EnumExtensibilityAttr& a, const EnumExtensibilityAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Extensibility", &EnumExtensibilityAttr::Extensibility)
-    .def_property_readonly("Spelling", &EnumExtensibilityAttr::Spelling);
+    .def_property_readonly("extensibility", &EnumExtensibilityAttr::Extensibility)
+    .def_property_readonly("spelling", &EnumExtensibilityAttr::Spelling);
 }
 } // namespace pasta

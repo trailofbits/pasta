@@ -19,6 +19,6 @@ void RegisterTemplateParamObjectDecl(py::module_ &m) {
   py::class_<TemplateParamObjectDecl, ValueDecl>(m, "TemplateParamObjectDecl")
     .def("__hash__", [](const TemplateParamObjectDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const TemplateParamObjectDecl& a, const TemplateParamObjectDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("CanonicalDeclaration", &TemplateParamObjectDecl::CanonicalDeclaration);
+    .def_property_readonly("canonical_declaration", &TemplateParamObjectDecl::CanonicalDeclaration);
 }
 } // namespace pasta

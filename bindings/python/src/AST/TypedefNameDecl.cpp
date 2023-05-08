@@ -19,11 +19,11 @@ void RegisterTypedefNameDecl(py::module_ &m) {
   py::class_<TypedefNameDecl, TypeDecl>(m, "TypedefNameDecl")
     .def("__hash__", [](const TypedefNameDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const TypedefNameDecl& a, const TypedefNameDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("AnonymousDeclarationWithTypedefName", &TypedefNameDecl::AnonymousDeclarationWithTypedefName)
-    .def_property_readonly("CanonicalDeclaration", &TypedefNameDecl::CanonicalDeclaration)
-    .def_property_readonly("Type", &TypedefNameDecl::Type)
-    .def_property_readonly("UnderlyingType", &TypedefNameDecl::UnderlyingType)
-    .def_property_readonly("IsModed", &TypedefNameDecl::IsModed)
-    .def_property_readonly("IsTransparentTag", &TypedefNameDecl::IsTransparentTag);
+    .def_property_readonly("anonymous_declaration_with_typedef_name", &TypedefNameDecl::AnonymousDeclarationWithTypedefName)
+    .def_property_readonly("canonical_declaration", &TypedefNameDecl::CanonicalDeclaration)
+    .def_property_readonly("type", &TypedefNameDecl::Type)
+    .def_property_readonly("underlying_type", &TypedefNameDecl::UnderlyingType)
+    .def_property_readonly("is_moded", &TypedefNameDecl::IsModed)
+    .def_property_readonly("is_transparent_tag", &TypedefNameDecl::IsTransparentTag);
 }
 } // namespace pasta

@@ -246,3 +246,85 @@ std::string CxxName(llvm::StringRef name_) {
   }
   return name;
 }
+
+std::string CapitalCaseToSnakeCase(llvm::StringRef name) {
+  std::stringstream ss;
+
+  auto i = 0u;
+  auto added_sep = false;
+  auto last_was_uc = false;
+  auto skip = false;
+  for (auto c : name) {
+    if (skip) {
+      skip = false;
+      ++i;
+      continue;
+    }
+    if ('_' == c) {
+      if (last_was_uc || !i) {
+        ss << '_';
+      } else {
+        ss << "__";
+      }
+      added_sep = true;
+      last_was_uc = true;
+
+    } else if (std::isupper(c)) {
+      if (!added_sep && i && (i + 1u) < name.size()) {
+        if (std::islower(name[i + 1u])) {
+          ss << '_';
+          added_sep = true;
+        }
+      }
+      ss << static_cast<char>(std::tolower(c));
+      added_sep = false;
+      last_was_uc = false;
+
+    } else if (std::isdigit(c)) {
+
+      // Special case `1d`, `2d`, and `3d`.
+      if (!added_sep && (i + 2u) < name.size() &&
+          (c == '1' || c == '2' || c == '3') &&
+           name[i + 1u] == 'd' &&
+           std::isupper(name[i + 2u])) {
+        ss << '_' << c << 'd' << '_';
+        skip = true; // Skip the `d`.
+        added_sep = true;
+
+      } else {
+        ss << c;
+        if (!added_sep && (i + 1u) < name.size()) {
+          if (!std::isdigit(name[i + 1u]) && !std::islower(name[i + 1u])) {
+            ss << '_';
+            added_sep = true;
+          }
+        }
+      }
+      last_was_uc = false;
+
+    } else {
+      ss << c;
+
+      if (!added_sep && (i + 1u) < name.size()) {
+        if (std::isupper(name[i + 1u])) {
+          ss << '_';
+          added_sep = true;
+        }
+      }
+      last_was_uc = false;
+    }
+    ++i;
+  }
+  auto res = ss.str();
+
+  // If it's ending with three underscores, then make it end with two
+  // underscores. This is a dumb hack to deal with some special keywords/
+  // token kinds that show up in PASTA.
+  if (auto s = res.size(); s > 3u) {
+    if (res[s - 1u] == '_' && res[s - 2u] == '_' && res[s - 3u] == '_') {
+      res.pop_back();
+    }
+  }
+
+  return res;
+}

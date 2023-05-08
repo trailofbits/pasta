@@ -19,12 +19,12 @@ void RegisterMemberPointerType(py::module_ &m) {
   py::class_<MemberPointerType, Type>(m, "MemberPointerType")
     .def("__hash__", [](const MemberPointerType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const MemberPointerType& a, const MemberPointerType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &MemberPointerType::Desugar)
-    .def_property_readonly("Class", &MemberPointerType::Class)
-    .def_property_readonly("MostRecentCXXRecordDeclaration", &MemberPointerType::MostRecentCXXRecordDeclaration)
-    .def_property_readonly("PointeeType", &MemberPointerType::PointeeType)
-    .def_property_readonly("IsMemberDataPointer", &MemberPointerType::IsMemberDataPointer)
-    .def_property_readonly("IsMemberFunctionPointer", &MemberPointerType::IsMemberFunctionPointer)
-    .def_property_readonly("IsSugared", &MemberPointerType::IsSugared);
+    .def_property_readonly("desugar", &MemberPointerType::Desugar)
+    .def_property_readonly("class", &MemberPointerType::Class)
+    .def_property_readonly("most_recent_cxx_record_declaration", &MemberPointerType::MostRecentCXXRecordDeclaration)
+    .def_property_readonly("pointee_type", &MemberPointerType::PointeeType)
+    .def_property_readonly("is_member_data_pointer", &MemberPointerType::IsMemberDataPointer)
+    .def_property_readonly("is_member_function_pointer", &MemberPointerType::IsMemberFunctionPointer)
+    .def_property_readonly("is_sugared", &MemberPointerType::IsSugared);
 }
 } // namespace pasta

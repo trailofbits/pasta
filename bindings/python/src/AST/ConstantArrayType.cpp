@@ -19,9 +19,9 @@ void RegisterConstantArrayType(py::module_ &m) {
   py::class_<ConstantArrayType, ArrayType>(m, "ConstantArrayType")
     .def("__hash__", [](const ConstantArrayType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const ConstantArrayType& a, const ConstantArrayType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &ConstantArrayType::Desugar)
-    .def_property_readonly("Size", &ConstantArrayType::Size)
-    .def_property_readonly("SizeExpression", &ConstantArrayType::SizeExpression)
-    .def_property_readonly("IsSugared", &ConstantArrayType::IsSugared);
+    .def_property_readonly("desugar", &ConstantArrayType::Desugar)
+    .def_property_readonly("size", &ConstantArrayType::Size)
+    .def_property_readonly("size_expression", &ConstantArrayType::SizeExpression)
+    .def_property_readonly("is_sugared", &ConstantArrayType::IsSugared);
 }
 } // namespace pasta

@@ -19,6 +19,6 @@ void RegisterOMPTaskDirective(py::module_ &m) {
   py::class_<OMPTaskDirective, OMPExecutableDirective>(m, "OMPTaskDirective")
     .def("__hash__", [](const OMPTaskDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OMPTaskDirective& a, const OMPTaskDirective& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("HasCancel", &OMPTaskDirective::HasCancel);
+    .def_property_readonly("has_cancel", &OMPTaskDirective::HasCancel);
 }
 } // namespace pasta

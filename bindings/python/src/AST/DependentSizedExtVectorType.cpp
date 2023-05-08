@@ -19,10 +19,10 @@ void RegisterDependentSizedExtVectorType(py::module_ &m) {
   py::class_<DependentSizedExtVectorType, Type>(m, "DependentSizedExtVectorType")
     .def("__hash__", [](const DependentSizedExtVectorType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const DependentSizedExtVectorType& a, const DependentSizedExtVectorType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &DependentSizedExtVectorType::Desugar)
-    .def_property_readonly("AttributeToken", &DependentSizedExtVectorType::AttributeToken)
-    .def_property_readonly("ElementType", &DependentSizedExtVectorType::ElementType)
-    .def_property_readonly("SizeExpression", &DependentSizedExtVectorType::SizeExpression)
-    .def_property_readonly("IsSugared", &DependentSizedExtVectorType::IsSugared);
+    .def_property_readonly("desugar", &DependentSizedExtVectorType::Desugar)
+    .def_property_readonly("attribute_token", &DependentSizedExtVectorType::AttributeToken)
+    .def_property_readonly("element_type", &DependentSizedExtVectorType::ElementType)
+    .def_property_readonly("size_expression", &DependentSizedExtVectorType::SizeExpression)
+    .def_property_readonly("is_sugared", &DependentSizedExtVectorType::IsSugared);
 }
 } // namespace pasta

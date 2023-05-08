@@ -19,11 +19,11 @@ void RegisterObjCArrayLiteral(py::module_ &m) {
   py::class_<ObjCArrayLiteral, Expr>(m, "ObjCArrayLiteral")
     .def("__hash__", [](const ObjCArrayLiteral& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ObjCArrayLiteral& a, const ObjCArrayLiteral& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &ObjCArrayLiteral::Children)
-    .def_property_readonly("ArrayWithObjectsMethod", &ObjCArrayLiteral::ArrayWithObjectsMethod)
-    .def_property_readonly("BeginToken", &ObjCArrayLiteral::BeginToken)
-    .def_property_readonly("EndToken", &ObjCArrayLiteral::EndToken)
-    .def_property_readonly("NumElements", &ObjCArrayLiteral::NumElements)
-    .def_property_readonly("Tokens", &ObjCArrayLiteral::Tokens);
+    .def_property_readonly("children", &ObjCArrayLiteral::Children)
+    .def_property_readonly("array_with_objects_method", &ObjCArrayLiteral::ArrayWithObjectsMethod)
+    .def_property_readonly("begin_token", &ObjCArrayLiteral::BeginToken)
+    .def_property_readonly("end_token", &ObjCArrayLiteral::EndToken)
+    .def_property_readonly("num_elements", &ObjCArrayLiteral::NumElements)
+    .def_property_readonly("tokens", &ObjCArrayLiteral::Tokens);
 }
 } // namespace pasta

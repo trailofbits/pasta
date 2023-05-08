@@ -19,6 +19,6 @@ void RegisterNakedAttr(py::module_ &m) {
   py::class_<NakedAttr, InheritableAttr>(m, "NakedAttr")
     .def("__hash__", [](const NakedAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const NakedAttr& a, const NakedAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &NakedAttr::Spelling);
+    .def_property_readonly("spelling", &NakedAttr::Spelling);
 }
 } // namespace pasta

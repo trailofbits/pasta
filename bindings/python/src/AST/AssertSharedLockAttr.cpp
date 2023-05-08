@@ -19,6 +19,6 @@ void RegisterAssertSharedLockAttr(py::module_ &m) {
   py::class_<AssertSharedLockAttr, InheritableAttr>(m, "AssertSharedLockAttr")
     .def("__hash__", [](const AssertSharedLockAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const AssertSharedLockAttr& a, const AssertSharedLockAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &AssertSharedLockAttr::Spelling);
+    .def_property_readonly("spelling", &AssertSharedLockAttr::Spelling);
 }
 } // namespace pasta

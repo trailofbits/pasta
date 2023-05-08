@@ -19,10 +19,10 @@ void RegisterIndirectFieldDecl(py::module_ &m) {
   py::class_<IndirectFieldDecl, ValueDecl>(m, "IndirectFieldDecl")
     .def("__hash__", [](const IndirectFieldDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const IndirectFieldDecl& a, const IndirectFieldDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("Chain", &IndirectFieldDecl::Chain)
-    .def_property_readonly("AnonymousField", &IndirectFieldDecl::AnonymousField)
-    .def_property_readonly("CanonicalDeclaration", &IndirectFieldDecl::CanonicalDeclaration)
-    .def_property_readonly("ChainingSize", &IndirectFieldDecl::ChainingSize)
-    .def_property_readonly("VariableDeclaration", &IndirectFieldDecl::VariableDeclaration);
+    .def_property_readonly("chain", &IndirectFieldDecl::Chain)
+    .def_property_readonly("anonymous_field", &IndirectFieldDecl::AnonymousField)
+    .def_property_readonly("canonical_declaration", &IndirectFieldDecl::CanonicalDeclaration)
+    .def_property_readonly("chaining_size", &IndirectFieldDecl::ChainingSize)
+    .def_property_readonly("variable_declaration", &IndirectFieldDecl::VariableDeclaration);
 }
 } // namespace pasta

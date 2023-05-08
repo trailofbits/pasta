@@ -19,6 +19,6 @@ void RegisterCFReturnsRetainedAttr(py::module_ &m) {
   py::class_<CFReturnsRetainedAttr, InheritableAttr>(m, "CFReturnsRetainedAttr")
     .def("__hash__", [](const CFReturnsRetainedAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const CFReturnsRetainedAttr& a, const CFReturnsRetainedAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &CFReturnsRetainedAttr::Spelling);
+    .def_property_readonly("spelling", &CFReturnsRetainedAttr::Spelling);
 }
 } // namespace pasta

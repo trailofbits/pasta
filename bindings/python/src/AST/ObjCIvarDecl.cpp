@@ -19,11 +19,11 @@ void RegisterObjCIvarDecl(py::module_ &m) {
   py::class_<ObjCIvarDecl, FieldDecl>(m, "ObjCIvarDecl")
     .def("__hash__", [](const ObjCIvarDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const ObjCIvarDecl& a, const ObjCIvarDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("AccessControl", &ObjCIvarDecl::AccessControl)
-    .def_property_readonly("CanonicalAccessControl", &ObjCIvarDecl::CanonicalAccessControl)
-    .def_property_readonly("CanonicalDeclaration", &ObjCIvarDecl::CanonicalDeclaration)
-    .def_property_readonly("ContainingInterface", &ObjCIvarDecl::ContainingInterface)
-    .def_property_readonly("NextInstanceVariable", &ObjCIvarDecl::NextInstanceVariable)
-    .def_property_readonly("Synthesize", &ObjCIvarDecl::Synthesize);
+    .def_property_readonly("access_control", &ObjCIvarDecl::AccessControl)
+    .def_property_readonly("canonical_access_control", &ObjCIvarDecl::CanonicalAccessControl)
+    .def_property_readonly("canonical_declaration", &ObjCIvarDecl::CanonicalDeclaration)
+    .def_property_readonly("containing_interface", &ObjCIvarDecl::ContainingInterface)
+    .def_property_readonly("next_instance_variable", &ObjCIvarDecl::NextInstanceVariable)
+    .def_property_readonly("synthesize", &ObjCIvarDecl::Synthesize);
 }
 } // namespace pasta

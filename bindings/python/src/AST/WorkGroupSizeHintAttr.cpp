@@ -19,9 +19,9 @@ void RegisterWorkGroupSizeHintAttr(py::module_ &m) {
   py::class_<WorkGroupSizeHintAttr, InheritableAttr>(m, "WorkGroupSizeHintAttr")
     .def("__hash__", [](const WorkGroupSizeHintAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const WorkGroupSizeHintAttr& a, const WorkGroupSizeHintAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &WorkGroupSizeHintAttr::Spelling)
-    .def_property_readonly("XDim", &WorkGroupSizeHintAttr::XDim)
-    .def_property_readonly("YDim", &WorkGroupSizeHintAttr::YDim)
-    .def_property_readonly("ZDim", &WorkGroupSizeHintAttr::ZDim);
+    .def_property_readonly("spelling", &WorkGroupSizeHintAttr::Spelling)
+    .def_property_readonly("x_dim", &WorkGroupSizeHintAttr::XDim)
+    .def_property_readonly("y_dim", &WorkGroupSizeHintAttr::YDim)
+    .def_property_readonly("z_dim", &WorkGroupSizeHintAttr::ZDim);
 }
 } // namespace pasta

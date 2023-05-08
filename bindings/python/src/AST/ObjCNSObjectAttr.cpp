@@ -19,6 +19,6 @@ void RegisterObjCNSObjectAttr(py::module_ &m) {
   py::class_<ObjCNSObjectAttr, InheritableAttr>(m, "ObjCNSObjectAttr")
     .def("__hash__", [](const ObjCNSObjectAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ObjCNSObjectAttr& a, const ObjCNSObjectAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &ObjCNSObjectAttr::Spelling);
+    .def_property_readonly("spelling", &ObjCNSObjectAttr::Spelling);
 }
 } // namespace pasta

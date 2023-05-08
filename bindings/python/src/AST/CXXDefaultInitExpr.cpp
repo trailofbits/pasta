@@ -19,14 +19,14 @@ void RegisterCXXDefaultInitExpr(py::module_ &m) {
   py::class_<CXXDefaultInitExpr, Expr>(m, "CXXDefaultInitExpr")
     .def("__hash__", [](const CXXDefaultInitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CXXDefaultInitExpr& a, const CXXDefaultInitExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &CXXDefaultInitExpr::Children)
-    .def_property_readonly("BeginToken", &CXXDefaultInitExpr::BeginToken)
-    .def_property_readonly("EndToken", &CXXDefaultInitExpr::EndToken)
-    .def_property_readonly("Expression", &CXXDefaultInitExpr::Expression)
-    .def_property_readonly("Field", &CXXDefaultInitExpr::Field)
-    .def_property_readonly("RewrittenExpression", &CXXDefaultInitExpr::RewrittenExpression)
-    .def_property_readonly("UsedContext", &CXXDefaultInitExpr::UsedContext)
-    .def_property_readonly("UsedToken", &CXXDefaultInitExpr::UsedToken)
-    .def_property_readonly("HasRewrittenInitializer", &CXXDefaultInitExpr::HasRewrittenInitializer);
+    .def_property_readonly("children", &CXXDefaultInitExpr::Children)
+    .def_property_readonly("begin_token", &CXXDefaultInitExpr::BeginToken)
+    .def_property_readonly("end_token", &CXXDefaultInitExpr::EndToken)
+    .def_property_readonly("expression", &CXXDefaultInitExpr::Expression)
+    .def_property_readonly("field", &CXXDefaultInitExpr::Field)
+    .def_property_readonly("rewritten_expression", &CXXDefaultInitExpr::RewrittenExpression)
+    .def_property_readonly("used_context", &CXXDefaultInitExpr::UsedContext)
+    .def_property_readonly("used_token", &CXXDefaultInitExpr::UsedToken)
+    .def_property_readonly("has_rewritten_initializer", &CXXDefaultInitExpr::HasRewrittenInitializer);
 }
 } // namespace pasta

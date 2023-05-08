@@ -19,14 +19,14 @@ void RegisterStmt(py::module_ &m) {
   py::class_<Stmt>(m, "Stmt")
     .def("__hash__", [](const Stmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("IgnoreContainers", &Stmt::IgnoreContainers)
-    .def_property_readonly("Children", &Stmt::Children)
-    .def_property_readonly("BeginToken", &Stmt::BeginToken)
-    .def_property_readonly("EndToken", &Stmt::EndToken)
-    .def("ID", &Stmt::ID)
-    .def_property_readonly("Tokens", &Stmt::Tokens)
-    .def_property_readonly("Kind", &Stmt::Kind)
-    .def_property_readonly("KindName", &Stmt::KindName)
-    .def_property_readonly("StripLabelLikeStatements", &Stmt::StripLabelLikeStatements);
+    .def_property_readonly("ignore_containers", &Stmt::IgnoreContainers)
+    .def_property_readonly("children", &Stmt::Children)
+    .def_property_readonly("begin_token", &Stmt::BeginToken)
+    .def_property_readonly("end_token", &Stmt::EndToken)
+    .def("id", &Stmt::ID)
+    .def_property_readonly("tokens", &Stmt::Tokens)
+    .def_property_readonly("kind", &Stmt::Kind)
+    .def_property_readonly("kind_name", &Stmt::KindName)
+    .def_property_readonly("strip_label_like_statements", &Stmt::StripLabelLikeStatements);
 }
 } // namespace pasta

@@ -25,6 +25,8 @@ std::string Capitalize(llvm::StringRef name);
 
 std::string CxxName(llvm::StringRef name);
 
+std::string CapitalCaseToSnakeCase(llvm::StringRef name);
+
 extern const std::unordered_set<std::string> kConcreteDecls;
 extern const std::unordered_set<std::string> kConcreteStmts;
 extern const std::unordered_set<std::string> kConcreteTypes;

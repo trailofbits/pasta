@@ -19,10 +19,10 @@ void RegisterDefaultStmt(py::module_ &m) {
   py::class_<DefaultStmt, SwitchCase>(m, "DefaultStmt")
     .def("__hash__", [](const DefaultStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const DefaultStmt& a, const DefaultStmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &DefaultStmt::Children)
-    .def_property_readonly("BeginToken", &DefaultStmt::BeginToken)
-    .def_property_readonly("DefaultToken", &DefaultStmt::DefaultToken)
-    .def_property_readonly("EndToken", &DefaultStmt::EndToken)
-    .def_property_readonly("SubStatement", &DefaultStmt::SubStatement);
+    .def_property_readonly("children", &DefaultStmt::Children)
+    .def_property_readonly("begin_token", &DefaultStmt::BeginToken)
+    .def_property_readonly("default_token", &DefaultStmt::DefaultToken)
+    .def_property_readonly("end_token", &DefaultStmt::EndToken)
+    .def_property_readonly("sub_statement", &DefaultStmt::SubStatement);
 }
 } // namespace pasta

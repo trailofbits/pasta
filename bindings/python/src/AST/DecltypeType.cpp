@@ -19,9 +19,9 @@ void RegisterDecltypeType(py::module_ &m) {
   py::class_<DecltypeType, Type>(m, "DecltypeType")
     .def("__hash__", [](const DecltypeType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const DecltypeType& a, const DecltypeType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &DecltypeType::Desugar)
-    .def_property_readonly("UnderlyingExpression", &DecltypeType::UnderlyingExpression)
-    .def_property_readonly("UnderlyingType", &DecltypeType::UnderlyingType)
-    .def_property_readonly("IsSugared", &DecltypeType::IsSugared);
+    .def_property_readonly("desugar", &DecltypeType::Desugar)
+    .def_property_readonly("underlying_expression", &DecltypeType::UnderlyingExpression)
+    .def_property_readonly("underlying_type", &DecltypeType::UnderlyingType)
+    .def_property_readonly("is_sugared", &DecltypeType::IsSugared);
 }
 } // namespace pasta

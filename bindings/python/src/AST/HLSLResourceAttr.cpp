@@ -19,8 +19,8 @@ void RegisterHLSLResourceAttr(py::module_ &m) {
   py::class_<HLSLResourceAttr, InheritableAttr>(m, "HLSLResourceAttr")
     .def("__hash__", [](const HLSLResourceAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const HLSLResourceAttr& a, const HLSLResourceAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("ResourceShape", &HLSLResourceAttr::ResourceShape)
-    .def_property_readonly("ResourceType", &HLSLResourceAttr::ResourceType)
-    .def_property_readonly("Spelling", &HLSLResourceAttr::Spelling);
+    .def_property_readonly("resource_shape", &HLSLResourceAttr::ResourceShape)
+    .def_property_readonly("resource_type", &HLSLResourceAttr::ResourceType)
+    .def_property_readonly("spelling", &HLSLResourceAttr::Spelling);
 }
 } // namespace pasta

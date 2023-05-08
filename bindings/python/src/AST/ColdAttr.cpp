@@ -19,6 +19,6 @@ void RegisterColdAttr(py::module_ &m) {
   py::class_<ColdAttr, InheritableAttr>(m, "ColdAttr")
     .def("__hash__", [](const ColdAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ColdAttr& a, const ColdAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &ColdAttr::Spelling);
+    .def_property_readonly("spelling", &ColdAttr::Spelling);
 }
 } // namespace pasta

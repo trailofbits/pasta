@@ -19,6 +19,6 @@ void RegisterObjCRuntimeVisibleAttr(py::module_ &m) {
   py::class_<ObjCRuntimeVisibleAttr, Attr>(m, "ObjCRuntimeVisibleAttr")
     .def("__hash__", [](const ObjCRuntimeVisibleAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ObjCRuntimeVisibleAttr& a, const ObjCRuntimeVisibleAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &ObjCRuntimeVisibleAttr::Spelling);
+    .def_property_readonly("spelling", &ObjCRuntimeVisibleAttr::Spelling);
 }
 } // namespace pasta

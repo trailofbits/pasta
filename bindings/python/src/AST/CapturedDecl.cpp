@@ -19,10 +19,10 @@ void RegisterCapturedDecl(py::module_ &m) {
   py::class_<CapturedDecl, Decl>(m, "CapturedDecl")
     .def("__hash__", [](const CapturedDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const CapturedDecl& a, const CapturedDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("ContextParameter", &CapturedDecl::ContextParameter)
-    .def_property_readonly("ContextParameterPosition", &CapturedDecl::ContextParameterPosition)
-    .def_property_readonly("NumParameters", &CapturedDecl::NumParameters)
-    .def_property_readonly("IsNothrow", &CapturedDecl::IsNothrow)
-    .def_property_readonly("Parameters", &CapturedDecl::Parameters);
+    .def_property_readonly("context_parameter", &CapturedDecl::ContextParameter)
+    .def_property_readonly("context_parameter_position", &CapturedDecl::ContextParameterPosition)
+    .def_property_readonly("num_parameters", &CapturedDecl::NumParameters)
+    .def_property_readonly("is_nothrow", &CapturedDecl::IsNothrow)
+    .def_property_readonly("parameters", &CapturedDecl::Parameters);
 }
 } // namespace pasta

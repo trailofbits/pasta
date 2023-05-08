@@ -19,6 +19,6 @@ void RegisterUnlikelyAttr(py::module_ &m) {
   py::class_<UnlikelyAttr, StmtAttr>(m, "UnlikelyAttr")
     .def("__hash__", [](const UnlikelyAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const UnlikelyAttr& a, const UnlikelyAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &UnlikelyAttr::Spelling);
+    .def_property_readonly("spelling", &UnlikelyAttr::Spelling);
 }
 } // namespace pasta

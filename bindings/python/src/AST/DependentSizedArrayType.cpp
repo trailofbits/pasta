@@ -19,11 +19,11 @@ void RegisterDependentSizedArrayType(py::module_ &m) {
   py::class_<DependentSizedArrayType, ArrayType>(m, "DependentSizedArrayType")
     .def("__hash__", [](const DependentSizedArrayType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const DependentSizedArrayType& a, const DependentSizedArrayType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &DependentSizedArrayType::Desugar)
-    .def_property_readonly("BracketsRange", &DependentSizedArrayType::BracketsRange)
-    .def_property_readonly("LBracketToken", &DependentSizedArrayType::LBracketToken)
-    .def_property_readonly("RBracketToken", &DependentSizedArrayType::RBracketToken)
-    .def_property_readonly("SizeExpression", &DependentSizedArrayType::SizeExpression)
-    .def_property_readonly("IsSugared", &DependentSizedArrayType::IsSugared);
+    .def_property_readonly("desugar", &DependentSizedArrayType::Desugar)
+    .def_property_readonly("brackets_range", &DependentSizedArrayType::BracketsRange)
+    .def_property_readonly("l_bracket_token", &DependentSizedArrayType::LBracketToken)
+    .def_property_readonly("r_bracket_token", &DependentSizedArrayType::RBracketToken)
+    .def_property_readonly("size_expression", &DependentSizedArrayType::SizeExpression)
+    .def_property_readonly("is_sugared", &DependentSizedArrayType::IsSugared);
 }
 } // namespace pasta

@@ -19,6 +19,6 @@ void RegisterConsumableAutoCastAttr(py::module_ &m) {
   py::class_<ConsumableAutoCastAttr, InheritableAttr>(m, "ConsumableAutoCastAttr")
     .def("__hash__", [](const ConsumableAutoCastAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ConsumableAutoCastAttr& a, const ConsumableAutoCastAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &ConsumableAutoCastAttr::Spelling);
+    .def_property_readonly("spelling", &ConsumableAutoCastAttr::Spelling);
 }
 } // namespace pasta

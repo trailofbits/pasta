@@ -19,6 +19,6 @@ void RegisterSwiftAsyncCallAttr(py::module_ &m) {
   py::class_<SwiftAsyncCallAttr, InheritableAttr>(m, "SwiftAsyncCallAttr")
     .def("__hash__", [](const SwiftAsyncCallAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const SwiftAsyncCallAttr& a, const SwiftAsyncCallAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &SwiftAsyncCallAttr::Spelling);
+    .def_property_readonly("spelling", &SwiftAsyncCallAttr::Spelling);
 }
 } // namespace pasta

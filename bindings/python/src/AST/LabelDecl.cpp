@@ -19,10 +19,10 @@ void RegisterLabelDecl(py::module_ &m) {
   py::class_<LabelDecl, NamedDecl>(m, "LabelDecl")
     .def("__hash__", [](const LabelDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const LabelDecl& a, const LabelDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("MSAssemblyLabel", &LabelDecl::MSAssemblyLabel)
-    .def_property_readonly("Statement", &LabelDecl::Statement)
-    .def_property_readonly("IsGnuLocal", &LabelDecl::IsGnuLocal)
-    .def_property_readonly("IsMSAssemblyLabel", &LabelDecl::IsMSAssemblyLabel)
-    .def_property_readonly("IsResolvedMSAssemblyLabel", &LabelDecl::IsResolvedMSAssemblyLabel);
+    .def_property_readonly("ms_assembly_label", &LabelDecl::MSAssemblyLabel)
+    .def_property_readonly("statement", &LabelDecl::Statement)
+    .def_property_readonly("is_gnu_local", &LabelDecl::IsGnuLocal)
+    .def_property_readonly("is_ms_assembly_label", &LabelDecl::IsMSAssemblyLabel)
+    .def_property_readonly("is_resolved_ms_assembly_label", &LabelDecl::IsResolvedMSAssemblyLabel);
 }
 } // namespace pasta

@@ -19,11 +19,11 @@ void RegisterAsTypeExpr(py::module_ &m) {
   py::class_<AsTypeExpr, Expr>(m, "AsTypeExpr")
     .def("__hash__", [](const AsTypeExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const AsTypeExpr& a, const AsTypeExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &AsTypeExpr::Children)
-    .def_property_readonly("BeginToken", &AsTypeExpr::BeginToken)
-    .def_property_readonly("BuiltinToken", &AsTypeExpr::BuiltinToken)
-    .def_property_readonly("EndToken", &AsTypeExpr::EndToken)
-    .def_property_readonly("RParenToken", &AsTypeExpr::RParenToken)
-    .def_property_readonly("SrcExpression", &AsTypeExpr::SrcExpression);
+    .def_property_readonly("children", &AsTypeExpr::Children)
+    .def_property_readonly("begin_token", &AsTypeExpr::BeginToken)
+    .def_property_readonly("builtin_token", &AsTypeExpr::BuiltinToken)
+    .def_property_readonly("end_token", &AsTypeExpr::EndToken)
+    .def_property_readonly("r_paren_token", &AsTypeExpr::RParenToken)
+    .def_property_readonly("src_expression", &AsTypeExpr::SrcExpression);
 }
 } // namespace pasta

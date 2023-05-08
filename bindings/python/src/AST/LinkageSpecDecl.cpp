@@ -19,10 +19,10 @@ void RegisterLinkageSpecDecl(py::module_ &m) {
   py::class_<LinkageSpecDecl, Decl>(m, "LinkageSpecDecl")
     .def("__hash__", [](const LinkageSpecDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const LinkageSpecDecl& a, const LinkageSpecDecl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("EndToken", &LinkageSpecDecl::EndToken)
-    .def_property_readonly("ExternToken", &LinkageSpecDecl::ExternToken)
-    .def_property_readonly("Language", &LinkageSpecDecl::Language)
-    .def_property_readonly("RBraceToken", &LinkageSpecDecl::RBraceToken)
-    .def_property_readonly("HasBraces", &LinkageSpecDecl::HasBraces);
+    .def_property_readonly("end_token", &LinkageSpecDecl::EndToken)
+    .def_property_readonly("extern_token", &LinkageSpecDecl::ExternToken)
+    .def_property_readonly("language", &LinkageSpecDecl::Language)
+    .def_property_readonly("r_brace_token", &LinkageSpecDecl::RBraceToken)
+    .def_property_readonly("has_braces", &LinkageSpecDecl::HasBraces);
 }
 } // namespace pasta

@@ -19,11 +19,11 @@ void RegisterExternalSourceSymbolAttr(py::module_ &m) {
   py::class_<ExternalSourceSymbolAttr, InheritableAttr>(m, "ExternalSourceSymbolAttr")
     .def("__hash__", [](const ExternalSourceSymbolAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ExternalSourceSymbolAttr& a, const ExternalSourceSymbolAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("DefinedIn", &ExternalSourceSymbolAttr::DefinedIn)
-    .def_property_readonly("DefinedInLength", &ExternalSourceSymbolAttr::DefinedInLength)
-    .def_property_readonly("GeneratedDeclaration", &ExternalSourceSymbolAttr::GeneratedDeclaration)
-    .def_property_readonly("Language", &ExternalSourceSymbolAttr::Language)
-    .def_property_readonly("LanguageLength", &ExternalSourceSymbolAttr::LanguageLength)
-    .def_property_readonly("Spelling", &ExternalSourceSymbolAttr::Spelling);
+    .def_property_readonly("defined_in", &ExternalSourceSymbolAttr::DefinedIn)
+    .def_property_readonly("defined_in_length", &ExternalSourceSymbolAttr::DefinedInLength)
+    .def_property_readonly("generated_declaration", &ExternalSourceSymbolAttr::GeneratedDeclaration)
+    .def_property_readonly("language", &ExternalSourceSymbolAttr::Language)
+    .def_property_readonly("language_length", &ExternalSourceSymbolAttr::LanguageLength)
+    .def_property_readonly("spelling", &ExternalSourceSymbolAttr::Spelling);
 }
 } // namespace pasta

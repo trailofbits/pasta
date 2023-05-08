@@ -19,7 +19,7 @@ void RegisterRestrictAttr(py::module_ &m) {
   py::class_<RestrictAttr, InheritableAttr>(m, "RestrictAttr")
     .def("__hash__", [](const RestrictAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const RestrictAttr& a, const RestrictAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("SemanticSpelling", &RestrictAttr::SemanticSpelling)
-    .def_property_readonly("Spelling", &RestrictAttr::Spelling);
+    .def_property_readonly("semantic_spelling", &RestrictAttr::SemanticSpelling)
+    .def_property_readonly("spelling", &RestrictAttr::Spelling);
 }
 } // namespace pasta

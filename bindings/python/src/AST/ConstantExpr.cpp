@@ -19,12 +19,12 @@ void RegisterConstantExpr(py::module_ &m) {
   py::class_<ConstantExpr, FullExpr>(m, "ConstantExpr")
     .def("__hash__", [](const ConstantExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ConstantExpr& a, const ConstantExpr& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("Children", &ConstantExpr::Children)
-    .def_property_readonly("BeginToken", &ConstantExpr::BeginToken)
-    .def_property_readonly("EndToken", &ConstantExpr::EndToken)
-    .def_property_readonly("ResultAsAPSInt", &ConstantExpr::ResultAsAPSInt)
-    .def_property_readonly("ResultStorageKind", &ConstantExpr::ResultStorageKind)
-    .def_property_readonly("HasAPValueResult", &ConstantExpr::HasAPValueResult)
-    .def_property_readonly("IsImmediateInvocation", &ConstantExpr::IsImmediateInvocation);
+    .def_property_readonly("children", &ConstantExpr::Children)
+    .def_property_readonly("begin_token", &ConstantExpr::BeginToken)
+    .def_property_readonly("end_token", &ConstantExpr::EndToken)
+    .def_property_readonly("result_as_aps_int", &ConstantExpr::ResultAsAPSInt)
+    .def_property_readonly("result_storage_kind", &ConstantExpr::ResultStorageKind)
+    .def_property_readonly("has_ap_value_result", &ConstantExpr::HasAPValueResult)
+    .def_property_readonly("is_immediate_invocation", &ConstantExpr::IsImmediateInvocation);
 }
 } // namespace pasta

@@ -19,7 +19,7 @@ void RegisterNSErrorDomainAttr(py::module_ &m) {
   py::class_<NSErrorDomainAttr, InheritableAttr>(m, "NSErrorDomainAttr")
     .def("__hash__", [](const NSErrorDomainAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const NSErrorDomainAttr& a, const NSErrorDomainAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("ErrorDomain", &NSErrorDomainAttr::ErrorDomain)
-    .def_property_readonly("Spelling", &NSErrorDomainAttr::Spelling);
+    .def_property_readonly("error_domain", &NSErrorDomainAttr::ErrorDomain)
+    .def_property_readonly("spelling", &NSErrorDomainAttr::Spelling);
 }
 } // namespace pasta

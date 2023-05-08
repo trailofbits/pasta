@@ -19,10 +19,10 @@ void RegisterInjectedClassNameType(py::module_ &m) {
   py::class_<InjectedClassNameType, Type>(m, "InjectedClassNameType")
     .def("__hash__", [](const InjectedClassNameType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const InjectedClassNameType& a, const InjectedClassNameType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &InjectedClassNameType::Desugar)
-    .def_property_readonly("Declaration", &InjectedClassNameType::Declaration)
-    .def_property_readonly("InjectedSpecializationType", &InjectedClassNameType::InjectedSpecializationType)
-    .def_property_readonly("InjectedTST", &InjectedClassNameType::InjectedTST)
-    .def_property_readonly("IsSugared", &InjectedClassNameType::IsSugared);
+    .def_property_readonly("desugar", &InjectedClassNameType::Desugar)
+    .def_property_readonly("declaration", &InjectedClassNameType::Declaration)
+    .def_property_readonly("injected_specialization_type", &InjectedClassNameType::InjectedSpecializationType)
+    .def_property_readonly("injected_tst", &InjectedClassNameType::InjectedTST)
+    .def_property_readonly("is_sugared", &InjectedClassNameType::IsSugared);
 }
 } // namespace pasta

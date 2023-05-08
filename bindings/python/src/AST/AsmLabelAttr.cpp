@@ -19,9 +19,9 @@ void RegisterAsmLabelAttr(py::module_ &m) {
   py::class_<AsmLabelAttr, InheritableAttr>(m, "AsmLabelAttr")
     .def("__hash__", [](const AsmLabelAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const AsmLabelAttr& a, const AsmLabelAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("IsLiteralLabel", &AsmLabelAttr::IsLiteralLabel)
-    .def_property_readonly("Label", &AsmLabelAttr::Label)
-    .def_property_readonly("LabelLength", &AsmLabelAttr::LabelLength)
-    .def_property_readonly("Spelling", &AsmLabelAttr::Spelling);
+    .def_property_readonly("is_literal_label", &AsmLabelAttr::IsLiteralLabel)
+    .def_property_readonly("label", &AsmLabelAttr::Label)
+    .def_property_readonly("label_length", &AsmLabelAttr::LabelLength)
+    .def_property_readonly("spelling", &AsmLabelAttr::Spelling);
 }
 } // namespace pasta

@@ -19,11 +19,11 @@ void RegisterOwnershipAttr(py::module_ &m) {
   py::class_<OwnershipAttr, InheritableAttr>(m, "OwnershipAttr")
     .def("__hash__", [](const OwnershipAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const OwnershipAttr& a, const OwnershipAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("OwnKind", &OwnershipAttr::OwnKind)
-    .def_property_readonly("SemanticSpelling", &OwnershipAttr::SemanticSpelling)
-    .def_property_readonly("Spelling", &OwnershipAttr::Spelling)
-    .def_property_readonly("IsHolds", &OwnershipAttr::IsHolds)
-    .def_property_readonly("IsReturns", &OwnershipAttr::IsReturns)
-    .def_property_readonly("IsTakes", &OwnershipAttr::IsTakes);
+    .def_property_readonly("own_kind", &OwnershipAttr::OwnKind)
+    .def_property_readonly("semantic_spelling", &OwnershipAttr::SemanticSpelling)
+    .def_property_readonly("spelling", &OwnershipAttr::Spelling)
+    .def_property_readonly("is_holds", &OwnershipAttr::IsHolds)
+    .def_property_readonly("is_returns", &OwnershipAttr::IsReturns)
+    .def_property_readonly("is_takes", &OwnershipAttr::IsTakes);
 }
 } // namespace pasta

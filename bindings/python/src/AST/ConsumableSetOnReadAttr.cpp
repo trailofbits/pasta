@@ -19,6 +19,6 @@ void RegisterConsumableSetOnReadAttr(py::module_ &m) {
   py::class_<ConsumableSetOnReadAttr, InheritableAttr>(m, "ConsumableSetOnReadAttr")
     .def("__hash__", [](const ConsumableSetOnReadAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ConsumableSetOnReadAttr& a, const ConsumableSetOnReadAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &ConsumableSetOnReadAttr::Spelling);
+    .def_property_readonly("spelling", &ConsumableSetOnReadAttr::Spelling);
 }
 } // namespace pasta

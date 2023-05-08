@@ -19,6 +19,6 @@ void RegisterObjCDesignatedInitializerAttr(py::module_ &m) {
   py::class_<ObjCDesignatedInitializerAttr, Attr>(m, "ObjCDesignatedInitializerAttr")
     .def("__hash__", [](const ObjCDesignatedInitializerAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ObjCDesignatedInitializerAttr& a, const ObjCDesignatedInitializerAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &ObjCDesignatedInitializerAttr::Spelling);
+    .def_property_readonly("spelling", &ObjCDesignatedInitializerAttr::Spelling);
 }
 } // namespace pasta

@@ -19,6 +19,6 @@ void RegisterObjCDirectAttr(py::module_ &m) {
   py::class_<ObjCDirectAttr, Attr>(m, "ObjCDirectAttr")
     .def("__hash__", [](const ObjCDirectAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ObjCDirectAttr& a, const ObjCDirectAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &ObjCDirectAttr::Spelling);
+    .def_property_readonly("spelling", &ObjCDirectAttr::Spelling);
 }
 } // namespace pasta

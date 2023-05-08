@@ -19,9 +19,9 @@ void RegisterDeducedType(py::module_ &m) {
   py::class_<DeducedType, Type>(m, "DeducedType")
     .def("__hash__", [](const DeducedType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const DeducedType& a, const DeducedType& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("Desugar", &DeducedType::Desugar)
-    .def_property_readonly("ResolvedType", &DeducedType::ResolvedType)
-    .def_property_readonly("IsDeduced", &DeducedType::IsDeduced)
-    .def_property_readonly("IsSugared", &DeducedType::IsSugared);
+    .def_property_readonly("desugar", &DeducedType::Desugar)
+    .def_property_readonly("resolved_type", &DeducedType::ResolvedType)
+    .def_property_readonly("is_deduced", &DeducedType::IsDeduced)
+    .def_property_readonly("is_sugared", &DeducedType::IsSugared);
 }
 } // namespace pasta

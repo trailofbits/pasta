@@ -19,6 +19,6 @@ void RegisterSwiftErrorResultAttr(py::module_ &m) {
   py::class_<SwiftErrorResultAttr, ParameterABIAttr>(m, "SwiftErrorResultAttr")
     .def("__hash__", [](const SwiftErrorResultAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const SwiftErrorResultAttr& a, const SwiftErrorResultAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &SwiftErrorResultAttr::Spelling);
+    .def_property_readonly("spelling", &SwiftErrorResultAttr::Spelling);
 }
 } // namespace pasta

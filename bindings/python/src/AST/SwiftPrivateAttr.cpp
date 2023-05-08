@@ -19,6 +19,6 @@ void RegisterSwiftPrivateAttr(py::module_ &m) {
   py::class_<SwiftPrivateAttr, InheritableAttr>(m, "SwiftPrivateAttr")
     .def("__hash__", [](const SwiftPrivateAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const SwiftPrivateAttr& a, const SwiftPrivateAttr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("Spelling", &SwiftPrivateAttr::Spelling);
+    .def_property_readonly("spelling", &SwiftPrivateAttr::Spelling);
 }
 } // namespace pasta

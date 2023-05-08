@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterVarDecl(py::module_ &m) {
-  py::class_<VarDecl, Decl, DeclaratorDecl, NamedDecl, ValueDecl>(m, "VarDecl")
+  py::class_<VarDecl, DeclaratorDecl>(m, "VarDecl")
     .def("__hash__", [](const VarDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const VarDecl& a, const VarDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("ActingDefinition", &VarDecl::ActingDefinition)

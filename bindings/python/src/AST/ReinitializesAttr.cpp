@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterReinitializesAttr(py::module_ &m) {
-  py::class_<ReinitializesAttr, Attr, InheritableAttr>(m, "ReinitializesAttr")
+  py::class_<ReinitializesAttr, InheritableAttr>(m, "ReinitializesAttr")
     .def("__hash__", [](const ReinitializesAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ReinitializesAttr& a, const ReinitializesAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &ReinitializesAttr::Spelling);

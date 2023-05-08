@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterDependentTemplateSpecializationType(py::module_ &m) {
-  py::class_<DependentTemplateSpecializationType, Type, TypeWithKeyword>(m, "DependentTemplateSpecializationType")
+  py::class_<DependentTemplateSpecializationType, TypeWithKeyword>(m, "DependentTemplateSpecializationType")
     .def("__hash__", [](const DependentTemplateSpecializationType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const DependentTemplateSpecializationType& a, const DependentTemplateSpecializationType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &DependentTemplateSpecializationType::Desugar)

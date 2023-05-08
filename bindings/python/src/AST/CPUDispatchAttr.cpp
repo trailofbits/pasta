@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCPUDispatchAttr(py::module_ &m) {
-  py::class_<CPUDispatchAttr, Attr, InheritableAttr>(m, "CPUDispatchAttr")
+  py::class_<CPUDispatchAttr, InheritableAttr>(m, "CPUDispatchAttr")
     .def("__hash__", [](const CPUDispatchAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const CPUDispatchAttr& a, const CPUDispatchAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &CPUDispatchAttr::Spelling);

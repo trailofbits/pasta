@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterExtVectorType(py::module_ &m) {
-  py::class_<ExtVectorType, Type, VectorType>(m, "ExtVectorType")
+  py::class_<ExtVectorType, VectorType>(m, "ExtVectorType")
     .def("__hash__", [](const ExtVectorType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const ExtVectorType& a, const ExtVectorType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &ExtVectorType::Desugar)

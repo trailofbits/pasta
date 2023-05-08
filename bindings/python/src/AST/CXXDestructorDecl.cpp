@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCXXDestructorDecl(py::module_ &m) {
-  py::class_<CXXDestructorDecl, CXXMethodDecl, Decl, DeclaratorDecl, FunctionDecl, NamedDecl, ValueDecl>(m, "CXXDestructorDecl")
+  py::class_<CXXDestructorDecl, CXXMethodDecl>(m, "CXXDestructorDecl")
     .def("__hash__", [](const CXXDestructorDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const CXXDestructorDecl& a, const CXXDestructorDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("CanonicalDeclaration", &CXXDestructorDecl::CanonicalDeclaration)

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterVariableArrayType(py::module_ &m) {
-  py::class_<VariableArrayType, ArrayType, Type>(m, "VariableArrayType")
+  py::class_<VariableArrayType, ArrayType>(m, "VariableArrayType")
     .def("__hash__", [](const VariableArrayType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const VariableArrayType& a, const VariableArrayType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &VariableArrayType::Desugar)

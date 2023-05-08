@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterValueDecl(py::module_ &m) {
-  py::class_<ValueDecl, Decl, NamedDecl>(m, "ValueDecl")
+  py::class_<ValueDecl, NamedDecl>(m, "ValueDecl")
     .def("__hash__", [](const ValueDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const ValueDecl& a, const ValueDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("PotentiallyDecomposedVariableDeclaration", &ValueDecl::PotentiallyDecomposedVariableDeclaration)

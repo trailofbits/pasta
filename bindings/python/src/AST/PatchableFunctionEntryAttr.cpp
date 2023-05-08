@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterPatchableFunctionEntryAttr(py::module_ &m) {
-  py::class_<PatchableFunctionEntryAttr, Attr, InheritableAttr>(m, "PatchableFunctionEntryAttr")
+  py::class_<PatchableFunctionEntryAttr, InheritableAttr>(m, "PatchableFunctionEntryAttr")
     .def("__hash__", [](const PatchableFunctionEntryAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const PatchableFunctionEntryAttr& a, const PatchableFunctionEntryAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Count", &PatchableFunctionEntryAttr::Count)

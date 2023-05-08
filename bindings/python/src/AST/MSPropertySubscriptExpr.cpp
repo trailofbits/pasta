@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterMSPropertySubscriptExpr(py::module_ &m) {
-  py::class_<MSPropertySubscriptExpr, Expr, Stmt, ValueStmt>(m, "MSPropertySubscriptExpr")
+  py::class_<MSPropertySubscriptExpr, Expr>(m, "MSPropertySubscriptExpr")
     .def("__hash__", [](const MSPropertySubscriptExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const MSPropertySubscriptExpr& a, const MSPropertySubscriptExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &MSPropertySubscriptExpr::Children)

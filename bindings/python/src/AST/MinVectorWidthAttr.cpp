@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterMinVectorWidthAttr(py::module_ &m) {
-  py::class_<MinVectorWidthAttr, Attr, InheritableAttr>(m, "MinVectorWidthAttr")
+  py::class_<MinVectorWidthAttr, InheritableAttr>(m, "MinVectorWidthAttr")
     .def("__hash__", [](const MinVectorWidthAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const MinVectorWidthAttr& a, const MinVectorWidthAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &MinVectorWidthAttr::Spelling)

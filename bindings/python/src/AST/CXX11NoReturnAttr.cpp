@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCXX11NoReturnAttr(py::module_ &m) {
-  py::class_<CXX11NoReturnAttr, Attr, InheritableAttr>(m, "CXX11NoReturnAttr")
+  py::class_<CXX11NoReturnAttr, InheritableAttr>(m, "CXX11NoReturnAttr")
     .def("__hash__", [](const CXX11NoReturnAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const CXX11NoReturnAttr& a, const CXX11NoReturnAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("SemanticSpelling", &CXX11NoReturnAttr::SemanticSpelling)

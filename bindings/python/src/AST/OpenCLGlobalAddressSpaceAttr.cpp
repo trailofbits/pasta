@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterOpenCLGlobalAddressSpaceAttr(py::module_ &m) {
-  py::class_<OpenCLGlobalAddressSpaceAttr, Attr, TypeAttr>(m, "OpenCLGlobalAddressSpaceAttr")
+  py::class_<OpenCLGlobalAddressSpaceAttr, TypeAttr>(m, "OpenCLGlobalAddressSpaceAttr")
     .def("__hash__", [](const OpenCLGlobalAddressSpaceAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const OpenCLGlobalAddressSpaceAttr& a, const OpenCLGlobalAddressSpaceAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("SemanticSpelling", &OpenCLGlobalAddressSpaceAttr::SemanticSpelling)

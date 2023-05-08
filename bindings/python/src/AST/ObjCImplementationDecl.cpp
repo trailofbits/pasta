@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterObjCImplementationDecl(py::module_ &m) {
-  py::class_<ObjCImplementationDecl, Decl, NamedDecl, ObjCContainerDecl, ObjCImplDecl>(m, "ObjCImplementationDecl")
+  py::class_<ObjCImplementationDecl, ObjCImplDecl>(m, "ObjCImplementationDecl")
     .def("__hash__", [](const ObjCImplementationDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const ObjCImplementationDecl& a, const ObjCImplementationDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("InstanceVariableLBraceToken", &ObjCImplementationDecl::InstanceVariableLBraceToken)

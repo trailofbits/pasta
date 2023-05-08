@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterUsingEnumDecl(py::module_ &m) {
-  py::class_<UsingEnumDecl, BaseUsingDecl, Decl, NamedDecl>(m, "UsingEnumDecl")
+  py::class_<UsingEnumDecl, BaseUsingDecl>(m, "UsingEnumDecl")
     .def("__hash__", [](const UsingEnumDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const UsingEnumDecl& a, const UsingEnumDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("CanonicalDeclaration", &UsingEnumDecl::CanonicalDeclaration)

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterOMPDistributeParallelForDirective(py::module_ &m) {
-  py::class_<OMPDistributeParallelForDirective, OMPExecutableDirective, OMPLoopBasedDirective, OMPLoopDirective, Stmt>(m, "OMPDistributeParallelForDirective")
+  py::class_<OMPDistributeParallelForDirective, OMPLoopDirective>(m, "OMPDistributeParallelForDirective")
     .def("__hash__", [](const OMPDistributeParallelForDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OMPDistributeParallelForDirective& a, const OMPDistributeParallelForDirective& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("TaskReductionReferenceExpression", &OMPDistributeParallelForDirective::TaskReductionReferenceExpression)

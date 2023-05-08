@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterPreferredNameAttr(py::module_ &m) {
-  py::class_<PreferredNameAttr, Attr, InheritableAttr>(m, "PreferredNameAttr")
+  py::class_<PreferredNameAttr, InheritableAttr>(m, "PreferredNameAttr")
     .def("__hash__", [](const PreferredNameAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const PreferredNameAttr& a, const PreferredNameAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &PreferredNameAttr::Spelling)

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterOptimizeNoneAttr(py::module_ &m) {
-  py::class_<OptimizeNoneAttr, Attr, InheritableAttr>(m, "OptimizeNoneAttr")
+  py::class_<OptimizeNoneAttr, InheritableAttr>(m, "OptimizeNoneAttr")
     .def("__hash__", [](const OptimizeNoneAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const OptimizeNoneAttr& a, const OptimizeNoneAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &OptimizeNoneAttr::Spelling);

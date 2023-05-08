@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterFunctionProtoType(py::module_ &m) {
-  py::class_<FunctionProtoType, FunctionType, Type>(m, "FunctionProtoType")
+  py::class_<FunctionProtoType, FunctionType>(m, "FunctionProtoType")
     .def("__hash__", [](const FunctionProtoType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const FunctionProtoType& a, const FunctionProtoType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("CanThrow", &FunctionProtoType::CanThrow)

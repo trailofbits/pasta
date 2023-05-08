@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterSubstNonTypeTemplateParmPackExpr(py::module_ &m) {
-  py::class_<SubstNonTypeTemplateParmPackExpr, Expr, Stmt, ValueStmt>(m, "SubstNonTypeTemplateParmPackExpr")
+  py::class_<SubstNonTypeTemplateParmPackExpr, Expr>(m, "SubstNonTypeTemplateParmPackExpr")
     .def("__hash__", [](const SubstNonTypeTemplateParmPackExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const SubstNonTypeTemplateParmPackExpr& a, const SubstNonTypeTemplateParmPackExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &SubstNonTypeTemplateParmPackExpr::Children)

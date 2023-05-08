@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterOMPBarrierDirective(py::module_ &m) {
-  py::class_<OMPBarrierDirective, OMPExecutableDirective, Stmt>(m, "OMPBarrierDirective")
+  py::class_<OMPBarrierDirective, OMPExecutableDirective>(m, "OMPBarrierDirective")
     .def("__hash__", [](const OMPBarrierDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OMPBarrierDirective& a, const OMPBarrierDirective& b) { return a.RawStmt() == b.RawStmt(); });
 }

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterDependentScopeDeclRefExpr(py::module_ &m) {
-  py::class_<DependentScopeDeclRefExpr, Expr, Stmt, ValueStmt>(m, "DependentScopeDeclRefExpr")
+  py::class_<DependentScopeDeclRefExpr, Expr>(m, "DependentScopeDeclRefExpr")
     .def("__hash__", [](const DependentScopeDeclRefExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const DependentScopeDeclRefExpr& a, const DependentScopeDeclRefExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &DependentScopeDeclRefExpr::Children)

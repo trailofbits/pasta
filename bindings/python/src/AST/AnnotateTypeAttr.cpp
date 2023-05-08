@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterAnnotateTypeAttr(py::module_ &m) {
-  py::class_<AnnotateTypeAttr, Attr, TypeAttr>(m, "AnnotateTypeAttr")
+  py::class_<AnnotateTypeAttr, TypeAttr>(m, "AnnotateTypeAttr")
     .def("__hash__", [](const AnnotateTypeAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const AnnotateTypeAttr& a, const AnnotateTypeAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Annotation", &AnnotateTypeAttr::Annotation)

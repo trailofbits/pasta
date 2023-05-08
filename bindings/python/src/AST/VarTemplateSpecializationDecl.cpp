@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterVarTemplateSpecializationDecl(py::module_ &m) {
-  py::class_<VarTemplateSpecializationDecl, Decl, DeclaratorDecl, NamedDecl, ValueDecl, VarDecl>(m, "VarTemplateSpecializationDecl")
+  py::class_<VarTemplateSpecializationDecl, VarDecl>(m, "VarTemplateSpecializationDecl")
     .def("__hash__", [](const VarTemplateSpecializationDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const VarTemplateSpecializationDecl& a, const VarTemplateSpecializationDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("ExternToken", &VarTemplateSpecializationDecl::ExternToken)

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterOMPRequiresDecl(py::module_ &m) {
-  py::class_<OMPRequiresDecl, Decl, OMPDeclarativeDirectiveDecl>(m, "OMPRequiresDecl")
+  py::class_<OMPRequiresDecl, OMPDeclarativeDirectiveDecl>(m, "OMPRequiresDecl")
     .def("__hash__", [](const OMPRequiresDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const OMPRequiresDecl& a, const OMPRequiresDecl& b) { return a.RawDecl() == b.RawDecl(); });
 }

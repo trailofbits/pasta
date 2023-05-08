@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterAttributedStmt(py::module_ &m) {
-  py::class_<AttributedStmt, Stmt, ValueStmt>(m, "AttributedStmt")
+  py::class_<AttributedStmt, ValueStmt>(m, "AttributedStmt")
     .def("__hash__", [](const AttributedStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const AttributedStmt& a, const AttributedStmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &AttributedStmt::Children)

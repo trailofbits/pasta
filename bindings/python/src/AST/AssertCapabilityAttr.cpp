@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterAssertCapabilityAttr(py::module_ &m) {
-  py::class_<AssertCapabilityAttr, Attr, InheritableAttr>(m, "AssertCapabilityAttr")
+  py::class_<AssertCapabilityAttr, InheritableAttr>(m, "AssertCapabilityAttr")
     .def("__hash__", [](const AssertCapabilityAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const AssertCapabilityAttr& a, const AssertCapabilityAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("SemanticSpelling", &AssertCapabilityAttr::SemanticSpelling)

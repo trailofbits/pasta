@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterAbstractConditionalOperator(py::module_ &m) {
-  py::class_<AbstractConditionalOperator, Expr, Stmt, ValueStmt>(m, "AbstractConditionalOperator")
+  py::class_<AbstractConditionalOperator, Expr>(m, "AbstractConditionalOperator")
     .def("__hash__", [](const AbstractConditionalOperator& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const AbstractConditionalOperator& a, const AbstractConditionalOperator& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("ColonToken", &AbstractConditionalOperator::ColonToken)

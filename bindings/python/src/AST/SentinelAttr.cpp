@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterSentinelAttr(py::module_ &m) {
-  py::class_<SentinelAttr, Attr, InheritableAttr>(m, "SentinelAttr")
+  py::class_<SentinelAttr, InheritableAttr>(m, "SentinelAttr")
     .def("__hash__", [](const SentinelAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const SentinelAttr& a, const SentinelAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &SentinelAttr::Spelling);

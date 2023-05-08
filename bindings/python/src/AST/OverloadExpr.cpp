@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterOverloadExpr(py::module_ &m) {
-  py::class_<OverloadExpr, Expr, Stmt, ValueStmt>(m, "OverloadExpr")
+  py::class_<OverloadExpr, Expr>(m, "OverloadExpr")
     .def("__hash__", [](const OverloadExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OverloadExpr& a, const OverloadExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("LAngleToken", &OverloadExpr::LAngleToken)

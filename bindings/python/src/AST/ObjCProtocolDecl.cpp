@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterObjCProtocolDecl(py::module_ &m) {
-  py::class_<ObjCProtocolDecl, Decl, NamedDecl, ObjCContainerDecl>(m, "ObjCProtocolDecl")
+  py::class_<ObjCProtocolDecl, ObjCContainerDecl>(m, "ObjCProtocolDecl")
     .def("__hash__", [](const ObjCProtocolDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const ObjCProtocolDecl& a, const ObjCProtocolDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("CanonicalDeclaration", &ObjCProtocolDecl::CanonicalDeclaration)

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterAllocSizeAttr(py::module_ &m) {
-  py::class_<AllocSizeAttr, Attr, InheritableAttr>(m, "AllocSizeAttr")
+  py::class_<AllocSizeAttr, InheritableAttr>(m, "AllocSizeAttr")
     .def("__hash__", [](const AllocSizeAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const AllocSizeAttr& a, const AllocSizeAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &AllocSizeAttr::Spelling);

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterOMPParallelSectionsDirective(py::module_ &m) {
-  py::class_<OMPParallelSectionsDirective, OMPExecutableDirective, Stmt>(m, "OMPParallelSectionsDirective")
+  py::class_<OMPParallelSectionsDirective, OMPExecutableDirective>(m, "OMPParallelSectionsDirective")
     .def("__hash__", [](const OMPParallelSectionsDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OMPParallelSectionsDirective& a, const OMPParallelSectionsDirective& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("TaskReductionReferenceExpression", &OMPParallelSectionsDirective::TaskReductionReferenceExpression)

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterArcWeakrefUnavailableAttr(py::module_ &m) {
-  py::class_<ArcWeakrefUnavailableAttr, Attr, InheritableAttr>(m, "ArcWeakrefUnavailableAttr")
+  py::class_<ArcWeakrefUnavailableAttr, InheritableAttr>(m, "ArcWeakrefUnavailableAttr")
     .def("__hash__", [](const ArcWeakrefUnavailableAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ArcWeakrefUnavailableAttr& a, const ArcWeakrefUnavailableAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &ArcWeakrefUnavailableAttr::Spelling);

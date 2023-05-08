@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterAnalyzerNoReturnAttr(py::module_ &m) {
-  py::class_<AnalyzerNoReturnAttr, Attr, InheritableAttr>(m, "AnalyzerNoReturnAttr")
+  py::class_<AnalyzerNoReturnAttr, InheritableAttr>(m, "AnalyzerNoReturnAttr")
     .def("__hash__", [](const AnalyzerNoReturnAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const AnalyzerNoReturnAttr& a, const AnalyzerNoReturnAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &AnalyzerNoReturnAttr::Spelling);

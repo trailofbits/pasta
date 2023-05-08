@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCUDALaunchBoundsAttr(py::module_ &m) {
-  py::class_<CUDALaunchBoundsAttr, Attr, InheritableAttr>(m, "CUDALaunchBoundsAttr")
+  py::class_<CUDALaunchBoundsAttr, InheritableAttr>(m, "CUDALaunchBoundsAttr")
     .def("__hash__", [](const CUDALaunchBoundsAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const CUDALaunchBoundsAttr& a, const CUDALaunchBoundsAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("MaxThreads", &CUDALaunchBoundsAttr::MaxThreads)

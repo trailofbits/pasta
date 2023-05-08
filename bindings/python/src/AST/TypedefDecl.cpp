@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterTypedefDecl(py::module_ &m) {
-  py::class_<TypedefDecl, Decl, NamedDecl, TypeDecl, TypedefNameDecl>(m, "TypedefDecl")
+  py::class_<TypedefDecl, TypedefNameDecl>(m, "TypedefDecl")
     .def("__hash__", [](const TypedefDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const TypedefDecl& a, const TypedefDecl& b) { return a.RawDecl() == b.RawDecl(); });
 }

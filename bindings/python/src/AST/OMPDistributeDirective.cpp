@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterOMPDistributeDirective(py::module_ &m) {
-  py::class_<OMPDistributeDirective, OMPExecutableDirective, OMPLoopBasedDirective, OMPLoopDirective, Stmt>(m, "OMPDistributeDirective")
+  py::class_<OMPDistributeDirective, OMPLoopDirective>(m, "OMPDistributeDirective")
     .def("__hash__", [](const OMPDistributeDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OMPDistributeDirective& a, const OMPDistributeDirective& b) { return a.RawStmt() == b.RawStmt(); });
 }

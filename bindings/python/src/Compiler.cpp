@@ -1,4 +1,7 @@
 #include <pasta/Compile/Compiler.h>
+#include <pasta/Compile/Command.h>
+#include <pasta/Compile/Job.h>
+#include <pasta/AST/AST.h>
 
 #include "bindings.h"
 

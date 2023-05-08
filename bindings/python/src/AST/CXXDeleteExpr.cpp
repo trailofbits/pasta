@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCXXDeleteExpr(py::module_ &m) {
-  py::class_<CXXDeleteExpr, Expr, Stmt, ValueStmt>(m, "CXXDeleteExpr")
+  py::class_<CXXDeleteExpr, Expr>(m, "CXXDeleteExpr")
     .def("__hash__", [](const CXXDeleteExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CXXDeleteExpr& a, const CXXDeleteExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &CXXDeleteExpr::Children)

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterObjCMessageExpr(py::module_ &m) {
-  py::class_<ObjCMessageExpr, Expr, Stmt, ValueStmt>(m, "ObjCMessageExpr")
+  py::class_<ObjCMessageExpr, Expr>(m, "ObjCMessageExpr")
     .def("__hash__", [](const ObjCMessageExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ObjCMessageExpr& a, const ObjCMessageExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Arguments", &ObjCMessageExpr::Arguments)

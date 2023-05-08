@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterObjCIvarDecl(py::module_ &m) {
-  py::class_<ObjCIvarDecl, Decl, DeclaratorDecl, FieldDecl, NamedDecl, ValueDecl>(m, "ObjCIvarDecl")
+  py::class_<ObjCIvarDecl, FieldDecl>(m, "ObjCIvarDecl")
     .def("__hash__", [](const ObjCIvarDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const ObjCIvarDecl& a, const ObjCIvarDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("AccessControl", &ObjCIvarDecl::AccessControl)

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterLockReturnedAttr(py::module_ &m) {
-  py::class_<LockReturnedAttr, Attr, InheritableAttr>(m, "LockReturnedAttr")
+  py::class_<LockReturnedAttr, InheritableAttr>(m, "LockReturnedAttr")
     .def("__hash__", [](const LockReturnedAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const LockReturnedAttr& a, const LockReturnedAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Argument", &LockReturnedAttr::Argument)

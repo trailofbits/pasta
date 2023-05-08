@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterExternalSourceSymbolAttr(py::module_ &m) {
-  py::class_<ExternalSourceSymbolAttr, Attr, InheritableAttr>(m, "ExternalSourceSymbolAttr")
+  py::class_<ExternalSourceSymbolAttr, InheritableAttr>(m, "ExternalSourceSymbolAttr")
     .def("__hash__", [](const ExternalSourceSymbolAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ExternalSourceSymbolAttr& a, const ExternalSourceSymbolAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("DefinedIn", &ExternalSourceSymbolAttr::DefinedIn)

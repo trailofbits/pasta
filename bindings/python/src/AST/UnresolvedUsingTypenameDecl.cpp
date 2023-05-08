@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterUnresolvedUsingTypenameDecl(py::module_ &m) {
-  py::class_<UnresolvedUsingTypenameDecl, Decl, NamedDecl, TypeDecl>(m, "UnresolvedUsingTypenameDecl")
+  py::class_<UnresolvedUsingTypenameDecl, TypeDecl>(m, "UnresolvedUsingTypenameDecl")
     .def("__hash__", [](const UnresolvedUsingTypenameDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const UnresolvedUsingTypenameDecl& a, const UnresolvedUsingTypenameDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("CanonicalDeclaration", &UnresolvedUsingTypenameDecl::CanonicalDeclaration)

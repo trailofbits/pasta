@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterFunctionNoProtoType(py::module_ &m) {
-  py::class_<FunctionNoProtoType, FunctionType, Type>(m, "FunctionNoProtoType")
+  py::class_<FunctionNoProtoType, FunctionType>(m, "FunctionNoProtoType")
     .def("__hash__", [](const FunctionNoProtoType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const FunctionNoProtoType& a, const FunctionNoProtoType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &FunctionNoProtoType::Desugar)

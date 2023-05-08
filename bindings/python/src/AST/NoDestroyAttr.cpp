@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterNoDestroyAttr(py::module_ &m) {
-  py::class_<NoDestroyAttr, Attr, InheritableAttr>(m, "NoDestroyAttr")
+  py::class_<NoDestroyAttr, InheritableAttr>(m, "NoDestroyAttr")
     .def("__hash__", [](const NoDestroyAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const NoDestroyAttr& a, const NoDestroyAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &NoDestroyAttr::Spelling);

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterPredefinedExpr(py::module_ &m) {
-  py::class_<PredefinedExpr, Expr, Stmt, ValueStmt>(m, "PredefinedExpr")
+  py::class_<PredefinedExpr, Expr>(m, "PredefinedExpr")
     .def("__hash__", [](const PredefinedExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const PredefinedExpr& a, const PredefinedExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &PredefinedExpr::Children)

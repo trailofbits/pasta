@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterDefaultStmt(py::module_ &m) {
-  py::class_<DefaultStmt, Stmt, SwitchCase>(m, "DefaultStmt")
+  py::class_<DefaultStmt, SwitchCase>(m, "DefaultStmt")
     .def("__hash__", [](const DefaultStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const DefaultStmt& a, const DefaultStmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &DefaultStmt::Children)

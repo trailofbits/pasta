@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterLifetimeBoundAttr(py::module_ &m) {
-  py::class_<LifetimeBoundAttr, Attr, InheritableAttr>(m, "LifetimeBoundAttr")
+  py::class_<LifetimeBoundAttr, InheritableAttr>(m, "LifetimeBoundAttr")
     .def("__hash__", [](const LifetimeBoundAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const LifetimeBoundAttr& a, const LifetimeBoundAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &LifetimeBoundAttr::Spelling);

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterWebAssemblyImportModuleAttr(py::module_ &m) {
-  py::class_<WebAssemblyImportModuleAttr, Attr, InheritableAttr>(m, "WebAssemblyImportModuleAttr")
+  py::class_<WebAssemblyImportModuleAttr, InheritableAttr>(m, "WebAssemblyImportModuleAttr")
     .def("__hash__", [](const WebAssemblyImportModuleAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const WebAssemblyImportModuleAttr& a, const WebAssemblyImportModuleAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("ImportModule", &WebAssemblyImportModuleAttr::ImportModule)

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterSwiftAttrAttr(py::module_ &m) {
-  py::class_<SwiftAttrAttr, Attr, InheritableAttr>(m, "SwiftAttrAttr")
+  py::class_<SwiftAttrAttr, InheritableAttr>(m, "SwiftAttrAttr")
     .def("__hash__", [](const SwiftAttrAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const SwiftAttrAttr& a, const SwiftAttrAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Attribute", &SwiftAttrAttr::Attribute)

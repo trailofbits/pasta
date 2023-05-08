@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterObjCProtocolExpr(py::module_ &m) {
-  py::class_<ObjCProtocolExpr, Expr, Stmt, ValueStmt>(m, "ObjCProtocolExpr")
+  py::class_<ObjCProtocolExpr, Expr>(m, "ObjCProtocolExpr")
     .def("__hash__", [](const ObjCProtocolExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ObjCProtocolExpr& a, const ObjCProtocolExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ObjCProtocolExpr::Children)

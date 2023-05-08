@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterExprWithCleanups(py::module_ &m) {
-  py::class_<ExprWithCleanups, Expr, FullExpr, Stmt, ValueStmt>(m, "ExprWithCleanups")
+  py::class_<ExprWithCleanups, FullExpr>(m, "ExprWithCleanups")
     .def("__hash__", [](const ExprWithCleanups& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ExprWithCleanups& a, const ExprWithCleanups& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ExprWithCleanups::Children)

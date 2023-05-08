@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterParenExpr(py::module_ &m) {
-  py::class_<ParenExpr, Expr, Stmt, ValueStmt>(m, "ParenExpr")
+  py::class_<ParenExpr, Expr>(m, "ParenExpr")
     .def("__hash__", [](const ParenExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ParenExpr& a, const ParenExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ParenExpr::Children)

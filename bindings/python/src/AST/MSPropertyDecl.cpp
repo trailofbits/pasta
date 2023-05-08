@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterMSPropertyDecl(py::module_ &m) {
-  py::class_<MSPropertyDecl, Decl, DeclaratorDecl, NamedDecl, ValueDecl>(m, "MSPropertyDecl")
+  py::class_<MSPropertyDecl, DeclaratorDecl>(m, "MSPropertyDecl")
     .def("__hash__", [](const MSPropertyDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const MSPropertyDecl& a, const MSPropertyDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("HasGetter", &MSPropertyDecl::HasGetter)

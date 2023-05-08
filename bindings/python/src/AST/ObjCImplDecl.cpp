@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterObjCImplDecl(py::module_ &m) {
-  py::class_<ObjCImplDecl, Decl, NamedDecl, ObjCContainerDecl>(m, "ObjCImplDecl")
+  py::class_<ObjCImplDecl, ObjCContainerDecl>(m, "ObjCImplDecl")
     .def("__hash__", [](const ObjCImplDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const ObjCImplDecl& a, const ObjCImplDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("ClassInterface", &ObjCImplDecl::ClassInterface)

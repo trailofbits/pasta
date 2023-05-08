@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterUsingIfExistsAttr(py::module_ &m) {
-  py::class_<UsingIfExistsAttr, Attr, InheritableAttr>(m, "UsingIfExistsAttr")
+  py::class_<UsingIfExistsAttr, InheritableAttr>(m, "UsingIfExistsAttr")
     .def("__hash__", [](const UsingIfExistsAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const UsingIfExistsAttr& a, const UsingIfExistsAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &UsingIfExistsAttr::Spelling);

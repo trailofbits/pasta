@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterRValueReferenceType(py::module_ &m) {
-  py::class_<RValueReferenceType, ReferenceType, Type>(m, "RValueReferenceType")
+  py::class_<RValueReferenceType, ReferenceType>(m, "RValueReferenceType")
     .def("__hash__", [](const RValueReferenceType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const RValueReferenceType& a, const RValueReferenceType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &RValueReferenceType::Desugar)

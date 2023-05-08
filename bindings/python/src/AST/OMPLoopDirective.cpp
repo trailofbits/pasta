@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterOMPLoopDirective(py::module_ &m) {
-  py::class_<OMPLoopDirective, OMPExecutableDirective, OMPLoopBasedDirective, Stmt>(m, "OMPLoopDirective")
+  py::class_<OMPLoopDirective, OMPLoopBasedDirective>(m, "OMPLoopDirective")
     .def("__hash__", [](const OMPLoopDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OMPLoopDirective& a, const OMPLoopDirective& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Counters", &OMPLoopDirective::Counters)

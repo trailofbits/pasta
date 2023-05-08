@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterGNUNullExpr(py::module_ &m) {
-  py::class_<GNUNullExpr, Expr, Stmt, ValueStmt>(m, "GNUNullExpr")
+  py::class_<GNUNullExpr, Expr>(m, "GNUNullExpr")
     .def("__hash__", [](const GNUNullExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const GNUNullExpr& a, const GNUNullExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &GNUNullExpr::Children)

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterFunctionDecl(py::module_ &m) {
-  py::class_<FunctionDecl, Decl, DeclaratorDecl, NamedDecl, ValueDecl>(m, "FunctionDecl")
+  py::class_<FunctionDecl, DeclaratorDecl>(m, "FunctionDecl")
     .def("__hash__", [](const FunctionDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const FunctionDecl& a, const FunctionDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("FriendConstraintRefersToEnclosingTemplate", &FunctionDecl::FriendConstraintRefersToEnclosingTemplate)

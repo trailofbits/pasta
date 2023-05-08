@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterNSErrorDomainAttr(py::module_ &m) {
-  py::class_<NSErrorDomainAttr, Attr, InheritableAttr>(m, "NSErrorDomainAttr")
+  py::class_<NSErrorDomainAttr, InheritableAttr>(m, "NSErrorDomainAttr")
     .def("__hash__", [](const NSErrorDomainAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const NSErrorDomainAttr& a, const NSErrorDomainAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("ErrorDomain", &NSErrorDomainAttr::ErrorDomain)

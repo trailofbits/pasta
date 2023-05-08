@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterDecayedType(py::module_ &m) {
-  py::class_<DecayedType, AdjustedType, Type>(m, "DecayedType")
+  py::class_<DecayedType, AdjustedType>(m, "DecayedType")
     .def("__hash__", [](const DecayedType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const DecayedType& a, const DecayedType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("ResolvedType", &DecayedType::ResolvedType)

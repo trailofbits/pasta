@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterSourceLocExpr(py::module_ &m) {
-  py::class_<SourceLocExpr, Expr, Stmt, ValueStmt>(m, "SourceLocExpr")
+  py::class_<SourceLocExpr, Expr>(m, "SourceLocExpr")
     .def("__hash__", [](const SourceLocExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const SourceLocExpr& a, const SourceLocExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &SourceLocExpr::Children)

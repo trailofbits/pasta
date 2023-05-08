@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterPtr64Attr(py::module_ &m) {
-  py::class_<Ptr64Attr, Attr, TypeAttr>(m, "Ptr64Attr")
+  py::class_<Ptr64Attr, TypeAttr>(m, "Ptr64Attr")
     .def("__hash__", [](const Ptr64Attr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Ptr64Attr& a, const Ptr64Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &Ptr64Attr::Spelling);

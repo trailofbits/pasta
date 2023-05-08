@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterBTFTypeTagAttr(py::module_ &m) {
-  py::class_<BTFTypeTagAttr, Attr, TypeAttr>(m, "BTFTypeTagAttr")
+  py::class_<BTFTypeTagAttr, TypeAttr>(m, "BTFTypeTagAttr")
     .def("__hash__", [](const BTFTypeTagAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const BTFTypeTagAttr& a, const BTFTypeTagAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("BTFTypeTag", &BTFTypeTagAttr::BTFTypeTag)

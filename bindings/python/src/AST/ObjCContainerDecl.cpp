@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterObjCContainerDecl(py::module_ &m) {
-  py::class_<ObjCContainerDecl, Decl, NamedDecl>(m, "ObjCContainerDecl")
+  py::class_<ObjCContainerDecl, NamedDecl>(m, "ObjCContainerDecl")
     .def("__hash__", [](const ObjCContainerDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const ObjCContainerDecl& a, const ObjCContainerDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("ClassMethods", &ObjCContainerDecl::ClassMethods)

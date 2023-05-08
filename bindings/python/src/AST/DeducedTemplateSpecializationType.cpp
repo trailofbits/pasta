@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterDeducedTemplateSpecializationType(py::module_ &m) {
-  py::class_<DeducedTemplateSpecializationType, DeducedType, Type>(m, "DeducedTemplateSpecializationType")
+  py::class_<DeducedTemplateSpecializationType, DeducedType>(m, "DeducedTemplateSpecializationType")
     .def("__hash__", [](const DeducedTemplateSpecializationType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const DeducedTemplateSpecializationType& a, const DeducedTemplateSpecializationType& b) { return a.RawType() == b.RawType(); });
 }

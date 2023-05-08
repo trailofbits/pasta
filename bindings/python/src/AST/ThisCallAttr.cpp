@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterThisCallAttr(py::module_ &m) {
-  py::class_<ThisCallAttr, Attr, InheritableAttr>(m, "ThisCallAttr")
+  py::class_<ThisCallAttr, InheritableAttr>(m, "ThisCallAttr")
     .def("__hash__", [](const ThisCallAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ThisCallAttr& a, const ThisCallAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &ThisCallAttr::Spelling);

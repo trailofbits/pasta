@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterDLLImportAttr(py::module_ &m) {
-  py::class_<DLLImportAttr, Attr, InheritableAttr>(m, "DLLImportAttr")
+  py::class_<DLLImportAttr, InheritableAttr>(m, "DLLImportAttr")
     .def("__hash__", [](const DLLImportAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const DLLImportAttr& a, const DLLImportAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &DLLImportAttr::Spelling);

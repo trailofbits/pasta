@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterIndirectFieldDecl(py::module_ &m) {
-  py::class_<IndirectFieldDecl, Decl, NamedDecl, ValueDecl>(m, "IndirectFieldDecl")
+  py::class_<IndirectFieldDecl, ValueDecl>(m, "IndirectFieldDecl")
     .def("__hash__", [](const IndirectFieldDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const IndirectFieldDecl& a, const IndirectFieldDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("Chain", &IndirectFieldDecl::Chain)

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCXXOperatorCallExpr(py::module_ &m) {
-  py::class_<CXXOperatorCallExpr, CallExpr, Expr, Stmt, ValueStmt>(m, "CXXOperatorCallExpr")
+  py::class_<CXXOperatorCallExpr, CallExpr>(m, "CXXOperatorCallExpr")
     .def("__hash__", [](const CXXOperatorCallExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CXXOperatorCallExpr& a, const CXXOperatorCallExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("BeginToken", &CXXOperatorCallExpr::BeginToken)

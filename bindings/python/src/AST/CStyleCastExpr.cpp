@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCStyleCastExpr(py::module_ &m) {
-  py::class_<CStyleCastExpr, CastExpr, ExplicitCastExpr, Expr, Stmt, ValueStmt>(m, "CStyleCastExpr")
+  py::class_<CStyleCastExpr, ExplicitCastExpr>(m, "CStyleCastExpr")
     .def("__hash__", [](const CStyleCastExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CStyleCastExpr& a, const CStyleCastExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("BeginToken", &CStyleCastExpr::BeginToken)

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterBPFPreserveAccessIndexAttr(py::module_ &m) {
-  py::class_<BPFPreserveAccessIndexAttr, Attr, InheritableAttr>(m, "BPFPreserveAccessIndexAttr")
+  py::class_<BPFPreserveAccessIndexAttr, InheritableAttr>(m, "BPFPreserveAccessIndexAttr")
     .def("__hash__", [](const BPFPreserveAccessIndexAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const BPFPreserveAccessIndexAttr& a, const BPFPreserveAccessIndexAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &BPFPreserveAccessIndexAttr::Spelling);

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterErrorAttr(py::module_ &m) {
-  py::class_<ErrorAttr, Attr, InheritableAttr>(m, "ErrorAttr")
+  py::class_<ErrorAttr, InheritableAttr>(m, "ErrorAttr")
     .def("__hash__", [](const ErrorAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ErrorAttr& a, const ErrorAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("SemanticSpelling", &ErrorAttr::SemanticSpelling)

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterGenericSelectionExpr(py::module_ &m) {
-  py::class_<GenericSelectionExpr, Expr, Stmt, ValueStmt>(m, "GenericSelectionExpr")
+  py::class_<GenericSelectionExpr, Expr>(m, "GenericSelectionExpr")
     .def("__hash__", [](const GenericSelectionExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const GenericSelectionExpr& a, const GenericSelectionExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &GenericSelectionExpr::Children)

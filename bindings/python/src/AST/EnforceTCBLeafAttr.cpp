@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterEnforceTCBLeafAttr(py::module_ &m) {
-  py::class_<EnforceTCBLeafAttr, Attr, InheritableAttr>(m, "EnforceTCBLeafAttr")
+  py::class_<EnforceTCBLeafAttr, InheritableAttr>(m, "EnforceTCBLeafAttr")
     .def("__hash__", [](const EnforceTCBLeafAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const EnforceTCBLeafAttr& a, const EnforceTCBLeafAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &EnforceTCBLeafAttr::Spelling)

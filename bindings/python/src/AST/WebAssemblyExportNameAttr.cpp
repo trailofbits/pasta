@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterWebAssemblyExportNameAttr(py::module_ &m) {
-  py::class_<WebAssemblyExportNameAttr, Attr, InheritableAttr>(m, "WebAssemblyExportNameAttr")
+  py::class_<WebAssemblyExportNameAttr, InheritableAttr>(m, "WebAssemblyExportNameAttr")
     .def("__hash__", [](const WebAssemblyExportNameAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const WebAssemblyExportNameAttr& a, const WebAssemblyExportNameAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("ExportName", &WebAssemblyExportNameAttr::ExportName)

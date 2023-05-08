@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterElaboratedType(py::module_ &m) {
-  py::class_<ElaboratedType, Type, TypeWithKeyword>(m, "ElaboratedType")
+  py::class_<ElaboratedType, TypeWithKeyword>(m, "ElaboratedType")
     .def("__hash__", [](const ElaboratedType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const ElaboratedType& a, const ElaboratedType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &ElaboratedType::Desugar)

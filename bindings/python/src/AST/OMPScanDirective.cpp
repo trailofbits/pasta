@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterOMPScanDirective(py::module_ &m) {
-  py::class_<OMPScanDirective, OMPExecutableDirective, Stmt>(m, "OMPScanDirective")
+  py::class_<OMPScanDirective, OMPExecutableDirective>(m, "OMPScanDirective")
     .def("__hash__", [](const OMPScanDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OMPScanDirective& a, const OMPScanDirective& b) { return a.RawStmt() == b.RawStmt(); });
 }

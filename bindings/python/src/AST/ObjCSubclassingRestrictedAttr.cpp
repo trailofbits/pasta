@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterObjCSubclassingRestrictedAttr(py::module_ &m) {
-  py::class_<ObjCSubclassingRestrictedAttr, Attr, InheritableAttr>(m, "ObjCSubclassingRestrictedAttr")
+  py::class_<ObjCSubclassingRestrictedAttr, InheritableAttr>(m, "ObjCSubclassingRestrictedAttr")
     .def("__hash__", [](const ObjCSubclassingRestrictedAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ObjCSubclassingRestrictedAttr& a, const ObjCSubclassingRestrictedAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &ObjCSubclassingRestrictedAttr::Spelling);

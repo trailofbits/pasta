@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterWeakImportAttr(py::module_ &m) {
-  py::class_<WeakImportAttr, Attr, InheritableAttr>(m, "WeakImportAttr")
+  py::class_<WeakImportAttr, InheritableAttr>(m, "WeakImportAttr")
     .def("__hash__", [](const WeakImportAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const WeakImportAttr& a, const WeakImportAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &WeakImportAttr::Spelling);

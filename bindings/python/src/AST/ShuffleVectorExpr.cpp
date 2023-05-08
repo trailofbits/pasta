@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterShuffleVectorExpr(py::module_ &m) {
-  py::class_<ShuffleVectorExpr, Expr, Stmt, ValueStmt>(m, "ShuffleVectorExpr")
+  py::class_<ShuffleVectorExpr, Expr>(m, "ShuffleVectorExpr")
     .def("__hash__", [](const ShuffleVectorExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ShuffleVectorExpr& a, const ShuffleVectorExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ShuffleVectorExpr::Children)

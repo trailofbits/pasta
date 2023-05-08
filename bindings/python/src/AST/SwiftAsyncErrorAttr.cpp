@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterSwiftAsyncErrorAttr(py::module_ &m) {
-  py::class_<SwiftAsyncErrorAttr, Attr, InheritableAttr>(m, "SwiftAsyncErrorAttr")
+  py::class_<SwiftAsyncErrorAttr, InheritableAttr>(m, "SwiftAsyncErrorAttr")
     .def("__hash__", [](const SwiftAsyncErrorAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const SwiftAsyncErrorAttr& a, const SwiftAsyncErrorAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Convention", &SwiftAsyncErrorAttr::Convention)

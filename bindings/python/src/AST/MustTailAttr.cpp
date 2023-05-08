@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterMustTailAttr(py::module_ &m) {
-  py::class_<MustTailAttr, Attr, StmtAttr>(m, "MustTailAttr")
+  py::class_<MustTailAttr, StmtAttr>(m, "MustTailAttr")
     .def("__hash__", [](const MustTailAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const MustTailAttr& a, const MustTailAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &MustTailAttr::Spelling);

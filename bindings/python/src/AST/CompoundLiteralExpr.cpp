@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCompoundLiteralExpr(py::module_ &m) {
-  py::class_<CompoundLiteralExpr, Expr, Stmt, ValueStmt>(m, "CompoundLiteralExpr")
+  py::class_<CompoundLiteralExpr, Expr>(m, "CompoundLiteralExpr")
     .def("__hash__", [](const CompoundLiteralExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CompoundLiteralExpr& a, const CompoundLiteralExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &CompoundLiteralExpr::Children)

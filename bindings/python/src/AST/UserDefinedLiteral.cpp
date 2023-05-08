@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterUserDefinedLiteral(py::module_ &m) {
-  py::class_<UserDefinedLiteral, CallExpr, Expr, Stmt, ValueStmt>(m, "UserDefinedLiteral")
+  py::class_<UserDefinedLiteral, CallExpr>(m, "UserDefinedLiteral")
     .def("__hash__", [](const UserDefinedLiteral& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const UserDefinedLiteral& a, const UserDefinedLiteral& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("BeginToken", &UserDefinedLiteral::BeginToken)

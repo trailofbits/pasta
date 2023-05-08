@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterSYCLSpecialClassAttr(py::module_ &m) {
-  py::class_<SYCLSpecialClassAttr, Attr, InheritableAttr>(m, "SYCLSpecialClassAttr")
+  py::class_<SYCLSpecialClassAttr, InheritableAttr>(m, "SYCLSpecialClassAttr")
     .def("__hash__", [](const SYCLSpecialClassAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const SYCLSpecialClassAttr& a, const SYCLSpecialClassAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &SYCLSpecialClassAttr::Spelling);

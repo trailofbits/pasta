@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterLambdaExpr(py::module_ &m) {
-  py::class_<LambdaExpr, Expr, Stmt, ValueStmt>(m, "LambdaExpr")
+  py::class_<LambdaExpr, Expr>(m, "LambdaExpr")
     .def("__hash__", [](const LambdaExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const LambdaExpr& a, const LambdaExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &LambdaExpr::Children)

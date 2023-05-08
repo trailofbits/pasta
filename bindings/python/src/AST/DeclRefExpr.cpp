@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterDeclRefExpr(py::module_ &m) {
-  py::class_<DeclRefExpr, Expr, Stmt, ValueStmt>(m, "DeclRefExpr")
+  py::class_<DeclRefExpr, Expr>(m, "DeclRefExpr")
     .def("__hash__", [](const DeclRefExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const DeclRefExpr& a, const DeclRefExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &DeclRefExpr::Children)

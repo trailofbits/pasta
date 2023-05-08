@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterDeprecatedAttr(py::module_ &m) {
-  py::class_<DeprecatedAttr, Attr, InheritableAttr>(m, "DeprecatedAttr")
+  py::class_<DeprecatedAttr, InheritableAttr>(m, "DeprecatedAttr")
     .def("__hash__", [](const DeprecatedAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const DeprecatedAttr& a, const DeprecatedAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Message", &DeprecatedAttr::Message)

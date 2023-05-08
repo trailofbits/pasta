@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterInitListExpr(py::module_ &m) {
-  py::class_<InitListExpr, Expr, Stmt, ValueStmt>(m, "InitListExpr")
+  py::class_<InitListExpr, Expr>(m, "InitListExpr")
     .def("__hash__", [](const InitListExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const InitListExpr& a, const InitListExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &InitListExpr::Children)

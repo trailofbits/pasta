@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterRecordType(py::module_ &m) {
-  py::class_<RecordType, TagType, Type>(m, "RecordType")
+  py::class_<RecordType, TagType>(m, "RecordType")
     .def("__hash__", [](const RecordType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const RecordType& a, const RecordType& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("Desugar", &RecordType::Desugar)

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterObjCOwnershipAttr(py::module_ &m) {
-  py::class_<ObjCOwnershipAttr, Attr, InheritableAttr>(m, "ObjCOwnershipAttr")
+  py::class_<ObjCOwnershipAttr, InheritableAttr>(m, "ObjCOwnershipAttr")
     .def("__hash__", [](const ObjCOwnershipAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ObjCOwnershipAttr& a, const ObjCOwnershipAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &ObjCOwnershipAttr::Spelling);

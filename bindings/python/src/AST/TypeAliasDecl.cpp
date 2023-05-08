@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterTypeAliasDecl(py::module_ &m) {
-  py::class_<TypeAliasDecl, Decl, NamedDecl, TypeDecl, TypedefNameDecl>(m, "TypeAliasDecl")
+  py::class_<TypeAliasDecl, TypedefNameDecl>(m, "TypeAliasDecl")
     .def("__hash__", [](const TypeAliasDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const TypeAliasDecl& a, const TypeAliasDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("DescribedAliasTemplate", &TypeAliasDecl::DescribedAliasTemplate);

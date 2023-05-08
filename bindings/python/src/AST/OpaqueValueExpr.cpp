@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterOpaqueValueExpr(py::module_ &m) {
-  py::class_<OpaqueValueExpr, Expr, Stmt, ValueStmt>(m, "OpaqueValueExpr")
+  py::class_<OpaqueValueExpr, Expr>(m, "OpaqueValueExpr")
     .def("__hash__", [](const OpaqueValueExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OpaqueValueExpr& a, const OpaqueValueExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &OpaqueValueExpr::Children)

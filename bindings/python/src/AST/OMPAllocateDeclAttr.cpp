@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterOMPAllocateDeclAttr(py::module_ &m) {
-  py::class_<OMPAllocateDeclAttr, Attr, InheritableAttr>(m, "OMPAllocateDeclAttr")
+  py::class_<OMPAllocateDeclAttr, InheritableAttr>(m, "OMPAllocateDeclAttr")
     .def("__hash__", [](const OMPAllocateDeclAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const OMPAllocateDeclAttr& a, const OMPAllocateDeclAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Alignment", &OMPAllocateDeclAttr::Alignment)

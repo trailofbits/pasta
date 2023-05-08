@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCaseStmt(py::module_ &m) {
-  py::class_<CaseStmt, Stmt, SwitchCase>(m, "CaseStmt")
+  py::class_<CaseStmt, SwitchCase>(m, "CaseStmt")
     .def("__hash__", [](const CaseStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CaseStmt& a, const CaseStmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("CaseStatementIsGNURange", &CaseStmt::CaseStatementIsGNURange)

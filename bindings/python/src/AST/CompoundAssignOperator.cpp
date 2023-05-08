@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCompoundAssignOperator(py::module_ &m) {
-  py::class_<CompoundAssignOperator, BinaryOperator, Expr, Stmt, ValueStmt>(m, "CompoundAssignOperator")
+  py::class_<CompoundAssignOperator, BinaryOperator>(m, "CompoundAssignOperator")
     .def("__hash__", [](const CompoundAssignOperator& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CompoundAssignOperator& a, const CompoundAssignOperator& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("ComputationLHSType", &CompoundAssignOperator::ComputationLHSType)

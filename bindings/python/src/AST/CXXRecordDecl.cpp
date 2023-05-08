@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCXXRecordDecl(py::module_ &m) {
-  py::class_<CXXRecordDecl, Decl, NamedDecl, RecordDecl, TagDecl, TypeDecl>(m, "CXXRecordDecl")
+  py::class_<CXXRecordDecl, RecordDecl>(m, "CXXRecordDecl")
     .def("__hash__", [](const CXXRecordDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const CXXRecordDecl& a, const CXXRecordDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("AllowConstDefaultInitializer", &CXXRecordDecl::AllowConstDefaultInitializer)

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterOMPUnrollDirective(py::module_ &m) {
-  py::class_<OMPUnrollDirective, OMPExecutableDirective, OMPLoopBasedDirective, OMPLoopTransformationDirective, Stmt>(m, "OMPUnrollDirective")
+  py::class_<OMPUnrollDirective, OMPLoopTransformationDirective>(m, "OMPUnrollDirective")
     .def("__hash__", [](const OMPUnrollDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OMPUnrollDirective& a, const OMPUnrollDirective& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("PreInitializers", &OMPUnrollDirective::PreInitializers)

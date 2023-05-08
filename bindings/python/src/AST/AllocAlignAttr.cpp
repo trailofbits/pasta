@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterAllocAlignAttr(py::module_ &m) {
-  py::class_<AllocAlignAttr, Attr, InheritableAttr>(m, "AllocAlignAttr")
+  py::class_<AllocAlignAttr, InheritableAttr>(m, "AllocAlignAttr")
     .def("__hash__", [](const AllocAlignAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const AllocAlignAttr& a, const AllocAlignAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &AllocAlignAttr::Spelling);

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterPtGuardedByAttr(py::module_ &m) {
-  py::class_<PtGuardedByAttr, Attr, InheritableAttr>(m, "PtGuardedByAttr")
+  py::class_<PtGuardedByAttr, InheritableAttr>(m, "PtGuardedByAttr")
     .def("__hash__", [](const PtGuardedByAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const PtGuardedByAttr& a, const PtGuardedByAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Argument", &PtGuardedByAttr::Argument)

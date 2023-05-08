@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterOSConsumedAttr(py::module_ &m) {
-  py::class_<OSConsumedAttr, Attr, InheritableAttr, InheritableParamAttr>(m, "OSConsumedAttr")
+  py::class_<OSConsumedAttr, InheritableParamAttr>(m, "OSConsumedAttr")
     .def("__hash__", [](const OSConsumedAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const OSConsumedAttr& a, const OSConsumedAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &OSConsumedAttr::Spelling);

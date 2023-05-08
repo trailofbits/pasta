@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCXXNullPtrLiteralExpr(py::module_ &m) {
-  py::class_<CXXNullPtrLiteralExpr, Expr, Stmt, ValueStmt>(m, "CXXNullPtrLiteralExpr")
+  py::class_<CXXNullPtrLiteralExpr, Expr>(m, "CXXNullPtrLiteralExpr")
     .def("__hash__", [](const CXXNullPtrLiteralExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CXXNullPtrLiteralExpr& a, const CXXNullPtrLiteralExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &CXXNullPtrLiteralExpr::Children)

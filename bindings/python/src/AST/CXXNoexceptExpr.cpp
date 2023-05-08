@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCXXNoexceptExpr(py::module_ &m) {
-  py::class_<CXXNoexceptExpr, Expr, Stmt, ValueStmt>(m, "CXXNoexceptExpr")
+  py::class_<CXXNoexceptExpr, Expr>(m, "CXXNoexceptExpr")
     .def("__hash__", [](const CXXNoexceptExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CXXNoexceptExpr& a, const CXXNoexceptExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &CXXNoexceptExpr::Children)

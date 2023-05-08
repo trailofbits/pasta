@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterNoThreadSafetyAnalysisAttr(py::module_ &m) {
-  py::class_<NoThreadSafetyAnalysisAttr, Attr, InheritableAttr>(m, "NoThreadSafetyAnalysisAttr")
+  py::class_<NoThreadSafetyAnalysisAttr, InheritableAttr>(m, "NoThreadSafetyAnalysisAttr")
     .def("__hash__", [](const NoThreadSafetyAnalysisAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const NoThreadSafetyAnalysisAttr& a, const NoThreadSafetyAnalysisAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &NoThreadSafetyAnalysisAttr::Spelling);

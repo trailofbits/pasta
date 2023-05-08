@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterFunctionTemplateDecl(py::module_ &m) {
-  py::class_<FunctionTemplateDecl, Decl, NamedDecl, RedeclarableTemplateDecl, TemplateDecl>(m, "FunctionTemplateDecl")
+  py::class_<FunctionTemplateDecl, RedeclarableTemplateDecl>(m, "FunctionTemplateDecl")
     .def("__hash__", [](const FunctionTemplateDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const FunctionTemplateDecl& a, const FunctionTemplateDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("CanonicalDeclaration", &FunctionTemplateDecl::CanonicalDeclaration)

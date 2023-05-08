@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterReqdWorkGroupSizeAttr(py::module_ &m) {
-  py::class_<ReqdWorkGroupSizeAttr, Attr, InheritableAttr>(m, "ReqdWorkGroupSizeAttr")
+  py::class_<ReqdWorkGroupSizeAttr, InheritableAttr>(m, "ReqdWorkGroupSizeAttr")
     .def("__hash__", [](const ReqdWorkGroupSizeAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ReqdWorkGroupSizeAttr& a, const ReqdWorkGroupSizeAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &ReqdWorkGroupSizeAttr::Spelling)

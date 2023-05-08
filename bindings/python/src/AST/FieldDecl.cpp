@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterFieldDecl(py::module_ &m) {
-  py::class_<FieldDecl, Decl, DeclaratorDecl, NamedDecl, ValueDecl>(m, "FieldDecl")
+  py::class_<FieldDecl, DeclaratorDecl>(m, "FieldDecl")
     .def("__hash__", [](const FieldDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const FieldDecl& a, const FieldDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("BitWidth", &FieldDecl::BitWidth)

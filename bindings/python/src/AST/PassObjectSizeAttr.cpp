@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterPassObjectSizeAttr(py::module_ &m) {
-  py::class_<PassObjectSizeAttr, Attr, InheritableAttr, InheritableParamAttr>(m, "PassObjectSizeAttr")
+  py::class_<PassObjectSizeAttr, InheritableParamAttr>(m, "PassObjectSizeAttr")
     .def("__hash__", [](const PassObjectSizeAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const PassObjectSizeAttr& a, const PassObjectSizeAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("SemanticSpelling", &PassObjectSizeAttr::SemanticSpelling)

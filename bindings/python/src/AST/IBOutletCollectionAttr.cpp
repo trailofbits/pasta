@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterIBOutletCollectionAttr(py::module_ &m) {
-  py::class_<IBOutletCollectionAttr, Attr, InheritableAttr>(m, "IBOutletCollectionAttr")
+  py::class_<IBOutletCollectionAttr, InheritableAttr>(m, "IBOutletCollectionAttr")
     .def("__hash__", [](const IBOutletCollectionAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const IBOutletCollectionAttr& a, const IBOutletCollectionAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Interface", &IBOutletCollectionAttr::Interface)

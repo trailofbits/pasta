@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterWarnUnusedAttr(py::module_ &m) {
-  py::class_<WarnUnusedAttr, Attr, InheritableAttr>(m, "WarnUnusedAttr")
+  py::class_<WarnUnusedAttr, InheritableAttr>(m, "WarnUnusedAttr")
     .def("__hash__", [](const WarnUnusedAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const WarnUnusedAttr& a, const WarnUnusedAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &WarnUnusedAttr::Spelling);

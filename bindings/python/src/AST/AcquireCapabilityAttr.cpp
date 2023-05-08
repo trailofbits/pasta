@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterAcquireCapabilityAttr(py::module_ &m) {
-  py::class_<AcquireCapabilityAttr, Attr, InheritableAttr>(m, "AcquireCapabilityAttr")
+  py::class_<AcquireCapabilityAttr, InheritableAttr>(m, "AcquireCapabilityAttr")
     .def("__hash__", [](const AcquireCapabilityAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const AcquireCapabilityAttr& a, const AcquireCapabilityAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("SemanticSpelling", &AcquireCapabilityAttr::SemanticSpelling)

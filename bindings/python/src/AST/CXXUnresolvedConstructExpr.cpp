@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCXXUnresolvedConstructExpr(py::module_ &m) {
-  py::class_<CXXUnresolvedConstructExpr, Expr, Stmt, ValueStmt>(m, "CXXUnresolvedConstructExpr")
+  py::class_<CXXUnresolvedConstructExpr, Expr>(m, "CXXUnresolvedConstructExpr")
     .def("__hash__", [](const CXXUnresolvedConstructExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CXXUnresolvedConstructExpr& a, const CXXUnresolvedConstructExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Arguments", &CXXUnresolvedConstructExpr::Arguments)

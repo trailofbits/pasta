@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterObjCInterfaceDecl(py::module_ &m) {
-  py::class_<ObjCInterfaceDecl, Decl, NamedDecl, ObjCContainerDecl>(m, "ObjCInterfaceDecl")
+  py::class_<ObjCInterfaceDecl, ObjCContainerDecl>(m, "ObjCInterfaceDecl")
     .def("__hash__", [](const ObjCInterfaceDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const ObjCInterfaceDecl& a, const ObjCInterfaceDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("AllReferencedProtocols", &ObjCInterfaceDecl::AllReferencedProtocols)

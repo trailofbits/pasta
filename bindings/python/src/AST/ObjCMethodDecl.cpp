@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterObjCMethodDecl(py::module_ &m) {
-  py::class_<ObjCMethodDecl, Decl, NamedDecl>(m, "ObjCMethodDecl")
+  py::class_<ObjCMethodDecl, NamedDecl>(m, "ObjCMethodDecl")
     .def("__hash__", [](const ObjCMethodDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const ObjCMethodDecl& a, const ObjCMethodDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def("DefinedInNSObject", &ObjCMethodDecl::DefinedInNSObject)

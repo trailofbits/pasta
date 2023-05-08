@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterNoInstrumentFunctionAttr(py::module_ &m) {
-  py::class_<NoInstrumentFunctionAttr, Attr, InheritableAttr>(m, "NoInstrumentFunctionAttr")
+  py::class_<NoInstrumentFunctionAttr, InheritableAttr>(m, "NoInstrumentFunctionAttr")
     .def("__hash__", [](const NoInstrumentFunctionAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const NoInstrumentFunctionAttr& a, const NoInstrumentFunctionAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &NoInstrumentFunctionAttr::Spelling);

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterWeakRefAttr(py::module_ &m) {
-  py::class_<WeakRefAttr, Attr, InheritableAttr>(m, "WeakRefAttr")
+  py::class_<WeakRefAttr, InheritableAttr>(m, "WeakRefAttr")
     .def("__hash__", [](const WeakRefAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const WeakRefAttr& a, const WeakRefAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Aliasee", &WeakRefAttr::Aliasee)

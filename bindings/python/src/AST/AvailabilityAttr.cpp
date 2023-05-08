@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterAvailabilityAttr(py::module_ &m) {
-  py::class_<AvailabilityAttr, Attr, InheritableAttr>(m, "AvailabilityAttr")
+  py::class_<AvailabilityAttr, InheritableAttr>(m, "AvailabilityAttr")
     .def("__hash__", [](const AvailabilityAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const AvailabilityAttr& a, const AvailabilityAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Message", &AvailabilityAttr::Message)

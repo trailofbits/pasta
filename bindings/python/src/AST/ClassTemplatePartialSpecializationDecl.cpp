@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterClassTemplatePartialSpecializationDecl(py::module_ &m) {
-  py::class_<ClassTemplatePartialSpecializationDecl, CXXRecordDecl, ClassTemplateSpecializationDecl, Decl, NamedDecl, RecordDecl, TagDecl, TypeDecl>(m, "ClassTemplatePartialSpecializationDecl")
+  py::class_<ClassTemplatePartialSpecializationDecl, ClassTemplateSpecializationDecl>(m, "ClassTemplatePartialSpecializationDecl")
     .def("__hash__", [](const ClassTemplatePartialSpecializationDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const ClassTemplatePartialSpecializationDecl& a, const ClassTemplatePartialSpecializationDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("InjectedSpecializationType", &ClassTemplatePartialSpecializationDecl::InjectedSpecializationType)

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterObjCIvarRefExpr(py::module_ &m) {
-  py::class_<ObjCIvarRefExpr, Expr, Stmt, ValueStmt>(m, "ObjCIvarRefExpr")
+  py::class_<ObjCIvarRefExpr, Expr>(m, "ObjCIvarRefExpr")
     .def("__hash__", [](const ObjCIvarRefExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ObjCIvarRefExpr& a, const ObjCIvarRefExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ObjCIvarRefExpr::Children)

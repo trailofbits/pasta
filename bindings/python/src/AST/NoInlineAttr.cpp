@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterNoInlineAttr(py::module_ &m) {
-  py::class_<NoInlineAttr, Attr, DeclOrStmtAttr, InheritableAttr>(m, "NoInlineAttr")
+  py::class_<NoInlineAttr, DeclOrStmtAttr>(m, "NoInlineAttr")
     .def("__hash__", [](const NoInlineAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const NoInlineAttr& a, const NoInlineAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &NoInlineAttr::Spelling)

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterTemplateDecl(py::module_ &m) {
-  py::class_<TemplateDecl, Decl, NamedDecl>(m, "TemplateDecl")
+  py::class_<TemplateDecl, NamedDecl>(m, "TemplateDecl")
     .def("__hash__", [](const TemplateDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const TemplateDecl& a, const TemplateDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("TemplateParameters", &TemplateDecl::TemplateParameters)

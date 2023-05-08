@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterObjCRequiresPropertyDefsAttr(py::module_ &m) {
-  py::class_<ObjCRequiresPropertyDefsAttr, Attr, InheritableAttr>(m, "ObjCRequiresPropertyDefsAttr")
+  py::class_<ObjCRequiresPropertyDefsAttr, InheritableAttr>(m, "ObjCRequiresPropertyDefsAttr")
     .def("__hash__", [](const ObjCRequiresPropertyDefsAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ObjCRequiresPropertyDefsAttr& a, const ObjCRequiresPropertyDefsAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &ObjCRequiresPropertyDefsAttr::Spelling);

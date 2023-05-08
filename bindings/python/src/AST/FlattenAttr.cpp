@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterFlattenAttr(py::module_ &m) {
-  py::class_<FlattenAttr, Attr, InheritableAttr>(m, "FlattenAttr")
+  py::class_<FlattenAttr, InheritableAttr>(m, "FlattenAttr")
     .def("__hash__", [](const FlattenAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const FlattenAttr& a, const FlattenAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &FlattenAttr::Spelling);

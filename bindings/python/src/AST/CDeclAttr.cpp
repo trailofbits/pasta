@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCDeclAttr(py::module_ &m) {
-  py::class_<CDeclAttr, Attr, InheritableAttr>(m, "CDeclAttr")
+  py::class_<CDeclAttr, InheritableAttr>(m, "CDeclAttr")
     .def("__hash__", [](const CDeclAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const CDeclAttr& a, const CDeclAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &CDeclAttr::Spelling);

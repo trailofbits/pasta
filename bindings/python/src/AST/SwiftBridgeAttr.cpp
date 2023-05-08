@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterSwiftBridgeAttr(py::module_ &m) {
-  py::class_<SwiftBridgeAttr, Attr, InheritableAttr>(m, "SwiftBridgeAttr")
+  py::class_<SwiftBridgeAttr, InheritableAttr>(m, "SwiftBridgeAttr")
     .def("__hash__", [](const SwiftBridgeAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const SwiftBridgeAttr& a, const SwiftBridgeAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &SwiftBridgeAttr::Spelling)

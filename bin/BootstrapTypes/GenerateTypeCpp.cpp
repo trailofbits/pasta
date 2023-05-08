@@ -151,8 +151,10 @@ void Register)" << name << "(py::module_ &m) {\n"
       } else {
         os << "PASTA_DEFINE_BASE_OPERATORS(" << base_class << ", "
            << name << ")\n";
-        os_py << ", " << base_class;
       }
+    }
+    for(const auto &base_class : gBaseClasses[name]) {
+      os_py << ", " << base_class;
     }
     os_py << ">(m, \"" << name << "\")"
           << "\n    .def(\"__hash__\", [](const " << name << "& type) { return (intptr_t)type.RawType(); })"

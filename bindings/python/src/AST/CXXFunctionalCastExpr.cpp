@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCXXFunctionalCastExpr(py::module_ &m) {
-  py::class_<CXXFunctionalCastExpr, CastExpr, ExplicitCastExpr, Expr, Stmt, ValueStmt>(m, "CXXFunctionalCastExpr")
+  py::class_<CXXFunctionalCastExpr, ExplicitCastExpr>(m, "CXXFunctionalCastExpr")
     .def("__hash__", [](const CXXFunctionalCastExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CXXFunctionalCastExpr& a, const CXXFunctionalCastExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("BeginToken", &CXXFunctionalCastExpr::BeginToken)

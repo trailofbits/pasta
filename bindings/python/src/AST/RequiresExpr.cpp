@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterRequiresExpr(py::module_ &m) {
-  py::class_<RequiresExpr, Expr, Stmt, ValueStmt>(m, "RequiresExpr")
+  py::class_<RequiresExpr, Expr>(m, "RequiresExpr")
     .def("__hash__", [](const RequiresExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const RequiresExpr& a, const RequiresExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &RequiresExpr::Children)

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterRecordDecl(py::module_ &m) {
-  py::class_<RecordDecl, Decl, NamedDecl, TagDecl, TypeDecl>(m, "RecordDecl")
+  py::class_<RecordDecl, TagDecl>(m, "RecordDecl")
     .def("__hash__", [](const RecordDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const RecordDecl& a, const RecordDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("CanPassInRegisters", &RecordDecl::CanPassInRegisters)

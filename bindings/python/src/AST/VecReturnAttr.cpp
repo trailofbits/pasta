@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterVecReturnAttr(py::module_ &m) {
-  py::class_<VecReturnAttr, Attr, InheritableAttr>(m, "VecReturnAttr")
+  py::class_<VecReturnAttr, InheritableAttr>(m, "VecReturnAttr")
     .def("__hash__", [](const VecReturnAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const VecReturnAttr& a, const VecReturnAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &VecReturnAttr::Spelling);

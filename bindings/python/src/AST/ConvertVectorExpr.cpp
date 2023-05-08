@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterConvertVectorExpr(py::module_ &m) {
-  py::class_<ConvertVectorExpr, Expr, Stmt, ValueStmt>(m, "ConvertVectorExpr")
+  py::class_<ConvertVectorExpr, Expr>(m, "ConvertVectorExpr")
     .def("__hash__", [](const ConvertVectorExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ConvertVectorExpr& a, const ConvertVectorExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ConvertVectorExpr::Children)

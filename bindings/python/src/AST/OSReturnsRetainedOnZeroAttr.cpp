@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterOSReturnsRetainedOnZeroAttr(py::module_ &m) {
-  py::class_<OSReturnsRetainedOnZeroAttr, Attr, InheritableAttr>(m, "OSReturnsRetainedOnZeroAttr")
+  py::class_<OSReturnsRetainedOnZeroAttr, InheritableAttr>(m, "OSReturnsRetainedOnZeroAttr")
     .def("__hash__", [](const OSReturnsRetainedOnZeroAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const OSReturnsRetainedOnZeroAttr& a, const OSReturnsRetainedOnZeroAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &OSReturnsRetainedOnZeroAttr::Spelling);

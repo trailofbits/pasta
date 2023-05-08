@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterOMPIteratorExpr(py::module_ &m) {
-  py::class_<OMPIteratorExpr, Expr, Stmt, ValueStmt>(m, "OMPIteratorExpr")
+  py::class_<OMPIteratorExpr, Expr>(m, "OMPIteratorExpr")
     .def("__hash__", [](const OMPIteratorExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OMPIteratorExpr& a, const OMPIteratorExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &OMPIteratorExpr::Children)

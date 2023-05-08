@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterFastCallAttr(py::module_ &m) {
-  py::class_<FastCallAttr, Attr, InheritableAttr>(m, "FastCallAttr")
+  py::class_<FastCallAttr, InheritableAttr>(m, "FastCallAttr")
     .def("__hash__", [](const FastCallAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const FastCallAttr& a, const FastCallAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &FastCallAttr::Spelling);

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterNoUwtableAttr(py::module_ &m) {
-  py::class_<NoUwtableAttr, Attr, InheritableAttr>(m, "NoUwtableAttr")
+  py::class_<NoUwtableAttr, InheritableAttr>(m, "NoUwtableAttr")
     .def("__hash__", [](const NoUwtableAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const NoUwtableAttr& a, const NoUwtableAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &NoUwtableAttr::Spelling);

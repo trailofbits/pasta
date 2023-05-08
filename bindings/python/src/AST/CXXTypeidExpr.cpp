@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCXXTypeidExpr(py::module_ &m) {
-  py::class_<CXXTypeidExpr, Expr, Stmt, ValueStmt>(m, "CXXTypeidExpr")
+  py::class_<CXXTypeidExpr, Expr>(m, "CXXTypeidExpr")
     .def("__hash__", [](const CXXTypeidExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CXXTypeidExpr& a, const CXXTypeidExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &CXXTypeidExpr::Children)

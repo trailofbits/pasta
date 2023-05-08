@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterReleaseCapabilityAttr(py::module_ &m) {
-  py::class_<ReleaseCapabilityAttr, Attr, InheritableAttr>(m, "ReleaseCapabilityAttr")
+  py::class_<ReleaseCapabilityAttr, InheritableAttr>(m, "ReleaseCapabilityAttr")
     .def("__hash__", [](const ReleaseCapabilityAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ReleaseCapabilityAttr& a, const ReleaseCapabilityAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("SemanticSpelling", &ReleaseCapabilityAttr::SemanticSpelling)

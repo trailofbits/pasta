@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterAssumeAlignedAttr(py::module_ &m) {
-  py::class_<AssumeAlignedAttr, Attr, InheritableAttr>(m, "AssumeAlignedAttr")
+  py::class_<AssumeAlignedAttr, InheritableAttr>(m, "AssumeAlignedAttr")
     .def("__hash__", [](const AssumeAlignedAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const AssumeAlignedAttr& a, const AssumeAlignedAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Alignment", &AssumeAlignedAttr::Alignment)

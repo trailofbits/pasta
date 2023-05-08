@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterNSConsumesSelfAttr(py::module_ &m) {
-  py::class_<NSConsumesSelfAttr, Attr, InheritableAttr>(m, "NSConsumesSelfAttr")
+  py::class_<NSConsumesSelfAttr, InheritableAttr>(m, "NSConsumesSelfAttr")
     .def("__hash__", [](const NSConsumesSelfAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const NSConsumesSelfAttr& a, const NSConsumesSelfAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &NSConsumesSelfAttr::Spelling);

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCoroutineSuspendExpr(py::module_ &m) {
-  py::class_<CoroutineSuspendExpr, Expr, Stmt, ValueStmt>(m, "CoroutineSuspendExpr")
+  py::class_<CoroutineSuspendExpr, Expr>(m, "CoroutineSuspendExpr")
     .def("__hash__", [](const CoroutineSuspendExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CoroutineSuspendExpr& a, const CoroutineSuspendExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &CoroutineSuspendExpr::Children)

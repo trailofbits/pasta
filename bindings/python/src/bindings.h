@@ -28,4 +28,5 @@ void RegisterFileSystem(pybind11::module_&);
 void RegisterFileManager(pybind11::module_&);
 void RegisterCompileJob(pybind11::module_&);
 void RegisterCompiler(pybind11::module_&);
+void RegisterAST(pybind11::module_&);
 } // namespace pasta

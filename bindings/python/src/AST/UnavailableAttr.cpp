@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterUnavailableAttr(py::module_ &m) {
-  py::class_<UnavailableAttr, Attr, InheritableAttr>(m, "UnavailableAttr")
+  py::class_<UnavailableAttr, InheritableAttr>(m, "UnavailableAttr")
     .def("__hash__", [](const UnavailableAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const UnavailableAttr& a, const UnavailableAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("ImplicitReason", &UnavailableAttr::ImplicitReason)

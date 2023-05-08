@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterExplicitCastExpr(py::module_ &m) {
-  py::class_<ExplicitCastExpr, CastExpr, Expr, Stmt, ValueStmt>(m, "ExplicitCastExpr")
+  py::class_<ExplicitCastExpr, CastExpr>(m, "ExplicitCastExpr")
     .def("__hash__", [](const ExplicitCastExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ExplicitCastExpr& a, const ExplicitCastExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("TypeAsWritten", &ExplicitCastExpr::TypeAsWritten)

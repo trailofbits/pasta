@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterArraySubscriptExpr(py::module_ &m) {
-  py::class_<ArraySubscriptExpr, Expr, Stmt, ValueStmt>(m, "ArraySubscriptExpr")
+  py::class_<ArraySubscriptExpr, Expr>(m, "ArraySubscriptExpr")
     .def("__hash__", [](const ArraySubscriptExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ArraySubscriptExpr& a, const ArraySubscriptExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ArraySubscriptExpr::Children)

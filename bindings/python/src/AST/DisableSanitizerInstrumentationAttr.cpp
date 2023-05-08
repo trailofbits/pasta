@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterDisableSanitizerInstrumentationAttr(py::module_ &m) {
-  py::class_<DisableSanitizerInstrumentationAttr, Attr, InheritableAttr>(m, "DisableSanitizerInstrumentationAttr")
+  py::class_<DisableSanitizerInstrumentationAttr, InheritableAttr>(m, "DisableSanitizerInstrumentationAttr")
     .def("__hash__", [](const DisableSanitizerInstrumentationAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const DisableSanitizerInstrumentationAttr& a, const DisableSanitizerInstrumentationAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &DisableSanitizerInstrumentationAttr::Spelling);

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterTypeNullableResultAttr(py::module_ &m) {
-  py::class_<TypeNullableResultAttr, Attr, TypeAttr>(m, "TypeNullableResultAttr")
+  py::class_<TypeNullableResultAttr, TypeAttr>(m, "TypeNullableResultAttr")
     .def("__hash__", [](const TypeNullableResultAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const TypeNullableResultAttr& a, const TypeNullableResultAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &TypeNullableResultAttr::Spelling);

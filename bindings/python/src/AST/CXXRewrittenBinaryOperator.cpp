@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCXXRewrittenBinaryOperator(py::module_ &m) {
-  py::class_<CXXRewrittenBinaryOperator, Expr, Stmt, ValueStmt>(m, "CXXRewrittenBinaryOperator")
+  py::class_<CXXRewrittenBinaryOperator, Expr>(m, "CXXRewrittenBinaryOperator")
     .def("__hash__", [](const CXXRewrittenBinaryOperator& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CXXRewrittenBinaryOperator& a, const CXXRewrittenBinaryOperator& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("BeginToken", &CXXRewrittenBinaryOperator::BeginToken)

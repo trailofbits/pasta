@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCUDADeviceBuiltinTextureTypeAttr(py::module_ &m) {
-  py::class_<CUDADeviceBuiltinTextureTypeAttr, Attr, InheritableAttr>(m, "CUDADeviceBuiltinTextureTypeAttr")
+  py::class_<CUDADeviceBuiltinTextureTypeAttr, InheritableAttr>(m, "CUDADeviceBuiltinTextureTypeAttr")
     .def("__hash__", [](const CUDADeviceBuiltinTextureTypeAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const CUDADeviceBuiltinTextureTypeAttr& a, const CUDADeviceBuiltinTextureTypeAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &CUDADeviceBuiltinTextureTypeAttr::Spelling);

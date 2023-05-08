@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterTargetVersionAttr(py::module_ &m) {
-  py::class_<TargetVersionAttr, Attr, InheritableAttr>(m, "TargetVersionAttr")
+  py::class_<TargetVersionAttr, InheritableAttr>(m, "TargetVersionAttr")
     .def("__hash__", [](const TargetVersionAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const TargetVersionAttr& a, const TargetVersionAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Name", &TargetVersionAttr::Name)

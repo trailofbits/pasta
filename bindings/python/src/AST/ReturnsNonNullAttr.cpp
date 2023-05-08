@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterReturnsNonNullAttr(py::module_ &m) {
-  py::class_<ReturnsNonNullAttr, Attr, InheritableAttr>(m, "ReturnsNonNullAttr")
+  py::class_<ReturnsNonNullAttr, InheritableAttr>(m, "ReturnsNonNullAttr")
     .def("__hash__", [](const ReturnsNonNullAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ReturnsNonNullAttr& a, const ReturnsNonNullAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &ReturnsNonNullAttr::Spelling);

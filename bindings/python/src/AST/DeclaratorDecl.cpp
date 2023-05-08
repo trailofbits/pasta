@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterDeclaratorDecl(py::module_ &m) {
-  py::class_<DeclaratorDecl, Decl, NamedDecl, ValueDecl>(m, "DeclaratorDecl")
+  py::class_<DeclaratorDecl, ValueDecl>(m, "DeclaratorDecl")
     .def("__hash__", [](const DeclaratorDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const DeclaratorDecl& a, const DeclaratorDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("BeginToken", &DeclaratorDecl::BeginToken)

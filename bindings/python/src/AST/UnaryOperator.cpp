@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterUnaryOperator(py::module_ &m) {
-  py::class_<UnaryOperator, Expr, Stmt, ValueStmt>(m, "UnaryOperator")
+  py::class_<UnaryOperator, Expr>(m, "UnaryOperator")
     .def("__hash__", [](const UnaryOperator& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const UnaryOperator& a, const UnaryOperator& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("CanOverflow", &UnaryOperator::CanOverflow)

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterExpressionTraitExpr(py::module_ &m) {
-  py::class_<ExpressionTraitExpr, Expr, Stmt, ValueStmt>(m, "ExpressionTraitExpr")
+  py::class_<ExpressionTraitExpr, Expr>(m, "ExpressionTraitExpr")
     .def("__hash__", [](const ExpressionTraitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ExpressionTraitExpr& a, const ExpressionTraitExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ExpressionTraitExpr::Children)

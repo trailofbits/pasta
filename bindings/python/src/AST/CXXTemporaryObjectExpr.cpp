@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCXXTemporaryObjectExpr(py::module_ &m) {
-  py::class_<CXXTemporaryObjectExpr, CXXConstructExpr, Expr, Stmt, ValueStmt>(m, "CXXTemporaryObjectExpr")
+  py::class_<CXXTemporaryObjectExpr, CXXConstructExpr>(m, "CXXTemporaryObjectExpr")
     .def("__hash__", [](const CXXTemporaryObjectExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CXXTemporaryObjectExpr& a, const CXXTemporaryObjectExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("BeginToken", &CXXTemporaryObjectExpr::BeginToken)

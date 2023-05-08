@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterBlockExpr(py::module_ &m) {
-  py::class_<BlockExpr, Expr, Stmt, ValueStmt>(m, "BlockExpr")
+  py::class_<BlockExpr, Expr>(m, "BlockExpr")
     .def("__hash__", [](const BlockExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const BlockExpr& a, const BlockExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &BlockExpr::Children)

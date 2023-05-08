@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterArgumentWithTypeTagAttr(py::module_ &m) {
-  py::class_<ArgumentWithTypeTagAttr, Attr, InheritableAttr>(m, "ArgumentWithTypeTagAttr")
+  py::class_<ArgumentWithTypeTagAttr, InheritableAttr>(m, "ArgumentWithTypeTagAttr")
     .def("__hash__", [](const ArgumentWithTypeTagAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ArgumentWithTypeTagAttr& a, const ArgumentWithTypeTagAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("IsPointer", &ArgumentWithTypeTagAttr::IsPointer)

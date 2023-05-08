@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterTypeTagForDatatypeAttr(py::module_ &m) {
-  py::class_<TypeTagForDatatypeAttr, Attr, InheritableAttr>(m, "TypeTagForDatatypeAttr")
+  py::class_<TypeTagForDatatypeAttr, InheritableAttr>(m, "TypeTagForDatatypeAttr")
     .def("__hash__", [](const TypeTagForDatatypeAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const TypeTagForDatatypeAttr& a, const TypeTagForDatatypeAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("LayoutCompatible", &TypeTagForDatatypeAttr::LayoutCompatible)

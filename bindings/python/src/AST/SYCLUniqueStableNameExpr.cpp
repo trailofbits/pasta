@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterSYCLUniqueStableNameExpr(py::module_ &m) {
-  py::class_<SYCLUniqueStableNameExpr, Expr, Stmt, ValueStmt>(m, "SYCLUniqueStableNameExpr")
+  py::class_<SYCLUniqueStableNameExpr, Expr>(m, "SYCLUniqueStableNameExpr")
     .def("__hash__", [](const SYCLUniqueStableNameExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const SYCLUniqueStableNameExpr& a, const SYCLUniqueStableNameExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def("ComputeName", &SYCLUniqueStableNameExpr::ComputeName)

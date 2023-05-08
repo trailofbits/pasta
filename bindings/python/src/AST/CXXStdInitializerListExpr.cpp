@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCXXStdInitializerListExpr(py::module_ &m) {
-  py::class_<CXXStdInitializerListExpr, Expr, Stmt, ValueStmt>(m, "CXXStdInitializerListExpr")
+  py::class_<CXXStdInitializerListExpr, Expr>(m, "CXXStdInitializerListExpr")
     .def("__hash__", [](const CXXStdInitializerListExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CXXStdInitializerListExpr& a, const CXXStdInitializerListExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &CXXStdInitializerListExpr::Children)

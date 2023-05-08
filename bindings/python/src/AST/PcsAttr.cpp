@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterPcsAttr(py::module_ &m) {
-  py::class_<PcsAttr, Attr, InheritableAttr>(m, "PcsAttr")
+  py::class_<PcsAttr, InheritableAttr>(m, "PcsAttr")
     .def("__hash__", [](const PcsAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const PcsAttr& a, const PcsAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("PCS", &PcsAttr::PCS)

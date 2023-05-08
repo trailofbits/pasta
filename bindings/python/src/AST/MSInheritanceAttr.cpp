@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterMSInheritanceAttr(py::module_ &m) {
-  py::class_<MSInheritanceAttr, Attr, InheritableAttr>(m, "MSInheritanceAttr")
+  py::class_<MSInheritanceAttr, InheritableAttr>(m, "MSInheritanceAttr")
     .def("__hash__", [](const MSInheritanceAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const MSInheritanceAttr& a, const MSInheritanceAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("BestCase", &MSInheritanceAttr::BestCase)

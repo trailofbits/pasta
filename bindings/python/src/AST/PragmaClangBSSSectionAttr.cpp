@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterPragmaClangBSSSectionAttr(py::module_ &m) {
-  py::class_<PragmaClangBSSSectionAttr, Attr, InheritableAttr>(m, "PragmaClangBSSSectionAttr")
+  py::class_<PragmaClangBSSSectionAttr, InheritableAttr>(m, "PragmaClangBSSSectionAttr")
     .def("__hash__", [](const PragmaClangBSSSectionAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const PragmaClangBSSSectionAttr& a, const PragmaClangBSSSectionAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Name", &PragmaClangBSSSectionAttr::Name)

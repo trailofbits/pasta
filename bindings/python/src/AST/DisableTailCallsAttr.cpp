@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterDisableTailCallsAttr(py::module_ &m) {
-  py::class_<DisableTailCallsAttr, Attr, InheritableAttr>(m, "DisableTailCallsAttr")
+  py::class_<DisableTailCallsAttr, InheritableAttr>(m, "DisableTailCallsAttr")
     .def("__hash__", [](const DisableTailCallsAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const DisableTailCallsAttr& a, const DisableTailCallsAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &DisableTailCallsAttr::Spelling);

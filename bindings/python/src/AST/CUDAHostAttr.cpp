@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCUDAHostAttr(py::module_ &m) {
-  py::class_<CUDAHostAttr, Attr, InheritableAttr>(m, "CUDAHostAttr")
+  py::class_<CUDAHostAttr, InheritableAttr>(m, "CUDAHostAttr")
     .def("__hash__", [](const CUDAHostAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const CUDAHostAttr& a, const CUDAHostAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &CUDAHostAttr::Spelling);

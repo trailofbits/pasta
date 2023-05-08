@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterAlwaysInlineAttr(py::module_ &m) {
-  py::class_<AlwaysInlineAttr, Attr, DeclOrStmtAttr, InheritableAttr>(m, "AlwaysInlineAttr")
+  py::class_<AlwaysInlineAttr, DeclOrStmtAttr>(m, "AlwaysInlineAttr")
     .def("__hash__", [](const AlwaysInlineAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const AlwaysInlineAttr& a, const AlwaysInlineAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("SemanticSpelling", &AlwaysInlineAttr::SemanticSpelling)

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterGCCAsmStmt(py::module_ &m) {
-  py::class_<GCCAsmStmt, AsmStmt, Stmt>(m, "GCCAsmStmt")
+  py::class_<GCCAsmStmt, AsmStmt>(m, "GCCAsmStmt")
     .def("__hash__", [](const GCCAsmStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const GCCAsmStmt& a, const GCCAsmStmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def("GenerateAssemblyString", &GCCAsmStmt::GenerateAssemblyString)

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterConceptDecl(py::module_ &m) {
-  py::class_<ConceptDecl, Decl, NamedDecl, TemplateDecl>(m, "ConceptDecl")
+  py::class_<ConceptDecl, TemplateDecl>(m, "ConceptDecl")
     .def("__hash__", [](const ConceptDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const ConceptDecl& a, const ConceptDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("CanonicalDeclaration", &ConceptDecl::CanonicalDeclaration)

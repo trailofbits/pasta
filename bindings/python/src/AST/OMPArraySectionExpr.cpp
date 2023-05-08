@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterOMPArraySectionExpr(py::module_ &m) {
-  py::class_<OMPArraySectionExpr, Expr, Stmt, ValueStmt>(m, "OMPArraySectionExpr")
+  py::class_<OMPArraySectionExpr, Expr>(m, "OMPArraySectionExpr")
     .def("__hash__", [](const OMPArraySectionExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OMPArraySectionExpr& a, const OMPArraySectionExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &OMPArraySectionExpr::Children)

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterLocksExcludedAttr(py::module_ &m) {
-  py::class_<LocksExcludedAttr, Attr, InheritableAttr>(m, "LocksExcludedAttr")
+  py::class_<LocksExcludedAttr, InheritableAttr>(m, "LocksExcludedAttr")
     .def("__hash__", [](const LocksExcludedAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const LocksExcludedAttr& a, const LocksExcludedAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &LocksExcludedAttr::Spelling);

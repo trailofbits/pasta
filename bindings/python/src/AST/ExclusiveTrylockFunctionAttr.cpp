@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterExclusiveTrylockFunctionAttr(py::module_ &m) {
-  py::class_<ExclusiveTrylockFunctionAttr, Attr, InheritableAttr>(m, "ExclusiveTrylockFunctionAttr")
+  py::class_<ExclusiveTrylockFunctionAttr, InheritableAttr>(m, "ExclusiveTrylockFunctionAttr")
     .def("__hash__", [](const ExclusiveTrylockFunctionAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ExclusiveTrylockFunctionAttr& a, const ExclusiveTrylockFunctionAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &ExclusiveTrylockFunctionAttr::Spelling)

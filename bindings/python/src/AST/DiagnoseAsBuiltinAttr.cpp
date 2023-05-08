@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterDiagnoseAsBuiltinAttr(py::module_ &m) {
-  py::class_<DiagnoseAsBuiltinAttr, Attr, InheritableAttr>(m, "DiagnoseAsBuiltinAttr")
+  py::class_<DiagnoseAsBuiltinAttr, InheritableAttr>(m, "DiagnoseAsBuiltinAttr")
     .def("__hash__", [](const DiagnoseAsBuiltinAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const DiagnoseAsBuiltinAttr& a, const DiagnoseAsBuiltinAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Function", &DiagnoseAsBuiltinAttr::Function)

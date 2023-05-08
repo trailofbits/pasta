@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterObjCInertUnsafeUnretainedAttr(py::module_ &m) {
-  py::class_<ObjCInertUnsafeUnretainedAttr, Attr, TypeAttr>(m, "ObjCInertUnsafeUnretainedAttr")
+  py::class_<ObjCInertUnsafeUnretainedAttr, TypeAttr>(m, "ObjCInertUnsafeUnretainedAttr")
     .def("__hash__", [](const ObjCInertUnsafeUnretainedAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ObjCInertUnsafeUnretainedAttr& a, const ObjCInertUnsafeUnretainedAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &ObjCInertUnsafeUnretainedAttr::Spelling);

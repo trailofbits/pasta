@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterSetTypestateAttr(py::module_ &m) {
-  py::class_<SetTypestateAttr, Attr, InheritableAttr>(m, "SetTypestateAttr")
+  py::class_<SetTypestateAttr, InheritableAttr>(m, "SetTypestateAttr")
     .def("__hash__", [](const SetTypestateAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const SetTypestateAttr& a, const SetTypestateAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("NewState", &SetTypestateAttr::NewState)

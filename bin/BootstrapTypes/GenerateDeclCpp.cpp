@@ -321,6 +321,9 @@ void Register)" << name << "(py::module_ &m) {\n"
              << "  }\n"
              << "}\n\n";
 
+        }
+        for(const auto &base_class : gBaseClasses[name]) {
+          if(base_class == "DeclContext") { continue; }
           os_py << ", " << base_class;
         }
 
@@ -329,7 +332,9 @@ void Register)" << name << "(py::module_ &m) {\n"
         for (const auto &base_class : gTransitiveBaseClasses[name]) {
           os << "PASTA_DEFINE_BASE_OPERATORS(" << base_class << ", "
              << name << ")\n";
-
+        }
+        for(const auto &base_class : gBaseClasses[name]) {
+          if(base_class == "DeclContext") { continue; }
           os_py << ", " << base_class;
         }
       }

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterTemplateTemplateParmDecl(py::module_ &m) {
-  py::class_<TemplateTemplateParmDecl, Decl, NamedDecl, TemplateDecl>(m, "TemplateTemplateParmDecl")
+  py::class_<TemplateTemplateParmDecl, TemplateDecl>(m, "TemplateTemplateParmDecl")
     .def("__hash__", [](const TemplateTemplateParmDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const TemplateTemplateParmDecl& a, const TemplateTemplateParmDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("DefaultArgumentWasInherited", &TemplateTemplateParmDecl::DefaultArgumentWasInherited)

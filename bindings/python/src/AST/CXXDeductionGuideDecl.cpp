@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCXXDeductionGuideDecl(py::module_ &m) {
-  py::class_<CXXDeductionGuideDecl, Decl, DeclaratorDecl, FunctionDecl, NamedDecl, ValueDecl>(m, "CXXDeductionGuideDecl")
+  py::class_<CXXDeductionGuideDecl, FunctionDecl>(m, "CXXDeductionGuideDecl")
     .def("__hash__", [](const CXXDeductionGuideDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const CXXDeductionGuideDecl& a, const CXXDeductionGuideDecl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("CorrespondingConstructor", &CXXDeductionGuideDecl::CorrespondingConstructor)

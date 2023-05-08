@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterMaxFieldAlignmentAttr(py::module_ &m) {
-  py::class_<MaxFieldAlignmentAttr, Attr, InheritableAttr>(m, "MaxFieldAlignmentAttr")
+  py::class_<MaxFieldAlignmentAttr, InheritableAttr>(m, "MaxFieldAlignmentAttr")
     .def("__hash__", [](const MaxFieldAlignmentAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const MaxFieldAlignmentAttr& a, const MaxFieldAlignmentAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Alignment", &MaxFieldAlignmentAttr::Alignment)

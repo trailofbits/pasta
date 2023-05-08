@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterObjCSelectorExpr(py::module_ &m) {
-  py::class_<ObjCSelectorExpr, Expr, Stmt, ValueStmt>(m, "ObjCSelectorExpr")
+  py::class_<ObjCSelectorExpr, Expr>(m, "ObjCSelectorExpr")
     .def("__hash__", [](const ObjCSelectorExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ObjCSelectorExpr& a, const ObjCSelectorExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ObjCSelectorExpr::Children)

@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterMipsLongCallAttr(py::module_ &m) {
-  py::class_<MipsLongCallAttr, Attr, InheritableAttr>(m, "MipsLongCallAttr")
+  py::class_<MipsLongCallAttr, InheritableAttr>(m, "MipsLongCallAttr")
     .def("__hash__", [](const MipsLongCallAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const MipsLongCallAttr& a, const MipsLongCallAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("SemanticSpelling", &MipsLongCallAttr::SemanticSpelling)

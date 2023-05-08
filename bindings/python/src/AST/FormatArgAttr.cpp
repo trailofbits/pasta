@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterFormatArgAttr(py::module_ &m) {
-  py::class_<FormatArgAttr, Attr, InheritableAttr>(m, "FormatArgAttr")
+  py::class_<FormatArgAttr, InheritableAttr>(m, "FormatArgAttr")
     .def("__hash__", [](const FormatArgAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const FormatArgAttr& a, const FormatArgAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &FormatArgAttr::Spelling);

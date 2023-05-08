@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterMatrixSubscriptExpr(py::module_ &m) {
-  py::class_<MatrixSubscriptExpr, Expr, Stmt, ValueStmt>(m, "MatrixSubscriptExpr")
+  py::class_<MatrixSubscriptExpr, Expr>(m, "MatrixSubscriptExpr")
     .def("__hash__", [](const MatrixSubscriptExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const MatrixSubscriptExpr& a, const MatrixSubscriptExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &MatrixSubscriptExpr::Children)

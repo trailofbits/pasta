@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterCastExpr(py::module_ &m) {
-  py::class_<CastExpr, Expr, Stmt, ValueStmt>(m, "CastExpr")
+  py::class_<CastExpr, Expr>(m, "CastExpr")
     .def("__hash__", [](const CastExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const CastExpr& a, const CastExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &CastExpr::Children)

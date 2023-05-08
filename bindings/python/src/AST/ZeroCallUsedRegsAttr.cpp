@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterZeroCallUsedRegsAttr(py::module_ &m) {
-  py::class_<ZeroCallUsedRegsAttr, Attr, InheritableAttr>(m, "ZeroCallUsedRegsAttr")
+  py::class_<ZeroCallUsedRegsAttr, InheritableAttr>(m, "ZeroCallUsedRegsAttr")
     .def("__hash__", [](const ZeroCallUsedRegsAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const ZeroCallUsedRegsAttr& a, const ZeroCallUsedRegsAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &ZeroCallUsedRegsAttr::Spelling)

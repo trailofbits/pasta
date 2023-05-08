@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterPreserveAllAttr(py::module_ &m) {
-  py::class_<PreserveAllAttr, Attr, InheritableAttr>(m, "PreserveAllAttr")
+  py::class_<PreserveAllAttr, InheritableAttr>(m, "PreserveAllAttr")
     .def("__hash__", [](const PreserveAllAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const PreserveAllAttr& a, const PreserveAllAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &PreserveAllAttr::Spelling);

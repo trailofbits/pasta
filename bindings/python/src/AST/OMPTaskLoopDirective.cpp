@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterOMPTaskLoopDirective(py::module_ &m) {
-  py::class_<OMPTaskLoopDirective, OMPExecutableDirective, OMPLoopBasedDirective, OMPLoopDirective, Stmt>(m, "OMPTaskLoopDirective")
+  py::class_<OMPTaskLoopDirective, OMPLoopDirective>(m, "OMPTaskLoopDirective")
     .def("__hash__", [](const OMPTaskLoopDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const OMPTaskLoopDirective& a, const OMPTaskLoopDirective& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("HasCancel", &OMPTaskLoopDirective::HasCancel);

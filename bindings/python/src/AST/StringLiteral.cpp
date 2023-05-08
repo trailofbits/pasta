@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterStringLiteral(py::module_ &m) {
-  py::class_<StringLiteral, Expr, Stmt, ValueStmt>(m, "StringLiteral")
+  py::class_<StringLiteral, Expr>(m, "StringLiteral")
     .def("__hash__", [](const StringLiteral& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const StringLiteral& a, const StringLiteral& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &StringLiteral::Children)

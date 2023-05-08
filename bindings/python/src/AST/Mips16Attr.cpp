@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterMips16Attr(py::module_ &m) {
-  py::class_<Mips16Attr, Attr, InheritableAttr>(m, "Mips16Attr")
+  py::class_<Mips16Attr, InheritableAttr>(m, "Mips16Attr")
     .def("__hash__", [](const Mips16Attr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Mips16Attr& a, const Mips16Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &Mips16Attr::Spelling);

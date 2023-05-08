@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterObjCBoolLiteralExpr(py::module_ &m) {
-  py::class_<ObjCBoolLiteralExpr, Expr, Stmt, ValueStmt>(m, "ObjCBoolLiteralExpr")
+  py::class_<ObjCBoolLiteralExpr, Expr>(m, "ObjCBoolLiteralExpr")
     .def("__hash__", [](const ObjCBoolLiteralExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const ObjCBoolLiteralExpr& a, const ObjCBoolLiteralExpr& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("Children", &ObjCBoolLiteralExpr::Children)

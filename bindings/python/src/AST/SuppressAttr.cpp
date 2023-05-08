@@ -16,7 +16,7 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterSuppressAttr(py::module_ &m) {
-  py::class_<SuppressAttr, Attr, StmtAttr>(m, "SuppressAttr")
+  py::class_<SuppressAttr, StmtAttr>(m, "SuppressAttr")
     .def("__hash__", [](const SuppressAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const SuppressAttr& a, const SuppressAttr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("Spelling", &SuppressAttr::Spelling);

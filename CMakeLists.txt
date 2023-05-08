@@ -86,35 +86,128 @@ if(LLVM_LINK_LLVM_DYLIB)
   set(llvm_libs LLVM)
 else()
   llvm_map_components_to_libnames(llvm_libs
-    support core
+    aarch64asmparser
+    aarch64codegen
+    aarch64desc
+    aarch64disassembler
+    aarch64info
+    aarch64utils
+    aggressiveinstcombine
+    analysis
+    armasmparser
+    armcodegen
+    armdesc
+    armdisassembler
+    arminfo
+    armutils
+    asmparser
+    asmprinter
+    binaryformat
+    bitreader
+    bitstreamreader
+    bitwriter
+    cfguard
+    codegen
+    core
+    coroutines
+    coverage
+    debuginfocodeview
+    debuginfodwarf
+    debuginfogsym
+    debuginfologicalview
+    debuginfomsf
+    debuginfopdb
+    demangle
+    dlltooldriver
+    executionengine
+    extensions
+    frontendhlsl
+    frontendopenacc
+    frontendopenmp
+    globalisel
+    instcombine
+    instrumentation
+    interfacestub
+    interpreter
+    ipo
+    irprinter
     irreader
-    bitreader bitwriter
-    passes asmprinter
-    aarch64desc aarch64codegen aarch64asmparser
-    armdesc armcodegen armasmparser
-    interpreter mcjit
-    nvptxdesc nvptxcodegen
-    x86desc x86codegen x86asmparser
-    sparcdesc sparccodegen sparcasmparser
-    webassemblydesc webassemblycodegen webassemblyasmparser)
+    jitlink
+    libdriver
+    linker
+    mc
+    mcdisassembler
+    mcjit
+    mcparser
+    mirparser
+    native
+    nativecodegen
+    nvptxcodegen
+    nvptxdesc
+    nvptxinfo
+    objcarcopts
+    object
+    objectyaml
+    option
+    orcjit
+    orcshared
+    orctargetprocess
+    passes
+    profiledata
+    remarks
+    runtimedyld
+    scalaropts
+    selectiondag
+    sparcasmparser
+    sparccodegen
+    sparcdesc
+    sparcdisassembler
+    sparcinfo
+    support
+    symbolize
+    target
+    targetparser
+    textapi
+    transformutils
+    vectorize
+    webassemblyasmparser
+    webassemblycodegen
+    webassemblydesc
+    webassemblydisassembler
+    webassemblyinfo
+    webassemblyutils
+    windowsdriver
+    windowsmanifest
+    x86asmparser
+    x86codegen
+    x86desc
+    x86disassembler
+    x86info
+    x86targetmca)
 endif()
 
-target_link_libraries(pasta_thirdparty_llvm INTERFACE
-    ${llvm_libs}
-    
-    clang
-    clangFrontend
-    clangDriver
-    clangSerialization
-    clangParse
-    clangAnalysis
-    clangEdit
-    clangAST
-    clangLex
-    clangBasic
-    clangTooling
-    clangIndex
-)
+target_link_libraries(pasta_thirdparty_llvm INTERFACE "clang")
+
+set(libs
+    "clangFrontend"
+    "clangDriver"
+    "clangSerialization"
+    "clangParse"
+    "clangAnalysis"
+    "clangEdit"
+    "clangAST"
+    "clangLex"
+    "clangBasic"
+    "clangSema"
+    "clangASTMatchers"
+    "clangSupport"
+    "z3::libz3"
+    "zstd::libzstd_static"
+    "ZLIB::ZLIB")
+
+foreach(lib IN LISTS libs llvm_libs)
+    target_link_options(pasta_thirdparty_llvm INTERFACE "SHELL:-force_load $<TARGET_FILE:${lib}>")
+endforeach()
 
 target_include_directories(pasta_thirdparty_llvm INTERFACE
     "$<BUILD_INTERFACE:${LLVM_INCLUDE_DIRS};${LLVM_INCLUDE_DIR};${CLANG_INCLUDE_DIRS}>"

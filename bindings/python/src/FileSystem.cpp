@@ -1,4 +1,5 @@
 #include <pasta/Util/FileSystem.h>
+#include <pasta/Compile/Compiler.h>
 
 #include "bindings.h"
 
@@ -15,6 +16,7 @@ void RegisterFileSystem(py::module_ &m) {
     .def_property_readonly("is_directory", &Stat::IsDirectory);
 
   py::class_<FileSystem, std::shared_ptr<FileSystem>>(m, "FileSystem")
+    .def_static("create_from", &FileSystem::From)
     .def_static("create_native", &FileSystem::CreateNative)
     .def("parse_path", &FileSystem::ParsePath)
     .def("is_resource_dir", &FileSystem::IsResourceDir)

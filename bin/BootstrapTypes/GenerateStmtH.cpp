@@ -31,6 +31,7 @@ void GenerateStmtH(void) {
       << "#include \"Attr.h\"\n"
       << "#include \"DeclHead.h\"\n\n"
       << "#include \"StmtManual.h\"\n\n"
+      << "#include \"Macro.h\"\n\n"
       << "#define PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(base) \\\n"
       << "    friend class AST; \\\n"
       << "    friend class ASTImpl; \\\n"
@@ -123,6 +124,8 @@ void GenerateStmtH(void) {
 
       os
           << "    const void *opaque;\n"
+          << "    std::optional<::pasta::Macro> GetCoveringSubstitution() const noexcept;\n"
+          << "    std::optional<::pasta::MacroArgument> GetLowestContainingMacroArgument() const noexcept;\n"
           << "  } u;\n"
           << "  StmtKind kind;\n\n"
           << "  inline explicit Stmt(std::shared_ptr<ASTImpl> ast_,\n"

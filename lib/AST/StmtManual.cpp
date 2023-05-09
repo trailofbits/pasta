@@ -24,7 +24,7 @@ namespace pasta {
 // Follow a macro token's parent chain to the end, and returns the final parent.
 // If the macro token has no parent, this returns std::nullopt;
 std::optional<Macro>
-GetRootSubstitution(const MacroToken &macro_token) noexcept {
+RootSubstitution(const MacroToken &macro_token) noexcept {
   std::optional<Macro> root;
   std::optional<Macro> next_root = macro_token.Parent();
   do {
@@ -35,7 +35,7 @@ GetRootSubstitution(const MacroToken &macro_token) noexcept {
 }
 
 // Returns the highest substitution that covers this Stmt, if any.
-std::optional<Macro> Stmt::GetCoveringSubstitution(void) const noexcept {
+std::optional<Macro> Stmt::CoveringSubstitution(void) const noexcept {
   // If the first token in this Stmt did not come from a macro substitution,
   // then this Stmt is not covered by a substitution
   const auto begin_macro_token = BeginToken().MacroLocation();
@@ -50,8 +50,8 @@ std::optional<Macro> Stmt::GetCoveringSubstitution(void) const noexcept {
     return std::nullopt;
   }
 
-  const auto begin_macro_token_root = GetRootSubstitution(*begin_macro_token);
-  const auto end_macro_token_root = GetRootSubstitution(*end_macro_token);
+  const auto begin_macro_token_root = RootSubstitution(*begin_macro_token);
+  const auto end_macro_token_root = RootSubstitution(*end_macro_token);
 
   // If the root of the begin token and end token are the same, then return that
   // root
@@ -85,7 +85,7 @@ inline bool IsTokenDerivedFromMacro(const Token &token, const Macro &macro) {
 
 // Returns the lowest macro argument that contains this Stmt, if any.
 std::optional<MacroArgument>
-Stmt::GetLowestContainingMacroArgument(void) const noexcept {
+Stmt::LowestContainingMacroArgument(void) const noexcept {
   // Algorithm:
   // 1. Find the lowest macro argument that the first token in this Stmt was
   //    expanded from.

@@ -93,8 +93,8 @@ void GenerateStmtH(void) {
     if (name_ref == "Stmt") {
       os << "  friend class TokenContext;\n"
          << "  static std::optional<::pasta::Stmt> From(const TokenContext &);\n"
-         << "  std::optional<::pasta::Macro> GetCoveringSubstitution(void) const noexcept;\n"
-         << "  std::optional<::pasta::MacroArgument> GetLowestContainingMacroArgument(void) const noexcept;\n";
+         << "  std::optional<::pasta::Macro> CoveringSubstitution(void) const noexcept;\n"
+         << "  std::optional<::pasta::MacroArgument> LowestContainingMacroArgument(void) const noexcept;\n";
     }
 
     // Constructors from derived class -> base class.

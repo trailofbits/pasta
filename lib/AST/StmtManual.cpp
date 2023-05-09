@@ -15,9 +15,107 @@
 #include "AST.h"
 #include "Builder.h"
 
+#include <algorithm>
+
 namespace pasta {
 
 #ifndef PASTA_IN_BOOTSTRAP
+
+// Follow a macro token's parent chain to the end, and returns the final parent.
+// If the macro token has no parent, this returns std::nullopt;
+std::optional<Macro>
+RootSubstitution(const MacroToken &macro_token) noexcept {
+  std::optional<Macro> root;
+  std::optional<Macro> next_root = macro_token.Parent();
+  do {
+    root = std::move(next_root);
+    next_root = root->Parent();
+  } while (next_root);
+  return root;
+}
+
+// Returns the highest substitution that covers this Stmt, if any.
+std::optional<Macro> Stmt::CoveringSubstitution(void) const noexcept {
+  // If the first token in this Stmt did not come from a macro substitution,
+  // then this Stmt is not covered by a substitution
+  const auto begin_macro_token = BeginToken().MacroLocation();
+  if (!begin_macro_token) {
+    return std::nullopt;
+  }
+
+  // If the last token in this Stmt did not come from a macro substitution,
+  // then this Stmt is not covered by a substitution
+  const auto end_macro_token = EndToken().MacroLocation();
+  if (!end_macro_token) {
+    return std::nullopt;
+  }
+
+  const auto begin_macro_token_root = RootSubstitution(*begin_macro_token);
+  const auto end_macro_token_root = RootSubstitution(*end_macro_token);
+
+  // If the root of the begin token and end token are the same, then return that
+  // root
+  if (begin_macro_token_root && end_macro_token_root &&
+      *begin_macro_token_root == *end_macro_token_root) {
+    return begin_macro_token_root;
+  }
+
+  // Otherwise, this statement was composed of multiple substitution trees, so
+  // return nothing
+  return std::nullopt;
+}
+
+// Returns true if we can follow the given token's derived locations to a reach
+// a token that has a macro location whose parent is the specified macro.
+inline bool IsTokenDerivedFromMacro(const Token &token, const Macro &macro) {
+  for (auto derived_tok = std::optional(token); derived_tok;
+       derived_tok = derived_tok->DerivedLocation()) {
+    auto macro_tok = derived_tok->MacroLocation();
+    if (!macro_tok) {
+      continue;
+    }
+    
+    auto containing_macro = macro_tok->Parent();
+    if (macro == containing_macro.value()) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Returns the lowest macro argument that contains this Stmt, if any.
+std::optional<MacroArgument>
+Stmt::LowestContainingMacroArgument(void) const noexcept {
+  // Algorithm:
+  // 1. Find the lowest macro argument that the first token in this Stmt was
+  //    expanded from.
+  // 2. Check if every other token in the Stmt was also expanded from this
+  //    argument at some point.
+  // 3. If so, then return the argument that the first token was expanded from.
+  // 4. Otherwise, find the next-lowest macro argument that the first token was
+  //    expanded from and repeat steps 2 and 3.
+  //    If we reach a point where the first token is no longer expanded from a
+  //    macro argument, then return std::nullopt.
+  for (auto begin = std::optional(*Tokens().begin()); begin;
+       begin = begin->DerivedLocation()) {
+    auto macro_tok = begin->MacroLocation();
+    if (!macro_tok) {
+      continue;
+    }
+
+    auto containing_macro = macro_tok->Parent();
+    if (containing_macro->Kind() == MacroKind::kArgument) {
+      if (std::all_of(
+        Tokens().begin(), Tokens().end(),
+        [&containing_macro](const Token token) {
+          return IsTokenDerivedFromMacro(token, containing_macro.value());
+        })) {
+        return MacroArgument::From(containing_macro.value());
+      }
+    }
+  }
+  return std::nullopt;
+}
 
 // Is this a field designator?
 bool Designator::IsFieldDesignator(void) const noexcept {

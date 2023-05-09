@@ -31,6 +31,7 @@ void GenerateStmtH(void) {
       << "#include \"Attr.h\"\n"
       << "#include \"DeclHead.h\"\n\n"
       << "#include \"StmtManual.h\"\n\n"
+      << "#include \"Macro.h\"\n\n"
       << "#define PASTA_DEFINE_DEFAULT_STMT_CONSTRUCTOR(base) \\\n"
       << "    friend class AST; \\\n"
       << "    friend class ASTImpl; \\\n"
@@ -91,7 +92,9 @@ void GenerateStmtH(void) {
 
     if (name_ref == "Stmt") {
       os << "  friend class TokenContext;\n"
-         << "  static std::optional<::pasta::Stmt> From(const TokenContext &);\n";
+         << "  static std::optional<::pasta::Stmt> From(const TokenContext &);\n"
+         << "  std::optional<::pasta::Macro> CoveringSubstitution(void) const noexcept;\n"
+         << "  std::optional<::pasta::MacroArgument> LowestContainingMacroArgument(void) const noexcept;\n";
     }
 
     // Constructors from derived class -> base class.

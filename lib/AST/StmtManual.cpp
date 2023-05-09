@@ -15,23 +15,27 @@
 #include "AST.h"
 #include "Builder.h"
 
+#include <algorithm>
+
 namespace pasta {
 
 #ifndef PASTA_IN_BOOTSTRAP
 
 // Follow a macro token's parent chain to the end, and returns the final parent.
 // If the macro token has no parent, this returns std::nullopt;
-std::optional<pasta::Macro>
-GetRootSubstitution(const pasta::MacroToken &macro_token) noexcept {
-  auto root = std::optional(macro_token.Parent());
-  while (root && root->Parent()) {
-    root = root->Parent();
-  }
+std::optional<Macro>
+GetRootSubstitution(const MacroToken &macro_token) noexcept {
+  std::optional<Macro> root;
+  std::optional<Macro> next_root = macro_token.Parent();
+  do {
+    root = std::move(next_root);
+    next_root = root->Parent();
+  } while (next_root);
   return root;
 }
 
 // Returns the highest substitution that covers this Stmt, if any.
-std::optional<pasta::Macro> Stmt::GetCoveringSubstitution() const noexcept {
+std::optional<Macro> Stmt::GetCoveringSubstitution(void) const noexcept {
   // If the first token in this Stmt did not come from a macro substitution,
   // then this Stmt is not covered by a substitution
   const auto begin_macro_token = BeginToken().MacroLocation();
@@ -41,7 +45,7 @@ std::optional<pasta::Macro> Stmt::GetCoveringSubstitution() const noexcept {
 
   // If the last token in this Stmt did not come from a macro substitution,
   // then this Stmt is not covered by a substitution
-  const auto end_macro_token = BeginToken().MacroLocation();
+  const auto end_macro_token = EndToken().MacroLocation();
   if (!end_macro_token) {
     return std::nullopt;
   }
@@ -64,21 +68,24 @@ std::optional<pasta::Macro> Stmt::GetCoveringSubstitution() const noexcept {
 // Returns true if we can follow the given token's derived locations to a reach
 // a token that has a macro location whose parent is the specified macro.
 inline bool IsTokenDerivedFromMacro(const Token &token, const Macro &macro) {
-  auto derived_token = std::optional(token);
-  while (derived_token) {
-    if (derived_token->MacroLocation() &&
-        derived_token->MacroLocation()->Parent() &&
-        macro == derived_token->MacroLocation()->Parent()) {
+  for (auto derived_tok = std::optional(token); derived_tok;
+       derived_tok = derived_tok->DerivedLocation()) {
+    auto macro_tok = derived_tok->MacroLocation();
+    if (!macro_tok) {
+      continue;
+    }
+    
+    auto containing_macro = macro_tok->Parent();
+    if (macro == containing_macro.value()) {
       return true;
     }
-    derived_token = derived_token->DerivedLocation();
   }
   return false;
 }
 
 // Returns the lowest macro argument that contains this Stmt, if any.
-std::optional<::pasta::MacroArgument>
-Stmt::GetLowestContainingMacroArgument() const noexcept {
+std::optional<MacroArgument>
+Stmt::GetLowestContainingMacroArgument(void) const noexcept {
   // Algorithm:
   // 1. Find the lowest macro argument that the first token in this Stmt was
   //    expanded from.
@@ -89,21 +96,23 @@ Stmt::GetLowestContainingMacroArgument() const noexcept {
   //    expanded from and repeat steps 2 and 3.
   //    If we reach a point where the first token is no longer expanded from a
   //    macro argument, then return std::nullopt.
-  auto begin = std::optional(*Tokens().begin());
-  while (begin) {
-    if (begin->MacroLocation() &&
-        begin->MacroLocation()->Parent() &&
-        begin->MacroLocation()->Parent()->Kind() == MacroKind::kArgument) {
-      const auto macro = *begin->MacroLocation()->Parent();
+  for (auto begin = std::optional(*Tokens().begin()); begin;
+       begin = begin->DerivedLocation()) {
+    auto macro_tok = begin->MacroLocation();
+    if (!macro_tok) {
+      continue;
+    }
+
+    auto containing_macro = macro_tok->Parent();
+    if (containing_macro->Kind() == MacroKind::kArgument) {
       if (std::all_of(
         Tokens().begin(), Tokens().end(),
-        [&macro](const Token token) {
-          return IsTokenDerivedFromMacro(token, macro);
+        [&containing_macro](const Token token) {
+          return IsTokenDerivedFromMacro(token, containing_macro.value());
         })) {
-        return MacroArgument::From(macro);
+        return MacroArgument::From(containing_macro.value());
       }
     }
-    begin = begin->DerivedLocation();
   }
   return std::nullopt;
 }

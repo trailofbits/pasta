@@ -48,6 +48,9 @@ class AST {
   // Return the AST containing a declaration.
   static AST From(const Decl &decl);
 
+  // Return the AST containing a Stmt.
+  static AST From(const Stmt &stmt);
+
   ~AST(void);
   AST(const AST &);
   AST(AST &&) noexcept;

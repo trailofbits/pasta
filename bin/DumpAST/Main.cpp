@@ -137,7 +137,6 @@ int main(int argc, char *argv[]) {
       std::cerr << maybe_ast.TakeError() << std::endl;
       return EXIT_FAILURE;
     } else {
-      return EXIT_SUCCESS;
       DumpAST(maybe_ast.TakeValue());
     }
   }

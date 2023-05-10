@@ -1041,13 +1041,15 @@ enum AvailabilityResult Decl::Availability(void) const {
   throw std::runtime_error("Decl::CanonicalDeclaration can return nullptr!");
 }
 
-::pasta::DeclContext Decl::DeclarationContext(void) const {
+std::optional<::pasta::DeclContext> Decl::DeclarationContext(void) const {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.getDeclContext();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return ::pasta::DeclContext(ast, val);
   }
-  throw std::runtime_error("Decl::DeclarationContext can return nullptr!");
 }
 
 std::optional<::pasta::Attr> Decl::DefiningAttribute(void) const {

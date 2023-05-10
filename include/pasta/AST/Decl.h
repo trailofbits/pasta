@@ -350,7 +350,7 @@ class Decl {
   enum AvailabilityResult Availability(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Decl CanonicalDeclaration(void) const;
-  ::pasta::DeclContext DeclarationContext(void) const;
+  std::optional<::pasta::DeclContext> DeclarationContext(void) const;
   std::optional<::pasta::Attr> DefiningAttribute(void) const;
   std::optional<::pasta::TemplateDecl> DescribedTemplate(void) const;
   std::optional<::pasta::TemplateParameterList> DescribedTemplateParameters(void) const;

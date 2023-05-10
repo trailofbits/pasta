@@ -3410,13 +3410,15 @@ TranslationUnitDecl::TranslationUnitDecl(
 PASTA_DEFINE_BASE_OPERATORS(DeclContext, TranslationUnitDecl)
 PASTA_DEFINE_BASE_OPERATORS(Decl, TranslationUnitDecl)
 // 0: TranslationUnitDecl::ASTContext
-::pasta::NamespaceDecl TranslationUnitDecl::AnonymousNamespace(void) const {
+std::optional<::pasta::NamespaceDecl> TranslationUnitDecl::AnonymousNamespace(void) const {
   auto &self = *const_cast<clang::TranslationUnitDecl *>(u.TranslationUnitDecl);
   decltype(auto) val = self.getAnonymousNamespace();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::NamespaceDecl>(ast, val);
   }
-  throw std::runtime_error("TranslationUnitDecl::AnonymousNamespace can return nullptr!");
 }
 
 TypeDecl::TypeDecl(

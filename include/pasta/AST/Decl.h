@@ -1269,7 +1269,7 @@ class TranslationUnitDecl : public Decl {
   PASTA_DECLARE_BASE_OPERATORS(DeclContext, TranslationUnitDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, TranslationUnitDecl)
   // ASTContext: (clang::ASTContext &)
-  ::pasta::NamespaceDecl AnonymousNamespace(void) const;
+  std::optional<::pasta::NamespaceDecl> AnonymousNamespace(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(TranslationUnitDecl)
 };

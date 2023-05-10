@@ -85,6 +85,10 @@ AST AST::From(const Decl &decl) {
   return AST(decl.ast);
 }
 
+AST AST::From(const Stmt &stmt) {
+  return AST(stmt.ast);
+}
+
 AST::~AST(void) {}
 
 AST::AST(const AST &that) : impl(that.impl) {}

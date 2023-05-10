@@ -10,6 +10,8 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterAllAST(py::module_ &m) {
+void RegisterEnums(py::module_ &m);
+  RegisterEnums(m);
 void RegisterAttr(py::module_ &m);
   RegisterAttr(m);
 void RegisterBuiltinAliasAttr(py::module_ &m);

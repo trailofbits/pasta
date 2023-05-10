@@ -5,6 +5,7 @@
 # This file is auto-generated.
 
 set(PASTA_PYTHON_AST_SOURCES
+    "/Users/frabert/multiplier/src/pasta/bindings/python/src/AST/Enums.cpp"
     "/Users/frabert/multiplier/src/pasta/bindings/python/src/AST/Attr.cpp"
     "/Users/frabert/multiplier/src/pasta/bindings/python/src/AST/BuiltinAliasAttr.cpp"
     "/Users/frabert/multiplier/src/pasta/bindings/python/src/AST/CalledOnceAttr.cpp"

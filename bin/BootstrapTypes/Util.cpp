@@ -3,7 +3,11 @@
  */
 
 #include "Util.h"
+#include <clang/Basic/CharInfo.h>
 #include "Globals.h"
+
+#include <algorithm>
+#include <string>
 
 
 #define DECL_STR1(d) #d
@@ -327,4 +331,8 @@ std::string CapitalCaseToSnakeCase(llvm::StringRef name) {
   }
 
   return res;
+}
+
+void ToUppercase(std::string &str) {
+  std::transform(str.begin(), str.end(), str.begin(), clang::toUppercase);
 }

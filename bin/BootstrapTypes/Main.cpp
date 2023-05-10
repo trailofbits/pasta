@@ -54,7 +54,7 @@ void MapTypeRetTypes(void);
 void MapAttrRetTypes(void);
 
 // Generate `include/pasta/AST/Forward.h`.
-void GenerateForwardH(void);
+void GenerateForwardH(std::ostream& os_py);
 
 // Generate `include/pasta/AST/Decl.h`.
 void GenerateDeclH(void);
@@ -217,8 +217,11 @@ int main(void) {
   MapTypeRetTypes();
   MapAttrRetTypes();
 
+  std::string python_bindings_path = kPythonBindingsPath;
+
   // NOTE(pag): This also maps enum return types.
-  GenerateForwardH();
+  std::ofstream enums_os_py(python_bindings_path + "/Enums.cpp");
+  GenerateForwardH(enums_os_py);
 
   // Generate headers first; they fill up `gIterators`.
   GenerateAttrH();
@@ -226,7 +229,6 @@ int main(void) {
   GenerateStmtH();
   GenerateTypeH();
 
-  std::string python_bindings_path = kPythonBindingsPath;
   std::ofstream py_cmake(python_bindings_path + "/CMakeLists.txt");
   std::ofstream py_ast(python_bindings_path + "/AST.cpp");
 
@@ -237,7 +239,7 @@ int main(void) {
 # This file is auto-generated.
 
 set(PASTA_PYTHON_AST_SOURCES
-)";
+    ")" << python_bindings_path << "/Enums.cpp\"\n";
   py_ast << R"(/*
  * Copyright (c) 2023 Trail of Bits, Inc.
  */
@@ -250,6 +252,8 @@ namespace pasta {
 namespace py = pybind11;
 
 void RegisterAllAST(py::module_ &m) {
+void RegisterEnums(py::module_ &m);
+  RegisterEnums(m);
 )";
 
   GenerateAttrCpp(py_cmake, py_ast);

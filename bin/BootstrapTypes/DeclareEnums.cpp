@@ -168,7 +168,7 @@ static std::string RenameEnumerator(const std::string &name) {
 }
 
 #define PASTA_BEGIN_NAMED_ENUM(enum_name, underlying_type) \
-    static void DeclareEnum_ ## enum_name(std::ostream &os) { \
+    static void DeclareEnum_ ## enum_name(std::ostream &os, std::ostream &os_py) { \
       auto enum_name_str = RenameEnum(PASTA_STR(enum_name)); \
       auto &enumerators = gEnumerators[enum_name_str]; \
       gRetTypeMap.emplace( \
@@ -178,10 +178,11 @@ static std::string RenameEnumerator(const std::string &name) {
           "(clang::" PASTA_STR(enum_name) ")", \
           "  return static_cast<::pasta::" + enum_name_str + ">(val);\n"); \
       os << "enum class " << enum_name_str \
-         << " : " << PASTA_STR(PASTA_SPLAT underlying_type) << " {\n";
+         << " : " << PASTA_STR(PASTA_SPLAT underlying_type) << " {\n"; \
+      os_py << "  py::enum_<pasta::" << enum_name_str << ">(m, \"" << enum_name_str << "\")";
 
 #define PASTA_BEGIN_CLASS_NAMED_ENUM(class_name, enum_name, underlying_type) \
-    static void DeclareEnum_ ## class_name ## _ ## enum_name(std::ostream &os) { \
+    static void DeclareEnum_ ## class_name ## _ ## enum_name(std::ostream &os, std::ostream &os_py) { \
       auto enum_name_str = RenameEnum(PASTA_STR(class_name) PASTA_STR(enum_name)); \
       auto &enumerators = gEnumerators[enum_name_str]; \
       gRetTypeMap.emplace( \
@@ -191,7 +192,8 @@ static std::string RenameEnumerator(const std::string &name) {
           "(clang::" PASTA_STR(class_name) "::" PASTA_STR(enum_name) ")", \
           "  return static_cast<::pasta::" + enum_name_str + ">(val);\n"); \
       os << "enum class " << enum_name_str \
-         << " : " << PASTA_STR(PASTA_SPLAT underlying_type) << " {\n";
+         << " : " << PASTA_STR(PASTA_SPLAT underlying_type) << " {\n"; \
+      os_py << "  py::enum_<pasta::" << enum_name_str << ">(m, \"" << enum_name_str << "\")";
 
 
 #define PASTA_NAMED_ENUMERATOR(enumerator_name_, underlying_type, val) \
@@ -206,6 +208,10 @@ static std::string RenameEnumerator(const std::string &name) {
         auto enumerator_str = RenameEnumerator(enum_name_str); \
         os << "  k" << enumerator_str << " = " \
            << PASTA_STR(PASTA_SPLAT val) << ",\n"; \
+        auto upper_snake_case = CapitalCaseToSnakeCase(enumerator_str); \
+        ToUppercase(upper_snake_case); \
+        os_py << "\n    .value(\"" << upper_snake_case << "\", pasta::" \
+              << enum_name_str << "::k" << enumerator_str << ")"; \
         enumerators.emplace_back(std::move(enumerator_str)); \
       }
 
@@ -216,6 +222,7 @@ static std::string RenameEnumerator(const std::string &name) {
         os << "  kQualified  // Manually added.\n"; \
       } \
       os << "};\n\n"; \
+      os_py << ";\n\n"; \
     }
 
 #define PASTA_END_CLASS_NAMED_ENUM(class_name, enum_name) \
@@ -226,13 +233,13 @@ static std::string RenameEnumerator(const std::string &name) {
 }  // namespace
 
 // Declare PASTA versions of every clang enumeration type from our macro file.
-void DeclareEnums(std::ostream &os) {
+void DeclareEnums(std::ostream &os, std::ostream &os_py) {
 
 #define PASTA_BEGIN_NAMED_ENUM(enum_name, underlying_type) \
-    DeclareEnum_ ## enum_name(os);
+    DeclareEnum_ ## enum_name(os, os_py);
 
 #define PASTA_BEGIN_CLASS_NAMED_ENUM(class_name, enum_name, underlying_type) \
-    DeclareEnum_ ## class_name ## _ ## enum_name(os);
+    DeclareEnum_ ## class_name ## _ ## enum_name(os, os_py);
 
 #include "Generated.h"
 }

@@ -7,6 +7,7 @@
 #ifdef PASTA_IN_BOOTSTRAP
 
 #include <memory>
+#include <optional>
 #include <string_view>
 
 namespace clang {
@@ -17,6 +18,8 @@ namespace pasta {
 class AST;
 class ASTImpl;
 enum class DeclKind : unsigned;
+class Token;
+class TokenContext;
 
 class Decl {
  public:
@@ -44,6 +47,10 @@ class Decl {
   inline const clang::Decl *RawDecl(void) const noexcept {
     return u.Decl;
   }
+
+  static std::optional<Decl> From(const TokenContext &);
+  Token BeginToken(void) const noexcept;
+  Token EndToken(void) const noexcept;
 
  private:
   Decl(void) = delete;

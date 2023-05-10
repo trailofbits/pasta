@@ -7,6 +7,7 @@
 #ifdef PASTA_IN_BOOTSTRAP
 
 #include <memory>
+#include <optional>
 #include <string_view>
 
 namespace clang {
@@ -17,6 +18,8 @@ namespace pasta {
 class AST;
 class ASTImpl;
 enum class StmtKind : unsigned;
+class Token;
+class TokenContext;
 
 class Stmt {
  public:
@@ -40,6 +43,10 @@ class Stmt {
   }
 
   std::string_view KindName(void) const noexcept;
+
+  static std::optional<Stmt> From(const TokenContext &);
+  Token BeginToken(void) const noexcept;
+  Token EndToken(void) const noexcept;
 
  private:
   Stmt(void) = delete;

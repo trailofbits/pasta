@@ -880,6 +880,108 @@ MacroRange MacroSubstitution::ReplacementChildren(void) const noexcept {
   }
 }
 
+// Returns the first and last fully substituted tokens from a given macro
+// substitution, if they exist.
+std::pair<std::optional<Token>, std::optional<Token>>
+GetFirstAndLastFullySubstitutedTokens(
+  MacroSubstitution const &substitution) noexcept {
+
+  // Get the fully substituted first token
+  std::optional<Token> first_tok = std::nullopt;
+  {
+    auto subst = std::optional(substitution);
+    auto first_replacement_child = std::optional<Macro>();
+    while (subst && !subst->ReplacementChildren().empty()) {
+      // Traverse the next begin token
+      first_replacement_child = *subst->ReplacementChildren().begin();
+      subst = MacroSubstitution::From(*first_replacement_child);
+    }
+    if (first_replacement_child) {
+      const auto first_macro_tok = MacroToken::From(*first_replacement_child);
+      if (first_macro_tok) {
+        first_tok = std::optional(first_macro_tok->ParsedLocation());
+      }
+    }
+  }
+
+  // Get the last substituted first token
+  std::optional<Token> last_tok = std::nullopt;
+  {
+    auto subst = std::optional(substitution);
+    auto last_replacement_child = std::optional<Macro>();
+    while (subst && !subst->ReplacementChildren().empty()) {
+      // Traverse the next end token
+      last_replacement_child = *(subst->ReplacementChildren().end() - 1);
+      subst = MacroSubstitution::From(*last_replacement_child);
+    }
+    if (last_replacement_child) {
+      const auto last_macro_tok = MacroToken::From(*last_replacement_child);
+      if (last_macro_tok) {
+        last_tok = std::optional(last_macro_tok->ParsedLocation());
+      }
+    }
+  }
+
+  return std::pair(first_tok, last_tok);
+}
+
+
+// Returns the Stmt in the AST that was parsed from the tokens this macro
+// substitution expanded to, if any.
+std::optional<Stmt> MacroSubstitution::GetCoveredStmt(void) const noexcept {
+  // Get the first and last tokens of the entire substitution.
+  const auto [first_tok, last_tok] =
+    GetFirstAndLastFullySubstitutedTokens(*this);
+
+  // Check that the substitution actually expands to at least one token.
+  if (!(first_tok && last_tok)) {
+    return std::nullopt;
+  }
+
+  // Walk up the tokens' context tree until we find a Stmt whose first and
+  // last tokens are the first and last fully expanded tokens.
+  auto ctx = first_tok->Context();
+  while (ctx) {
+    if (const auto stmt = Stmt::From(*ctx)) {
+      if (first_tok.value() == stmt->BeginToken() &&
+          last_tok.value() == stmt->EndToken()) {
+        return stmt;
+      }
+    }
+    ctx = ctx->Parent();
+  }
+
+  return std::nullopt;
+}
+
+// Returns the Decl in the AST that was parsed from the tokens this macro
+// substitution expanded to, if any.
+std::optional<Decl> MacroSubstitution::GetCoveredDecl(void) const noexcept {
+  // Get the first and last tokens of the entire substitution.
+  const auto [first_tok, last_tok] =
+    GetFirstAndLastFullySubstitutedTokens(*this);
+
+  // Check that the substitution actually expands to at least one token.
+  if (!(first_tok && last_tok)) {
+    return std::nullopt;
+  }
+
+  // Walk up the tokens' context tree until we find a Decl whose first and
+  // last tokens are the first and last fully expanded tokens.
+  auto ctx = first_tok->Context();
+  while (ctx) {
+    if (const auto decl = Decl::From(*ctx)) {
+      if (first_tok.value() == decl->BeginToken() &&
+          last_tok.value() == decl->EndToken()) {
+        return decl;
+      }
+    }
+    ctx = ctx->Parent();
+  }
+
+  return std::nullopt;
+}
+
 MacroParameter MacroParameterSubstitution::Parameter(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);

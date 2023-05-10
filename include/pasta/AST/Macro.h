@@ -14,6 +14,7 @@ namespace pasta {
 
 class AST;
 class ASTImpl;
+class Decl;
 class File;
 class FileToken;
 class FileTokenRange;
@@ -37,6 +38,7 @@ class MacroTokenImpl;
 class PatchedMacroTracker;
 class SkippedTokenRange;
 class SkippedTokenRangeImpl;
+class Stmt;
 class Token;
 class TokenContext;
 class TokenImpl;
@@ -117,12 +119,13 @@ class Macro {
 
   const void *RawMacro(void) const noexcept;
 
-  inline std::strong_ordering operator<=>(const Macro &that) const noexcept {
-    return RawMacro() <=> that.RawMacro();
+  inline bool operator==(const Macro &that) const noexcept {
+    return RawMacro() == that.RawMacro();
   }
 
-  bool operator==(const Macro &) const noexcept = default;
-  bool operator!=(const Macro &) const noexcept = default;
+  inline bool operator!=(const Macro &that) const noexcept {
+    return RawMacro() != that.RawMacro();
+  }
 
   // Return the macro node containing this node.
   std::optional<Macro> Parent(void) const noexcept;
@@ -375,6 +378,14 @@ class MacroSubstitution : public Macro {
   }
 
   MacroRange ReplacementChildren(void) const noexcept;
+
+  // Returns the Stmt in the AST that was parsed from the tokens this macro
+  // substitution expanded to, if any.
+  std::optional<Stmt> GetCoveredStmt(void) const noexcept;
+
+  // Returns the Decl in the AST that was parsed from the tokens this macro
+  // substitution expanded to, if any.
+  std::optional<Decl> GetCoveredDecl(void) const noexcept;
 };
 
 static_assert(sizeof(MacroSubstitution) == sizeof(Macro));

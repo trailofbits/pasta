@@ -15,5 +15,8 @@ void RegisterAST(py::module_ &m) {
     .def_property_readonly("translation_unit", &AST::TranslationUnit)
     .def_property_readonly("main_file", &AST::MainFile)
     .def_property_readonly("parsed_files", &AST::ParsedFiles);
+
+  py::class_<Token>(m, "Token");
+  py::class_<Macro>(m, "Macro");
 }
 }  // namespace pasta

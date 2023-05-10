@@ -465,7 +465,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(Attr, ZeroCallUsedRegsAttr)
   auto &self = *const_cast<clang::Attr *>(u.Attr);
   decltype(auto) val = self.getLocation();
   return ast->TokenAt(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view Attr::Spelling(void) const {
@@ -476,43 +475,37 @@ std::string_view Attr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "Attr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("Attr::Spelling can return nullptr!");
 }
 
 uint32_t Attr::SpellingListIndex(void) const {
   auto &self = *const_cast<clang::Attr *>(u.Attr);
   decltype(auto) val = self.getSpellingListIndex();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 bool Attr::IsImplicit(void) const {
   auto &self = *const_cast<clang::Attr *>(u.Attr);
   decltype(auto) val = self.isImplicit();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 bool Attr::IsInherited(void) const {
   auto &self = *const_cast<clang::Attr *>(u.Attr);
   decltype(auto) val = self.isInherited();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 bool Attr::IsLateParsed(void) const {
   auto &self = *const_cast<clang::Attr *>(u.Attr);
   decltype(auto) val = self.isLateParsed();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 bool Attr::IsPackExpansion(void) const {
   auto &self = *const_cast<clang::Attr *>(u.Attr);
   decltype(auto) val = self.isPackExpansion();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 BuiltinAliasAttr::BuiltinAliasAttr(
@@ -527,7 +520,6 @@ enum BuiltinAliasAttrSpelling BuiltinAliasAttr::SemanticSpelling(void) const {
   auto &self = *const_cast<clang::BuiltinAliasAttr *>(u.BuiltinAliasAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::BuiltinAliasAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view BuiltinAliasAttr::Spelling(void) const {
@@ -538,8 +530,7 @@ std::string_view BuiltinAliasAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "BuiltinAliasAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("BuiltinAliasAttr::Spelling can return nullptr!");
 }
 
 CalledOnceAttr::CalledOnceAttr(
@@ -557,8 +548,7 @@ std::string_view CalledOnceAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CalledOnceAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CalledOnceAttr::Spelling can return nullptr!");
 }
 
 IFuncAttr::IFuncAttr(
@@ -576,14 +566,12 @@ std::string_view IFuncAttr::Resolver(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t IFuncAttr::ResolverLength(void) const {
   auto &self = *const_cast<clang::IFuncAttr *>(u.IFuncAttr);
   decltype(auto) val = self.getResolverLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view IFuncAttr::Spelling(void) const {
@@ -594,8 +582,7 @@ std::string_view IFuncAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "IFuncAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("IFuncAttr::Spelling can return nullptr!");
 }
 
 InheritableAttr::InheritableAttr(
@@ -919,7 +906,6 @@ bool InheritableAttr::ShouldInheritEvenIfAlreadyPresent(void) const {
   auto &self = *const_cast<clang::InheritableAttr *>(u.InheritableAttr);
   decltype(auto) val = self.shouldInheritEvenIfAlreadyPresent();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 InheritableParamAttr::InheritableParamAttr(
@@ -955,7 +941,6 @@ uint32_t InitPriorityAttr::Priority(void) const {
   auto &self = *const_cast<clang::InitPriorityAttr *>(u.InitPriorityAttr);
   decltype(auto) val = self.getPriority();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view InitPriorityAttr::Spelling(void) const {
@@ -966,8 +951,7 @@ std::string_view InitPriorityAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "InitPriorityAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("InitPriorityAttr::Spelling can return nullptr!");
 }
 
 InitSegAttr::InitSegAttr(
@@ -985,14 +969,12 @@ std::string_view InitSegAttr::Section(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t InitSegAttr::SectionLength(void) const {
   auto &self = *const_cast<clang::InitSegAttr *>(u.InitSegAttr);
   decltype(auto) val = self.getSectionLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view InitSegAttr::Spelling(void) const {
@@ -1003,8 +985,7 @@ std::string_view InitSegAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "InitSegAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("InitSegAttr::Spelling can return nullptr!");
 }
 
 IntelOclBiccAttr::IntelOclBiccAttr(
@@ -1023,8 +1004,7 @@ std::string_view IntelOclBiccAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "IntelOclBiccAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("IntelOclBiccAttr::Spelling can return nullptr!");
 }
 
 InternalLinkageAttr::InternalLinkageAttr(
@@ -1043,8 +1023,7 @@ std::string_view InternalLinkageAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "InternalLinkageAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("InternalLinkageAttr::Spelling can return nullptr!");
 }
 
 LTOVisibilityPublicAttr::LTOVisibilityPublicAttr(
@@ -1063,8 +1042,7 @@ std::string_view LTOVisibilityPublicAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "LTOVisibilityPublicAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("LTOVisibilityPublicAttr::Spelling can return nullptr!");
 }
 
 LayoutVersionAttr::LayoutVersionAttr(
@@ -1083,15 +1061,13 @@ std::string_view LayoutVersionAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "LayoutVersionAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("LayoutVersionAttr::Spelling can return nullptr!");
 }
 
 uint32_t LayoutVersionAttr::Version(void) const {
   auto &self = *const_cast<clang::LayoutVersionAttr *>(u.LayoutVersionAttr);
   decltype(auto) val = self.getVersion();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 LeafAttr::LeafAttr(
@@ -1110,8 +1086,7 @@ std::string_view LeafAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "LeafAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("LeafAttr::Spelling can return nullptr!");
 }
 
 LifetimeBoundAttr::LifetimeBoundAttr(
@@ -1130,8 +1105,7 @@ std::string_view LifetimeBoundAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "LifetimeBoundAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("LifetimeBoundAttr::Spelling can return nullptr!");
 }
 
 LoaderUninitializedAttr::LoaderUninitializedAttr(
@@ -1149,8 +1123,7 @@ std::string_view LoaderUninitializedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "LoaderUninitializedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("LoaderUninitializedAttr::Spelling can return nullptr!");
 }
 
 LockReturnedAttr::LockReturnedAttr(
@@ -1167,8 +1140,7 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, LockReturnedAttr)
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "LockReturnedAttr::Argument can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("LockReturnedAttr::Argument can return nullptr!");
 }
 
 std::string_view LockReturnedAttr::Spelling(void) const {
@@ -1179,8 +1151,7 @@ std::string_view LockReturnedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "LockReturnedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("LockReturnedAttr::Spelling can return nullptr!");
 }
 
 LocksExcludedAttr::LocksExcludedAttr(
@@ -1203,8 +1174,7 @@ std::string_view LocksExcludedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "LocksExcludedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("LocksExcludedAttr::Spelling can return nullptr!");
 }
 
 LoopHintAttr::LoopHintAttr(
@@ -1219,14 +1189,12 @@ enum LoopHintAttrOptionType LoopHintAttr::Option(void) const {
   auto &self = *const_cast<clang::LoopHintAttr *>(u.LoopHintAttr);
   decltype(auto) val = self.getOption();
   return static_cast<::pasta::LoopHintAttrOptionType>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 enum LoopHintAttrSpelling LoopHintAttr::SemanticSpelling(void) const {
   auto &self = *const_cast<clang::LoopHintAttr *>(u.LoopHintAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::LoopHintAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view LoopHintAttr::Spelling(void) const {
@@ -1237,15 +1205,13 @@ std::string_view LoopHintAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "LoopHintAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("LoopHintAttr::Spelling can return nullptr!");
 }
 
 enum LoopHintAttrLoopHintState LoopHintAttr::State(void) const {
   auto &self = *const_cast<clang::LoopHintAttr *>(u.LoopHintAttr);
   decltype(auto) val = self.getState();
   return static_cast<::pasta::LoopHintAttrLoopHintState>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::optional<::pasta::Expr> LoopHintAttr::Value(void) const {
@@ -1257,7 +1223,6 @@ std::optional<::pasta::Expr> LoopHintAttr::Value(void) const {
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: LoopHintAttr::ValueString
@@ -1273,7 +1238,6 @@ uint32_t M68kInterruptAttr::Number(void) const {
   auto &self = *const_cast<clang::M68kInterruptAttr *>(u.M68kInterruptAttr);
   decltype(auto) val = self.getNumber();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view M68kInterruptAttr::Spelling(void) const {
@@ -1284,8 +1248,7 @@ std::string_view M68kInterruptAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "M68kInterruptAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("M68kInterruptAttr::Spelling can return nullptr!");
 }
 
 MIGServerRoutineAttr::MIGServerRoutineAttr(
@@ -1304,8 +1267,7 @@ std::string_view MIGServerRoutineAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "MIGServerRoutineAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("MIGServerRoutineAttr::Spelling can return nullptr!");
 }
 
 MSABIAttr::MSABIAttr(
@@ -1324,8 +1286,7 @@ std::string_view MSABIAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "MSABIAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("MSABIAttr::Spelling can return nullptr!");
 }
 
 MSAllocatorAttr::MSAllocatorAttr(
@@ -1344,8 +1305,7 @@ std::string_view MSAllocatorAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "MSAllocatorAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("MSAllocatorAttr::Spelling can return nullptr!");
 }
 
 MSInheritanceAttr::MSInheritanceAttr(
@@ -1360,21 +1320,18 @@ bool MSInheritanceAttr::BestCase(void) const {
   auto &self = *const_cast<clang::MSInheritanceAttr *>(u.MSInheritanceAttr);
   decltype(auto) val = self.getBestCase();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 enum MSInheritanceModel MSInheritanceAttr::InheritanceModel(void) const {
   auto &self = *const_cast<clang::MSInheritanceAttr *>(u.MSInheritanceAttr);
   decltype(auto) val = self.getInheritanceModel();
   return static_cast<::pasta::MSInheritanceModel>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 enum MSInheritanceAttrSpelling MSInheritanceAttr::SemanticSpelling(void) const {
   auto &self = *const_cast<clang::MSInheritanceAttr *>(u.MSInheritanceAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::MSInheritanceAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view MSInheritanceAttr::Spelling(void) const {
@@ -1385,8 +1342,7 @@ std::string_view MSInheritanceAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "MSInheritanceAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("MSInheritanceAttr::Spelling can return nullptr!");
 }
 
 MSNoVTableAttr::MSNoVTableAttr(
@@ -1405,8 +1361,7 @@ std::string_view MSNoVTableAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "MSNoVTableAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("MSNoVTableAttr::Spelling can return nullptr!");
 }
 
 MSP430InterruptAttr::MSP430InterruptAttr(
@@ -1421,7 +1376,6 @@ uint32_t MSP430InterruptAttr::Number(void) const {
   auto &self = *const_cast<clang::MSP430InterruptAttr *>(u.MSP430InterruptAttr);
   decltype(auto) val = self.getNumber();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view MSP430InterruptAttr::Spelling(void) const {
@@ -1432,8 +1386,7 @@ std::string_view MSP430InterruptAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "MSP430InterruptAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("MSP430InterruptAttr::Spelling can return nullptr!");
 }
 
 MSStructAttr::MSStructAttr(
@@ -1452,8 +1405,7 @@ std::string_view MSStructAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "MSStructAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("MSStructAttr::Spelling can return nullptr!");
 }
 
 MSVtorDispAttr::MSVtorDispAttr(
@@ -1472,22 +1424,19 @@ std::string_view MSVtorDispAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "MSVtorDispAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("MSVtorDispAttr::Spelling can return nullptr!");
 }
 
 uint32_t MSVtorDispAttr::Vdm(void) const {
   auto &self = *const_cast<clang::MSVtorDispAttr *>(u.MSVtorDispAttr);
   decltype(auto) val = self.getVdm();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 enum MSVtorDispMode MSVtorDispAttr::VtorDispMode(void) const {
   auto &self = *const_cast<clang::MSVtorDispAttr *>(u.MSVtorDispAttr);
   decltype(auto) val = self.getVtorDispMode();
   return static_cast<::pasta::MSVtorDispMode>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 MaxFieldAlignmentAttr::MaxFieldAlignmentAttr(
@@ -1502,7 +1451,6 @@ uint32_t MaxFieldAlignmentAttr::Alignment(void) const {
   auto &self = *const_cast<clang::MaxFieldAlignmentAttr *>(u.MaxFieldAlignmentAttr);
   decltype(auto) val = self.getAlignment();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view MaxFieldAlignmentAttr::Spelling(void) const {
@@ -1513,8 +1461,7 @@ std::string_view MaxFieldAlignmentAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "MaxFieldAlignmentAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("MaxFieldAlignmentAttr::Spelling can return nullptr!");
 }
 
 MayAliasAttr::MayAliasAttr(
@@ -1533,8 +1480,7 @@ std::string_view MayAliasAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "MayAliasAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("MayAliasAttr::Spelling can return nullptr!");
 }
 
 MaybeUndefAttr::MaybeUndefAttr(
@@ -1553,8 +1499,7 @@ std::string_view MaybeUndefAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "MaybeUndefAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("MaybeUndefAttr::Spelling can return nullptr!");
 }
 
 MicroMipsAttr::MicroMipsAttr(
@@ -1573,8 +1518,7 @@ std::string_view MicroMipsAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "MicroMipsAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("MicroMipsAttr::Spelling can return nullptr!");
 }
 
 MinSizeAttr::MinSizeAttr(
@@ -1593,8 +1537,7 @@ std::string_view MinSizeAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "MinSizeAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("MinSizeAttr::Spelling can return nullptr!");
 }
 
 MinVectorWidthAttr::MinVectorWidthAttr(
@@ -1613,15 +1556,13 @@ std::string_view MinVectorWidthAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "MinVectorWidthAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("MinVectorWidthAttr::Spelling can return nullptr!");
 }
 
 uint32_t MinVectorWidthAttr::VectorWidth(void) const {
   auto &self = *const_cast<clang::MinVectorWidthAttr *>(u.MinVectorWidthAttr);
   decltype(auto) val = self.getVectorWidth();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 Mips16Attr::Mips16Attr(
@@ -1640,8 +1581,7 @@ std::string_view Mips16Attr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "Mips16Attr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("Mips16Attr::Spelling can return nullptr!");
 }
 
 MipsInterruptAttr::MipsInterruptAttr(
@@ -1656,7 +1596,6 @@ enum MipsInterruptAttrInterruptType MipsInterruptAttr::Interrupt(void) const {
   auto &self = *const_cast<clang::MipsInterruptAttr *>(u.MipsInterruptAttr);
   decltype(auto) val = self.getInterrupt();
   return static_cast<::pasta::MipsInterruptAttrInterruptType>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view MipsInterruptAttr::Spelling(void) const {
@@ -1667,8 +1606,7 @@ std::string_view MipsInterruptAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "MipsInterruptAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("MipsInterruptAttr::Spelling can return nullptr!");
 }
 
 MipsLongCallAttr::MipsLongCallAttr(
@@ -1683,7 +1621,6 @@ enum MipsLongCallAttrSpelling MipsLongCallAttr::SemanticSpelling(void) const {
   auto &self = *const_cast<clang::MipsLongCallAttr *>(u.MipsLongCallAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::MipsLongCallAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view MipsLongCallAttr::Spelling(void) const {
@@ -1694,8 +1631,7 @@ std::string_view MipsLongCallAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "MipsLongCallAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("MipsLongCallAttr::Spelling can return nullptr!");
 }
 
 MipsShortCallAttr::MipsShortCallAttr(
@@ -1710,7 +1646,6 @@ enum MipsShortCallAttrSpelling MipsShortCallAttr::SemanticSpelling(void) const {
   auto &self = *const_cast<clang::MipsShortCallAttr *>(u.MipsShortCallAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::MipsShortCallAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view MipsShortCallAttr::Spelling(void) const {
@@ -1721,8 +1656,7 @@ std::string_view MipsShortCallAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "MipsShortCallAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("MipsShortCallAttr::Spelling can return nullptr!");
 }
 
 ModeAttr::ModeAttr(
@@ -1741,8 +1675,7 @@ std::string_view ModeAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ModeAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ModeAttr::Spelling can return nullptr!");
 }
 
 NSConsumedAttr::NSConsumedAttr(
@@ -1762,8 +1695,7 @@ std::string_view NSConsumedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NSConsumedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NSConsumedAttr::Spelling can return nullptr!");
 }
 
 NSConsumesSelfAttr::NSConsumesSelfAttr(
@@ -1782,8 +1714,7 @@ std::string_view NSConsumesSelfAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NSConsumesSelfAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NSConsumesSelfAttr::Spelling can return nullptr!");
 }
 
 NSErrorDomainAttr::NSErrorDomainAttr(
@@ -1800,8 +1731,7 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, NSErrorDomainAttr)
   if (val) {
     return DeclBuilder::Create<::pasta::VarDecl>(ast, val);
   }
-  assert(false && "NSErrorDomainAttr::ErrorDomain can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NSErrorDomainAttr::ErrorDomain can return nullptr!");
 }
 
 std::string_view NSErrorDomainAttr::Spelling(void) const {
@@ -1812,8 +1742,7 @@ std::string_view NSErrorDomainAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NSErrorDomainAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NSErrorDomainAttr::Spelling can return nullptr!");
 }
 
 NSReturnsAutoreleasedAttr::NSReturnsAutoreleasedAttr(
@@ -1832,8 +1761,7 @@ std::string_view NSReturnsAutoreleasedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NSReturnsAutoreleasedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NSReturnsAutoreleasedAttr::Spelling can return nullptr!");
 }
 
 NSReturnsNotRetainedAttr::NSReturnsNotRetainedAttr(
@@ -1852,8 +1780,7 @@ std::string_view NSReturnsNotRetainedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NSReturnsNotRetainedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NSReturnsNotRetainedAttr::Spelling can return nullptr!");
 }
 
 NSReturnsRetainedAttr::NSReturnsRetainedAttr(
@@ -1872,8 +1799,7 @@ std::string_view NSReturnsRetainedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NSReturnsRetainedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NSReturnsRetainedAttr::Spelling can return nullptr!");
 }
 
 NakedAttr::NakedAttr(
@@ -1892,8 +1818,7 @@ std::string_view NakedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NakedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NakedAttr::Spelling can return nullptr!");
 }
 
 NoAliasAttr::NoAliasAttr(
@@ -1912,8 +1837,7 @@ std::string_view NoAliasAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NoAliasAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NoAliasAttr::Spelling can return nullptr!");
 }
 
 NoBuiltinAttr::NoBuiltinAttr(
@@ -1935,8 +1859,7 @@ std::string_view NoBuiltinAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NoBuiltinAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NoBuiltinAttr::Spelling can return nullptr!");
 }
 
 NoCommonAttr::NoCommonAttr(
@@ -1955,8 +1878,7 @@ std::string_view NoCommonAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NoCommonAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NoCommonAttr::Spelling can return nullptr!");
 }
 
 NoDebugAttr::NoDebugAttr(
@@ -1975,8 +1897,7 @@ std::string_view NoDebugAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NoDebugAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NoDebugAttr::Spelling can return nullptr!");
 }
 
 NoDestroyAttr::NoDestroyAttr(
@@ -1995,8 +1916,7 @@ std::string_view NoDestroyAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NoDestroyAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NoDestroyAttr::Spelling can return nullptr!");
 }
 
 NoDuplicateAttr::NoDuplicateAttr(
@@ -2015,8 +1935,7 @@ std::string_view NoDuplicateAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NoDuplicateAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NoDuplicateAttr::Spelling can return nullptr!");
 }
 
 NoEscapeAttr::NoEscapeAttr(
@@ -2034,8 +1953,7 @@ std::string_view NoEscapeAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NoEscapeAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NoEscapeAttr::Spelling can return nullptr!");
 }
 
 NoInstrumentFunctionAttr::NoInstrumentFunctionAttr(
@@ -2054,8 +1972,7 @@ std::string_view NoInstrumentFunctionAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NoInstrumentFunctionAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NoInstrumentFunctionAttr::Spelling can return nullptr!");
 }
 
 NoMicroMipsAttr::NoMicroMipsAttr(
@@ -2074,8 +1991,7 @@ std::string_view NoMicroMipsAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NoMicroMipsAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NoMicroMipsAttr::Spelling can return nullptr!");
 }
 
 NoMips16Attr::NoMips16Attr(
@@ -2094,8 +2010,7 @@ std::string_view NoMips16Attr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NoMips16Attr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NoMips16Attr::Spelling can return nullptr!");
 }
 
 NoProfileFunctionAttr::NoProfileFunctionAttr(
@@ -2114,8 +2029,7 @@ std::string_view NoProfileFunctionAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NoProfileFunctionAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NoProfileFunctionAttr::Spelling can return nullptr!");
 }
 
 NoRandomizeLayoutAttr::NoRandomizeLayoutAttr(
@@ -2134,8 +2048,7 @@ std::string_view NoRandomizeLayoutAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NoRandomizeLayoutAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NoRandomizeLayoutAttr::Spelling can return nullptr!");
 }
 
 NoReturnAttr::NoReturnAttr(
@@ -2154,8 +2067,7 @@ std::string_view NoReturnAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NoReturnAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NoReturnAttr::Spelling can return nullptr!");
 }
 
 NoSanitizeAttr::NoSanitizeAttr(
@@ -2175,15 +2087,13 @@ std::string_view NoSanitizeAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NoSanitizeAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NoSanitizeAttr::Spelling can return nullptr!");
 }
 
 bool NoSanitizeAttr::HasCoverage(void) const {
   auto &self = *const_cast<clang::NoSanitizeAttr *>(u.NoSanitizeAttr);
   decltype(auto) val = self.hasCoverage();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: NoSanitizeAttr::Sanitizers
@@ -2206,8 +2116,7 @@ std::string_view NoSpeculativeLoadHardeningAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NoSpeculativeLoadHardeningAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NoSpeculativeLoadHardeningAttr::Spelling can return nullptr!");
 }
 
 NoSplitStackAttr::NoSplitStackAttr(
@@ -2226,8 +2135,7 @@ std::string_view NoSplitStackAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NoSplitStackAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NoSplitStackAttr::Spelling can return nullptr!");
 }
 
 NoStackProtectorAttr::NoStackProtectorAttr(
@@ -2242,7 +2150,6 @@ enum NoStackProtectorAttrSpelling NoStackProtectorAttr::SemanticSpelling(void) c
   auto &self = *const_cast<clang::NoStackProtectorAttr *>(u.NoStackProtectorAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::NoStackProtectorAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view NoStackProtectorAttr::Spelling(void) const {
@@ -2253,8 +2160,7 @@ std::string_view NoStackProtectorAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NoStackProtectorAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NoStackProtectorAttr::Spelling can return nullptr!");
 }
 
 NoThreadSafetyAnalysisAttr::NoThreadSafetyAnalysisAttr(
@@ -2273,8 +2179,7 @@ std::string_view NoThreadSafetyAnalysisAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NoThreadSafetyAnalysisAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NoThreadSafetyAnalysisAttr::Spelling can return nullptr!");
 }
 
 NoThrowAttr::NoThrowAttr(
@@ -2293,8 +2198,7 @@ std::string_view NoThrowAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NoThrowAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NoThrowAttr::Spelling can return nullptr!");
 }
 
 NoUniqueAddressAttr::NoUniqueAddressAttr(
@@ -2313,8 +2217,7 @@ std::string_view NoUniqueAddressAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NoUniqueAddressAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NoUniqueAddressAttr::Spelling can return nullptr!");
 }
 
 NoUwtableAttr::NoUwtableAttr(
@@ -2333,8 +2236,7 @@ std::string_view NoUwtableAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NoUwtableAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NoUwtableAttr::Spelling can return nullptr!");
 }
 
 NonNullAttr::NonNullAttr(
@@ -2358,8 +2260,7 @@ std::string_view NonNullAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NonNullAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NonNullAttr::Spelling can return nullptr!");
 }
 
 // 1: NonNullAttr::IsNonNull
@@ -2379,8 +2280,7 @@ std::string_view NotTailCalledAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NotTailCalledAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NotTailCalledAttr::Spelling can return nullptr!");
 }
 
 OMPAllocateDeclAttr::OMPAllocateDeclAttr(
@@ -2397,8 +2297,7 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, OMPAllocateDeclAttr)
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPAllocateDeclAttr::Alignment can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OMPAllocateDeclAttr::Alignment can return nullptr!");
 }
 
 ::pasta::Expr OMPAllocateDeclAttr::Allocator(void) const {
@@ -2407,15 +2306,13 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, OMPAllocateDeclAttr)
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPAllocateDeclAttr::Allocator can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OMPAllocateDeclAttr::Allocator can return nullptr!");
 }
 
 enum OMPAllocateDeclAttrAllocatorTypeTy OMPAllocateDeclAttr::AllocatorType(void) const {
   auto &self = *const_cast<clang::OMPAllocateDeclAttr *>(u.OMPAllocateDeclAttr);
   decltype(auto) val = self.getAllocatorType();
   return static_cast<::pasta::OMPAllocateDeclAttrAllocatorTypeTy>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view OMPAllocateDeclAttr::Spelling(void) const {
@@ -2426,8 +2323,7 @@ std::string_view OMPAllocateDeclAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OMPAllocateDeclAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OMPAllocateDeclAttr::Spelling can return nullptr!");
 }
 
 OMPCaptureKindAttr::OMPCaptureKindAttr(
@@ -2442,7 +2338,6 @@ uint32_t OMPCaptureKindAttr::CaptureKindValue(void) const {
   auto &self = *const_cast<clang::OMPCaptureKindAttr *>(u.OMPCaptureKindAttr);
   decltype(auto) val = self.getCaptureKindVal();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view OMPCaptureKindAttr::Spelling(void) const {
@@ -2453,8 +2348,7 @@ std::string_view OMPCaptureKindAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OMPCaptureKindAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OMPCaptureKindAttr::Spelling can return nullptr!");
 }
 
 OMPCaptureNoInitAttr::OMPCaptureNoInitAttr(
@@ -2473,8 +2367,7 @@ std::string_view OMPCaptureNoInitAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OMPCaptureNoInitAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OMPCaptureNoInitAttr::Spelling can return nullptr!");
 }
 
 OMPDeclareSimdDeclAttr::OMPDeclareSimdDeclAttr(
@@ -2496,7 +2389,6 @@ enum OMPDeclareSimdDeclAttrBranchStateTy OMPDeclareSimdDeclAttr::BranchState(voi
   auto &self = *const_cast<clang::OMPDeclareSimdDeclAttr *>(u.OMPDeclareSimdDeclAttr);
   decltype(auto) val = self.getBranchState();
   return static_cast<::pasta::OMPDeclareSimdDeclAttrBranchStateTy>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 ::pasta::Expr OMPDeclareSimdDeclAttr::Simdlen(void) const {
@@ -2505,8 +2397,7 @@ enum OMPDeclareSimdDeclAttrBranchStateTy OMPDeclareSimdDeclAttr::BranchState(voi
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPDeclareSimdDeclAttr::Simdlen can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OMPDeclareSimdDeclAttr::Simdlen can return nullptr!");
 }
 
 std::string_view OMPDeclareSimdDeclAttr::Spelling(void) const {
@@ -2517,8 +2408,7 @@ std::string_view OMPDeclareSimdDeclAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OMPDeclareSimdDeclAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OMPDeclareSimdDeclAttr::Spelling can return nullptr!");
 }
 
 // 0: OMPDeclareSimdDeclAttr::Linears
@@ -2549,14 +2439,12 @@ enum OMPDeclareTargetDeclAttrDevTypeTy OMPDeclareTargetDeclAttr::DevType(void) c
   auto &self = *const_cast<clang::OMPDeclareTargetDeclAttr *>(u.OMPDeclareTargetDeclAttr);
   decltype(auto) val = self.getDevType();
   return static_cast<::pasta::OMPDeclareTargetDeclAttrDevTypeTy>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 bool OMPDeclareTargetDeclAttr::Indirect(void) const {
   auto &self = *const_cast<clang::OMPDeclareTargetDeclAttr *>(u.OMPDeclareTargetDeclAttr);
   decltype(auto) val = self.getIndirect();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 ::pasta::Expr OMPDeclareTargetDeclAttr::IndirectExpression(void) const {
@@ -2565,22 +2453,19 @@ bool OMPDeclareTargetDeclAttr::Indirect(void) const {
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPDeclareTargetDeclAttr::IndirectExpression can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OMPDeclareTargetDeclAttr::IndirectExpression can return nullptr!");
 }
 
 uint32_t OMPDeclareTargetDeclAttr::Level(void) const {
   auto &self = *const_cast<clang::OMPDeclareTargetDeclAttr *>(u.OMPDeclareTargetDeclAttr);
   decltype(auto) val = self.getLevel();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 enum OMPDeclareTargetDeclAttrMapTypeTy OMPDeclareTargetDeclAttr::MapType(void) const {
   auto &self = *const_cast<clang::OMPDeclareTargetDeclAttr *>(u.OMPDeclareTargetDeclAttr);
   decltype(auto) val = self.getMapType();
   return static_cast<::pasta::OMPDeclareTargetDeclAttrMapTypeTy>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view OMPDeclareTargetDeclAttr::Spelling(void) const {
@@ -2591,8 +2476,7 @@ std::string_view OMPDeclareTargetDeclAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OMPDeclareTargetDeclAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OMPDeclareTargetDeclAttr::Spelling can return nullptr!");
 }
 
 OMPDeclareVariantAttr::OMPDeclareVariantAttr(
@@ -2623,8 +2507,7 @@ std::string_view OMPDeclareVariantAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OMPDeclareVariantAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OMPDeclareVariantAttr::Spelling can return nullptr!");
 }
 
 // 0: OMPDeclareVariantAttr::TraitInfos
@@ -2634,8 +2517,7 @@ std::string_view OMPDeclareVariantAttr::Spelling(void) const {
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPDeclareVariantAttr::VariantFuncReference can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OMPDeclareVariantAttr::VariantFuncReference can return nullptr!");
 }
 
 OMPReferencedVarAttr::OMPReferencedVarAttr(
@@ -2651,8 +2533,7 @@ PASTA_DEFINE_BASE_OPERATORS(Attr, OMPReferencedVarAttr)
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "OMPReferencedVarAttr::Reference can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OMPReferencedVarAttr::Reference can return nullptr!");
 }
 
 std::string_view OMPReferencedVarAttr::Spelling(void) const {
@@ -2663,8 +2544,7 @@ std::string_view OMPReferencedVarAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OMPReferencedVarAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OMPReferencedVarAttr::Spelling can return nullptr!");
 }
 
 OMPThreadPrivateDeclAttr::OMPThreadPrivateDeclAttr(
@@ -2683,8 +2563,7 @@ std::string_view OMPThreadPrivateDeclAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OMPThreadPrivateDeclAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OMPThreadPrivateDeclAttr::Spelling can return nullptr!");
 }
 
 OSConsumedAttr::OSConsumedAttr(
@@ -2704,8 +2583,7 @@ std::string_view OSConsumedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OSConsumedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OSConsumedAttr::Spelling can return nullptr!");
 }
 
 OSConsumesThisAttr::OSConsumesThisAttr(
@@ -2724,8 +2602,7 @@ std::string_view OSConsumesThisAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OSConsumesThisAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OSConsumesThisAttr::Spelling can return nullptr!");
 }
 
 OSReturnsNotRetainedAttr::OSReturnsNotRetainedAttr(
@@ -2744,8 +2621,7 @@ std::string_view OSReturnsNotRetainedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OSReturnsNotRetainedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OSReturnsNotRetainedAttr::Spelling can return nullptr!");
 }
 
 OSReturnsRetainedAttr::OSReturnsRetainedAttr(
@@ -2764,8 +2640,7 @@ std::string_view OSReturnsRetainedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OSReturnsRetainedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OSReturnsRetainedAttr::Spelling can return nullptr!");
 }
 
 OSReturnsRetainedOnNonZeroAttr::OSReturnsRetainedOnNonZeroAttr(
@@ -2784,8 +2659,7 @@ std::string_view OSReturnsRetainedOnNonZeroAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OSReturnsRetainedOnNonZeroAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OSReturnsRetainedOnNonZeroAttr::Spelling can return nullptr!");
 }
 
 OSReturnsRetainedOnZeroAttr::OSReturnsRetainedOnZeroAttr(
@@ -2804,8 +2678,7 @@ std::string_view OSReturnsRetainedOnZeroAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OSReturnsRetainedOnZeroAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OSReturnsRetainedOnZeroAttr::Spelling can return nullptr!");
 }
 
 ObjCBoxableAttr::ObjCBoxableAttr(
@@ -2823,8 +2696,7 @@ std::string_view ObjCBoxableAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCBoxableAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCBoxableAttr::Spelling can return nullptr!");
 }
 
 ObjCBridgeAttr::ObjCBridgeAttr(
@@ -2844,8 +2716,7 @@ std::string_view ObjCBridgeAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCBridgeAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCBridgeAttr::Spelling can return nullptr!");
 }
 
 ObjCBridgeMutableAttr::ObjCBridgeMutableAttr(
@@ -2865,8 +2736,7 @@ std::string_view ObjCBridgeMutableAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCBridgeMutableAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCBridgeMutableAttr::Spelling can return nullptr!");
 }
 
 ObjCBridgeRelatedAttr::ObjCBridgeRelatedAttr(
@@ -2888,8 +2758,7 @@ std::string_view ObjCBridgeRelatedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCBridgeRelatedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCBridgeRelatedAttr::Spelling can return nullptr!");
 }
 
 ObjCClassStubAttr::ObjCClassStubAttr(
@@ -2907,8 +2776,7 @@ std::string_view ObjCClassStubAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCClassStubAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCClassStubAttr::Spelling can return nullptr!");
 }
 
 ObjCDesignatedInitializerAttr::ObjCDesignatedInitializerAttr(
@@ -2926,8 +2794,7 @@ std::string_view ObjCDesignatedInitializerAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCDesignatedInitializerAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCDesignatedInitializerAttr::Spelling can return nullptr!");
 }
 
 ObjCDirectAttr::ObjCDirectAttr(
@@ -2945,8 +2812,7 @@ std::string_view ObjCDirectAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCDirectAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCDirectAttr::Spelling can return nullptr!");
 }
 
 ObjCDirectMembersAttr::ObjCDirectMembersAttr(
@@ -2964,8 +2830,7 @@ std::string_view ObjCDirectMembersAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCDirectMembersAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCDirectMembersAttr::Spelling can return nullptr!");
 }
 
 ObjCExceptionAttr::ObjCExceptionAttr(
@@ -2984,8 +2849,7 @@ std::string_view ObjCExceptionAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCExceptionAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCExceptionAttr::Spelling can return nullptr!");
 }
 
 ObjCExplicitProtocolImplAttr::ObjCExplicitProtocolImplAttr(
@@ -3004,8 +2868,7 @@ std::string_view ObjCExplicitProtocolImplAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCExplicitProtocolImplAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCExplicitProtocolImplAttr::Spelling can return nullptr!");
 }
 
 ObjCExternallyRetainedAttr::ObjCExternallyRetainedAttr(
@@ -3024,8 +2887,7 @@ std::string_view ObjCExternallyRetainedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCExternallyRetainedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCExternallyRetainedAttr::Spelling can return nullptr!");
 }
 
 ObjCIndependentClassAttr::ObjCIndependentClassAttr(
@@ -3044,8 +2906,7 @@ std::string_view ObjCIndependentClassAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCIndependentClassAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCIndependentClassAttr::Spelling can return nullptr!");
 }
 
 ObjCMethodFamilyAttr::ObjCMethodFamilyAttr(
@@ -3060,7 +2921,6 @@ enum ObjCMethodFamilyAttrFamilyKind ObjCMethodFamilyAttr::Family(void) const {
   auto &self = *const_cast<clang::ObjCMethodFamilyAttr *>(u.ObjCMethodFamilyAttr);
   decltype(auto) val = self.getFamily();
   return static_cast<::pasta::ObjCMethodFamilyAttrFamilyKind>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view ObjCMethodFamilyAttr::Spelling(void) const {
@@ -3071,8 +2931,7 @@ std::string_view ObjCMethodFamilyAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCMethodFamilyAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCMethodFamilyAttr::Spelling can return nullptr!");
 }
 
 ObjCNSObjectAttr::ObjCNSObjectAttr(
@@ -3091,8 +2950,7 @@ std::string_view ObjCNSObjectAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCNSObjectAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCNSObjectAttr::Spelling can return nullptr!");
 }
 
 ObjCNonLazyClassAttr::ObjCNonLazyClassAttr(
@@ -3110,8 +2968,7 @@ std::string_view ObjCNonLazyClassAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCNonLazyClassAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCNonLazyClassAttr::Spelling can return nullptr!");
 }
 
 ObjCNonRuntimeProtocolAttr::ObjCNonRuntimeProtocolAttr(
@@ -3129,8 +2986,7 @@ std::string_view ObjCNonRuntimeProtocolAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCNonRuntimeProtocolAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCNonRuntimeProtocolAttr::Spelling can return nullptr!");
 }
 
 ObjCOwnershipAttr::ObjCOwnershipAttr(
@@ -3150,8 +3006,7 @@ std::string_view ObjCOwnershipAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCOwnershipAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCOwnershipAttr::Spelling can return nullptr!");
 }
 
 ObjCPreciseLifetimeAttr::ObjCPreciseLifetimeAttr(
@@ -3170,8 +3025,7 @@ std::string_view ObjCPreciseLifetimeAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCPreciseLifetimeAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCPreciseLifetimeAttr::Spelling can return nullptr!");
 }
 
 ObjCRequiresPropertyDefsAttr::ObjCRequiresPropertyDefsAttr(
@@ -3190,8 +3044,7 @@ std::string_view ObjCRequiresPropertyDefsAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCRequiresPropertyDefsAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCRequiresPropertyDefsAttr::Spelling can return nullptr!");
 }
 
 ObjCRequiresSuperAttr::ObjCRequiresSuperAttr(
@@ -3210,8 +3063,7 @@ std::string_view ObjCRequiresSuperAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCRequiresSuperAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCRequiresSuperAttr::Spelling can return nullptr!");
 }
 
 ObjCReturnsInnerPointerAttr::ObjCReturnsInnerPointerAttr(
@@ -3230,8 +3082,7 @@ std::string_view ObjCReturnsInnerPointerAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCReturnsInnerPointerAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCReturnsInnerPointerAttr::Spelling can return nullptr!");
 }
 
 ObjCRootClassAttr::ObjCRootClassAttr(
@@ -3250,8 +3101,7 @@ std::string_view ObjCRootClassAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCRootClassAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCRootClassAttr::Spelling can return nullptr!");
 }
 
 ObjCRuntimeNameAttr::ObjCRuntimeNameAttr(
@@ -3269,14 +3119,12 @@ std::string_view ObjCRuntimeNameAttr::MetadataName(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t ObjCRuntimeNameAttr::MetadataNameLength(void) const {
   auto &self = *const_cast<clang::ObjCRuntimeNameAttr *>(u.ObjCRuntimeNameAttr);
   decltype(auto) val = self.getMetadataNameLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view ObjCRuntimeNameAttr::Spelling(void) const {
@@ -3287,8 +3135,7 @@ std::string_view ObjCRuntimeNameAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCRuntimeNameAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCRuntimeNameAttr::Spelling can return nullptr!");
 }
 
 ObjCRuntimeVisibleAttr::ObjCRuntimeVisibleAttr(
@@ -3306,8 +3153,7 @@ std::string_view ObjCRuntimeVisibleAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCRuntimeVisibleAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCRuntimeVisibleAttr::Spelling can return nullptr!");
 }
 
 ObjCSubclassingRestrictedAttr::ObjCSubclassingRestrictedAttr(
@@ -3326,8 +3172,7 @@ std::string_view ObjCSubclassingRestrictedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCSubclassingRestrictedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCSubclassingRestrictedAttr::Spelling can return nullptr!");
 }
 
 OpenCLAccessAttr::OpenCLAccessAttr(
@@ -3341,7 +3186,6 @@ enum OpenCLAccessAttrSpelling OpenCLAccessAttr::SemanticSpelling(void) const {
   auto &self = *const_cast<clang::OpenCLAccessAttr *>(u.OpenCLAccessAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::OpenCLAccessAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view OpenCLAccessAttr::Spelling(void) const {
@@ -3352,29 +3196,25 @@ std::string_view OpenCLAccessAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OpenCLAccessAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OpenCLAccessAttr::Spelling can return nullptr!");
 }
 
 bool OpenCLAccessAttr::IsReadOnly(void) const {
   auto &self = *const_cast<clang::OpenCLAccessAttr *>(u.OpenCLAccessAttr);
   decltype(auto) val = self.isReadOnly();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 bool OpenCLAccessAttr::IsReadWrite(void) const {
   auto &self = *const_cast<clang::OpenCLAccessAttr *>(u.OpenCLAccessAttr);
   decltype(auto) val = self.isReadWrite();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 bool OpenCLAccessAttr::IsWriteOnly(void) const {
   auto &self = *const_cast<clang::OpenCLAccessAttr *>(u.OpenCLAccessAttr);
   decltype(auto) val = self.isWriteOnly();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 OpenCLIntelReqdSubGroupSizeAttr::OpenCLIntelReqdSubGroupSizeAttr(
@@ -3393,15 +3233,13 @@ std::string_view OpenCLIntelReqdSubGroupSizeAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OpenCLIntelReqdSubGroupSizeAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OpenCLIntelReqdSubGroupSizeAttr::Spelling can return nullptr!");
 }
 
 uint32_t OpenCLIntelReqdSubGroupSizeAttr::SubGroupSize(void) const {
   auto &self = *const_cast<clang::OpenCLIntelReqdSubGroupSizeAttr *>(u.OpenCLIntelReqdSubGroupSizeAttr);
   decltype(auto) val = self.getSubGroupSize();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 OpenCLKernelAttr::OpenCLKernelAttr(
@@ -3420,8 +3258,7 @@ std::string_view OpenCLKernelAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OpenCLKernelAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OpenCLKernelAttr::Spelling can return nullptr!");
 }
 
 OptimizeNoneAttr::OptimizeNoneAttr(
@@ -3440,8 +3277,7 @@ std::string_view OptimizeNoneAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OptimizeNoneAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OptimizeNoneAttr::Spelling can return nullptr!");
 }
 
 OverloadableAttr::OverloadableAttr(
@@ -3459,8 +3295,7 @@ std::string_view OverloadableAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OverloadableAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OverloadableAttr::Spelling can return nullptr!");
 }
 
 OverrideAttr::OverrideAttr(
@@ -3479,8 +3314,7 @@ std::string_view OverrideAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OverrideAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OverrideAttr::Spelling can return nullptr!");
 }
 
 OwnerAttr::OwnerAttr(
@@ -3496,15 +3330,13 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, OwnerAttr)
   decltype(auto) val = self.getDerefType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 ::pasta::Type OwnerAttr::DerefTypeToken(void) const {
   auto &self = *const_cast<clang::OwnerAttr *>(u.OwnerAttr);
   decltype(auto) val = self.getDerefTypeLoc();
   return TypeBuilder::Build(ast, val->getType());
-  assert(false && "OwnerAttr::DerefTypeToken can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OwnerAttr::DerefTypeToken can return nullptr!");
 }
 
 std::string_view OwnerAttr::Spelling(void) const {
@@ -3515,8 +3347,7 @@ std::string_view OwnerAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OwnerAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OwnerAttr::Spelling can return nullptr!");
 }
 
 OwnershipAttr::OwnershipAttr(
@@ -3536,14 +3367,12 @@ enum OwnershipAttrOwnershipKind OwnershipAttr::OwnKind(void) const {
   auto &self = *const_cast<clang::OwnershipAttr *>(u.OwnershipAttr);
   decltype(auto) val = self.getOwnKind();
   return static_cast<::pasta::OwnershipAttrOwnershipKind>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 enum OwnershipAttrSpelling OwnershipAttr::SemanticSpelling(void) const {
   auto &self = *const_cast<clang::OwnershipAttr *>(u.OwnershipAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::OwnershipAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view OwnershipAttr::Spelling(void) const {
@@ -3554,29 +3383,25 @@ std::string_view OwnershipAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OwnershipAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OwnershipAttr::Spelling can return nullptr!");
 }
 
 bool OwnershipAttr::IsHolds(void) const {
   auto &self = *const_cast<clang::OwnershipAttr *>(u.OwnershipAttr);
   decltype(auto) val = self.isHolds();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 bool OwnershipAttr::IsReturns(void) const {
   auto &self = *const_cast<clang::OwnershipAttr *>(u.OwnershipAttr);
   decltype(auto) val = self.isReturns();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 bool OwnershipAttr::IsTakes(void) const {
   auto &self = *const_cast<clang::OwnershipAttr *>(u.OwnershipAttr);
   decltype(auto) val = self.isTakes();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 PackedAttr::PackedAttr(
@@ -3595,8 +3420,7 @@ std::string_view PackedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "PackedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("PackedAttr::Spelling can return nullptr!");
 }
 
 ParamTypestateAttr::ParamTypestateAttr(
@@ -3611,7 +3435,6 @@ enum ParamTypestateAttrConsumedState ParamTypestateAttr::ParameterState(void) co
   auto &self = *const_cast<clang::ParamTypestateAttr *>(u.ParamTypestateAttr);
   decltype(auto) val = self.getParamState();
   return static_cast<::pasta::ParamTypestateAttrConsumedState>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view ParamTypestateAttr::Spelling(void) const {
@@ -3622,8 +3445,7 @@ std::string_view ParamTypestateAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ParamTypestateAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ParamTypestateAttr::Spelling can return nullptr!");
 }
 
 ParameterABIAttr::ParameterABIAttr(
@@ -3642,7 +3464,6 @@ PASTA_DEFINE_DERIVED_OPERATORS(ParameterABIAttr, SwiftIndirectResultAttr)
   auto &self = *const_cast<clang::ParameterABIAttr *>(u.ParameterABIAttr);
   decltype(auto) val = self.getABI();
   return static_cast<enum ::pasta::ParameterABI>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 PascalAttr::PascalAttr(
@@ -3661,8 +3482,7 @@ std::string_view PascalAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "PascalAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("PascalAttr::Spelling can return nullptr!");
 }
 
 PassObjectSizeAttr::PassObjectSizeAttr(
@@ -3678,7 +3498,6 @@ enum PassObjectSizeAttrSpelling PassObjectSizeAttr::SemanticSpelling(void) const
   auto &self = *const_cast<clang::PassObjectSizeAttr *>(u.PassObjectSizeAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::PassObjectSizeAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view PassObjectSizeAttr::Spelling(void) const {
@@ -3689,8 +3508,7 @@ std::string_view PassObjectSizeAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "PassObjectSizeAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("PassObjectSizeAttr::Spelling can return nullptr!");
 }
 
 // 0: PassObjectSizeAttr::Type
@@ -3698,7 +3516,6 @@ bool PassObjectSizeAttr::IsDynamic(void) const {
   auto &self = *const_cast<clang::PassObjectSizeAttr *>(u.PassObjectSizeAttr);
   decltype(auto) val = self.isDynamic();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 PatchableFunctionEntryAttr::PatchableFunctionEntryAttr(
@@ -3713,7 +3530,6 @@ uint32_t PatchableFunctionEntryAttr::Count(void) const {
   auto &self = *const_cast<clang::PatchableFunctionEntryAttr *>(u.PatchableFunctionEntryAttr);
   decltype(auto) val = self.getCount();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: PatchableFunctionEntryAttr::Offset
@@ -3725,8 +3541,7 @@ std::string_view PatchableFunctionEntryAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "PatchableFunctionEntryAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("PatchableFunctionEntryAttr::Spelling can return nullptr!");
 }
 
 PcsAttr::PcsAttr(
@@ -3741,7 +3556,6 @@ enum PcsAttrPCSType PcsAttr::PCS(void) const {
   auto &self = *const_cast<clang::PcsAttr *>(u.PcsAttr);
   decltype(auto) val = self.getPCS();
   return static_cast<::pasta::PcsAttrPCSType>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view PcsAttr::Spelling(void) const {
@@ -3752,8 +3566,7 @@ std::string_view PcsAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "PcsAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("PcsAttr::Spelling can return nullptr!");
 }
 
 PointerAttr::PointerAttr(
@@ -3769,15 +3582,13 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, PointerAttr)
   decltype(auto) val = self.getDerefType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 ::pasta::Type PointerAttr::DerefTypeToken(void) const {
   auto &self = *const_cast<clang::PointerAttr *>(u.PointerAttr);
   decltype(auto) val = self.getDerefTypeLoc();
   return TypeBuilder::Build(ast, val->getType());
-  assert(false && "PointerAttr::DerefTypeToken can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("PointerAttr::DerefTypeToken can return nullptr!");
 }
 
 std::string_view PointerAttr::Spelling(void) const {
@@ -3788,8 +3599,7 @@ std::string_view PointerAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "PointerAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("PointerAttr::Spelling can return nullptr!");
 }
 
 PragmaClangBSSSectionAttr::PragmaClangBSSSectionAttr(
@@ -3808,14 +3618,12 @@ std::string_view PragmaClangBSSSectionAttr::Name(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t PragmaClangBSSSectionAttr::NameLength(void) const {
   auto &self = *const_cast<clang::PragmaClangBSSSectionAttr *>(u.PragmaClangBSSSectionAttr);
   decltype(auto) val = self.getNameLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view PragmaClangBSSSectionAttr::Spelling(void) const {
@@ -3826,8 +3634,7 @@ std::string_view PragmaClangBSSSectionAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "PragmaClangBSSSectionAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("PragmaClangBSSSectionAttr::Spelling can return nullptr!");
 }
 
 PragmaClangDataSectionAttr::PragmaClangDataSectionAttr(
@@ -3846,14 +3653,12 @@ std::string_view PragmaClangDataSectionAttr::Name(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t PragmaClangDataSectionAttr::NameLength(void) const {
   auto &self = *const_cast<clang::PragmaClangDataSectionAttr *>(u.PragmaClangDataSectionAttr);
   decltype(auto) val = self.getNameLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view PragmaClangDataSectionAttr::Spelling(void) const {
@@ -3864,8 +3669,7 @@ std::string_view PragmaClangDataSectionAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "PragmaClangDataSectionAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("PragmaClangDataSectionAttr::Spelling can return nullptr!");
 }
 
 PragmaClangRelroSectionAttr::PragmaClangRelroSectionAttr(
@@ -3884,14 +3688,12 @@ std::string_view PragmaClangRelroSectionAttr::Name(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t PragmaClangRelroSectionAttr::NameLength(void) const {
   auto &self = *const_cast<clang::PragmaClangRelroSectionAttr *>(u.PragmaClangRelroSectionAttr);
   decltype(auto) val = self.getNameLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view PragmaClangRelroSectionAttr::Spelling(void) const {
@@ -3902,8 +3704,7 @@ std::string_view PragmaClangRelroSectionAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "PragmaClangRelroSectionAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("PragmaClangRelroSectionAttr::Spelling can return nullptr!");
 }
 
 PragmaClangRodataSectionAttr::PragmaClangRodataSectionAttr(
@@ -3922,14 +3723,12 @@ std::string_view PragmaClangRodataSectionAttr::Name(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t PragmaClangRodataSectionAttr::NameLength(void) const {
   auto &self = *const_cast<clang::PragmaClangRodataSectionAttr *>(u.PragmaClangRodataSectionAttr);
   decltype(auto) val = self.getNameLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view PragmaClangRodataSectionAttr::Spelling(void) const {
@@ -3940,8 +3739,7 @@ std::string_view PragmaClangRodataSectionAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "PragmaClangRodataSectionAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("PragmaClangRodataSectionAttr::Spelling can return nullptr!");
 }
 
 PragmaClangTextSectionAttr::PragmaClangTextSectionAttr(
@@ -3960,14 +3758,12 @@ std::string_view PragmaClangTextSectionAttr::Name(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t PragmaClangTextSectionAttr::NameLength(void) const {
   auto &self = *const_cast<clang::PragmaClangTextSectionAttr *>(u.PragmaClangTextSectionAttr);
   decltype(auto) val = self.getNameLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view PragmaClangTextSectionAttr::Spelling(void) const {
@@ -3978,8 +3774,7 @@ std::string_view PragmaClangTextSectionAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "PragmaClangTextSectionAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("PragmaClangTextSectionAttr::Spelling can return nullptr!");
 }
 
 PreferredNameAttr::PreferredNameAttr(
@@ -3998,8 +3793,7 @@ std::string_view PreferredNameAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "PreferredNameAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("PreferredNameAttr::Spelling can return nullptr!");
 }
 
 ::pasta::Type PreferredNameAttr::TypedefType(void) const {
@@ -4007,15 +3801,13 @@ std::string_view PreferredNameAttr::Spelling(void) const {
   decltype(auto) val = self.getTypedefType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 ::pasta::Type PreferredNameAttr::TypedefTypeToken(void) const {
   auto &self = *const_cast<clang::PreferredNameAttr *>(u.PreferredNameAttr);
   decltype(auto) val = self.getTypedefTypeLoc();
   return TypeBuilder::Build(ast, val->getType());
-  assert(false && "PreferredNameAttr::TypedefTypeToken can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("PreferredNameAttr::TypedefTypeToken can return nullptr!");
 }
 
 PreserveAllAttr::PreserveAllAttr(
@@ -4034,8 +3826,7 @@ std::string_view PreserveAllAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "PreserveAllAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("PreserveAllAttr::Spelling can return nullptr!");
 }
 
 PreserveMostAttr::PreserveMostAttr(
@@ -4054,8 +3845,7 @@ std::string_view PreserveMostAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "PreserveMostAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("PreserveMostAttr::Spelling can return nullptr!");
 }
 
 PtGuardedByAttr::PtGuardedByAttr(
@@ -4072,8 +3862,7 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, PtGuardedByAttr)
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "PtGuardedByAttr::Argument can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("PtGuardedByAttr::Argument can return nullptr!");
 }
 
 std::string_view PtGuardedByAttr::Spelling(void) const {
@@ -4084,8 +3873,7 @@ std::string_view PtGuardedByAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "PtGuardedByAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("PtGuardedByAttr::Spelling can return nullptr!");
 }
 
 PtGuardedVarAttr::PtGuardedVarAttr(
@@ -4104,8 +3892,7 @@ std::string_view PtGuardedVarAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "PtGuardedVarAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("PtGuardedVarAttr::Spelling can return nullptr!");
 }
 
 PureAttr::PureAttr(
@@ -4124,8 +3911,7 @@ std::string_view PureAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "PureAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("PureAttr::Spelling can return nullptr!");
 }
 
 RISCVInterruptAttr::RISCVInterruptAttr(
@@ -4140,7 +3926,6 @@ enum RISCVInterruptAttrInterruptType RISCVInterruptAttr::Interrupt(void) const {
   auto &self = *const_cast<clang::RISCVInterruptAttr *>(u.RISCVInterruptAttr);
   decltype(auto) val = self.getInterrupt();
   return static_cast<::pasta::RISCVInterruptAttrInterruptType>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view RISCVInterruptAttr::Spelling(void) const {
@@ -4151,8 +3936,7 @@ std::string_view RISCVInterruptAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "RISCVInterruptAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("RISCVInterruptAttr::Spelling can return nullptr!");
 }
 
 RandomizeLayoutAttr::RandomizeLayoutAttr(
@@ -4171,8 +3955,7 @@ std::string_view RandomizeLayoutAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "RandomizeLayoutAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("RandomizeLayoutAttr::Spelling can return nullptr!");
 }
 
 ReadOnlyPlacementAttr::ReadOnlyPlacementAttr(
@@ -4191,8 +3974,7 @@ std::string_view ReadOnlyPlacementAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ReadOnlyPlacementAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ReadOnlyPlacementAttr::Spelling can return nullptr!");
 }
 
 RegCallAttr::RegCallAttr(
@@ -4211,8 +3993,7 @@ std::string_view RegCallAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "RegCallAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("RegCallAttr::Spelling can return nullptr!");
 }
 
 ReinitializesAttr::ReinitializesAttr(
@@ -4231,8 +4012,7 @@ std::string_view ReinitializesAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ReinitializesAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ReinitializesAttr::Spelling can return nullptr!");
 }
 
 ReleaseCapabilityAttr::ReleaseCapabilityAttr(
@@ -4251,7 +4031,6 @@ enum ReleaseCapabilityAttrSpelling ReleaseCapabilityAttr::SemanticSpelling(void)
   auto &self = *const_cast<clang::ReleaseCapabilityAttr *>(u.ReleaseCapabilityAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::ReleaseCapabilityAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view ReleaseCapabilityAttr::Spelling(void) const {
@@ -4262,22 +4041,19 @@ std::string_view ReleaseCapabilityAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ReleaseCapabilityAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ReleaseCapabilityAttr::Spelling can return nullptr!");
 }
 
 bool ReleaseCapabilityAttr::IsGeneric(void) const {
   auto &self = *const_cast<clang::ReleaseCapabilityAttr *>(u.ReleaseCapabilityAttr);
   decltype(auto) val = self.isGeneric();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 bool ReleaseCapabilityAttr::IsShared(void) const {
   auto &self = *const_cast<clang::ReleaseCapabilityAttr *>(u.ReleaseCapabilityAttr);
   decltype(auto) val = self.isShared();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 ReleaseHandleAttr::ReleaseHandleAttr(
@@ -4297,14 +4073,12 @@ std::string_view ReleaseHandleAttr::HandleType(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t ReleaseHandleAttr::HandleTypeLength(void) const {
   auto &self = *const_cast<clang::ReleaseHandleAttr *>(u.ReleaseHandleAttr);
   decltype(auto) val = self.getHandleTypeLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view ReleaseHandleAttr::Spelling(void) const {
@@ -4315,8 +4089,7 @@ std::string_view ReleaseHandleAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ReleaseHandleAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ReleaseHandleAttr::Spelling can return nullptr!");
 }
 
 RenderScriptKernelAttr::RenderScriptKernelAttr(
@@ -4334,8 +4107,7 @@ std::string_view RenderScriptKernelAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "RenderScriptKernelAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("RenderScriptKernelAttr::Spelling can return nullptr!");
 }
 
 ReqdWorkGroupSizeAttr::ReqdWorkGroupSizeAttr(
@@ -4354,29 +4126,25 @@ std::string_view ReqdWorkGroupSizeAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ReqdWorkGroupSizeAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ReqdWorkGroupSizeAttr::Spelling can return nullptr!");
 }
 
 uint32_t ReqdWorkGroupSizeAttr::XDim(void) const {
   auto &self = *const_cast<clang::ReqdWorkGroupSizeAttr *>(u.ReqdWorkGroupSizeAttr);
   decltype(auto) val = self.getXDim();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t ReqdWorkGroupSizeAttr::YDim(void) const {
   auto &self = *const_cast<clang::ReqdWorkGroupSizeAttr *>(u.ReqdWorkGroupSizeAttr);
   decltype(auto) val = self.getYDim();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t ReqdWorkGroupSizeAttr::ZDim(void) const {
   auto &self = *const_cast<clang::ReqdWorkGroupSizeAttr *>(u.ReqdWorkGroupSizeAttr);
   decltype(auto) val = self.getZDim();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 RequiresCapabilityAttr::RequiresCapabilityAttr(
@@ -4395,7 +4163,6 @@ enum RequiresCapabilityAttrSpelling RequiresCapabilityAttr::SemanticSpelling(voi
   auto &self = *const_cast<clang::RequiresCapabilityAttr *>(u.RequiresCapabilityAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::RequiresCapabilityAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view RequiresCapabilityAttr::Spelling(void) const {
@@ -4406,15 +4173,13 @@ std::string_view RequiresCapabilityAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "RequiresCapabilityAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("RequiresCapabilityAttr::Spelling can return nullptr!");
 }
 
 bool RequiresCapabilityAttr::IsShared(void) const {
   auto &self = *const_cast<clang::RequiresCapabilityAttr *>(u.RequiresCapabilityAttr);
   decltype(auto) val = self.isShared();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 RestrictAttr::RestrictAttr(
@@ -4429,7 +4194,6 @@ enum RestrictAttrSpelling RestrictAttr::SemanticSpelling(void) const {
   auto &self = *const_cast<clang::RestrictAttr *>(u.RestrictAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::RestrictAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view RestrictAttr::Spelling(void) const {
@@ -4440,8 +4204,7 @@ std::string_view RestrictAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "RestrictAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("RestrictAttr::Spelling can return nullptr!");
 }
 
 RetainAttr::RetainAttr(
@@ -4460,8 +4223,7 @@ std::string_view RetainAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "RetainAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("RetainAttr::Spelling can return nullptr!");
 }
 
 ReturnTypestateAttr::ReturnTypestateAttr(
@@ -4480,15 +4242,13 @@ std::string_view ReturnTypestateAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ReturnTypestateAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ReturnTypestateAttr::Spelling can return nullptr!");
 }
 
 enum ReturnTypestateAttrConsumedState ReturnTypestateAttr::State(void) const {
   auto &self = *const_cast<clang::ReturnTypestateAttr *>(u.ReturnTypestateAttr);
   decltype(auto) val = self.getState();
   return static_cast<::pasta::ReturnTypestateAttrConsumedState>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 ReturnsNonNullAttr::ReturnsNonNullAttr(
@@ -4507,8 +4267,7 @@ std::string_view ReturnsNonNullAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ReturnsNonNullAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ReturnsNonNullAttr::Spelling can return nullptr!");
 }
 
 ReturnsTwiceAttr::ReturnsTwiceAttr(
@@ -4527,8 +4286,7 @@ std::string_view ReturnsTwiceAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ReturnsTwiceAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ReturnsTwiceAttr::Spelling can return nullptr!");
 }
 
 SYCLKernelAttr::SYCLKernelAttr(
@@ -4547,8 +4305,7 @@ std::string_view SYCLKernelAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SYCLKernelAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SYCLKernelAttr::Spelling can return nullptr!");
 }
 
 SYCLSpecialClassAttr::SYCLSpecialClassAttr(
@@ -4567,8 +4324,7 @@ std::string_view SYCLSpecialClassAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SYCLSpecialClassAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SYCLSpecialClassAttr::Spelling can return nullptr!");
 }
 
 ScopedLockableAttr::ScopedLockableAttr(
@@ -4587,8 +4343,7 @@ std::string_view ScopedLockableAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ScopedLockableAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ScopedLockableAttr::Spelling can return nullptr!");
 }
 
 SectionAttr::SectionAttr(
@@ -4607,21 +4362,18 @@ std::string_view SectionAttr::Name(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t SectionAttr::NameLength(void) const {
   auto &self = *const_cast<clang::SectionAttr *>(u.SectionAttr);
   decltype(auto) val = self.getNameLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 enum SectionAttrSpelling SectionAttr::SemanticSpelling(void) const {
   auto &self = *const_cast<clang::SectionAttr *>(u.SectionAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::SectionAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view SectionAttr::Spelling(void) const {
@@ -4632,8 +4384,7 @@ std::string_view SectionAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SectionAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SectionAttr::Spelling can return nullptr!");
 }
 
 SelectAnyAttr::SelectAnyAttr(
@@ -4652,8 +4403,7 @@ std::string_view SelectAnyAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SelectAnyAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SelectAnyAttr::Spelling can return nullptr!");
 }
 
 SentinelAttr::SentinelAttr(
@@ -4674,8 +4424,7 @@ std::string_view SentinelAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SentinelAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SentinelAttr::Spelling can return nullptr!");
 }
 
 SetTypestateAttr::SetTypestateAttr(
@@ -4690,7 +4439,6 @@ enum SetTypestateAttrConsumedState SetTypestateAttr::NewState(void) const {
   auto &self = *const_cast<clang::SetTypestateAttr *>(u.SetTypestateAttr);
   decltype(auto) val = self.getNewState();
   return static_cast<::pasta::SetTypestateAttrConsumedState>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view SetTypestateAttr::Spelling(void) const {
@@ -4701,8 +4449,7 @@ std::string_view SetTypestateAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SetTypestateAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SetTypestateAttr::Spelling can return nullptr!");
 }
 
 SharedTrylockFunctionAttr::SharedTrylockFunctionAttr(
@@ -4725,8 +4472,7 @@ std::string_view SharedTrylockFunctionAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SharedTrylockFunctionAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SharedTrylockFunctionAttr::Spelling can return nullptr!");
 }
 
 ::pasta::Expr SharedTrylockFunctionAttr::SuccessValue(void) const {
@@ -4735,8 +4481,7 @@ std::string_view SharedTrylockFunctionAttr::Spelling(void) const {
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "SharedTrylockFunctionAttr::SuccessValue can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SharedTrylockFunctionAttr::SuccessValue can return nullptr!");
 }
 
 SpeculativeLoadHardeningAttr::SpeculativeLoadHardeningAttr(
@@ -4755,8 +4500,7 @@ std::string_view SpeculativeLoadHardeningAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SpeculativeLoadHardeningAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SpeculativeLoadHardeningAttr::Spelling can return nullptr!");
 }
 
 StandaloneDebugAttr::StandaloneDebugAttr(
@@ -4775,8 +4519,7 @@ std::string_view StandaloneDebugAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "StandaloneDebugAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("StandaloneDebugAttr::Spelling can return nullptr!");
 }
 
 StdCallAttr::StdCallAttr(
@@ -4795,8 +4538,7 @@ std::string_view StdCallAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "StdCallAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("StdCallAttr::Spelling can return nullptr!");
 }
 
 StmtAttr::StmtAttr(
@@ -4827,8 +4569,7 @@ std::string_view StrictFPAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "StrictFPAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("StrictFPAttr::Spelling can return nullptr!");
 }
 
 StrictGuardStackCheckAttr::StrictGuardStackCheckAttr(
@@ -4847,8 +4588,7 @@ std::string_view StrictGuardStackCheckAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "StrictGuardStackCheckAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("StrictGuardStackCheckAttr::Spelling can return nullptr!");
 }
 
 SuppressAttr::SuppressAttr(
@@ -4871,8 +4611,7 @@ std::string_view SuppressAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SuppressAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SuppressAttr::Spelling can return nullptr!");
 }
 
 SwiftAsyncAttr::SwiftAsyncAttr(
@@ -4888,7 +4627,6 @@ enum SwiftAsyncAttrKind SwiftAsyncAttr::Kind(void) const {
   auto &self = *const_cast<clang::SwiftAsyncAttr *>(u.SwiftAsyncAttr);
   decltype(auto) val = self.getKind();
   return static_cast<::pasta::SwiftAsyncAttrKind>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view SwiftAsyncAttr::Spelling(void) const {
@@ -4899,8 +4637,7 @@ std::string_view SwiftAsyncAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SwiftAsyncAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SwiftAsyncAttr::Spelling can return nullptr!");
 }
 
 SwiftAsyncCallAttr::SwiftAsyncCallAttr(
@@ -4919,8 +4656,7 @@ std::string_view SwiftAsyncCallAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SwiftAsyncCallAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SwiftAsyncCallAttr::Spelling can return nullptr!");
 }
 
 SwiftAsyncContextAttr::SwiftAsyncContextAttr(
@@ -4941,8 +4677,7 @@ std::string_view SwiftAsyncContextAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SwiftAsyncContextAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SwiftAsyncContextAttr::Spelling can return nullptr!");
 }
 
 SwiftAsyncErrorAttr::SwiftAsyncErrorAttr(
@@ -4957,14 +4692,12 @@ enum SwiftAsyncErrorAttrConventionKind SwiftAsyncErrorAttr::Convention(void) con
   auto &self = *const_cast<clang::SwiftAsyncErrorAttr *>(u.SwiftAsyncErrorAttr);
   decltype(auto) val = self.getConvention();
   return static_cast<::pasta::SwiftAsyncErrorAttrConventionKind>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t SwiftAsyncErrorAttr::HandlerParameterIndex(void) const {
   auto &self = *const_cast<clang::SwiftAsyncErrorAttr *>(u.SwiftAsyncErrorAttr);
   decltype(auto) val = self.getHandlerParamIdx();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view SwiftAsyncErrorAttr::Spelling(void) const {
@@ -4975,8 +4708,7 @@ std::string_view SwiftAsyncErrorAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SwiftAsyncErrorAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SwiftAsyncErrorAttr::Spelling can return nullptr!");
 }
 
 SwiftAsyncNameAttr::SwiftAsyncNameAttr(
@@ -4995,14 +4727,12 @@ std::string_view SwiftAsyncNameAttr::Name(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t SwiftAsyncNameAttr::NameLength(void) const {
   auto &self = *const_cast<clang::SwiftAsyncNameAttr *>(u.SwiftAsyncNameAttr);
   decltype(auto) val = self.getNameLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view SwiftAsyncNameAttr::Spelling(void) const {
@@ -5013,8 +4743,7 @@ std::string_view SwiftAsyncNameAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SwiftAsyncNameAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SwiftAsyncNameAttr::Spelling can return nullptr!");
 }
 
 SwiftAttrAttr::SwiftAttrAttr(
@@ -5033,14 +4762,12 @@ std::string_view SwiftAttrAttr::Attribute(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t SwiftAttrAttr::AttributeLength(void) const {
   auto &self = *const_cast<clang::SwiftAttrAttr *>(u.SwiftAttrAttr);
   decltype(auto) val = self.getAttributeLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view SwiftAttrAttr::Spelling(void) const {
@@ -5051,8 +4778,7 @@ std::string_view SwiftAttrAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SwiftAttrAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SwiftAttrAttr::Spelling can return nullptr!");
 }
 
 SwiftBridgeAttr::SwiftBridgeAttr(
@@ -5071,8 +4797,7 @@ std::string_view SwiftBridgeAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SwiftBridgeAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SwiftBridgeAttr::Spelling can return nullptr!");
 }
 
 std::string_view SwiftBridgeAttr::SwiftType(void) const {
@@ -5083,14 +4808,12 @@ std::string_view SwiftBridgeAttr::SwiftType(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t SwiftBridgeAttr::SwiftTypeLength(void) const {
   auto &self = *const_cast<clang::SwiftBridgeAttr *>(u.SwiftBridgeAttr);
   decltype(auto) val = self.getSwiftTypeLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 SwiftBridgedTypedefAttr::SwiftBridgedTypedefAttr(
@@ -5109,8 +4832,7 @@ std::string_view SwiftBridgedTypedefAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SwiftBridgedTypedefAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SwiftBridgedTypedefAttr::Spelling can return nullptr!");
 }
 
 SwiftCallAttr::SwiftCallAttr(
@@ -5129,8 +4851,7 @@ std::string_view SwiftCallAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SwiftCallAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SwiftCallAttr::Spelling can return nullptr!");
 }
 
 SwiftContextAttr::SwiftContextAttr(
@@ -5151,8 +4872,7 @@ std::string_view SwiftContextAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SwiftContextAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SwiftContextAttr::Spelling can return nullptr!");
 }
 
 SwiftErrorAttr::SwiftErrorAttr(
@@ -5167,7 +4887,6 @@ enum SwiftErrorAttrConventionKind SwiftErrorAttr::Convention(void) const {
   auto &self = *const_cast<clang::SwiftErrorAttr *>(u.SwiftErrorAttr);
   decltype(auto) val = self.getConvention();
   return static_cast<::pasta::SwiftErrorAttrConventionKind>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view SwiftErrorAttr::Spelling(void) const {
@@ -5178,8 +4897,7 @@ std::string_view SwiftErrorAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SwiftErrorAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SwiftErrorAttr::Spelling can return nullptr!");
 }
 
 SwiftErrorResultAttr::SwiftErrorResultAttr(
@@ -5200,8 +4918,7 @@ std::string_view SwiftErrorResultAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SwiftErrorResultAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SwiftErrorResultAttr::Spelling can return nullptr!");
 }
 
 SwiftIndirectResultAttr::SwiftIndirectResultAttr(
@@ -5222,8 +4939,7 @@ std::string_view SwiftIndirectResultAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SwiftIndirectResultAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SwiftIndirectResultAttr::Spelling can return nullptr!");
 }
 
 SwiftNameAttr::SwiftNameAttr(
@@ -5242,14 +4958,12 @@ std::string_view SwiftNameAttr::Name(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t SwiftNameAttr::NameLength(void) const {
   auto &self = *const_cast<clang::SwiftNameAttr *>(u.SwiftNameAttr);
   decltype(auto) val = self.getNameLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view SwiftNameAttr::Spelling(void) const {
@@ -5260,8 +4974,7 @@ std::string_view SwiftNameAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SwiftNameAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SwiftNameAttr::Spelling can return nullptr!");
 }
 
 SwiftNewTypeAttr::SwiftNewTypeAttr(
@@ -5276,14 +4989,12 @@ enum SwiftNewTypeAttrNewtypeKind SwiftNewTypeAttr::NewtypeKind(void) const {
   auto &self = *const_cast<clang::SwiftNewTypeAttr *>(u.SwiftNewTypeAttr);
   decltype(auto) val = self.getNewtypeKind();
   return static_cast<::pasta::SwiftNewTypeAttrNewtypeKind>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 enum SwiftNewTypeAttrSpelling SwiftNewTypeAttr::SemanticSpelling(void) const {
   auto &self = *const_cast<clang::SwiftNewTypeAttr *>(u.SwiftNewTypeAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::SwiftNewTypeAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view SwiftNewTypeAttr::Spelling(void) const {
@@ -5294,8 +5005,7 @@ std::string_view SwiftNewTypeAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SwiftNewTypeAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SwiftNewTypeAttr::Spelling can return nullptr!");
 }
 
 SwiftObjCMembersAttr::SwiftObjCMembersAttr(
@@ -5313,8 +5023,7 @@ std::string_view SwiftObjCMembersAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SwiftObjCMembersAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SwiftObjCMembersAttr::Spelling can return nullptr!");
 }
 
 SwiftPrivateAttr::SwiftPrivateAttr(
@@ -5333,8 +5042,7 @@ std::string_view SwiftPrivateAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SwiftPrivateAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SwiftPrivateAttr::Spelling can return nullptr!");
 }
 
 SysVABIAttr::SysVABIAttr(
@@ -5353,8 +5061,7 @@ std::string_view SysVABIAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SysVABIAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SysVABIAttr::Spelling can return nullptr!");
 }
 
 TLSModelAttr::TLSModelAttr(
@@ -5373,14 +5080,12 @@ std::string_view TLSModelAttr::Model(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t TLSModelAttr::ModelLength(void) const {
   auto &self = *const_cast<clang::TLSModelAttr *>(u.TLSModelAttr);
   decltype(auto) val = self.getModelLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view TLSModelAttr::Spelling(void) const {
@@ -5391,8 +5096,7 @@ std::string_view TLSModelAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "TLSModelAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("TLSModelAttr::Spelling can return nullptr!");
 }
 
 TargetAttr::TargetAttr(
@@ -5411,7 +5115,6 @@ std::string_view TargetAttr::Architecture(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view TargetAttr::FeaturesString(void) const {
@@ -5422,14 +5125,12 @@ std::string_view TargetAttr::FeaturesString(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t TargetAttr::FeaturesStringLength(void) const {
   auto &self = *const_cast<clang::TargetAttr *>(u.TargetAttr);
   decltype(auto) val = self.getFeaturesStrLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view TargetAttr::Spelling(void) const {
@@ -5440,15 +5141,13 @@ std::string_view TargetAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "TargetAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("TargetAttr::Spelling can return nullptr!");
 }
 
 bool TargetAttr::IsDefaultVersion(void) const {
   auto &self = *const_cast<clang::TargetAttr *>(u.TargetAttr);
   decltype(auto) val = self.isDefaultVersion();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 TargetClonesAttr::TargetClonesAttr(
@@ -5473,8 +5172,7 @@ std::string_view TargetClonesAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "TargetClonesAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("TargetClonesAttr::Spelling can return nullptr!");
 }
 
 // 1: TargetClonesAttr::IsFirstOfVersion
@@ -5494,7 +5192,6 @@ std::string_view TargetVersionAttr::Name(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view TargetVersionAttr::NamesString(void) const {
@@ -5505,14 +5202,12 @@ std::string_view TargetVersionAttr::NamesString(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t TargetVersionAttr::NamesStringLength(void) const {
   auto &self = *const_cast<clang::TargetVersionAttr *>(u.TargetVersionAttr);
   decltype(auto) val = self.getNamesStrLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view TargetVersionAttr::Spelling(void) const {
@@ -5523,15 +5218,13 @@ std::string_view TargetVersionAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "TargetVersionAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("TargetVersionAttr::Spelling can return nullptr!");
 }
 
 bool TargetVersionAttr::IsDefaultVersion(void) const {
   auto &self = *const_cast<clang::TargetVersionAttr *>(u.TargetVersionAttr);
   decltype(auto) val = self.isDefaultVersion();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 TestTypestateAttr::TestTypestateAttr(
@@ -5550,15 +5243,13 @@ std::string_view TestTypestateAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "TestTypestateAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("TestTypestateAttr::Spelling can return nullptr!");
 }
 
 enum TestTypestateAttrConsumedState TestTypestateAttr::TestState(void) const {
   auto &self = *const_cast<clang::TestTypestateAttr *>(u.TestTypestateAttr);
   decltype(auto) val = self.getTestState();
   return static_cast<::pasta::TestTypestateAttrConsumedState>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 ThisCallAttr::ThisCallAttr(
@@ -5577,8 +5268,7 @@ std::string_view ThisCallAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ThisCallAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ThisCallAttr::Spelling can return nullptr!");
 }
 
 ThreadAttr::ThreadAttr(
@@ -5596,8 +5286,7 @@ std::string_view ThreadAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ThreadAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ThreadAttr::Spelling can return nullptr!");
 }
 
 TransparentUnionAttr::TransparentUnionAttr(
@@ -5616,8 +5305,7 @@ std::string_view TransparentUnionAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "TransparentUnionAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("TransparentUnionAttr::Spelling can return nullptr!");
 }
 
 TrivialABIAttr::TrivialABIAttr(
@@ -5636,8 +5324,7 @@ std::string_view TrivialABIAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "TrivialABIAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("TrivialABIAttr::Spelling can return nullptr!");
 }
 
 TryAcquireCapabilityAttr::TryAcquireCapabilityAttr(
@@ -5656,7 +5343,6 @@ enum TryAcquireCapabilityAttrSpelling TryAcquireCapabilityAttr::SemanticSpelling
   auto &self = *const_cast<clang::TryAcquireCapabilityAttr *>(u.TryAcquireCapabilityAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::TryAcquireCapabilityAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view TryAcquireCapabilityAttr::Spelling(void) const {
@@ -5667,8 +5353,7 @@ std::string_view TryAcquireCapabilityAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "TryAcquireCapabilityAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("TryAcquireCapabilityAttr::Spelling can return nullptr!");
 }
 
 ::pasta::Expr TryAcquireCapabilityAttr::SuccessValue(void) const {
@@ -5677,15 +5362,13 @@ std::string_view TryAcquireCapabilityAttr::Spelling(void) const {
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "TryAcquireCapabilityAttr::SuccessValue can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("TryAcquireCapabilityAttr::SuccessValue can return nullptr!");
 }
 
 bool TryAcquireCapabilityAttr::IsShared(void) const {
   auto &self = *const_cast<clang::TryAcquireCapabilityAttr *>(u.TryAcquireCapabilityAttr);
   decltype(auto) val = self.isShared();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 TypeAttr::TypeAttr(
@@ -5735,8 +5418,7 @@ std::string_view TypeNonNullAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "TypeNonNullAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("TypeNonNullAttr::Spelling can return nullptr!");
 }
 
 TypeNullUnspecifiedAttr::TypeNullUnspecifiedAttr(
@@ -5755,8 +5437,7 @@ std::string_view TypeNullUnspecifiedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "TypeNullUnspecifiedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("TypeNullUnspecifiedAttr::Spelling can return nullptr!");
 }
 
 TypeNullableAttr::TypeNullableAttr(
@@ -5775,8 +5456,7 @@ std::string_view TypeNullableAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "TypeNullableAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("TypeNullableAttr::Spelling can return nullptr!");
 }
 
 TypeNullableResultAttr::TypeNullableResultAttr(
@@ -5795,8 +5475,7 @@ std::string_view TypeNullableResultAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "TypeNullableResultAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("TypeNullableResultAttr::Spelling can return nullptr!");
 }
 
 TypeTagForDatatypeAttr::TypeTagForDatatypeAttr(
@@ -5812,7 +5491,6 @@ bool TypeTagForDatatypeAttr::LayoutCompatible(void) const {
   auto &self = *const_cast<clang::TypeTagForDatatypeAttr *>(u.TypeTagForDatatypeAttr);
   decltype(auto) val = self.getLayoutCompatible();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 ::pasta::Type TypeTagForDatatypeAttr::MatchingCType(void) const {
@@ -5820,22 +5498,19 @@ bool TypeTagForDatatypeAttr::LayoutCompatible(void) const {
   decltype(auto) val = self.getMatchingCType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 ::pasta::Type TypeTagForDatatypeAttr::MatchingCTypeToken(void) const {
   auto &self = *const_cast<clang::TypeTagForDatatypeAttr *>(u.TypeTagForDatatypeAttr);
   decltype(auto) val = self.getMatchingCTypeLoc();
   return TypeBuilder::Build(ast, val->getType());
-  assert(false && "TypeTagForDatatypeAttr::MatchingCTypeToken can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("TypeTagForDatatypeAttr::MatchingCTypeToken can return nullptr!");
 }
 
 bool TypeTagForDatatypeAttr::MustBeNull(void) const {
   auto &self = *const_cast<clang::TypeTagForDatatypeAttr *>(u.TypeTagForDatatypeAttr);
   decltype(auto) val = self.getMustBeNull();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view TypeTagForDatatypeAttr::Spelling(void) const {
@@ -5846,8 +5521,7 @@ std::string_view TypeTagForDatatypeAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "TypeTagForDatatypeAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("TypeTagForDatatypeAttr::Spelling can return nullptr!");
 }
 
 TypeVisibilityAttr::TypeVisibilityAttr(
@@ -5866,15 +5540,13 @@ std::string_view TypeVisibilityAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "TypeVisibilityAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("TypeVisibilityAttr::Spelling can return nullptr!");
 }
 
 enum TypeVisibilityAttrVisibilityType TypeVisibilityAttr::Visibility(void) const {
   auto &self = *const_cast<clang::TypeVisibilityAttr *>(u.TypeVisibilityAttr);
   decltype(auto) val = self.getVisibility();
   return static_cast<::pasta::TypeVisibilityAttrVisibilityType>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 UPtrAttr::UPtrAttr(
@@ -5893,8 +5565,7 @@ std::string_view UPtrAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "UPtrAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("UPtrAttr::Spelling can return nullptr!");
 }
 
 UnavailableAttr::UnavailableAttr(
@@ -5909,7 +5580,6 @@ enum UnavailableAttrImplicitReason UnavailableAttr::ImplicitReason(void) const {
   auto &self = *const_cast<clang::UnavailableAttr *>(u.UnavailableAttr);
   decltype(auto) val = self.getImplicitReason();
   return static_cast<::pasta::UnavailableAttrImplicitReason>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view UnavailableAttr::Message(void) const {
@@ -5920,14 +5590,12 @@ std::string_view UnavailableAttr::Message(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t UnavailableAttr::MessageLength(void) const {
   auto &self = *const_cast<clang::UnavailableAttr *>(u.UnavailableAttr);
   decltype(auto) val = self.getMessageLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view UnavailableAttr::Spelling(void) const {
@@ -5938,8 +5606,7 @@ std::string_view UnavailableAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "UnavailableAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("UnavailableAttr::Spelling can return nullptr!");
 }
 
 UninitializedAttr::UninitializedAttr(
@@ -5958,8 +5625,7 @@ std::string_view UninitializedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "UninitializedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("UninitializedAttr::Spelling can return nullptr!");
 }
 
 UnlikelyAttr::UnlikelyAttr(
@@ -5978,8 +5644,7 @@ std::string_view UnlikelyAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "UnlikelyAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("UnlikelyAttr::Spelling can return nullptr!");
 }
 
 UnusedAttr::UnusedAttr(
@@ -5994,7 +5659,6 @@ enum UnusedAttrSpelling UnusedAttr::SemanticSpelling(void) const {
   auto &self = *const_cast<clang::UnusedAttr *>(u.UnusedAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::UnusedAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view UnusedAttr::Spelling(void) const {
@@ -6005,8 +5669,7 @@ std::string_view UnusedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "UnusedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("UnusedAttr::Spelling can return nullptr!");
 }
 
 UseHandleAttr::UseHandleAttr(
@@ -6026,14 +5689,12 @@ std::string_view UseHandleAttr::HandleType(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t UseHandleAttr::HandleTypeLength(void) const {
   auto &self = *const_cast<clang::UseHandleAttr *>(u.UseHandleAttr);
   decltype(auto) val = self.getHandleTypeLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view UseHandleAttr::Spelling(void) const {
@@ -6044,8 +5705,7 @@ std::string_view UseHandleAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "UseHandleAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("UseHandleAttr::Spelling can return nullptr!");
 }
 
 UsedAttr::UsedAttr(
@@ -6064,8 +5724,7 @@ std::string_view UsedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "UsedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("UsedAttr::Spelling can return nullptr!");
 }
 
 UsingIfExistsAttr::UsingIfExistsAttr(
@@ -6084,8 +5743,7 @@ std::string_view UsingIfExistsAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "UsingIfExistsAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("UsingIfExistsAttr::Spelling can return nullptr!");
 }
 
 UuidAttr::UuidAttr(
@@ -6104,7 +5762,6 @@ std::string_view UuidAttr::Guid(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 ::pasta::MSGuidDecl UuidAttr::GuidDeclaration(void) const {
@@ -6113,15 +5770,13 @@ std::string_view UuidAttr::Guid(void) const {
   if (val) {
     return DeclBuilder::Create<::pasta::MSGuidDecl>(ast, val);
   }
-  assert(false && "UuidAttr::GuidDeclaration can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("UuidAttr::GuidDeclaration can return nullptr!");
 }
 
 uint32_t UuidAttr::GuidLength(void) const {
   auto &self = *const_cast<clang::UuidAttr *>(u.UuidAttr);
   decltype(auto) val = self.getGuidLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view UuidAttr::Spelling(void) const {
@@ -6132,8 +5787,7 @@ std::string_view UuidAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "UuidAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("UuidAttr::Spelling can return nullptr!");
 }
 
 VecReturnAttr::VecReturnAttr(
@@ -6152,8 +5806,7 @@ std::string_view VecReturnAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "VecReturnAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("VecReturnAttr::Spelling can return nullptr!");
 }
 
 VecTypeHintAttr::VecTypeHintAttr(
@@ -6172,8 +5825,7 @@ std::string_view VecTypeHintAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "VecTypeHintAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("VecTypeHintAttr::Spelling can return nullptr!");
 }
 
 ::pasta::Type VecTypeHintAttr::TypeHint(void) const {
@@ -6181,15 +5833,13 @@ std::string_view VecTypeHintAttr::Spelling(void) const {
   decltype(auto) val = self.getTypeHint();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 ::pasta::Type VecTypeHintAttr::TypeHintToken(void) const {
   auto &self = *const_cast<clang::VecTypeHintAttr *>(u.VecTypeHintAttr);
   decltype(auto) val = self.getTypeHintLoc();
   return TypeBuilder::Build(ast, val->getType());
-  assert(false && "VecTypeHintAttr::TypeHintToken can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("VecTypeHintAttr::TypeHintToken can return nullptr!");
 }
 
 VectorCallAttr::VectorCallAttr(
@@ -6208,8 +5858,7 @@ std::string_view VectorCallAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "VectorCallAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("VectorCallAttr::Spelling can return nullptr!");
 }
 
 VisibilityAttr::VisibilityAttr(
@@ -6228,15 +5877,13 @@ std::string_view VisibilityAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "VisibilityAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("VisibilityAttr::Spelling can return nullptr!");
 }
 
 enum VisibilityAttrVisibilityType VisibilityAttr::Visibility(void) const {
   auto &self = *const_cast<clang::VisibilityAttr *>(u.VisibilityAttr);
   decltype(auto) val = self.getVisibility();
   return static_cast<::pasta::VisibilityAttrVisibilityType>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 WarnUnusedAttr::WarnUnusedAttr(
@@ -6255,8 +5902,7 @@ std::string_view WarnUnusedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "WarnUnusedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("WarnUnusedAttr::Spelling can return nullptr!");
 }
 
 WarnUnusedResultAttr::WarnUnusedResultAttr(
@@ -6270,7 +5916,6 @@ bool WarnUnusedResultAttr::IsCXX11NoDiscard(void) const {
   auto &self = *const_cast<clang::WarnUnusedResultAttr *>(u.WarnUnusedResultAttr);
   decltype(auto) val = self.IsCXX11NoDiscard();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: WarnUnusedResultAttr::Clone
@@ -6282,21 +5927,18 @@ std::string_view WarnUnusedResultAttr::Message(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t WarnUnusedResultAttr::MessageLength(void) const {
   auto &self = *const_cast<clang::WarnUnusedResultAttr *>(u.WarnUnusedResultAttr);
   decltype(auto) val = self.getMessageLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 enum WarnUnusedResultAttrSpelling WarnUnusedResultAttr::SemanticSpelling(void) const {
   auto &self = *const_cast<clang::WarnUnusedResultAttr *>(u.WarnUnusedResultAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::WarnUnusedResultAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view WarnUnusedResultAttr::Spelling(void) const {
@@ -6307,8 +5949,7 @@ std::string_view WarnUnusedResultAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "WarnUnusedResultAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("WarnUnusedResultAttr::Spelling can return nullptr!");
 }
 
 WeakAttr::WeakAttr(
@@ -6327,8 +5968,7 @@ std::string_view WeakAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "WeakAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("WeakAttr::Spelling can return nullptr!");
 }
 
 WeakImportAttr::WeakImportAttr(
@@ -6347,8 +5987,7 @@ std::string_view WeakImportAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "WeakImportAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("WeakImportAttr::Spelling can return nullptr!");
 }
 
 WeakRefAttr::WeakRefAttr(
@@ -6367,14 +6006,12 @@ std::string_view WeakRefAttr::Aliasee(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t WeakRefAttr::AliaseeLength(void) const {
   auto &self = *const_cast<clang::WeakRefAttr *>(u.WeakRefAttr);
   decltype(auto) val = self.getAliaseeLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view WeakRefAttr::Spelling(void) const {
@@ -6385,8 +6022,7 @@ std::string_view WeakRefAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "WeakRefAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("WeakRefAttr::Spelling can return nullptr!");
 }
 
 WebAssemblyExportNameAttr::WebAssemblyExportNameAttr(
@@ -6405,14 +6041,12 @@ std::string_view WebAssemblyExportNameAttr::ExportName(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t WebAssemblyExportNameAttr::ExportNameLength(void) const {
   auto &self = *const_cast<clang::WebAssemblyExportNameAttr *>(u.WebAssemblyExportNameAttr);
   decltype(auto) val = self.getExportNameLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view WebAssemblyExportNameAttr::Spelling(void) const {
@@ -6423,8 +6057,7 @@ std::string_view WebAssemblyExportNameAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "WebAssemblyExportNameAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("WebAssemblyExportNameAttr::Spelling can return nullptr!");
 }
 
 WebAssemblyImportModuleAttr::WebAssemblyImportModuleAttr(
@@ -6443,14 +6076,12 @@ std::string_view WebAssemblyImportModuleAttr::ImportModule(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t WebAssemblyImportModuleAttr::ImportModuleLength(void) const {
   auto &self = *const_cast<clang::WebAssemblyImportModuleAttr *>(u.WebAssemblyImportModuleAttr);
   decltype(auto) val = self.getImportModuleLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view WebAssemblyImportModuleAttr::Spelling(void) const {
@@ -6461,8 +6092,7 @@ std::string_view WebAssemblyImportModuleAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "WebAssemblyImportModuleAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("WebAssemblyImportModuleAttr::Spelling can return nullptr!");
 }
 
 WebAssemblyImportNameAttr::WebAssemblyImportNameAttr(
@@ -6481,14 +6111,12 @@ std::string_view WebAssemblyImportNameAttr::ImportName(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t WebAssemblyImportNameAttr::ImportNameLength(void) const {
   auto &self = *const_cast<clang::WebAssemblyImportNameAttr *>(u.WebAssemblyImportNameAttr);
   decltype(auto) val = self.getImportNameLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view WebAssemblyImportNameAttr::Spelling(void) const {
@@ -6499,8 +6127,7 @@ std::string_view WebAssemblyImportNameAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "WebAssemblyImportNameAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("WebAssemblyImportNameAttr::Spelling can return nullptr!");
 }
 
 WorkGroupSizeHintAttr::WorkGroupSizeHintAttr(
@@ -6519,29 +6146,25 @@ std::string_view WorkGroupSizeHintAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "WorkGroupSizeHintAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("WorkGroupSizeHintAttr::Spelling can return nullptr!");
 }
 
 uint32_t WorkGroupSizeHintAttr::XDim(void) const {
   auto &self = *const_cast<clang::WorkGroupSizeHintAttr *>(u.WorkGroupSizeHintAttr);
   decltype(auto) val = self.getXDim();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t WorkGroupSizeHintAttr::YDim(void) const {
   auto &self = *const_cast<clang::WorkGroupSizeHintAttr *>(u.WorkGroupSizeHintAttr);
   decltype(auto) val = self.getYDim();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t WorkGroupSizeHintAttr::ZDim(void) const {
   auto &self = *const_cast<clang::WorkGroupSizeHintAttr *>(u.WorkGroupSizeHintAttr);
   decltype(auto) val = self.getZDim();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 X86ForceAlignArgPointerAttr::X86ForceAlignArgPointerAttr(
@@ -6560,8 +6183,7 @@ std::string_view X86ForceAlignArgPointerAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "X86ForceAlignArgPointerAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("X86ForceAlignArgPointerAttr::Spelling can return nullptr!");
 }
 
 XRayInstrumentAttr::XRayInstrumentAttr(
@@ -6575,7 +6197,6 @@ bool XRayInstrumentAttr::AlwaysXRayInstrument(void) const {
   auto &self = *const_cast<clang::XRayInstrumentAttr *>(u.XRayInstrumentAttr);
   decltype(auto) val = self.alwaysXRayInstrument();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 1: XRayInstrumentAttr::Clone
@@ -6583,7 +6204,6 @@ enum XRayInstrumentAttrSpelling XRayInstrumentAttr::SemanticSpelling(void) const
   auto &self = *const_cast<clang::XRayInstrumentAttr *>(u.XRayInstrumentAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::XRayInstrumentAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view XRayInstrumentAttr::Spelling(void) const {
@@ -6594,15 +6214,13 @@ std::string_view XRayInstrumentAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "XRayInstrumentAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("XRayInstrumentAttr::Spelling can return nullptr!");
 }
 
 bool XRayInstrumentAttr::NeverXRayInstrument(void) const {
   auto &self = *const_cast<clang::XRayInstrumentAttr *>(u.XRayInstrumentAttr);
   decltype(auto) val = self.neverXRayInstrument();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 XRayLogArgsAttr::XRayLogArgsAttr(
@@ -6617,7 +6235,6 @@ uint32_t XRayLogArgsAttr::ArgumentCount(void) const {
   auto &self = *const_cast<clang::XRayLogArgsAttr *>(u.XRayLogArgsAttr);
   decltype(auto) val = self.getArgumentCount();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view XRayLogArgsAttr::Spelling(void) const {
@@ -6628,8 +6245,7 @@ std::string_view XRayLogArgsAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "XRayLogArgsAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("XRayLogArgsAttr::Spelling can return nullptr!");
 }
 
 ZeroCallUsedRegsAttr::ZeroCallUsedRegsAttr(
@@ -6648,15 +6264,13 @@ std::string_view ZeroCallUsedRegsAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ZeroCallUsedRegsAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ZeroCallUsedRegsAttr::Spelling can return nullptr!");
 }
 
 enum ZeroCallUsedRegsAttrZeroCallUsedRegsKind ZeroCallUsedRegsAttr::ZeroCallUsedRegs(void) const {
   auto &self = *const_cast<clang::ZeroCallUsedRegsAttr *>(u.ZeroCallUsedRegsAttr);
   decltype(auto) val = self.getZeroCallUsedRegs();
   return static_cast<::pasta::ZeroCallUsedRegsAttrZeroCallUsedRegsKind>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 AArch64SVEPcsAttr::AArch64SVEPcsAttr(
@@ -6675,8 +6289,7 @@ std::string_view AArch64SVEPcsAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AArch64SVEPcsAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AArch64SVEPcsAttr::Spelling can return nullptr!");
 }
 
 AArch64VectorPcsAttr::AArch64VectorPcsAttr(
@@ -6695,8 +6308,7 @@ std::string_view AArch64VectorPcsAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AArch64VectorPcsAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AArch64VectorPcsAttr::Spelling can return nullptr!");
 }
 
 AMDGPUFlatWorkGroupSizeAttr::AMDGPUFlatWorkGroupSizeAttr(
@@ -6713,8 +6325,7 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AMDGPUFlatWorkGroupSizeAttr)
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "AMDGPUFlatWorkGroupSizeAttr::Max can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AMDGPUFlatWorkGroupSizeAttr::Max can return nullptr!");
 }
 
 ::pasta::Expr AMDGPUFlatWorkGroupSizeAttr::Min(void) const {
@@ -6723,8 +6334,7 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AMDGPUFlatWorkGroupSizeAttr)
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "AMDGPUFlatWorkGroupSizeAttr::Min can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AMDGPUFlatWorkGroupSizeAttr::Min can return nullptr!");
 }
 
 std::string_view AMDGPUFlatWorkGroupSizeAttr::Spelling(void) const {
@@ -6735,8 +6345,7 @@ std::string_view AMDGPUFlatWorkGroupSizeAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AMDGPUFlatWorkGroupSizeAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AMDGPUFlatWorkGroupSizeAttr::Spelling can return nullptr!");
 }
 
 AMDGPUKernelCallAttr::AMDGPUKernelCallAttr(
@@ -6755,8 +6364,7 @@ std::string_view AMDGPUKernelCallAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AMDGPUKernelCallAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AMDGPUKernelCallAttr::Spelling can return nullptr!");
 }
 
 AMDGPUNumSGPRAttr::AMDGPUNumSGPRAttr(
@@ -6771,7 +6379,6 @@ uint32_t AMDGPUNumSGPRAttr::NumSGPR(void) const {
   auto &self = *const_cast<clang::AMDGPUNumSGPRAttr *>(u.AMDGPUNumSGPRAttr);
   decltype(auto) val = self.getNumSGPR();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view AMDGPUNumSGPRAttr::Spelling(void) const {
@@ -6782,8 +6389,7 @@ std::string_view AMDGPUNumSGPRAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AMDGPUNumSGPRAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AMDGPUNumSGPRAttr::Spelling can return nullptr!");
 }
 
 AMDGPUNumVGPRAttr::AMDGPUNumVGPRAttr(
@@ -6798,7 +6404,6 @@ uint32_t AMDGPUNumVGPRAttr::NumVGPR(void) const {
   auto &self = *const_cast<clang::AMDGPUNumVGPRAttr *>(u.AMDGPUNumVGPRAttr);
   decltype(auto) val = self.getNumVGPR();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view AMDGPUNumVGPRAttr::Spelling(void) const {
@@ -6809,8 +6414,7 @@ std::string_view AMDGPUNumVGPRAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AMDGPUNumVGPRAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AMDGPUNumVGPRAttr::Spelling can return nullptr!");
 }
 
 AMDGPUWavesPerEUAttr::AMDGPUWavesPerEUAttr(
@@ -6827,8 +6431,7 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AMDGPUWavesPerEUAttr)
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "AMDGPUWavesPerEUAttr::Max can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AMDGPUWavesPerEUAttr::Max can return nullptr!");
 }
 
 ::pasta::Expr AMDGPUWavesPerEUAttr::Min(void) const {
@@ -6837,8 +6440,7 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AMDGPUWavesPerEUAttr)
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "AMDGPUWavesPerEUAttr::Min can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AMDGPUWavesPerEUAttr::Min can return nullptr!");
 }
 
 std::string_view AMDGPUWavesPerEUAttr::Spelling(void) const {
@@ -6849,8 +6451,7 @@ std::string_view AMDGPUWavesPerEUAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AMDGPUWavesPerEUAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AMDGPUWavesPerEUAttr::Spelling can return nullptr!");
 }
 
 ARMInterruptAttr::ARMInterruptAttr(
@@ -6865,7 +6466,6 @@ enum ARMInterruptAttrInterruptType ARMInterruptAttr::Interrupt(void) const {
   auto &self = *const_cast<clang::ARMInterruptAttr *>(u.ARMInterruptAttr);
   decltype(auto) val = self.getInterrupt();
   return static_cast<::pasta::ARMInterruptAttrInterruptType>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view ARMInterruptAttr::Spelling(void) const {
@@ -6876,8 +6476,7 @@ std::string_view ARMInterruptAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ARMInterruptAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ARMInterruptAttr::Spelling can return nullptr!");
 }
 
 AVRInterruptAttr::AVRInterruptAttr(
@@ -6896,8 +6495,7 @@ std::string_view AVRInterruptAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AVRInterruptAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AVRInterruptAttr::Spelling can return nullptr!");
 }
 
 AVRSignalAttr::AVRSignalAttr(
@@ -6916,8 +6514,7 @@ std::string_view AVRSignalAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AVRSignalAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AVRSignalAttr::Spelling can return nullptr!");
 }
 
 AbiTagAttr::AbiTagAttr(
@@ -6935,8 +6532,7 @@ std::string_view AbiTagAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AbiTagAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AbiTagAttr::Spelling can return nullptr!");
 }
 
 // 0: AbiTagAttr::Tags
@@ -6959,7 +6555,6 @@ enum AcquireCapabilityAttrSpelling AcquireCapabilityAttr::SemanticSpelling(void)
   auto &self = *const_cast<clang::AcquireCapabilityAttr *>(u.AcquireCapabilityAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::AcquireCapabilityAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view AcquireCapabilityAttr::Spelling(void) const {
@@ -6970,15 +6565,13 @@ std::string_view AcquireCapabilityAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AcquireCapabilityAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AcquireCapabilityAttr::Spelling can return nullptr!");
 }
 
 bool AcquireCapabilityAttr::IsShared(void) const {
   auto &self = *const_cast<clang::AcquireCapabilityAttr *>(u.AcquireCapabilityAttr);
   decltype(auto) val = self.isShared();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 AcquireHandleAttr::AcquireHandleAttr(
@@ -6997,14 +6590,12 @@ std::string_view AcquireHandleAttr::HandleType(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t AcquireHandleAttr::HandleTypeLength(void) const {
   auto &self = *const_cast<clang::AcquireHandleAttr *>(u.AcquireHandleAttr);
   decltype(auto) val = self.getHandleTypeLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view AcquireHandleAttr::Spelling(void) const {
@@ -7015,8 +6606,7 @@ std::string_view AcquireHandleAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AcquireHandleAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AcquireHandleAttr::Spelling can return nullptr!");
 }
 
 AcquiredAfterAttr::AcquiredAfterAttr(
@@ -7039,8 +6629,7 @@ std::string_view AcquiredAfterAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AcquiredAfterAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AcquiredAfterAttr::Spelling can return nullptr!");
 }
 
 AcquiredBeforeAttr::AcquiredBeforeAttr(
@@ -7063,8 +6652,7 @@ std::string_view AcquiredBeforeAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AcquiredBeforeAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AcquiredBeforeAttr::Spelling can return nullptr!");
 }
 
 AddressSpaceAttr::AddressSpaceAttr(
@@ -7084,8 +6672,7 @@ std::string_view AddressSpaceAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AddressSpaceAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AddressSpaceAttr::Spelling can return nullptr!");
 }
 
 AliasAttr::AliasAttr(
@@ -7103,14 +6690,12 @@ std::string_view AliasAttr::Aliasee(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t AliasAttr::AliaseeLength(void) const {
   auto &self = *const_cast<clang::AliasAttr *>(u.AliasAttr);
   decltype(auto) val = self.getAliaseeLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view AliasAttr::Spelling(void) const {
@@ -7121,8 +6706,7 @@ std::string_view AliasAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AliasAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AliasAttr::Spelling can return nullptr!");
 }
 
 AlignMac68kAttr::AlignMac68kAttr(
@@ -7141,8 +6725,7 @@ std::string_view AlignMac68kAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AlignMac68kAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AlignMac68kAttr::Spelling can return nullptr!");
 }
 
 AlignNaturalAttr::AlignNaturalAttr(
@@ -7161,8 +6744,7 @@ std::string_view AlignNaturalAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AlignNaturalAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AlignNaturalAttr::Spelling can return nullptr!");
 }
 
 AlignValueAttr::AlignValueAttr(
@@ -7178,8 +6760,7 @@ PASTA_DEFINE_BASE_OPERATORS(Attr, AlignValueAttr)
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "AlignValueAttr::Alignment can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AlignValueAttr::Alignment can return nullptr!");
 }
 
 std::string_view AlignValueAttr::Spelling(void) const {
@@ -7190,8 +6771,7 @@ std::string_view AlignValueAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AlignValueAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AlignValueAttr::Spelling can return nullptr!");
 }
 
 AlignedAttr::AlignedAttr(
@@ -7206,7 +6786,6 @@ uint32_t AlignedAttr::Alignment(void) const {
   auto &self = *(u.AlignedAttr);
   decltype(auto) val = self.getAlignment(ast->ci->getASTContext());
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::optional<::pasta::Expr> AlignedAttr::AlignmentExpression(void) const {
@@ -7221,7 +6800,6 @@ std::optional<::pasta::Expr> AlignedAttr::AlignmentExpression(void) const {
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::optional<::pasta::Type> AlignedAttr::AlignmentType(void) const {
@@ -7234,14 +6812,12 @@ std::optional<::pasta::Type> AlignedAttr::AlignmentType(void) const {
     return std::nullopt;
   }
   return TypeBuilder::Build(ast, val->getType());
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 enum AlignedAttrSpelling AlignedAttr::SemanticSpelling(void) const {
   auto &self = *const_cast<clang::AlignedAttr *>(u.AlignedAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::AlignedAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view AlignedAttr::Spelling(void) const {
@@ -7252,57 +6828,49 @@ std::string_view AlignedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AlignedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AlignedAttr::Spelling can return nullptr!");
 }
 
 bool AlignedAttr::IsAlignas(void) const {
   auto &self = *const_cast<clang::AlignedAttr *>(u.AlignedAttr);
   decltype(auto) val = self.isAlignas();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 bool AlignedAttr::IsAlignmentDependent(void) const {
   auto &self = *const_cast<clang::AlignedAttr *>(u.AlignedAttr);
   decltype(auto) val = self.isAlignmentDependent();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 bool AlignedAttr::IsAlignmentErrorDependent(void) const {
   auto &self = *const_cast<clang::AlignedAttr *>(u.AlignedAttr);
   decltype(auto) val = self.isAlignmentErrorDependent();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 bool AlignedAttr::IsAlignmentExpression(void) const {
   auto &self = *const_cast<clang::AlignedAttr *>(u.AlignedAttr);
   decltype(auto) val = self.isAlignmentExpr();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 bool AlignedAttr::IsC11(void) const {
   auto &self = *const_cast<clang::AlignedAttr *>(u.AlignedAttr);
   decltype(auto) val = self.isC11();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 bool AlignedAttr::IsDeclspec(void) const {
   auto &self = *const_cast<clang::AlignedAttr *>(u.AlignedAttr);
   decltype(auto) val = self.isDeclspec();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 bool AlignedAttr::IsGNU(void) const {
   auto &self = *const_cast<clang::AlignedAttr *>(u.AlignedAttr);
   decltype(auto) val = self.isGNU();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 AllocAlignAttr::AllocAlignAttr(
@@ -7322,8 +6890,7 @@ std::string_view AllocAlignAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AllocAlignAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AllocAlignAttr::Spelling can return nullptr!");
 }
 
 AllocSizeAttr::AllocSizeAttr(
@@ -7344,8 +6911,7 @@ std::string_view AllocSizeAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AllocSizeAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AllocSizeAttr::Spelling can return nullptr!");
 }
 
 AlwaysDestroyAttr::AlwaysDestroyAttr(
@@ -7364,8 +6930,7 @@ std::string_view AlwaysDestroyAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AlwaysDestroyAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AlwaysDestroyAttr::Spelling can return nullptr!");
 }
 
 AnalyzerNoReturnAttr::AnalyzerNoReturnAttr(
@@ -7384,8 +6949,7 @@ std::string_view AnalyzerNoReturnAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AnalyzerNoReturnAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AnalyzerNoReturnAttr::Spelling can return nullptr!");
 }
 
 AnnotateAttr::AnnotateAttr(
@@ -7413,14 +6977,12 @@ std::string_view AnnotateAttr::Annotation(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t AnnotateAttr::AnnotationLength(void) const {
   auto &self = *const_cast<clang::AnnotateAttr *>(u.AnnotateAttr);
   decltype(auto) val = self.getAnnotationLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view AnnotateAttr::Spelling(void) const {
@@ -7431,8 +6993,7 @@ std::string_view AnnotateAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AnnotateAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AnnotateAttr::Spelling can return nullptr!");
 }
 
 AnnotateTypeAttr::AnnotateTypeAttr(
@@ -7459,14 +7020,12 @@ std::string_view AnnotateTypeAttr::Annotation(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t AnnotateTypeAttr::AnnotationLength(void) const {
   auto &self = *const_cast<clang::AnnotateTypeAttr *>(u.AnnotateTypeAttr);
   decltype(auto) val = self.getAnnotationLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view AnnotateTypeAttr::Spelling(void) const {
@@ -7477,8 +7036,7 @@ std::string_view AnnotateTypeAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AnnotateTypeAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AnnotateTypeAttr::Spelling can return nullptr!");
 }
 
 AnyX86InterruptAttr::AnyX86InterruptAttr(
@@ -7497,8 +7055,7 @@ std::string_view AnyX86InterruptAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AnyX86InterruptAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AnyX86InterruptAttr::Spelling can return nullptr!");
 }
 
 AnyX86NoCallerSavedRegistersAttr::AnyX86NoCallerSavedRegistersAttr(
@@ -7517,8 +7074,7 @@ std::string_view AnyX86NoCallerSavedRegistersAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AnyX86NoCallerSavedRegistersAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AnyX86NoCallerSavedRegistersAttr::Spelling can return nullptr!");
 }
 
 AnyX86NoCfCheckAttr::AnyX86NoCfCheckAttr(
@@ -7537,8 +7093,7 @@ std::string_view AnyX86NoCfCheckAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AnyX86NoCfCheckAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AnyX86NoCfCheckAttr::Spelling can return nullptr!");
 }
 
 ArcWeakrefUnavailableAttr::ArcWeakrefUnavailableAttr(
@@ -7557,8 +7112,7 @@ std::string_view ArcWeakrefUnavailableAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ArcWeakrefUnavailableAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ArcWeakrefUnavailableAttr::Spelling can return nullptr!");
 }
 
 ArgumentWithTypeTagAttr::ArgumentWithTypeTagAttr(
@@ -7575,14 +7129,12 @@ bool ArgumentWithTypeTagAttr::IsPointer(void) const {
   auto &self = *const_cast<clang::ArgumentWithTypeTagAttr *>(u.ArgumentWithTypeTagAttr);
   decltype(auto) val = self.getIsPointer();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 enum ArgumentWithTypeTagAttrSpelling ArgumentWithTypeTagAttr::SemanticSpelling(void) const {
   auto &self = *const_cast<clang::ArgumentWithTypeTagAttr *>(u.ArgumentWithTypeTagAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::ArgumentWithTypeTagAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view ArgumentWithTypeTagAttr::Spelling(void) const {
@@ -7593,8 +7145,7 @@ std::string_view ArgumentWithTypeTagAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ArgumentWithTypeTagAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ArgumentWithTypeTagAttr::Spelling can return nullptr!");
 }
 
 // 0: ArgumentWithTypeTagAttr::TypeTagIndex
@@ -7615,8 +7166,7 @@ std::string_view ArmBuiltinAliasAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ArmBuiltinAliasAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ArmBuiltinAliasAttr::Spelling can return nullptr!");
 }
 
 ArmMveStrictPolymorphismAttr::ArmMveStrictPolymorphismAttr(
@@ -7635,8 +7185,7 @@ std::string_view ArmMveStrictPolymorphismAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ArmMveStrictPolymorphismAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ArmMveStrictPolymorphismAttr::Spelling can return nullptr!");
 }
 
 ArtificialAttr::ArtificialAttr(
@@ -7655,8 +7204,7 @@ std::string_view ArtificialAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ArtificialAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ArtificialAttr::Spelling can return nullptr!");
 }
 
 AsmLabelAttr::AsmLabelAttr(
@@ -7671,7 +7219,6 @@ bool AsmLabelAttr::IsLiteralLabel(void) const {
   auto &self = *const_cast<clang::AsmLabelAttr *>(u.AsmLabelAttr);
   decltype(auto) val = self.getIsLiteralLabel();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view AsmLabelAttr::Label(void) const {
@@ -7682,14 +7229,12 @@ std::string_view AsmLabelAttr::Label(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t AsmLabelAttr::LabelLength(void) const {
   auto &self = *const_cast<clang::AsmLabelAttr *>(u.AsmLabelAttr);
   decltype(auto) val = self.getLabelLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view AsmLabelAttr::Spelling(void) const {
@@ -7700,8 +7245,7 @@ std::string_view AsmLabelAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AsmLabelAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AsmLabelAttr::Spelling can return nullptr!");
 }
 
 // 1: AsmLabelAttr::IsEquivalent
@@ -7721,7 +7265,6 @@ enum AssertCapabilityAttrSpelling AssertCapabilityAttr::SemanticSpelling(void) c
   auto &self = *const_cast<clang::AssertCapabilityAttr *>(u.AssertCapabilityAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::AssertCapabilityAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view AssertCapabilityAttr::Spelling(void) const {
@@ -7732,15 +7275,13 @@ std::string_view AssertCapabilityAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AssertCapabilityAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AssertCapabilityAttr::Spelling can return nullptr!");
 }
 
 bool AssertCapabilityAttr::IsShared(void) const {
   auto &self = *const_cast<clang::AssertCapabilityAttr *>(u.AssertCapabilityAttr);
   decltype(auto) val = self.isShared();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 AssertExclusiveLockAttr::AssertExclusiveLockAttr(
@@ -7763,8 +7304,7 @@ std::string_view AssertExclusiveLockAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AssertExclusiveLockAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AssertExclusiveLockAttr::Spelling can return nullptr!");
 }
 
 AssertSharedLockAttr::AssertSharedLockAttr(
@@ -7787,8 +7327,7 @@ std::string_view AssertSharedLockAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AssertSharedLockAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AssertSharedLockAttr::Spelling can return nullptr!");
 }
 
 AssumeAlignedAttr::AssumeAlignedAttr(
@@ -7805,8 +7344,7 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, AssumeAlignedAttr)
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "AssumeAlignedAttr::Alignment can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AssumeAlignedAttr::Alignment can return nullptr!");
 }
 
 std::optional<::pasta::Expr> AssumeAlignedAttr::Offset(void) const {
@@ -7818,7 +7356,6 @@ std::optional<::pasta::Expr> AssumeAlignedAttr::Offset(void) const {
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view AssumeAlignedAttr::Spelling(void) const {
@@ -7829,8 +7366,7 @@ std::string_view AssumeAlignedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AssumeAlignedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AssumeAlignedAttr::Spelling can return nullptr!");
 }
 
 AssumptionAttr::AssumptionAttr(
@@ -7849,14 +7385,12 @@ std::string_view AssumptionAttr::Assumption(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t AssumptionAttr::AssumptionLength(void) const {
   auto &self = *const_cast<clang::AssumptionAttr *>(u.AssumptionAttr);
   decltype(auto) val = self.getAssumptionLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view AssumptionAttr::Spelling(void) const {
@@ -7867,8 +7401,7 @@ std::string_view AssumptionAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AssumptionAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AssumptionAttr::Spelling can return nullptr!");
 }
 
 AvailabilityAttr::AvailabilityAttr(
@@ -7889,14 +7422,12 @@ std::string_view AvailabilityAttr::Message(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t AvailabilityAttr::MessageLength(void) const {
   auto &self = *const_cast<clang::AvailabilityAttr *>(u.AvailabilityAttr);
   decltype(auto) val = self.getMessageLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 // 0: AvailabilityAttr::Obsoleted
@@ -7910,14 +7441,12 @@ std::string_view AvailabilityAttr::Replacement(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t AvailabilityAttr::ReplacementLength(void) const {
   auto &self = *const_cast<clang::AvailabilityAttr *>(u.AvailabilityAttr);
   decltype(auto) val = self.getReplacementLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view AvailabilityAttr::Spelling(void) const {
@@ -7928,22 +7457,19 @@ std::string_view AvailabilityAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AvailabilityAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AvailabilityAttr::Spelling can return nullptr!");
 }
 
 bool AvailabilityAttr::Strict(void) const {
   auto &self = *const_cast<clang::AvailabilityAttr *>(u.AvailabilityAttr);
   decltype(auto) val = self.getStrict();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 bool AvailabilityAttr::Unavailable(void) const {
   auto &self = *const_cast<clang::AvailabilityAttr *>(u.AvailabilityAttr);
   decltype(auto) val = self.getUnavailable();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 BPFPreserveAccessIndexAttr::BPFPreserveAccessIndexAttr(
@@ -7962,8 +7488,7 @@ std::string_view BPFPreserveAccessIndexAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "BPFPreserveAccessIndexAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("BPFPreserveAccessIndexAttr::Spelling can return nullptr!");
 }
 
 BTFDeclTagAttr::BTFDeclTagAttr(
@@ -7982,14 +7507,12 @@ std::string_view BTFDeclTagAttr::BTFDeclTag(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t BTFDeclTagAttr::BTFDeclTagLength(void) const {
   auto &self = *const_cast<clang::BTFDeclTagAttr *>(u.BTFDeclTagAttr);
   decltype(auto) val = self.getBTFDeclTagLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view BTFDeclTagAttr::Spelling(void) const {
@@ -8000,8 +7523,7 @@ std::string_view BTFDeclTagAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "BTFDeclTagAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("BTFDeclTagAttr::Spelling can return nullptr!");
 }
 
 BTFTypeTagAttr::BTFTypeTagAttr(
@@ -8020,14 +7542,12 @@ std::string_view BTFTypeTagAttr::BTFTypeTag(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t BTFTypeTagAttr::BTFTypeTagLength(void) const {
   auto &self = *const_cast<clang::BTFTypeTagAttr *>(u.BTFTypeTagAttr);
   decltype(auto) val = self.getBTFTypeTagLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view BTFTypeTagAttr::Spelling(void) const {
@@ -8038,8 +7558,7 @@ std::string_view BTFTypeTagAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "BTFTypeTagAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("BTFTypeTagAttr::Spelling can return nullptr!");
 }
 
 BlocksAttr::BlocksAttr(
@@ -8058,15 +7577,13 @@ std::string_view BlocksAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "BlocksAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("BlocksAttr::Spelling can return nullptr!");
 }
 
 enum BlocksAttrBlockType BlocksAttr::Type(void) const {
   auto &self = *const_cast<clang::BlocksAttr *>(u.BlocksAttr);
   decltype(auto) val = self.getType();
   return static_cast<::pasta::BlocksAttrBlockType>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 BuiltinAttr::BuiltinAttr(
@@ -8081,7 +7598,6 @@ uint32_t BuiltinAttr::ID(void) const {
   auto &self = *const_cast<clang::BuiltinAttr *>(u.BuiltinAttr);
   decltype(auto) val = self.getID();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view BuiltinAttr::Spelling(void) const {
@@ -8092,8 +7608,7 @@ std::string_view BuiltinAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "BuiltinAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("BuiltinAttr::Spelling can return nullptr!");
 }
 
 C11NoReturnAttr::C11NoReturnAttr(
@@ -8112,8 +7627,7 @@ std::string_view C11NoReturnAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "C11NoReturnAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("C11NoReturnAttr::Spelling can return nullptr!");
 }
 
 CDeclAttr::CDeclAttr(
@@ -8132,8 +7646,7 @@ std::string_view CDeclAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CDeclAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CDeclAttr::Spelling can return nullptr!");
 }
 
 CFAuditedTransferAttr::CFAuditedTransferAttr(
@@ -8152,8 +7665,7 @@ std::string_view CFAuditedTransferAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CFAuditedTransferAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CFAuditedTransferAttr::Spelling can return nullptr!");
 }
 
 CFConsumedAttr::CFConsumedAttr(
@@ -8173,8 +7685,7 @@ std::string_view CFConsumedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CFConsumedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CFConsumedAttr::Spelling can return nullptr!");
 }
 
 CFGuardAttr::CFGuardAttr(
@@ -8189,7 +7700,6 @@ enum CFGuardAttrGuardArg CFGuardAttr::Guard(void) const {
   auto &self = *const_cast<clang::CFGuardAttr *>(u.CFGuardAttr);
   decltype(auto) val = self.getGuard();
   return static_cast<::pasta::CFGuardAttrGuardArg>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view CFGuardAttr::Spelling(void) const {
@@ -8200,8 +7710,7 @@ std::string_view CFGuardAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CFGuardAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CFGuardAttr::Spelling can return nullptr!");
 }
 
 CFICanonicalJumpTableAttr::CFICanonicalJumpTableAttr(
@@ -8220,8 +7729,7 @@ std::string_view CFICanonicalJumpTableAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CFICanonicalJumpTableAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CFICanonicalJumpTableAttr::Spelling can return nullptr!");
 }
 
 CFReturnsNotRetainedAttr::CFReturnsNotRetainedAttr(
@@ -8240,8 +7748,7 @@ std::string_view CFReturnsNotRetainedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CFReturnsNotRetainedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CFReturnsNotRetainedAttr::Spelling can return nullptr!");
 }
 
 CFReturnsRetainedAttr::CFReturnsRetainedAttr(
@@ -8260,8 +7767,7 @@ std::string_view CFReturnsRetainedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CFReturnsRetainedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CFReturnsRetainedAttr::Spelling can return nullptr!");
 }
 
 CFUnknownTransferAttr::CFUnknownTransferAttr(
@@ -8280,8 +7786,7 @@ std::string_view CFUnknownTransferAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CFUnknownTransferAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CFUnknownTransferAttr::Spelling can return nullptr!");
 }
 
 CPUDispatchAttr::CPUDispatchAttr(
@@ -8304,8 +7809,7 @@ std::string_view CPUDispatchAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CPUDispatchAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CPUDispatchAttr::Spelling can return nullptr!");
 }
 
 CPUSpecificAttr::CPUSpecificAttr(
@@ -8329,8 +7833,7 @@ std::string_view CPUSpecificAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CPUSpecificAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CPUSpecificAttr::Spelling can return nullptr!");
 }
 
 CUDAConstantAttr::CUDAConstantAttr(
@@ -8349,8 +7852,7 @@ std::string_view CUDAConstantAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CUDAConstantAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CUDAConstantAttr::Spelling can return nullptr!");
 }
 
 CUDADeviceAttr::CUDADeviceAttr(
@@ -8369,8 +7871,7 @@ std::string_view CUDADeviceAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CUDADeviceAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CUDADeviceAttr::Spelling can return nullptr!");
 }
 
 CUDADeviceBuiltinSurfaceTypeAttr::CUDADeviceBuiltinSurfaceTypeAttr(
@@ -8389,8 +7890,7 @@ std::string_view CUDADeviceBuiltinSurfaceTypeAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CUDADeviceBuiltinSurfaceTypeAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CUDADeviceBuiltinSurfaceTypeAttr::Spelling can return nullptr!");
 }
 
 CUDADeviceBuiltinTextureTypeAttr::CUDADeviceBuiltinTextureTypeAttr(
@@ -8409,8 +7909,7 @@ std::string_view CUDADeviceBuiltinTextureTypeAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CUDADeviceBuiltinTextureTypeAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CUDADeviceBuiltinTextureTypeAttr::Spelling can return nullptr!");
 }
 
 CUDAGlobalAttr::CUDAGlobalAttr(
@@ -8429,8 +7928,7 @@ std::string_view CUDAGlobalAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CUDAGlobalAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CUDAGlobalAttr::Spelling can return nullptr!");
 }
 
 CUDAHostAttr::CUDAHostAttr(
@@ -8449,8 +7947,7 @@ std::string_view CUDAHostAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CUDAHostAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CUDAHostAttr::Spelling can return nullptr!");
 }
 
 CUDAInvalidTargetAttr::CUDAInvalidTargetAttr(
@@ -8469,8 +7966,7 @@ std::string_view CUDAInvalidTargetAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CUDAInvalidTargetAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CUDAInvalidTargetAttr::Spelling can return nullptr!");
 }
 
 CUDALaunchBoundsAttr::CUDALaunchBoundsAttr(
@@ -8487,8 +7983,7 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CUDALaunchBoundsAttr)
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CUDALaunchBoundsAttr::MaxThreads can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CUDALaunchBoundsAttr::MaxThreads can return nullptr!");
 }
 
 ::pasta::Expr CUDALaunchBoundsAttr::MinBlocks(void) const {
@@ -8497,8 +7992,7 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CUDALaunchBoundsAttr)
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "CUDALaunchBoundsAttr::MinBlocks can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CUDALaunchBoundsAttr::MinBlocks can return nullptr!");
 }
 
 std::string_view CUDALaunchBoundsAttr::Spelling(void) const {
@@ -8509,8 +8003,7 @@ std::string_view CUDALaunchBoundsAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CUDALaunchBoundsAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CUDALaunchBoundsAttr::Spelling can return nullptr!");
 }
 
 CUDASharedAttr::CUDASharedAttr(
@@ -8529,8 +8022,7 @@ std::string_view CUDASharedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CUDASharedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CUDASharedAttr::Spelling can return nullptr!");
 }
 
 CXX11NoReturnAttr::CXX11NoReturnAttr(
@@ -8545,7 +8037,6 @@ enum CXX11NoReturnAttrSpelling CXX11NoReturnAttr::SemanticSpelling(void) const {
   auto &self = *const_cast<clang::CXX11NoReturnAttr *>(u.CXX11NoReturnAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::CXX11NoReturnAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view CXX11NoReturnAttr::Spelling(void) const {
@@ -8556,8 +8047,7 @@ std::string_view CXX11NoReturnAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CXX11NoReturnAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CXX11NoReturnAttr::Spelling can return nullptr!");
 }
 
 CallableWhenAttr::CallableWhenAttr(
@@ -8580,8 +8070,7 @@ std::string_view CallableWhenAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CallableWhenAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CallableWhenAttr::Spelling can return nullptr!");
 }
 
 CallbackAttr::CallbackAttr(
@@ -8604,8 +8093,7 @@ std::string_view CallbackAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CallbackAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CallbackAttr::Spelling can return nullptr!");
 }
 
 CapabilityAttr::CapabilityAttr(
@@ -8624,21 +8112,18 @@ std::string_view CapabilityAttr::Name(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t CapabilityAttr::NameLength(void) const {
   auto &self = *const_cast<clang::CapabilityAttr *>(u.CapabilityAttr);
   decltype(auto) val = self.getNameLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 enum CapabilityAttrSpelling CapabilityAttr::SemanticSpelling(void) const {
   auto &self = *const_cast<clang::CapabilityAttr *>(u.CapabilityAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::CapabilityAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view CapabilityAttr::Spelling(void) const {
@@ -8649,15 +8134,13 @@ std::string_view CapabilityAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CapabilityAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CapabilityAttr::Spelling can return nullptr!");
 }
 
 bool CapabilityAttr::IsShared(void) const {
   auto &self = *const_cast<clang::CapabilityAttr *>(u.CapabilityAttr);
   decltype(auto) val = self.isShared();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 CapturedRecordAttr::CapturedRecordAttr(
@@ -8676,8 +8159,7 @@ std::string_view CapturedRecordAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CapturedRecordAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CapturedRecordAttr::Spelling can return nullptr!");
 }
 
 CarriesDependencyAttr::CarriesDependencyAttr(
@@ -8697,8 +8179,7 @@ std::string_view CarriesDependencyAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CarriesDependencyAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CarriesDependencyAttr::Spelling can return nullptr!");
 }
 
 CleanupAttr::CleanupAttr(
@@ -8715,8 +8196,7 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, CleanupAttr)
   if (val) {
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
   }
-  assert(false && "CleanupAttr::FunctionDeclaration can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CleanupAttr::FunctionDeclaration can return nullptr!");
 }
 
 std::string_view CleanupAttr::Spelling(void) const {
@@ -8727,8 +8207,7 @@ std::string_view CleanupAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CleanupAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CleanupAttr::Spelling can return nullptr!");
 }
 
 CmseNSCallAttr::CmseNSCallAttr(
@@ -8747,8 +8226,7 @@ std::string_view CmseNSCallAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CmseNSCallAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CmseNSCallAttr::Spelling can return nullptr!");
 }
 
 CmseNSEntryAttr::CmseNSEntryAttr(
@@ -8767,8 +8245,7 @@ std::string_view CmseNSEntryAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CmseNSEntryAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CmseNSEntryAttr::Spelling can return nullptr!");
 }
 
 CodeSegAttr::CodeSegAttr(
@@ -8787,14 +8264,12 @@ std::string_view CodeSegAttr::Name(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t CodeSegAttr::NameLength(void) const {
   auto &self = *const_cast<clang::CodeSegAttr *>(u.CodeSegAttr);
   decltype(auto) val = self.getNameLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view CodeSegAttr::Spelling(void) const {
@@ -8805,8 +8280,7 @@ std::string_view CodeSegAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CodeSegAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CodeSegAttr::Spelling can return nullptr!");
 }
 
 ColdAttr::ColdAttr(
@@ -8825,8 +8299,7 @@ std::string_view ColdAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ColdAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ColdAttr::Spelling can return nullptr!");
 }
 
 CommonAttr::CommonAttr(
@@ -8845,8 +8318,7 @@ std::string_view CommonAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "CommonAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("CommonAttr::Spelling can return nullptr!");
 }
 
 ConstAttr::ConstAttr(
@@ -8865,8 +8337,7 @@ std::string_view ConstAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ConstAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ConstAttr::Spelling can return nullptr!");
 }
 
 ConstInitAttr::ConstInitAttr(
@@ -8881,7 +8352,6 @@ enum ConstInitAttrSpelling ConstInitAttr::SemanticSpelling(void) const {
   auto &self = *const_cast<clang::ConstInitAttr *>(u.ConstInitAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::ConstInitAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view ConstInitAttr::Spelling(void) const {
@@ -8892,15 +8362,13 @@ std::string_view ConstInitAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ConstInitAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ConstInitAttr::Spelling can return nullptr!");
 }
 
 bool ConstInitAttr::IsConstinit(void) const {
   auto &self = *const_cast<clang::ConstInitAttr *>(u.ConstInitAttr);
   decltype(auto) val = self.isConstinit();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 ConstructorAttr::ConstructorAttr(
@@ -8920,8 +8388,7 @@ std::string_view ConstructorAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ConstructorAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ConstructorAttr::Spelling can return nullptr!");
 }
 
 ConsumableAttr::ConsumableAttr(
@@ -8936,7 +8403,6 @@ enum ConsumableAttrConsumedState ConsumableAttr::DefaultState(void) const {
   auto &self = *const_cast<clang::ConsumableAttr *>(u.ConsumableAttr);
   decltype(auto) val = self.getDefaultState();
   return static_cast<::pasta::ConsumableAttrConsumedState>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view ConsumableAttr::Spelling(void) const {
@@ -8947,8 +8413,7 @@ std::string_view ConsumableAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ConsumableAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ConsumableAttr::Spelling can return nullptr!");
 }
 
 ConsumableAutoCastAttr::ConsumableAutoCastAttr(
@@ -8967,8 +8432,7 @@ std::string_view ConsumableAutoCastAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ConsumableAutoCastAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ConsumableAutoCastAttr::Spelling can return nullptr!");
 }
 
 ConsumableSetOnReadAttr::ConsumableSetOnReadAttr(
@@ -8987,8 +8451,7 @@ std::string_view ConsumableSetOnReadAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ConsumableSetOnReadAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ConsumableSetOnReadAttr::Spelling can return nullptr!");
 }
 
 ConvergentAttr::ConvergentAttr(
@@ -9007,8 +8470,7 @@ std::string_view ConvergentAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ConvergentAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ConvergentAttr::Spelling can return nullptr!");
 }
 
 DLLExportAttr::DLLExportAttr(
@@ -9027,8 +8489,7 @@ std::string_view DLLExportAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "DLLExportAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("DLLExportAttr::Spelling can return nullptr!");
 }
 
 DLLExportStaticLocalAttr::DLLExportStaticLocalAttr(
@@ -9047,8 +8508,7 @@ std::string_view DLLExportStaticLocalAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "DLLExportStaticLocalAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("DLLExportStaticLocalAttr::Spelling can return nullptr!");
 }
 
 DLLImportAttr::DLLImportAttr(
@@ -9067,8 +8527,7 @@ std::string_view DLLImportAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "DLLImportAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("DLLImportAttr::Spelling can return nullptr!");
 }
 
 DLLImportStaticLocalAttr::DLLImportStaticLocalAttr(
@@ -9087,8 +8546,7 @@ std::string_view DLLImportStaticLocalAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "DLLImportStaticLocalAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("DLLImportStaticLocalAttr::Spelling can return nullptr!");
 }
 
 DeclOrStmtAttr::DeclOrStmtAttr(
@@ -9117,14 +8575,12 @@ std::string_view DeprecatedAttr::Message(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t DeprecatedAttr::MessageLength(void) const {
   auto &self = *const_cast<clang::DeprecatedAttr *>(u.DeprecatedAttr);
   decltype(auto) val = self.getMessageLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view DeprecatedAttr::Replacement(void) const {
@@ -9135,14 +8591,12 @@ std::string_view DeprecatedAttr::Replacement(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t DeprecatedAttr::ReplacementLength(void) const {
   auto &self = *const_cast<clang::DeprecatedAttr *>(u.DeprecatedAttr);
   decltype(auto) val = self.getReplacementLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view DeprecatedAttr::Spelling(void) const {
@@ -9153,8 +8607,7 @@ std::string_view DeprecatedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "DeprecatedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("DeprecatedAttr::Spelling can return nullptr!");
 }
 
 DestructorAttr::DestructorAttr(
@@ -9174,8 +8627,7 @@ std::string_view DestructorAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "DestructorAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("DestructorAttr::Spelling can return nullptr!");
 }
 
 DiagnoseAsBuiltinAttr::DiagnoseAsBuiltinAttr(
@@ -9196,8 +8648,7 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, DiagnoseAsBuiltinAttr)
   if (val) {
     return DeclBuilder::Create<::pasta::FunctionDecl>(ast, val);
   }
-  assert(false && "DiagnoseAsBuiltinAttr::Function can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("DiagnoseAsBuiltinAttr::Function can return nullptr!");
 }
 
 std::string_view DiagnoseAsBuiltinAttr::Spelling(void) const {
@@ -9208,8 +8659,7 @@ std::string_view DiagnoseAsBuiltinAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "DiagnoseAsBuiltinAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("DiagnoseAsBuiltinAttr::Spelling can return nullptr!");
 }
 
 DiagnoseIfAttr::DiagnoseIfAttr(
@@ -9224,7 +8674,6 @@ bool DiagnoseIfAttr::ArgumentDependent(void) const {
   auto &self = *const_cast<clang::DiagnoseIfAttr *>(u.DiagnoseIfAttr);
   decltype(auto) val = self.getArgDependent();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 ::pasta::Expr DiagnoseIfAttr::Condition(void) const {
@@ -9233,15 +8682,13 @@ bool DiagnoseIfAttr::ArgumentDependent(void) const {
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "DiagnoseIfAttr::Condition can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("DiagnoseIfAttr::Condition can return nullptr!");
 }
 
 enum DiagnoseIfAttrDiagnosticType DiagnoseIfAttr::DiagnosticType(void) const {
   auto &self = *const_cast<clang::DiagnoseIfAttr *>(u.DiagnoseIfAttr);
   decltype(auto) val = self.getDiagnosticType();
   return static_cast<::pasta::DiagnoseIfAttrDiagnosticType>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view DiagnoseIfAttr::Message(void) const {
@@ -9252,14 +8699,12 @@ std::string_view DiagnoseIfAttr::Message(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t DiagnoseIfAttr::MessageLength(void) const {
   auto &self = *const_cast<clang::DiagnoseIfAttr *>(u.DiagnoseIfAttr);
   decltype(auto) val = self.getMessageLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 ::pasta::NamedDecl DiagnoseIfAttr::Parent(void) const {
@@ -9268,8 +8713,7 @@ uint32_t DiagnoseIfAttr::MessageLength(void) const {
   if (val) {
     return DeclBuilder::Create<::pasta::NamedDecl>(ast, val);
   }
-  assert(false && "DiagnoseIfAttr::Parent can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("DiagnoseIfAttr::Parent can return nullptr!");
 }
 
 std::string_view DiagnoseIfAttr::Spelling(void) const {
@@ -9280,22 +8724,19 @@ std::string_view DiagnoseIfAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "DiagnoseIfAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("DiagnoseIfAttr::Spelling can return nullptr!");
 }
 
 bool DiagnoseIfAttr::IsError(void) const {
   auto &self = *const_cast<clang::DiagnoseIfAttr *>(u.DiagnoseIfAttr);
   decltype(auto) val = self.isError();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 bool DiagnoseIfAttr::IsWarning(void) const {
   auto &self = *const_cast<clang::DiagnoseIfAttr *>(u.DiagnoseIfAttr);
   decltype(auto) val = self.isWarning();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 DisableSanitizerInstrumentationAttr::DisableSanitizerInstrumentationAttr(
@@ -9314,8 +8755,7 @@ std::string_view DisableSanitizerInstrumentationAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "DisableSanitizerInstrumentationAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("DisableSanitizerInstrumentationAttr::Spelling can return nullptr!");
 }
 
 DisableTailCallsAttr::DisableTailCallsAttr(
@@ -9334,8 +8774,7 @@ std::string_view DisableTailCallsAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "DisableTailCallsAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("DisableTailCallsAttr::Spelling can return nullptr!");
 }
 
 EmptyBasesAttr::EmptyBasesAttr(
@@ -9354,8 +8793,7 @@ std::string_view EmptyBasesAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "EmptyBasesAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("EmptyBasesAttr::Spelling can return nullptr!");
 }
 
 EnableIfAttr::EnableIfAttr(
@@ -9372,8 +8810,7 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, EnableIfAttr)
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "EnableIfAttr::Condition can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("EnableIfAttr::Condition can return nullptr!");
 }
 
 std::string_view EnableIfAttr::Message(void) const {
@@ -9384,14 +8821,12 @@ std::string_view EnableIfAttr::Message(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t EnableIfAttr::MessageLength(void) const {
   auto &self = *const_cast<clang::EnableIfAttr *>(u.EnableIfAttr);
   decltype(auto) val = self.getMessageLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view EnableIfAttr::Spelling(void) const {
@@ -9402,8 +8837,7 @@ std::string_view EnableIfAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "EnableIfAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("EnableIfAttr::Spelling can return nullptr!");
 }
 
 EnforceTCBAttr::EnforceTCBAttr(
@@ -9422,8 +8856,7 @@ std::string_view EnforceTCBAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "EnforceTCBAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("EnforceTCBAttr::Spelling can return nullptr!");
 }
 
 std::string_view EnforceTCBAttr::TCBName(void) const {
@@ -9434,14 +8867,12 @@ std::string_view EnforceTCBAttr::TCBName(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t EnforceTCBAttr::TCBNameLength(void) const {
   auto &self = *const_cast<clang::EnforceTCBAttr *>(u.EnforceTCBAttr);
   decltype(auto) val = self.getTCBNameLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 EnforceTCBLeafAttr::EnforceTCBLeafAttr(
@@ -9460,8 +8891,7 @@ std::string_view EnforceTCBLeafAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "EnforceTCBLeafAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("EnforceTCBLeafAttr::Spelling can return nullptr!");
 }
 
 std::string_view EnforceTCBLeafAttr::TCBName(void) const {
@@ -9472,14 +8902,12 @@ std::string_view EnforceTCBLeafAttr::TCBName(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t EnforceTCBLeafAttr::TCBNameLength(void) const {
   auto &self = *const_cast<clang::EnforceTCBLeafAttr *>(u.EnforceTCBLeafAttr);
   decltype(auto) val = self.getTCBNameLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 EnumExtensibilityAttr::EnumExtensibilityAttr(
@@ -9494,7 +8922,6 @@ enum EnumExtensibilityAttrKind EnumExtensibilityAttr::Extensibility(void) const 
   auto &self = *const_cast<clang::EnumExtensibilityAttr *>(u.EnumExtensibilityAttr);
   decltype(auto) val = self.getExtensibility();
   return static_cast<::pasta::EnumExtensibilityAttrKind>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view EnumExtensibilityAttr::Spelling(void) const {
@@ -9505,8 +8932,7 @@ std::string_view EnumExtensibilityAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "EnumExtensibilityAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("EnumExtensibilityAttr::Spelling can return nullptr!");
 }
 
 ErrorAttr::ErrorAttr(
@@ -9521,7 +8947,6 @@ enum ErrorAttrSpelling ErrorAttr::SemanticSpelling(void) const {
   auto &self = *const_cast<clang::ErrorAttr *>(u.ErrorAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::ErrorAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view ErrorAttr::Spelling(void) const {
@@ -9532,8 +8957,7 @@ std::string_view ErrorAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ErrorAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ErrorAttr::Spelling can return nullptr!");
 }
 
 std::string_view ErrorAttr::UserDiagnostic(void) const {
@@ -9544,28 +8968,24 @@ std::string_view ErrorAttr::UserDiagnostic(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t ErrorAttr::UserDiagnosticLength(void) const {
   auto &self = *const_cast<clang::ErrorAttr *>(u.ErrorAttr);
   decltype(auto) val = self.getUserDiagnosticLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 bool ErrorAttr::IsError(void) const {
   auto &self = *const_cast<clang::ErrorAttr *>(u.ErrorAttr);
   decltype(auto) val = self.isError();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 bool ErrorAttr::IsWarning(void) const {
   auto &self = *const_cast<clang::ErrorAttr *>(u.ErrorAttr);
   decltype(auto) val = self.isWarning();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 ExcludeFromExplicitInstantiationAttr::ExcludeFromExplicitInstantiationAttr(
@@ -9584,8 +9004,7 @@ std::string_view ExcludeFromExplicitInstantiationAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ExcludeFromExplicitInstantiationAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ExcludeFromExplicitInstantiationAttr::Spelling can return nullptr!");
 }
 
 ExclusiveTrylockFunctionAttr::ExclusiveTrylockFunctionAttr(
@@ -9608,8 +9027,7 @@ std::string_view ExclusiveTrylockFunctionAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ExclusiveTrylockFunctionAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ExclusiveTrylockFunctionAttr::Spelling can return nullptr!");
 }
 
 ::pasta::Expr ExclusiveTrylockFunctionAttr::SuccessValue(void) const {
@@ -9618,8 +9036,7 @@ std::string_view ExclusiveTrylockFunctionAttr::Spelling(void) const {
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "ExclusiveTrylockFunctionAttr::SuccessValue can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ExclusiveTrylockFunctionAttr::SuccessValue can return nullptr!");
 }
 
 ExternalSourceSymbolAttr::ExternalSourceSymbolAttr(
@@ -9638,21 +9055,18 @@ std::string_view ExternalSourceSymbolAttr::DefinedIn(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t ExternalSourceSymbolAttr::DefinedInLength(void) const {
   auto &self = *const_cast<clang::ExternalSourceSymbolAttr *>(u.ExternalSourceSymbolAttr);
   decltype(auto) val = self.getDefinedInLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 bool ExternalSourceSymbolAttr::GeneratedDeclaration(void) const {
   auto &self = *const_cast<clang::ExternalSourceSymbolAttr *>(u.ExternalSourceSymbolAttr);
   decltype(auto) val = self.getGeneratedDeclaration();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view ExternalSourceSymbolAttr::Language(void) const {
@@ -9663,14 +9077,12 @@ std::string_view ExternalSourceSymbolAttr::Language(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t ExternalSourceSymbolAttr::LanguageLength(void) const {
   auto &self = *const_cast<clang::ExternalSourceSymbolAttr *>(u.ExternalSourceSymbolAttr);
   decltype(auto) val = self.getLanguageLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view ExternalSourceSymbolAttr::Spelling(void) const {
@@ -9681,8 +9093,7 @@ std::string_view ExternalSourceSymbolAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ExternalSourceSymbolAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ExternalSourceSymbolAttr::Spelling can return nullptr!");
 }
 
 FallThroughAttr::FallThroughAttr(
@@ -9701,8 +9112,7 @@ std::string_view FallThroughAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "FallThroughAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("FallThroughAttr::Spelling can return nullptr!");
 }
 
 FastCallAttr::FastCallAttr(
@@ -9721,8 +9131,7 @@ std::string_view FastCallAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "FastCallAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("FastCallAttr::Spelling can return nullptr!");
 }
 
 FinalAttr::FinalAttr(
@@ -9737,7 +9146,6 @@ enum FinalAttrSpelling FinalAttr::SemanticSpelling(void) const {
   auto &self = *const_cast<clang::FinalAttr *>(u.FinalAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::FinalAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view FinalAttr::Spelling(void) const {
@@ -9748,15 +9156,13 @@ std::string_view FinalAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "FinalAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("FinalAttr::Spelling can return nullptr!");
 }
 
 bool FinalAttr::IsSpelledAsSealed(void) const {
   auto &self = *const_cast<clang::FinalAttr *>(u.FinalAttr);
   decltype(auto) val = self.isSpelledAsSealed();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 FlagEnumAttr::FlagEnumAttr(
@@ -9775,8 +9181,7 @@ std::string_view FlagEnumAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "FlagEnumAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("FlagEnumAttr::Spelling can return nullptr!");
 }
 
 FlattenAttr::FlattenAttr(
@@ -9795,8 +9200,7 @@ std::string_view FlattenAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "FlattenAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("FlattenAttr::Spelling can return nullptr!");
 }
 
 FormatArgAttr::FormatArgAttr(
@@ -9816,8 +9220,7 @@ std::string_view FormatArgAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "FormatArgAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("FormatArgAttr::Spelling can return nullptr!");
 }
 
 FormatAttr::FormatAttr(
@@ -9838,8 +9241,7 @@ std::string_view FormatAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "FormatAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("FormatAttr::Spelling can return nullptr!");
 }
 
 // 0: FormatAttr::Type
@@ -9859,15 +9261,13 @@ std::string_view FunctionReturnThunksAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "FunctionReturnThunksAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("FunctionReturnThunksAttr::Spelling can return nullptr!");
 }
 
 enum FunctionReturnThunksAttrKind FunctionReturnThunksAttr::ThunkType(void) const {
   auto &self = *const_cast<clang::FunctionReturnThunksAttr *>(u.FunctionReturnThunksAttr);
   decltype(auto) val = self.getThunkType();
   return static_cast<::pasta::FunctionReturnThunksAttrKind>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 GNUInlineAttr::GNUInlineAttr(
@@ -9886,8 +9286,7 @@ std::string_view GNUInlineAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "GNUInlineAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("GNUInlineAttr::Spelling can return nullptr!");
 }
 
 GuardedByAttr::GuardedByAttr(
@@ -9904,8 +9303,7 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, GuardedByAttr)
   if (val) {
     return StmtBuilder::Create<::pasta::Expr>(ast, val);
   }
-  assert(false && "GuardedByAttr::Argument can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("GuardedByAttr::Argument can return nullptr!");
 }
 
 std::string_view GuardedByAttr::Spelling(void) const {
@@ -9916,8 +9314,7 @@ std::string_view GuardedByAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "GuardedByAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("GuardedByAttr::Spelling can return nullptr!");
 }
 
 GuardedVarAttr::GuardedVarAttr(
@@ -9936,8 +9333,7 @@ std::string_view GuardedVarAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "GuardedVarAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("GuardedVarAttr::Spelling can return nullptr!");
 }
 
 HIPManagedAttr::HIPManagedAttr(
@@ -9956,8 +9352,7 @@ std::string_view HIPManagedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "HIPManagedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("HIPManagedAttr::Spelling can return nullptr!");
 }
 
 HLSLAnnotationAttr::HLSLAnnotationAttr(
@@ -9985,8 +9380,7 @@ std::string_view HLSLGroupSharedAddressSpaceAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "HLSLGroupSharedAddressSpaceAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("HLSLGroupSharedAddressSpaceAttr::Spelling can return nullptr!");
 }
 
 HLSLNumThreadsAttr::HLSLNumThreadsAttr(
@@ -10005,8 +9399,7 @@ std::string_view HLSLNumThreadsAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "HLSLNumThreadsAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("HLSLNumThreadsAttr::Spelling can return nullptr!");
 }
 
 // 0: HLSLNumThreadsAttr::X
@@ -10024,14 +9417,12 @@ enum HLSLResourceAttrResourceKind HLSLResourceAttr::ResourceShape(void) const {
   auto &self = *const_cast<clang::HLSLResourceAttr *>(u.HLSLResourceAttr);
   decltype(auto) val = self.getResourceShape();
   return static_cast<::pasta::HLSLResourceAttrResourceKind>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 enum HLSLResourceAttrResourceClass HLSLResourceAttr::ResourceType(void) const {
   auto &self = *const_cast<clang::HLSLResourceAttr *>(u.HLSLResourceAttr);
   decltype(auto) val = self.getResourceType();
   return static_cast<::pasta::HLSLResourceAttrResourceClass>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view HLSLResourceAttr::Spelling(void) const {
@@ -10042,8 +9433,7 @@ std::string_view HLSLResourceAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "HLSLResourceAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("HLSLResourceAttr::Spelling can return nullptr!");
 }
 
 HLSLResourceBindingAttr::HLSLResourceBindingAttr(
@@ -10062,14 +9452,12 @@ std::string_view HLSLResourceBindingAttr::Slot(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t HLSLResourceBindingAttr::SlotLength(void) const {
   auto &self = *const_cast<clang::HLSLResourceBindingAttr *>(u.HLSLResourceBindingAttr);
   decltype(auto) val = self.getSlotLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view HLSLResourceBindingAttr::Space(void) const {
@@ -10080,14 +9468,12 @@ std::string_view HLSLResourceBindingAttr::Space(void) const {
   } else {
     return std::string_view();
   }
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 uint32_t HLSLResourceBindingAttr::SpaceLength(void) const {
   auto &self = *const_cast<clang::HLSLResourceBindingAttr *>(u.HLSLResourceBindingAttr);
   decltype(auto) val = self.getSpaceLength();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view HLSLResourceBindingAttr::Spelling(void) const {
@@ -10098,8 +9484,7 @@ std::string_view HLSLResourceBindingAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "HLSLResourceBindingAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("HLSLResourceBindingAttr::Spelling can return nullptr!");
 }
 
 HLSLSV_DispatchThreadIDAttr::HLSLSV_DispatchThreadIDAttr(
@@ -10119,8 +9504,7 @@ std::string_view HLSLSV_DispatchThreadIDAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "HLSLSV_DispatchThreadIDAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("HLSLSV_DispatchThreadIDAttr::Spelling can return nullptr!");
 }
 
 HLSLSV_GroupIndexAttr::HLSLSV_GroupIndexAttr(
@@ -10140,8 +9524,7 @@ std::string_view HLSLSV_GroupIndexAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "HLSLSV_GroupIndexAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("HLSLSV_GroupIndexAttr::Spelling can return nullptr!");
 }
 
 HLSLShaderAttr::HLSLShaderAttr(
@@ -10160,15 +9543,13 @@ std::string_view HLSLShaderAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "HLSLShaderAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("HLSLShaderAttr::Spelling can return nullptr!");
 }
 
 enum HLSLShaderAttrShaderType HLSLShaderAttr::Type(void) const {
   auto &self = *const_cast<clang::HLSLShaderAttr *>(u.HLSLShaderAttr);
   decltype(auto) val = self.getType();
   return static_cast<::pasta::HLSLShaderAttrShaderType>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 HotAttr::HotAttr(
@@ -10187,8 +9568,7 @@ std::string_view HotAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "HotAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("HotAttr::Spelling can return nullptr!");
 }
 
 IBActionAttr::IBActionAttr(
@@ -10207,8 +9587,7 @@ std::string_view IBActionAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "IBActionAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("IBActionAttr::Spelling can return nullptr!");
 }
 
 IBOutletAttr::IBOutletAttr(
@@ -10227,8 +9606,7 @@ std::string_view IBOutletAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "IBOutletAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("IBOutletAttr::Spelling can return nullptr!");
 }
 
 IBOutletCollectionAttr::IBOutletCollectionAttr(
@@ -10244,15 +9622,13 @@ PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, IBOutletCollectionAttr)
   decltype(auto) val = self.getInterface();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 ::pasta::Type IBOutletCollectionAttr::InterfaceToken(void) const {
   auto &self = *const_cast<clang::IBOutletCollectionAttr *>(u.IBOutletCollectionAttr);
   decltype(auto) val = self.getInterfaceLoc();
   return TypeBuilder::Build(ast, val->getType());
-  assert(false && "IBOutletCollectionAttr::InterfaceToken can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("IBOutletCollectionAttr::InterfaceToken can return nullptr!");
 }
 
 std::string_view IBOutletCollectionAttr::Spelling(void) const {
@@ -10263,8 +9639,7 @@ std::string_view IBOutletCollectionAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "IBOutletCollectionAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("IBOutletCollectionAttr::Spelling can return nullptr!");
 }
 
 LikelyAttr::LikelyAttr(
@@ -10283,8 +9658,7 @@ std::string_view LikelyAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "LikelyAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("LikelyAttr::Spelling can return nullptr!");
 }
 
 MustTailAttr::MustTailAttr(
@@ -10303,8 +9677,7 @@ std::string_view MustTailAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "MustTailAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("MustTailAttr::Spelling can return nullptr!");
 }
 
 NoDerefAttr::NoDerefAttr(
@@ -10323,8 +9696,7 @@ std::string_view NoDerefAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NoDerefAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NoDerefAttr::Spelling can return nullptr!");
 }
 
 NoInlineAttr::NoInlineAttr(
@@ -10344,15 +9716,13 @@ std::string_view NoInlineAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NoInlineAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NoInlineAttr::Spelling can return nullptr!");
 }
 
 bool NoInlineAttr::IsClangNoInline(void) const {
   auto &self = *const_cast<clang::NoInlineAttr *>(u.NoInlineAttr);
   decltype(auto) val = self.isClangNoInline();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 NoMergeAttr::NoMergeAttr(
@@ -10372,8 +9742,7 @@ std::string_view NoMergeAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "NoMergeAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("NoMergeAttr::Spelling can return nullptr!");
 }
 
 ObjCGCAttr::ObjCGCAttr(
@@ -10393,8 +9762,7 @@ std::string_view ObjCGCAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCGCAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCGCAttr::Spelling can return nullptr!");
 }
 
 ObjCInertUnsafeUnretainedAttr::ObjCInertUnsafeUnretainedAttr(
@@ -10413,8 +9781,7 @@ std::string_view ObjCInertUnsafeUnretainedAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCInertUnsafeUnretainedAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCInertUnsafeUnretainedAttr::Spelling can return nullptr!");
 }
 
 ObjCKindOfAttr::ObjCKindOfAttr(
@@ -10433,8 +9800,7 @@ std::string_view ObjCKindOfAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "ObjCKindOfAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("ObjCKindOfAttr::Spelling can return nullptr!");
 }
 
 OpenCLConstantAddressSpaceAttr::OpenCLConstantAddressSpaceAttr(
@@ -10449,7 +9815,6 @@ enum OpenCLConstantAddressSpaceAttrSpelling OpenCLConstantAddressSpaceAttr::Sema
   auto &self = *const_cast<clang::OpenCLConstantAddressSpaceAttr *>(u.OpenCLConstantAddressSpaceAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::OpenCLConstantAddressSpaceAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view OpenCLConstantAddressSpaceAttr::Spelling(void) const {
@@ -10460,8 +9825,7 @@ std::string_view OpenCLConstantAddressSpaceAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OpenCLConstantAddressSpaceAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OpenCLConstantAddressSpaceAttr::Spelling can return nullptr!");
 }
 
 OpenCLGenericAddressSpaceAttr::OpenCLGenericAddressSpaceAttr(
@@ -10476,7 +9840,6 @@ enum OpenCLGenericAddressSpaceAttrSpelling OpenCLGenericAddressSpaceAttr::Semant
   auto &self = *const_cast<clang::OpenCLGenericAddressSpaceAttr *>(u.OpenCLGenericAddressSpaceAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::OpenCLGenericAddressSpaceAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view OpenCLGenericAddressSpaceAttr::Spelling(void) const {
@@ -10487,8 +9850,7 @@ std::string_view OpenCLGenericAddressSpaceAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OpenCLGenericAddressSpaceAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OpenCLGenericAddressSpaceAttr::Spelling can return nullptr!");
 }
 
 OpenCLGlobalAddressSpaceAttr::OpenCLGlobalAddressSpaceAttr(
@@ -10503,7 +9865,6 @@ enum OpenCLGlobalAddressSpaceAttrSpelling OpenCLGlobalAddressSpaceAttr::Semantic
   auto &self = *const_cast<clang::OpenCLGlobalAddressSpaceAttr *>(u.OpenCLGlobalAddressSpaceAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::OpenCLGlobalAddressSpaceAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view OpenCLGlobalAddressSpaceAttr::Spelling(void) const {
@@ -10514,8 +9875,7 @@ std::string_view OpenCLGlobalAddressSpaceAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OpenCLGlobalAddressSpaceAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OpenCLGlobalAddressSpaceAttr::Spelling can return nullptr!");
 }
 
 OpenCLGlobalDeviceAddressSpaceAttr::OpenCLGlobalDeviceAddressSpaceAttr(
@@ -10534,8 +9894,7 @@ std::string_view OpenCLGlobalDeviceAddressSpaceAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OpenCLGlobalDeviceAddressSpaceAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OpenCLGlobalDeviceAddressSpaceAttr::Spelling can return nullptr!");
 }
 
 OpenCLGlobalHostAddressSpaceAttr::OpenCLGlobalHostAddressSpaceAttr(
@@ -10554,8 +9913,7 @@ std::string_view OpenCLGlobalHostAddressSpaceAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OpenCLGlobalHostAddressSpaceAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OpenCLGlobalHostAddressSpaceAttr::Spelling can return nullptr!");
 }
 
 OpenCLLocalAddressSpaceAttr::OpenCLLocalAddressSpaceAttr(
@@ -10570,7 +9928,6 @@ enum OpenCLLocalAddressSpaceAttrSpelling OpenCLLocalAddressSpaceAttr::SemanticSp
   auto &self = *const_cast<clang::OpenCLLocalAddressSpaceAttr *>(u.OpenCLLocalAddressSpaceAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::OpenCLLocalAddressSpaceAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view OpenCLLocalAddressSpaceAttr::Spelling(void) const {
@@ -10581,8 +9938,7 @@ std::string_view OpenCLLocalAddressSpaceAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OpenCLLocalAddressSpaceAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OpenCLLocalAddressSpaceAttr::Spelling can return nullptr!");
 }
 
 OpenCLPrivateAddressSpaceAttr::OpenCLPrivateAddressSpaceAttr(
@@ -10597,7 +9953,6 @@ enum OpenCLPrivateAddressSpaceAttrSpelling OpenCLPrivateAddressSpaceAttr::Semant
   auto &self = *const_cast<clang::OpenCLPrivateAddressSpaceAttr *>(u.OpenCLPrivateAddressSpaceAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::OpenCLPrivateAddressSpaceAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view OpenCLPrivateAddressSpaceAttr::Spelling(void) const {
@@ -10608,8 +9963,7 @@ std::string_view OpenCLPrivateAddressSpaceAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OpenCLPrivateAddressSpaceAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OpenCLPrivateAddressSpaceAttr::Spelling can return nullptr!");
 }
 
 OpenCLUnrollHintAttr::OpenCLUnrollHintAttr(
@@ -10628,15 +9982,13 @@ std::string_view OpenCLUnrollHintAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "OpenCLUnrollHintAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("OpenCLUnrollHintAttr::Spelling can return nullptr!");
 }
 
 uint32_t OpenCLUnrollHintAttr::UnrollHint(void) const {
   auto &self = *const_cast<clang::OpenCLUnrollHintAttr *>(u.OpenCLUnrollHintAttr);
   decltype(auto) val = self.getUnrollHint();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 Ptr32Attr::Ptr32Attr(
@@ -10655,8 +10007,7 @@ std::string_view Ptr32Attr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "Ptr32Attr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("Ptr32Attr::Spelling can return nullptr!");
 }
 
 Ptr64Attr::Ptr64Attr(
@@ -10675,8 +10026,7 @@ std::string_view Ptr64Attr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "Ptr64Attr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("Ptr64Attr::Spelling can return nullptr!");
 }
 
 SPtrAttr::SPtrAttr(
@@ -10695,8 +10045,7 @@ std::string_view SPtrAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "SPtrAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("SPtrAttr::Spelling can return nullptr!");
 }
 
 AlwaysInlineAttr::AlwaysInlineAttr(
@@ -10712,7 +10061,6 @@ enum AlwaysInlineAttrSpelling AlwaysInlineAttr::SemanticSpelling(void) const {
   auto &self = *const_cast<clang::AlwaysInlineAttr *>(u.AlwaysInlineAttr);
   decltype(auto) val = self.getSemanticSpelling();
   return static_cast<::pasta::AlwaysInlineAttrSpelling>(val);
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 std::string_view AlwaysInlineAttr::Spelling(void) const {
@@ -10723,15 +10071,13 @@ std::string_view AlwaysInlineAttr::Spelling(void) const {
   } else {
     return std::string_view();
   }
-  assert(false && "AlwaysInlineAttr::Spelling can return nullptr!");
-  throw std::runtime_error("The unreachable has been reached");
+  throw std::runtime_error("AlwaysInlineAttr::Spelling can return nullptr!");
 }
 
 bool AlwaysInlineAttr::IsClangAlwaysInline(void) const {
   auto &self = *const_cast<clang::AlwaysInlineAttr *>(u.AlwaysInlineAttr);
   decltype(auto) val = self.isClangAlwaysInline();
   return val;
-  throw std::runtime_error("The unreachable has been reached");
 }
 
 }  // namespace pasta

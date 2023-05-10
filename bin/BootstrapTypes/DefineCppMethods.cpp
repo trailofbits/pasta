@@ -123,9 +123,9 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
           << "  }\n"
           << rt_val;
     } else {
-      os
-         << rt_val
-         << "  assert(false && \"" << class_name << "::"
+      os << rt_val
+         << "  throw std::runtime_error(\""
+         << class_name << "::"
          << meth_name << " can return nullptr!\");\n";
     }
   } else {
@@ -134,8 +134,7 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
     (void) handled_null_ret;
   }
 
-  os << "  throw std::runtime_error(\"The unreachable has been reached\");\n"
-     << "}\n\n";
+  os << "}\n\n";
 
   os_py << "\n    .def_property_readonly(\"" << CapitalCaseToSnakeCase(meth_name) << "\", &" << class_name << "::" << meth_name << ")";
 }
@@ -205,17 +204,16 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
             << rt_val;
       } else {
         os << rt_val
-           << "  assert(false && \"" << class_name << "::"
-           << meth_name << " can return nullptr!\");\n"
-           << "  throw std::runtime_error(\"The unreachable has been reached\");\n";
+           << "  throw std::runtime_error(\""
+           << class_name << "::"
+           << meth_name << " can return nullptr!\");\n";
       }
     } else {
       assert(!can_ret_null || handled_null_ret);
       os << rt_val;
       (void) handled_null_ret;
     }
-    os << "  throw std::runtime_error(\"The unreachable has been reached\");\n"
-       << "}\n\n";
+    os << "}\n\n";
 
   } else if (p0_ref == "(bool)") {
     const auto can_ret_null = kCanReturnNullptr.count(
@@ -254,16 +252,15 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
             << rt_val;
       } else {
         os << rt_val
-           << "  assert(false && \"" << class_name << "::"
-           << meth_name << " can return nullptr!\");\n"
-           << "  throw std::runtime_error(\"The unreachable has been reached\");\n";
+           << "  throw std::runtime_error(\""
+           << class_name << "::"
+           << meth_name << " can return nullptr!\");\n";
       }
     } else {
       assert(!can_ret_null);
       os << rt_val;
     }
-    os << "  throw std::runtime_error(\"The unreachable has been reached\");\n"
-       << "}\n\n";
+    os << "}\n\n";
 
   } else if (!strcmp(class_name.c_str(), "DesignatedInitExpr") &&
       !strcmp(meth_name.c_str(), "Designator")) {

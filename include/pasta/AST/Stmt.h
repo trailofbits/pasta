@@ -33,6 +33,9 @@
     }
 
 namespace pasta {
+class Macro;
+class MacroArgument;
+
 class StmtVisitor {
  public:
   virtual ~StmtVisitor(void);
@@ -293,6 +296,10 @@ class Stmt {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(Stmt)
   friend class TokenContext;
   static std::optional<::pasta::Stmt> From(const TokenContext &);
+
+  std::optional<::pasta::Macro> CoveringSubstitution(void) const noexcept;
+  std::optional<::pasta::MacroArgument> LowestContainingMacroArgument(void) const noexcept;
+
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, AbstractConditionalOperator)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, AddrLabelExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ArrayInitIndexExpr)

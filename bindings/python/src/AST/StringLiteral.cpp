@@ -11,6 +11,7 @@
 #include <pasta/AST/Type.h>
 
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 namespace pasta {
 namespace py = pybind11;

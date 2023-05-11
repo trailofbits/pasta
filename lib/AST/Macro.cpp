@@ -881,64 +881,62 @@ MacroRange MacroSubstitution::ReplacementChildren(void) const noexcept {
   }
 }
 
+// Higher-order function for getting the left/right corner of a substitution
+// tree.
+// The walk parameter tells us how to traverse the current substitution's
+// replacement children of tree to go left/right.
+// Returns an optional Token because the top-level substitution may not expand
+// to any tokens.
+template <typename RangeElemT, typename RangeT>
+static std::optional<Token> Corner(
+  const RangeT &range,
+  std::function<std::optional<RangeElemT>(RangeT)> walk) {
+  std::optional<RangeElemT> cur = std::nullopt;
+  std::optional<RangeElemT> next = (!range.empty()
+                                    ? std::optional(walk(range))
+                                    : std::nullopt);
+  while (next) {
+    // Traverse the next begin/end token (left/right corner)
+    cur = std::move(next);
+    auto cur_sub = MacroSubstitution::From(*cur);
+    auto next_children = (cur_sub
+                          ? std::optional(cur_sub->ReplacementChildren())
+                          : std::nullopt);
+    next = ((next_children && !next_children->empty())
+            ? std::optional(walk(*next_children))
+            : std::nullopt);
+  }
+  const std::optional<MacroToken> macro_tok = (cur
+                                               ? MacroToken::From(*cur)
+                                               : std::nullopt);
+  return (macro_tok
+          ? std::optional(macro_tok->ParsedLocation())
+          : std::nullopt);
+}
+
 // Returns the first and last fully substituted tokens from a given macro
 // substitution, if they exist.
 std::pair<std::optional<Token>, std::optional<Token>>
-GetFirstAndLastFullySubstitutedTokens(MacroSubstitution const &sub) noexcept {
-  auto subst_replacement_children = sub.ReplacementChildren();
-
-  // Higher-order function for getting the left/right corner of the substitution
-  // tree.
-  // The walk parameter tells us how to traverse the current substitution's
-  // replacement children of tree to go left/right.
-  // Returns an optional Token because the top-level substitution may not expand
-  // to any tokens.
-  const auto Corner = [&subst_replacement_children]
-  (std::function<std::optional<Macro>(MacroRange)> walk)->std::optional<Token> {
-    std::optional<Macro> cur = std::nullopt;
-    std::optional<Macro> next = !subst_replacement_children.empty()
-      ? std::optional(walk(subst_replacement_children))
-      : std::nullopt;
-
-    while (next) {
-      // Traverse the next begin/end token (left/right corner)
-      cur = std::move(next);
-      auto cur_sub = MacroSubstitution::From(*cur);
-      auto next_children = (cur_sub
-                            ? std::optional(cur_sub->ReplacementChildren())
-                            : std::nullopt);
-      next = ((next_children && !next_children->empty())
-              ? std::optional(walk(*next_children))
-              : std::nullopt);
-    }
-    const std::optional<MacroToken> macro_tok = (cur
-                                                 ? MacroToken::From(*cur)
-                                                 : std::nullopt);
-    return (macro_tok
-            ? std::optional(macro_tok->ParsedLocation())
-            : std::nullopt);
-  };
-
+static FirstAndLastFullySubstitutedTokens(MacroSubstitution const &sub) noexcept {
+  const auto &sub_repl_children = sub.ReplacementChildren();
   const auto Left = [](MacroRange range) { return *range.begin(); };
   const auto Right = [](MacroRange range) { return *(range.end() - 1); };
-  const auto first_tok = Corner(Left);
-  const auto last_tok = Corner(Right);
+  const auto first_tok = Corner<Macro, MacroRange>(sub_repl_children, Left);
+  const auto last_tok = Corner<Macro, MacroRange>(sub_repl_children, Right);
 
   return std::pair(first_tok, last_tok);
 }
 
 // Returns the index of the next final expansion or file token in the given
 // token list after the given token
-std::optional<uint64_t>
+static std::optional<uint64_t>
 NextFinalExpansionOrFileTokenIndex(const std::vector<pasta::TokenImpl> &tokens,
                                    const Token &tok) {
-  for (uint64_t i = tok.Index() + 1; i < tokens.size(); i++)
-  {
+  for (uint64_t i = tok.Index() + 1; i < tokens.size(); i++) {
     const auto next_tok = tokens.at(i);
     const auto next_tok_role = next_tok.Role();
     if (next_tok_role == TokenRole::kFinalMacroExpansionToken ||
-        next_tok_role == TokenRole::kFileToken)
-    {
+        next_tok_role == TokenRole::kFileToken) {
       return i;
     }
   }
@@ -950,8 +948,7 @@ NextFinalExpansionOrFileTokenIndex(const std::vector<pasta::TokenImpl> &tokens,
 // substitution expanded to, if any.
 std::optional<Stmt> MacroSubstitution::CoveredStmt(void) const noexcept {
   // Get the first and last tokens of the entire substitution.
-  const auto [first_tok, last_tok] =
-    GetFirstAndLastFullySubstitutedTokens(*this);
+  const auto [first_tok, last_tok] = FirstAndLastFullySubstitutedTokens(*this);
 
   // Check that the substitution actually expands to at least one token.
   if (!(first_tok && last_tok)) {
@@ -997,8 +994,7 @@ std::optional<Stmt> MacroSubstitution::CoveredStmt(void) const noexcept {
 // substitution expanded to, if any.
 std::optional<Decl> MacroSubstitution::CoveredDecl(void) const noexcept {
   // Get the first and last tokens of the entire substitution.
-  const auto [first_tok, last_tok] =
-    GetFirstAndLastFullySubstitutedTokens(*this);
+  const auto [first_tok, last_tok] = FirstAndLastFullySubstitutedTokens(*this);
 
   // Check that the substitution actually expands to at least one token.
   if (!(first_tok && last_tok)) {

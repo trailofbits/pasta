@@ -26,6 +26,7 @@
 
 #define PRINT_DEFINITIONS 0
 #define PRINT_DERIVED 1
+#define PRINT_ROLE_COLORS 1
 
 template <typename TokT>
 static std::string TokData(const TokT &tok) {
@@ -45,6 +46,39 @@ static std::string TokData(const TokT &tok) {
   return ss.str();
 }
 
+#if PRINT_ROLE_COLORS
+static inline std::string TokRoleColor(const pasta::TokenRole role) {
+  std::stringstream ss;
+  switch (role)
+  {
+  case pasta::TokenRole::kInvalid: ss << "red"; break;
+  case pasta::TokenRole::kBeginOfFileMarker: ss << "cyan"; break;
+  case pasta::TokenRole::kFileToken: ss << "blue"; break;
+  case pasta::TokenRole::kEndOfFileMarker: ss << "darkblue"; break;
+  case pasta::TokenRole::kBeginOfMacroExpansionMarker: ss << "lightblue"; break;
+  case pasta::TokenRole::kInitialMacroUseToken: ss << "purple"; break;
+  case pasta::TokenRole::kIntermediateMacroExpansionToken: ss << "yellow"; break;
+  case pasta::TokenRole::kFinalMacroExpansionToken: ss << "lime"; break;
+  case pasta::TokenRole::kEndOfMacroExpansionMarker: ss << "magenta"; break;
+  case pasta::TokenRole::kEndOfInternalMacroEventMarker: ss << "pink"; break;
+
+  default:
+    assert(!"unknown token role");
+  }
+  return ss.str();
+}
+
+static inline void PrintLegend(std::ostream &os) {
+  os << "legend [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" border=\"1\">";
+  for (const auto role : pasta::TokenRoles) {
+    os << "<TR><TD BGCOLOR=\"" << TokRoleColor(role) << "\">"
+       << pasta::TokenRoleName(role)
+       << "</TD></TR>";
+  }
+  os << "</TABLE>>];";
+}
+#endif
+
 static void RecPrintMacroGraph(std::ostream &os, const pasta::Macro &node);
 
 static void PrintMacroGraph(std::ostream &os,
@@ -53,7 +87,11 @@ static void PrintMacroGraph(std::ostream &os,
   const auto a = reinterpret_cast<uintptr_t>(tok.RawMacro());
   os
       << "n" << a
-      << " [label=<<TABLE cellpadding=\"2\" cellspacing=\"0\" border=\"1\"><TR>"
+      << " [label=<<TABLE"
+      #if PRINT_ROLE_COLORS
+      << " BGCOLOR=\"" << TokRoleColor(tok.ParsedLocation().Role()) << "\""
+      #endif
+      << " cellpadding=\"2\" cellspacing=\"0\" border=\"1\"><TR>"
       << "<TD>" << TokData(tok) << "</TD></TR></TABLE>>];\n";
 
 #if PRINT_DEFINITIONS
@@ -424,6 +462,10 @@ static void PrintMacroGraph(std::ostream &os, pasta::AST ast) {
   os
       << "digraph {\n"
       << "node [shape=none margin=0 nojustify=false labeljust=l font=courier];\n";
+
+  #if PRINT_ROLE_COLORS
+  PrintLegend(os);
+  #endif
 
   for (const pasta::Macro &node : ast.Macros()) {
     RecPrintMacroGraph(os, node);

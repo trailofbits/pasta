@@ -179,6 +179,21 @@ static bool ReadRawTokenData(clang::SourceManager &source_manager,
 
 } // namespace
 
+std::vector<pasta::TokenRole> TokenRoles = std::vector({
+  #define ROLE(role) TokenRole::k##role ,
+  ROLES
+  #undef ROLE
+});
+
+std::string TokenRoleName(const TokenRole role) {
+  const static std::string TokenRoleNames[] = {
+#define ROLE(role) #role,
+  ROLES
+#undef ROLE
+  };
+  return TokenRoleNames[static_cast<size_t>(role)];
+}
+
 // Return the common ancestor between two contexts. This focuses on the data
 // itself, so if there are two distinct contexts sharing the same data, or
 // aliasing the same data, the context associated with the second token is

@@ -50,22 +50,31 @@ class TokenPrinterContext;
 class TokenImpl;
 class TokenRange;
 
+// X-macro for repeated operations on TokenRole values
+#define ROLES \
+  ROLE(Invalid) \
+  ROLE(BeginOfFileMarker) \
+  ROLE(FileToken) \
+  ROLE(EndOfFileMarker) \
+  ROLE(BeginOfMacroExpansionMarker) \
+  ROLE(InitialMacroUseToken) \
+  ROLE(IntermediateMacroExpansionToken) \
+  ROLE(FinalMacroExpansionToken) \
+  ROLE(EndOfMacroExpansionMarker) \
+  ROLE(EndOfInternalMacroEventMarker) \
+
 enum class TokenKind : unsigned short;
 enum class TokenRole : std::underlying_type_t<TokenKind> {
-  kInvalid,
-
-  kBeginOfFileMarker,
-  kFileToken,
-  kEndOfFileMarker,
-
-  kBeginOfMacroExpansionMarker,
-  kInitialMacroUseToken,
-  kIntermediateMacroExpansionToken,
-  kFinalMacroExpansionToken,
-  kEndOfMacroExpansionMarker,
-
-  kEndOfInternalMacroEventMarker,
+  #define ROLE(role) k ## role ,
+  ROLES
+  #undef ROLE
 };
+
+// Vector of all token roles for iteration.
+extern std::vector<TokenRole> TokenRoles;
+
+// Returns the name of the specified TokenRole as a string.
+std::string TokenRoleName(const TokenRole role);
 
 enum class TokenContextKind : unsigned char {
   kInvalid,

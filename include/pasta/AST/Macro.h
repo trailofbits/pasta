@@ -381,11 +381,11 @@ class MacroSubstitution : public Macro {
 
   // Returns the Stmt in the AST that was parsed from the tokens this macro
   // substitution expanded to, if any.
-  std::optional<Stmt> GetCoveredStmt(void) const noexcept;
+  std::optional<Stmt> CoveredStmt(void) const noexcept;
 
   // Returns the Decl in the AST that was parsed from the tokens this macro
   // substitution expanded to, if any.
-  std::optional<Decl> GetCoveredDecl(void) const noexcept;
+  std::optional<Decl> CoveredDecl(void) const noexcept;
 };
 
 static_assert(sizeof(MacroSubstitution) == sizeof(Macro));

@@ -5,6 +5,7 @@
 #include "Macro.h"
 
 #include <cassert>
+#include <functional>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wbitfield-enum-conversion"
@@ -883,52 +884,71 @@ MacroRange MacroSubstitution::ReplacementChildren(void) const noexcept {
 // Returns the first and last fully substituted tokens from a given macro
 // substitution, if they exist.
 std::pair<std::optional<Token>, std::optional<Token>>
-GetFirstAndLastFullySubstitutedTokens(
-  MacroSubstitution const &substitution) noexcept {
+GetFirstAndLastFullySubstitutedTokens(MacroSubstitution const &sub) noexcept {
+  auto subst_replacement_children = sub.ReplacementChildren();
 
-  // Get the fully substituted first token
-  std::optional<Token> first_tok = std::nullopt;
-  {
-    auto subst = std::optional(substitution);
-    auto first_replacement_child = std::optional<Macro>();
-    while (subst && !subst->ReplacementChildren().empty()) {
-      // Traverse the next begin token
-      first_replacement_child = *subst->ReplacementChildren().begin();
-      subst = MacroSubstitution::From(*first_replacement_child);
-    }
-    if (first_replacement_child) {
-      const auto first_macro_tok = MacroToken::From(*first_replacement_child);
-      if (first_macro_tok) {
-        first_tok = std::optional(first_macro_tok->ParsedLocation());
-      }
-    }
-  }
+  // Higher-order function for getting the left/right corner of the substitution
+  // tree.
+  // The walk parameter tells us how to traverse the current substitution's
+  // replacement children of tree to go left/right.
+  // Returns an optional Token because the top-level substitution may not expand
+  // to any tokens.
+  const auto Corner = [&subst_replacement_children]
+  (std::function<std::optional<Macro>(MacroRange)> walk)->std::optional<Token> {
+    std::optional<Macro> cur = std::nullopt;
+    std::optional<Macro> next = !subst_replacement_children.empty()
+      ? std::optional(walk(subst_replacement_children))
+      : std::nullopt;
 
-  // Get the last substituted first token
-  std::optional<Token> last_tok = std::nullopt;
-  {
-    auto subst = std::optional(substitution);
-    auto last_replacement_child = std::optional<Macro>();
-    while (subst && !subst->ReplacementChildren().empty()) {
-      // Traverse the next end token
-      last_replacement_child = *(subst->ReplacementChildren().end() - 1);
-      subst = MacroSubstitution::From(*last_replacement_child);
+    while (next) {
+      // Traverse the next begin/end token (left/right corner)
+      cur = std::move(next);
+      auto cur_sub = MacroSubstitution::From(*cur);
+      auto next_children = (cur_sub
+                            ? std::optional(cur_sub->ReplacementChildren())
+                            : std::nullopt);
+      next = ((next_children && !next_children->empty())
+              ? std::optional(walk(*next_children))
+              : std::nullopt);
     }
-    if (last_replacement_child) {
-      const auto last_macro_tok = MacroToken::From(*last_replacement_child);
-      if (last_macro_tok) {
-        last_tok = std::optional(last_macro_tok->ParsedLocation());
-      }
-    }
-  }
+    const std::optional<MacroToken> macro_tok = (cur
+                                                 ? MacroToken::From(*cur)
+                                                 : std::nullopt);
+    return (macro_tok
+            ? std::optional(macro_tok->ParsedLocation())
+            : std::nullopt);
+  };
+
+  const auto Left = [](MacroRange range) { return *range.begin(); };
+  const auto Right = [](MacroRange range) { return *(range.end() - 1); };
+  const auto first_tok = Corner(Left);
+  const auto last_tok = Corner(Right);
 
   return std::pair(first_tok, last_tok);
+}
+
+// Returns the index of the next final expansion or file token in the given
+// token list after the given token
+std::optional<uint64_t>
+NextFinalExpansionOrFileTokenIndex(const std::vector<pasta::TokenImpl> &tokens,
+                                   const Token &tok) {
+  for (uint64_t i = tok.Index() + 1; i < tokens.size(); i++)
+  {
+    const auto next_tok = tokens.at(i);
+    const auto next_tok_role = next_tok.Role();
+    if (next_tok_role == TokenRole::kFinalMacroExpansionToken ||
+        next_tok_role == TokenRole::kFileToken)
+    {
+      return i;
+    }
+  }
+  return std::nullopt;
 }
 
 
 // Returns the Stmt in the AST that was parsed from the tokens this macro
 // substitution expanded to, if any.
-std::optional<Stmt> MacroSubstitution::GetCoveredStmt(void) const noexcept {
+std::optional<Stmt> MacroSubstitution::CoveredStmt(void) const noexcept {
   // Get the first and last tokens of the entire substitution.
   const auto [first_tok, last_tok] =
     GetFirstAndLastFullySubstitutedTokens(*this);
@@ -938,17 +958,36 @@ std::optional<Stmt> MacroSubstitution::GetCoveredStmt(void) const noexcept {
     return std::nullopt;
   }
 
-  // Walk up the tokens' context tree until we find a Stmt whose first and
-  // last tokens are the first and last fully expanded tokens.
-  auto ctx = first_tok->Context();
-  while (ctx) {
-    if (const auto stmt = Stmt::From(*ctx)) {
-      if (first_tok.value() == stmt->BeginToken() &&
-          last_tok.value() == stmt->EndToken()) {
-        return stmt;
+  // This determines whether or not to use the semicolon heuristic.
+  const bool last_tok_is_semicolon = last_tok->Kind() == TokenKind::kSemi;
+  const uint64_t last_tok_idx = last_tok->Index();
+
+  // Walk up the tokens' context tree until we find a Stmt whose first and last
+  // tokens are the first and last fully expanded tokens. Start at the first
+  // token's context, and ascend the AST until we reach a context that aligns
+  // perfectly with the first and last tokens.
+  for (auto first_tok_ctx = first_tok->Context(); first_tok_ctx;
+       first_tok_ctx = first_tok_ctx->Parent()) {
+
+    if (const auto first_tok_stmt = Stmt::From(*first_tok_ctx)) {
+      const auto first_tok_stmt_begin_tok = first_tok_stmt->BeginToken();
+      const auto first_tok_stmt_end_tok = first_tok_stmt->EndToken();
+      const auto next_non_macro_tok_idx =
+        NextFinalExpansionOrFileTokenIndex(ast->tokens, first_tok_stmt_end_tok);
+
+      if (*first_tok == first_tok_stmt_begin_tok &&
+          // Either the Stmt completely aligns...
+          ((*last_tok == first_tok_stmt_end_tok) ||
+           // ...or we use a heuristic to find Stmts that align with expansions
+           // that include a trailing semicolon. Check if the token just beyond
+           // the end of the context that the first token belongs to is a
+           // semicolon, and is the same token that the expansion ends with.
+           (last_tok_is_semicolon &&
+            next_non_macro_tok_idx &&
+            *next_non_macro_tok_idx == last_tok_idx))) {
+        return first_tok_stmt;
       }
     }
-    ctx = ctx->Parent();
   }
 
   return std::nullopt;
@@ -956,7 +995,7 @@ std::optional<Stmt> MacroSubstitution::GetCoveredStmt(void) const noexcept {
 
 // Returns the Decl in the AST that was parsed from the tokens this macro
 // substitution expanded to, if any.
-std::optional<Decl> MacroSubstitution::GetCoveredDecl(void) const noexcept {
+std::optional<Decl> MacroSubstitution::CoveredDecl(void) const noexcept {
   // Get the first and last tokens of the entire substitution.
   const auto [first_tok, last_tok] =
     GetFirstAndLastFullySubstitutedTokens(*this);
@@ -966,17 +1005,36 @@ std::optional<Decl> MacroSubstitution::GetCoveredDecl(void) const noexcept {
     return std::nullopt;
   }
 
-  // Walk up the tokens' context tree until we find a Decl whose first and
-  // last tokens are the first and last fully expanded tokens.
-  auto ctx = first_tok->Context();
-  while (ctx) {
-    if (const auto decl = Decl::From(*ctx)) {
-      if (first_tok.value() == decl->BeginToken() &&
-          last_tok.value() == decl->EndToken()) {
-        return decl;
+  // This determines whether or not to use the semicolon heuristic.
+  const bool last_tok_is_semicolon = last_tok->Kind() == TokenKind::kSemi;
+  const uint64_t last_tok_idx = last_tok->Index();
+
+  // Walk up the tokens' context tree until we find a Decl whose first and last
+  // tokens are the first and last fully expanded tokens. Start at the first
+  // token's context, and ascend the AST until we reach a context that aligns
+  // perfectly with the first and last tokens.
+  for (auto first_tok_ctx = first_tok->Context(); first_tok_ctx;
+       first_tok_ctx = first_tok_ctx->Parent()) {
+
+    if (const auto first_tok_decl = Decl::From(*first_tok_ctx)) {
+      const auto first_tok_decl_begin_tok = first_tok_decl->BeginToken();
+      const auto first_tok_decl_end_tok = first_tok_decl->EndToken();
+      const auto next_non_macro_tok_idx =
+        NextFinalExpansionOrFileTokenIndex(ast->tokens, first_tok_decl_end_tok);
+
+      if (*first_tok == first_tok_decl_begin_tok &&
+          // Either the Decl completely aligns...
+          ((*last_tok == first_tok_decl_end_tok) ||
+           // ...or we use a heuristic to find Decl that align with expansions
+           // that include a trailing semicolon. Check if the token just beyond
+           // the end of the context that the first token belongs to is a
+           // semicolon, and is the same token that the expansion ends with.
+           (last_tok_is_semicolon &&
+            next_non_macro_tok_idx &&
+            *next_non_macro_tok_idx == last_tok_idx))) {
+        return first_tok_decl;
       }
     }
-    ctx = ctx->Parent();
   }
 
   return std::nullopt;

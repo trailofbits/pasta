@@ -35,7 +35,7 @@ RootSubstitution(const MacroToken &macro_token) noexcept {
 }
 
 // Returns the highest substitution that covers this Stmt, if any.
-std::optional<Macro> Stmt::CoveringSubstitution(void) const noexcept {
+std::optional<Macro> Stmt::HighestContainingSubstitution(void) const noexcept {
   // If the first token in this Stmt did not come from a macro substitution,
   // then this Stmt is not covered by a substitution
   const auto begin_macro_token = BeginToken().MacroLocation();

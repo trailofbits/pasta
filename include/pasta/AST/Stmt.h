@@ -297,7 +297,7 @@ class Stmt {
   friend class TokenContext;
   static std::optional<::pasta::Stmt> From(const TokenContext &);
 
-  std::optional<::pasta::Macro> CoveringSubstitution(void) const noexcept;
+  std::optional<::pasta::Macro> HighestContainingSubstitution(void) const noexcept;
   std::optional<::pasta::MacroArgument> LowestContainingMacroArgument(void) const noexcept;
 
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, AbstractConditionalOperator)

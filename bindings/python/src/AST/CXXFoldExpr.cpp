@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterCXXFoldExpr(py::module_ &m) {
   py::class_<CXXFoldExpr, Expr>(m, "CXXFoldExpr")
     .def("__hash__", [](const CXXFoldExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const CXXFoldExpr& a, const CXXFoldExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &CXXFoldExpr::Children)
     .def_property_readonly("begin_token", &CXXFoldExpr::BeginToken)
     .def_property_readonly("callee", &CXXFoldExpr::Callee)

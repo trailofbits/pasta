@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterPointerType(py::module_ &m) {
   py::class_<PointerType, Type>(m, "PointerType")
     .def("__hash__", [](const PointerType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const PointerType& a, const PointerType& b) { return a.RawType() == b.RawType(); })
+    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("desugar", &PointerType::Desugar)
     .def_property_readonly("pointee_type", &PointerType::PointeeType)
     .def_property_readonly("is_sugared", &PointerType::IsSugared);

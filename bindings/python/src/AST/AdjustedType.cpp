@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterAdjustedType(py::module_ &m) {
   py::class_<AdjustedType, Type>(m, "AdjustedType")
     .def("__hash__", [](const AdjustedType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const AdjustedType& a, const AdjustedType& b) { return a.RawType() == b.RawType(); })
+    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("desugar", &AdjustedType::Desugar)
     .def_property_readonly("resolved_type", &AdjustedType::ResolvedType)
     .def_property_readonly("original_type", &AdjustedType::OriginalType)

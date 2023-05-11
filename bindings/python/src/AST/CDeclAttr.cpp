@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterCDeclAttr(py::module_ &m) {
   py::class_<CDeclAttr, InheritableAttr>(m, "CDeclAttr")
     .def("__hash__", [](const CDeclAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const CDeclAttr& a, const CDeclAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &CDeclAttr::Spelling);
 }
 } // namespace pasta

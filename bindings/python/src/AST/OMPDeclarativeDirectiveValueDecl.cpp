@@ -19,6 +19,6 @@ namespace py = pybind11;
 void RegisterOMPDeclarativeDirectiveValueDecl(py::module_ &m) {
   py::class_<OMPDeclarativeDirectiveValueDecl, ValueDecl>(m, "OMPDeclarativeDirectiveValueDecl")
     .def("__hash__", [](const OMPDeclarativeDirectiveValueDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const OMPDeclarativeDirectiveValueDecl& a, const OMPDeclarativeDirectiveValueDecl& b) { return a.RawDecl() == b.RawDecl(); });
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); });
 }
 } // namespace pasta

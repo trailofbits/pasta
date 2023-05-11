@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterOverloadExpr(py::module_ &m) {
   py::class_<OverloadExpr, Expr>(m, "OverloadExpr")
     .def("__hash__", [](const OverloadExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const OverloadExpr& a, const OverloadExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("l_angle_token", &OverloadExpr::LAngleToken)
     .def_property_readonly("name_token", &OverloadExpr::NameToken)
     .def_property_readonly("naming_class", &OverloadExpr::NamingClass)

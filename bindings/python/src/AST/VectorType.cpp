@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterVectorType(py::module_ &m) {
   py::class_<VectorType, Type>(m, "VectorType")
     .def("__hash__", [](const VectorType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const VectorType& a, const VectorType& b) { return a.RawType() == b.RawType(); })
+    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("desugar", &VectorType::Desugar)
     .def_property_readonly("element_type", &VectorType::ElementType)
     .def_property_readonly("num_elements", &VectorType::NumElements)

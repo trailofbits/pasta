@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterObjCPropertyDecl(py::module_ &m) {
   py::class_<ObjCPropertyDecl, NamedDecl>(m, "ObjCPropertyDecl")
     .def("__hash__", [](const ObjCPropertyDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const ObjCPropertyDecl& a, const ObjCPropertyDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("at_token", &ObjCPropertyDecl::AtToken)
     .def_property_readonly("getter_method_declaration", &ObjCPropertyDecl::GetterMethodDeclaration)
     .def_property_readonly("getter_name_token", &ObjCPropertyDecl::GetterNameToken)

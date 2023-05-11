@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterCXXOperatorCallExpr(py::module_ &m) {
   py::class_<CXXOperatorCallExpr, CallExpr>(m, "CXXOperatorCallExpr")
     .def("__hash__", [](const CXXOperatorCallExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const CXXOperatorCallExpr& a, const CXXOperatorCallExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("begin_token", &CXXOperatorCallExpr::BeginToken)
     .def_property_readonly("end_token", &CXXOperatorCallExpr::EndToken)
     .def_property_readonly("expression_token", &CXXOperatorCallExpr::ExpressionToken)

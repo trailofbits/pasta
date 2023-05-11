@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterBinaryConditionalOperator(py::module_ &m) {
   py::class_<BinaryConditionalOperator, AbstractConditionalOperator>(m, "BinaryConditionalOperator")
     .def("__hash__", [](const BinaryConditionalOperator& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const BinaryConditionalOperator& a, const BinaryConditionalOperator& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &BinaryConditionalOperator::Children)
     .def_property_readonly("begin_token", &BinaryConditionalOperator::BeginToken)
     .def_property_readonly("common", &BinaryConditionalOperator::Common)

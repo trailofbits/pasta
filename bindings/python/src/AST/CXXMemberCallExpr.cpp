@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterCXXMemberCallExpr(py::module_ &m) {
   py::class_<CXXMemberCallExpr, CallExpr>(m, "CXXMemberCallExpr")
     .def("__hash__", [](const CXXMemberCallExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const CXXMemberCallExpr& a, const CXXMemberCallExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("expression_token", &CXXMemberCallExpr::ExpressionToken)
     .def_property_readonly("implicit_object_argument", &CXXMemberCallExpr::ImplicitObjectArgument)
     .def_property_readonly("method_declaration", &CXXMemberCallExpr::MethodDeclaration)

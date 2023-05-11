@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterExpressionTraitExpr(py::module_ &m) {
   py::class_<ExpressionTraitExpr, Expr>(m, "ExpressionTraitExpr")
     .def("__hash__", [](const ExpressionTraitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const ExpressionTraitExpr& a, const ExpressionTraitExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &ExpressionTraitExpr::Children)
     .def_property_readonly("begin_token", &ExpressionTraitExpr::BeginToken)
     .def_property_readonly("end_token", &ExpressionTraitExpr::EndToken)

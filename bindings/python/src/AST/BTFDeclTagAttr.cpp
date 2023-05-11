@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterBTFDeclTagAttr(py::module_ &m) {
   py::class_<BTFDeclTagAttr, InheritableAttr>(m, "BTFDeclTagAttr")
     .def("__hash__", [](const BTFDeclTagAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const BTFDeclTagAttr& a, const BTFDeclTagAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("btf_decl_tag", &BTFDeclTagAttr::BTFDeclTag)
     .def_property_readonly("btf_decl_tag_length", &BTFDeclTagAttr::BTFDeclTagLength)
     .def_property_readonly("spelling", &BTFDeclTagAttr::Spelling);

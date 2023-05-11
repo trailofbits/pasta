@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterFunctionProtoType(py::module_ &m) {
   py::class_<FunctionProtoType, FunctionType>(m, "FunctionProtoType")
     .def("__hash__", [](const FunctionProtoType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const FunctionProtoType& a, const FunctionProtoType& b) { return a.RawType() == b.RawType(); })
+    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("can_throw", &FunctionProtoType::CanThrow)
     .def_property_readonly("desugar", &FunctionProtoType::Desugar)
     .def_property_readonly("exceptions", &FunctionProtoType::Exceptions)

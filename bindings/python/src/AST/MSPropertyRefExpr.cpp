@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterMSPropertyRefExpr(py::module_ &m) {
   py::class_<MSPropertyRefExpr, Expr>(m, "MSPropertyRefExpr")
     .def("__hash__", [](const MSPropertyRefExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const MSPropertyRefExpr& a, const MSPropertyRefExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &MSPropertyRefExpr::Children)
     .def_property_readonly("base_expression", &MSPropertyRefExpr::BaseExpression)
     .def_property_readonly("begin_token", &MSPropertyRefExpr::BeginToken)

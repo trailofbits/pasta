@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterUnresolvedMemberExpr(py::module_ &m) {
   py::class_<UnresolvedMemberExpr, OverloadExpr>(m, "UnresolvedMemberExpr")
     .def("__hash__", [](const UnresolvedMemberExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const UnresolvedMemberExpr& a, const UnresolvedMemberExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &UnresolvedMemberExpr::Children)
     .def_property_readonly("base", &UnresolvedMemberExpr::Base)
     .def_property_readonly("base_type", &UnresolvedMemberExpr::BaseType)

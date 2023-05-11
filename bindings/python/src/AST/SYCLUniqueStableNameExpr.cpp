@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterSYCLUniqueStableNameExpr(py::module_ &m) {
   py::class_<SYCLUniqueStableNameExpr, Expr>(m, "SYCLUniqueStableNameExpr")
     .def("__hash__", [](const SYCLUniqueStableNameExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const SYCLUniqueStableNameExpr& a, const SYCLUniqueStableNameExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def("compute_name", &SYCLUniqueStableNameExpr::ComputeName)
     .def_property_readonly("children", &SYCLUniqueStableNameExpr::Children)
     .def_property_readonly("begin_token", &SYCLUniqueStableNameExpr::BeginToken)

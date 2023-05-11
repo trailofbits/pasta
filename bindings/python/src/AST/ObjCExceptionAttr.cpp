@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterObjCExceptionAttr(py::module_ &m) {
   py::class_<ObjCExceptionAttr, InheritableAttr>(m, "ObjCExceptionAttr")
     .def("__hash__", [](const ObjCExceptionAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const ObjCExceptionAttr& a, const ObjCExceptionAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &ObjCExceptionAttr::Spelling);
 }
 } // namespace pasta

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterParamTypestateAttr(py::module_ &m) {
   py::class_<ParamTypestateAttr, InheritableAttr>(m, "ParamTypestateAttr")
     .def("__hash__", [](const ParamTypestateAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const ParamTypestateAttr& a, const ParamTypestateAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("parameter_state", &ParamTypestateAttr::ParameterState)
     .def_property_readonly("spelling", &ParamTypestateAttr::Spelling);
 }

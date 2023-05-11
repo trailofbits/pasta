@@ -19,6 +19,6 @@ namespace py = pybind11;
 void RegisterOMPCriticalDirective(py::module_ &m) {
   py::class_<OMPCriticalDirective, OMPExecutableDirective>(m, "OMPCriticalDirective")
     .def("__hash__", [](const OMPCriticalDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const OMPCriticalDirective& a, const OMPCriticalDirective& b) { return a.RawStmt() == b.RawStmt(); });
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

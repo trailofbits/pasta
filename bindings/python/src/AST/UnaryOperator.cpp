@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterUnaryOperator(py::module_ &m) {
   py::class_<UnaryOperator, Expr>(m, "UnaryOperator")
     .def("__hash__", [](const UnaryOperator& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const UnaryOperator& a, const UnaryOperator& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("can_overflow", &UnaryOperator::CanOverflow)
     .def_property_readonly("children", &UnaryOperator::Children)
     .def_property_readonly("begin_token", &UnaryOperator::BeginToken)

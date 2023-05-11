@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterAvailabilityAttr(py::module_ &m) {
   py::class_<AvailabilityAttr, InheritableAttr>(m, "AvailabilityAttr")
     .def("__hash__", [](const AvailabilityAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const AvailabilityAttr& a, const AvailabilityAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("message", &AvailabilityAttr::Message)
     .def_property_readonly("message_length", &AvailabilityAttr::MessageLength)
     .def_property_readonly("replacement", &AvailabilityAttr::Replacement)

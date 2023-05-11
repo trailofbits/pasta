@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterSubstNonTypeTemplateParmPackExpr(py::module_ &m) {
   py::class_<SubstNonTypeTemplateParmPackExpr, Expr>(m, "SubstNonTypeTemplateParmPackExpr")
     .def("__hash__", [](const SubstNonTypeTemplateParmPackExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const SubstNonTypeTemplateParmPackExpr& a, const SubstNonTypeTemplateParmPackExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &SubstNonTypeTemplateParmPackExpr::Children)
     .def_property_readonly("associated_declaration", &SubstNonTypeTemplateParmPackExpr::AssociatedDeclaration)
     .def_property_readonly("begin_token", &SubstNonTypeTemplateParmPackExpr::BeginToken)

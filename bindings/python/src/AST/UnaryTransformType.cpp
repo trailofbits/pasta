@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterUnaryTransformType(py::module_ &m) {
   py::class_<UnaryTransformType, Type>(m, "UnaryTransformType")
     .def("__hash__", [](const UnaryTransformType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const UnaryTransformType& a, const UnaryTransformType& b) { return a.RawType() == b.RawType(); })
+    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("desugar", &UnaryTransformType::Desugar)
     .def_property_readonly("base_type", &UnaryTransformType::BaseType)
     .def_property_readonly("utt_kind", &UnaryTransformType::UTTKind)

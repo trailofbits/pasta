@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterSwiftErrorAttr(py::module_ &m) {
   py::class_<SwiftErrorAttr, InheritableAttr>(m, "SwiftErrorAttr")
     .def("__hash__", [](const SwiftErrorAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const SwiftErrorAttr& a, const SwiftErrorAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("convention", &SwiftErrorAttr::Convention)
     .def_property_readonly("spelling", &SwiftErrorAttr::Spelling);
 }

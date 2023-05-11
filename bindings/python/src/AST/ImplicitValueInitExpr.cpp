@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterImplicitValueInitExpr(py::module_ &m) {
   py::class_<ImplicitValueInitExpr, Expr>(m, "ImplicitValueInitExpr")
     .def("__hash__", [](const ImplicitValueInitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const ImplicitValueInitExpr& a, const ImplicitValueInitExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &ImplicitValueInitExpr::Children)
     .def_property_readonly("begin_token", &ImplicitValueInitExpr::BeginToken)
     .def_property_readonly("end_token", &ImplicitValueInitExpr::EndToken);

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterMaterializeTemporaryExpr(py::module_ &m) {
   py::class_<MaterializeTemporaryExpr, Expr>(m, "MaterializeTemporaryExpr")
     .def("__hash__", [](const MaterializeTemporaryExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const MaterializeTemporaryExpr& a, const MaterializeTemporaryExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &MaterializeTemporaryExpr::Children)
     .def_property_readonly("begin_token", &MaterializeTemporaryExpr::BeginToken)
     .def_property_readonly("end_token", &MaterializeTemporaryExpr::EndToken)

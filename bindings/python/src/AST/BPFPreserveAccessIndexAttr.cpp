@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterBPFPreserveAccessIndexAttr(py::module_ &m) {
   py::class_<BPFPreserveAccessIndexAttr, InheritableAttr>(m, "BPFPreserveAccessIndexAttr")
     .def("__hash__", [](const BPFPreserveAccessIndexAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const BPFPreserveAccessIndexAttr& a, const BPFPreserveAccessIndexAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &BPFPreserveAccessIndexAttr::Spelling);
 }
 } // namespace pasta

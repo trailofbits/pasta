@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterExternalSourceSymbolAttr(py::module_ &m) {
   py::class_<ExternalSourceSymbolAttr, InheritableAttr>(m, "ExternalSourceSymbolAttr")
     .def("__hash__", [](const ExternalSourceSymbolAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const ExternalSourceSymbolAttr& a, const ExternalSourceSymbolAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("defined_in", &ExternalSourceSymbolAttr::DefinedIn)
     .def_property_readonly("defined_in_length", &ExternalSourceSymbolAttr::DefinedInLength)
     .def_property_readonly("generated_declaration", &ExternalSourceSymbolAttr::GeneratedDeclaration)

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterAArch64VectorPcsAttr(py::module_ &m) {
   py::class_<AArch64VectorPcsAttr, InheritableAttr>(m, "AArch64VectorPcsAttr")
     .def("__hash__", [](const AArch64VectorPcsAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const AArch64VectorPcsAttr& a, const AArch64VectorPcsAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &AArch64VectorPcsAttr::Spelling);
 }
 } // namespace pasta

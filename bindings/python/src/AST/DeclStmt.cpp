@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterDeclStmt(py::module_ &m) {
   py::class_<DeclStmt, Stmt>(m, "DeclStmt")
     .def("__hash__", [](const DeclStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const DeclStmt& a, const DeclStmt& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &DeclStmt::Children)
     .def_property_readonly("declarations", &DeclStmt::Declarations)
     .def_property_readonly("begin_token", &DeclStmt::BeginToken)

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterArmMveStrictPolymorphismAttr(py::module_ &m) {
   py::class_<ArmMveStrictPolymorphismAttr, TypeAttr>(m, "ArmMveStrictPolymorphismAttr")
     .def("__hash__", [](const ArmMveStrictPolymorphismAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const ArmMveStrictPolymorphismAttr& a, const ArmMveStrictPolymorphismAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &ArmMveStrictPolymorphismAttr::Spelling);
 }
 } // namespace pasta

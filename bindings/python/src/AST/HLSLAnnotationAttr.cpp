@@ -19,6 +19,6 @@ namespace py = pybind11;
 void RegisterHLSLAnnotationAttr(py::module_ &m) {
   py::class_<HLSLAnnotationAttr, InheritableAttr>(m, "HLSLAnnotationAttr")
     .def("__hash__", [](const HLSLAnnotationAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const HLSLAnnotationAttr& a, const HLSLAnnotationAttr& b) { return a.RawAttr() == b.RawAttr(); });
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); });
 }
 } // namespace pasta

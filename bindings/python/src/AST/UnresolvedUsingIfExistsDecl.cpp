@@ -19,6 +19,6 @@ namespace py = pybind11;
 void RegisterUnresolvedUsingIfExistsDecl(py::module_ &m) {
   py::class_<UnresolvedUsingIfExistsDecl, NamedDecl>(m, "UnresolvedUsingIfExistsDecl")
     .def("__hash__", [](const UnresolvedUsingIfExistsDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const UnresolvedUsingIfExistsDecl& a, const UnresolvedUsingIfExistsDecl& b) { return a.RawDecl() == b.RawDecl(); });
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); });
 }
 } // namespace pasta

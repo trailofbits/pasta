@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterCXXDefaultInitExpr(py::module_ &m) {
   py::class_<CXXDefaultInitExpr, Expr>(m, "CXXDefaultInitExpr")
     .def("__hash__", [](const CXXDefaultInitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const CXXDefaultInitExpr& a, const CXXDefaultInitExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &CXXDefaultInitExpr::Children)
     .def_property_readonly("begin_token", &CXXDefaultInitExpr::BeginToken)
     .def_property_readonly("end_token", &CXXDefaultInitExpr::EndToken)

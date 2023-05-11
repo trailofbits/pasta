@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterSEHExceptStmt(py::module_ &m) {
   py::class_<SEHExceptStmt, Stmt>(m, "SEHExceptStmt")
     .def("__hash__", [](const SEHExceptStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const SEHExceptStmt& a, const SEHExceptStmt& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &SEHExceptStmt::Children)
     .def_property_readonly("begin_token", &SEHExceptStmt::BeginToken)
     .def_property_readonly("block", &SEHExceptStmt::Block)

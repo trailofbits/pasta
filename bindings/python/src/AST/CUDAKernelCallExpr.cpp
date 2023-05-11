@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterCUDAKernelCallExpr(py::module_ &m) {
   py::class_<CUDAKernelCallExpr, CallExpr>(m, "CUDAKernelCallExpr")
     .def("__hash__", [](const CUDAKernelCallExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const CUDAKernelCallExpr& a, const CUDAKernelCallExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("config", &CUDAKernelCallExpr::Config);
 }
 } // namespace pasta

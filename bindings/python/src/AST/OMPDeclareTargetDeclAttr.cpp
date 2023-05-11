@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterOMPDeclareTargetDeclAttr(py::module_ &m) {
   py::class_<OMPDeclareTargetDeclAttr, InheritableAttr>(m, "OMPDeclareTargetDeclAttr")
     .def("__hash__", [](const OMPDeclareTargetDeclAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const OMPDeclareTargetDeclAttr& a, const OMPDeclareTargetDeclAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("dev_type", &OMPDeclareTargetDeclAttr::DevType)
     .def_property_readonly("indirect", &OMPDeclareTargetDeclAttr::Indirect)
     .def_property_readonly("indirect_expression", &OMPDeclareTargetDeclAttr::IndirectExpression)

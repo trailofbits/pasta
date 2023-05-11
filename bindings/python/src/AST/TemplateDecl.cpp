@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterTemplateDecl(py::module_ &m) {
   py::class_<TemplateDecl, NamedDecl>(m, "TemplateDecl")
     .def("__hash__", [](const TemplateDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const TemplateDecl& a, const TemplateDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("template_parameters", &TemplateDecl::TemplateParameters)
     .def_property_readonly("templated_declaration", &TemplateDecl::TemplatedDeclaration)
     .def_property_readonly("has_associated_constraints", &TemplateDecl::HasAssociatedConstraints)

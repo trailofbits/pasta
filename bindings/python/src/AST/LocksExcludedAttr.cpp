@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterLocksExcludedAttr(py::module_ &m) {
   py::class_<LocksExcludedAttr, InheritableAttr>(m, "LocksExcludedAttr")
     .def("__hash__", [](const LocksExcludedAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const LocksExcludedAttr& a, const LocksExcludedAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &LocksExcludedAttr::Spelling);
 }
 } // namespace pasta

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterInternalLinkageAttr(py::module_ &m) {
   py::class_<InternalLinkageAttr, InheritableAttr>(m, "InternalLinkageAttr")
     .def("__hash__", [](const InternalLinkageAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const InternalLinkageAttr& a, const InternalLinkageAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &InternalLinkageAttr::Spelling);
 }
 } // namespace pasta

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterThreadAttr(py::module_ &m) {
   py::class_<ThreadAttr, Attr>(m, "ThreadAttr")
     .def("__hash__", [](const ThreadAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const ThreadAttr& a, const ThreadAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &ThreadAttr::Spelling);
 }
 } // namespace pasta

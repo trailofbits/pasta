@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterSYCLKernelAttr(py::module_ &m) {
   py::class_<SYCLKernelAttr, InheritableAttr>(m, "SYCLKernelAttr")
     .def("__hash__", [](const SYCLKernelAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const SYCLKernelAttr& a, const SYCLKernelAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &SYCLKernelAttr::Spelling);
 }
 } // namespace pasta

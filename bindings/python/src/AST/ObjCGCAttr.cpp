@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterObjCGCAttr(py::module_ &m) {
   py::class_<ObjCGCAttr, TypeAttr>(m, "ObjCGCAttr")
     .def("__hash__", [](const ObjCGCAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const ObjCGCAttr& a, const ObjCGCAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &ObjCGCAttr::Spelling);
 }
 } // namespace pasta

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterDependentAddressSpaceType(py::module_ &m) {
   py::class_<DependentAddressSpaceType, Type>(m, "DependentAddressSpaceType")
     .def("__hash__", [](const DependentAddressSpaceType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const DependentAddressSpaceType& a, const DependentAddressSpaceType& b) { return a.RawType() == b.RawType(); })
+    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("desugar", &DependentAddressSpaceType::Desugar)
     .def_property_readonly("address_space_expression", &DependentAddressSpaceType::AddressSpaceExpression)
     .def_property_readonly("attribute_token", &DependentAddressSpaceType::AttributeToken)

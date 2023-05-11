@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterFormatArgAttr(py::module_ &m) {
   py::class_<FormatArgAttr, InheritableAttr>(m, "FormatArgAttr")
     .def("__hash__", [](const FormatArgAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const FormatArgAttr& a, const FormatArgAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &FormatArgAttr::Spelling);
 }
 } // namespace pasta

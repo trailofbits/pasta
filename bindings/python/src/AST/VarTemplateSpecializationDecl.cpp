@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterVarTemplateSpecializationDecl(py::module_ &m) {
   py::class_<VarTemplateSpecializationDecl, VarDecl>(m, "VarTemplateSpecializationDecl")
     .def("__hash__", [](const VarTemplateSpecializationDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const VarTemplateSpecializationDecl& a, const VarTemplateSpecializationDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("extern_token", &VarTemplateSpecializationDecl::ExternToken)
     .def_property_readonly("instantiated_from", &VarTemplateSpecializationDecl::InstantiatedFrom)
     .def_property_readonly("point_of_instantiation", &VarTemplateSpecializationDecl::PointOfInstantiation)

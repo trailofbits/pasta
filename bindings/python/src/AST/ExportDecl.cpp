@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterExportDecl(py::module_ &m) {
   py::class_<ExportDecl, Decl>(m, "ExportDecl")
     .def("__hash__", [](const ExportDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const ExportDecl& a, const ExportDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("end_token", &ExportDecl::EndToken)
     .def_property_readonly("export_token", &ExportDecl::ExportToken)
     .def_property_readonly("r_brace_token", &ExportDecl::RBraceToken)

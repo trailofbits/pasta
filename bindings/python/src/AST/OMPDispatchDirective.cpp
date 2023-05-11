@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterOMPDispatchDirective(py::module_ &m) {
   py::class_<OMPDispatchDirective, OMPExecutableDirective>(m, "OMPDispatchDirective")
     .def("__hash__", [](const OMPDispatchDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const OMPDispatchDirective& a, const OMPDispatchDirective& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("target_call_token", &OMPDispatchDirective::TargetCallToken);
 }
 } // namespace pasta

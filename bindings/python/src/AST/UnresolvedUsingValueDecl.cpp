@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterUnresolvedUsingValueDecl(py::module_ &m) {
   py::class_<UnresolvedUsingValueDecl, ValueDecl>(m, "UnresolvedUsingValueDecl")
     .def("__hash__", [](const UnresolvedUsingValueDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const UnresolvedUsingValueDecl& a, const UnresolvedUsingValueDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("canonical_declaration", &UnresolvedUsingValueDecl::CanonicalDeclaration)
     .def_property_readonly("ellipsis_token", &UnresolvedUsingValueDecl::EllipsisToken)
     .def_property_readonly("using_token", &UnresolvedUsingValueDecl::UsingToken)

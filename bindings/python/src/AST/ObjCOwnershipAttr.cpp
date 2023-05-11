@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterObjCOwnershipAttr(py::module_ &m) {
   py::class_<ObjCOwnershipAttr, InheritableAttr>(m, "ObjCOwnershipAttr")
     .def("__hash__", [](const ObjCOwnershipAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const ObjCOwnershipAttr& a, const ObjCOwnershipAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &ObjCOwnershipAttr::Spelling);
 }
 } // namespace pasta

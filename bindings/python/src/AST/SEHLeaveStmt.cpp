@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterSEHLeaveStmt(py::module_ &m) {
   py::class_<SEHLeaveStmt, Stmt>(m, "SEHLeaveStmt")
     .def("__hash__", [](const SEHLeaveStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const SEHLeaveStmt& a, const SEHLeaveStmt& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &SEHLeaveStmt::Children)
     .def_property_readonly("begin_token", &SEHLeaveStmt::BeginToken)
     .def_property_readonly("end_token", &SEHLeaveStmt::EndToken)

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterCarriesDependencyAttr(py::module_ &m) {
   py::class_<CarriesDependencyAttr, InheritableParamAttr>(m, "CarriesDependencyAttr")
     .def("__hash__", [](const CarriesDependencyAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const CarriesDependencyAttr& a, const CarriesDependencyAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &CarriesDependencyAttr::Spelling);
 }
 } // namespace pasta

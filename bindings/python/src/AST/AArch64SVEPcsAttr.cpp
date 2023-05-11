@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterAArch64SVEPcsAttr(py::module_ &m) {
   py::class_<AArch64SVEPcsAttr, InheritableAttr>(m, "AArch64SVEPcsAttr")
     .def("__hash__", [](const AArch64SVEPcsAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const AArch64SVEPcsAttr& a, const AArch64SVEPcsAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &AArch64SVEPcsAttr::Spelling);
 }
 } // namespace pasta

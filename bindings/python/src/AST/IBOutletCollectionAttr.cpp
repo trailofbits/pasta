@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterIBOutletCollectionAttr(py::module_ &m) {
   py::class_<IBOutletCollectionAttr, InheritableAttr>(m, "IBOutletCollectionAttr")
     .def("__hash__", [](const IBOutletCollectionAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const IBOutletCollectionAttr& a, const IBOutletCollectionAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("interface", &IBOutletCollectionAttr::Interface)
     .def_property_readonly("interface_token", &IBOutletCollectionAttr::InterfaceToken)
     .def_property_readonly("spelling", &IBOutletCollectionAttr::Spelling);

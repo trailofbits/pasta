@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterLeafAttr(py::module_ &m) {
   py::class_<LeafAttr, InheritableAttr>(m, "LeafAttr")
     .def("__hash__", [](const LeafAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const LeafAttr& a, const LeafAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &LeafAttr::Spelling);
 }
 } // namespace pasta

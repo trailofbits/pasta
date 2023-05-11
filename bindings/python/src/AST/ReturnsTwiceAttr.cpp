@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterReturnsTwiceAttr(py::module_ &m) {
   py::class_<ReturnsTwiceAttr, InheritableAttr>(m, "ReturnsTwiceAttr")
     .def("__hash__", [](const ReturnsTwiceAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const ReturnsTwiceAttr& a, const ReturnsTwiceAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &ReturnsTwiceAttr::Spelling);
 }
 } // namespace pasta

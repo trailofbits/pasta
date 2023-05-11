@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterCXXMethodDecl(py::module_ &m) {
   py::class_<CXXMethodDecl, FunctionDecl>(m, "CXXMethodDecl")
     .def("__hash__", [](const CXXMethodDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const CXXMethodDecl& a, const CXXMethodDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("canonical_declaration", &CXXMethodDecl::CanonicalDeclaration)
     .def_property_readonly("most_recent_declaration", &CXXMethodDecl::MostRecentDeclaration)
     .def_property_readonly("parent", &CXXMethodDecl::Parent)

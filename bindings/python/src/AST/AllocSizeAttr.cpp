@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterAllocSizeAttr(py::module_ &m) {
   py::class_<AllocSizeAttr, InheritableAttr>(m, "AllocSizeAttr")
     .def("__hash__", [](const AllocSizeAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const AllocSizeAttr& a, const AllocSizeAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &AllocSizeAttr::Spelling);
 }
 } // namespace pasta

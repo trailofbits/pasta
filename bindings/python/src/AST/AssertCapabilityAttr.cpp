@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterAssertCapabilityAttr(py::module_ &m) {
   py::class_<AssertCapabilityAttr, InheritableAttr>(m, "AssertCapabilityAttr")
     .def("__hash__", [](const AssertCapabilityAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const AssertCapabilityAttr& a, const AssertCapabilityAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("semantic_spelling", &AssertCapabilityAttr::SemanticSpelling)
     .def_property_readonly("spelling", &AssertCapabilityAttr::Spelling)
     .def_property_readonly("is_shared", &AssertCapabilityAttr::IsShared);

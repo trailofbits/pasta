@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterObjCIndirectCopyRestoreExpr(py::module_ &m) {
   py::class_<ObjCIndirectCopyRestoreExpr, Expr>(m, "ObjCIndirectCopyRestoreExpr")
     .def("__hash__", [](const ObjCIndirectCopyRestoreExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const ObjCIndirectCopyRestoreExpr& a, const ObjCIndirectCopyRestoreExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &ObjCIndirectCopyRestoreExpr::Children)
     .def_property_readonly("begin_token", &ObjCIndirectCopyRestoreExpr::BeginToken)
     .def_property_readonly("end_token", &ObjCIndirectCopyRestoreExpr::EndToken)

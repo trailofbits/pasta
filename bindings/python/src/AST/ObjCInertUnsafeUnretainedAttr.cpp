@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterObjCInertUnsafeUnretainedAttr(py::module_ &m) {
   py::class_<ObjCInertUnsafeUnretainedAttr, TypeAttr>(m, "ObjCInertUnsafeUnretainedAttr")
     .def("__hash__", [](const ObjCInertUnsafeUnretainedAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const ObjCInertUnsafeUnretainedAttr& a, const ObjCInertUnsafeUnretainedAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &ObjCInertUnsafeUnretainedAttr::Spelling);
 }
 } // namespace pasta

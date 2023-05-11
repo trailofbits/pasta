@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterOMPThreadPrivateDeclAttr(py::module_ &m) {
   py::class_<OMPThreadPrivateDeclAttr, InheritableAttr>(m, "OMPThreadPrivateDeclAttr")
     .def("__hash__", [](const OMPThreadPrivateDeclAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const OMPThreadPrivateDeclAttr& a, const OMPThreadPrivateDeclAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &OMPThreadPrivateDeclAttr::Spelling);
 }
 } // namespace pasta

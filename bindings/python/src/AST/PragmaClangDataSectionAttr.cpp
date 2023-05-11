@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterPragmaClangDataSectionAttr(py::module_ &m) {
   py::class_<PragmaClangDataSectionAttr, InheritableAttr>(m, "PragmaClangDataSectionAttr")
     .def("__hash__", [](const PragmaClangDataSectionAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const PragmaClangDataSectionAttr& a, const PragmaClangDataSectionAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("name", &PragmaClangDataSectionAttr::Name)
     .def_property_readonly("name_length", &PragmaClangDataSectionAttr::NameLength)
     .def_property_readonly("spelling", &PragmaClangDataSectionAttr::Spelling);

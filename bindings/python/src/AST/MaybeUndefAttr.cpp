@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterMaybeUndefAttr(py::module_ &m) {
   py::class_<MaybeUndefAttr, InheritableAttr>(m, "MaybeUndefAttr")
     .def("__hash__", [](const MaybeUndefAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const MaybeUndefAttr& a, const MaybeUndefAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &MaybeUndefAttr::Spelling);
 }
 } // namespace pasta

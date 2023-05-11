@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterCXXRecordDecl(py::module_ &m) {
   py::class_<CXXRecordDecl, RecordDecl>(m, "CXXRecordDecl")
     .def("__hash__", [](const CXXRecordDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const CXXRecordDecl& a, const CXXRecordDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("allow_const_default_initializer", &CXXRecordDecl::AllowConstDefaultInitializer)
     .def_property_readonly("bases", &CXXRecordDecl::Bases)
     .def_property_readonly("calculate_inheritance_model", &CXXRecordDecl::CalculateInheritanceModel)

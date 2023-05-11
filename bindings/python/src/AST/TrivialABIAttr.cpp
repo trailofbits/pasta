@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterTrivialABIAttr(py::module_ &m) {
   py::class_<TrivialABIAttr, InheritableAttr>(m, "TrivialABIAttr")
     .def("__hash__", [](const TrivialABIAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const TrivialABIAttr& a, const TrivialABIAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &TrivialABIAttr::Spelling);
 }
 } // namespace pasta

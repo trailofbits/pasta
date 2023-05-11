@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterNSConsumesSelfAttr(py::module_ &m) {
   py::class_<NSConsumesSelfAttr, InheritableAttr>(m, "NSConsumesSelfAttr")
     .def("__hash__", [](const NSConsumesSelfAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const NSConsumesSelfAttr& a, const NSConsumesSelfAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &NSConsumesSelfAttr::Spelling);
 }
 } // namespace pasta

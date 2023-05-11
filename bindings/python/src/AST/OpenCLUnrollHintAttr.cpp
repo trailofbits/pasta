@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterOpenCLUnrollHintAttr(py::module_ &m) {
   py::class_<OpenCLUnrollHintAttr, StmtAttr>(m, "OpenCLUnrollHintAttr")
     .def("__hash__", [](const OpenCLUnrollHintAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const OpenCLUnrollHintAttr& a, const OpenCLUnrollHintAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &OpenCLUnrollHintAttr::Spelling)
     .def_property_readonly("unroll_hint", &OpenCLUnrollHintAttr::UnrollHint);
 }

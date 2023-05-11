@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterDeclaratorDecl(py::module_ &m) {
   py::class_<DeclaratorDecl, ValueDecl>(m, "DeclaratorDecl")
     .def("__hash__", [](const DeclaratorDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const DeclaratorDecl& a, const DeclaratorDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("begin_token", &DeclaratorDecl::BeginToken)
     .def_property_readonly("first_inner_token", &DeclaratorDecl::FirstInnerToken)
     .def_property_readonly("num_template_parameter_lists", &DeclaratorDecl::NumTemplateParameterLists)

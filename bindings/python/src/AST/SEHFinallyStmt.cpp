@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterSEHFinallyStmt(py::module_ &m) {
   py::class_<SEHFinallyStmt, Stmt>(m, "SEHFinallyStmt")
     .def("__hash__", [](const SEHFinallyStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const SEHFinallyStmt& a, const SEHFinallyStmt& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &SEHFinallyStmt::Children)
     .def_property_readonly("begin_token", &SEHFinallyStmt::BeginToken)
     .def_property_readonly("block", &SEHFinallyStmt::Block)

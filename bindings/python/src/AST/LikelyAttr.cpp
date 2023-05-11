@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterLikelyAttr(py::module_ &m) {
   py::class_<LikelyAttr, StmtAttr>(m, "LikelyAttr")
     .def("__hash__", [](const LikelyAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const LikelyAttr& a, const LikelyAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &LikelyAttr::Spelling);
 }
 } // namespace pasta

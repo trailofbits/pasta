@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterOMPAtomicDirective(py::module_ &m) {
   py::class_<OMPAtomicDirective, OMPExecutableDirective>(m, "OMPAtomicDirective")
     .def("__hash__", [](const OMPAtomicDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const OMPAtomicDirective& a, const OMPAtomicDirective& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("condition_expression", &OMPAtomicDirective::ConditionExpression)
     .def_property_readonly("d", &OMPAtomicDirective::D)
     .def_property_readonly("expression", &OMPAtomicDirective::Expression)

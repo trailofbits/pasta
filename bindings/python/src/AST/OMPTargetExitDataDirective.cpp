@@ -19,6 +19,6 @@ namespace py = pybind11;
 void RegisterOMPTargetExitDataDirective(py::module_ &m) {
   py::class_<OMPTargetExitDataDirective, OMPExecutableDirective>(m, "OMPTargetExitDataDirective")
     .def("__hash__", [](const OMPTargetExitDataDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const OMPTargetExitDataDirective& a, const OMPTargetExitDataDirective& b) { return a.RawStmt() == b.RawStmt(); });
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

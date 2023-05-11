@@ -19,6 +19,6 @@ namespace py = pybind11;
 void RegisterCXXStaticCastExpr(py::module_ &m) {
   py::class_<CXXStaticCastExpr, CXXNamedCastExpr>(m, "CXXStaticCastExpr")
     .def("__hash__", [](const CXXStaticCastExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const CXXStaticCastExpr& a, const CXXStaticCastExpr& b) { return a.RawStmt() == b.RawStmt(); });
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

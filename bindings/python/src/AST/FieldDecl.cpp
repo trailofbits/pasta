@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterFieldDecl(py::module_ &m) {
   py::class_<FieldDecl, DeclaratorDecl>(m, "FieldDecl")
     .def("__hash__", [](const FieldDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const FieldDecl& a, const FieldDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("bit_width", &FieldDecl::BitWidth)
     .def("bit_width_value", &FieldDecl::BitWidthValue)
     .def_property_readonly("canonical_declaration", &FieldDecl::CanonicalDeclaration)

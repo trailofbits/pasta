@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterOMPAllocateDeclAttr(py::module_ &m) {
   py::class_<OMPAllocateDeclAttr, InheritableAttr>(m, "OMPAllocateDeclAttr")
     .def("__hash__", [](const OMPAllocateDeclAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const OMPAllocateDeclAttr& a, const OMPAllocateDeclAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("alignment", &OMPAllocateDeclAttr::Alignment)
     .def_property_readonly("allocator", &OMPAllocateDeclAttr::Allocator)
     .def_property_readonly("allocator_type", &OMPAllocateDeclAttr::AllocatorType)

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterPredefinedExpr(py::module_ &m) {
   py::class_<PredefinedExpr, Expr>(m, "PredefinedExpr")
     .def("__hash__", [](const PredefinedExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const PredefinedExpr& a, const PredefinedExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &PredefinedExpr::Children)
     .def_property_readonly("begin_token", &PredefinedExpr::BeginToken)
     .def_property_readonly("end_token", &PredefinedExpr::EndToken)

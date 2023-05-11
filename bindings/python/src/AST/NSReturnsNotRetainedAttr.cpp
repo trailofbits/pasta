@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterNSReturnsNotRetainedAttr(py::module_ &m) {
   py::class_<NSReturnsNotRetainedAttr, InheritableAttr>(m, "NSReturnsNotRetainedAttr")
     .def("__hash__", [](const NSReturnsNotRetainedAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const NSReturnsNotRetainedAttr& a, const NSReturnsNotRetainedAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &NSReturnsNotRetainedAttr::Spelling);
 }
 } // namespace pasta

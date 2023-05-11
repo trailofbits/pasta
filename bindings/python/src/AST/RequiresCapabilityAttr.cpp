@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterRequiresCapabilityAttr(py::module_ &m) {
   py::class_<RequiresCapabilityAttr, InheritableAttr>(m, "RequiresCapabilityAttr")
     .def("__hash__", [](const RequiresCapabilityAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const RequiresCapabilityAttr& a, const RequiresCapabilityAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("semantic_spelling", &RequiresCapabilityAttr::SemanticSpelling)
     .def_property_readonly("spelling", &RequiresCapabilityAttr::Spelling)
     .def_property_readonly("is_shared", &RequiresCapabilityAttr::IsShared);

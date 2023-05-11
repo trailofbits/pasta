@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterTypeAliasDecl(py::module_ &m) {
   py::class_<TypeAliasDecl, TypedefNameDecl>(m, "TypeAliasDecl")
     .def("__hash__", [](const TypeAliasDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const TypeAliasDecl& a, const TypeAliasDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("described_alias_template", &TypeAliasDecl::DescribedAliasTemplate);
 }
 } // namespace pasta

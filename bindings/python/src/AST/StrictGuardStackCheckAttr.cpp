@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterStrictGuardStackCheckAttr(py::module_ &m) {
   py::class_<StrictGuardStackCheckAttr, InheritableAttr>(m, "StrictGuardStackCheckAttr")
     .def("__hash__", [](const StrictGuardStackCheckAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const StrictGuardStackCheckAttr& a, const StrictGuardStackCheckAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &StrictGuardStackCheckAttr::Spelling);
 }
 } // namespace pasta

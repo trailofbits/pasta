@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterTargetAttr(py::module_ &m) {
   py::class_<TargetAttr, InheritableAttr>(m, "TargetAttr")
     .def("__hash__", [](const TargetAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const TargetAttr& a, const TargetAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("architecture", &TargetAttr::Architecture)
     .def_property_readonly("features_string", &TargetAttr::FeaturesString)
     .def_property_readonly("features_string_length", &TargetAttr::FeaturesStringLength)

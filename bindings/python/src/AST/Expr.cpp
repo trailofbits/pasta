@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterExpr(py::module_ &m) {
   py::class_<Expr, ValueStmt>(m, "Expr")
     .def("__hash__", [](const Expr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const Expr& a, const Expr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def("classify_l_value", &Expr::ClassifyLValue)
     .def("evaluate_known_const_int", &Expr::EvaluateKnownConstInt)
     .def("evaluate_known_const_int_check_overflow", &Expr::EvaluateKnownConstIntCheckOverflow)

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterInitListExpr(py::module_ &m) {
   py::class_<InitListExpr, Expr>(m, "InitListExpr")
     .def("__hash__", [](const InitListExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const InitListExpr& a, const InitListExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &InitListExpr::Children)
     .def_property_readonly("array_filler", &InitListExpr::ArrayFiller)
     .def_property_readonly("begin_token", &InitListExpr::BeginToken)

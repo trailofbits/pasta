@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterAutoType(py::module_ &m) {
   py::class_<AutoType, DeducedType>(m, "AutoType")
     .def("__hash__", [](const AutoType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const AutoType& a, const AutoType& b) { return a.RawType() == b.RawType(); })
+    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("keyword", &AutoType::Keyword)
     .def_property_readonly("type_constraint_arguments", &AutoType::TypeConstraintArguments)
     .def_property_readonly("type_constraint_concept", &AutoType::TypeConstraintConcept)

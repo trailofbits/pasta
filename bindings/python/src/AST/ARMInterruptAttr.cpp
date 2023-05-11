@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterARMInterruptAttr(py::module_ &m) {
   py::class_<ARMInterruptAttr, InheritableAttr>(m, "ARMInterruptAttr")
     .def("__hash__", [](const ARMInterruptAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const ARMInterruptAttr& a, const ARMInterruptAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("interrupt", &ARMInterruptAttr::Interrupt)
     .def_property_readonly("spelling", &ARMInterruptAttr::Spelling);
 }

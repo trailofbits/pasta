@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterDependentScopeDeclRefExpr(py::module_ &m) {
   py::class_<DependentScopeDeclRefExpr, Expr>(m, "DependentScopeDeclRefExpr")
     .def("__hash__", [](const DependentScopeDeclRefExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const DependentScopeDeclRefExpr& a, const DependentScopeDeclRefExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &DependentScopeDeclRefExpr::Children)
     .def_property_readonly("begin_token", &DependentScopeDeclRefExpr::BeginToken)
     .def_property_readonly("end_token", &DependentScopeDeclRefExpr::EndToken)

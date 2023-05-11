@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterPatchableFunctionEntryAttr(py::module_ &m) {
   py::class_<PatchableFunctionEntryAttr, InheritableAttr>(m, "PatchableFunctionEntryAttr")
     .def("__hash__", [](const PatchableFunctionEntryAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const PatchableFunctionEntryAttr& a, const PatchableFunctionEntryAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("count", &PatchableFunctionEntryAttr::Count)
     .def_property_readonly("spelling", &PatchableFunctionEntryAttr::Spelling);
 }

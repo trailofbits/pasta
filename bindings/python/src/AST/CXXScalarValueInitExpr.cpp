@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterCXXScalarValueInitExpr(py::module_ &m) {
   py::class_<CXXScalarValueInitExpr, Expr>(m, "CXXScalarValueInitExpr")
     .def("__hash__", [](const CXXScalarValueInitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const CXXScalarValueInitExpr& a, const CXXScalarValueInitExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &CXXScalarValueInitExpr::Children)
     .def_property_readonly("begin_token", &CXXScalarValueInitExpr::BeginToken)
     .def_property_readonly("end_token", &CXXScalarValueInitExpr::EndToken)

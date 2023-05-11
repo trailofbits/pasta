@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterFileScopeAsmDecl(py::module_ &m) {
   py::class_<FileScopeAsmDecl, Decl>(m, "FileScopeAsmDecl")
     .def("__hash__", [](const FileScopeAsmDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const FileScopeAsmDecl& a, const FileScopeAsmDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("assembly_token", &FileScopeAsmDecl::AssemblyToken)
     .def_property_readonly("assembly_string", &FileScopeAsmDecl::AssemblyString)
     .def_property_readonly("r_paren_token", &FileScopeAsmDecl::RParenToken);

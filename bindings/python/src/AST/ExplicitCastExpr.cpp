@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterExplicitCastExpr(py::module_ &m) {
   py::class_<ExplicitCastExpr, CastExpr>(m, "ExplicitCastExpr")
     .def("__hash__", [](const ExplicitCastExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const ExplicitCastExpr& a, const ExplicitCastExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("type_as_written", &ExplicitCastExpr::TypeAsWritten)
     .def_property_readonly("type_info_as_written", &ExplicitCastExpr::TypeInfoAsWritten);
 }

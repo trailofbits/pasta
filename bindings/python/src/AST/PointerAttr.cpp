@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterPointerAttr(py::module_ &m) {
   py::class_<PointerAttr, InheritableAttr>(m, "PointerAttr")
     .def("__hash__", [](const PointerAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const PointerAttr& a, const PointerAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("deref_type", &PointerAttr::DerefType)
     .def_property_readonly("deref_type_token", &PointerAttr::DerefTypeToken)
     .def_property_readonly("spelling", &PointerAttr::Spelling);

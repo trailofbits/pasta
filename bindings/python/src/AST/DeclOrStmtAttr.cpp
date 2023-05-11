@@ -19,6 +19,6 @@ namespace py = pybind11;
 void RegisterDeclOrStmtAttr(py::module_ &m) {
   py::class_<DeclOrStmtAttr, InheritableAttr>(m, "DeclOrStmtAttr")
     .def("__hash__", [](const DeclOrStmtAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const DeclOrStmtAttr& a, const DeclOrStmtAttr& b) { return a.RawAttr() == b.RawAttr(); });
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); });
 }
 } // namespace pasta

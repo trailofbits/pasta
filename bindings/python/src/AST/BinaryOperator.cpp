@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterBinaryOperator(py::module_ &m) {
   py::class_<BinaryOperator, Expr>(m, "BinaryOperator")
     .def("__hash__", [](const BinaryOperator& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const BinaryOperator& a, const BinaryOperator& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &BinaryOperator::Children)
     .def_property_readonly("begin_token", &BinaryOperator::BeginToken)
     .def_property_readonly("end_token", &BinaryOperator::EndToken)

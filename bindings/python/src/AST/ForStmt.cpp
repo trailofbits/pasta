@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterForStmt(py::module_ &m) {
   py::class_<ForStmt, Stmt>(m, "ForStmt")
     .def("__hash__", [](const ForStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const ForStmt& a, const ForStmt& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &ForStmt::Children)
     .def_property_readonly("begin_token", &ForStmt::BeginToken)
     .def_property_readonly("body", &ForStmt::Body)

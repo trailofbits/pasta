@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterOMPDeclareReductionDecl(py::module_ &m) {
   py::class_<OMPDeclareReductionDecl, ValueDecl>(m, "OMPDeclareReductionDecl")
     .def("__hash__", [](const OMPDeclareReductionDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const OMPDeclareReductionDecl& a, const OMPDeclareReductionDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("combiner", &OMPDeclareReductionDecl::Combiner)
     .def_property_readonly("combiner_in", &OMPDeclareReductionDecl::CombinerIn)
     .def_property_readonly("combiner_out", &OMPDeclareReductionDecl::CombinerOut)

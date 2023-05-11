@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterTargetVersionAttr(py::module_ &m) {
   py::class_<TargetVersionAttr, InheritableAttr>(m, "TargetVersionAttr")
     .def("__hash__", [](const TargetVersionAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const TargetVersionAttr& a, const TargetVersionAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("name", &TargetVersionAttr::Name)
     .def_property_readonly("names_string", &TargetVersionAttr::NamesString)
     .def_property_readonly("names_string_length", &TargetVersionAttr::NamesStringLength)

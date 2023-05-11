@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterCleanupAttr(py::module_ &m) {
   py::class_<CleanupAttr, InheritableAttr>(m, "CleanupAttr")
     .def("__hash__", [](const CleanupAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const CleanupAttr& a, const CleanupAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("function_declaration", &CleanupAttr::FunctionDeclaration)
     .def_property_readonly("spelling", &CleanupAttr::Spelling);
 }

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterNoUniqueAddressAttr(py::module_ &m) {
   py::class_<NoUniqueAddressAttr, InheritableAttr>(m, "NoUniqueAddressAttr")
     .def("__hash__", [](const NoUniqueAddressAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const NoUniqueAddressAttr& a, const NoUniqueAddressAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &NoUniqueAddressAttr::Spelling);
 }
 } // namespace pasta

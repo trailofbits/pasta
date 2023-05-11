@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterReadOnlyPlacementAttr(py::module_ &m) {
   py::class_<ReadOnlyPlacementAttr, InheritableAttr>(m, "ReadOnlyPlacementAttr")
     .def("__hash__", [](const ReadOnlyPlacementAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const ReadOnlyPlacementAttr& a, const ReadOnlyPlacementAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &ReadOnlyPlacementAttr::Spelling);
 }
 } // namespace pasta

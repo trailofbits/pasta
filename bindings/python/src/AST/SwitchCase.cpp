@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterSwitchCase(py::module_ &m) {
   py::class_<SwitchCase, Stmt>(m, "SwitchCase")
     .def("__hash__", [](const SwitchCase& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const SwitchCase& a, const SwitchCase& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("begin_token", &SwitchCase::BeginToken)
     .def_property_readonly("colon_token", &SwitchCase::ColonToken)
     .def_property_readonly("end_token", &SwitchCase::EndToken)

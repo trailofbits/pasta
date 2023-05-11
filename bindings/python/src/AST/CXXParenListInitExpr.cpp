@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterCXXParenListInitExpr(py::module_ &m) {
   py::class_<CXXParenListInitExpr, Expr>(m, "CXXParenListInitExpr")
     .def("__hash__", [](const CXXParenListInitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const CXXParenListInitExpr& a, const CXXParenListInitExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &CXXParenListInitExpr::Children)
     .def_property_readonly("array_filler", &CXXParenListInitExpr::ArrayFiller)
     .def_property_readonly("begin_token", &CXXParenListInitExpr::BeginToken)

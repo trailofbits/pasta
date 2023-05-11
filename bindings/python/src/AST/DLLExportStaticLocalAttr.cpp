@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterDLLExportStaticLocalAttr(py::module_ &m) {
   py::class_<DLLExportStaticLocalAttr, InheritableAttr>(m, "DLLExportStaticLocalAttr")
     .def("__hash__", [](const DLLExportStaticLocalAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const DLLExportStaticLocalAttr& a, const DLLExportStaticLocalAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &DLLExportStaticLocalAttr::Spelling);
 }
 } // namespace pasta

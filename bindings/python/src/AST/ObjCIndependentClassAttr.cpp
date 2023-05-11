@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterObjCIndependentClassAttr(py::module_ &m) {
   py::class_<ObjCIndependentClassAttr, InheritableAttr>(m, "ObjCIndependentClassAttr")
     .def("__hash__", [](const ObjCIndependentClassAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const ObjCIndependentClassAttr& a, const ObjCIndependentClassAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &ObjCIndependentClassAttr::Spelling);
 }
 } // namespace pasta

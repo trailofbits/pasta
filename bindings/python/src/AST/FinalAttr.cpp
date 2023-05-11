@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterFinalAttr(py::module_ &m) {
   py::class_<FinalAttr, InheritableAttr>(m, "FinalAttr")
     .def("__hash__", [](const FinalAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const FinalAttr& a, const FinalAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("semantic_spelling", &FinalAttr::SemanticSpelling)
     .def_property_readonly("spelling", &FinalAttr::Spelling)
     .def_property_readonly("is_spelled_as_sealed", &FinalAttr::IsSpelledAsSealed);

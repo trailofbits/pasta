@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterOMPTargetParallelForDirective(py::module_ &m) {
   py::class_<OMPTargetParallelForDirective, OMPLoopDirective>(m, "OMPTargetParallelForDirective")
     .def("__hash__", [](const OMPTargetParallelForDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const OMPTargetParallelForDirective& a, const OMPTargetParallelForDirective& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("task_reduction_reference_expression", &OMPTargetParallelForDirective::TaskReductionReferenceExpression)
     .def_property_readonly("has_cancel", &OMPTargetParallelForDirective::HasCancel);
 }

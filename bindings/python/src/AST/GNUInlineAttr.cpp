@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterGNUInlineAttr(py::module_ &m) {
   py::class_<GNUInlineAttr, InheritableAttr>(m, "GNUInlineAttr")
     .def("__hash__", [](const GNUInlineAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const GNUInlineAttr& a, const GNUInlineAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &GNUInlineAttr::Spelling);
 }
 } // namespace pasta

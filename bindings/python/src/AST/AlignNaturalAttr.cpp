@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterAlignNaturalAttr(py::module_ &m) {
   py::class_<AlignNaturalAttr, InheritableAttr>(m, "AlignNaturalAttr")
     .def("__hash__", [](const AlignNaturalAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const AlignNaturalAttr& a, const AlignNaturalAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &AlignNaturalAttr::Spelling);
 }
 } // namespace pasta

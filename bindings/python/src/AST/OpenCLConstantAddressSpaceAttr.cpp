@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterOpenCLConstantAddressSpaceAttr(py::module_ &m) {
   py::class_<OpenCLConstantAddressSpaceAttr, TypeAttr>(m, "OpenCLConstantAddressSpaceAttr")
     .def("__hash__", [](const OpenCLConstantAddressSpaceAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const OpenCLConstantAddressSpaceAttr& a, const OpenCLConstantAddressSpaceAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("semantic_spelling", &OpenCLConstantAddressSpaceAttr::SemanticSpelling)
     .def_property_readonly("spelling", &OpenCLConstantAddressSpaceAttr::Spelling);
 }

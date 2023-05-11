@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterAsmLabelAttr(py::module_ &m) {
   py::class_<AsmLabelAttr, InheritableAttr>(m, "AsmLabelAttr")
     .def("__hash__", [](const AsmLabelAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const AsmLabelAttr& a, const AsmLabelAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("is_literal_label", &AsmLabelAttr::IsLiteralLabel)
     .def_property_readonly("label", &AsmLabelAttr::Label)
     .def_property_readonly("label_length", &AsmLabelAttr::LabelLength)

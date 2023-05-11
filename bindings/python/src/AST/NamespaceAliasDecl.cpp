@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterNamespaceAliasDecl(py::module_ &m) {
   py::class_<NamespaceAliasDecl, NamedDecl>(m, "NamespaceAliasDecl")
     .def("__hash__", [](const NamespaceAliasDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const NamespaceAliasDecl& a, const NamespaceAliasDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("alias_token", &NamespaceAliasDecl::AliasToken)
     .def_property_readonly("aliased_namespace", &NamespaceAliasDecl::AliasedNamespace)
     .def_property_readonly("canonical_declaration", &NamespaceAliasDecl::CanonicalDeclaration)

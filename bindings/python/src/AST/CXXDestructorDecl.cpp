@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterCXXDestructorDecl(py::module_ &m) {
   py::class_<CXXDestructorDecl, CXXMethodDecl>(m, "CXXDestructorDecl")
     .def("__hash__", [](const CXXDestructorDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const CXXDestructorDecl& a, const CXXDestructorDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("canonical_declaration", &CXXDestructorDecl::CanonicalDeclaration)
     .def_property_readonly("operator_delete", &CXXDestructorDecl::OperatorDelete)
     .def_property_readonly("operator_delete_this_argument", &CXXDestructorDecl::OperatorDeleteThisArgument);

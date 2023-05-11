@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterTypeWithKeyword(py::module_ &m) {
   py::class_<TypeWithKeyword, Type>(m, "TypeWithKeyword")
     .def("__hash__", [](const TypeWithKeyword& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const TypeWithKeyword& a, const TypeWithKeyword& b) { return a.RawType() == b.RawType(); })
+    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("keyword", &TypeWithKeyword::Keyword);
 }
 } // namespace pasta

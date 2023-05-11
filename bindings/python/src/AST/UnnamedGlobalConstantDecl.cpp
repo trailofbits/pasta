@@ -19,6 +19,6 @@ namespace py = pybind11;
 void RegisterUnnamedGlobalConstantDecl(py::module_ &m) {
   py::class_<UnnamedGlobalConstantDecl, ValueDecl>(m, "UnnamedGlobalConstantDecl")
     .def("__hash__", [](const UnnamedGlobalConstantDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const UnnamedGlobalConstantDecl& a, const UnnamedGlobalConstantDecl& b) { return a.RawDecl() == b.RawDecl(); });
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); });
 }
 } // namespace pasta

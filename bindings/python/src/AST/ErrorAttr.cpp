@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterErrorAttr(py::module_ &m) {
   py::class_<ErrorAttr, InheritableAttr>(m, "ErrorAttr")
     .def("__hash__", [](const ErrorAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const ErrorAttr& a, const ErrorAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("semantic_spelling", &ErrorAttr::SemanticSpelling)
     .def_property_readonly("spelling", &ErrorAttr::Spelling)
     .def_property_readonly("user_diagnostic", &ErrorAttr::UserDiagnostic)

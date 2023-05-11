@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterVisibilityAttr(py::module_ &m) {
   py::class_<VisibilityAttr, InheritableAttr>(m, "VisibilityAttr")
     .def("__hash__", [](const VisibilityAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const VisibilityAttr& a, const VisibilityAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &VisibilityAttr::Spelling)
     .def_property_readonly("visibility", &VisibilityAttr::Visibility);
 }

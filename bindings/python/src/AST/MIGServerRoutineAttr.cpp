@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterMIGServerRoutineAttr(py::module_ &m) {
   py::class_<MIGServerRoutineAttr, InheritableAttr>(m, "MIGServerRoutineAttr")
     .def("__hash__", [](const MIGServerRoutineAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const MIGServerRoutineAttr& a, const MIGServerRoutineAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &MIGServerRoutineAttr::Spelling);
 }
 } // namespace pasta

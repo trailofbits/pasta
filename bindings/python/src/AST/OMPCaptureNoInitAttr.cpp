@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterOMPCaptureNoInitAttr(py::module_ &m) {
   py::class_<OMPCaptureNoInitAttr, InheritableAttr>(m, "OMPCaptureNoInitAttr")
     .def("__hash__", [](const OMPCaptureNoInitAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const OMPCaptureNoInitAttr& a, const OMPCaptureNoInitAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &OMPCaptureNoInitAttr::Spelling);
 }
 } // namespace pasta

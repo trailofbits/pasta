@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterUseHandleAttr(py::module_ &m) {
   py::class_<UseHandleAttr, InheritableParamAttr>(m, "UseHandleAttr")
     .def("__hash__", [](const UseHandleAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const UseHandleAttr& a, const UseHandleAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("handle_type", &UseHandleAttr::HandleType)
     .def_property_readonly("handle_type_length", &UseHandleAttr::HandleTypeLength)
     .def_property_readonly("spelling", &UseHandleAttr::Spelling);

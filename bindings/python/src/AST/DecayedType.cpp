@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterDecayedType(py::module_ &m) {
   py::class_<DecayedType, AdjustedType>(m, "DecayedType")
     .def("__hash__", [](const DecayedType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const DecayedType& a, const DecayedType& b) { return a.RawType() == b.RawType(); })
+    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("resolved_type", &DecayedType::ResolvedType)
     .def_property_readonly("pointee_type", &DecayedType::PointeeType);
 }

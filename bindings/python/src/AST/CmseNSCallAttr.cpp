@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterCmseNSCallAttr(py::module_ &m) {
   py::class_<CmseNSCallAttr, TypeAttr>(m, "CmseNSCallAttr")
     .def("__hash__", [](const CmseNSCallAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const CmseNSCallAttr& a, const CmseNSCallAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &CmseNSCallAttr::Spelling);
 }
 } // namespace pasta

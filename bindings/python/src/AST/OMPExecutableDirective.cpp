@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterOMPExecutableDirective(py::module_ &m) {
   py::class_<OMPExecutableDirective, Stmt>(m, "OMPExecutableDirective")
     .def("__hash__", [](const OMPExecutableDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const OMPExecutableDirective& a, const OMPExecutableDirective& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &OMPExecutableDirective::Children)
     .def_property_readonly("associated_statement", &OMPExecutableDirective::AssociatedStatement)
     .def_property_readonly("begin_token", &OMPExecutableDirective::BeginToken)

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterDecltypeType(py::module_ &m) {
   py::class_<DecltypeType, Type>(m, "DecltypeType")
     .def("__hash__", [](const DecltypeType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const DecltypeType& a, const DecltypeType& b) { return a.RawType() == b.RawType(); })
+    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("desugar", &DecltypeType::Desugar)
     .def_property_readonly("underlying_expression", &DecltypeType::UnderlyingExpression)
     .def_property_readonly("underlying_type", &DecltypeType::UnderlyingType)

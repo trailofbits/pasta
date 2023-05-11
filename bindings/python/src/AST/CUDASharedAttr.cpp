@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterCUDASharedAttr(py::module_ &m) {
   py::class_<CUDASharedAttr, InheritableAttr>(m, "CUDASharedAttr")
     .def("__hash__", [](const CUDASharedAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const CUDASharedAttr& a, const CUDASharedAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &CUDASharedAttr::Spelling);
 }
 } // namespace pasta

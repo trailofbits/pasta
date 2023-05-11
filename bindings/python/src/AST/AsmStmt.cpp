@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterAsmStmt(py::module_ &m) {
   py::class_<AsmStmt, Stmt>(m, "AsmStmt")
     .def("__hash__", [](const AsmStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const AsmStmt& a, const AsmStmt& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &AsmStmt::Children)
     .def("generate_assembly_string", &AsmStmt::GenerateAssemblyString)
     .def_property_readonly("assembly_token", &AsmStmt::AssemblyToken)

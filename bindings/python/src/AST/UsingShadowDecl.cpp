@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterUsingShadowDecl(py::module_ &m) {
   py::class_<UsingShadowDecl, NamedDecl>(m, "UsingShadowDecl")
     .def("__hash__", [](const UsingShadowDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const UsingShadowDecl& a, const UsingShadowDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("canonical_declaration", &UsingShadowDecl::CanonicalDeclaration)
     .def_property_readonly("introducer", &UsingShadowDecl::Introducer)
     .def_property_readonly("next_using_shadow_declaration", &UsingShadowDecl::NextUsingShadowDeclaration)

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterNoAliasAttr(py::module_ &m) {
   py::class_<NoAliasAttr, InheritableAttr>(m, "NoAliasAttr")
     .def("__hash__", [](const NoAliasAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const NoAliasAttr& a, const NoAliasAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &NoAliasAttr::Spelling);
 }
 } // namespace pasta

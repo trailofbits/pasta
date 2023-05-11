@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterObjCInterfaceDecl(py::module_ &m) {
   py::class_<ObjCInterfaceDecl, ObjCContainerDecl>(m, "ObjCInterfaceDecl")
     .def("__hash__", [](const ObjCInterfaceDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const ObjCInterfaceDecl& a, const ObjCInterfaceDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("all_referenced_protocols", &ObjCInterfaceDecl::AllReferencedProtocols)
     .def_property_readonly("declares_or_inherits_designated_initializers", &ObjCInterfaceDecl::DeclaresOrInheritsDesignatedInitializers)
     .def_property_readonly("canonical_declaration", &ObjCInterfaceDecl::CanonicalDeclaration)

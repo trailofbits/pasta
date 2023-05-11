@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterNoDestroyAttr(py::module_ &m) {
   py::class_<NoDestroyAttr, InheritableAttr>(m, "NoDestroyAttr")
     .def("__hash__", [](const NoDestroyAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const NoDestroyAttr& a, const NoDestroyAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &NoDestroyAttr::Spelling);
 }
 } // namespace pasta

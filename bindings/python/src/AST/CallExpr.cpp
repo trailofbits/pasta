@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterCallExpr(py::module_ &m) {
   py::class_<CallExpr, Expr>(m, "CallExpr")
     .def("__hash__", [](const CallExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const CallExpr& a, const CallExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("arguments", &CallExpr::Arguments)
     .def_property_readonly("children", &CallExpr::Children)
     .def_property_readonly("adl_call_kind", &CallExpr::ADLCallKind)

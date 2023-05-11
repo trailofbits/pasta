@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterMSInheritanceAttr(py::module_ &m) {
   py::class_<MSInheritanceAttr, InheritableAttr>(m, "MSInheritanceAttr")
     .def("__hash__", [](const MSInheritanceAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const MSInheritanceAttr& a, const MSInheritanceAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("best_case", &MSInheritanceAttr::BestCase)
     .def_property_readonly("inheritance_model", &MSInheritanceAttr::InheritanceModel)
     .def_property_readonly("semantic_spelling", &MSInheritanceAttr::SemanticSpelling)

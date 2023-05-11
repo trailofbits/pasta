@@ -19,6 +19,6 @@ namespace py = pybind11;
 void RegisterOMPCancelDirective(py::module_ &m) {
   py::class_<OMPCancelDirective, OMPExecutableDirective>(m, "OMPCancelDirective")
     .def("__hash__", [](const OMPCancelDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const OMPCancelDirective& a, const OMPCancelDirective& b) { return a.RawStmt() == b.RawStmt(); });
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

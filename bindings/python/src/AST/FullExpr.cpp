@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterFullExpr(py::module_ &m) {
   py::class_<FullExpr, Expr>(m, "FullExpr")
     .def("__hash__", [](const FullExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const FullExpr& a, const FullExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("sub_expression", &FullExpr::SubExpression);
 }
 } // namespace pasta

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterPackExpansionExpr(py::module_ &m) {
   py::class_<PackExpansionExpr, Expr>(m, "PackExpansionExpr")
     .def("__hash__", [](const PackExpansionExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const PackExpansionExpr& a, const PackExpansionExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &PackExpansionExpr::Children)
     .def_property_readonly("begin_token", &PackExpansionExpr::BeginToken)
     .def_property_readonly("ellipsis_token", &PackExpansionExpr::EllipsisToken)

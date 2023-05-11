@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterCXXNewExpr(py::module_ &m) {
   py::class_<CXXNewExpr, Expr>(m, "CXXNewExpr")
     .def("__hash__", [](const CXXNewExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const CXXNewExpr& a, const CXXNewExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &CXXNewExpr::Children)
     .def_property_readonly("does_usual_array_delete_want_size", &CXXNewExpr::DoesUsualArrayDeleteWantSize)
     .def_property_readonly("allocated_type", &CXXNewExpr::AllocatedType)

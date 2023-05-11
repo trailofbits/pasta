@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterElaboratedType(py::module_ &m) {
   py::class_<ElaboratedType, TypeWithKeyword>(m, "ElaboratedType")
     .def("__hash__", [](const ElaboratedType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const ElaboratedType& a, const ElaboratedType& b) { return a.RawType() == b.RawType(); })
+    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("desugar", &ElaboratedType::Desugar)
     .def_property_readonly("named_type", &ElaboratedType::NamedType)
     .def_property_readonly("owned_tag_declaration", &ElaboratedType::OwnedTagDeclaration)

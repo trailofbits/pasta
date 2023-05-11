@@ -19,6 +19,6 @@ namespace py = pybind11;
 void RegisterOMPGenericLoopDirective(py::module_ &m) {
   py::class_<OMPGenericLoopDirective, OMPLoopDirective>(m, "OMPGenericLoopDirective")
     .def("__hash__", [](const OMPGenericLoopDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const OMPGenericLoopDirective& a, const OMPGenericLoopDirective& b) { return a.RawStmt() == b.RawStmt(); });
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

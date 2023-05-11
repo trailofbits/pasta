@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterGenericSelectionExpr(py::module_ &m) {
   py::class_<GenericSelectionExpr, Expr>(m, "GenericSelectionExpr")
     .def("__hash__", [](const GenericSelectionExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const GenericSelectionExpr& a, const GenericSelectionExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &GenericSelectionExpr::Children)
     .def_property_readonly("association_expressions", &GenericSelectionExpr::AssociationExpressions)
     .def_property_readonly("begin_token", &GenericSelectionExpr::BeginToken)

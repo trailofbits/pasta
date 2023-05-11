@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterMipsInterruptAttr(py::module_ &m) {
   py::class_<MipsInterruptAttr, InheritableAttr>(m, "MipsInterruptAttr")
     .def("__hash__", [](const MipsInterruptAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const MipsInterruptAttr& a, const MipsInterruptAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("interrupt", &MipsInterruptAttr::Interrupt)
     .def_property_readonly("spelling", &MipsInterruptAttr::Spelling);
 }

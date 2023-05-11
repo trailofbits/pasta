@@ -19,6 +19,6 @@ namespace py = pybind11;
 void RegisterOMPInteropDirective(py::module_ &m) {
   py::class_<OMPInteropDirective, OMPExecutableDirective>(m, "OMPInteropDirective")
     .def("__hash__", [](const OMPInteropDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const OMPInteropDirective& a, const OMPInteropDirective& b) { return a.RawStmt() == b.RawStmt(); });
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

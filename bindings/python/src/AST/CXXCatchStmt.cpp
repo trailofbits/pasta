@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterCXXCatchStmt(py::module_ &m) {
   py::class_<CXXCatchStmt, Stmt>(m, "CXXCatchStmt")
     .def("__hash__", [](const CXXCatchStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const CXXCatchStmt& a, const CXXCatchStmt& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &CXXCatchStmt::Children)
     .def_property_readonly("begin_token", &CXXCatchStmt::BeginToken)
     .def_property_readonly("catch_token", &CXXCatchStmt::CatchToken)

@@ -19,6 +19,6 @@ namespace py = pybind11;
 void RegisterTypeAttr(py::module_ &m) {
   py::class_<TypeAttr, Attr>(m, "TypeAttr")
     .def("__hash__", [](const TypeAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const TypeAttr& a, const TypeAttr& b) { return a.RawAttr() == b.RawAttr(); });
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); });
 }
 } // namespace pasta

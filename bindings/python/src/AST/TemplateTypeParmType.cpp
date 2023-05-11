@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterTemplateTypeParmType(py::module_ &m) {
   py::class_<TemplateTypeParmType, Type>(m, "TemplateTypeParmType")
     .def("__hash__", [](const TemplateTypeParmType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const TemplateTypeParmType& a, const TemplateTypeParmType& b) { return a.RawType() == b.RawType(); })
+    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("desugar", &TemplateTypeParmType::Desugar)
     .def_property_readonly("declaration", &TemplateTypeParmType::Declaration)
     .def_property_readonly("depth", &TemplateTypeParmType::Depth)

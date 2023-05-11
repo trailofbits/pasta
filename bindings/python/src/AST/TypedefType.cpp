@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterTypedefType(py::module_ &m) {
   py::class_<TypedefType, Type>(m, "TypedefType")
     .def("__hash__", [](const TypedefType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const TypedefType& a, const TypedefType& b) { return a.RawType() == b.RawType(); })
+    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("desugar", &TypedefType::Desugar)
     .def_property_readonly("declaration", &TypedefType::Declaration)
     .def_property_readonly("is_sugared", &TypedefType::IsSugared)

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterAMDGPUKernelCallAttr(py::module_ &m) {
   py::class_<AMDGPUKernelCallAttr, InheritableAttr>(m, "AMDGPUKernelCallAttr")
     .def("__hash__", [](const AMDGPUKernelCallAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const AMDGPUKernelCallAttr& a, const AMDGPUKernelCallAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &AMDGPUKernelCallAttr::Spelling);
 }
 } // namespace pasta

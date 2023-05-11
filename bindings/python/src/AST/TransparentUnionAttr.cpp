@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterTransparentUnionAttr(py::module_ &m) {
   py::class_<TransparentUnionAttr, InheritableAttr>(m, "TransparentUnionAttr")
     .def("__hash__", [](const TransparentUnionAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const TransparentUnionAttr& a, const TransparentUnionAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &TransparentUnionAttr::Spelling);
 }
 } // namespace pasta

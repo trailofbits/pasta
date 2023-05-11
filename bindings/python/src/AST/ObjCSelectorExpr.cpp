@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterObjCSelectorExpr(py::module_ &m) {
   py::class_<ObjCSelectorExpr, Expr>(m, "ObjCSelectorExpr")
     .def("__hash__", [](const ObjCSelectorExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const ObjCSelectorExpr& a, const ObjCSelectorExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &ObjCSelectorExpr::Children)
     .def_property_readonly("at_token", &ObjCSelectorExpr::AtToken)
     .def_property_readonly("begin_token", &ObjCSelectorExpr::BeginToken)

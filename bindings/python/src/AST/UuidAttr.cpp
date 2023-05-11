@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterUuidAttr(py::module_ &m) {
   py::class_<UuidAttr, InheritableAttr>(m, "UuidAttr")
     .def("__hash__", [](const UuidAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const UuidAttr& a, const UuidAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("guid", &UuidAttr::Guid)
     .def_property_readonly("guid_declaration", &UuidAttr::GuidDeclaration)
     .def_property_readonly("guid_length", &UuidAttr::GuidLength)

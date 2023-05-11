@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterObjCClassStubAttr(py::module_ &m) {
   py::class_<ObjCClassStubAttr, Attr>(m, "ObjCClassStubAttr")
     .def("__hash__", [](const ObjCClassStubAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const ObjCClassStubAttr& a, const ObjCClassStubAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &ObjCClassStubAttr::Spelling);
 }
 } // namespace pasta

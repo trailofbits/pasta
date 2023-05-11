@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterCXXTryStmt(py::module_ &m) {
   py::class_<CXXTryStmt, Stmt>(m, "CXXTryStmt")
     .def("__hash__", [](const CXXTryStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const CXXTryStmt& a, const CXXTryStmt& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &CXXTryStmt::Children)
     .def_property_readonly("begin_token", &CXXTryStmt::BeginToken)
     .def_property_readonly("end_token", &CXXTryStmt::EndToken)

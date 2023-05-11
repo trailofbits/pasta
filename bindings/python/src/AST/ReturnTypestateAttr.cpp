@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterReturnTypestateAttr(py::module_ &m) {
   py::class_<ReturnTypestateAttr, InheritableAttr>(m, "ReturnTypestateAttr")
     .def("__hash__", [](const ReturnTypestateAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const ReturnTypestateAttr& a, const ReturnTypestateAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &ReturnTypestateAttr::Spelling)
     .def_property_readonly("state", &ReturnTypestateAttr::State);
 }

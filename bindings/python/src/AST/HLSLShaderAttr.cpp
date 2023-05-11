@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterHLSLShaderAttr(py::module_ &m) {
   py::class_<HLSLShaderAttr, InheritableAttr>(m, "HLSLShaderAttr")
     .def("__hash__", [](const HLSLShaderAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const HLSLShaderAttr& a, const HLSLShaderAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &HLSLShaderAttr::Spelling)
     .def_property_readonly("type", &HLSLShaderAttr::Type);
 }

@@ -19,6 +19,6 @@ namespace py = pybind11;
 void RegisterRequiresExprBodyDecl(py::module_ &m) {
   py::class_<RequiresExprBodyDecl, Decl>(m, "RequiresExprBodyDecl")
     .def("__hash__", [](const RequiresExprBodyDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const RequiresExprBodyDecl& a, const RequiresExprBodyDecl& b) { return a.RawDecl() == b.RawDecl(); });
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); });
 }
 } // namespace pasta

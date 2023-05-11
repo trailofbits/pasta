@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterRISCVInterruptAttr(py::module_ &m) {
   py::class_<RISCVInterruptAttr, InheritableAttr>(m, "RISCVInterruptAttr")
     .def("__hash__", [](const RISCVInterruptAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const RISCVInterruptAttr& a, const RISCVInterruptAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("interrupt", &RISCVInterruptAttr::Interrupt)
     .def_property_readonly("spelling", &RISCVInterruptAttr::Spelling);
 }

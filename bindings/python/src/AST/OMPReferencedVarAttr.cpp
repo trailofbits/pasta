@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterOMPReferencedVarAttr(py::module_ &m) {
   py::class_<OMPReferencedVarAttr, Attr>(m, "OMPReferencedVarAttr")
     .def("__hash__", [](const OMPReferencedVarAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const OMPReferencedVarAttr& a, const OMPReferencedVarAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("reference", &OMPReferencedVarAttr::Reference)
     .def_property_readonly("spelling", &OMPReferencedVarAttr::Spelling);
 }

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterAssumptionAttr(py::module_ &m) {
   py::class_<AssumptionAttr, InheritableAttr>(m, "AssumptionAttr")
     .def("__hash__", [](const AssumptionAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const AssumptionAttr& a, const AssumptionAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("assumption", &AssumptionAttr::Assumption)
     .def_property_readonly("assumption_length", &AssumptionAttr::AssumptionLength)
     .def_property_readonly("spelling", &AssumptionAttr::Spelling);

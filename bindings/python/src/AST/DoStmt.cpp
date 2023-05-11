@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterDoStmt(py::module_ &m) {
   py::class_<DoStmt, Stmt>(m, "DoStmt")
     .def("__hash__", [](const DoStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const DoStmt& a, const DoStmt& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &DoStmt::Children)
     .def_property_readonly("begin_token", &DoStmt::BeginToken)
     .def_property_readonly("body", &DoStmt::Body)

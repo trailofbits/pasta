@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterObjCObjectType(py::module_ &m) {
   py::class_<ObjCObjectType, Type>(m, "ObjCObjectType")
     .def("__hash__", [](const ObjCObjectType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const ObjCObjectType& a, const ObjCObjectType& b) { return a.RawType() == b.RawType(); })
+    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("desugar", &ObjCObjectType::Desugar)
     .def_property_readonly("base_type", &ObjCObjectType::BaseType)
     .def_property_readonly("interface", &ObjCObjectType::Interface)

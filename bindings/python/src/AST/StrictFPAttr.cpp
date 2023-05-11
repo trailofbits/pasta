@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterStrictFPAttr(py::module_ &m) {
   py::class_<StrictFPAttr, InheritableAttr>(m, "StrictFPAttr")
     .def("__hash__", [](const StrictFPAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const StrictFPAttr& a, const StrictFPAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &StrictFPAttr::Spelling);
 }
 } // namespace pasta

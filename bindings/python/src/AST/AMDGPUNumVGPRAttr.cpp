@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterAMDGPUNumVGPRAttr(py::module_ &m) {
   py::class_<AMDGPUNumVGPRAttr, InheritableAttr>(m, "AMDGPUNumVGPRAttr")
     .def("__hash__", [](const AMDGPUNumVGPRAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const AMDGPUNumVGPRAttr& a, const AMDGPUNumVGPRAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("num_vgpr", &AMDGPUNumVGPRAttr::NumVGPR)
     .def_property_readonly("spelling", &AMDGPUNumVGPRAttr::Spelling);
 }

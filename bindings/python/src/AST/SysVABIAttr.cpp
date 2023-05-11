@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterSysVABIAttr(py::module_ &m) {
   py::class_<SysVABIAttr, InheritableAttr>(m, "SysVABIAttr")
     .def("__hash__", [](const SysVABIAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const SysVABIAttr& a, const SysVABIAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &SysVABIAttr::Spelling);
 }
 } // namespace pasta

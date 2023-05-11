@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterCXXFunctionalCastExpr(py::module_ &m) {
   py::class_<CXXFunctionalCastExpr, ExplicitCastExpr>(m, "CXXFunctionalCastExpr")
     .def("__hash__", [](const CXXFunctionalCastExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const CXXFunctionalCastExpr& a, const CXXFunctionalCastExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("begin_token", &CXXFunctionalCastExpr::BeginToken)
     .def_property_readonly("end_token", &CXXFunctionalCastExpr::EndToken)
     .def_property_readonly("l_paren_token", &CXXFunctionalCastExpr::LParenToken)

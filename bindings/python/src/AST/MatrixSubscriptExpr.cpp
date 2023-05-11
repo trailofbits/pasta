@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterMatrixSubscriptExpr(py::module_ &m) {
   py::class_<MatrixSubscriptExpr, Expr>(m, "MatrixSubscriptExpr")
     .def("__hash__", [](const MatrixSubscriptExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const MatrixSubscriptExpr& a, const MatrixSubscriptExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &MatrixSubscriptExpr::Children)
     .def_property_readonly("base", &MatrixSubscriptExpr::Base)
     .def_property_readonly("begin_token", &MatrixSubscriptExpr::BeginToken)

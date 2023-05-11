@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterBaseUsingDecl(py::module_ &m) {
   py::class_<BaseUsingDecl, NamedDecl>(m, "BaseUsingDecl")
     .def("__hash__", [](const BaseUsingDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const BaseUsingDecl& a, const BaseUsingDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("shadows", &BaseUsingDecl::Shadows);
 }
 } // namespace pasta

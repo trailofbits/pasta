@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterChooseExpr(py::module_ &m) {
   py::class_<ChooseExpr, Expr>(m, "ChooseExpr")
     .def("__hash__", [](const ChooseExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const ChooseExpr& a, const ChooseExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &ChooseExpr::Children)
     .def_property_readonly("begin_token", &ChooseExpr::BeginToken)
     .def_property_readonly("builtin_token", &ChooseExpr::BuiltinToken)

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterSwiftNameAttr(py::module_ &m) {
   py::class_<SwiftNameAttr, InheritableAttr>(m, "SwiftNameAttr")
     .def("__hash__", [](const SwiftNameAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const SwiftNameAttr& a, const SwiftNameAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("name", &SwiftNameAttr::Name)
     .def_property_readonly("name_length", &SwiftNameAttr::NameLength)
     .def_property_readonly("spelling", &SwiftNameAttr::Spelling);

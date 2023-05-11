@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterSwiftAsyncContextAttr(py::module_ &m) {
   py::class_<SwiftAsyncContextAttr, ParameterABIAttr>(m, "SwiftAsyncContextAttr")
     .def("__hash__", [](const SwiftAsyncContextAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const SwiftAsyncContextAttr& a, const SwiftAsyncContextAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &SwiftAsyncContextAttr::Spelling);
 }
 } // namespace pasta

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterEmptyBasesAttr(py::module_ &m) {
   py::class_<EmptyBasesAttr, InheritableAttr>(m, "EmptyBasesAttr")
     .def("__hash__", [](const EmptyBasesAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const EmptyBasesAttr& a, const EmptyBasesAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &EmptyBasesAttr::Spelling);
 }
 } // namespace pasta

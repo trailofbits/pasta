@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterStringLiteral(py::module_ &m) {
   py::class_<StringLiteral, Expr>(m, "StringLiteral")
     .def("__hash__", [](const StringLiteral& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const StringLiteral& a, const StringLiteral& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &StringLiteral::Children)
     .def_property_readonly("contains_non_ascii", &StringLiteral::ContainsNonAscii)
     .def_property_readonly("contains_non_ascii_or_null", &StringLiteral::ContainsNonAsciiOrNull)

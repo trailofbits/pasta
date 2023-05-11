@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterObjCContainerDecl(py::module_ &m) {
   py::class_<ObjCContainerDecl, NamedDecl>(m, "ObjCContainerDecl")
     .def("__hash__", [](const ObjCContainerDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const ObjCContainerDecl& a, const ObjCContainerDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("class_methods", &ObjCContainerDecl::ClassMethods)
     .def_property_readonly("class_properties", &ObjCContainerDecl::ClassProperties)
     .def_property_readonly("at_end_range", &ObjCContainerDecl::AtEndRange)

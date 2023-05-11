@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterAnyX86InterruptAttr(py::module_ &m) {
   py::class_<AnyX86InterruptAttr, InheritableAttr>(m, "AnyX86InterruptAttr")
     .def("__hash__", [](const AnyX86InterruptAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const AnyX86InterruptAttr& a, const AnyX86InterruptAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &AnyX86InterruptAttr::Spelling);
 }
 } // namespace pasta

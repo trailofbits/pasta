@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterObjCStringLiteral(py::module_ &m) {
   py::class_<ObjCStringLiteral, Expr>(m, "ObjCStringLiteral")
     .def("__hash__", [](const ObjCStringLiteral& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const ObjCStringLiteral& a, const ObjCStringLiteral& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &ObjCStringLiteral::Children)
     .def_property_readonly("at_token", &ObjCStringLiteral::AtToken)
     .def_property_readonly("begin_token", &ObjCStringLiteral::BeginToken)

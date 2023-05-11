@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterWarnUnusedResultAttr(py::module_ &m) {
   py::class_<WarnUnusedResultAttr, InheritableAttr>(m, "WarnUnusedResultAttr")
     .def("__hash__", [](const WarnUnusedResultAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const WarnUnusedResultAttr& a, const WarnUnusedResultAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("is_cxx11_no_discard", &WarnUnusedResultAttr::IsCXX11NoDiscard)
     .def_property_readonly("message", &WarnUnusedResultAttr::Message)
     .def_property_readonly("message_length", &WarnUnusedResultAttr::MessageLength)

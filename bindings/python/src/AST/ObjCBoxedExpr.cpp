@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterObjCBoxedExpr(py::module_ &m) {
   py::class_<ObjCBoxedExpr, Expr>(m, "ObjCBoxedExpr")
     .def("__hash__", [](const ObjCBoxedExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const ObjCBoxedExpr& a, const ObjCBoxedExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &ObjCBoxedExpr::Children)
     .def_property_readonly("at_token", &ObjCBoxedExpr::AtToken)
     .def_property_readonly("begin_token", &ObjCBoxedExpr::BeginToken)

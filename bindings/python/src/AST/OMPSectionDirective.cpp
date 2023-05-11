@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterOMPSectionDirective(py::module_ &m) {
   py::class_<OMPSectionDirective, OMPExecutableDirective>(m, "OMPSectionDirective")
     .def("__hash__", [](const OMPSectionDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const OMPSectionDirective& a, const OMPSectionDirective& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("has_cancel", &OMPSectionDirective::HasCancel);
 }
 } // namespace pasta

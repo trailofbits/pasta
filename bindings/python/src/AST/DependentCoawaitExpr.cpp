@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterDependentCoawaitExpr(py::module_ &m) {
   py::class_<DependentCoawaitExpr, Expr>(m, "DependentCoawaitExpr")
     .def("__hash__", [](const DependentCoawaitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const DependentCoawaitExpr& a, const DependentCoawaitExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &DependentCoawaitExpr::Children)
     .def_property_readonly("begin_token", &DependentCoawaitExpr::BeginToken)
     .def_property_readonly("end_token", &DependentCoawaitExpr::EndToken)

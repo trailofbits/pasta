@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterObjCMethodFamilyAttr(py::module_ &m) {
   py::class_<ObjCMethodFamilyAttr, InheritableAttr>(m, "ObjCMethodFamilyAttr")
     .def("__hash__", [](const ObjCMethodFamilyAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const ObjCMethodFamilyAttr& a, const ObjCMethodFamilyAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("family", &ObjCMethodFamilyAttr::Family)
     .def_property_readonly("spelling", &ObjCMethodFamilyAttr::Spelling);
 }

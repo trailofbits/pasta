@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterRecordDecl(py::module_ &m) {
   py::class_<RecordDecl, TagDecl>(m, "RecordDecl")
     .def("__hash__", [](const RecordDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const RecordDecl& a, const RecordDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("can_pass_in_registers", &RecordDecl::CanPassInRegisters)
     .def_property_readonly("fields", &RecordDecl::Fields)
     .def_property_readonly("first_named_data_member", &RecordDecl::FirstNamedDataMember)

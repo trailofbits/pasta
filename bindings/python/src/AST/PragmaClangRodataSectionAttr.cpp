@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterPragmaClangRodataSectionAttr(py::module_ &m) {
   py::class_<PragmaClangRodataSectionAttr, InheritableAttr>(m, "PragmaClangRodataSectionAttr")
     .def("__hash__", [](const PragmaClangRodataSectionAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const PragmaClangRodataSectionAttr& a, const PragmaClangRodataSectionAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("name", &PragmaClangRodataSectionAttr::Name)
     .def_property_readonly("name_length", &PragmaClangRodataSectionAttr::NameLength)
     .def_property_readonly("spelling", &PragmaClangRodataSectionAttr::Spelling);

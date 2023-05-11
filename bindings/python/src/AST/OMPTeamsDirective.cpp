@@ -19,6 +19,6 @@ namespace py = pybind11;
 void RegisterOMPTeamsDirective(py::module_ &m) {
   py::class_<OMPTeamsDirective, OMPExecutableDirective>(m, "OMPTeamsDirective")
     .def("__hash__", [](const OMPTeamsDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const OMPTeamsDirective& a, const OMPTeamsDirective& b) { return a.RawStmt() == b.RawStmt(); });
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); });
 }
 } // namespace pasta

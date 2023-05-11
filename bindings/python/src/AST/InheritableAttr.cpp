@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterInheritableAttr(py::module_ &m) {
   py::class_<InheritableAttr, Attr>(m, "InheritableAttr")
     .def("__hash__", [](const InheritableAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const InheritableAttr& a, const InheritableAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("should_inherit_even_if_already_present", &InheritableAttr::ShouldInheritEvenIfAlreadyPresent);
 }
 } // namespace pasta

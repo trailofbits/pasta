@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterVecReturnAttr(py::module_ &m) {
   py::class_<VecReturnAttr, InheritableAttr>(m, "VecReturnAttr")
     .def("__hash__", [](const VecReturnAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const VecReturnAttr& a, const VecReturnAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &VecReturnAttr::Spelling);
 }
 } // namespace pasta

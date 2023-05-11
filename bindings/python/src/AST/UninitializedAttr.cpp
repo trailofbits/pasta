@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterUninitializedAttr(py::module_ &m) {
   py::class_<UninitializedAttr, InheritableAttr>(m, "UninitializedAttr")
     .def("__hash__", [](const UninitializedAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const UninitializedAttr& a, const UninitializedAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &UninitializedAttr::Spelling);
 }
 } // namespace pasta

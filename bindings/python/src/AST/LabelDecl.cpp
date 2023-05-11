@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterLabelDecl(py::module_ &m) {
   py::class_<LabelDecl, NamedDecl>(m, "LabelDecl")
     .def("__hash__", [](const LabelDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const LabelDecl& a, const LabelDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("ms_assembly_label", &LabelDecl::MSAssemblyLabel)
     .def_property_readonly("statement", &LabelDecl::Statement)
     .def_property_readonly("is_gnu_local", &LabelDecl::IsGnuLocal)

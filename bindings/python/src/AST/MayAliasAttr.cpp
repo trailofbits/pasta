@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterMayAliasAttr(py::module_ &m) {
   py::class_<MayAliasAttr, InheritableAttr>(m, "MayAliasAttr")
     .def("__hash__", [](const MayAliasAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const MayAliasAttr& a, const MayAliasAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &MayAliasAttr::Spelling);
 }
 } // namespace pasta

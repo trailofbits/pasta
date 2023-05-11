@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterUsingType(py::module_ &m) {
   py::class_<UsingType, Type>(m, "UsingType")
     .def("__hash__", [](const UsingType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const UsingType& a, const UsingType& b) { return a.RawType() == b.RawType(); })
+    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("desugar", &UsingType::Desugar)
     .def_property_readonly("found_declaration", &UsingType::FoundDeclaration)
     .def_property_readonly("underlying_type", &UsingType::UnderlyingType)

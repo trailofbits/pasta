@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterClassTemplateSpecializationDecl(py::module_ &m) {
   py::class_<ClassTemplateSpecializationDecl, CXXRecordDecl>(m, "ClassTemplateSpecializationDecl")
     .def("__hash__", [](const ClassTemplateSpecializationDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const ClassTemplateSpecializationDecl& a, const ClassTemplateSpecializationDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("extern_token", &ClassTemplateSpecializationDecl::ExternToken)
     .def_property_readonly("instantiated_from", &ClassTemplateSpecializationDecl::InstantiatedFrom)
     .def_property_readonly("point_of_instantiation", &ClassTemplateSpecializationDecl::PointOfInstantiation)

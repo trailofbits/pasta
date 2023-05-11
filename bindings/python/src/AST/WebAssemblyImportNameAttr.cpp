@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterWebAssemblyImportNameAttr(py::module_ &m) {
   py::class_<WebAssemblyImportNameAttr, InheritableAttr>(m, "WebAssemblyImportNameAttr")
     .def("__hash__", [](const WebAssemblyImportNameAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const WebAssemblyImportNameAttr& a, const WebAssemblyImportNameAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("import_name", &WebAssemblyImportNameAttr::ImportName)
     .def_property_readonly("import_name_length", &WebAssemblyImportNameAttr::ImportNameLength)
     .def_property_readonly("spelling", &WebAssemblyImportNameAttr::Spelling);

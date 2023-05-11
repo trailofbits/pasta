@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterRequiresExpr(py::module_ &m) {
   py::class_<RequiresExpr, Expr>(m, "RequiresExpr")
     .def("__hash__", [](const RequiresExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const RequiresExpr& a, const RequiresExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &RequiresExpr::Children)
     .def_property_readonly("begin_token", &RequiresExpr::BeginToken)
     .def_property_readonly("body", &RequiresExpr::Body)

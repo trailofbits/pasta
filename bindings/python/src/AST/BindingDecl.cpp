@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterBindingDecl(py::module_ &m) {
   py::class_<BindingDecl, ValueDecl>(m, "BindingDecl")
     .def("__hash__", [](const BindingDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const BindingDecl& a, const BindingDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("binding", &BindingDecl::Binding)
     .def_property_readonly("decomposed_declaration", &BindingDecl::DecomposedDeclaration)
     .def_property_readonly("holding_variable", &BindingDecl::HoldingVariable);

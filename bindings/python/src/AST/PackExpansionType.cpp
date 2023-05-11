@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterPackExpansionType(py::module_ &m) {
   py::class_<PackExpansionType, Type>(m, "PackExpansionType")
     .def("__hash__", [](const PackExpansionType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const PackExpansionType& a, const PackExpansionType& b) { return a.RawType() == b.RawType(); })
+    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("desugar", &PackExpansionType::Desugar)
     .def_property_readonly("num_expansions", &PackExpansionType::NumExpansions)
     .def_property_readonly("pattern", &PackExpansionType::Pattern)

@@ -19,6 +19,6 @@ namespace py = pybind11;
 void RegisterOMPCapturedExprDecl(py::module_ &m) {
   py::class_<OMPCapturedExprDecl, VarDecl>(m, "OMPCapturedExprDecl")
     .def("__hash__", [](const OMPCapturedExprDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const OMPCapturedExprDecl& a, const OMPCapturedExprDecl& b) { return a.RawDecl() == b.RawDecl(); });
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); });
 }
 } // namespace pasta

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterObjCIsaExpr(py::module_ &m) {
   py::class_<ObjCIsaExpr, Expr>(m, "ObjCIsaExpr")
     .def("__hash__", [](const ObjCIsaExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const ObjCIsaExpr& a, const ObjCIsaExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &ObjCIsaExpr::Children)
     .def_property_readonly("base", &ObjCIsaExpr::Base)
     .def_property_readonly("base_token_end", &ObjCIsaExpr::BaseTokenEnd)

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterEnumConstantDecl(py::module_ &m) {
   py::class_<EnumConstantDecl, ValueDecl>(m, "EnumConstantDecl")
     .def("__hash__", [](const EnumConstantDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const EnumConstantDecl& a, const EnumConstantDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("canonical_declaration", &EnumConstantDecl::CanonicalDeclaration)
     .def_property_readonly("initializer_expression", &EnumConstantDecl::InitializerExpression)
     .def_property_readonly("initializer_value", &EnumConstantDecl::InitializerValue);

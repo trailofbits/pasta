@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterArrayType(py::module_ &m) {
   py::class_<ArrayType, Type>(m, "ArrayType")
     .def("__hash__", [](const ArrayType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const ArrayType& a, const ArrayType& b) { return a.RawType() == b.RawType(); })
+    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("element_type", &ArrayType::ElementType)
     .def_property_readonly("index_type_cvr_qualifiers", &ArrayType::IndexTypeCVRQualifiers)
     .def_property_readonly("size_modifier", &ArrayType::SizeModifier);

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterOMPDeclareMapperDecl(py::module_ &m) {
   py::class_<OMPDeclareMapperDecl, OMPDeclarativeDirectiveValueDecl>(m, "OMPDeclareMapperDecl")
     .def("__hash__", [](const OMPDeclareMapperDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const OMPDeclareMapperDecl& a, const OMPDeclareMapperDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("mapper_variable_reference", &OMPDeclareMapperDecl::MapperVariableReference)
     .def_property_readonly("prev_declaration_in_scope", &OMPDeclareMapperDecl::PrevDeclarationInScope);
 }

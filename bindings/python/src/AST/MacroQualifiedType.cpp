@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterMacroQualifiedType(py::module_ &m) {
   py::class_<MacroQualifiedType, Type>(m, "MacroQualifiedType")
     .def("__hash__", [](const MacroQualifiedType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const MacroQualifiedType& a, const MacroQualifiedType& b) { return a.RawType() == b.RawType(); })
+    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("desugar", &MacroQualifiedType::Desugar)
     .def_property_readonly("modified_type", &MacroQualifiedType::ModifiedType)
     .def_property_readonly("underlying_type", &MacroQualifiedType::UnderlyingType)

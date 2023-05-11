@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterMSAsmStmt(py::module_ &m) {
   py::class_<MSAsmStmt, AsmStmt>(m, "MSAsmStmt")
     .def("__hash__", [](const MSAsmStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const MSAsmStmt& a, const MSAsmStmt& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &MSAsmStmt::Children)
     .def("generate_assembly_string", &MSAsmStmt::GenerateAssemblyString)
     .def_property_readonly("all_constraints", &MSAsmStmt::AllConstraints)

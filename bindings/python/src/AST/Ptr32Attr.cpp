@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterPtr32Attr(py::module_ &m) {
   py::class_<Ptr32Attr, TypeAttr>(m, "Ptr32Attr")
     .def("__hash__", [](const Ptr32Attr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Ptr32Attr& a, const Ptr32Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &Ptr32Attr::Spelling);
 }
 } // namespace pasta

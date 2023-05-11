@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterObjCProtocolDecl(py::module_ &m) {
   py::class_<ObjCProtocolDecl, ObjCContainerDecl>(m, "ObjCProtocolDecl")
     .def("__hash__", [](const ObjCProtocolDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const ObjCProtocolDecl& a, const ObjCProtocolDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("canonical_declaration", &ObjCProtocolDecl::CanonicalDeclaration)
     .def_property_readonly("definition", &ObjCProtocolDecl::Definition)
     .def_property_readonly("obj_c_runtime_name_as_string", &ObjCProtocolDecl::ObjCRuntimeNameAsString)

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterNoDerefAttr(py::module_ &m) {
   py::class_<NoDerefAttr, TypeAttr>(m, "NoDerefAttr")
     .def("__hash__", [](const NoDerefAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const NoDerefAttr& a, const NoDerefAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &NoDerefAttr::Spelling);
 }
 } // namespace pasta

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterObjCIvarRefExpr(py::module_ &m) {
   py::class_<ObjCIvarRefExpr, Expr>(m, "ObjCIvarRefExpr")
     .def("__hash__", [](const ObjCIvarRefExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const ObjCIvarRefExpr& a, const ObjCIvarRefExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &ObjCIvarRefExpr::Children)
     .def_property_readonly("base", &ObjCIvarRefExpr::Base)
     .def_property_readonly("begin_token", &ObjCIvarRefExpr::BeginToken)

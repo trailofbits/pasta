@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterCXXUnresolvedConstructExpr(py::module_ &m) {
   py::class_<CXXUnresolvedConstructExpr, Expr>(m, "CXXUnresolvedConstructExpr")
     .def("__hash__", [](const CXXUnresolvedConstructExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const CXXUnresolvedConstructExpr& a, const CXXUnresolvedConstructExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("arguments", &CXXUnresolvedConstructExpr::Arguments)
     .def_property_readonly("children", &CXXUnresolvedConstructExpr::Children)
     .def_property_readonly("begin_token", &CXXUnresolvedConstructExpr::BeginToken)

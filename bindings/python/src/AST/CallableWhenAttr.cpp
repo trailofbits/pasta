@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterCallableWhenAttr(py::module_ &m) {
   py::class_<CallableWhenAttr, InheritableAttr>(m, "CallableWhenAttr")
     .def("__hash__", [](const CallableWhenAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const CallableWhenAttr& a, const CallableWhenAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &CallableWhenAttr::Spelling);
 }
 } // namespace pasta

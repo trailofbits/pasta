@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterConceptSpecializationExpr(py::module_ &m) {
   py::class_<ConceptSpecializationExpr, Expr>(m, "ConceptSpecializationExpr")
     .def("__hash__", [](const ConceptSpecializationExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const ConceptSpecializationExpr& a, const ConceptSpecializationExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &ConceptSpecializationExpr::Children)
     .def_property_readonly("begin_token", &ConceptSpecializationExpr::BeginToken)
     .def_property_readonly("end_token", &ConceptSpecializationExpr::EndToken)

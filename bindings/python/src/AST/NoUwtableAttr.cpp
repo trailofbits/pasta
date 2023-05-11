@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterNoUwtableAttr(py::module_ &m) {
   py::class_<NoUwtableAttr, InheritableAttr>(m, "NoUwtableAttr")
     .def("__hash__", [](const NoUwtableAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const NoUwtableAttr& a, const NoUwtableAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &NoUwtableAttr::Spelling);
 }
 } // namespace pasta

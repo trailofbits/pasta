@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterOSReturnsRetainedAttr(py::module_ &m) {
   py::class_<OSReturnsRetainedAttr, InheritableAttr>(m, "OSReturnsRetainedAttr")
     .def("__hash__", [](const OSReturnsRetainedAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const OSReturnsRetainedAttr& a, const OSReturnsRetainedAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &OSReturnsRetainedAttr::Spelling);
 }
 } // namespace pasta

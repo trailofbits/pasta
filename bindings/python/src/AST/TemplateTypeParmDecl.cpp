@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterTemplateTypeParmDecl(py::module_ &m) {
   py::class_<TemplateTypeParmDecl, TypeDecl>(m, "TemplateTypeParmDecl")
     .def("__hash__", [](const TemplateTypeParmDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const TemplateTypeParmDecl& a, const TemplateTypeParmDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("default_argument_was_inherited", &TemplateTypeParmDecl::DefaultArgumentWasInherited)
     .def_property_readonly("default_argument", &TemplateTypeParmDecl::DefaultArgument)
     .def_property_readonly("default_argument_info", &TemplateTypeParmDecl::DefaultArgumentInfo)

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterAnnotateAttr(py::module_ &m) {
   py::class_<AnnotateAttr, InheritableParamAttr>(m, "AnnotateAttr")
     .def("__hash__", [](const AnnotateAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const AnnotateAttr& a, const AnnotateAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("annotation", &AnnotateAttr::Annotation)
     .def_property_readonly("annotation_length", &AnnotateAttr::AnnotationLength)
     .def_property_readonly("spelling", &AnnotateAttr::Spelling);

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterTypeNullableAttr(py::module_ &m) {
   py::class_<TypeNullableAttr, TypeAttr>(m, "TypeNullableAttr")
     .def("__hash__", [](const TypeNullableAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const TypeNullableAttr& a, const TypeNullableAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &TypeNullableAttr::Spelling);
 }
 } // namespace pasta

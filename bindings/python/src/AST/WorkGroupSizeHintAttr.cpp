@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterWorkGroupSizeHintAttr(py::module_ &m) {
   py::class_<WorkGroupSizeHintAttr, InheritableAttr>(m, "WorkGroupSizeHintAttr")
     .def("__hash__", [](const WorkGroupSizeHintAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const WorkGroupSizeHintAttr& a, const WorkGroupSizeHintAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &WorkGroupSizeHintAttr::Spelling)
     .def_property_readonly("x_dim", &WorkGroupSizeHintAttr::XDim)
     .def_property_readonly("y_dim", &WorkGroupSizeHintAttr::YDim)

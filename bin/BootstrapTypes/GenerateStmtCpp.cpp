@@ -163,7 +163,7 @@ void Register)" << name << "(py::module_ &m) {\n"
     }
     os_py << ">(m, \"" << name << "\")"
           << "\n    .def(\"__hash__\", [](const " << name << "& stmt) { return (intptr_t)stmt.RawStmt(); })"
-          << "\n    .def(\"__eq__\", [](const " << name << "& a, const " << name << "& b) { return a.RawStmt() == b.RawStmt(); })";
+          << "\n    .def(\"__eq__\", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })";
 
     for (const auto &derived_class : gTransitiveDerivedClasses[name]) {
       os << "PASTA_DEFINE_DERIVED_OPERATORS("

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterPreserveMostAttr(py::module_ &m) {
   py::class_<PreserveMostAttr, InheritableAttr>(m, "PreserveMostAttr")
     .def("__hash__", [](const PreserveMostAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const PreserveMostAttr& a, const PreserveMostAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &PreserveMostAttr::Spelling);
 }
 } // namespace pasta

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterTagType(py::module_ &m) {
   py::class_<TagType, Type>(m, "TagType")
     .def("__hash__", [](const TagType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const TagType& a, const TagType& b) { return a.RawType() == b.RawType(); })
+    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("declaration", &TagType::Declaration)
     .def_property_readonly("is_being_defined", &TagType::IsBeingDefined);
 }

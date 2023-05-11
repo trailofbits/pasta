@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterObjCSubscriptRefExpr(py::module_ &m) {
   py::class_<ObjCSubscriptRefExpr, Expr>(m, "ObjCSubscriptRefExpr")
     .def("__hash__", [](const ObjCSubscriptRefExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const ObjCSubscriptRefExpr& a, const ObjCSubscriptRefExpr& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &ObjCSubscriptRefExpr::Children)
     .def_property_readonly("at_index_method_declaration", &ObjCSubscriptRefExpr::AtIndexMethodDeclaration)
     .def_property_readonly("base_expression", &ObjCSubscriptRefExpr::BaseExpression)

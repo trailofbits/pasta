@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterOverloadableAttr(py::module_ &m) {
   py::class_<OverloadableAttr, Attr>(m, "OverloadableAttr")
     .def("__hash__", [](const OverloadableAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const OverloadableAttr& a, const OverloadableAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &OverloadableAttr::Spelling);
 }
 } // namespace pasta

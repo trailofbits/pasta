@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterExcludeFromExplicitInstantiationAttr(py::module_ &m) {
   py::class_<ExcludeFromExplicitInstantiationAttr, InheritableAttr>(m, "ExcludeFromExplicitInstantiationAttr")
     .def("__hash__", [](const ExcludeFromExplicitInstantiationAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const ExcludeFromExplicitInstantiationAttr& a, const ExcludeFromExplicitInstantiationAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &ExcludeFromExplicitInstantiationAttr::Spelling);
 }
 } // namespace pasta

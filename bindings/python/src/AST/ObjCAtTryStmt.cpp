@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterObjCAtTryStmt(py::module_ &m) {
   py::class_<ObjCAtTryStmt, Stmt>(m, "ObjCAtTryStmt")
     .def("__hash__", [](const ObjCAtTryStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const ObjCAtTryStmt& a, const ObjCAtTryStmt& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &ObjCAtTryStmt::Children)
     .def_property_readonly("at_try_token", &ObjCAtTryStmt::AtTryToken)
     .def_property_readonly("begin_token", &ObjCAtTryStmt::BeginToken)

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterRecordType(py::module_ &m) {
   py::class_<RecordType, TagType>(m, "RecordType")
     .def("__hash__", [](const RecordType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const RecordType& a, const RecordType& b) { return a.RawType() == b.RawType(); })
+    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("desugar", &RecordType::Desugar)
     .def_property_readonly("declaration", &RecordType::Declaration)
     .def_property_readonly("has_const_fields", &RecordType::HasConstFields)

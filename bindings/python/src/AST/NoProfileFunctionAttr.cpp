@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterNoProfileFunctionAttr(py::module_ &m) {
   py::class_<NoProfileFunctionAttr, InheritableAttr>(m, "NoProfileFunctionAttr")
     .def("__hash__", [](const NoProfileFunctionAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const NoProfileFunctionAttr& a, const NoProfileFunctionAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &NoProfileFunctionAttr::Spelling);
 }
 } // namespace pasta

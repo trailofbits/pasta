@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterMSAllocatorAttr(py::module_ &m) {
   py::class_<MSAllocatorAttr, InheritableAttr>(m, "MSAllocatorAttr")
     .def("__hash__", [](const MSAllocatorAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const MSAllocatorAttr& a, const MSAllocatorAttr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
     .def_property_readonly("spelling", &MSAllocatorAttr::Spelling);
 }
 } // namespace pasta

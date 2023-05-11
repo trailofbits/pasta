@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterPragmaDetectMismatchDecl(py::module_ &m) {
   py::class_<PragmaDetectMismatchDecl, Decl>(m, "PragmaDetectMismatchDecl")
     .def("__hash__", [](const PragmaDetectMismatchDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const PragmaDetectMismatchDecl& a, const PragmaDetectMismatchDecl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
     .def_property_readonly("name", &PragmaDetectMismatchDecl::Name)
     .def_property_readonly("value", &PragmaDetectMismatchDecl::Value);
 }

@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterFloatingLiteral(py::module_ &m) {
   py::class_<FloatingLiteral, Expr>(m, "FloatingLiteral")
     .def("__hash__", [](const FloatingLiteral& stmt) { return (intptr_t)stmt.RawStmt(); })
-    .def("__eq__", [](const FloatingLiteral& a, const FloatingLiteral& b) { return a.RawStmt() == b.RawStmt(); })
+    .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_property_readonly("children", &FloatingLiteral::Children)
     .def_property_readonly("begin_token", &FloatingLiteral::BeginToken)
     .def_property_readonly("end_token", &FloatingLiteral::EndToken)

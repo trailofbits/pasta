@@ -19,7 +19,7 @@ namespace py = pybind11;
 void RegisterDependentSizedMatrixType(py::module_ &m) {
   py::class_<DependentSizedMatrixType, MatrixType>(m, "DependentSizedMatrixType")
     .def("__hash__", [](const DependentSizedMatrixType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const DependentSizedMatrixType& a, const DependentSizedMatrixType& b) { return a.RawType() == b.RawType(); })
+    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
     .def_property_readonly("attribute_token", &DependentSizedMatrixType::AttributeToken)
     .def_property_readonly("column_expression", &DependentSizedMatrixType::ColumnExpression)
     .def_property_readonly("row_expression", &DependentSizedMatrixType::RowExpression);

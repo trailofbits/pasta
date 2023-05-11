@@ -363,14 +363,14 @@ class Decl {
   uint32_t IdentifierNamespace(void) const;
   // ImportedOwningModule: (clang::Module *)
   // LangOpts: (const clang::LangOptions &)
-  ::pasta::DeclContext LexicalDeclarationContext(void) const;
+  std::optional<::pasta::DeclContext> LexicalDeclarationContext(void) const;
   // LocalOwningModule: (clang::Module *)
   uint32_t MaxAlignment(void) const;
   enum DeclModuleOwnershipKind ModuleOwnershipKind(void) const;
   ::pasta::Decl MostRecentDeclaration(void) const;
   std::optional<::pasta::Decl> NextDeclarationInContext(void) const;
   std::optional<::pasta::Decl> NonClosureContext(void) const;
-  ::pasta::DeclContext NonTransparentDeclarationContext(void) const;
+  std::optional<::pasta::DeclContext> NonTransparentDeclarationContext(void) const;
   // OwningModule: (clang::Module *)
   // OwningModuleForLinkage: (clang::Module *)
   uint32_t OwningModuleID(void) const;
@@ -396,7 +396,7 @@ class Decl {
   bool IsInAnonymousNamespace(void) const;
   bool IsInExportDeclarationContext(void) const;
   // IsInIdentifierNamespace: (bool)
-  bool IsInLocalScopeForInstantiation(void) const;
+  std::optional<bool> IsInLocalScopeForInstantiation(void) const;
   bool IsInStdNamespace(void) const;
   bool IsInvalidDeclaration(void) const;
   bool IsInvisibleOutsideTheOwningModule(void) const;

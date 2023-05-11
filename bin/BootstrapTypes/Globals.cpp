@@ -1191,6 +1191,7 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"ValueDecl", "PotentiallyDecomposedVariableDeclaration"},
   {"TranslationUnitDecl", "AnonymousNamespace"},
   {"Decl", "DeclarationContext"},
+  {"Decl", "LexicalDeclarationContext"},
 
 //  {"FunctionProtoType", "EllipsisToken"},
 //  {"FunctionDecl", "EllipsisToken"},
@@ -1454,6 +1455,11 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
 
 #define SELF_IS_LAMBDA \
     "  if (!self.isLambda()) {\n" \
+    "    return std::nullopt;\n" \
+    "  }\n"
+
+#define SELF_HAS_DECLCONTEXT \
+    "  if (!self.getDeclContext()) {\n" \
     "    return std::nullopt;\n" \
     "  }\n"
 
@@ -1803,6 +1809,12 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "      !clang::isa<clang::BindingDecl>(&self)) {\n"
    "    return std::nullopt;\n"
    "  }\n"},
+  {{"Decl", "ExternalSourceSymbolAttribute"},
+   SELF_HAS_DECLCONTEXT},
+  {{"Decl", "IsInLocalScopeForInstantiation"},
+   SELF_HAS_DECLCONTEXT},
+  {{"Decl", "NonTransparentDeclarationContext"},
+   SELF_HAS_DECLCONTEXT}
 
 //  {{"CXXRecordDecl", "DefaultedMoveConstructorIsDeleted"},
 //   "  if (self.needsOverloadResolutionForMoveConstructor() ||\n"

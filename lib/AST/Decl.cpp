@@ -1091,6 +1091,9 @@ std::optional<::pasta::TemplateParameterList> Decl::DescribedTemplateParameters(
 
 std::optional<::pasta::ExternalSourceSymbolAttr> Decl::ExternalSourceSymbolAttribute(void) const {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
+  if (!self.getDeclContext()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getExternalSourceSymbolAttr();
   if (!val) {
     return std::nullopt;
@@ -1137,13 +1140,15 @@ uint32_t Decl::IdentifierNamespace(void) const {
 
 // 0: Decl::ImportedOwningModule
 // 0: Decl::LangOpts
-::pasta::DeclContext Decl::LexicalDeclarationContext(void) const {
+std::optional<::pasta::DeclContext> Decl::LexicalDeclarationContext(void) const {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
   decltype(auto) val = self.getLexicalDeclContext();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return ::pasta::DeclContext(ast, val);
   }
-  throw std::runtime_error("Decl::LexicalDeclarationContext can return nullptr!");
 }
 
 // 0: Decl::LocalOwningModule
@@ -1190,13 +1195,18 @@ std::optional<::pasta::Decl> Decl::NonClosureContext(void) const {
   }
 }
 
-::pasta::DeclContext Decl::NonTransparentDeclarationContext(void) const {
+std::optional<::pasta::DeclContext> Decl::NonTransparentDeclarationContext(void) const {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
+  if (!self.getDeclContext()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getNonTransparentDeclContext();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return ::pasta::DeclContext(ast, val);
   }
-  throw std::runtime_error("Decl::NonTransparentDeclarationContext can return nullptr!");
 }
 
 // 0: Decl::OwningModule
@@ -1336,8 +1346,11 @@ bool Decl::IsInExportDeclarationContext(void) const {
 }
 
 // 1: Decl::IsInIdentifierNamespace
-bool Decl::IsInLocalScopeForInstantiation(void) const {
+std::optional<bool> Decl::IsInLocalScopeForInstantiation(void) const {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
+  if (!self.getDeclContext()) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.isInLocalScopeForInstantiation();
   return val;
 }

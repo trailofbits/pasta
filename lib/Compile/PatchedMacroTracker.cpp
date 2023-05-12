@@ -2078,8 +2078,7 @@ void PatchedMacroTracker::DoEndMacroExpansion(
 
     deferred_expansion->nodes.push_back(parent_node);
 
-
-  // Othwerwise, in the normal case, what we want is:
+  // Otherwise, in the normal case, what we want is:
   //
   //       NP
   //      /  \                                .
@@ -2090,8 +2089,25 @@ void PatchedMacroTracker::DoEndMacroExpansion(
   //         {A}  ident(FOO_2)
   //
   // * NOTE: the `E` will be swapped into `use_nodes` later.
-  } else if (expansion->nodes.size() == 1) {
-    D( std::cerr << indent << "Normal deferral\n"; )
+  } else {
+
+#if D(1 + ) 0
+    if (expansion->nodes.size() == 1) {
+
+      std::cerr << indent << "Normal deferral\n";
+
+    // We have a `dprintk`-like situation. We have come across a macro close
+    // for `dprintk`, but the expansion of `printk` has already begun, so we
+    // want to leave the expansion of `printk`, which is `deffered_expansion`
+    // where it is, with no reorganization, but pretend that it is at the top
+    // of our expansions stack.
+    //
+    //      #define printk(fmt, ...) /* something */
+    //      #define dprintk if (debug) printk
+    } else {
+      std::cerr << indent << "!! Deferral with other nodes!\n";
+    }
+#endif
 
     parent_node->nodes.pop_back();  // Remove `E`
     parent_node->nodes.push_back(deferred_expansion);  // Add `DE`.
@@ -2101,17 +2117,6 @@ void PatchedMacroTracker::DoEndMacroExpansion(
     expansion->nodes.pop_back();
     ReparentNodes(std::move(deferred_expansion->nodes), expansion);
     deferred_expansion->nodes.push_back(expansion);
-
-  // We have a `dprintk`-like situation. We have come across a macro close
-  // for `dprintk`, but the expansion of `printk` has already begun, so we
-  // want to leave the expansion of `printk`, which is `deffered_expansion`
-  // where it is, with no reorganization, but pretend that it is at the top
-  // of our expansions stack.
-  //
-  //      #define printk(fmt, ...) /* something */
-  //      #define dprintk if (debug) printk
-  } else {
-    D( std::cerr << indent << "!! Deferral with other nodes!\n"; )
   }
 
   nodes.push_back(deferred_expansion);

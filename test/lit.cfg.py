@@ -50,12 +50,35 @@ config.pasta_tools_dir = os.path.join(config.pasta_obj_root, 'bin')
 tools = [
     ToolSubst(
         "print-cxx-tokens",
-        os.path.join(config.pasta_obj_root, 'bin', 'PrintTokens', 'print-tokens'),
+        os.path.join(config.pasta_obj_root, 'bin',
+                     'PrintTokens','print-tokens'),
         extra_args=["-x", "c++"]),
 
     ToolSubst(
         "print-c-tokens",
-        os.path.join(config.pasta_obj_root, 'bin', 'PrintTokens', 'print-tokens'),
+        os.path.join(config.pasta_obj_root, 'bin',
+                     'PrintTokens', 'print-tokens'),
+        extra_args=["-x", "c"]),
+
+    ToolSubst(
+        "print-highest-containing-substitution",
+        os.path.join(config.pasta_obj_root, 'bin',
+                     'PrintHighestContainingSubstitution',
+                     'print-highest-containing-substitution'),
+        extra_args=["-x", "c"]),
+
+    ToolSubst(
+        "print-lowest-containing-macro-argument",
+        os.path.join(config.pasta_obj_root, 'bin',
+                     'PrintLowestContainingMacroArgument',
+                     'print-lowest-containing-macro-argument'),
+        extra_args=["-x", "c"]),
+
+    ToolSubst(
+        "print-lowest-covering",
+        os.path.join(config.pasta_obj_root, 'bin',
+                     'PrintLowestCovering',
+                     'print-lowest-covering'),
         extra_args=["-x", "c"]),
     
     ToolSubst(

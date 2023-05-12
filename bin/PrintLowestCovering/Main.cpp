@@ -57,13 +57,12 @@ void PrintLowestCovering(const pasta::MacroExpansion &expansion) {
   std::cout << ss.str() << "\n";
 
   auto children = expansion.ReplacementChildren();
-  if (expansion.Definition() &&
-      expansion.Definition()->IsFunctionLike()) {
-    children = expansion.ReplacementChildren().begin()->Children();
+  auto definition = expansion.Definition();
+  if (definition && definition->IsFunctionLike()) {
+    children = children.begin()->Children();
   }
 
-  for (const auto &child : children)
-  {
+  for (const auto &child : children) {
     const auto child_expansion = pasta::MacroExpansion::From(child);
     if (child_expansion &&
         child_expansion != expansion &&
@@ -75,8 +74,7 @@ void PrintLowestCovering(const pasta::MacroExpansion &expansion) {
 
 void PrintLowestCovering(pasta::AST ast) {
   for (const auto &node : ast.Macros()) {
-    const auto expansion = pasta::MacroExpansion::From(node);
-    if (expansion) {
+    if (auto expansion = pasta::MacroExpansion::From(node)) {
       PrintLowestCovering(*expansion);
     }
   }

@@ -22,51 +22,44 @@
 void PrintTokensTo(std::iostream &s, const pasta::TokenRange &tokens) {
   int i = 0;
   for (auto &&token : tokens) {
-    if (token.Role() == pasta::TokenRole::kFinalMacroExpansionToken
-        || token.Role() == pasta::TokenRole::kFileToken) {
-      if (i++ > 0) {
+    // NOTE(bpappas): Only print parsed tokens.
+    if (token.Role() == pasta::TokenRole::kFinalMacroExpansionToken ||
+        token.Role() == pasta::TokenRole::kFileToken) {
+      if (i > 0) {
         s << ' ';
       }
       s << token.Data();
+      i++;
     }
   }
 }
 
 class StmtsPrintLowestContainingMacroArgument final : public pasta::StmtVisitor {
 public:
-  pasta::AST ast;
   std::ostream &os;
 
   virtual ~StmtsPrintLowestContainingMacroArgument(void) = default;
 
-  explicit StmtsPrintLowestContainingMacroArgument(
-    pasta::AST &ast_,
-    std::ostream &os_)
-    : ast(ast_), os(os_) {}
+  explicit StmtsPrintLowestContainingMacroArgument(std::ostream &os_) : os(os_) {}
 
   void VisitStmt(const pasta::Stmt &stmt) {
 
     const auto containing_argument = stmt.LowestContainingMacroArgument();
-    if (containing_argument)
-    {
+    if (containing_argument) {
       std::stringstream ss;
       PrintTokensTo(ss, stmt.Tokens());
       ss << " is contained in argument ";
       const auto parent = containing_argument->Parent();
-      if (parent)
-      {
+      if (parent) {
         ss << "of parent macro ";
         const auto expansion = pasta::MacroExpansion::From(*parent);
-        if (expansion)
-        {
+        if (expansion) {
           ss << "expansion ";
           const auto definition = expansion->Definition();
-          if (definition)
-          {
+          if (definition) {
             ss << "of macro definition ";
             const auto definition_name = definition->Name();
-            if (definition_name)
-            {
+            if (definition_name) {
               ss << definition_name->Data() << ' ';
             }
             else {
@@ -76,8 +69,7 @@ public:
             ss << containing_argument->Index() << ' ';
             const auto index = containing_argument->Index();
             const auto parameter = definition->Parameters().At(index);
-            if (parameter and parameter->BeginToken())
-            {
+            if (parameter and parameter->BeginToken()) {
               ss << parameter->BeginToken()->Data();
             }
             else {
@@ -98,8 +90,7 @@ public:
       std::cout << ss.str() << "\n";
     }
 
-    for (const auto &child : stmt.Children())
-    {
+    for (const auto &child : stmt.Children()) {
       VisitStmt(child);
     }
   }
@@ -107,14 +98,11 @@ public:
 
 class DeclsPrintLowestContainingMacroArgument final : public pasta::DeclVisitor {
 public:
-  pasta::AST ast;
   std::ostream &os;
 
   virtual ~DeclsPrintLowestContainingMacroArgument(void) = default;
 
-  explicit DeclsPrintLowestContainingMacroArgument(pasta::AST &ast_,
-                                         std::ostream &os_)
-    : ast(ast_), os(os_) {}
+  explicit DeclsPrintLowestContainingMacroArgument(std::ostream &os_) : os(os_) {}
 
   void VisitDeclContext(const pasta::DeclContext &dc) {
     for (const auto &decl : dc.AlreadyLoadedDeclarations()) {
@@ -127,23 +115,20 @@ public:
   }
 
   void VisitVarDecl(const pasta::VarDecl &decl) final {
-    if (!decl.IsLocalVariableDeclaration())
-    {
-      const auto maybe_initializer = decl.Initializer();
-      if (maybe_initializer)
-      {
-        StmtsPrintLowestContainingMacroArgument finder(ast, os);
-        finder.Accept(*maybe_initializer);
+    // NOTE(bpappas): Only visit global variable declarations since we visit
+    // local ones anyway inside function declaration contexts.
+    if (!decl.IsLocalVariableDeclaration()) {
+      if (auto initializer = decl.Initializer()) {
+        StmtsPrintLowestContainingMacroArgument finder(os);
+        finder.Accept(*initializer);
       }
     }
   }
 
   void VisitFunctionDecl(const pasta::FunctionDecl &decl) final {
-    const auto maybe_body = decl.Body();
-    if (maybe_body)
-    {
-      StmtsPrintLowestContainingMacroArgument finder(ast, os);
-      finder.Accept(*maybe_body);
+    if (auto body = decl.Body()) {
+      StmtsPrintLowestContainingMacroArgument finder(os);
+      finder.Accept(*body);
     }
     VisitDeclContext(decl);
   }
@@ -151,7 +136,7 @@ public:
 
 
 static void PrintLowestContainingMacroArgument(pasta::AST ast) {
-  DeclsPrintLowestContainingMacroArgument finder(ast, std::cout);
+  DeclsPrintLowestContainingMacroArgument finder(std::cout);
   finder.Accept(ast.TranslationUnit());
 }
 

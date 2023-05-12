@@ -22,6 +22,7 @@
 void PrintTokensTo(std::iostream &s, const pasta::TokenRange &tokens) {
   int i = 0;
   for (auto &&token : tokens) {
+    // NOTE(bpappas): Only print parsed tokens.
     if (token.Role() == pasta::TokenRole::kFinalMacroExpansionToken ||
         token.Role() == pasta::TokenRole::kFileToken) {
       if (i > 0) {
@@ -42,11 +43,13 @@ public:
   explicit StmtPrintHighestContainingSubstitutionFinder(std::ostream &os_) : os(os_) {}
 
   void VisitStmt(const pasta::Stmt &stmt) {
+    // NOTE(bpappas): Don't visit these kinds of expressions to avoid printing
+    // their tokens twice. These kinds of expressions comprise the same tokens
+    // as their immediate children, so if we were to visit them, we would first
+    // print their tokens, and then their immediate childrens' tokens.
     if (stmt.Kind() != pasta::StmtKind::kImplicitCastExpr
-        && stmt.Kind() != pasta::StmtKind::kImplicitValueInitExpr)
-    {
-      if (const auto sub = stmt.HighestContainingSubstitution())
-      {
+        && stmt.Kind() != pasta::StmtKind::kImplicitValueInitExpr) {
+      if (const auto sub = stmt.HighestContainingSubstitution()) {
         std::stringstream ss;
         PrintTokensTo(ss, stmt.Tokens());
         ss << " is contained in ";
@@ -56,8 +59,7 @@ public:
         std::cout << ss.str() << "\n";
       }
     }
-    for (const auto &child : stmt.Children())
-    {
+    for (const auto &child : stmt.Children()) {
       Accept(child);
     }
   }
@@ -82,10 +84,10 @@ public:
   }
 
   void VisitVarDecl(const pasta::VarDecl &decl) final {
+    // NOTE(bpappas): Only visit global variable declarations since we visit
+    // local ones anyway inside function declaration contexts.
     if (!decl.IsLocalVariableDeclaration()) {
-      const auto &initializer = decl.Initializer();
-      if (initializer)
-      {
+      if (auto initializer = decl.Initializer()) {
         StmtPrintHighestContainingSubstitutionFinder finder(os);
         finder.Accept(*initializer);
       }
@@ -93,9 +95,7 @@ public:
   }
 
   void VisitFunctionDecl(const pasta::FunctionDecl &decl) final {
-    const auto body = decl.Body();
-    if (body)
-    {
+    if (auto body = decl.Body()) {
       StmtPrintHighestContainingSubstitutionFinder finder(os);
       finder.Accept(*body);
     }

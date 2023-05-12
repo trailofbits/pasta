@@ -4,4 +4,4 @@ install/*
 .clion
 .project
 .settings
-
+.vscode/

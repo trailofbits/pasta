@@ -20,6 +20,9 @@ configure_lit_site_cfg(
 
 set(PASTA_TEST_DEPENDS
   print-tokens
+  print-highest-containing-substitution
+  print-lowest-containing-macro-argument
+  print-lowest-covering
 )
 
 add_lit_testsuite(check-pasta "Running the PASTA regression tests"

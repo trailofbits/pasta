@@ -929,8 +929,6 @@ std::optional<Token> MacroSubstitution::LastFullySubstitutedToken(void) const no
 }
 
 
-
-
 // Returns the Stmt in the AST that was parsed from the tokens this macro
 // substitution expanded to, if any.
 std::optional<Stmt> MacroSubstitution::CoveredStmt(void) const noexcept {

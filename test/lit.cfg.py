@@ -75,10 +75,17 @@ tools = [
         extra_args=["-x", "c"]),
 
     ToolSubst(
-        "print-lowest-covering",
+        "print-lowest-covered-stmt-or-decl",
         os.path.join(config.pasta_obj_root, 'bin',
-                     'PrintLowestCovering',
-                     'print-lowest-covering'),
+                     'PrintLowestCoveredStmtOrDecl',
+                     'print-lowest-covered-stmt-or-decl'),
+        extra_args=["-x", "c"]),
+
+    ToolSubst(
+        "print-lowest-covering-substitution",
+        os.path.join(config.pasta_obj_root, 'bin',
+                     'PrintLowestCoveringSubstitution',
+                     'print-lowest-covering-substitution'),
         extra_args=["-x", "c"]),
     
     ToolSubst(

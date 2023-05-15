@@ -74,7 +74,7 @@ inline bool IsTokenDerivedFromMacro(const Token &token, const Macro &macro) {
     if (!macro_tok) {
       continue;
     }
-    
+
     auto containing_macro = macro_tok->Parent();
     if (macro == containing_macro.value()) {
       return true;
@@ -114,6 +114,63 @@ Stmt::LowestContainingMacroArgument(void) const noexcept {
       }
     }
   }
+  return std::nullopt;
+}
+
+// Returns the lowest macro substitution that covers this Stmt, if any.
+// TODO(bpappas): This does not work if the Stmt's lowest covering substitution
+// is a macro invocation passed to another macro invocation as an argument.
+std::optional<Macro> Stmt::LowestCoveringSubstitution(void) const noexcept {
+  const Token begin_tok = BeginToken(), end_tok = EndToken();
+  const std::optional<pasta::MacroToken>
+    begin_macro_tok = begin_tok.MacroLocation(),
+    end_macro_tok = end_tok.MacroLocation();
+  std::optional<Macro> begin_macro = std::nullopt, end_macro = std::nullopt;
+
+  // Walk up the beginning token's expansion tree until we either reach the root
+  // of the tree, or the macro that the first token was expanded from is equal
+  // to the macro that the last token was expanded from.
+  for (begin_macro = begin_macro_tok ? begin_macro_tok->Parent() : std::nullopt;
+       begin_macro; begin_macro = begin_macro->Parent()) {
+    auto begin_sub = (begin_macro
+                      ? MacroSubstitution::From(*begin_macro)
+                      : std::nullopt);
+    auto begin_sub_first_tok = (begin_sub
+                                ? begin_sub->FirstFullySubstitutedToken()
+                                : std::nullopt);
+    // Front alignment: Check that the first token of the substitution that that
+    // the first token in the Stmt was expanded from is the first token in the
+    // substitution.
+    if (begin_sub_first_tok && begin_tok == *begin_sub_first_tok) {
+    // Walk up the ending token's expansion tree
+      for (end_macro = end_macro_tok ? end_macro_tok->Parent() : std::nullopt;
+           end_macro; end_macro = end_macro->Parent()) {
+        auto end_sub = (end_macro
+                        ? MacroSubstitution::From(*end_macro)
+                        : std::nullopt);
+        auto end_sub_last_tok = (end_sub
+                                 ? end_sub->LastFullySubstitutedToken()
+                                 : std::nullopt);
+        auto end_sub_last_tok_is_semicolon =
+          end_sub_last_tok && end_sub_last_tok->Kind() == TokenKind::kSemi;
+
+        // Back alignment: Check that the last token of the substitution that
+        // that the last token in the Stmt was expanded from is the last token
+        // in the substitution.
+        if ((end_sub_last_tok && end_tok == *end_sub_last_tok) ||
+            // Heuristic for aligning expansions that end with a semicolon
+            end_sub_last_tok_is_semicolon) {
+          // If the beginning and ending are aligned, then all that's left to do
+          // is to check that they align with the same macro.
+          if (begin_macro == end_macro) {
+            return begin_macro;
+          }
+        }
+      }
+    }
+  }
+
+  // Otherwise, return std::nullopt.
   return std::nullopt;
 }
 

@@ -379,6 +379,12 @@ class MacroSubstitution : public Macro {
 
   MacroRange ReplacementChildren(void) const noexcept;
 
+  // Returns the first fully substituted token in this substitution, if any.
+  std::optional<Token> FirstFullySubstitutedToken(void) const noexcept;
+
+  // Returns the last fully substituted token in this substitution, if any.
+  std::optional<Token> LastFullySubstitutedToken(void) const noexcept;
+
   // Returns the Stmt in the AST that was parsed from the tokens this macro
   // substitution expanded to, if any.
   std::optional<Stmt> CoveredStmt(void) const noexcept;
@@ -653,6 +659,16 @@ class MacroRange {
 
   inline bool empty(void) const noexcept {
     return !Size();
+  }
+
+  // Returns a copy of the first macro in this range.
+  inline std::optional<Macro> Front(void) const noexcept {
+    return empty() ? std::nullopt : std::optional(*begin());
+  }
+
+  // Returns a copy of the last macro in this range.
+  inline std::optional<Macro> Back(void) const noexcept {
+    return empty() ? std::nullopt : std::optional(*(end() - 1));
   }
 
   // Number of nodes in this range.

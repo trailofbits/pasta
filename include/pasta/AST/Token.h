@@ -239,6 +239,9 @@ class Token {
     return impl < that.impl;
   }
 
+  // Returns the next final expansion or file token in the AST after this token
+  std::optional<Token> NextFinalExpansionOrFileToken(void) const noexcept;
+
  private:
   friend class AST;
   friend class ASTImpl;

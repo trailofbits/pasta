@@ -632,6 +632,20 @@ uint64_t Token::Index(void) const {
   }
 }
 
+// Returns the next final expansion or file token in the AST after this token
+std::optional<Token> Token::NextFinalExpansionOrFileToken(void) const noexcept {
+  const auto &tokens = ast->tokens;
+  for (auto i = Index() + 1; i < tokens.size(); i++) {
+    const auto tok_impl = tokens.at(i);
+    const auto tok_impl_role = tok_impl.Role();
+    if (tok_impl_role == TokenRole::kFinalMacroExpansionToken ||
+        tok_impl_role == TokenRole::kFileToken) {
+      return Token(ast, tokens.data() + i);
+    }
+  }
+  return std::nullopt;
+}
+
 // Prefix increment operator.
 TokenIterator &TokenIterator::operator++(void) noexcept {
   ++token.impl;

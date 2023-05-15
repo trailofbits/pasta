@@ -206,21 +206,6 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // contexts of tokens with macro roles.
   void LinkMacroTokenContexts(void);
 
-  // Returns the index of the next final expansion or file token in this AST's
-  // token list
-  inline std::optional<uint64_t>
-      NextFinalExpansionOrFileTokenIndex(const Token &tok) {
-      for (uint64_t i = tok.Index() + 1; i < tokens.size(); i++) {
-          const auto next_tok = tokens.at(i);
-          const auto next_tok_role = next_tok.Role();
-          if (next_tok_role == TokenRole::kFinalMacroExpansionToken ||
-              next_tok_role == TokenRole::kFileToken) {
-              return i;
-          }
-      }
-      return std::nullopt;
-  }
-
  private:
   ASTImpl(void) = delete;
 };

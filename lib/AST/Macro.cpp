@@ -943,7 +943,6 @@ std::optional<Stmt> MacroSubstitution::CoveredStmt(void) const noexcept {
 
   // This determines whether or not to use the semicolon heuristic.
   const bool last_tok_is_semicolon = last_tok->Kind() == TokenKind::kSemi;
-  const uint64_t last_tok_idx = last_tok->Index();
 
   // Walk up the tokens' context tree until we find a Stmt whose first and last
   // tokens are the first and last fully expanded tokens. Start at the first
@@ -955,8 +954,8 @@ std::optional<Stmt> MacroSubstitution::CoveredStmt(void) const noexcept {
     if (const auto first_tok_stmt = Stmt::From(*first_tok_ctx)) {
       const auto first_tok_stmt_begin_tok = first_tok_stmt->BeginToken();
       const auto first_tok_stmt_end_tok = first_tok_stmt->EndToken();
-      const auto next_non_macro_tok_idx =
-        ast->NextFinalExpansionOrFileTokenIndex(first_tok_stmt_end_tok);
+      const auto next_non_macro_tok =
+        first_tok_stmt_end_tok.NextFinalExpansionOrFileToken();
 
       if (*first_tok == first_tok_stmt_begin_tok &&
           // Either the Stmt completely aligns...
@@ -966,8 +965,8 @@ std::optional<Stmt> MacroSubstitution::CoveredStmt(void) const noexcept {
            // the end of the context that the first token belongs to is a
            // semicolon, and is the same token that the expansion ends with.
            (last_tok_is_semicolon &&
-            next_non_macro_tok_idx &&
-            *next_non_macro_tok_idx == last_tok_idx))) {
+            next_non_macro_tok &&
+            *next_non_macro_tok == last_tok))) {
         return first_tok_stmt;
       }
     }
@@ -990,7 +989,6 @@ std::optional<Decl> MacroSubstitution::CoveredDecl(void) const noexcept {
 
   // This determines whether or not to use the semicolon heuristic.
   const bool last_tok_is_semicolon = last_tok->Kind() == TokenKind::kSemi;
-  const uint64_t last_tok_idx = last_tok->Index();
 
   // Walk up the tokens' context tree until we find a Decl whose first and last
   // tokens are the first and last fully expanded tokens. Start at the first
@@ -1002,8 +1000,8 @@ std::optional<Decl> MacroSubstitution::CoveredDecl(void) const noexcept {
     if (const auto first_tok_decl = Decl::From(*first_tok_ctx)) {
       const auto first_tok_decl_begin_tok = first_tok_decl->BeginToken();
       const auto first_tok_decl_end_tok = first_tok_decl->EndToken();
-      const auto next_non_macro_tok_idx =
-        ast->NextFinalExpansionOrFileTokenIndex(first_tok_decl_end_tok);
+      const auto next_non_macro_tok =
+        first_tok_decl_end_tok.NextFinalExpansionOrFileToken();
 
       if (*first_tok == first_tok_decl_begin_tok &&
           // Either the Decl completely aligns...
@@ -1013,8 +1011,8 @@ std::optional<Decl> MacroSubstitution::CoveredDecl(void) const noexcept {
            // the end of the context that the first token belongs to is a
            // semicolon, and is the same token that the expansion ends with.
            (last_tok_is_semicolon &&
-            next_non_macro_tok_idx &&
-            *next_non_macro_tok_idx == last_tok_idx))) {
+            next_non_macro_tok &&
+            *next_non_macro_tok == last_tok))) {
         return first_tok_decl;
       }
     }

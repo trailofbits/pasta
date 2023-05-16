@@ -71,28 +71,24 @@ Stmt::LowestContainingMacroArgument(void) const noexcept {
   // Algorithm:
   // 1. Find the lowest macro argument that the first token in this Stmt was
   //    expanded from.
-  // 2. Check if every other token in the Stmt was also expanded from this
-  //    argument at some point.
+  // 2. Check if the last token in the Stmt was also expanded from this argument
+  //    at some point.
   // 3. If so, then return the argument that the first token was expanded from.
   // 4. Otherwise, find the next-lowest macro argument that the first token was
-  //    expanded from and repeat steps 2 and 3.
-  //    If we reach a point where the first token is no longer expanded from a
-  //    macro argument, then return std::nullopt.
+  //    expanded from and repeat steps 2 and 3. If we reach a point where the
+  //    first token is no longer expanded from a macro argument, then return
+  //    std::nullopt.
+  
+  const auto last_tok = *(Tokens().end() - 1);
   for (auto begin = std::optional(*Tokens().begin()); begin;
        begin = begin->DerivedLocation()) {
-    auto macro_tok = begin->MacroLocation();
-    if (!macro_tok) {
-      continue;
-    }
-
-    auto containing_macro = macro_tok->Parent();
-    if (containing_macro->Kind() == MacroKind::kArgument) {
-      if (std::all_of(
-        Tokens().begin(), Tokens().end(),
-        [&containing_macro](const Token token) {
-          return token.IsDerivedFromMacro(*containing_macro);
-        })) {
-        return MacroArgument::From(containing_macro.value());
+    if (auto macro_tok = begin->MacroLocation()) {
+      if (auto parent = macro_tok->Parent()) {
+        if (parent->Kind() == MacroKind::kArgument) {
+          if (last_tok.IsDerivedFromMacro(*parent)) {
+            return MacroArgument::From(parent.value());
+          }
+        }
       }
     }
   }

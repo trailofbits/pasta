@@ -38,8 +38,11 @@ const char bacon_and_eggs[] = FIZZ_AND(BUZZ);
 #define MUL(X, Y) X * Y
 // PLCSD: ADD covers 1 * 2 + 3 * 4
 // PLCS: 1 * 2 + 3 * 4 is covered by ADD at the lowest level
+// PLCMA: 1 * 2 is contained in argument of parent macro expansion of macro definition ADD argument number 0 X
 // PLCMA: 1 is contained in argument of parent macro expansion of macro definition MUL argument number 0 X
-// PLCMA: 2 is contained in argument of parent macro expansion of macro definition MUL argument number 1 Y
+// PLCMA: 2 is contained in argument of parent macro expansion of macro
+// definition MUL argument number 1 Y
+// PLCMA: 3 * 4 is contained in argument of parent macro expansion of macro definition ADD argument number 1 Y
 // PLCMA: 3 is contained in argument of parent macro expansion of macro definition MUL argument number 0 X
 // PLCMA: 4 is contained in argument of parent macro expansion of macro definition MUL argument number 1 Y
 // PHCS: 1 * 2 + 3 * 4 is contained in ADD at the highest level

@@ -40,6 +40,7 @@ class DefineMacroDirective;
 class Designator;
 class FileToken;
 class FileTokenRange;
+class Macro;
 class MacroToken;
 class PrintedTokenRangeImpl;
 class TemplateArgument;
@@ -204,6 +205,10 @@ class Token {
   // actually ends up being concatenated with `not_`, becoming a different
   // macro, `not_FOO`, which expands to nothing.
   std::optional<DefineMacroDirective> AssociatedMacro(void) const;
+
+  // Returns true if we can follow the token's derived location chain to a token
+  // expanded under the given macro.
+  bool IsDerivedFromMacro(const Macro &macro) const noexcept;
 
   // Return the data associated with this token.
   std::string_view Data(void) const;

@@ -516,6 +516,22 @@ std::optional<DefineMacroDirective> Token::AssociatedMacro(void) const {
   return DefineMacroDirective(ast, &(node_it->second));
 }
 
+// Returns true if we can follow the token's derived location chain to a token
+// expanded under the given macro.
+bool Token::IsDerivedFromMacro(const Macro &macro) const noexcept {
+  for (auto derived_tok = std::optional(*this); derived_tok;
+       derived_tok = derived_tok->DerivedLocation()) {
+    if (auto derived_macro_tok = derived_tok->MacroLocation()) {
+      if (auto derived_macro_parent = derived_macro_tok->Parent()) {
+        if (macro == *derived_macro_parent) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
 // Kind of this token.
 TokenKind Token::Kind(void) const noexcept {
   if (impl) {

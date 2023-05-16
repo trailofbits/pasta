@@ -65,24 +65,6 @@ std::optional<Macro> Stmt::HighestContainingSubstitution(void) const noexcept {
   return std::nullopt;
 }
 
-// Returns true if we can follow the given token's derived locations to a reach
-// a token that has a macro location whose parent is the specified macro.
-inline bool IsTokenDerivedFromMacro(const Token &token, const Macro &macro) {
-  for (auto derived_tok = std::optional(token); derived_tok;
-       derived_tok = derived_tok->DerivedLocation()) {
-    auto macro_tok = derived_tok->MacroLocation();
-    if (!macro_tok) {
-      continue;
-    }
-
-    auto containing_macro = macro_tok->Parent();
-    if (macro == containing_macro.value()) {
-      return true;
-    }
-  }
-  return false;
-}
-
 // Returns the lowest macro argument that contains this Stmt, if any.
 std::optional<MacroArgument>
 Stmt::LowestContainingMacroArgument(void) const noexcept {
@@ -108,7 +90,7 @@ Stmt::LowestContainingMacroArgument(void) const noexcept {
       if (std::all_of(
         Tokens().begin(), Tokens().end(),
         [&containing_macro](const Token token) {
-          return IsTokenDerivedFromMacro(token, containing_macro.value());
+          return token.IsDerivedFromMacro(*containing_macro);
         })) {
         return MacroArgument::From(containing_macro.value());
       }

@@ -26,6 +26,7 @@
 
 #define PRINT_DEFINITIONS 0
 #define PRINT_DERIVED 1
+#define PRINT_DIRECTIVES 0
 #define PRINT_ROLE_COLORS 1
 
 template <typename TokT>
@@ -186,6 +187,7 @@ static void PrintArgGraph(std::ostream &os, const char *name,
 
 static void PrintMacroGraph(std::ostream &os,
                             const pasta::MacroDirective &dir) {
+#if PRINT_DIRECTIVES
   if (!PRINT_DEFINITIONS &&
       dir.Kind() == pasta::MacroKind::kDefineDirective) {
     return;
@@ -281,6 +283,7 @@ has_uses:
     os << "n" << a << ":p" << (i++) << " -> n"
        << reinterpret_cast<uintptr_t>(node.RawMacro()) << ";\n";
   }
+#endif
 }
 
 

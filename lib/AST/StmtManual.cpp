@@ -95,6 +95,139 @@ Stmt::LowestContainingMacroArgument(void) const noexcept {
   return std::nullopt;
 }
 
+// Returns the lowest macro argument that covers this Stmt, if any.
+std::optional<MacroArgument>
+Stmt::LowestCoveringMacroArgument(void) const noexcept {
+  // Algorithm:
+  // 1. Walk down the Stmt's begin token's derivation tree until we reach a
+  //    token that was expanded from a macro argument, and is the first token
+  //    expanded from that argument. The Stmt aligns in the front with this
+  //    macro argument.
+  // 2. If we find such a macro argument, then walk down the Stmt's end token's
+  //    derivation tree until we reach a token that was expanded from a macro
+  //    argument, and is the last token expanded from that argument. The Stmt
+  //    aligns in the back with this macro argument. One extra wrinkle is that,
+  //    if while walking the end token's derivation tree we ever reach a point
+  //    where the begin token and end token are derived from the same token,
+  //    then we have to also check that the begin and end token are the same;
+  //    otherwise we must stop checking for back alignment at this point because
+  //    the begin and end tokens derivation trees have mixed and may fall under
+  //    the same macro argument, even though the begin and end tokens do not
+  //    actually expand from the same argument.
+  // 3. If we cannot find a back-aligned macro argument, then walk down the
+  //    begin token's derivation tree and try to find another front-aligned
+  //    macro argument.
+  // 4. If we cannot find a front-aligned macro argument, then return
+  //    std::nullopt.
+  Token stmt_begin_tok = BeginToken(), stmt_end_tok = EndToken();
+
+  // Start walking down the begin token's derivation tree
+  for (auto begin_tok = std::optional(stmt_begin_tok); begin_tok;
+       begin_tok = begin_tok->DerivedLocation()) {
+    // If the begin token maps to a macro token, then we can check if this macro
+    // token was expanded from an argument.
+    if (std::optional<Macro> begin_macro = begin_tok->MacroLocation()) {
+      // The macro token that the begin token is associated with may have in
+      // turn been expanded from another macro invocation. We handle this case
+      // by walking up this macro token's expansion tree until we reach a macro
+      // argument.
+      for (auto begin_parent = begin_macro->Parent(); begin_parent;
+      begin_parent = begin_parent->Parent()) {
+        if (auto begin_subst = MacroSubstitution::From(*begin_parent)) {
+          // If the macro token's parent is a macro substitution, then we need
+          // to check that this macro substitution's first replacement child is
+          // this macro token; otherwise this macro token is not front-aligned
+          // with its parent.
+          auto first_child = begin_subst->ReplacementChildren().Front();
+          if (first_child == begin_macro) {
+            // If this macro token is front-aligned with its parent, then
+            // continue walking up the tree by setting the current begin token
+            // to its parent.
+            begin_macro = begin_parent;
+          }
+          else {
+            // Otherwise, this macro token is not front-aligned.
+            break;
+          }
+        }
+        else {
+          // If the front macro token was not expanded from a macro
+          // substitution, it may have been expanded from another kind of macro.
+          // In order for it to be front-aligned with a non-substituion macro,
+          // the front macro token must align with the first token in the
+          // macro's regular children (i.e., its body).
+          if (begin_macro == begin_parent->Children().Front()) {
+            // Additionally, if it so happens that this macro token was expanded
+            // from an argument, then we can now check for back-alignment
+            // by following similar logic to front-alignment.
+            if (auto begin_arg = MacroArgument::From(*begin_parent)) {
+              for (auto end_tok = std::optional(stmt_end_tok); end_tok;
+                   end_tok = end_tok->DerivedLocation()) {
+                // Here's the rub: If the begin and end tokens ever converge to
+                // the same derived token, then their derivation trees have
+                // started mixing. This can happen if two separate arguments of
+                // the macro are invocations of the same macro definition. To
+                // see an example, print the macro graph of the following
+                // invocation code snippet:
+
+                // #define ONE 1
+                // #define ADD(x, y) x + y
+                // ADD(ONE, ONE)
+
+                // This isn't a problem if the begin and end tokens were the
+                // same tokens to begin with (then of course their derivation
+                // trees would be the same). Otherwise we should exit early,
+                // since this mixing might cause us to return a false positive.
+
+                // NOTE(bpappas): I am fairly certain that returning here will
+                // prevent false positives, but I am not sure if it will create
+                // false negatives.
+                if (begin_tok == end_tok && stmt_begin_tok != stmt_end_tok) {
+                  break;
+                }
+
+                if (std::optional<Macro> end_macro = end_tok->MacroLocation()) {
+                  for (auto end_parent = end_macro->Parent(); end_parent;
+                       end_parent = end_parent->Parent()) {
+                    if (auto end_subst = MacroSubstitution::From(*end_parent)) {
+                      auto last_child = end_subst->ReplacementChildren().Back();
+                      if (last_child == end_macro) {
+                        end_macro = end_parent;
+                      }
+                      else {
+                        break;
+                      }
+                    }
+                    else {
+                      if (end_macro == end_parent->Children().Back()) {
+                        if (auto end_arg = MacroArgument::From(*end_parent)) {
+                          if (begin_arg == end_arg) {
+                            return begin_arg;
+                          }
+                        }
+                      }
+                      else {
+                        break;
+                      }
+                    }
+                  }
+                }
+              }
+
+            }
+          }
+          else {
+            // Otherwise, this token is not front-aligned.
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  return std::nullopt;
+}
+
 // Returns the lowest macro substitution that covers this Stmt, if any.
 // TODO(bpappas): This does not work if the Stmt's lowest covering substitution
 // is a macro invocation passed to another macro invocation as an argument.

@@ -1152,8 +1152,14 @@ std::optional<::pasta::DeclContext> Decl::LexicalDeclarationContext(void) const 
 }
 
 // 0: Decl::LocalOwningModule
-uint32_t Decl::MaxAlignment(void) const {
+std::optional<uint32_t> Decl::MaxAlignment(void) const {
   auto &self = *const_cast<clang::Decl *>(u.Decl);
+  clang::specific_attr_iterator<clang::AlignedAttr> I(self.attr_begin()), E(self.attr_end());
+  for (; I != E; ++I) {
+    if (I->isAlignmentDependent()) {
+      return std::nullopt;
+    }
+  }
   decltype(auto) val = self.getMaxAlignment();
   return val;
 }
@@ -2036,13 +2042,15 @@ NamespaceDecl::NamespaceDecl(
 PASTA_DEFINE_BASE_OPERATORS(DeclContext, NamespaceDecl)
 PASTA_DEFINE_BASE_OPERATORS(Decl, NamespaceDecl)
 PASTA_DEFINE_BASE_OPERATORS(NamedDecl, NamespaceDecl)
-::pasta::NamespaceDecl NamespaceDecl::AnonymousNamespace(void) const {
+std::optional<::pasta::NamespaceDecl> NamespaceDecl::AnonymousNamespace(void) const {
   auto &self = *const_cast<clang::NamespaceDecl *>(u.NamespaceDecl);
   decltype(auto) val = self.getAnonymousNamespace();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return DeclBuilder::Create<::pasta::NamespaceDecl>(ast, val);
   }
-  throw std::runtime_error("NamespaceDecl::AnonymousNamespace can return nullptr!");
 }
 
 ::pasta::Token NamespaceDecl::BeginToken(void) const {

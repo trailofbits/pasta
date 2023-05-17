@@ -365,7 +365,7 @@ class Decl {
   // LangOpts: (const clang::LangOptions &)
   std::optional<::pasta::DeclContext> LexicalDeclarationContext(void) const;
   // LocalOwningModule: (clang::Module *)
-  uint32_t MaxAlignment(void) const;
+  std::optional<uint32_t> MaxAlignment(void) const;
   enum DeclModuleOwnershipKind ModuleOwnershipKind(void) const;
   ::pasta::Decl MostRecentDeclaration(void) const;
   std::optional<::pasta::Decl> NextDeclarationInContext(void) const;
@@ -839,7 +839,7 @@ class NamespaceDecl : public NamedDecl {
   PASTA_DECLARE_BASE_OPERATORS(DeclContext, NamespaceDecl)
   PASTA_DECLARE_BASE_OPERATORS(Decl, NamespaceDecl)
   PASTA_DECLARE_BASE_OPERATORS(NamedDecl, NamespaceDecl)
-  ::pasta::NamespaceDecl AnonymousNamespace(void) const;
+  std::optional<::pasta::NamespaceDecl> AnonymousNamespace(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::NamespaceDecl CanonicalDeclaration(void) const;
   ::pasta::NamespaceDecl OriginalNamespace(void) const;

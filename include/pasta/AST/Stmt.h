@@ -297,7 +297,6 @@ class Stmt {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(Stmt)
   friend class TokenContext;
   static std::optional<::pasta::Stmt> From(const TokenContext &);
-
   std::optional<::pasta::Macro> HighestContainingSubstitution(void) const noexcept;
   std::optional<::pasta::MacroArgument> LowestContainingMacroArgument(void) const noexcept;
   std::optional<::pasta::Macro> LowestCoveringMacro(::pasta::MacroKind) const noexcept;

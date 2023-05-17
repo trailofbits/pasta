@@ -3378,6 +3378,22 @@ std::optional<::pasta::ValueDecl> Expr::AsBuiltinConstantDeclarationReference(vo
 
 std::optional<::pasta::CXXRecordDecl> Expr::BestDynamicClassType(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
+  const clang::Expr *E = self.getBestDynamicClassTypeExpr();
+  clang::QualType DerivedType = E->getType();
+  if (const clang::PointerType *PTy = DerivedType->getAs<clang::PointerType>()) {
+    DerivedType = PTy->getPointeeType();
+  }
+  if (DerivedType->isDependentType()) {
+    return std::nullopt;
+  }
+  const clang::RecordType *Ty = DerivedType->getAs<clang::RecordType>();
+  if (!Ty) {
+    return std::nullopt;
+  }
+  clang::Decl *D = Ty->getDecl();
+  if (!clang::isa<clang::CXXRecordDecl>(D)) {
+    return std::nullopt;
+  }
   decltype(auto) val = self.getBestDynamicClassType();
   if (!val) {
     return std::nullopt;

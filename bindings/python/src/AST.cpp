@@ -1,4 +1,5 @@
 #include <pasta/AST/AST.h>
+#include <pasta/AST/Token.h>
 
 #include "bindings.h"
 
@@ -17,6 +18,11 @@ void RegisterAST(py::module_ &m) {
     .def_property_readonly("parsed_files", &AST::ParsedFiles);
 
   py::class_<Token>(m, "Token");
+  py::class_<TokenContext>(m, "TokenContext");
+  py::class_<TokenRange>(m, "TokenRange");
   py::class_<Macro>(m, "Macro");
+
+  py::class_<CXXBaseSpecifier>(m, "CXXBaseSpecifier");
+  py::class_<TemplateParameterList>(m, "TemplateParameterList");
 }
 }  // namespace pasta

@@ -516,6 +516,22 @@ std::optional<DefineMacroDirective> Token::AssociatedMacro(void) const {
   return DefineMacroDirective(ast, &(node_it->second));
 }
 
+// Returns true if we can follow the token's derived location chain to a token
+// expanded under the given macro.
+bool Token::IsDerivedFromMacro(const Macro &macro) const noexcept {
+  for (auto derived_tok = std::optional(*this); derived_tok;
+       derived_tok = derived_tok->DerivedLocation()) {
+    if (auto derived_macro_tok = derived_tok->MacroLocation()) {
+      if (auto derived_macro_parent = derived_macro_tok->Parent()) {
+        if (macro == *derived_macro_parent) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
 // Kind of this token.
 TokenKind Token::Kind(void) const noexcept {
   if (impl) {
@@ -697,6 +713,18 @@ ptrdiff_t TokenIterator::operator-(const TokenIterator &that) const noexcept {
 // Number of tokens in this range.
 size_t TokenRange::Size(void) const noexcept {
   return static_cast<size_t>(after_last - first);
+}
+
+// If this range is not empty, returns the first token. Otherwise returns
+// std::nullopt.
+std::optional<Token> TokenRange::Front(void) const noexcept {
+  return empty() ? std::nullopt : At(0);
+}
+
+// If this range is not empty, returns the last token. Otherwise returns
+// std::nullopt.
+std::optional<Token> TokenRange::Back(void) const noexcept {
+  return empty() ? std::nullopt : At(Size() - 1);
 }
 
 // Return the `index`th token in this range. If `index` is too big, then

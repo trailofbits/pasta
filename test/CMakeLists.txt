@@ -23,6 +23,7 @@ set(PASTA_TEST_DEPENDS
   print-highest-containing-substitution
   print-lowest-containing-macro-argument
   print-lowest-covered-stmt-or-decl
+  print-lowest-covering-macro-argument
   print-lowest-covering-substitution
 )
 

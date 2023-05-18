@@ -40,6 +40,7 @@ class DefineMacroDirective;
 class Designator;
 class FileToken;
 class FileTokenRange;
+class Macro;
 class MacroToken;
 class PrintedTokenRangeImpl;
 class TemplateArgument;
@@ -205,6 +206,10 @@ class Token {
   // macro, `not_FOO`, which expands to nothing.
   std::optional<DefineMacroDirective> AssociatedMacro(void) const;
 
+  // Returns true if we can follow the token's derived location chain to a token
+  // expanded under the given macro.
+  bool IsDerivedFromMacro(const Macro &macro) const noexcept;
+
   // Return the data associated with this token.
   std::string_view Data(void) const;
 
@@ -365,6 +370,14 @@ class TokenRange {
   inline bool empty(void) const noexcept {
     return !Size();
   }
+
+  // If this range is not empty, returns the first token. Otherwise returns
+  // std::nullopt.
+  std::optional<Token> Front(void) const noexcept;
+
+  // If this range is not empty, returns the last token. Otherwise returns
+  // std::nullopt.
+  std::optional<Token> Back(void) const noexcept;
 
   // Number of tokens in this range.
   size_t Size(void) const noexcept;

@@ -371,6 +371,14 @@ class TokenRange {
     return !Size();
   }
 
+  // If this range is not empty, returns the first token. Otherwise returns
+  // std::nullopt.
+  std::optional<Token> Front(void) const noexcept;
+
+  // If this range is not empty, returns the last token. Otherwise returns
+  // std::nullopt.
+  std::optional<Token> Back(void) const noexcept;
+
   // Number of tokens in this range.
   size_t Size(void) const noexcept;
 

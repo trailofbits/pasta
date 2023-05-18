@@ -715,6 +715,18 @@ size_t TokenRange::Size(void) const noexcept {
   return static_cast<size_t>(after_last - first);
 }
 
+// If this range is not empty, returns the first token. Otherwise returns
+// std::nullopt.
+std::optional<Token> TokenRange::Front(void) const noexcept {
+  return empty() ? std::nullopt : At(0);
+}
+
+// If this range is not empty, returns the last token. Otherwise returns
+// std::nullopt.
+std::optional<Token> TokenRange::Back(void) const noexcept {
+  return empty() ? std::nullopt : At(Size() - 1);
+}
+
 // Return the `index`th token in this range. If `index` is too big, then
 // return nothing.
 std::optional<Token> TokenRange::At(size_t index) const noexcept {

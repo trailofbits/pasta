@@ -78,15 +78,20 @@ Stmt::LowestContainingMacroArgument(void) const noexcept {
   //    expanded from and repeat steps 2 and 3. If we reach a point where the
   //    first token is no longer expanded from a macro argument, then return
   //    std::nullopt.
-  
-  const auto last_tok = *(Tokens().end() - 1);
-  for (auto begin = std::optional(*Tokens().begin()); begin;
-       begin = begin->DerivedLocation()) {
-    if (auto macro_tok = begin->MacroLocation()) {
-      if (auto parent = macro_tok->Parent()) {
-        if (parent->Kind() == MacroKind::kArgument) {
-          if (last_tok.IsDerivedFromMacro(*parent)) {
-            return MacroArgument::From(parent.value());
+  const auto tokens = Tokens();
+  if (const auto first_tok = tokens.Front()) {
+    // Check that the first token is not null
+    if (!*first_tok) {
+      return std::nullopt;
+    }
+    auto last_tok = *tokens.Back();
+    for (auto begin = first_tok; begin; begin = begin->DerivedLocation()) {
+      if (auto macro_tok = begin->MacroLocation()) {
+        if (auto parent = macro_tok->Parent()) {
+          if (parent->Kind() == MacroKind::kArgument) {
+            if (last_tok.IsDerivedFromMacro(*parent)) {
+              return MacroArgument::From(parent.value());
+            }
           }
         }
       }
@@ -120,6 +125,11 @@ Stmt::LowestCoveringMacroArgument(void) const noexcept {
   // 4. If we cannot find a front-aligned macro argument, then return
   //    std::nullopt.
   Token stmt_begin_tok = BeginToken(), stmt_end_tok = EndToken();
+
+  // Check that the first token is not null
+  if (!stmt_begin_tok) {
+    return std::nullopt;
+  }
 
   // Start walking down the begin token's derivation tree
   for (auto begin_tok = std::optional(stmt_begin_tok); begin_tok;

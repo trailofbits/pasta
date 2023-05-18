@@ -157,7 +157,8 @@ int main(int argc, char *argv[]) {
   signal(SIGSEGV, OnSigsegv);
 
   pasta::InitPasta initializer;
-  pasta::FileManager fm(pasta::FileSystem::CreateNative());
+  auto fs = pasta::FileSystem::CreateNative();
+  pasta::FileManager fm(fs);
   auto maybe_compiler =
     pasta::Compiler::CreateHostCompiler(fm, pasta::TargetLanguage::kCXX);
   if (!maybe_compiler.Succeeded()) {
@@ -165,8 +166,7 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
-  auto maybe_cwd = pasta::FileSystem::From(maybe_compiler.Value())
-    ->CurrentWorkingDirectory();
+  auto maybe_cwd = fs->CurrentWorkingDirectory();
   if (!maybe_cwd.Succeeded()) {
     std::cerr << maybe_compiler.TakeError() << std::endl;
     return EXIT_FAILURE;

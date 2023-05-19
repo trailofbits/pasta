@@ -953,14 +953,13 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       Expand(decl->getInit()->getSourceRange());
     }
 
-//    // If this is an actual variable decl and not a derived type then go
-//    // searching for a semicolon.
-//    TokenImpl *tok_loc = ast.RawTokenAt(decl->getLocation());
-//    if (tok_loc && !decl->isImplicit()) {
-//      if (decl->getKind() == clang::Decl::Kind::Var) {
-//        ExpandToTrailingToken(tok_loc, clang::tok::semi);
-//      }
-//    }
+    // If this is an actual variable decl and not a derived type then go
+    // searching for a semicolon.
+    TokenImpl *tok_loc = ast.RawTokenAt(decl->getLocation());
+    if (tok_loc && !decl->isImplicit() &&
+        decl->getKind() == clang::Decl::Kind::Var) {
+      ExpandToTrailingToken(tok_loc, clang::tok::semi);
+    }
 
     // If it's an array then we need to expand to include the `[]`, but those
     // are only known in the `TypeLoc`.

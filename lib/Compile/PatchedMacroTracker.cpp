@@ -2389,6 +2389,7 @@ void PatchedMacroTracker::DoAfterMacroParameterUse(
   assert(param->nodes.empty());
   assert(!param->use_nodes.empty());
   assert(-1 <= param->prev_tok_index);
+  assert(std::holds_alternative<MacroNodeImpl *>(param->param_in_definition));
 
   const clang::Token *tok = &tok_;
 
@@ -2423,8 +2424,8 @@ void PatchedMacroTracker::DoAfterMacroParameterUse(
   if (!param->failed) {
 
     // Collect the argument tokens, and then map the locations of the parameters
-    // to the parameter and the location in the `Parameter::argument_toks` of the
-    // token.
+    // to the parameter and the location in the `Parameter::argument_toks` of
+    // the token.
     for (auto i = static_cast<unsigned>(param->prev_tok_index + 1);
          i < num_tokens && !tok[i].is(clang::tok::eof); ++i) {
       DoToken(tok[i], 0);

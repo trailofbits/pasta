@@ -250,59 +250,134 @@ Stmt::LowestCoveringMacroArgument(void) const noexcept {
 }
 
 // Returns the lowest macro substitution that covers this Stmt, if any.
-// TODO(bpappas): This does not work if the Stmt's lowest covering substitution
-// is a macro invocation passed to another macro invocation as an argument.
 std::optional<Macro> Stmt::LowestCoveringSubstitution(void) const noexcept {
-  const Token begin_tok = BeginToken(), end_tok = EndToken();
-  const std::optional<pasta::MacroToken>
-    begin_macro_tok = begin_tok.MacroLocation(),
-    end_macro_tok = end_tok.MacroLocation();
-  std::optional<Macro> begin_macro = std::nullopt, end_macro = std::nullopt;
+  // The big idea is that we want to find the macro substitution that aligns in
+  // the front and back with the given statement. The catch is that a macro
+  // substitution might contain nested substitutions, e.g. argument expansions
+  // or nested expansions. Also, we should match statements which were expanded
+  // from macros containing a trailing semicolon.
 
-  // Walk up the beginning token's expansion tree until we either reach the root
-  // of the tree, or the macro that the first token was expanded from is equal
-  // to the macro that the last token was expanded from.
-  for (begin_macro = begin_macro_tok ? begin_macro_tok->Parent() : std::nullopt;
-       begin_macro; begin_macro = begin_macro->Parent()) {
-    auto begin_sub = (begin_macro
-                      ? MacroSubstitution::From(*begin_macro)
-                      : std::nullopt);
-    auto begin_sub_first_tok = (begin_sub
-                                ? begin_sub->FirstFullySubstitutedToken()
-                                : std::nullopt);
-    // Front alignment: Check that the first token of the substitution that that
-    // the first token in the Stmt was expanded from is the first token in the
-    // substitution.
-    if (begin_sub_first_tok && begin_tok == *begin_sub_first_tok) {
-    // Walk up the ending token's expansion tree
-      for (end_macro = end_macro_tok ? end_macro_tok->Parent() : std::nullopt;
-           end_macro; end_macro = end_macro->Parent()) {
-        auto end_sub = (end_macro
-                        ? MacroSubstitution::From(*end_macro)
-                        : std::nullopt);
-        auto end_sub_last_tok = (end_sub
-                                 ? end_sub->LastFullySubstitutedToken()
-                                 : std::nullopt);
-        auto end_sub_last_tok_is_semicolon =
-          end_sub_last_tok && end_sub_last_tok->Kind() == TokenKind::kSemi;
+  // Algorithm:
+  // 1. To get the lowest substitution, we first walk the first token's derived
+  //    token chain from the initial macro use token to the final expansion
+  //    token.
+  // 2. Now walk up this token's expansion tree. If we encounter a macro
+  //    substitution, check that this token is the first in the macro's
+  //    replacement list; otherwise check if this token is the first token in
+  //    the macro's body. Whichever check we do, if it fails then we keep
+  //    walking up the token derivation chain, and repeat this step. If it
+  //    succeeds, then we can continue to the next step.
+  // 3. Walk up the last token's derived token chain from the initial macro use
+  //    token to the final macro expansion token.
+  // 4. Walk up the last derived token's derivation tree. If the last token is
+  //    ever derived from the same token that the first token is derived from,
+  //    then exit this iteration early to avoid false positives (see
+  //    LowestCoveringMacroArgument()). If we encounter a macro substitution,
+  //    check that this token is the last in the macro's replacement list;
+  //    otherwise check if this token is the last token in the macro's body.
+  //    Whichever check we do, if it fails then we keep walking up the token
+  //    derivation chain, and repeat this step. To heuristically match macro
+  //    substitutions containing trailing semicolons, also pass this check if
+  //    the next final expansion or file token after the last token is a
+  //    semicolon, and the last token in the macro substitution's replacement
+  //    list is that same semicolon. If the check succeeds, and the macro
+  //    substitution that the statement's firsts token aligns with is the same
+  //    as the one that the statement's last token aligns with, then return that
+  //    substitution.
+  // 5. If we have walked the first token's entire derivation chain and not yet
+  //    found a match, then return std::nullopt.
 
-        // Back alignment: Check that the last token of the substitution that
-        // that the last token in the Stmt was expanded from is the last token
-        // in the substitution.
-        if ((end_sub_last_tok && end_tok == *end_sub_last_tok) ||
-            // Heuristic for aligning expansions that end with a semicolon
-            end_sub_last_tok_is_semicolon) {
-          // If the beginning and ending are aligned, then all that's left to do
-          // is to check that they align with the same macro.
-          if (begin_macro == end_macro) {
-            return begin_macro;
+  // Get the first (begin) token's derivation chain
+  Token b_tok = BeginToken();
+  if (!b_tok) {
+    return std::nullopt;
+  }
+  auto b_tok_deriv_chain = b_tok.DerivationChain();
+  std::reverse(b_tok_deriv_chain.begin(), b_tok_deriv_chain.end());
+
+  // Get the last (end) token's derivation chain
+  Token e_tok = EndToken();
+  auto e_tok_deriv_chain = e_tok.DerivationChain();
+  std::reverse(e_tok_deriv_chain.begin(), e_tok_deriv_chain.end());
+
+  // Get the token after the last token for the heuristic check
+  auto tok_after_e_tok = e_tok.NextFinalExpansionOrFileToken();
+  bool semi = tok_after_e_tok && tok_after_e_tok->Kind() == TokenKind::kSemi;
+
+  // Walk the first token's derivation chain
+  for (auto b_deriv : b_tok_deriv_chain) {
+    std::optional<Macro> b_macro = b_deriv.MacroLocation();
+    // Check that the first token was expanded from a macro
+    if (!b_macro) {
+      continue;
+    }
+    // Walk up the first token's expansion tree
+    for (auto b_parent = b_macro->Parent(); b_parent;
+         b_macro = *b_parent, b_parent = b_parent->Parent()) {
+      auto b_parent_sub = MacroSubstitution::From(*b_parent);
+      if (!b_parent_sub) {
+        // If the first token was not expanded from a macro substitution, check
+        // if this token is the first in its parent's body
+        if (b_macro != b_parent->Children().Front()) {
+          break;
+        }
+        continue;
+      }
+      // If the first token was expanded from a macro substitution, check if
+      // this token is the first in its parent's replacement list
+      if (b_macro != b_parent_sub->ReplacementChildren().Front()) {
+        break;
+      }
+      // NOTE(bpappas): If we want arguments to align with their callers, and
+      // not their arguments, then uncomment the following check
+
+      // if (b_parent->Kind() != MacroKind::kExpansion) { continue; }
+
+      // By this point we can be sure that the token front-aligns with its
+      // immediate parent substitution, and can start walking the end token's
+      // derivation chain. We follow similar logic as when walking the front
+      // token's derivation chain.
+      for (auto e_deriv : e_tok_deriv_chain) {
+        // Check for mixed derivation trees, and exit this loop early if so
+        if (b_deriv == e_deriv && b_tok != e_tok) {
+          break;
+        }
+        std::optional<Macro> e_macro = e_deriv.MacroLocation();
+        if (!e_macro) {
+          continue;
+        }
+        for (auto e_parent = e_macro->Parent(); e_parent;
+             e_macro = *e_parent, e_parent = e_parent->Parent()) {
+          auto e_parent_sub = MacroSubstitution::From(*e_parent);
+          if (!e_parent_sub) {
+            if (e_macro != e_parent->Children().Back()) {
+              break;
+            }
+            continue;
+          }
+          auto parent_sub_last_tok = e_parent_sub->LastFullySubstitutedToken();
+          if (!(e_macro == e_parent_sub->ReplacementChildren().Back()
+                // Heuristic check
+                || (semi && tok_after_e_tok == parent_sub_last_tok))) {
+            break;
+          }
+          // NOTE(bpappas): If we want arguments to align with their callers,
+          // and not their arguments, then uncomment the following check
+
+          // if (ep->Kind() != MacroKind::kExpansion) { continue; }
+
+          // By this point we cna be sure that the token back-aligns with its
+          // immediate parent substitution. All that's left to check is if the
+          // first and last tokens in the statement align with the same
+          // substitution
+          if (b_parent == e_parent) {
+            return b_parent;
           }
         }
       }
     }
   }
 
-  // Otherwise, return std::nullopt.
   return std::nullopt;
 }
 

@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <limits>
+#include <vector>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wbitfield-enum-conversion"
@@ -437,6 +438,19 @@ std::optional<Token> Token::DerivedLocation(void) const {
   }
 }
 
+// Follow this token's derived token list and accumulate results along the
+  // way. The result vector's first element is this token, and the last element
+  // is the first token this token was derived from.
+std::vector<Token> Token::DerivationChain(void) const {
+  std::optional<Token> cur = std::optional(*this);
+  std::vector<Token> derivation_chain;
+  do {
+    derivation_chain.push_back(*cur);
+    cur = cur->DerivedLocation();
+  } while (cur.has_value());
+  return derivation_chain;
+}
+
 // Location of the token in a file.
 std::optional<FileToken> Token::FileLocation(void) const {
   if (!impl) {
@@ -648,7 +662,7 @@ uint64_t Token::Index(void) const {
   }
 }
 
-// Returns the next final expansion or file token in the AST after this token
+// Returns the first final expansion or file token in the AST after this token.
 std::optional<Token> Token::NextFinalExpansionOrFileToken(void) const noexcept {
   const auto &tokens = ast->tokens;
   for (auto i = Index() + 1; i < tokens.size(); i++) {
@@ -657,6 +671,26 @@ std::optional<Token> Token::NextFinalExpansionOrFileToken(void) const noexcept {
     if (tok_impl_role == TokenRole::kFinalMacroExpansionToken ||
         tok_impl_role == TokenRole::kFileToken) {
       return Token(ast, tokens.data() + i);
+    }
+  }
+  return std::nullopt;
+}
+
+// Returns the first final expansion or file token in the AST before this token.
+std::optional<Token> Token::PrevFinalExpansionOrFileToken(void) const noexcept {
+  uint64_t i = Index();
+  // If this is the first token in the AST, then no token precedes it. Return
+  // early to avoid accidental integer underflow.
+  if (i == 0) {
+    return std::nullopt;
+  }
+  const auto &tokens = ast->tokens;
+  for (; i > 0; i--) {
+    const auto tok_impl = tokens.at(i - 1);
+    const auto tok_impl_role = tok_impl.Role();
+    if (tok_impl_role == TokenRole::kFinalMacroExpansionToken ||
+        tok_impl_role == TokenRole::kFileToken) {
+      return Token(ast, tokens.data() + (i - 1));
     }
   }
   return std::nullopt;

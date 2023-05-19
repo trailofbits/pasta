@@ -184,6 +184,11 @@ class Token {
   // Find the token from which this token was derived.
   std::optional<Token> DerivedLocation(void) const;
 
+  // Follow this token's derived token list and accumulate results along the
+  // way. The result vector's first element is this token, and the last element
+  // is the first token this token was derived from.
+  std::vector<Token> DerivationChain(void) const;
+
   // Location of the token in a file.
   std::optional<FileToken> FileLocation(void) const;
 
@@ -244,8 +249,13 @@ class Token {
     return impl < that.impl;
   }
 
-  // Returns the next final expansion or file token in the AST after this token
+  // Returns the first final expansion or file token in the AST after this
+  // token.
   std::optional<Token> NextFinalExpansionOrFileToken(void) const noexcept;
+
+  // Returns the first final expansion or file token in the AST before this
+  // token.
+  std::optional<Token> PrevFinalExpansionOrFileToken(void) const noexcept;
 
  private:
   friend class AST;

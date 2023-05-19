@@ -999,9 +999,20 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       return;
     }
 
+//    std::cerr << "FUNC: " << func->getName().str() << '\n';
+
     clang::SourceRange param_range = func->getParametersSourceRange();
     TokenImpl *params_begin = ast.RawTokenAt(param_range.getBegin());
     TokenImpl *params_end = ast.RawTokenAt(param_range.getEnd());
+
+    // If there's an ellipsis loc, then that will have influenced the parameter
+    // source range, but we should never trust it, as the ellipsis location is
+    // taken from the function type itself, which is subject to deduplication,
+    // and thus may point to some other place.
+    auto has_ellipsis = func->getEllipsisLoc().isValid();
+    if (has_ellipsis) {
+      params_end = nullptr;
+    }
 
     // Get the range of the parameter list. We might need to convert these to be
     // sane.
@@ -1026,9 +1037,23 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       std::tie(params_begin, params_end) = GetMatching(params_end);
     }
 
+    // This happens with the following code extracted from cURL:
+    //
+    //    struct Curl_easy {};
+    //    void Curl_infof(struct Curl_easy *, const char *fmt, ...);
+    //    void Curl_failf(struct Curl_easy *, const char *fmt, ...);
+    //
+    // The general issue ends up being the `...`, which is stored in the
+    // `FunctionProtoType`, which is subject to type-based deduplication.
     if (params_begin && params_end && params_end < params_begin) {
       params_begin = nullptr;
       params_end = nullptr;
+    }
+
+    if (TokenImpl *func_name_tok = ast.RawTokenAt(func->getLocation())) {
+      if (!params_begin || params_begin < func_name_tok) {
+        params_begin = FindNext(func_name_tok, clang::tok::l_paren);
+      }
     }
 
     // NOTE(pag): In the XNU kernel, we've observed cases where the parameter
@@ -1037,7 +1062,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     //            paren for `panic`.
     TokenImpl *nearer_params_end = nullptr;
     std::tie(params_begin, nearer_params_end) = GetMatching(params_begin);
-    if (nearer_params_end < params_end) {
+    if (nearer_params_end < params_end || !params_end) {
       params_end = nearer_params_end;
     }
 
@@ -1070,7 +1095,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       return;
     }
 
-//    std::cerr << decl->getName().str() << '\n';
+//    std::cerr << "NAME: " << decl->getName().str() << '\n';
 //
 //    for (auto t = params_begin; t <= params_end; ++t) {
 //      std::cerr << t->Data(ast) << ' ';
@@ -1087,7 +1112,14 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     for (; i <= param_index; ++i) {
       begin_tok = &(end_tok[1]);  // Skip the `(` or the `,`.
       if ((i + 1) == num_params) {
-        end_tok = params_end;
+
+        // The ellipsis can be on its own after a comma, or directly after
+        // the variable, e.g. `a, ...` vs. `a...`.
+        if (has_ellipsis) {
+          end_tok = FindNext(begin_tok, clang::tok::ellipsis);
+        } else {
+          end_tok = params_end;
+        }
       } else {
         end_tok = FindNext(begin_tok, clang::tok::comma);
       }

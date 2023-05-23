@@ -35,6 +35,7 @@
 namespace pasta {
 class Macro;
 class MacroArgument;
+enum class MacroKind : unsigned char;
 
 class StmtVisitor {
  public:
@@ -299,8 +300,7 @@ class Stmt {
 
   std::optional<::pasta::Macro> HighestContainingSubstitution(void) const noexcept;
   std::optional<::pasta::MacroArgument> LowestContainingMacroArgument(void) const noexcept;
-  std::optional<::pasta::MacroArgument> LowestCoveringMacroArgument(void) const noexcept;
-  std::optional<::pasta::Macro> LowestCoveringSubstitution(void) const noexcept;
+  std::optional<::pasta::Macro> LowestCoveringMacro(::pasta::MacroKind) const noexcept;
 
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, AbstractConditionalOperator)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, AddrLabelExpr)

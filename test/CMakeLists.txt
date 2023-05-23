@@ -23,8 +23,7 @@ set(PASTA_TEST_DEPENDS
   print-highest-containing-substitution
   print-lowest-containing-macro-argument
   print-lowest-covered-stmt-or-decl
-  print-lowest-covering-macro-argument
-  print-lowest-covering-substitution
+  print-lowest-covering-macro
 )
 
 add_lit_testsuite(check-pasta "Running the PASTA regression tests"

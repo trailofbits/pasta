@@ -34,13 +34,69 @@ void PrintTokensTo(std::iostream &s, const pasta::TokenRange &tokens) {
   }
 }
 
-class StmtPrintHighestContainingSubstitutionFinder final : public pasta::StmtVisitor {
+void
+PrintCovering(const pasta::Stmt &stmt, const pasta::MacroArgument &arg) {
+  std::stringstream ss;
+  PrintTokensTo(ss, stmt.Tokens());
+  ss << " is covered by argument ";
+  const auto parent = arg.Parent();
+  if (parent) {
+    ss << "of parent macro ";
+    const auto expansion = pasta::MacroExpansion::From(*parent);
+    if (expansion) {
+      ss << "expansion ";
+      const auto definition = expansion->Definition();
+      if (definition) {
+        ss << "of macro definition ";
+        const auto definition_name = definition->Name();
+        if (definition_name) {
+          ss << definition_name->Data() << ' ';
+        }
+        else {
+          ss << "<unnamed> ";
+        }
+        ss << "argument number ";
+        ss << arg.Index() << ' ';
+        const auto index = arg.Index();
+        const auto parameter = definition->Parameters().At(index);
+        if (parameter and parameter->BeginToken()) {
+          ss << parameter->BeginToken()->Data();
+        }
+        else {
+          ss << "<unnamed>";
+        }
+      }
+      else {
+        ss << "that has no definition";
+      }
+    }
+    else {
+      ss << "that is not an expansion";
+    }
+  }
+  else {
+    ss << "that is an orphan";
+  }
+  std::cout << ss.str() << "\n";
+}
+
+void
+PrintCovering(const pasta::Stmt &stmt, const pasta::MacroSubstitution &sub) {
+  std::stringstream ss;
+  PrintTokensTo(ss, stmt.Tokens());
+  ss << " is covered by ";
+  const auto name = sub.BeginToken()->Data();
+  ss << name << " at the lowest level";
+  std::cout << ss.str() << "\n";
+}
+
+class StmtPrintLowestCoveringMacro final : public pasta::StmtVisitor {
 public:
   std::ostream &os;
 
-  virtual ~StmtPrintHighestContainingSubstitutionFinder(void) = default;
+  virtual ~StmtPrintLowestCoveringMacro(void) = default;
 
-  explicit StmtPrintHighestContainingSubstitutionFinder(std::ostream &os_) : os(os_) {}
+  explicit StmtPrintLowestCoveringMacro(std::ostream &os_) : os(os_) {}
 
   void VisitStmt(const pasta::Stmt &stmt) {
     // NOTE(bpappas): Don't visit these kinds of expressions to avoid printing
@@ -49,14 +105,15 @@ public:
     // print their tokens, and then their immediate childrens' tokens.
     if (stmt.Kind() != pasta::StmtKind::kImplicitCastExpr
         && stmt.Kind() != pasta::StmtKind::kImplicitValueInitExpr) {
-      if (const auto sub = stmt.LowestCoveringSubstitution()) {
-        std::stringstream ss;
-        PrintTokensTo(ss, stmt.Tokens());
-        ss << " is covered by ";
-        assert(sub->BeginToken().has_value());
-        const auto name = sub->BeginToken()->Data();
-        ss << name << " at the lowest level";
-        std::cout << ss.str() << "\n";
+      if (auto macro = stmt.LowestCoveringMacro(pasta::MacroKind::kExpansion)) {
+        PrintCovering(stmt, *pasta::MacroExpansion::From(*macro));
+      }
+      if (auto macro =
+          stmt.LowestCoveringMacro(pasta::MacroKind::kParameterSubstitution)) {
+        PrintCovering(stmt, *pasta::MacroParameterSubstitution::From(*macro));
+      }
+      if (auto macro = stmt.LowestCoveringMacro(pasta::MacroKind::kArgument)) {
+        PrintCovering(stmt, *pasta::MacroArgument::From(*macro));
       }
     }
     for (const auto &child : stmt.Children()) {
@@ -65,13 +122,13 @@ public:
   }
 };
 
-class DeclPrintHighestContainingSubstitutionFinder final : public pasta::DeclVisitor {
+class DeclPrintLowestCoveringMacro final : public pasta::DeclVisitor {
 public:
   std::ostream &os;
 
-  virtual ~DeclPrintHighestContainingSubstitutionFinder(void) = default;
+  virtual ~DeclPrintLowestCoveringMacro(void) = default;
 
-  explicit DeclPrintHighestContainingSubstitutionFinder(std::ostream &os_) : os(os_) {}
+  explicit DeclPrintLowestCoveringMacro(std::ostream &os_) : os(os_) {}
 
   void VisitDeclContext(const pasta::DeclContext &dc) {
     for (const auto &decl : dc.AlreadyLoadedDeclarations()) {
@@ -88,7 +145,7 @@ public:
     // local ones anyway inside function declaration contexts.
     if (!decl.IsLocalVariableDeclaration()) {
       if (auto initializer = decl.Initializer()) {
-        StmtPrintHighestContainingSubstitutionFinder finder(os);
+        StmtPrintLowestCoveringMacro finder(os);
         finder.Accept(*initializer);
       }
     }
@@ -96,7 +153,7 @@ public:
 
   void VisitFunctionDecl(const pasta::FunctionDecl &decl) final {
     if (auto body = decl.Body()) {
-      StmtPrintHighestContainingSubstitutionFinder finder(os);
+      StmtPrintLowestCoveringMacro finder(os);
       finder.Accept(*body);
     }
     VisitDeclContext(decl);
@@ -104,8 +161,8 @@ public:
 };
 
 
-static void PrintHighestContainingSubstitutions(pasta::AST ast) {
-  DeclPrintHighestContainingSubstitutionFinder finder(std::cout);
+static void PrintLowestCoveringMacros(pasta::AST ast) {
+  DeclPrintLowestCoveringMacro finder(std::cout);
   finder.Accept(ast.TranslationUnit());
 }
 
@@ -163,7 +220,7 @@ int main(int argc, char *argv[]) {
       return EXIT_FAILURE;
     }
     else {
-      PrintHighestContainingSubstitutions(maybe_ast.TakeValue());
+      PrintLowestCoveringMacros(maybe_ast.TakeValue());
     }
   }
 

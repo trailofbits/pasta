@@ -1,26 +1,26 @@
 // RUN: print-highest-containing-substitution %s \
 // RUN: | FileCheck %s -check-prefix=PHCS
 // RUN: print-lowest-covered-stmt-or-decl %s | FileCheck %s -check-prefix=PLCSD
-// RUN: print-lowest-covering-substitution %s | FileCheck %s -check-prefix=PLCS
+// RUN: print-lowest-covering-macro %s | FileCheck %s -check-prefix=PLCM
 
 // Simple expression macros
 #define ONE 1
 // PLCSD: ONE covers 1
 // PHCS: 1 is contained in ONE at the highest level
-// PLCS: 1 is covered by ONE at the lowest level
+// PLCM: 1 is covered by ONE at the lowest level
 int one = ONE;
 
 #define A 'A'
 // PLCSD: A covers 'A'
 // PHCS: 'A' is contained in A at the highest level
-// PLCS: 'A' is covered by A at the lowest level
+// PLCM: 'A' is covered by A at the lowest level
 char a = A;
 
 #define NEG_ONE -1
 // PLCSD: NEG_ONE covers - 1
 // PHCS: - 1 is contained in NEG_ONE
 // PHCS: 1 is contained in NEG_ONE
-// PLCS: - 1 is covered by NEG_ONE at the lowest level
+// PLCM: - 1 is covered by NEG_ONE at the lowest level
 int negative_one = NEG_ONE;
 
 #define NOTHING
@@ -34,12 +34,12 @@ int nothing = NOTHING 0;
 // PLCSD: MID covers 1 + 1
 // PLCSD: INNER covers 1
 // PLCSD: INNER covers 1
-// PLCS: 1 + 1 is covered by MID at the lowest level
-// PLCS: 1 is covered by INNER at the lowest level
-// PLCS: 1 is covered by INNER at the lowest level
-// PLCS: 2 + 1 + 1 is covered by OUTER at the lowest level
-// PLCS: 1 is covered by INNER at the lowest level
-// PLCS: 1 is covered by INNER at the lowest level
+// PLCM: 1 + 1 is covered by MID at the lowest level
+// PLCM: 1 is covered by INNER at the lowest level
+// PLCM: 1 is covered by INNER at the lowest level
+// PLCM: 2 + 1 + 1 is covered by OUTER at the lowest level
+// PLCM: 1 is covered by INNER at the lowest level
+// PLCM: 1 is covered by INNER at the lowest level
 // PHCS: 1 + 1 is contained in MID
 // PHCS: 1 is contained in MID 
 // PHCS: 1 is contained in MID
@@ -62,10 +62,10 @@ int outer_1 = OUTER;
 // PLCSD: MID_SAFE covers ( 1 + 1 )
 // PLCSD: INNER covers 1
 // PLCSD: INNER covers 1
-// PLCS: ( 2 + ( 1 + 1 ) ) is covered by OUTER_SAFE at the lowest level
-// PLCS: ( 1 + 1 ) is covered by MID_SAFE at the lowest level
-// PLCS: 1 is covered by INNER at the lowest level
-// PLCS: 1 is covered by INNER at the lowest level
+// PLCM: ( 2 + ( 1 + 1 ) ) is covered by OUTER_SAFE at the lowest level
+// PLCM: ( 1 + 1 ) is covered by MID_SAFE at the lowest level
+// PLCM: 1 is covered by INNER at the lowest level
+// PLCM: 1 is covered by INNER at the lowest level
 // PHCS: ( 2 + ( 1 + 1 ) ) is contained in OUTER_SAFE at the highest level
 // PHCS: 2 + ( 1 + 1 ) is contained in OUTER_SAFE at the highest level
 // PHCS: 2 is contained in OUTER_SAFE at the highest level
@@ -140,13 +140,13 @@ int foo(int argc, char const *argv[]) {
   // PHCS: do { } while ( 0 ) is contained in DO_NOT_SWALLOW_SEMICOLON at the highest level
   // PHCS: { } is contained in DO_NOT_SWALLOW_SEMICOLON at the highest level
   // PHCS: 0 is contained in DO_NOT_SWALLOW_SEMICOLON at the highest level
-  // PLCS: do { } while ( 0 ) is covered by DO_NOT_SWALLOW_SEMICOLON at the lowest level
+  // PLCM: do { } while ( 0 ) is covered by DO_NOT_SWALLOW_SEMICOLON at the lowest level
   DO_NOT_SWALLOW_SEMICOLON;
 
   // Note: Even though the expansion includes the semicolon, our heuristics
   // should return the do-while statement, which does not include the semicolon
   // PLCSD: SWALLOW_SEMICOLON covers do { } while ( 0 )
-  // PLCS: do { } while ( 0 ) is covered by SWALLOW_SEMICOLON at the lowest level
+  // PLCM: do { } while ( 0 ) is covered by SWALLOW_SEMICOLON at the lowest level
   // PHCS: do { } while ( 0 ) is contained in SWALLOW_SEMICOLON at the highest level
   // PHCS: { } is contained in SWALLOW_SEMICOLON at the highest level
   // PHCS: 0 is contained in SWALLOW_SEMICOLON at the highest level
@@ -156,13 +156,13 @@ int foo(int argc, char const *argv[]) {
 
   // PLCSD: ONE_SEMI covers 1
   // PHCS: 1 is contained in ONE_SEMI at the highest level
-  // PLCS: 1 is covered by ONE_SEMI at the lowest level
+  // PLCM: 1 is covered by ONE_SEMI at the lowest level
   ONE_SEMI
 
 #define EXIT_SUCCESS return 0;
 
   // PLCSD: EXIT_SUCCESS covers return 0
-  // PLCS: return 0 is covered by EXIT_SUCCESS at the lowest level
+  // PLCM: return 0 is covered by EXIT_SUCCESS at the lowest level
   // PHCS: return 0 is contained in EXIT_SUCCESS at the highest level
   // PHCS: 0 is contained in EXIT_SUCCESS at the highest level
   EXIT_SUCCESS

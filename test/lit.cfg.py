@@ -82,17 +82,10 @@ tools = [
         extra_args=["-x", "c"]),
 
     ToolSubst(
-        "print-lowest-covering-macro-argument",
+        "print-lowest-covering-macro",
         os.path.join(config.pasta_obj_root, 'bin',
-                     'PrintLowestCoveringMacroArgument',
-                     'print-lowest-covering-macro-argument'),
-        extra_args=["-x", "c"]),
-
-    ToolSubst(
-        "print-lowest-covering-substitution",
-        os.path.join(config.pasta_obj_root, 'bin',
-                     'PrintLowestCoveringSubstitution',
-                     'print-lowest-covering-substitution'),
+                     'PrintLowestCoveringMacro',
+                     'print-lowest-covering-macro'),
         extra_args=["-x", "c"]),
     
     ToolSubst(

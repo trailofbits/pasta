@@ -3,35 +3,33 @@
 // RUN: print-highest-containing-substitution %s \
 // RUN: | FileCheck %s -check-prefix=PHCS
 // RUN: print-lowest-covered-stmt-or-decl %s | FileCheck %s -check-prefix=PLCSD
-// RUN: print-lowest-covering-macro-argument %s \
-// RUN: | FileCheck %s -check-prefix=PLCvMA
-// RUN: print-lowest-covering-substitution %s | FileCheck %s -check-prefix=PLCS
+// RUN: print-lowest-covering-macro %s | FileCheck %s -check-prefix=PLCM
 
 // Simple expression function-like macros
 #define ADD(X, Y) X + Y
 
 // PLCSD: ADD covers 0 + 1
-// PLCS: 0 + 1 is covered by ADD at the lowest level
-// PLCS: 0 is covered by X at the lowest level
-// PLCS: 1 is covered by Y at the lowest level
+// PLCM: 0 + 1 is covered by ADD at the lowest level
+// PLCM: 0 is covered by X at the lowest level
+// PLCM: 0 is covered by argument of parent macro expansion of macro definition ADD argument number 0 X
+// PLCM: 1 is covered by Y at the lowest level
+// PLCM: 1 is covered by argument of parent macro expansion of macro definition ADD argument number 1 Y
 // PLCMA: 0 is contained in argument of parent macro expansion of macro definition ADD argument number 0 X
 // PLCMA: 1 is contained in argument of parent macro expansion of macro definition ADD argument number 1 Y
 // PHCS: 0 + 1 is contained in ADD at the highest level
 // PHCS: 0 is contained in ADD at the highest level
 // PHCS: 1 is contained in ADD at the highest level
-// PLCvMA: 0 is covered by argument of parent macro expansion of macro definition ADD argument number 0 X
-// PLCvMA: 1 is covered by argument of parent macro expansion of macro definition ADD argument number 1 Y
 int one = ADD(0, 1);
 
 // PLCSD: ADD covers nothing
-// PLCS: 2 is covered by X at the lowest level
-// PLCS: 3 is covered by Y at the lowest level
+// PLCM: 2 is covered by X at the lowest level
+// PLCM: 2 is covered by argument of parent macro expansion of macro definition ADD argument number 0 X
+// PLCM: 3 is covered by Y at the lowest level
+// PLCM: 3 is covered by argument of parent macro expansion of macro definition ADD argument number 1 Y
 // PLCMA: 2 is contained in argument of parent macro expansion of macro definition ADD argument number 0 X
 // PLCMA: 3 is contained in argument of parent macro expansion of macro definition ADD argument number 1 Y
 // PHCS: 2 is contained in ADD at the highest level
 // PHCS: 3 is contained in ADD at the highest level
-// PLCvMA: 2 is covered by argument of parent macro expansion of macro definition ADD argument number 0 X
-// PLCvMA: 3 is covered by argument of parent macro expansion of macro definition ADD argument number 1 Y
 int seven = 2 * ADD(2, 3);
 
 #define FIZZ_AND(A) \
@@ -40,20 +38,26 @@ int seven = 2 * ADD(2, 3);
 #define BUZZ "BUZZ"
 
 // PLCSD: FIZZ_AND covers "FIZZ" "and" "BUZZ"
-// PLCS: "FIZZ" "and" "BUZZ" is covered by FIZZ_AND at the lowest level
+// PLCM: "FIZZ" "and" "BUZZ" is covered by FIZZ_AND at the lowest level
 // PHCS: "FIZZ" "and" "BUZZ" is contained in FIZZ_AND at the highest level
 const char bacon_and_eggs[] = FIZZ_AND(BUZZ);
 
 // Function-like macros that accept other macros as arguments
 #define MUL(X, Y) X * Y
 // PLCSD: ADD covers 1 * 2 + 3 * 4
-// PLCS: 1 * 2 + 3 * 4 is covered by ADD at the lowest level
-// PLCS: 1 * 2 is covered by MUL at the lowest level
-// PLCS: 1 is covered by X at the lowest level
-// PLCS: 2 is covered by Y at the lowest level
-// PLCS: 3 * 4 is covered by MUL at the lowest level
-// PLCS: 3 is covered by X at the lowest level
-// PLCS: 4 is covered by Y at the lowest level
+// PLCM: 1 * 2 + 3 * 4 is covered by ADD at the lowest level
+// PLCM: 1 * 2 is covered by MUL at the lowest level
+// PLCM: 1 * 2 is covered by argument of parent macro expansion of macro definition ADD argument number 0 X
+// PLCM: 1 is covered by X at the lowest level
+// PLCM: 1 is covered by argument of parent macro expansion of macro definition MUL argument number 0 X
+// PLCM: 2 is covered by Y at the lowest level
+// PLCM: 2 is covered by argument of parent macro expansion of macro definition MUL argument number 1 Y
+// PLCM: 3 * 4 is covered by MUL at the lowest level
+// PLCM: 3 * 4 is covered by argument of parent macro expansion of macro definition ADD argument number 1 Y
+// PLCM: 3 is covered by X at the lowest level
+// PLCM: 3 is covered by argument of parent macro expansion of macro definition MUL argument number 0 X
+// PLCM: 4 is covered by Y at the lowest level
+// PLCM: 4 is covered by argument of parent macro expansion of macro definition MUL argument number 1 Y
 // PLCMA: 1 * 2 is contained in argument of parent macro expansion of macro definition ADD argument number 0 X
 // PLCMA: 1 is contained in argument of parent macro expansion of macro definition MUL argument number 0 X
 // PLCMA: 2 is contained in argument of parent macro expansion of macro
@@ -68,18 +72,14 @@ const char bacon_and_eggs[] = FIZZ_AND(BUZZ);
 // PHCS: 3 * 4 is contained in ADD at the highest level
 // PHCS: 3 is contained in ADD at the highest level
 // PHCS: 4 is contained in ADD at the highest level
-// PLCvMA: 1 * 2 is covered by argument of parent macro expansion of macro definition ADD argument number 0 X
-// PLCvMA: 1 is covered by argument of parent macro expansion of macro definition MUL argument number 0 X
-// PLCvMA: 2 is covered by argument of parent macro expansion of macro definition MUL argument number 1 Y
-// PLCvMA: 3 * 4 is covered by argument of parent macro expansion of macro definition ADD argument number 1 Y
-// PLCvMA: 3 is covered by argument of parent macro expansion of macro definition MUL argument number 0 X
-// PLCvMA: 4 is covered by argument of parent macro expansion of macro definition MUL argument number 1 Y
 int fourteen = ADD(MUL(1, 2), MUL(3, 4));
 
 // PLCSD: STRANGE covers 1 + 2 + 3
-// PLCS: 1 + 2 + 3 is covered by STRANGE at the lowest level
-// PLCS: 2 is covered by X at the lowest level
-// PLCS: 3 is covered by Y at the lowest level
+// PLCM: 1 + 2 + 3 is covered by STRANGE at the lowest level
+// PLCM: 2 is covered by X at the lowest level
+// PLCM: 2 is covered by argument of parent macro expansion of macro definition ADD argument number 0 X
+// PLCM: 3 is covered by Y at the lowest level
+// PLCM: 3 is covered by argument of parent macro expansion of macro definition ADD argument number 1 Y
 // PLCMA: 2 is contained in argument of parent macro expansion of macro definition ADD argument number 0 X
 // PLCMA: 3 is contained in argument of parent macro expansion of macro definition ADD argument number 1 Y
 // PHCS: 1 + 2 + 3 is contained in STRANGE at the highest level
@@ -87,8 +87,6 @@ int fourteen = ADD(MUL(1, 2), MUL(3, 4));
 // PHCS: 1 is contained in STRANGE at the highest level
 // PHCS: 2 is contained in STRANGE at the highest level
 // PHCS: 3 is contained in STRANGE at the highest level
-// PLCvMA: 2 is covered by argument of parent macro expansion of macro definition ADD argument number 0 X
-// PLCvMA: 3 is covered by argument of parent macro expansion of macro definition ADD argument number 1 Y
 #define STRANGE(A) 1 + A(2
 int strange = STRANGE(ADD), 3);
 
@@ -122,18 +120,18 @@ DECLARE_FUNC_PTR_GENERIC_h(int *);
 
 
 int main(int argc, char const *argv[]) {
-        int x;
-        // PLCSD: DO_NOT_SWALLOW_SEMICOLON covers do { x ++ ; } while ( 0 )
-        // PLCS: do { x ++ ; } while ( 0 ) is covered by DO_NOT_SWALLOW_SEMICOLON at the lowest level
-        // PLCS: x is covered by X at the lowest level
-        // PLCMA: x is contained in argument of parent macro expansion of macro definition DO_NOT_SWALLOW_SEMICOLON argument number 0 X
-        // PHCS: do { x ++ ; } while ( 0 ) is contained in DO_NOT_SWALLOW_SEMICOLON at the highest level
-        // PHCS: { x ++ ; } is contained in DO_NOT_SWALLOW_SEMICOLON at the highest level
-        // PHCS: x ++ is contained in DO_NOT_SWALLOW_SEMICOLON at the highest level
-        // PHCS: x is contained in DO_NOT_SWALLOW_SEMICOLON at the highest level
-        // PHCS: 0 is contained in DO_NOT_SWALLOW_SEMICOLON at the highest level
-        // PLCvMA: x is covered by argument of parent macro expansion of macro definition DO_NOT_SWALLOW_SEMICOLON argument number 0 X
-        DO_NOT_SWALLOW_SEMICOLON(x);
+  int x;
+  // PLCSD: DO_NOT_SWALLOW_SEMICOLON covers do { x ++ ; } while ( 0 )
+  // PLCM: do { x ++ ; } while ( 0 ) is covered by DO_NOT_SWALLOW_SEMICOLON at the lowest level
+  // PLCM: x is covered by X at the lowest level
+  // PLCM: x is covered by argument of parent macro expansion of macro definition DO_NOT_SWALLOW_SEMICOLON argument number 0 X
+  // PLCMA: x is contained in argument of parent macro expansion of macro definition DO_NOT_SWALLOW_SEMICOLON argument number 0 X
+  // PHCS: do { x ++ ; } while ( 0 ) is contained in DO_NOT_SWALLOW_SEMICOLON at the highest level
+  // PHCS: { x ++ ; } is contained in DO_NOT_SWALLOW_SEMICOLON at the highest level
+  // PHCS: x ++ is contained in DO_NOT_SWALLOW_SEMICOLON at the highest level
+  // PHCS: x is contained in DO_NOT_SWALLOW_SEMICOLON at the highest level
+  // PHCS: 0 is contained in DO_NOT_SWALLOW_SEMICOLON at the highest level
+  DO_NOT_SWALLOW_SEMICOLON(x);
 
-        return 0;
+  return 0;
 }

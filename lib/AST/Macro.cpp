@@ -484,6 +484,25 @@ MacroKind Macro::Kind(void) const noexcept {
   }
 }
 
+std::string Macro::KindName(void) const noexcept {
+  const static std::string KindNames[] = {
+#define PASTA_IGNORE(...)
+#define PASTA_DECLARE_MACRO_KIND(kind) "k" #kind ,
+#define PASTA_DECLARE_DIRECTIVE_KIND(kind) "k" #kind "Directive" ,
+  PASTA_FOR_EACH_MACRO_IMPL(PASTA_DECLARE_MACRO_KIND,
+                            PASTA_DECLARE_MACRO_KIND,
+                            PASTA_DECLARE_DIRECTIVE_KIND,
+                            PASTA_DECLARE_DIRECTIVE_KIND,
+                            PASTA_DECLARE_DIRECTIVE_KIND,
+                            PASTA_DECLARE_DIRECTIVE_KIND,
+                            PASTA_IGNORE)
+#undef PASTA_DECLARE_MACRO_KIND
+#undef PASTA_DECLARE_DIRECTIVE_KIND
+#undef PASTA_IGNORE
+  };
+  return KindNames[static_cast<size_t>(Kind())];
+}
+
 const void *Macro::RawMacro(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   if (std::holds_alternative<MacroTokenImpl *>(node)) {

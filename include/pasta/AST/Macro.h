@@ -117,6 +117,8 @@ class Macro {
 
   MacroKind Kind(void) const noexcept;
 
+  std::string KindName(void) const noexcept;
+
   const void *RawMacro(void) const noexcept;
 
   inline bool operator==(const Macro &that) const noexcept {

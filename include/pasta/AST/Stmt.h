@@ -301,6 +301,8 @@ class Stmt {
   std::optional<::pasta::Macro> HighestContainingSubstitution(void) const noexcept;
   std::optional<::pasta::MacroArgument> LowestContainingMacroArgument(void) const noexcept;
   std::optional<::pasta::Macro> LowestCoveringMacro(::pasta::MacroKind) const noexcept;
+  std::vector<Macro> CoveringMacros(void) const noexcept;
+  bool CoveredBy(::pasta::Macro &macro) const noexcept;
 
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, AbstractConditionalOperator)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, AddrLabelExpr)

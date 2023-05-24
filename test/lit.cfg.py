@@ -87,6 +87,13 @@ tools = [
                      'PrintLowestCoveringMacro',
                      'print-lowest-covering-macro'),
         extra_args=["-x", "c"]),
+
+    ToolSubst(
+        "print-covering-macros",
+        os.path.join(config.pasta_obj_root, 'bin',
+                     'PrintCoveringMacros',
+                     'print-covering-macros'),
+        extra_args=["-x", "c"]),
     
     ToolSubst(
         "FileCheck",

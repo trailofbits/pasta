@@ -485,8 +485,8 @@ MacroKind Macro::Kind(void) const noexcept {
   }
 }
 
-std::string_view Macro::KindName(void) const noexcept {
-  const static std::string KindNames[] = {
+namespace {
+  const static std::string_view KindNames[] = {
 #define PASTA_IGNORE(...)
 #define PASTA_DECLARE_MACRO_KIND(kind) "k" #kind ,
 #define PASTA_DECLARE_DIRECTIVE_KIND(kind) "k" #kind "Directive" ,
@@ -501,6 +501,10 @@ std::string_view Macro::KindName(void) const noexcept {
 #undef PASTA_DECLARE_DIRECTIVE_KIND
 #undef PASTA_IGNORE
   };
+}
+
+std::string_view Macro::KindName(void) const noexcept {
+  
   return KindNames[static_cast<size_t>(Kind())];
 }
 

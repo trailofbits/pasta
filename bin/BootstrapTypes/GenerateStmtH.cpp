@@ -97,7 +97,10 @@ void GenerateStmtH(void) {
          << "  static std::optional<::pasta::Stmt> From(const TokenContext &);\n"
          << "  std::optional<::pasta::Macro> HighestContainingSubstitution(void) const noexcept;\n"
          << "  std::optional<::pasta::MacroArgument> LowestContainingMacroArgument(void) const noexcept;\n"
-         << "  std::optional<::pasta::Macro> LowestCoveringMacro(::pasta::MacroKind) const noexcept;\n";
+         << "  std::optional<::pasta::Macro> LowestCoveringMacro(::pasta::MacroKind) const noexcept;\n"
+         << "  std::vector<Macro> CoveringMacros(void) const noexcept;\n"
+         << "  bool CoveredBy(::pasta::Macro &macro) const noexcept;\n";
+
     }
 
     // Constructors from derived class -> base class.

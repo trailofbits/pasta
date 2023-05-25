@@ -4,6 +4,26 @@
 // RUN: | FileCheck %s -check-prefix=PHCS
 // RUN: print-lowest-covered-stmt-or-decl %s | FileCheck %s -check-prefix=PLCSD
 // RUN: print-lowest-covering-macro %s | FileCheck %s -check-prefix=PLCM
+// RUN: print-covering-macros %s | FileCheck %s -check-prefix=PCM
+
+// PCM: 0 + 1 is covered by ADD (kExpansion) ADD (kExpansion)
+// PCM: 0 is covered by 0 (kArgument) 0 (kArgument) X (kParameterSubstitution)
+// PCM: 1 is covered by 1 (kArgument) 1 (kArgument) Y (kParameterSubstitution)
+// PCM: 2 is covered by 2 (kArgument) 2 (kArgument) X (kParameterSubstitution)
+// PCM: 3 is covered by 3 (kArgument) 3 (kArgument) Y (kParameterSubstitution)
+// PCM: "FIZZ" "and" "BUZZ" is covered by FIZZ_AND (kExpansion) FIZZ_AND (kExpansion)
+// PCM: 1 * 2 + 3 * 4 is covered by ADD (kExpansion) ADD (kExpansion)
+// PCM: 1 * 2 is covered by MUL (kExpansion) MUL (kExpansion) MUL (kArgument) X (kParameterSubstitution)
+// PCM: 1 is covered by 1 (kArgument) 1 (kArgument) X (kParameterSubstitution)
+// PCM: 2 is covered by 2 (kArgument) 2 (kArgument) Y (kParameterSubstitution)
+// PCM: 3 * 4 is covered by MUL (kExpansion) MUL (kExpansion) MUL (kArgument) Y (kParameterSubstitution)
+// PCM: 3 is covered by 3 (kArgument) 3 (kArgument) X (kParameterSubstitution)
+// PCM: 4 is covered by 4 (kArgument) 4 (kArgument) Y (kParameterSubstitution)
+// PCM: 1 + 2 + 3 is covered by STRANGE (kExpansion) STRANGE (kExpansion)
+// PCM: 2 is covered by 2 (kArgument) 2 (kArgument) X (kParameterSubstitution)
+// PCM: 3 is covered by 3 (kArgument) 3 (kArgument) Y (kParameterSubstitution)
+// PCM: do { x ++ ; } while ( 0 ) is covered by DO_NOT_SWALLOW_SEMICOLON (kExpansion) DO_NOT_SWALLOW_SEMICOLON (kExpansion)
+// PCM: x is covered by x (kArgument) x (kArgument) X (kParameterSubstitution)
 
 // Simple expression function-like macros
 #define ADD(X, Y) X + Y

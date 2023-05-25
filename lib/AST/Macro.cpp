@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <functional>
+#include <string_view>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wbitfield-enum-conversion"
@@ -482,6 +483,29 @@ MacroKind Macro::Kind(void) const noexcept {
     abort();
     __builtin_unreachable();
   }
+}
+
+namespace {
+  const static std::string_view KindNames[] = {
+#define PASTA_IGNORE(...)
+#define PASTA_DECLARE_MACRO_KIND(kind) "k" #kind ,
+#define PASTA_DECLARE_DIRECTIVE_KIND(kind) "k" #kind "Directive" ,
+  PASTA_FOR_EACH_MACRO_IMPL(PASTA_DECLARE_MACRO_KIND,
+                            PASTA_DECLARE_MACRO_KIND,
+                            PASTA_DECLARE_DIRECTIVE_KIND,
+                            PASTA_DECLARE_DIRECTIVE_KIND,
+                            PASTA_DECLARE_DIRECTIVE_KIND,
+                            PASTA_DECLARE_DIRECTIVE_KIND,
+                            PASTA_IGNORE)
+#undef PASTA_DECLARE_MACRO_KIND
+#undef PASTA_DECLARE_DIRECTIVE_KIND
+#undef PASTA_IGNORE
+  };
+}
+
+std::string_view Macro::KindName(void) const noexcept {
+  
+  return KindNames[static_cast<size_t>(Kind())];
 }
 
 const void *Macro::RawMacro(void) const noexcept {

@@ -16,6 +16,7 @@
 #include "Builder.h"
 
 #include <algorithm>
+#include <vector>
 
 namespace pasta {
 
@@ -174,13 +175,10 @@ std::optional<Macro> Stmt::LowestCoveringMacro(MacroKind kind) const noexcept {
         if (b_macro != b_parent_sub->ReplacementChildren().Front()) {
           break;
         }
-      }
-      else {
+      } else if (b_macro != b_parent->Children().Front()) {
         // If the first token was not expanded from a macro substitution, check
         // if this token is the first in its parent's body
-        if (b_macro != b_parent->Children().Front()) {
-          break;
-        }
+        break;
       }
 
       // Check that this substitution is the kind of substitution we are looking
@@ -228,12 +226,9 @@ std::optional<Macro> Stmt::LowestCoveringMacro(MacroKind kind) const noexcept {
                   || (semi && tok_after_e_tok == parent_sub_last_tok))) {
               break;
             }
-          }
-          else {
+          } else if (e_macro != e_parent->Children().Back()) {
             // Check for back alignment with a non-substitution
-            if (e_macro != e_parent->Children().Back()) {
-              break;
-            }
+            break;
           }
 
           // By this point we cna be sure that the token back-aligns with its
@@ -249,6 +244,135 @@ std::optional<Macro> Stmt::LowestCoveringMacro(MacroKind kind) const noexcept {
   }
 
   return std::nullopt;
+}
+
+// Returns a list of macros that cover this Stmt, if any.
+std::vector<Macro> Stmt::CoveringMacros(void) const noexcept {
+  std::vector<Macro> result;
+  Token b_tok = BeginToken();
+  if (!b_tok) {
+    return result;
+  }
+  auto b_tok_deriv_chain = b_tok.DerivationChain();
+  std::reverse(b_tok_deriv_chain.begin(), b_tok_deriv_chain.end());
+
+  Token e_tok = EndToken();
+  auto e_tok_deriv_chain = e_tok.DerivationChain();
+  std::reverse(e_tok_deriv_chain.begin(), e_tok_deriv_chain.end());
+
+  auto tok_after_e_tok = e_tok.NextFinalExpansionOrFileToken();
+  bool semi = tok_after_e_tok && tok_after_e_tok->Kind() == TokenKind::kSemi;
+
+  for (auto b_deriv : b_tok_deriv_chain) {
+    std::optional<Macro> b_macro = b_deriv.MacroLocation();
+    if (!b_macro) {
+      continue;
+    }
+    for (auto b_parent = b_macro->Parent(); b_parent;
+         b_macro = *b_parent, b_parent = b_parent->Parent()) {
+      if (auto b_parent_sub = MacroSubstitution::From(*b_parent)) {
+        if (b_macro != b_parent_sub->ReplacementChildren().Front()) {
+          break;
+        }
+      } else if (b_macro != b_parent->Children().Front()) {
+        break;
+      }
+
+      for (auto e_deriv : e_tok_deriv_chain) {
+        if (b_deriv == e_deriv && b_tok != e_tok) {
+          break;
+        }
+        std::optional<Macro> e_macro = e_deriv.MacroLocation();
+        if (!e_macro) {
+          continue;
+        }
+        for (auto e_parent = e_macro->Parent(); e_parent;
+             e_macro = *e_parent, e_parent = e_parent->Parent()) {
+          if (auto e_parent_sub = MacroSubstitution::From(*e_parent)) {
+            auto parent_sub_last_tok = e_parent_sub->LastFullySubstitutedToken();
+            if (!(e_macro == e_parent_sub->ReplacementChildren().Back()
+                  || (semi && tok_after_e_tok == parent_sub_last_tok))) {
+              break;
+            }
+          } else if (e_macro != e_parent->Children().Back()) {
+            break;
+          }
+
+          if (b_parent == e_parent) {
+            result.push_back(*b_parent);
+          }
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
+// Returns true if the given macro covers this Stmt, false otherwise.
+bool Stmt::CoveredBy(Macro &macro) const noexcept {
+  Token b_tok = BeginToken();
+  if (!b_tok) {
+    return false;
+  }
+  auto b_tok_deriv_chain = b_tok.DerivationChain();
+  std::reverse(b_tok_deriv_chain.begin(), b_tok_deriv_chain.end());
+
+  Token e_tok = EndToken();
+  auto e_tok_deriv_chain = e_tok.DerivationChain();
+  std::reverse(e_tok_deriv_chain.begin(), e_tok_deriv_chain.end());
+
+  auto tok_after_e_tok = e_tok.NextFinalExpansionOrFileToken();
+  bool semi = tok_after_e_tok && tok_after_e_tok->Kind() == TokenKind::kSemi;
+
+  for (auto b_deriv : b_tok_deriv_chain) {
+    std::optional<Macro> b_macro = b_deriv.MacroLocation();
+    if (!b_macro) {
+      continue;
+    }
+    for (auto b_parent = b_macro->Parent(); b_parent;
+         b_macro = *b_parent, b_parent = b_parent->Parent()) {
+      if (auto b_parent_sub = MacroSubstitution::From(*b_parent)) {
+        if (b_macro != b_parent_sub->ReplacementChildren().Front()) {
+          break;
+        }
+      } else if (b_macro != b_parent->Children().Front()) {
+        break;
+      }
+
+      if (*b_parent != macro) {
+        continue;
+      }
+
+      for (auto e_deriv : e_tok_deriv_chain) {
+        if (b_deriv == e_deriv && b_tok != e_tok) {
+          break;
+        }
+        std::optional<Macro> e_macro = e_deriv.MacroLocation();
+        if (!e_macro) {
+          continue;
+        }
+        for (auto e_parent = e_macro->Parent(); e_parent;
+             e_macro = *e_parent, e_parent = e_parent->Parent()) {
+          if (auto e_parent_sub = MacroSubstitution::From(*e_parent)) {
+            auto parent_sub_last_tok = e_parent_sub->LastFullySubstitutedToken();
+            if (!(e_macro == e_parent_sub->ReplacementChildren().Back()
+                  || (semi && tok_after_e_tok == parent_sub_last_tok))) {
+              break;
+            }
+          } else if (e_macro != e_parent->Children().Back()) {
+            break;
+          }
+
+          if (b_parent == e_parent) {
+            return true;
+          }
+        }
+      }
+    }
+  }
+
+  return false;
 }
 
 // Is this a field designator?

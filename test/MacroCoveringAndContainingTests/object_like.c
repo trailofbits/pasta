@@ -2,6 +2,25 @@
 // RUN: | FileCheck %s -check-prefix=PHCS
 // RUN: print-lowest-covered-stmt-or-decl %s | FileCheck %s -check-prefix=PLCSD
 // RUN: print-lowest-covering-macro %s | FileCheck %s -check-prefix=PLCM
+// RUN: print-covering-macros %s | FileCheck %s -check-prefix=PCM
+
+// PCM: 1 is covered by ONE (kExpansion)
+// PCM: 'A' is covered by A (kExpansion)
+// PCM: - 1 is covered by NEG_ONE (kExpansion)
+// PCM: 1 + 1 is covered by MID (kExpansion)
+// PCM: 1 is covered by INNER (kExpansion)
+// PCM: 1 is covered by INNER (kExpansion)
+// PCM: 2 + 1 + 1 is covered by OUTER (kExpansion)
+// PCM: 1 is covered by INNER (kExpansion)
+// PCM: 1 is covered by INNER (kExpansion)
+// PCM: ( 2 + ( 1 + 1 ) ) is covered by OUTER_SAFE (kExpansion)
+// PCM: ( 1 + 1 ) is covered by MID_SAFE (kExpansion)
+// PCM: 1 is covered by INNER (kExpansion)
+// PCM: 1 is covered by INNER (kExpansion)
+// PCM: do { } while ( 0 ) is covered by DO_NOT_SWALLOW_SEMICOLON (kExpansion)
+// PCM: do { } while ( 0 ) is covered by SWALLOW_SEMICOLON (kExpansion)
+// PCM: 1 is covered by ONE_SEMI (kExpansion)
+// PCM: return 0 is covered by EXIT_SUCCESS (kExpansion)
 
 // Simple expression macros
 #define ONE 1

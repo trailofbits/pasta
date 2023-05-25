@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <functional>
+#include <string_view>
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wbitfield-enum-conversion"
@@ -484,7 +485,7 @@ MacroKind Macro::Kind(void) const noexcept {
   }
 }
 
-std::string Macro::KindName(void) const noexcept {
+std::string_view Macro::KindName(void) const noexcept {
   const static std::string KindNames[] = {
 #define PASTA_IGNORE(...)
 #define PASTA_DECLARE_MACRO_KIND(kind) "k" #kind ,

@@ -117,7 +117,7 @@ class Macro {
 
   MacroKind Kind(void) const noexcept;
 
-  std::string KindName(void) const noexcept;
+  std::string_view KindName(void) const noexcept;
 
   const void *RawMacro(void) const noexcept;
 

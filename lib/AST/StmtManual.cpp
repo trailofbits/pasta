@@ -175,13 +175,10 @@ std::optional<Macro> Stmt::LowestCoveringMacro(MacroKind kind) const noexcept {
         if (b_macro != b_parent_sub->ReplacementChildren().Front()) {
           break;
         }
-      }
-      else {
+      } else if (b_macro != b_parent->Children().Front()) {
         // If the first token was not expanded from a macro substitution, check
         // if this token is the first in its parent's body
-        if (b_macro != b_parent->Children().Front()) {
-          break;
-        }
+        break;
       }
 
       // Check that this substitution is the kind of substitution we are looking
@@ -229,12 +226,9 @@ std::optional<Macro> Stmt::LowestCoveringMacro(MacroKind kind) const noexcept {
                   || (semi && tok_after_e_tok == parent_sub_last_tok))) {
               break;
             }
-          }
-          else {
+          } else if (e_macro != e_parent->Children().Back()) {
             // Check for back alignment with a non-substitution
-            if (e_macro != e_parent->Children().Back()) {
-              break;
-            }
+            break;
           }
 
           // By this point we cna be sure that the token back-aligns with its
@@ -280,11 +274,8 @@ std::vector<Macro> Stmt::CoveringMacros(void) const noexcept {
         if (b_macro != b_parent_sub->ReplacementChildren().Front()) {
           break;
         }
-      }
-      else {
-        if (b_macro != b_parent->Children().Front()) {
-          break;
-        }
+      } else if (b_macro != b_parent->Children().Front()) {
+        break;
       }
 
       for (auto e_deriv : e_tok_deriv_chain) {
@@ -303,11 +294,8 @@ std::vector<Macro> Stmt::CoveringMacros(void) const noexcept {
                   || (semi && tok_after_e_tok == parent_sub_last_tok))) {
               break;
             }
-          }
-          else {
-            if (e_macro != e_parent->Children().Back()) {
-              break;
-            }
+          } else if (e_macro != e_parent->Children().Back()) {
+            break;
           }
 
           if (b_parent == e_parent) {
@@ -348,11 +336,8 @@ bool Stmt::CoveredBy(Macro &macro) const noexcept {
         if (b_macro != b_parent_sub->ReplacementChildren().Front()) {
           break;
         }
-      }
-      else {
-        if (b_macro != b_parent->Children().Front()) {
-          break;
-        }
+      } else if (b_macro != b_parent->Children().Front()) {
+        break;
       }
 
       if (*b_parent != macro) {
@@ -375,11 +360,8 @@ bool Stmt::CoveredBy(Macro &macro) const noexcept {
                   || (semi && tok_after_e_tok == parent_sub_last_tok))) {
               break;
             }
-          }
-          else {
-            if (e_macro != e_parent->Children().Back()) {
-              break;
-            }
+          } else if (e_macro != e_parent->Children().Back()) {
+            break;
           }
 
           if (b_parent == e_parent) {

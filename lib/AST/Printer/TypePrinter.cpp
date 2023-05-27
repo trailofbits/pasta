@@ -302,12 +302,16 @@ void TypePrinter::printBeforeAfter(
   }
 
   if (hasAfterQuals) {
-    if (NeedARCStrongQualifier) {
-      IncludeStrongLifetimeRAII Strong(Policy);
-      Quals.print(OS, Policy, /*appendSpaceIfNonEmpty=*/!PrevPHIsEmpty.get());
-    } else {
-      Quals.print(OS, Policy, /*appendSpaceIfNonEmpty=*/!PrevPHIsEmpty.get());
-    }
+    auto appendSpaceIfNonEmpty = !PrevPHIsEmpty.get();
+    IdentFn = [=, &OS, IdentFn = std::move(IdentFn)] (void) {
+      if (NeedARCStrongQualifier) {
+        IncludeStrongLifetimeRAII Strong(Policy);
+        Quals.print(OS, Policy, appendSpaceIfNonEmpty);
+      } else {
+        Quals.print(OS, Policy, appendSpaceIfNonEmpty);
+      }
+      IdentFn();
+    };
   }
 
   switch (T->getTypeClass()) {

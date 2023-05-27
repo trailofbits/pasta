@@ -5,6 +5,8 @@
 // RUN: print-lowest-covered-stmt-or-decl %s | FileCheck %s -check-prefix=PLCSD
 // RUN: print-lowest-covering-macro %s | FileCheck %s -check-prefix=PLCM
 // RUN: print-covering-macros %s | FileCheck %s -check-prefix=PCM
+// RUN: print-aligned-parameter-substitutions %s \
+// RUN: | FileCheck %s -check-prefix=PAPS
 
 // PCM: 0 + 1 is covered by ADD (kExpansion) ADD (kExpansion)
 // PCM: 0 is covered by 0 (kArgument) 0 (kArgument) X (kParameterSubstitution)
@@ -24,6 +26,48 @@
 // PCM: 3 is covered by 3 (kArgument) 3 (kArgument) Y (kParameterSubstitution)
 // PCM: do { x ++ ; } while ( 0 ) is covered by DO_NOT_SWALLOW_SEMICOLON (kExpansion) DO_NOT_SWALLOW_SEMICOLON (kExpansion)
 // PCM: x is covered by x (kArgument) x (kArgument) X (kParameterSubstitution)
+
+// PAPS: 0 + 1 is covered by the following expansions:
+// PAPS: ADD
+// PAPS: Aligned parameters:
+// PAPS:   X (expected 1, actual 1):
+// PAPS:     0
+// PAPS:   Y (expected 1, actual 1):
+// PAPS:     1
+// PAPS: "FIZZ" "and" "BUZZ" is covered by the following expansions:
+// PAPS: FIZZ_AND
+// PAPS: Aligned parameters:
+// PAPS:   A (expected 1, actual 0):
+// PAPS: 1 * 2 + 3 * 4 is covered by the following expansions:
+// PAPS: ADD
+// PAPS: Aligned parameters:
+// PAPS:   X (expected 1, actual 1):
+// PAPS:     1 * 2
+// PAPS:   Y (expected 1, actual 1):
+// PAPS:     3 * 4
+// PAPS: 1 * 2 is covered by the following expansions:
+// PAPS: MUL
+// PAPS: Aligned parameters:
+// PAPS:   X (expected 1, actual 1):
+// PAPS:     1
+// PAPS:   Y (expected 1, actual 1):
+// PAPS:     2
+// PAPS: 3 * 4 is covered by the following expansions:
+// PAPS: MUL
+// PAPS: Aligned parameters:
+// PAPS:   X (expected 1, actual 1):
+// PAPS:     3
+// PAPS:   Y (expected 1, actual 1):
+// PAPS:     4
+// PAPS: 1 + 2 + 3 is covered by the following expansions:
+// PAPS: STRANGE
+// PAPS: Aligned parameters:
+// PAPS:   A (expected 1, actual 0):
+// PAPS: do { x ++ ; } while ( 0 ) is covered by the following expansions:
+// PAPS: DO_NOT_SWALLOW_SEMICOLON
+// PAPS: Aligned parameters:
+// PAPS:   X (expected 1, actual 1):
+// PAPS:     x
 
 // Simple expression function-like macros
 #define ADD(X, Y) X + Y

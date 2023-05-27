@@ -5,6 +5,7 @@
 #pragma once
 
 #include <compare>
+#include <map>
 #include <memory>
 #include <optional>
 #include <string_view>
@@ -127,6 +128,10 @@ class Macro {
 
   inline bool operator!=(const Macro &that) const noexcept {
     return RawMacro() != that.RawMacro();
+  }
+
+  inline bool operator<(const Macro &that) const noexcept {
+    return RawMacro() < that.RawMacro();
   }
 
   // Return the macro node containing this node.
@@ -452,6 +457,16 @@ class MacroExpansion final : public MacroSubstitution {
   // arguments to this macro are subjected to pre-expansion prior to
   // substituting the use of the macro with its body.
   std::optional<MacroExpansion> ArgumentPreExpansion(void) const noexcept;
+
+  // Maps each of the macro's parameters to a vector of Stmts that their
+  // substitutions align with in the given statement
+  std::map<MacroParameter, std::vector<pasta::Stmt>>
+  AlignedParameterSubstitutions(const pasta::Stmt &stmt) const noexcept;
+
+  // Maps each of the macro's parameters to the number of times it is used in
+  // the expansion
+  std::map<MacroParameter, unsigned>
+  ParameterUseCounts(void) const noexcept;
 };
 
 static_assert(sizeof(MacroExpansion) == sizeof(Macro));

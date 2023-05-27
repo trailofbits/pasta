@@ -20,6 +20,7 @@ configure_lit_site_cfg(
 
 set(PASTA_TEST_DEPENDS
   print-tokens
+  print-aligned-parameter-substitutions
   print-highest-containing-substitution
   print-lowest-containing-macro-argument
   print-lowest-covered-stmt-or-decl

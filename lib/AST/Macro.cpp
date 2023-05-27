@@ -6,6 +6,8 @@
 
 #include <cassert>
 #include <functional>
+#include <map>
+#include <queue>
 #include <string_view>
 
 #pragma GCC diagnostic push
@@ -1043,6 +1045,81 @@ std::optional<Decl> MacroSubstitution::CoveredDecl(void) const noexcept {
   }
 
   return std::nullopt;
+}
+
+// Walks the given Stmt's subtree and returns the first of its subtrees that
+// aligns with the given macro, if any.
+std::optional<pasta::Stmt>
+AlignedStmtInSubtree(Macro &macro, const pasta::Stmt &stmt) noexcept {
+  std::vector<pasta::Stmt> aligned_stmts;
+  // Use a BFS to walk the given Stmt's AST.
+  std::queue<pasta::Stmt> q;
+  q.push(stmt);
+  do {
+    pasta::Stmt cur = q.front();
+    q.pop();
+
+    // Don't match implicit expressions
+    if (cur.Kind() != StmtKind::kImplicitCastExpr &&
+        cur.Kind() != StmtKind::kImplicitValueInitExpr &&
+        cur.CoveredBy(macro)) {
+      return cur;
+    }
+
+    for (auto &child : cur.Children()) {
+      q.push(child);
+    }
+  } while (!q.empty());
+  return std::nullopt;
+}
+
+std::map<MacroParameter, std::vector<pasta::Stmt>>
+MacroExpansion::AlignedParameterSubstitutions(
+  const pasta::Stmt &stmt) const noexcept {
+  std::map<MacroParameter, std::vector<pasta::Stmt>> param_to_uses;
+  auto def = Definition();
+
+  for (auto macro : def->Parameters()) {
+    auto param = MacroParameter::From(macro);
+    assert(param);
+    param_to_uses[*param] = std::vector<pasta::Stmt>();
+  }
+
+  // Map each argument to the Stmts it substitutions align with
+  for (auto &child : IntermediateChildren()) {
+    if (auto sub = MacroParameterSubstitution::From(child)) {
+      if (auto aligned_stmt = AlignedStmtInSubtree(*sub, stmt))
+        param_to_uses[sub->Parameter()].push_back(*aligned_stmt);
+    }
+  }
+
+  return param_to_uses;
+}
+
+std::map<MacroParameter, unsigned>
+MacroExpansion::ParameterUseCounts(void) const noexcept {
+  std::map<MacroParameter, unsigned> m;
+
+  auto def = Definition();
+  if (!def) {
+    return m;
+  }
+
+  for (auto macro : def->Parameters()) {
+    auto param = MacroParameter::From(macro);
+    assert(param);
+    m[*param] = 0;
+  }
+
+  // Map each argument to the number of times it is substituted into the macro's
+  // body
+  for (auto &child : IntermediateChildren()) {
+    if (auto sub = MacroParameterSubstitution::From(child)) {
+      m[sub->Parameter()] += 1;
+    }
+  }
+
+  return m;
 }
 
 MacroParameter MacroParameterSubstitution::Parameter(void) const noexcept {

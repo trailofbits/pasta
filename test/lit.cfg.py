@@ -94,6 +94,13 @@ tools = [
                      'PrintCoveringMacros',
                      'print-covering-macros'),
         extra_args=["-x", "c"]),
+
+    ToolSubst(
+        "print-aligned-parameter-substitutions",
+        os.path.join(config.pasta_obj_root, 'bin',
+                     'PrintAlignedParameterSubstitutions',
+                     'print-aligned-parameter-substitutions'),
+        extra_args=["-x", "c"]),
     
     ToolSubst(
         "FileCheck",

@@ -1874,6 +1874,11 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
 
 #endif   // PASTA_DEBUG_ALIGN
 
+  // Try to see if we can make matching progress right from the beginning. This
+  // can help with leading tokens, e.g. `extern`.
+  matcher.MergeForward(parsed_begin, printed_begin, changed);
+  matcher.MergeBackward(parsed_end, printed_end, changed);
+
 #if PASTA_DEBUG_ALIGN
   auto i = 0u;
   for (PrintedTokenImpl *tok = printed_begin; tok < printed_end; ++tok) {

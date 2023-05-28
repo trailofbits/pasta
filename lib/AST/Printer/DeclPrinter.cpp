@@ -727,18 +727,48 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
     Ty = PT->getInnerType();
   }
 
-  if (const clang::FunctionType *AFT = Ty->getAs<clang::FunctionType>();
-      AFT && !Ty.getTypePtr()->isTypedefNameType()) {
-    const clang::FunctionProtoType *FT = nullptr;
-    if (D->hasWrittenPrototype())
-      FT = clang::dyn_cast<clang::FunctionProtoType>(AFT);
+  auto num_params = D->getNumParams();
+
+  // In this test case, the function definition has a typedef type. Clang
+  // doesn't have a good way of telling us that this is actually happening.
+  // `D->hasWrittenPrototype()` returns `true` for both declarations of
+  // `sctp_sf_do_9_1_abort`.
+  //
+  //    typedef int i32;
+  //    typedef i32 (func_t)(i32 *);
+  //    func_t sctp_sf_do_9_1_abort;
+  //    i32 sctp_sf_do_9_1_abort(i32 *bar) { return *bar; }
+  //
+  // These are heuristics to try to detect this case.
+  //
+  // TODO(pag): Could go searching for a `(`, or `)`.
+  bool looks_like_var = Ty.getTypePtr()->isTypedefNameType();
+  if (looks_like_var) {
+    if (D->isPure() || D->isDeletedAsWritten() || D->isExplicitlyDefaulted() ||
+        D->doesThisDeclarationHaveABody()) {
+      looks_like_var = false;
+
+    } else if (!D->isImplicit() && num_params) {
+      for (unsigned i = 0; i < num_params; ++i) {
+        clang::ParmVarDecl *P = D->getParamDecl(i);
+        if (!P->isImplicit()) {
+          looks_like_var = false;
+        }
+      }
+    }
+  }
+
+  const clang::FunctionType *AFT = Ty->getAs<clang::FunctionType>();
+  if (AFT && D->hasWrittenPrototype() && !looks_like_var) {  
+    const clang::FunctionProtoType *FT =
+        clang::dyn_cast<clang::FunctionProtoType>(AFT);
 
     // We want to figure out if there's an explicit `void` in the declaration
     // for the parameter list.
     clang::SourceLocation uses_explicit_void;
     bool has_source_code = false;
     if (clang::TypeSourceInfo *FTSI = D->getTypeSourceInfo();
-        FTSI && !D->getNumParams()) {
+        FTSI && !num_params) {
       if (auto FTL = FTSI->getTypeLoc().getAs<clang::FunctionTypeLoc>();
           !FTL.isNull()) {
         if (auto l_paren = FTL.getLParenLoc();
@@ -787,113 +817,71 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
       }
     };
 
-//    if (FT) {
-//      ProtoFn = [=, ProtoFn = std::move(ProtoFn)] (void) {
-//        ProtoFn();
-//        Out << '(';
-//
-//        if (uses_explicit_void.isValid()) {  // Does the original code use `void`?
-//          Out << "void";
-//          ctx.MarkLocation(uses_explicit_void);
-//
-//        } else if (!has_source_code && !D->getNumParams() &&
-//                   SubPolicy.UseVoidForZeroParams) {
-//          Out << "void";
-//
-//        } else {
-//          DeclPrinter ParamPrinter(Out, SubPolicy, Context, tokens, Indentation);
-//
-//
-//          bool leading_comma = true;
-//          for (unsigned i = 0, e = D->getNumParams(); i != e; ++i) {
-//            if (i) {
-//              Out << ", ";
-//            }
-//            clang::ParmVarDecl *P = D->getParamDecl(i);
-//            ParamPrinter.VisitParmVarDecl(P);
-//            // Try to see if the last parameter is followed by a comma before
-//            // the `...`.
-//            if ((i + 1u) == e && FT->isVariadic()) {
-//              leading_comma = variadic_leading_comma(P);
-//            }
-//          }
-//
-//          if (FT->isVariadic()) {
-//            if (leading_comma && D->getNumParams()) {
-//              Out << ", ";
-//            }
-//
-//            Out << "...";
-//            if (D->getEllipsisLoc().isValid()) {
-//              ctx.MarkLocation(D->getEllipsisLoc());
-//            } else {
-//              ctx.MarkLocation(FT->getEllipsisLoc());
-//            }
-//          }
-//        }
-//        Out << ")";
-//      };
-//    } else if (D->doesThisDeclarationHaveABody() && !D->hasPrototype()) {
-      ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) {
-        ProtoFn();
-        TokenPrinterContext jump_up_stack(ctx);
-        Out << "(";
+    ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) {
+      ProtoFn();
+      TokenPrinterContext jump_up_stack(ctx);
+      Out << "(";
 
-        if (uses_explicit_void.isValid()) {
-          Out << "void";
-          ctx.MarkLocation(uses_explicit_void);
+      if (uses_explicit_void.isValid()) {
+        Out << "void";
+        ctx.MarkLocation(uses_explicit_void);
 
-        } else if (!has_source_code && !D->getNumParams() &&
-                   SubPolicy.UseVoidForZeroParams &&
-                   Context.getLangOpts().CPlusPlus) {
-          Out << "void";
+      } else if (!has_source_code && !num_params &&
+                 SubPolicy.UseVoidForZeroParams &&
+                 Context.getLangOpts().CPlusPlus) {
+        Out << "void";
 
-        } else {
-          clang::ParmVarDecl *LastP = nullptr;
-          for (unsigned i = 0, e = D->getNumParams(); i != e; ++i) {
-            if (i) {
-              Out << ", ";
-              ctx.MarkLocation(loc_of_comma_after_param(LastP));
-            }
-            clang::ParmVarDecl *P = D->getParamDecl(i);
-            DeclPrinter ParamPrinter(Out, SubPolicy, Context, tokens, Indentation);
-            ParamPrinter.VisitParmVarDecl(P);
-            LastP = P;
+      } else {
+        clang::ParmVarDecl *LastP = nullptr;
+        for (unsigned i = 0, e = num_params; i != e; ++i) {
+          if (i) {
+            Out << ", ";
+            ctx.MarkLocation(loc_of_comma_after_param(LastP));
           }
-
-          if (D->isVariadic()) {
-            if (D->getNumParams()) {
-              Out << ", ";
-              ctx.MarkLocation(loc_of_comma_after_param(LastP));
-            }
-            Out << "...";
-            ctx.MarkLocation(D->getEllipsisLoc());
-          }
+          clang::ParmVarDecl *P = D->getParamDecl(i);
+          DeclPrinter ParamPrinter(Out, SubPolicy, Context, tokens, Indentation);
+          ParamPrinter.VisitParmVarDecl(P);
+          LastP = P;
         }
-        Out << ")";
-      };
-//    }
 
-    if (FT) {
+        if (D->isVariadic()) {
+          if (num_params) {
+            Out << ", ";
+            ctx.MarkLocation(loc_of_comma_after_param(LastP));
+          }
+          Out << "...";
+
+          // NOTE(pag): Ellipsis locs are tied to the `FunctionProtoType`, and
+          //            so are subject to the type deduplication, and they
+          //            may end up with the wrong location.
+          ctx.MarkLocation(D->getEllipsisLoc());
+        }
+      }
+      Out << ")";
+    };
+
+    if (AFT) {
       ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) {
         ProtoFn();
         TokenPrinterContext jump_up_stack(ctx);
-        if (FT->isConst())
+        if (AFT->isConst())
           Out << " const";
-        if (FT->isVolatile())
+        if (AFT->isVolatile())
           Out << " volatile";
-        if (FT->isRestrict())
+        if (AFT->isRestrict())
           Out << " restrict";
 
-        switch (FT->getRefQualifier()) {
-        case clang::RQ_None:
-          break;
-        case clang::RQ_LValue:
-          Out << " &";
-          break;
-        case clang::RQ_RValue:
-          Out << " &&";
-          break;
+        if (FT) {
+          switch (FT->getRefQualifier()) {
+          case clang::RQ_None:
+            break;
+          case clang::RQ_LValue:
+            Out << " &";
+            break;
+          case clang::RQ_RValue:
+            Out << " &&";
+            break;
+          }
         }
       };
     }
@@ -975,13 +963,13 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
     Out << " = default";
   else if (D->doesThisDeclarationHaveABody()) {
     if (!Policy.TerseOutput) {
-      if (!D->hasPrototype() && D->getNumParams()) {
+      if (!D->hasPrototype() && num_params) {
         // This is a K&R function definition, so we need to print the
         // parameters.
         Out << '\n';
         DeclPrinter ParamPrinter(Out, SubPolicy, Context, tokens, Indentation);
         Indentation += Policy.Indentation;
-        for (unsigned i = 0, e = D->getNumParams(); i != e; ++i) {
+        for (unsigned i = 0, e = num_params; i != e; ++i) {
           Indent();
           ParamPrinter.VisitParmVarDecl(D->getParamDecl(i));
           Out << ";\n";

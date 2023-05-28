@@ -1584,7 +1584,7 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
       TokenContextIndex decl_context_id) {
 
   ASTImpl * const ast = ast_.get();
-  auto printed_begin = &(range.tokens[0]);
+  auto printed_begin = reinterpret_cast<PrintedTokenImpl *>(range.tokens.data());
   auto printed_end = &(printed_begin[range.tokens.size()]);
   assert(parsed_begin < parsed_end);
   assert(printed_begin < printed_end);

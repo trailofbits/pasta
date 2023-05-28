@@ -70,8 +70,17 @@ inline static bool SkipToken(const pasta::Token &tok) {
 }
 
 static void PrintTokenGraph(pasta::Decl tld) {
-  // auto tokens = pasta::PrintedTokenRange::Create(tld);
-  auto tokens = tld.Tokens();
+  // auto nd = pasta::NamedDecl::From(tld);
+  // if (!nd) {
+  //   return;
+  // }
+
+  // if (nd->Name() != "sctp_sf_do_9_1_abort") {
+  //   return;
+  // }
+
+  auto tokens = pasta::PrintedTokenRange::Create(tld);
+  //auto tokens = tld.Tokens();
   if (tokens.empty()) {
     std::cerr
         << "Empty tokens for " << tld.KindName();

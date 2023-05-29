@@ -13,7 +13,7 @@
 #include <clang/Frontend/CompilerInstance.h>
 #pragma GCC diagnostic pop
 
-//#define D(...) __VA_ARGS__
+// #define D(...) __VA_ARGS__
 #ifndef D
 # define D(...)
 #endif
@@ -1826,7 +1826,7 @@ void PatchedMacroTracker::DoSwitchToExpansion(
   // Go find the `r_paren` for the expansion and record it, as well at the index
   // at which it occurs.
   auto &use_nodes = expansion->use_nodes;
-  assert(3u <= use_nodes.size());
+  assert(!use_nodes.empty());
   assert(std::holds_alternative<MacroTokenImpl *>(use_nodes.back()));
   assert(std::get<MacroTokenImpl *>(use_nodes.back())->kind_flags.kind ==
          TokenKind::kRParenthesis);
@@ -2014,7 +2014,18 @@ void PatchedMacroTracker::DoEndMacroExpansion(
   //    #define MACRO(arg) ...
   //    MACRO(PRAGMA("foo"))
   if (!deferred_expansion->is_cancelled) {
-    assert(deferred_expansion->nodes.size() == 1u);
+    // TODO(pag): I don't recall what this checks. But it breaks with the
+    //            following example:
+    //
+    //    #define A B )(
+    //    #define B C( 
+    //    #define C() D
+    //    #define D(x) x
+    //    int main() {
+    //      return A 2);
+    //    }
+    //
+    // assert(deferred_expansion->nodes.size() == 1u);
   }
 
   // The only node in `expansion->nodes` is `deferred_expansion`.

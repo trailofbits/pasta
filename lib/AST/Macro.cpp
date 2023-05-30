@@ -25,7 +25,7 @@
 #include <clang/Lex/Token.h>
 #pragma GCC diagnostic pop
 
-#if 1
+#if 0
 #include <pasta/Util/File.h>
 #include <iostream>
 #define DEBUG(...) __VA_ARGS__
@@ -259,37 +259,38 @@ void MacroExpansionImpl::CopyFromBody(
   auto max = definition_impl->nodes.size();
   auto orig_next_body_token_to_copy = next_body_token_to_copy;
 
-  // First, make sure we're aligned to the right place to start copying
-  // from.
   if (const Node *last_node = LastTokenImpl(body)) {
     MacroTokenImpl *last_tok = std::get<MacroTokenImpl *>(*last_node);
     TokenImpl last_atok = ast.tokens[last_tok->token_offset];
 
-//    std::cerr << "Last added to body: " << last_atok.Data(ast) << '\n';
+    DEBUG( std::cerr << "Last added to body: " << last_atok.Data(ast)
+                     << '\n'; )
 
     while (next_body_token_to_copy < max) {
-//      std::cerr << next_body_token_to_copy << '\t';
+      DEBUG( std::cerr << next_body_token_to_copy << '\t'; )
       const Node &node = definition_impl->nodes[next_body_token_to_copy++];
       const Node *last_def_node = LastTokenImpl(node);
       if (!last_def_node) {
-//        std::cerr << "Skipping:\n";
+        DEBUG( std::cerr << "Skipping:\n"; )
         continue;
       }
 
       MacroTokenImpl *last_def_tok = std::get<MacroTokenImpl *>(*last_def_node);
       TokenImpl last_def_atok = ast.tokens[last_def_tok->token_offset];
-//      std::cerr << "Attempting 1: " << last_def_atok.Data(ast) << ' '
-//                << last_def_atok.opaque_source_loc << " ?= "
-//                << last_atok.opaque_source_loc << '\n';
+      DEBUG( std::cerr << "Attempting 1: " << last_def_atok.Data(ast) << ' '
+                   << last_def_atok.opaque_source_loc << " ?= "
+                   << last_atok.opaque_source_loc << '\n'; )
 
       if (last_def_atok.opaque_source_loc == loc) {
-//        std::cerr << "Early exit: " << last_def_atok.Data(ast) << '\n';
+        DEBUG( std::cerr << "Early exit: " << last_def_atok.Data(ast)
+                         << '\n'; )
         next_body_token_to_copy -= 1u;
         break;
       }
 
       if (last_atok.opaque_source_loc == last_def_atok.opaque_source_loc) {
-//        std::cerr << "Aligned at 1: " << last_def_atok.Data(ast) << '\n';
+        DEBUG( std::cerr << "Aligned at 1: " << last_def_atok.Data(ast)
+                         << '\n'; )
         break;   // Aligned to the end of the last added thing.
       }
     }
@@ -299,12 +300,12 @@ void MacroExpansionImpl::CopyFromBody(
 
   // Now that we're aligned, start copying the missing things.
   while (next_body_token_to_copy < max) {
-//    std::cerr << next_body_token_to_copy << '\t';
+    DEBUG( std::cerr << next_body_token_to_copy << '\t'; )
 
     const Node &node = definition_impl->nodes[next_body_token_to_copy++];
     const Node *last_def_node = LastTokenImpl(node);
     if (!last_def_node) {
-//      std::cerr << "Injecting 1: (unknown)\n";
+      DEBUG( std::cerr << "Injecting 1: (unknown)\n"; )
       CloneNode(ast, definition_impl, node, 0u, curr,
                 curr_nodes, NoOnTokenCB, NoOnNodeCB);
       has_interesting_body = true;
@@ -313,10 +314,12 @@ void MacroExpansionImpl::CopyFromBody(
 
     MacroTokenImpl *last_def_tok = std::get<MacroTokenImpl *>(*last_def_node);
     TokenImpl last_def_atok = ast.tokens[last_def_tok->token_offset];
-//    std::cerr << "Attempting 2: " << last_def_atok.Data(ast) << '\n';
+    DEBUG( std::cerr << "Attempting 2: " << last_def_atok.Data(ast)
+                     << '\n'; )
 
     if (last_def_atok.opaque_source_loc != loc) {
-//      std::cerr << "Injecting 2: " << last_def_atok.Data(ast) << '\n';
+      DEBUG( std::cerr << "Injecting 2: " << last_def_atok.Data(ast)
+                       << '\n'; )
 
       CloneNode(ast, definition_impl, node, 0u, curr,
                 curr_nodes, NoOnTokenCB, NoOnNodeCB);
@@ -325,7 +328,8 @@ void MacroExpansionImpl::CopyFromBody(
     }
 
 
-//    std::cerr << "Aligned at 2: " << last_def_atok.Data(ast) << '\n';
+    DEBUG( std::cerr << "Aligned at 2: " << last_def_atok.Data(ast)
+                 << '\n'; )
     break;  // Aligned.
   }
 
@@ -481,14 +485,14 @@ MacroKind Macro::Kind(void) const noexcept {
   } else {
     assert(false);
     DEBUG( std::cerr << "Bad macro kind on main file: "
-                     << ast->main_source_file.Path().generic_string() << '\n'; )
+                 << ast->main_source_file.Path().generic_string() << '\n'; )
     abort();
     __builtin_unreachable();
   }
 }
 
 namespace {
-  const static std::string_view KindNames[] = {
+static const std::string_view kKindNames[] = {
 #define PASTA_IGNORE(...)
 #define PASTA_DECLARE_MACRO_KIND(kind) "k" #kind ,
 #define PASTA_DECLARE_DIRECTIVE_KIND(kind) "k" #kind "Directive" ,
@@ -502,12 +506,11 @@ namespace {
 #undef PASTA_DECLARE_MACRO_KIND
 #undef PASTA_DECLARE_DIRECTIVE_KIND
 #undef PASTA_IGNORE
-  };
-}
+};
+}  // namespace
 
 std::string_view Macro::KindName(void) const noexcept {
-  
-  return KindNames[static_cast<size_t>(Kind())];
+  return kKindNames[static_cast<size_t>(Kind())];
 }
 
 const void *Macro::RawMacro(void) const noexcept {

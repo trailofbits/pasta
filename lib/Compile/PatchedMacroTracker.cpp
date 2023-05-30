@@ -13,7 +13,7 @@
 #include <clang/Frontend/CompilerInstance.h>
 #pragma GCC diagnostic pop
 
-// #define D(...) __VA_ARGS__
+//#define D(...) __VA_ARGS__
 #ifndef D
 # define D(...)
 #endif
@@ -2571,7 +2571,7 @@ void PatchedMacroTracker::DoBeforeStringify(
   nodes.push_back(str);
   stringifies.push_back(str);
 
-  DoToken(tok[num_tokens - 1u], 0);
+  DoToken(tok[num_tokens - 1u], 0);  // Put the `#` into `expansion`.
 }
 
 void PatchedMacroTracker::DoAfterStringify(
@@ -3300,6 +3300,11 @@ void PatchedMacroTracker::MacroDefined(const clang::Token &name_tok,
 
       MacroTokenImpl *tok = std::get<MacroTokenImpl *>(node);
       switch (auto tk = tok->kind_flags.kind) {
+        case TokenKind::kHash:
+        case TokenKind::kHashHash:
+          assert(found_r_paren);
+          last_param = nullptr;
+          break;
         case TokenKind::kRParenthesis:
           last_param = nullptr;
           found_r_paren = true;
@@ -3363,7 +3368,9 @@ void PatchedMacroTracker::MacroDefined(const clang::Token &name_tok,
 
     assert(found_r_paren);
 
-    last_directive->body_offset = i;
+    // NOTE(pag): Use `new_nodes` size because it might have fewer nodes than
+    //            `last_directive->nodes`, and so `i` won't be aligned.
+    last_directive->body_offset = static_cast<unsigned>(new_nodes.size());
 
     // Add in the rest.
     for (; i < max_i && found_r_paren; ++i) {

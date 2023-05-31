@@ -706,7 +706,7 @@ std::optional<MacroToken> MacroParameter::Name(void) const noexcept {
   Node node = *reinterpret_cast<const Node *>(impl);
   MacroNodeImpl *node_impl = std::get<MacroNodeImpl *>(node);
   MacroParameterImpl *param_impl = dynamic_cast<MacroParameterImpl *>(node_impl);
-  if (param_impl->is_variadic) {
+  if (param_impl->has_name) {
     return MacroToken(ast, &(param_impl->nodes.front()));
   } else {
     return std::nullopt;

@@ -134,8 +134,10 @@ struct StatementRegion final : public Region {
 
     // Try to find the common ancestor of everything in this statement.
     const TokenContextImpl *prev = nullptr;
+
     for (auto tok = reinterpret_cast<PrintedTokenImpl *>(begin);
          tok <= end; ++tok) {
+
       if (TokenHasLocationAndContext(tok)) {
         if (tok->context_index < parent_context) {
           continue;
@@ -177,7 +179,8 @@ struct StatementRegion final : public Region {
       if (!TokenCanBeAssignedContext(it)) {
         continue;
       }
-      if (it->Kind() == clang::tok::string_literal) {
+      if (it->Kind() == clang::tok::string_literal ||
+          it->Kind() == clang::tok::wide_string_literal) {
         os << indent << "<str>";
       } else {
         os << indent << it->Data(ast);
@@ -218,7 +221,8 @@ struct StatementRegion final : public Region {
       if (!TokenCanBeAssignedContext(it)) {
         continue;
       }
-      if (it->Kind() == clang::tok::string_literal) {
+      if (it->Kind() == clang::tok::string_literal ||
+          it->Kind() == clang::tok::wide_string_literal) {
         os << indent << "<str>";
       } else {
         os << indent << it->Data(range);
@@ -931,6 +935,27 @@ bool Matcher::MergeForward(TokenImpl *parsed, PrintedTokenImpl *printed,
       break;
     } else {
       merged = true;
+
+      // Spread string literal contexts linearly.
+      auto tk = parsed->Kind();
+      auto is_string_literal = tk == clang::tok::string_literal ||
+                               tk == clang::tok::wide_string_literal;
+
+      if (is_string_literal && parsed->context_index != kInvalidTokenContextIndex) {
+        for (; (parsed + 1u) < last_parsed; ++parsed) {
+          tk = parsed[1u].Kind();
+          if (tk != clang::tok::string_literal &&
+              tk != clang::tok::wide_string_literal) {
+            break;
+          } else if (parsed[1u].context_index != kInvalidTokenContextIndex) {
+            break;
+
+          } else {
+            parsed[1u].context_index = parsed->context_index;
+          }
+        }
+      }
+
       ++parsed;
       ++printed;
     }
@@ -1694,12 +1719,6 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
 
   // Initialize the printed regions with the contexts.
   (void) printed_tree->CommonContext(range, decl_context_id);
-
-//  if (log) {
-//    auto c = &(ast->tokens[69125].context_index);
-//    assert(*c == kInvalidTokenContextIndex);
-//    asm volatile ("nop;" ::"m"(c));
-//  }
 
   // Assign the predecessor sequences of balanced regions. These can be helpful
   // for matching.

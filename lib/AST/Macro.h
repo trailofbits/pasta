@@ -122,6 +122,10 @@ class MacroDirectiveImpl final : public MacroNodeImpl {
 
   // Whether or not this represents a skipped region of code, e.g. `#if 0`.
   bool is_skipped{false};
+
+  // Is this a warning or error directive? If so, this signals to try to collect
+  // missing tokens when we come accross an EOD.
+  bool collected_missing_tokens_on_eod{false};
 };
 
 class MacroArgumentImpl final : public MacroNodeImpl {

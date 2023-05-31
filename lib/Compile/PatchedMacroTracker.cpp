@@ -749,6 +749,9 @@ static bool FixupEofEodToken(const clang::SourceManager &sm,
   return false;
 }
 
+// Notify us that we're skipping `tok`.
+void PatchedMacroTracker::SkipToken(const clang::Token &, uintptr_t) {}
+
 // Add a token in.
 //
 // NOTE(pag): This might change `nodes.back()`.
@@ -862,15 +865,10 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
   CloseUnclosedExpansion(tok);
 
   if (skip) {
-//    if (cond_skip_depth && tok.is(clang::tok::raw_identifier) &&
-//        !skipped_area_recurisive_lock) {
-//      D( std::cerr << indent << "BeginSkippedArea <inferred>\n"; )
-//      DoBeginSkippedArea(tok, data);
-//      suppress_indent = true;
-//    } else {
-      D( std::cerr << indent << "(not adding skipped/top-level/eod/eof token "
-                   << clang::tok::getTokenName(tok.getKind()) << ")\n"; )
-//    }
+    D( std::cerr << indent << "(not adding skipped/top-level/eod/eof token "
+                 << clang::tok::getTokenName(tok.getKind()) << " at "
+                 << tok.getLocation().getRawEncoding() << ")\n"; )
+    SkipToken(tok_, data);
     return;
   }
 
@@ -1365,6 +1363,8 @@ void PatchedMacroTracker::DoSetNamedDirective(const clang::Token &, uintptr_t) {
   directive->kind = KindFromName(data, kw_kind);
   if (directive->kind != MacroKind::kToken) {
     directive->directive_name = directive->nodes.back();
+    directive->collected_missing_tokens_on_eod = data == "warning" ||
+                                                 data == "error";
     D( std::cerr << indent << "DirectiveName=" << data << '\n'; )
 
     // Upgrade the file token in-place.
@@ -1446,10 +1446,6 @@ void PatchedMacroTracker::DoEndDirective(
 
   last_directive = directives.back();
 
-  nodes.pop_back();
-  directives.pop_back();
-  last_token.startToken();
-
   if (last_directive->kind == MacroKind::kPragmaDirective) {
 
     // We need to emit the pragma tokens as a line in the parsed tokens.
@@ -1481,7 +1477,71 @@ void PatchedMacroTracker::DoEndDirective(
 
     // Add the token to the end of the pragma directive node.
     last_directive->nodes.push_back(macro_tok);
+
+  // If this was a `#warning` or `#error` then try to collect the string
+  // literals. Those were missing.
+  //
+  // TODO(pag): Patch Clang to make them not missing.
+  } else if (last_directive->collected_missing_tokens_on_eod &&
+             std::holds_alternative<MacroTokenImpl *>(
+                 last_directive->directive_name)) {
+
+    last_directive->collected_missing_tokens_on_eod = false;
+
+    D( std::cerr << indent
+                 << " - Trying to add missing warning/error message\n"; )
+
+    MacroTokenImpl *dir_name_mtok =
+        std::get<MacroTokenImpl *>(last_directive->directive_name);
+    TokenImpl dir_name_tok = ast->tokens[dir_name_mtok->token_offset];
+
+    clang::SourceLocation directive_loc = dir_name_tok.Location();
+    if (!directive_loc.isValid() || !directive_loc.isFileID()) {
+      D( std::cerr << indent << " - Bad directive location\n"; )
+      goto done;
+    }
+
+    clang::SourceLocation after_directive_loc =
+        dir_name_tok.Location().getLocWithOffset(
+            static_cast<int>(dir_name_tok.Data(*ast).size()));
+
+    std::vector<clang::Token> literals;
+    literals.emplace_back();
+
+    while (!pp.getRawToken(after_directive_loc, literals.back(), true)) {
+      clang::Token &literal = literals.back();
+      after_directive_loc = literal.getEndLoc();
+      if (literal.isOneOf(clang::tok::string_literal,
+                          clang::tok::wide_string_literal)) {
+
+        D( std::cerr << indent << " - Lexed a string literal!\n"; )
+        literals.emplace_back();
+
+      } else if (literal.isOneOf(clang::tok::eof, clang::tok::eod) ||
+                 literal.isAtStartOfLine()) {
+        D( std::cerr << indent << " - Lexed EOF/EOD\n"; )
+        break;
+
+      } else if (literal.is(clang::tok::unknown)) {
+        D( std::cerr << indent << " - Has whitespace\n"; )
+        literal.startToken();
+
+      } else {
+        D( std::cerr << indent << " - Has non-whitespace, non-string\n"; )
+        goto done;
+      }
+    }
+
+    literals.pop_back();
+    for (const clang::Token &literal : literals) {
+      DoToken(literal, data);
+    }
   }
+
+done:
+  nodes.pop_back();
+  directives.pop_back();
+  last_token.startToken();
 
   Pop(tok);
 }

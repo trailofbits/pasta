@@ -167,6 +167,10 @@ class PatchedMacroTracker : public clang::PPCallbacks {
 
   // Add a token in.
   void DoToken(const clang::Token &tok, uintptr_t);
+
+  // Notify us that we're skipping `tok`.
+  void SkipToken(const clang::Token &tok, uintptr_t);
+
   std::optional<clang::Token> FindDirectiveHash(const clang::Token &tok);
 
   MacroExpansionImpl *DoPreExpansionSetup(MacroExpansionImpl *);

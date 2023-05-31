@@ -39,9 +39,7 @@ static void ReparentNodes(NodeList nodes, MacroNodeImpl *new_parent) {
     ReparentNode(node, new_parent);
   }
 
-  new_parent->nodes.insert(new_parent->nodes.end(),
-                           nodes.begin(),
-                           nodes.end());
+  new_parent->nodes.insert(new_parent->nodes.end(), nodes.begin(), nodes.end());
   nodes.clear();
 }
 
@@ -3376,9 +3374,9 @@ void PatchedMacroTracker::MacroDefined(const clang::Token &name_tok,
           new_nodes.pop_back();
           if (last_param) {
             assert(!last_param->is_variadic);
-            last_param->nodes.push_back(node);
             last_param->is_variadic = true;
             ReparentNode(node, last_param);
+            last_param->nodes.push_back(node);
           } else {
             last_param = &(ast->root_macro_node.parameters.emplace_back());
             last_param->parent = last_directive;
@@ -3386,8 +3384,8 @@ void PatchedMacroTracker::MacroDefined(const clang::Token &name_tok,
             last_param->index = static_cast<unsigned>(
                 last_directive->parameters.size());
             last_directive->parameters.emplace_back(last_param);
-            last_param->nodes.push_back(node);
             ReparentNode(node, last_param);
+            last_param->nodes.push_back(node);
             new_nodes.push_back(last_param);
           }
           break;
@@ -3403,8 +3401,8 @@ void PatchedMacroTracker::MacroDefined(const clang::Token &name_tok,
           last_param->index = static_cast<unsigned>(
               last_directive->parameters.size());
           last_directive->parameters.emplace_back(last_param);
-          last_param->nodes.push_back(node);
           ReparentNode(node, last_param);
+          last_param->nodes.push_back(node);
           new_nodes.push_back(last_param);
           break;
         }
@@ -3419,8 +3417,8 @@ void PatchedMacroTracker::MacroDefined(const clang::Token &name_tok,
           // E.g. could have comment like `args/*comment*/...` perhaps?
           if (last_param) {
             new_nodes.pop_back();
-            last_param->nodes.push_back(node);
             ReparentNode(node, last_param);
+            last_param->nodes.push_back(node);
           }
           break;
       }

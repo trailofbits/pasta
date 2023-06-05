@@ -44,12 +44,7 @@ def _create_compiler_from_args(fm: FileManager, vec: ArgumentVector, cwd):
             continue
         new_args.append(arg)
 
-    new_args.append('-w')
-    new_args.append('-Wno-everything')
-    new_args.append('-P')
-    new_args.append('-v')
-    new_args.append('-include')
-    new_args.append('/trail/of/bits')
+    new_args.extend(('-w', '-Wno-everything', '-P', '-v', '-include', '/trail/of/bits'))
 
     sysroot = subprocess.run(new_args, stderr=subprocess.PIPE, cwd=cwd, encoding=locale.getpreferredencoding())
     if sysroot.returncode != 0 and len(sysroot.stderr) == 0:
@@ -63,8 +58,7 @@ def _create_compiler_from_args(fm: FileManager, vec: ArgumentVector, cwd):
     else:
         sysroot_str = sysroot.stderr
 
-    new_args.append('-isysroot')
-    new_args.append(f'{cwd}/trail_of_bits')
+    new_args.extend(('-isysroot', f'{cwd}/trail_of_bits'))
 
     no_sysroot = subprocess.run(new_args, stderr=subprocess.PIPE, cwd=cwd, encoding=locale.getpreferredencoding())
     if no_sysroot.returncode != 0 and len(no_sysroot.stderr) == 0:
@@ -129,7 +123,7 @@ if __name__ == '__main__':
 
     parser = ArgumentParser(description='Stress test all PASTA APIs')
     parser.add_argument('compile_commands')
-    parser.add_argument('--sequential', default=False, const=True, action='store_const')
+    parser.add_argument('--sequential', action='store_true')
     args = parser.parse_args()
 
     with open(args.compile_commands) as file:

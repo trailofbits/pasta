@@ -420,7 +420,6 @@ static std::tuple<unsigned, unsigned, unsigned> SkipWhitespace(
         num_leading_lines += 1;
         break;
       case '\\':
-        assert(false);
         return {num_leading_lines, num_leading_spaces, i};
       default:
         return {num_leading_lines, num_leading_spaces, i};

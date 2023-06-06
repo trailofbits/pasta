@@ -35,3 +35,7 @@ target_link_libraries(bootstrap-types PRIVATE
 if(CMAKE_CXX_COMPILER_ID IN_LIST GNULIKE_COMPILER_LIST)
     target_compile_options(bootstrap-types PUBLIC -O0 -g0)
 endif()
+
+if(PASTA_BOOTSTRAP_ENABLE_ASSERTIONS)
+    target_compile_definitions(bootstrap-types PRIVATE PASTA_USE_ASSERT=1)
+endif()

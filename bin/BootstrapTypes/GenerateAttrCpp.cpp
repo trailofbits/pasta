@@ -76,7 +76,7 @@ void GenerateAttrCpp(std::ostream& py_cmake, std::ostream& py_ast) {
       << "#undef PASTA_ATTR_CASE\n"
       << "    default: break;\n"
       << "  }\n"
-      << "  throw std::runtime_error(\"The unreachable has been reached\");\n"
+      << "  " PASTA_ASSERT_THROW "\"The unreachable has been reached\");\n"
       << "}\n\n"
       << "static const std::string_view kAttrNames[] = {\n"
       << "#define PASTA_ATTR_KIND_NAME(name) #name ,\n"

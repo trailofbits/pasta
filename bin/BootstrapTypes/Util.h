@@ -48,3 +48,9 @@ enum class StmtClassification {
 };
 
 StmtClassification ClassifyStmt(const std::string &stmt);
+
+#ifdef PASTA_USE_ASSERT
+#define PASTA_ASSERT_THROW "assert(false &&"
+#else
+#define PASTA_ASSERT_THROW "throw std::runtime_error("
+#endif

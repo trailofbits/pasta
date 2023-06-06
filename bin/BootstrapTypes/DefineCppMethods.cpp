@@ -124,7 +124,7 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
           << rt_val;
     } else {
       os << rt_val
-         << "  throw std::runtime_error(\""
+         << "  " PASTA_ASSERT_THROW "\""
          << class_name << "::"
          << meth_name << " can return nullptr!\");\n";
     }
@@ -204,7 +204,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
             << rt_val;
       } else {
         os << rt_val
-           << "  throw std::runtime_error(\""
+           << "  " PASTA_ASSERT_THROW "\""
            << class_name << "::"
            << meth_name << " can return nullptr!\");\n";
       }
@@ -252,7 +252,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
             << rt_val;
       } else {
         os << rt_val
-           << "  throw std::runtime_error(\""
+           << "  " PASTA_ASSERT_THROW "\""
            << class_name << "::"
            << meth_name << " can return nullptr!\");\n";
       }
@@ -274,7 +274,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
        << "    return std::nullopt;\n"
        << "  }\n"
        << rt_val
-       << "  throw std::runtime_error(\"The unreachable has been reached\");\n"
+       << "  " PASTA_ASSERT_THROW "\"The unreachable has been reached\");\n"
        << "}\n\n";
   } else { \
     os << "// 1: " << class_name << "::" << meth_name << "\n";
@@ -310,7 +310,7 @@ static void DefineIterators(std::ostream &os, const std::string &class_name) {
     }
 
     if (last_is_rbrace) {
-      os << "    throw std::runtime_error(\"The unreachable has been reached\");\n";
+      os << "    " PASTA_ASSERT_THROW "\"The unreachable has been reached\");\n";
     }
 
     os << "  };\n"

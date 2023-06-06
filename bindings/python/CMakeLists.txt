@@ -14,4 +14,4 @@ pybind11_add_module(pypasta
     "${CMAKE_CURRENT_SOURCE_DIR}/src/FileSystem.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/module.cpp"
     ${PASTA_PYTHON_AST_SOURCES})
-target_link_libraries(pypasta PUBLIC pasta)
+target_link_libraries(pypasta PUBLIC pasta_force_load)

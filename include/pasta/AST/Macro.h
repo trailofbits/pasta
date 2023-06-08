@@ -399,6 +399,10 @@ class MacroSubstitution : public Macro {
   // Returns the Decl in the AST that was parsed from the tokens this macro
   // substitution expanded to, if any.
   std::optional<Decl> CoveredDecl(void) const noexcept;
+
+  // Returns the name of the substituted macro if it has one, or the reason why
+  // it does not.
+  std::string_view Name(void) const noexcept;
 };
 
 static_assert(sizeof(MacroSubstitution) == sizeof(Macro));

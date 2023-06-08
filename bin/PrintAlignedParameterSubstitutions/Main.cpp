@@ -68,16 +68,15 @@ public:
         PrintTokensTo(ss, stmt.Tokens());
         ss << " is covered by the following expansions:\n";
         for (auto &exp : covering_expansions) {
-          ss << exp.BeginToken()->Data() << '\n';
+          ss << exp.Name() << '\n';
           ss << "Aligned parameters:\n";
           auto aligned_parameters = exp.AlignedParameterSubstitutions(stmt);
           auto parameter_use_counts = exp.ParameterUseCounts();
-          auto def = exp.Definition().value();
           for (auto &[param, param_stmts] : aligned_parameters) {
-            auto param_name = param.BeginToken();
             unsigned expected = parameter_use_counts.at(param);
+            auto param_name  = param.Name();
             std::size_t actual = param_stmts.size();
-            ss << "  " << (param_name ? param_name->Data() : "<unnamed>")
+            ss << "  " << (param_name ? param_name->Data() : "<a nameless parameter>")
               << " (expected " << std::to_string(expected)
               << ", actual " << std::to_string(actual)
               << "):\n";
@@ -193,8 +192,7 @@ int main(int argc, char *argv[]) {
     if (!maybe_ast.Succeeded()) {
       std::cerr << maybe_ast.TakeError() << std::endl;
       return EXIT_FAILURE;
-    }
-    else {
+    } else {
       PrintAlignedParameterSubstitutions(maybe_ast.TakeValue());
     }
   }

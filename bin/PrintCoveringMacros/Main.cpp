@@ -34,52 +34,6 @@ void PrintTokensTo(std::iostream &s, const pasta::TokenRange &tokens) {
   }
 }
 
-void
-PrintCovering(const pasta::Stmt &stmt, const pasta::MacroArgument &arg) {
-  std::stringstream ss;
-  PrintTokensTo(ss, stmt.Tokens());
-  ss << " is covered by argument ";
-  const auto parent = arg.Parent();
-  if (parent) {
-    ss << "of parent macro ";
-    const auto expansion = pasta::MacroExpansion::From(*parent);
-    if (expansion) {
-      ss << "expansion ";
-      const auto definition = expansion->Definition();
-      if (definition) {
-        ss << "of macro definition ";
-        const auto definition_name = definition->Name();
-        if (definition_name) {
-          ss << definition_name->Data() << ' ';
-        }
-        else {
-          ss << "<unnamed> ";
-        }
-        ss << "argument number ";
-        ss << arg.Index() << ' ';
-        const auto index = arg.Index();
-        const auto parameter = definition->Parameters().At(index);
-        if (parameter and parameter->BeginToken()) {
-          ss << parameter->BeginToken()->Data();
-        }
-        else {
-          ss << "<unnamed>";
-        }
-      }
-      else {
-        ss << "that has no definition";
-      }
-    }
-    else {
-      ss << "that is not an expansion";
-    }
-  }
-  else {
-    ss << "that is an orphan";
-  }
-  std::cout << ss.str() << "\n";
-}
-
 class StmtPrintCoveringMacros final : public pasta::StmtVisitor {
 public:
   std::ostream &os;
@@ -105,7 +59,13 @@ public:
           if (i > 0) {
             ss << ' ';
           }
-          ss << macro.BeginToken()->Data();
+          if (auto sub = pasta::MacroSubstitution::From(macro)) {
+            ss << sub->Name();
+          } else if (auto bt = macro.BeginToken()) {
+            ss << bt->Data();
+          } else {
+            ss << "<a macro with no tokens>";
+          }
           ss << ' ' << '(' << macro.KindName() << ')';
           i++;
         }
@@ -215,8 +175,7 @@ int main(int argc, char *argv[]) {
     if (!maybe_ast.Succeeded()) {
       std::cerr << maybe_ast.TakeError() << std::endl;
       return EXIT_FAILURE;
-    }
-    else {
+    } else {
       PrintCoveringMacros(maybe_ast.TakeValue());
     }
   }

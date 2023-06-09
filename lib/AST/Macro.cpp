@@ -1050,30 +1050,12 @@ std::optional<Decl> MacroSubstitution::CoveredDecl(void) const noexcept {
   return std::nullopt;
 }
 
-std::string_view MacroSubstitution::Name(void) const noexcept {
-  if (auto exp = pasta::MacroExpansion::From(*this)) {
-    if (auto def = exp->Definition()) {
-      if (auto name = def->Name()) {
-        return name->Data();
-      } else {
-        return "<a nameless expansion>";
-      }
-    } else {
-      return "<an expansion without a definition>";
-    }
-  } else if (auto param_sub = pasta::MacroParameterSubstitution::From(*this)) {
-    if (auto name = param_sub->Parameter().Name()) {
-      return name->Data();
-    } else {
-      return "<a nameless parameter>";
-    }
-  } else if (auto stringify = pasta::MacroStringify::From(*this)) {
-    return "<a macro stringification>";
-  } else if (auto concat = pasta::MacroConcatenate::From(*this)) {
-    return "<a macro concatenation>";
-  } else {
-    return "<an unknown kind of macro substitution>";
-  }
+std::optional<MacroToken> MacroSubstitution::NameOrOperator(void) const noexcept {
+  auto node = *reinterpret_cast<const Node *>(impl);
+  auto *node_impl = std::get<MacroNodeImpl *>(node);
+  auto *sub_impl = dynamic_cast<MacroSubstitutionImpl *>(node_impl);
+  assert(std::holds_alternative<MacroTokenImpl *>(sub_impl->name));
+  return MacroToken(ast, &sub_impl->name);
 }
 
 // Walks the given Stmt's subtree and returns the first of its subtrees that

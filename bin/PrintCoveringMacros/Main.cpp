@@ -60,7 +60,11 @@ public:
             ss << ' ';
           }
           if (auto sub = pasta::MacroSubstitution::From(macro)) {
-            ss << sub->Name();
+            if (auto name = sub->NameOrOperator()) {
+              ss << name->Data();
+            } else {
+              ss << "<a nameless macro>";
+            }
           } else if (auto bt = macro.BeginToken()) {
             ss << bt->Data();
           } else {

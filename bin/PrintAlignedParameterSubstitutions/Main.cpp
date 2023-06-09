@@ -68,8 +68,12 @@ public:
         PrintTokensTo(ss, stmt.Tokens());
         ss << " is covered by the following expansions:\n";
         for (auto &exp : covering_expansions) {
-          ss << exp.Name() << '\n';
-          ss << "Aligned parameters:\n";
+          if (auto name = exp.NameOrOperator()) {
+            ss << name->Data();
+          } else {
+            ss << "<a nameless macro>";
+          }
+          ss << "\nAligned parameters:\n";
           auto aligned_parameters = exp.AlignedParameterSubstitutions(stmt);
           auto parameter_use_counts = exp.ParameterUseCounts();
           for (auto &[param, param_stmts] : aligned_parameters) {

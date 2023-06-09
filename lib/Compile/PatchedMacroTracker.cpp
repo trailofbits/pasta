@@ -233,6 +233,7 @@ MacroExpansionImpl *PatchedMacroTracker::DoPreExpansionSetup(
   new_exp->nodes.push_back(new_ident);
   new_exp->nodes.push_back(new_l_paren);
   new_exp->ident = new_ident;
+  new_exp->name = new_ident;
   new_exp->l_paren = new_l_paren;
 
   ReparentNodes(std::move(exp->nodes), new_exp);
@@ -975,7 +976,7 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
         !tok_.isAnnotation() && !exp->ident && tok_.getIdentifierInfo() &&
         tok_.getIdentifierInfo()->hasMacroDefinition()) {
       exp->ident = tok_node;
-
+      exp->name = exp->ident;
     } else if (tok_node->kind_flags.kind == TokenKind::kLParenthesis &&
                exp->ident && !exp->l_paren) {
       exp->l_paren = tok_node;
@@ -2331,7 +2332,12 @@ void PatchedMacroTracker::DoEndConcatenation(
   last_concatenation = substitutions.back();
   assert(last_concatenation->kind == MacroKind::kConcatenate);
   assert(!last_concatenation->nodes.empty());
+  // NOTE(bpappas): Since token concatenation is a binary operation between two
+  // tokens, we expect there to be at least three nodes: the left token, the
+  // concatenation operator, and the right token
+  assert(last_concatenation->nodes.size() >= 3);
   assert(last_concatenation->use_nodes.empty());
+  last_concatenation->name = *(last_concatenation->nodes.begin() + 1);
   last_concatenation->nodes.swap(last_concatenation->use_nodes);
   Pop(tok);
   nodes.pop_back();
@@ -2459,6 +2465,7 @@ void PatchedMacroTracker::DoAfterMacroParameterUse(
   assert(!param->use_nodes.empty());
   assert(-1 <= param->prev_tok_index);
   assert(std::holds_alternative<MacroNodeImpl *>(param->param_in_definition));
+  param->name = param->use_nodes.front();
 
   const clang::Token *tok = &tok_;
 
@@ -2644,6 +2651,7 @@ void PatchedMacroTracker::DoAfterStringify(
   assert(str->kind == MacroKind::kStringify);
 
   assert(str->use_nodes.empty());
+  str->name = str->nodes.front();
   str->nodes.swap(str->use_nodes);
 
   const clang::Token *tok = &tok_;

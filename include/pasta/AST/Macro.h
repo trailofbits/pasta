@@ -156,6 +156,7 @@ class MacroToken final : public Macro {
   friend class MacroParameter;
   friend class MacroParameterSubstitution;
   friend class MacroStringify;
+  friend class MacroSubstitution;
   friend class Token;
 
   using Macro::Macro;
@@ -399,6 +400,11 @@ class MacroSubstitution : public Macro {
   // Returns the Decl in the AST that was parsed from the tokens this macro
   // substitution expanded to, if any.
   std::optional<Decl> CoveredDecl(void) const noexcept;
+
+  // Returns the name of the substituted macro if any. If this substitution
+  // comes from a stringification or token-pasting macro, then return the
+  // operator that triggered the operation instead.
+  std::optional<MacroToken> NameOrOperator(void) const noexcept;
 };
 
 static_assert(sizeof(MacroSubstitution) == sizeof(Macro));

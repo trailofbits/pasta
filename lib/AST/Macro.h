@@ -182,6 +182,7 @@ class MacroSubstitutionImpl : public MacroNodeImpl {
   MacroNodeImpl *Clone(ASTImpl &ast, MacroNodeImpl *parent) const override;
 
   NodeList use_nodes;
+  Node name;
 };
 
 class MacroParameterSubstitutionImpl final : public MacroSubstitutionImpl {

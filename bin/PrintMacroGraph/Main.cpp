@@ -64,7 +64,7 @@ static inline std::string TokRoleColor(const pasta::TokenRole role) {
   case pasta::TokenRole::kEndOfInternalMacroEventMarker: ss << "pink"; break;
 
   default:
-    assert(!"unknown token role");
+    assert(false && "unknown token role");
   }
   return ss.str();
 }

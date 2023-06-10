@@ -1050,6 +1050,14 @@ std::optional<Decl> MacroSubstitution::CoveredDecl(void) const noexcept {
   return std::nullopt;
 }
 
+std::optional<MacroToken> MacroSubstitution::NameOrOperator(void) const noexcept {
+  auto node = *reinterpret_cast<const Node *>(impl);
+  auto *node_impl = std::get<MacroNodeImpl *>(node);
+  auto *sub_impl = dynamic_cast<MacroSubstitutionImpl *>(node_impl);
+  assert(std::holds_alternative<MacroTokenImpl *>(sub_impl->name));
+  return MacroToken(ast, &sub_impl->name);
+}
+
 // Walks the given Stmt's subtree and returns the first of its subtrees that
 // aligns with the given macro, if any.
 std::optional<pasta::Stmt>

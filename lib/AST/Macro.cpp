@@ -1054,8 +1054,11 @@ std::optional<MacroToken> MacroSubstitution::NameOrOperator(void) const noexcept
   auto node = *reinterpret_cast<const Node *>(impl);
   auto *node_impl = std::get<MacroNodeImpl *>(node);
   auto *sub_impl = dynamic_cast<MacroSubstitutionImpl *>(node_impl);
-  assert(std::holds_alternative<MacroTokenImpl *>(sub_impl->name));
-  return MacroToken(ast, &sub_impl->name);
+  if (std::holds_alternative<MacroTokenImpl *>(sub_impl->name)) {
+    return MacroToken(ast, &sub_impl->name);
+  } else {
+    return std::nullopt;
+  }
 }
 
 // Walks the given Stmt's subtree and returns the first of its subtrees that

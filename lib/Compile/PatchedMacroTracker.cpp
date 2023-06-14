@@ -2259,6 +2259,19 @@ void PatchedMacroTracker::DoBeginDelayedSubstitution(
   if (!last_token_was_added) {
     DoToken(tok, data);
   }
+
+  // Find the name, e.g. `defined`.
+  if (!expansion->nodes.empty() &&
+      std::holds_alternative<MacroTokenImpl *>(expansion->nodes.back())) {
+    MacroTokenImpl *ident = std::get<MacroTokenImpl *>(
+        expansion->nodes.back());
+    if (ident->kind_flags.kind == TokenKind::kIdentifier ||
+        ident->kind_flags.kind == TokenKind::kRawIdentifier) {
+      expansion->name = expansion->nodes.back();
+    }
+  }
+
+  assert(std::holds_alternative<MacroTokenImpl *>(expansion->name));
 }
 
 void PatchedMacroTracker::DoSwitchToSubstitution(

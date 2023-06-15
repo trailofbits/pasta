@@ -48,6 +48,7 @@ void GenerateStmtH(void) {
       << "namespace pasta {\n"
       << "class Macro;\n"
       << "class MacroArgument;\n"
+      << "enum class MacroKind : unsigned char;\n"
       << "\n"
       << "class StmtVisitor {\n"
       << " public:\n"

@@ -302,7 +302,6 @@ class Stmt {
   std::optional<::pasta::Macro> LowestCoveringMacro(::pasta::MacroKind) const noexcept;
   std::vector<Macro> CoveringMacros(void) const noexcept;
   bool CoveredBy(::pasta::Macro &macro) const noexcept;
-
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, AbstractConditionalOperator)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, AddrLabelExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ArrayInitIndexExpr)

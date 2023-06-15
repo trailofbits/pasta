@@ -239,7 +239,8 @@ int main(void) {
 # This file is auto-generated.
 
 set(PASTA_PYTHON_AST_SOURCES
-    ")" << python_bindings_path << "/Enums.cpp\"\n";
+    "${CMAKE_CURRENT_SOURCE_DIR}/Enums.cpp"
+)";
   py_ast << R"(/*
  * Copyright (c) 2023 Trail of Bits, Inc.
  */

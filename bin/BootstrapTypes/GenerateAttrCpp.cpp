@@ -94,7 +94,7 @@ void GenerateAttrCpp(std::ostream& py_cmake, std::ostream& py_ast) {
 
   // Define them all.
   for (const auto &name : gTopologicallyOrderedAttrs) {
-    py_cmake << "    \"" << kPythonBindingsPath << "/" << name << ".cpp\"\n";
+    py_cmake << "    \"${CMAKE_CURRENT_SOURCE_DIR}/" << name << ".cpp\"\n";
     py_ast << "void Register" << name << "(py::module_ &m);\n"
            << "  Register" << name << "(m);\n";
 

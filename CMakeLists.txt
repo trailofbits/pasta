@@ -317,6 +317,11 @@ target_link_libraries(pasta_util PUBLIC
     pasta_thirdparty_llvm
 )
 
+set_target_properties(
+    pasta_util PROPERTIES
+    POSITION_INDEPENDENT_CODE YES
+)
+
 set(ast_HEADERS
     "include/pasta/AST/AST.h"
     "include/pasta/AST/Attr.h"
@@ -393,6 +398,7 @@ add_library(pasta_compiler STATIC
 set_target_properties(
     pasta_compiler PROPERTIES
     VISIBILITY_INLINES_HIDDEN YES
+    POSITION_INDEPENDENT_CODE YES
 )
 
 target_include_directories(pasta_compiler PRIVATE

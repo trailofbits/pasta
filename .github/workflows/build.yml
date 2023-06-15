@@ -65,6 +65,7 @@ jobs:
                        python3-dev \
                        libncurses-dev \
                        clang-15
+        python3 -m pip install pybind11[global]
 
     - name: Setup the build paths
       shell: bash

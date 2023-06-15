@@ -174,7 +174,7 @@ jobs:
 
     - name: Try loading the Python extension
       shell: bash
-      run: env PYTHONPATH=$(cwd)/bindings/python python3 -c "import pypasta"
+      run: env PYTHONPATH=${{ steps.build_paths.outputs.BUILD }}/bindings/python python3 -c "import pypasta"
 
     - name: Reclaim disk space
       shell: bash

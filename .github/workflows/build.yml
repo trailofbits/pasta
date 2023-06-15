@@ -172,6 +172,10 @@ jobs:
       run: |
         cmake --build . -j ${{ steps.build_job_count.outputs.VALUE }}
 
+    - name: Try loading the Python extension
+      shell: bash
+      run: env PYTHONPATH=$(cwd)/bindings/python python3 -c "import pypasta"
+
     - name: Reclaim disk space
       shell: bash
       run: |

@@ -10,19 +10,20 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterSectionAttr(py::module_ &m) {
-  py::class_<SectionAttr, InheritableAttr>(m, "SectionAttr")
+void RegisterSectionAttr(nb::module_ &m) {
+  nb::class_<SectionAttr, InheritableAttr>(m, "SectionAttr")
     .def("__hash__", [](const SectionAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("name", &SectionAttr::Name)
-    .def_property_readonly("name_length", &SectionAttr::NameLength)
-    .def_property_readonly("semantic_spelling", &SectionAttr::SemanticSpelling)
-    .def_property_readonly("spelling", &SectionAttr::Spelling);
+    .def_prop_ro("name", &SectionAttr::Name)
+    .def_prop_ro("name_length", &SectionAttr::NameLength)
+    .def_prop_ro("semantic_spelling", &SectionAttr::SemanticSpelling)
+    .def_prop_ro("spelling", &SectionAttr::Spelling);
 }
 } // namespace pasta

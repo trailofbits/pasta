@@ -10,21 +10,22 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterParenListExpr(py::module_ &m) {
-  py::class_<ParenListExpr, Expr>(m, "ParenListExpr")
+void RegisterParenListExpr(nb::module_ &m) {
+  nb::class_<ParenListExpr, Expr>(m, "ParenListExpr")
     .def("__hash__", [](const ParenListExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &ParenListExpr::Children)
-    .def_property_readonly("begin_token", &ParenListExpr::BeginToken)
-    .def_property_readonly("end_token", &ParenListExpr::EndToken)
-    .def_property_readonly("l_paren_token", &ParenListExpr::LParenToken)
-    .def_property_readonly("num_expressions", &ParenListExpr::NumExpressions)
-    .def_property_readonly("r_paren_token", &ParenListExpr::RParenToken);
+    .def_prop_ro("children", &ParenListExpr::Children)
+    .def_prop_ro("begin_token", &ParenListExpr::BeginToken)
+    .def_prop_ro("end_token", &ParenListExpr::EndToken)
+    .def_prop_ro("l_paren_token", &ParenListExpr::LParenToken)
+    .def_prop_ro("num_expressions", &ParenListExpr::NumExpressions)
+    .def_prop_ro("r_paren_token", &ParenListExpr::RParenToken);
 }
 } // namespace pasta

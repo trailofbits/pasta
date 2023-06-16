@@ -10,19 +10,20 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterTypeOfType(py::module_ &m) {
-  py::class_<TypeOfType, Type>(m, "TypeOfType")
+void RegisterTypeOfType(nb::module_ &m) {
+  nb::class_<TypeOfType, Type>(m, "TypeOfType")
     .def("__hash__", [](const TypeOfType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("desugar", &TypeOfType::Desugar)
-    .def_property_readonly("kind", &TypeOfType::Kind)
-    .def_property_readonly("unmodified_type", &TypeOfType::UnmodifiedType)
-    .def_property_readonly("is_sugared", &TypeOfType::IsSugared);
+    .def_prop_ro("desugar", &TypeOfType::Desugar)
+    .def_prop_ro("kind", &TypeOfType::Kind)
+    .def_prop_ro("unmodified_type", &TypeOfType::UnmodifiedType)
+    .def_prop_ro("is_sugared", &TypeOfType::IsSugared);
 }
 } // namespace pasta

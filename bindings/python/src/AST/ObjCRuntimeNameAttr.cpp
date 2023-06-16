@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterObjCRuntimeNameAttr(py::module_ &m) {
-  py::class_<ObjCRuntimeNameAttr, Attr>(m, "ObjCRuntimeNameAttr")
+void RegisterObjCRuntimeNameAttr(nb::module_ &m) {
+  nb::class_<ObjCRuntimeNameAttr, Attr>(m, "ObjCRuntimeNameAttr")
     .def("__hash__", [](const ObjCRuntimeNameAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("metadata_name", &ObjCRuntimeNameAttr::MetadataName)
-    .def_property_readonly("metadata_name_length", &ObjCRuntimeNameAttr::MetadataNameLength)
-    .def_property_readonly("spelling", &ObjCRuntimeNameAttr::Spelling);
+    .def_prop_ro("metadata_name", &ObjCRuntimeNameAttr::MetadataName)
+    .def_prop_ro("metadata_name_length", &ObjCRuntimeNameAttr::MetadataNameLength)
+    .def_prop_ro("spelling", &ObjCRuntimeNameAttr::Spelling);
 }
 } // namespace pasta

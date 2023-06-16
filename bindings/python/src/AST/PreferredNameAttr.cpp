@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterPreferredNameAttr(py::module_ &m) {
-  py::class_<PreferredNameAttr, InheritableAttr>(m, "PreferredNameAttr")
+void RegisterPreferredNameAttr(nb::module_ &m) {
+  nb::class_<PreferredNameAttr, InheritableAttr>(m, "PreferredNameAttr")
     .def("__hash__", [](const PreferredNameAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("spelling", &PreferredNameAttr::Spelling)
-    .def_property_readonly("typedef_type", &PreferredNameAttr::TypedefType)
-    .def_property_readonly("typedef_type_token", &PreferredNameAttr::TypedefTypeToken);
+    .def_prop_ro("spelling", &PreferredNameAttr::Spelling)
+    .def_prop_ro("typedef_type", &PreferredNameAttr::TypedefType)
+    .def_prop_ro("typedef_type_token", &PreferredNameAttr::TypedefTypeToken);
 }
 } // namespace pasta

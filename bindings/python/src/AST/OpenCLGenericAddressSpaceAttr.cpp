@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterOpenCLGenericAddressSpaceAttr(py::module_ &m) {
-  py::class_<OpenCLGenericAddressSpaceAttr, TypeAttr>(m, "OpenCLGenericAddressSpaceAttr")
+void RegisterOpenCLGenericAddressSpaceAttr(nb::module_ &m) {
+  nb::class_<OpenCLGenericAddressSpaceAttr, TypeAttr>(m, "OpenCLGenericAddressSpaceAttr")
     .def("__hash__", [](const OpenCLGenericAddressSpaceAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("semantic_spelling", &OpenCLGenericAddressSpaceAttr::SemanticSpelling)
-    .def_property_readonly("spelling", &OpenCLGenericAddressSpaceAttr::Spelling);
+    .def_prop_ro("semantic_spelling", &OpenCLGenericAddressSpaceAttr::SemanticSpelling)
+    .def_prop_ro("spelling", &OpenCLGenericAddressSpaceAttr::Spelling);
 }
 } // namespace pasta

@@ -10,19 +10,20 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterTemplateDecl(py::module_ &m) {
-  py::class_<TemplateDecl, NamedDecl>(m, "TemplateDecl")
+void RegisterTemplateDecl(nb::module_ &m) {
+  nb::class_<TemplateDecl, NamedDecl>(m, "TemplateDecl")
     .def("__hash__", [](const TemplateDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("template_parameters", &TemplateDecl::TemplateParameters)
-    .def_property_readonly("templated_declaration", &TemplateDecl::TemplatedDeclaration)
-    .def_property_readonly("has_associated_constraints", &TemplateDecl::HasAssociatedConstraints)
-    .def_property_readonly("is_type_alias", &TemplateDecl::IsTypeAlias);
+    .def_prop_ro("template_parameters", &TemplateDecl::TemplateParameters)
+    .def_prop_ro("templated_declaration", &TemplateDecl::TemplatedDeclaration)
+    .def_prop_ro("has_associated_constraints", &TemplateDecl::HasAssociatedConstraints)
+    .def_prop_ro("is_type_alias", &TemplateDecl::IsTypeAlias);
 }
 } // namespace pasta

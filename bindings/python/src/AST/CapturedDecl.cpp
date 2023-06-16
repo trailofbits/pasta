@@ -10,20 +10,21 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterCapturedDecl(py::module_ &m) {
-  py::class_<CapturedDecl, Decl>(m, "CapturedDecl")
+void RegisterCapturedDecl(nb::module_ &m) {
+  nb::class_<CapturedDecl, Decl>(m, "CapturedDecl")
     .def("__hash__", [](const CapturedDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("context_parameter", &CapturedDecl::ContextParameter)
-    .def_property_readonly("context_parameter_position", &CapturedDecl::ContextParameterPosition)
-    .def_property_readonly("num_parameters", &CapturedDecl::NumParameters)
-    .def_property_readonly("is_nothrow", &CapturedDecl::IsNothrow)
-    .def_property_readonly("parameters", &CapturedDecl::Parameters);
+    .def_prop_ro("context_parameter", &CapturedDecl::ContextParameter)
+    .def_prop_ro("context_parameter_position", &CapturedDecl::ContextParameterPosition)
+    .def_prop_ro("num_parameters", &CapturedDecl::NumParameters)
+    .def_prop_ro("is_nothrow", &CapturedDecl::IsNothrow)
+    .def_prop_ro("parameters", &CapturedDecl::Parameters);
 }
 } // namespace pasta

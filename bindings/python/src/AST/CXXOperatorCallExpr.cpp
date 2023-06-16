@@ -10,24 +10,25 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterCXXOperatorCallExpr(py::module_ &m) {
-  py::class_<CXXOperatorCallExpr, CallExpr>(m, "CXXOperatorCallExpr")
+void RegisterCXXOperatorCallExpr(nb::module_ &m) {
+  nb::class_<CXXOperatorCallExpr, CallExpr>(m, "CXXOperatorCallExpr")
     .def("__hash__", [](const CXXOperatorCallExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("begin_token", &CXXOperatorCallExpr::BeginToken)
-    .def_property_readonly("end_token", &CXXOperatorCallExpr::EndToken)
-    .def_property_readonly("expression_token", &CXXOperatorCallExpr::ExpressionToken)
-    .def_property_readonly("operator", &CXXOperatorCallExpr::Operator)
-    .def_property_readonly("operator_token", &CXXOperatorCallExpr::OperatorToken)
-    .def_property_readonly("tokens", &CXXOperatorCallExpr::Tokens)
-    .def_property_readonly("is_assignment_operation", &CXXOperatorCallExpr::IsAssignmentOperation)
-    .def_property_readonly("is_comparison_operation", &CXXOperatorCallExpr::IsComparisonOperation)
-    .def_property_readonly("is_infix_binary_operation", &CXXOperatorCallExpr::IsInfixBinaryOperation);
+    .def_prop_ro("begin_token", &CXXOperatorCallExpr::BeginToken)
+    .def_prop_ro("end_token", &CXXOperatorCallExpr::EndToken)
+    .def_prop_ro("expression_token", &CXXOperatorCallExpr::ExpressionToken)
+    .def_prop_ro("operator", &CXXOperatorCallExpr::Operator)
+    .def_prop_ro("operator_token", &CXXOperatorCallExpr::OperatorToken)
+    .def_prop_ro("tokens", &CXXOperatorCallExpr::Tokens)
+    .def_prop_ro("is_assignment_operation", &CXXOperatorCallExpr::IsAssignmentOperation)
+    .def_prop_ro("is_comparison_operation", &CXXOperatorCallExpr::IsComparisonOperation)
+    .def_prop_ro("is_infix_binary_operation", &CXXOperatorCallExpr::IsInfixBinaryOperation);
 }
 } // namespace pasta

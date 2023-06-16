@@ -1,9 +1,8 @@
 #pragma once
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
-#include <pybind11/stl.h>
-#include <pybind11/stl/filesystem.h>
+#include <nanobind/stl/filesystem.h>
 
 #include "Result.h"
 
@@ -22,11 +21,11 @@ struct overload_cast_const_impl {
 template <typename... Args>
 static constexpr detail::overload_cast_const_impl<Args...> overload_cast_const{};
 
-void RegisterArgumentVector(pybind11::module_&);
-void RegisterCompileCommand(pybind11::module_&);
-void RegisterFileSystem(pybind11::module_&);
-void RegisterFileManager(pybind11::module_&);
-void RegisterCompileJob(pybind11::module_&);
-void RegisterCompiler(pybind11::module_&);
-void RegisterAST(pybind11::module_&);
+void RegisterArgumentVector(nanobind::module_&);
+void RegisterCompileCommand(nanobind::module_&);
+void RegisterFileSystem(nanobind::module_&);
+void RegisterFileManager(nanobind::module_&);
+void RegisterCompileJob(nanobind::module_&);
+void RegisterCompiler(nanobind::module_&);
+void RegisterAST(nanobind::module_&);
 } // namespace pasta

@@ -168,14 +168,14 @@ void GenerateForwardH(std::ostream &os_py) {
 
 // This file is auto-generated.
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 #include <pasta/AST/Forward.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterEnums(py::module_ &m) {
+void RegisterEnums(nb::module_ &m) {
 )";
   DeclareEnums(os, os_py);
   os_py << R"(

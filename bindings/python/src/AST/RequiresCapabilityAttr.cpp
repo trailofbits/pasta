@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterRequiresCapabilityAttr(py::module_ &m) {
-  py::class_<RequiresCapabilityAttr, InheritableAttr>(m, "RequiresCapabilityAttr")
+void RegisterRequiresCapabilityAttr(nb::module_ &m) {
+  nb::class_<RequiresCapabilityAttr, InheritableAttr>(m, "RequiresCapabilityAttr")
     .def("__hash__", [](const RequiresCapabilityAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("semantic_spelling", &RequiresCapabilityAttr::SemanticSpelling)
-    .def_property_readonly("spelling", &RequiresCapabilityAttr::Spelling)
-    .def_property_readonly("is_shared", &RequiresCapabilityAttr::IsShared);
+    .def_prop_ro("semantic_spelling", &RequiresCapabilityAttr::SemanticSpelling)
+    .def_prop_ro("spelling", &RequiresCapabilityAttr::Spelling)
+    .def_prop_ro("is_shared", &RequiresCapabilityAttr::IsShared);
 }
 } // namespace pasta

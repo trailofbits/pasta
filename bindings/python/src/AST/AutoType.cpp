@@ -10,21 +10,22 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterAutoType(py::module_ &m) {
-  py::class_<AutoType, DeducedType>(m, "AutoType")
+void RegisterAutoType(nb::module_ &m) {
+  nb::class_<AutoType, DeducedType>(m, "AutoType")
     .def("__hash__", [](const AutoType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("keyword", &AutoType::Keyword)
-    .def_property_readonly("type_constraint_arguments", &AutoType::TypeConstraintArguments)
-    .def_property_readonly("type_constraint_concept", &AutoType::TypeConstraintConcept)
-    .def_property_readonly("is_constrained", &AutoType::IsConstrained)
-    .def_property_readonly("is_decltype_auto", &AutoType::IsDecltypeAuto)
-    .def_property_readonly("is_gnu_auto_type", &AutoType::IsGNUAutoType);
+    .def_prop_ro("keyword", &AutoType::Keyword)
+    .def_prop_ro("type_constraint_arguments", &AutoType::TypeConstraintArguments)
+    .def_prop_ro("type_constraint_concept", &AutoType::TypeConstraintConcept)
+    .def_prop_ro("is_constrained", &AutoType::IsConstrained)
+    .def_prop_ro("is_decltype_auto", &AutoType::IsDecltypeAuto)
+    .def_prop_ro("is_gnu_auto_type", &AutoType::IsGNUAutoType);
 }
 } // namespace pasta

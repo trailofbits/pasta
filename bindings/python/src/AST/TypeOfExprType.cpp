@@ -10,19 +10,20 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterTypeOfExprType(py::module_ &m) {
-  py::class_<TypeOfExprType, Type>(m, "TypeOfExprType")
+void RegisterTypeOfExprType(nb::module_ &m) {
+  nb::class_<TypeOfExprType, Type>(m, "TypeOfExprType")
     .def("__hash__", [](const TypeOfExprType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("desugar", &TypeOfExprType::Desugar)
-    .def_property_readonly("kind", &TypeOfExprType::Kind)
-    .def_property_readonly("underlying_expression", &TypeOfExprType::UnderlyingExpression)
-    .def_property_readonly("is_sugared", &TypeOfExprType::IsSugared);
+    .def_prop_ro("desugar", &TypeOfExprType::Desugar)
+    .def_prop_ro("kind", &TypeOfExprType::Kind)
+    .def_prop_ro("underlying_expression", &TypeOfExprType::UnderlyingExpression)
+    .def_prop_ro("is_sugared", &TypeOfExprType::IsSugared);
 }
 } // namespace pasta

@@ -10,23 +10,24 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterExtVectorElementExpr(py::module_ &m) {
-  py::class_<ExtVectorElementExpr, Expr>(m, "ExtVectorElementExpr")
+void RegisterExtVectorElementExpr(nb::module_ &m) {
+  nb::class_<ExtVectorElementExpr, Expr>(m, "ExtVectorElementExpr")
     .def("__hash__", [](const ExtVectorElementExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &ExtVectorElementExpr::Children)
-    .def_property_readonly("contains_duplicate_elements", &ExtVectorElementExpr::ContainsDuplicateElements)
-    .def_property_readonly("accessor_token", &ExtVectorElementExpr::AccessorToken)
-    .def_property_readonly("base", &ExtVectorElementExpr::Base)
-    .def_property_readonly("begin_token", &ExtVectorElementExpr::BeginToken)
-    .def_property_readonly("end_token", &ExtVectorElementExpr::EndToken)
-    .def_property_readonly("num_elements", &ExtVectorElementExpr::NumElements)
-    .def_property_readonly("is_arrow", &ExtVectorElementExpr::IsArrow);
+    .def_prop_ro("children", &ExtVectorElementExpr::Children)
+    .def_prop_ro("contains_duplicate_elements", &ExtVectorElementExpr::ContainsDuplicateElements)
+    .def_prop_ro("accessor_token", &ExtVectorElementExpr::AccessorToken)
+    .def_prop_ro("base", &ExtVectorElementExpr::Base)
+    .def_prop_ro("begin_token", &ExtVectorElementExpr::BeginToken)
+    .def_prop_ro("end_token", &ExtVectorElementExpr::EndToken)
+    .def_prop_ro("num_elements", &ExtVectorElementExpr::NumElements)
+    .def_prop_ro("is_arrow", &ExtVectorElementExpr::IsArrow);
 }
 } // namespace pasta

@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterNoStackProtectorAttr(py::module_ &m) {
-  py::class_<NoStackProtectorAttr, InheritableAttr>(m, "NoStackProtectorAttr")
+void RegisterNoStackProtectorAttr(nb::module_ &m) {
+  nb::class_<NoStackProtectorAttr, InheritableAttr>(m, "NoStackProtectorAttr")
     .def("__hash__", [](const NoStackProtectorAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("semantic_spelling", &NoStackProtectorAttr::SemanticSpelling)
-    .def_property_readonly("spelling", &NoStackProtectorAttr::Spelling);
+    .def_prop_ro("semantic_spelling", &NoStackProtectorAttr::SemanticSpelling)
+    .def_prop_ro("spelling", &NoStackProtectorAttr::Spelling);
 }
 } // namespace pasta

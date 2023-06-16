@@ -95,7 +95,7 @@ void GenerateAttrCpp(std::ostream& py_cmake, std::ostream& py_ast) {
   // Define them all.
   for (const auto &name : gTopologicallyOrderedAttrs) {
     py_cmake << "    \"${CMAKE_CURRENT_SOURCE_DIR}/" << name << ".cpp\"\n";
-    py_ast << "void Register" << name << "(py::module_ &m);\n"
+    py_ast << "void Register" << name << "(nb::module_ &m);\n"
            << "  Register" << name << "(m);\n";
 
     std::ofstream os_py(std::string(kPythonBindingsPath) + "/" + name + ".cpp");
@@ -111,14 +111,15 @@ void GenerateAttrCpp(std::ostream& py_cmake, std::ostream& py_ast) {
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void Register)" << name << "(py::module_ &m) {\n"
-      << "  py::class_<" << name;
+void Register)" << name << "(nb::module_ &m) {\n"
+      << "  nb::class_<" << name;
 
     llvm::StringRef name_ref(name);
 

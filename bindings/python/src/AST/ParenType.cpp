@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterParenType(py::module_ &m) {
-  py::class_<ParenType, Type>(m, "ParenType")
+void RegisterParenType(nb::module_ &m) {
+  nb::class_<ParenType, Type>(m, "ParenType")
     .def("__hash__", [](const ParenType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("desugar", &ParenType::Desugar)
-    .def_property_readonly("inner_type", &ParenType::InnerType)
-    .def_property_readonly("is_sugared", &ParenType::IsSugared);
+    .def_prop_ro("desugar", &ParenType::Desugar)
+    .def_prop_ro("inner_type", &ParenType::InnerType)
+    .def_prop_ro("is_sugared", &ParenType::IsSugared);
 }
 } // namespace pasta

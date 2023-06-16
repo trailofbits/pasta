@@ -10,20 +10,21 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterDeprecatedAttr(py::module_ &m) {
-  py::class_<DeprecatedAttr, InheritableAttr>(m, "DeprecatedAttr")
+void RegisterDeprecatedAttr(nb::module_ &m) {
+  nb::class_<DeprecatedAttr, InheritableAttr>(m, "DeprecatedAttr")
     .def("__hash__", [](const DeprecatedAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("message", &DeprecatedAttr::Message)
-    .def_property_readonly("message_length", &DeprecatedAttr::MessageLength)
-    .def_property_readonly("replacement", &DeprecatedAttr::Replacement)
-    .def_property_readonly("replacement_length", &DeprecatedAttr::ReplacementLength)
-    .def_property_readonly("spelling", &DeprecatedAttr::Spelling);
+    .def_prop_ro("message", &DeprecatedAttr::Message)
+    .def_prop_ro("message_length", &DeprecatedAttr::MessageLength)
+    .def_prop_ro("replacement", &DeprecatedAttr::Replacement)
+    .def_prop_ro("replacement_length", &DeprecatedAttr::ReplacementLength)
+    .def_prop_ro("spelling", &DeprecatedAttr::Spelling);
 }
 } // namespace pasta

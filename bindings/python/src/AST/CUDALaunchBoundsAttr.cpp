@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterCUDALaunchBoundsAttr(py::module_ &m) {
-  py::class_<CUDALaunchBoundsAttr, InheritableAttr>(m, "CUDALaunchBoundsAttr")
+void RegisterCUDALaunchBoundsAttr(nb::module_ &m) {
+  nb::class_<CUDALaunchBoundsAttr, InheritableAttr>(m, "CUDALaunchBoundsAttr")
     .def("__hash__", [](const CUDALaunchBoundsAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("max_threads", &CUDALaunchBoundsAttr::MaxThreads)
-    .def_property_readonly("min_blocks", &CUDALaunchBoundsAttr::MinBlocks)
-    .def_property_readonly("spelling", &CUDALaunchBoundsAttr::Spelling);
+    .def_prop_ro("max_threads", &CUDALaunchBoundsAttr::MaxThreads)
+    .def_prop_ro("min_blocks", &CUDALaunchBoundsAttr::MinBlocks)
+    .def_prop_ro("spelling", &CUDALaunchBoundsAttr::Spelling);
 }
 } // namespace pasta

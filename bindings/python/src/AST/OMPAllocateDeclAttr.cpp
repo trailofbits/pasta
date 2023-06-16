@@ -10,19 +10,20 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterOMPAllocateDeclAttr(py::module_ &m) {
-  py::class_<OMPAllocateDeclAttr, InheritableAttr>(m, "OMPAllocateDeclAttr")
+void RegisterOMPAllocateDeclAttr(nb::module_ &m) {
+  nb::class_<OMPAllocateDeclAttr, InheritableAttr>(m, "OMPAllocateDeclAttr")
     .def("__hash__", [](const OMPAllocateDeclAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("alignment", &OMPAllocateDeclAttr::Alignment)
-    .def_property_readonly("allocator", &OMPAllocateDeclAttr::Allocator)
-    .def_property_readonly("allocator_type", &OMPAllocateDeclAttr::AllocatorType)
-    .def_property_readonly("spelling", &OMPAllocateDeclAttr::Spelling);
+    .def_prop_ro("alignment", &OMPAllocateDeclAttr::Alignment)
+    .def_prop_ro("allocator", &OMPAllocateDeclAttr::Allocator)
+    .def_prop_ro("allocator_type", &OMPAllocateDeclAttr::AllocatorType)
+    .def_prop_ro("spelling", &OMPAllocateDeclAttr::Spelling);
 }
 } // namespace pasta

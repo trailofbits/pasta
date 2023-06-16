@@ -10,14 +10,15 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterOMPMasterDirective(py::module_ &m) {
-  py::class_<OMPMasterDirective, OMPExecutableDirective>(m, "OMPMasterDirective")
+void RegisterOMPMasterDirective(nb::module_ &m) {
+  nb::class_<OMPMasterDirective, OMPExecutableDirective>(m, "OMPMasterDirective")
     .def("__hash__", [](const OMPMasterDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); });
 }

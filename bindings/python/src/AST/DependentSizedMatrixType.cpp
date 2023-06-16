@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterDependentSizedMatrixType(py::module_ &m) {
-  py::class_<DependentSizedMatrixType, MatrixType>(m, "DependentSizedMatrixType")
+void RegisterDependentSizedMatrixType(nb::module_ &m) {
+  nb::class_<DependentSizedMatrixType, MatrixType>(m, "DependentSizedMatrixType")
     .def("__hash__", [](const DependentSizedMatrixType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("attribute_token", &DependentSizedMatrixType::AttributeToken)
-    .def_property_readonly("column_expression", &DependentSizedMatrixType::ColumnExpression)
-    .def_property_readonly("row_expression", &DependentSizedMatrixType::RowExpression);
+    .def_prop_ro("attribute_token", &DependentSizedMatrixType::AttributeToken)
+    .def_prop_ro("column_expression", &DependentSizedMatrixType::ColumnExpression)
+    .def_prop_ro("row_expression", &DependentSizedMatrixType::RowExpression);
 }
 } // namespace pasta

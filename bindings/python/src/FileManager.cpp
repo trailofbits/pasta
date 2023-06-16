@@ -4,9 +4,9 @@
 
 namespace pasta {
 
-namespace py = pybind11;
-void RegisterFileManager(py::module_ &m) {
-  py::class_<FileManager>(m, "FileManager")
-    .def(py::init<std::shared_ptr<FileSystem>>());
+namespace nb = nanobind;
+void RegisterFileManager(nb::module_ &m) {
+  nb::class_<FileManager>(m, "FileManager")
+    .def(nb::init<std::shared_ptr<FileSystem>>());
 }
 }  // namespace pasta

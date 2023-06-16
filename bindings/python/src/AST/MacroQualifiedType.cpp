@@ -10,19 +10,20 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterMacroQualifiedType(py::module_ &m) {
-  py::class_<MacroQualifiedType, Type>(m, "MacroQualifiedType")
+void RegisterMacroQualifiedType(nb::module_ &m) {
+  nb::class_<MacroQualifiedType, Type>(m, "MacroQualifiedType")
     .def("__hash__", [](const MacroQualifiedType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("desugar", &MacroQualifiedType::Desugar)
-    .def_property_readonly("modified_type", &MacroQualifiedType::ModifiedType)
-    .def_property_readonly("underlying_type", &MacroQualifiedType::UnderlyingType)
-    .def_property_readonly("is_sugared", &MacroQualifiedType::IsSugared);
+    .def_prop_ro("desugar", &MacroQualifiedType::Desugar)
+    .def_prop_ro("modified_type", &MacroQualifiedType::ModifiedType)
+    .def_prop_ro("underlying_type", &MacroQualifiedType::UnderlyingType)
+    .def_prop_ro("is_sugared", &MacroQualifiedType::IsSugared);
 }
 } // namespace pasta

@@ -10,20 +10,21 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterDependentBitIntType(py::module_ &m) {
-  py::class_<DependentBitIntType, Type>(m, "DependentBitIntType")
+void RegisterDependentBitIntType(nb::module_ &m) {
+  nb::class_<DependentBitIntType, Type>(m, "DependentBitIntType")
     .def("__hash__", [](const DependentBitIntType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("desugar", &DependentBitIntType::Desugar)
-    .def_property_readonly("num_bits_expression", &DependentBitIntType::NumBitsExpression)
-    .def_property_readonly("is_signed", &DependentBitIntType::IsSigned)
-    .def_property_readonly("is_sugared", &DependentBitIntType::IsSugared)
-    .def_property_readonly("is_unsigned", &DependentBitIntType::IsUnsigned);
+    .def_prop_ro("desugar", &DependentBitIntType::Desugar)
+    .def_prop_ro("num_bits_expression", &DependentBitIntType::NumBitsExpression)
+    .def_prop_ro("is_signed", &DependentBitIntType::IsSigned)
+    .def_prop_ro("is_sugared", &DependentBitIntType::IsSugared)
+    .def_prop_ro("is_unsigned", &DependentBitIntType::IsUnsigned);
 }
 } // namespace pasta

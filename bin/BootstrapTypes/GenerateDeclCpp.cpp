@@ -202,7 +202,7 @@ void GenerateDeclCpp(std::ostream& py_cmake, std::ostream& py_ast) {
 
   {
     py_cmake << "    \"${CMAKE_CURRENT_SOURCE_DIR}/DeclContext.cpp\"\n";
-    py_ast << "void RegisterDeclContext(py::module_ &m);\n"
+    py_ast << "void RegisterDeclContext(nb::module_ &m);\n"
            << "  RegisterDeclContext(m);\n";
   
     std::ofstream decl_context_os(std::string(kPythonBindingsPath) + "/DeclContext.cpp");
@@ -218,13 +218,13 @@ void GenerateDeclCpp(std::ostream& py_cmake, std::ostream& py_ast) {
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterDeclContext(py::module_ &m) {
-  py::class_<DeclContext>(m, "DeclContext"))";
+void RegisterDeclContext(nb::module_ &m) {
+  nb::class_<DeclContext>(m, "DeclContext"))";
 
     DefineCppMethods(os, decl_context, gClassIDs[decl_context], decl_context_os);
 
@@ -242,7 +242,7 @@ void RegisterDeclContext(py::module_ &m) {
 
 
     py_cmake << "    \"${CMAKE_CURRENT_SOURCE_DIR}/" << name << ".cpp\"\n";
-    py_ast << "void Register" << name << "(py::module_ &m);\n"
+    py_ast << "void Register" << name << "(nb::module_ &m);\n"
            << "  Register" << name << "(m);\n";
 
     std::ofstream os_py(std::string(kPythonBindingsPath) + "/" + name + ".cpp");
@@ -258,14 +258,15 @@ void RegisterDeclContext(py::module_ &m) {
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void Register)" << name << "(py::module_ &m) {\n"
-      << "  py::class_<" << name;
+void Register)" << name << "(nb::module_ &m) {\n"
+      << "  nb::class_<" << name;
 
     os
         << name << "::" << name << "(\n"
@@ -371,7 +372,7 @@ void Register)" << name << "(py::module_ &m) {\n"
       << "  }\n"
       << "}\n\n";
 
-      os_py << "\n    .def_property_readonly(\"Body\", &" << name << "::Body)";
+      os_py << "\n    .def_prop_ro(\"Body\", &" << name << "::Body)";
     }
     os_py << ";\n"
           << "}\n"

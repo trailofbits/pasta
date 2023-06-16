@@ -10,25 +10,26 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterOMPAtomicDirective(py::module_ &m) {
-  py::class_<OMPAtomicDirective, OMPExecutableDirective>(m, "OMPAtomicDirective")
+void RegisterOMPAtomicDirective(nb::module_ &m) {
+  nb::class_<OMPAtomicDirective, OMPExecutableDirective>(m, "OMPAtomicDirective")
     .def("__hash__", [](const OMPAtomicDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("condition_expression", &OMPAtomicDirective::ConditionExpression)
-    .def_property_readonly("d", &OMPAtomicDirective::D)
-    .def_property_readonly("expression", &OMPAtomicDirective::Expression)
-    .def_property_readonly("r", &OMPAtomicDirective::R)
-    .def_property_readonly("update_expression", &OMPAtomicDirective::UpdateExpression)
-    .def_property_readonly("v", &OMPAtomicDirective::V)
-    .def_property_readonly("x", &OMPAtomicDirective::X)
-    .def_property_readonly("is_fail_only", &OMPAtomicDirective::IsFailOnly)
-    .def_property_readonly("is_postfix_update", &OMPAtomicDirective::IsPostfixUpdate)
-    .def_property_readonly("is_xlhs_in_rhs_part", &OMPAtomicDirective::IsXLHSInRHSPart);
+    .def_prop_ro("condition_expression", &OMPAtomicDirective::ConditionExpression)
+    .def_prop_ro("d", &OMPAtomicDirective::D)
+    .def_prop_ro("expression", &OMPAtomicDirective::Expression)
+    .def_prop_ro("r", &OMPAtomicDirective::R)
+    .def_prop_ro("update_expression", &OMPAtomicDirective::UpdateExpression)
+    .def_prop_ro("v", &OMPAtomicDirective::V)
+    .def_prop_ro("x", &OMPAtomicDirective::X)
+    .def_prop_ro("is_fail_only", &OMPAtomicDirective::IsFailOnly)
+    .def_prop_ro("is_postfix_update", &OMPAtomicDirective::IsPostfixUpdate)
+    .def_prop_ro("is_xlhs_in_rhs_part", &OMPAtomicDirective::IsXLHSInRHSPart);
 }
 } // namespace pasta

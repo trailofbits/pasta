@@ -10,33 +10,34 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterLambdaExpr(py::module_ &m) {
-  py::class_<LambdaExpr, Expr>(m, "LambdaExpr")
+void RegisterLambdaExpr(nb::module_ &m) {
+  nb::class_<LambdaExpr, Expr>(m, "LambdaExpr")
     .def("__hash__", [](const LambdaExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &LambdaExpr::Children)
-    .def_property_readonly("begin_token", &LambdaExpr::BeginToken)
-    .def_property_readonly("body", &LambdaExpr::Body)
-    .def_property_readonly("call_operator", &LambdaExpr::CallOperator)
-    .def_property_readonly("capture_default", &LambdaExpr::CaptureDefault)
-    .def_property_readonly("capture_default_token", &LambdaExpr::CaptureDefaultToken)
-    .def_property_readonly("compound_statement_body", &LambdaExpr::CompoundStatementBody)
-    .def_property_readonly("dependent_call_operator", &LambdaExpr::DependentCallOperator)
-    .def_property_readonly("end_token", &LambdaExpr::EndToken)
-    .def_property_readonly("explicit_template_parameters", &LambdaExpr::ExplicitTemplateParameters)
-    .def_property_readonly("introducer_range", &LambdaExpr::IntroducerRange)
-    .def_property_readonly("lambda_class", &LambdaExpr::LambdaClass)
-    .def_property_readonly("template_parameter_list", &LambdaExpr::TemplateParameterList)
-    .def_property_readonly("trailing_requires_clause", &LambdaExpr::TrailingRequiresClause)
-    .def_property_readonly("has_explicit_parameters", &LambdaExpr::HasExplicitParameters)
-    .def_property_readonly("has_explicit_result_type", &LambdaExpr::HasExplicitResultType)
-    .def_property_readonly("is_generic_lambda", &LambdaExpr::IsGenericLambda)
-    .def_property_readonly("is_mutable", &LambdaExpr::IsMutable);
+    .def_prop_ro("children", &LambdaExpr::Children)
+    .def_prop_ro("begin_token", &LambdaExpr::BeginToken)
+    .def_prop_ro("body", &LambdaExpr::Body)
+    .def_prop_ro("call_operator", &LambdaExpr::CallOperator)
+    .def_prop_ro("capture_default", &LambdaExpr::CaptureDefault)
+    .def_prop_ro("capture_default_token", &LambdaExpr::CaptureDefaultToken)
+    .def_prop_ro("compound_statement_body", &LambdaExpr::CompoundStatementBody)
+    .def_prop_ro("dependent_call_operator", &LambdaExpr::DependentCallOperator)
+    .def_prop_ro("end_token", &LambdaExpr::EndToken)
+    .def_prop_ro("explicit_template_parameters", &LambdaExpr::ExplicitTemplateParameters)
+    .def_prop_ro("introducer_range", &LambdaExpr::IntroducerRange)
+    .def_prop_ro("lambda_class", &LambdaExpr::LambdaClass)
+    .def_prop_ro("template_parameter_list", &LambdaExpr::TemplateParameterList)
+    .def_prop_ro("trailing_requires_clause", &LambdaExpr::TrailingRequiresClause)
+    .def_prop_ro("has_explicit_parameters", &LambdaExpr::HasExplicitParameters)
+    .def_prop_ro("has_explicit_result_type", &LambdaExpr::HasExplicitResultType)
+    .def_prop_ro("is_generic_lambda", &LambdaExpr::IsGenericLambda)
+    .def_prop_ro("is_mutable", &LambdaExpr::IsMutable);
 }
 } // namespace pasta

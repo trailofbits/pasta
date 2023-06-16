@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterAMDGPUFlatWorkGroupSizeAttr(py::module_ &m) {
-  py::class_<AMDGPUFlatWorkGroupSizeAttr, InheritableAttr>(m, "AMDGPUFlatWorkGroupSizeAttr")
+void RegisterAMDGPUFlatWorkGroupSizeAttr(nb::module_ &m) {
+  nb::class_<AMDGPUFlatWorkGroupSizeAttr, InheritableAttr>(m, "AMDGPUFlatWorkGroupSizeAttr")
     .def("__hash__", [](const AMDGPUFlatWorkGroupSizeAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("max", &AMDGPUFlatWorkGroupSizeAttr::Max)
-    .def_property_readonly("min", &AMDGPUFlatWorkGroupSizeAttr::Min)
-    .def_property_readonly("spelling", &AMDGPUFlatWorkGroupSizeAttr::Spelling);
+    .def_prop_ro("max", &AMDGPUFlatWorkGroupSizeAttr::Max)
+    .def_prop_ro("min", &AMDGPUFlatWorkGroupSizeAttr::Min)
+    .def_prop_ro("spelling", &AMDGPUFlatWorkGroupSizeAttr::Spelling);
 }
 } // namespace pasta

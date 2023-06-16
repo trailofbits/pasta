@@ -10,20 +10,21 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterUnaryTransformType(py::module_ &m) {
-  py::class_<UnaryTransformType, Type>(m, "UnaryTransformType")
+void RegisterUnaryTransformType(nb::module_ &m) {
+  nb::class_<UnaryTransformType, Type>(m, "UnaryTransformType")
     .def("__hash__", [](const UnaryTransformType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("desugar", &UnaryTransformType::Desugar)
-    .def_property_readonly("base_type", &UnaryTransformType::BaseType)
-    .def_property_readonly("utt_kind", &UnaryTransformType::UTTKind)
-    .def_property_readonly("underlying_type", &UnaryTransformType::UnderlyingType)
-    .def_property_readonly("is_sugared", &UnaryTransformType::IsSugared);
+    .def_prop_ro("desugar", &UnaryTransformType::Desugar)
+    .def_prop_ro("base_type", &UnaryTransformType::BaseType)
+    .def_prop_ro("utt_kind", &UnaryTransformType::UTTKind)
+    .def_prop_ro("underlying_type", &UnaryTransformType::UnderlyingType)
+    .def_prop_ro("is_sugared", &UnaryTransformType::IsSugared);
 }
 } // namespace pasta

@@ -10,23 +10,24 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterOffsetOfExpr(py::module_ &m) {
-  py::class_<OffsetOfExpr, Expr>(m, "OffsetOfExpr")
+void RegisterOffsetOfExpr(nb::module_ &m) {
+  nb::class_<OffsetOfExpr, Expr>(m, "OffsetOfExpr")
     .def("__hash__", [](const OffsetOfExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &OffsetOfExpr::Children)
-    .def_property_readonly("begin_token", &OffsetOfExpr::BeginToken)
-    .def_property_readonly("end_token", &OffsetOfExpr::EndToken)
-    .def_property_readonly("num_components", &OffsetOfExpr::NumComponents)
-    .def_property_readonly("num_expressions", &OffsetOfExpr::NumExpressions)
-    .def_property_readonly("operator_token", &OffsetOfExpr::OperatorToken)
-    .def_property_readonly("r_paren_token", &OffsetOfExpr::RParenToken)
-    .def_property_readonly("type", &OffsetOfExpr::Type);
+    .def_prop_ro("children", &OffsetOfExpr::Children)
+    .def_prop_ro("begin_token", &OffsetOfExpr::BeginToken)
+    .def_prop_ro("end_token", &OffsetOfExpr::EndToken)
+    .def_prop_ro("num_components", &OffsetOfExpr::NumComponents)
+    .def_prop_ro("num_expressions", &OffsetOfExpr::NumExpressions)
+    .def_prop_ro("operator_token", &OffsetOfExpr::OperatorToken)
+    .def_prop_ro("r_paren_token", &OffsetOfExpr::RParenToken)
+    .def_prop_ro("type", &OffsetOfExpr::Type);
 }
 } // namespace pasta

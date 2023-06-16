@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterMinVectorWidthAttr(py::module_ &m) {
-  py::class_<MinVectorWidthAttr, InheritableAttr>(m, "MinVectorWidthAttr")
+void RegisterMinVectorWidthAttr(nb::module_ &m) {
+  nb::class_<MinVectorWidthAttr, InheritableAttr>(m, "MinVectorWidthAttr")
     .def("__hash__", [](const MinVectorWidthAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("spelling", &MinVectorWidthAttr::Spelling)
-    .def_property_readonly("vector_width", &MinVectorWidthAttr::VectorWidth);
+    .def_prop_ro("spelling", &MinVectorWidthAttr::Spelling)
+    .def_prop_ro("vector_width", &MinVectorWidthAttr::VectorWidth);
 }
 } // namespace pasta

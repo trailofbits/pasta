@@ -7,13 +7,13 @@
 
 namespace pasta {
 
-namespace py = pybind11;
-void RegisterCompiler(py::module_ &m) {
-  py::enum_<TargetLanguage>(m, "TargetLanguage")
+namespace nb = nanobind;
+void RegisterCompiler(nb::module_ &m) {
+  nb::enum_<TargetLanguage>(m, "TargetLanguage")
     .value("C", TargetLanguage::kC)
     .value("CXX", TargetLanguage::kCXX);
 
-  py::enum_<CompilerName>(m, "CompilerName")
+  nb::enum_<CompilerName>(m, "CompilerName")
     .value("UNKNOWN", CompilerName::kUnknown)
     .value("CLANG", CompilerName::kClang)
     .value("APPLE_CLANG", CompilerName::kAppleClang)
@@ -21,7 +21,7 @@ void RegisterCompiler(py::module_ &m) {
     .value("CL", CompilerName::kCL)
     .value("GNU", CompilerName::kGNU);
 
-  py::class_<Compiler>(m, "Compiler")
+  nb::class_<Compiler>(m, "Compiler")
     .def_static("create_host_compiler", &Compiler::CreateHostCompiler)
     .def_static("create", &Compiler::Create)
     .def("create_jobs_for_command", &Compiler::CreateJobsForCommand);

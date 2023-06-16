@@ -10,20 +10,21 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterObjCTypeParamDecl(py::module_ &m) {
-  py::class_<ObjCTypeParamDecl, TypedefNameDecl>(m, "ObjCTypeParamDecl")
+void RegisterObjCTypeParamDecl(nb::module_ &m) {
+  nb::class_<ObjCTypeParamDecl, TypedefNameDecl>(m, "ObjCTypeParamDecl")
     .def("__hash__", [](const ObjCTypeParamDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("colon_token", &ObjCTypeParamDecl::ColonToken)
-    .def_property_readonly("index", &ObjCTypeParamDecl::Index)
-    .def_property_readonly("variance", &ObjCTypeParamDecl::Variance)
-    .def_property_readonly("variance_token", &ObjCTypeParamDecl::VarianceToken)
-    .def_property_readonly("has_explicit_bound", &ObjCTypeParamDecl::HasExplicitBound);
+    .def_prop_ro("colon_token", &ObjCTypeParamDecl::ColonToken)
+    .def_prop_ro("index", &ObjCTypeParamDecl::Index)
+    .def_prop_ro("variance", &ObjCTypeParamDecl::Variance)
+    .def_prop_ro("variance_token", &ObjCTypeParamDecl::VarianceToken)
+    .def_prop_ro("has_explicit_bound", &ObjCTypeParamDecl::HasExplicitBound);
 }
 } // namespace pasta

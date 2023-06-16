@@ -10,26 +10,27 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterOMPArraySectionExpr(py::module_ &m) {
-  py::class_<OMPArraySectionExpr, Expr>(m, "OMPArraySectionExpr")
+void RegisterOMPArraySectionExpr(nb::module_ &m) {
+  nb::class_<OMPArraySectionExpr, Expr>(m, "OMPArraySectionExpr")
     .def("__hash__", [](const OMPArraySectionExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &OMPArraySectionExpr::Children)
-    .def_property_readonly("base", &OMPArraySectionExpr::Base)
-    .def_property_readonly("begin_token", &OMPArraySectionExpr::BeginToken)
-    .def_property_readonly("first_colon_token", &OMPArraySectionExpr::FirstColonToken)
-    .def_property_readonly("second_colon_token", &OMPArraySectionExpr::SecondColonToken)
-    .def_property_readonly("end_token", &OMPArraySectionExpr::EndToken)
-    .def_property_readonly("expression_token", &OMPArraySectionExpr::ExpressionToken)
-    .def_property_readonly("length", &OMPArraySectionExpr::Length)
-    .def_property_readonly("lower_bound", &OMPArraySectionExpr::LowerBound)
-    .def_property_readonly("r_bracket_token", &OMPArraySectionExpr::RBracketToken)
-    .def_property_readonly("stride", &OMPArraySectionExpr::Stride);
+    .def_prop_ro("children", &OMPArraySectionExpr::Children)
+    .def_prop_ro("base", &OMPArraySectionExpr::Base)
+    .def_prop_ro("begin_token", &OMPArraySectionExpr::BeginToken)
+    .def_prop_ro("first_colon_token", &OMPArraySectionExpr::FirstColonToken)
+    .def_prop_ro("second_colon_token", &OMPArraySectionExpr::SecondColonToken)
+    .def_prop_ro("end_token", &OMPArraySectionExpr::EndToken)
+    .def_prop_ro("expression_token", &OMPArraySectionExpr::ExpressionToken)
+    .def_prop_ro("length", &OMPArraySectionExpr::Length)
+    .def_prop_ro("lower_bound", &OMPArraySectionExpr::LowerBound)
+    .def_prop_ro("r_bracket_token", &OMPArraySectionExpr::RBracketToken)
+    .def_prop_ro("stride", &OMPArraySectionExpr::Stride);
 }
 } // namespace pasta

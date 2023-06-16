@@ -10,22 +10,23 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterAvailabilityAttr(py::module_ &m) {
-  py::class_<AvailabilityAttr, InheritableAttr>(m, "AvailabilityAttr")
+void RegisterAvailabilityAttr(nb::module_ &m) {
+  nb::class_<AvailabilityAttr, InheritableAttr>(m, "AvailabilityAttr")
     .def("__hash__", [](const AvailabilityAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("message", &AvailabilityAttr::Message)
-    .def_property_readonly("message_length", &AvailabilityAttr::MessageLength)
-    .def_property_readonly("replacement", &AvailabilityAttr::Replacement)
-    .def_property_readonly("replacement_length", &AvailabilityAttr::ReplacementLength)
-    .def_property_readonly("spelling", &AvailabilityAttr::Spelling)
-    .def_property_readonly("strict", &AvailabilityAttr::Strict)
-    .def_property_readonly("unavailable", &AvailabilityAttr::Unavailable);
+    .def_prop_ro("message", &AvailabilityAttr::Message)
+    .def_prop_ro("message_length", &AvailabilityAttr::MessageLength)
+    .def_prop_ro("replacement", &AvailabilityAttr::Replacement)
+    .def_prop_ro("replacement_length", &AvailabilityAttr::ReplacementLength)
+    .def_prop_ro("spelling", &AvailabilityAttr::Spelling)
+    .def_prop_ro("strict", &AvailabilityAttr::Strict)
+    .def_prop_ro("unavailable", &AvailabilityAttr::Unavailable);
 }
 } // namespace pasta

@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterMSVtorDispAttr(py::module_ &m) {
-  py::class_<MSVtorDispAttr, InheritableAttr>(m, "MSVtorDispAttr")
+void RegisterMSVtorDispAttr(nb::module_ &m) {
+  nb::class_<MSVtorDispAttr, InheritableAttr>(m, "MSVtorDispAttr")
     .def("__hash__", [](const MSVtorDispAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("spelling", &MSVtorDispAttr::Spelling)
-    .def_property_readonly("vdm", &MSVtorDispAttr::Vdm)
-    .def_property_readonly("vtor_disp_mode", &MSVtorDispAttr::VtorDispMode);
+    .def_prop_ro("spelling", &MSVtorDispAttr::Spelling)
+    .def_prop_ro("vdm", &MSVtorDispAttr::Vdm)
+    .def_prop_ro("vtor_disp_mode", &MSVtorDispAttr::VtorDispMode);
 }
 } // namespace pasta

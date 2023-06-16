@@ -10,27 +10,28 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterForStmt(py::module_ &m) {
-  py::class_<ForStmt, Stmt>(m, "ForStmt")
+void RegisterForStmt(nb::module_ &m) {
+  nb::class_<ForStmt, Stmt>(m, "ForStmt")
     .def("__hash__", [](const ForStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &ForStmt::Children)
-    .def_property_readonly("begin_token", &ForStmt::BeginToken)
-    .def_property_readonly("body", &ForStmt::Body)
-    .def_property_readonly("condition", &ForStmt::Condition)
-    .def_property_readonly("condition_variable", &ForStmt::ConditionVariable)
-    .def_property_readonly("condition_variable_declaration_statement", &ForStmt::ConditionVariableDeclarationStatement)
-    .def_property_readonly("end_token", &ForStmt::EndToken)
-    .def_property_readonly("for_token", &ForStmt::ForToken)
-    .def_property_readonly("increment", &ForStmt::Increment)
-    .def_property_readonly("initializer", &ForStmt::Initializer)
-    .def_property_readonly("l_paren_token", &ForStmt::LParenToken)
-    .def_property_readonly("r_paren_token", &ForStmt::RParenToken);
+    .def_prop_ro("children", &ForStmt::Children)
+    .def_prop_ro("begin_token", &ForStmt::BeginToken)
+    .def_prop_ro("body", &ForStmt::Body)
+    .def_prop_ro("condition", &ForStmt::Condition)
+    .def_prop_ro("condition_variable", &ForStmt::ConditionVariable)
+    .def_prop_ro("condition_variable_declaration_statement", &ForStmt::ConditionVariableDeclarationStatement)
+    .def_prop_ro("end_token", &ForStmt::EndToken)
+    .def_prop_ro("for_token", &ForStmt::ForToken)
+    .def_prop_ro("increment", &ForStmt::Increment)
+    .def_prop_ro("initializer", &ForStmt::Initializer)
+    .def_prop_ro("l_paren_token", &ForStmt::LParenToken)
+    .def_prop_ro("r_paren_token", &ForStmt::RParenToken);
 }
 } // namespace pasta

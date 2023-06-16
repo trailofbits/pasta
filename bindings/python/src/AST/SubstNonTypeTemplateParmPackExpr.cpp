@@ -10,22 +10,23 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterSubstNonTypeTemplateParmPackExpr(py::module_ &m) {
-  py::class_<SubstNonTypeTemplateParmPackExpr, Expr>(m, "SubstNonTypeTemplateParmPackExpr")
+void RegisterSubstNonTypeTemplateParmPackExpr(nb::module_ &m) {
+  nb::class_<SubstNonTypeTemplateParmPackExpr, Expr>(m, "SubstNonTypeTemplateParmPackExpr")
     .def("__hash__", [](const SubstNonTypeTemplateParmPackExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &SubstNonTypeTemplateParmPackExpr::Children)
-    .def_property_readonly("associated_declaration", &SubstNonTypeTemplateParmPackExpr::AssociatedDeclaration)
-    .def_property_readonly("begin_token", &SubstNonTypeTemplateParmPackExpr::BeginToken)
-    .def_property_readonly("end_token", &SubstNonTypeTemplateParmPackExpr::EndToken)
-    .def_property_readonly("index", &SubstNonTypeTemplateParmPackExpr::Index)
-    .def_property_readonly("parameter_pack", &SubstNonTypeTemplateParmPackExpr::ParameterPack)
-    .def_property_readonly("parameter_pack_token", &SubstNonTypeTemplateParmPackExpr::ParameterPackToken);
+    .def_prop_ro("children", &SubstNonTypeTemplateParmPackExpr::Children)
+    .def_prop_ro("associated_declaration", &SubstNonTypeTemplateParmPackExpr::AssociatedDeclaration)
+    .def_prop_ro("begin_token", &SubstNonTypeTemplateParmPackExpr::BeginToken)
+    .def_prop_ro("end_token", &SubstNonTypeTemplateParmPackExpr::EndToken)
+    .def_prop_ro("index", &SubstNonTypeTemplateParmPackExpr::Index)
+    .def_prop_ro("parameter_pack", &SubstNonTypeTemplateParmPackExpr::ParameterPack)
+    .def_prop_ro("parameter_pack_token", &SubstNonTypeTemplateParmPackExpr::ParameterPackToken);
 }
 } // namespace pasta

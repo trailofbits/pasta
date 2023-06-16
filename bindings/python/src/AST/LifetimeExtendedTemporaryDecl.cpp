@@ -10,20 +10,21 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterLifetimeExtendedTemporaryDecl(py::module_ &m) {
-  py::class_<LifetimeExtendedTemporaryDecl, Decl>(m, "LifetimeExtendedTemporaryDecl")
+void RegisterLifetimeExtendedTemporaryDecl(nb::module_ &m) {
+  nb::class_<LifetimeExtendedTemporaryDecl, Decl>(m, "LifetimeExtendedTemporaryDecl")
     .def("__hash__", [](const LifetimeExtendedTemporaryDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("children", &LifetimeExtendedTemporaryDecl::Children)
-    .def_property_readonly("extending_declaration", &LifetimeExtendedTemporaryDecl::ExtendingDeclaration)
-    .def_property_readonly("mangling_number", &LifetimeExtendedTemporaryDecl::ManglingNumber)
-    .def_property_readonly("storage_duration", &LifetimeExtendedTemporaryDecl::StorageDuration)
-    .def_property_readonly("temporary_expression", &LifetimeExtendedTemporaryDecl::TemporaryExpression);
+    .def_prop_ro("children", &LifetimeExtendedTemporaryDecl::Children)
+    .def_prop_ro("extending_declaration", &LifetimeExtendedTemporaryDecl::ExtendingDeclaration)
+    .def_prop_ro("mangling_number", &LifetimeExtendedTemporaryDecl::ManglingNumber)
+    .def_prop_ro("storage_duration", &LifetimeExtendedTemporaryDecl::StorageDuration)
+    .def_prop_ro("temporary_expression", &LifetimeExtendedTemporaryDecl::TemporaryExpression);
 }
 } // namespace pasta

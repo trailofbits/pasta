@@ -10,20 +10,21 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterCapabilityAttr(py::module_ &m) {
-  py::class_<CapabilityAttr, InheritableAttr>(m, "CapabilityAttr")
+void RegisterCapabilityAttr(nb::module_ &m) {
+  nb::class_<CapabilityAttr, InheritableAttr>(m, "CapabilityAttr")
     .def("__hash__", [](const CapabilityAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("name", &CapabilityAttr::Name)
-    .def_property_readonly("name_length", &CapabilityAttr::NameLength)
-    .def_property_readonly("semantic_spelling", &CapabilityAttr::SemanticSpelling)
-    .def_property_readonly("spelling", &CapabilityAttr::Spelling)
-    .def_property_readonly("is_shared", &CapabilityAttr::IsShared);
+    .def_prop_ro("name", &CapabilityAttr::Name)
+    .def_prop_ro("name_length", &CapabilityAttr::NameLength)
+    .def_prop_ro("semantic_spelling", &CapabilityAttr::SemanticSpelling)
+    .def_prop_ro("spelling", &CapabilityAttr::Spelling)
+    .def_prop_ro("is_shared", &CapabilityAttr::IsShared);
 }
 } // namespace pasta

@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterTLSModelAttr(py::module_ &m) {
-  py::class_<TLSModelAttr, InheritableAttr>(m, "TLSModelAttr")
+void RegisterTLSModelAttr(nb::module_ &m) {
+  nb::class_<TLSModelAttr, InheritableAttr>(m, "TLSModelAttr")
     .def("__hash__", [](const TLSModelAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("model", &TLSModelAttr::Model)
-    .def_property_readonly("model_length", &TLSModelAttr::ModelLength)
-    .def_property_readonly("spelling", &TLSModelAttr::Spelling);
+    .def_prop_ro("model", &TLSModelAttr::Model)
+    .def_prop_ro("model_length", &TLSModelAttr::ModelLength)
+    .def_prop_ro("spelling", &TLSModelAttr::Spelling);
 }
 } // namespace pasta

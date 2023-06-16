@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterPragmaClangTextSectionAttr(py::module_ &m) {
-  py::class_<PragmaClangTextSectionAttr, InheritableAttr>(m, "PragmaClangTextSectionAttr")
+void RegisterPragmaClangTextSectionAttr(nb::module_ &m) {
+  nb::class_<PragmaClangTextSectionAttr, InheritableAttr>(m, "PragmaClangTextSectionAttr")
     .def("__hash__", [](const PragmaClangTextSectionAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("name", &PragmaClangTextSectionAttr::Name)
-    .def_property_readonly("name_length", &PragmaClangTextSectionAttr::NameLength)
-    .def_property_readonly("spelling", &PragmaClangTextSectionAttr::Spelling);
+    .def_prop_ro("name", &PragmaClangTextSectionAttr::Name)
+    .def_prop_ro("name_length", &PragmaClangTextSectionAttr::NameLength)
+    .def_prop_ro("spelling", &PragmaClangTextSectionAttr::Spelling);
 }
 } // namespace pasta

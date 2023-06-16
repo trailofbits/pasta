@@ -10,20 +10,21 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterTypeTagForDatatypeAttr(py::module_ &m) {
-  py::class_<TypeTagForDatatypeAttr, InheritableAttr>(m, "TypeTagForDatatypeAttr")
+void RegisterTypeTagForDatatypeAttr(nb::module_ &m) {
+  nb::class_<TypeTagForDatatypeAttr, InheritableAttr>(m, "TypeTagForDatatypeAttr")
     .def("__hash__", [](const TypeTagForDatatypeAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("layout_compatible", &TypeTagForDatatypeAttr::LayoutCompatible)
-    .def_property_readonly("matching_c_type", &TypeTagForDatatypeAttr::MatchingCType)
-    .def_property_readonly("matching_c_type_token", &TypeTagForDatatypeAttr::MatchingCTypeToken)
-    .def_property_readonly("must_be_null", &TypeTagForDatatypeAttr::MustBeNull)
-    .def_property_readonly("spelling", &TypeTagForDatatypeAttr::Spelling);
+    .def_prop_ro("layout_compatible", &TypeTagForDatatypeAttr::LayoutCompatible)
+    .def_prop_ro("matching_c_type", &TypeTagForDatatypeAttr::MatchingCType)
+    .def_prop_ro("matching_c_type_token", &TypeTagForDatatypeAttr::MatchingCTypeToken)
+    .def_prop_ro("must_be_null", &TypeTagForDatatypeAttr::MustBeNull)
+    .def_prop_ro("spelling", &TypeTagForDatatypeAttr::Spelling);
 }
 } // namespace pasta

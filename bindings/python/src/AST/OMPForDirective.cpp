@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterOMPForDirective(py::module_ &m) {
-  py::class_<OMPForDirective, OMPLoopDirective>(m, "OMPForDirective")
+void RegisterOMPForDirective(nb::module_ &m) {
+  nb::class_<OMPForDirective, OMPLoopDirective>(m, "OMPForDirective")
     .def("__hash__", [](const OMPForDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("task_reduction_reference_expression", &OMPForDirective::TaskReductionReferenceExpression)
-    .def_property_readonly("has_cancel", &OMPForDirective::HasCancel);
+    .def_prop_ro("task_reduction_reference_expression", &OMPForDirective::TaskReductionReferenceExpression)
+    .def_prop_ro("has_cancel", &OMPForDirective::HasCancel);
 }
 } // namespace pasta

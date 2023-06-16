@@ -10,20 +10,21 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterTargetVersionAttr(py::module_ &m) {
-  py::class_<TargetVersionAttr, InheritableAttr>(m, "TargetVersionAttr")
+void RegisterTargetVersionAttr(nb::module_ &m) {
+  nb::class_<TargetVersionAttr, InheritableAttr>(m, "TargetVersionAttr")
     .def("__hash__", [](const TargetVersionAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("name", &TargetVersionAttr::Name)
-    .def_property_readonly("names_string", &TargetVersionAttr::NamesString)
-    .def_property_readonly("names_string_length", &TargetVersionAttr::NamesStringLength)
-    .def_property_readonly("spelling", &TargetVersionAttr::Spelling)
-    .def_property_readonly("is_default_version", &TargetVersionAttr::IsDefaultVersion);
+    .def_prop_ro("name", &TargetVersionAttr::Name)
+    .def_prop_ro("names_string", &TargetVersionAttr::NamesString)
+    .def_prop_ro("names_string_length", &TargetVersionAttr::NamesStringLength)
+    .def_prop_ro("spelling", &TargetVersionAttr::Spelling)
+    .def_prop_ro("is_default_version", &TargetVersionAttr::IsDefaultVersion);
 }
 } // namespace pasta

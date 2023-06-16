@@ -5,24 +5,24 @@
 
 namespace pasta {
 
-namespace py = pybind11;
-void RegisterAST(py::module_ &m) {
-  py::class_<AST>(m, "AST")
-    .def_static("from", py::overload_cast<const Token&>(&AST::From))
-    .def_static("from", py::overload_cast<const Decl&>(&AST::From))
-    .def_property_readonly("preprocessed_code", &AST::PreprocessedCode)
-    .def_property_readonly("tokens", &AST::Tokens)
-    .def_property_readonly("macros", &AST::Macros)
-    .def_property_readonly("translation_unit", &AST::TranslationUnit)
-    .def_property_readonly("main_file", &AST::MainFile)
-    .def_property_readonly("parsed_files", &AST::ParsedFiles);
+namespace nb = nanobind;
+void RegisterAST(nb::module_ &m) {
+  nb::class_<AST>(m, "AST")
+    .def_static("from", nb::overload_cast<const Token&>(&AST::From))
+    .def_static("from", nb::overload_cast<const Decl&>(&AST::From))
+    .def_prop_ro("preprocessed_code", &AST::PreprocessedCode)
+    .def_prop_ro("tokens", &AST::Tokens)
+    .def_prop_ro("macros", &AST::Macros)
+    .def_prop_ro("translation_unit", &AST::TranslationUnit)
+    .def_prop_ro("main_file", &AST::MainFile)
+    .def_prop_ro("parsed_files", &AST::ParsedFiles);
 
-  py::class_<Token>(m, "Token");
-  py::class_<TokenContext>(m, "TokenContext");
-  py::class_<TokenRange>(m, "TokenRange");
-  py::class_<Macro>(m, "Macro");
+  nb::class_<Token>(m, "Token");
+  nb::class_<TokenContext>(m, "TokenContext");
+  nb::class_<TokenRange>(m, "TokenRange");
+  nb::class_<Macro>(m, "Macro");
 
-  py::class_<CXXBaseSpecifier>(m, "CXXBaseSpecifier");
-  py::class_<TemplateParameterList>(m, "TemplateParameterList");
+  nb::class_<CXXBaseSpecifier>(m, "CXXBaseSpecifier");
+  nb::class_<TemplateParameterList>(m, "TemplateParameterList");
 }
 }  // namespace pasta

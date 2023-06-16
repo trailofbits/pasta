@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterAssumptionAttr(py::module_ &m) {
-  py::class_<AssumptionAttr, InheritableAttr>(m, "AssumptionAttr")
+void RegisterAssumptionAttr(nb::module_ &m) {
+  nb::class_<AssumptionAttr, InheritableAttr>(m, "AssumptionAttr")
     .def("__hash__", [](const AssumptionAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("assumption", &AssumptionAttr::Assumption)
-    .def_property_readonly("assumption_length", &AssumptionAttr::AssumptionLength)
-    .def_property_readonly("spelling", &AssumptionAttr::Spelling);
+    .def_prop_ro("assumption", &AssumptionAttr::Assumption)
+    .def_prop_ro("assumption_length", &AssumptionAttr::AssumptionLength)
+    .def_prop_ro("spelling", &AssumptionAttr::Spelling);
 }
 } // namespace pasta

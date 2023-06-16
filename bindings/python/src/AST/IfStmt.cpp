@@ -10,38 +10,39 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterIfStmt(py::module_ &m) {
-  py::class_<IfStmt, Stmt>(m, "IfStmt")
+void RegisterIfStmt(nb::module_ &m) {
+  nb::class_<IfStmt, Stmt>(m, "IfStmt")
     .def("__hash__", [](const IfStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &IfStmt::Children)
-    .def_property_readonly("begin_token", &IfStmt::BeginToken)
-    .def_property_readonly("condition", &IfStmt::Condition)
-    .def_property_readonly("condition_variable", &IfStmt::ConditionVariable)
-    .def_property_readonly("condition_variable_declaration_statement", &IfStmt::ConditionVariableDeclarationStatement)
-    .def_property_readonly("else", &IfStmt::Else)
-    .def_property_readonly("else_token", &IfStmt::ElseToken)
-    .def_property_readonly("end_token", &IfStmt::EndToken)
-    .def_property_readonly("if_token", &IfStmt::IfToken)
-    .def_property_readonly("initializer", &IfStmt::Initializer)
-    .def_property_readonly("l_paren_token", &IfStmt::LParenToken)
+    .def_prop_ro("children", &IfStmt::Children)
+    .def_prop_ro("begin_token", &IfStmt::BeginToken)
+    .def_prop_ro("condition", &IfStmt::Condition)
+    .def_prop_ro("condition_variable", &IfStmt::ConditionVariable)
+    .def_prop_ro("condition_variable_declaration_statement", &IfStmt::ConditionVariableDeclarationStatement)
+    .def_prop_ro("else", &IfStmt::Else)
+    .def_prop_ro("else_token", &IfStmt::ElseToken)
+    .def_prop_ro("end_token", &IfStmt::EndToken)
+    .def_prop_ro("if_token", &IfStmt::IfToken)
+    .def_prop_ro("initializer", &IfStmt::Initializer)
+    .def_prop_ro("l_paren_token", &IfStmt::LParenToken)
     .def("nondiscarded_case", &IfStmt::NondiscardedCase)
-    .def_property_readonly("r_paren_token", &IfStmt::RParenToken)
-    .def_property_readonly("statement_kind", &IfStmt::StatementKind)
-    .def_property_readonly("then", &IfStmt::Then)
-    .def_property_readonly("has_else_storage", &IfStmt::HasElseStorage)
-    .def_property_readonly("has_initializer_storage", &IfStmt::HasInitializerStorage)
-    .def_property_readonly("has_variable_storage", &IfStmt::HasVariableStorage)
-    .def_property_readonly("is_consteval", &IfStmt::IsConsteval)
-    .def_property_readonly("is_constexpr", &IfStmt::IsConstexpr)
-    .def_property_readonly("is_negated_consteval", &IfStmt::IsNegatedConsteval)
-    .def_property_readonly("is_non_negated_consteval", &IfStmt::IsNonNegatedConsteval)
-    .def_property_readonly("is_obj_c_availability_check", &IfStmt::IsObjCAvailabilityCheck);
+    .def_prop_ro("r_paren_token", &IfStmt::RParenToken)
+    .def_prop_ro("statement_kind", &IfStmt::StatementKind)
+    .def_prop_ro("then", &IfStmt::Then)
+    .def_prop_ro("has_else_storage", &IfStmt::HasElseStorage)
+    .def_prop_ro("has_initializer_storage", &IfStmt::HasInitializerStorage)
+    .def_prop_ro("has_variable_storage", &IfStmt::HasVariableStorage)
+    .def_prop_ro("is_consteval", &IfStmt::IsConsteval)
+    .def_prop_ro("is_constexpr", &IfStmt::IsConstexpr)
+    .def_prop_ro("is_negated_consteval", &IfStmt::IsNegatedConsteval)
+    .def_prop_ro("is_non_negated_consteval", &IfStmt::IsNonNegatedConsteval)
+    .def_prop_ro("is_obj_c_availability_check", &IfStmt::IsObjCAvailabilityCheck);
 }
 } // namespace pasta

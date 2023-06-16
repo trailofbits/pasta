@@ -10,21 +10,22 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterGotoStmt(py::module_ &m) {
-  py::class_<GotoStmt, Stmt>(m, "GotoStmt")
+void RegisterGotoStmt(nb::module_ &m) {
+  nb::class_<GotoStmt, Stmt>(m, "GotoStmt")
     .def("__hash__", [](const GotoStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &GotoStmt::Children)
-    .def_property_readonly("begin_token", &GotoStmt::BeginToken)
-    .def_property_readonly("end_token", &GotoStmt::EndToken)
-    .def_property_readonly("goto_token", &GotoStmt::GotoToken)
-    .def_property_readonly("label", &GotoStmt::Label)
-    .def_property_readonly("label_token", &GotoStmt::LabelToken);
+    .def_prop_ro("children", &GotoStmt::Children)
+    .def_prop_ro("begin_token", &GotoStmt::BeginToken)
+    .def_prop_ro("end_token", &GotoStmt::EndToken)
+    .def_prop_ro("goto_token", &GotoStmt::GotoToken)
+    .def_prop_ro("label", &GotoStmt::Label)
+    .def_prop_ro("label_token", &GotoStmt::LabelToken);
 }
 } // namespace pasta

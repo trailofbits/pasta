@@ -10,25 +10,26 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterBuiltinType(py::module_ &m) {
-  py::class_<BuiltinType, Type>(m, "BuiltinType")
+void RegisterBuiltinType(nb::module_ &m) {
+  nb::class_<BuiltinType, Type>(m, "BuiltinType")
     .def("__hash__", [](const BuiltinType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("desugar", &BuiltinType::Desugar)
-    .def_property_readonly("kind", &BuiltinType::Kind)
-    .def_property_readonly("is_floating_point", &BuiltinType::IsFloatingPoint)
-    .def_property_readonly("is_integer", &BuiltinType::IsInteger)
-    .def_property_readonly("is_non_overload_placeholder_type", &BuiltinType::IsNonOverloadPlaceholderType)
-    .def_property_readonly("is_placeholder_type", &BuiltinType::IsPlaceholderType)
-    .def_property_readonly("is_sve_bool", &BuiltinType::IsSVEBool)
-    .def_property_readonly("is_signed_integer", &BuiltinType::IsSignedInteger)
-    .def_property_readonly("is_sugared", &BuiltinType::IsSugared)
-    .def_property_readonly("is_unsigned_integer", &BuiltinType::IsUnsignedInteger);
+    .def_prop_ro("desugar", &BuiltinType::Desugar)
+    .def_prop_ro("kind", &BuiltinType::Kind)
+    .def_prop_ro("is_floating_point", &BuiltinType::IsFloatingPoint)
+    .def_prop_ro("is_integer", &BuiltinType::IsInteger)
+    .def_prop_ro("is_non_overload_placeholder_type", &BuiltinType::IsNonOverloadPlaceholderType)
+    .def_prop_ro("is_placeholder_type", &BuiltinType::IsPlaceholderType)
+    .def_prop_ro("is_sve_bool", &BuiltinType::IsSVEBool)
+    .def_prop_ro("is_signed_integer", &BuiltinType::IsSignedInteger)
+    .def_prop_ro("is_sugared", &BuiltinType::IsSugared)
+    .def_prop_ro("is_unsigned_integer", &BuiltinType::IsUnsignedInteger);
 }
 } // namespace pasta

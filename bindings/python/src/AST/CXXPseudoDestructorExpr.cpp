@@ -10,27 +10,28 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterCXXPseudoDestructorExpr(py::module_ &m) {
-  py::class_<CXXPseudoDestructorExpr, Expr>(m, "CXXPseudoDestructorExpr")
+void RegisterCXXPseudoDestructorExpr(nb::module_ &m) {
+  nb::class_<CXXPseudoDestructorExpr, Expr>(m, "CXXPseudoDestructorExpr")
     .def("__hash__", [](const CXXPseudoDestructorExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &CXXPseudoDestructorExpr::Children)
-    .def_property_readonly("base", &CXXPseudoDestructorExpr::Base)
-    .def_property_readonly("begin_token", &CXXPseudoDestructorExpr::BeginToken)
-    .def_property_readonly("colon_colon_token", &CXXPseudoDestructorExpr::ColonColonToken)
-    .def_property_readonly("destroyed_type", &CXXPseudoDestructorExpr::DestroyedType)
-    .def_property_readonly("destroyed_type_token", &CXXPseudoDestructorExpr::DestroyedTypeToken)
-    .def_property_readonly("end_token", &CXXPseudoDestructorExpr::EndToken)
-    .def_property_readonly("operator_token", &CXXPseudoDestructorExpr::OperatorToken)
-    .def_property_readonly("scope_type", &CXXPseudoDestructorExpr::ScopeType)
-    .def_property_readonly("tilde_token", &CXXPseudoDestructorExpr::TildeToken)
-    .def_property_readonly("has_qualifier", &CXXPseudoDestructorExpr::HasQualifier)
-    .def_property_readonly("is_arrow", &CXXPseudoDestructorExpr::IsArrow);
+    .def_prop_ro("children", &CXXPseudoDestructorExpr::Children)
+    .def_prop_ro("base", &CXXPseudoDestructorExpr::Base)
+    .def_prop_ro("begin_token", &CXXPseudoDestructorExpr::BeginToken)
+    .def_prop_ro("colon_colon_token", &CXXPseudoDestructorExpr::ColonColonToken)
+    .def_prop_ro("destroyed_type", &CXXPseudoDestructorExpr::DestroyedType)
+    .def_prop_ro("destroyed_type_token", &CXXPseudoDestructorExpr::DestroyedTypeToken)
+    .def_prop_ro("end_token", &CXXPseudoDestructorExpr::EndToken)
+    .def_prop_ro("operator_token", &CXXPseudoDestructorExpr::OperatorToken)
+    .def_prop_ro("scope_type", &CXXPseudoDestructorExpr::ScopeType)
+    .def_prop_ro("tilde_token", &CXXPseudoDestructorExpr::TildeToken)
+    .def_prop_ro("has_qualifier", &CXXPseudoDestructorExpr::HasQualifier)
+    .def_prop_ro("is_arrow", &CXXPseudoDestructorExpr::IsArrow);
 }
 } // namespace pasta

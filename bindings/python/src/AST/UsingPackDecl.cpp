@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterUsingPackDecl(py::module_ &m) {
-  py::class_<UsingPackDecl, NamedDecl>(m, "UsingPackDecl")
+void RegisterUsingPackDecl(nb::module_ &m) {
+  nb::class_<UsingPackDecl, NamedDecl>(m, "UsingPackDecl")
     .def("__hash__", [](const UsingPackDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("expansions", &UsingPackDecl::Expansions)
-    .def_property_readonly("canonical_declaration", &UsingPackDecl::CanonicalDeclaration)
-    .def_property_readonly("instantiated_from_using_declaration", &UsingPackDecl::InstantiatedFromUsingDeclaration);
+    .def_prop_ro("expansions", &UsingPackDecl::Expansions)
+    .def_prop_ro("canonical_declaration", &UsingPackDecl::CanonicalDeclaration)
+    .def_prop_ro("instantiated_from_using_declaration", &UsingPackDecl::InstantiatedFromUsingDeclaration);
 }
 } // namespace pasta

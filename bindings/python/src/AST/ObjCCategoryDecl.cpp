@@ -10,26 +10,27 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterObjCCategoryDecl(py::module_ &m) {
-  py::class_<ObjCCategoryDecl, ObjCContainerDecl>(m, "ObjCCategoryDecl")
+void RegisterObjCCategoryDecl(nb::module_ &m) {
+  nb::class_<ObjCCategoryDecl, ObjCContainerDecl>(m, "ObjCCategoryDecl")
     .def("__hash__", [](const ObjCCategoryDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("is_class_extension", &ObjCCategoryDecl::IsClassExtension)
-    .def_property_readonly("category_name_token", &ObjCCategoryDecl::CategoryNameToken)
-    .def_property_readonly("class_interface", &ObjCCategoryDecl::ClassInterface)
-    .def_property_readonly("implementation", &ObjCCategoryDecl::Implementation)
-    .def_property_readonly("instance_variable_l_brace_token", &ObjCCategoryDecl::InstanceVariableLBraceToken)
-    .def_property_readonly("instance_variable_r_brace_token", &ObjCCategoryDecl::InstanceVariableRBraceToken)
-    .def_property_readonly("next_class_category", &ObjCCategoryDecl::NextClassCategory)
-    .def_property_readonly("next_class_category_raw", &ObjCCategoryDecl::NextClassCategoryRaw)
-    .def_property_readonly("instance_variables", &ObjCCategoryDecl::InstanceVariables)
-    .def_property_readonly("protocol_tokens", &ObjCCategoryDecl::ProtocolTokens)
-    .def_property_readonly("protocols", &ObjCCategoryDecl::Protocols);
+    .def_prop_ro("is_class_extension", &ObjCCategoryDecl::IsClassExtension)
+    .def_prop_ro("category_name_token", &ObjCCategoryDecl::CategoryNameToken)
+    .def_prop_ro("class_interface", &ObjCCategoryDecl::ClassInterface)
+    .def_prop_ro("implementation", &ObjCCategoryDecl::Implementation)
+    .def_prop_ro("instance_variable_l_brace_token", &ObjCCategoryDecl::InstanceVariableLBraceToken)
+    .def_prop_ro("instance_variable_r_brace_token", &ObjCCategoryDecl::InstanceVariableRBraceToken)
+    .def_prop_ro("next_class_category", &ObjCCategoryDecl::NextClassCategory)
+    .def_prop_ro("next_class_category_raw", &ObjCCategoryDecl::NextClassCategoryRaw)
+    .def_prop_ro("instance_variables", &ObjCCategoryDecl::InstanceVariables)
+    .def_prop_ro("protocol_tokens", &ObjCCategoryDecl::ProtocolTokens)
+    .def_prop_ro("protocols", &ObjCCategoryDecl::Protocols);
 }
 } // namespace pasta

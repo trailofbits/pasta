@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterPragmaClangRodataSectionAttr(py::module_ &m) {
-  py::class_<PragmaClangRodataSectionAttr, InheritableAttr>(m, "PragmaClangRodataSectionAttr")
+void RegisterPragmaClangRodataSectionAttr(nb::module_ &m) {
+  nb::class_<PragmaClangRodataSectionAttr, InheritableAttr>(m, "PragmaClangRodataSectionAttr")
     .def("__hash__", [](const PragmaClangRodataSectionAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("name", &PragmaClangRodataSectionAttr::Name)
-    .def_property_readonly("name_length", &PragmaClangRodataSectionAttr::NameLength)
-    .def_property_readonly("spelling", &PragmaClangRodataSectionAttr::Spelling);
+    .def_prop_ro("name", &PragmaClangRodataSectionAttr::Name)
+    .def_prop_ro("name_length", &PragmaClangRodataSectionAttr::NameLength)
+    .def_prop_ro("spelling", &PragmaClangRodataSectionAttr::Spelling);
 }
 } // namespace pasta

@@ -10,16 +10,17 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterAArch64VectorPcsAttr(py::module_ &m) {
-  py::class_<AArch64VectorPcsAttr, InheritableAttr>(m, "AArch64VectorPcsAttr")
+void RegisterAArch64VectorPcsAttr(nb::module_ &m) {
+  nb::class_<AArch64VectorPcsAttr, InheritableAttr>(m, "AArch64VectorPcsAttr")
     .def("__hash__", [](const AArch64VectorPcsAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("spelling", &AArch64VectorPcsAttr::Spelling);
+    .def_prop_ro("spelling", &AArch64VectorPcsAttr::Spelling);
 }
 } // namespace pasta

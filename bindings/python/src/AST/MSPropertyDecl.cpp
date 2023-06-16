@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterMSPropertyDecl(py::module_ &m) {
-  py::class_<MSPropertyDecl, DeclaratorDecl>(m, "MSPropertyDecl")
+void RegisterMSPropertyDecl(nb::module_ &m) {
+  nb::class_<MSPropertyDecl, DeclaratorDecl>(m, "MSPropertyDecl")
     .def("__hash__", [](const MSPropertyDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("has_getter", &MSPropertyDecl::HasGetter)
-    .def_property_readonly("has_setter", &MSPropertyDecl::HasSetter);
+    .def_prop_ro("has_getter", &MSPropertyDecl::HasGetter)
+    .def_prop_ro("has_setter", &MSPropertyDecl::HasSetter);
 }
 } // namespace pasta

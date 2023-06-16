@@ -10,21 +10,22 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterTemplateSpecializationType(py::module_ &m) {
-  py::class_<TemplateSpecializationType, Type>(m, "TemplateSpecializationType")
+void RegisterTemplateSpecializationType(nb::module_ &m) {
+  nb::class_<TemplateSpecializationType, Type>(m, "TemplateSpecializationType")
     .def("__hash__", [](const TemplateSpecializationType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("desugar", &TemplateSpecializationType::Desugar)
-    .def_property_readonly("aliased_type", &TemplateSpecializationType::AliasedType)
-    .def_property_readonly("is_current_instantiation", &TemplateSpecializationType::IsCurrentInstantiation)
-    .def_property_readonly("is_sugared", &TemplateSpecializationType::IsSugared)
-    .def_property_readonly("is_type_alias", &TemplateSpecializationType::IsTypeAlias)
-    .def_property_readonly("template_arguments", &TemplateSpecializationType::TemplateArguments);
+    .def_prop_ro("desugar", &TemplateSpecializationType::Desugar)
+    .def_prop_ro("aliased_type", &TemplateSpecializationType::AliasedType)
+    .def_prop_ro("is_current_instantiation", &TemplateSpecializationType::IsCurrentInstantiation)
+    .def_prop_ro("is_sugared", &TemplateSpecializationType::IsSugared)
+    .def_prop_ro("is_type_alias", &TemplateSpecializationType::IsTypeAlias)
+    .def_prop_ro("template_arguments", &TemplateSpecializationType::TemplateArguments);
 }
 } // namespace pasta

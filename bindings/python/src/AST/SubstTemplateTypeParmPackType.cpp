@@ -10,22 +10,23 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterSubstTemplateTypeParmPackType(py::module_ &m) {
-  py::class_<SubstTemplateTypeParmPackType, Type>(m, "SubstTemplateTypeParmPackType")
+void RegisterSubstTemplateTypeParmPackType(nb::module_ &m) {
+  nb::class_<SubstTemplateTypeParmPackType, Type>(m, "SubstTemplateTypeParmPackType")
     .def("__hash__", [](const SubstTemplateTypeParmPackType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("desugar", &SubstTemplateTypeParmPackType::Desugar)
-    .def_property_readonly("associated_declaration", &SubstTemplateTypeParmPackType::AssociatedDeclaration)
-    .def_property_readonly("final", &SubstTemplateTypeParmPackType::Final)
-    .def_property_readonly("index", &SubstTemplateTypeParmPackType::Index)
-    .def_property_readonly("num_arguments", &SubstTemplateTypeParmPackType::NumArguments)
-    .def_property_readonly("replaced_parameter", &SubstTemplateTypeParmPackType::ReplacedParameter)
-    .def_property_readonly("is_sugared", &SubstTemplateTypeParmPackType::IsSugared);
+    .def_prop_ro("desugar", &SubstTemplateTypeParmPackType::Desugar)
+    .def_prop_ro("associated_declaration", &SubstTemplateTypeParmPackType::AssociatedDeclaration)
+    .def_prop_ro("final", &SubstTemplateTypeParmPackType::Final)
+    .def_prop_ro("index", &SubstTemplateTypeParmPackType::Index)
+    .def_prop_ro("num_arguments", &SubstTemplateTypeParmPackType::NumArguments)
+    .def_prop_ro("replaced_parameter", &SubstTemplateTypeParmPackType::ReplacedParameter)
+    .def_prop_ro("is_sugared", &SubstTemplateTypeParmPackType::IsSugared);
 }
 } // namespace pasta

@@ -10,19 +10,20 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterWorkGroupSizeHintAttr(py::module_ &m) {
-  py::class_<WorkGroupSizeHintAttr, InheritableAttr>(m, "WorkGroupSizeHintAttr")
+void RegisterWorkGroupSizeHintAttr(nb::module_ &m) {
+  nb::class_<WorkGroupSizeHintAttr, InheritableAttr>(m, "WorkGroupSizeHintAttr")
     .def("__hash__", [](const WorkGroupSizeHintAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("spelling", &WorkGroupSizeHintAttr::Spelling)
-    .def_property_readonly("x_dim", &WorkGroupSizeHintAttr::XDim)
-    .def_property_readonly("y_dim", &WorkGroupSizeHintAttr::YDim)
-    .def_property_readonly("z_dim", &WorkGroupSizeHintAttr::ZDim);
+    .def_prop_ro("spelling", &WorkGroupSizeHintAttr::Spelling)
+    .def_prop_ro("x_dim", &WorkGroupSizeHintAttr::XDim)
+    .def_prop_ro("y_dim", &WorkGroupSizeHintAttr::YDim)
+    .def_prop_ro("z_dim", &WorkGroupSizeHintAttr::ZDim);
 }
 } // namespace pasta

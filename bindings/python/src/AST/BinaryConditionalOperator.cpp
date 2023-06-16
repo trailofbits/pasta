@@ -10,23 +10,24 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterBinaryConditionalOperator(py::module_ &m) {
-  py::class_<BinaryConditionalOperator, AbstractConditionalOperator>(m, "BinaryConditionalOperator")
+void RegisterBinaryConditionalOperator(nb::module_ &m) {
+  nb::class_<BinaryConditionalOperator, AbstractConditionalOperator>(m, "BinaryConditionalOperator")
     .def("__hash__", [](const BinaryConditionalOperator& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &BinaryConditionalOperator::Children)
-    .def_property_readonly("begin_token", &BinaryConditionalOperator::BeginToken)
-    .def_property_readonly("common", &BinaryConditionalOperator::Common)
-    .def_property_readonly("condition", &BinaryConditionalOperator::Condition)
-    .def_property_readonly("end_token", &BinaryConditionalOperator::EndToken)
-    .def_property_readonly("false_expression", &BinaryConditionalOperator::FalseExpression)
-    .def_property_readonly("opaque_value", &BinaryConditionalOperator::OpaqueValue)
-    .def_property_readonly("true_expression", &BinaryConditionalOperator::TrueExpression);
+    .def_prop_ro("children", &BinaryConditionalOperator::Children)
+    .def_prop_ro("begin_token", &BinaryConditionalOperator::BeginToken)
+    .def_prop_ro("common", &BinaryConditionalOperator::Common)
+    .def_prop_ro("condition", &BinaryConditionalOperator::Condition)
+    .def_prop_ro("end_token", &BinaryConditionalOperator::EndToken)
+    .def_prop_ro("false_expression", &BinaryConditionalOperator::FalseExpression)
+    .def_prop_ro("opaque_value", &BinaryConditionalOperator::OpaqueValue)
+    .def_prop_ro("true_expression", &BinaryConditionalOperator::TrueExpression);
 }
 } // namespace pasta

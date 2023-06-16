@@ -10,19 +10,20 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterValueDecl(py::module_ &m) {
-  py::class_<ValueDecl, NamedDecl>(m, "ValueDecl")
+void RegisterValueDecl(nb::module_ &m) {
+  nb::class_<ValueDecl, NamedDecl>(m, "ValueDecl")
     .def("__hash__", [](const ValueDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("potentially_decomposed_variable_declaration", &ValueDecl::PotentiallyDecomposedVariableDeclaration)
-    .def_property_readonly("type", &ValueDecl::Type)
-    .def_property_readonly("is_initializer_capture", &ValueDecl::IsInitializerCapture)
-    .def_property_readonly("is_weak", &ValueDecl::IsWeak);
+    .def_prop_ro("potentially_decomposed_variable_declaration", &ValueDecl::PotentiallyDecomposedVariableDeclaration)
+    .def_prop_ro("type", &ValueDecl::Type)
+    .def_prop_ro("is_initializer_capture", &ValueDecl::IsInitializerCapture)
+    .def_prop_ro("is_weak", &ValueDecl::IsWeak);
 }
 } // namespace pasta

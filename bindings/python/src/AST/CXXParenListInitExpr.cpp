@@ -10,22 +10,23 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterCXXParenListInitExpr(py::module_ &m) {
-  py::class_<CXXParenListInitExpr, Expr>(m, "CXXParenListInitExpr")
+void RegisterCXXParenListInitExpr(nb::module_ &m) {
+  nb::class_<CXXParenListInitExpr, Expr>(m, "CXXParenListInitExpr")
     .def("__hash__", [](const CXXParenListInitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &CXXParenListInitExpr::Children)
-    .def_property_readonly("array_filler", &CXXParenListInitExpr::ArrayFiller)
-    .def_property_readonly("begin_token", &CXXParenListInitExpr::BeginToken)
-    .def_property_readonly("end_token", &CXXParenListInitExpr::EndToken)
-    .def_property_readonly("initializer_token", &CXXParenListInitExpr::InitializerToken)
-    .def_property_readonly("initialized_field_in_union", &CXXParenListInitExpr::InitializedFieldInUnion)
-    .def_property_readonly("tokens", &CXXParenListInitExpr::Tokens);
+    .def_prop_ro("children", &CXXParenListInitExpr::Children)
+    .def_prop_ro("array_filler", &CXXParenListInitExpr::ArrayFiller)
+    .def_prop_ro("begin_token", &CXXParenListInitExpr::BeginToken)
+    .def_prop_ro("end_token", &CXXParenListInitExpr::EndToken)
+    .def_prop_ro("initializer_token", &CXXParenListInitExpr::InitializerToken)
+    .def_prop_ro("initialized_field_in_union", &CXXParenListInitExpr::InitializedFieldInUnion)
+    .def_prop_ro("tokens", &CXXParenListInitExpr::Tokens);
 }
 } // namespace pasta

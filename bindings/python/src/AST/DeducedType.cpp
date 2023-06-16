@@ -10,19 +10,20 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterDeducedType(py::module_ &m) {
-  py::class_<DeducedType, Type>(m, "DeducedType")
+void RegisterDeducedType(nb::module_ &m) {
+  nb::class_<DeducedType, Type>(m, "DeducedType")
     .def("__hash__", [](const DeducedType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("desugar", &DeducedType::Desugar)
-    .def_property_readonly("resolved_type", &DeducedType::ResolvedType)
-    .def_property_readonly("is_deduced", &DeducedType::IsDeduced)
-    .def_property_readonly("is_sugared", &DeducedType::IsSugared);
+    .def_prop_ro("desugar", &DeducedType::Desugar)
+    .def_prop_ro("resolved_type", &DeducedType::ResolvedType)
+    .def_prop_ro("is_deduced", &DeducedType::IsDeduced)
+    .def_prop_ro("is_sugared", &DeducedType::IsSugared);
 }
 } // namespace pasta

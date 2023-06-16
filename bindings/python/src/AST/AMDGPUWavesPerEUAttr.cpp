@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterAMDGPUWavesPerEUAttr(py::module_ &m) {
-  py::class_<AMDGPUWavesPerEUAttr, InheritableAttr>(m, "AMDGPUWavesPerEUAttr")
+void RegisterAMDGPUWavesPerEUAttr(nb::module_ &m) {
+  nb::class_<AMDGPUWavesPerEUAttr, InheritableAttr>(m, "AMDGPUWavesPerEUAttr")
     .def("__hash__", [](const AMDGPUWavesPerEUAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("max", &AMDGPUWavesPerEUAttr::Max)
-    .def_property_readonly("min", &AMDGPUWavesPerEUAttr::Min)
-    .def_property_readonly("spelling", &AMDGPUWavesPerEUAttr::Spelling);
+    .def_prop_ro("max", &AMDGPUWavesPerEUAttr::Max)
+    .def_prop_ro("min", &AMDGPUWavesPerEUAttr::Min)
+    .def_prop_ro("spelling", &AMDGPUWavesPerEUAttr::Spelling);
 }
 } // namespace pasta

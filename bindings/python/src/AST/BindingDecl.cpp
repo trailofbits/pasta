@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterBindingDecl(py::module_ &m) {
-  py::class_<BindingDecl, ValueDecl>(m, "BindingDecl")
+void RegisterBindingDecl(nb::module_ &m) {
+  nb::class_<BindingDecl, ValueDecl>(m, "BindingDecl")
     .def("__hash__", [](const BindingDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("binding", &BindingDecl::Binding)
-    .def_property_readonly("decomposed_declaration", &BindingDecl::DecomposedDeclaration)
-    .def_property_readonly("holding_variable", &BindingDecl::HoldingVariable);
+    .def_prop_ro("binding", &BindingDecl::Binding)
+    .def_prop_ro("decomposed_declaration", &BindingDecl::DecomposedDeclaration)
+    .def_prop_ro("holding_variable", &BindingDecl::HoldingVariable);
 }
 } // namespace pasta

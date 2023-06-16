@@ -10,21 +10,22 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterSwitchCase(py::module_ &m) {
-  py::class_<SwitchCase, Stmt>(m, "SwitchCase")
+void RegisterSwitchCase(nb::module_ &m) {
+  nb::class_<SwitchCase, Stmt>(m, "SwitchCase")
     .def("__hash__", [](const SwitchCase& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("begin_token", &SwitchCase::BeginToken)
-    .def_property_readonly("colon_token", &SwitchCase::ColonToken)
-    .def_property_readonly("end_token", &SwitchCase::EndToken)
-    .def_property_readonly("keyword_token", &SwitchCase::KeywordToken)
-    .def_property_readonly("next_switch_case", &SwitchCase::NextSwitchCase)
-    .def_property_readonly("sub_statement", &SwitchCase::SubStatement);
+    .def_prop_ro("begin_token", &SwitchCase::BeginToken)
+    .def_prop_ro("colon_token", &SwitchCase::ColonToken)
+    .def_prop_ro("end_token", &SwitchCase::EndToken)
+    .def_prop_ro("keyword_token", &SwitchCase::KeywordToken)
+    .def_prop_ro("next_switch_case", &SwitchCase::NextSwitchCase)
+    .def_prop_ro("sub_statement", &SwitchCase::SubStatement);
 }
 } // namespace pasta

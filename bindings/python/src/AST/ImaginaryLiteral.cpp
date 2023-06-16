@@ -10,19 +10,20 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterImaginaryLiteral(py::module_ &m) {
-  py::class_<ImaginaryLiteral, Expr>(m, "ImaginaryLiteral")
+void RegisterImaginaryLiteral(nb::module_ &m) {
+  nb::class_<ImaginaryLiteral, Expr>(m, "ImaginaryLiteral")
     .def("__hash__", [](const ImaginaryLiteral& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &ImaginaryLiteral::Children)
-    .def_property_readonly("begin_token", &ImaginaryLiteral::BeginToken)
-    .def_property_readonly("end_token", &ImaginaryLiteral::EndToken)
-    .def_property_readonly("sub_expression", &ImaginaryLiteral::SubExpression);
+    .def_prop_ro("children", &ImaginaryLiteral::Children)
+    .def_prop_ro("begin_token", &ImaginaryLiteral::BeginToken)
+    .def_prop_ro("end_token", &ImaginaryLiteral::EndToken)
+    .def_prop_ro("sub_expression", &ImaginaryLiteral::SubExpression);
 }
 } // namespace pasta

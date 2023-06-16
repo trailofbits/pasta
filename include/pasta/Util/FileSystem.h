@@ -82,7 +82,7 @@ struct Stat {
 };
 
 // Virtual interface to a file system.
-class FileSystem : public std::enable_shared_from_this<FileSystem> {
+class FileSystem {
  public:
   friend class Compiler;
 

@@ -10,21 +10,22 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterOMPDeclareTargetDeclAttr(py::module_ &m) {
-  py::class_<OMPDeclareTargetDeclAttr, InheritableAttr>(m, "OMPDeclareTargetDeclAttr")
+void RegisterOMPDeclareTargetDeclAttr(nb::module_ &m) {
+  nb::class_<OMPDeclareTargetDeclAttr, InheritableAttr>(m, "OMPDeclareTargetDeclAttr")
     .def("__hash__", [](const OMPDeclareTargetDeclAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("dev_type", &OMPDeclareTargetDeclAttr::DevType)
-    .def_property_readonly("indirect", &OMPDeclareTargetDeclAttr::Indirect)
-    .def_property_readonly("indirect_expression", &OMPDeclareTargetDeclAttr::IndirectExpression)
-    .def_property_readonly("level", &OMPDeclareTargetDeclAttr::Level)
-    .def_property_readonly("map_type", &OMPDeclareTargetDeclAttr::MapType)
-    .def_property_readonly("spelling", &OMPDeclareTargetDeclAttr::Spelling);
+    .def_prop_ro("dev_type", &OMPDeclareTargetDeclAttr::DevType)
+    .def_prop_ro("indirect", &OMPDeclareTargetDeclAttr::Indirect)
+    .def_prop_ro("indirect_expression", &OMPDeclareTargetDeclAttr::IndirectExpression)
+    .def_prop_ro("level", &OMPDeclareTargetDeclAttr::Level)
+    .def_prop_ro("map_type", &OMPDeclareTargetDeclAttr::MapType)
+    .def_prop_ro("spelling", &OMPDeclareTargetDeclAttr::Spelling);
 }
 } // namespace pasta

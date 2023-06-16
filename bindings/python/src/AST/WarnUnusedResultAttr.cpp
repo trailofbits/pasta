@@ -10,20 +10,21 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterWarnUnusedResultAttr(py::module_ &m) {
-  py::class_<WarnUnusedResultAttr, InheritableAttr>(m, "WarnUnusedResultAttr")
+void RegisterWarnUnusedResultAttr(nb::module_ &m) {
+  nb::class_<WarnUnusedResultAttr, InheritableAttr>(m, "WarnUnusedResultAttr")
     .def("__hash__", [](const WarnUnusedResultAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("is_cxx11_no_discard", &WarnUnusedResultAttr::IsCXX11NoDiscard)
-    .def_property_readonly("message", &WarnUnusedResultAttr::Message)
-    .def_property_readonly("message_length", &WarnUnusedResultAttr::MessageLength)
-    .def_property_readonly("semantic_spelling", &WarnUnusedResultAttr::SemanticSpelling)
-    .def_property_readonly("spelling", &WarnUnusedResultAttr::Spelling);
+    .def_prop_ro("is_cxx11_no_discard", &WarnUnusedResultAttr::IsCXX11NoDiscard)
+    .def_prop_ro("message", &WarnUnusedResultAttr::Message)
+    .def_prop_ro("message_length", &WarnUnusedResultAttr::MessageLength)
+    .def_prop_ro("semantic_spelling", &WarnUnusedResultAttr::SemanticSpelling)
+    .def_prop_ro("spelling", &WarnUnusedResultAttr::Spelling);
 }
 } // namespace pasta

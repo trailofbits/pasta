@@ -10,21 +10,22 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterShuffleVectorExpr(py::module_ &m) {
-  py::class_<ShuffleVectorExpr, Expr>(m, "ShuffleVectorExpr")
+void RegisterShuffleVectorExpr(nb::module_ &m) {
+  nb::class_<ShuffleVectorExpr, Expr>(m, "ShuffleVectorExpr")
     .def("__hash__", [](const ShuffleVectorExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &ShuffleVectorExpr::Children)
-    .def_property_readonly("begin_token", &ShuffleVectorExpr::BeginToken)
-    .def_property_readonly("builtin_token", &ShuffleVectorExpr::BuiltinToken)
-    .def_property_readonly("end_token", &ShuffleVectorExpr::EndToken)
-    .def_property_readonly("num_sub_expressions", &ShuffleVectorExpr::NumSubExpressions)
-    .def_property_readonly("r_paren_token", &ShuffleVectorExpr::RParenToken);
+    .def_prop_ro("children", &ShuffleVectorExpr::Children)
+    .def_prop_ro("begin_token", &ShuffleVectorExpr::BeginToken)
+    .def_prop_ro("builtin_token", &ShuffleVectorExpr::BuiltinToken)
+    .def_prop_ro("end_token", &ShuffleVectorExpr::EndToken)
+    .def_prop_ro("num_sub_expressions", &ShuffleVectorExpr::NumSubExpressions)
+    .def_prop_ro("r_paren_token", &ShuffleVectorExpr::RParenToken);
 }
 } // namespace pasta

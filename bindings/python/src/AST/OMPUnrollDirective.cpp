@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterOMPUnrollDirective(py::module_ &m) {
-  py::class_<OMPUnrollDirective, OMPLoopTransformationDirective>(m, "OMPUnrollDirective")
+void RegisterOMPUnrollDirective(nb::module_ &m) {
+  nb::class_<OMPUnrollDirective, OMPLoopTransformationDirective>(m, "OMPUnrollDirective")
     .def("__hash__", [](const OMPUnrollDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("pre_initializers", &OMPUnrollDirective::PreInitializers)
-    .def_property_readonly("transformed_statement", &OMPUnrollDirective::TransformedStatement);
+    .def_prop_ro("pre_initializers", &OMPUnrollDirective::PreInitializers)
+    .def_prop_ro("transformed_statement", &OMPUnrollDirective::TransformedStatement);
 }
 } // namespace pasta

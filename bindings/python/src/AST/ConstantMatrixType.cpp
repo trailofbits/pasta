@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterConstantMatrixType(py::module_ &m) {
-  py::class_<ConstantMatrixType, MatrixType>(m, "ConstantMatrixType")
+void RegisterConstantMatrixType(nb::module_ &m) {
+  nb::class_<ConstantMatrixType, MatrixType>(m, "ConstantMatrixType")
     .def("__hash__", [](const ConstantMatrixType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("num_columns", &ConstantMatrixType::NumColumns)
-    .def_property_readonly("num_elements_flattened", &ConstantMatrixType::NumElementsFlattened)
-    .def_property_readonly("num_rows", &ConstantMatrixType::NumRows);
+    .def_prop_ro("num_columns", &ConstantMatrixType::NumColumns)
+    .def_prop_ro("num_elements_flattened", &ConstantMatrixType::NumElementsFlattened)
+    .def_prop_ro("num_rows", &ConstantMatrixType::NumRows);
 }
 } // namespace pasta

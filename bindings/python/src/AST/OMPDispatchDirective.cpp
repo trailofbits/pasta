@@ -10,16 +10,17 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterOMPDispatchDirective(py::module_ &m) {
-  py::class_<OMPDispatchDirective, OMPExecutableDirective>(m, "OMPDispatchDirective")
+void RegisterOMPDispatchDirective(nb::module_ &m) {
+  nb::class_<OMPDispatchDirective, OMPExecutableDirective>(m, "OMPDispatchDirective")
     .def("__hash__", [](const OMPDispatchDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("target_call_token", &OMPDispatchDirective::TargetCallToken);
+    .def_prop_ro("target_call_token", &OMPDispatchDirective::TargetCallToken);
 }
 } // namespace pasta

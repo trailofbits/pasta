@@ -10,22 +10,23 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterOpaqueValueExpr(py::module_ &m) {
-  py::class_<OpaqueValueExpr, Expr>(m, "OpaqueValueExpr")
+void RegisterOpaqueValueExpr(nb::module_ &m) {
+  nb::class_<OpaqueValueExpr, Expr>(m, "OpaqueValueExpr")
     .def("__hash__", [](const OpaqueValueExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &OpaqueValueExpr::Children)
-    .def_property_readonly("begin_token", &OpaqueValueExpr::BeginToken)
-    .def_property_readonly("end_token", &OpaqueValueExpr::EndToken)
-    .def_property_readonly("expression_token", &OpaqueValueExpr::ExpressionToken)
-    .def_property_readonly("token", &OpaqueValueExpr::Token)
-    .def_property_readonly("source_expression", &OpaqueValueExpr::SourceExpression)
-    .def_property_readonly("is_unique", &OpaqueValueExpr::IsUnique);
+    .def_prop_ro("children", &OpaqueValueExpr::Children)
+    .def_prop_ro("begin_token", &OpaqueValueExpr::BeginToken)
+    .def_prop_ro("end_token", &OpaqueValueExpr::EndToken)
+    .def_prop_ro("expression_token", &OpaqueValueExpr::ExpressionToken)
+    .def_prop_ro("token", &OpaqueValueExpr::Token)
+    .def_prop_ro("source_expression", &OpaqueValueExpr::SourceExpression)
+    .def_prop_ro("is_unique", &OpaqueValueExpr::IsUnique);
 }
 } // namespace pasta

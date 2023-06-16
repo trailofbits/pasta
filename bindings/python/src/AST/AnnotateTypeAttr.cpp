@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterAnnotateTypeAttr(py::module_ &m) {
-  py::class_<AnnotateTypeAttr, TypeAttr>(m, "AnnotateTypeAttr")
+void RegisterAnnotateTypeAttr(nb::module_ &m) {
+  nb::class_<AnnotateTypeAttr, TypeAttr>(m, "AnnotateTypeAttr")
     .def("__hash__", [](const AnnotateTypeAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("annotation", &AnnotateTypeAttr::Annotation)
-    .def_property_readonly("annotation_length", &AnnotateTypeAttr::AnnotationLength)
-    .def_property_readonly("spelling", &AnnotateTypeAttr::Spelling);
+    .def_prop_ro("annotation", &AnnotateTypeAttr::Annotation)
+    .def_prop_ro("annotation_length", &AnnotateTypeAttr::AnnotationLength)
+    .def_prop_ro("spelling", &AnnotateTypeAttr::Spelling);
 }
 } // namespace pasta

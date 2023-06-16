@@ -10,20 +10,21 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterFriendDecl(py::module_ &m) {
-  py::class_<FriendDecl, Decl>(m, "FriendDecl")
+void RegisterFriendDecl(nb::module_ &m) {
+  nb::class_<FriendDecl, Decl>(m, "FriendDecl")
     .def("__hash__", [](const FriendDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("friend_declaration", &FriendDecl::FriendDeclaration)
-    .def_property_readonly("friend_token", &FriendDecl::FriendToken)
-    .def_property_readonly("friend_type", &FriendDecl::FriendType)
-    .def_property_readonly("friend_type_num_template_parameter_lists", &FriendDecl::FriendTypeNumTemplateParameterLists)
-    .def_property_readonly("is_unsupported_friend", &FriendDecl::IsUnsupportedFriend);
+    .def_prop_ro("friend_declaration", &FriendDecl::FriendDeclaration)
+    .def_prop_ro("friend_token", &FriendDecl::FriendToken)
+    .def_prop_ro("friend_type", &FriendDecl::FriendType)
+    .def_prop_ro("friend_type_num_template_parameter_lists", &FriendDecl::FriendTypeNumTemplateParameterLists)
+    .def_prop_ro("is_unsupported_friend", &FriendDecl::IsUnsupportedFriend);
 }
 } // namespace pasta

@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterSwiftAttrAttr(py::module_ &m) {
-  py::class_<SwiftAttrAttr, InheritableAttr>(m, "SwiftAttrAttr")
+void RegisterSwiftAttrAttr(nb::module_ &m) {
+  nb::class_<SwiftAttrAttr, InheritableAttr>(m, "SwiftAttrAttr")
     .def("__hash__", [](const SwiftAttrAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("attribute", &SwiftAttrAttr::Attribute)
-    .def_property_readonly("attribute_length", &SwiftAttrAttr::AttributeLength)
-    .def_property_readonly("spelling", &SwiftAttrAttr::Spelling);
+    .def_prop_ro("attribute", &SwiftAttrAttr::Attribute)
+    .def_prop_ro("attribute_length", &SwiftAttrAttr::AttributeLength)
+    .def_prop_ro("spelling", &SwiftAttrAttr::Spelling);
 }
 } // namespace pasta

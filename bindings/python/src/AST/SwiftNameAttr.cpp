@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterSwiftNameAttr(py::module_ &m) {
-  py::class_<SwiftNameAttr, InheritableAttr>(m, "SwiftNameAttr")
+void RegisterSwiftNameAttr(nb::module_ &m) {
+  nb::class_<SwiftNameAttr, InheritableAttr>(m, "SwiftNameAttr")
     .def("__hash__", [](const SwiftNameAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("name", &SwiftNameAttr::Name)
-    .def_property_readonly("name_length", &SwiftNameAttr::NameLength)
-    .def_property_readonly("spelling", &SwiftNameAttr::Spelling);
+    .def_prop_ro("name", &SwiftNameAttr::Name)
+    .def_prop_ro("name_length", &SwiftNameAttr::NameLength)
+    .def_prop_ro("spelling", &SwiftNameAttr::Spelling);
 }
 } // namespace pasta

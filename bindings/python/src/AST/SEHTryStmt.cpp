@@ -10,24 +10,25 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterSEHTryStmt(py::module_ &m) {
-  py::class_<SEHTryStmt, Stmt>(m, "SEHTryStmt")
+void RegisterSEHTryStmt(nb::module_ &m) {
+  nb::class_<SEHTryStmt, Stmt>(m, "SEHTryStmt")
     .def("__hash__", [](const SEHTryStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &SEHTryStmt::Children)
-    .def_property_readonly("begin_token", &SEHTryStmt::BeginToken)
-    .def_property_readonly("end_token", &SEHTryStmt::EndToken)
-    .def_property_readonly("except_handler", &SEHTryStmt::ExceptHandler)
-    .def_property_readonly("finally_handler", &SEHTryStmt::FinallyHandler)
-    .def_property_readonly("handler", &SEHTryStmt::Handler)
-    .def_property_readonly("is_cxx_try", &SEHTryStmt::IsCXXTry)
-    .def_property_readonly("try_block", &SEHTryStmt::TryBlock)
-    .def_property_readonly("try_token", &SEHTryStmt::TryToken);
+    .def_prop_ro("children", &SEHTryStmt::Children)
+    .def_prop_ro("begin_token", &SEHTryStmt::BeginToken)
+    .def_prop_ro("end_token", &SEHTryStmt::EndToken)
+    .def_prop_ro("except_handler", &SEHTryStmt::ExceptHandler)
+    .def_prop_ro("finally_handler", &SEHTryStmt::FinallyHandler)
+    .def_prop_ro("handler", &SEHTryStmt::Handler)
+    .def_prop_ro("is_cxx_try", &SEHTryStmt::IsCXXTry)
+    .def_prop_ro("try_block", &SEHTryStmt::TryBlock)
+    .def_prop_ro("try_token", &SEHTryStmt::TryToken);
 }
 } // namespace pasta

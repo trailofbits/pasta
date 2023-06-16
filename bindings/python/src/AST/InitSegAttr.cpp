@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterInitSegAttr(py::module_ &m) {
-  py::class_<InitSegAttr, Attr>(m, "InitSegAttr")
+void RegisterInitSegAttr(nb::module_ &m) {
+  nb::class_<InitSegAttr, Attr>(m, "InitSegAttr")
     .def("__hash__", [](const InitSegAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("section", &InitSegAttr::Section)
-    .def_property_readonly("section_length", &InitSegAttr::SectionLength)
-    .def_property_readonly("spelling", &InitSegAttr::Spelling);
+    .def_prop_ro("section", &InitSegAttr::Section)
+    .def_prop_ro("section_length", &InitSegAttr::SectionLength)
+    .def_prop_ro("spelling", &InitSegAttr::Spelling);
 }
 } // namespace pasta

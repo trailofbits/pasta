@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterBuiltinAliasAttr(py::module_ &m) {
-  py::class_<BuiltinAliasAttr, Attr>(m, "BuiltinAliasAttr")
+void RegisterBuiltinAliasAttr(nb::module_ &m) {
+  nb::class_<BuiltinAliasAttr, Attr>(m, "BuiltinAliasAttr")
     .def("__hash__", [](const BuiltinAliasAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("semantic_spelling", &BuiltinAliasAttr::SemanticSpelling)
-    .def_property_readonly("spelling", &BuiltinAliasAttr::Spelling);
+    .def_prop_ro("semantic_spelling", &BuiltinAliasAttr::SemanticSpelling)
+    .def_prop_ro("spelling", &BuiltinAliasAttr::Spelling);
 }
 } // namespace pasta

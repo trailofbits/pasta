@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterExtVectorType(py::module_ &m) {
-  py::class_<ExtVectorType, VectorType>(m, "ExtVectorType")
+void RegisterExtVectorType(nb::module_ &m) {
+  nb::class_<ExtVectorType, VectorType>(m, "ExtVectorType")
     .def("__hash__", [](const ExtVectorType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("desugar", &ExtVectorType::Desugar)
-    .def_property_readonly("is_sugared", &ExtVectorType::IsSugared);
+    .def_prop_ro("desugar", &ExtVectorType::Desugar)
+    .def_prop_ro("is_sugared", &ExtVectorType::IsSugared);
 }
 } // namespace pasta

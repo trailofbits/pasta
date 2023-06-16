@@ -10,20 +10,21 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterSEHFinallyStmt(py::module_ &m) {
-  py::class_<SEHFinallyStmt, Stmt>(m, "SEHFinallyStmt")
+void RegisterSEHFinallyStmt(nb::module_ &m) {
+  nb::class_<SEHFinallyStmt, Stmt>(m, "SEHFinallyStmt")
     .def("__hash__", [](const SEHFinallyStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &SEHFinallyStmt::Children)
-    .def_property_readonly("begin_token", &SEHFinallyStmt::BeginToken)
-    .def_property_readonly("block", &SEHFinallyStmt::Block)
-    .def_property_readonly("end_token", &SEHFinallyStmt::EndToken)
-    .def_property_readonly("finally_token", &SEHFinallyStmt::FinallyToken);
+    .def_prop_ro("children", &SEHFinallyStmt::Children)
+    .def_prop_ro("begin_token", &SEHFinallyStmt::BeginToken)
+    .def_prop_ro("block", &SEHFinallyStmt::Block)
+    .def_prop_ro("end_token", &SEHFinallyStmt::EndToken)
+    .def_prop_ro("finally_token", &SEHFinallyStmt::FinallyToken);
 }
 } // namespace pasta

@@ -10,19 +10,20 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterAsmLabelAttr(py::module_ &m) {
-  py::class_<AsmLabelAttr, InheritableAttr>(m, "AsmLabelAttr")
+void RegisterAsmLabelAttr(nb::module_ &m) {
+  nb::class_<AsmLabelAttr, InheritableAttr>(m, "AsmLabelAttr")
     .def("__hash__", [](const AsmLabelAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("is_literal_label", &AsmLabelAttr::IsLiteralLabel)
-    .def_property_readonly("label", &AsmLabelAttr::Label)
-    .def_property_readonly("label_length", &AsmLabelAttr::LabelLength)
-    .def_property_readonly("spelling", &AsmLabelAttr::Spelling);
+    .def_prop_ro("is_literal_label", &AsmLabelAttr::IsLiteralLabel)
+    .def_prop_ro("label", &AsmLabelAttr::Label)
+    .def_prop_ro("label_length", &AsmLabelAttr::LabelLength)
+    .def_prop_ro("spelling", &AsmLabelAttr::Spelling);
 }
 } // namespace pasta

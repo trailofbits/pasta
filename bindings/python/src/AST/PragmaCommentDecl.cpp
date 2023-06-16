@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterPragmaCommentDecl(py::module_ &m) {
-  py::class_<PragmaCommentDecl, Decl>(m, "PragmaCommentDecl")
+void RegisterPragmaCommentDecl(nb::module_ &m) {
+  nb::class_<PragmaCommentDecl, Decl>(m, "PragmaCommentDecl")
     .def("__hash__", [](const PragmaCommentDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("argument", &PragmaCommentDecl::Argument)
-    .def_property_readonly("comment_kind", &PragmaCommentDecl::CommentKind);
+    .def_prop_ro("argument", &PragmaCommentDecl::Argument)
+    .def_prop_ro("comment_kind", &PragmaCommentDecl::CommentKind);
 }
 } // namespace pasta

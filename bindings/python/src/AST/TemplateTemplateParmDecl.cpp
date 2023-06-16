@@ -10,22 +10,23 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterTemplateTemplateParmDecl(py::module_ &m) {
-  py::class_<TemplateTemplateParmDecl, TemplateDecl>(m, "TemplateTemplateParmDecl")
+void RegisterTemplateTemplateParmDecl(nb::module_ &m) {
+  nb::class_<TemplateTemplateParmDecl, TemplateDecl>(m, "TemplateTemplateParmDecl")
     .def("__hash__", [](const TemplateTemplateParmDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("default_argument_was_inherited", &TemplateTemplateParmDecl::DefaultArgumentWasInherited)
-    .def_property_readonly("default_argument_token", &TemplateTemplateParmDecl::DefaultArgumentToken)
-    .def_property_readonly("num_expansion_template_parameters", &TemplateTemplateParmDecl::NumExpansionTemplateParameters)
-    .def_property_readonly("has_default_argument", &TemplateTemplateParmDecl::HasDefaultArgument)
-    .def_property_readonly("is_expanded_parameter_pack", &TemplateTemplateParmDecl::IsExpandedParameterPack)
-    .def_property_readonly("is_pack_expansion", &TemplateTemplateParmDecl::IsPackExpansion)
-    .def_property_readonly("is_parameter_pack", &TemplateTemplateParmDecl::IsParameterPack);
+    .def_prop_ro("default_argument_was_inherited", &TemplateTemplateParmDecl::DefaultArgumentWasInherited)
+    .def_prop_ro("default_argument_token", &TemplateTemplateParmDecl::DefaultArgumentToken)
+    .def_prop_ro("num_expansion_template_parameters", &TemplateTemplateParmDecl::NumExpansionTemplateParameters)
+    .def_prop_ro("has_default_argument", &TemplateTemplateParmDecl::HasDefaultArgument)
+    .def_prop_ro("is_expanded_parameter_pack", &TemplateTemplateParmDecl::IsExpandedParameterPack)
+    .def_prop_ro("is_pack_expansion", &TemplateTemplateParmDecl::IsPackExpansion)
+    .def_prop_ro("is_parameter_pack", &TemplateTemplateParmDecl::IsParameterPack);
 }
 } // namespace pasta

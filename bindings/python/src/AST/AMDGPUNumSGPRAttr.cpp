@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterAMDGPUNumSGPRAttr(py::module_ &m) {
-  py::class_<AMDGPUNumSGPRAttr, InheritableAttr>(m, "AMDGPUNumSGPRAttr")
+void RegisterAMDGPUNumSGPRAttr(nb::module_ &m) {
+  nb::class_<AMDGPUNumSGPRAttr, InheritableAttr>(m, "AMDGPUNumSGPRAttr")
     .def("__hash__", [](const AMDGPUNumSGPRAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("num_sgpr", &AMDGPUNumSGPRAttr::NumSGPR)
-    .def_property_readonly("spelling", &AMDGPUNumSGPRAttr::Spelling);
+    .def_prop_ro("num_sgpr", &AMDGPUNumSGPRAttr::NumSGPR)
+    .def_prop_ro("spelling", &AMDGPUNumSGPRAttr::Spelling);
 }
 } // namespace pasta

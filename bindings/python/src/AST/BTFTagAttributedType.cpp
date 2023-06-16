@@ -10,19 +10,20 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterBTFTagAttributedType(py::module_ &m) {
-  py::class_<BTFTagAttributedType, Type>(m, "BTFTagAttributedType")
+void RegisterBTFTagAttributedType(nb::module_ &m) {
+  nb::class_<BTFTagAttributedType, Type>(m, "BTFTagAttributedType")
     .def("__hash__", [](const BTFTagAttributedType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("desugar", &BTFTagAttributedType::Desugar)
-    .def_property_readonly("attribute", &BTFTagAttributedType::Attribute)
-    .def_property_readonly("wrapped_type", &BTFTagAttributedType::WrappedType)
-    .def_property_readonly("is_sugared", &BTFTagAttributedType::IsSugared);
+    .def_prop_ro("desugar", &BTFTagAttributedType::Desugar)
+    .def_prop_ro("attribute", &BTFTagAttributedType::Attribute)
+    .def_prop_ro("wrapped_type", &BTFTagAttributedType::WrappedType)
+    .def_prop_ro("is_sugared", &BTFTagAttributedType::IsSugared);
 }
 } // namespace pasta

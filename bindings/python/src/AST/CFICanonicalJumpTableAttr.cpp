@@ -10,16 +10,17 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterCFICanonicalJumpTableAttr(py::module_ &m) {
-  py::class_<CFICanonicalJumpTableAttr, InheritableAttr>(m, "CFICanonicalJumpTableAttr")
+void RegisterCFICanonicalJumpTableAttr(nb::module_ &m) {
+  nb::class_<CFICanonicalJumpTableAttr, InheritableAttr>(m, "CFICanonicalJumpTableAttr")
     .def("__hash__", [](const CFICanonicalJumpTableAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("spelling", &CFICanonicalJumpTableAttr::Spelling);
+    .def_prop_ro("spelling", &CFICanonicalJumpTableAttr::Spelling);
 }
 } // namespace pasta

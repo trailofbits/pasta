@@ -10,19 +10,20 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterTypedefType(py::module_ &m) {
-  py::class_<TypedefType, Type>(m, "TypedefType")
+void RegisterTypedefType(nb::module_ &m) {
+  nb::class_<TypedefType, Type>(m, "TypedefType")
     .def("__hash__", [](const TypedefType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("desugar", &TypedefType::Desugar)
-    .def_property_readonly("declaration", &TypedefType::Declaration)
-    .def_property_readonly("is_sugared", &TypedefType::IsSugared)
-    .def_property_readonly("type_matches_declaration", &TypedefType::TypeMatchesDeclaration);
+    .def_prop_ro("desugar", &TypedefType::Desugar)
+    .def_prop_ro("declaration", &TypedefType::Declaration)
+    .def_prop_ro("is_sugared", &TypedefType::IsSugared)
+    .def_prop_ro("type_matches_declaration", &TypedefType::TypeMatchesDeclaration);
 }
 } // namespace pasta

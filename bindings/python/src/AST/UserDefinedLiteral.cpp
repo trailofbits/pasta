@@ -10,20 +10,21 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterUserDefinedLiteral(py::module_ &m) {
-  py::class_<UserDefinedLiteral, CallExpr>(m, "UserDefinedLiteral")
+void RegisterUserDefinedLiteral(nb::module_ &m) {
+  nb::class_<UserDefinedLiteral, CallExpr>(m, "UserDefinedLiteral")
     .def("__hash__", [](const UserDefinedLiteral& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("begin_token", &UserDefinedLiteral::BeginToken)
-    .def_property_readonly("cooked_literal", &UserDefinedLiteral::CookedLiteral)
-    .def_property_readonly("end_token", &UserDefinedLiteral::EndToken)
-    .def_property_readonly("literal_operator_kind", &UserDefinedLiteral::LiteralOperatorKind)
-    .def_property_readonly("ud_suffix_token", &UserDefinedLiteral::UDSuffixToken);
+    .def_prop_ro("begin_token", &UserDefinedLiteral::BeginToken)
+    .def_prop_ro("cooked_literal", &UserDefinedLiteral::CookedLiteral)
+    .def_prop_ro("end_token", &UserDefinedLiteral::EndToken)
+    .def_prop_ro("literal_operator_kind", &UserDefinedLiteral::LiteralOperatorKind)
+    .def_prop_ro("ud_suffix_token", &UserDefinedLiteral::UDSuffixToken);
 }
 } // namespace pasta

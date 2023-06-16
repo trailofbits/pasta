@@ -10,24 +10,25 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterOverloadExpr(py::module_ &m) {
-  py::class_<OverloadExpr, Expr>(m, "OverloadExpr")
+void RegisterOverloadExpr(nb::module_ &m) {
+  nb::class_<OverloadExpr, Expr>(m, "OverloadExpr")
     .def("__hash__", [](const OverloadExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("l_angle_token", &OverloadExpr::LAngleToken)
-    .def_property_readonly("name_token", &OverloadExpr::NameToken)
-    .def_property_readonly("naming_class", &OverloadExpr::NamingClass)
-    .def_property_readonly("num_declarations", &OverloadExpr::NumDeclarations)
-    .def_property_readonly("num_template_arguments", &OverloadExpr::NumTemplateArguments)
-    .def_property_readonly("r_angle_token", &OverloadExpr::RAngleToken)
-    .def_property_readonly("template_keyword_token", &OverloadExpr::TemplateKeywordToken)
-    .def_property_readonly("has_explicit_template_arguments", &OverloadExpr::HasExplicitTemplateArguments)
-    .def_property_readonly("has_template_keyword", &OverloadExpr::HasTemplateKeyword);
+    .def_prop_ro("l_angle_token", &OverloadExpr::LAngleToken)
+    .def_prop_ro("name_token", &OverloadExpr::NameToken)
+    .def_prop_ro("naming_class", &OverloadExpr::NamingClass)
+    .def_prop_ro("num_declarations", &OverloadExpr::NumDeclarations)
+    .def_prop_ro("num_template_arguments", &OverloadExpr::NumTemplateArguments)
+    .def_prop_ro("r_angle_token", &OverloadExpr::RAngleToken)
+    .def_prop_ro("template_keyword_token", &OverloadExpr::TemplateKeywordToken)
+    .def_prop_ro("has_explicit_template_arguments", &OverloadExpr::HasExplicitTemplateArguments)
+    .def_prop_ro("has_template_keyword", &OverloadExpr::HasTemplateKeyword);
 }
 } // namespace pasta

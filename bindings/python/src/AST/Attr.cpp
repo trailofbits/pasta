@@ -10,22 +10,23 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterAttr(py::module_ &m) {
-  py::class_<Attr>(m, "Attr")
+void RegisterAttr(nb::module_ &m) {
+  nb::class_<Attr>(m, "Attr")
     .def("__hash__", [](const Attr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("token", &Attr::Token)
-    .def_property_readonly("spelling", &Attr::Spelling)
-    .def_property_readonly("spelling_list_index", &Attr::SpellingListIndex)
-    .def_property_readonly("is_implicit", &Attr::IsImplicit)
-    .def_property_readonly("is_inherited", &Attr::IsInherited)
-    .def_property_readonly("is_late_parsed", &Attr::IsLateParsed)
-    .def_property_readonly("is_pack_expansion", &Attr::IsPackExpansion);
+    .def_prop_ro("token", &Attr::Token)
+    .def_prop_ro("spelling", &Attr::Spelling)
+    .def_prop_ro("spelling_list_index", &Attr::SpellingListIndex)
+    .def_prop_ro("is_implicit", &Attr::IsImplicit)
+    .def_prop_ro("is_inherited", &Attr::IsInherited)
+    .def_prop_ro("is_late_parsed", &Attr::IsLateParsed)
+    .def_prop_ro("is_pack_expansion", &Attr::IsPackExpansion);
 }
 } // namespace pasta

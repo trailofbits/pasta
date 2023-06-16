@@ -10,24 +10,25 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterStmt(py::module_ &m) {
-  py::class_<Stmt>(m, "Stmt")
+void RegisterStmt(nb::module_ &m) {
+  nb::class_<Stmt>(m, "Stmt")
     .def("__hash__", [](const Stmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("ignore_containers", &Stmt::IgnoreContainers)
-    .def_property_readonly("children", &Stmt::Children)
-    .def_property_readonly("begin_token", &Stmt::BeginToken)
-    .def_property_readonly("end_token", &Stmt::EndToken)
+    .def_prop_ro("ignore_containers", &Stmt::IgnoreContainers)
+    .def_prop_ro("children", &Stmt::Children)
+    .def_prop_ro("begin_token", &Stmt::BeginToken)
+    .def_prop_ro("end_token", &Stmt::EndToken)
     .def("id", &Stmt::ID)
-    .def_property_readonly("tokens", &Stmt::Tokens)
-    .def_property_readonly("kind", &Stmt::Kind)
-    .def_property_readonly("kind_name", &Stmt::KindName)
-    .def_property_readonly("strip_label_like_statements", &Stmt::StripLabelLikeStatements);
+    .def_prop_ro("tokens", &Stmt::Tokens)
+    .def_prop_ro("kind", &Stmt::Kind)
+    .def_prop_ro("kind_name", &Stmt::KindName)
+    .def_prop_ro("strip_label_like_statements", &Stmt::StripLabelLikeStatements);
 }
 } // namespace pasta

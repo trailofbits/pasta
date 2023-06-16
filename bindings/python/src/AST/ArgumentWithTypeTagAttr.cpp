@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterArgumentWithTypeTagAttr(py::module_ &m) {
-  py::class_<ArgumentWithTypeTagAttr, InheritableAttr>(m, "ArgumentWithTypeTagAttr")
+void RegisterArgumentWithTypeTagAttr(nb::module_ &m) {
+  nb::class_<ArgumentWithTypeTagAttr, InheritableAttr>(m, "ArgumentWithTypeTagAttr")
     .def("__hash__", [](const ArgumentWithTypeTagAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("is_pointer", &ArgumentWithTypeTagAttr::IsPointer)
-    .def_property_readonly("semantic_spelling", &ArgumentWithTypeTagAttr::SemanticSpelling)
-    .def_property_readonly("spelling", &ArgumentWithTypeTagAttr::Spelling);
+    .def_prop_ro("is_pointer", &ArgumentWithTypeTagAttr::IsPointer)
+    .def_prop_ro("semantic_spelling", &ArgumentWithTypeTagAttr::SemanticSpelling)
+    .def_prop_ro("spelling", &ArgumentWithTypeTagAttr::Spelling);
 }
 } // namespace pasta

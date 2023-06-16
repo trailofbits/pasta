@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterM68kInterruptAttr(py::module_ &m) {
-  py::class_<M68kInterruptAttr, InheritableAttr>(m, "M68kInterruptAttr")
+void RegisterM68kInterruptAttr(nb::module_ &m) {
+  nb::class_<M68kInterruptAttr, InheritableAttr>(m, "M68kInterruptAttr")
     .def("__hash__", [](const M68kInterruptAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("number", &M68kInterruptAttr::Number)
-    .def_property_readonly("spelling", &M68kInterruptAttr::Spelling);
+    .def_prop_ro("number", &M68kInterruptAttr::Number)
+    .def_prop_ro("spelling", &M68kInterruptAttr::Spelling);
 }
 } // namespace pasta

@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterAssumeAlignedAttr(py::module_ &m) {
-  py::class_<AssumeAlignedAttr, InheritableAttr>(m, "AssumeAlignedAttr")
+void RegisterAssumeAlignedAttr(nb::module_ &m) {
+  nb::class_<AssumeAlignedAttr, InheritableAttr>(m, "AssumeAlignedAttr")
     .def("__hash__", [](const AssumeAlignedAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("alignment", &AssumeAlignedAttr::Alignment)
-    .def_property_readonly("offset", &AssumeAlignedAttr::Offset)
-    .def_property_readonly("spelling", &AssumeAlignedAttr::Spelling);
+    .def_prop_ro("alignment", &AssumeAlignedAttr::Alignment)
+    .def_prop_ro("offset", &AssumeAlignedAttr::Offset)
+    .def_prop_ro("spelling", &AssumeAlignedAttr::Spelling);
 }
 } // namespace pasta

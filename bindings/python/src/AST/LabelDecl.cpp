@@ -10,20 +10,21 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterLabelDecl(py::module_ &m) {
-  py::class_<LabelDecl, NamedDecl>(m, "LabelDecl")
+void RegisterLabelDecl(nb::module_ &m) {
+  nb::class_<LabelDecl, NamedDecl>(m, "LabelDecl")
     .def("__hash__", [](const LabelDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("ms_assembly_label", &LabelDecl::MSAssemblyLabel)
-    .def_property_readonly("statement", &LabelDecl::Statement)
-    .def_property_readonly("is_gnu_local", &LabelDecl::IsGnuLocal)
-    .def_property_readonly("is_ms_assembly_label", &LabelDecl::IsMSAssemblyLabel)
-    .def_property_readonly("is_resolved_ms_assembly_label", &LabelDecl::IsResolvedMSAssemblyLabel);
+    .def_prop_ro("ms_assembly_label", &LabelDecl::MSAssemblyLabel)
+    .def_prop_ro("statement", &LabelDecl::Statement)
+    .def_prop_ro("is_gnu_local", &LabelDecl::IsGnuLocal)
+    .def_prop_ro("is_ms_assembly_label", &LabelDecl::IsMSAssemblyLabel)
+    .def_prop_ro("is_resolved_ms_assembly_label", &LabelDecl::IsResolvedMSAssemblyLabel);
 }
 } // namespace pasta

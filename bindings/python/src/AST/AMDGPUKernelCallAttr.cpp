@@ -10,16 +10,17 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterAMDGPUKernelCallAttr(py::module_ &m) {
-  py::class_<AMDGPUKernelCallAttr, InheritableAttr>(m, "AMDGPUKernelCallAttr")
+void RegisterAMDGPUKernelCallAttr(nb::module_ &m) {
+  nb::class_<AMDGPUKernelCallAttr, InheritableAttr>(m, "AMDGPUKernelCallAttr")
     .def("__hash__", [](const AMDGPUKernelCallAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("spelling", &AMDGPUKernelCallAttr::Spelling);
+    .def_prop_ro("spelling", &AMDGPUKernelCallAttr::Spelling);
 }
 } // namespace pasta

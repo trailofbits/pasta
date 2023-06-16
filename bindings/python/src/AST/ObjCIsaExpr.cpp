@@ -10,24 +10,25 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterObjCIsaExpr(py::module_ &m) {
-  py::class_<ObjCIsaExpr, Expr>(m, "ObjCIsaExpr")
+void RegisterObjCIsaExpr(nb::module_ &m) {
+  nb::class_<ObjCIsaExpr, Expr>(m, "ObjCIsaExpr")
     .def("__hash__", [](const ObjCIsaExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &ObjCIsaExpr::Children)
-    .def_property_readonly("base", &ObjCIsaExpr::Base)
-    .def_property_readonly("base_token_end", &ObjCIsaExpr::BaseTokenEnd)
-    .def_property_readonly("begin_token", &ObjCIsaExpr::BeginToken)
-    .def_property_readonly("end_token", &ObjCIsaExpr::EndToken)
-    .def_property_readonly("expression_token", &ObjCIsaExpr::ExpressionToken)
-    .def_property_readonly("isa_member_token", &ObjCIsaExpr::IsaMemberToken)
-    .def_property_readonly("operation_token", &ObjCIsaExpr::OperationToken)
-    .def_property_readonly("is_arrow", &ObjCIsaExpr::IsArrow);
+    .def_prop_ro("children", &ObjCIsaExpr::Children)
+    .def_prop_ro("base", &ObjCIsaExpr::Base)
+    .def_prop_ro("base_token_end", &ObjCIsaExpr::BaseTokenEnd)
+    .def_prop_ro("begin_token", &ObjCIsaExpr::BeginToken)
+    .def_prop_ro("end_token", &ObjCIsaExpr::EndToken)
+    .def_prop_ro("expression_token", &ObjCIsaExpr::ExpressionToken)
+    .def_prop_ro("isa_member_token", &ObjCIsaExpr::IsaMemberToken)
+    .def_prop_ro("operation_token", &ObjCIsaExpr::OperationToken)
+    .def_prop_ro("is_arrow", &ObjCIsaExpr::IsArrow);
 }
 } // namespace pasta

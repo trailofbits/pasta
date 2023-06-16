@@ -10,23 +10,24 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterObjCContainerDecl(py::module_ &m) {
-  py::class_<ObjCContainerDecl, NamedDecl>(m, "ObjCContainerDecl")
+void RegisterObjCContainerDecl(nb::module_ &m) {
+  nb::class_<ObjCContainerDecl, NamedDecl>(m, "ObjCContainerDecl")
     .def("__hash__", [](const ObjCContainerDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("class_methods", &ObjCContainerDecl::ClassMethods)
-    .def_property_readonly("class_properties", &ObjCContainerDecl::ClassProperties)
-    .def_property_readonly("at_end_range", &ObjCContainerDecl::AtEndRange)
-    .def_property_readonly("at_start_token", &ObjCContainerDecl::AtStartToken)
-    .def_property_readonly("instance_methods", &ObjCContainerDecl::InstanceMethods)
-    .def_property_readonly("instance_properties", &ObjCContainerDecl::InstanceProperties)
-    .def_property_readonly("methods", &ObjCContainerDecl::Methods)
-    .def_property_readonly("properties", &ObjCContainerDecl::Properties);
+    .def_prop_ro("class_methods", &ObjCContainerDecl::ClassMethods)
+    .def_prop_ro("class_properties", &ObjCContainerDecl::ClassProperties)
+    .def_prop_ro("at_end_range", &ObjCContainerDecl::AtEndRange)
+    .def_prop_ro("at_start_token", &ObjCContainerDecl::AtStartToken)
+    .def_prop_ro("instance_methods", &ObjCContainerDecl::InstanceMethods)
+    .def_prop_ro("instance_properties", &ObjCContainerDecl::InstanceProperties)
+    .def_prop_ro("methods", &ObjCContainerDecl::Methods)
+    .def_prop_ro("properties", &ObjCContainerDecl::Properties);
 }
 } // namespace pasta

@@ -10,21 +10,22 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterObjCArrayLiteral(py::module_ &m) {
-  py::class_<ObjCArrayLiteral, Expr>(m, "ObjCArrayLiteral")
+void RegisterObjCArrayLiteral(nb::module_ &m) {
+  nb::class_<ObjCArrayLiteral, Expr>(m, "ObjCArrayLiteral")
     .def("__hash__", [](const ObjCArrayLiteral& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &ObjCArrayLiteral::Children)
-    .def_property_readonly("array_with_objects_method", &ObjCArrayLiteral::ArrayWithObjectsMethod)
-    .def_property_readonly("begin_token", &ObjCArrayLiteral::BeginToken)
-    .def_property_readonly("end_token", &ObjCArrayLiteral::EndToken)
-    .def_property_readonly("num_elements", &ObjCArrayLiteral::NumElements)
-    .def_property_readonly("tokens", &ObjCArrayLiteral::Tokens);
+    .def_prop_ro("children", &ObjCArrayLiteral::Children)
+    .def_prop_ro("array_with_objects_method", &ObjCArrayLiteral::ArrayWithObjectsMethod)
+    .def_prop_ro("begin_token", &ObjCArrayLiteral::BeginToken)
+    .def_prop_ro("end_token", &ObjCArrayLiteral::EndToken)
+    .def_prop_ro("num_elements", &ObjCArrayLiteral::NumElements)
+    .def_prop_ro("tokens", &ObjCArrayLiteral::Tokens);
 }
 } // namespace pasta

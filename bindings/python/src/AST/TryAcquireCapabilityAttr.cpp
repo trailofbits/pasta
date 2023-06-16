@@ -10,19 +10,20 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterTryAcquireCapabilityAttr(py::module_ &m) {
-  py::class_<TryAcquireCapabilityAttr, InheritableAttr>(m, "TryAcquireCapabilityAttr")
+void RegisterTryAcquireCapabilityAttr(nb::module_ &m) {
+  nb::class_<TryAcquireCapabilityAttr, InheritableAttr>(m, "TryAcquireCapabilityAttr")
     .def("__hash__", [](const TryAcquireCapabilityAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("semantic_spelling", &TryAcquireCapabilityAttr::SemanticSpelling)
-    .def_property_readonly("spelling", &TryAcquireCapabilityAttr::Spelling)
-    .def_property_readonly("success_value", &TryAcquireCapabilityAttr::SuccessValue)
-    .def_property_readonly("is_shared", &TryAcquireCapabilityAttr::IsShared);
+    .def_prop_ro("semantic_spelling", &TryAcquireCapabilityAttr::SemanticSpelling)
+    .def_prop_ro("spelling", &TryAcquireCapabilityAttr::Spelling)
+    .def_prop_ro("success_value", &TryAcquireCapabilityAttr::SuccessValue)
+    .def_prop_ro("is_shared", &TryAcquireCapabilityAttr::IsShared);
 }
 } // namespace pasta

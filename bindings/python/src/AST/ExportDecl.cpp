@@ -10,19 +10,20 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterExportDecl(py::module_ &m) {
-  py::class_<ExportDecl, Decl>(m, "ExportDecl")
+void RegisterExportDecl(nb::module_ &m) {
+  nb::class_<ExportDecl, Decl>(m, "ExportDecl")
     .def("__hash__", [](const ExportDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("end_token", &ExportDecl::EndToken)
-    .def_property_readonly("export_token", &ExportDecl::ExportToken)
-    .def_property_readonly("r_brace_token", &ExportDecl::RBraceToken)
-    .def_property_readonly("has_braces", &ExportDecl::HasBraces);
+    .def_prop_ro("end_token", &ExportDecl::EndToken)
+    .def_prop_ro("export_token", &ExportDecl::ExportToken)
+    .def_prop_ro("r_brace_token", &ExportDecl::RBraceToken)
+    .def_prop_ro("has_braces", &ExportDecl::HasBraces);
 }
 } // namespace pasta

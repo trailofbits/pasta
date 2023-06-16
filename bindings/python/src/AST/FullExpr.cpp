@@ -10,16 +10,17 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterFullExpr(py::module_ &m) {
-  py::class_<FullExpr, Expr>(m, "FullExpr")
+void RegisterFullExpr(nb::module_ &m) {
+  nb::class_<FullExpr, Expr>(m, "FullExpr")
     .def("__hash__", [](const FullExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("sub_expression", &FullExpr::SubExpression);
+    .def_prop_ro("sub_expression", &FullExpr::SubExpression);
 }
 } // namespace pasta

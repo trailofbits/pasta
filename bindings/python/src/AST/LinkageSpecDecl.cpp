@@ -10,20 +10,21 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterLinkageSpecDecl(py::module_ &m) {
-  py::class_<LinkageSpecDecl, Decl>(m, "LinkageSpecDecl")
+void RegisterLinkageSpecDecl(nb::module_ &m) {
+  nb::class_<LinkageSpecDecl, Decl>(m, "LinkageSpecDecl")
     .def("__hash__", [](const LinkageSpecDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("end_token", &LinkageSpecDecl::EndToken)
-    .def_property_readonly("extern_token", &LinkageSpecDecl::ExternToken)
-    .def_property_readonly("language", &LinkageSpecDecl::Language)
-    .def_property_readonly("r_brace_token", &LinkageSpecDecl::RBraceToken)
-    .def_property_readonly("has_braces", &LinkageSpecDecl::HasBraces);
+    .def_prop_ro("end_token", &LinkageSpecDecl::EndToken)
+    .def_prop_ro("extern_token", &LinkageSpecDecl::ExternToken)
+    .def_prop_ro("language", &LinkageSpecDecl::Language)
+    .def_prop_ro("r_brace_token", &LinkageSpecDecl::RBraceToken)
+    .def_prop_ro("has_braces", &LinkageSpecDecl::HasBraces);
 }
 } // namespace pasta

@@ -10,19 +10,20 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterXRayInstrumentAttr(py::module_ &m) {
-  py::class_<XRayInstrumentAttr, InheritableAttr>(m, "XRayInstrumentAttr")
+void RegisterXRayInstrumentAttr(nb::module_ &m) {
+  nb::class_<XRayInstrumentAttr, InheritableAttr>(m, "XRayInstrumentAttr")
     .def("__hash__", [](const XRayInstrumentAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("always_x_ray_instrument", &XRayInstrumentAttr::AlwaysXRayInstrument)
-    .def_property_readonly("semantic_spelling", &XRayInstrumentAttr::SemanticSpelling)
-    .def_property_readonly("spelling", &XRayInstrumentAttr::Spelling)
-    .def_property_readonly("never_x_ray_instrument", &XRayInstrumentAttr::NeverXRayInstrument);
+    .def_prop_ro("always_x_ray_instrument", &XRayInstrumentAttr::AlwaysXRayInstrument)
+    .def_prop_ro("semantic_spelling", &XRayInstrumentAttr::SemanticSpelling)
+    .def_prop_ro("spelling", &XRayInstrumentAttr::Spelling)
+    .def_prop_ro("never_x_ray_instrument", &XRayInstrumentAttr::NeverXRayInstrument);
 }
 } // namespace pasta

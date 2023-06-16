@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterSwiftAsyncNameAttr(py::module_ &m) {
-  py::class_<SwiftAsyncNameAttr, InheritableAttr>(m, "SwiftAsyncNameAttr")
+void RegisterSwiftAsyncNameAttr(nb::module_ &m) {
+  nb::class_<SwiftAsyncNameAttr, InheritableAttr>(m, "SwiftAsyncNameAttr")
     .def("__hash__", [](const SwiftAsyncNameAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("name", &SwiftAsyncNameAttr::Name)
-    .def_property_readonly("name_length", &SwiftAsyncNameAttr::NameLength)
-    .def_property_readonly("spelling", &SwiftAsyncNameAttr::Spelling);
+    .def_prop_ro("name", &SwiftAsyncNameAttr::Name)
+    .def_prop_ro("name_length", &SwiftAsyncNameAttr::NameLength)
+    .def_prop_ro("spelling", &SwiftAsyncNameAttr::Spelling);
 }
 } // namespace pasta

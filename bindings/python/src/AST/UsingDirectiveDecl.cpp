@@ -10,21 +10,22 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterUsingDirectiveDecl(py::module_ &m) {
-  py::class_<UsingDirectiveDecl, NamedDecl>(m, "UsingDirectiveDecl")
+void RegisterUsingDirectiveDecl(nb::module_ &m) {
+  nb::class_<UsingDirectiveDecl, NamedDecl>(m, "UsingDirectiveDecl")
     .def("__hash__", [](const UsingDirectiveDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("common_ancestor", &UsingDirectiveDecl::CommonAncestor)
-    .def_property_readonly("identifier_token", &UsingDirectiveDecl::IdentifierToken)
-    .def_property_readonly("namespace_key_token", &UsingDirectiveDecl::NamespaceKeyToken)
-    .def_property_readonly("nominated_namespace", &UsingDirectiveDecl::NominatedNamespace)
-    .def_property_readonly("nominated_namespace_as_written", &UsingDirectiveDecl::NominatedNamespaceAsWritten)
-    .def_property_readonly("using_token", &UsingDirectiveDecl::UsingToken);
+    .def_prop_ro("common_ancestor", &UsingDirectiveDecl::CommonAncestor)
+    .def_prop_ro("identifier_token", &UsingDirectiveDecl::IdentifierToken)
+    .def_prop_ro("namespace_key_token", &UsingDirectiveDecl::NamespaceKeyToken)
+    .def_prop_ro("nominated_namespace", &UsingDirectiveDecl::NominatedNamespace)
+    .def_prop_ro("nominated_namespace_as_written", &UsingDirectiveDecl::NominatedNamespaceAsWritten)
+    .def_prop_ro("using_token", &UsingDirectiveDecl::UsingToken);
 }
 } // namespace pasta

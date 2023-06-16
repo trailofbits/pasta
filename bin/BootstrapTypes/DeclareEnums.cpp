@@ -179,7 +179,7 @@ static std::string RenameEnumerator(const std::string &name) {
           "  return static_cast<::pasta::" + enum_name_str + ">(val);\n"); \
       os << "enum class " << enum_name_str \
          << " : " << PASTA_STR(PASTA_SPLAT underlying_type) << " {\n"; \
-      os_py << "  py::enum_<pasta::" << enum_name_str << ">(m, \"" << enum_name_str << "\")";
+      os_py << "  nb::enum_<pasta::" << enum_name_str << ">(m, \"" << enum_name_str << "\")";
 
 #define PASTA_BEGIN_CLASS_NAMED_ENUM(class_name, enum_name, underlying_type) \
     static void DeclareEnum_ ## class_name ## _ ## enum_name(std::ostream &os, std::ostream &os_py) { \
@@ -193,7 +193,7 @@ static std::string RenameEnumerator(const std::string &name) {
           "  return static_cast<::pasta::" + enum_name_str + ">(val);\n"); \
       os << "enum class " << enum_name_str \
          << " : " << PASTA_STR(PASTA_SPLAT underlying_type) << " {\n"; \
-      os_py << "  py::enum_<pasta::" << enum_name_str << ">(m, \"" << enum_name_str << "\")";
+      os_py << "  nb::enum_<pasta::" << enum_name_str << ">(m, \"" << enum_name_str << "\")";
 
 
 #define PASTA_NAMED_ENUMERATOR(enumerator_name_, underlying_type, val) \

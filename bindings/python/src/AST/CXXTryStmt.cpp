@@ -10,21 +10,22 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterCXXTryStmt(py::module_ &m) {
-  py::class_<CXXTryStmt, Stmt>(m, "CXXTryStmt")
+void RegisterCXXTryStmt(nb::module_ &m) {
+  nb::class_<CXXTryStmt, Stmt>(m, "CXXTryStmt")
     .def("__hash__", [](const CXXTryStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &CXXTryStmt::Children)
-    .def_property_readonly("begin_token", &CXXTryStmt::BeginToken)
-    .def_property_readonly("end_token", &CXXTryStmt::EndToken)
-    .def_property_readonly("num_handlers", &CXXTryStmt::NumHandlers)
-    .def_property_readonly("try_block", &CXXTryStmt::TryBlock)
-    .def_property_readonly("try_token", &CXXTryStmt::TryToken);
+    .def_prop_ro("children", &CXXTryStmt::Children)
+    .def_prop_ro("begin_token", &CXXTryStmt::BeginToken)
+    .def_prop_ro("end_token", &CXXTryStmt::EndToken)
+    .def_prop_ro("num_handlers", &CXXTryStmt::NumHandlers)
+    .def_prop_ro("try_block", &CXXTryStmt::TryBlock)
+    .def_prop_ro("try_token", &CXXTryStmt::TryToken);
 }
 } // namespace pasta

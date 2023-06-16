@@ -10,25 +10,26 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterUnaryExprOrTypeTraitExpr(py::module_ &m) {
-  py::class_<UnaryExprOrTypeTraitExpr, Expr>(m, "UnaryExprOrTypeTraitExpr")
+void RegisterUnaryExprOrTypeTraitExpr(nb::module_ &m) {
+  nb::class_<UnaryExprOrTypeTraitExpr, Expr>(m, "UnaryExprOrTypeTraitExpr")
     .def("__hash__", [](const UnaryExprOrTypeTraitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &UnaryExprOrTypeTraitExpr::Children)
-    .def_property_readonly("argument_expression", &UnaryExprOrTypeTraitExpr::ArgumentExpression)
-    .def_property_readonly("argument_type", &UnaryExprOrTypeTraitExpr::ArgumentType)
-    .def_property_readonly("begin_token", &UnaryExprOrTypeTraitExpr::BeginToken)
-    .def_property_readonly("end_token", &UnaryExprOrTypeTraitExpr::EndToken)
-    .def_property_readonly("kind", &UnaryExprOrTypeTraitExpr::Kind)
-    .def_property_readonly("operator_token", &UnaryExprOrTypeTraitExpr::OperatorToken)
-    .def_property_readonly("r_paren_token", &UnaryExprOrTypeTraitExpr::RParenToken)
-    .def_property_readonly("type_of_argument", &UnaryExprOrTypeTraitExpr::TypeOfArgument)
-    .def_property_readonly("is_argument_type", &UnaryExprOrTypeTraitExpr::IsArgumentType);
+    .def_prop_ro("children", &UnaryExprOrTypeTraitExpr::Children)
+    .def_prop_ro("argument_expression", &UnaryExprOrTypeTraitExpr::ArgumentExpression)
+    .def_prop_ro("argument_type", &UnaryExprOrTypeTraitExpr::ArgumentType)
+    .def_prop_ro("begin_token", &UnaryExprOrTypeTraitExpr::BeginToken)
+    .def_prop_ro("end_token", &UnaryExprOrTypeTraitExpr::EndToken)
+    .def_prop_ro("kind", &UnaryExprOrTypeTraitExpr::Kind)
+    .def_prop_ro("operator_token", &UnaryExprOrTypeTraitExpr::OperatorToken)
+    .def_prop_ro("r_paren_token", &UnaryExprOrTypeTraitExpr::RParenToken)
+    .def_prop_ro("type_of_argument", &UnaryExprOrTypeTraitExpr::TypeOfArgument)
+    .def_prop_ro("is_argument_type", &UnaryExprOrTypeTraitExpr::IsArgumentType);
 }
 } // namespace pasta

@@ -10,16 +10,17 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterIBOutletAttr(py::module_ &m) {
-  py::class_<IBOutletAttr, InheritableAttr>(m, "IBOutletAttr")
+void RegisterIBOutletAttr(nb::module_ &m) {
+  nb::class_<IBOutletAttr, InheritableAttr>(m, "IBOutletAttr")
     .def("__hash__", [](const IBOutletAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("spelling", &IBOutletAttr::Spelling);
+    .def_prop_ro("spelling", &IBOutletAttr::Spelling);
 }
 } // namespace pasta

@@ -10,24 +10,25 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterObjCIvarRefExpr(py::module_ &m) {
-  py::class_<ObjCIvarRefExpr, Expr>(m, "ObjCIvarRefExpr")
+void RegisterObjCIvarRefExpr(nb::module_ &m) {
+  nb::class_<ObjCIvarRefExpr, Expr>(m, "ObjCIvarRefExpr")
     .def("__hash__", [](const ObjCIvarRefExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &ObjCIvarRefExpr::Children)
-    .def_property_readonly("base", &ObjCIvarRefExpr::Base)
-    .def_property_readonly("begin_token", &ObjCIvarRefExpr::BeginToken)
-    .def_property_readonly("declaration", &ObjCIvarRefExpr::Declaration)
-    .def_property_readonly("end_token", &ObjCIvarRefExpr::EndToken)
-    .def_property_readonly("token", &ObjCIvarRefExpr::Token)
-    .def_property_readonly("operation_token", &ObjCIvarRefExpr::OperationToken)
-    .def_property_readonly("is_arrow", &ObjCIvarRefExpr::IsArrow)
-    .def_property_readonly("is_free_instance_variable", &ObjCIvarRefExpr::IsFreeInstanceVariable);
+    .def_prop_ro("children", &ObjCIvarRefExpr::Children)
+    .def_prop_ro("base", &ObjCIvarRefExpr::Base)
+    .def_prop_ro("begin_token", &ObjCIvarRefExpr::BeginToken)
+    .def_prop_ro("declaration", &ObjCIvarRefExpr::Declaration)
+    .def_prop_ro("end_token", &ObjCIvarRefExpr::EndToken)
+    .def_prop_ro("token", &ObjCIvarRefExpr::Token)
+    .def_prop_ro("operation_token", &ObjCIvarRefExpr::OperationToken)
+    .def_prop_ro("is_arrow", &ObjCIvarRefExpr::IsArrow)
+    .def_prop_ro("is_free_instance_variable", &ObjCIvarRefExpr::IsFreeInstanceVariable);
 }
 } // namespace pasta

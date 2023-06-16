@@ -10,19 +10,20 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterCXXDeductionGuideDecl(py::module_ &m) {
-  py::class_<CXXDeductionGuideDecl, FunctionDecl>(m, "CXXDeductionGuideDecl")
+void RegisterCXXDeductionGuideDecl(nb::module_ &m) {
+  nb::class_<CXXDeductionGuideDecl, FunctionDecl>(m, "CXXDeductionGuideDecl")
     .def("__hash__", [](const CXXDeductionGuideDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("corresponding_constructor", &CXXDeductionGuideDecl::CorrespondingConstructor)
-    .def_property_readonly("deduced_template", &CXXDeductionGuideDecl::DeducedTemplate)
-    .def_property_readonly("is_copy_deduction_candidate", &CXXDeductionGuideDecl::IsCopyDeductionCandidate)
-    .def_property_readonly("is_explicit", &CXXDeductionGuideDecl::IsExplicit);
+    .def_prop_ro("corresponding_constructor", &CXXDeductionGuideDecl::CorrespondingConstructor)
+    .def_prop_ro("deduced_template", &CXXDeductionGuideDecl::DeducedTemplate)
+    .def_prop_ro("is_copy_deduction_candidate", &CXXDeductionGuideDecl::IsCopyDeductionCandidate)
+    .def_prop_ro("is_explicit", &CXXDeductionGuideDecl::IsExplicit);
 }
 } // namespace pasta

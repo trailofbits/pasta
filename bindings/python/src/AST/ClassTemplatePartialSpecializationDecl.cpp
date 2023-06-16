@@ -10,20 +10,21 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterClassTemplatePartialSpecializationDecl(py::module_ &m) {
-  py::class_<ClassTemplatePartialSpecializationDecl, ClassTemplateSpecializationDecl>(m, "ClassTemplatePartialSpecializationDecl")
+void RegisterClassTemplatePartialSpecializationDecl(nb::module_ &m) {
+  nb::class_<ClassTemplatePartialSpecializationDecl, ClassTemplateSpecializationDecl>(m, "ClassTemplatePartialSpecializationDecl")
     .def("__hash__", [](const ClassTemplatePartialSpecializationDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("injected_specialization_type", &ClassTemplatePartialSpecializationDecl::InjectedSpecializationType)
-    .def_property_readonly("instantiated_from_member", &ClassTemplatePartialSpecializationDecl::InstantiatedFromMember)
-    .def_property_readonly("instantiated_from_member_template", &ClassTemplatePartialSpecializationDecl::InstantiatedFromMemberTemplate)
-    .def_property_readonly("template_parameters", &ClassTemplatePartialSpecializationDecl::TemplateParameters)
-    .def_property_readonly("has_associated_constraints", &ClassTemplatePartialSpecializationDecl::HasAssociatedConstraints);
+    .def_prop_ro("injected_specialization_type", &ClassTemplatePartialSpecializationDecl::InjectedSpecializationType)
+    .def_prop_ro("instantiated_from_member", &ClassTemplatePartialSpecializationDecl::InstantiatedFromMember)
+    .def_prop_ro("instantiated_from_member_template", &ClassTemplatePartialSpecializationDecl::InstantiatedFromMemberTemplate)
+    .def_prop_ro("template_parameters", &ClassTemplatePartialSpecializationDecl::TemplateParameters)
+    .def_prop_ro("has_associated_constraints", &ClassTemplatePartialSpecializationDecl::HasAssociatedConstraints);
 }
 } // namespace pasta

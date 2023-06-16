@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterMaxFieldAlignmentAttr(py::module_ &m) {
-  py::class_<MaxFieldAlignmentAttr, InheritableAttr>(m, "MaxFieldAlignmentAttr")
+void RegisterMaxFieldAlignmentAttr(nb::module_ &m) {
+  nb::class_<MaxFieldAlignmentAttr, InheritableAttr>(m, "MaxFieldAlignmentAttr")
     .def("__hash__", [](const MaxFieldAlignmentAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("alignment", &MaxFieldAlignmentAttr::Alignment)
-    .def_property_readonly("spelling", &MaxFieldAlignmentAttr::Spelling);
+    .def_prop_ro("alignment", &MaxFieldAlignmentAttr::Alignment)
+    .def_prop_ro("spelling", &MaxFieldAlignmentAttr::Spelling);
 }
 } // namespace pasta

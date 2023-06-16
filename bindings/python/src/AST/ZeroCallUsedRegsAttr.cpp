@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterZeroCallUsedRegsAttr(py::module_ &m) {
-  py::class_<ZeroCallUsedRegsAttr, InheritableAttr>(m, "ZeroCallUsedRegsAttr")
+void RegisterZeroCallUsedRegsAttr(nb::module_ &m) {
+  nb::class_<ZeroCallUsedRegsAttr, InheritableAttr>(m, "ZeroCallUsedRegsAttr")
     .def("__hash__", [](const ZeroCallUsedRegsAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("spelling", &ZeroCallUsedRegsAttr::Spelling)
-    .def_property_readonly("zero_call_used_regs", &ZeroCallUsedRegsAttr::ZeroCallUsedRegs);
+    .def_prop_ro("spelling", &ZeroCallUsedRegsAttr::Spelling)
+    .def_prop_ro("zero_call_used_regs", &ZeroCallUsedRegsAttr::ZeroCallUsedRegs);
 }
 } // namespace pasta

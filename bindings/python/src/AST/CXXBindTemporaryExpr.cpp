@@ -10,19 +10,20 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterCXXBindTemporaryExpr(py::module_ &m) {
-  py::class_<CXXBindTemporaryExpr, Expr>(m, "CXXBindTemporaryExpr")
+void RegisterCXXBindTemporaryExpr(nb::module_ &m) {
+  nb::class_<CXXBindTemporaryExpr, Expr>(m, "CXXBindTemporaryExpr")
     .def("__hash__", [](const CXXBindTemporaryExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &CXXBindTemporaryExpr::Children)
-    .def_property_readonly("begin_token", &CXXBindTemporaryExpr::BeginToken)
-    .def_property_readonly("end_token", &CXXBindTemporaryExpr::EndToken)
-    .def_property_readonly("sub_expression", &CXXBindTemporaryExpr::SubExpression);
+    .def_prop_ro("children", &CXXBindTemporaryExpr::Children)
+    .def_prop_ro("begin_token", &CXXBindTemporaryExpr::BeginToken)
+    .def_prop_ro("end_token", &CXXBindTemporaryExpr::EndToken)
+    .def_prop_ro("sub_expression", &CXXBindTemporaryExpr::SubExpression);
 }
 } // namespace pasta

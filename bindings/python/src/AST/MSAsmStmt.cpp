@@ -10,25 +10,26 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterMSAsmStmt(py::module_ &m) {
-  py::class_<MSAsmStmt, AsmStmt>(m, "MSAsmStmt")
+void RegisterMSAsmStmt(nb::module_ &m) {
+  nb::class_<MSAsmStmt, AsmStmt>(m, "MSAsmStmt")
     .def("__hash__", [](const MSAsmStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &MSAsmStmt::Children)
+    .def_prop_ro("children", &MSAsmStmt::Children)
     .def("generate_assembly_string", &MSAsmStmt::GenerateAssemblyString)
-    .def_property_readonly("all_constraints", &MSAsmStmt::AllConstraints)
-    .def_property_readonly("all_expressions", &MSAsmStmt::AllExpressions)
-    .def_property_readonly("assembly_string", &MSAsmStmt::AssemblyString)
-    .def_property_readonly("begin_token", &MSAsmStmt::BeginToken)
-    .def_property_readonly("clobbers", &MSAsmStmt::Clobbers)
-    .def_property_readonly("end_token", &MSAsmStmt::EndToken)
-    .def_property_readonly("l_brace_token", &MSAsmStmt::LBraceToken)
-    .def_property_readonly("has_braces", &MSAsmStmt::HasBraces);
+    .def_prop_ro("all_constraints", &MSAsmStmt::AllConstraints)
+    .def_prop_ro("all_expressions", &MSAsmStmt::AllExpressions)
+    .def_prop_ro("assembly_string", &MSAsmStmt::AssemblyString)
+    .def_prop_ro("begin_token", &MSAsmStmt::BeginToken)
+    .def_prop_ro("clobbers", &MSAsmStmt::Clobbers)
+    .def_prop_ro("end_token", &MSAsmStmt::EndToken)
+    .def_prop_ro("l_brace_token", &MSAsmStmt::LBraceToken)
+    .def_prop_ro("has_braces", &MSAsmStmt::HasBraces);
 }
 } // namespace pasta

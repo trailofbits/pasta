@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterOpenCLUnrollHintAttr(py::module_ &m) {
-  py::class_<OpenCLUnrollHintAttr, StmtAttr>(m, "OpenCLUnrollHintAttr")
+void RegisterOpenCLUnrollHintAttr(nb::module_ &m) {
+  nb::class_<OpenCLUnrollHintAttr, StmtAttr>(m, "OpenCLUnrollHintAttr")
     .def("__hash__", [](const OpenCLUnrollHintAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("spelling", &OpenCLUnrollHintAttr::Spelling)
-    .def_property_readonly("unroll_hint", &OpenCLUnrollHintAttr::UnrollHint);
+    .def_prop_ro("spelling", &OpenCLUnrollHintAttr::Spelling)
+    .def_prop_ro("unroll_hint", &OpenCLUnrollHintAttr::UnrollHint);
 }
 } // namespace pasta

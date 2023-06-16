@@ -10,24 +10,25 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterMatrixSubscriptExpr(py::module_ &m) {
-  py::class_<MatrixSubscriptExpr, Expr>(m, "MatrixSubscriptExpr")
+void RegisterMatrixSubscriptExpr(nb::module_ &m) {
+  nb::class_<MatrixSubscriptExpr, Expr>(m, "MatrixSubscriptExpr")
     .def("__hash__", [](const MatrixSubscriptExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &MatrixSubscriptExpr::Children)
-    .def_property_readonly("base", &MatrixSubscriptExpr::Base)
-    .def_property_readonly("begin_token", &MatrixSubscriptExpr::BeginToken)
-    .def_property_readonly("column_index", &MatrixSubscriptExpr::ColumnIndex)
-    .def_property_readonly("end_token", &MatrixSubscriptExpr::EndToken)
-    .def_property_readonly("expression_token", &MatrixSubscriptExpr::ExpressionToken)
-    .def_property_readonly("r_bracket_token", &MatrixSubscriptExpr::RBracketToken)
-    .def_property_readonly("row_index", &MatrixSubscriptExpr::RowIndex)
-    .def_property_readonly("is_incomplete", &MatrixSubscriptExpr::IsIncomplete);
+    .def_prop_ro("children", &MatrixSubscriptExpr::Children)
+    .def_prop_ro("base", &MatrixSubscriptExpr::Base)
+    .def_prop_ro("begin_token", &MatrixSubscriptExpr::BeginToken)
+    .def_prop_ro("column_index", &MatrixSubscriptExpr::ColumnIndex)
+    .def_prop_ro("end_token", &MatrixSubscriptExpr::EndToken)
+    .def_prop_ro("expression_token", &MatrixSubscriptExpr::ExpressionToken)
+    .def_prop_ro("r_bracket_token", &MatrixSubscriptExpr::RBracketToken)
+    .def_prop_ro("row_index", &MatrixSubscriptExpr::RowIndex)
+    .def_prop_ro("is_incomplete", &MatrixSubscriptExpr::IsIncomplete);
 }
 } // namespace pasta

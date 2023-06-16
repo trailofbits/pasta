@@ -10,20 +10,21 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterInjectedClassNameType(py::module_ &m) {
-  py::class_<InjectedClassNameType, Type>(m, "InjectedClassNameType")
+void RegisterInjectedClassNameType(nb::module_ &m) {
+  nb::class_<InjectedClassNameType, Type>(m, "InjectedClassNameType")
     .def("__hash__", [](const InjectedClassNameType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("desugar", &InjectedClassNameType::Desugar)
-    .def_property_readonly("declaration", &InjectedClassNameType::Declaration)
-    .def_property_readonly("injected_specialization_type", &InjectedClassNameType::InjectedSpecializationType)
-    .def_property_readonly("injected_tst", &InjectedClassNameType::InjectedTST)
-    .def_property_readonly("is_sugared", &InjectedClassNameType::IsSugared);
+    .def_prop_ro("desugar", &InjectedClassNameType::Desugar)
+    .def_prop_ro("declaration", &InjectedClassNameType::Declaration)
+    .def_prop_ro("injected_specialization_type", &InjectedClassNameType::InjectedSpecializationType)
+    .def_prop_ro("injected_tst", &InjectedClassNameType::InjectedTST)
+    .def_prop_ro("is_sugared", &InjectedClassNameType::IsSugared);
 }
 } // namespace pasta

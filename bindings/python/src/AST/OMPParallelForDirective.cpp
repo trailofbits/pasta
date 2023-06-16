@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterOMPParallelForDirective(py::module_ &m) {
-  py::class_<OMPParallelForDirective, OMPLoopDirective>(m, "OMPParallelForDirective")
+void RegisterOMPParallelForDirective(nb::module_ &m) {
+  nb::class_<OMPParallelForDirective, OMPLoopDirective>(m, "OMPParallelForDirective")
     .def("__hash__", [](const OMPParallelForDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("task_reduction_reference_expression", &OMPParallelForDirective::TaskReductionReferenceExpression)
-    .def_property_readonly("has_cancel", &OMPParallelForDirective::HasCancel);
+    .def_prop_ro("task_reduction_reference_expression", &OMPParallelForDirective::TaskReductionReferenceExpression)
+    .def_prop_ro("has_cancel", &OMPParallelForDirective::HasCancel);
 }
 } // namespace pasta

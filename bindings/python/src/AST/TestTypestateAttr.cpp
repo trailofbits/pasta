@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterTestTypestateAttr(py::module_ &m) {
-  py::class_<TestTypestateAttr, InheritableAttr>(m, "TestTypestateAttr")
+void RegisterTestTypestateAttr(nb::module_ &m) {
+  nb::class_<TestTypestateAttr, InheritableAttr>(m, "TestTypestateAttr")
     .def("__hash__", [](const TestTypestateAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("spelling", &TestTypestateAttr::Spelling)
-    .def_property_readonly("test_state", &TestTypestateAttr::TestState);
+    .def_prop_ro("spelling", &TestTypestateAttr::Spelling)
+    .def_prop_ro("test_state", &TestTypestateAttr::TestState);
 }
 } // namespace pasta

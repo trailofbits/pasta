@@ -10,19 +10,20 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterContinueStmt(py::module_ &m) {
-  py::class_<ContinueStmt, Stmt>(m, "ContinueStmt")
+void RegisterContinueStmt(nb::module_ &m) {
+  nb::class_<ContinueStmt, Stmt>(m, "ContinueStmt")
     .def("__hash__", [](const ContinueStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &ContinueStmt::Children)
-    .def_property_readonly("begin_token", &ContinueStmt::BeginToken)
-    .def_property_readonly("continue_token", &ContinueStmt::ContinueToken)
-    .def_property_readonly("end_token", &ContinueStmt::EndToken);
+    .def_prop_ro("children", &ContinueStmt::Children)
+    .def_prop_ro("begin_token", &ContinueStmt::BeginToken)
+    .def_prop_ro("continue_token", &ContinueStmt::ContinueToken)
+    .def_prop_ro("end_token", &ContinueStmt::EndToken);
 }
 } // namespace pasta

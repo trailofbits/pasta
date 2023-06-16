@@ -10,20 +10,21 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterObjCAvailabilityCheckExpr(py::module_ &m) {
-  py::class_<ObjCAvailabilityCheckExpr, Expr>(m, "ObjCAvailabilityCheckExpr")
+void RegisterObjCAvailabilityCheckExpr(nb::module_ &m) {
+  nb::class_<ObjCAvailabilityCheckExpr, Expr>(m, "ObjCAvailabilityCheckExpr")
     .def("__hash__", [](const ObjCAvailabilityCheckExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &ObjCAvailabilityCheckExpr::Children)
-    .def_property_readonly("begin_token", &ObjCAvailabilityCheckExpr::BeginToken)
-    .def_property_readonly("end_token", &ObjCAvailabilityCheckExpr::EndToken)
-    .def_property_readonly("tokens", &ObjCAvailabilityCheckExpr::Tokens)
-    .def_property_readonly("has_version", &ObjCAvailabilityCheckExpr::HasVersion);
+    .def_prop_ro("children", &ObjCAvailabilityCheckExpr::Children)
+    .def_prop_ro("begin_token", &ObjCAvailabilityCheckExpr::BeginToken)
+    .def_prop_ro("end_token", &ObjCAvailabilityCheckExpr::EndToken)
+    .def_prop_ro("tokens", &ObjCAvailabilityCheckExpr::Tokens)
+    .def_prop_ro("has_version", &ObjCAvailabilityCheckExpr::HasVersion);
 }
 } // namespace pasta

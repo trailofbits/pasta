@@ -10,19 +10,20 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterEnableIfAttr(py::module_ &m) {
-  py::class_<EnableIfAttr, InheritableAttr>(m, "EnableIfAttr")
+void RegisterEnableIfAttr(nb::module_ &m) {
+  nb::class_<EnableIfAttr, InheritableAttr>(m, "EnableIfAttr")
     .def("__hash__", [](const EnableIfAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("condition", &EnableIfAttr::Condition)
-    .def_property_readonly("message", &EnableIfAttr::Message)
-    .def_property_readonly("message_length", &EnableIfAttr::MessageLength)
-    .def_property_readonly("spelling", &EnableIfAttr::Spelling);
+    .def_prop_ro("condition", &EnableIfAttr::Condition)
+    .def_prop_ro("message", &EnableIfAttr::Message)
+    .def_prop_ro("message_length", &EnableIfAttr::MessageLength)
+    .def_prop_ro("spelling", &EnableIfAttr::Spelling);
 }
 } // namespace pasta

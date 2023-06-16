@@ -1,9 +1,13 @@
-find_package(Python 3.7 COMPONENTS Interpreter Development REQUIRED)
-find_package(pybind11 CONFIG REQUIRED)
+find_package(Python 3.8 COMPONENTS Interpreter Development REQUIRED)
+execute_process(
+  COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
+  OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE NB_DIR)
+list(APPEND CMAKE_PREFIX_PATH "${NB_DIR}")
+find_package(nanobind CONFIG REQUIRED)
 
 add_subdirectory(src/AST)
 
-pybind11_add_module(pypasta
+nanobind_add_module(pypasta LTO
     "${CMAKE_CURRENT_SOURCE_DIR}/src/AST/AST.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/ArgumentVector.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/AST.cpp"

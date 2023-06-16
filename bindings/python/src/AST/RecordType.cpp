@@ -10,19 +10,20 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterRecordType(py::module_ &m) {
-  py::class_<RecordType, TagType>(m, "RecordType")
+void RegisterRecordType(nb::module_ &m) {
+  nb::class_<RecordType, TagType>(m, "RecordType")
     .def("__hash__", [](const RecordType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("desugar", &RecordType::Desugar)
-    .def_property_readonly("declaration", &RecordType::Declaration)
-    .def_property_readonly("has_const_fields", &RecordType::HasConstFields)
-    .def_property_readonly("is_sugared", &RecordType::IsSugared);
+    .def_prop_ro("desugar", &RecordType::Desugar)
+    .def_prop_ro("declaration", &RecordType::Declaration)
+    .def_prop_ro("has_const_fields", &RecordType::HasConstFields)
+    .def_prop_ro("is_sugared", &RecordType::IsSugared);
 }
 } // namespace pasta

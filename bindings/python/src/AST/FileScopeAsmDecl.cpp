@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterFileScopeAsmDecl(py::module_ &m) {
-  py::class_<FileScopeAsmDecl, Decl>(m, "FileScopeAsmDecl")
+void RegisterFileScopeAsmDecl(nb::module_ &m) {
+  nb::class_<FileScopeAsmDecl, Decl>(m, "FileScopeAsmDecl")
     .def("__hash__", [](const FileScopeAsmDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("assembly_token", &FileScopeAsmDecl::AssemblyToken)
-    .def_property_readonly("assembly_string", &FileScopeAsmDecl::AssemblyString)
-    .def_property_readonly("r_paren_token", &FileScopeAsmDecl::RParenToken);
+    .def_prop_ro("assembly_token", &FileScopeAsmDecl::AssemblyToken)
+    .def_prop_ro("assembly_string", &FileScopeAsmDecl::AssemblyString)
+    .def_prop_ro("r_paren_token", &FileScopeAsmDecl::RParenToken);
 }
 } // namespace pasta

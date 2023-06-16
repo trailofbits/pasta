@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterOMPDeclareSimdDeclAttr(py::module_ &m) {
-  py::class_<OMPDeclareSimdDeclAttr, Attr>(m, "OMPDeclareSimdDeclAttr")
+void RegisterOMPDeclareSimdDeclAttr(nb::module_ &m) {
+  nb::class_<OMPDeclareSimdDeclAttr, Attr>(m, "OMPDeclareSimdDeclAttr")
     .def("__hash__", [](const OMPDeclareSimdDeclAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("branch_state", &OMPDeclareSimdDeclAttr::BranchState)
-    .def_property_readonly("simdlen", &OMPDeclareSimdDeclAttr::Simdlen)
-    .def_property_readonly("spelling", &OMPDeclareSimdDeclAttr::Spelling);
+    .def_prop_ro("branch_state", &OMPDeclareSimdDeclAttr::BranchState)
+    .def_prop_ro("simdlen", &OMPDeclareSimdDeclAttr::Simdlen)
+    .def_prop_ro("spelling", &OMPDeclareSimdDeclAttr::Spelling);
 }
 } // namespace pasta

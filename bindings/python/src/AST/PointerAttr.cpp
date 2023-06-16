@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterPointerAttr(py::module_ &m) {
-  py::class_<PointerAttr, InheritableAttr>(m, "PointerAttr")
+void RegisterPointerAttr(nb::module_ &m) {
+  nb::class_<PointerAttr, InheritableAttr>(m, "PointerAttr")
     .def("__hash__", [](const PointerAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("deref_type", &PointerAttr::DerefType)
-    .def_property_readonly("deref_type_token", &PointerAttr::DerefTypeToken)
-    .def_property_readonly("spelling", &PointerAttr::Spelling);
+    .def_prop_ro("deref_type", &PointerAttr::DerefType)
+    .def_prop_ro("deref_type_token", &PointerAttr::DerefTypeToken)
+    .def_prop_ro("spelling", &PointerAttr::Spelling);
 }
 } // namespace pasta

@@ -10,33 +10,34 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterCoroutineBodyStmt(py::module_ &m) {
-  py::class_<CoroutineBodyStmt, Stmt>(m, "CoroutineBodyStmt")
+void RegisterCoroutineBodyStmt(nb::module_ &m) {
+  nb::class_<CoroutineBodyStmt, Stmt>(m, "CoroutineBodyStmt")
     .def("__hash__", [](const CoroutineBodyStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &CoroutineBodyStmt::Children)
-    .def_property_readonly("allocate", &CoroutineBodyStmt::Allocate)
-    .def_property_readonly("begin_token", &CoroutineBodyStmt::BeginToken)
-    .def_property_readonly("body", &CoroutineBodyStmt::Body)
-    .def_property_readonly("deallocate", &CoroutineBodyStmt::Deallocate)
-    .def_property_readonly("end_token", &CoroutineBodyStmt::EndToken)
-    .def_property_readonly("exception_handler", &CoroutineBodyStmt::ExceptionHandler)
-    .def_property_readonly("fallthrough_handler", &CoroutineBodyStmt::FallthroughHandler)
-    .def_property_readonly("final_suspend_statement", &CoroutineBodyStmt::FinalSuspendStatement)
-    .def_property_readonly("initializer_suspend_statement", &CoroutineBodyStmt::InitializerSuspendStatement)
-    .def_property_readonly("parameter_moves", &CoroutineBodyStmt::ParameterMoves)
-    .def_property_readonly("promise_declaration", &CoroutineBodyStmt::PromiseDeclaration)
-    .def_property_readonly("promise_declaration_statement", &CoroutineBodyStmt::PromiseDeclarationStatement)
-    .def_property_readonly("return_statement", &CoroutineBodyStmt::ReturnStatement)
-    .def_property_readonly("return_statement_on_alloc_failure", &CoroutineBodyStmt::ReturnStatementOnAllocFailure)
-    .def_property_readonly("return_value", &CoroutineBodyStmt::ReturnValue)
-    .def_property_readonly("return_value_initializer", &CoroutineBodyStmt::ReturnValueInitializer)
-    .def_property_readonly("has_dependent_promise_type", &CoroutineBodyStmt::HasDependentPromiseType);
+    .def_prop_ro("children", &CoroutineBodyStmt::Children)
+    .def_prop_ro("allocate", &CoroutineBodyStmt::Allocate)
+    .def_prop_ro("begin_token", &CoroutineBodyStmt::BeginToken)
+    .def_prop_ro("body", &CoroutineBodyStmt::Body)
+    .def_prop_ro("deallocate", &CoroutineBodyStmt::Deallocate)
+    .def_prop_ro("end_token", &CoroutineBodyStmt::EndToken)
+    .def_prop_ro("exception_handler", &CoroutineBodyStmt::ExceptionHandler)
+    .def_prop_ro("fallthrough_handler", &CoroutineBodyStmt::FallthroughHandler)
+    .def_prop_ro("final_suspend_statement", &CoroutineBodyStmt::FinalSuspendStatement)
+    .def_prop_ro("initializer_suspend_statement", &CoroutineBodyStmt::InitializerSuspendStatement)
+    .def_prop_ro("parameter_moves", &CoroutineBodyStmt::ParameterMoves)
+    .def_prop_ro("promise_declaration", &CoroutineBodyStmt::PromiseDeclaration)
+    .def_prop_ro("promise_declaration_statement", &CoroutineBodyStmt::PromiseDeclarationStatement)
+    .def_prop_ro("return_statement", &CoroutineBodyStmt::ReturnStatement)
+    .def_prop_ro("return_statement_on_alloc_failure", &CoroutineBodyStmt::ReturnStatementOnAllocFailure)
+    .def_prop_ro("return_value", &CoroutineBodyStmt::ReturnValue)
+    .def_prop_ro("return_value_initializer", &CoroutineBodyStmt::ReturnValueInitializer)
+    .def_prop_ro("has_dependent_promise_type", &CoroutineBodyStmt::HasDependentPromiseType);
 }
 } // namespace pasta

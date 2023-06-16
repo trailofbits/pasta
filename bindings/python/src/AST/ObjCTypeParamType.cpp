@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterObjCTypeParamType(py::module_ &m) {
-  py::class_<ObjCTypeParamType, Type>(m, "ObjCTypeParamType")
+void RegisterObjCTypeParamType(nb::module_ &m) {
+  nb::class_<ObjCTypeParamType, Type>(m, "ObjCTypeParamType")
     .def("__hash__", [](const ObjCTypeParamType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("desugar", &ObjCTypeParamType::Desugar)
-    .def_property_readonly("declaration", &ObjCTypeParamType::Declaration)
-    .def_property_readonly("is_sugared", &ObjCTypeParamType::IsSugared);
+    .def_prop_ro("desugar", &ObjCTypeParamType::Desugar)
+    .def_prop_ro("declaration", &ObjCTypeParamType::Declaration)
+    .def_prop_ro("is_sugared", &ObjCTypeParamType::IsSugared);
 }
 } // namespace pasta

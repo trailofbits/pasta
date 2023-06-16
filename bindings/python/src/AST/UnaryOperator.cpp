@@ -10,30 +10,31 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterUnaryOperator(py::module_ &m) {
-  py::class_<UnaryOperator, Expr>(m, "UnaryOperator")
+void RegisterUnaryOperator(nb::module_ &m) {
+  nb::class_<UnaryOperator, Expr>(m, "UnaryOperator")
     .def("__hash__", [](const UnaryOperator& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("can_overflow", &UnaryOperator::CanOverflow)
-    .def_property_readonly("children", &UnaryOperator::Children)
-    .def_property_readonly("begin_token", &UnaryOperator::BeginToken)
-    .def_property_readonly("end_token", &UnaryOperator::EndToken)
-    .def_property_readonly("expression_token", &UnaryOperator::ExpressionToken)
-    .def_property_readonly("opcode", &UnaryOperator::Opcode)
-    .def_property_readonly("operator_token", &UnaryOperator::OperatorToken)
-    .def_property_readonly("sub_expression", &UnaryOperator::SubExpression)
-    .def_property_readonly("has_stored_fp_features", &UnaryOperator::HasStoredFPFeatures)
-    .def_property_readonly("is_arithmetic_operation", &UnaryOperator::IsArithmeticOperation)
-    .def_property_readonly("is_decrement_operation", &UnaryOperator::IsDecrementOperation)
-    .def_property_readonly("is_increment_decrement_operation", &UnaryOperator::IsIncrementDecrementOperation)
-    .def_property_readonly("is_increment_operation", &UnaryOperator::IsIncrementOperation)
-    .def_property_readonly("is_postfix", &UnaryOperator::IsPostfix)
-    .def_property_readonly("is_prefix", &UnaryOperator::IsPrefix);
+    .def_prop_ro("can_overflow", &UnaryOperator::CanOverflow)
+    .def_prop_ro("children", &UnaryOperator::Children)
+    .def_prop_ro("begin_token", &UnaryOperator::BeginToken)
+    .def_prop_ro("end_token", &UnaryOperator::EndToken)
+    .def_prop_ro("expression_token", &UnaryOperator::ExpressionToken)
+    .def_prop_ro("opcode", &UnaryOperator::Opcode)
+    .def_prop_ro("operator_token", &UnaryOperator::OperatorToken)
+    .def_prop_ro("sub_expression", &UnaryOperator::SubExpression)
+    .def_prop_ro("has_stored_fp_features", &UnaryOperator::HasStoredFPFeatures)
+    .def_prop_ro("is_arithmetic_operation", &UnaryOperator::IsArithmeticOperation)
+    .def_prop_ro("is_decrement_operation", &UnaryOperator::IsDecrementOperation)
+    .def_prop_ro("is_increment_decrement_operation", &UnaryOperator::IsIncrementDecrementOperation)
+    .def_prop_ro("is_increment_operation", &UnaryOperator::IsIncrementOperation)
+    .def_prop_ro("is_postfix", &UnaryOperator::IsPostfix)
+    .def_prop_ro("is_prefix", &UnaryOperator::IsPrefix);
 }
 } // namespace pasta

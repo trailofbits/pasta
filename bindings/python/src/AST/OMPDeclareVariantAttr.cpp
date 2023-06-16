@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterOMPDeclareVariantAttr(py::module_ &m) {
-  py::class_<OMPDeclareVariantAttr, InheritableAttr>(m, "OMPDeclareVariantAttr")
+void RegisterOMPDeclareVariantAttr(nb::module_ &m) {
+  nb::class_<OMPDeclareVariantAttr, InheritableAttr>(m, "OMPDeclareVariantAttr")
     .def("__hash__", [](const OMPDeclareVariantAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("spelling", &OMPDeclareVariantAttr::Spelling)
-    .def_property_readonly("variant_func_reference", &OMPDeclareVariantAttr::VariantFuncReference);
+    .def_prop_ro("spelling", &OMPDeclareVariantAttr::Spelling)
+    .def_prop_ro("variant_func_reference", &OMPDeclareVariantAttr::VariantFuncReference);
 }
 } // namespace pasta

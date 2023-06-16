@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterPragmaDetectMismatchDecl(py::module_ &m) {
-  py::class_<PragmaDetectMismatchDecl, Decl>(m, "PragmaDetectMismatchDecl")
+void RegisterPragmaDetectMismatchDecl(nb::module_ &m) {
+  nb::class_<PragmaDetectMismatchDecl, Decl>(m, "PragmaDetectMismatchDecl")
     .def("__hash__", [](const PragmaDetectMismatchDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("name", &PragmaDetectMismatchDecl::Name)
-    .def_property_readonly("value", &PragmaDetectMismatchDecl::Value);
+    .def_prop_ro("name", &PragmaDetectMismatchDecl::Name)
+    .def_prop_ro("value", &PragmaDetectMismatchDecl::Value);
 }
 } // namespace pasta

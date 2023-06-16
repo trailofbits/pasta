@@ -10,21 +10,22 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterDependentCoawaitExpr(py::module_ &m) {
-  py::class_<DependentCoawaitExpr, Expr>(m, "DependentCoawaitExpr")
+void RegisterDependentCoawaitExpr(nb::module_ &m) {
+  nb::class_<DependentCoawaitExpr, Expr>(m, "DependentCoawaitExpr")
     .def("__hash__", [](const DependentCoawaitExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &DependentCoawaitExpr::Children)
-    .def_property_readonly("begin_token", &DependentCoawaitExpr::BeginToken)
-    .def_property_readonly("end_token", &DependentCoawaitExpr::EndToken)
-    .def_property_readonly("keyword_token", &DependentCoawaitExpr::KeywordToken)
-    .def_property_readonly("operand", &DependentCoawaitExpr::Operand)
-    .def_property_readonly("operator_coawait_lookup", &DependentCoawaitExpr::OperatorCoawaitLookup);
+    .def_prop_ro("children", &DependentCoawaitExpr::Children)
+    .def_prop_ro("begin_token", &DependentCoawaitExpr::BeginToken)
+    .def_prop_ro("end_token", &DependentCoawaitExpr::EndToken)
+    .def_prop_ro("keyword_token", &DependentCoawaitExpr::KeywordToken)
+    .def_prop_ro("operand", &DependentCoawaitExpr::Operand)
+    .def_prop_ro("operator_coawait_lookup", &DependentCoawaitExpr::OperatorCoawaitLookup);
 }
 } // namespace pasta

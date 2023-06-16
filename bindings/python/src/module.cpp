@@ -3,10 +3,10 @@
 #include <pasta/Util/Init.h>
 
 namespace pasta {
-void RegisterAllAST(pybind11::module_&);
+void RegisterAllAST(nanobind::module_&);
 };
 
-PYBIND11_MODULE(pypasta, m) {
+NB_MODULE(pypasta, m) {
     static pasta::InitPasta initPasta;
     pasta::RegisterArgumentVector(m);
     pasta::RegisterCompileCommand(m);

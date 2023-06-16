@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterWebAssemblyImportNameAttr(py::module_ &m) {
-  py::class_<WebAssemblyImportNameAttr, InheritableAttr>(m, "WebAssemblyImportNameAttr")
+void RegisterWebAssemblyImportNameAttr(nb::module_ &m) {
+  nb::class_<WebAssemblyImportNameAttr, InheritableAttr>(m, "WebAssemblyImportNameAttr")
     .def("__hash__", [](const WebAssemblyImportNameAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("import_name", &WebAssemblyImportNameAttr::ImportName)
-    .def_property_readonly("import_name_length", &WebAssemblyImportNameAttr::ImportNameLength)
-    .def_property_readonly("spelling", &WebAssemblyImportNameAttr::Spelling);
+    .def_prop_ro("import_name", &WebAssemblyImportNameAttr::ImportName)
+    .def_prop_ro("import_name_length", &WebAssemblyImportNameAttr::ImportNameLength)
+    .def_prop_ro("spelling", &WebAssemblyImportNameAttr::Spelling);
 }
 } // namespace pasta

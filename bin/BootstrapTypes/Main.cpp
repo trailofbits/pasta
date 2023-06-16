@@ -247,13 +247,13 @@ set(PASTA_PYTHON_AST_SOURCES
 
 // This file is auto-generated.
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterAllAST(py::module_ &m) {
-void RegisterEnums(py::module_ &m);
+void RegisterAllAST(nb::module_ &m) {
+void RegisterEnums(nb::module_ &m);
   RegisterEnums(m);
 )";
 

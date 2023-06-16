@@ -10,21 +10,22 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterObjCIvarDecl(py::module_ &m) {
-  py::class_<ObjCIvarDecl, FieldDecl>(m, "ObjCIvarDecl")
+void RegisterObjCIvarDecl(nb::module_ &m) {
+  nb::class_<ObjCIvarDecl, FieldDecl>(m, "ObjCIvarDecl")
     .def("__hash__", [](const ObjCIvarDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("access_control", &ObjCIvarDecl::AccessControl)
-    .def_property_readonly("canonical_access_control", &ObjCIvarDecl::CanonicalAccessControl)
-    .def_property_readonly("canonical_declaration", &ObjCIvarDecl::CanonicalDeclaration)
-    .def_property_readonly("containing_interface", &ObjCIvarDecl::ContainingInterface)
-    .def_property_readonly("next_instance_variable", &ObjCIvarDecl::NextInstanceVariable)
-    .def_property_readonly("synthesize", &ObjCIvarDecl::Synthesize);
+    .def_prop_ro("access_control", &ObjCIvarDecl::AccessControl)
+    .def_prop_ro("canonical_access_control", &ObjCIvarDecl::CanonicalAccessControl)
+    .def_prop_ro("canonical_declaration", &ObjCIvarDecl::CanonicalDeclaration)
+    .def_prop_ro("containing_interface", &ObjCIvarDecl::ContainingInterface)
+    .def_prop_ro("next_instance_variable", &ObjCIvarDecl::NextInstanceVariable)
+    .def_prop_ro("synthesize", &ObjCIvarDecl::Synthesize);
 }
 } // namespace pasta

@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterComplexType(py::module_ &m) {
-  py::class_<ComplexType, Type>(m, "ComplexType")
+void RegisterComplexType(nb::module_ &m) {
+  nb::class_<ComplexType, Type>(m, "ComplexType")
     .def("__hash__", [](const ComplexType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("desugar", &ComplexType::Desugar)
-    .def_property_readonly("element_type", &ComplexType::ElementType)
-    .def_property_readonly("is_sugared", &ComplexType::IsSugared);
+    .def_prop_ro("desugar", &ComplexType::Desugar)
+    .def_prop_ro("element_type", &ComplexType::ElementType)
+    .def_prop_ro("is_sugared", &ComplexType::IsSugared);
 }
 } // namespace pasta

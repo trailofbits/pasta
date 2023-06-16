@@ -6,11 +6,11 @@
 
 namespace pasta {
 
-namespace py = pybind11;
-void RegisterCompileCommand(py::module_ &m) {
-  py::class_<CompileCommand>(m, "CompileCommand")
+namespace nb = nanobind;
+void RegisterCompileCommand(nb::module_ &m) {
+  nb::class_<CompileCommand>(m, "CompileCommand")
     .def_static("create_from_arguments", &CompileCommand::CreateFromArguments)
-    .def_property_readonly("arguments", &CompileCommand::Arguments)
-    .def_property_readonly("working_directory", &CompileCommand::WorkingDirectory);
+    .def_prop_ro("arguments", &CompileCommand::Arguments)
+    .def_prop_ro("working_directory", &CompileCommand::WorkingDirectory);
 }
 }  // namespace pasta

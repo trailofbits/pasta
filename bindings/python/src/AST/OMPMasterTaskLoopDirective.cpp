@@ -10,16 +10,17 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterOMPMasterTaskLoopDirective(py::module_ &m) {
-  py::class_<OMPMasterTaskLoopDirective, OMPLoopDirective>(m, "OMPMasterTaskLoopDirective")
+void RegisterOMPMasterTaskLoopDirective(nb::module_ &m) {
+  nb::class_<OMPMasterTaskLoopDirective, OMPLoopDirective>(m, "OMPMasterTaskLoopDirective")
     .def("__hash__", [](const OMPMasterTaskLoopDirective& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("has_cancel", &OMPMasterTaskLoopDirective::HasCancel);
+    .def_prop_ro("has_cancel", &OMPMasterTaskLoopDirective::HasCancel);
 }
 } // namespace pasta

@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterArrayType(py::module_ &m) {
-  py::class_<ArrayType, Type>(m, "ArrayType")
+void RegisterArrayType(nb::module_ &m) {
+  nb::class_<ArrayType, Type>(m, "ArrayType")
     .def("__hash__", [](const ArrayType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("element_type", &ArrayType::ElementType)
-    .def_property_readonly("index_type_cvr_qualifiers", &ArrayType::IndexTypeCVRQualifiers)
-    .def_property_readonly("size_modifier", &ArrayType::SizeModifier);
+    .def_prop_ro("element_type", &ArrayType::ElementType)
+    .def_prop_ro("index_type_cvr_qualifiers", &ArrayType::IndexTypeCVRQualifiers)
+    .def_prop_ro("size_modifier", &ArrayType::SizeModifier);
 }
 } // namespace pasta

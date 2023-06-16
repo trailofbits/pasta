@@ -10,28 +10,29 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterTemplateTypeParmDecl(py::module_ &m) {
-  py::class_<TemplateTypeParmDecl, TypeDecl>(m, "TemplateTypeParmDecl")
+void RegisterTemplateTypeParmDecl(nb::module_ &m) {
+  nb::class_<TemplateTypeParmDecl, TypeDecl>(m, "TemplateTypeParmDecl")
     .def("__hash__", [](const TemplateTypeParmDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("default_argument_was_inherited", &TemplateTypeParmDecl::DefaultArgumentWasInherited)
-    .def_property_readonly("default_argument", &TemplateTypeParmDecl::DefaultArgument)
-    .def_property_readonly("default_argument_info", &TemplateTypeParmDecl::DefaultArgumentInfo)
-    .def_property_readonly("default_argument_token", &TemplateTypeParmDecl::DefaultArgumentToken)
-    .def_property_readonly("depth", &TemplateTypeParmDecl::Depth)
-    .def_property_readonly("index", &TemplateTypeParmDecl::Index)
-    .def_property_readonly("num_expansion_parameters", &TemplateTypeParmDecl::NumExpansionParameters)
-    .def_property_readonly("has_default_argument", &TemplateTypeParmDecl::HasDefaultArgument)
-    .def_property_readonly("has_type_constraint", &TemplateTypeParmDecl::HasTypeConstraint)
-    .def_property_readonly("is_expanded_parameter_pack", &TemplateTypeParmDecl::IsExpandedParameterPack)
-    .def_property_readonly("is_pack_expansion", &TemplateTypeParmDecl::IsPackExpansion)
-    .def_property_readonly("is_parameter_pack", &TemplateTypeParmDecl::IsParameterPack)
-    .def_property_readonly("was_declared_with_typename", &TemplateTypeParmDecl::WasDeclaredWithTypename);
+    .def_prop_ro("default_argument_was_inherited", &TemplateTypeParmDecl::DefaultArgumentWasInherited)
+    .def_prop_ro("default_argument", &TemplateTypeParmDecl::DefaultArgument)
+    .def_prop_ro("default_argument_info", &TemplateTypeParmDecl::DefaultArgumentInfo)
+    .def_prop_ro("default_argument_token", &TemplateTypeParmDecl::DefaultArgumentToken)
+    .def_prop_ro("depth", &TemplateTypeParmDecl::Depth)
+    .def_prop_ro("index", &TemplateTypeParmDecl::Index)
+    .def_prop_ro("num_expansion_parameters", &TemplateTypeParmDecl::NumExpansionParameters)
+    .def_prop_ro("has_default_argument", &TemplateTypeParmDecl::HasDefaultArgument)
+    .def_prop_ro("has_type_constraint", &TemplateTypeParmDecl::HasTypeConstraint)
+    .def_prop_ro("is_expanded_parameter_pack", &TemplateTypeParmDecl::IsExpandedParameterPack)
+    .def_prop_ro("is_pack_expansion", &TemplateTypeParmDecl::IsPackExpansion)
+    .def_prop_ro("is_parameter_pack", &TemplateTypeParmDecl::IsParameterPack)
+    .def_prop_ro("was_declared_with_typename", &TemplateTypeParmDecl::WasDeclaredWithTypename);
 }
 } // namespace pasta

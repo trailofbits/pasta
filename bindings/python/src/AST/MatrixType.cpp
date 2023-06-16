@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterMatrixType(py::module_ &m) {
-  py::class_<MatrixType, Type>(m, "MatrixType")
+void RegisterMatrixType(nb::module_ &m) {
+  nb::class_<MatrixType, Type>(m, "MatrixType")
     .def("__hash__", [](const MatrixType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("desugar", &MatrixType::Desugar)
-    .def_property_readonly("element_type", &MatrixType::ElementType)
-    .def_property_readonly("is_sugared", &MatrixType::IsSugared);
+    .def_prop_ro("desugar", &MatrixType::Desugar)
+    .def_prop_ro("element_type", &MatrixType::ElementType)
+    .def_prop_ro("is_sugared", &MatrixType::IsSugared);
 }
 } // namespace pasta

@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterAccessSpecDecl(py::module_ &m) {
-  py::class_<AccessSpecDecl, Decl>(m, "AccessSpecDecl")
+void RegisterAccessSpecDecl(nb::module_ &m) {
+  nb::class_<AccessSpecDecl, Decl>(m, "AccessSpecDecl")
     .def("__hash__", [](const AccessSpecDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("access_specifier_token", &AccessSpecDecl::AccessSpecifierToken)
-    .def_property_readonly("colon_token", &AccessSpecDecl::ColonToken);
+    .def_prop_ro("access_specifier_token", &AccessSpecDecl::AccessSpecifierToken)
+    .def_prop_ro("colon_token", &AccessSpecDecl::ColonToken);
 }
 } // namespace pasta

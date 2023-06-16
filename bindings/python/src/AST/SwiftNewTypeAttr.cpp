@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterSwiftNewTypeAttr(py::module_ &m) {
-  py::class_<SwiftNewTypeAttr, InheritableAttr>(m, "SwiftNewTypeAttr")
+void RegisterSwiftNewTypeAttr(nb::module_ &m) {
+  nb::class_<SwiftNewTypeAttr, InheritableAttr>(m, "SwiftNewTypeAttr")
     .def("__hash__", [](const SwiftNewTypeAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("newtype_kind", &SwiftNewTypeAttr::NewtypeKind)
-    .def_property_readonly("semantic_spelling", &SwiftNewTypeAttr::SemanticSpelling)
-    .def_property_readonly("spelling", &SwiftNewTypeAttr::Spelling);
+    .def_prop_ro("newtype_kind", &SwiftNewTypeAttr::NewtypeKind)
+    .def_prop_ro("semantic_spelling", &SwiftNewTypeAttr::SemanticSpelling)
+    .def_prop_ro("spelling", &SwiftNewTypeAttr::Spelling);
 }
 } // namespace pasta

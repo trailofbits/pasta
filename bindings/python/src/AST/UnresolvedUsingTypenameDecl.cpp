@@ -10,20 +10,21 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterUnresolvedUsingTypenameDecl(py::module_ &m) {
-  py::class_<UnresolvedUsingTypenameDecl, TypeDecl>(m, "UnresolvedUsingTypenameDecl")
+void RegisterUnresolvedUsingTypenameDecl(nb::module_ &m) {
+  nb::class_<UnresolvedUsingTypenameDecl, TypeDecl>(m, "UnresolvedUsingTypenameDecl")
     .def("__hash__", [](const UnresolvedUsingTypenameDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("canonical_declaration", &UnresolvedUsingTypenameDecl::CanonicalDeclaration)
-    .def_property_readonly("ellipsis_token", &UnresolvedUsingTypenameDecl::EllipsisToken)
-    .def_property_readonly("typename_token", &UnresolvedUsingTypenameDecl::TypenameToken)
-    .def_property_readonly("using_token", &UnresolvedUsingTypenameDecl::UsingToken)
-    .def_property_readonly("is_pack_expansion", &UnresolvedUsingTypenameDecl::IsPackExpansion);
+    .def_prop_ro("canonical_declaration", &UnresolvedUsingTypenameDecl::CanonicalDeclaration)
+    .def_prop_ro("ellipsis_token", &UnresolvedUsingTypenameDecl::EllipsisToken)
+    .def_prop_ro("typename_token", &UnresolvedUsingTypenameDecl::TypenameToken)
+    .def_prop_ro("using_token", &UnresolvedUsingTypenameDecl::UsingToken)
+    .def_prop_ro("is_pack_expansion", &UnresolvedUsingTypenameDecl::IsPackExpansion);
 }
 } // namespace pasta

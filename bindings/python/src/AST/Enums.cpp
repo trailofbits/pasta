@@ -4,53 +4,53 @@
 
 // This file is auto-generated.
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 #include <pasta/AST/Forward.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterEnums(py::module_ &m) {
-  py::enum_<pasta::AArch64SVEPcsAttrSpelling>(m, "AArch64SVEPcsAttrSpelling")
+void RegisterEnums(nb::module_ &m) {
+  nb::enum_<pasta::AArch64SVEPcsAttrSpelling>(m, "AArch64SVEPcsAttrSpelling")
     .value("GNU_AARCH64_SVE_PCS", pasta::AArch64SVEPcsAttrSpelling::kGNUAarch64SvePcs)
     .value("CXX11_CLANG_AARCH64_SVE_PCS", pasta::AArch64SVEPcsAttrSpelling::kCXX11ClangAarch64SvePcs)
     .value("C2X_CLANG_AARCH64_SVE_PCS", pasta::AArch64SVEPcsAttrSpelling::kC2xClangAarch64SvePcs)
     .value("SPELLING_NOT_CALCULATED", pasta::AArch64SVEPcsAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AArch64VectorPcsAttrSpelling>(m, "AArch64VectorPcsAttrSpelling")
+  nb::enum_<pasta::AArch64VectorPcsAttrSpelling>(m, "AArch64VectorPcsAttrSpelling")
     .value("GNU_AARCH64_VECTOR_PCS", pasta::AArch64VectorPcsAttrSpelling::kGNUAarch64VectorPcs)
     .value("CXX11_CLANG_AARCH64_VECTOR_PCS", pasta::AArch64VectorPcsAttrSpelling::kCXX11ClangAarch64VectorPcs)
     .value("C2X_CLANG_AARCH64_VECTOR_PCS", pasta::AArch64VectorPcsAttrSpelling::kC2xClangAarch64VectorPcs)
     .value("SPELLING_NOT_CALCULATED", pasta::AArch64VectorPcsAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AMDGPUFlatWorkGroupSizeAttrSpelling>(m, "AMDGPUFlatWorkGroupSizeAttrSpelling")
+  nb::enum_<pasta::AMDGPUFlatWorkGroupSizeAttrSpelling>(m, "AMDGPUFlatWorkGroupSizeAttrSpelling")
     .value("GNU_AMDGPU_FLAT_WORK_GROUP_SIZE", pasta::AMDGPUFlatWorkGroupSizeAttrSpelling::kGNUAmdgpuFlatWorkGroupSize)
     .value("CXX11_CLANG_AMDGPU_FLAT_WORK_GROUP_SIZE", pasta::AMDGPUFlatWorkGroupSizeAttrSpelling::kCXX11ClangAmdgpuFlatWorkGroupSize)
     .value("SPELLING_NOT_CALCULATED", pasta::AMDGPUFlatWorkGroupSizeAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AMDGPUKernelCallAttrSpelling>(m, "AMDGPUKernelCallAttrSpelling")
+  nb::enum_<pasta::AMDGPUKernelCallAttrSpelling>(m, "AMDGPUKernelCallAttrSpelling")
     .value("GNU_AMDGPU_KERNEL", pasta::AMDGPUKernelCallAttrSpelling::kGNUAmdgpuKernel)
     .value("CXX11_CLANG_AMDGPU_KERNEL", pasta::AMDGPUKernelCallAttrSpelling::kCXX11ClangAmdgpuKernel)
     .value("C2X_CLANG_AMDGPU_KERNEL", pasta::AMDGPUKernelCallAttrSpelling::kC2xClangAmdgpuKernel)
     .value("SPELLING_NOT_CALCULATED", pasta::AMDGPUKernelCallAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AMDGPUNumSGPRAttrSpelling>(m, "AMDGPUNumSGPRAttrSpelling")
+  nb::enum_<pasta::AMDGPUNumSGPRAttrSpelling>(m, "AMDGPUNumSGPRAttrSpelling")
     .value("GNU_AMDGPU_NUM_SGPR", pasta::AMDGPUNumSGPRAttrSpelling::kGNUAmdgpuNumSgpr)
     .value("CXX11_CLANG_AMDGPU_NUM_SGPR", pasta::AMDGPUNumSGPRAttrSpelling::kCXX11ClangAmdgpuNumSgpr)
     .value("SPELLING_NOT_CALCULATED", pasta::AMDGPUNumSGPRAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AMDGPUNumVGPRAttrSpelling>(m, "AMDGPUNumVGPRAttrSpelling")
+  nb::enum_<pasta::AMDGPUNumVGPRAttrSpelling>(m, "AMDGPUNumVGPRAttrSpelling")
     .value("GNU_AMDGPU_NUM_VGPR", pasta::AMDGPUNumVGPRAttrSpelling::kGNUAmdgpuNumVgpr)
     .value("CXX11_CLANG_AMDGPU_NUM_VGPR", pasta::AMDGPUNumVGPRAttrSpelling::kCXX11ClangAmdgpuNumVgpr)
     .value("SPELLING_NOT_CALCULATED", pasta::AMDGPUNumVGPRAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AMDGPUWavesPerEUAttrSpelling>(m, "AMDGPUWavesPerEUAttrSpelling")
+  nb::enum_<pasta::AMDGPUWavesPerEUAttrSpelling>(m, "AMDGPUWavesPerEUAttrSpelling")
     .value("GNU_AMDGPU_WAVES_PER_EU", pasta::AMDGPUWavesPerEUAttrSpelling::kGNUAmdgpuWavesPerEu)
     .value("CXX11_CLANG_AMDGPU_WAVES_PER_EU", pasta::AMDGPUWavesPerEUAttrSpelling::kCXX11ClangAmdgpuWavesPerEu)
     .value("SPELLING_NOT_CALCULATED", pasta::AMDGPUWavesPerEUAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ARMInterruptAttrInterruptType>(m, "ARMInterruptAttrInterruptType")
+  nb::enum_<pasta::ARMInterruptAttrInterruptType>(m, "ARMInterruptAttrInterruptType")
     .value("IRQ", pasta::ARMInterruptAttrInterruptType::kIRQ)
     .value("FIQ", pasta::ARMInterruptAttrInterruptType::kFIQ)
     .value("SWI", pasta::ARMInterruptAttrInterruptType::kSWI)
@@ -58,30 +58,30 @@ void RegisterEnums(py::module_ &m) {
     .value("UNDEF", pasta::ARMInterruptAttrInterruptType::kUNDEF)
     .value("GENERIC", pasta::ARMInterruptAttrInterruptType::kGeneric);
 
-  py::enum_<pasta::ARMInterruptAttrSpelling>(m, "ARMInterruptAttrSpelling")
+  nb::enum_<pasta::ARMInterruptAttrSpelling>(m, "ARMInterruptAttrSpelling")
     .value("GNU_INTERRUPT", pasta::ARMInterruptAttrSpelling::kGNUInterrupt)
     .value("CXX11_GNU_INTERRUPT", pasta::ARMInterruptAttrSpelling::kCXX11GnuInterrupt)
     .value("C2X_GNU_INTERRUPT", pasta::ARMInterruptAttrSpelling::kC2xGnuInterrupt)
     .value("SPELLING_NOT_CALCULATED", pasta::ARMInterruptAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AVRInterruptAttrSpelling>(m, "AVRInterruptAttrSpelling")
+  nb::enum_<pasta::AVRInterruptAttrSpelling>(m, "AVRInterruptAttrSpelling")
     .value("GNU_INTERRUPT", pasta::AVRInterruptAttrSpelling::kGNUInterrupt)
     .value("CXX11_GNU_INTERRUPT", pasta::AVRInterruptAttrSpelling::kCXX11GnuInterrupt)
     .value("C2X_GNU_INTERRUPT", pasta::AVRInterruptAttrSpelling::kC2xGnuInterrupt)
     .value("SPELLING_NOT_CALCULATED", pasta::AVRInterruptAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AVRSignalAttrSpelling>(m, "AVRSignalAttrSpelling")
+  nb::enum_<pasta::AVRSignalAttrSpelling>(m, "AVRSignalAttrSpelling")
     .value("GNU_SIGNAL", pasta::AVRSignalAttrSpelling::kGNUSignal)
     .value("CXX11_GNU_SIGNAL", pasta::AVRSignalAttrSpelling::kCXX11GnuSignal)
     .value("C2X_GNU_SIGNAL", pasta::AVRSignalAttrSpelling::kC2xGnuSignal)
     .value("SPELLING_NOT_CALCULATED", pasta::AVRSignalAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AbiTagAttrSpelling>(m, "AbiTagAttrSpelling")
+  nb::enum_<pasta::AbiTagAttrSpelling>(m, "AbiTagAttrSpelling")
     .value("GNU_ABI_TAG", pasta::AbiTagAttrSpelling::kGNUAbiTag)
     .value("CXX11_GNU_ABI_TAG", pasta::AbiTagAttrSpelling::kCXX11GnuAbiTag)
     .value("SPELLING_NOT_CALCULATED", pasta::AbiTagAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AcquireCapabilityAttrSpelling>(m, "AcquireCapabilityAttrSpelling")
+  nb::enum_<pasta::AcquireCapabilityAttrSpelling>(m, "AcquireCapabilityAttrSpelling")
     .value("GNU_ACQUIRE_CAPABILITY", pasta::AcquireCapabilityAttrSpelling::kGNUAcquireCapability)
     .value("CXX11_CLANG_ACQUIRE_CAPABILITY", pasta::AcquireCapabilityAttrSpelling::kCXX11ClangAcquireCapability)
     .value("GNU_ACQUIRE_SHARED_CAPABILITY", pasta::AcquireCapabilityAttrSpelling::kGNUAcquireSharedCapability)
@@ -90,25 +90,25 @@ void RegisterEnums(py::module_ &m) {
     .value("GNU_SHARED_LOCK_FUNCTION", pasta::AcquireCapabilityAttrSpelling::kGNUSharedLockFunction)
     .value("SPELLING_NOT_CALCULATED", pasta::AcquireCapabilityAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AcquireHandleAttrSpelling>(m, "AcquireHandleAttrSpelling")
+  nb::enum_<pasta::AcquireHandleAttrSpelling>(m, "AcquireHandleAttrSpelling")
     .value("GNU_ACQUIRE_HANDLE", pasta::AcquireHandleAttrSpelling::kGNUAcquireHandle)
     .value("CXX11_CLANG_ACQUIRE_HANDLE", pasta::AcquireHandleAttrSpelling::kCXX11ClangAcquireHandle)
     .value("C2X_CLANG_ACQUIRE_HANDLE", pasta::AcquireHandleAttrSpelling::kC2xClangAcquireHandle)
     .value("SPELLING_NOT_CALCULATED", pasta::AcquireHandleAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AddressSpaceAttrSpelling>(m, "AddressSpaceAttrSpelling")
+  nb::enum_<pasta::AddressSpaceAttrSpelling>(m, "AddressSpaceAttrSpelling")
     .value("GNU_ADDRESS_SPACE", pasta::AddressSpaceAttrSpelling::kGNUAddressSpace)
     .value("CXX11_CLANG_ADDRESS_SPACE", pasta::AddressSpaceAttrSpelling::kCXX11ClangAddressSpace)
     .value("C2X_CLANG_ADDRESS_SPACE", pasta::AddressSpaceAttrSpelling::kC2xClangAddressSpace)
     .value("SPELLING_NOT_CALCULATED", pasta::AddressSpaceAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AliasAttrSpelling>(m, "AliasAttrSpelling")
+  nb::enum_<pasta::AliasAttrSpelling>(m, "AliasAttrSpelling")
     .value("GNU_ALIAS", pasta::AliasAttrSpelling::kGNUAlias)
     .value("CXX11_GNU_ALIAS", pasta::AliasAttrSpelling::kCXX11GnuAlias)
     .value("C2X_GNU_ALIAS", pasta::AliasAttrSpelling::kC2xGnuAlias)
     .value("SPELLING_NOT_CALCULATED", pasta::AliasAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AlignedAttrSpelling>(m, "AlignedAttrSpelling")
+  nb::enum_<pasta::AlignedAttrSpelling>(m, "AlignedAttrSpelling")
     .value("GNU_ALIGNED", pasta::AlignedAttrSpelling::kGNUAligned)
     .value("CXX11_GNU_ALIGNED", pasta::AlignedAttrSpelling::kCXX11GnuAligned)
     .value("C2X_GNU_ALIGNED", pasta::AlignedAttrSpelling::kC2xGnuAligned)
@@ -117,24 +117,24 @@ void RegisterEnums(py::module_ &m) {
     .value("KEYWORD__ALIGNAS", pasta::AlignedAttrSpelling::kKeyword_Alignas)
     .value("SPELLING_NOT_CALCULATED", pasta::AlignedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AllocAlignAttrSpelling>(m, "AllocAlignAttrSpelling")
+  nb::enum_<pasta::AllocAlignAttrSpelling>(m, "AllocAlignAttrSpelling")
     .value("GNU_ALLOC_ALIGN", pasta::AllocAlignAttrSpelling::kGNUAllocAlign)
     .value("CXX11_GNU_ALLOC_ALIGN", pasta::AllocAlignAttrSpelling::kCXX11GnuAllocAlign)
     .value("C2X_GNU_ALLOC_ALIGN", pasta::AllocAlignAttrSpelling::kC2xGnuAllocAlign)
     .value("SPELLING_NOT_CALCULATED", pasta::AllocAlignAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AllocSizeAttrSpelling>(m, "AllocSizeAttrSpelling")
+  nb::enum_<pasta::AllocSizeAttrSpelling>(m, "AllocSizeAttrSpelling")
     .value("GNU_ALLOC_SIZE", pasta::AllocSizeAttrSpelling::kGNUAllocSize)
     .value("CXX11_GNU_ALLOC_SIZE", pasta::AllocSizeAttrSpelling::kCXX11GnuAllocSize)
     .value("C2X_GNU_ALLOC_SIZE", pasta::AllocSizeAttrSpelling::kC2xGnuAllocSize)
     .value("SPELLING_NOT_CALCULATED", pasta::AllocSizeAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AlwaysDestroyAttrSpelling>(m, "AlwaysDestroyAttrSpelling")
+  nb::enum_<pasta::AlwaysDestroyAttrSpelling>(m, "AlwaysDestroyAttrSpelling")
     .value("GNU_ALWAYS_DESTROY", pasta::AlwaysDestroyAttrSpelling::kGNUAlwaysDestroy)
     .value("CXX11_CLANG_ALWAYS_DESTROY", pasta::AlwaysDestroyAttrSpelling::kCXX11ClangAlwaysDestroy)
     .value("SPELLING_NOT_CALCULATED", pasta::AlwaysDestroyAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AlwaysInlineAttrSpelling>(m, "AlwaysInlineAttrSpelling")
+  nb::enum_<pasta::AlwaysInlineAttrSpelling>(m, "AlwaysInlineAttrSpelling")
     .value("GNU_ALWAYS_INLINE", pasta::AlwaysInlineAttrSpelling::kGNUAlwaysInline)
     .value("CXX11_GNU_ALWAYS_INLINE", pasta::AlwaysInlineAttrSpelling::kCXX11GnuAlwaysInline)
     .value("C2X_GNU_ALWAYS_INLINE", pasta::AlwaysInlineAttrSpelling::kC2xGnuAlwaysInline)
@@ -143,42 +143,42 @@ void RegisterEnums(py::module_ &m) {
     .value("KEYWORD_FORCEINLINE", pasta::AlwaysInlineAttrSpelling::kKeywordForceinline)
     .value("SPELLING_NOT_CALCULATED", pasta::AlwaysInlineAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AnnotateAttrSpelling>(m, "AnnotateAttrSpelling")
+  nb::enum_<pasta::AnnotateAttrSpelling>(m, "AnnotateAttrSpelling")
     .value("GNU_ANNOTATE", pasta::AnnotateAttrSpelling::kGNUAnnotate)
     .value("CXX11_CLANG_ANNOTATE", pasta::AnnotateAttrSpelling::kCXX11ClangAnnotate)
     .value("C2X_CLANG_ANNOTATE", pasta::AnnotateAttrSpelling::kC2xClangAnnotate)
     .value("SPELLING_NOT_CALCULATED", pasta::AnnotateAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AnnotateTypeAttrSpelling>(m, "AnnotateTypeAttrSpelling")
+  nb::enum_<pasta::AnnotateTypeAttrSpelling>(m, "AnnotateTypeAttrSpelling")
     .value("CXX11_CLANG_ANNOTATE_TYPE", pasta::AnnotateTypeAttrSpelling::kCXX11ClangAnnotateType)
     .value("C2X_CLANG_ANNOTATE_TYPE", pasta::AnnotateTypeAttrSpelling::kC2xClangAnnotateType)
     .value("SPELLING_NOT_CALCULATED", pasta::AnnotateTypeAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AnyX86InterruptAttrSpelling>(m, "AnyX86InterruptAttrSpelling")
+  nb::enum_<pasta::AnyX86InterruptAttrSpelling>(m, "AnyX86InterruptAttrSpelling")
     .value("GNU_INTERRUPT", pasta::AnyX86InterruptAttrSpelling::kGNUInterrupt)
     .value("CXX11_GNU_INTERRUPT", pasta::AnyX86InterruptAttrSpelling::kCXX11GnuInterrupt)
     .value("C2X_GNU_INTERRUPT", pasta::AnyX86InterruptAttrSpelling::kC2xGnuInterrupt)
     .value("SPELLING_NOT_CALCULATED", pasta::AnyX86InterruptAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AnyX86NoCallerSavedRegistersAttrSpelling>(m, "AnyX86NoCallerSavedRegistersAttrSpelling")
+  nb::enum_<pasta::AnyX86NoCallerSavedRegistersAttrSpelling>(m, "AnyX86NoCallerSavedRegistersAttrSpelling")
     .value("GNU_NO_CALLER_SAVED_REGISTERS", pasta::AnyX86NoCallerSavedRegistersAttrSpelling::kGNUNoCallerSavedRegisters)
     .value("CXX11_GNU_NO_CALLER_SAVED_REGISTERS", pasta::AnyX86NoCallerSavedRegistersAttrSpelling::kCXX11GnuNoCallerSavedRegisters)
     .value("C2X_GNU_NO_CALLER_SAVED_REGISTERS", pasta::AnyX86NoCallerSavedRegistersAttrSpelling::kC2xGnuNoCallerSavedRegisters)
     .value("SPELLING_NOT_CALCULATED", pasta::AnyX86NoCallerSavedRegistersAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AnyX86NoCfCheckAttrSpelling>(m, "AnyX86NoCfCheckAttrSpelling")
+  nb::enum_<pasta::AnyX86NoCfCheckAttrSpelling>(m, "AnyX86NoCfCheckAttrSpelling")
     .value("GNU_NOCF_CHECK", pasta::AnyX86NoCfCheckAttrSpelling::kGNUNocfCheck)
     .value("CXX11_GNU_NOCF_CHECK", pasta::AnyX86NoCfCheckAttrSpelling::kCXX11GnuNocfCheck)
     .value("C2X_GNU_NOCF_CHECK", pasta::AnyX86NoCfCheckAttrSpelling::kC2xGnuNocfCheck)
     .value("SPELLING_NOT_CALCULATED", pasta::AnyX86NoCfCheckAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ArcWeakrefUnavailableAttrSpelling>(m, "ArcWeakrefUnavailableAttrSpelling")
+  nb::enum_<pasta::ArcWeakrefUnavailableAttrSpelling>(m, "ArcWeakrefUnavailableAttrSpelling")
     .value("GNU_OBJC_ARC_WEAK_REFERENCE_UNAVAILABLE", pasta::ArcWeakrefUnavailableAttrSpelling::kGNUObjcArcWeakReferenceUnavailable)
     .value("CXX11_CLANG_OBJC_ARC_WEAK_REFERENCE_UNAVAILABLE", pasta::ArcWeakrefUnavailableAttrSpelling::kCXX11ClangObjcArcWeakReferenceUnavailable)
     .value("C2X_CLANG_OBJC_ARC_WEAK_REFERENCE_UNAVAILABLE", pasta::ArcWeakrefUnavailableAttrSpelling::kC2xClangObjcArcWeakReferenceUnavailable)
     .value("SPELLING_NOT_CALCULATED", pasta::ArcWeakrefUnavailableAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ArgumentWithTypeTagAttrSpelling>(m, "ArgumentWithTypeTagAttrSpelling")
+  nb::enum_<pasta::ArgumentWithTypeTagAttrSpelling>(m, "ArgumentWithTypeTagAttrSpelling")
     .value("GNU_ARGUMENT_WITH_TYPE_TAG", pasta::ArgumentWithTypeTagAttrSpelling::kGNUArgumentWithTypeTag)
     .value("CXX11_CLANG_ARGUMENT_WITH_TYPE_TAG", pasta::ArgumentWithTypeTagAttrSpelling::kCXX11ClangArgumentWithTypeTag)
     .value("C2X_CLANG_ARGUMENT_WITH_TYPE_TAG", pasta::ArgumentWithTypeTagAttrSpelling::kC2xClangArgumentWithTypeTag)
@@ -187,53 +187,53 @@ void RegisterEnums(py::module_ &m) {
     .value("C2X_CLANG_POINTER_WITH_TYPE_TAG", pasta::ArgumentWithTypeTagAttrSpelling::kC2xClangPointerWithTypeTag)
     .value("SPELLING_NOT_CALCULATED", pasta::ArgumentWithTypeTagAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ArmBuiltinAliasAttrSpelling>(m, "ArmBuiltinAliasAttrSpelling")
+  nb::enum_<pasta::ArmBuiltinAliasAttrSpelling>(m, "ArmBuiltinAliasAttrSpelling")
     .value("GNU_CLANG_ARM_BUILTIN_ALIAS", pasta::ArmBuiltinAliasAttrSpelling::kGNUClangArmBuiltinAlias)
     .value("CXX11_CLANG_CLANG_ARM_BUILTIN_ALIAS", pasta::ArmBuiltinAliasAttrSpelling::kCXX11ClangClangArmBuiltinAlias)
     .value("C2X_CLANG_CLANG_ARM_BUILTIN_ALIAS", pasta::ArmBuiltinAliasAttrSpelling::kC2xClangClangArmBuiltinAlias)
     .value("SPELLING_NOT_CALCULATED", pasta::ArmBuiltinAliasAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ArmMveStrictPolymorphismAttrSpelling>(m, "ArmMveStrictPolymorphismAttrSpelling")
+  nb::enum_<pasta::ArmMveStrictPolymorphismAttrSpelling>(m, "ArmMveStrictPolymorphismAttrSpelling")
     .value("GNU_CLANG_ARM_MVE_STRICT_POLYMORPHISM", pasta::ArmMveStrictPolymorphismAttrSpelling::kGNUClangArmMveStrictPolymorphism)
     .value("CXX11_CLANG_CLANG_ARM_MVE_STRICT_POLYMORPHISM", pasta::ArmMveStrictPolymorphismAttrSpelling::kCXX11ClangClangArmMveStrictPolymorphism)
     .value("C2X_CLANG_CLANG_ARM_MVE_STRICT_POLYMORPHISM", pasta::ArmMveStrictPolymorphismAttrSpelling::kC2xClangClangArmMveStrictPolymorphism)
     .value("SPELLING_NOT_CALCULATED", pasta::ArmMveStrictPolymorphismAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ArrayTypeArraySizeModifier>(m, "ArrayTypeArraySizeModifier")
+  nb::enum_<pasta::ArrayTypeArraySizeModifier>(m, "ArrayTypeArraySizeModifier")
     .value("NORMAL", pasta::ArrayTypeArraySizeModifier::kNormal)
     .value("STATIC", pasta::ArrayTypeArraySizeModifier::kStatic)
     .value("STAR", pasta::ArrayTypeArraySizeModifier::kStar);
 
-  py::enum_<pasta::ArtificialAttrSpelling>(m, "ArtificialAttrSpelling")
+  nb::enum_<pasta::ArtificialAttrSpelling>(m, "ArtificialAttrSpelling")
     .value("GNU_ARTIFICIAL", pasta::ArtificialAttrSpelling::kGNUArtificial)
     .value("CXX11_GNU_ARTIFICIAL", pasta::ArtificialAttrSpelling::kCXX11GnuArtificial)
     .value("C2X_GNU_ARTIFICIAL", pasta::ArtificialAttrSpelling::kC2xGnuArtificial)
     .value("SPELLING_NOT_CALCULATED", pasta::ArtificialAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AsmLabelAttrSpelling>(m, "AsmLabelAttrSpelling")
+  nb::enum_<pasta::AsmLabelAttrSpelling>(m, "AsmLabelAttrSpelling")
     .value("KEYWORD_ASSEMBLY", pasta::AsmLabelAttrSpelling::kKeywordAssembly)
     .value("SPELLING_NOT_CALCULATED", pasta::AsmLabelAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AssertCapabilityAttrSpelling>(m, "AssertCapabilityAttrSpelling")
+  nb::enum_<pasta::AssertCapabilityAttrSpelling>(m, "AssertCapabilityAttrSpelling")
     .value("GNU_ASSERT_CAPABILITY", pasta::AssertCapabilityAttrSpelling::kGNUAssertCapability)
     .value("CXX11_CLANG_ASSERT_CAPABILITY", pasta::AssertCapabilityAttrSpelling::kCXX11ClangAssertCapability)
     .value("GNU_ASSERT_SHARED_CAPABILITY", pasta::AssertCapabilityAttrSpelling::kGNUAssertSharedCapability)
     .value("CXX11_CLANG_ASSERT_SHARED_CAPABILITY", pasta::AssertCapabilityAttrSpelling::kCXX11ClangAssertSharedCapability)
     .value("SPELLING_NOT_CALCULATED", pasta::AssertCapabilityAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AssumeAlignedAttrSpelling>(m, "AssumeAlignedAttrSpelling")
+  nb::enum_<pasta::AssumeAlignedAttrSpelling>(m, "AssumeAlignedAttrSpelling")
     .value("GNU_ASSUME_ALIGNED", pasta::AssumeAlignedAttrSpelling::kGNUAssumeAligned)
     .value("CXX11_GNU_ASSUME_ALIGNED", pasta::AssumeAlignedAttrSpelling::kCXX11GnuAssumeAligned)
     .value("C2X_GNU_ASSUME_ALIGNED", pasta::AssumeAlignedAttrSpelling::kC2xGnuAssumeAligned)
     .value("SPELLING_NOT_CALCULATED", pasta::AssumeAlignedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AssumptionAttrSpelling>(m, "AssumptionAttrSpelling")
+  nb::enum_<pasta::AssumptionAttrSpelling>(m, "AssumptionAttrSpelling")
     .value("GNU_ASSUME", pasta::AssumptionAttrSpelling::kGNUAssume)
     .value("CXX11_CLANG_ASSUME", pasta::AssumptionAttrSpelling::kCXX11ClangAssume)
     .value("C2X_CLANG_ASSUME", pasta::AssumptionAttrSpelling::kC2xClangAssume)
     .value("SPELLING_NOT_CALCULATED", pasta::AssumptionAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::AtomicExprAtomicOp>(m, "AtomicExprAtomicOp")
+  nb::enum_<pasta::AtomicExprAtomicOp>(m, "AtomicExprAtomicOp")
     .value("C11_ATOMIC_INITIALIZER", pasta::AtomicExprAtomicOp::kC11AtomicInitializer)
     .value("C11_ATOMIC_LOAD", pasta::AtomicExprAtomicOp::kC11AtomicLoad)
     .value("C11_ATOMIC_STORE", pasta::AtomicExprAtomicOp::kC11AtomicStore)
@@ -297,46 +297,46 @@ void RegisterEnums(py::module_ &m) {
     .value("HIP_ATOMIC_FETCH_MIN", pasta::AtomicExprAtomicOp::kHipAtomicFetchMin)
     .value("HIP_ATOMIC_FETCH_MAX", pasta::AtomicExprAtomicOp::kHipAtomicFetchMax);
 
-  py::enum_<pasta::AvailabilityAttrSpelling>(m, "AvailabilityAttrSpelling")
+  nb::enum_<pasta::AvailabilityAttrSpelling>(m, "AvailabilityAttrSpelling")
     .value("GNU_AVAILABILITY", pasta::AvailabilityAttrSpelling::kGNUAvailability)
     .value("CXX11_CLANG_AVAILABILITY", pasta::AvailabilityAttrSpelling::kCXX11ClangAvailability)
     .value("C2X_CLANG_AVAILABILITY", pasta::AvailabilityAttrSpelling::kC2xClangAvailability)
     .value("SPELLING_NOT_CALCULATED", pasta::AvailabilityAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::BPFPreserveAccessIndexAttrSpelling>(m, "BPFPreserveAccessIndexAttrSpelling")
+  nb::enum_<pasta::BPFPreserveAccessIndexAttrSpelling>(m, "BPFPreserveAccessIndexAttrSpelling")
     .value("GNU_PRESERVE_ACCESS_INDEX", pasta::BPFPreserveAccessIndexAttrSpelling::kGNUPreserveAccessIndex)
     .value("CXX11_CLANG_PRESERVE_ACCESS_INDEX", pasta::BPFPreserveAccessIndexAttrSpelling::kCXX11ClangPreserveAccessIndex)
     .value("C2X_CLANG_PRESERVE_ACCESS_INDEX", pasta::BPFPreserveAccessIndexAttrSpelling::kC2xClangPreserveAccessIndex)
     .value("SPELLING_NOT_CALCULATED", pasta::BPFPreserveAccessIndexAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::BTFDeclTagAttrSpelling>(m, "BTFDeclTagAttrSpelling")
+  nb::enum_<pasta::BTFDeclTagAttrSpelling>(m, "BTFDeclTagAttrSpelling")
     .value("GNU_BTF_DECLARATION_TAG", pasta::BTFDeclTagAttrSpelling::kGNUBtfDeclarationTag)
     .value("CXX11_CLANG_BTF_DECLARATION_TAG", pasta::BTFDeclTagAttrSpelling::kCXX11ClangBtfDeclarationTag)
     .value("C2X_CLANG_BTF_DECLARATION_TAG", pasta::BTFDeclTagAttrSpelling::kC2xClangBtfDeclarationTag)
     .value("SPELLING_NOT_CALCULATED", pasta::BTFDeclTagAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::BTFTypeTagAttrSpelling>(m, "BTFTypeTagAttrSpelling")
+  nb::enum_<pasta::BTFTypeTagAttrSpelling>(m, "BTFTypeTagAttrSpelling")
     .value("GNU_BTF_TYPE_TAG", pasta::BTFTypeTagAttrSpelling::kGNUBtfTypeTag)
     .value("CXX11_CLANG_BTF_TYPE_TAG", pasta::BTFTypeTagAttrSpelling::kCXX11ClangBtfTypeTag)
     .value("C2X_CLANG_BTF_TYPE_TAG", pasta::BTFTypeTagAttrSpelling::kC2xClangBtfTypeTag)
     .value("SPELLING_NOT_CALCULATED", pasta::BTFTypeTagAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::BlocksAttrBlockType>(m, "BlocksAttrBlockType")
+  nb::enum_<pasta::BlocksAttrBlockType>(m, "BlocksAttrBlockType")
     .value("BY_REFERENCE", pasta::BlocksAttrBlockType::kByReference);
 
-  py::enum_<pasta::BlocksAttrSpelling>(m, "BlocksAttrSpelling")
+  nb::enum_<pasta::BlocksAttrSpelling>(m, "BlocksAttrSpelling")
     .value("GNU_BLOCKS", pasta::BlocksAttrSpelling::kGNUBlocks)
     .value("CXX11_CLANG_BLOCKS", pasta::BlocksAttrSpelling::kCXX11ClangBlocks)
     .value("C2X_CLANG_BLOCKS", pasta::BlocksAttrSpelling::kC2xClangBlocks)
     .value("SPELLING_NOT_CALCULATED", pasta::BlocksAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::BuiltinAliasAttrSpelling>(m, "BuiltinAliasAttrSpelling")
+  nb::enum_<pasta::BuiltinAliasAttrSpelling>(m, "BuiltinAliasAttrSpelling")
     .value("CXX11_CLANG_BUILTIN_ALIAS", pasta::BuiltinAliasAttrSpelling::kCXX11ClangBuiltinAlias)
     .value("C2X_CLANG_BUILTIN_ALIAS", pasta::BuiltinAliasAttrSpelling::kC2xClangBuiltinAlias)
     .value("GNU_CLANG_BUILTIN_ALIAS", pasta::BuiltinAliasAttrSpelling::kGNUClangBuiltinAlias)
     .value("SPELLING_NOT_CALCULATED", pasta::BuiltinAliasAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::BuiltinTypeKind>(m, "BuiltinTypeKind")
+  nb::enum_<pasta::BuiltinTypeKind>(m, "BuiltinTypeKind")
     .value("OCL_IMAGE_1D_RO", pasta::BuiltinTypeKind::kOCLImage1dRO)
     .value("OCL_IMAGE_1D_ARRAY_RO", pasta::BuiltinTypeKind::kOCLImage1dArrayRO)
     .value("OCL_IMAGE_1D_BUFFER_RO", pasta::BuiltinTypeKind::kOCLImage1dBufferRO)
@@ -576,273 +576,273 @@ void RegisterEnums(py::module_ &m) {
     .value("OMP_ARRAY_SHAPING", pasta::BuiltinTypeKind::kOMPArrayShaping)
     .value("OMP_ITERATOR", pasta::BuiltinTypeKind::kOMPIterator);
 
-  py::enum_<pasta::CDeclAttrSpelling>(m, "CDeclAttrSpelling")
+  nb::enum_<pasta::CDeclAttrSpelling>(m, "CDeclAttrSpelling")
     .value("GNU_CDECL", pasta::CDeclAttrSpelling::kGNUCdecl)
     .value("CXX11_GNU_CDECL", pasta::CDeclAttrSpelling::kCXX11GnuCdecl)
     .value("C2X_GNU_CDECL", pasta::CDeclAttrSpelling::kC2xGnuCdecl)
     .value("KEYWORD_CDECL", pasta::CDeclAttrSpelling::kKeywordCdecl)
     .value("SPELLING_NOT_CALCULATED", pasta::CDeclAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CFAuditedTransferAttrSpelling>(m, "CFAuditedTransferAttrSpelling")
+  nb::enum_<pasta::CFAuditedTransferAttrSpelling>(m, "CFAuditedTransferAttrSpelling")
     .value("GNU_CF_AUDITED_TRANSFER", pasta::CFAuditedTransferAttrSpelling::kGNUCfAuditedTransfer)
     .value("CXX11_CLANG_CF_AUDITED_TRANSFER", pasta::CFAuditedTransferAttrSpelling::kCXX11ClangCfAuditedTransfer)
     .value("C2X_CLANG_CF_AUDITED_TRANSFER", pasta::CFAuditedTransferAttrSpelling::kC2xClangCfAuditedTransfer)
     .value("SPELLING_NOT_CALCULATED", pasta::CFAuditedTransferAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CFConsumedAttrSpelling>(m, "CFConsumedAttrSpelling")
+  nb::enum_<pasta::CFConsumedAttrSpelling>(m, "CFConsumedAttrSpelling")
     .value("GNU_CF_CONSUMED", pasta::CFConsumedAttrSpelling::kGNUCfConsumed)
     .value("CXX11_CLANG_CF_CONSUMED", pasta::CFConsumedAttrSpelling::kCXX11ClangCfConsumed)
     .value("C2X_CLANG_CF_CONSUMED", pasta::CFConsumedAttrSpelling::kC2xClangCfConsumed)
     .value("SPELLING_NOT_CALCULATED", pasta::CFConsumedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CFGuardAttrGuardArg>(m, "CFGuardAttrGuardArg")
+  nb::enum_<pasta::CFGuardAttrGuardArg>(m, "CFGuardAttrGuardArg")
     .value("NOCF", pasta::CFGuardAttrGuardArg::kNocf);
 
-  py::enum_<pasta::CFGuardAttrSpelling>(m, "CFGuardAttrSpelling")
+  nb::enum_<pasta::CFGuardAttrSpelling>(m, "CFGuardAttrSpelling")
     .value("DECLSPEC_GUARD", pasta::CFGuardAttrSpelling::kDeclspecGuard)
     .value("GNU_GUARD", pasta::CFGuardAttrSpelling::kGNUGuard)
     .value("CXX11_CLANG_GUARD", pasta::CFGuardAttrSpelling::kCXX11ClangGuard)
     .value("C2X_CLANG_GUARD", pasta::CFGuardAttrSpelling::kC2xClangGuard)
     .value("SPELLING_NOT_CALCULATED", pasta::CFGuardAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CFICanonicalJumpTableAttrSpelling>(m, "CFICanonicalJumpTableAttrSpelling")
+  nb::enum_<pasta::CFICanonicalJumpTableAttrSpelling>(m, "CFICanonicalJumpTableAttrSpelling")
     .value("GNU_CFI_CANONICAL_JUMP_TABLE", pasta::CFICanonicalJumpTableAttrSpelling::kGNUCfiCanonicalJumpTable)
     .value("CXX11_CLANG_CFI_CANONICAL_JUMP_TABLE", pasta::CFICanonicalJumpTableAttrSpelling::kCXX11ClangCfiCanonicalJumpTable)
     .value("C2X_CLANG_CFI_CANONICAL_JUMP_TABLE", pasta::CFICanonicalJumpTableAttrSpelling::kC2xClangCfiCanonicalJumpTable)
     .value("SPELLING_NOT_CALCULATED", pasta::CFICanonicalJumpTableAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CFReturnsNotRetainedAttrSpelling>(m, "CFReturnsNotRetainedAttrSpelling")
+  nb::enum_<pasta::CFReturnsNotRetainedAttrSpelling>(m, "CFReturnsNotRetainedAttrSpelling")
     .value("GNU_CF_RETURNS_NOT_RETAINED", pasta::CFReturnsNotRetainedAttrSpelling::kGNUCfReturnsNotRetained)
     .value("CXX11_CLANG_CF_RETURNS_NOT_RETAINED", pasta::CFReturnsNotRetainedAttrSpelling::kCXX11ClangCfReturnsNotRetained)
     .value("C2X_CLANG_CF_RETURNS_NOT_RETAINED", pasta::CFReturnsNotRetainedAttrSpelling::kC2xClangCfReturnsNotRetained)
     .value("SPELLING_NOT_CALCULATED", pasta::CFReturnsNotRetainedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CFReturnsRetainedAttrSpelling>(m, "CFReturnsRetainedAttrSpelling")
+  nb::enum_<pasta::CFReturnsRetainedAttrSpelling>(m, "CFReturnsRetainedAttrSpelling")
     .value("GNU_CF_RETURNS_RETAINED", pasta::CFReturnsRetainedAttrSpelling::kGNUCfReturnsRetained)
     .value("CXX11_CLANG_CF_RETURNS_RETAINED", pasta::CFReturnsRetainedAttrSpelling::kCXX11ClangCfReturnsRetained)
     .value("C2X_CLANG_CF_RETURNS_RETAINED", pasta::CFReturnsRetainedAttrSpelling::kC2xClangCfReturnsRetained)
     .value("SPELLING_NOT_CALCULATED", pasta::CFReturnsRetainedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CFUnknownTransferAttrSpelling>(m, "CFUnknownTransferAttrSpelling")
+  nb::enum_<pasta::CFUnknownTransferAttrSpelling>(m, "CFUnknownTransferAttrSpelling")
     .value("GNU_CF_UNKNOWN_TRANSFER", pasta::CFUnknownTransferAttrSpelling::kGNUCfUnknownTransfer)
     .value("CXX11_CLANG_CF_UNKNOWN_TRANSFER", pasta::CFUnknownTransferAttrSpelling::kCXX11ClangCfUnknownTransfer)
     .value("C2X_CLANG_CF_UNKNOWN_TRANSFER", pasta::CFUnknownTransferAttrSpelling::kC2xClangCfUnknownTransfer)
     .value("SPELLING_NOT_CALCULATED", pasta::CFUnknownTransferAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CPUDispatchAttrSpelling>(m, "CPUDispatchAttrSpelling")
+  nb::enum_<pasta::CPUDispatchAttrSpelling>(m, "CPUDispatchAttrSpelling")
     .value("GNU_CPU_DISPATCH", pasta::CPUDispatchAttrSpelling::kGNUCpuDispatch)
     .value("CXX11_CLANG_CPU_DISPATCH", pasta::CPUDispatchAttrSpelling::kCXX11ClangCpuDispatch)
     .value("C2X_CLANG_CPU_DISPATCH", pasta::CPUDispatchAttrSpelling::kC2xClangCpuDispatch)
     .value("DECLSPEC_CPU_DISPATCH", pasta::CPUDispatchAttrSpelling::kDeclspecCpuDispatch)
     .value("SPELLING_NOT_CALCULATED", pasta::CPUDispatchAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CPUSpecificAttrSpelling>(m, "CPUSpecificAttrSpelling")
+  nb::enum_<pasta::CPUSpecificAttrSpelling>(m, "CPUSpecificAttrSpelling")
     .value("GNU_CPU_SPECIFIC", pasta::CPUSpecificAttrSpelling::kGNUCpuSpecific)
     .value("CXX11_CLANG_CPU_SPECIFIC", pasta::CPUSpecificAttrSpelling::kCXX11ClangCpuSpecific)
     .value("C2X_CLANG_CPU_SPECIFIC", pasta::CPUSpecificAttrSpelling::kC2xClangCpuSpecific)
     .value("DECLSPEC_CPU_SPECIFIC", pasta::CPUSpecificAttrSpelling::kDeclspecCpuSpecific)
     .value("SPELLING_NOT_CALCULATED", pasta::CPUSpecificAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CUDAConstantAttrSpelling>(m, "CUDAConstantAttrSpelling")
+  nb::enum_<pasta::CUDAConstantAttrSpelling>(m, "CUDAConstantAttrSpelling")
     .value("GNU_CONSTANT", pasta::CUDAConstantAttrSpelling::kGNUConstant)
     .value("DECLSPEC_CONSTANT", pasta::CUDAConstantAttrSpelling::kDeclspecConstant)
     .value("SPELLING_NOT_CALCULATED", pasta::CUDAConstantAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CUDADeviceAttrSpelling>(m, "CUDADeviceAttrSpelling")
+  nb::enum_<pasta::CUDADeviceAttrSpelling>(m, "CUDADeviceAttrSpelling")
     .value("GNU_DEVICE", pasta::CUDADeviceAttrSpelling::kGNUDevice)
     .value("DECLSPEC_DEVICE", pasta::CUDADeviceAttrSpelling::kDeclspecDevice)
     .value("SPELLING_NOT_CALCULATED", pasta::CUDADeviceAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CUDADeviceBuiltinSurfaceTypeAttrSpelling>(m, "CUDADeviceBuiltinSurfaceTypeAttrSpelling")
+  nb::enum_<pasta::CUDADeviceBuiltinSurfaceTypeAttrSpelling>(m, "CUDADeviceBuiltinSurfaceTypeAttrSpelling")
     .value("GNU_DEVICE_BUILTIN_SURFACE_TYPE", pasta::CUDADeviceBuiltinSurfaceTypeAttrSpelling::kGNUDeviceBuiltinSurfaceType)
     .value("DECLSPEC_DEVICE_BUILTIN_SURFACE_TYPE", pasta::CUDADeviceBuiltinSurfaceTypeAttrSpelling::kDeclspecDeviceBuiltinSurfaceType)
     .value("SPELLING_NOT_CALCULATED", pasta::CUDADeviceBuiltinSurfaceTypeAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CUDADeviceBuiltinTextureTypeAttrSpelling>(m, "CUDADeviceBuiltinTextureTypeAttrSpelling")
+  nb::enum_<pasta::CUDADeviceBuiltinTextureTypeAttrSpelling>(m, "CUDADeviceBuiltinTextureTypeAttrSpelling")
     .value("GNU_DEVICE_BUILTIN_TEXTURE_TYPE", pasta::CUDADeviceBuiltinTextureTypeAttrSpelling::kGNUDeviceBuiltinTextureType)
     .value("DECLSPEC_DEVICE_BUILTIN_TEXTURE_TYPE", pasta::CUDADeviceBuiltinTextureTypeAttrSpelling::kDeclspecDeviceBuiltinTextureType)
     .value("SPELLING_NOT_CALCULATED", pasta::CUDADeviceBuiltinTextureTypeAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CUDAGlobalAttrSpelling>(m, "CUDAGlobalAttrSpelling")
+  nb::enum_<pasta::CUDAGlobalAttrSpelling>(m, "CUDAGlobalAttrSpelling")
     .value("GNU_GLOBAL", pasta::CUDAGlobalAttrSpelling::kGNUGlobal)
     .value("DECLSPEC_GLOBAL", pasta::CUDAGlobalAttrSpelling::kDeclspecGlobal)
     .value("SPELLING_NOT_CALCULATED", pasta::CUDAGlobalAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CUDAHostAttrSpelling>(m, "CUDAHostAttrSpelling")
+  nb::enum_<pasta::CUDAHostAttrSpelling>(m, "CUDAHostAttrSpelling")
     .value("GNU_HOST", pasta::CUDAHostAttrSpelling::kGNUHost)
     .value("DECLSPEC_HOST", pasta::CUDAHostAttrSpelling::kDeclspecHost)
     .value("SPELLING_NOT_CALCULATED", pasta::CUDAHostAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CUDALaunchBoundsAttrSpelling>(m, "CUDALaunchBoundsAttrSpelling")
+  nb::enum_<pasta::CUDALaunchBoundsAttrSpelling>(m, "CUDALaunchBoundsAttrSpelling")
     .value("GNU_LAUNCH_BOUNDS", pasta::CUDALaunchBoundsAttrSpelling::kGNULaunchBounds)
     .value("DECLSPEC_LAUNCH_BOUNDS", pasta::CUDALaunchBoundsAttrSpelling::kDeclspecLaunchBounds)
     .value("SPELLING_NOT_CALCULATED", pasta::CUDALaunchBoundsAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CUDASharedAttrSpelling>(m, "CUDASharedAttrSpelling")
+  nb::enum_<pasta::CUDASharedAttrSpelling>(m, "CUDASharedAttrSpelling")
     .value("GNU_SHARED", pasta::CUDASharedAttrSpelling::kGNUShared)
     .value("DECLSPEC_SHARED", pasta::CUDASharedAttrSpelling::kDeclspecShared)
     .value("SPELLING_NOT_CALCULATED", pasta::CUDASharedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CXX11NoReturnAttrSpelling>(m, "CXX11NoReturnAttrSpelling")
+  nb::enum_<pasta::CXX11NoReturnAttrSpelling>(m, "CXX11NoReturnAttrSpelling")
     .value("CXX11_NORETURN", pasta::CXX11NoReturnAttrSpelling::kCXX11Noreturn)
     .value("C2XNORETURN", pasta::CXX11NoReturnAttrSpelling::kC2xnoreturn)
     .value("C2X_NORETURN", pasta::CXX11NoReturnAttrSpelling::kC2xNoreturn)
     .value("SPELLING_NOT_CALCULATED", pasta::CXX11NoReturnAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CXXConstructExprConstructionKind>(m, "CXXConstructExprConstructionKind")
+  nb::enum_<pasta::CXXConstructExprConstructionKind>(m, "CXXConstructExprConstructionKind")
     .value("COMPLETE", pasta::CXXConstructExprConstructionKind::kComplete)
     .value("NON_VIRTUAL_BASE", pasta::CXXConstructExprConstructionKind::kNonVirtualBase)
     .value("VIRTUAL_BASE", pasta::CXXConstructExprConstructionKind::kVirtualBase)
     .value("DELEGATING", pasta::CXXConstructExprConstructionKind::kDelegating);
 
-  py::enum_<pasta::CXXNewExprInitializationStyle>(m, "CXXNewExprInitializationStyle")
+  nb::enum_<pasta::CXXNewExprInitializationStyle>(m, "CXXNewExprInitializationStyle")
     .value("NO_INITIALIZER", pasta::CXXNewExprInitializationStyle::kNoInitializer)
     .value("CALL_INITIALIZER", pasta::CXXNewExprInitializationStyle::kCallInitializer)
     .value("LIST_INITIALIZER", pasta::CXXNewExprInitializationStyle::kListInitializer);
 
-  py::enum_<pasta::CXXRecordDeclLambdaDependencyKind>(m, "CXXRecordDeclLambdaDependencyKind")
+  nb::enum_<pasta::CXXRecordDeclLambdaDependencyKind>(m, "CXXRecordDeclLambdaDependencyKind")
     .value("UNKNOWN", pasta::CXXRecordDeclLambdaDependencyKind::kUnknown)
     .value("ALWAYS_DEPENDENT", pasta::CXXRecordDeclLambdaDependencyKind::kAlwaysDependent)
     .value("NEVER_DEPENDENT", pasta::CXXRecordDeclLambdaDependencyKind::kNeverDependent);
 
-  py::enum_<pasta::CallExprADLCallKind>(m, "CallExprADLCallKind")
+  nb::enum_<pasta::CallExprADLCallKind>(m, "CallExprADLCallKind")
     .value("NOT_ADL", pasta::CallExprADLCallKind::kNotADL)
     .value("USES_ADL", pasta::CallExprADLCallKind::kUsesADL);
 
-  py::enum_<pasta::CallableWhenAttrConsumedState>(m, "CallableWhenAttrConsumedState")
+  nb::enum_<pasta::CallableWhenAttrConsumedState>(m, "CallableWhenAttrConsumedState")
     .value("UNKNOWN", pasta::CallableWhenAttrConsumedState::kUnknown)
     .value("CONSUMED", pasta::CallableWhenAttrConsumedState::kConsumed)
     .value("UNCONSUMED", pasta::CallableWhenAttrConsumedState::kUnconsumed);
 
-  py::enum_<pasta::CallableWhenAttrSpelling>(m, "CallableWhenAttrSpelling")
+  nb::enum_<pasta::CallableWhenAttrSpelling>(m, "CallableWhenAttrSpelling")
     .value("GNU_CALLABLE_WHEN", pasta::CallableWhenAttrSpelling::kGNUCallableWhen)
     .value("CXX11_CLANG_CALLABLE_WHEN", pasta::CallableWhenAttrSpelling::kCXX11ClangCallableWhen)
     .value("SPELLING_NOT_CALCULATED", pasta::CallableWhenAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CallbackAttrSpelling>(m, "CallbackAttrSpelling")
+  nb::enum_<pasta::CallbackAttrSpelling>(m, "CallbackAttrSpelling")
     .value("GNU_CALLBACK", pasta::CallbackAttrSpelling::kGNUCallback)
     .value("CXX11_CLANG_CALLBACK", pasta::CallbackAttrSpelling::kCXX11ClangCallback)
     .value("C2X_CLANG_CALLBACK", pasta::CallbackAttrSpelling::kC2xClangCallback)
     .value("SPELLING_NOT_CALCULATED", pasta::CallbackAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CalledOnceAttrSpelling>(m, "CalledOnceAttrSpelling")
+  nb::enum_<pasta::CalledOnceAttrSpelling>(m, "CalledOnceAttrSpelling")
     .value("GNU_CALLED_ONCE", pasta::CalledOnceAttrSpelling::kGNUCalledOnce)
     .value("CXX11_CLANG_CALLED_ONCE", pasta::CalledOnceAttrSpelling::kCXX11ClangCalledOnce)
     .value("C2X_CLANG_CALLED_ONCE", pasta::CalledOnceAttrSpelling::kC2xClangCalledOnce)
     .value("SPELLING_NOT_CALCULATED", pasta::CalledOnceAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CapabilityAttrSpelling>(m, "CapabilityAttrSpelling")
+  nb::enum_<pasta::CapabilityAttrSpelling>(m, "CapabilityAttrSpelling")
     .value("GNU_CAPABILITY", pasta::CapabilityAttrSpelling::kGNUCapability)
     .value("CXX11_CLANG_CAPABILITY", pasta::CapabilityAttrSpelling::kCXX11ClangCapability)
     .value("GNU_SHARED_CAPABILITY", pasta::CapabilityAttrSpelling::kGNUSharedCapability)
     .value("CXX11_CLANG_SHARED_CAPABILITY", pasta::CapabilityAttrSpelling::kCXX11ClangSharedCapability)
     .value("SPELLING_NOT_CALCULATED", pasta::CapabilityAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CapturedStmtVariableCaptureKind>(m, "CapturedStmtVariableCaptureKind")
+  nb::enum_<pasta::CapturedStmtVariableCaptureKind>(m, "CapturedStmtVariableCaptureKind")
     .value("THIS", pasta::CapturedStmtVariableCaptureKind::kThis)
     .value("BY_REFERENCE", pasta::CapturedStmtVariableCaptureKind::kByReference)
     .value("BY_COPY", pasta::CapturedStmtVariableCaptureKind::kByCopy)
     .value("VLA_TYPE", pasta::CapturedStmtVariableCaptureKind::kVLAType);
 
-  py::enum_<pasta::CarriesDependencyAttrSpelling>(m, "CarriesDependencyAttrSpelling")
+  nb::enum_<pasta::CarriesDependencyAttrSpelling>(m, "CarriesDependencyAttrSpelling")
     .value("GNU_CARRIES_DEPENDENCY", pasta::CarriesDependencyAttrSpelling::kGNUCarriesDependency)
     .value("CXX11_CARRIES_DEPENDENCY", pasta::CarriesDependencyAttrSpelling::kCXX11CarriesDependency)
     .value("SPELLING_NOT_CALCULATED", pasta::CarriesDependencyAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CharacterLiteralCharacterKind>(m, "CharacterLiteralCharacterKind")
+  nb::enum_<pasta::CharacterLiteralCharacterKind>(m, "CharacterLiteralCharacterKind")
     .value("ASCII", pasta::CharacterLiteralCharacterKind::kAscii)
     .value("WIDE", pasta::CharacterLiteralCharacterKind::kWide)
     .value("UTF8", pasta::CharacterLiteralCharacterKind::kUTF8)
     .value("UTF16", pasta::CharacterLiteralCharacterKind::kUTF16)
     .value("UTF32", pasta::CharacterLiteralCharacterKind::kUTF32);
 
-  py::enum_<pasta::CleanupAttrSpelling>(m, "CleanupAttrSpelling")
+  nb::enum_<pasta::CleanupAttrSpelling>(m, "CleanupAttrSpelling")
     .value("GNU_CLEANUP", pasta::CleanupAttrSpelling::kGNUCleanup)
     .value("CXX11_GNU_CLEANUP", pasta::CleanupAttrSpelling::kCXX11GnuCleanup)
     .value("C2X_GNU_CLEANUP", pasta::CleanupAttrSpelling::kC2xGnuCleanup)
     .value("SPELLING_NOT_CALCULATED", pasta::CleanupAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ColdAttrSpelling>(m, "ColdAttrSpelling")
+  nb::enum_<pasta::ColdAttrSpelling>(m, "ColdAttrSpelling")
     .value("GNU_COLD", pasta::ColdAttrSpelling::kGNUCold)
     .value("CXX11_GNU_COLD", pasta::ColdAttrSpelling::kCXX11GnuCold)
     .value("C2X_GNU_COLD", pasta::ColdAttrSpelling::kC2xGnuCold)
     .value("SPELLING_NOT_CALCULATED", pasta::ColdAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::CommonAttrSpelling>(m, "CommonAttrSpelling")
+  nb::enum_<pasta::CommonAttrSpelling>(m, "CommonAttrSpelling")
     .value("GNU_COMMON", pasta::CommonAttrSpelling::kGNUCommon)
     .value("CXX11_GNU_COMMON", pasta::CommonAttrSpelling::kCXX11GnuCommon)
     .value("C2X_GNU_COMMON", pasta::CommonAttrSpelling::kC2xGnuCommon)
     .value("SPELLING_NOT_CALCULATED", pasta::CommonAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ConstAttrSpelling>(m, "ConstAttrSpelling")
+  nb::enum_<pasta::ConstAttrSpelling>(m, "ConstAttrSpelling")
     .value("GNU_CONST", pasta::ConstAttrSpelling::kGNUConst)
     .value("CXX11_GNU_CONST", pasta::ConstAttrSpelling::kCXX11GnuConst)
     .value("C2X_GNU_CONST", pasta::ConstAttrSpelling::kC2xGnuConst)
     .value("SPELLING_NOT_CALCULATED", pasta::ConstAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ConstInitAttrSpelling>(m, "ConstInitAttrSpelling")
+  nb::enum_<pasta::ConstInitAttrSpelling>(m, "ConstInitAttrSpelling")
     .value("KEYWORD_CONSTINIT", pasta::ConstInitAttrSpelling::kKeywordConstinit)
     .value("GNU_REQUIRE_CONSTANT_INITIALIZATION", pasta::ConstInitAttrSpelling::kGNURequireConstantInitialization)
     .value("CXX11_CLANG_REQUIRE_CONSTANT_INITIALIZATION", pasta::ConstInitAttrSpelling::kCXX11ClangRequireConstantInitialization)
     .value("SPELLING_NOT_CALCULATED", pasta::ConstInitAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ConstantExprResultStorageKind>(m, "ConstantExprResultStorageKind")
+  nb::enum_<pasta::ConstantExprResultStorageKind>(m, "ConstantExprResultStorageKind")
     .value("NONE", pasta::ConstantExprResultStorageKind::kNone)
     .value("INT64", pasta::ConstantExprResultStorageKind::kInt64)
     .value("AP_VALUE", pasta::ConstantExprResultStorageKind::kAPValue);
 
-  py::enum_<pasta::ConstructorAttrSpelling>(m, "ConstructorAttrSpelling")
+  nb::enum_<pasta::ConstructorAttrSpelling>(m, "ConstructorAttrSpelling")
     .value("GNU_CONSTRUCTOR", pasta::ConstructorAttrSpelling::kGNUConstructor)
     .value("CXX11_GNU_CONSTRUCTOR", pasta::ConstructorAttrSpelling::kCXX11GnuConstructor)
     .value("C2X_GNU_CONSTRUCTOR", pasta::ConstructorAttrSpelling::kC2xGnuConstructor)
     .value("SPELLING_NOT_CALCULATED", pasta::ConstructorAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ConsumableAttrConsumedState>(m, "ConsumableAttrConsumedState")
+  nb::enum_<pasta::ConsumableAttrConsumedState>(m, "ConsumableAttrConsumedState")
     .value("UNKNOWN", pasta::ConsumableAttrConsumedState::kUnknown)
     .value("CONSUMED", pasta::ConsumableAttrConsumedState::kConsumed)
     .value("UNCONSUMED", pasta::ConsumableAttrConsumedState::kUnconsumed);
 
-  py::enum_<pasta::ConsumableAttrSpelling>(m, "ConsumableAttrSpelling")
+  nb::enum_<pasta::ConsumableAttrSpelling>(m, "ConsumableAttrSpelling")
     .value("GNU_CONSUMABLE", pasta::ConsumableAttrSpelling::kGNUConsumable)
     .value("CXX11_CLANG_CONSUMABLE", pasta::ConsumableAttrSpelling::kCXX11ClangConsumable)
     .value("SPELLING_NOT_CALCULATED", pasta::ConsumableAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ConsumableAutoCastAttrSpelling>(m, "ConsumableAutoCastAttrSpelling")
+  nb::enum_<pasta::ConsumableAutoCastAttrSpelling>(m, "ConsumableAutoCastAttrSpelling")
     .value("GNU_CONSUMABLE_AUTO_CAST_STATE", pasta::ConsumableAutoCastAttrSpelling::kGNUConsumableAutoCastState)
     .value("CXX11_CLANG_CONSUMABLE_AUTO_CAST_STATE", pasta::ConsumableAutoCastAttrSpelling::kCXX11ClangConsumableAutoCastState)
     .value("SPELLING_NOT_CALCULATED", pasta::ConsumableAutoCastAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ConsumableSetOnReadAttrSpelling>(m, "ConsumableSetOnReadAttrSpelling")
+  nb::enum_<pasta::ConsumableSetOnReadAttrSpelling>(m, "ConsumableSetOnReadAttrSpelling")
     .value("GNU_CONSUMABLE_STATE_ON_READ", pasta::ConsumableSetOnReadAttrSpelling::kGNUConsumableStateOnRead)
     .value("CXX11_CLANG_CONSUMABLE_STATE_ON_READ", pasta::ConsumableSetOnReadAttrSpelling::kCXX11ClangConsumableStateOnRead)
     .value("SPELLING_NOT_CALCULATED", pasta::ConsumableSetOnReadAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ConvergentAttrSpelling>(m, "ConvergentAttrSpelling")
+  nb::enum_<pasta::ConvergentAttrSpelling>(m, "ConvergentAttrSpelling")
     .value("GNU_CONVERGENT", pasta::ConvergentAttrSpelling::kGNUConvergent)
     .value("CXX11_CLANG_CONVERGENT", pasta::ConvergentAttrSpelling::kCXX11ClangConvergent)
     .value("C2X_CLANG_CONVERGENT", pasta::ConvergentAttrSpelling::kC2xClangConvergent)
     .value("SPELLING_NOT_CALCULATED", pasta::ConvergentAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::DLLExportAttrSpelling>(m, "DLLExportAttrSpelling")
+  nb::enum_<pasta::DLLExportAttrSpelling>(m, "DLLExportAttrSpelling")
     .value("DECLSPEC_DLLEXPORT", pasta::DLLExportAttrSpelling::kDeclspecDllexport)
     .value("GNU_DLLEXPORT", pasta::DLLExportAttrSpelling::kGNUDllexport)
     .value("CXX11_GNU_DLLEXPORT", pasta::DLLExportAttrSpelling::kCXX11GnuDllexport)
     .value("C2X_GNU_DLLEXPORT", pasta::DLLExportAttrSpelling::kC2xGnuDllexport)
     .value("SPELLING_NOT_CALCULATED", pasta::DLLExportAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::DLLImportAttrSpelling>(m, "DLLImportAttrSpelling")
+  nb::enum_<pasta::DLLImportAttrSpelling>(m, "DLLImportAttrSpelling")
     .value("DECLSPEC_DLLIMPORT", pasta::DLLImportAttrSpelling::kDeclspecDllimport)
     .value("GNU_DLLIMPORT", pasta::DLLImportAttrSpelling::kGNUDllimport)
     .value("CXX11_GNU_DLLIMPORT", pasta::DLLImportAttrSpelling::kCXX11GnuDllimport)
     .value("C2X_GNU_DLLIMPORT", pasta::DLLImportAttrSpelling::kC2xGnuDllimport)
     .value("SPELLING_NOT_CALCULATED", pasta::DLLImportAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::DeclFriendObjectKind>(m, "DeclFriendObjectKind")
+  nb::enum_<pasta::DeclFriendObjectKind>(m, "DeclFriendObjectKind")
     .value("NONE", pasta::DeclFriendObjectKind::kNone)
     .value("DECLARED", pasta::DeclFriendObjectKind::kDeclared)
     .value("UNDECLARED", pasta::DeclFriendObjectKind::kUndeclared);
 
-  py::enum_<pasta::DeclIdentifierNamespace>(m, "DeclIdentifierNamespace")
+  nb::enum_<pasta::DeclIdentifierNamespace>(m, "DeclIdentifierNamespace")
     .value("LABEL", pasta::DeclIdentifierNamespace::kLabel)
     .value("TAG", pasta::DeclIdentifierNamespace::kTag)
     .value("TYPE", pasta::DeclIdentifierNamespace::kType)
@@ -858,14 +858,14 @@ void RegisterEnums(py::module_ &m) {
     .value("OMP_REDUCTION", pasta::DeclIdentifierNamespace::kOMPReduction)
     .value("OMP_MAPPER", pasta::DeclIdentifierNamespace::kOMPMapper);
 
-  py::enum_<pasta::DeclModuleOwnershipKind>(m, "DeclModuleOwnershipKind")
+  nb::enum_<pasta::DeclModuleOwnershipKind>(m, "DeclModuleOwnershipKind")
     .value("UNOWNED", pasta::DeclModuleOwnershipKind::kUnowned)
     .value("VISIBLE", pasta::DeclModuleOwnershipKind::kVisible)
     .value("VISIBLE_WHEN_IMPORTED", pasta::DeclModuleOwnershipKind::kVisibleWhenImported)
     .value("REACHABLE_WHEN_IMPORTED", pasta::DeclModuleOwnershipKind::kReachableWhenImported)
     .value("MODULE_PRIVATE", pasta::DeclModuleOwnershipKind::kModulePrivate);
 
-  py::enum_<pasta::DeclObjCDeclQualifier>(m, "DeclObjCDeclQualifier")
+  nb::enum_<pasta::DeclObjCDeclQualifier>(m, "DeclObjCDeclQualifier")
     .value("NONE", pasta::DeclObjCDeclQualifier::kNone)
     .value("IN", pasta::DeclObjCDeclQualifier::kIn)
     .value("INOUT", pasta::DeclObjCDeclQualifier::kInout)
@@ -875,7 +875,7 @@ void RegisterEnums(py::module_ &m) {
     .value("ONEWAY", pasta::DeclObjCDeclQualifier::kOneway)
     .value("CS_NULLABILITY", pasta::DeclObjCDeclQualifier::kCSNullability);
 
-  py::enum_<pasta::DeprecatedAttrSpelling>(m, "DeprecatedAttrSpelling")
+  nb::enum_<pasta::DeprecatedAttrSpelling>(m, "DeprecatedAttrSpelling")
     .value("GNU_DEPRECATED", pasta::DeprecatedAttrSpelling::kGNUDeprecated)
     .value("CXX11_GNU_DEPRECATED", pasta::DeprecatedAttrSpelling::kCXX11GnuDeprecated)
     .value("C2X_GNU_DEPRECATED", pasta::DeprecatedAttrSpelling::kC2xGnuDeprecated)
@@ -884,57 +884,57 @@ void RegisterEnums(py::module_ &m) {
     .value("C2X_DEPRECATED", pasta::DeprecatedAttrSpelling::kC2xDeprecated)
     .value("SPELLING_NOT_CALCULATED", pasta::DeprecatedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::DestructorAttrSpelling>(m, "DestructorAttrSpelling")
+  nb::enum_<pasta::DestructorAttrSpelling>(m, "DestructorAttrSpelling")
     .value("GNU_DESTRUCTOR", pasta::DestructorAttrSpelling::kGNUDestructor)
     .value("CXX11_GNU_DESTRUCTOR", pasta::DestructorAttrSpelling::kCXX11GnuDestructor)
     .value("C2X_GNU_DESTRUCTOR", pasta::DestructorAttrSpelling::kC2xGnuDestructor)
     .value("SPELLING_NOT_CALCULATED", pasta::DestructorAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::DiagnoseAsBuiltinAttrSpelling>(m, "DiagnoseAsBuiltinAttrSpelling")
+  nb::enum_<pasta::DiagnoseAsBuiltinAttrSpelling>(m, "DiagnoseAsBuiltinAttrSpelling")
     .value("GNU_DIAGNOSE_AS_BUILTIN", pasta::DiagnoseAsBuiltinAttrSpelling::kGNUDiagnoseAsBuiltin)
     .value("CXX11_CLANG_DIAGNOSE_AS_BUILTIN", pasta::DiagnoseAsBuiltinAttrSpelling::kCXX11ClangDiagnoseAsBuiltin)
     .value("C2X_CLANG_DIAGNOSE_AS_BUILTIN", pasta::DiagnoseAsBuiltinAttrSpelling::kC2xClangDiagnoseAsBuiltin)
     .value("SPELLING_NOT_CALCULATED", pasta::DiagnoseAsBuiltinAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::DiagnoseIfAttrDiagnosticType>(m, "DiagnoseIfAttrDiagnosticType")
+  nb::enum_<pasta::DiagnoseIfAttrDiagnosticType>(m, "DiagnoseIfAttrDiagnosticType")
     .value("ERROR", pasta::DiagnoseIfAttrDiagnosticType::kError)
     .value("WARNING", pasta::DiagnoseIfAttrDiagnosticType::kWarning);
 
-  py::enum_<pasta::DisableSanitizerInstrumentationAttrSpelling>(m, "DisableSanitizerInstrumentationAttrSpelling")
+  nb::enum_<pasta::DisableSanitizerInstrumentationAttrSpelling>(m, "DisableSanitizerInstrumentationAttrSpelling")
     .value("GNU_DISABLE_SANITIZER_INSTRUMENTATION", pasta::DisableSanitizerInstrumentationAttrSpelling::kGNUDisableSanitizerInstrumentation)
     .value("CXX11_CLANG_DISABLE_SANITIZER_INSTRUMENTATION", pasta::DisableSanitizerInstrumentationAttrSpelling::kCXX11ClangDisableSanitizerInstrumentation)
     .value("C2X_CLANG_DISABLE_SANITIZER_INSTRUMENTATION", pasta::DisableSanitizerInstrumentationAttrSpelling::kC2xClangDisableSanitizerInstrumentation)
     .value("SPELLING_NOT_CALCULATED", pasta::DisableSanitizerInstrumentationAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::DisableTailCallsAttrSpelling>(m, "DisableTailCallsAttrSpelling")
+  nb::enum_<pasta::DisableTailCallsAttrSpelling>(m, "DisableTailCallsAttrSpelling")
     .value("GNU_DISABLE_TAIL_CALLS", pasta::DisableTailCallsAttrSpelling::kGNUDisableTailCalls)
     .value("CXX11_CLANG_DISABLE_TAIL_CALLS", pasta::DisableTailCallsAttrSpelling::kCXX11ClangDisableTailCalls)
     .value("C2X_CLANG_DISABLE_TAIL_CALLS", pasta::DisableTailCallsAttrSpelling::kC2xClangDisableTailCalls)
     .value("SPELLING_NOT_CALCULATED", pasta::DisableTailCallsAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::EnforceTCBAttrSpelling>(m, "EnforceTCBAttrSpelling")
+  nb::enum_<pasta::EnforceTCBAttrSpelling>(m, "EnforceTCBAttrSpelling")
     .value("GNU_ENFORCE_TCB", pasta::EnforceTCBAttrSpelling::kGNUEnforceTcb)
     .value("CXX11_CLANG_ENFORCE_TCB", pasta::EnforceTCBAttrSpelling::kCXX11ClangEnforceTcb)
     .value("C2X_CLANG_ENFORCE_TCB", pasta::EnforceTCBAttrSpelling::kC2xClangEnforceTcb)
     .value("SPELLING_NOT_CALCULATED", pasta::EnforceTCBAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::EnforceTCBLeafAttrSpelling>(m, "EnforceTCBLeafAttrSpelling")
+  nb::enum_<pasta::EnforceTCBLeafAttrSpelling>(m, "EnforceTCBLeafAttrSpelling")
     .value("GNU_ENFORCE_TCB_LEAF", pasta::EnforceTCBLeafAttrSpelling::kGNUEnforceTcbLeaf)
     .value("CXX11_CLANG_ENFORCE_TCB_LEAF", pasta::EnforceTCBLeafAttrSpelling::kCXX11ClangEnforceTcbLeaf)
     .value("C2X_CLANG_ENFORCE_TCB_LEAF", pasta::EnforceTCBLeafAttrSpelling::kC2xClangEnforceTcbLeaf)
     .value("SPELLING_NOT_CALCULATED", pasta::EnforceTCBLeafAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::EnumExtensibilityAttrKind>(m, "EnumExtensibilityAttrKind")
+  nb::enum_<pasta::EnumExtensibilityAttrKind>(m, "EnumExtensibilityAttrKind")
     .value("CLOSED", pasta::EnumExtensibilityAttrKind::kClosed)
     .value("OPEN", pasta::EnumExtensibilityAttrKind::kOpen);
 
-  py::enum_<pasta::EnumExtensibilityAttrSpelling>(m, "EnumExtensibilityAttrSpelling")
+  nb::enum_<pasta::EnumExtensibilityAttrSpelling>(m, "EnumExtensibilityAttrSpelling")
     .value("GNU_ENUM_EXTENSIBILITY", pasta::EnumExtensibilityAttrSpelling::kGNUEnumExtensibility)
     .value("CXX11_CLANG_ENUM_EXTENSIBILITY", pasta::EnumExtensibilityAttrSpelling::kCXX11ClangEnumExtensibility)
     .value("C2X_CLANG_ENUM_EXTENSIBILITY", pasta::EnumExtensibilityAttrSpelling::kC2xClangEnumExtensibility)
     .value("SPELLING_NOT_CALCULATED", pasta::EnumExtensibilityAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ErrorAttrSpelling>(m, "ErrorAttrSpelling")
+  nb::enum_<pasta::ErrorAttrSpelling>(m, "ErrorAttrSpelling")
     .value("GNU_ERROR", pasta::ErrorAttrSpelling::kGNUError)
     .value("CXX11_GNU_ERROR", pasta::ErrorAttrSpelling::kCXX11GnuError)
     .value("C2X_GNU_ERROR", pasta::ErrorAttrSpelling::kC2xGnuError)
@@ -943,19 +943,19 @@ void RegisterEnums(py::module_ &m) {
     .value("C2X_GNU_WARNING", pasta::ErrorAttrSpelling::kC2xGnuWarning)
     .value("SPELLING_NOT_CALCULATED", pasta::ErrorAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ExcludeFromExplicitInstantiationAttrSpelling>(m, "ExcludeFromExplicitInstantiationAttrSpelling")
+  nb::enum_<pasta::ExcludeFromExplicitInstantiationAttrSpelling>(m, "ExcludeFromExplicitInstantiationAttrSpelling")
     .value("GNU_EXCLUDE_FROM_EXPLICIT_INSTANTIATION", pasta::ExcludeFromExplicitInstantiationAttrSpelling::kGNUExcludeFromExplicitInstantiation)
     .value("CXX11_CLANG_EXCLUDE_FROM_EXPLICIT_INSTANTIATION", pasta::ExcludeFromExplicitInstantiationAttrSpelling::kCXX11ClangExcludeFromExplicitInstantiation)
     .value("C2X_CLANG_EXCLUDE_FROM_EXPLICIT_INSTANTIATION", pasta::ExcludeFromExplicitInstantiationAttrSpelling::kC2xClangExcludeFromExplicitInstantiation)
     .value("SPELLING_NOT_CALCULATED", pasta::ExcludeFromExplicitInstantiationAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ExprConstantExprKind>(m, "ExprConstantExprKind")
+  nb::enum_<pasta::ExprConstantExprKind>(m, "ExprConstantExprKind")
     .value("NORMAL", pasta::ExprConstantExprKind::kNormal)
     .value("NON_CLASS_TEMPLATE_ARGUMENT", pasta::ExprConstantExprKind::kNonClassTemplateArgument)
     .value("CLASS_TEMPLATE_ARGUMENT", pasta::ExprConstantExprKind::kClassTemplateArgument)
     .value("IMMEDIATE_INVOCATION", pasta::ExprConstantExprKind::kImmediateInvocation);
 
-  py::enum_<pasta::ExprLValueClassification>(m, "ExprLValueClassification")
+  nb::enum_<pasta::ExprLValueClassification>(m, "ExprLValueClassification")
     .value("VALID", pasta::ExprLValueClassification::kValid)
     .value("NOT_OBJECT_TYPE", pasta::ExprLValueClassification::kNotObjectType)
     .value("INCOMPLETE_VOID_TYPE", pasta::ExprLValueClassification::kIncompleteVoidType)
@@ -967,24 +967,24 @@ void RegisterEnums(py::module_ &m) {
     .value("CLASS_TEMPORARY", pasta::ExprLValueClassification::kClassTemporary)
     .value("ARRAY_TEMPORARY", pasta::ExprLValueClassification::kArrayTemporary);
 
-  py::enum_<pasta::ExprNullPointerConstantKind>(m, "ExprNullPointerConstantKind")
+  nb::enum_<pasta::ExprNullPointerConstantKind>(m, "ExprNullPointerConstantKind")
     .value("NOT_NULL", pasta::ExprNullPointerConstantKind::kNotNull)
     .value("ZERO_EXPRESSION", pasta::ExprNullPointerConstantKind::kZeroExpression)
     .value("ZERO_LITERAL", pasta::ExprNullPointerConstantKind::kZeroLiteral)
     .value("CXX11_NULLPTR", pasta::ExprNullPointerConstantKind::kCXX11Nullptr)
     .value("GNU_NULL", pasta::ExprNullPointerConstantKind::kGNUNull);
 
-  py::enum_<pasta::ExprNullPointerConstantValueDependence>(m, "ExprNullPointerConstantValueDependence")
+  nb::enum_<pasta::ExprNullPointerConstantValueDependence>(m, "ExprNullPointerConstantValueDependence")
     .value("NEVER_VALUE_DEPENDENT", pasta::ExprNullPointerConstantValueDependence::kNeverValueDependent)
     .value("VALUE_DEPENDENT_IS_NULL", pasta::ExprNullPointerConstantValueDependence::kValueDependentIsNull)
     .value("VALUE_DEPENDENT_IS_NOT_NULL", pasta::ExprNullPointerConstantValueDependence::kValueDependentIsNotNull);
 
-  py::enum_<pasta::ExprSideEffectsKind>(m, "ExprSideEffectsKind")
+  nb::enum_<pasta::ExprSideEffectsKind>(m, "ExprSideEffectsKind")
     .value("NO_SIDE_EFFECTS", pasta::ExprSideEffectsKind::kNoSideEffects)
     .value("ALLOW_UNDEFINED_BEHAVIOR", pasta::ExprSideEffectsKind::kAllowUndefinedBehavior)
     .value("ALLOW_SIDE_EFFECTS", pasta::ExprSideEffectsKind::kAllowSideEffects);
 
-  py::enum_<pasta::ExprisModifiableLvalueResult>(m, "ExprisModifiableLvalueResult")
+  nb::enum_<pasta::ExprisModifiableLvalueResult>(m, "ExprisModifiableLvalueResult")
     .value("VALID", pasta::ExprisModifiableLvalueResult::kValid)
     .value("NOT_OBJECT_TYPE", pasta::ExprisModifiableLvalueResult::kNotObjectType)
     .value("INCOMPLETE_VOID_TYPE", pasta::ExprisModifiableLvalueResult::kIncompleteVoidType)
@@ -1003,13 +1003,13 @@ void RegisterEnums(py::module_ &m) {
     .value("CLASS_TEMPORARY", pasta::ExprisModifiableLvalueResult::kClassTemporary)
     .value("ARRAY_TEMPORARY", pasta::ExprisModifiableLvalueResult::kArrayTemporary);
 
-  py::enum_<pasta::ExternalSourceSymbolAttrSpelling>(m, "ExternalSourceSymbolAttrSpelling")
+  nb::enum_<pasta::ExternalSourceSymbolAttrSpelling>(m, "ExternalSourceSymbolAttrSpelling")
     .value("GNU_EXTERNAL_SOURCE_SYMBOL", pasta::ExternalSourceSymbolAttrSpelling::kGNUExternalSourceSymbol)
     .value("CXX11_CLANG_EXTERNAL_SOURCE_SYMBOL", pasta::ExternalSourceSymbolAttrSpelling::kCXX11ClangExternalSourceSymbol)
     .value("C2X_CLANG_EXTERNAL_SOURCE_SYMBOL", pasta::ExternalSourceSymbolAttrSpelling::kC2xClangExternalSourceSymbol)
     .value("SPELLING_NOT_CALCULATED", pasta::ExternalSourceSymbolAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::FallThroughAttrSpelling>(m, "FallThroughAttrSpelling")
+  nb::enum_<pasta::FallThroughAttrSpelling>(m, "FallThroughAttrSpelling")
     .value("CXX11_FALLTHROUGH", pasta::FallThroughAttrSpelling::kCXX11Fallthrough)
     .value("C2X_FALLTHROUGH", pasta::FallThroughAttrSpelling::kC2xFallthrough)
     .value("CXX11_CLANG_FALLTHROUGH", pasta::FallThroughAttrSpelling::kCXX11ClangFallthrough)
@@ -1018,43 +1018,43 @@ void RegisterEnums(py::module_ &m) {
     .value("C2X_GNU_FALLTHROUGH", pasta::FallThroughAttrSpelling::kC2xGnuFallthrough)
     .value("SPELLING_NOT_CALCULATED", pasta::FallThroughAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::FastCallAttrSpelling>(m, "FastCallAttrSpelling")
+  nb::enum_<pasta::FastCallAttrSpelling>(m, "FastCallAttrSpelling")
     .value("GNU_FASTCALL", pasta::FastCallAttrSpelling::kGNUFastcall)
     .value("CXX11_GNU_FASTCALL", pasta::FastCallAttrSpelling::kCXX11GnuFastcall)
     .value("C2X_GNU_FASTCALL", pasta::FastCallAttrSpelling::kC2xGnuFastcall)
     .value("KEYWORD_FASTCALL", pasta::FastCallAttrSpelling::kKeywordFastcall)
     .value("SPELLING_NOT_CALCULATED", pasta::FastCallAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::FinalAttrSpelling>(m, "FinalAttrSpelling")
+  nb::enum_<pasta::FinalAttrSpelling>(m, "FinalAttrSpelling")
     .value("KEYWORD_FINAL", pasta::FinalAttrSpelling::kKeywordFinal)
     .value("KEYWORD_SEALED", pasta::FinalAttrSpelling::kKeywordSealed)
     .value("SPELLING_NOT_CALCULATED", pasta::FinalAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::FlagEnumAttrSpelling>(m, "FlagEnumAttrSpelling")
+  nb::enum_<pasta::FlagEnumAttrSpelling>(m, "FlagEnumAttrSpelling")
     .value("GNU_FLAG_ENUM", pasta::FlagEnumAttrSpelling::kGNUFlagEnum)
     .value("CXX11_CLANG_FLAG_ENUM", pasta::FlagEnumAttrSpelling::kCXX11ClangFlagEnum)
     .value("C2X_CLANG_FLAG_ENUM", pasta::FlagEnumAttrSpelling::kC2xClangFlagEnum)
     .value("SPELLING_NOT_CALCULATED", pasta::FlagEnumAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::FlattenAttrSpelling>(m, "FlattenAttrSpelling")
+  nb::enum_<pasta::FlattenAttrSpelling>(m, "FlattenAttrSpelling")
     .value("GNU_FLATTEN", pasta::FlattenAttrSpelling::kGNUFlatten)
     .value("CXX11_GNU_FLATTEN", pasta::FlattenAttrSpelling::kCXX11GnuFlatten)
     .value("C2X_GNU_FLATTEN", pasta::FlattenAttrSpelling::kC2xGnuFlatten)
     .value("SPELLING_NOT_CALCULATED", pasta::FlattenAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::FormatArgAttrSpelling>(m, "FormatArgAttrSpelling")
+  nb::enum_<pasta::FormatArgAttrSpelling>(m, "FormatArgAttrSpelling")
     .value("GNU_FORMAT_ARGUMENT", pasta::FormatArgAttrSpelling::kGNUFormatArgument)
     .value("CXX11_GNU_FORMAT_ARGUMENT", pasta::FormatArgAttrSpelling::kCXX11GnuFormatArgument)
     .value("C2X_GNU_FORMAT_ARGUMENT", pasta::FormatArgAttrSpelling::kC2xGnuFormatArgument)
     .value("SPELLING_NOT_CALCULATED", pasta::FormatArgAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::FormatAttrSpelling>(m, "FormatAttrSpelling")
+  nb::enum_<pasta::FormatAttrSpelling>(m, "FormatAttrSpelling")
     .value("GNU_FORMAT", pasta::FormatAttrSpelling::kGNUFormat)
     .value("CXX11_GNU_FORMAT", pasta::FormatAttrSpelling::kCXX11GnuFormat)
     .value("C2X_GNU_FORMAT", pasta::FormatAttrSpelling::kC2xGnuFormat)
     .value("SPELLING_NOT_CALCULATED", pasta::FormatAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::FunctionDeclTemplatedKind>(m, "FunctionDeclTemplatedKind")
+  nb::enum_<pasta::FunctionDeclTemplatedKind>(m, "FunctionDeclTemplatedKind")
     .value("NON_TEMPLATE", pasta::FunctionDeclTemplatedKind::kNonTemplate)
     .value("FUNCTION_TEMPLATE", pasta::FunctionDeclTemplatedKind::kFunctionTemplate)
     .value("MEMBER_SPECIALIZATION", pasta::FunctionDeclTemplatedKind::kMemberSpecialization)
@@ -1062,39 +1062,39 @@ void RegisterEnums(py::module_ &m) {
     .value("DEPENDENT_FUNCTION_TEMPLATE_SPECIALIZATION", pasta::FunctionDeclTemplatedKind::kDependentFunctionTemplateSpecialization)
     .value("DEPENDENT_NON_TEMPLATE", pasta::FunctionDeclTemplatedKind::kDependentNonTemplate);
 
-  py::enum_<pasta::FunctionReturnThunksAttrKind>(m, "FunctionReturnThunksAttrKind")
+  nb::enum_<pasta::FunctionReturnThunksAttrKind>(m, "FunctionReturnThunksAttrKind")
     .value("KEEP", pasta::FunctionReturnThunksAttrKind::kKeep)
     .value("EXTERN", pasta::FunctionReturnThunksAttrKind::kExtern);
 
-  py::enum_<pasta::FunctionReturnThunksAttrSpelling>(m, "FunctionReturnThunksAttrSpelling")
+  nb::enum_<pasta::FunctionReturnThunksAttrSpelling>(m, "FunctionReturnThunksAttrSpelling")
     .value("GNU_FUNCTION_RETURN", pasta::FunctionReturnThunksAttrSpelling::kGNUFunctionReturn)
     .value("CXX11_GNU_FUNCTION_RETURN", pasta::FunctionReturnThunksAttrSpelling::kCXX11GnuFunctionReturn)
     .value("C2X_GNU_FUNCTION_RETURN", pasta::FunctionReturnThunksAttrSpelling::kC2xGnuFunctionReturn)
     .value("SPELLING_NOT_CALCULATED", pasta::FunctionReturnThunksAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::GNUInlineAttrSpelling>(m, "GNUInlineAttrSpelling")
+  nb::enum_<pasta::GNUInlineAttrSpelling>(m, "GNUInlineAttrSpelling")
     .value("GNU_GNU_INLINE", pasta::GNUInlineAttrSpelling::kGNUGnuInline)
     .value("CXX11_GNU_GNU_INLINE", pasta::GNUInlineAttrSpelling::kCXX11GnuGnuInline)
     .value("C2X_GNU_GNU_INLINE", pasta::GNUInlineAttrSpelling::kC2xGnuGnuInline)
     .value("SPELLING_NOT_CALCULATED", pasta::GNUInlineAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::GuardedVarAttrSpelling>(m, "GuardedVarAttrSpelling")
+  nb::enum_<pasta::GuardedVarAttrSpelling>(m, "GuardedVarAttrSpelling")
     .value("GNU_GUARDED_VARIABLE", pasta::GuardedVarAttrSpelling::kGNUGuardedVariable)
     .value("CXX11_CLANG_GUARDED_VARIABLE", pasta::GuardedVarAttrSpelling::kCXX11ClangGuardedVariable)
     .value("SPELLING_NOT_CALCULATED", pasta::GuardedVarAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::HIPManagedAttrSpelling>(m, "HIPManagedAttrSpelling")
+  nb::enum_<pasta::HIPManagedAttrSpelling>(m, "HIPManagedAttrSpelling")
     .value("GNU_MANAGED", pasta::HIPManagedAttrSpelling::kGNUManaged)
     .value("DECLSPEC_MANAGED", pasta::HIPManagedAttrSpelling::kDeclspecManaged)
     .value("SPELLING_NOT_CALCULATED", pasta::HIPManagedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::HLSLResourceAttrResourceClass>(m, "HLSLResourceAttrResourceClass")
+  nb::enum_<pasta::HLSLResourceAttrResourceClass>(m, "HLSLResourceAttrResourceClass")
     .value("SRV", pasta::HLSLResourceAttrResourceClass::kSRV)
     .value("UAV", pasta::HLSLResourceAttrResourceClass::kUAV)
     .value("C_BUFFER", pasta::HLSLResourceAttrResourceClass::kCBuffer)
     .value("SAMPLER", pasta::HLSLResourceAttrResourceClass::kSampler);
 
-  py::enum_<pasta::HLSLResourceAttrResourceKind>(m, "HLSLResourceAttrResourceKind")
+  nb::enum_<pasta::HLSLResourceAttrResourceKind>(m, "HLSLResourceAttrResourceKind")
     .value("TEXTURE1_D", pasta::HLSLResourceAttrResourceKind::kTexture1D)
     .value("TEXTURE2_D", pasta::HLSLResourceAttrResourceKind::kTexture2D)
     .value("TEXTURE2_DMS", pasta::HLSLResourceAttrResourceKind::kTexture2DMS)
@@ -1114,7 +1114,7 @@ void RegisterEnums(py::module_ &m) {
     .value("FEEDBACK_TEXTURE2_D", pasta::HLSLResourceAttrResourceKind::kFeedbackTexture2D)
     .value("FEEDBACK_TEXTURE2_D_ARRAY", pasta::HLSLResourceAttrResourceKind::kFeedbackTexture2DArray);
 
-  py::enum_<pasta::HLSLShaderAttrShaderType>(m, "HLSLShaderAttrShaderType")
+  nb::enum_<pasta::HLSLShaderAttrShaderType>(m, "HLSLShaderAttrShaderType")
     .value("PIXEL", pasta::HLSLShaderAttrShaderType::kPixel)
     .value("VERTEX", pasta::HLSLShaderAttrShaderType::kVertex)
     .value("GEOMETRY", pasta::HLSLShaderAttrShaderType::kGeometry)
@@ -1131,40 +1131,40 @@ void RegisterEnums(py::module_ &m) {
     .value("MESH", pasta::HLSLShaderAttrShaderType::kMesh)
     .value("AMPLIFICATION", pasta::HLSLShaderAttrShaderType::kAmplification);
 
-  py::enum_<pasta::HotAttrSpelling>(m, "HotAttrSpelling")
+  nb::enum_<pasta::HotAttrSpelling>(m, "HotAttrSpelling")
     .value("GNU_HOT", pasta::HotAttrSpelling::kGNUHot)
     .value("CXX11_GNU_HOT", pasta::HotAttrSpelling::kCXX11GnuHot)
     .value("C2X_GNU_HOT", pasta::HotAttrSpelling::kC2xGnuHot)
     .value("SPELLING_NOT_CALCULATED", pasta::HotAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::IBActionAttrSpelling>(m, "IBActionAttrSpelling")
+  nb::enum_<pasta::IBActionAttrSpelling>(m, "IBActionAttrSpelling")
     .value("GNU_IBACTION", pasta::IBActionAttrSpelling::kGNUIbaction)
     .value("CXX11_CLANG_IBACTION", pasta::IBActionAttrSpelling::kCXX11ClangIbaction)
     .value("C2X_CLANG_IBACTION", pasta::IBActionAttrSpelling::kC2xClangIbaction)
     .value("SPELLING_NOT_CALCULATED", pasta::IBActionAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::IBOutletAttrSpelling>(m, "IBOutletAttrSpelling")
+  nb::enum_<pasta::IBOutletAttrSpelling>(m, "IBOutletAttrSpelling")
     .value("GNU_IBOUTLET", pasta::IBOutletAttrSpelling::kGNUIboutlet)
     .value("CXX11_CLANG_IBOUTLET", pasta::IBOutletAttrSpelling::kCXX11ClangIboutlet)
     .value("C2X_CLANG_IBOUTLET", pasta::IBOutletAttrSpelling::kC2xClangIboutlet)
     .value("SPELLING_NOT_CALCULATED", pasta::IBOutletAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::IBOutletCollectionAttrSpelling>(m, "IBOutletCollectionAttrSpelling")
+  nb::enum_<pasta::IBOutletCollectionAttrSpelling>(m, "IBOutletCollectionAttrSpelling")
     .value("GNU_IBOUTLETCOLLECTION", pasta::IBOutletCollectionAttrSpelling::kGNUIboutletcollection)
     .value("CXX11_CLANG_IBOUTLETCOLLECTION", pasta::IBOutletCollectionAttrSpelling::kCXX11ClangIboutletcollection)
     .value("C2X_CLANG_IBOUTLETCOLLECTION", pasta::IBOutletCollectionAttrSpelling::kC2xClangIboutletcollection)
     .value("SPELLING_NOT_CALCULATED", pasta::IBOutletCollectionAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::IFuncAttrSpelling>(m, "IFuncAttrSpelling")
+  nb::enum_<pasta::IFuncAttrSpelling>(m, "IFuncAttrSpelling")
     .value("GNU_IFUNC", pasta::IFuncAttrSpelling::kGNUIfunc)
     .value("CXX11_GNU_IFUNC", pasta::IFuncAttrSpelling::kCXX11GnuIfunc)
     .value("C2X_GNU_IFUNC", pasta::IFuncAttrSpelling::kC2xGnuIfunc)
     .value("SPELLING_NOT_CALCULATED", pasta::IFuncAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ImplicitCastExprOnStack>(m, "ImplicitCastExprOnStack")
+  nb::enum_<pasta::ImplicitCastExprOnStack>(m, "ImplicitCastExprOnStack")
     .value("ON_STACK", pasta::ImplicitCastExprOnStack::kOnStack);
 
-  py::enum_<pasta::ImplicitParamDeclImplicitParamKind>(m, "ImplicitParamDeclImplicitParamKind")
+  nb::enum_<pasta::ImplicitParamDeclImplicitParamKind>(m, "ImplicitParamDeclImplicitParamKind")
     .value("OBJ_C_SELF", pasta::ImplicitParamDeclImplicitParamKind::kObjCSelf)
     .value("OBJ_C_CMD", pasta::ImplicitParamDeclImplicitParamKind::kObjCCmd)
     .value("CXX_THIS", pasta::ImplicitParamDeclImplicitParamKind::kCXXThis)
@@ -1173,55 +1173,55 @@ void RegisterEnums(py::module_ &m) {
     .value("THREAD_PRIVATE_VARIABLE", pasta::ImplicitParamDeclImplicitParamKind::kThreadPrivateVariable)
     .value("OTHER", pasta::ImplicitParamDeclImplicitParamKind::kOther);
 
-  py::enum_<pasta::InitPriorityAttrSpelling>(m, "InitPriorityAttrSpelling")
+  nb::enum_<pasta::InitPriorityAttrSpelling>(m, "InitPriorityAttrSpelling")
     .value("GNU_INITIALIZER_PRIORITY", pasta::InitPriorityAttrSpelling::kGNUInitializerPriority)
     .value("CXX11_GNU_INITIALIZER_PRIORITY", pasta::InitPriorityAttrSpelling::kCXX11GnuInitializerPriority)
     .value("SPELLING_NOT_CALCULATED", pasta::InitPriorityAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::IntelOclBiccAttrSpelling>(m, "IntelOclBiccAttrSpelling")
+  nb::enum_<pasta::IntelOclBiccAttrSpelling>(m, "IntelOclBiccAttrSpelling")
     .value("GNU_INTEL_OCL_BICC", pasta::IntelOclBiccAttrSpelling::kGNUIntelOclBicc)
     .value("CXX11_CLANG_INTEL_OCL_BICC", pasta::IntelOclBiccAttrSpelling::kCXX11ClangIntelOclBicc)
     .value("SPELLING_NOT_CALCULATED", pasta::IntelOclBiccAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::InternalLinkageAttrSpelling>(m, "InternalLinkageAttrSpelling")
+  nb::enum_<pasta::InternalLinkageAttrSpelling>(m, "InternalLinkageAttrSpelling")
     .value("GNU_INTERNAL_LINKAGE", pasta::InternalLinkageAttrSpelling::kGNUInternalLinkage)
     .value("CXX11_CLANG_INTERNAL_LINKAGE", pasta::InternalLinkageAttrSpelling::kCXX11ClangInternalLinkage)
     .value("C2X_CLANG_INTERNAL_LINKAGE", pasta::InternalLinkageAttrSpelling::kC2xClangInternalLinkage)
     .value("SPELLING_NOT_CALCULATED", pasta::InternalLinkageAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::LTOVisibilityPublicAttrSpelling>(m, "LTOVisibilityPublicAttrSpelling")
+  nb::enum_<pasta::LTOVisibilityPublicAttrSpelling>(m, "LTOVisibilityPublicAttrSpelling")
     .value("GNU_LTO_VISIBILITY_PUBLIC", pasta::LTOVisibilityPublicAttrSpelling::kGNULtoVisibilityPublic)
     .value("CXX11_CLANG_LTO_VISIBILITY_PUBLIC", pasta::LTOVisibilityPublicAttrSpelling::kCXX11ClangLtoVisibilityPublic)
     .value("C2X_CLANG_LTO_VISIBILITY_PUBLIC", pasta::LTOVisibilityPublicAttrSpelling::kC2xClangLtoVisibilityPublic)
     .value("SPELLING_NOT_CALCULATED", pasta::LTOVisibilityPublicAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::LeafAttrSpelling>(m, "LeafAttrSpelling")
+  nb::enum_<pasta::LeafAttrSpelling>(m, "LeafAttrSpelling")
     .value("GNU_LEAF", pasta::LeafAttrSpelling::kGNULeaf)
     .value("CXX11_GNU_LEAF", pasta::LeafAttrSpelling::kCXX11GnuLeaf)
     .value("C2X_GNU_LEAF", pasta::LeafAttrSpelling::kC2xGnuLeaf)
     .value("SPELLING_NOT_CALCULATED", pasta::LeafAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::LifetimeBoundAttrSpelling>(m, "LifetimeBoundAttrSpelling")
+  nb::enum_<pasta::LifetimeBoundAttrSpelling>(m, "LifetimeBoundAttrSpelling")
     .value("GNU_LIFETIMEBOUND", pasta::LifetimeBoundAttrSpelling::kGNULifetimebound)
     .value("CXX11_CLANG_LIFETIMEBOUND", pasta::LifetimeBoundAttrSpelling::kCXX11ClangLifetimebound)
     .value("SPELLING_NOT_CALCULATED", pasta::LifetimeBoundAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::LikelyAttrSpelling>(m, "LikelyAttrSpelling")
+  nb::enum_<pasta::LikelyAttrSpelling>(m, "LikelyAttrSpelling")
     .value("CXX11_LIKELY", pasta::LikelyAttrSpelling::kCXX11Likely)
     .value("C2X_CLANG_LIKELY", pasta::LikelyAttrSpelling::kC2xClangLikely)
     .value("SPELLING_NOT_CALCULATED", pasta::LikelyAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::LinkageSpecDeclLanguageIDs>(m, "LinkageSpecDeclLanguageIDs")
+  nb::enum_<pasta::LinkageSpecDeclLanguageIDs>(m, "LinkageSpecDeclLanguageIDs")
     .value("C", pasta::LinkageSpecDeclLanguageIDs::kC)
     .value("CXX", pasta::LinkageSpecDeclLanguageIDs::kCxx);
 
-  py::enum_<pasta::LoaderUninitializedAttrSpelling>(m, "LoaderUninitializedAttrSpelling")
+  nb::enum_<pasta::LoaderUninitializedAttrSpelling>(m, "LoaderUninitializedAttrSpelling")
     .value("GNU_LOADER_UNINITIALIZED", pasta::LoaderUninitializedAttrSpelling::kGNULoaderUninitialized)
     .value("CXX11_CLANG_LOADER_UNINITIALIZED", pasta::LoaderUninitializedAttrSpelling::kCXX11ClangLoaderUninitialized)
     .value("C2X_CLANG_LOADER_UNINITIALIZED", pasta::LoaderUninitializedAttrSpelling::kC2xClangLoaderUninitialized)
     .value("SPELLING_NOT_CALCULATED", pasta::LoaderUninitializedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::LoopHintAttrLoopHintState>(m, "LoopHintAttrLoopHintState")
+  nb::enum_<pasta::LoopHintAttrLoopHintState>(m, "LoopHintAttrLoopHintState")
     .value("ENABLE", pasta::LoopHintAttrLoopHintState::kEnable)
     .value("DISABLE", pasta::LoopHintAttrLoopHintState::kDisable)
     .value("NUMERIC", pasta::LoopHintAttrLoopHintState::kNumeric)
@@ -1230,7 +1230,7 @@ void RegisterEnums(py::module_ &m) {
     .value("ASSUME_SAFETY", pasta::LoopHintAttrLoopHintState::kAssumeSafety)
     .value("FULL", pasta::LoopHintAttrLoopHintState::kFull);
 
-  py::enum_<pasta::LoopHintAttrOptionType>(m, "LoopHintAttrOptionType")
+  nb::enum_<pasta::LoopHintAttrOptionType>(m, "LoopHintAttrOptionType")
     .value("VECTORIZE", pasta::LoopHintAttrOptionType::kVectorize)
     .value("VECTORIZE_WIDTH", pasta::LoopHintAttrOptionType::kVectorizeWidth)
     .value("INTERLEAVE", pasta::LoopHintAttrOptionType::kInterleave)
@@ -1244,7 +1244,7 @@ void RegisterEnums(py::module_ &m) {
     .value("DISTRIBUTE", pasta::LoopHintAttrOptionType::kDistribute)
     .value("VECTORIZE_PREDICATE", pasta::LoopHintAttrOptionType::kVectorizePredicate);
 
-  py::enum_<pasta::LoopHintAttrSpelling>(m, "LoopHintAttrSpelling")
+  nb::enum_<pasta::LoopHintAttrSpelling>(m, "LoopHintAttrSpelling")
     .value("PRAGMA_CLANG_LOOP", pasta::LoopHintAttrSpelling::kPragmaClangLoop)
     .value("PRAGMA_UNROLL", pasta::LoopHintAttrSpelling::kPragmaUnroll)
     .value("PRAGMA_NOUNROLL", pasta::LoopHintAttrSpelling::kPragmaNounroll)
@@ -1252,74 +1252,74 @@ void RegisterEnums(py::module_ &m) {
     .value("PRAGMA_NOUNROLL_AND_JAM", pasta::LoopHintAttrSpelling::kPragmaNounrollAndJam)
     .value("SPELLING_NOT_CALCULATED", pasta::LoopHintAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::MIGServerRoutineAttrSpelling>(m, "MIGServerRoutineAttrSpelling")
+  nb::enum_<pasta::MIGServerRoutineAttrSpelling>(m, "MIGServerRoutineAttrSpelling")
     .value("GNU_MIG_SERVER_ROUTINE", pasta::MIGServerRoutineAttrSpelling::kGNUMigServerRoutine)
     .value("CXX11_CLANG_MIG_SERVER_ROUTINE", pasta::MIGServerRoutineAttrSpelling::kCXX11ClangMigServerRoutine)
     .value("C2X_CLANG_MIG_SERVER_ROUTINE", pasta::MIGServerRoutineAttrSpelling::kC2xClangMigServerRoutine)
     .value("SPELLING_NOT_CALCULATED", pasta::MIGServerRoutineAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::MSABIAttrSpelling>(m, "MSABIAttrSpelling")
+  nb::enum_<pasta::MSABIAttrSpelling>(m, "MSABIAttrSpelling")
     .value("GNU_MS_ABI", pasta::MSABIAttrSpelling::kGNUMsAbi)
     .value("CXX11_GNU_MS_ABI", pasta::MSABIAttrSpelling::kCXX11GnuMsAbi)
     .value("C2X_GNU_MS_ABI", pasta::MSABIAttrSpelling::kC2xGnuMsAbi)
     .value("SPELLING_NOT_CALCULATED", pasta::MSABIAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::MSInheritanceAttrSpelling>(m, "MSInheritanceAttrSpelling")
+  nb::enum_<pasta::MSInheritanceAttrSpelling>(m, "MSInheritanceAttrSpelling")
     .value("KEYWORD_SINGLE_INHERITANCE", pasta::MSInheritanceAttrSpelling::kKeywordSingleInheritance)
     .value("KEYWORD_MULTIPLE_INHERITANCE", pasta::MSInheritanceAttrSpelling::kKeywordMultipleInheritance)
     .value("KEYWORD_VIRTUAL_INHERITANCE", pasta::MSInheritanceAttrSpelling::kKeywordVirtualInheritance)
     .value("KEYWORD_UNSPECIFIED_INHERITANCE", pasta::MSInheritanceAttrSpelling::kKeywordUnspecifiedInheritance)
     .value("SPELLING_NOT_CALCULATED", pasta::MSInheritanceAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::MSP430InterruptAttrSpelling>(m, "MSP430InterruptAttrSpelling")
+  nb::enum_<pasta::MSP430InterruptAttrSpelling>(m, "MSP430InterruptAttrSpelling")
     .value("GNU_INTERRUPT", pasta::MSP430InterruptAttrSpelling::kGNUInterrupt)
     .value("CXX11_GNU_INTERRUPT", pasta::MSP430InterruptAttrSpelling::kCXX11GnuInterrupt)
     .value("C2X_GNU_INTERRUPT", pasta::MSP430InterruptAttrSpelling::kC2xGnuInterrupt)
     .value("SPELLING_NOT_CALCULATED", pasta::MSP430InterruptAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::MSStructAttrSpelling>(m, "MSStructAttrSpelling")
+  nb::enum_<pasta::MSStructAttrSpelling>(m, "MSStructAttrSpelling")
     .value("GNU_MS_STRUCT", pasta::MSStructAttrSpelling::kGNUMsStruct)
     .value("CXX11_GNU_MS_STRUCT", pasta::MSStructAttrSpelling::kCXX11GnuMsStruct)
     .value("C2X_GNU_MS_STRUCT", pasta::MSStructAttrSpelling::kC2xGnuMsStruct)
     .value("SPELLING_NOT_CALCULATED", pasta::MSStructAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::MayAliasAttrSpelling>(m, "MayAliasAttrSpelling")
+  nb::enum_<pasta::MayAliasAttrSpelling>(m, "MayAliasAttrSpelling")
     .value("GNU_MAY_ALIAS", pasta::MayAliasAttrSpelling::kGNUMayAlias)
     .value("CXX11_GNU_MAY_ALIAS", pasta::MayAliasAttrSpelling::kCXX11GnuMayAlias)
     .value("C2X_GNU_MAY_ALIAS", pasta::MayAliasAttrSpelling::kC2xGnuMayAlias)
     .value("SPELLING_NOT_CALCULATED", pasta::MayAliasAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::MaybeUndefAttrSpelling>(m, "MaybeUndefAttrSpelling")
+  nb::enum_<pasta::MaybeUndefAttrSpelling>(m, "MaybeUndefAttrSpelling")
     .value("GNU_MAYBE_UNDEF", pasta::MaybeUndefAttrSpelling::kGNUMaybeUndef)
     .value("CXX11_CLANG_MAYBE_UNDEF", pasta::MaybeUndefAttrSpelling::kCXX11ClangMaybeUndef)
     .value("C2X_CLANG_MAYBE_UNDEF", pasta::MaybeUndefAttrSpelling::kC2xClangMaybeUndef)
     .value("SPELLING_NOT_CALCULATED", pasta::MaybeUndefAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::MicroMipsAttrSpelling>(m, "MicroMipsAttrSpelling")
+  nb::enum_<pasta::MicroMipsAttrSpelling>(m, "MicroMipsAttrSpelling")
     .value("GNU_MICROMIPS", pasta::MicroMipsAttrSpelling::kGNUMicromips)
     .value("CXX11_GNU_MICROMIPS", pasta::MicroMipsAttrSpelling::kCXX11GnuMicromips)
     .value("C2X_GNU_MICROMIPS", pasta::MicroMipsAttrSpelling::kC2xGnuMicromips)
     .value("SPELLING_NOT_CALCULATED", pasta::MicroMipsAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::MinSizeAttrSpelling>(m, "MinSizeAttrSpelling")
+  nb::enum_<pasta::MinSizeAttrSpelling>(m, "MinSizeAttrSpelling")
     .value("GNU_MINSIZE", pasta::MinSizeAttrSpelling::kGNUMinsize)
     .value("CXX11_CLANG_MINSIZE", pasta::MinSizeAttrSpelling::kCXX11ClangMinsize)
     .value("C2X_CLANG_MINSIZE", pasta::MinSizeAttrSpelling::kC2xClangMinsize)
     .value("SPELLING_NOT_CALCULATED", pasta::MinSizeAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::MinVectorWidthAttrSpelling>(m, "MinVectorWidthAttrSpelling")
+  nb::enum_<pasta::MinVectorWidthAttrSpelling>(m, "MinVectorWidthAttrSpelling")
     .value("GNU_MIN_VECTOR_WIDTH", pasta::MinVectorWidthAttrSpelling::kGNUMinVectorWidth)
     .value("CXX11_CLANG_MIN_VECTOR_WIDTH", pasta::MinVectorWidthAttrSpelling::kCXX11ClangMinVectorWidth)
     .value("C2X_CLANG_MIN_VECTOR_WIDTH", pasta::MinVectorWidthAttrSpelling::kC2xClangMinVectorWidth)
     .value("SPELLING_NOT_CALCULATED", pasta::MinVectorWidthAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::Mips16AttrSpelling>(m, "Mips16AttrSpelling")
+  nb::enum_<pasta::Mips16AttrSpelling>(m, "Mips16AttrSpelling")
     .value("GNU_MIPS16", pasta::Mips16AttrSpelling::kGNUMips16)
     .value("CXX11_GNU_MIPS16", pasta::Mips16AttrSpelling::kCXX11GnuMips16)
     .value("C2X_GNU_MIPS16", pasta::Mips16AttrSpelling::kC2xGnuMips16)
     .value("SPELLING_NOT_CALCULATED", pasta::Mips16AttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::MipsInterruptAttrInterruptType>(m, "MipsInterruptAttrInterruptType")
+  nb::enum_<pasta::MipsInterruptAttrInterruptType>(m, "MipsInterruptAttrInterruptType")
     .value("SW0", pasta::MipsInterruptAttrInterruptType::kSw0)
     .value("SW1", pasta::MipsInterruptAttrInterruptType::kSw1)
     .value("HW0", pasta::MipsInterruptAttrInterruptType::kHw0)
@@ -1330,13 +1330,13 @@ void RegisterEnums(py::module_ &m) {
     .value("HW5", pasta::MipsInterruptAttrInterruptType::kHw5)
     .value("EIC", pasta::MipsInterruptAttrInterruptType::kEic);
 
-  py::enum_<pasta::MipsInterruptAttrSpelling>(m, "MipsInterruptAttrSpelling")
+  nb::enum_<pasta::MipsInterruptAttrSpelling>(m, "MipsInterruptAttrSpelling")
     .value("GNU_INTERRUPT", pasta::MipsInterruptAttrSpelling::kGNUInterrupt)
     .value("CXX11_GNU_INTERRUPT", pasta::MipsInterruptAttrSpelling::kCXX11GnuInterrupt)
     .value("C2X_GNU_INTERRUPT", pasta::MipsInterruptAttrSpelling::kC2xGnuInterrupt)
     .value("SPELLING_NOT_CALCULATED", pasta::MipsInterruptAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::MipsLongCallAttrSpelling>(m, "MipsLongCallAttrSpelling")
+  nb::enum_<pasta::MipsLongCallAttrSpelling>(m, "MipsLongCallAttrSpelling")
     .value("GNU_LONG_CALL", pasta::MipsLongCallAttrSpelling::kGNULongCall)
     .value("CXX11_GNU_LONG_CALL", pasta::MipsLongCallAttrSpelling::kCXX11GnuLongCall)
     .value("C2X_GNU_LONG_CALL", pasta::MipsLongCallAttrSpelling::kC2xGnuLongCall)
@@ -1345,7 +1345,7 @@ void RegisterEnums(py::module_ &m) {
     .value("C2X_GNU_FAR", pasta::MipsLongCallAttrSpelling::kC2xGnuFar)
     .value("SPELLING_NOT_CALCULATED", pasta::MipsLongCallAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::MipsShortCallAttrSpelling>(m, "MipsShortCallAttrSpelling")
+  nb::enum_<pasta::MipsShortCallAttrSpelling>(m, "MipsShortCallAttrSpelling")
     .value("GNU_SHORT_CALL", pasta::MipsShortCallAttrSpelling::kGNUShortCall)
     .value("CXX11_GNU_SHORT_CALL", pasta::MipsShortCallAttrSpelling::kCXX11GnuShortCall)
     .value("C2X_GNU_SHORT_CALL", pasta::MipsShortCallAttrSpelling::kC2xGnuShortCall)
@@ -1354,101 +1354,101 @@ void RegisterEnums(py::module_ &m) {
     .value("C2X_GNU_NEAR", pasta::MipsShortCallAttrSpelling::kC2xGnuNear)
     .value("SPELLING_NOT_CALCULATED", pasta::MipsShortCallAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ModeAttrSpelling>(m, "ModeAttrSpelling")
+  nb::enum_<pasta::ModeAttrSpelling>(m, "ModeAttrSpelling")
     .value("GNU_MODE", pasta::ModeAttrSpelling::kGNUMode)
     .value("CXX11_GNU_MODE", pasta::ModeAttrSpelling::kCXX11GnuMode)
     .value("C2X_GNU_MODE", pasta::ModeAttrSpelling::kC2xGnuMode)
     .value("SPELLING_NOT_CALCULATED", pasta::ModeAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::MustTailAttrSpelling>(m, "MustTailAttrSpelling")
+  nb::enum_<pasta::MustTailAttrSpelling>(m, "MustTailAttrSpelling")
     .value("GNU_MUSTTAIL", pasta::MustTailAttrSpelling::kGNUMusttail)
     .value("CXX11_CLANG_MUSTTAIL", pasta::MustTailAttrSpelling::kCXX11ClangMusttail)
     .value("C2X_CLANG_MUSTTAIL", pasta::MustTailAttrSpelling::kC2xClangMusttail)
     .value("SPELLING_NOT_CALCULATED", pasta::MustTailAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NSConsumedAttrSpelling>(m, "NSConsumedAttrSpelling")
+  nb::enum_<pasta::NSConsumedAttrSpelling>(m, "NSConsumedAttrSpelling")
     .value("GNU_NS_CONSUMED", pasta::NSConsumedAttrSpelling::kGNUNsConsumed)
     .value("CXX11_CLANG_NS_CONSUMED", pasta::NSConsumedAttrSpelling::kCXX11ClangNsConsumed)
     .value("C2X_CLANG_NS_CONSUMED", pasta::NSConsumedAttrSpelling::kC2xClangNsConsumed)
     .value("SPELLING_NOT_CALCULATED", pasta::NSConsumedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NSConsumesSelfAttrSpelling>(m, "NSConsumesSelfAttrSpelling")
+  nb::enum_<pasta::NSConsumesSelfAttrSpelling>(m, "NSConsumesSelfAttrSpelling")
     .value("GNU_NS_CONSUMES_SELF", pasta::NSConsumesSelfAttrSpelling::kGNUNsConsumesSelf)
     .value("CXX11_CLANG_NS_CONSUMES_SELF", pasta::NSConsumesSelfAttrSpelling::kCXX11ClangNsConsumesSelf)
     .value("C2X_CLANG_NS_CONSUMES_SELF", pasta::NSConsumesSelfAttrSpelling::kC2xClangNsConsumesSelf)
     .value("SPELLING_NOT_CALCULATED", pasta::NSConsumesSelfAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NSReturnsAutoreleasedAttrSpelling>(m, "NSReturnsAutoreleasedAttrSpelling")
+  nb::enum_<pasta::NSReturnsAutoreleasedAttrSpelling>(m, "NSReturnsAutoreleasedAttrSpelling")
     .value("GNU_NS_RETURNS_AUTORELEASED", pasta::NSReturnsAutoreleasedAttrSpelling::kGNUNsReturnsAutoreleased)
     .value("CXX11_CLANG_NS_RETURNS_AUTORELEASED", pasta::NSReturnsAutoreleasedAttrSpelling::kCXX11ClangNsReturnsAutoreleased)
     .value("C2X_CLANG_NS_RETURNS_AUTORELEASED", pasta::NSReturnsAutoreleasedAttrSpelling::kC2xClangNsReturnsAutoreleased)
     .value("SPELLING_NOT_CALCULATED", pasta::NSReturnsAutoreleasedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NSReturnsNotRetainedAttrSpelling>(m, "NSReturnsNotRetainedAttrSpelling")
+  nb::enum_<pasta::NSReturnsNotRetainedAttrSpelling>(m, "NSReturnsNotRetainedAttrSpelling")
     .value("GNU_NS_RETURNS_NOT_RETAINED", pasta::NSReturnsNotRetainedAttrSpelling::kGNUNsReturnsNotRetained)
     .value("CXX11_CLANG_NS_RETURNS_NOT_RETAINED", pasta::NSReturnsNotRetainedAttrSpelling::kCXX11ClangNsReturnsNotRetained)
     .value("C2X_CLANG_NS_RETURNS_NOT_RETAINED", pasta::NSReturnsNotRetainedAttrSpelling::kC2xClangNsReturnsNotRetained)
     .value("SPELLING_NOT_CALCULATED", pasta::NSReturnsNotRetainedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NSReturnsRetainedAttrSpelling>(m, "NSReturnsRetainedAttrSpelling")
+  nb::enum_<pasta::NSReturnsRetainedAttrSpelling>(m, "NSReturnsRetainedAttrSpelling")
     .value("GNU_NS_RETURNS_RETAINED", pasta::NSReturnsRetainedAttrSpelling::kGNUNsReturnsRetained)
     .value("CXX11_CLANG_NS_RETURNS_RETAINED", pasta::NSReturnsRetainedAttrSpelling::kCXX11ClangNsReturnsRetained)
     .value("C2X_CLANG_NS_RETURNS_RETAINED", pasta::NSReturnsRetainedAttrSpelling::kC2xClangNsReturnsRetained)
     .value("SPELLING_NOT_CALCULATED", pasta::NSReturnsRetainedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NakedAttrSpelling>(m, "NakedAttrSpelling")
+  nb::enum_<pasta::NakedAttrSpelling>(m, "NakedAttrSpelling")
     .value("GNU_NAKED", pasta::NakedAttrSpelling::kGNUNaked)
     .value("CXX11_GNU_NAKED", pasta::NakedAttrSpelling::kCXX11GnuNaked)
     .value("C2X_GNU_NAKED", pasta::NakedAttrSpelling::kC2xGnuNaked)
     .value("DECLSPEC_NAKED", pasta::NakedAttrSpelling::kDeclspecNaked)
     .value("SPELLING_NOT_CALCULATED", pasta::NakedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NamedDeclExplicitVisibilityKind>(m, "NamedDeclExplicitVisibilityKind")
+  nb::enum_<pasta::NamedDeclExplicitVisibilityKind>(m, "NamedDeclExplicitVisibilityKind")
     .value("VISIBILITY_FOR_TYPE", pasta::NamedDeclExplicitVisibilityKind::kVisibilityForType)
     .value("VISIBILITY_FOR_VALUE", pasta::NamedDeclExplicitVisibilityKind::kVisibilityForValue);
 
-  py::enum_<pasta::NoBuiltinAttrSpelling>(m, "NoBuiltinAttrSpelling")
+  nb::enum_<pasta::NoBuiltinAttrSpelling>(m, "NoBuiltinAttrSpelling")
     .value("GNU_NO_BUILTIN", pasta::NoBuiltinAttrSpelling::kGNUNoBuiltin)
     .value("CXX11_CLANG_NO_BUILTIN", pasta::NoBuiltinAttrSpelling::kCXX11ClangNoBuiltin)
     .value("C2X_CLANG_NO_BUILTIN", pasta::NoBuiltinAttrSpelling::kC2xClangNoBuiltin)
     .value("SPELLING_NOT_CALCULATED", pasta::NoBuiltinAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NoCommonAttrSpelling>(m, "NoCommonAttrSpelling")
+  nb::enum_<pasta::NoCommonAttrSpelling>(m, "NoCommonAttrSpelling")
     .value("GNU_NOCOMMON", pasta::NoCommonAttrSpelling::kGNUNocommon)
     .value("CXX11_GNU_NOCOMMON", pasta::NoCommonAttrSpelling::kCXX11GnuNocommon)
     .value("C2X_GNU_NOCOMMON", pasta::NoCommonAttrSpelling::kC2xGnuNocommon)
     .value("SPELLING_NOT_CALCULATED", pasta::NoCommonAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NoDebugAttrSpelling>(m, "NoDebugAttrSpelling")
+  nb::enum_<pasta::NoDebugAttrSpelling>(m, "NoDebugAttrSpelling")
     .value("GNU_NODEBUG", pasta::NoDebugAttrSpelling::kGNUNodebug)
     .value("CXX11_GNU_NODEBUG", pasta::NoDebugAttrSpelling::kCXX11GnuNodebug)
     .value("C2X_GNU_NODEBUG", pasta::NoDebugAttrSpelling::kC2xGnuNodebug)
     .value("SPELLING_NOT_CALCULATED", pasta::NoDebugAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NoDerefAttrSpelling>(m, "NoDerefAttrSpelling")
+  nb::enum_<pasta::NoDerefAttrSpelling>(m, "NoDerefAttrSpelling")
     .value("GNU_NODEREF", pasta::NoDerefAttrSpelling::kGNUNoderef)
     .value("CXX11_CLANG_NODEREF", pasta::NoDerefAttrSpelling::kCXX11ClangNoderef)
     .value("C2X_CLANG_NODEREF", pasta::NoDerefAttrSpelling::kC2xClangNoderef)
     .value("SPELLING_NOT_CALCULATED", pasta::NoDerefAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NoDestroyAttrSpelling>(m, "NoDestroyAttrSpelling")
+  nb::enum_<pasta::NoDestroyAttrSpelling>(m, "NoDestroyAttrSpelling")
     .value("GNU_NO_DESTROY", pasta::NoDestroyAttrSpelling::kGNUNoDestroy)
     .value("CXX11_CLANG_NO_DESTROY", pasta::NoDestroyAttrSpelling::kCXX11ClangNoDestroy)
     .value("SPELLING_NOT_CALCULATED", pasta::NoDestroyAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NoDuplicateAttrSpelling>(m, "NoDuplicateAttrSpelling")
+  nb::enum_<pasta::NoDuplicateAttrSpelling>(m, "NoDuplicateAttrSpelling")
     .value("GNU_NODUPLICATE", pasta::NoDuplicateAttrSpelling::kGNUNoduplicate)
     .value("CXX11_CLANG_NODUPLICATE", pasta::NoDuplicateAttrSpelling::kCXX11ClangNoduplicate)
     .value("C2X_CLANG_NODUPLICATE", pasta::NoDuplicateAttrSpelling::kC2xClangNoduplicate)
     .value("SPELLING_NOT_CALCULATED", pasta::NoDuplicateAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NoEscapeAttrSpelling>(m, "NoEscapeAttrSpelling")
+  nb::enum_<pasta::NoEscapeAttrSpelling>(m, "NoEscapeAttrSpelling")
     .value("GNU_NOESCAPE", pasta::NoEscapeAttrSpelling::kGNUNoescape)
     .value("CXX11_CLANG_NOESCAPE", pasta::NoEscapeAttrSpelling::kCXX11ClangNoescape)
     .value("C2X_CLANG_NOESCAPE", pasta::NoEscapeAttrSpelling::kC2xClangNoescape)
     .value("SPELLING_NOT_CALCULATED", pasta::NoEscapeAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NoInlineAttrSpelling>(m, "NoInlineAttrSpelling")
+  nb::enum_<pasta::NoInlineAttrSpelling>(m, "NoInlineAttrSpelling")
     .value("KEYWORD_NOINLINE", pasta::NoInlineAttrSpelling::kKeywordNoinline)
     .value("GNU_NOINLINE", pasta::NoInlineAttrSpelling::kGNUNoinline)
     .value("CXX11_GNU_NOINLINE", pasta::NoInlineAttrSpelling::kCXX11GnuNoinline)
@@ -1458,106 +1458,106 @@ void RegisterEnums(py::module_ &m) {
     .value("DECLSPEC_NOINLINE", pasta::NoInlineAttrSpelling::kDeclspecNoinline)
     .value("SPELLING_NOT_CALCULATED", pasta::NoInlineAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NoInstrumentFunctionAttrSpelling>(m, "NoInstrumentFunctionAttrSpelling")
+  nb::enum_<pasta::NoInstrumentFunctionAttrSpelling>(m, "NoInstrumentFunctionAttrSpelling")
     .value("GNU_NO_INSTRUMENT_FUNCTION", pasta::NoInstrumentFunctionAttrSpelling::kGNUNoInstrumentFunction)
     .value("CXX11_GNU_NO_INSTRUMENT_FUNCTION", pasta::NoInstrumentFunctionAttrSpelling::kCXX11GnuNoInstrumentFunction)
     .value("C2X_GNU_NO_INSTRUMENT_FUNCTION", pasta::NoInstrumentFunctionAttrSpelling::kC2xGnuNoInstrumentFunction)
     .value("SPELLING_NOT_CALCULATED", pasta::NoInstrumentFunctionAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NoMergeAttrSpelling>(m, "NoMergeAttrSpelling")
+  nb::enum_<pasta::NoMergeAttrSpelling>(m, "NoMergeAttrSpelling")
     .value("GNU_NOMERGE", pasta::NoMergeAttrSpelling::kGNUNomerge)
     .value("CXX11_CLANG_NOMERGE", pasta::NoMergeAttrSpelling::kCXX11ClangNomerge)
     .value("C2X_CLANG_NOMERGE", pasta::NoMergeAttrSpelling::kC2xClangNomerge)
     .value("SPELLING_NOT_CALCULATED", pasta::NoMergeAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NoMicroMipsAttrSpelling>(m, "NoMicroMipsAttrSpelling")
+  nb::enum_<pasta::NoMicroMipsAttrSpelling>(m, "NoMicroMipsAttrSpelling")
     .value("GNU_NOMICROMIPS", pasta::NoMicroMipsAttrSpelling::kGNUNomicromips)
     .value("CXX11_GNU_NOMICROMIPS", pasta::NoMicroMipsAttrSpelling::kCXX11GnuNomicromips)
     .value("C2X_GNU_NOMICROMIPS", pasta::NoMicroMipsAttrSpelling::kC2xGnuNomicromips)
     .value("SPELLING_NOT_CALCULATED", pasta::NoMicroMipsAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NoMips16AttrSpelling>(m, "NoMips16AttrSpelling")
+  nb::enum_<pasta::NoMips16AttrSpelling>(m, "NoMips16AttrSpelling")
     .value("GNU_NOMIPS16", pasta::NoMips16AttrSpelling::kGNUNomips16)
     .value("CXX11_GNU_NOMIPS16", pasta::NoMips16AttrSpelling::kCXX11GnuNomips16)
     .value("C2X_GNU_NOMIPS16", pasta::NoMips16AttrSpelling::kC2xGnuNomips16)
     .value("SPELLING_NOT_CALCULATED", pasta::NoMips16AttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NoProfileFunctionAttrSpelling>(m, "NoProfileFunctionAttrSpelling")
+  nb::enum_<pasta::NoProfileFunctionAttrSpelling>(m, "NoProfileFunctionAttrSpelling")
     .value("GNU_NO_PROFILE_INSTRUMENT_FUNCTION", pasta::NoProfileFunctionAttrSpelling::kGNUNoProfileInstrumentFunction)
     .value("CXX11_GNU_NO_PROFILE_INSTRUMENT_FUNCTION", pasta::NoProfileFunctionAttrSpelling::kCXX11GnuNoProfileInstrumentFunction)
     .value("C2X_GNU_NO_PROFILE_INSTRUMENT_FUNCTION", pasta::NoProfileFunctionAttrSpelling::kC2xGnuNoProfileInstrumentFunction)
     .value("SPELLING_NOT_CALCULATED", pasta::NoProfileFunctionAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NoRandomizeLayoutAttrSpelling>(m, "NoRandomizeLayoutAttrSpelling")
+  nb::enum_<pasta::NoRandomizeLayoutAttrSpelling>(m, "NoRandomizeLayoutAttrSpelling")
     .value("GNU_NO_RANDOMIZE_LAYOUT", pasta::NoRandomizeLayoutAttrSpelling::kGNUNoRandomizeLayout)
     .value("CXX11_GNU_NO_RANDOMIZE_LAYOUT", pasta::NoRandomizeLayoutAttrSpelling::kCXX11GnuNoRandomizeLayout)
     .value("C2X_GNU_NO_RANDOMIZE_LAYOUT", pasta::NoRandomizeLayoutAttrSpelling::kC2xGnuNoRandomizeLayout)
     .value("SPELLING_NOT_CALCULATED", pasta::NoRandomizeLayoutAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NoReturnAttrSpelling>(m, "NoReturnAttrSpelling")
+  nb::enum_<pasta::NoReturnAttrSpelling>(m, "NoReturnAttrSpelling")
     .value("GNU_NORETURN", pasta::NoReturnAttrSpelling::kGNUNoreturn)
     .value("CXX11_GNU_NORETURN", pasta::NoReturnAttrSpelling::kCXX11GnuNoreturn)
     .value("C2X_GNU_NORETURN", pasta::NoReturnAttrSpelling::kC2xGnuNoreturn)
     .value("DECLSPEC_NORETURN", pasta::NoReturnAttrSpelling::kDeclspecNoreturn)
     .value("SPELLING_NOT_CALCULATED", pasta::NoReturnAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NoSanitizeAttrSpelling>(m, "NoSanitizeAttrSpelling")
+  nb::enum_<pasta::NoSanitizeAttrSpelling>(m, "NoSanitizeAttrSpelling")
     .value("GNU_NO_SANITIZE", pasta::NoSanitizeAttrSpelling::kGNUNoSanitize)
     .value("CXX11_CLANG_NO_SANITIZE", pasta::NoSanitizeAttrSpelling::kCXX11ClangNoSanitize)
     .value("C2X_CLANG_NO_SANITIZE", pasta::NoSanitizeAttrSpelling::kC2xClangNoSanitize)
     .value("SPELLING_NOT_CALCULATED", pasta::NoSanitizeAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NoSpeculativeLoadHardeningAttrSpelling>(m, "NoSpeculativeLoadHardeningAttrSpelling")
+  nb::enum_<pasta::NoSpeculativeLoadHardeningAttrSpelling>(m, "NoSpeculativeLoadHardeningAttrSpelling")
     .value("GNU_NO_SPECULATIVE_LOAD_HARDENING", pasta::NoSpeculativeLoadHardeningAttrSpelling::kGNUNoSpeculativeLoadHardening)
     .value("CXX11_CLANG_NO_SPECULATIVE_LOAD_HARDENING", pasta::NoSpeculativeLoadHardeningAttrSpelling::kCXX11ClangNoSpeculativeLoadHardening)
     .value("C2X_CLANG_NO_SPECULATIVE_LOAD_HARDENING", pasta::NoSpeculativeLoadHardeningAttrSpelling::kC2xClangNoSpeculativeLoadHardening)
     .value("SPELLING_NOT_CALCULATED", pasta::NoSpeculativeLoadHardeningAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NoSplitStackAttrSpelling>(m, "NoSplitStackAttrSpelling")
+  nb::enum_<pasta::NoSplitStackAttrSpelling>(m, "NoSplitStackAttrSpelling")
     .value("GNU_NO_SPLIT_STACK", pasta::NoSplitStackAttrSpelling::kGNUNoSplitStack)
     .value("CXX11_GNU_NO_SPLIT_STACK", pasta::NoSplitStackAttrSpelling::kCXX11GnuNoSplitStack)
     .value("C2X_GNU_NO_SPLIT_STACK", pasta::NoSplitStackAttrSpelling::kC2xGnuNoSplitStack)
     .value("SPELLING_NOT_CALCULATED", pasta::NoSplitStackAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NoStackProtectorAttrSpelling>(m, "NoStackProtectorAttrSpelling")
+  nb::enum_<pasta::NoStackProtectorAttrSpelling>(m, "NoStackProtectorAttrSpelling")
     .value("GNU_NO_STACK_PROTECTOR", pasta::NoStackProtectorAttrSpelling::kGNUNoStackProtector)
     .value("CXX11_CLANG_NO_STACK_PROTECTOR", pasta::NoStackProtectorAttrSpelling::kCXX11ClangNoStackProtector)
     .value("C2X_CLANG_NO_STACK_PROTECTOR", pasta::NoStackProtectorAttrSpelling::kC2xClangNoStackProtector)
     .value("DECLSPEC_SAFEBUFFERS", pasta::NoStackProtectorAttrSpelling::kDeclspecSafebuffers)
     .value("SPELLING_NOT_CALCULATED", pasta::NoStackProtectorAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NoThreadSafetyAnalysisAttrSpelling>(m, "NoThreadSafetyAnalysisAttrSpelling")
+  nb::enum_<pasta::NoThreadSafetyAnalysisAttrSpelling>(m, "NoThreadSafetyAnalysisAttrSpelling")
     .value("GNU_NO_THREAD_SAFETY_ANALYSIS", pasta::NoThreadSafetyAnalysisAttrSpelling::kGNUNoThreadSafetyAnalysis)
     .value("CXX11_CLANG_NO_THREAD_SAFETY_ANALYSIS", pasta::NoThreadSafetyAnalysisAttrSpelling::kCXX11ClangNoThreadSafetyAnalysis)
     .value("C2X_CLANG_NO_THREAD_SAFETY_ANALYSIS", pasta::NoThreadSafetyAnalysisAttrSpelling::kC2xClangNoThreadSafetyAnalysis)
     .value("SPELLING_NOT_CALCULATED", pasta::NoThreadSafetyAnalysisAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NoThrowAttrSpelling>(m, "NoThrowAttrSpelling")
+  nb::enum_<pasta::NoThrowAttrSpelling>(m, "NoThrowAttrSpelling")
     .value("GNU_NOTHROW", pasta::NoThrowAttrSpelling::kGNUNothrow)
     .value("CXX11_GNU_NOTHROW", pasta::NoThrowAttrSpelling::kCXX11GnuNothrow)
     .value("C2X_GNU_NOTHROW", pasta::NoThrowAttrSpelling::kC2xGnuNothrow)
     .value("DECLSPEC_NOTHROW", pasta::NoThrowAttrSpelling::kDeclspecNothrow)
     .value("SPELLING_NOT_CALCULATED", pasta::NoThrowAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NoUwtableAttrSpelling>(m, "NoUwtableAttrSpelling")
+  nb::enum_<pasta::NoUwtableAttrSpelling>(m, "NoUwtableAttrSpelling")
     .value("GNU_NOUWTABLE", pasta::NoUwtableAttrSpelling::kGNUNouwtable)
     .value("CXX11_CLANG_NOUWTABLE", pasta::NoUwtableAttrSpelling::kCXX11ClangNouwtable)
     .value("C2X_CLANG_NOUWTABLE", pasta::NoUwtableAttrSpelling::kC2xClangNouwtable)
     .value("SPELLING_NOT_CALCULATED", pasta::NoUwtableAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NonNullAttrSpelling>(m, "NonNullAttrSpelling")
+  nb::enum_<pasta::NonNullAttrSpelling>(m, "NonNullAttrSpelling")
     .value("GNU_NONNULL", pasta::NonNullAttrSpelling::kGNUNonnull)
     .value("CXX11_GNU_NONNULL", pasta::NonNullAttrSpelling::kCXX11GnuNonnull)
     .value("C2X_GNU_NONNULL", pasta::NonNullAttrSpelling::kC2xGnuNonnull)
     .value("SPELLING_NOT_CALCULATED", pasta::NonNullAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::NotTailCalledAttrSpelling>(m, "NotTailCalledAttrSpelling")
+  nb::enum_<pasta::NotTailCalledAttrSpelling>(m, "NotTailCalledAttrSpelling")
     .value("GNU_NOT_TAIL_CALLED", pasta::NotTailCalledAttrSpelling::kGNUNotTailCalled)
     .value("CXX11_CLANG_NOT_TAIL_CALLED", pasta::NotTailCalledAttrSpelling::kCXX11ClangNotTailCalled)
     .value("C2X_CLANG_NOT_TAIL_CALLED", pasta::NotTailCalledAttrSpelling::kC2xClangNotTailCalled)
     .value("SPELLING_NOT_CALCULATED", pasta::NotTailCalledAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::OMPAllocateDeclAttrAllocatorTypeTy>(m, "OMPAllocateDeclAttrAllocatorTypeTy")
+  nb::enum_<pasta::OMPAllocateDeclAttrAllocatorTypeTy>(m, "OMPAllocateDeclAttrAllocatorTypeTy")
     .value("OMP_NULL_MEMORY_ALLOC", pasta::OMPAllocateDeclAttrAllocatorTypeTy::kOMPNullMemoryAlloc)
     .value("OMP_DEFAULT_MEMORY_ALLOC", pasta::OMPAllocateDeclAttrAllocatorTypeTy::kOMPDefaultMemoryAlloc)
     .value("OMP_LARGE_CAP_MEMORY_ALLOC", pasta::OMPAllocateDeclAttrAllocatorTypeTy::kOMPLargeCapMemoryAlloc)
@@ -1569,159 +1569,159 @@ void RegisterEnums(py::module_ &m) {
     .value("OMP_THREAD_MEMORY_ALLOC", pasta::OMPAllocateDeclAttrAllocatorTypeTy::kOMPThreadMemoryAlloc)
     .value("OMP_USER_DEFINED_MEMORY_ALLOC", pasta::OMPAllocateDeclAttrAllocatorTypeTy::kOMPUserDefinedMemoryAlloc);
 
-  py::enum_<pasta::OMPDeclareReductionDeclInitKind>(m, "OMPDeclareReductionDeclInitKind")
+  nb::enum_<pasta::OMPDeclareReductionDeclInitKind>(m, "OMPDeclareReductionDeclInitKind")
     .value("CALL_INITIALIZER", pasta::OMPDeclareReductionDeclInitKind::kCallInitializer)
     .value("DIRECT_INITIALIZER", pasta::OMPDeclareReductionDeclInitKind::kDirectInitializer)
     .value("COPY_INITIALIZER", pasta::OMPDeclareReductionDeclInitKind::kCopyInitializer);
 
-  py::enum_<pasta::OMPDeclareSimdDeclAttrBranchStateTy>(m, "OMPDeclareSimdDeclAttrBranchStateTy")
+  nb::enum_<pasta::OMPDeclareSimdDeclAttrBranchStateTy>(m, "OMPDeclareSimdDeclAttrBranchStateTy")
     .value("UNDEFINED", pasta::OMPDeclareSimdDeclAttrBranchStateTy::kUndefined)
     .value("INBRANCH", pasta::OMPDeclareSimdDeclAttrBranchStateTy::kInbranch)
     .value("NOTINBRANCH", pasta::OMPDeclareSimdDeclAttrBranchStateTy::kNotinbranch);
 
-  py::enum_<pasta::OMPDeclareTargetDeclAttrDevTypeTy>(m, "OMPDeclareTargetDeclAttrDevTypeTy")
+  nb::enum_<pasta::OMPDeclareTargetDeclAttrDevTypeTy>(m, "OMPDeclareTargetDeclAttrDevTypeTy")
     .value("HOST", pasta::OMPDeclareTargetDeclAttrDevTypeTy::kHost)
     .value("NO_HOST", pasta::OMPDeclareTargetDeclAttrDevTypeTy::kNoHost)
     .value("ANY", pasta::OMPDeclareTargetDeclAttrDevTypeTy::kAny);
 
-  py::enum_<pasta::OMPDeclareTargetDeclAttrMapTypeTy>(m, "OMPDeclareTargetDeclAttrMapTypeTy")
+  nb::enum_<pasta::OMPDeclareTargetDeclAttrMapTypeTy>(m, "OMPDeclareTargetDeclAttrMapTypeTy")
     .value("TO", pasta::OMPDeclareTargetDeclAttrMapTypeTy::kTo)
     .value("ENTER", pasta::OMPDeclareTargetDeclAttrMapTypeTy::kEnter)
     .value("LINK", pasta::OMPDeclareTargetDeclAttrMapTypeTy::kLink);
 
-  py::enum_<pasta::OSConsumedAttrSpelling>(m, "OSConsumedAttrSpelling")
+  nb::enum_<pasta::OSConsumedAttrSpelling>(m, "OSConsumedAttrSpelling")
     .value("GNU_OS_CONSUMED", pasta::OSConsumedAttrSpelling::kGNUOsConsumed)
     .value("CXX11_CLANG_OS_CONSUMED", pasta::OSConsumedAttrSpelling::kCXX11ClangOsConsumed)
     .value("C2X_CLANG_OS_CONSUMED", pasta::OSConsumedAttrSpelling::kC2xClangOsConsumed)
     .value("SPELLING_NOT_CALCULATED", pasta::OSConsumedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::OSConsumesThisAttrSpelling>(m, "OSConsumesThisAttrSpelling")
+  nb::enum_<pasta::OSConsumesThisAttrSpelling>(m, "OSConsumesThisAttrSpelling")
     .value("GNU_OS_CONSUMES_THIS", pasta::OSConsumesThisAttrSpelling::kGNUOsConsumesThis)
     .value("CXX11_CLANG_OS_CONSUMES_THIS", pasta::OSConsumesThisAttrSpelling::kCXX11ClangOsConsumesThis)
     .value("C2X_CLANG_OS_CONSUMES_THIS", pasta::OSConsumesThisAttrSpelling::kC2xClangOsConsumesThis)
     .value("SPELLING_NOT_CALCULATED", pasta::OSConsumesThisAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::OSReturnsNotRetainedAttrSpelling>(m, "OSReturnsNotRetainedAttrSpelling")
+  nb::enum_<pasta::OSReturnsNotRetainedAttrSpelling>(m, "OSReturnsNotRetainedAttrSpelling")
     .value("GNU_OS_RETURNS_NOT_RETAINED", pasta::OSReturnsNotRetainedAttrSpelling::kGNUOsReturnsNotRetained)
     .value("CXX11_CLANG_OS_RETURNS_NOT_RETAINED", pasta::OSReturnsNotRetainedAttrSpelling::kCXX11ClangOsReturnsNotRetained)
     .value("C2X_CLANG_OS_RETURNS_NOT_RETAINED", pasta::OSReturnsNotRetainedAttrSpelling::kC2xClangOsReturnsNotRetained)
     .value("SPELLING_NOT_CALCULATED", pasta::OSReturnsNotRetainedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::OSReturnsRetainedAttrSpelling>(m, "OSReturnsRetainedAttrSpelling")
+  nb::enum_<pasta::OSReturnsRetainedAttrSpelling>(m, "OSReturnsRetainedAttrSpelling")
     .value("GNU_OS_RETURNS_RETAINED", pasta::OSReturnsRetainedAttrSpelling::kGNUOsReturnsRetained)
     .value("CXX11_CLANG_OS_RETURNS_RETAINED", pasta::OSReturnsRetainedAttrSpelling::kCXX11ClangOsReturnsRetained)
     .value("C2X_CLANG_OS_RETURNS_RETAINED", pasta::OSReturnsRetainedAttrSpelling::kC2xClangOsReturnsRetained)
     .value("SPELLING_NOT_CALCULATED", pasta::OSReturnsRetainedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::OSReturnsRetainedOnNonZeroAttrSpelling>(m, "OSReturnsRetainedOnNonZeroAttrSpelling")
+  nb::enum_<pasta::OSReturnsRetainedOnNonZeroAttrSpelling>(m, "OSReturnsRetainedOnNonZeroAttrSpelling")
     .value("GNU_OS_RETURNS_RETAINED_ON_NON_ZERO", pasta::OSReturnsRetainedOnNonZeroAttrSpelling::kGNUOsReturnsRetainedOnNonZero)
     .value("CXX11_CLANG_OS_RETURNS_RETAINED_ON_NON_ZERO", pasta::OSReturnsRetainedOnNonZeroAttrSpelling::kCXX11ClangOsReturnsRetainedOnNonZero)
     .value("C2X_CLANG_OS_RETURNS_RETAINED_ON_NON_ZERO", pasta::OSReturnsRetainedOnNonZeroAttrSpelling::kC2xClangOsReturnsRetainedOnNonZero)
     .value("SPELLING_NOT_CALCULATED", pasta::OSReturnsRetainedOnNonZeroAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::OSReturnsRetainedOnZeroAttrSpelling>(m, "OSReturnsRetainedOnZeroAttrSpelling")
+  nb::enum_<pasta::OSReturnsRetainedOnZeroAttrSpelling>(m, "OSReturnsRetainedOnZeroAttrSpelling")
     .value("GNU_OS_RETURNS_RETAINED_ON_ZERO", pasta::OSReturnsRetainedOnZeroAttrSpelling::kGNUOsReturnsRetainedOnZero)
     .value("CXX11_CLANG_OS_RETURNS_RETAINED_ON_ZERO", pasta::OSReturnsRetainedOnZeroAttrSpelling::kCXX11ClangOsReturnsRetainedOnZero)
     .value("C2X_CLANG_OS_RETURNS_RETAINED_ON_ZERO", pasta::OSReturnsRetainedOnZeroAttrSpelling::kC2xClangOsReturnsRetainedOnZero)
     .value("SPELLING_NOT_CALCULATED", pasta::OSReturnsRetainedOnZeroAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCBoxableAttrSpelling>(m, "ObjCBoxableAttrSpelling")
+  nb::enum_<pasta::ObjCBoxableAttrSpelling>(m, "ObjCBoxableAttrSpelling")
     .value("GNU_OBJC_BOXABLE", pasta::ObjCBoxableAttrSpelling::kGNUObjcBoxable)
     .value("CXX11_CLANG_OBJC_BOXABLE", pasta::ObjCBoxableAttrSpelling::kCXX11ClangObjcBoxable)
     .value("C2X_CLANG_OBJC_BOXABLE", pasta::ObjCBoxableAttrSpelling::kC2xClangObjcBoxable)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCBoxableAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCBridgeAttrSpelling>(m, "ObjCBridgeAttrSpelling")
+  nb::enum_<pasta::ObjCBridgeAttrSpelling>(m, "ObjCBridgeAttrSpelling")
     .value("GNU_OBJC_BRIDGE", pasta::ObjCBridgeAttrSpelling::kGNUObjcBridge)
     .value("CXX11_CLANG_OBJC_BRIDGE", pasta::ObjCBridgeAttrSpelling::kCXX11ClangObjcBridge)
     .value("C2X_CLANG_OBJC_BRIDGE", pasta::ObjCBridgeAttrSpelling::kC2xClangObjcBridge)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCBridgeAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCBridgeMutableAttrSpelling>(m, "ObjCBridgeMutableAttrSpelling")
+  nb::enum_<pasta::ObjCBridgeMutableAttrSpelling>(m, "ObjCBridgeMutableAttrSpelling")
     .value("GNU_OBJC_BRIDGE_MUTABLE", pasta::ObjCBridgeMutableAttrSpelling::kGNUObjcBridgeMutable)
     .value("CXX11_CLANG_OBJC_BRIDGE_MUTABLE", pasta::ObjCBridgeMutableAttrSpelling::kCXX11ClangObjcBridgeMutable)
     .value("C2X_CLANG_OBJC_BRIDGE_MUTABLE", pasta::ObjCBridgeMutableAttrSpelling::kC2xClangObjcBridgeMutable)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCBridgeMutableAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCBridgeRelatedAttrSpelling>(m, "ObjCBridgeRelatedAttrSpelling")
+  nb::enum_<pasta::ObjCBridgeRelatedAttrSpelling>(m, "ObjCBridgeRelatedAttrSpelling")
     .value("GNU_OBJC_BRIDGE_RELATED", pasta::ObjCBridgeRelatedAttrSpelling::kGNUObjcBridgeRelated)
     .value("CXX11_CLANG_OBJC_BRIDGE_RELATED", pasta::ObjCBridgeRelatedAttrSpelling::kCXX11ClangObjcBridgeRelated)
     .value("C2X_CLANG_OBJC_BRIDGE_RELATED", pasta::ObjCBridgeRelatedAttrSpelling::kC2xClangObjcBridgeRelated)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCBridgeRelatedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCClassStubAttrSpelling>(m, "ObjCClassStubAttrSpelling")
+  nb::enum_<pasta::ObjCClassStubAttrSpelling>(m, "ObjCClassStubAttrSpelling")
     .value("GNU_OBJC_CLASS_STUB", pasta::ObjCClassStubAttrSpelling::kGNUObjcClassStub)
     .value("CXX11_CLANG_OBJC_CLASS_STUB", pasta::ObjCClassStubAttrSpelling::kCXX11ClangObjcClassStub)
     .value("C2X_CLANG_OBJC_CLASS_STUB", pasta::ObjCClassStubAttrSpelling::kC2xClangObjcClassStub)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCClassStubAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCDesignatedInitializerAttrSpelling>(m, "ObjCDesignatedInitializerAttrSpelling")
+  nb::enum_<pasta::ObjCDesignatedInitializerAttrSpelling>(m, "ObjCDesignatedInitializerAttrSpelling")
     .value("GNU_OBJC_DESIGNATED_INITIALIZER", pasta::ObjCDesignatedInitializerAttrSpelling::kGNUObjcDesignatedInitializer)
     .value("CXX11_CLANG_OBJC_DESIGNATED_INITIALIZER", pasta::ObjCDesignatedInitializerAttrSpelling::kCXX11ClangObjcDesignatedInitializer)
     .value("C2X_CLANG_OBJC_DESIGNATED_INITIALIZER", pasta::ObjCDesignatedInitializerAttrSpelling::kC2xClangObjcDesignatedInitializer)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCDesignatedInitializerAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCDirectAttrSpelling>(m, "ObjCDirectAttrSpelling")
+  nb::enum_<pasta::ObjCDirectAttrSpelling>(m, "ObjCDirectAttrSpelling")
     .value("GNU_OBJC_DIRECT", pasta::ObjCDirectAttrSpelling::kGNUObjcDirect)
     .value("CXX11_CLANG_OBJC_DIRECT", pasta::ObjCDirectAttrSpelling::kCXX11ClangObjcDirect)
     .value("C2X_CLANG_OBJC_DIRECT", pasta::ObjCDirectAttrSpelling::kC2xClangObjcDirect)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCDirectAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCDirectMembersAttrSpelling>(m, "ObjCDirectMembersAttrSpelling")
+  nb::enum_<pasta::ObjCDirectMembersAttrSpelling>(m, "ObjCDirectMembersAttrSpelling")
     .value("GNU_OBJC_DIRECT_MEMBERS", pasta::ObjCDirectMembersAttrSpelling::kGNUObjcDirectMembers)
     .value("CXX11_CLANG_OBJC_DIRECT_MEMBERS", pasta::ObjCDirectMembersAttrSpelling::kCXX11ClangObjcDirectMembers)
     .value("C2X_CLANG_OBJC_DIRECT_MEMBERS", pasta::ObjCDirectMembersAttrSpelling::kC2xClangObjcDirectMembers)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCDirectMembersAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCExceptionAttrSpelling>(m, "ObjCExceptionAttrSpelling")
+  nb::enum_<pasta::ObjCExceptionAttrSpelling>(m, "ObjCExceptionAttrSpelling")
     .value("GNU_OBJC_EXCEPTION", pasta::ObjCExceptionAttrSpelling::kGNUObjcException)
     .value("CXX11_CLANG_OBJC_EXCEPTION", pasta::ObjCExceptionAttrSpelling::kCXX11ClangObjcException)
     .value("C2X_CLANG_OBJC_EXCEPTION", pasta::ObjCExceptionAttrSpelling::kC2xClangObjcException)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCExceptionAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCExplicitProtocolImplAttrSpelling>(m, "ObjCExplicitProtocolImplAttrSpelling")
+  nb::enum_<pasta::ObjCExplicitProtocolImplAttrSpelling>(m, "ObjCExplicitProtocolImplAttrSpelling")
     .value("GNU_OBJC_PROTOCOL_REQUIRES_EXPLICIT_IMPLEMENTATION", pasta::ObjCExplicitProtocolImplAttrSpelling::kGNUObjcProtocolRequiresExplicitImplementation)
     .value("CXX11_CLANG_OBJC_PROTOCOL_REQUIRES_EXPLICIT_IMPLEMENTATION", pasta::ObjCExplicitProtocolImplAttrSpelling::kCXX11ClangObjcProtocolRequiresExplicitImplementation)
     .value("C2X_CLANG_OBJC_PROTOCOL_REQUIRES_EXPLICIT_IMPLEMENTATION", pasta::ObjCExplicitProtocolImplAttrSpelling::kC2xClangObjcProtocolRequiresExplicitImplementation)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCExplicitProtocolImplAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCExternallyRetainedAttrSpelling>(m, "ObjCExternallyRetainedAttrSpelling")
+  nb::enum_<pasta::ObjCExternallyRetainedAttrSpelling>(m, "ObjCExternallyRetainedAttrSpelling")
     .value("GNU_OBJC_EXTERNALLY_RETAINED", pasta::ObjCExternallyRetainedAttrSpelling::kGNUObjcExternallyRetained)
     .value("CXX11_CLANG_OBJC_EXTERNALLY_RETAINED", pasta::ObjCExternallyRetainedAttrSpelling::kCXX11ClangObjcExternallyRetained)
     .value("C2X_CLANG_OBJC_EXTERNALLY_RETAINED", pasta::ObjCExternallyRetainedAttrSpelling::kC2xClangObjcExternallyRetained)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCExternallyRetainedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCGCAttrSpelling>(m, "ObjCGCAttrSpelling")
+  nb::enum_<pasta::ObjCGCAttrSpelling>(m, "ObjCGCAttrSpelling")
     .value("GNU_OBJC_GC", pasta::ObjCGCAttrSpelling::kGNUObjcGc)
     .value("CXX11_CLANG_OBJC_GC", pasta::ObjCGCAttrSpelling::kCXX11ClangObjcGc)
     .value("C2X_CLANG_OBJC_GC", pasta::ObjCGCAttrSpelling::kC2xClangObjcGc)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCGCAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCIndependentClassAttrSpelling>(m, "ObjCIndependentClassAttrSpelling")
+  nb::enum_<pasta::ObjCIndependentClassAttrSpelling>(m, "ObjCIndependentClassAttrSpelling")
     .value("GNU_OBJC_INDEPENDENT_CLASS", pasta::ObjCIndependentClassAttrSpelling::kGNUObjcIndependentClass)
     .value("CXX11_CLANG_OBJC_INDEPENDENT_CLASS", pasta::ObjCIndependentClassAttrSpelling::kCXX11ClangObjcIndependentClass)
     .value("C2X_CLANG_OBJC_INDEPENDENT_CLASS", pasta::ObjCIndependentClassAttrSpelling::kC2xClangObjcIndependentClass)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCIndependentClassAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCIvarDeclAccessControl>(m, "ObjCIvarDeclAccessControl")
+  nb::enum_<pasta::ObjCIvarDeclAccessControl>(m, "ObjCIvarDeclAccessControl")
     .value("NONE", pasta::ObjCIvarDeclAccessControl::kNone)
     .value("PRIVATE", pasta::ObjCIvarDeclAccessControl::kPrivate)
     .value("PROTECTED", pasta::ObjCIvarDeclAccessControl::kProtected)
     .value("PUBLIC", pasta::ObjCIvarDeclAccessControl::kPublic)
     .value("PACKAGE", pasta::ObjCIvarDeclAccessControl::kPackage);
 
-  py::enum_<pasta::ObjCMessageExprReceiverKind>(m, "ObjCMessageExprReceiverKind")
+  nb::enum_<pasta::ObjCMessageExprReceiverKind>(m, "ObjCMessageExprReceiverKind")
     .value("CLASS", pasta::ObjCMessageExprReceiverKind::kClass)
     .value("INSTANCE", pasta::ObjCMessageExprReceiverKind::kInstance)
     .value("SUPER_CLASS", pasta::ObjCMessageExprReceiverKind::kSuperClass)
     .value("SUPER_INSTANCE", pasta::ObjCMessageExprReceiverKind::kSuperInstance);
 
-  py::enum_<pasta::ObjCMethodDeclImplementationControl>(m, "ObjCMethodDeclImplementationControl")
+  nb::enum_<pasta::ObjCMethodDeclImplementationControl>(m, "ObjCMethodDeclImplementationControl")
     .value("NONE", pasta::ObjCMethodDeclImplementationControl::kNone)
     .value("REQUIRED", pasta::ObjCMethodDeclImplementationControl::kRequired)
     .value("OPTIONAL", pasta::ObjCMethodDeclImplementationControl::kOptional);
 
-  py::enum_<pasta::ObjCMethodFamilyAttrFamilyKind>(m, "ObjCMethodFamilyAttrFamilyKind")
+  nb::enum_<pasta::ObjCMethodFamilyAttrFamilyKind>(m, "ObjCMethodFamilyAttrFamilyKind")
     .value("NONE", pasta::ObjCMethodFamilyAttrFamilyKind::kNone)
     .value("ALLOC", pasta::ObjCMethodFamilyAttrFamilyKind::kAlloc)
     .value("COPY", pasta::ObjCMethodFamilyAttrFamilyKind::kCopy)
@@ -1729,174 +1729,174 @@ void RegisterEnums(py::module_ &m) {
     .value("MUTABLE_COPY", pasta::ObjCMethodFamilyAttrFamilyKind::kMutableCopy)
     .value("NEW", pasta::ObjCMethodFamilyAttrFamilyKind::kNew);
 
-  py::enum_<pasta::ObjCMethodFamilyAttrSpelling>(m, "ObjCMethodFamilyAttrSpelling")
+  nb::enum_<pasta::ObjCMethodFamilyAttrSpelling>(m, "ObjCMethodFamilyAttrSpelling")
     .value("GNU_OBJC_METHOD_FAMILY", pasta::ObjCMethodFamilyAttrSpelling::kGNUObjcMethodFamily)
     .value("CXX11_CLANG_OBJC_METHOD_FAMILY", pasta::ObjCMethodFamilyAttrSpelling::kCXX11ClangObjcMethodFamily)
     .value("C2X_CLANG_OBJC_METHOD_FAMILY", pasta::ObjCMethodFamilyAttrSpelling::kC2xClangObjcMethodFamily)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCMethodFamilyAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCNSObjectAttrSpelling>(m, "ObjCNSObjectAttrSpelling")
+  nb::enum_<pasta::ObjCNSObjectAttrSpelling>(m, "ObjCNSObjectAttrSpelling")
     .value("GNUNS_OBJECT", pasta::ObjCNSObjectAttrSpelling::kGNUNSObject)
     .value("CXX11_CLANG_NS_OBJECT", pasta::ObjCNSObjectAttrSpelling::kCXX11ClangNSObject)
     .value("C2X_CLANG_NS_OBJECT", pasta::ObjCNSObjectAttrSpelling::kC2xClangNSObject)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCNSObjectAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCNonLazyClassAttrSpelling>(m, "ObjCNonLazyClassAttrSpelling")
+  nb::enum_<pasta::ObjCNonLazyClassAttrSpelling>(m, "ObjCNonLazyClassAttrSpelling")
     .value("GNU_OBJC_NONLAZY_CLASS", pasta::ObjCNonLazyClassAttrSpelling::kGNUObjcNonlazyClass)
     .value("CXX11_CLANG_OBJC_NONLAZY_CLASS", pasta::ObjCNonLazyClassAttrSpelling::kCXX11ClangObjcNonlazyClass)
     .value("C2X_CLANG_OBJC_NONLAZY_CLASS", pasta::ObjCNonLazyClassAttrSpelling::kC2xClangObjcNonlazyClass)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCNonLazyClassAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCNonRuntimeProtocolAttrSpelling>(m, "ObjCNonRuntimeProtocolAttrSpelling")
+  nb::enum_<pasta::ObjCNonRuntimeProtocolAttrSpelling>(m, "ObjCNonRuntimeProtocolAttrSpelling")
     .value("GNU_OBJC_NON_RUNTIME_PROTOCOL", pasta::ObjCNonRuntimeProtocolAttrSpelling::kGNUObjcNonRuntimeProtocol)
     .value("CXX11_CLANG_OBJC_NON_RUNTIME_PROTOCOL", pasta::ObjCNonRuntimeProtocolAttrSpelling::kCXX11ClangObjcNonRuntimeProtocol)
     .value("C2X_CLANG_OBJC_NON_RUNTIME_PROTOCOL", pasta::ObjCNonRuntimeProtocolAttrSpelling::kC2xClangObjcNonRuntimeProtocol)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCNonRuntimeProtocolAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCOwnershipAttrSpelling>(m, "ObjCOwnershipAttrSpelling")
+  nb::enum_<pasta::ObjCOwnershipAttrSpelling>(m, "ObjCOwnershipAttrSpelling")
     .value("GNU_OBJC_OWNERSHIP", pasta::ObjCOwnershipAttrSpelling::kGNUObjcOwnership)
     .value("CXX11_CLANG_OBJC_OWNERSHIP", pasta::ObjCOwnershipAttrSpelling::kCXX11ClangObjcOwnership)
     .value("C2X_CLANG_OBJC_OWNERSHIP", pasta::ObjCOwnershipAttrSpelling::kC2xClangObjcOwnership)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCOwnershipAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCPreciseLifetimeAttrSpelling>(m, "ObjCPreciseLifetimeAttrSpelling")
+  nb::enum_<pasta::ObjCPreciseLifetimeAttrSpelling>(m, "ObjCPreciseLifetimeAttrSpelling")
     .value("GNU_OBJC_PRECISE_LIFETIME", pasta::ObjCPreciseLifetimeAttrSpelling::kGNUObjcPreciseLifetime)
     .value("CXX11_CLANG_OBJC_PRECISE_LIFETIME", pasta::ObjCPreciseLifetimeAttrSpelling::kCXX11ClangObjcPreciseLifetime)
     .value("C2X_CLANG_OBJC_PRECISE_LIFETIME", pasta::ObjCPreciseLifetimeAttrSpelling::kC2xClangObjcPreciseLifetime)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCPreciseLifetimeAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCPropertyDeclPropertyControl>(m, "ObjCPropertyDeclPropertyControl")
+  nb::enum_<pasta::ObjCPropertyDeclPropertyControl>(m, "ObjCPropertyDeclPropertyControl")
     .value("NONE", pasta::ObjCPropertyDeclPropertyControl::kNone)
     .value("REQUIRED", pasta::ObjCPropertyDeclPropertyControl::kRequired)
     .value("OPTIONAL", pasta::ObjCPropertyDeclPropertyControl::kOptional);
 
-  py::enum_<pasta::ObjCPropertyDeclSetterKind>(m, "ObjCPropertyDeclSetterKind")
+  nb::enum_<pasta::ObjCPropertyDeclSetterKind>(m, "ObjCPropertyDeclSetterKind")
     .value("ASSIGN", pasta::ObjCPropertyDeclSetterKind::kAssign)
     .value("RETAIN", pasta::ObjCPropertyDeclSetterKind::kRetain)
     .value("COPY", pasta::ObjCPropertyDeclSetterKind::kCopy)
     .value("WEAK", pasta::ObjCPropertyDeclSetterKind::kWeak);
 
-  py::enum_<pasta::ObjCPropertyImplDeclKind>(m, "ObjCPropertyImplDeclKind")
+  nb::enum_<pasta::ObjCPropertyImplDeclKind>(m, "ObjCPropertyImplDeclKind")
     .value("SYNTHESIZE", pasta::ObjCPropertyImplDeclKind::kSynthesize)
     .value("DYNAMIC", pasta::ObjCPropertyImplDeclKind::kDynamic);
 
-  py::enum_<pasta::ObjCRequiresPropertyDefsAttrSpelling>(m, "ObjCRequiresPropertyDefsAttrSpelling")
+  nb::enum_<pasta::ObjCRequiresPropertyDefsAttrSpelling>(m, "ObjCRequiresPropertyDefsAttrSpelling")
     .value("GNU_OBJC_REQUIRES_PROPERTY_DEFINITIONS", pasta::ObjCRequiresPropertyDefsAttrSpelling::kGNUObjcRequiresPropertyDefinitions)
     .value("CXX11_CLANG_OBJC_REQUIRES_PROPERTY_DEFINITIONS", pasta::ObjCRequiresPropertyDefsAttrSpelling::kCXX11ClangObjcRequiresPropertyDefinitions)
     .value("C2X_CLANG_OBJC_REQUIRES_PROPERTY_DEFINITIONS", pasta::ObjCRequiresPropertyDefsAttrSpelling::kC2xClangObjcRequiresPropertyDefinitions)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCRequiresPropertyDefsAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCRequiresSuperAttrSpelling>(m, "ObjCRequiresSuperAttrSpelling")
+  nb::enum_<pasta::ObjCRequiresSuperAttrSpelling>(m, "ObjCRequiresSuperAttrSpelling")
     .value("GNU_OBJC_REQUIRES_SUPER", pasta::ObjCRequiresSuperAttrSpelling::kGNUObjcRequiresSuper)
     .value("CXX11_CLANG_OBJC_REQUIRES_SUPER", pasta::ObjCRequiresSuperAttrSpelling::kCXX11ClangObjcRequiresSuper)
     .value("C2X_CLANG_OBJC_REQUIRES_SUPER", pasta::ObjCRequiresSuperAttrSpelling::kC2xClangObjcRequiresSuper)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCRequiresSuperAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCReturnsInnerPointerAttrSpelling>(m, "ObjCReturnsInnerPointerAttrSpelling")
+  nb::enum_<pasta::ObjCReturnsInnerPointerAttrSpelling>(m, "ObjCReturnsInnerPointerAttrSpelling")
     .value("GNU_OBJC_RETURNS_INNER_POINTER", pasta::ObjCReturnsInnerPointerAttrSpelling::kGNUObjcReturnsInnerPointer)
     .value("CXX11_CLANG_OBJC_RETURNS_INNER_POINTER", pasta::ObjCReturnsInnerPointerAttrSpelling::kCXX11ClangObjcReturnsInnerPointer)
     .value("C2X_CLANG_OBJC_RETURNS_INNER_POINTER", pasta::ObjCReturnsInnerPointerAttrSpelling::kC2xClangObjcReturnsInnerPointer)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCReturnsInnerPointerAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCRootClassAttrSpelling>(m, "ObjCRootClassAttrSpelling")
+  nb::enum_<pasta::ObjCRootClassAttrSpelling>(m, "ObjCRootClassAttrSpelling")
     .value("GNU_OBJC_ROOT_CLASS", pasta::ObjCRootClassAttrSpelling::kGNUObjcRootClass)
     .value("CXX11_CLANG_OBJC_ROOT_CLASS", pasta::ObjCRootClassAttrSpelling::kCXX11ClangObjcRootClass)
     .value("C2X_CLANG_OBJC_ROOT_CLASS", pasta::ObjCRootClassAttrSpelling::kC2xClangObjcRootClass)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCRootClassAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCRuntimeNameAttrSpelling>(m, "ObjCRuntimeNameAttrSpelling")
+  nb::enum_<pasta::ObjCRuntimeNameAttrSpelling>(m, "ObjCRuntimeNameAttrSpelling")
     .value("GNU_OBJC_RUNTIME_NAME", pasta::ObjCRuntimeNameAttrSpelling::kGNUObjcRuntimeName)
     .value("CXX11_CLANG_OBJC_RUNTIME_NAME", pasta::ObjCRuntimeNameAttrSpelling::kCXX11ClangObjcRuntimeName)
     .value("C2X_CLANG_OBJC_RUNTIME_NAME", pasta::ObjCRuntimeNameAttrSpelling::kC2xClangObjcRuntimeName)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCRuntimeNameAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCRuntimeVisibleAttrSpelling>(m, "ObjCRuntimeVisibleAttrSpelling")
+  nb::enum_<pasta::ObjCRuntimeVisibleAttrSpelling>(m, "ObjCRuntimeVisibleAttrSpelling")
     .value("GNU_OBJC_RUNTIME_VISIBLE", pasta::ObjCRuntimeVisibleAttrSpelling::kGNUObjcRuntimeVisible)
     .value("CXX11_CLANG_OBJC_RUNTIME_VISIBLE", pasta::ObjCRuntimeVisibleAttrSpelling::kCXX11ClangObjcRuntimeVisible)
     .value("C2X_CLANG_OBJC_RUNTIME_VISIBLE", pasta::ObjCRuntimeVisibleAttrSpelling::kC2xClangObjcRuntimeVisible)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCRuntimeVisibleAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ObjCSubclassingRestrictedAttrSpelling>(m, "ObjCSubclassingRestrictedAttrSpelling")
+  nb::enum_<pasta::ObjCSubclassingRestrictedAttrSpelling>(m, "ObjCSubclassingRestrictedAttrSpelling")
     .value("GNU_OBJC_SUBCLASSING_RESTRICTED", pasta::ObjCSubclassingRestrictedAttrSpelling::kGNUObjcSubclassingRestricted)
     .value("CXX11_CLANG_OBJC_SUBCLASSING_RESTRICTED", pasta::ObjCSubclassingRestrictedAttrSpelling::kCXX11ClangObjcSubclassingRestricted)
     .value("C2X_CLANG_OBJC_SUBCLASSING_RESTRICTED", pasta::ObjCSubclassingRestrictedAttrSpelling::kC2xClangObjcSubclassingRestricted)
     .value("SPELLING_NOT_CALCULATED", pasta::ObjCSubclassingRestrictedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::OpenCLAccessAttrSpelling>(m, "OpenCLAccessAttrSpelling")
+  nb::enum_<pasta::OpenCLAccessAttrSpelling>(m, "OpenCLAccessAttrSpelling")
     .value("KEYWORD_READ_ONLY", pasta::OpenCLAccessAttrSpelling::kKeywordReadOnly)
     .value("KEYWORD_WRITE_ONLY", pasta::OpenCLAccessAttrSpelling::kKeywordWriteOnly)
     .value("KEYWORD_READ_WRITE", pasta::OpenCLAccessAttrSpelling::kKeywordReadWrite)
     .value("SPELLING_NOT_CALCULATED", pasta::OpenCLAccessAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::OpenCLConstantAddressSpaceAttrSpelling>(m, "OpenCLConstantAddressSpaceAttrSpelling")
+  nb::enum_<pasta::OpenCLConstantAddressSpaceAttrSpelling>(m, "OpenCLConstantAddressSpaceAttrSpelling")
     .value("KEYWORD_CONSTANT", pasta::OpenCLConstantAddressSpaceAttrSpelling::kKeywordConstant)
     .value("GNU_OPENCL_CONSTANT", pasta::OpenCLConstantAddressSpaceAttrSpelling::kGNUOpenclConstant)
     .value("CXX11_CLANG_OPENCL_CONSTANT", pasta::OpenCLConstantAddressSpaceAttrSpelling::kCXX11ClangOpenclConstant)
     .value("C2X_CLANG_OPENCL_CONSTANT", pasta::OpenCLConstantAddressSpaceAttrSpelling::kC2xClangOpenclConstant)
     .value("SPELLING_NOT_CALCULATED", pasta::OpenCLConstantAddressSpaceAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::OpenCLGenericAddressSpaceAttrSpelling>(m, "OpenCLGenericAddressSpaceAttrSpelling")
+  nb::enum_<pasta::OpenCLGenericAddressSpaceAttrSpelling>(m, "OpenCLGenericAddressSpaceAttrSpelling")
     .value("KEYWORD_GENERIC", pasta::OpenCLGenericAddressSpaceAttrSpelling::kKeywordGeneric)
     .value("GNU_OPENCL_GENERIC", pasta::OpenCLGenericAddressSpaceAttrSpelling::kGNUOpenclGeneric)
     .value("CXX11_CLANG_OPENCL_GENERIC", pasta::OpenCLGenericAddressSpaceAttrSpelling::kCXX11ClangOpenclGeneric)
     .value("C2X_CLANG_OPENCL_GENERIC", pasta::OpenCLGenericAddressSpaceAttrSpelling::kC2xClangOpenclGeneric)
     .value("SPELLING_NOT_CALCULATED", pasta::OpenCLGenericAddressSpaceAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::OpenCLGlobalAddressSpaceAttrSpelling>(m, "OpenCLGlobalAddressSpaceAttrSpelling")
+  nb::enum_<pasta::OpenCLGlobalAddressSpaceAttrSpelling>(m, "OpenCLGlobalAddressSpaceAttrSpelling")
     .value("KEYWORD_GLOBAL", pasta::OpenCLGlobalAddressSpaceAttrSpelling::kKeywordGlobal)
     .value("GNU_OPENCL_GLOBAL", pasta::OpenCLGlobalAddressSpaceAttrSpelling::kGNUOpenclGlobal)
     .value("CXX11_CLANG_OPENCL_GLOBAL", pasta::OpenCLGlobalAddressSpaceAttrSpelling::kCXX11ClangOpenclGlobal)
     .value("C2X_CLANG_OPENCL_GLOBAL", pasta::OpenCLGlobalAddressSpaceAttrSpelling::kC2xClangOpenclGlobal)
     .value("SPELLING_NOT_CALCULATED", pasta::OpenCLGlobalAddressSpaceAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::OpenCLGlobalDeviceAddressSpaceAttrSpelling>(m, "OpenCLGlobalDeviceAddressSpaceAttrSpelling")
+  nb::enum_<pasta::OpenCLGlobalDeviceAddressSpaceAttrSpelling>(m, "OpenCLGlobalDeviceAddressSpaceAttrSpelling")
     .value("GNU_OPENCL_GLOBAL_DEVICE", pasta::OpenCLGlobalDeviceAddressSpaceAttrSpelling::kGNUOpenclGlobalDevice)
     .value("CXX11_CLANG_OPENCL_GLOBAL_DEVICE", pasta::OpenCLGlobalDeviceAddressSpaceAttrSpelling::kCXX11ClangOpenclGlobalDevice)
     .value("C2X_CLANG_OPENCL_GLOBAL_DEVICE", pasta::OpenCLGlobalDeviceAddressSpaceAttrSpelling::kC2xClangOpenclGlobalDevice)
     .value("SPELLING_NOT_CALCULATED", pasta::OpenCLGlobalDeviceAddressSpaceAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::OpenCLGlobalHostAddressSpaceAttrSpelling>(m, "OpenCLGlobalHostAddressSpaceAttrSpelling")
+  nb::enum_<pasta::OpenCLGlobalHostAddressSpaceAttrSpelling>(m, "OpenCLGlobalHostAddressSpaceAttrSpelling")
     .value("GNU_OPENCL_GLOBAL_HOST", pasta::OpenCLGlobalHostAddressSpaceAttrSpelling::kGNUOpenclGlobalHost)
     .value("CXX11_CLANG_OPENCL_GLOBAL_HOST", pasta::OpenCLGlobalHostAddressSpaceAttrSpelling::kCXX11ClangOpenclGlobalHost)
     .value("C2X_CLANG_OPENCL_GLOBAL_HOST", pasta::OpenCLGlobalHostAddressSpaceAttrSpelling::kC2xClangOpenclGlobalHost)
     .value("SPELLING_NOT_CALCULATED", pasta::OpenCLGlobalHostAddressSpaceAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::OpenCLKernelAttrSpelling>(m, "OpenCLKernelAttrSpelling")
+  nb::enum_<pasta::OpenCLKernelAttrSpelling>(m, "OpenCLKernelAttrSpelling")
     .value("KEYWORD_KERNEL", pasta::OpenCLKernelAttrSpelling::kKeywordKernel)
     .value("SPELLING_NOT_CALCULATED", pasta::OpenCLKernelAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::OpenCLLocalAddressSpaceAttrSpelling>(m, "OpenCLLocalAddressSpaceAttrSpelling")
+  nb::enum_<pasta::OpenCLLocalAddressSpaceAttrSpelling>(m, "OpenCLLocalAddressSpaceAttrSpelling")
     .value("KEYWORD_LOCAL", pasta::OpenCLLocalAddressSpaceAttrSpelling::kKeywordLocal)
     .value("GNU_OPENCL_LOCAL", pasta::OpenCLLocalAddressSpaceAttrSpelling::kGNUOpenclLocal)
     .value("CXX11_CLANG_OPENCL_LOCAL", pasta::OpenCLLocalAddressSpaceAttrSpelling::kCXX11ClangOpenclLocal)
     .value("C2X_CLANG_OPENCL_LOCAL", pasta::OpenCLLocalAddressSpaceAttrSpelling::kC2xClangOpenclLocal)
     .value("SPELLING_NOT_CALCULATED", pasta::OpenCLLocalAddressSpaceAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::OpenCLPrivateAddressSpaceAttrSpelling>(m, "OpenCLPrivateAddressSpaceAttrSpelling")
+  nb::enum_<pasta::OpenCLPrivateAddressSpaceAttrSpelling>(m, "OpenCLPrivateAddressSpaceAttrSpelling")
     .value("KEYWORD_PRIVATE", pasta::OpenCLPrivateAddressSpaceAttrSpelling::kKeywordPrivate)
     .value("GNU_OPENCL_PRIVATE", pasta::OpenCLPrivateAddressSpaceAttrSpelling::kGNUOpenclPrivate)
     .value("CXX11_CLANG_OPENCL_PRIVATE", pasta::OpenCLPrivateAddressSpaceAttrSpelling::kCXX11ClangOpenclPrivate)
     .value("C2X_CLANG_OPENCL_PRIVATE", pasta::OpenCLPrivateAddressSpaceAttrSpelling::kC2xClangOpenclPrivate)
     .value("SPELLING_NOT_CALCULATED", pasta::OpenCLPrivateAddressSpaceAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::OptimizeNoneAttrSpelling>(m, "OptimizeNoneAttrSpelling")
+  nb::enum_<pasta::OptimizeNoneAttrSpelling>(m, "OptimizeNoneAttrSpelling")
     .value("GNU_OPTNONE", pasta::OptimizeNoneAttrSpelling::kGNUOptnone)
     .value("CXX11_CLANG_OPTNONE", pasta::OptimizeNoneAttrSpelling::kCXX11ClangOptnone)
     .value("C2X_CLANG_OPTNONE", pasta::OptimizeNoneAttrSpelling::kC2xClangOptnone)
     .value("SPELLING_NOT_CALCULATED", pasta::OptimizeNoneAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::OverloadableAttrSpelling>(m, "OverloadableAttrSpelling")
+  nb::enum_<pasta::OverloadableAttrSpelling>(m, "OverloadableAttrSpelling")
     .value("GNU_OVERLOADABLE", pasta::OverloadableAttrSpelling::kGNUOverloadable)
     .value("CXX11_CLANG_OVERLOADABLE", pasta::OverloadableAttrSpelling::kCXX11ClangOverloadable)
     .value("C2X_CLANG_OVERLOADABLE", pasta::OverloadableAttrSpelling::kC2xClangOverloadable)
     .value("SPELLING_NOT_CALCULATED", pasta::OverloadableAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::OwnershipAttrOwnershipKind>(m, "OwnershipAttrOwnershipKind")
+  nb::enum_<pasta::OwnershipAttrOwnershipKind>(m, "OwnershipAttrOwnershipKind")
     .value("HOLDS", pasta::OwnershipAttrOwnershipKind::kHolds)
     .value("RETURNS", pasta::OwnershipAttrOwnershipKind::kReturns)
     .value("TAKES", pasta::OwnershipAttrOwnershipKind::kTakes);
 
-  py::enum_<pasta::OwnershipAttrSpelling>(m, "OwnershipAttrSpelling")
+  nb::enum_<pasta::OwnershipAttrSpelling>(m, "OwnershipAttrSpelling")
     .value("GNU_OWNERSHIP_HOLDS", pasta::OwnershipAttrSpelling::kGNUOwnershipHolds)
     .value("CXX11_CLANG_OWNERSHIP_HOLDS", pasta::OwnershipAttrSpelling::kCXX11ClangOwnershipHolds)
     .value("C2X_CLANG_OWNERSHIP_HOLDS", pasta::OwnershipAttrSpelling::kC2xClangOwnershipHolds)
@@ -1908,30 +1908,30 @@ void RegisterEnums(py::module_ &m) {
     .value("C2X_CLANG_OWNERSHIP_TAKES", pasta::OwnershipAttrSpelling::kC2xClangOwnershipTakes)
     .value("SPELLING_NOT_CALCULATED", pasta::OwnershipAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::PackedAttrSpelling>(m, "PackedAttrSpelling")
+  nb::enum_<pasta::PackedAttrSpelling>(m, "PackedAttrSpelling")
     .value("GNU_PACKED", pasta::PackedAttrSpelling::kGNUPacked)
     .value("CXX11_GNU_PACKED", pasta::PackedAttrSpelling::kCXX11GnuPacked)
     .value("C2X_GNU_PACKED", pasta::PackedAttrSpelling::kC2xGnuPacked)
     .value("SPELLING_NOT_CALCULATED", pasta::PackedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ParamTypestateAttrConsumedState>(m, "ParamTypestateAttrConsumedState")
+  nb::enum_<pasta::ParamTypestateAttrConsumedState>(m, "ParamTypestateAttrConsumedState")
     .value("UNKNOWN", pasta::ParamTypestateAttrConsumedState::kUnknown)
     .value("CONSUMED", pasta::ParamTypestateAttrConsumedState::kConsumed)
     .value("UNCONSUMED", pasta::ParamTypestateAttrConsumedState::kUnconsumed);
 
-  py::enum_<pasta::ParamTypestateAttrSpelling>(m, "ParamTypestateAttrSpelling")
+  nb::enum_<pasta::ParamTypestateAttrSpelling>(m, "ParamTypestateAttrSpelling")
     .value("GNU_PARAMETER_TYPESTATE", pasta::ParamTypestateAttrSpelling::kGNUParameterTypestate)
     .value("CXX11_CLANG_PARAMETER_TYPESTATE", pasta::ParamTypestateAttrSpelling::kCXX11ClangParameterTypestate)
     .value("SPELLING_NOT_CALCULATED", pasta::ParamTypestateAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::PascalAttrSpelling>(m, "PascalAttrSpelling")
+  nb::enum_<pasta::PascalAttrSpelling>(m, "PascalAttrSpelling")
     .value("GNU_PASCAL", pasta::PascalAttrSpelling::kGNUPascal)
     .value("CXX11_CLANG_PASCAL", pasta::PascalAttrSpelling::kCXX11ClangPascal)
     .value("C2X_CLANG_PASCAL", pasta::PascalAttrSpelling::kC2xClangPascal)
     .value("KEYWORD_PASCAL", pasta::PascalAttrSpelling::kKeywordPascal)
     .value("SPELLING_NOT_CALCULATED", pasta::PascalAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::PassObjectSizeAttrSpelling>(m, "PassObjectSizeAttrSpelling")
+  nb::enum_<pasta::PassObjectSizeAttrSpelling>(m, "PassObjectSizeAttrSpelling")
     .value("GNU_PASS_OBJECT_SIZE", pasta::PassObjectSizeAttrSpelling::kGNUPassObjectSize)
     .value("CXX11_CLANG_PASS_OBJECT_SIZE", pasta::PassObjectSizeAttrSpelling::kCXX11ClangPassObjectSize)
     .value("C2X_CLANG_PASS_OBJECT_SIZE", pasta::PassObjectSizeAttrSpelling::kC2xClangPassObjectSize)
@@ -1940,23 +1940,23 @@ void RegisterEnums(py::module_ &m) {
     .value("C2X_CLANG_PASS_DYNAMIC_OBJECT_SIZE", pasta::PassObjectSizeAttrSpelling::kC2xClangPassDynamicObjectSize)
     .value("SPELLING_NOT_CALCULATED", pasta::PassObjectSizeAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::PatchableFunctionEntryAttrSpelling>(m, "PatchableFunctionEntryAttrSpelling")
+  nb::enum_<pasta::PatchableFunctionEntryAttrSpelling>(m, "PatchableFunctionEntryAttrSpelling")
     .value("GNU_PATCHABLE_FUNCTION_ENTRY", pasta::PatchableFunctionEntryAttrSpelling::kGNUPatchableFunctionEntry)
     .value("CXX11_GNU_PATCHABLE_FUNCTION_ENTRY", pasta::PatchableFunctionEntryAttrSpelling::kCXX11GnuPatchableFunctionEntry)
     .value("C2X_GNU_PATCHABLE_FUNCTION_ENTRY", pasta::PatchableFunctionEntryAttrSpelling::kC2xGnuPatchableFunctionEntry)
     .value("SPELLING_NOT_CALCULATED", pasta::PatchableFunctionEntryAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::PcsAttrPCSType>(m, "PcsAttrPCSType")
+  nb::enum_<pasta::PcsAttrPCSType>(m, "PcsAttrPCSType")
     .value("AAPCS", pasta::PcsAttrPCSType::kAAPCS)
     .value("VFP", pasta::PcsAttrPCSType::kVFP);
 
-  py::enum_<pasta::PcsAttrSpelling>(m, "PcsAttrSpelling")
+  nb::enum_<pasta::PcsAttrSpelling>(m, "PcsAttrSpelling")
     .value("GNU_PCS", pasta::PcsAttrSpelling::kGNUPcs)
     .value("CXX11_GNU_PCS", pasta::PcsAttrSpelling::kCXX11GnuPcs)
     .value("C2X_GNU_PCS", pasta::PcsAttrSpelling::kC2xGnuPcs)
     .value("SPELLING_NOT_CALCULATED", pasta::PcsAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::PredefinedExprIdentKind>(m, "PredefinedExprIdentKind")
+  nb::enum_<pasta::PredefinedExprIdentKind>(m, "PredefinedExprIdentKind")
     .value("FUNC", pasta::PredefinedExprIdentKind::kFunc)
     .value("FUNCTION", pasta::PredefinedExprIdentKind::kFunction)
     .value("L_FUNCTION", pasta::PredefinedExprIdentKind::kLFunction)
@@ -1966,95 +1966,95 @@ void RegisterEnums(py::module_ &m) {
     .value("PRETTY_FUNCTION", pasta::PredefinedExprIdentKind::kPrettyFunction)
     .value("PRETTY_FUNCTION_NO_VIRTUAL", pasta::PredefinedExprIdentKind::kPrettyFunctionNoVirtual);
 
-  py::enum_<pasta::PreferredNameAttrSpelling>(m, "PreferredNameAttrSpelling")
+  nb::enum_<pasta::PreferredNameAttrSpelling>(m, "PreferredNameAttrSpelling")
     .value("GNU_PREFERRED_NAME", pasta::PreferredNameAttrSpelling::kGNUPreferredName)
     .value("CXX11_CLANG_PREFERRED_NAME", pasta::PreferredNameAttrSpelling::kCXX11ClangPreferredName)
     .value("SPELLING_NOT_CALCULATED", pasta::PreferredNameAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::PreserveAllAttrSpelling>(m, "PreserveAllAttrSpelling")
+  nb::enum_<pasta::PreserveAllAttrSpelling>(m, "PreserveAllAttrSpelling")
     .value("GNU_PRESERVE_ALL", pasta::PreserveAllAttrSpelling::kGNUPreserveAll)
     .value("CXX11_CLANG_PRESERVE_ALL", pasta::PreserveAllAttrSpelling::kCXX11ClangPreserveAll)
     .value("C2X_CLANG_PRESERVE_ALL", pasta::PreserveAllAttrSpelling::kC2xClangPreserveAll)
     .value("SPELLING_NOT_CALCULATED", pasta::PreserveAllAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::PreserveMostAttrSpelling>(m, "PreserveMostAttrSpelling")
+  nb::enum_<pasta::PreserveMostAttrSpelling>(m, "PreserveMostAttrSpelling")
     .value("GNU_PRESERVE_MOST", pasta::PreserveMostAttrSpelling::kGNUPreserveMost)
     .value("CXX11_CLANG_PRESERVE_MOST", pasta::PreserveMostAttrSpelling::kCXX11ClangPreserveMost)
     .value("C2X_CLANG_PRESERVE_MOST", pasta::PreserveMostAttrSpelling::kC2xClangPreserveMost)
     .value("SPELLING_NOT_CALCULATED", pasta::PreserveMostAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::PtGuardedVarAttrSpelling>(m, "PtGuardedVarAttrSpelling")
+  nb::enum_<pasta::PtGuardedVarAttrSpelling>(m, "PtGuardedVarAttrSpelling")
     .value("GNU_PT_GUARDED_VARIABLE", pasta::PtGuardedVarAttrSpelling::kGNUPtGuardedVariable)
     .value("CXX11_CLANG_PT_GUARDED_VARIABLE", pasta::PtGuardedVarAttrSpelling::kCXX11ClangPtGuardedVariable)
     .value("SPELLING_NOT_CALCULATED", pasta::PtGuardedVarAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::PureAttrSpelling>(m, "PureAttrSpelling")
+  nb::enum_<pasta::PureAttrSpelling>(m, "PureAttrSpelling")
     .value("GNU_PURE", pasta::PureAttrSpelling::kGNUPure)
     .value("CXX11_GNU_PURE", pasta::PureAttrSpelling::kCXX11GnuPure)
     .value("C2X_GNU_PURE", pasta::PureAttrSpelling::kC2xGnuPure)
     .value("SPELLING_NOT_CALCULATED", pasta::PureAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::QualifiedTypeDestructionKind>(m, "QualifiedTypeDestructionKind")
+  nb::enum_<pasta::QualifiedTypeDestructionKind>(m, "QualifiedTypeDestructionKind")
     .value("NONE", pasta::QualifiedTypeDestructionKind::kNone)
     .value("CXX_DESTRUCTOR", pasta::QualifiedTypeDestructionKind::kCxxDestructor)
     .value("OBJC_STRONG_LIFETIME", pasta::QualifiedTypeDestructionKind::kObjcStrongLifetime)
     .value("OBJC_WEAK_LIFETIME", pasta::QualifiedTypeDestructionKind::kObjcWeakLifetime)
     .value("NONTRIVIAL_C_STRUCT", pasta::QualifiedTypeDestructionKind::kNontrivialCStruct);
 
-  py::enum_<pasta::QualifiedTypePrimitiveCopyKind>(m, "QualifiedTypePrimitiveCopyKind")
+  nb::enum_<pasta::QualifiedTypePrimitiveCopyKind>(m, "QualifiedTypePrimitiveCopyKind")
     .value("TRIVIAL", pasta::QualifiedTypePrimitiveCopyKind::kTrivial)
     .value("VOLATILE_TRIVIAL", pasta::QualifiedTypePrimitiveCopyKind::kVolatileTrivial)
     .value("ARC_STRONG", pasta::QualifiedTypePrimitiveCopyKind::kARCStrong)
     .value("ARC_WEAK", pasta::QualifiedTypePrimitiveCopyKind::kARCWeak)
     .value("STRUCT", pasta::QualifiedTypePrimitiveCopyKind::kStruct);
 
-  py::enum_<pasta::QualifiedTypePrimitiveDefaultInitializeKind>(m, "QualifiedTypePrimitiveDefaultInitializeKind")
+  nb::enum_<pasta::QualifiedTypePrimitiveDefaultInitializeKind>(m, "QualifiedTypePrimitiveDefaultInitializeKind")
     .value("TRIVIAL", pasta::QualifiedTypePrimitiveDefaultInitializeKind::kTrivial)
     .value("ARC_STRONG", pasta::QualifiedTypePrimitiveDefaultInitializeKind::kARCStrong)
     .value("ARC_WEAK", pasta::QualifiedTypePrimitiveDefaultInitializeKind::kARCWeak)
     .value("STRUCT", pasta::QualifiedTypePrimitiveDefaultInitializeKind::kStruct);
 
-  py::enum_<pasta::RISCVInterruptAttrInterruptType>(m, "RISCVInterruptAttrInterruptType")
+  nb::enum_<pasta::RISCVInterruptAttrInterruptType>(m, "RISCVInterruptAttrInterruptType")
     .value("USER", pasta::RISCVInterruptAttrInterruptType::kUser)
     .value("SUPERVISOR", pasta::RISCVInterruptAttrInterruptType::kSupervisor)
     .value("MACHINE", pasta::RISCVInterruptAttrInterruptType::kMachine);
 
-  py::enum_<pasta::RISCVInterruptAttrSpelling>(m, "RISCVInterruptAttrSpelling")
+  nb::enum_<pasta::RISCVInterruptAttrSpelling>(m, "RISCVInterruptAttrSpelling")
     .value("GNU_INTERRUPT", pasta::RISCVInterruptAttrSpelling::kGNUInterrupt)
     .value("CXX11_GNU_INTERRUPT", pasta::RISCVInterruptAttrSpelling::kCXX11GnuInterrupt)
     .value("C2X_GNU_INTERRUPT", pasta::RISCVInterruptAttrSpelling::kC2xGnuInterrupt)
     .value("SPELLING_NOT_CALCULATED", pasta::RISCVInterruptAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::RandomizeLayoutAttrSpelling>(m, "RandomizeLayoutAttrSpelling")
+  nb::enum_<pasta::RandomizeLayoutAttrSpelling>(m, "RandomizeLayoutAttrSpelling")
     .value("GNU_RANDOMIZE_LAYOUT", pasta::RandomizeLayoutAttrSpelling::kGNURandomizeLayout)
     .value("CXX11_GNU_RANDOMIZE_LAYOUT", pasta::RandomizeLayoutAttrSpelling::kCXX11GnuRandomizeLayout)
     .value("C2X_GNU_RANDOMIZE_LAYOUT", pasta::RandomizeLayoutAttrSpelling::kC2xGnuRandomizeLayout)
     .value("SPELLING_NOT_CALCULATED", pasta::RandomizeLayoutAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ReadOnlyPlacementAttrSpelling>(m, "ReadOnlyPlacementAttrSpelling")
+  nb::enum_<pasta::ReadOnlyPlacementAttrSpelling>(m, "ReadOnlyPlacementAttrSpelling")
     .value("GNU_ENFORCE_READ_ONLY_PLACEMENT", pasta::ReadOnlyPlacementAttrSpelling::kGNUEnforceReadOnlyPlacement)
     .value("CXX11_CLANG_ENFORCE_READ_ONLY_PLACEMENT", pasta::ReadOnlyPlacementAttrSpelling::kCXX11ClangEnforceReadOnlyPlacement)
     .value("C2X_CLANG_ENFORCE_READ_ONLY_PLACEMENT", pasta::ReadOnlyPlacementAttrSpelling::kC2xClangEnforceReadOnlyPlacement)
     .value("SPELLING_NOT_CALCULATED", pasta::ReadOnlyPlacementAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::RecordDeclArgPassingKind>(m, "RecordDeclArgPassingKind")
+  nb::enum_<pasta::RecordDeclArgPassingKind>(m, "RecordDeclArgPassingKind")
     .value("CAN_PASS_IN_REGS", pasta::RecordDeclArgPassingKind::kCanPassInRegs)
     .value("CANNOT_PASS_IN_REGS", pasta::RecordDeclArgPassingKind::kCannotPassInRegs)
     .value("CAN_NEVER_PASS_IN_REGS", pasta::RecordDeclArgPassingKind::kCanNeverPassInRegs);
 
-  py::enum_<pasta::RegCallAttrSpelling>(m, "RegCallAttrSpelling")
+  nb::enum_<pasta::RegCallAttrSpelling>(m, "RegCallAttrSpelling")
     .value("GNU_REGCALL", pasta::RegCallAttrSpelling::kGNURegcall)
     .value("CXX11_GNU_REGCALL", pasta::RegCallAttrSpelling::kCXX11GnuRegcall)
     .value("C2X_GNU_REGCALL", pasta::RegCallAttrSpelling::kC2xGnuRegcall)
     .value("KEYWORD_REGCALL", pasta::RegCallAttrSpelling::kKeywordRegcall)
     .value("SPELLING_NOT_CALCULATED", pasta::RegCallAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ReinitializesAttrSpelling>(m, "ReinitializesAttrSpelling")
+  nb::enum_<pasta::ReinitializesAttrSpelling>(m, "ReinitializesAttrSpelling")
     .value("GNU_REINITIALIZES", pasta::ReinitializesAttrSpelling::kGNUReinitializes)
     .value("CXX11_CLANG_REINITIALIZES", pasta::ReinitializesAttrSpelling::kCXX11ClangReinitializes)
     .value("SPELLING_NOT_CALCULATED", pasta::ReinitializesAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ReleaseCapabilityAttrSpelling>(m, "ReleaseCapabilityAttrSpelling")
+  nb::enum_<pasta::ReleaseCapabilityAttrSpelling>(m, "ReleaseCapabilityAttrSpelling")
     .value("GNU_RELEASE_CAPABILITY", pasta::ReleaseCapabilityAttrSpelling::kGNUReleaseCapability)
     .value("CXX11_CLANG_RELEASE_CAPABILITY", pasta::ReleaseCapabilityAttrSpelling::kCXX11ClangReleaseCapability)
     .value("GNU_RELEASE_SHARED_CAPABILITY", pasta::ReleaseCapabilityAttrSpelling::kGNUReleaseSharedCapability)
@@ -2065,13 +2065,13 @@ void RegisterEnums(py::module_ &m) {
     .value("CXX11_CLANG_UNLOCK_FUNCTION", pasta::ReleaseCapabilityAttrSpelling::kCXX11ClangUnlockFunction)
     .value("SPELLING_NOT_CALCULATED", pasta::ReleaseCapabilityAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ReleaseHandleAttrSpelling>(m, "ReleaseHandleAttrSpelling")
+  nb::enum_<pasta::ReleaseHandleAttrSpelling>(m, "ReleaseHandleAttrSpelling")
     .value("GNU_RELEASE_HANDLE", pasta::ReleaseHandleAttrSpelling::kGNUReleaseHandle)
     .value("CXX11_CLANG_RELEASE_HANDLE", pasta::ReleaseHandleAttrSpelling::kCXX11ClangReleaseHandle)
     .value("C2X_CLANG_RELEASE_HANDLE", pasta::ReleaseHandleAttrSpelling::kC2xClangReleaseHandle)
     .value("SPELLING_NOT_CALCULATED", pasta::ReleaseHandleAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::RequiresCapabilityAttrSpelling>(m, "RequiresCapabilityAttrSpelling")
+  nb::enum_<pasta::RequiresCapabilityAttrSpelling>(m, "RequiresCapabilityAttrSpelling")
     .value("GNU_REQUIRES_CAPABILITY", pasta::RequiresCapabilityAttrSpelling::kGNURequiresCapability)
     .value("CXX11_CLANG_REQUIRES_CAPABILITY", pasta::RequiresCapabilityAttrSpelling::kCXX11ClangRequiresCapability)
     .value("GNU_EXCLUSIVE_LOCKS_REQUIRED", pasta::RequiresCapabilityAttrSpelling::kGNUExclusiveLocksRequired)
@@ -2082,119 +2082,119 @@ void RegisterEnums(py::module_ &m) {
     .value("CXX11_CLANG_SHARED_LOCKS_REQUIRED", pasta::RequiresCapabilityAttrSpelling::kCXX11ClangSharedLocksRequired)
     .value("SPELLING_NOT_CALCULATED", pasta::RequiresCapabilityAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::RestrictAttrSpelling>(m, "RestrictAttrSpelling")
+  nb::enum_<pasta::RestrictAttrSpelling>(m, "RestrictAttrSpelling")
     .value("DECLSPEC_RESTRICT", pasta::RestrictAttrSpelling::kDeclspecRestrict)
     .value("GNU_MALLOC", pasta::RestrictAttrSpelling::kGNUMalloc)
     .value("CXX11_GNU_MALLOC", pasta::RestrictAttrSpelling::kCXX11GnuMalloc)
     .value("C2X_GNU_MALLOC", pasta::RestrictAttrSpelling::kC2xGnuMalloc)
     .value("SPELLING_NOT_CALCULATED", pasta::RestrictAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::RetainAttrSpelling>(m, "RetainAttrSpelling")
+  nb::enum_<pasta::RetainAttrSpelling>(m, "RetainAttrSpelling")
     .value("GNU_RETAIN", pasta::RetainAttrSpelling::kGNURetain)
     .value("CXX11_GNU_RETAIN", pasta::RetainAttrSpelling::kCXX11GnuRetain)
     .value("C2X_GNU_RETAIN", pasta::RetainAttrSpelling::kC2xGnuRetain)
     .value("SPELLING_NOT_CALCULATED", pasta::RetainAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ReturnTypestateAttrConsumedState>(m, "ReturnTypestateAttrConsumedState")
+  nb::enum_<pasta::ReturnTypestateAttrConsumedState>(m, "ReturnTypestateAttrConsumedState")
     .value("UNKNOWN", pasta::ReturnTypestateAttrConsumedState::kUnknown)
     .value("CONSUMED", pasta::ReturnTypestateAttrConsumedState::kConsumed)
     .value("UNCONSUMED", pasta::ReturnTypestateAttrConsumedState::kUnconsumed);
 
-  py::enum_<pasta::ReturnTypestateAttrSpelling>(m, "ReturnTypestateAttrSpelling")
+  nb::enum_<pasta::ReturnTypestateAttrSpelling>(m, "ReturnTypestateAttrSpelling")
     .value("GNU_RETURN_TYPESTATE", pasta::ReturnTypestateAttrSpelling::kGNUReturnTypestate)
     .value("CXX11_CLANG_RETURN_TYPESTATE", pasta::ReturnTypestateAttrSpelling::kCXX11ClangReturnTypestate)
     .value("SPELLING_NOT_CALCULATED", pasta::ReturnTypestateAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ReturnsNonNullAttrSpelling>(m, "ReturnsNonNullAttrSpelling")
+  nb::enum_<pasta::ReturnsNonNullAttrSpelling>(m, "ReturnsNonNullAttrSpelling")
     .value("GNU_RETURNS_NONNULL", pasta::ReturnsNonNullAttrSpelling::kGNUReturnsNonnull)
     .value("CXX11_GNU_RETURNS_NONNULL", pasta::ReturnsNonNullAttrSpelling::kCXX11GnuReturnsNonnull)
     .value("C2X_GNU_RETURNS_NONNULL", pasta::ReturnsNonNullAttrSpelling::kC2xGnuReturnsNonnull)
     .value("SPELLING_NOT_CALCULATED", pasta::ReturnsNonNullAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ReturnsTwiceAttrSpelling>(m, "ReturnsTwiceAttrSpelling")
+  nb::enum_<pasta::ReturnsTwiceAttrSpelling>(m, "ReturnsTwiceAttrSpelling")
     .value("GNU_RETURNS_TWICE", pasta::ReturnsTwiceAttrSpelling::kGNUReturnsTwice)
     .value("CXX11_GNU_RETURNS_TWICE", pasta::ReturnsTwiceAttrSpelling::kCXX11GnuReturnsTwice)
     .value("C2X_GNU_RETURNS_TWICE", pasta::ReturnsTwiceAttrSpelling::kC2xGnuReturnsTwice)
     .value("SPELLING_NOT_CALCULATED", pasta::ReturnsTwiceAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::SYCLKernelAttrSpelling>(m, "SYCLKernelAttrSpelling")
+  nb::enum_<pasta::SYCLKernelAttrSpelling>(m, "SYCLKernelAttrSpelling")
     .value("GNU_SYCL_KERNEL", pasta::SYCLKernelAttrSpelling::kGNUSyclKernel)
     .value("CXX11_CLANG_SYCL_KERNEL", pasta::SYCLKernelAttrSpelling::kCXX11ClangSyclKernel)
     .value("C2X_CLANG_SYCL_KERNEL", pasta::SYCLKernelAttrSpelling::kC2xClangSyclKernel)
     .value("SPELLING_NOT_CALCULATED", pasta::SYCLKernelAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::SYCLSpecialClassAttrSpelling>(m, "SYCLSpecialClassAttrSpelling")
+  nb::enum_<pasta::SYCLSpecialClassAttrSpelling>(m, "SYCLSpecialClassAttrSpelling")
     .value("GNU_SYCL_SPECIAL_CLASS", pasta::SYCLSpecialClassAttrSpelling::kGNUSyclSpecialClass)
     .value("CXX11_CLANG_SYCL_SPECIAL_CLASS", pasta::SYCLSpecialClassAttrSpelling::kCXX11ClangSyclSpecialClass)
     .value("C2X_CLANG_SYCL_SPECIAL_CLASS", pasta::SYCLSpecialClassAttrSpelling::kC2xClangSyclSpecialClass)
     .value("SPELLING_NOT_CALCULATED", pasta::SYCLSpecialClassAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ScopedLockableAttrSpelling>(m, "ScopedLockableAttrSpelling")
+  nb::enum_<pasta::ScopedLockableAttrSpelling>(m, "ScopedLockableAttrSpelling")
     .value("GNU_SCOPED_LOCKABLE", pasta::ScopedLockableAttrSpelling::kGNUScopedLockable)
     .value("CXX11_CLANG_SCOPED_LOCKABLE", pasta::ScopedLockableAttrSpelling::kCXX11ClangScopedLockable)
     .value("SPELLING_NOT_CALCULATED", pasta::ScopedLockableAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::SectionAttrSpelling>(m, "SectionAttrSpelling")
+  nb::enum_<pasta::SectionAttrSpelling>(m, "SectionAttrSpelling")
     .value("GNU_SECTION", pasta::SectionAttrSpelling::kGNUSection)
     .value("CXX11_GNU_SECTION", pasta::SectionAttrSpelling::kCXX11GnuSection)
     .value("C2X_GNU_SECTION", pasta::SectionAttrSpelling::kC2xGnuSection)
     .value("DECLSPEC_ALLOCATE", pasta::SectionAttrSpelling::kDeclspecAllocate)
     .value("SPELLING_NOT_CALCULATED", pasta::SectionAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::SelectAnyAttrSpelling>(m, "SelectAnyAttrSpelling")
+  nb::enum_<pasta::SelectAnyAttrSpelling>(m, "SelectAnyAttrSpelling")
     .value("DECLSPEC_SELECTANY", pasta::SelectAnyAttrSpelling::kDeclspecSelectany)
     .value("GNU_SELECTANY", pasta::SelectAnyAttrSpelling::kGNUSelectany)
     .value("CXX11_GNU_SELECTANY", pasta::SelectAnyAttrSpelling::kCXX11GnuSelectany)
     .value("C2X_GNU_SELECTANY", pasta::SelectAnyAttrSpelling::kC2xGnuSelectany)
     .value("SPELLING_NOT_CALCULATED", pasta::SelectAnyAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::SentinelAttrSpelling>(m, "SentinelAttrSpelling")
+  nb::enum_<pasta::SentinelAttrSpelling>(m, "SentinelAttrSpelling")
     .value("GNU_SENTINEL", pasta::SentinelAttrSpelling::kGNUSentinel)
     .value("CXX11_GNU_SENTINEL", pasta::SentinelAttrSpelling::kCXX11GnuSentinel)
     .value("C2X_GNU_SENTINEL", pasta::SentinelAttrSpelling::kC2xGnuSentinel)
     .value("SPELLING_NOT_CALCULATED", pasta::SentinelAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::SetTypestateAttrConsumedState>(m, "SetTypestateAttrConsumedState")
+  nb::enum_<pasta::SetTypestateAttrConsumedState>(m, "SetTypestateAttrConsumedState")
     .value("UNKNOWN", pasta::SetTypestateAttrConsumedState::kUnknown)
     .value("CONSUMED", pasta::SetTypestateAttrConsumedState::kConsumed)
     .value("UNCONSUMED", pasta::SetTypestateAttrConsumedState::kUnconsumed);
 
-  py::enum_<pasta::SetTypestateAttrSpelling>(m, "SetTypestateAttrSpelling")
+  nb::enum_<pasta::SetTypestateAttrSpelling>(m, "SetTypestateAttrSpelling")
     .value("GNU_TYPESTATE", pasta::SetTypestateAttrSpelling::kGNUTypestate)
     .value("CXX11_CLANG_TYPESTATE", pasta::SetTypestateAttrSpelling::kCXX11ClangTypestate)
     .value("SPELLING_NOT_CALCULATED", pasta::SetTypestateAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::SourceLocExprIdentKind>(m, "SourceLocExprIdentKind")
+  nb::enum_<pasta::SourceLocExprIdentKind>(m, "SourceLocExprIdentKind")
     .value("FUNCTION", pasta::SourceLocExprIdentKind::kFunction)
     .value("FILE", pasta::SourceLocExprIdentKind::kFile)
     .value("LINE", pasta::SourceLocExprIdentKind::kLine)
     .value("COLUMN", pasta::SourceLocExprIdentKind::kColumn)
     .value("SOURCE_TOKEN_STRUCT", pasta::SourceLocExprIdentKind::kSourceTokenStruct);
 
-  py::enum_<pasta::SpeculativeLoadHardeningAttrSpelling>(m, "SpeculativeLoadHardeningAttrSpelling")
+  nb::enum_<pasta::SpeculativeLoadHardeningAttrSpelling>(m, "SpeculativeLoadHardeningAttrSpelling")
     .value("GNU_SPECULATIVE_LOAD_HARDENING", pasta::SpeculativeLoadHardeningAttrSpelling::kGNUSpeculativeLoadHardening)
     .value("CXX11_CLANG_SPECULATIVE_LOAD_HARDENING", pasta::SpeculativeLoadHardeningAttrSpelling::kCXX11ClangSpeculativeLoadHardening)
     .value("C2X_CLANG_SPECULATIVE_LOAD_HARDENING", pasta::SpeculativeLoadHardeningAttrSpelling::kC2xClangSpeculativeLoadHardening)
     .value("SPELLING_NOT_CALCULATED", pasta::SpeculativeLoadHardeningAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::StandaloneDebugAttrSpelling>(m, "StandaloneDebugAttrSpelling")
+  nb::enum_<pasta::StandaloneDebugAttrSpelling>(m, "StandaloneDebugAttrSpelling")
     .value("GNU_STANDALONE_DEBUG", pasta::StandaloneDebugAttrSpelling::kGNUStandaloneDebug)
     .value("CXX11_CLANG_STANDALONE_DEBUG", pasta::StandaloneDebugAttrSpelling::kCXX11ClangStandaloneDebug)
     .value("SPELLING_NOT_CALCULATED", pasta::StandaloneDebugAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::StdCallAttrSpelling>(m, "StdCallAttrSpelling")
+  nb::enum_<pasta::StdCallAttrSpelling>(m, "StdCallAttrSpelling")
     .value("GNU_STDCALL", pasta::StdCallAttrSpelling::kGNUStdcall)
     .value("CXX11_GNU_STDCALL", pasta::StdCallAttrSpelling::kCXX11GnuStdcall)
     .value("C2X_GNU_STDCALL", pasta::StdCallAttrSpelling::kC2xGnuStdcall)
     .value("KEYWORD_STDCALL", pasta::StdCallAttrSpelling::kKeywordStdcall)
     .value("SPELLING_NOT_CALCULATED", pasta::StdCallAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::StmtLikelihood>(m, "StmtLikelihood")
+  nb::enum_<pasta::StmtLikelihood>(m, "StmtLikelihood")
     .value("UNLIKELY", pasta::StmtLikelihood::kUnlikely)
     .value("NONE", pasta::StmtLikelihood::kNone)
     .value("LIKELY", pasta::StmtLikelihood::kLikely);
 
-  py::enum_<pasta::StmtKind>(m, "StmtKind")
+  nb::enum_<pasta::StmtKind>(m, "StmtKind")
     .value("GCC_ASM_STMT", pasta::StmtKind::kGCCAsmStmt)
     .value("MS_ASM_STMT", pasta::StmtKind::kMSAsmStmt)
     .value("BREAK_STMT", pasta::StmtKind::kBreakStmt)
@@ -2429,119 +2429,119 @@ void RegisterEnums(py::module_ &m) {
     .value("LABEL_STMT", pasta::StmtKind::kLabelStmt)
     .value("WHILE_STMT", pasta::StmtKind::kWhileStmt);
 
-  py::enum_<pasta::StringLiteralStringKind>(m, "StringLiteralStringKind")
+  nb::enum_<pasta::StringLiteralStringKind>(m, "StringLiteralStringKind")
     .value("ORDINARY", pasta::StringLiteralStringKind::kOrdinary)
     .value("WIDE", pasta::StringLiteralStringKind::kWide)
     .value("UTF8", pasta::StringLiteralStringKind::kUTF8)
     .value("UTF16", pasta::StringLiteralStringKind::kUTF16)
     .value("UTF32", pasta::StringLiteralStringKind::kUTF32);
 
-  py::enum_<pasta::SwiftAsyncAttrKind>(m, "SwiftAsyncAttrKind")
+  nb::enum_<pasta::SwiftAsyncAttrKind>(m, "SwiftAsyncAttrKind")
     .value("NONE", pasta::SwiftAsyncAttrKind::kNone)
     .value("SWIFT_PRIVATE", pasta::SwiftAsyncAttrKind::kSwiftPrivate)
     .value("NOT_SWIFT_PRIVATE", pasta::SwiftAsyncAttrKind::kNotSwiftPrivate);
 
-  py::enum_<pasta::SwiftAsyncAttrSpelling>(m, "SwiftAsyncAttrSpelling")
+  nb::enum_<pasta::SwiftAsyncAttrSpelling>(m, "SwiftAsyncAttrSpelling")
     .value("GNU_SWIFT_ASYNC", pasta::SwiftAsyncAttrSpelling::kGNUSwiftAsync)
     .value("CXX11_CLANG_SWIFT_ASYNC", pasta::SwiftAsyncAttrSpelling::kCXX11ClangSwiftAsync)
     .value("C2X_CLANG_SWIFT_ASYNC", pasta::SwiftAsyncAttrSpelling::kC2xClangSwiftAsync)
     .value("SPELLING_NOT_CALCULATED", pasta::SwiftAsyncAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::SwiftAsyncCallAttrSpelling>(m, "SwiftAsyncCallAttrSpelling")
+  nb::enum_<pasta::SwiftAsyncCallAttrSpelling>(m, "SwiftAsyncCallAttrSpelling")
     .value("GNU_SWIFTASYNCCALL", pasta::SwiftAsyncCallAttrSpelling::kGNUSwiftasynccall)
     .value("CXX11_CLANG_SWIFTASYNCCALL", pasta::SwiftAsyncCallAttrSpelling::kCXX11ClangSwiftasynccall)
     .value("C2X_CLANG_SWIFTASYNCCALL", pasta::SwiftAsyncCallAttrSpelling::kC2xClangSwiftasynccall)
     .value("SPELLING_NOT_CALCULATED", pasta::SwiftAsyncCallAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::SwiftAsyncContextAttrSpelling>(m, "SwiftAsyncContextAttrSpelling")
+  nb::enum_<pasta::SwiftAsyncContextAttrSpelling>(m, "SwiftAsyncContextAttrSpelling")
     .value("GNU_SWIFT_ASYNC_CONTEXT", pasta::SwiftAsyncContextAttrSpelling::kGNUSwiftAsyncContext)
     .value("CXX11_CLANG_SWIFT_ASYNC_CONTEXT", pasta::SwiftAsyncContextAttrSpelling::kCXX11ClangSwiftAsyncContext)
     .value("C2X_CLANG_SWIFT_ASYNC_CONTEXT", pasta::SwiftAsyncContextAttrSpelling::kC2xClangSwiftAsyncContext)
     .value("SPELLING_NOT_CALCULATED", pasta::SwiftAsyncContextAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::SwiftAsyncErrorAttrConventionKind>(m, "SwiftAsyncErrorAttrConventionKind")
+  nb::enum_<pasta::SwiftAsyncErrorAttrConventionKind>(m, "SwiftAsyncErrorAttrConventionKind")
     .value("NONE", pasta::SwiftAsyncErrorAttrConventionKind::kNone)
     .value("NON_NULL_ERROR", pasta::SwiftAsyncErrorAttrConventionKind::kNonNullError)
     .value("ZERO_ARGUMENT", pasta::SwiftAsyncErrorAttrConventionKind::kZeroArgument)
     .value("NON_ZERO_ARGUMENT", pasta::SwiftAsyncErrorAttrConventionKind::kNonZeroArgument);
 
-  py::enum_<pasta::SwiftAsyncErrorAttrSpelling>(m, "SwiftAsyncErrorAttrSpelling")
+  nb::enum_<pasta::SwiftAsyncErrorAttrSpelling>(m, "SwiftAsyncErrorAttrSpelling")
     .value("GNU_SWIFT_ASYNC_ERROR", pasta::SwiftAsyncErrorAttrSpelling::kGNUSwiftAsyncError)
     .value("CXX11_CLANG_SWIFT_ASYNC_ERROR", pasta::SwiftAsyncErrorAttrSpelling::kCXX11ClangSwiftAsyncError)
     .value("C2X_CLANG_SWIFT_ASYNC_ERROR", pasta::SwiftAsyncErrorAttrSpelling::kC2xClangSwiftAsyncError)
     .value("SPELLING_NOT_CALCULATED", pasta::SwiftAsyncErrorAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::SwiftCallAttrSpelling>(m, "SwiftCallAttrSpelling")
+  nb::enum_<pasta::SwiftCallAttrSpelling>(m, "SwiftCallAttrSpelling")
     .value("GNU_SWIFTCALL", pasta::SwiftCallAttrSpelling::kGNUSwiftcall)
     .value("CXX11_CLANG_SWIFTCALL", pasta::SwiftCallAttrSpelling::kCXX11ClangSwiftcall)
     .value("C2X_CLANG_SWIFTCALL", pasta::SwiftCallAttrSpelling::kC2xClangSwiftcall)
     .value("SPELLING_NOT_CALCULATED", pasta::SwiftCallAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::SwiftContextAttrSpelling>(m, "SwiftContextAttrSpelling")
+  nb::enum_<pasta::SwiftContextAttrSpelling>(m, "SwiftContextAttrSpelling")
     .value("GNU_SWIFT_CONTEXT", pasta::SwiftContextAttrSpelling::kGNUSwiftContext)
     .value("CXX11_CLANG_SWIFT_CONTEXT", pasta::SwiftContextAttrSpelling::kCXX11ClangSwiftContext)
     .value("C2X_CLANG_SWIFT_CONTEXT", pasta::SwiftContextAttrSpelling::kC2xClangSwiftContext)
     .value("SPELLING_NOT_CALCULATED", pasta::SwiftContextAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::SwiftErrorAttrConventionKind>(m, "SwiftErrorAttrConventionKind")
+  nb::enum_<pasta::SwiftErrorAttrConventionKind>(m, "SwiftErrorAttrConventionKind")
     .value("NONE", pasta::SwiftErrorAttrConventionKind::kNone)
     .value("NON_NULL_ERROR", pasta::SwiftErrorAttrConventionKind::kNonNullError)
     .value("NULL_RESULT", pasta::SwiftErrorAttrConventionKind::kNullResult)
     .value("ZERO_RESULT", pasta::SwiftErrorAttrConventionKind::kZeroResult)
     .value("NON_ZERO_RESULT", pasta::SwiftErrorAttrConventionKind::kNonZeroResult);
 
-  py::enum_<pasta::SwiftErrorResultAttrSpelling>(m, "SwiftErrorResultAttrSpelling")
+  nb::enum_<pasta::SwiftErrorResultAttrSpelling>(m, "SwiftErrorResultAttrSpelling")
     .value("GNU_SWIFT_ERROR_RESULT", pasta::SwiftErrorResultAttrSpelling::kGNUSwiftErrorResult)
     .value("CXX11_CLANG_SWIFT_ERROR_RESULT", pasta::SwiftErrorResultAttrSpelling::kCXX11ClangSwiftErrorResult)
     .value("C2X_CLANG_SWIFT_ERROR_RESULT", pasta::SwiftErrorResultAttrSpelling::kC2xClangSwiftErrorResult)
     .value("SPELLING_NOT_CALCULATED", pasta::SwiftErrorResultAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::SwiftIndirectResultAttrSpelling>(m, "SwiftIndirectResultAttrSpelling")
+  nb::enum_<pasta::SwiftIndirectResultAttrSpelling>(m, "SwiftIndirectResultAttrSpelling")
     .value("GNU_SWIFT_INDIRECT_RESULT", pasta::SwiftIndirectResultAttrSpelling::kGNUSwiftIndirectResult)
     .value("CXX11_CLANG_SWIFT_INDIRECT_RESULT", pasta::SwiftIndirectResultAttrSpelling::kCXX11ClangSwiftIndirectResult)
     .value("C2X_CLANG_SWIFT_INDIRECT_RESULT", pasta::SwiftIndirectResultAttrSpelling::kC2xClangSwiftIndirectResult)
     .value("SPELLING_NOT_CALCULATED", pasta::SwiftIndirectResultAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::SwiftNewTypeAttrNewtypeKind>(m, "SwiftNewTypeAttrNewtypeKind")
+  nb::enum_<pasta::SwiftNewTypeAttrNewtypeKind>(m, "SwiftNewTypeAttrNewtypeKind")
     .value("STRUCT", pasta::SwiftNewTypeAttrNewtypeKind::kStruct)
     .value("ENUM", pasta::SwiftNewTypeAttrNewtypeKind::kEnum);
 
-  py::enum_<pasta::SwiftNewTypeAttrSpelling>(m, "SwiftNewTypeAttrSpelling")
+  nb::enum_<pasta::SwiftNewTypeAttrSpelling>(m, "SwiftNewTypeAttrSpelling")
     .value("GNU_SWIFT_NEWTYPE", pasta::SwiftNewTypeAttrSpelling::kGNUSwiftNewtype)
     .value("GNU_SWIFT_WRAPPER", pasta::SwiftNewTypeAttrSpelling::kGNUSwiftWrapper)
     .value("SPELLING_NOT_CALCULATED", pasta::SwiftNewTypeAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::SysVABIAttrSpelling>(m, "SysVABIAttrSpelling")
+  nb::enum_<pasta::SysVABIAttrSpelling>(m, "SysVABIAttrSpelling")
     .value("GNU_SYSV_ABI", pasta::SysVABIAttrSpelling::kGNUSysvAbi)
     .value("CXX11_GNU_SYSV_ABI", pasta::SysVABIAttrSpelling::kCXX11GnuSysvAbi)
     .value("C2X_GNU_SYSV_ABI", pasta::SysVABIAttrSpelling::kC2xGnuSysvAbi)
     .value("SPELLING_NOT_CALCULATED", pasta::SysVABIAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::TLSModelAttrSpelling>(m, "TLSModelAttrSpelling")
+  nb::enum_<pasta::TLSModelAttrSpelling>(m, "TLSModelAttrSpelling")
     .value("GNU_TLS_MODEL", pasta::TLSModelAttrSpelling::kGNUTlsModel)
     .value("CXX11_GNU_TLS_MODEL", pasta::TLSModelAttrSpelling::kCXX11GnuTlsModel)
     .value("C2X_GNU_TLS_MODEL", pasta::TLSModelAttrSpelling::kC2xGnuTlsModel)
     .value("SPELLING_NOT_CALCULATED", pasta::TLSModelAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::TargetAttrSpelling>(m, "TargetAttrSpelling")
+  nb::enum_<pasta::TargetAttrSpelling>(m, "TargetAttrSpelling")
     .value("GNU_TARGET", pasta::TargetAttrSpelling::kGNUTarget)
     .value("CXX11_GNU_TARGET", pasta::TargetAttrSpelling::kCXX11GnuTarget)
     .value("C2X_GNU_TARGET", pasta::TargetAttrSpelling::kC2xGnuTarget)
     .value("SPELLING_NOT_CALCULATED", pasta::TargetAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::TargetClonesAttrSpelling>(m, "TargetClonesAttrSpelling")
+  nb::enum_<pasta::TargetClonesAttrSpelling>(m, "TargetClonesAttrSpelling")
     .value("GNU_TARGET_CLONES", pasta::TargetClonesAttrSpelling::kGNUTargetClones)
     .value("CXX11_GNU_TARGET_CLONES", pasta::TargetClonesAttrSpelling::kCXX11GnuTargetClones)
     .value("C2X_GNU_TARGET_CLONES", pasta::TargetClonesAttrSpelling::kC2xGnuTargetClones)
     .value("SPELLING_NOT_CALCULATED", pasta::TargetClonesAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::TargetVersionAttrSpelling>(m, "TargetVersionAttrSpelling")
+  nb::enum_<pasta::TargetVersionAttrSpelling>(m, "TargetVersionAttrSpelling")
     .value("GNU_TARGET_VERSION", pasta::TargetVersionAttrSpelling::kGNUTargetVersion)
     .value("CXX11_GNU_TARGET_VERSION", pasta::TargetVersionAttrSpelling::kCXX11GnuTargetVersion)
     .value("C2X_GNU_TARGET_VERSION", pasta::TargetVersionAttrSpelling::kC2xGnuTargetVersion)
     .value("SPELLING_NOT_CALCULATED", pasta::TargetVersionAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::TemplateArgumentKind>(m, "TemplateArgumentKind")
+  nb::enum_<pasta::TemplateArgumentKind>(m, "TemplateArgumentKind")
     .value("EMPTY", pasta::TemplateArgumentKind::kEmpty)
     .value("TYPE", pasta::TemplateArgumentKind::kType)
     .value("DECLARATION", pasta::TemplateArgumentKind::kDeclaration)
@@ -2552,41 +2552,41 @@ void RegisterEnums(py::module_ &m) {
     .value("EXPRESSION", pasta::TemplateArgumentKind::kExpression)
     .value("PACK", pasta::TemplateArgumentKind::kPack);
 
-  py::enum_<pasta::TestTypestateAttrConsumedState>(m, "TestTypestateAttrConsumedState")
+  nb::enum_<pasta::TestTypestateAttrConsumedState>(m, "TestTypestateAttrConsumedState")
     .value("CONSUMED", pasta::TestTypestateAttrConsumedState::kConsumed)
     .value("UNCONSUMED", pasta::TestTypestateAttrConsumedState::kUnconsumed);
 
-  py::enum_<pasta::TestTypestateAttrSpelling>(m, "TestTypestateAttrSpelling")
+  nb::enum_<pasta::TestTypestateAttrSpelling>(m, "TestTypestateAttrSpelling")
     .value("GNU_TEST_TYPESTATE", pasta::TestTypestateAttrSpelling::kGNUTestTypestate)
     .value("CXX11_CLANG_TEST_TYPESTATE", pasta::TestTypestateAttrSpelling::kCXX11ClangTestTypestate)
     .value("SPELLING_NOT_CALCULATED", pasta::TestTypestateAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ThisCallAttrSpelling>(m, "ThisCallAttrSpelling")
+  nb::enum_<pasta::ThisCallAttrSpelling>(m, "ThisCallAttrSpelling")
     .value("GNU_THISCALL", pasta::ThisCallAttrSpelling::kGNUThiscall)
     .value("CXX11_GNU_THISCALL", pasta::ThisCallAttrSpelling::kCXX11GnuThiscall)
     .value("C2X_GNU_THISCALL", pasta::ThisCallAttrSpelling::kC2xGnuThiscall)
     .value("KEYWORD_THISCALL", pasta::ThisCallAttrSpelling::kKeywordThiscall)
     .value("SPELLING_NOT_CALCULATED", pasta::ThisCallAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::TransparentUnionAttrSpelling>(m, "TransparentUnionAttrSpelling")
+  nb::enum_<pasta::TransparentUnionAttrSpelling>(m, "TransparentUnionAttrSpelling")
     .value("GNU_TRANSPARENT_UNION", pasta::TransparentUnionAttrSpelling::kGNUTransparentUnion)
     .value("CXX11_GNU_TRANSPARENT_UNION", pasta::TransparentUnionAttrSpelling::kCXX11GnuTransparentUnion)
     .value("C2X_GNU_TRANSPARENT_UNION", pasta::TransparentUnionAttrSpelling::kC2xGnuTransparentUnion)
     .value("SPELLING_NOT_CALCULATED", pasta::TransparentUnionAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::TrivialABIAttrSpelling>(m, "TrivialABIAttrSpelling")
+  nb::enum_<pasta::TrivialABIAttrSpelling>(m, "TrivialABIAttrSpelling")
     .value("GNU_TRIVIAL_ABI", pasta::TrivialABIAttrSpelling::kGNUTrivialAbi)
     .value("CXX11_CLANG_TRIVIAL_ABI", pasta::TrivialABIAttrSpelling::kCXX11ClangTrivialAbi)
     .value("SPELLING_NOT_CALCULATED", pasta::TrivialABIAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::TryAcquireCapabilityAttrSpelling>(m, "TryAcquireCapabilityAttrSpelling")
+  nb::enum_<pasta::TryAcquireCapabilityAttrSpelling>(m, "TryAcquireCapabilityAttrSpelling")
     .value("GNU_TRY_ACQUIRE_CAPABILITY", pasta::TryAcquireCapabilityAttrSpelling::kGNUTryAcquireCapability)
     .value("CXX11_CLANG_TRY_ACQUIRE_CAPABILITY", pasta::TryAcquireCapabilityAttrSpelling::kCXX11ClangTryAcquireCapability)
     .value("GNU_TRY_ACQUIRE_SHARED_CAPABILITY", pasta::TryAcquireCapabilityAttrSpelling::kGNUTryAcquireSharedCapability)
     .value("CXX11_CLANG_TRY_ACQUIRE_SHARED_CAPABILITY", pasta::TryAcquireCapabilityAttrSpelling::kCXX11ClangTryAcquireSharedCapability)
     .value("SPELLING_NOT_CALCULATED", pasta::TryAcquireCapabilityAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::TypeScalarTypeKind>(m, "TypeScalarTypeKind")
+  nb::enum_<pasta::TypeScalarTypeKind>(m, "TypeScalarTypeKind")
     .value("C_POINTER", pasta::TypeScalarTypeKind::kCPointer)
     .value("BLOCK_POINTER", pasta::TypeScalarTypeKind::kBlockPointer)
     .value("OBJ_C_OBJECT_POINTER", pasta::TypeScalarTypeKind::kObjCObjectPointer)
@@ -2598,7 +2598,7 @@ void RegisterEnums(py::module_ &m) {
     .value("FLOATING_COMPLEX", pasta::TypeScalarTypeKind::kFloatingComplex)
     .value("FIXED_POINT", pasta::TypeScalarTypeKind::kFixedPoint);
 
-  py::enum_<pasta::TypeKind>(m, "TypeKind")
+  nb::enum_<pasta::TypeKind>(m, "TypeKind")
     .value("ADJUSTED", pasta::TypeKind::kAdjusted)
     .value("DECAYED", pasta::TypeKind::kDecayed)
     .value("CONSTANT_ARRAY", pasta::TypeKind::kConstantArray)
@@ -2654,24 +2654,24 @@ void RegisterEnums(py::module_ &m) {
     .value("VECTOR", pasta::TypeKind::kVector)
     .value("EXT_VECTOR", pasta::TypeKind::kExtVector);
 
-  py::enum_<pasta::TypeTagForDatatypeAttrSpelling>(m, "TypeTagForDatatypeAttrSpelling")
+  nb::enum_<pasta::TypeTagForDatatypeAttrSpelling>(m, "TypeTagForDatatypeAttrSpelling")
     .value("GNU_TYPE_TAG_FOR_DATATYPE", pasta::TypeTagForDatatypeAttrSpelling::kGNUTypeTagForDatatype)
     .value("CXX11_CLANG_TYPE_TAG_FOR_DATATYPE", pasta::TypeTagForDatatypeAttrSpelling::kCXX11ClangTypeTagForDatatype)
     .value("C2X_CLANG_TYPE_TAG_FOR_DATATYPE", pasta::TypeTagForDatatypeAttrSpelling::kC2xClangTypeTagForDatatype)
     .value("SPELLING_NOT_CALCULATED", pasta::TypeTagForDatatypeAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::TypeVisibilityAttrSpelling>(m, "TypeVisibilityAttrSpelling")
+  nb::enum_<pasta::TypeVisibilityAttrSpelling>(m, "TypeVisibilityAttrSpelling")
     .value("GNU_TYPE_VISIBILITY", pasta::TypeVisibilityAttrSpelling::kGNUTypeVisibility)
     .value("CXX11_CLANG_TYPE_VISIBILITY", pasta::TypeVisibilityAttrSpelling::kCXX11ClangTypeVisibility)
     .value("C2X_CLANG_TYPE_VISIBILITY", pasta::TypeVisibilityAttrSpelling::kC2xClangTypeVisibility)
     .value("SPELLING_NOT_CALCULATED", pasta::TypeVisibilityAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::TypeVisibilityAttrVisibilityType>(m, "TypeVisibilityAttrVisibilityType")
+  nb::enum_<pasta::TypeVisibilityAttrVisibilityType>(m, "TypeVisibilityAttrVisibilityType")
     .value("DEFAULT", pasta::TypeVisibilityAttrVisibilityType::kDefault)
     .value("HIDDEN", pasta::TypeVisibilityAttrVisibilityType::kHidden)
     .value("PROTECTED", pasta::TypeVisibilityAttrVisibilityType::kProtected);
 
-  py::enum_<pasta::UnaryTransformTypeUTTKind>(m, "UnaryTransformTypeUTTKind")
+  nb::enum_<pasta::UnaryTransformTypeUTTKind>(m, "UnaryTransformTypeUTTKind")
     .value("ADD_LVALUE_REFERENCE", pasta::UnaryTransformTypeUTTKind::kAddLvalueReference)
     .value("ADD_POINTER", pasta::UnaryTransformTypeUTTKind::kAddPointer)
     .value("ADD_RVALUE_REFERENCE", pasta::UnaryTransformTypeUTTKind::kAddRvalueReference)
@@ -2689,7 +2689,7 @@ void RegisterEnums(py::module_ &m) {
     .value("REMOVE_VOLATILE", pasta::UnaryTransformTypeUTTKind::kRemoveVolatile)
     .value("ENUM_UNDERLYING_TYPE", pasta::UnaryTransformTypeUTTKind::kEnumUnderlyingType);
 
-  py::enum_<pasta::UnavailableAttrImplicitReason>(m, "UnavailableAttrImplicitReason")
+  nb::enum_<pasta::UnavailableAttrImplicitReason>(m, "UnavailableAttrImplicitReason")
     .value("NONE", pasta::UnavailableAttrImplicitReason::kNone)
     .value("ARC_FORBIDDEN_TYPE", pasta::UnavailableAttrImplicitReason::kARCForbiddenType)
     .value("FORBIDDEN_WEAK", pasta::UnavailableAttrImplicitReason::kForbiddenWeak)
@@ -2697,23 +2697,23 @@ void RegisterEnums(py::module_ &m) {
     .value("ARC_INIT_RETURNS_UNRELATED", pasta::UnavailableAttrImplicitReason::kARCInitReturnsUnrelated)
     .value("ARC_FIELD_WITH_OWNERSHIP", pasta::UnavailableAttrImplicitReason::kARCFieldWithOwnership);
 
-  py::enum_<pasta::UnavailableAttrSpelling>(m, "UnavailableAttrSpelling")
+  nb::enum_<pasta::UnavailableAttrSpelling>(m, "UnavailableAttrSpelling")
     .value("GNU_UNAVAILABLE", pasta::UnavailableAttrSpelling::kGNUUnavailable)
     .value("CXX11_CLANG_UNAVAILABLE", pasta::UnavailableAttrSpelling::kCXX11ClangUnavailable)
     .value("C2X_CLANG_UNAVAILABLE", pasta::UnavailableAttrSpelling::kC2xClangUnavailable)
     .value("SPELLING_NOT_CALCULATED", pasta::UnavailableAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::UninitializedAttrSpelling>(m, "UninitializedAttrSpelling")
+  nb::enum_<pasta::UninitializedAttrSpelling>(m, "UninitializedAttrSpelling")
     .value("GNU_UNINITIALIZED", pasta::UninitializedAttrSpelling::kGNUUninitialized)
     .value("CXX11_CLANG_UNINITIALIZED", pasta::UninitializedAttrSpelling::kCXX11ClangUninitialized)
     .value("SPELLING_NOT_CALCULATED", pasta::UninitializedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::UnlikelyAttrSpelling>(m, "UnlikelyAttrSpelling")
+  nb::enum_<pasta::UnlikelyAttrSpelling>(m, "UnlikelyAttrSpelling")
     .value("CXX11_UNLIKELY", pasta::UnlikelyAttrSpelling::kCXX11Unlikely)
     .value("C2X_CLANG_UNLIKELY", pasta::UnlikelyAttrSpelling::kC2xClangUnlikely)
     .value("SPELLING_NOT_CALCULATED", pasta::UnlikelyAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::UnusedAttrSpelling>(m, "UnusedAttrSpelling")
+  nb::enum_<pasta::UnusedAttrSpelling>(m, "UnusedAttrSpelling")
     .value("CXX11_MAYBE_UNUSED", pasta::UnusedAttrSpelling::kCXX11MaybeUnused)
     .value("GNU_UNUSED", pasta::UnusedAttrSpelling::kGNUUnused)
     .value("CXX11_GNU_UNUSED", pasta::UnusedAttrSpelling::kCXX11GnuUnused)
@@ -2721,19 +2721,19 @@ void RegisterEnums(py::module_ &m) {
     .value("C2X_MAYBE_UNUSED", pasta::UnusedAttrSpelling::kC2xMaybeUnused)
     .value("SPELLING_NOT_CALCULATED", pasta::UnusedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::UseHandleAttrSpelling>(m, "UseHandleAttrSpelling")
+  nb::enum_<pasta::UseHandleAttrSpelling>(m, "UseHandleAttrSpelling")
     .value("GNU_USE_HANDLE", pasta::UseHandleAttrSpelling::kGNUUseHandle)
     .value("CXX11_CLANG_USE_HANDLE", pasta::UseHandleAttrSpelling::kCXX11ClangUseHandle)
     .value("C2X_CLANG_USE_HANDLE", pasta::UseHandleAttrSpelling::kC2xClangUseHandle)
     .value("SPELLING_NOT_CALCULATED", pasta::UseHandleAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::UsedAttrSpelling>(m, "UsedAttrSpelling")
+  nb::enum_<pasta::UsedAttrSpelling>(m, "UsedAttrSpelling")
     .value("GNU_USED", pasta::UsedAttrSpelling::kGNUUsed)
     .value("CXX11_GNU_USED", pasta::UsedAttrSpelling::kCXX11GnuUsed)
     .value("C2X_GNU_USED", pasta::UsedAttrSpelling::kC2xGnuUsed)
     .value("SPELLING_NOT_CALCULATED", pasta::UsedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::UserDefinedLiteralLiteralOperatorKind>(m, "UserDefinedLiteralLiteralOperatorKind")
+  nb::enum_<pasta::UserDefinedLiteralLiteralOperatorKind>(m, "UserDefinedLiteralLiteralOperatorKind")
     .value("RAW", pasta::UserDefinedLiteralLiteralOperatorKind::kRaw)
     .value("TEMPLATE", pasta::UserDefinedLiteralLiteralOperatorKind::kTemplate)
     .value("INTEGER", pasta::UserDefinedLiteralLiteralOperatorKind::kInteger)
@@ -2741,45 +2741,45 @@ void RegisterEnums(py::module_ &m) {
     .value("STRING", pasta::UserDefinedLiteralLiteralOperatorKind::kString)
     .value("CHARACTER", pasta::UserDefinedLiteralLiteralOperatorKind::kCharacter);
 
-  py::enum_<pasta::UsingIfExistsAttrSpelling>(m, "UsingIfExistsAttrSpelling")
+  nb::enum_<pasta::UsingIfExistsAttrSpelling>(m, "UsingIfExistsAttrSpelling")
     .value("GNU_USING_IF_EXISTS", pasta::UsingIfExistsAttrSpelling::kGNUUsingIfExists)
     .value("CXX11_CLANG_USING_IF_EXISTS", pasta::UsingIfExistsAttrSpelling::kCXX11ClangUsingIfExists)
     .value("SPELLING_NOT_CALCULATED", pasta::UsingIfExistsAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::UuidAttrSpelling>(m, "UuidAttrSpelling")
+  nb::enum_<pasta::UuidAttrSpelling>(m, "UuidAttrSpelling")
     .value("DECLSPEC_UUID", pasta::UuidAttrSpelling::kDeclspecUuid)
     .value("MICROSOFT_UUID", pasta::UuidAttrSpelling::kMicrosoftUuid)
     .value("SPELLING_NOT_CALCULATED", pasta::UuidAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::VarDeclDefinitionKind>(m, "VarDeclDefinitionKind")
+  nb::enum_<pasta::VarDeclDefinitionKind>(m, "VarDeclDefinitionKind")
     .value("DECLARATION_ONLY", pasta::VarDeclDefinitionKind::kDeclarationOnly)
     .value("TENTATIVE_DEFINITION", pasta::VarDeclDefinitionKind::kTentativeDefinition)
     .value("DEFINITION", pasta::VarDeclDefinitionKind::kDefinition);
 
-  py::enum_<pasta::VarDeclInitializationStyle>(m, "VarDeclInitializationStyle")
+  nb::enum_<pasta::VarDeclInitializationStyle>(m, "VarDeclInitializationStyle")
     .value("C_INIT", pasta::VarDeclInitializationStyle::kCInit)
     .value("CALL_INITIALIZER", pasta::VarDeclInitializationStyle::kCallInitializer)
     .value("LIST_INITIALIZER", pasta::VarDeclInitializationStyle::kListInitializer)
     .value("PARENTHESIS_LIST_INITIALIZER", pasta::VarDeclInitializationStyle::kParenthesisListInitializer);
 
-  py::enum_<pasta::VarDeclTLSKind>(m, "VarDeclTLSKind")
+  nb::enum_<pasta::VarDeclTLSKind>(m, "VarDeclTLSKind")
     .value("NONE", pasta::VarDeclTLSKind::kNone)
     .value("STATIC", pasta::VarDeclTLSKind::kStatic)
     .value("DYNAMIC", pasta::VarDeclTLSKind::kDynamic);
 
-  py::enum_<pasta::VecReturnAttrSpelling>(m, "VecReturnAttrSpelling")
+  nb::enum_<pasta::VecReturnAttrSpelling>(m, "VecReturnAttrSpelling")
     .value("GNU_VECRETURN", pasta::VecReturnAttrSpelling::kGNUVecreturn)
     .value("CXX11_CLANG_VECRETURN", pasta::VecReturnAttrSpelling::kCXX11ClangVecreturn)
     .value("SPELLING_NOT_CALCULATED", pasta::VecReturnAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::VectorCallAttrSpelling>(m, "VectorCallAttrSpelling")
+  nb::enum_<pasta::VectorCallAttrSpelling>(m, "VectorCallAttrSpelling")
     .value("GNU_VECTORCALL", pasta::VectorCallAttrSpelling::kGNUVectorcall)
     .value("CXX11_CLANG_VECTORCALL", pasta::VectorCallAttrSpelling::kCXX11ClangVectorcall)
     .value("C2X_CLANG_VECTORCALL", pasta::VectorCallAttrSpelling::kC2xClangVectorcall)
     .value("KEYWORD_VECTORCALL", pasta::VectorCallAttrSpelling::kKeywordVectorcall)
     .value("SPELLING_NOT_CALCULATED", pasta::VectorCallAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::VectorTypeVectorKind>(m, "VectorTypeVectorKind")
+  nb::enum_<pasta::VectorTypeVectorKind>(m, "VectorTypeVectorKind")
     .value("GENERIC_VECTOR", pasta::VectorTypeVectorKind::kGenericVector)
     .value("ALTI_VEC_VECTOR", pasta::VectorTypeVectorKind::kAltiVecVector)
     .value("ALTI_VEC_PIXEL", pasta::VectorTypeVectorKind::kAltiVecPixel)
@@ -2789,24 +2789,24 @@ void RegisterEnums(py::module_ &m) {
     .value("SVE_FIXED_LENGTH_DATA_VECTOR", pasta::VectorTypeVectorKind::kSveFixedLengthDataVector)
     .value("SVE_FIXED_LENGTH_PREDICATE_VECTOR", pasta::VectorTypeVectorKind::kSveFixedLengthPredicateVector);
 
-  py::enum_<pasta::VisibilityAttrSpelling>(m, "VisibilityAttrSpelling")
+  nb::enum_<pasta::VisibilityAttrSpelling>(m, "VisibilityAttrSpelling")
     .value("GNU_VISIBILITY", pasta::VisibilityAttrSpelling::kGNUVisibility)
     .value("CXX11_GNU_VISIBILITY", pasta::VisibilityAttrSpelling::kCXX11GnuVisibility)
     .value("C2X_GNU_VISIBILITY", pasta::VisibilityAttrSpelling::kC2xGnuVisibility)
     .value("SPELLING_NOT_CALCULATED", pasta::VisibilityAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::VisibilityAttrVisibilityType>(m, "VisibilityAttrVisibilityType")
+  nb::enum_<pasta::VisibilityAttrVisibilityType>(m, "VisibilityAttrVisibilityType")
     .value("DEFAULT", pasta::VisibilityAttrVisibilityType::kDefault)
     .value("HIDDEN", pasta::VisibilityAttrVisibilityType::kHidden)
     .value("PROTECTED", pasta::VisibilityAttrVisibilityType::kProtected);
 
-  py::enum_<pasta::WarnUnusedAttrSpelling>(m, "WarnUnusedAttrSpelling")
+  nb::enum_<pasta::WarnUnusedAttrSpelling>(m, "WarnUnusedAttrSpelling")
     .value("GNU_WARN_UNUSED", pasta::WarnUnusedAttrSpelling::kGNUWarnUnused)
     .value("CXX11_GNU_WARN_UNUSED", pasta::WarnUnusedAttrSpelling::kCXX11GnuWarnUnused)
     .value("C2X_GNU_WARN_UNUSED", pasta::WarnUnusedAttrSpelling::kC2xGnuWarnUnused)
     .value("SPELLING_NOT_CALCULATED", pasta::WarnUnusedAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::WarnUnusedResultAttrSpelling>(m, "WarnUnusedResultAttrSpelling")
+  nb::enum_<pasta::WarnUnusedResultAttrSpelling>(m, "WarnUnusedResultAttrSpelling")
     .value("CXX11_NODISCARD", pasta::WarnUnusedResultAttrSpelling::kCXX11Nodiscard)
     .value("C2X_NODISCARD", pasta::WarnUnusedResultAttrSpelling::kC2xNodiscard)
     .value("CXX11_CLANG_WARN_UNUSED_RESULT", pasta::WarnUnusedResultAttrSpelling::kCXX11ClangWarnUnusedResult)
@@ -2815,49 +2815,49 @@ void RegisterEnums(py::module_ &m) {
     .value("C2X_GNU_WARN_UNUSED_RESULT", pasta::WarnUnusedResultAttrSpelling::kC2xGnuWarnUnusedResult)
     .value("SPELLING_NOT_CALCULATED", pasta::WarnUnusedResultAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::WeakAttrSpelling>(m, "WeakAttrSpelling")
+  nb::enum_<pasta::WeakAttrSpelling>(m, "WeakAttrSpelling")
     .value("GNU_WEAK", pasta::WeakAttrSpelling::kGNUWeak)
     .value("CXX11_GNU_WEAK", pasta::WeakAttrSpelling::kCXX11GnuWeak)
     .value("C2X_GNU_WEAK", pasta::WeakAttrSpelling::kC2xGnuWeak)
     .value("SPELLING_NOT_CALCULATED", pasta::WeakAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::WeakImportAttrSpelling>(m, "WeakImportAttrSpelling")
+  nb::enum_<pasta::WeakImportAttrSpelling>(m, "WeakImportAttrSpelling")
     .value("GNU_WEAK_IMPORT", pasta::WeakImportAttrSpelling::kGNUWeakImport)
     .value("CXX11_CLANG_WEAK_IMPORT", pasta::WeakImportAttrSpelling::kCXX11ClangWeakImport)
     .value("C2X_CLANG_WEAK_IMPORT", pasta::WeakImportAttrSpelling::kC2xClangWeakImport)
     .value("SPELLING_NOT_CALCULATED", pasta::WeakImportAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::WeakRefAttrSpelling>(m, "WeakRefAttrSpelling")
+  nb::enum_<pasta::WeakRefAttrSpelling>(m, "WeakRefAttrSpelling")
     .value("GNU_WEAKREF", pasta::WeakRefAttrSpelling::kGNUWeakref)
     .value("CXX11_GNU_WEAKREF", pasta::WeakRefAttrSpelling::kCXX11GnuWeakref)
     .value("C2X_GNU_WEAKREF", pasta::WeakRefAttrSpelling::kC2xGnuWeakref)
     .value("SPELLING_NOT_CALCULATED", pasta::WeakRefAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::WebAssemblyExportNameAttrSpelling>(m, "WebAssemblyExportNameAttrSpelling")
+  nb::enum_<pasta::WebAssemblyExportNameAttrSpelling>(m, "WebAssemblyExportNameAttrSpelling")
     .value("GNU_EXPORT_NAME", pasta::WebAssemblyExportNameAttrSpelling::kGNUExportName)
     .value("CXX11_CLANG_EXPORT_NAME", pasta::WebAssemblyExportNameAttrSpelling::kCXX11ClangExportName)
     .value("C2X_CLANG_EXPORT_NAME", pasta::WebAssemblyExportNameAttrSpelling::kC2xClangExportName)
     .value("SPELLING_NOT_CALCULATED", pasta::WebAssemblyExportNameAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::WebAssemblyImportModuleAttrSpelling>(m, "WebAssemblyImportModuleAttrSpelling")
+  nb::enum_<pasta::WebAssemblyImportModuleAttrSpelling>(m, "WebAssemblyImportModuleAttrSpelling")
     .value("GNU_IMPORT_MODULE", pasta::WebAssemblyImportModuleAttrSpelling::kGNUImportModule)
     .value("CXX11_CLANG_IMPORT_MODULE", pasta::WebAssemblyImportModuleAttrSpelling::kCXX11ClangImportModule)
     .value("C2X_CLANG_IMPORT_MODULE", pasta::WebAssemblyImportModuleAttrSpelling::kC2xClangImportModule)
     .value("SPELLING_NOT_CALCULATED", pasta::WebAssemblyImportModuleAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::WebAssemblyImportNameAttrSpelling>(m, "WebAssemblyImportNameAttrSpelling")
+  nb::enum_<pasta::WebAssemblyImportNameAttrSpelling>(m, "WebAssemblyImportNameAttrSpelling")
     .value("GNU_IMPORT_NAME", pasta::WebAssemblyImportNameAttrSpelling::kGNUImportName)
     .value("CXX11_CLANG_IMPORT_NAME", pasta::WebAssemblyImportNameAttrSpelling::kCXX11ClangImportName)
     .value("C2X_CLANG_IMPORT_NAME", pasta::WebAssemblyImportNameAttrSpelling::kC2xClangImportName)
     .value("SPELLING_NOT_CALCULATED", pasta::WebAssemblyImportNameAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::X86ForceAlignArgPointerAttrSpelling>(m, "X86ForceAlignArgPointerAttrSpelling")
+  nb::enum_<pasta::X86ForceAlignArgPointerAttrSpelling>(m, "X86ForceAlignArgPointerAttrSpelling")
     .value("GNU_FORCE_ALIGN_ARGUMENT_POINTER", pasta::X86ForceAlignArgPointerAttrSpelling::kGNUForceAlignArgumentPointer)
     .value("CXX11_GNU_FORCE_ALIGN_ARGUMENT_POINTER", pasta::X86ForceAlignArgPointerAttrSpelling::kCXX11GnuForceAlignArgumentPointer)
     .value("C2X_GNU_FORCE_ALIGN_ARGUMENT_POINTER", pasta::X86ForceAlignArgPointerAttrSpelling::kC2xGnuForceAlignArgumentPointer)
     .value("SPELLING_NOT_CALCULATED", pasta::X86ForceAlignArgPointerAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::XRayInstrumentAttrSpelling>(m, "XRayInstrumentAttrSpelling")
+  nb::enum_<pasta::XRayInstrumentAttrSpelling>(m, "XRayInstrumentAttrSpelling")
     .value("GNU_XRAY_ALWAYS_INSTRUMENT", pasta::XRayInstrumentAttrSpelling::kGNUXrayAlwaysInstrument)
     .value("CXX11_CLANG_XRAY_ALWAYS_INSTRUMENT", pasta::XRayInstrumentAttrSpelling::kCXX11ClangXrayAlwaysInstrument)
     .value("C2X_CLANG_XRAY_ALWAYS_INSTRUMENT", pasta::XRayInstrumentAttrSpelling::kC2xClangXrayAlwaysInstrument)
@@ -2866,19 +2866,19 @@ void RegisterEnums(py::module_ &m) {
     .value("C2X_CLANG_XRAY_NEVER_INSTRUMENT", pasta::XRayInstrumentAttrSpelling::kC2xClangXrayNeverInstrument)
     .value("SPELLING_NOT_CALCULATED", pasta::XRayInstrumentAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::XRayLogArgsAttrSpelling>(m, "XRayLogArgsAttrSpelling")
+  nb::enum_<pasta::XRayLogArgsAttrSpelling>(m, "XRayLogArgsAttrSpelling")
     .value("GNU_XRAY_LOG_ARGUMENTS", pasta::XRayLogArgsAttrSpelling::kGNUXrayLogArguments)
     .value("CXX11_CLANG_XRAY_LOG_ARGUMENTS", pasta::XRayLogArgsAttrSpelling::kCXX11ClangXrayLogArguments)
     .value("C2X_CLANG_XRAY_LOG_ARGUMENTS", pasta::XRayLogArgsAttrSpelling::kC2xClangXrayLogArguments)
     .value("SPELLING_NOT_CALCULATED", pasta::XRayLogArgsAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ZeroCallUsedRegsAttrSpelling>(m, "ZeroCallUsedRegsAttrSpelling")
+  nb::enum_<pasta::ZeroCallUsedRegsAttrSpelling>(m, "ZeroCallUsedRegsAttrSpelling")
     .value("GNU_ZERO_CALL_USED_REGS", pasta::ZeroCallUsedRegsAttrSpelling::kGNUZeroCallUsedRegs)
     .value("CXX11_GNU_ZERO_CALL_USED_REGS", pasta::ZeroCallUsedRegsAttrSpelling::kCXX11GnuZeroCallUsedRegs)
     .value("C2X_GNU_ZERO_CALL_USED_REGS", pasta::ZeroCallUsedRegsAttrSpelling::kC2xGnuZeroCallUsedRegs)
     .value("SPELLING_NOT_CALCULATED", pasta::ZeroCallUsedRegsAttrSpelling::kSpellingNotCalculated);
 
-  py::enum_<pasta::ZeroCallUsedRegsAttrZeroCallUsedRegsKind>(m, "ZeroCallUsedRegsAttrZeroCallUsedRegsKind")
+  nb::enum_<pasta::ZeroCallUsedRegsAttrZeroCallUsedRegsKind>(m, "ZeroCallUsedRegsAttrZeroCallUsedRegsKind")
     .value("SKIP", pasta::ZeroCallUsedRegsAttrZeroCallUsedRegsKind::kSkip)
     .value("USED_GPR_ARG", pasta::ZeroCallUsedRegsAttrZeroCallUsedRegsKind::kUsedGPRArg)
     .value("USED_GPR", pasta::ZeroCallUsedRegsAttrZeroCallUsedRegsKind::kUsedGPR)
@@ -2889,34 +2889,34 @@ void RegisterEnums(py::module_ &m) {
     .value("ALL_ARGUMENT", pasta::ZeroCallUsedRegsAttrZeroCallUsedRegsKind::kAllArgument)
     .value("ALL", pasta::ZeroCallUsedRegsAttrZeroCallUsedRegsKind::kAll);
 
-  py::enum_<pasta::ASTDumpOutputFormat>(m, "ASTDumpOutputFormat")
+  nb::enum_<pasta::ASTDumpOutputFormat>(m, "ASTDumpOutputFormat")
     .value("DEFAULT", pasta::ASTDumpOutputFormat::kDefault)
     .value("JSON", pasta::ASTDumpOutputFormat::kJSON);
 
-  py::enum_<pasta::AccessSpecifier>(m, "AccessSpecifier")
+  nb::enum_<pasta::AccessSpecifier>(m, "AccessSpecifier")
     .value("PUBLIC", pasta::AccessSpecifier::kPublic)
     .value("PROTECTED", pasta::AccessSpecifier::kProtected)
     .value("PRIVATE", pasta::AccessSpecifier::kPrivate)
     .value("NONE", pasta::AccessSpecifier::kNone);
 
-  py::enum_<pasta::AddrSpaceMapMangling>(m, "AddrSpaceMapMangling")
+  nb::enum_<pasta::AddrSpaceMapMangling>(m, "AddrSpaceMapMangling")
     .value("TARGET", pasta::AddrSpaceMapMangling::kTarget)
     .value("ON", pasta::AddrSpaceMapMangling::kOn)
     .value("OFF", pasta::AddrSpaceMapMangling::kOff);
 
-  py::enum_<pasta::AlignRequirementKind>(m, "AlignRequirementKind")
+  nb::enum_<pasta::AlignRequirementKind>(m, "AlignRequirementKind")
     .value("NONE", pasta::AlignRequirementKind::kNone)
     .value("REQUIRED_BY_TYPEDEF", pasta::AlignRequirementKind::kRequiredByTypedef)
     .value("REQUIRED_BY_RECORD", pasta::AlignRequirementKind::kRequiredByRecord)
     .value("REQUIRED_BY_ENUM", pasta::AlignRequirementKind::kRequiredByEnum);
 
-  py::enum_<pasta::AltivecSrcCompatKind>(m, "AltivecSrcCompatKind")
+  nb::enum_<pasta::AltivecSrcCompatKind>(m, "AltivecSrcCompatKind")
     .value("MIXED", pasta::AltivecSrcCompatKind::kMixed)
     .value("GCC", pasta::AltivecSrcCompatKind::kGCC)
     .value("XL", pasta::AltivecSrcCompatKind::kXL)
     .value("DEFAULT", pasta::AltivecSrcCompatKind::kDefault);
 
-  py::enum_<pasta::ArgumentKind>(m, "ArgumentKind")
+  nb::enum_<pasta::ArgumentKind>(m, "ArgumentKind")
     .value("STD_STRING", pasta::ArgumentKind::kStdString)
     .value("C_STRING", pasta::ArgumentKind::kCString)
     .value("SINT", pasta::ArgumentKind::kSint)
@@ -2933,27 +2933,27 @@ void RegisterEnums(py::module_ &m) {
     .value("QUALTYPE_PAIR", pasta::ArgumentKind::kQualtypePair)
     .value("ATTRIBUTE", pasta::ArgumentKind::kAttribute);
 
-  py::enum_<pasta::ArrayTypeTrait>(m, "ArrayTypeTrait")
+  nb::enum_<pasta::ArrayTypeTrait>(m, "ArrayTypeTrait")
     .value("ARRAY_RANK", pasta::ArrayTypeTrait::kArrayRank)
     .value("ARRAY_EXTENT", pasta::ArrayTypeTrait::kArrayExtent);
 
-  py::enum_<pasta::AtomicScopeModelKind>(m, "AtomicScopeModelKind")
+  nb::enum_<pasta::AtomicScopeModelKind>(m, "AtomicScopeModelKind")
     .value("NONE", pasta::AtomicScopeModelKind::kNone)
     .value("OPEN_CL", pasta::AtomicScopeModelKind::kOpenCL)
     .value("HIP", pasta::AtomicScopeModelKind::kHIP);
 
-  py::enum_<pasta::AutoTypeKeyword>(m, "AutoTypeKeyword")
+  nb::enum_<pasta::AutoTypeKeyword>(m, "AutoTypeKeyword")
     .value("AUTO", pasta::AutoTypeKeyword::kAuto)
     .value("DECLTYPE_AUTO", pasta::AutoTypeKeyword::kDecltypeAuto)
     .value("GNU_AUTO_TYPE", pasta::AutoTypeKeyword::kGNUAutoType);
 
-  py::enum_<pasta::AvailabilityResult>(m, "AvailabilityResult")
+  nb::enum_<pasta::AvailabilityResult>(m, "AvailabilityResult")
     .value("AVAILABLE", pasta::AvailabilityResult::kAvailable)
     .value("NOT_YET_INTRODUCED", pasta::AvailabilityResult::kNotYetIntroduced)
     .value("DEPRECATED", pasta::AvailabilityResult::kDeprecated)
     .value("UNAVAILABLE", pasta::AvailabilityResult::kUnavailable);
 
-  py::enum_<pasta::BinaryOperatorKind>(m, "BinaryOperatorKind")
+  nb::enum_<pasta::BinaryOperatorKind>(m, "BinaryOperatorKind")
     .value("POINTER_MEMORY_D", pasta::BinaryOperatorKind::kPointerMemoryD)
     .value("POINTER_MEMORY_I", pasta::BinaryOperatorKind::kPointerMemoryI)
     .value("MUL", pasta::BinaryOperatorKind::kMul)
@@ -2988,7 +2988,7 @@ void RegisterEnums(py::module_ &m) {
     .value("OR_ASSIGN", pasta::BinaryOperatorKind::kOrAssign)
     .value("COMMA", pasta::BinaryOperatorKind::kComma);
 
-  py::enum_<pasta::Bits>(m, "Bits")
+  nb::enum_<pasta::Bits>(m, "Bits")
     .value("NONE", pasta::Bits::kNone)
     .value("UNEXPANDED_PACK", pasta::Bits::kUnexpandedPack)
     .value("INSTANTIATION", pasta::Bits::kInstantiation)
@@ -3000,7 +3000,7 @@ void RegisterEnums(py::module_ &m) {
     .value("SYNTACTIC", pasta::Bits::kSyntactic)
     .value("SEMANTIC", pasta::Bits::kSemantic);
 
-  py::enum_<pasta::CallingConv>(m, "CallingConv")
+  nb::enum_<pasta::CallingConv>(m, "CallingConv")
     .value("C", pasta::CallingConv::kC)
     .value("X86_STD_CALL", pasta::CallingConv::kX86StdCall)
     .value("X86_FAST_CALL", pasta::CallingConv::kX86FastCall)
@@ -3023,17 +3023,17 @@ void RegisterEnums(py::module_ &m) {
     .value("A_ARCH64_SVEPCS", pasta::CallingConv::kAArch64SVEPCS)
     .value("AMDGPU_KERNEL_CALL", pasta::CallingConv::kAMDGPUKernelCall);
 
-  py::enum_<pasta::CanThrowResult>(m, "CanThrowResult")
+  nb::enum_<pasta::CanThrowResult>(m, "CanThrowResult")
     .value("CANNOT", pasta::CanThrowResult::kCannot)
     .value("DEPENDENT", pasta::CanThrowResult::kDependent)
     .value("CAN", pasta::CanThrowResult::kCan);
 
-  py::enum_<pasta::CapturedRegionKind>(m, "CapturedRegionKind")
+  nb::enum_<pasta::CapturedRegionKind>(m, "CapturedRegionKind")
     .value("DEFAULT", pasta::CapturedRegionKind::kDefault)
     .value("OBJ_C_AT_FINALLY", pasta::CapturedRegionKind::kObjCAtFinally)
     .value("OPEN_MP", pasta::CapturedRegionKind::kOpenMP);
 
-  py::enum_<pasta::CastKind>(m, "CastKind")
+  nb::enum_<pasta::CastKind>(m, "CastKind")
     .value("DEPENDENT", pasta::CastKind::kDependent)
     .value("BIT_CAST", pasta::CastKind::kBitCast)
     .value("L_VALUE_BIT_CAST", pasta::CastKind::kLValueBitCast)
@@ -3100,7 +3100,7 @@ void RegisterEnums(py::module_ &m) {
     .value("ADDRESS_SPACE_CONVERSION", pasta::CastKind::kAddressSpaceConversion)
     .value("INT_TO_OCL_SAMPLER", pasta::CastKind::kIntToOCLSampler);
 
-  py::enum_<pasta::ClangABI>(m, "ClangABI")
+  nb::enum_<pasta::ClangABI>(m, "ClangABI")
     .value("VER38", pasta::ClangABI::kVer38)
     .value("VER4", pasta::ClangABI::kVer4)
     .value("VER6", pasta::ClangABI::kVer6)
@@ -3112,7 +3112,7 @@ void RegisterEnums(py::module_ &m) {
     .value("VER15", pasta::ClangABI::kVer15)
     .value("LATEST", pasta::ClangABI::kLatest);
 
-  py::enum_<pasta::CommentKind>(m, "CommentKind")
+  nb::enum_<pasta::CommentKind>(m, "CommentKind")
     .value("INVALID", pasta::CommentKind::kInvalid)
     .value("ORDINARY_BCPL", pasta::CommentKind::kOrdinaryBCPL)
     .value("ORDINARY_C", pasta::CommentKind::kOrdinaryC)
@@ -3122,31 +3122,31 @@ void RegisterEnums(py::module_ &m) {
     .value("QT", pasta::CommentKind::kQt)
     .value("MERGED", pasta::CommentKind::kMerged);
 
-  py::enum_<pasta::ComparisonCategoryResult>(m, "ComparisonCategoryResult")
+  nb::enum_<pasta::ComparisonCategoryResult>(m, "ComparisonCategoryResult")
     .value("EQUAL", pasta::ComparisonCategoryResult::kEqual)
     .value("EQUIVALENT", pasta::ComparisonCategoryResult::kEquivalent)
     .value("LESS", pasta::ComparisonCategoryResult::kLess)
     .value("GREATER", pasta::ComparisonCategoryResult::kGreater)
     .value("UNORDERED", pasta::ComparisonCategoryResult::kUnordered);
 
-  py::enum_<pasta::ComparisonCategoryType>(m, "ComparisonCategoryType")
+  nb::enum_<pasta::ComparisonCategoryType>(m, "ComparisonCategoryType")
     .value("PARTIAL_ORDERING", pasta::ComparisonCategoryType::kPartialOrdering)
     .value("WEAK_ORDERING", pasta::ComparisonCategoryType::kWeakOrdering)
     .value("STRONG_ORDERING", pasta::ComparisonCategoryType::kStrongOrdering);
 
-  py::enum_<pasta::CompilingModuleKind>(m, "CompilingModuleKind")
+  nb::enum_<pasta::CompilingModuleKind>(m, "CompilingModuleKind")
     .value("NONE", pasta::CompilingModuleKind::kNone)
     .value("MODULE_MAP", pasta::CompilingModuleKind::kModuleMap)
     .value("HEADER_UNIT", pasta::CompilingModuleKind::kHeaderUnit)
     .value("MODULE_INTERFACE", pasta::CompilingModuleKind::kModuleInterface);
 
-  py::enum_<pasta::ConstexprSpecKind>(m, "ConstexprSpecKind")
+  nb::enum_<pasta::ConstexprSpecKind>(m, "ConstexprSpecKind")
     .value("UNSPECIFIED", pasta::ConstexprSpecKind::kUnspecified)
     .value("CONSTEXPR", pasta::ConstexprSpecKind::kConstexpr)
     .value("CONSTEVAL", pasta::ConstexprSpecKind::kConsteval)
     .value("CONSTINIT", pasta::ConstexprSpecKind::kConstinit);
 
-  py::enum_<pasta::CoreFoundationABI>(m, "CoreFoundationABI")
+  nb::enum_<pasta::CoreFoundationABI>(m, "CoreFoundationABI")
     .value("UNSPECIFIED", pasta::CoreFoundationABI::kUnspecified)
     .value("STANDALONE", pasta::CoreFoundationABI::kStandalone)
     .value("OBJECTIVE_C", pasta::CoreFoundationABI::kObjectiveC)
@@ -3155,7 +3155,7 @@ void RegisterEnums(py::module_ &m) {
     .value("SWIFT42", pasta::CoreFoundationABI::kSwift42)
     .value("SWIFT41", pasta::CoreFoundationABI::kSwift41);
 
-  py::enum_<pasta::DataPositionTy>(m, "DataPositionTy")
+  nb::enum_<pasta::DataPositionTy>(m, "DataPositionTy")
     .value("POSX", pasta::DataPositionTy::kPOSX)
     .value("POSV", pasta::DataPositionTy::kPOSV)
     .value("POSE", pasta::DataPositionTy::kPOSE)
@@ -3164,18 +3164,18 @@ void RegisterEnums(py::module_ &m) {
     .value("POS_CONDITION", pasta::DataPositionTy::kPOSCondition)
     .value("POSR", pasta::DataPositionTy::kPOSR);
 
-  py::enum_<pasta::DebugSrcHashKind>(m, "DebugSrcHashKind")
+  nb::enum_<pasta::DebugSrcHashKind>(m, "DebugSrcHashKind")
     .value("DSHMD5", pasta::DebugSrcHashKind::kDSHMD5)
     .value("DSHSHA1", pasta::DebugSrcHashKind::kDSHSHA1)
     .value("DSHSHA256", pasta::DebugSrcHashKind::kDSHSHA256);
 
-  py::enum_<pasta::DefaultArgKind>(m, "DefaultArgKind")
+  nb::enum_<pasta::DefaultArgKind>(m, "DefaultArgKind")
     .value("NONE", pasta::DefaultArgKind::kNone)
     .value("UNPARSED", pasta::DefaultArgKind::kUnparsed)
     .value("UNINSTANTIATED", pasta::DefaultArgKind::kUninstantiated)
     .value("NORMAL", pasta::DefaultArgKind::kNormal);
 
-  py::enum_<pasta::DefaultCallingConvention>(m, "DefaultCallingConvention")
+  nb::enum_<pasta::DefaultCallingConvention>(m, "DefaultCallingConvention")
     .value("NONE", pasta::DefaultCallingConvention::kNone)
     .value("C_DECL", pasta::DefaultCallingConvention::kCDecl)
     .value("FAST_CALL", pasta::DefaultCallingConvention::kFastCall)
@@ -3183,12 +3183,12 @@ void RegisterEnums(py::module_ &m) {
     .value("VECTOR_CALL", pasta::DefaultCallingConvention::kVectorCall)
     .value("REG_CALL", pasta::DefaultCallingConvention::kRegCall);
 
-  py::enum_<pasta::DefaultVisiblityExportMapping>(m, "DefaultVisiblityExportMapping")
+  nb::enum_<pasta::DefaultVisiblityExportMapping>(m, "DefaultVisiblityExportMapping")
     .value("NONE", pasta::DefaultVisiblityExportMapping::kNone)
     .value("EXPLICIT", pasta::DefaultVisiblityExportMapping::kExplicit)
     .value("ALL", pasta::DefaultVisiblityExportMapping::kAll);
 
-  py::enum_<pasta::DiagnosticLevelMask>(m, "DiagnosticLevelMask")
+  nb::enum_<pasta::DiagnosticLevelMask>(m, "DiagnosticLevelMask")
     .value("NONE", pasta::DiagnosticLevelMask::kNone)
     .value("NOTE", pasta::DiagnosticLevelMask::kNote)
     .value("REMARK", pasta::DiagnosticLevelMask::kRemark)
@@ -3196,7 +3196,7 @@ void RegisterEnums(py::module_ &m) {
     .value("ERROR", pasta::DiagnosticLevelMask::kError)
     .value("ALL", pasta::DiagnosticLevelMask::kAll);
 
-  py::enum_<pasta::ElaboratedTypeKeyword>(m, "ElaboratedTypeKeyword")
+  nb::enum_<pasta::ElaboratedTypeKeyword>(m, "ElaboratedTypeKeyword")
     .value("STRUCT", pasta::ElaboratedTypeKeyword::kStruct)
     .value("INTERFACE", pasta::ElaboratedTypeKeyword::kInterface)
     .value("UNION", pasta::ElaboratedTypeKeyword::kUnion)
@@ -3205,25 +3205,25 @@ void RegisterEnums(py::module_ &m) {
     .value("TYPENAME", pasta::ElaboratedTypeKeyword::kTypename)
     .value("NONE", pasta::ElaboratedTypeKeyword::kNone);
 
-  py::enum_<pasta::EmbedBitcodeKind>(m, "EmbedBitcodeKind")
+  nb::enum_<pasta::EmbedBitcodeKind>(m, "EmbedBitcodeKind")
     .value("EMBED_OFF", pasta::EmbedBitcodeKind::kEmbedOff)
     .value("EMBED_ALL", pasta::EmbedBitcodeKind::kEmbedAll)
     .value("EMBED_BITCODE", pasta::EmbedBitcodeKind::kEmbedBitcode)
     .value("EMBED_MARKER", pasta::EmbedBitcodeKind::kEmbedMarker);
 
-  py::enum_<pasta::EscapeChar>(m, "EscapeChar")
+  nb::enum_<pasta::EscapeChar>(m, "EscapeChar")
     .value("SINGLE", pasta::EscapeChar::kSingle)
     .value("DOUBLE", pasta::EscapeChar::kDouble)
     .value("SINGLE_AND_DOUBLE", pasta::EscapeChar::kSingleAndDouble);
 
-  py::enum_<pasta::ExceptionHandlingKind>(m, "ExceptionHandlingKind")
+  nb::enum_<pasta::ExceptionHandlingKind>(m, "ExceptionHandlingKind")
     .value("NONE", pasta::ExceptionHandlingKind::kNone)
     .value("SJ_LJ", pasta::ExceptionHandlingKind::kSjLj)
     .value("WIN_EH", pasta::ExceptionHandlingKind::kWinEH)
     .value("DWARF_CFI", pasta::ExceptionHandlingKind::kDwarfCFI)
     .value("WASM", pasta::ExceptionHandlingKind::kWasm);
 
-  py::enum_<pasta::ExceptionSpecificationType>(m, "ExceptionSpecificationType")
+  nb::enum_<pasta::ExceptionSpecificationType>(m, "ExceptionSpecificationType")
     .value("NONE", pasta::ExceptionSpecificationType::kNone)
     .value("DYNAMIC_NONE", pasta::ExceptionSpecificationType::kDynamicNone)
     .value("DYNAMIC", pasta::ExceptionSpecificationType::kDynamic)
@@ -3237,22 +3237,22 @@ void RegisterEnums(py::module_ &m) {
     .value("UNINSTANTIATED", pasta::ExceptionSpecificationType::kUninstantiated)
     .value("UNPARSED", pasta::ExceptionSpecificationType::kUnparsed);
 
-  py::enum_<pasta::ExcessPrecisionKind>(m, "ExcessPrecisionKind")
+  nb::enum_<pasta::ExcessPrecisionKind>(m, "ExcessPrecisionKind")
     .value("FPP_STANDARD", pasta::ExcessPrecisionKind::kFPPStandard)
     .value("FPP_FAST", pasta::ExcessPrecisionKind::kFPPFast)
     .value("FPP_NONE", pasta::ExcessPrecisionKind::kFPPNone);
 
-  py::enum_<pasta::ExclusionType>(m, "ExclusionType")
+  nb::enum_<pasta::ExclusionType>(m, "ExclusionType")
     .value("ALLOW", pasta::ExclusionType::kAllow)
     .value("SKIP", pasta::ExclusionType::kSkip)
     .value("FORBID", pasta::ExclusionType::kForbid);
 
-  py::enum_<pasta::ExplicitSpecKind>(m, "ExplicitSpecKind")
+  nb::enum_<pasta::ExplicitSpecKind>(m, "ExplicitSpecKind")
     .value("RESOLVED_FALSE", pasta::ExplicitSpecKind::kResolvedFalse)
     .value("RESOLVED_TRUE", pasta::ExplicitSpecKind::kResolvedTrue)
     .value("UNRESOLVED", pasta::ExplicitSpecKind::kUnresolved);
 
-  py::enum_<pasta::ExprDependence>(m, "ExprDependence")
+  nb::enum_<pasta::ExprDependence>(m, "ExprDependence")
     .value("UNEXPANDED_PACK", pasta::ExprDependence::kUnexpandedPack)
     .value("INSTANTIATION", pasta::ExprDependence::kInstantiation)
     .value("TYPE", pasta::ExprDependence::kType)
@@ -3266,7 +3266,7 @@ void RegisterEnums(py::module_ &m) {
     .value("TYPE_VALUE_INSTANTIATION", pasta::ExprDependence::kTypeValueInstantiation)
     .value("ERROR_DEPENDENT", pasta::ExprDependence::kErrorDependent);
 
-  py::enum_<pasta::ExprObjectKind>(m, "ExprObjectKind")
+  nb::enum_<pasta::ExprObjectKind>(m, "ExprObjectKind")
     .value("ORDINARY", pasta::ExprObjectKind::kOrdinary)
     .value("BIT_FIELD", pasta::ExprObjectKind::kBitField)
     .value("VECTOR_COMPONENT", pasta::ExprObjectKind::kVectorComponent)
@@ -3274,91 +3274,91 @@ void RegisterEnums(py::module_ &m) {
     .value("OBJ_C_SUBSCRIPT", pasta::ExprObjectKind::kObjCSubscript)
     .value("MATRIX_COMPONENT", pasta::ExprObjectKind::kMatrixComponent);
 
-  py::enum_<pasta::ExprOffsets>(m, "ExprOffsets")
+  nb::enum_<pasta::ExprOffsets>(m, "ExprOffsets")
     .value("ALLOCATOR", pasta::ExprOffsets::kAllocator)
     .value("ALLOCATOR_TRAITS", pasta::ExprOffsets::kAllocatorTraits)
     .value("TOTAL", pasta::ExprOffsets::kTotal);
 
-  py::enum_<pasta::ExprValueKind>(m, "ExprValueKind")
+  nb::enum_<pasta::ExprValueKind>(m, "ExprValueKind")
     .value("PR_VALUE", pasta::ExprValueKind::kPRValue)
     .value("L_VALUE", pasta::ExprValueKind::kLValue)
     .value("X_VALUE", pasta::ExprValueKind::kXValue);
 
-  py::enum_<pasta::ExpressionTrait>(m, "ExpressionTrait")
+  nb::enum_<pasta::ExpressionTrait>(m, "ExpressionTrait")
     .value("IS_L_VALUE_EXPRESSION", pasta::ExpressionTrait::kIsLValueExpression)
     .value("IS_R_VALUE_EXPRESSION", pasta::ExpressionTrait::kIsRValueExpression);
 
-  py::enum_<pasta::ExtKind>(m, "ExtKind")
+  nb::enum_<pasta::ExtKind>(m, "ExtKind")
     .value("ALWAYS", pasta::ExtKind::kAlways)
     .value("NEVER", pasta::ExtKind::kNever)
     .value("REPLY_HAZY", pasta::ExtKind::kReplyHazy);
 
-  py::enum_<pasta::ExtendArgsKind>(m, "ExtendArgsKind")
+  nb::enum_<pasta::ExtendArgsKind>(m, "ExtendArgsKind")
     .value("EXTEND_TO32", pasta::ExtendArgsKind::kExtendTo32)
     .value("EXTEND_TO64", pasta::ExtendArgsKind::kExtendTo64);
 
-  py::enum_<pasta::FPEvalMethodKind>(m, "FPEvalMethodKind")
+  nb::enum_<pasta::FPEvalMethodKind>(m, "FPEvalMethodKind")
     .value("FEM_INDETERMINABLE", pasta::FPEvalMethodKind::kFEMIndeterminable)
     .value("FEM_SOURCE", pasta::FPEvalMethodKind::kFEMSource)
     .value("FEM_DOUBLE", pasta::FPEvalMethodKind::kFEMDouble)
     .value("FEM_EXTENDED", pasta::FPEvalMethodKind::kFEMExtended)
     .value("FEM_UNSET_ON_COMMAND_LINE", pasta::FPEvalMethodKind::kFEMUnsetOnCommandLine);
 
-  py::enum_<pasta::FPExceptionModeKind>(m, "FPExceptionModeKind")
+  nb::enum_<pasta::FPExceptionModeKind>(m, "FPExceptionModeKind")
     .value("IGNORE", pasta::FPExceptionModeKind::kIgnore)
     .value("MAY_TRAP", pasta::FPExceptionModeKind::kMayTrap)
     .value("STRICT", pasta::FPExceptionModeKind::kStrict)
     .value("DEFAULT", pasta::FPExceptionModeKind::kDefault);
 
-  py::enum_<pasta::FPModeKind>(m, "FPModeKind")
+  nb::enum_<pasta::FPModeKind>(m, "FPModeKind")
     .value("OFF", pasta::FPModeKind::kOff)
     .value("ON", pasta::FPModeKind::kOn)
     .value("FAST", pasta::FPModeKind::kFast)
     .value("FAST_HONOR_PRAGMAS", pasta::FPModeKind::kFastHonorPragmas);
 
-  py::enum_<pasta::FiniteLoopsKind>(m, "FiniteLoopsKind")
+  nb::enum_<pasta::FiniteLoopsKind>(m, "FiniteLoopsKind")
     .value("LANGUAGE", pasta::FiniteLoopsKind::kLanguage)
     .value("ALWAYS", pasta::FiniteLoopsKind::kAlways)
     .value("NEVER", pasta::FiniteLoopsKind::kNever);
 
-  py::enum_<pasta::Flags>(m, "Flags")
+  nb::enum_<pasta::Flags>(m, "Flags")
     .value("F_INLINE", pasta::Flags::kFInline)
     .value("F_NESTED", pasta::Flags::kFNested);
 
-  py::enum_<pasta::FramePointerKind>(m, "FramePointerKind")
+  nb::enum_<pasta::FramePointerKind>(m, "FramePointerKind")
     .value("NONE", pasta::FramePointerKind::kNone)
     .value("NON_LEAF", pasta::FramePointerKind::kNonLeaf)
     .value("ALL", pasta::FramePointerKind::kAll);
 
-  py::enum_<pasta::GC>(m, "GC")
+  nb::enum_<pasta::GC>(m, "GC")
     .value("GC_NONE", pasta::GC::kGCNone)
     .value("WEAK", pasta::GC::kWeak)
     .value("STRONG", pasta::GC::kStrong);
 
-  py::enum_<pasta::GCMode>(m, "GCMode")
+  nb::enum_<pasta::GCMode>(m, "GCMode")
     .value("NON_GC", pasta::GCMode::kNonGC)
     .value("GC_ONLY", pasta::GCMode::kGCOnly)
     .value("HYBRID_GC", pasta::GCMode::kHybridGC);
 
-  py::enum_<pasta::GPUDefaultStreamKind>(m, "GPUDefaultStreamKind")
+  nb::enum_<pasta::GPUDefaultStreamKind>(m, "GPUDefaultStreamKind")
     .value("LEGACY", pasta::GPUDefaultStreamKind::kLegacy)
     .value("PER_THREAD", pasta::GPUDefaultStreamKind::kPerThread);
 
-  py::enum_<pasta::GVALinkage>(m, "GVALinkage")
+  nb::enum_<pasta::GVALinkage>(m, "GVALinkage")
     .value("INTERNAL", pasta::GVALinkage::kInternal)
     .value("AVAILABLE_EXTERNALLY", pasta::GVALinkage::kAvailableExternally)
     .value("DISCARDABLE_ODR", pasta::GVALinkage::kDiscardableODR)
     .value("STRONG_EXTERNAL", pasta::GVALinkage::kStrongExternal)
     .value("STRONG_ODR", pasta::GVALinkage::kStrongODR);
 
-  py::enum_<pasta::GetBuiltinTypeError>(m, "GetBuiltinTypeError")
+  nb::enum_<pasta::GetBuiltinTypeError>(m, "GetBuiltinTypeError")
     .value("NONE", pasta::GetBuiltinTypeError::kNone)
     .value("MISSING_TYPE", pasta::GetBuiltinTypeError::kMissingType)
     .value("MISSING_STDIO", pasta::GetBuiltinTypeError::kMissingStdio)
     .value("MISSING", pasta::GetBuiltinTypeError::kMissing)
     .value("MISSING_UCONTEXT", pasta::GetBuiltinTypeError::kMissingUcontext);
 
-  py::enum_<pasta::HLSLLangStd>(m, "HLSLLangStd")
+  nb::enum_<pasta::HLSLLangStd>(m, "HLSLLangStd")
     .value("HLSL_UNSET", pasta::HLSLLangStd::kHLSLUnset)
     .value("HLSL2015", pasta::HLSLLangStd::kHLSL2015)
     .value("HLSL2016", pasta::HLSLLangStd::kHLSL2016)
@@ -3367,62 +3367,62 @@ void RegisterEnums(py::module_ &m) {
     .value("HLSL2021", pasta::HLSLLangStd::kHLSL2021)
     .value("HLSL202X", pasta::HLSLLangStd::kHLSL202x);
 
-  py::enum_<pasta::ID>(m, "ID")
+  nb::enum_<pasta::ID>(m, "ID")
     .value("WORK_GROUP", pasta::ID::kWorkGroup)
     .value("DEVICE", pasta::ID::kDevice)
     .value("ALL_SVM_DEVICES", pasta::ID::kAllSVMDevices)
     .value("SUB_GROUP", pasta::ID::kSubGroup);
 
-  py::enum_<pasta::IdentifierInfoFlag>(m, "IdentifierInfoFlag")
+  nb::enum_<pasta::IdentifierInfoFlag>(m, "IdentifierInfoFlag")
     .value("ZERO_ARGUMENT", pasta::IdentifierInfoFlag::kZeroArgument)
     .value("ONE_ARGUMENT", pasta::IdentifierInfoFlag::kOneArgument)
     .value("MULTI_ARGUMENT", pasta::IdentifierInfoFlag::kMultiArgument)
     .value("ARGUMENT_FLAGS", pasta::IdentifierInfoFlag::kArgumentFlags);
 
-  py::enum_<pasta::IfStatementKind>(m, "IfStatementKind")
+  nb::enum_<pasta::IfStatementKind>(m, "IfStatementKind")
     .value("ORDINARY", pasta::IfStatementKind::kOrdinary)
     .value("CONSTEXPR", pasta::IfStatementKind::kConstexpr)
     .value("CONSTEVAL_NON_NEGATED", pasta::IfStatementKind::kConstevalNonNegated)
     .value("CONSTEVAL_NEGATED", pasta::IfStatementKind::kConstevalNegated);
 
-  py::enum_<pasta::ImbueAttribute>(m, "ImbueAttribute")
+  nb::enum_<pasta::ImbueAttribute>(m, "ImbueAttribute")
     .value("NONE", pasta::ImbueAttribute::kNONE)
     .value("ALWAYS", pasta::ImbueAttribute::kALWAYS)
     .value("NEVER", pasta::ImbueAttribute::kNEVER)
     .value("ALWAYSARG1", pasta::ImbueAttribute::kALWAYSARG1);
 
-  py::enum_<pasta::InClassInitStyle>(m, "InClassInitStyle")
+  nb::enum_<pasta::InClassInitStyle>(m, "InClassInitStyle")
     .value("NO_INITIALIZER", pasta::InClassInitStyle::kNoInitializer)
     .value("COPY_INITIALIZER", pasta::InClassInitStyle::kCopyInitializer)
     .value("LIST_INITIALIZER", pasta::InClassInitStyle::kListInitializer);
 
-  py::enum_<pasta::InheritedDesignatedInitializersState>(m, "InheritedDesignatedInitializersState")
+  nb::enum_<pasta::InheritedDesignatedInitializersState>(m, "InheritedDesignatedInitializersState")
     .value("UNKNOWN", pasta::InheritedDesignatedInitializersState::kUnknown)
     .value("INHERITED", pasta::InheritedDesignatedInitializersState::kInherited)
     .value("NOT_INHERITED", pasta::InheritedDesignatedInitializersState::kNotInherited);
 
-  py::enum_<pasta::InitStorageKind>(m, "InitStorageKind")
+  nb::enum_<pasta::InitStorageKind>(m, "InitStorageKind")
     .value("NO_INITIALIZER", pasta::InitStorageKind::kNoInitializer)
     .value("IN_CLASS_COPY_INITIALIZER", pasta::InitStorageKind::kInClassCopyInitializer)
     .value("IN_CLASS_LIST_INITIALIZER", pasta::InitStorageKind::kInClassListInitializer)
     .value("CAPTURED_VLA_TYPE", pasta::InitStorageKind::kCapturedVLAType);
 
-  py::enum_<pasta::InlineAsmDialectKind>(m, "InlineAsmDialectKind")
+  nb::enum_<pasta::InlineAsmDialectKind>(m, "InlineAsmDialectKind")
     .value("IADATT", pasta::InlineAsmDialectKind::kIADATT)
     .value("IAD_INTEL", pasta::InlineAsmDialectKind::kIADIntel);
 
-  py::enum_<pasta::InlineVariableDefinitionKind>(m, "InlineVariableDefinitionKind")
+  nb::enum_<pasta::InlineVariableDefinitionKind>(m, "InlineVariableDefinitionKind")
     .value("NONE", pasta::InlineVariableDefinitionKind::kNone)
     .value("WEAK", pasta::InlineVariableDefinitionKind::kWeak)
     .value("WEAK_UNKNOWN", pasta::InlineVariableDefinitionKind::kWeakUnknown)
     .value("STRONG", pasta::InlineVariableDefinitionKind::kStrong);
 
-  py::enum_<pasta::InliningMethod>(m, "InliningMethod")
+  nb::enum_<pasta::InliningMethod>(m, "InliningMethod")
     .value("NORMAL_INLINING", pasta::InliningMethod::kNormalInlining)
     .value("ONLY_HINT_INLINING", pasta::InliningMethod::kOnlyHintInlining)
     .value("ONLY_ALWAYS_INLINING", pasta::InliningMethod::kOnlyAlwaysInlining);
 
-  py::enum_<pasta::Kinds>(m, "Kinds")
+  nb::enum_<pasta::Kinds>(m, "Kinds")
     .value("L_VALUE", pasta::Kinds::kLValue)
     .value("X_VALUE", pasta::Kinds::kXValue)
     .value("FUNCTION", pasta::Kinds::kFunction)
@@ -3436,19 +3436,19 @@ void RegisterEnums(py::module_ &m) {
     .value("OBJ_C_MESSAGE_R_VALUE", pasta::Kinds::kObjCMessageRValue)
     .value("PR_VALUE", pasta::Kinds::kPRValue);
 
-  py::enum_<pasta::LambdaCaptureDefault>(m, "LambdaCaptureDefault")
+  nb::enum_<pasta::LambdaCaptureDefault>(m, "LambdaCaptureDefault")
     .value("NONE", pasta::LambdaCaptureDefault::kNone)
     .value("BY_COPY", pasta::LambdaCaptureDefault::kByCopy)
     .value("BY_REFERENCE", pasta::LambdaCaptureDefault::kByReference);
 
-  py::enum_<pasta::LambdaCaptureKind>(m, "LambdaCaptureKind")
+  nb::enum_<pasta::LambdaCaptureKind>(m, "LambdaCaptureKind")
     .value("THIS", pasta::LambdaCaptureKind::kThis)
     .value("STAR_THIS", pasta::LambdaCaptureKind::kStarThis)
     .value("BY_COPY", pasta::LambdaCaptureKind::kByCopy)
     .value("BY_REFERENCE", pasta::LambdaCaptureKind::kByReference)
     .value("VLA_TYPE", pasta::LambdaCaptureKind::kVLAType);
 
-  py::enum_<pasta::LangAS>(m, "LangAS")
+  nb::enum_<pasta::LangAS>(m, "LangAS")
     .value("DEFAULT", pasta::LangAS::kDefault)
     .value("OPENCL_GLOBAL", pasta::LangAS::kOpenclGlobal)
     .value("OPENCL_LOCAL", pasta::LangAS::kOpenclLocal)
@@ -3470,7 +3470,7 @@ void RegisterEnums(py::module_ &m) {
     .value("PTR64", pasta::LangAS::kPtr64)
     .value("HLSL_GROUPSHARED", pasta::LangAS::kHlslGroupshared);
 
-  py::enum_<pasta::LangFeatures>(m, "LangFeatures")
+  nb::enum_<pasta::LangFeatures>(m, "LangFeatures")
     .value("LINE_COMMENT", pasta::LangFeatures::kLineComment)
     .value("C99", pasta::LangFeatures::kC99)
     .value("C11", pasta::LangFeatures::kC11)
@@ -3488,7 +3488,7 @@ void RegisterEnums(py::module_ &m) {
     .value("OPEN_CL", pasta::LangFeatures::kOpenCL)
     .value("HLSL", pasta::LangFeatures::kHLSL);
 
-  py::enum_<pasta::Language>(m, "Language")
+  nb::enum_<pasta::Language>(m, "Language")
     .value("UNKNOWN", pasta::Language::kUnknown)
     .value("ASSEMBLY", pasta::Language::kAssembly)
     .value("LLVMIR", pasta::Language::kLLVMIR)
@@ -3503,17 +3503,17 @@ void RegisterEnums(py::module_ &m) {
     .value("HIP", pasta::Language::kHIP)
     .value("HLSL", pasta::Language::kHLSL);
 
-  py::enum_<pasta::LanguageLinkage>(m, "LanguageLinkage")
+  nb::enum_<pasta::LanguageLinkage>(m, "LanguageLinkage")
     .value("C_LANGUAGE_LINKAGE", pasta::LanguageLinkage::kCLanguageLinkage)
     .value("CXX_LANGUAGE_LINKAGE", pasta::LanguageLinkage::kCXXLanguageLinkage)
     .value("NO_LANGUAGE_LINKAGE", pasta::LanguageLinkage::kNoLanguageLinkage);
 
-  py::enum_<pasta::LaxVectorConversionKind>(m, "LaxVectorConversionKind")
+  nb::enum_<pasta::LaxVectorConversionKind>(m, "LaxVectorConversionKind")
     .value("NONE", pasta::LaxVectorConversionKind::kNone)
     .value("INTEGER", pasta::LaxVectorConversionKind::kInteger)
     .value("ALL", pasta::LaxVectorConversionKind::kAll);
 
-  py::enum_<pasta::Level>(m, "Level")
+  nb::enum_<pasta::Level>(m, "Level")
     .value("IGNORED", pasta::Level::kIgnored)
     .value("NOTE", pasta::Level::kNote)
     .value("REMARK", pasta::Level::kRemark)
@@ -3521,7 +3521,7 @@ void RegisterEnums(py::module_ &m) {
     .value("ERROR", pasta::Level::kError)
     .value("FATAL", pasta::Level::kFatal);
 
-  py::enum_<pasta::Linkage>(m, "Linkage")
+  nb::enum_<pasta::Linkage>(m, "Linkage")
     .value("NO_LINKAGE", pasta::Linkage::kNoLinkage)
     .value("INTERNAL_LINKAGE", pasta::Linkage::kInternalLinkage)
     .value("UNIQUE_EXTERNAL_LINKAGE", pasta::Linkage::kUniqueExternalLinkage)
@@ -3530,13 +3530,13 @@ void RegisterEnums(py::module_ &m) {
     .value("MODULE_LINKAGE", pasta::Linkage::kModuleLinkage)
     .value("EXTERNAL_LINKAGE", pasta::Linkage::kExternalLinkage);
 
-  py::enum_<pasta::MSInheritanceModel>(m, "MSInheritanceModel")
+  nb::enum_<pasta::MSInheritanceModel>(m, "MSInheritanceModel")
     .value("SINGLE", pasta::MSInheritanceModel::kSingle)
     .value("MULTIPLE", pasta::MSInheritanceModel::kMultiple)
     .value("VIRTUAL", pasta::MSInheritanceModel::kVirtual)
     .value("UNSPECIFIED", pasta::MSInheritanceModel::kUnspecified);
 
-  py::enum_<pasta::MSVCMajorVersion>(m, "MSVCMajorVersion")
+  nb::enum_<pasta::MSVCMajorVersion>(m, "MSVCMajorVersion")
     .value("MSVC2010", pasta::MSVCMajorVersion::kMSVC2010)
     .value("MSVC2012", pasta::MSVCMajorVersion::kMSVC2012)
     .value("MSVC2013", pasta::MSVCMajorVersion::kMSVC2013)
@@ -3548,17 +3548,17 @@ void RegisterEnums(py::module_ &m) {
     .value("MSVC20195", pasta::MSVCMajorVersion::kMSVC20195)
     .value("MSVC20198", pasta::MSVCMajorVersion::kMSVC20198);
 
-  py::enum_<pasta::MSVtorDispMode>(m, "MSVtorDispMode")
+  nb::enum_<pasta::MSVtorDispMode>(m, "MSVtorDispMode")
     .value("NEVER", pasta::MSVtorDispMode::kNever)
     .value("FOR_VIRTUAL_BASE_OVERRIDE", pasta::MSVtorDispMode::kForVirtualBaseOverride)
     .value("FOR_VF_TABLE", pasta::MSVtorDispMode::kForVFTable);
 
-  py::enum_<pasta::MethodRefFlags>(m, "MethodRefFlags")
+  nb::enum_<pasta::MethodRefFlags>(m, "MethodRefFlags")
     .value("METHOD_REFERENCE_NONE", pasta::MethodRefFlags::kMethodReferenceNone)
     .value("METHOD_REFERENCE_GETTER", pasta::MethodRefFlags::kMethodReferenceGetter)
     .value("METHOD_REFERENCE_SETTER", pasta::MethodRefFlags::kMethodReferenceSetter);
 
-  py::enum_<pasta::ModifiableType>(m, "ModifiableType")
+  nb::enum_<pasta::ModifiableType>(m, "ModifiableType")
     .value("UNTESTED", pasta::ModifiableType::kUntested)
     .value("MODIFIABLE", pasta::ModifiableType::kModifiable)
     .value("R_VALUE", pasta::ModifiableType::kRValue)
@@ -3571,7 +3571,7 @@ void RegisterEnums(py::module_ &m) {
     .value("ARRAY_TYPE", pasta::ModifiableType::kArrayType)
     .value("INCOMPLETE_TYPE", pasta::ModifiableType::kIncompleteType);
 
-  py::enum_<pasta::MultiVersionKind>(m, "MultiVersionKind")
+  nb::enum_<pasta::MultiVersionKind>(m, "MultiVersionKind")
     .value("NONE", pasta::MultiVersionKind::kNone)
     .value("TARGET", pasta::MultiVersionKind::kTarget)
     .value("CPU_SPECIFIC", pasta::MultiVersionKind::kCPUSpecific)
@@ -3579,7 +3579,7 @@ void RegisterEnums(py::module_ &m) {
     .value("TARGET_CLONES", pasta::MultiVersionKind::kTargetClones)
     .value("TARGET_VERSION", pasta::MultiVersionKind::kTargetVersion);
 
-  py::enum_<pasta::NameKind>(m, "NameKind")
+  nb::enum_<pasta::NameKind>(m, "NameKind")
     .value("TEMPLATE", pasta::NameKind::kTemplate)
     .value("OVERLOADED_TEMPLATE", pasta::NameKind::kOverloadedTemplate)
     .value("ASSUMED_TEMPLATE", pasta::NameKind::kAssumedTemplate)
@@ -3589,10 +3589,10 @@ void RegisterEnums(py::module_ &m) {
     .value("SUBST_TEMPLATE_TEMPLATE_PARM_PACK", pasta::NameKind::kSubstTemplateTemplateParmPack)
     .value("USING_TEMPLATE", pasta::NameKind::kUsingTemplate);
 
-  py::enum_<pasta::NeedExtraManglingDecl>(m, "NeedExtraManglingDecl")
+  nb::enum_<pasta::NeedExtraManglingDecl>(m, "NeedExtraManglingDecl")
     .value("NEED_EXTRA_MANGLING_DECLARATION", pasta::NeedExtraManglingDecl::kNeedExtraManglingDeclaration);
 
-  py::enum_<pasta::NestedNameSpecifierDependence>(m, "NestedNameSpecifierDependence")
+  nb::enum_<pasta::NestedNameSpecifierDependence>(m, "NestedNameSpecifierDependence")
     .value("UNEXPANDED_PACK", pasta::NestedNameSpecifierDependence::kUnexpandedPack)
     .value("INSTANTIATION", pasta::NestedNameSpecifierDependence::kInstantiation)
     .value("DEPENDENT", pasta::NestedNameSpecifierDependence::kDependent)
@@ -3601,32 +3601,32 @@ void RegisterEnums(py::module_ &m) {
     .value("DEPENDENT_INSTANTIATION", pasta::NestedNameSpecifierDependence::kDependentInstantiation)
     .value("ALL", pasta::NestedNameSpecifierDependence::kAll);
 
-  py::enum_<pasta::NonOdrUseReason>(m, "NonOdrUseReason")
+  nb::enum_<pasta::NonOdrUseReason>(m, "NonOdrUseReason")
     .value("NONE", pasta::NonOdrUseReason::kNone)
     .value("UNEVALUATED", pasta::NonOdrUseReason::kUnevaluated)
     .value("CONSTANT", pasta::NonOdrUseReason::kConstant)
     .value("DISCARDED", pasta::NonOdrUseReason::kDiscarded);
 
-  py::enum_<pasta::NonceObjCInterface>(m, "NonceObjCInterface")
+  nb::enum_<pasta::NonceObjCInterface>(m, "NonceObjCInterface")
     .value("OBJ_C_INTERFACE", pasta::NonceObjCInterface::kObjCInterface);
 
-  py::enum_<pasta::NullabilityKind>(m, "NullabilityKind")
+  nb::enum_<pasta::NullabilityKind>(m, "NullabilityKind")
     .value("NON_NULL", pasta::NullabilityKind::kNonNull)
     .value("NULLABLE", pasta::NullabilityKind::kNullable)
     .value("UNSPECIFIED", pasta::NullabilityKind::kUnspecified)
     .value("NULLABLE_RESULT", pasta::NullabilityKind::kNullableResult);
 
-  py::enum_<pasta::ObjCBridgeCastKind>(m, "ObjCBridgeCastKind")
+  nb::enum_<pasta::ObjCBridgeCastKind>(m, "ObjCBridgeCastKind")
     .value("BRIDGE", pasta::ObjCBridgeCastKind::kBridge)
     .value("BRIDGE_TRANSFER", pasta::ObjCBridgeCastKind::kBridgeTransfer)
     .value("BRIDGE_RETAINED", pasta::ObjCBridgeCastKind::kBridgeRetained);
 
-  py::enum_<pasta::ObjCDispatchMethodKind>(m, "ObjCDispatchMethodKind")
+  nb::enum_<pasta::ObjCDispatchMethodKind>(m, "ObjCDispatchMethodKind")
     .value("LEGACY", pasta::ObjCDispatchMethodKind::kLegacy)
     .value("NON_LEGACY", pasta::ObjCDispatchMethodKind::kNonLegacy)
     .value("MIXED", pasta::ObjCDispatchMethodKind::kMixed);
 
-  py::enum_<pasta::ObjCInstanceTypeFamily>(m, "ObjCInstanceTypeFamily")
+  nb::enum_<pasta::ObjCInstanceTypeFamily>(m, "ObjCInstanceTypeFamily")
     .value("NONE", pasta::ObjCInstanceTypeFamily::kNone)
     .value("ARRAY", pasta::ObjCInstanceTypeFamily::kArray)
     .value("DICTIONARY", pasta::ObjCInstanceTypeFamily::kDictionary)
@@ -3634,7 +3634,7 @@ void RegisterEnums(py::module_ &m) {
     .value("INITIALIZER", pasta::ObjCInstanceTypeFamily::kInitializer)
     .value("RETURNS_SELF", pasta::ObjCInstanceTypeFamily::kReturnsSelf);
 
-  py::enum_<pasta::ObjCKeywordKind>(m, "ObjCKeywordKind")
+  nb::enum_<pasta::ObjCKeywordKind>(m, "ObjCKeywordKind")
     .value("NOT_KEYWORD", pasta::ObjCKeywordKind::kNotKeyword)
     .value("CLASS", pasta::ObjCKeywordKind::kClass)
     .value("COMPATIBILITY_ALIAS", pasta::ObjCKeywordKind::kCompatibilityAlias)
@@ -3663,14 +3663,14 @@ void RegisterEnums(py::module_ &m) {
     .value("IMPORT", pasta::ObjCKeywordKind::kImport)
     .value("AVAILABLE", pasta::ObjCKeywordKind::kAvailable);
 
-  py::enum_<pasta::ObjCLifetime>(m, "ObjCLifetime")
+  nb::enum_<pasta::ObjCLifetime>(m, "ObjCLifetime")
     .value("NONE", pasta::ObjCLifetime::kNone)
     .value("EXPLICIT_NONE", pasta::ObjCLifetime::kExplicitNone)
     .value("STRONG", pasta::ObjCLifetime::kStrong)
     .value("WEAK", pasta::ObjCLifetime::kWeak)
     .value("AUTORELEASING", pasta::ObjCLifetime::kAutoreleasing);
 
-  py::enum_<pasta::ObjCMethodFamily>(m, "ObjCMethodFamily")
+  nb::enum_<pasta::ObjCMethodFamily>(m, "ObjCMethodFamily")
     .value("NONE", pasta::ObjCMethodFamily::kNone)
     .value("ALLOC", pasta::ObjCMethodFamily::kAlloc)
     .value("COPY", pasta::ObjCMethodFamily::kCopy)
@@ -3687,65 +3687,65 @@ void RegisterEnums(py::module_ &m) {
     .value("INITIALIZE", pasta::ObjCMethodFamily::kInitialize)
     .value("PERFORM_SELECTOR", pasta::ObjCMethodFamily::kPerformSelector);
 
-  py::enum_<pasta::ObjCPropertyQueryKind>(m, "ObjCPropertyQueryKind")
+  nb::enum_<pasta::ObjCPropertyQueryKind>(m, "ObjCPropertyQueryKind")
     .value("QUERY_UNKNOWN", pasta::ObjCPropertyQueryKind::kQueryUnknown)
     .value("QUERY_INSTANCE", pasta::ObjCPropertyQueryKind::kQueryInstance)
     .value("QUERY_CLASS", pasta::ObjCPropertyQueryKind::kQueryClass);
 
-  py::enum_<pasta::ObjCStringFormatFamily>(m, "ObjCStringFormatFamily")
+  nb::enum_<pasta::ObjCStringFormatFamily>(m, "ObjCStringFormatFamily")
     .value("NONE", pasta::ObjCStringFormatFamily::kNone)
     .value("NS_STRING", pasta::ObjCStringFormatFamily::kNSString)
     .value("CF_STRING", pasta::ObjCStringFormatFamily::kCFString);
 
-  py::enum_<pasta::ObjCSubstitutionContext>(m, "ObjCSubstitutionContext")
+  nb::enum_<pasta::ObjCSubstitutionContext>(m, "ObjCSubstitutionContext")
     .value("ORDINARY", pasta::ObjCSubstitutionContext::kOrdinary)
     .value("RESULT", pasta::ObjCSubstitutionContext::kResult)
     .value("PARAMETER", pasta::ObjCSubstitutionContext::kParameter)
     .value("PROPERTY", pasta::ObjCSubstitutionContext::kProperty)
     .value("SUPERCLASS", pasta::ObjCSubstitutionContext::kSuperclass);
 
-  py::enum_<pasta::ObjCTypeParamVariance>(m, "ObjCTypeParamVariance")
+  nb::enum_<pasta::ObjCTypeParamVariance>(m, "ObjCTypeParamVariance")
     .value("INVARIANT", pasta::ObjCTypeParamVariance::kInvariant)
     .value("COVARIANT", pasta::ObjCTypeParamVariance::kCovariant)
     .value("CONTRAVARIANT", pasta::ObjCTypeParamVariance::kContravariant);
 
-  py::enum_<pasta::OnOffSwitch>(m, "OnOffSwitch")
+  nb::enum_<pasta::OnOffSwitch>(m, "OnOffSwitch")
     .value("ON", pasta::OnOffSwitch::kON)
     .value("OFF", pasta::OnOffSwitch::kOFF)
     .value("DEFAULT", pasta::OnOffSwitch::kDEFAULT);
 
-  py::enum_<pasta::OnStackType>(m, "OnStackType")
+  nb::enum_<pasta::OnStackType>(m, "OnStackType")
     .value("ON_STACK", pasta::OnStackType::kOnStack);
 
-  py::enum_<pasta::OpenMPAdjustArgsOpKind>(m, "OpenMPAdjustArgsOpKind")
+  nb::enum_<pasta::OpenMPAdjustArgsOpKind>(m, "OpenMPAdjustArgsOpKind")
     .value("ADJUSTARGS_NOTHING", pasta::OpenMPAdjustArgsOpKind::kADJUSTARGSNothing)
     .value("ADJUSTARGS_NEED_DEVICE_POINTER", pasta::OpenMPAdjustArgsOpKind::kADJUSTARGSNeedDevicePointer)
     .value("ADJUSTARGS_UNKNOWN", pasta::OpenMPAdjustArgsOpKind::kADJUSTARGSUnknown);
 
-  py::enum_<pasta::OpenMPAtClauseKind>(m, "OpenMPAtClauseKind")
+  nb::enum_<pasta::OpenMPAtClauseKind>(m, "OpenMPAtClauseKind")
     .value("AT_COMPILATION", pasta::OpenMPAtClauseKind::kATCompilation)
     .value("AT_EXECUTION", pasta::OpenMPAtClauseKind::kATExecution)
     .value("AT_UNKNOWN", pasta::OpenMPAtClauseKind::kATUnknown);
 
-  py::enum_<pasta::OpenMPAtomicDefaultMemOrderClauseKind>(m, "OpenMPAtomicDefaultMemOrderClauseKind")
+  nb::enum_<pasta::OpenMPAtomicDefaultMemOrderClauseKind>(m, "OpenMPAtomicDefaultMemOrderClauseKind")
     .value("SEQ_CST", pasta::OpenMPAtomicDefaultMemOrderClauseKind::kSeqCst)
     .value("ACQ_REL", pasta::OpenMPAtomicDefaultMemOrderClauseKind::kAcqRel)
     .value("RELAXED", pasta::OpenMPAtomicDefaultMemOrderClauseKind::kRelaxed)
     .value("UNKNOWN", pasta::OpenMPAtomicDefaultMemOrderClauseKind::kUnknown);
 
-  py::enum_<pasta::OpenMPBindClauseKind>(m, "OpenMPBindClauseKind")
+  nb::enum_<pasta::OpenMPBindClauseKind>(m, "OpenMPBindClauseKind")
     .value("BIND_TEAMS", pasta::OpenMPBindClauseKind::kBINDTeams)
     .value("BIND_PARALLEL", pasta::OpenMPBindClauseKind::kBINDParallel)
     .value("BIND_THREAD", pasta::OpenMPBindClauseKind::kBINDThread)
     .value("BIND_UNKNOWN", pasta::OpenMPBindClauseKind::kBINDUnknown);
 
-  py::enum_<pasta::OpenMPDefaultmapClauseKind>(m, "OpenMPDefaultmapClauseKind")
+  nb::enum_<pasta::OpenMPDefaultmapClauseKind>(m, "OpenMPDefaultmapClauseKind")
     .value("SCALAR", pasta::OpenMPDefaultmapClauseKind::kScalar)
     .value("AGGREGATE", pasta::OpenMPDefaultmapClauseKind::kAggregate)
     .value("POINTER", pasta::OpenMPDefaultmapClauseKind::kPointer)
     .value("UNKNOWN", pasta::OpenMPDefaultmapClauseKind::kUnknown);
 
-  py::enum_<pasta::OpenMPDefaultmapClauseModifier>(m, "OpenMPDefaultmapClauseModifier")
+  nb::enum_<pasta::OpenMPDefaultmapClauseModifier>(m, "OpenMPDefaultmapClauseModifier")
     .value("UNKNOWN", pasta::OpenMPDefaultmapClauseModifier::kUnknown)
     .value("ALLOC", pasta::OpenMPDefaultmapClauseModifier::kAlloc)
     .value("TO", pasta::OpenMPDefaultmapClauseModifier::kTo)
@@ -3755,7 +3755,7 @@ void RegisterEnums(py::module_ &m) {
     .value("DEFAULT", pasta::OpenMPDefaultmapClauseModifier::kDefault)
     .value("PRESENT", pasta::OpenMPDefaultmapClauseModifier::kPresent);
 
-  py::enum_<pasta::OpenMPDependClauseKind>(m, "OpenMPDependClauseKind")
+  nb::enum_<pasta::OpenMPDependClauseKind>(m, "OpenMPDependClauseKind")
     .value("IN", pasta::OpenMPDependClauseKind::kIn)
     .value("OUT", pasta::OpenMPDependClauseKind::kOut)
     .value("INOUT", pasta::OpenMPDependClauseKind::kInout)
@@ -3768,36 +3768,36 @@ void RegisterEnums(py::module_ &m) {
     .value("INOUTALLMEMORY", pasta::OpenMPDependClauseKind::kInoutallmemory)
     .value("UNKNOWN", pasta::OpenMPDependClauseKind::kUnknown);
 
-  py::enum_<pasta::OpenMPDeviceClauseModifier>(m, "OpenMPDeviceClauseModifier")
+  nb::enum_<pasta::OpenMPDeviceClauseModifier>(m, "OpenMPDeviceClauseModifier")
     .value("ANCESTOR", pasta::OpenMPDeviceClauseModifier::kAncestor)
     .value("DEVICE_NUM", pasta::OpenMPDeviceClauseModifier::kDeviceNum)
     .value("UNKNOWN", pasta::OpenMPDeviceClauseModifier::kUnknown);
 
-  py::enum_<pasta::OpenMPDeviceType>(m, "OpenMPDeviceType")
+  nb::enum_<pasta::OpenMPDeviceType>(m, "OpenMPDeviceType")
     .value("HOST", pasta::OpenMPDeviceType::kHost)
     .value("NOHOST", pasta::OpenMPDeviceType::kNohost)
     .value("ANY", pasta::OpenMPDeviceType::kAny)
     .value("UNKNOWN", pasta::OpenMPDeviceType::kUnknown);
 
-  py::enum_<pasta::OpenMPDistScheduleClauseKind>(m, "OpenMPDistScheduleClauseKind")
+  nb::enum_<pasta::OpenMPDistScheduleClauseKind>(m, "OpenMPDistScheduleClauseKind")
     .value("STATIC", pasta::OpenMPDistScheduleClauseKind::kStatic)
     .value("UNKNOWN", pasta::OpenMPDistScheduleClauseKind::kUnknown);
 
-  py::enum_<pasta::OpenMPGrainsizeClauseModifier>(m, "OpenMPGrainsizeClauseModifier")
+  nb::enum_<pasta::OpenMPGrainsizeClauseModifier>(m, "OpenMPGrainsizeClauseModifier")
     .value("GRAINSIZE_STRICT", pasta::OpenMPGrainsizeClauseModifier::kGRAINSIZEStrict)
     .value("GRAINSIZE_UNKNOWN", pasta::OpenMPGrainsizeClauseModifier::kGRAINSIZEUnknown);
 
-  py::enum_<pasta::OpenMPLastprivateModifier>(m, "OpenMPLastprivateModifier")
+  nb::enum_<pasta::OpenMPLastprivateModifier>(m, "OpenMPLastprivateModifier")
     .value("CONDITIONAL", pasta::OpenMPLastprivateModifier::kConditional)
     .value("UNKNOWN", pasta::OpenMPLastprivateModifier::kUnknown);
 
-  py::enum_<pasta::OpenMPLinearClauseKind>(m, "OpenMPLinearClauseKind")
+  nb::enum_<pasta::OpenMPLinearClauseKind>(m, "OpenMPLinearClauseKind")
     .value("VALUE", pasta::OpenMPLinearClauseKind::kValue)
     .value("REFERENCE", pasta::OpenMPLinearClauseKind::kReference)
     .value("UVAL", pasta::OpenMPLinearClauseKind::kUval)
     .value("UNKNOWN", pasta::OpenMPLinearClauseKind::kUnknown);
 
-  py::enum_<pasta::OpenMPMapClauseKind>(m, "OpenMPMapClauseKind")
+  nb::enum_<pasta::OpenMPMapClauseKind>(m, "OpenMPMapClauseKind")
     .value("ALLOC", pasta::OpenMPMapClauseKind::kAlloc)
     .value("TO", pasta::OpenMPMapClauseKind::kTo)
     .value("FROM", pasta::OpenMPMapClauseKind::kFrom)
@@ -3806,7 +3806,7 @@ void RegisterEnums(py::module_ &m) {
     .value("RELEASE", pasta::OpenMPMapClauseKind::kRelease)
     .value("UNKNOWN", pasta::OpenMPMapClauseKind::kUnknown);
 
-  py::enum_<pasta::OpenMPMapModifierKind>(m, "OpenMPMapModifierKind")
+  nb::enum_<pasta::OpenMPMapModifierKind>(m, "OpenMPMapModifierKind")
     .value("UNKNOWN", pasta::OpenMPMapModifierKind::kUnknown)
     .value("ALWAYS", pasta::OpenMPMapModifierKind::kAlways)
     .value("CLOSE", pasta::OpenMPMapModifierKind::kClose)
@@ -3815,32 +3815,32 @@ void RegisterEnums(py::module_ &m) {
     .value("PRESENT", pasta::OpenMPMapModifierKind::kPresent)
     .value("OMPX_HOLD", pasta::OpenMPMapModifierKind::kOmpxHold);
 
-  py::enum_<pasta::OpenMPMotionModifierKind>(m, "OpenMPMotionModifierKind")
+  nb::enum_<pasta::OpenMPMotionModifierKind>(m, "OpenMPMotionModifierKind")
     .value("MOTIONMODIFIER_MAPPER", pasta::OpenMPMotionModifierKind::kMOTIONMODIFIERMapper)
     .value("MOTIONMODIFIER_PRESENT", pasta::OpenMPMotionModifierKind::kMOTIONMODIFIERPresent)
     .value("MOTIONMODIFIER_UNKNOWN", pasta::OpenMPMotionModifierKind::kMOTIONMODIFIERUnknown);
 
-  py::enum_<pasta::OpenMPNumTasksClauseModifier>(m, "OpenMPNumTasksClauseModifier")
+  nb::enum_<pasta::OpenMPNumTasksClauseModifier>(m, "OpenMPNumTasksClauseModifier")
     .value("NUMTASKS_STRICT", pasta::OpenMPNumTasksClauseModifier::kNUMTASKSStrict)
     .value("NUMTASKS_UNKNOWN", pasta::OpenMPNumTasksClauseModifier::kNUMTASKSUnknown);
 
-  py::enum_<pasta::OpenMPOrderClauseKind>(m, "OpenMPOrderClauseKind")
+  nb::enum_<pasta::OpenMPOrderClauseKind>(m, "OpenMPOrderClauseKind")
     .value("CONCURRENT", pasta::OpenMPOrderClauseKind::kConcurrent)
     .value("UNKNOWN", pasta::OpenMPOrderClauseKind::kUnknown);
 
-  py::enum_<pasta::OpenMPOrderClauseModifier>(m, "OpenMPOrderClauseModifier")
+  nb::enum_<pasta::OpenMPOrderClauseModifier>(m, "OpenMPOrderClauseModifier")
     .value("MODIFIER_UNKNOWN", pasta::OpenMPOrderClauseModifier::kMODIFIERUnknown)
     .value("MODIFIER_REPRODUCIBLE", pasta::OpenMPOrderClauseModifier::kMODIFIERReproducible)
     .value("MODIFIER_UNCONSTRAINED", pasta::OpenMPOrderClauseModifier::kMODIFIERUnconstrained)
     .value("MODIFIER_LAST", pasta::OpenMPOrderClauseModifier::kMODIFIERLast);
 
-  py::enum_<pasta::OpenMPReductionClauseModifier>(m, "OpenMPReductionClauseModifier")
+  nb::enum_<pasta::OpenMPReductionClauseModifier>(m, "OpenMPReductionClauseModifier")
     .value("DEFAULT", pasta::OpenMPReductionClauseModifier::kDefault)
     .value("INSCAN", pasta::OpenMPReductionClauseModifier::kInscan)
     .value("TASK", pasta::OpenMPReductionClauseModifier::kTask)
     .value("UNKNOWN", pasta::OpenMPReductionClauseModifier::kUnknown);
 
-  py::enum_<pasta::OpenMPScheduleClauseKind>(m, "OpenMPScheduleClauseKind")
+  nb::enum_<pasta::OpenMPScheduleClauseKind>(m, "OpenMPScheduleClauseKind")
     .value("STATIC", pasta::OpenMPScheduleClauseKind::kStatic)
     .value("DYNAMIC", pasta::OpenMPScheduleClauseKind::kDynamic)
     .value("GUIDED", pasta::OpenMPScheduleClauseKind::kGuided)
@@ -3848,18 +3848,18 @@ void RegisterEnums(py::module_ &m) {
     .value("RUNTIME", pasta::OpenMPScheduleClauseKind::kRuntime)
     .value("UNKNOWN", pasta::OpenMPScheduleClauseKind::kUnknown);
 
-  py::enum_<pasta::OpenMPScheduleClauseModifier>(m, "OpenMPScheduleClauseModifier")
+  nb::enum_<pasta::OpenMPScheduleClauseModifier>(m, "OpenMPScheduleClauseModifier")
     .value("UNKNOWN", pasta::OpenMPScheduleClauseModifier::kUnknown)
     .value("MONOTONIC", pasta::OpenMPScheduleClauseModifier::kMonotonic)
     .value("NONMONOTONIC", pasta::OpenMPScheduleClauseModifier::kNonmonotonic)
     .value("SIMD", pasta::OpenMPScheduleClauseModifier::kSimd);
 
-  py::enum_<pasta::OpenMPSeverityClauseKind>(m, "OpenMPSeverityClauseKind")
+  nb::enum_<pasta::OpenMPSeverityClauseKind>(m, "OpenMPSeverityClauseKind")
     .value("SEVERITY_FATAL", pasta::OpenMPSeverityClauseKind::kSEVERITYFatal)
     .value("SEVERITY_WARNING", pasta::OpenMPSeverityClauseKind::kSEVERITYWarning)
     .value("SEVERITY_UNKNOWN", pasta::OpenMPSeverityClauseKind::kSEVERITYUnknown);
 
-  py::enum_<pasta::OverloadedOperatorKind>(m, "OverloadedOperatorKind")
+  nb::enum_<pasta::OverloadedOperatorKind>(m, "OverloadedOperatorKind")
     .value("NONE", pasta::OverloadedOperatorKind::kNone)
     .value("NEW", pasta::OverloadedOperatorKind::kNew)
     .value("DELETE", pasta::OverloadedOperatorKind::kDelete)
@@ -3907,11 +3907,11 @@ void RegisterEnums(py::module_ &m) {
     .value("CONDITIONAL", pasta::OverloadedOperatorKind::kConditional)
     .value("COAWAIT", pasta::OverloadedOperatorKind::kCoawait);
 
-  py::enum_<pasta::OverloadsShown>(m, "OverloadsShown")
+  nb::enum_<pasta::OverloadsShown>(m, "OverloadsShown")
     .value("ALL", pasta::OverloadsShown::kAll)
     .value("BEST", pasta::OverloadsShown::kBest);
 
-  py::enum_<pasta::PPKeywordKind>(m, "PPKeywordKind")
+  nb::enum_<pasta::PPKeywordKind>(m, "PPKeywordKind")
     .value("NOT_KEYWORD", pasta::PPKeywordKind::kNotKeyword)
     .value("IF", pasta::PPKeywordKind::kIf)
     .value("IFDEF", pasta::PPKeywordKind::kIfdef)
@@ -3939,19 +3939,19 @@ void RegisterEnums(py::module_ &m) {
     .value("__PUBLIC_MACRO", pasta::PPKeywordKind::k__PublicMacro)
     .value("__PRIVATE_MACRO", pasta::PPKeywordKind::k__PrivateMacro);
 
-  py::enum_<pasta::ParameterABI>(m, "ParameterABI")
+  nb::enum_<pasta::ParameterABI>(m, "ParameterABI")
     .value("ORDINARY", pasta::ParameterABI::kOrdinary)
     .value("SWIFT_INDIRECT_RESULT", pasta::ParameterABI::kSwiftIndirectResult)
     .value("SWIFT_ERROR_RESULT", pasta::ParameterABI::kSwiftErrorResult)
     .value("SWIFT_CONTEXT", pasta::ParameterABI::kSwiftContext)
     .value("SWIFT_ASYNC_CONTEXT", pasta::ParameterABI::kSwiftAsyncContext);
 
-  py::enum_<pasta::ParenLocsOffsets>(m, "ParenLocsOffsets")
+  nb::enum_<pasta::ParenLocsOffsets>(m, "ParenLocsOffsets")
     .value("L_PAREN_TOKEN", pasta::ParenLocsOffsets::kLParenToken)
     .value("R_PAREN_TOKEN", pasta::ParenLocsOffsets::kRParenToken)
     .value("TOTAL", pasta::ParenLocsOffsets::kTotal);
 
-  py::enum_<pasta::PragmaFloatControlKind>(m, "PragmaFloatControlKind")
+  nb::enum_<pasta::PragmaFloatControlKind>(m, "PragmaFloatControlKind")
     .value("UNKNOWN", pasta::PragmaFloatControlKind::kUnknown)
     .value("PRECISE", pasta::PragmaFloatControlKind::kPrecise)
     .value("NO_PRECISE", pasta::PragmaFloatControlKind::kNoPrecise)
@@ -3960,7 +3960,7 @@ void RegisterEnums(py::module_ &m) {
     .value("PUSH", pasta::PragmaFloatControlKind::kPush)
     .value("POP", pasta::PragmaFloatControlKind::kPop);
 
-  py::enum_<pasta::PragmaMSCommentKind>(m, "PragmaMSCommentKind")
+  nb::enum_<pasta::PragmaMSCommentKind>(m, "PragmaMSCommentKind")
     .value("UNKNOWN", pasta::PragmaMSCommentKind::kUnknown)
     .value("LINKER", pasta::PragmaMSCommentKind::kLinker)
     .value("LIB", pasta::PragmaMSCommentKind::kLib)
@@ -3968,17 +3968,17 @@ void RegisterEnums(py::module_ &m) {
     .value("EXE_STRING", pasta::PragmaMSCommentKind::kExeString)
     .value("USER", pasta::PragmaMSCommentKind::kUser);
 
-  py::enum_<pasta::PragmaMSPointersToMembersKind>(m, "PragmaMSPointersToMembersKind")
+  nb::enum_<pasta::PragmaMSPointersToMembersKind>(m, "PragmaMSPointersToMembersKind")
     .value("BEST_CASE", pasta::PragmaMSPointersToMembersKind::kBestCase)
     .value("FULL_GENERALITY_SINGLE_INHERITANCE", pasta::PragmaMSPointersToMembersKind::kFullGeneralitySingleInheritance)
     .value("FULL_GENERALITY_MULTIPLE_INHERITANCE", pasta::PragmaMSPointersToMembersKind::kFullGeneralityMultipleInheritance)
     .value("FULL_GENERALITY_VIRTUAL_INHERITANCE", pasta::PragmaMSPointersToMembersKind::kFullGeneralityVirtualInheritance);
 
-  py::enum_<pasta::PragmaMSStructKind>(m, "PragmaMSStructKind")
+  nb::enum_<pasta::PragmaMSStructKind>(m, "PragmaMSStructKind")
     .value("OFF", pasta::PragmaMSStructKind::kOFF)
     .value("ON", pasta::PragmaMSStructKind::kON);
 
-  py::enum_<pasta::PragmaSectionFlag>(m, "PragmaSectionFlag")
+  nb::enum_<pasta::PragmaSectionFlag>(m, "PragmaSectionFlag")
     .value("NONE", pasta::PragmaSectionFlag::kNone)
     .value("READ", pasta::PragmaSectionFlag::kRead)
     .value("WRITE", pasta::PragmaSectionFlag::kWrite)
@@ -3987,34 +3987,34 @@ void RegisterEnums(py::module_ &m) {
     .value("ZERO_INITIALIZER", pasta::PragmaSectionFlag::kZeroInitializer)
     .value("INVALID", pasta::PragmaSectionFlag::kInvalid);
 
-  py::enum_<pasta::ProfileInstrKind>(m, "ProfileInstrKind")
+  nb::enum_<pasta::ProfileInstrKind>(m, "ProfileInstrKind")
     .value("PROFILE_NONE", pasta::ProfileInstrKind::kProfileNone)
     .value("PROFILE_CLANG_INSTR", pasta::ProfileInstrKind::kProfileClangInstr)
     .value("PROFILE_IR_INSTR", pasta::ProfileInstrKind::kProfileIRInstr)
     .value("PROFILE_CSIR_INSTR", pasta::ProfileInstrKind::kProfileCSIRInstr);
 
-  py::enum_<pasta::Qualified>(m, "Qualified")
+  nb::enum_<pasta::Qualified>(m, "Qualified")
     .value("NONE", pasta::Qualified::kNone)
     .value("AS_WRITTEN", pasta::Qualified::kAsWritten)
     .value("FULLY", pasta::Qualified::kFully);
 
-  py::enum_<pasta::RangeExprOffset>(m, "RangeExprOffset")
+  nb::enum_<pasta::RangeExprOffset>(m, "RangeExprOffset")
     .value("BEGIN", pasta::RangeExprOffset::kBegin)
     .value("END", pasta::RangeExprOffset::kEnd)
     .value("STEP", pasta::RangeExprOffset::kStep)
     .value("TOTAL", pasta::RangeExprOffset::kTotal);
 
-  py::enum_<pasta::RangeLocOffset>(m, "RangeLocOffset")
+  nb::enum_<pasta::RangeLocOffset>(m, "RangeLocOffset")
     .value("ASSIGN_TOKEN", pasta::RangeLocOffset::kAssignToken)
     .value("SECOND_COLON_TOKEN", pasta::RangeLocOffset::kSecondColonToken)
     .value("TOTAL", pasta::RangeLocOffset::kTotal);
 
-  py::enum_<pasta::RefQualifierKind>(m, "RefQualifierKind")
+  nb::enum_<pasta::RefQualifierKind>(m, "RefQualifierKind")
     .value("NONE", pasta::RefQualifierKind::kNone)
     .value("L_VALUE", pasta::RefQualifierKind::kLValue)
     .value("R_VALUE", pasta::RefQualifierKind::kRValue);
 
-  py::enum_<pasta::RemarkKind>(m, "RemarkKind")
+  nb::enum_<pasta::RemarkKind>(m, "RemarkKind")
     .value("MISSING", pasta::RemarkKind::kMissing)
     .value("ENABLED", pasta::RemarkKind::kEnabled)
     .value("ENABLED_EVERYTHING", pasta::RemarkKind::kEnabledEverything)
@@ -4022,7 +4022,7 @@ void RegisterEnums(py::module_ &m) {
     .value("DISABLED_EVERYTHING", pasta::RemarkKind::kDisabledEverything)
     .value("WITH_PATTERN", pasta::RemarkKind::kWithPattern);
 
-  py::enum_<pasta::ReservedIdentifierStatus>(m, "ReservedIdentifierStatus")
+  nb::enum_<pasta::ReservedIdentifierStatus>(m, "ReservedIdentifierStatus")
     .value("NOT_RESERVED", pasta::ReservedIdentifierStatus::kNotReserved)
     .value("STARTS_WITH_UNDERSCORE_AT_GLOBAL_SCOPE", pasta::ReservedIdentifierStatus::kStartsWithUnderscoreAtGlobalScope)
     .value("STARTS_WITH_UNDERSCORE_AND_IS_EXTERN_C", pasta::ReservedIdentifierStatus::kStartsWithUnderscoreAndIsExternC)
@@ -4030,19 +4030,19 @@ void RegisterEnums(py::module_ &m) {
     .value("STARTS_WITH_UNDERSCORE_FOLLOWED_BY_CAPITAL_LETTER", pasta::ReservedIdentifierStatus::kStartsWithUnderscoreFollowedByCapitalLetter)
     .value("CONTAINS_DOUBLE_UNDERSCORE", pasta::ReservedIdentifierStatus::kContainsDoubleUnderscore);
 
-  py::enum_<pasta::SFINAEResponse>(m, "SFINAEResponse")
+  nb::enum_<pasta::SFINAEResponse>(m, "SFINAEResponse")
     .value("SUBSTITUTION_FAILURE", pasta::SFINAEResponse::kSubstitutionFailure)
     .value("SUPPRESS", pasta::SFINAEResponse::kSuppress)
     .value("REPORT", pasta::SFINAEResponse::kReport)
     .value("ACCESS_CONTROL", pasta::SFINAEResponse::kAccessControl);
 
-  py::enum_<pasta::SYCLMajorVersion>(m, "SYCLMajorVersion")
+  nb::enum_<pasta::SYCLMajorVersion>(m, "SYCLMajorVersion")
     .value("NONE", pasta::SYCLMajorVersion::kNone)
     .value("2017", pasta::SYCLMajorVersion::k2017)
     .value("2020", pasta::SYCLMajorVersion::k2020)
     .value("DEFAULT", pasta::SYCLMajorVersion::kDefault);
 
-  py::enum_<pasta::SanitizerOrdinal>(m, "SanitizerOrdinal")
+  nb::enum_<pasta::SanitizerOrdinal>(m, "SanitizerOrdinal")
     .value("ADDRESS", pasta::SanitizerOrdinal::kAddress)
     .value("POINTER_COMPARE", pasta::SanitizerOrdinal::kPointerCompare)
     .value("POINTER_SUBTRACT", pasta::SanitizerOrdinal::kPointerSubtract)
@@ -4115,12 +4115,12 @@ void RegisterEnums(py::module_ &m) {
     .value("ALL_GROUP", pasta::SanitizerOrdinal::kAllGroup)
     .value("COUNT", pasta::SanitizerOrdinal::kCount);
 
-  py::enum_<pasta::SelectorLocationsKind>(m, "SelectorLocationsKind")
+  nb::enum_<pasta::SelectorLocationsKind>(m, "SelectorLocationsKind")
     .value("NON_STANDARD", pasta::SelectorLocationsKind::kNonStandard)
     .value("STANDARD_NO_SPACE", pasta::SelectorLocationsKind::kStandardNoSpace)
     .value("STANDARD_WITH_SPACE", pasta::SelectorLocationsKind::kStandardWithSpace);
 
-  py::enum_<pasta::ShaderStage>(m, "ShaderStage")
+  nb::enum_<pasta::ShaderStage>(m, "ShaderStage")
     .value("PIXEL", pasta::ShaderStage::kPixel)
     .value("VERTEX", pasta::ShaderStage::kVertex)
     .value("GEOMETRY", pasta::ShaderStage::kGeometry)
@@ -4138,21 +4138,21 @@ void RegisterEnums(py::module_ &m) {
     .value("AMPLIFICATION", pasta::ShaderStage::kAmplification)
     .value("INVALID", pasta::ShaderStage::kInvalid);
 
-  py::enum_<pasta::SignReturnAddressKeyKind>(m, "SignReturnAddressKeyKind")
+  nb::enum_<pasta::SignReturnAddressKeyKind>(m, "SignReturnAddressKeyKind")
     .value("A_KEY", pasta::SignReturnAddressKeyKind::kAKey)
     .value("B_KEY", pasta::SignReturnAddressKeyKind::kBKey);
 
-  py::enum_<pasta::SignReturnAddressScopeKind>(m, "SignReturnAddressScopeKind")
+  nb::enum_<pasta::SignReturnAddressScopeKind>(m, "SignReturnAddressScopeKind")
     .value("NONE", pasta::SignReturnAddressScopeKind::kNone)
     .value("NON_LEAF", pasta::SignReturnAddressScopeKind::kNonLeaf)
     .value("ALL", pasta::SignReturnAddressScopeKind::kAll);
 
-  py::enum_<pasta::SignedOverflowBehaviorTy>(m, "SignedOverflowBehaviorTy")
+  nb::enum_<pasta::SignedOverflowBehaviorTy>(m, "SignedOverflowBehaviorTy")
     .value("UNDEFINED", pasta::SignedOverflowBehaviorTy::kUndefined)
     .value("DEFINED", pasta::SignedOverflowBehaviorTy::kDefined)
     .value("TRAPPING", pasta::SignedOverflowBehaviorTy::kTrapping);
 
-  py::enum_<pasta::SpecialMemberFlags>(m, "SpecialMemberFlags")
+  nb::enum_<pasta::SpecialMemberFlags>(m, "SpecialMemberFlags")
     .value("DEFAULT_CONSTRUCTOR", pasta::SpecialMemberFlags::kDefaultConstructor)
     .value("COPY_CONSTRUCTOR", pasta::SpecialMemberFlags::kCopyConstructor)
     .value("MOVE_CONSTRUCTOR", pasta::SpecialMemberFlags::kMoveConstructor)
@@ -4161,7 +4161,7 @@ void RegisterEnums(py::module_ &m) {
     .value("DESTRUCTOR", pasta::SpecialMemberFlags::kDestructor)
     .value("ALL", pasta::SpecialMemberFlags::kAll);
 
-  py::enum_<pasta::SpecifierKind>(m, "SpecifierKind")
+  nb::enum_<pasta::SpecifierKind>(m, "SpecifierKind")
     .value("IDENTIFIER", pasta::SpecifierKind::kIdentifier)
     .value("NAMESPACE", pasta::SpecifierKind::kNamespace)
     .value("NAMESPACE_ALIAS", pasta::SpecifierKind::kNamespaceAlias)
@@ -4170,13 +4170,13 @@ void RegisterEnums(py::module_ &m) {
     .value("GLOBAL", pasta::SpecifierKind::kGlobal)
     .value("SUPER", pasta::SpecifierKind::kSuper);
 
-  py::enum_<pasta::StackProtectorMode>(m, "StackProtectorMode")
+  nb::enum_<pasta::StackProtectorMode>(m, "StackProtectorMode")
     .value("OFF", pasta::StackProtectorMode::kOff)
     .value("ON", pasta::StackProtectorMode::kOn)
     .value("STRONG", pasta::StackProtectorMode::kStrong)
     .value("REQ", pasta::StackProtectorMode::kReq);
 
-  py::enum_<pasta::StorageClass>(m, "StorageClass")
+  nb::enum_<pasta::StorageClass>(m, "StorageClass")
     .value("NONE", pasta::StorageClass::kNone)
     .value("EXTERN", pasta::StorageClass::kExtern)
     .value("STATIC", pasta::StorageClass::kStatic)
@@ -4184,14 +4184,14 @@ void RegisterEnums(py::module_ &m) {
     .value("AUTO", pasta::StorageClass::kAuto)
     .value("REGISTER", pasta::StorageClass::kRegister);
 
-  py::enum_<pasta::StorageDuration>(m, "StorageDuration")
+  nb::enum_<pasta::StorageDuration>(m, "StorageDuration")
     .value("FULL_EXPRESSION", pasta::StorageDuration::kFullExpression)
     .value("AUTOMATIC", pasta::StorageDuration::kAutomatic)
     .value("THREAD", pasta::StorageDuration::kThread)
     .value("STATIC", pasta::StorageDuration::kStatic)
     .value("DYNAMIC", pasta::StorageDuration::kDynamic);
 
-  py::enum_<pasta::StoredNameKind>(m, "StoredNameKind")
+  nb::enum_<pasta::StoredNameKind>(m, "StoredNameKind")
     .value("STORED_IDENTIFIER", pasta::StoredNameKind::kStoredIdentifier)
     .value("STORED_OBJ_C_ZERO_ARGUMENT_SELECTOR", pasta::StoredNameKind::kStoredObjCZeroArgumentSelector)
     .value("STORED_OBJ_C_ONE_ARGUMENT_SELECTOR", pasta::StoredNameKind::kStoredObjCOneArgumentSelector)
@@ -4203,30 +4203,30 @@ void RegisterEnums(py::module_ &m) {
     .value("POINTER_MASK", pasta::StoredNameKind::kPointerMask)
     .value("UNCOMMON_NAME_KIND_OFFSET", pasta::StoredNameKind::kUncommonNameKindOffset);
 
-  py::enum_<pasta::StoredSpecifierKind>(m, "StoredSpecifierKind")
+  nb::enum_<pasta::StoredSpecifierKind>(m, "StoredSpecifierKind")
     .value("STORED_IDENTIFIER", pasta::StoredSpecifierKind::kStoredIdentifier)
     .value("STORED_DECLARATION", pasta::StoredSpecifierKind::kStoredDeclaration)
     .value("STORED_TYPE_SPEC", pasta::StoredSpecifierKind::kStoredTypeSpec)
     .value("STORED_TYPE_SPEC_WITH_TEMPLATE", pasta::StoredSpecifierKind::kStoredTypeSpecWithTemplate);
 
-  py::enum_<pasta::StrictFlexArraysLevelKind>(m, "StrictFlexArraysLevelKind")
+  nb::enum_<pasta::StrictFlexArraysLevelKind>(m, "StrictFlexArraysLevelKind")
     .value("DEFAULT", pasta::StrictFlexArraysLevelKind::kDefault)
     .value("ONE_ZERO_OR_INCOMPLETE", pasta::StrictFlexArraysLevelKind::kOneZeroOrIncomplete)
     .value("ZERO_OR_INCOMPLETE", pasta::StrictFlexArraysLevelKind::kZeroOrIncomplete)
     .value("INCOMPLETE_ONLY", pasta::StrictFlexArraysLevelKind::kIncompleteOnly);
 
-  py::enum_<pasta::StructReturnConventionKind>(m, "StructReturnConventionKind")
+  nb::enum_<pasta::StructReturnConventionKind>(m, "StructReturnConventionKind")
     .value("DEFAULT", pasta::StructReturnConventionKind::kDefault)
     .value("ON_STACK", pasta::StructReturnConventionKind::kOnStack)
     .value("IN_REGS", pasta::StructReturnConventionKind::kInRegs);
 
-  py::enum_<pasta::SubExpr>(m, "SubExpr")
+  nb::enum_<pasta::SubExpr>(m, "SubExpr")
     .value("CALLEE", pasta::SubExpr::kCallee)
     .value("LHS", pasta::SubExpr::kLHS)
     .value("RHS", pasta::SubExpr::kRHS)
     .value("COUNT", pasta::SubExpr::kCount);
 
-  py::enum_<pasta::SubStmt>(m, "SubStmt")
+  nb::enum_<pasta::SubStmt>(m, "SubStmt")
     .value("BODY", pasta::SubStmt::kBody)
     .value("PROMISE", pasta::SubStmt::kPromise)
     .value("INITIALIZER_SUSPEND", pasta::SubStmt::kInitializerSuspend)
@@ -4239,13 +4239,13 @@ void RegisterEnums(py::module_ &m) {
     .value("RETURN_STATEMENT", pasta::SubStmt::kReturnStatement)
     .value("RETURN_STATEMENT_ON_ALLOC_FAILURE", pasta::SubStmt::kReturnStatementOnAllocFailure);
 
-  py::enum_<pasta::SwiftAsyncFramePointerKind>(m, "SwiftAsyncFramePointerKind")
+  nb::enum_<pasta::SwiftAsyncFramePointerKind>(m, "SwiftAsyncFramePointerKind")
     .value("AUTO", pasta::SwiftAsyncFramePointerKind::kAuto)
     .value("ALWAYS", pasta::SwiftAsyncFramePointerKind::kAlways)
     .value("NEVER", pasta::SwiftAsyncFramePointerKind::kNever)
     .value("DEFAULT", pasta::SwiftAsyncFramePointerKind::kDefault);
 
-  py::enum_<pasta::SyncScope>(m, "SyncScope")
+  nb::enum_<pasta::SyncScope>(m, "SyncScope")
     .value("HIP_SINGLE_THREAD", pasta::SyncScope::kHIPSingleThread)
     .value("HIP_WAVEFRONT", pasta::SyncScope::kHIPWavefront)
     .value("HIP_WORKGROUP", pasta::SyncScope::kHIPWorkgroup)
@@ -4256,7 +4256,7 @@ void RegisterEnums(py::module_ &m) {
     .value("OPEN_CL_ALL_SVM_DEVICES", pasta::SyncScope::kOpenCLAllSVMDevices)
     .value("OPEN_CL_SUB_GROUP", pasta::SyncScope::kOpenCLSubGroup);
 
-  py::enum_<pasta::Syntax>(m, "Syntax")
+  nb::enum_<pasta::Syntax>(m, "Syntax")
     .value("GNU", pasta::Syntax::kGNU)
     .value("CXX11", pasta::Syntax::kCXX11)
     .value("C2X", pasta::Syntax::kC2x)
@@ -4267,31 +4267,31 @@ void RegisterEnums(py::module_ &m) {
     .value("CONTEXT_SENSITIVE_KEYWORD", pasta::Syntax::kContextSensitiveKeyword)
     .value("HLSL_SEMANTIC", pasta::Syntax::kHLSLSemantic);
 
-  py::enum_<pasta::TLSModel>(m, "TLSModel")
+  nb::enum_<pasta::TLSModel>(m, "TLSModel")
     .value("GENERAL_DYNAMIC_TLS_MODEL", pasta::TLSModel::kGeneralDynamicTLSModel)
     .value("LOCAL_DYNAMIC_TLS_MODEL", pasta::TLSModel::kLocalDynamicTLSModel)
     .value("INITIAL_EXEC_TLS_MODEL", pasta::TLSModel::kInitialExecTLSModel)
     .value("LOCAL_EXEC_TLS_MODEL", pasta::TLSModel::kLocalExecTLSModel);
 
-  py::enum_<pasta::TQ>(m, "TQ")
+  nb::enum_<pasta::TQ>(m, "TQ")
     .value("CONST", pasta::TQ::kConst)
     .value("RESTRICT", pasta::TQ::kRestrict)
     .value("VOLATILE", pasta::TQ::kVolatile)
     .value("CVR_MASK", pasta::TQ::kCVRMask);
 
-  py::enum_<pasta::TagTypeKind>(m, "TagTypeKind")
+  nb::enum_<pasta::TagTypeKind>(m, "TagTypeKind")
     .value("STRUCT", pasta::TagTypeKind::kStruct)
     .value("INTERFACE", pasta::TagTypeKind::kInterface)
     .value("UNION", pasta::TagTypeKind::kUnion)
     .value("CLASS", pasta::TagTypeKind::kClass)
     .value("ENUM", pasta::TagTypeKind::kEnum);
 
-  py::enum_<pasta::TailPaddingUseRules>(m, "TailPaddingUseRules")
+  nb::enum_<pasta::TailPaddingUseRules>(m, "TailPaddingUseRules")
     .value("ALWAYS_USE_TAIL_PADDING", pasta::TailPaddingUseRules::kAlwaysUseTailPadding)
     .value("USE_TAIL_PADDING_UNLESS_POD03", pasta::TailPaddingUseRules::kUseTailPaddingUnlessPOD03)
     .value("USE_TAIL_PADDING_UNLESS_POD11", pasta::TailPaddingUseRules::kUseTailPaddingUnlessPOD11);
 
-  py::enum_<pasta::TemplateArgumentDependence>(m, "TemplateArgumentDependence")
+  nb::enum_<pasta::TemplateArgumentDependence>(m, "TemplateArgumentDependence")
     .value("UNEXPANDED_PACK", pasta::TemplateArgumentDependence::kUnexpandedPack)
     .value("INSTANTIATION", pasta::TemplateArgumentDependence::kInstantiation)
     .value("DEPENDENT", pasta::TemplateArgumentDependence::kDependent)
@@ -4300,7 +4300,7 @@ void RegisterEnums(py::module_ &m) {
     .value("DEPENDENT_INSTANTIATION", pasta::TemplateArgumentDependence::kDependentInstantiation)
     .value("ALL", pasta::TemplateArgumentDependence::kAll);
 
-  py::enum_<pasta::TemplateNameDependence>(m, "TemplateNameDependence")
+  nb::enum_<pasta::TemplateNameDependence>(m, "TemplateNameDependence")
     .value("UNEXPANDED_PACK", pasta::TemplateNameDependence::kUnexpandedPack)
     .value("INSTANTIATION", pasta::TemplateNameDependence::kInstantiation)
     .value("DEPENDENT", pasta::TemplateNameDependence::kDependent)
@@ -4309,30 +4309,30 @@ void RegisterEnums(py::module_ &m) {
     .value("DEPENDENT_INSTANTIATION", pasta::TemplateNameDependence::kDependentInstantiation)
     .value("ALL", pasta::TemplateNameDependence::kAll);
 
-  py::enum_<pasta::TemplateSpecializationKind>(m, "TemplateSpecializationKind")
+  nb::enum_<pasta::TemplateSpecializationKind>(m, "TemplateSpecializationKind")
     .value("UNDECLARED", pasta::TemplateSpecializationKind::kUndeclared)
     .value("IMPLICIT_INSTANTIATION", pasta::TemplateSpecializationKind::kImplicitInstantiation)
     .value("EXPLICIT_SPECIALIZATION", pasta::TemplateSpecializationKind::kExplicitSpecialization)
     .value("EXPLICIT_INSTANTIATION_DECLARATION", pasta::TemplateSpecializationKind::kExplicitInstantiationDeclaration)
     .value("EXPLICIT_INSTANTIATION_DEFINITION", pasta::TemplateSpecializationKind::kExplicitInstantiationDefinition);
 
-  py::enum_<pasta::TextDiagnosticFormat>(m, "TextDiagnosticFormat")
+  nb::enum_<pasta::TextDiagnosticFormat>(m, "TextDiagnosticFormat")
     .value("CLANG", pasta::TextDiagnosticFormat::kClang)
     .value("MSVC", pasta::TextDiagnosticFormat::kMSVC)
     .value("VI", pasta::TextDiagnosticFormat::kVi)
     .value("SARIF", pasta::TextDiagnosticFormat::kSARIF);
 
-  py::enum_<pasta::ThreadModelKind>(m, "ThreadModelKind")
+  nb::enum_<pasta::ThreadModelKind>(m, "ThreadModelKind")
     .value("POSIX", pasta::ThreadModelKind::kPOSIX)
     .value("SINGLE", pasta::ThreadModelKind::kSingle);
 
-  py::enum_<pasta::ThreadStorageClassSpecifier>(m, "ThreadStorageClassSpecifier")
+  nb::enum_<pasta::ThreadStorageClassSpecifier>(m, "ThreadStorageClassSpecifier")
     .value("UNSPECIFIED", pasta::ThreadStorageClassSpecifier::kUnspecified)
     .value("__THREAD", pasta::ThreadStorageClassSpecifier::k__Thread)
     .value("THREAD_LOCAL", pasta::ThreadStorageClassSpecifier::kThreadLocal)
     .value("_THREAD_LOCAL", pasta::ThreadStorageClassSpecifier::k_ThreadLocal);
 
-  py::enum_<pasta::TokenKind>(m, "TokenKind")
+  nb::enum_<pasta::TokenKind>(m, "TokenKind")
     .value("UNKNOWN", pasta::TokenKind::kUnknown)
     .value("END_OF_FILE", pasta::TokenKind::kEndOfFile)
     .value("END_OF_DIRECTIVE", pasta::TokenKind::kEndOfDirective)
@@ -4759,22 +4759,22 @@ void RegisterEnums(py::module_ &m) {
     .value("ANNOT_MODULE_END", pasta::TokenKind::kAnnotModuleEnd)
     .value("ANNOT_HEADER_UNIT", pasta::TokenKind::kAnnotHeaderUnit);
 
-  py::enum_<pasta::TrailingAllocKind>(m, "TrailingAllocKind")
+  nb::enum_<pasta::TrailingAllocKind>(m, "TrailingAllocKind")
     .value("TAK_INHERITS_CONSTRUCTOR", pasta::TrailingAllocKind::kTAKInheritsConstructor)
     .value("TAK_HAS_TAIL_EXPLICIT", pasta::TrailingAllocKind::kTAKHasTailExplicit);
 
-  py::enum_<pasta::TranslationUnitKind>(m, "TranslationUnitKind")
+  nb::enum_<pasta::TranslationUnitKind>(m, "TranslationUnitKind")
     .value("COMPLETE", pasta::TranslationUnitKind::kComplete)
     .value("PREFIX", pasta::TranslationUnitKind::kPrefix)
     .value("MODULE", pasta::TranslationUnitKind::kModule)
     .value("INCREMENTAL", pasta::TranslationUnitKind::kIncremental);
 
-  py::enum_<pasta::TrivialAutoVarInitKind>(m, "TrivialAutoVarInitKind")
+  nb::enum_<pasta::TrivialAutoVarInitKind>(m, "TrivialAutoVarInitKind")
     .value("UNINITIALIZED", pasta::TrivialAutoVarInitKind::kUninitialized)
     .value("ZERO", pasta::TrivialAutoVarInitKind::kZero)
     .value("PATTERN", pasta::TrivialAutoVarInitKind::kPattern);
 
-  py::enum_<pasta::TypeDependence>(m, "TypeDependence")
+  nb::enum_<pasta::TypeDependence>(m, "TypeDependence")
     .value("UNEXPANDED_PACK", pasta::TypeDependence::kUnexpandedPack)
     .value("INSTANTIATION", pasta::TypeDependence::kInstantiation)
     .value("DEPENDENT", pasta::TypeDependence::kDependent)
@@ -4784,7 +4784,7 @@ void RegisterEnums(py::module_ &m) {
     .value("ALL", pasta::TypeDependence::kAll)
     .value("DEPENDENT_INSTANTIATION", pasta::TypeDependence::kDependentInstantiation);
 
-  py::enum_<pasta::TypeLocClass>(m, "TypeLocClass")
+  nb::enum_<pasta::TypeLocClass>(m, "TypeLocClass")
     .value("ADJUSTED", pasta::TypeLocClass::kAdjusted)
     .value("DECAYED", pasta::TypeLocClass::kDecayed)
     .value("CONSTANT_ARRAY", pasta::TypeLocClass::kConstantArray)
@@ -4841,16 +4841,16 @@ void RegisterEnums(py::module_ &m) {
     .value("EXT_VECTOR", pasta::TypeLocClass::kExtVector)
     .value("QUALIFIED", pasta::TypeLocClass::kQualified);
 
-  py::enum_<pasta::TypeOfKind>(m, "TypeOfKind")
+  nb::enum_<pasta::TypeOfKind>(m, "TypeOfKind")
     .value("QUALIFIED", pasta::TypeOfKind::kQualified)
     .value("UNQUALIFIED", pasta::TypeOfKind::kUnqualified);
 
-  py::enum_<pasta::TypeSpecifierSign>(m, "TypeSpecifierSign")
+  nb::enum_<pasta::TypeSpecifierSign>(m, "TypeSpecifierSign")
     .value("UNSPECIFIED", pasta::TypeSpecifierSign::kUnspecified)
     .value("SIGNED", pasta::TypeSpecifierSign::kSigned)
     .value("UNSIGNED", pasta::TypeSpecifierSign::kUnsigned);
 
-  py::enum_<pasta::TypeSpecifierType>(m, "TypeSpecifierType")
+  nb::enum_<pasta::TypeSpecifierType>(m, "TypeSpecifierType")
     .value("UNSPECIFIED", pasta::TypeSpecifierType::kUnspecified)
     .value("VOID", pasta::TypeSpecifierType::kVoid)
     .value("CHARACTER", pasta::TypeSpecifierType::kCharacter)
@@ -4920,17 +4920,17 @@ void RegisterEnums(py::module_ &m) {
     .value("IMAGE_3D_T", pasta::TypeSpecifierType::kImage3dT)
     .value("ERROR", pasta::TypeSpecifierType::kError);
 
-  py::enum_<pasta::TypeSpecifierWidth>(m, "TypeSpecifierWidth")
+  nb::enum_<pasta::TypeSpecifierWidth>(m, "TypeSpecifierWidth")
     .value("UNSPECIFIED", pasta::TypeSpecifierWidth::kUnspecified)
     .value("SHORT", pasta::TypeSpecifierWidth::kShort)
     .value("LONG", pasta::TypeSpecifierWidth::kLong)
     .value("LONG_LONG", pasta::TypeSpecifierWidth::kLongLong);
 
-  py::enum_<pasta::TypeSpecifiersPipe>(m, "TypeSpecifiersPipe")
+  nb::enum_<pasta::TypeSpecifiersPipe>(m, "TypeSpecifiersPipe")
     .value("UNSPECIFIED", pasta::TypeSpecifiersPipe::kUnspecified)
     .value("PIPE", pasta::TypeSpecifiersPipe::kPipe);
 
-  py::enum_<pasta::TypeTrait>(m, "TypeTrait")
+  nb::enum_<pasta::TypeTrait>(m, "TypeTrait")
     .value("IS_INTERFACE_CLASS", pasta::TypeTrait::kIsInterfaceClass)
     .value("IS_SEALED", pasta::TypeTrait::kIsSealed)
     .value("IS_DESTRUCTIBLE", pasta::TypeTrait::kIsDestructible)
@@ -5003,7 +5003,7 @@ void RegisterEnums(py::module_ &m) {
     .value("IS_NOTHROW_CONSTRUCTIBLE", pasta::TypeTrait::kIsNothrowConstructible)
     .value("IS_TRIVIALLY_CONSTRUCTIBLE", pasta::TypeTrait::kIsTriviallyConstructible);
 
-  py::enum_<pasta::UnaryExprOrTypeTrait>(m, "UnaryExprOrTypeTrait")
+  nb::enum_<pasta::UnaryExprOrTypeTrait>(m, "UnaryExprOrTypeTrait")
     .value("SIZE_OF", pasta::UnaryExprOrTypeTrait::kSizeOf)
     .value("ALIGN_OF", pasta::UnaryExprOrTypeTrait::kAlignOf)
     .value("PREFERRED_ALIGN_OF", pasta::UnaryExprOrTypeTrait::kPreferredAlignOf)
@@ -5014,7 +5014,7 @@ void RegisterEnums(py::module_ &m) {
     .value("VEC_STEP", pasta::UnaryExprOrTypeTrait::kVecStep)
     .value("OPEN_MP_REQUIRED_SIMD_ALIGN", pasta::UnaryExprOrTypeTrait::kOpenMPRequiredSimdAlign);
 
-  py::enum_<pasta::UnaryOperatorKind>(m, "UnaryOperatorKind")
+  nb::enum_<pasta::UnaryOperatorKind>(m, "UnaryOperatorKind")
     .value("POST_INCREMENT", pasta::UnaryOperatorKind::kPostIncrement)
     .value("POST_DEC", pasta::UnaryOperatorKind::kPostDec)
     .value("PRE_INCREMENT", pasta::UnaryOperatorKind::kPreIncrement)
@@ -5030,7 +5030,7 @@ void RegisterEnums(py::module_ &m) {
     .value("EXTENSION", pasta::UnaryOperatorKind::kExtension)
     .value("COAWAIT", pasta::UnaryOperatorKind::kCoawait);
 
-  py::enum_<pasta::APValueKind>(m, "APValueKind")
+  nb::enum_<pasta::APValueKind>(m, "APValueKind")
     .value("NONE", pasta::APValueKind::kNone)
     .value("INDETERMINATE", pasta::APValueKind::kIndeterminate)
     .value("INT", pasta::APValueKind::kInt)
@@ -5046,7 +5046,7 @@ void RegisterEnums(py::module_ &m) {
     .value("MEMBER_POINTER", pasta::APValueKind::kMemberPointer)
     .value("ADDRESS_LABEL_DIFF", pasta::APValueKind::kAddressLabelDiff);
 
-  py::enum_<pasta::VectorLibrary>(m, "VectorLibrary")
+  nb::enum_<pasta::VectorLibrary>(m, "VectorLibrary")
     .value("NO_LIBRARY", pasta::VectorLibrary::kNoLibrary)
     .value("ACCELERATE", pasta::VectorLibrary::kAccelerate)
     .value("LIBMVEC", pasta::VectorLibrary::kLIBMVEC)
@@ -5055,7 +5055,7 @@ void RegisterEnums(py::module_ &m) {
     .value("SLEEF", pasta::VectorLibrary::kSLEEF)
     .value("DARWIN_LIBSYSTEM_M", pasta::VectorLibrary::kDarwinLibsystemM);
 
-  py::enum_<pasta::Visibility>(m, "Visibility")
+  nb::enum_<pasta::Visibility>(m, "Visibility")
     .value("HIDDEN_VISIBILITY", pasta::Visibility::kHiddenVisibility)
     .value("PROTECTED_VISIBILITY", pasta::Visibility::kProtectedVisibility)
     .value("DEFAULT_VISIBILITY", pasta::Visibility::kDefaultVisibility);

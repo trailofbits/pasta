@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterCompoundAssignOperator(py::module_ &m) {
-  py::class_<CompoundAssignOperator, BinaryOperator>(m, "CompoundAssignOperator")
+void RegisterCompoundAssignOperator(nb::module_ &m) {
+  nb::class_<CompoundAssignOperator, BinaryOperator>(m, "CompoundAssignOperator")
     .def("__hash__", [](const CompoundAssignOperator& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("computation_lhs_type", &CompoundAssignOperator::ComputationLHSType)
-    .def_property_readonly("computation_result_type", &CompoundAssignOperator::ComputationResultType);
+    .def_prop_ro("computation_lhs_type", &CompoundAssignOperator::ComputationLHSType)
+    .def_prop_ro("computation_result_type", &CompoundAssignOperator::ComputationResultType);
 }
 } // namespace pasta

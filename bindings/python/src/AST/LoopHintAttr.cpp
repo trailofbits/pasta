@@ -10,20 +10,21 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterLoopHintAttr(py::module_ &m) {
-  py::class_<LoopHintAttr, Attr>(m, "LoopHintAttr")
+void RegisterLoopHintAttr(nb::module_ &m) {
+  nb::class_<LoopHintAttr, Attr>(m, "LoopHintAttr")
     .def("__hash__", [](const LoopHintAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("option", &LoopHintAttr::Option)
-    .def_property_readonly("semantic_spelling", &LoopHintAttr::SemanticSpelling)
-    .def_property_readonly("spelling", &LoopHintAttr::Spelling)
-    .def_property_readonly("state", &LoopHintAttr::State)
-    .def_property_readonly("value", &LoopHintAttr::Value);
+    .def_prop_ro("option", &LoopHintAttr::Option)
+    .def_prop_ro("semantic_spelling", &LoopHintAttr::SemanticSpelling)
+    .def_prop_ro("spelling", &LoopHintAttr::Spelling)
+    .def_prop_ro("state", &LoopHintAttr::State)
+    .def_prop_ro("value", &LoopHintAttr::Value);
 }
 } // namespace pasta

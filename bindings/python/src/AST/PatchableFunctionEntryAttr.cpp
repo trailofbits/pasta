@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterPatchableFunctionEntryAttr(py::module_ &m) {
-  py::class_<PatchableFunctionEntryAttr, InheritableAttr>(m, "PatchableFunctionEntryAttr")
+void RegisterPatchableFunctionEntryAttr(nb::module_ &m) {
+  nb::class_<PatchableFunctionEntryAttr, InheritableAttr>(m, "PatchableFunctionEntryAttr")
     .def("__hash__", [](const PatchableFunctionEntryAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("count", &PatchableFunctionEntryAttr::Count)
-    .def_property_readonly("spelling", &PatchableFunctionEntryAttr::Spelling);
+    .def_prop_ro("count", &PatchableFunctionEntryAttr::Count)
+    .def_prop_ro("spelling", &PatchableFunctionEntryAttr::Spelling);
 }
 } // namespace pasta

@@ -10,23 +10,24 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterObjCForCollectionStmt(py::module_ &m) {
-  py::class_<ObjCForCollectionStmt, Stmt>(m, "ObjCForCollectionStmt")
+void RegisterObjCForCollectionStmt(nb::module_ &m) {
+  nb::class_<ObjCForCollectionStmt, Stmt>(m, "ObjCForCollectionStmt")
     .def("__hash__", [](const ObjCForCollectionStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &ObjCForCollectionStmt::Children)
-    .def_property_readonly("begin_token", &ObjCForCollectionStmt::BeginToken)
-    .def_property_readonly("body", &ObjCForCollectionStmt::Body)
-    .def_property_readonly("collection", &ObjCForCollectionStmt::Collection)
-    .def_property_readonly("element", &ObjCForCollectionStmt::Element)
-    .def_property_readonly("end_token", &ObjCForCollectionStmt::EndToken)
-    .def_property_readonly("for_token", &ObjCForCollectionStmt::ForToken)
-    .def_property_readonly("r_paren_token", &ObjCForCollectionStmt::RParenToken);
+    .def_prop_ro("children", &ObjCForCollectionStmt::Children)
+    .def_prop_ro("begin_token", &ObjCForCollectionStmt::BeginToken)
+    .def_prop_ro("body", &ObjCForCollectionStmt::Body)
+    .def_prop_ro("collection", &ObjCForCollectionStmt::Collection)
+    .def_prop_ro("element", &ObjCForCollectionStmt::Element)
+    .def_prop_ro("end_token", &ObjCForCollectionStmt::EndToken)
+    .def_prop_ro("for_token", &ObjCForCollectionStmt::ForToken)
+    .def_prop_ro("r_paren_token", &ObjCForCollectionStmt::RParenToken);
 }
 } // namespace pasta

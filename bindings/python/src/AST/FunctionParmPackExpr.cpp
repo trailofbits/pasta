@@ -10,21 +10,22 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterFunctionParmPackExpr(py::module_ &m) {
-  py::class_<FunctionParmPackExpr, Expr>(m, "FunctionParmPackExpr")
+void RegisterFunctionParmPackExpr(nb::module_ &m) {
+  nb::class_<FunctionParmPackExpr, Expr>(m, "FunctionParmPackExpr")
     .def("__hash__", [](const FunctionParmPackExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &FunctionParmPackExpr::Children)
-    .def_property_readonly("begin_token", &FunctionParmPackExpr::BeginToken)
-    .def_property_readonly("end_token", &FunctionParmPackExpr::EndToken)
-    .def_property_readonly("num_expansions", &FunctionParmPackExpr::NumExpansions)
-    .def_property_readonly("parameter_pack", &FunctionParmPackExpr::ParameterPack)
-    .def_property_readonly("parameter_pack_token", &FunctionParmPackExpr::ParameterPackToken);
+    .def_prop_ro("children", &FunctionParmPackExpr::Children)
+    .def_prop_ro("begin_token", &FunctionParmPackExpr::BeginToken)
+    .def_prop_ro("end_token", &FunctionParmPackExpr::EndToken)
+    .def_prop_ro("num_expansions", &FunctionParmPackExpr::NumExpansions)
+    .def_prop_ro("parameter_pack", &FunctionParmPackExpr::ParameterPack)
+    .def_prop_ro("parameter_pack_token", &FunctionParmPackExpr::ParameterPackToken);
 }
 } // namespace pasta

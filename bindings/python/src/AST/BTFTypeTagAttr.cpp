@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterBTFTypeTagAttr(py::module_ &m) {
-  py::class_<BTFTypeTagAttr, TypeAttr>(m, "BTFTypeTagAttr")
+void RegisterBTFTypeTagAttr(nb::module_ &m) {
+  nb::class_<BTFTypeTagAttr, TypeAttr>(m, "BTFTypeTagAttr")
     .def("__hash__", [](const BTFTypeTagAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("btf_type_tag", &BTFTypeTagAttr::BTFTypeTag)
-    .def_property_readonly("btf_type_tag_length", &BTFTypeTagAttr::BTFTypeTagLength)
-    .def_property_readonly("spelling", &BTFTypeTagAttr::Spelling);
+    .def_prop_ro("btf_type_tag", &BTFTypeTagAttr::BTFTypeTag)
+    .def_prop_ro("btf_type_tag_length", &BTFTypeTagAttr::BTFTypeTagLength)
+    .def_prop_ro("spelling", &BTFTypeTagAttr::Spelling);
 }
 } // namespace pasta

@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterAlwaysInlineAttr(py::module_ &m) {
-  py::class_<AlwaysInlineAttr, DeclOrStmtAttr>(m, "AlwaysInlineAttr")
+void RegisterAlwaysInlineAttr(nb::module_ &m) {
+  nb::class_<AlwaysInlineAttr, DeclOrStmtAttr>(m, "AlwaysInlineAttr")
     .def("__hash__", [](const AlwaysInlineAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("semantic_spelling", &AlwaysInlineAttr::SemanticSpelling)
-    .def_property_readonly("spelling", &AlwaysInlineAttr::Spelling)
-    .def_property_readonly("is_clang_always_inline", &AlwaysInlineAttr::IsClangAlwaysInline);
+    .def_prop_ro("semantic_spelling", &AlwaysInlineAttr::SemanticSpelling)
+    .def_prop_ro("spelling", &AlwaysInlineAttr::Spelling)
+    .def_prop_ro("is_clang_always_inline", &AlwaysInlineAttr::IsClangAlwaysInline);
 }
 } // namespace pasta

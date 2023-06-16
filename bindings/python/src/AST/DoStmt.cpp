@@ -10,23 +10,24 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterDoStmt(py::module_ &m) {
-  py::class_<DoStmt, Stmt>(m, "DoStmt")
+void RegisterDoStmt(nb::module_ &m) {
+  nb::class_<DoStmt, Stmt>(m, "DoStmt")
     .def("__hash__", [](const DoStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &DoStmt::Children)
-    .def_property_readonly("begin_token", &DoStmt::BeginToken)
-    .def_property_readonly("body", &DoStmt::Body)
-    .def_property_readonly("condition", &DoStmt::Condition)
-    .def_property_readonly("do_token", &DoStmt::DoToken)
-    .def_property_readonly("end_token", &DoStmt::EndToken)
-    .def_property_readonly("r_paren_token", &DoStmt::RParenToken)
-    .def_property_readonly("while_token", &DoStmt::WhileToken);
+    .def_prop_ro("children", &DoStmt::Children)
+    .def_prop_ro("begin_token", &DoStmt::BeginToken)
+    .def_prop_ro("body", &DoStmt::Body)
+    .def_prop_ro("condition", &DoStmt::Condition)
+    .def_prop_ro("do_token", &DoStmt::DoToken)
+    .def_prop_ro("end_token", &DoStmt::EndToken)
+    .def_prop_ro("r_paren_token", &DoStmt::RParenToken)
+    .def_prop_ro("while_token", &DoStmt::WhileToken);
 }
 } // namespace pasta

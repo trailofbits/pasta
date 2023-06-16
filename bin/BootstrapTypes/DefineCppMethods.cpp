@@ -136,7 +136,7 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
 
   os << "}\n\n";
 
-  os_py << "\n    .def_property_readonly(\"" << CapitalCaseToSnakeCase(meth_name) << "\", &" << class_name << "::" << meth_name << ")";
+  os_py << "\n    .def_prop_ro(\"" << CapitalCaseToSnakeCase(meth_name) << "\", &" << class_name << "::" << meth_name << ")";
 }
 
 

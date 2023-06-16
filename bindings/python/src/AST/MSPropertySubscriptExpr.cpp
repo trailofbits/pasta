@@ -10,22 +10,23 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterMSPropertySubscriptExpr(py::module_ &m) {
-  py::class_<MSPropertySubscriptExpr, Expr>(m, "MSPropertySubscriptExpr")
+void RegisterMSPropertySubscriptExpr(nb::module_ &m) {
+  nb::class_<MSPropertySubscriptExpr, Expr>(m, "MSPropertySubscriptExpr")
     .def("__hash__", [](const MSPropertySubscriptExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &MSPropertySubscriptExpr::Children)
-    .def_property_readonly("base", &MSPropertySubscriptExpr::Base)
-    .def_property_readonly("begin_token", &MSPropertySubscriptExpr::BeginToken)
-    .def_property_readonly("end_token", &MSPropertySubscriptExpr::EndToken)
-    .def_property_readonly("expression_token", &MSPropertySubscriptExpr::ExpressionToken)
-    .def_property_readonly("index", &MSPropertySubscriptExpr::Index)
-    .def_property_readonly("r_bracket_token", &MSPropertySubscriptExpr::RBracketToken);
+    .def_prop_ro("children", &MSPropertySubscriptExpr::Children)
+    .def_prop_ro("base", &MSPropertySubscriptExpr::Base)
+    .def_prop_ro("begin_token", &MSPropertySubscriptExpr::BeginToken)
+    .def_prop_ro("end_token", &MSPropertySubscriptExpr::EndToken)
+    .def_prop_ro("expression_token", &MSPropertySubscriptExpr::ExpressionToken)
+    .def_prop_ro("index", &MSPropertySubscriptExpr::Index)
+    .def_prop_ro("r_bracket_token", &MSPropertySubscriptExpr::RBracketToken);
 }
 } // namespace pasta

@@ -10,21 +10,22 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterObjCEncodeExpr(py::module_ &m) {
-  py::class_<ObjCEncodeExpr, Expr>(m, "ObjCEncodeExpr")
+void RegisterObjCEncodeExpr(nb::module_ &m) {
+  nb::class_<ObjCEncodeExpr, Expr>(m, "ObjCEncodeExpr")
     .def("__hash__", [](const ObjCEncodeExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &ObjCEncodeExpr::Children)
-    .def_property_readonly("at_token", &ObjCEncodeExpr::AtToken)
-    .def_property_readonly("begin_token", &ObjCEncodeExpr::BeginToken)
-    .def_property_readonly("encoded_type", &ObjCEncodeExpr::EncodedType)
-    .def_property_readonly("end_token", &ObjCEncodeExpr::EndToken)
-    .def_property_readonly("r_paren_token", &ObjCEncodeExpr::RParenToken);
+    .def_prop_ro("children", &ObjCEncodeExpr::Children)
+    .def_prop_ro("at_token", &ObjCEncodeExpr::AtToken)
+    .def_prop_ro("begin_token", &ObjCEncodeExpr::BeginToken)
+    .def_prop_ro("encoded_type", &ObjCEncodeExpr::EncodedType)
+    .def_prop_ro("end_token", &ObjCEncodeExpr::EndToken)
+    .def_prop_ro("r_paren_token", &ObjCEncodeExpr::RParenToken);
 }
 } // namespace pasta

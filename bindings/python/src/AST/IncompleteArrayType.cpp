@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterIncompleteArrayType(py::module_ &m) {
-  py::class_<IncompleteArrayType, ArrayType>(m, "IncompleteArrayType")
+void RegisterIncompleteArrayType(nb::module_ &m) {
+  nb::class_<IncompleteArrayType, ArrayType>(m, "IncompleteArrayType")
     .def("__hash__", [](const IncompleteArrayType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("desugar", &IncompleteArrayType::Desugar)
-    .def_property_readonly("is_sugared", &IncompleteArrayType::IsSugared);
+    .def_prop_ro("desugar", &IncompleteArrayType::Desugar)
+    .def_prop_ro("is_sugared", &IncompleteArrayType::IsSugared);
 }
 } // namespace pasta

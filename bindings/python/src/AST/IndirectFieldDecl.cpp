@@ -10,20 +10,21 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterIndirectFieldDecl(py::module_ &m) {
-  py::class_<IndirectFieldDecl, ValueDecl>(m, "IndirectFieldDecl")
+void RegisterIndirectFieldDecl(nb::module_ &m) {
+  nb::class_<IndirectFieldDecl, ValueDecl>(m, "IndirectFieldDecl")
     .def("__hash__", [](const IndirectFieldDecl& decl) { return (intptr_t)decl.RawDecl(); })
     .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
-    .def_property_readonly("chain", &IndirectFieldDecl::Chain)
-    .def_property_readonly("anonymous_field", &IndirectFieldDecl::AnonymousField)
-    .def_property_readonly("canonical_declaration", &IndirectFieldDecl::CanonicalDeclaration)
-    .def_property_readonly("chaining_size", &IndirectFieldDecl::ChainingSize)
-    .def_property_readonly("variable_declaration", &IndirectFieldDecl::VariableDeclaration);
+    .def_prop_ro("chain", &IndirectFieldDecl::Chain)
+    .def_prop_ro("anonymous_field", &IndirectFieldDecl::AnonymousField)
+    .def_prop_ro("canonical_declaration", &IndirectFieldDecl::CanonicalDeclaration)
+    .def_prop_ro("chaining_size", &IndirectFieldDecl::ChainingSize)
+    .def_prop_ro("variable_declaration", &IndirectFieldDecl::VariableDeclaration);
 }
 } // namespace pasta

@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterOpenCLIntelReqdSubGroupSizeAttr(py::module_ &m) {
-  py::class_<OpenCLIntelReqdSubGroupSizeAttr, InheritableAttr>(m, "OpenCLIntelReqdSubGroupSizeAttr")
+void RegisterOpenCLIntelReqdSubGroupSizeAttr(nb::module_ &m) {
+  nb::class_<OpenCLIntelReqdSubGroupSizeAttr, InheritableAttr>(m, "OpenCLIntelReqdSubGroupSizeAttr")
     .def("__hash__", [](const OpenCLIntelReqdSubGroupSizeAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("spelling", &OpenCLIntelReqdSubGroupSizeAttr::Spelling)
-    .def_property_readonly("sub_group_size", &OpenCLIntelReqdSubGroupSizeAttr::SubGroupSize);
+    .def_prop_ro("spelling", &OpenCLIntelReqdSubGroupSizeAttr::Spelling)
+    .def_prop_ro("sub_group_size", &OpenCLIntelReqdSubGroupSizeAttr::SubGroupSize);
 }
 } // namespace pasta

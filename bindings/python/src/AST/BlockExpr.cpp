@@ -10,22 +10,23 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterBlockExpr(py::module_ &m) {
-  py::class_<BlockExpr, Expr>(m, "BlockExpr")
+void RegisterBlockExpr(nb::module_ &m) {
+  nb::class_<BlockExpr, Expr>(m, "BlockExpr")
     .def("__hash__", [](const BlockExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &BlockExpr::Children)
-    .def_property_readonly("begin_token", &BlockExpr::BeginToken)
-    .def_property_readonly("block_declaration", &BlockExpr::BlockDeclaration)
-    .def_property_readonly("body", &BlockExpr::Body)
-    .def_property_readonly("caret_token", &BlockExpr::CaretToken)
-    .def_property_readonly("end_token", &BlockExpr::EndToken)
-    .def_property_readonly("function_type", &BlockExpr::FunctionType);
+    .def_prop_ro("children", &BlockExpr::Children)
+    .def_prop_ro("begin_token", &BlockExpr::BeginToken)
+    .def_prop_ro("block_declaration", &BlockExpr::BlockDeclaration)
+    .def_prop_ro("body", &BlockExpr::Body)
+    .def_prop_ro("caret_token", &BlockExpr::CaretToken)
+    .def_prop_ro("end_token", &BlockExpr::EndToken)
+    .def_prop_ro("function_type", &BlockExpr::FunctionType);
 }
 } // namespace pasta

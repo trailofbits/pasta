@@ -10,23 +10,24 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterConditionalOperator(py::module_ &m) {
-  py::class_<ConditionalOperator, AbstractConditionalOperator>(m, "ConditionalOperator")
+void RegisterConditionalOperator(nb::module_ &m) {
+  nb::class_<ConditionalOperator, AbstractConditionalOperator>(m, "ConditionalOperator")
     .def("__hash__", [](const ConditionalOperator& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &ConditionalOperator::Children)
-    .def_property_readonly("begin_token", &ConditionalOperator::BeginToken)
-    .def_property_readonly("condition", &ConditionalOperator::Condition)
-    .def_property_readonly("end_token", &ConditionalOperator::EndToken)
-    .def_property_readonly("false_expression", &ConditionalOperator::FalseExpression)
-    .def_property_readonly("lhs", &ConditionalOperator::LHS)
-    .def_property_readonly("rhs", &ConditionalOperator::RHS)
-    .def_property_readonly("true_expression", &ConditionalOperator::TrueExpression);
+    .def_prop_ro("children", &ConditionalOperator::Children)
+    .def_prop_ro("begin_token", &ConditionalOperator::BeginToken)
+    .def_prop_ro("condition", &ConditionalOperator::Condition)
+    .def_prop_ro("end_token", &ConditionalOperator::EndToken)
+    .def_prop_ro("false_expression", &ConditionalOperator::FalseExpression)
+    .def_prop_ro("lhs", &ConditionalOperator::LHS)
+    .def_prop_ro("rhs", &ConditionalOperator::RHS)
+    .def_prop_ro("true_expression", &ConditionalOperator::TrueExpression);
 }
 } // namespace pasta

@@ -10,17 +10,18 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterTagType(py::module_ &m) {
-  py::class_<TagType, Type>(m, "TagType")
+void RegisterTagType(nb::module_ &m) {
+  nb::class_<TagType, Type>(m, "TagType")
     .def("__hash__", [](const TagType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("declaration", &TagType::Declaration)
-    .def_property_readonly("is_being_defined", &TagType::IsBeingDefined);
+    .def_prop_ro("declaration", &TagType::Declaration)
+    .def_prop_ro("is_being_defined", &TagType::IsBeingDefined);
 }
 } // namespace pasta

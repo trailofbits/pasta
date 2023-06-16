@@ -10,20 +10,21 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterUsingType(py::module_ &m) {
-  py::class_<UsingType, Type>(m, "UsingType")
+void RegisterUsingType(nb::module_ &m) {
+  nb::class_<UsingType, Type>(m, "UsingType")
     .def("__hash__", [](const UsingType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("desugar", &UsingType::Desugar)
-    .def_property_readonly("found_declaration", &UsingType::FoundDeclaration)
-    .def_property_readonly("underlying_type", &UsingType::UnderlyingType)
-    .def_property_readonly("is_sugared", &UsingType::IsSugared)
-    .def_property_readonly("type_matches_declaration", &UsingType::TypeMatchesDeclaration);
+    .def_prop_ro("desugar", &UsingType::Desugar)
+    .def_prop_ro("found_declaration", &UsingType::FoundDeclaration)
+    .def_prop_ro("underlying_type", &UsingType::UnderlyingType)
+    .def_prop_ro("is_sugared", &UsingType::IsSugared)
+    .def_prop_ro("type_matches_declaration", &UsingType::TypeMatchesDeclaration);
 }
 } // namespace pasta

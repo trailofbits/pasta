@@ -10,14 +10,15 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterDeducedTemplateSpecializationType(py::module_ &m) {
-  py::class_<DeducedTemplateSpecializationType, DeducedType>(m, "DeducedTemplateSpecializationType")
+void RegisterDeducedTemplateSpecializationType(nb::module_ &m) {
+  nb::class_<DeducedTemplateSpecializationType, DeducedType>(m, "DeducedTemplateSpecializationType")
     .def("__hash__", [](const DeducedTemplateSpecializationType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); });
 }

@@ -10,18 +10,19 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterAcquireHandleAttr(py::module_ &m) {
-  py::class_<AcquireHandleAttr, InheritableAttr>(m, "AcquireHandleAttr")
+void RegisterAcquireHandleAttr(nb::module_ &m) {
+  nb::class_<AcquireHandleAttr, InheritableAttr>(m, "AcquireHandleAttr")
     .def("__hash__", [](const AcquireHandleAttr& attr) { return (intptr_t)attr.RawAttr(); })
     .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
-    .def_property_readonly("handle_type", &AcquireHandleAttr::HandleType)
-    .def_property_readonly("handle_type_length", &AcquireHandleAttr::HandleTypeLength)
-    .def_property_readonly("spelling", &AcquireHandleAttr::Spelling);
+    .def_prop_ro("handle_type", &AcquireHandleAttr::HandleType)
+    .def_prop_ro("handle_type_length", &AcquireHandleAttr::HandleTypeLength)
+    .def_prop_ro("spelling", &AcquireHandleAttr::Spelling);
 }
 } // namespace pasta

@@ -10,21 +10,22 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterPackExpansionExpr(py::module_ &m) {
-  py::class_<PackExpansionExpr, Expr>(m, "PackExpansionExpr")
+void RegisterPackExpansionExpr(nb::module_ &m) {
+  nb::class_<PackExpansionExpr, Expr>(m, "PackExpansionExpr")
     .def("__hash__", [](const PackExpansionExpr& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
-    .def_property_readonly("children", &PackExpansionExpr::Children)
-    .def_property_readonly("begin_token", &PackExpansionExpr::BeginToken)
-    .def_property_readonly("ellipsis_token", &PackExpansionExpr::EllipsisToken)
-    .def_property_readonly("end_token", &PackExpansionExpr::EndToken)
-    .def_property_readonly("num_expansions", &PackExpansionExpr::NumExpansions)
-    .def_property_readonly("pattern", &PackExpansionExpr::Pattern);
+    .def_prop_ro("children", &PackExpansionExpr::Children)
+    .def_prop_ro("begin_token", &PackExpansionExpr::BeginToken)
+    .def_prop_ro("ellipsis_token", &PackExpansionExpr::EllipsisToken)
+    .def_prop_ro("end_token", &PackExpansionExpr::EndToken)
+    .def_prop_ro("num_expansions", &PackExpansionExpr::NumExpansions)
+    .def_prop_ro("pattern", &PackExpansionExpr::Pattern);
 }
 } // namespace pasta

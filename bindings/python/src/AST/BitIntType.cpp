@@ -10,20 +10,21 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
 
 namespace pasta {
-namespace py = pybind11;
+namespace nb = nanobind;
 
-void RegisterBitIntType(py::module_ &m) {
-  py::class_<BitIntType, Type>(m, "BitIntType")
+void RegisterBitIntType(nb::module_ &m) {
+  nb::class_<BitIntType, Type>(m, "BitIntType")
     .def("__hash__", [](const BitIntType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
-    .def_property_readonly("desugar", &BitIntType::Desugar)
-    .def_property_readonly("num_bits", &BitIntType::NumBits)
-    .def_property_readonly("is_signed", &BitIntType::IsSigned)
-    .def_property_readonly("is_sugared", &BitIntType::IsSugared)
-    .def_property_readonly("is_unsigned", &BitIntType::IsUnsigned);
+    .def_prop_ro("desugar", &BitIntType::Desugar)
+    .def_prop_ro("num_bits", &BitIntType::NumBits)
+    .def_prop_ro("is_signed", &BitIntType::IsSigned)
+    .def_prop_ro("is_sugared", &BitIntType::IsSugared)
+    .def_prop_ro("is_unsigned", &BitIntType::IsUnsigned);
 }
 } // namespace pasta

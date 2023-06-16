@@ -34,7 +34,17 @@ void RegisterAST(nb::module_ &m) {
     .def("__hash__", [](const Token& token) { return token.Hash(); })
     .def("__eq__", [](const Token& a, const Token& b) { return a == b;});
   
-  nb::class_<TokenContext>(m, "TokenContext");
+  nb::class_<TokenContext>(m, "TokenContext")
+    .def_prop_ro("index", &TokenContext::Index)
+    .def_prop_ro("kind_name", &TokenContext::KindName)
+    .def_prop_ro("kind", &TokenContext::Kind)
+    .def_prop_ro("parent", &TokenContext::Parent)
+    .def_prop_ro("aliasee", &TokenContext::Aliasee)
+    .def("try_update_to_parent", &TokenContext::TryUpdateToParent)
+    .def("try_update_to_aliasee", &TokenContext::TryUpdateToAliasee)
+    .def("__hash__", [](const TokenContext& c) { return c.Hash(); })
+    .def("__eq__", [](const TokenContext& a, const TokenContext& b) { return a == b;});
+
   nb::class_<TokenRange>(m, "TokenRange");
   nb::class_<Macro>(m, "Macro");
 

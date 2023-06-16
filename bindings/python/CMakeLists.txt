@@ -1,8 +1,13 @@
 find_package(Python 3.8 COMPONENTS Interpreter Development REQUIRED)
-execute_process(
-  COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
-  OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE NB_DIR)
-list(APPEND CMAKE_PREFIX_PATH "${NB_DIR}")
+if(DEFINED nanobind_DIR)
+    message(NOTICE "nanobind_DIR is defined, using it instead of invoking module")
+else()
+    execute_process(
+        COMMAND "${Python_EXECUTABLE}" -m nanobind --cmake_dir
+        OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE NB_DIR
+        COMMAND_ERROR_IS_FATAL ANY)
+    list(APPEND CMAKE_PREFIX_PATH "${NB_DIR}")
+endif()
 find_package(nanobind CONFIG REQUIRED)
 
 add_subdirectory(src/AST)

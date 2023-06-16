@@ -168,7 +168,7 @@ if (_PASTA_PLATFORM_MACOS)
         "zstd::libzstd_static"
         "ZLIB::ZLIB")
 
-  foreach(lib IN LISTS libs llvm_libs)
+  foreach(lib IN LISTS libs llvm_libs_force_load)
       target_link_options(pasta_thirdparty_llvm_force_load INTERFACE "SHELL:-force_load $<TARGET_FILE:${lib}>")
   endforeach()
 

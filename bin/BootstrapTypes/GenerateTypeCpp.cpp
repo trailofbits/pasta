@@ -11,10 +11,10 @@
 #include "Util.h"
 
 extern void DefineCppMethods(std::ostream &os, const std::string &class_name,
-                             uint32_t class_id);
+                             uint32_t class_id, std::ostream &os_py);
 
 // Generate `lib/AST/Type.cpp`.
-void GenerateTypeCpp(void) {
+void GenerateTypeCpp(std::ostream& py_cmake, std::ostream& py_ast) {
   std::ofstream os(kASTTypeCpp);
 
   os
@@ -105,6 +105,33 @@ void GenerateTypeCpp(void) {
 
   // Define them all.
   for (const auto &name : gTopologicallyOrderedTypes) {
+    py_cmake << "    \"${CMAKE_CURRENT_SOURCE_DIR}/" << name << ".cpp\"\n";
+    py_ast << "void Register" << name << "(nb::module_ &m);\n"
+           << "  Register" << name << "(m);\n";
+
+    std::ofstream os_py(std::string(kPythonBindingsPath) + "/" + name + ".cpp");
+    os_py << R"(/*
+ * Copyright (c) 2023 Trail of Bits, Inc.
+ */
+
+// This file is auto-generated.
+
+#include <pasta/AST/AST.h>
+#include <pasta/AST/Attr.h>
+#include <pasta/AST/Decl.h>
+#include <pasta/AST/Stmt.h>
+#include <pasta/AST/Type.h>
+
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
+
+namespace pasta {
+namespace nb = nanobind;
+
+void Register)" << name << "(nb::module_ &m) {\n"
+      << "  nb::class_<" << name;
+
     llvm::StringRef name_ref(name);
 
     for (const auto &base_class : gTransitiveBaseClasses[name]) {
@@ -128,16 +155,27 @@ void GenerateTypeCpp(void) {
            << name << ")\n";
       }
     }
+    for(const auto &base_class : gBaseClasses[name]) {
+      os_py << ", " << base_class;
+    }
+    os_py << ">(m, \"" << name << "\")"
+          << "\n    .def(\"__hash__\", [](const " << name << "& type) { return (intptr_t)type.RawType(); })"
+          << "\n    .def(\"__eq__\", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })";
+
     for (const auto &derived_class : gTransitiveDerivedClasses[name]) {
       os << "PASTA_DEFINE_DERIVED_OPERATORS("
          << name << ", " << derived_class << ")\n";
     }
-    DefineCppMethods(os, name, gClassIDs[name]);
+    DefineCppMethods(os, name, gClassIDs[name], os_py);
 
     // Put the `QualType` methods after the fake `QualifiedType` ones.
     if (name == "QualifiedType") {
-      DefineCppMethods(os, qual_type, gClassIDs[qual_type]);
+      DefineCppMethods(os, qual_type, gClassIDs[qual_type], os_py);
     }
+
+    os_py << ";\n"
+          << "}\n"
+          << "} // namespace pasta\n";
   }
 
   os

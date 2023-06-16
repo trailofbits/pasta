@@ -65,9 +65,9 @@ class TypeDumper final : public pasta::TypeVisitor {
     os << "{\n";
     PushIndent();
     for (pasta::FieldDecl field : record.Fields()) {
-      pasta::Type field_type = field.Type();
+      auto field_type = field.Type();
       os << indent;
-      Accept(field_type);
+      Accept(*field_type);
       os << " " << field.Name() << ";\n";
     }
     PopIndent();

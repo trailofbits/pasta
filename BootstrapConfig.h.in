@@ -34,4 +34,6 @@ static const char *kASTStmtCpp = "@PASTA_SRC_AST_STMT_CPP_PATH@";
 static const char *kASTAttrHeader = "@PASTA_INCLUDE_AST_ATTR_H_PATH@";
 
 static const char *kASTAttrCpp = "@PASTA_SRC_AST_ATTR_CPP_PATH@";
+
+static const char *kPythonBindingsPath = "@PASTA_PYTHON_BINDINGS_PATH@";
 #pragma GCC diagnostic pop

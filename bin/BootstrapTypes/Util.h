@@ -25,6 +25,10 @@ std::string Capitalize(llvm::StringRef name);
 
 std::string CxxName(llvm::StringRef name);
 
+std::string CapitalCaseToSnakeCase(llvm::StringRef name);
+
+void ToUppercase(std::string& str);
+
 extern const std::unordered_set<std::string> kConcreteDecls;
 extern const std::unordered_set<std::string> kConcreteStmts;
 extern const std::unordered_set<std::string> kConcreteTypes;
@@ -44,3 +48,9 @@ enum class StmtClassification {
 };
 
 StmtClassification ClassifyStmt(const std::string &stmt);
+
+#ifdef PASTA_USE_ASSERT
+#define PASTA_ASSERT_THROW "assert(false &&"
+#else
+#define PASTA_ASSERT_THROW "throw std::runtime_error("
+#endif

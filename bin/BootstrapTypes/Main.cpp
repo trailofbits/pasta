@@ -54,31 +54,31 @@ void MapTypeRetTypes(void);
 void MapAttrRetTypes(void);
 
 // Generate `include/pasta/AST/Forward.h`.
-void GenerateForwardH(void);
+void GenerateForwardH(std::ostream& os_py);
 
 // Generate `include/pasta/AST/Decl.h`.
 void GenerateDeclH(void);
 
 // Generate `lib/AST/Decl.cpp`.
-void GenerateDeclCpp(void);
+void GenerateDeclCpp(std::ostream& py_cmake, std::ostream &py_ast);
 
 // Generate `include/pasta/AST/Stmt.h`.
 void GenerateStmtH(void);
 
 // Generate `lib/AST/Stmt.cpp`.
-void GenerateStmtCpp(void);
+void GenerateStmtCpp(std::ostream& py_cmake, std::ostream &py_ast);
 
 // Generate `include/pasta/AST/Type.h`.
 void GenerateTypeH(void);
 
 // Generate `lib/pasta/AST/Type.cpp`.
-void GenerateTypeCpp(void);
+void GenerateTypeCpp(std::ostream& py_cmake, std::ostream &py_ast);
 
 // Generate `include/pasta/AST/Attr.h`.
 void GenerateAttrH(void);
 
 // Generate `include/pasta/AST/Attr.cpp`.
-void GenerateAttrCpp(void);
+void GenerateAttrCpp(std::ostream& py_cmake, std::ostream &py_ast);
 
 static void InitClassIDs(void) {
 #define PASTA_BEGIN_CLANG_WRAPPER(cls, id) \
@@ -217,8 +217,11 @@ int main(void) {
   MapTypeRetTypes();
   MapAttrRetTypes();
 
+  std::string python_bindings_path = kPythonBindingsPath;
+
   // NOTE(pag): This also maps enum return types.
-  GenerateForwardH();
+  std::ofstream enums_os_py(python_bindings_path + "/Enums.cpp");
+  GenerateForwardH(enums_os_py);
 
   // Generate headers first; they fill up `gIterators`.
   GenerateAttrH();
@@ -226,10 +229,43 @@ int main(void) {
   GenerateStmtH();
   GenerateTypeH();
 
-  GenerateAttrCpp();
-  GenerateDeclCpp();
-  GenerateStmtCpp();
-  GenerateTypeCpp();
+  std::ofstream py_cmake(python_bindings_path + "/CMakeLists.txt");
+  std::ofstream py_ast(python_bindings_path + "/AST.cpp");
+
+  py_cmake << R"(#
+# Copyright (c) 2023 Trail of Bits, Inc.
+#
+
+# This file is auto-generated.
+
+set(PASTA_PYTHON_AST_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/Enums.cpp"
+)";
+  py_ast << R"(/*
+ * Copyright (c) 2023 Trail of Bits, Inc.
+ */
+
+// This file is auto-generated.
+
+#include <nanobind/nanobind.h>
+
+namespace pasta {
+namespace nb = nanobind;
+
+void RegisterAllAST(nb::module_ &m) {
+void RegisterEnums(nb::module_ &m);
+  RegisterEnums(m);
+)";
+
+  GenerateAttrCpp(py_cmake, py_ast);
+  GenerateDeclCpp(py_cmake, py_ast);
+  GenerateStmtCpp(py_cmake, py_ast);
+  GenerateTypeCpp(py_cmake, py_ast);
+
+  py_cmake << "    PARENT_SCOPE)\n";
+
+  py_ast << "}\n"
+         << "} // namespace pasta\n";
   return EXIT_SUCCESS;
 }
 

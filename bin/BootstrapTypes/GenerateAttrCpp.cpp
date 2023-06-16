@@ -11,10 +11,10 @@
 #include "Util.h"
 
 extern void DefineCppMethods(std::ostream &os, const std::string &class_name,
-                              uint32_t class_id);
+                              uint32_t class_id, std::ostream &os_py);
 
 // Generate `lib/AST/Attr.cpp`.
-void GenerateAttrCpp(void) {
+void GenerateAttrCpp(std::ostream& py_cmake, std::ostream& py_ast) {
   std::ofstream os(kASTAttrCpp);
 
   os
@@ -33,6 +33,7 @@ void GenerateAttrCpp(void) {
       << "#include <clang/Frontend/CompilerInstance.h>\n"
       << "#pragma clang diagnostic pop\n\n"
       << "#include <pasta/AST/Attr.h>\n"
+      << "#include <stdexcept>\n"
       << "#include \"AST.h\"\n"
       << "#include \"Builder.h\"\n\n"
       << "#define PASTA_DEFINE_BASE_OPERATORS(base, derived) \\\n"
@@ -75,7 +76,7 @@ void GenerateAttrCpp(void) {
       << "#undef PASTA_ATTR_CASE\n"
       << "    default: break;\n"
       << "  }\n"
-      << "  __builtin_unreachable();\n"
+      << "  " PASTA_ASSERT_THROW "\"The unreachable has been reached\");\n"
       << "}\n\n"
       << "static const std::string_view kAttrNames[] = {\n"
       << "#define PASTA_ATTR_KIND_NAME(name) #name ,\n"
@@ -93,6 +94,33 @@ void GenerateAttrCpp(void) {
 
   // Define them all.
   for (const auto &name : gTopologicallyOrderedAttrs) {
+    py_cmake << "    \"${CMAKE_CURRENT_SOURCE_DIR}/" << name << ".cpp\"\n";
+    py_ast << "void Register" << name << "(nb::module_ &m);\n"
+           << "  Register" << name << "(m);\n";
+
+    std::ofstream os_py(std::string(kPythonBindingsPath) + "/" + name + ".cpp");
+    os_py << R"(/*
+ * Copyright (c) 2023 Trail of Bits, Inc.
+ */
+
+// This file is auto-generated.
+
+#include <pasta/AST/AST.h>
+#include <pasta/AST/Attr.h>
+#include <pasta/AST/Decl.h>
+#include <pasta/AST/Stmt.h>
+#include <pasta/AST/Type.h>
+
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
+
+namespace pasta {
+namespace nb = nanobind;
+
+void Register)" << name << "(nb::module_ &m) {\n"
+      << "  nb::class_<" << name;
+
     llvm::StringRef name_ref(name);
 
     if (name != "Attr") {
@@ -124,12 +152,22 @@ void GenerateAttrCpp(void) {
       os << "PASTA_DEFINE_BASE_OPERATORS(" << base_class << ", "
          << name << ")\n";
     }
+    for(const auto &base_class : gBaseClasses[name]) {
+      os_py << ", " << base_class;
+    }
+    os_py << ">(m, \"" << name << "\")"
+          << "\n    .def(\"__hash__\", [](const " << name << "& attr) { return (intptr_t)attr.RawAttr(); })"
+          << "\n    .def(\"__eq__\", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })";
 
     for (const auto &derived_class : gTransitiveDerivedClasses[name]) {
       os << "PASTA_DEFINE_DERIVED_OPERATORS("
          << name << ", " << derived_class << ")\n";
     }
-    DefineCppMethods(os, name, gClassIDs[name]);
+    DefineCppMethods(os, name, gClassIDs[name], os_py);
+
+    os_py << ";\n"
+          << "}\n"
+          << "} // namespace pasta\n";
   }
 
   os

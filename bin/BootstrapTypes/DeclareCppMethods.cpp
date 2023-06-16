@@ -159,9 +159,9 @@ static void DeclareCppMethod0(std::ostream &os, const std::string &class_name,
     const auto can_ret_null = kCanReturnNullptr.count(null_key) ||
                               kConditionalNullptr.count(null_key);
     if (can_ret_null) {
-      os << "  std::optional<" << new_rt << "> " << meth_name << "(void) const noexcept;\n";
+      os << "  std::optional<" << new_rt << "> " << meth_name << "(void) const;\n";
     } else {
-      os << "  " << new_rt << ' ' << meth_name << "(void) const noexcept;\n";
+      os << "  " << new_rt << ' ' << meth_name << "(void) const;\n";
     }
   }
 }
@@ -182,20 +182,20 @@ static void DeclareCppMethod1(
          !strcmp(p0, "(clang::ASTContext &)"))) {
 
       if (can_ret_null) {
-        os << "  std::optional<" << new_rt << "> " << meth_name << "(void) const noexcept;\n";
+        os << "  std::optional<" << new_rt << "> " << meth_name << "(void) const;\n";
       } else {
-        os << "  " << new_rt << ' ' << meth_name << "(void) const noexcept;\n";
+        os << "  " << new_rt << ' ' << meth_name << "(void) const;\n";
       }
     } else if (!new_rt.empty() && !strcmp(p0, "(bool)")) {
       if (can_ret_null) {
-        os << "  std::optional<" << new_rt << "> " << meth_name << "(bool) const noexcept;\n";
+        os << "  std::optional<" << new_rt << "> " << meth_name << "(bool) const;\n";
       } else {
-        os << "  " << new_rt << ' ' << meth_name << "(bool) const noexcept;\n";
+        os << "  " << new_rt << ' ' << meth_name << "(bool) const;\n";
       }
     } else if (!new_rt.empty() &&
         !strcmp(class_name.c_str(), "DesignatedInitExpr") &&
         !strcmp(meth_name.c_str(), "Designator")) {
-      os << "  " << new_rt << ' ' << meth_name << "(unsigned int) const noexcept;\n";
+      os << "  " << new_rt << ' ' << meth_name << "(unsigned int) const;\n";
     } else {
       os << "  // " << meth_name << ": " << rt << "\n";
     }
@@ -232,7 +232,7 @@ static void ProcessIterators(std::ostream &os, const std::string &class_name) {
         continue;  // Already defined.
       }
 
-      os << "  std::vector<" << new_rt << "> " << name << "(void) const noexcept;\n";
+      os << "  std::vector<" << new_rt << "> " << name << "(void) const;\n";
 
       IteratorSpec spec;
       spec.counter_method = counter_method.str();
@@ -265,7 +265,7 @@ static void ProcessIterators(std::ostream &os, const std::string &class_name) {
         continue;  // Already defined.
       }
 
-      os << "  std::vector<" << new_rt << "> " << name << "(void) const noexcept;\n";
+      os << "  std::vector<" << new_rt << "> " << name << "(void) const;\n";
 
       IteratorSpec spec;
       spec.counter_method = counter_method.str();

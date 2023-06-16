@@ -20,6 +20,7 @@ class ASTImpl;
 enum class StmtKind : unsigned;
 class Token;
 class TokenContext;
+class Macro;
 
 class Stmt {
  public:
@@ -47,6 +48,12 @@ class Stmt {
   static std::optional<Stmt> From(const TokenContext &);
   Token BeginToken(void) const noexcept;
   Token EndToken(void) const noexcept;
+  inline bool CoveredBy(::pasta::Macro &) const noexcept {
+    return false;
+  }
+  inline std::vector<::pasta::Stmt> Children(void) const {
+    return {};
+  }
 
  private:
   Stmt(void) = delete;

@@ -1189,6 +1189,10 @@ std::set<std::pair<std::string, std::string>> kCanReturnNullptr{
   {"GCCAsmStmt", "OutputExpression"},
   {"GCCAsmStmt", "LabelExpression"},
   {"ValueDecl", "PotentiallyDecomposedVariableDeclaration"},
+  {"TranslationUnitDecl", "AnonymousNamespace"},
+  {"Decl", "DeclarationContext"},
+  {"Decl", "LexicalDeclarationContext"},
+  {"NamespaceDecl", "AnonymousNamespace"},
 
 //  {"FunctionProtoType", "EllipsisToken"},
 //  {"FunctionDecl", "EllipsisToken"},
@@ -1452,6 +1456,11 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
 
 #define SELF_IS_LAMBDA \
     "  if (!self.isLambda()) {\n" \
+    "    return std::nullopt;\n" \
+    "  }\n"
+
+#define SELF_HAS_DECLCONTEXT \
+    "  if (!self.getDeclContext()) {\n" \
     "    return std::nullopt;\n" \
     "  }\n"
 
@@ -1800,6 +1809,36 @@ std::map<std::pair<std::string, std::string>, std::string> kConditionalNullptr{
    "  if (!clang::isa<clang::VarDecl>(&self) &&\n"
    "      !clang::isa<clang::BindingDecl>(&self)) {\n"
    "    return std::nullopt;\n"
+   "  }\n"},
+  {{"Decl", "ExternalSourceSymbolAttribute"},
+   SELF_HAS_DECLCONTEXT},
+  {{"Decl", "IsInLocalScopeForInstantiation"},
+   SELF_HAS_DECLCONTEXT},
+  {{"Decl", "NonTransparentDeclarationContext"},
+   SELF_HAS_DECLCONTEXT},
+  {{"Expr", "BestDynamicClassType"},
+   "  const clang::Expr *E = self.getBestDynamicClassTypeExpr();\n"
+   "  clang::QualType DerivedType = E->getType();\n"
+   "  if (const clang::PointerType *PTy = DerivedType->getAs<clang::PointerType>()) {\n"
+   "    DerivedType = PTy->getPointeeType();\n"
+   "  }\n"
+   "  if (DerivedType->isDependentType()) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"
+   "  const clang::RecordType *Ty = DerivedType->getAs<clang::RecordType>();\n"
+   "  if (!Ty) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"
+   "  clang::Decl *D = Ty->getDecl();\n"
+   "  if (!clang::isa<clang::CXXRecordDecl>(D)) {\n"
+   "    return std::nullopt;\n"
+   "  }\n"},
+  {{"Decl", "MaxAlignment"},
+   "  clang::specific_attr_iterator<clang::AlignedAttr> I(self.attr_begin()), E(self.attr_end());\n"
+   "  for (; I != E; ++I) {\n"
+   "    if (I->isAlignmentDependent()) {\n"
+   "      return std::nullopt;\n"
+   "    }\n"
    "  }\n"},
 
 //  {{"CXXRecordDecl", "DefaultedMoveConstructorIsDeleted"},

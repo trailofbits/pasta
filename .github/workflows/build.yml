@@ -65,6 +65,7 @@ jobs:
                        python3-dev \
                        libncurses-dev \
                        clang-15
+        python3 -m pip install nanobind nanobind[global]
 
     - name: Setup the build paths
       shell: bash
@@ -170,6 +171,10 @@ jobs:
 
       run: |
         cmake --build . -j ${{ steps.build_job_count.outputs.VALUE }}
+
+    - name: Try loading the Python extension
+      shell: bash
+      run: env PYTHONPATH=${{ steps.build_paths.outputs.BUILD }}/bindings/python python3 -c "import pypasta"
 
     - name: Reclaim disk space
       shell: bash

@@ -281,249 +281,249 @@ class Type {
   }
 
   /* Type methods */
-  bool AcceptsObjCTypeParameters(void) const noexcept;
-  bool CanDecayToPointerType(void) const noexcept;
-  bool CanHaveNullability(void) const noexcept;
-  bool ContainsErrors(void) const noexcept;
-  bool ContainsUnexpandedParameterPack(void) const noexcept;
-  std::optional<::pasta::Type> ArrayElementTypeNoTypeQualified(void) const noexcept;
-  std::optional<::pasta::CXXRecordDecl> AsCXXRecordDeclaration(void) const noexcept;
-  std::optional<::pasta::ComplexType> AsComplexIntegerType(void) const noexcept;
-  std::optional<::pasta::ObjCObjectPointerType> AsObjCInterfacePointerType(void) const noexcept;
-  std::optional<::pasta::ObjCObjectType> AsObjCInterfaceType(void) const noexcept;
-  std::optional<::pasta::ObjCObjectPointerType> AsObjCQualifiedClassType(void) const noexcept;
-  std::optional<::pasta::ObjCObjectPointerType> AsObjCQualifiedIdType(void) const noexcept;
-  std::optional<::pasta::ObjCObjectType> AsObjCQualifiedInterfaceType(void) const noexcept;
-  std::optional<::pasta::BuiltinType> AsPlaceholderType(void) const noexcept;
-  std::optional<::pasta::RecordDecl> AsRecordDeclaration(void) const noexcept;
-  std::optional<::pasta::RecordType> AsStructureType(void) const noexcept;
-  std::optional<::pasta::TagDecl> AsTagDeclaration(void) const noexcept;
-  std::optional<::pasta::RecordType> AsUnionType(void) const noexcept;
-  ::pasta::Type CanonicalTypeInternal(void) const noexcept;
+  bool AcceptsObjCTypeParameters(void) const;
+  bool CanDecayToPointerType(void) const;
+  bool CanHaveNullability(void) const;
+  bool ContainsErrors(void) const;
+  bool ContainsUnexpandedParameterPack(void) const;
+  std::optional<::pasta::Type> ArrayElementTypeNoTypeQualified(void) const;
+  std::optional<::pasta::CXXRecordDecl> AsCXXRecordDeclaration(void) const;
+  std::optional<::pasta::ComplexType> AsComplexIntegerType(void) const;
+  std::optional<::pasta::ObjCObjectPointerType> AsObjCInterfacePointerType(void) const;
+  std::optional<::pasta::ObjCObjectType> AsObjCInterfaceType(void) const;
+  std::optional<::pasta::ObjCObjectPointerType> AsObjCQualifiedClassType(void) const;
+  std::optional<::pasta::ObjCObjectPointerType> AsObjCQualifiedIdType(void) const;
+  std::optional<::pasta::ObjCObjectType> AsObjCQualifiedInterfaceType(void) const;
+  std::optional<::pasta::BuiltinType> AsPlaceholderType(void) const;
+  std::optional<::pasta::RecordDecl> AsRecordDeclaration(void) const;
+  std::optional<::pasta::RecordType> AsStructureType(void) const;
+  std::optional<::pasta::TagDecl> AsTagDeclaration(void) const;
+  std::optional<::pasta::RecordType> AsUnionType(void) const;
+  ::pasta::Type CanonicalTypeInternal(void) const;
   // CanonicalTypeUnqualified: (clang::CanQual<clang::Type>)
-  std::optional<::pasta::AutoType> ContainedAutoType(void) const noexcept;
-  std::optional<::pasta::DeducedType> ContainedDeducedType(void) const noexcept;
+  std::optional<::pasta::AutoType> ContainedAutoType(void) const;
+  std::optional<::pasta::DeducedType> ContainedDeducedType(void) const;
   // Dependence: (clang::TypeDependenceScope::TypeDependence)
-  enum Linkage Linkage(void) const noexcept;
+  enum Linkage Linkage(void) const;
   // LinkageAndVisibility: (clang::LinkageInfo)
-  ::pasta::Type LocallyUnqualifiedSingleStepDesugaredType(void) const noexcept;
-  std::optional<::pasta::NullabilityKind> Nullability(void) const noexcept;
+  ::pasta::Type LocallyUnqualifiedSingleStepDesugaredType(void) const;
+  std::optional<::pasta::NullabilityKind> Nullability(void) const;
   // ObjCARCImplicitLifetime: (clang::Qualifiers::ObjCLifetime)
   // ObjCSubstitutions: (std::optional<llvm::ArrayRef<clang::QualType>>)
-  std::optional<::pasta::CXXRecordDecl> PointeeCXXRecordDeclaration(void) const noexcept;
-  std::optional<::pasta::Type> PointeeOrArrayElementType(void) const noexcept;
-  std::optional<::pasta::Type> PointeeType(void) const noexcept;
-  std::optional<enum TypeScalarTypeKind> ScalarTypeKind(void) const noexcept;
-  std::optional<::pasta::Type> SveElementType(void) const noexcept;
-  ::pasta::TypeKind Kind(void) const noexcept;
-  std::string_view KindName(void) const noexcept;
-  ::pasta::Type UnqualifiedDesugaredType(void) const noexcept;
-  enum Visibility Visibility(void) const noexcept;
+  std::optional<::pasta::CXXRecordDecl> PointeeCXXRecordDeclaration(void) const;
+  std::optional<::pasta::Type> PointeeOrArrayElementType(void) const;
+  std::optional<::pasta::Type> PointeeType(void) const;
+  std::optional<enum TypeScalarTypeKind> ScalarTypeKind(void) const;
+  std::optional<::pasta::Type> SveElementType(void) const;
+  ::pasta::TypeKind Kind(void) const;
+  std::string_view KindName(void) const;
+  ::pasta::Type UnqualifiedDesugaredType(void) const;
+  enum Visibility Visibility(void) const;
   // HasAttribute: (bool)
-  bool HasAutoForTrailingReturnType(void) const noexcept;
-  bool HasFloatingRepresentation(void) const noexcept;
-  bool HasIntegerRepresentation(void) const noexcept;
-  bool HasObjCPointerRepresentation(void) const noexcept;
-  bool HasPointerRepresentation(void) const noexcept;
-  bool HasSignedIntegerRepresentation(void) const noexcept;
-  bool HasSizedVLAType(void) const noexcept;
-  bool HasUnnamedOrLocalType(void) const noexcept;
-  bool HasUnsignedIntegerRepresentation(void) const noexcept;
-  std::optional<bool> IsAggregateType(void) const noexcept;
-  bool IsAlignValueT(void) const noexcept;
-  bool IsAnyCharacterType(void) const noexcept;
-  bool IsAnyComplexType(void) const noexcept;
-  bool IsAnyPointerType(void) const noexcept;
-  bool IsArithmeticType(void) const noexcept;
-  bool IsArrayType(void) const noexcept;
-  bool IsAtomicType(void) const noexcept;
-  bool IsBFloat16Type(void) const noexcept;
-  bool IsBitIntType(void) const noexcept;
-  bool IsBlockCompatibleObjCPointerType(void) const noexcept;
-  bool IsBlockPointerType(void) const noexcept;
-  bool IsBooleanType(void) const noexcept;
-  bool IsBuiltinType(void) const noexcept;
-  bool IsCARCBridgableType(void) const noexcept;
-  bool IsCUDADeviceBuiltinSurfaceType(void) const noexcept;
-  bool IsCUDADeviceBuiltinTextureType(void) const noexcept;
-  bool IsCanonicalUnqualified(void) const noexcept;
-  bool IsChar16Type(void) const noexcept;
-  bool IsChar32Type(void) const noexcept;
-  bool IsChar8Type(void) const noexcept;
-  bool IsCharacterType(void) const noexcept;
-  bool IsClassType(void) const noexcept;
-  bool IsClkEventT(void) const noexcept;
-  bool IsComplexIntegerType(void) const noexcept;
-  bool IsComplexType(void) const noexcept;
-  bool IsCompoundType(void) const noexcept;
-  bool IsConstantArrayType(void) const noexcept;
-  bool IsConstantMatrixType(void) const noexcept;
-  std::optional<bool> IsConstantSizeType(void) const noexcept;
-  bool IsDecltypeType(void) const noexcept;
-  bool IsDependentAddressSpaceType(void) const noexcept;
-  bool IsDependentSizedArrayType(void) const noexcept;
-  bool IsDependentType(void) const noexcept;
-  bool IsElaboratedTypeSpecifier(void) const noexcept;
-  bool IsEnumeralType(void) const noexcept;
-  bool IsEventT(void) const noexcept;
-  bool IsExtVectorBooleanType(void) const noexcept;
-  bool IsExtVectorType(void) const noexcept;
-  bool IsFixedPointOrIntegerType(void) const noexcept;
-  bool IsFixedPointType(void) const noexcept;
-  bool IsFloat128Type(void) const noexcept;
-  bool IsFloat16Type(void) const noexcept;
-  bool IsFloatingType(void) const noexcept;
-  bool IsFromAST(void) const noexcept;
-  bool IsFunctionNoProtoType(void) const noexcept;
-  bool IsFunctionPointerType(void) const noexcept;
-  bool IsFunctionProtoType(void) const noexcept;
-  bool IsFunctionReferenceType(void) const noexcept;
-  bool IsFunctionType(void) const noexcept;
-  bool IsFundamentalType(void) const noexcept;
-  bool IsHalfType(void) const noexcept;
-  bool IsIbm128Type(void) const noexcept;
-  bool IsImageType(void) const noexcept;
-  bool IsIncompleteArrayType(void) const noexcept;
-  bool IsIncompleteOrObjectType(void) const noexcept;
-  bool IsIncompleteType(void) const noexcept;
-  bool IsInstantiationDependentType(void) const noexcept;
-  bool IsIntegerType(void) const noexcept;
-  bool IsIntegralOrEnumerationType(void) const noexcept;
-  bool IsIntegralOrUnscopedEnumerationType(void) const noexcept;
-  bool IsIntegralType(void) const noexcept;
-  bool IsInterfaceType(void) const noexcept;
-  bool IsLValueReferenceType(void) const noexcept;
-  bool IsLinkageValid(void) const noexcept;
-  std::optional<bool> IsLiteralType(void) const noexcept;
-  bool IsMatrixType(void) const noexcept;
-  bool IsMemberDataPointerType(void) const noexcept;
-  bool IsMemberFunctionPointerType(void) const noexcept;
-  bool IsMemberPointerType(void) const noexcept;
-  bool IsNonOverloadPlaceholderType(void) const noexcept;
-  bool IsNothrowT(void) const noexcept;
-  bool IsNullPointerType(void) const noexcept;
-  bool IsOCLExtOpaqueType(void) const noexcept;
-  bool IsOCLImage1dArrayROType(void) const noexcept;
-  bool IsOCLImage1dArrayRWType(void) const noexcept;
-  bool IsOCLImage1dArrayWOType(void) const noexcept;
-  bool IsOCLImage1dBufferROType(void) const noexcept;
-  bool IsOCLImage1dBufferRWType(void) const noexcept;
-  bool IsOCLImage1dBufferWOType(void) const noexcept;
-  bool IsOCLImage1dROType(void) const noexcept;
-  bool IsOCLImage1dRWType(void) const noexcept;
-  bool IsOCLImage1dWOType(void) const noexcept;
-  bool IsOCLImage2dArrayDepthROType(void) const noexcept;
-  bool IsOCLImage2dArrayDepthRWType(void) const noexcept;
-  bool IsOCLImage2dArrayDepthWOType(void) const noexcept;
-  bool IsOCLImage2dArrayMSAADepthROType(void) const noexcept;
-  bool IsOCLImage2dArrayMSAADepthRWType(void) const noexcept;
-  bool IsOCLImage2dArrayMSAADepthWOType(void) const noexcept;
-  bool IsOCLImage2dArrayMSAAROType(void) const noexcept;
-  bool IsOCLImage2dArrayMSAARWType(void) const noexcept;
-  bool IsOCLImage2dArrayMSAAWOType(void) const noexcept;
-  bool IsOCLImage2dArrayROType(void) const noexcept;
-  bool IsOCLImage2dArrayRWType(void) const noexcept;
-  bool IsOCLImage2dArrayWOType(void) const noexcept;
-  bool IsOCLImage2dDepthROType(void) const noexcept;
-  bool IsOCLImage2dDepthRWType(void) const noexcept;
-  bool IsOCLImage2dDepthWOType(void) const noexcept;
-  bool IsOCLImage2dMSAADepthROType(void) const noexcept;
-  bool IsOCLImage2dMSAADepthRWType(void) const noexcept;
-  bool IsOCLImage2dMSAADepthWOType(void) const noexcept;
-  bool IsOCLImage2dMSAAROType(void) const noexcept;
-  bool IsOCLImage2dMSAARWType(void) const noexcept;
-  bool IsOCLImage2dMSAAWOType(void) const noexcept;
-  bool IsOCLImage2dROType(void) const noexcept;
-  bool IsOCLImage2dRWType(void) const noexcept;
-  bool IsOCLImage2dWOType(void) const noexcept;
-  bool IsOCLImage3dROType(void) const noexcept;
-  bool IsOCLImage3dRWType(void) const noexcept;
-  bool IsOCLImage3dWOType(void) const noexcept;
-  bool IsOCLIntelSubgroupAVCImeDualReferenceStreaminType(void) const noexcept;
-  bool IsOCLIntelSubgroupAVCImePayloadType(void) const noexcept;
-  bool IsOCLIntelSubgroupAVCImeResultDualReferenceStreamoutType(void) const noexcept;
-  bool IsOCLIntelSubgroupAVCImeResultSingleReferenceStreamoutType(void) const noexcept;
-  bool IsOCLIntelSubgroupAVCImeResultType(void) const noexcept;
-  bool IsOCLIntelSubgroupAVCImeSingleReferenceStreaminType(void) const noexcept;
-  bool IsOCLIntelSubgroupAVCMcePayloadType(void) const noexcept;
-  bool IsOCLIntelSubgroupAVCMceResultType(void) const noexcept;
-  bool IsOCLIntelSubgroupAVCRefPayloadType(void) const noexcept;
-  bool IsOCLIntelSubgroupAVCRefResultType(void) const noexcept;
-  bool IsOCLIntelSubgroupAVCSicPayloadType(void) const noexcept;
-  bool IsOCLIntelSubgroupAVCSicResultType(void) const noexcept;
-  bool IsOCLIntelSubgroupAVCType(void) const noexcept;
-  bool IsObjCARCBridgableType(void) const noexcept;
-  std::optional<bool> IsObjCARCImplicitlyUnretainedType(void) const noexcept;
-  bool IsObjCBoxableRecordType(void) const noexcept;
-  bool IsObjCBuiltinType(void) const noexcept;
-  bool IsObjCClassOrClassKindOfType(void) const noexcept;
-  bool IsObjCClassType(void) const noexcept;
+  bool HasAutoForTrailingReturnType(void) const;
+  bool HasFloatingRepresentation(void) const;
+  bool HasIntegerRepresentation(void) const;
+  bool HasObjCPointerRepresentation(void) const;
+  bool HasPointerRepresentation(void) const;
+  bool HasSignedIntegerRepresentation(void) const;
+  bool HasSizedVLAType(void) const;
+  bool HasUnnamedOrLocalType(void) const;
+  bool HasUnsignedIntegerRepresentation(void) const;
+  std::optional<bool> IsAggregateType(void) const;
+  bool IsAlignValueT(void) const;
+  bool IsAnyCharacterType(void) const;
+  bool IsAnyComplexType(void) const;
+  bool IsAnyPointerType(void) const;
+  bool IsArithmeticType(void) const;
+  bool IsArrayType(void) const;
+  bool IsAtomicType(void) const;
+  bool IsBFloat16Type(void) const;
+  bool IsBitIntType(void) const;
+  bool IsBlockCompatibleObjCPointerType(void) const;
+  bool IsBlockPointerType(void) const;
+  bool IsBooleanType(void) const;
+  bool IsBuiltinType(void) const;
+  bool IsCARCBridgableType(void) const;
+  bool IsCUDADeviceBuiltinSurfaceType(void) const;
+  bool IsCUDADeviceBuiltinTextureType(void) const;
+  bool IsCanonicalUnqualified(void) const;
+  bool IsChar16Type(void) const;
+  bool IsChar32Type(void) const;
+  bool IsChar8Type(void) const;
+  bool IsCharacterType(void) const;
+  bool IsClassType(void) const;
+  bool IsClkEventT(void) const;
+  bool IsComplexIntegerType(void) const;
+  bool IsComplexType(void) const;
+  bool IsCompoundType(void) const;
+  bool IsConstantArrayType(void) const;
+  bool IsConstantMatrixType(void) const;
+  std::optional<bool> IsConstantSizeType(void) const;
+  bool IsDecltypeType(void) const;
+  bool IsDependentAddressSpaceType(void) const;
+  bool IsDependentSizedArrayType(void) const;
+  bool IsDependentType(void) const;
+  bool IsElaboratedTypeSpecifier(void) const;
+  bool IsEnumeralType(void) const;
+  bool IsEventT(void) const;
+  bool IsExtVectorBooleanType(void) const;
+  bool IsExtVectorType(void) const;
+  bool IsFixedPointOrIntegerType(void) const;
+  bool IsFixedPointType(void) const;
+  bool IsFloat128Type(void) const;
+  bool IsFloat16Type(void) const;
+  bool IsFloatingType(void) const;
+  bool IsFromAST(void) const;
+  bool IsFunctionNoProtoType(void) const;
+  bool IsFunctionPointerType(void) const;
+  bool IsFunctionProtoType(void) const;
+  bool IsFunctionReferenceType(void) const;
+  bool IsFunctionType(void) const;
+  bool IsFundamentalType(void) const;
+  bool IsHalfType(void) const;
+  bool IsIbm128Type(void) const;
+  bool IsImageType(void) const;
+  bool IsIncompleteArrayType(void) const;
+  bool IsIncompleteOrObjectType(void) const;
+  bool IsIncompleteType(void) const;
+  bool IsInstantiationDependentType(void) const;
+  bool IsIntegerType(void) const;
+  bool IsIntegralOrEnumerationType(void) const;
+  bool IsIntegralOrUnscopedEnumerationType(void) const;
+  bool IsIntegralType(void) const;
+  bool IsInterfaceType(void) const;
+  bool IsLValueReferenceType(void) const;
+  bool IsLinkageValid(void) const;
+  std::optional<bool> IsLiteralType(void) const;
+  bool IsMatrixType(void) const;
+  bool IsMemberDataPointerType(void) const;
+  bool IsMemberFunctionPointerType(void) const;
+  bool IsMemberPointerType(void) const;
+  bool IsNonOverloadPlaceholderType(void) const;
+  bool IsNothrowT(void) const;
+  bool IsNullPointerType(void) const;
+  bool IsOCLExtOpaqueType(void) const;
+  bool IsOCLImage1dArrayROType(void) const;
+  bool IsOCLImage1dArrayRWType(void) const;
+  bool IsOCLImage1dArrayWOType(void) const;
+  bool IsOCLImage1dBufferROType(void) const;
+  bool IsOCLImage1dBufferRWType(void) const;
+  bool IsOCLImage1dBufferWOType(void) const;
+  bool IsOCLImage1dROType(void) const;
+  bool IsOCLImage1dRWType(void) const;
+  bool IsOCLImage1dWOType(void) const;
+  bool IsOCLImage2dArrayDepthROType(void) const;
+  bool IsOCLImage2dArrayDepthRWType(void) const;
+  bool IsOCLImage2dArrayDepthWOType(void) const;
+  bool IsOCLImage2dArrayMSAADepthROType(void) const;
+  bool IsOCLImage2dArrayMSAADepthRWType(void) const;
+  bool IsOCLImage2dArrayMSAADepthWOType(void) const;
+  bool IsOCLImage2dArrayMSAAROType(void) const;
+  bool IsOCLImage2dArrayMSAARWType(void) const;
+  bool IsOCLImage2dArrayMSAAWOType(void) const;
+  bool IsOCLImage2dArrayROType(void) const;
+  bool IsOCLImage2dArrayRWType(void) const;
+  bool IsOCLImage2dArrayWOType(void) const;
+  bool IsOCLImage2dDepthROType(void) const;
+  bool IsOCLImage2dDepthRWType(void) const;
+  bool IsOCLImage2dDepthWOType(void) const;
+  bool IsOCLImage2dMSAADepthROType(void) const;
+  bool IsOCLImage2dMSAADepthRWType(void) const;
+  bool IsOCLImage2dMSAADepthWOType(void) const;
+  bool IsOCLImage2dMSAAROType(void) const;
+  bool IsOCLImage2dMSAARWType(void) const;
+  bool IsOCLImage2dMSAAWOType(void) const;
+  bool IsOCLImage2dROType(void) const;
+  bool IsOCLImage2dRWType(void) const;
+  bool IsOCLImage2dWOType(void) const;
+  bool IsOCLImage3dROType(void) const;
+  bool IsOCLImage3dRWType(void) const;
+  bool IsOCLImage3dWOType(void) const;
+  bool IsOCLIntelSubgroupAVCImeDualReferenceStreaminType(void) const;
+  bool IsOCLIntelSubgroupAVCImePayloadType(void) const;
+  bool IsOCLIntelSubgroupAVCImeResultDualReferenceStreamoutType(void) const;
+  bool IsOCLIntelSubgroupAVCImeResultSingleReferenceStreamoutType(void) const;
+  bool IsOCLIntelSubgroupAVCImeResultType(void) const;
+  bool IsOCLIntelSubgroupAVCImeSingleReferenceStreaminType(void) const;
+  bool IsOCLIntelSubgroupAVCMcePayloadType(void) const;
+  bool IsOCLIntelSubgroupAVCMceResultType(void) const;
+  bool IsOCLIntelSubgroupAVCRefPayloadType(void) const;
+  bool IsOCLIntelSubgroupAVCRefResultType(void) const;
+  bool IsOCLIntelSubgroupAVCSicPayloadType(void) const;
+  bool IsOCLIntelSubgroupAVCSicResultType(void) const;
+  bool IsOCLIntelSubgroupAVCType(void) const;
+  bool IsObjCARCBridgableType(void) const;
+  std::optional<bool> IsObjCARCImplicitlyUnretainedType(void) const;
+  bool IsObjCBoxableRecordType(void) const;
+  bool IsObjCBuiltinType(void) const;
+  bool IsObjCClassOrClassKindOfType(void) const;
+  bool IsObjCClassType(void) const;
   // IsObjCIdOrObjectKindOfType: (bool)
-  bool IsObjCIdType(void) const noexcept;
-  bool IsObjCIndependentClassType(void) const noexcept;
-  bool IsObjCIndirectLifetimeType(void) const noexcept;
-  bool IsObjCInertUnsafeUnretainedType(void) const noexcept;
-  bool IsObjCLifetimeType(void) const noexcept;
-  bool IsObjCNSObjectType(void) const noexcept;
-  bool IsObjCObjectOrInterfaceType(void) const noexcept;
-  bool IsObjCObjectPointerType(void) const noexcept;
-  bool IsObjCObjectType(void) const noexcept;
-  bool IsObjCQualifiedClassType(void) const noexcept;
-  bool IsObjCQualifiedIdType(void) const noexcept;
-  bool IsObjCQualifiedInterfaceType(void) const noexcept;
-  bool IsObjCRetainableType(void) const noexcept;
-  bool IsObjCSelType(void) const noexcept;
-  bool IsObjectPointerType(void) const noexcept;
-  bool IsObjectType(void) const noexcept;
-  bool IsOpenCLSpecificType(void) const noexcept;
-  bool IsOverloadableType(void) const noexcept;
-  bool IsPipeType(void) const noexcept;
-  bool IsPlaceholderType(void) const noexcept;
-  bool IsPointerType(void) const noexcept;
-  bool IsQueueT(void) const noexcept;
-  bool IsRVVType(void) const noexcept;
-  bool IsRValueReferenceType(void) const noexcept;
-  bool IsRealFloatingType(void) const noexcept;
-  bool IsRealType(void) const noexcept;
-  bool IsRecordType(void) const noexcept;
-  bool IsReferenceType(void) const noexcept;
-  bool IsReserveIDT(void) const noexcept;
-  bool IsSVESizelessBuiltinType(void) const noexcept;
-  bool IsSamplerT(void) const noexcept;
-  bool IsSaturatedFixedPointType(void) const noexcept;
-  bool IsScalarType(void) const noexcept;
-  bool IsScopedEnumeralType(void) const noexcept;
-  bool IsSignedFixedPointType(void) const noexcept;
-  bool IsSignedIntegerOrEnumerationType(void) const noexcept;
-  bool IsSignedIntegerType(void) const noexcept;
-  bool IsSizelessBuiltinType(void) const noexcept;
-  bool IsSizelessType(void) const noexcept;
+  bool IsObjCIdType(void) const;
+  bool IsObjCIndependentClassType(void) const;
+  bool IsObjCIndirectLifetimeType(void) const;
+  bool IsObjCInertUnsafeUnretainedType(void) const;
+  bool IsObjCLifetimeType(void) const;
+  bool IsObjCNSObjectType(void) const;
+  bool IsObjCObjectOrInterfaceType(void) const;
+  bool IsObjCObjectPointerType(void) const;
+  bool IsObjCObjectType(void) const;
+  bool IsObjCQualifiedClassType(void) const;
+  bool IsObjCQualifiedIdType(void) const;
+  bool IsObjCQualifiedInterfaceType(void) const;
+  bool IsObjCRetainableType(void) const;
+  bool IsObjCSelType(void) const;
+  bool IsObjectPointerType(void) const;
+  bool IsObjectType(void) const;
+  bool IsOpenCLSpecificType(void) const;
+  bool IsOverloadableType(void) const;
+  bool IsPipeType(void) const;
+  bool IsPlaceholderType(void) const;
+  bool IsPointerType(void) const;
+  bool IsQueueT(void) const;
+  bool IsRVVType(void) const;
+  bool IsRValueReferenceType(void) const;
+  bool IsRealFloatingType(void) const;
+  bool IsRealType(void) const;
+  bool IsRecordType(void) const;
+  bool IsReferenceType(void) const;
+  bool IsReserveIDT(void) const;
+  bool IsSVESizelessBuiltinType(void) const;
+  bool IsSamplerT(void) const;
+  bool IsSaturatedFixedPointType(void) const;
+  bool IsScalarType(void) const;
+  bool IsScopedEnumeralType(void) const;
+  bool IsSignedFixedPointType(void) const;
+  bool IsSignedIntegerOrEnumerationType(void) const;
+  bool IsSignedIntegerType(void) const;
+  bool IsSizelessBuiltinType(void) const;
+  bool IsSizelessType(void) const;
   // IsSpecificBuiltinType: (bool)
   // IsSpecificPlaceholderType: (bool)
-  bool IsSpecifierType(void) const noexcept;
-  std::optional<bool> IsStandardLayoutType(void) const noexcept;
-  bool IsStdByteType(void) const noexcept;
-  std::optional<bool> IsStructuralType(void) const noexcept;
-  bool IsStructureOrClassType(void) const noexcept;
-  bool IsStructureType(void) const noexcept;
-  bool IsTemplateTypeParmType(void) const noexcept;
-  bool IsTypedefNameType(void) const noexcept;
-  bool IsUndeducedAutoType(void) const noexcept;
-  bool IsUndeducedType(void) const noexcept;
-  bool IsUnionType(void) const noexcept;
-  bool IsUnsaturatedFixedPointType(void) const noexcept;
-  bool IsUnscopedEnumerationType(void) const noexcept;
-  bool IsUnsignedFixedPointType(void) const noexcept;
-  bool IsUnsignedIntegerOrEnumerationType(void) const noexcept;
-  bool IsUnsignedIntegerType(void) const noexcept;
-  bool IsVLSTBuiltinType(void) const noexcept;
-  bool IsVariableArrayType(void) const noexcept;
-  bool IsVariablyModifiedType(void) const noexcept;
-  bool IsVectorType(void) const noexcept;
-  bool IsVisibilityExplicit(void) const noexcept;
-  bool IsVoidPointerType(void) const noexcept;
-  bool IsVoidType(void) const noexcept;
-  bool IsWideCharacterType(void) const noexcept;
+  bool IsSpecifierType(void) const;
+  std::optional<bool> IsStandardLayoutType(void) const;
+  bool IsStdByteType(void) const;
+  std::optional<bool> IsStructuralType(void) const;
+  bool IsStructureOrClassType(void) const;
+  bool IsStructureType(void) const;
+  bool IsTemplateTypeParmType(void) const;
+  bool IsTypedefNameType(void) const;
+  bool IsUndeducedAutoType(void) const;
+  bool IsUndeducedType(void) const;
+  bool IsUnionType(void) const;
+  bool IsUnsaturatedFixedPointType(void) const;
+  bool IsUnscopedEnumerationType(void) const;
+  bool IsUnsignedFixedPointType(void) const;
+  bool IsUnsignedIntegerOrEnumerationType(void) const;
+  bool IsUnsignedIntegerType(void) const;
+  bool IsVLSTBuiltinType(void) const;
+  bool IsVariableArrayType(void) const;
+  bool IsVariablyModifiedType(void) const;
+  bool IsVectorType(void) const;
+  bool IsVisibilityExplicit(void) const;
+  bool IsVoidPointerType(void) const;
+  bool IsVoidType(void) const;
+  bool IsWideCharacterType(void) const;
 };
 
 class TypeOfExprType : public Type {
@@ -532,10 +532,10 @@ class TypeOfExprType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TypeOfExprType)
   PASTA_DECLARE_BASE_OPERATORS(Type, TypeOfExprType)
-  ::pasta::Type Desugar(void) const noexcept;
-  enum TypeOfKind Kind(void) const noexcept;
-  ::pasta::Expr UnderlyingExpression(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  enum TypeOfKind Kind(void) const;
+  ::pasta::Expr UnderlyingExpression(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(TypeOfExprType)
 };
@@ -547,10 +547,10 @@ class TypeOfType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TypeOfType)
   PASTA_DECLARE_BASE_OPERATORS(Type, TypeOfType)
-  ::pasta::Type Desugar(void) const noexcept;
-  enum TypeOfKind Kind(void) const noexcept;
-  ::pasta::Type UnmodifiedType(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  enum TypeOfKind Kind(void) const;
+  ::pasta::Type UnmodifiedType(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(TypeOfType)
 };
@@ -562,10 +562,10 @@ class TypedefType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TypedefType)
   PASTA_DECLARE_BASE_OPERATORS(Type, TypedefType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::TypedefNameDecl Declaration(void) const noexcept;
-  bool IsSugared(void) const noexcept;
-  bool TypeMatchesDeclaration(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::TypedefNameDecl Declaration(void) const;
+  bool IsSugared(void) const;
+  bool TypeMatchesDeclaration(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(TypedefType)
 };
@@ -577,11 +577,11 @@ class UnaryTransformType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UnaryTransformType)
   PASTA_DECLARE_BASE_OPERATORS(Type, UnaryTransformType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::Type BaseType(void) const noexcept;
-  enum UnaryTransformTypeUTTKind UTTKind(void) const noexcept;
-  ::pasta::Type UnderlyingType(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::Type BaseType(void) const;
+  enum UnaryTransformTypeUTTKind UTTKind(void) const;
+  ::pasta::Type UnderlyingType(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(UnaryTransformType)
 };
@@ -593,9 +593,9 @@ class UnresolvedUsingType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UnresolvedUsingType)
   PASTA_DECLARE_BASE_OPERATORS(Type, UnresolvedUsingType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::UnresolvedUsingTypenameDecl Declaration(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::UnresolvedUsingTypenameDecl Declaration(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(UnresolvedUsingType)
 };
@@ -607,11 +607,11 @@ class UsingType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(UsingType)
   PASTA_DECLARE_BASE_OPERATORS(Type, UsingType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::UsingShadowDecl FoundDeclaration(void) const noexcept;
-  ::pasta::Type UnderlyingType(void) const noexcept;
-  bool IsSugared(void) const noexcept;
-  bool TypeMatchesDeclaration(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::UsingShadowDecl FoundDeclaration(void) const;
+  ::pasta::Type UnderlyingType(void) const;
+  bool IsSugared(void) const;
+  bool TypeMatchesDeclaration(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(UsingType)
 };
@@ -624,11 +624,11 @@ class VectorType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(VectorType)
   PASTA_DECLARE_BASE_OPERATORS(Type, VectorType)
   PASTA_DECLARE_DERIVED_OPERATORS(VectorType, ExtVectorType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::Type ElementType(void) const noexcept;
-  uint32_t NumElements(void) const noexcept;
-  enum VectorTypeVectorKind VectorKind(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::Type ElementType(void) const;
+  uint32_t NumElements(void) const;
+  enum VectorTypeVectorKind VectorKind(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(VectorType)
 };
@@ -643,7 +643,7 @@ class TypeWithKeyword : public Type {
   PASTA_DECLARE_DERIVED_OPERATORS(TypeWithKeyword, DependentNameType)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeWithKeyword, DependentTemplateSpecializationType)
   PASTA_DECLARE_DERIVED_OPERATORS(TypeWithKeyword, ElaboratedType)
-  enum ElaboratedTypeKeyword Keyword(void) const noexcept;
+  enum ElaboratedTypeKeyword Keyword(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(TypeWithKeyword)
 };
@@ -656,10 +656,10 @@ class AdjustedType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AdjustedType)
   PASTA_DECLARE_BASE_OPERATORS(Type, AdjustedType)
   PASTA_DECLARE_DERIVED_OPERATORS(AdjustedType, DecayedType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::Type ResolvedType(void) const noexcept;
-  ::pasta::Type OriginalType(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::Type ResolvedType(void) const;
+  ::pasta::Type OriginalType(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(AdjustedType)
 };
@@ -675,10 +675,10 @@ class ArrayType : public Type {
   PASTA_DECLARE_DERIVED_OPERATORS(ArrayType, DependentSizedArrayType)
   PASTA_DECLARE_DERIVED_OPERATORS(ArrayType, IncompleteArrayType)
   PASTA_DECLARE_DERIVED_OPERATORS(ArrayType, VariableArrayType)
-  ::pasta::Type ElementType(void) const noexcept;
-  uint32_t IndexTypeCVRQualifiers(void) const noexcept;
+  ::pasta::Type ElementType(void) const;
+  uint32_t IndexTypeCVRQualifiers(void) const;
   // IndexTypeQualifiers: (clang::Qualifiers)
-  enum ArrayTypeArraySizeModifier SizeModifier(void) const noexcept;
+  enum ArrayTypeArraySizeModifier SizeModifier(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ArrayType)
 };
@@ -690,9 +690,9 @@ class AtomicType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AtomicType)
   PASTA_DECLARE_BASE_OPERATORS(Type, AtomicType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::Type ValueType(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::Type ValueType(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(AtomicType)
 };
@@ -704,15 +704,15 @@ class AttributedType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AttributedType)
   PASTA_DECLARE_BASE_OPERATORS(Type, AttributedType)
-  ::pasta::Type Desugar(void) const noexcept;
-  enum ::pasta::AttrKind AttributeKind(void) const noexcept;
-  ::pasta::Type EquivalentType(void) const noexcept;
-  std::optional<::pasta::NullabilityKind> ImmediateNullability(void) const noexcept;
-  ::pasta::Type ModifiedType(void) const noexcept;
-  bool IsCallingConv(void) const noexcept;
-  bool IsMSTypeSpec(void) const noexcept;
-  bool IsQualifier(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  enum ::pasta::AttrKind AttributeKind(void) const;
+  ::pasta::Type EquivalentType(void) const;
+  std::optional<::pasta::NullabilityKind> ImmediateNullability(void) const;
+  ::pasta::Type ModifiedType(void) const;
+  bool IsCallingConv(void) const;
+  bool IsMSTypeSpec(void) const;
+  bool IsQualifier(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(AttributedType)
 };
@@ -724,10 +724,10 @@ class BTFTagAttributedType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(BTFTagAttributedType)
   PASTA_DECLARE_BASE_OPERATORS(Type, BTFTagAttributedType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::BTFTypeTagAttr Attribute(void) const noexcept;
-  ::pasta::Type WrappedType(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::BTFTypeTagAttr Attribute(void) const;
+  ::pasta::Type WrappedType(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(BTFTagAttributedType)
 };
@@ -739,11 +739,11 @@ class BitIntType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(BitIntType)
   PASTA_DECLARE_BASE_OPERATORS(Type, BitIntType)
-  ::pasta::Type Desugar(void) const noexcept;
-  uint32_t NumBits(void) const noexcept;
-  bool IsSigned(void) const noexcept;
-  bool IsSugared(void) const noexcept;
-  bool IsUnsigned(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  uint32_t NumBits(void) const;
+  bool IsSigned(void) const;
+  bool IsSugared(void) const;
+  bool IsUnsigned(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(BitIntType)
 };
@@ -755,9 +755,9 @@ class BlockPointerType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(BlockPointerType)
   PASTA_DECLARE_BASE_OPERATORS(Type, BlockPointerType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::Type PointeeType(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::Type PointeeType(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(BlockPointerType)
 };
@@ -769,18 +769,18 @@ class BuiltinType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(BuiltinType)
   PASTA_DECLARE_BASE_OPERATORS(Type, BuiltinType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::BuiltinTypeKind Kind(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::BuiltinTypeKind Kind(void) const;
   // Name: (llvm::StringRef)
   // NameAsCString: (const char *)
-  bool IsFloatingPoint(void) const noexcept;
-  bool IsInteger(void) const noexcept;
-  bool IsNonOverloadPlaceholderType(void) const noexcept;
-  bool IsPlaceholderType(void) const noexcept;
-  bool IsSVEBool(void) const noexcept;
-  bool IsSignedInteger(void) const noexcept;
-  bool IsSugared(void) const noexcept;
-  bool IsUnsignedInteger(void) const noexcept;
+  bool IsFloatingPoint(void) const;
+  bool IsInteger(void) const;
+  bool IsNonOverloadPlaceholderType(void) const;
+  bool IsPlaceholderType(void) const;
+  bool IsSVEBool(void) const;
+  bool IsSignedInteger(void) const;
+  bool IsSugared(void) const;
+  bool IsUnsignedInteger(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(BuiltinType)
 };
@@ -792,9 +792,9 @@ class ComplexType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ComplexType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ComplexType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::Type ElementType(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::Type ElementType(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ComplexType)
 };
@@ -808,10 +808,10 @@ class ConstantArrayType : public ArrayType {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ConstantArrayType)
   PASTA_DECLARE_BASE_OPERATORS(ArrayType, ConstantArrayType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ConstantArrayType)
-  ::pasta::Type Desugar(void) const noexcept;
-  llvm::APInt Size(void) const noexcept;
-  std::optional<::pasta::Expr> SizeExpression(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  llvm::APInt Size(void) const;
+  std::optional<::pasta::Expr> SizeExpression(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ConstantArrayType)
 };
@@ -825,8 +825,8 @@ class DecayedType : public AdjustedType {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DecayedType)
   PASTA_DECLARE_BASE_OPERATORS(AdjustedType, DecayedType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DecayedType)
-  ::pasta::Type ResolvedType(void) const noexcept;
-  ::pasta::Type PointeeType(void) const noexcept;
+  ::pasta::Type ResolvedType(void) const;
+  ::pasta::Type PointeeType(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DecayedType)
 };
@@ -838,10 +838,10 @@ class DecltypeType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DecltypeType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DecltypeType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::Expr UnderlyingExpression(void) const noexcept;
-  ::pasta::Type UnderlyingType(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::Expr UnderlyingExpression(void) const;
+  ::pasta::Type UnderlyingType(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DecltypeType)
 };
@@ -855,10 +855,10 @@ class DeducedType : public Type {
   PASTA_DECLARE_BASE_OPERATORS(Type, DeducedType)
   PASTA_DECLARE_DERIVED_OPERATORS(DeducedType, AutoType)
   PASTA_DECLARE_DERIVED_OPERATORS(DeducedType, DeducedTemplateSpecializationType)
-  ::pasta::Type Desugar(void) const noexcept;
-  std::optional<::pasta::Type> ResolvedType(void) const noexcept;
-  bool IsDeduced(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  std::optional<::pasta::Type> ResolvedType(void) const;
+  bool IsDeduced(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DeducedType)
 };
@@ -870,11 +870,11 @@ class DependentAddressSpaceType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentAddressSpaceType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DependentAddressSpaceType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::Expr AddressSpaceExpression(void) const noexcept;
-  ::pasta::Token AttributeToken(void) const noexcept;
-  ::pasta::Type PointeeType(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::Expr AddressSpaceExpression(void) const;
+  ::pasta::Token AttributeToken(void) const;
+  ::pasta::Type PointeeType(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentAddressSpaceType)
 };
@@ -886,11 +886,11 @@ class DependentBitIntType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentBitIntType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DependentBitIntType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::Expr NumBitsExpression(void) const noexcept;
-  bool IsSigned(void) const noexcept;
-  bool IsSugared(void) const noexcept;
-  bool IsUnsigned(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::Expr NumBitsExpression(void) const;
+  bool IsSigned(void) const;
+  bool IsSugared(void) const;
+  bool IsUnsigned(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentBitIntType)
 };
@@ -904,10 +904,10 @@ class DependentNameType : public TypeWithKeyword {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentNameType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DependentNameType)
   PASTA_DECLARE_BASE_OPERATORS(TypeWithKeyword, DependentNameType)
-  ::pasta::Type Desugar(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
   // Identifier: (const clang::IdentifierInfo *)
   // Qualifier: (clang::NestedNameSpecifier *)
-  bool IsSugared(void) const noexcept;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentNameType)
 };
@@ -921,12 +921,12 @@ class DependentSizedArrayType : public ArrayType {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentSizedArrayType)
   PASTA_DECLARE_BASE_OPERATORS(ArrayType, DependentSizedArrayType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DependentSizedArrayType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::TokenRange BracketsRange(void) const noexcept;
-  ::pasta::Token LBracketToken(void) const noexcept;
-  ::pasta::Token RBracketToken(void) const noexcept;
-  ::pasta::Expr SizeExpression(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::TokenRange BracketsRange(void) const;
+  ::pasta::Token LBracketToken(void) const;
+  ::pasta::Token RBracketToken(void) const;
+  ::pasta::Expr SizeExpression(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentSizedArrayType)
 };
@@ -938,11 +938,11 @@ class DependentSizedExtVectorType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentSizedExtVectorType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DependentSizedExtVectorType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::Token AttributeToken(void) const noexcept;
-  ::pasta::Type ElementType(void) const noexcept;
-  ::pasta::Expr SizeExpression(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::Token AttributeToken(void) const;
+  ::pasta::Type ElementType(void) const;
+  ::pasta::Expr SizeExpression(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentSizedExtVectorType)
 };
@@ -956,11 +956,11 @@ class DependentTemplateSpecializationType : public TypeWithKeyword {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentTemplateSpecializationType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DependentTemplateSpecializationType)
   PASTA_DECLARE_BASE_OPERATORS(TypeWithKeyword, DependentTemplateSpecializationType)
-  ::pasta::Type Desugar(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
   // Identifier: (const clang::IdentifierInfo *)
   // Qualifier: (clang::NestedNameSpecifier *)
-  bool IsSugared(void) const noexcept;
-  std::vector<::pasta::TemplateArgument> TemplateArguments(void) const noexcept;
+  bool IsSugared(void) const;
+  std::vector<::pasta::TemplateArgument> TemplateArguments(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentTemplateSpecializationType)
 };
@@ -972,12 +972,12 @@ class DependentVectorType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentVectorType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DependentVectorType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::Token AttributeToken(void) const noexcept;
-  ::pasta::Type ElementType(void) const noexcept;
-  ::pasta::Expr SizeExpression(void) const noexcept;
-  enum VectorTypeVectorKind VectorKind(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::Token AttributeToken(void) const;
+  ::pasta::Type ElementType(void) const;
+  ::pasta::Expr SizeExpression(void) const;
+  enum VectorTypeVectorKind VectorKind(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentVectorType)
 };
@@ -991,11 +991,11 @@ class ElaboratedType : public TypeWithKeyword {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ElaboratedType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ElaboratedType)
   PASTA_DECLARE_BASE_OPERATORS(TypeWithKeyword, ElaboratedType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::Type NamedType(void) const noexcept;
-  std::optional<::pasta::TagDecl> OwnedTagDeclaration(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::Type NamedType(void) const;
+  std::optional<::pasta::TagDecl> OwnedTagDeclaration(void) const;
   // Qualifier: (clang::NestedNameSpecifier *)
-  bool IsSugared(void) const noexcept;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ElaboratedType)
 };
@@ -1009,9 +1009,9 @@ class ExtVectorType : public VectorType {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ExtVectorType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ExtVectorType)
   PASTA_DECLARE_BASE_OPERATORS(VectorType, ExtVectorType)
-  ::pasta::Type Desugar(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
   // IsAccessorWithinNumElements: (bool)
-  bool IsSugared(void) const noexcept;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ExtVectorType)
 };
@@ -1025,17 +1025,17 @@ class FunctionType : public Type {
   PASTA_DECLARE_BASE_OPERATORS(Type, FunctionType)
   PASTA_DECLARE_DERIVED_OPERATORS(FunctionType, FunctionNoProtoType)
   PASTA_DECLARE_DERIVED_OPERATORS(FunctionType, FunctionProtoType)
-  enum CallingConv CallConv(void) const noexcept;
-  ::pasta::Type CallResultType(void) const noexcept;
-  bool CmseNSCallAttribute(void) const noexcept;
+  enum CallingConv CallConv(void) const;
+  ::pasta::Type CallResultType(void) const;
+  bool CmseNSCallAttribute(void) const;
   // ExtInfo: (clang::FunctionType::ExtInfo)
-  bool HasRegParm(void) const noexcept;
-  bool NoReturnAttribute(void) const noexcept;
-  uint32_t RegParmType(void) const noexcept;
-  ::pasta::Type ReturnType(void) const noexcept;
-  bool IsConst(void) const noexcept;
-  bool IsRestrict(void) const noexcept;
-  bool IsVolatile(void) const noexcept;
+  bool HasRegParm(void) const;
+  bool NoReturnAttribute(void) const;
+  uint32_t RegParmType(void) const;
+  ::pasta::Type ReturnType(void) const;
+  bool IsConst(void) const;
+  bool IsRestrict(void) const;
+  bool IsVolatile(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(FunctionType)
 };
@@ -1049,8 +1049,8 @@ class IncompleteArrayType : public ArrayType {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(IncompleteArrayType)
   PASTA_DECLARE_BASE_OPERATORS(ArrayType, IncompleteArrayType)
   PASTA_DECLARE_BASE_OPERATORS(Type, IncompleteArrayType)
-  ::pasta::Type Desugar(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(IncompleteArrayType)
 };
@@ -1062,12 +1062,12 @@ class InjectedClassNameType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(InjectedClassNameType)
   PASTA_DECLARE_BASE_OPERATORS(Type, InjectedClassNameType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::CXXRecordDecl Declaration(void) const noexcept;
-  ::pasta::Type InjectedSpecializationType(void) const noexcept;
-  ::pasta::TemplateSpecializationType InjectedTST(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::CXXRecordDecl Declaration(void) const;
+  ::pasta::Type InjectedSpecializationType(void) const;
+  ::pasta::TemplateSpecializationType InjectedTST(void) const;
   // TemplateName: (clang::TemplateName)
-  bool IsSugared(void) const noexcept;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(InjectedClassNameType)
 };
@@ -1079,11 +1079,11 @@ class MacroQualifiedType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MacroQualifiedType)
   PASTA_DECLARE_BASE_OPERATORS(Type, MacroQualifiedType)
-  ::pasta::Type Desugar(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
   // MacroIdentifier: (const clang::IdentifierInfo *)
-  ::pasta::Type ModifiedType(void) const noexcept;
-  ::pasta::Type UnderlyingType(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type ModifiedType(void) const;
+  ::pasta::Type UnderlyingType(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(MacroQualifiedType)
 };
@@ -1097,9 +1097,9 @@ class MatrixType : public Type {
   PASTA_DECLARE_BASE_OPERATORS(Type, MatrixType)
   PASTA_DECLARE_DERIVED_OPERATORS(MatrixType, ConstantMatrixType)
   PASTA_DECLARE_DERIVED_OPERATORS(MatrixType, DependentSizedMatrixType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::Type ElementType(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::Type ElementType(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(MatrixType)
 };
@@ -1111,13 +1111,13 @@ class MemberPointerType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(MemberPointerType)
   PASTA_DECLARE_BASE_OPERATORS(Type, MemberPointerType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::Type Class(void) const noexcept;
-  ::pasta::CXXRecordDecl MostRecentCXXRecordDeclaration(void) const noexcept;
-  ::pasta::Type PointeeType(void) const noexcept;
-  bool IsMemberDataPointer(void) const noexcept;
-  bool IsMemberFunctionPointer(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::Type Class(void) const;
+  ::pasta::CXXRecordDecl MostRecentCXXRecordDeclaration(void) const;
+  ::pasta::Type PointeeType(void) const;
+  bool IsMemberDataPointer(void) const;
+  bool IsMemberFunctionPointer(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(MemberPointerType)
 };
@@ -1129,30 +1129,30 @@ class ObjCObjectPointerType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCObjectPointerType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ObjCObjectPointerType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::ObjCInterfaceDecl InterfaceDeclaration(void) const noexcept;
-  ::pasta::ObjCInterfaceType InterfaceType(void) const noexcept;
-  uint32_t NumProtocols(void) const noexcept;
-  ::pasta::ObjCObjectType ObjectType(void) const noexcept;
-  ::pasta::Type PointeeType(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::ObjCInterfaceDecl InterfaceDeclaration(void) const;
+  ::pasta::ObjCInterfaceType InterfaceType(void) const;
+  uint32_t NumProtocols(void) const;
+  ::pasta::ObjCObjectType ObjectType(void) const;
+  ::pasta::Type PointeeType(void) const;
   // Protocol: (clang::ObjCProtocolDecl *)
-  ::pasta::Type SuperClassType(void) const noexcept;
-  std::vector<::pasta::Type> TypeArguments(void) const noexcept;
-  std::vector<::pasta::Type> TypeArgumentsAsWritten(void) const noexcept;
-  bool IsKindOfType(void) const noexcept;
-  bool IsObjCClassType(void) const noexcept;
-  bool IsObjCIdOrClassType(void) const noexcept;
-  bool IsObjCIdType(void) const noexcept;
-  bool IsObjCQualifiedClassType(void) const noexcept;
-  bool IsObjCQualifiedIdType(void) const noexcept;
-  bool IsSpecialized(void) const noexcept;
-  bool IsSpecializedAsWritten(void) const noexcept;
-  bool IsSugared(void) const noexcept;
-  bool IsUnspecialized(void) const noexcept;
-  bool IsUnspecializedAsWritten(void) const noexcept;
-  std::vector<::pasta::ObjCProtocolDecl> Qualifiers(void) const noexcept;
-  ::pasta::ObjCObjectPointerType StripObjCKindOfTypeAndQualifiers(void) const noexcept;
-  std::vector<::pasta::ObjCProtocolDecl> Protocols(void) const noexcept;
+  ::pasta::Type SuperClassType(void) const;
+  std::vector<::pasta::Type> TypeArguments(void) const;
+  std::vector<::pasta::Type> TypeArgumentsAsWritten(void) const;
+  bool IsKindOfType(void) const;
+  bool IsObjCClassType(void) const;
+  bool IsObjCIdOrClassType(void) const;
+  bool IsObjCIdType(void) const;
+  bool IsObjCQualifiedClassType(void) const;
+  bool IsObjCQualifiedIdType(void) const;
+  bool IsSpecialized(void) const;
+  bool IsSpecializedAsWritten(void) const;
+  bool IsSugared(void) const;
+  bool IsUnspecialized(void) const;
+  bool IsUnspecializedAsWritten(void) const;
+  std::vector<::pasta::ObjCProtocolDecl> Qualifiers(void) const;
+  ::pasta::ObjCObjectPointerType StripObjCKindOfTypeAndQualifiers(void) const;
+  std::vector<::pasta::ObjCProtocolDecl> Protocols(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ObjCObjectPointerType)
 };
@@ -1165,27 +1165,27 @@ class ObjCObjectType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCObjectType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ObjCObjectType)
   PASTA_DECLARE_DERIVED_OPERATORS(ObjCObjectType, ObjCInterfaceType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::Type BaseType(void) const noexcept;
-  ::pasta::ObjCInterfaceDecl Interface(void) const noexcept;
-  std::optional<::pasta::Type> SuperClassType(void) const noexcept;
-  std::vector<::pasta::Type> TypeArguments(void) const noexcept;
-  std::vector<::pasta::Type> TypeArgumentsAsWritten(void) const noexcept;
-  bool IsKindOfType(void) const noexcept;
-  bool IsKindOfTypeAsWritten(void) const noexcept;
-  bool IsObjCClass(void) const noexcept;
-  bool IsObjCId(void) const noexcept;
-  bool IsObjCQualifiedClass(void) const noexcept;
-  bool IsObjCQualifiedId(void) const noexcept;
-  bool IsObjCUnqualifiedClass(void) const noexcept;
-  bool IsObjCUnqualifiedId(void) const noexcept;
-  bool IsObjCUnqualifiedIdOrClass(void) const noexcept;
-  bool IsSpecialized(void) const noexcept;
-  bool IsSpecializedAsWritten(void) const noexcept;
-  bool IsSugared(void) const noexcept;
-  bool IsUnspecialized(void) const noexcept;
-  bool IsUnspecializedAsWritten(void) const noexcept;
-  ::pasta::Type StripObjCKindOfTypeAndQualifiers(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::Type BaseType(void) const;
+  ::pasta::ObjCInterfaceDecl Interface(void) const;
+  std::optional<::pasta::Type> SuperClassType(void) const;
+  std::vector<::pasta::Type> TypeArguments(void) const;
+  std::vector<::pasta::Type> TypeArgumentsAsWritten(void) const;
+  bool IsKindOfType(void) const;
+  bool IsKindOfTypeAsWritten(void) const;
+  bool IsObjCClass(void) const;
+  bool IsObjCId(void) const;
+  bool IsObjCQualifiedClass(void) const;
+  bool IsObjCQualifiedId(void) const;
+  bool IsObjCUnqualifiedClass(void) const;
+  bool IsObjCUnqualifiedId(void) const;
+  bool IsObjCUnqualifiedIdOrClass(void) const;
+  bool IsSpecialized(void) const;
+  bool IsSpecializedAsWritten(void) const;
+  bool IsSugared(void) const;
+  bool IsUnspecialized(void) const;
+  bool IsUnspecializedAsWritten(void) const;
+  ::pasta::Type StripObjCKindOfTypeAndQualifiers(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ObjCObjectType)
 };
@@ -1197,9 +1197,9 @@ class ObjCTypeParamType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCTypeParamType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ObjCTypeParamType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::ObjCTypeParamDecl Declaration(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::ObjCTypeParamDecl Declaration(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ObjCTypeParamType)
 };
@@ -1211,10 +1211,10 @@ class PackExpansionType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PackExpansionType)
   PASTA_DECLARE_BASE_OPERATORS(Type, PackExpansionType)
-  ::pasta::Type Desugar(void) const noexcept;
-  std::optional<unsigned> NumExpansions(void) const noexcept;
-  ::pasta::Type Pattern(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  std::optional<unsigned> NumExpansions(void) const;
+  ::pasta::Type Pattern(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(PackExpansionType)
 };
@@ -1226,9 +1226,9 @@ class ParenType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ParenType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ParenType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::Type InnerType(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::Type InnerType(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ParenType)
 };
@@ -1240,10 +1240,10 @@ class PipeType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PipeType)
   PASTA_DECLARE_BASE_OPERATORS(Type, PipeType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::Type ElementType(void) const noexcept;
-  bool IsReadOnly(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::Type ElementType(void) const;
+  bool IsReadOnly(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(PipeType)
 };
@@ -1255,9 +1255,9 @@ class PointerType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(PointerType)
   PASTA_DECLARE_BASE_OPERATORS(Type, PointerType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::Type PointeeType(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::Type PointeeType(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(PointerType)
 };
@@ -1269,77 +1269,77 @@ class QualifiedType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(QualifiedType)
   PASTA_DECLARE_BASE_OPERATORS(Type, QualifiedType)
-  ::pasta::Type IgnoreParentheses(void) const noexcept;
-  enum LangAS AddressSpace(void) const noexcept;
-  ::pasta::Type AtomicUnqualifiedType(void) const noexcept;
+  ::pasta::Type IgnoreParentheses(void) const;
+  enum LangAS AddressSpace(void) const;
+  ::pasta::Type AtomicUnqualifiedType(void) const;
   // BaseTypeIdentifier: (const clang::IdentifierInfo *)
-  uint32_t CVRQualifiers(void) const noexcept;
-  ::pasta::Type CanonicalType(void) const noexcept;
-  ::pasta::Type DesugaredType(void) const noexcept;
-  uint32_t LocalCVRQualifiers(void) const noexcept;
-  uint32_t LocalFastQualifiers(void) const noexcept;
+  uint32_t CVRQualifiers(void) const;
+  ::pasta::Type CanonicalType(void) const;
+  ::pasta::Type DesugaredType(void) const;
+  uint32_t LocalCVRQualifiers(void) const;
+  uint32_t LocalFastQualifiers(void) const;
   // LocalQualifiers: (clang::Qualifiers)
-  ::pasta::Type LocalUnqualifiedType(void) const noexcept;
-  ::pasta::Type NonLValueExpressionType(void) const noexcept;
-  ::pasta::Type NonPackExpansionType(void) const noexcept;
-  ::pasta::Type NonReferenceType(void) const noexcept;
+  ::pasta::Type LocalUnqualifiedType(void) const;
+  ::pasta::Type NonLValueExpressionType(void) const;
+  ::pasta::Type NonPackExpansionType(void) const;
+  ::pasta::Type NonReferenceType(void) const;
   // ObjCGCAttr: (clang::Qualifiers::GC)
   // ObjCLifetime: (clang::Qualifiers::ObjCLifetime)
   // Qualifiers: (clang::Qualifiers)
-  ::pasta::Type SingleStepDesugaredType(void) const noexcept;
+  ::pasta::Type SingleStepDesugaredType(void) const;
   // SplitDesugaredType: (clang::SplitQualType)
   // SplitUnqualifiedType: (clang::SplitQualType)
-  bool HasAddressSpace(void) const noexcept;
-  bool HasLocalNonFastQualifiers(void) const noexcept;
-  bool HasLocalQualifiers(void) const noexcept;
-  bool HasNonTrivialObjCLifetime(void) const noexcept;
-  bool HasNonTrivialToPrimitiveCopyCUnion(void) const noexcept;
-  bool HasNonTrivialToPrimitiveDefaultInitializeCUnion(void) const noexcept;
-  bool HasNonTrivialToPrimitiveDestructCUnion(void) const noexcept;
-  bool HasQualifiers(void) const noexcept;
-  bool HasStrongOrWeakObjCLifetime(void) const noexcept;
+  bool HasAddressSpace(void) const;
+  bool HasLocalNonFastQualifiers(void) const;
+  bool HasLocalQualifiers(void) const;
+  bool HasNonTrivialObjCLifetime(void) const;
+  bool HasNonTrivialToPrimitiveCopyCUnion(void) const;
+  bool HasNonTrivialToPrimitiveDefaultInitializeCUnion(void) const;
+  bool HasNonTrivialToPrimitiveDestructCUnion(void) const;
+  bool HasQualifiers(void) const;
+  bool HasStrongOrWeakObjCLifetime(void) const;
   // IsAddressSpaceOverlapping: (bool)
   // IsAtLeastAsQualifiedAs: (bool)
-  bool IsCForbiddenLValueType(void) const noexcept;
-  bool IsCXX11PODType(void) const noexcept;
-  bool IsCXX98PODType(void) const noexcept;
-  bool IsCanonical(void) const noexcept;
-  bool IsCanonicalAsParameter(void) const noexcept;
-  bool IsConstQualified(void) const noexcept;
-  bool IsConstant(void) const noexcept;
+  bool IsCForbiddenLValueType(void) const;
+  bool IsCXX11PODType(void) const;
+  bool IsCXX98PODType(void) const;
+  bool IsCanonical(void) const;
+  bool IsCanonicalAsParameter(void) const;
+  bool IsConstQualified(void) const;
+  bool IsConstant(void) const;
   // IsDestructedType: (clang::QualType::DestructionKind)
-  bool IsLocalConstQualified(void) const noexcept;
-  bool IsLocalRestrictQualified(void) const noexcept;
-  bool IsLocalVolatileQualified(void) const noexcept;
+  bool IsLocalConstQualified(void) const;
+  bool IsLocalRestrictQualified(void) const;
+  bool IsLocalVolatileQualified(void) const;
   // IsMoreQualifiedThan: (bool)
   // IsNonTrivialToPrimitiveCopy: (clang::QualType::PrimitiveCopyKind)
   // IsNonTrivialToPrimitiveDefaultInitialize: (clang::QualType::PrimitiveDefaultInitializeKind)
   // IsNonTrivialToPrimitiveDestructiveMove: (clang::QualType::PrimitiveCopyKind)
-  bool IsNonWeakInMRRWithObjCWeak(void) const noexcept;
-  bool IsNull(void) const noexcept;
-  bool IsObjCGCStrong(void) const noexcept;
-  bool IsObjCGCWeak(void) const noexcept;
-  bool IsPODType(void) const noexcept;
-  bool IsReferenceable(void) const noexcept;
-  bool IsRestrictQualified(void) const noexcept;
-  bool IsTrivialType(void) const noexcept;
-  bool IsTriviallyCopyableType(void) const noexcept;
-  bool IsTriviallyRelocatableType(void) const noexcept;
-  bool IsVolatileQualified(void) const noexcept;
-  bool MayBeDynamicClass(void) const noexcept;
-  bool MayBeNotDynamicClass(void) const noexcept;
+  bool IsNonWeakInMRRWithObjCWeak(void) const;
+  bool IsNull(void) const;
+  bool IsObjCGCStrong(void) const;
+  bool IsObjCGCWeak(void) const;
+  bool IsPODType(void) const;
+  bool IsReferenceable(void) const;
+  bool IsRestrictQualified(void) const;
+  bool IsTrivialType(void) const;
+  bool IsTriviallyCopyableType(void) const;
+  bool IsTriviallyRelocatableType(void) const;
+  bool IsVolatileQualified(void) const;
+  bool MayBeDynamicClass(void) const;
+  bool MayBeNotDynamicClass(void) const;
   // Split: (clang::SplitQualType)
   // Stream: (clang::QualType::StreamedQualTypeHelper)
-  ::pasta::Type StripObjCKindOfType(void) const noexcept;
+  ::pasta::Type StripObjCKindOfType(void) const;
   // SubstObjCMemberType: (clang::QualType)
   // SubstObjCTypeArguments: (clang::QualType)
   // WithCVRQualifiers: (clang::QualType)
-  ::pasta::Type WithConst(void) const noexcept;
+  ::pasta::Type WithConst(void) const;
   // WithExactLocalFastQualifiers: (clang::QualType)
   // WithFastQualifiers: (clang::QualType)
-  ::pasta::Type WithRestrict(void) const noexcept;
-  ::pasta::Type WithVolatile(void) const noexcept;
-  ::pasta::Type WithoutLocalFastQualifiers(void) const noexcept;
+  ::pasta::Type WithRestrict(void) const;
+  ::pasta::Type WithVolatile(void) const;
+  ::pasta::Type WithoutLocalFastQualifiers(void) const;
 
   /* QualType methods */
  protected:
@@ -1355,10 +1355,10 @@ class ReferenceType : public Type {
   PASTA_DECLARE_BASE_OPERATORS(Type, ReferenceType)
   PASTA_DECLARE_DERIVED_OPERATORS(ReferenceType, LValueReferenceType)
   PASTA_DECLARE_DERIVED_OPERATORS(ReferenceType, RValueReferenceType)
-  ::pasta::Type PointeeType(void) const noexcept;
-  ::pasta::Type PointeeTypeAsWritten(void) const noexcept;
-  bool IsInnerReference(void) const noexcept;
-  bool IsSpelledAsLValue(void) const noexcept;
+  ::pasta::Type PointeeType(void) const;
+  ::pasta::Type PointeeTypeAsWritten(void) const;
+  bool IsInnerReference(void) const;
+  bool IsSpelledAsLValue(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ReferenceType)
 };
@@ -1370,15 +1370,15 @@ class SubstTemplateTypeParmPackType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SubstTemplateTypeParmPackType)
   PASTA_DECLARE_BASE_OPERATORS(Type, SubstTemplateTypeParmPackType)
-  ::pasta::Type Desugar(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
   // ArgumentPack: (clang::TemplateArgument)
-  ::pasta::Decl AssociatedDeclaration(void) const noexcept;
-  bool Final(void) const noexcept;
+  ::pasta::Decl AssociatedDeclaration(void) const;
+  bool Final(void) const;
   // Identifier: (clang::IdentifierInfo *)
-  uint32_t Index(void) const noexcept;
-  uint32_t NumArguments(void) const noexcept;
-  ::pasta::TemplateTypeParmDecl ReplacedParameter(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  uint32_t Index(void) const;
+  uint32_t NumArguments(void) const;
+  ::pasta::TemplateTypeParmDecl ReplacedParameter(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(SubstTemplateTypeParmPackType)
 };
@@ -1390,13 +1390,13 @@ class SubstTemplateTypeParmType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(SubstTemplateTypeParmType)
   PASTA_DECLARE_BASE_OPERATORS(Type, SubstTemplateTypeParmType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::Decl AssociatedDeclaration(void) const noexcept;
-  uint32_t Index(void) const noexcept;
-  std::optional<unsigned> PackIndex(void) const noexcept;
-  ::pasta::TemplateTypeParmDecl ReplacedParameter(void) const noexcept;
-  ::pasta::Type ReplacementType(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::Decl AssociatedDeclaration(void) const;
+  uint32_t Index(void) const;
+  std::optional<unsigned> PackIndex(void) const;
+  ::pasta::TemplateTypeParmDecl ReplacedParameter(void) const;
+  ::pasta::Type ReplacementType(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(SubstTemplateTypeParmType)
 };
@@ -1410,8 +1410,8 @@ class TagType : public Type {
   PASTA_DECLARE_BASE_OPERATORS(Type, TagType)
   PASTA_DECLARE_DERIVED_OPERATORS(TagType, EnumType)
   PASTA_DECLARE_DERIVED_OPERATORS(TagType, RecordType)
-  ::pasta::TagDecl Declaration(void) const noexcept;
-  bool IsBeingDefined(void) const noexcept;
+  ::pasta::TagDecl Declaration(void) const;
+  bool IsBeingDefined(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(TagType)
 };
@@ -1423,13 +1423,13 @@ class TemplateSpecializationType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TemplateSpecializationType)
   PASTA_DECLARE_BASE_OPERATORS(Type, TemplateSpecializationType)
-  ::pasta::Type Desugar(void) const noexcept;
-  std::optional<::pasta::Type> AliasedType(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  std::optional<::pasta::Type> AliasedType(void) const;
   // TemplateName: (clang::TemplateName)
-  bool IsCurrentInstantiation(void) const noexcept;
-  bool IsSugared(void) const noexcept;
-  bool IsTypeAlias(void) const noexcept;
-  std::vector<::pasta::TemplateArgument> TemplateArguments(void) const noexcept;
+  bool IsCurrentInstantiation(void) const;
+  bool IsSugared(void) const;
+  bool IsTypeAlias(void) const;
+  std::vector<::pasta::TemplateArgument> TemplateArguments(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(TemplateSpecializationType)
 };
@@ -1441,13 +1441,13 @@ class TemplateTypeParmType : public Type {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TemplateTypeParmType)
   PASTA_DECLARE_BASE_OPERATORS(Type, TemplateTypeParmType)
-  ::pasta::Type Desugar(void) const noexcept;
-  std::optional<::pasta::TemplateTypeParmDecl> Declaration(void) const noexcept;
-  uint32_t Depth(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  std::optional<::pasta::TemplateTypeParmDecl> Declaration(void) const;
+  uint32_t Depth(void) const;
   // Identifier: (clang::IdentifierInfo *)
-  uint32_t Index(void) const noexcept;
-  bool IsParameterPack(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  uint32_t Index(void) const;
+  bool IsParameterPack(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(TemplateTypeParmType)
 };
@@ -1461,12 +1461,12 @@ class VariableArrayType : public ArrayType {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(VariableArrayType)
   PASTA_DECLARE_BASE_OPERATORS(ArrayType, VariableArrayType)
   PASTA_DECLARE_BASE_OPERATORS(Type, VariableArrayType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::TokenRange BracketsRange(void) const noexcept;
-  ::pasta::Token LBracketToken(void) const noexcept;
-  ::pasta::Token RBracketToken(void) const noexcept;
-  ::pasta::Expr SizeExpression(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::TokenRange BracketsRange(void) const;
+  ::pasta::Token LBracketToken(void) const;
+  ::pasta::Token RBracketToken(void) const;
+  ::pasta::Expr SizeExpression(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(VariableArrayType)
 };
@@ -1480,12 +1480,12 @@ class AutoType : public DeducedType {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AutoType)
   PASTA_DECLARE_BASE_OPERATORS(DeducedType, AutoType)
   PASTA_DECLARE_BASE_OPERATORS(Type, AutoType)
-  enum AutoTypeKeyword Keyword(void) const noexcept;
-  std::vector<::pasta::TemplateArgument> TypeConstraintArguments(void) const noexcept;
-  std::optional<::pasta::ConceptDecl> TypeConstraintConcept(void) const noexcept;
-  bool IsConstrained(void) const noexcept;
-  bool IsDecltypeAuto(void) const noexcept;
-  bool IsGNUAutoType(void) const noexcept;
+  enum AutoTypeKeyword Keyword(void) const;
+  std::vector<::pasta::TemplateArgument> TypeConstraintArguments(void) const;
+  std::optional<::pasta::ConceptDecl> TypeConstraintConcept(void) const;
+  bool IsConstrained(void) const;
+  bool IsDecltypeAuto(void) const;
+  bool IsGNUAutoType(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(AutoType)
 };
@@ -1499,9 +1499,9 @@ class ConstantMatrixType : public MatrixType {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ConstantMatrixType)
   PASTA_DECLARE_BASE_OPERATORS(MatrixType, ConstantMatrixType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ConstantMatrixType)
-  uint32_t NumColumns(void) const noexcept;
-  uint32_t NumElementsFlattened(void) const noexcept;
-  uint32_t NumRows(void) const noexcept;
+  uint32_t NumColumns(void) const;
+  uint32_t NumElementsFlattened(void) const;
+  uint32_t NumRows(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ConstantMatrixType)
 };
@@ -1529,9 +1529,9 @@ class DependentSizedMatrixType : public MatrixType {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(DependentSizedMatrixType)
   PASTA_DECLARE_BASE_OPERATORS(MatrixType, DependentSizedMatrixType)
   PASTA_DECLARE_BASE_OPERATORS(Type, DependentSizedMatrixType)
-  ::pasta::Token AttributeToken(void) const noexcept;
-  ::pasta::Expr ColumnExpression(void) const noexcept;
-  ::pasta::Expr RowExpression(void) const noexcept;
+  ::pasta::Token AttributeToken(void) const;
+  ::pasta::Expr ColumnExpression(void) const;
+  ::pasta::Expr RowExpression(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(DependentSizedMatrixType)
 };
@@ -1545,9 +1545,9 @@ class EnumType : public TagType {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(EnumType)
   PASTA_DECLARE_BASE_OPERATORS(TagType, EnumType)
   PASTA_DECLARE_BASE_OPERATORS(Type, EnumType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::EnumDecl Declaration(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::EnumDecl Declaration(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(EnumType)
 };
@@ -1561,8 +1561,8 @@ class FunctionNoProtoType : public FunctionType {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(FunctionNoProtoType)
   PASTA_DECLARE_BASE_OPERATORS(FunctionType, FunctionNoProtoType)
   PASTA_DECLARE_BASE_OPERATORS(Type, FunctionNoProtoType)
-  ::pasta::Type Desugar(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(FunctionNoProtoType)
 };
@@ -1577,40 +1577,40 @@ class FunctionProtoType : public FunctionType {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(FunctionProtoType)
   PASTA_DECLARE_BASE_OPERATORS(FunctionType, FunctionProtoType)
   PASTA_DECLARE_BASE_OPERATORS(Type, FunctionProtoType)
-  std::optional<enum CanThrowResult> CanThrow(void) const noexcept;
-  ::pasta::Type Desugar(void) const noexcept;
-  std::vector<::pasta::Type> Exceptions(void) const noexcept;
-  ::pasta::Token EllipsisToken(void) const noexcept;
-  std::optional<::pasta::FunctionDecl> ExceptionSpecDeclaration(void) const noexcept;
+  std::optional<enum CanThrowResult> CanThrow(void) const;
+  ::pasta::Type Desugar(void) const;
+  std::vector<::pasta::Type> Exceptions(void) const;
+  ::pasta::Token EllipsisToken(void) const;
+  std::optional<::pasta::FunctionDecl> ExceptionSpecDeclaration(void) const;
   // ExceptionSpecInfo: (clang::FunctionProtoType::ExceptionSpecInfo)
-  std::optional<::pasta::FunctionDecl> ExceptionSpecTemplate(void) const noexcept;
-  enum ExceptionSpecificationType ExceptionSpecType(void) const noexcept;
+  std::optional<::pasta::FunctionDecl> ExceptionSpecTemplate(void) const;
+  enum ExceptionSpecificationType ExceptionSpecType(void) const;
   // ExceptionType: (clang::QualType)
   // ExtParameterInfo: (clang::FunctionType::ExtParameterInfo)
   // ExtParameterInfos: (llvm::ArrayRef<clang::FunctionType::ExtParameterInfo>)
   // ExtParameterInfosOrNull: (const clang::FunctionType::ExtParameterInfo *)
   // ExtProtoInfo: (clang::FunctionProtoType::ExtProtoInfo)
   // MethodQualifiers: (clang::Qualifiers)
-  std::optional<::pasta::Expr> NoexceptExpression(void) const noexcept;
-  uint32_t NumExceptions(void) const noexcept;
-  uint32_t NumParameters(void) const noexcept;
+  std::optional<::pasta::Expr> NoexceptExpression(void) const;
+  uint32_t NumExceptions(void) const;
+  uint32_t NumParameters(void) const;
   // ParameterType: (clang::QualType)
-  std::vector<::pasta::Type> ParameterTypes(void) const noexcept;
+  std::vector<::pasta::Type> ParameterTypes(void) const;
   // ParameterABI: (clang::ParameterABI)
-  enum RefQualifierKind ReferenceQualifier(void) const noexcept;
-  bool HasDependentExceptionSpec(void) const noexcept;
-  bool HasDynamicExceptionSpec(void) const noexcept;
-  bool HasExceptionSpec(void) const noexcept;
-  bool HasExtParameterInfos(void) const noexcept;
-  bool HasInstantiationDependentExceptionSpec(void) const noexcept;
-  bool HasNoexceptExceptionSpec(void) const noexcept;
-  bool HasTrailingReturn(void) const noexcept;
-  std::optional<bool> IsNothrow(void) const noexcept;
+  enum RefQualifierKind ReferenceQualifier(void) const;
+  bool HasDependentExceptionSpec(void) const;
+  bool HasDynamicExceptionSpec(void) const;
+  bool HasExceptionSpec(void) const;
+  bool HasExtParameterInfos(void) const;
+  bool HasInstantiationDependentExceptionSpec(void) const;
+  bool HasNoexceptExceptionSpec(void) const;
+  bool HasTrailingReturn(void) const;
+  std::optional<bool> IsNothrow(void) const;
   // IsParameterConsumed: (bool)
-  bool IsSugared(void) const noexcept;
-  bool IsTemplateVariadic(void) const noexcept;
-  bool IsVariadic(void) const noexcept;
-  std::vector<::pasta::Type> ExceptionTypes(void) const noexcept;
+  bool IsSugared(void) const;
+  bool IsTemplateVariadic(void) const;
+  bool IsVariadic(void) const;
+  std::vector<::pasta::Type> ExceptionTypes(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(FunctionProtoType)
 };
@@ -1624,8 +1624,8 @@ class LValueReferenceType : public ReferenceType {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(LValueReferenceType)
   PASTA_DECLARE_BASE_OPERATORS(ReferenceType, LValueReferenceType)
   PASTA_DECLARE_BASE_OPERATORS(Type, LValueReferenceType)
-  ::pasta::Type Desugar(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(LValueReferenceType)
 };
@@ -1639,9 +1639,9 @@ class ObjCInterfaceType : public ObjCObjectType {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(ObjCInterfaceType)
   PASTA_DECLARE_BASE_OPERATORS(ObjCObjectType, ObjCInterfaceType)
   PASTA_DECLARE_BASE_OPERATORS(Type, ObjCInterfaceType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::ObjCInterfaceDecl Declaration(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::ObjCInterfaceDecl Declaration(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(ObjCInterfaceType)
 };
@@ -1655,8 +1655,8 @@ class RValueReferenceType : public ReferenceType {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(RValueReferenceType)
   PASTA_DECLARE_BASE_OPERATORS(ReferenceType, RValueReferenceType)
   PASTA_DECLARE_BASE_OPERATORS(Type, RValueReferenceType)
-  ::pasta::Type Desugar(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(RValueReferenceType)
 };
@@ -1670,10 +1670,10 @@ class RecordType : public TagType {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(RecordType)
   PASTA_DECLARE_BASE_OPERATORS(TagType, RecordType)
   PASTA_DECLARE_BASE_OPERATORS(Type, RecordType)
-  ::pasta::Type Desugar(void) const noexcept;
-  ::pasta::RecordDecl Declaration(void) const noexcept;
-  bool HasConstFields(void) const noexcept;
-  bool IsSugared(void) const noexcept;
+  ::pasta::Type Desugar(void) const;
+  ::pasta::RecordDecl Declaration(void) const;
+  bool HasConstFields(void) const;
+  bool IsSugared(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(RecordType)
 };

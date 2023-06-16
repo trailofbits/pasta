@@ -11,10 +11,10 @@
 #include "Util.h"
 
 extern void DefineCppMethods(std::ostream &os, const std::string &class_name,
-                             uint32_t class_id);
+                             uint32_t class_id, std::ostream &os_py);
 
 // Generate `lib/AST/Decl.cpp`.
-void GenerateDeclCpp(void) {
+void GenerateDeclCpp(std::ostream& py_cmake, std::ostream& py_ast) {
   std::ofstream os(kASTDeclCpp);
   const std::string decl_context{"DeclContext"};
   const auto &derived_from_decl_context =
@@ -40,6 +40,7 @@ void GenerateDeclCpp(void) {
       << "#include <clang/AST/DeclOpenMP.h>\n"
       << "#include <clang/AST/DeclTemplate.h>\n"
       << "#include <clang/Frontend/CompilerInstance.h>\n"
+      << "#include <stdexcept>\n"
       << "#pragma clang diagnostic pop\n\n"
       << "namespace clang {\n"
       << "using OMPDeclarativeDirectiveDecl = OMPDeclarativeDirective<Decl>;\n"
@@ -106,7 +107,7 @@ void GenerateDeclCpp(void) {
       << "#undef PASTA_DECL_CASE\n"
       << "    default: break;\n"
       << "  }\n"
-      << "  __builtin_unreachable();\n"
+      << "  " PASTA_ASSERT_THROW "\"The unreachable has been reached\");\n"
       << "}\n\n"
       << "static const std::string_view kKindNames[] = {\n"
       << "#define PASTA_DECL_KIND_NAME(name) #name ,\n"
@@ -199,7 +200,38 @@ void GenerateDeclCpp(void) {
       << "}\n\n";
 
 
-  DefineCppMethods(os, decl_context, gClassIDs[decl_context]);
+  {
+    py_cmake << "    \"${CMAKE_CURRENT_SOURCE_DIR}/DeclContext.cpp\"\n";
+    py_ast << "void RegisterDeclContext(nb::module_ &m);\n"
+           << "  RegisterDeclContext(m);\n";
+  
+    std::ofstream decl_context_os(std::string(kPythonBindingsPath) + "/DeclContext.cpp");
+    decl_context_os << R"(/*
+ * Copyright (c) 2023 Trail of Bits, Inc.
+ */
+
+// This file is auto-generated.
+
+#include <pasta/AST/AST.h>
+#include <pasta/AST/Attr.h>
+#include <pasta/AST/Decl.h>
+#include <pasta/AST/Stmt.h>
+#include <pasta/AST/Type.h>
+
+#include <nanobind/nanobind.h>
+
+namespace pasta {
+namespace nb = nanobind;
+
+void RegisterDeclContext(nb::module_ &m) {
+  nb::class_<DeclContext>(m, "DeclContext"))";
+
+    DefineCppMethods(os, decl_context, gClassIDs[decl_context], decl_context_os);
+
+    decl_context_os << ";\n"
+          << "}\n"
+          << "} // namespace pasta\n";
+  }
 
   // Define them all.
   for (const auto &name : gTopologicallyOrderedDecls) {
@@ -207,6 +239,34 @@ void GenerateDeclCpp(void) {
     if (name == "DeclContext") {
       continue;
     }
+
+
+    py_cmake << "    \"${CMAKE_CURRENT_SOURCE_DIR}/" << name << ".cpp\"\n";
+    py_ast << "void Register" << name << "(nb::module_ &m);\n"
+           << "  Register" << name << "(m);\n";
+
+    std::ofstream os_py(std::string(kPythonBindingsPath) + "/" + name + ".cpp");
+    os_py << R"(/*
+ * Copyright (c) 2023 Trail of Bits, Inc.
+ */
+
+// This file is auto-generated.
+
+#include <pasta/AST/AST.h>
+#include <pasta/AST/Attr.h>
+#include <pasta/AST/Decl.h>
+#include <pasta/AST/Stmt.h>
+#include <pasta/AST/Type.h>
+
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/optional.h>
+#include <nanobind/stl/vector.h>
+
+namespace pasta {
+namespace nb = nanobind;
+
+void Register)" << name << "(nb::module_ &m) {\n"
+      << "  nb::class_<" << name;
 
     os
         << name << "::" << name << "(\n"
@@ -262,6 +322,11 @@ void GenerateDeclCpp(void) {
              << "    return std::nullopt;\n"
              << "  }\n"
              << "}\n\n";
+
+        }
+        for(const auto &base_class : gBaseClasses[name]) {
+          if(base_class == "DeclContext") { continue; }
+          os_py << ", " << base_class;
         }
 
       // Normal case.
@@ -270,6 +335,10 @@ void GenerateDeclCpp(void) {
           os << "PASTA_DEFINE_BASE_OPERATORS(" << base_class << ", "
              << name << ")\n";
         }
+        for(const auto &base_class : gBaseClasses[name]) {
+          if(base_class == "DeclContext") { continue; }
+          os_py << ", " << base_class;
+        }
       }
 
       for (const auto &derived_class : gTransitiveDerivedClasses[name]) {
@@ -277,7 +346,11 @@ void GenerateDeclCpp(void) {
            << name << ", " << derived_class << ")\n";
       }
     }
-    DefineCppMethods(os, name, gClassIDs[name]);
+
+    os_py << ">(m, \"" << name << "\")"
+          << "\n    .def(\"__hash__\", [](const " << name << "& decl) { return (intptr_t)decl.RawDecl(); })"
+          << "\n    .def(\"__eq__\", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })";
+    DefineCppMethods(os, name, gClassIDs[name], os_py);
 
     // We need to manually inject our own `Body` method. Normally there would
     // be `Decl::Body`, but we explicitly remove that. We make is so that
@@ -298,7 +371,12 @@ void GenerateDeclCpp(void) {
       << "    return std::nullopt;\n"
       << "  }\n"
       << "}\n\n";
+
+      os_py << "\n    .def_prop_ro(\"Body\", &" << name << "::Body)";
     }
+    os_py << ";\n"
+          << "}\n"
+          << "} // namespace pasta\n";
   }
 
   os

@@ -75,16 +75,48 @@ find_package(Z3 CONFIG REQUIRED)
 find_package(LLVM CONFIG REQUIRED)
 find_package(Clang CONFIG REQUIRED)
 add_library(pasta_thirdparty_llvm INTERFACE)
-
 if(PASTA_ENABLE_TESTING)
     list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
     include(AddLLVM)  # For LLVM lit test suite stuff.
 endif(PASTA_ENABLE_TESTING)
 
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(_PASTA_PLATFORM_MACOS true)
+    add_library(pasta_thirdparty_llvm_force_load INTERFACE)
+else()
+    add_library(pasta_thirdparty_llvm_force_load ALIAS pasta_thirdparty_llvm)
+endif()
+
 # https://github.com/JonathanSalwan/Triton/issues/1082#issuecomment-1030826696
 if(LLVM_LINK_LLVM_DYLIB)
   set(llvm_libs LLVM)
 else()
+  if (_PASTA_PLATFORM_MACOS)
+    llvm_map_components_to_libnames(llvm_libs_force_load
+      aarch64asmparser aarch64codegen aarch64desc
+      aarch64disassembler aarch64info aarch64utils
+      aggressiveinstcombine analysis armasmparser armcodegen
+      armdesc armdisassembler arminfo armutils asmparser
+      asmprinter binaryformat bitreader bitstreamreader
+      bitwriter cfguard codegen core coroutines coverage
+      debuginfocodeview debuginfodwarf debuginfogsym
+      debuginfologicalview debuginfomsf debuginfopdb demangle
+      dlltooldriver executionengine extensions frontendhlsl
+      frontendopenacc frontendopenmp globalisel instcombine
+      instrumentation interfacestub interpreter ipo irprinter
+      irreader jitlink libdriver linker mc mcdisassembler
+      mcjit mcparser mirparser native nativecodegen
+      nvptxcodegen nvptxdesc nvptxinfo objcarcopts object
+      objectyaml option orcjit orcshared orctargetprocess
+      passes profiledata remarks runtimedyld scalaropts
+      selectiondag sparcasmparser sparccodegen sparcdesc
+      sparcdisassembler sparcinfo support symbolize target
+      targetparser textapi transformutils vectorize
+      webassemblyasmparser webassemblycodegen webassemblydesc
+      webassemblydisassembler webassemblyinfo webassemblyutils
+      windowsdriver windowsmanifest x86asmparser x86codegen
+      x86desc x86disassembler x86info x86targetmca)
+  endif()
   llvm_map_components_to_libnames(llvm_libs
     support core
     irreader
@@ -115,6 +147,41 @@ target_link_libraries(pasta_thirdparty_llvm INTERFACE
     clangTooling
     clangIndex
 )
+
+if (_PASTA_PLATFORM_MACOS)
+    target_link_libraries(pasta_thirdparty_llvm_force_load INTERFACE "clang")
+    
+    set(libs
+        "clangFrontend"
+        "clangDriver"
+        "clangSerialization"
+        "clangParse"
+        "clangAnalysis"
+        "clangEdit"
+        "clangAST"
+        "clangLex"
+        "clangBasic"
+        "clangSema"
+        "clangASTMatchers"
+        "clangSupport"
+        "z3::libz3"
+        "zstd::libzstd_static"
+        "ZLIB::ZLIB")
+
+  foreach(lib IN LISTS libs llvm_libs_force_load)
+      target_link_options(pasta_thirdparty_llvm_force_load INTERFACE "SHELL:-force_load $<TARGET_FILE:${lib}>")
+  endforeach()
+
+  target_include_directories(pasta_thirdparty_llvm_force_load INTERFACE
+      "$<BUILD_INTERFACE:${LLVM_INCLUDE_DIRS};${LLVM_INCLUDE_DIR};${CLANG_INCLUDE_DIRS}>"
+      $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  )
+
+  target_compile_definitions(pasta_thirdparty_llvm_force_load INTERFACE
+      ${LLVM_DEFINITIONS}
+      ${Clang_DEFINITIONS}
+  )
+endif()
 
 target_include_directories(pasta_thirdparty_llvm INTERFACE
     "$<BUILD_INTERFACE:${LLVM_INCLUDE_DIRS};${LLVM_INCLUDE_DIR};${CLANG_INCLUDE_DIRS}>"
@@ -250,6 +317,11 @@ target_link_libraries(pasta_util PUBLIC
     pasta_thirdparty_llvm
 )
 
+set_target_properties(
+    pasta_util PROPERTIES
+    POSITION_INDEPENDENT_CODE YES
+)
+
 set(ast_HEADERS
     "include/pasta/AST/AST.h"
     "include/pasta/AST/Attr.h"
@@ -326,6 +398,7 @@ add_library(pasta_compiler STATIC
 set_target_properties(
     pasta_compiler PROPERTIES
     VISIBILITY_INLINES_HIDDEN YES
+    POSITION_INDEPENDENT_CODE YES
 )
 
 target_include_directories(pasta_compiler PRIVATE
@@ -342,6 +415,14 @@ add_library("pasta" INTERFACE)
 target_link_libraries("pasta" INTERFACE
     pasta_cxx_settings
     pasta_thirdparty_llvm
+    pasta_util
+    pasta_compiler
+)
+
+add_library("pasta_force_load" INTERFACE)
+target_link_libraries("pasta_force_load" INTERFACE
+    pasta_cxx_settings
+    pasta_thirdparty_llvm_force_load
     pasta_util
     pasta_compiler
 )
@@ -394,6 +475,7 @@ set(PASTA_INCLUDE_AST_STMT_H_PATH "${PROJECT_SOURCE_DIR}/include/pasta/AST/Stmt.
 set(PASTA_SRC_AST_STMT_CPP_PATH "${PROJECT_SOURCE_DIR}/lib/AST/Stmt.cpp")
 set(PASTA_INCLUDE_AST_ATTR_H_PATH "${PROJECT_SOURCE_DIR}/include/pasta/AST/Attr.h")
 set(PASTA_SRC_AST_ATTR_CPP_PATH "${PROJECT_SOURCE_DIR}/lib/AST/Attr.cpp")
+set(PASTA_PYTHON_BINDINGS_PATH "${PROJECT_SOURCE_DIR}/bindings/python/src/AST")
 
 set(BOOTSTRAP_CONFIG_H_IN "${PROJECT_SOURCE_DIR}/BootstrapConfig.h.in")
 set(BOOTSTRAP_CONFIG_H "${CMAKE_CURRENT_BINARY_DIR}/BootstrapConfig.h")
@@ -443,3 +525,7 @@ if(PASTA_ENABLE_TESTING)
   enable_testing()
   add_subdirectory(test)
 endif(PASTA_ENABLE_TESTING)
+
+if(NOT (PASTA_BOOTSTRAP_MACROS OR PASTA_BOOTSTRAP_TYPES))
+  add_subdirectory(bindings)
+endif()

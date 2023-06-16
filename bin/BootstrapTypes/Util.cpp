@@ -3,7 +3,11 @@
  */
 
 #include "Util.h"
+#include <clang/Basic/CharInfo.h>
 #include "Globals.h"
+
+#include <algorithm>
+#include <string>
 
 
 #define DECL_STR1(d) #d
@@ -236,36 +240,99 @@ std::string CxxName(llvm::StringRef name_) {
     return "Children";
 
   } else if (name_.endswith("TypeSourceInfo")) {
-    name.pop_back();  // `o`
-    name.pop_back();  // `f`
-    name.pop_back();  // `n`
-    name.pop_back();  // `I`
-    name.pop_back();  // `e`
-    name.pop_back();  // `c`
-    name.pop_back();  // `r`
-    name.pop_back();  // `u`
-    name.pop_back();  // `o`
-    name.pop_back();  // `S`
+    return name.substr(0, name.size() - sizeof("SourceInfo") + 1);
 
   } else if (name_.endswith("TypeSourceInfos")) {
-    name.pop_back();  // `s`
-    name.pop_back();  // `o`
-    name.pop_back();  // `f`
-    name.pop_back();  // `n`
-    name.pop_back();  // `I`
-    name.pop_back();  // `e`
-    name.pop_back();  // `c`
-    name.pop_back();  // `r`
-    name.pop_back();  // `u`
-    name.pop_back();  // `o`
-    name.pop_back();  // `S`
-    name.push_back('s');
+    return name.substr(0, name.size() - sizeof("SourceInfos") + 1) + "s";
 
   } else if (name_.endswith("TypeInfo")) {
-    name.pop_back();  // `o`
-    name.pop_back();  // `f`
-    name.pop_back();  // `n`
-    name.pop_back();  // `I`
+    return name.substr(0, name.size() - sizeof("Info") + 1);
   }
   return name;
+}
+
+std::string CapitalCaseToSnakeCase(llvm::StringRef name) {
+  std::stringstream ss;
+
+  auto i = 0u;
+  auto added_sep = false;
+  auto last_was_uc = false;
+  auto skip = false;
+  for (auto c : name) {
+    if (skip) {
+      skip = false;
+      ++i;
+      continue;
+    }
+    if ('_' == c) {
+      if (last_was_uc || !i) {
+        ss << '_';
+      } else {
+        ss << "__";
+      }
+      added_sep = true;
+      last_was_uc = true;
+
+    } else if (std::isupper(c)) {
+      if (!added_sep && i && (i + 1u) < name.size()) {
+        if (std::islower(name[i + 1u])) {
+          ss << '_';
+          added_sep = true;
+        }
+      }
+      ss << static_cast<char>(std::tolower(c));
+      added_sep = false;
+      last_was_uc = false;
+
+    } else if (std::isdigit(c)) {
+
+      // Special case `1d`, `2d`, and `3d`.
+      if (!added_sep && (i + 2u) < name.size() &&
+          (c == '1' || c == '2' || c == '3') &&
+           name[i + 1u] == 'd' &&
+           std::isupper(name[i + 2u])) {
+        ss << '_' << c << 'd' << '_';
+        skip = true; // Skip the `d`.
+        added_sep = true;
+
+      } else {
+        ss << c;
+        if (!added_sep && (i + 1u) < name.size()) {
+          if (!std::isdigit(name[i + 1u]) && !std::islower(name[i + 1u])) {
+            ss << '_';
+            added_sep = true;
+          }
+        }
+      }
+      last_was_uc = false;
+
+    } else {
+      ss << c;
+
+      if (!added_sep && (i + 1u) < name.size()) {
+        if (std::isupper(name[i + 1u])) {
+          ss << '_';
+          added_sep = true;
+        }
+      }
+      last_was_uc = false;
+    }
+    ++i;
+  }
+  auto res = ss.str();
+
+  // If it's ending with three underscores, then make it end with two
+  // underscores. This is a dumb hack to deal with some special keywords/
+  // token kinds that show up in PASTA.
+  if (auto s = res.size(); s > 3u) {
+    if (res[s - 1u] == '_' && res[s - 2u] == '_' && res[s - 3u] == '_') {
+      res.pop_back();
+    }
+  }
+
+  return res;
+}
+
+void ToUppercase(std::string &str) {
+  std::transform(str.begin(), str.end(), str.begin(), clang::toUppercase);
 }

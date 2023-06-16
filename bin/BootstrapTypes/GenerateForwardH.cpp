@@ -12,10 +12,10 @@
 #include "Util.h"
 
 // Declare PASTA versions of every clang enumeration type from our macro file.
-extern void DeclareEnums(std::ostream &os);
+extern void DeclareEnums(std::ostream &os, std::ostream &os_py);
 
 // Generate `include/pasta/AST/Forward.h`.
-void GenerateForwardH(void) {
+void GenerateForwardH(std::ostream &os_py) {
   std::ofstream os(kASTForwardHeader);
 
   os
@@ -162,7 +162,26 @@ void GenerateForwardH(void) {
 //      << "};\n\n";
 
   // Declare all of the enums.
-  DeclareEnums(os);
+  os_py << R"(/*
+ * Copyright (c) 2023 Trail of Bits, Inc.
+ */
+
+// This file is auto-generated.
+
+#include <nanobind/nanobind.h>
+
+#include <pasta/AST/Forward.h>
+
+namespace pasta {
+namespace nb = nanobind;
+
+void RegisterEnums(nb::module_ &m) {
+)";
+  DeclareEnums(os, os_py);
+  os_py << R"(
+}
+} // namespace pasta
+)";
 
   os
       << "#define PASTA_FOR_EACH_STMT_KIND(m) \\\n";

@@ -11,3 +11,4 @@ option(PASTA_BOOTSTRAP_TYPES "Bootstrap the type definitions from the macros" OF
 option(PASTA_BOOTSTRAP_ENABLE_ASSERTIONS "Generate assertions instead of exceptions when bootstrapping" OFF)
 option(PASTA_ENABLE_TESTING "Enable testing" OFF)
 cmake_dependent_option(PASTA_ENABLE_INSTALL "Set to true to enable the install target" ON "NOT PASTA_BOOTSTRAP_MACROS;NOT PASTA_BOOTSTRAP_TYPES" OFF)
+option(PASTA_ENABLE_PY_BINDINGS "Enable building the Python bindings" ON)

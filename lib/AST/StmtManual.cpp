@@ -253,12 +253,11 @@ std::vector<Macro> Stmt::CoveringMacros(void) const noexcept {
   if (!b_tok) {
     return result;
   }
+
   auto b_tok_deriv_chain = b_tok.DerivationChain();
-  std::reverse(b_tok_deriv_chain.begin(), b_tok_deriv_chain.end());
 
   Token e_tok = EndToken();
   auto e_tok_deriv_chain = e_tok.DerivationChain();
-  std::reverse(e_tok_deriv_chain.begin(), e_tok_deriv_chain.end());
 
   auto tok_after_e_tok = e_tok.NextFinalExpansionOrFileToken();
   bool semi = tok_after_e_tok && tok_after_e_tok->Kind() == TokenKind::kSemi;
@@ -268,13 +267,25 @@ std::vector<Macro> Stmt::CoveringMacros(void) const noexcept {
     if (!b_macro) {
       continue;
     }
+
     for (auto b_parent = b_macro->Parent(); b_parent;
          b_macro = *b_parent, b_parent = b_parent->Parent()) {
-      if (auto b_parent_sub = MacroSubstitution::From(*b_parent)) {
-        if (b_macro != b_parent_sub->ReplacementChildren().Front()) {
-          break;
+      auto b_parent_sub = MacroSubstitution::From(*b_parent);
+      if (!b_parent_sub) {
+        break;
+      }
+
+      if (auto b_parent_exp = MacroExpansion::From(*b_parent_sub)) {
+        MacroRange body = b_parent_exp->IntermediateChildren();
+        bool is_psub = b_macro->Kind() == MacroKind::kParameterSubstitution;
+        if (b_macro == body.Front() && !is_psub) {
+          return result;
         }
-      } else if (b_macro != b_parent->Children().Front()) {
+      }
+
+      auto b_parent_replacement = b_parent_sub->ReplacementChildren();
+      bool front_aligned = (b_macro == b_parent_replacement.Front());
+      if (!front_aligned) {
         break;
       }
 
@@ -282,19 +293,33 @@ std::vector<Macro> Stmt::CoveringMacros(void) const noexcept {
         if (b_deriv == e_deriv && b_tok != e_tok) {
           break;
         }
+
         std::optional<Macro> e_macro = e_deriv.MacroLocation();
         if (!e_macro) {
           continue;
         }
+
         for (auto e_parent = e_macro->Parent(); e_parent;
              e_macro = *e_parent, e_parent = e_parent->Parent()) {
-          if (auto e_parent_sub = MacroSubstitution::From(*e_parent)) {
-            auto parent_sub_last_tok = e_parent_sub->LastFullySubstitutedToken();
-            if (!(e_macro == e_parent_sub->ReplacementChildren().Back()
-                  || (semi && tok_after_e_tok == parent_sub_last_tok))) {
+          auto e_parent_sub = MacroSubstitution::From(*e_parent);
+          if (!e_parent_sub) {
+            break;
+          }
+
+          if (auto e_parent_exp = MacroExpansion::From(*e_parent_sub)) {
+            MacroRange body = e_parent_exp->IntermediateChildren();
+            bool is_psub = e_macro->Kind() == MacroKind::kParameterSubstitution;
+            if (e_macro == body.Back() && !is_psub) {
               break;
             }
-          } else if (e_macro != e_parent->Children().Back()) {
+          }
+
+          auto psub_last_tok = e_parent_sub->LastFullySubstitutedToken();
+          auto e_parent_replacement = e_parent_sub->ReplacementChildren();
+          bool back_aligned = ((e_macro == e_parent_replacement.Back()) ||
+                               (semi && tok_after_e_tok == psub_last_tok));
+
+          if (!back_aligned) {
             break;
           }
 

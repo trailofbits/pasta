@@ -1093,6 +1093,10 @@ MacroExpansion::AlignedParameterSubstitutions(
   std::map<MacroParameter, std::vector<pasta::Stmt>> param_to_uses;
   auto def = Definition();
 
+  if (!def) {
+    return param_to_uses;
+  }
+
   for (auto macro : def->Parameters()) {
     auto param = MacroParameter::From(macro);
     assert(param);

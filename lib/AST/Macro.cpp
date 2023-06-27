@@ -1076,7 +1076,7 @@ AlignedStmtInSubtree(Macro &macro, const pasta::Stmt &stmt) noexcept {
     // Don't match implicit expressions
     if (cur.Kind() != StmtKind::kImplicitCastExpr &&
         cur.Kind() != StmtKind::kImplicitValueInitExpr &&
-        cur.CoveredBy(macro)) {
+        cur.AlignsWith(macro)) {
       return cur;
     }
 

@@ -61,45 +61,10 @@ tools = [
         extra_args=["-x", "c"]),
 
     ToolSubst(
-        "print-highest-containing-substitution",
+        "print-aligned-substitutions",
         os.path.join(config.pasta_obj_root, 'bin',
-                     'PrintHighestContainingSubstitution',
-                     'print-highest-containing-substitution'),
-        extra_args=["-x", "c"]),
-
-    ToolSubst(
-        "print-lowest-containing-macro-argument",
-        os.path.join(config.pasta_obj_root, 'bin',
-                     'PrintLowestContainingMacroArgument',
-                     'print-lowest-containing-macro-argument'),
-        extra_args=["-x", "c"]),
-
-    ToolSubst(
-        "print-lowest-covered-stmt-or-decl",
-        os.path.join(config.pasta_obj_root, 'bin',
-                     'PrintLowestCoveredStmtOrDecl',
-                     'print-lowest-covered-stmt-or-decl'),
-        extra_args=["-x", "c"]),
-
-    ToolSubst(
-        "print-lowest-covering-macro",
-        os.path.join(config.pasta_obj_root, 'bin',
-                     'PrintLowestCoveringMacro',
-                     'print-lowest-covering-macro'),
-        extra_args=["-x", "c"]),
-
-    ToolSubst(
-        "print-covering-macros",
-        os.path.join(config.pasta_obj_root, 'bin',
-                     'PrintCoveringMacros',
-                     'print-covering-macros'),
-        extra_args=["-x", "c"]),
-
-    ToolSubst(
-        "print-aligned-parameter-substitutions",
-        os.path.join(config.pasta_obj_root, 'bin',
-                     'PrintAlignedParameterSubstitutions',
-                     'print-aligned-parameter-substitutions'),
+                     'PrintAlignedSubstitutions',
+                     'print-aligned-substitutions'),
         extra_args=["-x", "c"]),
     
     ToolSubst(

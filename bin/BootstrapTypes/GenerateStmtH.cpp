@@ -47,8 +47,7 @@ void GenerateStmtH(void) {
       << "    }\n\n"
       << "namespace pasta {\n"
       << "class Macro;\n"
-      << "class MacroArgument;\n"
-      << "enum class MacroKind : unsigned char;\n"
+      << "class MacroSubstitution;\n"
       << "\n"
       << "class StmtVisitor {\n"
       << " public:\n"
@@ -96,12 +95,8 @@ void GenerateStmtH(void) {
     if (name_ref == "Stmt") {
       os << "  friend class TokenContext;\n"
          << "  static std::optional<::pasta::Stmt> From(const TokenContext &);\n"
-         << "  std::optional<::pasta::Macro> HighestContainingSubstitution(void) const noexcept;\n"
-         << "  std::optional<::pasta::MacroArgument> LowestContainingMacroArgument(void) const noexcept;\n"
-         << "  std::optional<::pasta::Macro> LowestCoveringMacro(::pasta::MacroKind) const noexcept;\n"
-         << "  std::vector<Macro> CoveringMacros(void) const noexcept;\n"
-         << "  bool CoveredBy(::pasta::Macro &macro) const noexcept;\n";
-
+         << "  std::vector<::pasta::MacroSubstitution> AlignedSubstitutions(void) const noexcept;\n"
+         << "  bool AlignsWith(::pasta::Macro &) const noexcept;\n";
     }
 
     // Constructors from derived class -> base class.

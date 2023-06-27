@@ -34,8 +34,7 @@
 
 namespace pasta {
 class Macro;
-class MacroArgument;
-enum class MacroKind : unsigned char;
+class MacroSubstitution;
 
 class StmtVisitor {
  public:
@@ -297,11 +296,8 @@ class Stmt {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(Stmt)
   friend class TokenContext;
   static std::optional<::pasta::Stmt> From(const TokenContext &);
-  std::optional<::pasta::Macro> HighestContainingSubstitution(void) const noexcept;
-  std::optional<::pasta::MacroArgument> LowestContainingMacroArgument(void) const noexcept;
-  std::optional<::pasta::Macro> LowestCoveringMacro(::pasta::MacroKind) const noexcept;
-  std::vector<Macro> CoveringMacros(void) const noexcept;
-  bool CoveredBy(::pasta::Macro &macro) const noexcept;
+  std::vector<::pasta::MacroSubstitution> AlignedSubstitutions(void) const noexcept;
+  bool AlignsWith(::pasta::Macro &) const noexcept;
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, AbstractConditionalOperator)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, AddrLabelExpr)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, ArrayInitIndexExpr)

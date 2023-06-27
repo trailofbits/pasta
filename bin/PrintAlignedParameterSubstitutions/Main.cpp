@@ -68,24 +68,25 @@ public:
         PrintTokensTo(ss, stmt.Tokens());
         ss << " is covered by the following expansions:\n";
         for (auto &exp : covering_expansions) {
+          ss << "  ";
           if (auto name = exp.NameOrOperator()) {
             ss << name->Data();
           } else {
             ss << "<a nameless macro>";
           }
-          ss << "\nAligned parameters:\n";
+          ss << "\n    Aligned parameters:\n";
           auto aligned_parameters = exp.AlignedParameterSubstitutions(stmt);
           auto parameter_use_counts = exp.ParameterUseCounts();
           for (auto &[param, param_stmts] : aligned_parameters) {
             unsigned expected = parameter_use_counts.at(param);
             auto param_name  = param.Name();
             std::size_t actual = param_stmts.size();
-            ss << "  " << (param_name ? param_name->Data() : "<a nameless parameter>")
+            ss << "      " << (param_name ? param_name->Data() : "<a nameless parameter>")
               << " (expected " << std::to_string(expected)
               << ", actual " << std::to_string(actual)
               << "):\n";
             for (auto param_stmt : param_stmts) {
-              ss << "    ";
+              ss << "        ";
               PrintTokensTo(ss, param_stmt.Tokens());
               ss << '\n';
             }

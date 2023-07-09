@@ -1231,7 +1231,7 @@ void StmtPrinter::VisitDeclRefExpr(clang::DeclRefExpr *Node) {
     if (!Node->hadMultipleCandidates())
       if (auto *TD = clang::dyn_cast<clang::TemplateDecl>(Node->getDecl()))
         TPL = TD->getTemplateParameters();
-    printTemplateArgumentList(OS, Node->template_arguments(), Policy, TPL);
+    printTemplateArgumentList(OS, tokens, Node->template_arguments(), Policy, TPL);
   }
 }
 
@@ -1246,7 +1246,7 @@ void StmtPrinter::VisitDependentScopeDeclRefExpr(
   }
   OS << Node->getNameInfo();
   if (Node->hasExplicitTemplateArgs())
-    printTemplateArgumentList(OS, Node->template_arguments(), Policy);
+    printTemplateArgumentList(OS, tokens, Node->template_arguments(), Policy);
 }
 
 void StmtPrinter::VisitUnresolvedLookupExpr(clang::UnresolvedLookupExpr *Node) {
@@ -1259,7 +1259,7 @@ void StmtPrinter::VisitUnresolvedLookupExpr(clang::UnresolvedLookupExpr *Node) {
   }
   OS << Node->getNameInfo();
   if (Node->hasExplicitTemplateArgs())
-    printTemplateArgumentList(OS, Node->template_arguments(), Policy);
+    printTemplateArgumentList(OS, tokens, Node->template_arguments(), Policy);
 }
 
 static bool isImplicitSelf(const clang::Expr *E) {
@@ -1762,7 +1762,7 @@ void StmtPrinter::VisitMemberExpr(clang::MemberExpr *Node) {
                  clang::dyn_cast<clang::VarTemplateSpecializationDecl>(Node->getMemberDecl()))
     TPL = VTSD->getSpecializedTemplate()->getTemplateParameters();
   if (Node->hasExplicitTemplateArgs())
-    printTemplateArgumentList(OS, Node->template_arguments(), Policy, TPL);
+    printTemplateArgumentList(OS, tokens, Node->template_arguments(), Policy, TPL);
 }
 
 void StmtPrinter::VisitObjCIsaExpr(clang::ObjCIsaExpr *Node) {
@@ -2284,7 +2284,7 @@ void StmtPrinter::VisitUserDefinedLiteral(clang::UserDefinedLiteral *Node) {
           TPL = TD->getTemplateParameters();
       OS << "operator \"\"" << Node->getUDSuffix()->getName();
       TagDefinitionPolicyRAII tag_raii(Policy);
-      printTemplateArgumentList(OS, Args->asArray(), Policy, TPL);
+      printTemplateArgumentList(OS, tokens, Args->asArray(), Policy, TPL);
       OS << "()";
       return;
     }
@@ -2717,7 +2717,7 @@ void StmtPrinter::VisitCXXDependentScopeMemberExpr(
   }
   OS << Node->getMemberNameInfo();
   if (Node->hasExplicitTemplateArgs())
-    printTemplateArgumentList(OS, Node->template_arguments(), Policy);
+    printTemplateArgumentList(OS, tokens, Node->template_arguments(), Policy);
 }
 
 void StmtPrinter::VisitUnresolvedMemberExpr(clang::UnresolvedMemberExpr *Node) {
@@ -2735,7 +2735,7 @@ void StmtPrinter::VisitUnresolvedMemberExpr(clang::UnresolvedMemberExpr *Node) {
   }
   OS << Node->getMemberNameInfo();
   if (Node->hasExplicitTemplateArgs())
-    printTemplateArgumentList(OS, Node->template_arguments(), Policy);
+    printTemplateArgumentList(OS, tokens, Node->template_arguments(), Policy);
 }
 
 void StmtPrinter::VisitTypeTraitExpr(clang::TypeTraitExpr *E) {
@@ -2859,8 +2859,8 @@ void StmtPrinter::VisitConceptSpecializationExpr(clang::ConceptSpecializationExp
     ctx.MarkLocation(E->getTemplateKWLoc());
   }
   OS << E->getFoundDecl()->getName();
-  printTemplateArgumentList(OS, E->getTemplateArgsAsWritten()->arguments(),
-                            Policy,
+  printTemplateArgumentList(OS, tokens,
+                            E->getTemplateArgsAsWritten()->arguments(), Policy,
                             E->getNamedConcept()->getTemplateParameters());
 }
 

@@ -353,6 +353,24 @@ void Decl_printGroup(clang::Decl** Begin, size_t NumDecls,
                      raw_string_ostream &Out, const clang::PrintingPolicy &Policy,
                      unsigned Indentation, PrintedTokenRangeImpl &tokens);
 
+void printTemplateArgumentList(raw_string_ostream &OS,
+                               PrintedTokenRangeImpl &tokens,
+                               const clang::TemplateArgumentListInfo &Args,
+                               const clang::PrintingPolicy &Policy,
+                               const clang::TemplateParameterList *TPL=nullptr);
+
+void printTemplateArgumentList(raw_string_ostream &OS,
+                               PrintedTokenRangeImpl &tokens,
+                               llvm::ArrayRef<clang::TemplateArgument> Args,
+                               const clang::PrintingPolicy &Policy,
+                               const clang::TemplateParameterList *TPL=nullptr);
+
+void printTemplateArgumentList(raw_string_ostream &OS,
+                               PrintedTokenRangeImpl &tokens,
+                               llvm::ArrayRef<clang::TemplateArgumentLoc> Args,
+                               const clang::PrintingPolicy &Policy,
+                               const clang::TemplateParameterList *TPL=nullptr);
+
 //===----------------------------------------------------------------------===//
 // TypePrinter Visitor
 //===----------------------------------------------------------------------===//

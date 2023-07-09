@@ -1257,6 +1257,7 @@ void DeclPrinter::VisitCXXRecordDecl(clang::CXXRecordDecl *D) {
     // Print the base classes
     if (D->getNumBases()) {
       Out << " : ";
+      TagDefinitionPolicyRAII disable_tag_defs(Policy, false);
       for (clang::CXXRecordDecl::base_class_iterator Base = D->bases_begin(),
              BaseEnd = D->bases_end(); Base != BaseEnd; ++Base) {
         if (Base != D->bases_begin())

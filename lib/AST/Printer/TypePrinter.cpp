@@ -130,6 +130,332 @@ static void AppendTypeQualList(pasta::raw_string_ostream &OS, unsigned TypeQuals
   }
 }
 
+/// Print a template integral argument value.
+///
+/// \param TemplArg the TemplateArgument instance to print.
+///
+/// \param Out the raw_ostream instance to use for printing.
+///
+/// \param Policy the printing policy for EnumConstantDecl printing.
+///
+/// \param IncludeType If set, ensure that the type of the expression printed
+/// matches the type of the template argument.
+static void printIntegral(const clang::TemplateArgument &TemplArg,
+                          raw_string_ostream &Out, PrintedTokenRangeImpl &tokens,
+                          const clang::PrintingPolicy &Policy, bool IncludeType) {
+  const clang::Type *T = TemplArg.getIntegralType().getTypePtr();
+  const llvm::APSInt &Val = TemplArg.getAsIntegral();
+
+  if (Policy.UseEnumerators) {
+    if (const clang::EnumType *ET = T->getAs<clang::EnumType>()) {
+      for (const clang::EnumConstantDecl *ECD : ET->getDecl()->enumerators()) {
+        // In Sema::CheckTemplateArugment, enum template arguments value are
+        // extended to the size of the integer underlying the enum type.  This
+        // may create a size difference between the enum value and template
+        // argument value, requiring isSameValue here instead of operator==.
+        if (llvm::APSInt::isSameValue(ECD->getInitVal(), Val)) {
+          ECD->printQualifiedName(Out, Policy);
+          return;
+        }
+      }
+    }
+  }
+
+  if (Policy.MSVCFormatting)
+    IncludeType = false;
+
+  if (T->isBooleanType()) {
+    if (!Policy.MSVCFormatting)
+      Out << (Val.getBoolValue() ? "true" : "false");
+    else
+      Out << Val;
+  } else if (T->isCharType()) {
+    if (IncludeType) {
+      if (T->isSpecificBuiltinType(clang::BuiltinType::SChar))
+        Out << "(signed char)";
+      else if (T->isSpecificBuiltinType(clang::BuiltinType::UChar))
+        Out << "(unsigned char)";
+    }
+    clang::CharacterLiteral::print(Val.getZExtValue(), clang::CharacterLiteral::Ascii, Out);
+  } else if (T->isAnyCharacterType() && !Policy.MSVCFormatting) {
+    clang::CharacterLiteral::CharacterKind Kind;
+    if (T->isWideCharType())
+      Kind = clang::CharacterLiteral::Wide;
+    else if (T->isChar8Type())
+      Kind = clang::CharacterLiteral::UTF8;
+    else if (T->isChar16Type())
+      Kind = clang::CharacterLiteral::UTF16;
+    else if (T->isChar32Type())
+      Kind = clang::CharacterLiteral::UTF32;
+    else
+      Kind = clang::CharacterLiteral::Ascii;
+    clang::CharacterLiteral::print(Val.getExtValue(), Kind, Out);
+  } else if (IncludeType) {
+    if (const auto *BT = T->getAs<clang::BuiltinType>()) {
+      switch (BT->getKind()) {
+      case clang::BuiltinType::ULongLong:
+        Out << Val << "ULL";
+        break;
+      case clang::BuiltinType::LongLong:
+        Out << Val << "LL";
+        break;
+      case clang::BuiltinType::ULong:
+        Out << Val << "UL";
+        break;
+      case clang::BuiltinType::Long:
+        Out << Val << "L";
+        break;
+      case clang::BuiltinType::UInt:
+        Out << Val << "U";
+        break;
+      case clang::BuiltinType::Int:
+        Out << Val;
+        break;
+      default:
+        Out << "(" << T->getCanonicalTypeInternal().getAsString(Policy) << ")"
+            << Val;
+        break;
+      }
+    } else
+      Out << "(" << T->getCanonicalTypeInternal().getAsString(Policy) << ")"
+          << Val;
+  } else
+    Out << Val;
+}
+
+static unsigned getArrayDepth(clang::QualType type) {
+  unsigned count = 0;
+  while (const auto *arrayType = type->getAsArrayTypeUnsafe()) {
+    count++;
+    type = arrayType->getElementType();
+  }
+  return count;
+}
+
+static bool needsAmpersandOnTemplateArg(clang::QualType paramType,
+                                        clang::QualType argType) {
+  // Generally, if the parameter type is a pointer, we must be taking the
+  // address of something and need a &.  However, if the argument is an array,
+  // this could be implicit via array-to-pointer decay.
+  if (!paramType->isPointerType())
+    return paramType->isMemberPointerType();
+  if (argType->isArrayType())
+    return getArrayDepth(argType) == getArrayDepth(paramType->getPointeeType());
+  return true;
+}
+
+static void printArgument(const clang::TemplateArgument &A,
+                          const clang::PrintingPolicy &Policy,
+                          raw_string_ostream &Out, PrintedTokenRangeImpl &tokens,
+                          bool IncludeType) {
+  TokenPrinterContext ctx(Out, &A, tokens);
+
+  switch (A.getKind()) {
+  case clang::TemplateArgument::Null:
+    Out << "(no value)";
+    break;
+
+  case clang::TemplateArgument::Type: {
+    clang::PrintingPolicy SubPolicy(Policy);
+    SubPolicy.SuppressStrongLifetime = true;
+
+    TypePrinter printer(SubPolicy, tokens, 0);
+    printer.print(A.getAsType(), Out, "", nullptr);
+    break;
+  }
+
+  case clang::TemplateArgument::Declaration: {
+    clang::NamedDecl *ND = clang::dyn_cast<clang::NamedDecl>(A.getAsDecl());
+    if (A.getParamTypeForDecl()->isRecordType()) {
+      if (auto *TPO = clang::dyn_cast<clang::TemplateParamObjectDecl>(ND)) {
+        TPO->getType().getUnqualifiedType().print(Out, Policy);
+        TPO->printAsInit(Out, Policy);
+        break;
+      }
+    }
+    if (auto *VD = clang::dyn_cast<clang::ValueDecl>(ND)) {
+      if (needsAmpersandOnTemplateArg(A.getParamTypeForDecl(), VD->getType()))
+        Out << "&";
+    }
+
+    TokenPrinterContext ctx2(Out, ND, tokens);
+    ND->printQualifiedName(Out);
+    break;
+  }
+
+  case clang::TemplateArgument::NullPtr:
+    // FIXME: Include the type if it's not obvious from the context.
+    Out << "nullptr";
+    break;
+
+  case clang::TemplateArgument::Template:
+    A.getAsTemplate().print(Out, Policy, clang::TemplateName::Qualified::Fully);
+    break;
+
+  case clang::TemplateArgument::TemplateExpansion:
+    A.getAsTemplateOrTemplatePattern().print(Out, Policy);
+    Out << "...";
+    break;
+
+  case clang::TemplateArgument::Integral:
+    printIntegral(A, Out, tokens, Policy, IncludeType);
+    break;
+
+  case clang::TemplateArgument::Expression: {
+    StmtPrinter stmtPrinter(Out, nullptr, tokens, Policy, 0, "\n",
+                            &tokens.ast_context);
+    stmtPrinter.Visit(A.getAsExpr());
+    break;
+  }
+
+  case clang::TemplateArgument::Pack:
+    Out << "<";
+    bool First = true;
+    for (const clang::TemplateArgument &P : A.pack_elements()) {
+      if (First)
+        First = false;
+      else
+        Out << ", ";
+
+      printArgument(P, Policy, Out, tokens, IncludeType);
+    }
+    Out << ">";
+    break;
+  }
+}
+
+static void printArgument(const clang::TemplateArgumentLoc &A,
+                          const clang::PrintingPolicy &PP,
+                          raw_string_ostream &OS, PrintedTokenRangeImpl &tokens,
+                          bool IncludeType) {
+  const clang::TemplateArgument::ArgKind &Kind = A.getArgument().getKind();
+  if (Kind == clang::TemplateArgument::ArgKind::Type) {
+    TokenPrinterContext ctx(OS, &A.getArgument(), tokens);
+
+    TypePrinter printer(PP, tokens, 0);
+    printer.print(A.getTypeSourceInfo()->getType(), OS, "", nullptr);
+    return;
+  }
+  printArgument(A.getArgument(), PP, OS, tokens, IncludeType);
+}
+
+static const clang::TemplateArgument &getArgument(
+    const clang::TemplateArgument &A) {
+  return A;
+}
+
+static const clang::TemplateArgument &getArgument(
+    const clang::TemplateArgumentLoc &A) {
+  return A.getArgument();
+}
+
+static bool IsDefaulted(clang::ASTContext &Ctx,
+                        const clang::TemplateArgument &A,
+                        const clang::NamedDecl *P,
+                        llvm::ArrayRef<clang::TemplateArgument> OrigArgs,
+                        unsigned Depth) {
+#if LLVM_VERSION_MAJOR <= 16
+  return clang::isSubstitutedDefaultArgument(Ctx, A, P,
+                                             OrigArgs, Depth);
+#else
+  (void) Ctx;
+  (void) P;
+  (void) OrigArgs;
+  (void) Depth;
+  return A.getIsDefaulted();
+#endif
+}
+
+template <typename TA>
+static void
+printTo(raw_string_ostream &OS, PrintedTokenRangeImpl &tokens,
+        llvm::ArrayRef<TA> Args, const clang::PrintingPolicy &Policy,
+        const clang::TemplateParameterList *TPL,
+        bool IsPack, unsigned ParmIndex) {
+
+  // Drop trailing template arguments that match default arguments.
+  if (TPL && Policy.SuppressDefaultTemplateArgs &&
+      !Policy.PrintCanonicalTypes && !Args.empty() && !IsPack &&
+      Args.size() <= TPL->size()) {
+    llvm::SmallVector<clang::TemplateArgument, 8> OrigArgs;
+    for (const TA &A : Args)
+      OrigArgs.push_back(getArgument(A));
+    while (!Args.empty() && IsDefaulted(tokens.ast_context,
+                                        getArgument(Args.back()),
+                                        TPL->getParam(Args.size() - 1),
+                                        OrigArgs, TPL->getDepth()))
+      Args = Args.drop_back();
+  }
+
+  const char *Comma = Policy.MSVCFormatting ? "," : ", ";
+  if (!IsPack)
+    OS << '<';
+
+  bool NeedSpace = false;
+  bool FirstArg = true;
+  for (const auto &Arg : Args) {
+    if (FirstArg) {
+      OS << ' ';  // avoid printing the diagraph '<:'.
+    }
+
+    const clang::TemplateArgument &Argument = getArgument(Arg);
+    if (Argument.getKind() == clang::TemplateArgument::Pack) {
+      if (Argument.pack_size() && !FirstArg)
+        OS << Comma;
+      printTo(OS, tokens, Argument.getPackAsArray(), Policy, TPL,
+              /*IsPack*/ true, ParmIndex);
+    } else {
+      if (!FirstArg)
+        OS << Comma;
+      // Tries to print the argument with location info if exists.
+      printArgument(Arg, Policy, OS, tokens,
+                    clang::TemplateParameterList::shouldIncludeTypeForArgument(
+                        Policy, TPL, ParmIndex));
+    }
+
+    // If the last character of our string is '>', add another space to
+    // keep the two '>''s separate tokens.
+    if (!OS.str().empty()) {
+      NeedSpace = Policy.SplitTemplateClosers && OS.str().back() == '>';
+      FirstArg = false;
+    }
+
+    // Use same template parameter for all elements of Pack
+    if (!IsPack)
+      ParmIndex++;
+  }
+
+  if (!IsPack) {
+    if (NeedSpace)
+      OS << ' ';
+    OS << '>';
+  }
+}
+
+void printTemplateArgumentList(raw_string_ostream &OS,
+                               PrintedTokenRangeImpl &tokens,
+                               const clang::TemplateArgumentListInfo &Args,
+                               const clang::PrintingPolicy &Policy,
+                               const clang::TemplateParameterList *TPL) {
+  printTemplateArgumentList(OS, tokens, Args.arguments(), Policy, TPL);
+}
+
+void printTemplateArgumentList(raw_string_ostream &OS,
+                               PrintedTokenRangeImpl &tokens,
+                               llvm::ArrayRef<clang::TemplateArgument> Args,
+                               const clang::PrintingPolicy &Policy,
+                               const clang::TemplateParameterList *TPL) {
+  printTo(OS, tokens, Args, Policy, TPL, /*isPack*/ false, /*parmIndex*/ 0);
+}
+
+void printTemplateArgumentList(raw_string_ostream &OS,
+                               PrintedTokenRangeImpl &tokens,
+                               llvm::ArrayRef<clang::TemplateArgumentLoc> Args,
+                               const clang::PrintingPolicy &Policy,
+                               const clang::TemplateParameterList *TPL) {
+  printTo(OS, tokens, Args, Policy, TPL, /*isPack*/ false, /*parmIndex*/ 0);
+}
+
 void TypePrinter::spaceBeforePlaceHolder(raw_string_ostream &OS) {
   if (!HasEmptyPlaceHolder)
     OS << ' ';
@@ -1291,7 +1617,7 @@ void TypePrinter::printAuto(const clang::AutoType *T, raw_string_ostream &OS,
     auto Args = T->getTypeConstraintArguments();
     if (!Args.empty()) {
       printTemplateArgumentList(
-          OS, Args, Policy,
+          OS, tokens, Args, Policy,
           T->getTypeConstraintConcept()->getTemplateParameters());
     }
     OS << ' ';
@@ -1414,7 +1740,7 @@ void TypePrinter::AppendScope(clang::DeclContext *DC, raw_string_ostream &OS,
     {
       TagDefinitionPolicyRAII tag_raii(Policy);
       printTemplateArgumentList(
-          OS, TemplateArgs.asArray(), Policy,
+          OS, tokens, TemplateArgs.asArray(), Policy,
           Spec->getSpecializedTemplate()->getTemplateParameters());
     }
     OS << "::";
@@ -1518,7 +1844,7 @@ void TypePrinter::printTag(clang::TagDecl *D, raw_string_ostream &OS) {
     }
     IncludeStrongLifetimeRAII Strong(Policy);
     printTemplateArgumentList(
-        OS, Args, Policy,
+        OS, tokens, Args, Policy,
         Spec->getSpecializedTemplate()->getTemplateParameters());
   }
 
@@ -1666,7 +1992,7 @@ void TypePrinter::printTemplateId(const clang::TemplateSpecializationType *T,
 
   DefaultTemplateArgsPolicyRAII TemplateArgs(Policy);
   const clang::TemplateParameterList *TPL = TD ? TD->getTemplateParameters() : nullptr;
-  printTemplateArgumentList(OS, T->template_arguments(), Policy, TPL);
+  printTemplateArgumentList(OS, tokens, T->template_arguments(), Policy, TPL);
   spaceBeforePlaceHolder(OS);
 }
 
@@ -1796,7 +2122,7 @@ void TypePrinter::printDependentTemplateSpecialization(
     T->getQualifier()->print(OS, Policy);
   OS << "template " << T->getIdentifier()->getName();
   assert(!Policy.IncludeTagDefinition);
-  printTemplateArgumentList(OS, T->template_arguments(), Policy);
+  printTemplateArgumentList(OS, tokens, T->template_arguments(), Policy);
   spaceBeforePlaceHolder(OS);
   IdentFn();
 }

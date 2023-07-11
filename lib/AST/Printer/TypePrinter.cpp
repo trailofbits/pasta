@@ -1986,6 +1986,13 @@ void TypePrinter::printTemplateId(const clang::TemplateSpecializationType *T,
   IncludeStrongLifetimeRAII Strong(Policy);
   TagDefinitionPolicyRAII tag_raii(Policy);
 
+  std::optional<TokenPrinterContext> decl_ctx;
+  if (auto AT = T->desugar(); !AT.isNull()) {
+    if (auto RD = AT.getTypePtr()->getAsCXXRecordDecl()) {
+      decl_ctx.emplace(OS, RD, tokens);
+    }
+  }
+
   clang::TemplateDecl *TD = T->getTemplateName().getAsTemplateDecl();
   // FIXME: Null TD never excercised in test suite.
 

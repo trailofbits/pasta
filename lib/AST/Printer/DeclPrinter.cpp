@@ -17,6 +17,247 @@ namespace pasta {
 
 class PrintedTokenRangeImpl;
 
+/// Print this nested name specifier to the given output
+/// stream.
+void PrintNestedNameSpecifier(raw_string_ostream &OS,
+                              const clang::NestedNameSpecifier *Q,
+                              PrintedTokenRangeImpl &tokens,
+                              const clang::PrintingPolicy &Policy,
+                              bool ResolveTemplateArguments) {
+  if (auto PQ = Q->getPrefix())
+    PrintNestedNameSpecifier(OS, PQ, tokens, Policy);
+
+  switch (Q->getKind()) {
+    case clang::NestedNameSpecifier::Identifier:
+      OS << Q->getAsIdentifier()->getName();
+      break;
+
+    case clang::NestedNameSpecifier::Namespace:
+      if (auto ND = Q->getAsNamespace()) {
+        if (ND->isAnonymousNamespace())
+          return;
+
+        TokenPrinterContext ctx(OS, ND, tokens);
+        OS << ND->getName();
+      }
+      break;
+
+    case clang::NestedNameSpecifier::NamespaceAlias:
+      if (auto NAD = Q->getAsNamespaceAlias()) {
+        TokenPrinterContext ctx(OS, NAD, tokens);
+        OS << NAD->getName();
+      }
+      break;
+
+    case clang::NestedNameSpecifier::Global:
+      break;
+
+    case clang::NestedNameSpecifier::Super:
+      OS << "__super";
+      break;
+
+    case clang::NestedNameSpecifier::TypeSpecWithTemplate:
+      OS << "template ";
+      // Fall through to print the type.
+      [[fallthrough]];
+
+    case clang::NestedNameSpecifier::TypeSpec: {
+      const clang::ClassTemplateSpecializationDecl *Record =
+          clang::dyn_cast_or_null<clang::ClassTemplateSpecializationDecl>(Q->getAsRecordDecl());
+      if (ResolveTemplateArguments && Record) {
+        TokenPrinterContext ctx(OS, Record, tokens);
+        // Print the type trait with resolved template parameters.
+        Record->printName(OS, Policy);
+        printTemplateArgumentList(
+            OS, tokens, Record->getTemplateArgs().asArray(), Policy,
+            Record->getSpecializedTemplate()->getTemplateParameters());
+        break;
+      }
+      const clang::Type *T = Q->getAsType();
+
+      clang::PrintingPolicy InnerPolicy(Policy);
+      InnerPolicy.SuppressScope = true;
+
+      // Nested-name-specifiers are intended to contain minimally-qualified
+      // types. An actual ElaboratedType will not occur, since we'll store
+      // just the type that is referred to in the nested-name-specifier (e.g.,
+      // a TypedefType, TagType, etc.). However, when we are dealing with
+      // dependent template-id types (e.g., Outer<T>::template Inner<U>),
+      // the type requires its own nested-name-specifier for uniqueness, so we
+      // suppress that nested-name-specifier during printing.
+      assert(!clang::isa<clang::ElaboratedType>(T) &&
+             "Elaborated type in nested-name-specifier");
+      if (const clang::TemplateSpecializationType *SpecType
+            = clang::dyn_cast<clang::TemplateSpecializationType>(T)) {
+        TokenPrinterContext ctx(OS, SpecType, tokens);
+
+        // Print the template name without its corresponding
+        // nested-name-specifier.
+        SpecType->getTemplateName().print(OS, InnerPolicy,
+                                          clang::TemplateName::Qualified::None);
+
+        // Print the template argument list.
+        printTemplateArgumentList(OS, tokens, SpecType->template_arguments(),
+                                  InnerPolicy);
+      } else if (const auto *DepSpecType =
+            clang::dyn_cast<clang::DependentTemplateSpecializationType>(T)) {
+        TokenPrinterContext ctx(OS, DepSpecType, tokens);
+        // Print the template name without its corresponding
+        // nested-name-specifier.
+        OS << DepSpecType->getIdentifier()->getName();
+        // Print the template argument list.
+        printTemplateArgumentList(OS, tokens, DepSpecType->template_arguments(),
+                                  InnerPolicy);
+      } else {
+        // Print the type normally
+        TypePrinter(Policy, tokens, 0).print(clang::QualType(T, 0), OS, "");
+      }
+      break;
+    }
+  }
+
+  OS << "::";
+}
+
+void PrintNestedNameSpecifier(raw_string_ostream &OS,
+                              const clang::NamedDecl *D,
+                              PrintedTokenRangeImpl &tokens,
+                              const clang::PrintingPolicy &P) {
+  const clang::DeclContext *Ctx = D->getDeclContext();
+
+  // For ObjC methods and properties, look through categories and use the
+  // interface as context.
+  if (auto *MD = clang::dyn_cast<clang::ObjCMethodDecl>(D)) {
+    if (auto *ID = MD->getClassInterface())
+      Ctx = ID;
+  } else if (auto *PD = clang::dyn_cast<clang::ObjCPropertyDecl>(D)) {
+    if (auto *MD = PD->getGetterMethodDecl())
+      if (auto *ID = MD->getClassInterface())
+        Ctx = ID;
+  } else if (auto *ID = clang::dyn_cast<clang::ObjCIvarDecl>(D)) {
+    if (auto *CI = ID->getContainingInterface())
+      Ctx = CI;
+  }
+
+  if (Ctx->isFunctionOrMethod())
+    return;
+
+  using ContextsTy = llvm::SmallVector<const clang::DeclContext *, 8>;
+  ContextsTy Contexts;
+
+  // Collect named contexts.
+  clang::DeclarationName NameInScope = D->getDeclName();
+  for (; Ctx; Ctx = Ctx->getParent()) {
+    // Suppress anonymous namespace if requested.
+    if (P.SuppressUnwrittenScope && clang::isa<clang::NamespaceDecl>(Ctx) &&
+        clang::cast<clang::NamespaceDecl>(Ctx)->isAnonymousNamespace())
+      continue;
+
+    // Suppress inline namespace if it doesn't make the result ambiguous.
+    if (P.SuppressInlineNamespace && Ctx->isInlineNamespace() && NameInScope &&
+        clang::cast<clang::NamespaceDecl>(Ctx)->isRedundantInlineQualifierFor(NameInScope))
+      continue;
+
+    // Skip non-named contexts such as linkage specifications and ExportDecls.
+    const clang::NamedDecl *ND = clang::dyn_cast<clang::NamedDecl>(Ctx);
+    if (!ND)
+      continue;
+
+    Contexts.push_back(Ctx);
+    NameInScope = ND->getDeclName();
+  }
+
+  for (const clang::DeclContext *DC : llvm::reverse(Contexts)) {
+    if (const auto *Spec = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(DC)) {
+      TokenPrinterContext ctx(OS, Spec, tokens);
+      OS << Spec->getName();
+      const clang::TemplateArgumentList &TemplateArgs = Spec->getTemplateArgs();
+      printTemplateArgumentList(
+          OS, tokens, TemplateArgs.asArray(), P,
+          Spec->getSpecializedTemplate()->getTemplateParameters());
+    } else if (const auto *ND = clang::dyn_cast<clang::NamespaceDecl>(DC)) {
+      TokenPrinterContext ctx(OS, ND, tokens);
+      if (ND->isAnonymousNamespace()) {
+        OS << (P.MSVCFormatting ? "`anonymous namespace\'"
+                                : "(anonymous namespace)");
+      }
+      else
+        OS << *ND;
+    } else if (const auto *RD = clang::dyn_cast<clang::RecordDecl>(DC)) {
+      TokenPrinterContext ctx(OS, RD, tokens);
+      if (!RD->getIdentifier())
+        OS << "(anonymous " << RD->getKindName() << ')';
+      else
+        OS << *RD;
+    } else if (const auto *FD = clang::dyn_cast<clang::FunctionDecl>(DC)) {
+      TokenPrinterContext ctx(OS, FD, tokens);
+      const clang::FunctionProtoType *FT = nullptr;
+      if (FD->hasWrittenPrototype())
+        FT = clang::dyn_cast<clang::FunctionProtoType>(FD->getType()->castAs<clang::FunctionType>());
+
+      OS << *FD << '(';
+      if (FT) {
+        unsigned NumParams = FD->getNumParams();
+        for (unsigned i = 0; i < NumParams; ++i) {
+          if (i)
+            OS << ", ";
+
+          TypePrinter(P, tokens, 0).print(FD->getParamDecl(i)->getType(), OS, "");
+        }
+
+        if (FT->isVariadic()) {
+          if (NumParams > 0)
+            OS << ", ";
+          OS << "...";
+        }
+      }
+      OS << ')';
+    } else if (const auto *ED = clang::dyn_cast<clang::EnumDecl>(DC)) {
+      // C++ [dcl.enum]p10: Each enum-name and each unscoped
+      // enumerator is declared in the scope that immediately contains
+      // the enum-specifier. Each scoped enumerator is declared in the
+      // scope of the enumeration.
+      // For the case of unscoped enumerator, do not include in the qualified
+      // name any information about its enum enclosing scope, as its visibility
+      // is global.
+      if (ED->isScoped()) {
+        TokenPrinterContext ctx(OS, ED, tokens);
+        OS << *ED;
+      } else
+        continue;
+    } else {
+      auto *ND = clang::cast<clang::NamedDecl>(DC);
+      TokenPrinterContext ctx(OS, ND, tokens);
+      OS << *ND;
+    }
+    OS << "::";
+  }
+}
+
+void PrintQualifiedName(raw_string_ostream &OS, const clang::NamedDecl *D,
+                        PrintedTokenRangeImpl &tokens,
+                        const clang::PrintingPolicy &P) {
+  TokenPrinterContext ctx(OS, D, tokens);
+  if (D->getDeclContext()->isFunctionOrMethod()) {
+    // We do not print '(anonymous)' for function parameters without name.
+    D->printName(OS, P);
+    return;
+  }
+  PrintNestedNameSpecifier(OS, D, tokens, P);
+  if (D->getDeclName())
+    OS << *D;
+  else {
+    // Give the printName override a chance to pick a different name before we
+    // fall back to "(anonymous)".
+    llvm::SmallString<64> NameBuffer;
+    llvm::raw_svector_ostream NameOS(NameBuffer);
+    D->printName(NameOS, P);
+    if (NameBuffer.empty())
+      OS << "(anonymous)";
+    else
+      OS << NameBuffer;
+  }
+}
 
 void Decl_printGroup(clang::Decl** Begin, size_t NumDecls,
                      raw_string_ostream &Out, const clang::PrintingPolicy &Policy,
@@ -680,7 +921,7 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
       if (!Policy.SuppressScope) {
         if (const clang::NestedNameSpecifier *NS = D->getQualifier()) {
           TagDefinitionPolicyRAII disable_tags(Policy);
-          NS->print(Out, Policy);
+          PrintNestedNameSpecifier(Out, NS, tokens, Policy);
         }
       }
 
@@ -1189,9 +1430,9 @@ void DeclPrinter::VisitUsingDirectiveDecl(clang::UsingDirectiveDecl *D) {
   ctx.MarkLocation(D->getUsingLoc());
   Out << "namespace ";
   ctx.MarkLocation(D->getNamespaceKeyLocation());
-  if (D->getQualifier()) {
+  if (auto Q = D->getQualifier()) {
     TagDefinitionPolicyRAII disable_tags(Policy);
-    D->getQualifier()->print(Out, Policy);
+    PrintNestedNameSpecifier(Out, Q, tokens, Policy);
   }
   Out << *D->getNominatedNamespaceAsWritten();
 }
@@ -1203,9 +1444,9 @@ void DeclPrinter::VisitNamespaceAliasDecl(clang::NamespaceAliasDecl *D) {
   Out << *D;
   ctx.MarkLocation(D->getAliasLoc());
   Out << " = ";
-  if (D->getQualifier()) {
+  if (auto Q = D->getQualifier()) {
     TagDefinitionPolicyRAII disable_tags(Policy);
-    D->getQualifier()->print(Out, Policy);
+    PrintNestedNameSpecifier(Out, Q, tokens, Policy);
   }
   Out << *D->getAliasedNamespace();
 }
@@ -1374,12 +1615,11 @@ void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgument>
     
     TokenPrinterContext ctx(Out, &(Args[I]), tokens);
     if (TemplOverloaded || !Params)
-      Args[I].print(Policy, Out, /*IncludeType*/ true);
+      printArgument(Args[I], Policy, Out, tokens, /*IncludeType*/ true);
     else
-      Args[I].print(
-          Policy, Out,
-          clang::TemplateParameterList::shouldIncludeTypeForArgument(
-              Policy, Params, static_cast<unsigned int>(I)));
+      printArgument(Args[I], Policy, Out, tokens,
+                    clang::TemplateParameterList::shouldIncludeTypeForArgument(
+                                  Policy, Params, static_cast<unsigned int>(I)));
   }
   Out << ">";
 }
@@ -1396,12 +1636,11 @@ void DeclPrinter::printTemplateArguments(llvm::ArrayRef<clang::TemplateArgumentL
 
     TokenPrinterContext ctx(Out, &(Args[I].getArgument()), tokens);
     if (TemplOverloaded)
-      Args[I].getArgument().print(Policy, Out, /*IncludeType*/ true);
+      printArgument(Args[I].getArgument(), Policy, Out, tokens, /*IncludeType*/ true);
     else
-      Args[I].getArgument().print(
-          Policy, Out,
-          clang::TemplateParameterList::shouldIncludeTypeForArgument(
-              Policy, Params, static_cast<unsigned int>(I)));
+      printArgument(Args[I].getArgument(), Policy, Out, tokens,
+                    clang::TemplateParameterList::shouldIncludeTypeForArgument(
+                                  Policy, Params, static_cast<unsigned int>(I)));
   }
   Out << ">";
 }
@@ -1916,7 +2155,7 @@ void DeclPrinter::VisitUsingDecl(clang::UsingDecl *D) {
 
   {
     TagDefinitionPolicyRAII disable_tags(Policy);
-    D->getQualifier()->print(Out, Policy);
+    PrintNestedNameSpecifier(Out, D->getQualifier(), tokens, Policy);
   }
   // Use the correct record name when the using declaration is used for
   // inheriting constructors.
@@ -1945,7 +2184,7 @@ DeclPrinter::VisitUnresolvedUsingTypenameDecl(clang::UnresolvedUsingTypenameDecl
   ctx.MarkLocation(D->getTypenameLoc());
 
   TagDefinitionPolicyRAII disable_tags(Policy);
-  D->getQualifier()->print(Out, Policy);
+  PrintNestedNameSpecifier(Out, D->getQualifier(), tokens, Policy);
   Out << D->getDeclName();
 }
 
@@ -1957,7 +2196,7 @@ void DeclPrinter::VisitUnresolvedUsingValueDecl(clang::UnresolvedUsingValueDecl 
   }
 
   TagDefinitionPolicyRAII disable_tags(Policy);
-  D->getQualifier()->print(Out, Policy);
+  PrintNestedNameSpecifier(Out, D->getQualifier(), tokens, Policy);
   Out << D->getDeclName();
 }
 
@@ -1977,8 +2216,8 @@ void DeclPrinter::VisitOMPThreadPrivateDecl(clang::OMPThreadPrivateDecl *D) {
       auto DRE = clang::cast<clang::DeclRefExpr>(*I);
       TokenPrinterContext ctx2(Out, DRE, tokens);
       clang::NamedDecl *ND = DRE->getDecl();
-      TokenPrinterContext ctx3(Out, ND, tokens);
-      ND->printQualifiedName(Out);
+
+      PrintQualifiedName(Out, ND, tokens, Policy);
     }
     Out << ")";
   }
@@ -1995,8 +2234,8 @@ void DeclPrinter::VisitOMPAllocateDecl(clang::OMPAllocateDecl *D) {
       auto DRE = clang::cast<clang::DeclRefExpr>(*I);
       TokenPrinterContext ctx2(Out, DRE, tokens);
       clang::NamedDecl *ND = DRE->getDecl();
-      TokenPrinterContext ctx3(Out, ND, tokens);
-      ND->printQualifiedName(Out);
+
+      PrintQualifiedName(Out, ND, tokens, Policy);
     }
     Out << ")";
   }

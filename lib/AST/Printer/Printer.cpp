@@ -227,7 +227,6 @@ void PrintAttribute(raw_string_ostream &Out, const clang::Attr *A,
   TryLocateAttribute(A, tokens, old_num_toks);
 }
 
-
 PrintedToken::~PrintedToken(void) {}
 
 // Return the data associated with this token.

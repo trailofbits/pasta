@@ -154,7 +154,7 @@ static void printIntegral(const clang::TemplateArgument &TemplArg,
         // may create a size difference between the enum value and template
         // argument value, requiring isSameValue here instead of operator==.
         if (llvm::APSInt::isSameValue(ECD->getInitVal(), Val)) {
-          ECD->printQualifiedName(Out, Policy);
+          PrintQualifiedName(Out, ECD, tokens, Policy);
           return;
         }
       }
@@ -244,10 +244,10 @@ static bool needsAmpersandOnTemplateArg(clang::QualType paramType,
   return true;
 }
 
-static void printArgument(const clang::TemplateArgument &A,
-                          const clang::PrintingPolicy &Policy,
-                          raw_string_ostream &Out, PrintedTokenRangeImpl &tokens,
-                          bool IncludeType) {
+void printArgument(const clang::TemplateArgument &A,
+                   const clang::PrintingPolicy &Policy,
+                   raw_string_ostream &Out, PrintedTokenRangeImpl &tokens,
+                   bool IncludeType) {
   TokenPrinterContext ctx(Out, &A, tokens);
 
   switch (A.getKind()) {
@@ -278,8 +278,7 @@ static void printArgument(const clang::TemplateArgument &A,
         Out << "&";
     }
 
-    TokenPrinterContext ctx2(Out, ND, tokens);
-    ND->printQualifiedName(Out);
+    PrintQualifiedName(Out, ND, tokens, Policy);
     break;
   }
 
@@ -1728,30 +1727,40 @@ void TypePrinter::AppendScope(clang::DeclContext *DC, raw_string_ostream &OS,
       return AppendScope(DC->getParent(), OS, NameInScope);
 
     AppendScope(DC->getParent(), OS, NS->getDeclName());
-    if (NS->getIdentifier())
-      OS << NS->getName() << "::";
-    else
-      OS << "(anonymous namespace)::";
+    {
+      TokenPrinterContext ctx(OS, NS, tokens);
+      if (NS->getIdentifier())
+        OS << NS->getName();
+      else
+        OS << "(anonymous namespace)";
+    }
+    OS << "::";
   } else if (const auto *Spec = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(DC)) {
     AppendScope(DC->getParent(), OS, Spec->getDeclName());
-    IncludeStrongLifetimeRAII Strong(Policy);
-    OS << Spec->getIdentifier()->getName();
-    const clang::TemplateArgumentList &TemplateArgs = Spec->getTemplateArgs();
     {
-      TagDefinitionPolicyRAII tag_raii(Policy);
-      printTemplateArgumentList(
-          OS, tokens, TemplateArgs.asArray(), Policy,
-          Spec->getSpecializedTemplate()->getTemplateParameters());
+      TokenPrinterContext ctx(OS, Spec, tokens);
+      IncludeStrongLifetimeRAII Strong(Policy);
+      OS << Spec->getIdentifier()->getName();
+      const clang::TemplateArgumentList &TemplateArgs = Spec->getTemplateArgs();
+      {
+        TagDefinitionPolicyRAII tag_raii(Policy);
+        printTemplateArgumentList(
+            OS, tokens, TemplateArgs.asArray(), Policy,
+            Spec->getSpecializedTemplate()->getTemplateParameters());
+      }
     }
     OS << "::";
   } else if (const auto *Tag = clang::dyn_cast<clang::TagDecl>(DC)) {
     AppendScope(DC->getParent(), OS, Tag->getDeclName());
-    if (clang::TypedefNameDecl *Typedef = Tag->getTypedefNameForAnonDecl())
-      OS << Typedef->getIdentifier()->getName() << "::";
-    else if (Tag->getIdentifier())
-      OS << Tag->getIdentifier()->getName() << "::";
-    else
+    if (clang::TypedefNameDecl *Typedef = Tag->getTypedefNameForAnonDecl()) {
+      TokenPrinterContext ctx(OS, Typedef, tokens);
+      OS << Typedef->getIdentifier()->getName();
+    } else if (Tag->getIdentifier()) {
+      TokenPrinterContext ctx(OS, Tag, tokens);
+      OS << Tag->getIdentifier()->getName();
+    } else
       return;
+    OS << "::";
   } else {
     AppendScope(DC->getParent(), OS, NameInScope);
   }
@@ -2062,9 +2071,8 @@ void TypePrinter::printElaborated(const clang::ElaboratedType *T,
     if (T->getKeyword() != clang::ETK_None)
       OS << " ";
 
-    clang::NestedNameSpecifier *Qualifier = T->getQualifier();
-    if (Qualifier)
-      Qualifier->print(OS, Policy);
+    if (clang::NestedNameSpecifier *Qualifier = T->getQualifier())
+      PrintNestedNameSpecifier(OS, Qualifier, tokens, Policy);
 
     decl_context.reset();
     tag_context.reset();
@@ -2098,7 +2106,7 @@ void TypePrinter::printDependentName(const clang::DependentNameType *T,
     OS << " ";
 
   TagDefinitionPolicyRAII disable_tags(Policy);
-  T->getQualifier()->print(OS, Policy);
+  PrintNestedNameSpecifier(OS, T->getQualifier(), tokens, Policy);
 
   OS << T->getIdentifier()->getName();
   spaceBeforePlaceHolder(OS);
@@ -2118,8 +2126,9 @@ void TypePrinter::printDependentTemplateSpecialization(
     OS << " ";
 
   TagDefinitionPolicyRAII disable_tags(Policy);
-  if (T->getQualifier())
-    T->getQualifier()->print(OS, Policy);
+  if (auto Q = T->getQualifier())
+    PrintNestedNameSpecifier(OS, Q, tokens, Policy);
+
   OS << "template " << T->getIdentifier()->getName();
   assert(!Policy.IncludeTagDefinition);
   printTemplateArgumentList(OS, tokens, T->template_arguments(), Policy);

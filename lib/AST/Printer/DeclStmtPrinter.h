@@ -84,6 +84,21 @@ void PrintAttribute(raw_string_ostream &Out, const clang::Attr *A,
                     PrintedTokenRangeImpl &tokens,
                     const clang::PrintingPolicy &Policy);
 
+void PrintNestedNameSpecifier(raw_string_ostream &OS,
+                              const clang::NestedNameSpecifier *Q,
+                              PrintedTokenRangeImpl &tokens,
+                              const clang::PrintingPolicy &Policy,
+                              bool ResolveTemplateArguments=false);
+
+void PrintNestedNameSpecifier(raw_string_ostream &OS,
+                              const clang::NamedDecl *D,
+                              PrintedTokenRangeImpl &tokens,
+                              const clang::PrintingPolicy &Policy);
+
+void PrintQualifiedName(raw_string_ostream &OS, const clang::NamedDecl *D,
+                        PrintedTokenRangeImpl &tokens,
+                        const clang::PrintingPolicy &Policy);
+
 class PrintedTokenRangeImpl;
 
 class TagDefinitionPolicyRAII {
@@ -352,6 +367,11 @@ class StmtPrinter : public clang::StmtVisitor<StmtPrinter> {
 void Decl_printGroup(clang::Decl** Begin, size_t NumDecls,
                      raw_string_ostream &Out, const clang::PrintingPolicy &Policy,
                      unsigned Indentation, PrintedTokenRangeImpl &tokens);
+
+void printArgument(const clang::TemplateArgument &A,
+                   const clang::PrintingPolicy &Policy,
+                   raw_string_ostream &Out, PrintedTokenRangeImpl &tokens,
+                   bool IncludeType);
 
 void printTemplateArgumentList(raw_string_ostream &OS,
                                PrintedTokenRangeImpl &tokens,

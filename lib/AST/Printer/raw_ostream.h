@@ -47,7 +47,6 @@ public:
   void reserveExtraSpace(uint64_t ExtraSize) override {
     OS.reserve(tell() + ExtraSize);
   }
-
 };
 
 }  // namespace pasta

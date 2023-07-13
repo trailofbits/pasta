@@ -254,6 +254,7 @@ class ConditionalMacroDirective : public MacroDirective {
     class kind ## MacroDirective : public base { \
       friend class MacroExpansion; \
       using base::base; \
+     public: \
       inline static std::optional<kind ## MacroDirective> \
       From(const Macro &node) noexcept { \
         if (node.Kind() != MacroKind::k ## kind ## Directive) { \

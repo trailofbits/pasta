@@ -8,7 +8,11 @@
 
 #include <memory>
 #include <optional>
+#include <vector>
 #include <string_view>
+#include "Token.h"
+
+static pasta::Token *gDummyStmtTok;
 
 namespace clang {
 class Stmt;
@@ -18,7 +22,6 @@ namespace pasta {
 class AST;
 class ASTImpl;
 enum class StmtKind : unsigned;
-class Token;
 class TokenContext;
 class Macro;
 
@@ -45,10 +48,12 @@ class Stmt {
 
   std::string_view KindName(void) const noexcept;
 
-  static std::optional<Stmt> From(const TokenContext &);
-  Token BeginToken(void) const noexcept;
-  Token EndToken(void) const noexcept;
-  inline bool CoveredBy(::pasta::Macro &) const noexcept {
+  static std::optional<Stmt> From(const TokenContext &) {
+    return std::nullopt;
+  };
+  pasta::Token BeginToken(void) const noexcept { return *gDummyStmtTok; };
+  pasta::Token EndToken(void) const noexcept { return *gDummyStmtTok; };
+  inline bool AlignsWith(::pasta::Macro &) const noexcept {
     return false;
   }
   inline std::vector<::pasta::Stmt> Children(void) const {

@@ -9,6 +9,9 @@
 #include <memory>
 #include <optional>
 #include <string_view>
+#include "Token.h"
+
+static pasta::Token *gDummyDeclTok;
 
 namespace clang {
 class Decl;
@@ -18,7 +21,6 @@ namespace pasta {
 class AST;
 class ASTImpl;
 enum class DeclKind : unsigned;
-class Token;
 class TokenContext;
 
 class Decl {
@@ -48,9 +50,11 @@ class Decl {
     return u.Decl;
   }
 
-  static std::optional<Decl> From(const TokenContext &);
-  Token BeginToken(void) const noexcept;
-  Token EndToken(void) const noexcept;
+  static std::optional<Decl> From(const TokenContext &) { return
+    std::nullopt;
+  };
+  pasta::Token BeginToken(void) const noexcept { return *gDummyDeclTok; };
+  pasta::Token EndToken(void) const noexcept { return *gDummyDeclTok; };
 
  private:
   Decl(void) = delete;

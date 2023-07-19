@@ -2251,6 +2251,15 @@ PASTA_DEFINE_BASE_OPERATORS(Type, AttributedType)
   return TypeBuilder::Build(ast, val);
 }
 
+::pasta::Attr AttributedType::Attribute(void) const {
+  auto &self = *const_cast<clang::AttributedType *>(u.AttributedType);
+  decltype(auto) val = self.getAttr();
+  if (val) {
+    return AttrBuilder::Create<::pasta::Attr>(ast, val);
+  }
+  throw std::runtime_error("AttributedType::Attribute can return nullptr!");
+}
+
 enum ::pasta::AttrKind AttributedType::AttributeKind(void) const {
   auto &self = *const_cast<clang::AttributedType *>(u.AttributedType);
   decltype(auto) val = self.getAttrKind();
@@ -2279,6 +2288,12 @@ std::optional<::pasta::NullabilityKind> AttributedType::ImmediateNullability(voi
   decltype(auto) val = self.getModifiedType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
+}
+
+bool AttributedType::HasAttribute(void) const {
+  auto &self = *const_cast<clang::AttributedType *>(u.AttributedType);
+  decltype(auto) val = self.hasAttr();
+  return val;
 }
 
 bool AttributedType::IsCallingConv(void) const {

@@ -6171,7 +6171,7 @@ enum class SYCLMajorVersion : unsigned int {
   kDefault = 2,
 };
 
-enum class SanitizerOrdinal : unsigned long long {
+enum class SanitizerOrdinal : unsigned long {
   kAddress = 0,
   kPointerCompare = 1,
   kPointerSubtract = 2,

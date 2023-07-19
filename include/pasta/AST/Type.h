@@ -705,10 +705,12 @@ class AttributedType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(AttributedType)
   PASTA_DECLARE_BASE_OPERATORS(Type, AttributedType)
   ::pasta::Type Desugar(void) const;
+  ::pasta::Attr Attribute(void) const;
   enum ::pasta::AttrKind AttributeKind(void) const;
   ::pasta::Type EquivalentType(void) const;
   std::optional<::pasta::NullabilityKind> ImmediateNullability(void) const;
   ::pasta::Type ModifiedType(void) const;
+  bool HasAttribute(void) const;
   bool IsCallingConv(void) const;
   bool IsMSTypeSpec(void) const;
   bool IsQualifier(void) const;

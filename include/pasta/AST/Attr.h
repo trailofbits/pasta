@@ -1391,13 +1391,13 @@ class LoopHintAttr : public Attr {
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(LoopHintAttr)
   PASTA_DECLARE_BASE_OPERATORS(Attr, LoopHintAttr)
-  // DiagnosticName: (std::string)
+  // DiagnosticName: (std::basic_string<char, std::char_traits<char>, std::allocator<char>>)
   enum LoopHintAttrOptionType Option(void) const;
   enum LoopHintAttrSpelling SemanticSpelling(void) const;
   std::string_view Spelling(void) const;
   enum LoopHintAttrLoopHintState State(void) const;
   std::optional<::pasta::Expr> Value(void) const;
-  // ValueString: (std::string)
+  // ValueString: (std::basic_string<char, std::char_traits<char>, std::allocator<char>>)
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(LoopHintAttr)
 };

@@ -2251,13 +2251,15 @@ PASTA_DEFINE_BASE_OPERATORS(Type, AttributedType)
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::Attr AttributedType::Attribute(void) const {
+std::optional<::pasta::Attr> AttributedType::Attribute(void) const {
   auto &self = *const_cast<clang::AttributedType *>(u.AttributedType);
   decltype(auto) val = self.getAttr();
+  if (!val) {
+    return std::nullopt;
+  }
   if (val) {
     return AttrBuilder::Create<::pasta::Attr>(ast, val);
   }
-  throw std::runtime_error("AttributedType::Attribute can return nullptr!");
 }
 
 enum ::pasta::AttrKind AttributedType::AttributeKind(void) const {

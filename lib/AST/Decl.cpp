@@ -5494,13 +5494,13 @@ std::vector<::pasta::Type> NonTypeTemplateParmDecl::ExpansionTypes(void) const {
   if (!u.NonTypeTemplateParmDecl->isExpandedParameterPack()) {
     return ret;
   }
-  auto convert_elem = [&] (clang::QualType val) {
-    return TypeBuilder::Build(ast, val);
+  auto convert_elem = [&] (clang::TypeSourceInfo * val) {
+    return TypeBuilder::Build(ast, val->getType());
   };
   auto count = u.NonTypeTemplateParmDecl->getNumExpansionTypes();
   decltype(count) i = 0;
   for (; i < count; ++i) {
-    ret.emplace_back(convert_elem(u.NonTypeTemplateParmDecl->getExpansionType(i)));
+    ret.emplace_back(convert_elem(u.NonTypeTemplateParmDecl->getExpansionTypeSourceInfo(i)));
   }
   return ret;
 }
@@ -7162,19 +7162,6 @@ bool CXXDeductionGuideDecl::IsExplicit(void) const {
   return val;
 }
 
-std::vector<::pasta::TemplateParameterList> CXXDeductionGuideDecl::TemplateParameterLists(void) const {
-  std::vector<::pasta::TemplateParameterList> ret;
-  auto convert_elem = [&] (clang::TemplateParameterList * val) {
-    return ::pasta::TemplateParameterList(ast, val);
-  };
-  auto count = u.CXXDeductionGuideDecl->getNumTemplateParameterLists();
-  decltype(count) i = 0;
-  for (; i < count; ++i) {
-    ret.emplace_back(convert_elem(u.CXXDeductionGuideDecl->getTemplateParameterList(i)));
-  }
-  return ret;
-}
-
 std::vector<::pasta::ParmVarDecl> CXXDeductionGuideDecl::ParameterDeclarations(void) const {
   std::vector<::pasta::ParmVarDecl> ret;
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
@@ -7187,6 +7174,19 @@ std::vector<::pasta::ParmVarDecl> CXXDeductionGuideDecl::ParameterDeclarations(v
   decltype(count) i = 0;
   for (; i < count; ++i) {
     ret.emplace_back(convert_elem(u.CXXDeductionGuideDecl->getParamDecl(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::TemplateParameterList> CXXDeductionGuideDecl::TemplateParameterLists(void) const {
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  auto count = u.CXXDeductionGuideDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.CXXDeductionGuideDecl->getTemplateParameterList(i)));
   }
   return ret;
 }
@@ -7341,19 +7341,6 @@ uint32_t CXXMethodDecl::SizeOverriddenMethods(void) const {
   return val;
 }
 
-std::vector<::pasta::TemplateParameterList> CXXMethodDecl::TemplateParameterLists(void) const {
-  std::vector<::pasta::TemplateParameterList> ret;
-  auto convert_elem = [&] (clang::TemplateParameterList * val) {
-    return ::pasta::TemplateParameterList(ast, val);
-  };
-  auto count = u.CXXMethodDecl->getNumTemplateParameterLists();
-  decltype(count) i = 0;
-  for (; i < count; ++i) {
-    ret.emplace_back(convert_elem(u.CXXMethodDecl->getTemplateParameterList(i)));
-  }
-  return ret;
-}
-
 std::vector<::pasta::ParmVarDecl> CXXMethodDecl::ParameterDeclarations(void) const {
   std::vector<::pasta::ParmVarDecl> ret;
   auto convert_elem = [&] (const clang::ParmVarDecl * val) {
@@ -7366,6 +7353,19 @@ std::vector<::pasta::ParmVarDecl> CXXMethodDecl::ParameterDeclarations(void) con
   decltype(count) i = 0;
   for (; i < count; ++i) {
     ret.emplace_back(convert_elem(u.CXXMethodDecl->getParamDecl(i)));
+  }
+  return ret;
+}
+
+std::vector<::pasta::TemplateParameterList> CXXMethodDecl::TemplateParameterLists(void) const {
+  std::vector<::pasta::TemplateParameterList> ret;
+  auto convert_elem = [&] (clang::TemplateParameterList * val) {
+    return ::pasta::TemplateParameterList(ast, val);
+  };
+  auto count = u.CXXMethodDecl->getNumTemplateParameterLists();
+  decltype(count) i = 0;
+  for (; i < count; ++i) {
+    ret.emplace_back(convert_elem(u.CXXMethodDecl->getTemplateParameterList(i)));
   }
   return ret;
 }

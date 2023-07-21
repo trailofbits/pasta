@@ -36,7 +36,16 @@ class raw_string_ostream;
 class PrintedTokenImpl : public TokenImpl {
  public:
 
-  uint16_t num_leading_new_lines;
+  // NOTE(pag): Printed tokens are not just superficially used. They are
+  //            critical to how PASTA maps tokens back into the AST's nodes.
+  //            This mapping is enacted by `AST::AlignTokens`, and the
+  //            algorithm is computationally complex, and also sketchy. Some of
+  //            it relies on O(n^2) algorithms, and so to minimize `n`, we want
+  //            to be able to say "we've matched this thing to something" so
+  //            that we don't need to repeatedly check it.
+  bool matched_in_align;
+
+  uint8_t num_leading_new_lines;
   uint16_t num_leading_spaces;
 
   inline PrintedTokenImpl(TokenDataOffset data_offset_, uint32_t data_len_,
@@ -47,7 +56,8 @@ class PrintedTokenImpl : public TokenImpl {
       : TokenImpl(TokenImpl::kInvalidSourceLocation, data_offset_,
                   data_len_, kind_, TokenRole::kInvalid,
                   token_context_index_),
-        num_leading_new_lines(static_cast<uint16_t>(num_leading_new_lines_)),
+        matched_in_align(false),
+        num_leading_new_lines(static_cast<uint8_t>(num_leading_new_lines_)),
         num_leading_spaces(static_cast<uint16_t>(num_leading_spaces_)) {
     assert(num_leading_new_lines == num_leading_new_lines_);
     assert(num_leading_spaces == num_leading_spaces_);

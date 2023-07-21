@@ -1281,7 +1281,7 @@ void TypePrinter::printFunctionProto(const clang::FunctionProtoType *T,
     TokenPrinterContext jump_up_stack(ctx);
     OS << '(';
     {
-      TokenPrinterContext ctx(OS, "ParameterTypeList", tokens);
+//      TokenPrinterContext ctx(OS, "ParameterTypeList", tokens);
       {
         ParamPolicyRAII ParamPolicy(Policy);
         TagDefinitionPolicyRAII disable_tags(Policy);
@@ -1289,7 +1289,7 @@ void TypePrinter::printFunctionProto(const clang::FunctionProtoType *T,
         for (unsigned i = 0, e = T->getNumParams(); i != e; ++i) {
           if (i) OS << ", ";
 
-          TokenPrinterContext ctx(OS, "ParameterType", tokens);
+//          TokenPrinterContext ctx(OS, "ParameterType", tokens);
 
           auto EPI = T->getExtParameterInfo(i);
           if (EPI.isConsumed()) {

@@ -519,11 +519,16 @@ static bool MergeToken(TokenImpl *parsed, PrintedTokenImpl *printed,
     auto local_changed = (parsed->context_index != printed->context_index ||
                           parsed->opaque_source_loc !=
                               printed->opaque_source_loc);
+
     parsed->context_index = printed->context_index;
+    printed->matched_in_align = true;
+
     assert(printed->opaque_source_loc == TokenImpl::kInvalidSourceLocation ||
            printed->opaque_source_loc == parsed->opaque_source_loc);
     printed->opaque_source_loc = parsed->opaque_source_loc;
-    changed = changed || local_changed;
+    if (local_changed) {
+      changed = true;
+    }
     return local_changed;
 
   } else if (parsed->context_index != kInvalidTokenContextIndex) {
@@ -532,6 +537,7 @@ static bool MergeToken(TokenImpl *parsed, PrintedTokenImpl *printed,
 
   if (TokenImpl::kInvalidSourceLocation == printed->opaque_source_loc) {
     parsed->context_index = printed->context_index;
+    printed->matched_in_align = true;
     assert(parsed->context_index != kInvalidTokenContextIndex);
     printed->opaque_source_loc = parsed->opaque_source_loc;
     changed = true;
@@ -542,6 +548,7 @@ static bool MergeToken(TokenImpl *parsed, PrintedTokenImpl *printed,
     return false;
 
   } else if (parsed->opaque_source_loc == printed->opaque_source_loc) {
+    printed->matched_in_align = true;
     parsed->context_index = printed->context_index;
     assert(parsed->context_index != kInvalidTokenContextIndex);
     changed = true;
@@ -861,7 +868,9 @@ static std::string_view HashableData(std::string_view view) {
 // Strip off leading and trailing underscores, then hash. This is to deal with
 // things like `asm` vs. `__asm`.
 static uint64_t Hash(clang::tok::TokenKind kind, std::string_view view) {
-  if (clang::tok::isLiteral(kind)) {
+  if (clang::tok::isLiteral(kind) ||
+      clang::tok::getPunctuatorSpelling(kind) ||
+      clang::tok::getKeywordSpelling(kind)) {
     return static_cast<uint64_t>(kind);
   } else {
     return kHasher(HashableData(view));
@@ -891,18 +900,21 @@ static bool IsAttributeLikeKeword(clang::tok::TokenKind tk) {
 bool Matcher::MergeForward(TokenImpl *parsed, PrintedTokenImpl *printed,
                            bool &changed) {
   auto merged = false;
+  auto num_skips = 0u;
 
   std::vector<TokenImpl *> backtrack_locs;
 
   const auto last_printed = &(range.tokens.back());
-  while (parsed < last_parsed && printed <= last_printed) {
+  while (parsed < last_parsed && printed <= last_printed && num_skips < 16u) {
     if (!TokenCanBeAssignedContext(parsed)) {
       ++parsed;
+      ++num_skips;
       continue;
     }
 
     if (!TokenCanBeAssignedContext(printed)) {
       ++printed;
+      ++num_skips;
       continue;
     }
 
@@ -915,6 +927,7 @@ bool Matcher::MergeForward(TokenImpl *parsed, PrintedTokenImpl *printed,
         if (auto skip_it = skip_balanced.find(parsed);
             skip_it != skip_balanced.end()) {
           parsed = skip_it->second;
+          ++num_skips;
           continue;
         }
 
@@ -922,19 +935,38 @@ bool Matcher::MergeForward(TokenImpl *parsed, PrintedTokenImpl *printed,
         if (auto skip_it = skip_balanced.find(printed);
             skip_it != skip_balanced.end()) {
           printed = reinterpret_cast<PrintedTokenImpl *>(skip_it->second);
+          ++num_skips;
           continue;
         }
       }
     }
 
     if (!MatchTokenByKindOrData(parsed, printed)) {
-      break;
+      if (clang::tok::isAnyIdentifier(parsed_kind)) {
+        ++parsed;
+        ++num_skips;
+        continue;
+      } else if (clang::tok::getPunctuatorSpelling(parsed_kind)) {
+        ++printed;
+        ++num_skips;
+        continue;
+      } else {
+        break;
+      }
     }
 
-    if (!MergeToken(parsed, printed, changed) && merged) {
-      break;
-    } else {
+    // We have found something on which we can make progress.
+    if (auto local_changed = false;
+        MergeToken(parsed, printed, local_changed)) {
+
       merged = true;
+
+      // A previous step presumably made progress for us.
+      if (!local_changed) {
+        break;
+      }
+
+      changed = true;
 
       // Spread string literal contexts linearly.
       auto tk = parsed->Kind();
@@ -958,6 +990,16 @@ bool Matcher::MergeForward(TokenImpl *parsed, PrintedTokenImpl *printed,
 
       ++parsed;
       ++printed;
+
+    // We hit a blocker, but we previously made progress.
+    } else if (merged) {
+      break;
+
+    // Skip these unmergeable tokens.
+    } else {
+      ++parsed;
+      ++printed;
+      ++num_skips;
     }
   }
 
@@ -966,16 +1008,19 @@ bool Matcher::MergeForward(TokenImpl *parsed, PrintedTokenImpl *printed,
 
 bool Matcher::MergeBackward(TokenImpl *parsed, PrintedTokenImpl *printed,
                             bool &changed) {
-
+  auto num_skips = 0u;
   auto merged = false;
   const auto first_printed = &(range.tokens.front());
-  while (parsed >= first_parsed && printed >= first_printed) {
+  while (parsed >= first_parsed && printed >= first_printed &&
+         num_skips <= 16u) {
     if (!TokenCanBeAssignedContext(parsed)) {
+      ++num_skips;
       --parsed;
       continue;
     }
 
     if (!TokenCanBeAssignedContext(printed)) {
+      ++num_skips;
       --printed;
       continue;
     }
@@ -984,13 +1029,19 @@ bool Matcher::MergeBackward(TokenImpl *parsed, PrintedTokenImpl *printed,
       break;
     }
 
-    if (!MergeToken(parsed, printed, changed) && merged) {
+    // We have found something on which we can make progress.
+    auto local_changed = false;
+    if (!MergeToken(parsed, printed, local_changed)) {
       break;
+    }
 
-    } else {
-      merged = true;
+    merged = true;
+    if (local_changed) {
+      changed = true;
       --parsed;
       --printed;
+    } else {
+      break;
     }
   }
 
@@ -1028,9 +1079,13 @@ bool Matcher::MatchTokenByKindOrData(TokenImpl *parsed,
 
 bool Matcher::MatchBalanced(BalancedRegion *parsed, BalancedRegion *printed,
                             bool &changed) {
-  if (parsed->matched_with && parsed->matched_with != printed) {
+  if (parsed->matched_with == printed) {
+    return true;
+  } else if (parsed->matched_with) {
     return false;
-  } else if (parsed->begin->Kind() != printed->begin->Kind()) {
+  }
+
+  if (parsed->begin->Kind() != printed->begin->Kind()) {
     return false;
   }
 
@@ -1109,34 +1164,46 @@ bool Matcher::MatchBalanced(BalancedRegion *parsed, BalancedRegion *printed,
     parsed->common_context = printed->common_context;
   }
 
-  // Commit to this match.
-  parsed->matched_with = printed;
+  // We've already matched.
+  if (parsed->matched_with == printed) {
+    return true;
+  }
 
+  if (!parsed->matched_with || !printed->matched_with) {
+    changed = true;
+  }
+
+  auto local_changed_begin = false;
+  auto local_changed_end = false;
+  parsed->matched_with = printed;
+  MergeToken(parsed->begin, printed_begin, local_changed_begin, true);
+  MergeToken(parsed->end, printed_end, local_changed_end, true);
+
+  // Commit to this match.
   if (!printed->matched_with) {
     printed->matched_with = parsed;
   }
 
-  MergeToken(parsed->begin, printed_begin, changed, true);
-  MergeToken(parsed->end, printed_end, changed, true);
+  if (local_changed_begin) {
+    changed = true;
+    MergeForward(&(parsed->begin[1]), &(printed_begin[1]), changed);
+    MergeBackward(&(parsed->begin[-1]), &(printed_begin[-1]), changed);
+  }
 
-  // If we pivoted from a match on the ending to injecting a match on the
-  // beginning, then apply linear matching around the beginning of the range.
-  MergeForward(parsed->begin, printed_begin, changed);
-  MergeBackward(parsed->begin, printed_begin, changed);
-
-  // If we pivoted from a match on the beginning to injecting a match on the
-  // ending, then apply linear matching around the ending of the range.
-  MergeForward(parsed->end, printed_end, changed);
-  MergeBackward(parsed->end, printed_end, changed);
+  if (local_changed_end) {
+    changed = true;
+    MergeBackward(&(parsed->end[-1]), &(printed_end[-1]), changed);
+    MergeForward(&(parsed->end[1]), &(printed_end[1]), changed);
+  }
 
   // If we have statements, then commit to them too.
   if (!did_recurse && parsed->statements && printed->statements) {
-
-    if (parsed->statements->matched_with != printed->statements) {
-      changed = true;
-      parsed->statements->matched_with = printed->statements;
-      printed->statements->matched_with = parsed->statements;
-    }
+//
+//    if (parsed->statements->matched_with != printed->statements) {
+//      changed = true;
+//      parsed->statements->matched_with = printed->statements;
+//      printed->statements->matched_with = parsed->statements;
+//    }
 
     (void) MatchSequence(parsed->statements, printed->statements, changed);
   }
@@ -1196,15 +1263,18 @@ bool Matcher::MatchProduct(std::vector<Region *> &parsed_regions,
 // NOTE(pag): The elements in a sequence are already in reverse order.
 bool Matcher::MatchSequence(SequenceRegion *parsed, SequenceRegion *printed,
                             bool &changed) {
+  if (parsed->matched_with == printed) {
+    return true;
+
+  } else if (parsed->matched_with) {
+    return false;
+  }
+
   if (parsed->regions.empty() != printed->regions.empty()) {
     return false;  // One is empty, the other isn't.
 
   } else if (parsed->regions.empty()) {
     return true;  // Both are empty.
-  }
-
-  if (parsed->matched_with && parsed->matched_with != printed) {
-    return false;
   }
 
   auto matched = false;
@@ -1231,26 +1301,28 @@ bool Matcher::MatchSequence(SequenceRegion *parsed, SequenceRegion *printed,
     }
   }
 
-  if (matched) {
-
-    if (!parsed->common_context) {
-      parsed->common_context = printed->common_context;
-    }
-
-    if (parsed->matched_with != printed) {
-      changed = true;
-      parsed->matched_with = printed;
-    }
-
-    if (!printed->matched_with) {
-      changed = true;
-      printed->matched_with = parsed;
-    }
-  }
-
   // Allow ourselves to locally fail on this run, but benefit from a prior
   // matching.
-  return parsed->matched_with == printed;
+  if (!matched) {
+    return false;
+  }
+
+  if (!parsed->common_context) {
+    changed = true;
+    parsed->common_context = printed->common_context;
+  }
+
+  if (!parsed->matched_with || !printed->matched_with) {
+    changed = true;
+  }
+
+  parsed->matched_with = printed;
+
+  if (!printed->matched_with) {
+    printed->matched_with = parsed;
+  }
+
+  return true;
 }
 
 bool Matcher::MatchStatement(StatementRegion *parsed, StatementRegion *printed,
@@ -1270,14 +1342,19 @@ bool Matcher::MatchStatement(StatementRegion *parsed, StatementRegion *printed,
   std::unordered_map<uint64_t, std::vector<TokenImpl *>> parsed_toks;
   std::unordered_map<uint64_t, std::vector<PrintedTokenImpl *>> printed_toks;
 
+  // Do some join-based hashing, then try to match tokens with the same hash.
+  // This can have really bad time complexity when the two statements contain
+  // tons of literal/punctuation values, which happens with giant arrays.
+
   for (TokenImpl *it = parsed_begin; it <= parsed_end; ++it) {
-    if (TokenCanBeAssignedContext(it)) {
+    if (TokenCanBeAssignedContext(it) &&
+        it->context_index == kInvalidTokenContextIndex) {
       parsed_toks[Hash(it->Kind(), it->Data(ast))].emplace_back(it);
     }
   }
 
   for (PrintedTokenImpl *it = printed_begin; it <= printed_end; ++it) {
-    if (TokenCanBeAssignedContext(it)) {
+    if (TokenCanBeAssignedContext(it) && !it->matched_in_align) {
       printed_toks[Hash(it->Kind(), it->Data(range))].emplace_back(it);
     }
   }
@@ -1289,21 +1366,40 @@ bool Matcher::MatchStatement(StatementRegion *parsed, StatementRegion *printed,
       continue;
     }
 
+    std::vector<PrintedTokenImpl *> &matching_printed =
+        printed_toks_it->second;
+    size_t start = 0u;
+    const size_t size = matching_printed.size();
+
     for (TokenImpl *&parsed_tok : parsed_tok_group) {
-      for (PrintedTokenImpl *&printed_tok : printed_toks_it->second) {
+      for (auto i = start; i < size; ++i) {
+        PrintedTokenImpl *&printed_tok = matching_printed[i];
+
         if (!printed_tok) {
+          assert(false);
           continue;
 
-        } else if (TokenLocationsMatch(parsed_tok, printed_tok)) {
+        } else if (parsed_tok->context_index == printed_tok->context_index) {
           matched = true;
-          break;
 
-        } else if (!TokenHasLocationAndContext(printed_tok) &&
-                   MatchTokenByKindOrData(parsed_tok, printed_tok)) {
-          MergeForward(parsed_tok, printed_tok, changed);
-          MergeBackward(parsed_tok, printed_tok, changed);
+        } else if (TokenLocationsMatch(parsed_tok, printed_tok) ||
+                   (!TokenHasLocationAndContext(printed_tok) &&
+                    MatchTokenByKindOrData(parsed_tok, printed_tok))) {
+
+          if (!MergeToken(parsed_tok, printed_tok, changed)) {
+            continue;
+          }
+
+          MergeForward(&(parsed_tok[1]), &(printed_tok[1]), changed);
+          MergeBackward(&(parsed_tok[-1]), &(printed_tok[-1]), changed);
+
           matched = true;
           printed_tok = nullptr;
+
+          // Try to reduce scope of O(n^2) problems.
+          std::swap(matching_printed[i], matching_printed[start]);
+          ++start;
+
           break;
         }
       }
@@ -1315,13 +1411,15 @@ bool Matcher::MatchStatement(StatementRegion *parsed, StatementRegion *printed,
       parsed->common_context = printed->common_context;
     }
 
-    if (parsed->matched_with != printed) {
+    if (!parsed->matched_with || !printed->matched_with) {
       changed = true;
+    }
+
+    if (parsed->matched_with != printed) {
       parsed->matched_with = printed;
     }
 
     if (!printed->matched_with) {
-      changed = true;
       printed->matched_with = parsed;
     }
   }
@@ -1660,11 +1758,11 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
       continue;
     }
 
-    if (MergeToken(parsed, printed, changed, false)) {
-
-      // These might change
-      matcher.MergeBackward(parsed, printed, changed);
-      matcher.MergeForward(parsed, printed, changed);
+    if (auto local_changed = false;
+        MergeToken(parsed, printed, local_changed, false) && local_changed) {
+      changed = true;
+      matcher.MergeBackward(&(parsed[-1]), &(printed[-1]), changed);
+      matcher.MergeForward(&(parsed[1]), &(printed[1]), changed);
     }
   }
 
@@ -1925,9 +2023,12 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
 
 #endif
 
-  for (changed = true; changed; ) {
+  for (size_t i = 0u; i < max_iters; ++i) {
     changed = false;
     matcher.MatchRegions(parsed_tree, printed_tree, changed);
+    if (!changed) {
+      break;
+    }
   }
 
   for (size_t i = 0u; i < max_iters; ++i) {
@@ -2214,7 +2315,7 @@ Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
 //
 //      assert(decl_context_id != kInvalidTokenContextIndex);
 
-
+//
 //    if (auto tdecl = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(containing_decl);
 //        tdecl && tdecl->getNameAsString() == "pair" &&
 //        tdecl->isThisDeclarationADefinition()) {

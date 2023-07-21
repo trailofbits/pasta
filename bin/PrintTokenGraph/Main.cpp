@@ -70,6 +70,12 @@ inline static bool SkipToken(const pasta::Token &tok) {
 }
 
 static void PrintTokenGraph(pasta::Decl tld) {
+//  if (auto nd = pasta::NamedDecl::From(tld)) {
+//    if (nd->Name() != "PUT NAME HERE") {
+//      return;
+//    }
+//  }
+
 //  auto tokens = pasta::PrintedTokenRange::Create(tld);
   auto tokens = tld.Tokens();
   if (tokens.empty()) {

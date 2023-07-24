@@ -28,6 +28,7 @@ class SourceLocation;
 namespace pasta {
 
 class ASTImpl;
+class Attr;
 class CompileJob;
 class Compiler;
 class Decl;
@@ -85,6 +86,7 @@ class AST {
 
 #ifndef PASTA_IN_BOOTSTRAP
   Token Adopt(const clang::SourceLocation &loc) const;
+  Attr Adopt(const clang::Attr *attr) const;
   Decl Adopt(const clang::Decl *decl) const;
   Stmt Adopt(const clang::Stmt *stmt) const;
   Type Adopt(const clang::Type *type, uint32_t qual = 0u) const;

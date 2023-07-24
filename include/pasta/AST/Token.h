@@ -41,6 +41,7 @@ class Designator;
 class FileToken;
 class FileTokenRange;
 class Macro;
+class MacroSubstitution;
 class MacroToken;
 class PrintedTokenRangeImpl;
 class TemplateArgument;
@@ -398,6 +399,12 @@ class TokenRange {
 
   // Unsafe indexed access into the token range.
   Token operator[](size_t index) const;
+
+  // Returns the list of macros that align with this token range, in the order
+  // of most-nested to least. The optional heuristic determines whether or not
+  // to try and match macro expansions that contain semicolons.
+  std::vector<MacroSubstitution>
+  AlignedSubstitutions(bool heuristic) noexcept;
 
   // Is this token range valid?
   inline operator bool(void) const noexcept {

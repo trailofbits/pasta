@@ -243,6 +243,10 @@ Token AST::Adopt(const clang::SourceLocation &loc) const {
   return impl->TokenAt(loc);
 }
 
+Attr AST::Adopt(const clang::Attr *attr) const {
+  return Attr(impl, attr);
+}
+
 Decl AST::Adopt(const clang::Decl *decl) const {
   return Decl(impl, decl);
 }

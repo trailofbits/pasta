@@ -95,7 +95,7 @@ void GenerateStmtH(void) {
     if (name_ref == "Stmt") {
       os << "  friend class TokenContext;\n"
          << "  static std::optional<::pasta::Stmt> From(const TokenContext &);\n"
-         << "  std::vector<::pasta::MacroSubstitution> AlignedSubstitutions(void) const noexcept;\n"
+         << "  std::vector<::pasta::MacroSubstitution> AlignedSubstitutions(bool heuristic = true) const noexcept;\n"
          << "  bool AlignsWith(::pasta::Macro &) const noexcept;\n";
     }
 

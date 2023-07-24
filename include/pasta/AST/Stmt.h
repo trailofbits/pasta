@@ -296,7 +296,7 @@ class Stmt {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(Stmt)
   friend class TokenContext;
   static std::optional<::pasta::Stmt> From(const TokenContext &);
-  std::vector<::pasta::MacroSubstitution> AlignedSubstitutions(void) const noexcept;
+  std::vector<::pasta::MacroSubstitution> AlignedSubstitutions(bool heuristic = true) const noexcept;
   bool AlignsWith(::pasta::Macro &) const noexcept;
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, AbstractConditionalOperator)
   PASTA_DECLARE_DERIVED_OPERATORS(Stmt, AddrLabelExpr)

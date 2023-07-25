@@ -745,6 +745,10 @@ ptrdiff_t TokenIterator::operator-(const TokenIterator &that) const noexcept {
   return token.impl - that.token.impl;
 }
 
+TokenRange TokenRange::From(Token begin, Token end) {
+  return TokenRange(begin.ast, begin.impl, &(end.impl[1]));
+}
+
 // Number of tokens in this range.
 size_t TokenRange::Size(void) const noexcept {
   return static_cast<size_t>(after_last - first);

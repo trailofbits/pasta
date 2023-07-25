@@ -374,6 +374,9 @@ class TokenRange {
     return TokenIterator(ast, after_last);
   }
 
+  // Creates a TokenRange from the given beginning and ending tokens.
+  static TokenRange From(Token begin, Token end);
+
   inline size_t size(void) const noexcept {
     return Size();
   }

@@ -374,8 +374,10 @@ class TokenRange {
     return TokenIterator(ast, after_last);
   }
 
-  // Creates a TokenRange from the given beginning and ending tokens.
-  static TokenRange From(Token begin, Token end);
+  // Tries to create a TokenRange from the given beginning and ending tokens.
+  // Fails if the tokens don't belong to the same AST, or if the beginning token
+  // comes after the ending token.
+  static std::optional<TokenRange> From(Token begin, Token end);
 
   inline size_t size(void) const noexcept {
     return Size();

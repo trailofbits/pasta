@@ -745,7 +745,10 @@ ptrdiff_t TokenIterator::operator-(const TokenIterator &that) const noexcept {
   return token.impl - that.token.impl;
 }
 
-TokenRange TokenRange::From(Token begin, Token end) {
+std::optional<TokenRange> TokenRange::From(Token begin, Token end) {
+  if (begin.ast != end.ast || begin > end) {
+    return std::nullopt;
+  }
   return TokenRange(begin.ast, begin.impl, &(end.impl[1]));
 }
 

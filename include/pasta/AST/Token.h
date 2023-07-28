@@ -12,24 +12,6 @@
 #include <utility>
 #include <vector>
 
-#define PASTA_FOR_EACH_TOKEN_CONTEXT_KIND(pp) \
-    pp(Stmt) \
-    pp(Decl) \
-    pp(Type) \
-    pp(Attr) \
-    pp(CXXBaseSpecifier) \
-    pp(Designator) \
-    pp(TemplateParameterList) \
-    pp(TemplateArgument) \
-    pp(TypeConstraint)
-
-namespace clang {
-
-#define PASTA_FORWARD_DECLARE_CLASS(cls) class cls;
-PASTA_FOR_EACH_TOKEN_CONTEXT_KIND(PASTA_FORWARD_DECLARE_CLASS)
-#undef PASTA_FORWARD_DECLARE_CLASS
-
-}  // namespace clang
 namespace pasta {
 
 class AST;
@@ -43,10 +25,10 @@ class FileTokenRange;
 class Macro;
 class MacroSubstitution;
 class MacroToken;
+class PrintedTokenRange;
 class PrintedTokenRangeImpl;
 class TemplateArgument;
 class TemplateParameterList;
-class TokenContextImpl;
 class TokenIterator;
 class TokenPrinterContext;
 class TokenImpl;
@@ -66,7 +48,7 @@ class TokenRange;
   ROLE(EndOfInternalMacroEventMarker) \
 
 enum class TokenKind : unsigned short;
-enum class TokenRole : std::underlying_type_t<TokenKind> {
+enum class TokenRole : unsigned char {
   #define ROLE(role) k ## role ,
   ROLES
   #undef ROLE
@@ -77,89 +59,6 @@ extern std::vector<TokenRole> TokenRoles;
 
 // Returns the name of the specified TokenRole as a string.
 std::string TokenRoleName(const TokenRole role);
-
-enum class TokenContextKind : unsigned char {
-  kInvalid,
-#define PASTA_DECLARE_TOKEN_CONTEXT_KIND(cls) k ## cls ,
-  PASTA_FOR_EACH_TOKEN_CONTEXT_KIND(PASTA_DECLARE_TOKEN_CONTEXT_KIND)
-#undef PASTA_DECLARE_TOKEN_CONTEXT_KIND
-
-  // This is some metadata of some fixed kind.
-  kString,
-
-  // This is an alias to another token kind higher up in the stack.
-  kAlias,
-
-  // This is an AST marker node. These are the main roots of all parsed
-  // token ranges.
-  kAST,
-};
-
-// The context associated with a printed token. This represents a path from
-// the decl/stmt/type that led to the printing of this token, back to the root
-// printing request.
-class TokenContext {
- private:
-  const TokenContextImpl *impl;
-  std::shared_ptr<const std::vector<TokenContextImpl>> contexts;
-
- public:
-  // Return the index of this token context.
-  uint32_t Index(void) const;
-
-  // String representation of this token context kind.
-  const char *KindName(void) const;
-
-  // Return the kind of this context.
-  TokenContextKind Kind(void) const;
-
-  // Return the data of this context.
-  const void *Data(void) const;
-
-  // Return the parent context.
-  std::optional<TokenContext> Parent(void) const;
-
-  // Return the context aliased by this context.
-  std::optional<TokenContext> Aliasee(void) const;
-
-  // Try to update this context to point to its parent.
-  bool TryUpdateToParent(void);
-
-  // Try to update this context to point to its aliasee.
-  bool TryUpdateToAliasee(void);
-
-  inline uint64_t Hash(void) const noexcept {
-    return std::hash<const TokenContextImpl *>{}(impl);
-  }
-
-  inline bool operator==(const TokenContext &that) const noexcept {
-    return impl == that.impl;
-  }
-
-  inline bool operator<(const TokenContext &that) const noexcept {
-    return impl < that.impl;
-  }
-
- private:
-  friend class Attr;
-  friend class Decl;
-  friend class CXXBaseSpecifier;
-  friend class Designator;
-  friend class PrintedToken;
-  friend class Stmt;
-  friend class TemplateArgument;
-  friend class TemplateParameterList;
-  friend class Token;
-  friend class Type;
-
-  TokenContext(void) = delete;
-
-  inline explicit TokenContext(
-      const TokenContextImpl *impl_,
-      std::shared_ptr<const std::vector<TokenContextImpl>> contexts_)
-      : impl(impl_),
-        contexts(std::move(contexts_)) {}
-};
 
 bool IsIdentifierTokenKind(TokenKind) noexcept;
 const char *KeywordSpellingOrNull(TokenKind) noexcept;
@@ -234,9 +133,6 @@ class Token {
   inline operator bool(void) const noexcept {
     return !!impl;
   }
-
-  // Return this token's context, or a null context.
-  std::optional<TokenContext> Context(void) const noexcept;
 
   inline uint64_t Hash(void) const noexcept {
     return std::hash<const TokenImpl *>{}(impl);
@@ -421,6 +317,7 @@ class TokenRange {
   friend class ASTImpl;
   friend class CXXBaseSpecifier;
   friend class DeclPrinter;
+  friend class PrintedTokenRange;
   friend class Token;
 
   TokenRange(void) = delete;
@@ -444,13 +341,6 @@ template <>
 struct hash<::pasta::Token> {
   uintptr_t operator()(const ::pasta::Token &tok) const noexcept {
     return tok.Hash();
-  }
-};
-
-template <>
-struct hash<::pasta::TokenContext> {
-  uintptr_t operator()(const ::pasta::TokenContext &ctx) const noexcept {
-    return ctx.Hash();
   }
 };
 

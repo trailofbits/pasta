@@ -1,5 +1,10 @@
+/*
+ * Copyright (c) 2023 Trail of Bits, Inc.
+ */
+
 #include <pasta/AST/AST.h>
 #include <pasta/AST/Token.h>
+#include <pasta/AST/Printer.h>
 
 #include "bindings.h"
 

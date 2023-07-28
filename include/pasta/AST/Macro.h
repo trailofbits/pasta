@@ -394,14 +394,6 @@ class MacroSubstitution : public Macro {
   // Returns the last fully substituted token in this substitution, if any.
   std::optional<Token> LastFullySubstitutedToken(void) const noexcept;
 
-  // Returns the Stmt in the AST that was parsed from the tokens this macro
-  // substitution expanded to, if any.
-  std::optional<Stmt> CoveredStmt(void) const noexcept;
-
-  // Returns the Decl in the AST that was parsed from the tokens this macro
-  // substitution expanded to, if any.
-  std::optional<Decl> CoveredDecl(void) const noexcept;
-
   // Returns the name of the substituted macro if any. If this substitution
   // comes from a stringification or token-pasting macro, then return the
   // operator that triggered the operation instead.

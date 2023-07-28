@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2023 Trail of Bits, Inc.
+ */
+
 #include <pasta/Compile/Command.h>
 
 #include "bindings.h"

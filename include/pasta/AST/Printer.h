@@ -8,6 +8,19 @@
 #include <optional>
 #include <string_view>
 
+#include <pasta/Util/Result.h>
+
+#define PASTA_FOR_EACH_TOKEN_CONTEXT_KIND(pp) \
+    pp(Stmt) \
+    pp(Decl) \
+    pp(Type) \
+    pp(Attr) \
+    pp(CXXBaseSpecifier) \
+    pp(Designator) \
+    pp(TemplateParameterList) \
+    pp(TemplateArgument) \
+    pp(TypeConstraint)
+
 namespace clang {
 class ASTContext;
 class Decl;
@@ -17,23 +30,110 @@ class TemplateArgument;
 class TemplateParameterList;
 class Type;
 struct PrintingPolicy;
+
+#define PASTA_FORWARD_DECLARE_CLASS(cls) class cls;
+PASTA_FOR_EACH_TOKEN_CONTEXT_KIND(PASTA_FORWARD_DECLARE_CLASS)
+#undef PASTA_FORWARD_DECLARE_CLASS
+
 }  // namespace clang
 namespace pasta {
 
 class AST;
 class ASTImpl;
 class Decl;
-class Stmt;
-class Type;
-
 class PrintedTokenIterator;
 class PrintedTokenImpl;
 class PrintedTokenRange;
 class PrintedTokenRangeImpl;
-
-class TokenContext;
+class Stmt;
+class TokenContextImpl;
+class Type;
+class TokenRange;
 
 enum class TokenKind : unsigned short;
+
+enum class TokenContextKind : unsigned char {
+  kInvalid,
+#define PASTA_DECLARE_TOKEN_CONTEXT_KIND(cls) k ## cls ,
+  PASTA_FOR_EACH_TOKEN_CONTEXT_KIND(PASTA_DECLARE_TOKEN_CONTEXT_KIND)
+#undef PASTA_DECLARE_TOKEN_CONTEXT_KIND
+
+  // This is some metadata of some fixed kind.
+  kString,
+
+  // This is an alias to another token kind higher up in the stack.
+  kAlias,
+
+  // This is an AST marker node. These are the main roots of all parsed
+  // token ranges.
+  kAST,
+};
+
+// The context associated with a printed token. This represents a path from
+// the decl/stmt/type that led to the printing of this token, back to the root
+// printing request.
+class TokenContext {
+ private:
+  const TokenContextImpl *impl;
+  std::shared_ptr<const std::vector<TokenContextImpl>> contexts;
+
+ public:
+  // Return the index of this token context.
+  uint32_t Index(void) const;
+
+  // String representation of this token context kind.
+  const char *KindName(void) const;
+
+  // Return the kind of this context.
+  TokenContextKind Kind(void) const;
+
+  // Return the data of this context.
+  const void *Data(void) const;
+
+  // Return the parent context.
+  std::optional<TokenContext> Parent(void) const;
+
+  // Return the context aliased by this context.
+  std::optional<TokenContext> Aliasee(void) const;
+
+  // Try to update this context to point to its parent.
+  bool TryUpdateToParent(void);
+
+  // Try to update this context to point to its aliasee.
+  bool TryUpdateToAliasee(void);
+
+  inline uint64_t Hash(void) const noexcept {
+    return std::hash<const TokenContextImpl *>{}(impl);
+  }
+
+  inline bool operator==(const TokenContext &that) const noexcept {
+    return impl == that.impl;
+  }
+
+  inline bool operator<(const TokenContext &that) const noexcept {
+    return impl < that.impl;
+  }
+
+ private:
+  friend class Attr;
+  friend class Decl;
+  friend class CXXBaseSpecifier;
+  friend class Designator;
+  friend class PrintedToken;
+  friend class Stmt;
+  friend class TemplateArgument;
+  friend class TemplateParameterList;
+  friend class Token;
+  friend class Type;
+
+  TokenContext(void) = delete;
+
+  inline explicit TokenContext(
+      const TokenContextImpl *impl_,
+      std::shared_ptr<const std::vector<TokenContextImpl>> contexts_)
+      : impl(impl_),
+        contexts(std::move(contexts_)) {}
+};
 
 class PrintedToken {
  public:
@@ -184,6 +284,17 @@ class PrintedTokenRange {
   static PrintedTokenRange Create(const Stmt &stmt_);
   static PrintedTokenRange Create(const Type &type_);
 
+  // Create a new printed token range by concatenating two printed token ranges
+  // together.
+  static std::optional<PrintedTokenRange>
+  Concatenate(const PrintedTokenRange &a, const PrintedTokenRange &b);
+
+  // Create a new printed token range, where the token data is taken from `a`
+  // but the token contexts are taken from `b`. This provides a mechanism of
+  // relating parsed tokens back to AST nodes.
+  static Result<PrintedTokenRange, std::string>
+  Align(const TokenRange &a, const PrintedTokenRange &b);
+
   inline PrintedTokenIterator begin(void) const noexcept {
     return PrintedTokenIterator(impl, first);
   }
@@ -252,3 +363,13 @@ class PrintedTokenRange {
 };
 
 } // namespace pasta
+namespace std {
+
+template <>
+struct hash<::pasta::TokenContext> {
+  uintptr_t operator()(const ::pasta::TokenContext &ctx) const noexcept {
+    return ctx.Hash();
+  }
+};
+
+}  // namespace std

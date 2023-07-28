@@ -474,12 +474,8 @@ Result<AST, std::string> CompileJob::Run(void) const {
   }
 
   ast->MarkMacroTokens();
-
-#ifdef PASTA_IN_BOOTSTRAP
+  ast->LinkMacroTokenContexts();
   return AST(std::move(ast));
-#else
-  return ASTImpl::AlignTokens(std::move(ast));
-#endif
 }
 
 }  // namespace pasta

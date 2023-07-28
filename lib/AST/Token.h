@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <pasta/AST/Printer.h>
 #include <pasta/AST/Token.h>
 #include <pasta/AST/Forward.h>
 
@@ -75,7 +76,7 @@ class TokenContextImpl {
   // aliasing the same data, the context associated with the second token is
   // returned.
   static const TokenContextImpl *CommonAncestor(
-      TokenImpl *a, TokenImpl *b,
+      PrintedTokenImpl *a, PrintedTokenImpl *b,
       const std::vector<TokenContextImpl> &contexts);
 
   const TokenContextImpl *Parent(
@@ -241,8 +242,7 @@ class TokenImpl {
 
   DerivedTokenIndex derived_index{kInvalidDerivedTokenIndex};
 
-  // Index of the token context in either `ASTImpl::contexts` or
-  // `PrintedTokenRangeImpl::contexts`.
+  // Index of the token context in `PrintedTokenRangeImpl::contexts`.
   //
   // If `HasMacroRole()` is `true`, then the real token context index is stored
   // in `MacroTokenImpl::token_context` and this index references into
@@ -262,7 +262,7 @@ class TokenImpl {
   TokenKindBase kind;
 
   // The role of this token, e.g. parsed, printed, macro expansion, etc.
-  TokenKindBase role:14;
+  TokenKindBase role:4;
 
   // Is this token associated with a macro definition? If so, then we have a
   // lookup mechanism in `ASTImpl` to go from the token index to the macro
@@ -299,5 +299,13 @@ bool TryLexRawToken(clang::SourceManager &source_manager,
 // Try to lex the data at `loc` into the token `*out`.
 bool TryLexRawToken(clang::ASTContext &ast_context,
                     clang::SourceLocation loc, clang::Token *out);
+
+// Recursively migrate token contexts.
+TokenContextIndex MigrateContexts(
+    TokenContextIndex id,
+    const std::vector<TokenContextImpl> &from_contexts,
+    std::vector<TokenContextImpl> &to_contexts,
+    std::unordered_multimap<const void *, TokenContextIndex> &data_to_context,
+    std::vector<TokenContextIndex> &context_map);
 
 } // namespace pasta

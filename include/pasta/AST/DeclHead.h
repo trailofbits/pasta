@@ -37,6 +37,7 @@ class ParmVarDecl;
 class PrintedTokenRange;
 class RecordDecl;
 class Token;
+class TokenContext;
 class VarTemplatePartialSpecializationDecl;
 
 enum class TemplateArgumentKind : unsigned int;

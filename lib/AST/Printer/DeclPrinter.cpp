@@ -2420,10 +2420,22 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
   auto tokens = std::make_shared<PrintedTokenRangeImpl>(context);
   tokens->ast = ast;
 
+  // Top-level context should be the AST.
+  tokens->contexts.emplace_back(*ast);
+  
   if (decl) {
     clang::PrintingPolicy pp = *(ast->printing_policy);
     DeclPrinter printer(out, pp, context, *tokens);
     printer.Visit(decl);
+  }
+
+  // Fixup to share the AST as the root context.
+  auto max_i = tokens->contexts.size();
+  for (auto i = 1u; i < max_i; ++i) {
+    TokenContextImpl &context = tokens->contexts[i];
+    if (context.parent_index == kInvalidTokenContextIndex) {
+      context.parent_index = 0u;  // AST node.
+    }
   }
 
   auto num_tokens = tokens->tokens.size();

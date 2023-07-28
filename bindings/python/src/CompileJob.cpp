@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2023 Trail of Bits, Inc.
+ */
+
 #include <pasta/Compile/Job.h>
 #include <pasta/AST/AST.h>
 

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2023 Trail of Bits, Inc.
+ */
+
 #include <pasta/Util/FileSystem.h>
 #include <pasta/Compile/Compiler.h>
 

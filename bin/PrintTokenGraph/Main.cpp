@@ -28,8 +28,9 @@
 #include <string>
 #include <unordered_set>
 
-template <typename TokT>
-static std::string TokData(const TokT &tok) {
+static bool gShowPrinted = false;
+
+static std::string TokData(const pasta::PrintedToken &tok) {
   std::stringstream ss;
   for (auto ch : tok.Data()) {
     switch (ch) {
@@ -55,20 +56,6 @@ const char* AttributeKindName(const clang::Attr *attr) {
   return "Attr";
 }
 
-inline static bool SkipToken(const pasta::PrintedToken &) {
-  return false;
-}
-
-inline static bool SkipToken(const pasta::Token &tok) {
-  switch (tok.Role()) {
-    case pasta::TokenRole::kFileToken:
-    case pasta::TokenRole::kFinalMacroExpansionToken:
-      return false;
-    default:
-      return true;
-  }
-}
-
 static void PrintTokenGraph(pasta::Decl tld) {
 //  if (auto nd = pasta::NamedDecl::From(tld)) {
 //    if (nd->Name() != "PUT NAME HERE") {
@@ -76,8 +63,20 @@ static void PrintTokenGraph(pasta::Decl tld) {
 //    }
 //  }
 
-//  auto tokens = pasta::PrintedTokenRange::Create(tld);
-  auto tokens = tld.Tokens();
+  pasta::PrintedTokenRange printed_tokens = pasta::PrintedTokenRange::Create(tld);
+  pasta::PrintedTokenRange tokens = printed_tokens;
+  if (!gShowPrinted) {
+    pasta::TokenRange parsed_tokens = tld.Tokens();
+    auto aligned_tokens = pasta::PrintedTokenRange::Align(
+        parsed_tokens, printed_tokens);
+    if (!aligned_tokens.Succeeded()) {
+      std::cerr << "Could not merge: " << aligned_tokens.TakeError() << std::endl;
+      return;
+    }
+
+    tokens = aligned_tokens.TakeValue();
+  }
+
   if (tokens.empty()) {
     std::cerr
         << "Empty tokens for " << tld.KindName();
@@ -109,9 +108,6 @@ static void PrintTokenGraph(pasta::Decl tld) {
   std::unordered_set<pasta::TokenContext> contexts;
 
   for (auto tok : tokens) {
-    if (SkipToken(tok)) {
-      continue;
-    }
     for (std::optional<pasta::TokenContext> context = tok.Context();
          context; context = context->Parent()) {
       contexts.insert(context.value());
@@ -208,10 +204,7 @@ static void PrintTokenGraph(pasta::Decl tld) {
     }
   }
 
-  for (auto tok : tokens) {
-    if (SkipToken(tok)) {
-      continue;
-    }
+  for (pasta::PrintedToken tok : tokens) {
     if (std::optional<pasta::TokenContext> context = tok.Context()) {
       os
           << "tokens" << a
@@ -278,6 +271,10 @@ int main(int argc, char *argv[]) {
     std::cout << "Usage: " << argv[0] << " COMPILE_COMMAND..."
               << std::endl;
     return EXIT_FAILURE;
+  }
+
+  if (getenv("PRINTED")) {
+    gShowPrinted = true;
   }
 
   pasta::InitPasta initializer;

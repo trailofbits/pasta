@@ -640,4 +640,89 @@ PrintedToken PrintedTokenRange::operator[](size_t index) const {
   return PrintedToken(impl, &(first[index]));
 }
 
+//namespace {
+//
+//static void Remap(
+//    std::vector<TokenContextImpl> &new_contexts,
+//    const std::vector<TokenContextImpl> &old_contexts,
+//    std::unordered_map<const void *, TokenContextIndex> &new_data_to_index,
+//    std::unordered_map<TokenContextIndex, TokenContextIndex> &index_remap) {
+//
+//}
+//
+//}  // namespace
+
+// Create a new printed token range by concatenating two printed token ranges
+// together.
+std::optional<PrintedTokenRange> PrintedTokenRange::Concatenate(
+    const PrintedTokenRange &a, const PrintedTokenRange &b) {
+  if (!a && !b) {
+    return std::nullopt;
+  } else if (!a) {
+    return b;
+  } else if (!b) {
+    return a;
+  }
+
+  if (&(a.impl->ast_context) != &(b.impl->ast_context)) {
+    return std::nullopt;
+  }
+
+  if (a.impl->ast.get() != b.impl->ast.get()) {
+    return std::nullopt;
+  }
+
+  auto new_impl = std::make_shared<PrintedTokenRangeImpl>(a.impl->ast_context);
+  new_impl->ast = a.impl->ast;
+  new_impl->tokens.reserve(a.impl->tokens.size() + b.impl->tokens.size() + 1u);
+  new_impl->contexts.reserve(
+      ((a.impl->contexts.size() + b.impl->contexts.size()) * 3u) / 2u);
+  new_impl->data = a.impl->data + b.impl->data;
+
+  for (PrintedTokenImpl &new_tok : new_impl->tokens) {
+    new_tok.matched_in_align = false;
+  }
+
+  std::unordered_multimap<const void *, TokenContextIndex> data_to_context;
+
+  std::vector<TokenContextIndex> context_map;
+  context_map.resize(a.impl->contexts.size());
+
+  for (auto a_tok = a.first; a_tok < a.after_last; ++a_tok) {
+    if (a_tok->Kind() == clang::tok::eof) {
+      continue;
+    }
+    PrintedTokenImpl &new_tok = new_impl->tokens.emplace_back(*a_tok);
+    new_tok.matched_in_align = false;
+    new_tok.context_index = MigrateContexts(
+        new_tok.context_index, new_impl->contexts, a.impl->contexts,
+        data_to_context, context_map);
+  }
+
+  context_map.clear();
+  context_map.resize(b.impl->contexts.size());
+
+  auto a_data_size = static_cast<TokenDataOffset>(a.impl->data.size());
+  for (auto b_tok = b.first; b_tok < b.after_last; ++b_tok) {
+    if (b_tok->Kind() == clang::tok::eof) {
+      continue;
+    }
+
+    PrintedTokenImpl &new_tok = new_impl->tokens.emplace_back(*b_tok);
+    new_tok.matched_in_align = false;
+    new_tok.data_offset += a_data_size;
+    new_tok.context_index = MigrateContexts(
+        new_tok.context_index, new_impl->contexts, b.impl->contexts,
+        data_to_context, context_map);
+  }
+
+  new_impl->tokens.emplace_back(
+      0u, 0u, kInvalidTokenContextIndex, 0u, 0u, clang::tok::eof);
+
+  PrintedTokenImpl *first_tok = new_impl->tokens.data();
+  PrintedTokenImpl *after_last_tok = &(first_tok[new_impl->tokens.size() - 1u]);
+
+  return PrintedTokenRange(std::move(new_impl), first_tok, after_last_tok);
+}
+
 }  // namespace pasta

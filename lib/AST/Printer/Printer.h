@@ -2,6 +2,8 @@
  * Copyright (c) 2021 Trail of Bits, Inc.
  */
 
+#pragma once
+
 #include <pasta/AST/Printer.h>
 
 #pragma GCC diagnostic push
@@ -27,6 +29,10 @@ class SourceLocation;
 class SourceManager;
 class Stmt;
 class Type;
+class TypeLoc;
+namespace tok {
+enum TokenKind : unsigned short;
+}  // namespace tok
 }  // namespace clang
 namespace pasta {
 
@@ -43,10 +49,10 @@ class PrintedTokenImpl : public TokenImpl {
   //            it relies on O(n^2) algorithms, and so to minimize `n`, we want
   //            to be able to say "we've matched this thing to something" so
   //            that we don't need to repeatedly check it.
-  bool matched_in_align;
+  bool matched_in_align{false};
 
-  uint8_t num_leading_new_lines;
-  uint16_t num_leading_spaces;
+  uint8_t num_leading_new_lines{0};
+  uint16_t num_leading_spaces{0};
 
   inline PrintedTokenImpl(TokenDataOffset data_offset_, uint32_t data_len_,
                           TokenContextIndex token_context_index_,
@@ -91,7 +97,7 @@ class PrintedTokenRangeImpl {
   // etc. to the "owning" context for that thing. There can be multiple open
   // contexts for a given thing; the first one is always the owning one, and
   // the rest are aliasing ones.
-  std::unordered_map<const void *, unsigned> data_to_index;
+  std::unordered_map<const void *, TokenContextIndex> data_to_index;
 
   // Maps types to type locations.
   std::unordered_map<const clang::Type *, clang::TypeLoc> type_to_type_loc;
@@ -116,6 +122,11 @@ class PrintedTokenRangeImpl {
   void MarkLocation(size_t tok_index, const TokenImpl &tok);
   void MarkLocation(size_t tok_index, const clang::SourceLocation &loc);
 //  void PopContext(void);
+
+  // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
+  std::optional<std::string> AlignTokens(
+      PrintedTokenRangeImpl &printed_range,
+      TokenContextIndex decl_context_id);
 };
 
 struct no_alias_tag {};

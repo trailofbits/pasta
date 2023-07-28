@@ -190,15 +190,6 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // Return a token range for the bounds of a declaration.
   TokenRange DeclTokenRange(const clang::Decl *decl);
 
-  // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
-  static Result<std::monostate, std::string> AlignTokens(
-      const std::shared_ptr<ASTImpl> &ast_,
-      TokenImpl *parsed_begin, TokenImpl *parsed_end,
-      PrintedTokenRangeImpl &range, TokenContextIndex decl_context_id);
-
-  // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
-  static Result<AST, std::string> AlignTokens(std::shared_ptr<ASTImpl> ast);
-
   // Mark tokens as being part of macros.
   void MarkMacroTokens(void);
 

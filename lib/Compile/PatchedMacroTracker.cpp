@@ -611,7 +611,9 @@ std::optional<clang::Token> PatchedMacroTracker::FindDirectiveHash(
 
       // TODO(pag): Make this avoid `#`s inside of block comments, e.g.
       //            # blah /* # hahahah */ ...
-      if (file_data[file_offset] == '#') {
+      if (file_data[file_offset] == '#' ||
+          (file_data[file_offset] == '%' &&
+           file_data[file_offset + 1u] == ':')) {
         hash_loc = directive_loc.getLocWithOffset(loc_offset);
         break;
       }

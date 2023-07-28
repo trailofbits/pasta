@@ -169,7 +169,6 @@ struct StatementRegion final : public Region {
   void Print(std::ostream &os, std::string indent,
              const PrintedTokenRangeImpl &data_range,
              const PrintedTokenRangeImpl &context_range) const final {
-
     os << indent << "------ST "
        << std::hex
        << (common_context ? common_context.value() : kInvalidTokenContextIndex)
@@ -394,6 +393,7 @@ struct BalancedRegion final : public Region {
        << (common_context ? common_context.value() : kInvalidTokenContextIndex)
        << std::dec << "------\n";
     os << indent << begin->Data(data_range) << " " << clang::tok::getTokenName(begin->Kind());
+
     if (begin->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
       os << " l:" << std::hex << begin->opaque_source_loc << std::dec;
     }

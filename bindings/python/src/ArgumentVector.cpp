@@ -3,7 +3,6 @@
  */
 
 #include <pasta/Util/ArgumentVector.h>
-#include <pasta/Util/FileSystem.h>
 
 #include "bindings.h"
 

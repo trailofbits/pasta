@@ -37,6 +37,7 @@ class TypeLoc;
 class VarTemplateDecl;
 class VarTemplatePartialSpecializationDecl;
 class VarTemplateSpecializationDecl;
+
 namespace tok {
 enum TokenKind : unsigned short;
 }  // namespace tok

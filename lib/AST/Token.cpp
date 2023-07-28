@@ -1053,7 +1053,7 @@ TokenContextIndex MigrateContexts(
   assert(id < from_contexts.size());
   const TokenContextImpl *from_c = &(from_contexts[id]);
   TokenContextIndex &ret_id = context_map[id];
-  
+
   if (ret_id != kInvalidTokenContextIndex) {
 #ifndef NDEBUG
     TokenContextImpl *to_c = &(to_contexts[ret_id]);

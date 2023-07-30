@@ -48,6 +48,7 @@ class PrintedTokenRangeImpl;
 class Stmt;
 class TokenContextImpl;
 class Type;
+class Token;
 class TokenRange;
 
 enum class TokenKind : unsigned short;
@@ -149,6 +150,9 @@ class PrintedToken {
 
   // Kind of this token.
   TokenKind Kind(void) const;
+
+  // Find the parsed token from which this printed token was derived.
+  std::optional<Token> DerivedLocation(void) const;
 
   // Number of leading new lines (before any indentation spaces).
   unsigned NumLeadingNewLines(void) const;

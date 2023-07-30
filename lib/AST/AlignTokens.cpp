@@ -2361,6 +2361,7 @@ PrintedTokenRange::Align(const TokenRange &a, const PrintedTokenRange &b) {
   new_impl->contexts.reserve(b.impl->contexts.size());
   new_impl->data.reserve(b.impl->data.size());
 
+  const TokenImpl * const first_ast_tok = a.ast->tokens.data();
   for (const TokenImpl *a_tok = a.first; a_tok < a.after_last; ++a_tok) {
     std::string_view old_data = a_tok->Data(*(a.ast));
     if (old_data.empty() || !TokenCanBeAssignedContext(a_tok)) {
@@ -2375,6 +2376,8 @@ PrintedTokenRange::Align(const TokenRange &a, const PrintedTokenRange &b) {
 
     new_tok.opaque_source_loc = a_tok->Location().getRawEncoding();
     new_tok.role = static_cast<TokenKindBase>(TokenRole::kFileToken);
+    new_tok.derived_index =
+        static_cast<DerivedTokenIndex>(a_tok - first_ast_tok);
 
     new_impl->data.insert(new_impl->data.end(), old_data.begin(),
                           old_data.end());

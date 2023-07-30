@@ -25,6 +25,7 @@ class FileTokenRange;
 class Macro;
 class MacroSubstitution;
 class MacroToken;
+class PrintedToken;
 class PrintedTokenRange;
 class PrintedTokenRangeImpl;
 class TemplateArgument;
@@ -159,6 +160,7 @@ class Token {
   friend class ASTImpl;
   friend class CXXBaseSpecifier;
   friend class MacroToken;
+  friend class PrintedToken;
   friend class TokenContext;
   friend class TokenIterator;
   friend class TokenPrinterContext;
@@ -300,6 +302,11 @@ class TokenRange {
 
   // Unsafe indexed access into the token range.
   Token operator[](size_t index) const;
+
+  // Returns `true` if this range contains a specific token.
+  inline bool Contains(const Token &tok) const noexcept {
+    return ast == tok.ast && first <= tok.impl && tok.impl < after_last;
+  }
 
   // Returns the list of macros that align with this token range, in the order
   // of most-nested to least. The optional heuristic determines whether or not

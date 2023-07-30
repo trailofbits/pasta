@@ -24,6 +24,7 @@
 #include "raw_ostream.h"
 
 #include "../AST.h"  // For `ASTImpl`.
+#include "../Token.h"  // For `TokenImpl`.
 
 namespace pasta {
 
@@ -228,6 +229,18 @@ void PrintAttribute(raw_string_ostream &Out, const clang::Attr *A,
 }
 
 PrintedToken::~PrintedToken(void) {}
+
+// Find the parsed token from which this printed token was derived.
+std::optional<Token> PrintedToken::DerivedLocation(void) const {
+  if (!impl || !range->ast ||
+      impl->derived_index == kInvalidDerivedTokenIndex ||
+      impl->derived_index >= range->ast->tokens.size()) {
+    return std::nullopt;
+
+  } else {
+    return Token(range->ast, &(range->ast->tokens[impl->derived_index]));
+  }
+}
 
 // Return the data associated with this token.
 std::string_view PrintedToken::Data(void) const {

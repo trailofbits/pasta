@@ -2440,11 +2440,11 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
         (tokens->tokens.empty() ||
          tokens->tokens.back().Kind() != clang::tok::semi)) {
 
-      TokenPrinterContext ctx(out, decl, tokens);
+      TokenPrinterContext ctx(out, decl, *tokens);
       out << ';';
       auto [begin_tok, end_tok] = ast->DeclBounds(decl);
-      if (end_tok->Kind() == clang::tok::semi) {
-        out.MarkLocation(end_tok);
+      if (end_tok && end_tok->Kind() == clang::tok::semi) {
+        ctx.MarkLocation(*end_tok);
       }
     }
   }

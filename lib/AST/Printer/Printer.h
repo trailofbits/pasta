@@ -91,6 +91,14 @@ class PrintedTokenRangeImpl {
 
   // All allocated token contexts live here. The `TokenImpl::context_index` of
   // a `PrintedTokenImpl` points into `contexts`.
+  //
+  // NOTE(pag): The first context in this list holds a raw data pointer to the
+  //            `ASTImpl` containing `contexts` (if this is derived from an AST).
+  //            This is so that we can get the `Decl`s, `Stmt`s, and `Type`s
+  //            referenced by a token context. This is safe because a
+  //            `TokenContext` has a shared pointer to a vector of contexts
+  //            (this vector), where that shared pointer aliases the `ASTImpl`s
+  //            lifetime.
   std::vector<TokenContextImpl> contexts;
 
   // Maps something, e.g. a `clang::Decl *`, `clang::Stmt *`, `clang::Type *`,

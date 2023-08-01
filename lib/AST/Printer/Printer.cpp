@@ -698,8 +698,14 @@ std::optional<PrintedTokenRange> PrintedTokenRange::Concatenate(
 
   std::unordered_multimap<const void *, TokenContextIndex> data_to_context;
 
+  // Top-level context should be the AST.
+  if (a.impl->ast) {
+    new_impl->contexts.emplace_back(*(new_impl->ast));
+    data_to_context.emplace(new_impl->ast.get(), 0u  /* AST context index */);
+  }
+
   std::vector<TokenContextIndex> context_map;
-  context_map.resize(a.impl->contexts.size());
+  context_map.assign(a.impl->contexts.size(), kInvalidTokenContextIndex);
 
   for (auto a_tok = a.first; a_tok < a.after_last; ++a_tok) {
     if (a_tok->Kind() == clang::tok::eof) {
@@ -708,12 +714,11 @@ std::optional<PrintedTokenRange> PrintedTokenRange::Concatenate(
     PrintedTokenImpl &new_tok = new_impl->tokens.emplace_back(*a_tok);
     new_tok.matched_in_align = false;
     new_tok.context_index = MigrateContexts(
-        new_tok.context_index, new_impl->contexts, a.impl->contexts,
+        new_tok.context_index, a.impl->contexts, new_impl->contexts,
         data_to_context, context_map);
   }
 
-  context_map.clear();
-  context_map.resize(b.impl->contexts.size());
+  context_map.assign(b.impl->contexts.size(), kInvalidTokenContextIndex);
 
   auto a_data_size = static_cast<TokenDataOffset>(a.impl->data.size());
   for (auto b_tok = b.first; b_tok < b.after_last; ++b_tok) {
@@ -725,7 +730,7 @@ std::optional<PrintedTokenRange> PrintedTokenRange::Concatenate(
     new_tok.matched_in_align = false;
     new_tok.data_offset += a_data_size;
     new_tok.context_index = MigrateContexts(
-        new_tok.context_index, new_impl->contexts, b.impl->contexts,
+        new_tok.context_index, b.impl->contexts, new_impl->contexts,
         data_to_context, context_map);
   }
 

@@ -1046,14 +1046,15 @@ TokenContextIndex MigrateContexts(
     std::unordered_multimap<const void *, TokenContextIndex> &data_to_context,
     std::vector<TokenContextIndex> &context_map) {
 
-  if (id == kInvalidTokenContextIndex || !id) {
-    return 0u;  // Return the index of the AST node.
+  if (id == kInvalidTokenContextIndex || id >= context_map.size()) {
+    return kInvalidTokenContextIndex;
   }
 
   assert(id < from_contexts.size());
   const TokenContextImpl *from_c = &(from_contexts[id]);
   TokenContextIndex &ret_id = context_map[id];
-  if (ret_id) {
+  
+  if (ret_id != kInvalidTokenContextIndex) {
 #ifndef NDEBUG
     TokenContextImpl *to_c = &(to_contexts[ret_id]);
     assert(to_c->kind == from_c->kind);
@@ -1080,18 +1081,15 @@ TokenContextIndex MigrateContexts(
     // Search for the matching one.
     for (auto [it, end] = data_to_context.equal_range(from_c->data);
          it != end; ++it) {
+
       TokenContextIndex maybe_id = it->second;
-      if (maybe_id == kInvalidTokenContextIndex ||
-          maybe_id >= to_contexts.size()) {
-        assert(maybe_id < to_contexts.size());
-        continue;
-      }
+      assert(maybe_id != kInvalidTokenContextIndex);
+      assert(maybe_id < to_contexts.size());
 
       TokenContextImpl *to_c = &(to_contexts[maybe_id]);
       if (to_c->data == from_c->data && to_c->parent_index == parent_id &&
           to_c->depth == from_c->depth && to_c->kind == from_c->kind) {
         ret_id = maybe_id;
-        assert(ret_id != 0u);
         return maybe_id;
       }
     }
@@ -1103,7 +1101,7 @@ TokenContextIndex MigrateContexts(
     data_to_context.emplace(from_c->data, ret_id);
   }
 
-  assert(ret_id != 0u);
+  assert(ret_id != kInvalidTokenContextIndex);
   return ret_id;
 }
 

@@ -58,9 +58,9 @@ inline static const T *Canonicalize(const T *other) {
 // Backing data for a token context.
 class TokenContextImpl {
  public:
-  const void *data;
-  TokenContextIndex parent_index;
-  uint16_t depth;
+  const void *data{nullptr};
+  TokenContextIndex parent_index{kInvalidTokenContextIndex};
+  uint16_t depth{0};
   TokenContextKind kind;
 
   // Return the common ancestor between two contexts. This focuses on the data

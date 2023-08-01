@@ -168,7 +168,7 @@ struct StatementRegion final : public Region {
 
 #if PASTA_DEBUG_ALIGN
   void Print(std::ostream &os, std::string indent,
-             const ASTImpl &, const PrintedTokenRangeImpl &range) const final {
+             const ASTImpl &ast, const PrintedTokenRangeImpl &range) const final {
     if (common_context.has_value()) {
       assert(common_context.value() < range.contexts.size());
     }
@@ -184,7 +184,7 @@ struct StatementRegion final : public Region {
           it->Kind() == clang::tok::wide_string_literal) {
         os << indent << "<str>";
       } else {
-        os << indent << it->Data(range);
+        os << indent << it->Data(ast);
       }
       TK( os << " " << clang::tok::getTokenName(it->Kind()); )
       if (it->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
@@ -453,7 +453,7 @@ struct BalancedRegion final : public Region {
        << std::hex
        << (common_context ? common_context.value() : kInvalidTokenContextIndex)
        << std::dec << "------\n";
-    os << indent << begin->Data(range) << " " << clang::tok::getTokenName(begin->Kind());
+    os << indent << begin->Data(ast) << " " << clang::tok::getTokenName(begin->Kind());
     if (begin->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
       os << " l:" << std::hex << begin->opaque_source_loc << std::dec;
     }
@@ -466,7 +466,7 @@ struct BalancedRegion final : public Region {
       statements->Print(os, indent + "  ", ast, range);
     }
 
-    os << indent << end->Data(range) << " " << clang::tok::getTokenName(end->Kind());
+    os << indent << end->Data(ast) << " " << clang::tok::getTokenName(end->Kind());
     if (end->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
       os << " l:" << std::hex << end->opaque_source_loc << std::dec;
     }
@@ -878,7 +878,7 @@ static uint64_t Hash(clang::tok::TokenKind kind, std::string_view view) {
 }
 
 bool Matcher::DataEquals(PrintedTokenImpl *parsed, PrintedTokenImpl *printed) {
-  auto parsed_data = parsed->Data(range);
+  auto parsed_data = parsed->Data(ast);
   auto printed_data = printed->Data(range);
   if (clang::tok::getKeywordSpelling(parsed->Kind())) {
     return HashableData(parsed_data) == HashableData(printed_data);
@@ -1349,7 +1349,7 @@ bool Matcher::MatchStatement(StatementRegion *parsed, StatementRegion *printed,
   for (PrintedTokenImpl *it = parsed_begin; it <= parsed_end; ++it) {
     if (TokenCanBeAssignedContext(it) &&
         it->context_index == kInvalidTokenContextIndex) {
-      parsed_toks[Hash(it->Kind(), it->Data(range))].emplace_back(it);
+      parsed_toks[Hash(it->Kind(), it->Data(ast))].emplace_back(it);
     }
   }
 
@@ -2358,7 +2358,6 @@ PrintedTokenRange::Align(const TokenRange &a, const PrintedTokenRange &b) {
       a.ast->ci->getASTContext());
   new_impl->ast = a.ast;
   new_impl->tokens.reserve(a.size() + 1u);
-  new_impl->contexts.reserve(b.impl->contexts.size());
   new_impl->data.reserve(b.impl->data.size());
 
   const TokenImpl * const first_ast_tok = a.ast->tokens.data();
@@ -2391,6 +2390,7 @@ PrintedTokenRange::Align(const TokenRange &a, const PrintedTokenRange &b) {
       0u, 0u, kInvalidTokenContextIndex, 0u, 0u, clang::tok::eof);
 
   // Top-level context should be the AST.
+  new_impl->contexts.reserve(b.impl->contexts.size());
   new_impl->contexts.emplace_back(*(new_impl->ast));
 
   static constexpr TokenContextIndex kASTTokenContextIndex = 0u;
@@ -2409,7 +2409,7 @@ PrintedTokenRange::Align(const TokenRange &a, const PrintedTokenRange &b) {
   // opposed to all token contexts.
   std::vector<TokenContextIndex> context_map;
   std::unordered_multimap<const void *, TokenContextIndex> data_to_context;
-  context_map.resize(b.impl->contexts.size());
+  context_map.assign(b.impl->contexts.size(), kInvalidTokenContextIndex);
   data_to_context.emplace(new_impl->ast.get(), kASTTokenContextIndex);
 
   for (PrintedTokenImpl *t = first_tok; t < after_last_tok; ++t) {

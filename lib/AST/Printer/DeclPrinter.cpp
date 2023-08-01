@@ -2400,6 +2400,13 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
   if (decl) {
     DeclPrinter printer(out, policy, context, *tokens);
     printer.Visit(decl);
+
+    // Add a trailing semicolon.
+    if (!clang::dyn_cast<clang::FunctionDecl>(decl) &&
+        (tokens->tokens.empty() ||
+         tokens->tokens.back().Kind() != clang::tok::semi)) {
+      out << ';';
+    }
   }
 
   auto num_tokens = tokens->tokens.size();
@@ -2427,6 +2434,19 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
     clang::PrintingPolicy pp = *(ast->printing_policy);
     DeclPrinter printer(out, pp, context, *tokens);
     printer.Visit(decl);
+
+    // Add a trailing semicolon.
+    if (!clang::dyn_cast<clang::FunctionDecl>(decl) &&
+        (tokens->tokens.empty() ||
+         tokens->tokens.back().Kind() != clang::tok::semi)) {
+
+      TokenPrinterContext ctx(out, decl, tokens);
+      out << ';';
+      auto [begin_tok, end_tok] = ast->DeclBounds(decl);
+      if (end_tok->Kind() == clang::tok::semi) {
+        out.MarkLocation(end_tok);
+      }
+    }
   }
 
   // Fixup to share the AST as the root context.

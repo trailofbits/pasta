@@ -9,6 +9,8 @@
 
 #include "bindings.h"
 
+#include <nanobind/stl/string_view.h>
+
 namespace pasta {
 
 namespace nb = nanobind;

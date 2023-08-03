@@ -1,9 +1,12 @@
+# Copyright (c) 2023 Trail of Bits, Inc., all rights reserved.
+
 from pypasta import *
 from argparse import ArgumentParser
 from typing import TypedDict, List
 import json
 import locale
 import os
+import pathlib
 import subprocess
 import sys
 import tempfile
@@ -43,7 +46,7 @@ def _create_compiler_from_args(cp, extra_args, fp, fm, tl):
   if 'End of search list.' not in no_sysroot.stderr:
       raise RuntimeError(f'Unknown error: {no_sysroot.stderr}')
 
-  return Compiler.create(fm, cp, cwd, CompilerName.UNKNOWN, tl, sysroot_str, no_sysroot.stderr)
+  return Compiler.create(fm, pathlib.Path(cp), pathlib.Path(cwd), CompilerName.UNKNOWN, tl, sysroot_str, no_sysroot.stderr)
 
 
 if __name__ == "__main__":
@@ -58,12 +61,12 @@ if __name__ == "__main__":
 
   with tempfile.NamedTemporaryFile(suffix=".c") as c_file:
     cc: Compiler = _create_compiler_from_args(
-        args.c_compiler, ["-x", "c", "-std", "c18"],
+        args.c_compiler, ["-x", "c", "-std=c18"],
         c_file.name, fm, TargetLanguage.C)
 
   with tempfile.NamedTemporaryFile(suffix=".cpp") as cxx_file:
     cxx: Compiler = _create_compiler_from_args(
-        args.cxx_compiler, ["-x", "c++", "-std", "c++20"],
+        args.cxx_compiler, ["-x", "c++", "-std=c++20"],
         cxx_file.name, fm, TargetLanguage.CXX)
 
   with open(args.compile_commands) as file:

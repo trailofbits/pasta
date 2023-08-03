@@ -1,5 +1,6 @@
 #include <pasta/Util/FileSystem.h>
 #include <pasta/Compile/Compiler.h>
+#include <pasta/Util/File.h>
 
 #include "bindings.h"
 
@@ -45,5 +46,14 @@ void RegisterFileSystem(nb::module_ &m) {
     .def("list_directory", overload_cast_const<Stat>(&FileSystemView::ListDirectory))
     .def("push_working_driectory", &FileSystemView::PushWorkingDirectory)
     .def("pop_working_directory", &FileSystemView::PopWorkingDirectory);
+
+  nb::class_<File>(m, "File")
+    .def_prop_ro("path", &File::Path)
+    .def_prop_ro("data", &File::Data)
+    .def_prop_ro("data_hash", &File::DataHash)
+    .def_prop_ro("was_parsed", &File::WasParsed)
+    .def("stat", &File::Stat)
+    .def("__hash__", [](const File& f) { return f.HashCode(); })
+    .def("__eq__", [](const File& a, const File& b) { return a == b;});
 }
 }  // namespace pasta

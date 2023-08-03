@@ -4,6 +4,7 @@
 
 #include <pasta/Compile/Job.h>
 #include <pasta/AST/AST.h>
+#include <pasta/Util/ArgumentVector.h>
 
 #include "bindings.h"
 

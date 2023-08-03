@@ -123,7 +123,6 @@ class DeclPrinter : public clang::DeclVisitor<DeclPrinter> {
   clang::PrintingPolicy Policy;
   const clang::ASTContext &Context;
   unsigned Indentation;
-  bool PrintInstantiation;
 
   raw_string_ostream& Indent() { return Indent(static_cast<int>(Indentation)); }
   raw_string_ostream& Indent(int Indentation);
@@ -144,9 +143,9 @@ class DeclPrinter : public clang::DeclVisitor<DeclPrinter> {
  public:
    DeclPrinter(raw_string_ostream &Out, const clang::PrintingPolicy &Policy,
                const clang::ASTContext &Context, PrintedTokenRangeImpl &tokens_,
-               unsigned Indentation = 0,bool PrintInstantiation = false)
+               unsigned Indentation = 0)
        : Out(Out), Policy(Policy), Context(Context), Indentation(Indentation),
-         PrintInstantiation(PrintInstantiation), tokens(tokens_) {}
+         tokens(tokens_) {}
 
    void VisitDeclContext(clang::DeclContext *DC, bool Indent = true);
    void VisitTranslationUnitDecl(clang::TranslationUnitDecl *D);
@@ -172,6 +171,9 @@ class DeclPrinter : public clang::DeclVisitor<DeclPrinter> {
    void VisitLinkageSpecDecl(clang::LinkageSpecDecl *D);
    void VisitTemplateDecl(const clang::TemplateDecl *D);
    void VisitFunctionTemplateDecl(clang::FunctionTemplateDecl *D);
+   void VisitVarTemplatePartialSpecializationDecl(clang::VarTemplatePartialSpecializationDecl *D);
+   void VisitVarTemplateSpecializationDecl(clang::VarTemplateSpecializationDecl *D);
+   void VisitVarTemplateDecl(clang::VarTemplateDecl *D);
    void VisitClassTemplateDecl(clang::ClassTemplateDecl *D);
    void VisitClassTemplateSpecializationDecl(
        clang::ClassTemplateSpecializationDecl *D);

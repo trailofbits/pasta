@@ -40,16 +40,25 @@ namespace pasta {
 
 class AST;
 class ASTImpl;
+class ClassTemplateDecl;
+class ClassTemplatePartialSpecializationDecl;
+class ClassTemplateSpecializationDecl;
 class Decl;
+class FunctionDecl;
+class FunctionTemplateDecl;
 class PrintedTokenIterator;
 class PrintedTokenImpl;
 class PrintedTokenRange;
 class PrintedTokenRangeImpl;
 class Stmt;
+class TemplateDecl;
 class TokenContextImpl;
 class Type;
 class Token;
 class TokenRange;
+class VarTemplateDecl;
+class VarTemplatePartialSpecializationDecl;
+class VarTemplateSpecializationDecl;
 
 enum class TokenKind : unsigned short;
 
@@ -261,6 +270,57 @@ class PrintedTokenIterator {
   PrintedToken token;
 };
 
+class PrintingPolicy {
+ public:
+  virtual ~PrintingPolicy(void);
+
+  virtual bool ShouldPrintTemplate(const TemplateDecl &) const;
+  
+  virtual bool ShouldPrintTemplate(
+      const ClassTemplatePartialSpecializationDecl &) const;
+  
+  virtual bool ShouldPrintTemplate(
+      const VarTemplatePartialSpecializationDecl &) const;
+  
+  virtual bool ShouldPrintSpecialization(
+      const ClassTemplateDecl &, const ClassTemplateSpecializationDecl &) const;
+  
+  virtual bool ShouldPrintSpecialization(const FunctionTemplateDecl &,
+                                         const FunctionDecl &) const;
+
+  virtual bool ShouldPrintSpecialization(
+      const VarTemplateDecl &, const VarTemplateSpecializationDecl &) const;
+};
+
+class ProxyPrintingPolicy : public PrintingPolicy {
+ protected:
+  const PrintingPolicy &next;
+ public:
+  virtual ~ProxyPrintingPolicy(void);
+
+  inline ProxyPrintingPolicy(const PrintingPolicy &next_)
+      : next(next_) {}
+
+  bool ShouldPrintTemplate(const TemplateDecl &) const override;
+
+  bool ShouldPrintTemplate(
+      const ClassTemplatePartialSpecializationDecl &) const override;
+
+  bool ShouldPrintTemplate(
+      const VarTemplatePartialSpecializationDecl &) const override;
+
+  bool ShouldPrintSpecialization(
+      const ClassTemplateDecl &,
+      const ClassTemplateSpecializationDecl &) const override;
+
+  bool ShouldPrintSpecialization(const FunctionTemplateDecl &,
+                                 const FunctionDecl &) const override;
+
+  bool ShouldPrintSpecialization(
+      const VarTemplateDecl &,
+      const VarTemplateSpecializationDecl &) const override;
+};
+
 class PrintedTokenRangeImpl;
 class PrintedTokenRange {
  public:
@@ -284,9 +344,12 @@ class PrintedTokenRange {
                                   const clang::QualType &type);
 
   // More typical APIs when we've got PASTA ASTs.
-  static PrintedTokenRange Create(const Decl &decl_);
-  static PrintedTokenRange Create(const Stmt &stmt_);
-  static PrintedTokenRange Create(const Type &type_);
+  static PrintedTokenRange Create(
+      const Decl &decl_, const PrintingPolicy &pp_=PrintingPolicy());
+  static PrintedTokenRange Create(
+      const Stmt &stmt_, const PrintingPolicy &pp_=PrintingPolicy());
+  static PrintedTokenRange Create(
+      const Type &type_, const PrintingPolicy &pp_=PrintingPolicy());
 
   // Create a new printed token range by concatenating two printed token ranges
   // together.
@@ -340,13 +403,16 @@ class PrintedTokenRange {
   // Raw interfaces for when we're not using a PASTA AST, but when we want
   // the power of its token printer.
   static PrintedTokenRange Create(const std::shared_ptr<ASTImpl> &,
-                                  clang::Stmt *stmt_);
+                                  clang::Stmt *stmt_,
+                                  const PrintingPolicy &pp_);
 
   static PrintedTokenRange Create(const std::shared_ptr<ASTImpl> &,
-                                  clang::Decl *decl_);
+                                  clang::Decl *decl_,
+                                  const PrintingPolicy &pp_);
 
   static PrintedTokenRange Create(const std::shared_ptr<ASTImpl> &,
-                                  const clang::QualType &type);
+                                  const clang::QualType &type,
+                                  const PrintingPolicy &pp_);
 
   inline explicit PrintedTokenRange(
       std::shared_ptr<PrintedTokenRangeImpl> impl_)

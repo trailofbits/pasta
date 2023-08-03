@@ -23,13 +23,20 @@
 #include "../Token.h"
 
 namespace clang {
+class ClassTemplatePartialSpecializationDecl;
+class ClassTemplateSpecializationDecl;
 class Decl;
+class FunctionDecl;
+class FunctionTemplateDecl;
 class LangOptions;
 class SourceLocation;
 class SourceManager;
 class Stmt;
 class Type;
 class TypeLoc;
+class VarTemplateDecl;
+class VarTemplatePartialSpecializationDecl;
+class VarTemplateSpecializationDecl;
 namespace tok {
 enum TokenKind : unsigned short;
 }  // namespace tok
@@ -38,6 +45,7 @@ namespace pasta {
 
 class ASTImpl;
 class raw_string_ostream;
+class PrintingPolicyAdaptor;
 
 class PrintedTokenImpl : public TokenImpl {
  public:
@@ -115,6 +123,11 @@ class PrintedTokenRangeImpl {
   // when we recursively print different AST entities.
   TokenPrinterContext *curr_printer_context{nullptr};
 
+  // Adapts a printing policy, taken from the user, or applies a "default"
+  // policy. The policy focuses primarily on how to handle templates and their
+  // specializations/instantiations.
+  PrintingPolicyAdaptor *ppa{nullptr};
+
   inline PrintedTokenRangeImpl(clang::ASTContext &ast_context_)
       : ast_context(ast_context_) {}
 
@@ -135,6 +148,43 @@ class PrintedTokenRangeImpl {
   std::optional<std::string> AlignTokens(
       PrintedTokenRangeImpl &printed_range,
       TokenContextIndex decl_context_id);
+};
+
+class PrintingPolicyAdaptor final {
+ private:
+  std::shared_ptr<ASTImpl> ast;
+  const PrintingPolicy *pp{nullptr};
+  clang::Decl *decl_to_print{nullptr};
+
+ public:
+  inline PrintingPolicyAdaptor(clang::Decl *decl_to_print_=nullptr)
+      : decl_to_print(decl_to_print_) {}
+
+  inline PrintingPolicyAdaptor(const std::shared_ptr<ASTImpl> &ast_,
+                               const PrintingPolicy &pp_,
+                               clang::Decl *decl_to_print_=nullptr)
+      : ast(ast_),
+        pp(&pp_),
+        decl_to_print(decl_to_print_) {}
+
+  bool ShouldPrintTemplate(clang::TemplateDecl *) const;
+
+  bool ShouldPrintTemplate(
+      clang::ClassTemplatePartialSpecializationDecl *) const;
+
+  bool ShouldPrintTemplate(
+      clang::VarTemplatePartialSpecializationDecl *) const;
+  
+  bool ShouldPrintSpecialization(
+      clang::ClassTemplateDecl *,
+      clang::ClassTemplateSpecializationDecl *) const;
+  
+  bool ShouldPrintSpecialization(
+      clang::VarTemplateDecl *,
+      clang::VarTemplateSpecializationDecl *) const;
+  
+  bool ShouldPrintSpecialization(clang::FunctionTemplateDecl *,
+                                 clang::FunctionDecl *) const;
 };
 
 struct no_alias_tag {};

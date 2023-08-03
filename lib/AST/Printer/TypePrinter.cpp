@@ -2458,8 +2458,11 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
   auto tokens = std::make_shared<PrintedTokenRangeImpl>(context);
 
   if (!type.isNull()) {
+    PrintingPolicyAdaptor ppa;
+    tokens->ppa = &ppa;
     TypePrinter printer(policy, *tokens);
     printer.print(type, out, "", nullptr);
+    tokens->ppa = nullptr;
   }
 
   auto num_tokens = tokens->tokens.size();
@@ -2473,7 +2476,8 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
 }
 
 PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
-                                            const clang::QualType &type) {
+                                            const clang::QualType &type,
+                                            const PrintingPolicy &pp) {
   std::string data;
   raw_string_ostream out(data, 0);
   auto &context = ast->tu->getASTContext();
@@ -2483,9 +2487,13 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
   tokens->contexts.emplace_back(*ast);
 
   if (!type.isNull()) {
+    PrintingPolicyAdaptor ppa(ast, pp);
+    tokens->ppa = &ppa;
+
     clang::PrintingPolicy pp = *(ast->printing_policy);
     TypePrinter printer(pp, *tokens);
     printer.print(type, out, "", nullptr);
+    tokens->ppa = nullptr;
   }
 
   // Fixup to share the AST as the root context.

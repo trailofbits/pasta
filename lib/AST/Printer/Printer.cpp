@@ -24,6 +24,7 @@
 #include "raw_ostream.h"
 
 #include "../AST.h"  // For `ASTImpl`.
+#include "../Builder.h"  // For `DeclBuilder`.
 #include "../Token.h"  // For `TokenImpl`.
 
 namespace pasta {
@@ -609,20 +610,22 @@ TokenPrinterContext::~TokenPrinterContext(void) {
 }
 
 // More typical APIs when we've got PASTA ASTs.
-PrintedTokenRange PrintedTokenRange::Create(const Decl &decl) {
+PrintedTokenRange PrintedTokenRange::Create(
+    const Decl &decl, const PrintingPolicy &pp) {
   return PrintedTokenRange::Create(
-      decl.ast, const_cast<clang::Decl *>(decl.u.Decl));
+      decl.ast, const_cast<clang::Decl *>(decl.u.Decl), pp);
 }
 
 // More typical APIs when we've got PASTA ASTs.
-PrintedTokenRange PrintedTokenRange::Create(const Stmt &stmt) {
+PrintedTokenRange PrintedTokenRange::Create(
+    const Stmt &stmt, const PrintingPolicy &pp) {
   return PrintedTokenRange::Create(
-      stmt.ast, const_cast<clang::Stmt *>(stmt.u.Stmt));
+      stmt.ast, const_cast<clang::Stmt *>(stmt.u.Stmt), pp);
 }
 
 // More typical APIs when we've got PASTA ASTs.
-PrintedTokenRange PrintedTokenRange::Create(const Type &type) {
-
+PrintedTokenRange PrintedTokenRange::Create(
+    const Type &type, const PrintingPolicy &pp) {
   auto &ast = type.ast;
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(type.u.Type,
@@ -630,12 +633,12 @@ PrintedTokenRange PrintedTokenRange::Create(const Type &type) {
   auto self = ast_ctx.getQualifiedType(
       fast_qtype, clang::Qualifiers::fromOpaqueValue(type.qualifiers));
 
-  return PrintedTokenRange::Create(type.ast, self);
+  return PrintedTokenRange::Create(type.ast, self, pp);
 }
 
 // Number of tokens in this range.
 size_t PrintedTokenRange::Size(void) const noexcept {
-  return first ? impl->tokens.size() : 0;
+  return first < after_last ? static_cast<size_t>(after_last - first) : 0;
 }
 
 // Return the `index`th token in this range. If `index` is too big, then
@@ -741,6 +744,191 @@ std::optional<PrintedTokenRange> PrintedTokenRange::Concatenate(
   PrintedTokenImpl *after_last_tok = &(first_tok[new_impl->tokens.size() - 1u]);
 
   return PrintedTokenRange(std::move(new_impl), first_tok, after_last_tok);
+}
+
+PrintingPolicy::~PrintingPolicy(void) {}
+
+bool PrintingPolicy::ShouldPrintTemplate(const TemplateDecl &) const {
+  return true;
+}
+
+bool PrintingPolicy::ShouldPrintTemplate(
+    const ClassTemplatePartialSpecializationDecl &) const {
+  return true;
+}
+
+bool PrintingPolicy::ShouldPrintTemplate(
+    const VarTemplatePartialSpecializationDecl &) const {
+  return true;
+}
+
+bool PrintingPolicy::ShouldPrintSpecialization(
+    const ClassTemplateDecl &, const ClassTemplateSpecializationDecl &) const {
+  return false;
+}
+
+bool PrintingPolicy::ShouldPrintSpecialization(const FunctionTemplateDecl &,
+                                               const FunctionDecl &) const {
+  return false;
+}
+
+bool PrintingPolicy::ShouldPrintSpecialization(
+    const VarTemplateDecl &, const VarTemplateSpecializationDecl &) const {
+  return false;
+}
+
+ProxyPrintingPolicy::~ProxyPrintingPolicy(void) {}
+
+bool ProxyPrintingPolicy::ShouldPrintTemplate(const TemplateDecl &tpl) const {
+  return next.ShouldPrintTemplate(tpl);
+}
+
+bool ProxyPrintingPolicy::ShouldPrintTemplate(
+    const ClassTemplatePartialSpecializationDecl &tpl) const {
+  return next.ShouldPrintTemplate(tpl);
+}
+
+bool ProxyPrintingPolicy::ShouldPrintTemplate(
+    const VarTemplatePartialSpecializationDecl &tpl) const {
+  return next.ShouldPrintTemplate(tpl);
+}
+
+bool ProxyPrintingPolicy::ShouldPrintSpecialization(
+    const ClassTemplateDecl &tpl,
+    const ClassTemplateSpecializationDecl &spec) const {
+  return next.ShouldPrintSpecialization(tpl, spec);
+}
+
+bool ProxyPrintingPolicy::ShouldPrintSpecialization(
+  const VarTemplateDecl &tpl, const VarTemplateSpecializationDecl &spec) const {
+  return next.ShouldPrintSpecialization(tpl, spec);
+}
+
+bool ProxyPrintingPolicy::ShouldPrintSpecialization(
+  const FunctionTemplateDecl &tpl, const FunctionDecl &spec) const {
+  return next.ShouldPrintSpecialization(tpl, spec);
+}
+
+bool PrintingPolicyAdaptor::ShouldPrintTemplate(
+    clang::TemplateDecl *tpl) const {
+
+  if (pp) {
+    auto wrapped_tpl = DeclBuilder::Create<TemplateDecl>(ast, tpl);
+    return pp->ShouldPrintTemplate(wrapped_tpl);
+  }
+
+  if (!decl_to_print) {
+    return true;
+  }
+
+  if (tpl == decl_to_print) {
+    return true;
+  }
+
+  // Make sure we're not asking to print a specialization of `tpl`.
+  if (auto cspec = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(decl_to_print)) {
+    return cspec->getSpecializedTemplate()->getCanonicalDecl() != tpl->getCanonicalDecl();
+  
+  } else if (auto vspec = clang::dyn_cast<clang::VarTemplateSpecializationDecl>(decl_to_print)) {
+    return vspec->getSpecializedTemplate()->getCanonicalDecl() != tpl->getCanonicalDecl();
+  
+  } else if (auto fspec = clang::dyn_cast<clang::FunctionDecl>(decl_to_print)) {
+    if (fspec->isTemplateInstantiation()) {
+      return fspec->getPrimaryTemplate()->getCanonicalDecl() != tpl->getCanonicalDecl();
+    }
+  }
+
+  return true;
+}
+
+bool PrintingPolicyAdaptor::ShouldPrintTemplate(
+    clang::ClassTemplatePartialSpecializationDecl *tpl) const {
+
+  if (pp) {
+    auto wrapped_tpl = DeclBuilder::Create<ClassTemplatePartialSpecializationDecl>(ast, tpl);
+    return pp->ShouldPrintTemplate(wrapped_tpl);
+  }
+
+  if (!decl_to_print) {
+    return true;
+  }
+
+  if (tpl == decl_to_print) {
+    return true;
+  }
+
+  if (auto cspec = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(decl_to_print)) {
+    auto inst = cspec->getSpecializedTemplateOrPartial();
+    if (auto cpspec = inst.dyn_cast<clang::ClassTemplatePartialSpecializationDecl *>()) {
+      return cpspec->getCanonicalDecl() != tpl->getCanonicalDecl();
+    }
+  }
+
+  return true;
+}
+
+bool PrintingPolicyAdaptor::ShouldPrintTemplate(
+    clang::VarTemplatePartialSpecializationDecl *tpl) const {
+
+  if (pp) {
+    auto wrapped_tpl = DeclBuilder::Create<VarTemplatePartialSpecializationDecl>(ast, tpl);
+    return pp->ShouldPrintTemplate(wrapped_tpl);
+  }
+
+  if (!decl_to_print) {
+    return true;
+  }
+
+  if (tpl == decl_to_print) {
+    return true;
+  }
+
+  if (auto cspec = clang::dyn_cast<clang::VarTemplateSpecializationDecl>(decl_to_print)) {
+    auto inst = cspec->getSpecializedTemplateOrPartial();
+    if (auto cpspec = inst.dyn_cast<clang::VarTemplatePartialSpecializationDecl *>()) {
+      return cpspec->getCanonicalDecl() != tpl->getCanonicalDecl();
+    }
+  }
+
+  return true;
+}
+
+bool PrintingPolicyAdaptor::ShouldPrintSpecialization(
+    clang::ClassTemplateDecl *tpl,
+    clang::ClassTemplateSpecializationDecl *spec) const {
+
+  if (pp) {
+    auto wrapped_tpl = DeclBuilder::Create<ClassTemplateDecl>(ast, tpl);
+    auto wrapped_spec = DeclBuilder::Create<ClassTemplateSpecializationDecl>(ast, spec);
+    return pp->ShouldPrintSpecialization(wrapped_tpl, wrapped_spec);
+  }
+
+  return spec == decl_to_print;
+}
+
+bool PrintingPolicyAdaptor::ShouldPrintSpecialization(
+    clang::VarTemplateDecl *tpl,
+    clang::VarTemplateSpecializationDecl *spec) const {
+
+  if (pp) {
+    auto wrapped_tpl = DeclBuilder::Create<VarTemplateDecl>(ast, tpl);
+    auto wrapped_spec = DeclBuilder::Create<VarTemplateSpecializationDecl>(ast, spec);
+    return pp->ShouldPrintSpecialization(wrapped_tpl, wrapped_spec);
+  }
+
+  return spec == decl_to_print;
+}
+
+bool PrintingPolicyAdaptor::ShouldPrintSpecialization(
+    clang::FunctionTemplateDecl *tpl, clang::FunctionDecl *spec) const {
+
+  if (pp) {
+    auto wrapped_tpl = DeclBuilder::Create<FunctionTemplateDecl>(ast, tpl);
+    auto wrapped_spec = DeclBuilder::Create<FunctionDecl>(ast, spec);
+    return pp->ShouldPrintSpecialization(wrapped_tpl, wrapped_spec);
+  }
+
+  return spec == decl_to_print;
 }
 
 }  // namespace pasta

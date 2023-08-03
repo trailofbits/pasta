@@ -1672,52 +1672,101 @@ void DeclPrinter::VisitTemplateDecl(const clang::TemplateDecl *D) {
 }
 
 void DeclPrinter::VisitFunctionTemplateDecl(clang::FunctionTemplateDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens);
-  prettyPrintPragmas(D->getTemplatedDecl());
-  // Print any leading template parameter lists.
-  if (const clang::FunctionDecl *FD = D->getTemplatedDecl()) {
-    for (unsigned I = 0, NumTemplateParams = FD->getNumTemplateParameterLists();
-         I < NumTemplateParams; ++I)
-      printTemplateParameters(FD->getTemplateParameterList(I));
+  if (tokens.ppa->ShouldPrintTemplate(D)) {
+    TokenPrinterContext ctx(Out, D, tokens);
+    prettyPrintPragmas(D->getTemplatedDecl());
+    // Print any leading template parameter lists.
+    if (const clang::FunctionDecl *FD = D->getTemplatedDecl()) {
+      for (unsigned I = 0, NumTemplateParams = FD->getNumTemplateParameterLists();
+           I < NumTemplateParams; ++I)
+        printTemplateParameters(FD->getTemplateParameterList(I));
+    }
+    VisitRedeclarableTemplateDecl(D);
+    // Declare target attribute is special one, natural spelling for the pragma
+    // assumes "ending" construct so print it here.
+    if (D->getTemplatedDecl()->hasAttr<clang::OMPDeclareTargetDeclAttr>())
+      Out << "#pragma omp end declare target\n";
+
+    if (!D->getTemplatedDecl()->isThisDeclarationADefinition()) {
+      Out << ";\n";
+    }
   }
-  VisitRedeclarableTemplateDecl(D);
-  // Declare target attribute is special one, natural spelling for the pragma
-  // assumes "ending" construct so print it here.
-  if (D->getTemplatedDecl()->hasAttr<clang::OMPDeclareTargetDeclAttr>())
-    Out << "#pragma omp end declare target\n";
 
   // Never print "instantiations" for deduction guides (they don't really
   // have them).
-  if (PrintInstantiation &&
-      !clang::isa<clang::CXXDeductionGuideDecl>(D->getTemplatedDecl())) {
-    clang::FunctionDecl *PrevDecl = D->getTemplatedDecl();
-    const clang::FunctionDecl *Def;
-    if (PrevDecl->isDefined(Def) && Def != PrevDecl)
-      return;
-    for (auto *I : D->specializations())
-      if (I->getTemplateSpecializationKind() == clang::TSK_ImplicitInstantiation) {
-        if (!PrevDecl->isThisDeclarationADefinition())
-          Out << ";\n";
-        Indent();
-        prettyPrintPragmas(I);
-        Visit(I);
+  if (clang::isa<clang::CXXDeductionGuideDecl>(D->getTemplatedDecl())) {
+    return;
+  }
+
+  for (auto *I : D->specializations()) {
+    if (tokens.ppa->ShouldPrintSpecialization(D, I)) {
+      Indent();
+      prettyPrintPragmas(I);
+      Visit(I);
+
+      if (!I->isThisDeclarationADefinition()) {
+        Out << ";\n";
       }
+    }
+  }
+
+  // if (PrintInstantiation &&
+  //     !clang::isa<clang::CXXDeductionGuideDecl>(D->getTemplatedDecl())) {
+  //   clang::FunctionDecl *PrevDecl = D->getTemplatedDecl();
+  //   const clang::FunctionDecl *Def;
+  //   if (PrevDecl->isDefined(Def) && Def != PrevDecl)
+  //     return;
+  //   for (auto *I : D->specializations())
+  //     if (I->getTemplateSpecializationKind() == clang::TSK_ImplicitInstantiation) {
+  //       if (!PrevDecl->isThisDeclarationADefinition())
+  //         Out << ";\n";
+  //       Indent();
+  //       prettyPrintPragmas(I);
+  //       Visit(I);
+  //     }
+  // }
+}
+
+void DeclPrinter::VisitVarTemplateDecl(clang::VarTemplateDecl *D) {
+  if (tokens.ppa->ShouldPrintTemplate(D)) {
+    VisitRedeclarableTemplateDecl(D);
+  }
+}
+
+void DeclPrinter::VisitVarTemplatePartialSpecializationDecl(
+    clang::VarTemplatePartialSpecializationDecl *D) {
+  if (tokens.ppa->ShouldPrintTemplate(D)) {
+    VisitVarDecl(D);
+  }
+}
+
+void DeclPrinter::VisitVarTemplateSpecializationDecl(
+    clang::VarTemplateSpecializationDecl *D) {
+  if (tokens.ppa->ShouldPrintSpecialization(D->getSpecializedTemplate(), D)) {
+    VisitVarDecl(D);
   }
 }
 
 void DeclPrinter::VisitClassTemplateDecl(clang::ClassTemplateDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens);
-  VisitRedeclarableTemplateDecl(D);
-
-  if (PrintInstantiation) {
-    for (auto *I : D->specializations())
-      if (I->getSpecializationKind() == clang::TSK_ImplicitInstantiation) {
-        if (D->isThisDeclarationADefinition())
-          Out << ";";
-        Out << "\n";
-        Visit(I);
-      }
+  if (tokens.ppa->ShouldPrintTemplate(D)) {
+    VisitRedeclarableTemplateDecl(D);
   }
+
+  for (auto *I : D->specializations()) {
+    if (tokens.ppa->ShouldPrintSpecialization(D, I)) {
+      Visit(I);
+    }
+  }
+
+  // if (PrintInstantiation) {
+  //   for (auto *I : D->specializations())
+  //     if (I->getSpecializationKind() == clang::TSK_ImplicitInstantiation) {
+  //       if (D->isThisDeclarationADefinition())
+  //         Out << ";";
+  //       Out << "\n";
+  //       Visit(I);
+  //     }
+  // }
 }
 
 void DeclPrinter::VisitClassTemplateSpecializationDecl(clang::ClassTemplateSpecializationDecl *D) {
@@ -1729,9 +1778,11 @@ void DeclPrinter::VisitClassTemplateSpecializationDecl(clang::ClassTemplateSpeci
 }
 
 void DeclPrinter::VisitClassTemplatePartialSpecializationDecl(clang::ClassTemplatePartialSpecializationDecl *D) {
-  TokenPrinterContext ctx(Out, D, tokens);
-  printTemplateParameters(D->getTemplateParameters());
-  VisitCXXRecordDecl(D);
+  if (tokens.ppa->ShouldPrintTemplate(D)) {
+    TokenPrinterContext ctx(Out, D, tokens);
+    printTemplateParameters(D->getTemplateParameters());
+    VisitCXXRecordDecl(D);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -2396,8 +2447,12 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
   std::string data;
   raw_string_ostream out(data, 0);
   auto tokens = std::make_shared<PrintedTokenRangeImpl>(context);
+  
 
   if (decl) {
+    PrintingPolicyAdaptor ppa(decl);
+    tokens->ppa = &ppa;
+
     DeclPrinter printer(out, policy, context, *tokens);
     printer.Visit(decl);
 
@@ -2407,6 +2462,8 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
          tokens->tokens.back().Kind() != clang::tok::semi)) {
       out << ';';
     }
+
+    tokens->ppa = nullptr;
   }
 
   auto num_tokens = tokens->tokens.size();
@@ -2420,7 +2477,8 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
 }
 
 PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
-                                            clang::Decl *decl) {
+                                            clang::Decl *decl,
+                                            const PrintingPolicy &pp) {
   std::string data;
   raw_string_ostream out(data, 0);
   auto &context = ast->tu->getASTContext();
@@ -2429,8 +2487,11 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
 
   // Top-level context should be the AST.
   tokens->contexts.emplace_back(*ast);
-  
+
   if (decl) {
+    PrintingPolicyAdaptor ppa(ast, pp, decl);
+    tokens->ppa = &ppa;
+
     clang::PrintingPolicy pp = *(ast->printing_policy);
     DeclPrinter printer(out, pp, context, *tokens);
     printer.Visit(decl);
@@ -2447,6 +2508,8 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
         ctx.MarkLocation(*end_tok);
       }
     }
+
+    tokens->ppa = nullptr;
   }
 
   // Fixup to share the AST as the root context.

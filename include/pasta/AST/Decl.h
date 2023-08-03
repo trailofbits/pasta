@@ -2579,8 +2579,8 @@ class CXXDeductionGuideDecl : public FunctionDecl {
   // ExplicitSpecifier: (const clang::ExplicitSpecifier)
   bool IsCopyDeductionCandidate(void) const;
   bool IsExplicit(void) const;
-  std::vector<::pasta::ParmVarDecl> ParameterDeclarations(void) const;
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
+  std::vector<::pasta::ParmVarDecl> ParameterDeclarations(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXDeductionGuideDecl)
 };
@@ -2623,8 +2623,8 @@ class CXXMethodDecl : public FunctionDecl {
   bool IsVolatile(void) const;
   std::vector<::pasta::CXXMethodDecl> OverriddenMethods(void) const;
   uint32_t SizeOverriddenMethods(void) const;
-  std::vector<::pasta::ParmVarDecl> ParameterDeclarations(void) const;
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
+  std::vector<::pasta::ParmVarDecl> ParameterDeclarations(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXMethodDecl)
 };

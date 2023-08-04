@@ -90,8 +90,8 @@ if __name__ == "__main__":
 
       for job in jobs:
         normalized.append({
-           "file": job.source_file.path,
+           "file": str(job.source_file.path),
            "arguments": job.arguments.arguments,
-           "directory": job.working_directory,
+           "directory": str(job.working_directory),
         })
       json.dump(normalized, indent=2, fp=sys.stdout)

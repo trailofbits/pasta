@@ -78,14 +78,14 @@ if __name__ == "__main__":
         continue
 
       if "++" in record['command']:
-        jobs = cxx.create_jobs_for_command(cc)
+        jobs = cxx.create_jobs_for_command(cmd)
       else:
-        jobs = cc.create_jobs_for_command(cc)
+        jobs = cc.create_jobs_for_command(cmd)
 
       if isinstance(jobs, str):
         print(jobs, file=sys.stderr)
         continue
-      
+
       normalized: List[NormalizedCompileCommandItem] = []
 
       for job in jobs:

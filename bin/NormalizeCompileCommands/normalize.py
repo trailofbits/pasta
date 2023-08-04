@@ -70,6 +70,8 @@ if __name__ == "__main__":
         cxx_file.name, fm, TargetLanguage.CXX)
 
   with open(args.compile_commands) as file:
+    sep = "\n"
+    sys.stdout.write("[")
     for record in json.load(file):
       args = ArgumentVector(record['command'])
       cmd = CompileCommand.create_from_arguments(args, record['directory'])
@@ -86,12 +88,14 @@ if __name__ == "__main__":
         print(jobs, file=sys.stderr)
         continue
 
-      normalized: List[NormalizedCompileCommandItem] = []
-
       for job in jobs:
-        normalized.append({
+        sys.stdout.write(sep)
+        sep = ",\n"
+        normalized = {
            "file": str(job.source_file.path),
            "arguments": job.arguments.arguments,
            "directory": str(job.working_directory),
-        })
-      json.dump(normalized, indent=2, fp=sys.stdout)
+        }
+        json.dump(normalized, indent=2, fp=sys.stdout)
+    sys.stdout.write("\n]")
+

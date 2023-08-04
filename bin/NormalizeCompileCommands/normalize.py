@@ -63,11 +63,13 @@ if __name__ == "__main__":
     cc: Compiler = _create_compiler_from_args(
         args.c_compiler, ["-x", "c", "-std=c18"],
         c_file.name, fm, TargetLanguage.C)
+    cc_exe = str(cc.executable_path)
 
   with tempfile.NamedTemporaryFile(suffix=".cpp") as cxx_file:
     cxx: Compiler = _create_compiler_from_args(
         args.cxx_compiler, ["-x", "c++", "-std=c++20"],
         cxx_file.name, fm, TargetLanguage.CXX)
+    cxx_exe = str(cxx.executable_path)
 
   with open(args.compile_commands) as file:
     sep = "\n"
@@ -81,8 +83,10 @@ if __name__ == "__main__":
 
       if "++" in record['command']:
         jobs = cxx.create_jobs_for_command(cmd)
+        job_exe = cxx_exe
       else:
         jobs = cc.create_jobs_for_command(cmd)
+        job_exe = cc_exe
 
       if isinstance(jobs, str):
         print(jobs, file=sys.stderr)
@@ -93,7 +97,7 @@ if __name__ == "__main__":
         sep = ",\n"
         normalized = {
            "file": str(job.source_file.path),
-           "arguments": job.arguments.arguments,
+           "arguments": [job_exe,] + job.arguments.arguments,
            "directory": str(job.working_directory),
         }
         json.dump(normalized, indent=2, fp=sys.stdout)

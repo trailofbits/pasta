@@ -10,10 +10,6 @@
 
 #include "bindings.h"
 
-#include <nanobind/stl/string_view.h>
-#include <nanobind/stl/string.h>
-#include <nanobind/stl/vector.h>
-
 namespace pasta {
 
 namespace nb = nanobind;

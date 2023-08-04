@@ -7,8 +7,6 @@
 #include "bindings.h"
 
 #include <pasta/Util/ArgumentVector.h>
-#include <nanobind/stl/string_view.h>
-#include <nanobind/stl/string.h>
 
 namespace pasta {
 

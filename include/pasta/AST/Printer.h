@@ -316,6 +316,9 @@ class ProxyPrintingPolicy : public PrintingPolicy {
   bool ShouldPrintSpecialization(const FunctionTemplateDecl &,
                                  const FunctionDecl &) const override;
 
+  // TODO(pag): ClassScopeFunctionSpecializationDecl
+  // TODO(pag): FriendTemplateDecl
+
   bool ShouldPrintSpecialization(
       const VarTemplateDecl &,
       const VarTemplateSpecializationDecl &) const override;

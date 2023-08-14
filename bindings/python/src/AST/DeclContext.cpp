@@ -9,8 +9,8 @@
 #include <pasta/AST/Decl.h>
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
-
-#include <nanobind/nanobind.h>
+ 
+#include "../bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
@@ -49,6 +49,37 @@ void RegisterDeclContext(nb::module_ &m) {
     .def_prop_ro("is_translation_unit", &DeclContext::IsTranslationUnit)
     .def_prop_ro("is_transparent_context", &DeclContext::IsTransparentContext)
     .def_prop_ro("already_loaded_declarations", &DeclContext::AlreadyLoadedDeclarations)
-    .def_prop_ro("should_use_qualified_lookup", &DeclContext::ShouldUseQualifiedLookup);
+    .def_prop_ro("should_use_qualified_lookup", &DeclContext::ShouldUseQualifiedLookup)
+    .def_static("cast", +[] (const BlockDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const CXXConstructorDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const CXXConversionDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const CXXDeductionGuideDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const CXXDestructorDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const CXXMethodDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const CXXRecordDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const CapturedDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const ClassTemplatePartialSpecializationDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const ClassTemplateSpecializationDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const EnumDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const ExportDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const ExternCContextDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const FunctionDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const HLSLBufferDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const LinkageSpecDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const NamespaceDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const OMPDeclareMapperDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const OMPDeclareReductionDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const ObjCCategoryDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const ObjCCategoryImplDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const ObjCContainerDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const ObjCImplDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const ObjCImplementationDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const ObjCInterfaceDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const ObjCMethodDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const ObjCProtocolDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const RecordDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const RequiresExprBodyDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const TagDecl &cls) { return DeclContext(cls); })
+    .def_static("cast", +[] (const TranslationUnitDecl &cls) { return DeclContext(cls); });
 }
 } // namespace pasta

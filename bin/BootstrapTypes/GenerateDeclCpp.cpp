@@ -217,8 +217,8 @@ void GenerateDeclCpp(std::ostream& py_cmake, std::ostream& py_ast) {
 #include <pasta/AST/Decl.h>
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
-
-#include <nanobind/nanobind.h>
+ 
+#include "../bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
@@ -228,7 +228,13 @@ void RegisterDeclContext(nb::module_ &m) {
 
     DefineCppMethods(os, decl_context, gClassIDs[decl_context], decl_context_os);
 
-    decl_context_os << ";\n"
+    for (const auto &derived_cls_name : derived_from_decl_context) {
+      decl_context_os
+          << "\n    .def_static(\"cast\", +[] (const " << derived_cls_name << " &cls) { return DeclContext(cls); })";
+    }
+
+    decl_context_os
+          << ";\n"
           << "}\n"
           << "} // namespace pasta\n";
   }
@@ -239,7 +245,6 @@ void RegisterDeclContext(nb::module_ &m) {
     if (name == "DeclContext") {
       continue;
     }
-
 
     py_cmake << "    \"${CMAKE_CURRENT_SOURCE_DIR}/" << name << ".cpp\"\n";
     py_ast << "void Register" << name << "(nb::module_ &m);\n"
@@ -258,9 +263,7 @@ void RegisterDeclContext(nb::module_ &m) {
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;

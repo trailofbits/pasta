@@ -812,10 +812,12 @@ bool ProxyPrintingPolicy::ShouldPrintSpecialization(
 bool PrintingPolicyAdaptor::ShouldPrintTemplate(
     clang::TemplateDecl *tpl) const {
 
+#ifndef PASTA_IN_BOOTSTRAP
   if (pp) {
     auto wrapped_tpl = DeclBuilder::Create<TemplateDecl>(ast, tpl);
     return pp->ShouldPrintTemplate(wrapped_tpl);
   }
+#endif
 
   if (!decl_to_print) {
     return true;
@@ -844,10 +846,12 @@ bool PrintingPolicyAdaptor::ShouldPrintTemplate(
 bool PrintingPolicyAdaptor::ShouldPrintTemplate(
     clang::ClassTemplatePartialSpecializationDecl *tpl) const {
 
+#ifndef PASTA_IN_BOOTSTRAP
   if (pp) {
     auto wrapped_tpl = DeclBuilder::Create<ClassTemplatePartialSpecializationDecl>(ast, tpl);
     return pp->ShouldPrintTemplate(wrapped_tpl);
   }
+#endif
 
   if (!decl_to_print) {
     return true;
@@ -870,10 +874,12 @@ bool PrintingPolicyAdaptor::ShouldPrintTemplate(
 bool PrintingPolicyAdaptor::ShouldPrintTemplate(
     clang::VarTemplatePartialSpecializationDecl *tpl) const {
 
+#ifndef PASTA_IN_BOOTSTRAP
   if (pp) {
     auto wrapped_tpl = DeclBuilder::Create<VarTemplatePartialSpecializationDecl>(ast, tpl);
     return pp->ShouldPrintTemplate(wrapped_tpl);
   }
+#endif
 
   if (!decl_to_print) {
     return true;
@@ -897,11 +903,13 @@ bool PrintingPolicyAdaptor::ShouldPrintSpecialization(
     clang::ClassTemplateDecl *tpl,
     clang::ClassTemplateSpecializationDecl *spec) const {
 
+#ifndef PASTA_IN_BOOTSTRAP
   if (pp) {
     auto wrapped_tpl = DeclBuilder::Create<ClassTemplateDecl>(ast, tpl);
     auto wrapped_spec = DeclBuilder::Create<ClassTemplateSpecializationDecl>(ast, spec);
     return pp->ShouldPrintSpecialization(wrapped_tpl, wrapped_spec);
   }
+#endif
 
   return spec == decl_to_print;
 }
@@ -910,11 +918,13 @@ bool PrintingPolicyAdaptor::ShouldPrintSpecialization(
     clang::VarTemplateDecl *tpl,
     clang::VarTemplateSpecializationDecl *spec) const {
 
+#ifndef PASTA_IN_BOOTSTRAP
   if (pp) {
     auto wrapped_tpl = DeclBuilder::Create<VarTemplateDecl>(ast, tpl);
     auto wrapped_spec = DeclBuilder::Create<VarTemplateSpecializationDecl>(ast, spec);
     return pp->ShouldPrintSpecialization(wrapped_tpl, wrapped_spec);
   }
+#endif
 
   return spec == decl_to_print;
 }
@@ -922,11 +932,13 @@ bool PrintingPolicyAdaptor::ShouldPrintSpecialization(
 bool PrintingPolicyAdaptor::ShouldPrintSpecialization(
     clang::FunctionTemplateDecl *tpl, clang::FunctionDecl *spec) const {
 
+#ifndef PASTA_IN_BOOTSTRAP
   if (pp) {
     auto wrapped_tpl = DeclBuilder::Create<FunctionTemplateDecl>(ast, tpl);
     auto wrapped_spec = DeclBuilder::Create<FunctionDecl>(ast, spec);
     return pp->ShouldPrintSpecialization(wrapped_tpl, wrapped_spec);
   }
+#endif
 
   return spec == decl_to_print;
 }

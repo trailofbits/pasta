@@ -27,10 +27,10 @@ BUILTIN_TK = {
   BuiltinTypeKind.FLOAT: "f",
   BuiltinTypeKind.FLOAT16: "h",
   BuiltinTypeKind.DOUBLE: "d",
-  BuiltinTypeKind.LONG: "O",
-  BuiltinTypeKind.U_LONG: "UO",
-  BuiltinTypeKind.LONG_LONG: "O",
-  BuiltinTypeKind.U_LONG_LONG: "UO",
+  BuiltinTypeKind.LONG: "Li",
+  BuiltinTypeKind.U_LONG: "ULi",
+  BuiltinTypeKind.LONG_LONG: "LLi",
+  BuiltinTypeKind.U_LONG_LONG: "ULLi",
   BuiltinTypeKind.FLOAT128: "LLd",
 }
 
@@ -40,49 +40,54 @@ def run_on_builtin_type(type: BuiltinType, sizes: List[int]) -> str:
     print(f"Unsupported builtin type kind: {type.builtin_kind}")
   return enc
 
-# typedef char qi __attribute__ ((mode(QI)));
-# typedef short hi __attribute__ ((mode(HI)));
-# typedef int si __attribute__ ((mode(SI)));
-# typedef long long di __attribute__ ((mode(DI)));
-#
 # QI: An integer that is as wide as the smallest addressable unit, usually 8 bits.
 # HI: An integer, twice as wide as a QI mode integer, usually 16 bits.
 # SI: An integer, four times as wide as a QI mode integer, usually 32 bits.
 # DI: An integer, eight times as wide as a QI mode integer, usually 64 bits.
+# HF: A floating point value, as wide as a HI mode integer, usually 16 bits.
 # SF: A floating point value, as wide as a SI mode integer, usually 32 bits.
 # DF: A floating point value, as wide as a DI mode integer, usually 64 bits.
 
 TYPEDEF_TK = {
+  "qi": "c",
   "v8qi": "V8c",
   "v16qi": "V16c",
   "v32qi": "V32c",
   "v64qi": "V64c",
 
+  "hi": "s",
   "v4hi": "V4s",
   "v8hi": "V8s",
   "v16hi": "V16s",
   "v32hi": "V32s",
+  "v32uhi": "V32Us",
 
+  "si": "i",
   "v2si": "V2i",
   "v4si": "V4i",
   "v8si": "V8i",
   "v16si": "V16i",
+  "v16usi": "V16Ui",
 
-  "di": "O",
-  "v1di": "V1O",
-  "v2di": "V2O",
-  "v4di": "V4O",
-  "v8di": "V8O",
+  "di": "Wi",
+  "v1di": "V1Wi",
+  "v2di": "V2Wi",
+  "v4di": "V4Wi",
+  "v8di": "V8Wi",
+  "v8udi": "V8UWi",
 
+  "hf": "h",
   "v8hf": "V8h",
   "v16hf": "V16h",
   "v32hf": "V23h",
 
+  "sf": "f",
   "v2sf": "V2f",
   "v4sf": "V4f",
   "v8sf": "V8f",
   "v16sf": "V16f",
 
+  "df": "d",
   "v2df": "V2d",
   "v4df": "V4d",
   "v8df": "V8d",
@@ -98,16 +103,19 @@ VECTOR_SIZE_BITS = {
   "v8hi": 128,
   "v16hi": 256,
   "v32hi": 512,
+  "v32uhi": 512,
 
   "v2si": 64,
   "v4si": 128,
   "v8si": 256,
   "v16si": 512,
+  "v16usi": 512,
 
   "v1di": 64,
   "v2di": 128,
   "v4di": 256,
   "v8di": 512,
+  "v8udi": 512,
 
   "v8hf": 128,
   "v16hf": 256,
@@ -130,6 +138,9 @@ def run_on_unsupported(type: Type, sizes: List[int]) -> str:
 def run_on_typedef(type: TypedefType, sizes: List[int]) -> str:
   typedef_name = type.declaration.name
   sizes.append(VECTOR_SIZE_BITS.get(typedef_name, 0))
+  if sizes[-1] == 0:
+    assert not typedef_name.startswith("v")
+
   enc = TYPEDEF_TK.get(typedef_name, "?")
   if enc == "?":
     print(f"Unsupported typedef name: {typedef_name}")
@@ -175,14 +186,28 @@ def run_on_function(func: FunctionDecl):
   for param in func.parameters:
     proto += run_on_type(param.type, vec_sizes)
 
+  if func.is_variadic:
+    proto += "."
+
+  # Find the maximum vector size.
   max_vec_size = max(vec_sizes)
   vec_enc: str = ""
   if 0 < max_vec_size:
     vec_enc = f"V:{max_vec_size}:"
 
+  # If there's a pointer to non-constant data, then assume this might write
+  # through the pointer.
+  const_enc: str = "c"
+  if "*" in proto and not "C*" in proto:
+    const_enc = ""
+
+  # Pointer to volatile data means each read might produce different data.
+  if "V*" in proto:
+    const_enc = ""
+
   # `n` for nothrow
   # `c` for const
-  print(f"TARGET_BUILTIN({func.name}, \"{proto}\", \"nc{vec_enc}\", \"\")")
+  print(f"TARGET_BUILTIN({func.name}, \"{proto}\", \"n{const_enc}{vec_enc}\", \"\")")
 
 def run_on_ast(ast: AST):
   dc: DeclContext = DeclContext.cast(ast.translation_unit)

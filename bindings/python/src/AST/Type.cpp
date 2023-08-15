@@ -17,8 +17,12 @@ namespace nb = nanobind;
 
 void RegisterType(nb::module_ &m) {
   nb::class_<Type>(m, "Type")
-    .def("__hash__", [](const Type& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
+    .def("__hash__", [](const Type &type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
+    .def("kind", &Type::Kind)
+    .def("kind_name", &Type::KindName)
+    .def("size_in_bits", &Type::SizeInBits)
+    .def("alignment", &Type::Alignment)
     .def_prop_ro("accepts_obj_c_type_parameters", &Type::AcceptsObjCTypeParameters)
     .def_prop_ro("can_decay_to_pointer_type", &Type::CanDecayToPointerType)
     .def_prop_ro("can_have_nullability", &Type::CanHaveNullability)

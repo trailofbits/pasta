@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterTryAcquireCapabilityAttr(nb::module_ &m) {
   nb::class_<TryAcquireCapabilityAttr, InheritableAttr>(m, "TryAcquireCapabilityAttr")
-    .def("__hash__", [](const TryAcquireCapabilityAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const TryAcquireCapabilityAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("semantic_spelling", &TryAcquireCapabilityAttr::SemanticSpelling)
     .def_prop_ro("spelling", &TryAcquireCapabilityAttr::Spelling)
     .def_prop_ro("success_value", &TryAcquireCapabilityAttr::SuccessValue)

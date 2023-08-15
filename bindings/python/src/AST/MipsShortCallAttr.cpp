@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterMipsShortCallAttr(nb::module_ &m) {
   nb::class_<MipsShortCallAttr, InheritableAttr>(m, "MipsShortCallAttr")
-    .def("__hash__", [](const MipsShortCallAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const MipsShortCallAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("semantic_spelling", &MipsShortCallAttr::SemanticSpelling)
     .def_prop_ro("spelling", &MipsShortCallAttr::Spelling);
 }

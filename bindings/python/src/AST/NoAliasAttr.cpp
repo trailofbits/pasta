@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterNoAliasAttr(nb::module_ &m) {
   nb::class_<NoAliasAttr, InheritableAttr>(m, "NoAliasAttr")
-    .def("__hash__", [](const NoAliasAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const NoAliasAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &NoAliasAttr::Spelling);
 }
 } // namespace pasta

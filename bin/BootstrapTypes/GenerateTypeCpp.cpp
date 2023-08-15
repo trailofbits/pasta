@@ -14,7 +14,7 @@ extern void DefineCppMethods(std::ostream &os, const std::string &class_name,
                              uint32_t class_id, std::ostream &os_py);
 
 // Generate `lib/AST/Type.cpp`.
-void GenerateTypeCpp(std::ostream& py_cmake, std::ostream& py_ast) {
+void GenerateTypeCpp(std::ostream &py_cmake, std::ostream &py_ast) {
   std::ofstream os(kASTTypeCpp);
 
   os
@@ -157,8 +157,16 @@ void Register)" << name << "(nb::module_ &m) {\n"
       os_py << ", " << base_class;
     }
     os_py << ">(m, \"" << name << "\")"
-          << "\n    .def(\"__hash__\", [](const " << name << "& type) { return (intptr_t)type.RawType(); })"
-          << "\n    .def(\"__eq__\", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })";
+          << "\n    .def(\"__hash__\", [](const " << name << " &type) { return (intptr_t)type.RawType(); })"
+          << "\n    .def(\"__eq__\", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })";
+
+    if (name == "Type") {
+      os_py
+          << "\n    .def(\"kind\", &Type::Kind)"
+          << "\n    .def(\"kind_name\", &Type::KindName)"
+          << "\n    .def(\"size_in_bits\", &Type::SizeInBits)"
+          << "\n    .def(\"alignment\", &Type::Alignment)";
+    }
 
     for (const auto &derived_class : gTransitiveDerivedClasses[name]) {
       os << "PASTA_DEFINE_DERIVED_OPERATORS("

@@ -4,6 +4,16 @@
 // This source code is licensed in accordance with the terms specified in
 // the LICENSE file found in the root directory of this source tree.
 
+// typedef void v;
+// typedef char c;
+// typedef short s;
+// typedef int i;
+// typedef __fp16 h;
+// typedef _Float16 x;
+// typedef __bf16 y;
+// typedef float f;
+// typedef double d;
+
 typedef char qi __attribute__ ((mode(QI)));
 typedef short hi __attribute__ ((mode(HI)));
 typedef int si __attribute__ ((mode(SI)));
@@ -39,35 +49,45 @@ typedef di v8di __attribute__ ((vector_size (64)));
 typedef sf v16sf __attribute__ ((vector_size (64)));
 typedef df v8df __attribute__ ((vector_size (64)));
 
-typedef qi __gcc_qi;
-typedef hi __gcc_hi;
-typedef si __gcc_si;
-typedef di __gcc_di;
-typedef sf __gcc_sf; 
-typedef df __gcc_df;
-typedef v8qi __gcc_v8qi;
-typedef v4hi __gcc_v4hi;
-typedef v2si __gcc_v2si;
-typedef v1di __gcc_v1di;
-typedef v2sf __gcc_v2sf;
-typedef v16qi __gcc_v16qi;
-typedef v8hi __gcc_v8hi;
-typedef v4si __gcc_v4si;
-typedef v2di __gcc_v2di;
-typedef v4sf __gcc_v4sf;
-typedef v2df __gcc_v2df;
-typedef v32qi __gcc_v32qi;
-typedef v16hi __gcc_v16hi;
-typedef v8si __gcc_v8si;
-typedef v4di __gcc_v4di;
-typedef v8sf __gcc_v8sf;
-typedef v4df __gcc_v4df;
-typedef v64qi __gcc_v64qi;
-typedef v32hi __gcc_v32hi;
-typedef v16si __gcc_v16si;
-typedef v8di __gcc_v8di;
-typedef v16sf __gcc_v16sf;
-typedef v8df __gcc_v8df;
+// #define void v
+// #define char c
+// #define short s
+// #define int i
+// #define __fp16 h
+// #define _Float16 x
+// #define __bf16 y
+// #define float f
+// #define double d
+
+#define __gcc_qi qi
+#define __gcc_hi hi
+#define __gcc_si si
+#define __gcc_di di
+#define __gcc_sf sf
+#define __gcc_df df
+#define __gcc_v8qi v8qi
+#define __gcc_v4hi v4hi
+#define __gcc_v2si v2si
+#define __gcc_v1di v1di
+#define __gcc_v2sf v2sf
+#define __gcc_v16qi v16qi
+#define __gcc_v8hi v8hi
+#define __gcc_v4si v4si
+#define __gcc_v2di v2di
+#define __gcc_v4sf v4sf
+#define __gcc_v2df v2df
+#define __gcc_v32qi v32qi
+#define __gcc_v16hi v16hi
+#define __gcc_v8si v8si
+#define __gcc_v4di v4di
+#define __gcc_v8sf v8sf
+#define __gcc_v4df v4df
+#define __gcc_v64qi v64qi
+#define __gcc_v32hi v32hi
+#define __gcc_v16si v16si
+#define __gcc_v8di v8di
+#define __gcc_v16sf v16sf
+#define __gcc_v8df v8df
 
 typedef const float * pcfloat;
 typedef const double * pcdouble;

@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterFunctionDecl(nb::module_ &m) {
   nb::class_<FunctionDecl, DeclaratorDecl>(m, "FunctionDecl")
-    .def("__hash__", [](const FunctionDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__hash__", [](const FunctionDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("friend_constraint_refers_to_enclosing_template", &FunctionDecl::FriendConstraintRefersToEnclosingTemplate)
     .def_prop_ro("uses_fp_intrin", &FunctionDecl::UsesFPIntrin)
     .def_prop_ro("does_declaration_force_externally_visible_definition", &FunctionDecl::DoesDeclarationForceExternallyVisibleDefinition)

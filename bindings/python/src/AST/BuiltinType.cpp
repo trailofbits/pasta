@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterBuiltinType(nb::module_ &m) {
   nb::class_<BuiltinType, Type>(m, "BuiltinType")
-    .def("__hash__", [](const BuiltinType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
+    .def("__hash__", [](const BuiltinType &type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("desugar", &BuiltinType::Desugar)
     .def_prop_ro("builtin_kind", &BuiltinType::BuiltinKind)
     .def_prop_ro("is_floating_point", &BuiltinType::IsFloatingPoint)

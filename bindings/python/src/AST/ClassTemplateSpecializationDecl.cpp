@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterClassTemplateSpecializationDecl(nb::module_ &m) {
   nb::class_<ClassTemplateSpecializationDecl, CXXRecordDecl>(m, "ClassTemplateSpecializationDecl")
-    .def("__hash__", [](const ClassTemplateSpecializationDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__hash__", [](const ClassTemplateSpecializationDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("extern_token", &ClassTemplateSpecializationDecl::ExternToken)
     .def_prop_ro("instantiated_from", &ClassTemplateSpecializationDecl::InstantiatedFrom)
     .def_prop_ro("point_of_instantiation", &ClassTemplateSpecializationDecl::PointOfInstantiation)

@@ -1742,6 +1742,7 @@ class FieldDecl : public DeclaratorDecl {
   bool IsZeroLengthBitField(void) const;
   bool IsZeroSize(void) const;
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
+  std::optional<uint64_t> OffsetInBits(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(FieldDecl)
 };
@@ -2839,6 +2840,9 @@ class RecordDecl : public TagDecl {
   bool IsRandomized(void) const;
   bool MayInsertExtraPadding(void) const;
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
+  std::optional<uint64_t> Size(void) const noexcept;  // In bytes.
+  std::optional<uint64_t> Alignment(void) const noexcept;  // In bytes.
+  std::optional<uint64_t> SizeWithoutTrailingPadding(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(RecordDecl)
 };
@@ -3102,6 +3106,12 @@ class CXXRecordDecl : public RecordDecl {
   std::optional<bool> NullFieldOffsetIsZero(void) const;
   std::optional<std::vector<::pasta::CXXBaseSpecifier>> VirtualBases(void) const;
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
+  std::optional<uint64_t> SizeWithoutVirtualBases(void) const noexcept;
+  std::optional<CXXRecordDecl> PrimaryBase(void) const noexcept;
+  std::optional<bool> HasOwnVirtualFunctionTablePointer(void) const noexcept;
+  std::optional<bool> HasExtendableVirtualFunctionTablePointer(void) const noexcept;
+  std::optional<bool> HasVirtualBaseTablePointer(void) const noexcept;
+  std::optional<bool> HasOwnVirtualBaseTablePointer(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXRecordDecl)
 };

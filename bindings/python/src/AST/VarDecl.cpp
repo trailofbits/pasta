@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterVarDecl(nb::module_ &m) {
   nb::class_<VarDecl, DeclaratorDecl>(m, "VarDecl")
-    .def("__hash__", [](const VarDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__hash__", [](const VarDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("acting_definition", &VarDecl::ActingDefinition)
     .def_prop_ro("canonical_declaration", &VarDecl::CanonicalDeclaration)
     .def_prop_ro("described_variable_template", &VarDecl::DescribedVariableTemplate)

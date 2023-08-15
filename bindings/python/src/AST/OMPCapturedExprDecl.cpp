@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterOMPCapturedExprDecl(nb::module_ &m) {
   nb::class_<OMPCapturedExprDecl, VarDecl>(m, "OMPCapturedExprDecl")
-    .def("__hash__", [](const OMPCapturedExprDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); });
+    .def("__hash__", [](const OMPCapturedExprDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); });
 }
 } // namespace pasta

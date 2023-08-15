@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterInheritableAttr(nb::module_ &m) {
   nb::class_<InheritableAttr, Attr>(m, "InheritableAttr")
-    .def("__hash__", [](const InheritableAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const InheritableAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("should_inherit_even_if_already_present", &InheritableAttr::ShouldInheritEvenIfAlreadyPresent);
 }
 } // namespace pasta

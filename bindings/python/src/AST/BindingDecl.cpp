@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterBindingDecl(nb::module_ &m) {
   nb::class_<BindingDecl, ValueDecl>(m, "BindingDecl")
-    .def("__hash__", [](const BindingDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__hash__", [](const BindingDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("binding", &BindingDecl::Binding)
     .def_prop_ro("decomposed_declaration", &BindingDecl::DecomposedDeclaration)
     .def_prop_ro("holding_variable", &BindingDecl::HoldingVariable);

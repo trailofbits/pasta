@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterEnforceTCBAttr(nb::module_ &m) {
   nb::class_<EnforceTCBAttr, InheritableAttr>(m, "EnforceTCBAttr")
-    .def("__hash__", [](const EnforceTCBAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const EnforceTCBAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &EnforceTCBAttr::Spelling)
     .def_prop_ro("tcb_name", &EnforceTCBAttr::TCBName)
     .def_prop_ro("tcb_name_length", &EnforceTCBAttr::TCBNameLength);

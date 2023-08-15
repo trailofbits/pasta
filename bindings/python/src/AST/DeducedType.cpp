@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterDeducedType(nb::module_ &m) {
   nb::class_<DeducedType, Type>(m, "DeducedType")
-    .def("__hash__", [](const DeducedType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
+    .def("__hash__", [](const DeducedType &type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("desugar", &DeducedType::Desugar)
     .def_prop_ro("resolved_type", &DeducedType::ResolvedType)
     .def_prop_ro("is_deduced", &DeducedType::IsDeduced)

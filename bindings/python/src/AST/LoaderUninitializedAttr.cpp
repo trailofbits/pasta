@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterLoaderUninitializedAttr(nb::module_ &m) {
   nb::class_<LoaderUninitializedAttr, Attr>(m, "LoaderUninitializedAttr")
-    .def("__hash__", [](const LoaderUninitializedAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const LoaderUninitializedAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &LoaderUninitializedAttr::Spelling);
 }
 } // namespace pasta

@@ -80,6 +80,29 @@ std::string_view Type::KindName(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
+std::optional<uint64_t> Type::SizeInBits(void) const noexcept {
+  clang::NamedDecl *nd = nullptr;
+  if (!u.Type || u.Type->isIncompleteType(&nd)) {
+    return std::nullopt;
+  }
+
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  return ast_ctx.getTypeSize(self);
+}
+
+std::optional<uint64_t> Type::Alignment(void) const noexcept {
+  auto &ast_ctx = ast->ci->getASTContext();
+  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
+  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  if (auto ret = ast_ctx.getTypeAlignIfKnown(self)) {
+    return ret;
+  }
+
+  return std::nullopt;
+}
+
 ExceptionSpecification::~ExceptionSpecification(void) {}
 
 ExceptionSpecification::ExceptionSpecification(const FunctionProtoType &type)

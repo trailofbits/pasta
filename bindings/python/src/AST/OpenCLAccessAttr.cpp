@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterOpenCLAccessAttr(nb::module_ &m) {
   nb::class_<OpenCLAccessAttr, Attr>(m, "OpenCLAccessAttr")
-    .def("__hash__", [](const OpenCLAccessAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const OpenCLAccessAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("semantic_spelling", &OpenCLAccessAttr::SemanticSpelling)
     .def_prop_ro("spelling", &OpenCLAccessAttr::Spelling)
     .def_prop_ro("is_read_only", &OpenCLAccessAttr::IsReadOnly)

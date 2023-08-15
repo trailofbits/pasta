@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterIBOutletCollectionAttr(nb::module_ &m) {
   nb::class_<IBOutletCollectionAttr, InheritableAttr>(m, "IBOutletCollectionAttr")
-    .def("__hash__", [](const IBOutletCollectionAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const IBOutletCollectionAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("interface", &IBOutletCollectionAttr::Interface)
     .def_prop_ro("interface_token", &IBOutletCollectionAttr::InterfaceToken)
     .def_prop_ro("spelling", &IBOutletCollectionAttr::Spelling);

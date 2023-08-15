@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterObjCBoxableAttr(nb::module_ &m) {
   nb::class_<ObjCBoxableAttr, Attr>(m, "ObjCBoxableAttr")
-    .def("__hash__", [](const ObjCBoxableAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const ObjCBoxableAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &ObjCBoxableAttr::Spelling);
 }
 } // namespace pasta

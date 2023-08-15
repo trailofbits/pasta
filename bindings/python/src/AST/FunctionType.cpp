@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterFunctionType(nb::module_ &m) {
   nb::class_<FunctionType, Type>(m, "FunctionType")
-    .def("__hash__", [](const FunctionType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
+    .def("__hash__", [](const FunctionType &type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("call_conv", &FunctionType::CallConv)
     .def("call_result_type", &FunctionType::CallResultType)
     .def_prop_ro("cmse_ns_call_attribute", &FunctionType::CmseNSCallAttribute)

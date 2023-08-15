@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterAttributedType(nb::module_ &m) {
   nb::class_<AttributedType, Type>(m, "AttributedType")
-    .def("__hash__", [](const AttributedType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
+    .def("__hash__", [](const AttributedType &type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("desugar", &AttributedType::Desugar)
     .def_prop_ro("attribute", &AttributedType::Attribute)
     .def_prop_ro("attribute_kind", &AttributedType::AttributeKind)

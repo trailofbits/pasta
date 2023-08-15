@@ -17,8 +17,11 @@ namespace nb = nanobind;
 
 void RegisterRecordDecl(nb::module_ &m) {
   nb::class_<RecordDecl, TagDecl>(m, "RecordDecl")
-    .def("__hash__", [](const RecordDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__hash__", [](const RecordDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
+    .def("size", &RecordDecl::Size)
+    .def("alignment", &RecordDecl::Alignment)
+    .def("size_without_trailing_padding", &RecordDecl::SizeWithoutTrailingPadding)
     .def_prop_ro("can_pass_in_registers", &RecordDecl::CanPassInRegisters)
     .def_prop_ro("fields", &RecordDecl::Fields)
     .def_prop_ro("first_named_data_member", &RecordDecl::FirstNamedDataMember)

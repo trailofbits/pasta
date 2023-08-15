@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterXRayInstrumentAttr(nb::module_ &m) {
   nb::class_<XRayInstrumentAttr, InheritableAttr>(m, "XRayInstrumentAttr")
-    .def("__hash__", [](const XRayInstrumentAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const XRayInstrumentAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("always_x_ray_instrument", &XRayInstrumentAttr::AlwaysXRayInstrument)
     .def_prop_ro("semantic_spelling", &XRayInstrumentAttr::SemanticSpelling)
     .def_prop_ro("spelling", &XRayInstrumentAttr::Spelling)

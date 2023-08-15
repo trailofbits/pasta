@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterDiagnoseAsBuiltinAttr(nb::module_ &m) {
   nb::class_<DiagnoseAsBuiltinAttr, InheritableAttr>(m, "DiagnoseAsBuiltinAttr")
-    .def("__hash__", [](const DiagnoseAsBuiltinAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const DiagnoseAsBuiltinAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("function", &DiagnoseAsBuiltinAttr::Function)
     .def_prop_ro("spelling", &DiagnoseAsBuiltinAttr::Spelling);
 }

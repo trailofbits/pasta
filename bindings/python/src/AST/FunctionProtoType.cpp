@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterFunctionProtoType(nb::module_ &m) {
   nb::class_<FunctionProtoType, FunctionType>(m, "FunctionProtoType")
-    .def("__hash__", [](const FunctionProtoType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
+    .def("__hash__", [](const FunctionProtoType &type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("can_throw", &FunctionProtoType::CanThrow)
     .def_prop_ro("desugar", &FunctionProtoType::Desugar)
     .def_prop_ro("exceptions", &FunctionProtoType::Exceptions)

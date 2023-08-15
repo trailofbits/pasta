@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterLayoutVersionAttr(nb::module_ &m) {
   nb::class_<LayoutVersionAttr, InheritableAttr>(m, "LayoutVersionAttr")
-    .def("__hash__", [](const LayoutVersionAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const LayoutVersionAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &LayoutVersionAttr::Spelling)
     .def_prop_ro("version", &LayoutVersionAttr::Version);
 }

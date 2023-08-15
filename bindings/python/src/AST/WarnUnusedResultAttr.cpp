@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterWarnUnusedResultAttr(nb::module_ &m) {
   nb::class_<WarnUnusedResultAttr, InheritableAttr>(m, "WarnUnusedResultAttr")
-    .def("__hash__", [](const WarnUnusedResultAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const WarnUnusedResultAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("is_cxx11_no_discard", &WarnUnusedResultAttr::IsCXX11NoDiscard)
     .def_prop_ro("message", &WarnUnusedResultAttr::Message)
     .def_prop_ro("message_length", &WarnUnusedResultAttr::MessageLength)

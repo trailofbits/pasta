@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterIBActionAttr(nb::module_ &m) {
   nb::class_<IBActionAttr, InheritableAttr>(m, "IBActionAttr")
-    .def("__hash__", [](const IBActionAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const IBActionAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &IBActionAttr::Spelling);
 }
 } // namespace pasta

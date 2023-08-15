@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterObjCNonLazyClassAttr(nb::module_ &m) {
   nb::class_<ObjCNonLazyClassAttr, Attr>(m, "ObjCNonLazyClassAttr")
-    .def("__hash__", [](const ObjCNonLazyClassAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const ObjCNonLazyClassAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &ObjCNonLazyClassAttr::Spelling);
 }
 } // namespace pasta

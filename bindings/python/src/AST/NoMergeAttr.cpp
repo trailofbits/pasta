@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterNoMergeAttr(nb::module_ &m) {
   nb::class_<NoMergeAttr, DeclOrStmtAttr>(m, "NoMergeAttr")
-    .def("__hash__", [](const NoMergeAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const NoMergeAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &NoMergeAttr::Spelling);
 }
 } // namespace pasta

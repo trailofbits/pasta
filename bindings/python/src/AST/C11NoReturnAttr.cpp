@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterC11NoReturnAttr(nb::module_ &m) {
   nb::class_<C11NoReturnAttr, InheritableAttr>(m, "C11NoReturnAttr")
-    .def("__hash__", [](const C11NoReturnAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const C11NoReturnAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &C11NoReturnAttr::Spelling);
 }
 } // namespace pasta

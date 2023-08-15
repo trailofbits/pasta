@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterDeclOrStmtAttr(nb::module_ &m) {
   nb::class_<DeclOrStmtAttr, InheritableAttr>(m, "DeclOrStmtAttr")
-    .def("__hash__", [](const DeclOrStmtAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); });
+    .def("__hash__", [](const DeclOrStmtAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); });
 }
 } // namespace pasta

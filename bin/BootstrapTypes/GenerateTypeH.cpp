@@ -136,6 +136,8 @@ void GenerateTypeH(void) {
       << "  inline Type UnqualifiedType(void) const noexcept {\n"
       << "    return Type(ast, u.Type, kind, 0);\n"
       << "  }\n\n"
+      << "  std::optional<uint64_t> SizeInBits(void) const noexcept;\n"
+      << "  std::optional<uint64_t> Alignment(void) const noexcept;\n\n"
       << "  /* Type methods */\n";
 
   DeclareCppMethods(os, type, gClassIDs[type]);

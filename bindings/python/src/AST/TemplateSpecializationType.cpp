@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterTemplateSpecializationType(nb::module_ &m) {
   nb::class_<TemplateSpecializationType, Type>(m, "TemplateSpecializationType")
-    .def("__hash__", [](const TemplateSpecializationType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
+    .def("__hash__", [](const TemplateSpecializationType &type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("desugar", &TemplateSpecializationType::Desugar)
     .def_prop_ro("aliased_type", &TemplateSpecializationType::AliasedType)
     .def_prop_ro("is_current_instantiation", &TemplateSpecializationType::IsCurrentInstantiation)

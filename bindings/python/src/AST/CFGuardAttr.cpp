@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterCFGuardAttr(nb::module_ &m) {
   nb::class_<CFGuardAttr, InheritableAttr>(m, "CFGuardAttr")
-    .def("__hash__", [](const CFGuardAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const CFGuardAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("guard", &CFGuardAttr::Guard)
     .def_prop_ro("spelling", &CFGuardAttr::Spelling);
 }

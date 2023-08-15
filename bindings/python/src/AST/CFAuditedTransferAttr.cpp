@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterCFAuditedTransferAttr(nb::module_ &m) {
   nb::class_<CFAuditedTransferAttr, InheritableAttr>(m, "CFAuditedTransferAttr")
-    .def("__hash__", [](const CFAuditedTransferAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const CFAuditedTransferAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &CFAuditedTransferAttr::Spelling);
 }
 } // namespace pasta

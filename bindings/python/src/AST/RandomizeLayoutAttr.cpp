@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterRandomizeLayoutAttr(nb::module_ &m) {
   nb::class_<RandomizeLayoutAttr, InheritableAttr>(m, "RandomizeLayoutAttr")
-    .def("__hash__", [](const RandomizeLayoutAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const RandomizeLayoutAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &RandomizeLayoutAttr::Spelling);
 }
 } // namespace pasta

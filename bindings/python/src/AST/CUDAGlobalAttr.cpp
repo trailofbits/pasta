@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterCUDAGlobalAttr(nb::module_ &m) {
   nb::class_<CUDAGlobalAttr, InheritableAttr>(m, "CUDAGlobalAttr")
-    .def("__hash__", [](const CUDAGlobalAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const CUDAGlobalAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &CUDAGlobalAttr::Spelling);
 }
 } // namespace pasta

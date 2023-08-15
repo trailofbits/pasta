@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterCDeclAttr(nb::module_ &m) {
   nb::class_<CDeclAttr, InheritableAttr>(m, "CDeclAttr")
-    .def("__hash__", [](const CDeclAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const CDeclAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &CDeclAttr::Spelling);
 }
 } // namespace pasta

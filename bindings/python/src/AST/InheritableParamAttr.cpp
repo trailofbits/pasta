@@ -17,7 +17,7 @@ namespace nb = nanobind;
 
 void RegisterInheritableParamAttr(nb::module_ &m) {
   nb::class_<InheritableParamAttr, InheritableAttr>(m, "InheritableParamAttr")
-    .def("__hash__", [](const InheritableParamAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); });
+    .def("__hash__", [](const InheritableParamAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); });
 }
 } // namespace pasta

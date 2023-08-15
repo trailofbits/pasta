@@ -14,7 +14,7 @@ extern void DefineCppMethods(std::ostream &os, const std::string &class_name,
                               uint32_t class_id, std::ostream &os_py);
 
 // Generate `lib/AST/Attr.cpp`.
-void GenerateAttrCpp(std::ostream& py_cmake, std::ostream& py_ast) {
+void GenerateAttrCpp(std::ostream &py_cmake, std::ostream &py_ast) {
   std::ofstream os(kASTAttrCpp);
 
   os
@@ -154,8 +154,14 @@ void Register)" << name << "(nb::module_ &m) {\n"
       os_py << ", " << base_class;
     }
     os_py << ">(m, \"" << name << "\")"
-          << "\n    .def(\"__hash__\", [](const " << name << "& attr) { return (intptr_t)attr.RawAttr(); })"
-          << "\n    .def(\"__eq__\", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })";
+          << "\n    .def(\"__hash__\", [](const " << name << " &attr) { return (intptr_t)attr.RawAttr(); })"
+          << "\n    .def(\"__eq__\", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })";
+
+    if (name == "Attr") {
+      os_py
+          << "\n    .def(\"kind\", &Attr::Kind)"
+          << "\n    .def(\"kind_name\", &Attr::KindName)";
+    }
 
     for (const auto &derived_class : gTransitiveDerivedClasses[name]) {
       os << "PASTA_DEFINE_DERIVED_OPERATORS("

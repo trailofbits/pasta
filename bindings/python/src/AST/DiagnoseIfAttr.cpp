@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterDiagnoseIfAttr(nb::module_ &m) {
   nb::class_<DiagnoseIfAttr, InheritableAttr>(m, "DiagnoseIfAttr")
-    .def("__hash__", [](const DiagnoseIfAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const DiagnoseIfAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("argument_dependent", &DiagnoseIfAttr::ArgumentDependent)
     .def_prop_ro("condition", &DiagnoseIfAttr::Condition)
     .def_prop_ro("diagnostic_type", &DiagnoseIfAttr::DiagnosticType)

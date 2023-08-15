@@ -48,6 +48,43 @@ def _create_compiler_from_args(cp, extra_args, fp, fm, tl):
 
   return Compiler.create(fm, pathlib.Path(cp), pathlib.Path(cwd), CompilerName.UNKNOWN, tl, sysroot_str, no_sysroot.stderr)
 
+BUILTIN_TK = {
+  BuiltinTypeKind.VOID: "v",
+  BuiltinTypeKind.INT: "i",
+  BuiltinTypeKind.FLOAT: "f",
+  BuiltinTypeKind.DOUBLE: "d",
+}
+
+def run_on_builtin_type(type: BuiltinType):
+  print(type.builtin_kind)
+  return ""
+
+TYPE_VISITOR = {
+  ElaboratedType: (lambda t: run_on_type(t.named_type)),
+  BuiltinType: run_on_builtin_type
+}
+
+def run_on_type(type: Type) -> str:
+  return TYPE_VISITOR.get(type.__class__, lambda t: str(t.__class__))(type)
+
+def run_on_function(func: FunctionDecl):
+  if func.builtin_id != 0:
+    return
+
+  if not func.name.startswith("__builtin"):
+    return
+
+  proto: str = run_on_type(func.return_type)
+  for param in func.parameters:
+    proto += run_on_type(param.type)
+
+  print(f"TARGET_BUILTIN({func.name}, \"{proto}\", \"\", \"\")")
+
+def run_on_ast(ast: AST):
+  dc: DeclContext = DeclContext.cast(ast.translation_unit)
+  for decl in dc.declarations:
+    if isinstance(decl, FunctionDecl):
+      run_on_function(decl)
 
 if __name__ == "__main__":
   parser = ArgumentParser(description='Regularlize a compile_commands.json file')
@@ -67,8 +104,5 @@ if __name__ == "__main__":
   jobs = cc.create_jobs_for_command(cmd)
   
   for job in jobs:
-    ast: AST = job.run()
-    dc: DeclContext = DeclContext.cast(ast.translation_unit)
-    for decl in dc.declarations:
-      print(decl)
+    run_on_ast(job.run())
 

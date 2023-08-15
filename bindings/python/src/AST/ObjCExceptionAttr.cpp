@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterObjCExceptionAttr(nb::module_ &m) {
   nb::class_<ObjCExceptionAttr, InheritableAttr>(m, "ObjCExceptionAttr")
-    .def("__hash__", [](const ObjCExceptionAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const ObjCExceptionAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &ObjCExceptionAttr::Spelling);
 }
 } // namespace pasta

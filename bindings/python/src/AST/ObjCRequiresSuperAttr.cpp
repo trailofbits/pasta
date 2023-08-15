@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterObjCRequiresSuperAttr(nb::module_ &m) {
   nb::class_<ObjCRequiresSuperAttr, InheritableAttr>(m, "ObjCRequiresSuperAttr")
-    .def("__hash__", [](const ObjCRequiresSuperAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const ObjCRequiresSuperAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &ObjCRequiresSuperAttr::Spelling);
 }
 } // namespace pasta

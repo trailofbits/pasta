@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterMustTailAttr(nb::module_ &m) {
   nb::class_<MustTailAttr, StmtAttr>(m, "MustTailAttr")
-    .def("__hash__", [](const MustTailAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const MustTailAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &MustTailAttr::Spelling);
 }
 } // namespace pasta

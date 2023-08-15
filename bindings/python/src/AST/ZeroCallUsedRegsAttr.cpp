@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterZeroCallUsedRegsAttr(nb::module_ &m) {
   nb::class_<ZeroCallUsedRegsAttr, InheritableAttr>(m, "ZeroCallUsedRegsAttr")
-    .def("__hash__", [](const ZeroCallUsedRegsAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const ZeroCallUsedRegsAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &ZeroCallUsedRegsAttr::Spelling)
     .def_prop_ro("zero_call_used_regs", &ZeroCallUsedRegsAttr::ZeroCallUsedRegs);
 }

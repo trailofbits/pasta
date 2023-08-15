@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterOpenCLGlobalHostAddressSpaceAttr(nb::module_ &m) {
   nb::class_<OpenCLGlobalHostAddressSpaceAttr, TypeAttr>(m, "OpenCLGlobalHostAddressSpaceAttr")
-    .def("__hash__", [](const OpenCLGlobalHostAddressSpaceAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const OpenCLGlobalHostAddressSpaceAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &OpenCLGlobalHostAddressSpaceAttr::Spelling);
 }
 } // namespace pasta

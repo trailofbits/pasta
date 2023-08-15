@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterCPUSpecificAttr(nb::module_ &m) {
   nb::class_<CPUSpecificAttr, InheritableAttr>(m, "CPUSpecificAttr")
-    .def("__hash__", [](const CPUSpecificAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const CPUSpecificAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &CPUSpecificAttr::Spelling);
 }
 } // namespace pasta

@@ -9,10 +9,12 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/AST/Attr.h>
 #include <clang/AST/DeclCXX.h>
 #include <clang/AST/DeclObjC.h>
 #include <clang/AST/DeclTemplate.h>
 #include <clang/AST/Attr.h>
+#include <clang/AST/RecordLayout.h>
 #pragma clang diagnostic pop
 
 #include "AST.h"
@@ -424,6 +426,153 @@ TemplateParameterList::Parameters(void) const noexcept {
   }
   return ret;
 }
+
+std::optional<uint64_t> RecordDecl::Size(void) const noexcept {
+  clang::RecordDecl *record = u.RecordDecl->getDefinition();
+  if (!record || record->isInvalidDecl() || !record->isCompleteDefinition()) {
+    return std::nullopt;
+  }
+
+  const clang::Type *type = record->getTypeForDecl();
+  clang::NamedDecl *nd = nullptr;
+  if (!type || type->isIncompleteType(&nd)) {
+    return std::nullopt;
+  }
+
+  auto &layout = record->getASTContext().getASTRecordLayout(record);
+  return layout.getSize().getQuantity();
+}
+
+std::optional<uint64_t> RecordDecl::Alignment(void) const noexcept {
+  clang::RecordDecl *record = u.RecordDecl->getDefinition();
+  if (!record || record->isInvalidDecl() || !record->isCompleteDefinition()) {
+    return std::nullopt;
+  }
+
+  const clang::Type *type = record->getTypeForDecl();
+  clang::NamedDecl *nd = nullptr;
+  if (type->isIncompleteType(&nd)) {
+    auto &ast_ctx = record->getASTContext();
+    clang::QualType qt(type, 0u);
+    if (auto ret = ast_ctx.getTypeAlignIfKnown(qt)) {
+      return ret;
+    }
+
+    return std::nullopt;
+
+  } else {
+    auto &layout = record->getASTContext().getASTRecordLayout(record);
+    return layout.getAlignment().getQuantity();
+  }
+}
+
+std::optional<uint64_t> RecordDecl::SizeWithoutTrailingPadding(void) const noexcept {
+  clang::RecordDecl *record = u.RecordDecl->getDefinition();
+  if (!record || record->isInvalidDecl() || !record->isCompleteDefinition()) {
+    return std::nullopt;
+  }
+
+  const clang::Type *type = record->getTypeForDecl();
+  clang::NamedDecl *nd = nullptr;
+  if (type->isIncompleteType(&nd)) {
+    return std::nullopt;
+  }
+
+  auto &layout = record->getASTContext().getASTRecordLayout(record);
+  return layout.getDataSize().getQuantity();
+}
+
+std::optional<uint64_t> CXXRecordDecl::SizeWithoutVirtualBases(void) const noexcept {
+  clang::RecordDecl *record = u.RecordDecl->getDefinition();
+  if (!record || record->isInvalidDecl() || !record->isCompleteDefinition()) {
+    return std::nullopt;
+  }
+
+  const clang::Type *type = record->getTypeForDecl();
+  clang::NamedDecl *nd = nullptr;
+  if (type->isIncompleteType(&nd)) {
+    return std::nullopt;
+  }
+
+  auto &layout = record->getASTContext().getASTRecordLayout(record);
+  return layout.getNonVirtualSize().getQuantity();
+}
+
+std::optional<CXXRecordDecl> CXXRecordDecl::PrimaryBase(void) const noexcept {
+  clang::RecordDecl *record = u.RecordDecl->getDefinition();
+  if (!record || record->isInvalidDecl() || !record->isCompleteDefinition()) {
+    return std::nullopt;
+  }
+
+  auto &layout = record->getASTContext().getASTRecordLayout(record);
+  const clang::CXXRecordDecl *base = layout.getPrimaryBase();
+  if (!base) {
+    return std::nullopt;
+  }
+
+  return DeclBuilder::Create<pasta::CXXRecordDecl>(ast, base);
+}
+
+std::optional<bool> CXXRecordDecl::HasOwnVirtualFunctionTablePointer(void) const noexcept {
+  clang::RecordDecl *record = u.RecordDecl->getDefinition();
+  if (!record || record->isInvalidDecl() || !record->isCompleteDefinition()) {
+    return std::nullopt;
+  }
+
+  auto &layout = record->getASTContext().getASTRecordLayout(record);
+  return layout.hasOwnVFPtr();
+}
+
+std::optional<bool> CXXRecordDecl::HasExtendableVirtualFunctionTablePointer(void) const noexcept {
+  clang::RecordDecl *record = u.RecordDecl->getDefinition();
+  if (!record || record->isInvalidDecl() || !record->isCompleteDefinition()) {
+    return std::nullopt;
+  }
+
+  auto &layout = record->getASTContext().getASTRecordLayout(record);
+  return layout.hasExtendableVFPtr();
+}
+
+std::optional<bool> CXXRecordDecl::HasVirtualBaseTablePointer(void) const noexcept {
+  clang::RecordDecl *record = u.RecordDecl->getDefinition();
+  if (!record || record->isInvalidDecl() || !record->isCompleteDefinition()) {
+    return std::nullopt;
+  }
+
+  auto &layout = record->getASTContext().getASTRecordLayout(record);
+  return layout.hasVBPtr();
+}
+
+std::optional<bool> CXXRecordDecl::HasOwnVirtualBaseTablePointer(void) const noexcept {
+  clang::RecordDecl *record = u.RecordDecl->getDefinition();
+  if (!record || record->isInvalidDecl() || !record->isCompleteDefinition()) {
+    return std::nullopt;
+  }
+
+  auto &layout = record->getASTContext().getASTRecordLayout(record);
+  return layout.hasOwnVBPtr();
+}
+
+std::optional<uint64_t> FieldDecl::OffsetInBits(void) const noexcept {
+  const clang::RecordDecl *record = u.FieldDecl->getParent();
+  if (!record) {
+    return std::nullopt;
+  }
+
+  record = record->getDefinition();
+  if (!record || record->isInvalidDecl() || !record->isCompleteDefinition()) {
+    return std::nullopt;
+  }
+
+  const clang::Type *type = record->getTypeForDecl();
+  clang::NamedDecl *nd = nullptr;
+  if (!type || type->isIncompleteType(&nd)) {
+    return std::nullopt;
+  }
+
+  auto &layout = record->getASTContext().getASTRecordLayout(record);
+  return layout.getFieldOffset(u.FieldDecl->getFieldIndex());
+} 
 
 #endif  // PASTA_IN_BOOTSTRAP
 

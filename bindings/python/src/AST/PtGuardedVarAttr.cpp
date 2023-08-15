@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterPtGuardedVarAttr(nb::module_ &m) {
   nb::class_<PtGuardedVarAttr, InheritableAttr>(m, "PtGuardedVarAttr")
-    .def("__hash__", [](const PtGuardedVarAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const PtGuardedVarAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &PtGuardedVarAttr::Spelling);
 }
 } // namespace pasta

@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterSYCLSpecialClassAttr(nb::module_ &m) {
   nb::class_<SYCLSpecialClassAttr, InheritableAttr>(m, "SYCLSpecialClassAttr")
-    .def("__hash__", [](const SYCLSpecialClassAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const SYCLSpecialClassAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &SYCLSpecialClassAttr::Spelling);
 }
 } // namespace pasta

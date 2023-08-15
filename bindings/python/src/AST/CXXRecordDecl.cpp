@@ -17,8 +17,14 @@ namespace nb = nanobind;
 
 void RegisterCXXRecordDecl(nb::module_ &m) {
   nb::class_<CXXRecordDecl, RecordDecl>(m, "CXXRecordDecl")
-    .def("__hash__", [](const CXXRecordDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__hash__", [](const CXXRecordDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
+    .def("size_without_virtual_bases", &CXXRecordDecl::SizeWithoutVirtualBases)
+    .def("primary_base", &CXXRecordDecl::PrimaryBase)
+    .def("has_own_virtual_function_table_pointer", &CXXRecordDecl::HasOwnVirtualFunctionTablePointer)
+    .def("has_extendable_virtual_function_table_pointer", &CXXRecordDecl::HasExtendableVirtualFunctionTablePointer)
+    .def("has_virtual_base_table_pointer", &CXXRecordDecl::HasVirtualBaseTablePointer)
+    .def("has_own_virtual_base_table_pointer", &CXXRecordDecl::HasOwnVirtualBaseTablePointer)
     .def_prop_ro("allow_const_default_initializer", &CXXRecordDecl::AllowConstDefaultInitializer)
     .def_prop_ro("bases", &CXXRecordDecl::Bases)
     .def_prop_ro("calculate_inheritance_model", &CXXRecordDecl::CalculateInheritanceModel)

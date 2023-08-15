@@ -280,6 +280,9 @@ class Type {
     return Type(ast, u.Type, kind, 0);
   }
 
+  std::optional<uint64_t> SizeInBits(void) const noexcept;
+  std::optional<uint64_t> Alignment(void) const noexcept;
+
   /* Type methods */
   bool AcceptsObjCTypeParameters(void) const;
   bool CanDecayToPointerType(void) const;

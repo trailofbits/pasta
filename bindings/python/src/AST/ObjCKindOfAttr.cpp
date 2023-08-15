@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterObjCKindOfAttr(nb::module_ &m) {
   nb::class_<ObjCKindOfAttr, TypeAttr>(m, "ObjCKindOfAttr")
-    .def("__hash__", [](const ObjCKindOfAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const ObjCKindOfAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &ObjCKindOfAttr::Spelling);
 }
 } // namespace pasta

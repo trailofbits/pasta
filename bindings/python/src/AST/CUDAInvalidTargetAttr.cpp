@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterCUDAInvalidTargetAttr(nb::module_ &m) {
   nb::class_<CUDAInvalidTargetAttr, InheritableAttr>(m, "CUDAInvalidTargetAttr")
-    .def("__hash__", [](const CUDAInvalidTargetAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const CUDAInvalidTargetAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &CUDAInvalidTargetAttr::Spelling);
 }
 } // namespace pasta

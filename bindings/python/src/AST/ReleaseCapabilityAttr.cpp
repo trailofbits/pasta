@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterReleaseCapabilityAttr(nb::module_ &m) {
   nb::class_<ReleaseCapabilityAttr, InheritableAttr>(m, "ReleaseCapabilityAttr")
-    .def("__hash__", [](const ReleaseCapabilityAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const ReleaseCapabilityAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("semantic_spelling", &ReleaseCapabilityAttr::SemanticSpelling)
     .def_prop_ro("spelling", &ReleaseCapabilityAttr::Spelling)
     .def_prop_ro("is_generic", &ReleaseCapabilityAttr::IsGeneric)

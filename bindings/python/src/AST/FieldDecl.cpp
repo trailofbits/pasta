@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterFieldDecl(nb::module_ &m) {
   nb::class_<FieldDecl, DeclaratorDecl>(m, "FieldDecl")
-    .def("__hash__", [](const FieldDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__hash__", [](const FieldDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("bit_width", &FieldDecl::BitWidth)
     .def("bit_width_value", &FieldDecl::BitWidthValue)
     .def_prop_ro("canonical_declaration", &FieldDecl::CanonicalDeclaration)

@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterAvailabilityAttr(nb::module_ &m) {
   nb::class_<AvailabilityAttr, InheritableAttr>(m, "AvailabilityAttr")
-    .def("__hash__", [](const AvailabilityAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const AvailabilityAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("message", &AvailabilityAttr::Message)
     .def_prop_ro("message_length", &AvailabilityAttr::MessageLength)
     .def_prop_ro("replacement", &AvailabilityAttr::Replacement)

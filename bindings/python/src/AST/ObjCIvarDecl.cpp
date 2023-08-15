@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterObjCIvarDecl(nb::module_ &m) {
   nb::class_<ObjCIvarDecl, FieldDecl>(m, "ObjCIvarDecl")
-    .def("__hash__", [](const ObjCIvarDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__hash__", [](const ObjCIvarDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("access_control", &ObjCIvarDecl::AccessControl)
     .def_prop_ro("canonical_access_control", &ObjCIvarDecl::CanonicalAccessControl)
     .def_prop_ro("canonical_declaration", &ObjCIvarDecl::CanonicalDeclaration)

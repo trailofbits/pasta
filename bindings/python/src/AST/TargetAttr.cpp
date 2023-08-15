@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterTargetAttr(nb::module_ &m) {
   nb::class_<TargetAttr, InheritableAttr>(m, "TargetAttr")
-    .def("__hash__", [](const TargetAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const TargetAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("architecture", &TargetAttr::Architecture)
     .def_prop_ro("features_string", &TargetAttr::FeaturesString)
     .def_prop_ro("features_string_length", &TargetAttr::FeaturesStringLength)

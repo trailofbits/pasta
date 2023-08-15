@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterMaybeUndefAttr(nb::module_ &m) {
   nb::class_<MaybeUndefAttr, InheritableAttr>(m, "MaybeUndefAttr")
-    .def("__hash__", [](const MaybeUndefAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const MaybeUndefAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &MaybeUndefAttr::Spelling);
 }
 } // namespace pasta

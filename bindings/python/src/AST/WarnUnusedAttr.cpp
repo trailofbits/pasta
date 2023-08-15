@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterWarnUnusedAttr(nb::module_ &m) {
   nb::class_<WarnUnusedAttr, InheritableAttr>(m, "WarnUnusedAttr")
-    .def("__hash__", [](const WarnUnusedAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const WarnUnusedAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &WarnUnusedAttr::Spelling);
 }
 } // namespace pasta

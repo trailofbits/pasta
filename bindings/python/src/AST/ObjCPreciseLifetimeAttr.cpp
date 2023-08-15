@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterObjCPreciseLifetimeAttr(nb::module_ &m) {
   nb::class_<ObjCPreciseLifetimeAttr, InheritableAttr>(m, "ObjCPreciseLifetimeAttr")
-    .def("__hash__", [](const ObjCPreciseLifetimeAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const ObjCPreciseLifetimeAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &ObjCPreciseLifetimeAttr::Spelling);
 }
 } // namespace pasta

@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterCmseNSCallAttr(nb::module_ &m) {
   nb::class_<CmseNSCallAttr, TypeAttr>(m, "CmseNSCallAttr")
-    .def("__hash__", [](const CmseNSCallAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const CmseNSCallAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &CmseNSCallAttr::Spelling);
 }
 } // namespace pasta

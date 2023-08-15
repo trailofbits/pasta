@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterRValueReferenceType(nb::module_ &m) {
   nb::class_<RValueReferenceType, ReferenceType>(m, "RValueReferenceType")
-    .def("__hash__", [](const RValueReferenceType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
+    .def("__hash__", [](const RValueReferenceType &type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("desugar", &RValueReferenceType::Desugar)
     .def_prop_ro("is_sugared", &RValueReferenceType::IsSugared);
 }

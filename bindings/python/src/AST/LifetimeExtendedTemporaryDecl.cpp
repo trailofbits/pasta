@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterLifetimeExtendedTemporaryDecl(nb::module_ &m) {
   nb::class_<LifetimeExtendedTemporaryDecl, Decl>(m, "LifetimeExtendedTemporaryDecl")
-    .def("__hash__", [](const LifetimeExtendedTemporaryDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__hash__", [](const LifetimeExtendedTemporaryDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("children", &LifetimeExtendedTemporaryDecl::Children)
     .def_prop_ro("extending_declaration", &LifetimeExtendedTemporaryDecl::ExtendingDeclaration)
     .def_prop_ro("mangling_number", &LifetimeExtendedTemporaryDecl::ManglingNumber)

@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterFormatAttr(nb::module_ &m) {
   nb::class_<FormatAttr, InheritableAttr>(m, "FormatAttr")
-    .def("__hash__", [](const FormatAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const FormatAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &FormatAttr::Spelling);
 }
 } // namespace pasta

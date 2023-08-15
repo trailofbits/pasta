@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterPackExpansionType(nb::module_ &m) {
   nb::class_<PackExpansionType, Type>(m, "PackExpansionType")
-    .def("__hash__", [](const PackExpansionType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
+    .def("__hash__", [](const PackExpansionType &type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("desugar", &PackExpansionType::Desugar)
     .def_prop_ro("num_expansions", &PackExpansionType::NumExpansions)
     .def_prop_ro("pattern", &PackExpansionType::Pattern)

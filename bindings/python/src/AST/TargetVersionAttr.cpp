@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterTargetVersionAttr(nb::module_ &m) {
   nb::class_<TargetVersionAttr, InheritableAttr>(m, "TargetVersionAttr")
-    .def("__hash__", [](const TargetVersionAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const TargetVersionAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("name", &TargetVersionAttr::Name)
     .def_prop_ro("names_string", &TargetVersionAttr::NamesString)
     .def_prop_ro("names_string_length", &TargetVersionAttr::NamesStringLength)

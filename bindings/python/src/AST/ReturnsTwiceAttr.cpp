@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterReturnsTwiceAttr(nb::module_ &m) {
   nb::class_<ReturnsTwiceAttr, InheritableAttr>(m, "ReturnsTwiceAttr")
-    .def("__hash__", [](const ReturnsTwiceAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const ReturnsTwiceAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &ReturnsTwiceAttr::Spelling);
 }
 } // namespace pasta

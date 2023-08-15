@@ -14,7 +14,7 @@ extern void DefineCppMethods(std::ostream &os, const std::string &class_name,
                              uint32_t class_id, std::ostream &os_py);
 
 // Generate `lib/AST/Decl.cpp`.
-void GenerateDeclCpp(std::ostream& py_cmake, std::ostream& py_ast) {
+void GenerateDeclCpp(std::ostream &py_cmake, std::ostream &py_ast) {
   std::ofstream os(kASTDeclCpp);
   const std::string decl_context{"DeclContext"};
   const auto &derived_from_decl_context =
@@ -351,8 +351,30 @@ void Register)" << name << "(nb::module_ &m) {\n"
     }
 
     os_py << ">(m, \"" << name << "\")"
-          << "\n    .def(\"__hash__\", [](const " << name << "& decl) { return (intptr_t)decl.RawDecl(); })"
-          << "\n    .def(\"__eq__\", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })";
+          << "\n    .def(\"__hash__\", [](const " << name << " &decl) { return (intptr_t)decl.RawDecl(); })"
+          << "\n    .def(\"__eq__\", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })";
+
+    if (name == "Decl") {
+      os_py
+          << "\n    .def(\"kind\", &Decl::Kind)"
+          << "\n    .def(\"kind_name\", &Decl::KindName)";
+    
+    } else if (name == "RecordDecl") {
+      os_py
+          << "\n    .def(\"size\", &RecordDecl::Size)"
+          << "\n    .def(\"alignment\", &RecordDecl::Alignment)"
+          << "\n    .def(\"size_without_trailing_padding\", &RecordDecl::SizeWithoutTrailingPadding)";
+    
+    } else if (name == "CXXRecordDecl") {
+      os_py
+          << "\n    .def(\"size_without_virtual_bases\", &CXXRecordDecl::SizeWithoutVirtualBases)"
+          << "\n    .def(\"primary_base\", &CXXRecordDecl::PrimaryBase)"
+          << "\n    .def(\"has_own_virtual_function_table_pointer\", &CXXRecordDecl::HasOwnVirtualFunctionTablePointer)"
+          << "\n    .def(\"has_extendable_virtual_function_table_pointer\", &CXXRecordDecl::HasExtendableVirtualFunctionTablePointer)"
+          << "\n    .def(\"has_virtual_base_table_pointer\", &CXXRecordDecl::HasVirtualBaseTablePointer)"
+          << "\n    .def(\"has_own_virtual_base_table_pointer\", &CXXRecordDecl::HasOwnVirtualBaseTablePointer)";
+    }
+
     DefineCppMethods(os, name, gClassIDs[name], os_py);
 
     // We need to manually inject our own `Body` method. Normally there would

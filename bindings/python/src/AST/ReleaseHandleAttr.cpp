@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterReleaseHandleAttr(nb::module_ &m) {
   nb::class_<ReleaseHandleAttr, InheritableParamAttr>(m, "ReleaseHandleAttr")
-    .def("__hash__", [](const ReleaseHandleAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const ReleaseHandleAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("handle_type", &ReleaseHandleAttr::HandleType)
     .def_prop_ro("handle_type_length", &ReleaseHandleAttr::HandleTypeLength)
     .def_prop_ro("spelling", &ReleaseHandleAttr::Spelling);

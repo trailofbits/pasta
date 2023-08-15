@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterNoDuplicateAttr(nb::module_ &m) {
   nb::class_<NoDuplicateAttr, InheritableAttr>(m, "NoDuplicateAttr")
-    .def("__hash__", [](const NoDuplicateAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const NoDuplicateAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &NoDuplicateAttr::Spelling);
 }
 } // namespace pasta

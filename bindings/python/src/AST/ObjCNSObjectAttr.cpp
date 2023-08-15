@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterObjCNSObjectAttr(nb::module_ &m) {
   nb::class_<ObjCNSObjectAttr, InheritableAttr>(m, "ObjCNSObjectAttr")
-    .def("__hash__", [](const ObjCNSObjectAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const ObjCNSObjectAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &ObjCNSObjectAttr::Spelling);
 }
 } // namespace pasta

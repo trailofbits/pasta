@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterPragmaClangBSSSectionAttr(nb::module_ &m) {
   nb::class_<PragmaClangBSSSectionAttr, InheritableAttr>(m, "PragmaClangBSSSectionAttr")
-    .def("__hash__", [](const PragmaClangBSSSectionAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const PragmaClangBSSSectionAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("name", &PragmaClangBSSSectionAttr::Name)
     .def_prop_ro("name_length", &PragmaClangBSSSectionAttr::NameLength)
     .def_prop_ro("spelling", &PragmaClangBSSSectionAttr::Spelling);

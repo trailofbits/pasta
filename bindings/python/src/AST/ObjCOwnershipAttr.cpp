@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterObjCOwnershipAttr(nb::module_ &m) {
   nb::class_<ObjCOwnershipAttr, InheritableAttr>(m, "ObjCOwnershipAttr")
-    .def("__hash__", [](const ObjCOwnershipAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const ObjCOwnershipAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &ObjCOwnershipAttr::Spelling);
 }
 } // namespace pasta

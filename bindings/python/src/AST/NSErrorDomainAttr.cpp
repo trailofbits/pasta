@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterNSErrorDomainAttr(nb::module_ &m) {
   nb::class_<NSErrorDomainAttr, InheritableAttr>(m, "NSErrorDomainAttr")
-    .def("__hash__", [](const NSErrorDomainAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const NSErrorDomainAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("error_domain", &NSErrorDomainAttr::ErrorDomain)
     .def_prop_ro("spelling", &NSErrorDomainAttr::Spelling);
 }

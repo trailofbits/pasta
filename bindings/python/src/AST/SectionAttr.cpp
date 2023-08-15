@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterSectionAttr(nb::module_ &m) {
   nb::class_<SectionAttr, InheritableAttr>(m, "SectionAttr")
-    .def("__hash__", [](const SectionAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const SectionAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("name", &SectionAttr::Name)
     .def_prop_ro("name_length", &SectionAttr::NameLength)
     .def_prop_ro("semantic_spelling", &SectionAttr::SemanticSpelling)

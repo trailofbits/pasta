@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterObjCObjectType(nb::module_ &m) {
   nb::class_<ObjCObjectType, Type>(m, "ObjCObjectType")
-    .def("__hash__", [](const ObjCObjectType& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
+    .def("__hash__", [](const ObjCObjectType &type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("desugar", &ObjCObjectType::Desugar)
     .def_prop_ro("base_type", &ObjCObjectType::BaseType)
     .def_prop_ro("interface", &ObjCObjectType::Interface)

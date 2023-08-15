@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterRISCVInterruptAttr(nb::module_ &m) {
   nb::class_<RISCVInterruptAttr, InheritableAttr>(m, "RISCVInterruptAttr")
-    .def("__hash__", [](const RISCVInterruptAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const RISCVInterruptAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("interrupt", &RISCVInterruptAttr::Interrupt)
     .def_prop_ro("spelling", &RISCVInterruptAttr::Spelling);
 }

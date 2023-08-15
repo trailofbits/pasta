@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterTypeWithKeyword(nb::module_ &m) {
   nb::class_<TypeWithKeyword, Type>(m, "TypeWithKeyword")
-    .def("__hash__", [](const TypeWithKeyword& type) { return (intptr_t)type.RawType(); })
-    .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
+    .def("__hash__", [](const TypeWithKeyword &type) { return (intptr_t)type.RawType(); })
+    .def("__eq__", [](const Type &a, const Type &b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("keyword", &TypeWithKeyword::Keyword);
 }
 } // namespace pasta

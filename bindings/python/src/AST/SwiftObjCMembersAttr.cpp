@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterSwiftObjCMembersAttr(nb::module_ &m) {
   nb::class_<SwiftObjCMembersAttr, Attr>(m, "SwiftObjCMembersAttr")
-    .def("__hash__", [](const SwiftObjCMembersAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const SwiftObjCMembersAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &SwiftObjCMembersAttr::Spelling);
 }
 } // namespace pasta

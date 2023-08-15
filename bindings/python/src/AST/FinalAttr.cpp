@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterFinalAttr(nb::module_ &m) {
   nb::class_<FinalAttr, InheritableAttr>(m, "FinalAttr")
-    .def("__hash__", [](const FinalAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const FinalAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("semantic_spelling", &FinalAttr::SemanticSpelling)
     .def_prop_ro("spelling", &FinalAttr::Spelling)
     .def_prop_ro("is_spelled_as_sealed", &FinalAttr::IsSpelledAsSealed);

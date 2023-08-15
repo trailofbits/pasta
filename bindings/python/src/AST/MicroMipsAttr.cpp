@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterMicroMipsAttr(nb::module_ &m) {
   nb::class_<MicroMipsAttr, InheritableAttr>(m, "MicroMipsAttr")
-    .def("__hash__", [](const MicroMipsAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const MicroMipsAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &MicroMipsAttr::Spelling);
 }
 } // namespace pasta

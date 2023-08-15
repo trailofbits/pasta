@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterOpenCLGlobalDeviceAddressSpaceAttr(nb::module_ &m) {
   nb::class_<OpenCLGlobalDeviceAddressSpaceAttr, TypeAttr>(m, "OpenCLGlobalDeviceAddressSpaceAttr")
-    .def("__hash__", [](const OpenCLGlobalDeviceAddressSpaceAttr& attr) { return (intptr_t)attr.RawAttr(); })
-    .def("__eq__", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })
+    .def("__hash__", [](const OpenCLGlobalDeviceAddressSpaceAttr &attr) { return (intptr_t)attr.RawAttr(); })
+    .def("__eq__", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })
     .def_prop_ro("spelling", &OpenCLGlobalDeviceAddressSpaceAttr::Spelling);
 }
 } // namespace pasta

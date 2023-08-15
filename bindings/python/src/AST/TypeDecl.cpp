@@ -17,8 +17,8 @@ namespace nb = nanobind;
 
 void RegisterTypeDecl(nb::module_ &m) {
   nb::class_<TypeDecl, NamedDecl>(m, "TypeDecl")
-    .def("__hash__", [](const TypeDecl& decl) { return (intptr_t)decl.RawDecl(); })
-    .def("__eq__", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })
+    .def("__hash__", [](const TypeDecl &decl) { return (intptr_t)decl.RawDecl(); })
+    .def("__eq__", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })
     .def_prop_ro("begin_token", &TypeDecl::BeginToken)
     .def_prop_ro("type_for_declaration", &TypeDecl::TypeForDeclaration);
 }

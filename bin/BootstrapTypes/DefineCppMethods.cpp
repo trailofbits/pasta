@@ -280,7 +280,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
     os << "// 1: " << class_name << "::" << meth_name << "\n";
     return;
   }
-  os_py << "\n    .def(\"" << CapitalCaseToSnakeCase(meth_name) << "\", &" << class_name << "::" << meth_name << ")";
+  os_py << "\n    .def_prop_ro(\"" << CapitalCaseToSnakeCase(meth_name) << "\", &" << class_name << "::" << meth_name << ")";
 }
 
 static void DefineIterators(std::ostream &os, const std::string &class_name) {

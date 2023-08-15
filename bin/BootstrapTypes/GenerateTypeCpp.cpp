@@ -162,10 +162,12 @@ void Register)" << name << "(nb::module_ &m) {\n"
 
     if (name == "Type") {
       os_py
-          << "\n    .def(\"kind\", &Type::Kind)"
-          << "\n    .def(\"kind_name\", &Type::KindName)"
-          << "\n    .def(\"size_in_bits\", &Type::SizeInBits)"
-          << "\n    .def(\"alignment\", &Type::Alignment)";
+          << "\n    .def_prop_ro(\"kind\", &Type::Kind)"
+          << "\n    .def_prop_ro(\"kind_name\", &Type::KindName)"
+          << "\n    .def_prop_ro(\"size_in_bits\", &Type::SizeInBits)"
+          << "\n    .def_prop_ro(\"alignment\", &Type::Alignment)"
+          << "\n    .def_prop_ro(\"is_qualified\", &Type::IsQualified)"
+          << "\n    .def_prop_ro(\"unqualified_type\", &Type::UnqualifiedType);"
     }
 
     for (const auto &derived_class : gTransitiveDerivedClasses[name]) {

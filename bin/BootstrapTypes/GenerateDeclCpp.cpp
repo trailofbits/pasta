@@ -356,23 +356,23 @@ void Register)" << name << "(nb::module_ &m) {\n"
 
     if (name == "Decl") {
       os_py
-          << "\n    .def(\"kind\", &Decl::Kind)"
-          << "\n    .def(\"kind_name\", &Decl::KindName)";
+          << "\n    .def_prop_ro(\"kind\", &Decl::Kind)"
+          << "\n    .def_prop_ro(\"kind_name\", &Decl::KindName)";
     
     } else if (name == "RecordDecl") {
       os_py
-          << "\n    .def(\"size\", &RecordDecl::Size)"
-          << "\n    .def(\"alignment\", &RecordDecl::Alignment)"
-          << "\n    .def(\"size_without_trailing_padding\", &RecordDecl::SizeWithoutTrailingPadding)";
+          << "\n    .def_prop_ro(\"size\", &RecordDecl::Size)"
+          << "\n    .def_prop_ro(\"alignment\", &RecordDecl::Alignment)"
+          << "\n    .def_prop_ro(\"size_without_trailing_padding\", &RecordDecl::SizeWithoutTrailingPadding)";
     
     } else if (name == "CXXRecordDecl") {
       os_py
-          << "\n    .def(\"size_without_virtual_bases\", &CXXRecordDecl::SizeWithoutVirtualBases)"
-          << "\n    .def(\"primary_base\", &CXXRecordDecl::PrimaryBase)"
-          << "\n    .def(\"has_own_virtual_function_table_pointer\", &CXXRecordDecl::HasOwnVirtualFunctionTablePointer)"
-          << "\n    .def(\"has_extendable_virtual_function_table_pointer\", &CXXRecordDecl::HasExtendableVirtualFunctionTablePointer)"
-          << "\n    .def(\"has_virtual_base_table_pointer\", &CXXRecordDecl::HasVirtualBaseTablePointer)"
-          << "\n    .def(\"has_own_virtual_base_table_pointer\", &CXXRecordDecl::HasOwnVirtualBaseTablePointer)";
+          << "\n    .def_prop_ro(\"size_without_virtual_bases\", &CXXRecordDecl::SizeWithoutVirtualBases)"
+          << "\n    .def_prop_ro(\"primary_base\", &CXXRecordDecl::PrimaryBase)"
+          << "\n    .def_prop_ro(\"has_own_virtual_function_table_pointer\", &CXXRecordDecl::HasOwnVirtualFunctionTablePointer)"
+          << "\n    .def_prop_ro(\"has_extendable_virtual_function_table_pointer\", &CXXRecordDecl::HasExtendableVirtualFunctionTablePointer)"
+          << "\n    .def_prop_ro(\"has_virtual_base_table_pointer\", &CXXRecordDecl::HasVirtualBaseTablePointer)"
+          << "\n    .def_prop_ro(\"has_own_virtual_base_table_pointer\", &CXXRecordDecl::HasOwnVirtualBaseTablePointer)";
     }
 
     DefineCppMethods(os, name, gClassIDs[name], os_py);

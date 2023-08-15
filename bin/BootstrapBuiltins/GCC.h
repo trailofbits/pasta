@@ -14,11 +14,16 @@
 // typedef float f;
 // typedef double d;
 
-typedef char qi __attribute__ ((mode(QI)));
+typedef unsigned char qi __attribute__ ((mode(QI)));
+typedef signed char uqi __attribute__ ((mode(QI)));
 typedef short hi __attribute__ ((mode(HI)));
+typedef unsigned short uhi __attribute__ ((mode(HI)));
 typedef int si __attribute__ ((mode(SI)));
+typedef unsigned usi __attribute__ ((mode(SI)));
 typedef long long di __attribute__ ((mode(DI)));
+typedef unsigned long long udi __attribute__ ((mode(DI)));
 
+typedef _Float16 hf __attribute__ ((mode(HF)));
 typedef float sf __attribute__ ((mode(SF)));
 typedef double df __attribute__ ((mode(DF)));
 
@@ -32,6 +37,7 @@ typedef qi v16qi __attribute__ ((vector_size (16)));
 typedef hi v8hi __attribute__ ((vector_size (16)));
 typedef si v4si __attribute__ ((vector_size (16)));
 typedef di v2di __attribute__ ((vector_size (16)));
+typedef hf v8hf __attribute__ ((vector_size (16)));
 typedef sf v4sf __attribute__ ((vector_size (16)));
 typedef df v2df __attribute__ ((vector_size (16)));
 
@@ -39,26 +45,25 @@ typedef qi v32qi __attribute__ ((vector_size (32)));
 typedef hi v16hi __attribute__ ((vector_size (32)));
 typedef si v8si __attribute__ ((vector_size (32)));
 typedef di v4di __attribute__ ((vector_size (32)));
+typedef hf v16hf __attribute__ ((vector_size (32)));
 typedef sf v8sf __attribute__ ((vector_size (32)));
 typedef df v4df __attribute__ ((vector_size (32)));
 
 typedef qi v64qi __attribute__ ((vector_size (64)));
+typedef uqi v64uqi __attribute__ ((vector_size (64)));
 typedef hi v32hi __attribute__ ((vector_size (64)));
+typedef uhi v32uhi __attribute__ ((vector_size (64)));
 typedef si v16si __attribute__ ((vector_size (64)));
+typedef usi v16usi __attribute__ ((vector_size (64)));
 typedef di v8di __attribute__ ((vector_size (64)));
+typedef udi v8udi __attribute__ ((vector_size (64)));
+typedef hf v32hf __attribute__ ((vector_size (64)));
 typedef sf v16sf __attribute__ ((vector_size (64)));
 typedef df v8df __attribute__ ((vector_size (64)));
 
-// #define void v
-// #define char c
-// #define short s
-// #define int i
-// #define __fp16 h
-// #define _Float16 x
-// #define __bf16 y
-// #define float f
-// #define double d
+typedef si v256si __attribute__ ((vector_size (1024)));
 
+// Compatibility with CBMC types.
 #define __gcc_qi qi
 #define __gcc_hi hi
 #define __gcc_si si
@@ -88,6 +93,14 @@ typedef df v8df __attribute__ ((vector_size (64)));
 #define __gcc_v8di v8di
 #define __gcc_v16sf v16sf
 #define __gcc_v8df v8df
+#define __gcc_v8hf v8hf
+#define __gcc_v16hf v16hf
+#define __gcc_v32hf v32hf
+#define __gcc_v256si v256si
+#define __gcc_v16usi v16usi
+#define __gcc_v32uhi v32uhi
+#define __gcc_v64uqi v64uqi
+#define __gcc_v8udi v8udi
 
 typedef const float * pcfloat;
 typedef const double * pcdouble;

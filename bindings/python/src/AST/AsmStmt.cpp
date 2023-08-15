@@ -20,7 +20,7 @@ void RegisterAsmStmt(nb::module_ &m) {
     .def("__hash__", [](const AsmStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &AsmStmt::Children)
-    .def("generate_assembly_string", &AsmStmt::GenerateAssemblyString)
+    .def_prop_ro("generate_assembly_string", &AsmStmt::GenerateAssemblyString)
     .def_prop_ro("assembly_token", &AsmStmt::AssemblyToken)
     .def_prop_ro("begin_token", &AsmStmt::BeginToken)
     .def_prop_ro("end_token", &AsmStmt::EndToken)

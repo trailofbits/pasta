@@ -159,8 +159,8 @@ void Register)" << name << "(nb::module_ &m) {\n"
 
     if (name == "Attr") {
       os_py
-          << "\n    .def(\"kind\", &Attr::Kind)"
-          << "\n    .def(\"kind_name\", &Attr::KindName)";
+          << "\n    .def_prop_ro(\"kind\", &Attr::Kind)"
+          << "\n    .def_prop_ro(\"kind_name\", &Attr::KindName)";
     }
 
     for (const auto &derived_class : gTransitiveDerivedClasses[name]) {

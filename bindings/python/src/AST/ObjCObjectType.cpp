@@ -39,6 +39,6 @@ void RegisterObjCObjectType(nb::module_ &m) {
     .def_prop_ro("is_sugared", &ObjCObjectType::IsSugared)
     .def_prop_ro("is_unspecialized", &ObjCObjectType::IsUnspecialized)
     .def_prop_ro("is_unspecialized_as_written", &ObjCObjectType::IsUnspecializedAsWritten)
-    .def("strip_obj_c_kind_of_type_and_qualifiers", &ObjCObjectType::StripObjCKindOfTypeAndQualifiers);
+    .def_prop_ro("strip_obj_c_kind_of_type_and_qualifiers", &ObjCObjectType::StripObjCKindOfTypeAndQualifiers);
 }
 } // namespace pasta

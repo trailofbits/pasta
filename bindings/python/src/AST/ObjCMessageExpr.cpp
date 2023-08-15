@@ -22,7 +22,7 @@ void RegisterObjCMessageExpr(nb::module_ &m) {
     .def_prop_ro("arguments", &ObjCMessageExpr::Arguments)
     .def_prop_ro("children", &ObjCMessageExpr::Children)
     .def_prop_ro("begin_token", &ObjCMessageExpr::BeginToken)
-    .def("call_return_type", &ObjCMessageExpr::CallReturnType)
+    .def_prop_ro("call_return_type", &ObjCMessageExpr::CallReturnType)
     .def_prop_ro("class_receiver", &ObjCMessageExpr::ClassReceiver)
     .def_prop_ro("class_receiver_type", &ObjCMessageExpr::ClassReceiverType)
     .def_prop_ro("end_token", &ObjCMessageExpr::EndToken)

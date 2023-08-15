@@ -38,9 +38,9 @@ void RegisterVarDecl(nb::module_ &m) {
     .def_prop_ro("has_constant_initialization", &VarDecl::HasConstantInitialization)
     .def_prop_ro("has_dependent_alignment", &VarDecl::HasDependentAlignment)
     .def_prop_ro("has_external_storage", &VarDecl::HasExternalStorage)
-    .def("has_flexible_array_initializer", &VarDecl::HasFlexibleArrayInitializer)
+    .def_prop_ro("has_flexible_array_initializer", &VarDecl::HasFlexibleArrayInitializer)
     .def_prop_ro("has_global_storage", &VarDecl::HasGlobalStorage)
-    .def("has_ice_initializer", &VarDecl::HasICEInitializer)
+    .def_prop_ro("has_ice_initializer", &VarDecl::HasICEInitializer)
     .def_prop_ro("has_initializer", &VarDecl::HasInitializer)
     .def_prop_ro("has_local_storage", &VarDecl::HasLocalStorage)
     .def_prop_ro("is_arc_pseudo_strong", &VarDecl::IsARCPseudoStrong)
@@ -61,7 +61,7 @@ void RegisterVarDecl(nb::module_ &m) {
     .def_prop_ro("is_local_variable_declaration", &VarDecl::IsLocalVariableDeclaration)
     .def_prop_ro("is_local_variable_declaration_or_parm", &VarDecl::IsLocalVariableDeclarationOrParm)
     .def_prop_ro("is_nrvo_variable", &VarDecl::IsNRVOVariable)
-    .def("is_no_destroy", &VarDecl::IsNoDestroy)
+    .def_prop_ro("is_no_destroy", &VarDecl::IsNoDestroy)
     .def_prop_ro("is_non_escaping_byref", &VarDecl::IsNonEscapingByref)
     .def_prop_ro("is_obj_c_for_declaration", &VarDecl::IsObjCForDeclaration)
     .def_prop_ro("is_parameter_pack", &VarDecl::IsParameterPack)
@@ -69,7 +69,7 @@ void RegisterVarDecl(nb::module_ &m) {
     .def_prop_ro("is_static_data_member", &VarDecl::IsStaticDataMember)
     .def_prop_ro("is_static_local", &VarDecl::IsStaticLocal)
     .def_prop_ro("is_this_declaration_a_demoted_definition", &VarDecl::IsThisDeclarationADemotedDefinition)
-    .def("is_usable_in_constant_expressions", &VarDecl::IsUsableInConstantExpressions)
-    .def("might_be_usable_in_constant_expressions", &VarDecl::MightBeUsableInConstantExpressions);
+    .def_prop_ro("is_usable_in_constant_expressions", &VarDecl::IsUsableInConstantExpressions)
+    .def_prop_ro("might_be_usable_in_constant_expressions", &VarDecl::MightBeUsableInConstantExpressions);
 }
 } // namespace pasta

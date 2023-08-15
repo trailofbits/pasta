@@ -27,7 +27,7 @@ void RegisterSubstNonTypeTemplateParmExpr(nb::module_ &m) {
     .def_prop_ro("name_token", &SubstNonTypeTemplateParmExpr::NameToken)
     .def_prop_ro("pack_index", &SubstNonTypeTemplateParmExpr::PackIndex)
     .def_prop_ro("parameter", &SubstNonTypeTemplateParmExpr::Parameter)
-    .def("parameter_type", &SubstNonTypeTemplateParmExpr::ParameterType)
+    .def_prop_ro("parameter_type", &SubstNonTypeTemplateParmExpr::ParameterType)
     .def_prop_ro("replacement", &SubstNonTypeTemplateParmExpr::Replacement)
     .def_prop_ro("is_reference_parameter", &SubstNonTypeTemplateParmExpr::IsReferenceParameter);
 }

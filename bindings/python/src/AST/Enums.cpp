@@ -2652,7 +2652,8 @@ void RegisterEnums(nb::module_ &m) {
     .value("UNRESOLVED_USING", pasta::TypeKind::kUnresolvedUsing)
     .value("USING", pasta::TypeKind::kUsing)
     .value("VECTOR", pasta::TypeKind::kVector)
-    .value("EXT_VECTOR", pasta::TypeKind::kExtVector);
+    .value("EXT_VECTOR", pasta::TypeKind::kExtVector)
+    .value("QUALIFIED", pasta::TypeKind::kQualified);
 
   nb::enum_<pasta::TypeTagForDatatypeAttrSpelling>(m, "TypeTagForDatatypeAttrSpelling")
     .value("GNU_TYPE_TAG_FOR_DATATYPE", pasta::TypeTagForDatatypeAttrSpelling::kGNUTypeTagForDatatype)

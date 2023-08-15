@@ -40,6 +40,6 @@ void RegisterObjCObjectPointerType(nb::module_ &m) {
     .def_prop_ro("is_unspecialized", &ObjCObjectPointerType::IsUnspecialized)
     .def_prop_ro("is_unspecialized_as_written", &ObjCObjectPointerType::IsUnspecializedAsWritten)
     .def_prop_ro("qualifiers", &ObjCObjectPointerType::Qualifiers)
-    .def("strip_obj_c_kind_of_type_and_qualifiers", &ObjCObjectPointerType::StripObjCKindOfTypeAndQualifiers);
+    .def_prop_ro("strip_obj_c_kind_of_type_and_qualifiers", &ObjCObjectPointerType::StripObjCKindOfTypeAndQualifiers);
 }
 } // namespace pasta

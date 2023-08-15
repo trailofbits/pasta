@@ -22,7 +22,7 @@ void RegisterCXXConstructorDecl(nb::module_ &m) {
     .def_prop_ro("canonical_declaration", &CXXConstructorDecl::CanonicalDeclaration)
     .def_prop_ro("num_constructor_initializers", &CXXConstructorDecl::NumConstructorInitializers)
     .def_prop_ro("target_constructor", &CXXConstructorDecl::TargetConstructor)
-    .def("is_converting_constructor", &CXXConstructorDecl::IsConvertingConstructor)
+    .def_prop_ro("is_converting_constructor", &CXXConstructorDecl::IsConvertingConstructor)
     .def_prop_ro("is_default_constructor", &CXXConstructorDecl::IsDefaultConstructor)
     .def_prop_ro("is_delegating_constructor", &CXXConstructorDecl::IsDelegatingConstructor)
     .def_prop_ro("is_explicit", &CXXConstructorDecl::IsExplicit)

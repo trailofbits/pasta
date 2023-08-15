@@ -20,7 +20,7 @@ void RegisterMSAsmStmt(nb::module_ &m) {
     .def("__hash__", [](const MSAsmStmt& stmt) { return (intptr_t)stmt.RawStmt(); })
     .def("__eq__", [](const Stmt& a, const Stmt& b) { return a.RawStmt() == b.RawStmt(); })
     .def_prop_ro("children", &MSAsmStmt::Children)
-    .def("generate_assembly_string", &MSAsmStmt::GenerateAssemblyString)
+    .def_prop_ro("generate_assembly_string", &MSAsmStmt::GenerateAssemblyString)
     .def_prop_ro("all_constraints", &MSAsmStmt::AllConstraints)
     .def_prop_ro("all_expressions", &MSAsmStmt::AllExpressions)
     .def_prop_ro("assembly_string", &MSAsmStmt::AssemblyString)

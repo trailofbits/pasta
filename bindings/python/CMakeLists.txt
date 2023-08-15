@@ -16,11 +16,13 @@ nanobind_add_module(pypasta LTO
     "${CMAKE_CURRENT_SOURCE_DIR}/src/AST/AST.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/ArgumentVector.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/AST.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/Bindings.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/Bindings.h"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/CompileCommand.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/CompileJob.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/Compiler.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/FileManager.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/FileSystem.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/module.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/Module.cpp"
     ${PASTA_PYTHON_AST_SOURCES})
 target_link_libraries(pypasta PUBLIC pasta_force_load)

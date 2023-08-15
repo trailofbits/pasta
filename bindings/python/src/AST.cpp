@@ -6,7 +6,7 @@
 #include <pasta/AST/Token.h>
 #include <pasta/AST/Printer.h>
 
-#include "bindings.h"
+#include "Bindings.h"
 
 namespace pasta {
 

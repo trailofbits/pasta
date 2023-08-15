@@ -1224,7 +1224,7 @@ class TypeBuilder;
     m(Paren) \
     m(Pipe) \
     m(Pointer) \
-    a(QualifiedType) \
+    m(Qualified) \
     m(RValueReference) \
     m(Record) \
     a(ReferenceType) \
@@ -1242,8 +1242,7 @@ class TypeBuilder;
     m(Using) \
     m(VariableArray) \
     m(Vector) \
-    a(TypeWithKeyword) \
-    m(Qualified)
+    a(TypeWithKeyword)
 
 #define PASTA_FOR_EACH_ATTR_IMPL(m, a) \
     m(AArch64SVEPcs) \

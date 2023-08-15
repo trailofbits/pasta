@@ -23,6 +23,7 @@
 
 std::string Capitalize(llvm::StringRef name);
 
+std::string CxxName(llvm::StringRef cls_name, llvm::StringRef meth_name);
 std::string CxxName(llvm::StringRef name);
 
 std::string CapitalCaseToSnakeCase(llvm::StringRef name);

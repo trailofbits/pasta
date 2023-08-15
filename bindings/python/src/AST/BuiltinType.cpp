@@ -10,7 +10,7 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include "../bindings.h"
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
@@ -20,7 +20,7 @@ void RegisterBuiltinType(nb::module_ &m) {
     .def("__hash__", [](const BuiltinType& type) { return (intptr_t)type.RawType(); })
     .def("__eq__", [](const Type& a, const Type& b) { return a.RawType() == b.RawType(); })
     .def_prop_ro("desugar", &BuiltinType::Desugar)
-    .def_prop_ro("kind", &BuiltinType::Kind)
+    .def_prop_ro("builtin_kind", &BuiltinType::BuiltinKind)
     .def_prop_ro("is_floating_point", &BuiltinType::IsFloatingPoint)
     .def_prop_ro("is_integer", &BuiltinType::IsInteger)
     .def_prop_ro("is_non_overload_placeholder_type", &BuiltinType::IsNonOverloadPlaceholderType)

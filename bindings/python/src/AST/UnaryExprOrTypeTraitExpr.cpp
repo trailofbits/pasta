@@ -10,7 +10,7 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include "../bindings.h"
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
@@ -24,7 +24,7 @@ void RegisterUnaryExprOrTypeTraitExpr(nb::module_ &m) {
     .def_prop_ro("argument_type", &UnaryExprOrTypeTraitExpr::ArgumentType)
     .def_prop_ro("begin_token", &UnaryExprOrTypeTraitExpr::BeginToken)
     .def_prop_ro("end_token", &UnaryExprOrTypeTraitExpr::EndToken)
-    .def_prop_ro("kind", &UnaryExprOrTypeTraitExpr::Kind)
+    .def_prop_ro("keyword_kind", &UnaryExprOrTypeTraitExpr::KeywordKind)
     .def_prop_ro("operator_token", &UnaryExprOrTypeTraitExpr::OperatorToken)
     .def_prop_ro("r_paren_token", &UnaryExprOrTypeTraitExpr::RParenToken)
     .def_prop_ro("type_of_argument", &UnaryExprOrTypeTraitExpr::TypeOfArgument)

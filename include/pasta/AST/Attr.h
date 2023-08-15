@@ -3566,7 +3566,7 @@ class SwiftAsyncAttr : public InheritableAttr {
   PASTA_DECLARE_BASE_OPERATORS(Attr, SwiftAsyncAttr)
   PASTA_DECLARE_BASE_OPERATORS(InheritableAttr, SwiftAsyncAttr)
   // CompletionHandlerIndex: (clang::ParamIdx)
-  enum SwiftAsyncAttrKind Kind(void) const;
+  enum SwiftAsyncAttrKind AttributeKind(void) const;
   std::string_view Spelling(void) const;
  protected:
   PASTA_DEFINE_DEFAULT_ATTR_CONSTRUCTOR(SwiftAsyncAttr)

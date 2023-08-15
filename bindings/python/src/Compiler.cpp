@@ -7,7 +7,7 @@
 #include <pasta/Compile/Job.h>
 #include <pasta/AST/AST.h>
 
-#include "bindings.h"
+#include "Bindings.h"
 
 namespace pasta {
 

@@ -2,7 +2,7 @@
  * Copyright (c) 2023 Trail of Bits, Inc.
  */
 
-#include "bindings.h"
+#include "Bindings.h"
 
 #include <pasta/Util/Init.h>
 

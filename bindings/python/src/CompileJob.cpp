@@ -8,7 +8,7 @@
 #include <pasta/Util/ArgumentVector.h>
 #include <pasta/Util/File.h>
 
-#include "bindings.h"
+#include "Bindings.h"
 
 namespace pasta {
 

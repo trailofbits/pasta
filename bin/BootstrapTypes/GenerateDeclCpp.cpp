@@ -218,7 +218,7 @@ void GenerateDeclCpp(std::ostream& py_cmake, std::ostream& py_ast) {
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
  
-#include "../bindings.h"
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
@@ -263,7 +263,7 @@ void RegisterDeclContext(nb::module_ &m) {
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include "../bindings.h"
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;

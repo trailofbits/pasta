@@ -10,7 +10,7 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
  
-#include "../bindings.h"
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;

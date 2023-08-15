@@ -4,7 +4,7 @@
 
 #include <pasta/Util/ArgumentVector.h>
 
-#include "bindings.h"
+#include "Bindings.h"
 
 namespace pasta {
 

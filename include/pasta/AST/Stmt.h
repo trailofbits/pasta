@@ -4403,7 +4403,7 @@ class StringLiteral : public Expr {
   uint32_t CharacterByteWidth(void) const;
   // CodeUnit: (unsigned int)
   ::pasta::Token EndToken(void) const;
-  enum StringLiteralStringKind Kind(void) const;
+  enum StringLiteralStringKind LiteralKind(void) const;
   uint32_t Length(void) const;
   // TokenOfByte: (clang::SourceLocation)
   uint32_t NumConcatenated(void) const;
@@ -4521,7 +4521,7 @@ class UnaryExprOrTypeTraitExpr : public Expr {
   std::optional<::pasta::Type> ArgumentType(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  enum UnaryExprOrTypeTrait Kind(void) const;
+  enum UnaryExprOrTypeTrait KeywordKind(void) const;
   ::pasta::Token OperatorToken(void) const;
   ::pasta::Token RParenToken(void) const;
   ::pasta::Type TypeOfArgument(void) const;
@@ -5545,7 +5545,7 @@ class CharacterLiteral : public Expr {
   std::vector<::pasta::Stmt> Children(void) const;
   ::pasta::Token BeginToken(void) const;
   ::pasta::Token EndToken(void) const;
-  enum CharacterLiteralCharacterKind Kind(void) const;
+  enum CharacterLiteralCharacterKind LiteralKind(void) const;
   ::pasta::Token Token(void) const;
   uint32_t Value(void) const;
  protected:

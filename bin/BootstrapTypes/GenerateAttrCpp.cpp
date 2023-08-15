@@ -111,7 +111,7 @@ void GenerateAttrCpp(std::ostream& py_cmake, std::ostream& py_ast) {
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include "../bindings.h"
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;

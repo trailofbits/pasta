@@ -6,7 +6,7 @@
 #include <pasta/Compile/Compiler.h>
 #include <pasta/Util/File.h>
 
-#include "bindings.h"
+#include "Bindings.h"
 
 #include <nanobind/stl/shared_ptr.h>
 #include <nanobind/stl/string_view.h>

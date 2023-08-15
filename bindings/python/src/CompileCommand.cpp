@@ -4,7 +4,7 @@
 
 #include <pasta/Compile/Command.h>
 
-#include "bindings.h"
+#include "Bindings.h"
 
 #include <pasta/Util/ArgumentVector.h>
 

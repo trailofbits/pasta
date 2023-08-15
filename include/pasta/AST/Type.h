@@ -533,7 +533,7 @@ class TypeOfExprType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TypeOfExprType)
   PASTA_DECLARE_BASE_OPERATORS(Type, TypeOfExprType)
   ::pasta::Type Desugar(void) const;
-  enum TypeOfKind Kind(void) const;
+  enum TypeOfKind TypeKind(void) const;
   ::pasta::Expr UnderlyingExpression(void) const;
   bool IsSugared(void) const;
  protected:
@@ -548,7 +548,7 @@ class TypeOfType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TypeOfType)
   PASTA_DECLARE_BASE_OPERATORS(Type, TypeOfType)
   ::pasta::Type Desugar(void) const;
-  enum TypeOfKind Kind(void) const;
+  enum TypeOfKind TypeKind(void) const;
   ::pasta::Type UnmodifiedType(void) const;
   bool IsSugared(void) const;
  protected:
@@ -772,7 +772,7 @@ class BuiltinType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(BuiltinType)
   PASTA_DECLARE_BASE_OPERATORS(Type, BuiltinType)
   ::pasta::Type Desugar(void) const;
-  ::pasta::BuiltinTypeKind Kind(void) const;
+  ::pasta::BuiltinTypeKind BuiltinKind(void) const;
   // Name: (llvm::StringRef)
   // NameAsCString: (const char *)
   bool IsFloatingPoint(void) const;

@@ -10533,7 +10533,7 @@ uint32_t StringLiteral::CharacterByteWidth(void) const {
   return ast->TokenAt(val);
 }
 
-enum StringLiteralStringKind StringLiteral::Kind(void) const {
+enum StringLiteralStringKind StringLiteral::LiteralKind(void) const {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
   decltype(auto) val = self.getKind();
   return static_cast<::pasta::StringLiteralStringKind>(val);
@@ -10919,7 +10919,7 @@ std::optional<::pasta::Type> UnaryExprOrTypeTraitExpr::ArgumentType(void) const 
   return ast->TokenAt(val);
 }
 
-enum UnaryExprOrTypeTrait UnaryExprOrTypeTraitExpr::Kind(void) const {
+enum UnaryExprOrTypeTrait UnaryExprOrTypeTraitExpr::KeywordKind(void) const {
   auto &self = *const_cast<clang::UnaryExprOrTypeTraitExpr *>(u.UnaryExprOrTypeTraitExpr);
   decltype(auto) val = self.getKind();
   return static_cast<::pasta::UnaryExprOrTypeTrait>(val);
@@ -14270,7 +14270,7 @@ std::vector<::pasta::Stmt> CharacterLiteral::Children(void) const {
   return ast->TokenAt(val);
 }
 
-enum CharacterLiteralCharacterKind CharacterLiteral::Kind(void) const {
+enum CharacterLiteralCharacterKind CharacterLiteral::LiteralKind(void) const {
   auto &self = *const_cast<clang::CharacterLiteral *>(u.CharacterLiteral);
   decltype(auto) val = self.getKind();
   return static_cast<::pasta::CharacterLiteralCharacterKind>(val);

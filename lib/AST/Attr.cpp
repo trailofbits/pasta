@@ -4623,7 +4623,7 @@ PASTA_DEFINE_BASE_OPERATORS(Attr, SwiftAsyncAttr)
 PASTA_DEFINE_BASE_OPERATORS(InheritableAttr, SwiftAsyncAttr)
 // 1: SwiftAsyncAttr::Clone
 // 0: SwiftAsyncAttr::CompletionHandlerIndex
-enum SwiftAsyncAttrKind SwiftAsyncAttr::Kind(void) const {
+enum SwiftAsyncAttrKind SwiftAsyncAttr::AttributeKind(void) const {
   auto &self = *const_cast<clang::SwiftAsyncAttr *>(u.SwiftAsyncAttr);
   decltype(auto) val = self.getKind();
   return static_cast<::pasta::SwiftAsyncAttrKind>(val);

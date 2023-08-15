@@ -13,6 +13,8 @@
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/vector.h>
 
+#include <pasta/AST/Forward.h>
+
 #include "Result.h"
 
 namespace pasta {
@@ -37,4 +39,54 @@ void RegisterFileManager(nanobind::module_&);
 void RegisterCompileJob(nanobind::module_&);
 void RegisterCompiler(nanobind::module_&);
 void RegisterAST(nanobind::module_&);
+
+#define DECLARE_HOOK(t, suffix) \
+    const std::type_info *TypeInfoFromKind(const t ## suffix *p);
+
+#define DECLARE_DECL_HOOK(t) DECLARE_HOOK(t, Decl)
+#define DECLARE_TYPE_HOOK(t) DECLARE_HOOK(t, Type)
+#define DECLARE_ATTR_HOOK(t) DECLARE_HOOK(t, Attr)
+#define DECLARE_ABSTRACT_HOOK(t) DECLARE_HOOK(t,)
+
+PASTA_FOR_EACH_DECL_IMPL(DECLARE_DECL_HOOK, DECLARE_ABSTRACT_HOOK)
+PASTA_FOR_EACH_STMT_IMPL(DECLARE_ABSTRACT_HOOK, DECLARE_ABSTRACT_HOOK,
+                         DECLARE_ABSTRACT_HOOK, DECLARE_ABSTRACT_HOOK,
+                         DECLARE_ABSTRACT_HOOK, DECLARE_ABSTRACT_HOOK)
+PASTA_FOR_EACH_TYPE_IMPL(DECLARE_TYPE_HOOK, DECLARE_ABSTRACT_HOOK)
+PASTA_FOR_EACH_ATTR_IMPL(DECLARE_ATTR_HOOK, DECLARE_ABSTRACT_HOOK)
+
+#undef DECLARE_HOOK
+#undef DECLARE_DECL_HOOK
+#undef DECLARE_TYPE_HOOK
+#undef DECLARE_ATTR_HOOK
+#undef DECLARE_ABSTRACT_HOOK
+
 } // namespace pasta
+namespace nanobind::detail {
+
+#define DECLARE_HOOK(t, suffix) \
+    template <> \
+    struct type_hook<::pasta::t ## suffix> { \
+      inline static const std::type_info *get(const ::pasta::t ## suffix *p) { \
+        return ::pasta::TypeInfoFromKind(p); \
+      } \
+    };
+
+#define DECLARE_DECL_HOOK(t) DECLARE_HOOK(t, Decl)
+#define DECLARE_TYPE_HOOK(t) DECLARE_HOOK(t, Type)
+#define DECLARE_ATTR_HOOK(t) DECLARE_HOOK(t, Attr)
+#define DECLARE_ABSTRACT_HOOK(t) DECLARE_HOOK(t,)
+
+PASTA_FOR_EACH_DECL_IMPL(DECLARE_DECL_HOOK, DECLARE_ABSTRACT_HOOK)
+PASTA_FOR_EACH_STMT_IMPL(DECLARE_ABSTRACT_HOOK, DECLARE_ABSTRACT_HOOK,
+                         DECLARE_ABSTRACT_HOOK, DECLARE_ABSTRACT_HOOK,
+                         DECLARE_ABSTRACT_HOOK, DECLARE_ABSTRACT_HOOK)
+PASTA_FOR_EACH_TYPE_IMPL(DECLARE_TYPE_HOOK, DECLARE_ABSTRACT_HOOK)
+PASTA_FOR_EACH_ATTR_IMPL(DECLARE_ATTR_HOOK, DECLARE_ABSTRACT_HOOK)
+
+#undef DECLARE_DECL_HOOK
+#undef DECLARE_TYPE_HOOK
+#undef DECLARE_ATTR_HOOK
+#undef DECLARE_ABSTRACT_HOOK
+
+} // namespace nanobind::detail

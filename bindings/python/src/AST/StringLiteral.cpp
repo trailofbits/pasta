@@ -10,7 +10,7 @@
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include "../bindings.h"
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
@@ -27,7 +27,7 @@ void RegisterStringLiteral(nb::module_ &m) {
     .def_prop_ro("bytes", &StringLiteral::Bytes)
     .def_prop_ro("character_byte_width", &StringLiteral::CharacterByteWidth)
     .def_prop_ro("end_token", &StringLiteral::EndToken)
-    .def_prop_ro("kind", &StringLiteral::Kind)
+    .def_prop_ro("literal_kind", &StringLiteral::LiteralKind)
     .def_prop_ro("length", &StringLiteral::Length)
     .def_prop_ro("num_concatenated", &StringLiteral::NumConcatenated)
     .def_prop_ro("string", &StringLiteral::String)

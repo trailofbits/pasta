@@ -17,9 +17,9 @@ BUILTIN_TK = {
   BuiltinTypeKind.BOOLEAN: "b",
   BuiltinTypeKind.CHARACTER_S: "c",
   BuiltinTypeKind.S_CHAR: "c",
-  BuiltinTypeKind.U_CHAR: "c",
+  BuiltinTypeKind.U_CHAR: "Uc",
   BuiltinTypeKind.W_CHAR_S: "w",
-  BuiltinTypeKind.W_CHAR_U: "w",
+  BuiltinTypeKind.W_CHAR_U: "Uw",
   BuiltinTypeKind.SHORT: "s",
   BuiltinTypeKind.U_SHORT: "Us",
   BuiltinTypeKind.INT: "i",
@@ -49,6 +49,9 @@ def run_on_builtin_type(type: BuiltinType, sizes: List[int]) -> str:
 # DF: A floating point value, as wide as a DI mode integer, usually 64 bits.
 
 TYPEDEF_TK = {
+  "size_t": "z",
+  "udi": "UWi",
+
   "qi": "c",
   "v8qi": "V8c",
   "v16qi": "V16c",
@@ -62,6 +65,8 @@ TYPEDEF_TK = {
   "v32hi": "V32s",
   "v32uhi": "V32Us",
 
+  "int32_t": "i",
+  "uint32_t": "Ui",
   "si": "i",
   "v2si": "V2i",
   "v4si": "V4i",
@@ -69,6 +74,8 @@ TYPEDEF_TK = {
   "v16si": "V16i",
   "v16usi": "V16Ui",
 
+  "int64_t": "Wi",
+  "uint64_t": "UWi",
   "di": "Wi",
   "v1di": "V1Wi",
   "v2di": "V2Wi",
@@ -154,7 +161,7 @@ def run_on_qualified(type: QualifiedType, sizes: List[int]) -> str:
   if type.is_const_qualified:
     enc += "C"
   if type.is_volatile_qualified:
-    enc += "V"
+    enc += "D"
   if type.is_restrict_qualified:
     enc += "R"
   return enc
@@ -173,11 +180,12 @@ TYPE_VISITOR = {
 def run_on_type(type: Type, sizes: List[int]) -> str:
   return TYPE_VISITOR.get(type.kind, run_on_unsupported)(type, sizes)
 
-def run_on_function(func: FunctionDecl):
-  if func.builtin_id != 0:
+def run_on_function(func: FunctionDecl, allow_builtins: bool):
+  
+  if func.builtin_id != 0 and not allow_builtins:
     return
 
-  if not func.name.startswith("__builtin"):
+  if not func.name.startswith("_"):
     return
 
   vec_sizes: List[int] = [0,]
@@ -202,23 +210,24 @@ def run_on_function(func: FunctionDecl):
     const_enc = ""
 
   # Pointer to volatile data means each read might produce different data.
-  if "V*" in proto:
+  if "D*" in proto:
     const_enc = ""
 
   # `n` for nothrow
   # `c` for const
   print(f"TARGET_BUILTIN({func.name}, \"{proto}\", \"n{const_enc}{vec_enc}\", \"\")")
 
-def run_on_ast(ast: AST):
+def run_on_ast(ast: AST, allow_builtins: bool):
   dc: DeclContext = DeclContext.cast(ast.translation_unit)
   for decl in dc.declarations:
     if isinstance(decl, FunctionDecl):
-      run_on_function(decl)
+      run_on_function(decl, allow_builtins)
 
 if __name__ == "__main__":
   parser = ArgumentParser(description='Regularlize a compile_commands.json file')
+  parser.add_argument('--allow_builtins', action='store_true')
   parser.add_argument('builtin_declarations')
-  args = parser.parse_args()
+  cmd_args = parser.parse_args()
 
   gcc_h_list = list(os.path.split(__file__))
   gcc_h_list[-1] = "GCC.h"
@@ -227,17 +236,21 @@ if __name__ == "__main__":
   fs: FileSystem = FileSystem.create_native()
   fm: FileManager = FileManager(fs)
   cc: Compiler = Compiler.create_host_compiler(fm, TargetLanguage.C)
-  args = ArgumentVector(["cc", "-x", "c", "-include", gcc_h,
-                         args.builtin_declarations])
+  args = ArgumentVector(["c++", "-x", "c++", "-include", gcc_h,
+                         cmd_args.builtin_declarations])
   cmd = CompileCommand.create_from_arguments(args, gcc_h_list[0])
-  jobs = cc.create_jobs_for_command(cmd)
+  maybe_jobs = cc.create_jobs_for_command(cmd)
   
-  for job in jobs:
+  if isinstance(maybe_jobs, str):
+    print(maybe_jobs)
+    sys.exit(1)
+
+  for job in maybe_jobs:
     maybe_ast = job.run()
     if isinstance(maybe_ast, str):
       print(maybe_ast)
       sys.exit(1)
 
     elif isinstance(maybe_ast, AST):
-      run_on_ast(maybe_ast)
+      run_on_ast(maybe_ast, cmd_args.allow_builtins)
 

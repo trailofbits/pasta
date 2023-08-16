@@ -24,3 +24,18 @@ the source code:
 
 A GraphViz DOT digraph will be printed to `stdout` upon success, and error
 messages and debug messages may be printed to `stderr`.
+
+For example, the macro graph for the following C code is as follows:
+
+```c
+#define HELLO_WORLD 1
+#define CAT3(a, b, c) CAT2(CAT2(a, b), c)
+#define CAT2(a, b) CAT2_(a, b)
+#define CAT2_(a, b) a ## b
+
+int main() {
+  return CAT3(HELLO, _, WORLD);
+}
+```
+
+![](example.png)

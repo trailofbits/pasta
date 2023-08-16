@@ -224,7 +224,7 @@ def run_on_ast(ast: AST, allow_builtins: bool):
       run_on_function(decl, allow_builtins)
 
 if __name__ == "__main__":
-  parser = ArgumentParser(description='Regularlize a compile_commands.json file')
+  parser = ArgumentParser(description='Generate TARGET_BUILTIN macro uses to handle Clang-unsupported intrinsics')
   parser.add_argument('--allow_builtins', action='store_true')
   parser.add_argument('builtin_declarations')
   cmd_args = parser.parse_args()

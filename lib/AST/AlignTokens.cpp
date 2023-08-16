@@ -2262,7 +2262,8 @@ static const std::string kMismatchedASTs = "Backing ASTs of parsed and printed t
 // but the token contexts are taken from `b`. This provides a mechanism of
 // relating parsed tokens back to AST nodes.
 Result<PrintedTokenRange, std::string>
-PrintedTokenRange::Align(const TokenRange &a, const PrintedTokenRange &b) {
+PrintedTokenRange::Align(const PrintedTokenRange &a,
+                         const PrintedTokenRange &b) {
   if (!a) {
     return kEmptyParsed;
   }
@@ -2271,40 +2272,30 @@ PrintedTokenRange::Align(const TokenRange &a, const PrintedTokenRange &b) {
     return kEmptyPrinted;
   }
 
-  if (a.ast.get() != b.impl->ast.get()) {
+  if (a.impl->ast.get() != b.impl->ast.get()) {
     return kMismatchedASTs;
   }
 
   auto new_impl = std::make_shared<PrintedTokenRangeImpl>(
-      a.ast->ci->getASTContext());
-  new_impl->ast = a.ast;
-  new_impl->tokens.reserve(a.size() + 1u);
-  new_impl->data.reserve(b.impl->data.size());
+      a.impl->ast->ci->getASTContext());
+  new_impl->ast = a.impl->ast;
+  new_impl->tokens.reserve(a.impl->tokens.size());
+  new_impl->data = a.impl->data;
 
-  const TokenImpl * const first_ast_tok = a.ast->tokens.data();
-  for (const TokenImpl *a_tok = a.first; a_tok < a.after_last; ++a_tok) {
-    std::string_view old_data = a_tok->Data(*(a.ast));
-    if (old_data.empty() || !TokenCanBeAssignedContext(a_tok)) {
-      continue;
-    }
-
+  // Copy the tokens of `a`.
+  for (const PrintedTokenImpl *a_tok = a.first; a_tok < a.after_last; ++a_tok) {
+    assert(TokenCanBeAssignedContext(a_tok));
     PrintedTokenImpl &new_tok = new_impl->tokens.emplace_back(
-        static_cast<TokenDataOffset>(new_impl->data.size()),
-        static_cast<uint32_t>(old_data.size()),
-        kInvalidTokenContextIndex, 0u  /* num_leading_newlines */,
-        1u  /* num_leading_spaces */, a_tok->Kind());
+        static_cast<TokenDataOffset>(a_tok->data_offset),
+        static_cast<uint32_t>(a_tok->data_len),
+        kInvalidTokenContextIndex,
+        0u  /* num_leading_newlines */,
+        1u  /* num_leading_spaces */,
+        a_tok->Kind());
 
-    new_tok.opaque_source_loc = a_tok->Location().getRawEncoding();
-    new_tok.role = static_cast<TokenKindBase>(TokenRole::kFileToken);
-    new_tok.derived_index =
-        static_cast<DerivedTokenIndex>(a_tok - first_ast_tok);
-
-    new_impl->data.insert(new_impl->data.end(), old_data.begin(),
-                          old_data.end());
-    new_impl->data.push_back('\0');
-  
-    assert(new_tok.Data(*new_impl) == old_data);
-    assert(new_tok.Location() == a_tok->Location());
+    new_tok.opaque_source_loc = a_tok->opaque_source_loc;
+    new_tok.role = a_tok->role;
+    new_tok.derived_index = a_tok->derived_index;
   }
 
   new_impl->tokens.emplace_back(

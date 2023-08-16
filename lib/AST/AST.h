@@ -181,9 +181,12 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   // Mark tokens as being part of macros.
   void MarkMacroTokens(void);
 
-  // After token alignment, we want to link in macro tokens to the token
-  // contexts of tokens with macro roles.
+  // Link in macro tokens to the token contexts of tokens with macro roles.
   void LinkMacroTokenContexts(void);
+
+  // Figure out lexical parentage. This is an important pre-processing step
+  // prior to bounds calculation.
+  void PreprocessLexicalParentage(void);
 
  private:
   ASTImpl(void) = delete;

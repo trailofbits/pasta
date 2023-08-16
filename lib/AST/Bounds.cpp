@@ -2124,4 +2124,169 @@ TokenRange ASTImpl::DeclTokenRange(const clang::Decl *decl_) {
   return TokenRange(this->shared_from_this());
 }
 
+// Figure out lexical parentage. This is an important pre-processing step
+// prior to bounds calculation.
+void ASTImpl::PreprocessLexicalParentage(void) {
+  std::vector<clang::Decl *> work_list;
+  std::vector<clang::Decl *> tlds;
+  std::unordered_set<const clang::Decl *> ignore_decls;
+
+  work_list.push_back(tu);
+  while (!work_list.empty()) {
+    clang::Decl * const decl = work_list.back();
+    work_list.pop_back();
+    switch (decl->getKind()) {
+      case clang::Decl::TranslationUnit:
+      case clang::Decl::LinkageSpec:
+      case clang::Decl::ExternCContext:
+      case clang::Decl::Namespace:
+        for (auto sub_decl : clang::Decl::castToDeclContext(decl)->decls()) {
+          work_list.push_back(sub_decl);
+        }
+        break;
+
+//      // If it's something like `extern "C" int foo;` then we want to treat it
+//      // as top-level, otherwise, it's more like `extern "C" { ... }` and so we
+//      // want to find the top-level decls in the `...`.
+//      case clang::Decl::LinkageSpec:
+//        if (auto lsp = llvm::dyn_cast<clang::LinkageSpecDecl>(decl);
+//            !lsp->hasBraces() && !lsp->isImplicit()) {
+//
+//          // Compute bounds of top-level decls. This will fill out
+//          // `lexically_containing_decl`.
+//          (void) DeclBounds(decl);
+//          tlds.push_back(decl);
+//
+//        } else {
+//          for (auto sub_decl : clang::Decl::castToDeclContext(decl)->decls()) {
+//            work_list.push_back(sub_decl);
+//          }
+//        }
+//        break;
+
+      default:
+        if (auto ftpl = clang::dyn_cast<clang::FunctionTemplateDecl>(decl)) {
+          for (clang::Decl *spec : ftpl->specializations()) {
+            ignore_decls.insert(Canonicalize(spec));
+          }
+
+        } else if (auto ctpl = clang::dyn_cast<clang::ClassTemplateDecl>(decl)) {
+          for (clang::Decl *spec : ctpl->specializations()) {
+            ignore_decls.insert(Canonicalize(spec));
+          }
+
+        } else if (auto vtpl = clang::dyn_cast<clang::VarTemplateDecl>(decl)) {
+          for (clang::Decl *spec : vtpl->specializations()) {
+            ignore_decls.insert(Canonicalize(spec));
+          }
+        }
+
+        if (!decl->isImplicit()) {
+          // Compute bounds of top-level decls. This will fill out
+          // `lexically_containing_decl`.
+          (void) DeclBounds(decl);
+          tlds.push_back(decl);
+        }
+        break;
+    }
+  }
+
+  // File explicit, user-written explicit template specializations, and ignore
+  // all other specializations.
+  auto should_keep = [&ignore_decls] (clang::Decl *decl) {
+    auto tsk = clang::TSK_Undeclared;
+    bool has_spec_or_partial = false;
+    if (auto cspec = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(decl);
+        cspec && !clang::isa<clang::ClassTemplatePartialSpecializationDecl>(cspec)) {
+      tsk = cspec->getSpecializationKind();
+      has_spec_or_partial = !cspec->getSpecializedTemplateOrPartial().isNull();
+
+    } else if (auto vspec = clang::dyn_cast<clang::VarTemplateSpecializationDecl>(decl);
+               vspec && !clang::isa<clang::VarTemplatePartialSpecializationDecl>(vspec)) {
+      tsk = vspec->getSpecializationKind();
+      has_spec_or_partial = !vspec->getSpecializedTemplateOrPartial().isNull();
+
+    } else if (auto fdecl = clang::dyn_cast<clang::FunctionDecl>(decl)) {
+      tsk = fdecl->getTemplateSpecializationKind();
+
+    } else if (auto vdecl = clang::dyn_cast<clang::VarDecl>(decl)) {
+      tsk = vdecl->getTemplateSpecializationKind();
+
+    } else if (auto ta = clang::dyn_cast<clang::TypeAliasDecl>(decl)) {
+      if (ta->getDescribedAliasTemplate()) {
+        tsk = clang::TSK_ImplicitInstantiation;  // Fake it.
+      }
+
+    } else {
+      has_spec_or_partial = ignore_decls.count(Canonicalize(decl));
+    }
+
+    return IsExplicitInstantiation(tsk, has_spec_or_partial);
+  };
+
+  // Strip out template specializations.
+  tlds.erase(
+      std::partition(tlds.begin(), tlds.end(), should_keep),
+      tlds.end());
+
+  tlds.erase(std::unique(tlds.begin(), tlds.end()), tlds.end());
+
+  std::stable_sort(
+      tlds.begin(), tlds.end(),
+      [this] (clang::Decl *a, clang::Decl *b) {
+        auto a_bounds = DeclBounds(a);
+        auto b_bounds = DeclBounds(b);
+
+        // If `a` starts first, put it first.
+        if (a_bounds.first < b_bounds.first) {
+          return true;
+
+        } else if (a_bounds.first > b_bounds.first) {
+          return false;
+
+        // If `b` encloses `a`, sort `b` first.
+        } else if (a_bounds.second < b_bounds.second) {
+          return false;
+
+        // If `a` encloses `b`, then sort `a` first.
+        } else if (a_bounds.second > b_bounds.second) {
+          return true;
+
+        // Keep the relative order from `tlds`.
+        } else {
+          return false;
+        }
+      });
+
+  std::vector<clang::Decl *> tld_group;
+
+  for (auto tld_it = tlds.begin(), tld_end = tlds.end(); tld_it != tld_end; ) {
+    clang::Decl *decl = *tld_it;
+    clang::Decl *&containing_decl = lexically_containing_decl[decl];
+    if (!containing_decl) {
+      containing_decl = decl;
+    }
+
+    tld_group.clear();
+    tld_group.push_back(containing_decl);
+    for (; tld_it != tld_end; ++tld_it) {
+      clang::Decl *next_decl = *tld_it;
+      if (containing_decl == lexically_containing_decl[next_decl]) {
+        if (next_decl != containing_decl) {
+          tld_group.push_back(next_decl);
+        }
+      } else {
+        break;
+      }
+    }
+
+    assert(1u <= tld_group.size());
+
+    // Figure out the parsed bounds. If we don't have bounds then we are
+    // probably dealing with something like a namespace / linkage spec /
+    // extern C, or an implicit declaration.
+    (void) DeclBounds(decl);
+  }
+}
+
 }  // namespace pasta

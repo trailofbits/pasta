@@ -361,9 +361,16 @@ class PrintedTokenRange {
 
   // Create a new printed token range, where the token data is taken from `a`
   // but the token contexts are taken from `b`. This provides a mechanism of
-  // relating parsed tokens back to AST nodes.
+  // relating parsed tokens back to AST nodes, when `a` is derived from `Adopt`
+  // below.
   static Result<PrintedTokenRange, std::string>
-  Align(const TokenRange &a, const PrintedTokenRange &b);
+  Align(const PrintedTokenRange &a, const PrintedTokenRange &b);
+
+  // Create a new printed token range, where the token data is taken from `a`.
+  // The only token contexts in an adopted range are AST contexts. The only
+  // tokens in a printed token range are file tokens and complete macro
+  // expansion tokens.
+  static PrintedTokenRange Adopt(const TokenRange &a);
 
   inline PrintedTokenIterator begin(void) const noexcept {
     return PrintedTokenIterator(impl, first);
@@ -393,7 +400,7 @@ class PrintedTokenRange {
 
   // Is this token range valid?
   inline operator bool(void) const noexcept {
-    return first && after_last;
+    return first < after_last;
   }
 
  private:

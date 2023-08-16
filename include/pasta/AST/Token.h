@@ -161,6 +161,7 @@ class Token {
   friend class CXXBaseSpecifier;
   friend class MacroToken;
   friend class PrintedToken;
+  friend class PrintedTokenRange;
   friend class TokenContext;
   friend class TokenIterator;
   friend class TokenPrinterContext;
@@ -316,7 +317,7 @@ class TokenRange {
 
   // Is this token range valid?
   inline operator bool(void) const noexcept {
-    return first && after_last;
+    return first < after_last;
   }
 
  private:

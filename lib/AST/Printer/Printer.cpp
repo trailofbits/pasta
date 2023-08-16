@@ -746,6 +746,59 @@ std::optional<PrintedTokenRange> PrintedTokenRange::Concatenate(
   return PrintedTokenRange(std::move(new_impl), first_tok, after_last_tok);
 }
 
+// Tell us if this was a token that was actually parsed.
+static bool IsParsedToken(const pasta::Token &tok) {
+  switch (tok.Role()) {
+    case pasta::TokenRole::kFileToken:
+    case pasta::TokenRole::kFinalMacroExpansionToken:
+      return !tok.Data().empty();
+
+    default:
+      return false;
+  }
+}
+
+// Create a new printed token range, where the token data is taken from `a`.
+// The only token contexts in an adopted range are AST contexts. The only tokens
+// in a printed token range are file tokens and complete macro expansion tokens.
+PrintedTokenRange PrintedTokenRange::Adopt(const TokenRange &a) {
+  auto new_impl = std::make_shared<PrintedTokenRangeImpl>(
+      a.ast->ci->getASTContext());
+  new_impl->ast = a.ast;
+  new_impl->tokens.reserve(a.Size() + 1u);
+  new_impl->contexts.emplace_back(*(new_impl->ast));  // AST context.
+
+  for (Token tok : a) {
+    if (!IsParsedToken(tok)) {
+      continue;
+    }
+
+    std::string_view data = tok.Data();
+    PrintedTokenImpl &new_tok = new_impl->tokens.emplace_back(
+        static_cast<TokenDataOffset>(new_impl->data.size()),
+        static_cast<uint32_t>(data.size()),
+        static_cast<TokenContextIndex>(0u)  /* AST context. */,
+        0u  /* Leading new lines */,
+        1u  /* Leading spaces */,
+        tok.impl->Kind());
+
+    new_tok.role = static_cast<TokenKindBase>(TokenRole::kFileToken);
+    new_tok.opaque_source_loc = tok.impl->opaque_source_loc;
+    new_tok.derived_index = static_cast<DerivedTokenIndex>(tok.Index());
+
+    new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
+    new_impl->data.push_back('\0');
+  }
+
+  new_impl->tokens.emplace_back(
+      0u, 0u, kInvalidTokenContextIndex, 0u, 0u, clang::tok::eof);
+
+  PrintedTokenImpl *first_tok = new_impl->tokens.data();
+  PrintedTokenImpl *after_last_tok = &(first_tok[new_impl->tokens.size() - 1u]);
+
+  return PrintedTokenRange(std::move(new_impl), first_tok, after_last_tok);
+}
+
 PrintingPolicy::~PrintingPolicy(void) {}
 
 bool PrintingPolicy::ShouldPrintTemplate(const TemplateDecl &) const {

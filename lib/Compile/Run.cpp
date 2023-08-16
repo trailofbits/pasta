@@ -474,6 +474,7 @@ Result<AST, std::string> CompileJob::Run(void) const {
   }
 
   ast->MarkMacroTokens();
+  ast->PreprocessLexicalParentage();
   ast->LinkMacroTokenContexts();
   return AST(std::move(ast));
 }

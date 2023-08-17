@@ -69,6 +69,8 @@ typedef df v8df __attribute__ ((vector_size (64)));
 
 typedef si v256si __attribute__ ((vector_size (1024)));
 
+typedef long long __m64 __attribute__((__vector_size__(8), __aligned__(8)));
+
 #if defined(__LP64__)
 // LP64 machine (sizeof(long) == 8), macOS or Linux
 typedef unsigned long size_t;
@@ -89,21 +91,27 @@ typedef unsigned long uintptr_t;
 #endif
 
 // Compatibility with xmmintrin.h
-#define __m128i v4si
-#define __m256i v8si
-#define __m128d v2df
+#define __m256i v4di
 #define __m256d v4df
 #define __v4si v4si
 #define __v4sf v4sf
 
 #define __m128 v4sf
+#define __m128_u v4sf  // Unaligned.
+
+#define __m128d v2df
+#define __m128d_u v2df  // Unaligned.
+
+#define __m128i v2di
+#define __m128i_u v2di  // Unaligned.
+
 #define __m256 v8sf
-#define  __m128_u v4sf
-#define __m64 uint64_t
+#define __m256_u v8sf  // Unaligned.
+
 #define __int32 int
 #define __int64 long long
 
-// Compatibility with microsoft stuff.
+// Compatibility with Microsoft stuff.
 #define VOID void
 
 // Compatibility with CBMC types.

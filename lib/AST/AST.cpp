@@ -80,13 +80,20 @@ void ASTImpl::AppendBackupToken(const clang::Token &tok, size_t offset_,
       tok.getKind(), role_);
 }
 
-// Return the AST containing a declaration.
 AST AST::From(const Decl &decl) {
   return AST(decl.ast);
 }
 
 AST AST::From(const Stmt &stmt) {
   return AST(stmt.ast);
+}
+
+AST AST::From(const Macro &macro) {
+  return AST(macro.ast);
+}
+
+AST AST::From(const Type &type) {
+  return AST(type.ast);
 }
 
 AST::~AST(void) {}

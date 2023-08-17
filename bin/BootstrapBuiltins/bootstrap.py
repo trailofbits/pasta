@@ -51,6 +51,7 @@ def run_on_builtin_type(type: BuiltinType, sizes: List[int]) -> str:
 TYPEDEF_TK = {
   "size_t": "z",
   "udi": "UWi",
+  "__m64": "V1Wi",
 
   "qi": "c",
   "v8qi": "V8c",
@@ -98,6 +99,8 @@ TYPEDEF_TK = {
   "v2df": "V2d",
   "v4df": "V4d",
   "v8df": "V8d",
+
+  "v256si": "V256i",
 }
 
 VECTOR_SIZE_BITS = {
@@ -117,7 +120,9 @@ VECTOR_SIZE_BITS = {
   "v8si": 256,
   "v16si": 512,
   "v16usi": 512,
+  "v256si": 8192,
 
+  "__m64": 64,
   "v1di": 64,
   "v2di": 128,
   "v4di": 256,
@@ -180,7 +185,8 @@ TYPE_VISITOR = {
 def run_on_type(type: Type, sizes: List[int]) -> str:
   return TYPE_VISITOR.get(type.kind, run_on_unsupported)(type, sizes)
 
-def run_on_function(func: FunctionDecl, allow_builtins: bool):
+def run_on_function(func: FunctionDecl, allow_builtins: bool,
+                    treat_as_runtime_functions: bool):
   
   if func.builtin_id != 0 and not allow_builtins:
     return
@@ -213,21 +219,33 @@ def run_on_function(func: FunctionDecl, allow_builtins: bool):
   if "D*" in proto:
     const_enc = ""
 
+  rt_enc: str = ""
+  if treat_as_runtime_functions:
+    rt_enc = "f"
+
   # `n` for nothrow
   # `c` for const
-  print(f"TARGET_BUILTIN({func.name}, \"{proto}\", \"n{const_enc}{vec_enc}\", \"\")")
+  print(f"TARGET_BUILTIN({func.name}, \"{proto}\", \"n{const_enc}{rt_enc}{vec_enc}\", \"\")")
 
-def run_on_ast(ast: AST, allow_builtins: bool):
+def run_on_ast(ast: AST, allow_builtins: bool, treat_as_runtime_functions: bool):
   dc: DeclContext = DeclContext.cast(ast.translation_unit)
   for decl in dc.declarations:
     if isinstance(decl, FunctionDecl):
-      run_on_function(decl, allow_builtins)
+      run_on_function(decl, allow_builtins, treat_as_runtime_functions)
 
 if __name__ == "__main__":
   parser = ArgumentParser(description='Generate TARGET_BUILTIN macro uses to handle Clang-unsupported intrinsics')
   parser.add_argument('--allow_builtins', action='store_true')
+  parser.add_argument('--try_as_cxx', action='store_true')
+  parser.add_argument('--treat_as_runtime_functions', action='store_true')
   parser.add_argument('builtin_declarations')
   cmd_args = parser.parse_args()
+
+  cc_name: str = "cc"
+  cc_lang: str = "c"
+  if cmd_args.try_as_cxx:
+    cc_name = "c++"
+    cc_lang = "c++"
 
   gcc_h_list = list(os.path.split(__file__))
   gcc_h_list[-1] = "GCC.h"
@@ -236,7 +254,7 @@ if __name__ == "__main__":
   fs: FileSystem = FileSystem.create_native()
   fm: FileManager = FileManager(fs)
   cc: Compiler = Compiler.create_host_compiler(fm, TargetLanguage.C)
-  args = ArgumentVector(["c++", "-x", "c++", "-include", gcc_h,
+  args = ArgumentVector([cc_name, "-x", cc_lang, "-include", gcc_h,
                          cmd_args.builtin_declarations])
   cmd = CompileCommand.create_from_arguments(args, gcc_h_list[0])
   maybe_jobs = cc.create_jobs_for_command(cmd)
@@ -252,5 +270,6 @@ if __name__ == "__main__":
       sys.exit(1)
 
     elif isinstance(maybe_ast, AST):
-      run_on_ast(maybe_ast, cmd_args.allow_builtins)
+      run_on_ast(maybe_ast, cmd_args.allow_builtins,
+                 cmd_args.treat_as_runtime_functions)
 

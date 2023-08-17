@@ -611,21 +611,39 @@ TokenPrinterContext::~TokenPrinterContext(void) {
 
 // More typical APIs when we've got PASTA ASTs.
 PrintedTokenRange PrintedTokenRange::Create(
-    const Decl &decl, const PrintingPolicy &pp) {
-  return PrintedTokenRange::Create(
+    const Decl &decl, const PrintingPolicy &pp, bool maintain_provenance) {
+  auto ret = PrintedTokenRange::Create(
       decl.ast, const_cast<clang::Decl *>(decl.u.Decl), pp);
+  
+  if (!maintain_provenance) {
+    for (auto tok = ret.first; tok < ret.after_last; ++tok) {
+      tok->opaque_source_loc = TokenImpl::kInvalidSourceLocation;
+      tok->derived_index = kInvalidDerivedTokenIndex;
+    }
+  }
+  
+  return ret;
 }
 
 // More typical APIs when we've got PASTA ASTs.
 PrintedTokenRange PrintedTokenRange::Create(
-    const Stmt &stmt, const PrintingPolicy &pp) {
-  return PrintedTokenRange::Create(
+    const Stmt &stmt, const PrintingPolicy &pp, bool maintain_provenance) {
+  auto ret = PrintedTokenRange::Create(
       stmt.ast, const_cast<clang::Stmt *>(stmt.u.Stmt), pp);
+  
+  if (!maintain_provenance) {
+    for (auto tok = ret.first; tok < ret.after_last; ++tok) {
+      tok->opaque_source_loc = TokenImpl::kInvalidSourceLocation;
+      tok->derived_index = kInvalidDerivedTokenIndex;
+    }
+  }
+  
+  return ret;
 }
 
 // More typical APIs when we've got PASTA ASTs.
 PrintedTokenRange PrintedTokenRange::Create(
-    const Type &type, const PrintingPolicy &pp) {
+    const Type &type, const PrintingPolicy &pp, bool maintain_provenance) {
   auto &ast = type.ast;
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(type.u.Type,
@@ -633,7 +651,16 @@ PrintedTokenRange PrintedTokenRange::Create(
   auto self = ast_ctx.getQualifiedType(
       fast_qtype, clang::Qualifiers::fromOpaqueValue(type.qualifiers));
 
-  return PrintedTokenRange::Create(type.ast, self, pp);
+  auto ret = PrintedTokenRange::Create(type.ast, self, pp);
+  
+  if (!maintain_provenance) {
+    for (auto tok = ret.first; tok < ret.after_last; ++tok) {
+      tok->opaque_source_loc = TokenImpl::kInvalidSourceLocation;
+      tok->derived_index = kInvalidDerivedTokenIndex;
+    }
+  }
+  
+  return ret;
 }
 
 // Number of tokens in this range.
@@ -761,7 +788,8 @@ static bool IsParsedToken(const pasta::Token &tok) {
 // Create a new printed token range, where the token data is taken from `a`.
 // The only token contexts in an adopted range are AST contexts. The only tokens
 // in a printed token range are file tokens and complete macro expansion tokens.
-PrintedTokenRange PrintedTokenRange::Adopt(const TokenRange &a) {
+PrintedTokenRange PrintedTokenRange::Adopt(const TokenRange &a,
+                                           bool maintain_provenance) {
   auto new_impl = std::make_shared<PrintedTokenRangeImpl>(
       a.ast->ci->getASTContext());
   new_impl->ast = a.ast;
@@ -783,8 +811,11 @@ PrintedTokenRange PrintedTokenRange::Adopt(const TokenRange &a) {
         tok.impl->Kind());
 
     new_tok.role = static_cast<TokenKindBase>(TokenRole::kFileToken);
-    new_tok.opaque_source_loc = tok.impl->opaque_source_loc;
-    new_tok.derived_index = static_cast<DerivedTokenIndex>(tok.Index());
+
+    if (maintain_provenance) {
+      new_tok.opaque_source_loc = tok.impl->opaque_source_loc;
+      new_tok.derived_index = static_cast<DerivedTokenIndex>(tok.Index());
+    }
 
     new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
     new_impl->data.push_back('\0');

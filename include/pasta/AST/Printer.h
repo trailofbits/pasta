@@ -7,6 +7,7 @@
 #include <memory>
 #include <optional>
 #include <string_view>
+#include <utility>
 
 #include <pasta/Util/Result.h>
 
@@ -179,6 +180,23 @@ class PrintedToken {
     return !!impl;
   }
 
+  // Return a pointer to the underlying data. Suitable for hashing.
+  inline const void *RawToken(void) const noexcept {
+    return impl;
+  }
+
+  inline uint64_t Hash(void) const noexcept {
+    return std::hash<const void *>{}(RawToken());
+  }
+
+  inline bool operator==(const PrintedToken &that) const noexcept {
+    return impl == that.impl;
+  }
+
+  inline bool operator<(const PrintedToken &that) const noexcept {
+    return impl < that.impl;
+  }
+
  private:
   friend class AST;
   friend class ASTImpl;
@@ -348,11 +366,16 @@ class PrintedTokenRange {
 
   // More typical APIs when we've got PASTA ASTs.
   static PrintedTokenRange Create(
-      const Decl &decl_, const PrintingPolicy &pp_=PrintingPolicy());
+      const Decl &decl_, const PrintingPolicy &pp_=PrintingPolicy(),
+      bool maintain_provenance=true);
+
   static PrintedTokenRange Create(
-      const Stmt &stmt_, const PrintingPolicy &pp_=PrintingPolicy());
+      const Stmt &stmt_, const PrintingPolicy &pp_=PrintingPolicy(),
+      bool maintain_provenance=true);
+
   static PrintedTokenRange Create(
-      const Type &type_, const PrintingPolicy &pp_=PrintingPolicy());
+      const Type &type_, const PrintingPolicy &pp_=PrintingPolicy(),
+      bool maintain_provenance=true);
 
   // Create a new printed token range by concatenating two printed token ranges
   // together.
@@ -363,14 +386,22 @@ class PrintedTokenRange {
   // but the token contexts are taken from `b`. This provides a mechanism of
   // relating parsed tokens back to AST nodes, when `a` is derived from `Adopt`
   // below.
+  //
+  // The `maintain_provenance` argument determines whether or not the printed
+  // tokens will be able to find their original parsed tokens.
   static Result<PrintedTokenRange, std::string>
-  Align(const PrintedTokenRange &a, const PrintedTokenRange &b);
+  Align(const PrintedTokenRange &a, const PrintedTokenRange &b,
+        bool maintain_provenance=true);
 
   // Create a new printed token range, where the token data is taken from `a`.
   // The only token contexts in an adopted range are AST contexts. The only
   // tokens in a printed token range are file tokens and complete macro
   // expansion tokens.
-  static PrintedTokenRange Adopt(const TokenRange &a);
+  //
+  // The `maintain_provenance` argument determines whether or not the printed
+  // tokens will be able to find their original parsed tokens.
+  static PrintedTokenRange Adopt(const TokenRange &a,
+                                 bool maintain_provenance=true);
 
   inline PrintedTokenIterator begin(void) const noexcept {
     return PrintedTokenIterator(impl, first);
@@ -397,6 +428,11 @@ class PrintedTokenRange {
 
   // Unsafe indexed access into the token range.
   PrintedToken operator[](size_t index) const;
+
+  // Returns `true` if this range contains a specific token.
+  inline bool Contains(const PrintedToken &tok) const noexcept {
+    return impl == tok.range && first <= tok.impl && tok.impl < after_last;
+  }
 
   // Is this token range valid?
   inline operator bool(void) const noexcept {
@@ -449,6 +485,13 @@ template <>
 struct hash<::pasta::TokenContext> {
   uintptr_t operator()(const ::pasta::TokenContext &ctx) const noexcept {
     return ctx.Hash();
+  }
+};
+
+template <>
+struct hash<::pasta::PrintedToken> {
+  uintptr_t operator()(const ::pasta::PrintedToken &tok) const noexcept {
+    return tok.Hash();
   }
 };
 

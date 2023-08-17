@@ -2263,7 +2263,8 @@ static const std::string kMismatchedASTs = "Backing ASTs of parsed and printed t
 // relating parsed tokens back to AST nodes.
 Result<PrintedTokenRange, std::string>
 PrintedTokenRange::Align(const PrintedTokenRange &a,
-                         const PrintedTokenRange &b) {
+                         const PrintedTokenRange &b,
+                         bool maintain_provenance) {
   if (!a) {
     return kEmptyParsed;
   }
@@ -2335,6 +2336,17 @@ PrintedTokenRange::Align(const PrintedTokenRange &a,
     }
 
     t->context_index = new_index;
+  }
+
+  if (!maintain_provenance) {
+    for (PrintedTokenImpl *tok = first_tok; tok < after_last_tok; ++tok) {
+      tok->opaque_source_loc = TokenImpl::kInvalidSourceLocation;
+      tok->derived_index = kInvalidDerivedTokenIndex;
+    }
+  }
+
+  for (PrintedTokenImpl *tok = first_tok; tok < after_last_tok; ++tok) {
+    tok->matched_in_align = false;
   }
 
   return PrintedTokenRange(std::move(new_impl), first_tok, after_last_tok);

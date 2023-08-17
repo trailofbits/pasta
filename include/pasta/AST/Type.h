@@ -33,6 +33,8 @@
     }
 
 namespace pasta {
+
+class AST;
 class TypeBuilder;
 
 class TypeVisitor {
@@ -107,6 +109,7 @@ class TypeVisitor {
 // Wraps a type, including its qualifiers.
 class Type {
  protected:
+  friend class AST;
   friend class TypeBuilder;
   friend class PrintedTokenRange;
 

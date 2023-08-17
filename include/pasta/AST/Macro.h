@@ -97,6 +97,7 @@ enum class TokenKind : unsigned short;
 // Base for all macro nodes.
 class Macro {
  protected:
+  friend class AST;
   friend class MacroIterator;
   friend class MacroRange;
   friend class PatchedMacroTracker;

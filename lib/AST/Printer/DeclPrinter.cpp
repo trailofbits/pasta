@@ -356,8 +356,8 @@ raw_string_ostream& DeclPrinter::Indent(int Indentation) {
 
 
 void DeclPrinter::printQualType(clang::QualType qt,
-                   raw_string_ostream &OS,
-                   const clang::PrintingPolicy &Policy) {
+                                raw_string_ostream &OS,
+                                const clang::PrintingPolicy &Policy) {
   TypePrinter(OS, Policy, tokens, Indentation).print(qt, "");
 }
 
@@ -451,7 +451,6 @@ void DeclPrinter::ProcessDeclGroup(clang::SmallVectorImpl<clang::Decl*>& Decls) 
                   Policy, Indentation, tokens);
   Out << ";\n";
   Decls.clear();
-
 }
 
 void DeclPrinter::Print(clang::AccessSpecifier AS) {
@@ -566,6 +565,13 @@ void DeclPrinter::VisitDeclContext(clang::DeclContext *DC, bool Indent) {
     // Skip over implicit declarations in pretty-printing mode.
     if (D->isImplicit())
       continue;
+
+    // Skip over tags that are defined within declarators.
+    if (auto TD = clang::dyn_cast<clang::TagDecl>(*D)) {
+      if (TD->isEmbeddedInDeclarator()) {
+        continue;
+      }
+    }
 
     // Don't print implicit specializations, as they are printed when visiting
     // corresponding templates.
@@ -728,7 +734,6 @@ void DeclPrinter::VisitEnumDecl(clang::EnumDecl *D) {
   if (!Policy.SuppressSpecifiers && D->isModulePrivate())
     Out << "__module_private__ ";
   Out << "enum";
-
 
   if (tokens.ast) {
     auto tag_loc = D->getInnerLocStart();

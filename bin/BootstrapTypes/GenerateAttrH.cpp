@@ -36,6 +36,7 @@ void GenerateAttrH(void) {
       << "    friend class Stmt; \\\n"
       << "    friend class DeclBuilder; \\\n"
       << "    friend class AttrBuilder; \\\n"
+      << "    friend class AttrVisitor; \\\n"
       << "    friend class PrintedTokenRange; \\\n"
       << "    base(void) = delete; \\\n"
       << "    explicit base( \\\n"
@@ -54,6 +55,18 @@ void GenerateAttrH(void) {
       << "class Decl;\n"
       << "class PrintedTokenRange;\n"
       << "class Stmt;\n\n"
+      << "class AttrVisitor {\n"
+      << " public:\n"
+      << "  virtual ~AttrVisitor(void);\n"
+      << "  void Accept(const Attr &);\n";
+  
+  for (const auto &name : gTopologicallyOrderedAttrs) {
+    os << "  virtual void Visit" << name << "(const " << name << " &);\n";
+  }
+
+  os
+      << "};\n\n"
+      << "// Wraps an attribute.\n"
       << "class Attr {\n"
       << " public:\n"
       << "  PASTA_DECLARE_DEFAULT_CONSTRUCTORS(Attr)\n";

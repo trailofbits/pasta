@@ -64,7 +64,34 @@ void GenerateAttrCpp(std::ostream &py_cmake, std::ostream &py_ast) {
       << "      kind = new_that.kind; \\\n"
       << "      return *this; \\\n"
       << "    }\n\n"
-      << "namespace pasta {\n\n"
+      << "namespace pasta {\n\n";
+
+  os  << "AttrVisitor::~AttrVisitor(void) {}\n\n"
+      << "void AttrVisitor::Accept(const Attr &attr) {\n"
+      << "  switch (attr.Kind()) {\n"
+      << "#define PASTA_VISIT_ATTR(name) \\\n"
+      << "    case AttrKind::k ## name: \\\n"
+      << "      Visit ## name ## Attr(reinterpret_cast<const name ## Attr &>(attr)); \\\n"
+      << "      break;\n\n"
+      << "    PASTA_FOR_EACH_ATTR_KIND(PASTA_VISIT_ATTR)\n"
+      << "#undef PASTA_VISIT_ATTR\n"
+      << "  }\n"
+      << "}\n\n";
+
+  for (const auto &name : gTopologicallyOrderedAttrs) {
+    os << "void AttrVisitor::Visit" << name << "(const " << name << " &attr) {\n";
+    auto seen = false;
+    for (const auto &parent_class : gBaseClasses[name]) {
+      os << "  Visit" << parent_class << "(attr);\n";
+      seen = true;
+    }
+    if (!seen) {
+      os << "  (void) attr;\n";
+    }
+    os << "}\n\n";
+  }
+
+  os
       << "namespace {\n"
       << "// Return the PASTA `AttrKind` for a Clang `Attr`.\n"
       << "static AttrKind KindOfAttr(const clang::Attr *attr) {\n"

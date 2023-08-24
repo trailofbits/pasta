@@ -33,8 +33,6 @@
     }
 
 namespace pasta {
-
-class AST;
 class TypeBuilder;
 
 class TypeVisitor {
@@ -110,6 +108,7 @@ class TypeVisitor {
 class Type {
  protected:
   friend class AST;
+  friend class ASTImpl;
   friend class TypeBuilder;
   friend class PrintedTokenRange;
 

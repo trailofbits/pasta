@@ -67,6 +67,8 @@ void GenerateTypeH(void) {
       << "// Wraps a type, including its qualifiers.\n"
       << "class Type {\n"
       << " protected:\n"
+      << "  friend class AST;\n"
+      << "  friend class ASTImpl;\n"
       << "  friend class TypeBuilder;\n"
       << "  friend class PrintedTokenRange;\n\n"
       << "  friend class TokenContext;\n"

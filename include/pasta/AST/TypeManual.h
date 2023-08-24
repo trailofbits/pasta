@@ -17,6 +17,9 @@ using QualifiedType = Type;
 #ifndef PASTA_IN_BOOTSTRAP
 namespace pasta {
 
+class AST;
+class ASTImpl;
+
 // An explicit exception specification on a function prototype.
 class ExceptionSpecification {
  private:

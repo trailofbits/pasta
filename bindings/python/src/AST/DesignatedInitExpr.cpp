@@ -23,7 +23,7 @@ void RegisterDesignatedInitExpr(nb::module_ &m) {
     .def_prop_ro("designators", &DesignatedInitExpr::Designators)
     .def_prop_ro("begin_token", &DesignatedInitExpr::BeginToken)
     .def_prop_ro("designator", &DesignatedInitExpr::Designator)
-    .def_prop_ro("designators_source_range", &DesignatedInitExpr::DesignatorsSourceRange)
+    .def_prop_ro("designators_tokens", &DesignatedInitExpr::DesignatorsTokens)
     .def_prop_ro("end_token", &DesignatedInitExpr::EndToken)
     .def_prop_ro("equal_or_colon_token", &DesignatedInitExpr::EqualOrColonToken)
     .def_prop_ro("initializer", &DesignatedInitExpr::Initializer)

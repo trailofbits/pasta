@@ -143,6 +143,13 @@ static void DeclareCppMethod0(std::ostream &os, const std::string &class_name,
       return;
     }
 
+    // We don't want these because clang is a bit dumb about source locations
+    // embedded in types.
+    if (class_name == "FunctionDecl" &&
+        (meth_name_ref == "getReturnTypeSourceRange")) {
+      return;
+    }
+
     auto &new_rt = gRetTypeMap[rt];
     if (new_rt.empty()) {
       os << "  // " << meth_name << ": " << rt << "\n";

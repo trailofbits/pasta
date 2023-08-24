@@ -2763,7 +2763,7 @@ enum DeclObjCDeclQualifier ObjCMethodDecl::ObjCDeclQualifier(void) const {
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::TokenRange ObjCMethodDecl::ReturnTypeSourceRange(void) const {
+::pasta::TokenRange ObjCMethodDecl::ReturnTypeTokens(void) const {
   auto &self = *const_cast<clang::ObjCMethodDecl *>(u.ObjCMethodDecl);
   decltype(auto) val = self.getReturnTypeSourceRange();
   return ast->TokenRangeFrom(val);
@@ -4636,13 +4636,7 @@ std::optional<::pasta::FunctionTemplateDecl> FunctionDecl::DescribedFunctionTemp
   }
 }
 
-::pasta::Token FunctionDecl::EllipsisToken(void) const {
-  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
-  decltype(auto) val = self.getEllipsisLoc();
-  return ast->TokenAt(val);
-}
-
-::pasta::TokenRange FunctionDecl::ExceptionSpecSourceRange(void) const {
+::pasta::TokenRange FunctionDecl::ExceptionSpecTokens(void) const {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.getExceptionSpecSourceRange();
   return ast->TokenRangeFrom(val);
@@ -4729,12 +4723,6 @@ enum OverloadedOperatorKind FunctionDecl::OverloadedOperator(void) const {
 }
 
 // 1: FunctionDecl::ParameterDeclaration
-::pasta::TokenRange FunctionDecl::ParametersSourceRange(void) const {
-  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
-  decltype(auto) val = self.getParametersSourceRange();
-  return ast->TokenRangeFrom(val);
-}
-
 ::pasta::Token FunctionDecl::PointOfInstantiation(void) const {
   auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
   decltype(auto) val = self.getPointOfInstantiation();
@@ -4757,12 +4745,6 @@ std::optional<::pasta::FunctionTemplateDecl> FunctionDecl::PrimaryTemplate(void)
   decltype(auto) val = self.getReturnType();
   assert(!val.isNull());
   return TypeBuilder::Build(ast, val);
-}
-
-::pasta::TokenRange FunctionDecl::ReturnTypeSourceRange(void) const {
-  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
-  decltype(auto) val = self.getReturnTypeSourceRange();
-  return ast->TokenRangeFrom(val);
 }
 
 enum StorageClass FunctionDecl::StorageClass(void) const {

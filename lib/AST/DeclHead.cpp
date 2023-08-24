@@ -572,7 +572,33 @@ std::optional<uint64_t> FieldDecl::OffsetInBits(void) const noexcept {
 
   auto &layout = record->getASTContext().getASTRecordLayout(record);
   return layout.getFieldOffset(u.FieldDecl->getFieldIndex());
-} 
+}
+
+// Clang deduplicates function types, and stores the ellipsis in those types.
+// that results in the wrong ellipsis location.
+::pasta::Token FunctionDecl::EllipsisToken(void) const {
+  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  if (self.getEllipsisLoc().isValid()) {
+    auto [begin_tok, end_tok] = ast->DeclBounds(&self);
+    if (auto it = ast->func_proto.find(&self); it != ast->func_proto.end()) {
+      assert(begin_tok < it->second.ellipsis);
+      assert(it->second.ellipsis < end_tok);
+      (void) begin_tok;
+      return ::pasta::Token(ast, it->second.ellipsis);
+    }
+  }
+  return ::pasta::Token(ast);
+}
+
+::pasta::TokenRange FunctionDecl::ParametersTokens(void) const {
+  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  (void) ast->DeclBounds(&self);
+  if (auto it = ast->func_proto.find(&self); it != ast->func_proto.end()) {
+    ASTImpl::FunctionProto &proto = it->second;
+    return ::pasta::TokenRange(ast, proto.l_paren, proto.r_paren);
+  }
+  return ::pasta::TokenRange(ast);
+}
 
 #endif  // PASTA_IN_BOOTSTRAP
 

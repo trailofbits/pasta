@@ -23,6 +23,8 @@ void RegisterType(nb::module_ &m) {
     .def_prop_ro("kind_name", &Type::KindName)
     .def_prop_ro("size_in_bits", &Type::SizeInBits)
     .def_prop_ro("alignment", &Type::Alignment)
+    .def_prop_ro("is_qualified", &Type::IsQualified)
+    .def_prop_ro("unqualified_type", &Type::UnqualifiedType)
     .def_prop_ro("accepts_obj_c_type_parameters", &Type::AcceptsObjCTypeParameters)
     .def_prop_ro("can_decay_to_pointer_type", &Type::CanDecayToPointerType)
     .def_prop_ro("can_have_nullability", &Type::CanHaveNullability)
@@ -254,8 +256,6 @@ void RegisterType(nb::module_ &m) {
     .def_prop_ro("is_visibility_explicit", &Type::IsVisibilityExplicit)
     .def_prop_ro("is_void_pointer_type", &Type::IsVoidPointerType)
     .def_prop_ro("is_void_type", &Type::IsVoidType)
-    .def_prop_ro("is_wide_character_type", &Type::IsWideCharacterType)
-    .def_prop_ro("is_qualified", &Type::IsQualified)
-    .def_prop_ro("unqualified_type", &Type::UnqualifiedType);
+    .def_prop_ro("is_wide_character_type", &Type::IsWideCharacterType);
 }
 } // namespace pasta

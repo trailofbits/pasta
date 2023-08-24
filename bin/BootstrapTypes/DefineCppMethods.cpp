@@ -63,6 +63,15 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
     }
   }
 
+  // We have our own, because this looks into the type and can find the "wrong"
+  // `...` as a result of type deduplication.
+  if (class_name == "FunctionDecl" &&
+      (meth_name_ref == "getEllipsisLoc" ||
+       meth_name_ref == "getParametersSourceRange" ||
+       meth_name_ref == "getReturnTypeSourceRange")) {
+    return;
+  }
+
   std::string rt_str = rt_ref.str();
   auto &rt_type = gRetTypeMap[rt_str];
   auto &rt_val = gRetTypeToValMap[rt_str];

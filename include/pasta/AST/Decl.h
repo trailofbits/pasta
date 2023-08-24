@@ -1032,7 +1032,7 @@ class ObjCMethodDecl : public NamedDecl {
   enum DeclObjCDeclQualifier ObjCDeclQualifier(void) const;
   // ParameterDeclaration: (const clang::ParmVarDecl *)
   ::pasta::Type ReturnType(void) const;
-  ::pasta::TokenRange ReturnTypeSourceRange(void) const;
+  ::pasta::TokenRange ReturnTypeTokens(void) const;
   // Selector: (clang::Selector)
   // SelectorToken: (clang::SourceLocation)
   ::pasta::Token SelectorStartToken(void) const;
@@ -1779,7 +1779,7 @@ class FunctionDecl : public DeclaratorDecl {
   // DependentSpecializationInfo: (clang::DependentFunctionTemplateSpecializationInfo *)
   std::optional<::pasta::FunctionTemplateDecl> DescribedFunctionTemplate(void) const;
   ::pasta::Token EllipsisToken(void) const;
-  ::pasta::TokenRange ExceptionSpecSourceRange(void) const;
+  ::pasta::TokenRange ExceptionSpecTokens(void) const;
   enum ExceptionSpecificationType ExceptionSpecType(void) const;
   // FunctionTypeToken: (clang::FunctionTypeLoc)
   std::optional<::pasta::FunctionDecl> InstantiatedFromDeclaration(void) const;
@@ -1795,11 +1795,10 @@ class FunctionDecl : public DeclaratorDecl {
   std::optional<uint32_t> ODRHash(void) const;
   enum OverloadedOperatorKind OverloadedOperator(void) const;
   // ParameterDeclaration: (const clang::ParmVarDecl *)
-  ::pasta::TokenRange ParametersSourceRange(void) const;
+  ::pasta::TokenRange ParametersTokens(void) const;
   ::pasta::Token PointOfInstantiation(void) const;
   std::optional<::pasta::FunctionTemplateDecl> PrimaryTemplate(void) const;
   ::pasta::Type ReturnType(void) const;
-  ::pasta::TokenRange ReturnTypeSourceRange(void) const;
   enum StorageClass StorageClass(void) const;
   std::optional<::pasta::FunctionDecl> TemplateInstantiationPattern(void) const;
   // TemplateSpecializationArguments: (const clang::TemplateArgumentList *)

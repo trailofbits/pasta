@@ -22,6 +22,7 @@ class DefineMacroDirective;
 class Designator;
 class FileToken;
 class FileTokenRange;
+class FunctionDecl;
 class Macro;
 class MacroSubstitution;
 class MacroToken;
@@ -159,6 +160,7 @@ class Token {
   friend class AST;
   friend class ASTImpl;
   friend class CXXBaseSpecifier;
+  friend class FunctionDecl;
   friend class MacroToken;
   friend class PrintedToken;
   friend class PrintedTokenRange;
@@ -325,6 +327,7 @@ class TokenRange {
   friend class ASTImpl;
   friend class CXXBaseSpecifier;
   friend class DeclPrinter;
+  friend class FunctionDecl;
   friend class PrintedTokenRange;
   friend class Token;
 

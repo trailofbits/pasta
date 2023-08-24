@@ -85,7 +85,21 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   std::unordered_map<clang::Decl *, clang::Decl *> lexically_containing_decl;
 
   std::mutex bounds_mutex;
+
+  using BoundingTokens = std::pair<TokenImpl *, TokenImpl *>;
+
   std::unordered_map<void *, std::pair<TokenImpl *, TokenImpl *>> bounds;
+
+  struct FunctionProto {
+    bool has_variable_form{false};
+    TokenImpl *l_paren{nullptr};
+    TokenImpl *r_paren{nullptr};
+    TokenImpl *ellipsis{nullptr};
+    std::vector<BoundingTokens *> params;
+  };
+
+  // The location of a `...` for a given `FunctionDecl`.
+  std::unordered_map<clang::FunctionDecl *, FunctionProto> func_proto;
 
   // Remapped declarations (for the sake of bounds checks).
   std::unordered_map<clang::Decl *, clang::Decl *> remapped_decls;
@@ -177,6 +191,8 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
 
   // Return a token range for the bounds of a declaration.
   TokenRange DeclTokenRange(const clang::Decl *decl);
+  TokenRange DeclTokenRange(const clang::Decl *decl,
+                            std::unique_lock<std::mutex> locker);
 
   // Mark tokens as being part of macros.
   void MarkMacroTokens(void);

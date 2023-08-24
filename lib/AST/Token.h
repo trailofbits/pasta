@@ -117,11 +117,11 @@ class TokenContextImpl {
                          parent_index_, parent_depth + 1u,
                          TokenContextKind::kAlias) {}
 
-  inline TokenContextImpl(TokenContextIndex parent_index_, \
-                          uint16_t parent_depth, \
-                          const clang::DesignatedInitExpr::Designator *data_) \
-      : TokenContextImpl(Canonicalize(data_), parent_index_, \
-                         parent_depth + 1u, TokenContextKind::kDesignator) {} \
+  inline TokenContextImpl(TokenContextIndex parent_index_,
+                          uint16_t parent_depth,
+                          const clang::DesignatedInitExpr::Designator *data_)
+      : TokenContextImpl(Canonicalize(data_), parent_index_,
+                         parent_depth + 1u, TokenContextKind::kDesignator) {}
 
   // Special context that we place at the end of a vector.
   inline TokenContextImpl(ASTImpl &ast)
@@ -142,9 +142,10 @@ class TokenImpl {
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
-  inline TokenImpl(OpaqueSourceLoc opaque_source_loc_, int32_t data_offset_,
-                   uint32_t data_len_, clang::tok::TokenKind kind_,
-                   TokenRole role_, TokenContextIndex token_context_index_=kInvalidTokenContextIndex)
+  inline TokenImpl(
+      OpaqueSourceLoc opaque_source_loc_, int32_t data_offset_,
+      uint32_t data_len_, clang::tok::TokenKind kind_, TokenRole role_,
+      TokenContextIndex token_context_index_=kInvalidTokenContextIndex)
       : opaque_source_loc(opaque_source_loc_),
         context_index(token_context_index_),
         data_offset(data_offset_),

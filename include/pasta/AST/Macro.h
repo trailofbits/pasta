@@ -43,6 +43,7 @@ class Stmt;
 class Token;
 class TokenContext;
 class TokenImpl;
+class TokenRange;
 
 #define PASTA_FOR_EACH_MACRO_IMPL(m, t, d, cd, dd, id, a) \
     a(Macro) \

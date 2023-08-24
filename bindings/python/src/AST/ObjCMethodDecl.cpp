@@ -33,7 +33,7 @@ void RegisterObjCMethodDecl(nb::module_ &m) {
     .def_prop_ro("num_selector_tokens", &ObjCMethodDecl::NumSelectorTokens)
     .def_prop_ro("obj_c_decl_qualifier", &ObjCMethodDecl::ObjCDeclQualifier)
     .def_prop_ro("return_type", &ObjCMethodDecl::ReturnType)
-    .def_prop_ro("return_type_source_range", &ObjCMethodDecl::ReturnTypeSourceRange)
+    .def_prop_ro("return_type_tokens", &ObjCMethodDecl::ReturnTypeTokens)
     .def_prop_ro("selector_start_token", &ObjCMethodDecl::SelectorStartToken)
     .def_prop_ro("self_declaration", &ObjCMethodDecl::SelfDeclaration)
     .def_prop_ro("has_parameter_destroyed_in_callee", &ObjCMethodDecl::HasParameterDestroyedInCallee)

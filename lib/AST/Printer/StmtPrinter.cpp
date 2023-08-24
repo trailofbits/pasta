@@ -22,9 +22,9 @@
 namespace pasta {
 
 void StmtPrinter::printQualType(clang::QualType type_,
-                        raw_string_ostream &OS,
-                        const clang::PrintingPolicy &Policy){
-  TypePrinter(Policy, tokens, 0).print(type_, OS, "");
+                                raw_string_ostream &OS,
+                                const clang::PrintingPolicy &Policy){
+  TypePrinter(OS, Policy, tokens, 0).print(type_, "");
 }
 
 void StmtPrinter::printQualType(
@@ -32,7 +32,7 @@ void StmtPrinter::printQualType(
     const clang::PrintingPolicy &Policy,
     std::function<void(void)> *PlaceHolderFn,
     unsigned Indentation) {
-  TypePrinter(Policy, tokens, Indentation).print(type_, OS, "", PlaceHolderFn);
+  TypePrinter(OS, Policy, tokens, Indentation).print(type_, "", PlaceHolderFn);
 }
 
 void StmtPrinter::PrintRawCompoundStmt(clang::CompoundStmt *Node) {
@@ -1231,7 +1231,7 @@ void StmtPrinter::VisitDeclRefExpr(clang::DeclRefExpr *Node) {
     if (!Node->hadMultipleCandidates())
       if (auto *TD = clang::dyn_cast<clang::TemplateDecl>(Node->getDecl()))
         TPL = TD->getTemplateParameters();
-    printTemplateArgumentList(OS, tokens, Node->template_arguments(), Policy, TPL);
+    printTemplateArgumentList(*this, Node->template_arguments(), Policy, TPL);
   }
 }
 
@@ -1246,7 +1246,7 @@ void StmtPrinter::VisitDependentScopeDeclRefExpr(
   }
   OS << Node->getNameInfo();
   if (Node->hasExplicitTemplateArgs())
-    printTemplateArgumentList(OS, tokens, Node->template_arguments(), Policy);
+    printTemplateArgumentList(*this, Node->template_arguments(), Policy);
 }
 
 void StmtPrinter::VisitUnresolvedLookupExpr(clang::UnresolvedLookupExpr *Node) {
@@ -1259,7 +1259,7 @@ void StmtPrinter::VisitUnresolvedLookupExpr(clang::UnresolvedLookupExpr *Node) {
   }
   OS << Node->getNameInfo();
   if (Node->hasExplicitTemplateArgs())
-    printTemplateArgumentList(OS, tokens, Node->template_arguments(), Policy);
+    printTemplateArgumentList(*this, Node->template_arguments(), Policy);
 }
 
 static bool isImplicitSelf(const clang::Expr *E) {
@@ -1762,7 +1762,7 @@ void StmtPrinter::VisitMemberExpr(clang::MemberExpr *Node) {
                  clang::dyn_cast<clang::VarTemplateSpecializationDecl>(Node->getMemberDecl()))
     TPL = VTSD->getSpecializedTemplate()->getTemplateParameters();
   if (Node->hasExplicitTemplateArgs())
-    printTemplateArgumentList(OS, tokens, Node->template_arguments(), Policy, TPL);
+    printTemplateArgumentList(*this, Node->template_arguments(), Policy, TPL);
 }
 
 void StmtPrinter::VisitObjCIsaExpr(clang::ObjCIsaExpr *Node) {
@@ -2309,7 +2309,7 @@ void StmtPrinter::VisitUserDefinedLiteral(clang::UserDefinedLiteral *Node) {
           TPL = TD->getTemplateParameters();
       OS << "operator \"\"" << Node->getUDSuffix()->getName();
       TagDefinitionPolicyRAII tag_raii(Policy);
-      printTemplateArgumentList(OS, tokens, Args->asArray(), Policy, TPL);
+      printTemplateArgumentList(*this, Args->asArray(), Policy, TPL);
       OS << "()";
       return;
     }
@@ -2742,7 +2742,7 @@ void StmtPrinter::VisitCXXDependentScopeMemberExpr(
   }
   OS << Node->getMemberNameInfo();
   if (Node->hasExplicitTemplateArgs())
-    printTemplateArgumentList(OS, tokens, Node->template_arguments(), Policy);
+    printTemplateArgumentList(*this, Node->template_arguments(), Policy);
 }
 
 void StmtPrinter::VisitUnresolvedMemberExpr(clang::UnresolvedMemberExpr *Node) {
@@ -2760,7 +2760,7 @@ void StmtPrinter::VisitUnresolvedMemberExpr(clang::UnresolvedMemberExpr *Node) {
   }
   OS << Node->getMemberNameInfo();
   if (Node->hasExplicitTemplateArgs())
-    printTemplateArgumentList(OS, tokens, Node->template_arguments(), Policy);
+    printTemplateArgumentList(*this, Node->template_arguments(), Policy);
 }
 
 void StmtPrinter::VisitTypeTraitExpr(clang::TypeTraitExpr *E) {
@@ -2884,7 +2884,7 @@ void StmtPrinter::VisitConceptSpecializationExpr(clang::ConceptSpecializationExp
     ctx.MarkLocation(E->getTemplateKWLoc());
   }
   OS << E->getFoundDecl()->getName();
-  printTemplateArgumentList(OS, tokens,
+  printTemplateArgumentList(*this,
                             E->getTemplateArgsAsWritten()->arguments(), Policy,
                             E->getNamedConcept()->getTemplateParameters());
 }
@@ -3209,14 +3209,14 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
     tokens->ppa = nullptr;
   }
 
+  tokens->tokens.emplace_back(
+      0u, 0u, kInvalidTokenContextIndex, 0u, 0u, clang::tok::eof);
+
   auto num_tokens = tokens->tokens.size();
-  if (!num_tokens) {
-    return PrintedTokenRange(std::move(tokens));
-  } else {
-    auto first = &(tokens->tokens[0]);
-    auto after_last = &(first[num_tokens]);
-    return PrintedTokenRange(std::move(tokens), first, after_last);
-  }
+  auto first = &(tokens->tokens[0]);
+  auto after_last = &(first[num_tokens - 1u]);
+
+  return PrintedTokenRange(std::move(tokens), first, after_last);
 }
 
 PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
@@ -3228,6 +3228,7 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
   auto tokens = std::make_shared<PrintedTokenRangeImpl>(context);
 
   // Top-level context should be the AST.
+  tokens->ast = ast;
   tokens->contexts.emplace_back(*ast);
 
   if (stmt) {
@@ -3245,17 +3246,30 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
   for (auto i = 1u; i < max_i; ++i) {
     TokenContextImpl &context = tokens->contexts[i];
     if (context.parent_index == kInvalidTokenContextIndex) {
-      context.parent_index = 0u;  // AST node.
+      context.parent_index = kASTTokenContextIndex;
     }
   }
 
+  tokens->tokens.emplace_back(
+      0u, 0u, kInvalidTokenContextIndex, 0u, 0u, clang::tok::eof);
+
   auto num_tokens = tokens->tokens.size();
-  if (!num_tokens) {
-    return PrintedTokenRange(std::move(tokens));
-  } else {
-    auto first = &(tokens->tokens[0]);
-    auto after_last = &(first[num_tokens]);
-    return PrintedTokenRange(std::move(tokens), first, after_last);
+  auto first = &(tokens->tokens[0]);
+  auto after_last = &(first[num_tokens - 1u]);
+
+  for (auto tok = first; tok < after_last; ++tok) {
+    if (tok->context_index == kInvalidTokenContextIndex) {
+      tok->context_index = kASTTokenContextIndex;
+    }
+
+#ifndef NDEBUG
+    if (tok->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
+      assert(tok->derived_index != kInvalidDerivedTokenIndex);
+    }
+#endif
   }
+
+  return PrintedTokenRange(std::move(tokens), first, after_last);
 }
+
 } // namespace pasta

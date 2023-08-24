@@ -5847,7 +5847,7 @@ class DesignatedInitExpr : public Expr {
   // ArrayRangeStart: (clang::Expr *)
   ::pasta::Token BeginToken(void) const;
   std::optional<::pasta::Designator> Designator(unsigned int) const;
-  ::pasta::TokenRange DesignatorsSourceRange(void) const;
+  ::pasta::TokenRange DesignatorsTokens(void) const;
   ::pasta::Token EndToken(void) const;
   ::pasta::Token EqualOrColonToken(void) const;
   ::pasta::Expr Initializer(void) const;

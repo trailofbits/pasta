@@ -67,6 +67,7 @@ static void TryLocateAttribute(const clang::Attr *A,
 
   clang::SourceLocation loc = A->getLocation();
   PrintedTokenImpl *attr_tok = nullptr;
+  size_t attr_tok_index = 0u;
 
   for (size_t i = old_num_toks; i < max_i; ++i) {
     PrintedTokenImpl &tok = tokens.tokens[i];
@@ -89,6 +90,7 @@ static void TryLocateAttribute(const clang::Attr *A,
       case clang::tok::kw__Null_unspecified:
       case clang::tok::kw__Nullable_result:
         attr_tok = &tok;
+        attr_tok_index = static_cast<size_t>(attr_tok - tokens.tokens.data());
         break;
       default:
         break;
@@ -131,7 +133,7 @@ static void TryLocateAttribute(const clang::Attr *A,
   // Try to find the location of `__attribute__`, `__asm`, etc.
   for (; min_parsed_tok < parsed_tok; --parsed_tok) {
     if (parsed_tok->Kind() == attr_tok->Kind()) {
-      attr_tok->opaque_source_loc = parsed_tok->opaque_source_loc;
+      tokens.MarkLocation(attr_tok_index, *parsed_tok);
       break;
     }
   }
@@ -561,8 +563,11 @@ void TokenPrinterContext::Tokenize(void) {
 }
 
 void PrintedTokenRangeImpl::MarkLocation(
-    size_t tok_index, const TokenImpl &tok) {
-  tokens[tok_index].opaque_source_loc = tok.opaque_source_loc;
+    size_t printed_tok_index, const TokenImpl &tok) {
+  assert(printed_tok_index < tokens.size());
+  tokens[printed_tok_index].opaque_source_loc = tok.opaque_source_loc;
+  tokens[printed_tok_index].derived_index =
+      static_cast<DerivedTokenIndex>(&tok - ast->tokens.data());
 }
 
 void PrintedTokenRangeImpl::MarkLocation(size_t tok_index,
@@ -614,14 +619,9 @@ PrintedTokenRange PrintedTokenRange::Create(
     const Decl &decl, const PrintingPolicy &pp, bool maintain_provenance) {
   auto ret = PrintedTokenRange::Create(
       decl.ast, const_cast<clang::Decl *>(decl.u.Decl), pp);
-  
   if (!maintain_provenance) {
-    for (auto tok = ret.first; tok < ret.after_last; ++tok) {
-      tok->opaque_source_loc = TokenImpl::kInvalidSourceLocation;
-      tok->derived_index = kInvalidDerivedTokenIndex;
-    }
+    ret.DumpProvenanceInformation();
   }
-  
   return ret;
 }
 
@@ -630,14 +630,9 @@ PrintedTokenRange PrintedTokenRange::Create(
     const Stmt &stmt, const PrintingPolicy &pp, bool maintain_provenance) {
   auto ret = PrintedTokenRange::Create(
       stmt.ast, const_cast<clang::Stmt *>(stmt.u.Stmt), pp);
-  
   if (!maintain_provenance) {
-    for (auto tok = ret.first; tok < ret.after_last; ++tok) {
-      tok->opaque_source_loc = TokenImpl::kInvalidSourceLocation;
-      tok->derived_index = kInvalidDerivedTokenIndex;
-    }
+    ret.DumpProvenanceInformation();
   }
-  
   return ret;
 }
 
@@ -652,14 +647,9 @@ PrintedTokenRange PrintedTokenRange::Create(
       fast_qtype, clang::Qualifiers::fromOpaqueValue(type.qualifiers));
 
   auto ret = PrintedTokenRange::Create(type.ast, self, pp);
-  
   if (!maintain_provenance) {
-    for (auto tok = ret.first; tok < ret.after_last; ++tok) {
-      tok->opaque_source_loc = TokenImpl::kInvalidSourceLocation;
-      tok->derived_index = kInvalidDerivedTokenIndex;
-    }
+    ret.DumpProvenanceInformation();
   }
-  
   return ret;
 }
 
@@ -731,7 +721,7 @@ std::optional<PrintedTokenRange> PrintedTokenRange::Concatenate(
   // Top-level context should be the AST.
   if (a.impl->ast) {
     new_impl->contexts.emplace_back(*(new_impl->ast));
-    data_to_context.emplace(new_impl->ast.get(), 0u  /* AST context index */);
+    data_to_context.emplace(new_impl->ast.get(), kASTTokenContextIndex);
   }
 
   std::vector<TokenContextIndex> context_map;
@@ -796,6 +786,7 @@ PrintedTokenRange PrintedTokenRange::Adopt(const TokenRange &a,
   new_impl->tokens.reserve(a.Size() + 1u);
   new_impl->contexts.emplace_back(*(new_impl->ast));  // AST context.
 
+  auto num_leading_spaces = 0u;
   for (Token tok : a) {
     if (!IsParsedToken(tok)) {
       continue;
@@ -805,10 +796,12 @@ PrintedTokenRange PrintedTokenRange::Adopt(const TokenRange &a,
     PrintedTokenImpl &new_tok = new_impl->tokens.emplace_back(
         static_cast<TokenDataOffset>(new_impl->data.size()),
         static_cast<uint32_t>(data.size()),
-        static_cast<TokenContextIndex>(0u)  /* AST context. */,
+        kASTTokenContextIndex,
         0u  /* Leading new lines */,
-        1u  /* Leading spaces */,
+        num_leading_spaces,
         tok.impl->Kind());
+
+    num_leading_spaces = 1u;
 
     new_tok.role = static_cast<TokenKindBase>(TokenRole::kFileToken);
 
@@ -828,6 +821,36 @@ PrintedTokenRange PrintedTokenRange::Adopt(const TokenRange &a,
   PrintedTokenImpl *after_last_tok = &(first_tok[new_impl->tokens.size() - 1u]);
 
   return PrintedTokenRange(std::move(new_impl), first_tok, after_last_tok);
+}
+
+// Create a copy of `a`.
+//
+// The `maintain_provenance` argument determines whether or not the printed
+// tokens will be able to find their original parsed tokens.
+PrintedTokenRange PrintedTokenRange::Copy(const PrintedTokenRange &a,
+                                          bool maintain_provenance) {
+  auto new_impl = std::make_shared<PrintedTokenRangeImpl>(a.impl->ast_context);
+  new_impl->ast = a.impl->ast;
+  new_impl->tokens = a.impl->tokens;
+  new_impl->contexts = a.impl->contexts;
+  new_impl->data = a.impl->data;
+
+  PrintedTokenImpl *first_tok = new_impl->tokens.data();
+  PrintedTokenImpl *after_last_tok = &(first_tok[new_impl->tokens.size() - 1u]);
+
+  PrintedTokenRange ret(std::move(new_impl), first_tok, after_last_tok);
+  if (!maintain_provenance) {
+    ret.DumpProvenanceInformation();
+  }
+  return ret;
+}
+
+// Dump token provenance information.
+void PrintedTokenRange::DumpProvenanceInformation(void) {
+  for (auto tok = first; tok < after_last; ++tok) {
+    tok->opaque_source_loc = TokenImpl::kInvalidSourceLocation;
+    tok->derived_index = kInvalidDerivedTokenIndex;
+  }
 }
 
 PrintingPolicy::~PrintingPolicy(void) {}

@@ -15127,7 +15127,7 @@ std::optional<::pasta::Designator> DesignatedInitExpr::Designator(unsigned int i
   throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::TokenRange DesignatedInitExpr::DesignatorsSourceRange(void) const {
+::pasta::TokenRange DesignatedInitExpr::DesignatorsTokens(void) const {
   auto &self = *const_cast<clang::DesignatedInitExpr *>(u.DesignatedInitExpr);
   decltype(auto) val = self.getDesignatorsSourceRange();
   return ast->TokenRangeFrom(val);

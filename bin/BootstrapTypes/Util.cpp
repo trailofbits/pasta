@@ -149,6 +149,9 @@ static std::string CxxNameImpl(llvm::StringRef name) {
   } else if (name.endswith("Loc")) {
     return CxxNameImpl(name.substr(0, name.size() - 3).str()) + "Token";
 
+  } else if (name.endswith("SourceRange") && 11 < name.size()) {
+    return CxxNameImpl(name.substr(0, name.size() - 11).str()) + "Tokens";
+
   } else if (auto name_it = kCxxMethodRenames.find(name.str());
              name_it != kCxxMethodRenames.end()) {
     return name_it->second;

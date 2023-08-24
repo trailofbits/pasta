@@ -403,6 +403,16 @@ class PrintedTokenRange {
   static PrintedTokenRange Adopt(const TokenRange &a,
                                  bool maintain_provenance=true);
 
+  // Create a copy of `a`.
+  //
+  // The `maintain_provenance` argument determines whether or not the printed
+  // tokens will be able to find their original parsed tokens.
+  static PrintedTokenRange Copy(const PrintedTokenRange &a,
+                                bool maintain_provenance=true);
+
+  // Dump token provenance information.
+  void DumpProvenanceInformation(void);
+
   inline PrintedTokenIterator begin(void) const noexcept {
     return PrintedTokenIterator(impl, first);
   }

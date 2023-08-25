@@ -52,6 +52,7 @@ class PrintedTokenImpl;
 class PrintedTokenRange;
 class PrintedTokenRangeImpl;
 class Stmt;
+class TagDecl;
 class TemplateDecl;
 class TokenContextImpl;
 class Type;
@@ -292,6 +293,24 @@ class PrintingPolicy {
  public:
   virtual ~PrintingPolicy(void);
 
+  virtual bool ShouldPrintTagBodies(void) const;
+
+  // E.g. if the size of a type is a constant expression, then should we print
+  // it, or just the result value of the expression?
+  virtual bool ShouldPrintConstantExpressionsInTypes(void) const;
+
+  // When asked to print an adjusted type, should we print the new type, or
+  // the original. The original will likely be more representative of the
+  // type as parsed, but the new one will be better for deduplication.
+  virtual bool ShouldPrintOriginalTypeOfAdjustedType(void) const;
+
+  // When asked ot print a decayed type, should we print the new type or the
+  // original type? The original type will be closer to what is in the actual
+  // source code, but the decayed type will more accurately represent the
+  // semantics of the type. An example is passing a constant sized array type
+  // to a function, which then decays into a pointer.
+  virtual bool ShouldPrintOriginalTypeOfDecayedType(void) const;
+
   virtual bool ShouldPrintTemplate(const TemplateDecl &) const;
   
   virtual bool ShouldPrintTemplate(
@@ -318,6 +337,11 @@ class ProxyPrintingPolicy : public PrintingPolicy {
 
   inline ProxyPrintingPolicy(const PrintingPolicy &next_)
       : next(next_) {}
+
+  bool ShouldPrintTagBodies(void) const override;
+  bool ShouldPrintConstantExpressionsInTypes(void) const override;
+  bool ShouldPrintOriginalTypeOfAdjustedType(void) const override;
+  bool ShouldPrintOriginalTypeOfDecayedType(void) const override;
 
   bool ShouldPrintTemplate(const TemplateDecl &) const override;
 

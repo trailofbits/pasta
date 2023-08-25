@@ -168,6 +168,10 @@ class PrintingPolicyAdaptor final {
         pp(&pp_),
         decl_to_print(decl_to_print_) {}
 
+  bool ShouldPrintConstantExpressionsInTypes(void) const;
+  bool ShouldPrintOriginalTypeOfAdjustedType(void) const;
+  bool ShouldPrintOriginalTypeOfDecayedType(void) const;
+
   bool ShouldPrintTemplate(clang::TemplateDecl *) const;
 
   bool ShouldPrintTemplate(

@@ -3221,7 +3221,7 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
 
 PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
                                             clang::Stmt *stmt,
-                                            const PrintingPolicy &pp) {
+                                            const PrintingPolicy &high_pp) {
   std::string data;
   raw_string_ostream out(data, 0);
   auto &context = ast->tu->getASTContext();
@@ -3232,10 +3232,12 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
   tokens->contexts.emplace_back(*ast);
 
   if (stmt) {
-    PrintingPolicyAdaptor ppa(ast, pp);
+    PrintingPolicyAdaptor ppa(ast, high_pp);
     tokens->ppa = &ppa;
 
     clang::PrintingPolicy pp = *(ast->printing_policy);
+    pp.IncludeTagDefinition = high_pp.ShouldPrintTagBodies();
+
     StmtPrinter printer(out, nullptr, *tokens, pp);
     printer.Visit(stmt);
     tokens->ppa = nullptr;

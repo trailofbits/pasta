@@ -853,7 +853,8 @@ void TypePrinter::printConstantArray(const clang::ConstantArrayType *T,
     if (T->getSizeModifier() == clang::ArrayType::Static)
       OS << "static ";
 
-    if (const clang::Expr *Expr = T->getSizeExpr()) {
+    if (const clang::Expr *Expr = T->getSizeExpr();
+        Expr && tokens.ppa->ShouldPrintConstantExpressionsInTypes()) {
       StmtPrinter stmtPrinter(OS, nullptr, tokens, Policy, 0, "\n",
                               &(tokens.ast_context));
       stmtPrinter.Visit(const_cast<clang::Expr *>(Expr));
@@ -927,7 +928,12 @@ void TypePrinter::printAdjusted(const clang::AdjustedType *T,
 
   // Print the original type, as that is more reflective of what is actually
   // in the code.
-  printBeforeAfter(T->getOriginalType(), OS, std::move(IdentFn));
+  if (tokens.ppa->ShouldPrintOriginalTypeOfAdjustedType()) {
+    printBeforeAfter(T->getOriginalType(), OS, std::move(IdentFn));
+
+  } else {
+    printBeforeAfter(T->getAdjustedType(), OS, std::move(IdentFn));
+  }
 }
 
 void TypePrinter::printDecayed(const clang::DecayedType *T,
@@ -935,9 +941,14 @@ void TypePrinter::printDecayed(const clang::DecayedType *T,
                                std::function<void(void)> IdentFn) {
   TokenPrinterContext ctx(OS, T, tokens);
 
-  // Print the decayed representation, otherwise the adjustment will be
-  // invisible.
-  printBeforeAfter(T->getDecayedType(), OS, std::move(IdentFn));
+  // Print the original type, as that is more reflective of what is actually
+  // in the code.
+  if (tokens.ppa->ShouldPrintOriginalTypeOfDecayedType()) {
+    printBeforeAfter(T->getOriginalType(), OS, std::move(IdentFn));
+
+  } else {
+    printBeforeAfter(T->getAdjustedType(), OS, std::move(IdentFn));
+  }
 }
 
 void TypePrinter::printDependentSizedArray(
@@ -1771,7 +1782,9 @@ void TypePrinter::AppendScope(clang::DeclContext *DC, raw_string_ostream &OS,
 }
 
 void TypePrinter::printTag(clang::TagDecl *D, raw_string_ostream &OS) {
-
+  if (D->getName() == "__va_list_tag") {
+    asm volatile ("" : : : "memory");
+  }
   if (Policy.IncludeTagDefinition) {
 //    clang::PrintingPolicy SubPolicy = Policy;
 //    SubPolicy.IncludeTagDefinition = false;
@@ -2495,7 +2508,7 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
 
 PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
                                             const clang::QualType &type,
-                                            const PrintingPolicy &pp) {
+                                            const PrintingPolicy &high_pp) {
   std::string data;
   raw_string_ostream out(data, 0);
   auto &context = ast->tu->getASTContext();
@@ -2506,10 +2519,12 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
   tokens->contexts.emplace_back(*ast);
 
   if (!type.isNull()) {
-    PrintingPolicyAdaptor ppa(ast, pp);
+    PrintingPolicyAdaptor ppa(ast, high_pp);
     tokens->ppa = &ppa;
 
     clang::PrintingPolicy pp = *(ast->printing_policy);
+    pp.IncludeTagDefinition = high_pp.ShouldPrintTagBodies();
+
     TypePrinter printer(out, pp, *tokens);
     printer.print(type, "", nullptr);
     tokens->ppa = nullptr;

@@ -3,12 +3,12 @@
 This is an optional phase of PASTA's bootstrapping process, usually done in
 response to issues compiling GCC-based compile commands. Clang can sometimes
 struggle to reproduce ASTs produced from GCC-based compile commands. This can
-sometimes be the default case is PASTA (which uses and wraps Clang) is compiled
+sometimes be the default case if PASTA (which uses and wraps Clang) is compiled
 with the GCC. One source of problems is that the GCC supports a different set
 of target architecture-specific builtins. In order to handle these, PASTA tries
 to declare and augment Clang's set of builtins. To do so, PASTA must actually
 specify these builtins according to the proper format. This format is described
-in `clang/Basic/Builtins.def`.
+in [`clang/Basic/Builtins.def`](https://github.com/llvm/llvm-project/blob/main/clang/include/clang/Basic/Builtins.def#L17).
 
 Assuming we have a C file with a bunch of function declarations, e.g.:
 

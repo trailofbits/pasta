@@ -855,6 +855,22 @@ void PrintedTokenRange::DumpProvenanceInformation(void) {
 
 PrintingPolicy::~PrintingPolicy(void) {}
 
+bool PrintingPolicy::ShouldPrintTagBodies(void) const {
+  return true;
+}
+
+bool PrintingPolicy::ShouldPrintConstantExpressionsInTypes(void) const {
+  return true;
+}
+
+bool PrintingPolicy::ShouldPrintOriginalTypeOfAdjustedType(void) const {
+  return true;
+}
+
+bool PrintingPolicy::ShouldPrintOriginalTypeOfDecayedType(void) const {
+  return true;
+}
+
 bool PrintingPolicy::ShouldPrintTemplate(const TemplateDecl &) const {
   return true;
 }
@@ -886,6 +902,22 @@ bool PrintingPolicy::ShouldPrintSpecialization(
 
 ProxyPrintingPolicy::~ProxyPrintingPolicy(void) {}
 
+bool ProxyPrintingPolicy::ShouldPrintTagBodies(void) const {
+  return next.ShouldPrintTagBodies();
+}
+
+bool ProxyPrintingPolicy::ShouldPrintConstantExpressionsInTypes(void) const {
+  return next.ShouldPrintConstantExpressionsInTypes();
+}
+
+bool ProxyPrintingPolicy::ShouldPrintOriginalTypeOfAdjustedType(void) const {
+  return next.ShouldPrintOriginalTypeOfAdjustedType();
+}
+
+bool ProxyPrintingPolicy::ShouldPrintOriginalTypeOfDecayedType(void) const {
+  return next.ShouldPrintOriginalTypeOfDecayedType();
+}
+
 bool ProxyPrintingPolicy::ShouldPrintTemplate(const TemplateDecl &tpl) const {
   return next.ShouldPrintTemplate(tpl);
 }
@@ -914,6 +946,30 @@ bool ProxyPrintingPolicy::ShouldPrintSpecialization(
 bool ProxyPrintingPolicy::ShouldPrintSpecialization(
   const FunctionTemplateDecl &tpl, const FunctionDecl &spec) const {
   return next.ShouldPrintSpecialization(tpl, spec);
+}
+
+bool PrintingPolicyAdaptor::ShouldPrintConstantExpressionsInTypes(void) const {
+  if (pp) {
+    return pp->ShouldPrintConstantExpressionsInTypes();
+  } else {
+    return true;
+  }
+}
+
+bool PrintingPolicyAdaptor::ShouldPrintOriginalTypeOfAdjustedType(void) const {
+  if (pp) {
+    return pp->ShouldPrintOriginalTypeOfAdjustedType();
+  } else {
+    return true;
+  }
+}
+
+bool PrintingPolicyAdaptor::ShouldPrintOriginalTypeOfDecayedType(void) const {
+  if (pp) {
+    return pp->ShouldPrintOriginalTypeOfDecayedType();
+  } else {
+    return true;
+  }
 }
 
 bool PrintingPolicyAdaptor::ShouldPrintTemplate(

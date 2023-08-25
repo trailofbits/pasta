@@ -1302,11 +1302,21 @@ void DeclPrinter::VisitFieldDecl(clang::FieldDecl *D) {
 
   if (D->isBitField()) {
     Out << " : ";
-    printPrettyStmt(D->getBitWidth(), Out, nullptr, Policy, Indentation);
+    clang::Expr *E = D->getBitWidth();
+    
+    if (!E->isValueDependent() && !E->isTypeDependent() &&
+        !tokens.ppa->ShouldPrintConstantExpressionsInTypes()) {
+      TokenPrinterContext size_ctx(Out, E, tokens);
+      Out << E->EvaluateKnownConstInt(tokens.ast_context).getZExtValue();
+
+    } else {
+      printPrettyStmt(D->getBitWidth(), Out, nullptr, Policy, Indentation);
+    }
   }
 
   clang::Expr *Init = D->getInClassInitializer();
-  if (!Policy.SuppressInitializers && Init) {
+  if (!Policy.SuppressInitializers && Init &&
+      tokens.ppa->ShouldPrintConstantExpressionsInTypes()) {
     if (D->getInClassInitStyle() == clang::ICIS_ListInit)
       Out << " ";
     else
@@ -2517,7 +2527,7 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
 
 PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
                                             clang::Decl *decl,
-                                            const PrintingPolicy &pp) {
+                                            const PrintingPolicy &high_pp) {
   std::string data;
   raw_string_ostream out(data, 0);
   auto &context = ast->tu->getASTContext();
@@ -2528,10 +2538,12 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
   tokens->contexts.emplace_back(*ast);
 
   if (decl) {
-    PrintingPolicyAdaptor ppa(ast, pp, decl);
+    PrintingPolicyAdaptor ppa(ast, high_pp, decl);
     tokens->ppa = &ppa;
 
     clang::PrintingPolicy pp = *(ast->printing_policy);
+    pp.IncludeTagDefinition = high_pp.ShouldPrintTagBodies();
+
     DeclPrinter printer(out, pp, context, *tokens);
     printer.Visit(decl);
 

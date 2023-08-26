@@ -200,7 +200,6 @@ void GenerateTypeH(void) {
     DeclareCppMethods(os, name, gClassIDs[name]);
 
     if (name == "QualifiedType") {
-      os  << "\n  /* QualType methods */\n";
       DeclareCppMethods(os, qual_type, gClassIDs[qual_type]);
     }
 

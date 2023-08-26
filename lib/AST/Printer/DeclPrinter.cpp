@@ -1306,7 +1306,6 @@ void DeclPrinter::VisitFieldDecl(clang::FieldDecl *D) {
     
     if (!E->isValueDependent() && !E->isTypeDependent() &&
         !tokens.ppa->ShouldPrintConstantExpressionsInTypes()) {
-      TokenPrinterContext size_ctx(Out, E, tokens);
       Out << E->EvaluateKnownConstInt(tokens.ast_context).getZExtValue();
 
     } else {

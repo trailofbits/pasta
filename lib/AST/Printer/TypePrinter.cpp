@@ -1782,9 +1782,6 @@ void TypePrinter::AppendScope(clang::DeclContext *DC, raw_string_ostream &OS,
 }
 
 void TypePrinter::printTag(clang::TagDecl *D, raw_string_ostream &OS) {
-  if (D->getName() == "__va_list_tag") {
-    asm volatile ("" : : : "memory");
-  }
   if (Policy.IncludeTagDefinition) {
 //    clang::PrintingPolicy SubPolicy = Policy;
 //    SubPolicy.IncludeTagDefinition = false;

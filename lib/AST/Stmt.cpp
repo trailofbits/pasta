@@ -3403,15 +3403,6 @@ std::optional<::pasta::CXXRecordDecl> Expr::BestDynamicClassType(void) const {
   }
 }
 
-::pasta::Expr Expr::BestDynamicClassTypeExpression(void) const {
-  auto &self = *const_cast<clang::Expr *>(u.Expr);
-  decltype(auto) val = self.getBestDynamicClassTypeExpr();
-  if (val) {
-    return StmtBuilder::Create<::pasta::Expr>(ast, val);
-  }
-  throw std::runtime_error("Expr::BestDynamicClassTypeExpression can return nullptr!");
-}
-
 ::pasta::ExprDependence Expr::Dependence(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.getDependence();
@@ -10533,7 +10524,7 @@ uint32_t StringLiteral::CharacterByteWidth(void) const {
   return ast->TokenAt(val);
 }
 
-enum StringLiteralStringKind StringLiteral::Kind(void) const {
+enum StringLiteralStringKind StringLiteral::LiteralKind(void) const {
   auto &self = *const_cast<clang::StringLiteral *>(u.StringLiteral);
   decltype(auto) val = self.getKind();
   return static_cast<::pasta::StringLiteralStringKind>(val);
@@ -10919,7 +10910,7 @@ std::optional<::pasta::Type> UnaryExprOrTypeTraitExpr::ArgumentType(void) const 
   return ast->TokenAt(val);
 }
 
-enum UnaryExprOrTypeTrait UnaryExprOrTypeTraitExpr::Kind(void) const {
+enum UnaryExprOrTypeTrait UnaryExprOrTypeTraitExpr::KeywordKind(void) const {
   auto &self = *const_cast<clang::UnaryExprOrTypeTraitExpr *>(u.UnaryExprOrTypeTraitExpr);
   decltype(auto) val = self.getKind();
   return static_cast<::pasta::UnaryExprOrTypeTrait>(val);
@@ -14270,7 +14261,7 @@ std::vector<::pasta::Stmt> CharacterLiteral::Children(void) const {
   return ast->TokenAt(val);
 }
 
-enum CharacterLiteralCharacterKind CharacterLiteral::Kind(void) const {
+enum CharacterLiteralCharacterKind CharacterLiteral::LiteralKind(void) const {
   auto &self = *const_cast<clang::CharacterLiteral *>(u.CharacterLiteral);
   decltype(auto) val = self.getKind();
   return static_cast<::pasta::CharacterLiteralCharacterKind>(val);
@@ -15127,7 +15118,7 @@ std::optional<::pasta::Designator> DesignatedInitExpr::Designator(unsigned int i
   throw std::runtime_error("The unreachable has been reached");
 }
 
-::pasta::TokenRange DesignatedInitExpr::DesignatorsSourceRange(void) const {
+::pasta::TokenRange DesignatedInitExpr::DesignatorsTokens(void) const {
   auto &self = *const_cast<clang::DesignatedInitExpr *>(u.DesignatedInitExpr);
   decltype(auto) val = self.getDesignatorsSourceRange();
   return ast->TokenRangeFrom(val);

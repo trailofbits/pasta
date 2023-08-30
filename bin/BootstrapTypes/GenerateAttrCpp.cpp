@@ -14,7 +14,7 @@ extern void DefineCppMethods(std::ostream &os, const std::string &class_name,
                               uint32_t class_id, std::ostream &os_py);
 
 // Generate `lib/AST/Attr.cpp`.
-void GenerateAttrCpp(std::ostream& py_cmake, std::ostream& py_ast) {
+void GenerateAttrCpp(std::ostream &py_cmake, std::ostream &py_ast) {
   std::ofstream os(kASTAttrCpp);
 
   os
@@ -64,7 +64,34 @@ void GenerateAttrCpp(std::ostream& py_cmake, std::ostream& py_ast) {
       << "      kind = new_that.kind; \\\n"
       << "      return *this; \\\n"
       << "    }\n\n"
-      << "namespace pasta {\n\n"
+      << "namespace pasta {\n\n";
+
+  os  << "AttrVisitor::~AttrVisitor(void) {}\n\n"
+      << "void AttrVisitor::Accept(const Attr &attr) {\n"
+      << "  switch (attr.Kind()) {\n"
+      << "#define PASTA_VISIT_ATTR(name) \\\n"
+      << "    case AttrKind::k ## name: \\\n"
+      << "      Visit ## name ## Attr(reinterpret_cast<const name ## Attr &>(attr)); \\\n"
+      << "      break;\n\n"
+      << "    PASTA_FOR_EACH_ATTR_KIND(PASTA_VISIT_ATTR)\n"
+      << "#undef PASTA_VISIT_ATTR\n"
+      << "  }\n"
+      << "}\n\n";
+
+  for (const auto &name : gTopologicallyOrderedAttrs) {
+    os << "void AttrVisitor::Visit" << name << "(const " << name << " &attr) {\n";
+    auto seen = false;
+    for (const auto &parent_class : gBaseClasses[name]) {
+      os << "  Visit" << parent_class << "(attr);\n";
+      seen = true;
+    }
+    if (!seen) {
+      os << "  (void) attr;\n";
+    }
+    os << "}\n\n";
+  }
+
+  os
       << "namespace {\n"
       << "// Return the PASTA `AttrKind` for a Clang `Attr`.\n"
       << "static AttrKind KindOfAttr(const clang::Attr *attr) {\n"
@@ -111,9 +138,7 @@ void GenerateAttrCpp(std::ostream& py_cmake, std::ostream& py_ast) {
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
@@ -156,8 +181,14 @@ void Register)" << name << "(nb::module_ &m) {\n"
       os_py << ", " << base_class;
     }
     os_py << ">(m, \"" << name << "\")"
-          << "\n    .def(\"__hash__\", [](const " << name << "& attr) { return (intptr_t)attr.RawAttr(); })"
-          << "\n    .def(\"__eq__\", [](const Attr& a, const Attr& b) { return a.RawAttr() == b.RawAttr(); })";
+          << "\n    .def(\"__hash__\", [](const " << name << " &attr) { return (intptr_t)attr.RawAttr(); })"
+          << "\n    .def(\"__eq__\", [](const Attr &a, const Attr &b) { return a.RawAttr() == b.RawAttr(); })";
+
+    if (name == "Attr") {
+      os_py
+          << "\n    .def_prop_ro(\"kind\", &Attr::Kind)"
+          << "\n    .def_prop_ro(\"kind_name\", &Attr::KindName)";
+    }
 
     for (const auto &derived_class : gTransitiveDerivedClasses[name]) {
       os << "PASTA_DEFINE_DERIVED_OPERATORS("

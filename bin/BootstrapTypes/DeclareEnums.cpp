@@ -195,7 +195,6 @@ static std::string RenameEnumerator(const std::string &name) {
          << " : " << PASTA_STR(PASTA_SPLAT underlying_type) << " {\n"; \
       os_py << "  nb::enum_<pasta::" << enum_name_str << ">(m, \"" << enum_name_str << "\")";
 
-
 #define PASTA_NAMED_ENUMERATOR(enumerator_name_, underlying_type, val) \
       enumerator_name = #enumerator_name_; \
       for (auto prefix : kEnumPrefixesToStrip) { \
@@ -220,6 +219,7 @@ static std::string RenameEnumerator(const std::string &name) {
 #define PASTA_END_NAMED_ENUM(enum_name) \
       if (enum_name_str == "TypeKind") { \
         os << "  kQualified  // Manually added.\n"; \
+        os_py << "\n    .value(\"QUALIFIED\", pasta::TypeKind::kQualified)"; \
       } \
       os << "};\n\n"; \
       os_py << ";\n\n"; \

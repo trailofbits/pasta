@@ -16,15 +16,17 @@
 #include <clang/Lex/Token.h>
 #pragma clang diagnostic pop
 
-
 #include <fstream>
 #include <initializer_list>
+#include <iomanip>
 #include <iostream>
 #include <optional>
 #include <sstream>
 
 #include "Builder.h"
+#include "Printer/Printer.h"
 #include "Printer/DeclStmtPrinter.h"
+#include "Token.h"
 #include "Util.h"
 
 #define PASTA_DEBUG_ALIGN 0
@@ -33,12 +35,12 @@
 namespace pasta {
 namespace {
 
-static bool TokenHasLocationAndContext(const TokenImpl *impl) {
+static bool TokenHasLocationAndContext(const PrintedTokenImpl *impl) {
   return impl->opaque_source_loc != TokenImpl::kInvalidSourceLocation &&
          impl->context_index != kInvalidTokenContextIndex;
 }
 
-static bool TokenLocationsMatch(const TokenImpl *parsed,
+static bool TokenLocationsMatch(const PrintedTokenImpl *parsed,
                                 const PrintedTokenImpl *printed) {
   if (parsed->opaque_source_loc == TokenImpl::kInvalidSourceLocation) {
     return false;
@@ -89,26 +91,28 @@ struct Region {
 
 #if PASTA_DEBUG_ALIGN
   virtual void Print(std::ostream &os, std::string indent,
-                     const ASTImpl &ast,
-                     const PrintedTokenRangeImpl &range) const = 0;
-  virtual void Print(std::ostream &os, std::string indent,
-                     const PrintedTokenRangeImpl &range) const = 0;
+                     const PrintedTokenRangeImpl &data_range,
+                     const PrintedTokenRangeImpl &context_range) const = 0;
 #endif  // PASTA_DEBUG_ALIGN
 
   // Return the first token that has location and context information.
-  virtual TokenImpl *FirstParsedToken(void) const = 0;
-  virtual TokenImpl *LastParsedToken(void) const = 0;
+  virtual PrintedTokenImpl *FirstParsedToken(void) const = 0;
+  virtual PrintedTokenImpl *LastParsedToken(void) const = 0;
   virtual TokenContextIndex CommonContext(
       const PrintedTokenRangeImpl &range,
       TokenContextIndex parent_context) = 0;
 };
 
 struct StatementRegion final : public Region {
+
+  PrintedTokenImpl *begin{nullptr};
+  PrintedTokenImpl *end{nullptr};  // Inclusive.
+
   RegionKind Kind(void) const noexcept final {
     return RegionKind::kStatement;
   }
 
-  TokenImpl *FirstParsedToken(void) const final {
+  PrintedTokenImpl *FirstParsedToken(void) const final {
     for (auto it = begin; it <= end; ++it) {
       if (TokenHasLocationAndContext(it) && TokenCanBeAssignedContext(it)) {
         return it;
@@ -117,7 +121,7 @@ struct StatementRegion final : public Region {
     return nullptr;
   }
 
-  TokenImpl *LastParsedToken(void) const final {
+  PrintedTokenImpl *LastParsedToken(void) const final {
     for (auto it = end; it >= begin; --it) {
       if (TokenHasLocationAndContext(it) && TokenCanBeAssignedContext(it)) {
         return it;
@@ -167,15 +171,14 @@ struct StatementRegion final : public Region {
 
 #if PASTA_DEBUG_ALIGN
   void Print(std::ostream &os, std::string indent,
-             const ASTImpl &ast, const PrintedTokenRangeImpl &range) const final {
-    if (common_context.has_value()) {
-      assert(common_context.value() < range.contexts.size());
-    }
+             const PrintedTokenRangeImpl &data_range,
+             const PrintedTokenRangeImpl &context_range) const final {
     os << indent << "------ST "
        << std::hex
        << (common_context ? common_context.value() : kInvalidTokenContextIndex)
        << std::dec << "------\n";
-    for (TokenImpl *it = begin; it <= end; ++it) {
+
+    for (PrintedTokenImpl *it = begin; it <= end; ++it) {
       if (!TokenCanBeAssignedContext(it)) {
         continue;
       }
@@ -183,49 +186,7 @@ struct StatementRegion final : public Region {
           it->Kind() == clang::tok::wide_string_literal) {
         os << indent << "<str>";
       } else {
-        os << indent << it->Data(ast);
-      }
-      TK( os << " " << clang::tok::getTokenName(it->Kind()); )
-      if (it->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
-        os << " l:" << std::hex << it->opaque_source_loc << std::dec;
-      }
-      if (it->context_index != kInvalidTokenContextIndex) {
-        os << " c:" << std::hex << it->context_index << std::dec;
-        const TokenContextImpl &context = range.contexts[it->context_index];
-        if (context.kind == TokenContextKind::kDecl) {
-          os << ' ' << reinterpret_cast<const clang::Decl *>(context.data)->getDeclKindName();
-
-        } else if (context.kind == TokenContextKind::kStmt) {
-          os << ' ' << reinterpret_cast<const clang::Stmt *>(context.data)->getStmtClassName();
-
-        } else if (context.kind == TokenContextKind::kType) {
-          os << ' ' << reinterpret_cast<const clang::Type *>(context.data)->getTypeClassName();
-        }
-      }
-      os << '\n';
-    }
-  }
-
-  void Print(std::ostream &os, std::string indent,
-             const PrintedTokenRangeImpl &range) const final {
-    if (common_context.has_value()) {
-      assert(common_context.value() < range.contexts.size());
-    }
-    os << indent << "------ST "
-       << std::hex
-       << (common_context ? common_context.value() : kInvalidTokenContextIndex)
-       << std::dec << "------\n";
-    auto begin_ = reinterpret_cast<PrintedTokenImpl *>(begin);
-    auto end_ = reinterpret_cast<PrintedTokenImpl *>(end);
-    for (PrintedTokenImpl *it = begin_; it <= end_; ++it) {
-      if (!TokenCanBeAssignedContext(it)) {
-        continue;
-      }
-      if (it->Kind() == clang::tok::string_literal ||
-          it->Kind() == clang::tok::wide_string_literal) {
-        os << indent << "<str>";
-      } else {
-        os << indent << it->Data(range);
+        os << indent << it->Data(data_range);
       }
       TK( os << " " << clang::tok::getTokenName(it->Kind()); )
       if (it->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
@@ -234,7 +195,7 @@ struct StatementRegion final : public Region {
       if (it->context_index != kInvalidTokenContextIndex) {
         os << " c:" << std::hex << it->context_index << std::dec;
 
-        const TokenContextImpl &context = range.contexts[it->context_index];
+        const TokenContextImpl &context = context_range.contexts[it->context_index];
         if (context.kind == TokenContextKind::kDecl) {
           os << ' ' << reinterpret_cast<const clang::Decl *>(context.data)->getDeclKindName();
 
@@ -249,29 +210,29 @@ struct StatementRegion final : public Region {
     }
   }
 #endif  // PASTA_DEBUG_ALIGN
-
-  TokenImpl *begin{nullptr};
-  TokenImpl *end{nullptr};  // Inclusive.
 };
 
 struct SequenceRegion final : public Region {
+  // NOTE(pag): These are in reverse order.
+  std::vector<Region *> regions;
+
   RegionKind Kind(void) const noexcept final {
     return RegionKind::kSequence;
   }
 
-  TokenImpl *FirstParsedToken(void) const final {
+  PrintedTokenImpl *FirstParsedToken(void) const final {
     for (auto it = regions.rbegin(), end = regions.rend(); it != end; ++it) {
       Region *region = *it;
-      if (TokenImpl *tok = region->FirstParsedToken()) {
+      if (PrintedTokenImpl *tok = region->FirstParsedToken()) {
         return tok;
       }
     }
     return nullptr;
   }
 
-  TokenImpl *LastParsedToken(void) const final {
+  PrintedTokenImpl *LastParsedToken(void) const final {
     for (Region *region : regions) {
-      if (TokenImpl *tok = region->LastParsedToken()) {
+      if (PrintedTokenImpl *tok = region->LastParsedToken()) {
         return tok;
       }
     }
@@ -317,53 +278,34 @@ struct SequenceRegion final : public Region {
 
 #if PASTA_DEBUG_ALIGN
   void Print(std::ostream &os, std::string indent,
-             const ASTImpl &ast, const PrintedTokenRangeImpl &range) const final {
-    if (common_context.has_value()) {
-      assert(common_context.value() < range.contexts.size());
-    }
-    os << indent << "------SE "
-       << std::hex
-       << (common_context ? common_context.value() : kInvalidTokenContextIndex)
-       << std::dec << "------\n";
-    indent += "  ";
-    for (auto it = regions.rbegin(), end = regions.rend(); it != end; ++it) {
-      (*it)->Print(os, indent, ast, range);
-    }
-  }
+             const PrintedTokenRangeImpl &data_range,
+             const PrintedTokenRangeImpl &context_range) const final {
 
-  void Print(std::ostream &os, std::string indent,
-             const PrintedTokenRangeImpl &range) const final {
-    if (common_context.has_value()) {
-      assert(common_context.value() < range.contexts.size());
-    }
     os << indent << "------SE "
        << std::hex
        << (common_context ? common_context.value() : kInvalidTokenContextIndex)
        << std::dec << "------\n";
   indent += "  ";
     for (auto it = regions.rbegin(), end = regions.rend(); it != end; ++it) {
-      (*it)->Print(os, indent, range);
+      (*it)->Print(os, indent, data_range, context_range);
     }
   }
 #endif  // PASTA_DEBUG_ALIGN
-
-  // NOTE(pag): These are in reverse order.
-  std::vector<Region *> regions;
 };
 
 struct BalancedRegion final : public Region {
 
   StatementRegion *predecessor{nullptr};
-  TokenImpl *leading_ident{nullptr};
-  TokenImpl *begin{nullptr};
+  PrintedTokenImpl *leading_ident{nullptr};
+  PrintedTokenImpl *begin{nullptr};
   SequenceRegion *statements{nullptr};
-  TokenImpl *end{nullptr};
+  PrintedTokenImpl *end{nullptr};
 
   RegionKind Kind(void) const noexcept final {
     return RegionKind::kBalanced;
   }
 
-  TokenImpl *FirstParsedToken(void) const final {
+  PrintedTokenImpl *FirstParsedToken(void) const final {
     if (TokenHasLocationAndContext(begin)) {
       return begin;
     }
@@ -376,7 +318,7 @@ struct BalancedRegion final : public Region {
     return nullptr;
   }
 
-  TokenImpl *LastParsedToken(void) const final {
+  PrintedTokenImpl *LastParsedToken(void) const final {
     if (TokenHasLocationAndContext(end)) {
       return end;
     }
@@ -444,47 +386,15 @@ struct BalancedRegion final : public Region {
 
 #if PASTA_DEBUG_ALIGN
   void Print(std::ostream &os, std::string indent,
-             const ASTImpl &ast, const PrintedTokenRangeImpl &range) const final {
-    if (common_context.has_value()) {
-      assert(common_context.value() < range.contexts.size());
-    }
+             const PrintedTokenRangeImpl &data_range,
+             const PrintedTokenRangeImpl &context_range) const final {
+
     os << indent << "------BA "
        << std::hex
        << (common_context ? common_context.value() : kInvalidTokenContextIndex)
        << std::dec << "------\n";
-    os << indent << begin->Data(ast) << " " << clang::tok::getTokenName(begin->Kind());
-    if (begin->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
-      os << " l:" << std::hex << begin->opaque_source_loc << std::dec;
-    }
-    if (begin->context_index != kInvalidTokenContextIndex) {
-      os << " c:" << std::hex << begin->context_index << std::dec;
-    }
-    os << '\n';
+    os << indent << begin->Data(data_range) << " " << clang::tok::getTokenName(begin->Kind());
 
-    if (statements) {
-      statements->Print(os, indent + "  ", ast, range);
-    }
-
-    os << indent << end->Data(ast) << " " << clang::tok::getTokenName(end->Kind());
-    if (end->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
-      os << " l:" << std::hex << end->opaque_source_loc << std::dec;
-    }
-    if (end->context_index != kInvalidTokenContextIndex) {
-      os << " c:" << std::hex << end->context_index << std::dec;
-    }
-    os << '\n';
-  }
-
-  void Print(std::ostream &os, std::string indent,
-             const PrintedTokenRangeImpl &range) const final {
-    if (common_context.has_value()) {
-      assert(common_context.value() < range.contexts.size());
-    }
-    os << indent << "------BA "
-       << std::hex
-       << (common_context ? common_context.value() : kInvalidTokenContextIndex)
-       << std::dec << "------\n";
-    os << indent << begin->Data(range) << " " << clang::tok::getTokenName(begin->Kind());
     if (begin->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
       os << " l:" << std::hex << begin->opaque_source_loc << std::dec;
     }
@@ -493,9 +403,9 @@ struct BalancedRegion final : public Region {
     }
     os << '\n';
     if (statements) {
-      statements->Print(os, indent + "  ", range);
+      statements->Print(os, indent + "  ", data_range, context_range);
     }
-    os << indent << end->Data(range) << " " << clang::tok::getTokenName(end->Kind());
+    os << indent << end->Data(data_range) << " " << clang::tok::getTokenName(end->Kind());
     if (end->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
       os << " l:" << std::hex << end->opaque_source_loc << std::dec;
     }
@@ -507,11 +417,14 @@ struct BalancedRegion final : public Region {
 #endif  // PASTA_DEBUG_ALIGN
 };
 
-static bool MergeToken(TokenImpl *parsed, PrintedTokenImpl *printed,
+static bool MergeToken(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
                        bool &changed, bool force=false) {
 
+  // `printed` tokens will always have a valid token context index, even if it's
+  // just `0`, which is the AST context, whereas `parsed` is initialized with
+  // `kInvalidTokenContextIndex`.
   if (parsed->context_index == printed->context_index) {
-    return false;
+    return TokenLocationsMatch(parsed, printed);
   }
 
   assert(printed->context_index != kInvalidTokenContextIndex);
@@ -521,7 +434,12 @@ static bool MergeToken(TokenImpl *parsed, PrintedTokenImpl *printed,
                               printed->opaque_source_loc);
 
     parsed->context_index = printed->context_index;
+    
     printed->matched_in_align = true;
+    if (printed->opaque_source_loc == TokenImpl::kInvalidSourceLocation) {
+      printed->opaque_source_loc = parsed->opaque_source_loc;
+      changed = true;
+    }
 
     assert(printed->opaque_source_loc == TokenImpl::kInvalidSourceLocation ||
            printed->opaque_source_loc == parsed->opaque_source_loc);
@@ -533,9 +451,8 @@ static bool MergeToken(TokenImpl *parsed, PrintedTokenImpl *printed,
 
   } else if (parsed->context_index != kInvalidTokenContextIndex) {
     return false;
-  }
-
-  if (TokenImpl::kInvalidSourceLocation == printed->opaque_source_loc) {
+  
+  } else if (TokenImpl::kInvalidSourceLocation == printed->opaque_source_loc) {
     parsed->context_index = printed->context_index;
     printed->matched_in_align = true;
     assert(parsed->context_index != kInvalidTokenContextIndex);
@@ -563,11 +480,12 @@ static bool MergeToken(TokenImpl *parsed, PrintedTokenImpl *printed,
 class Matcher {
  private:
   ASTImpl &ast;
-  PrintedTokenRangeImpl &range;
-  TokenImpl * const first_parsed;
-
-  // Exclusive upper bound.
-  TokenImpl * const last_parsed;
+  PrintedTokenRangeImpl &parsed_range;
+  PrintedTokenRangeImpl &printed_range;
+  PrintedTokenImpl * const first_parsed;
+  PrintedTokenImpl * const last_parsed;  // Exclusive, but can be read.
+  PrintedTokenImpl * const first_printed;
+  PrintedTokenImpl * const last_printed;  // Exclusive, but can be read.
 
   std::vector<std::unique_ptr<Region>> parsed_regions;
   std::vector<std::unique_ptr<Region>> printed_regions;
@@ -575,30 +493,35 @@ class Matcher {
   // Maps identifiers or keywords that precede a balanced region to the
   // token just after the balanced region. This is used to jump over
   // `__attribute__` tokens when doing forward matching.
-  std::unordered_map<TokenImpl *, TokenImpl *> skip_balanced;
-
-//  std::vector<std::pair<BalancedRegion *, BalancedRegion *>> failed_balanced;
-
+  std::unordered_map<PrintedTokenImpl *, PrintedTokenImpl *> skip_balanced;
 
  public:
-  inline explicit Matcher(ASTImpl &ast_, PrintedTokenRangeImpl &range_,
-                          TokenImpl *first_parsed_,
-                          TokenImpl *last_parsed_)
+  inline explicit Matcher(ASTImpl &ast_,
+                          PrintedTokenRangeImpl &parsed_range_,
+                          PrintedTokenRangeImpl &printed_range_,
+                          PrintedTokenImpl *first_parsed_,
+                          PrintedTokenImpl *last_parsed_,
+                          PrintedTokenImpl *first_printed_,
+                          PrintedTokenImpl *last_printed_)
       : ast(ast_),
-        range(range_),
+        parsed_range(parsed_range_),
+        printed_range(printed_range_),
         first_parsed(first_parsed_),
-        last_parsed(last_parsed_) {}
+        last_parsed(last_parsed_),
+        first_printed(first_printed_),
+        last_printed(last_printed_) {}
 
   // Organize the tokens into a tree, grouped by brace/bracket/paren-enclosed
   // regions, and comma/semicolon-separated regions.
   SequenceRegion *BuildRegions(
       std::vector<std::unique_ptr<Region>> &regions,
-      std::stringstream &err, uint8_t *first, uint8_t *after_last,
-      size_t tok_size_, const char *list_kind);
+      std::stringstream &err, PrintedTokenImpl *first,
+      PrintedTokenImpl *after_last, const char *list_kind);
 
-  bool DataEquals(TokenImpl *parsed, PrintedTokenImpl *printed);
-  bool MatchToken(TokenImpl *parsed, PrintedTokenImpl *printed);
-  bool MatchTokenByKindOrData(TokenImpl *parsed, PrintedTokenImpl *printed);
+  bool DataEquals(PrintedTokenImpl *parsed, PrintedTokenImpl *printed);
+  bool MatchToken(PrintedTokenImpl *parsed, PrintedTokenImpl *printed);
+  bool MatchTokenByKindOrData(PrintedTokenImpl *parsed,
+                              PrintedTokenImpl *printed);
   bool MatchBalanced(BalancedRegion *parsed, BalancedRegion *printed,
                      bool &changed);
   bool MatchProduct(std::vector<Region *> &parsed_regions,
@@ -611,8 +534,10 @@ class Matcher {
   bool MatchRegions(Region *parsed, Region *printed,
                     bool &changed);
 
-  bool MergeForward(TokenImpl *parsed, PrintedTokenImpl *printed, bool &changed);
-  bool MergeBackward(TokenImpl *parsed, PrintedTokenImpl *printed, bool &changed);
+  bool MergeForward(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
+                    bool &changed);
+  bool MergeBackward(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
+                     bool &changed);
 
   void FixContexts(Region *parsed, std::vector<TokenContextIndex> &stack);
 };
@@ -621,16 +546,15 @@ class Matcher {
 // regions, and comma/semicolon-separated regions.
 SequenceRegion *Matcher::BuildRegions(
     std::vector<std::unique_ptr<Region>> &regions, std::stringstream &err,
-    uint8_t *first, uint8_t *after_last, size_t tok_size_,
+    PrintedTokenImpl *first, PrintedTokenImpl *after_last,
     const char *list_kind) {
 
-  const ptrdiff_t tok_size = static_cast<ptrdiff_t>(tok_size_);
   std::vector<SequenceRegion *> region_stack;
-  std::vector<std::pair<clang::tok::TokenKind, TokenImpl *>> match_stack;
+  std::vector<std::pair<clang::tok::TokenKind, PrintedTokenImpl *>> match_stack;
   std::vector<std::tuple<clang::tok::TokenKind, clang::tok::TokenKind,
                          clang::tok::TokenKind>> stmt_stoppers;
 
-  TokenImpl *unused_end = nullptr;
+  PrintedTokenImpl *unused_end = nullptr;
 
   auto push_empty_sequence = [&] (void) {
     const auto empty = new SequenceRegion;
@@ -639,7 +563,7 @@ SequenceRegion *Matcher::BuildRegions(
     return empty;
   };
 
-  auto add_uncollected_stmt = [&] (TokenImpl *begin) {
+  auto add_uncollected_stmt = [&] (PrintedTokenImpl *begin) {
     if (unused_end) {
       auto seq = dynamic_cast<SequenceRegion *>(region_stack.back());
       assert(seq != nullptr);
@@ -662,25 +586,17 @@ SequenceRegion *Matcher::BuildRegions(
   // braces, and parentheses with what is in the pre-processed code. We go
   // backward because the printed token ranges might start with declarations
   // for builtins, which are not present in the preprocessed code.
-  auto prev_it = after_last;
-  for (auto it = after_last, end = first; it != end; prev_it = it) {
+  PrintedTokenImpl *prev_it = after_last;
+  for (PrintedTokenImpl *it = after_last, *end = first;
+       it != end; prev_it = it) {
 
-    TokenImpl *next_tok_ptr = reinterpret_cast<TokenImpl *>(it);
-
-    // Decrement by `sizeof(TokenImpl)` or `sizeof(PrintedTokenImpl)`.
-    it = &(it[-tok_size]);
+    PrintedTokenImpl *next_tok_ptr = it;
+    --it;
 
     assert(it < prev_it);
     (void) prev_it;
 
-    TokenImpl &tok = *reinterpret_cast<TokenImpl *>(it);
-
-//    if (auto hl_tok = ast.TokenAt(&tok)) {
-//      for (auto i = 0u; i < match_stack.size(); ++i) {
-//        std::cerr << ' ';
-//      }
-//      std::cerr << hl_tok.Index() << ' ' << hl_tok.KindName() << ' ' << hl_tok.Data() << '\n';
-//    }
+    PrintedTokenImpl &tok = *it;
 
     // This is a macro expansion token; ignore it.
     if (!TokenCanBeAssignedContext(&tok)) {
@@ -699,9 +615,8 @@ SequenceRegion *Matcher::BuildRegions(
          clang::tok::getKeywordSpelling(tok_kind) != nullptr)) {
       last_balanced->leading_ident = &tok;
 
-      auto after_balanced = reinterpret_cast<TokenImpl *>(
-          reinterpret_cast<uintptr_t>(last_balanced->end) + tok_size_);
-      if (reinterpret_cast<uint8_t *>(after_balanced) < after_last) {
+      PrintedTokenImpl *after_balanced = &(last_balanced->end[1u]);
+      if (after_balanced < after_last) {
         skip_balanced.emplace(&tok, after_balanced);
       }
     }
@@ -765,11 +680,10 @@ SequenceRegion *Matcher::BuildRegions(
           if (opening_kind != tok_kind) {
             err << "Unbalanced "
                 << clang::tok::getTokenName(tok_kind)
-                << " (starting index " << ((it - first) / tok_size)
+                << " (starting index " << (it - first)
                 << "); expected a "
                 << clang::tok::getTokenName(opening_kind)
-                << " (ending index "
-                << ((reinterpret_cast<uint8_t *>(r_tok) - first) / tok_size)
+                << " (ending index " << (r_tok - first)
                 << ") in " << list_kind << " tokens";
 
             if (Token hl_tok_begin = ast.TokenAt(&tok)) {
@@ -844,7 +758,7 @@ SequenceRegion *Matcher::BuildRegions(
     return nullptr;
   }
 
-  add_uncollected_stmt(reinterpret_cast<TokenImpl *>(first));
+  add_uncollected_stmt(first);
 
   return region_stack.back();
 }
@@ -854,12 +768,15 @@ static const std::hash<std::string_view> kHasher;
 // Strip off leading and trailing underscores, then hash. This is to deal with
 // things like `asm` vs. `__asm`.
 static std::string_view HashableData(std::string_view view) {
+  auto size = view.size();
   while (!view.empty() && view.front() == '_') {
-    view = view.substr(1u, view.size() - 1u);
+    --size;
+    view = view.substr(1u, size);
   }
 
   while (!view.empty() && view.back() == '_') {
-    view = view.substr(0, view.size() - 1u);
+    --size;
+    view = view.substr(0, size);
   }
 
   return view;
@@ -877,9 +794,9 @@ static uint64_t Hash(clang::tok::TokenKind kind, std::string_view view) {
   }
 }
 
-bool Matcher::DataEquals(TokenImpl *parsed, PrintedTokenImpl *printed) {
-  auto parsed_data = parsed->Data(ast);
-  auto printed_data = printed->Data(range);
+bool Matcher::DataEquals(PrintedTokenImpl *parsed, PrintedTokenImpl *printed) {
+  auto parsed_data = parsed->Data(parsed_range);
+  auto printed_data = printed->Data(printed_range);
   if (clang::tok::getKeywordSpelling(parsed->Kind())) {
     return HashableData(parsed_data) == HashableData(printed_data);
   } else {
@@ -897,14 +814,14 @@ static bool IsAttributeLikeKeword(clang::tok::TokenKind tk) {
   }
 }
 
-bool Matcher::MergeForward(TokenImpl *parsed, PrintedTokenImpl *printed,
+bool Matcher::MergeForward(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
                            bool &changed) {
   auto merged = false;
   auto num_skips = 0u;
 
-  std::vector<TokenImpl *> backtrack_locs;
+  std::vector<PrintedTokenImpl *> backtrack_locs;
 
-  const auto last_printed = &(range.tokens.back());
+  const auto last_printed = &(printed_range.tokens.back());
   while (parsed < last_parsed && printed <= last_printed && num_skips < 16u) {
     if (!TokenCanBeAssignedContext(parsed)) {
       ++parsed;
@@ -941,7 +858,7 @@ bool Matcher::MergeForward(TokenImpl *parsed, PrintedTokenImpl *printed,
       }
     }
 
-    if (!MatchTokenByKindOrData(parsed, printed)) {
+    if (!MatchToken(parsed, printed)) {
       if (clang::tok::isAnyIdentifier(parsed_kind)) {
         ++parsed;
         ++num_skips;
@@ -1006,11 +923,11 @@ bool Matcher::MergeForward(TokenImpl *parsed, PrintedTokenImpl *printed,
   return merged;
 }
 
-bool Matcher::MergeBackward(TokenImpl *parsed, PrintedTokenImpl *printed,
+bool Matcher::MergeBackward(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
                             bool &changed) {
   auto num_skips = 0u;
   auto merged = false;
-  const auto first_printed = &(range.tokens.front());
+  const auto first_printed = &(printed_range.tokens.front());
   while (parsed >= first_parsed && printed >= first_printed &&
          num_skips <= 16u) {
     if (!TokenCanBeAssignedContext(parsed)) {
@@ -1025,7 +942,7 @@ bool Matcher::MergeBackward(TokenImpl *parsed, PrintedTokenImpl *printed,
       continue;
     }
 
-    if (!MatchTokenByKindOrData(parsed, printed)) {
+    if (!MatchToken(parsed, printed)) {
       break;
     }
 
@@ -1048,16 +965,26 @@ bool Matcher::MergeBackward(TokenImpl *parsed, PrintedTokenImpl *printed,
   return merged;
 }
 
-bool Matcher::MatchToken(TokenImpl *parsed, PrintedTokenImpl *printed) {
+bool Matcher::MatchToken(PrintedTokenImpl *parsed, PrintedTokenImpl *printed) {
   if (TokenLocationsMatch(parsed, printed)) {
     return true;
 
+  } else if (MatchTokenByKindOrData(parsed, printed)) {
+    return true;
+  
+  // The previous matches, the next matches, so assume this one matches too!
+  } else if (first_parsed < parsed && parsed < last_parsed &&
+             first_printed < printed && printed < last_printed &&
+             TokenLocationsMatch(&(parsed[-1]), &(printed[-1])) &&
+             TokenLocationsMatch(&(parsed[1]), &(printed[1]))) {
+    return true;
+  
   } else {
-    return MatchTokenByKindOrData(parsed, printed);
+    return false;
   }
 }
 
-bool Matcher::MatchTokenByKindOrData(TokenImpl *parsed,
+bool Matcher::MatchTokenByKindOrData(PrintedTokenImpl *parsed,
                                      PrintedTokenImpl *printed) {
   const auto parsed_kind = parsed->Kind();
   const auto kinds_equal = parsed_kind == printed->Kind();
@@ -1081,8 +1008,6 @@ bool Matcher::MatchBalanced(BalancedRegion *parsed, BalancedRegion *printed,
                             bool &changed) {
   if (parsed->matched_with == printed) {
     return true;
-  } else if (parsed->matched_with) {
-    return false;
   }
 
   if (parsed->begin->Kind() != printed->begin->Kind()) {
@@ -1100,30 +1025,28 @@ bool Matcher::MatchBalanced(BalancedRegion *parsed, BalancedRegion *printed,
     return false;
   }
 
-  assert(parsed->begin->Kind() == printed->begin->Kind());
   assert(parsed->end->Kind() == printed->end->Kind());
 
-  auto printed_begin = reinterpret_cast<PrintedTokenImpl *>(printed->begin);
+  auto printed_begin = printed->begin;
   auto begin_loc_matches = TokenLocationsMatch(parsed->begin, printed_begin);
-  if (TokenHasLocationAndContext(printed_begin) && !begin_loc_matches) {
+  auto has_begin_loc = TokenHasLocationAndContext(printed_begin);
+  if (has_begin_loc && !begin_loc_matches) {
     return false;
   }
 
-  auto printed_end = reinterpret_cast<PrintedTokenImpl *>(printed->end);
+  auto printed_end = printed->end;
   auto end_loc_matches = TokenLocationsMatch(parsed->end, printed_end);
-  if (TokenHasLocationAndContext(printed_end) && !end_loc_matches) {
+  auto has_end_loc = TokenHasLocationAndContext(printed_end);
+  if (has_end_loc && !end_loc_matches) {
     return false;
   }
 
   // Look just before and just after the opening and/or closing tokens to
   // see if we can match on those.
   if (!begin_loc_matches && !end_loc_matches) {
-    const auto first_parsed_tok = this->first_parsed;
-    const auto first_printed_tok = &(range.tokens.front());
 
     // Look one before.
-    if (parsed->begin > first_parsed_tok &&
-        printed_begin > first_printed_tok) {
+    if (parsed->begin > first_parsed && printed_begin > first_printed) {
       auto before_parsed = &(parsed->begin[-1]);
       auto before_printed = &(printed_begin[-1]);
       if (TokenLocationsMatch(before_parsed, before_printed)) {
@@ -1132,16 +1055,29 @@ bool Matcher::MatchBalanced(BalancedRegion *parsed, BalancedRegion *printed,
     }
 
     // Look one beyond.
-    const auto last_parsed_tok = this->last_parsed;
-    const auto last_printed_tok = &(range.tokens.back());
-    if (parsed->end < last_parsed_tok &&
-        printed_end < last_printed_tok) {
+    if (parsed->end < last_parsed && printed_end < last_printed) {
       auto after_parsed = &(parsed->end[1]);
       auto after_printed = &(printed_end[1]);
       if (TokenLocationsMatch(after_parsed, after_printed)) {
         end_loc_matches = true;
       }
     }
+  }
+
+  // Force match the parens/brackets/braces. Here we're targeting the attribute
+  // case, where we might have multiple attributes syntax blocks printed, but
+  // only one attribute syntax block in the parsed code.
+  if (has_begin_loc && begin_loc_matches && !has_end_loc) {
+    MergeToken(parsed->end, printed->end, changed, true  /* force */);
+    end_loc_matches = true;
+
+  } else if (has_end_loc && end_loc_matches && !has_begin_loc) {
+    MergeToken(parsed->begin, printed->begin, changed, true  /* force */);
+    begin_loc_matches = true;
+  }
+
+  if (parsed->matched_with) {
+    return false;
   }
 
   auto did_recurse = false;
@@ -1339,23 +1275,23 @@ bool Matcher::MatchStatement(StatementRegion *parsed, StatementRegion *printed,
       reinterpret_cast<PrintedTokenImpl *>(printed->begin);
   auto printed_end = reinterpret_cast<PrintedTokenImpl *>(printed->end);
 
-  std::unordered_map<uint64_t, std::vector<TokenImpl *>> parsed_toks;
+  std::unordered_map<uint64_t, std::vector<PrintedTokenImpl *>> parsed_toks;
   std::unordered_map<uint64_t, std::vector<PrintedTokenImpl *>> printed_toks;
 
   // Do some join-based hashing, then try to match tokens with the same hash.
   // This can have really bad time complexity when the two statements contain
   // tons of literal/punctuation values, which happens with giant arrays.
 
-  for (TokenImpl *it = parsed_begin; it <= parsed_end; ++it) {
+  for (PrintedTokenImpl *it = parsed_begin; it <= parsed_end; ++it) {
     if (TokenCanBeAssignedContext(it) &&
         it->context_index == kInvalidTokenContextIndex) {
-      parsed_toks[Hash(it->Kind(), it->Data(ast))].emplace_back(it);
+      parsed_toks[Hash(it->Kind(), it->Data(parsed_range))].emplace_back(it);
     }
   }
 
   for (PrintedTokenImpl *it = printed_begin; it <= printed_end; ++it) {
     if (TokenCanBeAssignedContext(it) && !it->matched_in_align) {
-      printed_toks[Hash(it->Kind(), it->Data(range))].emplace_back(it);
+      printed_toks[Hash(it->Kind(), it->Data(printed_range))].emplace_back(it);
     }
   }
 
@@ -1371,7 +1307,7 @@ bool Matcher::MatchStatement(StatementRegion *parsed, StatementRegion *printed,
     size_t start = 0u;
     const size_t size = matching_printed.size();
 
-    for (TokenImpl *&parsed_tok : parsed_tok_group) {
+    for (PrintedTokenImpl *&parsed_tok : parsed_tok_group) {
       for (auto i = start; i < size; ++i) {
         PrintedTokenImpl *&printed_tok = matching_printed[i];
 
@@ -1512,7 +1448,7 @@ void Matcher::FixContexts(
 
     const TokenContextImpl *prev = nullptr;
     if (stmt->common_context.has_value()) {
-      prev = &(range.contexts[stmt->common_context.value()]);
+      prev = &(printed_range.contexts[stmt->common_context.value()]);
     }
 
     // Try to find the common ancestor of everything in this statement.
@@ -1520,11 +1456,11 @@ void Matcher::FixContexts(
       for (auto tok = stmt->begin; tok <= stmt->end; ++tok) {
         if (TokenHasLocationAndContext(tok)) {
           assert(TokenCanBeAssignedContext(tok));
-          const TokenContextImpl *curr = &(range.contexts[tok->context_index]);
+          const TokenContextImpl *curr = &(printed_range.contexts[tok->context_index]);
           if (!prev) {
             prev = curr;
           } else {
-            prev = TokenContextImpl::CommonAncestor(prev, curr, range.contexts);
+            prev = TokenContextImpl::CommonAncestor(prev, curr, printed_range.contexts);
           }
         }
       }
@@ -1533,15 +1469,15 @@ void Matcher::FixContexts(
     // If we've got a common ancestor, then push its index, and double check
     // it against our parent. Otherwise, push our parent.
     if (prev) {
-      auto index = static_cast<TokenContextIndex>(prev - range.contexts.data());
-      assert(index < range.contexts.size());
+      auto index = static_cast<TokenContextIndex>(prev - printed_range.contexts.data());
+      assert(index < printed_range.contexts.size());
 
       stmt->common_context.emplace(index);
 
       if (prev_context != kInvalidTokenContextIndex) {
-        auto parent = &(range.contexts[prev_context]);
+        auto parent = &(printed_range.contexts[prev_context]);
         auto ancestor = TokenContextImpl::CommonAncestor(
-            prev, parent, range.contexts);
+            prev, parent, printed_range.contexts);
         if (!ancestor || ancestor->depth < parent->depth) {
           index = prev_context;  // Fixup.
         }
@@ -1565,29 +1501,29 @@ void Matcher::FixContexts(
     // Try to find the common ancestor of everything in this sequence.
     const TokenContextImpl *prev = nullptr;
     if (seq->common_context.has_value()) {
-      prev = &(range.contexts[seq->common_context.value()]);
+      prev = &(printed_range.contexts[seq->common_context.value()]);
     }
 
     if (!prev) {
       for (Region *region : seq->regions) {
-        if (TokenImpl *tok = region->FirstParsedToken()) {
+        if (PrintedTokenImpl *tok = region->FirstParsedToken()) {
           assert(TokenHasLocationAndContext(tok));
           assert(TokenCanBeAssignedContext(tok));
-          const TokenContextImpl *curr = &(range.contexts[tok->context_index]);
+          const TokenContextImpl *curr = &(printed_range.contexts[tok->context_index]);
           if (!prev) {
             prev = curr;
           } else {
-            prev = TokenContextImpl::CommonAncestor(prev, curr, range.contexts);
+            prev = TokenContextImpl::CommonAncestor(prev, curr, printed_range.contexts);
           }
         }
-        if (TokenImpl *tok = region->LastParsedToken()) {
+        if (PrintedTokenImpl *tok = region->LastParsedToken()) {
           assert(TokenHasLocationAndContext(tok));
           assert(TokenCanBeAssignedContext(tok));
-          const TokenContextImpl *curr = &(range.contexts[tok->context_index]);
+          const TokenContextImpl *curr = &(printed_range.contexts[tok->context_index]);
           if (!prev) {
             prev = curr;
           } else {
-            prev = TokenContextImpl::CommonAncestor(prev, curr, range.contexts);
+            prev = TokenContextImpl::CommonAncestor(prev, curr, printed_range.contexts);
           }
         }
       }
@@ -1596,15 +1532,15 @@ void Matcher::FixContexts(
     // If we've got a common ancestor, then push its index, and double check
     // it against our parent. Otherwise, push our parent.
     if (prev) {
-      auto index = static_cast<TokenContextIndex>(prev - range.contexts.data());
-      assert(index < range.contexts.size());
+      auto index = static_cast<TokenContextIndex>(prev - printed_range.contexts.data());
+      assert(index < printed_range.contexts.size());
 
       seq->common_context.emplace(index);
 
       if (prev_context != kInvalidTokenContextIndex) {
-        auto parent = &(range.contexts[prev_context]);
+        auto parent = &(printed_range.contexts[prev_context]);
         auto ancestor = TokenContextImpl::CommonAncestor(
-            prev, parent, range.contexts);
+            prev, parent, printed_range.contexts);
         if (!ancestor || ancestor->depth < parent->depth) {
           index = prev_context;  // Fixup.
         }
@@ -1617,7 +1553,7 @@ void Matcher::FixContexts(
     }
 
     // Fix the contexts of any tokens inside of this sequence.
-    for (auto region : seq->regions) {
+    for (Region *region : seq->regions) {
       FixContexts(region, stack);
     }
   }
@@ -1629,114 +1565,35 @@ static bool HasNotBeenMatched(Region *r) {
   return !r->matched_with;
 }
 
-// Recursively migrate token contexts.
-static TokenContextIndex MigrateContexts(
-    TokenContextIndex id,
-    const std::vector<TokenContextImpl> &from_contexts,
-    std::vector<TokenContextImpl> &to_contexts,
-    std::unordered_multimap<const void *, TokenContextIndex> &data_to_context,
-    std::vector<TokenContextIndex> &context_map) {
-
-  if (id == kInvalidTokenContextIndex || !id) {
-    return 0u;  // Return the index of the AST node.
-  }
-
-  assert(id < from_contexts.size());
-  const TokenContextImpl *from_c = &(from_contexts[id]);
-  TokenContextIndex &ret_id = context_map[id];
-  if (ret_id) {
-#ifndef NDEBUG
-    TokenContextImpl *to_c = &(to_contexts[ret_id]);
-    assert(to_c->kind == from_c->kind);
-    assert(to_c->depth == from_c->depth);
-    assert(to_c->data == from_c->data || to_c->kind == TokenContextKind::kAlias);
-#endif
-    return ret_id;
-  }
-
-  TokenContextIndex parent_id = MigrateContexts(
-      from_c->parent_index, from_contexts, to_contexts, data_to_context,
-      context_map);
-
-  if (from_c->kind == TokenContextKind::kAlias) {
-    TokenContextIndex aliasee_id = MigrateContexts(
-        static_cast<TokenContextIndex>(reinterpret_cast<uintptr_t>(from_c->data)),
-        from_contexts, to_contexts, data_to_context, context_map);
-
-    ret_id = static_cast<TokenContextIndex>(to_contexts.size());
-    (void) to_contexts.emplace_back(parent_id, from_c->depth - 1u, aliasee_id);
-
-  } else {
-
-    // Search for the matching one.
-    for (auto [it, end] = data_to_context.equal_range(from_c->data);
-         it != end; ++it) {
-      TokenContextIndex maybe_id = it->second;
-      if (maybe_id == kInvalidTokenContextIndex ||
-          maybe_id >= to_contexts.size()) {
-        assert(maybe_id < to_contexts.size());
-        continue;
-      }
-
-      TokenContextImpl *to_c = &(to_contexts[maybe_id]);
-      if (to_c->data == from_c->data && to_c->parent_index == parent_id &&
-          to_c->depth == from_c->depth && to_c->kind == from_c->kind) {
-        ret_id = maybe_id;
-        assert(ret_id != 0u);
-        return maybe_id;
-      }
-    }
-
-    // Didn't find it.
-    ret_id = static_cast<TokenContextIndex>(to_contexts.size());
-    (void) to_contexts.emplace_back(from_c->data, parent_id, from_c->depth,
-                                    from_c->kind);
-    data_to_context.emplace(from_c->data, ret_id);
-  }
-
-  assert(ret_id != 0u);
-  return ret_id;
-}
-
 }  // namespace
 
-Result<std::monostate, std::string> ASTImpl::AlignTokens(
-      const std::shared_ptr<ASTImpl> &ast_,
-      TokenImpl *parsed_begin, TokenImpl *parsed_end,
-      PrintedTokenRangeImpl &range,
-      TokenContextIndex decl_context_id) {
+std::optional<std::string> PrintedTokenRangeImpl::AlignTokens(
+    PrintedTokenRangeImpl &printed_range,
+    TokenContextIndex decl_context_id) {
 
-  ASTImpl * const ast = ast_.get();
-  auto printed_begin = reinterpret_cast<PrintedTokenImpl *>(range.tokens.data());
-  auto printed_end = &(printed_begin[range.tokens.size()]);
+  PrintedTokenImpl *parsed_begin = tokens.data();
+  PrintedTokenImpl *parsed_end = &(parsed_begin[tokens.size() - 1u]);  // EOF
+
+  PrintedTokenImpl *printed_begin = printed_range.tokens.data();
+  PrintedTokenImpl *printed_end =
+      &(printed_begin[printed_range.tokens.size() - 1u]);  // EOF
+
   assert(parsed_begin < parsed_end);
   assert(printed_begin < printed_end);
-  assert(parsed_end <= &(ast->tokens.back()));
 
   std::stringstream err;
   std::vector<std::unique_ptr<Region>> parsed_regions;
   std::vector<std::unique_ptr<Region>> printed_regions;
 
-  Matcher matcher(*ast, range, parsed_begin, parsed_end);
+  Matcher matcher(*ast, *this, printed_range, parsed_begin, parsed_end,
+                  printed_begin, printed_end);
 
-  std::unordered_map<OpaqueSourceLoc, TokenImpl *> loc_to_toks;
+  std::unordered_map<OpaqueSourceLoc, PrintedTokenImpl *> loc_to_toks;
   for (auto tok = parsed_begin; tok < parsed_end; ++tok) {
     if (TokenCanBeAssignedContext(tok)) {
       loc_to_toks.emplace(tok->opaque_source_loc, tok);
     }
   }
-
-//  std::cerr << "\n\n----------------------------------------- "
-//            << ast->TokenAt(parsed_begin).Index() << ' '
-//            << ast->TokenAt(&(parsed_end[-1])).Index() << "\n";
-//  auto sep = "";
-//  for (auto t = parsed_begin; t < parsed_end; ++t) {
-//    if (TokenCanBeAssignedContext(t)) {
-//      std::cerr << sep << t->Data(*ast);
-//      sep = " ";
-//    }
-//  }
-//  std::cerr << '\n';
 
   // Join on the shared source locations, and linearly "spread"
   // outward from there. This should generally cover a bunch.
@@ -1753,7 +1610,7 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
       continue;
     }
 
-    TokenImpl *parsed = loc_it->second;
+    PrintedTokenImpl *parsed = loc_it->second;
     if (!parsed || TokenHasLocationAndContext(parsed)) {
       continue;
     }
@@ -1766,57 +1623,20 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
     }
   }
 
-  auto parsed_tree = matcher.BuildRegions(
-      parsed_regions, err, reinterpret_cast<uint8_t *>(parsed_begin),
-      reinterpret_cast<uint8_t *>(parsed_end), sizeof(*parsed_begin),
-      "parsed");
+  SequenceRegion *parsed_tree = matcher.BuildRegions(
+      parsed_regions, err, parsed_begin, parsed_end, "parsed");
   if (!parsed_tree) {
-//    for (auto tok = parsed_begin; tok < parsed_end; ++tok) {
-//      std::cerr
-//          << clang::tok::getTokenName(tok->Kind())
-//          << '\t' << tok->Data(*ast) << '\n';
-//    }
     return err.str();
   }
 
   auto printed_tree = matcher.BuildRegions(
-      printed_regions, err, reinterpret_cast<uint8_t *>(printed_begin),
-      reinterpret_cast<uint8_t *>(printed_end), sizeof(*printed_begin),
-      "printed");
+      printed_regions, err, printed_begin, printed_end, "printed");
   if (!printed_tree) {
-
-//    std::ofstream parsed_os("/tmp/tree.parsed");
-//    parsed_tree->Print(parsed_os, "", *ast, range);
-//
-//    std::ofstream printed_os("/tmp/tree.printed");
-//    for (auto t = printed_begin; t < printed_end; ++t) {
-//      printed_os << t->Data(range);
-////      if (t->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
-////        printed_os << " l:" << std::hex << t->opaque_source_loc << std::dec;
-////      }
-////      if (t->context_index != kInvalidTokenContextIndex) {
-////        printed_os << " c:" << std::hex << t->context_index << std::dec;
-////      }
-//
-////      if ((t - printed_begin) == 18025) {
-////        printed_os << "  /* HERE */";
-////      }
-//
-//      printed_os << '\n';
-//    }
-//
-//    parsed_os.flush();
-//    printed_os.flush();
-//    assert(false);
-//
-////    std::ofstream printed_os("/tmp/tree.printed");
-////    printed_tree->Print(printed_os, "", range);
-
     return err.str();
   }
 
   // Initialize the printed regions with the contexts.
-  (void) printed_tree->CommonContext(range, decl_context_id);
+  (void) printed_tree->CommonContext(printed_range, decl_context_id);
 
   // Assign the predecessor sequences of balanced regions. These can be helpful
   // for matching.
@@ -1844,12 +1664,33 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
   std::vector<BalancedRegion *> printed_balanced;
   std::vector<StatementRegion *> printed_statements;
 
+  std::unordered_multimap<OpaqueSourceLoc, BalancedRegion *>
+      printed_loc_to_balanced;
+  std::unordered_multimap<OpaqueSourceLoc, StatementRegion *>
+      printed_end_loc_to_statement;
+
   for (const auto &region_ref : parsed_regions) {
     const auto region = region_ref.get();
     if (auto balanced = dynamic_cast<BalancedRegion *>(region)) {
       parsed_balanced.push_back(balanced);
+
+      auto loc = balanced->begin->opaque_source_loc;
+      if (loc != TokenImpl::kInvalidSourceLocation) {
+        printed_loc_to_balanced.emplace(loc, balanced);
+      }
+
+      loc = balanced->end->opaque_source_loc;
+      if (loc != TokenImpl::kInvalidSourceLocation) {
+        printed_loc_to_balanced.emplace(loc, balanced);
+      }
+
     } else if (auto statement = dynamic_cast<StatementRegion *>(region)) {
       parsed_statements.push_back(statement);
+
+      auto loc = statement->end->opaque_source_loc;
+      if (loc != TokenImpl::kInvalidSourceLocation) {
+        printed_end_loc_to_statement.emplace(loc, statement);
+      }
     }
   }
 
@@ -1862,19 +1703,11 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
     }
   }
 
-  std::unordered_multimap<OpaqueSourceLoc, BalancedRegion *>
-      printed_loc_to_balanced;
-  std::unordered_multimap<OpaqueSourceLoc, StatementRegion *>
-      printed_end_loc_to_statement;
-
   // Join on the shared source locations of balanced and statement regions.
   // This only joins unmatched ones. We generally have decent-ish ability in
   // the token printer (due to clang source locations) to find things like the
   // location of a `}` or a `{`, or a `;`.
   auto join_based_region_merge = [&] (bool &changed) {
-    printed_loc_to_balanced.clear();
-    printed_end_loc_to_statement.clear();
-
     {
       auto it = std::partition(parsed_balanced.begin(), parsed_balanced.end(),
                                HasNotBeenMatched);
@@ -1898,26 +1731,14 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
 
 #if PASTA_DEBUG_ALIGN
     std::cerr
-        << "parsed_balanced="<<parsed_balanced.size()
-        << " printed_balanced="<<printed_balanced.size()
-        << " parsed_statements="<<parsed_statements.size()
-        << " printed_statements="<<printed_statements.size()
+        << "parsed_balanced=" << parsed_balanced.size()
+        << " printed_balanced=" << printed_balanced.size()
+        << " parsed_statements=" << parsed_statements.size()
+        << " printed_statements=" << printed_statements.size()
         <<'\n';
 #endif
 
-    for (auto region : parsed_balanced) {
-      auto loc = region->begin->opaque_source_loc;
-      if (loc != TokenImpl::kInvalidSourceLocation) {
-        printed_loc_to_balanced.emplace(loc, region);
-      }
-
-      loc = region->end->opaque_source_loc;
-      if (loc != TokenImpl::kInvalidSourceLocation) {
-        printed_loc_to_balanced.emplace(loc, region);
-      }
-    }
-
-    for (auto region : printed_balanced) {
+    for (BalancedRegion *region : printed_balanced) {
       if (const auto begin_loc = region->begin->opaque_source_loc;
           begin_loc != TokenImpl::kInvalidSourceLocation) {
 
@@ -1937,14 +1758,7 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
       }
     }
 
-    for (auto region : parsed_statements) {
-      auto loc = region->end->opaque_source_loc;
-      if (loc != TokenImpl::kInvalidSourceLocation) {
-        printed_end_loc_to_statement.emplace(loc, region);
-      }
-    }
-
-    for (auto region : printed_statements) {
+    for (StatementRegion *region : printed_statements) {
       if (const auto end_loc = region->end->opaque_source_loc;
           end_loc != TokenImpl::kInvalidSourceLocation) {
 
@@ -1964,64 +1778,10 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
 
   join_based_region_merge(changed);
 
-#if PASTA_DEBUG_ALIGN
-  std::ofstream parsed_os("/tmp/tree.parsed", std::ios_base::trunc | std::ios_base::out);
-  parsed_tree->Print(parsed_os, "", *ast, range);
-
-  std::ofstream printed_os("/tmp/tree.printed", std::ios_base::trunc | std::ios_base::out);
-  printed_tree->Print(printed_os, "", range);
-
-  parsed_os.flush();
-  printed_os.flush();
-//    assert(false);
-//
-//  if (log) {
-//    auto t = &(parsed_end[-1]);
-//    for (auto c = t->Context(ast->contexts); c; c = c->Parent(ast->contexts)) {
-//      auto c_id = static_cast<uint64_t>(c - &(ast->contexts[0]));
-//      std::cerr << std::hex << c_id << std::dec << '\t' << c->KindName(ast->contexts) << ' ';
-//      if (c->kind == TokenContextKind::kDecl) {
-//        std::cerr << reinterpret_cast<const clang::Decl *>(c->data)->getDeclKindName();
-//      }
-//      std::cerr << '\n';
-//    }
-//
-//    assert(false);
-//  }
-
-#endif   // PASTA_DEBUG_ALIGN
-
   // Try to see if we can make matching progress right from the beginning. This
   // can help with leading tokens, e.g. `extern`.
   matcher.MergeForward(parsed_begin, printed_begin, changed);
   matcher.MergeBackward(&(parsed_end[-1]), &(printed_end[-1]), changed);
-
-#if PASTA_DEBUG_ALIGN
-  auto i = 0u;
-  for (PrintedTokenImpl *tok = printed_begin; tok < printed_end; ++tok) {
-    std::cerr
-        << (i++) << '\t'
-        << '\t' << std::hex << tok->opaque_source_loc << std::dec
-        << '\t' << std::hex << tok->context_index << std::dec
-        << '\t' << clang::tok::getTokenName(tok->Kind())
-        << '\t' << tok->Data(range) << '\n';
-  }
-  std::cerr << "---------------------------------\n";
-  i = 0u;
-  for (TokenImpl *tok = parsed_begin; tok < parsed_end; ++tok) {
-    if (!TokenCanBeAssignedContext(tok)) {
-      ++i;
-      continue;
-    }
-    std::cerr
-        << (i++) << '\t'
-        << '\t' << std::hex << tok->opaque_source_loc << std::dec
-        << '\t' << std::hex << tok->context_index << std::dec
-        << '\t' << clang::tok::getTokenName(tok->Kind())
-        << '\t' << tok->Data(*ast) << '\n';
-  }
-
-#endif
 
   for (size_t i = 0u; i < max_iters; ++i) {
     changed = false;
@@ -2039,368 +1799,213 @@ Result<std::monostate, std::string> ASTImpl::AlignTokens(
     }
   }
 
+  // Look for `<matched> <unmatched hole...> <matched>` where the two matched
+  // tokens are separated by a N-token-sized hole.
+  for (auto tok = printed_begin; tok < printed_end; ++tok) {
+    if (tok->opaque_source_loc == TokenImpl::kInvalidSourceLocation) {
+      continue;
+    }
+
+    // Also fix up the derived index of the token.
+    if (tok->derived_index == kInvalidDerivedTokenIndex) {
+      if (auto parsed_tok = ast->RawTokenAt(tok->Location())) {
+        tok->derived_index = static_cast<DerivedTokenIndex>(
+            parsed_tok - ast->tokens.data());
+      }
+    }
+
+    // Find the end of the hole.
+    auto end_of_hole = &(tok[1]);
+    for (; end_of_hole < printed_end; ++end_of_hole) {
+      if (end_of_hole->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
+        break;
+      }
+    }
+
+    // There is no hole.
+    if (end_of_hole == &(tok[1])) {
+      continue;
+    }
+
+    // Convert our printed token hole bounds into parsed token hole bounds.
+    auto parsed_it = loc_to_toks.find(tok->opaque_source_loc);
+    auto parsed_end_it = loc_to_toks.find(end_of_hole->opaque_source_loc);
+    if (parsed_it == loc_to_toks.end() || parsed_end_it == loc_to_toks.end()) {
+      continue;
+    }
+
+    auto first_parsed_tok = parsed_it->second;
+    auto last_parsed_tok = parsed_end_it->second;
+
+    // Make sure our hole sized match.
+    if (first_parsed_tok >= last_parsed_tok ||
+        (last_parsed_tok - first_parsed_tok) != (end_of_hole - tok)) {
+      continue;
+    }
+
+    // Force merge on the hole.
+    bool changed = false;
+    for (auto hole_tok = tok; hole_tok < end_of_hole; ) {
+      ++first_parsed_tok;
+      ++hole_tok;
+      MergeToken(first_parsed_tok, hole_tok, changed, true  /* force */);
+    }
+
+    assert(changed);
+    (void) changed;
+  }
+
   std::vector<TokenContextIndex> context_stack;
   context_stack.push_back(decl_context_id);
   matcher.FixContexts(parsed_tree, context_stack);
 
-//  for (const auto &parsed_region : parsed_regions) {
-//    auto balanced = dynamic_cast<BalancedRegion *>(parsed_region.get());
-//    if (!balanced) {
-//      continue;
-//    }
-//
-//  }
-  return std::monostate{};
+#if PASTA_DEBUG_ALIGN
+
+  // NOTE(pag): Contexts of `parsed_tree` are still from `printed_range`.
+
+  std::ofstream parsed_os("/tmp/tree.parsed", std::ios_base::trunc | std::ios_base::out);
+  parsed_tree->Print(parsed_os, "", *this, printed_range);
+
+  std::ofstream printed_os("/tmp/tree.printed", std::ios_base::trunc | std::ios_base::out);
+  printed_tree->Print(printed_os, "", printed_range, printed_range);
+
+  parsed_os.flush();
+  printed_os.flush();
+
+  auto i = 0u;
+  for (PrintedTokenImpl *tok = printed_begin; tok < printed_end; ++tok) {
+    std::cerr
+        << (i++) << '\t'
+        << '\t' << std::hex << tok->opaque_source_loc << std::dec
+        << '\t' << std::hex << tok->context_index << std::dec
+        << '\t' << clang::tok::getTokenName(tok->Kind())
+        << '\t' << tok->Data(printed_range) << '\n';
+  }
+  std::cerr << "---------------------------------\n";
+  i = 0u;
+  for (PrintedTokenImpl *tok = parsed_begin; tok < parsed_end; ++tok) {
+    if (!TokenCanBeAssignedContext(tok)) {
+      ++i;
+      continue;
+    }
+    std::cerr
+        << (i++) << '\t'
+        << '\t' << std::hex << tok->opaque_source_loc << std::dec
+        << '\t' << std::hex << tok->context_index << std::dec
+        << '\t' << clang::tok::getTokenName(tok->Kind())
+        << '\t' << tok->Data(*this) << '\n';
+  }
+
+#endif
+  return std::nullopt;
 }
 
-// Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
-Result<AST, std::string> ASTImpl::AlignTokens(std::shared_ptr<ASTImpl> ast) {
-  std::vector<clang::Decl *> work_list;
-  std::vector<clang::Decl *> tlds;
-  std::unordered_set<const clang::Decl *> ignore_decls;
+namespace {
 
-  assert(ast->contexts.empty());
+static const std::string kEmptyParsed = "Parsed token range is empty";
+static const std::string kEmptyPrinted = "Printed token range is empty";
+static const std::string kMismatchedASTs = "Backing ASTs of parsed and printed token ranges don't match";
+static const std::string kMissingASTs = "No backing AST";
+}  // namespace
 
-  ast->contexts.reserve(ast->tokens.size() * 32u);
-  assert(static_cast<uint32_t>(ast->contexts.capacity()) ==
-         ast->contexts.capacity());
-
-  // Add a dummy context at the beginning. This is nifty so that we can use a
-  // vector as a `context_map` below instead of an map.
-  //
-  // This is pretty sketchy, but place a raw reference back to the AST at the
-  // beginning of the contexts list. Because `ASTImpl` extends
-  // `std::enable_shared_from_this`, and because references to this vector in
-  // token contexts alias the lifetime of the `ASTImpl`, we can safely go and
-  // find the AST given any token context.
-  (void) ast->contexts.emplace_back(*ast);
-
-  work_list.push_back(ast->tu);
-  while (!work_list.empty()) {
-    clang::Decl * const decl = work_list.back();
-    work_list.pop_back();
-    switch (decl->getKind()) {
-      case clang::Decl::TranslationUnit:
-      case clang::Decl::LinkageSpec:
-      case clang::Decl::ExternCContext:
-      case clang::Decl::Namespace:
-        for (auto sub_decl : clang::Decl::castToDeclContext(decl)->decls()) {
-          work_list.push_back(sub_decl);
-        }
-        break;
-
-//      // If it's something like `extern "C" int foo;` then we want to treat it
-//      // as top-level, otherwise, it's more like `extern "C" { ... }` and so we
-//      // want to find the top-level decls in the `...`.
-//      case clang::Decl::LinkageSpec:
-//        if (auto lsp = llvm::dyn_cast<clang::LinkageSpecDecl>(decl);
-//            !lsp->hasBraces() && !lsp->isImplicit()) {
-//
-//          // Compute bounds of top-level decls. This will fill out
-//          // `ast->lexically_containing_decl`.
-//          (void) ast->DeclBounds(decl);
-//          tlds.push_back(decl);
-//
-//        } else {
-//          for (auto sub_decl : clang::Decl::castToDeclContext(decl)->decls()) {
-//            work_list.push_back(sub_decl);
-//          }
-//        }
-//        break;
-
-      default:
-        if (auto ftpl = clang::dyn_cast<clang::FunctionTemplateDecl>(decl)) {
-          for (clang::Decl *spec : ftpl->specializations()) {
-            ignore_decls.insert(Canonicalize(spec));
-          }
-
-        } else if (auto ctpl = clang::dyn_cast<clang::ClassTemplateDecl>(decl)) {
-          for (clang::Decl *spec : ctpl->specializations()) {
-            ignore_decls.insert(Canonicalize(spec));
-          }
-
-        } else if (auto vtpl = clang::dyn_cast<clang::VarTemplateDecl>(decl)) {
-          for (clang::Decl *spec : vtpl->specializations()) {
-            ignore_decls.insert(Canonicalize(spec));
-          }
-        }
-
-        if (!decl->isImplicit()) {
-          // Compute bounds of top-level decls. This will fill out
-          // `ast->lexically_containing_decl`.
-          (void) ast->DeclBounds(decl);
-          tlds.push_back(decl);
-        }
-        break;
-    }
+// Create a new printed token range, where the token data is taken from `a`
+// but the token contexts are taken from `b`. This provides a mechanism of
+// relating parsed tokens back to AST nodes.
+Result<PrintedTokenRange, std::string>
+PrintedTokenRange::Align(const PrintedTokenRange &a,
+                         const PrintedTokenRange &b,
+                         bool maintain_provenance) {
+  if (!a) {
+    return kEmptyParsed;
   }
 
-  // File explicit, user-written explicit template specializations, and ignore
-  // all other specializations.
-  auto should_keep = [&ignore_decls] (clang::Decl *decl) {
-    auto tsk = clang::TSK_Undeclared;
-    bool has_spec_or_partial = false;
-    if (auto cspec = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(decl);
-        cspec && !clang::isa<clang::ClassTemplatePartialSpecializationDecl>(cspec)) {
-      tsk = cspec->getSpecializationKind();
-      has_spec_or_partial = !cspec->getSpecializedTemplateOrPartial().isNull();
+  if (!b) {
+    return kEmptyPrinted;
+  }
 
-    } else if (auto vspec = clang::dyn_cast<clang::VarTemplateSpecializationDecl>(decl);
-               vspec && !clang::isa<clang::VarTemplatePartialSpecializationDecl>(vspec)) {
-      tsk = vspec->getSpecializationKind();
-      has_spec_or_partial = !vspec->getSpecializedTemplateOrPartial().isNull();
+  if (a.impl->ast.get() != b.impl->ast.get()) {
+    return kMismatchedASTs;
+  }
 
-    } else if (auto fdecl = clang::dyn_cast<clang::FunctionDecl>(decl)) {
-      tsk = fdecl->getTemplateSpecializationKind();
+  if (!a.impl->ast) {
+    return kMissingASTs;
+  }
 
-    } else if (auto vdecl = clang::dyn_cast<clang::VarDecl>(decl)) {
-      tsk = vdecl->getTemplateSpecializationKind();
+  if (a.impl == b.impl && maintain_provenance) {
+    return a;
+  }
 
-    } else if (auto ta = clang::dyn_cast<clang::TypeAliasDecl>(decl)) {
-      if (ta->getDescribedAliasTemplate()) {
-        tsk = clang::TSK_ImplicitInstantiation;  // Fake it.
-      }
+  auto new_impl = std::make_shared<PrintedTokenRangeImpl>(
+      a.impl->ast->ci->getASTContext());
+  new_impl->ast = a.impl->ast;
+  new_impl->tokens.reserve(a.impl->tokens.size());
+  new_impl->data = a.impl->data;
 
-    } else {
-      has_spec_or_partial = ignore_decls.count(Canonicalize(decl));
-    }
+  // Copy the tokens of `a`.
+  for (const PrintedTokenImpl *a_tok = a.first; a_tok < a.after_last; ++a_tok) {
+    assert(TokenCanBeAssignedContext(a_tok));
+    PrintedTokenImpl &new_tok = new_impl->tokens.emplace_back(
+        static_cast<TokenDataOffset>(a_tok->data_offset),
+        static_cast<uint32_t>(a_tok->data_len),
+        kInvalidTokenContextIndex,
+        0u  /* num_leading_newlines */,
+        1u  /* num_leading_spaces */,
+        a_tok->Kind());
 
-    return IsExplicitInstantiation(tsk, has_spec_or_partial);
-  };
+    new_tok.opaque_source_loc = a_tok->opaque_source_loc;
+    new_tok.role = a_tok->role;
+    new_tok.derived_index = a_tok->derived_index;
+  }
 
-  // Strip out template specializations.
-  tlds.erase(
-      std::partition(tlds.begin(), tlds.end(), should_keep),
-      tlds.end());
+  new_impl->tokens.emplace_back(
+      0u, 0u, kInvalidTokenContextIndex, 0u, 0u, clang::tok::eof);
 
-  tlds.erase(std::unique(tlds.begin(), tlds.end()), tlds.end());
+  // Top-level context should be the AST.
+  new_impl->contexts.reserve(b.impl->contexts.size());
+  new_impl->contexts.emplace_back(*(new_impl->ast));
 
-  std::stable_sort(
-      tlds.begin(), tlds.end(),
-      [ast = ast.get()] (clang::Decl *a, clang::Decl *b) {
-        auto a_bounds = ast->DeclBounds(a);
-        auto b_bounds = ast->DeclBounds(b);
+  auto error = new_impl->AlignTokens(*(b.impl), kASTTokenContextIndex);
+  if (error) {
+    return error.value();
+  }
 
-        // If `a` starts first, put it first.
-        if (a_bounds.first < b_bounds.first) {
-          return true;
+  // Ignore the EOF token in the range.
+  auto first_tok = new_impl->tokens.data();
+  auto after_last_tok = &(first_tok[new_impl->tokens.size() - 1u]);
 
-        } else if (a_bounds.first > b_bounds.first) {
-          return false;
-
-        // If `b` encloses `a`, sort `b` first.
-        } else if (a_bounds.second < b_bounds.second) {
-          return false;
-
-        // If `a` encloses `b`, then sort `a` first.
-        } else if (a_bounds.second > b_bounds.second) {
-          return true;
-
-        // Keep the relative order from `tlds`.
-        } else {
-          return false;
-        }
-      });
-
-  std::unordered_multimap<const void *, TokenContextIndex> data_to_context;
+  // Migrate the token contexts into the AST. This will migrate only the
+  // contexts that were actually propagated into the parsed tokens, as
+  // opposed to all token contexts.
   std::vector<TokenContextIndex> context_map;
-  std::vector<clang::Decl *> tld_group;
-  std::vector<const clang::Decl *> parentage;
-  std::vector<TokenPrinterContext> context_stack;
-  std::string data;
-  auto &ast_context = ast->tu->getASTContext();
+  std::unordered_multimap<const void *, TokenContextIndex> data_to_context;
+  context_map.assign(b.impl->contexts.size(), kInvalidTokenContextIndex);
+  data_to_context.emplace(new_impl->ast.get(), kASTTokenContextIndex);
 
-  for (auto tld_it = tlds.begin(), tld_end = tlds.end(); tld_it != tld_end; ) {
-    clang::Decl *decl = *tld_it;
-    clang::Decl *&containing_decl = ast->lexically_containing_decl[decl];
-    if (!containing_decl) {
-      containing_decl = decl;
+  for (PrintedTokenImpl *t = first_tok; t < after_last_tok; ++t) {
+    TokenContextIndex new_index = MigrateContexts(
+        t->context_index, b.impl->contexts, new_impl->contexts,
+        data_to_context, context_map);
+
+    if (new_index == kInvalidTokenContextIndex) {
+      assert(false);
+      new_index = kASTTokenContextIndex;
     }
 
-    tld_group.clear();
-    tld_group.push_back(containing_decl);
-    for (; tld_it != tld_end; ++tld_it) {
-      clang::Decl *next_decl = *tld_it;
-      if (containing_decl == ast->lexically_containing_decl[next_decl]) {
-        if (next_decl != containing_decl) {
-          tld_group.push_back(next_decl);
-        }
-      } else {
-        break;
-      }
-    }
+    t->context_index = new_index;
+  }
 
-    assert(1u <= tld_group.size());
-
-    // Go find the parentage of the containing decl. It is the path of lexical
-    // declaration contexts down to the one containing the `containing_decl`
-    // for this TLD group.
-    parentage.clear();
-    context_stack.clear();
-    parentage.push_back(containing_decl);
-    for (auto dc = containing_decl->getLexicalDeclContext(); dc;
-         dc = dc->getLexicalParent()) {
-      if (auto dc_decl = clang::dyn_cast<clang::Decl>(dc)) {
-        parentage.push_back(dc_decl);
-      }
-    }
-
-    // Initialize a new printed token range.
-    data.clear();
-    raw_string_ostream out(data, 0);
-    PrintedTokenRangeImpl range(ast_context);
-    range.ast = ast;
-
-    clang::PrintingPolicy pp = *(ast->printing_policy);
-    DeclPrinter printer(out, pp, ast_context, range);
-
-    // Build up a stack of the parentage for these decls. There should at least
-    // be the translation unit. This mimicks the call stack initialization of
-    // the printers.
-    const auto num_parents = parentage.size();
-    assert(1u <= num_parents);
-    context_stack.reserve(num_parents);
-    for (auto pit = parentage.rbegin(), pend = parentage.rend();
-        pit != pend; ++pit) {
-      const clang::Decl *dc_decl = *pit;
-      (void) context_stack.emplace_back(out, dc_decl, range);
-    }
-
-    // Force our current top of stack to be the canonical version of the
-    // first decl in our decl group.
-    assert(!context_stack.empty());
-    const TokenContextIndex decl_context_id = context_stack.back().context_index;
-    assert(decl_context_id != kInvalidTokenContextIndex);
-    assert(decl_context_id < range.contexts.size());
-
-    for (clang::Decl *tld_decl : tld_group) {
-      printer.Visit(tld_decl);
-    }
-
-    // Unwind the tokenizer contexts (just in case the destructors still have
-    // work to do).
-    while (!context_stack.empty()) {
-      context_stack.pop_back();
-    }
-
-    if (range.tokens.empty()) {
-      continue;
-    }
-
-//      // Figure out the context for the declaration itself.
-//      TokenContextIndex decl_context_id = kInvalidTokenContextIndex;
-//
-//      // Go find the context ID of the primary declaration for our first
-//      // top-level decl in this group.
-//      auto cdecl = Canonicalize(containing_decl);
-//      for (auto [dc_context_it, dc_context_end] = data_to_context.equal_range(cdecl);
-//           dc_context_it != dc_context_end; ++dc_context_it) {
-//        TokenContextIndex cid = dc_context_it->second;
-//        const auto &c = ast->contexts[cid];
-//
-//        // Make sure we find the right instance of this decl, at the right
-//        // depth. It can easily happen that we find a version of this decl
-//        // at a depth related to some internal usage.
-//        if (c.data == cdecl && c.kind == TokenContextKind::kDecl &&
-//            c.depth == (num_parents + 1u)) {
-//          decl_context_id = cid;
-//          break;
-//        }
-//      }
-
-//      if (decl_context_id == kInvalidTokenContextIndex) {
-//        assert(false);
-//        decl_context_id = kTranslationUnitTokenContextIndex;
-//      }
-//
-//      assert(decl_context_id != kInvalidTokenContextIndex);
-
-//
-//    if (auto tdecl = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(containing_decl);
-//        tdecl && tdecl->getNameAsString() == "pair" &&
-//        tdecl->isThisDeclarationADefinition()) {
-//      log = true;
-//    }
-
-    // Figure out the parsed bounds. If we don't have bounds then we are
-    // probably dealing with something like a namespace / linkage spec /
-    // extern C, or an implicit declaration.
-    auto decl_bounds = ast->DeclBounds(decl);
-    if (!decl_bounds.first) {
-      continue;
-    }
-
-//    auto first_tok = &(ast->tokens.front());
-//    auto begin_offset = decl_bounds.first - first_tok;
-//    auto end_offset = decl_bounds.second - first_tok;
-//    auto num = (decl_bounds.second - decl_bounds.first) + 1;
-
-//    pasta::Token ft(ast, ast->RawTokenAt(containing_decl->getLocation()));
-//    if (auto fl = ft.FileLocation()) {
-//      auto f = pasta::File::Containing(*fl);
-//      std::cerr << f.Path().generic_string() << ':' << fl->Line() << ':' << fl->Column() << ": ";
-//    }
-//
-//    std::cerr
-//        << reinterpret_cast<const void *>(containing_decl)
-//        << " [" << begin_offset << ", " << end_offset << "] (size="
-//        << num << ") group=" << tld_group.size() << "\n";
-
-    // Clear out the old token contexts. We'll possibly detect issues here.
-    for (TokenImpl *t = decl_bounds.first; t <= decl_bounds.second; ++t) {
-//      if (t->context_index != kInvalidTokenContextIndex) {
-//        for (auto tt = decl_bounds.first; tt <= decl_bounds.second; ++tt) {
-//          if (tt->Kind() == clang::tok::string_literal) {
-//            std::cerr << "\"str\"";
-//          } else {
-//            std::cerr << tt->Data(*ast);
-//          }
-//          if (tt->context_index != kInvalidTokenContextIndex) {
-//            std::cerr << "  <<<< " << tt->context_index;
-//          }
-//          std::cerr << '\n';
-//        }
-//        assert(false);
-//      }
-      assert(t->context_index == kInvalidTokenContextIndex);
-      t->context_index = kInvalidTokenContextIndex;
-    }
-
-    auto res = AlignTokens(ast, decl_bounds.first, &(decl_bounds.second[1]),
-                           range, decl_context_id);
-    if (!res.Succeeded()) {
-      return res.TakeError();
-    }
-
-    // Migrate the token contexts into the AST. This will migrate only the
-    // contexts that were actually propagated into the parsed tokens, as
-    // opposed to all token contexts.
-    context_map.clear();
-    context_map.resize(range.contexts.size());
-    for (TokenImpl *t = decl_bounds.first; t <= decl_bounds.second; ++t) {
-      t->context_index = MigrateContexts(
-          t->context_index, range.contexts, ast->contexts,
-          data_to_context, context_map);
-      assert(t->context_index != kInvalidTokenContextIndex);
+  if (!maintain_provenance) {
+    for (PrintedTokenImpl *tok = first_tok; tok < after_last_tok; ++tok) {
+      tok->opaque_source_loc = TokenImpl::kInvalidSourceLocation;
+      tok->derived_index = kInvalidDerivedTokenIndex;
     }
   }
 
-  ast->LinkMacroTokenContexts();
+  for (PrintedTokenImpl *tok = first_tok; tok < after_last_tok; ++tok) {
+    tok->matched_in_align = false;
+  }
 
-//  for (auto decl : tlds) {
-//    auto &containing_decl = ast->lexically_containing_decl[decl];
-//    if (!containing_decl) {
-//      containing_decl = decl;
-//    }
-//    if (containing_decl == decl) {
-//      auto res = AlignTokens(ast, decl, data_to_context);
-//      if (!res.Succeeded()) {
-//        return res.Error();
-//      }
-//    }
-//  }
-
-  return AST(std::move(ast));
+  return PrintedTokenRange(std::move(new_impl), first_tok, after_last_tok);
 }
 
 }  // namespace pasta

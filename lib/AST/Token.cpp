@@ -241,7 +241,9 @@ const TokenContextImpl *TokenContextImpl::CommonAncestor(
 // aliasing the same data, the context associated with the second token is
 // returned.
 const TokenContextImpl *TokenContextImpl::CommonAncestor(
-    TokenImpl *a, TokenImpl *b, const std::vector<TokenContextImpl> &contexts) {
+    PrintedTokenImpl *a, PrintedTokenImpl *b,
+    const std::vector<TokenContextImpl> &contexts) {
+
   auto a_index = a->context_index;
   auto b_index = b->context_index;
   if (a_index == kInvalidTokenContextIndex ||
@@ -605,19 +607,6 @@ const TokenContextImpl *TokenImpl::Context(
     return nullptr;
   } else {
     return &(contexts[ci]);
-  }
-}
-
-// Return this token's context, or a null context.
-std::optional<TokenContext> Token::Context(void) const noexcept {
-  if (!impl) {
-    return std::nullopt;
-  } else if (auto context = impl->Context(*ast, ast->contexts)) {
-    std::shared_ptr<const std::vector<TokenContextImpl>> contexts(
-        ast, &(ast->contexts));
-    return TokenContext(context, std::move(contexts));
-  } else {
-    return std::nullopt;
   }
 }
 
@@ -1048,5 +1037,72 @@ bool TryLexRawToken(clang::ASTContext &ast_context,
 }
 
 Token::~Token(void) {}
+
+// Recursively migrate token contexts.
+TokenContextIndex MigrateContexts(
+    TokenContextIndex id,
+    const std::vector<TokenContextImpl> &from_contexts,
+    std::vector<TokenContextImpl> &to_contexts,
+    std::unordered_multimap<const void *, TokenContextIndex> &data_to_context,
+    std::vector<TokenContextIndex> &context_map) {
+
+  if (id == kInvalidTokenContextIndex || id >= context_map.size()) {
+    return kInvalidTokenContextIndex;
+  }
+
+  assert(id < from_contexts.size());
+  const TokenContextImpl *from_c = &(from_contexts[id]);
+  TokenContextIndex &ret_id = context_map[id];
+
+  if (ret_id != kInvalidTokenContextIndex) {
+#ifndef NDEBUG
+    TokenContextImpl *to_c = &(to_contexts[ret_id]);
+    assert(to_c->kind == from_c->kind);
+    assert(to_c->depth == from_c->depth);
+    assert(to_c->data == from_c->data || to_c->kind == TokenContextKind::kAlias);
+#endif
+    return ret_id;
+  }
+
+  TokenContextIndex parent_id = MigrateContexts(
+      from_c->parent_index, from_contexts, to_contexts, data_to_context,
+      context_map);
+
+  if (from_c->kind == TokenContextKind::kAlias) {
+    TokenContextIndex aliasee_id = MigrateContexts(
+        static_cast<TokenContextIndex>(reinterpret_cast<uintptr_t>(from_c->data)),
+        from_contexts, to_contexts, data_to_context, context_map);
+
+    ret_id = static_cast<TokenContextIndex>(to_contexts.size());
+    (void) to_contexts.emplace_back(parent_id, from_c->depth - 1u, aliasee_id);
+
+  } else {
+
+    // Search for the matching one.
+    for (auto [it, end] = data_to_context.equal_range(from_c->data);
+         it != end; ++it) {
+
+      TokenContextIndex maybe_id = it->second;
+      assert(maybe_id != kInvalidTokenContextIndex);
+      assert(maybe_id < to_contexts.size());
+
+      TokenContextImpl *to_c = &(to_contexts[maybe_id]);
+      if (to_c->data == from_c->data && to_c->parent_index == parent_id &&
+          to_c->depth == from_c->depth && to_c->kind == from_c->kind) {
+        ret_id = maybe_id;
+        return maybe_id;
+      }
+    }
+
+    // Didn't find it.
+    ret_id = static_cast<TokenContextIndex>(to_contexts.size());
+    (void) to_contexts.emplace_back(from_c->data, parent_id, from_c->depth,
+                                    from_c->kind);
+    data_to_context.emplace(from_c->data, ret_id);
+  }
+
+  assert(ret_id != kInvalidTokenContextIndex);
+  return ret_id;
+}
 
 } // namespace pasta

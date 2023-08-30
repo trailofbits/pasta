@@ -80,23 +80,22 @@
 
 namespace pasta {
 
+class Printer;
+
 void PrintAttribute(raw_string_ostream &Out, const clang::Attr *A,
                     PrintedTokenRangeImpl &tokens,
                     const clang::PrintingPolicy &Policy);
 
-void PrintNestedNameSpecifier(raw_string_ostream &OS,
+void PrintNestedNameSpecifier(Printer &printer,
                               const clang::NestedNameSpecifier *Q,
-                              PrintedTokenRangeImpl &tokens,
                               const clang::PrintingPolicy &Policy,
                               bool ResolveTemplateArguments=false);
 
-void PrintNestedNameSpecifier(raw_string_ostream &OS,
+void PrintNestedNameSpecifier(Printer &printer,
                               const clang::NamedDecl *D,
-                              PrintedTokenRangeImpl &tokens,
                               const clang::PrintingPolicy &Policy);
 
-void PrintQualifiedName(raw_string_ostream &OS, const clang::NamedDecl *D,
-                        PrintedTokenRangeImpl &tokens,
+void PrintQualifiedName(Printer &printer, const clang::NamedDecl *D,
                         const clang::PrintingPolicy &Policy);
 
 class PrintedTokenRangeImpl;
@@ -118,12 +117,35 @@ class TagDefinitionPolicyRAII {
   }
 };
 
-class DeclPrinter : public clang::DeclVisitor<DeclPrinter> {
+class Printer {
+ public:
+  inline Printer(PrintedTokenRangeImpl &tokens_,
+                 raw_string_ostream &Out_)
+      : tokens(tokens_),
+        Out(Out_),
+        OS(Out_) {}
+
+  inline void MarkNamedDeclName(TokenPrinterContext &ctx,
+                                const clang::NamedDecl *D) {
+    if (tokens.ast) {
+      if (auto name_tok = tokens.ast->RawTokenAt(D->getLocation());
+          name_tok && name_tok->Kind() == clang::tok::identifier) {
+        ctx.MarkLocation(*name_tok);
+      }
+    }
+  }
+
+  PrintedTokenRangeImpl &tokens;
   raw_string_ostream &Out;
+  raw_string_ostream &OS;
+};
+
+class DeclPrinter final : public clang::DeclVisitor<DeclPrinter>,
+                          public Printer {
+  
   clang::PrintingPolicy Policy;
   const clang::ASTContext &Context;
   unsigned Indentation;
-  bool PrintInstantiation;
 
   raw_string_ostream& Indent() { return Indent(static_cast<int>(Indentation)); }
   raw_string_ostream& Indent(int Indentation);
@@ -142,104 +164,106 @@ class DeclPrinter : public clang::DeclVisitor<DeclPrinter> {
 
 
  public:
-   DeclPrinter(raw_string_ostream &Out, const clang::PrintingPolicy &Policy,
-               const clang::ASTContext &Context, PrintedTokenRangeImpl &tokens_,
-               unsigned Indentation = 0,bool PrintInstantiation = false)
-       : Out(Out), Policy(Policy), Context(Context), Indentation(Indentation),
-         PrintInstantiation(PrintInstantiation), tokens(tokens_) {}
+  DeclPrinter(raw_string_ostream &Out_, const clang::PrintingPolicy &Policy,
+              const clang::ASTContext &Context, PrintedTokenRangeImpl &tokens_,
+              unsigned Indentation = 0)
+      : Printer(tokens_, Out_),
+        Policy(Policy),
+        Context(Context),
+        Indentation(Indentation) {}
 
-   void VisitDeclContext(clang::DeclContext *DC, bool Indent = true);
-   void VisitTranslationUnitDecl(clang::TranslationUnitDecl *D);
-   void VisitTypedefDecl(clang::TypedefDecl *D);
-   void VisitTypeAliasDecl(clang::TypeAliasDecl *D);
-   void VisitEnumDecl(clang::EnumDecl *D);
-   void VisitRecordDecl(clang::RecordDecl *D);
-   void VisitEnumConstantDecl(clang::EnumConstantDecl *D);
-   void VisitEmptyDecl(clang::EmptyDecl *D);
-   void VisitFunctionDecl(clang::FunctionDecl *D);
-   void VisitFriendDecl(clang::FriendDecl *D);
-   void VisitFieldDecl(clang::FieldDecl *D);
-   void VisitVarDecl(clang::VarDecl *D);
-   void VisitLabelDecl(clang::LabelDecl *D);
-   void VisitParmVarDecl(clang::ParmVarDecl *D);
-   void VisitFileScopeAsmDecl(clang::FileScopeAsmDecl *D);
-   void VisitImportDecl(clang::ImportDecl *D);
-   void VisitStaticAssertDecl(clang::StaticAssertDecl *D);
-   void VisitNamespaceDecl(clang::NamespaceDecl *D);
-   void VisitUsingDirectiveDecl(clang::UsingDirectiveDecl *D);
-   void VisitNamespaceAliasDecl(clang::NamespaceAliasDecl *D);
-   void VisitCXXRecordDecl(clang::CXXRecordDecl *D);
-   void VisitLinkageSpecDecl(clang::LinkageSpecDecl *D);
-   void VisitTemplateDecl(const clang::TemplateDecl *D);
-   void VisitFunctionTemplateDecl(clang::FunctionTemplateDecl *D);
-   void VisitClassTemplateDecl(clang::ClassTemplateDecl *D);
-   void VisitClassTemplateSpecializationDecl(
-       clang::ClassTemplateSpecializationDecl *D);
+  void VisitDeclContext(clang::DeclContext *DC, bool Indent = true);
+  void VisitTranslationUnitDecl(clang::TranslationUnitDecl *D);
+  void VisitTypedefDecl(clang::TypedefDecl *D);
+  void VisitTypeAliasDecl(clang::TypeAliasDecl *D);
+  void VisitEnumDecl(clang::EnumDecl *D);
+  void VisitRecordDecl(clang::RecordDecl *D);
+  void VisitEnumConstantDecl(clang::EnumConstantDecl *D);
+  void VisitEmptyDecl(clang::EmptyDecl *D);
+  void VisitFunctionDecl(clang::FunctionDecl *D);
+  void VisitFriendDecl(clang::FriendDecl *D);
+  void VisitFieldDecl(clang::FieldDecl *D);
+  void VisitVarDecl(clang::VarDecl *D);
+  void VisitLabelDecl(clang::LabelDecl *D);
+  void VisitParmVarDecl(clang::ParmVarDecl *D);
+  void VisitFileScopeAsmDecl(clang::FileScopeAsmDecl *D);
+  void VisitImportDecl(clang::ImportDecl *D);
+  void VisitStaticAssertDecl(clang::StaticAssertDecl *D);
+  void VisitNamespaceDecl(clang::NamespaceDecl *D);
+  void VisitUsingDirectiveDecl(clang::UsingDirectiveDecl *D);
+  void VisitNamespaceAliasDecl(clang::NamespaceAliasDecl *D);
+  void VisitCXXRecordDecl(clang::CXXRecordDecl *D);
+  void VisitLinkageSpecDecl(clang::LinkageSpecDecl *D);
+  void VisitTemplateDecl(const clang::TemplateDecl *D);
+  void VisitFunctionTemplateDecl(clang::FunctionTemplateDecl *D);
+  void VisitVarTemplatePartialSpecializationDecl(clang::VarTemplatePartialSpecializationDecl *D);
+  void VisitVarTemplateSpecializationDecl(clang::VarTemplateSpecializationDecl *D);
+  void VisitVarTemplateDecl(clang::VarTemplateDecl *D);
+  void VisitClassTemplateDecl(clang::ClassTemplateDecl *D);
+  void VisitClassTemplateSpecializationDecl(
+      clang::ClassTemplateSpecializationDecl *D);
 
-   void VisitClassTemplatePartialSpecializationDecl(
-       clang::ClassTemplatePartialSpecializationDecl *D);
-   void VisitObjCMethodDecl(clang::ObjCMethodDecl *D);
-   void VisitObjCImplementationDecl(clang::ObjCImplementationDecl *D);
-   void VisitObjCInterfaceDecl(clang::ObjCInterfaceDecl *D);
-   void VisitObjCProtocolDecl(clang::ObjCProtocolDecl *D);
-   void VisitObjCCategoryImplDecl(clang::ObjCCategoryImplDecl *D);
+  void VisitClassTemplatePartialSpecializationDecl(
+      clang::ClassTemplatePartialSpecializationDecl *D);
+  void VisitObjCMethodDecl(clang::ObjCMethodDecl *D);
+  void VisitObjCImplementationDecl(clang::ObjCImplementationDecl *D);
+  void VisitObjCInterfaceDecl(clang::ObjCInterfaceDecl *D);
+  void VisitObjCProtocolDecl(clang::ObjCProtocolDecl *D);
+  void VisitObjCCategoryImplDecl(clang::ObjCCategoryImplDecl *D);
 
-   void VisitObjCCategoryDecl(clang::ObjCCategoryDecl *D);
-   void VisitObjCCompatibleAliasDecl(clang::ObjCCompatibleAliasDecl *D);
-   void VisitObjCPropertyDecl(clang::ObjCPropertyDecl *D);
-   void VisitObjCPropertyImplDecl(clang::ObjCPropertyImplDecl *D);
-   void VisitUnresolvedUsingTypenameDecl(clang::UnresolvedUsingTypenameDecl *D);
-   void VisitUnresolvedUsingValueDecl(clang::UnresolvedUsingValueDecl *D);
-   void VisitUsingDecl(clang::UsingDecl *D);
-   void VisitUsingEnumDecl(clang::UsingEnumDecl *D);
-   void VisitUsingShadowDecl(clang::UsingShadowDecl *D);
-   void VisitOMPThreadPrivateDecl(clang::OMPThreadPrivateDecl *D);
-   void VisitOMPAllocateDecl(clang::OMPAllocateDecl *D);
-   void VisitOMPRequiresDecl(clang::OMPRequiresDecl *D);
-   void VisitOMPDeclareReductionDecl(clang::OMPDeclareReductionDecl *D);
-   void VisitOMPDeclareMapperDecl(clang::OMPDeclareMapperDecl *D);
-   void VisitOMPCapturedExprDecl(clang::OMPCapturedExprDecl *D);
-   void VisitTemplateTypeParmDecl(const clang::TemplateTypeParmDecl *TTP);
-   void VisitNonTypeTemplateParmDecl(const clang::NonTypeTemplateParmDecl *NTTP);
+  void VisitObjCCategoryDecl(clang::ObjCCategoryDecl *D);
+  void VisitObjCCompatibleAliasDecl(clang::ObjCCompatibleAliasDecl *D);
+  void VisitObjCPropertyDecl(clang::ObjCPropertyDecl *D);
+  void VisitObjCPropertyImplDecl(clang::ObjCPropertyImplDecl *D);
+  void VisitUnresolvedUsingTypenameDecl(clang::UnresolvedUsingTypenameDecl *D);
+  void VisitUnresolvedUsingValueDecl(clang::UnresolvedUsingValueDecl *D);
+  void VisitUsingDecl(clang::UsingDecl *D);
+  void VisitUsingEnumDecl(clang::UsingEnumDecl *D);
+  void VisitUsingShadowDecl(clang::UsingShadowDecl *D);
+  void VisitOMPThreadPrivateDecl(clang::OMPThreadPrivateDecl *D);
+  void VisitOMPAllocateDecl(clang::OMPAllocateDecl *D);
+  void VisitOMPRequiresDecl(clang::OMPRequiresDecl *D);
+  void VisitOMPDeclareReductionDecl(clang::OMPDeclareReductionDecl *D);
+  void VisitOMPDeclareMapperDecl(clang::OMPDeclareMapperDecl *D);
+  void VisitOMPCapturedExprDecl(clang::OMPCapturedExprDecl *D);
+  void VisitTemplateTypeParmDecl(const clang::TemplateTypeParmDecl *TTP);
+  void VisitNonTypeTemplateParmDecl(const clang::NonTypeTemplateParmDecl *NTTP);
 //   void VisitHLSLBufferDecl(clang::HLSLBufferDecl *D);
-   void printTemplateParameters(const clang::TemplateParameterList *Params,
-                                bool OmitTemplateKW = false);
-   void printTemplateArguments(llvm::ArrayRef<clang::TemplateArgument> Args,
-                               const clang::TemplateParameterList *Params,
-                               bool TemplOverloaded);
-   void printTemplateArguments(llvm::ArrayRef<clang::TemplateArgumentLoc> Args,
-                               const clang::TemplateParameterList *Params,
-                               bool TemplOverloaded);
-   void prettyPrintAttributes(clang::Decl *D);
-   void prettyPrintPragmas(clang::Decl *D);
-   void printDeclType(clang::QualType T, std::function<void(void)> NameFn, bool Pack = false);
+  void printTemplateParameters(const clang::TemplateParameterList *Params,
+                               bool OmitTemplateKW = false);
+  void printTemplateArguments(llvm::ArrayRef<clang::TemplateArgument> Args,
+                              const clang::TemplateParameterList *Params,
+                              bool TemplOverloaded);
+  void printTemplateArguments(llvm::ArrayRef<clang::TemplateArgumentLoc> Args,
+                              const clang::TemplateParameterList *Params,
+                              bool TemplOverloaded);
+  void prettyPrintAttributes(clang::Decl *D);
+  void prettyPrintPragmas(clang::Decl *D);
+  void printDeclType(clang::QualType T, std::function<void(void)> NameFn, bool Pack = false);
 
-   void printPrettyStmt(clang::Stmt *stmt_,
-                        raw_string_ostream &Out,
-                        clang::PrinterHelper *Helper,
-                        const clang::PrintingPolicy &Policy,
-                        unsigned Indentation = 0, clang::StringRef NL = "\n");
+  void printPrettyStmt(clang::Stmt *stmt_,
+                       raw_string_ostream &Out,
+                       clang::PrinterHelper *Helper,
+                       const clang::PrintingPolicy &Policy,
+                       unsigned Indentation = 0, clang::StringRef NL = "\n");
 
-   void printQualType(clang::QualType qt,
-                      raw_string_ostream &OS,
-                      const clang::PrintingPolicy &Policy);
-
-   void printQualType(clang::QualType qt,
+  void printQualType(clang::QualType qt,
                      raw_string_ostream &OS,
-                     const clang::PrintingPolicy &Policy,
-                     std::function<void(void)> ProtoFn,
-                     unsigned Indentation = 0);
+                     const clang::PrintingPolicy &Policy);
 
-
-   PrintedTokenRangeImpl &tokens;
+  void printQualType(clang::QualType qt,
+                    raw_string_ostream &OS,
+                    const clang::PrintingPolicy &Policy,
+                    std::function<void(void)> ProtoFn,
+                    unsigned Indentation = 0);
 };
 
 //===----------------------------------------------------------------------===//
 // StmtPrinter Visitor
 //===----------------------------------------------------------------------===//
 
-class StmtPrinter : public clang::StmtVisitor<StmtPrinter> {
-  pasta::raw_string_ostream &OS;
+class StmtPrinter final : public clang::StmtVisitor<StmtPrinter>,
+                          public Printer {
   unsigned IndentLevel;
   clang::PrinterHelper* Helper;
   clang::PrintingPolicy Policy;
@@ -251,8 +275,12 @@ class StmtPrinter : public clang::StmtVisitor<StmtPrinter> {
                 PrintedTokenRangeImpl &tokens_,
                 const clang::PrintingPolicy &Policy, unsigned Indentation = 0,
                 clang::StringRef NL = "\n", const clang::ASTContext *Context = nullptr)
-        : OS(os), IndentLevel(Indentation), Helper(helper), Policy(Policy),
-          NL(NL), Context(Context), tokens(tokens_) {}
+        : Printer(tokens_, os),
+          IndentLevel(Indentation),
+          Helper(helper),
+          Policy(Policy),
+          NL(NL),
+          Context(Context) {}
 
     void PrintStmt(clang::Stmt *S) { PrintStmt(S, Policy.Indentation); }
 
@@ -360,33 +388,27 @@ class StmtPrinter : public clang::StmtVisitor<StmtPrinter> {
 #define STMT(CLASS, PARENT) \
     void Visit##CLASS(clang::CLASS *Node);
 #include "clang/AST/StmtNodes.inc"
-
-  PrintedTokenRangeImpl &tokens;
 };
 
 void Decl_printGroup(clang::Decl** Begin, size_t NumDecls,
                      raw_string_ostream &Out, const clang::PrintingPolicy &Policy,
                      unsigned Indentation, PrintedTokenRangeImpl &tokens);
 
-void printArgument(const clang::TemplateArgument &A,
+void printArgument(Printer &printer, const clang::TemplateArgument &A,
                    const clang::PrintingPolicy &Policy,
-                   raw_string_ostream &Out, PrintedTokenRangeImpl &tokens,
                    bool IncludeType);
 
-void printTemplateArgumentList(raw_string_ostream &OS,
-                               PrintedTokenRangeImpl &tokens,
+void printTemplateArgumentList(Printer &printer,
                                const clang::TemplateArgumentListInfo &Args,
                                const clang::PrintingPolicy &Policy,
                                const clang::TemplateParameterList *TPL=nullptr);
 
-void printTemplateArgumentList(raw_string_ostream &OS,
-                               PrintedTokenRangeImpl &tokens,
+void printTemplateArgumentList(Printer &printer,
                                llvm::ArrayRef<clang::TemplateArgument> Args,
                                const clang::PrintingPolicy &Policy,
                                const clang::TemplateParameterList *TPL=nullptr);
 
-void printTemplateArgumentList(raw_string_ostream &OS,
-                               PrintedTokenRangeImpl &tokens,
+void printTemplateArgumentList(Printer &printer,
                                llvm::ArrayRef<clang::TemplateArgumentLoc> Args,
                                const clang::PrintingPolicy &Policy,
                                const clang::TemplateParameterList *TPL=nullptr);
@@ -395,24 +417,26 @@ void printTemplateArgumentList(raw_string_ostream &OS,
 // TypePrinter Visitor
 //===----------------------------------------------------------------------===//
 
-class TypePrinter {
+class TypePrinter final : public Printer {
   clang::PrintingPolicy Policy;
   unsigned Indentation;
   bool HasEmptyPlaceHolder = false;
   bool InsideCCAttribute = false;
 
 public:
-  explicit TypePrinter(const clang::PrintingPolicy &Policy,
+  explicit TypePrinter(raw_string_ostream &OS_,
+                       const clang::PrintingPolicy &Policy,
                        PrintedTokenRangeImpl &tokens_,
                        unsigned Indentation = 0)
-      : Policy(Policy), Indentation(Indentation), tokens(tokens_) {}
+      : Printer(tokens_, OS_),
+        Policy(Policy),
+        Indentation(Indentation) {}
 
 //  void print(const clang::Type *ty, clang::Qualifiers qs,
 //             raw_string_ostream &OS, clang::StringRef PlaceHolder,
 //             std::function<void(void)> *placeHolderFn = nullptr);
 
-  void print(clang::QualType T, raw_string_ostream &OS,
-             clang::StringRef PlaceHolder, std::function<void(void)> *placeHolderFn = nullptr);
+  void print(clang::QualType T, clang::StringRef PlaceHolder, std::function<void(void)> *placeHolderFn = nullptr);
 
   static bool canPrefixQualifiers(const clang::Type *T, bool &NeedARCStrongQualifier);
   void spaceBeforePlaceHolder(raw_string_ostream &OS);
@@ -432,12 +456,6 @@ public:
 #define TYPE(CLASS, PARENT) \
   void print##CLASS(const clang::CLASS##Type *T, raw_string_ostream &OS, std::function<void(void)> IdentFn);
 #include "clang/AST/TypeNodes.inc"
-
-private:
-//  void printBefore(const clang::Type *ty, clang::Qualifiers qs, raw_string_ostream &OS);
-//  void printAfter(const clang::Type *ty, clang::Qualifiers qs, raw_string_ostream &OS);
-
-  PrintedTokenRangeImpl &tokens;
 };
 
 } // namespace pasta

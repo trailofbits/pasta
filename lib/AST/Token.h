@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <pasta/AST/Printer.h>
 #include <pasta/AST/Token.h>
 #include <pasta/AST/Forward.h>
 
@@ -57,9 +58,9 @@ inline static const T *Canonicalize(const T *other) {
 // Backing data for a token context.
 class TokenContextImpl {
  public:
-  const void *data;
-  TokenContextIndex parent_index;
-  uint16_t depth;
+  const void *data{nullptr};
+  TokenContextIndex parent_index{kInvalidTokenContextIndex};
+  uint16_t depth{0};
   TokenContextKind kind;
 
   // Return the common ancestor between two contexts. This focuses on the data
@@ -75,7 +76,7 @@ class TokenContextImpl {
   // aliasing the same data, the context associated with the second token is
   // returned.
   static const TokenContextImpl *CommonAncestor(
-      TokenImpl *a, TokenImpl *b,
+      PrintedTokenImpl *a, PrintedTokenImpl *b,
       const std::vector<TokenContextImpl> &contexts);
 
   const TokenContextImpl *Parent(
@@ -116,11 +117,11 @@ class TokenContextImpl {
                          parent_index_, parent_depth + 1u,
                          TokenContextKind::kAlias) {}
 
-  inline TokenContextImpl(TokenContextIndex parent_index_, \
-                          uint16_t parent_depth, \
-                          const clang::DesignatedInitExpr::Designator *data_) \
-      : TokenContextImpl(Canonicalize(data_), parent_index_, \
-                         parent_depth + 1u, TokenContextKind::kDesignator) {} \
+  inline TokenContextImpl(TokenContextIndex parent_index_,
+                          uint16_t parent_depth,
+                          const clang::DesignatedInitExpr::Designator *data_)
+      : TokenContextImpl(Canonicalize(data_), parent_index_,
+                         parent_depth + 1u, TokenContextKind::kDesignator) {}
 
   // Special context that we place at the end of a vector.
   inline TokenContextImpl(ASTImpl &ast)
@@ -141,9 +142,10 @@ class TokenImpl {
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
-  inline TokenImpl(OpaqueSourceLoc opaque_source_loc_, int32_t data_offset_,
-                   uint32_t data_len_, clang::tok::TokenKind kind_,
-                   TokenRole role_, TokenContextIndex token_context_index_=kInvalidTokenContextIndex)
+  inline TokenImpl(
+      OpaqueSourceLoc opaque_source_loc_, int32_t data_offset_,
+      uint32_t data_len_, clang::tok::TokenKind kind_, TokenRole role_,
+      TokenContextIndex token_context_index_=kInvalidTokenContextIndex)
       : opaque_source_loc(opaque_source_loc_),
         context_index(token_context_index_),
         data_offset(data_offset_),
@@ -241,8 +243,7 @@ class TokenImpl {
 
   DerivedTokenIndex derived_index{kInvalidDerivedTokenIndex};
 
-  // Index of the token context in either `ASTImpl::contexts` or
-  // `PrintedTokenRangeImpl::contexts`.
+  // Index of the token context in `PrintedTokenRangeImpl::contexts`.
   //
   // If `HasMacroRole()` is `true`, then the real token context index is stored
   // in `MacroTokenImpl::token_context` and this index references into
@@ -262,7 +263,7 @@ class TokenImpl {
   TokenKindBase kind;
 
   // The role of this token, e.g. parsed, printed, macro expansion, etc.
-  TokenKindBase role:14;
+  TokenKindBase role:4;
 
   // Is this token associated with a macro definition? If so, then we have a
   // lookup mechanism in `ASTImpl` to go from the token index to the macro
@@ -299,5 +300,13 @@ bool TryLexRawToken(clang::SourceManager &source_manager,
 // Try to lex the data at `loc` into the token `*out`.
 bool TryLexRawToken(clang::ASTContext &ast_context,
                     clang::SourceLocation loc, clang::Token *out);
+
+// Recursively migrate token contexts.
+TokenContextIndex MigrateContexts(
+    TokenContextIndex id,
+    const std::vector<TokenContextImpl> &from_contexts,
+    std::vector<TokenContextImpl> &to_contexts,
+    std::unordered_multimap<const void *, TokenContextIndex> &data_to_context,
+    std::vector<TokenContextIndex> &context_map);
 
 } // namespace pasta

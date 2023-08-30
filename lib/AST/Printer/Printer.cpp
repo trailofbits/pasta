@@ -24,37 +24,43 @@
 #include "raw_ostream.h"
 
 #include "../AST.h"  // For `ASTImpl`.
+#include "../Builder.h"  // For `DeclBuilder`.
+#include "../Token.h"  // For `TokenImpl`.
 
 namespace pasta {
 
 static void TryLocateAttribute(const clang::Attr *A,
                                PrintedTokenRangeImpl &tokens,
                                size_t old_num_toks) {
-  clang::tok::TokenKind kind_to_find = clang::tok::unknown;
-  unsigned num_to_find = 0u;
-  unsigned num_found = 0u;
+  
+  clang::tok::TokenKind opener_kind = clang::tok::unknown;
+  clang::tok::TokenKind keyword_kind = clang::tok::unknown;
+
+  unsigned expected_num_openers = 0u;
+  unsigned num_found_openers = 0u;
+
   switch (A->getSyntax()) {
     case clang::AttributeCommonInfo::AS_CXX11:
     case clang::AttributeCommonInfo::AS_C2x:
-      kind_to_find = clang::tok::l_square;
-      num_to_find = 2u;
+      opener_kind = clang::tok::l_square;
+      expected_num_openers = 2u;
       break;
 
     case clang::AttributeCommonInfo::AS_GNU:
-      kind_to_find = clang::tok::l_paren;
-      num_to_find = 2u;
+      opener_kind = clang::tok::l_paren;
+      expected_num_openers = 2u;
       break;
+
     case clang::AttributeCommonInfo::AS_Declspec:
     case clang::AttributeCommonInfo::AS_Microsoft:
-      kind_to_find = clang::tok::l_paren;
-      num_to_find = 1u;
+      opener_kind = clang::tok::l_paren;
+      expected_num_openers = 1u;
       break;
 
     case clang::AttributeCommonInfo::AS_Keyword:
     case clang::AttributeCommonInfo::AS_Pragma:
     case clang::AttributeCommonInfo::AS_ContextSensitiveKeyword:
     case clang::AttributeCommonInfo::AS_HLSLSemantic:
-      num_to_find = 0u;
       break;
   }
 
@@ -63,13 +69,25 @@ static void TryLocateAttribute(const clang::Attr *A,
     return;
   }
 
+  // Try to find the parsed location of the attribute. This is generally
+  // something that is "inside" of the attribute, e.g. `nonnull` in
+  // `__attribute__((nonnull))`.
   clang::SourceLocation loc = A->getLocation();
-  PrintedTokenImpl *attr_tok = nullptr;
+  const TokenImpl *parsed_tok = tokens.ast->RawTokenAt(loc);
+  if (!parsed_tok) {
+    return;
+  }
 
+  // Go look for the printed attribute keyword token in the most recently
+  // printed tokens, storing the discovered keyword token in `attr_tok`. If we
+  // find attribute openers (parens, brackets), then keep track of those too.
+  PrintedTokenImpl *attr_tok = nullptr;
+  PrintedTokenImpl *opener_toks[2u] = {};
   for (size_t i = old_num_toks; i < max_i; ++i) {
     PrintedTokenImpl &tok = tokens.tokens[i];
     clang::tok::TokenKind kind = tok.Kind();
 
+    // Look for the keyword.
     switch (kind) {
       case clang::tok::kw___attribute:
       case clang::tok::kw___declspec:
@@ -86,30 +104,32 @@ static void TryLocateAttribute(const clang::Attr *A,
       case clang::tok::kw__Nullable:
       case clang::tok::kw__Null_unspecified:
       case clang::tok::kw__Nullable_result:
+        keyword_kind = kind;
         attr_tok = &tok;
         break;
       default:
         break;
     }
 
-    if (num_found >= num_to_find) {
+    // We've found all the openers that we expected to find. Now go and see if
+    // we can match the actual attribute (e.g. `nonnull` above).
+    if (num_found_openers >= expected_num_openers) {
       if (!tok.opaque_source_loc &&
           (kind == clang::tok::identifier ||
            kind == clang::tok::raw_identifier)) {
         llvm::StringRef data(tok.Data(tokens));
 
         // TODO(pag): uuid, guid?
-        if (data != "__attribute__" &&
-            data != "__declspec") {
+        if (data != "__attribute__" && data != "__declspec") {
           loc = A->getLoc();
           tokens.MarkLocation(i, loc);
           break;
         }
       }
-    } else {
-      if (kind == kind_to_find) {
-        ++num_found;
-      }
+
+    // Look for the openers.
+    } else if (kind == opener_kind) {
+      opener_toks[num_found_openers++] = &tok;
     }
   }
 
@@ -117,20 +137,35 @@ static void TryLocateAttribute(const clang::Attr *A,
     return;
   }
 
-  const TokenImpl *parsed_tok = tokens.ast->RawTokenAt(loc);
-  if (!parsed_tok) {
-    return;
-  }
-
+  // Started at where we have found the attribute in the parsed tokens, use a
+  // fudge factor to scan backwards through the parsed tokens and match the
+  // keyword itself.
   const TokenImpl *first_parsed_tok = tokens.ast->tokens.data();
-  const TokenImpl *min_parsed_tok =
-      std::max(first_parsed_tok, &(parsed_tok[-32]));
+
+  // Limiter used to prevent us from going too far once we've matched either
+  // a keyword or an opener.
+  auto fudge = ~0ull;
 
   // Try to find the location of `__attribute__`, `__asm`, etc.
-  for (; min_parsed_tok < parsed_tok; --parsed_tok) {
-    if (parsed_tok->Kind() == attr_tok->Kind()) {
-      attr_tok->opaque_source_loc = parsed_tok->opaque_source_loc;
-      break;
+  for (; first_parsed_tok < parsed_tok && fudge &&
+         (attr_tok || num_found_openers); --parsed_tok) {
+    if (!parsed_tok->IsParsed()) {
+      continue;
+    }
+
+    --fudge;
+
+    // Match an opener.
+    auto tok_kind = parsed_tok->Kind();
+    if (tok_kind == opener_kind && num_found_openers) {
+      tokens.MarkLocation(*opener_toks[--num_found_openers], *parsed_tok);
+      fudge = 32u;
+    }
+
+    if (tok_kind == keyword_kind) {
+      tokens.MarkLocation(*attr_tok, *parsed_tok);
+      fudge = 32u;
+      attr_tok = nullptr;
     }
   }
 }
@@ -160,6 +195,15 @@ static void ReEscapeOutput(raw_string_ostream &Out, std::string a) {
 void PrintAttribute(raw_string_ostream &Out, const clang::Attr *A,
                     PrintedTokenRangeImpl &tokens,
                     const clang::PrintingPolicy &Policy) {
+
+  if (A->isInherited() && !tokens.ppa->ShouldPrintInheritedAttributes()) {
+    return;
+  }
+
+  if (A->isImplicit() && !tokens.ppa->ShouldPrintImplicitAttributes()) {
+    return;
+  }
+
   std::string a;
   std::string new_a;
   {
@@ -228,6 +272,18 @@ void PrintAttribute(raw_string_ostream &Out, const clang::Attr *A,
 }
 
 PrintedToken::~PrintedToken(void) {}
+
+// Find the parsed token from which this printed token was derived.
+std::optional<Token> PrintedToken::DerivedLocation(void) const {
+  if (!impl || !range->ast ||
+      impl->derived_index == kInvalidDerivedTokenIndex ||
+      impl->derived_index >= range->ast->tokens.size()) {
+    return std::nullopt;
+
+  } else {
+    return Token(range->ast, &(range->ast->tokens[impl->derived_index]));
+  }
+}
 
 // Return the data associated with this token.
 std::string_view PrintedToken::Data(void) const {
@@ -546,9 +602,17 @@ void TokenPrinterContext::Tokenize(void) {
   }
 }
 
+void PrintedTokenRangeImpl::MarkLocation(PrintedTokenImpl &printed,
+                                         const TokenImpl &parsed) {
+  printed.opaque_source_loc = parsed.opaque_source_loc;
+  printed.derived_index =
+      static_cast<DerivedTokenIndex>(&parsed - ast->tokens.data());
+}
+
 void PrintedTokenRangeImpl::MarkLocation(
-    size_t tok_index, const TokenImpl &tok) {
-  tokens[tok_index].opaque_source_loc = tok.opaque_source_loc;
+    size_t printed_tok_index, const TokenImpl &parsed) {
+  assert(printed_tok_index < tokens.size());
+  MarkLocation(tokens[printed_tok_index], parsed);
 }
 
 void PrintedTokenRangeImpl::MarkLocation(size_t tok_index,
@@ -596,20 +660,30 @@ TokenPrinterContext::~TokenPrinterContext(void) {
 }
 
 // More typical APIs when we've got PASTA ASTs.
-PrintedTokenRange PrintedTokenRange::Create(const Decl &decl) {
-  return PrintedTokenRange::Create(
-      decl.ast, const_cast<clang::Decl *>(decl.u.Decl));
+PrintedTokenRange PrintedTokenRange::Create(
+    const Decl &decl, const PrintingPolicy &pp, bool maintain_provenance) {
+  auto ret = PrintedTokenRange::Create(
+      decl.ast, const_cast<clang::Decl *>(decl.u.Decl), pp);
+  if (!maintain_provenance) {
+    ret.DumpProvenanceInformation();
+  }
+  return ret;
 }
 
 // More typical APIs when we've got PASTA ASTs.
-PrintedTokenRange PrintedTokenRange::Create(const Stmt &stmt) {
-  return PrintedTokenRange::Create(
-      stmt.ast, const_cast<clang::Stmt *>(stmt.u.Stmt));
+PrintedTokenRange PrintedTokenRange::Create(
+    const Stmt &stmt, const PrintingPolicy &pp, bool maintain_provenance) {
+  auto ret = PrintedTokenRange::Create(
+      stmt.ast, const_cast<clang::Stmt *>(stmt.u.Stmt), pp);
+  if (!maintain_provenance) {
+    ret.DumpProvenanceInformation();
+  }
+  return ret;
 }
 
 // More typical APIs when we've got PASTA ASTs.
-PrintedTokenRange PrintedTokenRange::Create(const Type &type) {
-
+PrintedTokenRange PrintedTokenRange::Create(
+    const Type &type, const PrintingPolicy &pp, bool maintain_provenance) {
   auto &ast = type.ast;
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(type.u.Type,
@@ -617,12 +691,16 @@ PrintedTokenRange PrintedTokenRange::Create(const Type &type) {
   auto self = ast_ctx.getQualifiedType(
       fast_qtype, clang::Qualifiers::fromOpaqueValue(type.qualifiers));
 
-  return PrintedTokenRange::Create(type.ast, self);
+  auto ret = PrintedTokenRange::Create(type.ast, self, pp);
+  if (!maintain_provenance) {
+    ret.DumpProvenanceInformation();
+  }
+  return ret;
 }
 
 // Number of tokens in this range.
 size_t PrintedTokenRange::Size(void) const noexcept {
-  return first ? impl->tokens.size() : 0;
+  return first < after_last ? static_cast<size_t>(after_last - first) : 0;
 }
 
 // Return the `index`th token in this range. If `index` is too big, then
@@ -638,6 +716,471 @@ std::optional<PrintedToken> PrintedTokenRange::At(size_t index) const noexcept {
 // Unsafe indexed access into the token range.
 PrintedToken PrintedTokenRange::operator[](size_t index) const {
   return PrintedToken(impl, &(first[index]));
+}
+
+//namespace {
+//
+//static void Remap(
+//    std::vector<TokenContextImpl> &new_contexts,
+//    const std::vector<TokenContextImpl> &old_contexts,
+//    std::unordered_map<const void *, TokenContextIndex> &new_data_to_index,
+//    std::unordered_map<TokenContextIndex, TokenContextIndex> &index_remap) {
+//
+//}
+//
+//}  // namespace
+
+// Create a new printed token range by concatenating two printed token ranges
+// together.
+std::optional<PrintedTokenRange> PrintedTokenRange::Concatenate(
+    const PrintedTokenRange &a, const PrintedTokenRange &b) {
+  if (!a && !b) {
+    return std::nullopt;
+  } else if (!a) {
+    return b;
+  } else if (!b) {
+    return a;
+  }
+
+  if (&(a.impl->ast_context) != &(b.impl->ast_context)) {
+    return std::nullopt;
+  }
+
+  if (a.impl->ast.get() != b.impl->ast.get()) {
+    return std::nullopt;
+  }
+
+  auto new_impl = std::make_shared<PrintedTokenRangeImpl>(a.impl->ast_context);
+  new_impl->ast = a.impl->ast;
+  new_impl->tokens.reserve(a.impl->tokens.size() + b.impl->tokens.size() + 1u);
+  new_impl->contexts.reserve(
+      ((a.impl->contexts.size() + b.impl->contexts.size()) * 3u) / 2u);
+  new_impl->data = a.impl->data + b.impl->data;
+
+  for (PrintedTokenImpl &new_tok : new_impl->tokens) {
+    new_tok.matched_in_align = false;
+  }
+
+  std::unordered_multimap<const void *, TokenContextIndex> data_to_context;
+
+  // Top-level context should be the AST.
+  if (a.impl->ast) {
+    new_impl->contexts.emplace_back(*(new_impl->ast));
+    data_to_context.emplace(new_impl->ast.get(), kASTTokenContextIndex);
+  }
+
+  std::vector<TokenContextIndex> context_map;
+  context_map.assign(a.impl->contexts.size(), kInvalidTokenContextIndex);
+
+  for (auto a_tok = a.first; a_tok < a.after_last; ++a_tok) {
+    if (a_tok->Kind() == clang::tok::eof) {
+      continue;
+    }
+    PrintedTokenImpl &new_tok = new_impl->tokens.emplace_back(*a_tok);
+    new_tok.matched_in_align = false;
+    new_tok.context_index = MigrateContexts(
+        new_tok.context_index, a.impl->contexts, new_impl->contexts,
+        data_to_context, context_map);
+  }
+
+  context_map.assign(b.impl->contexts.size(), kInvalidTokenContextIndex);
+
+  auto a_data_size = static_cast<TokenDataOffset>(a.impl->data.size());
+  for (auto b_tok = b.first; b_tok < b.after_last; ++b_tok) {
+    if (b_tok->Kind() == clang::tok::eof) {
+      continue;
+    }
+
+    PrintedTokenImpl &new_tok = new_impl->tokens.emplace_back(*b_tok);
+    new_tok.matched_in_align = false;
+    new_tok.data_offset += a_data_size;
+    new_tok.context_index = MigrateContexts(
+        new_tok.context_index, b.impl->contexts, new_impl->contexts,
+        data_to_context, context_map);
+  }
+
+  new_impl->tokens.emplace_back(
+      0u, 0u, kInvalidTokenContextIndex, 0u, 0u, clang::tok::eof);
+
+  PrintedTokenImpl *first_tok = new_impl->tokens.data();
+  PrintedTokenImpl *after_last_tok = &(first_tok[new_impl->tokens.size() - 1u]);
+
+  return PrintedTokenRange(std::move(new_impl), first_tok, after_last_tok);
+}
+
+// Tell us if this was a token that was actually parsed.
+static bool IsParsedToken(const pasta::Token &tok) {
+  switch (tok.Role()) {
+    case pasta::TokenRole::kFileToken:
+    case pasta::TokenRole::kFinalMacroExpansionToken:
+      return !tok.Data().empty();
+
+    default:
+      return false;
+  }
+}
+
+// Create a new printed token range, where the token data is taken from `a`.
+// The only token contexts in an adopted range are AST contexts. The only tokens
+// in a printed token range are file tokens and complete macro expansion tokens.
+PrintedTokenRange PrintedTokenRange::Adopt(const TokenRange &a,
+                                           bool maintain_provenance) {
+  auto new_impl = std::make_shared<PrintedTokenRangeImpl>(
+      a.ast->ci->getASTContext());
+  new_impl->ast = a.ast;
+  new_impl->tokens.reserve(a.Size() + 1u);
+  new_impl->contexts.emplace_back(*(new_impl->ast));  // AST context.
+
+  auto num_leading_spaces = 0u;
+  for (Token tok : a) {
+    if (!IsParsedToken(tok)) {
+      continue;
+    }
+
+    std::string_view data = tok.Data();
+    PrintedTokenImpl &new_tok = new_impl->tokens.emplace_back(
+        static_cast<TokenDataOffset>(new_impl->data.size()),
+        static_cast<uint32_t>(data.size()),
+        kASTTokenContextIndex,
+        0u  /* Leading new lines */,
+        num_leading_spaces,
+        tok.impl->Kind());
+
+    num_leading_spaces = 1u;
+
+    new_tok.role = static_cast<TokenKindBase>(TokenRole::kFileToken);
+
+    if (maintain_provenance) {
+      new_tok.opaque_source_loc = tok.impl->opaque_source_loc;
+      new_tok.derived_index = static_cast<DerivedTokenIndex>(tok.Index());
+    }
+
+    new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
+    new_impl->data.push_back('\0');
+  }
+
+  new_impl->tokens.emplace_back(
+      0u, 0u, kInvalidTokenContextIndex, 0u, 0u, clang::tok::eof);
+
+  PrintedTokenImpl *first_tok = new_impl->tokens.data();
+  PrintedTokenImpl *after_last_tok = &(first_tok[new_impl->tokens.size() - 1u]);
+
+  return PrintedTokenRange(std::move(new_impl), first_tok, after_last_tok);
+}
+
+// Create a copy of `a`.
+//
+// The `maintain_provenance` argument determines whether or not the printed
+// tokens will be able to find their original parsed tokens.
+PrintedTokenRange PrintedTokenRange::Copy(const PrintedTokenRange &a,
+                                          bool maintain_provenance) {
+  auto new_impl = std::make_shared<PrintedTokenRangeImpl>(a.impl->ast_context);
+  new_impl->ast = a.impl->ast;
+  new_impl->tokens = a.impl->tokens;
+  new_impl->contexts = a.impl->contexts;
+  new_impl->data = a.impl->data;
+
+  PrintedTokenImpl *first_tok = new_impl->tokens.data();
+  PrintedTokenImpl *after_last_tok = &(first_tok[new_impl->tokens.size() - 1u]);
+
+  PrintedTokenRange ret(std::move(new_impl), first_tok, after_last_tok);
+  if (!maintain_provenance) {
+    ret.DumpProvenanceInformation();
+  }
+  return ret;
+}
+
+// Dump token provenance information.
+void PrintedTokenRange::DumpProvenanceInformation(void) {
+  for (auto tok = first; tok < after_last; ++tok) {
+    tok->opaque_source_loc = TokenImpl::kInvalidSourceLocation;
+    tok->derived_index = kInvalidDerivedTokenIndex;
+  }
+}
+
+PrintingPolicy::~PrintingPolicy(void) {}
+
+bool PrintingPolicy::ShouldPrintTagBodies(void) const {
+  return true;
+}
+
+bool PrintingPolicy::ShouldPrintInheritedAttributes(void) const {
+  return false;
+}
+
+bool PrintingPolicy::ShouldPrintImplicitAttributes(void) const {
+  return false;
+}
+
+bool PrintingPolicy::ShouldPrintConstantExpressionsInTypes(void) const {
+  return true;
+}
+
+bool PrintingPolicy::ShouldPrintOriginalTypeOfAdjustedType(void) const {
+  return true;
+}
+
+bool PrintingPolicy::ShouldPrintOriginalTypeOfDecayedType(void) const {
+  return true;
+}
+
+bool PrintingPolicy::ShouldPrintTemplate(const TemplateDecl &) const {
+  return true;
+}
+
+bool PrintingPolicy::ShouldPrintTemplate(
+    const ClassTemplatePartialSpecializationDecl &) const {
+  return true;
+}
+
+bool PrintingPolicy::ShouldPrintTemplate(
+    const VarTemplatePartialSpecializationDecl &) const {
+  return true;
+}
+
+bool PrintingPolicy::ShouldPrintSpecialization(
+    const ClassTemplateDecl &, const ClassTemplateSpecializationDecl &) const {
+  return false;
+}
+
+bool PrintingPolicy::ShouldPrintSpecialization(const FunctionTemplateDecl &,
+                                               const FunctionDecl &) const {
+  return false;
+}
+
+bool PrintingPolicy::ShouldPrintSpecialization(
+    const VarTemplateDecl &, const VarTemplateSpecializationDecl &) const {
+  return false;
+}
+
+ProxyPrintingPolicy::~ProxyPrintingPolicy(void) {}
+
+bool ProxyPrintingPolicy::ShouldPrintTagBodies(void) const {
+  return next.ShouldPrintTagBodies();
+}
+
+bool ProxyPrintingPolicy::ShouldPrintInheritedAttributes(void) const {
+  return next.ShouldPrintInheritedAttributes();
+}
+
+bool ProxyPrintingPolicy::ShouldPrintImplicitAttributes(void) const {
+  return next.ShouldPrintImplicitAttributes();
+}
+
+bool ProxyPrintingPolicy::ShouldPrintConstantExpressionsInTypes(void) const {
+  return next.ShouldPrintConstantExpressionsInTypes();
+}
+
+bool ProxyPrintingPolicy::ShouldPrintOriginalTypeOfAdjustedType(void) const {
+  return next.ShouldPrintOriginalTypeOfAdjustedType();
+}
+
+bool ProxyPrintingPolicy::ShouldPrintOriginalTypeOfDecayedType(void) const {
+  return next.ShouldPrintOriginalTypeOfDecayedType();
+}
+
+bool ProxyPrintingPolicy::ShouldPrintTemplate(const TemplateDecl &tpl) const {
+  return next.ShouldPrintTemplate(tpl);
+}
+
+bool ProxyPrintingPolicy::ShouldPrintTemplate(
+    const ClassTemplatePartialSpecializationDecl &tpl) const {
+  return next.ShouldPrintTemplate(tpl);
+}
+
+bool ProxyPrintingPolicy::ShouldPrintTemplate(
+    const VarTemplatePartialSpecializationDecl &tpl) const {
+  return next.ShouldPrintTemplate(tpl);
+}
+
+bool ProxyPrintingPolicy::ShouldPrintSpecialization(
+    const ClassTemplateDecl &tpl,
+    const ClassTemplateSpecializationDecl &spec) const {
+  return next.ShouldPrintSpecialization(tpl, spec);
+}
+
+bool ProxyPrintingPolicy::ShouldPrintSpecialization(
+  const VarTemplateDecl &tpl, const VarTemplateSpecializationDecl &spec) const {
+  return next.ShouldPrintSpecialization(tpl, spec);
+}
+
+bool ProxyPrintingPolicy::ShouldPrintSpecialization(
+  const FunctionTemplateDecl &tpl, const FunctionDecl &spec) const {
+  return next.ShouldPrintSpecialization(tpl, spec);
+}
+
+bool PrintingPolicyAdaptor::ShouldPrintInheritedAttributes(void) const {
+  if (pp) {
+    return pp->ShouldPrintInheritedAttributes();
+  } else {
+    return false;
+  }
+}
+
+bool PrintingPolicyAdaptor::ShouldPrintImplicitAttributes(void) const {
+  if (pp) {
+    return pp->ShouldPrintImplicitAttributes();
+  } else {
+    return false;
+  }
+}
+
+bool PrintingPolicyAdaptor::ShouldPrintConstantExpressionsInTypes(void) const {
+  if (pp) {
+    return pp->ShouldPrintConstantExpressionsInTypes();
+  } else {
+    return true;
+  }
+}
+
+bool PrintingPolicyAdaptor::ShouldPrintOriginalTypeOfAdjustedType(void) const {
+  if (pp) {
+    return pp->ShouldPrintOriginalTypeOfAdjustedType();
+  } else {
+    return true;
+  }
+}
+
+bool PrintingPolicyAdaptor::ShouldPrintOriginalTypeOfDecayedType(void) const {
+  if (pp) {
+    return pp->ShouldPrintOriginalTypeOfDecayedType();
+  } else {
+    return true;
+  }
+}
+
+bool PrintingPolicyAdaptor::ShouldPrintTemplate(
+    clang::TemplateDecl *tpl) const {
+
+#ifndef PASTA_IN_BOOTSTRAP
+  if (pp) {
+    auto wrapped_tpl = DeclBuilder::Create<TemplateDecl>(ast, tpl);
+    return pp->ShouldPrintTemplate(wrapped_tpl);
+  }
+#endif
+
+  if (!decl_to_print) {
+    return true;
+  }
+
+  if (tpl == decl_to_print) {
+    return true;
+  }
+
+  // Make sure we're not asking to print a specialization of `tpl`.
+  if (auto cspec = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(decl_to_print)) {
+    return cspec->getSpecializedTemplate()->getCanonicalDecl() != tpl->getCanonicalDecl();
+  
+  } else if (auto vspec = clang::dyn_cast<clang::VarTemplateSpecializationDecl>(decl_to_print)) {
+    return vspec->getSpecializedTemplate()->getCanonicalDecl() != tpl->getCanonicalDecl();
+  
+  } else if (auto fspec = clang::dyn_cast<clang::FunctionDecl>(decl_to_print)) {
+    if (fspec->isTemplateInstantiation()) {
+      return fspec->getPrimaryTemplate()->getCanonicalDecl() != tpl->getCanonicalDecl();
+    }
+  }
+
+  return true;
+}
+
+bool PrintingPolicyAdaptor::ShouldPrintTemplate(
+    clang::ClassTemplatePartialSpecializationDecl *tpl) const {
+
+#ifndef PASTA_IN_BOOTSTRAP
+  if (pp) {
+    auto wrapped_tpl = DeclBuilder::Create<ClassTemplatePartialSpecializationDecl>(ast, tpl);
+    return pp->ShouldPrintTemplate(wrapped_tpl);
+  }
+#endif
+
+  if (!decl_to_print) {
+    return true;
+  }
+
+  if (tpl == decl_to_print) {
+    return true;
+  }
+
+  if (auto cspec = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(decl_to_print)) {
+    auto inst = cspec->getSpecializedTemplateOrPartial();
+    if (auto cpspec = inst.dyn_cast<clang::ClassTemplatePartialSpecializationDecl *>()) {
+      return cpspec->getCanonicalDecl() != tpl->getCanonicalDecl();
+    }
+  }
+
+  return true;
+}
+
+bool PrintingPolicyAdaptor::ShouldPrintTemplate(
+    clang::VarTemplatePartialSpecializationDecl *tpl) const {
+
+#ifndef PASTA_IN_BOOTSTRAP
+  if (pp) {
+    auto wrapped_tpl = DeclBuilder::Create<VarTemplatePartialSpecializationDecl>(ast, tpl);
+    return pp->ShouldPrintTemplate(wrapped_tpl);
+  }
+#endif
+
+  if (!decl_to_print) {
+    return true;
+  }
+
+  if (tpl == decl_to_print) {
+    return true;
+  }
+
+  if (auto cspec = clang::dyn_cast<clang::VarTemplateSpecializationDecl>(decl_to_print)) {
+    auto inst = cspec->getSpecializedTemplateOrPartial();
+    if (auto cpspec = inst.dyn_cast<clang::VarTemplatePartialSpecializationDecl *>()) {
+      return cpspec->getCanonicalDecl() != tpl->getCanonicalDecl();
+    }
+  }
+
+  return true;
+}
+
+bool PrintingPolicyAdaptor::ShouldPrintSpecialization(
+    clang::ClassTemplateDecl *tpl,
+    clang::ClassTemplateSpecializationDecl *spec) const {
+
+#ifndef PASTA_IN_BOOTSTRAP
+  if (pp) {
+    auto wrapped_tpl = DeclBuilder::Create<ClassTemplateDecl>(ast, tpl);
+    auto wrapped_spec = DeclBuilder::Create<ClassTemplateSpecializationDecl>(ast, spec);
+    return pp->ShouldPrintSpecialization(wrapped_tpl, wrapped_spec);
+  }
+#endif
+
+  return spec == decl_to_print;
+}
+
+bool PrintingPolicyAdaptor::ShouldPrintSpecialization(
+    clang::VarTemplateDecl *tpl,
+    clang::VarTemplateSpecializationDecl *spec) const {
+
+#ifndef PASTA_IN_BOOTSTRAP
+  if (pp) {
+    auto wrapped_tpl = DeclBuilder::Create<VarTemplateDecl>(ast, tpl);
+    auto wrapped_spec = DeclBuilder::Create<VarTemplateSpecializationDecl>(ast, spec);
+    return pp->ShouldPrintSpecialization(wrapped_tpl, wrapped_spec);
+  }
+#endif
+
+  return spec == decl_to_print;
+}
+
+bool PrintingPolicyAdaptor::ShouldPrintSpecialization(
+    clang::FunctionTemplateDecl *tpl, clang::FunctionDecl *spec) const {
+
+#ifndef PASTA_IN_BOOTSTRAP
+  if (pp) {
+    auto wrapped_tpl = DeclBuilder::Create<FunctionTemplateDecl>(ast, tpl);
+    auto wrapped_spec = DeclBuilder::Create<FunctionDecl>(ast, spec);
+    return pp->ShouldPrintSpecialization(wrapped_tpl, wrapped_spec);
+  }
+#endif
+
+  return spec == decl_to_print;
 }
 
 }  // namespace pasta

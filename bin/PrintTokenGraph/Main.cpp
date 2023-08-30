@@ -28,8 +28,9 @@
 #include <string>
 #include <unordered_set>
 
-template <typename TokT>
-static std::string TokData(const TokT &tok) {
+static bool gShowPrinted = false;
+
+static std::string TokData(const pasta::PrintedToken &tok) {
   std::stringstream ss;
   for (auto ch : tok.Data()) {
     switch (ch) {
@@ -55,20 +56,6 @@ const char* AttributeKindName(const clang::Attr *attr) {
   return "Attr";
 }
 
-inline static bool SkipToken(const pasta::PrintedToken &) {
-  return false;
-}
-
-inline static bool SkipToken(const pasta::Token &tok) {
-  switch (tok.Role()) {
-    case pasta::TokenRole::kFileToken:
-    case pasta::TokenRole::kFinalMacroExpansionToken:
-      return false;
-    default:
-      return true;
-  }
-}
-
 static void PrintTokenGraph(pasta::Decl tld) {
 //  if (auto nd = pasta::NamedDecl::From(tld)) {
 //    if (nd->Name() != "PUT NAME HERE") {
@@ -76,8 +63,36 @@ static void PrintTokenGraph(pasta::Decl tld) {
 //    }
 //  }
 
-//  auto tokens = pasta::PrintedTokenRange::Create(tld);
-  auto tokens = tld.Tokens();
+  pasta::PrintedTokenRange printed_tokens = pasta::PrintedTokenRange::Create(tld);
+  pasta::PrintedTokenRange tokens = printed_tokens;
+  if (!gShowPrinted) {
+
+    if (!tokens) {
+      return;  // Probably an implicit decl, e.g. `__int128`.
+    }
+
+    // Get the range of parsed tokens for this top-level declarations.
+    pasta::TokenRange parsed_tokens = tld.Tokens();
+
+    // Make a printed token range out of just the parsed tokens. This excludes
+    // intermediate macro tokens. These adopted tokens have mostly empty token
+    // context chains.
+    pasta::PrintedTokenRange adopted_tokens =
+        pasta::PrintedTokenRange::Adopt(parsed_tokens);
+    
+    // Try to "align" the pretty-printed tokens, which come with full token
+    // context chains with the adopted tokens, forming a range of parsed tokens
+    // with full context chains. This is costly and doesn't always work.
+    auto aligned_tokens = pasta::PrintedTokenRange::Align(
+        adopted_tokens, printed_tokens);
+    if (!aligned_tokens.Succeeded()) {
+      std::cerr << "Could not merge: " << aligned_tokens.TakeError() << std::endl;
+      return;
+    }
+
+    tokens = aligned_tokens.TakeValue();
+  }
+
   if (tokens.empty()) {
     std::cerr
         << "Empty tokens for " << tld.KindName();
@@ -109,9 +124,6 @@ static void PrintTokenGraph(pasta::Decl tld) {
   std::unordered_set<pasta::TokenContext> contexts;
 
   for (auto tok : tokens) {
-    if (SkipToken(tok)) {
-      continue;
-    }
     for (std::optional<pasta::TokenContext> context = tok.Context();
          context; context = context->Parent()) {
       contexts.insert(context.value());
@@ -208,10 +220,7 @@ static void PrintTokenGraph(pasta::Decl tld) {
     }
   }
 
-  for (auto tok : tokens) {
-    if (SkipToken(tok)) {
-      continue;
-    }
+  for (pasta::PrintedToken tok : tokens) {
     if (std::optional<pasta::TokenContext> context = tok.Context()) {
       os
           << "tokens" << a
@@ -278,6 +287,10 @@ int main(int argc, char *argv[]) {
     std::cout << "Usage: " << argv[0] << " COMPILE_COMMAND..."
               << std::endl;
     return EXIT_FAILURE;
+  }
+
+  if (getenv("PRINTED")) {
+    gShowPrinted = true;
   }
 
   pasta::InitPasta initializer;

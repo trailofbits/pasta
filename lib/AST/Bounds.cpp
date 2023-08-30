@@ -286,46 +286,33 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   // Scans forward starting from `tok`, assumed to be the beginning of
   // a `TagDecl`, and then looks for a closing `}`, a closing `;`, or the
   // last token before an unbalanced paren/bracket/brace.
+  //
+  // NOTE(pag): This is pretty important for pulling in trailing attributes on
+  //            `TagDecl`s. We have logic in `VisitAttribute` that omits tags,
+  //            so this helps.
+  //
+  // TODO(pag): One corner case could be a tag forward declaration, embedded in
+  //            a declarator, that has a declarator. E.g. embedding the tag in
+  //            a parameter declaration. I'm not sure if attributes on the tag
+  //            there bind to the tag or the param, though.
   TokenImpl *FindEndOfTag(clang::TagDecl *decl, TokenImpl *tok) {
 
     auto can_have_l_brace = decl->isCompleteDefinition();
     auto can_have_semi = !decl->isEmbeddedInDeclarator();
 
+    if (!can_have_l_brace && !can_have_semi) {
+      return nullptr;
+    }
+
     TokenImpl *r_brace = nullptr;
-    TokenImpl *prev_tok = nullptr;
     int64_t nesting = 0;
-    bool seen_colon = false;
-    for (; first_tok <= tok && tok <= last_tok;
-         prev_tok = tok, tok = &(tok[1])) {
-//      std::cerr << "nesting=" << nesting;
-//      T(tok);
-//      std::cerr << '\n';
+
+    for (; first_tok <= tok && tok <= last_tok; tok = &(tok[1])) {
       if (!tok->IsParsed()) {
         continue;
       }
       const auto tok_kind = tok->Kind();
       switch (tok_kind) {
-        // If we get to another keyword like these without being nested then
-        // we're probably in an elaborated type that is a forward declaration,
-        // e.g. `struct foo` in `struct foo *x; struct bar { ... } ;` is trying
-        // to walk into `struct bar`.
-        case clang::tok::kw_struct:
-        case clang::tok::kw_union:
-        case clang::tok::kw_class:
-        case clang::tok::kw_enum:
-        case clang::tok::kw_const:
-        case clang::tok::kw_volatile:
-        case clang::tok::kw_restrict:
-        case clang::tok::kw_friend:
-        case clang::tok::comma:
-        case clang::tok::period:
-        case clang::tok::amp:
-        case clang::tok::ampamp:
-        case clang::tok::star:
-          if (!nesting && !seen_colon) {
-            return nullptr;
-          }
-          break;
         case clang::tok::l_brace:
           if (!can_have_l_brace) {
             return nullptr;
@@ -333,24 +320,21 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
           [[clang::fallthrough]];
         case clang::tok::l_paren:
         case clang::tok::l_square:
-//          if (auto matching_tok = GetMatching(tok).second) {
-//            tok = matching_tok;
-//          } else {
-          nesting += 1;
-//          }
+          ++nesting;
           break;
         case clang::tok::r_brace:
           if (!can_have_l_brace) {
             return nullptr;
           }
+          --nesting;
 
-          if (nesting) {
-            nesting -= 1;
-          }
-
-          if (!nesting) {
+          if (0 > nesting) {
+            return r_brace;
+          
+          } else if (!nesting) {
             if (can_have_semi) {
               r_brace = tok;
+            
             } else {
               return tok;
             }
@@ -359,43 +343,25 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
         case clang::tok::r_paren:
         case clang::tok::r_square:
-          if (nesting) {
-            nesting -= 1;
-          }
-
-          if (!nesting && !can_have_semi) {
-            return tok;
+          --nesting;
+          if (0 > nesting) {
+            return r_brace;
           }
           break;
         case clang::tok::semi:
           if (!can_have_semi) {
-            return nullptr;
+            return r_brace;
           } else if (!nesting) {
             return tok;
           }
           break;
 
-        case clang::tok::colon:
-          seen_colon = true;
-          break;
         default:
           break;
       }
-
-      if (0 > nesting) {
-        return prev_tok;
-      }
-
-      if (!nesting && clang::tok::r_brace == tok_kind) {
-        r_brace = tok;
-      }
     }
 
-    if (r_brace) {
-      return r_brace;
-    } else {
-      return prev_tok;
-    }
+    return r_brace;
   }
 
   // Scans forward starting from `tok`, assumed to be the beginning of
@@ -403,40 +369,44 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   // last token before an unbalanced paren/bracket/brace.
   TokenImpl *FindEndOfFunction(clang::FunctionDecl *decl, TokenImpl *tok) {
 
-    TokenImpl *prev_tok = nullptr;
     int64_t nesting = 0;
-    for (; first_tok <= tok && tok <= last_tok;
-         prev_tok = tok, tok = &(tok[1])) {
+
+    for (; first_tok <= tok && tok <= last_tok; tok = &(tok[1])) {
       if (!tok->IsParsed()) {
         continue;
       }
+
       const auto tok_kind = tok->Kind();
       switch (tok_kind) {
-        case clang::tok::l_paren:
         case clang::tok::l_brace:
+        case clang::tok::l_paren:
         case clang::tok::l_square:
-//          if (auto matching_tok = GetMatching(tok).second) {
-//            tok = matching_tok;
-//            if (!nesting && tok_kind == clang::tok::r_brace) {
-//              return tok;
-//            }
-//          } else {
-            nesting += 1;
-//          }
+          ++nesting;
           break;
+
         case clang::tok::r_paren:
-        case clang::tok::r_square:
-          if (nesting) {
-            nesting -= 1;
+          --nesting;
+          if (0 > nesting) {
+            nesting = 0;  // E.g. function returning a function pointer.
           }
           break;
+        case clang::tok::r_square:
+          --nesting;
+          assert(0 <= nesting);
+          break;
+
         case clang::tok::r_brace:
-          if (nesting) {
-            nesting -= 1;
-          }
+          --nesting;
+
+          // TODO(pag): Check for C++ functions with try/catch bodies.
           if (!nesting) {
             return tok;
           }
+
+          // Should have seen a semicolon first. Might have a declaration within
+          // a declarator, e.g. `void foo(struct bar {} param) { body }`. We
+          // start from `foo`.
+          assert(0 <= nesting);
           break;
 
         case clang::tok::semi:
@@ -447,13 +417,9 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         default:
           break;
       }
-
-      if (0 > nesting) {
-        return prev_tok;
-      }
     }
 
-    return prev_tok;
+    return tok;
   }
 
   bool ExpandLeadingKeyword(clang::tok::TokenKind kind,
@@ -612,21 +578,52 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
  public:
 
-  void Visit(clang::Decl *decl) {
-    const auto prev_attr_decl = attr_decl;
-    attr_decl = decl;
+  clang::Decl *curr_decl{nullptr};
 
-    auto [it, added] = seen_decls.emplace(decl);
-    if (added) {
-      if (decl->hasAttrs()) {
-        for (clang::Attr *attr : decl->getAttrs()) {
-          VisitAttribute(attr);
-        }
-      }
-      this->DeclVisitor::Visit(decl);
+  void Visit(clang::Decl *decl) {
+    if (!seen_decls.emplace(decl).second) {
+      return;
     }
 
+    const auto tok = ast.RawTokenAt(decl->getLocation());
+    if (!tok) {
+      return;
+    }
+
+    const auto prev_decl = curr_decl;
+    const auto prev_attr_decl = attr_decl;
+    const auto prev_lower_bound = lower_bound;
+    const auto prev_upper_bound = upper_bound;
+
+    curr_decl = decl;
+    lower_bound = upper_bound = tok;
+    attr_decl = decl;
+
+    if (decl->hasAttrs()) {
+      for (clang::Attr *attr : decl->getAttrs()) {
+        VisitAttribute(attr);
+      }
+    }
+
+    this->DeclVisitor::Visit(decl);
+
+    curr_decl = prev_decl;
     attr_decl = prev_attr_decl;
+
+    // Reset in case we are visiting a nested decl, e.g. by way of type source
+    // info. Can happen when calculating the bounds of a function whose
+    // parameter or return type declarators contain another declaration.
+    if (prev_lower_bound) {
+      if (!lower_bound || lower_bound > prev_lower_bound) {
+        lower_bound = prev_lower_bound;
+      }
+    }
+
+    if (prev_upper_bound) {
+      if (!upper_bound || upper_bound < prev_upper_bound) {
+        upper_bound = prev_upper_bound;
+      }
+    }
   }
 
   void VisitDecl(clang::Decl *decl) {
@@ -848,12 +845,59 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     }
   }
 
+  void D(const char *d, bool X) {
+    if (!X) {
+      return;
+    }
+
+    std::cerr
+        << "--------- " << d << " decl="
+        << reinterpret_cast<void *>(curr_decl) << " lower_bound="
+        << reinterpret_cast<void *>(lower_bound) << " upper_bound="
+        << reinterpret_cast<void *>(upper_bound) << " prev_kind="
+        << clang::tok::getTokenName(lower_bound[-1].Kind())
+        << " prev_role=" << int(lower_bound[-1].Role())
+        << " next_kind="
+        << clang::tok::getTokenName(upper_bound[1].Kind())
+        << " next_role=" << int(upper_bound[1].Role())
+        << '\n';
+
+    for (auto t = &(lower_bound[-1]); first_tok <= t; --t) {
+      if (t->IsParsed()) {
+        std::cerr
+            << "--------- last_parsed: "
+            << clang::tok::getTokenName(t->Kind())
+            << " role=" << int(t->Role())
+            << ' ' << t->Data(ast) << '\n';
+        break;
+      }
+    }
+
+    for (auto t = &(upper_bound[1]); t < last_tok; ++t) {
+      if (t->IsParsed()) {
+        std::cerr
+            << "--------- next_parsed: "
+            << clang::tok::getTokenName(t->Kind())
+            << " role=" << int(t->Role())
+            << ' ' << t->Data(ast) << '\n';
+        break;
+      }
+    }
+
+    for (auto t = lower_bound; t && t <= upper_bound; ++t) {
+      if (t->IsParsed()) {
+        std::cerr << ' ' << t->Data(ast);
+      }
+    }
+    std::cerr << "\n\n";
+  }
+
   void VisitCommonFunctionDecl(clang::FunctionDecl *decl) {
-//    auto X = false; // decl->getNameAsString() == "kvm_kick_many_cpus";
-//    if (X) {
-//      decl->dumpColor();
-//    }
-    auto X = false;
+   auto X = false; //decl->getNameAsString() == "VariadicCommaConcatenateIdiom";
+   // if (X) {
+   //   decl->dumpColor();
+   // }
+    // auto X = false;
 //    auto all_implicit = true;
 //    for (clang::ParmVarDecl *param : decl->parameters()) {
 //      if (!param->isImplicit()) {
@@ -867,42 +911,8 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 //    if (all_implicit && decl->getType().getTypePtr()->isTypedefNameType()) {
 //      X = true;
 //    }
-    auto D = [=] (const char * d) {
-      (void) d;
-      if (X) {
-//        std::cerr
-//            << "--------- " << d << " decl="
-//            << reinterpret_cast<void *>(decl) << " lower_bound="
-//            << reinterpret_cast<void *>(lower_bound) << " upper_bound="
-//            << reinterpret_cast<void *>(upper_bound) << " prev_kind="
-//            << clang::tok::getTokenName(lower_bound[-1].Kind())
-//            << " prev_role=" << int(lower_bound[-1].Role())
-//            << " next_kind="
-//            << clang::tok::getTokenName(upper_bound[1].Kind())
-//            << " next_role=" << int(upper_bound[1].Role())
-//            << '\n';
-//
-//        for (auto t = &(lower_bound[-1]); first_tok <= t; --t) {
-//          if (t->IsParsed()) {
-//            std::cerr
-//                << "--------- last_parsed: "
-//                << clang::tok::getTokenName(t->Kind())
-//                << " role=" << int(t->Role())
-//                << ' ' << t->Data(ast) << '\n';
-//            break;
-//          }
-//        }
-//
-//        for (auto t = lower_bound; t && t <= upper_bound; ++t) {
-//          if (t->IsParsed()) {
-//            std::cerr << ' ' << t->Data(ast);
-//          }
-//        }
-//        std::cerr << "\n\n";
-      }
-    };
 
-    D("a");
+    D("a", X);
     if (clang::FunctionTypeLoc ftl = decl->getFunctionTypeLoc()) {
       this->TypeLocVisitor::Visit(ftl);
 
@@ -912,37 +922,47 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       }
     }
 
-    D("b");
+    D("b", X);
     VisitCommonDeclaratorDecl(decl);
 
-    D("c");
+    D("c", X);
 
     TokenImpl *tok_loc = ast.RawTokenAt(decl->getLocation());
-    if (tok_loc) {
-      if (auto end_tok = FindEndOfFunction(decl, tok_loc)) {
-        upper_bound = end_tok;
-        D("d");
-        return;
-      }
-    }
-
+    
     const clang::FunctionDecl *def = nullptr;
     auto body = decl->getBody(def);
     if (def == decl) {
       Expand(body->getSourceRange());
-      D("e");
+      D("d", X);
 
     } else if (decl->isExplicitlyDefaulted() || decl->isDeletedAsWritten() ||
                decl->isPure() || decl->hasDefiningAttr()) {
 
       ExpandToTrailingToken(tok_loc, clang::tok::semi);
-      D("f");
+      D("e", X);
 
     } else if (decl->hasSkippedBody() || decl->willHaveBody()) {
+      if (tok_loc) {
+        if (auto end_tok = FindEndOfFunction(decl, tok_loc);
+            end_tok > upper_bound) {
+          upper_bound = end_tok;
+          D("e", X);
+        }
+      }
 
     } else if (!decl->doesThisDeclarationHaveABody()) {
       ExpandToTrailingToken(tok_loc, clang::tok::semi);
-      D("g");
+      D("f", X);
+    }
+
+    const ASTImpl::FunctionProto *proto = FunctionProtoFor(decl);
+    if (!proto) {
+      return;
+    }
+
+    if (proto->l_paren) {
+      assert(lower_bound < proto->l_paren);
+      assert(proto->r_paren < upper_bound);
     }
   }
 
@@ -972,34 +992,25 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
     VisitCommonDeclaratorDecl(decl);
   }
 
-  // TODO(pag): Handle parameters from the canonical decl being injected into
-  //            out-of-line methods on class templates.
-  void VisitParmVarDecl(clang::ParmVarDecl *decl) {
-    Expand(decl->getSourceRange());
-    if (!decl->hasInheritedDefaultArg() && decl->hasDefaultArg()) {
-      Expand(decl->getDefaultArgRange());
+  const ASTImpl::FunctionProto *FunctionProtoFor(clang::FunctionDecl *func) {
+    if (auto it = ast.func_proto.find(func); it != ast.func_proto.end()) {
+      return std::addressof(it->second);
     }
 
-    if (decl->getName().empty()) {
-      Expand(decl->getOuterLocStart());
+    ASTImpl::FunctionProto &proto = ast.func_proto[func];
+
+    // Try to detect something like `foo_t func;` forward declarations. These
+    // are present in the linux kernel.
+    if (!func->isThisDeclarationADefinition()) {
+      const clang::FunctionProtoType *ft = clang::dyn_cast<clang::FunctionProtoType>(
+          func->getType().getTypePtr());
+
+      if (!ft) {
+        proto.has_variable_form = true;
+      }      
     }
 
-    if (clang::TypeSourceInfo *tsi = decl->getTypeSourceInfo()) {
-      if (auto tl = tsi->getTypeLoc()) {
-        this->TypeLocVisitor::Visit(tl);
-      }
-    }
-
-    TokenImpl *tok = ast.RawTokenAt(decl->getLocation());
-    Expand(tok);
-
-    clang::FunctionDecl *func =
-        clang::dyn_cast<clang::FunctionDecl>(decl->getDeclContext());
-    if (!func) {
-      return;
-    }
-
-//    std::cerr << "FUNC: " << func->getName().str() << '\n';
+    //    std::cerr << "FUNC: " << func->getName().str() << '\n';
 
     clang::SourceRange param_range = func->getParametersSourceRange();
     TokenImpl *params_begin = ast.RawTokenAt(param_range.getBegin());
@@ -1050,9 +1061,18 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       params_end = nullptr;
     }
 
-    if (TokenImpl *func_name_tok = ast.RawTokenAt(func->getLocation())) {
+    TokenImpl *func_name_tok = ast.RawTokenAt(func->getLocation());
+    if (func_name_tok) {
       if (!params_begin || params_begin < func_name_tok) {
+        auto next_semicolon = FindNext(func_name_tok, clang::tok::semi);
         params_begin = FindNext(func_name_tok, clang::tok::l_paren);
+        
+        // Watch out for `foo_t foo; int bar() {}`, that we don't find
+        // `(` from `bar` and associate it with `foo`.
+        if (next_semicolon && next_semicolon < params_begin) {
+          proto.has_variable_form = true;
+          params_begin = nullptr;
+        }
       }
     }
 
@@ -1068,85 +1088,77 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
     assert(!params_begin == !params_end);
 
-    // Force us in-range of the parens, hopefully.
-    if (params_begin && lower_bound <= params_begin) {
-      lower_bound = &(params_begin[1]);
-    }
-    if (params_end && upper_bound >= params_end) {
-      upper_bound = &(params_end[-1]);
-    }
+    proto.l_paren = params_begin;
+    proto.r_paren = params_end;
 
-    // Out-of-range; go to backup.
-    if (!(params_begin < lower_bound && upper_bound < params_end &&
-          lower_bound < upper_bound)) {
-      lower_bound = tok;
-      upper_bound = tok;
+    // The ellipsis can be on its own after a comma, or directly after
+    // the variable, e.g. `a, ...` vs. `a...`.
+    if (has_ellipsis && params_end) {
+      proto.ellipsis = FindPrev(&(params_end[-1]), clang::tok::ellipsis);
+      assert(params_begin < proto.ellipsis);
     }
 
-    // Unreasonable backup, clear it. Leave `lower_bound` in place from above
-    // check, even if wrong. We'll hopefully fix it up below.
-    if (!(params_begin <= tok && tok <= params_end)) {
-      tok = nullptr;
-    }
-
-    // Try to hop through one parameter at a time, finding the ranges of the
-    // parameters, until we get to the parameter we care about.
-    if (!params_begin || !params_end || decl->isImplicit()) {
-      return;
-    }
-
-//    std::cerr << "NAME: " << decl->getName().str() << '\n';
-//
-//    for (auto t = params_begin; t <= params_end; ++t) {
-//      std::cerr << t->Data(ast) << ' ';
-//    }
-//    std::cerr << '\n';
-
-    unsigned param_index = decl->getFunctionScopeIndex();
-    unsigned num_params = func->getNumParams();
-    assert(param_index < num_params);
-
-    auto i = 0u;
     auto begin_tok = params_begin;
     auto end_tok = params_begin;
-    for (; i <= param_index; ++i) {
+
+    unsigned num_params = func->getNumParams();
+    for (clang::ParmVarDecl *param : func->parameters()) {
+      ASTImpl::BoundingTokens &param_proto = ast.bounds[param];
+      proto.params.emplace_back(&param_proto);
+
+      unsigned i = param->getFunctionScopeIndex();
+
+      if (end_tok >= params_end) {
+        continue;  // Also handles `nullptr` case.
+      }
+
       begin_tok = &(end_tok[1]);  // Skip the `(` or the `,`.
       if ((i + 1) == num_params) {
 
         // The ellipsis can be on its own after a comma, or directly after
         // the variable, e.g. `a, ...` vs. `a...`.
         if (has_ellipsis) {
-          end_tok = FindNext(begin_tok, clang::tok::ellipsis);
+          assert(proto.ellipsis == FindNext(begin_tok, clang::tok::ellipsis));
+          end_tok = proto.ellipsis;
+
         } else {
           end_tok = params_end;
         }
       } else {
         end_tok = FindNext(begin_tok, clang::tok::comma);
       }
-      if (!end_tok) {
-        return;
+
+      if (begin_tok < end_tok) {
+        param_proto.first = begin_tok;
+        param_proto.second = end_tok;
       }
     }
 
-    // These should be right.
-    if (begin_tok && end_tok) {
-      lower_bound = begin_tok;
-      upper_bound = &(end_tok[-1]);
+    return &proto;
+  }
 
-    // If we don't have both, then try to widen the range for whichever we have.
-    } else {
-      if (!lower_bound || begin_tok < lower_bound) {
-        lower_bound = begin_tok;
-      }
-      if (!upper_bound || end_tok >= upper_bound) {
-        upper_bound = &(end_tok[-1]);
-      }
+  // TODO(pag): Handle parameters from the canonical decl being injected into
+  //            out-of-line methods on class templates.
+  void VisitParmVarDecl(clang::ParmVarDecl *decl) {
+
+    clang::FunctionDecl *func =
+        clang::dyn_cast<clang::FunctionDecl>(decl->getDeclContext());
+    if (!func) {
+      return;
     }
 
-//    for (auto t = lower_bound; t <= upper_bound; ++t) {
-//      std::cerr << t->Data(ast) << ' ';
-//    }
-//    std::cerr << "\n\n";
+    const ASTImpl::FunctionProto *proto = FunctionProtoFor(func);
+    if (!proto) {
+      return;
+    }
+
+    unsigned param_index = decl->getFunctionScopeIndex();
+    assert(param_index < proto->params.size());
+
+    // This just ends up re-reading the bounds back out of the AST.
+    const ASTImpl::BoundingTokens *param_proto = proto->params[param_index];
+    lower_bound = param_proto->first;
+    upper_bound = param_proto->second;
   }
 
   TokenImpl *ExpandToLeadingToken(TokenImpl *name_tok,
@@ -1287,41 +1299,51 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
   }
 
   void VisitTagDecl(clang::TagDecl *decl) {
+    auto X = false;
+    D("a", X);
+
+    clang::tok::TokenKind introducer_kind = {};
 
     // Implicit classes are for things like C++ lambdas.
     if (!decl->isImplicit()) {
       TokenImpl *name_loc = ast.RawTokenAt(decl->getLocation());
       TokenImpl *introducer_loc = nullptr;
+
       switch (decl->getTagKind()) {
         case clang::TTK_Struct:
-          introducer_loc = ExpandToLeadingToken(name_loc, clang::tok::kw_struct);
+          introducer_kind = clang::tok::kw_struct;
           break;
         case clang::TTK_Interface:
-          introducer_loc = ExpandToLeadingToken(name_loc, clang::tok::kw___interface);
+          introducer_kind = clang::tok::kw___interface;
           break;
         case clang::TTK_Union:
-          introducer_loc = ExpandToLeadingToken(name_loc, clang::tok::kw_union);
+          introducer_kind = clang::tok::kw_union;
           break;
         case clang::TTK_Class:
-          introducer_loc = ExpandToLeadingToken(name_loc, clang::tok::kw_class);
+          introducer_kind = clang::tok::kw_class;
           break;
         case clang::TTK_Enum:
-          introducer_loc = ExpandToLeadingToken(name_loc, clang::tok::kw_enum);
+          introducer_kind = clang::tok::kw_enum;
           break;
+        default:
+          assert(false);
+          goto invalid_introducer;
       }
 
-      if (introducer_loc) {
-        if (auto tag_end = FindEndOfTag(decl, name_loc)) {
-          upper_bound = tag_end;
+      introducer_loc = ExpandToLeadingToken(name_loc, introducer_kind);
+      D("b", X);
 
-//          std::cerr
-//              << "1) lower_bound="
-//              << reinterpret_cast<void *>(lower_bound) << " upper_bound="
-//              << reinterpret_cast<void *>(upper_bound) << '\n' ;
-          return;
+      if (lower_bound && introducer_loc) {
+        if (lower_bound < introducer_loc && decl->isEmbeddedInDeclarator()) {
+          lower_bound = introducer_loc;
+          D("d", X);
         }
+      } else if (introducer_loc) {
+        lower_bound = introducer_loc;
+        D("e", X);
       }
     }
+  invalid_introducer:
 
 //    // NOTE(pag): Need to handle the case of a structure defined inside of
 //    //            a parameter list, or as the return type of a function, or
@@ -1334,6 +1356,13 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 //        << reinterpret_cast<void *>(upper_bound) << '\n' ;
     //    VisitTypeDecl(decl);
     Expand(decl->getSourceRange());
+    D("f", X);
+
+    if (auto tag_end = FindEndOfTag(decl, lower_bound)) {
+      upper_bound = tag_end;
+      D("g", X);
+    }
+
 //    std::cerr
 //        << "3) lower_bound="
 //        << reinterpret_cast<void *>(lower_bound) << " upper_bound="
@@ -1651,9 +1680,11 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
     // Reset state.
     seen_decls.clear();
+    curr_decl = nullptr;
     attr_decl = nullptr;
-    lower_bound = upper_bound = ast.RawTokenAt(decl->getLocation());
+    lower_bound = upper_bound = nullptr;
 
+    Visit(decl);
     if (!lower_bound) {
       return {};  // Probably a builtin.
     }
@@ -1664,7 +1695,6 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 //        << reinterpret_cast<void *>(lower_bound) << " upper_bound="
 //        << reinterpret_cast<void *>(upper_bound) << '\n' ;
 
-    Visit(decl);
     for (auto t = lower_bound; t && t <= upper_bound; ++t) {
       switch (t->Kind()) {
         case clang::tok::l_paren:
@@ -1747,6 +1777,14 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
 std::pair<TokenImpl *, TokenImpl *> ASTImpl::PartitionDeclContext(
     clang::DeclContext *dc) {
+  // TODO(pag): The below is old/weird logic from early PASTA. The remapping in
+  //            particular is relevant to trying to find the "original code" for
+  //            some template instantiation. We are pursuing patches to obviate
+  //            the need for this, so when those materialize, we can eliminate
+  //            this code.
+  return {&(tokens.front()), &((&(tokens.back()))[-1])};
+#if 0
+
   if (!dc) {
     return {&(tokens.front()), &((&(tokens.back()))[-1])};
   }
@@ -1773,6 +1811,7 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::PartitionDeclContext(
   }
 
   DeclBoundsFinder finder(*this);
+
 //  std::set<TokenImpl *> lower_bounds;
 //  std::set<TokenImpl *> upper_bounds;
 
@@ -2022,18 +2061,28 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::PartitionDeclContext(
       auto &b = bounds[next_tld_decl];
       assert(begin_tok <= b.first);
       assert(b.second <= end_tok);
-      b.first = begin_tok;
-      b.second = end_tok;
 
-      // Make the remapped stuff enclose as well.
-      if (auto remap_it = remapped_decls.find(next_tld_decl);
-          remap_it != remapped_decls.end()) {
-        auto &rb = bounds[next_tld_decl];
-        assert(begin_tok <= rb.first);
-        assert(rb.second <= end_tok);
-        rb.first = begin_tok;
-        rb.second = end_tok;
-      }
+      // auto should_expand_bounds = true;
+      // if (auto tag = clang::dyn_cast<clang::TagDecl>(next_tld_decl)) {
+      //   if (tag->isEmbeddedInDeclarator()) {
+      //     should_expand_bounds = false;
+      //   }
+      // }
+
+      // if (should_expand_bounds) {
+      //   b.first = begin_tok;
+      //   b.second = end_tok;
+
+      //   // Make the remapped stuff enclose as well.
+      //   if (auto remap_it = remapped_decls.find(next_tld_decl);
+      //       remap_it != remapped_decls.end()) {
+      //     auto &rb = bounds[next_tld_decl];
+      //     assert(begin_tok <= rb.first);
+      //     assert(rb.second <= end_tok);
+      //     rb.first = begin_tok;
+      //     rb.second = end_tok;
+      //   }
+      // }
 
       lexically_containing_decl.emplace(next_tld_decl, tld_decl);
       ++num_tlds;
@@ -2062,6 +2111,7 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::PartitionDeclContext(
 //  assert(ret.first <= old_bounds.first);
 //  assert(old_bounds.second <= ret.second);
 //  (void) old_bounds;
+#endif
 }
 
 // Try to return the inclusive bounds of a given declaration in terms of
@@ -2080,7 +2130,7 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
     return ret;
   }
 
-  auto parent_bounds = PartitionDeclContext(decl->getLexicalDeclContext());
+  // auto parent_bounds = PartitionDeclContext(decl->getLexicalDeclContext());
 
   // Go from specializations back to templates.
   if (auto remap_it = remapped_decls.find(decl);
@@ -2094,20 +2144,18 @@ std::pair<TokenImpl *, TokenImpl *> ASTImpl::DeclBounds(clang::Decl *decl) {
 
   ret = finder.GetBounds(decl);
 
-  if (ret.first && parent_bounds.first && ret.first < parent_bounds.first) {
-    ret.first = parent_bounds.first;
-  }
-  if (ret.second && parent_bounds.second && ret.second > parent_bounds.second) {
-    ret.second = parent_bounds.second;
-  }
+  // if (ret.first && parent_bounds.first && ret.first < parent_bounds.first) {
+  //   ret.first = parent_bounds.first;
+  // }
+  // if (ret.second && parent_bounds.second && ret.second > parent_bounds.second) {
+  //   ret.second = parent_bounds.second;
+  // }
 
   return ret;
 }
 
-// Return a token range for the bounds of a declaration.
-TokenRange ASTImpl::DeclTokenRange(const clang::Decl *decl_) {
-  std::unique_lock<std::mutex> locker(bounds_mutex);
-
+TokenRange ASTImpl::DeclTokenRange(const clang::Decl *decl_,
+                                   std::unique_lock<std::mutex> locker) {
   auto decl = const_cast<clang::Decl *>(decl_);
   if (auto [first, last] = DeclBounds(decl); first && first <= last) {
     return TokenRange(this->shared_from_this(), first, &(last[1]));
@@ -2118,10 +2166,189 @@ TokenRange ASTImpl::DeclTokenRange(const clang::Decl *decl_) {
   if (auto remapped_decl = RemapDecl(decl);
       remapped_decl && remapped_decl != decl) {
     bounds[decl] = DeclBounds(remapped_decl);
-    return DeclTokenRange(remapped_decl);
+    return DeclTokenRange(remapped_decl, std::move(locker));
   }
 
   return TokenRange(this->shared_from_this());
+}
+
+// Return a token range for the bounds of a declaration.
+TokenRange ASTImpl::DeclTokenRange(const clang::Decl *decl_) {
+  return DeclTokenRange(decl_, std::unique_lock<std::mutex>(bounds_mutex));
+}
+
+// Figure out lexical parentage. This is an important pre-processing step
+// prior to bounds calculation.
+void ASTImpl::PreprocessLexicalParentage(void) {
+  return;
+
+  // TODO(pag): Lexical parentage also seems to be computed within `DeclBounds`.
+  //            I moved this code over here from `AlignTokens`, as it used to
+  //            be relevant to doing the whole-program alignment. Now, we do
+  //            alignment at smaller granularities, and it's not clear if this
+  //            matters.
+#if 0
+  std::vector<clang::Decl *> work_list;
+  std::vector<clang::Decl *> tlds;
+  std::unordered_set<const clang::Decl *> ignore_decls;
+
+  work_list.push_back(tu);
+  while (!work_list.empty()) {
+    clang::Decl * const decl = work_list.back();
+    work_list.pop_back();
+    switch (decl->getKind()) {
+      case clang::Decl::TranslationUnit:
+      case clang::Decl::LinkageSpec:
+      case clang::Decl::ExternCContext:
+      case clang::Decl::Namespace:
+        for (auto sub_decl : clang::Decl::castToDeclContext(decl)->decls()) {
+          work_list.push_back(sub_decl);
+        }
+        break;
+
+//      // If it's something like `extern "C" int foo;` then we want to treat it
+//      // as top-level, otherwise, it's more like `extern "C" { ... }` and so we
+//      // want to find the top-level decls in the `...`.
+//      case clang::Decl::LinkageSpec:
+//        if (auto lsp = llvm::dyn_cast<clang::LinkageSpecDecl>(decl);
+//            !lsp->hasBraces() && !lsp->isImplicit()) {
+//
+//          // Compute bounds of top-level decls. This will fill out
+//          // `lexically_containing_decl`.
+//          (void) DeclBounds(decl);
+//          tlds.push_back(decl);
+//
+//        } else {
+//          for (auto sub_decl : clang::Decl::castToDeclContext(decl)->decls()) {
+//            work_list.push_back(sub_decl);
+//          }
+//        }
+//        break;
+
+      default:
+        if (auto ftpl = clang::dyn_cast<clang::FunctionTemplateDecl>(decl)) {
+          for (clang::Decl *spec : ftpl->specializations()) {
+            ignore_decls.insert(Canonicalize(spec));
+          }
+
+        } else if (auto ctpl = clang::dyn_cast<clang::ClassTemplateDecl>(decl)) {
+          for (clang::Decl *spec : ctpl->specializations()) {
+            ignore_decls.insert(Canonicalize(spec));
+          }
+
+        } else if (auto vtpl = clang::dyn_cast<clang::VarTemplateDecl>(decl)) {
+          for (clang::Decl *spec : vtpl->specializations()) {
+            ignore_decls.insert(Canonicalize(spec));
+          }
+        }
+
+        if (!decl->isImplicit()) {
+          // Compute bounds of top-level decls. This will fill out
+          // `lexically_containing_decl`.
+          (void) DeclBounds(decl);
+          tlds.push_back(decl);
+        }
+        break;
+    }
+  }
+
+  // File explicit, user-written explicit template specializations, and ignore
+  // all other specializations.
+  auto should_keep = [&ignore_decls] (clang::Decl *decl) {
+    auto tsk = clang::TSK_Undeclared;
+    bool has_spec_or_partial = false;
+    if (auto cspec = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(decl);
+        cspec && !clang::isa<clang::ClassTemplatePartialSpecializationDecl>(cspec)) {
+      tsk = cspec->getSpecializationKind();
+      has_spec_or_partial = !cspec->getSpecializedTemplateOrPartial().isNull();
+
+    } else if (auto vspec = clang::dyn_cast<clang::VarTemplateSpecializationDecl>(decl);
+               vspec && !clang::isa<clang::VarTemplatePartialSpecializationDecl>(vspec)) {
+      tsk = vspec->getSpecializationKind();
+      has_spec_or_partial = !vspec->getSpecializedTemplateOrPartial().isNull();
+
+    } else if (auto fdecl = clang::dyn_cast<clang::FunctionDecl>(decl)) {
+      tsk = fdecl->getTemplateSpecializationKind();
+
+    } else if (auto vdecl = clang::dyn_cast<clang::VarDecl>(decl)) {
+      tsk = vdecl->getTemplateSpecializationKind();
+
+    } else if (auto ta = clang::dyn_cast<clang::TypeAliasDecl>(decl)) {
+      if (ta->getDescribedAliasTemplate()) {
+        tsk = clang::TSK_ImplicitInstantiation;  // Fake it.
+      }
+
+    } else {
+      has_spec_or_partial = ignore_decls.count(Canonicalize(decl));
+    }
+
+    return IsExplicitInstantiation(tsk, has_spec_or_partial);
+  };
+
+  // Strip out template specializations.
+  tlds.erase(
+      std::partition(tlds.begin(), tlds.end(), should_keep),
+      tlds.end());
+
+  tlds.erase(std::unique(tlds.begin(), tlds.end()), tlds.end());
+
+  std::stable_sort(
+      tlds.begin(), tlds.end(),
+      [this] (clang::Decl *a, clang::Decl *b) {
+        auto a_bounds = DeclBounds(a);
+        auto b_bounds = DeclBounds(b);
+
+        // If `a` starts first, put it first.
+        if (a_bounds.first < b_bounds.first) {
+          return true;
+
+        } else if (a_bounds.first > b_bounds.first) {
+          return false;
+
+        // If `b` encloses `a`, sort `b` first.
+        } else if (a_bounds.second < b_bounds.second) {
+          return false;
+
+        // If `a` encloses `b`, then sort `a` first.
+        } else if (a_bounds.second > b_bounds.second) {
+          return true;
+
+        // Keep the relative order from `tlds`.
+        } else {
+          return false;
+        }
+      });
+
+  std::vector<clang::Decl *> tld_group;
+
+  for (auto tld_it = tlds.begin(), tld_end = tlds.end(); tld_it != tld_end; ) {
+    clang::Decl *decl = *tld_it;
+    clang::Decl *&containing_decl = lexically_containing_decl[decl];
+    if (!containing_decl) {
+      containing_decl = decl;
+    }
+
+    tld_group.clear();
+    tld_group.push_back(containing_decl);
+    for (; tld_it != tld_end; ++tld_it) {
+      clang::Decl *next_decl = *tld_it;
+      if (containing_decl == lexically_containing_decl[next_decl]) {
+        if (next_decl != containing_decl) {
+          tld_group.push_back(next_decl);
+        }
+      } else {
+        break;
+      }
+    }
+
+    assert(1u <= tld_group.size());
+
+    // Figure out the parsed bounds. If we don't have bounds then we are
+    // probably dealing with something like a namespace / linkage spec /
+    // extern C, or an implicit declaration.
+    (void) DeclBounds(decl);
+  }
+#endif
 }
 
 }  // namespace pasta

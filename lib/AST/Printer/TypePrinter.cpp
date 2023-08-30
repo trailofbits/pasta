@@ -140,7 +140,7 @@ static void AppendTypeQualList(pasta::raw_string_ostream &OS, unsigned TypeQuals
 ///
 /// \param IncludeType If set, ensure that the type of the expression printed
 /// matches the type of the template argument.
-static void printIntegral(const clang::TemplateArgument &TemplArg,
+static void printIntegral(Printer &printer, const clang::TemplateArgument &TemplArg,
                           raw_string_ostream &Out, PrintedTokenRangeImpl &tokens,
                           const clang::PrintingPolicy &Policy, bool IncludeType) {
   const clang::Type *T = TemplArg.getIntegralType().getTypePtr();
@@ -154,7 +154,7 @@ static void printIntegral(const clang::TemplateArgument &TemplArg,
         // may create a size difference between the enum value and template
         // argument value, requiring isSameValue here instead of operator==.
         if (llvm::APSInt::isSameValue(ECD->getInitVal(), Val)) {
-          PrintQualifiedName(Out, ECD, tokens, Policy);
+          PrintQualifiedName(printer, ECD, Policy);
           return;
         }
       }
@@ -244,10 +244,12 @@ static bool needsAmpersandOnTemplateArg(clang::QualType paramType,
   return true;
 }
 
-void printArgument(const clang::TemplateArgument &A,
+void printArgument(Printer &printer, const clang::TemplateArgument &A,
                    const clang::PrintingPolicy &Policy,
-                   raw_string_ostream &Out, PrintedTokenRangeImpl &tokens,
                    bool IncludeType) {
+  auto &Out = printer.Out;
+  auto &tokens = printer.tokens;
+
   TokenPrinterContext ctx(Out, &A, tokens);
 
   switch (A.getKind()) {
@@ -259,8 +261,8 @@ void printArgument(const clang::TemplateArgument &A,
     clang::PrintingPolicy SubPolicy(Policy);
     SubPolicy.SuppressStrongLifetime = true;
 
-    TypePrinter printer(SubPolicy, tokens, 0);
-    printer.print(A.getAsType(), Out, "", nullptr);
+    TypePrinter printer(Out, SubPolicy, tokens, 0);
+    printer.print(A.getAsType(), "", nullptr);
     break;
   }
 
@@ -278,7 +280,7 @@ void printArgument(const clang::TemplateArgument &A,
         Out << "&";
     }
 
-    PrintQualifiedName(Out, ND, tokens, Policy);
+    PrintQualifiedName(printer, ND, Policy);
     break;
   }
 
@@ -297,7 +299,7 @@ void printArgument(const clang::TemplateArgument &A,
     break;
 
   case clang::TemplateArgument::Integral:
-    printIntegral(A, Out, tokens, Policy, IncludeType);
+    printIntegral(printer, A, Out, tokens, Policy, IncludeType);
     break;
 
   case clang::TemplateArgument::Expression: {
@@ -316,26 +318,28 @@ void printArgument(const clang::TemplateArgument &A,
       else
         Out << ", ";
 
-      printArgument(P, Policy, Out, tokens, IncludeType);
+      printArgument(printer, P, Policy, IncludeType);
     }
     Out << ">";
     break;
   }
 }
 
-static void printArgument(const clang::TemplateArgumentLoc &A,
+static void printArgument(Printer &printer, const clang::TemplateArgumentLoc &A,
                           const clang::PrintingPolicy &PP,
-                          raw_string_ostream &OS, PrintedTokenRangeImpl &tokens,
                           bool IncludeType) {
+  auto &OS = printer.OS;
+  auto &tokens = printer.tokens;
+
   const clang::TemplateArgument::ArgKind &Kind = A.getArgument().getKind();
   if (Kind == clang::TemplateArgument::ArgKind::Type) {
     TokenPrinterContext ctx(OS, &A.getArgument(), tokens);
 
-    TypePrinter printer(PP, tokens, 0);
-    printer.print(A.getTypeSourceInfo()->getType(), OS, "", nullptr);
+    TypePrinter printer(OS, PP, tokens, 0);
+    printer.print(A.getTypeSourceInfo()->getType(), "", nullptr);
     return;
   }
-  printArgument(A.getArgument(), PP, OS, tokens, IncludeType);
+  printArgument(printer, A.getArgument(), PP, IncludeType);
 }
 
 static const clang::TemplateArgument &getArgument(
@@ -367,10 +371,13 @@ static bool IsDefaulted(clang::ASTContext &Ctx,
 
 template <typename TA>
 static void
-printTo(raw_string_ostream &OS, PrintedTokenRangeImpl &tokens,
-        llvm::ArrayRef<TA> Args, const clang::PrintingPolicy &Policy,
+printTo(Printer &printer, llvm::ArrayRef<TA> Args,
+        const clang::PrintingPolicy &Policy,
         const clang::TemplateParameterList *TPL,
         bool IsPack, unsigned ParmIndex) {
+
+  auto &OS = printer.OS;
+  auto &tokens = printer.tokens;
 
   // Drop trailing template arguments that match default arguments.
   if (TPL && Policy.SuppressDefaultTemplateArgs &&
@@ -401,13 +408,13 @@ printTo(raw_string_ostream &OS, PrintedTokenRangeImpl &tokens,
     if (Argument.getKind() == clang::TemplateArgument::Pack) {
       if (Argument.pack_size() && !FirstArg)
         OS << Comma;
-      printTo(OS, tokens, Argument.getPackAsArray(), Policy, TPL,
+      printTo(printer, Argument.getPackAsArray(), Policy, TPL,
               /*IsPack*/ true, ParmIndex);
     } else {
       if (!FirstArg)
         OS << Comma;
       // Tries to print the argument with location info if exists.
-      printArgument(Arg, Policy, OS, tokens,
+      printArgument(printer, Arg, Policy,
                     clang::TemplateParameterList::shouldIncludeTypeForArgument(
                         Policy, TPL, ParmIndex));
     }
@@ -431,28 +438,25 @@ printTo(raw_string_ostream &OS, PrintedTokenRangeImpl &tokens,
   }
 }
 
-void printTemplateArgumentList(raw_string_ostream &OS,
-                               PrintedTokenRangeImpl &tokens,
+void printTemplateArgumentList(Printer &printer,
                                const clang::TemplateArgumentListInfo &Args,
                                const clang::PrintingPolicy &Policy,
                                const clang::TemplateParameterList *TPL) {
-  printTemplateArgumentList(OS, tokens, Args.arguments(), Policy, TPL);
+  printTemplateArgumentList(printer, Args.arguments(), Policy, TPL);
 }
 
-void printTemplateArgumentList(raw_string_ostream &OS,
-                               PrintedTokenRangeImpl &tokens,
+void printTemplateArgumentList(Printer &printer,
                                llvm::ArrayRef<clang::TemplateArgument> Args,
                                const clang::PrintingPolicy &Policy,
                                const clang::TemplateParameterList *TPL) {
-  printTo(OS, tokens, Args, Policy, TPL, /*isPack*/ false, /*parmIndex*/ 0);
+  printTo(printer, Args, Policy, TPL, /*isPack*/ false, /*parmIndex*/ 0);
 }
 
-void printTemplateArgumentList(raw_string_ostream &OS,
-                               PrintedTokenRangeImpl &tokens,
+void printTemplateArgumentList(Printer &printer,
                                llvm::ArrayRef<clang::TemplateArgumentLoc> Args,
                                const clang::PrintingPolicy &Policy,
                                const clang::TemplateParameterList *TPL) {
-  printTo(OS, tokens, Args, Policy, TPL, /*isPack*/ false, /*parmIndex*/ 0);
+  printTo(printer, Args, Policy, TPL, /*isPack*/ false, /*parmIndex*/ 0);
 }
 
 void TypePrinter::spaceBeforePlaceHolder(raw_string_ostream &OS) {
@@ -468,7 +472,6 @@ static clang::SplitQualType splitAccordingToPolicy(clang::QualType QT,
 }
 
 void TypePrinter::print(clang::QualType t,
-                        raw_string_ostream &OS,
                         clang::StringRef PlaceHolder,
                         std::function<void(void)> *placeHolderFn) {
   if (placeHolderFn) {
@@ -664,7 +667,7 @@ void TypePrinter::printComplex(const clang::ComplexType *T, raw_string_ostream &
   {
     TokenPrinterContext ctx(OS, T, tokens);
     OS << "_Complex ";
-    print(T->getElementType(), OS, llvm::StringRef());
+    print(T->getElementType(), llvm::StringRef());
   }
   IdentFn();
 }
@@ -804,8 +807,8 @@ void TypePrinter::printMemberPointer(const clang::MemberPointerType *T,
     {
       TokenPrinterContext jump_up_stack(ctx);
       TagDefinitionPolicyRAII tag_raii(Policy);
-      TypePrinter(Policy, tokens).print(
-          clang::QualType(T->getClass(), 0), OS, clang::StringRef());
+      TypePrinter(OS, Policy, tokens).print(
+          clang::QualType(T->getClass(), 0), clang::StringRef());
       OS << "::*";
     }
     IdentFn();
@@ -850,7 +853,8 @@ void TypePrinter::printConstantArray(const clang::ConstantArrayType *T,
     if (T->getSizeModifier() == clang::ArrayType::Static)
       OS << "static ";
 
-    if (const clang::Expr *Expr = T->getSizeExpr()) {
+    if (const clang::Expr *Expr = T->getSizeExpr();
+        Expr && tokens.ppa->ShouldPrintConstantExpressionsInTypes()) {
       StmtPrinter stmtPrinter(OS, nullptr, tokens, Policy, 0, "\n",
                               &(tokens.ast_context));
       stmtPrinter.Visit(const_cast<clang::Expr *>(Expr));
@@ -924,7 +928,12 @@ void TypePrinter::printAdjusted(const clang::AdjustedType *T,
 
   // Print the original type, as that is more reflective of what is actually
   // in the code.
-  printBeforeAfter(T->getOriginalType(), OS, std::move(IdentFn));
+  if (tokens.ppa->ShouldPrintOriginalTypeOfAdjustedType()) {
+    printBeforeAfter(T->getOriginalType(), OS, std::move(IdentFn));
+
+  } else {
+    printBeforeAfter(T->getAdjustedType(), OS, std::move(IdentFn));
+  }
 }
 
 void TypePrinter::printDecayed(const clang::DecayedType *T,
@@ -932,9 +941,14 @@ void TypePrinter::printDecayed(const clang::DecayedType *T,
                                std::function<void(void)> IdentFn) {
   TokenPrinterContext ctx(OS, T, tokens);
 
-  // Print the decayed representation, otherwise the adjustment will be
-  // invisible.
-  printBeforeAfter(T->getDecayedType(), OS, std::move(IdentFn));
+  // Print the original type, as that is more reflective of what is actually
+  // in the code.
+  if (tokens.ppa->ShouldPrintOriginalTypeOfDecayedType()) {
+    printBeforeAfter(T->getOriginalType(), OS, std::move(IdentFn));
+
+  } else {
+    printBeforeAfter(T->getAdjustedType(), OS, std::move(IdentFn));
+  }
 }
 
 void TypePrinter::printDependentSizedArray(
@@ -1032,7 +1046,7 @@ void TypePrinter::printVector(
       OS << "__attribute__((__vector_size__("
          << T->getNumElements()
          << " * sizeof(";
-      print(T->getElementType(), OS, clang::StringRef());
+      print(T->getElementType(), clang::StringRef());
       OS << ")))) ";
       break;
     }
@@ -1050,7 +1064,7 @@ void TypePrinter::printVector(
         OS << T->getNumElements();
 
       OS << " * sizeof(";
-      print(T->getElementType(), OS, clang::StringRef());
+      print(T->getElementType(), clang::StringRef());
       // Multiply by 8 for the number of bits.
       OS << ") * 8))) ";
       break;
@@ -1104,7 +1118,7 @@ void TypePrinter::printDependentVector(
       OS << "__attribute__((__vector_size__(";
       SizeFn();
       OS << " * sizeof(";
-      print(T->getElementType(), OS, clang::StringRef());
+      print(T->getElementType(), clang::StringRef());
       OS << ")))) ";
       break;
     }
@@ -1121,7 +1135,7 @@ void TypePrinter::printDependentVector(
         OS << " * 8";
 
       OS << " * sizeof(";
-      print(T->getElementType(), OS, clang::StringRef());
+      print(T->getElementType(), clang::StringRef());
       // Multiply by 8 for the number of bits.
       OS << ") * 8))) ";
       break;
@@ -1210,8 +1224,8 @@ static void FunctionProtoType_printExceptionSpecification(
         if (I)
           OS << ", ";
 
-        TypePrinter printer(Policy, tokens, 0);
-        printer.print(T->getExceptionType(I), OS, "", nullptr);
+        TypePrinter printer(OS, Policy, tokens, 0);
+        printer.print(T->getExceptionType(I), "", nullptr);
       }
     OS << ')';
   } else if (clang::EST_NoThrow == T->getExceptionSpecType()) {
@@ -1303,7 +1317,7 @@ void TypePrinter::printFunctionProto(const clang::FunctionProtoType *T,
             OS << "__attribute__((" << clang::getParameterABISpelling(ABI) << ")) ";
           }
 
-          print(T->getParamType(i), OS, clang::StringRef());
+          print(T->getParamType(i), clang::StringRef());
         }
       }
 
@@ -1312,6 +1326,7 @@ void TypePrinter::printFunctionProto(const clang::FunctionProtoType *T,
           OS << ", ";
 
         OS << "...";
+        ctx.MarkLocation(T->getEllipsisLoc());
 
       } else if (T->getNumParams() == 0 && Policy.UseVoidForZeroParams) {
         // Do not emit int() if we have a proto, emit 'int(void)'.
@@ -1346,7 +1361,7 @@ void TypePrinter::printFunctionProto(const clang::FunctionProtoType *T,
   if (T->hasTrailingReturn()) {
     IdentFn();
     OS << " -> ";
-    print(T->getReturnType(), OS, clang::StringRef());
+    print(T->getReturnType(), clang::StringRef());
   } else {
     printBeforeAfter(T->getReturnType(), OS, std::move(IdentFn));
   }
@@ -1554,7 +1569,7 @@ void TypePrinter::printTypeOf(const clang::TypeOfType *T,
   TokenPrinterContext ctx(OS, T, tokens);
   OS << (T->getKind() == clang::TypeOfKind::Unqualified ? "typeof_unqual("
                                                         : "typeof(");
-  print(T->getUnmodifiedType(), OS, clang::StringRef());
+  print(T->getUnmodifiedType(), clang::StringRef());
   OS << ')';
   spaceBeforePlaceHolder(OS);
   IdentFn();
@@ -1570,7 +1585,7 @@ void TypePrinter::printDecltype(const clang::DecltypeType *T,
                             &(tokens.ast_context));
     stmtPrinter.Visit((T->getUnderlyingExpr()));
   } else {
-    print(T->getUnderlyingType(), OS, clang::StringRef());
+    print(T->getUnderlyingType(), clang::StringRef());
   }
   OS << ')';
   spaceBeforePlaceHolder(OS);
@@ -1590,7 +1605,7 @@ void TypePrinter::printUnaryTransform(const clang::UnaryTransformType *T,
 #include <clang/Basic/TransformTypeTraits.def>
   }};
   OS << Transformation[T->getUTTKind()] << '(';
-  print(T->getBaseType(), OS, llvm::StringRef());
+  print(T->getBaseType(), llvm::StringRef());
   OS << ')';
 
   IdentFn();
@@ -1616,7 +1631,7 @@ void TypePrinter::printAuto(const clang::AutoType *T, raw_string_ostream &OS,
     auto Args = T->getTypeConstraintArguments();
     if (!Args.empty()) {
       printTemplateArgumentList(
-          OS, tokens, Args, Policy,
+          *this, Args, Policy,
           T->getTypeConstraintConcept()->getTemplateParameters());
     }
     OS << ' ';
@@ -1653,7 +1668,7 @@ void TypePrinter::printAtomic(const clang::AtomicType *T,
 
   IncludeStrongLifetimeRAII Strong(Policy);
   OS << "_Atomic ";
-  print(T->getValueType(), OS, clang::StringRef());
+  print(T->getValueType(), clang::StringRef());
   spaceBeforePlaceHolder(OS);
   IdentFn();
 }
@@ -1669,7 +1684,7 @@ void TypePrinter::printPipe(const clang::PipeType *T, raw_string_ostream &OS,
   else
     OS << "write_only ";
   OS << "pipe ";
-  print(T->getElementType(), OS, clang::StringRef());
+  print(T->getElementType(), clang::StringRef());
   spaceBeforePlaceHolder(OS);
   IdentFn();
 }
@@ -1745,7 +1760,7 @@ void TypePrinter::AppendScope(clang::DeclContext *DC, raw_string_ostream &OS,
       {
         TagDefinitionPolicyRAII tag_raii(Policy);
         printTemplateArgumentList(
-            OS, tokens, TemplateArgs.asArray(), Policy,
+            *this, TemplateArgs.asArray(), Policy,
             Spec->getSpecializedTemplate()->getTemplateParameters());
       }
     }
@@ -1767,7 +1782,6 @@ void TypePrinter::AppendScope(clang::DeclContext *DC, raw_string_ostream &OS,
 }
 
 void TypePrinter::printTag(clang::TagDecl *D, raw_string_ostream &OS) {
-
   if (Policy.IncludeTagDefinition) {
 //    clang::PrintingPolicy SubPolicy = Policy;
 //    SubPolicy.IncludeTagDefinition = false;
@@ -1787,6 +1801,21 @@ void TypePrinter::printTag(clang::TagDecl *D, raw_string_ostream &OS) {
   if (!Policy.SuppressTagKeyword && !D->getTypedefNameForAnonDecl()) {
     HasKindDecoration = true;
     OS << D->getKindName();
+
+    if (tokens.ast) {
+      auto tag_loc = D->getInnerLocStart();
+      if (auto tag_tok = tokens.ast->RawTokenAt(tag_loc)) {
+        switch (tag_tok->Kind()) {
+          case clang::tok::kw_struct:
+          case clang::tok::kw_union:
+            ctx.MarkLocation(tag_loc);
+            break;
+          default:
+            break;
+        }
+      }
+    }
+
     OS << ' ';
   }
 
@@ -1853,7 +1882,7 @@ void TypePrinter::printTag(clang::TagDecl *D, raw_string_ostream &OS) {
     }
     IncludeStrongLifetimeRAII Strong(Policy);
     printTemplateArgumentList(
-        OS, tokens, Args, Policy,
+        *this, Args, Policy,
         Spec->getSpecializedTemplate()->getTemplateParameters());
   }
 
@@ -2008,7 +2037,7 @@ void TypePrinter::printTemplateId(const clang::TemplateSpecializationType *T,
 
   DefaultTemplateArgsPolicyRAII TemplateArgs(Policy);
   const clang::TemplateParameterList *TPL = TD ? TD->getTemplateParameters() : nullptr;
-  printTemplateArgumentList(OS, tokens, T->template_arguments(), Policy, TPL);
+  printTemplateArgumentList(*this, T->template_arguments(), Policy, TPL);
   spaceBeforePlaceHolder(OS);
 }
 
@@ -2079,7 +2108,7 @@ void TypePrinter::printElaborated(const clang::ElaboratedType *T,
       OS << " ";
 
     if (clang::NestedNameSpecifier *Qualifier = T->getQualifier())
-      PrintNestedNameSpecifier(OS, Qualifier, tokens, Policy);
+      PrintNestedNameSpecifier(*this, Qualifier, Policy);
 
     decl_context.reset();
     tag_context.reset();
@@ -2113,7 +2142,7 @@ void TypePrinter::printDependentName(const clang::DependentNameType *T,
     OS << " ";
 
   TagDefinitionPolicyRAII disable_tags(Policy);
-  PrintNestedNameSpecifier(OS, T->getQualifier(), tokens, Policy);
+  PrintNestedNameSpecifier(*this, T->getQualifier(), Policy);
 
   OS << T->getIdentifier()->getName();
   spaceBeforePlaceHolder(OS);
@@ -2134,11 +2163,11 @@ void TypePrinter::printDependentTemplateSpecialization(
 
   TagDefinitionPolicyRAII disable_tags(Policy);
   if (auto Q = T->getQualifier())
-    PrintNestedNameSpecifier(OS, Q, tokens, Policy);
+    PrintNestedNameSpecifier(*this, Q, Policy);
 
   OS << "template " << T->getIdentifier()->getName();
   assert(!Policy.IncludeTagDefinition);
-  printTemplateArgumentList(OS, tokens, T->template_arguments(), Policy);
+  printTemplateArgumentList(*this, T->template_arguments(), Policy);
   spaceBeforePlaceHolder(OS);
   IdentFn();
 }
@@ -2393,7 +2422,7 @@ void TypePrinter::printObjCObject(const clang::ObjCObjectType *T,
   if (T->isKindOfTypeAsWritten())
     OS << "__kindof ";
 
-  print(T->getBaseType(), OS, clang::StringRef());
+  print(T->getBaseType(), clang::StringRef());
 
   if (T->isSpecializedAsWritten()) {
     bool isFirst = true;
@@ -2404,7 +2433,7 @@ void TypePrinter::printObjCObject(const clang::ObjCObjectType *T,
       else
         OS << ",";
 
-      print(typeArg, OS, clang::StringRef());
+      print(typeArg, clang::StringRef());
     }
     OS << '>';
   }
@@ -2458,40 +2487,75 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
   auto tokens = std::make_shared<PrintedTokenRangeImpl>(context);
 
   if (!type.isNull()) {
-    TypePrinter printer(policy, *tokens);
-    printer.print(type, out, "", nullptr);
+    PrintingPolicyAdaptor ppa;
+    tokens->ppa = &ppa;
+    TypePrinter printer(out, policy, *tokens);
+    printer.print(type, "", nullptr);
+    tokens->ppa = nullptr;
   }
 
+  tokens->tokens.emplace_back(
+      0u, 0u, kInvalidTokenContextIndex, 0u, 0u, clang::tok::eof);
+
   auto num_tokens = tokens->tokens.size();
-  if (!num_tokens) {
-    return PrintedTokenRange(std::move(tokens));
-  } else {
-    auto first = &(tokens->tokens[0]);
-    auto after_last = &(first[num_tokens]);
-    return PrintedTokenRange(std::move(tokens), first, after_last);
-  }
+  auto first = &(tokens->tokens[0]);
+  auto after_last = &(first[num_tokens - 1u]);
+  return PrintedTokenRange(std::move(tokens), first, after_last);
 }
 
 PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
-                                            const clang::QualType &type) {
+                                            const clang::QualType &type,
+                                            const PrintingPolicy &high_pp) {
   std::string data;
   raw_string_ostream out(data, 0);
   auto &context = ast->tu->getASTContext();
   auto tokens = std::make_shared<PrintedTokenRangeImpl>(context);
 
+  // Top-level context should be the AST.
+  tokens->ast = ast;
+  tokens->contexts.emplace_back(*ast);
+
   if (!type.isNull()) {
+    PrintingPolicyAdaptor ppa(ast, high_pp);
+    tokens->ppa = &ppa;
+
     clang::PrintingPolicy pp = *(ast->printing_policy);
-    TypePrinter printer(pp, *tokens);
-    printer.print(type, out, "", nullptr);
+    pp.IncludeTagDefinition = high_pp.ShouldPrintTagBodies();
+
+    TypePrinter printer(out, pp, *tokens);
+    printer.print(type, "", nullptr);
+    tokens->ppa = nullptr;
   }
 
-  auto num_tokens = tokens->tokens.size();
-  if (!num_tokens) {
-    return PrintedTokenRange(std::move(tokens));
-  } else {
-    auto first = &(tokens->tokens[0]);
-    auto after_last = &(first[num_tokens]);
-    return PrintedTokenRange(std::move(tokens), first, after_last);
+  // Fixup to share the AST as the root context.
+  auto max_i = tokens->contexts.size();
+  for (auto i = 1u; i < max_i; ++i) {
+    TokenContextImpl &context = tokens->contexts[i];
+    if (context.parent_index == kInvalidTokenContextIndex) {
+      context.parent_index = kASTTokenContextIndex;
+    }
   }
+
+  tokens->tokens.emplace_back(
+      0u, 0u, kInvalidTokenContextIndex, 0u, 0u, clang::tok::eof);
+
+  auto num_tokens = tokens->tokens.size();
+  auto first = &(tokens->tokens[0]);
+  auto after_last = &(first[num_tokens - 1u]);
+
+  for (auto tok = first; tok < after_last; ++tok) {
+    if (tok->context_index == kInvalidTokenContextIndex) {
+      tok->context_index = kASTTokenContextIndex;
+    }
+
+#ifndef NDEBUG
+    if (tok->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
+      assert(tok->derived_index != kInvalidDerivedTokenIndex);
+    }
+#endif
+  }
+
+  return PrintedTokenRange(std::move(tokens), first, after_last);
 }
+
 }  // namespace pasta

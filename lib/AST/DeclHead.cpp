@@ -9,10 +9,12 @@
 #pragma clang diagnostic ignored "-Wimplicit-int-conversion"
 #pragma clang diagnostic ignored "-Wsign-conversion"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
+#include <clang/AST/Attr.h>
 #include <clang/AST/DeclCXX.h>
 #include <clang/AST/DeclObjC.h>
 #include <clang/AST/DeclTemplate.h>
 #include <clang/AST/Attr.h>
+#include <clang/AST/RecordLayout.h>
 #pragma clang diagnostic pop
 
 #include "AST.h"
@@ -421,6 +423,195 @@ TemplateParameterList::Parameters(void) const noexcept {
   std::vector<::pasta::NamedDecl> ret;
   for (clang::NamedDecl *param : *params) {
     ret.emplace_back(DeclBuilder::Create<pasta::NamedDecl>(ast, param));
+  }
+  return ret;
+}
+
+std::optional<uint64_t> RecordDecl::Size(void) const noexcept {
+  clang::RecordDecl *record = u.RecordDecl->getDefinition();
+  if (!record || record->isInvalidDecl() || !record->isCompleteDefinition()) {
+    return std::nullopt;
+  }
+
+  const clang::Type *type = record->getTypeForDecl();
+  clang::NamedDecl *nd = nullptr;
+  if (!type || type->isIncompleteType(&nd)) {
+    return std::nullopt;
+  }
+
+  auto &layout = record->getASTContext().getASTRecordLayout(record);
+  return layout.getSize().getQuantity();
+}
+
+std::optional<uint64_t> RecordDecl::Alignment(void) const noexcept {
+  clang::RecordDecl *record = u.RecordDecl->getDefinition();
+  if (!record || record->isInvalidDecl() || !record->isCompleteDefinition()) {
+    return std::nullopt;
+  }
+
+  const clang::Type *type = record->getTypeForDecl();
+  clang::NamedDecl *nd = nullptr;
+  if (type->isIncompleteType(&nd)) {
+    auto &ast_ctx = record->getASTContext();
+    clang::QualType qt(type, 0u);
+    if (auto ret = ast_ctx.getTypeAlignIfKnown(qt)) {
+      return ret;
+    }
+
+    return std::nullopt;
+
+  } else {
+    auto &layout = record->getASTContext().getASTRecordLayout(record);
+    return layout.getAlignment().getQuantity();
+  }
+}
+
+std::optional<uint64_t> RecordDecl::SizeWithoutTrailingPadding(void) const noexcept {
+  clang::RecordDecl *record = u.RecordDecl->getDefinition();
+  if (!record || record->isInvalidDecl() || !record->isCompleteDefinition()) {
+    return std::nullopt;
+  }
+
+  const clang::Type *type = record->getTypeForDecl();
+  clang::NamedDecl *nd = nullptr;
+  if (type->isIncompleteType(&nd)) {
+    return std::nullopt;
+  }
+
+  auto &layout = record->getASTContext().getASTRecordLayout(record);
+  return layout.getDataSize().getQuantity();
+}
+
+std::optional<uint64_t> CXXRecordDecl::SizeWithoutVirtualBases(void) const noexcept {
+  clang::RecordDecl *record = u.RecordDecl->getDefinition();
+  if (!record || record->isInvalidDecl() || !record->isCompleteDefinition()) {
+    return std::nullopt;
+  }
+
+  const clang::Type *type = record->getTypeForDecl();
+  clang::NamedDecl *nd = nullptr;
+  if (type->isIncompleteType(&nd)) {
+    return std::nullopt;
+  }
+
+  auto &layout = record->getASTContext().getASTRecordLayout(record);
+  return layout.getNonVirtualSize().getQuantity();
+}
+
+std::optional<CXXRecordDecl> CXXRecordDecl::PrimaryBase(void) const noexcept {
+  clang::RecordDecl *record = u.RecordDecl->getDefinition();
+  if (!record || record->isInvalidDecl() || !record->isCompleteDefinition()) {
+    return std::nullopt;
+  }
+
+  auto &layout = record->getASTContext().getASTRecordLayout(record);
+  const clang::CXXRecordDecl *base = layout.getPrimaryBase();
+  if (!base) {
+    return std::nullopt;
+  }
+
+  return DeclBuilder::Create<pasta::CXXRecordDecl>(ast, base);
+}
+
+std::optional<bool> CXXRecordDecl::HasOwnVirtualFunctionTablePointer(void) const noexcept {
+  clang::RecordDecl *record = u.RecordDecl->getDefinition();
+  if (!record || record->isInvalidDecl() || !record->isCompleteDefinition()) {
+    return std::nullopt;
+  }
+
+  auto &layout = record->getASTContext().getASTRecordLayout(record);
+  return layout.hasOwnVFPtr();
+}
+
+std::optional<bool> CXXRecordDecl::HasExtendableVirtualFunctionTablePointer(void) const noexcept {
+  clang::RecordDecl *record = u.RecordDecl->getDefinition();
+  if (!record || record->isInvalidDecl() || !record->isCompleteDefinition()) {
+    return std::nullopt;
+  }
+
+  auto &layout = record->getASTContext().getASTRecordLayout(record);
+  return layout.hasExtendableVFPtr();
+}
+
+std::optional<bool> CXXRecordDecl::HasVirtualBaseTablePointer(void) const noexcept {
+  clang::RecordDecl *record = u.RecordDecl->getDefinition();
+  if (!record || record->isInvalidDecl() || !record->isCompleteDefinition()) {
+    return std::nullopt;
+  }
+
+  auto &layout = record->getASTContext().getASTRecordLayout(record);
+  return layout.hasVBPtr();
+}
+
+std::optional<bool> CXXRecordDecl::HasOwnVirtualBaseTablePointer(void) const noexcept {
+  clang::RecordDecl *record = u.RecordDecl->getDefinition();
+  if (!record || record->isInvalidDecl() || !record->isCompleteDefinition()) {
+    return std::nullopt;
+  }
+
+  auto &layout = record->getASTContext().getASTRecordLayout(record);
+  return layout.hasOwnVBPtr();
+}
+
+std::optional<uint64_t> FieldDecl::OffsetInBits(void) const noexcept {
+  const clang::RecordDecl *record = u.FieldDecl->getParent();
+  if (!record) {
+    return std::nullopt;
+  }
+
+  record = record->getDefinition();
+  if (!record || record->isInvalidDecl() || !record->isCompleteDefinition()) {
+    return std::nullopt;
+  }
+
+  const clang::Type *type = record->getTypeForDecl();
+  clang::NamedDecl *nd = nullptr;
+  if (!type || type->isIncompleteType(&nd)) {
+    return std::nullopt;
+  }
+
+  auto &layout = record->getASTContext().getASTRecordLayout(record);
+  return layout.getFieldOffset(u.FieldDecl->getFieldIndex());
+}
+
+// Clang deduplicates function types, and stores the ellipsis in those types.
+// that results in the wrong ellipsis location.
+::pasta::Token FunctionDecl::EllipsisToken(void) const {
+  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  if (self.getEllipsisLoc().isValid()) {
+    auto [begin_tok, end_tok] = ast->DeclBounds(&self);
+    if (auto it = ast->func_proto.find(&self); it != ast->func_proto.end()) {
+      assert(begin_tok < it->second.ellipsis);
+      assert(it->second.ellipsis < end_tok);
+      (void) begin_tok;
+      return ::pasta::Token(ast, it->second.ellipsis);
+    }
+  }
+  return ::pasta::Token(ast);
+}
+
+::pasta::TokenRange FunctionDecl::ParametersTokens(void) const {
+  auto &self = *const_cast<clang::FunctionDecl *>(u.FunctionDecl);
+  (void) ast->DeclBounds(&self);
+  if (auto it = ast->func_proto.find(&self); it != ast->func_proto.end()) {
+    ASTImpl::FunctionProto &proto = it->second;
+    return ::pasta::TokenRange(ast, proto.l_paren, proto.r_paren);
+  }
+  return ::pasta::TokenRange(ast);
+}
+
+std::vector<::pasta::EnumConstantDecl> EnumDecl::Enumerators(void) const {
+  auto &self = *const_cast<clang::EnumDecl *>(u.EnumDecl);
+  std::vector<::pasta::EnumConstantDecl> ret;
+  if (auto def = self.getDefinition(); !def || &self != def) {
+    return ret;
+  }
+
+  decltype(auto) val = self.enumerators();
+  for (auto decl_ptr : val) {
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::EnumConstantDecl>(ast, decl_ptr));
+    }
   }
   return ret;
 }

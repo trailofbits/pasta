@@ -611,7 +611,9 @@ std::optional<clang::Token> PatchedMacroTracker::FindDirectiveHash(
 
       // TODO(pag): Make this avoid `#`s inside of block comments, e.g.
       //            # blah /* # hahahah */ ...
-      if (file_data[file_offset] == '#') {
+      if (file_data[file_offset] == '#' ||
+          (file_data[file_offset] == '%' &&
+           file_data[file_offset + 1u] == ':')) {
         hash_loc = directive_loc.getLocWithOffset(loc_offset);
         break;
       }
@@ -946,15 +948,14 @@ void PatchedMacroTracker::DoToken(const clang::Token &tok_, uintptr_t data) {
 
   if (tok_.is(clang::tok::identifier) ||
       clang::tok::getKeywordSpelling(tok.getKind())) {
-    if (clang::IdentifierInfo *ii = tok.getIdentifierInfo()) {
-      if (ii->hasMacroDefinition()) {
-        clang::MacroDefinition def = pp.getMacroDefinition(ii);
-        if (clang::MacroInfo *mi = def.getMacroInfo()) {
-          if (auto dir_it = defines.find(mi); dir_it != defines.end()) {
-            added_tok.is_macro_name = 1;
-            ast->tokens_to_macro_definitions.emplace(
-                tok_index, dir_it->second);
-          }
+    if (clang::IdentifierInfo *ii = tok.getIdentifierInfo(); 
+        ii && ii->hasMacroDefinition()) {
+      clang::MacroDefinition def = pp.getMacroDefinition(ii);
+      if (clang::MacroInfo *mi = def.getMacroInfo(); mi && mi->isEnabled()) {
+        if (auto dir_it = defines.find(mi); dir_it != defines.end()) {
+          added_tok.is_macro_name = 1;
+          ast->tokens_to_macro_definitions.emplace(
+              tok_index, dir_it->second);
         }
       }
     }

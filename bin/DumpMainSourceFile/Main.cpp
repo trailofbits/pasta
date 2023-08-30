@@ -61,9 +61,9 @@ int main(int argc, char *argv[]) {
       std::cerr << maybe_ast.TakeError() << std::endl;
       return EXIT_FAILURE;
     } else {
-//      for (auto tok : maybe_ast.TakeValue().MainFile().Tokens()) {
-//        std::cerr << tok.Data();
-//      }
+     for (auto tok : maybe_ast.TakeValue().MainFile().Tokens()) {
+       std::cerr << tok.Data();
+     }
     }
   }
 

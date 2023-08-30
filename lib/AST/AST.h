@@ -85,7 +85,21 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   std::unordered_map<clang::Decl *, clang::Decl *> lexically_containing_decl;
 
   std::mutex bounds_mutex;
+
+  using BoundingTokens = std::pair<TokenImpl *, TokenImpl *>;
+
   std::unordered_map<void *, std::pair<TokenImpl *, TokenImpl *>> bounds;
+
+  struct FunctionProto {
+    bool has_variable_form{false};
+    TokenImpl *l_paren{nullptr};
+    TokenImpl *r_paren{nullptr};
+    TokenImpl *ellipsis{nullptr};
+    std::vector<BoundingTokens *> params;
+  };
+
+  // The location of a `...` for a given `FunctionDecl`.
+  std::unordered_map<clang::FunctionDecl *, FunctionProto> func_proto;
 
   // Remapped declarations (for the sake of bounds checks).
   std::unordered_map<clang::Decl *, clang::Decl *> remapped_decls;
@@ -130,18 +144,6 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
   //            `tokens`.
   // TODO(pag): Better abstraction for these types of modifications.
   unsigned num_lines{0u};
-
-  // List of token contexts from trying to print the entire AST using the token
-  // printer. The `TokenImpl::context_index` fields of the `tokens` vector above
-  // point into here.
-  //
-  // NOTE(pag): The first context in this list holds a raw data pointer to the
-  //            `ASTImpl` containing `contexts`. This is so that we can get the
-  //            `Decl`s, `Stmt`s, and `Type`s referenced by a token context.
-  //            This is safe because a `TokenContext` has a shared pointer to
-  //            a vector of contexts (this vector), where that shared pointer
-  //            aliases the `ASTImpl`s lifetime.
-  std::vector<TokenContextImpl> contexts;
 
   // Huge "file" containing one token per line. Sometimes some lines are empty.
   // This represents all code after pre-processing, and the relationship is that
@@ -189,22 +191,18 @@ class ASTImpl : public std::enable_shared_from_this<ASTImpl> {
 
   // Return a token range for the bounds of a declaration.
   TokenRange DeclTokenRange(const clang::Decl *decl);
-
-  // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
-  static Result<std::monostate, std::string> AlignTokens(
-      const std::shared_ptr<ASTImpl> &ast_,
-      TokenImpl *parsed_begin, TokenImpl *parsed_end,
-      PrintedTokenRangeImpl &range, TokenContextIndex decl_context_id);
-
-  // Try to align parsed tokens with printed tokens. See `AlignTokens.cpp`.
-  static Result<AST, std::string> AlignTokens(std::shared_ptr<ASTImpl> ast);
+  TokenRange DeclTokenRange(const clang::Decl *decl,
+                            std::unique_lock<std::mutex> locker);
 
   // Mark tokens as being part of macros.
   void MarkMacroTokens(void);
 
-  // After token alignment, we want to link in macro tokens to the token
-  // contexts of tokens with macro roles.
+  // Link in macro tokens to the token contexts of tokens with macro roles.
   void LinkMacroTokenContexts(void);
+
+  // Figure out lexical parentage. This is an important pre-processing step
+  // prior to bounds calculation.
+  void PreprocessLexicalParentage(void);
 
  private:
   ASTImpl(void) = delete;

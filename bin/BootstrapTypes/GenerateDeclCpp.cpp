@@ -14,7 +14,7 @@ extern void DefineCppMethods(std::ostream &os, const std::string &class_name,
                              uint32_t class_id, std::ostream &os_py);
 
 // Generate `lib/AST/Decl.cpp`.
-void GenerateDeclCpp(std::ostream& py_cmake, std::ostream& py_ast) {
+void GenerateDeclCpp(std::ostream &py_cmake, std::ostream &py_ast) {
   std::ofstream os(kASTDeclCpp);
   const std::string decl_context{"DeclContext"};
   const auto &derived_from_decl_context =
@@ -217,8 +217,8 @@ void GenerateDeclCpp(std::ostream& py_cmake, std::ostream& py_ast) {
 #include <pasta/AST/Decl.h>
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
-
-#include <nanobind/nanobind.h>
+ 
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
@@ -228,7 +228,13 @@ void RegisterDeclContext(nb::module_ &m) {
 
     DefineCppMethods(os, decl_context, gClassIDs[decl_context], decl_context_os);
 
-    decl_context_os << ";\n"
+    for (const auto &derived_cls_name : derived_from_decl_context) {
+      decl_context_os
+          << "\n    .def_static(\"cast\", +[] (const " << derived_cls_name << " &cls) { return DeclContext(cls); })";
+    }
+
+    decl_context_os
+          << ";\n"
           << "}\n"
           << "} // namespace pasta\n";
   }
@@ -239,7 +245,6 @@ void RegisterDeclContext(nb::module_ &m) {
     if (name == "DeclContext") {
       continue;
     }
-
 
     py_cmake << "    \"${CMAKE_CURRENT_SOURCE_DIR}/" << name << ".cpp\"\n";
     py_ast << "void Register" << name << "(nb::module_ &m);\n"
@@ -258,9 +263,7 @@ void RegisterDeclContext(nb::module_ &m) {
 #include <pasta/AST/Stmt.h>
 #include <pasta/AST/Type.h>
 
-#include <nanobind/nanobind.h>
-#include <nanobind/stl/optional.h>
-#include <nanobind/stl/vector.h>
+#include "../Bindings.h"
 
 namespace pasta {
 namespace nb = nanobind;
@@ -348,8 +351,30 @@ void Register)" << name << "(nb::module_ &m) {\n"
     }
 
     os_py << ">(m, \"" << name << "\")"
-          << "\n    .def(\"__hash__\", [](const " << name << "& decl) { return (intptr_t)decl.RawDecl(); })"
-          << "\n    .def(\"__eq__\", [](const Decl& a, const Decl& b) { return a.RawDecl() == b.RawDecl(); })";
+          << "\n    .def(\"__hash__\", [](const " << name << " &decl) { return (intptr_t)decl.RawDecl(); })"
+          << "\n    .def(\"__eq__\", [](const Decl &a, const Decl &b) { return a.RawDecl() == b.RawDecl(); })";
+
+    if (name == "Decl") {
+      os_py
+          << "\n    .def_prop_ro(\"kind\", &Decl::Kind)"
+          << "\n    .def_prop_ro(\"kind_name\", &Decl::KindName)";
+    
+    } else if (name == "RecordDecl") {
+      os_py
+          << "\n    .def_prop_ro(\"size\", &RecordDecl::Size)"
+          << "\n    .def_prop_ro(\"alignment\", &RecordDecl::Alignment)"
+          << "\n    .def_prop_ro(\"size_without_trailing_padding\", &RecordDecl::SizeWithoutTrailingPadding)";
+    
+    } else if (name == "CXXRecordDecl") {
+      os_py
+          << "\n    .def_prop_ro(\"size_without_virtual_bases\", &CXXRecordDecl::SizeWithoutVirtualBases)"
+          << "\n    .def_prop_ro(\"primary_base\", &CXXRecordDecl::PrimaryBase)"
+          << "\n    .def_prop_ro(\"has_own_virtual_function_table_pointer\", &CXXRecordDecl::HasOwnVirtualFunctionTablePointer)"
+          << "\n    .def_prop_ro(\"has_extendable_virtual_function_table_pointer\", &CXXRecordDecl::HasExtendableVirtualFunctionTablePointer)"
+          << "\n    .def_prop_ro(\"has_virtual_base_table_pointer\", &CXXRecordDecl::HasVirtualBaseTablePointer)"
+          << "\n    .def_prop_ro(\"has_own_virtual_base_table_pointer\", &CXXRecordDecl::HasOwnVirtualBaseTablePointer)";
+    }
+
     DefineCppMethods(os, name, gClassIDs[name], os_py);
 
     // We need to manually inject our own `Body` method. Normally there would

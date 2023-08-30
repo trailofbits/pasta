@@ -1943,7 +1943,7 @@ PASTA_DEFINE_BASE_OPERATORS(Type, TypeOfExprType)
   return TypeBuilder::Build(ast, val);
 }
 
-enum TypeOfKind TypeOfExprType::Kind(void) const {
+enum TypeOfKind TypeOfExprType::TypeKind(void) const {
   auto &self = *const_cast<clang::TypeOfExprType *>(u.TypeOfExprType);
   decltype(auto) val = self.getKind();
   return static_cast<::pasta::TypeOfKind>(val);
@@ -1972,7 +1972,7 @@ PASTA_DEFINE_BASE_OPERATORS(Type, TypeOfType)
   return TypeBuilder::Build(ast, val);
 }
 
-enum TypeOfKind TypeOfType::Kind(void) const {
+enum TypeOfKind TypeOfType::TypeKind(void) const {
   auto &self = *const_cast<clang::TypeOfType *>(u.TypeOfType);
   decltype(auto) val = self.getKind();
   return static_cast<::pasta::TypeOfKind>(val);
@@ -2413,7 +2413,7 @@ PASTA_DEFINE_BASE_OPERATORS(Type, BuiltinType)
   return TypeBuilder::Build(ast, val);
 }
 
-::pasta::BuiltinTypeKind BuiltinType::Kind(void) const {
+::pasta::BuiltinTypeKind BuiltinType::BuiltinKind(void) const {
   auto &self = *const_cast<clang::BuiltinType *>(u.BuiltinType);
   decltype(auto) val = self.getKind();
   return static_cast<::pasta::BuiltinTypeKind>(val);

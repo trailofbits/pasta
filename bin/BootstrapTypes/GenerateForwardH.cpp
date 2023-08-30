@@ -122,7 +122,6 @@ void GenerateForwardH(std::ostream &os_py) {
     sep = " \\\n";
   }
   os   
-      << sep << "    m(Qualified)"  // Our custom version of `QualType`.
       << "\n\n"
       << "#define PASTA_FOR_EACH_ATTR_IMPL(m, a) \\\n";
 

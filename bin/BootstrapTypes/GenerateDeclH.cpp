@@ -199,6 +199,27 @@ void GenerateDeclH(void) {
     } else if (name == "FunctionDecl") {
       os
           << "  std::optional<::pasta::Stmt> Body(void) const noexcept;\n";
+    
+    // Manually inject a bit offset.
+    } else if (name == "FieldDecl") {
+      os
+          << "  std::optional<uint64_t> OffsetInBits(void) const noexcept;\n";
+    
+    // Manually inject some nifty record size methods.
+    } else if (name == "RecordDecl") {
+      os
+          << "  std::optional<uint64_t> Size(void) const noexcept;  // In bytes.\n"
+          << "  std::optional<uint64_t> Alignment(void) const noexcept;  // In bytes.\n"
+          << "  std::optional<uint64_t> SizeWithoutTrailingPadding(void) const noexcept;\n";
+    
+    } else if (name == "CXXRecordDecl") {
+      os
+          << "  std::optional<uint64_t> SizeWithoutVirtualBases(void) const noexcept;\n"
+          << "  std::optional<CXXRecordDecl> PrimaryBase(void) const noexcept;\n"
+          << "  std::optional<bool> HasOwnVirtualFunctionTablePointer(void) const noexcept;\n"
+          << "  std::optional<bool> HasExtendableVirtualFunctionTablePointer(void) const noexcept;\n"
+          << "  std::optional<bool> HasVirtualBaseTablePointer(void) const noexcept;\n"
+          << "  std::optional<bool> HasOwnVirtualBaseTablePointer(void) const noexcept;\n";
     }
 
     os

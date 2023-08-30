@@ -6,10 +6,10 @@
 
 #include <memory>
 #include <optional>
+#include <pasta/Util/Result.h>
 #include <string_view>
 #include <utility>
-
-#include <pasta/Util/Result.h>
+#include <vector>
 
 #define PASTA_FOR_EACH_TOKEN_CONTEXT_KIND(pp) \
     pp(Stmt) \

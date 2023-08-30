@@ -2521,7 +2521,7 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
 
     TokenPrinterContext ctx(out, decl, *tokens);
     out << terminator;
-
+    ctx.Tokenize();
     tokens->ppa = nullptr;
   }
 
@@ -2583,7 +2583,7 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
     if (end_tok && end_tok->Kind() == clang::tok::semi) {
       ctx.MarkLocation(*end_tok);
     }
-
+    ctx.Tokenize();
     tokens->ppa = nullptr;
   }
 

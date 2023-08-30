@@ -1527,7 +1527,6 @@ class Expr : public ValueStmt {
   bool ContainsUnexpandedParameterPack(void) const;
   std::optional<::pasta::ValueDecl> AsBuiltinConstantDeclarationReference(void) const;
   std::optional<::pasta::CXXRecordDecl> BestDynamicClassType(void) const;
-  ::pasta::Expr BestDynamicClassTypeExpression(void) const;
   ::pasta::ExprDependence Dependence(void) const;
   ::pasta::Token ExpressionToken(void) const;
   // FPFeaturesInEffect: (clang::FPOptions)

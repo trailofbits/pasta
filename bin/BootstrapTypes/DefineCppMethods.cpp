@@ -31,6 +31,12 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
     }
   }
 
+  // These can crash in hard ways to guard against.
+  if (meth_name_ref == "getMostRecentNonInjectedDecl" ||
+      meth_name_ref == "getBestDynamicClassTypeExpr") {
+    return;
+  }
+
   const std::string meth_name = CxxName(class_name, meth_name_ref);
   if (meth_name.empty() || meth_name == "Clone") { \
     os << "// 0: " << class_name << "::" << meth_name << "\n";
@@ -55,6 +61,13 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
   if (class_name == "Type" &&
       (meth_name_ref == "getTypeClass" || meth_name_ref == "getTypeClassName")) {
     return;  // Manually implemented.
+  }
+
+  // We'll define this one manually. It goes and finds the definition, which
+  // means that it can return enumerators that are "outside" of the enum
+  // decl itself.
+  if (class_name == "EnumDecl" && meth_name_ref == "enumerators") {
+    return;
   }
 
   if (class_name.find("Decl") != std::string::npos) {
@@ -296,6 +309,7 @@ static void DefineIterators(std::ostream &os, const std::string &class_name) {
   for (const IteratorSpec &iterator : gIterators[class_name]) {
     auto &rt_type = gRetTypeMap[iterator.elem_type];
     auto &rt_val = gRetTypeToValMap[iterator.elem_type];
+
     os << "std::vector<" << rt_type << "> " << class_name << "::"
        << iterator.cxx_method << "(void) const {\n"
        << "  std::vector<" << rt_type << "> ret;\n";

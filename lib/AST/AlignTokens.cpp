@@ -29,7 +29,7 @@
 #include "Token.h"
 #include "Util.h"
 
-#define PASTA_DEBUG_ALIGN 1
+#define PASTA_DEBUG_ALIGN 0
 #define TK(...)
 
 namespace pasta {
@@ -420,8 +420,11 @@ struct BalancedRegion final : public Region {
 static bool MergeToken(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
                        bool &changed, bool force=false) {
 
+  // `printed` tokens will always have a valid token context index, even if it's
+  // just `0`, which is the AST context, whereas `parsed` is initialized with
+  // `kInvalidTokenContextIndex`.
   if (parsed->context_index == printed->context_index) {
-    return false;
+    return TokenLocationsMatch(parsed, printed);
   }
 
   assert(printed->context_index != kInvalidTokenContextIndex);
@@ -448,9 +451,8 @@ static bool MergeToken(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
 
   } else if (parsed->context_index != kInvalidTokenContextIndex) {
     return false;
-  }
-
-  if (TokenImpl::kInvalidSourceLocation == printed->opaque_source_loc) {
+  
+  } else if (TokenImpl::kInvalidSourceLocation == printed->opaque_source_loc) {
     parsed->context_index = printed->context_index;
     printed->matched_in_align = true;
     assert(parsed->context_index != kInvalidTokenContextIndex);
@@ -481,9 +483,9 @@ class Matcher {
   PrintedTokenRangeImpl &parsed_range;
   PrintedTokenRangeImpl &printed_range;
   PrintedTokenImpl * const first_parsed;
-
-  // Exclusive upper bound.
-  PrintedTokenImpl * const last_parsed;
+  PrintedTokenImpl * const last_parsed;  // Exclusive, but can be read.
+  PrintedTokenImpl * const first_printed;
+  PrintedTokenImpl * const last_printed;  // Exclusive, but can be read.
 
   std::vector<std::unique_ptr<Region>> parsed_regions;
   std::vector<std::unique_ptr<Region>> printed_regions;
@@ -498,12 +500,16 @@ class Matcher {
                           PrintedTokenRangeImpl &parsed_range_,
                           PrintedTokenRangeImpl &printed_range_,
                           PrintedTokenImpl *first_parsed_,
-                          PrintedTokenImpl *last_parsed_)
+                          PrintedTokenImpl *last_parsed_,
+                          PrintedTokenImpl *first_printed_,
+                          PrintedTokenImpl *last_printed_)
       : ast(ast_),
         parsed_range(parsed_range_),
         printed_range(printed_range_),
         first_parsed(first_parsed_),
-        last_parsed(last_parsed_) {}
+        last_parsed(last_parsed_),
+        first_printed(first_printed_),
+        last_printed(last_printed_) {}
 
   // Organize the tokens into a tree, grouped by brace/bracket/paren-enclosed
   // regions, and comma/semicolon-separated regions.
@@ -852,7 +858,7 @@ bool Matcher::MergeForward(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
       }
     }
 
-    if (!MatchTokenByKindOrData(parsed, printed)) {
+    if (!MatchToken(parsed, printed)) {
       if (clang::tok::isAnyIdentifier(parsed_kind)) {
         ++parsed;
         ++num_skips;
@@ -936,7 +942,7 @@ bool Matcher::MergeBackward(PrintedTokenImpl *parsed, PrintedTokenImpl *printed,
       continue;
     }
 
-    if (!MatchTokenByKindOrData(parsed, printed)) {
+    if (!MatchToken(parsed, printed)) {
       break;
     }
 
@@ -963,8 +969,18 @@ bool Matcher::MatchToken(PrintedTokenImpl *parsed, PrintedTokenImpl *printed) {
   if (TokenLocationsMatch(parsed, printed)) {
     return true;
 
+  } else if (MatchTokenByKindOrData(parsed, printed)) {
+    return true;
+  
+  // The previous matches, the next matches, so assume this one matches too!
+  } else if (first_parsed < parsed && parsed < last_parsed &&
+             first_printed < printed && printed < last_printed &&
+             TokenLocationsMatch(&(parsed[-1]), &(printed[-1])) &&
+             TokenLocationsMatch(&(parsed[1]), &(printed[1]))) {
+    return true;
+  
   } else {
-    return MatchTokenByKindOrData(parsed, printed);
+    return false;
   }
 }
 
@@ -992,8 +1008,6 @@ bool Matcher::MatchBalanced(BalancedRegion *parsed, BalancedRegion *printed,
                             bool &changed) {
   if (parsed->matched_with == printed) {
     return true;
-  } else if (parsed->matched_with) {
-    return false;
   }
 
   if (parsed->begin->Kind() != printed->begin->Kind()) {
@@ -1011,30 +1025,28 @@ bool Matcher::MatchBalanced(BalancedRegion *parsed, BalancedRegion *printed,
     return false;
   }
 
-  assert(parsed->begin->Kind() == printed->begin->Kind());
   assert(parsed->end->Kind() == printed->end->Kind());
 
-  auto printed_begin = reinterpret_cast<PrintedTokenImpl *>(printed->begin);
+  auto printed_begin = printed->begin;
   auto begin_loc_matches = TokenLocationsMatch(parsed->begin, printed_begin);
-  if (TokenHasLocationAndContext(printed_begin) && !begin_loc_matches) {
+  auto has_begin_loc = TokenHasLocationAndContext(printed_begin);
+  if (has_begin_loc && !begin_loc_matches) {
     return false;
   }
 
-  auto printed_end = reinterpret_cast<PrintedTokenImpl *>(printed->end);
+  auto printed_end = printed->end;
   auto end_loc_matches = TokenLocationsMatch(parsed->end, printed_end);
-  if (TokenHasLocationAndContext(printed_end) && !end_loc_matches) {
+  auto has_end_loc = TokenHasLocationAndContext(printed_end);
+  if (has_end_loc && !end_loc_matches) {
     return false;
   }
 
   // Look just before and just after the opening and/or closing tokens to
   // see if we can match on those.
   if (!begin_loc_matches && !end_loc_matches) {
-    const auto first_parsed_tok = this->first_parsed;
-    const auto first_printed_tok = &(printed_range.tokens.front());
 
     // Look one before.
-    if (parsed->begin > first_parsed_tok &&
-        printed_begin > first_printed_tok) {
+    if (parsed->begin > first_parsed && printed_begin > first_printed) {
       auto before_parsed = &(parsed->begin[-1]);
       auto before_printed = &(printed_begin[-1]);
       if (TokenLocationsMatch(before_parsed, before_printed)) {
@@ -1043,16 +1055,29 @@ bool Matcher::MatchBalanced(BalancedRegion *parsed, BalancedRegion *printed,
     }
 
     // Look one beyond.
-    const auto last_parsed_tok = this->last_parsed;
-    const auto last_printed_tok = &(printed_range.tokens.back());
-    if (parsed->end < last_parsed_tok &&
-        printed_end < last_printed_tok) {
+    if (parsed->end < last_parsed && printed_end < last_printed) {
       auto after_parsed = &(parsed->end[1]);
       auto after_printed = &(printed_end[1]);
       if (TokenLocationsMatch(after_parsed, after_printed)) {
         end_loc_matches = true;
       }
     }
+  }
+
+  // Force match the parens/brackets/braces. Here we're targeting the attribute
+  // case, where we might have multiple attributes syntax blocks printed, but
+  // only one attribute syntax block in the parsed code.
+  if (has_begin_loc && begin_loc_matches && !has_end_loc) {
+    MergeToken(parsed->end, printed->end, changed, true  /* force */);
+    end_loc_matches = true;
+
+  } else if (has_end_loc && end_loc_matches && !has_begin_loc) {
+    MergeToken(parsed->begin, printed->begin, changed, true  /* force */);
+    begin_loc_matches = true;
+  }
+
+  if (parsed->matched_with) {
+    return false;
   }
 
   auto did_recurse = false;
@@ -1550,7 +1575,8 @@ std::optional<std::string> PrintedTokenRangeImpl::AlignTokens(
   PrintedTokenImpl *parsed_end = &(parsed_begin[tokens.size() - 1u]);  // EOF
 
   PrintedTokenImpl *printed_begin = printed_range.tokens.data();
-  PrintedTokenImpl *printed_end = &(printed_begin[printed_range.tokens.size()]);
+  PrintedTokenImpl *printed_end =
+      &(printed_begin[printed_range.tokens.size() - 1u]);  // EOF
 
   assert(parsed_begin < parsed_end);
   assert(printed_begin < printed_end);
@@ -1559,7 +1585,8 @@ std::optional<std::string> PrintedTokenRangeImpl::AlignTokens(
   std::vector<std::unique_ptr<Region>> parsed_regions;
   std::vector<std::unique_ptr<Region>> printed_regions;
 
-  Matcher matcher(*ast, *this, printed_range, parsed_begin, parsed_end);
+  Matcher matcher(*ast, *this, printed_range, parsed_begin, parsed_end,
+                  printed_begin, printed_end);
 
   std::unordered_map<OpaqueSourceLoc, PrintedTokenImpl *> loc_to_toks;
   for (auto tok = parsed_begin; tok < parsed_end; ++tok) {
@@ -1637,12 +1664,33 @@ std::optional<std::string> PrintedTokenRangeImpl::AlignTokens(
   std::vector<BalancedRegion *> printed_balanced;
   std::vector<StatementRegion *> printed_statements;
 
+  std::unordered_multimap<OpaqueSourceLoc, BalancedRegion *>
+      printed_loc_to_balanced;
+  std::unordered_multimap<OpaqueSourceLoc, StatementRegion *>
+      printed_end_loc_to_statement;
+
   for (const auto &region_ref : parsed_regions) {
     const auto region = region_ref.get();
     if (auto balanced = dynamic_cast<BalancedRegion *>(region)) {
       parsed_balanced.push_back(balanced);
+
+      auto loc = balanced->begin->opaque_source_loc;
+      if (loc != TokenImpl::kInvalidSourceLocation) {
+        printed_loc_to_balanced.emplace(loc, balanced);
+      }
+
+      loc = balanced->end->opaque_source_loc;
+      if (loc != TokenImpl::kInvalidSourceLocation) {
+        printed_loc_to_balanced.emplace(loc, balanced);
+      }
+
     } else if (auto statement = dynamic_cast<StatementRegion *>(region)) {
       parsed_statements.push_back(statement);
+
+      auto loc = statement->end->opaque_source_loc;
+      if (loc != TokenImpl::kInvalidSourceLocation) {
+        printed_end_loc_to_statement.emplace(loc, statement);
+      }
     }
   }
 
@@ -1655,19 +1703,11 @@ std::optional<std::string> PrintedTokenRangeImpl::AlignTokens(
     }
   }
 
-  std::unordered_multimap<OpaqueSourceLoc, BalancedRegion *>
-      printed_loc_to_balanced;
-  std::unordered_multimap<OpaqueSourceLoc, StatementRegion *>
-      printed_end_loc_to_statement;
-
   // Join on the shared source locations of balanced and statement regions.
   // This only joins unmatched ones. We generally have decent-ish ability in
   // the token printer (due to clang source locations) to find things like the
   // location of a `}` or a `{`, or a `;`.
   auto join_based_region_merge = [&] (bool &changed) {
-    printed_loc_to_balanced.clear();
-    printed_end_loc_to_statement.clear();
-
     {
       auto it = std::partition(parsed_balanced.begin(), parsed_balanced.end(),
                                HasNotBeenMatched);
@@ -1698,18 +1738,6 @@ std::optional<std::string> PrintedTokenRangeImpl::AlignTokens(
         <<'\n';
 #endif
 
-    for (BalancedRegion *region : parsed_balanced) {
-      auto loc = region->begin->opaque_source_loc;
-      if (loc != TokenImpl::kInvalidSourceLocation) {
-        printed_loc_to_balanced.emplace(loc, region);
-      }
-
-      loc = region->end->opaque_source_loc;
-      if (loc != TokenImpl::kInvalidSourceLocation) {
-        printed_loc_to_balanced.emplace(loc, region);
-      }
-    }
-
     for (BalancedRegion *region : printed_balanced) {
       if (const auto begin_loc = region->begin->opaque_source_loc;
           begin_loc != TokenImpl::kInvalidSourceLocation) {
@@ -1727,13 +1755,6 @@ std::optional<std::string> PrintedTokenRangeImpl::AlignTokens(
         for (; bb_it != bb_end; ++bb_it) {
           matcher.MatchBalanced(bb_it->second, region, changed);
         }
-      }
-    }
-
-    for (StatementRegion *region : parsed_statements) {
-      auto loc = region->end->opaque_source_loc;
-      if (loc != TokenImpl::kInvalidSourceLocation) {
-        printed_end_loc_to_statement.emplace(loc, region);
       }
     }
 
@@ -1778,10 +1799,65 @@ std::optional<std::string> PrintedTokenRangeImpl::AlignTokens(
     }
   }
 
+  // Look for `<matched> <unmatched hole...> <matched>` where the two matched
+  // tokens are separated by a N-token-sized hole.
+  for (auto tok = printed_begin; tok < printed_end; ++tok) {
+    if (tok->opaque_source_loc == TokenImpl::kInvalidSourceLocation) {
+      continue;
+    }
+
+    // Also fix up the derived index of the token.
+    if (tok->derived_index == kInvalidDerivedTokenIndex) {
+      if (auto parsed_tok = ast->RawTokenAt(tok->Location())) {
+        tok->derived_index = static_cast<DerivedTokenIndex>(
+            parsed_tok - ast->tokens.data());
+      }
+    }
+
+    // Find the end of the hole.
+    auto end_of_hole = &(tok[1]);
+    for (; end_of_hole < printed_end; ++end_of_hole) {
+      if (end_of_hole->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
+        break;
+      }
+    }
+
+    // There is no hole.
+    if (end_of_hole == &(tok[1])) {
+      continue;
+    }
+
+    // Convert our printed token hole bounds into parsed token hole bounds.
+    auto parsed_it = loc_to_toks.find(tok->opaque_source_loc);
+    auto parsed_end_it = loc_to_toks.find(end_of_hole->opaque_source_loc);
+    if (parsed_it == loc_to_toks.end() || parsed_end_it == loc_to_toks.end()) {
+      continue;
+    }
+
+    auto first_parsed_tok = parsed_it->second;
+    auto last_parsed_tok = parsed_end_it->second;
+
+    // Make sure our hole sized match.
+    if (first_parsed_tok >= last_parsed_tok ||
+        (last_parsed_tok - first_parsed_tok) != (end_of_hole - tok)) {
+      continue;
+    }
+
+    // Force merge on the hole.
+    bool changed = false;
+    for (auto hole_tok = tok; hole_tok < end_of_hole; ) {
+      ++first_parsed_tok;
+      ++hole_tok;
+      MergeToken(first_parsed_tok, hole_tok, changed, true  /* force */);
+    }
+
+    assert(changed);
+    (void) changed;
+  }
+
   std::vector<TokenContextIndex> context_stack;
   context_stack.push_back(decl_context_id);
   matcher.FixContexts(parsed_tree, context_stack);
-
 
 #if PASTA_DEBUG_ALIGN
 
@@ -1829,7 +1905,7 @@ namespace {
 static const std::string kEmptyParsed = "Parsed token range is empty";
 static const std::string kEmptyPrinted = "Printed token range is empty";
 static const std::string kMismatchedASTs = "Backing ASTs of parsed and printed token ranges don't match";
-
+static const std::string kMissingASTs = "No backing AST";
 }  // namespace
 
 // Create a new printed token range, where the token data is taken from `a`
@@ -1849,6 +1925,10 @@ PrintedTokenRange::Align(const PrintedTokenRange &a,
 
   if (a.impl->ast.get() != b.impl->ast.get()) {
     return kMismatchedASTs;
+  }
+
+  if (!a.impl->ast) {
+    return kMissingASTs;
   }
 
   if (a.impl == b.impl && maintain_provenance) {

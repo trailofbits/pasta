@@ -141,6 +141,7 @@ class PrintedTokenRangeImpl {
   const TokenContextIndex CreateAlias(
       TokenPrinterContext *tokenizer, TokenContextIndex aliasee);
 
+  void MarkLocation(PrintedTokenImpl &, const TokenImpl &tok);
   void MarkLocation(size_t tok_index, const TokenImpl &tok);
   void MarkLocation(size_t tok_index, const clang::SourceLocation &loc);
 //  void PopContext(void);
@@ -167,6 +168,9 @@ class PrintingPolicyAdaptor final {
       : ast(ast_),
         pp(&pp_),
         decl_to_print(decl_to_print_) {}
+
+  bool ShouldPrintInheritedAttributes(void) const;
+  bool ShouldPrintImplicitAttributes(void) const;
 
   bool ShouldPrintConstantExpressionsInTypes(void) const;
   bool ShouldPrintOriginalTypeOfAdjustedType(void) const;

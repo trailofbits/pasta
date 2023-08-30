@@ -600,6 +600,22 @@ std::optional<uint64_t> FieldDecl::OffsetInBits(void) const noexcept {
   return ::pasta::TokenRange(ast);
 }
 
+std::vector<::pasta::EnumConstantDecl> EnumDecl::Enumerators(void) const {
+  auto &self = *const_cast<clang::EnumDecl *>(u.EnumDecl);
+  std::vector<::pasta::EnumConstantDecl> ret;
+  if (auto def = self.getDefinition(); !def || &self != def) {
+    return ret;
+  }
+
+  decltype(auto) val = self.enumerators();
+  for (auto decl_ptr : val) {
+    if (decl_ptr) {
+      ret.emplace_back(DeclBuilder::Create<::pasta::EnumConstantDecl>(ast, decl_ptr));
+    }
+  }
+  return ret;
+}
+
 #endif  // PASTA_IN_BOOTSTRAP
 
 }  // namespace pasta

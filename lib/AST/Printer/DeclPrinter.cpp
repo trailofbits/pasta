@@ -387,8 +387,6 @@ void DeclPrinter::prettyPrintAttributes(clang::Decl *D) {
 
     clang::AttrVec &Attrs = D->getAttrs();
     for (auto *A : Attrs) {
-      if (A->isInherited() || A->isImplicit())
-        continue;
       switch (A->getKind()) {
 #define ATTR(X)
 #define PRAGMA_SPELLING_ATTR(X) case clang::attr::X:
@@ -753,8 +751,10 @@ void DeclPrinter::VisitEnumDecl(clang::EnumDecl *D) {
 
   prettyPrintAttributes(D);
 
-  if (D->getDeclName())
+  if (D->getDeclName()) {
     Out << ' ' << D->getDeclName();
+    MarkNamedDeclName(ctx, D);
+  }
 
   if (auto ITR = D->getIntegerTypeRange(); ITR.isValid() || D->isFixed()) {
     Out << " :";

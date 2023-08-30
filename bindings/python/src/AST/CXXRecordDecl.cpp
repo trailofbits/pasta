@@ -53,7 +53,6 @@ void RegisterCXXRecordDecl(nb::module_ &m) {
     .def_prop_ro("ms_inheritance_model", &CXXRecordDecl::MSInheritanceModel)
     .def_prop_ro("ms_vtor_disp_mode", &CXXRecordDecl::MSVtorDispMode)
     .def_prop_ro("most_recent_declaration", &CXXRecordDecl::MostRecentDeclaration)
-    .def_prop_ro("most_recent_non_injected_declaration", &CXXRecordDecl::MostRecentNonInjectedDeclaration)
     .def_prop_ro("num_bases", &CXXRecordDecl::NumBases)
     .def_prop_ro("num_virtual_bases", &CXXRecordDecl::NumVirtualBases)
     .def_prop_ro("odr_hash", &CXXRecordDecl::ODRHash)

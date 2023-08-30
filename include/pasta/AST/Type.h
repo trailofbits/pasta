@@ -1347,8 +1347,6 @@ class QualifiedType : public Type {
   ::pasta::Type WithRestrict(void) const;
   ::pasta::Type WithVolatile(void) const;
   ::pasta::Type WithoutLocalFastQualifiers(void) const;
-
-  /* QualType methods */
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(QualifiedType)
 };

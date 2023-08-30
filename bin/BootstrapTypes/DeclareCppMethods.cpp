@@ -124,6 +124,12 @@ static void DeclareCppMethod0(std::ostream &os, const std::string &class_name,
     }
   }
 
+  // These can crash in hard ways to guard against.
+  if (meth_name_ref == "getMostRecentNonInjectedDecl" ||
+      meth_name_ref == "getBestDynamicClassTypeExpr") {
+    return;
+  }
+
   CollectGetNumMethod(class_name, rt);
   if (const auto meth_name = CxxName(class_name, meth_name_ref);
       !meth_name.empty() && meth_name != "Clone") {

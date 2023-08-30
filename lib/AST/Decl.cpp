@@ -7475,17 +7475,6 @@ PASTA_DEFINE_BASE_OPERATORS(TagDecl, EnumDecl)
 PASTA_DEFINE_BASE_OPERATORS(TypeDecl, EnumDecl)
 // 0: EnumDecl::
 // 0: EnumDecl::
-std::vector<::pasta::EnumConstantDecl> EnumDecl::Enumerators(void) const {
-  auto &self = *const_cast<clang::EnumDecl *>(u.EnumDecl);
-  decltype(auto) val = self.enumerators();
-  std::vector<::pasta::EnumConstantDecl> ret;
-  for (auto decl_ptr : val) {
-    if (decl_ptr) {
-      ret.emplace_back(DeclBuilder::Create<::pasta::EnumConstantDecl>(ast, decl_ptr));
-    }
-  }
-  return ret;
-}
 
 ::pasta::EnumDecl EnumDecl::CanonicalDeclaration(void) const {
   auto &self = *const_cast<clang::EnumDecl *>(u.EnumDecl);
@@ -8743,17 +8732,6 @@ enum MSVtorDispMode CXXRecordDecl::MSVtorDispMode(void) const {
     return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
   }
   throw std::runtime_error("CXXRecordDecl::MostRecentDeclaration can return nullptr!");
-}
-
-std::optional<::pasta::CXXRecordDecl> CXXRecordDecl::MostRecentNonInjectedDeclaration(void) const {
-  auto &self = *const_cast<clang::CXXRecordDecl *>(u.CXXRecordDecl);
-  decltype(auto) val = self.getMostRecentNonInjectedDecl();
-  if (!val) {
-    return std::nullopt;
-  }
-  if (val) {
-    return DeclBuilder::Create<::pasta::CXXRecordDecl>(ast, val);
-  }
 }
 
 std::optional<uint32_t> CXXRecordDecl::NumBases(void) const {

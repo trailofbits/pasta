@@ -32,31 +32,35 @@ namespace pasta {
 static void TryLocateAttribute(const clang::Attr *A,
                                PrintedTokenRangeImpl &tokens,
                                size_t old_num_toks) {
-  clang::tok::TokenKind kind_to_find = clang::tok::unknown;
-  unsigned num_to_find = 0u;
-  unsigned num_found = 0u;
+  
+  clang::tok::TokenKind opener_kind = clang::tok::unknown;
+  clang::tok::TokenKind keyword_kind = clang::tok::unknown;
+
+  unsigned expected_num_openers = 0u;
+  unsigned num_found_openers = 0u;
+
   switch (A->getSyntax()) {
     case clang::AttributeCommonInfo::AS_CXX11:
     case clang::AttributeCommonInfo::AS_C2x:
-      kind_to_find = clang::tok::l_square;
-      num_to_find = 2u;
+      opener_kind = clang::tok::l_square;
+      expected_num_openers = 2u;
       break;
 
     case clang::AttributeCommonInfo::AS_GNU:
-      kind_to_find = clang::tok::l_paren;
-      num_to_find = 2u;
+      opener_kind = clang::tok::l_paren;
+      expected_num_openers = 2u;
       break;
+
     case clang::AttributeCommonInfo::AS_Declspec:
     case clang::AttributeCommonInfo::AS_Microsoft:
-      kind_to_find = clang::tok::l_paren;
-      num_to_find = 1u;
+      opener_kind = clang::tok::l_paren;
+      expected_num_openers = 1u;
       break;
 
     case clang::AttributeCommonInfo::AS_Keyword:
     case clang::AttributeCommonInfo::AS_Pragma:
     case clang::AttributeCommonInfo::AS_ContextSensitiveKeyword:
     case clang::AttributeCommonInfo::AS_HLSLSemantic:
-      num_to_find = 0u;
       break;
   }
 
@@ -65,14 +69,25 @@ static void TryLocateAttribute(const clang::Attr *A,
     return;
   }
 
+  // Try to find the parsed location of the attribute. This is generally
+  // something that is "inside" of the attribute, e.g. `nonnull` in
+  // `__attribute__((nonnull))`.
   clang::SourceLocation loc = A->getLocation();
-  PrintedTokenImpl *attr_tok = nullptr;
-  size_t attr_tok_index = 0u;
+  const TokenImpl *parsed_tok = tokens.ast->RawTokenAt(loc);
+  if (!parsed_tok) {
+    return;
+  }
 
+  // Go look for the printed attribute keyword token in the most recently
+  // printed tokens, storing the discovered keyword token in `attr_tok`. If we
+  // find attribute openers (parens, brackets), then keep track of those too.
+  PrintedTokenImpl *attr_tok = nullptr;
+  PrintedTokenImpl *opener_toks[2u] = {};
   for (size_t i = old_num_toks; i < max_i; ++i) {
     PrintedTokenImpl &tok = tokens.tokens[i];
     clang::tok::TokenKind kind = tok.Kind();
 
+    // Look for the keyword.
     switch (kind) {
       case clang::tok::kw___attribute:
       case clang::tok::kw___declspec:
@@ -89,31 +104,32 @@ static void TryLocateAttribute(const clang::Attr *A,
       case clang::tok::kw__Nullable:
       case clang::tok::kw__Null_unspecified:
       case clang::tok::kw__Nullable_result:
+        keyword_kind = kind;
         attr_tok = &tok;
-        attr_tok_index = static_cast<size_t>(attr_tok - tokens.tokens.data());
         break;
       default:
         break;
     }
 
-    if (num_found >= num_to_find) {
+    // We've found all the openers that we expected to find. Now go and see if
+    // we can match the actual attribute (e.g. `nonnull` above).
+    if (num_found_openers >= expected_num_openers) {
       if (!tok.opaque_source_loc &&
           (kind == clang::tok::identifier ||
            kind == clang::tok::raw_identifier)) {
         llvm::StringRef data(tok.Data(tokens));
 
         // TODO(pag): uuid, guid?
-        if (data != "__attribute__" &&
-            data != "__declspec") {
+        if (data != "__attribute__" && data != "__declspec") {
           loc = A->getLoc();
           tokens.MarkLocation(i, loc);
           break;
         }
       }
-    } else {
-      if (kind == kind_to_find) {
-        ++num_found;
-      }
+
+    // Look for the openers.
+    } else if (kind == opener_kind) {
+      opener_toks[num_found_openers++] = &tok;
     }
   }
 
@@ -121,20 +137,35 @@ static void TryLocateAttribute(const clang::Attr *A,
     return;
   }
 
-  const TokenImpl *parsed_tok = tokens.ast->RawTokenAt(loc);
-  if (!parsed_tok) {
-    return;
-  }
-
+  // Started at where we have found the attribute in the parsed tokens, use a
+  // fudge factor to scan backwards through the parsed tokens and match the
+  // keyword itself.
   const TokenImpl *first_parsed_tok = tokens.ast->tokens.data();
-  const TokenImpl *min_parsed_tok =
-      std::max(first_parsed_tok, &(parsed_tok[-32]));
+
+  // Limiter used to prevent us from going too far once we've matched either
+  // a keyword or an opener.
+  auto fudge = ~0ull;
 
   // Try to find the location of `__attribute__`, `__asm`, etc.
-  for (; min_parsed_tok < parsed_tok; --parsed_tok) {
-    if (parsed_tok->Kind() == attr_tok->Kind()) {
-      tokens.MarkLocation(attr_tok_index, *parsed_tok);
-      break;
+  for (; first_parsed_tok < parsed_tok && fudge &&
+         (attr_tok || num_found_openers); --parsed_tok) {
+    if (!parsed_tok->IsParsed()) {
+      continue;
+    }
+
+    --fudge;
+
+    // Match an opener.
+    auto tok_kind = parsed_tok->Kind();
+    if (tok_kind == opener_kind && num_found_openers) {
+      tokens.MarkLocation(*opener_toks[--num_found_openers], *parsed_tok);
+      fudge = 32u;
+    }
+
+    if (tok_kind == keyword_kind) {
+      tokens.MarkLocation(*attr_tok, *parsed_tok);
+      fudge = 32u;
+      attr_tok = nullptr;
     }
   }
 }
@@ -164,6 +195,15 @@ static void ReEscapeOutput(raw_string_ostream &Out, std::string a) {
 void PrintAttribute(raw_string_ostream &Out, const clang::Attr *A,
                     PrintedTokenRangeImpl &tokens,
                     const clang::PrintingPolicy &Policy) {
+
+  if (A->isInherited() && !tokens.ppa->ShouldPrintInheritedAttributes()) {
+    return;
+  }
+
+  if (A->isImplicit() && !tokens.ppa->ShouldPrintImplicitAttributes()) {
+    return;
+  }
+
   std::string a;
   std::string new_a;
   {
@@ -562,12 +602,17 @@ void TokenPrinterContext::Tokenize(void) {
   }
 }
 
+void PrintedTokenRangeImpl::MarkLocation(PrintedTokenImpl &printed,
+                                         const TokenImpl &parsed) {
+  printed.opaque_source_loc = parsed.opaque_source_loc;
+  printed.derived_index =
+      static_cast<DerivedTokenIndex>(&parsed - ast->tokens.data());
+}
+
 void PrintedTokenRangeImpl::MarkLocation(
-    size_t printed_tok_index, const TokenImpl &tok) {
+    size_t printed_tok_index, const TokenImpl &parsed) {
   assert(printed_tok_index < tokens.size());
-  tokens[printed_tok_index].opaque_source_loc = tok.opaque_source_loc;
-  tokens[printed_tok_index].derived_index =
-      static_cast<DerivedTokenIndex>(&tok - ast->tokens.data());
+  MarkLocation(tokens[printed_tok_index], parsed);
 }
 
 void PrintedTokenRangeImpl::MarkLocation(size_t tok_index,
@@ -859,6 +904,14 @@ bool PrintingPolicy::ShouldPrintTagBodies(void) const {
   return true;
 }
 
+bool PrintingPolicy::ShouldPrintInheritedAttributes(void) const {
+  return false;
+}
+
+bool PrintingPolicy::ShouldPrintImplicitAttributes(void) const {
+  return false;
+}
+
 bool PrintingPolicy::ShouldPrintConstantExpressionsInTypes(void) const {
   return true;
 }
@@ -906,6 +959,14 @@ bool ProxyPrintingPolicy::ShouldPrintTagBodies(void) const {
   return next.ShouldPrintTagBodies();
 }
 
+bool ProxyPrintingPolicy::ShouldPrintInheritedAttributes(void) const {
+  return next.ShouldPrintInheritedAttributes();
+}
+
+bool ProxyPrintingPolicy::ShouldPrintImplicitAttributes(void) const {
+  return next.ShouldPrintImplicitAttributes();
+}
+
 bool ProxyPrintingPolicy::ShouldPrintConstantExpressionsInTypes(void) const {
   return next.ShouldPrintConstantExpressionsInTypes();
 }
@@ -946,6 +1007,22 @@ bool ProxyPrintingPolicy::ShouldPrintSpecialization(
 bool ProxyPrintingPolicy::ShouldPrintSpecialization(
   const FunctionTemplateDecl &tpl, const FunctionDecl &spec) const {
   return next.ShouldPrintSpecialization(tpl, spec);
+}
+
+bool PrintingPolicyAdaptor::ShouldPrintInheritedAttributes(void) const {
+  if (pp) {
+    return pp->ShouldPrintInheritedAttributes();
+  } else {
+    return false;
+  }
+}
+
+bool PrintingPolicyAdaptor::ShouldPrintImplicitAttributes(void) const {
+  if (pp) {
+    return pp->ShouldPrintImplicitAttributes();
+  } else {
+    return false;
+  }
 }
 
 bool PrintingPolicyAdaptor::ShouldPrintConstantExpressionsInTypes(void) const {

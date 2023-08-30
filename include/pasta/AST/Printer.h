@@ -293,7 +293,15 @@ class PrintingPolicy {
  public:
   virtual ~PrintingPolicy(void);
 
+  // Should the default behaviour be to print tag (enum, struct, union, class)
+  // bodies or not? The defaults are overwritten based on contextual decisions.
   virtual bool ShouldPrintTagBodies(void) const;
+
+  // Should we print out inherited attributes?
+  virtual bool ShouldPrintInheritedAttributes(void) const;
+
+  // Should we print out implicit attributes?
+  virtual bool ShouldPrintImplicitAttributes(void) const;
 
   // E.g. if the size of a type is a constant expression, then should we print
   // it, or just the result value of the expression?
@@ -339,6 +347,8 @@ class ProxyPrintingPolicy : public PrintingPolicy {
       : next(next_) {}
 
   bool ShouldPrintTagBodies(void) const override;
+  bool ShouldPrintInheritedAttributes(void) const override;
+  bool ShouldPrintImplicitAttributes(void) const override;
   bool ShouldPrintConstantExpressionsInTypes(void) const override;
   bool ShouldPrintOriginalTypeOfAdjustedType(void) const override;
   bool ShouldPrintOriginalTypeOfDecayedType(void) const override;
@@ -403,6 +413,9 @@ class PrintedTokenRange {
 
   // Create a new printed token range by concatenating two printed token ranges
   // together.
+  //
+  // Returns `std::nullopt` if `a` and/or `b` have corresponding ASTs that don't
+  // match.
   static std::optional<PrintedTokenRange>
   Concatenate(const PrintedTokenRange &a, const PrintedTokenRange &b);
 
@@ -471,6 +484,12 @@ class PrintedTokenRange {
   // Is this token range valid?
   inline operator bool(void) const noexcept {
     return first < after_last;
+  }
+
+  // Do two ranges match?
+  inline bool operator==(const PrintedTokenRange &that) const noexcept {
+    return impl == that.impl && first == that.first &&
+           after_last == that.after_last;
   }
 
  private:

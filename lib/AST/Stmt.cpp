@@ -3403,15 +3403,6 @@ std::optional<::pasta::CXXRecordDecl> Expr::BestDynamicClassType(void) const {
   }
 }
 
-::pasta::Expr Expr::BestDynamicClassTypeExpression(void) const {
-  auto &self = *const_cast<clang::Expr *>(u.Expr);
-  decltype(auto) val = self.getBestDynamicClassTypeExpr();
-  if (val) {
-    return StmtBuilder::Create<::pasta::Expr>(ast, val);
-  }
-  throw std::runtime_error("Expr::BestDynamicClassTypeExpression can return nullptr!");
-}
-
 ::pasta::ExprDependence Expr::Dependence(void) const {
   auto &self = *const_cast<clang::Expr *>(u.Expr);
   decltype(auto) val = self.getDependence();

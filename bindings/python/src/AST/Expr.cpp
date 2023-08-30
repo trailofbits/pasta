@@ -39,7 +39,6 @@ void RegisterExpr(nb::module_ &m) {
     .def_prop_ro("contains_unexpanded_parameter_pack", &Expr::ContainsUnexpandedParameterPack)
     .def_prop_ro("as_builtin_constant_declaration_reference", &Expr::AsBuiltinConstantDeclarationReference)
     .def_prop_ro("best_dynamic_class_type", &Expr::BestDynamicClassType)
-    .def_prop_ro("best_dynamic_class_type_expression", &Expr::BestDynamicClassTypeExpression)
     .def_prop_ro("dependence", &Expr::Dependence)
     .def_prop_ro("expression_token", &Expr::ExpressionToken)
     .def_prop_ro("obj_c_property", &Expr::ObjCProperty)

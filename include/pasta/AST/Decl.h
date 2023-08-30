@@ -2994,7 +2994,6 @@ class CXXRecordDecl : public RecordDecl {
   enum MSVtorDispMode MSVtorDispMode(void) const;
   // MemberSpecializationInfo: (clang::MemberSpecializationInfo *)
   ::pasta::CXXRecordDecl MostRecentDeclaration(void) const;
-  std::optional<::pasta::CXXRecordDecl> MostRecentNonInjectedDeclaration(void) const;
   std::optional<uint32_t> NumBases(void) const;
   std::optional<uint32_t> NumVirtualBases(void) const;
   std::optional<uint32_t> ODRHash(void) const;

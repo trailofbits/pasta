@@ -894,23 +894,6 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
   void VisitCommonFunctionDecl(clang::FunctionDecl *decl) {
    auto X = false; //decl->getNameAsString() == "VariadicCommaConcatenateIdiom";
-   // if (X) {
-   //   decl->dumpColor();
-   // }
-    // auto X = false;
-//    auto all_implicit = true;
-//    for (clang::ParmVarDecl *param : decl->parameters()) {
-//      if (!param->isImplicit()) {
-//        all_implicit = false;
-//        break;
-//      }
-//    }
-//
-//    // We can declare a function like `func_t func_name;`, where `func_t` is
-//    // a typedef.
-//    if (all_implicit && decl->getType().getTypePtr()->isTypedefNameType()) {
-//      X = true;
-//    }
 
     D("a", X);
     if (clang::FunctionTypeLoc ftl = decl->getFunctionTypeLoc()) {
@@ -1130,7 +1113,7 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
 
       if (begin_tok < end_tok) {
         param_proto.first = begin_tok;
-        param_proto.second = end_tok;
+        param_proto.second = &(end_tok[-1]);
       }
     }
 

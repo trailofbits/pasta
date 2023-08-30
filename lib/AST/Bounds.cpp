@@ -443,14 +443,26 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
         lower_bound = tok;
         return true;
 
+      // `"C"` in `extern "C"`.
       } else if (allow_string_literal &&
                  tok_kind == clang::tok::string_literal) {
         ++i;
+
+      // Whitespace / comments / end of macros.
       } else if (tok_kind == clang::tok::unknown ||
                  tok_kind == clang::tok::eof ||
                  tok_kind == clang::tok::eod ||
                  tok_kind == clang::tok::comment) {
         continue;
+
+      // Attribute.
+      } else if (tok_kind == clang::tok::r_paren ||
+                 tok_kind == clang::tok::r_square) {
+        
+        TokenImpl *matched_end = nullptr;
+        std::tie(tok, matched_end) = GetMatching(tok);
+        continue;
+
       } else {
         return false;
       }
@@ -818,6 +830,8 @@ class DeclBoundsFinder : public clang::DeclVisitor<DeclBoundsFinder>,
       changed = false;
       changed = ExpandLeadingKeyword(clang::tok::kw_auto) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw_static) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___attribute) || changed;
+      changed = ExpandLeadingKeyword(clang::tok::kw___declspec) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw_extern, true) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw__ExtInt) || changed;
       changed = ExpandLeadingKeyword(clang::tok::kw__BitInt) || changed;

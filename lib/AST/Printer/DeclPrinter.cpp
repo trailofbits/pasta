@@ -561,8 +561,19 @@ void DeclPrinter::VisitDeclContext(clang::DeclContext *DC, bool Indent) {
       continue;
 
     // Skip over implicit declarations in pretty-printing mode.
-    if (D->isImplicit())
-      continue;
+    if (D->isImplicit()) {
+      auto F = clang::dyn_cast<clang::FieldDecl>(*D);
+      if (!F) {
+        continue;
+      }
+
+      if (F->getIdentifier()) {
+        continue;
+      }
+
+      // If it's an implicit field decl, then it might be GNU extension where we
+      // have an anonymous union. 
+    }
 
     // Skip over tags that are defined within declarators.
     if (auto TD = clang::dyn_cast<clang::TagDecl>(*D)) {

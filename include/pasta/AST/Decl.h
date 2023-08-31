@@ -174,6 +174,11 @@ class DeclContext {
   PASTA_DECLARE_DERIVED_OPERATORS(DeclContext, RequiresExprBodyDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(DeclContext, TagDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(DeclContext, TranslationUnitDecl)
+
+  const ::clang::DeclContext *RawDeclContext(void) const noexcept {
+    return u.DeclContext;
+  }
+
   // Encloses: (bool)
   // Equals: (bool)
   // InEnclosingNamespaceSetOf: (bool)

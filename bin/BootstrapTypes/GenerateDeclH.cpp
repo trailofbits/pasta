@@ -71,6 +71,11 @@ void GenerateDeclH(void) {
        << derived_class << ")\n";
   }
 
+  os << "\n"
+     << "  const ::clang::DeclContext *RawDeclContext(void) const noexcept {\n"
+     << "    return u.DeclContext;\n"
+     << "  }\n\n";
+
   DeclareCppMethods(os, decl_context, gClassIDs[decl_context]);
 
   os << " private:\n"

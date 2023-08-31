@@ -77,20 +77,16 @@ static void PrintTokenGraph(pasta::Decl tld) {
     // Make a printed token range out of just the parsed tokens. This excludes
     // intermediate macro tokens. These adopted tokens have mostly empty token
     // context chains.
-    pasta::PrintedTokenRange adopted_tokens =
-        pasta::PrintedTokenRange::Adopt(parsed_tokens);
+    tokens = pasta::PrintedTokenRange::Adopt(parsed_tokens);
     
     // Try to "align" the pretty-printed tokens, which come with full token
     // context chains with the adopted tokens, forming a range of parsed tokens
     // with full context chains. This is costly and doesn't always work.
-    auto aligned_tokens = pasta::PrintedTokenRange::Align(
-        adopted_tokens, printed_tokens);
-    if (!aligned_tokens.Succeeded()) {
-      std::cerr << "Could not merge: " << aligned_tokens.TakeError() << std::endl;
+    auto err = pasta::PrintedTokenRange::Align(tokens, printed_tokens);
+    if (err.has_value()) {
+      std::cerr << "Could not merge: " << err.value() << std::endl;
       return;
     }
-
-    tokens = aligned_tokens.TakeValue();
   }
 
   if (tokens.empty()) {

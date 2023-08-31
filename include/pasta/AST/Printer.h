@@ -419,16 +419,14 @@ class PrintedTokenRange {
   static std::optional<PrintedTokenRange>
   Concatenate(const PrintedTokenRange &a, const PrintedTokenRange &b);
 
-  // Create a new printed token range, where the token data is taken from `a`
-  // but the token contexts are taken from `b`. This provides a mechanism of
-  // relating parsed tokens back to AST nodes, when `a` is derived from `Adopt`
-  // below.
+  // Align the token locations from `with_locs` with the token contexts from
+  // `with_contexts`. Returns a string if an error occured. This provides a
+  // mechanism of relating parsedtokens back to AST nodes, when `with_locs` is
+  // derived from `Adopt` below.
   //
-  // The `maintain_provenance` argument determines whether or not the printed
-  // tokens will be able to find their original parsed tokens.
-  static Result<PrintedTokenRange, std::string>
-  Align(const PrintedTokenRange &a, const PrintedTokenRange &b,
-        bool maintain_provenance=true);
+  // NOTE(pag): Both `with_locs` and `with_contexts` are mutated in-place.
+  static std::optional<std::string> Align(PrintedTokenRange &with_locs,
+                                          PrintedTokenRange &with_contexts);
 
   // Create a new printed token range, where the token data is taken from `a`.
   // The only token contexts in an adopted range are AST contexts. The only

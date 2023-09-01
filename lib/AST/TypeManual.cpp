@@ -82,20 +82,52 @@ std::string_view Type::KindName(void) const {
 
 std::optional<uint64_t> Type::SizeInBits(void) const noexcept {
   clang::NamedDecl *nd = nullptr;
-  if (!u.Type || u.Type->isIncompleteType(&nd)) {
+  if (!u.Type || u.Type->isIncompleteType(&nd) || u.Type->isDependentType()) {
     return std::nullopt;
   }
 
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  auto self = ast_ctx.getQualifiedType(
+      fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers)).getCanonicalType();
+
+  if (self.isNull()) {
+    return std::nullopt;
+  }
+
+  if (auto bt = clang::dyn_cast_or_null<clang::BuiltinType>(self.getTypePtr())) {
+    switch (bt->getKind()) {
+      default:
+        break;
+#define BUILTIN_TYPE(...)
+#define PLACEHOLDER_TYPE(kind, ty) case clang::BuiltinType::kind: return std::nullopt;
+#include <clang/AST/BuiltinTypes.def>
+    }
+  }
+
   return ast_ctx.getTypeSize(self);
 }
 
 std::optional<uint64_t> Type::Alignment(void) const noexcept {
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
-  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));
+  auto self = ast_ctx.getQualifiedType(
+      fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers)).getCanonicalType();
+
+  if (self.isNull()) {
+    return std::nullopt;
+  }
+
+  if (auto bt = clang::dyn_cast_or_null<clang::BuiltinType>(self.getTypePtr())) {
+    switch (bt->getKind()) {
+      default:
+        break;
+#define BUILTIN_TYPE(...)
+#define PLACEHOLDER_TYPE(kind, ty) case clang::BuiltinType::kind: return std::nullopt;
+#include <clang/AST/BuiltinTypes.def>
+    }
+  }
+
   if (auto ret = ast_ctx.getTypeAlignIfKnown(self)) {
     return ret;
   }

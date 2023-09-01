@@ -1397,7 +1397,8 @@ void PatchedMacroTracker::DoEndNonDirective(const clang::Token &tok,
 
 static void Expand(std::ostream &os, const ASTImpl &ast,
                    Node node, const char *&sep,
-                   clang::SourceLocation &last_loc) {
+                   clang::SourceLocation &last_loc,
+                   std::vector<const pasta::TokenImpl *> &unexpanded_macros) {
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
     auto tok = std::get<MacroTokenImpl *>(node);
     const TokenImpl &real_tok = ast.tokens[tok->token_offset];
@@ -1407,12 +1408,17 @@ static void Expand(std::ostream &os, const ASTImpl &ast,
       last_loc = last_loc.getLocWithOffset(static_cast<int>(data.size()));
       os << sep << data;
       sep = " ";
+
+      // Something like `#pragma clang deprecated (ATOMIC_VAR_INIT)`.
+      if (real_tok.is_macro_name) {
+        unexpanded_macros.push_back(&real_tok);
+      }
     }
 
   } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
     auto sub = std::get<MacroNodeImpl *>(node);
     for (const Node &sub_node : sub->nodes) {
-      Expand(os, ast, sub_node, sep, last_loc);
+      Expand(os, ast, sub_node, sep, last_loc, unexpanded_macros);
     }
   }
 }
@@ -1449,15 +1455,38 @@ void PatchedMacroTracker::DoEndDirective(
   if (last_directive->kind == MacroKind::kPragmaDirective) {
 
     // We need to emit the pragma tokens as a line in the parsed tokens.
-    // Pragmas are important for things like adjusting structure packing
+    // Pragmas are important for things like adjusting structure packing. One
+    // thing that's tricky about doing this is that we need to expand macros
+    // within the pragmas.
     std::stringstream ss;
     const char *sep = "";
     clang::SourceLocation last_loc;
-    Expand(ss, *ast, last_directive, sep, last_loc);
+    std::vector<const pasta::TokenImpl *> unexpanded_macros;
+    Expand(ss, *ast, last_directive, sep, last_loc, unexpanded_macros);
     D( std::cerr << indent << "Got pragma: " << ss.str() << '\n'; )
 
+    std::string pragma_data = ss.str();
+    
+    // A pragma might reference a macro name which doesn't actually exist. We'll
+    // try to rewrite it into a compatible pragma.
+    if ((pragma_data.find(" deprecated ") != std::string::npos ||
+         pragma_data.find(" poison ") != std::string::npos) &&
+        !unexpanded_macros.empty()) {
+
+      std::stringstream().swap(ss);
+      ss << "# pragma clang poison";
+      for (const TokenImpl *macro_tok : unexpanded_macros) {
+        ss << ' ' << macro_tok->Data(*ast);
+      }
+
+      pragma_data = ss.str();
+      unexpanded_macros.clear();
+    }
+
+    assert(unexpanded_macros.empty());
+
     auto tok_index = static_cast<unsigned>(ast->tokens.size());
-    ast->preprocessed_code.append(ss.str());
+    ast->preprocessed_code.append(pragma_data);
     ast->preprocessed_code.push_back('\n');
     ast->num_lines += 1;
     (void) ast->tokens.emplace_back(

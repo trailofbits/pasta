@@ -81,8 +81,7 @@ std::string_view Type::KindName(void) const {
 }
 
 std::optional<uint64_t> Type::SizeInBits(void) const noexcept {
-  clang::NamedDecl *nd = nullptr;
-  if (!u.Type || u.Type->isIncompleteType(&nd) || u.Type->isDependentType()) {
+  if (!u.Type) {
     return std::nullopt;
   }
 
@@ -95,7 +94,13 @@ std::optional<uint64_t> Type::SizeInBits(void) const noexcept {
     return std::nullopt;
   }
 
-  if (auto bt = clang::dyn_cast_or_null<clang::BuiltinType>(self.getTypePtr())) {
+  clang::NamedDecl *nd = nullptr;
+  auto tp = self.getTypePtr();
+  if (tp->isIncompleteType(&nd) || tp->isDependentType()) {
+    return std::nullopt;
+  }
+
+  if (auto bt = clang::dyn_cast<clang::BuiltinType>(tp)) {
     switch (bt->getKind()) {
       default:
         break;
@@ -103,12 +108,20 @@ std::optional<uint64_t> Type::SizeInBits(void) const noexcept {
 #define PLACEHOLDER_TYPE(kind, ty) case clang::BuiltinType::kind: return std::nullopt;
 #include <clang/AST/BuiltinTypes.def>
     }
+  } else if (auto dt = clang::dyn_cast<clang::DeducedType>(tp)) {
+    if (dt->getDeducedType().isNull()) {
+      return std::nullopt;
+    }
   }
 
   return ast_ctx.getTypeSize(self);
 }
 
 std::optional<uint64_t> Type::Alignment(void) const noexcept {
+  if (!u.Type) {
+    return std::nullopt;
+  }
+
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);
   auto self = ast_ctx.getQualifiedType(
@@ -118,13 +131,23 @@ std::optional<uint64_t> Type::Alignment(void) const noexcept {
     return std::nullopt;
   }
 
-  if (auto bt = clang::dyn_cast_or_null<clang::BuiltinType>(self.getTypePtr())) {
+  clang::NamedDecl *nd = nullptr;
+  auto tp = self.getTypePtr();
+  if (tp->isIncompleteType(&nd) || tp->isDependentType()) {
+    return std::nullopt;
+  }
+
+  if (auto bt = clang::dyn_cast<clang::BuiltinType>(tp)) {
     switch (bt->getKind()) {
       default:
         break;
 #define BUILTIN_TYPE(...)
 #define PLACEHOLDER_TYPE(kind, ty) case clang::BuiltinType::kind: return std::nullopt;
 #include <clang/AST/BuiltinTypes.def>
+    }
+  } else if (auto dt = clang::dyn_cast<clang::DeducedType>(tp)) {
+    if (dt->getDeducedType().isNull()) {
+      return std::nullopt;
     }
   }
 

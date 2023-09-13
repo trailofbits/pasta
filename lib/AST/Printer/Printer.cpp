@@ -34,7 +34,6 @@ static void TryLocateAttribute(const clang::Attr *A,
                                size_t old_num_toks) {
   
   clang::tok::TokenKind opener_kind = clang::tok::unknown;
-  clang::tok::TokenKind keyword_kind = clang::tok::unknown;
 
   unsigned expected_num_openers = 0u;
   unsigned num_found_openers = 0u;
@@ -104,7 +103,6 @@ static void TryLocateAttribute(const clang::Attr *A,
       case clang::tok::kw__Nullable:
       case clang::tok::kw__Null_unspecified:
       case clang::tok::kw__Nullable_result:
-        keyword_kind = kind;
         attr_tok = &tok;
         break;
       default:
@@ -137,7 +135,7 @@ static void TryLocateAttribute(const clang::Attr *A,
     return;
   }
 
-  // Started at where we have found the attribute in the parsed tokens, use a
+  // Starting at where we have found the attribute in the parsed tokens, use a
   // fudge factor to scan backwards through the parsed tokens and match the
   // keyword itself.
   const TokenImpl *first_parsed_tok = tokens.ast->tokens.data();
@@ -162,7 +160,7 @@ static void TryLocateAttribute(const clang::Attr *A,
       fudge = 32u;
     }
 
-    if (tok_kind == keyword_kind) {
+    if (attr_tok && tok_kind == attr_tok->Kind()) {
       tokens.MarkLocation(*attr_tok, *parsed_tok);
       fudge = 32u;
       attr_tok = nullptr;
@@ -279,28 +277,25 @@ std::optional<Token> PrintedToken::DerivedLocation(void) const {
       impl->derived_index == kInvalidDerivedTokenIndex ||
       impl->derived_index >= range->ast->tokens.size()) {
     return std::nullopt;
-
-  } else {
-    return Token(range->ast, &(range->ast->tokens[impl->derived_index]));
   }
+  return Token(range->ast, &(range->ast->tokens[impl->derived_index]));
 }
 
 // Return the data associated with this token.
 std::string_view PrintedToken::Data(void) const {
   if (impl) {
+    assert(Index() != kInvalidTokenContextIndex);
     return impl->Data(*range);
-  } else {
-    return {};
   }
+  return {};
 }
 
 // Kind of this token.
 TokenKind PrintedToken::Kind(void) const {
   if (impl) {
     return static_cast<TokenKind>(impl->Kind());
-  } else {
-    return TokenKind::kUnknown;
   }
+  return TokenKind::kUnknown;
 }
 
 // Number of leading new lines (before any indentation spaces).
@@ -315,37 +310,42 @@ unsigned PrintedToken::NumleadingSpaces(void) const {
 
 // Return the index of this token in its token range.
 unsigned PrintedToken::Index(void) const {
-  if (!range) {
-    return ~0u;
+  if (!range || !impl) {
+    return kInvalidDerivedTokenIndex;
   }
+
   const auto num_tokens = range->tokens.size();
   if (!num_tokens) {
-    return ~0u;
+    return kInvalidDerivedTokenIndex;
   }
 
   auto begin = range->tokens.data();
   auto end = &(begin[num_tokens]);
   if (begin <= impl && impl < end) {
     return static_cast<unsigned>(impl - begin);
-  } else {
-    return ~0u;
   }
+
+  return kInvalidDerivedTokenIndex;
 }
 
 // Return this token's context, or a null context.
 std::optional<TokenContext> PrintedToken::Context(void) const noexcept {
   if (!impl) {
     return {};
-  } else if (impl->context_index == kInvalidTokenContextIndex) {
-    return {};
-  } else if (impl->context_index >= range->contexts.size()) {
-    return {};
-  } else {
-    std::shared_ptr<const std::vector<TokenContextImpl>> contexts(
-        range, &(range->contexts));
-    return TokenContext(&(range->contexts[impl->context_index]),
-                        std::move(contexts));
   }
+
+  if (impl->context_index == kInvalidTokenContextIndex) {
+    return {};
+  }
+
+  if (impl->context_index >= range->contexts.size()) {
+    return {};
+  }
+
+  std::shared_ptr<const std::vector<TokenContextImpl>> contexts(
+      range, &(range->contexts));
+  return TokenContext(&(range->contexts[impl->context_index]),
+                      std::move(contexts));
 }
 
 // Prefix increment operator.
@@ -399,6 +399,32 @@ ptrdiff_t PrintedTokenIterator::operator-(
 
 PrintedTokenRangeImpl::~PrintedTokenRangeImpl(void) {}
 
+// If any token context index is invalid, then set it to `index`.
+void PrintedTokenRangeImpl::FixupInvalidTokenContexts(TokenContextIndex index) {
+
+  const auto num_contexts = contexts.size();
+  for (TokenContextIndex i = 0u; i < num_contexts; ++i) {
+    if (i != index) {
+      TokenContextImpl &context = contexts[i];
+      if (context.parent_index == kInvalidTokenContextIndex) {
+        context.parent_index = index;
+      }
+    }
+  }
+
+  for (PrintedTokenImpl &tok : tokens) {
+    if (tok.context_index == kInvalidTokenContextIndex) {
+      tok.context_index = index;
+    }
+  }
+}
+
+void PrintedTokenRangeImpl::AddTrailingEOF(void) {
+  if (tokens.empty() || tokens.back().Kind() != clang::tok::eof) {
+    tokens.emplace_back(
+        0u, 0u, kInvalidTokenContextIndex, 0u, 0u, clang::tok::eof);
+  }
+}
 
 const TokenContextIndex PrintedTokenRangeImpl::CreateAlias(
     TokenPrinterContext *tokenizer, TokenContextIndex aliasee) {
@@ -440,6 +466,7 @@ const TokenContextIndex PrintedTokenRangeImpl::CreateAlias(
         parent_index,
         parent_depth,
         aliasee);
+
   } else {
     assert(false);
     contexts.emplace_back(
@@ -545,7 +572,9 @@ void TokenPrinterContext::Tokenize(void) {
     const auto at_end = lexer.LexFromRawLexer(tok);
     if (tok.is(clang::tok::eof)) {
       break;
-    } else if (tok.isOneOf(clang::tok::semi, clang::tok::comma)) {
+    }
+
+    if (tok.isOneOf(clang::tok::semi, clang::tok::comma)) {
       num_nl = 0;
       num_sp = 0;
     }
@@ -661,29 +690,21 @@ TokenPrinterContext::~TokenPrinterContext(void) {
 
 // More typical APIs when we've got PASTA ASTs.
 PrintedTokenRange PrintedTokenRange::Create(
-    const Decl &decl, const PrintingPolicy &pp, bool maintain_provenance) {
-  auto ret = PrintedTokenRange::Create(
+    const Decl &decl, const PrintingPolicy &pp) {
+  return PrintedTokenRange::Create(
       decl.ast, const_cast<clang::Decl *>(decl.u.Decl), pp);
-  if (!maintain_provenance) {
-    ret.DumpProvenanceInformation();
-  }
-  return ret;
 }
 
 // More typical APIs when we've got PASTA ASTs.
 PrintedTokenRange PrintedTokenRange::Create(
-    const Stmt &stmt, const PrintingPolicy &pp, bool maintain_provenance) {
-  auto ret = PrintedTokenRange::Create(
+    const Stmt &stmt, const PrintingPolicy &pp) {
+  return PrintedTokenRange::Create(
       stmt.ast, const_cast<clang::Stmt *>(stmt.u.Stmt), pp);
-  if (!maintain_provenance) {
-    ret.DumpProvenanceInformation();
-  }
-  return ret;
 }
 
 // More typical APIs when we've got PASTA ASTs.
 PrintedTokenRange PrintedTokenRange::Create(
-    const Type &type, const PrintingPolicy &pp, bool maintain_provenance) {
+    const Type &type, const PrintingPolicy &pp) {
   auto &ast = type.ast;
   auto &ast_ctx = ast->ci->getASTContext();
   clang::QualType fast_qtype(type.u.Type,
@@ -691,11 +712,7 @@ PrintedTokenRange PrintedTokenRange::Create(
   auto self = ast_ctx.getQualifiedType(
       fast_qtype, clang::Qualifiers::fromOpaqueValue(type.qualifiers));
 
-  auto ret = PrintedTokenRange::Create(type.ast, self, pp);
-  if (!maintain_provenance) {
-    ret.DumpProvenanceInformation();
-  }
-  return ret;
+  return PrintedTokenRange::Create(type.ast, self, pp);
 }
 
 // Number of tokens in this range.
@@ -708,9 +725,8 @@ size_t PrintedTokenRange::Size(void) const noexcept {
 std::optional<PrintedToken> PrintedTokenRange::At(size_t index) const noexcept {
   if (auto ptr = &(first[index]); ptr < after_last) {
     return PrintedToken(impl, ptr);
-  } else {
-    return std::nullopt;
   }
+  return std::nullopt;
 }
 
 // Unsafe indexed access into the token range.
@@ -718,27 +734,19 @@ PrintedToken PrintedTokenRange::operator[](size_t index) const {
   return PrintedToken(impl, &(first[index]));
 }
 
-//namespace {
-//
-//static void Remap(
-//    std::vector<TokenContextImpl> &new_contexts,
-//    const std::vector<TokenContextImpl> &old_contexts,
-//    std::unordered_map<const void *, TokenContextIndex> &new_data_to_index,
-//    std::unordered_map<TokenContextIndex, TokenContextIndex> &index_remap) {
-//
-//}
-//
-//}  // namespace
-
 // Create a new printed token range by concatenating two printed token ranges
 // together.
 std::optional<PrintedTokenRange> PrintedTokenRange::Concatenate(
     const PrintedTokenRange &a, const PrintedTokenRange &b) {
   if (!a && !b) {
     return std::nullopt;
-  } else if (!a) {
+  }
+
+  if (!a) {
     return b;
-  } else if (!b) {
+  }
+
+  if (!b) {
     return a;
   }
 
@@ -773,39 +781,31 @@ std::optional<PrintedTokenRange> PrintedTokenRange::Concatenate(
   context_map.assign(a.impl->contexts.size(), kInvalidTokenContextIndex);
 
   for (auto a_tok = a.first; a_tok < a.after_last; ++a_tok) {
-    if (a_tok->Kind() == clang::tok::eof) {
-      continue;
+    if (a_tok->Kind() != clang::tok::eof) {
+      PrintedTokenImpl &new_tok = new_impl->tokens.emplace_back(*a_tok);
+      new_tok.matched_in_align = false;
+      new_tok.context_index = MigrateContexts(
+          new_tok.context_index, a.impl->contexts, new_impl->contexts,
+          data_to_context, context_map);
     }
-    PrintedTokenImpl &new_tok = new_impl->tokens.emplace_back(*a_tok);
-    new_tok.matched_in_align = false;
-    new_tok.context_index = MigrateContexts(
-        new_tok.context_index, a.impl->contexts, new_impl->contexts,
-        data_to_context, context_map);
   }
 
   context_map.assign(b.impl->contexts.size(), kInvalidTokenContextIndex);
 
   auto a_data_size = static_cast<TokenDataOffset>(a.impl->data.size());
   for (auto b_tok = b.first; b_tok < b.after_last; ++b_tok) {
-    if (b_tok->Kind() == clang::tok::eof) {
-      continue;
+    if (b_tok->Kind() != clang::tok::eof) {
+      PrintedTokenImpl &new_tok = new_impl->tokens.emplace_back(*b_tok);
+      new_tok.matched_in_align = false;
+      new_tok.data_offset += a_data_size;
+      new_tok.context_index = MigrateContexts(
+          new_tok.context_index, b.impl->contexts, new_impl->contexts,
+          data_to_context, context_map);
     }
-
-    PrintedTokenImpl &new_tok = new_impl->tokens.emplace_back(*b_tok);
-    new_tok.matched_in_align = false;
-    new_tok.data_offset += a_data_size;
-    new_tok.context_index = MigrateContexts(
-        new_tok.context_index, b.impl->contexts, new_impl->contexts,
-        data_to_context, context_map);
   }
 
-  new_impl->tokens.emplace_back(
-      0u, 0u, kInvalidTokenContextIndex, 0u, 0u, clang::tok::eof);
-
-  PrintedTokenImpl *first_tok = new_impl->tokens.data();
-  PrintedTokenImpl *after_last_tok = &(first_tok[new_impl->tokens.size() - 1u]);
-
-  return PrintedTokenRange(std::move(new_impl), first_tok, after_last_tok);
+  new_impl->AddTrailingEOF();
+  return PrintedTokenRangeImpl::ToPrintedTokenRange(std::move(new_impl));
 }
 
 // Tell us if this was a token that was actually parsed.
@@ -823,8 +823,8 @@ static bool IsParsedToken(const pasta::Token &tok) {
 // Create a new printed token range, where the token data is taken from `a`.
 // The only token contexts in an adopted range are AST contexts. The only tokens
 // in a printed token range are file tokens and complete macro expansion tokens.
-PrintedTokenRange PrintedTokenRange::Adopt(const TokenRange &a,
-                                           bool maintain_provenance) {
+PrintedTokenRange PrintedTokenRange::Adopt(const TokenRange &a) {
+  
   auto new_impl = std::make_shared<PrintedTokenRangeImpl>(
       a.ast->ci->getASTContext());
   new_impl->ast = a.ast;
@@ -849,45 +849,21 @@ PrintedTokenRange PrintedTokenRange::Adopt(const TokenRange &a,
     num_leading_spaces = 1u;
 
     new_tok.role = static_cast<TokenKindBase>(TokenRole::kFileToken);
-
-    if (maintain_provenance) {
-      new_tok.opaque_source_loc = tok.impl->opaque_source_loc;
-      new_tok.derived_index = static_cast<DerivedTokenIndex>(tok.Index());
-    }
+    new_tok.opaque_source_loc = tok.impl->opaque_source_loc;
+    new_tok.derived_index = static_cast<DerivedTokenIndex>(tok.Index());
 
     new_impl->data.insert(new_impl->data.end(), data.begin(), data.end());
     new_impl->data.push_back('\0');
   }
 
-  new_impl->tokens.emplace_back(
-      0u, 0u, kInvalidTokenContextIndex, 0u, 0u, clang::tok::eof);
-
-  PrintedTokenImpl *first_tok = new_impl->tokens.data();
-  PrintedTokenImpl *after_last_tok = &(first_tok[new_impl->tokens.size() - 1u]);
-
-  return PrintedTokenRange(std::move(new_impl), first_tok, after_last_tok);
+  new_impl->AddTrailingEOF();
+  return PrintedTokenRangeImpl::ToPrintedTokenRange(std::move(new_impl));
 }
 
 // Create a copy of `a`.
-//
-// The `maintain_provenance` argument determines whether or not the printed
-// tokens will be able to find their original parsed tokens.
-PrintedTokenRange PrintedTokenRange::Copy(const PrintedTokenRange &a,
-                                          bool maintain_provenance) {
-  auto new_impl = std::make_shared<PrintedTokenRangeImpl>(a.impl->ast_context);
-  new_impl->ast = a.impl->ast;
-  new_impl->tokens = a.impl->tokens;
-  new_impl->contexts = a.impl->contexts;
-  new_impl->data = a.impl->data;
-
-  PrintedTokenImpl *first_tok = new_impl->tokens.data();
-  PrintedTokenImpl *after_last_tok = &(first_tok[new_impl->tokens.size() - 1u]);
-
-  PrintedTokenRange ret(std::move(new_impl), first_tok, after_last_tok);
-  if (!maintain_provenance) {
-    ret.DumpProvenanceInformation();
-  }
-  return ret;
+PrintedTokenRange PrintedTokenRange::Copy(const PrintedTokenRange &a) {
+  return PrintedTokenRangeImpl::ToPrintedTokenRange(
+      std::make_shared<PrintedTokenRangeImpl>(*a.impl));
 }
 
 // Dump token provenance information.
@@ -904,53 +880,63 @@ bool PrintingPolicy::ShouldPrintTagBodies(void) const {
   return true;
 }
 
+// These defaults are shared between `PrintingPolicy` and
+// `PrintingPolicyAdaptor`.
+static constexpr bool kShouldPrintInheritedAttributes = false;
+static constexpr bool kShouldPrintImplicitAttributes = false;
+static constexpr bool kShouldPrintConstantExpressionsInTypes = true;
+static constexpr bool kShouldPrintOriginalTypeOfAdjustedType = true;
+static constexpr bool kShouldPrintOriginalTypeOfDecayedType = true;
+static constexpr bool kShouldPrintTemplate = true;
+static constexpr bool kShouldPrintSpecialization = false;
+
 bool PrintingPolicy::ShouldPrintInheritedAttributes(void) const {
-  return false;
+  return kShouldPrintInheritedAttributes;
 }
 
 bool PrintingPolicy::ShouldPrintImplicitAttributes(void) const {
-  return false;
+  return kShouldPrintImplicitAttributes;
 }
 
 bool PrintingPolicy::ShouldPrintConstantExpressionsInTypes(void) const {
-  return true;
+  return kShouldPrintConstantExpressionsInTypes;
 }
 
 bool PrintingPolicy::ShouldPrintOriginalTypeOfAdjustedType(void) const {
-  return true;
+  return kShouldPrintOriginalTypeOfAdjustedType;
 }
 
 bool PrintingPolicy::ShouldPrintOriginalTypeOfDecayedType(void) const {
-  return true;
+  return kShouldPrintOriginalTypeOfDecayedType;
 }
 
 bool PrintingPolicy::ShouldPrintTemplate(const TemplateDecl &) const {
-  return true;
+  return kShouldPrintTemplate;
 }
 
 bool PrintingPolicy::ShouldPrintTemplate(
     const ClassTemplatePartialSpecializationDecl &) const {
-  return true;
+  return kShouldPrintTemplate;
 }
 
 bool PrintingPolicy::ShouldPrintTemplate(
     const VarTemplatePartialSpecializationDecl &) const {
-  return true;
+  return kShouldPrintTemplate;
 }
 
 bool PrintingPolicy::ShouldPrintSpecialization(
     const ClassTemplateDecl &, const ClassTemplateSpecializationDecl &) const {
-  return false;
+  return kShouldPrintSpecialization;
 }
 
 bool PrintingPolicy::ShouldPrintSpecialization(const FunctionTemplateDecl &,
                                                const FunctionDecl &) const {
-  return false;
+  return kShouldPrintSpecialization;
 }
 
 bool PrintingPolicy::ShouldPrintSpecialization(
     const VarTemplateDecl &, const VarTemplateSpecializationDecl &) const {
-  return false;
+  return kShouldPrintSpecialization;
 }
 
 ProxyPrintingPolicy::~ProxyPrintingPolicy(void) {}
@@ -1010,43 +996,23 @@ bool ProxyPrintingPolicy::ShouldPrintSpecialization(
 }
 
 bool PrintingPolicyAdaptor::ShouldPrintInheritedAttributes(void) const {
-  if (pp) {
-    return pp->ShouldPrintInheritedAttributes();
-  } else {
-    return false;
-  }
+  return pp ? pp->ShouldPrintInheritedAttributes() : kShouldPrintInheritedAttributes;
 }
 
 bool PrintingPolicyAdaptor::ShouldPrintImplicitAttributes(void) const {
-  if (pp) {
-    return pp->ShouldPrintImplicitAttributes();
-  } else {
-    return false;
-  }
+  return pp ? pp->ShouldPrintImplicitAttributes() : kShouldPrintImplicitAttributes;
 }
 
 bool PrintingPolicyAdaptor::ShouldPrintConstantExpressionsInTypes(void) const {
-  if (pp) {
-    return pp->ShouldPrintConstantExpressionsInTypes();
-  } else {
-    return true;
-  }
+  return pp ? pp->ShouldPrintConstantExpressionsInTypes() : kShouldPrintConstantExpressionsInTypes;
 }
 
 bool PrintingPolicyAdaptor::ShouldPrintOriginalTypeOfAdjustedType(void) const {
-  if (pp) {
-    return pp->ShouldPrintOriginalTypeOfAdjustedType();
-  } else {
-    return true;
-  }
+  return pp ? pp->ShouldPrintOriginalTypeOfAdjustedType() : kShouldPrintOriginalTypeOfAdjustedType;
 }
 
 bool PrintingPolicyAdaptor::ShouldPrintOriginalTypeOfDecayedType(void) const {
-  if (pp) {
-    return pp->ShouldPrintOriginalTypeOfDecayedType();
-  } else {
-    return true;
-  }
+  return pp ? pp->ShouldPrintOriginalTypeOfDecayedType() : kShouldPrintOriginalTypeOfDecayedType;
 }
 
 bool PrintingPolicyAdaptor::ShouldPrintTemplate(
@@ -1060,7 +1026,7 @@ bool PrintingPolicyAdaptor::ShouldPrintTemplate(
 #endif
 
   if (!decl_to_print) {
-    return true;
+    return kShouldPrintTemplate;
   }
 
   if (tpl == decl_to_print) {
@@ -1070,11 +1036,13 @@ bool PrintingPolicyAdaptor::ShouldPrintTemplate(
   // Make sure we're not asking to print a specialization of `tpl`.
   if (auto cspec = clang::dyn_cast<clang::ClassTemplateSpecializationDecl>(decl_to_print)) {
     return cspec->getSpecializedTemplate()->getCanonicalDecl() != tpl->getCanonicalDecl();
-  
-  } else if (auto vspec = clang::dyn_cast<clang::VarTemplateSpecializationDecl>(decl_to_print)) {
+  }
+
+  if (auto vspec = clang::dyn_cast<clang::VarTemplateSpecializationDecl>(decl_to_print)) {
     return vspec->getSpecializedTemplate()->getCanonicalDecl() != tpl->getCanonicalDecl();
-  
-  } else if (auto fspec = clang::dyn_cast<clang::FunctionDecl>(decl_to_print)) {
+  }
+
+  if (auto fspec = clang::dyn_cast<clang::FunctionDecl>(decl_to_print)) {
     if (fspec->isTemplateInstantiation()) {
       return fspec->getPrimaryTemplate()->getCanonicalDecl() != tpl->getCanonicalDecl();
     }
@@ -1094,7 +1062,7 @@ bool PrintingPolicyAdaptor::ShouldPrintTemplate(
 #endif
 
   if (!decl_to_print) {
-    return true;
+    return kShouldPrintTemplate;
   }
 
   if (tpl == decl_to_print) {
@@ -1122,7 +1090,7 @@ bool PrintingPolicyAdaptor::ShouldPrintTemplate(
 #endif
 
   if (!decl_to_print) {
-    return true;
+    return kShouldPrintTemplate;
   }
 
   if (tpl == decl_to_print) {
@@ -1151,7 +1119,7 @@ bool PrintingPolicyAdaptor::ShouldPrintSpecialization(
   }
 #endif
 
-  return spec == decl_to_print;
+  return spec == decl_to_print ? true : kShouldPrintSpecialization;
 }
 
 bool PrintingPolicyAdaptor::ShouldPrintSpecialization(
@@ -1166,7 +1134,7 @@ bool PrintingPolicyAdaptor::ShouldPrintSpecialization(
   }
 #endif
 
-  return spec == decl_to_print;
+  return spec == decl_to_print ? true : kShouldPrintSpecialization;
 }
 
 bool PrintingPolicyAdaptor::ShouldPrintSpecialization(
@@ -1180,7 +1148,7 @@ bool PrintingPolicyAdaptor::ShouldPrintSpecialization(
   }
 #endif
 
-  return spec == decl_to_print;
+  return spec == decl_to_print ? true : kShouldPrintSpecialization;
 }
 
 }  // namespace pasta

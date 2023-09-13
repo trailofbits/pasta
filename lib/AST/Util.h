@@ -19,17 +19,17 @@ inline static bool IsExplicitInstantiation(
 
   if (tsk == clang::TSK_ExplicitSpecialization) {
     return true;
+  }
 
   // NOTE(pag): I have observed cases where a `ClassTemplateSpecializationDecl`
   //            will report an undeclared specialization kind (lol), but have
   //            a non-null value returned by `getSpecializedTemplateOrPartial`,
   //            hence the additional condition.
-  } else if (tsk == clang::TSK_Undeclared) {
+  if (tsk == clang::TSK_Undeclared) {
     return !has_spec_or_partial;
-
-  } else {
-    return false;
   }
+
+  return false;
 }
 
 }  // namespace pasta

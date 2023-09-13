@@ -32,6 +32,9 @@
       return u.base; \
     }
 
+namespace clang {
+class QualType;
+}
 namespace pasta {
 class TypeBuilder;
 
@@ -107,6 +110,8 @@ class TypeVisitor {
 // Wraps a type, including its qualifiers.
 class Type {
  protected:
+  friend class AST;
+  friend class ASTImpl;
   friend class TypeBuilder;
   friend class PrintedTokenRange;
 
@@ -194,6 +199,8 @@ class Type {
 
  public:
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(Type)
+  clang::QualType RawQualType(void) const noexcept;
+
   inline const clang::Type *RawType(void) const noexcept {
     return u.Type;
   }
@@ -279,6 +286,9 @@ class Type {
   inline Type UnqualifiedType(void) const noexcept {
     return Type(ast, u.Type, kind, 0);
   }
+
+  std::optional<uint64_t> SizeInBits(void) const noexcept;
+  std::optional<uint64_t> Alignment(void) const noexcept;
 
   /* Type methods */
   bool AcceptsObjCTypeParameters(void) const;
@@ -533,7 +543,7 @@ class TypeOfExprType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TypeOfExprType)
   PASTA_DECLARE_BASE_OPERATORS(Type, TypeOfExprType)
   ::pasta::Type Desugar(void) const;
-  enum TypeOfKind Kind(void) const;
+  enum TypeOfKind TypeKind(void) const;
   ::pasta::Expr UnderlyingExpression(void) const;
   bool IsSugared(void) const;
  protected:
@@ -548,7 +558,7 @@ class TypeOfType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(TypeOfType)
   PASTA_DECLARE_BASE_OPERATORS(Type, TypeOfType)
   ::pasta::Type Desugar(void) const;
-  enum TypeOfKind Kind(void) const;
+  enum TypeOfKind TypeKind(void) const;
   ::pasta::Type UnmodifiedType(void) const;
   bool IsSugared(void) const;
  protected:
@@ -772,7 +782,7 @@ class BuiltinType : public Type {
   PASTA_DECLARE_DEFAULT_CONSTRUCTORS(BuiltinType)
   PASTA_DECLARE_BASE_OPERATORS(Type, BuiltinType)
   ::pasta::Type Desugar(void) const;
-  ::pasta::BuiltinTypeKind Kind(void) const;
+  ::pasta::BuiltinTypeKind BuiltinKind(void) const;
   // Name: (llvm::StringRef)
   // NameAsCString: (const char *)
   bool IsFloatingPoint(void) const;
@@ -1342,8 +1352,6 @@ class QualifiedType : public Type {
   ::pasta::Type WithRestrict(void) const;
   ::pasta::Type WithVolatile(void) const;
   ::pasta::Type WithoutLocalFastQualifiers(void) const;
-
-  /* QualType methods */
  protected:
   PASTA_DEFINE_DEFAULT_TYPE_CONSTRUCTOR(QualifiedType)
 };

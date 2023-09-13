@@ -3203,20 +3203,13 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
 
   if (stmt) {
     PrintingPolicyAdaptor ppa;
-    tokens->ppa = &ppa;
+    PrintingPolicyAdaptorRAII ppa_set_reset(tokens, ppa);
     StmtPrinter printer(out, nullptr, *tokens, policy);
     printer.Visit(stmt);
-    tokens->ppa = nullptr;
   }
 
-  tokens->tokens.emplace_back(
-      0u, 0u, kInvalidTokenContextIndex, 0u, 0u, clang::tok::eof);
-
-  auto num_tokens = tokens->tokens.size();
-  auto first = &(tokens->tokens[0]);
-  auto after_last = &(first[num_tokens - 1u]);
-
-  return PrintedTokenRange(std::move(tokens), first, after_last);
+  tokens->AddTrailingEOF();
+  return PrintedTokenRangeImpl::ToPrintedTokenRange(std::move(tokens));
 }
 
 PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
@@ -3233,45 +3226,18 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
 
   if (stmt) {
     PrintingPolicyAdaptor ppa(ast, high_pp);
-    tokens->ppa = &ppa;
+    PrintingPolicyAdaptorRAII ppa_set_reset(tokens, ppa);
 
     clang::PrintingPolicy pp = *(ast->printing_policy);
     pp.IncludeTagDefinition = high_pp.ShouldPrintTagBodies();
 
     StmtPrinter printer(out, nullptr, *tokens, pp);
     printer.Visit(stmt);
-    tokens->ppa = nullptr;
   }
 
-  // Fixup to share the AST as the root context.
-  auto max_i = tokens->contexts.size();
-  for (auto i = 1u; i < max_i; ++i) {
-    TokenContextImpl &context = tokens->contexts[i];
-    if (context.parent_index == kInvalidTokenContextIndex) {
-      context.parent_index = kASTTokenContextIndex;
-    }
-  }
-
-  tokens->tokens.emplace_back(
-      0u, 0u, kInvalidTokenContextIndex, 0u, 0u, clang::tok::eof);
-
-  auto num_tokens = tokens->tokens.size();
-  auto first = &(tokens->tokens[0]);
-  auto after_last = &(first[num_tokens - 1u]);
-
-  for (auto tok = first; tok < after_last; ++tok) {
-    if (tok->context_index == kInvalidTokenContextIndex) {
-      tok->context_index = kASTTokenContextIndex;
-    }
-
-#ifndef NDEBUG
-    if (tok->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
-      assert(tok->derived_index != kInvalidDerivedTokenIndex);
-    }
-#endif
-  }
-
-  return PrintedTokenRange(std::move(tokens), first, after_last);
+  tokens->FixupInvalidTokenContexts(kASTTokenContextIndex);
+  tokens->AddTrailingEOF();
+  return PrintedTokenRangeImpl::ToPrintedTokenRange(std::move(tokens));
 }
 
 } // namespace pasta

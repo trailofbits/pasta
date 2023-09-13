@@ -143,12 +143,9 @@ std::optional<FileToken> ASTImpl::FileTokenAt(clang::SourceLocation loc) {
     if (file_it == id_to_file.end()) {
       return std::nullopt;
     }
-
     return file_it->second.TokenAtOffset(file_offset);
-
-  } else {
-    return std::nullopt;
   }
+  return std::nullopt;
 }
 
 // Try to return the token at the specified location.
@@ -179,9 +176,8 @@ Token ASTImpl::TokenAt(clang::SourceLocation loc) {
   auto self = shared_from_this();
   if (auto tok = RawTokenAt(loc)) {
     return Token(std::move(self), tok);
-  } else {
-    return Token(std::move(self));
   }
+  return Token(std::move(self));
 }
 
 // Try to return the token at the specified location.
@@ -191,9 +187,8 @@ Token ASTImpl::TokenAt(const TokenImpl *tok) {
   auto end = &(begin[tokens.size()]);
   if (begin <= tok && tok < end) {
     return Token(std::move(self), tok);
-  } else {
-    return Token(std::move(self));
   }
+  return Token(std::move(self));
 }
 
 // Try to return the token range from the specified source range.
@@ -205,16 +200,19 @@ TokenRange ASTImpl::TokenRangeFrom(clang::SourceRange range) {
   if (begin && end) {
     if (begin.impl <= end.impl) {
       return TokenRange(std::move(self), begin.impl, &(end.impl[1]));
-    } else {
-      return TokenRange(std::move(self), end.impl, &(begin.impl[1]));
     }
-  } else if (begin) {
-    return TokenRange(std::move(self), begin.impl, &(begin.impl[1]));
-  } else if (end) {
-    return TokenRange(std::move(self), end.impl, &(end.impl[1]));
-  } else {
-    return TokenRange(std::move(self));
+    return TokenRange(std::move(self), end.impl, &(begin.impl[1]));
   }
+
+  if (begin) {
+    return TokenRange(std::move(self), begin.impl, &(begin.impl[1]));
+  }
+
+  if (end) {
+    return TokenRange(std::move(self), end.impl, &(end.impl[1]));
+  }
+
+  return TokenRange(std::move(self));
 }
 
 // Return a reference to the underlying Clang AST context. This is needed for

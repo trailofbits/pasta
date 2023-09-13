@@ -174,6 +174,11 @@ class DeclContext {
   PASTA_DECLARE_DERIVED_OPERATORS(DeclContext, RequiresExprBodyDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(DeclContext, TagDecl)
   PASTA_DECLARE_DERIVED_OPERATORS(DeclContext, TranslationUnitDecl)
+
+  const ::clang::DeclContext *RawDeclContext(void) const noexcept {
+    return u.DeclContext;
+  }
+
   // Encloses: (bool)
   // Equals: (bool)
   // InEnclosingNamespaceSetOf: (bool)
@@ -1032,7 +1037,7 @@ class ObjCMethodDecl : public NamedDecl {
   enum DeclObjCDeclQualifier ObjCDeclQualifier(void) const;
   // ParameterDeclaration: (const clang::ParmVarDecl *)
   ::pasta::Type ReturnType(void) const;
-  ::pasta::TokenRange ReturnTypeSourceRange(void) const;
+  ::pasta::TokenRange ReturnTypeTokens(void) const;
   // Selector: (clang::Selector)
   // SelectorToken: (clang::SourceLocation)
   ::pasta::Token SelectorStartToken(void) const;
@@ -1742,6 +1747,7 @@ class FieldDecl : public DeclaratorDecl {
   bool IsZeroLengthBitField(void) const;
   bool IsZeroSize(void) const;
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
+  std::optional<uint64_t> OffsetInBits(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(FieldDecl)
 };
@@ -1778,7 +1784,7 @@ class FunctionDecl : public DeclaratorDecl {
   // DependentSpecializationInfo: (clang::DependentFunctionTemplateSpecializationInfo *)
   std::optional<::pasta::FunctionTemplateDecl> DescribedFunctionTemplate(void) const;
   ::pasta::Token EllipsisToken(void) const;
-  ::pasta::TokenRange ExceptionSpecSourceRange(void) const;
+  ::pasta::TokenRange ExceptionSpecTokens(void) const;
   enum ExceptionSpecificationType ExceptionSpecType(void) const;
   // FunctionTypeToken: (clang::FunctionTypeLoc)
   std::optional<::pasta::FunctionDecl> InstantiatedFromDeclaration(void) const;
@@ -1794,11 +1800,10 @@ class FunctionDecl : public DeclaratorDecl {
   std::optional<uint32_t> ODRHash(void) const;
   enum OverloadedOperatorKind OverloadedOperator(void) const;
   // ParameterDeclaration: (const clang::ParmVarDecl *)
-  ::pasta::TokenRange ParametersSourceRange(void) const;
+  ::pasta::TokenRange ParametersTokens(void) const;
   ::pasta::Token PointOfInstantiation(void) const;
   std::optional<::pasta::FunctionTemplateDecl> PrimaryTemplate(void) const;
   ::pasta::Type ReturnType(void) const;
-  ::pasta::TokenRange ReturnTypeSourceRange(void) const;
   enum StorageClass StorageClass(void) const;
   std::optional<::pasta::FunctionDecl> TemplateInstantiationPattern(void) const;
   // TemplateSpecializationArguments: (const clang::TemplateArgumentList *)
@@ -2839,6 +2844,9 @@ class RecordDecl : public TagDecl {
   bool IsRandomized(void) const;
   bool MayInsertExtraPadding(void) const;
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
+  std::optional<uint64_t> Size(void) const noexcept;  // In bytes.
+  std::optional<uint64_t> Alignment(void) const noexcept;  // In bytes.
+  std::optional<uint64_t> SizeWithoutTrailingPadding(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(RecordDecl)
 };
@@ -2991,7 +2999,6 @@ class CXXRecordDecl : public RecordDecl {
   enum MSVtorDispMode MSVtorDispMode(void) const;
   // MemberSpecializationInfo: (clang::MemberSpecializationInfo *)
   ::pasta::CXXRecordDecl MostRecentDeclaration(void) const;
-  std::optional<::pasta::CXXRecordDecl> MostRecentNonInjectedDeclaration(void) const;
   std::optional<uint32_t> NumBases(void) const;
   std::optional<uint32_t> NumVirtualBases(void) const;
   std::optional<uint32_t> ODRHash(void) const;
@@ -3102,6 +3109,12 @@ class CXXRecordDecl : public RecordDecl {
   std::optional<bool> NullFieldOffsetIsZero(void) const;
   std::optional<std::vector<::pasta::CXXBaseSpecifier>> VirtualBases(void) const;
   std::vector<::pasta::TemplateParameterList> TemplateParameterLists(void) const;
+  std::optional<uint64_t> SizeWithoutVirtualBases(void) const noexcept;
+  std::optional<CXXRecordDecl> PrimaryBase(void) const noexcept;
+  std::optional<bool> HasOwnVirtualFunctionTablePointer(void) const noexcept;
+  std::optional<bool> HasExtendableVirtualFunctionTablePointer(void) const noexcept;
+  std::optional<bool> HasVirtualBaseTablePointer(void) const noexcept;
+  std::optional<bool> HasOwnVirtualBaseTablePointer(void) const noexcept;
  protected:
   PASTA_DEFINE_DEFAULT_DECL_CONSTRUCTOR(CXXRecordDecl)
 };

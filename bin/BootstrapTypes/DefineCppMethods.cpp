@@ -113,9 +113,7 @@ static void DefineCppMethod0(std::ostream &os, const std::string &class_name,
 
   const auto is_qual_type = class_name == "QualifiedType";
   if (is_qual_type) {
-    os << "  auto &ast_ctx = ast->ci->getASTContext();\n"
-       << "  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);\n"
-       << "  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));\n";
+    os << "  auto self = RawQualType();\n";
   } else {
     os << "  auto &self = *const_cast<clang::" << class_name << " *>(u." << class_name << ");\n";
   }
@@ -194,9 +192,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
     }
     os << " " << class_name << "::" << meth_name << "(void) const {\n";
     if (is_qual_type) {
-      os << "  auto &ast_ctx = ast->ci->getASTContext();\n"
-         << "  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);\n"
-         << "  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));\n";
+      os << "  auto self = RawQualType();\n";
     } else {
       os << "  auto &self = *(u." << class_name << ");\n";
     }
@@ -247,9 +243,7 @@ static void DefineCppMethod1(std::ostream &os, const std::string &class_name,
     }
     os << " " << class_name << "::" << meth_name << "(bool b) const {\n";
     if (is_qual_type) {
-      os << "  auto &ast_ctx = ast->ci->getASTContext();\n"
-         << "  clang::QualType fast_qtype(u.Type, qualifiers & clang::Qualifiers::FastMask);\n"
-         << "  auto self = ast_ctx.getQualifiedType(fast_qtype, clang::Qualifiers::fromOpaqueValue(qualifiers));\n";
+      os << "  auto self = RawQualType();\n";
     } else {
       os << "  auto &self = *(u." << class_name << ");\n";
     }

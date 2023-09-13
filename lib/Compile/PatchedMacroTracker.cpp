@@ -250,11 +250,13 @@ MacroExpansionImpl *PatchedMacroTracker::DoPreExpansionSetup(
 static MacroTokenImpl *FirstExpansionToken(const Node &node) {
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
     return std::get<MacroTokenImpl *>(node);
-  } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
-    return std::get<MacroNodeImpl *>(node)->FirstExpansionToken();
-  } else {
-    return nullptr;
   }
+
+  if (std::holds_alternative<MacroNodeImpl *>(node)) {
+    return std::get<MacroNodeImpl *>(node)->FirstExpansionToken();
+  }
+
+  return nullptr;
 }
 
 static bool LastIsNotArgument(MacroExpansionImpl *exp) {
@@ -1062,66 +1064,44 @@ void ASTImpl::LinkMacroTokenContexts(void) {
   }
 }
 
-MacroKind KindFromName(llvm::StringRef ident,
-                       clang::tok::PPKeywordKind &out_kind) {
-  if (ident == "if") {
-    out_kind = clang::tok::pp_if;
-    return MacroKind::kIfDirective;
-  } else if (ident == "ifdef") {
-    out_kind = clang::tok::pp_ifdef;
-    return MacroKind::kIfDefinedDirective;
-  } else if (ident == "ifndef") {
-    out_kind = clang::tok::pp_ifndef;
-    return MacroKind::kIfNotDefinedDirective;
-  } else if (ident == "elif") {
-    out_kind = clang::tok::pp_elif;
-    return MacroKind::kElseIfDirective;
-  } else if (ident == "elifdef") {
-    out_kind = clang::tok::pp_elifdef;
-    return MacroKind::kElseIfDefinedDirective;
-  } else if (ident == "elifndef") {
-    out_kind = clang::tok::pp_elifndef;
-    return MacroKind::kElseIfNotDefinedDirective;
-  } else if (ident == "else") {
-    out_kind = clang::tok::pp_else;
-    return MacroKind::kElseDirective;
-  } else if (ident == "endif") {
-    out_kind = clang::tok::pp_endif;
-    return MacroKind::kEndIfDirective;
-  } else if (ident == "import") {
-    out_kind = clang::tok::pp_import;
-    return MacroKind::kImportDirective;
-  } else if (ident == "include") {
-    out_kind = clang::tok::pp_include;
-    return MacroKind::kIncludeDirective;
-  } else if (ident == "include_next") {
-    out_kind = clang::tok::pp_include_next;
-    return MacroKind::kIncludeNextDirective;
-  } else if (ident == "__include_macros") {
-    out_kind = clang::tok::pp___include_macros;
-    return MacroKind::kIncludeMacrosDirective;
-  } else if (ident == "define") {
-    out_kind = clang::tok::pp_define;
-    return MacroKind::kDefineDirective;
-  } else if (ident == "undef") {
-    out_kind = clang::tok::pp_undef;
-    return MacroKind::kUndefineDirective;
-  } else if (ident == "pragma") {
-    out_kind = clang::tok::pp_pragma;
-    return MacroKind::kPragmaDirective;
-  } else {
-    for (auto i = 1; i < clang::tok::NUM_PP_KEYWORDS; ++i) {
-      auto kw_kind = static_cast<clang::tok::PPKeywordKind>(i);
-      auto kw = clang::tok::getPPKeywordSpelling(kw_kind);
-      if (ident == kw) {
-        out_kind = kw_kind;
-        return MacroKind::kOtherDirective;
-      }
+#define FOR_EACH_PP_KEYWORD(m) \
+    m(if, MacroKind::kIfDirective) \
+    m(ifdef, MacroKind::kIfDefinedDirective) \
+    m(ifndef, MacroKind::kIfNotDefinedDirective) \
+    m(elif, MacroKind::kElseIfDirective) \
+    m(elifdef, MacroKind::kElseIfDefinedDirective) \
+    m(elifndef, MacroKind::kElseIfNotDefinedDirective) \
+    m(else, MacroKind::kElseDirective) \
+    m(endif, MacroKind::kEndIfDirective) \
+    m(import, MacroKind::kImportDirective) \
+    m(include, MacroKind::kIncludeDirective) \
+    m(include_next, MacroKind::kIncludeNextDirective) \
+    m(__include_macros, MacroKind::kIncludeMacrosDirective) \
+    m(define, MacroKind::kDefineDirective) \
+    m(undef, MacroKind::kUndefineDirective) \
+    m(pragma, MacroKind::kPragmaDirective)
+
+#define KIND_FROM_NAME(kw, pasta_kind) \
+    if (ident == #kw) { \
+      out_kind = clang::tok::pp_ ## kw; \
+      return pasta_kind; \
     }
 
-    out_kind = clang::tok::pp_not_keyword;
-    return MacroKind::kToken;
+MacroKind KindFromName(llvm::StringRef ident,
+                       clang::tok::PPKeywordKind &out_kind) {
+  FOR_EACH_PP_KEYWORD(KIND_FROM_NAME)
+
+  for (auto i = 1; i < clang::tok::NUM_PP_KEYWORDS; ++i) {
+    auto kw_kind = static_cast<clang::tok::PPKeywordKind>(i);
+    auto kw = clang::tok::getPPKeywordSpelling(kw_kind);
+    if (ident == kw) {
+      out_kind = kw_kind;
+      return MacroKind::kOtherDirective;
+    }
   }
+
+  out_kind = clang::tok::pp_not_keyword;
+  return MacroKind::kToken;
 }
 
 struct BoolRAII {
@@ -1397,7 +1377,8 @@ void PatchedMacroTracker::DoEndNonDirective(const clang::Token &tok,
 
 static void Expand(std::ostream &os, const ASTImpl &ast,
                    Node node, const char *&sep,
-                   clang::SourceLocation &last_loc) {
+                   clang::SourceLocation &last_loc,
+                   std::vector<const pasta::TokenImpl *> &unexpanded_macros) {
   if (std::holds_alternative<MacroTokenImpl *>(node)) {
     auto tok = std::get<MacroTokenImpl *>(node);
     const TokenImpl &real_tok = ast.tokens[tok->token_offset];
@@ -1407,12 +1388,17 @@ static void Expand(std::ostream &os, const ASTImpl &ast,
       last_loc = last_loc.getLocWithOffset(static_cast<int>(data.size()));
       os << sep << data;
       sep = " ";
+
+      // Something like `#pragma clang deprecated (ATOMIC_VAR_INIT)`.
+      if (real_tok.is_macro_name) {
+        unexpanded_macros.push_back(&real_tok);
+      }
     }
 
   } else if (std::holds_alternative<MacroNodeImpl *>(node)) {
     auto sub = std::get<MacroNodeImpl *>(node);
     for (const Node &sub_node : sub->nodes) {
-      Expand(os, ast, sub_node, sep, last_loc);
+      Expand(os, ast, sub_node, sep, last_loc, unexpanded_macros);
     }
   }
 }
@@ -1449,15 +1435,38 @@ void PatchedMacroTracker::DoEndDirective(
   if (last_directive->kind == MacroKind::kPragmaDirective) {
 
     // We need to emit the pragma tokens as a line in the parsed tokens.
-    // Pragmas are important for things like adjusting structure packing
+    // Pragmas are important for things like adjusting structure packing. One
+    // thing that's tricky about doing this is that we need to expand macros
+    // within the pragmas.
     std::stringstream ss;
     const char *sep = "";
     clang::SourceLocation last_loc;
-    Expand(ss, *ast, last_directive, sep, last_loc);
+    std::vector<const pasta::TokenImpl *> unexpanded_macros;
+    Expand(ss, *ast, last_directive, sep, last_loc, unexpanded_macros);
     D( std::cerr << indent << "Got pragma: " << ss.str() << '\n'; )
 
+    std::string pragma_data = ss.str();
+    
+    // A pragma might reference a macro name which doesn't actually exist. We'll
+    // try to rewrite it into a compatible pragma.
+    if ((pragma_data.find(" deprecated ") != std::string::npos ||
+         pragma_data.find(" poison ") != std::string::npos) &&
+        !unexpanded_macros.empty()) {
+
+      std::stringstream().swap(ss);
+      ss << "# pragma clang poison";
+      for (const TokenImpl *macro_tok : unexpanded_macros) {
+        ss << ' ' << macro_tok->Data(*ast);
+      }
+
+      pragma_data = ss.str();
+      unexpanded_macros.clear();
+    }
+
+    assert(unexpanded_macros.empty());
+
     auto tok_index = static_cast<unsigned>(ast->tokens.size());
-    ast->preprocessed_code.append(ss.str());
+    ast->preprocessed_code.append(pragma_data);
     ast->preprocessed_code.push_back('\n');
     ast->num_lines += 1;
     (void) ast->tokens.emplace_back(

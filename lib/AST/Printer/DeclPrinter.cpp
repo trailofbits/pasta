@@ -561,8 +561,19 @@ void DeclPrinter::VisitDeclContext(clang::DeclContext *DC, bool Indent) {
       continue;
 
     // Skip over implicit declarations in pretty-printing mode.
-    if (D->isImplicit())
-      continue;
+    if (D->isImplicit()) {
+      auto F = clang::dyn_cast<clang::FieldDecl>(*D);
+      if (!F) {
+        continue;
+      }
+
+      if (F->getIdentifier()) {
+        continue;
+      }
+
+      // If it's an implicit field decl, then it might be GNU extension where we
+      // have an anonymous union. 
+    }
 
     // Skip over tags that are defined within declarators.
     if (auto TD = clang::dyn_cast<clang::TagDecl>(*D)) {
@@ -1073,9 +1084,9 @@ void DeclPrinter::VisitFunctionDecl(clang::FunctionDecl *D) {
 
       if (tok.getKind() == clang::tok::comma) {
         return tok.getLocation();
-      } else {
-        return {};
       }
+
+      return {};
     };
 
     ProtoFn = [&, ProtoFn = std::move(ProtoFn)] (void) {
@@ -1741,22 +1752,6 @@ void DeclPrinter::VisitFunctionTemplateDecl(clang::FunctionTemplateDecl *D) {
       }
     }
   }
-
-  // if (PrintInstantiation &&
-  //     !clang::isa<clang::CXXDeductionGuideDecl>(D->getTemplatedDecl())) {
-  //   clang::FunctionDecl *PrevDecl = D->getTemplatedDecl();
-  //   const clang::FunctionDecl *Def;
-  //   if (PrevDecl->isDefined(Def) && Def != PrevDecl)
-  //     return;
-  //   for (auto *I : D->specializations())
-  //     if (I->getTemplateSpecializationKind() == clang::TSK_ImplicitInstantiation) {
-  //       if (!PrevDecl->isThisDeclarationADefinition())
-  //         Out << ";\n";
-  //       Indent();
-  //       prettyPrintPragmas(I);
-  //       Visit(I);
-  //     }
-  // }
 }
 
 void DeclPrinter::VisitVarTemplateDecl(clang::VarTemplateDecl *D) {
@@ -1789,16 +1784,6 @@ void DeclPrinter::VisitClassTemplateDecl(clang::ClassTemplateDecl *D) {
       Visit(I);
     }
   }
-
-  // if (PrintInstantiation) {
-  //   for (auto *I : D->specializations())
-  //     if (I->getSpecializationKind() == clang::TSK_ImplicitInstantiation) {
-  //       if (D->isThisDeclarationADefinition())
-  //         Out << ";";
-  //       Out << "\n";
-  //       Visit(I);
-  //     }
-  // }
 }
 
 void DeclPrinter::VisitClassTemplateSpecializationDecl(clang::ClassTemplateSpecializationDecl *D) {
@@ -2457,22 +2442,44 @@ void DeclPrinter::VisitNonTypeTemplateParmDecl(
   }
 }
 
-// NOTE(pag): This will be in llvm16 I think.
-//void DeclPrinter::VisitHLSLBufferDecl(clang::HLSLBufferDecl *D) {
-//  TokenPrinterContext ctx(Out, D, tokens);
-//  if (D->isCBuffer())
-//    Out << "cbuffer ";
-//  else
-//    Out << "tbuffer ";
-//
-//  Out << *D;
-//
-//  prettyPrintAttributes(D);
-//
-//  Out << " {\n";
-//  VisitDeclContext(D);
-//  Indent() << "}";
-//}
+void DeclPrinter::VisitHLSLBufferDecl(clang::HLSLBufferDecl *D) {
+ TokenPrinterContext ctx(Out, D, tokens);
+ if (D->isCBuffer())
+   Out << "cbuffer ";
+ else
+   Out << "tbuffer ";
+
+ Out << *D;
+
+ prettyPrintAttributes(D);
+
+ Out << " {\n";
+ VisitDeclContext(D);
+ Indent() << "}";
+}
+
+static const char *OptionalTrailingSemiColon(
+    const std::shared_ptr<PrintedTokenRangeImpl> &tokens, clang::Decl *decl) {
+  if (auto fd = clang::dyn_cast<clang::FunctionDecl>(decl)) {
+    if (fd->isExplicitlyDefaulted() || fd->isDeletedAsWritten() ||
+        fd->isPure()) {
+      return ";";
+    } else if (!fd->isThisDeclarationADefinition()) {
+      return ";";
+    }
+
+    if (!tokens->tokens.empty() &&
+        tokens->tokens.back().Kind() == clang::tok::semi) {
+      return "";
+    }
+
+  } else if (tokens->tokens.empty() ||
+             tokens->tokens.back().Kind() != clang::tok::semi) {
+    return ";";
+  }
+
+  return "";
+}
 
 PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
                                             const clang::PrintingPolicy &policy,
@@ -2483,45 +2490,18 @@ PrintedTokenRange PrintedTokenRange::Create(clang::ASTContext &context,
   
   if (decl) {
     PrintingPolicyAdaptor ppa(decl);
-    tokens->ppa = &ppa;
+    PrintingPolicyAdaptorRAII ppa_set_reset(tokens, ppa);
 
     DeclPrinter printer(out, policy, context, *tokens);
     printer.Visit(decl);
 
     // Add a trailing semicolon.
-    auto terminator = "";
-    if (auto fd = clang::dyn_cast<clang::FunctionDecl>(decl)) {
-      if (fd->isExplicitlyDefaulted() || fd->isDeletedAsWritten() ||
-          fd->isPure()) {
-        terminator = ";";
-      } else if (!fd->isThisDeclarationADefinition()) {
-        terminator = ";";
-      }
-
-      if (!tokens->tokens.empty() &&
-          tokens->tokens.back().Kind() == clang::tok::semi) {
-        terminator = "";
-      }
-
-    } else if (tokens->tokens.empty() ||
-               tokens->tokens.back().Kind() != clang::tok::semi) {
-      terminator = ";";
-    }
-
     TokenPrinterContext ctx(out, decl, *tokens);
-    out << terminator;
-
-    tokens->ppa = nullptr;
+    out << OptionalTrailingSemiColon(tokens, decl);
   }
 
-  tokens->tokens.emplace_back(
-      0u, 0u, kInvalidTokenContextIndex, 0u, 0u, clang::tok::eof);
-
-  auto num_tokens = tokens->tokens.size();
-  auto first = &(tokens->tokens[0]);
-  auto after_last = &(first[num_tokens - 1u]);
-
-  return PrintedTokenRange(std::move(tokens), first, after_last);
+  tokens->AddTrailingEOF();
+  return PrintedTokenRangeImpl::ToPrintedTokenRange(std::move(tokens));
 }
 
 PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
@@ -2538,7 +2518,7 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
 
   if (decl) {
     PrintingPolicyAdaptor ppa(ast, high_pp, decl);
-    tokens->ppa = &ppa;
+    PrintingPolicyAdaptorRAII ppa_set_reset(tokens, ppa);
 
     clang::PrintingPolicy pp = *(ast->printing_policy);
     pp.IncludeTagDefinition = high_pp.ShouldPrintTagBodies();
@@ -2547,64 +2527,19 @@ PrintedTokenRange PrintedTokenRange::Create(const std::shared_ptr<ASTImpl> &ast,
     printer.Visit(decl);
 
     // Add a trailing semicolon.
-    auto terminator = "";
-    if (auto fd = clang::dyn_cast<clang::FunctionDecl>(decl)) {
-      if (fd->isExplicitlyDefaulted() || fd->isDeletedAsWritten() ||
-          fd->isPure()) {
-        terminator = ";";
-      } else if (!fd->isThisDeclarationADefinition()) {
-        terminator = ";";
-      }
-
-      if (!tokens->tokens.empty() &&
-          tokens->tokens.back().Kind() == clang::tok::semi) {
-        terminator = "";
-      }
-
-    } else if (tokens->tokens.empty() ||
-               tokens->tokens.back().Kind() != clang::tok::semi) {
-      terminator = ";";
-    }
-
     TokenPrinterContext ctx(out, decl, *tokens);
-    out << terminator;
+    out << OptionalTrailingSemiColon(tokens, decl);
+
+    // Mark the location of the trailing semicolon, if any.
     auto [begin_tok, end_tok] = ast->DeclBounds(decl);
     if (end_tok && end_tok->Kind() == clang::tok::semi) {
       ctx.MarkLocation(*end_tok);
     }
-
-    tokens->ppa = nullptr;
   }
 
-  // Fixup to share the AST as the root context.
-  auto max_i = tokens->contexts.size();
-  for (auto i = 1u; i < max_i; ++i) {
-    TokenContextImpl &context = tokens->contexts[i];
-    if (context.parent_index == kInvalidTokenContextIndex) {
-      context.parent_index = kASTTokenContextIndex;
-    }
-  }
-
-  tokens->tokens.emplace_back(
-      0u, 0u, kInvalidTokenContextIndex, 0u, 0u, clang::tok::eof);
-
-  auto num_tokens = tokens->tokens.size();
-  auto first = &(tokens->tokens[0]);
-  auto after_last = &(first[num_tokens - 1u]);
-
-  for (auto tok = first; tok < after_last; ++tok) {
-    if (tok->context_index == kInvalidTokenContextIndex) {
-      tok->context_index = kASTTokenContextIndex;
-    }
-
-#ifndef NDEBUG
-    if (tok->opaque_source_loc != TokenImpl::kInvalidSourceLocation) {
-      assert(tok->derived_index != kInvalidDerivedTokenIndex);
-    }
-#endif
-  }
-
-  return PrintedTokenRange(std::move(tokens), first, after_last);
+  tokens->FixupInvalidTokenContexts(kASTTokenContextIndex);
+  tokens->AddTrailingEOF();
+  return PrintedTokenRangeImpl::ToPrintedTokenRange(std::move(tokens));
 }
 
 }  // namespace pasta

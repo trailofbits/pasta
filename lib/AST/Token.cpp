@@ -132,25 +132,12 @@ static bool ReadRawTokenData(clang::SourceManager &source_manager,
     }
 
     return !out->empty();
-
-  } else {
-    len = tok.getLength();
-//    len = clang::Lexer::MeasureTokenLength(begin_loc, source_manager,
-//                                           lang_opts);
   }
 
+  len = tok.getLength();
   if (!len) {
     return false;
   }
-
-//  // We'll try to get only valid UTF-8 characters, and printable ASCII
-//  // characters.
-//  //
-//  // TODO(pag): This may be overkill, but the lifetimes of the backing buffers
-//  //            for things like macro expansions is not clear to me, so this
-//  //            is a reasonable way to go about detecting unusual token data
-//  //            that may have been corrupted/reused.
-//  auto can_be_ident = true;
 
   // We can't allow `NUL` characters into our tokens as we'll be using them
   // to split tokens.
@@ -166,15 +153,6 @@ static bool ReadRawTokenData(clang::SourceManager &source_manager,
   }
 
   out->assign(data, len);
-
-//  // Also try to catch errors when reading out identifiers or keywords.
-//  //
-//  // TODO(pag): We can't apply this to keywords as it very frequently triggers
-//  //            in macro definitions, where keyword tokens can contain line
-//  //            continuations and whitespace.
-//  if (!can_be_ident && tok.isAnyIdentifier()) {
-//    // ...
-//  }
 
   return true;
 }
@@ -210,18 +188,21 @@ const TokenContextImpl *TokenContextImpl::CommonAncestor(
        i--; ) {
     if (!a || !b) {
       return nullptr;
+    }
 
-    } else if (a == b) {
+    if (a == b) {
       return a;
+    }
 
-    } else if (a->data == b->data) {
+    if (a->data == b->data) {
       return a;
+    }
 
-    } else if (a->Aliasee(contexts)->data ==
-               b->Aliasee(contexts)->data) {
+    if (a->Aliasee(contexts)->data == b->Aliasee(contexts)->data) {
       return b;
+    }
 
-    } else if (a->depth > b->depth) {
+    if (a->depth > b->depth) {
       a = a->Parent(contexts);
 
     } else if (a->depth < b->depth) {
@@ -323,10 +304,9 @@ const char *TokenContextImpl::KindName(
     case TokenContextKind::kAlias:
       if (auto aliasee = Aliasee(contexts); aliasee != this) {
         return aliasee->KindName(contexts);
-      } else {
-        assert(false);
-        return "Alias";
       }
+      assert(false);
+      return "Alias";
     case TokenContextKind::kString:
       return "String";
     case TokenContextKind::kAST:
@@ -339,36 +319,33 @@ const char *TokenContextImpl::KindName(
 uint32_t TokenContext::Index(void) const {
   if (impl) {
     return static_cast<TokenContextIndex>(impl - &(contexts->front()));
-  } else {
-    return kInvalidTokenContextIndex;
   }
+  return kInvalidTokenContextIndex;
 }
 
 // String representation of this token context kind.
 const char *TokenContext::KindName(void) const {
   if (impl) {
     return impl->KindName(*contexts);
-  } else {
-    return "Invalid";
   }
+
+  return "Invalid";
 }
 
 // Return the kind of this token.
 TokenContextKind TokenContext::Kind(void) const {
   if (impl) {
     return impl->Aliasee(*contexts)->kind;
-  } else {
-    return TokenContextKind::kInvalid;
   }
+  return TokenContextKind::kInvalid;
 }
 
 // Return the data of this context.
 const void *TokenContext::Data(void) const {
   if (impl) {
     return impl->Aliasee(*contexts)->data;
-  } else {
-    return nullptr;
   }
+  return nullptr;
 }
 
 // Return the parent context.
@@ -408,9 +385,9 @@ bool TokenContext::TryUpdateToParent(void) {
   if (auto parent = impl->Parent(*contexts)) {
     impl = parent;
     return true;
-  } else {
-    return false;
   }
+
+  return false;
 }
 
 // Try to update this context to point to its aliasee.
@@ -422,28 +399,28 @@ bool TokenContext::TryUpdateToAliasee(void) {
   if (auto aliasee = impl->Aliasee(*contexts); aliasee != impl) {
     impl = aliasee;
     return true;
-  } else {
-    return false;
   }
+
+  return false;
 }
 
 // Find the token from which this token was derived.
 std::optional<Token> Token::DerivedLocation(void) const {
   if (!impl || impl->derived_index == kInvalidDerivedTokenIndex) {
     return std::nullopt;
-
-  } else if (impl->derived_index < Index()) {
-    return Token(ast, &(ast->tokens[impl->derived_index]));
-
-  } else {
-    assert(false);
-    return std::nullopt;
   }
+
+  if (impl->derived_index < Index()) {
+    return Token(ast, &(ast->tokens[impl->derived_index]));
+  }
+
+  assert(false);
+  return std::nullopt;
 }
 
 // Follow this token's derived token list and accumulate results along the
-  // way. The result vector's first element is this token, and the last element
-  // is the first token this token was derived from.
+// way. The result vector's first element is this token, and the last element
+// is the first token this token was derived from.
 std::vector<Token> Token::DerivationChain(void) const {
   std::optional<Token> cur = std::optional(*this);
   std::vector<Token> derivation_chain;
@@ -469,14 +446,14 @@ std::optional<FileToken> Token::FileLocation(void) const {
     loc = tok.Location();
     if (loc.isInvalid()) {
       return std::nullopt;
-
-    } else if (loc.isFileID()) {
-      break;
-
-    } else {
-      max_index = tok_index;
-      tok_index = tok.derived_index;
     }
+
+    if (loc.isFileID()) {
+      break;
+    }
+
+    max_index = tok_index;
+    tok_index = tok.derived_index;
   }
 
   return ast->FileTokenAt(loc);
@@ -495,13 +472,13 @@ std::optional<MacroToken> Token::MacroLocation(void) const {
     case TokenRole::kFinalMacroExpansionToken:
       if (impl->context_index == kInvalidTokenContextIndex) {
         return std::nullopt;
-      } else if (impl->context_index >= ast->root_macro_node.token_nodes.size()) {
+      }
+      if (impl->context_index >= ast->root_macro_node.token_nodes.size()) {
         assert(false);
         return std::nullopt;
-      } else {
-        return MacroToken(
-            ast, &(ast->root_macro_node.token_nodes[impl->context_index]));
       }
+      return MacroToken(
+          ast, &(ast->root_macro_node.token_nodes[impl->context_index]));
   }
 }
 
@@ -553,27 +530,24 @@ bool Token::IsDerivedFromMacro(const Macro &macro) const noexcept {
 TokenKind Token::Kind(void) const noexcept {
   if (impl) {
     return static_cast<TokenKind>(impl->Kind());
-  } else {
-    return TokenKind::kUnknown;
   }
+  return TokenKind::kUnknown;
 }
 
 // Return the role of this token.
 TokenRole Token::Role(void) const noexcept {
   if (impl) {
     return impl->Role();
-  } else {
-    return TokenRole::kInvalid;
   }
+  return TokenRole::kInvalid;
 }
 
 // Kind of this token.
 const char *Token::KindName(void) const noexcept {
   if (impl) {
     return clang::tok::getTokenName(impl->Kind());
-  } else {
-    return clang::tok::getTokenName(clang::tok::unknown);
   }
+  return clang::tok::getTokenName(clang::tok::unknown);
 }
 
 // Return the context of this token, or `nullptr`.
@@ -589,25 +563,27 @@ const TokenContextImpl *TokenImpl::Context(
     case TokenRole::kEndOfInternalMacroEventMarker:
       if (ci == kInvalidTokenContextIndex) {
         return nullptr;
-      } else if (ci >= ast.root_macro_node.token_nodes.size()) {
+      }
+      if (ci >= ast.root_macro_node.token_nodes.size()) {
         assert(false);
         return nullptr;
-      } else {
-        ci = ast.root_macro_node.tokens[ci].token_context;
-        break;
       }
+      ci = ast.root_macro_node.tokens[ci].token_context;
+      break;
     default:
       break;
   }
 
   if (ci == kInvalidTokenContextIndex) {
     return nullptr;
-  } else if (ci >= contexts.size()) {
+  }
+
+  if (ci >= contexts.size()) {
     assert(false);
     return nullptr;
-  } else {
-    return &(contexts[ci]);
   }
+
+  return &(contexts[ci]);
 }
 
 std::string_view TokenImpl::Data(const ASTImpl &ast) const noexcept {
@@ -615,13 +591,11 @@ std::string_view TokenImpl::Data(const ASTImpl &ast) const noexcept {
     if (0 <= data_offset) {
       return std::string_view(ast.preprocessed_code).substr(
           static_cast<uint32_t>(data_offset), data_len);
-    } else {
-      return std::string_view(ast.backup_token_data).substr(
-          static_cast<uint32_t>(-data_offset), data_len);
     }
-  } else {
-    return {};
+    return std::string_view(ast.backup_token_data).substr(
+        static_cast<uint32_t>(-data_offset), data_len);
   }
+  return {};
 }
 
 std::string_view TokenImpl::Data(
@@ -629,27 +603,24 @@ std::string_view TokenImpl::Data(
   if (data_len) {
     return std::string_view(range.data).substr(
         static_cast<uint32_t>(data_offset), data_len);
-  } else {
-    return {};
   }
+  return {};
 }
 
 // Return the data associated with this token.
 std::string_view Token::Data(void) const {
   if (!impl) {
     return {};
-  } else {
-    return impl->Data(*ast);
   }
+  return impl->Data(*ast);
 }
 
 // Index of this token in the AST's token list.
 uint64_t Token::Index(void) const {
   if (impl) {
     return static_cast<uint64_t>(impl - ast->tokens.data());
-  } else {
-    return std::numeric_limits<uint64_t>::max();
   }
+  return std::numeric_limits<uint64_t>::max();
 }
 
 // Returns the first final expansion or file token in the AST after this token.
@@ -671,7 +642,7 @@ std::optional<Token> Token::PrevFinalExpansionOrFileToken(void) const noexcept {
   uint64_t i = Index();
   // If this is the first token in the AST, then no token precedes it. Return
   // early to avoid accidental integer underflow.
-  if (i == 0) {
+  if (!i) {
     return std::nullopt;
   }
   const auto &tokens = ast->tokens;
@@ -764,9 +735,8 @@ std::optional<Token> TokenRange::At(size_t index) const noexcept {
   auto size = static_cast<size_t>(after_last - first);
   if (index < size) {
     return Token(ast, &(first[index]));
-  } else {
-    return std::nullopt;
   }
+  return std::nullopt;
 }
 
 // Unsafe indexed access into the token range.
@@ -953,9 +923,10 @@ bool TryReadRawToken(clang::SourceManager &source_manager,
   // it could be one of our special macro-expansion EOFs.
   if (tok.is(clang::tok::eof)) {
     return true;
+  }
 
   // Annotations are things like `#pragma`s.
-  } else if (tok.isAnnotation()) {
+  if (tok.isAnnotation()) {
 
   // A token that has trigraphs or digraphs is one that needs to be cleaned up.
   // The identifier info or literal data info of a token is the post-cleaning
@@ -1024,9 +995,8 @@ bool TryLexRawToken(clang::SourceManager &source_manager,
   if (loc.isFileID()) {
     return !clang::Lexer::getRawToken(
         loc, *out, source_manager, lang_opts, true);
-  } else {
-    return false;
   }
+  return false;
 }
 
 // Try to lex the data at `loc` into the token `*out`.
